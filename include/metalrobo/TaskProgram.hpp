@@ -136,6 +136,11 @@ enum class TaskRandomizationOperator : std::uint32_t {
     actionVelocity = MR_TASK_RANDOMIZE_ACTION_VELOCITY,
 };
 
+enum class TaskEventOperator : std::uint32_t {
+    generalizedVelocityDelta =
+        MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA,
+};
+
 struct TaskActionBinding {
     std::string joint;
     float scale = 0.25f;
@@ -310,6 +315,27 @@ struct TaskCommandProgram {
     float maximumDurationSeconds = 10.0f;
 };
 
+struct TaskEventSpec {
+    std::string id;
+    TaskEventOperator operation =
+        TaskEventOperator::generalizedVelocityDelta;
+    // Semantic generalized-velocity coordinate resolved by the compiler.
+    std::string target;
+    float initialLower = 0.0f;
+    float initialUpper = 0.0f;
+    float finalLower = 0.0f;
+    float finalUpper = 0.0f;
+};
+
+struct TaskEventProgram {
+    // The first production event operator applies a sampled additive delta to
+    // a named generalized velocity. All records in this cohort share one
+    // compiled schedule; per-event schedules remain a later typed extension.
+    std::vector<TaskEventSpec> values;
+    float minimumIntervalSeconds = 2.0f;
+    float maximumIntervalSeconds = 5.0f;
+};
+
 struct TaskPhaseProgram {
     // Period of the generic accepted-step phase oscillator used by authored
     // contact-intent signals. This is task data, not a locomotion runtime mode.
@@ -326,12 +352,6 @@ struct TaskCurriculumProgram {
     // Fraction of completed, non-physics episodes that must reach the time
     // limit during a curriculum window before difficulty advances.
     float minimumEpisodeSurvivalFraction = 0.0f;
-};
-
-struct TaskPushProgram {
-    float maximumVelocity = 0.0f;
-    float minimumIntervalSeconds = 2.0f;
-    float maximumIntervalSeconds = 5.0f;
 };
 
 struct TaskTerrainProgram {
@@ -362,9 +382,9 @@ struct TaskPack {
     std::vector<TaskTerminationOperatorSpec> terminations;
     std::vector<TaskRandomizationOperatorSpec> randomization;
     TaskCommandProgram commands;
+    TaskEventProgram events;
     TaskPhaseProgram phase;
     TaskCurriculumProgram curriculum;
-    TaskPushProgram pushes;
     TaskTerrainProgram terrain;
     std::uint32_t maximumEpisodeSteps = 1000u;
     std::uint32_t maximumActionDelaySteps = 0u;
@@ -412,6 +432,7 @@ struct TaskProgramLayout {
     // Ordinary mechanics sources remain direct and allocate no extra value.
     std::uint32_t signalSensorScratchCount = 0u;
     std::uint32_t commandCount = 0u;
+    std::uint32_t eventCount = 0u;
     // Contact reductions followed by named scalar commands.
     std::uint32_t scalarStateCount = 0u;
     std::uint32_t recorderCount = 0u;
@@ -453,6 +474,10 @@ public:
     commandOperators() const noexcept;
     [[nodiscard]] std::span<const std::string>
     commandIds() const noexcept;
+    [[nodiscard]] std::span<const MRTaskEventOperatorGPU>
+    eventOperators() const noexcept;
+    [[nodiscard]] std::span<const std::string>
+    eventIds() const noexcept;
     [[nodiscard]] std::span<const MRTaskContactGroupGPU>
     contactGroups() const noexcept;
     [[nodiscard]] std::span<const std::uint32_t>

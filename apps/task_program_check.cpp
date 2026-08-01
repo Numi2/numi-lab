@@ -363,6 +363,7 @@ struct FixedBaseTaskEvidence {
     std::uint64_t pipelineCount = 0u;
     float forceNormNewtons = 0.0f;
     float torqueNormNewtonMetres = 0.0f;
+    float eventVelocityDelta = 0.0f;
 };
 
 FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
@@ -830,6 +831,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         compiled.task.layout().actorObservationSize != 12u ||
         compiled.task.layout().criticObservationSize != 8u ||
         compiled.task.layout().commandCount != 5u ||
+        compiled.task.layout().eventCount != 0u ||
         compiled.task.layout().scalarStateCount != 5u ||
         compiled.task.sensorFingerprint() !=
             compiled.sensors.fingerprint() ||
@@ -1568,6 +1570,212 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         fail(
             "fixed-base task did not execute through the generic Metal task graph: " +
             executed.message
+        );
+    }
+
+    // Compile and execute a fixed-base event cohort to prove that events are
+    // semantic generalized-velocity operators, not a floating-root/G1 push
+    // branch. Two records deliberately target the same coordinate so Metal
+    // must accumulate the compiled table in deterministic order.
+    metalrobo::TaskPack fixedEventTask = authored.task;
+    fixedEventTask.id = "fixed_base_velocity_event_fixture";
+    fixedEventTask.events.values = {
+        {
+            .id = "positive_axis_delta",
+            .operation =
+                metalrobo::TaskEventOperator::
+                    generalizedVelocityDelta,
+            .target = "axis",
+            .initialLower = 0.2f,
+            .initialUpper = 0.2f,
+            .finalLower = 0.2f,
+            .finalUpper = 0.2f,
+        },
+        {
+            .id = "negative_axis_delta",
+            .operation =
+                metalrobo::TaskEventOperator::
+                    generalizedVelocityDelta,
+            .target = "axis",
+            .initialLower = -0.1f,
+            .initialUpper = 0.0f,
+            .finalLower = -0.1f,
+            .finalUpper = 0.0f,
+        },
+    };
+    fixedEventTask.events.minimumIntervalSeconds = 0.02f;
+    fixedEventTask.events.maximumIntervalSeconds = 0.02f;
+    metalrobo::CompiledTaskProgram fixedEventProgram;
+    const auto fixedEventCompile = metalrobo::compileTaskProgram(
+        fixedEventTask,
+        compiled.world,
+        compiled.sensors,
+        fixedEventProgram
+    );
+    if (!fixedEventCompile.succeeded() ||
+        !fixedEventProgram.valid() ||
+        fixedEventProgram.layout().eventCount != 2u ||
+        fixedEventProgram.header().counts1.z != 2u ||
+        fixedEventProgram.header().offsets1.z == 0u ||
+        !std::ranges::equal(
+            fixedEventProgram.eventIds(),
+            std::array<std::string, 2u>{
+                "positive_axis_delta",
+                "negative_axis_delta",
+            }
+        ) ||
+        fixedEventProgram.eventOperators()[0u].target.x !=
+            MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA ||
+        fixedEventProgram.eventOperators()[0u].target.y != 0u ||
+        fixedEventProgram.eventOperators()[1u].target.y != 0u ||
+        fixedEventProgram.eventOperators()[0u].initialRange.x !=
+            0.2f ||
+        fixedEventProgram.eventOperators()[1u].initialRange.x !=
+            -0.1f ||
+        fixedEventProgram.eventOperators()[1u].initialRange.y !=
+            0.0f) {
+        fail(
+            "fixed-base semantic velocity event cohort did not compile"
+        );
+    }
+    constexpr std::size_t eventSteps = 3u;
+    constexpr std::uint64_t eventSeed =
+        0x51c43a9d7e2b608full;
+    const std::vector<float> eventActions(eventSteps, 0.0f);
+    const std::vector<std::uint32_t> eventResetMasks(
+        eventSteps,
+        0u
+    );
+    const std::span<const float> eventInitialQ{
+        initialQ.data(),
+        compiled.world.nq(),
+    };
+    const std::span<const float> eventInitialV{
+        initialV.data(),
+        compiled.world.nv(),
+    };
+    const std::span<const MRBodyStateGPU> eventInitialScene{
+        initialSceneBodies.data(),
+        authored.sceneBodies.size(),
+    };
+    auto runEventFixture = [&] (
+        const metalrobo::CompiledTaskProgram& task,
+        const std::uint64_t seed,
+        metalrobo::MetalWorldResult& output
+    ) {
+        metalrobo::MetalWorldStepConfig eventStep = step;
+        eventStep.taskProgram = task;
+        eventStep.policyProgram = {};
+        eventStep.evaluateFinalPolicy = false;
+        eventStep.taskSeed = seed;
+        metalrobo::MetalWorldContext eventContext(
+            contextConfiguration
+        );
+        return eventContext.run(
+            compiled.world,
+            {
+                .environmentCount = 1u,
+                .controlStepCount = eventSteps,
+                .initialQ = eventInitialQ,
+                .initialV = eventInitialV,
+                .actions = eventActions,
+                .resetMasks = eventResetMasks,
+                .initialSceneBodies = eventInitialScene,
+            },
+            eventStep,
+            output
+        );
+    };
+    metalrobo::MetalWorldResult fixedEventResult;
+    metalrobo::MetalWorldResult fixedEventReplay;
+    metalrobo::MetalWorldResult fixedEventAlternateSeed;
+    metalrobo::MetalWorldResult noEventResult;
+    const auto fixedEventExecuted = runEventFixture(
+        fixedEventProgram,
+        eventSeed,
+        fixedEventResult
+    );
+    const auto fixedEventReplayed = runEventFixture(
+        fixedEventProgram,
+        eventSeed,
+        fixedEventReplay
+    );
+    const auto fixedEventAlternateExecuted = runEventFixture(
+        fixedEventProgram,
+        eventSeed + 1u,
+        fixedEventAlternateSeed
+    );
+    const auto noEventExecuted = runEventFixture(
+        compiled.task,
+        eventSeed,
+        noEventResult
+    );
+    const MRTaskEventOperatorGPU& sampledEvent =
+        fixedEventProgram.eventOperators()[1u];
+    const std::uint64_t sampledEventIdentity =
+        static_cast<std::uint64_t>(sampledEvent.target.z) |
+        (static_cast<std::uint64_t>(sampledEvent.target.w) << 32u);
+    float expectedEventDelta = 0.0f;
+    for (std::uint32_t episodeStep : {1u, 2u}) {
+        expectedEventDelta += 0.2f;
+        expectedEventDelta += -0.1f + 0.1f *
+            mr_semantic_counter_uniform(
+                eventSeed,
+                0u,
+                1u,
+                sampledEventIdentity,
+                episodeStep,
+                0u,
+                MR_COUNTER_PURPOSE_TASK_EVENT
+            );
+    }
+    const float measuredEventDelta =
+        fixedEventResult.finalV.empty() ||
+            noEventResult.finalV.empty()
+        ? 0.0f
+        : fixedEventResult.finalV[0u] - noEventResult.finalV[0u];
+    if (!fixedEventExecuted.succeeded() ||
+        !fixedEventReplayed.succeeded() ||
+        !fixedEventAlternateExecuted.succeeded() ||
+        !noEventExecuted.succeeded() ||
+        fixedEventResult.finalV != fixedEventReplay.finalV ||
+        fixedEventResult.finalQ != fixedEventReplay.finalQ ||
+        fixedEventResult.actorObservations !=
+            fixedEventReplay.actorObservations ||
+        fixedEventResult.finalV ==
+            fixedEventAlternateSeed.finalV ||
+        fixedEventResult.transitions.size() != eventSteps ||
+        fixedEventResult.finalV.size() != compiled.world.nv() ||
+        noEventResult.finalV.size() != compiled.world.nv() ||
+        measuredEventDelta <= 0.2f ||
+        !(expectedEventDelta > 0.2f &&
+          expectedEventDelta < 0.4f)) {
+        fail(
+            "compiled fixed-base event cohort did not execute deterministically: " +
+            fixedEventExecuted.message + " / " +
+            fixedEventReplayed.message + " / " +
+            fixedEventAlternateExecuted.message + " / " +
+            noEventExecuted.message +
+            " replay_v=" + std::to_string(
+                fixedEventResult.finalV == fixedEventReplay.finalV
+            ) +
+            " replay_q=" + std::to_string(
+                fixedEventResult.finalQ == fixedEventReplay.finalQ
+            ) +
+            " replay_actor=" + std::to_string(
+                fixedEventResult.actorObservations ==
+                    fixedEventReplay.actorObservations
+            ) +
+            " event_v=" +
+            (fixedEventResult.finalV.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(fixedEventResult.finalV[0u])) +
+            " baseline_v=" +
+            (noEventResult.finalV.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(noEventResult.finalV[0u])) +
+            " delta=" + std::to_string(measuredEventDelta) +
+            " expected=" + std::to_string(expectedEventDelta)
         );
     }
     constexpr std::uint64_t corruptionSeed =
@@ -2960,6 +3168,30 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         !roundTripStatus.succeeded() ||
         roundTrip.fingerprint() != compiled.task.fingerprint()) {
         fail("typed TaskPack round trip changed frame or goal semantics");
+    }
+    const auto eventTaskWrite = metalrobo::writeTaskPack(
+        fixedEventTask,
+        packFiles.task
+    );
+    metalrobo::TaskPack restoredEventTask;
+    const auto eventTaskRead = metalrobo::readTaskPack(
+        packFiles.task,
+        restoredEventTask
+    );
+    metalrobo::CompiledTaskProgram roundTripEventProgram;
+    const auto roundTripEventStatus =
+        metalrobo::compileTaskProgram(
+            restoredEventTask,
+            compiled.world,
+            compiled.sensors,
+            roundTripEventProgram
+        );
+    if (!eventTaskWrite.succeeded() ||
+        !eventTaskRead.succeeded() ||
+        !roundTripEventStatus.succeeded() ||
+        roundTripEventProgram.fingerprint() !=
+            fixedEventProgram.fingerprint()) {
+        fail("TaskPack round trip changed compiled event semantics");
     }
 
     metalrobo::TaskPack missingReference = authored.task;
@@ -4937,6 +5169,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .pipelineCount = taskPipelineCount,
         .forceNormNewtons = forceNormNewtons,
         .torqueNormNewtonMetres = torqueNormNewtonMetres,
+        .eventVelocityDelta = measuredEventDelta,
     };
 }
 
@@ -5275,6 +5508,7 @@ int main() {
             layout.scalarStateCount != 40u ||
             layout.delayStateCount != 2u ||
             layout.commandCount != 3u ||
+            layout.eventCount != 2u ||
             layout.recorderCount != 3u) {
             fail("compiled G1 task layout changed");
         }
@@ -5297,6 +5531,7 @@ int main() {
             ) > 1.0e-6f ||
             program.header().counts0.w != 4u ||
             program.header().counts1.y != 3u ||
+            program.header().counts1.z != 2u ||
             program.header().counts1.w != 19u ||
             program.header().counts2.x != 2u ||
             program.header().counts2.y != 5u ||
@@ -5320,7 +5555,7 @@ int main() {
             program.header().commandSchedule.y != 10.0f ||
             program.header().commandSchedule.z != 10.0f ||
             program.header().commandSchedule.w != 0.0f ||
-            program.header().eventSchedule.x != 0.5f ||
+            program.header().eventSchedule.x != 0.0f ||
             program.header().eventSchedule.y != 5.0f ||
             program.header().eventSchedule.z != 5.0f ||
             program.header().eventSchedule.w != 0.0f ||
@@ -5389,6 +5624,36 @@ int main() {
             program.commandOperators()[1].identity.w != 0u ||
             program.commandOperators()[2].identity.z != 0u ||
             program.commandOperators()[2].identity.w != 0u ||
+            !std::ranges::equal(
+                program.eventIds(),
+                std::array<std::string, 2u>{
+                    "root_velocity_delta_x",
+                    "root_velocity_delta_y",
+                }
+            ) ||
+            program.eventOperators().size() != 2u ||
+            program.eventOperators()[0].target.x !=
+                MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA ||
+            program.eventOperators()[0].target.y != 0u ||
+            program.eventOperators()[1].target.x !=
+                MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA ||
+            program.eventOperators()[1].target.y != 1u ||
+            program.eventOperators()[0].initialRange.x != 0.0f ||
+            program.eventOperators()[0].initialRange.y != 0.0f ||
+            program.eventOperators()[0].finalRange.x != -0.5f ||
+            program.eventOperators()[0].finalRange.y != 0.5f ||
+            program.eventOperators()[1].initialRange.x != 0.0f ||
+            program.eventOperators()[1].initialRange.y != 0.0f ||
+            program.eventOperators()[1].finalRange.x != -0.5f ||
+            program.eventOperators()[1].finalRange.y != 0.5f ||
+            (program.eventOperators()[0].target.z == 0u &&
+             program.eventOperators()[0].target.w == 0u) ||
+            (program.eventOperators()[1].target.z == 0u &&
+             program.eventOperators()[1].target.w == 0u) ||
+            (program.eventOperators()[0].target.z ==
+                 program.eventOperators()[1].target.z &&
+             program.eventOperators()[0].target.w ==
+                 program.eventOperators()[1].target.w) ||
             program.terminationOperators()[0].parameters.y !=
                 -2.0f ||
             program.terminationOperators()[1].parameters.y !=
@@ -5688,6 +5953,76 @@ int main() {
             repeated.fingerprint() != preserved) {
             fail(
                 "invalid scalar command range was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack duplicateEvent = authored.task;
+        duplicateEvent.events.values[1u].id =
+            duplicateEvent.events.values[0u].id;
+        const auto duplicateEventRejected =
+            metalrobo::compileTaskProgram(
+                duplicateEvent,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (duplicateEventRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "duplicate event identity was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack unresolvedEvent = authored.task;
+        unresolvedEvent.events.values[0u].target =
+            "missing_generalized_velocity";
+        const auto unresolvedEventRejected =
+            metalrobo::compileTaskProgram(
+                unresolvedEvent,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (unresolvedEventRejected.status !=
+                metalrobo::TaskCompileStatus::unresolvedSemantic ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "unresolved event coordinate was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack invalidEventRange = authored.task;
+        invalidEventRange.events.values[0u].initialLower = 1.0f;
+        invalidEventRange.events.values[0u].initialUpper = -1.0f;
+        const auto invalidEventRangeRejected =
+            metalrobo::compileTaskProgram(
+                invalidEventRange,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (invalidEventRangeRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "invalid event range was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack unsupportedEvent = authored.task;
+        unsupportedEvent.events.values[0u].operation =
+            static_cast<metalrobo::TaskEventOperator>(
+                MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA + 1u
+            );
+        const auto unsupportedEventRejected =
+            metalrobo::compileTaskProgram(
+                unsupportedEvent,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (unsupportedEventRejected.status !=
+                metalrobo::TaskCompileStatus::unsupportedOperator ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "unsupported event operator was not transactionally rejected"
             );
         }
         metalrobo::TaskPack duplicateRecorder = authored.task;
@@ -6089,6 +6424,7 @@ int main() {
             << "/" << MR_RUNTIME_PIPELINE_COUNT
             << " force_n=" << fixedBase.forceNormNewtons
             << " torque_nm=" << fixedBase.torqueNormNewtonMetres
+            << " event_dv=" << fixedBase.eventVelocityDelta
             << " sensor_transaction=pass"
             << " physical_transaction=pass"
             << " task_transaction=pass"

@@ -1486,6 +1486,60 @@ inline void sampleCommands(
     }
 }
 
+inline void applyEventCohort(
+    device const MRTaskDispatchGPU& dispatch,
+    device const MRTaskProgramHeaderGPU& program,
+    device const MRTaskEventOperatorGPU* events,
+    const uint environment,
+    const uint episode,
+    const uint episodeStep,
+    const uint curriculum,
+    device float* v
+) {
+    const float progress = clamp(
+        float(curriculum) /
+            max(float(program.curriculum.x - 1u), 1.0f),
+        0.0f,
+        1.0f
+    );
+    for (uint eventIndex = 0u;
+         eventIndex < program.counts1.z;
+         ++eventIndex) {
+        const MRTaskEventOperatorGPU operation =
+            events[eventIndex];
+        const float lower = mix(
+            operation.initialRange.x,
+            operation.finalRange.x,
+            progress
+        );
+        const float upper = mix(
+            operation.initialRange.y,
+            operation.finalRange.y,
+            progress
+        );
+        const ulong identity =
+            ulong(operation.target.z) |
+            (ulong(operation.target.w) << 32u);
+        const float unit = mr_semantic_counter_uniform(
+            dispatch.seed,
+            environment,
+            episode,
+            identity,
+            episodeStep,
+            0u,
+            MR_COUNTER_PURPOSE_TASK_EVENT
+        );
+        const float value = lower + (upper - lower) * unit;
+        switch (operation.target.x) {
+        case MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA:
+            v[operation.target.y] += value;
+            break;
+        default:
+            break;
+        }
+    }
+}
+
 } // namespace
 
 // Journals only task state that can be mutated before a physics transaction
@@ -1895,6 +1949,11 @@ kernel void mr_task_observe(
             arena,
             program.offsets3.y
         );
+    device const MRTaskEventOperatorGPU* eventOperators =
+        taskTable<MRTaskEventOperatorGPU>(
+            arena,
+            program.offsets1.z
+        );
     device const MRTaskFrameGPU* frames =
         taskTable<MRTaskFrameGPU>(
             arena,
@@ -2297,15 +2356,17 @@ kernel void mr_task_observe(
                 program.commandSchedule.y,
                 program.commandSchedule.z
             ),
-            durationSteps(
-                dispatch,
-                environment,
-                episode,
-                0u,
-                33u,
-                program.eventSchedule.y,
-                program.eventSchedule.z
-            ),
+            program.counts1.z == 0u
+                ? 0u
+                : durationSteps(
+                      dispatch,
+                      environment,
+                      episode,
+                      0u,
+                      33u,
+                      program.eventSchedule.y,
+                      program.eventSchedule.z
+                  ),
             actionDelay,
             observationDelay
         );
@@ -2455,7 +2516,6 @@ kernel void mr_task_observe(
         }
     }
 
-    taskStates[environment] = state;
     const uint actorOutputBase =
         pass.controlStep * dispatch.outputs.x +
         environment *
@@ -2484,35 +2544,32 @@ kernel void mr_task_observe(
         criticObservations + criticOutputBase
     );
 
-    if (!reset && state.schedule.y == 0u &&
-        (program.schedule.w &
-         MR_TASK_PROGRAM_FLOATING_ROOT) != 0u &&
-        program.eventSchedule.x > 0.0f) {
-        const float progress = clamp(
-            float(state.episode.z) /
-                max(float(program.curriculum.x - 1u), 1.0f),
-            0.0f,
-            1.0f
-        );
-        sourceV[vBase + program.root.w + 0u] +=
-            progress * program.eventSchedule.x *
-            randomSigned(
+    if (!reset && program.counts1.z != 0u) {
+        if (state.schedule.y <= 1u) {
+            applyEventCohort(
+                dispatch,
+                program,
+                eventOperators,
+                environment,
+                state.episode.y,
+                state.episode.x,
+                state.episode.z,
+                sourceV + vBase
+            );
+            state.schedule.y = durationSteps(
                 dispatch,
                 environment,
                 state.episode.y,
                 state.episode.x,
-                48u
+                65u,
+                program.eventSchedule.y,
+                program.eventSchedule.z
             );
-        sourceV[vBase + program.root.w + 1u] +=
-            progress * program.eventSchedule.x *
-            randomSigned(
-                dispatch,
-                environment,
-                state.episode.y,
-                state.episode.x,
-                49u
-            );
+        } else {
+            --state.schedule.y;
+        }
     }
+    taskStates[environment] = state;
 
 }
 
@@ -4057,20 +4114,6 @@ kernel void mr_task_complete(
     } else if (!done) {
         --state.schedule.x;
     }
-    if (state.schedule.y == 0u || done) {
-        state.schedule.y = durationSteps(
-            dispatch,
-            environment,
-            state.episode.y,
-            episodeSteps,
-            65u,
-            program.eventSchedule.y,
-            program.eventSchedule.z
-        );
-    } else {
-        --state.schedule.y;
-    }
-
     state.episode = uint4(
         episodeSteps,
         state.episode.y,

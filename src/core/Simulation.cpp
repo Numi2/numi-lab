@@ -710,9 +710,30 @@ TaskPack makeUnitreeG1TaskPack(
     task.curriculum.minimumEpisodeSurvivalFraction = 0.8f;
     task.commands.minimumDurationSeconds = 10.0f;
     task.commands.maximumDurationSeconds = 10.0f;
-    task.pushes.maximumVelocity = 0.5f;
-    task.pushes.minimumIntervalSeconds = 5.0f;
-    task.pushes.maximumIntervalSeconds = 5.0f;
+    task.events.values = {
+        {
+            .id = "root_velocity_delta_x",
+            .operation =
+                TaskEventOperator::generalizedVelocityDelta,
+            .target = "root_linear_x",
+            .initialLower = 0.0f,
+            .initialUpper = 0.0f,
+            .finalLower = -0.5f,
+            .finalUpper = 0.5f,
+        },
+        {
+            .id = "root_velocity_delta_y",
+            .operation =
+                TaskEventOperator::generalizedVelocityDelta,
+            .target = "root_linear_y",
+            .initialLower = 0.0f,
+            .initialUpper = 0.0f,
+            .finalLower = -0.5f,
+            .finalUpper = 0.5f,
+        },
+    };
+    task.events.minimumIntervalSeconds = 5.0f;
+    task.events.maximumIntervalSeconds = 5.0f;
 
     task.actions.reserve(metadata.jointLimits.size());
     for (const G1JointLimit& joint : metadata.jointLimits) {

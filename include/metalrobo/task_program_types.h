@@ -2,8 +2,10 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 23u
+#define MR_TASK_PROGRAM_ABI_VERSION 24u
 #define MR_TASK_TRANSITION_METRIC_COUNT 3u
+
+#define MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA 0u
 
 #define MR_TASK_GOAL_FIXED 0u
 #define MR_TASK_GOAL_SAMPLED_EPISODE 1u
@@ -213,7 +215,7 @@ typedef struct MR_ALIGN16 MRTaskDispatchGPU {
 typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // actions, actor-frame operators, critic operators, contact groups.
     mr_uint4 counts0;
-    // contact members, recorder operators, reserved, reward operators.
+    // contact members, recorder operators, event operators, reward operators.
     mr_uint4 counts1;
     // termination operators, randomization operators, bias slots,
     // terrain-sample offsets.
@@ -234,12 +236,12 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_float4 taskScalars;
     // Cohort-zero probability and command duration min/max, seconds.
     mr_float4 commandSchedule;
-    // Push velocity magnitude and interval min/max, seconds.
+    // Reserved and shared event interval min/max, seconds.
     mr_float4 eventSchedule;
     // Byte offsets in the immutable packed task arena:
     // action bindings, actor operators, critic operators, contact groups.
     mr_uint4 offsets0;
-    // contact members, recorder operators, reserved, reward operators.
+    // contact members, recorder operators, event operators, reward operators.
     mr_uint4 offsets1;
     // termination operators, randomization operators, bias specs, terrain
     // samples.
@@ -297,6 +299,15 @@ typedef struct MR_ALIGN16 MRTaskCommandOperatorGPU {
     // Stable counter-RNG identity low/high and reserved values.
     mr_uint4 identity;
 } MRTaskCommandOperatorGPU;
+
+typedef struct MR_ALIGN16 MRTaskEventOperatorGPU {
+    // Opcode, resolved generalized-velocity index, stable identity low/high.
+    mr_uint4 target;
+    // Lower/upper value at curriculum progress zero; reserved values.
+    mr_float4 initialRange;
+    // Lower/upper value at curriculum progress one; reserved values.
+    mr_float4 finalRange;
+} MRTaskEventOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskContactGroupGPU {
     // member offset/count, flags, compact metric offset.
@@ -380,7 +391,7 @@ typedef struct MR_ALIGN16 MRTaskBiasSpecGPU {
 typedef struct MR_ALIGN16 MRTaskStateGPU {
     // episode step, episode index, curriculum level, terrain level.
     mr_uint4 episode;
-    // command steps, push steps, actuator delay, observation delay.
+    // command steps, shared event steps, actuator delay, observation delay.
     mr_uint4 schedule;
     // initialized, pending reset, last termination, reserved.
     mr_uint4 status;
@@ -428,6 +439,7 @@ static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 64u);
 static_assert(sizeof(MRTaskSignalOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskCommandOperatorGPU) == 48u);
+static_assert(sizeof(MRTaskEventOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
 static_assert(sizeof(MRTaskFrameGPU) == 48u);
 static_assert(sizeof(MRTaskGoalGPU) == 160u);

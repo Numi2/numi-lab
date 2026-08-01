@@ -926,15 +926,27 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.commands.zeroProbability);
     writer.pod(pack.commands.minimumDurationSeconds);
     writer.pod(pack.commands.maximumDurationSeconds);
+    writeRichVector(
+        writer,
+        pack.events.values,
+        [](Writer& target, const TaskEventSpec& value) {
+            target.string(value.id);
+            writeEnum(target, value.operation);
+            target.string(value.target);
+            target.pod(value.initialLower);
+            target.pod(value.initialUpper);
+            target.pod(value.finalLower);
+            target.pod(value.finalUpper);
+        }
+    );
+    writer.pod(pack.events.minimumIntervalSeconds);
+    writer.pod(pack.events.maximumIntervalSeconds);
     writer.pod(pack.phase.periodSeconds);
     writer.pod(pack.curriculum.levelCount);
     writer.pod(pack.curriculum.evaluationWindowSteps);
     writer.string(pack.curriculum.successSignal);
     writer.pod(pack.curriculum.successThreshold);
     writer.pod(pack.curriculum.minimumEpisodeSurvivalFraction);
-    writer.pod(pack.pushes.maximumVelocity);
-    writer.pod(pack.pushes.minimumIntervalSeconds);
-    writer.pod(pack.pushes.maximumIntervalSeconds);
     writer.string(pack.terrain.body);
     writer.vector(pack.terrain.sampleOffsets);
     writer.vector(pack.terrain.resetTranslations);
@@ -1104,6 +1116,21 @@ bool deserializeTask(
         !reader.pod(pack.commands.zeroProbability) ||
         !reader.pod(pack.commands.minimumDurationSeconds) ||
         !reader.pod(pack.commands.maximumDurationSeconds) ||
+        !readRichVector(
+            reader,
+            pack.events.values,
+            [](Reader& source, TaskEventSpec& value) {
+                return source.string(value.id) &&
+                    readEnum(source, value.operation) &&
+                    source.string(value.target) &&
+                    source.pod(value.initialLower) &&
+                    source.pod(value.initialUpper) &&
+                    source.pod(value.finalLower) &&
+                    source.pod(value.finalUpper);
+            }
+        ) ||
+        !reader.pod(pack.events.minimumIntervalSeconds) ||
+        !reader.pod(pack.events.maximumIntervalSeconds) ||
         !reader.pod(pack.phase.periodSeconds) ||
         !reader.pod(pack.curriculum.levelCount) ||
         !reader.pod(pack.curriculum.evaluationWindowSteps) ||
@@ -1112,9 +1139,6 @@ bool deserializeTask(
         !reader.pod(
             pack.curriculum.minimumEpisodeSurvivalFraction
         ) ||
-        !reader.pod(pack.pushes.maximumVelocity) ||
-        !reader.pod(pack.pushes.minimumIntervalSeconds) ||
-        !reader.pod(pack.pushes.maximumIntervalSeconds) ||
         !reader.string(pack.terrain.body) ||
         !reader.vector(pack.terrain.sampleOffsets) ||
         !reader.vector(pack.terrain.resetTranslations) ||

@@ -36,6 +36,8 @@ struct CompiledTaskProgram::Storage {
     std::vector<MRTaskSignalOperatorGPU> signalOperators;
     std::vector<MRTaskCommandOperatorGPU> commandOperators;
     std::vector<std::string> commandIds;
+    std::vector<MRTaskEventOperatorGPU> eventOperators;
+    std::vector<std::string> eventIds;
     std::vector<MRTaskContactGroupGPU> contactGroups;
     std::vector<std::uint32_t> contactMembers;
     std::vector<MRTaskFrameGPU> frames;
@@ -146,6 +148,13 @@ std::uint64_t goalRandomIdentity(const std::string_view id) {
 std::uint64_t commandRandomIdentity(const std::string_view id) {
     Hash hash;
     hash.string("MetalRobo.TaskIR.command-counter-key");
+    hash.string(id);
+    return hash.finish();
+}
+
+std::uint64_t eventRandomIdentity(const std::string_view id) {
+    Hash hash;
+    hash.string("MetalRobo.TaskIR.event-counter-key");
     hash.string(id);
     return hash.finish();
 }
@@ -396,6 +405,12 @@ bool CompiledTaskProgram::valid() const noexcept {
             storage_->commandIds.size() ||
         storage_->header.curriculum.w !=
             storage_->commandOperators.size() ||
+        storage_->layout.eventCount !=
+            storage_->eventOperators.size() ||
+        storage_->eventOperators.size() !=
+            storage_->eventIds.size() ||
+        storage_->header.counts1.z !=
+            storage_->eventOperators.size() ||
         storage_->layout.recorderCount !=
             storage_->recorderOperators.size() ||
         storage_->recorderOperators.size() !=
@@ -522,6 +537,16 @@ bool CompiledTaskProgram::valid() const noexcept {
     const std::uint64_t recorderEnd = recorderOffset +
         storage_->recorderOperators.size() *
             sizeof(MRTaskRecorderOperatorGPU);
+    const std::uint64_t eventOffset =
+        storage_->header.offsets1.z;
+    const std::uint64_t eventEnd = eventOffset +
+        storage_->eventOperators.size() *
+            sizeof(MRTaskEventOperatorGPU);
+    const std::uint64_t rewardOffset =
+        storage_->header.offsets1.w;
+    const std::uint64_t rewardEnd = rewardOffset +
+        storage_->rewardOperators.size() *
+            sizeof(MRTaskRewardOperatorGPU);
     const std::uint64_t kinematicOffset =
         frameOffset +
         storage_->frames.size() * sizeof(MRTaskFrameGPU);
@@ -545,6 +570,14 @@ bool CompiledTaskProgram::valid() const noexcept {
         storage_->signalOperators.size() *
             sizeof(MRTaskSignalOperatorGPU);
     return recorderEnd <= storage_->arena.size() &&
+        eventEnd <= storage_->arena.size() &&
+        (storage_->eventOperators.empty() ||
+         eventOffset >= recorderEnd) &&
+        rewardEnd <= storage_->arena.size() &&
+        rewardOffset >=
+            (storage_->eventOperators.empty()
+                 ? recorderEnd
+                 : eventEnd) &&
         commandEnd <= storage_->arena.size() &&
         frameOffset >= commandEnd &&
         storage_->header.offsets3.w == goalOffset &&
@@ -636,6 +669,22 @@ std::span<const std::string>
 CompiledTaskProgram::commandIds() const noexcept {
     return valid()
         ? std::span<const std::string>{storage_->commandIds}
+        : std::span<const std::string>{};
+}
+
+std::span<const MRTaskEventOperatorGPU>
+CompiledTaskProgram::eventOperators() const noexcept {
+    return valid()
+        ? std::span<const MRTaskEventOperatorGPU>{
+              storage_->eventOperators
+          }
+        : std::span<const MRTaskEventOperatorGPU>{};
+}
+
+std::span<const std::string>
+CompiledTaskProgram::eventIds() const noexcept {
+    return valid()
+        ? std::span<const std::string>{storage_->eventIds}
         : std::span<const std::string>{};
 }
 
@@ -890,8 +939,7 @@ TaskCompileDiagnostics compileTaskProgram(
                         operation.operation ==
                             TaskRandomizationOperator::rootYaw;
                 }
-            ) ||
-            pack.pushes.maximumVelocity > 0.0f;
+            );
         if (requiresFloatingRoot) {
             return reject(
                 TaskCompileStatus::unsupportedOperator,
@@ -916,6 +964,7 @@ TaskCompileDiagnostics compileTaskProgram(
         !countFits(pack.terminations.size()) ||
         !countFits(pack.randomization.size()) ||
         !countFits(pack.commands.values.size()) ||
+        !countFits(pack.events.values.size()) ||
         !countFits(pack.terrain.sampleOffsets.size()) ||
         !countFits(pack.terrain.resetTranslations.size())) {
         return reject(
@@ -985,13 +1034,11 @@ TaskCompileDiagnostics compileTaskProgram(
         !(pack.commands.minimumDurationSeconds > 0.0f) ||
         pack.commands.maximumDurationSeconds <
             pack.commands.minimumDurationSeconds ||
-        !finite(pack.pushes.maximumVelocity) ||
-        pack.pushes.maximumVelocity < 0.0f ||
-        !finite(pack.pushes.minimumIntervalSeconds) ||
-        !finite(pack.pushes.maximumIntervalSeconds) ||
-        !(pack.pushes.minimumIntervalSeconds > 0.0f) ||
-        pack.pushes.maximumIntervalSeconds <
-            pack.pushes.minimumIntervalSeconds ||
+        !finite(pack.events.minimumIntervalSeconds) ||
+        !finite(pack.events.maximumIntervalSeconds) ||
+        !(pack.events.minimumIntervalSeconds > 0.0f) ||
+        pack.events.maximumIntervalSeconds <
+            pack.events.minimumIntervalSeconds ||
         pack.maximumObservationDelaySteps >=
             pack.actorHistoryLength) {
         return reject(
@@ -1060,6 +1107,103 @@ TaskCompileDiagnostics compileTaskProgram(
                 static_cast<std::uint32_t>(randomIdentity >> 32u),
                 0u,
                 0u,
+            },
+        });
+    }
+
+    staged->eventIds.reserve(pack.events.values.size());
+    staged->eventOperators.reserve(pack.events.values.size());
+    std::unordered_set<std::uint64_t> eventRandomIdentities;
+    for (const TaskEventSpec& event : pack.events.values) {
+        if (event.id.empty() || event.target.empty() ||
+            !finite(event.initialLower) ||
+            !finite(event.initialUpper) ||
+            !finite(event.finalLower) ||
+            !finite(event.finalUpper) ||
+            event.initialLower > event.initialUpper ||
+            event.finalLower > event.finalUpper ||
+            std::find(
+                staged->eventIds.begin(),
+                staged->eventIds.end(),
+                event.id
+            ) != staged->eventIds.end()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                event.id,
+                "task event identity or range is invalid"
+            );
+        }
+        if (event.operation !=
+            TaskEventOperator::generalizedVelocityDelta) {
+            return reject(
+                TaskCompileStatus::unsupportedOperator,
+                event.id,
+                "task event operator is not supported"
+            );
+        }
+        bool ambiguous = false;
+        const std::uint32_t dofIndex = uniqueIndex(
+            model.dofNames,
+            event.target,
+            ambiguous
+        );
+        if (ambiguous) {
+            return reject(
+                TaskCompileStatus::ambiguousSemantic,
+                event.target,
+                "task event generalized-velocity identity is ambiguous"
+            );
+        }
+        if (dofIndex == MR_INVALID_INDEX ||
+            dofIndex >= model.dofs.size()) {
+            return reject(
+                TaskCompileStatus::unresolvedSemantic,
+                event.target,
+                "task event generalized-velocity coordinate does not exist"
+            );
+        }
+        const MRDofPropertiesGPU& dof = model.dofs[dofIndex];
+        if (dof.articulationIndex != world.articulationIndex() ||
+            dof.vIndex == MR_INVALID_INDEX ||
+            !inRange(
+                dof.vIndex,
+                articulation.vOffset,
+                articulation.nv
+            )) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                event.target,
+                "task event coordinate must belong to the selected articulation"
+            );
+        }
+        const std::uint64_t randomIdentity =
+            eventRandomIdentity(event.id);
+        if (!eventRandomIdentities.insert(randomIdentity).second) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                event.id,
+                "task event ids collide in the 64-bit counter-RNG identity"
+            );
+        }
+        staged->eventIds.push_back(event.id);
+        staged->eventOperators.push_back({
+            {
+                MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA,
+                dof.vIndex,
+                static_cast<std::uint32_t>(randomIdentity),
+                static_cast<std::uint32_t>(randomIdentity >> 32u),
+            },
+            {
+                event.initialLower,
+                event.initialUpper,
+                0.0f,
+                0.0f,
+            },
+            {
+                event.finalLower,
+                event.finalUpper,
+                0.0f,
+                0.0f,
             },
         });
     }
@@ -3059,6 +3203,9 @@ TaskCompileDiagnostics compileTaskProgram(
         .commandCount = static_cast<std::uint32_t>(
             staged->commandOperators.size()
         ),
+        .eventCount = static_cast<std::uint32_t>(
+            staged->eventOperators.size()
+        ),
         .scalarStateCount =
             static_cast<std::uint32_t>(scalarStateCount),
         .recorderCount = static_cast<std::uint32_t>(
@@ -3081,7 +3228,9 @@ TaskCompileDiagnostics compileTaskProgram(
         static_cast<std::uint32_t>(
             staged->recorderOperators.size()
         ),
-        0u,
+        static_cast<std::uint32_t>(
+            staged->eventOperators.size()
+        ),
         static_cast<std::uint32_t>(
             staged->rewardOperators.size()
         ),
@@ -3159,9 +3308,9 @@ TaskCompileDiagnostics compileTaskProgram(
         0.0f,
     };
     staged->header.eventSchedule = {
-        pack.pushes.maximumVelocity,
-        pack.pushes.minimumIntervalSeconds,
-        pack.pushes.maximumIntervalSeconds,
+        0.0f,
+        pack.events.minimumIntervalSeconds,
+        pack.events.maximumIntervalSeconds,
         0.0f,
     };
     staged->header.articulation = {
@@ -3265,7 +3414,13 @@ TaskCompileDiagnostics compileTaskProgram(
                       staged->recorderOperators
                   }
               ),
-        0u,
+        staged->eventOperators.empty()
+            ? 0u
+            : appendArena(
+                  std::span<const MRTaskEventOperatorGPU>{
+                      staged->eventOperators
+                  }
+              ),
         appendArena(
             std::span<const MRTaskRewardOperatorGPU>{
                 staged->rewardOperators
@@ -3376,6 +3531,10 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     for (const TaskCommandSpec& command : pack.commands.values) {
         hash.string(command.id);
+    }
+    for (const TaskEventSpec& event : pack.events.values) {
+        hash.string(event.id);
+        hash.string(event.target);
     }
     for (const TaskContactGroup& group : pack.contactGroups) {
         hash.string(group.id);

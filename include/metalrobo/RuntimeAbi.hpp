@@ -188,6 +188,9 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
         MRTaskCommandOperatorGPU
     >(hash);
     hash = detail::appendRuntimeAbiType<
+        MRTaskEventOperatorGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<
         MRTaskRewardOperatorGPU
     >(hash);
     hash = detail::appendRuntimeAbiType<
