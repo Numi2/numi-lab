@@ -85,6 +85,7 @@ enum class TaskRewardOperator : std::uint32_t {
     linkClearanceBarrier =
         MR_TASK_REWARD_LINK_CLEARANCE_BARRIER,
     projectileMiss = MR_TASK_REWARD_PROJECTILE_MISS,
+    projectileEvasion = MR_TASK_REWARD_PROJECTILE_EVASION,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {

@@ -93,6 +93,10 @@ enum MRTaskRewardOpcode : mr_u32 {
     // One-shot reward when an authored projectile event completes without a
     // protected-body contact.
     MR_TASK_REWARD_PROJECTILE_MISS = 32u,
+    // Dense gross-evasion signal for one active dynamic projectile. The
+    // reward combines saturated root-to-projectile distance with root
+    // horizontal stillness; per-link CBF remains the fine safety signal.
+    MR_TASK_REWARD_PROJECTILE_EVASION = 33u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {

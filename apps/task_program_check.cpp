@@ -564,7 +564,7 @@ int main() {
             compiledDodge
         );
         if (!dodgeStatus.succeeded() ||
-            compiledDodge.task.header().counts1.w != 25u ||
+            compiledDodge.task.header().counts1.w != 31u ||
             compiledDodge.task.header().counts2.x != 3u ||
             compiledDodge.task.layout().actorFrameSize != 96u ||
             compiledDodge.task.layout().actorHistoryLength != 5u ||
@@ -599,6 +599,7 @@ int main() {
             fail("G1 dodge group has no collidable members");
         }
         std::uint32_t barriers = 0u;
+        std::uint32_t evasions = 0u;
         std::uint32_t misses = 0u;
         std::uint32_t maskedDepth = 0u;
         std::uint32_t scaledAngularVelocity = 0u;
@@ -653,11 +654,21 @@ int main() {
                 }
                 ++barriers;
             } else if (operation.source.x ==
+                       MR_TASK_REWARD_PROJECTILE_EVASION) {
+                if (operation.source.z == MR_INVALID_INDEX ||
+                    operation.parameters.x != 1.0f ||
+                    operation.parameters.y != 0.3f ||
+                    operation.parameters.z != 1.0f ||
+                    operation.parameters.w != 0.9f) {
+                    fail("compiled projectile evasion changed");
+                }
+                ++evasions;
+            } else if (operation.source.x ==
                        MR_TASK_REWARD_PROJECTILE_MISS) {
                 ++misses;
             }
         }
-        if (barriers != 6u || misses != 1u) {
+        if (barriers != 6u || evasions != 6u || misses != 1u) {
             fail("G1 dodge shaping operators are incomplete");
         }
         const auto dodgeTerminations =

@@ -1522,6 +1522,35 @@ TaskCompileDiagnostics compileTaskProgram(
         }
         case TaskRewardOperator::projectileMiss:
             break;
+        case TaskRewardOperator::projectileEvasion: {
+            bool ambiguous = false;
+            const std::uint32_t body = uniqueIndex(
+                model.bodyNames,
+                reward.target,
+                ambiguous
+            );
+            const auto sceneBody = body == MR_INVALID_INDEX
+                ? world.sceneBodyIndices().end()
+                : std::find(
+                      world.sceneBodyIndices().begin(),
+                      world.sceneBodyIndices().end(),
+                      body
+                  );
+            if (ambiguous ||
+                sceneBody == world.sceneBodyIndices().end()) {
+                return reject(
+                    ambiguous
+                        ? TaskCompileStatus::ambiguousSemantic
+                        : TaskCompileStatus::unresolvedSemantic,
+                    reward.target,
+                    "projectile-evasion reward requires a dynamic scene projectile"
+                );
+            }
+            targetIndex = static_cast<std::uint32_t>(
+                sceneBody - world.sceneBodyIndices().begin()
+            );
+            break;
+        }
         case TaskRewardOperator::linearVelocityTracking:
         case TaskRewardOperator::yawVelocityTracking:
         case TaskRewardOperator::constant:
@@ -1585,6 +1614,18 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 reward.target,
                 "link-clearance barrier requires positive alpha, safety radius, and constraint clip"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::projectileEvasion &&
+            (!(reward.parameters.x > 0.0f) ||
+             !(reward.parameters.y > 0.0f) ||
+             reward.parameters.z < 0.0f ||
+             reward.parameters.z > 1.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.target,
+                "projectile evasion requires positive distance and velocity scales plus a position blend in [0, 1]"
             );
         }
         if (reward.operation ==

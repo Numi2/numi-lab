@@ -34,6 +34,7 @@ private struct Options {
     // contract independently of environment and horizon counts.
     var minibatchSize = 0
     var learningRate = 1.0e-3
+    var fixedLearningRate = false
     var clipRatio = 0.2
     var valueCoefficient = 1.0
     // The production default starts with a 0.2 standard deviation in policy
@@ -184,6 +185,8 @@ private struct Options {
             case "--learning-rate":
                 learningRate = try Self.double(value(), option)
                 index += 1
+            case "--fixed-learning-rate":
+                fixedLearningRate = true
             case "--clip-ratio":
                 clipRatio = try Self.double(value(), option)
                 index += 1
@@ -506,7 +509,7 @@ private final class MLXLearnerWorker {
                 Double(Int32.max)
             )
         )
-        process.arguments = [
+        var arguments = [
             "-m",
             "metalrobo.mlx_policy_worker",
             "serve",
@@ -547,6 +550,10 @@ private final class MLXLearnerWorker {
             "--seed",
             String(options.learnerSeed),
         ]
+        if options.fixedLearningRate {
+            arguments.append("--fixed-learning-rate")
+        }
+        process.arguments = arguments
         process.environment = mlxEnvironment(options: options)
         process.standardInput = input
         process.standardOutput = output

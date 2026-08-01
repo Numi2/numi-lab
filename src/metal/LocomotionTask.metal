@@ -2794,6 +2794,44 @@ kernel void mr_locomotion_task_complete(
                 ? 1.0f / dispatch.timing.x
                 : 0.0f;
             break;
+        case MR_TASK_REWARD_PROJECTILE_EVASION: {
+            const uint projectileScene = operation.source.z;
+            const bool selected = !impactSequenceEnabled(state) ||
+                impactScene(state) == projectileScene + 1u;
+            if (!selected) {
+                value = 0.0f;
+                break;
+            }
+            const MRBodyStateGPU projectile = sceneState[
+                sceneBase + projectileScene
+            ];
+            const bool live =
+                length(projectile.linearVelocityAndInverseMass.xyz) > 0.5f;
+            if (!live) {
+                value = 0.0f;
+                break;
+            }
+            const MRBodyStateGPU rootBody = bodyStates[
+                bodyBase + program.root.y
+            ];
+            const float distance = length(
+                projectile.position.xyz - rootBody.position.xyz
+            );
+            const float horizontalSpeedSquared = dot(
+                rootBody.linearVelocityAndInverseMass.xy,
+                rootBody.linearVelocityAndInverseMass.xy
+            );
+            const float positionBlend = operation.parameters.w;
+            value =
+                positionBlend *
+                    (1.0f - exp(-operation.parameters.y * distance)) +
+                (1.0f - positionBlend) *
+                    exp(
+                        -operation.parameters.z *
+                            horizontalSpeedSquared
+                    );
+            break;
+        }
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
             value = velocitySquared;
             break;

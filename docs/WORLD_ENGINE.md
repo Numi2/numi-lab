@@ -111,10 +111,11 @@ per-robot branch.
 
 Projectile avoidance is authored through the same operators. A clearance
 barrier resolves one dynamic scene body and one semantic protected-body group,
-then evaluates the most-binding per-link constraint before contact. Event-
-scoped contact termination, clean-miss reward, ball-free standing anchors,
-launch timing, and speed curriculum are TaskPack data rather than a robot-
-specific runtime path.
+then evaluates the most-binding per-link constraint before contact. A dense
+projectile-evasion operator supplies gross root clearance and stillness, while
+event-scoped contact termination, clean-miss reward, ball-free standing
+anchors, launch timing, and speed curriculum remain TaskPack data rather than
+a robot-specific runtime path.
 
 The bundled G1 task is one preset expressed through this same format. Imported
 URDF robots and WorldPacks use the same compiler and executor:

@@ -1587,11 +1587,19 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         }
     );
     for (std::uint32_t sphere = 0u; sphere < 6u; ++sphere) {
+        const std::string projectile =
+            "locomotion_dynamic_sphere_" + std::to_string(sphere);
+        task.rewards.push_back({
+            .operation = TaskRewardOperator::projectileEvasion,
+            .target = projectile,
+            .weight = 1.0f,
+            // Distance scale, horizontal-speed scale, position blend.
+            .parameters = {0.3f, 1.0f, 0.9f, 0.0f},
+        });
         task.rewards.push_back({
             .operation = TaskRewardOperator::linkClearanceBarrier,
             .sourceGroup = "robot",
-            .target = "locomotion_dynamic_sphere_" +
-                std::to_string(sphere),
+            .target = projectile,
             .weight = 0.27f,
             // alpha, margin beyond compiled collision envelopes, clip.
             .parameters = {1.0f, 0.05f, 2.0f, 0.0f},
