@@ -248,6 +248,16 @@ outputs were identical to the previous oversized profile, retained device
 storage fell to 2,314,985,006 bytes, and any future overrun remains a typed
 transactional failure. This is not an arbitrary one-gigabyte cap.
 
+On the 24 GiB M4 Pro qualification host, the active-row inverse-ABA path
+reached 10,063 environment control-steps/s at 12,288 environments and 10,265
+at 16,384 in a 32/24-step physics sweep, with no failed GPU steps. The larger
+batch retained 14.1 GB before visual and learner state, so 12,288 is the
+production training point rather than the rollout-only maximum. A resumed
+visual ball-dodge update at 12,288 x 24 samples completed 294,912 transitions,
+32 PPO minibatches, and one motion-prior update at 5,532 end-to-end environment
+steps/s with zero GPU failures and KL 0.00204. The prior 11,264-environment
+qualification ran at 3,713 end-to-end environment steps/s.
+
 Analytic/SAT paths cover the inexpensive primitive pairs. Exact cylinder
 support, robust GJK with MPR/EPA fallback, cooked convex patches, static or
 kinematic mesh BVH4 traversal, and direct cell-indexed static heightfields
