@@ -2773,33 +2773,23 @@ kernel void mr_task_prepare_sensor_signals(
             arena,
             program.offsets4.x
         );
-    device const MRTaskSignalOperatorGPU* operators =
-        taskTable<MRTaskSignalOperatorGPU>(
-            arena,
-            program.offsets4.y
-        );
-    device float* signalValues =
+    device float* graphScratch =
         reinterpret_cast<device float*>(
             bodyStates +
             dispatch.counts.x * dispatch.strides.y
-        ) +
-        dispatch.counts.x * program.graphCounts.z +
-        environment * program.graphCounts.x;
-    for (uint signalIndex = 0u;
-         signalIndex < program.graphCounts.x;
-         ++signalIndex) {
-        const MRTaskSignalOperatorGPU operation =
-            operators[signalIndex];
-        if (operation.inputs.x != MR_TASK_SIGNAL_SOURCE ||
-            operation.inputs.y >= program.graphCounts.y) {
-            continue;
-        }
-        const MRTaskObservationOperatorGPU source =
-            sources[operation.inputs.y];
+        ) + dispatch.counts.x * program.graphCounts.z;
+    device float* sensorSourceValues =
+        graphScratch +
+        dispatch.counts.x * program.graphCounts.x +
+        environment * program.graphCounts.w;
+    for (uint sourceIndex = 0u;
+         sourceIndex < program.graphCounts.y;
+         ++sourceIndex) {
+        const MRTaskObservationOperatorGPU source = sources[sourceIndex];
         if (!sensorObservationOpcode(source.source.x)) {
             continue;
         }
-        signalValues[signalIndex] = taskSensorObservationValue(
+        sensorSourceValues[source.auxiliary.w] = taskSensorObservationValue(
             sensorProgram,
             source,
             sensorOutputs,
@@ -3309,13 +3299,17 @@ kernel void mr_task_complete(
             bodyStates +
             dispatch.counts.x * dispatch.strides.y
         );
-    device float* signalValues =
+    device float* graphScratch =
         reinterpret_cast<device float*>(
             bodyStates +
             dispatch.counts.x * dispatch.strides.y
-        ) +
-        dispatch.counts.x * program.graphCounts.z +
-        environment * program.graphCounts.x;
+        ) + dispatch.counts.x * program.graphCounts.z;
+    device float* signalValues =
+        graphScratch + environment * program.graphCounts.x;
+    device const float* sensorSourceValues =
+        graphScratch +
+        dispatch.counts.x * program.graphCounts.x +
+        environment * program.graphCounts.w;
     const uint sceneBase =
         environment * dispatch.strides.w;
     const uint delayBase =
@@ -3621,18 +3615,18 @@ kernel void mr_task_complete(
             : 0.0f;
         float value = 0.0f;
         switch (operation.inputs.x) {
-        case MR_TASK_SIGNAL_SOURCE:
-            if (sensorObservationOpcode(
-                    signalSources[operation.inputs.y].source.x
-                )) {
+        case MR_TASK_SIGNAL_SOURCE: {
+            const MRTaskObservationOperatorGPU source =
+                signalSources[operation.inputs.y];
+            if (sensorObservationOpcode(source.source.x)) {
                 // Prepared from the accepted SensorIR sample immediately
                 // before this pass.
-                value = signalValues[signalIndex];
+                value = sensorSourceValues[source.auxiliary.w];
             } else {
                 value = cleanObservation(
                     dispatch,
                     program,
-                    signalSources[operation.inputs.y],
+                    source,
                     actions,
                     contactGroups,
                     frames,
@@ -3661,42 +3655,47 @@ kernel void mr_task_complete(
                 );
             }
             break;
+        }
         case MR_TASK_SIGNAL_REDUCTION: {
             const uint transform = operation.inputs.w & 0xffu;
             const uint reduction = operation.inputs.w >> 8u;
             for (uint local = 0u;
                  local < operation.inputs.z;
                  ++local) {
-                float element = cleanObservation(
-                    dispatch,
-                    program,
-                    signalSources[operation.inputs.y + local],
-                    actions,
-                    contactGroups,
-                    frames,
-                    kinematicFrames,
-                    goals,
-                    spatialJacobians,
-                    environment,
-                    state.episode.y,
-                    episodeSteps,
-                    bodyStates + bodyBase,
-                    terrainSamples,
-                    q,
-                    v,
-                    defaultQ,
-                    state,
-                    signalAction,
-                    earlierSignalAction,
-                    previousJointVelocity + previousVelocityBase,
-                    compactContact + compactBase,
-                    bodyParameters + bodyParameterBase,
-                    controllerParameters + environment,
-                    sceneState + sceneBase,
-                    shapes,
-                    geometryHeaders,
-                    geometryVertices
-                );
+                const MRTaskObservationOperatorGPU source =
+                    signalSources[operation.inputs.y + local];
+                float element = sensorObservationOpcode(source.source.x)
+                    ? sensorSourceValues[source.auxiliary.w]
+                    : cleanObservation(
+                          dispatch,
+                          program,
+                          source,
+                          actions,
+                          contactGroups,
+                          frames,
+                          kinematicFrames,
+                          goals,
+                          spatialJacobians,
+                          environment,
+                          state.episode.y,
+                          episodeSteps,
+                          bodyStates + bodyBase,
+                          terrainSamples,
+                          q,
+                          v,
+                          defaultQ,
+                          state,
+                          signalAction,
+                          earlierSignalAction,
+                          previousJointVelocity + previousVelocityBase,
+                          compactContact + compactBase,
+                          bodyParameters + bodyParameterBase,
+                          controllerParameters + environment,
+                          sceneState + sceneBase,
+                          shapes,
+                          geometryHeaders,
+                          geometryVertices
+                      );
                 if (transform ==
                         MR_TASK_SIGNAL_TRANSFORM_ABSOLUTE) {
                     element = abs(element);

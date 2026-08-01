@@ -393,8 +393,32 @@ bool CompiledTaskProgram::valid() const noexcept {
             storage_->signalSources.size() ||
         storage_->header.graphCounts.z !=
             storage_->layout.spatialJacobianEnvironmentStride ||
+        storage_->header.graphCounts.w !=
+            storage_->layout.signalSensorScratchCount ||
+        (storage_->layout.signalSensorScratchCount != 0u &&
+         storage_->sensorFingerprint == 0u) ||
         storage_->kinematicFrames.size() !=
             storage_->frames.size()) {
+        return false;
+    }
+
+    std::uint32_t expectedSensorScratch = 0u;
+    for (const MRTaskObservationOperatorGPU& source :
+         storage_->signalSources) {
+        const bool sensorSource =
+            source.source.x == MR_TASK_OBSERVE_SENSOR_VALUE ||
+            source.source.x == MR_TASK_OBSERVE_SENSOR_VALIDITY;
+        if (sensorSource) {
+            if (source.auxiliary.w != expectedSensorScratch) {
+                return false;
+            }
+            ++expectedSensorScratch;
+        } else if (source.auxiliary.w != MR_INVALID_INDEX) {
+            return false;
+        }
+    }
+    if (expectedSensorScratch !=
+        storage_->layout.signalSensorScratchCount) {
         return false;
     }
 
@@ -2167,15 +2191,6 @@ TaskCompileDiagnostics compileTaskProgram(
                 source.biasUpper == 0.0f &&
                 !source.normalizeVector3;
         };
-        const auto sensorSource = [](
-            const TaskObservationOperatorSpec& source
-        ) {
-            return source.source ==
-                    TaskObservationSource::sensorValue ||
-                source.source ==
-                    TaskObservationSource::sensorValidity;
-        };
-
         bool validShape = true;
         if (signal.operation != TaskSignalOperator::reduction &&
             !signal.reductionSources.empty()) {
@@ -2223,13 +2238,6 @@ TaskCompileDiagnostics compileTaskProgram(
                         TaskCompileStatus::invalidPack,
                         signal.id,
                         "SignalIR reduction sources are truth-only"
-                    );
-                }
-                if (sensorSource(source)) {
-                    return reject(
-                        TaskCompileStatus::unsupportedOperator,
-                        signal.id,
-                        "SensorIR reductions require generalized per-source sensor scratch"
                     );
                 }
                 signalSourceSpecs.push_back(source);
@@ -2304,6 +2312,16 @@ TaskCompileDiagnostics compileTaskProgram(
     );
     if (!observationStatus.succeeded()) {
         return observationStatus;
+    }
+    std::uint32_t signalSensorScratchCount = 0u;
+    for (MRTaskObservationOperatorGPU& source :
+         staged->signalSources) {
+        if (source.source.x == MR_TASK_OBSERVE_SENSOR_VALUE ||
+            source.source.x == MR_TASK_OBSERVE_SENSOR_VALIDITY) {
+            source.auxiliary.w = signalSensorScratchCount++;
+        } else {
+            source.auxiliary.w = MR_INVALID_INDEX;
+        }
     }
 
     staged->kinematicFrames.assign(
@@ -2956,6 +2974,8 @@ TaskCompileDiagnostics compileTaskProgram(
         .signalCount = static_cast<std::uint32_t>(
             staged->signalOperators.size()
         ),
+        .signalSensorScratchCount =
+            signalSensorScratchCount,
         .recorderCount = static_cast<std::uint32_t>(
             staged->recorderOperators.size()
         ),
@@ -3103,7 +3123,7 @@ TaskCompileDiagnostics compileTaskProgram(
             staged->signalSources.size()
         ),
         staged->layout.spatialJacobianEnvironmentStride,
-        0u,
+        staged->layout.signalSensorScratchCount,
     };
 
     const auto appendArena =

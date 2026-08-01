@@ -1288,6 +1288,7 @@ bool buildRequirements(
     std::size_t taskContactElements = 0u;
     std::size_t taskPointWorldElements = 0u;
     std::size_t taskSpatialJacobianElements = 0u;
+    std::size_t taskSignalEnvironmentStride = 0u;
     std::size_t taskSignalElements = 0u;
     std::size_t policyScratchElements = 0u;
     std::size_t policyActorMeanElements = 0u;
@@ -1335,9 +1336,14 @@ bool buildRequirements(
             taskLayout.spatialJacobianEnvironmentStride,
             taskSpatialJacobianElements
         ) ||
+        !checkedAdd(
+            taskLayout.signalCount,
+            taskLayout.signalSensorScratchCount,
+            taskSignalEnvironmentStride
+        ) ||
         !checkedMultiply(
             taskEnvironments,
-            taskLayout.signalCount,
+            taskSignalEnvironmentStride,
             taskSignalElements
         ) ||
         !checkedMultiply(
@@ -17194,7 +17200,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     );
                 }
                 if (taskUsesSensors &&
-                    config.taskProgram.header().graphCounts.y != 0u &&
+                    config.taskProgram.header().graphCounts.w != 0u &&
                     !encodeTaskSignalSensors(
                         *selectedState,
                         commandBuffer,

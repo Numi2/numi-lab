@@ -590,10 +590,36 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .channel = metalrobo::TaskRewardChannel::velocity,
         .weight = -0.01f,
     });
-    authored.task.recorders = {{
-        .id = "axis_velocity_squared",
-        .signal = "axis_velocity_squared",
-    }};
+    authored.task.signals.push_back({
+        .id = "sensor_pose_quality",
+        .operation = metalrobo::TaskSignalOperator::reduction,
+        .reductionSources = {
+            {
+                .source =
+                    metalrobo::TaskObservationSource::sensorValue,
+                .target = "tool_pose_30hz",
+                .component = 2u,
+            },
+            {
+                .source =
+                    metalrobo::TaskObservationSource::sensorValidity,
+                .target = "tool_pose_30hz",
+                .component = 0u,
+            },
+        },
+        .transform = metalrobo::TaskSignalTransform::square,
+        .reduction = metalrobo::TaskSignalReduction::sum,
+    });
+    authored.task.recorders = {
+        {
+            .id = "axis_velocity_squared",
+            .signal = "axis_velocity_squared",
+        },
+        {
+            .id = "sensor_pose_quality",
+            .signal = "sensor_pose_quality",
+        },
+    };
     const std::string homePositionSquared =
         addFrameErrorSquaredSignal(
             authored.task,
@@ -705,6 +731,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             .consumerFlags =
                 MR_WORLD_SENSOR_CONSUMER_ACTOR |
                 MR_WORLD_SENSOR_CONSUMER_CRITIC |
+                MR_WORLD_SENSOR_CONSUMER_TRUTH |
                 MR_WORLD_SENSOR_CONSUMER_RECORDER,
         },
     };
@@ -778,15 +805,18 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             MR_TASK_FRAME_SOURCE_SCENE_BODY ||
         compiled.task.frames()[1].indices.z != 0u ||
         compiled.task.frames()[1].indices.w != MR_INVALID_INDEX ||
-        compiled.task.layout().recorderCount != 1u ||
-        compiled.task.header().counts1.y != 1u ||
+        compiled.task.layout().signalSensorScratchCount != 2u ||
+        compiled.task.header().graphCounts.w != 2u ||
+        compiled.task.layout().recorderCount != 2u ||
+        compiled.task.header().counts1.y != 2u ||
         compiled.task.header().counts1.z != 0u ||
         compiled.task.header().offsets1.y == 0u ||
         compiled.task.header().offsets1.z != 0u ||
         !std::ranges::equal(
             compiled.task.recorderIds(),
-            std::array<std::string, 1u>{
+            std::array<std::string, 2u>{
                 "axis_velocity_squared",
+                "sensor_pose_quality",
             }
         ) ||
         std::count_if(
@@ -862,9 +892,9 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             preservedTaskFingerprint) {
         fail("empty SignalIR reduction did not fail transactionally");
     }
-    metalrobo::TaskPack sensorReduction = authored.task;
-    sensorReduction.signals.push_back({
-        .id = "sensor_reduction",
+    metalrobo::TaskPack unauthorizedSensorReduction = authored.task;
+    unauthorizedSensorReduction.signals.push_back({
+        .id = "unauthorized_sensor_reduction",
         .operation = metalrobo::TaskSignalOperator::reduction,
         .reductionSources = {{
             .source = metalrobo::TaskObservationSource::sensorValue,
@@ -872,19 +902,19 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             .component = 0u,
         }},
     });
-    const auto sensorReductionStatus =
+    const auto unauthorizedSensorReductionStatus =
         metalrobo::compileTaskProgram(
-            sensorReduction,
+            unauthorizedSensorReduction,
             compiled.world,
             compiled.sensors,
             preservedTask
         );
-    if (sensorReductionStatus.status !=
-            metalrobo::TaskCompileStatus::unsupportedOperator ||
+    if (unauthorizedSensorReductionStatus.status !=
+            metalrobo::TaskCompileStatus::invalidPack ||
         preservedTask.fingerprint() !=
             preservedTaskFingerprint) {
         fail(
-            "unsupported SensorIR reduction did not fail transactionally"
+            "unauthorized SensorIR reduction did not fail transactionally"
         );
     }
     std::vector<metalrobo::SensorSpec> unresolvedSiteSensors =
@@ -2786,6 +2816,37 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             fail(
                 "terminal actor observation was published before the accepted-state sensor sample"
             );
+        }
+    }
+    if (result.criticObservations.size() !=
+        (controlSteps + 1u) * environments * 8u) {
+        fail(
+            "native task result omitted the terminal critic observation"
+        );
+    }
+    for (std::size_t stepIndex = 0u;
+         stepIndex < controlSteps;
+         ++stepIndex) {
+        for (std::size_t environment = 0u;
+             environment < environments;
+             ++environment) {
+            const std::size_t transitionIndex =
+                stepIndex * environments + environment;
+            const std::size_t postCriticBase =
+                ((stepIndex + 1u) * environments + environment) * 8u;
+            const float sensorHeight =
+                result.criticObservations[postCriticBase + 4u];
+            const float expectedSensorReduction =
+                sensorHeight * sensorHeight + 1.0f;
+            if (std::abs(
+                    result.transitions[transitionIndex]
+                            .rewardAndMetrics.z -
+                        expectedSensorReduction
+                ) > 2.0e-5f) {
+                fail(
+                    "SignalIR SensorIR reduction did not consume the accepted current sample"
+                );
+            }
         }
     }
     if (std::any_of(

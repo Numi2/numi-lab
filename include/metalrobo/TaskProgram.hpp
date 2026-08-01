@@ -400,6 +400,9 @@ struct TaskProgramLayout {
     std::uint32_t kinematicPointQueryCount = 0u;
     std::uint32_t spatialJacobianEnvironmentStride = 0u;
     std::uint32_t signalCount = 0u;
+    // Dense current-sample scratch only for SensorIR-backed semantic sources.
+    // Ordinary mechanics sources remain direct and allocate no extra value.
+    std::uint32_t signalSensorScratchCount = 0u;
     std::uint32_t recorderCount = 0u;
 };
 

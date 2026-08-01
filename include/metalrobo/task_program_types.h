@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 20u
+#define MR_TASK_PROGRAM_ABI_VERSION 21u
 #define MR_TASK_TRANSITION_METRIC_COUNT 3u
 
 #define MR_TASK_GOAL_FIXED 0u
@@ -258,7 +258,8 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_float4 rootReference;
     // named frames, static SE(3) goals, SensorIR fingerprint low/high.
     mr_uint4 typedCounts;
-    // SignalIR nodes, semantic source leaves, spatial-Jacobian stride, reserved.
+    // SignalIR nodes, semantic source leaves, spatial-Jacobian stride, and
+    // dense current-SensorIR semantic-source scratch count.
     mr_uint4 graphCounts;
     // SignalIR source operators and nodes; remaining offsets are reserved.
     mr_uint4 offsets4;
@@ -276,7 +277,8 @@ typedef struct MR_ALIGN16 MRTaskObservationOperatorGPU {
     mr_uint4 source;
     // scale, offset, uniform-noise amplitude, bias slot as float bits unused.
     mr_float4 transform;
-    // bias index, deterministic noise channel, reserved, reserved.
+    // Bias index, deterministic noise channel, goal/reference/output offset,
+    // and dense SensorIR scratch slot for SignalIR sources.
     mr_uint4 auxiliary;
     // Compiler-resolved source parameters. Their meaning is opcode-specific;
     // ordinary affine transforms and actor corruption remain above.
