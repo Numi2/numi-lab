@@ -46,6 +46,10 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION,
     frameRelativeOrientation =
         MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION,
+    frameLinearVelocityWorld =
+        MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_WORLD,
+    frameAngularVelocityWorld =
+        MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD,
 };
 
 enum class TaskRewardOperator : std::uint32_t {

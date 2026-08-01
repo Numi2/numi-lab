@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 8,
+  "abi_version": 9,
   "abi_constants": {
     "MR_SENSOR_PROGRAM_ABI_VERSION": 3
   },
@@ -615,6 +615,7 @@
         "PASS",
         "RESET_MASKS",
         "BODY_POSES",
+        "BODY_STATES",
         "SCENE_BODIES",
         "TASK_STATES",
         "SENSOR_BIAS",

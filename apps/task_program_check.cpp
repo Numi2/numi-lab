@@ -1388,6 +1388,134 @@ std::uint64_t compileFixedBaseTaskFixture() {
             "fixed-base floating-root operator was not transactionally rejected"
         );
     }
+
+    metalrobo::SimulationDescription twistAuthored = authored;
+    twistAuthored.task.id = "fixed_base_frame_twist";
+    twistAuthored.task.actorFrame = {{
+        .source = metalrobo::TaskObservationSource::jointVelocity,
+        .target = "axis",
+    }};
+    twistAuthored.task.critic = {
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameLinearVelocityWorld,
+            .target = "tool_tip",
+            .component = 0u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameAngularVelocityWorld,
+            .target = "tool_tip",
+            .component = 1u,
+        },
+    };
+    twistAuthored.task.criticIncludesCleanHistory = false;
+    twistAuthored.task.rewards = {{
+        .operation = metalrobo::TaskRewardOperator::constant,
+        .weight = 1.0f,
+    }};
+    twistAuthored.task.terminations.clear();
+    twistAuthored.task.randomization = {{
+        .operation =
+            metalrobo::TaskRandomizationOperator::actionVelocity,
+        .parameters = {0.5f, 0.5f, 0.0f, 0.0f},
+    }};
+    twistAuthored.sensors.clear();
+    metalrobo::PolicyPack twistPolicy;
+    twistPolicy.id = "fixed_base_frame_twist_policy";
+    twistPolicy.layers = {{
+        .inputCount = 1u,
+        .outputCount = 1u,
+        .activation = metalrobo::PolicyActivation::identity,
+        .weights = std::vector<float>(1u, 0.0f),
+        .bias = std::vector<float>(1u, 0.0f),
+    }};
+    twistPolicy.criticLayers = {{
+        .inputCount = 2u,
+        .outputCount = 1u,
+        .activation = metalrobo::PolicyActivation::identity,
+        .weights = std::vector<float>(2u, 0.0f),
+        .bias = std::vector<float>(1u, 0.0f),
+    }};
+    twistAuthored.policy = std::move(twistPolicy);
+
+    metalrobo::CompiledSimulation twistCompiled;
+    const auto twistCompile = metalrobo::compileSimulation(
+        twistAuthored,
+        0u,
+        twistCompiled
+    );
+    if (!twistCompile.succeeded()) {
+        fail(
+            "frame-twist task compile failed: " +
+            twistCompile.task.message
+        );
+    }
+    constexpr std::size_t twistSteps = 2u;
+    const std::vector<std::uint32_t> twistResetMasks(
+        twistSteps,
+        0u
+    );
+    metalrobo::MetalWorldStepConfig twistStep = step;
+    twistStep.taskProgram = twistCompiled.task;
+    twistStep.sensorProgram = {};
+    twistStep.policyProgram = twistCompiled.policy;
+    twistStep.publishSensorOutputs = false;
+    twistStep.evaluateFinalPolicy = true;
+    metalrobo::MetalWorldContext twistContext(
+        contextConfiguration
+    );
+    metalrobo::MetalWorldResult twistResult;
+    const auto twistExecution = twistContext.run(
+        twistCompiled.world,
+        {
+            .environmentCount = 1u,
+            .controlStepCount = twistSteps,
+            .initialQ = std::span{
+                authored.model.defaultQ.data(),
+                authored.model.defaultQ.size(),
+            },
+            .initialV = std::span{
+                initialV.data(),
+                compiled.world.nv(),
+            },
+            .resetMasks = twistResetMasks,
+            .initialSceneBodies = authored.sceneBodies,
+        },
+        twistStep,
+        twistResult
+    );
+    if (!twistExecution.succeeded() ||
+        twistResult.actorObservations.size() != twistSteps + 1u ||
+        twistResult.criticObservations.size() !=
+            (twistSteps + 1u) * 2u ||
+        std::abs(twistResult.actorObservations[0u] - 0.5f) >
+            2.0e-4f ||
+        std::abs(twistResult.criticObservations[0u] - 0.1f) >
+            2.0e-4f ||
+        std::abs(twistResult.criticObservations[1u] - 0.5f) >
+            2.0e-4f) {
+        fail(
+            "frame twist did not materialize from the randomized reset state: " +
+            twistExecution.message
+        );
+    }
+    for (std::size_t sample = 0u;
+         sample < twistSteps + 1u;
+         ++sample) {
+        const float jointVelocity =
+            twistResult.actorObservations[sample];
+        const float frameLinear =
+            twistResult.criticObservations[2u * sample];
+        const float frameAngular =
+            twistResult.criticObservations[2u * sample + 1u];
+        if (!std::isfinite(frameLinear) ||
+            std::abs(frameAngular - jointVelocity) > 2.0e-4f) {
+            fail(
+                "accepted frame twist disagrees with generalized velocity"
+            );
+        }
+    }
     return compiled.task.fingerprint();
 }
 

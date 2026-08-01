@@ -1452,6 +1452,8 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::frameGoalOrientationError:
             case TaskObservationSource::frameRelativePosition:
             case TaskObservationSource::frameRelativeOrientation:
+            case TaskObservationSource::frameLinearVelocityWorld:
+            case TaskObservationSource::frameAngularVelocityWorld:
                 sourceIndex = namedGroup(frameIds, spec.target);
                 if (sourceIndex == MR_INVALID_INDEX) {
                     return reject(

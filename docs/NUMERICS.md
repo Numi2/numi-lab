@@ -11,6 +11,10 @@ must satisfy. Unsupported behavior is recorded in
 - Ball and free rotations integrate in tangent space and renormalize only as a
   representation operation, not as a constraint substitute.
 - Body translation and linear velocity are centre-of-mass quantities.
+- Articulation body twists are materialized by a forward-tree recursion from
+  the same accepted `q, v` state used by dynamics. Point velocity is
+  `v_com + omega x r`; task and sensor code must not infer it by finite
+  differencing poses or silently substitute zero body velocity.
 - Temporal microsteps re-evaluate geometry, limit activation, actuator state,
   and response factors before integration.
 - Velocity or effort safety caps are explicit actuator/safety-envelope stages;

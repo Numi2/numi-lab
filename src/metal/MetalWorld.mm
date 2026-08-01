@@ -151,6 +151,7 @@ struct MetalWorldContextState {
         learningPublicationValidationPipeline = nil;
     __strong id<MTLComputePipelineState> contactPreparePipeline = nil;
     __strong id<MTLComputePipelineState> bodyProjectionPipeline = nil;
+    __strong id<MTLComputePipelineState> bodyVelocityPipeline = nil;
     __strong id<MTLComputePipelineState> scenePredictionPipeline = nil;
     __strong id<MTLComputePipelineState> colliderProjectionPipeline = nil;
     __strong id<MTLComputePipelineState> sweptProjectionPipeline = nil;
@@ -4454,6 +4455,7 @@ MetalWorldDiagnostics initializeContext(
         learningPublicationValidation = nil;
     __strong id<MTLComputePipelineState> contactPrepare = nil;
     __strong id<MTLComputePipelineState> bodyProjection = nil;
+    __strong id<MTLComputePipelineState> bodyVelocity = nil;
     __strong id<MTLComputePipelineState> scenePrediction = nil;
     __strong id<MTLComputePipelineState> colliderProjection = nil;
     __strong id<MTLComputePipelineState> sweptProjection = nil;
@@ -4570,6 +4572,9 @@ MetalWorldDiagnostics initializeContext(
         createContactPipeline(@"mr_world_prepare_contact_step");
     bodyProjection =
         createContactPipeline(@"mr_world_build_body_states");
+    bodyVelocity = createContactPipeline(
+        @"mr_articulated_materialize_body_velocities"
+    );
     scenePrediction =
         createContactPipeline(@"mr_world_predict_scene");
     colliderProjection =
@@ -4765,6 +4770,7 @@ MetalWorldDiagnostics initializeContext(
         learningPublicationValidation == nil ||
         contactPrepare == nil ||
         bodyProjection == nil ||
+        bodyVelocity == nil ||
         scenePrediction == nil ||
         colliderProjection == nil ||
         sweptProjection == nil ||
@@ -4856,6 +4862,8 @@ MetalWorldDiagnostics initializeContext(
             kOperatorThreadsPerThreadgroup ||
         operatorPipeline.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
+        bodyVelocity.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
         prepare.maxTotalThreadsPerThreadgroup == 0u ||
         commit.maxTotalThreadsPerThreadgroup == 0u ||
         capture.maxTotalThreadsPerThreadgroup == 0u ||
@@ -4873,6 +4881,8 @@ MetalWorldDiagnostics initializeContext(
                 .maxTotalThreadsPerThreadgroup == 0u ||
         contactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
         bodyProjection.maxTotalThreadsPerThreadgroup == 0u ||
+        bodyVelocity.maxTotalThreadsPerThreadgroup <
+            kOperatorThreadsPerThreadgroup ||
         scenePrediction.maxTotalThreadsPerThreadgroup == 0u ||
         colliderProjection.maxTotalThreadsPerThreadgroup == 0u ||
         sweptProjection.maxTotalThreadsPerThreadgroup == 0u ||
@@ -5022,6 +5032,7 @@ MetalWorldDiagnostics initializeContext(
         learningPublicationValidation;
     context.contactPreparePipeline = contactPrepare;
     context.bodyProjectionPipeline = bodyProjection;
+    context.bodyVelocityPipeline = bodyVelocity;
     context.scenePredictionPipeline = scenePrediction;
     context.colliderProjectionPipeline = colliderProjection;
     context.sweptProjectionPipeline = sweptProjection;
@@ -8385,6 +8396,81 @@ bool encodeArticulatedOperator(
     return true;
 }
 
+bool encodeArticulatedBodyVelocities(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const std::size_t qBuffer,
+    const std::size_t vBuffer,
+    const std::size_t bodyStateBuffer,
+    const std::size_t environmentCount,
+    NSString* label
+) {
+    if (context.boundArticulations.empty()) {
+        return false;
+    }
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label = label;
+    [encoder setComputePipelineState:context.bodyVelocityPipeline];
+    const MTLSize threadgroupSize = MTLSizeMake(
+        kOperatorThreadsPerThreadgroup,
+        1u,
+        1u
+    );
+    for (std::size_t owner = 0u;
+         owner < context.boundArticulations.size();
+         ++owner) {
+        const MRArticulationGPU& articulation =
+            context.boundArticulations[owner];
+        [encoder setBuffer:context.buffers[kWorld]
+                     offset:0u
+                    atIndex:0u];
+        [encoder setBuffer:context.buffers[kArticulations]
+                     offset:0u
+                    atIndex:1u];
+        [encoder setBuffer:context.buffers[kJoints]
+                     offset:0u
+                    atIndex:2u];
+        [encoder setBuffer:context.buffers[kDofs]
+                     offset:0u
+                    atIndex:3u];
+        [encoder setBuffer:context.buffers[kBodies]
+                     offset:0u
+                    atIndex:4u];
+        [encoder
+            setBuffer:context.buffers[kOperatorKinematicsDispatch]
+               offset:owner *
+                   sizeof(MRArticulatedOperatorDispatchGPU)
+              atIndex:5u];
+        [encoder setBuffer:context.buffers[qBuffer]
+                     offset:articulation.qOffset * sizeof(float)
+                    atIndex:6u];
+        [encoder setBuffer:context.buffers[vBuffer]
+                     offset:articulation.vOffset * sizeof(float)
+                    atIndex:7u];
+        [encoder setBuffer:context.buffers[bodyStateBuffer]
+                     offset:articulation.firstBody *
+                         sizeof(MRBodyStateGPU)
+                    atIndex:8u];
+        [encoder setBuffer:context.buffers[kOperatorStatuses]
+                     offset:owner * environmentCount *
+                         sizeof(MRArticulatedOperatorStatusGPU)
+                    atIndex:9u];
+        [encoder
+            dispatchThreadgroups:MTLSizeMake(
+                static_cast<NSUInteger>(environmentCount),
+                1u,
+                1u
+            )
+            threadsPerThreadgroup:threadgroupSize];
+    }
+    [encoder endEncoding];
+    return true;
+}
+
 bool encodePrepare(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -8528,6 +8614,7 @@ bool encodeTaskFrameRefresh(
             {MR_TASK_FRAME_REFRESH_ARENA, kTaskProgramArena},
             {MR_TASK_FRAME_REFRESH_RESET_MASKS, kResetMasks},
             {MR_TASK_FRAME_REFRESH_BODY_POSES, kBodyPoses},
+            {MR_TASK_FRAME_REFRESH_BODY_STATES, kCurrentBodies},
             {MR_TASK_FRAME_REFRESH_SCENE_BODIES, sourceScene},
             {MR_TASK_FRAME_REFRESH_TASK_STATES, kTaskState},
             {MR_TASK_FRAME_REFRESH_SENSOR_BIAS, kTaskEncoderBias},
@@ -16137,6 +16224,18 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 ) ||
                                 (
                                     taskUsesFrames &&
+                                    !encodeArticulatedBodyVelocities(
+                                        *selectedState,
+                                        commandBuffer,
+                                        sourceQ,
+                                        sourceV,
+                                        kCurrentBodies,
+                                        batch.environmentCount,
+                                        @"compiled task reset body velocities"
+                                    )
+                                ) ||
+                                (
+                                    taskUsesFrames &&
                                     !encodeTaskFrameRefresh(
                                         *selectedState,
                                         commandBuffer,
@@ -16446,6 +16545,24 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 }
 
                 pass.physicsSubstep = MR_INVALID_INDEX;
+                if ((nativeTask || nativeSensors) &&
+                    !encodeArticulatedOperator(
+                        *selectedState,
+                        commandBuffer,
+                        kOperatorKinematicsDispatch,
+                        sourceQ,
+                        kPointQueries,
+                        kBodyPoses,
+                        batch.environmentCount,
+                        @"compiled accepted-state kinematics",
+                        false
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode accepted-state kinematics"
+                    );
+                }
                 if (nativeTask &&
                     (!encodeTaskEffort(
                          *selectedState,
@@ -16453,6 +16570,35 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                          pass,
                          sourceV,
                          batch.environmentCount
+                     ) ||
+                     !encodeContactThreadKernel(
+                         *selectedState,
+                         commandBuffer,
+                         selectedState->bodyProjectionPipeline,
+                         @"compiled task accepted body projection",
+                         {
+                             {0u, kContactDispatch},
+                             {1u, kArticulations},
+                             {2u, kBodies},
+                             {3u, kSceneBodyIndices},
+                             {4u, kBodyPoses},
+                             {5u, kOperatorStatuses},
+                             {6u, sourceScene},
+                             {7u, kCandidateBodies},
+                             {8u, kContactStatuses},
+                         },
+                         nullptr,
+                         0u,
+                         batch.environmentCount
+                     ) ||
+                     !encodeArticulatedBodyVelocities(
+                         *selectedState,
+                         commandBuffer,
+                         sourceQ,
+                         sourceV,
+                         kCandidateBodies,
+                         batch.environmentCount,
+                         @"compiled task accepted body velocities"
                      ) ||
                      !encodeTaskComplete(
                          *selectedState,
@@ -16472,18 +16618,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 MRMetalWorldPassGPU sensorPass = pass;
                 sensorPass.reserved0 = MR_SENSOR_EXECUTION_ADVANCE;
                 if (nativeSensors &&
-                    (!encodeArticulatedOperator(
-                         *selectedState,
-                         commandBuffer,
-                         kOperatorKinematicsDispatch,
-                         sourceQ,
-                         kPointQueries,
-                         kBodyPoses,
-                         batch.environmentCount,
-                         @"compiled sensor accepted-state kinematics",
-                         false
-                     ) ||
-                     !encodeSensorSample(
+                    (!encodeSensorSample(
                          *selectedState,
                          commandBuffer,
                          config.sensorProgram,

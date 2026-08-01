@@ -233,7 +233,9 @@ inline bool frameObservationOpcode(const uint opcode) {
     return
         (opcode >= MR_TASK_OBSERVE_FRAME_POSITION_WORLD &&
          opcode <= MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR) ||
-        relativeFrameObservationOpcode(opcode);
+        relativeFrameObservationOpcode(opcode) ||
+        opcode == MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_WORLD ||
+        opcode == MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD;
 }
 
 inline bool sensorObservationOpcode(const uint opcode) {
@@ -280,6 +282,8 @@ inline float taskFrameObservationValue(
     device const MRTaskGoalGPU* goals,
     const float4 bodyPosition,
     const float4 bodyOrientation,
+    const float3 bodyLinearVelocity,
+    const float3 bodyAngularVelocity,
     const float4 referenceBodyPosition,
     const float4 referenceBodyOrientation
 ) {
@@ -342,6 +346,20 @@ inline float taskFrameObservationValue(
         )[operation.source.z];
         break;
     }
+    case MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_WORLD: {
+        const float3 offset = rotate(
+            bodyOrientation,
+            frame.localPosition.xyz
+        );
+        value = (
+            bodyLinearVelocity +
+            cross(bodyAngularVelocity, offset)
+        )[operation.source.z];
+        break;
+    }
+    case MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD:
+        value = bodyAngularVelocity[operation.source.z];
+        break;
     default:
         break;
     }
@@ -706,7 +724,9 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_FRAME_GOAL_POSITION_ERROR:
     case MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR:
     case MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION:
-    case MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION: {
+    case MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION:
+    case MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_WORLD:
+    case MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD: {
         device const MRTaskFrameGPU& frame =
             frames[operation.source.y];
         const MRBodyStateGPU body = taskFrameBodyState(
@@ -732,6 +752,8 @@ inline float cleanObservation(
             goals,
             body.position,
             body.orientation,
+            body.linearVelocityAndInverseMass.xyz,
+            body.angularVelocity.xyz,
             referenceBody.position,
             referenceBody.orientation
         );
@@ -1775,6 +1797,8 @@ kernel void mr_task_refresh_frame_observations(
         [[buffer(MR_TASK_FRAME_REFRESH_RESET_MASKS)]],
     device const MRArticulatedBodyPoseGPU* bodyPoses
         [[buffer(MR_TASK_FRAME_REFRESH_BODY_POSES)]],
+    device const MRBodyStateGPU* bodyStates
+        [[buffer(MR_TASK_FRAME_REFRESH_BODY_STATES)]],
     device const MRBodyStateGPU* sceneBodies
         [[buffer(MR_TASK_FRAME_REFRESH_SCENE_BODIES)]],
     device const MRTaskStateGPU* taskStates
@@ -1867,6 +1891,11 @@ kernel void mr_task_refresh_frame_observations(
             bodyPoses + bodyBase,
             sceneBodies + sceneBase
         );
+        const MRBodyStateGPU velocityBody = taskFrameBodyState(
+            frame,
+            bodyStates + bodyBase,
+            sceneBodies + sceneBase
+        );
         TaskFramePose referencePose = pose;
         if (relativeFrameObservationOpcode(
                 operation.source.x
@@ -1885,6 +1914,8 @@ kernel void mr_task_refresh_frame_observations(
             goals,
             float4(pose.position, 1.0f),
             pose.orientation,
+            velocityBody.linearVelocityAndInverseMass.xyz,
+            velocityBody.angularVelocity.xyz,
             float4(referencePose.position, 1.0f),
             referencePose.orientation
         );
@@ -1941,6 +1972,11 @@ kernel void mr_task_refresh_frame_observations(
             bodyPoses + bodyBase,
             sceneBodies + sceneBase
         );
+        const MRBodyStateGPU velocityBody = taskFrameBodyState(
+            frame,
+            bodyStates + bodyBase,
+            sceneBodies + sceneBase
+        );
         TaskFramePose referencePose = pose;
         if (relativeFrameObservationOpcode(
                 operation.source.x
@@ -1959,6 +1995,8 @@ kernel void mr_task_refresh_frame_observations(
             goals,
             float4(pose.position, 1.0f),
             pose.orientation,
+            velocityBody.linearVelocityAndInverseMass.xyz,
+            velocityBody.angularVelocity.xyz,
             float4(referencePose.position, 1.0f),
             referencePose.orientation
         );

@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 10u
+#define MR_TASK_PROGRAM_ABI_VERSION 11u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -44,6 +44,10 @@ enum MRTaskObservationOpcode : mr_u32 {
     // Tangent rotation vector of the target frame expressed relative to the
     // second named frame.
     MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION = 21u,
+    // Linear velocity at the named frame origin in world axes.
+    MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_WORLD = 22u,
+    // Angular velocity of the named frame in world axes.
+    MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD = 23u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
