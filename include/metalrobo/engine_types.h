@@ -43,7 +43,7 @@
 // a command-buffer completion or CPU-visible intermediate state.
 #define MR_METAL_WORLD_ABI_VERSION 5u
 #define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
-#define MR_METAL_WORLD_CONTACT_ABI_VERSION 7u
+#define MR_METAL_WORLD_CONTACT_ABI_VERSION 8u
 #define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
 #define MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR 8u
 #define MR_WAVE32_CONTACTS_PER_TILE 32u
@@ -745,6 +745,7 @@ enum MRMetalWorldContactFlags : mr_u32 {
     MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS = 1u << 6u,
     MR_METAL_WORLD_CONTACT_QUALITY = 1u << 7u,
     MR_METAL_WORLD_CONTACT_BODY_PARAMETERS = 1u << 8u,
+    MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES = 1u << 9u,
 };
 
 // One stable, cooker-produced pair. The pair stream is canonical collider

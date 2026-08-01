@@ -164,7 +164,7 @@ actions/reset
   -> analytic narrowphase
   -> persistent manifold refresh/merge/reduction
   -> canonical ConstraintIR emission
-  -> current-microstep IR/Jacobian/factor evaluation
+  -> current-microstep IR/Jacobian/operator evaluation
   -> mixed articulation/free-body islands
   -> coupled circular/elliptic-cone solve
   -> constrained integration
@@ -183,9 +183,15 @@ order, so manifold identity and capacity-failure precedence remain
 deterministic without global append atomics.
 
 The temporal cone solver rebuilds body transforms, contacts, manifolds, point
-Jacobians, and factor-backed response columns on every microstep. Normal and
-both tangential directions are solved as one coupled 3D block, with the
-tangential pair projected onto the exact circular or elliptical Coulomb cone.
+Jacobians, and response columns on every microstep. Eligible one-articulation
+task worlds assemble the active contact rows into the existing response arena
+and apply inverse ABA directly, so they neither materialize a dense mass matrix
+nor factor it. Capacity rows stay explicitly zero and the inverse operator
+visits only the device-published active constraint count. Multi-articulation,
+rod, authored-generalized-constraint, quality-solver, and explicit
+qualification runs retain the dense factor path. Normal and both tangential
+directions are solved as one coupled 3D block, with the tangential pair
+projected onto the exact circular or elliptical Coulomb cone.
 The held control target is converted to effort from the current q/v before
 every microstep; reusing a control-step-start PD effort across later microsteps
 is not dynamically equivalent. Each microstep integrates immediately before

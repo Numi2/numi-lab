@@ -1832,6 +1832,115 @@ inline bool solveRodTwistFactorDevice(
 
 } // namespace
 
+// Materializes active J' rows into the existing response arena. The streamed
+// inverse-ABA dispatch transforms this allocation in place to M^-1J'. Solver
+// work records can reference only the current active constraint prefix, so
+// inactive capacity rows need no clear or inverse application.
+kernel void mr_world_assemble_streamed_response_rhs(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const float* pointJacobians [[buffer(1)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(2)]],
+    device const MRContactConstraintGPU* contacts [[buffer(3)]],
+    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(4)]],
+    device float* responseColumns [[buffer(5)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(6)]],
+    device const MRRodToolWitnessGPU* rodWitnesses [[buffer(7)]],
+    device const uint* constraintWitnessIndices [[buffer(8)]],
+    const uint environment [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_threadgroup]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        lane >= MR_SIMD_WIDTH ||
+        dispatch.nv == 0u) {
+        return;
+    }
+    const MRMetalWorldContactStatusGPU status = statuses[environment];
+    if (status.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const uint activeConstraintCount = min(
+        status.requiredConstraints,
+        dispatch.constraintCapacity
+    );
+    const uint activeElements =
+        activeConstraintCount * 3u * dispatch.nv;
+    const uint constraintBase =
+        environment * dispatch.constraintStride;
+    const uint rowBase = environment * dispatch.rowStride;
+    const uint bodyBase =
+        environment * dispatch.bodyStateStride;
+    const uint pointJacobianBase =
+        environment *
+        (dispatch.pointQueryStride * 3u * dispatch.nv);
+    const uint responseBase =
+        environment *
+        (dispatch.constraintStride * 3u * dispatch.nv);
+    for (uint localElement = lane;
+         localElement < activeElements;
+         localElement += MR_SIMD_WIDTH) {
+        const uint rhs = localElement / dispatch.nv;
+        const uint dof = localElement - rhs * dispatch.nv;
+        const uint localConstraint = rhs / 3u;
+        const uint axis = rhs - 3u * localConstraint;
+        device const MRContactConstraintGPU& contact =
+            contacts[constraintBase + localConstraint];
+        const float3 direction = evaluatedRows[
+            rowBase + 3u * localConstraint + axis
+        ].direction.xyz;
+        responseColumns[responseBase + localElement] = dot(
+            direction,
+            typedArticulationJacobianColumn(
+                localConstraint,
+                contact,
+                candidateBodies + bodyBase,
+                pointJacobians,
+                pointJacobianBase,
+                dof,
+                dispatch.nv,
+                rodWitnesses,
+                constraintWitnessIndices,
+                constraintBase
+            )
+        );
+    }
+}
+
+kernel void mr_world_validate_streamed_response(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRInverseMassStatusGPU* inverseStatuses [[buffer(1)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(2)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    const MRInverseMassStatusGPU inverse = inverseStatuses[environment];
+    if (status.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    if (inverse.code == MR_INVERSE_MASS_SUCCESS) {
+        statuses[environment] = status;
+        return;
+    }
+    status.code =
+        inverse.code == MR_INVERSE_MASS_NONFINITE_INPUT
+        ? MR_STEP_NONFINITE_INPUT
+        : inverse.code == MR_INVERSE_MASS_FACTORIZATION_FAILED
+        ? MR_STEP_FACTORIZATION_FAILED
+        : inverse.code == MR_INVERSE_MASS_NONFINITE_RESULT
+        ? MR_STEP_NONFINITE_RESULT
+        : MR_STEP_UNSUPPORTED;
+    status.firstFailingConstraint = inverse.failingIndex;
+    status.diagnostics = float4(
+        float(inverse.code),
+        float(inverse.failingIndex),
+        inverse.diagnostics.x,
+        inverse.diagnostics.y
+    );
+    statuses[environment] = status;
+}
+
 // Factors the implicit DER response A = M + hD + h^2K once per rod and
 // microstep. Translation uses an exact scalar band for the retained
 // stretch/three-node bend stencil; twist uses a bidiagonal factor. Numerical
@@ -4884,45 +4993,50 @@ kernel void mr_world_wave32_distributed_prepare(
         float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
         float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
         float solution[MR_ARTICULATED_ABA_MAX_DOFS];
-        for (uint axis = 0u; axis < 3u; ++axis) {
-            const float3 direction =
-                evaluatedRows[
-                    rowBase + 3u * localConstraint + axis
-                ].direction.xyz;
-            for (uint dof = 0u; dof < dispatch.nv; ++dof) {
-                rightHandSide[dof] = dot(
-                    direction,
-                    combinedJacobianColumn(
-                        pointJacobians,
-                        pointJacobianBase,
-                        localConstraint,
-                        dof,
+        if ((dispatch.flags &
+             MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) == 0u) {
+            for (uint axis = 0u; axis < 3u; ++axis) {
+                const float3 direction =
+                    evaluatedRows[
+                        rowBase + 3u * localConstraint + axis
+                    ].direction.xyz;
+                for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+                    rightHandSide[dof] = dot(
+                        direction,
+                        combinedJacobianColumn(
+                            pointJacobians,
+                            pointJacobianBase,
+                            localConstraint,
+                            dof,
+                            dispatch.nv,
+                            articulatedA,
+                            articulatedB
+                        )
+                    );
+                    intermediate[dof] = 0.0f;
+                    solution[dof] = 0.0f;
+                }
+                if (!solveCholesky(
+                        factors,
+                        factorBase,
                         dispatch.nv,
-                        articulatedA,
-                        articulatedB
-                    )
-                );
-                intermediate[dof] = 0.0f;
-                solution[dof] = 0.0f;
-            }
-            if (!solveCholesky(
-                    factors,
-                    factorBase,
-                    dispatch.nv,
-                    rightHandSide,
-                    intermediate,
-                    solution
-                )) {
-                failure = MR_STEP_FACTORIZATION_FAILED;
-                break;
-            }
-            for (uint dof = 0u; dof < dispatch.nv; ++dof) {
-                responseColumns[
-                    responseBase +
-                    (localConstraint * 3u + axis) *
-                        dispatch.nv +
-                    dof
-                ] = solution[dof];
+                        rightHandSide,
+                        intermediate,
+                        solution
+                    )) {
+                    failure = MR_STEP_FACTORIZATION_FAILED;
+                    break;
+                }
+                for (uint dof = 0u;
+                     dof < dispatch.nv;
+                     ++dof) {
+                    responseColumns[
+                        responseBase +
+                        (localConstraint * 3u + axis) *
+                            dispatch.nv +
+                        dof
+                    ] = solution[dof];
+                }
             }
         }
 
@@ -6272,52 +6386,57 @@ inline void mrWorldWave32SolvePacket(
         float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
         float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
         float solution[MR_ARTICULATED_ABA_MAX_DOFS];
-        for (uint axis = 0u; axis < 3u; ++axis) {
-            const float3 direction =
-                evaluatedRows[
-                    rowBase + 3u * localConstraint + axis
-                ].direction.xyz;
-            for (uint dof = 0u; dof < dispatch.nv; ++dof) {
-                rightHandSide[dof] = dot(
-                    direction,
-                    typedArticulationJacobianColumn(
-                        localConstraint,
-                        contact,
-                        bodies,
-                        pointJacobians,
-                        pointJacobianBase,
-                        dof,
+        if ((dispatch.flags &
+             MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) == 0u) {
+            for (uint axis = 0u; axis < 3u; ++axis) {
+                const float3 direction =
+                    evaluatedRows[
+                        rowBase + 3u * localConstraint + axis
+                    ].direction.xyz;
+                for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+                    rightHandSide[dof] = dot(
+                        direction,
+                        typedArticulationJacobianColumn(
+                            localConstraint,
+                            contact,
+                            bodies,
+                            pointJacobians,
+                            pointJacobianBase,
+                            dof,
+                            dispatch.nv,
+                            rodWitnesses,
+                            constraintWitnessIndices,
+                            constraintBase
+                        )
+                    );
+                    intermediate[dof] = 0.0f;
+                    solution[dof] = 0.0f;
+                }
+                if (!solveCholesky(
+                        factors,
+                        factorBase,
                         dispatch.nv,
-                        rodWitnesses,
-                        constraintWitnessIndices,
-                        constraintBase
-                    )
-                );
-                intermediate[dof] = 0.0f;
-                solution[dof] = 0.0f;
-            }
-            if (!solveCholesky(
-                    factors,
-                    factorBase,
-                    dispatch.nv,
-                    rightHandSide,
-                    intermediate,
-                    solution
-                )) {
-                localFailure = MR_STEP_FACTORIZATION_FAILED;
-                localFailureConstraint = min(
-                    localFailureConstraint,
-                    localConstraint
-                );
-                break;
-            }
-            for (uint dof = 0u; dof < dispatch.nv; ++dof) {
-                responseColumns[
-                    responseBase +
-                    (localConstraint * 3u + axis) *
-                        dispatch.nv +
-                    dof
-                ] = solution[dof];
+                        rightHandSide,
+                        intermediate,
+                        solution
+                    )) {
+                    localFailure = MR_STEP_FACTORIZATION_FAILED;
+                    localFailureConstraint = min(
+                        localFailureConstraint,
+                        localConstraint
+                    );
+                    break;
+                }
+                for (uint dof = 0u;
+                     dof < dispatch.nv;
+                     ++dof) {
+                    responseColumns[
+                        responseBase +
+                        (localConstraint * 3u + axis) *
+                            dispatch.nv +
+                        dof
+                    ] = solution[dof];
+                }
             }
         }
         if (localFailure != MR_STEP_SUCCESS) {

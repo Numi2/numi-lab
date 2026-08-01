@@ -17,6 +17,10 @@ using namespace metal;
 #define MR_INVERSE_MASS_BODY_PARAMETERS 0
 #endif
 
+#ifndef MR_INVERSE_MASS_STREAMING_RHS
+#define MR_INVERSE_MASS_STREAMING_RHS 0
+#endif
+
 #ifndef MR_PARALLEL_INVERSE_MASS_KERNEL_NAME
 #define MR_PARALLEL_INVERSE_MASS_KERNEL_NAME \
     mr_parallel_multi_articulated_inverse_mass
@@ -31,7 +35,9 @@ constant float kAbsolutePivotFloor = 1.0e-12f;
 constant uint kMaxBodies = MR_ARTICULATED_ABA_MAX_BODIES;
 constant uint kMaxDofs = MR_ARTICULATED_ABA_MAX_DOFS;
 constant uint kMaxQ = MR_ARTICULATED_ABA_MAX_Q;
+#if !MR_INVERSE_MASS_STREAMING_RHS
 constant uint kMaxRhs = MR_ARTICULATED_INVERSE_MASS_MAX_RHS;
+#endif
 
 inline bool finite3(const float3 value) {
     return all(isfinite(value));
@@ -278,7 +284,10 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
     device const MRJointDescriptorGPU* joints [[buffer(2)]],
     device const MRDofPropertiesGPU* dofs [[buffer(3)]],
     device const MRBodyPropertiesGPU* bodies [[buffer(4)]],
-#if MR_INVERSE_MASS_MULTI_ARTICULATION
+#if MR_INVERSE_MASS_STREAMING_RHS
+    constant const MRInverseMassDispatchGPU& streamingDispatch
+        [[buffer(5)]],
+#elif MR_INVERSE_MASS_MULTI_ARTICULATION
     device const MRMultiInverseMassDispatchGPU* dispatches [[buffer(5)]],
 #else
     device const MRInverseMassDispatchGPU* dispatches [[buffer(5)]],
@@ -291,11 +300,21 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
     device const float4* bodyParameters [[buffer(10)]],
     device const float4* controllerParameters [[buffer(11)]],
 #endif
+#if MR_INVERSE_MASS_STREAMING_RHS
+    device const MRMetalWorldContactStatusGPU* contactStatuses
+        [[buffer(12)]],
+#endif
     uint2 packet [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
 ) {
     const uint environment = packet.x;
-#if MR_INVERSE_MASS_MULTI_ARTICULATION
+#if MR_INVERSE_MASS_STREAMING_RHS
+    const MRInverseMassDispatchGPU dispatch = streamingDispatch;
+    const uint qStreamBase = 0u;
+    const uint rhsStreamBase = 0u;
+    const uint outputStreamBase = 0u;
+    const uint statusIndex = environment;
+#elif MR_INVERSE_MASS_MULTI_ARTICULATION
     const MRMultiInverseMassDispatchGPU work =
         dispatches[packet.y];
     const MRInverseMassDispatchGPU dispatch = work.dispatch;
@@ -314,7 +333,6 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
     const uint rhsStreamBase = 0u;
     const uint outputStreamBase = 0u;
     const uint statusIndex = environment;
-    const bool validWorkRecord = true;
 #endif
     if (lane != 0u || environment >= dispatch.environmentCount) {
         return;
@@ -336,7 +354,11 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
     threadgroup uint parentLocal[kMaxBodies];
     threadgroup uint traversal[kMaxBodies];
     threadgroup uchar known[kMaxBodies];
+#if MR_INVERSE_MASS_STREAMING_RHS
+    threadgroup float candidateOutput[kMaxDofs];
+#else
     threadgroup float candidateOutput[kMaxRhs * kMaxDofs];
+#endif
     threadgroup float rootFactor[36u];
     threadgroup float rootIntermediate[6u];
 
@@ -345,27 +367,59 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
     status.environment = environment;
     status.articulationIndex = dispatch.articulationIndex;
     status.failingIndex = MR_INVALID_INDEX;
-    status.rhsCount = dispatch.rhsCount;
+#if MR_INVERSE_MASS_STREAMING_RHS
+    const MRMetalWorldContactStatusGPU contactStatus =
+        contactStatuses[environment];
+    const uint activeRhsCount =
+        contactStatus.code == MR_STEP_SUCCESS
+        ? min(
+              dispatch.rhsCount,
+              3u * contactStatus.requiredConstraints
+          )
+        : 0u;
+#else
+    const uint activeRhsCount = dispatch.rhsCount;
+#endif
+    status.rhsCount = activeRhsCount;
 
     device const MRWorldGPU& world = worlds[0];
-    if (!validWorkRecord ||
-        world.abiVersion != MR_ENGINE_ABI_VERSION ||
-        dispatch.articulationIndex >= world.articulationCount ||
-        dispatch.environmentCount == 0u ||
-        dispatch.rhsCount == 0u ||
-        dispatch.rhsCount > kMaxRhs ||
-#if MR_INVERSE_MASS_BODY_PARAMETERS
-        (dispatch.flags & ~MR_INVERSE_MASS_IMPLICIT_DRIVES) != 0u ||
-#else
-        dispatch.flags != 0u ||
+    uint invalidDispatchField = MR_INVALID_INDEX;
+#if MR_INVERSE_MASS_MULTI_ARTICULATION
+    if (!validWorkRecord) {
+        invalidDispatchField = 0u;
+    } else
 #endif
-        dispatch.reserved1 != 0u ||
-        dispatch.reserved2 != 0u ||
-        dispatch.reserved3 != 0u) {
+    if (world.abiVersion != MR_ENGINE_ABI_VERSION) {
+        invalidDispatchField = 1u;
+    } else if (dispatch.articulationIndex >=
+               world.articulationCount) {
+        invalidDispatchField = 2u;
+    } else if (dispatch.environmentCount == 0u) {
+        invalidDispatchField = 3u;
+    } else if (dispatch.rhsCount == 0u) {
+        invalidDispatchField = 4u;
+#if !MR_INVERSE_MASS_STREAMING_RHS
+    } else if (dispatch.rhsCount > kMaxRhs) {
+        invalidDispatchField = 5u;
+#endif
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+    } else if ((dispatch.flags &
+                ~MR_INVERSE_MASS_IMPLICIT_DRIVES) != 0u) {
+        invalidDispatchField = 6u;
+#else
+    } else if (dispatch.flags != 0u) {
+        invalidDispatchField = 6u;
+#endif
+    } else if (dispatch.reserved1 != 0u ||
+               dispatch.reserved2 != 0u ||
+               dispatch.reserved3 != 0u) {
+        invalidDispatchField = 7u;
+    }
+    if (invalidDispatchField != MR_INVALID_INDEX) {
         setFailure(
             status,
             MR_INVERSE_MASS_INVALID_DISPATCH,
-            MR_INVALID_INDEX
+            invalidDispatchField
         );
         statuses[statusIndex] = status;
         return;
@@ -422,6 +476,13 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
         statuses[statusIndex] = status;
         return;
     }
+#if MR_INVERSE_MASS_STREAMING_RHS
+    if (activeRhsCount == 0u) {
+        status.diagnostics = float4(0.0f);
+        statuses[statusIndex] = status;
+        return;
+    }
+#endif
 
     const uint rootLocal =
         articulation.rootBody - articulation.firstBody;
@@ -646,7 +707,7 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
         rhsStreamBase +
         environment * dispatch.rhsEnvironmentStride;
     for (uint rhsIndex = 0u;
-         rhsIndex < dispatch.rhsCount;
+         rhsIndex < activeRhsCount;
          ++rhsIndex) {
         const uint rhsBase =
             rhsEnvironmentBase +
@@ -1149,8 +1210,11 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
     }
 
     float maximumOutput = 0.0f;
+    const uint outputEnvironmentBase =
+        outputStreamBase +
+        environment * dispatch.outputEnvironmentStride;
     for (uint rhsIndex = 0u;
-         rhsIndex < dispatch.rhsCount;
+         rhsIndex < activeRhsCount;
          ++rhsIndex) {
         const uint rhsBase =
             rhsEnvironmentBase +
@@ -1290,24 +1354,18 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
             }
             accelerationAngular[rootLocal] = rootAngular;
             accelerationLinear[rootLocal] = rootLinear;
-            candidateOutput[
-                rhsIndex * kMaxDofs + 0u
-            ] = rootLinear.x;
-            candidateOutput[
-                rhsIndex * kMaxDofs + 1u
-            ] = rootLinear.y;
-            candidateOutput[
-                rhsIndex * kMaxDofs + 2u
-            ] = rootLinear.z;
-            candidateOutput[
-                rhsIndex * kMaxDofs + 3u
-            ] = rootAngular.x;
-            candidateOutput[
-                rhsIndex * kMaxDofs + 4u
-            ] = rootAngular.y;
-            candidateOutput[
-                rhsIndex * kMaxDofs + 5u
-            ] = rootAngular.z;
+            const uint candidateBase =
+#if MR_INVERSE_MASS_STREAMING_RHS
+                0u;
+#else
+                rhsIndex * kMaxDofs;
+#endif
+            candidateOutput[candidateBase + 0u] = rootLinear.x;
+            candidateOutput[candidateBase + 1u] = rootLinear.y;
+            candidateOutput[candidateBase + 2u] = rootLinear.z;
+            candidateOutput[candidateBase + 3u] = rootAngular.x;
+            candidateOutput[candidateBase + 4u] = rootAngular.y;
+            candidateOutput[candidateBase + 5u] = rootAngular.z;
         } else {
             accelerationAngular[rootLocal] = float3(0.0f);
             accelerationLinear[rootLocal] = float3(0.0f);
@@ -1355,7 +1413,11 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
                 const uint localV =
                     joint.vOffset - articulation.vOffset;
                 candidateOutput[
+#if MR_INVERSE_MASS_STREAMING_RHS
+                    localV
+#else
                     rhsIndex * kMaxDofs + localV
+#endif
                 ] = jointAcceleration;
                 angular +=
                     motionAngular[localBody] *
@@ -1373,7 +1435,11 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
              ++localV) {
             const float value =
                 candidateOutput[
+#if MR_INVERSE_MASS_STREAMING_RHS
+                    localV
+#else
                     rhsIndex * kMaxDofs + localV
+#endif
                 ];
             if (!isfinite(value)) {
                 setFailure(
@@ -1386,11 +1452,20 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
             }
             maximumOutput = max(maximumOutput, abs(value));
         }
+#if MR_INVERSE_MASS_STREAMING_RHS
+        const uint outputBase =
+            outputEnvironmentBase +
+            rhsIndex * dispatch.outputVectorStride;
+        for (uint localV = 0u;
+             localV < articulation.nv;
+             ++localV) {
+            output[outputBase + localV] =
+                candidateOutput[localV];
+        }
+#endif
     }
 
-    const uint outputEnvironmentBase =
-        outputStreamBase +
-        environment * dispatch.outputEnvironmentStride;
+#if !MR_INVERSE_MASS_STREAMING_RHS
     for (uint rhsIndex = 0u;
          rhsIndex < dispatch.rhsCount;
          ++rhsIndex) {
@@ -1406,6 +1481,7 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
                 ];
         }
     }
+#endif
     status.diagnostics = float4(
         minimumPivot,
         maximumPivot,

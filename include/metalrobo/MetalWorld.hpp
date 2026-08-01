@@ -354,6 +354,9 @@ struct MetalWorldStepConfig {
     bool applyBodyDamping = true;
     bool deterministic = true;
     bool warmStart = true;
+    // Uses streamed inverse ABA for eligible single-articulation contact
+    // graphs. Disable only for dense-factor qualification A/B runs.
+    bool matrixFreeArticulatedContact = true;
     bool captureContactEvidence = false;
     // Full state/trajectory publication is an explicit inspection boundary.
     // Native rollout sessions disable both and retain simulator state on the
@@ -397,6 +400,7 @@ struct MetalWorldLayout {
         kinematicsDispatches;
     std::vector<MRArticulatedOperatorDispatchGPU>
         factorDispatches;
+    MRInverseMassDispatchGPU inverseMassDispatch{};
     MRMetalWorldContactDispatchGPU contactDispatch{};
     MRUnifiedQualityDispatchGPU qualityDispatch{};
     std::size_t initialQElements = 0u;

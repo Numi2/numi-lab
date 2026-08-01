@@ -34,7 +34,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 221u;
+constexpr std::size_t kRawBufferCount = 223u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -277,6 +277,8 @@ enum BufferIndex : std::size_t {
     kPolicyValues = 218u,
     kTaskCurriculumState = 219u,
     kTaskMotionFeatures = 220u,
+    kInverseMassStatuses = 221u,
+    kInverseMassDispatch = 222u,
 };
 
 struct BufferRequirement {
@@ -376,6 +378,9 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> multiOperatorComposePipeline = nil;
     __strong id<MTLComputePipelineState> factorDispatchPipeline = nil;
     __strong id<MTLComputePipelineState> pointQueryTailPipeline = nil;
+    __strong id<MTLComputePipelineState> streamedRhsPipeline = nil;
+    __strong id<MTLComputePipelineState> streamedInversePipeline = nil;
+    __strong id<MTLComputePipelineState> streamedValidatePipeline = nil;
     __strong id<MTLComputePipelineState> evaluateIRPipeline = nil;
     __strong id<MTLComputePipelineState> islandPipeline = nil;
     __strong id<MTLComputePipelineState> buildTilesPipeline = nil;
@@ -440,6 +445,7 @@ struct MetalWorldContextState {
     std::vector<MRArticulationGPU> boundArticulations;
     std::vector<MRArticulatedOperatorDispatchGPU>
         boundFactorDispatches;
+    MRMetalWorldContactDispatchGPU boundContactDispatch{};
     bool useTaskBodyParameters = false;
     std::uint64_t boundModelFingerprint = 0u;
     std::uint64_t boundTaskFingerprint = 0u;
@@ -1876,6 +1882,11 @@ bool buildRequirements(
             1u,
             requirements.entries[kContactDispatch]
         ) ||
+        !makeRequirement<MRInverseMassDispatchGPU>(
+            "streamed inverse-mass dispatch",
+            1u,
+            requirements.entries[kInverseMassDispatch]
+        ) ||
         !makeRequirement<MRArticulatedOperatorDispatchGPU>(
             "multi-articulation kinematics dispatches",
             model.articulations.size(),
@@ -1975,6 +1986,11 @@ bool buildRequirements(
             contactEnvironments *
                 model.articulations.size(),
             requirements.entries[kOperatorStatuses]
+        ) ||
+        !makeRequirement<MRInverseMassStatusGPU>(
+            "streamed inverse-mass statuses",
+            contactEnvironments,
+            requirements.entries[kInverseMassStatuses]
         ) ||
         !makeRequirement<MRBodyStateGPU>(
             "current global body states",
@@ -3407,6 +3423,32 @@ MetalWorldDiagnostics validateAndBuildLayout(
         static_cast<mr_u32>(
             world.model().constraintProgram.cones.size()
         );
+    if (config.matrixFreeArticulatedContact &&
+        nativeTask &&
+        config.solverMode == MetalWorldSolverMode::temporalCone &&
+        world.articulationCount() == 1u &&
+        contact.rodNodeCount == 0u &&
+        contact.authoredConstraintCount == 0u) {
+        contact.flags |=
+            MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES;
+    }
+    MRInverseMassDispatchGPU& inverse =
+        layout.inverseMassDispatch;
+    inverse.articulationIndex = contact.articulationIndex;
+    inverse.environmentCount = contact.environmentCount;
+    inverse.rhsCount = 3u * contact.constraintStride;
+    inverse.flags =
+        config.actuationMode ==
+            MetalWorldActuationMode::implicitPositionDrive
+        ? MR_INVERSE_MASS_IMPLICIT_DRIVES
+        : 0u;
+    inverse.qStride = contact.qStride;
+    inverse.rhsEnvironmentStride =
+        inverse.rhsCount * contact.nv;
+    inverse.rhsVectorStride = contact.nv;
+    inverse.outputEnvironmentStride =
+        inverse.rhsEnvironmentStride;
+    inverse.outputVectorStride = contact.nv;
     contact.flags |= MR_METAL_WORLD_CONTACT_WAVE32;
     if (nativeTask) {
         contact.flags |=
@@ -3463,13 +3505,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
         factor.environmentCount = dispatch.environmentCount;
         factor.pointCount = contact.pointQueryStride;
         factor.flags =
-            MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
-            (
-                (dispatch.flags &
-                 MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u
-                ? MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES
-                : 0u
-            );
+            (contact.flags &
+             MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) != 0u
+            ? MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY
+            : MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
+                  (
+                      (dispatch.flags &
+                       MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u
+                      ? MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES
+                      : 0u
+                  );
         factor.qStride = dispatch.qStride;
         factor.pointStride = contact.pointQueryStride;
         factor.bodyPoseStride =
@@ -4577,6 +4622,9 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> multiOperatorCompose = nil;
     __strong id<MTLComputePipelineState> factorDispatch = nil;
     __strong id<MTLComputePipelineState> pointQueryTail = nil;
+    __strong id<MTLComputePipelineState> streamedRhs = nil;
+    __strong id<MTLComputePipelineState> streamedInverse = nil;
+    __strong id<MTLComputePipelineState> streamedValidate = nil;
     __strong id<MTLComputePipelineState> evaluateIR = nil;
     __strong id<MTLComputePipelineState> islands = nil;
     __strong id<MTLComputePipelineState> buildTiles = nil;
@@ -4778,6 +4826,15 @@ MetalWorldDiagnostics initializeContext(
     pointQueryTail = createContactPipeline(
         @"mr_world_fill_point_query_tail"
     );
+    streamedRhs = createContactPipeline(
+        @"mr_world_assemble_streamed_response_rhs"
+    );
+    streamedInverse = createContactPipeline(
+        @"mr_world_streaming_articulated_inverse_mass"
+    );
+    streamedValidate = createContactPipeline(
+        @"mr_world_validate_streamed_response"
+    );
     evaluateIR =
         createContactPipeline(@"mr_world_evaluate_constraint_ir");
     islands =
@@ -4946,6 +5003,9 @@ MetalWorldDiagnostics initializeContext(
         multiOperatorCompose == nil ||
         factorDispatch == nil ||
         pointQueryTail == nil ||
+        streamedRhs == nil ||
+        streamedInverse == nil ||
+        streamedValidate == nil ||
         evaluateIR == nil ||
         islands == nil ||
         buildTiles == nil ||
@@ -5254,6 +5314,9 @@ MetalWorldDiagnostics initializeContext(
         multiOperatorCompose;
     context.factorDispatchPipeline = factorDispatch;
     context.pointQueryTailPipeline = pointQueryTail;
+    context.streamedRhsPipeline = streamedRhs;
+    context.streamedInversePipeline = streamedInverse;
+    context.streamedValidatePipeline = streamedValidate;
     context.evaluateIRPipeline = evaluateIR;
     context.islandPipeline = islands;
     context.buildTilesPipeline = buildTiles;
@@ -5348,6 +5411,7 @@ bool privateTransientBuffer(const std::size_t index) {
     case kGeneralizedImpulse:
     case kDeltaVelocity:
     case kOperatorStatuses:
+    case kInverseMassStatuses:
     case kCurrentBodies:
     case kCandidateBodies:
     case kCandidateManifoldHeaders:
@@ -7010,6 +7074,11 @@ void uploadBatch(
         &layout.contactDispatch,
         requirements.entries[kContactDispatch]
     );
+    copyToBuffer(
+        context.buffers[kInverseMassDispatch],
+        &layout.inverseMassDispatch,
+        requirements.entries[kInverseMassDispatch]
+    );
     if (layout.contactDispatch.solverType ==
         MR_SOLVER_QUALITY_NEWTON) {
         copyToBuffer(
@@ -7029,6 +7098,7 @@ void uploadBatch(
         requirements.entries[kOperatorFactorDispatch]
     );
     context.boundFactorDispatches = layout.factorDispatches;
+    context.boundContactDispatch = layout.contactDispatch;
     if (uploadInitialState) {
         copyToBuffer(
             context.buffers[kInitialSceneBodies],
@@ -8453,6 +8523,108 @@ bool encodeArticulatedOperator(
     }
     [encoder endEncoding];
     return true;
+}
+
+bool encodeStreamedArticulatedResponses(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const std::size_t sourceQ,
+    const std::size_t environmentCount
+) {
+    const MRMetalWorldContactDispatchGPU& contact =
+        context.boundContactDispatch;
+    if ((contact.flags &
+         MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) == 0u) {
+        return true;
+    }
+    if (context.boundArticulations.size() != 1u ||
+        context.boundFactorDispatches.size() != 1u ||
+        !context.useTaskBodyParameters) {
+        return false;
+    }
+    id<MTLComputeCommandEncoder> assembly =
+        [commandBuffer computeCommandEncoder];
+    if (assembly == nil) {
+        return false;
+    }
+    assembly.label = @"MetalWorld assemble streamed contact RHS";
+    [assembly setComputePipelineState:context.streamedRhsPipeline];
+    const std::array<std::size_t, 9u> assemblyBuffers{{
+        kContactDispatch,
+        kPointJacobians,
+        kCandidateBodies,
+        kContacts,
+        kEvaluatedRows,
+        kResponseColumns,
+        kContactStatuses,
+        kCandidateRodWitnesses,
+        kRodConstraintWitnessIndices,
+    }};
+    for (NSUInteger argument = 0u;
+         argument < assemblyBuffers.size();
+         ++argument) {
+        [assembly setBuffer:context.buffers[assemblyBuffers[argument]]
+                     offset:0u
+                    atIndex:argument];
+    }
+    [assembly
+        dispatchThreadgroups:MTLSizeMake(environmentCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(MR_SIMD_WIDTH, 1u, 1u)];
+    [assembly endEncoding];
+
+    id<MTLComputeCommandEncoder> inverse =
+        [commandBuffer computeCommandEncoder];
+    if (inverse == nil) {
+        return false;
+    }
+    inverse.label = @"MetalWorld streamed inverse ABA";
+    [inverse setComputePipelineState:context.streamedInversePipeline];
+    const std::array<std::size_t, 13u> buffers{{
+        kWorld,
+        kArticulations,
+        kJoints,
+        kDofs,
+        kBodies,
+        kInverseMassDispatch,
+        sourceQ,
+        kResponseColumns,
+        kResponseColumns,
+        kInverseMassStatuses,
+        kTaskBodyParameters,
+        kTaskControllerParameters,
+        kContactStatuses,
+    }};
+    for (NSUInteger argument = 0u;
+         argument < buffers.size();
+         ++argument) {
+        NSUInteger offset = 0u;
+        if (argument == 6u) {
+            offset = context.boundArticulations.front().qOffset *
+                sizeof(float);
+        }
+        [inverse setBuffer:context.buffers[buffers[argument]]
+                    offset:offset
+                   atIndex:argument];
+    }
+    [inverse
+        dispatchThreadgroups:MTLSizeMake(environmentCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+    [inverse endEncoding];
+
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.streamedValidatePipeline,
+        @"MetalWorld validate streamed inverse ABA",
+        {
+            {0u, kContactDispatch},
+            {1u, kInverseMassStatuses},
+            {2u, kContactStatuses},
+        },
+        nullptr,
+        0u,
+        environmentCount
+    );
 }
 
 bool encodePrepare(
@@ -10878,6 +11050,12 @@ bool encodeContactCollisionAndSolve(
             true,
             sizeof(MRIndirectDispatchArgumentsGPU)
         ) &&
+        encodeStreamedArticulatedResponses(
+            context,
+            commandBuffer,
+            factorQ,
+            environmentCount
+        ) &&
         encodeContactThreadKernel(
             context,
             commandBuffer,
@@ -12318,6 +12496,12 @@ bool encodeContactSubstep(
             true,
             sizeof(MRIndirectDispatchArgumentsGPU)
         ) ||
+        !encodeStreamedArticulatedResponses(
+            context,
+            commandBuffer,
+            sourceQ,
+            environmentCount
+        ) ||
         !encodeContactThreadKernel(
             context,
             commandBuffer,
@@ -13242,11 +13426,50 @@ MetalWorldDiagnostics validateAndPublish(
     result = std::move(staged);
     diagnostics.published = true;
     if (diagnostics.failedStepCount != 0u) {
+        std::string contactDetail;
+        if (contactMode &&
+            diagnostics.firstFailingEnvironment <
+                dispatch.environmentCount &&
+            diagnostics.firstFailingControlStep <
+                dispatch.controlStepCount) {
+            const std::size_t index =
+                static_cast<std::size_t>(
+                    diagnostics.firstFailingControlStep
+                ) * dispatch.environmentCount +
+                diagnostics.firstFailingEnvironment;
+            const MRMetalWorldContactStatusGPU& contact =
+                result.contactStatuses[index];
+            contactDetail =
+                " contact_status=" +
+                std::to_string(contact.code) +
+                " failing_constraint=" +
+                std::to_string(
+                    contact.firstFailingConstraint
+                ) +
+                " diagnostic_0=" +
+                std::to_string(contact.diagnostics.x) +
+                " diagnostic_1=" +
+                std::to_string(contact.diagnostics.y) +
+                " diagnostic_2=" +
+                std::to_string(contact.diagnostics.z) +
+                " diagnostic_3=" +
+                std::to_string(contact.diagnostics.w);
+        }
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::gpuEnvironmentFailure,
             "one or more MetalWorld control steps rolled back "
-            "after a GPU environment failure"
+            "after a GPU environment failure: status=" +
+                std::to_string(diagnostics.firstGPUStatusCode) +
+                " environment=" +
+                std::to_string(
+                    diagnostics.firstFailingEnvironment
+                ) +
+                " control_step=" +
+                std::to_string(
+                    diagnostics.firstFailingControlStep
+                ) +
+                contactDetail
         );
     }
     diagnostics.status = MetalWorldHostStatus::success;
