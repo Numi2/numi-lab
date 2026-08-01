@@ -987,13 +987,13 @@ inline float cleanObservation(
         break;
     }
     case MR_TASK_OBSERVE_MECHANICAL_POWER:
-        value = state.airReturnTracking.x;
+        value = state.powerReturnMetric.x;
         break;
     case MR_TASK_OBSERVE_DESIRED_SUPPORT_CONTACT: {
         const float phase = fmod(
             state.commandAndPhase.w +
                 kTwoPi * dispatch.timing.x /
-                    program.taskScalars.y,
+                    program.taskScalars.x,
             kTwoPi
         );
         value = float(desiredSupportContact(
@@ -1898,7 +1898,7 @@ kernel void mr_task_observe(
     MRTaskStateGPU state = taskStates[environment];
     const uint globalCurriculum = min(
         curriculumState[0].commandLevel,
-        program.schedule.z - 1u
+        program.curriculum.x - 1u
     );
     state.episode.z = globalCurriculum;
     const bool reset =
@@ -2277,7 +2277,7 @@ kernel void mr_task_observe(
             ),
             0.0f
         );
-        state.airReturnTracking = float4(0.0f);
+        state.powerReturnMetric = float4(0.0f);
 
         // Reset is a transaction, not a side-band suggestion. Publish the
         // randomized state before the pre-policy kinematics pass so frame
@@ -2440,7 +2440,7 @@ kernel void mr_task_observe(
         program.dynamics.x > 0.0f) {
         const float progress = clamp(
             float(state.episode.z) /
-                max(float(program.schedule.z - 1u), 1.0f),
+                max(float(program.curriculum.x - 1u), 1.0f),
             0.0f,
             1.0f
         );
@@ -3180,7 +3180,7 @@ kernel void mr_task_measure_effort(
         );
     }
     MRTaskStateGPU state = taskStates[environment];
-    state.airReturnTracking.x = mechanicalPower;
+    state.powerReturnMetric.x = mechanicalPower;
     taskStates[environment] = state;
 }
 
@@ -3272,6 +3272,11 @@ kernel void mr_task_complete(
             arena,
             program.offsets1.w
         );
+    device const MRTaskRecorderOperatorGPU* recorders =
+        taskTable<MRTaskRecorderOperatorGPU>(
+            arena,
+            program.offsets1.y
+        );
     device const MRTaskTerminationOperatorGPU*
         terminations =
             taskTable<MRTaskTerminationOperatorGPU>(
@@ -3338,7 +3343,7 @@ kernel void mr_task_complete(
     MRTaskStateGPU state = taskStates[environment];
     const uint curriculum = min(
         curriculumState[0].commandLevel,
-        program.schedule.z - 1u
+        program.curriculum.x - 1u
     );
     state.episode.z = curriculum;
     const MRMetalWorldStatusGPU worldStatus =
@@ -3585,69 +3590,6 @@ kernel void mr_task_complete(
 
     device const float* q = qState + qBase;
     device const float* v = vState + vBase;
-    const float4 orientation = rootOrientation(program, q);
-    const float3 rootLinearVelocity =
-        rootWorldLinearVelocity(program, q, v);
-    const float3 baseAngular =
-        (program.schedule.w &
-         MR_TASK_PROGRAM_FLOATING_ROOT) != 0u
-        ? rotateInverse(
-              orientation,
-              float3(
-                  vState[vBase + program.root.w + 3u],
-                  vState[vBase + program.root.w + 4u],
-                  vState[vBase + program.root.w + 5u]
-              )
-          )
-        : float3(0.0f);
-    const float3 gravity = normalizedOr(
-        rotateInverse(
-            orientation,
-            float3(0.0f, 0.0f, -1.0f)
-        ),
-        float3(0.0f, 0.0f, -1.0f)
-    );
-    const float height = rootHeight(
-        program,
-        q
-    );
-    const float tilt = atan2(
-        length(gravity.xy),
-        max(-gravity.z, 1.0e-6f)
-    );
-    float2 yawBasis = float2(
-        1.0f -
-            2.0f *
-                (
-                    orientation.y * orientation.y +
-                    orientation.z * orientation.z
-                ),
-        2.0f *
-            (
-                orientation.w * orientation.z +
-                orientation.x * orientation.y
-            )
-    );
-    yawBasis *= rsqrt(
-        max(dot(yawBasis, yawBasis), 1.0e-12f)
-    );
-    const float2 yawFrameLinear = float2(
-        yawBasis.x *
-            rootLinearVelocity.x +
-            yawBasis.y *
-                rootLinearVelocity.y,
-        -yawBasis.y *
-            rootLinearVelocity.x +
-            yawBasis.x *
-                rootLinearVelocity.y
-    );
-    const float2 trackingDelta =
-        yawFrameLinear - state.commandAndPhase.xy;
-    const float trackingError =
-        dot(trackingDelta, trackingDelta);
-    const float yawDelta =
-        baseAngular.z - state.commandAndPhase.z;
-    const float yawError = yawDelta * yawDelta;
 
     const uint lastSlot = program.layout.w - 1u;
     const uint previousSlot = lastSlot - 1u;
@@ -3860,10 +3802,26 @@ kernel void mr_task_complete(
         }
         signalValues[signalIndex] = value;
     }
+    float3 recorderMetrics = float3(0.0f);
+    for (uint recorderIndex = 0u;
+         recorderIndex < program.counts1.y;
+         ++recorderIndex) {
+        const MRTaskRecorderOperatorGPU operation =
+            recorders[recorderIndex];
+        if (operation.source.y <
+            MR_TASK_TRANSITION_METRIC_COUNT) {
+            recorderMetrics[operation.source.y] =
+                signalValues[operation.source.x];
+        }
+    }
+    const float curriculumMetric =
+        program.curriculum.z != MR_INVALID_INDEX
+        ? signalValues[program.curriculum.z]
+        : 0.0f;
     float phase =
         state.commandAndPhase.w +
         kTwoPi * dispatch.timing.x /
-            program.taskScalars.y;
+            program.taskScalars.x;
     phase = fmod(phase, kTwoPi);
     float reward = 0.0f;
     float4 rewardBreakdown0 = float4(0.0f);
@@ -3890,8 +3848,6 @@ kernel void mr_task_complete(
     rewardBreakdown0 *= dispatch.timing.x;
     rewardBreakdown1 *= dispatch.timing.x;
 
-    const float tracking = exp(-trackingError / 0.25f);
-    const float yawTracking = exp(-yawError / 0.25f);
     const bool timeout =
         episodeSteps >= program.schedule.x;
     bool done = false;
@@ -3950,27 +3906,24 @@ kernel void mr_task_complete(
     }
 
     const float episodeReturn =
-        state.airReturnTracking.z + reward;
-    // Unitree's linear-command curriculum is gated by the linear tracking
-    // reward alone. Keep the combined linear/yaw score below for rollout
-    // reporting, but do not let a still-learning yaw controller prevent an
-    // otherwise successful episode from expanding the x/y command range.
-    const float episodeTracking =
-        state.airReturnTracking.w + tracking;
-    const float episodeTrackingScore =
-        episodeTracking /
+        state.powerReturnMetric.z + reward;
+    const float episodeMetric =
+        state.powerReturnMetric.w + curriculumMetric;
+    const float episodeMetricMean =
+        episodeMetric /
         max(float(episodeSteps), 1.0f);
-    const float trackingScore =
-        0.5f * (tracking + yawTracking);
     const bool successful =
         timeout &&
         !physicsError &&
-        episodeTrackingScore >= program.taskScalars.w;
+        (
+            program.curriculum.z == MR_INVALID_INDEX ||
+            episodeMetricMean >= program.taskScalars.y
+        );
     uint terrainLevel = state.episode.w;
     if (done) {
         if (successful) {
             if (program.terrain.w != 0u &&
-                curriculum >= min(3u, program.schedule.z - 1u)) {
+                curriculum >= min(3u, program.curriculum.x - 1u)) {
                 terrainLevel = min(
                     terrainLevel + 1u,
                     program.terrain.w - 1u
@@ -4029,11 +3982,11 @@ kernel void mr_task_complete(
     state.status.y = done ? 1u : 0u;
     state.status.z = reason;
     state.commandAndPhase.w = phase;
-    state.airReturnTracking = float4(
+    state.powerReturnMetric = float4(
         0.0f,
         0.0f,
         done ? 0.0f : episodeReturn,
-        done ? 0.0f : episodeTracking
+        done ? 0.0f : episodeMetric
     );
 
     if (!done || (timeout && !physicsError)) {
@@ -4237,8 +4190,8 @@ kernel void mr_task_complete(
     const uint transitionIndex =
         pass.controlStep * dispatch.outputs.z + environment;
     MRTaskTransitionGPU transition{};
-    transition.rewardAndState =
-        float4(reward, trackingScore, height, tilt);
+    transition.rewardAndMetrics =
+        float4(reward, recorderMetrics);
     transition.termination = uint4(
         done ? 1u : 0u,
         timeout ? 1u : 0u,
@@ -4249,9 +4202,9 @@ kernel void mr_task_complete(
     transition.rewardBreakdown1 = rewardBreakdown1;
     transition.policyRevision =
         dispatch.policyRevision;
-    transition.episodeTrackingScore =
+    transition.episodeMetric =
         done && !physicsError
-        ? episodeTrackingScore
+        ? episodeMetricMean
         : 0.0f;
     transition.taskProgress = uint4(
         curriculum,
@@ -4279,7 +4232,7 @@ kernel void mr_task_update_curriculum(
         dispatch.taskFingerprint != program.taskFingerprint ||
         program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
         program.schedule.x == 0u ||
-        program.schedule.z == 0u) {
+        program.curriculum.x == 0u) {
         return;
     }
 
@@ -4287,7 +4240,7 @@ kernel void mr_task_update_curriculum(
     const ulong completedSteps = state.controlSteps + 1ul;
     uint level = min(
         state.commandLevel,
-        program.schedule.z - 1u
+        program.curriculum.x - 1u
     );
     const uint transitionBase =
         pass.controlStep * dispatch.outputs.z;
@@ -4298,33 +4251,33 @@ kernel void mr_task_update_curriculum(
             transitions[transitionBase + environment];
         if (transition.termination.x != 0u &&
             transition.termination.z == 0u) {
-            state.trackingScoreSum +=
-                transition.episodeTrackingScore;
+            state.metricSum +=
+                transition.episodeMetric;
             ++state.completedEpisodeCount;
             if (transition.termination.y != 0u) {
                 ++state.timeoutEpisodeCount;
             }
         }
     }
-    if (completedSteps % ulong(program.schedule.x) == 0ul &&
-        level + 1u < program.schedule.z) {
+    if (completedSteps % ulong(program.curriculum.y) == 0ul &&
+        level + 1u < program.curriculum.x) {
         const float completed =
             float(state.completedEpisodeCount);
-        const float meanTracking =
-            state.trackingScoreSum / max(completed, 1.0f);
+        const float meanMetric =
+            state.metricSum / max(completed, 1.0f);
         const float survivalFraction =
             float(state.timeoutEpisodeCount) /
             max(completed, 1.0f);
         if (state.completedEpisodeCount != 0ul &&
-            meanTracking > program.taskScalars.w &&
+            meanMetric > program.taskScalars.y &&
             survivalFraction >= program.commandUpper.w) {
             ++level;
         }
     }
-    if (completedSteps % ulong(program.schedule.x) == 0ul) {
+    if (completedSteps % ulong(program.curriculum.y) == 0ul) {
         state.completedEpisodeCount = 0ul;
         state.timeoutEpisodeCount = 0ul;
-        state.trackingScoreSum = 0.0f;
+        state.metricSum = 0.0f;
     }
     state.controlSteps = completedSteps;
     state.commandLevel = level;
@@ -4477,11 +4430,11 @@ kernel void mr_task_validate_learning_publication(
                 transition.termination.w ==
                     MR_TASK_TERMINATION_CONTINUING
             );
-        if (!all(isfinite(transition.rewardAndState)) ||
+        if (!all(isfinite(transition.rewardAndMetrics)) ||
             !all(isfinite(transition.rewardBreakdown0)) ||
             !all(isfinite(transition.rewardBreakdown1)) ||
             !isfinite(transition.timeoutBootstrapValue) ||
-            !isfinite(transition.episodeTrackingScore) ||
+            !isfinite(transition.episodeMetric) ||
             transition.policyRevision != dispatch.policyRevision ||
             !validTermination) {
             recordLearningPublicationFailure(

@@ -13,10 +13,10 @@
 
 namespace metalrobo {
 
-inline constexpr std::uint32_t kTaskPackFormatVersion = 14u;
+inline constexpr std::uint32_t kTaskPackFormatVersion = 15u;
 inline constexpr std::uint32_t kPolicyPackFormatVersion = 3u;
 inline constexpr std::uint32_t
-    kPolicyRolloutPackFormatVersion = 3u;
+    kPolicyRolloutPackFormatVersion = 4u;
 
 struct PolicyRolloutPack {
     std::string id;

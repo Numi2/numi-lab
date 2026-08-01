@@ -43,6 +43,8 @@ struct CompiledTaskProgram::Storage {
         kinematicPointQueries;
     std::vector<TaskKinematicCohort> kinematicCohorts;
     std::vector<MRTaskRewardOperatorGPU> rewardOperators;
+    std::vector<MRTaskRecorderOperatorGPU> recorderOperators;
+    std::vector<std::string> recorderIds;
     std::vector<MRTaskTerminationOperatorGPU> terminationOperators;
     std::vector<MRTaskRandomizationOperatorGPU>
         randomizationOperators;
@@ -374,6 +376,17 @@ bool CompiledTaskProgram::valid() const noexcept {
             storage_->kinematicPointQueries.size() ||
         storage_->layout.signalCount !=
             storage_->signalOperators.size() ||
+        storage_->layout.recorderCount !=
+            storage_->recorderOperators.size() ||
+        storage_->recorderOperators.size() !=
+            storage_->recorderIds.size() ||
+        storage_->header.counts1.y !=
+            storage_->recorderOperators.size() ||
+        storage_->header.curriculum.x == 0u ||
+        storage_->header.curriculum.y == 0u ||
+        (storage_->header.curriculum.z != MR_INVALID_INDEX &&
+         storage_->header.curriculum.z >=
+             storage_->signalOperators.size()) ||
         storage_->header.graphCounts.x !=
             storage_->signalOperators.size() ||
         storage_->header.graphCounts.y !=
@@ -455,6 +468,11 @@ bool CompiledTaskProgram::valid() const noexcept {
     }
 
     const std::uint64_t frameOffset = storage_->header.offsets3.z;
+    const std::uint64_t recorderOffset =
+        storage_->header.offsets1.y;
+    const std::uint64_t recorderEnd = recorderOffset +
+        storage_->recorderOperators.size() *
+            sizeof(MRTaskRecorderOperatorGPU);
     const std::uint64_t kinematicOffset =
         frameOffset +
         storage_->frames.size() * sizeof(MRTaskFrameGPU);
@@ -477,7 +495,8 @@ bool CompiledTaskProgram::valid() const noexcept {
         signalOperatorOffset +
         storage_->signalOperators.size() *
             sizeof(MRTaskSignalOperatorGPU);
-    return storage_->header.offsets3.w == goalOffset &&
+    return recorderEnd <= storage_->arena.size() &&
+        storage_->header.offsets3.w == goalOffset &&
         goalEnd <= storage_->arena.size() &&
         signalSourceOffset >= goalEnd &&
         signalSourceEnd <= storage_->arena.size() &&
@@ -610,6 +629,22 @@ CompiledTaskProgram::rewardOperators() const noexcept {
               storage_->rewardOperators
           }
         : std::span<const MRTaskRewardOperatorGPU>{};
+}
+
+std::span<const MRTaskRecorderOperatorGPU>
+CompiledTaskProgram::recorderOperators() const noexcept {
+    return valid()
+        ? std::span<const MRTaskRecorderOperatorGPU>{
+              storage_->recorderOperators
+          }
+        : std::span<const MRTaskRecorderOperatorGPU>{};
+}
+
+std::span<const std::string>
+CompiledTaskProgram::recorderIds() const noexcept {
+    return valid()
+        ? std::span<const std::string>{storage_->recorderIds}
+        : std::span<const std::string>{};
 }
 
 std::span<const MRTaskTerminationOperatorGPU>
@@ -810,6 +845,7 @@ TaskCompileDiagnostics compileTaskProgram(
         !countFits(pack.goals.size()) ||
         !countFits(pack.signals.size()) ||
         !countFits(pack.rewards.size()) ||
+        !countFits(pack.recorders.size()) ||
         !countFits(pack.terminations.size()) ||
         !countFits(pack.randomization.size()) ||
         !countFits(pack.terrain.sampleOffsets.size()) ||
@@ -859,12 +895,18 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.actorHistoryLength == 0u ||
         pack.criticHistoryLength == 0u ||
         pack.maximumEpisodeSteps == 0u ||
-        pack.curriculumLevelCount == 0u ||
-        !finite(pack.baseHeightTarget) ||
-        !finite(pack.gaitPeriodSeconds) ||
-        !(pack.gaitPeriodSeconds > 0.0f) ||
-        !finite(pack.clearanceTarget) ||
-        !finite(pack.successTrackingThreshold) ||
+        pack.recorders.size() >
+            MR_TASK_TRANSITION_METRIC_COUNT ||
+        pack.curriculum.levelCount == 0u ||
+        pack.curriculum.evaluationWindowSteps == 0u ||
+        !finite(pack.phase.periodSeconds) ||
+        !(pack.phase.periodSeconds > 0.0f) ||
+        !finite(pack.curriculum.successThreshold) ||
+        !finite(
+            pack.curriculum.minimumEpisodeSurvivalFraction
+        ) ||
+        pack.curriculum.minimumEpisodeSurvivalFraction < 0.0f ||
+        pack.curriculum.minimumEpisodeSurvivalFraction > 1.0f ||
         !finite(pack.supportForceThreshold) ||
         !(pack.supportForceThreshold >= 0.0f) ||
         !finite(pack.commands.lower) ||
@@ -875,11 +917,6 @@ TaskCompileDiagnostics compileTaskProgram(
         !finite(pack.commands.standingProbability) ||
         pack.commands.standingProbability < 0.0f ||
         pack.commands.standingProbability > 1.0f ||
-        !finite(
-            pack.commands.minimumEpisodeSurvivalFraction
-        ) ||
-        pack.commands.minimumEpisodeSurvivalFraction < 0.0f ||
-        pack.commands.minimumEpisodeSurvivalFraction > 1.0f ||
         !finite(pack.commands.minimumDurationSeconds) ||
         !finite(pack.commands.maximumDurationSeconds) ||
         !(pack.commands.minimumDurationSeconds > 0.0f) ||
@@ -2429,6 +2466,66 @@ TaskCompileDiagnostics compileTaskProgram(
         });
     }
 
+    staged->recorderOperators.reserve(pack.recorders.size());
+    staged->recorderIds.reserve(pack.recorders.size());
+    for (std::size_t recorderIndex = 0u;
+         recorderIndex < pack.recorders.size();
+         ++recorderIndex) {
+        const TaskRecorderSpec& recorder =
+            pack.recorders[recorderIndex];
+        if (recorder.id.empty() ||
+            std::find(
+                staged->recorderIds.begin(),
+                staged->recorderIds.end(),
+                recorder.id
+            ) != staged->recorderIds.end()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                recorder.id,
+                "recorder identity is empty or duplicated"
+            );
+        }
+        const std::uint32_t sourceIndex = namedGroup(
+            signalIds,
+            recorder.signal
+        );
+        if (sourceIndex == MR_INVALID_INDEX) {
+            return reject(
+                TaskCompileStatus::unresolvedSemantic,
+                recorder.signal,
+                "recorder SignalIR source does not exist"
+            );
+        }
+        staged->recorderOperators.push_back({{
+            sourceIndex,
+            static_cast<std::uint32_t>(recorderIndex),
+            0u,
+            0u,
+        }});
+        staged->recorderIds.push_back(recorder.id);
+    }
+
+    std::uint32_t curriculumSignalIndex = MR_INVALID_INDEX;
+    if (!pack.curriculum.successSignal.empty()) {
+        curriculumSignalIndex = namedGroup(
+            signalIds,
+            pack.curriculum.successSignal
+        );
+        if (curriculumSignalIndex == MR_INVALID_INDEX) {
+            return reject(
+                TaskCompileStatus::unresolvedSemantic,
+                pack.curriculum.successSignal,
+                "curriculum success SignalIR source does not exist"
+            );
+        }
+    } else if (pack.curriculum.levelCount > 1u) {
+        return reject(
+            TaskCompileStatus::invalidPack,
+            "curriculum",
+            "a multi-level curriculum requires a success signal"
+        );
+    }
+
     staged->terminationOperators.reserve(
         pack.terminations.size()
     );
@@ -2532,7 +2629,7 @@ TaskCompileDiagnostics compileTaskProgram(
             pack.randomization[operatorIndex];
         if (!finite(random.parameters) ||
             random.minimumCurriculumLevel >=
-                pack.curriculumLevelCount) {
+                pack.curriculum.levelCount) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 random.target,
@@ -2859,6 +2956,9 @@ TaskCompileDiagnostics compileTaskProgram(
         .signalCount = static_cast<std::uint32_t>(
             staged->signalOperators.size()
         ),
+        .recorderCount = static_cast<std::uint32_t>(
+            staged->recorderOperators.size()
+        ),
     };
 
     staged->header.counts0 = {
@@ -2873,7 +2973,9 @@ TaskCompileDiagnostics compileTaskProgram(
         static_cast<std::uint32_t>(
             staged->contactMembers.size()
         ),
-        0u,
+        static_cast<std::uint32_t>(
+            staged->recorderOperators.size()
+        ),
         0u,
         static_cast<std::uint32_t>(
             staged->rewardOperators.size()
@@ -2918,10 +3020,16 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.schedule = {
         pack.maximumEpisodeSteps,
         pack.maximumObservationDelaySteps,
-        pack.curriculumLevelCount,
+        0u,
         heightfieldTerrain
             ? MR_TASK_PROGRAM_TERRAIN
             : 0u,
+    };
+    staged->header.curriculum = {
+        pack.curriculum.levelCount,
+        pack.curriculum.evaluationWindowSteps,
+        curriculumSignalIndex,
+        0u,
     };
     if (pack.criticIncludesCleanHistory) {
         staged->header.schedule.w |=
@@ -2932,17 +3040,17 @@ TaskCompileDiagnostics compileTaskProgram(
             MR_TASK_PROGRAM_FLOATING_ROOT;
     }
     staged->header.taskScalars = {
-        pack.baseHeightTarget,
-        pack.gaitPeriodSeconds,
-        pack.clearanceTarget,
-        pack.successTrackingThreshold,
+        pack.phase.periodSeconds,
+        pack.curriculum.successThreshold,
+        0.0f,
+        0.0f,
     };
     staged->header.commandLower = pack.commands.lower;
     staged->header.commandLower.w =
         pack.commands.standingProbability;
     staged->header.commandUpper = pack.commands.upper;
     staged->header.commandUpper.w =
-        pack.commands.minimumEpisodeSurvivalFraction;
+        pack.curriculum.minimumEpisodeSurvivalFraction;
     staged->commandCurriculum = {
         pack.commands.limitLower,
         pack.commands.limitUpper,
@@ -3054,7 +3162,13 @@ TaskCompileDiagnostics compileTaskProgram(
                 staged->contactMembers
             }
         ),
-        0u,
+        staged->recorderOperators.empty()
+            ? 0u
+            : appendArena(
+                  std::span<const MRTaskRecorderOperatorGPU>{
+                      staged->recorderOperators
+                  }
+              ),
         0u,
         appendArena(
             std::span<const MRTaskRewardOperatorGPU>{
@@ -3212,6 +3326,11 @@ TaskCompileDiagnostics compileTaskProgram(
     for (const TaskRewardOperatorSpec& reward : pack.rewards) {
         hash.string(reward.signal);
     }
+    for (const TaskRecorderSpec& recorder : pack.recorders) {
+        hash.string(recorder.id);
+        hash.string(recorder.signal);
+    }
+    hash.string(pack.curriculum.successSignal);
     for (const TaskTerminationOperatorSpec& termination :
          pack.terminations) {
         hash.string(termination.signal);

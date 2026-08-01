@@ -619,17 +619,17 @@ private enum TrainMain {
                     let tracking =
                         (
                             lastLearning[
-                                "mean_tracking_score"
+                                "mean_metric_0"
                             ] as? NSNumber
                         )?.doubleValue ?? 0
                     let height =
                         (
                             lastLearning[
-                                "mean_root_height"
+                                "mean_metric_1"
                             ] as? NSNumber
                         )?.doubleValue ?? 0
                     let tilt =
-                        (lastLearning["mean_tilt"] as? NSNumber)?
+                        (lastLearning["mean_metric_2"] as? NSNumber)?
                             .doubleValue ?? 0
                     let done =
                         (lastLearning["done_count"] as? NSNumber)?

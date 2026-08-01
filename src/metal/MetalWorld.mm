@@ -7107,7 +7107,7 @@ bool encodeResidentStateInitialization(
             .controlSteps = 0u,
             .completedEpisodeCount = 0u,
             .timeoutEpisodeCount = 0u,
-            .trackingScoreSum = 0.0f,
+            .metricSum = 0.0f,
             .commandLevel = initialCurriculumLevel,
             .reserved0 = 0u,
             .reserved1 = 0u,
@@ -12419,14 +12419,14 @@ bool validLearningPayload(
                 const MRTaskTransitionGPU& transition
             ) {
                 return
-                    finite(transition.rewardAndState) &&
+                    finite(transition.rewardAndMetrics) &&
                     finite(transition.rewardBreakdown0) &&
                     finite(transition.rewardBreakdown1) &&
                     std::isfinite(
                         transition.timeoutBootstrapValue
                     ) &&
                     std::isfinite(
-                        transition.episodeTrackingScore
+                        transition.episodeMetric
                     ) &&
                     transition.policyRevision ==
                         expectedPolicyRevision &&

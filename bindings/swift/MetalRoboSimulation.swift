@@ -447,50 +447,46 @@ public struct MetalRoboSimulationAdvance: Sendable {
 
 public struct MetalRoboTaskTransition: Sendable {
     public let reward: Float
-    public let trackingScore: Float
-    public let rootHeight: Float
-    public let tilt: Float
+    public let metrics: SIMD3<Float>
     public let done: Bool
     public let timeout: Bool
     public let physicsError: Bool
     public let terminationReason: UInt32
-    public let taskReward: Float
-    public let baseReward: Float
-    public let jointVelocityReward: Float
-    public let jointAccelerationReward: Float
-    public let controlReward: Float
-    public let postureReward: Float
-    public let energyReward: Float
-    public let contactReward: Float
+    public let rewardChannels0: SIMD4<Float>
+    public let rewardChannels1: SIMD4<Float>
     public let policyRevision: UInt64
     public let timeoutBootstrapValue: Float
-    public let episodeTrackingScore: Float
+    public let episodeMetric: Float
     public let curriculumLevel: UInt32
     public let terrainLevel: UInt32
 
     init(_ native: MRTaskTransitionC) {
         reward = native.reward
-        trackingScore = native.tracking_score
-        rootHeight = native.root_height
-        tilt = native.tilt
+        metrics = SIMD3(
+            native.metric_0,
+            native.metric_1,
+            native.metric_2
+        )
         done = native.done != 0
         timeout = native.timeout != 0
         physicsError = native.physics_error != 0
         terminationReason = native.termination_reason
-        taskReward = native.task_reward
-        baseReward = native.base_reward
-        jointVelocityReward = native.joint_velocity_reward
-        jointAccelerationReward =
-            native.joint_acceleration_reward
-        controlReward = native.control_reward
-        postureReward = native.posture_reward
-        energyReward = native.energy_reward
-        contactReward = native.contact_reward
+        rewardChannels0 = SIMD4(
+            native.reward_channel_0,
+            native.reward_channel_1,
+            native.reward_channel_2,
+            native.reward_channel_3
+        )
+        rewardChannels1 = SIMD4(
+            native.reward_channel_4,
+            native.reward_channel_5,
+            native.reward_channel_6,
+            native.reward_channel_7
+        )
         policyRevision = native.policy_revision
         timeoutBootstrapValue =
             native.timeout_bootstrap_value
-        episodeTrackingScore =
-            native.episode_tracking_score
+        episodeMetric = native.episode_metric
         curriculumLevel = native.curriculum_level
         terrainLevel = native.terrain_level
     }
@@ -964,6 +960,19 @@ public final class MetalSimulationSession {
 
     public var policyRevision: UInt64 {
         mr_simulation_policy_revision(handle)
+    }
+
+    public var recorderIDs: [String] {
+        let count = Int(mr_simulation_recorder_count(handle))
+        return (0..<count).compactMap { index in
+            guard let identity = mr_simulation_recorder_id(
+                handle,
+                UInt32(index)
+            ) else {
+                return nil
+            }
+            return String(cString: identity)
+        }
     }
 
     public func makePolicyRolloutRing(
@@ -1560,32 +1569,36 @@ public final class MetalSimulationSession {
             transition in
             var value = MRTaskTransitionC()
             value.reward = transition.reward
-            value.tracking_score =
-                transition.trackingScore
-            value.root_height = transition.rootHeight
-            value.tilt = transition.tilt
+            value.metric_0 = transition.metrics.x
+            value.metric_1 = transition.metrics.y
+            value.metric_2 = transition.metrics.z
             value.done = transition.done ? 1 : 0
             value.timeout = transition.timeout ? 1 : 0
             value.physics_error =
                 transition.physicsError ? 1 : 0
             value.termination_reason =
                 transition.terminationReason
-            value.task_reward = transition.taskReward
-            value.base_reward = transition.baseReward
-            value.joint_velocity_reward =
-                transition.jointVelocityReward
-            value.joint_acceleration_reward =
-                transition.jointAccelerationReward
-            value.control_reward = transition.controlReward
-            value.posture_reward = transition.postureReward
-            value.energy_reward = transition.energyReward
-            value.contact_reward = transition.contactReward
+            value.reward_channel_0 =
+                transition.rewardChannels0.x
+            value.reward_channel_1 =
+                transition.rewardChannels0.y
+            value.reward_channel_2 =
+                transition.rewardChannels0.z
+            value.reward_channel_3 =
+                transition.rewardChannels0.w
+            value.reward_channel_4 =
+                transition.rewardChannels1.x
+            value.reward_channel_5 =
+                transition.rewardChannels1.y
+            value.reward_channel_6 =
+                transition.rewardChannels1.z
+            value.reward_channel_7 =
+                transition.rewardChannels1.w
             value.policy_revision =
                 transition.policyRevision
             value.timeout_bootstrap_value =
                 transition.timeoutBootstrapValue
-            value.episode_tracking_score =
-                transition.episodeTrackingScore
+            value.episode_metric = transition.episodeMetric
             value.curriculum_level =
                 transition.curriculumLevel
             value.terrain_level = transition.terrainLevel

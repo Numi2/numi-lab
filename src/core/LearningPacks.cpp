@@ -78,7 +78,8 @@ LearningPackResult validateTaskArtifact(
         pack.actorHistoryLength == 0u ||
         pack.criticHistoryLength == 0u ||
         pack.maximumEpisodeSteps == 0u ||
-        pack.curriculumLevelCount == 0u) {
+        pack.curriculum.levelCount == 0u ||
+        pack.curriculum.evaluationWindowSteps == 0u) {
         return fail(
             LearningPackStatus::invalidPack,
             "TaskPack identity, dimensions, or episode limits are invalid"
@@ -92,6 +93,7 @@ LearningPackResult validateTaskArtifact(
         !countFits(pack.goals.size()) ||
         !countFits(pack.signals.size()) ||
         !countFits(pack.rewards.size()) ||
+        !countFits(pack.recorders.size()) ||
         !countFits(pack.terminations.size()) ||
         !countFits(pack.randomization.size()) ||
         !countFits(pack.terrain.sampleOffsets.size()) ||
@@ -187,6 +189,14 @@ LearningPackResult validateTaskArtifact(
             }
         ) ||
         !std::all_of(
+            pack.recorders.begin(),
+            pack.recorders.end(),
+            [](const auto& value) {
+                return stringFits(value.id) &&
+                    stringFits(value.signal);
+            }
+        ) ||
+        !std::all_of(
             pack.terminations.begin(),
             pack.terminations.end(),
             [](const auto& value) {
@@ -201,6 +211,7 @@ LearningPackResult validateTaskArtifact(
                 return stringFits(value.target);
             }
         ) ||
+        !stringFits(pack.curriculum.successSignal) ||
         !stringFits(pack.terrain.body)) {
         return fail(
             LearningPackStatus::capacityOverflow,
@@ -414,16 +425,16 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
                 return transition.policyRevision ==
                         pack.policyRevision &&
                     std::isfinite(
-                        transition.rewardAndState.x
+                        transition.rewardAndMetrics.x
                     ) &&
                     std::isfinite(
-                        transition.rewardAndState.y
+                        transition.rewardAndMetrics.y
                     ) &&
                     std::isfinite(
-                        transition.rewardAndState.z
+                        transition.rewardAndMetrics.z
                     ) &&
                     std::isfinite(
-                        transition.rewardAndState.w
+                        transition.rewardAndMetrics.w
                     ) &&
                     std::isfinite(
                         transition.rewardBreakdown0.x
@@ -453,7 +464,7 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
                         transition.timeoutBootstrapValue
                     ) &&
                     std::isfinite(
-                        transition.episodeTrackingScore
+                        transition.episodeMetric
                     ) &&
                     transition.termination.x <= 1u &&
                     transition.termination.y <= 1u &&
@@ -859,6 +870,14 @@ std::vector<std::byte> serializeTask(
     );
     writeRichVector(
         writer,
+        pack.recorders,
+        [](Writer& target, const TaskRecorderSpec& value) {
+            target.string(value.id);
+            target.string(value.signal);
+        }
+    );
+    writeRichVector(
+        writer,
         pack.terminations,
         [](Writer& target,
            const TaskTerminationOperatorSpec& value) {
@@ -890,9 +909,14 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.commands.limitUpper);
     writer.pod(pack.commands.curriculumStep);
     writer.pod(pack.commands.standingProbability);
-    writer.pod(pack.commands.minimumEpisodeSurvivalFraction);
     writer.pod(pack.commands.minimumDurationSeconds);
     writer.pod(pack.commands.maximumDurationSeconds);
+    writer.pod(pack.phase.periodSeconds);
+    writer.pod(pack.curriculum.levelCount);
+    writer.pod(pack.curriculum.evaluationWindowSteps);
+    writer.string(pack.curriculum.successSignal);
+    writer.pod(pack.curriculum.successThreshold);
+    writer.pod(pack.curriculum.minimumEpisodeSurvivalFraction);
     writer.pod(pack.pushes.maximumVelocity);
     writer.pod(pack.pushes.minimumIntervalSeconds);
     writer.pod(pack.pushes.maximumIntervalSeconds);
@@ -902,11 +926,6 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.maximumEpisodeSteps);
     writer.pod(pack.maximumActionDelaySteps);
     writer.pod(pack.maximumObservationDelaySteps);
-    writer.pod(pack.curriculumLevelCount);
-    writer.pod(pack.baseHeightTarget);
-    writer.pod(pack.gaitPeriodSeconds);
-    writer.pod(pack.clearanceTarget);
-    writer.pod(pack.successTrackingThreshold);
     writer.pod(pack.supportForceThreshold);
     return writer.data();
 }
@@ -1022,6 +1041,14 @@ bool deserializeTask(
         ) ||
         !readRichVector(
             reader,
+            pack.recorders,
+            [](Reader& source, TaskRecorderSpec& value) {
+                return source.string(value.id) &&
+                    source.string(value.signal);
+            }
+        ) ||
+        !readRichVector(
+            reader,
             pack.terminations,
             [](Reader& source,
                TaskTerminationOperatorSpec& value) {
@@ -1053,11 +1080,16 @@ bool deserializeTask(
         !reader.pod(pack.commands.limitUpper) ||
         !reader.pod(pack.commands.curriculumStep) ||
         !reader.pod(pack.commands.standingProbability) ||
-        !reader.pod(
-            pack.commands.minimumEpisodeSurvivalFraction
-        ) ||
         !reader.pod(pack.commands.minimumDurationSeconds) ||
         !reader.pod(pack.commands.maximumDurationSeconds) ||
+        !reader.pod(pack.phase.periodSeconds) ||
+        !reader.pod(pack.curriculum.levelCount) ||
+        !reader.pod(pack.curriculum.evaluationWindowSteps) ||
+        !reader.string(pack.curriculum.successSignal) ||
+        !reader.pod(pack.curriculum.successThreshold) ||
+        !reader.pod(
+            pack.curriculum.minimumEpisodeSurvivalFraction
+        ) ||
         !reader.pod(pack.pushes.maximumVelocity) ||
         !reader.pod(pack.pushes.minimumIntervalSeconds) ||
         !reader.pod(pack.pushes.maximumIntervalSeconds) ||
@@ -1067,11 +1099,6 @@ bool deserializeTask(
         !reader.pod(pack.maximumEpisodeSteps) ||
         !reader.pod(pack.maximumActionDelaySteps) ||
         !reader.pod(pack.maximumObservationDelaySteps) ||
-        !reader.pod(pack.curriculumLevelCount) ||
-        !reader.pod(pack.baseHeightTarget) ||
-        !reader.pod(pack.gaitPeriodSeconds) ||
-        !reader.pod(pack.clearanceTarget) ||
-        !reader.pod(pack.successTrackingThreshold) ||
         !reader.pod(pack.supportForceThreshold) ||
         !reader.finished()) {
         return false;

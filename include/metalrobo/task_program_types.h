@@ -2,7 +2,8 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 19u
+#define MR_TASK_PROGRAM_ABI_VERSION 20u
+#define MR_TASK_TRANSITION_METRIC_COUNT 3u
 
 #define MR_TASK_GOAL_FIXED 0u
 #define MR_TASK_GOAL_SAMPLED_EPISODE 1u
@@ -212,7 +213,7 @@ typedef struct MR_ALIGN16 MRTaskDispatchGPU {
 typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // actions, actor-frame operators, critic operators, contact groups.
     mr_uint4 counts0;
-    // contact members, reserved, reserved, reward operators.
+    // contact members, recorder operators, reserved, reward operators.
     mr_uint4 counts1;
     // termination operators, randomization operators, bias slots,
     // terrain-sample offsets.
@@ -223,12 +224,13 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_uint4 root;
     // terrain scene-body local index, shape index, geometry index, profiles.
     mr_uint4 terrain;
-    // max episode steps, max observation delay, curriculum levels, flags.
+    // max episode steps, max observation delay, reserved, flags.
     mr_uint4 schedule;
-    // Root-height target, periodic-task interval, clearance target, and
-    // curriculum success threshold. Operators that consume these values are
-    // validated by the compiler; fixed-base tasks need not read floating-root
-    // state.
+    // curriculum levels, evaluation-window control steps, success signal,
+    // reserved. The success signal is MR_INVALID_INDEX when no promotion
+    // program is authored.
+    mr_uint4 curriculum;
+    // Phase period, curriculum success threshold, reserved, reserved.
     mr_float4 taskScalars;
     // xyz command lower bound; w standing-command probability.
     mr_float4 commandLower;
@@ -241,7 +243,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // Byte offsets in the immutable packed task arena:
     // action bindings, actor operators, critic operators, contact groups.
     mr_uint4 offsets0;
-    // contact members, reserved, reserved, reward operators.
+    // contact members, recorder operators, reserved, reward operators.
     mr_uint4 offsets1;
     // termination operators, randomization operators, bias specs, terrain
     // samples.
@@ -341,6 +343,12 @@ typedef struct MR_ALIGN16 MRTaskRewardOperatorGPU {
     mr_float4 parameters;
 } MRTaskRewardOperatorGPU;
 
+typedef struct MR_ALIGN16 MRTaskRecorderOperatorGPU {
+    // Resolved SignalIR index, compact transition metric slot, reserved,
+    // reserved. Recorder identity remains host metadata and is fingerprinted.
+    mr_uint4 source;
+} MRTaskRecorderOperatorGPU;
+
 typedef struct MR_ALIGN16 MRTaskTerminationOperatorGPU {
     // opcode, resolved group/signal index, reason, priority.
     mr_uint4 source;
@@ -371,45 +379,45 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     mr_uint4 status;
     // commanded x/y/yaw velocity and gait phase.
     mr_float4 commandAndPhase;
-    // current mechanical power, reserved, episode return, tracking score.
-    mr_float4 airReturnTracking;
+    // current mechanical power, reserved, episode return, curriculum metric.
+    mr_float4 powerReturnMetric;
 } MRTaskStateGPU;
 
 // One compact task-wide curriculum controller remains device-resident across
-// submissions. The command level is global, matching the authored Unitree
-// curriculum, while terrain difficulty remains environment-local.
+// submissions. Its success metric is a compiler-bound SignalIR node; terrain
+// difficulty remains environment-local.
 typedef struct MR_ALIGN16 MRTaskCurriculumStateGPU {
     mr_u64 controlSteps;
     mr_u64 completedEpisodeCount;
     mr_u64 timeoutEpisodeCount;
-    float trackingScoreSum;
+    float metricSum;
     mr_u32 commandLevel;
     mr_u32 reserved0;
     mr_u32 reserved1;
 } MRTaskCurriculumStateGPU;
 
 typedef struct MR_ALIGN16 MRTaskTransitionGPU {
-    // reward, tracking score, root height, tilt.
-    mr_float4 rewardAndState;
+    // reward followed by three compiler-bound recorder metrics.
+    mr_float4 rewardAndMetrics;
     // done, timeout, physics error, termination reason.
     mr_uint4 termination;
-    // task, base, joint-velocity, and joint-acceleration contributions.
+    // Generic authored reward-reporting channels 0 through 3.
     mr_float4 rewardBreakdown0;
-    // action-control, posture/limits, energy, and contact contributions.
+    // Generic authored reward-reporting channels 4 through 7.
     mr_float4 rewardBreakdown1;
     mr_u64 policyRevision;
     // V of the accepted post-transition state for timeout bootstrapping.
     float timeoutBootstrapValue;
-    // Mean linear tracking score for a non-physics episode ending here.
-    float episodeTrackingScore;
-    // Global command curriculum and environment-local terrain levels.
+    // Episode mean of the compiled curriculum signal.
+    float episodeMetric;
+    // Task-wide curriculum and environment-local terrain levels.
     mr_uint4 taskProgress;
 } MRTaskTransitionGPU;
 
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 352u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 368u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 64u);
 static_assert(sizeof(MRTaskSignalOperatorGPU) == 32u);
@@ -417,6 +425,7 @@ static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
 static_assert(sizeof(MRTaskFrameGPU) == 48u);
 static_assert(sizeof(MRTaskGoalGPU) == 160u);
 static_assert(sizeof(MRTaskRewardOperatorGPU) == 32u);
+static_assert(sizeof(MRTaskRecorderOperatorGPU) == 16u);
 static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);

@@ -1075,9 +1075,9 @@ final class MetalRoboMLXPPOTrainer {
     ) throws -> [String: Any] {
         let samples = Double(rollout.sampleCount)
         var reward = 0.0
-        var tracking = 0.0
-        var rootHeight = 0.0
-        var tilt = 0.0
+        var metric0 = 0.0
+        var metric1 = 0.0
+        var metric2 = 0.0
         var doneCount = 0
         var timeoutCount = 0
         var physicsErrorCount = 0
@@ -1089,9 +1089,9 @@ final class MetalRoboMLXPPOTrainer {
                 transitions[index]
             )
             reward += Double(transition.reward)
-            tracking += Double(transition.trackingScore)
-            rootHeight += Double(transition.rootHeight)
-            tilt += Double(transition.tilt)
+            metric0 += Double(transition.metrics.x)
+            metric1 += Double(transition.metrics.y)
+            metric2 += Double(transition.metrics.z)
             doneCount += transition.done ? 1 : 0
             timeoutCount += transition.timeout ? 1 : 0
             physicsErrorCount += transition.physicsError ? 1 : 0
@@ -1113,9 +1113,9 @@ final class MetalRoboMLXPPOTrainer {
             "mean_action_standard_deviation":
                 meanActionStandardDeviation,
             "mean_reward": reward / samples,
-            "mean_tracking_score": tracking / samples,
-            "mean_root_height": rootHeight / samples,
-            "mean_tilt": tilt / samples,
+            "mean_metric_0": metric0 / samples,
+            "mean_metric_1": metric1 / samples,
+            "mean_metric_2": metric2 / samples,
             "done_count": doneCount,
             "timeout_count": timeoutCount,
             "physics_error_count": physicsErrorCount,

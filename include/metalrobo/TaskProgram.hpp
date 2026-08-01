@@ -254,6 +254,15 @@ struct TaskRewardOperatorSpec {
     mr_float4 parameters{};
 };
 
+// One compact rollout recorder. Identity and signal binding are resolved at
+// compilation; the native transition carries values only. The present compact
+// transition ABI exposes three slots. Larger recorder streams remain blocked
+// on the unified SensorIR/recorder schedule rather than creating another path.
+struct TaskRecorderSpec {
+    std::string id;
+    std::string signal;
+};
+
 struct TaskTerminationOperatorSpec {
     TaskTerminationOperator operation =
         TaskTerminationOperator::signalBelow;
@@ -289,11 +298,26 @@ struct TaskCommandProgram {
     mr_float4 limitUpper{};
     mr_float4 curriculumStep{};
     float standingProbability = 0.0f;
-    // Fraction of completed, non-physics episodes that must reach the time
-    // limit during a curriculum window before command difficulty advances.
-    float minimumEpisodeSurvivalFraction = 0.0f;
     float minimumDurationSeconds = 5.0f;
     float maximumDurationSeconds = 10.0f;
+};
+
+struct TaskPhaseProgram {
+    // Period of the generic accepted-step phase oscillator used by authored
+    // contact-intent signals. This is task data, not a locomotion runtime mode.
+    float periodSeconds = 0.8f;
+};
+
+struct TaskCurriculumProgram {
+    std::uint32_t levelCount = 1u;
+    std::uint32_t evaluationWindowSteps = 1u;
+    // Empty is valid only for a single-level curriculum. Multi-level programs
+    // bind one SignalIR node whose episode mean is compared with threshold.
+    std::string successSignal;
+    float successThreshold = 0.0f;
+    // Fraction of completed, non-physics episodes that must reach the time
+    // limit during a curriculum window before difficulty advances.
+    float minimumEpisodeSurvivalFraction = 0.0f;
 };
 
 struct TaskPushProgram {
@@ -326,21 +350,17 @@ struct TaskPack {
     std::vector<TaskGoalSpec> goals;
     std::vector<TaskSignalSpec> signals;
     std::vector<TaskRewardOperatorSpec> rewards;
+    std::vector<TaskRecorderSpec> recorders;
     std::vector<TaskTerminationOperatorSpec> terminations;
     std::vector<TaskRandomizationOperatorSpec> randomization;
     TaskCommandProgram commands;
+    TaskPhaseProgram phase;
+    TaskCurriculumProgram curriculum;
     TaskPushProgram pushes;
     TaskTerrainProgram terrain;
     std::uint32_t maximumEpisodeSteps = 1000u;
     std::uint32_t maximumActionDelaySteps = 0u;
     std::uint32_t maximumObservationDelaySteps = 0u;
-    std::uint32_t curriculumLevelCount = 1u;
-    float baseHeightTarget = 0.0f;
-    float gaitPeriodSeconds = 0.8f;
-    float clearanceTarget = 0.1f;
-    // Episode-mean linear-velocity tracking required to advance the command
-    // curriculum. Angular tracking is an independent reward/metric.
-    float successTrackingThreshold = 0.8f;
     float supportForceThreshold = 1.0f;
 };
 
@@ -380,6 +400,7 @@ struct TaskProgramLayout {
     std::uint32_t kinematicPointQueryCount = 0u;
     std::uint32_t spatialJacobianEnvironmentStride = 0u;
     std::uint32_t signalCount = 0u;
+    std::uint32_t recorderCount = 0u;
 };
 
 // Private execution metadata for one articulation cohort of semantic point
@@ -428,6 +449,10 @@ public:
     kinematicCohorts() const noexcept;
     [[nodiscard]] std::span<const MRTaskRewardOperatorGPU>
     rewardOperators() const noexcept;
+    [[nodiscard]] std::span<const MRTaskRecorderOperatorGPU>
+    recorderOperators() const noexcept;
+    [[nodiscard]] std::span<const std::string>
+    recorderIds() const noexcept;
     [[nodiscard]] std::span<const MRTaskTerminationOperatorGPU>
     terminationOperators() const noexcept;
     [[nodiscard]] std::span<const MRTaskRandomizationOperatorGPU>

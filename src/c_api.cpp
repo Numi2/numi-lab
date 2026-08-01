@@ -135,8 +135,8 @@ static_assert(
     offsetof(MRTaskTransitionGPU, timeoutBootstrapValue)
 );
 static_assert(
-    offsetof(MRTaskTransitionC, episode_tracking_score) ==
-    offsetof(MRTaskTransitionGPU, episodeTrackingScore)
+    offsetof(MRTaskTransitionC, episode_metric) ==
+    offsetof(MRTaskTransitionGPU, episodeMetric)
 );
 static_assert(
     offsetof(MRTaskTransitionC, curriculum_level) ==
@@ -1195,7 +1195,7 @@ int mr_simulation_set_curriculum_level(
                 "task curriculum must be restored before resident initialization"
             );
         }
-        if (level >= handle->taskProgram.header().schedule.z) {
+        if (level >= handle->taskProgram.header().curriculum.x) {
             throw std::invalid_argument(
                 "task curriculum level exceeds the compiled TaskPack"
             );
@@ -1848,6 +1848,32 @@ uint64_t mr_simulation_policy_revision(
         handle->stepConfig.policyProgram.valid()
         ? handle->stepConfig.policyProgram.revision()
         : 0u;
+}
+
+uint32_t mr_simulation_recorder_count(
+    const MRSimulationHandle* handle
+) {
+    return requireSimulationHandle(handle)
+        ? static_cast<uint32_t>(
+              handle->taskProgram.recorderIds().size()
+          )
+        : 0u;
+}
+
+const char* mr_simulation_recorder_id(
+    const MRSimulationHandle* handle,
+    const uint32_t index
+) {
+    if (!requireSimulationHandle(handle)) {
+        return nullptr;
+    }
+    const std::span<const std::string> ids =
+        handle->taskProgram.recorderIds();
+    if (index >= ids.size()) {
+        gLastError = "recorder index exceeds the compiled task layout";
+        return nullptr;
+    }
+    return ids[index].c_str();
 }
 
 const char* mr_simulation_device_name(

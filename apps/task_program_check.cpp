@@ -590,6 +590,10 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .channel = metalrobo::TaskRewardChannel::velocity,
         .weight = -0.01f,
     });
+    authored.task.recorders = {{
+        .id = "axis_velocity_squared",
+        .signal = "axis_velocity_squared",
+    }};
     const std::string homePositionSquared =
         addFrameErrorSquaredSignal(
             authored.task,
@@ -774,10 +778,17 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             MR_TASK_FRAME_SOURCE_SCENE_BODY ||
         compiled.task.frames()[1].indices.z != 0u ||
         compiled.task.frames()[1].indices.w != MR_INVALID_INDEX ||
-        compiled.task.header().counts1.y != 0u ||
+        compiled.task.layout().recorderCount != 1u ||
+        compiled.task.header().counts1.y != 1u ||
         compiled.task.header().counts1.z != 0u ||
-        compiled.task.header().offsets1.y != 0u ||
+        compiled.task.header().offsets1.y == 0u ||
         compiled.task.header().offsets1.z != 0u ||
+        !std::ranges::equal(
+            compiled.task.recorderIds(),
+            std::array<std::string, 1u>{
+                "axis_velocity_squared",
+            }
+        ) ||
         std::count_if(
             compiled.task.rewardOperators().begin(),
             compiled.task.rewardOperators().end(),
@@ -1365,7 +1376,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
                 ];
             if (transition.termination.x != 0u ||
                 std::abs(
-                    transition.rewardAndState.x - expectedReward
+                    transition.rewardAndMetrics.x - expectedReward
                 ) > 3.0e-5f) {
                 fail(
                     "dynamic TaskIR reward/termination used a stale goal pose"
@@ -2782,8 +2793,16 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             result.transitions.end(),
             [](const MRTaskTransitionGPU& transition) {
                 return !std::isfinite(
-                           transition.rewardAndState.x
+                           transition.rewardAndMetrics.x
                        ) ||
+                    !std::isfinite(
+                        transition.rewardAndMetrics.y
+                    ) ||
+                    std::abs(
+                        transition.rewardBreakdown0.z -
+                        transition.rewardAndMetrics.y *
+                            -0.01f * 0.02f
+                    ) > 2.0e-5f ||
                     transition.termination.x != 0u;
             }
         )) {
@@ -3013,6 +3032,10 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .signal = "reward_value",
         .weight = 1.0f,
     }};
+    twistAuthored.task.recorders = {{
+        .id = "sensor_velocity",
+        .signal = "sensor_velocity",
+    }};
     twistAuthored.task.terminations = {{
         .operation = metalrobo::TaskTerminationOperator::signalBelow,
         .signal = "inside_safety",
@@ -3224,12 +3247,12 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         twistResult.sensorOutputs.size() != 12u ||
         twistResult.transitions.size() != twistSteps ||
         std::abs(
-            twistResult.transitions[0u].rewardAndState.x -
+            twistResult.transitions[0u].rewardAndMetrics.x -
             0.02f *
                 (2.0f + twistResult.criticObservations[14u])
         ) > 2.0e-4f ||
         std::abs(
-            twistResult.transitions[1u].rewardAndState.x -
+            twistResult.transitions[1u].rewardAndMetrics.x -
             0.02f *
                 (2.0f + twistResult.criticObservations[24u])
         ) > 2.0e-4f ||
@@ -3355,6 +3378,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     metalrobo::SimulationDescription imuAuthored = twistAuthored;
     imuAuthored.task.signals.clear();
     imuAuthored.task.rewards.clear();
+    imuAuthored.task.recorders.clear();
     addConstantSignalReward(
         imuAuthored.task,
         "alive",
@@ -3693,6 +3717,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     }};
     wrenchAuthored.task.signals.clear();
     wrenchAuthored.task.rewards.clear();
+    wrenchAuthored.task.recorders.clear();
     addConstantSignalReward(
         wrenchAuthored.task,
         "alive",
@@ -5111,7 +5136,8 @@ int main() {
             layout.criticHistoryLength != 5u ||
             layout.criticObservationSize != 495u ||
             layout.contactMetricCount != 37u ||
-            layout.delayStateCount != 2u) {
+            layout.delayStateCount != 2u ||
+            layout.recorderCount != 3u) {
             fail("compiled G1 task layout changed");
         }
         if (program.worldFingerprint() != world.fingerprint() ||
@@ -5132,12 +5158,28 @@ int main() {
                 0.076030060304f
             ) > 1.0e-6f ||
             program.header().counts0.w != 4u ||
+            program.header().counts1.y != 3u ||
             program.header().counts1.w != 19u ||
             program.header().counts2.x != 2u ||
             program.header().counts2.y != 5u ||
             program.header().typedCounts.x != 3u ||
-            program.header().graphCounts.x != 89u ||
+            program.header().graphCounts.x != 92u ||
             program.header().graphCounts.y != 167u ||
+            program.header().curriculum.x != 11u ||
+            program.header().curriculum.y != 1000u ||
+            program.header().curriculum.z == MR_INVALID_INDEX ||
+            std::abs(program.header().taskScalars.x - 0.8f) >
+                1.0e-6f ||
+            std::abs(program.header().taskScalars.y - 0.8f) >
+                1.0e-6f ||
+            !std::ranges::equal(
+                program.recorderIds(),
+                std::array<std::string, 3u>{
+                    "tracking_score",
+                    "root_height",
+                    "tilt",
+                }
+            ) ||
             std::count_if(
                 program.signalOperators().begin(),
                 program.signalOperators().end(),
@@ -5227,6 +5269,18 @@ int main() {
                     return source.source.x !=
                             MR_TASK_OBSERVE_JOINT_SOFT_LIMIT_VIOLATION ||
                         source.parameters.x < source.parameters.y;
+                }
+            ) ||
+            !std::all_of(
+                program.recorderOperators().begin(),
+                program.recorderOperators().end(),
+                [&](const MRTaskRecorderOperatorGPU& recorder) {
+                    return recorder.source.x <
+                            program.header().graphCounts.x &&
+                        recorder.source.y <
+                            MR_TASK_TRANSITION_METRIC_COUNT &&
+                        recorder.source.z == 0u &&
+                        recorder.source.w == 0u;
                 }
             )) {
             fail(
@@ -5361,6 +5415,75 @@ int main() {
             repeated.fingerprint() != preserved) {
             fail(
                 "invalid generic soft-limit source was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack duplicateRecorder = authored.task;
+        duplicateRecorder.recorders[1u].id =
+            duplicateRecorder.recorders[0u].id;
+        const auto duplicateRecorderRejected =
+            metalrobo::compileTaskProgram(
+                duplicateRecorder,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (duplicateRecorderRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "duplicate compiled recorder identity was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack unresolvedRecorder = authored.task;
+        unresolvedRecorder.recorders[0u].signal =
+            "missing_signal";
+        const auto unresolvedRecorderRejected =
+            metalrobo::compileTaskProgram(
+                unresolvedRecorder,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (unresolvedRecorderRejected.status !=
+                metalrobo::TaskCompileStatus::unresolvedSemantic ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "unresolved compiled recorder signal was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack excessRecorders = authored.task;
+        excessRecorders.recorders.push_back({
+            .id = "excess",
+            .signal = authored.task.recorders.front().signal,
+        });
+        const auto excessRecorderRejected =
+            metalrobo::compileTaskProgram(
+                excessRecorders,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (excessRecorderRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "oversized compact recorder layout was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack missingCurriculumSignal = authored.task;
+        missingCurriculumSignal.curriculum.successSignal.clear();
+        const auto missingCurriculumRejected =
+            metalrobo::compileTaskProgram(
+                missingCurriculumSignal,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (missingCurriculumRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "multi-level curriculum without a SignalIR metric was not transactionally rejected"
             );
         }
 
@@ -5597,7 +5720,7 @@ int main() {
         for (std::size_t index = 0u;
              index < sampleCount;
              ++index) {
-            rollout.transitions[index].rewardAndState.x =
+            rollout.transitions[index].rewardAndMetrics.x =
                 static_cast<float>(index) * 0.1f;
             rollout.transitions[index].termination.x =
                 index + 1u == sampleCount ? 1u : 0u;

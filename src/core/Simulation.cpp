@@ -663,11 +663,13 @@ TaskPack makeUnitreeG1TaskPack(
     task.maximumEpisodeSteps = 1000u;
     task.maximumActionDelaySteps = 0u;
     task.maximumObservationDelaySteps = 0u;
-    task.curriculumLevelCount = 11u;
-    task.baseHeightTarget = 0.78f;
-    task.gaitPeriodSeconds = 0.8f;
-    task.clearanceTarget = 0.10f;
-    task.successTrackingThreshold = 0.8f;
+    task.phase.periodSeconds = 0.8f;
+    task.curriculum.levelCount = 11u;
+    task.curriculum.evaluationWindowSteps =
+        task.maximumEpisodeSteps;
+    task.curriculum.successThreshold = 0.8f;
+    constexpr float baseHeightTarget = 0.78f;
+    constexpr float footClearanceTarget = 0.10f;
     task.supportForceThreshold = 1.0f;
     // Level zero is a near-static balance task with a fixed 0.1 m/s forward
     // command. This avoids an unnecessarily brittle inverted-pendulum optimum
@@ -685,7 +687,7 @@ TaskPack makeUnitreeG1TaskPack(
         0.1f, 0.1f, 0.1f, 0.0f,
     };
     task.commands.standingProbability = 0.02f;
-    task.commands.minimumEpisodeSurvivalFraction = 0.8f;
+    task.curriculum.minimumEpisodeSurvivalFraction = 0.8f;
     task.commands.minimumDurationSeconds = 10.0f;
     task.commands.maximumDurationSeconds = 10.0f;
     task.pushes.maximumVelocity = 0.5f;
@@ -1181,6 +1183,19 @@ TaskPack makeUnitreeG1TaskPack(
         yawTrackingError,
         {0.25f, 0.0f, 0.0f, 0.0f}
     );
+    const std::string trackingSum = binarySignal(
+        "tracking_sum",
+        TaskSignalOperator::add,
+        linearTracking,
+        yawTracking
+    );
+    const std::string combinedTracking = binarySignal(
+        "combined_tracking",
+        TaskSignalOperator::multiply,
+        constantSignal("tracking_mean_scale", 0.5f),
+        trackingSum
+    );
+    task.curriculum.successSignal = linearTracking;
     signalReward(
         yawTracking,
         0.5f,
@@ -1266,7 +1281,7 @@ TaskPack makeUnitreeG1TaskPack(
     );
     const std::string heightTarget = constantSignal(
         "root_height_target",
-        task.baseHeightTarget
+        baseHeightTarget
     );
     const std::string heightError = binarySignal(
         "root_height_error",
@@ -1520,7 +1535,7 @@ TaskPack makeUnitreeG1TaskPack(
             );
             const std::string clearanceTarget = constantSignal(
                 id + "_clearance_target",
-                task.clearanceTarget
+                footClearanceTarget
             );
             const std::string heightError = binarySignal(
                 id + "_height_error",
@@ -1671,6 +1686,20 @@ TaskPack makeUnitreeG1TaskPack(
         gravityHorizontal,
         tiltDenominator
     );
+    task.recorders = {
+        {
+            .id = "tracking_score",
+            .signal = combinedTracking,
+        },
+        {
+            .id = "root_height",
+            .signal = rootHeight,
+        },
+        {
+            .id = "tilt",
+            .signal = tiltAngle,
+        },
+    };
     task.terminations = {
         {
             .operation = TaskTerminationOperator::signalBelow,

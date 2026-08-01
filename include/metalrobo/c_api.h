@@ -140,24 +140,24 @@ typedef struct MRSimulationAdvanceC {
 
 typedef struct MRTaskTransitionC {
     float reward;
-    float tracking_score;
-    float root_height;
-    float tilt;
+    float metric_0;
+    float metric_1;
+    float metric_2;
     uint32_t done;
     uint32_t timeout;
     uint32_t physics_error;
     uint32_t termination_reason;
-    float task_reward;
-    float base_reward;
-    float joint_velocity_reward;
-    float joint_acceleration_reward;
-    float control_reward;
-    float posture_reward;
-    float energy_reward;
-    float contact_reward;
+    float reward_channel_0;
+    float reward_channel_1;
+    float reward_channel_2;
+    float reward_channel_3;
+    float reward_channel_4;
+    float reward_channel_5;
+    float reward_channel_6;
+    float reward_channel_7;
     uint64_t policy_revision;
     float timeout_bootstrap_value;
-    float episode_tracking_score;
+    float episode_metric;
     uint32_t curriculum_level;
     uint32_t terrain_level;
     uint32_t reserved[2];
@@ -564,6 +564,14 @@ MR_API uint64_t mr_simulation_policy_topology_fingerprint(
 );
 MR_API uint64_t mr_simulation_policy_revision(
     const MRSimulationHandle* handle
+);
+MR_API uint32_t mr_simulation_recorder_count(
+    const MRSimulationHandle* handle
+);
+// Returned identity aliases immutable compiled-program storage until destroy.
+MR_API const char* mr_simulation_recorder_id(
+    const MRSimulationHandle* handle,
+    uint32_t index
 );
 MR_API const char* mr_simulation_device_name(
     const MRSimulationHandle* handle

@@ -60,17 +60,17 @@ private func fingerprint(
     for transition in batch.transitions {
         for value in [
             transition.reward,
-            transition.trackingScore,
-            transition.rootHeight,
-            transition.tilt,
-            transition.taskReward,
-            transition.baseReward,
-            transition.jointVelocityReward,
-            transition.jointAccelerationReward,
-            transition.controlReward,
-            transition.postureReward,
-            transition.energyReward,
-            transition.contactReward,
+            transition.metrics.x,
+            transition.metrics.y,
+            transition.metrics.z,
+            transition.rewardChannels0.x,
+            transition.rewardChannels0.y,
+            transition.rewardChannels0.z,
+            transition.rewardChannels0.w,
+            transition.rewardChannels1.x,
+            transition.rewardChannels1.y,
+            transition.rewardChannels1.z,
+            transition.rewardChannels1.w,
         ] {
             fingerprintWord(
                 UInt64(value.bitPattern),
@@ -109,7 +109,7 @@ private func fingerprint(
             into: &hash
         )
         fingerprintWord(
-            UInt64(transition.episodeTrackingScore.bitPattern),
+            UInt64(transition.episodeMetric.bitPattern),
             byteCount: 4,
             into: &hash
         )
@@ -455,6 +455,18 @@ private enum SimulationMain {
             )
             let (context, worldSource) =
                 try makeContext(options: options)
+            let recorderIDs = context.recorderIDs
+            if worldSource.hasPrefix("bundled_g1@") &&
+                recorderIDs != [
+                    "tracking_score",
+                    "root_height",
+                    "tilt",
+                ]
+            {
+                throw MetalRoboSimulationError.native(
+                    "Bundled G1 recorder layout disagrees with its compiled TaskPack."
+                )
+            }
             try context.setCurriculumLevel(
                 options.curriculumLevel
             )
@@ -797,26 +809,26 @@ private enum SimulationMain {
                             transition.curriculumLevel
                         rewardSum += Double(transition.reward)
                         trackingSum +=
-                            Double(transition.trackingScore)
+                            Double(transition.metrics.x)
                         rootHeightSum +=
-                            Double(transition.rootHeight)
-                        tiltSum += Double(transition.tilt)
+                            Double(transition.metrics.y)
+                        tiltSum += Double(transition.metrics.z)
                         taskRewardSum +=
-                            Double(transition.taskReward)
+                            Double(transition.rewardChannels0.x)
                         baseRewardSum +=
-                            Double(transition.baseReward)
+                            Double(transition.rewardChannels0.y)
                         jointVelocityRewardSum +=
-                            Double(transition.jointVelocityReward)
+                            Double(transition.rewardChannels0.z)
                         jointAccelerationRewardSum +=
-                            Double(transition.jointAccelerationReward)
+                            Double(transition.rewardChannels0.w)
                         controlRewardSum +=
-                            Double(transition.controlReward)
+                            Double(transition.rewardChannels1.x)
                         postureRewardSum +=
-                            Double(transition.postureReward)
+                            Double(transition.rewardChannels1.y)
                         energyRewardSum +=
-                            Double(transition.energyReward)
+                            Double(transition.rewardChannels1.z)
                         contactRewardSum +=
-                            Double(transition.contactReward)
+                            Double(transition.rewardChannels1.w)
                         if transition.done {
                             terminationCount += 1
                             let reason = String(
@@ -904,6 +916,7 @@ private enum SimulationMain {
             let output: [String: Any] = [
                 "benchmark": "swift_native_simulation",
                 "world_source": worldSource,
+                "recorder_ids": recorderIDs,
                 "action_source":
                     options.policyPack != nil
                     ? "policy_pack"
