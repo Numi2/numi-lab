@@ -170,12 +170,14 @@ column. The common articulated operator owns both the ordinary contact
 Jacobian path and the six-row semantic path; a distinct task-only kinematics
 implementation is not allowed.
 
-The TaskIR owner also compiles a six-node scalar SignalIR graph whose truth
-leaf is that semantic Jacobian. Metal evaluates the leaf, arithmetic, and a
-bounds gate inside the accepted-state task pass, publishes an exact `0.04`
-time-integrated generic reward, and leaves the generic threshold termination
-inactive. TaskPack round-trip preserves the graph and a forward reference is
-rejected without replacing the last valid compiled program.
+The TaskIR owner also compiles a scalar SignalIR graph whose truth leaves are
+that semantic Jacobian and a named frame-twist SensorIR channel. Metal samples
+the sensor after accepted physics, materializes the authorized value before
+reward evaluation, then publishes actor/critic sensor histories. Each generic
+reward is checked against the same step's post-physics SensorIR value, so a
+one-step-stale ordering cannot pass. The bounds termination remains inactive,
+TaskPack round-trip preserves the graph, and a forward reference is rejected
+without replacing the last valid compiled program.
 
 ## Numerical corpus
 

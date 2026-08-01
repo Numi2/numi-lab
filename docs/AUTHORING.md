@@ -124,15 +124,15 @@ runtime origin.
 Signal operands may reference only earlier named nodes. This rejects forward
 references and cycles during compilation and gives the GPU one deterministic
 pass per environment. Signal leaves are truth-only: actor noise, mutable bias,
-and vector normalization are not accepted. SensorIR leaves are also rejected
-until the sensor schedule has a pre-reward phase; silently consuming the prior
-sample would violate the authored timing contract.
+and vector normalization are not accepted. A SensorIR leaf requires truth
+consumer permission and reads the current accepted sample after native sensor
+advancement but before reward and termination evaluation.
 
 The remaining TaskIR target is a phase-separated graph covering action,
 command/event, observation, reward, termination, recorder, reset, and
 curriculum phases. Frame acceleration, arbitrary point queries, full Jacobian
-tensors and vector reductions, multi-knot trajectory splines, sensor-backed
-reward signals, events, and recorders are not yet production operators.
+tensors and vector reductions, multi-knot trajectory splines, events, and
+recorders are not yet production operators.
 
 Frame-Jacobian observations are analytic operator outputs, not finite
 differences of poses. The point is the compiled frame origin and the three

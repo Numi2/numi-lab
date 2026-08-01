@@ -62,7 +62,8 @@ may construct packed GPU offsets or mutate compiled topology.
 - `TaskIR` is a typed, phase-separated, fixed-shape operator graph. Its scalar
   SignalIR resolves semantic truth leaves once, requires topological operand
   order, and supplies generic reward and termination operators without a
-  robot-specific shader branch.
+  robot-specific shader branch. Sensor-backed leaves consume the current
+  accepted SensorIR sample, never the previous control boundary.
 - `SensorIR` defines native scheduling, latency, history, noise, reset,
   observation/recorder bindings, and canonical semantic filter tables for
   every sensor.

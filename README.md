@@ -58,8 +58,8 @@ release blockers remain:
   analytic scalar frame-Jacobian columns, fingerprint-bound SensorIR
   values/validity, and a compiled scalar signal graph for generic rewards,
   gates, and termination thresholds. Frame acceleration, full Jacobian tensor
-  publication, pre-reward SensorIR signal leaves, and phase-complete event and
-  recorder operators remain incomplete.
+  publication and phase-complete event and recorder operators remain
+  incomplete.
 - Parent-frame pose, world-twist, and solver-authoritative six-axis contact-
   wrench sensors execute on the session timeline and bind directly into
   TaskIR. Presentation and tactile sensing remain native but have not yet been

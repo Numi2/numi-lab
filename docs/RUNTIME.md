@@ -140,6 +140,14 @@ republishes final actor and critic views before terminal policy/value inference.
 Compact latest values and timestamp/age/validity metadata cross the inspection
 boundary only when explicitly requested.
 
+Sensor-backed SignalIR reward and termination leaves have a stricter ordering:
+accepted mechanics are sampled first, a focused task kernel copies only the
+authorized current values into topology-sized transient signal scratch, then
+TaskIR evaluates reward and termination. Actor/critic sensor histories publish
+afterward because they consume the updated episode state. This split prevents
+both a one-step-stale reward and a sensor pass that depends on partially
+updated task state.
+
 Presentation and tactile passes have not yet been folded into this scheduler.
 They remain native but are rejected by this execution gate instead of being
 silently skipped or routed through Python.
