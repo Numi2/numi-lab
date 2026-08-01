@@ -59,7 +59,7 @@ metalrobo::VisualAssetPackV2 makeAuthoredObjectPack(
     pack.sourceContentHash = "sha256:pick-object-probe";
     pack.license = "CC0-1.0";
     pack.preprocessingProvenance =
-        "metalrobo_visual_platform_probe/v2";
+        "metalrobo_visual_platform_check/v2";
     constexpr std::array positions{
         std::array{-0.07f, -0.07f, -0.07f},
         std::array{ 0.07f, -0.07f, -0.07f},
@@ -875,7 +875,7 @@ int main() {
             << '\n';
         return 0;
     } catch (const std::exception& error) {
-        std::cerr << "metalrobo_visual_platform_probe: "
+        std::cerr << "metalrobo_visual_platform_check: "
                   << error.what() << '\n';
         return 1;
     }

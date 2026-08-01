@@ -321,7 +321,7 @@ int main() {
         return 0;
     } catch (const std::exception& error) {
         std::cerr
-            << "robot description cooker probe failed: "
+            << "robot description check failed: "
             << error.what() << '\n';
         return 1;
     }

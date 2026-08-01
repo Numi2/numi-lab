@@ -64,13 +64,14 @@ std::uint32_t number(const std::string_view value) {
 Options options(const int argc, const char* const* argv) {
     Options result;
     require(
-        (argc - 1) % 2 == 0,
-        "usage: metalrobo_tactile_benchmark "
+        argc >= 2 && std::string_view{argv[1]} == "tactile" &&
+            (argc - 2) % 2 == 0,
+        "usage: metalrobo_benchmark tactile "
         "[--environments N] [--width N] [--height N] [--sensors N] "
         "[--backings-per-sensor N] "
         "[--update-period N] [--warmup N] [--iterations N]"
     );
-    for (int argument = 1; argument < argc; argument += 2) {
+    for (int argument = 2; argument < argc; argument += 2) {
         const std::string_view option{argv[argument]};
         const std::uint32_t value = number(argv[argument + 1]);
         if (option == "--environments") {
@@ -111,7 +112,7 @@ metalrobo::EngineModel makeModel(
     const std::uint32_t backingsPerSensor
 ) {
     metalrobo::EngineModel model;
-    model.name = "tactile_benchmark_primitives";
+    model.name = "benchmark_tactile_primitives";
     model.bodies.resize(2u);
     for (std::uint32_t body = 0u;
          body < model.bodies.size();
@@ -398,7 +399,8 @@ int main(const int argc, const char* const* argv) {
 
         std::cout
             << std::setprecision(9)
-            << "{\"schema\":\"metalrobo.tactile_benchmark\","
+            << "{\"schema\":\"metalrobo.benchmark\","
+            << "\"profile\":\"tactile\","
             << "\"device\":\"" << compiled.deviceName << "\","
             << "\"backend\":"
             << static_cast<std::uint32_t>(layout.queryBackend)
@@ -445,7 +447,7 @@ int main(const int argc, const char* const* argv) {
             << "}\n";
         return 0;
     } catch (const std::exception& error) {
-        std::cerr << "metalrobo_tactile_benchmark: "
+        std::cerr << "metalrobo_benchmark: "
                   << error.what() << '\n';
         return 1;
     }

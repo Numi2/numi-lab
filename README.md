@@ -112,11 +112,21 @@ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target \
   metalrobo_runtime_abi_check \
   metalrobo_capability_matrix_check \
-  metalrobo_metal_world_contact_probe \
+  metalrobo_numisolver_check \
   metalrobo_task_program_check \
   metalrobo_tactile_check
 ctest --test-dir build --output-on-failure -L owner
 ```
+
+Run the first profile in the single benchmark executable:
+
+```sh
+./build/bin/metalrobo_benchmark tactile \
+  --environments 256 --width 32 --height 32 --sensors 2
+```
+
+Additional physics, rollout, memory, and soak profiles belong in this binary;
+they do not get standalone benchmark or probe executables.
 
 Run the Swift-owned native session:
 

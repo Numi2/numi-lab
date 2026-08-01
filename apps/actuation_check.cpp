@@ -453,7 +453,7 @@ int main() {
             neutralProfileDof < profiledModel.dofs.size() &&
             (profiledModel.dofs[neutralProfileDof].flags &
              MR_DOF_FLAG_EFFORT_LIMIT) != 0u,
-            "actuation probe has no unidentified effort-limited DoF"
+            "actuation check has no unidentified effort-limited DoF"
         );
         const float neutralEffort =
             0.5f *

@@ -37,7 +37,7 @@
       "id": "compiler.urdf_srdf",
       "status": "qualified",
       "owner": "compiler.robot_description",
-      "artifact": "metalrobo_robot_description_cooker_probe",
+      "artifact": "metalrobo_robot_description_check",
       "scope": "Rigid articulated URDF/SRDF import, semantic names, meshes, and deterministic fingerprints."
     },
     {
@@ -58,14 +58,14 @@
       "id": "physics.numi_solver",
       "status": "qualified",
       "owner": "physics.metal_contact",
-      "artifact": "metalrobo_metal_world_contact_probe",
+      "artifact": "metalrobo_numisolver_check",
       "scope": "Qualified Apple-Metal rigid, articulated, and rod solver path: fixed temporal microsteps, coupled nonlinear block sweeps, retained banded rod response for generalized and surface-contact rows, immediate integration, and transactional warm state. This does not qualify all rod mechanics or the residual-converged profile."
     },
     {
       "id": "physics.numi_residual_converged",
       "status": "experimental",
-      "owner": "none",
-      "artifact": "metalrobo_metal_unified_quality_probe",
+      "owner": "physics.metal_contact",
+      "artifact": "metalrobo_numisolver_check",
       "scope": "Private residual-converged NumiSolver profile is available for focused study; its current backend is transitional and not yet the qualified production path."
     },
     {
@@ -79,28 +79,28 @@
       "id": "physics.constraint_ir",
       "status": "implemented",
       "owner": "physics.constraint_ir",
-      "artifact": "metalrobo_constraint_ir_probe",
+      "artifact": "metalrobo_constraint_check",
       "scope": "Shared row, endpoint, cone, stable-key, and warm-start representation. Active scalar joint limits and contacts are coupled in NumiSolver; generic runtime widths beyond three rows remain incomplete."
     },
     {
       "id": "physics.literal_convex_ccd",
       "status": "experimental",
       "owner": "physics.metal_contact",
-      "artifact": "metalrobo_metal_world_contact_probe",
+      "artifact": "metalrobo_numisolver_check",
       "scope": "Selected convex event-time paths exist; complete advance-to-impact, solve, and continue coverage is not qualified."
     },
     {
       "id": "mechanics.g1_source_exact_presets",
       "status": "implemented",
       "owner": "mechanics.actuation",
-      "artifact": "metalrobo_g1_model_probe",
+      "artifact": "metalrobo_actuation_check",
       "scope": "Distinct fingerprinted URDF, companion-MJCF, and RL Lab actuator contracts; no silent 25/35/50 N m mixing."
     },
     {
       "id": "mechanics.native_actuator_state",
       "status": "implemented",
       "owner": "mechanics.actuation",
-      "artifact": "metalrobo_articulated_actuation_probe",
+      "artifact": "metalrobo_actuation_check",
       "scope": "The native session owns a topology-derived command-delay ring, deterministic backlash play, motor-envelope and dry-friction decomposition, and an eight-channel actuator-state SensorIR view. Delay is quantized upward to whole control periods, reset is neutral, and rejected physics submissions restore the pre-step timeline. Motor-envelope and passive-friction evaluation still occur at the control boundary rather than being re-evaluated at every physics microstep."
     },
     {
@@ -121,7 +121,7 @@
       "id": "runtime.compiled_execution_pipelines",
       "status": "qualified",
       "owner": "physics.metal_contact",
-      "artifact": "metalrobo_metal_world_contact_probe",
+      "artifact": "metalrobo_numisolver_check",
       "scope": "The generated runtime schema owns every reachable pipeline, feature group, Metal entry point, host member, and threadgroup contract. Compiled feature selection creates only the required groups, later upgrades are additive, and three mutable state arenas share one immutable device/library/queue/pipeline cache. Metal 4 command allocators, generated argument tables, residency sets, and the final barrier graph remain incomplete."
     },
     {
@@ -289,7 +289,7 @@
       "id": "presentation.visual_v3",
       "status": "qualified",
       "owner": "presentation.visual_platform",
-      "artifact": "metalrobo_visual_platform_probe",
+      "artifact": "metalrobo_visual_platform_check",
       "scope": "Authored Visual Presentation V3 path; collision geometry is not a visual fallback."
     }
   ]

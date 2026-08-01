@@ -144,8 +144,8 @@ The intended consolidated suite is:
 
 Each subsystem has one focused correctness executable. Examples demonstrate
 product flow. One benchmark executable owns performance and long soaks. The
-remaining historical probes are temporary migration diagnostics and must be
-folded or deleted with their replacement owner.
+historical executable probe forest has been deleted; new standalone probes are
+not accepted in place of extending the relevant owner or benchmark profile.
 
 The compiler/model and TaskIR owners preserve semantic site identity through
 the current WorldPack and TaskPack formats, reject unresolved sites

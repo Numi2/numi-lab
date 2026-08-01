@@ -2061,7 +2061,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
                 );
                 const std::size_t samples =
                     chunkSteps * environments;
-                const auto appendPrefix = [samples](
+                const auto appendPrefix = [](
                     std::vector<float>& destination,
                     const std::vector<float>& source,
                     const std::size_t width

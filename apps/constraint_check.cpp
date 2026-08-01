@@ -959,7 +959,7 @@ int main() {
                   << " status=ok\n";
         return 0;
     } catch (const std::exception& error) {
-        std::cerr << "constraint IR probe failed: "
+        std::cerr << "constraint check failed: "
                   << error.what() << '\n';
         return 1;
     }

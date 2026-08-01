@@ -633,7 +633,7 @@ int main(const int argc, char** argv) {
                 std::all_of(
                     residualResult.environmentStatuses.begin(),
                     residualResult.environmentStatuses.end(),
-                    [environmentCount](
+                    [](
                         const metalrobo::MetalWorldStatus& status
                     ) {
                         return
@@ -1730,7 +1730,7 @@ int main(const int argc, char** argv) {
         );
 
         std::cout
-            << "metal_world_contact=ok"
+            << "numisolver_check=ok"
             << " environments=" << environmentCount
             << " steps=" << controlStepCount
             << " gpu_ms="
@@ -1802,7 +1802,7 @@ int main(const int argc, char** argv) {
         return 0;
     } catch (const std::exception& exception) {
         std::cerr
-            << "metal_world_contact=failed reason=\""
+            << "numisolver_check=failed reason=\""
             << exception.what() << "\"\n";
         return 1;
     }
