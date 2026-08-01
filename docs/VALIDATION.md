@@ -61,6 +61,15 @@ topology fingerprint, then reactivates retained A. It requires exactly two
 bank uploads and one reuse and verifies both numerical outputs. An activation
 change must produce a distinct topology fingerprint.
 
+The TaskIR and Metal-contact owners also validate compiled pipeline selection.
+Every pipeline member and Metal entry point comes from the generated runtime
+schema. A task/policy/sensor execution and the comprehensive contact/CCD/rod
+execution must each create fewer than the full reachable inventory, later
+policy revisions must not recreate pipelines, and three asynchronous state
+arenas must share one immutable pipeline cache. This qualifies feature-group
+selection and cache ownership, not the unfinished Metal 4 command-allocation
+and argument-table migration.
+
 ## Owning checks
 
 The intended consolidated suite is:

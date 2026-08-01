@@ -20,6 +20,15 @@ SCALAR_TYPES = {
     "mr_uint4": (16, 16),
 }
 
+PIPELINE_MINIMUM_THREADS = {
+    "one": "1u",
+    "aba": "kABAThreadsPerThreadgroup",
+    "operator": "kOperatorThreadsPerThreadgroup",
+    "world": "kWorldThreadsPerThreadgroup",
+    "simd": "MR_SIMD_WIDTH",
+    "rod": "MR_ROD_GPU_MAX_NODES",
+}
+
 
 def _align(value: int, alignment: int) -> int:
     return (value + alignment - 1) // alignment * alignment
@@ -234,6 +243,88 @@ def _validate(document: dict[str, object]) -> tuple[
     )
 
 
+def _validate_pipelines(
+    document: dict[str, object],
+) -> tuple[list[str], list[tuple[str, str, str, str, int]]]:
+    groups = document.get("pipeline_groups")
+    pipelines = document.get("pipelines")
+    if not isinstance(groups, list) or not isinstance(pipelines, list):
+        raise ValueError("runtime pipeline schema is missing")
+    if (
+        not groups
+        or len(groups) > 31
+        or len(set(groups)) != len(groups)
+        or any(
+            not isinstance(group, str)
+            or not group.isidentifier()
+            or group.lower() != group
+            for group in groups
+        )
+    ):
+        raise ValueError("runtime pipeline groups are invalid")
+
+    parsed: list[tuple[str, str, str, str, int]] = []
+    members: set[str] = set()
+    functions: set[str] = set()
+    for pipeline in pipelines:
+        if not isinstance(pipeline, list) or len(pipeline) != 5:
+            raise ValueError(f"invalid runtime pipeline: {pipeline!r}")
+        group, member, function, minimum, simd_width = pipeline
+        if (
+            group not in groups
+            or not isinstance(member, str)
+            or not member.isidentifier()
+            or not member.endswith("Pipeline")
+            or member in members
+            or not isinstance(function, str)
+            or not function.startswith("mr_")
+            or not function.isidentifier()
+            or function in functions
+            or minimum not in PIPELINE_MINIMUM_THREADS
+            or simd_width not in (0, 32)
+        ):
+            raise ValueError(f"invalid runtime pipeline: {pipeline!r}")
+        members.add(member)
+        functions.add(function)
+        parsed.append((group, member, function, minimum, simd_width))
+    return groups, parsed
+
+
+def _camel_case(symbol: str) -> str:
+    return "".join(word.title() for word in symbol.split("_"))
+
+
+def render_pipeline_table(document: dict[str, object]) -> str:
+    groups, pipelines = _validate_pipelines(document)
+    declarations = [
+        f"MR_RUNTIME_PIPELINE_GROUP({_camel_case(group)}, {index})"
+        for index, group in enumerate(groups)
+    ]
+    entries = [
+        "MR_RUNTIME_PIPELINE(" +
+        f"{_camel_case(group)}, {member}, @\"{function}\", " +
+        f"{PIPELINE_MINIMUM_THREADS[minimum]}, {simd_width}u)"
+        for group, member, function, minimum, simd_width in pipelines
+    ]
+    return "\n".join(
+        [
+            "// GENERATED FILE: python/generate_runtime_abi.py",
+            "// Define MR_RUNTIME_PIPELINE_GROUP and/or MR_RUNTIME_PIPELINE",
+            "// before inclusion. The canonical schema owns feature groups,",
+            "// Metal entry points, host members, and kernel geometry.",
+            "",
+            "#ifdef MR_RUNTIME_PIPELINE_GROUP",
+            *declarations,
+            "#endif",
+            "",
+            "#ifdef MR_RUNTIME_PIPELINE",
+            *entries,
+            "#endif",
+            "",
+        ]
+    )
+
+
 def render_header(document: dict[str, object]) -> str:
     (
         version,
@@ -244,6 +335,7 @@ def render_header(document: dict[str, object]) -> str:
         kernels,
     ) = _validate(document)
     constants, records = _validate_records(document)
+    pipeline_groups, pipelines = _validate_pipelines(document)
     kernel_declarations: list[str] = []
     kernel_assertions: list[str] = []
     for kernel in kernels:
@@ -316,6 +408,8 @@ def render_header(document: dict[str, object]) -> str:
             "// One schema owns the native resource table and shared kernel",
             "// bindings. Any persisted layout change increments this version.",
             f"#define MR_RUNTIME_ABI_VERSION {version}u",
+            f"#define MR_RUNTIME_PIPELINE_COUNT {len(pipelines)}u",
+            f"#define MR_RUNTIME_PIPELINE_GROUP_COUNT {len(pipeline_groups)}u",
             *[
                 f"#define {name} {value}u"
                 for name, value in constants.items()
@@ -409,6 +503,7 @@ def render_header(document: dict[str, object]) -> str:
 def render_swift(document: dict[str, object]) -> str:
     version, count, entries, _, _, _ = _validate(document)
     constants, records = _validate_records(document)
+    pipeline_groups, pipelines = _validate_pipelines(document)
     symbol_by_index = {index: symbol for symbol, index in entries}
     names = [
         _words(symbol_by_index[index])
@@ -424,6 +519,8 @@ def render_swift(document: dict[str, object]) -> str:
             "enum MetalRoboRuntimeABI {",
             f"    static let version: UInt32 = {version}",
             f"    static let worldBufferCount = {count}",
+            f"    static let pipelineCount = {len(pipelines)}",
+            f"    static let pipelineGroupCount = {len(pipeline_groups)}",
             *[
                 f"    static let {_swift_identifier(name)}: UInt32 = {value}"
                 for name, value in constants.items()
@@ -454,17 +551,21 @@ def main() -> int:
     parser.add_argument("--schema", type=Path, required=True)
     parser.add_argument("--header", type=Path, required=True)
     parser.add_argument("--swift", type=Path, required=True)
+    parser.add_argument("--pipelines", type=Path, required=True)
     parser.add_argument("--check", action="store_true")
     arguments = parser.parse_args()
     document = json.loads(arguments.schema.read_text())
     header = render_header(document)
     swift = render_swift(document)
+    pipelines = render_pipeline_table(document)
     if arguments.check:
         _check(arguments.header, header, "runtime ABI header")
         _check(arguments.swift, swift, "runtime ABI Swift source")
+        _check(arguments.pipelines, pipelines, "runtime pipeline table")
         return 0
     arguments.header.write_text(header)
     arguments.swift.write_text(swift)
+    arguments.pipelines.write_text(pipelines)
     return 0
 
 

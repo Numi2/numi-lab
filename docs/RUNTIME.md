@@ -7,7 +7,8 @@ state. Objective-C++ is a private bridge between them.
 
 `MetalSimulationSession` owns:
 
-- the Metal device, queues, pipeline cache, command allocators, and events;
+- the Metal device, persistent command queue, immutable pipeline cache, and
+  synchronization objects;
 - immutable, persistent, and transient private heaps;
 - articulation, rigid-body, and rod state;
 - contact manifolds, active sets, and warm starts;
@@ -28,6 +29,14 @@ because mutable state continuation has not yet been split from its arena slot.
 This is a remaining executor migration item, not a claim of three overlapping
 physics command buffers.
 
+The runtime schema declares every reachable Metal entry point and groups it by
+feature. A compiled world and step configuration select the required groups;
+initialization creates only missing pipelines and retains them in one cache
+shared by every in-flight arena slot. Adding a task, sensor, policy, contact,
+CCD, quality, or rod feature upgrades that cache monotonically. Arena slots
+keep disjoint heaps and mutable buffers but do not duplicate the device,
+library, command queue, or immutable pipeline objects.
+
 The Swift learner boundary uses a three-slot rollout ring owned and allocated
 by the native runtime. Each slot contains separate `storageModeShared` Metal
 buffers for actor and critic observations, latents, behavior metadata, values,
@@ -43,10 +52,13 @@ succeed. Failed validation leaves the cursor unchanged and permanently
 invalidates that lease. The last chunk alone may publish terminal bootstrap
 values and make a full lease sealable.
 
-The execution plan uses generated argument tables, queue residency sets,
-topology-derived private heaps, indirect dispatch for validated GPU counts,
-and explicit barriers. Same-device ordering uses ordinary Metal events;
-shared events are reserved for CPU or process boundaries.
+The current executor uses topology-derived private heaps and indirect dispatch
+for validated GPU-owned counts. Resource slots and the pipeline inventory are
+generated, but many pass encoders still bind their arguments individually on
+the classic `MTLCommandBuffer` path. Metal 4 command allocators, generated
+argument tables, queue residency sets, and the final explicit-barrier graph are
+release gates, not current capability claims. Shared events remain reserved
+for CPU or process boundaries.
 
 The chunk length is part of the recorded rollout configuration. Scheduling may
 change submission boundaries but cannot change physics timestep, RNG keys,

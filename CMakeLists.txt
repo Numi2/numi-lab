@@ -1902,6 +1902,8 @@ if(Python3_Interpreter_FOUND)
             "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/runtime_abi_generated.h"
             --swift
             "${CMAKE_CURRENT_SOURCE_DIR}/bindings/swift/MetalRoboRuntimeABI.generated.swift"
+            --pipelines
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/runtime_pipelines_generated.inc"
             --check
         VERBATIM
     )

@@ -1719,6 +1719,14 @@ int main(const int argc, char** argv) {
         const bool throughputGatePassed =
             gpuStepsPerSecond >= 40000.0 &&
             wallStepsPerSecond >= 40000.0;
+        const metalrobo::MetalWorldContextStats runtimeStats =
+            context.stats();
+        require(
+            runtimeStats.pipelineCreationCount > 0u &&
+                runtimeStats.pipelineCreationCount <
+                    MR_RUNTIME_PIPELINE_COUNT,
+            "contact execution plan did not prune or share its Metal pipelines"
+        );
 
         std::cout
             << "metal_world_contact=ok"
@@ -1731,6 +1739,9 @@ int main(const int argc, char** argv) {
             << " retained_rod_response="
             << retainedRodResponse
             << " async_slots=3"
+            << " plan_pipelines="
+            << runtimeStats.pipelineCreationCount
+            << "/" << MR_RUNTIME_PIPELINE_COUNT
             << " franka_cube_contacts="
             << frankaStatus.activeContacts
             << " isolated_overflow_required_raw="

@@ -53,9 +53,10 @@ release blockers remain:
   the residual-converged profile and the full rod mechanics corpus are not yet
   qualified.
 - General MJCF import is not implemented.
-- TaskIR supports selected-articulation body frames, static SE(3) goals, and
-  fingerprint-bound SensorIR values/validity; scene-object sites, twist,
-  acceleration, sampled goals, and generic reductions remain incomplete.
+- TaskIR supports cross-articulation and scene-body frames, static SE(3)
+  goals, world and relative frame twist, and fingerprint-bound SensorIR
+  values/validity. Named sites, acceleration and Jacobian quantities, sampled
+  goals, and generic reductions remain incomplete.
 - State sensors execute on the session timeline and bind directly into TaskIR.
   Presentation and tactile sensing remain native but have not yet been folded
   into that same schedule.
@@ -63,8 +64,15 @@ release blockers remain:
   consumes those buffers without Swift array concatenation or an MLX input
   copy. Native inference keeps two private policy banks, locks their compiled
   topology fingerprint, and swaps monotonic revisions at submission
-  boundaries. Direct command-buffer rollout publication and a no-copy
-  MLX-to-policy-bank blit remain unfinished.
+  boundaries. The world command buffer publishes compact streams directly
+  into those leased slots; a no-copy MLX-to-policy-bank blit remains
+  unfinished.
+- The runtime schema now owns the reachable Metal pipeline inventory and the
+  compiled execution plan creates only required feature groups, shared across
+  all in-flight state arenas. The canonical world executor still uses classic
+  command buffers and individually encoded arguments; its Metal 4 command-
+  allocator, argument-table, residency-set, and barrier-graph migration is
+  unfinished.
 - Dense PolicyIR inference now cooperatively reduces each output in an Apple
   GPU SIMDgroup instead of serially accumulating a neuron in one thread.
   Shape-specialized matrix tiles, reduced-precision weights, convolution,

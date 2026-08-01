@@ -231,7 +231,12 @@ std::uint64_t compileFloatingBaseTaskFixture() {
     return compiled.task.fingerprint();
 }
 
-std::uint64_t compileFixedBaseTaskFixture() {
+struct FixedBaseTaskEvidence {
+    std::uint64_t fingerprint = 0u;
+    std::uint64_t pipelineCount = 0u;
+};
+
+FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     constexpr std::string_view urdf = R"(
 <robot name="fixed_base_task_fixture">
   <link name="mount">
@@ -675,6 +680,14 @@ std::uint64_t compileFixedBaseTaskFixture() {
             executed.message
         );
     }
+    const std::uint64_t taskPipelineCount =
+        context.stats().pipelineCreationCount;
+    if (taskPipelineCount == 0u ||
+        taskPipelineCount >= MR_RUNTIME_PIPELINE_COUNT) {
+        fail(
+            "compiled task execution did not prune unreachable Metal pipelines"
+        );
+    }
     for (std::size_t stepIndex = 0u;
          stepIndex < controlSteps;
          ++stepIndex) {
@@ -1095,9 +1108,10 @@ std::uint64_t compileFixedBaseTaskFixture() {
         context.stats();
     if (!reusedExecution.succeeded() ||
         policyStats.policyBankUploadCount != 2u ||
-        policyStats.policyBankReuseCount != 1u) {
+        policyStats.policyBankReuseCount != 1u ||
+        policyStats.pipelineCreationCount != taskPipelineCount) {
         fail(
-            "native policy bank swap did not reuse the retained prior revision"
+            "native policy or pipeline cache did not reuse retained resources"
         );
     }
     for (std::size_t stepIndex = 0u;
@@ -1681,7 +1695,10 @@ std::uint64_t compileFixedBaseTaskFixture() {
             "published SensorIR twist disagrees with the final TaskIR view"
         );
     }
-    return compiled.task.fingerprint();
+    return {
+        .fingerprint = compiled.task.fingerprint(),
+        .pipelineCount = taskPipelineCount,
+    };
 }
 
 std::uint64_t checkWorldPackSimulationImport() {
@@ -2263,7 +2280,7 @@ int main() {
         }
         const std::uint64_t importedFingerprint =
             compileFloatingBaseTaskFixture();
-        const std::uint64_t fixedBaseFingerprint =
+        const FixedBaseTaskEvidence fixedBase =
             compileFixedBaseTaskFixture();
         const std::uint64_t worldPackFingerprint =
             checkWorldPackSimulationImport();
@@ -2281,7 +2298,9 @@ int main() {
             << " rollout_artifact="
             << rolloutWrite.contentHash
             << " imported=" << importedFingerprint
-            << " fixed_base=" << fixedBaseFingerprint
+            << " fixed_base=" << fixedBase.fingerprint
+            << " plan_pipelines=" << fixedBase.pipelineCount
+            << "/" << MR_RUNTIME_PIPELINE_COUNT
             << " world_pack=" << worldPackFingerprint
             << '\n';
         return 0;

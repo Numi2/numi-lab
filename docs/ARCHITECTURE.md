@@ -93,9 +93,17 @@ histories are never observable.
 
 `schemas/runtime_abi.json` is the source of truth for the world resource table,
 resource lifetimes, persistent input ownership, debug names, shared kernel
-bindings, and cross-language record fields/offsets/sizes/alignments. Code
-generation emits the C++/Metal declarations and assertions plus Swift layout
-metadata.
+bindings, cross-language record fields/offsets/sizes/alignments, and the
+reachable Metal pipeline inventory. Every pipeline entry declares its feature
+group, host member, Metal function, minimum threadgroup geometry, and required
+SIMD width. Code generation emits the C++/Metal declarations and assertions,
+Swift layout metadata, and the pipeline table consumed by the executor.
+
+`ExecutionPlan` selects pipeline groups from compiled world topology and the
+task, sensor, policy, contact, CCD, quality, and rod features actually enabled
+for a session. Initialization may add groups to the immutable cache, but it may
+not compile an entry point absent from the generated table. All mutable arena
+slots share the resulting device, library, command queue, and pipeline objects.
 
 Numeric buffer slots, duplicated host/shader enums, and handwritten lifetime
 switches are forbidden. Persisted ABI changes increment the ABI version;

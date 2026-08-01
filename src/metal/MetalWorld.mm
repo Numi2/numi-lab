@@ -57,6 +57,13 @@ constexpr std::uint64_t kFNVOffset =
 constexpr std::uint64_t kFNVPrime = 1099511628211ull;
 const char kMetalRoboWorldImageAnchor = 0;
 
+enum MetalWorldPipelineGroup : std::uint32_t {
+#define MR_RUNTIME_PIPELINE_GROUP(name, index) \
+    kPipelineGroup##name = 1u << index,
+#include "metalrobo/runtime_pipelines_generated.inc"
+#undef MR_RUNTIME_PIPELINE_GROUP
+};
+
 struct BufferRequirement {
     const char* label = "";
     std::size_t logicalElements = 0u;
@@ -114,119 +121,45 @@ struct MetalRolloutAppendData {
     bool includeBootstrapValues = false;
 };
 
+// Pipeline compilation belongs to the immutable executor, not to a transient
+// state arena. All in-flight slots share this cache and one command queue;
+// their heaps and mutable buffers remain disjoint.
+struct MetalWorldPipelineCache {
+    mutable std::mutex mutex;
+    std::uint32_t availableGroups = 0u;
+    std::uint32_t queriedThreadExecutionWidth = 0u;
+    __strong id<MTLDevice> device = nil;
+    __strong id<MTLCommandQueue> queue = nil;
+    __strong id<MTLLibrary> library = nil;
+#define MR_RUNTIME_PIPELINE( \
+    group, member, function, minimumThreads, simdWidth \
+) \
+    __strong id<MTLComputePipelineState> member = nil;
+#include "metalrobo/runtime_pipelines_generated.inc"
+#undef MR_RUNTIME_PIPELINE
+};
+
 struct MetalWorldContextState {
-    explicit MetalWorldContextState(MetalWorldConfig configured)
-        : config(std::move(configured)) {}
+    MetalWorldContextState(
+        MetalWorldConfig configured,
+        std::shared_ptr<MetalWorldPipelineCache> sharedPipelines
+    )
+        : config(std::move(configured)),
+          pipelineCache(std::move(sharedPipelines)) {}
 
     MetalWorldConfig config;
+    std::shared_ptr<MetalWorldPipelineCache> pipelineCache;
     mutable std::mutex mutex;
     bool initialized = false;
     bool inFlight = false;
     __strong id<MTLDevice> device = nil;
     __strong id<MTLCommandQueue> queue = nil;
-    __strong id<MTLLibrary> library = nil;
-    __strong id<MTLComputePipelineState> abaPipeline = nil;
-    __strong id<MTLComputePipelineState> parameterizedABAPipeline = nil;
-    __strong id<MTLComputePipelineState> smallABAPipeline = nil;
-    __strong id<MTLComputePipelineState> multiABAPipeline = nil;
-    __strong id<MTLComputePipelineState> preparePipeline = nil;
-    __strong id<MTLComputePipelineState> commitPipeline = nil;
-    __strong id<MTLComputePipelineState> capturePipeline = nil;
-    __strong id<MTLComputePipelineState> operatorPipeline = nil;
-    __strong id<MTLComputePipelineState>
-        parameterizedOperatorPipeline = nil;
-    __strong id<MTLComputePipelineState> taskObservePipeline = nil;
-    __strong id<MTLComputePipelineState>
-        taskFrameRefreshPipeline = nil;
-    __strong id<MTLComputePipelineState> sensorSamplePipeline = nil;
-    __strong id<MTLComputePipelineState>
-        taskSensorRefreshPipeline = nil;
-    __strong id<MTLComputePipelineState> taskApplyPipeline = nil;
-    __strong id<MTLComputePipelineState> taskEffortPipeline = nil;
-    __strong id<MTLComputePipelineState> taskCompletePipeline = nil;
-    __strong id<MTLComputePipelineState> taskCurriculumPipeline = nil;
-    __strong id<MTLComputePipelineState> policyDensePipeline = nil;
-    __strong id<MTLComputePipelineState> policySamplePipeline = nil;
-    __strong id<MTLComputePipelineState>
-        learningPublicationValidationPipeline = nil;
-    __strong id<MTLComputePipelineState> contactPreparePipeline = nil;
-    __strong id<MTLComputePipelineState> bodyProjectionPipeline = nil;
-    __strong id<MTLComputePipelineState> bodyVelocityPipeline = nil;
-    __strong id<MTLComputePipelineState> scenePredictionPipeline = nil;
-    __strong id<MTLComputePipelineState> colliderProjectionPipeline = nil;
-    __strong id<MTLComputePipelineState> sweptProjectionPipeline = nil;
-    __strong id<MTLComputePipelineState> ccdPipeline = nil;
-    __strong id<MTLComputePipelineState> ccdEventInitializePipeline = nil;
-    __strong id<MTLComputePipelineState> ccdEventPreparePipeline = nil;
-    __strong id<MTLComputePipelineState> ccdEventSelectPipeline = nil;
-    __strong id<MTLComputePipelineState> ccdEventFinalizePipeline = nil;
-    __strong id<MTLComputePipelineState> eventArticulationPipeline = nil;
-    __strong id<MTLComputePipelineState> eventScenePredictionPipeline = nil;
-    __strong id<MTLComputePipelineState> eventBodyOverlayPipeline = nil;
-    __strong id<MTLComputePipelineState> velocitySafetyPipeline = nil;
-    __strong id<MTLComputePipelineState> eventColliderProjectionPipeline = nil;
-    __strong id<MTLComputePipelineState> inactiveEventRestorePipeline = nil;
-    __strong id<MTLComputePipelineState> eventSegmentPublishPipeline = nil;
-    __strong id<MTLComputePipelineState> rodEventInitializePipeline = nil;
-    __strong id<MTLComputePipelineState> inactiveRodEventRestorePipeline = nil;
-    __strong id<MTLComputePipelineState> rodEventSegmentPublishPipeline = nil;
-    __strong id<MTLComputePipelineState> rodSweptProjectionPipeline = nil;
-    __strong id<MTLComputePipelineState> rodCCDPipeline = nil;
-    __strong id<MTLComputePipelineState> rodCCDWitnessTagPipeline = nil;
-    __strong id<MTLComputePipelineState> rodContactLatchPipeline = nil;
-    __strong id<MTLComputePipelineState> pairFlagPipeline = nil;
-    __strong id<MTLComputePipelineState> scanBlocksPipeline = nil;
-    __strong id<MTLComputePipelineState> scanAddPipeline = nil;
-    __strong id<MTLComputePipelineState> pairClassFlagPipeline = nil;
-    __strong id<MTLComputePipelineState> pairQueueScatterPipeline = nil;
-    __strong id<MTLComputePipelineState> pairNarrowphasePipeline = nil;
-    __strong id<MTLComputePipelineState> convexNarrowphasePipeline = nil;
-    __strong id<MTLComputePipelineState> hullNarrowphasePipeline = nil;
-    __strong id<MTLComputePipelineState> meshNarrowphasePipeline = nil;
-    __strong id<MTLComputePipelineState> collisionCompilePipeline = nil;
-    __strong id<MTLComputePipelineState> manifoldFinalizePipeline = nil;
-    __strong id<MTLComputePipelineState> manifoldScanPipeline = nil;
-    __strong id<MTLComputePipelineState> manifoldRecordScatterPipeline = nil;
-    __strong id<MTLComputePipelineState> manifoldIRScatterPipeline = nil;
-    __strong id<MTLComputePipelineState> multiQueryInitializePipeline = nil;
-    __strong id<MTLComputePipelineState> multiOperatorComposePipeline = nil;
-    __strong id<MTLComputePipelineState> factorDispatchPipeline = nil;
-    __strong id<MTLComputePipelineState> pointQueryTailPipeline = nil;
-    __strong id<MTLComputePipelineState> evaluateIRPipeline = nil;
-    __strong id<MTLComputePipelineState> islandPipeline = nil;
-    __strong id<MTLComputePipelineState> numiSweepPipeline = nil;
-    __strong id<MTLComputePipelineState> contactIntegratePipeline = nil;
-    __strong id<MTLComputePipelineState> contactLatchPipeline = nil;
-    __strong id<MTLComputePipelineState> contactCommitPipeline = nil;
-    __strong id<MTLComputePipelineState> convexCachePublishPipeline = nil;
-    __strong id<MTLComputePipelineState> contactCapturePipeline = nil;
-    __strong id<MTLComputePipelineState> qualityPreparePipeline = nil;
-    __strong id<MTLComputePipelineState> qualityWarmStartPipeline = nil;
-    __strong id<MTLComputePipelineState> qualityQueuePipeline = nil;
-    __strong id<MTLComputePipelineState> qualitySolvePipeline = nil;
-    __strong id<MTLComputePipelineState> qualityApplyPipeline = nil;
-    __strong id<MTLComputePipelineState> qualityQueueStatusPipeline = nil;
-    __strong id<MTLComputePipelineState> rodPreparePipeline = nil;
-    __strong id<MTLComputePipelineState>
-        rodContactPreparePipeline = nil;
-    __strong id<MTLComputePipelineState> rodPackPipeline = nil;
-    __strong id<MTLComputePipelineState> rodStepPipeline = nil;
-    __strong id<MTLComputePipelineState> rodFactorPipeline = nil;
-    __strong id<MTLComputePipelineState> rodUnpackPipeline = nil;
-    __strong id<MTLComputePipelineState> rodLatchPipeline = nil;
-    __strong id<MTLComputePipelineState>
-        rodToolNarrowphasePipeline = nil;
-    __strong id<MTLComputePipelineState>
-        rodContactScanPipeline = nil;
-    __strong id<MTLComputePipelineState>
-        rodContactScatterPipeline = nil;
-    __strong id<MTLComputePipelineState>
-        rodContactSolvePipeline = nil;
-    __strong id<MTLComputePipelineState> rodCommitPipeline = nil;
-    __strong id<MTLComputePipelineState>
-        rodContactCommitPipeline = nil;
-    __strong id<MTLComputePipelineState>
-        authoredIRSeedPipeline = nil;
+#define MR_RUNTIME_PIPELINE( \
+    group, member, function, minimumThreads, simdWidth \
+) \
+    __strong id<MTLComputePipelineState> member = nil;
+#include "metalrobo/runtime_pipelines_generated.inc"
+#undef MR_RUNTIME_PIPELINE
     __strong id<MTLHeap> immutableHeap = nil;
     __strong id<MTLHeap> persistentHeap = nil;
     __strong id<MTLHeap> transientHeap = nil;
@@ -256,6 +189,7 @@ struct MetalWorldContextState {
 
 struct MetalWorldContextPool {
     mutable std::mutex mutex;
+    std::shared_ptr<MetalWorldPipelineCache> pipelines;
     std::vector<std::shared_ptr<MetalWorldContextState>> slots;
     std::size_t nextSlot = 0u;
 };
@@ -4261,862 +4195,242 @@ id<MTLComputePipelineState> makePipeline(
                                       error:error];
 }
 
+std::uint32_t requiredPipelineGroups(
+    const CompiledWorld& world,
+    const MetalWorldStepConfig& config
+) {
+    std::uint32_t groups = kPipelineGroupCore;
+    const bool contactMode =
+        config.executionMode != MetalWorldExecutionMode::freeMotionABA;
+    const bool nativeTask = config.taskProgram.valid();
+    const bool nativeSensors = config.sensorProgram.valid();
+    if (contactMode || nativeTask || nativeSensors) {
+        groups |= kPipelineGroupKinematics;
+    }
+    if (nativeTask) {
+        groups |= kPipelineGroupTask;
+    }
+    if (nativeSensors) {
+        groups |= kPipelineGroupSensor;
+    }
+    if (config.policyProgram.valid()) {
+        groups |= kPipelineGroupPolicy;
+    }
+    if (contactMode) {
+        groups |= kPipelineGroupContact;
+        if (config.numiSolver.iterationPolicy ==
+            NumiSolverIterationPolicy::residualConverged) {
+            groups |= kPipelineGroupQuality;
+        }
+        if (config.ccdMode == MetalWorldCCDMode::hybrid) {
+            groups |= kPipelineGroupCcd;
+        }
+    }
+    if (world.rodCount() != 0u) {
+        groups |= kPipelineGroupRodDynamics;
+        if (contactMode) {
+            groups |= kPipelineGroupRodContact;
+        }
+        if (contactMode &&
+            config.ccdMode == MetalWorldCCDMode::hybrid) {
+            groups |= kPipelineGroupRodCcd;
+        }
+    }
+    return groups;
+}
+
 MetalWorldDiagnostics initializeContext(
     detail::MetalWorldContextState& context,
+    const CompiledWorld& world,
+    const MetalWorldStepConfig& stepConfig,
     MetalWorldDiagnostics diagnostics
 ) {
-    if (context.initialized) {
-        diagnostics.deviceName = nsString(context.device.name);
-        diagnostics.thermalState = thermalStateName(
-            [NSProcessInfo processInfo].thermalState
-        );
-        return diagnostics;
-    }
-
-    std::string metallibPath = context.config.metallibPath;
-    if (metallibPath.empty()) {
-        metallibPath = defaultMetallibPath();
-    }
-    if (metallibPath.empty()) {
+    if (context.pipelineCache == nullptr) {
         return reject(
             std::move(diagnostics),
-            MetalWorldHostStatus::metallibUnavailable,
-            "no MetalWorld metallib path is available"
+            MetalWorldHostStatus::internalFailure,
+            "MetalWorld context has no immutable pipeline cache"
         );
+    }
+    detail::MetalWorldPipelineCache& cache =
+        *context.pipelineCache;
+    const std::lock_guard cacheLock(cache.mutex);
+
+    if (cache.device == nil) {
+        std::string metallibPath = context.config.metallibPath;
+        if (metallibPath.empty()) {
+            metallibPath = defaultMetallibPath();
+        }
+        if (metallibPath.empty()) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::metallibUnavailable,
+                "no MetalWorld metallib path is available"
+            );
+        }
+
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        if (device == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::metalDeviceUnavailable,
+                "no Metal-capable device is available"
+            );
+        }
+        if (!device.hasUnifiedMemory) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::metalDeviceUnsupported,
+                "MetalWorld requires unified-memory Metal"
+            );
+        }
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        if (queue == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::metalDeviceUnavailable,
+                "failed to create MetalWorld command queue"
+            );
+        }
+        queue.label = @"MetalRobo persistent simulation queue";
+
+        NSString* path = [NSString
+            stringWithUTF8String:metallibPath.c_str()];
+        if (path == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::metallibUnavailable,
+                "metallib path is not valid UTF-8"
+            );
+        }
+        NSError* libraryError = nil;
+        id<MTLLibrary> library = [device
+            newLibraryWithURL:[NSURL fileURLWithPath:path]
+                        error:&libraryError];
+        if (library == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::metalLibraryFailure,
+                "failed to load MetalWorld metallib: " +
+                    describeError(libraryError)
+            );
+        }
+        cache.device = device;
+        cache.queue = queue;
+        cache.library = library;
     }
 
-    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
-    if (device == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalDeviceUnavailable,
-            "no Metal-capable device is available"
-        );
-    }
-    diagnostics.deviceName = nsString(device.name);
+    diagnostics.deviceName = nsString(cache.device.name);
     diagnostics.thermalState = thermalStateName(
         [NSProcessInfo processInfo].thermalState
     );
-    if (!device.hasUnifiedMemory) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalDeviceUnsupported,
-            "MetalWorld requires unified-memory Metal"
-        );
-    }
-
-    id<MTLCommandQueue> queue = [device newCommandQueue];
-    if (queue == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalDeviceUnavailable,
-            "failed to create MetalWorld command queue"
-        );
-    }
-    queue.label = @"MetalRobo persistent world queue";
-
-    NSString* path = [NSString
-        stringWithUTF8String:metallibPath.c_str()];
-    if (path == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metallibUnavailable,
-            "metallib path is not valid UTF-8"
-        );
-    }
-    NSError* error = nil;
-    id<MTLLibrary> library = [device
-        newLibraryWithURL:[NSURL fileURLWithPath:path]
-                    error:&error];
-    if (library == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalLibraryFailure,
-            "failed to load MetalWorld metallib: " +
-                describeError(error)
-        );
-    }
-
-    error = nil;
-    id<MTLComputePipelineState> aba = makePipeline(
-        device,
-        library,
-        @"mr_articulated_aba_step",
-        &error
-    );
-    if (aba == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalPipelineFailure,
-            "failed to create ABA pipeline: " +
-                describeError(error)
-        );
-    }
-    error = nil;
-    id<MTLComputePipelineState> parameterizedABA = makePipeline(
-        device,
-        library,
-        @"mr_parameterized_articulated_aba_step",
-        &error
-    );
-    if (parameterizedABA == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalPipelineFailure,
-            "failed to create parameterized ABA pipeline: " +
-                describeError(error)
-        );
-    }
-    error = nil;
-    id<MTLComputePipelineState> smallABA = makePipeline(
-        device,
-        library,
-        @"mr_articulated_aba_step_small",
-        &error
-    );
-    if (smallABA == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalPipelineFailure,
-            "failed to create small-capacity ABA pipeline: " +
-                describeError(error)
-        );
-    }
-    error = nil;
-    id<MTLComputePipelineState> multiABA = makePipeline(
-        device,
-        library,
-        @"mr_multi_articulated_aba_step",
-        &error
-    );
-    if (multiABA == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalPipelineFailure,
-            "failed to create multi-articulation ABA pipeline: " +
-                describeError(error)
-        );
-    }
-    error = nil;
-    id<MTLComputePipelineState> prepare = makePipeline(
-        device,
-        library,
-        @"mr_metal_world_prepare",
-        &error
-    );
-    if (prepare == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalPipelineFailure,
-            "failed to create MetalWorld prepare pipeline: " +
-                describeError(error)
-        );
-    }
-    error = nil;
-    id<MTLComputePipelineState> commit = makePipeline(
-        device,
-        library,
-        @"mr_metal_world_commit",
-        &error
-    );
-    if (commit == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalPipelineFailure,
-            "failed to create MetalWorld commit pipeline: " +
-                describeError(error)
-        );
-    }
-    error = nil;
-    id<MTLComputePipelineState> capture = makePipeline(
-        device,
-        library,
-        @"mr_metal_world_capture",
-        &error
-    );
-    if (capture == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalPipelineFailure,
-            "failed to create MetalWorld capture pipeline: " +
-                describeError(error)
-        );
-    }
-
-    __strong id<MTLComputePipelineState> operatorPipeline = nil;
-    __strong id<MTLComputePipelineState>
-        parameterizedOperatorPipeline = nil;
-    __strong id<MTLComputePipelineState> taskObserve = nil;
-    __strong id<MTLComputePipelineState> taskFrameRefresh = nil;
-    __strong id<MTLComputePipelineState> sensorSample = nil;
-    __strong id<MTLComputePipelineState> taskSensorRefresh = nil;
-    __strong id<MTLComputePipelineState> taskApply = nil;
-    __strong id<MTLComputePipelineState> taskEffort = nil;
-    __strong id<MTLComputePipelineState> taskComplete = nil;
-    __strong id<MTLComputePipelineState> taskCurriculum = nil;
-    __strong id<MTLComputePipelineState> policyDense = nil;
-    __strong id<MTLComputePipelineState> policySample = nil;
-    __strong id<MTLComputePipelineState>
-        learningPublicationValidation = nil;
-    __strong id<MTLComputePipelineState> contactPrepare = nil;
-    __strong id<MTLComputePipelineState> bodyProjection = nil;
-    __strong id<MTLComputePipelineState> bodyVelocity = nil;
-    __strong id<MTLComputePipelineState> scenePrediction = nil;
-    __strong id<MTLComputePipelineState> colliderProjection = nil;
-    __strong id<MTLComputePipelineState> sweptProjection = nil;
-    __strong id<MTLComputePipelineState> ccd = nil;
-    __strong id<MTLComputePipelineState> ccdEventInitialize = nil;
-    __strong id<MTLComputePipelineState> ccdEventPrepare = nil;
-    __strong id<MTLComputePipelineState> ccdEventSelect = nil;
-    __strong id<MTLComputePipelineState> ccdEventFinalize = nil;
-    __strong id<MTLComputePipelineState> eventArticulation = nil;
-    __strong id<MTLComputePipelineState> eventScenePrediction = nil;
-    __strong id<MTLComputePipelineState> eventBodyOverlay = nil;
-    __strong id<MTLComputePipelineState> velocitySafety = nil;
-    __strong id<MTLComputePipelineState> eventColliderProjection = nil;
-    __strong id<MTLComputePipelineState> inactiveEventRestore = nil;
-    __strong id<MTLComputePipelineState> eventSegmentPublish = nil;
-    __strong id<MTLComputePipelineState> pairFlags = nil;
-    __strong id<MTLComputePipelineState> scanBlocks = nil;
-    __strong id<MTLComputePipelineState> scanAdd = nil;
-    __strong id<MTLComputePipelineState> pairClassFlags = nil;
-    __strong id<MTLComputePipelineState> pairQueueScatter = nil;
-    __strong id<MTLComputePipelineState> pairNarrowphase = nil;
-    __strong id<MTLComputePipelineState> convexNarrowphase = nil;
-    __strong id<MTLComputePipelineState> hullNarrowphase = nil;
-    __strong id<MTLComputePipelineState> meshNarrowphase = nil;
-    __strong id<MTLComputePipelineState> collisionCompile = nil;
-    __strong id<MTLComputePipelineState> manifoldFinalize = nil;
-    __strong id<MTLComputePipelineState> manifoldScan = nil;
-    __strong id<MTLComputePipelineState> manifoldRecordScatter = nil;
-    __strong id<MTLComputePipelineState> manifoldIRScatter = nil;
-    __strong id<MTLComputePipelineState> multiQueryInitialize = nil;
-    __strong id<MTLComputePipelineState> multiOperatorCompose = nil;
-    __strong id<MTLComputePipelineState> factorDispatch = nil;
-    __strong id<MTLComputePipelineState> pointQueryTail = nil;
-    __strong id<MTLComputePipelineState> evaluateIR = nil;
-    __strong id<MTLComputePipelineState> islands = nil;
-    __strong id<MTLComputePipelineState> numiSweep = nil;
-    __strong id<MTLComputePipelineState> contactIntegrate = nil;
-    __strong id<MTLComputePipelineState> contactLatch = nil;
-    __strong id<MTLComputePipelineState> contactCommit = nil;
-    __strong id<MTLComputePipelineState> convexCachePublish = nil;
-    __strong id<MTLComputePipelineState> contactCapture = nil;
-    __strong id<MTLComputePipelineState> qualityPrepare = nil;
-    __strong id<MTLComputePipelineState> qualityWarmStart = nil;
-    __strong id<MTLComputePipelineState> qualityQueue = nil;
-    __strong id<MTLComputePipelineState> qualitySolve = nil;
-    __strong id<MTLComputePipelineState> qualityApply = nil;
-    __strong id<MTLComputePipelineState> qualityQueueStatus = nil;
-    __strong id<MTLComputePipelineState> rodPrepare = nil;
-    __strong id<MTLComputePipelineState> rodContactPrepare = nil;
-    __strong id<MTLComputePipelineState> rodPack = nil;
-    __strong id<MTLComputePipelineState> rodStep = nil;
-    __strong id<MTLComputePipelineState> rodFactor = nil;
-    __strong id<MTLComputePipelineState> rodUnpack = nil;
-    __strong id<MTLComputePipelineState> rodLatch = nil;
-    __strong id<MTLComputePipelineState> rodContactLatch = nil;
-    __strong id<MTLComputePipelineState> rodToolNarrowphase = nil;
-    __strong id<MTLComputePipelineState> rodContactScan = nil;
-    __strong id<MTLComputePipelineState> rodContactScatter = nil;
-    __strong id<MTLComputePipelineState> rodContactSolve = nil;
-    __strong id<MTLComputePipelineState> rodCommit = nil;
-    __strong id<MTLComputePipelineState> rodContactCommit = nil;
-    __strong id<MTLComputePipelineState> rodEventInitialize = nil;
-    __strong id<MTLComputePipelineState> inactiveRodEventRestore = nil;
-    __strong id<MTLComputePipelineState> rodEventSegmentPublish = nil;
-    __strong id<MTLComputePipelineState> rodSweptProjection = nil;
-    __strong id<MTLComputePipelineState> rodCCD = nil;
-    __strong id<MTLComputePipelineState> rodCCDWitnessTag = nil;
-    __strong id<MTLComputePipelineState> authoredIRSeed = nil;
-    auto createContactPipeline = [&](
-        NSString* functionName
-    ) {
-        error = nil;
-        return makePipeline(
-            device,
-            library,
+    const std::uint32_t required =
+        requiredPipelineGroups(world, stepConfig);
+    const std::uint32_t missing =
+        required & ~cache.availableGroups;
+    MetalWorldHostStatus failureStatus =
+        MetalWorldHostStatus::success;
+    std::string failureMessage;
+    auto loadPipeline = [&cache,
+                         &context,
+                         &failureStatus,
+                         &failureMessage](
+        __strong id<MTLComputePipelineState>& destination,
+        NSString* functionName,
+        const NSUInteger minimumThreads,
+        const NSUInteger exactSIMDWidth
+    ) -> bool {
+        if (destination != nil) {
+            return true;
+        }
+        NSError* error = nil;
+        id<MTLComputePipelineState> pipeline = makePipeline(
+            cache.device,
+            cache.library,
             functionName,
             &error
         );
+        if (pipeline == nil) {
+            failureStatus =
+                MetalWorldHostStatus::metalPipelineFailure;
+            failureMessage = "failed to create " +
+                nsString(functionName) + " pipeline: " +
+                describeError(error);
+            return false;
+        }
+        if (pipeline.maxTotalThreadsPerThreadgroup <
+                minimumThreads ||
+            pipeline.staticThreadgroupMemoryLength >
+                cache.device.maxThreadgroupMemoryLength ||
+            (exactSIMDWidth != 0u &&
+             pipeline.threadExecutionWidth != exactSIMDWidth)) {
+            failureStatus =
+                MetalWorldHostStatus::metalDeviceUnsupported;
+            failureMessage = "device cannot execute " +
+                nsString(functionName) +
+                " with its compiled threadgroup geometry";
+            return false;
+        }
+        destination = pipeline;
+        cache.queriedThreadExecutionWidth = std::max(
+            cache.queriedThreadExecutionWidth,
+            static_cast<std::uint32_t>(
+                pipeline.threadExecutionWidth
+            )
+        );
+        ++context.stats.pipelineCreationCount;
+        return true;
     };
-    operatorPipeline =
-        createContactPipeline(@"mr_articulated_operator");
-    parameterizedOperatorPipeline = createContactPipeline(
-        @"mr_parameterized_articulated_operator"
-    );
-    taskObserve =
-        createContactPipeline(@"mr_task_observe");
-    taskFrameRefresh = createContactPipeline(
-        @"mr_task_refresh_frame_observations"
-    );
-    sensorSample = createContactPipeline(
-        @"mr_sensor_sample_control_boundary"
-    );
-    taskSensorRefresh = createContactPipeline(
-        @"mr_task_refresh_sensor_observations"
-    );
-    taskApply =
-        createContactPipeline(@"mr_task_apply_actions");
-    taskEffort =
-        createContactPipeline(@"mr_task_measure_effort");
-    taskComplete =
-        createContactPipeline(@"mr_task_complete");
-    taskCurriculum = createContactPipeline(
-        @"mr_task_update_curriculum"
-    );
-    policyDense =
-        createContactPipeline(@"mr_policy_dense_layer");
-    policySample = createContactPipeline(
-        @"mr_policy_sample_and_score"
-    );
-    learningPublicationValidation = createContactPipeline(
-        @"mr_task_validate_learning_publication"
-    );
-    contactPrepare =
-        createContactPipeline(@"mr_world_prepare_contact_step");
-    bodyProjection =
-        createContactPipeline(@"mr_world_build_body_states");
-    bodyVelocity = createContactPipeline(
-        @"mr_articulated_materialize_body_velocities"
-    );
-    scenePrediction =
-        createContactPipeline(@"mr_world_predict_scene");
-    colliderProjection =
-        createContactPipeline(@"mr_world_project_colliders");
-    sweptProjection = createContactPipeline(
-        @"mr_world_project_swept_colliders"
-    );
-    ccd = createContactPipeline(@"mr_world_resolve_ccd");
-    ccdEventInitialize = createContactPipeline(
-        @"mr_world_initialize_ccd_event_state"
-    );
-    ccdEventPrepare = createContactPipeline(
-        @"mr_world_prepare_ccd_event_pass"
-    );
-    ccdEventSelect =
-        createContactPipeline(@"mr_world_select_ccd_event_state");
-    ccdEventFinalize =
-        createContactPipeline(@"mr_world_finalize_ccd_event_state");
-    eventArticulation = createContactPipeline(
-        @"mr_world_materialize_event_articulation"
-    );
-    eventScenePrediction = createContactPipeline(
-        @"mr_world_predict_scene_event"
-    );
-    eventBodyOverlay = createContactPipeline(
-        @"mr_world_overlay_event_articulation_bodies"
-    );
-    velocitySafety = createContactPipeline(
-        @"mr_world_apply_velocity_safety_envelope"
-    );
-    eventColliderProjection = createContactPipeline(
-        @"mr_world_project_event_colliders"
-    );
-    inactiveEventRestore = createContactPipeline(
-        @"mr_world_restore_inactive_event_candidate"
-    );
-    eventSegmentPublish = createContactPipeline(
-        @"mr_world_publish_event_segment"
-    );
-    rodEventInitialize = createContactPipeline(
-        @"mr_world_initialize_rod_event_state"
-    );
-    inactiveRodEventRestore = createContactPipeline(
-        @"mr_world_restore_inactive_rod_event_candidate"
-    );
-    rodEventSegmentPublish = createContactPipeline(
-        @"mr_world_publish_rod_event_segment"
-    );
-    rodSweptProjection = createContactPipeline(
-        @"mr_world_project_swept_rod_colliders"
-    );
-    rodCCD = createContactPipeline(
-        @"mr_world_resolve_rod_ccd"
-    );
-    rodCCDWitnessTag = createContactPipeline(
-        @"mr_world_tag_rod_ccd_witnesses"
-    );
-    pairFlags =
-        createContactPipeline(@"mr_world_flag_eligible_pairs");
-    scanBlocks =
-        createContactPipeline(@"mr_world_scan_blocks");
-    scanAdd =
-        createContactPipeline(@"mr_world_scan_add_block_offsets");
-    pairClassFlags =
-        createContactPipeline(@"mr_world_flag_pair_work_class");
-    pairQueueScatter =
-        createContactPipeline(@"mr_world_scatter_pair_queue");
-    pairNarrowphase =
-        createContactPipeline(@"mr_world_narrowphase_pair_queue");
-    convexNarrowphase =
-        createContactPipeline(@"mr_world_narrowphase_convex_queue");
-    hullNarrowphase =
-        createContactPipeline(@"mr_world_narrowphase_hull_queue");
-    meshNarrowphase =
-        createContactPipeline(@"mr_world_narrowphase_mesh_queue");
-    collisionCompile =
-        createContactPipeline(@"mr_world_collide_compile");
-    manifoldFinalize = createContactPipeline(
-        @"mr_world_finalize_pair_manifold"
-    );
-    manifoldScan = createContactPipeline(
-        @"mr_world_scan_manifold_ir"
-    );
-    manifoldRecordScatter = createContactPipeline(
-        @"mr_world_scatter_manifold_records"
-    );
-    manifoldIRScatter = createContactPipeline(
-        @"mr_world_scatter_manifold_ir"
-    );
-    multiQueryInitialize = createContactPipeline(
-        @"mr_world_initialize_multi_articulation_queries"
-    );
-    multiOperatorCompose = createContactPipeline(
-        @"mr_world_compose_multi_articulation_operator"
-    );
-    factorDispatch = createContactPipeline(
-        @"mr_world_finalize_factor_dispatch"
-    );
-    pointQueryTail = createContactPipeline(
-        @"mr_world_fill_point_query_tail"
-    );
-    evaluateIR =
-        createContactPipeline(@"mr_world_evaluate_constraint_ir");
-    islands =
-        createContactPipeline(@"mr_world_build_contact_islands");
-    numiSweep =
-        createContactPipeline(@"mr_world_numi_constraint_sweep");
-    contactIntegrate =
-        createContactPipeline(@"mr_world_integrate_contact_state");
-    contactLatch =
-        createContactPipeline(@"mr_world_latch_contact_status");
-    contactCommit =
-        createContactPipeline(@"mr_world_commit_contact_state");
-    convexCachePublish =
-        createContactPipeline(@"mr_world_publish_convex_cache");
-    contactCapture =
-        createContactPipeline(@"mr_world_capture_contact");
-    qualityPrepare = createContactPipeline(
-        @"mr_world_prepare_unified_quality"
-    );
-    qualityWarmStart = createContactPipeline(
-        @"mr_world_reconstruct_unified_quality_warm_start"
-    );
-    qualityQueue = createContactPipeline(
-        @"mr_world_build_unified_quality_queue"
-    );
-    qualitySolve = createContactPipeline(
-        @"mr_unified_quality_solve_queued"
-    );
-    qualityApply = createContactPipeline(
-        @"mr_world_apply_unified_quality"
-    );
-    qualityQueueStatus = createContactPipeline(
-        @"mr_world_publish_unified_quality_queue_status"
-    );
-    rodPrepare = createContactPipeline(
-        @"mr_world_prepare_rod_state"
-    );
-    rodContactPrepare = createContactPipeline(
-        @"mr_world_prepare_rod_contact_cache"
-    );
-    rodPack = createContactPipeline(
-        @"mr_world_pack_rod_state"
-    );
-    rodStep = createContactPipeline(
-        @"mr_discrete_elastic_rod_step"
-    );
-    rodFactor = createContactPipeline(
-        @"mr_world_factor_rod_operator"
-    );
-    rodUnpack = createContactPipeline(
-        @"mr_world_unpack_rod_state"
-    );
-    rodLatch = createContactPipeline(
-        @"mr_world_latch_rod_status"
-    );
-    rodContactLatch = createContactPipeline(
-        @"mr_world_latch_rod_contact_status"
-    );
-    rodToolNarrowphase = createContactPipeline(
-        @"mr_rod_tool_narrowphase"
-    );
-    rodContactScan = createContactPipeline(
-        @"mr_world_scan_rod_contact_ir"
-    );
-    rodContactScatter = createContactPipeline(
-        @"mr_world_scatter_rod_contact_ir"
-    );
-    rodContactSolve = createContactPipeline(
-        @"mr_world_solve_rod_contact_constraints"
-    );
-    rodCommit = createContactPipeline(
-        @"mr_world_commit_rod_state"
-    );
-    rodContactCommit = createContactPipeline(
-        @"mr_world_commit_rod_contact_cache"
-    );
-    authoredIRSeed = createContactPipeline(
-        @"mr_world_seed_authored_constraint_ir"
-    );
-    if (operatorPipeline == nil ||
-        parameterizedOperatorPipeline == nil ||
-        taskObserve == nil ||
-        taskFrameRefresh == nil ||
-        sensorSample == nil ||
-        taskSensorRefresh == nil ||
-        taskApply == nil ||
-        taskEffort == nil ||
-        taskComplete == nil ||
-        taskCurriculum == nil ||
-        policyDense == nil ||
-        policySample == nil ||
-        learningPublicationValidation == nil ||
-        contactPrepare == nil ||
-        bodyProjection == nil ||
-        bodyVelocity == nil ||
-        scenePrediction == nil ||
-        colliderProjection == nil ||
-        sweptProjection == nil ||
-        ccd == nil ||
-        ccdEventInitialize == nil ||
-        ccdEventPrepare == nil ||
-        ccdEventSelect == nil ||
-        ccdEventFinalize == nil ||
-        eventArticulation == nil ||
-        eventScenePrediction == nil ||
-        eventBodyOverlay == nil ||
-        velocitySafety == nil ||
-        eventColliderProjection == nil ||
-        inactiveEventRestore == nil ||
-        eventSegmentPublish == nil ||
-        rodEventInitialize == nil ||
-        inactiveRodEventRestore == nil ||
-        rodEventSegmentPublish == nil ||
-        rodSweptProjection == nil ||
-        rodCCD == nil ||
-        rodCCDWitnessTag == nil ||
-        pairFlags == nil ||
-        scanBlocks == nil ||
-        scanAdd == nil ||
-        pairClassFlags == nil ||
-        pairQueueScatter == nil ||
-        pairNarrowphase == nil ||
-        convexNarrowphase == nil ||
-        hullNarrowphase == nil ||
-        meshNarrowphase == nil ||
-        collisionCompile == nil ||
-        manifoldFinalize == nil ||
-        manifoldScan == nil ||
-        manifoldRecordScatter == nil ||
-        manifoldIRScatter == nil ||
-        multiQueryInitialize == nil ||
-        multiOperatorCompose == nil ||
-        factorDispatch == nil ||
-        pointQueryTail == nil ||
-        evaluateIR == nil ||
-        islands == nil ||
-        numiSweep == nil ||
-        contactIntegrate == nil ||
-        contactLatch == nil ||
-        contactCommit == nil ||
-        convexCachePublish == nil ||
-        contactCapture == nil ||
-        qualityPrepare == nil ||
-        qualityWarmStart == nil ||
-        qualityQueue == nil ||
-        qualitySolve == nil ||
-        qualityApply == nil ||
-        qualityQueueStatus == nil ||
-        rodPrepare == nil ||
-        rodContactPrepare == nil ||
-        rodPack == nil ||
-        rodStep == nil ||
-        rodUnpack == nil ||
-        rodLatch == nil ||
-        rodContactLatch == nil ||
-        rodToolNarrowphase == nil ||
-        rodContactScan == nil ||
-        rodContactScatter == nil ||
-        rodContactSolve == nil ||
-        rodCommit == nil ||
-        rodContactCommit == nil ||
-        authoredIRSeed == nil) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalPipelineFailure,
-            "failed to create device-resident contact pipeline: " +
-                describeError(error)
-        );
-    }
 
-    if (aba.maxTotalThreadsPerThreadgroup <
-            kABAThreadsPerThreadgroup ||
-        smallABA.maxTotalThreadsPerThreadgroup <
-            kABAThreadsPerThreadgroup ||
-        multiABA.maxTotalThreadsPerThreadgroup <
-            kABAThreadsPerThreadgroup ||
-        aba.staticThreadgroupMemoryLength >
-            device.maxThreadgroupMemoryLength ||
-        smallABA.staticThreadgroupMemoryLength >
-            device.maxThreadgroupMemoryLength ||
-        multiABA.staticThreadgroupMemoryLength >
-            device.maxThreadgroupMemoryLength ||
-        operatorPipeline.maxTotalThreadsPerThreadgroup <
-            kOperatorThreadsPerThreadgroup ||
-        operatorPipeline.staticThreadgroupMemoryLength >
-            device.maxThreadgroupMemoryLength ||
-        bodyVelocity.staticThreadgroupMemoryLength >
-            device.maxThreadgroupMemoryLength ||
-        prepare.maxTotalThreadsPerThreadgroup == 0u ||
-        commit.maxTotalThreadsPerThreadgroup == 0u ||
-        capture.maxTotalThreadsPerThreadgroup == 0u ||
-        taskObserve.maxTotalThreadsPerThreadgroup == 0u ||
-        taskFrameRefresh.maxTotalThreadsPerThreadgroup == 0u ||
-        sensorSample.maxTotalThreadsPerThreadgroup == 0u ||
-        taskSensorRefresh.maxTotalThreadsPerThreadgroup == 0u ||
-        taskApply.maxTotalThreadsPerThreadgroup == 0u ||
-        taskEffort.maxTotalThreadsPerThreadgroup == 0u ||
-        taskComplete.maxTotalThreadsPerThreadgroup == 0u ||
-        taskCurriculum.maxTotalThreadsPerThreadgroup == 0u ||
-        policyDense.maxTotalThreadsPerThreadgroup == 0u ||
-        policySample.maxTotalThreadsPerThreadgroup == 0u ||
-        learningPublicationValidation
-                .maxTotalThreadsPerThreadgroup == 0u ||
-        contactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
-        bodyProjection.maxTotalThreadsPerThreadgroup == 0u ||
-        bodyVelocity.maxTotalThreadsPerThreadgroup <
-            kOperatorThreadsPerThreadgroup ||
-        scenePrediction.maxTotalThreadsPerThreadgroup == 0u ||
-        colliderProjection.maxTotalThreadsPerThreadgroup == 0u ||
-        sweptProjection.maxTotalThreadsPerThreadgroup == 0u ||
-        ccd.maxTotalThreadsPerThreadgroup == 0u ||
-        ccdEventInitialize.maxTotalThreadsPerThreadgroup == 0u ||
-        ccdEventPrepare.maxTotalThreadsPerThreadgroup == 0u ||
-        ccdEventSelect.maxTotalThreadsPerThreadgroup == 0u ||
-        ccdEventFinalize.maxTotalThreadsPerThreadgroup == 0u ||
-        eventArticulation.maxTotalThreadsPerThreadgroup == 0u ||
-        eventScenePrediction.maxTotalThreadsPerThreadgroup == 0u ||
-        eventBodyOverlay.maxTotalThreadsPerThreadgroup == 0u ||
-        velocitySafety.maxTotalThreadsPerThreadgroup == 0u ||
-        eventColliderProjection.maxTotalThreadsPerThreadgroup == 0u ||
-        inactiveEventRestore.maxTotalThreadsPerThreadgroup == 0u ||
-        eventSegmentPublish.maxTotalThreadsPerThreadgroup == 0u ||
-        pairFlags.maxTotalThreadsPerThreadgroup == 0u ||
-        scanBlocks.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        scanAdd.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        pairClassFlags.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        pairQueueScatter.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        pairNarrowphase.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        convexNarrowphase.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        hullNarrowphase.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        meshNarrowphase.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        collisionCompile.maxTotalThreadsPerThreadgroup == 0u ||
-        manifoldFinalize.maxTotalThreadsPerThreadgroup == 0u ||
-        manifoldScan.maxTotalThreadsPerThreadgroup <
-            MR_SIMD_WIDTH ||
-        manifoldRecordScatter.maxTotalThreadsPerThreadgroup == 0u ||
-        manifoldIRScatter.maxTotalThreadsPerThreadgroup == 0u ||
-        multiQueryInitialize.maxTotalThreadsPerThreadgroup == 0u ||
-        multiOperatorCompose.maxTotalThreadsPerThreadgroup == 0u ||
-        factorDispatch.maxTotalThreadsPerThreadgroup == 0u ||
-        pointQueryTail.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        evaluateIR.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        islands.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        numiSweep.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        contactIntegrate.maxTotalThreadsPerThreadgroup == 0u ||
-        contactLatch.maxTotalThreadsPerThreadgroup == 0u ||
-        contactCommit.maxTotalThreadsPerThreadgroup == 0u ||
-        convexCachePublish.maxTotalThreadsPerThreadgroup == 0u ||
-        contactCapture.maxTotalThreadsPerThreadgroup == 0u ||
-        qualityPrepare.maxTotalThreadsPerThreadgroup <
-            MR_SIMD_WIDTH ||
-        qualityWarmStart.maxTotalThreadsPerThreadgroup <
-            MR_SIMD_WIDTH ||
-        qualityQueue.maxTotalThreadsPerThreadgroup <
-            MR_SIMD_WIDTH ||
-        qualitySolve.maxTotalThreadsPerThreadgroup <
-            MR_SIMD_WIDTH ||
-        qualityApply.maxTotalThreadsPerThreadgroup == 0u ||
-        qualityQueueStatus.maxTotalThreadsPerThreadgroup == 0u ||
-        rodPrepare.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
-        rodPack.maxTotalThreadsPerThreadgroup == 0u ||
-        rodStep.maxTotalThreadsPerThreadgroup <
-            MR_ROD_GPU_MAX_NODES ||
-        rodFactor.maxTotalThreadsPerThreadgroup == 0u ||
-        rodUnpack.maxTotalThreadsPerThreadgroup == 0u ||
-        rodLatch.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactLatch.maxTotalThreadsPerThreadgroup == 0u ||
-        rodToolNarrowphase.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactScan.maxTotalThreadsPerThreadgroup <
-            MR_SIMD_WIDTH ||
-        rodContactScatter.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactSolve.maxTotalThreadsPerThreadgroup == 0u ||
-        rodCommit.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactCommit.maxTotalThreadsPerThreadgroup == 0u ||
-        authoredIRSeed.maxTotalThreadsPerThreadgroup == 0u ||
-        rodStep.staticThreadgroupMemoryLength >
-            device.maxThreadgroupMemoryLength ||
-        qualityPrepare.staticThreadgroupMemoryLength >
-            device.maxThreadgroupMemoryLength ||
-        qualityWarmStart.staticThreadgroupMemoryLength >
-            device.maxThreadgroupMemoryLength ||
-        qualityQueue.staticThreadgroupMemoryLength >
-            device.maxThreadgroupMemoryLength ||
-        qualitySolve.staticThreadgroupMemoryLength >
-            device.maxThreadgroupMemoryLength) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalDeviceUnsupported,
-            "device cannot execute the MetalWorld kernel geometry"
-        );
+#define MR_RUNTIME_PIPELINE( \
+    group, member, function, minimumThreads, simdWidth \
+) \
+    if ((missing & kPipelineGroup##group) != 0u && \
+        !loadPipeline( \
+            cache.member, \
+            function, \
+            minimumThreads, \
+            simdWidth \
+        )) { \
+        return reject( \
+            std::move(diagnostics), \
+            failureStatus, \
+            std::move(failureMessage) \
+        ); \
     }
-    if (pairNarrowphase.threadExecutionWidth !=
-            MR_SIMD_WIDTH ||
-        manifoldScan.threadExecutionWidth !=
-            MR_SIMD_WIDTH ||
-        qualityPrepare.threadExecutionWidth !=
-            MR_SIMD_WIDTH ||
-        qualityWarmStart.threadExecutionWidth !=
-            MR_SIMD_WIDTH ||
-        qualityQueue.threadExecutionWidth !=
-            MR_SIMD_WIDTH ||
-        qualitySolve.threadExecutionWidth !=
-            MR_SIMD_WIDTH ||
-        rodToolNarrowphase.threadExecutionWidth !=
-            MR_SIMD_WIDTH ||
-        rodContactScan.threadExecutionWidth !=
-            MR_SIMD_WIDTH ||
-        rodStep.threadExecutionWidth !=
-            MR_SIMD_WIDTH) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::metalDeviceUnsupported,
-            "contact graph requires a queried SIMD execution width of 32"
-        );
-    }
+#include "metalrobo/runtime_pipelines_generated.inc"
+#undef MR_RUNTIME_PIPELINE
 
-    context.device = device;
-    context.queue = queue;
-    context.library = library;
-    context.abaPipeline = aba;
-    context.parameterizedABAPipeline = parameterizedABA;
-    context.smallABAPipeline = smallABA;
-    context.multiABAPipeline = multiABA;
-    context.preparePipeline = prepare;
-    context.commitPipeline = commit;
-    context.capturePipeline = capture;
-    context.operatorPipeline = operatorPipeline;
-    context.parameterizedOperatorPipeline =
-        parameterizedOperatorPipeline;
-    context.taskObservePipeline = taskObserve;
-    context.taskFrameRefreshPipeline = taskFrameRefresh;
-    context.sensorSamplePipeline = sensorSample;
-    context.taskSensorRefreshPipeline = taskSensorRefresh;
-    context.taskApplyPipeline = taskApply;
-    context.taskEffortPipeline = taskEffort;
-    context.taskCompletePipeline = taskComplete;
-    context.taskCurriculumPipeline = taskCurriculum;
-    context.policyDensePipeline = policyDense;
-    context.policySamplePipeline = policySample;
-    context.learningPublicationValidationPipeline =
-        learningPublicationValidation;
-    context.contactPreparePipeline = contactPrepare;
-    context.bodyProjectionPipeline = bodyProjection;
-    context.bodyVelocityPipeline = bodyVelocity;
-    context.scenePredictionPipeline = scenePrediction;
-    context.colliderProjectionPipeline = colliderProjection;
-    context.sweptProjectionPipeline = sweptProjection;
-    context.ccdPipeline = ccd;
-    context.ccdEventInitializePipeline = ccdEventInitialize;
-    context.ccdEventPreparePipeline = ccdEventPrepare;
-    context.ccdEventSelectPipeline = ccdEventSelect;
-    context.ccdEventFinalizePipeline = ccdEventFinalize;
-    context.eventArticulationPipeline = eventArticulation;
-    context.eventScenePredictionPipeline = eventScenePrediction;
-    context.eventBodyOverlayPipeline = eventBodyOverlay;
-    context.velocitySafetyPipeline = velocitySafety;
-    context.eventColliderProjectionPipeline = eventColliderProjection;
-    context.inactiveEventRestorePipeline = inactiveEventRestore;
-    context.eventSegmentPublishPipeline = eventSegmentPublish;
-    context.rodEventInitializePipeline = rodEventInitialize;
-    context.inactiveRodEventRestorePipeline =
-        inactiveRodEventRestore;
-    context.rodEventSegmentPublishPipeline =
-        rodEventSegmentPublish;
-    context.rodSweptProjectionPipeline = rodSweptProjection;
-    context.rodCCDPipeline = rodCCD;
-    context.rodCCDWitnessTagPipeline = rodCCDWitnessTag;
-    context.pairFlagPipeline = pairFlags;
-    context.scanBlocksPipeline = scanBlocks;
-    context.scanAddPipeline = scanAdd;
-    context.pairClassFlagPipeline = pairClassFlags;
-    context.pairQueueScatterPipeline = pairQueueScatter;
-    context.pairNarrowphasePipeline = pairNarrowphase;
-    context.convexNarrowphasePipeline = convexNarrowphase;
-    context.hullNarrowphasePipeline = hullNarrowphase;
-    context.meshNarrowphasePipeline = meshNarrowphase;
-    context.collisionCompilePipeline = collisionCompile;
-    context.manifoldFinalizePipeline = manifoldFinalize;
-    context.manifoldScanPipeline = manifoldScan;
-    context.manifoldRecordScatterPipeline =
-        manifoldRecordScatter;
-    context.manifoldIRScatterPipeline = manifoldIRScatter;
-    context.multiQueryInitializePipeline =
-        multiQueryInitialize;
-    context.multiOperatorComposePipeline =
-        multiOperatorCompose;
-    context.factorDispatchPipeline = factorDispatch;
-    context.pointQueryTailPipeline = pointQueryTail;
-    context.evaluateIRPipeline = evaluateIR;
-    context.islandPipeline = islands;
-    context.numiSweepPipeline = numiSweep;
-    context.contactIntegratePipeline = contactIntegrate;
-    context.contactLatchPipeline = contactLatch;
-    context.contactCommitPipeline = contactCommit;
-    context.convexCachePublishPipeline = convexCachePublish;
-    context.contactCapturePipeline = contactCapture;
-    context.qualityPreparePipeline = qualityPrepare;
-    context.qualityWarmStartPipeline = qualityWarmStart;
-    context.qualityQueuePipeline = qualityQueue;
-    context.qualitySolvePipeline = qualitySolve;
-    context.qualityApplyPipeline = qualityApply;
-    context.qualityQueueStatusPipeline = qualityQueueStatus;
-    context.rodPreparePipeline = rodPrepare;
-    context.rodContactPreparePipeline = rodContactPrepare;
-    context.rodPackPipeline = rodPack;
-    context.rodStepPipeline = rodStep;
-    context.rodFactorPipeline = rodFactor;
-    context.rodUnpackPipeline = rodUnpack;
-    context.rodLatchPipeline = rodLatch;
-    context.rodContactLatchPipeline = rodContactLatch;
-    context.rodToolNarrowphasePipeline = rodToolNarrowphase;
-    context.rodContactScanPipeline = rodContactScan;
-    context.rodContactScatterPipeline = rodContactScatter;
-    context.rodContactSolvePipeline = rodContactSolve;
-    context.rodCommitPipeline = rodCommit;
-    context.rodContactCommitPipeline = rodContactCommit;
-    context.authoredIRSeedPipeline = authoredIRSeed;
-    context.stats.queriedThreadExecutionWidth =
-        static_cast<std::uint32_t>(
-            pairNarrowphase.threadExecutionWidth
+    cache.availableGroups |= missing;
+    context.device = cache.device;
+    context.queue = cache.queue;
+#define MR_RUNTIME_PIPELINE( \
+    group, member, function, minimumThreads, simdWidth \
+) \
+    context.member = cache.member;
+#include "metalrobo/runtime_pipelines_generated.inc"
+#undef MR_RUNTIME_PIPELINE
+    NSString* missingFunction = nil;
+#define MR_RUNTIME_PIPELINE( \
+    group, member, function, minimumThreads, simdWidth \
+) \
+    if ((required & kPipelineGroup##group) != 0u && \
+        context.member == nil && missingFunction == nil) { \
+        missingFunction = function; \
+    }
+#include "metalrobo/runtime_pipelines_generated.inc"
+#undef MR_RUNTIME_PIPELINE
+    if (missingFunction != nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::internalFailure,
+            "compiled execution plan did not publish " +
+                nsString(missingFunction) + " pipeline"
         );
+    }
     context.initialized = true;
-    context.stats.pipelineCreationCount += 82u;
+    context.stats.queriedThreadExecutionWidth =
+        cache.queriedThreadExecutionWidth;
     return diagnostics;
 }
 
@@ -7440,6 +6754,9 @@ bool encodeContactThreadKernel(
     const NSUInteger secondaryLength = 0u,
     const NSUInteger secondaryArgument = 0u
 ) {
+    if (pipeline == nil) {
+        return false;
+    }
     id<MTLComputeCommandEncoder> encoder =
         [commandBuffer computeCommandEncoder];
     if (encoder == nil) {
@@ -15699,11 +15016,14 @@ MetalWorldContext::MetalWorldContext(MetalWorldConfig config)
         1u,
         8u
     );
+    pool_->pipelines =
+        std::make_shared<detail::MetalWorldPipelineCache>();
     pool_->slots.reserve(slotCount);
     for (std::uint32_t slot = 0u; slot < slotCount; ++slot) {
         pool_->slots.push_back(
             std::make_shared<detail::MetalWorldContextState>(
-                config
+                config,
+                pool_->pipelines
             )
         );
     }
@@ -16015,6 +15335,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
         @autoreleasepool {
             diagnostics = initializeContext(
                 *selectedState,
+                world,
+                config,
                 std::move(diagnostics)
             );
             if (!diagnostics.succeeded()) {

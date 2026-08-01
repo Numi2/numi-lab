@@ -6,6 +6,8 @@
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
 #define MR_RUNTIME_ABI_VERSION 10u
+#define MR_RUNTIME_PIPELINE_COUNT 89u
+#define MR_RUNTIME_PIPELINE_GROUP_COUNT 11u
 #define MR_SENSOR_PROGRAM_ABI_VERSION 4u
 
 typedef struct MR_ALIGN16 MRSensorProgramHeaderGPU {
