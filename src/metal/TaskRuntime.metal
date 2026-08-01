@@ -194,15 +194,9 @@ inline TaskFramePose taskResetBodyPose(
     return result;
 }
 
-inline float3 taskOrientationError(
-    const float4 frameOrientation,
-    const float4 goalOrientation
-) {
+inline float3 taskRotationVector(const float4 orientation) {
     float4 difference = normalizedQuaternionOrIdentity(
-        quaternionProduct(
-            goalOrientation,
-            quaternionConjugate(frameOrientation)
-        )
+        orientation
     );
     if (difference.w < 0.0f) {
         difference = -difference;
@@ -218,9 +212,28 @@ inline float3 taskOrientationError(
     return difference.xyz * (angle / sineHalf);
 }
 
+inline float3 taskOrientationError(
+    const float4 frameOrientation,
+    const float4 goalOrientation
+) {
+    return taskRotationVector(
+        quaternionProduct(
+            goalOrientation,
+            quaternionConjugate(frameOrientation)
+        )
+    );
+}
+
+inline bool relativeFrameObservationOpcode(const uint opcode) {
+    return opcode == MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION ||
+        opcode == MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION;
+}
+
 inline bool frameObservationOpcode(const uint opcode) {
-    return opcode >= MR_TASK_OBSERVE_FRAME_POSITION_WORLD &&
-        opcode <= MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR;
+    return
+        (opcode >= MR_TASK_OBSERVE_FRAME_POSITION_WORLD &&
+         opcode <= MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR) ||
+        relativeFrameObservationOpcode(opcode);
 }
 
 inline bool sensorObservationOpcode(const uint opcode) {
@@ -266,7 +279,9 @@ inline float taskFrameObservationValue(
     device const MRTaskFrameGPU* frames,
     device const MRTaskGoalGPU* goals,
     const float4 bodyPosition,
-    const float4 bodyOrientation
+    const float4 bodyOrientation,
+    const float4 referenceBodyPosition,
+    const float4 referenceBodyOrientation
 ) {
     device const MRTaskFrameGPU& frame =
         frames[operation.source.y];
@@ -275,6 +290,32 @@ inline float taskFrameObservationValue(
         bodyPosition,
         bodyOrientation
     );
+    if (relativeFrameObservationOpcode(operation.source.x)) {
+        device const MRTaskFrameGPU& referenceFrame =
+            frames[operation.auxiliary.z];
+        const TaskFramePose referencePose = taskFramePose(
+            referenceFrame,
+            referenceBodyPosition,
+            referenceBodyOrientation
+        );
+        const float value =
+            operation.source.x ==
+                    MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION
+            ? rotateInverse(
+                  referencePose.orientation,
+                  pose.position - referencePose.position
+              )[operation.source.z]
+            : taskRotationVector(
+                  quaternionProduct(
+                      quaternionConjugate(
+                          referencePose.orientation
+                      ),
+                      pose.orientation
+                  )
+              )[operation.source.z];
+        return operation.transform.x * value +
+            operation.transform.y;
+    }
     float value = 0.0f;
     switch (operation.source.x) {
     case MR_TASK_OBSERVE_FRAME_POSITION_WORLD:
@@ -663,7 +704,9 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_FRAME_POSITION_WORLD:
     case MR_TASK_OBSERVE_FRAME_ORIENTATION_WORLD:
     case MR_TASK_OBSERVE_FRAME_GOAL_POSITION_ERROR:
-    case MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR: {
+    case MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR:
+    case MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION:
+    case MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION: {
         device const MRTaskFrameGPU& frame =
             frames[operation.source.y];
         const MRBodyStateGPU body = taskFrameBodyState(
@@ -671,12 +714,26 @@ inline float cleanObservation(
             bodyStates,
             sceneBodies
         );
+        MRBodyStateGPU referenceBody = body;
+        if (relativeFrameObservationOpcode(
+                operation.source.x
+            )) {
+            device const MRTaskFrameGPU& referenceFrame =
+                frames[operation.auxiliary.z];
+            referenceBody = taskFrameBodyState(
+                referenceFrame,
+                bodyStates,
+                sceneBodies
+            );
+        }
         return taskFrameObservationValue(
             operation,
             frames,
             goals,
             body.position,
-            body.orientation
+            body.orientation,
+            referenceBody.position,
+            referenceBody.orientation
         );
     }
     default:
@@ -1810,12 +1867,26 @@ kernel void mr_task_refresh_frame_observations(
             bodyPoses + bodyBase,
             sceneBodies + sceneBase
         );
+        TaskFramePose referencePose = pose;
+        if (relativeFrameObservationOpcode(
+                operation.source.x
+            )) {
+            device const MRTaskFrameGPU& referenceFrame =
+                frames[operation.auxiliary.z];
+            referencePose = taskResetBodyPose(
+                referenceFrame,
+                bodyPoses + bodyBase,
+                sceneBodies + sceneBase
+            );
+        }
         const float clean = taskFrameObservationValue(
             operation,
             frames,
             goals,
             float4(pose.position, 1.0f),
-            pose.orientation
+            pose.orientation,
+            float4(referencePose.position, 1.0f),
+            referencePose.orientation
         );
         float corrupted =
             clean +
@@ -1870,12 +1941,26 @@ kernel void mr_task_refresh_frame_observations(
             bodyPoses + bodyBase,
             sceneBodies + sceneBase
         );
+        TaskFramePose referencePose = pose;
+        if (relativeFrameObservationOpcode(
+                operation.source.x
+            )) {
+            device const MRTaskFrameGPU& referenceFrame =
+                frames[operation.auxiliary.z];
+            referencePose = taskResetBodyPose(
+                referenceFrame,
+                bodyPoses + bodyBase,
+                sceneBodies + sceneBase
+            );
+        }
         const float clean = taskFrameObservationValue(
             operation,
             frames,
             goals,
             float4(pose.position, 1.0f),
-            pose.orientation
+            pose.orientation,
+            float4(referencePose.position, 1.0f),
+            referencePose.orientation
         );
         for (uint history = 0u;
              history < program.articulation.w;

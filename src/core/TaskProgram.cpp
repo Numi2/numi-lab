@@ -1450,6 +1450,8 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::frameOrientationWorld:
             case TaskObservationSource::frameGoalPositionError:
             case TaskObservationSource::frameGoalOrientationError:
+            case TaskObservationSource::frameRelativePosition:
+            case TaskObservationSource::frameRelativeOrientation:
                 sourceIndex = namedGroup(frameIds, spec.target);
                 if (sourceIndex == MR_INVALID_INDEX) {
                     return reject(
@@ -1475,11 +1477,38 @@ TaskCompileDiagnostics compileTaskProgram(
                             "observation task goal does not exist"
                         );
                     }
-                } else if (!spec.goal.empty()) {
+                } else if (
+                    spec.source ==
+                        TaskObservationSource::frameRelativePosition ||
+                    spec.source ==
+                        TaskObservationSource::frameRelativeOrientation
+                ) {
+                    goalIndex = namedGroup(
+                        frameIds,
+                        spec.reference
+                    );
+                    if (goalIndex == MR_INVALID_INDEX) {
+                        return reject(
+                            TaskCompileStatus::unresolvedSemantic,
+                            spec.reference,
+                            "observation reference frame does not exist"
+                        );
+                    }
+                    if (!spec.goal.empty()) {
+                        return reject(
+                            TaskCompileStatus::invalidPack,
+                            spec.goal,
+                            "a frame-relative observation cannot bind a static goal"
+                        );
+                    }
+                } else if (!spec.goal.empty() ||
+                           !spec.reference.empty()) {
                     return reject(
                         TaskCompileStatus::invalidPack,
-                        spec.goal,
-                        "a direct frame observation cannot bind a goal"
+                        !spec.goal.empty()
+                            ? spec.goal
+                            : spec.reference,
+                        "a direct frame observation cannot bind a goal or reference frame"
                     );
                 }
                 break;
@@ -1516,6 +1545,13 @@ TaskCompileDiagnostics compileTaskProgram(
                         "sensor observations cannot bind a task goal"
                     );
                 }
+                if (!spec.reference.empty()) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        spec.reference,
+                        "sensor observations cannot bind a reference frame"
+                    );
+                }
                 componentLimit =
                     spec.source == TaskObservationSource::sensorValue
                     ? descriptor.output.y
@@ -1532,6 +1568,30 @@ TaskCompileDiagnostics compileTaskProgram(
                     TaskCompileStatus::unsupportedOperator,
                     spec.target,
                     "observation opcode is unsupported"
+                );
+            }
+            const bool goalObservation =
+                spec.source ==
+                    TaskObservationSource::frameGoalPositionError ||
+                spec.source ==
+                    TaskObservationSource::frameGoalOrientationError;
+            const bool relativeObservation =
+                spec.source ==
+                    TaskObservationSource::frameRelativePosition ||
+                spec.source ==
+                    TaskObservationSource::frameRelativeOrientation;
+            if (!goalObservation && !spec.goal.empty()) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    spec.goal,
+                    "observation source does not accept a static goal"
+                );
+            }
+            if (!relativeObservation && !spec.reference.empty()) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    spec.reference,
+                    "observation source does not accept a reference frame"
                 );
             }
             if (spec.source !=
@@ -2484,11 +2544,13 @@ TaskCompileDiagnostics compileTaskProgram(
          pack.actorFrame) {
         hash.string(observation.target);
         hash.string(observation.goal);
+        hash.string(observation.reference);
     }
     for (const TaskObservationOperatorSpec& observation :
          pack.critic) {
         hash.string(observation.target);
         hash.string(observation.goal);
+        hash.string(observation.reference);
     }
     for (const TaskRewardOperatorSpec& reward : pack.rewards) {
         hash.string(reward.goal);

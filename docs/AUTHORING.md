@@ -83,6 +83,8 @@ supports:
 - world frame position/orientation and frame-to-goal position/orientation
   errors for links in any compiled articulation and for static, kinematic, or
   dynamic scene bodies;
+- frame-to-frame position in reference-frame axes and tangent orientation
+  error across articulated and scene-body domains;
 - frame position/orientation squared-error and exponential-tracking rewards;
 - maximum frame position/orientation error termination;
 - fixed-shape actor/critic histories, deterministic corruption, curriculum,
@@ -95,9 +97,11 @@ configuration through the generic articulated-kinematics operator and the
 transactional scene-state layout before policy inference. They never reuse
 body or scene poses retained by the preceding episode.
 
-The remaining TaskIR target is a phase-separated graph covering action,
-command/event, observation, reward, termination, recorder, reset, and
-curriculum phases. Site semantics, frame twist and acceleration,
+Frame-to-frame operators use an explicit named `reference`; they do not
+overload static goal identities. The remaining TaskIR target is a
+phase-separated graph covering action, command/event, observation, reward,
+termination, recorder, reset, and curriculum phases. Site semantics, frame
+twist and acceleration,
 point/Jacobian quantities, sampled and trajectory goals, and generic
 gates/reductions are not yet production operators.
 

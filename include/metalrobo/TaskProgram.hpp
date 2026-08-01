@@ -42,6 +42,10 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR,
     sensorValue = MR_TASK_OBSERVE_SENSOR_VALUE,
     sensorValidity = MR_TASK_OBSERVE_SENSOR_VALIDITY,
+    frameRelativePosition =
+        MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION,
+    frameRelativeOrientation =
+        MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -122,6 +126,8 @@ struct TaskObservationOperatorSpec {
     std::string target;
     // Required only by frame-to-goal operators.
     std::string goal;
+    // Required only by frame-to-frame operators.
+    std::string reference;
     std::uint32_t component = 0u;
     float scale = 1.0f;
     float offset = 0.0f;

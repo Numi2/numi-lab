@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 9u
+#define MR_TASK_PROGRAM_ABI_VERSION 10u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -38,6 +38,12 @@ enum MRTaskObservationOpcode : mr_u32 {
     // One scalar validity bit selected by source.z from
     // MRSensorSampleValidityFlags (valid, fresh, reset, stale, nonfinite).
     MR_TASK_OBSERVE_SENSOR_VALIDITY = 19u,
+    // Target-frame position expressed in a second named frame. source.y is
+    // the target frame and auxiliary.z is the reference frame.
+    MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION = 20u,
+    // Tangent rotation vector of the target frame expressed relative to the
+    // second named frame.
+    MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION = 21u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {

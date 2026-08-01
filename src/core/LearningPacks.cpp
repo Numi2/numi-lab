@@ -103,7 +103,8 @@ LearningPackResult validateTaskArtifact(
     }
     const auto validObservation = [](const auto& value) {
         return stringFits(value.target) &&
-            stringFits(value.goal);
+            stringFits(value.goal) &&
+            stringFits(value.reference);
     };
     if (!std::all_of(
             pack.actorFrame.begin(),
@@ -680,6 +681,7 @@ void writeObservation(
     writeEnum(writer, value.source);
     writer.string(value.target);
     writer.string(value.goal);
+    writer.string(value.reference);
     writer.pod(value.component);
     writer.pod(value.scale);
     writer.pod(value.offset);
@@ -701,6 +703,7 @@ bool readObservation(
     if (!readEnum(reader, value.source) ||
         !reader.string(value.target) ||
         !reader.string(value.goal) ||
+        !reader.string(value.reference) ||
         !reader.pod(value.component) ||
         !reader.pod(value.scale) ||
         !reader.pod(value.offset) ||

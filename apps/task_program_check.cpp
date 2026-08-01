@@ -398,6 +398,13 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .target = "world_anchor",
             .component = 2u,
         },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameRelativePosition,
+            .target = "tool_tip",
+            .reference = "world_anchor",
+            .component = 0u,
+        },
     };
     authored.task.frames = {
         {
@@ -409,6 +416,12 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .id = "world_anchor",
             .body = "locomotion_ground",
             .localPosition = {0.125f, -0.25f, 1.4f, 0.0f},
+            .localOrientation = {
+                0.0f,
+                0.0f,
+                0.7071067811865476f,
+                0.7071067811865476f,
+            },
         },
     };
     authored.task.goals = {{
@@ -529,10 +542,10 @@ std::uint64_t compileFixedBaseTaskFixture() {
         .bias = std::vector<float>(1u, 0.05f),
     }};
     policy.criticLayers = {{
-        .inputCount = 7u,
+        .inputCount = 8u,
         .outputCount = 1u,
         .activation = metalrobo::PolicyActivation::identity,
-        .weights = std::vector<float>(7u, 0.02f),
+        .weights = std::vector<float>(8u, 0.02f),
         .bias = std::vector<float>(1u, 0.1f),
     }};
     authored.policy = std::move(policy);
@@ -551,7 +564,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
         compiled.sensors.layout().historyElementCount != 28u ||
         compiled.task.layout().actionCount != 1u ||
         compiled.task.layout().actorObservationSize != 12u ||
-        compiled.task.layout().criticObservationSize != 7u ||
+        compiled.task.layout().criticObservationSize != 8u ||
         compiled.task.sensorFingerprint() !=
             compiled.sensors.fingerprint() ||
         compiled.task.header().typedCounts.x != 2u ||
@@ -702,7 +715,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .controlStepCapacity =
                 static_cast<std::uint32_t>(controlSteps),
             .actorObservationCount = 12u,
-            .criticObservationCount = 7u,
+            .criticObservationCount = 8u,
             .actionCount = 1u,
             .slotCount = 1u,
         });
@@ -799,7 +812,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 appendPrefix(
                     expectedCritic,
                     chunkResult.criticObservations,
-                    7u
+                    8u
                 );
                 appendPrefix(
                     expectedLatents,
@@ -897,7 +910,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .controlStepCapacity =
                 static_cast<std::uint32_t>(controlSteps),
             .actorObservationCount = 12u,
-            .criticObservationCount = 7u,
+            .criticObservationCount = 8u,
             .actionCount = 1u,
             .slotCount = 1u,
         });
@@ -969,7 +982,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
             !equalPrefix(
                 result.criticObservations,
                 leasedOnly.criticObservations(),
-                leasedSamples * 7u
+                leasedSamples * 8u
             ) ||
             !equalPrefix(
                 result.policyLatents,
@@ -1237,7 +1250,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
                     "TaskIR actor observations did not consume the scheduled SensorIR boundary"
                 );
             }
-            const std::size_t criticBase = sample * 7u;
+            const std::size_t criticBase = sample * 8u;
             if (std::abs(
                     result.criticObservations[criticBase + 4u] -
                     0.3f
@@ -1249,6 +1262,10 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 std::abs(
                     result.criticObservations[criticBase + 6u] -
                     0.4f
+                ) > 2.0e-4f ||
+                std::abs(
+                    result.criticObservations[criticBase + 7u] -
+                    0.25f
                 ) > 2.0e-4f) {
                 fail(
                     "TaskIR critic observations did not consume SensorIR or scene-frame state"
@@ -1304,6 +1321,29 @@ std::uint64_t compileFixedBaseTaskFixture() {
         !roundTripStatus.succeeded() ||
         roundTrip.fingerprint() != compiled.task.fingerprint()) {
         fail("typed TaskPack round trip changed frame or goal semantics");
+    }
+
+    metalrobo::TaskPack missingReference = authored.task;
+    missingReference.critic.back().reference =
+        "missing_scene_reference";
+    metalrobo::CompiledTaskProgram preservedReferenceTask =
+        compiled.task;
+    const std::uint64_t referenceFingerprint =
+        preservedReferenceTask.fingerprint();
+    const auto missingReferenceStatus =
+        metalrobo::compileTaskProgram(
+            missingReference,
+            compiled.world,
+            compiled.sensors,
+            preservedReferenceTask
+        );
+    if (missingReferenceStatus.status !=
+            metalrobo::TaskCompileStatus::unresolvedSemantic ||
+        preservedReferenceTask.fingerprint() !=
+            referenceFingerprint) {
+        fail(
+            "unresolved frame-to-frame reference was not transactionally rejected"
+        );
     }
 
     metalrobo::TaskPack unauthorized = authored.task;
