@@ -104,7 +104,8 @@ LearningPackResult validateTaskArtifact(
     const auto validObservation = [](const auto& value) {
         return stringFits(value.target) &&
             stringFits(value.goal) &&
-            stringFits(value.reference);
+            stringFits(value.reference) &&
+            stringFits(value.coordinate);
     };
     if (!std::all_of(
             pack.actorFrame.begin(),
@@ -683,6 +684,7 @@ void writeObservation(
     writer.string(value.target);
     writer.string(value.goal);
     writer.string(value.reference);
+    writer.string(value.coordinate);
     writer.pod(value.component);
     writer.pod(value.scale);
     writer.pod(value.offset);
@@ -705,6 +707,7 @@ bool readObservation(
         !reader.string(value.target) ||
         !reader.string(value.goal) ||
         !reader.string(value.reference) ||
+        !reader.string(value.coordinate) ||
         !reader.pod(value.component) ||
         !reader.pod(value.scale) ||
         !reader.pod(value.offset) ||

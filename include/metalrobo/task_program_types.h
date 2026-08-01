@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 13u
+#define MR_TASK_PROGRAM_ABI_VERSION 14u
 
 #define MR_TASK_GOAL_FIXED 0u
 #define MR_TASK_GOAL_SAMPLED_EPISODE 1u
@@ -60,6 +60,12 @@ enum MRTaskObservationOpcode : mr_u32 {
     MR_TASK_OBSERVE_FRAME_RELATIVE_LINEAR_VELOCITY = 24u,
     // Target angular velocity relative to the reference, in reference axes.
     MR_TASK_OBSERVE_FRAME_RELATIVE_ANGULAR_VELOCITY = 25u,
+    // One world-axis row of the linear Jacobian at a named frame origin,
+    // with respect to one compiled generalized-velocity coordinate.
+    MR_TASK_OBSERVE_FRAME_LINEAR_JACOBIAN_WORLD = 26u,
+    // One world-axis row of the angular Jacobian at a named frame origin,
+    // with respect to one compiled generalized-velocity coordinate.
+    MR_TASK_OBSERVE_FRAME_ANGULAR_JACOBIAN_WORLD = 27u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {

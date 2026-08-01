@@ -2,8 +2,8 @@
 import Foundation
 
 enum MetalRoboRuntimeABI {
-    static let version: UInt32 = 19
-    static let worldBufferCount = 251
+    static let version: UInt32 = 20
+    static let worldBufferCount = 254
     static let pipelineCount = 92
     static let pipelineGroupCount = 11
     static let mrSensorProgramAbiVersion: UInt32 = 9
@@ -15,6 +15,7 @@ enum MetalRoboRuntimeABI {
     static let mrSensorRuntimeStateGPUSize = 80
     static let mrSensorSampleMetadataGPUSize = 32
     static let mrActuatorRuntimeStateGPUSize = 64
+    static let mrTaskKinematicFrameGPUSize = 32
     static let mrLearningPublicationDispatchGPUSize = 64
     static let mrLearningPublicationStatusGPUSize = 64
     static let worldBufferDebugNames: [String] = [
@@ -269,5 +270,8 @@ enum MetalRoboRuntimeABI {
         "actuator command history",
         "checkpoint actuator runtime states",
         "checkpoint actuator command history",
+        "task kinematic dispatches",
+        "task kinematic queries",
+        "task kinematic point world",
     ]
 }

@@ -1274,6 +1274,10 @@ bool buildRequirements(
     const bool nativePolicy = policyProgram.valid();
     const std::size_t taskEnvironments =
         nativeTask ? environments : 0u;
+    const std::size_t kinematicEnvironments =
+        (contactEnvironments != 0u || nativeTask || nativeSensors)
+        ? environments
+        : 0u;
     const TaskProgramLayout& taskLayout =
         taskProgram.layout();
     std::size_t taskActionHistoryStride = 0u;
@@ -1282,6 +1286,8 @@ bool buildRequirements(
     std::size_t taskCriticHistoryElements = 0u;
     std::size_t taskBodyParameterElements = 0u;
     std::size_t taskContactElements = 0u;
+    std::size_t taskPointWorldElements = 0u;
+    std::size_t taskSpatialJacobianElements = 0u;
     std::size_t policyScratchElements = 0u;
     std::size_t policyActorMeanElements = 0u;
     std::size_t authoredRuntimeRows = 0u;
@@ -1317,6 +1323,16 @@ bool buildRequirements(
             taskEnvironments,
             taskLayout.contactMetricCount,
             taskContactElements
+        ) ||
+        !checkedMultiply(
+            taskEnvironments,
+            taskLayout.kinematicPointQueryCount,
+            taskPointWorldElements
+        ) ||
+        !checkedMultiply(
+            taskEnvironments,
+            taskLayout.spatialJacobianEnvironmentStride,
+            taskSpatialJacobianElements
         ) ||
         !checkedMultiply(
             nativePolicy ? taskEnvironments : 0u,
@@ -1561,12 +1577,12 @@ bool buildRequirements(
             rodWitnessElements
         ) ||
         !checkedMultiply(
-            contactEnvironments,
+            kinematicEnvironments,
             world.bodyCount(),
             bodyPoseElements
         ) ||
         !checkedMultiply(
-            contactEnvironments,
+            kinematicEnvironments,
             model.bodies.size(),
             bodyStateElements
         ) ||
@@ -1671,6 +1687,26 @@ bool buildRequirements(
         eligiblePairFlagElements,
         layout.islandElements
     );
+    std::size_t bodyStateBytes = 0u;
+    std::size_t taskSpatialJacobianBytes = 0u;
+    std::size_t bodyKinematicsArenaBytes = 0u;
+    if (!checkedMultiply(
+            bodyStateElements,
+            sizeof(MRBodyStateGPU),
+            bodyStateBytes
+        ) ||
+        !checkedMultiply(
+            taskSpatialJacobianElements,
+            sizeof(float),
+            taskSpatialJacobianBytes
+        ) ||
+        !checkedAdd(
+            bodyStateBytes,
+            taskSpatialJacobianBytes,
+            bodyKinematicsArenaBytes
+        )) {
+        return false;
+    }
     const std::size_t immutableShapeElements =
         std::max<std::size_t>(model.shapes.size(), 1u);
     const std::size_t immutableMaterialElements =
@@ -1800,18 +1836,32 @@ bool buildRequirements(
         ) ||
         !makeRequirement<MRArticulatedOperatorStatusGPU>(
             "articulated operator statuses",
-            contactEnvironments *
-                model.articulations.size(),
+            layout.articulationStatusElements,
             requirements.entries[kOperatorStatuses]
         ) ||
-        !makeRequirement<MRBodyStateGPU>(
-            "current global body states",
-            bodyStateElements,
+        !makeRequirement<MRArticulatedOperatorDispatchGPU>(
+            "task semantic kinematic dispatches",
+            layout.taskKinematicsDispatches.size(),
+            requirements.entries[kTaskKinematicDispatches]
+        ) ||
+        !makeRequirement<MRArticulatedPointImpulseGPU>(
+            "task semantic point queries",
+            taskProgram.kinematicPointQueries().size(),
+            requirements.entries[kTaskKinematicQueries]
+        ) ||
+        !makeRequirement<MRArticulatedPointWorldGPU>(
+            "task semantic point world",
+            taskPointWorldElements,
+            requirements.entries[kTaskKinematicPointWorld]
+        ) ||
+        !makeRequirement<std::uint8_t>(
+            "current body kinematics and semantic Jacobian arena",
+            bodyKinematicsArenaBytes,
             requirements.entries[kCurrentBodies]
         ) ||
-        !makeRequirement<MRBodyStateGPU>(
-            "candidate global body states",
-            bodyStateElements,
+        !makeRequirement<std::uint8_t>(
+            "candidate body kinematics and semantic Jacobian arena",
+            bodyKinematicsArenaBytes,
             requirements.entries[kCandidateBodies]
         ) ||
         !makeRequirement<MRProjectedColliderGPU>(
@@ -3341,9 +3391,33 @@ MetalWorldDiagnostics validateAndBuildLayout(
     layout.kinematicsDispatches.reserve(
         world.articulationCount()
     );
+    const bool taskUsesKinematicQueries =
+        nativeTask &&
+        config.taskProgram.layout()
+                .kinematicPointQueryCount != 0u;
+    if (taskUsesKinematicQueries &&
+        (config.taskProgram.kinematicCohorts().size() !=
+             world.articulationCount() ||
+         config.taskProgram.kinematicPointQueries().size() !=
+             config.taskProgram.layout()
+                 .kinematicPointQueryCount)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "compiled task kinematic query tables do not match the world"
+        );
+    }
+    layout.taskKinematicsDispatches.reserve(
+        taskUsesKinematicQueries
+        ? world.articulationCount()
+        : 0u
+    );
     layout.factorDispatches.reserve(
         world.articulationCount()
     );
+    std::uint64_t expectedTaskQueryOffset = 0u;
+    std::uint64_t expectedTaskPointPrefix = 0u;
+    std::uint64_t expectedTaskJacobianPrefix = 0u;
     for (mr_u32 owner = 0u;
          owner < world.articulationCount();
          ++owner) {
@@ -3374,6 +3448,89 @@ MetalWorldDiagnostics validateAndBuildLayout(
             static_cast<mr_u32>(world.bodyCount());
         kinematics.generalizedStride = dispatch.vStride;
         layout.kinematicsDispatches.push_back(kinematics);
+
+        if (taskUsesKinematicQueries) {
+            const TaskKinematicCohort& cohort =
+                config.taskProgram.kinematicCohorts()[owner];
+            if (cohort.articulationIndex != owner ||
+                cohort.queryOffset != expectedTaskQueryOffset ||
+                cohort.pointPrefix != expectedTaskPointPrefix ||
+                cohort.jacobianPrefix !=
+                    expectedTaskJacobianPrefix ||
+                static_cast<std::uint64_t>(
+                    cohort.jacobianEnvironmentStride
+                ) !=
+                    static_cast<std::uint64_t>(
+                        cohort.queryCount
+                    ) * 6u * owned.nv) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::invalidDimensions,
+                    "compiled task kinematic cohort layout is invalid"
+                );
+            }
+            const std::span<const MRArticulatedPointImpulseGPU>
+                taskQueries =
+                    config.taskProgram.kinematicPointQueries();
+            for (std::uint32_t localQuery = 0u;
+                 localQuery < cohort.queryCount;
+                 ++localQuery) {
+                const std::size_t queryIndex =
+                    static_cast<std::size_t>(
+                        cohort.queryOffset
+                    ) + localQuery;
+                if (queryIndex >= taskQueries.size() ||
+                    taskQueries[queryIndex].bodyIndex <
+                        owned.firstBody ||
+                    taskQueries[queryIndex].bodyIndex >=
+                        owned.firstBody + owned.bodyCount ||
+                    !finite(taskQueries[queryIndex].localPoint) ||
+                    !finite(taskQueries[queryIndex].worldImpulse)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::invalidDimensions,
+                        "compiled task semantic point query is invalid"
+                    );
+                }
+            }
+            expectedTaskQueryOffset += cohort.queryCount;
+            expectedTaskPointPrefix += cohort.queryCount;
+            expectedTaskJacobianPrefix +=
+                cohort.jacobianEnvironmentStride;
+            MRArticulatedOperatorDispatchGPU query{};
+            query.articulationIndex = owner;
+            query.environmentCount = dispatch.environmentCount;
+            query.pointCount = cohort.queryCount;
+            query.flags =
+                MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
+                MR_ARTICULATED_OPERATOR_BROADCAST_POINTS |
+                MR_ARTICULATED_OPERATOR_SPATIAL_JACOBIANS |
+                MR_ARTICULATED_OPERATOR_SKIP_GENERALIZED_OUTPUTS;
+            query.qStride = dispatch.qStride;
+            query.pointStride = cohort.queryCount;
+            query.bodyPoseStride =
+                static_cast<mr_u32>(world.bodyCount());
+            query.pointWorldStride = cohort.queryCount;
+            query.pointJacobianStride =
+                cohort.jacobianEnvironmentStride;
+            layout.taskKinematicsDispatches.push_back(query);
+        }
+    }
+    if (taskUsesKinematicQueries &&
+        (expectedTaskQueryOffset !=
+             config.taskProgram.layout()
+                 .kinematicPointQueryCount ||
+         expectedTaskPointPrefix !=
+             config.taskProgram.layout()
+                 .kinematicPointQueryCount ||
+         expectedTaskJacobianPrefix !=
+             config.taskProgram.layout()
+                 .spatialJacobianEnvironmentStride)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "compiled task kinematic query prefixes are inconsistent"
+        );
     }
 
     MRMetalWorldContactDispatchGPU& contact =
@@ -6162,6 +6319,10 @@ void uploadBatch(
             kTaskProgramArena,
             config.taskProgram.arena().data()
         );
+        stageTask(
+            kTaskKinematicQueries,
+            config.taskProgram.kinematicPointQueries().data()
+        );
         if (taskUpload != nil) {
             [taskUpload endEncoding];
         }
@@ -6585,6 +6746,11 @@ void uploadBatch(
         context.buffers[kOperatorFactorDispatch],
         layout.factorDispatches.data(),
         requirements.entries[kOperatorFactorDispatch]
+    );
+    copyToBuffer(
+        context.buffers[kTaskKinematicDispatches],
+        layout.taskKinematicsDispatches.data(),
+        requirements.entries[kTaskKinematicDispatches]
     );
     context.boundFactorDispatches = layout.factorDispatches;
     if (uploadInitialState) {
@@ -8011,6 +8177,130 @@ bool encodeArticulatedOperator(
             indirectBufferOffset:0u
             threadsPerThreadgroup:threadgroupSize];
     } else {
+        [encoder
+            dispatchThreadgroups:MTLSizeMake(
+                static_cast<NSUInteger>(environmentCount),
+                1u,
+                1u
+            )
+            threadsPerThreadgroup:threadgroupSize];
+    }
+    [encoder endEncoding];
+    return true;
+}
+
+// Materializes ordinary body poses and the compiler-owned semantic point
+// Jacobians in one pass per articulation. Contact point queries remain a
+// separate transient domain: these immutable packets are broadcast across
+// environments and their outputs are owner-major stable TaskIR storage.
+bool encodeTaskKinematics(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const CompiledTaskProgram& task,
+    const std::size_t qBuffer,
+    const std::size_t bodyKinematicsBuffer,
+    const std::size_t bodyStateStride,
+    const std::size_t environmentCount,
+    NSString* label
+) {
+    const std::span<const TaskKinematicCohort> cohorts =
+        task.kinematicCohorts();
+    if (context.boundArticulations.empty() ||
+        cohorts.size() != context.boundArticulations.size()) {
+        return false;
+    }
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label = label;
+    id<MTLComputePipelineState> pipeline =
+        context.useTaskBodyParameters
+        ? context.parameterizedOperatorPipeline
+        : context.operatorPipeline;
+    [encoder setComputePipelineState:pipeline];
+    if (context.useTaskBodyParameters) {
+        [encoder setBuffer:context.buffers[kTaskBodyParameters]
+                     offset:0u
+                    atIndex:15u];
+        [encoder setBuffer:
+                     context.buffers[kTaskControllerParameters]
+                     offset:0u
+                    atIndex:16u];
+    }
+    const MTLSize threadgroupSize = MTLSizeMake(
+        kOperatorThreadsPerThreadgroup,
+        1u,
+        1u
+    );
+    for (std::size_t owner = 0u;
+         owner < context.boundArticulations.size();
+         ++owner) {
+        const MRArticulationGPU& articulation =
+            context.boundArticulations[owner];
+        const TaskKinematicCohort& cohort = cohorts[owner];
+        const bool semantic = cohort.queryCount != 0u;
+        const std::array<std::size_t, 15u> resources{{
+            kWorld,
+            kArticulations,
+            kJoints,
+            kDofs,
+            kBodies,
+            semantic
+                ? kTaskKinematicDispatches
+                : kOperatorKinematicsDispatch,
+            qBuffer,
+            semantic ? kTaskKinematicQueries : kPointQueries,
+            kBodyPoses,
+            semantic ? kTaskKinematicPointWorld : kPointWorld,
+            kFactorMatrix,
+            semantic ? bodyKinematicsBuffer : kPointJacobians,
+            kGeneralizedImpulse,
+            kDeltaVelocity,
+            kOperatorStatuses,
+        }};
+        for (NSUInteger argument = 0u;
+             argument < resources.size();
+             ++argument) {
+            NSUInteger offset = 0u;
+            if (argument == 5u) {
+                offset = owner *
+                    sizeof(MRArticulatedOperatorDispatchGPU);
+            } else if (argument == 6u) {
+                offset = articulation.qOffset * sizeof(float);
+            } else if (argument == 7u && semantic) {
+                offset = static_cast<NSUInteger>(
+                    cohort.queryOffset
+                ) * sizeof(MRArticulatedPointImpulseGPU);
+            } else if (argument == 8u) {
+                offset = articulation.firstBody *
+                    sizeof(MRArticulatedBodyPoseGPU);
+            } else if (argument == 9u && semantic) {
+                offset = environmentCount *
+                    static_cast<std::size_t>(cohort.pointPrefix) *
+                    sizeof(MRArticulatedPointWorldGPU);
+            } else if (argument == 11u && semantic) {
+                offset = environmentCount * bodyStateStride *
+                    sizeof(MRBodyStateGPU) +
+                    environmentCount *
+                    static_cast<std::size_t>(cohort.jacobianPrefix) *
+                    sizeof(float);
+            } else if (argument == 14u) {
+                offset = owner * environmentCount *
+                    sizeof(MRArticulatedOperatorStatusGPU);
+            }
+            [encoder setBuffer:context.buffers[resources[argument]]
+                         offset:offset
+                        atIndex:argument];
+        }
+        [encoder
+            setThreadgroupMemoryLength:
+                detail::articulatedOperatorThreadgroupBytes(
+                    articulation.bodyCount,
+                    articulation.nv
+                )
+            atIndex:0u];
         [encoder
             dispatchThreadgroups:MTLSizeMake(
                 static_cast<NSUInteger>(environmentCount),
@@ -12457,38 +12747,114 @@ MetalWorldDiagnostics validateAndPublish(
             }
 
             if (status.code == MR_STEP_SUCCESS) {
-                if (status.successfulSubsteps !=
-                        dispatch.physicsSubsteps ||
-                    status.abaCode != MR_ABA_SUCCESS ||
-                    (contactStatus != nullptr &&
-                     (
-                         contactStatus->code != MR_STEP_SUCCESS ||
-                         contactStatus->requiredPairs >
-                             contactDispatch.pairCapacity ||
-                         contactStatus->requiredRawContacts >
-                             contactDispatch.rawContactCapacity ||
-                         contactStatus->requiredManifolds >
-                             contactDispatch.manifoldCapacity ||
-                         contactStatus->requiredConstraints >
-                             contactDispatch.constraintCapacity ||
-                         contactStatus->requiredRows >
-                             contactDispatch.rowCapacity ||
-                         contactStatus->requiredIslands >
-                             contactDispatch.islandCapacity
-                     )) ||
-                    status.failingSubstep != MR_INVALID_INDEX ||
-                    status.failingIndex != MR_INVALID_INDEX ||
-                    (publishStateTrajectory &&
-                     !finiteRange(
+                const bool contactPayloadValid =
+                    contactStatus == nullptr ||
+                    (
+                        contactStatus->code == MR_STEP_SUCCESS &&
+                        contactStatus->requiredPairs <=
+                            contactDispatch.pairCapacity &&
+                        contactStatus->requiredRawContacts <=
+                            contactDispatch.rawContactCapacity &&
+                        contactStatus->requiredManifolds <=
+                            contactDispatch.manifoldCapacity &&
+                        contactStatus->requiredConstraints <=
+                            contactDispatch.constraintCapacity &&
+                        contactStatus->requiredRows <=
+                            contactDispatch.rowCapacity &&
+                        contactStatus->requiredIslands <=
+                            contactDispatch.islandCapacity
+                    );
+                const bool accelerationPayloadValid =
+                    !publishStateTrajectory ||
+                    finiteRange(
                         staged.accelerations,
                         accelerationBase,
                         dispatch.nv
-                    ))) {
+                    );
+                if (status.successfulSubsteps !=
+                        dispatch.physicsSubsteps ||
+                    status.abaCode != MR_ABA_SUCCESS ||
+                    !contactPayloadValid ||
+                    status.failingSubstep != MR_INVALID_INDEX ||
+                    status.failingIndex != MR_INVALID_INDEX ||
+                    !accelerationPayloadValid) {
+                    std::string message =
+                        "GPU success status has invalid accounting: "
+                        "environment=" +
+                        std::to_string(environment) +
+                        " control_step=" +
+                        std::to_string(controlStep) +
+                        " successful_substeps=" +
+                        std::to_string(status.successfulSubsteps) +
+                        " expected_substeps=" +
+                        std::to_string(dispatch.physicsSubsteps) +
+                        " aba=" +
+                        std::to_string(status.abaCode) +
+                        " failing_substep=" +
+                        std::to_string(status.failingSubstep) +
+                        " failing_index=" +
+                        std::to_string(status.failingIndex) +
+                        " acceleration_payload=" +
+                        (accelerationPayloadValid
+                            ? "finite"
+                            : "nonfinite");
+                    if (contactStatus != nullptr) {
+                        message +=
+                            " contact_code=" +
+                            std::to_string(contactStatus->code) +
+                            " pairs=" +
+                            std::to_string(
+                                contactStatus->requiredPairs
+                            ) +
+                            "/" +
+                            std::to_string(
+                                contactDispatch.pairCapacity
+                            ) +
+                            " raw=" +
+                            std::to_string(
+                                contactStatus->requiredRawContacts
+                            ) +
+                            "/" +
+                            std::to_string(
+                                contactDispatch.rawContactCapacity
+                            ) +
+                            " manifolds=" +
+                            std::to_string(
+                                contactStatus->requiredManifolds
+                            ) +
+                            "/" +
+                            std::to_string(
+                                contactDispatch.manifoldCapacity
+                            ) +
+                            " constraints=" +
+                            std::to_string(
+                                contactStatus->requiredConstraints
+                            ) +
+                            "/" +
+                            std::to_string(
+                                contactDispatch.constraintCapacity
+                            ) +
+                            " rows=" +
+                            std::to_string(
+                                contactStatus->requiredRows
+                            ) +
+                            "/" +
+                            std::to_string(
+                                contactDispatch.rowCapacity
+                            ) +
+                            " islands=" +
+                            std::to_string(
+                                contactStatus->requiredIslands
+                            ) +
+                            "/" +
+                            std::to_string(
+                                contactDispatch.islandCapacity
+                            );
+                    }
                     return reject(
                         std::move(diagnostics),
                         MetalWorldHostStatus::internalFailure,
-                        "GPU success status has invalid substep "
-                        "accounting or payload"
+                        std::move(message)
                     );
                 }
                 ++diagnostics.successfulStepCount;
@@ -16206,6 +16572,10 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 const bool taskUsesFrames =
                     nativeTask &&
                     config.taskProgram.header().typedCounts.x != 0u;
+                const bool taskUsesKinematicQueries =
+                    nativeTask &&
+                    config.taskProgram.layout()
+                            .kinematicPointQueryCount != 0u;
                 const bool taskUsesSensors =
                     nativeTask &&
                     config.taskProgram.sensorFingerprint() != 0u;
@@ -16258,16 +16628,29 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         (
                             (taskUsesFrames || sensorUsesBodyPoses) &&
                             (
-                                !encodeArticulatedOperator(
-                                    *selectedState,
-                                    commandBuffer,
-                                    kOperatorKinematicsDispatch,
-                                    sourceQ,
-                                    kPointQueries,
-                                    kBodyPoses,
-                                    batch.environmentCount,
-                                    @"compiled task reset kinematics",
-                                    false
+                                !(
+                                    taskUsesKinematicQueries
+                                    ? encodeTaskKinematics(
+                                          *selectedState,
+                                          commandBuffer,
+                                          config.taskProgram,
+                                          sourceQ,
+                                          kCurrentBodies,
+                                          world.bodyCount(),
+                                          batch.environmentCount,
+                                          @"compiled task reset kinematics and semantic Jacobians"
+                                      )
+                                    : encodeArticulatedOperator(
+                                          *selectedState,
+                                          commandBuffer,
+                                          kOperatorKinematicsDispatch,
+                                          sourceQ,
+                                          kPointQueries,
+                                          kBodyPoses,
+                                          batch.environmentCount,
+                                          @"compiled task reset kinematics",
+                                          false
+                                      )
                                 ) ||
                                 (
                                     (taskUsesFrames ||
@@ -16647,16 +17030,29 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
 
                 pass.physicsSubstep = MR_INVALID_INDEX;
                 if ((nativeTask || sensorUsesBodyPoses) &&
-                    !encodeArticulatedOperator(
-                        *selectedState,
-                        commandBuffer,
-                        kOperatorKinematicsDispatch,
-                        sourceQ,
-                        kPointQueries,
-                        kBodyPoses,
-                        batch.environmentCount,
-                        @"compiled accepted-state kinematics",
-                        false
+                    !(
+                        taskUsesKinematicQueries
+                        ? encodeTaskKinematics(
+                              *selectedState,
+                              commandBuffer,
+                              config.taskProgram,
+                              sourceQ,
+                              kCandidateBodies,
+                              world.bodyCount(),
+                              batch.environmentCount,
+                              @"compiled accepted-state kinematics and semantic Jacobians"
+                          )
+                        : encodeArticulatedOperator(
+                              *selectedState,
+                              commandBuffer,
+                              kOperatorKinematicsDispatch,
+                              sourceQ,
+                              kPointQueries,
+                              kBodyPoses,
+                              batch.environmentCount,
+                              @"compiled accepted-state kinematics",
+                              false
+                          )
                     )) {
                     return reject(
                         std::move(diagnostics),

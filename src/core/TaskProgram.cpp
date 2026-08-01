@@ -2,6 +2,7 @@
 
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/SensorProgram.hpp"
+#include "metalrobo/runtime_abi_generated.h"
 
 #include "SemanticTransform.hpp"
 
@@ -36,7 +37,11 @@ struct CompiledTaskProgram::Storage {
     std::vector<MRTaskIndexGroupGPU> jointGroups;
     std::vector<std::uint32_t> jointMembers;
     std::vector<MRTaskFrameGPU> frames;
+    std::vector<MRTaskKinematicFrameGPU> kinematicFrames;
     std::vector<MRTaskGoalGPU> goals;
+    std::vector<MRArticulatedPointImpulseGPU>
+        kinematicPointQueries;
+    std::vector<TaskKinematicCohort> kinematicCohorts;
     std::vector<MRTaskRewardOperatorGPU> rewardOperators;
     std::vector<MRTaskTerminationOperatorGPU> terminationOperators;
     std::vector<MRTaskRandomizationOperatorGPU>
@@ -353,18 +358,107 @@ bool CompiledTaskProgram::valid() const noexcept {
               (static_cast<std::uint64_t>(
                    storage_->header.typedCounts.w
                ) << 32u);
-    return storage_ != nullptr &&
-        storage_->fingerprint != 0u &&
-        storage_->worldFingerprint != 0u &&
-        storage_->header.taskFingerprint ==
-            storage_->fingerprint &&
-        storage_->header.worldFingerprint ==
-            storage_->worldFingerprint &&
-        headerSensorFingerprint ==
-            storage_->sensorFingerprint &&
-        storage_->layout.actionCount != 0u &&
-        storage_->layout.actorFrameSize != 0u &&
-        storage_->layout.actorHistoryLength != 0u;
+    if (storage_ == nullptr ||
+        storage_->fingerprint == 0u ||
+        storage_->worldFingerprint == 0u ||
+        storage_->header.taskFingerprint !=
+            storage_->fingerprint ||
+        storage_->header.worldFingerprint !=
+            storage_->worldFingerprint ||
+        headerSensorFingerprint !=
+            storage_->sensorFingerprint ||
+        storage_->layout.actionCount == 0u ||
+        storage_->layout.actorFrameSize == 0u ||
+        storage_->layout.actorHistoryLength == 0u ||
+        storage_->layout.kinematicPointQueryCount !=
+            storage_->kinematicPointQueries.size() ||
+        storage_->kinematicFrames.size() !=
+            storage_->frames.size()) {
+        return false;
+    }
+
+    std::uint64_t queryOffset = 0u;
+    std::uint64_t pointPrefix = 0u;
+    std::uint64_t jacobianPrefix = 0u;
+    for (std::size_t owner = 0u;
+         owner < storage_->kinematicCohorts.size();
+         ++owner) {
+        const TaskKinematicCohort& cohort =
+            storage_->kinematicCohorts[owner];
+        if (cohort.articulationIndex != owner ||
+            cohort.queryOffset != queryOffset ||
+            cohort.pointPrefix != pointPrefix ||
+            cohort.jacobianPrefix != jacobianPrefix) {
+            return false;
+        }
+        queryOffset += cohort.queryCount;
+        pointPrefix += cohort.queryCount;
+        jacobianPrefix += cohort.jacobianEnvironmentStride;
+        if (queryOffset >
+                storage_->kinematicPointQueries.size() ||
+            pointPrefix >
+                storage_->layout.kinematicPointQueryCount ||
+            jacobianPrefix >
+                storage_->layout
+                    .spatialJacobianEnvironmentStride) {
+            return false;
+        }
+    }
+    if (queryOffset != storage_->kinematicPointQueries.size() ||
+        pointPrefix !=
+            storage_->layout.kinematicPointQueryCount ||
+        jacobianPrefix !=
+            storage_->layout.spatialJacobianEnvironmentStride) {
+        return false;
+    }
+    for (std::size_t frameIndex = 0u;
+         frameIndex < storage_->kinematicFrames.size();
+         ++frameIndex) {
+        const MRTaskKinematicFrameGPU& frame =
+            storage_->kinematicFrames[frameIndex];
+        if (frame.layout.x == MR_INVALID_INDEX) {
+            if (frame.layout.y != MR_INVALID_INDEX ||
+                frame.coordinates.y != MR_INVALID_INDEX) {
+                return false;
+            }
+            continue;
+        }
+        if (frame.layout.x >= storage_->kinematicCohorts.size()) {
+            return false;
+        }
+        const TaskKinematicCohort& cohort =
+            storage_->kinematicCohorts[frame.layout.x];
+        if (frame.layout.y >= cohort.queryCount ||
+            frame.layout.z != cohort.jacobianPrefix ||
+            frame.layout.w !=
+                cohort.jacobianEnvironmentStride ||
+            frame.coordinates.x == 0u ||
+            frame.coordinates.y == MR_INVALID_INDEX) {
+            return false;
+        }
+        const std::size_t queryIndex =
+            static_cast<std::size_t>(cohort.queryOffset) +
+            frame.layout.y;
+        if (queryIndex >= storage_->kinematicPointQueries.size() ||
+            storage_->kinematicPointQueries[queryIndex].bodyIndex !=
+                storage_->frames[frameIndex].indices.x) {
+            return false;
+        }
+    }
+
+    const std::uint64_t frameOffset = storage_->header.offsets3.z;
+    const std::uint64_t kinematicOffset =
+        frameOffset +
+        storage_->frames.size() * sizeof(MRTaskFrameGPU);
+    const std::uint64_t goalOffset =
+        kinematicOffset +
+        storage_->kinematicFrames.size() *
+            sizeof(MRTaskKinematicFrameGPU);
+    const std::uint64_t goalEnd =
+        goalOffset +
+        storage_->goals.size() * sizeof(MRTaskGoalGPU);
+    return storage_->header.offsets3.w == goalOffset &&
+        goalEnd <= storage_->arena.size();
 }
 
 std::uint64_t CompiledTaskProgram::fingerprint() const noexcept {
@@ -467,6 +561,24 @@ CompiledTaskProgram::goals() const noexcept {
         : std::span<const MRTaskGoalGPU>{};
 }
 
+std::span<const MRArticulatedPointImpulseGPU>
+CompiledTaskProgram::kinematicPointQueries() const noexcept {
+    return valid()
+        ? std::span<const MRArticulatedPointImpulseGPU>{
+              storage_->kinematicPointQueries
+          }
+        : std::span<const MRArticulatedPointImpulseGPU>{};
+}
+
+std::span<const TaskKinematicCohort>
+CompiledTaskProgram::kinematicCohorts() const noexcept {
+    return valid()
+        ? std::span<const TaskKinematicCohort>{
+              storage_->kinematicCohorts
+          }
+        : std::span<const TaskKinematicCohort>{};
+}
+
 std::span<const MRTaskRewardOperatorGPU>
 CompiledTaskProgram::rewardOperators() const noexcept {
     return valid()
@@ -544,12 +656,14 @@ TaskCompileDiagnostics compileTaskProgram(
     const EngineModel& model = world.model();
     if (model.bodyNames.size() != model.bodies.size() ||
         model.jointNames.size() != model.joints.size() ||
+        model.dofNames.size() != model.dofs.size() ||
         !uniqueNonempty(model.bodyNames) ||
-        !uniqueNonempty(model.jointNames)) {
+        !uniqueNonempty(model.jointNames) ||
+        !uniqueNonempty(model.dofNames)) {
         return reject(
             TaskCompileStatus::invalidWorld,
             "world.semantics",
-            "compiled task worlds require canonical body and joint names"
+            "compiled task worlds require canonical body, joint, and DoF names"
         );
     }
     if (world.articulationIndex() >=
@@ -1480,6 +1594,10 @@ TaskCompileDiagnostics compileTaskProgram(
     }
 
     bool usesSensors = false;
+    std::vector<bool> jacobianFrames(
+        staged->frames.size(),
+        false
+    );
     const auto compileObservations =
         [&](const std::vector<TaskObservationOperatorSpec>& specs,
             std::vector<MRTaskObservationOperatorGPU>& compiled,
@@ -1707,6 +1825,58 @@ TaskCompileDiagnostics compileTaskProgram(
                     );
                 }
                 break;
+            case TaskObservationSource::frameLinearJacobianWorld:
+            case TaskObservationSource::frameAngularJacobianWorld: {
+                sourceIndex = namedGroup(frameIds, spec.target);
+                if (sourceIndex == MR_INVALID_INDEX) {
+                    return reject(
+                        TaskCompileStatus::unresolvedSemantic,
+                        spec.target,
+                        "Jacobian observation task frame does not exist"
+                    );
+                }
+                if (staged->frames[sourceIndex].indices.y !=
+                    MR_TASK_FRAME_SOURCE_ARTICULATED_BODY) {
+                    return reject(
+                        TaskCompileStatus::unsupportedOperator,
+                        spec.target,
+                        "Jacobian observations currently require an articulated task frame"
+                    );
+                }
+                if (spec.coordinate.empty()) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        spec.target,
+                        "Jacobian observation requires a named generalized-velocity coordinate"
+                    );
+                }
+                bool ambiguous = false;
+                const std::uint32_t dofIndex = uniqueIndex(
+                    model.dofNames,
+                    spec.coordinate,
+                    ambiguous
+                );
+                if (ambiguous) {
+                    return reject(
+                        TaskCompileStatus::ambiguousSemantic,
+                        spec.coordinate,
+                        "Jacobian coordinate identity is ambiguous"
+                    );
+                }
+                if (dofIndex == MR_INVALID_INDEX ||
+                    dofIndex >= model.dofs.size() ||
+                    model.dofs[dofIndex].vIndex != dofIndex) {
+                    return reject(
+                        TaskCompileStatus::unresolvedSemantic,
+                        spec.coordinate,
+                        "Jacobian generalized-velocity coordinate does not exist"
+                    );
+                }
+                componentLimit = 3u;
+                goalIndex = dofIndex;
+                jacobianFrames[sourceIndex] = true;
+                break;
+            }
             case TaskObservationSource::sensorValue:
             case TaskObservationSource::sensorValidity: {
                 if (!sensors.valid()) {
@@ -1779,6 +1949,11 @@ TaskCompileDiagnostics compileTaskProgram(
                     TaskObservationSource::frameRelativeLinearVelocity ||
                 spec.source ==
                     TaskObservationSource::frameRelativeAngularVelocity;
+            const bool jacobianObservation =
+                spec.source ==
+                    TaskObservationSource::frameLinearJacobianWorld ||
+                spec.source ==
+                    TaskObservationSource::frameAngularJacobianWorld;
             if (!goalObservation && !spec.goal.empty()) {
                 return reject(
                     TaskCompileStatus::invalidPack,
@@ -1791,6 +1966,13 @@ TaskCompileDiagnostics compileTaskProgram(
                     TaskCompileStatus::invalidPack,
                     spec.reference,
                     "observation source does not accept a reference frame"
+                );
+            }
+            if (!jacobianObservation && !spec.coordinate.empty()) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    spec.coordinate,
+                    "observation source does not accept a generalized-velocity coordinate"
                 );
             }
             if (spec.source !=
@@ -1865,6 +2047,122 @@ TaskCompileDiagnostics compileTaskProgram(
         return observationStatus;
     }
 
+    staged->kinematicFrames.assign(
+        staged->frames.size(),
+        MRTaskKinematicFrameGPU{
+            {
+                MR_INVALID_INDEX,
+                MR_INVALID_INDEX,
+                0u,
+                0u,
+            },
+            {
+                0u,
+                MR_INVALID_INDEX,
+                0u,
+                0u,
+            },
+        }
+    );
+    staged->kinematicCohorts.resize(model.articulations.size());
+    std::vector<std::uint32_t> ownerQueryCounts(
+        model.articulations.size(),
+        0u
+    );
+    for (std::size_t frameIndex = 0u;
+         frameIndex < staged->frames.size();
+         ++frameIndex) {
+        if (!jacobianFrames[frameIndex]) {
+            continue;
+        }
+        const std::uint32_t owner =
+            staged->frames[frameIndex].indices.w;
+        if (owner >= ownerQueryCounts.size() ||
+            ownerQueryCounts[owner] ==
+                std::numeric_limits<std::uint32_t>::max()) {
+            return reject(
+                TaskCompileStatus::arithmeticOverflow,
+                frameIds[frameIndex],
+                "semantic point-query cohort exceeds the 32-bit ABI"
+            );
+        }
+        ++ownerQueryCounts[owner];
+    }
+    std::uint64_t pointPrefix = 0u;
+    std::uint64_t jacobianPrefix = 0u;
+    for (std::uint32_t owner = 0u;
+         owner < model.articulations.size();
+         ++owner) {
+        const MRArticulationGPU& owned =
+            model.articulations[owner];
+        const std::uint64_t ownerJacobianStride =
+            static_cast<std::uint64_t>(
+                ownerQueryCounts[owner]
+            ) * 6u * owned.nv;
+        if (pointPrefix >
+                std::numeric_limits<std::uint32_t>::max() ||
+            pointPrefix + ownerQueryCounts[owner] >
+                std::numeric_limits<std::uint32_t>::max() ||
+            jacobianPrefix >
+                std::numeric_limits<std::uint32_t>::max() ||
+            ownerJacobianStride >
+                std::numeric_limits<std::uint32_t>::max() ||
+            jacobianPrefix + ownerJacobianStride >
+                std::numeric_limits<std::uint32_t>::max()) {
+            return reject(
+                TaskCompileStatus::arithmeticOverflow,
+                "kinematic_queries",
+                "semantic spatial-Jacobian layout exceeds the 32-bit ABI"
+            );
+        }
+        TaskKinematicCohort& cohort =
+            staged->kinematicCohorts[owner];
+        cohort.articulationIndex = owner;
+        cohort.queryOffset = static_cast<std::uint32_t>(
+            staged->kinematicPointQueries.size()
+        );
+        cohort.queryCount = ownerQueryCounts[owner];
+        cohort.pointPrefix = static_cast<std::uint32_t>(
+            pointPrefix
+        );
+        cohort.jacobianPrefix = static_cast<std::uint32_t>(
+            jacobianPrefix
+        );
+        cohort.jacobianEnvironmentStride =
+            static_cast<std::uint32_t>(ownerJacobianStride);
+        std::uint32_t localQuery = 0u;
+        for (std::size_t frameIndex = 0u;
+             frameIndex < staged->frames.size();
+             ++frameIndex) {
+            if (!jacobianFrames[frameIndex] ||
+                staged->frames[frameIndex].indices.w != owner) {
+                continue;
+            }
+            staged->kinematicFrames[frameIndex] = {
+                {
+                    owner,
+                    localQuery,
+                    cohort.jacobianPrefix,
+                    cohort.jacobianEnvironmentStride,
+                },
+                {
+                    owned.nv,
+                    owned.vOffset,
+                    0u,
+                    0u,
+                },
+            };
+            MRArticulatedPointImpulseGPU query{};
+            query.bodyIndex =
+                staged->frames[frameIndex].indices.x;
+            query.localPoint =
+                staged->frames[frameIndex].localPosition;
+            staged->kinematicPointQueries.push_back(query);
+            ++localQuery;
+        }
+        pointPrefix += ownerQueryCounts[owner];
+        jacobianPrefix += ownerJacobianStride;
+    }
     staged->rewardOperators.reserve(pack.rewards.size());
     for (const TaskRewardOperatorSpec& reward : pack.rewards) {
         if (!finite(reward.weight) ||
@@ -2447,6 +2745,12 @@ TaskCompileDiagnostics compileTaskProgram(
             pack.maximumActionDelaySteps + 1u,
             2u
         ),
+        .kinematicPointQueryCount =
+            static_cast<std::uint32_t>(
+                staged->kinematicPointQueries.size()
+            ),
+        .spatialJacobianEnvironmentStride =
+            static_cast<std::uint32_t>(jacobianPrefix),
     };
 
     staged->header.counts0 = {
@@ -2674,23 +2978,43 @@ TaskCompileDiagnostics compileTaskProgram(
             }
         ),
     };
+    const std::uint32_t terrainResetOffset = appendArena(
+        std::span<const mr_float4>{
+            staged->terrainResetTranslations
+        }
+    );
+    const std::uint32_t commandCurriculumOffset = appendArena(
+        std::span<const mr_float4>{
+            staged->commandCurriculum
+        }
+    );
+    const std::uint32_t frameOffset = appendArena(
+        std::span<const MRTaskFrameGPU>{staged->frames}
+    );
+    const std::uint32_t kinematicFrameOffset = appendArena(
+        std::span<const MRTaskKinematicFrameGPU>{
+            staged->kinematicFrames
+        }
+    );
+    const std::uint64_t expectedKinematicFrameOffset =
+        static_cast<std::uint64_t>(frameOffset) +
+        staged->frames.size() * sizeof(MRTaskFrameGPU);
+    if (kinematicFrameOffset == MR_INVALID_INDEX ||
+        expectedKinematicFrameOffset != kinematicFrameOffset) {
+        return reject(
+            TaskCompileStatus::arithmeticOverflow,
+            "kinematic_frames",
+            "compiled kinematic-frame table is not contiguous with task frames"
+        );
+    }
+    const std::uint32_t goalOffset = appendArena(
+        std::span<const MRTaskGoalGPU>{staged->goals}
+    );
     staged->header.offsets3 = {
-        appendArena(
-            std::span<const mr_float4>{
-                staged->terrainResetTranslations
-            }
-        ),
-        appendArena(
-            std::span<const mr_float4>{
-                staged->commandCurriculum
-            }
-        ),
-        appendArena(
-            std::span<const MRTaskFrameGPU>{staged->frames}
-        ),
-        appendArena(
-            std::span<const MRTaskGoalGPU>{staged->goals}
-        ),
+        terrainResetOffset,
+        commandCurriculumOffset,
+        frameOffset,
+        goalOffset,
     };
     const std::array offsets{
         staged->header.offsets0,
@@ -2745,12 +3069,14 @@ TaskCompileDiagnostics compileTaskProgram(
         hash.string(observation.target);
         hash.string(observation.goal);
         hash.string(observation.reference);
+        hash.string(observation.coordinate);
     }
     for (const TaskObservationOperatorSpec& observation :
          pack.critic) {
         hash.string(observation.target);
         hash.string(observation.goal);
         hash.string(observation.reference);
+        hash.string(observation.coordinate);
     }
     for (const TaskRewardOperatorSpec& reward : pack.rewards) {
         hash.string(reward.goal);

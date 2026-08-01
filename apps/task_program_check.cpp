@@ -2747,6 +2747,20 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             .target = "reference_twist",
             .component = 0u,
         },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameLinearJacobianWorld,
+            .target = "tool_tip",
+            .coordinate = "axis",
+            .component = 0u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameAngularJacobianWorld,
+            .target = "tool_tip",
+            .coordinate = "axis",
+            .component = 1u,
+        },
     };
     twistAuthored.task.criticIncludesCleanHistory = false;
     twistAuthored.task.rewards = {{
@@ -2801,10 +2815,10 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .bias = std::vector<float>(1u, 0.0f),
     }};
     twistPolicy.criticLayers = {{
-        .inputCount = 8u,
+        .inputCount = 10u,
         .outputCount = 1u,
         .activation = metalrobo::PolicyActivation::identity,
-        .weights = std::vector<float>(8u, 0.0f),
+        .weights = std::vector<float>(10u, 0.0f),
         .bias = std::vector<float>(1u, 0.0f),
     }};
     twistAuthored.policy = std::move(twistPolicy);
@@ -2820,6 +2834,70 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             "frame-twist task compile failed: " +
             twistCompile.task.message
         );
+    }
+    if (twistCompiled.task.layout().kinematicPointQueryCount != 1u ||
+        twistCompiled.task.layout()
+                .spatialJacobianEnvironmentStride != 6u ||
+        twistCompiled.task.kinematicPointQueries().size() != 1u ||
+        twistCompiled.task.kinematicCohorts().size() != 1u ||
+        twistCompiled.task.kinematicCohorts().front().queryCount != 1u) {
+        fail(
+            "frame Jacobian did not compile into one stable semantic query: queries=" +
+            std::to_string(
+                twistCompiled.task.layout().kinematicPointQueryCount
+            ) +
+            " stride=" +
+            std::to_string(
+                twistCompiled.task.layout()
+                    .spatialJacobianEnvironmentStride
+            ) +
+            " cohorts=" +
+            std::to_string(
+                twistCompiled.task.kinematicCohorts().size()
+            )
+        );
+    }
+    const auto twistPackWrite = metalrobo::writeTaskPack(
+        twistAuthored.task,
+        packFiles.task
+    );
+    metalrobo::TaskPack twistPackRoundTrip;
+    const auto twistPackRead = metalrobo::readTaskPack(
+        packFiles.task,
+        twistPackRoundTrip
+    );
+    metalrobo::CompiledTaskProgram twistTaskRoundTrip;
+    const auto twistTaskRoundTripStatus =
+        metalrobo::compileTaskProgram(
+            twistPackRoundTrip,
+            twistCompiled.world,
+            twistCompiled.sensors,
+            twistTaskRoundTrip
+        );
+    if (!twistPackWrite.succeeded() ||
+        !twistPackRead.succeeded() ||
+        !twistTaskRoundTripStatus.succeeded() ||
+        twistTaskRoundTrip.fingerprint() !=
+            twistCompiled.task.fingerprint() ||
+        twistPackRoundTrip.critic.back().coordinate != "axis") {
+        fail("TaskPack round trip changed semantic Jacobian identity");
+    }
+    metalrobo::TaskPack invalidJacobian = twistAuthored.task;
+    invalidJacobian.critic.back().coordinate = "missing_coordinate";
+    metalrobo::CompiledTaskProgram preservedJacobianTask =
+        twistCompiled.task;
+    const auto invalidJacobianStatus =
+        metalrobo::compileTaskProgram(
+            invalidJacobian,
+            twistCompiled.world,
+            twistCompiled.sensors,
+            preservedJacobianTask
+        );
+    if (invalidJacobianStatus.status !=
+            metalrobo::TaskCompileStatus::unresolvedSemantic ||
+        preservedJacobianTask.fingerprint() !=
+            twistCompiled.task.fingerprint()) {
+        fail("unresolved Jacobian coordinate was not transactionally rejected");
     }
     constexpr std::size_t twistSteps = 2u;
     const std::vector<std::uint32_t> twistResetMasks(
@@ -2863,7 +2941,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     if (!twistExecution.succeeded() ||
         twistResult.actorObservations.size() != twistSteps + 1u ||
         twistResult.criticObservations.size() !=
-            (twistSteps + 1u) * 8u ||
+            (twistSteps + 1u) * 10u ||
         twistResult.sensorOutputs.size() != 12u ||
         std::abs(twistResult.actorObservations[0u] - 0.5f) >
             2.0e-4f ||
@@ -2882,6 +2960,10 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         std::abs(twistResult.criticObservations[6u] - 1.0f) >
             2.0e-4f ||
         std::abs(twistResult.criticObservations[7u]) >
+            2.0e-4f ||
+        std::abs(twistResult.criticObservations[8u] - 0.2f) >
+            2.0e-4f ||
+        std::abs(twistResult.criticObservations[9u] - 1.0f) >
             2.0e-4f) {
         fail(
             "frame twist did not materialize from the randomized reset state: " +
@@ -2914,21 +2996,25 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         const float jointVelocity =
             twistResult.actorObservations[sample];
         const float frameLinear =
-            twistResult.criticObservations[8u * sample];
+            twistResult.criticObservations[10u * sample];
         const float frameAngular =
-            twistResult.criticObservations[8u * sample + 1u];
+            twistResult.criticObservations[10u * sample + 1u];
         const float relativeLinear =
-            twistResult.criticObservations[8u * sample + 2u];
+            twistResult.criticObservations[10u * sample + 2u];
         const float relativeAngular =
-            twistResult.criticObservations[8u * sample + 3u];
+            twistResult.criticObservations[10u * sample + 3u];
         const float sensorLinear =
-            twistResult.criticObservations[8u * sample + 4u];
+            twistResult.criticObservations[10u * sample + 4u];
         const float sensorAngular =
-            twistResult.criticObservations[8u * sample + 5u];
+            twistResult.criticObservations[10u * sample + 5u];
         const float sensorValid =
-            twistResult.criticObservations[8u * sample + 6u];
+            twistResult.criticObservations[10u * sample + 6u];
         const float referenceSensorLinear =
-            twistResult.criticObservations[8u * sample + 7u];
+            twistResult.criticObservations[10u * sample + 7u];
+        const float linearJacobian =
+            twistResult.criticObservations[10u * sample + 8u];
+        const float angularJacobian =
+            twistResult.criticObservations[10u * sample + 9u];
         const float referenceLinear =
             sample == 0u ? 0.0f : 0.02f;
         if (!std::isfinite(frameLinear) ||
@@ -2942,13 +3028,17 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             std::abs(sensorAngular - frameAngular) > 2.0e-4f ||
             sensorValid != 1.0f ||
             std::abs(referenceSensorLinear - referenceLinear) >
-                2.0e-4f) {
+                2.0e-4f ||
+            std::abs(
+                linearJacobian * jointVelocity - frameLinear
+            ) > 2.0e-4f ||
+            std::abs(angularJacobian - 1.0f) > 2.0e-4f) {
             fail(
                 "accepted world/relative frame twist disagrees with generalized velocity"
             );
         }
     }
-    const std::size_t finalTwistBase = 8u * twistSteps;
+    const std::size_t finalTwistBase = 10u * twistSteps;
     if (std::abs(
             twistResult.sensorOutputs[0u] -
             twistResult.criticObservations[finalTwistBase + 4u]

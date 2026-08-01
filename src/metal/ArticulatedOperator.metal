@@ -305,6 +305,27 @@ inline void setFailure(
     status.failingIndex = failingIndex;
 }
 
+inline uint pointInputBase(
+    const uint environment,
+    device const MRArticulatedOperatorDispatchGPU& dispatch
+) {
+    return
+        (dispatch.flags &
+         MR_ARTICULATED_OPERATOR_BROADCAST_POINTS) != 0u
+        ? 0u
+        : environment * dispatch.pointStride;
+}
+
+inline uint pointJacobianRows(
+    device const MRArticulatedOperatorDispatchGPU& dispatch
+) {
+    return
+        (dispatch.flags &
+         MR_ARTICULATED_OPERATOR_SPATIAL_JACOBIANS) != 0u
+        ? 6u
+        : 3u;
+}
+
 inline MotionColumn bodyMotionForDof(
     const uint localBody,
     const uint dof,
@@ -459,7 +480,10 @@ inline bool validDispatch(
              MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
              MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY |
              MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES |
-             MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY
+             MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
+             MR_ARTICULATED_OPERATOR_BROADCAST_POINTS |
+             MR_ARTICULATED_OPERATOR_SPATIAL_JACOBIANS |
+             MR_ARTICULATED_OPERATOR_SKIP_GENERALIZED_OUTPUTS
          )) != 0u ||
         ((dispatch.flags &
           MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u &&
@@ -713,6 +737,18 @@ inline bool validModelAndLayout(
         expectedNv += jointNv;
     }
 
+    const bool jacobiansOnly =
+        (dispatch.flags &
+         MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) != 0u;
+    const bool broadcastPoints =
+        (dispatch.flags &
+         MR_ARTICULATED_OPERATOR_BROADCAST_POINTS) != 0u;
+    const bool spatialJacobians =
+        (dispatch.flags &
+         MR_ARTICULATED_OPERATOR_SPATIAL_JACOBIANS) != 0u;
+    const bool skipGeneralizedOutputs =
+        (dispatch.flags &
+         MR_ARTICULATED_OPERATOR_SKIP_GENERALIZED_OUTPUTS) != 0u;
     if (expectedNq != articulation.nq ||
         expectedNv != articulation.nv ||
         inboundJoint[rootLocal] != MR_INVALID_INDEX ||
@@ -721,9 +757,13 @@ inline bool validModelAndLayout(
         dispatch.bodyPoseStride < articulation.bodyCount ||
         dispatch.pointWorldStride < dispatch.pointCount ||
         static_cast<ulong>(dispatch.pointJacobianStride) <
-            static_cast<ulong>(dispatch.pointCount) * 3ul *
+            static_cast<ulong>(dispatch.pointCount) *
+                static_cast<ulong>(pointJacobianRows(dispatch)) *
                 static_cast<ulong>(articulation.nv) ||
-        dispatch.generalizedStride < articulation.nv ||
+        (!skipGeneralizedOutputs &&
+         dispatch.generalizedStride < articulation.nv) ||
+        ((broadcastPoints || spatialJacobians ||
+          skipGeneralizedOutputs) && !jacobiansOnly) ||
         ((dispatch.flags &
           (
               MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS |
@@ -1104,7 +1144,7 @@ inline bool validatePoints(
     device const MRArticulatedPointImpulseGPU* points,
     thread MRArticulatedOperatorStatusGPU& status
 ) {
-    const uint base = environment * dispatch.pointStride;
+    const uint base = pointInputBase(environment, dispatch);
     for (uint point = 0u; point < dispatch.pointCount; ++point) {
         device const MRArticulatedPointImpulseGPU& query =
             points[base + point];
@@ -1342,11 +1382,13 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         }
         if (pointJacobiansOnly) {
             const uint pointBase =
-                environment * dispatch.pointStride;
+                pointInputBase(environment, dispatch);
             const uint pointWorldBase =
                 environment * dispatch.pointWorldStride;
             const uint jacobianBase =
                 environment * dispatch.pointJacobianStride;
+            const uint jacobianRows =
+                pointJacobianRows(dispatch);
             const uint entryCount =
                 dispatch.pointCount * articulation.nv;
             for (uint entry = lane;
@@ -1380,19 +1422,37 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     cross(bodyMotion.angular, pointOffset);
                 pointJacobians[
                     jacobianBase +
-                    (point * 3u + 0u) * articulation.nv +
+                    (point * jacobianRows + 0u) * articulation.nv +
                     dof
                 ] = pointLinear.x;
                 pointJacobians[
                     jacobianBase +
-                    (point * 3u + 1u) * articulation.nv +
+                    (point * jacobianRows + 1u) * articulation.nv +
                     dof
                 ] = pointLinear.y;
                 pointJacobians[
                     jacobianBase +
-                    (point * 3u + 2u) * articulation.nv +
+                    (point * jacobianRows + 2u) * articulation.nv +
                     dof
                 ] = pointLinear.z;
+                if ((dispatch.flags &
+                     MR_ARTICULATED_OPERATOR_SPATIAL_JACOBIANS) != 0u) {
+                    pointJacobians[
+                        jacobianBase +
+                        (point * 6u + 3u) * articulation.nv +
+                        dof
+                    ] = bodyMotion.angular.x;
+                    pointJacobians[
+                        jacobianBase +
+                        (point * 6u + 4u) * articulation.nv +
+                        dof
+                    ] = bodyMotion.angular.y;
+                    pointJacobians[
+                        jacobianBase +
+                        (point * 6u + 5u) * articulation.nv +
+                        dof
+                    ] = bodyMotion.angular.z;
+                }
                 if (dof == 0u) {
                     MRArticulatedPointWorldGPU worldPoint;
                     worldPoint.position = float4(
@@ -1404,17 +1464,20 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     ] = worldPoint;
                 }
             }
-            const uint generalizedBase =
-                environment * dispatch.generalizedStride;
-            for (uint dof = lane;
-                 dof < articulation.nv;
-                 dof += threadsPerThreadgroup) {
-                generalizedImpulse[
-                    generalizedBase + dof
-                ] = 0.0f;
-                deltaVelocity[
-                    generalizedBase + dof
-                ] = 0.0f;
+            if ((dispatch.flags &
+                 MR_ARTICULATED_OPERATOR_SKIP_GENERALIZED_OUTPUTS) == 0u) {
+                const uint generalizedBase =
+                    environment * dispatch.generalizedStride;
+                for (uint dof = lane;
+                     dof < articulation.nv;
+                     dof += threadsPerThreadgroup) {
+                    generalizedImpulse[
+                        generalizedBase + dof
+                    ] = 0.0f;
+                    deltaVelocity[
+                        generalizedBase + dof
+                    ] = 0.0f;
+                }
             }
         }
         threadgroup_barrier(mem_flags::mem_device);
@@ -1606,7 +1669,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     for (uint dof = 0u; dof < articulation.nv; ++dof) {
         rightHandSide[dof] = 0.0f;
     }
-    const uint pointBase = environment * dispatch.pointStride;
+    const uint pointBase = pointInputBase(environment, dispatch);
     for (uint point = 0u;
          point < dispatch.pointCount;
          ++point) {

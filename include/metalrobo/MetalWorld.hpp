@@ -472,6 +472,8 @@ struct MetalWorldLayout {
     std::vector<MRArticulatedOperatorDispatchGPU>
         kinematicsDispatches;
     std::vector<MRArticulatedOperatorDispatchGPU>
+        taskKinematicsDispatches;
+    std::vector<MRArticulatedOperatorDispatchGPU>
         factorDispatches;
     MRMetalWorldContactDispatchGPU contactDispatch{};
     MRUnifiedQualityDispatchGPU qualityDispatch{};

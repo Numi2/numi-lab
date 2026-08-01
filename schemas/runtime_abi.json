@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 19,
+  "abi_version": 20,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -196,6 +196,14 @@
       ]
     },
     {
+      "name": "MRTaskKinematicFrameGPU",
+      "alignment": 16,
+      "fields": [
+        ["mr_uint4", "layout"],
+        ["mr_uint4", "coordinates"]
+      ]
+    },
+    {
       "name": "MRLearningPublicationDispatchGPU",
       "alignment": 16,
       "fields": [
@@ -221,7 +229,7 @@
     }
   ],
   "world_buffers": {
-    "count": 251,
+    "count": 254,
     "entries": [
       ["kWorld", 0],
       ["kArticulations", 1],
@@ -465,7 +473,10 @@
       ["kActuatorRuntimeStates", 247],
       ["kActuatorCommandHistory", 248],
       ["kCheckpointActuatorRuntimeStates", 249],
-      ["kCheckpointActuatorCommandHistory", 250]
+      ["kCheckpointActuatorCommandHistory", 250],
+      ["kTaskKinematicDispatches", 251],
+      ["kTaskKinematicQueries", 252],
+      ["kTaskKinematicPointWorld", 253]
     ],
     "classifications": {
       "immutable": [
@@ -512,7 +523,8 @@
         "kPolicyProgramArenaB",
         "kSensorProgramHeader",
         "kSensorDescriptors",
-        "kSensorFilterBodies"
+        "kSensorFilterBodies",
+        "kTaskKinematicQueries"
       ],
       "persistent": [
         "kStateQA",
@@ -679,7 +691,8 @@
         "kTaskCheckpointControllerParameters",
         "kTaskCheckpointContactCompact",
         "kCheckpointActuatorRuntimeStates",
-        "kCheckpointActuatorCommandHistory"
+        "kCheckpointActuatorCommandHistory",
+        "kTaskKinematicPointWorld"
       ]
     },
     "persistent_inputs": [

@@ -64,6 +64,14 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     );
     hash = detail::appendRuntimeAbiWord(
         hash,
+        MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY |
+            MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
+            MR_ARTICULATED_OPERATOR_BROADCAST_POINTS |
+            MR_ARTICULATED_OPERATOR_SPATIAL_JACOBIANS |
+            MR_ARTICULATED_OPERATOR_SKIP_GENERALIZED_OUTPUTS
+    );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
         MR_METAL_WORLD_CONTACT_DETERMINISTIC |
             MR_METAL_WORLD_CONTACT_WARM_START |
             MR_METAL_WORLD_CONTACT_CAPTURE_EVIDENCE |
@@ -195,6 +203,9 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     >(hash);
     hash = detail::appendRuntimeAbiType<
         MRSensorSampleMetadataGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRTaskKinematicFrameGPU
     >(hash);
     return hash;
 }

@@ -5,7 +5,7 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 19u
+#define MR_RUNTIME_ABI_VERSION 20u
 #define MR_RUNTIME_PIPELINE_COUNT 92u
 #define MR_RUNTIME_PIPELINE_GROUP_COUNT 11u
 #define MR_SENSOR_PROGRAM_ABI_VERSION 9u
@@ -64,6 +64,11 @@ typedef struct MR_ALIGN16 MRActuatorRuntimeStateGPU {
     mr_float4 envelope;
     mr_uint4 status;
 } MRActuatorRuntimeStateGPU;
+
+typedef struct MR_ALIGN16 MRTaskKinematicFrameGPU {
+    mr_uint4 layout;
+    mr_uint4 coordinates;
+} MRTaskKinematicFrameGPU;
 
 typedef struct MR_ALIGN16 MRLearningPublicationDispatchGPU {
     mr_uint4 floatCounts;
@@ -612,7 +617,10 @@ enum BufferIndex : std::size_t {
     kActuatorCommandHistory = 248u,
     kCheckpointActuatorRuntimeStates = 249u,
     kCheckpointActuatorCommandHistory = 250u,
-    kRawBufferCount = 251u,
+    kTaskKinematicDispatches = 251u,
+    kTaskKinematicQueries = 252u,
+    kTaskKinematicPointWorld = 253u,
+    kRawBufferCount = 254u,
 };
 
 enum class BufferLifetime : std::uint8_t {
@@ -876,6 +884,9 @@ inline constexpr std::array<BufferLifetime, kRawBufferCount>
         BufferLifetime::persistent,
         BufferLifetime::transient,
         BufferLifetime::transient,
+        BufferLifetime::boundary,
+        BufferLifetime::immutable,
+        BufferLifetime::transient,
     }};
 inline constexpr std::array<bool, kRawBufferCount>
     kPersistentInputs{{
@@ -1107,6 +1118,9 @@ inline constexpr std::array<bool, kRawBufferCount>
         true,
         true,
         true,
+        false,
+        false,
+        false,
         false,
         false,
         false,
@@ -1384,6 +1398,9 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "actuator command history",
         "checkpoint actuator runtime states",
         "checkpoint actuator command history",
+        "task kinematic dispatches",
+        "task kinematic queries",
+        "task kinematic point world",
     }};
 
 [[nodiscard]] constexpr bool validBufferIndex(
@@ -1470,6 +1487,10 @@ static_assert(offsetof(MRActuatorRuntimeStateGPU, command) == 0u);
 static_assert(offsetof(MRActuatorRuntimeStateGPU, effort) == 16u);
 static_assert(offsetof(MRActuatorRuntimeStateGPU, envelope) == 32u);
 static_assert(offsetof(MRActuatorRuntimeStateGPU, status) == 48u);
+static_assert(sizeof(MRTaskKinematicFrameGPU) == 32u);
+static_assert(alignof(MRTaskKinematicFrameGPU) == 16u);
+static_assert(offsetof(MRTaskKinematicFrameGPU, layout) == 0u);
+static_assert(offsetof(MRTaskKinematicFrameGPU, coordinates) == 16u);
 static_assert(sizeof(MRLearningPublicationDispatchGPU) == 64u);
 static_assert(alignof(MRLearningPublicationDispatchGPU) == 16u);
 static_assert(offsetof(MRLearningPublicationDispatchGPU, floatCounts) == 0u);

@@ -22,6 +22,18 @@ inline device const T* taskTable(
     );
 }
 
+inline device const MRTaskKinematicFrameGPU*
+taskKinematicFrameTable(
+    device const uchar* arena,
+    device const MRTaskProgramHeaderGPU& program
+) {
+    return taskTable<MRTaskKinematicFrameGPU>(
+        arena,
+        program.offsets3.z +
+            program.typedCounts.x * sizeof(MRTaskFrameGPU)
+    );
+}
+
 inline float randomUnit(
     device const MRTaskDispatchGPU& dispatch,
     const uint environment,
@@ -385,7 +397,51 @@ inline bool frameObservationOpcode(const uint opcode) {
          opcode <= MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR) ||
         relativeFrameObservationOpcode(opcode) ||
         opcode == MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_WORLD ||
-        opcode == MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD;
+        opcode == MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD ||
+        opcode == MR_TASK_OBSERVE_FRAME_LINEAR_JACOBIAN_WORLD ||
+        opcode == MR_TASK_OBSERVE_FRAME_ANGULAR_JACOBIAN_WORLD;
+}
+
+inline float taskFrameJacobianValue(
+    device const MRTaskDispatchGPU& dispatch,
+    const MRTaskObservationOperatorGPU operation,
+    device const MRTaskKinematicFrameGPU* kinematicFrames,
+    device const float* spatialJacobians,
+    const uint environment
+) {
+    device const MRTaskKinematicFrameGPU& query =
+        kinematicFrames[operation.source.y];
+    if (query.layout.x == MR_INVALID_INDEX ||
+        query.layout.y == MR_INVALID_INDEX ||
+        query.coordinates.x == 0u ||
+        operation.auxiliary.z < query.coordinates.y ||
+        operation.auxiliary.z >=
+            query.coordinates.y + query.coordinates.x) {
+        // A generalized coordinate owned by another disconnected
+        // articulation has an exact zero Jacobian entry.
+        return operation.transform.y;
+    }
+    const uint row =
+        operation.source.x ==
+            MR_TASK_OBSERVE_FRAME_ANGULAR_JACOBIAN_WORLD
+        ? 3u + operation.source.z
+        : operation.source.z;
+    const uint localDof =
+        operation.auxiliary.z - query.coordinates.y;
+    const ulong ownerBase =
+        static_cast<ulong>(dispatch.counts.x) *
+            query.layout.z +
+        static_cast<ulong>(environment) *
+            query.layout.w;
+    const ulong valueIndex =
+        ownerBase +
+        static_cast<ulong>(
+            query.layout.y * 6u + row
+        ) * query.coordinates.x +
+        localDof;
+    return
+        operation.transform.x * spatialJacobians[valueIndex] +
+        operation.transform.y;
 }
 
 inline bool sensorObservationOpcode(const uint opcode) {
@@ -430,7 +486,9 @@ inline float taskFrameObservationValue(
     device const MRTaskDispatchGPU& dispatch,
     const MRTaskObservationOperatorGPU operation,
     device const MRTaskFrameGPU* frames,
+    device const MRTaskKinematicFrameGPU* kinematicFrames,
     device const MRTaskGoalGPU* goals,
+    device const float* spatialJacobians,
     const uint environment,
     const uint episode,
     const uint episodeStep,
@@ -517,6 +575,15 @@ inline float taskFrameObservationValue(
     }
     float value = 0.0f;
     switch (operation.source.x) {
+    case MR_TASK_OBSERVE_FRAME_LINEAR_JACOBIAN_WORLD:
+    case MR_TASK_OBSERVE_FRAME_ANGULAR_JACOBIAN_WORLD:
+        return taskFrameJacobianValue(
+            dispatch,
+            operation,
+            kinematicFrames,
+            spatialJacobians,
+            environment
+        );
     case MR_TASK_OBSERVE_FRAME_POSITION_WORLD:
         value = pose.position[operation.source.z];
         break;
@@ -797,7 +864,9 @@ inline float cleanObservation(
     device const MRTaskActionBindingGPU* actions,
     device const MRTaskContactGroupGPU* contactGroups,
     device const MRTaskFrameGPU* frames,
+    device const MRTaskKinematicFrameGPU* kinematicFrames,
     device const MRTaskGoalGPU* goals,
+    device const float* spatialJacobians,
     const uint environment,
     const uint episode,
     const uint episodeStep,
@@ -941,7 +1010,9 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_WORLD:
     case MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD:
     case MR_TASK_OBSERVE_FRAME_RELATIVE_LINEAR_VELOCITY:
-    case MR_TASK_OBSERVE_FRAME_RELATIVE_ANGULAR_VELOCITY: {
+    case MR_TASK_OBSERVE_FRAME_RELATIVE_ANGULAR_VELOCITY:
+    case MR_TASK_OBSERVE_FRAME_LINEAR_JACOBIAN_WORLD:
+    case MR_TASK_OBSERVE_FRAME_ANGULAR_JACOBIAN_WORLD: {
         device const MRTaskFrameGPU& frame =
             frames[operation.source.y];
         const MRBodyStateGPU body = taskFrameBodyState(
@@ -965,7 +1036,9 @@ inline float cleanObservation(
             dispatch,
             operation,
             frames,
+            kinematicFrames,
             goals,
+            spatialJacobians,
             environment,
             episode,
             episodeStep,
@@ -995,7 +1068,9 @@ inline void writeFrame(
     device const MRTaskActionBindingGPU* actions,
     device const MRTaskContactGroupGPU* contactGroups,
     device const MRTaskFrameGPU* frames,
+    device const MRTaskKinematicFrameGPU* kinematicFrames,
     device const MRTaskGoalGPU* goals,
+    device const float* spatialJacobians,
     device const MRBodyStateGPU* bodyStates,
     device const float4* terrainSamples,
     const uint environment,
@@ -1039,7 +1114,9 @@ inline void writeFrame(
             actions,
             contactGroups,
             frames,
+            kinematicFrames,
             goals,
+            spatialJacobians,
             environment,
             episode,
             episodeStep,
@@ -1097,7 +1174,9 @@ inline void writeFrame(
             actions,
             contactGroups,
             frames,
+            kinematicFrames,
             goals,
+            spatialJacobians,
             environment,
             episode,
             episodeStep,
@@ -1149,7 +1228,9 @@ inline void writeCriticFrame(
     device const MRTaskActionBindingGPU* actions,
     device const MRTaskContactGroupGPU* contactGroups,
     device const MRTaskFrameGPU* frames,
+    device const MRTaskKinematicFrameGPU* kinematicFrames,
     device const MRTaskGoalGPU* goals,
+    device const float* spatialJacobians,
     const uint environment,
     const uint episode,
     const uint episodeStep,
@@ -1184,7 +1265,9 @@ inline void writeCriticFrame(
             actions,
             contactGroups,
             frames,
+            kinematicFrames,
             goals,
+            spatialJacobians,
             environment,
             episode,
             episodeStep,
@@ -1701,6 +1784,8 @@ kernel void mr_task_observe(
             arena,
             program.offsets3.z
         );
+    device const MRTaskKinematicFrameGPU* kinematicFrames =
+        taskKinematicFrameTable(arena, program);
     device const MRTaskGoalGPU* goals =
         taskTable<MRTaskGoalGPU>(
             arena,
@@ -1731,6 +1816,11 @@ kernel void mr_task_observe(
         environment * dispatch.strides.y;
     const uint bodyBase =
         environment * dispatch.strides.y;
+    device const float* spatialJacobians =
+        reinterpret_cast<device const float*>(
+            bodyStates +
+            dispatch.counts.x * dispatch.strides.y
+        );
     const uint contactBase =
         environment * program.layout.z;
     const uint sceneBase =
@@ -2153,7 +2243,9 @@ kernel void mr_task_observe(
             actions,
             contactGroups,
             frames,
+            kinematicFrames,
             goals,
+            spatialJacobians,
             bodyStates + bodyBase,
             terrainSamples,
             environment,
@@ -2202,7 +2294,9 @@ kernel void mr_task_observe(
             actions,
             contactGroups,
             frames,
+            kinematicFrames,
             goals,
+            spatialJacobians,
             environment,
             episode,
             0u,
@@ -2364,6 +2458,8 @@ kernel void mr_task_refresh_frame_observations(
         );
     device const MRTaskFrameGPU* frames =
         taskTable<MRTaskFrameGPU>(arena, program.offsets3.z);
+    device const MRTaskKinematicFrameGPU* kinematicFrames =
+        taskKinematicFrameTable(arena, program);
     device const MRTaskGoalGPU* goals =
         taskTable<MRTaskGoalGPU>(arena, program.offsets3.w);
 
@@ -2376,6 +2472,11 @@ kernel void mr_task_refresh_frame_observations(
         environment * criticHistoryElements;
     const uint biasBase = environment * program.counts2.z;
     const uint bodyBase = environment * dispatch.strides.y;
+    device const float* spatialJacobians =
+        reinterpret_cast<device const float*>(
+            bodyStates +
+            dispatch.counts.x * dispatch.strides.y
+        );
     const uint sceneBase = environment * dispatch.strides.w;
     const uint actorOutputBase =
         pass.controlStep * dispatch.outputs.x +
@@ -2437,7 +2538,9 @@ kernel void mr_task_refresh_frame_observations(
             dispatch,
             operation,
             frames,
+            kinematicFrames,
             goals,
+            spatialJacobians,
             environment,
             state.episode.y,
             0u,
@@ -2530,7 +2633,9 @@ kernel void mr_task_refresh_frame_observations(
             dispatch,
             operation,
             frames,
+            kinematicFrames,
             goals,
+            spatialJacobians,
             environment,
             state.episode.y,
             0u,
@@ -3034,6 +3139,8 @@ kernel void mr_task_complete(
             arena,
             program.offsets3.z
         );
+    device const MRTaskKinematicFrameGPU* kinematicFrames =
+        taskKinematicFrameTable(arena, program);
     device const MRTaskGoalGPU* goals =
         taskTable<MRTaskGoalGPU>(
             arena,
@@ -3044,6 +3151,11 @@ kernel void mr_task_complete(
     const uint vBase = environment * dispatch.counts.w;
     const uint bodyBase =
         environment * dispatch.strides.y;
+    device const float* spatialJacobians =
+        reinterpret_cast<device const float*>(
+            bodyStates +
+            dispatch.counts.x * dispatch.strides.y
+        );
     const uint sceneBase =
         environment * dispatch.strides.w;
     const uint delayBase =
@@ -4066,7 +4178,9 @@ kernel void mr_task_complete(
             actions,
             contactGroups,
             frames,
+            kinematicFrames,
             goals,
+            spatialJacobians,
             bodyStates + bodyBase,
             terrainSamples,
             environment,
@@ -4136,7 +4250,9 @@ kernel void mr_task_complete(
             actions,
             contactGroups,
             frames,
+            kinematicFrames,
             goals,
+            spatialJacobians,
             environment,
             state.episode.y,
             episodeSteps,

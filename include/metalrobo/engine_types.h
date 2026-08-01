@@ -479,6 +479,14 @@ enum MRArticulatedOperatorFlags : mr_u32 {
     // spatial-row frontend for multi-articulation contact graphs whose shared
     // inverse-ABA stage owns mass response.
     MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY = 1u << 4u,
+    // Point records are one immutable articulation-local packet shared by
+    // every environment rather than an environment-major tensor.
+    MR_ARTICULATED_OPERATOR_BROADCAST_POINTS = 1u << 5u,
+    // Point-Jacobian rows contain linear xyz followed by angular xyz.
+    MR_ARTICULATED_OPERATOR_SPATIAL_JACOBIANS = 1u << 6u,
+    // Kinematics/Jacobian-only consumers do not publish generalized impulse
+    // or delta-velocity outputs and may bind one-element placeholders.
+    MR_ARTICULATED_OPERATOR_SKIP_GENERALIZED_OUTPUTS = 1u << 7u,
 };
 
 // One dispatch describes a batch of states for one immutable articulation.

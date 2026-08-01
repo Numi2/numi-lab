@@ -54,6 +54,10 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_FRAME_RELATIVE_LINEAR_VELOCITY,
     frameRelativeAngularVelocity =
         MR_TASK_OBSERVE_FRAME_RELATIVE_ANGULAR_VELOCITY,
+    frameLinearJacobianWorld =
+        MR_TASK_OBSERVE_FRAME_LINEAR_JACOBIAN_WORLD,
+    frameAngularJacobianWorld =
+        MR_TASK_OBSERVE_FRAME_ANGULAR_JACOBIAN_WORLD,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -136,6 +140,9 @@ struct TaskObservationOperatorSpec {
     std::string goal;
     // Required only by frame-to-frame operators.
     std::string reference;
+    // Required only by frame-Jacobian operators. This is a semantic DoF
+    // identity, resolved to one global generalized-velocity coordinate.
+    std::string coordinate;
     std::uint32_t component = 0u;
     float scale = 1.0f;
     float offset = 0.0f;
@@ -342,6 +349,20 @@ struct TaskProgramLayout {
     std::uint32_t contactMetricCount = 0u;
     std::uint32_t biasCount = 0u;
     std::uint32_t delayStateCount = 0u;
+    std::uint32_t kinematicPointQueryCount = 0u;
+    std::uint32_t spatialJacobianEnvironmentStride = 0u;
+};
+
+// Private execution metadata for one articulation cohort of semantic point
+// queries. Counts and offsets are elements, never bytes. The query packet is
+// immutable and broadcast across environments; result buffers are owner-major.
+struct TaskKinematicCohort {
+    std::uint32_t articulationIndex = 0u;
+    std::uint32_t queryOffset = 0u;
+    std::uint32_t queryCount = 0u;
+    std::uint32_t pointPrefix = 0u;
+    std::uint32_t jacobianPrefix = 0u;
+    std::uint32_t jacobianEnvironmentStride = 0u;
 };
 
 class CompiledTaskProgram {
@@ -372,6 +393,10 @@ public:
     frames() const noexcept;
     [[nodiscard]] std::span<const MRTaskGoalGPU>
     goals() const noexcept;
+    [[nodiscard]] std::span<const MRArticulatedPointImpulseGPU>
+    kinematicPointQueries() const noexcept;
+    [[nodiscard]] std::span<const TaskKinematicCohort>
+    kinematicCohorts() const noexcept;
     [[nodiscard]] std::span<const MRTaskRewardOperatorGPU>
     rewardOperators() const noexcept;
     [[nodiscard]] std::span<const MRTaskTerminationOperatorGPU>
