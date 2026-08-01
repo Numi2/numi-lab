@@ -23,7 +23,8 @@
     "evidence/baselines/2026-08-01-74155de.json",
     "evidence/baselines/2026-08-01-b57c399.json",
     "evidence/baselines/2026-08-01-e61fd21.json",
-    "evidence/baselines/2026-08-01-b0bb0e2.json"
+    "evidence/baselines/2026-08-01-b0bb0e2.json",
+    "evidence/baselines/2026-08-01-10209f1.json"
   ],
   "capabilities": [
     {
@@ -171,7 +172,7 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Native parent-frame pose, world-space frame-twist, six-axis IMU, and six-axis contact-wrench sensors use topology-derived persistent buffers, reset-only seeding, accepted-state advancement, deterministic nanosecond phase accumulation, whole-sample latency history, and compact value/age/validity publication. Twist linear velocity is evaluated at the authored sensor origin. Force-torque consumes final-microstep NumiSolver impulses and reports the resultant in sensor-local axes. The owner covers articulated and rigid kinematic parents, exact 50 Hz and non-divisor 30 Hz schedules, a reset-cleared nonzero wrench, and task-independent execution."
+      "scope": "Native parent-frame pose, world-space frame-twist, six-axis IMU, six-axis contact-wrench, and five-channel contact-state sensors use topology-derived persistent buffers, reset-only seeding, accepted-state advancement, deterministic nanosecond phase accumulation, whole-sample latency history, and compact value/age/validity publication. Twist linear velocity is evaluated at the authored sensor origin. Force-torque and contact-state consume final-microstep NumiSolver impulses; semantic contact filters are immutable compiled tables. The owner covers articulated and rigid kinematic parents, exact 50 Hz and non-divisor 30 Hz schedules, reset-cleared contact signals, and task-independent execution."
     },
     {
       "id": "sensors.native_imu",
@@ -196,7 +197,7 @@
     },
     {
       "id": "sensors.native_contact_state",
-      "status": "implemented",
+      "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
       "scope": "A generic body-attached contact-state sensor publishes active state, accepted contact-block count, summed normal force, resultant tangential force, and maximum penetration from committed NumiSolver constraints. Optional semantic counterpart-body filters compile into a canonical immutable index table. The focused owner mirrors all five reductions analytically, proves a negative filter remains zero, rejects an unresolved filter transactionally, round-trips the semantic filter through WorldPack, binds the result into TaskIR, and includes its state in reset rollback."

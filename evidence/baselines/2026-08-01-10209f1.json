@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T05:31:16+02:00",
+  "source_revision": "10209f1b6b6ba7353eea5bbe2b72522233404339",
+  "metallib_sha256": "f1ebf890873ff241f0353f077be690a7a8ec0869b8165c656faafa8bb4d2ddc2",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "full_build_actions": 79,
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 4.87,
+    "runtime_abi_version": 16,
+    "sensor_program_abi_version": 6,
+    "world_buffer_count": 247,
+    "sensor_descriptor_bytes": 208,
+    "worldpack_format_version": 7,
+    "contact_state_channel_count": 5,
+    "contact_state_host_reduction_parity": "passed",
+    "contact_state_negative_semantic_filter": "passed",
+    "contact_state_unresolved_filter_transaction": "passed",
+    "contact_state_task_binding": "passed",
+    "contact_state_reset_rollback": "passed",
+    "worldpack_contact_filter_binary_roundtrip": "passed",
+    "bundled_franka_semantic_body_table": "passed"
+  },
+  "known_release_blockers": [
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; ray and LiDAR operators remain incomplete.",
+    "Sensor-native counter-based corruption, recorder routing, and compiler dead-code elimination remain incomplete.",
+    "No general MJCF importer is present.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}
