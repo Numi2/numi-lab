@@ -1340,6 +1340,18 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     rendererConfig.width = config.width;
     rendererConfig.height = config.height;
     rendererConfig.retainObservationBuffers = true;
+    if (config.maximum_retained_bytes != 0u) {
+        if (config.maximum_retained_bytes >
+            std::numeric_limits<std::size_t>::max()) {
+            throw std::invalid_argument(
+                "visual retained-memory budget exceeds size_t"
+            );
+        }
+        rendererConfig.maximumRetainedBytes =
+            static_cast<std::size_t>(
+                config.maximum_retained_bytes
+            );
+    }
     runtime->renderer = metalrobo::MetalHybridRenderer{
         std::move(rendererConfig)
     };

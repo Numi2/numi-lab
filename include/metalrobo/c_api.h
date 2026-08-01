@@ -90,6 +90,9 @@ typedef struct MRTaskVisualObservationConfigC {
     uint32_t width;
     uint32_t height;
     uint32_t minimum_visible_pixels;
+    // Zero selects the renderer default. Large batched training callers may
+    // raise this explicit preflight bound after accounting for their device.
+    uint64_t maximum_retained_bytes;
     // Optional presentation capture. Zero keeps the training-only sensor
     // path and allocates no second renderer.
     uint32_t capture_width;

@@ -223,6 +223,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
     public var width: UInt32
     public var height: UInt32
     public var minimumVisiblePixels: UInt32
+    public var maximumRetainedBytes: UInt64
     public var captureWidth: UInt32
     public var captureHeight: UInt32
 
@@ -235,6 +236,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         width: UInt32 = 160,
         height: UInt32 = 120,
         minimumVisiblePixels: UInt32 = 4,
+        maximumRetainedBytes: UInt64 = 0,
         captureWidth: UInt32 = 0,
         captureHeight: UInt32 = 0
     ) {
@@ -246,6 +248,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         self.width = width
         self.height = height
         self.minimumVisiblePixels = minimumVisiblePixels
+        self.maximumRetainedBytes = maximumRetainedBytes
         self.captureWidth = captureWidth
         self.captureHeight = captureHeight
     }
@@ -307,7 +310,8 @@ public struct MetalRoboTaskVisualObservationConfiguration:
             cameraOrientation: SIMD4(0.0, rootHalf, 0.0, rootHalf),
             width: 16,
             height: 9,
-            minimumVisiblePixels: 1
+            minimumVisiblePixels: 1,
+            maximumRetainedBytes: 4 * 1024 * 1024 * 1024
         )
     }
 }
@@ -1125,6 +1129,8 @@ public final class MetalRoboTaskRolloutContext {
                         native.height = configuration.height
                         native.minimum_visible_pixels =
                             configuration.minimumVisiblePixels
+                        native.maximum_retained_bytes =
+                            configuration.maximumRetainedBytes
                         native.capture_width = configuration.captureWidth
                         native.capture_height = configuration.captureHeight
                         return mr_task_rollout_attach_visual_observation(
