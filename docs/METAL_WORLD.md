@@ -258,6 +258,14 @@ visual ball-dodge update at 12,288 x 24 samples completed 294,912 transitions,
 steps/s with zero GPU failures and KL 0.00204. The prior 11,264-environment
 qualification ran at 3,713 end-to-end environment steps/s.
 
+The post-transition critic used for timeout bootstrapping stays in the same
+command buffer but masks non-timeout environments before the first dense
+multiply. On the matched 12,288 x 24 visual ball-dodge rollout this raised the
+two-run mean from 5,692 to 5,801 environment control-steps/s and reduced GPU
+time by 1.96%, with identical physical outcomes and zero GPU failures. A
+1,200-step qualification produced finite critic values for all eight actual
+timeouts and left all 9,592 non-timeout bootstrap fields zero.
+
 Analytic/SAT paths cover the inexpensive primitive pairs. Exact cylinder
 support, robust GJK with MPR/EPA fallback, cooked convex patches, static or
 kinematic mesh BVH4 traversal, and direct cell-indexed static heightfields

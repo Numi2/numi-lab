@@ -14,6 +14,9 @@ enum MRPolicyActivationOpcode : mr_u32 {
 
 enum MRPolicyDenseFlags : mr_u32 {
     MR_POLICY_DENSE_NORMALIZE_INPUT = 1u << 0u,
+    // Runtime-only dispatch flag. Skip environments whose transition at
+    // offsets1.x is not a timeout; used by the post-step bootstrap critic.
+    MR_POLICY_DENSE_TIMEOUT_ONLY = 1u << 1u,
 };
 
 enum MRPolicyProgramFlags : mr_u32 {
@@ -59,7 +62,7 @@ typedef struct MR_ALIGN16 MRPolicyDenseDispatchGPU {
     mr_uint4 strides;
     // weights, bias, observation mean, observation inverse stddev.
     mr_uint4 offsets0;
-    // reserved, reserved, flags, reserved.
+    // transition base, reserved, flags, reserved.
     mr_uint4 offsets1;
     // observation clip, action clip, reserved, reserved.
     mr_float4 limits;

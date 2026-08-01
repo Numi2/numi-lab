@@ -83,6 +83,7 @@ kernel void mr_policy_dense_layer(
         [[buffer(2)]],
     device const float* input [[buffer(3)]],
     device float* output [[buffer(4)]],
+    device const MRTaskTransitionGPU* transitions [[buffer(5)]],
     const uint flatOutput [[thread_position_in_grid]]
 ) {
     const uint outputElements =
@@ -100,6 +101,13 @@ kernel void mr_policy_dense_layer(
 
     const uint environment =
         flatOutput / dispatch.counts.z;
+    if ((dispatch.offsets1.z &
+         MR_POLICY_DENSE_TIMEOUT_ONLY) != 0u &&
+        transitions[
+            dispatch.offsets1.x + environment
+        ].termination.y == 0u) {
+        return;
+    }
     const uint neuron =
         flatOutput - environment * dispatch.counts.z;
     device const float* weights = policyTable<float>(

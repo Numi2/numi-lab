@@ -9105,9 +9105,16 @@ bool encodePolicyInference(
                 inverseStdOffset,
             };
             dispatch.offsets1 = {
+                terminalValueOnly
+                    ? static_cast<mr_u32>(
+                          pass.controlStep * environmentCount
+                      )
+                    : 0u,
                 0u,
-                0u,
-                layer.counts.w,
+                layer.counts.w |
+                    (terminalValueOnly
+                         ? MR_POLICY_DENSE_TIMEOUT_ONLY
+                         : 0u),
                 0u,
             };
             dispatch.limits = header.limits;
@@ -9125,6 +9132,7 @@ bool encodePolicyInference(
                         {1u, kPolicyProgramArena},
                         {3u, source},
                         {4u, destination},
+                        {5u, kTaskTransitions},
                     },
                     nullptr,
                     0u,
