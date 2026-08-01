@@ -5,8 +5,8 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 9u
-#define MR_SENSOR_PROGRAM_ABI_VERSION 3u
+#define MR_RUNTIME_ABI_VERSION 10u
+#define MR_SENSOR_PROGRAM_ABI_VERSION 4u
 
 typedef struct MR_ALIGN16 MRSensorProgramHeaderGPU {
     mr_u64 sensorFingerprint;
@@ -164,12 +164,13 @@ enum MRSensorSampleBuffer : mr_u32 {
     MR_SENSOR_SAMPLE_PASS = 3u,
     MR_SENSOR_SAMPLE_RESET_MASKS = 4u,
     MR_SENSOR_SAMPLE_BODY_POSES = 5u,
-    MR_SENSOR_SAMPLE_SCENE_BODIES = 6u,
-    MR_SENSOR_SAMPLE_STATES = 7u,
-    MR_SENSOR_SAMPLE_HISTORY = 8u,
-    MR_SENSOR_SAMPLE_OUTPUTS = 9u,
-    MR_SENSOR_SAMPLE_METADATA = 10u,
-    MR_SENSOR_SAMPLE_BUFFER_COUNT = 11u,
+    MR_SENSOR_SAMPLE_BODY_STATES = 6u,
+    MR_SENSOR_SAMPLE_SCENE_BODIES = 7u,
+    MR_SENSOR_SAMPLE_STATES = 8u,
+    MR_SENSOR_SAMPLE_HISTORY = 9u,
+    MR_SENSOR_SAMPLE_OUTPUTS = 10u,
+    MR_SENSOR_SAMPLE_METADATA = 11u,
+    MR_SENSOR_SAMPLE_BUFFER_COUNT = 12u,
 };
 
 enum MRTaskSensorRefreshBuffer : mr_u32 {

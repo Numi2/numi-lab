@@ -134,13 +134,15 @@ The compiler converts translation once to the COM-centred runtime origin;
 tactile descriptors instead use the cooked tactile surface transform as their
 spatial authority.
 
-The first common SensorIR executor samples parent-frame pose sensors on two
-explicit control boundaries. A reset-only pass seeds the accepted randomized
-state before the first action; a post-physics pass advances the schedule from
-the newly accepted state for the next action and terminal value bootstrap. It
-owns per-environment nanosecond phase accumulators, latency history, latest
-compact output, timestamp/age/validity metadata, and reset state in persistent
-private buffers. It supports the control rate or any slower rate, including
+The common SensorIR executor samples parent-frame pose and world-space frame
+twist sensors on two explicit control boundaries. Frame-twist linear velocity
+is evaluated at the authored sensor origin, including the angular
+`omega x r` term. A reset-only pass seeds the accepted randomized state before
+the first action; a post-physics pass advances the schedule from the newly
+accepted state for the next action and terminal value bootstrap. It owns
+per-environment nanosecond phase accumulators, latency history, latest compact
+output, timestamp/age/validity metadata, and reset state in persistent private
+buffers. It supports the control rate or any slower rate, including
 non-divisor schedules, and never publishes retained history as ordinary
 learner tensors.
 

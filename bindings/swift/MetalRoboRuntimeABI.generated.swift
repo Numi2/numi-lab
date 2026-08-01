@@ -2,9 +2,9 @@
 import Foundation
 
 enum MetalRoboRuntimeABI {
-    static let version: UInt32 = 9
+    static let version: UInt32 = 10
     static let worldBufferCount = 231
-    static let mrSensorProgramAbiVersion: UInt32 = 3
+    static let mrSensorProgramAbiVersion: UInt32 = 4
     static let mrSensorProgramHeaderGPUSize = 80
     static let mrSensorDescriptorGPUSize = 192
     static let mrSensorDispatchGPUSize = 48

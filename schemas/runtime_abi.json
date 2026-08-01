@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "abi_version": 9,
+  "abi_version": 10,
   "abi_constants": {
-    "MR_SENSOR_PROGRAM_ABI_VERSION": 3
+    "MR_SENSOR_PROGRAM_ABI_VERSION": 4
   },
   "records": [
     {
@@ -636,6 +636,7 @@
         "PASS",
         "RESET_MASKS",
         "BODY_POSES",
+        "BODY_STATES",
         "SCENE_BODIES",
         "STATES",
         "HISTORY",

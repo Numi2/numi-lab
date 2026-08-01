@@ -1443,6 +1443,26 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .reference = "world_anchor",
             .component = 0u,
         },
+        {
+            .source = metalrobo::TaskObservationSource::sensorValue,
+            .target = "tool_twist",
+            .component = 0u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::sensorValue,
+            .target = "tool_twist",
+            .component = 4u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::sensorValidity,
+            .target = "tool_twist",
+            .component = 0u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::sensorValue,
+            .target = "reference_twist",
+            .component = 0u,
+        },
     };
     twistAuthored.task.criticIncludesCleanHistory = false;
     twistAuthored.task.rewards = {{
@@ -1455,7 +1475,38 @@ std::uint64_t compileFixedBaseTaskFixture() {
             metalrobo::TaskRandomizationOperator::actionVelocity,
         .parameters = {0.5f, 0.5f, 0.0f, 0.0f},
     }};
-    twistAuthored.sensors.clear();
+    twistAuthored.sensors = {
+        {
+            .id = "tool_twist",
+            .parentKind =
+                MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+            .parentBodyIndex = toolBodyIndex,
+            .kind = MR_WORLD_SENSOR_FRAME_TWIST_WORLD,
+            .localPose = {
+                .position = {0.0f, 0.0f, 0.2f, 0.0f},
+            },
+            .nominalRateHz = 50.0f,
+            .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+            .historyLength = 1u,
+            .consumerFlags =
+                MR_WORLD_SENSOR_CONSUMER_CRITIC |
+                MR_WORLD_SENSOR_CONSUMER_RECORDER,
+        },
+        {
+            .id = "reference_twist",
+            .parentKind = MR_WORLD_SENSOR_PARENT_RIGID_BODY,
+            .parentBodyIndex = static_cast<std::uint32_t>(
+                twistReferenceBodyIndex
+            ),
+            .kind = MR_WORLD_SENSOR_FRAME_TWIST_WORLD,
+            .nominalRateHz = 50.0f,
+            .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+            .historyLength = 1u,
+            .consumerFlags =
+                MR_WORLD_SENSOR_CONSUMER_CRITIC |
+                MR_WORLD_SENSOR_CONSUMER_RECORDER,
+        },
+    };
     metalrobo::PolicyPack twistPolicy;
     twistPolicy.id = "fixed_base_frame_twist_policy";
     twistPolicy.layers = {{
@@ -1466,10 +1517,10 @@ std::uint64_t compileFixedBaseTaskFixture() {
         .bias = std::vector<float>(1u, 0.0f),
     }};
     twistPolicy.criticLayers = {{
-        .inputCount = 4u,
+        .inputCount = 8u,
         .outputCount = 1u,
         .activation = metalrobo::PolicyActivation::identity,
-        .weights = std::vector<float>(4u, 0.0f),
+        .weights = std::vector<float>(8u, 0.0f),
         .bias = std::vector<float>(1u, 0.0f),
     }};
     twistAuthored.policy = std::move(twistPolicy);
@@ -1497,9 +1548,9 @@ std::uint64_t compileFixedBaseTaskFixture() {
     );
     metalrobo::MetalWorldStepConfig twistStep = step;
     twistStep.taskProgram = twistCompiled.task;
-    twistStep.sensorProgram = {};
+    twistStep.sensorProgram = twistCompiled.sensors;
     twistStep.policyProgram = twistCompiled.policy;
-    twistStep.publishSensorOutputs = false;
+    twistStep.publishSensorOutputs = true;
     twistStep.evaluateFinalPolicy = true;
     metalrobo::MetalWorldContext twistContext(
         contextConfiguration
@@ -1528,7 +1579,8 @@ std::uint64_t compileFixedBaseTaskFixture() {
     if (!twistExecution.succeeded() ||
         twistResult.actorObservations.size() != twistSteps + 1u ||
         twistResult.criticObservations.size() !=
-            (twistSteps + 1u) * 4u ||
+            (twistSteps + 1u) * 8u ||
+        twistResult.sensorOutputs.size() != 12u ||
         std::abs(twistResult.actorObservations[0u] - 0.5f) >
             2.0e-4f ||
         std::abs(twistResult.criticObservations[0u] - 0.1f) >
@@ -1538,6 +1590,14 @@ std::uint64_t compileFixedBaseTaskFixture() {
         std::abs(twistResult.criticObservations[2u] + 0.1f) >
             2.0e-4f ||
         std::abs(twistResult.criticObservations[3u] - 0.5f) >
+            2.0e-4f ||
+        std::abs(twistResult.criticObservations[4u] - 0.1f) >
+            2.0e-4f ||
+        std::abs(twistResult.criticObservations[5u] - 0.5f) >
+            2.0e-4f ||
+        std::abs(twistResult.criticObservations[6u] - 1.0f) >
+            2.0e-4f ||
+        std::abs(twistResult.criticObservations[7u]) >
             2.0e-4f) {
         fail(
             "frame twist did not materialize from the randomized reset state: " +
@@ -1570,13 +1630,21 @@ std::uint64_t compileFixedBaseTaskFixture() {
         const float jointVelocity =
             twistResult.actorObservations[sample];
         const float frameLinear =
-            twistResult.criticObservations[4u * sample];
+            twistResult.criticObservations[8u * sample];
         const float frameAngular =
-            twistResult.criticObservations[4u * sample + 1u];
+            twistResult.criticObservations[8u * sample + 1u];
         const float relativeLinear =
-            twistResult.criticObservations[4u * sample + 2u];
+            twistResult.criticObservations[8u * sample + 2u];
         const float relativeAngular =
-            twistResult.criticObservations[4u * sample + 3u];
+            twistResult.criticObservations[8u * sample + 3u];
+        const float sensorLinear =
+            twistResult.criticObservations[8u * sample + 4u];
+        const float sensorAngular =
+            twistResult.criticObservations[8u * sample + 5u];
+        const float sensorValid =
+            twistResult.criticObservations[8u * sample + 6u];
+        const float referenceSensorLinear =
+            twistResult.criticObservations[8u * sample + 7u];
         const float referenceLinear =
             sample == 0u ? 0.0f : 0.02f;
         if (!std::isfinite(frameLinear) ||
@@ -1585,11 +1653,33 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 relativeLinear + frameLinear - referenceLinear
             ) >
                 2.0e-4f ||
-            std::abs(relativeAngular - frameAngular) > 2.0e-4f) {
+            std::abs(relativeAngular - frameAngular) > 2.0e-4f ||
+            std::abs(sensorLinear - frameLinear) > 2.0e-4f ||
+            std::abs(sensorAngular - frameAngular) > 2.0e-4f ||
+            sensorValid != 1.0f ||
+            std::abs(referenceSensorLinear - referenceLinear) >
+                2.0e-4f) {
             fail(
                 "accepted world/relative frame twist disagrees with generalized velocity"
             );
         }
+    }
+    const std::size_t finalTwistBase = 8u * twistSteps;
+    if (std::abs(
+            twistResult.sensorOutputs[0u] -
+            twistResult.criticObservations[finalTwistBase + 4u]
+        ) > 2.0e-4f ||
+        std::abs(
+            twistResult.sensorOutputs[4u] -
+            twistResult.criticObservations[finalTwistBase + 5u]
+        ) > 2.0e-4f ||
+        std::abs(
+            twistResult.sensorOutputs[6u] -
+            twistResult.criticObservations[finalTwistBase + 7u]
+        ) > 2.0e-4f) {
+        fail(
+            "published SensorIR twist disagrees with the final TaskIR view"
+        );
     }
     return compiled.task.fingerprint();
 }

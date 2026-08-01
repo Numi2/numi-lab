@@ -67,8 +67,8 @@ inline bool normalizedQuaternion(
 
 } // namespace
 
-// First canonical SensorIR executor: parent-frame pose sampling across the
-// two control boundaries. Reset-only execution seeds a new episode before its
+// Canonical control-boundary SensorIR executor for parent-frame pose and
+// world-twist modalities. Reset-only execution seeds a new episode before its
 // first action; advance execution samples the accepted post-physics state for
 // the next action. One thread owns one environment/sensor history ring, so
 // reset and publication are transactional without atomics. Presentation and
@@ -88,6 +88,8 @@ kernel void mr_sensor_sample_control_boundary(
         [[buffer(MR_SENSOR_SAMPLE_RESET_MASKS)]],
     device const MRArticulatedBodyPoseGPU* bodyPoses
         [[buffer(MR_SENSOR_SAMPLE_BODY_POSES)]],
+    device const MRBodyStateGPU* bodyStates
+        [[buffer(MR_SENSOR_SAMPLE_BODY_STATES)]],
     device const MRBodyStateGPU* sceneBodies
         [[buffer(MR_SENSOR_SAMPLE_SCENE_BODIES)]],
     device MRSensorRuntimeStateGPU* states
@@ -115,11 +117,16 @@ kernel void mr_sensor_sample_control_boundary(
     const uint sensorIndex = threadIndex - environment * sensorCount;
     const MRSensorDescriptorGPU descriptor =
         descriptors[sensorIndex];
-    if (descriptor.identity.x != MR_WORLD_SENSOR_STATE ||
+    const bool poseSensor =
+        descriptor.identity.x == MR_WORLD_SENSOR_STATE;
+    const bool twistSensor =
+        descriptor.identity.x ==
+            MR_WORLD_SENSOR_FRAME_TWIST_WORLD;
+    if ((!poseSensor && !twistSensor) ||
         descriptor.schedule.z !=
             MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
         descriptor.source.w != 0u ||
-        descriptor.output.y != 7u ||
+        descriptor.output.y != (poseSensor ? 7u : 6u) ||
         descriptor.output.w == 0u) {
         return;
     }
@@ -228,6 +235,8 @@ kernel void mr_sensor_sample_control_boundary(
 
     float3 parentPosition;
     float4 parentOrientation;
+    float3 parentLinearVelocity = float3(0.0f);
+    float3 parentAngularVelocity = float3(0.0f);
     if (descriptor.identity.y ==
         MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK) {
         const uint bodyStride =
@@ -238,6 +247,14 @@ kernel void mr_sensor_sample_control_boundary(
             ];
         parentPosition = pose.position.xyz;
         parentOrientation = pose.orientation;
+        if (twistSensor) {
+            const MRBodyStateGPU body = bodyStates[
+                environment * bodyStride + descriptor.identity.z
+            ];
+            parentLinearVelocity =
+                body.linearVelocityAndInverseMass.xyz;
+            parentAngularVelocity = body.angularVelocity.xyz;
+        }
     } else if (descriptor.identity.y ==
                MR_WORLD_SENSOR_PARENT_RIGID_BODY) {
         const uint sceneStride =
@@ -247,6 +264,9 @@ kernel void mr_sensor_sample_control_boundary(
         ];
         parentPosition = body.position.xyz;
         parentOrientation = body.orientation;
+        parentLinearVelocity =
+            body.linearVelocityAndInverseMass.xyz;
+        parentAngularVelocity = body.angularVelocity.xyz;
     } else {
         state.timestampAgeValidity.w =
             MR_SENSOR_SAMPLE_NONFINITE;
@@ -268,7 +288,10 @@ kernel void mr_sensor_sample_control_boundary(
         );
     const float3 sensorPosition = parentPosition +
         quaternionRotate(parentUnit, descriptor.localPosition.xyz);
-    if (!poseValid || !all(isfinite(sensorPosition))) {
+    if (!poseValid || !all(isfinite(sensorPosition)) ||
+        (twistSensor &&
+         (!all(isfinite(parentLinearVelocity)) ||
+          !all(isfinite(parentAngularVelocity))))) {
         state.timestampAgeValidity.w =
             MR_SENSOR_SAMPLE_NONFINITE;
         states[stateIndex] = state;
@@ -283,13 +306,29 @@ kernel void mr_sensor_sample_control_boundary(
         static_cast<uint>(sequence % historyLength);
     const uint writeBase =
         historyBase + writeSlot * outputCount;
-    history[writeBase + 0u] = sensorPosition.x;
-    history[writeBase + 1u] = sensorPosition.y;
-    history[writeBase + 2u] = sensorPosition.z;
-    history[writeBase + 3u] = sensorOrientation.x;
-    history[writeBase + 4u] = sensorOrientation.y;
-    history[writeBase + 5u] = sensorOrientation.z;
-    history[writeBase + 6u] = sensorOrientation.w;
+    if (poseSensor) {
+        history[writeBase + 0u] = sensorPosition.x;
+        history[writeBase + 1u] = sensorPosition.y;
+        history[writeBase + 2u] = sensorPosition.z;
+        history[writeBase + 3u] = sensorOrientation.x;
+        history[writeBase + 4u] = sensorOrientation.y;
+        history[writeBase + 5u] = sensorOrientation.z;
+        history[writeBase + 6u] = sensorOrientation.w;
+    } else {
+        const float3 sensorOffset = quaternionRotate(
+            parentUnit,
+            descriptor.localPosition.xyz
+        );
+        const float3 pointVelocity =
+            parentLinearVelocity +
+            cross(parentAngularVelocity, sensorOffset);
+        history[writeBase + 0u] = pointVelocity.x;
+        history[writeBase + 1u] = pointVelocity.y;
+        history[writeBase + 2u] = pointVelocity.z;
+        history[writeBase + 3u] = parentAngularVelocity.x;
+        history[writeBase + 4u] = parentAngularVelocity.y;
+        history[writeBase + 5u] = parentAngularVelocity.z;
+    }
     ++sequence;
 
     const uint latencySamples = descriptor.schedule.w;

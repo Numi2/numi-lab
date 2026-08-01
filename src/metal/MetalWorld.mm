@@ -2904,21 +2904,26 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 (static_cast<std::uint64_t>(
                      descriptor.schedule.y
                  ) << 32u);
-            if (descriptor.identity.x !=
-                    MR_WORLD_SENSOR_STATE ||
+            const bool poseSensor =
+                descriptor.identity.x == MR_WORLD_SENSOR_STATE;
+            const bool twistSensor =
+                descriptor.identity.x ==
+                    MR_WORLD_SENSOR_FRAME_TWIST_WORLD;
+            if ((!poseSensor && !twistSensor) ||
                 descriptor.schedule.z !=
                     MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
                 descriptor.source.w !=
                     static_cast<std::uint32_t>(
                         SensorExecutionDomain::nativeState
                     ) ||
-                descriptor.output.y != 7u ||
+                descriptor.output.y !=
+                    (poseSensor ? 7u : 6u) ||
                 samplePeriod < controlPeriodTicks) {
                 return reject(
                     std::move(diagnostics),
                     MetalWorldHostStatus::unsupportedTopology,
                     "native SensorIR frame sampling requires pre-control pose "
-                    "descriptors at no more than the control rate"
+                    "or world-twist descriptors at no more than the control rate"
                 );
             }
         }
@@ -8641,6 +8646,7 @@ bool encodeSensorSample(
     id<MTLCommandBuffer> commandBuffer,
     const CompiledSensorProgram& program,
     const MRMetalWorldPassGPU& pass,
+    const std::size_t bodyStates,
     const std::size_t sourceScene,
     const std::size_t environmentCount,
     const std::uint32_t bodyStride,
@@ -8689,6 +8695,7 @@ bool encodeSensorSample(
             {MR_SENSOR_SAMPLE_DESCRIPTORS, kSensorDescriptors},
             {MR_SENSOR_SAMPLE_RESET_MASKS, kResetMasks},
             {MR_SENSOR_SAMPLE_BODY_POSES, kBodyPoses},
+            {MR_SENSOR_SAMPLE_BODY_STATES, bodyStates},
             {MR_SENSOR_SAMPLE_SCENE_BODIES, sourceScene},
             {MR_SENSOR_SAMPLE_STATES, kSensorRuntimeStates},
             {MR_SENSOR_SAMPLE_HISTORY, kSensorHistory},
@@ -16041,6 +16048,16 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 !residentContinuation;
             const bool nativeTask = config.taskProgram.valid();
             const bool nativeSensors = config.sensorProgram.valid();
+            const bool sensorUsesBodyTwists =
+                nativeSensors &&
+                std::any_of(
+                    config.sensorProgram.descriptors().begin(),
+                    config.sensorProgram.descriptors().end(),
+                    [](const MRSensorDescriptorGPU& descriptor) {
+                        return descriptor.identity.x ==
+                            MR_WORLD_SENSOR_FRAME_TWIST_WORLD;
+                    }
+                );
             selectedState->useTaskBodyParameters = nativeTask;
             selectedState->stats.memoryPlan =
                 diagnostics.layout.memoryPlan;
@@ -16223,7 +16240,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                     false
                                 ) ||
                                 (
-                                    taskUsesFrames &&
+                                    (taskUsesFrames ||
+                                     sensorUsesBodyTwists) &&
                                     !encodeArticulatedBodyVelocities(
                                         *selectedState,
                                         commandBuffer,
@@ -16253,6 +16271,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 commandBuffer,
                                 config.sensorProgram,
                                 pass,
+                                kCurrentBodies,
                                 sourceScene,
                                 batch.environmentCount,
                                 world.bodyCount(),
@@ -16563,19 +16582,12 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         "failed to encode accepted-state kinematics"
                     );
                 }
-                if (nativeTask &&
-                    (!encodeTaskEffort(
-                         *selectedState,
-                         commandBuffer,
-                         pass,
-                         sourceV,
-                         batch.environmentCount
-                     ) ||
-                     !encodeContactThreadKernel(
+                if ((nativeTask || sensorUsesBodyTwists) &&
+                    (!encodeContactThreadKernel(
                          *selectedState,
                          commandBuffer,
                          selectedState->bodyProjectionPipeline,
-                         @"compiled task accepted body projection",
+                         @"compiled accepted body projection",
                          {
                              {0u, kContactDispatch},
                              {1u, kArticulations},
@@ -16598,7 +16610,21 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                          sourceV,
                          kCandidateBodies,
                          batch.environmentCount,
-                         @"compiled task accepted body velocities"
+                         @"compiled accepted body velocities"
+                     ))) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode accepted body states"
+                    );
+                }
+                if (nativeTask &&
+                    (!encodeTaskEffort(
+                         *selectedState,
+                         commandBuffer,
+                         pass,
+                         sourceV,
+                         batch.environmentCount
                      ) ||
                      !encodeTaskComplete(
                          *selectedState,
@@ -16623,6 +16649,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                          commandBuffer,
                          config.sensorProgram,
                          sensorPass,
+                         kCandidateBodies,
                          sourceScene,
                          batch.environmentCount,
                          world.bodyCount(),

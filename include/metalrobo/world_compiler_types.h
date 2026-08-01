@@ -54,6 +54,9 @@ enum MRWorldSensorKind : mr_u32 {
     // Dense metric normal-penetration atlas. This is not camera depth and
     // does not use camera intrinsics.
     MR_WORLD_SENSOR_TACTILE_DEPTH = 6u,
+    // World-space linear velocity at the authored sensor origin followed by
+    // world-space angular velocity. Both are derived from accepted state.
+    MR_WORLD_SENSOR_FRAME_TWIST_WORLD = 7u,
 };
 
 enum MRWorldSensorParentKind : mr_u32 {
