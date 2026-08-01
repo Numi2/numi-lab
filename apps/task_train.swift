@@ -488,6 +488,7 @@ private final class MLXLearnerWorker {
     private(set) var actorObservationCount: Int
     private(set) var criticObservationCount: Int
     private(set) var actionCount: Int
+    private(set) var motionFeatureCount: Int
     private(set) var policyPackPath: String
     private(set) var deploymentPolicyPackPath: String
     private(set) var stateRestored: Bool
@@ -571,6 +572,7 @@ private final class MLXLearnerWorker {
         actorObservationCount = 0
         criticObservationCount = 0
         actionCount = 0
+        motionFeatureCount = 0
         policyPackPath = ""
         deploymentPolicyPackPath = ""
         stateRestored = false
@@ -585,6 +587,8 @@ private final class MLXLearnerWorker {
                   ready["critic_observation_count"] as? NSNumber,
               let actionValue =
                   ready["action_count"] as? NSNumber,
+              let motionValue =
+                  ready["motion_feature_count"] as? NSNumber,
               let readyPolicyPack =
                   ready["policy_pack"] as? String,
               let readyDeploymentPolicyPack =
@@ -603,6 +607,7 @@ private final class MLXLearnerWorker {
         actorObservationCount = actorValue.intValue
         criticObservationCount = criticValue.intValue
         actionCount = actionValue.intValue
+        motionFeatureCount = motionValue.intValue
         policyPackPath = readyPolicyPack
         deploymentPolicyPackPath =
             readyDeploymentPolicyPack
@@ -868,7 +873,9 @@ private enum TaskTrainMain {
                       layout.actorObservationCount,
                   learner.criticObservationCount ==
                       layout.criticObservationCount,
-                  learner.actionCount == layout.actionCount
+                  learner.actionCount == layout.actionCount,
+                  learner.motionFeatureCount ==
+                      layout.motionFeatureCount
             else {
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "PolicyPack dimensions do not match the compiled task."

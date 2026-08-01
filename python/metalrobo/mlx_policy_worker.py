@@ -80,10 +80,44 @@ def _configuration_record(learner: MLXPolicyLearner) -> str:
     )
 
 
+def _motion_configuration_record(
+    motion_prior: MLXMotionPrior,
+) -> str:
+    return json.dumps(
+        asdict(motion_prior.configuration),
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+
+
+def _require_finite_motion_state(
+    motion_prior: MLXMotionPrior,
+) -> None:
+    arrays = [
+        value
+        for _, value in tree_flatten(
+            motion_prior.model.trainable_parameters()
+        )
+    ] + [
+        value
+        for _, value in tree_flatten(
+            motion_prior.optimizer.state
+        )
+    ]
+    finite = [mx.all(mx.isfinite(value)) for value in arrays]
+    mx.eval(*finite)
+    if not all(bool(value.item()) for value in finite):
+        raise ValueError(
+            "motion-prior training state contains non-finite values"
+        )
+
+
 def _write_learner_state(
     learner: MLXPolicyLearner,
     path: Path,
     task_curriculum_level: int,
+    motion_prior: MLXMotionPrior | None = None,
 ) -> Path:
     """Atomically checkpoint model parameters and Adam moments."""
 
@@ -110,10 +144,28 @@ def _write_learner_state(
             )
         }
     )
+    if motion_prior is not None:
+        _require_finite_motion_state(motion_prior)
+        arrays.update(
+            {
+                f"motion_model.{name}": value
+                for name, value in tree_flatten(
+                    motion_prior.model.trainable_parameters()
+                )
+            }
+        )
+        arrays.update(
+            {
+                f"motion_optimizer.{name}": value
+                for name, value in tree_flatten(
+                    motion_prior.optimizer.state
+                )
+            }
+        )
     mx.eval(*arrays.values())
     metadata = {
         "format": "metalrobo.mlx-learner-state",
-        "schema": "2",
+        "schema": "3" if motion_prior is not None else "2",
         "policy_id": learner.policy_id,
         "policy_revision": str(learner.revision),
         "actor_observation_count": str(
@@ -126,6 +178,20 @@ def _write_learner_state(
         "configuration": _configuration_record(learner),
         "task_curriculum_level": str(task_curriculum_level),
     }
+    if motion_prior is not None:
+        metadata.update(
+            {
+                "motion_pack_hash": str(
+                    motion_prior.motion_pack.content_hash
+                ),
+                "motion_feature_count": str(
+                    motion_prior.motion_pack.feature_count
+                ),
+                "motion_configuration": (
+                    _motion_configuration_record(motion_prior)
+                ),
+            }
+        )
     temporary = target.with_name(
         f".{target.name}.{os.getpid()}.tmp.safetensors"
     )
@@ -142,6 +208,7 @@ def _write_learner_state(
 def _restore_learner_state(
     learner: MLXPolicyLearner,
     path: Path,
+    motion_prior: MLXMotionPrior | None = None,
 ) -> tuple[bool, int]:
     target = path.expanduser().resolve()
     if target.suffix != ".safetensors":
@@ -156,7 +223,7 @@ def _restore_learner_state(
         raise ValueError("MLX learner state payload is invalid")
     expected_metadata = {
         "format": "metalrobo.mlx-learner-state",
-        "schema": "2",
+        "schema": "3" if motion_prior is not None else "2",
         "policy_id": learner.policy_id,
         "actor_observation_count": str(
             learner.actor_observation_count
@@ -167,6 +234,20 @@ def _restore_learner_state(
         "action_count": str(learner.action_count),
         "configuration": _configuration_record(learner),
     }
+    if motion_prior is not None:
+        expected_metadata.update(
+            {
+                "motion_pack_hash": str(
+                    motion_prior.motion_pack.content_hash
+                ),
+                "motion_feature_count": str(
+                    motion_prior.motion_pack.feature_count
+                ),
+                "motion_configuration": (
+                    _motion_configuration_record(motion_prior)
+                ),
+            }
+        )
     if any(
         metadata.get(key) != value
         for key, value in expected_metadata.items()
@@ -240,13 +321,78 @@ def _restore_learner_state(
     learner.optimizer.state = tree_unflatten(
         sorted(optimizer_arrays.items())
     )
+    if motion_prior is not None:
+        expected_motion_model = dict(
+            tree_flatten(
+                motion_prior.model.trainable_parameters()
+            )
+        )
+        motion_model_arrays = {
+            name.removeprefix("motion_model."): value
+            for name, value in arrays.items()
+            if name.startswith("motion_model.")
+        }
+        if set(motion_model_arrays) != set(expected_motion_model):
+            raise ValueError(
+                "MLX learner state motion model topology is incompatible"
+            )
+        for name, expected in expected_motion_model.items():
+            actual = motion_model_arrays[name]
+            if (
+                tuple(actual.shape) != tuple(expected.shape)
+                or actual.dtype != expected.dtype
+            ):
+                raise ValueError(
+                    f"MLX learner state motion tensor {name} is incompatible"
+                )
+        motion_prior.model.update(
+            tree_unflatten(sorted(motion_model_arrays.items())),
+            strict=True,
+        )
+        expected_motion_optimizer = dict(
+            tree_flatten(motion_prior.optimizer.state)
+        )
+        motion_optimizer_arrays = {
+            name.removeprefix("motion_optimizer."): value
+            for name, value in arrays.items()
+            if name.startswith("motion_optimizer.")
+        }
+        if set(motion_optimizer_arrays) != set(
+            expected_motion_optimizer
+        ):
+            raise ValueError(
+                "MLX learner state motion optimizer topology is incompatible"
+            )
+        for name, expected in expected_motion_optimizer.items():
+            actual = motion_optimizer_arrays[name]
+            if (
+                tuple(actual.shape) != tuple(expected.shape)
+                or actual.dtype != expected.dtype
+            ):
+                raise ValueError(
+                    "MLX learner state motion optimizer tensor "
+                    f"{name} is incompatible"
+                )
+        motion_prior.optimizer.state = tree_unflatten(
+            sorted(motion_optimizer_arrays.items())
+        )
     learner.revision = revision
     learner.refresh_compiled_training_state()
     mx.eval(
         learner.model.parameters(),
         learner.optimizer.state,
+        *(
+            (
+                motion_prior.model.parameters(),
+                motion_prior.optimizer.state,
+            )
+            if motion_prior is not None
+            else ()
+        ),
     )
     learner._require_finite_training_state()
+    if motion_prior is not None:
+        _require_finite_motion_state(motion_prior)
     return True, task_curriculum_level
 
 
@@ -423,6 +569,7 @@ def _serve(arguments: argparse.Namespace) -> int:
     restored, task_curriculum_level = _restore_learner_state(
         learner,
         arguments.learner_state,
+        motion_prior,
     )
     if not restored:
         task_curriculum_level = arguments.initial_task_curriculum_level
@@ -447,7 +594,18 @@ def _serve(arguments: argparse.Namespace) -> int:
             "critic_observation_count":
                 learner.critic_observation_count,
             "action_count": learner.action_count,
+            "motion_feature_count": (
+                motion_prior.motion_pack.feature_count
+                if motion_prior is not None
+                else 0
+            ),
             "learner_state_restored": restored,
+            "motion_prior_enabled": motion_prior is not None,
+            "motion_pack_hash": (
+                motion_prior.motion_pack.content_hash
+                if motion_prior is not None
+                else 0
+            ),
             "task_curriculum_level": task_curriculum_level,
             "policy_pack": str(current_policy),
             "deployment_policy_pack":
@@ -513,6 +671,7 @@ def _serve(arguments: argparse.Namespace) -> int:
                 learner,
                 arguments.learner_state,
                 rollout_curriculum_level,
+                motion_prior,
             )
             task_curriculum_level = rollout_curriculum_level
             _emit(
