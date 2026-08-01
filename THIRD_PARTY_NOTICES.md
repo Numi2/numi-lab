@@ -113,10 +113,33 @@ actor, privileged per-link clearance shaping, intermittent throws, and
 ball-free standing anchors. Its public deployment contract also informed the
 16x9 ball-only masked-depth input, 0.1--5.0 m normalization, and sparse frame
 offsets 0, 3, 8, and 18. MetalRobo implements these ideas independently in its
-generic TaskIR and Metal runtime; no MuJoCo Warp, PyTorch, policy weights, or
-motion assets are redistributed. The upstream repository is available under
-the MIT License at
-<https://github.com/lzyang2000/perceptive_cbf_rl>.
+generic TaskIR and Metal runtime; no MuJoCo Warp, PyTorch, or policy runtime is
+redistributed. The compact `assets/motions/pacman-g1-dodge.motionpack`
+contains anchor-relative tracked-link pose features converted from the seven
+upstream `Dodge` NPZ clips at commit
+`2d426697dfc92bf1fc270f89ca92a0476033243b`.
+
+MIT License
+
+Copyright (c) 2026 Lizhi Yang
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 ## Studio Small 03 HDR environment
 

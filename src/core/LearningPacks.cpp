@@ -32,6 +32,7 @@ constexpr std::array<char, 8u> kMagic{
 constexpr std::uint32_t kTaskKind = 1u;
 constexpr std::uint32_t kPolicyKind = 2u;
 constexpr std::uint32_t kPolicyRolloutKind = 3u;
+constexpr std::uint32_t kMotionKind = 4u;
 constexpr std::uint64_t kFNVOffset = 14695981039346656037ull;
 constexpr std::uint64_t kFNVPrime = 1099511628211ull;
 constexpr std::uint64_t kMaximumPayloadBytes =
@@ -99,6 +100,24 @@ LearningPackResult validateTaskArtifact(
             "TaskPack visual corruption is invalid"
         );
     }
+    if (!pack.threat.protectedGroup.empty() &&
+        (!(pack.threat.activationSpeed > 0.0f) ||
+         !(pack.threat.horizonSeconds > 0.0f) ||
+         !(pack.threat.safetyMargin >= 0.0f) ||
+         !(pack.threat.cbfAlpha > 0.0f) ||
+         !(pack.threat.stepOverMaximumHeight > 0.0f) ||
+         !(pack.threat.sidestepMaximumHeight >
+             pack.threat.stepOverMaximumHeight) ||
+         !(pack.threat.leanMaximumHeight >
+             pack.threat.sidestepMaximumHeight) ||
+         !(pack.threat.urgencySeconds > 0.0f) ||
+         !(pack.threat.desiredVelocityHorizonSeconds > 0.0f) ||
+         !(pack.threat.projectionEpsilon > 0.0f))) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "TaskPack threat program is invalid"
+        );
+    }
     const bool projectileBallistics =
         pack.pushes.projectileHorizontalSpeedUpper > 0.0f;
     if (!std::isfinite(
@@ -131,7 +150,8 @@ LearningPackResult validateTaskArtifact(
         !countFits(pack.randomization.size()) ||
         !countFits(pack.terrain.sampleOffsets.size()) ||
         !countFits(pack.terrain.resetTranslations.size()) ||
-        !countFits(pack.visual.frameOffsets.size())) {
+        !countFits(pack.visual.frameOffsets.size()) ||
+        !countFits(pack.motion.trackedBodies.size())) {
         return fail(
             LearningPackStatus::capacityOverflow,
             "TaskPack table count exceeds the 32-bit artifact boundary"
@@ -216,7 +236,14 @@ LearningPackResult validateTaskArtifact(
                 return stringFits(value.target);
             }
         ) ||
-        !stringFits(pack.terrain.body)) {
+        !stringFits(pack.terrain.body) ||
+        !stringFits(pack.threat.protectedGroup) ||
+        !stringFits(pack.motion.anchorBody) ||
+        !std::all_of(
+            pack.motion.trackedBodies.begin(),
+            pack.motion.trackedBodies.end(),
+            stringFits
+        )) {
         return fail(
             LearningPackStatus::capacityOverflow,
             "TaskPack operator semantic exceeds the 32-bit artifact boundary"
@@ -330,6 +357,56 @@ LearningPackResult validatePolicyArtifact(
     return {};
 }
 
+LearningPackResult validateMotionArtifact(
+    const MotionPack& pack
+) {
+    if (pack.id.empty() || pack.sourceRepository.empty() ||
+        pack.sourceRevision.empty() || pack.license.empty() ||
+        pack.anchorBody.empty() || pack.trackedBodies.empty() ||
+        pack.featureCount != pack.trackedBodies.size() * 9u ||
+        pack.clips.empty() || !stringFits(pack.id) ||
+        !stringFits(pack.sourceRepository) ||
+        !stringFits(pack.sourceRevision) ||
+        !stringFits(pack.license) || !stringFits(pack.anchorBody) ||
+        !countFits(pack.trackedBodies.size()) ||
+        !countFits(pack.clips.size())) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "MotionPack identity, provenance, or feature contract is invalid"
+        );
+    }
+    const auto finite = [](const std::span<const float> values) {
+        return std::all_of(values.begin(), values.end(), [](float value) {
+            return std::isfinite(value);
+        });
+    };
+    if (!std::all_of(
+            pack.trackedBodies.begin(),
+            pack.trackedBodies.end(),
+            stringFits
+        ) ||
+        !std::all_of(
+            pack.clips.begin(),
+            pack.clips.end(),
+            [&](const MotionClip& clip) {
+                return !clip.id.empty() && stringFits(clip.id) &&
+                    std::isfinite(clip.framesPerSecond) &&
+                    clip.framesPerSecond > 0.0f &&
+                    countFits(clip.features.size()) &&
+                    clip.features.size() >=
+                        2u * pack.featureCount &&
+                    clip.features.size() % pack.featureCount == 0u &&
+                    finite(clip.features);
+            }
+        )) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "MotionPack tracked bodies or clip samples are invalid"
+        );
+    }
+    return {};
+}
+
 template <typename Pack>
 LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
     if (pack.id.empty() || !stringFits(pack.id) ||
@@ -364,6 +441,7 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
     std::uint64_t actorElements = 0u;
     std::uint64_t criticElements = 0u;
     std::uint64_t actionElements = 0u;
+    std::uint64_t motionElements = 0u;
     if (!multiply(
             pack.environmentCount,
             pack.controlStepCount,
@@ -384,6 +462,11 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
             pack.actionCount,
             actionElements
         ) ||
+        !multiply(
+            samples,
+            pack.motionFeatureCount,
+            motionElements
+        ) ||
         samples >
             std::numeric_limits<std::size_t>::max() ||
         actorElements >
@@ -392,8 +475,11 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
             std::numeric_limits<std::size_t>::max() ||
         actionElements >
             std::numeric_limits<std::size_t>::max() ||
+        motionElements >
+            std::numeric_limits<std::size_t>::max() ||
         pack.actorObservations.size() != actorElements ||
         pack.criticObservations.size() != criticElements ||
+        pack.motionFeatures.size() != motionElements ||
         pack.latents.size() != actionElements ||
         pack.logProbabilities.size() != samples ||
         pack.values.size() != samples ||
@@ -418,6 +504,7 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
     };
     if (!finiteValues(pack.actorObservations) ||
         !finiteValues(pack.criticObservations) ||
+        !finiteValues(pack.motionFeatures) ||
         !finiteValues(pack.latents) ||
         !finiteValues(pack.logProbabilities) ||
         !finiteValues(pack.values) ||
@@ -483,8 +570,8 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
     std::uint64_t payloadBytes =
         8u + pack.id.size() +
         3u * sizeof(std::uint64_t) +
-        5u * sizeof(std::uint32_t) +
-        7u * sizeof(std::uint64_t);
+        6u * sizeof(std::uint32_t) +
+        8u * sizeof(std::uint64_t);
     if (payloadBytes > kMaximumPayloadBytes) {
         return fail(
             LearningPackStatus::capacityOverflow,
@@ -507,6 +594,7 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
     };
     if (!addTable(pack.actorObservations) ||
         !addTable(pack.criticObservations) ||
+        !addTable(pack.motionFeatures) ||
         !addTable(pack.latents) ||
         !addTable(pack.logProbabilities) ||
         !addTable(pack.values) ||
@@ -882,6 +970,19 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.visual.depthJitterMeters);
     writer.pod(pack.visual.depthNoiseSigmaMeters);
     writer.pod(pack.visual.edgeFlickerProbability);
+    writer.string(pack.threat.protectedGroup);
+    writer.pod(pack.threat.activationSpeed);
+    writer.pod(pack.threat.horizonSeconds);
+    writer.pod(pack.threat.safetyMargin);
+    writer.pod(pack.threat.cbfAlpha);
+    writer.pod(pack.threat.stepOverMaximumHeight);
+    writer.pod(pack.threat.sidestepMaximumHeight);
+    writer.pod(pack.threat.leanMaximumHeight);
+    writer.pod(pack.threat.urgencySeconds);
+    writer.pod(pack.threat.desiredVelocityHorizonSeconds);
+    writer.pod(pack.threat.projectionEpsilon);
+    writer.string(pack.motion.anchorBody);
+    writer.strings(pack.motion.trackedBodies);
     writer.pod(pack.maximumEpisodeSteps);
     writer.pod(pack.maximumActionDelaySteps);
     writer.pod(pack.maximumObservationDelaySteps);
@@ -1023,6 +1124,19 @@ bool deserializeTask(
         !reader.pod(pack.visual.depthJitterMeters) ||
         !reader.pod(pack.visual.depthNoiseSigmaMeters) ||
         !reader.pod(pack.visual.edgeFlickerProbability) ||
+        !reader.string(pack.threat.protectedGroup) ||
+        !reader.pod(pack.threat.activationSpeed) ||
+        !reader.pod(pack.threat.horizonSeconds) ||
+        !reader.pod(pack.threat.safetyMargin) ||
+        !reader.pod(pack.threat.cbfAlpha) ||
+        !reader.pod(pack.threat.stepOverMaximumHeight) ||
+        !reader.pod(pack.threat.sidestepMaximumHeight) ||
+        !reader.pod(pack.threat.leanMaximumHeight) ||
+        !reader.pod(pack.threat.urgencySeconds) ||
+        !reader.pod(pack.threat.desiredVelocityHorizonSeconds) ||
+        !reader.pod(pack.threat.projectionEpsilon) ||
+        !reader.string(pack.motion.anchorBody) ||
+        !reader.strings(pack.motion.trackedBodies) ||
         !reader.pod(pack.maximumEpisodeSteps) ||
         !reader.pod(pack.maximumActionDelaySteps) ||
         !reader.pod(pack.maximumObservationDelaySteps) ||
@@ -1133,10 +1247,11 @@ std::vector<std::byte> serializePolicyRollout(const Pack& pack) {
     const std::size_t payloadBytes =
         8u + pack.id.size() +
         3u * sizeof(std::uint64_t) +
-        5u * sizeof(std::uint32_t) +
-        7u * sizeof(std::uint64_t) +
+        6u * sizeof(std::uint32_t) +
+        8u * sizeof(std::uint64_t) +
         pack.actorObservations.size() * sizeof(float) +
         pack.criticObservations.size() * sizeof(float) +
+        pack.motionFeatures.size() * sizeof(float) +
         pack.latents.size() * sizeof(float) +
         pack.logProbabilities.size() * sizeof(float) +
         pack.values.size() * sizeof(float) +
@@ -1153,8 +1268,10 @@ std::vector<std::byte> serializePolicyRollout(const Pack& pack) {
     writer.pod(pack.actorObservationCount);
     writer.pod(pack.criticObservationCount);
     writer.pod(pack.actionCount);
+    writer.pod(pack.motionFeatureCount);
     writer.vector(pack.actorObservations);
     writer.vector(pack.criticObservations);
+    writer.vector(pack.motionFeatures);
     writer.vector(pack.latents);
     writer.vector(pack.logProbabilities);
     writer.vector(pack.values);
@@ -1177,14 +1294,62 @@ bool deserializePolicyRollout(
         reader.pod(pack.actorObservationCount) &&
         reader.pod(pack.criticObservationCount) &&
         reader.pod(pack.actionCount) &&
+        reader.pod(pack.motionFeatureCount) &&
         reader.vector(pack.actorObservations) &&
         reader.vector(pack.criticObservations) &&
+        reader.vector(pack.motionFeatures) &&
         reader.vector(pack.latents) &&
         reader.vector(pack.logProbabilities) &&
         reader.vector(pack.values) &&
         reader.vector(pack.bootstrapValues) &&
         reader.vector(pack.transitions) &&
         reader.finished();
+}
+
+std::vector<std::byte> serializeMotion(
+    const MotionPack& pack
+) {
+    Writer writer{0u};
+    writer.string(pack.id);
+    writer.string(pack.sourceRepository);
+    writer.string(pack.sourceRevision);
+    writer.string(pack.license);
+    writer.string(pack.anchorBody);
+    writer.strings(pack.trackedBodies);
+    writer.pod(pack.featureCount);
+    writeRichVector(
+        writer,
+        pack.clips,
+        [](Writer& output, const MotionClip& clip) {
+            output.string(clip.id);
+            output.pod(clip.framesPerSecond);
+            output.vector(clip.features);
+        }
+    );
+    return writer.data();
+}
+
+bool deserializeMotion(
+    const std::span<const std::byte> payload,
+    MotionPack& pack
+) {
+    Reader reader{payload};
+    return reader.string(pack.id) &&
+        reader.string(pack.sourceRepository) &&
+        reader.string(pack.sourceRevision) &&
+        reader.string(pack.license) &&
+        reader.string(pack.anchorBody) &&
+        reader.strings(pack.trackedBodies) &&
+        reader.pod(pack.featureCount) &&
+        readRichVector(
+            reader,
+            pack.clips,
+            [](Reader& source, MotionClip& clip) {
+                return source.string(clip.id) &&
+                    source.pod(clip.framesPerSecond) &&
+                    source.vector(clip.features);
+            }
+        ) && reader.finished();
 }
 
 bool writeAll(
@@ -1505,8 +1670,10 @@ LearningPackResult writePolicyRolloutPack(
             .criticObservationCount =
                 pack.criticObservationCount,
             .actionCount = pack.actionCount,
+            .motionFeatureCount = pack.motionFeatureCount,
             .actorObservations = pack.actorObservations,
             .criticObservations = pack.criticObservations,
+            .motionFeatures = pack.motionFeatures,
             .latents = pack.latents,
             .logProbabilities = pack.logProbabilities,
             .values = pack.values,
@@ -1565,6 +1732,59 @@ LearningPackResult readPolicyRolloutPack(
     if (!result.succeeded()) {
         result.status = LearningPackStatus::corruptPayload;
         return result;
+    }
+    output = std::move(staged);
+    return result;
+}
+
+LearningPackResult writeMotionPack(
+    const MotionPack& pack,
+    const std::filesystem::path& path
+) {
+    try {
+        const LearningPackResult validation =
+            validateMotionArtifact(pack);
+        if (!validation.succeeded()) {
+            return validation;
+        }
+        return writePack(
+            serializeMotion(pack),
+            kMotionKind,
+            kMotionPackFormatVersion,
+            path
+        );
+    } catch (const std::bad_alloc&) {
+        return fail(
+            LearningPackStatus::capacityOverflow,
+            "MotionPack serialization allocation failed"
+        );
+    } catch (const std::exception& error) {
+        return fail(
+            LearningPackStatus::internalFailure,
+            error.what()
+        );
+    }
+}
+
+LearningPackResult readMotionPack(
+    const std::filesystem::path& path,
+    MotionPack& output
+) {
+    MotionPack staged;
+    LearningPackResult result = readPack(
+        path,
+        kMotionKind,
+        kMotionPackFormatVersion,
+        staged,
+        deserializeMotion
+    );
+    if (!result.succeeded()) {
+        return result;
+    }
+    const LearningPackResult validation =
+        validateMotionArtifact(staged);
+    if (!validation.succeeded()) {
+        return validation;
     }
     output = std::move(staged);
     return result;

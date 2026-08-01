@@ -13,10 +13,31 @@
 
 namespace metalrobo {
 
-inline constexpr std::uint32_t kTaskPackFormatVersion = 5u;
+inline constexpr std::uint32_t kTaskPackFormatVersion = 6u;
 inline constexpr std::uint32_t kPolicyPackFormatVersion = 3u;
 inline constexpr std::uint32_t
-    kPolicyRolloutPackFormatVersion = 3u;
+    kPolicyRolloutPackFormatVersion = 4u;
+inline constexpr std::uint32_t kMotionPackFormatVersion = 1u;
+
+struct MotionClip {
+    std::string id;
+    float framesPerSecond = 0.0f;
+    std::vector<float> features;
+};
+
+// Canonical compact expert-motion artifact. Each frame uses the task's
+// anchor-relative tracked-link feature contract; consecutive frames provide
+// motion to the learner without publishing simulator state.
+struct MotionPack {
+    std::string id;
+    std::string sourceRepository;
+    std::string sourceRevision;
+    std::string license;
+    std::string anchorBody;
+    std::vector<std::string> trackedBodies;
+    std::uint32_t featureCount = 0u;
+    std::vector<MotionClip> clips;
+};
 
 struct PolicyRolloutPack {
     std::string id;
@@ -28,8 +49,10 @@ struct PolicyRolloutPack {
     std::uint32_t actorObservationCount = 0u;
     std::uint32_t criticObservationCount = 0u;
     std::uint32_t actionCount = 0u;
+    std::uint32_t motionFeatureCount = 0u;
     std::vector<float> actorObservations;
     std::vector<float> criticObservations;
+    std::vector<float> motionFeatures;
     std::vector<float> latents;
     std::vector<float> logProbabilities;
     std::vector<float> values;
@@ -49,8 +72,10 @@ struct PolicyRolloutPackView {
     std::uint32_t actorObservationCount = 0u;
     std::uint32_t criticObservationCount = 0u;
     std::uint32_t actionCount = 0u;
+    std::uint32_t motionFeatureCount = 0u;
     std::span<const float> actorObservations;
     std::span<const float> criticObservations;
+    std::span<const float> motionFeatures;
     std::span<const float> latents;
     std::span<const float> logProbabilities;
     std::span<const float> values;
@@ -121,6 +146,16 @@ struct LearningPackResult {
 [[nodiscard]] LearningPackResult readPolicyRolloutPack(
     const std::filesystem::path& path,
     PolicyRolloutPack& output
+);
+
+[[nodiscard]] LearningPackResult writeMotionPack(
+    const MotionPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readMotionPack(
+    const std::filesystem::path& path,
+    MotionPack& output
 );
 
 [[nodiscard]] const char* learningPackStatusName(

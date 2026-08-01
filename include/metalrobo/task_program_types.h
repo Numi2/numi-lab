@@ -2,12 +2,21 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 16u
+#define MR_TASK_PROGRAM_ABI_VERSION 18u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
     MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY = 1u << 1u,
     MR_TASK_PROGRAM_RECOVERY_CURRICULUM = 1u << 2u,
+    MR_TASK_PROGRAM_THREAT_TEACHER = 1u << 3u,
+};
+
+enum MRTaskThreatClass : mr_u32 {
+    MR_TASK_THREAT_NONE = 0u,
+    MR_TASK_THREAT_STEP_OVER = 1u,
+    MR_TASK_THREAT_SIDESTEP = 2u,
+    MR_TASK_THREAT_LEAN = 3u,
+    MR_TASK_THREAT_DUCK = 4u,
 };
 
 enum MRTaskObservationOpcode : mr_u32 {
@@ -101,6 +110,12 @@ enum MRTaskRewardOpcode : mr_u32 {
     // live, so standing discipline never suppresses a genuine dodge.
     MR_TASK_REWARD_PROJECTILE_SAFE_STILLNESS = 34u,
     MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE = 35u,
+    // Privileged training-only Joint-CBF supervision. The correction term
+    // measures the closed-form projection distance from the actor's desired
+    // joint velocity; the buffer term penalizes the predicted keep-out
+    // violation. Neither changes the deployed actor contract.
+    MR_TASK_REWARD_JOINT_CBF_CORRECTION = 36u,
+    MR_TASK_REWARD_JOINT_CBF_BUFFER = 37u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -228,6 +243,16 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_float4 visualRange;
     // Full/pixel dropout probabilities, depth jitter, noise sigma.
     mr_float4 visualCorruption;
+    // Protected contact-group index, enabled flag, and reserved lanes.
+    mr_uint4 threat;
+    // Activation speed, prediction horizon, safety margin, CBF alpha.
+    mr_float4 threatTiming;
+    // Root-relative step-over, sidestep, and lean height boundaries.
+    mr_float4 threatClassification;
+    // Urgency horizon, desired-velocity horizon, projection epsilon, reserved.
+    mr_float4 threatTeacher;
+    // Anchor global body, tracked-body count, feature count, arena byte offset.
+    mr_uint4 motion;
 } MRTaskProgramHeaderGPU;
 
 typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
@@ -290,6 +315,8 @@ typedef struct MR_ALIGN16 MRTaskImpactEventGPU {
     mr_uint4 binding;
     // Stable tilt, stable seconds, maximum flight seconds, minimum height.
     mr_float4 gate;
+    // Projectile collision-envelope radius and reserved values.
+    mr_float4 projectile;
 } MRTaskImpactEventGPU;
 
 typedef struct MR_ALIGN16 MRTaskBiasSpecGPU {
@@ -315,6 +342,15 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     // detected events, completed recoveries, previous touch, packed impact
     // sequence state (including the per-throw contact latch).
     mr_uint4 recoveryStats;
+    // Closest clearance, time to closest approach, root-relative strike
+    // height, and current barrier value.
+    mr_float4 threatGeometry;
+    // Joint-CBF correction RMS, keep-out buffer violation, projected actor
+    // margin, and urgency margin.
+    mr_float4 threatTeacher;
+    // Threatened global body, class, latched escape direction encoded as
+    // {-1,+1} shifted to {0,2}, and active impact event index.
+    mr_uint4 threatMetadata;
 } MRTaskStateGPU;
 
 // One compact task-wide curriculum controller remains device-resident across
@@ -351,7 +387,7 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 416u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 496u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
@@ -359,9 +395,9 @@ static_assert(sizeof(MRTaskIndexGroupGPU) == 16u);
 static_assert(sizeof(MRTaskRewardOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
-static_assert(sizeof(MRTaskImpactEventGPU) == 32u);
+static_assert(sizeof(MRTaskImpactEventGPU) == 48u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
-static_assert(sizeof(MRTaskStateGPU) == 112u);
+static_assert(sizeof(MRTaskStateGPU) == 160u);
 static_assert(sizeof(MRTaskCurriculumStateGPU) == 48u);
 static_assert(sizeof(MRTaskTransitionGPU) == 96u);
 #endif

@@ -1637,6 +1637,45 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         .operation = TaskRewardOperator::projectileMiss,
         .weight = 1.0f,
     });
+    task.threat = {
+        .protectedGroup = "robot",
+        .activationSpeed = 0.5f,
+        .horizonSeconds = 2.0f,
+        .safetyMargin = 0.05f,
+        .cbfAlpha = 2.0f,
+        .stepOverMaximumHeight = 0.35f,
+        .sidestepMaximumHeight = 0.75f,
+        .leanMaximumHeight = 1.10f,
+        .urgencySeconds = 0.35f,
+        .desiredVelocityHorizonSeconds = 0.20f,
+        .projectionEpsilon = 1.0e-5f,
+    };
+    task.motion = {
+        .anchorBody = "torso_link",
+        .trackedBodies = {
+            "pelvis",
+            "left_hip_roll_link",
+            "left_knee_link",
+            "left_ankle_roll_link",
+            "right_hip_roll_link",
+            "right_knee_link",
+            "right_ankle_roll_link",
+            "left_shoulder_roll_link",
+            "left_elbow_link",
+            "left_wrist_yaw_link",
+            "right_shoulder_roll_link",
+            "right_elbow_link",
+            "right_wrist_yaw_link",
+        },
+    };
+    task.rewards.push_back({
+        .operation = TaskRewardOperator::jointCbfCorrection,
+        .weight = -0.08f,
+    });
+    task.rewards.push_back({
+        .operation = TaskRewardOperator::jointCbfBuffer,
+        .weight = -0.20f,
+    });
     task.terminations.push_back({
         .operation = TaskTerminationOperator::projectileContact,
         .sourceGroup = "robot",

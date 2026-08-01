@@ -436,6 +436,7 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
     public let actorObservationCount: Int
     public let criticObservationCount: Int
     public let sceneBodyCount: Int
+    public let motionFeatureCount: Int
     public let submittedControlSteps: UInt64
     public let completedEnvironmentSteps: UInt64
     public let submissionCount: UInt64
@@ -458,6 +459,7 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
         criticObservationCount =
             Int(native.critic_observation_count)
         sceneBodyCount = Int(native.scene_body_count)
+        motionFeatureCount = Int(native.motion_feature_count)
         submittedControlSteps = native.submitted_control_steps
         completedEnvironmentSteps =
             native.completed_environment_steps
@@ -615,8 +617,10 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
     public let actorObservationCount: Int
     public let criticObservationCount: Int
     public let actionCount: Int
+    public let motionFeatureCount: Int
     public let actorObservations: [Float]
     public let criticObservations: [Float]
+    public let motionFeatures: [Float]
     public let latents: [Float]
     public let logProbabilities: [Float]
     public let values: [Float]
@@ -640,6 +644,8 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
                     first.actorObservationCount &&
                 $0.criticObservationCount ==
                     first.criticObservationCount &&
+                $0.motionFeatureCount ==
+                    first.motionFeatureCount &&
                 $0.actionCount == first.actionCount
         }) else {
             throw MetalRoboTaskRolloutError.invalidShape(
@@ -669,10 +675,12 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
             criticObservationCount:
                 first.criticObservationCount,
             actionCount: first.actionCount,
+            motionFeatureCount: first.motionFeatureCount,
             actorObservations:
                 batches.flatMap(\.actorObservations),
             criticObservations:
                 batches.flatMap(\.criticObservations),
+            motionFeatures: batches.flatMap(\.motionFeatures),
             latents: batches.flatMap(\.latents),
             logProbabilities:
                 batches.flatMap(\.logProbabilities),
@@ -1377,6 +1385,28 @@ public final class MetalRoboTaskRolloutContext {
         )
     }
 
+    public func motionFeatures(
+        controlStepCount: Int
+    ) throws -> [Float] {
+        let current = layout
+        let count = controlStepCount * current.environmentCount *
+            current.motionFeatureCount
+        guard count == 0 ||
+                mr_task_rollout_motion_features(handle) != nil
+        else {
+            throw MetalRoboTaskRolloutError.native(
+                "Task motion-feature stream is unavailable."
+            )
+        }
+        guard count != 0 else { return [] }
+        return Array(
+            UnsafeBufferPointer(
+                start: mr_task_rollout_motion_features(handle)!,
+                count: count
+            )
+        )
+    }
+
     public func transitions(
         controlStepCount: Int
     ) throws -> [MetalRoboTaskTransition] {
@@ -1507,10 +1537,14 @@ public final class MetalRoboTaskRolloutContext {
             criticObservationCount:
                 current.criticObservationCount,
             actionCount: current.actionCount,
+            motionFeatureCount: current.motionFeatureCount,
             actorObservations: try actorObservations(
                 controlStepCount: controlStepCount
             ),
             criticObservations: try criticObservations(
+                controlStepCount: controlStepCount
+            ),
+            motionFeatures: try motionFeatures(
                 controlStepCount: controlStepCount
             ),
             latents: try policyLatents(
@@ -1536,6 +1570,7 @@ public final class MetalRoboTaskRolloutContext {
         controlStepCount: Int,
         actorObservations: inout [Float],
         criticObservations: inout [Float],
+        motionFeatures: inout [Float],
         latents: inout [Float],
         logProbabilities: inout [Float],
         values: inout [Float],
@@ -1553,6 +1588,7 @@ public final class MetalRoboTaskRolloutContext {
             samples * current.actorObservationCount
         let criticCount =
             samples * current.criticObservationCount
+        let motionCount = samples * current.motionFeatureCount
         let latentCount = samples * current.actionCount
         guard let actor =
                   mr_task_rollout_actor_observations(handle),
@@ -1583,6 +1619,20 @@ public final class MetalRoboTaskRolloutContext {
                 count: criticCount
             )
         )
+        if motionCount != 0 {
+            guard let motion = mr_task_rollout_motion_features(handle)
+            else {
+                throw MetalRoboTaskRolloutError.native(
+                    "Native motion-feature stream is unavailable."
+                )
+            }
+            motionFeatures.append(
+                contentsOf: UnsafeBufferPointer(
+                    start: motion,
+                    count: motionCount
+                )
+            )
+        }
         latents.append(
             contentsOf: UnsafeBufferPointer(
                 start: latent,
@@ -1628,6 +1678,8 @@ public final class MetalRoboTaskRolloutContext {
               batch.criticObservationCount ==
                   current.criticObservationCount,
               batch.actionCount == current.actionCount,
+              batch.motionFeatureCount ==
+                  current.motionFeatureCount,
               bootstrapValues.count ==
                   current.environmentCount,
               batch.actorObservations.count ==
@@ -1636,6 +1688,9 @@ public final class MetalRoboTaskRolloutContext {
               batch.criticObservations.count ==
                   batch.sampleCount *
                   batch.criticObservationCount,
+              batch.motionFeatures.count ==
+                  batch.sampleCount *
+                  batch.motionFeatureCount,
               batch.latents.count ==
                   batch.sampleCount * batch.actionCount,
               batch.logProbabilities.count ==
@@ -1654,6 +1709,7 @@ public final class MetalRoboTaskRolloutContext {
             batch.actorObservations.count
         native.critic_observation_count =
             batch.criticObservations.count
+        native.motion_feature_count = batch.motionFeatures.count
         native.latent_count = batch.latents.count
         native.log_probability_count =
             batch.logProbabilities.count
@@ -1703,6 +1759,7 @@ public final class MetalRoboTaskRolloutContext {
             [
                 batch.actorObservations,
                 batch.criticObservations,
+                batch.motionFeatures,
                 batch.latents,
                 batch.logProbabilities,
                 batch.values,
@@ -1711,10 +1768,11 @@ public final class MetalRoboTaskRolloutContext {
         ) { buffers in
             native.actor_observations = buffers[0].baseAddress
             native.critic_observations = buffers[1].baseAddress
-            native.latents = buffers[2].baseAddress
-            native.log_probabilities = buffers[3].baseAddress
-            native.values = buffers[4].baseAddress
-            native.bootstrap_values = buffers[5].baseAddress
+            native.motion_features = buffers[2].baseAddress
+            native.latents = buffers[3].baseAddress
+            native.log_probabilities = buffers[4].baseAddress
+            native.values = buffers[5].baseAddress
+            native.bootstrap_values = buffers[6].baseAddress
             return nativeTransitions.withUnsafeBufferPointer {
                 transitions in
                 native.transitions = transitions.baseAddress

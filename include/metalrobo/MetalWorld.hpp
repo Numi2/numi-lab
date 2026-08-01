@@ -413,6 +413,7 @@ struct MetalWorldLayout {
     std::size_t actorObservationElements = 0u;
     std::size_t criticObservationElements = 0u;
     std::size_t transitionElements = 0u;
+    std::size_t motionFeatureElements = 0u;
     std::size_t policyLatentElements = 0u;
     std::size_t policyLogProbabilityElements = 0u;
     std::size_t policyValueElements = 0u;
@@ -550,6 +551,9 @@ struct MetalWorldResult {
     std::vector<float> actorObservations;
     std::vector<float> criticObservations;
     std::vector<MRTaskTransitionGPU> transitions;
+    // Training-only anchor-relative tracked-link poses, packed
+    // [control step][environment][feature].
+    std::vector<float> motionFeatures;
     std::vector<float> policyLatents;
     std::vector<float> policyLogProbabilities;
     std::vector<float> policyValues;

@@ -22,6 +22,7 @@ private struct Options {
     var deploymentPolicyPack: String?
     var rolloutPack: String?
     var learnerState: String?
+    var motionPack: String?
     var worldPack: String?
     var taskPack: String?
     var urdf: String?
@@ -124,6 +125,9 @@ private struct Options {
                 index += 1
             case "--learner-state":
                 learnerState = try value()
+                index += 1
+            case "--motion-pack":
+                motionPack = try value()
                 index += 1
             case "--world-pack":
                 worldPack = try value()
@@ -553,6 +557,9 @@ private final class MLXLearnerWorker {
         if options.fixedLearningRate {
             arguments.append("--fixed-learning-rate")
         }
+        if let motionPack = options.motionPack {
+            arguments.append(contentsOf: ["--motion-pack", motionPack])
+        }
         process.arguments = arguments
         process.environment = mlxEnvironment(options: options)
         process.standardInput = input
@@ -901,6 +908,7 @@ private enum TaskTrainMain {
                 options.environments * options.steps
             var actorObservations: [Float] = []
             var criticObservations: [Float] = []
+            var motionFeatures: [Float] = []
             var latents: [Float] = []
             var logProbabilities: [Float] = []
             var values: [Float] = []
@@ -912,6 +920,9 @@ private enum TaskTrainMain {
             criticObservations.reserveCapacity(
                 samplesPerUpdate *
                     layout.criticObservationCount
+            )
+            motionFeatures.reserveCapacity(
+                samplesPerUpdate * layout.motionFeatureCount
             )
             latents.reserveCapacity(
                 samplesPerUpdate * layout.actionCount
@@ -927,6 +938,7 @@ private enum TaskTrainMain {
                 criticObservations.removeAll(
                     keepingCapacity: true
                 )
+                motionFeatures.removeAll(keepingCapacity: true)
                 latents.removeAll(keepingCapacity: true)
                 logProbabilities.removeAll(keepingCapacity: true)
                 values.removeAll(keepingCapacity: true)
@@ -956,6 +968,7 @@ private enum TaskTrainMain {
                             &actorObservations,
                         criticObservations:
                             &criticObservations,
+                        motionFeatures: &motionFeatures,
                         latents: &latents,
                         logProbabilities:
                             &logProbabilities,
@@ -999,8 +1012,11 @@ private enum TaskTrainMain {
                     criticObservationCount:
                         layout.criticObservationCount,
                     actionCount: layout.actionCount,
+                    motionFeatureCount:
+                        layout.motionFeatureCount,
                     actorObservations: actorObservations,
                     criticObservations: criticObservations,
+                    motionFeatures: motionFeatures,
                     latents: latents,
                     logProbabilities: logProbabilities,
                     values: values,

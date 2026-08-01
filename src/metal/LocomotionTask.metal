@@ -925,6 +925,405 @@ kernel void mr_locomotion_task_latch_impact_contact(
     }
 }
 
+kernel void mr_locomotion_task_select_threat_query(
+    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
+    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
+    device const uchar* arena [[buffer(2)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(3)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(4)]],
+    device const MRBodyStateGPU* bodyStates [[buffer(5)]],
+    device MRTaskStateGPU* taskStates [[buffer(6)]],
+    device MRArticulatedPointImpulseGPU* pointQueries [[buffer(7)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        dispatch.worldFingerprint != program.worldFingerprint ||
+        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        program.threat.y == 0u ||
+        program.threat.x >= program.counts0.w ||
+        contactDispatch.pointQueryStride == 0u) {
+        return;
+    }
+    device const MRTaskContactGroupGPU* groups =
+        taskTable<MRTaskContactGroupGPU>(arena, program.offsets0.w);
+    device const uint* members =
+        taskTable<uint>(arena, program.offsets1.x);
+    device const float* memberRadii =
+        taskTable<float>(arena, program.offsets3.w);
+    device const MRTaskImpactEventGPU* impactEvents =
+        taskTable<MRTaskImpactEventGPU>(arena, program.offsets3.z);
+
+    MRTaskStateGPU state = taskStates[environment];
+    const uint queryBase =
+        environment * contactDispatch.pointQueryStride;
+    MRArticulatedPointImpulseGPU query = {};
+    query.bodyIndex = program.root.y;
+    query.localPoint = float4(0.0f);
+    pointQueries[queryBase] = query;
+
+    const uint order = impactOrder(state);
+    if (!impactSequenceEnabled(state) ||
+        impactScene(state) == 0u ||
+        order >= program.counts3.x) {
+        state.threatGeometry = float4(0.0f);
+        state.threatTeacher = float4(0.0f);
+        state.threatMetadata = uint4(
+            MR_INVALID_INDEX,
+            MR_TASK_THREAT_NONE,
+            0u,
+            MR_INVALID_INDEX
+        );
+        taskStates[environment] = state;
+        return;
+    }
+    const uint activeEvent =
+        (order + impactOffset(state)) % program.counts3.x;
+    const MRTaskImpactEventGPU event = impactEvents[activeEvent];
+    const uint bodyBase =
+        environment * contactDispatch.bodyStateStride;
+    const MRBodyStateGPU projectile =
+        bodyStates[bodyBase + event.binding.w];
+    const float3 velocity =
+        projectile.linearVelocityAndInverseMass.xyz;
+    const float horizontalSpeedSquared = dot(velocity.xy, velocity.xy);
+    if (length(velocity) < program.threatTiming.x ||
+        horizontalSpeedSquared < 1.0e-6f) {
+        state.threatGeometry = float4(0.0f);
+        state.threatTeacher = float4(0.0f);
+        state.threatMetadata = uint4(
+            MR_INVALID_INDEX,
+            MR_TASK_THREAT_NONE,
+            0u,
+            MR_INVALID_INDEX
+        );
+        taskStates[environment] = state;
+        return;
+    }
+
+    const MRTaskContactGroupGPU protectedGroup = groups[program.threat.x];
+    float bestClearance = INFINITY;
+    float bestTime = 0.0f;
+    float bestStrikeHeight = 0.0f;
+    uint bestBody = MR_INVALID_INDEX;
+    const float projectileRadius = event.projectile.x;
+    for (uint local = 0u; local < protectedGroup.members.y; ++local) {
+        const uint memberOffset = protectedGroup.members.x + local;
+        const uint body = members[memberOffset];
+        const float radius = memberRadii[memberOffset];
+        if (!(radius > 0.0f)) {
+            continue;
+        }
+        const float3 linkPosition = bodyStates[bodyBase + body].position.xyz;
+        const float2 horizontalRelative =
+            projectile.position.xy - linkPosition.xy;
+        const float time = clamp(
+            -dot(horizontalRelative, velocity.xy) /
+                horizontalSpeedSquared,
+            0.0f,
+            program.threatTiming.y
+        );
+        const float3 predictedProjectile =
+            projectile.position.xyz + velocity * time +
+            0.5f * program.projectileGravity.xyz * time * time;
+        const float safeRadius =
+            radius + projectileRadius + program.threatTiming.z;
+        const float clearance =
+            length(predictedProjectile - linkPosition) - safeRadius;
+        if (clearance < bestClearance) {
+            bestClearance = clearance;
+            bestTime = time;
+            bestBody = body;
+            bestStrikeHeight = predictedProjectile.z -
+                bodyStates[bodyBase + program.root.y].position.z;
+        }
+    }
+    if (bestBody == MR_INVALID_INDEX ||
+        bestTime <= 0.0f ||
+        bestTime >= program.threatTiming.y) {
+        state.threatGeometry = float4(0.0f);
+        state.threatTeacher = float4(0.0f);
+        state.threatMetadata = uint4(
+            MR_INVALID_INDEX,
+            MR_TASK_THREAT_NONE,
+            0u,
+            MR_INVALID_INDEX
+        );
+        taskStates[environment] = state;
+        return;
+    }
+
+    uint threatClass = MR_TASK_THREAT_DUCK;
+    if (bestStrikeHeight <= program.threatClassification.x) {
+        threatClass = MR_TASK_THREAT_STEP_OVER;
+    } else if (bestStrikeHeight <= program.threatClassification.y) {
+        threatClass = MR_TASK_THREAT_SIDESTEP;
+    } else if (bestStrikeHeight <= program.threatClassification.z) {
+        threatClass = MR_TASK_THREAT_LEAN;
+    }
+    uint escape = state.threatMetadata.z;
+    if (state.threatMetadata.w != activeEvent || escape > 2u ||
+        escape == 1u) {
+        const float2 rootDelta =
+            bodyStates[bodyBase + program.root.y].position.xy -
+            projectile.position.xy;
+        const float crossTrack =
+            velocity.x * rootDelta.y - velocity.y * rootDelta.x;
+        const float sign = abs(crossTrack) > 1.0e-4f
+            ? (crossTrack > 0.0f ? 1.0f : -1.0f)
+            : ((environment & 1u) == 0u ? 1.0f : -1.0f);
+        escape = sign > 0.0f ? 2u : 0u;
+    }
+    query.bodyIndex = bestBody;
+    pointQueries[queryBase] = query;
+    state.threatGeometry = float4(
+        bestClearance,
+        bestTime,
+        bestStrikeHeight,
+        bestClearance
+    );
+    state.threatTeacher = float4(0.0f);
+    state.threatMetadata = uint4(
+        bestBody,
+        threatClass,
+        escape,
+        activeEvent
+    );
+    taskStates[environment] = state;
+}
+
+kernel void mr_locomotion_task_joint_cbf_teacher(
+    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
+    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
+    device const uchar* arena [[buffer(2)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(3)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(4)]],
+    device const float* qState [[buffer(5)]],
+    device const float* vState [[buffer(6)]],
+    device const float* actionStream [[buffer(7)]],
+    device const float* defaultQ [[buffer(8)]],
+    device const MRBodyStateGPU* bodyStates [[buffer(9)]],
+    device const float* pointJacobians [[buffer(10)]],
+    device const MRArticulatedOperatorStatusGPU* operatorStatuses
+        [[buffer(11)]],
+    device MRTaskStateGPU* taskStates [[buffer(12)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        dispatch.worldFingerprint != program.worldFingerprint ||
+        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        program.threat.y == 0u) {
+        return;
+    }
+    MRTaskStateGPU state = taskStates[environment];
+    if (state.threatMetadata.x == MR_INVALID_INDEX ||
+        state.threatMetadata.w == MR_INVALID_INDEX ||
+        operatorStatuses[environment].code !=
+            MR_ARTICULATED_OPERATOR_SUCCESS) {
+        state.threatTeacher = float4(0.0f);
+        taskStates[environment] = state;
+        return;
+    }
+    device const MRTaskActionBindingGPU* actions =
+        taskTable<MRTaskActionBindingGPU>(arena, program.offsets0.x);
+    device const MRTaskImpactEventGPU* impactEvents =
+        taskTable<MRTaskImpactEventGPU>(arena, program.offsets3.z);
+    device const MRTaskContactGroupGPU* groups =
+        taskTable<MRTaskContactGroupGPU>(arena, program.offsets0.w);
+    device const uint* members =
+        taskTable<uint>(arena, program.offsets1.x);
+    device const float* memberRadii =
+        taskTable<float>(arena, program.offsets3.w);
+    const MRTaskImpactEventGPU event =
+        impactEvents[state.threatMetadata.w];
+    const uint bodyBase =
+        environment * contactDispatch.bodyStateStride;
+    const MRBodyStateGPU projectile =
+        bodyStates[bodyBase + event.binding.w];
+    const MRBodyStateGPU threatened =
+        bodyStates[bodyBase + state.threatMetadata.x];
+    const float time = state.threatGeometry.y;
+    const float3 predictedProjectile =
+        projectile.position.xyz +
+        projectile.linearVelocityAndInverseMass.xyz * time +
+        0.5f * program.projectileGravity.xyz * time * time;
+    float3 separation = threatened.position.xyz - predictedProjectile;
+    const float escapeSign = state.threatMetadata.z == 2u ? 1.0f : -1.0f;
+    if (length(separation.xy) < 1.0e-3f) {
+        const float2 horizontalVelocity =
+            projectile.linearVelocityAndInverseMass.xy;
+        const float horizontalSpeed = length(horizontalVelocity);
+        const float2 flight = horizontalSpeed > 1.0e-6f
+            ? horizontalVelocity / horizontalSpeed
+            : float2(1.0f, 0.0f);
+        separation.xy =
+            escapeSign * float2(-flight.y, flight.x) * 1.0e-3f;
+    }
+    const float distance = max(length(separation), 1.0e-6f);
+    float linkRadius = 0.0f;
+    const MRTaskContactGroupGPU group = groups[program.threat.x];
+    for (uint local = 0u; local < group.members.y; ++local) {
+        const uint offset = group.members.x + local;
+        if (members[offset] == state.threatMetadata.x) {
+            linkRadius = memberRadii[offset];
+            break;
+        }
+    }
+    const float safeRadius =
+        linkRadius + event.projectile.x + program.threatTiming.z;
+    const float h = distance * distance - safeRadius * safeRadius;
+    const uint jacobianBase =
+        environment * contactDispatch.pointQueryStride *
+        3u * dispatch.counts.w;
+    const uint qBase = environment * dispatch.counts.z;
+    const uint vBase = environment * dispatch.counts.w;
+    const uint actionBase =
+        pass.controlStep * dispatch.strides.x +
+        environment * program.counts0.x;
+    float3 desiredPointVelocity = float3(0.0f);
+    for (uint dof = 0u; dof < dispatch.counts.w; ++dof) {
+        const float velocity = vState[vBase + dof];
+        desiredPointVelocity += float3(
+            pointJacobians[jacobianBase + 0u * dispatch.counts.w + dof],
+            pointJacobians[jacobianBase + 1u * dispatch.counts.w + dof],
+            pointJacobians[jacobianBase + 2u * dispatch.counts.w + dof]
+        ) * velocity;
+    }
+    float gradientNormSquared = 0.0f;
+    for (uint action = 0u; action < program.counts0.x; ++action) {
+        const MRTaskActionBindingGPU binding = actions[action];
+        const uint dof = binding.indices.w - program.root.w;
+        if (dof >= dispatch.counts.w) {
+            continue;
+        }
+        const float target = clamp(
+            defaultQ[binding.indices.z] +
+                binding.parameters.x * clamp(
+                    actionStream[actionBase + action],
+                    -1.0f,
+                    1.0f
+                ),
+            binding.parameters.y,
+            binding.parameters.z
+        );
+        const float desiredVelocity =
+            (target - qState[qBase + binding.indices.z]) /
+            program.threatTeacher.y;
+        const float currentVelocity = vState[vBase + binding.indices.w];
+        const float3 column = float3(
+            pointJacobians[jacobianBase + 0u * dispatch.counts.w + dof],
+            pointJacobians[jacobianBase + 1u * dispatch.counts.w + dof],
+            pointJacobians[jacobianBase + 2u * dispatch.counts.w + dof]
+        );
+        desiredPointVelocity += column *
+            (desiredVelocity - currentVelocity);
+        const float gradient = 2.0f * dot(separation, column);
+        gradientNormSquared += gradient * gradient;
+    }
+    const float3 projectileVelocity =
+        projectile.linearVelocityAndInverseMass.xyz +
+        program.projectileGravity.xyz * time;
+    const float barrierRate = 2.0f * dot(
+        separation,
+        desiredPointVelocity - projectileVelocity
+    );
+    const float urgencyFraction = clamp(
+        (program.threatTeacher.x - time) /
+            program.threatTeacher.x,
+        0.0f,
+        1.0f
+    );
+    const float urgency =
+        urgencyFraction * safeRadius * safeRadius /
+        program.threatTeacher.x;
+    const float constraint =
+        barrierRate + program.threatTiming.w * h;
+    const float deficit = max(urgency - constraint, 0.0f);
+    const float projectionScale = deficit /
+        (gradientNormSquared + program.threatTeacher.z);
+    const float correctionRms = projectionScale * sqrt(
+        gradientNormSquared /
+        max(float(program.counts0.x), 1.0f)
+    );
+    state.threatGeometry.w = constraint;
+    state.threatTeacher = float4(
+        correctionRms,
+        max(safeRadius - distance, 0.0f),
+        constraint + projectionScale * gradientNormSquared - urgency,
+        urgency
+    );
+    taskStates[environment] = state;
+}
+
+kernel void mr_locomotion_task_motion_features(
+    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
+    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
+    device const uchar* arena [[buffer(2)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(3)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(4)]],
+    device const MRBodyStateGPU* bodyStates [[buffer(5)]],
+    device float* features [[buffer(6)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        dispatch.worldFingerprint != program.worldFingerprint ||
+        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        program.motion.y == 0u ||
+        program.motion.z != 9u * program.motion.y) {
+        return;
+    }
+    device const uint* trackedBodies =
+        taskTable<uint>(arena, program.motion.w);
+    const uint bodyBase =
+        environment * contactDispatch.bodyStateStride;
+    const MRBodyStateGPU anchor =
+        bodyStates[bodyBase + program.motion.x];
+    const float4 inverseAnchor = float4(
+        -anchor.orientation.xyz,
+        anchor.orientation.w
+    );
+    const uint outputBase =
+        (pass.controlStep * dispatch.counts.x + environment) *
+        program.motion.z;
+    for (uint index = 0u; index < program.motion.y; ++index) {
+        const MRBodyStateGPU body =
+            bodyStates[bodyBase + trackedBodies[index]];
+        const float3 position = rotateInverse(
+            anchor.orientation,
+            body.position.xyz - anchor.position.xyz
+        );
+        float4 orientation = quaternionProduct(
+            inverseAnchor,
+            body.orientation
+        );
+        orientation *= orientation.w < 0.0f ? -1.0f : 1.0f;
+        const float x = orientation.x;
+        const float y = orientation.y;
+        const float z = orientation.z;
+        const float w = orientation.w;
+        const uint base = outputBase + 9u * index;
+        features[base + 0u] = position.x;
+        features[base + 1u] = position.y;
+        features[base + 2u] = position.z;
+        // First two rotation-matrix columns, row-major, matching PAC-MAN's
+        // continuous 6D orientation representation.
+        features[base + 3u] = 1.0f - 2.0f * (y * y + z * z);
+        features[base + 4u] = 2.0f * (x * y - z * w);
+        features[base + 5u] = 2.0f * (x * y + z * w);
+        features[base + 6u] = 1.0f - 2.0f * (x * x + z * z);
+        features[base + 7u] = 2.0f * (x * z - y * w);
+        features[base + 8u] = 2.0f * (y * z + x * w);
+    }
+}
+
 kernel void mr_locomotion_task_observe(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -1530,6 +1929,14 @@ kernel void mr_locomotion_task_observe(
         );
         state.recovery = float4(0.0f);
         state.recoveryStats = uint4(0u);
+        state.threatGeometry = float4(0.0f);
+        state.threatTeacher = float4(0.0f);
+        state.threatMetadata = uint4(
+            MR_INVALID_INDEX,
+            MR_TASK_THREAT_NONE,
+            0u,
+            MR_INVALID_INDEX
+        );
         const bool projectileEpisode = randomUnit(
             dispatch,
             environment,
@@ -3043,6 +3450,16 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE:
             value = !projectileThreat ? actionRateSquared : 0.0f;
             break;
+        case MR_TASK_REWARD_JOINT_CBF_CORRECTION:
+            value = state.threatMetadata.x != MR_INVALID_INDEX
+                ? state.threatTeacher.x
+                : 0.0f;
+            break;
+        case MR_TASK_REWARD_JOINT_CBF_BUFFER:
+            value = state.threatMetadata.x != MR_INVALID_INDEX
+                ? state.threatTeacher.y
+                : 0.0f;
+            break;
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
             value = velocitySquared;
             break;
@@ -3322,6 +3739,8 @@ kernel void mr_locomotion_task_complete(
             break;
         case MR_TASK_REWARD_ACTION_RATE_SQUARED:
         case MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE:
+        case MR_TASK_REWARD_JOINT_CBF_CORRECTION:
+        case MR_TASK_REWARD_JOINT_CBF_BUFFER:
             rewardBreakdown1.x += contribution;
             break;
         case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED:

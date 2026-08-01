@@ -104,6 +104,7 @@ typedef struct MRTaskRolloutLayoutC {
     uint32_t actor_observation_count;
     uint32_t critic_observation_count;
     uint32_t scene_body_count;
+    uint32_t motion_feature_count;
     uint64_t submitted_control_steps;
     uint64_t completed_environment_steps;
     uint64_t submission_count;
@@ -239,6 +240,8 @@ typedef struct MRPolicyRolloutBatchC {
     size_t actor_observation_count;
     const float* critic_observations;
     size_t critic_observation_count;
+    const float* motion_features;
+    size_t motion_feature_count;
     const float* latents;
     size_t latent_count;
     const float* log_probabilities;
@@ -595,6 +598,9 @@ MR_API const float* mr_task_rollout_actor_observations(
     const MRTaskRolloutHandle* handle
 );
 MR_API const float* mr_task_rollout_critic_observations(
+    const MRTaskRolloutHandle* handle
+);
+MR_API const float* mr_task_rollout_motion_features(
     const MRTaskRolloutHandle* handle
 );
 MR_API const MRTaskTransitionC* mr_task_rollout_transitions(

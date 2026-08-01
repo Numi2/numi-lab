@@ -33,7 +33,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 220u;
+constexpr std::size_t kRawBufferCount = 221u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -275,6 +275,7 @@ enum BufferIndex : std::size_t {
     kPolicyLogProbabilities = 217u,
     kPolicyValues = 218u,
     kTaskCurriculumState = 219u,
+    kTaskMotionFeatures = 220u,
 };
 
 struct BufferRequirement {
@@ -320,6 +321,9 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState>
         parameterizedOperatorPipeline = nil;
     __strong id<MTLComputePipelineState> taskObservePipeline = nil;
+    __strong id<MTLComputePipelineState> taskThreatSelectPipeline = nil;
+    __strong id<MTLComputePipelineState> taskJointCbfPipeline = nil;
+    __strong id<MTLComputePipelineState> taskMotionPipeline = nil;
     __strong id<MTLComputePipelineState> taskApplyPipeline = nil;
     __strong id<MTLComputePipelineState> taskEffortPipeline = nil;
     __strong id<MTLComputePipelineState> taskImpactContactPipeline = nil;
@@ -2774,6 +2778,11 @@ bool buildRequirements(
             requirements.entries[kTaskTransitions]
         ) ||
         !makeRequirement<float>(
+            "native motion-prior features",
+            layout.motionFeatureElements,
+            requirements.entries[kTaskMotionFeatures]
+        ) ||
+        !makeRequirement<float>(
             "native compact contact metrics",
             taskContactElements,
             requirements.entries[kTaskContactCompact]
@@ -3637,6 +3646,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 nativePolicy ? actorEvaluationCount : 0u,
                 taskLayout.actionCount,
                 layout.policyLatentElements
+            ) ||
+            !checkedMultiply(
+                transitionCount,
+                taskLayout.motionFeatureCount,
+                layout.motionFeatureElements
             )) {
             return reject(
                 std::move(diagnostics),
@@ -3855,6 +3869,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         layout.actorObservationElements,
         layout.criticObservationElements,
         layout.transitionElements,
+        layout.motionFeatureElements,
         layout.policyLatentElements,
         layout.policyLogProbabilityElements,
         layout.policyValueElements,
@@ -4245,6 +4260,8 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld critic observations";
     case kTaskTransitions:
         return @"MetalWorld task transitions";
+    case kTaskMotionFeatures:
+        return @"MetalWorld motion-prior features";
     case kTaskContactCompact:
         return @"MetalWorld resident compact contact metrics";
     case kTaskDefaultQ:
@@ -4503,6 +4520,9 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState>
         parameterizedOperatorPipeline = nil;
     __strong id<MTLComputePipelineState> taskObserve = nil;
+    __strong id<MTLComputePipelineState> taskThreatSelect = nil;
+    __strong id<MTLComputePipelineState> taskJointCbf = nil;
+    __strong id<MTLComputePipelineState> taskMotion = nil;
     __strong id<MTLComputePipelineState> taskApply = nil;
     __strong id<MTLComputePipelineState> taskEffort = nil;
     __strong id<MTLComputePipelineState> taskImpactContact = nil;
@@ -4613,6 +4633,15 @@ MetalWorldDiagnostics initializeContext(
     );
     taskObserve =
         createContactPipeline(@"mr_locomotion_task_observe");
+    taskThreatSelect = createContactPipeline(
+        @"mr_locomotion_task_select_threat_query"
+    );
+    taskJointCbf = createContactPipeline(
+        @"mr_locomotion_task_joint_cbf_teacher"
+    );
+    taskMotion = createContactPipeline(
+        @"mr_locomotion_task_motion_features"
+    );
     taskApply =
         createContactPipeline(@"mr_locomotion_task_apply_actions");
     taskEffort =
@@ -4854,6 +4883,9 @@ MetalWorldDiagnostics initializeContext(
     if (operatorPipeline == nil ||
         parameterizedOperatorPipeline == nil ||
         taskObserve == nil ||
+        taskThreatSelect == nil ||
+        taskJointCbf == nil ||
+        taskMotion == nil ||
         taskApply == nil ||
         taskEffort == nil ||
         taskImpactContact == nil ||
@@ -5153,6 +5185,9 @@ MetalWorldDiagnostics initializeContext(
     context.parameterizedOperatorPipeline =
         parameterizedOperatorPipeline;
     context.taskObservePipeline = taskObserve;
+    context.taskThreatSelectPipeline = taskThreatSelect;
+    context.taskJointCbfPipeline = taskJointCbf;
+    context.taskMotionPipeline = taskMotion;
     context.taskApplyPipeline = taskApply;
     context.taskEffortPipeline = taskEffort;
     context.taskImpactContactPipeline = taskImpactContact;
@@ -5263,7 +5298,7 @@ MetalWorldDiagnostics initializeContext(
             pairNarrowphase.threadExecutionWidth
         );
     context.initialized = true;
-    context.stats.pipelineCreationCount += 82u;
+    context.stats.pipelineCreationCount += 85u;
     return diagnostics;
 }
 
@@ -8613,6 +8648,176 @@ bool encodeDeviceObservationBodies(
             0u,
             environmentCount
         );
+}
+
+bool encodeTaskThreatSelect(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskThreatSelectPipeline,
+        @"compiled task predictive threat selection",
+        {
+            {0u, kTaskDispatch},
+            {1u, kTaskProgramHeader},
+            {2u, kTaskProgramArena},
+            {3u, kContactDispatch},
+            {5u, kCurrentBodies},
+            {6u, kTaskState},
+            {7u, kPointQueries},
+        },
+        &pass,
+        4u,
+        environmentCount
+    );
+}
+
+bool encodeTaskThreatJacobians(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const std::size_t qBuffer,
+    const std::size_t environmentCount
+) {
+    if (context.boundArticulations.size() != 1u ||
+        context.boundFactorDispatches.size() != 1u) {
+        return false;
+    }
+    MRArticulatedOperatorDispatchGPU dispatch =
+        context.boundFactorDispatches.front();
+    dispatch.pointCount = 1u;
+    dispatch.flags =
+        MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY;
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label = @"compiled task privileged threat Jacobian";
+    id<MTLComputePipelineState> pipeline =
+        context.useTaskBodyParameters
+        ? context.parameterizedOperatorPipeline
+        : context.operatorPipeline;
+    [encoder setComputePipelineState:pipeline];
+    const std::array<std::size_t, 15u> buffers{{
+        kWorld,
+        kArticulations,
+        kJoints,
+        kDofs,
+        kBodies,
+        kOperatorFactorDispatch,
+        qBuffer,
+        kPointQueries,
+        kBodyPoses,
+        kPointWorld,
+        kFactorMatrix,
+        kPointJacobians,
+        kGeneralizedImpulse,
+        kDeltaVelocity,
+        kOperatorStatuses,
+    }};
+    for (NSUInteger argument = 0u;
+         argument < buffers.size();
+         ++argument) {
+        if (argument == 5u) {
+            [encoder setBytes:&dispatch
+                       length:sizeof(dispatch)
+                      atIndex:argument];
+        } else {
+            [encoder setBuffer:context.buffers[buffers[argument]]
+                         offset:0u
+                        atIndex:argument];
+        }
+    }
+    if (context.useTaskBodyParameters) {
+        [encoder setBuffer:context.buffers[kTaskBodyParameters]
+                     offset:0u
+                    atIndex:15u];
+        [encoder setBuffer:context.buffers[kTaskControllerParameters]
+                     offset:0u
+                    atIndex:16u];
+    }
+    const MRArticulationGPU& articulation =
+        context.boundArticulations.front();
+    [encoder setThreadgroupMemoryLength:
+                 detail::articulatedOperatorThreadgroupBytes(
+                     articulation.bodyCount,
+                     articulation.nv
+                 )
+                               atIndex:0u];
+    [encoder dispatchThreadgroups:MTLSizeMake(
+                                        environmentCount,
+                                        1u,
+                                        1u
+                                    )
+             threadsPerThreadgroup:MTLSizeMake(
+                                        kOperatorThreadsPerThreadgroup,
+                                        1u,
+                                        1u
+                                    )];
+    [encoder endEncoding];
+    return true;
+}
+
+bool encodeTaskJointCbf(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t qState,
+    const std::size_t vState,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskJointCbfPipeline,
+        @"compiled task privileged Joint-CBF teacher",
+        {
+            {0u, kTaskDispatch},
+            {1u, kTaskProgramHeader},
+            {2u, kTaskProgramArena},
+            {3u, kContactDispatch},
+            {5u, qState},
+            {6u, vState},
+            {7u, kTaskActions},
+            {8u, kTaskDefaultQ},
+            {9u, kCurrentBodies},
+            {10u, kPointJacobians},
+            {11u, kOperatorStatuses},
+            {12u, kTaskState},
+        },
+        &pass,
+        4u,
+        environmentCount
+    );
+}
+
+bool encodeTaskMotionFeatures(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskMotionPipeline,
+        @"compiled task tracked-link motion features",
+        {
+            {0u, kTaskDispatch},
+            {1u, kTaskProgramHeader},
+            {2u, kTaskProgramArena},
+            {3u, kContactDispatch},
+            {5u, kCurrentBodies},
+            {6u, kTaskMotionFeatures},
+        },
+        &pass,
+        4u,
+        environmentCount
+    );
 }
 
 bool encodePolicyInference(
@@ -12951,6 +13156,7 @@ MetalWorldDiagnostics validateAndPublish(
     if (diagnostics.layout.actionElements != 0u) {
         if (!finiteFloats(staged.actorObservations) ||
             !finiteFloats(staged.criticObservations) ||
+            !finiteFloats(staged.motionFeatures) ||
             !finiteFloats(staged.policyLatents) ||
             !finiteFloats(
                 staged.policyLogProbabilities
@@ -14965,6 +15171,9 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 staged.transitions.resize(
                     staged.layout.transitionElements
                 );
+                staged.motionFeatures.resize(
+                    staged.layout.motionFeatureElements
+                );
                 staged.policyLatents.resize(
                     staged.layout.policyLatentElements
                 );
@@ -15099,6 +15308,10 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 copyOutput(
                     staged.transitions,
                     buffers[kTaskTransitions]
+                );
+                copyOutput(
+                    staged.motionFeatures,
+                    buffers[kTaskMotionFeatures]
                 );
                 if (staged.layout.policyLatentElements != 0u) {
                     copyOutput(
@@ -15588,6 +15801,13 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             const bool taskTracksImpactContacts =
                 nativeTask &&
                 !config.taskProgram.impactEvents().empty();
+            const bool taskHasThreatTeacher =
+                nativeTask &&
+                (config.taskProgram.header().schedule.w &
+                 MR_TASK_PROGRAM_THREAT_TEACHER) != 0u;
+            const bool taskHasMotionPrior =
+                nativeTask &&
+                config.taskProgram.layout().motionFeatureCount != 0u;
             selectedState->useTaskBodyParameters = nativeTask;
             selectedState->stats.memoryPlan =
                 diagnostics.layout.memoryPlan;
@@ -15753,8 +15973,12 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             "failed to encode native observation pass"
                         );
                     }
-                    if (config.deviceObservationProgram.valid()) {
-                        if (!encodeDeviceObservationBodies(
+                    const bool needsObservationBodies =
+                        config.deviceObservationProgram.valid() ||
+                        taskHasThreatTeacher ||
+                        taskHasMotionPrior;
+                    if (needsObservationBodies &&
+                        !encodeDeviceObservationBodies(
                                 *selectedState,
                                 commandBuffer,
                                 pass,
@@ -15769,7 +15993,40 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 MetalWorldHostStatus::metalCommandFailure,
                                 "failed to encode observation-time body projection"
                             );
-                        }
+                    }
+                    if (taskHasThreatTeacher &&
+                        (!encodeTaskThreatSelect(
+                             *selectedState,
+                             commandBuffer,
+                             pass,
+                             batch.environmentCount
+                         ) ||
+                         !encodeTaskThreatJacobians(
+                             *selectedState,
+                             commandBuffer,
+                             sourceQ,
+                             batch.environmentCount
+                         ))) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalWorldHostStatus::metalCommandFailure,
+                            "failed to encode predictive threat/Jacobian pass"
+                        );
+                    }
+                    if (taskHasMotionPrior &&
+                        !encodeTaskMotionFeatures(
+                            *selectedState,
+                            commandBuffer,
+                            pass,
+                            batch.environmentCount
+                        )) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalWorldHostStatus::metalCommandFailure,
+                            "failed to encode tracked-link motion features"
+                        );
+                    }
+                    if (config.deviceObservationProgram.valid()) {
                         const TaskProgramLayout& taskLayout =
                             config.taskProgram.layout();
                         const MetalWorldDeviceObservationPass observation{
@@ -15820,6 +16077,21 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             std::move(diagnostics),
                             MetalWorldHostStatus::metalCommandFailure,
                             "failed to encode native policy inference pass"
+                        );
+                    }
+                    if (taskHasThreatTeacher &&
+                        !encodeTaskJointCbf(
+                            *selectedState,
+                            commandBuffer,
+                            pass,
+                            sourceQ,
+                            sourceV,
+                            batch.environmentCount
+                        )) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalWorldHostStatus::metalCommandFailure,
+                            "failed to encode privileged Joint-CBF teacher"
                         );
                     }
                     if (!encodeTaskApplyActions(

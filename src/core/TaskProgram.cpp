@@ -36,6 +36,7 @@ struct CompiledTaskProgram::Storage {
     std::vector<MRTaskRandomizationOperatorGPU>
         randomizationOperators;
     std::vector<MRTaskImpactEventGPU> impactEvents;
+    std::vector<std::uint32_t> motionBodies;
     std::vector<MRTaskBiasSpecGPU> biasSpecs;
     std::vector<mr_float4> terrainSampleOffsets;
     std::vector<mr_float4> terrainResetTranslations;
@@ -458,6 +459,13 @@ CompiledTaskProgram::impactEvents() const noexcept {
               storage_->impactEvents
           }
         : std::span<const MRTaskImpactEventGPU>{};
+}
+
+std::span<const std::uint32_t>
+CompiledTaskProgram::motionBodies() const noexcept {
+    return valid()
+        ? std::span<const std::uint32_t>{storage_->motionBodies}
+        : std::span<const std::uint32_t>{};
 }
 
 std::span<const MRTaskBiasSpecGPU>
@@ -1549,6 +1557,8 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::projectileMiss:
         case TaskRewardOperator::projectileSafeStillness:
         case TaskRewardOperator::projectileSafeActionRate:
+        case TaskRewardOperator::jointCbfCorrection:
+        case TaskRewardOperator::jointCbfBuffer:
             break;
         case TaskRewardOperator::projectileEvasion: {
             bool ambiguous = false;
@@ -1663,6 +1673,17 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 "projectile_safe_stillness",
                 "projectile-safe stillness requires a positive velocity scale"
+            );
+        }
+        if ((reward.operation ==
+                 TaskRewardOperator::jointCbfCorrection ||
+             reward.operation ==
+                 TaskRewardOperator::jointCbfBuffer) &&
+            pack.threat.protectedGroup.empty()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "joint_cbf",
+                "Joint-CBF rewards require a compiled threat program"
             );
         }
         if (reward.operation ==
@@ -2126,6 +2147,25 @@ TaskCompileDiagnostics compileTaskProgram(
                     "event impact sequence order is duplicated"
                 );
             }
+            float projectileRadius = 0.0f;
+            for (const MRShapeGPU& shape : model.shapes) {
+                if (shape.bodyIndex == targetBodyIndex &&
+                    (shape.flags &
+                     MR_SHAPE_FLAG_SIMULATION_DISABLED) == 0u) {
+                    projectileRadius = std::max(
+                        projectileRadius,
+                        shape.contactRestAndBoundingRadius.z
+                    );
+                }
+            }
+            if (!(projectileRadius > 0.0f) ||
+                !finite(projectileRadius)) {
+                return reject(
+                    TaskCompileStatus::invalidWorld,
+                    random.target,
+                    "event projectile has no finite collision envelope"
+                );
+            }
             staged->impactEvents.push_back({
                 {
                     targetIndex,
@@ -2134,6 +2174,7 @@ TaskCompileDiagnostics compileTaskProgram(
                     targetBodyIndex,
                 },
                 compiledParameters,
+                {projectileRadius, 0.0f, 0.0f, 0.0f},
             });
         } else {
             staged->randomizationOperators.push_back({
@@ -2173,6 +2214,119 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 "event_impacts",
                 "one event impact sequence must share one minimum curriculum level"
+            );
+        }
+    }
+
+    std::uint32_t threatGroup = MR_INVALID_INDEX;
+    if (!pack.threat.protectedGroup.empty()) {
+        threatGroup = namedGroup(
+            contactGroupIds,
+            pack.threat.protectedGroup
+        );
+        if (threatGroup == MR_INVALID_INDEX) {
+            return reject(
+                TaskCompileStatus::unresolvedSemantic,
+                pack.threat.protectedGroup,
+                "threat program requires a protected contact group"
+            );
+        }
+        if (staged->impactEvents.empty()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "threat",
+                "threat program requires an event projectile sequence"
+            );
+        }
+        const TaskThreatProgram& threat = pack.threat;
+        if (!(threat.activationSpeed > 0.0f) ||
+            !(threat.horizonSeconds > 0.0f) ||
+            !(threat.safetyMargin >= 0.0f) ||
+            !(threat.cbfAlpha > 0.0f) ||
+            !(threat.stepOverMaximumHeight > 0.0f) ||
+            !(threat.sidestepMaximumHeight >
+                threat.stepOverMaximumHeight) ||
+            !(threat.leanMaximumHeight >
+                threat.sidestepMaximumHeight) ||
+            !(threat.urgencySeconds > 0.0f) ||
+            !(threat.desiredVelocityHorizonSeconds > 0.0f) ||
+            !(threat.projectionEpsilon > 0.0f) ||
+            !finite(threat.activationSpeed) ||
+            !finite(threat.horizonSeconds) ||
+            !finite(threat.safetyMargin) ||
+            !finite(threat.cbfAlpha) ||
+            !finite(threat.stepOverMaximumHeight) ||
+            !finite(threat.sidestepMaximumHeight) ||
+            !finite(threat.leanMaximumHeight) ||
+            !finite(threat.urgencySeconds) ||
+            !finite(threat.desiredVelocityHorizonSeconds) ||
+            !finite(threat.projectionEpsilon)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "threat",
+                "threat timing, classification, and Joint-CBF parameters are invalid"
+            );
+        }
+    }
+
+    std::uint32_t motionAnchor = MR_INVALID_INDEX;
+    if (!pack.motion.anchorBody.empty() ||
+        !pack.motion.trackedBodies.empty()) {
+        if (pack.motion.anchorBody.empty() ||
+            pack.motion.trackedBodies.empty()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "motion",
+                "motion prior requires an anchor and tracked bodies"
+            );
+        }
+        bool ambiguous = false;
+        motionAnchor = uniqueIndex(
+            model.bodyNames,
+            pack.motion.anchorBody,
+            ambiguous
+        );
+        if (ambiguous || motionAnchor == MR_INVALID_INDEX) {
+            return reject(
+                ambiguous
+                    ? TaskCompileStatus::ambiguousSemantic
+                    : TaskCompileStatus::unresolvedSemantic,
+                pack.motion.anchorBody,
+                "motion-prior anchor body is unresolved"
+            );
+        }
+        staged->motionBodies.reserve(
+            pack.motion.trackedBodies.size()
+        );
+        for (const std::string& name : pack.motion.trackedBodies) {
+            ambiguous = false;
+            const std::uint32_t body = uniqueIndex(
+                model.bodyNames,
+                name,
+                ambiguous
+            );
+            if (ambiguous || body == MR_INVALID_INDEX ||
+                std::find(
+                    staged->motionBodies.begin(),
+                    staged->motionBodies.end(),
+                    body
+                ) != staged->motionBodies.end()) {
+                return reject(
+                    ambiguous
+                        ? TaskCompileStatus::ambiguousSemantic
+                        : TaskCompileStatus::unresolvedSemantic,
+                    name,
+                    "motion-prior tracked body is unresolved or duplicated"
+                );
+            }
+            staged->motionBodies.push_back(body);
+        }
+        if (staged->motionBodies.size() >
+            std::numeric_limits<std::uint32_t>::max() / 9u) {
+            return reject(
+                TaskCompileStatus::arithmeticOverflow,
+                "motion",
+                "motion-prior feature count exceeds uint32"
             );
         }
     }
@@ -2350,6 +2504,9 @@ TaskCompileDiagnostics compileTaskProgram(
         // Raw actions retain one preceding sample beyond the delay window;
         // the final slot is the independent filtered actuator target.
         .delayStateCount = pack.maximumActionDelaySteps + 3u,
+        .motionFeatureCount = static_cast<std::uint32_t>(
+            9u * staged->motionBodies.size()
+        ),
     };
 
     staged->header.counts0 = {
@@ -2433,6 +2590,10 @@ TaskCompileDiagnostics compileTaskProgram(
     if (pack.recoveryCompletionCurriculum) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_RECOVERY_CURRICULUM;
+    }
+    if (threatGroup != MR_INVALID_INDEX) {
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_THREAT_TEACHER;
     }
     staged->header.locomotion = {
         pack.baseHeightTarget,
@@ -2524,6 +2685,30 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.visual.pixelDropoutProbability,
         pack.visual.depthJitterMeters,
         pack.visual.depthNoiseSigmaMeters,
+    };
+    staged->header.threat = {
+        threatGroup,
+        threatGroup == MR_INVALID_INDEX ? 0u : 1u,
+        0u,
+        0u,
+    };
+    staged->header.threatTiming = {
+        pack.threat.activationSpeed,
+        pack.threat.horizonSeconds,
+        pack.threat.safetyMargin,
+        pack.threat.cbfAlpha,
+    };
+    staged->header.threatClassification = {
+        pack.threat.stepOverMaximumHeight,
+        pack.threat.sidestepMaximumHeight,
+        pack.threat.leanMaximumHeight,
+        0.0f,
+    };
+    staged->header.threatTeacher = {
+        pack.threat.urgencySeconds,
+        pack.threat.desiredVelocityHorizonSeconds,
+        pack.threat.projectionEpsilon,
+        0.0f,
     };
 
     const auto appendArena =
@@ -2658,6 +2843,22 @@ TaskCompileDiagnostics compileTaskProgram(
             );
         }
     }
+    const std::uint32_t motionOffset = appendArena(
+        std::span<const std::uint32_t>{staged->motionBodies}
+    );
+    if (motionOffset == MR_INVALID_INDEX) {
+        return reject(
+            TaskCompileStatus::arithmeticOverflow,
+            "motion",
+            "compiled motion-prior table exceeds the arena ABI"
+        );
+    }
+    staged->header.motion = {
+        motionAnchor,
+        static_cast<std::uint32_t>(staged->motionBodies.size()),
+        staged->layout.motionFeatureCount,
+        motionOffset,
+    };
 
     Hash hash;
     hash.string(pack.id);

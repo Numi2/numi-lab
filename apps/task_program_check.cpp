@@ -42,6 +42,9 @@ public:
         borrowedRollout = directory /
             ("metalrobo_task_program_check_" + suffix +
              ".borrowed.rolloutpack");
+        motion = directory /
+            ("metalrobo_task_program_check_" + suffix +
+             ".motionpack");
     }
 
     ~TemporaryPackFiles() {
@@ -50,12 +53,14 @@ public:
         std::filesystem::remove(policy, ignored);
         std::filesystem::remove(rollout, ignored);
         std::filesystem::remove(borrowedRollout, ignored);
+        std::filesystem::remove(motion, ignored);
     }
 
     std::filesystem::path task;
     std::filesystem::path policy;
     std::filesystem::path rollout;
     std::filesystem::path borrowedRollout;
+    std::filesystem::path motion;
 };
 
 [[noreturn]] void fail(const std::string& message) {
@@ -564,7 +569,7 @@ int main() {
             compiledDodge
         );
         if (!dodgeStatus.succeeded() ||
-            compiledDodge.task.header().counts1.w != 31u ||
+            compiledDodge.task.header().counts1.w != 33u ||
             compiledDodge.task.header().counts2.x != 3u ||
             compiledDodge.task.layout().actorFrameSize != 96u ||
             compiledDodge.task.layout().actorHistoryLength != 5u ||
@@ -586,6 +591,18 @@ int main() {
             compiledDodge.task.header().visualCorruption.y != 0.10f ||
             compiledDodge.task.header().visualCorruption.z != 0.15f ||
             compiledDodge.task.header().visualCorruption.w != 0.03f ||
+            (compiledDodge.task.header().schedule.w &
+             MR_TASK_PROGRAM_THREAT_TEACHER) == 0u ||
+            compiledDodge.task.header().threat.x == MR_INVALID_INDEX ||
+            compiledDodge.task.header().threat.y != 1u ||
+            compiledDodge.task.header().threatTiming.x != 0.5f ||
+            compiledDodge.task.header().threatTiming.y != 2.0f ||
+            compiledDodge.task.header().threatTiming.z != 0.05f ||
+            compiledDodge.task.header().threatTiming.w != 2.0f ||
+            compiledDodge.task.header().motion.y != 13u ||
+            compiledDodge.task.header().motion.z != 117u ||
+            compiledDodge.task.layout().motionFeatureCount != 117u ||
+            compiledDodge.task.motionBodies().size() != 13u ||
             compiledDodge.task.header().projectile.x != 2.5f ||
             compiledDodge.task.header().projectile.y != 5.5f ||
             compiledDodge.task.header().projectile.z != 0.45f ||
@@ -614,6 +631,8 @@ int main() {
         std::uint32_t misses = 0u;
         std::uint32_t safeStillness = 0u;
         std::uint32_t safeActionRate = 0u;
+        std::uint32_t jointCbfCorrection = 0u;
+        std::uint32_t jointCbfBuffer = 0u;
         std::uint32_t ungatedVelocityTracking = 0u;
         std::uint32_t maskedDepth = 0u;
         std::uint32_t scaledAngularVelocity = 0u;
@@ -691,6 +710,18 @@ int main() {
                 }
                 ++safeActionRate;
             } else if (operation.source.x ==
+                       MR_TASK_REWARD_JOINT_CBF_CORRECTION) {
+                if (operation.parameters.x != -0.08f) {
+                    fail("compiled Joint-CBF correction reward changed");
+                }
+                ++jointCbfCorrection;
+            } else if (operation.source.x ==
+                       MR_TASK_REWARD_JOINT_CBF_BUFFER) {
+                if (operation.parameters.x != -0.20f) {
+                    fail("compiled Joint-CBF buffer reward changed");
+                }
+                ++jointCbfBuffer;
+            } else if (operation.source.x ==
                            MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING ||
                        operation.source.x ==
                            MR_TASK_REWARD_YAW_VELOCITY_TRACKING) {
@@ -702,6 +733,7 @@ int main() {
         }
         if (barriers != 6u || evasions != 6u || misses != 1u ||
             safeStillness != 1u || safeActionRate != 1u ||
+            jointCbfCorrection != 1u || jointCbfBuffer != 1u ||
             ungatedVelocityTracking != 0u) {
             fail("G1 dodge shaping operators are incomplete");
         }
@@ -721,7 +753,8 @@ int main() {
                 event.gate.x != 3.14159265f ||
                 event.gate.y != 0.02f ||
                 event.gate.z != 2.0f ||
-                event.gate.w != 0.10f) {
+                event.gate.w != 0.10f ||
+                !(event.projectile.x > 0.0f)) {
                 fail("G1 dodge event schedule is recovery-gated");
             }
         }
@@ -1041,6 +1074,11 @@ int main() {
             sampleCount * layout.criticObservationSize,
             -0.5f
         );
+        rollout.motionFeatureCount = layout.motionFeatureCount;
+        rollout.motionFeatures.assign(
+            sampleCount * layout.motionFeatureCount,
+            0.375f
+        );
         rollout.latents.assign(
             sampleCount * layout.actionCount,
             0.125f
@@ -1086,10 +1124,14 @@ int main() {
                     .criticObservationCount =
                         rollout.criticObservationCount,
                     .actionCount = rollout.actionCount,
+                    .motionFeatureCount =
+                        rollout.motionFeatureCount,
                     .actorObservations =
                         rollout.actorObservations,
                     .criticObservations =
                         rollout.criticObservations,
+                    .motionFeatures =
+                        rollout.motionFeatures,
                     .latents = rollout.latents,
                     .logProbabilities =
                         rollout.logProbabilities,
@@ -1125,6 +1167,40 @@ int main() {
             fail(
                 "PolicyRolloutPack round trip changed its learning records"
             );
+        }
+        metalrobo::MotionPack motion{
+            .id = "pacman_dodge_motion",
+            .sourceRepository =
+                "https://github.com/lzyang2000/perceptive_cbf_rl",
+            .sourceRevision = "2d426697",
+            .license = "MIT",
+            .anchorBody = "base",
+            .trackedBodies = {"base", "foot"},
+            .featureCount = 18u,
+            .clips = {{
+                .id = "fixture",
+                .framesPerSecond = 50.0f,
+                .features = std::vector<float>(
+                    36u,
+                    0.125f
+                ),
+            }},
+        };
+        const auto motionWrite = metalrobo::writeMotionPack(
+            motion,
+            packFiles.motion
+        );
+        metalrobo::MotionPack loadedMotion;
+        const auto motionRead = metalrobo::readMotionPack(
+            packFiles.motion,
+            loadedMotion
+        );
+        if (!motionWrite.succeeded() ||
+            !motionRead.succeeded() ||
+            loadedMotion.featureCount != motion.featureCount ||
+            loadedMotion.clips.front().features !=
+                motion.clips.front().features) {
+            fail("MotionPack round trip changed expert features");
         }
         const std::uint64_t importedFingerprint =
             compileImportedRobotFixture();

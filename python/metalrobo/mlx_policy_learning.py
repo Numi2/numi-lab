@@ -31,7 +31,9 @@ _LEARNING_PACK_HEADER = struct.Struct("<8sIIQQ")
 _POLICY_KIND = 2
 _POLICY_FORMAT_VERSION = 3
 _POLICY_ROLLOUT_KIND = 3
-_POLICY_ROLLOUT_FORMAT_VERSION = 3
+_POLICY_ROLLOUT_FORMAT_VERSION = 4
+_MOTION_KIND = 4
+_MOTION_FORMAT_VERSION = 1
 _TRANSITION_DTYPE = np.dtype(
     [
         ("reward", "<f4"),
@@ -75,8 +77,10 @@ class NativePolicyRollout:
     actor_observation_count: int
     critic_observation_count: int
     action_count: int
+    motion_feature_count: int
     actor_observations: np.ndarray
     critic_observations: np.ndarray
+    motion_features: np.ndarray
     latents: np.ndarray
     old_log_probabilities: np.ndarray
     old_values: np.ndarray
@@ -92,6 +96,7 @@ class NativePolicyRollout:
         *,
         discount: float = 0.99,
         gae_lambda: float = 0.95,
+        rewards: np.ndarray | None = None,
     ) -> "MLXPolicyBatch":
         """Compute terminal-safe GAE and publish only learner tensors to MLX."""
 
@@ -101,10 +106,12 @@ class NativePolicyRollout:
             raise ValueError("gae_lambda must be in [0, 1]")
         steps = self.control_step_count
         environments = self.environment_count
-        rewards = self.transitions["reward"].reshape(
-            steps,
-            environments,
-        )
+        if rewards is None:
+            rewards = self.transitions["reward"]
+        rewards = np.asarray(
+            rewards,
+            dtype=np.float32,
+        ).reshape(steps, environments)
         done = self.transitions["done"].reshape(
             steps,
             environments,
@@ -168,6 +175,26 @@ class NativePolicyRollout:
             advantages=advantages.reshape(self.sample_count),
             returns=returns.reshape(self.sample_count),
         )
+
+
+@dataclass(frozen=True, slots=True)
+class NativeMotionClip:
+    id: str
+    frames_per_second: float
+    features: np.ndarray
+
+
+@dataclass(frozen=True, slots=True)
+class NativeMotionPack:
+    id: str
+    source_repository: str
+    source_revision: str
+    license: str
+    anchor_body: str
+    tracked_bodies: tuple[str, ...]
+    feature_count: int
+    clips: tuple[NativeMotionClip, ...]
+    content_hash: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -623,6 +650,7 @@ def read_policy_rollout_pack(
     actor_observation_count = reader.unsigned32()
     critic_observation_count = reader.unsigned32()
     action_count = reader.unsigned32()
+    motion_feature_count = reader.unsigned32()
     dimensions = (
         environment_count,
         control_step_count,
@@ -649,6 +677,10 @@ def read_policy_rollout_pack(
         np.dtype("<f4"),
         sample_count * critic_observation_count,
     )
+    motion_features = reader.vector(
+        np.dtype("<f4"),
+        sample_count * motion_feature_count,
+    )
     latents = reader.vector(
         np.dtype("<f4"),
         sample_count * action_count,
@@ -671,6 +703,7 @@ def read_policy_rollout_pack(
     float_tables = (
         actor,
         critic,
+        motion_features,
         latents,
         log_probabilities,
         values,
@@ -713,13 +746,110 @@ def read_policy_rollout_pack(
         actor_observation_count=actor_observation_count,
         critic_observation_count=critic_observation_count,
         action_count=action_count,
+        motion_feature_count=motion_feature_count,
         actor_observations=actor,
         critic_observations=critic,
+        motion_features=motion_features,
         latents=latents,
         old_log_probabilities=log_probabilities,
         old_values=values,
         bootstrap_values=bootstrap_values,
         transitions=transitions,
+    )
+
+
+def read_motion_pack(
+    path: str | Path,
+    *,
+    library_path: str | Path | None = None,
+) -> NativeMotionPack:
+    """Read the canonical provenance-carrying expert MotionPack."""
+
+    source = Path(path)
+    data = np.memmap(source, mode="r", dtype=np.uint8)
+    if data.size < _LEARNING_PACK_HEADER.size:
+        raise ValueError("MotionPack file is truncated")
+    magic, version, kind, payload_bytes, expected_hash = (
+        _LEARNING_PACK_HEADER.unpack_from(data)
+    )
+    if (
+        magic != b"MRLEARN\0"
+        or version != _MOTION_FORMAT_VERSION
+        or kind != _MOTION_KIND
+    ):
+        raise ValueError("MotionPack header, kind, or version is invalid")
+    if payload_bytes != data.size - _LEARNING_PACK_HEADER.size:
+        raise ValueError("MotionPack payload length is invalid")
+    payload_view = data[_LEARNING_PACK_HEADER.size :]
+    if (
+        learning_pack_content_hash(
+            payload_view,
+            path=library_path,
+        )
+        != expected_hash
+    ):
+        raise ValueError("MotionPack content fingerprint is invalid")
+    reader = _PackReader(memoryview(payload_view))
+    identifier = reader.string()
+    repository = reader.string()
+    revision = reader.string()
+    license_name = reader.string()
+    anchor = reader.string()
+    tracked_count = reader.unsigned64()
+    tracked = tuple(
+        reader.string() for _ in range(tracked_count)
+    )
+    feature_count = reader.unsigned32()
+    clip_count = reader.unsigned64()
+    if (
+        not identifier
+        or not repository
+        or not revision
+        or not license_name
+        or not anchor
+        or not tracked
+        or feature_count != 9 * len(tracked)
+        or clip_count == 0
+    ):
+        raise ValueError("MotionPack semantic contract is invalid")
+    clips: list[NativeMotionClip] = []
+    for _ in range(clip_count):
+        clip_id = reader.string()
+        fps = reader.float32()
+        features = reader.vector(np.dtype("<f4"))
+        if (
+            not clip_id
+            or not math.isfinite(fps)
+            or fps <= 0.0
+            or features.size < 2 * feature_count
+            or features.size % feature_count != 0
+            or not np.isfinite(features).all()
+        ):
+            raise ValueError("MotionPack clip is invalid")
+        clips.append(
+            NativeMotionClip(
+                id=clip_id,
+                frames_per_second=fps,
+                features=features.reshape(
+                    -1,
+                    feature_count,
+                ),
+            )
+        )
+    if reader.cursor != len(reader.payload):
+        raise ValueError(
+            "MotionPack contains trailing payload bytes"
+        )
+    return NativeMotionPack(
+        id=identifier,
+        source_repository=repository,
+        source_revision=revision,
+        license=license_name,
+        anchor_body=anchor,
+        tracked_bodies=tracked,
+        feature_count=feature_count,
+        clips=tuple(clips),
+        content_hash=expected_hash,
     )
 
 
@@ -1129,6 +1259,283 @@ class MLXActorCritic(nn.Module):
             ),
             self.entropy(mean, log_standard_deviation),
             self.value(critic_observations),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class MLXMotionPriorConfiguration:
+    hidden_sizes: tuple[int, ...] = (512, 256)
+    learning_rate: float = 1.0e-3
+    minibatch_size: int = 4096
+    update_epochs: int = 2
+    reward_coefficient: float = 0.3
+    maximum_gradient_norm: float = 1.0
+    seed: int = 1
+
+    def validate(self) -> None:
+        if (
+            not self.hidden_sizes
+            or any(width <= 0 for width in self.hidden_sizes)
+            or self.learning_rate <= 0.0
+            or self.minibatch_size <= 0
+            or self.update_epochs <= 0
+            or self.reward_coefficient < 0.0
+            or self.maximum_gradient_norm <= 0.0
+            or self.seed < 0
+        ):
+            raise ValueError(
+                "motion-prior configuration is invalid"
+            )
+
+
+class _MotionDiscriminator(nn.Module):
+    def __init__(
+        self,
+        input_count: int,
+        hidden_sizes: tuple[int, ...],
+        mean: np.ndarray,
+        inverse_standard_deviation: np.ndarray,
+        seed: int,
+    ) -> None:
+        super().__init__()
+        self.network = _elu_mlp(
+            input_count,
+            1,
+            hidden_sizes,
+        )
+        self.mean = mx.array(mean, dtype=mx.float32)
+        self.inverse_standard_deviation = mx.array(
+            inverse_standard_deviation,
+            dtype=mx.float32,
+        )
+        self.freeze(
+            recurse=False,
+            keys=["mean", "inverse_standard_deviation"],
+            strict=True,
+        )
+        _initialize_mlp(
+            self.network,
+            generator=np.random.default_rng(seed),
+        )
+
+    def __call__(self, values: mx.array) -> mx.array:
+        normalized = (
+            values - self.mean
+        ) * self.inverse_standard_deviation
+        return self.network(
+            mx.clip(normalized, -10.0, 10.0)
+        ).squeeze(-1)
+
+
+class MLXMotionPrior:
+    """Apple-GPU discriminator over consecutive native tracked-link frames."""
+
+    def __init__(
+        self,
+        motion_pack: NativeMotionPack,
+        configuration: MLXMotionPriorConfiguration | None = None,
+    ) -> None:
+        if configuration is None:
+            configuration = MLXMotionPriorConfiguration()
+        configuration.validate()
+        self.motion_pack = motion_pack
+        self.configuration = configuration
+        expert = np.concatenate(
+            [
+                np.concatenate(
+                    (
+                        clip.features[:-1],
+                        clip.features[1:],
+                    ),
+                    axis=1,
+                )
+                for clip in motion_pack.clips
+            ],
+            axis=0,
+        ).astype(np.float32, copy=False)
+        mean = expert.mean(
+            axis=0,
+            dtype=np.float64,
+        ).astype(np.float32)
+        standard_deviation = expert.std(
+            axis=0,
+            dtype=np.float64,
+        ).astype(np.float32)
+        inverse = 1.0 / np.maximum(
+            standard_deviation,
+            1.0e-4,
+        )
+        self.expert_transitions = mx.array(
+            expert,
+            dtype=mx.float32,
+        )
+        self.model = _MotionDiscriminator(
+            2 * motion_pack.feature_count,
+            configuration.hidden_sizes,
+            mean,
+            inverse,
+            configuration.seed,
+        )
+        self.optimizer = optim.Adam(
+            learning_rate=configuration.learning_rate,
+            bias_correction=True,
+        )
+        self.optimizer.init(
+            self.model.trainable_parameters()
+        )
+        self._loss_and_gradient = nn.value_and_grad(
+            self.model,
+            self._loss,
+        )
+        mx.eval(
+            self.expert_transitions,
+            self.model.parameters(),
+            self.optimizer.state,
+        )
+
+    def _loss(
+        self,
+        expert: mx.array,
+        policy: mx.array,
+    ) -> tuple[mx.array, dict[str, mx.array]]:
+        expert_score = self.model(expert)
+        policy_score = self.model(policy)
+        expert_loss = mx.mean(
+            mx.square(expert_score - 1.0)
+        )
+        policy_loss = mx.mean(
+            mx.square(policy_score + 1.0)
+        )
+        loss = 0.5 * (expert_loss + policy_loss)
+        return loss, {
+            "motion_discriminator_loss": loss,
+            "motion_expert_score": mx.mean(expert_score),
+            "motion_policy_score": mx.mean(policy_score),
+        }
+
+    def update_and_rewards(
+        self,
+        rollout: NativePolicyRollout,
+    ) -> tuple[np.ndarray, dict[str, float]]:
+        if (
+            rollout.motion_feature_count
+            != self.motion_pack.feature_count
+        ):
+            raise ValueError(
+                "rollout and MotionPack feature contracts differ"
+            )
+        steps = rollout.control_step_count
+        environments = rollout.environment_count
+        frames = rollout.motion_features.reshape(
+            steps,
+            environments,
+            rollout.motion_feature_count,
+        )
+        if steps < 2:
+            raise ValueError(
+                "motion prior requires at least two rollout steps"
+            )
+        continuing = rollout.transitions["done"].reshape(
+            steps,
+            environments,
+        )[:-1] == 0
+        policy_pairs = np.concatenate(
+            (frames[:-1], frames[1:]),
+            axis=2,
+        )[continuing].astype(np.float32, copy=False)
+        if policy_pairs.shape[0] == 0:
+            return (
+                np.zeros(
+                    rollout.sample_count,
+                    dtype=np.float32,
+                ),
+                {},
+            )
+        policy = mx.array(policy_pairs, dtype=mx.float32)
+        generator = np.random.default_rng(
+            self.configuration.seed + rollout.policy_revision
+        )
+        last_metrics: dict[str, mx.array] = {}
+        batch_size = min(
+            self.configuration.minibatch_size,
+            policy_pairs.shape[0],
+            int(self.expert_transitions.shape[0]),
+        )
+        for _ in range(self.configuration.update_epochs):
+            policy_indices = generator.integers(
+                0,
+                policy_pairs.shape[0],
+                size=batch_size,
+            )
+            expert_indices = generator.integers(
+                0,
+                int(self.expert_transitions.shape[0]),
+                size=batch_size,
+            )
+            (loss, last_metrics), gradients = (
+                self._loss_and_gradient(
+                    self.expert_transitions[
+                        mx.array(expert_indices)
+                    ],
+                    policy[mx.array(policy_indices)],
+                )
+            )
+            gradients, _ = optim.clip_grad_norm(
+                gradients,
+                max_norm=(
+                    self.configuration.maximum_gradient_norm
+                ),
+            )
+            self.optimizer.update(self.model, gradients)
+            mx.eval(
+                loss,
+                self.model.parameters(),
+                self.optimizer.state,
+            )
+        scores = self.model(policy)
+        style = mx.clip(
+            1.0 - 0.25 * mx.square(scores - 1.0),
+            0.0,
+            1.0,
+        )
+        mx.eval(style, *last_metrics.values())
+        rewards = np.zeros(
+            (steps, environments),
+            dtype=np.float32,
+        )
+        active = rollout.transitions[
+            "impact_sequence_index"
+        ].reshape(steps, environments)[1:] != 0
+        rewards[1:][continuing] = np.asarray(
+            style,
+            dtype=np.float32,
+        )
+        rewards[1:] *= active
+        metrics = {
+            key: float(value.item())
+            for key, value in last_metrics.items()
+        }
+        metrics["motion_reward_mean"] = float(
+            rewards.mean()
+        )
+        return rewards.reshape(-1), metrics
+
+    def blend_rewards(
+        self,
+        rollout: NativePolicyRollout,
+    ) -> tuple[np.ndarray, dict[str, float]]:
+        motion_rewards, metrics = self.update_and_rewards(
+            rollout
+        )
+        task_rewards = np.asarray(
+            rollout.transitions["reward"],
+            dtype=np.float32,
+        )
+        return (
+            task_rewards
+            + self.configuration.reward_coefficient
+            * motion_rewards,
+            metrics,
         )
 
 
@@ -2081,12 +2488,17 @@ class MLXPolicyLearner:
 
 __all__ = [
     "MLXActorCritic",
+    "MLXMotionPrior",
+    "MLXMotionPriorConfiguration",
     "MLXPPOConfiguration",
     "MLXPolicyBatch",
     "MLXPolicyLearner",
+    "NativeMotionClip",
+    "NativeMotionPack",
     "NativePolicyDenseLayer",
     "NativePolicyPack",
     "NativePolicyRollout",
+    "read_motion_pack",
     "read_policy_pack",
     "read_policy_rollout_pack",
 ]

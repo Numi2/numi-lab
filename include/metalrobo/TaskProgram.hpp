@@ -90,6 +90,8 @@ enum class TaskRewardOperator : std::uint32_t {
         MR_TASK_REWARD_PROJECTILE_SAFE_STILLNESS,
     projectileSafeActionRate =
         MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE,
+    jointCbfCorrection = MR_TASK_REWARD_JOINT_CBF_CORRECTION,
+    jointCbfBuffer = MR_TASK_REWARD_JOINT_CBF_BUFFER,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -248,6 +250,34 @@ struct TaskVisualProgram {
     float edgeFlickerProbability = 0.0f;
 };
 
+// Privileged training-time threat analysis. The compiler resolves the
+// protected semantic group; active projectile identity comes from the
+// ordinary event sequence. Deployment actors never receive these values.
+struct TaskThreatProgram {
+    std::string protectedGroup;
+    float activationSpeed = 0.5f;
+    float horizonSeconds = 2.0f;
+    float safetyMargin = 0.05f;
+    float cbfAlpha = 2.0f;
+    // Root-relative strike-height boundaries for the four generic evasion
+    // classes: step-over, sidestep, lean, and duck.
+    float stepOverMaximumHeight = 0.35f;
+    float sidestepMaximumHeight = 0.75f;
+    float leanMaximumHeight = 1.10f;
+    // Joint-CBF urgency and desired-velocity construction.
+    float urgencySeconds = 0.35f;
+    float desiredVelocityHorizonSeconds = 0.20f;
+    float projectionEpsilon = 1.0e-5f;
+};
+
+// Training-only tracked-link pose stream consumed by the motion prior. Each
+// frame stores anchor-relative position and 6D orientation per body. It is a
+// compact learner output, never an actor observation.
+struct TaskMotionProgram {
+    std::string anchorBody;
+    std::vector<std::string> trackedBodies;
+};
+
 // Authored, robot-independent task artifact. Names are resolved only by
 // compileTaskProgram; the runtime consumes no strings.
 struct TaskPack {
@@ -274,6 +304,8 @@ struct TaskPack {
     TaskPushProgram pushes;
     TaskTerrainProgram terrain;
     TaskVisualProgram visual;
+    TaskThreatProgram threat;
+    TaskMotionProgram motion;
     std::uint32_t maximumEpisodeSteps = 1000u;
     std::uint32_t maximumActionDelaySteps = 0u;
     std::uint32_t maximumObservationDelaySteps = 0u;
@@ -320,6 +352,7 @@ struct TaskProgramLayout {
     std::uint32_t contactMetricCount = 0u;
     std::uint32_t biasCount = 0u;
     std::uint32_t delayStateCount = 0u;
+    std::uint32_t motionFeatureCount = 0u;
 };
 
 class CompiledTaskProgram {
@@ -355,6 +388,8 @@ public:
     randomizationOperators() const noexcept;
     [[nodiscard]] std::span<const MRTaskImpactEventGPU>
     impactEvents() const noexcept;
+    [[nodiscard]] std::span<const std::uint32_t>
+    motionBodies() const noexcept;
     [[nodiscard]] std::span<const MRTaskBiasSpecGPU>
     biasSpecs() const noexcept;
     [[nodiscard]] std::span<const mr_float4>

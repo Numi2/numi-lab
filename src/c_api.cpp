@@ -2494,6 +2494,8 @@ MRTaskRolloutLayoutC mr_task_rollout_layout(
         static_cast<std::uint32_t>(
             handle->defaultSceneBodies.size()
         );
+    result.motion_feature_count =
+        handle->taskProgram.layout().motionFeatureCount;
     result.submitted_control_steps =
         handle->submittedControlSteps;
     result.completed_environment_steps =
@@ -2577,6 +2579,15 @@ const float* mr_task_rollout_critic_observations(
     return requireTaskRolloutHandle(handle) &&
         !handle->result.criticObservations.empty()
         ? handle->result.criticObservations.data()
+        : nullptr;
+}
+
+const float* mr_task_rollout_motion_features(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->result.motionFeatures.empty()
+        ? handle->result.motionFeatures.data()
         : nullptr;
 }
 
@@ -2749,6 +2760,8 @@ int mr_task_rollout_write_policy_rollout_pack(
                     .criticObservationSize,
             .actionCount =
                 handle->taskProgram.layout().actionCount,
+            .motionFeatureCount =
+                handle->taskProgram.layout().motionFeatureCount,
             .actorObservations = floats(
                 batch->actor_observations,
                 batch->actor_observation_count,
@@ -2758,6 +2771,11 @@ int mr_task_rollout_write_policy_rollout_pack(
                 batch->critic_observations,
                 batch->critic_observation_count,
                 "rollout critic observations"
+            ),
+            .motionFeatures = floats(
+                batch->motion_features,
+                batch->motion_feature_count,
+                "rollout motion features"
             ),
             .latents = floats(
                 batch->latents,

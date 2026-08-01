@@ -21,8 +21,11 @@ from mlx.utils import tree_flatten, tree_unflatten
 import numpy as np
 
 from .mlx_policy_learning import (
+    MLXMotionPrior,
+    MLXMotionPriorConfiguration,
     MLXPPOConfiguration,
     MLXPolicyLearner,
+    read_motion_pack,
     read_policy_rollout_pack,
 )
 
@@ -400,6 +403,23 @@ def _serve(arguments: argparse.Namespace) -> int:
         _configuration(arguments),
         library_path=arguments.native_library,
     )
+    motion_prior = None
+    if arguments.motion_pack is not None:
+        motion_prior = MLXMotionPrior(
+            read_motion_pack(
+                arguments.motion_pack,
+                library_path=arguments.native_library,
+            ),
+            MLXMotionPriorConfiguration(
+                hidden_sizes=tuple(arguments.motion_hidden_sizes),
+                learning_rate=arguments.motion_learning_rate,
+                minibatch_size=arguments.motion_minibatch_size,
+                update_epochs=arguments.motion_update_epochs,
+                reward_coefficient=arguments.motion_reward_coefficient,
+                maximum_gradient_norm=arguments.maximum_gradient_norm,
+                seed=arguments.seed,
+            ),
+        )
     restored, task_curriculum_level = _restore_learner_state(
         learner,
         arguments.learner_state,
@@ -466,12 +486,20 @@ def _serve(arguments: argparse.Namespace) -> int:
                 arguments.native_library,
             )
             revision_before = learner.revision
+            learning_rewards = None
+            motion_metrics: dict[str, float] = {}
+            if motion_prior is not None:
+                learning_rewards, motion_metrics = (
+                    motion_prior.blend_rewards(rollout)
+                )
             metrics = learner.update(
                 rollout.policy_batch(
                     discount=learner.configuration.discount,
                     gae_lambda=learner.configuration.gae_lambda,
+                    rewards=learning_rewards,
                 )
             )
+            metrics.update(motion_metrics)
             artifact = learner.write_policy_pack(
                 arguments.output_policy_pack,
                 library_path=arguments.native_library,
@@ -700,6 +728,29 @@ def main() -> int:
         "--initial-task-curriculum-level",
         type=int,
         default=0,
+    )
+    serve.add_argument(
+        "--motion-pack",
+        type=Path,
+        help="optional expert MotionPack for threat-gated AMP reward",
+    )
+    serve.add_argument(
+        "--motion-hidden-sizes",
+        type=int,
+        nargs="*",
+        default=(512, 256),
+    )
+    serve.add_argument(
+        "--motion-learning-rate", type=float, default=1.0e-3
+    )
+    serve.add_argument(
+        "--motion-minibatch-size", type=_positive, default=4096
+    )
+    serve.add_argument(
+        "--motion-update-epochs", type=_positive, default=2
+    )
+    serve.add_argument(
+        "--motion-reward-coefficient", type=float, default=0.3
     )
     _add_ppo_arguments(serve)
 
