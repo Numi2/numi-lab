@@ -174,8 +174,13 @@ ordinary TaskPack data; gait frequency is not a robot runtime mode.
 A reduction cohort is compiled to one SignalIR node plus contiguous resolved
 semantic sources. The GPU applies its transform and reduction directly; it
 does not publish one intermediate signal per joint or contact group. Empty
-cohorts fail compilation. SensorIR values currently remain scalar leaves
-because current-sample scratch is indexed per SignalIR node.
+cohorts fail compilation. SensorIR value and validity sources may participate
+in the same cohorts when the sensor grants truth permission. The compiler
+assigns one dense current-sample scratch slot to each SensorIR-backed semantic
+source; direct mechanics sources allocate no slot. Metal materializes that
+table after the accepted sensor sample and before SignalIR, so scalar leaves
+and reductions observe the same control boundary without publishing a sensor
+tensor or carrying a per-robot branch.
 
 The remaining TaskIR target is a phase-separated graph covering action,
 command/event, observation, reward, termination, reset, curriculum, and

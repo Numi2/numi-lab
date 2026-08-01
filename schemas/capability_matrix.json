@@ -37,7 +37,8 @@
     "evidence/baselines/2026-08-01-a5e26d6.json",
     "evidence/baselines/2026-08-01-7182ce5.json",
     "evidence/baselines/2026-08-01-ac58af4.json",
-    "evidence/baselines/2026-08-01-959544a.json"
+    "evidence/baselines/2026-08-01-959544a.json",
+    "evidence/baselines/2026-08-01-cd534c9.json"
   ],
   "capabilities": [
     {
@@ -185,7 +186,7 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "TaskPack 15 compiles a topologically ordered scalar graph with semantic state/frame/current-SensorIR truth leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, exponential tracking/decay, atan2, comparisons, bounds gates, and contiguous source-cohort reductions. Resolved leaves include heading-frame velocity, joint acceleration, action delta, compiled soft-limit violation, mechanical power, and desired support contact. The native order is accepted mechanics, SensorIR sample, sensor-signal materialization, SignalIR, reward/termination/recorders, then actor/critic sensor-history publication. Scratch is topology-sized in the candidate-body arena and adds no persistent simulator tensor. SensorIR cohort reductions and general phase operator tables remain incomplete."
+      "scope": "TaskPack 15 compiles a topologically ordered scalar graph with semantic state/frame/current-SensorIR truth leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, exponential tracking/decay, atan2, comparisons, bounds gates, and contiguous source-cohort reductions. Resolved leaves include heading-frame velocity, joint acceleration, action delta, compiled soft-limit violation, mechanical power, and desired support contact. The native order is accepted mechanics, SensorIR sample, dense sensor-source materialization, SignalIR, reward/termination/recorders, then actor/critic sensor-history publication. Scratch is topology-sized in the candidate-body arena and adds no persistent simulator tensor. General phase operator tables remain incomplete."
     },
     {
       "id": "tasks.specialized_branch_pruning",
@@ -199,7 +200,7 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "A SignalIR reduction owns one contiguous truth-source cohort and compiles identity, absolute, or square transforms with sum, mean, minimum, or maximum. The bundled G1 task uses eleven reductions inside a 92-node, 167-source generic reward, recorder, and curriculum graph. Empty cohorts and currently unsupported SensorIR cohorts fail transactionally."
+      "scope": "A SignalIR reduction owns one contiguous truth-source cohort and compiles identity, absolute, or square transforms with sum, mean, minimum, or maximum. Direct mechanics sources are evaluated in place; SensorIR value and validity sources consume compiler-assigned dense current-sample slots. A fixed-base Metal fixture qualifies a two-source SensorIR sum-of-squares against the accepted post-step sensor view and rejects missing truth permission transactionally. The bundled G1 task uses eleven reductions inside a 92-node, 167-source generic reward, recorder, and curriculum graph and allocates zero sensor scratch."
     },
     {
       "id": "tasks.generic_rewards",

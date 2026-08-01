@@ -210,10 +210,18 @@ compiler also rejects duplicate recorder identities, unresolved recorder
 signals, more than three compact recorders, and a multi-level curriculum with
 no success SignalIR binding without replacing the last valid task.
 
+The same fixture compiles a two-source SensorIR reduction over the current
+pose-height value and validity bit. The compiler assigns two dense semantic
+source slots, Metal evaluates the sum of squares, and every transition matches
+the independently published accepted post-step critic sensor value. A sensor
+without truth permission is rejected transactionally. The scratch cost is two
+floats per environment for this fixture; the bundled G1 task has no SensorIR
+signal sources and its retained, transient, shared, and persistent allocation
+totals are exactly unchanged from the preceding revision.
+
 The owner additionally rejects an invalid reward channel, invalid soft-limit
-factor, ignored source parameters, an empty reduction, and a SensorIR reduction
-that lacks generalized per-source sensor scratch, while preserving the last
-compiled task transactionally.
+factor, ignored source parameters, and an empty reduction while preserving the
+last compiled task transactionally.
 
 ## Numerical corpus
 

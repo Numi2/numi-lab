@@ -91,6 +91,13 @@ runtime ABIs contain no locomotion- or G1-named metric fields. A bundled app may
 label a known TaskPack's slots in presentation output, but that interpretation
 does not enter the executor.
 
+SignalIR sensor scratch is also compiler-owned and transient. Only semantic
+sources backed by SensorIR receive a dense slot; ordinary state, frame,
+contact, and actuator sources are evaluated directly. The arena therefore
+costs exactly four bytes per SensorIR signal source per environment and zero
+for a task with none. The sensor-sample pass fills the table once before
+reward, termination, recorder, and curriculum evaluation.
+
 ## Current SensorIR execution boundary
 
 The canonical MetalWorld session owns persistent schedule, history, output,

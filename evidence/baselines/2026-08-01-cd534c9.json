@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T10:50:38+02:00",
+  "source_revision": "cd534c97b5466a542f76fc4141362a17f62a7a82",
+  "metallib_sha256": "ccea2245559dbb620fa030fca96c1e4876af796e3df0c6c1b2fac675e791e550",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 5.26,
+    "runtime_abi_version": 28,
+    "task_program_abi_version": 21,
+    "task_pack_format_version": 15,
+    "policy_rollout_pack_format_version": 4,
+    "fixed_base_sensor_reduction_source_count": 2,
+    "fixed_base_sensor_reduction_scratch_floats_per_environment": 2,
+    "fixed_base_sensor_reduction_scratch_bytes_per_environment": 8,
+    "fixed_base_sensor_value_and_validity_reduction": "passed",
+    "fixed_base_sensor_reduction_current_sample_parity": "passed",
+    "unauthorized_sensor_reduction_transaction": "passed",
+    "g1_sensor_reduction_scratch_floats_per_environment": 0,
+    "g1_zero_action_environment_count": 8,
+    "g1_zero_action_control_step_count": 16,
+    "g1_zero_action_failed_environment_steps": 0,
+    "g1_zero_action_termination_count": 0,
+    "g1_zero_action_retained_buffer_bytes": 23403356,
+    "g1_zero_action_immutable_private_bytes": 530874,
+    "g1_zero_action_transient_private_bytes": 20599944,
+    "g1_zero_action_shared_boundary_bytes": 943446,
+    "g1_zero_action_persistent_state_private_bytes": 1316668,
+    "g1_memory_delta_from_959544a": 0
+  },
+  "known_release_blockers": [
+    "The compact transition supports three named recorders; arbitrary recorder streams and phase-complete command, event, and curriculum operator tables are incomplete.",
+    "No general MJCF importer is present.",
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; ray and LiDAR operators remain incomplete.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}
