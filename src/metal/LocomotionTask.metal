@@ -2153,8 +2153,25 @@ kernel void mr_locomotion_task_observe(
                     );
                 }
                 if (program.projectile.y > 0.0f) {
+                    const bool progressiveProjectile =
+                        (program.schedule.w &
+                         MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM) != 0u;
+                    const float difficulty = progressiveProjectile &&
+                            program.schedule.z > 1u
+                        ? clamp(
+                              float(state.episode.z) /
+                                  float(program.schedule.z - 1u),
+                              0.0f,
+                              1.0f
+                          )
+                        : 1.0f;
                     const float targetRadius =
-                        program.projectileGravity.w;
+                        program.projectileGravity.w * difficulty;
+                    const float targetHeightCenter = 0.5f *
+                        (program.projectile.z + program.projectile.w);
+                    const float targetHeightHalfRange = 0.5f *
+                        (program.projectile.w - program.projectile.z) *
+                        difficulty;
                     const float3 target = float3(
                         sourceQ[qBase + program.root.z] + randomRange(
                             dispatch,
@@ -2180,8 +2197,8 @@ kernel void mr_locomotion_task_observe(
                             state.episode.y,
                             0u,
                             4098u + impact * 4u,
-                            program.projectile.z,
-                            program.projectile.w
+                            targetHeightCenter - targetHeightHalfRange,
+                            targetHeightCenter + targetHeightHalfRange
                         )
                     );
                     const float horizontalSpeed = randomRange(
@@ -2191,7 +2208,11 @@ kernel void mr_locomotion_task_observe(
                         0u,
                         4099u + impact * 4u,
                         program.projectile.x,
-                        program.projectile.y
+                        mix(
+                            program.projectile.x,
+                            program.projectile.y,
+                            difficulty
+                        )
                     );
                     const float3 delta = target - scheduled.position.xyz;
                     const float flightSeconds = max(
@@ -4232,12 +4253,32 @@ kernel void mr_locomotion_task_update_curriculum(
     );
     const uint transitionBase =
         pass.controlStep * dispatch.outputs.z;
+    const bool projectileCurriculum =
+        (program.schedule.w &
+         MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM) != 0u;
     for (uint environment = 0u;
          environment < dispatch.counts.x;
          ++environment) {
         const MRTaskTransitionGPU transition =
             transitions[transitionBase + environment];
-        if (transition.termination.x != 0u &&
+        if (projectileCurriculum) {
+            const uint impact = transition.taskProgress.w;
+            const bool cleanMiss =
+                (impact & MR_TASK_IMPACT_MISSED) != 0u;
+            const bool contact =
+                (impact & MR_TASK_IMPACT_CONTACT) != 0u;
+            if (cleanMiss || contact) {
+                ++state.completedEpisodeCount;
+                state.timeoutEpisodeCount += ulong(cleanMiss);
+            }
+            if (transition.termination.x != 0u &&
+                (transition.termination.w ==
+                     MR_TASK_TERMINATION_HEIGHT ||
+                 transition.termination.w ==
+                     MR_TASK_TERMINATION_TILT)) {
+                state.trackingScoreSum += 1.0f;
+            }
+        } else if (transition.termination.x != 0u &&
             transition.termination.z == 0u) {
             state.trackingScoreSum +=
                 transition.episodeTrackingScore;
@@ -4256,9 +4297,16 @@ kernel void mr_locomotion_task_update_curriculum(
         const float survivalFraction =
             float(state.timeoutEpisodeCount) /
             max(completed, 1.0f);
-        if (state.completedEpisodeCount != 0ul &&
-            meanTracking > program.locomotion.w &&
-            survivalFraction >= program.commandUpper.w) {
+        const float balanceFailureFraction =
+            state.trackingScoreSum / max(completed, 1.0f);
+        const bool advance = projectileCurriculum
+            ? state.completedEpisodeCount != 0ul &&
+                survivalFraction >= program.locomotion.w &&
+                balanceFailureFraction <= program.commandUpper.w
+            : state.completedEpisodeCount != 0ul &&
+                meanTracking > program.locomotion.w &&
+                survivalFraction >= program.commandUpper.w;
+        if (advance) {
             ++level;
         }
     }

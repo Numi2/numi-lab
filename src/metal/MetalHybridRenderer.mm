@@ -7486,7 +7486,7 @@ bool MetalHybridObjectTracker::encodeObservation(
                 ringCapacity,
                 static_cast<std::uint32_t>(offsets.size()),
                 state->config.maskedDepthActorFrameOffset,
-                0u,
+                state->config.maskedDepthCurriculumLevelCount,
             },
             {
                 offsets.size() > 0u ? offsets[0u] : 0u,

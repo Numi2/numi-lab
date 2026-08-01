@@ -591,6 +591,15 @@ int main() {
             compiledDodge.task.header().visualCorruption.y != 0.10f ||
             compiledDodge.task.header().visualCorruption.z != 0.15f ||
             compiledDodge.task.header().visualCorruption.w != 0.03f ||
+            compiledDodge.task.header().schedule.z != 9u ||
+            std::abs(
+                compiledDodge.task.header().locomotion.w - 0.55f
+            ) > 1.0e-6f ||
+            std::abs(
+                compiledDodge.task.header().commandUpper.w - 0.35f
+            ) > 1.0e-6f ||
+            (compiledDodge.task.header().schedule.w &
+             MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM) == 0u ||
             (compiledDodge.task.header().schedule.w &
              MR_TASK_PROGRAM_THREAT_TEACHER) == 0u ||
             compiledDodge.task.header().threat.x == MR_INVALID_INDEX ||

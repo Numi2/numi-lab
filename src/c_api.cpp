@@ -1442,6 +1442,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             offsets.begin(),
             offsets.begin() + taskHeader.visualLayout.z
         );
+        trackerConfig.maskedDepthCurriculumLevelCount =
+            taskHeader.schedule.z;
         for (const std::uint32_t sceneIndex : trackedSceneBodies) {
             const std::string& assetId =
                 handle.model.bodyNames[sceneIndices[sceneIndex]];

@@ -1519,6 +1519,10 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     TaskPack task =
         makeUnitreeG1BallDisturbanceRecoveryTaskPack(surface);
     task.id = "unitree_g1_ball_dodge";
+    task.curriculumLevelCount = 9u;
+    task.projectileOutcomeCurriculum = true;
+    task.successTrackingThreshold = 0.55f;
+    task.commands.minimumEpisodeSurvivalFraction = 0.35f;
     task.pushes.projectileStandingProbability = 0.20f;
     task.pushes.projectileTargetHorizontalRadius = 0.40f;
     task.pushes.projectileHorizontalSpeedLower = 2.5f;

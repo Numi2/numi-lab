@@ -9,6 +9,9 @@ enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY = 1u << 1u,
     MR_TASK_PROGRAM_RECOVERY_CURRICULUM = 1u << 2u,
     MR_TASK_PROGRAM_THREAT_TEACHER = 1u << 3u,
+    // Advance on completed whole-projectile outcomes and balance failures,
+    // rather than locomotion command tracking.
+    MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM = 1u << 4u,
 };
 
 enum MRTaskThreatClass : mr_u32 {

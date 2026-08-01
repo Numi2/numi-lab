@@ -343,6 +343,7 @@ struct MetalHybridObjectTrackerConfig {
     std::uint32_t maskedDepthHeight = 0u;
     std::uint32_t maskedDepthActorFrameOffset = 0u;
     std::vector<std::uint32_t> maskedDepthFrameOffsets;
+    std::uint32_t maskedDepthCurriculumLevelCount = 1u;
     float maskedDepthNearMeters = 0.1f;
     float maskedDepthFarMeters = 5.0f;
     float maskedDepthFullDropoutProbability = 0.0f;

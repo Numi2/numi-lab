@@ -2591,6 +2591,17 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_RECOVERY_CURRICULUM;
     }
+    if (pack.projectileOutcomeCurriculum) {
+        if (staged->impactEvents.empty()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "projectile_curriculum",
+                "projectile-outcome curriculum requires an event projectile sequence"
+            );
+        }
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM;
+    }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_THREAT_TEACHER;
