@@ -34,6 +34,8 @@ struct CompiledTaskProgram::Storage {
     std::vector<MRTaskObservationOperatorGPU> criticOperators;
     std::vector<MRTaskObservationOperatorGPU> signalSources;
     std::vector<MRTaskSignalOperatorGPU> signalOperators;
+    std::vector<MRTaskCommandOperatorGPU> commandOperators;
+    std::vector<std::string> commandIds;
     std::vector<MRTaskContactGroupGPU> contactGroups;
     std::vector<std::uint32_t> contactMembers;
     std::vector<MRTaskFrameGPU> frames;
@@ -51,7 +53,6 @@ struct CompiledTaskProgram::Storage {
     std::vector<MRTaskBiasSpecGPU> biasSpecs;
     std::vector<mr_float4> terrainSampleOffsets;
     std::vector<mr_float4> terrainResetTranslations;
-    std::array<mr_float4, 3u> commandCurriculum{};
     std::vector<std::byte> arena;
 };
 
@@ -376,6 +377,12 @@ bool CompiledTaskProgram::valid() const noexcept {
             storage_->kinematicPointQueries.size() ||
         storage_->layout.signalCount !=
             storage_->signalOperators.size() ||
+        storage_->layout.commandCount !=
+            storage_->commandOperators.size() ||
+        storage_->commandOperators.size() !=
+            storage_->commandIds.size() ||
+        storage_->header.curriculum.w !=
+            storage_->commandOperators.size() ||
         storage_->layout.recorderCount !=
             storage_->recorderOperators.size() ||
         storage_->recorderOperators.size() !=
@@ -492,6 +499,11 @@ bool CompiledTaskProgram::valid() const noexcept {
     }
 
     const std::uint64_t frameOffset = storage_->header.offsets3.z;
+    const std::uint64_t commandOffset =
+        storage_->header.offsets3.y;
+    const std::uint64_t commandEnd = commandOffset +
+        storage_->commandOperators.size() *
+            sizeof(MRTaskCommandOperatorGPU);
     const std::uint64_t recorderOffset =
         storage_->header.offsets1.y;
     const std::uint64_t recorderEnd = recorderOffset +
@@ -520,6 +532,8 @@ bool CompiledTaskProgram::valid() const noexcept {
         storage_->signalOperators.size() *
             sizeof(MRTaskSignalOperatorGPU);
     return recorderEnd <= storage_->arena.size() &&
+        commandEnd <= storage_->arena.size() &&
+        frameOffset >= commandEnd &&
         storage_->header.offsets3.w == goalOffset &&
         goalEnd <= storage_->arena.size() &&
         signalSourceOffset >= goalEnd &&
@@ -594,6 +608,22 @@ CompiledTaskProgram::signalOperators() const noexcept {
               storage_->signalOperators
           }
         : std::span<const MRTaskSignalOperatorGPU>{};
+}
+
+std::span<const MRTaskCommandOperatorGPU>
+CompiledTaskProgram::commandOperators() const noexcept {
+    return valid()
+        ? std::span<const MRTaskCommandOperatorGPU>{
+              storage_->commandOperators
+          }
+        : std::span<const MRTaskCommandOperatorGPU>{};
+}
+
+std::span<const std::string>
+CompiledTaskProgram::commandIds() const noexcept {
+    return valid()
+        ? std::span<const std::string>{storage_->commandIds}
+        : std::span<const std::string>{};
 }
 
 std::span<const MRTaskContactGroupGPU>
@@ -872,6 +902,7 @@ TaskCompileDiagnostics compileTaskProgram(
         !countFits(pack.recorders.size()) ||
         !countFits(pack.terminations.size()) ||
         !countFits(pack.randomization.size()) ||
+        !countFits(pack.commands.values.size()) ||
         !countFits(pack.terrain.sampleOffsets.size()) ||
         !countFits(pack.terrain.resetTranslations.size())) {
         return reject(
@@ -921,6 +952,7 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.maximumEpisodeSteps == 0u ||
         pack.recorders.size() >
             MR_TASK_TRANSITION_METRIC_COUNT ||
+        pack.commands.values.size() > 3u ||
         pack.curriculum.levelCount == 0u ||
         pack.curriculum.evaluationWindowSteps == 0u ||
         !finite(pack.phase.periodSeconds) ||
@@ -933,14 +965,9 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.curriculum.minimumEpisodeSurvivalFraction > 1.0f ||
         !finite(pack.supportForceThreshold) ||
         !(pack.supportForceThreshold >= 0.0f) ||
-        !finite(pack.commands.lower) ||
-        !finite(pack.commands.upper) ||
-        !finite(pack.commands.limitLower) ||
-        !finite(pack.commands.limitUpper) ||
-        !finite(pack.commands.curriculumStep) ||
-        !finite(pack.commands.standingProbability) ||
-        pack.commands.standingProbability < 0.0f ||
-        pack.commands.standingProbability > 1.0f ||
+        !finite(pack.commands.zeroProbability) ||
+        pack.commands.zeroProbability < 0.0f ||
+        pack.commands.zeroProbability > 1.0f ||
         !finite(pack.commands.minimumDurationSeconds) ||
         !finite(pack.commands.maximumDurationSeconds) ||
         !(pack.commands.minimumDurationSeconds > 0.0f) ||
@@ -961,51 +988,53 @@ TaskCompileDiagnostics compileTaskProgram(
             "task identity, dimensions, timing, or scalar parameters are invalid"
         );
     }
-    const std::array commandLower{
-        pack.commands.lower.x,
-        pack.commands.lower.y,
-        pack.commands.lower.z,
-    };
-    const std::array commandUpper{
-        pack.commands.upper.x,
-        pack.commands.upper.y,
-        pack.commands.upper.z,
-    };
-    const std::array commandLimitLower{
-        pack.commands.limitLower.x,
-        pack.commands.limitLower.y,
-        pack.commands.limitLower.z,
-    };
-    const std::array commandLimitUpper{
-        pack.commands.limitUpper.x,
-        pack.commands.limitUpper.y,
-        pack.commands.limitUpper.z,
-    };
-    const std::array commandCurriculumStep{
-        pack.commands.curriculumStep.x,
-        pack.commands.curriculumStep.y,
-        pack.commands.curriculumStep.z,
-    };
-    for (std::size_t component = 0u;
-         component < commandLower.size();
-         ++component) {
-        if (commandLower[component] >
-                commandUpper[component] ||
-            commandLimitLower[component] >
-                commandLower[component] ||
-            commandUpper[component] >
-                commandLimitUpper[component] ||
-            commandCurriculumStep[component] < 0.0f) {
+    std::vector<std::string> commandIds;
+    commandIds.reserve(pack.commands.values.size());
+    for (const TaskCommandSpec& command : pack.commands.values) {
+        if (command.id.empty() ||
+            std::find(
+                commandIds.begin(),
+                commandIds.end(),
+                command.id
+            ) != commandIds.end() ||
+            !finite(command.lower) ||
+            !finite(command.upper) ||
+            !finite(command.limitLower) ||
+            !finite(command.limitUpper) ||
+            !finite(command.curriculumStep) ||
+            command.lower > command.upper ||
+            command.limitLower > command.lower ||
+            command.upper > command.limitUpper ||
+            command.curriculumStep < 0.0f) {
             return reject(
                 TaskCompileStatus::invalidPack,
-                "commands",
-                "command range, limits, or curriculum step are invalid"
+                command.id,
+                "command identity, range, limits, or curriculum step are invalid"
             );
         }
+        commandIds.push_back(command.id);
     }
 
     auto staged = std::make_shared<CompiledTaskProgram::Storage>();
     staged->worldFingerprint = world.fingerprint();
+    staged->commandIds = commandIds;
+    staged->commandOperators.reserve(pack.commands.values.size());
+    for (const TaskCommandSpec& command : pack.commands.values) {
+        staged->commandOperators.push_back({
+            {
+                command.lower,
+                command.upper,
+                command.limitLower,
+                command.limitUpper,
+            },
+            {
+                command.curriculumStep,
+                0.0f,
+                0.0f,
+                0.0f,
+            },
+        });
+    }
 
     std::vector<std::uint32_t> actionJoints;
     actionJoints.reserve(pack.actions.size());
@@ -1666,9 +1695,21 @@ TaskCompileDiagnostics compileTaskProgram(
             switch (spec.source) {
             case TaskObservationSource::rootAngularVelocityLocal:
             case TaskObservationSource::projectedGravity:
-            case TaskObservationSource::command:
             case TaskObservationSource::rootLinearVelocityLocal:
                 componentLimit = 3u;
+                break;
+            case TaskObservationSource::command:
+                sourceIndex = namedGroup(
+                    staged->commandIds,
+                    spec.target
+                );
+                if (sourceIndex == MR_INVALID_INDEX) {
+                    return reject(
+                        TaskCompileStatus::unresolvedSemantic,
+                        spec.target,
+                        "observation command identity does not exist"
+                    );
+                }
                 break;
             case TaskObservationSource::jointPositionError:
             case TaskObservationSource::jointVelocity:
@@ -2976,6 +3017,9 @@ TaskCompileDiagnostics compileTaskProgram(
         ),
         .signalSensorScratchCount =
             signalSensorScratchCount,
+        .commandCount = static_cast<std::uint32_t>(
+            staged->commandOperators.size()
+        ),
         .recorderCount = static_cast<std::uint32_t>(
             staged->recorderOperators.size()
         ),
@@ -3049,7 +3093,9 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.curriculum.levelCount,
         pack.curriculum.evaluationWindowSteps,
         curriculumSignalIndex,
-        0u,
+        static_cast<std::uint32_t>(
+            staged->commandOperators.size()
+        ),
     };
     if (pack.criticIncludesCleanHistory) {
         staged->header.schedule.w |=
@@ -3062,30 +3108,19 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.taskScalars = {
         pack.phase.periodSeconds,
         pack.curriculum.successThreshold,
-        0.0f,
-        0.0f,
+        pack.curriculum.minimumEpisodeSurvivalFraction,
+        pack.supportForceThreshold,
     };
-    staged->header.commandLower = pack.commands.lower;
-    staged->header.commandLower.w =
-        pack.commands.standingProbability;
-    staged->header.commandUpper = pack.commands.upper;
-    staged->header.commandUpper.w =
-        pack.curriculum.minimumEpisodeSurvivalFraction;
-    staged->commandCurriculum = {
-        pack.commands.limitLower,
-        pack.commands.limitUpper,
-        pack.commands.curriculumStep,
-    };
-    staged->header.scheduleSeconds = {
+    staged->header.commandSchedule = {
+        pack.commands.zeroProbability,
         pack.commands.minimumDurationSeconds,
         pack.commands.maximumDurationSeconds,
+        0.0f,
+    };
+    staged->header.eventSchedule = {
+        pack.pushes.maximumVelocity,
         pack.pushes.minimumIntervalSeconds,
         pack.pushes.maximumIntervalSeconds,
-    };
-    staged->header.dynamics = {
-        pack.pushes.maximumVelocity,
-        pack.supportForceThreshold,
-        0.0f,
         0.0f,
     };
     staged->header.articulation = {
@@ -3223,9 +3258,9 @@ TaskCompileDiagnostics compileTaskProgram(
             staged->terrainResetTranslations
         }
     );
-    const std::uint32_t commandCurriculumOffset = appendArena(
-        std::span<const mr_float4>{
-            staged->commandCurriculum
+    const std::uint32_t commandOperatorOffset = appendArena(
+        std::span<const MRTaskCommandOperatorGPU>{
+            staged->commandOperators
         }
     );
     const std::uint32_t frameOffset = appendArena(
@@ -3252,7 +3287,7 @@ TaskCompileDiagnostics compileTaskProgram(
     );
     staged->header.offsets3 = {
         terrainResetOffset,
-        commandCurriculumOffset,
+        commandOperatorOffset,
         frameOffset,
         goalOffset,
     };
@@ -3297,6 +3332,9 @@ TaskCompileDiagnostics compileTaskProgram(
     hash.span<std::byte>(staged->arena);
     for (const TaskActionBinding& action : pack.actions) {
         hash.string(action.joint);
+    }
+    for (const TaskCommandSpec& command : pack.commands.values) {
+        hash.string(command.id);
     }
     for (const TaskContactGroup& group : pack.contactGroups) {
         hash.string(group.id);

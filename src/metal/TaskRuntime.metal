@@ -948,7 +948,7 @@ inline float cleanObservation(
         )[operation.source.z];
         break;
     case MR_TASK_OBSERVE_COMMAND:
-        value = state.commandAndPhase[operation.source.z];
+        value = state.commandAndPhase[operation.source.y];
         break;
     case MR_TASK_OBSERVE_JOINT_POSITION_ERROR: {
         const MRTaskActionBindingGPU binding =
@@ -1427,36 +1427,36 @@ inline uint durationSteps(
 inline float3 sampledCommand(
     device const MRTaskDispatchGPU& dispatch,
     device const MRTaskProgramHeaderGPU& program,
-    device const float4* curriculumRange,
+    device const MRTaskCommandOperatorGPU* commands,
     const uint environment,
     const uint episode,
     const uint episodeStep,
     const uint curriculum
 ) {
-    const float3 lower = max(
-        program.commandLower.xyz -
-            float(curriculum) *
-                curriculumRange[2].xyz,
-        curriculumRange[0].xyz
-    );
-    const float3 upper = min(
-        program.commandUpper.xyz +
-            float(curriculum) *
-                curriculumRange[2].xyz,
-        curriculumRange[1].xyz
-    );
-    float3 command;
-    for (uint component = 0u;
-         component < 3u;
-         ++component) {
-        command[component] = randomRange(
+    float3 command = float3(0.0f);
+    for (uint commandIndex = 0u;
+         commandIndex < program.curriculum.w;
+         ++commandIndex) {
+        const MRTaskCommandOperatorGPU operation =
+            commands[commandIndex];
+        const float expansion =
+            float(curriculum) * operation.curriculum.x;
+        const float lower = max(
+            operation.range.x - expansion,
+            operation.range.z
+        );
+        const float upper = min(
+            operation.range.y + expansion,
+            operation.range.w
+        );
+        command[commandIndex] = randomRange(
             dispatch,
             environment,
             episode,
             episodeStep,
-            16u + component,
-            lower[component],
-            upper[component]
+            16u + commandIndex,
+            lower,
+            upper
         );
     }
     if (randomUnit(
@@ -1465,7 +1465,7 @@ inline float3 sampledCommand(
             episode,
             episodeStep,
             19u
-        ) < program.commandLower.w) {
+        ) < program.commandSchedule.x) {
         command = float3(0.0f);
     }
     return command;
@@ -1847,8 +1847,11 @@ kernel void mr_task_observe(
         taskTable<float4>(arena, program.offsets2.w);
     device const float4* terrainProfiles =
         taskTable<float4>(arena, program.offsets3.x);
-    device const float4* commandCurriculum =
-        taskTable<float4>(arena, program.offsets3.y);
+    device const MRTaskCommandOperatorGPU* commandOperators =
+        taskTable<MRTaskCommandOperatorGPU>(
+            arena,
+            program.offsets3.y
+        );
     device const MRTaskFrameGPU* frames =
         taskTable<MRTaskFrameGPU>(
             arena,
@@ -2244,8 +2247,8 @@ kernel void mr_task_observe(
                 episode,
                 0u,
                 32u,
-                program.scheduleSeconds.x,
-                program.scheduleSeconds.y
+                program.commandSchedule.y,
+                program.commandSchedule.z
             ),
             durationSteps(
                 dispatch,
@@ -2253,8 +2256,8 @@ kernel void mr_task_observe(
                 episode,
                 0u,
                 33u,
-                program.scheduleSeconds.z,
-                program.scheduleSeconds.w
+                program.eventSchedule.y,
+                program.eventSchedule.z
             ),
             actionDelay,
             observationDelay
@@ -2269,7 +2272,7 @@ kernel void mr_task_observe(
             sampledCommand(
                 dispatch,
                 program,
-                commandCurriculum,
+                commandOperators,
                 environment,
                 episode,
                 0u,
@@ -2437,7 +2440,7 @@ kernel void mr_task_observe(
     if (!reset && state.schedule.y == 0u &&
         (program.schedule.w &
          MR_TASK_PROGRAM_FLOATING_ROOT) != 0u &&
-        program.dynamics.x > 0.0f) {
+        program.eventSchedule.x > 0.0f) {
         const float progress = clamp(
             float(state.episode.z) /
                 max(float(program.curriculum.x - 1u), 1.0f),
@@ -2445,7 +2448,7 @@ kernel void mr_task_observe(
             1.0f
         );
         sourceV[vBase + program.root.w + 0u] +=
-            progress * program.dynamics.x *
+            progress * program.eventSchedule.x *
             randomSigned(
                 dispatch,
                 environment,
@@ -2454,7 +2457,7 @@ kernel void mr_task_observe(
                 48u
             );
         sourceV[vBase + program.root.w + 1u] +=
-            progress * program.dynamics.x *
+            progress * program.eventSchedule.x *
             randomSigned(
                 dispatch,
                 environment,
@@ -3275,8 +3278,11 @@ kernel void mr_task_complete(
             );
     device const float4* terrainSamples =
         taskTable<float4>(arena, program.offsets2.w);
-    device const float4* commandCurriculum =
-        taskTable<float4>(arena, program.offsets3.y);
+    device const MRTaskCommandOperatorGPU* commandOperators =
+        taskTable<MRTaskCommandOperatorGPU>(
+            arena,
+            program.offsets3.y
+        );
     device const MRTaskFrameGPU* frames =
         taskTable<MRTaskFrameGPU>(
             arena,
@@ -3500,7 +3506,7 @@ kernel void mr_task_complete(
                     compactContact[metric],
                     float(
                         impulse / dispatch.timing.y >
-                        program.dynamics.y
+                        program.taskScalars.w
                     )
                 );
             }
@@ -3545,7 +3551,7 @@ kernel void mr_task_complete(
         const float force =
             impulse / dispatch.timing.y;
         const bool contact =
-            force > program.dynamics.y;
+            force > program.taskScalars.w;
         const float slip =
             contact
             ? length(kinematicVelocity.xy)
@@ -3940,7 +3946,7 @@ kernel void mr_task_complete(
         state.commandAndPhase.xyz = sampledCommand(
             dispatch,
             program,
-            commandCurriculum,
+            commandOperators,
             environment,
             state.episode.y,
             episodeSteps,
@@ -3952,8 +3958,8 @@ kernel void mr_task_complete(
             state.episode.y,
             episodeSteps,
             64u,
-            program.scheduleSeconds.x,
-            program.scheduleSeconds.y
+            program.commandSchedule.y,
+            program.commandSchedule.z
         );
     } else if (!done) {
         --state.schedule.x;
@@ -3965,8 +3971,8 @@ kernel void mr_task_complete(
             state.episode.y,
             episodeSteps,
             65u,
-            program.scheduleSeconds.z,
-            program.scheduleSeconds.w
+            program.eventSchedule.y,
+            program.eventSchedule.z
         );
     } else {
         --state.schedule.y;
@@ -4269,7 +4275,7 @@ kernel void mr_task_update_curriculum(
             max(completed, 1.0f);
         if (state.completedEpisodeCount != 0ul &&
             meanMetric > program.taskScalars.y &&
-            survivalFraction >= program.commandUpper.w) {
+            survivalFraction >= program.taskScalars.z) {
             ++level;
         }
     }

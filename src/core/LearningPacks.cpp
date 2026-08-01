@@ -96,6 +96,7 @@ LearningPackResult validateTaskArtifact(
         !countFits(pack.recorders.size()) ||
         !countFits(pack.terminations.size()) ||
         !countFits(pack.randomization.size()) ||
+        !countFits(pack.commands.values.size()) ||
         !countFits(pack.terrain.sampleOffsets.size()) ||
         !countFits(pack.terrain.resetTranslations.size())) {
         return fail(
@@ -209,6 +210,13 @@ LearningPackResult validateTaskArtifact(
             pack.randomization.end(),
             [](const auto& value) {
                 return stringFits(value.target);
+            }
+        ) ||
+        !std::all_of(
+            pack.commands.values.begin(),
+            pack.commands.values.end(),
+            [](const auto& value) {
+                return stringFits(value.id);
             }
         ) ||
         !stringFits(pack.curriculum.successSignal) ||
@@ -903,12 +911,19 @@ std::vector<std::byte> serializeTask(
             target.pod(value.parameters);
         }
     );
-    writer.pod(pack.commands.lower);
-    writer.pod(pack.commands.upper);
-    writer.pod(pack.commands.limitLower);
-    writer.pod(pack.commands.limitUpper);
-    writer.pod(pack.commands.curriculumStep);
-    writer.pod(pack.commands.standingProbability);
+    writeRichVector(
+        writer,
+        pack.commands.values,
+        [](Writer& target, const TaskCommandSpec& value) {
+            target.string(value.id);
+            target.pod(value.lower);
+            target.pod(value.upper);
+            target.pod(value.limitLower);
+            target.pod(value.limitUpper);
+            target.pod(value.curriculumStep);
+        }
+    );
+    writer.pod(pack.commands.zeroProbability);
     writer.pod(pack.commands.minimumDurationSeconds);
     writer.pod(pack.commands.maximumDurationSeconds);
     writer.pod(pack.phase.periodSeconds);
@@ -1074,12 +1089,19 @@ bool deserializeTask(
                     source.pod(value.parameters);
             }
         ) ||
-        !reader.pod(pack.commands.lower) ||
-        !reader.pod(pack.commands.upper) ||
-        !reader.pod(pack.commands.limitLower) ||
-        !reader.pod(pack.commands.limitUpper) ||
-        !reader.pod(pack.commands.curriculumStep) ||
-        !reader.pod(pack.commands.standingProbability) ||
+        !readRichVector(
+            reader,
+            pack.commands.values,
+            [](Reader& source, TaskCommandSpec& value) {
+                return source.string(value.id) &&
+                    source.pod(value.lower) &&
+                    source.pod(value.upper) &&
+                    source.pod(value.limitLower) &&
+                    source.pod(value.limitUpper) &&
+                    source.pod(value.curriculumStep);
+            }
+        ) ||
+        !reader.pod(pack.commands.zeroProbability) ||
         !reader.pod(pack.commands.minimumDurationSeconds) ||
         !reader.pod(pack.commands.maximumDurationSeconds) ||
         !reader.pod(pack.phase.periodSeconds) ||

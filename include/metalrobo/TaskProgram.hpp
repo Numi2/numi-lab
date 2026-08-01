@@ -290,14 +290,22 @@ struct TaskRandomizationOperatorSpec {
     mr_float4 parameters{};
 };
 
+struct TaskCommandSpec {
+    std::string id;
+    float lower = 0.0f;
+    float upper = 0.0f;
+    float limitLower = 0.0f;
+    float limitUpper = 0.0f;
+    float curriculumStep = 0.0f;
+};
+
 struct TaskCommandProgram {
-    // Initial range, hard range limits, and per-curriculum-level expansion.
-    mr_float4 lower{};
-    mr_float4 upper{};
-    mr_float4 limitLower{};
-    mr_float4 limitUpper{};
-    mr_float4 curriculumStep{};
-    float standingProbability = 0.0f;
+    // The current compact native state owns at most three named scalar
+    // commands. The compiler resolves identity to a stable slot; observations
+    // and signals never address anonymous locomotion-vector components.
+    std::vector<TaskCommandSpec> values;
+    // Probability that the complete command cohort is set to zero.
+    float zeroProbability = 0.0f;
     float minimumDurationSeconds = 5.0f;
     float maximumDurationSeconds = 10.0f;
 };
@@ -403,6 +411,7 @@ struct TaskProgramLayout {
     // Dense current-sample scratch only for SensorIR-backed semantic sources.
     // Ordinary mechanics sources remain direct and allocate no extra value.
     std::uint32_t signalSensorScratchCount = 0u;
+    std::uint32_t commandCount = 0u;
     std::uint32_t recorderCount = 0u;
 };
 
@@ -438,6 +447,10 @@ public:
     signalSources() const noexcept;
     [[nodiscard]] std::span<const MRTaskSignalOperatorGPU>
     signalOperators() const noexcept;
+    [[nodiscard]] std::span<const MRTaskCommandOperatorGPU>
+    commandOperators() const noexcept;
+    [[nodiscard]] std::span<const std::string>
+    commandIds() const noexcept;
     [[nodiscard]] std::span<const MRTaskContactGroupGPU>
     contactGroups() const noexcept;
     [[nodiscard]] std::span<const std::uint32_t>

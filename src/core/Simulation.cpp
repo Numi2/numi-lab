@@ -670,23 +670,43 @@ TaskPack makeUnitreeG1TaskPack(
     task.curriculum.successThreshold = 0.8f;
     constexpr float baseHeightTarget = 0.78f;
     constexpr float footClearanceTarget = 0.10f;
+    constexpr std::array<std::string_view, 3u> commandIds{
+        "forward_velocity",
+        "lateral_velocity",
+        "yaw_velocity",
+    };
     task.supportForceThreshold = 1.0f;
     // Level zero is a near-static balance task with a fixed 0.1 m/s forward
     // command. This avoids an unnecessarily brittle inverted-pendulum optimum
     // while remaining below the gait-reward threshold; lateral and yaw motion
     // stay disabled until full-episode survival has been demonstrated.
-    task.commands.lower = {0.1f, 0.0f, 0.0f, 0.0f};
-    task.commands.upper = {0.1f, 0.0f, 0.0f, 0.0f};
-    task.commands.limitLower = {
-        -0.5f, -0.3f, -0.2f, 0.0f,
+    task.commands.values = {
+        {
+            .id = std::string{commandIds[0u]},
+            .lower = 0.1f,
+            .upper = 0.1f,
+            .limitLower = -0.5f,
+            .limitUpper = 1.0f,
+            .curriculumStep = 0.1f,
+        },
+        {
+            .id = std::string{commandIds[1u]},
+            .lower = 0.0f,
+            .upper = 0.0f,
+            .limitLower = -0.3f,
+            .limitUpper = 0.3f,
+            .curriculumStep = 0.1f,
+        },
+        {
+            .id = std::string{commandIds[2u]},
+            .lower = 0.0f,
+            .upper = 0.0f,
+            .limitLower = -0.2f,
+            .limitUpper = 0.2f,
+            .curriculumStep = 0.1f,
+        },
     };
-    task.commands.limitUpper = {
-        1.0f, 0.3f, 0.2f, 0.0f,
-    };
-    task.commands.curriculumStep = {
-        0.1f, 0.1f, 0.1f, 0.0f,
-    };
-    task.commands.standingProbability = 0.02f;
+    task.commands.zeroProbability = 0.02f;
     task.curriculum.minimumEpisodeSurvivalFraction = 0.8f;
     task.commands.minimumDurationSeconds = 10.0f;
     task.commands.maximumDurationSeconds = 10.0f;
@@ -746,13 +766,11 @@ TaskPack makeUnitreeG1TaskPack(
             0.0f
         ));
     }
-    for (std::uint32_t component = 0u;
-         component < 3u;
-         ++component) {
+    for (const std::string_view command : commandIds) {
         task.actorFrame.push_back(observation(
             TaskObservationSource::command,
-            {},
-            component
+            command,
+            0u
         ));
     }
     for (const G1JointLimit& joint : metadata.jointLimits) {
@@ -922,13 +940,11 @@ TaskPack makeUnitreeG1TaskPack(
             component
         ));
     }
-    for (std::uint32_t component = 0u;
-         component < 3u;
-         ++component) {
+    for (const std::string_view command : commandIds) {
         task.critic.push_back(observation(
             TaskObservationSource::command,
-            {},
-            component
+            command,
+            0u
         ));
     }
     for (const G1JointLimit& joint : metadata.jointLimits) {
@@ -1106,14 +1122,14 @@ TaskPack makeUnitreeG1TaskPack(
     const std::string commandX = sourceSignal(
         "command_x",
         TaskObservationSource::command,
-        {},
+        commandIds[0u],
         0u
     );
     const std::string commandY = sourceSignal(
         "command_y",
         TaskObservationSource::command,
-        {},
-        1u
+        commandIds[1u],
+        0u
     );
     const std::string linearTrackingXError = binarySignal(
         "linear_tracking_x_error",
@@ -1163,8 +1179,8 @@ TaskPack makeUnitreeG1TaskPack(
     const std::string commandYawVelocity = sourceSignal(
         "command_yaw_velocity",
         TaskObservationSource::command,
-        {},
-        2u
+        commandIds[2u],
+        0u
     );
     const std::string yawTrackingDelta = binarySignal(
         "yaw_tracking_error",
@@ -1423,18 +1439,18 @@ TaskPack makeUnitreeG1TaskPack(
         {
             semanticSource(
                 TaskObservationSource::command,
-                {},
+                commandIds[0u],
                 0u
             ),
             semanticSource(
                 TaskObservationSource::command,
-                {},
-                1u
+                commandIds[1u],
+                0u
             ),
             semanticSource(
                 TaskObservationSource::command,
-                {},
-                2u
+                commandIds[2u],
+                0u
             ),
         },
         TaskSignalTransform::square

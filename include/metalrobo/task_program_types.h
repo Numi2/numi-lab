@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 21u
+#define MR_TASK_PROGRAM_ABI_VERSION 22u
 #define MR_TASK_TRANSITION_METRIC_COUNT 3u
 
 #define MR_TASK_GOAL_FIXED 0u
@@ -226,20 +226,16 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_uint4 terrain;
     // max episode steps, max observation delay, reserved, flags.
     mr_uint4 schedule;
-    // curriculum levels, evaluation-window control steps, success signal,
-    // reserved. The success signal is MR_INVALID_INDEX when no promotion
-    // program is authored.
+    // Curriculum levels, evaluation-window steps, success signal, and compact
+    // command count. The signal is MR_INVALID_INDEX without promotion.
     mr_uint4 curriculum;
-    // Phase period, curriculum success threshold, reserved, reserved.
+    // Phase period, curriculum success threshold, minimum episode-survival
+    // fraction, and support-force threshold.
     mr_float4 taskScalars;
-    // xyz command lower bound; w standing-command probability.
-    mr_float4 commandLower;
-    // xyz command upper bound; w minimum episode-survival fraction.
-    mr_float4 commandUpper;
-    // command duration min/max and push interval min/max, seconds.
-    mr_float4 scheduleSeconds;
-    // push velocity magnitude, contact force threshold, reserved, reserved.
-    mr_float4 dynamics;
+    // Cohort-zero probability and command duration min/max, seconds.
+    mr_float4 commandSchedule;
+    // Push velocity magnitude and interval min/max, seconds.
+    mr_float4 eventSchedule;
     // Byte offsets in the immutable packed task arena:
     // action bindings, actor operators, critic operators, contact groups.
     mr_uint4 offsets0;
@@ -248,7 +244,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // termination operators, randomization operators, bias specs, terrain
     // samples.
     mr_uint4 offsets2;
-    // terrain reset profiles and reserved offsets.
+    // Terrain reset profiles, command operators, frames, and goals.
     mr_uint4 offsets3;
     mr_u64 taskFingerprint;
     mr_u64 worldFingerprint;
@@ -292,6 +288,13 @@ typedef struct MR_ALIGN16 MRTaskSignalOperatorGPU {
     // Operator parameters. Their meaning is opcode-specific.
     mr_float4 parameters;
 } MRTaskSignalOperatorGPU;
+
+typedef struct MR_ALIGN16 MRTaskCommandOperatorGPU {
+    // Initial lower/upper and hard lower/upper bounds.
+    mr_float4 range;
+    // Per-curriculum-level symmetric expansion and reserved values.
+    mr_float4 curriculum;
+} MRTaskCommandOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskContactGroupGPU {
     // member offset/count, flags, compact metric offset.
@@ -419,10 +422,11 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 368u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 336u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 64u);
 static_assert(sizeof(MRTaskSignalOperatorGPU) == 32u);
+static_assert(sizeof(MRTaskCommandOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
 static_assert(sizeof(MRTaskFrameGPU) == 48u);
 static_assert(sizeof(MRTaskGoalGPU) == 160u);

@@ -5198,6 +5198,7 @@ int main() {
             layout.criticObservationSize != 495u ||
             layout.contactMetricCount != 37u ||
             layout.delayStateCount != 2u ||
+            layout.commandCount != 3u ||
             layout.recorderCount != 3u) {
             fail("compiled G1 task layout changed");
         }
@@ -5229,10 +5230,24 @@ int main() {
             program.header().curriculum.x != 11u ||
             program.header().curriculum.y != 1000u ||
             program.header().curriculum.z == MR_INVALID_INDEX ||
+            program.header().curriculum.w != 3u ||
             std::abs(program.header().taskScalars.x - 0.8f) >
                 1.0e-6f ||
             std::abs(program.header().taskScalars.y - 0.8f) >
                 1.0e-6f ||
+            std::abs(program.header().taskScalars.z - 0.8f) >
+                1.0e-6f ||
+            std::abs(program.header().taskScalars.w - 1.0f) >
+                1.0e-6f ||
+            std::abs(program.header().commandSchedule.x - 0.02f) >
+                1.0e-6f ||
+            program.header().commandSchedule.y != 10.0f ||
+            program.header().commandSchedule.z != 10.0f ||
+            program.header().commandSchedule.w != 0.0f ||
+            program.header().eventSchedule.x != 0.5f ||
+            program.header().eventSchedule.y != 5.0f ||
+            program.header().eventSchedule.z != 5.0f ||
+            program.header().eventSchedule.w != 0.0f ||
             !std::ranges::equal(
                 program.recorderIds(),
                 std::array<std::string, 3u>{
@@ -5250,15 +5265,30 @@ int main() {
                 }
             ) != 11 ||
             program.header().articulation.w != 5u ||
-            program.header().commandLower.x != 0.1f ||
-            program.header().commandLower.y != 0.0f ||
-            program.header().commandLower.z != 0.0f ||
-            program.header().commandUpper.x != 0.1f ||
-            program.header().commandUpper.y != 0.0f ||
-            program.header().commandUpper.z != 0.0f ||
-            std::abs(
-                program.header().commandUpper.w - 0.8f
-            ) > 1.0e-6f ||
+            !std::ranges::equal(
+                program.commandIds(),
+                std::array<std::string, 3u>{
+                    "forward_velocity",
+                    "lateral_velocity",
+                    "yaw_velocity",
+                }
+            ) ||
+            program.commandOperators().size() != 3u ||
+            program.commandOperators()[0].range.x != 0.1f ||
+            program.commandOperators()[0].range.y != 0.1f ||
+            program.commandOperators()[0].range.z != -0.5f ||
+            program.commandOperators()[0].range.w != 1.0f ||
+            program.commandOperators()[0].curriculum.x != 0.1f ||
+            program.commandOperators()[1].range.x != 0.0f ||
+            program.commandOperators()[1].range.y != 0.0f ||
+            program.commandOperators()[1].range.z != -0.3f ||
+            program.commandOperators()[1].range.w != 0.3f ||
+            program.commandOperators()[1].curriculum.x != 0.1f ||
+            program.commandOperators()[2].range.x != 0.0f ||
+            program.commandOperators()[2].range.y != 0.0f ||
+            program.commandOperators()[2].range.z != -0.2f ||
+            program.commandOperators()[2].range.w != 0.2f ||
+            program.commandOperators()[2].curriculum.x != 0.1f ||
             program.terminationOperators()[0].parameters.y !=
                 -2.0f ||
             program.terminationOperators()[1].parameters.y !=
@@ -5476,6 +5506,67 @@ int main() {
             repeated.fingerprint() != preserved) {
             fail(
                 "invalid generic soft-limit source was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack duplicateCommand = authored.task;
+        duplicateCommand.commands.values[1u].id =
+            duplicateCommand.commands.values[0u].id;
+        const auto duplicateCommandRejected =
+            metalrobo::compileTaskProgram(
+                duplicateCommand,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (duplicateCommandRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "duplicate command identity was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack unresolvedCommand = authored.task;
+        const auto commandObservation = std::ranges::find_if(
+            unresolvedCommand.actorFrame,
+            [](const metalrobo::TaskObservationOperatorSpec& value) {
+                return value.source ==
+                    metalrobo::TaskObservationSource::command;
+            }
+        );
+        if (commandObservation == unresolvedCommand.actorFrame.end()) {
+            fail("G1 actor contract has no command observation");
+        }
+        commandObservation->target = "missing_command";
+        const auto unresolvedCommandRejected =
+            metalrobo::compileTaskProgram(
+                unresolvedCommand,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (unresolvedCommandRejected.status !=
+                metalrobo::TaskCompileStatus::unresolvedSemantic ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "unresolved command identity was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack excessCommands = authored.task;
+        excessCommands.commands.values.push_back({
+            .id = "unsupported_compact_command",
+        });
+        const auto excessCommandsRejected =
+            metalrobo::compileTaskProgram(
+                excessCommands,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (excessCommandsRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "oversized compact command layout was not transactionally rejected"
             );
         }
         metalrobo::TaskPack duplicateRecorder = authored.task;
