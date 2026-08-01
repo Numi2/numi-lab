@@ -6,6 +6,7 @@
 #include "metalrobo/RobotDescriptionCooker.hpp"
 #include "metalrobo/TaskProgram.hpp"
 #include "metalrobo/WorldPack.hpp"
+#include "metalrobo/counter_rng.h"
 
 #include <algorithm>
 #include <array>
@@ -66,6 +67,40 @@ public:
 
 [[noreturn]] void fail(const std::string& message) {
     throw std::runtime_error(message);
+}
+
+float sensorGaussianReference(
+    const std::uint64_t seed,
+    const std::uint32_t environment,
+    const std::uint32_t episode,
+    const std::uint64_t sensorIdentity,
+    const std::uint64_t sample,
+    const std::uint32_t channel,
+    const std::uint32_t purpose
+) {
+    const float first = std::max(
+        mr_sensor_counter_uniform(
+            seed,
+            environment,
+            episode,
+            sensorIdentity,
+            sample,
+            channel,
+            purpose
+        ),
+        1.0f / 16777216.0f
+    );
+    const float second = mr_sensor_counter_uniform(
+        seed,
+        environment,
+        episode,
+        sensorIdentity,
+        sample,
+        channel,
+        purpose + 1u
+    );
+    return std::sqrt(-2.0f * std::log(first)) *
+        std::cos(6.28318530717958647692f * second);
 }
 
 std::uint64_t compileFloatingBaseTaskFixture() {
@@ -686,6 +721,479 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         fail(
             "fixed-base task did not execute through the generic Metal task graph: " +
             executed.message
+        );
+    }
+    constexpr std::uint64_t corruptionSeed =
+        0x5319a7c2d84e6b01ull;
+    std::vector<metalrobo::SensorSpec> cleanCorruptionSensors{
+        {
+            .id = "tool_twist_corruption",
+            .parentKind =
+                MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+            .parentBodyIndex = toolBodyIndex,
+            .kind = MR_WORLD_SENSOR_FRAME_TWIST_WORLD,
+            .localPose = {
+                .position = {0.0f, 0.0f, 0.2f, 0.0f},
+            },
+            .nominalRateHz = 50.0f,
+            .schedulePhase =
+                MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+            .historyLength = 1u,
+            .consumerFlags =
+                MR_WORLD_SENSOR_CONSUMER_RECORDER,
+        },
+        {
+            .id = "tool_twist_dropout",
+            .parentKind =
+                MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+            .parentBodyIndex = toolBodyIndex,
+            .kind = MR_WORLD_SENSOR_FRAME_TWIST_WORLD,
+            .localPose = {
+                .position = {0.0f, 0.0f, 0.2f, 0.0f},
+            },
+            .nominalRateHz = 50.0f,
+            .schedulePhase =
+                MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+            .historyLength = 1u,
+            .consumerFlags =
+                MR_WORLD_SENSOR_CONSUMER_RECORDER,
+        },
+        {
+            .id = "tool_pose_corruption",
+            .parentKind =
+                MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+            .parentBodyIndex = toolBodyIndex,
+            .kind = MR_WORLD_SENSOR_STATE,
+            .localPose = {
+                .position = {0.0f, 0.0f, 0.2f, 0.0f},
+            },
+            .nominalRateHz = 50.0f,
+            .schedulePhase =
+                MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+            .historyLength = 1u,
+            .consumerFlags =
+                MR_WORLD_SENSOR_CONSUMER_RECORDER,
+        },
+    };
+    std::vector<metalrobo::SensorSpec> corruptedSensors =
+        cleanCorruptionSensors;
+    corruptedSensors[0u].valueNoiseSigma = 0.07f;
+    corruptedSensors[0u].biasNoiseSigma = 0.03f;
+    corruptedSensors[1u].dropoutProbability = 1.0f;
+    corruptedSensors[2u].valueNoiseSigma = 0.04f;
+    corruptedSensors[2u].biasNoiseSigma = 0.02f;
+    const metalrobo::CookedTactileSystem noTactile;
+    metalrobo::CompiledSensorProgram cleanCorruptionProgram;
+    metalrobo::CompiledSensorProgram corruptedProgram;
+    const auto cleanCorruptionCompile =
+        metalrobo::compileSensorProgram(
+            cleanCorruptionSensors,
+            noTactile,
+            compiled.world,
+            cleanCorruptionProgram
+        );
+    const auto corruptedCompile =
+        metalrobo::compileSensorProgram(
+            corruptedSensors,
+            noTactile,
+            compiled.world,
+            corruptedProgram
+        );
+    const MRSensorDescriptorGPU cleanCorruptionDescriptor =
+        cleanCorruptionProgram.valid()
+        ? cleanCorruptionProgram.descriptors()[0u]
+        : MRSensorDescriptorGPU{};
+    const MRSensorDescriptorGPU corruptedDescriptor =
+        corruptedProgram.valid()
+        ? corruptedProgram.descriptors()[0u]
+        : MRSensorDescriptorGPU{};
+    if (!cleanCorruptionCompile.succeeded() ||
+        !corruptedCompile.succeeded() ||
+        cleanCorruptionProgram.layout().outputElementCount != 19u ||
+        corruptedProgram.layout().outputElementCount != 19u ||
+        cleanCorruptionDescriptor.randomIdentity.x !=
+            corruptedDescriptor.randomIdentity.x ||
+        cleanCorruptionDescriptor.randomIdentity.y !=
+            corruptedDescriptor.randomIdentity.y ||
+        (corruptedDescriptor.randomIdentity.x == 0u &&
+         corruptedDescriptor.randomIdentity.y == 0u)) {
+        fail("native SensorIR corruption contract did not compile");
+    }
+    constexpr std::size_t corruptionSteps = 2u;
+    const auto executeCorruption = [&] (
+        const metalrobo::CompiledSensorProgram& sensorProgram,
+        const std::uint64_t seed,
+        const bool resetFirstStep,
+        metalrobo::MetalWorldResult& sensorResult
+    ) {
+        std::vector<float> zeroEfforts(
+            environments * corruptionSteps *
+                compiled.world.nv(),
+            0.0f
+        );
+        std::vector<std::uint32_t> corruptionResetMasks(
+            environments * corruptionSteps,
+            0u
+        );
+        if (resetFirstStep) {
+            std::fill_n(
+                corruptionResetMasks.begin(),
+                environments,
+                1u
+            );
+        }
+        metalrobo::MetalWorldBatch sensorBatch{
+            .environmentCount = environments,
+            .controlStepCount = corruptionSteps,
+            .initialQ = initialQ,
+            .initialV = initialV,
+            .efforts = zeroEfforts,
+            .resetMasks = resetFirstStep
+                ? std::span<const std::uint32_t>{
+                      corruptionResetMasks
+                  }
+                : std::span<const std::uint32_t>{},
+            .resetQ = resetFirstStep
+                ? std::span<const float>{initialQ}
+                : std::span<const float>{},
+            .resetV = resetFirstStep
+                ? std::span<const float>{initialV}
+                : std::span<const float>{},
+            .initialSceneBodies = initialSceneBodies,
+            .resetSceneBodies = resetFirstStep
+                ? std::span<const MRBodyStateGPU>{
+                      initialSceneBodies
+                  }
+                : std::span<const MRBodyStateGPU>{},
+        };
+        metalrobo::MetalWorldStepConfig sensorStep;
+        sensorStep.timestepSeconds = 0.02f;
+        sensorStep.physicsSubsteps = 2u;
+        sensorStep.executionMode =
+            metalrobo::MetalWorldExecutionMode::numiSolver;
+        sensorStep.actuationMode =
+            metalrobo::MetalWorldActuationMode::effort;
+        sensorStep.sensorProgram = sensorProgram;
+        sensorStep.taskSeed = seed;
+        sensorStep.publishSensorOutputs = true;
+        sensorStep.ccdMode =
+            metalrobo::MetalWorldCCDMode::disabled;
+        metalrobo::MetalWorldContext sensorContext(
+            contextConfiguration
+        );
+        const auto sensorExecution = sensorContext.run(
+            compiled.world,
+            sensorBatch,
+            sensorStep,
+            sensorResult
+        );
+        if (!sensorExecution.succeeded() ||
+            sensorResult.sensorOutputs.size() !=
+                environments * 19u ||
+            sensorResult.sensorMetadata.size() !=
+                environments * 3u) {
+            fail(
+                "native SensorIR corruption execution failed: " +
+                sensorExecution.message
+            );
+        }
+    };
+    metalrobo::MetalWorldResult cleanCorruptionResult;
+    metalrobo::MetalWorldResult corruptedResult;
+    metalrobo::MetalWorldResult replayedCorruptionResult;
+    metalrobo::MetalWorldResult changedSeedResult;
+    metalrobo::MetalWorldResult cleanResetCorruptionResult;
+    metalrobo::MetalWorldResult resetCorruptionResult;
+    executeCorruption(
+        cleanCorruptionProgram,
+        corruptionSeed,
+        false,
+        cleanCorruptionResult
+    );
+    executeCorruption(
+        corruptedProgram,
+        corruptionSeed,
+        false,
+        corruptedResult
+    );
+    executeCorruption(
+        corruptedProgram,
+        corruptionSeed,
+        false,
+        replayedCorruptionResult
+    );
+    executeCorruption(
+        corruptedProgram,
+        corruptionSeed + 1u,
+        false,
+        changedSeedResult
+    );
+    executeCorruption(
+        cleanCorruptionProgram,
+        corruptionSeed,
+        true,
+        cleanResetCorruptionResult
+    );
+    executeCorruption(
+        corruptedProgram,
+        corruptionSeed,
+        true,
+        resetCorruptionResult
+    );
+    const std::uint64_t sensorIdentity =
+        static_cast<std::uint64_t>(
+            corruptedDescriptor.randomIdentity.x
+        ) |
+        (static_cast<std::uint64_t>(
+             corruptedDescriptor.randomIdentity.y
+         ) << 32u);
+    const MRSensorDescriptorGPU poseCorruptionDescriptor =
+        corruptedProgram.descriptors()[2u];
+    const std::uint64_t poseSensorIdentity =
+        static_cast<std::uint64_t>(
+            poseCorruptionDescriptor.randomIdentity.x
+        ) |
+        (static_cast<std::uint64_t>(
+             poseCorruptionDescriptor.randomIdentity.y
+         ) << 32u);
+    const auto verifyCorruption = [&] (
+        const metalrobo::MetalWorldResult& clean,
+        const metalrobo::MetalWorldResult& noisy,
+        const std::uint32_t episode,
+        const std::uint64_t publishedSample
+    ) {
+        for (std::uint32_t environment = 0u;
+             environment < environments;
+             ++environment) {
+            const std::size_t outputBase = environment * 19u;
+            for (std::uint32_t channel = 0u;
+                 channel < 6u;
+                 ++channel) {
+                const float expectedDelta =
+                    corruptedSensors[0u].biasNoiseSigma *
+                        sensorGaussianReference(
+                            corruptionSeed,
+                            environment,
+                            episode,
+                            sensorIdentity,
+                            0u,
+                            channel,
+                            0u
+                        ) +
+                    corruptedSensors[0u].valueNoiseSigma *
+                        sensorGaussianReference(
+                            corruptionSeed,
+                            environment,
+                            episode,
+                            sensorIdentity,
+                            publishedSample,
+                            channel,
+                            2u
+                        );
+                const float actualDelta =
+                    noisy.sensorOutputs[outputBase + channel] -
+                    clean.sensorOutputs[outputBase + channel];
+                if (std::abs(actualDelta - expectedDelta) >
+                    8.0e-5f *
+                        (1.0f + std::abs(expectedDelta))) {
+                    fail(
+                        "native SensorIR Gaussian corruption disagrees with the counter-RNG host mirror"
+                    );
+                }
+            }
+            for (std::size_t channel = 0u;
+                 channel < 6u;
+                 ++channel) {
+                if (noisy.sensorOutputs[
+                        outputBase + 6u + channel
+                    ] != 0.0f) {
+                    fail(
+                        "native SensorIR dropout published a partial sample"
+                    );
+                }
+            }
+            const std::uint32_t noisyValidity =
+                noisy.sensorMetadata[environment * 3u]
+                    .ageValidityAndLayout.y;
+            const std::uint32_t dropoutValidity =
+                noisy.sensorMetadata[environment * 3u + 1u]
+                    .ageValidityAndLayout.y;
+            if ((noisyValidity &
+                 (MR_SENSOR_SAMPLE_VALID |
+                  MR_SENSOR_SAMPLE_FRESH)) !=
+                    (MR_SENSOR_SAMPLE_VALID |
+                     MR_SENSOR_SAMPLE_FRESH) ||
+                (dropoutValidity &
+                 (MR_SENSOR_SAMPLE_FRESH |
+                  MR_SENSOR_SAMPLE_DROPPED)) !=
+                    (MR_SENSOR_SAMPLE_FRESH |
+                     MR_SENSOR_SAMPLE_DROPPED) ||
+                (dropoutValidity & MR_SENSOR_SAMPLE_VALID) != 0u) {
+                fail(
+                    "native SensorIR dropout validity contract is inconsistent"
+                );
+            }
+            const std::size_t poseBase = outputBase + 12u;
+            for (std::uint32_t channel = 0u;
+                 channel < 3u;
+                 ++channel) {
+                const float expectedDelta =
+                    corruptedSensors[2u].biasNoiseSigma *
+                        sensorGaussianReference(
+                            corruptionSeed,
+                            environment,
+                            episode,
+                            poseSensorIdentity,
+                            0u,
+                            channel,
+                            0u
+                        ) +
+                    corruptedSensors[2u].valueNoiseSigma *
+                        sensorGaussianReference(
+                            corruptionSeed,
+                            environment,
+                            episode,
+                            poseSensorIdentity,
+                            publishedSample,
+                            channel,
+                            2u
+                        );
+                const float actualDelta =
+                    noisy.sensorOutputs[poseBase + channel] -
+                    clean.sensorOutputs[poseBase + channel];
+                if (std::abs(actualDelta - expectedDelta) >
+                    8.0e-5f *
+                        (1.0f + std::abs(expectedDelta))) {
+                    fail(
+                        "native SensorIR pose translation corruption disagrees with the host mirror"
+                    );
+                }
+            }
+            std::array<float, 3u> tangent{};
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                const std::uint32_t channel = axis + 3u;
+                tangent[axis] =
+                    corruptedSensors[2u].biasNoiseSigma *
+                        sensorGaussianReference(
+                            corruptionSeed,
+                            environment,
+                            episode,
+                            poseSensorIdentity,
+                            0u,
+                            channel,
+                            0u
+                        ) +
+                    corruptedSensors[2u].valueNoiseSigma *
+                        sensorGaussianReference(
+                            corruptionSeed,
+                            environment,
+                            episode,
+                            poseSensorIdentity,
+                            publishedSample,
+                            channel,
+                            2u
+                        );
+            }
+            const float angle = std::sqrt(
+                tangent[0u] * tangent[0u] +
+                tangent[1u] * tangent[1u] +
+                tangent[2u] * tangent[2u]
+            );
+            const float halfAngle = 0.5f * angle;
+            const float scale = angle > 1.0e-7f
+                ? std::sin(halfAngle) / angle
+                : 0.5f;
+            const std::array<float, 4u> delta{
+                tangent[0u] * scale,
+                tangent[1u] * scale,
+                tangent[2u] * scale,
+                std::cos(halfAngle),
+            };
+            const std::array<float, 4u> cleanOrientation{
+                clean.sensorOutputs[poseBase + 3u],
+                clean.sensorOutputs[poseBase + 4u],
+                clean.sensorOutputs[poseBase + 5u],
+                clean.sensorOutputs[poseBase + 6u],
+            };
+            std::array<float, 4u> expectedOrientation{
+                cleanOrientation[3u] * delta[0u] +
+                    cleanOrientation[0u] * delta[3u] +
+                    cleanOrientation[1u] * delta[2u] -
+                    cleanOrientation[2u] * delta[1u],
+                cleanOrientation[3u] * delta[1u] -
+                    cleanOrientation[0u] * delta[2u] +
+                    cleanOrientation[1u] * delta[3u] +
+                    cleanOrientation[2u] * delta[0u],
+                cleanOrientation[3u] * delta[2u] +
+                    cleanOrientation[0u] * delta[1u] -
+                    cleanOrientation[1u] * delta[0u] +
+                    cleanOrientation[2u] * delta[3u],
+                cleanOrientation[3u] * delta[3u] -
+                    cleanOrientation[0u] * delta[0u] -
+                    cleanOrientation[1u] * delta[1u] -
+                    cleanOrientation[2u] * delta[2u],
+            };
+            const float orientationNorm = std::sqrt(
+                expectedOrientation[0u] * expectedOrientation[0u] +
+                expectedOrientation[1u] * expectedOrientation[1u] +
+                expectedOrientation[2u] * expectedOrientation[2u] +
+                expectedOrientation[3u] * expectedOrientation[3u]
+            );
+            for (std::uint32_t component = 0u;
+                 component < 4u;
+                 ++component) {
+                expectedOrientation[component] /= orientationNorm;
+                if (std::abs(
+                        noisy.sensorOutputs[
+                            poseBase + 3u + component
+                        ] - expectedOrientation[component]
+                    ) > 1.2e-4f) {
+                    fail(
+                        "native SensorIR pose orientation noise left tangent-space semantics"
+                    );
+                }
+            }
+            const std::uint32_t poseValidity =
+                noisy.sensorMetadata[environment * 3u + 2u]
+                    .ageValidityAndLayout.y;
+            if ((poseValidity &
+                 (MR_SENSOR_SAMPLE_VALID |
+                  MR_SENSOR_SAMPLE_FRESH)) !=
+                    (MR_SENSOR_SAMPLE_VALID |
+                     MR_SENSOR_SAMPLE_FRESH)) {
+                fail(
+                    "native SensorIR pose corruption lost sample validity"
+                );
+            }
+        }
+    };
+    verifyCorruption(
+        cleanCorruptionResult,
+        corruptedResult,
+        0u,
+        1u
+    );
+    verifyCorruption(
+        cleanResetCorruptionResult,
+        resetCorruptionResult,
+        1u,
+        2u
+    );
+    if (corruptedResult.sensorOutputs !=
+            replayedCorruptionResult.sensorOutputs ||
+        std::memcmp(
+            corruptedResult.sensorMetadata.data(),
+            replayedCorruptionResult.sensorMetadata.data(),
+            corruptedResult.sensorMetadata.size() *
+                sizeof(MRSensorSampleMetadataGPU)
+        ) != 0 ||
+        std::equal(
+            corruptedResult.sensorOutputs.begin(),
+            corruptedResult.sensorOutputs.begin() + 6,
+            changedSeedResult.sensorOutputs.begin()
+        )) {
+        fail(
+            "native SensorIR corruption did not preserve deterministic replay and seed separation"
         );
     }
     const std::uint64_t taskPipelineCount =
@@ -2029,6 +2537,11 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .target = "tool_contact_state",
         .component = 0u,
     });
+    wrenchAuthored.task.critic.push_back({
+        .source = metalrobo::TaskObservationSource::sensorValidity,
+        .target = "tool_ground_contact_state",
+        .component = 5u,
+    });
     wrenchAuthored.task.criticIncludesCleanHistory = false;
     wrenchAuthored.task.contactGroups = {{
         .id = "tool_contact",
@@ -2083,7 +2596,10 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             .nominalRateHz = 50.0f,
             .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
             .historyLength = 1u,
-            .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
+            .consumerFlags =
+                MR_WORLD_SENSOR_CONSUMER_CRITIC |
+                MR_WORLD_SENSOR_CONSUMER_RECORDER,
+            .dropoutProbability = 1.0f,
         },
     };
     metalrobo::PolicyPack wrenchPolicy;
@@ -2096,10 +2612,10 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .bias = std::vector<float>(1u, 0.0f),
     }};
     wrenchPolicy.criticLayers = {{
-        .inputCount = 18u,
+        .inputCount = 19u,
         .outputCount = 1u,
         .activation = metalrobo::PolicyActivation::identity,
-        .weights = std::vector<float>(18u, 0.0f),
+        .weights = std::vector<float>(19u, 0.0f),
         .bias = std::vector<float>(1u, 0.0f),
     }};
     wrenchAuthored.policy = std::move(wrenchPolicy);
@@ -2188,16 +2704,16 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         wrenchStep,
         wrenchResult
     );
-    const std::size_t finalWrenchBase = 18u * wrenchSteps;
+    const std::size_t finalWrenchBase = 19u * wrenchSteps;
     double forceNormSquared = 0.0;
     double torqueNormSquared = 0.0;
     bool wrenchParity =
         wrenchExecution.succeeded() &&
         wrenchResult.sensorOutputs.size() == 16u &&
         wrenchResult.criticObservations.size() ==
-            18u * (wrenchSteps + 1u);
+            19u * (wrenchSteps + 1u);
     if (wrenchParity) {
-        const std::size_t resetObservationBase = 18u * 2u;
+        const std::size_t resetObservationBase = 19u * 2u;
         for (std::size_t component = 0u;
              component < 6u;
              ++component) {
@@ -2221,6 +2737,9 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         wrenchParity = wrenchParity &&
             wrenchResult.criticObservations[
                 resetObservationBase + 17u
+            ] == 1.0f &&
+            wrenchResult.criticObservations[
+                resetObservationBase + 18u
             ] == 1.0f;
     }
     if (wrenchParity) {
@@ -2373,7 +2892,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     bool contactStateParity = expectedContactCount != 0u &&
         wrenchResult.sensorOutputs.size() == 16u &&
         wrenchResult.criticObservations.size() ==
-            18u * (wrenchSteps + 1u);
+            19u * (wrenchSteps + 1u);
     if (contactStateParity) {
         contactStateParity =
         wrenchResult.sensorOutputs[6u] == 1.0f &&
@@ -2410,7 +2929,20 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         contactStateParity = contactStateParity &&
             wrenchResult.criticObservations[
                 finalWrenchBase + 17u
-            ] == 1.0f;
+            ] == 1.0f &&
+            wrenchResult.criticObservations[
+                finalWrenchBase + 18u
+            ] == 1.0f &&
+            wrenchResult.sensorMetadata.size() == 3u &&
+            (wrenchResult.sensorMetadata[2u]
+                 .ageValidityAndLayout.y &
+             (MR_SENSOR_SAMPLE_FRESH |
+              MR_SENSOR_SAMPLE_DROPPED)) ==
+                (MR_SENSOR_SAMPLE_FRESH |
+                 MR_SENSOR_SAMPLE_DROPPED) &&
+            (wrenchResult.sensorMetadata[2u]
+                 .ageValidityAndLayout.y &
+             MR_SENSOR_SAMPLE_VALID) == 0u;
     }
     if (!wrenchParity || !contactStateParity ||
         !(forceNormNewtons > 0.1f) ||
@@ -2593,6 +3125,8 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
         .historyLength = 2u,
         .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
+        .valueNoiseSigma = 0.02f,
+        .biasNoiseSigma = 0.01f,
     });
     transactionAuthored.sensors.push_back({
         .id = "tool_imu_transaction_canary",
@@ -3128,6 +3662,9 @@ std::uint64_t checkWorldPackSimulationImport(
         .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
         .historyLength = 2u,
         .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
+        .valueNoiseSigma = 0.02f,
+        .biasNoiseSigma = 0.01f,
+        .dropoutProbability = 0.05f,
     });
     const auto objectAsset = std::find_if(
         episode.assets.begin(),
@@ -3254,6 +3791,9 @@ std::uint64_t checkWorldPackSimulationImport(
         importedImu->parentKind !=
             MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK ||
         importedImu->parentBodyIndex == MR_INVALID_INDEX ||
+        importedImu->valueNoiseSigma != 0.02f ||
+        importedImu->biasNoiseSigma != 0.01f ||
+        importedImu->dropoutProbability != 0.05f ||
         importedContact == imported.sensors.end() ||
         importedContact->filterBodies.size() != 1u ||
         importedContact->filterBodies.front() !=
@@ -3263,6 +3803,9 @@ std::uint64_t checkWorldPackSimulationImport(
         compiledImu == MR_INVALID_INDEX ||
         compiledSensors.descriptors()[compiledImu].identity.x !=
             MR_WORLD_SENSOR_IMU ||
+        compiledSensors.descriptors()[compiledImu].noise.x != 0.02f ||
+        compiledSensors.descriptors()[compiledImu].noise.y != 0.01f ||
+        compiledSensors.descriptors()[compiledImu].noise.z != 0.05f ||
         compiledContact == MR_INVALID_INDEX ||
         compiledSensors.descriptors()[compiledContact].identity.x !=
             MR_WORLD_SENSOR_CONTACT_STATE ||
@@ -3831,6 +4374,7 @@ int main() {
             << " task_transaction=pass"
             << " imu=pass"
             << " contact_state=pass"
+            << " sensor_corruption=pass"
             << " world_pack=" << worldPackFingerprint
             << '\n';
         return 0;

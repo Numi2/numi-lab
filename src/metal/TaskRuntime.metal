@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/counter_rng.h"
 #include "metalrobo/runtime_abi_generated.h"
 #include "metalrobo/task_program_types.h"
 #include "metalrobo/world_compiler_types.h"
@@ -21,17 +22,6 @@ inline device const T* taskTable(
     );
 }
 
-inline ulong mix64(ulong value) {
-    value += 0x9e3779b97f4a7c15ul;
-    value =
-        (value ^ (value >> 30u)) *
-        0xbf58476d1ce4e5b9ul;
-    value =
-        (value ^ (value >> 27u)) *
-        0x94d049bb133111ebul;
-    return value ^ (value >> 31u);
-}
-
 inline float randomUnit(
     device const MRTaskDispatchGPU& dispatch,
     const uint environment,
@@ -39,18 +29,13 @@ inline float randomUnit(
     const uint controlStep,
     const uint channel
 ) {
-    ulong key = dispatch.seed;
-    key ^= ulong(environment + 1u) *
-        0xd2b74407b1ce6e93ul;
-    key ^= ulong(episode + 1u) *
-        0xca5a826395121157ul;
-    key ^= ulong(controlStep + 1u) *
-        0x9e3779b185ebca87ul;
-    key ^= ulong(channel + 1u) *
-        0x94d049bb133111ebul;
-    return
-        float(uint(mix64(key) >> 40u)) *
-        (1.0f / 16777216.0f);
+    return mr_task_counter_uniform(
+        dispatch.seed,
+        environment,
+        episode,
+        controlStep,
+        channel
+    );
 }
 
 inline float randomSigned(

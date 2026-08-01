@@ -138,6 +138,13 @@ bool tactileEmpty(const CookedTactileSystem& tactile) {
         tactile.targetShapeIndices.empty();
 }
 
+std::uint64_t sensorRandomIdentity(const std::string_view id) {
+    Hash hash;
+    hash.string("MetalRobo.SensorIR.counter-key");
+    hash.string(id);
+    return hash.finish();
+}
+
 SensorExecutionDomain executionDomain(const MRWorldSensorKind kind) {
     switch (kind) {
     case MR_WORLD_SENSOR_RGB:
@@ -315,6 +322,7 @@ SensorCompileDiagnostics compileSensorProgram(
     staged->descriptors.reserve(sensors.size());
     staged->tactile = tactile;
     std::unordered_set<std::string> uniqueIds;
+    std::unordered_set<std::uint64_t> uniqueRandomIdentities;
     std::unordered_set<std::uint32_t> usedTactile;
 
     for (std::uint32_t index = 0u; index < sensors.size(); ++index) {
@@ -617,6 +625,15 @@ SensorCompileDiagnostics compileSensorProgram(
             resolvedFilters.begin(),
             resolvedFilters.end()
         );
+        const std::uint64_t randomIdentity =
+            sensorRandomIdentity(sensor.id);
+        if (!uniqueRandomIdentities.insert(randomIdentity).second) {
+            return reject(
+                SensorCompileStatus::duplicateSemantic,
+                element + ".id",
+                "sensor ids collide in the 64-bit counter-RNG identity"
+            );
+        }
         MRSensorDescriptorGPU descriptor{};
         descriptor.identity = {
             sensor.kind,
@@ -651,6 +668,12 @@ SensorCompileDiagnostics compileSensorProgram(
         descriptor.filter = {
             filterOffset,
             filterCount,
+            0u,
+            0u,
+        };
+        descriptor.randomIdentity = {
+            static_cast<std::uint32_t>(randomIdentity),
+            static_cast<std::uint32_t>(randomIdentity >> 32u),
             0u,
             0u,
         };

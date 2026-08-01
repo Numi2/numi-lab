@@ -1563,7 +1563,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 componentLimit =
                     spec.source == TaskObservationSource::sensorValue
                     ? descriptor.output.y
-                    : 5u;
+                    : 6u;
                 // auxiliary.z stores the environment-local SensorIR output
                 // offset. Validity reads metadata at source.y but retains the
                 // offset so both opcodes share one generated record layout.

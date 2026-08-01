@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 16,
+  "abi_version": 17,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -119,7 +119,7 @@
     ["rod_ccd", "rodCCDWitnessTagPipeline", "mr_world_tag_rod_ccd_witnesses", "one", 0]
   ],
   "abi_constants": {
-    "MR_SENSOR_PROGRAM_ABI_VERSION": 6,
+    "MR_SENSOR_PROGRAM_ABI_VERSION": 7,
     "MR_SENSOR_DISPATCH_HAS_RESETS": 1,
     "MR_SENSOR_DISPATCH_HAS_CONTACTS": 2
   },
@@ -146,6 +146,7 @@
         ["mr_uint4", "dimensions"],
         ["mr_uint4", "source"],
         ["mr_uint4", "filter"],
+        ["mr_uint4", "randomIdentity"],
         ["mr_float4", "localPosition"],
         ["mr_float4", "localOrientation"],
         ["mr_float4", "timing"],
@@ -172,6 +173,7 @@
         ["mr_uint4", "phaseAndSequence"],
         ["mr_uint4", "timestampAgeValidity"],
         ["mr_uint4", "previousSampleTimestamp"],
+        ["mr_uint4", "randomIdentity"],
         ["mr_float4", "previousPointVelocity"]
       ]
     },

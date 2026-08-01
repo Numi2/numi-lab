@@ -46,6 +46,15 @@ zero. An unresolved filter must reject compilation without replacing the
 previous program, and the current WorldPack binary round trip must preserve
 and re-resolve the semantic filter rather than persisting a packed body index.
 
+The corruption case runs clean and corrupted copies of the same native world.
+All six twist channels and pose translation match a host mirror of the shared
+counter RNG; pose orientation matches the same Gaussian tangent perturbation
+and remains normalized. Identical seeds replay outputs and metadata exactly,
+a changed seed separates the stream, and a reset selects the next episode key.
+A 100% dropout sensor publishes an all-zero coherent sample with `fresh` and
+`dropped` set, `valid` clear, and the dropped bit observable through TaskIR.
+WorldPack round-trip evidence preserves all three authored corruption fields.
+
 The physical/SensorIR transaction case first commits one articulated-tool
 contact, its manifold, and a nonzero pose history in a resident session. Reset
 then moves a second kinematic obstacle into contact against a one-pair
@@ -62,10 +71,10 @@ its typed physics-error transition. The following accepted transition must be
 byte-identical between branches across q/v, scene/manifolds, actor and critic
 observations, policy samples/log probabilities/values, task transitions,
 SensorIR output/metadata, and contact evidence. This qualifies persistent
-per-environment TaskIR rollback. The sensor set includes IMU and filtered
-contact-state canaries, so their kinematic state, histories, and compact
-publications must also return to the reference branch; global curriculum
-scheduling remains outside that claim.
+per-environment TaskIR rollback. The sensor set includes IMU, noisy pose, and
+filtered dropped-contact canaries, so their kinematic state, corruption episode
+identity, histories, metadata, and compact publications must also return to the
+reference branch; global curriculum scheduling remains outside that claim.
 
 The native integration owner runs five PPO updates through a three-slot shared
 rollout ring. It therefore covers slot reuse, managed MLX payload release,

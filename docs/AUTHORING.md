@@ -177,17 +177,30 @@ Task observations reference a sensor by authored ID. Compilation resolves that
 ID to a descriptor and output offset, enforces actor or critic permission, and
 fingerprints the exact SensorIR program. The runtime can bind either a scalar
 channel or one of the `valid`, `fresh`, `reset`, `stale`, and `nonfinite` bits.
-Task-level delay and corruption remain deterministic and apply after SensorIR
-latency selection.
+The `dropped` bit is also available and separate from `valid`: a coherently
+withheld sample may be fresh, but it is never valid. Task-level observation
+transformations remain a separate deterministic layer after SensorIR
+publication.
+
+Native scalar modalities apply authored corruption after selecting the
+latency-delayed acquired sample. Bias is episode-static per channel, value
+noise is Gaussian per acquired sample and channel, and dropout withholds the
+complete sensor sample rather than independently deleting fields. Every draw
+is counter-derived from the session seed, environment, episode, stable sensor
+ID, acquired-sample sequence, channel, and purpose. No mutable RNG state or
+host scheduling participates. Pose translation uses metre-valued scalar noise;
+pose orientation uses a local tangent rotation in radians and is renormalized.
+Contact-state active/count channels remain discrete, while corrupted force and
+penetration channels remain nonnegative.
 
 Presentation sensors still execute in the native renderer and tactile sensors
 still execute in the native tactile context. Folding those passes into the
 session schedule, dedicated ray/LiDAR operators, recorder routing,
-sensor-native counter-based corruption, and compiler dead-code elimination
-remain incomplete. Native pose, twist, IMU, force/torque, and contact-state
-histories already journal reset environments and restore on a rejected
-physics transaction. Random corruption will be keyed by environment, episode,
-sensor, sample, and channel.
+and compiler dead-code elimination remain incomplete. Native pose, twist, IMU,
+force/torque, contact-state, corruption episode identity, and histories already
+journal reset environments and restore on a rejected physics transaction.
+Presentation- and tactile-domain corruption remain with their current native
+owners until those passes join the common schedule.
 
 RGB, depth, identities, normals, and motion consume only authored Visual
 Presentation V3 packs. Tactile deformation consumes authored undeformed and

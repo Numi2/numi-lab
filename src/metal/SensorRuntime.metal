@@ -1,5 +1,6 @@
 #include <metal_stdlib>
 
+#include "metalrobo/counter_rng.h"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/runtime_abi_generated.h"
 #include "metalrobo/world_compiler_types.h"
@@ -116,6 +117,209 @@ inline bool normalizedQuaternion(
     }
     result = input * rsqrt(squared);
     return finite4(result);
+}
+
+inline ulong sensorRandomIdentity(const uint4 identity) {
+    return static_cast<ulong>(identity.x) |
+        (static_cast<ulong>(identity.y) << 32u);
+}
+
+inline float sensorGaussian(
+    const ulong seed,
+    const uint environment,
+    const uint episode,
+    const ulong sensorIdentity,
+    const ulong sample,
+    const uint channel,
+    const uint purpose
+) {
+    const float first = max(
+        mr_sensor_counter_uniform(
+            seed,
+            environment,
+            episode,
+            sensorIdentity,
+            sample,
+            channel,
+            purpose
+        ),
+        1.0f / 16777216.0f
+    );
+    const float second = mr_sensor_counter_uniform(
+        seed,
+        environment,
+        episode,
+        sensorIdentity,
+        sample,
+        channel,
+        purpose + 1u
+    );
+    return sqrt(-2.0f * log(first)) *
+        cos(6.28318530717958647692f * second);
+}
+
+inline float sensorContinuousDelta(
+    const ulong seed,
+    const uint environment,
+    const uint episode,
+    const ulong sensorIdentity,
+    const ulong sample,
+    const uint channel,
+    const float valueSigma,
+    const float biasSigma
+) {
+    float result = 0.0f;
+    if (biasSigma > 0.0f) {
+        result += biasSigma * sensorGaussian(
+            seed,
+            environment,
+            episode,
+            sensorIdentity,
+            0u,
+            channel,
+            0u
+        );
+    }
+    if (valueSigma > 0.0f) {
+        result += valueSigma * sensorGaussian(
+            seed,
+            environment,
+            episode,
+            sensorIdentity,
+            sample,
+            channel,
+            2u
+        );
+    }
+    return result;
+}
+
+inline bool corruptSensorSample(
+    device float* outputs,
+    const uint outputBase,
+    const uint outputCount,
+    const uint sensorKind,
+    const float valueSigma,
+    const float biasSigma,
+    const ulong seed,
+    const uint environment,
+    const uint episode,
+    const ulong sensorIdentity,
+    const ulong sample
+) {
+    if (valueSigma == 0.0f && biasSigma == 0.0f) {
+        return true;
+    }
+    if (sensorKind == MR_WORLD_SENSOR_STATE) {
+        for (uint channel = 0u; channel < 3u; ++channel) {
+            outputs[outputBase + channel] +=
+                sensorContinuousDelta(
+                    seed,
+                    environment,
+                    episode,
+                    sensorIdentity,
+                    sample,
+                    channel,
+                    valueSigma,
+                    biasSigma
+                );
+        }
+        const float3 tangent(
+            sensorContinuousDelta(
+                seed,
+                environment,
+                episode,
+                sensorIdentity,
+                sample,
+                3u,
+                valueSigma,
+                biasSigma
+            ),
+            sensorContinuousDelta(
+                seed,
+                environment,
+                episode,
+                sensorIdentity,
+                sample,
+                4u,
+                valueSigma,
+                biasSigma
+            ),
+            sensorContinuousDelta(
+                seed,
+                environment,
+                episode,
+                sensorIdentity,
+                sample,
+                5u,
+                valueSigma,
+                biasSigma
+            )
+        );
+        const float angle = length(tangent);
+        if (!isfinite(angle)) {
+            return false;
+        }
+        const float halfAngle = 0.5f * angle;
+        const float scale = angle > 1.0e-7f
+            ? sin(halfAngle) / angle
+            : 0.5f;
+        const float4 delta(
+            tangent * scale,
+            cos(halfAngle)
+        );
+        float4 orientation;
+        if (!normalizedQuaternion(
+                quaternionMultiply(
+                    float4(
+                        outputs[outputBase + 3u],
+                        outputs[outputBase + 4u],
+                        outputs[outputBase + 5u],
+                        outputs[outputBase + 6u]
+                    ),
+                    delta
+                ),
+                orientation
+            )) {
+            return false;
+        }
+        outputs[outputBase + 3u] = orientation.x;
+        outputs[outputBase + 4u] = orientation.y;
+        outputs[outputBase + 5u] = orientation.z;
+        outputs[outputBase + 6u] = orientation.w;
+    } else {
+        const uint firstContinuous =
+            sensorKind == MR_WORLD_SENSOR_CONTACT_STATE
+            ? 2u
+            : 0u;
+        for (uint channel = firstContinuous;
+             channel < outputCount;
+             ++channel) {
+            outputs[outputBase + channel] +=
+                sensorContinuousDelta(
+                    seed,
+                    environment,
+                    episode,
+                    sensorIdentity,
+                    sample,
+                    channel,
+                    valueSigma,
+                    biasSigma
+                );
+            if (sensorKind == MR_WORLD_SENSOR_CONTACT_STATE) {
+                outputs[outputBase + channel] = max(
+                    outputs[outputBase + channel],
+                    0.0f
+                );
+            }
+        }
+    }
+    for (uint channel = 0u; channel < outputCount; ++channel) {
+        if (!isfinite(outputs[outputBase + channel])) {
+            return false;
+        }
+    }
+    return true;
 }
 
 } // namespace
@@ -248,6 +452,7 @@ kernel void mr_sensor_sample_control_boundary(
     const uint historyLength = descriptor.output.w;
 
     if (reset) {
+        const uint nextEpisode = state.randomIdentity.x + 1u;
         checkpointStates[stateIndex] = state;
         checkpointMetadata[stateIndex] = metadata[stateIndex];
         for (uint value = 0u;
@@ -263,6 +468,7 @@ kernel void mr_sensor_sample_control_boundary(
                 history[historyBase + value];
         }
         state = {};
+        state.randomIdentity.x = nextEpisode;
         for (uint value = 0u;
              value < outputCount;
              ++value) {
@@ -355,6 +561,10 @@ kernel void mr_sensor_sample_control_boundary(
         state.timestampAgeValidity.w =
             (previousValidity & MR_SENSOR_SAMPLE_VALID) != 0u
             ? MR_SENSOR_SAMPLE_VALID |
+                MR_SENSOR_SAMPLE_STALE
+            : (previousValidity &
+               MR_SENSOR_SAMPLE_DROPPED) != 0u
+            ? MR_SENSOR_SAMPLE_DROPPED |
                 MR_SENSOR_SAMPLE_STALE
             : 0u;
         states[stateIndex] = state;
@@ -733,8 +943,53 @@ kernel void mr_sensor_sample_control_boundary(
         publishedTimestamp = timestamp >= latencyTicks
             ? timestamp - latencyTicks
             : 0u;
-        validity |=
-            MR_SENSOR_SAMPLE_VALID | MR_SENSOR_SAMPLE_FRESH;
+        const ulong randomIdentity =
+            sensorRandomIdentity(descriptor.randomIdentity);
+        const bool dropped = descriptor.noise.z > 0.0f &&
+            mr_sensor_counter_uniform(
+                dispatch.seed,
+                environment,
+                state.randomIdentity.x,
+                randomIdentity,
+                publishedSequence,
+                0x7fffffffu,
+                4u
+            ) < descriptor.noise.z;
+        if (dropped) {
+            for (uint value = 0u;
+                 value < outputCount;
+                 ++value) {
+                outputs[outputBase + value] = 0.0f;
+            }
+            validity |=
+                MR_SENSOR_SAMPLE_FRESH |
+                MR_SENSOR_SAMPLE_DROPPED;
+        } else if (!corruptSensorSample(
+                       outputs,
+                       outputBase,
+                       outputCount,
+                       descriptor.identity.x,
+                       descriptor.noise.x,
+                       descriptor.noise.y,
+                       dispatch.seed,
+                       environment,
+                       state.randomIdentity.x,
+                       randomIdentity,
+                       publishedSequence
+                   )) {
+            for (uint value = 0u;
+                 value < outputCount;
+                 ++value) {
+                outputs[outputBase + value] = 0.0f;
+            }
+            validity |=
+                MR_SENSOR_SAMPLE_FRESH |
+                MR_SENSOR_SAMPLE_NONFINITE;
+        } else {
+            validity |=
+                MR_SENSOR_SAMPLE_VALID |
+                MR_SENSOR_SAMPLE_FRESH;
+        }
     } else {
         for (uint value = 0u;
              value < outputCount;

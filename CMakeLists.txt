@@ -431,6 +431,7 @@ add_custom_command(
         "${METALROBO_TACTILE_SOURCE}"
         "${METALROBO_SCENE_QUERY_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/counter_rng.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/runtime_abi_generated.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/task_program_types.h"

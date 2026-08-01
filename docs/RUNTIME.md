@@ -110,6 +110,15 @@ uploaded as a generated immutable index table. Descriptors carry validated
 offset/count ranges; the Metal hot loop performs only bounded integer matching
 and never receives semantic strings.
 
+Scalar SensorIR corruption is reconstructed without mutable RNG buffers. A
+compiled 64-bit sensor-ID key and the persistent episode counter combine with
+the session seed, environment, acquired-sample sequence, channel, and purpose.
+The retained ring stores clean acquired samples; publication selects the
+latency slot and deterministically applies its episode bias, sample noise, or
+coherent dropout. Re-reading a stale sample never draws new noise. A reset
+increments the episode key, and the ordinary SensorIR reset journal restores
+that key if the enclosing physics transaction is rejected.
+
 IMU samples retain only the previous accepted point velocity and exact integer
 sample timestamp. The Metal kernel differentiates that world velocity over the
 actual scheduled interval, removes world gravity, and rotates specific force

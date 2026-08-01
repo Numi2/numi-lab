@@ -103,6 +103,9 @@ enum MRSensorSampleValidityFlags : mr_u32 {
     MR_SENSOR_SAMPLE_RESET = 1u << 2u,
     MR_SENSOR_SAMPLE_STALE = 1u << 3u,
     MR_SENSOR_SAMPLE_NONFINITE = 1u << 4u,
+    // A complete acquired sample was intentionally withheld by the authored
+    // sensor corruption model. It may be fresh, but it is not valid.
+    MR_SENSOR_SAMPLE_DROPPED = 1u << 5u,
 };
 
 // Native schedule execution boundary. Reset-only seeds the new episode at

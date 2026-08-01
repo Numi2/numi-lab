@@ -5,10 +5,10 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 16u
+#define MR_RUNTIME_ABI_VERSION 17u
 #define MR_RUNTIME_PIPELINE_COUNT 92u
 #define MR_RUNTIME_PIPELINE_GROUP_COUNT 11u
-#define MR_SENSOR_PROGRAM_ABI_VERSION 6u
+#define MR_SENSOR_PROGRAM_ABI_VERSION 7u
 #define MR_SENSOR_DISPATCH_HAS_RESETS 1u
 #define MR_SENSOR_DISPATCH_HAS_CONTACTS 2u
 
@@ -28,6 +28,7 @@ typedef struct MR_ALIGN16 MRSensorDescriptorGPU {
     mr_uint4 dimensions;
     mr_uint4 source;
     mr_uint4 filter;
+    mr_uint4 randomIdentity;
     mr_float4 localPosition;
     mr_float4 localOrientation;
     mr_float4 timing;
@@ -48,6 +49,7 @@ typedef struct MR_ALIGN16 MRSensorRuntimeStateGPU {
     mr_uint4 phaseAndSequence;
     mr_uint4 timestampAgeValidity;
     mr_uint4 previousSampleTimestamp;
+    mr_uint4 randomIdentity;
     mr_float4 previousPointVelocity;
 } MRSensorRuntimeStateGPU;
 
@@ -1379,7 +1381,7 @@ static_assert(offsetof(MRSensorProgramHeaderGPU, counts) == 16u);
 static_assert(offsetof(MRSensorProgramHeaderGPU, executionCounts) == 32u);
 static_assert(offsetof(MRSensorProgramHeaderGPU, layout) == 48u);
 static_assert(offsetof(MRSensorProgramHeaderGPU, reserved) == 64u);
-static_assert(sizeof(MRSensorDescriptorGPU) == 208u);
+static_assert(sizeof(MRSensorDescriptorGPU) == 224u);
 static_assert(alignof(MRSensorDescriptorGPU) == 16u);
 static_assert(offsetof(MRSensorDescriptorGPU, identity) == 0u);
 static_assert(offsetof(MRSensorDescriptorGPU, output) == 16u);
@@ -1387,25 +1389,27 @@ static_assert(offsetof(MRSensorDescriptorGPU, schedule) == 32u);
 static_assert(offsetof(MRSensorDescriptorGPU, dimensions) == 48u);
 static_assert(offsetof(MRSensorDescriptorGPU, source) == 64u);
 static_assert(offsetof(MRSensorDescriptorGPU, filter) == 80u);
-static_assert(offsetof(MRSensorDescriptorGPU, localPosition) == 96u);
-static_assert(offsetof(MRSensorDescriptorGPU, localOrientation) == 112u);
-static_assert(offsetof(MRSensorDescriptorGPU, timing) == 128u);
-static_assert(offsetof(MRSensorDescriptorGPU, noise) == 144u);
-static_assert(offsetof(MRSensorDescriptorGPU, range) == 160u);
-static_assert(offsetof(MRSensorDescriptorGPU, intrinsics) == 176u);
-static_assert(offsetof(MRSensorDescriptorGPU, distortion) == 192u);
+static_assert(offsetof(MRSensorDescriptorGPU, randomIdentity) == 96u);
+static_assert(offsetof(MRSensorDescriptorGPU, localPosition) == 112u);
+static_assert(offsetof(MRSensorDescriptorGPU, localOrientation) == 128u);
+static_assert(offsetof(MRSensorDescriptorGPU, timing) == 144u);
+static_assert(offsetof(MRSensorDescriptorGPU, noise) == 160u);
+static_assert(offsetof(MRSensorDescriptorGPU, range) == 176u);
+static_assert(offsetof(MRSensorDescriptorGPU, intrinsics) == 192u);
+static_assert(offsetof(MRSensorDescriptorGPU, distortion) == 208u);
 static_assert(sizeof(MRSensorDispatchGPU) == 48u);
 static_assert(alignof(MRSensorDispatchGPU) == 16u);
 static_assert(offsetof(MRSensorDispatchGPU, counts) == 0u);
 static_assert(offsetof(MRSensorDispatchGPU, controlPeriodAndStrides) == 16u);
 static_assert(offsetof(MRSensorDispatchGPU, seed) == 32u);
 static_assert(offsetof(MRSensorDispatchGPU, sensorFingerprint) == 40u);
-static_assert(sizeof(MRSensorRuntimeStateGPU) == 64u);
+static_assert(sizeof(MRSensorRuntimeStateGPU) == 80u);
 static_assert(alignof(MRSensorRuntimeStateGPU) == 16u);
 static_assert(offsetof(MRSensorRuntimeStateGPU, phaseAndSequence) == 0u);
 static_assert(offsetof(MRSensorRuntimeStateGPU, timestampAgeValidity) == 16u);
 static_assert(offsetof(MRSensorRuntimeStateGPU, previousSampleTimestamp) == 32u);
-static_assert(offsetof(MRSensorRuntimeStateGPU, previousPointVelocity) == 48u);
+static_assert(offsetof(MRSensorRuntimeStateGPU, randomIdentity) == 48u);
+static_assert(offsetof(MRSensorRuntimeStateGPU, previousPointVelocity) == 64u);
 static_assert(sizeof(MRSensorSampleMetadataGPU) == 32u);
 static_assert(alignof(MRSensorSampleMetadataGPU) == 16u);
 static_assert(offsetof(MRSensorSampleMetadataGPU, sequenceAndTimestamp) == 0u);
