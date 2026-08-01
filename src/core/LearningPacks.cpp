@@ -37,6 +37,10 @@ constexpr std::uint64_t kFNVOffset = 14695981039346656037ull;
 constexpr std::uint64_t kFNVPrime = 1099511628211ull;
 constexpr std::uint64_t kMaximumPayloadBytes =
     std::numeric_limits<std::uint32_t>::max();
+// Darwin write(2) does not accept an arbitrarily large count even though the
+// public API uses size_t. Keep each transfer comfortably below the signed
+// 32-bit boundary while preserving one durable, atomic pack publication.
+constexpr std::size_t kMaximumIOChunkBytes = 64u * 1024u * 1024u;
 
 struct LearningPackFileHeader {
     std::array<char, 8u> magic = kMagic;
@@ -1355,24 +1359,29 @@ bool deserializeMotion(
 bool writeAll(
     const int descriptor,
     const void* bytes,
-    const std::size_t byteCount
+    const std::size_t byteCount,
+    int& errorNumber
 ) noexcept {
     const auto* cursor =
         static_cast<const std::byte*>(bytes);
     std::size_t remaining = byteCount;
     while (remaining != 0u) {
+        const std::size_t chunkBytes =
+            std::min(remaining, kMaximumIOChunkBytes);
         const ssize_t written = ::write(
             descriptor,
             cursor,
-            remaining
+            chunkBytes
         );
         if (written < 0) {
             if (errno == EINTR) {
                 continue;
             }
+            errorNumber = errno;
             return false;
         }
         if (written == 0) {
+            errorNumber = EIO;
             return false;
         }
         cursor += written;
@@ -1420,22 +1429,36 @@ LearningPackResult writePack(
         const std::filesystem::path temporary{
             temporaryCharacters.data()
         };
+        int writeError = 0;
         const bool wrote =
-            writeAll(descriptor, &header, sizeof(header)) &&
+            writeAll(
+                descriptor,
+                &header,
+                sizeof(header),
+                writeError
+            ) &&
             (payload.empty() ||
              writeAll(
                  descriptor,
                  payload.data(),
-                 payload.size()
+                 payload.size(),
+                 writeError
              )) &&
-            ::fsync(descriptor) == 0;
-        const bool closed = ::close(descriptor) == 0;
+            (::fsync(descriptor) == 0 ||
+             (writeError = errno, false));
+        const bool closed =
+            ::close(descriptor) == 0 ||
+            (writeError = writeError == 0 ? errno : writeError, false);
         if (!wrote || !closed) {
+            const std::string error =
+                std::generic_category().message(
+                    writeError == 0 ? EIO : writeError
+                );
             std::error_code ignored;
             std::filesystem::remove(temporary, ignored);
             return fail(
                 LearningPackStatus::ioFailure,
-                "could not durably write learning pack"
+                "could not durably write learning pack: " + error
             );
         }
         if (::rename(
