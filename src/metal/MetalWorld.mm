@@ -2924,8 +2924,10 @@ MetalWorldDiagnostics validateAndBuildLayout(
             const bool forceTorqueSensor =
                 descriptor.identity.x ==
                     MR_WORLD_SENSOR_FORCE_TORQUE;
+            const bool imuSensor =
+                descriptor.identity.x == MR_WORLD_SENSOR_IMU;
             if ((!poseSensor && !twistSensor &&
-                 !forceTorqueSensor) ||
+                 !forceTorqueSensor && !imuSensor) ||
                 (forceTorqueSensor && !contactMode) ||
                 descriptor.schedule.z !=
                     MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
@@ -2940,7 +2942,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
                     std::move(diagnostics),
                     MetalWorldHostStatus::unsupportedTopology,
                     "native SensorIR sampling requires pre-control pose, "
-                    "world-twist, or contact-mode force-torque descriptors "
+                    "world-twist, IMU, or contact-mode force-torque descriptors "
                     "at no more than the control rate"
                 );
             }
@@ -8256,6 +8258,7 @@ bool encodeSensorSample(
             {MR_SENSOR_SAMPLE_CONTACTS, kContacts},
             {MR_SENSOR_SAMPLE_CONTACT_STATUSES, kContactStatuses},
             {MR_SENSOR_SAMPLE_WORLD_STATUSES, kEnvironmentStatuses},
+            {MR_SENSOR_SAMPLE_WORLD, kWorld},
             {MR_SENSOR_SAMPLE_STATES, kSensorRuntimeStates},
             {MR_SENSOR_SAMPLE_HISTORY, kSensorHistory},
             {MR_SENSOR_SAMPLE_OUTPUTS, kSensorOutputs},
@@ -15746,7 +15749,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     config.sensorProgram.descriptors().end(),
                     [](const MRSensorDescriptorGPU& descriptor) {
                         return descriptor.identity.x ==
-                            MR_WORLD_SENSOR_FRAME_TWIST_WORLD;
+                                MR_WORLD_SENSOR_FRAME_TWIST_WORLD ||
+                            descriptor.identity.x ==
+                                MR_WORLD_SENSOR_IMU;
                     }
                 );
             selectedState->useTaskBodyParameters = nativeTask;

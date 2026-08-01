@@ -25,7 +25,10 @@ for the checks and contracts it actually exercised.
 The TaskIR owner includes exact-rate and non-divisor SensorIR schedules,
 whole-sample latency, mid-rollout reset, actor/critic consumer permissions, and
 accepted-state ordering for final-policy observations. This is scheduling and
-contract evidence; it does not qualify unimplemented sensor modalities.
+contract evidence. Its IMU case drives a kinematic rigid parent through a known
+velocity change while rotating the sensor frame, and checks specific force,
+gravity removal, local angular rate, TaskIR binding, and final compact
+publication against the analytic result.
 
 The same owner places an articulated tool against a compliant static obstacle,
 samples a six-axis force/torque sensor at the tool COM, and compares all six
@@ -51,8 +54,9 @@ its typed physics-error transition. The following accepted transition must be
 byte-identical between branches across q/v, scene/manifolds, actor and critic
 observations, policy samples/log probabilities/values, task transitions,
 SensorIR output/metadata, and contact evidence. This qualifies persistent
-per-environment TaskIR rollback; global curriculum scheduling remains outside
-that claim.
+per-environment TaskIR rollback. The sensor set includes an IMU canary, so its
+previous point velocity and timestamp must also return to the reference branch;
+global curriculum scheduling remains outside that claim.
 
 The native integration owner runs five PPO updates through a three-slot shared
 rollout ring. It therefore covers slot reuse, managed MLX payload release,

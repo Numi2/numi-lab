@@ -1699,6 +1699,240 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         );
     }
 
+    // IMU is an accepted-state instrument, not a locomotion-only tensor
+    // reduction. The native schedule differentiates point velocity over the
+    // actual sample interval, subtracts gravity, and rotates specific force
+    // and angular velocity into the authored sensor frame. A moving
+    // kinematic rigid body is an independent exact oracle for that contract.
+    metalrobo::SimulationDescription imuAuthored = twistAuthored;
+    imuAuthored.task.id = "fixed_base_native_imu";
+    imuAuthored.sceneBodies[0u]
+        .linearVelocityAndInverseMass.x = 0.0f;
+    imuAuthored.sceneBodies[0u].angularVelocity = {
+        0.0f, 0.0f, 0.25f, 0.0f,
+    };
+    imuAuthored.task.critic.clear();
+    for (std::uint32_t component = 0u;
+         component < 6u;
+         ++component) {
+        imuAuthored.task.critic.push_back({
+            .source =
+                metalrobo::TaskObservationSource::sensorValue,
+            .target = "reference_imu",
+            .component = component,
+        });
+    }
+    imuAuthored.task.critic.push_back({
+        .source = metalrobo::TaskObservationSource::sensorValidity,
+        .target = "reference_imu",
+        .component = 0u,
+    });
+    imuAuthored.sensors = {{
+        .id = "reference_imu",
+        .parentKind = MR_WORLD_SENSOR_PARENT_RIGID_BODY,
+        .parentBodyIndex = static_cast<std::uint32_t>(
+            twistReferenceBodyIndex
+        ),
+        .kind = MR_WORLD_SENSOR_IMU,
+        .localPose = {
+            .orientation = {
+                0.0f,
+                0.0f,
+                0.7071067811865476f,
+                0.7071067811865476f,
+            },
+        },
+        .nominalRateHz = 50.0f,
+        .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+        .historyLength = 1u,
+        .consumerFlags =
+            MR_WORLD_SENSOR_CONSUMER_CRITIC |
+            MR_WORLD_SENSOR_CONSUMER_RECORDER,
+    }};
+    metalrobo::PolicyPack imuPolicy;
+    imuPolicy.id = "fixed_base_native_imu_policy";
+    imuPolicy.layers = {{
+        .inputCount = 1u,
+        .outputCount = 1u,
+        .activation = metalrobo::PolicyActivation::identity,
+        .weights = std::vector<float>(1u, 0.0f),
+        .bias = std::vector<float>(1u, 0.0f),
+    }};
+    imuPolicy.criticLayers = {{
+        .inputCount = 7u,
+        .outputCount = 1u,
+        .activation = metalrobo::PolicyActivation::identity,
+        .weights = std::vector<float>(7u, 0.0f),
+        .bias = std::vector<float>(1u, 0.0f),
+    }};
+    imuAuthored.policy = std::move(imuPolicy);
+
+    metalrobo::CompiledSimulation imuCompiled;
+    const auto imuCompile = metalrobo::compileSimulation(
+        imuAuthored,
+        0u,
+        imuCompiled
+    );
+    if (!imuCompile.succeeded() ||
+        imuCompiled.sensors.layout().sensorCount != 1u ||
+        imuCompiled.sensors.layout().outputElementCount != 6u ||
+        imuCompiled.task.layout().criticObservationSize != 7u) {
+        fail(
+            "native IMU task compile failed: " +
+            imuCompile.task.message
+        );
+    }
+    constexpr std::size_t imuSteps = 2u;
+    const std::vector<std::uint32_t> imuResetMasks(imuSteps, 0u);
+    std::vector<MRBodyStateGPU> imuTargets(
+        imuSteps,
+        imuAuthored.sceneBodies[0u]
+    );
+    imuTargets[1u].linearVelocityAndInverseMass.x = 0.2f;
+    metalrobo::MetalWorldStepConfig imuStep = step;
+    imuStep.taskProgram = imuCompiled.task;
+    imuStep.sensorProgram = imuCompiled.sensors;
+    imuStep.policyProgram = imuCompiled.policy;
+    imuStep.publishSensorOutputs = true;
+    imuStep.evaluateFinalPolicy = true;
+    metalrobo::MetalWorldContext imuContext(contextConfiguration);
+    metalrobo::MetalWorldResult imuResult;
+    const auto imuExecution = imuContext.run(
+        imuCompiled.world,
+        {
+            .environmentCount = 1u,
+            .controlStepCount = imuSteps,
+            .initialQ = std::span{
+                imuAuthored.model.defaultQ.data(),
+                imuAuthored.model.defaultQ.size(),
+            },
+            .initialV = std::span{
+                initialV.data(),
+                imuCompiled.world.nv(),
+            },
+            .resetMasks = imuResetMasks,
+            .initialSceneBodies = imuAuthored.sceneBodies,
+            .kinematicTargets = imuTargets,
+        },
+        imuStep,
+        imuResult
+    );
+    const float expectedGravity =
+        -imuAuthored.model.world.gravityAndTimestep.z;
+    const float expectedAcceleration =
+        0.2f / imuStep.timestepSeconds;
+    const float expectedSensorAngle =
+        0.25f * imuStep.timestepSeconds;
+    const auto validImuSample = [&] (
+        const std::size_t base,
+        const float expectedLocalX,
+        const float expectedLocalY,
+        const float expectedAngularZ
+    ) {
+        return
+            std::abs(
+                imuResult.criticObservations[base + 0u] -
+                expectedLocalX
+            ) < 2.0e-3f &&
+            std::abs(
+                imuResult.criticObservations[base + 1u] -
+                expectedLocalY
+            ) < 2.0e-3f &&
+            std::abs(
+                imuResult.criticObservations[base + 2u] -
+                expectedGravity
+            ) < 2.0e-3f &&
+            std::abs(imuResult.criticObservations[base + 3u]) <
+                2.0e-4f &&
+            std::abs(imuResult.criticObservations[base + 4u]) <
+                2.0e-4f &&
+            std::abs(
+                imuResult.criticObservations[base + 5u] -
+                expectedAngularZ
+            ) < 2.0e-4f &&
+            imuResult.criticObservations[base + 6u] == 1.0f;
+    };
+    if (!imuExecution.succeeded() ||
+        imuResult.criticObservations.size() !=
+            (imuSteps + 1u) * 7u ||
+        imuResult.sensorOutputs.size() != 6u ||
+        imuResult.sensorMetadata.size() != 1u ||
+        !validImuSample(0u, 0.0f, 0.0f, 0.0f) ||
+        !validImuSample(7u, 0.0f, 0.0f, 0.25f) ||
+        !validImuSample(
+            14u,
+            -expectedAcceleration * std::sin(expectedSensorAngle),
+            -expectedAcceleration * std::cos(expectedSensorAngle),
+            0.25f
+        )) {
+        fail(
+            "native IMU did not preserve specific-force, frame, or scheduling semantics: " +
+            imuExecution.message + " initial=" +
+            (imuResult.criticObservations.size() < 7u
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       imuResult.criticObservations[0u]
+                   ) + "," +
+                       std::to_string(
+                           imuResult.criticObservations[1u]
+                       ) + "," +
+                       std::to_string(
+                           imuResult.criticObservations[2u]
+                       ) + "," +
+                       std::to_string(
+                           imuResult.criticObservations[5u]
+                       ) + "," +
+                       std::to_string(
+                           imuResult.criticObservations[6u]
+                       )) +
+            " middle=" +
+            (imuResult.criticObservations.size() < 14u
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       imuResult.criticObservations[7u]
+                   ) + "," +
+                       std::to_string(
+                           imuResult.criticObservations[8u]
+                       ) + "," +
+                       std::to_string(
+                           imuResult.criticObservations[9u]
+                       ) + "," +
+                       std::to_string(
+                           imuResult.criticObservations[12u]
+                       ) + "," +
+                       std::to_string(
+                           imuResult.criticObservations[13u]
+                       )) +
+            " final=" +
+            (imuResult.criticObservations.size() < 21u
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       imuResult.criticObservations[14u]
+                   ) + "," +
+                       std::to_string(
+                           imuResult.criticObservations[15u]
+                       ) + "," +
+                       std::to_string(
+                           imuResult.criticObservations[16u]
+                       ) + "," +
+                       std::to_string(
+                           imuResult.criticObservations[19u]
+                       ))
+        );
+    }
+    for (std::size_t channel = 0u;
+         channel < 6u;
+         ++channel) {
+        if (std::abs(
+                imuResult.sensorOutputs[channel] -
+                imuResult.criticObservations[14u + channel]
+            ) > 2.0e-4f) {
+            fail(
+                "published IMU disagrees with the final TaskIR view"
+            );
+        }
+    }
+
     // A six-axis SensorIR force/torque sample must consume the exact solved
     // contact impulses, not infer a wrench from acceleration or a second
     // collision query. The independent TaskIR contact-group reduction is the
@@ -2069,6 +2303,19 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .historyLength = 2u,
         .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
     });
+    transactionAuthored.sensors.push_back({
+        .id = "tool_imu_transaction_canary",
+        .parentKind = MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+        .parentBodyIndex = toolBodyIndex,
+        .kind = MR_WORLD_SENSOR_IMU,
+        .localPose = {
+            .position = {0.0f, 0.0f, 0.2f, 0.0f},
+        },
+        .nominalRateHz = 50.0f,
+        .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+        .historyLength = 2u,
+        .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
+    });
 
     metalrobo::CompiledSimulation transactionCompiled;
     const auto transactionCompile = metalrobo::compileSimulation(
@@ -2155,8 +2402,8 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         initialTransactionResult.contactEvidence.manifoldPoints;
     if (!initialTransaction.succeeded() ||
         !transactionState.valid() ||
-        committedSensorOutputs.size() != 13u ||
-        committedSensorMetadata.size() != 2u ||
+        committedSensorOutputs.size() != 19u ||
+        committedSensorMetadata.size() != 3u ||
         committedManifoldCounts.size() != 1u ||
         committedManifoldCounts[0u] == 0u ||
         std::abs(committedSensorOutputs[8u]) < 1.0e-3f) {
@@ -3166,6 +3413,7 @@ int main() {
             << " sensor_transaction=pass"
             << " physical_transaction=pass"
             << " task_transaction=pass"
+            << " imu=pass"
             << " world_pack=" << worldPackFingerprint
             << '\n';
         return 0;

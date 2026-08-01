@@ -140,6 +140,8 @@ kernel void mr_sensor_sample_control_boundary(
         [[buffer(MR_SENSOR_SAMPLE_CONTACT_STATUSES)]],
     device const MRMetalWorldStatusGPU* worldStatuses
         [[buffer(MR_SENSOR_SAMPLE_WORLD_STATUSES)]],
+    device const MRWorldGPU& world
+        [[buffer(MR_SENSOR_SAMPLE_WORLD)]],
     device MRSensorRuntimeStateGPU* states
         [[buffer(MR_SENSOR_SAMPLE_STATES)]],
     device float* history
@@ -180,7 +182,10 @@ kernel void mr_sensor_sample_control_boundary(
             MR_WORLD_SENSOR_FRAME_TWIST_WORLD;
     const bool forceTorqueSensor =
         descriptor.identity.x == MR_WORLD_SENSOR_FORCE_TORQUE;
-    if ((!poseSensor && !twistSensor && !forceTorqueSensor) ||
+    const bool imuSensor =
+        descriptor.identity.x == MR_WORLD_SENSOR_IMU;
+    if ((!poseSensor && !twistSensor && !forceTorqueSensor &&
+         !imuSensor) ||
         descriptor.schedule.z !=
             MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
         descriptor.source.w != 0u ||
@@ -349,7 +354,7 @@ kernel void mr_sensor_sample_control_boundary(
             ];
         parentPosition = pose.position.xyz;
         parentOrientation = pose.orientation;
-        if (twistSensor) {
+        if (twistSensor || imuSensor) {
             const MRBodyStateGPU body = bodyStates[
                 environment * bodyStride + descriptor.identity.z
             ];
@@ -391,7 +396,7 @@ kernel void mr_sensor_sample_control_boundary(
     const float3 sensorPosition = parentPosition +
         quaternionRotate(parentUnit, descriptor.localPosition.xyz);
     if (!poseValid || !all(isfinite(sensorPosition)) ||
-        (twistSensor &&
+        ((twistSensor || imuSensor) &&
          (!all(isfinite(parentLinearVelocity)) ||
           !all(isfinite(parentAngularVelocity))))) {
         state.timestampAgeValidity.w =
@@ -430,6 +435,81 @@ kernel void mr_sensor_sample_control_boundary(
         history[writeBase + 3u] = parentAngularVelocity.x;
         history[writeBase + 4u] = parentAngularVelocity.y;
         history[writeBase + 5u] = parentAngularVelocity.z;
+    } else if (imuSensor) {
+        const float3 sensorOffset = quaternionRotate(
+            parentUnit,
+            descriptor.localPosition.xyz
+        );
+        const float3 pointVelocity =
+            parentLinearVelocity +
+            cross(parentAngularVelocity, sensorOffset);
+        const ulong previousTimestamp = unpack64(
+            state.previousSampleTimestamp.x,
+            state.previousSampleTimestamp.y
+        );
+        const bool previousValid =
+            state.previousSampleTimestamp.z != 0u;
+        float3 pointAcceleration = float3(0.0f);
+        if (previousValid && timestamp > previousTimestamp) {
+            const float elapsedSeconds =
+                static_cast<float>(timestamp - previousTimestamp) *
+                1.0e-9f;
+            if (!(elapsedSeconds > 0.0f) ||
+                !isfinite(elapsedSeconds)) {
+                state.timestampAgeValidity.w =
+                    MR_SENSOR_SAMPLE_NONFINITE;
+                states[stateIndex] = state;
+                MRSensorSampleMetadataGPU failed =
+                    metadata[stateIndex];
+                failed.ageValidityAndLayout.y =
+                    MR_SENSOR_SAMPLE_NONFINITE;
+                metadata[stateIndex] = failed;
+                return;
+            }
+            pointAcceleration =
+                (pointVelocity -
+                 state.previousPointVelocity.xyz) /
+                elapsedSeconds;
+        }
+        const float3 specificForceLocal =
+            quaternionRotateInverse(
+                sensorOrientation,
+                pointAcceleration - world.gravityAndTimestep.xyz
+            );
+        const float3 angularVelocityLocal =
+            quaternionRotateInverse(
+                sensorOrientation,
+                parentAngularVelocity
+            );
+        if (!all(isfinite(pointVelocity)) ||
+            !all(isfinite(specificForceLocal)) ||
+            !all(isfinite(angularVelocityLocal)) ||
+            !all(isfinite(world.gravityAndTimestep.xyz))) {
+            state.timestampAgeValidity.w =
+                MR_SENSOR_SAMPLE_NONFINITE;
+            states[stateIndex] = state;
+            MRSensorSampleMetadataGPU failed = metadata[stateIndex];
+            failed.ageValidityAndLayout.y =
+                MR_SENSOR_SAMPLE_NONFINITE;
+            metadata[stateIndex] = failed;
+            return;
+        }
+        history[writeBase + 0u] = specificForceLocal.x;
+        history[writeBase + 1u] = specificForceLocal.y;
+        history[writeBase + 2u] = specificForceLocal.z;
+        history[writeBase + 3u] = angularVelocityLocal.x;
+        history[writeBase + 4u] = angularVelocityLocal.y;
+        history[writeBase + 5u] = angularVelocityLocal.z;
+        state.previousSampleTimestamp = {
+            low32(timestamp),
+            high32(timestamp),
+            1u,
+            0u,
+        };
+        state.previousPointVelocity = float4(
+            pointVelocity,
+            0.0f
+        );
     } else {
         float3 forceWorld = float3(0.0f);
         float3 torqueWorld = float3(0.0f);

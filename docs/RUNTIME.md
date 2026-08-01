@@ -85,8 +85,8 @@ consumers release it.
 ## Current SensorIR execution boundary
 
 The canonical MetalWorld session owns persistent schedule, history, output, and
-metadata buffers for parent-frame pose, world-twist, and six-axis contact-
-wrench sensors. One thread owns one environment/sensor history ring, so a reset
+metadata buffers for parent-frame pose, world-twist, six-axis IMU, and six-axis
+contact-wrench sensors. One thread owns one environment/sensor history ring, so a reset
 clears and seeds it without atomics or host reconstruction. A second boundary
 advances the schedule after physics accepts the next state; rollout-chunk
 boundaries therefore do not duplicate a sample. Rates use integer nanosecond
@@ -101,6 +101,13 @@ metadata into topology-sized private checkpoint buffers. A rejected world or
 contact transaction restores the journal byte-for-byte; successful and
 ordinary non-reset transitions perform no checkpoint copy. The same schedule
 also runs directly against a compiled world when no TaskIR program is present.
+
+IMU samples retain only the previous accepted point velocity and exact integer
+sample timestamp. The Metal kernel differentiates that world velocity over the
+actual scheduled interval, removes world gravity, and rotates specific force
+and angular velocity into the authored sensor frame. This captures offset-point
+motion without publishing generalized state or reconstructing inertial signals
+in a locomotion task.
 
 Compiled TaskIR operators consume named SensorIR values and validity bits
 directly on-device. Reset refresh fills every actor/critic history slot before

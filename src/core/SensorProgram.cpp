@@ -149,6 +149,7 @@ SensorExecutionDomain executionDomain(const MRWorldSensorKind kind) {
     case MR_WORLD_SENSOR_STATE:
     case MR_WORLD_SENSOR_FRAME_TWIST_WORLD:
     case MR_WORLD_SENSOR_FORCE_TORQUE:
+    case MR_WORLD_SENSOR_IMU:
         return SensorExecutionDomain::nativeState;
     }
     return SensorExecutionDomain::nativeState;
@@ -175,6 +176,7 @@ std::uint32_t channelCount(const MRWorldSensorKind kind) {
         return 7u;
     case MR_WORLD_SENSOR_FORCE_TORQUE:
     case MR_WORLD_SENSOR_FRAME_TWIST_WORLD:
+    case MR_WORLD_SENSOR_IMU:
         return 6u;
     }
     return 0u;
@@ -316,7 +318,7 @@ SensorCompileDiagnostics compileSensorProgram(
                     : "sensor id is duplicated"
             );
         }
-        if (sensor.kind > MR_WORLD_SENSOR_FRAME_TWIST_WORLD ||
+        if (sensor.kind > MR_WORLD_SENSOR_IMU ||
             sensor.parentKind > MR_WORLD_SENSOR_PARENT_WORLD ||
             sensor.schedulePhase >
                 MR_WORLD_SENSOR_PHASE_PRESENTATION ||
@@ -412,6 +414,7 @@ SensorCompileDiagnostics compileSensorProgram(
         if ((sensor.kind == MR_WORLD_SENSOR_STATE ||
              sensor.kind == MR_WORLD_SENSOR_FRAME_TWIST_WORLD ||
              sensor.kind == MR_WORLD_SENSOR_FORCE_TORQUE ||
+             sensor.kind == MR_WORLD_SENSOR_IMU ||
              sensor.kind == MR_WORLD_SENSOR_TACTILE_DEPTH) &&
             !bodyParent) {
             return reject(

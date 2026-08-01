@@ -135,7 +135,8 @@ tactile descriptors instead use the cooked tactile surface transform as their
 spatial authority.
 
 The common SensorIR executor samples parent-frame pose, world-space frame
-twist, and six-axis contact-wrench sensors on two explicit control boundaries.
+twist, six-axis IMU, and six-axis contact-wrench sensors on two explicit
+control boundaries.
 Frame-twist linear velocity is evaluated at the authored sensor origin,
 including the angular `omega x r` term. Force/torque consumes the committed
 NumiSolver contact impulses from the final accepted physics microstep, divides
@@ -143,6 +144,14 @@ by that microstep duration, sums the resultant force and moment about the
 authored sensor origin, and expresses both in sensor-local axes. It excludes
 authored generalized rows; it does not infer force from acceleration or run a
 second collision query.
+
+An IMU publishes sensor-local specific force `(ax, ay, az)` followed by
+sensor-local angular velocity `(wx, wy, wz)`. Specific force is the accepted
+change in sensor-origin world velocity over the actual scheduled sample
+interval minus world gravity. The point velocity includes the authored offset
+from the parent centre of mass. Its previous sample timestamp and point
+velocity are persistent SensorIR state, so non-divisor rates and rejected
+reset transactions preserve the same training and deployment contract.
 
 A reset-only pass seeds the randomized state before the first action; a post-
 physics pass advances the schedule from the newly accepted state for the next
@@ -162,12 +171,12 @@ latency selection.
 
 Presentation sensors still execute in the native renderer and tactile sensors
 still execute in the native tactile context. Folding those passes into the
-session schedule, dedicated contact-state/ray/LiDAR/IMU operators, recorder
+session schedule, dedicated contact-state/ray/LiDAR operators, recorder
 routing, sensor-native counter-based corruption, and compiler dead-code
 elimination remain incomplete. Native pose, twist, and force/torque histories
-already journal reset environments and restore on a rejected physics
-transaction. Random corruption will be keyed by environment, episode, sensor,
-sample, and channel.
+and IMU kinematic state already journal reset environments and restore on a
+rejected physics transaction. Random corruption will be keyed by environment,
+episode, sensor, sample, and channel.
 
 RGB, depth, identities, normals, and motion consume only authored Visual
 Presentation V3 packs. Tactile deformation consumes authored undeformed and

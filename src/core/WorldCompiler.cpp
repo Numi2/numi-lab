@@ -367,6 +367,7 @@ std::uint32_t computeCapabilities(
         case MR_WORLD_SENSOR_STATE:
         case MR_WORLD_SENSOR_FRAME_TWIST_WORLD:
         case MR_WORLD_SENSOR_FORCE_TORQUE:
+        case MR_WORLD_SENSOR_IMU:
             break;
         case MR_WORLD_SENSOR_TACTILE_DEPTH:
             result |= MR_WORLD_CAP_TACTILE_DEPTH;

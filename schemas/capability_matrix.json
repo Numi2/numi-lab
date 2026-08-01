@@ -169,7 +169,14 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Native parent-frame pose, world-space frame-twist, and six-axis contact-wrench sensors use topology-derived persistent buffers, reset-only seeding, accepted-state advancement, deterministic nanosecond phase accumulation, whole-sample latency history, and compact value/age/validity publication. Twist linear velocity is evaluated at the authored sensor origin. Force-torque consumes final-microstep NumiSolver impulses and reports the resultant in sensor-local axes. The owner covers articulated and rigid kinematic parents, exact 50 Hz and non-divisor 30 Hz schedules, a reset-cleared nonzero wrench, and task-independent execution."
+      "scope": "Native parent-frame pose, world-space frame-twist, six-axis IMU, and six-axis contact-wrench sensors use topology-derived persistent buffers, reset-only seeding, accepted-state advancement, deterministic nanosecond phase accumulation, whole-sample latency history, and compact value/age/validity publication. Twist linear velocity is evaluated at the authored sensor origin. Force-torque consumes final-microstep NumiSolver impulses and reports the resultant in sensor-local axes. The owner covers articulated and rigid kinematic parents, exact 50 Hz and non-divisor 30 Hz schedules, a reset-cleared nonzero wrench, and task-independent execution."
+    },
+    {
+      "id": "sensors.native_imu",
+      "status": "implemented",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "A generic body-attached IMU publishes sensor-local specific force followed by sensor-local angular velocity. Specific force differentiates accepted sensor-origin world velocity over the exact scheduled interval and subtracts world gravity; previous point velocity and timestamp are persistent transactionally journaled SensorIR state. The owner checks a rotated kinematic parent against an analytic acceleration/gravity/gyro result and includes IMU state in rejected-reset branch equivalence."
     },
     {
       "id": "sensors.transactional_history",
@@ -190,7 +197,7 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "WorldPack state, frame-twist, force-torque, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. State-pose, frame-twist, and force-torque sensors execute in the session-owned scheduler with reset-failure journals and may bind into TaskIR; presentation and tactile still use their existing native owners, while sensor-native corruption, recorder routing, dedicated contact-state, ray, LiDAR, and IMU operators remain incomplete."
+      "scope": "WorldPack state, frame-twist, IMU, force-torque, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. State-pose, frame-twist, IMU, and force-torque sensors execute in the session-owned scheduler with reset-failure journals and may bind into TaskIR; presentation and tactile still use their existing native owners, while sensor-native corruption, recorder routing, and dedicated contact-state, ray, and LiDAR operators remain incomplete."
     },
     {
       "id": "policy.dense_native_inference",

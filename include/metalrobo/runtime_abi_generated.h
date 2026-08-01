@@ -5,10 +5,10 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 14u
+#define MR_RUNTIME_ABI_VERSION 15u
 #define MR_RUNTIME_PIPELINE_COUNT 92u
 #define MR_RUNTIME_PIPELINE_GROUP_COUNT 11u
-#define MR_SENSOR_PROGRAM_ABI_VERSION 4u
+#define MR_SENSOR_PROGRAM_ABI_VERSION 5u
 #define MR_SENSOR_DISPATCH_HAS_RESETS 1u
 #define MR_SENSOR_DISPATCH_HAS_CONTACTS 2u
 
@@ -46,6 +46,8 @@ typedef struct MR_ALIGN16 MRSensorDispatchGPU {
 typedef struct MR_ALIGN16 MRSensorRuntimeStateGPU {
     mr_uint4 phaseAndSequence;
     mr_uint4 timestampAgeValidity;
+    mr_uint4 previousSampleTimestamp;
+    mr_float4 previousPointVelocity;
 } MRSensorRuntimeStateGPU;
 
 typedef struct MR_ALIGN16 MRSensorSampleMetadataGPU {
@@ -174,15 +176,16 @@ enum MRSensorSampleBuffer : mr_u32 {
     MR_SENSOR_SAMPLE_CONTACTS = 9u,
     MR_SENSOR_SAMPLE_CONTACT_STATUSES = 10u,
     MR_SENSOR_SAMPLE_WORLD_STATUSES = 11u,
-    MR_SENSOR_SAMPLE_STATES = 12u,
-    MR_SENSOR_SAMPLE_HISTORY = 13u,
-    MR_SENSOR_SAMPLE_OUTPUTS = 14u,
-    MR_SENSOR_SAMPLE_METADATA = 15u,
-    MR_SENSOR_SAMPLE_CHECKPOINT_STATES = 16u,
-    MR_SENSOR_SAMPLE_CHECKPOINT_HISTORY = 17u,
-    MR_SENSOR_SAMPLE_CHECKPOINT_OUTPUTS = 18u,
-    MR_SENSOR_SAMPLE_CHECKPOINT_METADATA = 19u,
-    MR_SENSOR_SAMPLE_BUFFER_COUNT = 20u,
+    MR_SENSOR_SAMPLE_WORLD = 12u,
+    MR_SENSOR_SAMPLE_STATES = 13u,
+    MR_SENSOR_SAMPLE_HISTORY = 14u,
+    MR_SENSOR_SAMPLE_OUTPUTS = 15u,
+    MR_SENSOR_SAMPLE_METADATA = 16u,
+    MR_SENSOR_SAMPLE_CHECKPOINT_STATES = 17u,
+    MR_SENSOR_SAMPLE_CHECKPOINT_HISTORY = 18u,
+    MR_SENSOR_SAMPLE_CHECKPOINT_OUTPUTS = 19u,
+    MR_SENSOR_SAMPLE_CHECKPOINT_METADATA = 20u,
+    MR_SENSOR_SAMPLE_BUFFER_COUNT = 21u,
 };
 
 enum MRTaskSensorRefreshBuffer : mr_u32 {
@@ -1390,10 +1393,12 @@ static_assert(offsetof(MRSensorDispatchGPU, counts) == 0u);
 static_assert(offsetof(MRSensorDispatchGPU, controlPeriodAndStrides) == 16u);
 static_assert(offsetof(MRSensorDispatchGPU, seed) == 32u);
 static_assert(offsetof(MRSensorDispatchGPU, sensorFingerprint) == 40u);
-static_assert(sizeof(MRSensorRuntimeStateGPU) == 32u);
+static_assert(sizeof(MRSensorRuntimeStateGPU) == 64u);
 static_assert(alignof(MRSensorRuntimeStateGPU) == 16u);
 static_assert(offsetof(MRSensorRuntimeStateGPU, phaseAndSequence) == 0u);
 static_assert(offsetof(MRSensorRuntimeStateGPU, timestampAgeValidity) == 16u);
+static_assert(offsetof(MRSensorRuntimeStateGPU, previousSampleTimestamp) == 32u);
+static_assert(offsetof(MRSensorRuntimeStateGPU, previousPointVelocity) == 48u);
 static_assert(sizeof(MRSensorSampleMetadataGPU) == 32u);
 static_assert(alignof(MRSensorSampleMetadataGPU) == 16u);
 static_assert(offsetof(MRSensorSampleMetadataGPU, sequenceAndTimestamp) == 0u);

@@ -60,6 +60,11 @@ enum MRWorldSensorKind : mr_u32 {
     // World-space linear velocity at the authored sensor origin followed by
     // world-space angular velocity. Both are derived from accepted state.
     MR_WORLD_SENSOR_FRAME_TWIST_WORLD = 7u,
+    // Sensor-local specific force followed by sensor-local angular velocity.
+    // Specific force is the accepted change in world point velocity over the
+    // actual sensor sample interval minus world gravity. The point velocity
+    // includes the authored sensor offset from the parent centre of mass.
+    MR_WORLD_SENSOR_IMU = 8u,
 };
 
 enum MRWorldSensorParentKind : mr_u32 {
