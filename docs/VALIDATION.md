@@ -181,20 +181,32 @@ without replacing the last valid compiled program.
 
 The same fixture expresses fixed, episode-sampled, and trajectory frame
 objectives without constant or frame-specific reward/termination opcodes.
-TaskPack 13 round-trips those graphs, preserves their numerical outcomes, and
+TaskPack 14 round-trips those graphs, preserves their numerical outcomes, and
 proves that deleting the duplicated goal fields and shrinking the termination
 record does not change dynamic-goal replay.
 
-The G1 branch-pruning fixture lowers stability, joint-velocity, posture,
-support-slip, forbidden-contact, height, and tilt terms into SignalIR. A paired
-eight-environment, sixteen-step native rollout against the pre-cut revision
-matches task reward, physics, contacts, terminations, and channel metrics; the
-largest aggregate reporting difference is below `5e-10`. Seven compiled
-source-cohort reductions reduce the graph to 22 nodes and recover 19,456
-retained bytes relative to scalar expansion without changing persistent state.
-The owner also rejects an invalid reward channel, an empty reduction, and a
-SensorIR reduction that lacks generalized per-source sensor scratch, while
-preserving the last compiled task transactionally.
+The G1 branch-pruning fixture now lowers all nineteen rewards into SignalIR,
+including heading-frame command tracking, yaw tracking, joint acceleration,
+action delta, compiler-resolved soft limits, mechanical power, phase/contact
+matching, slip, forbidden contact, and frame-based foot clearance. The native
+reward loop has no opcode switch: its record is a signal channel, reporting
+channel, and weight. The compiled task contains 89 nodes, 167 semantic sources,
+eleven reductions, and three frames.
+
+Paired eight-environment, sixteen-step native rollouts against the preceding
+specialized implementation cover zero and deterministic nonzero host actions.
+Physical, contact, failure, termination, root-height, tilt, tracking, and task
+reward outcomes are exact. The largest aggregate mean difference is below
+`2e-10`; action and acceleration reporting differences are below `8e-12`.
+The explicit generic graph adds 30,912 retained bytes while persistent physical
+state remains exactly unchanged. That topology-derived cost replaces hidden
+robot-shaped control flow and is reported rather than disguised as a memory
+regression.
+
+The owner also rejects an invalid reward channel, invalid soft-limit factor,
+ignored source parameters, an empty reduction, and a SensorIR reduction that
+lacks generalized per-source sensor scratch, while preserving the last
+compiled task transactionally.
 
 ## Numerical corpus
 

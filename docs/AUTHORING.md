@@ -101,7 +101,10 @@ compilation. It supports:
   error termination composed from semantic leaves and scalar SignalIR;
 - topologically ordered scalar signals with semantic observation leaves,
   constants, arithmetic, min/max, absolute, square/root, safe division,
-  clamp, exponential tracking/decay, `atan2`, and bounds gates;
+  clamp, exponential tracking/decay, `atan2`, comparisons, and bounds gates;
+- heading-frame velocity, joint acceleration, previous-action delta,
+  compiler-resolved soft-limit violation, mechanical power, and desired
+  support-contact leaves;
 - contiguous semantic-source reductions with identity, absolute, or square
   transforms and sum, mean, minimum, or maximum reductions;
 - generic signal rewards and below/above/outside termination thresholds;
@@ -130,11 +133,19 @@ and vector normalization are not accepted. A SensorIR leaf requires truth
 consumer permission and reads the current accepted sample after native sensor
 advancement but before reward and termination evaluation.
 
-There are no constant or frame-specific reward or termination opcodes. Goal
-identity belongs only on semantic source leaves; reward and termination records
-consume scalar signal indices. This keeps fixed, sampled, and trajectory goals
-on one execution path and prevents every new frame objective from adding a
-native branch.
+There are no task-shaped reward or termination opcodes. Goal, frame, contact,
+joint, and actuator identity belongs only on semantic source leaves; reward
+records contain only a resolved signal channel, reporting channel, and weight.
+Termination records similarly consume scalar signal indices and generic bounds.
+This keeps fixed, sampled, and trajectory goals on one execution path and
+prevents every new robot objective from adding a native branch.
+
+Soft joint ranges are resolved from the selected mechanics preset during
+compilation. The GPU consumes concrete lower and upper bounds; task completion
+does not bind or reread the mechanics DoF table. Desired support contact is an
+accepted-step phase signal keyed by the compiled contact group, so gait intent
+and observed support remain ordinary graph inputs rather than a locomotion
+shader mode.
 
 Every reward also selects one of eight generic reporting channels: primary,
 stability, velocity, acceleration, control, configuration, energy, or contact.

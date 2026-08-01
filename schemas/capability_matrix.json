@@ -35,7 +35,8 @@
     "evidence/baselines/2026-08-01-20baf55.json",
     "evidence/baselines/2026-08-01-c6bcfd0.json",
     "evidence/baselines/2026-08-01-a5e26d6.json",
-    "evidence/baselines/2026-08-01-7182ce5.json"
+    "evidence/baselines/2026-08-01-7182ce5.json",
+    "evidence/baselines/2026-08-01-ac58af4.json"
   ],
   "capabilities": [
     {
@@ -183,21 +184,28 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "TaskPack 13 compiles a topologically ordered scalar graph with semantic state/frame/current-SensorIR truth leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, exponential tracking/decay, atan2, bounds gates, and contiguous source-cohort reductions. Reductions apply identity, absolute, or square transforms followed by sum, mean, minimum, or maximum without materializing one scratch node per member. The native order is accepted mechanics, SensorIR sample, sensor-signal materialization, generic reward/termination, then actor/critic sensor-history publication. Scratch is topology-sized in the candidate-body arena and adds no persistent simulator tensor. SensorIR cohort reductions and generic phase operators remain incomplete."
+      "scope": "TaskPack 14 compiles a topologically ordered scalar graph with semantic state/frame/current-SensorIR truth leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, exponential tracking/decay, atan2, comparisons, bounds gates, and contiguous source-cohort reductions. Resolved leaves include heading-frame velocity, joint acceleration, action delta, compiled soft-limit violation, mechanical power, and desired support contact. The native order is accepted mechanics, SensorIR sample, sensor-signal materialization, generic reward/termination, then actor/critic sensor-history publication. Scratch is topology-sized in the candidate-body arena and adds no persistent simulator tensor. SensorIR cohort reductions and generic phase operators remain incomplete."
     },
     {
       "id": "tasks.specialized_branch_pruning",
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Twelve robot-shaped reward opcodes and every specialized termination opcode have been deleted. G1 stability, joint velocity, posture, support slip, forbidden contact, height termination, and tilt termination compose generic SignalIR nodes; reward reporting uses an authored eight-channel index rather than an opcode switch. TaskPack 13 also deletes the joint-group wire section, two compiled tables, their GPU record, and two public accessors. Command tracking, acceleration, action rate, soft limits, mechanical power, gait matching, and foot clearance remain explicit until exact generic sources replace them."
+      "scope": "Every robot-shaped reward and termination opcode has been deleted. All nineteen bundled G1 reward terms compose generic SignalIR leaves, reductions, arithmetic, comparisons, and frame operators; each reward record contains only a resolved signal, channel, and weight. TaskPack 14 also removes the joint-group wire section, duplicated compiled tables, task-complete DoF binding, reward opcode enum, and specialized shader switch. The paired zero- and nonzero-action rollouts preserve physical outcomes and task reward exactly, with aggregate reporting deltas below 2e-10."
     },
     {
       "id": "tasks.signal_reductions",
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "A SignalIR reduction owns one contiguous truth-source cohort and compiles identity, absolute, or square transforms with sum, mean, minimum, or maximum. The bundled G1 task uses seven reductions and 22 graph nodes; compared with scalar expansion, an eight-environment native rollout saves 19,456 retained bytes with exact physics, contacts, rewards, terminations, and reward-channel results. Empty cohorts and currently unsupported SensorIR cohorts fail transactionally."
+      "scope": "A SignalIR reduction owns one contiguous truth-source cohort and compiles identity, absolute, or square transforms with sum, mean, minimum, or maximum. The bundled G1 task now uses eleven reductions inside an 89-node, 167-source fully generic reward graph. Empty cohorts and currently unsupported SensorIR cohorts fail transactionally."
+    },
+    {
+      "id": "tasks.generic_rewards",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "Reward evaluation is a branchless lookup of a resolved SignalIR channel followed by an authored weight and generic reporting-channel accumulation. The bundled G1 task expresses command tracking, posture, acceleration, action rate, soft limits, power, contact gait intent, slip, forbidden contact, and foot clearance without a task-shaped native opcode, joint-group table, robot identity branch, or runtime mechanics-bound lookup. Compiler-resolved source parameters reject invalid soft factors, support groups, and ignored fields transactionally."
     },
     {
       "id": "tasks.semantic_frame_jacobians",
