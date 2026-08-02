@@ -15,6 +15,7 @@ Numi supplies fresh artifact paths and local runtime paths when they are not
 provided. Every native trainer option passes through unchanged. Common options:
 
   --task velocity|disturbance-recovery|supine-get-up|ball-recovery|ball-dodge
+  --interaction-pack PATH --interaction-clip ID
   --envs N --steps N --updates N --chunk N
   --policy-pack PATH                 Resume or use an existing PolicyPack
   --initialize-policy ID            Initialize a new policy

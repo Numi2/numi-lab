@@ -165,6 +165,8 @@ private struct Options {
     var scheduledResets = true
     var policyPack: String?
     var rolloutPack: String?
+    var interactionPack: String?
+    var interactionClip: String?
     var worldPack: String?
     var taskPack: String?
     var urdf: String?
@@ -279,6 +281,12 @@ private struct Options {
             case "--rollout-pack":
                 rolloutPack = try value()
                 index += 1
+            case "--interaction-pack":
+                interactionPack = try value()
+                index += 1
+            case "--interaction-clip":
+                interactionClip = try value()
+                index += 1
             case "--world-pack":
                 worldPack = try value()
                 index += 1
@@ -389,6 +397,26 @@ private struct Options {
         if worldPack != nil && urdf != nil {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--world-pack and --urdf are mutually exclusive."
+            )
+        }
+        if (interactionPack == nil) != (interactionClip == nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Interaction tracking requires both --interaction-pack and --interaction-clip."
+            )
+        }
+        if let interactionPack,
+           interactionPack.isEmpty || interactionClip?.isEmpty != false
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "InteractionPack path and clip identity cannot be empty."
+            )
+        }
+        if interactionPack != nil &&
+            (worldPack != nil || urdf != nil || taskPack != nil ||
+             unitreeG1Task != .velocity || !dynamicSpheres.isEmpty)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "InteractionPack v1 evaluation uses the bundled G1 velocity mechanics preset and cannot be combined with imported mechanics, another --task, or --ball."
             )
         }
         if (worldPack != nil || urdf != nil) != (taskPack != nil) {
@@ -528,6 +556,21 @@ private func makeContext(
         disableTaskTerminations: options.disableTaskTerminations,
         unitreeG1Task: options.unitreeG1Task
     )
+    if let interactionPack = options.interactionPack,
+       let interactionClip = options.interactionClip
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                unitreeG1Interaction: URL(
+                    fileURLWithPath: interactionPack
+                ),
+                clipID: interactionClip,
+                configuration: configuration,
+                metallibPath: options.metallib
+            ),
+            "bundled_g1_interaction"
+        )
+    }
     if let worldPack = options.worldPack,
        let taskPack = options.taskPack
     {

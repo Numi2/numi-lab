@@ -16,6 +16,7 @@ Metal library and uses the compiled native policy unless another action source
 is selected. Common options:
 
   --policy-pack PATH
+  --interaction-pack PATH --interaction-clip ID
   --native-policy | --zero-actions
   --task velocity|disturbance-recovery|supine-get-up|ball-recovery|ball-dodge
   --envs N --steps N --repeats N --chunk N

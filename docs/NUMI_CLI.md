@@ -59,6 +59,22 @@ ignored by Git. Set `NUMI_RUNS_DIR` or `NUMI_RUN_DIR` to place it elsewhere.
 Each bundled command records its arguments, source revision, stdout, and native
 artifacts without changing the underlying runtime interface.
 
+Generated contact-first intent uses the same generic training and evaluation
+capabilities. The InteractionPack and selected clip compile into the native
+task before either command executes:
+
+```sh
+numi train \
+  --interaction-pack runs/ardy.interactionpack \
+  --interaction-clip ardy-g1 \
+  --initialize-policy g1_contact_first
+
+numi evaluate \
+  --interaction-pack runs/ardy.interactionpack \
+  --interaction-clip ardy-g1 \
+  --policy-pack runs/deployment.policypack
+```
+
 ## Codex bootstrap
 
 The plugin under `plugins/numi-lab` intentionally contains a small skill. It

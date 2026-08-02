@@ -74,13 +74,17 @@ numi_train_output=$(
     cd "$numi_repo"
     NUMI_BUILD_DIR=$numi_temp/fake-build \
     NUMI_RUN_DIR=$numi_train_run \
-        "$numi_repo/tools/numi" train --task ball-dodge --updates 1
+        "$numi_repo/tools/numi" train \
+            --interaction-pack sample.interactionpack \
+            --interaction-clip sample-clip \
+            --updates 1
 )
 [ "$numi_train_output" = "fake-train" ]
 grep -- '--initialize-policy' "$numi_train_run/arguments.txt" >/dev/null
 grep -- '--updated-policy-pack' "$numi_train_run/arguments.txt" >/dev/null
 grep -- '--mlx-python' "$numi_train_run/arguments.txt" >/dev/null
-grep -- 'ball-dodge' "$numi_train_run/arguments.txt" >/dev/null
+grep -- 'sample.interactionpack' "$numi_train_run/arguments.txt" >/dev/null
+grep -- 'sample-clip' "$numi_train_run/arguments.txt" >/dev/null
 test -s "$numi_train_run/revision.txt"
 test -s "$numi_train_run/runtime.sha256"
 test -s "$numi_train_run/artifacts.sha256"
@@ -90,11 +94,16 @@ numi_evaluate_output=$(
     cd "$numi_repo"
     NUMI_BUILD_DIR=$numi_temp/fake-build \
     NUMI_RUN_DIR=$numi_evaluate_run \
-        "$numi_repo/tools/numi" evaluate --task velocity --repeats 1
+        "$numi_repo/tools/numi" evaluate \
+            --interaction-pack sample.interactionpack \
+            --interaction-clip sample-clip \
+            --repeats 1
 )
 [ "$numi_evaluate_output" = "fake-evaluate" ]
 grep -- '--native-policy' "$numi_evaluate_run/arguments.txt" >/dev/null
 grep -- '--metallib' "$numi_evaluate_run/arguments.txt" >/dev/null
+grep -- 'sample.interactionpack' "$numi_evaluate_run/arguments.txt" >/dev/null
+grep -- 'sample-clip' "$numi_evaluate_run/arguments.txt" >/dev/null
 test -s "$numi_evaluate_run/revision.txt"
 test -s "$numi_evaluate_run/runtime.sha256"
 test -s "$numi_evaluate_run/artifacts.sha256"
