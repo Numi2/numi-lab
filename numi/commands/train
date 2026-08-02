@@ -71,14 +71,22 @@ else
     numi_native_library=$numi_root/lib/libmetalrobo.dylib
 fi
 
-if [ "${NUMI_MLX_PYTHON:-}" != "" ]; then
-    numi_python=$NUMI_MLX_PYTHON
-elif [ -x "$numi_root/python/.venv/bin/python" ]; then
-    numi_python=$numi_root/python/.venv/bin/python
-elif command -v python3 >/dev/null 2>&1; then
-    numi_python=$(command -v python3)
-else
-    printf 'numi train: no Python interpreter found; run numi doctor\n' >&2
+numi_path_python=$(command -v python3 2>/dev/null || true)
+numi_python=
+for numi_candidate_python in \
+    "${NUMI_MLX_PYTHON:-}" \
+    "$numi_root/python/.venv/bin/python" \
+    "$numi_path_python" \
+    "${HOME:-}/.pyenv/versions/"*/bin/python3 \
+    "${HOME:-}/.pyenv/versions/"*/bin/python; do
+    [ -x "$numi_candidate_python" ] || continue
+    if "$numi_candidate_python" -c 'import mlx' >/dev/null 2>&1; then
+        numi_python=$numi_candidate_python
+        break
+    fi
+done
+if [ "$numi_python" = "" ]; then
+    printf 'numi train: no Python interpreter with MLX found; run numi doctor\n' >&2
     exit 1
 fi
 

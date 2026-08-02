@@ -38,6 +38,13 @@ printf 'fake metal library\n' > "$numi_temp/fake-build/shaders/MetalRobo.metalli
 numi_version=$($numi_repo/tools/numi version)
 [ "$numi_version" = "0.4.0" ]
 
+ln -s "$numi_repo/tools/numi" "$numi_temp/numi"
+numi_linked_version=$($numi_temp/numi version)
+[ "$numi_linked_version" = "0.4.0" ]
+
+numi_codex_description=$($numi_repo/tools/numi codex --numi-describe)
+[ "$numi_codex_description" = "Install or inspect Numi Lab inside Codex." ]
+
 numi_context=$(
     cd "$numi_temp/workspace"
     NUMI_LAB_ROOT=$numi_repo \

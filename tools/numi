@@ -7,7 +7,15 @@ numi_die() {
     exit 1
 }
 
-numi_script_dir=$(CDPATH= cd "$(dirname "$0")" && pwd -P)
+numi_script_path=$0
+while [ -L "$numi_script_path" ]; do
+    numi_link_target=$(readlink "$numi_script_path")
+    case "$numi_link_target" in
+        /*) numi_script_path=$numi_link_target ;;
+        *) numi_script_path=$(dirname "$numi_script_path")/$numi_link_target ;;
+    esac
+done
+numi_script_dir=$(CDPATH= cd "$(dirname "$numi_script_path")" && pwd -P)
 
 numi_find_workspace() {
     numi_candidate=$(pwd -P)
@@ -99,6 +107,23 @@ numi_version() {
     fi
 }
 
+numi_find_mlx_python() {
+    numi_path_python=$(command -v python3 2>/dev/null || true)
+    for numi_candidate_python in \
+        "${NUMI_MLX_PYTHON:-}" \
+        "$NUMI_LAB_ROOT/python/.venv/bin/python" \
+        "$numi_path_python" \
+        "${HOME:-}/.pyenv/versions/"*/bin/python3 \
+        "${HOME:-}/.pyenv/versions/"*/bin/python; do
+        [ -x "$numi_candidate_python" ] || continue
+        if "$numi_candidate_python" -c 'import mlx' >/dev/null 2>&1; then
+            printf '%s\n' "$numi_candidate_python"
+            return 0
+        fi
+    done
+    return 1
+}
+
 numi_doctor() {
     numi_doctor_status=0
     printf 'Numi Lab doctor\n\n'
@@ -141,15 +166,8 @@ numi_doctor() {
         fi
     done
 
-    if [ -x "$NUMI_LAB_ROOT/python/.venv/bin/python" ]; then
-        numi_python=$NUMI_LAB_ROOT/python/.venv/bin/python
-    elif command -v python3 >/dev/null 2>&1; then
-        numi_python=$(command -v python3)
-    else
-        numi_python=
-    fi
-
-    if [ "$numi_python" != "" ] && "$numi_python" -c 'import mlx' >/dev/null 2>&1; then
+    numi_python=$(numi_find_mlx_python || true)
+    if [ "$numi_python" != "" ]; then
         printf 'MLX learner:  ok (%s)\n' "$numi_python"
     else
         printf 'MLX learner:  missing (install the python/ package in an environment with MLX)\n'

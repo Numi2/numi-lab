@@ -13,6 +13,17 @@ the installed runtime and the user's overlays.
 ./tools/numi version
 ```
 
+Make the local runtime available throughout Codex with one command:
+
+```sh
+./tools/numi codex install
+```
+
+This registers the repository marketplace, installs and enables the Numi Lab
+plugin, and links the dispatcher into `${XDG_BIN_HOME:-~/.local/bin}` without
+replacing an existing command. Start a new Codex task after installation so its
+Numi Lab skill is loaded.
+
 `numi train` and `numi evaluate` are discovered commands, not core CLI logic.
 The dispatcher searches in this order:
 

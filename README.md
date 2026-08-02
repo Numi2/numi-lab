@@ -213,6 +213,7 @@ self-describing Numi CLI:
 ```sh
 ./tools/numi doctor
 ./tools/numi context
+./tools/numi codex install
 ./tools/numi train --help
 ./tools/numi evaluate --help
 ```

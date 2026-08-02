@@ -1,0 +1,85 @@
+#!/bin/sh
+
+set -u
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf 'Install or inspect Numi Lab inside Codex.\n'
+    exit 0
+fi
+
+numi_usage() {
+    cat <<'EOF'
+Usage: numi codex install|status
+
+  install   Register the Numi marketplace, install the plugin, and expose numi
+  status    Verify that Codex reports the Numi Lab plugin as installed
+EOF
+}
+
+numi_action=${1:-status}
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+numi_marketplace=$numi_root/.agents/plugins/marketplace.json
+
+case "$numi_action" in
+    --help|-h|help)
+        numi_usage
+        ;;
+    install)
+        command -v codex >/dev/null 2>&1 || {
+            printf 'numi codex: Codex CLI is not on PATH\n' >&2
+            exit 1
+        }
+        [ -f "$numi_marketplace" ] || {
+            printf 'numi codex: missing marketplace %s\n' "$numi_marketplace" >&2
+            exit 1
+        }
+
+        numi_user_bin=${XDG_BIN_HOME:-${HOME:?}/.local/bin}
+        mkdir -p "$numi_user_bin"
+        if [ -x "$numi_root/tools/numi" ]; then
+            numi_dispatcher=$numi_root/tools/numi
+        else
+            numi_dispatcher=$numi_root/bin/numi
+        fi
+        [ -x "$numi_dispatcher" ] || {
+            printf 'numi codex: missing executable dispatcher %s\n' "$numi_dispatcher" >&2
+            exit 1
+        }
+
+        if [ -L "$numi_user_bin/numi" ]; then
+            numi_existing_target=$(readlink "$numi_user_bin/numi")
+            if [ "$numi_existing_target" != "$numi_dispatcher" ]; then
+                printf 'numi codex: refusing to replace %s -> %s\n' \
+                    "$numi_user_bin/numi" "$numi_existing_target" >&2
+                exit 1
+            fi
+        elif [ -e "$numi_user_bin/numi" ]; then
+            printf 'numi codex: refusing to replace existing %s\n' \
+                "$numi_user_bin/numi" >&2
+            exit 1
+        else
+            ln -s "$numi_dispatcher" "$numi_user_bin/numi"
+        fi
+
+        codex plugin marketplace add "$numi_root" --json
+        codex plugin add numi-lab@numi-lab --json
+        printf 'Numi Lab is installed in Codex. Start a new task to load it.\n'
+        ;;
+    status)
+        command -v codex >/dev/null 2>&1 || {
+            printf 'numi codex: Codex CLI is not on PATH\n' >&2
+            exit 1
+        }
+        if codex plugin list --json | \
+            grep '"pluginId": "numi-lab@numi-lab"' >/dev/null; then
+            printf 'Numi Lab is installed and available to Codex.\n'
+        else
+            printf 'Numi Lab is not installed. Run `numi codex install`.\n' >&2
+            exit 1
+        fi
+        ;;
+    *)
+        numi_usage >&2
+        exit 1
+        ;;
+esac

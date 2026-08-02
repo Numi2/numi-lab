@@ -2053,13 +2053,18 @@ endif()
 install(PROGRAMS tools/numi DESTINATION bin)
 install(
     PROGRAMS
+        numi/commands/codex
         numi/commands/train
         numi/commands/evaluate
     DESTINATION libexec/numi
 )
 install(
     DIRECTORY plugins/numi-lab
-    DESTINATION share/numi/codex
+    DESTINATION plugins
+)
+install(
+    FILES .agents/plugins/marketplace.json
+    DESTINATION .agents/plugins
 )
 install(
     FILES
