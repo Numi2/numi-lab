@@ -614,11 +614,13 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     TaskPack task;
     task.id = "unitree_g1_mjlab_velocity";
     // The topology envelope contains every eligible self-collision pair.
-    // Locomotion instead compiles an explicit operational arena. Capacity
-    // overflow is transactional and reports the exact required stage count,
-    // so this is a replayable task contract rather than silent truncation.
+    // Locomotion instead compiles an explicit operational arena. A fresh-seed
+    // ball-dodge continuation reached 145 active pairs, so retain six Wave32
+    // cohorts: the next aligned boundary plus one complete cohort of reserve.
+    // Capacity overflow remains transactional and reports the exact required
+    // stage count, so this is a replayable contract rather than truncation.
     task.capacities = {
-        .candidatePairs = 144u,
+        .candidatePairs = 192u,
         .rawContacts = 128u,
         .manifolds = 32u,
         .constraintBlocks = 64u,

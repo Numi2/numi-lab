@@ -419,6 +419,34 @@
 \mathtt{/Users/n/MetalRobo-training/g1\text{-}1024\text{-}plantar\text{-}conditioned\text{-}streamed\text{-}long16\text{-}20260802}
 ```
 
+## NUMI.G1.PAIR192
+
+```math
+\vec{Q}_{\mathrm{pair\_replay}}=
+\begin{bmatrix}
+\mathrm{start\_revision}&\mathrm{updates}&\mathrm{transitions}&
+\mathrm{failed\_steps}&\mathrm{required\_pair\_highwater}&
+\mathrm{pair\_capacity}&\mathrm{transitions/s}
+\end{bmatrix}
+=
+\begin{bmatrix}
+81&7&1835008&0&146&192&5723.288
+\end{bmatrix}
+```
+
+```math
+\mathrm{replay}_{1\ldots5}=\mathrm{bit\text{-}identical},\qquad
+\mathrm{former\_failure}_{\mathrm{update\ 6}}:\ 145>144,\qquad
+\mathrm{next\_measured\_highwater}=146
+```
+
+```math
+\mathrm{candidate\_pair\_capacity}=
+6\times\mathrm{Wave32}=192,\qquad
+\mathrm{qualification\_artifact}=
+\mathtt{/Users/n/MetalRobo-training/g1\text{-}1024\text{-}plantar\text{-}conditioned\text{-}streamed\text{-}pair192\text{-}replay7\text{-}20260802}
+```
+
 ## NUMI.NORTHSTAR
 
 ```math

@@ -341,7 +341,7 @@ int main() {
             fail("compiled G1 task layout changed");
         }
         if (program.worldFingerprint() != world.fingerprint() ||
-            world.capacities().candidatePairs != 144u ||
+            world.capacities().candidatePairs != 192u ||
             world.capacities().rawContacts != 128u ||
             world.capacities().manifolds != 32u ||
             world.capacities().constraintBlocks != 64u ||
@@ -506,7 +506,7 @@ int main() {
             ) > 1.0e-6f ||
             compiledBallRecovery.task.header().dynamics.x != 0.0f ||
             compiledBallRecovery.world.sceneBodyCount() != 7u ||
-            compiledBallRecovery.world.capacities().candidatePairs != 144u ||
+            compiledBallRecovery.world.capacities().candidatePairs != 192u ||
             compiledBallRecovery.world.capacities().constraintRows != 192u) {
             fail("compiled G1 physical-ball task is incomplete");
         }

@@ -587,6 +587,14 @@ profile crossed that boundary when the second update raised swap use from
 is the current sustained-training profile and 11,264 remains a qualified
 single-update capacity ceiling rather than a production claim.
 
+The G1 operational candidate-pair arena retains six Wave32 cohorts (192
+pairs). A fresh-seed ball-dodge continuation measured an exact requirement of
+145 pairs, beyond the former 144-pair arena. Rounding through the next Wave32
+boundary and retaining one additional cohort avoids a one-slot empirical bump
+without allocating the complete 1,684-pair topology envelope per environment.
+Typed overflow and transactional rollback remain the authority if a future
+trajectory exceeds this operational contract.
+
 Visual policy rollouts keep physics and inference at the authored control
 rate, but sample the camera at its independent sensor cadence. The generic
 device tracker retains depth, identity, and validity in private buffers and
