@@ -618,7 +618,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     // overflow is transactional and reports the exact required stage count,
     // so this is a replayable task contract rather than silent truncation.
     task.capacities = {
-        .candidatePairs = 128u,
+        .candidatePairs = 144u,
         .rawContacts = 128u,
         .manifolds = 32u,
         .constraintBlocks = 64u,
