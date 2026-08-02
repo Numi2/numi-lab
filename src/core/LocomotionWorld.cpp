@@ -1278,16 +1278,6 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
     // the episode while remaining stationary, not on recovery completion;
     // recovery events below are shaping signals only.
     task.successTrackingThreshold = 0.70f;
-    task.capacities.candidatePairs = 256u;
-    task.capacities.rawContacts = 256u;
-    task.capacities.manifolds = 64u;
-    task.capacities.constraintBlocks = 128u;
-    task.capacities.constraintRows = 384u;
-    task.capacities.endpointRuntimeRecords = 256u;
-    task.capacities.articulationPointQueries = 256u;
-    task.capacities.qualityRows = 384u;
-    task.capacities.islandConstraintReferences = 128u;
-
     // Solver-derived contact wrench is the native touch signal for impacts.
     // G1's dense tactile atlases are plantar-only, so a separate semantic
     // whole-body group detects ball contact without inventing skin sensors.
