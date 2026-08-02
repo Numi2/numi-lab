@@ -244,6 +244,24 @@ inline bool maskedDepthAcceptedInstance(
     return false;
 }
 
+namespace {
+
+uint frameSeed(
+    const MRWorldInstanceHeaderGPU instance,
+    constant MRHybridRenderUniformsGPU& uniforms,
+    const uint pixel
+);
+
+bool measureDepth(
+    const float geometricDepth,
+    const MRWorldSensorInstanceGPU sensor,
+    const uint seed,
+    constant MRHybridRenderUniformsGPU& uniforms,
+    thread float& measuredDepth
+);
+
+} // namespace
+
 kernel void mr_hybrid_masked_depth_history(
     device const float* depth [[buffer(0)]],
     device const uint4* identities [[buffer(1)]],
@@ -255,6 +273,13 @@ kernel void mr_hybrid_masked_depth_history(
     device float* actorObservations [[buffer(7)]],
     device const MRTaskStateGPU* taskStates [[buffer(8)]],
     constant MRHybridMaskedDepthUniformsGPU& uniforms [[buffer(9)]],
+    device const ulong* meshWinners [[buffer(10)]],
+    device const MRVisualTriangleGPUV2* triangles [[buffer(11)]],
+    device const MRVisualPrimitiveGPUV2* primitives [[buffer(12)]],
+    device const MRVisualInstanceGPUV2* visualInstances [[buffer(13)]],
+    device const MRWorldInstanceHeaderGPU* instances [[buffer(14)]],
+    device const MRWorldSensorInstanceGPU* sensors [[buffer(15)]],
+    constant MRHybridRenderUniformsGPU& renderUniforms [[buffer(16)]],
     const uint environment [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_threadgroup]],
     const uint lanes [[threads_per_threadgroup]]
@@ -310,19 +335,82 @@ kernel void mr_hybrid_masked_depth_history(
     // three global planes for every neighboring pixel.
     const bool cacheSensorPlane =
         pixelCount <= kCachedPixelCapacity;
+    const bool geometricWinnerSource =
+        uniforms.curriculum.y != 0u && cacheSensorPlane;
     if (cacheSensorPlane) {
         for (uint pixel = lane; pixel < pixelCount; pixel += lanes) {
             const uint source = environment * pixelCount + pixel;
-            measuredDepths[pixel] = depth[source];
-            segmentedPixels[pixel] =
-                validity[source] != 0u &&
-                maskedDepthAcceptedInstance(
-                    identities[source].y,
-                    acceptedInstances,
-                    uniforms.counts.w
-                )
-                ? uchar(1u)
-                : uchar(0u);
+            if (geometricWinnerSource) {
+                const ulong winner = meshWinners[source];
+                const uint triangleIndex = uint(winner);
+                float measured = renderUniforms.clearColorAndDepth.w;
+                bool segmented = false;
+                if (triangleIndex != MR_INVALID_INDEX &&
+                    triangleIndex < renderUniforms.live.w) {
+                    const MRVisualTriangleGPUV2 triangle =
+                        triangles[triangleIndex];
+                    const MRVisualPrimitiveGPUV2 primitive =
+                        primitives[triangle.verticesAndPrimitive.w];
+                    const MRVisualInstanceGPUV2 visualInstance =
+                        visualInstances[primitive.geometry.w];
+                    uint4 identity = primitive.identity;
+                    if (visualInstance.identity.x != 0u) {
+                        identity.x = visualInstance.identity.x;
+                    }
+                    if (visualInstance.identity.y != 0u) {
+                        identity.y = visualInstance.identity.y;
+                    }
+                    if (visualInstance.identity.z != MR_INVALID_INDEX) {
+                        identity.z = visualInstance.identity.z;
+                    }
+                    segmented = maskedDepthAcceptedInstance(
+                        identity.y,
+                        acceptedInstances,
+                        uniforms.counts.w
+                    );
+                    const float geometricDepth =
+                        as_type<float>(uint(winner >> 32u));
+                    measured = geometricDepth;
+                    if (renderUniforms.shadowBatch.w != 0u) {
+                        const MRWorldInstanceHeaderGPU instance =
+                            instances[environment];
+                        const MRWorldSensorInstanceGPU sensor = sensors[
+                            instance.ranges.z + renderUniforms.render.x
+                        ];
+                        const bool stochastic =
+                            sensor.noiseAndLatency.x > 0.0f ||
+                            sensor.noiseAndLatency.y > 0.0f ||
+                            sensor.noiseAndLatency.z > 0.0f;
+                        const uint seed = stochastic
+                            ? frameSeed(instance, renderUniforms, source)
+                            : 0u;
+                        if (!measureDepth(
+                                geometricDepth,
+                                sensor,
+                                seed,
+                                renderUniforms,
+                                measured
+                            )) {
+                            measured =
+                                renderUniforms.clearColorAndDepth.w;
+                        }
+                    }
+                }
+                measuredDepths[pixel] = measured;
+                segmentedPixels[pixel] =
+                    segmented ? uchar(1u) : uchar(0u);
+            } else {
+                measuredDepths[pixel] = depth[source];
+                segmentedPixels[pixel] =
+                    validity[source] != 0u &&
+                    maskedDepthAcceptedInstance(
+                        identities[source].y,
+                        acceptedInstances,
+                        uniforms.counts.w
+                    )
+                    ? uchar(1u)
+                    : uchar(0u);
+            }
         }
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -2298,6 +2386,51 @@ kernel void mr_hybrid_clear_observations(
     }
 }
 
+// Geometric learning observations consume raster winners directly. Clear
+// only the winner and mesh-tile workspaces instead of materializing seven
+// presentation planes that no downstream learner reads.
+kernel void mr_hybrid_clear_geometric_winners(
+    device ulong* meshWinners [[buffer(0)]],
+    device atomic_uint* clippedDispatch [[buffer(1)]],
+    device atomic_uint* meshTileCounts [[buffer(2)]],
+    device atomic_uint* meshOverflowCounts [[buffer(3)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(4)]],
+    const uint compactPixel [[thread_position_in_grid]]
+) {
+    const uint compactCount =
+        uniforms.counts.x *
+        bandPixelCountPerEnvironment(uniforms);
+    if (compactPixel >= compactCount) {
+        return;
+    }
+    const uint compactTileCount =
+        uniforms.counts.x *
+        bandTileCountPerEnvironment(uniforms);
+    if (compactPixel < compactTileCount) {
+        atomic_store_explicit(
+            meshTileCounts +
+                globalTileFromBandIndex(compactPixel, uniforms),
+            0u,
+            memory_order_relaxed
+        );
+    }
+    if (compactPixel < uniforms.counts.x) {
+        atomic_store_explicit(
+            meshOverflowCounts + compactPixel,
+            0u,
+            memory_order_relaxed
+        );
+    }
+    const uint pixel =
+        globalPixelFromBandIndex(compactPixel, 0u, uniforms);
+    clearMeshWinner(
+        meshWinners,
+        clippedDispatch,
+        pixel,
+        compactPixel == 0u
+    );
+}
+
 kernel void mr_hybrid_clear_shadow_atlas(
     device atomic_uint* shadowAtlas [[buffer(0)]],
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(1)]],
@@ -3692,24 +3825,77 @@ kernel void mr_hybrid_bin_mesh(
     device atomic_uint* overflowCounts [[buffer(17)]],
     const device uint* triangleClusters [[buffer(18)]],
     const device uint* clusterVisibility [[buffer(19)]],
-    const uint index [[thread_position_in_grid]]
+    const device MRHybridMeshClusterGPU* clusters [[buffer(20)]],
+    const uint index [[thread_position_in_grid]],
+    const uint group [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_threadgroup]]
 ) {
+    threadgroup uint clusterVisible = 0u;
     const uint triangleCount = uniforms.live.w;
     const uint total = uniforms.counts.x * triangleCount;
-    if (index >= total || triangleCount == 0u) {
+    if (triangleCount == 0u) {
         return;
     }
-    const uint environment = index / triangleCount;
-    const uint triangleIndex =
-        index - environment * triangleCount;
     const uint clusterCount = uniforms.meshTiling.y;
-    const uint clusterIndex =
-        triangleClusters[triangleIndex];
-    if (clusterIndex >= clusterCount ||
-        clusterVisibility[
-            environment * clusterCount + clusterIndex
-        ] == 0u) {
-        return;
+    uint environment = 0u;
+    uint triangleIndex = 0u;
+    if (uniforms.rayBatch.w != 0u) {
+        environment = group / clusterCount;
+        const uint clusterIndex = group - environment * clusterCount;
+        if (environment >= uniforms.counts.x ||
+            clusterIndex >= clusterCount) {
+            return;
+        }
+        const MRHybridMeshClusterGPU cluster = clusters[clusterIndex];
+        if (lane == 0u) {
+            const MRVisualPrimitiveGPUV2 primitive =
+                primitives[cluster.range.z];
+            const MRVisualInstanceGPUV2 visualInstance =
+                visualInstances[primitive.geometry.w];
+            const MRWorldInstanceHeaderGPU instance =
+                instances[environment];
+            const MRWorldSensorInstanceGPU sensor = sensors[
+                instance.ranges.z + uniforms.render.x
+            ];
+            const BoundPose camera =
+                cameraStatePose(cameraStates, environment, false);
+            const BoundPose binding = visualInstanceStatePose(
+                visualInstanceStates,
+                environment,
+                primitive.geometry.w,
+                uniforms,
+                false
+            );
+            clusterVisible = meshClusterIntersectsSensor(
+                cluster,
+                visualInstance,
+                sensor,
+                camera,
+                binding,
+                uniforms
+            ) ? 1u : 0u;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (clusterVisible == 0u) {
+            return;
+        }
+        if (lane >= cluster.range.y) {
+            return;
+        }
+        triangleIndex = cluster.range.x + lane;
+    } else {
+        if (index >= total) {
+            return;
+        }
+        environment = index / triangleCount;
+        triangleIndex = index - environment * triangleCount;
+        const uint clusterIndex = triangleClusters[triangleIndex];
+        if (clusterIndex >= clusterCount ||
+            clusterVisibility[
+                environment * clusterCount + clusterIndex
+            ] == 0u) {
+            return;
+        }
     }
     binMeshTriangle(
         vertices,

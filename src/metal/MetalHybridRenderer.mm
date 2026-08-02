@@ -893,6 +893,7 @@ struct MetalHybridRendererState {
     __strong id<MTLComputePipelineState> prepareCameraPipeline = nil;
     __strong id<MTLComputePipelineState> resolveNearClippedPipeline = nil;
     __strong id<MTLComputePipelineState> clearObservationPipeline = nil;
+    __strong id<MTLComputePipelineState> clearGeometricWinnersPipeline = nil;
     __strong id<MTLComputePipelineState> binPipeline = nil;
     __strong id<MTLComputePipelineState> renderPipeline = nil;
     __strong id<MTLComputePipelineState> cullMeshClustersPipeline = nil;
@@ -1020,6 +1021,8 @@ MetalHybridRendererDiagnostics initialize(
         pipeline(@"mr_hybrid_resolve_near_clipped_mesh");
     state.clearObservationPipeline =
         pipeline(@"mr_hybrid_clear_observations");
+    state.clearGeometricWinnersPipeline =
+        pipeline(@"mr_hybrid_clear_geometric_winners");
     state.binPipeline =
         pipeline(@"mr_hybrid_bin_gaussians");
     state.renderPipeline =
@@ -1063,6 +1066,7 @@ MetalHybridRendererDiagnostics initialize(
         state.prepareCameraPipeline == nil ||
         state.resolveNearClippedPipeline == nil ||
         state.clearObservationPipeline == nil ||
+        state.clearGeometricWinnersPipeline == nil ||
         state.binPipeline == nil ||
         state.renderPipeline == nil ||
         state.cullMeshClustersPipeline == nil ||
@@ -2706,6 +2710,7 @@ struct EncodePassOptions {
     bool applySensor = true;
     bool renderMeshes = true;
     bool truthOnly = false;
+    bool geometricWinnersOnly = false;
     bool updateShadows = true;
     MRHybridRenderUniformsGPU* encodedUniforms = nullptr;
     std::uint32_t bandFirst = 0u;
@@ -2984,6 +2989,7 @@ MetalHybridRendererDiagnostics encodeLocked(
         );
     }
     if (options.outputs == nullptr &&
+        !options.geometricWinnersOnly &&
         !state.config.retainObservationBuffers) {
         return reject(
             std::move(diagnostics),
@@ -3240,7 +3246,7 @@ MetalHybridRendererDiagnostics encodeLocked(
         0u,
         environmentCount,
         0u,
-        0u,
+        options.geometricWinnersOnly ? 1u : 0u,
     };
     uniforms.rayTiming = {
         options.shutterWindowSeconds > 0.0f
@@ -3293,6 +3299,12 @@ MetalHybridRendererDiagnostics encodeLocked(
     const NSUInteger meshClusterGroupCount =
         static_cast<NSUInteger>(environmentCount) *
         state.layout.meshClusterCount;
+    const bool geometricWinnersOnly =
+        options.geometricWinnersOnly &&
+        state.geometricCompositeEligible &&
+        projectedCount == 0u &&
+        options.renderMeshes &&
+        triangleCount != 0u;
     const bool sensorFusedIntoComposite =
         options.applySensor &&
         !options.resolveAccumulation &&
@@ -3400,6 +3412,20 @@ MetalHybridRendererDiagnostics encodeLocked(
             ),
             clearThreads
         );
+    } else if (geometricWinnersOnly) {
+        encoder.setPipeline(state.clearGeometricWinnersPipeline);
+        id<MTLBuffer> __unsafe_unretained winnerBuffers[] = {
+            state.buffers.meshWinners,
+            state.buffers.nearClippedDispatchArguments,
+            state.buffers.meshTileCounts,
+            state.buffers.meshTileOverflowCounts,
+        };
+        const NSUInteger winnerOffsets[
+            std::size(winnerBuffers)
+        ] = {};
+        encoder.setBuffers(winnerBuffers, winnerOffsets, 0u);
+        encoder.setBytes(&uniforms, sizeof(uniforms), 4u);
+        encoder.dispatchThreads(bandPixelCount, kPixelThreads);
     } else {
         encoder.setPipeline(state.clearObservationPipeline);
         id<MTLBuffer> __unsafe_unretained observationBuffers[] = {
@@ -3527,26 +3553,28 @@ MetalHybridRendererDiagnostics encodeLocked(
     }
 
     if (options.renderMeshes && triangleCount != 0u) {
-        encoder.setPipeline(state.cullMeshClustersPipeline);
-        id<MTLBuffer> __unsafe_unretained cullBuffers[] = {
-            state.buffers.meshClusters,
-            state.buffers.meshPrimitives,
-            state.buffers.meshInstances,
-            instances,
-            sensors,
-            state.buffers.cameraStates,
-            state.buffers.visualInstanceStates,
-            state.buffers.meshClusterVisibility,
-        };
-        const NSUInteger cullOffsets[
-            std::size(cullBuffers)
-        ] = {};
-        encoder.setBuffers(cullBuffers, cullOffsets, 0u);
-        encoder.setBytes(&uniforms, sizeof(uniforms), 8u);
-        encoder.dispatchThreads(
-            meshClusterGroupCount,
-            kPixelThreads
-        );
+        if (!geometricWinnersOnly) {
+            encoder.setPipeline(state.cullMeshClustersPipeline);
+            id<MTLBuffer> __unsafe_unretained cullBuffers[] = {
+                state.buffers.meshClusters,
+                state.buffers.meshPrimitives,
+                state.buffers.meshInstances,
+                instances,
+                sensors,
+                state.buffers.cameraStates,
+                state.buffers.visualInstanceStates,
+                state.buffers.meshClusterVisibility,
+            };
+            const NSUInteger cullOffsets[
+                std::size(cullBuffers)
+            ] = {};
+            encoder.setBuffers(cullBuffers, cullOffsets, 0u);
+            encoder.setBytes(&uniforms, sizeof(uniforms), 8u);
+            encoder.dispatchThreads(
+                meshClusterGroupCount,
+                kPixelThreads
+            );
+        }
 
         encoder.setPipeline(state.binMeshPipeline);
         id<MTLBuffer> __unsafe_unretained rasterBuffers[] = {
@@ -3570,16 +3598,24 @@ MetalHybridRendererDiagnostics encodeLocked(
             state.buffers.meshTileOverflowCounts,
             state.buffers.meshTriangleClusters,
             state.buffers.meshClusterVisibility,
+            state.buffers.meshClusters,
         };
         const NSUInteger rasterOffsets[
             std::size(rasterBuffers)
         ] = {};
         encoder.setBuffers(rasterBuffers, rasterOffsets, 0u);
         encoder.setBytes(&uniforms, sizeof(uniforms), 13u);
-        encoder.dispatchThreads(
-            triangleCount,
-            kPixelThreads
-        );
+        if (geometricWinnersOnly) {
+            encoder.dispatchThreadgroups(
+                meshClusterGroupCount,
+                MR_HYBRID_MESH_CLUSTER_TRIANGLES
+            );
+        } else {
+            encoder.dispatchThreads(
+                triangleCount,
+                kPixelThreads
+            );
+        }
 
         encoder.setPipeline(state.resolveMeshTilesPipeline);
         id<MTLBuffer> __unsafe_unretained resolveTileBuffers[] = {
@@ -3712,7 +3748,9 @@ MetalHybridRendererDiagnostics encodeLocked(
                 );
             }
 
-            if (state.geometricCompositeEligible) {
+            if (geometricWinnersOnly) {
+                continue;
+            } else if (state.geometricCompositeEligible) {
                 encoder.setPipeline(state.geometricCompositePipeline);
                 id<MTLBuffer> __unsafe_unretained geometricBuffers[] = {
                     state.buffers.meshTriangles,
@@ -7011,10 +7049,12 @@ struct MetalHybridObjectTracker::State {
     __strong id<MTLBuffer> maskedDepthInstances = nil;
     __strong id<MTLBuffer> maskedDepthHistory = nil;
     MetalHybridRendererLayout rendererLayout{};
+    MRHybridRenderUniformsGPU maskedDepthRenderUniforms{};
     std::uint64_t observationSequence = 0u;
     std::uint64_t lastSensorSequence =
         std::numeric_limits<std::uint64_t>::max();
     bool compiled = false;
+    bool directWinnerMaskedDepth = false;
 };
 
 MetalHybridObjectTracker::MetalHybridObjectTracker()
@@ -7260,6 +7300,15 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
         state_->maskedDepthInstances = maskedDepthInstances;
         state_->maskedDepthHistory = maskedDepthHistory;
         state_->rendererLayout = layout;
+        state_->maskedDepthRenderUniforms = {};
+        state_->directWinnerMaskedDepth =
+            maskedDepth &&
+            config.bindings.empty() &&
+            renderer.state_->geometricCompositeEligible &&
+            layout.gaussianCount == 0u &&
+            static_cast<std::uint64_t>(layout.width) *
+                    layout.height <=
+                256u;
         state_->observationSequence = 0u;
         state_->lastSensorSequence =
             std::numeric_limits<std::uint64_t>::max();
@@ -7417,13 +7466,35 @@ bool MetalHybridObjectTracker::encodeObservation(
         return false;
     }
     if (sampleSensor) {
-        const MetalHybridRendererDiagnostics rendered =
-            state->renderer->encode(
+        MetalHybridRendererDiagnostics rendered;
+        if (state->directWinnerMaskedDepth) {
+            auto& rendererState = *state->renderer->state_;
+            const std::lock_guard lock(rendererState.mutex);
+            HybridComputeEncoder encoder{observationEncoder};
+            EncodePassOptions options;
+            options.currentBodyOffset = liveState.currentBodyOffset;
+            options.previousBodyOffset = liveState.previousBodyOffset;
+            options.truthOnly = true;
+            options.geometricWinnersOnly = true;
+            options.encodedUniforms =
+                &state->maskedDepthRenderUniforms;
+            rendered = encodeLocked(
+                rendererState,
+                *state->worlds,
+                liveState,
+                state->config.cameraIndex,
+                encoder,
+                options
+            );
+            state->maskedDepthRenderUniforms.shadowBatch.w = 1u;
+        } else {
+            rendered = state->renderer->encode(
                 *state->worlds,
                 liveState,
                 state->config.cameraIndex,
                 (__bridge void*)observationEncoder
             );
+        }
         if (!rendered.succeeded()) {
             [observationEncoder endEncoding];
             return false;
@@ -7454,7 +7525,20 @@ bool MetalHybridObjectTracker::encodeObservation(
         (__bridge id<MTLBuffer>)state->worlds->nativeBuffer(
             MetalWorldFamilyBuffer::sensorInstances
         );
-    if (depth == nil || identities == nil || validity == nil ||
+    auto& visualBuffers = state->renderer->state_->buffers;
+    if (state->directWinnerMaskedDepth) {
+        if (depth == nil) {
+            depth = visualBuffers.meshWinners;
+        }
+        if (identities == nil) {
+            identities = visualBuffers.meshWinners;
+        }
+        if (validity == nil) {
+            validity = visualBuffers.meshWinners;
+        }
+    }
+    if ((!state->directWinnerMaskedDepth &&
+         (depth == nil || identities == nil || validity == nil)) ||
         cameraStates == nil || instanceHeaders == nil ||
         sensorInstances == nil) {
         [observationEncoder endEncoding];
@@ -7585,7 +7669,7 @@ bool MetalHybridObjectTracker::encodeObservation(
             },
             {
                 state->config.maskedDepthCurriculumCorruptionGain,
-                0.0f,
+                state->directWinnerMaskedDepth ? 1.0f : 0.0f,
                 0.0f,
                 0.0f,
             },
@@ -7614,6 +7698,26 @@ bool MetalHybridObjectTracker::encodeObservation(
             setBytes:&depthUniforms
               length:sizeof(depthUniforms)
              atIndex:9u];
+        const std::array<id<MTLBuffer>, 6u> winnerBuffers{{
+            visualBuffers.meshWinners,
+            visualBuffers.meshTriangles,
+            visualBuffers.meshPrimitives,
+            visualBuffers.meshInstances,
+            instanceHeaders,
+            sensorInstances,
+        }};
+        for (NSUInteger index = 0u;
+             index < winnerBuffers.size();
+             ++index) {
+            [observationEncoder
+                setBuffer:winnerBuffers[index]
+                   offset:0u
+                  atIndex:10u + index];
+        }
+        [observationEncoder
+            setBytes:&state->maskedDepthRenderUniforms
+              length:sizeof(state->maskedDepthRenderUniforms)
+             atIndex:16u];
         const NSUInteger width = std::min<NSUInteger>(
             state->maskedDepthPipeline.maxTotalThreadsPerThreadgroup,
             256u

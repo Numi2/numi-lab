@@ -1341,7 +1341,9 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     rendererConfig.metallibPath = handle.metallibPath;
     rendererConfig.width = config.width;
     rendererConfig.height = config.height;
-    rendererConfig.retainObservationBuffers = true;
+    // Closed-loop masked depth consumes exact geometric winners directly.
+    // Media capture has its own retained renderer below.
+    rendererConfig.retainObservationBuffers = false;
     rendererConfig.geometricObservationsOnly = true;
     if (config.maximum_retained_bytes != 0u) {
         if (config.maximum_retained_bytes >
