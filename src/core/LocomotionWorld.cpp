@@ -1688,6 +1688,7 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         .depthNoiseSigmaMeters = 0.01f,
         .edgeFlickerProbability = 1.0f,
         .curriculumCorruptionGain = 1.0f,
+        .includeDerivedFeatures = true,
     };
     const std::uint32_t visualPixels =
         task.visual.width * task.visual.height;
@@ -1702,6 +1703,17 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
                 .component = frame * visualPixels + pixel,
             });
         }
+    }
+    for (std::uint32_t feature = 0u;
+         feature < MR_TASK_MASKED_DEPTH_FEATURE_COUNT;
+         ++feature) {
+        task.actorFrame.push_back({
+            .source = TaskObservationSource::maskedDepth,
+            .component =
+                static_cast<std::uint32_t>(
+                    task.visual.frameOffsets.size()
+                ) * visualPixels + feature,
+        });
     }
 
     // Dodge learning terminates on contact instead of asking the same actor

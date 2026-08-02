@@ -156,9 +156,14 @@ contract. Exact authored instance identities select pixels, invalid and
 non-selected pixels become calibrated far depth, and a device-resident ring
 publishes sparse temporal offsets directly into actor slots. The bundled G1
 dodge task uses a 16x9 plane normalized over 0.1--5.0 m at offsets 0, 3, 8,
-and 18 control steps. Object tracks remain critic-only for this task. Reset
-fills the complete depth ring from the first accepted post-reset frame, so no
-visual belief crosses episode boundaries.
+and 18 control steps. It retains all 576 pixels and appends 24 compact values
+reduced from those same corrupted planes: visibility confidence, image-plane
+bearing and elevation, nearness, and apparent area for each frame, followed by
+their newest-to-oldest temporal changes. Thus approach and expansion are easy
+for a small policy to consume without introducing scene-state position or
+velocity. Object tracks remain critic-only for this task. Reset fills the
+complete depth ring from the first accepted post-reset frame, so no visual
+belief crosses episode boundaries and the four temporal changes begin at zero.
 The bundled head sensor authors a 54-degree vertical field of view and a
 50 Hz cadence. Its torso-local mount is 0.08 m forward and 0.45 m upward with
 the optical axis pitched 20 degrees above torso-forward. At the task's 50 Hz

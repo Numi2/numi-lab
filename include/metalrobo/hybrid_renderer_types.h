@@ -182,7 +182,8 @@ typedef struct MR_ALIGN16 MRHybridMaskedDepthUniformsGPU {
     mr_float4 range;
     // Full/pixel dropout, coherent depth jitter, per-pixel noise sigma.
     mr_float4 corruption;
-    // Additional corruption gain at the final curriculum level.
+    // Additional corruption gain at the final curriculum level, direct
+    // camera-feature count, reserved, reserved.
     mr_float4 curriculum;
 } MRHybridMaskedDepthUniformsGPU;
 

@@ -12,6 +12,7 @@ from pathlib import Path
 
 import mlx.core as mx
 import numpy as np
+from mlx.utils import tree_flatten
 
 from metalrobo.mlx_policy_learning import (
     MLXPPOConfiguration,
@@ -26,8 +27,10 @@ from metalrobo.mlx_policy_worker import (
     _PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS,
     _PPO_RESUMABLE_SCHEDULE_FIELDS,
     _configuration_matches,
+    _restore_learner_state,
     _valid_curriculum_levels,
     _valid_curriculum_reference,
+    _write_learner_state,
 )
 
 
@@ -58,6 +61,7 @@ def make_learner() -> MLXPolicyLearner:
             update_epochs=1,
             minibatch_size=32,
             hidden_sizes=(32,),
+            critic_hidden_sizes=(32,),
             learning_rate=1.0e-4,
             target_kl=None,
             seed=17,
@@ -521,6 +525,65 @@ def main() -> int:
         if not artifact.is_file() or artifact.stat().st_size <= 32:
             raise RuntimeError("PolicyPack artifact was not published")
         with tempfile.TemporaryDirectory() as actor_directory:
+            expected_actor = learner.model.actor_mean(actor)
+            mx.eval(expected_actor)
+            learner_state = Path(actor_directory) / "learner.safetensors"
+            _write_learner_state(learner, learner_state, 0, 0)
+            resumed_expanded = MLXPolicyLearner.from_actor_policy_pack(
+                artifact,
+                critic_count,
+                learner.configuration,
+                actor_observation_count=actor_count + 7,
+                actor_observation_extension_mean=1.0,
+                library_path=arguments.library,
+            )
+            restored, restored_level, restored_reference = (
+                _restore_learner_state(
+                    resumed_expanded,
+                    learner_state,
+                    actor_observation_extension_offset=actor_count,
+                )
+            )
+            resumed_actor = resumed_expanded.model.actor_mean(
+                mx.concatenate(
+                    (actor, mx.ones((sample_count, 7))),
+                    axis=1,
+                )
+            )
+            mx.eval(resumed_actor, resumed_expanded.optimizer.state)
+            if (
+                not restored or restored_level != 0 or
+                restored_reference != 0 or
+                not np.array_equal(
+                    np.asarray(expected_actor),
+                    np.asarray(resumed_actor),
+                )
+            ):
+                raise RuntimeError(
+                    "expanded PPO resume changed the preserved actor"
+                )
+            resumed_optimizer = dict(
+                tree_flatten(resumed_expanded.optimizer.state)
+            )
+            source_optimizer = dict(
+                tree_flatten(learner.optimizer.state)
+            )
+            expanded_moment = np.asarray(
+                resumed_optimizer["actor.layers.0.weight.m"]
+            )
+            source_moment = np.asarray(
+                source_optimizer["actor.layers.0.weight.m"]
+            )
+            if (
+                not np.array_equal(
+                    expanded_moment[:, :actor_count],
+                    source_moment,
+                ) or
+                np.any(expanded_moment[:, actor_count:] != 0.0)
+            ):
+                raise RuntimeError(
+                    "expanded PPO resume did not preserve Adam moments"
+                )
             deployment = learner.write_policy_pack(
                 Path(actor_directory) / "deployment.policypack",
                 stochastic=False,
@@ -532,7 +595,6 @@ def main() -> int:
                 learner.configuration,
                 library_path=arguments.library,
             )
-            expected_actor = learner.model.actor_mean(actor)
             initialized_actor = initialized.model.actor_mean(actor)
             mx.eval(expected_actor, initialized_actor)
             actor_initialization_error = float(

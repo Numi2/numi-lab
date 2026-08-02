@@ -997,9 +997,16 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     }
     const MRTaskProgramHeaderGPU& taskHeader =
         handle.taskProgram.header();
-    const std::uint64_t expectedMaskedDepth =
+    const std::uint64_t expectedMaskedDepthPixels =
         static_cast<std::uint64_t>(taskHeader.visualLayout.x) *
         taskHeader.visualLayout.y * taskHeader.visualLayout.z;
+    const std::uint32_t maskedDepthFeatureCount =
+        (taskHeader.schedule.w &
+         MR_TASK_PROGRAM_MASKED_DEPTH_FEATURES) != 0u
+        ? MR_TASK_MASKED_DEPTH_FEATURE_COUNT
+        : 0u;
+    const std::uint64_t expectedMaskedDepth =
+        expectedMaskedDepthPixels + maskedDepthFeatureCount;
     if ((maskedDepthCount != 0u || expectedMaskedDepth != 0u) &&
         (maskedDepthCount != expectedMaskedDepth ||
          maskedDepthOffset == MR_INVALID_INDEX)) {
@@ -1491,6 +1498,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         );
         trackerConfig.maskedDepthCurriculumLevelCount =
             taskHeader.schedule.z;
+        trackerConfig.maskedDepthFeatureCount =
+            maskedDepthFeatureCount;
         for (const std::uint32_t sceneIndex : trackedSceneBodies) {
             const std::string& assetId =
                 handle.model.bodyNames[sceneIndices[sceneIndex]];

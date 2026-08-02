@@ -3290,6 +3290,8 @@ kernel void mr_locomotion_task_complete(
     float reward = 0.0f;
     float4 rewardBreakdown0 = float4(0.0f);
     float4 rewardBreakdown1 = float4(0.0f);
+    float4 dodgeRewardBreakdown0 = float4(0.0f);
+    float4 dodgeRewardBreakdown1 = float4(0.0f);
     for (uint rewardIndex = 0u;
          rewardIndex < program.counts1.w;
          ++rewardIndex) {
@@ -3857,6 +3859,34 @@ kernel void mr_locomotion_task_complete(
             operation.parameters.x * value;
         reward += contribution;
         switch (operation.source.x) {
+        case MR_TASK_REWARD_LINK_CLEARANCE_BARRIER:
+            dodgeRewardBreakdown0.x += contribution;
+            break;
+        case MR_TASK_REWARD_PROJECTILE_EVASION:
+            dodgeRewardBreakdown0.y += contribution;
+            break;
+        case MR_TASK_REWARD_PROJECTILE_MISS:
+            dodgeRewardBreakdown0.z += contribution;
+            break;
+        case MR_TASK_REWARD_PROJECTILE_SAFE_STILLNESS:
+            dodgeRewardBreakdown0.w += contribution;
+            break;
+        case MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE:
+            dodgeRewardBreakdown1.x += contribution;
+            break;
+        case MR_TASK_REWARD_JOINT_CBF_CORRECTION:
+            dodgeRewardBreakdown1.y += contribution;
+            break;
+        case MR_TASK_REWARD_JOINT_CBF_BUFFER:
+            dodgeRewardBreakdown1.z += contribution;
+            break;
+        case MR_TASK_REWARD_PROJECTILE_PREDICTED_CLEARANCE:
+            dodgeRewardBreakdown1.w += contribution;
+            break;
+        default:
+            break;
+        }
+        switch (operation.source.x) {
         case MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING:
         case MR_TASK_REWARD_YAW_VELOCITY_TRACKING:
         case MR_TASK_REWARD_CONSTANT:
@@ -3921,6 +3951,8 @@ kernel void mr_locomotion_task_complete(
     reward *= dispatch.timing.x;
     rewardBreakdown0 *= dispatch.timing.x;
     rewardBreakdown1 *= dispatch.timing.x;
+    dodgeRewardBreakdown0 *= dispatch.timing.x;
+    dodgeRewardBreakdown1 *= dispatch.timing.x;
 
     const float tracking = exp(-trackingError / 0.25f);
     const float yawTracking = exp(-yawError / 0.25f);
@@ -4342,6 +4374,8 @@ kernel void mr_locomotion_task_complete(
     );
     transition.rewardBreakdown0 = rewardBreakdown0;
     transition.rewardBreakdown1 = rewardBreakdown1;
+    transition.dodgeRewardBreakdown0 = dodgeRewardBreakdown0;
+    transition.dodgeRewardBreakdown1 = dodgeRewardBreakdown1;
     transition.policyRevision =
         dispatch.policyRevision;
     transition.episodeTrackingScore =

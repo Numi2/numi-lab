@@ -7112,6 +7112,9 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
         if (maskedDepth &&
             (config.maskedDepthWidth != layout.width ||
              config.maskedDepthHeight != layout.height ||
+             (config.maskedDepthFeatureCount != 0u &&
+              config.maskedDepthFeatureCount !=
+                  MR_TASK_MASKED_DEPTH_FEATURE_COUNT) ||
              config.maskedDepthFrameOffsets.empty() ||
              config.maskedDepthFrameOffsets.size() > 4u ||
              config.maskedDepthFrameOffsets.front() != 0u ||
@@ -7426,7 +7429,8 @@ bool MetalHybridObjectTracker::encodeObservation(
         static_cast<std::uint64_t>(
             state->config.maskedDepthWidth
         ) * state->config.maskedDepthHeight *
-        state->config.maskedDepthFrameOffsets.size();
+        state->config.maskedDepthFrameOffsets.size() +
+        state->config.maskedDepthFeatureCount;
     if (maskedDepth &&
         (state->config.maskedDepthActorFrameOffset +
              maskedDepthValues > pass.actorObservationSize ||
@@ -7670,7 +7674,9 @@ bool MetalHybridObjectTracker::encodeObservation(
             {
                 state->config.maskedDepthCurriculumCorruptionGain,
                 state->directWinnerMaskedDepth ? 1.0f : 0.0f,
-                0.0f,
+                static_cast<float>(
+                    state->config.maskedDepthFeatureCount
+                ),
                 0.0f,
             },
         };

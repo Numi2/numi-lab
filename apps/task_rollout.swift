@@ -863,6 +863,14 @@ private enum TaskRolloutMain {
             var postureRewardSum = 0.0
             var energyRewardSum = 0.0
             var contactRewardSum = 0.0
+            var dodgeLinkClearanceRewardSum = 0.0
+            var dodgeEvasionRewardSum = 0.0
+            var dodgeMissRewardSum = 0.0
+            var dodgeSafeStillnessRewardSum = 0.0
+            var dodgeSafeActionRateRewardSum = 0.0
+            var dodgeCBFCorrectionRewardSum = 0.0
+            var dodgeCBFBufferRewardSum = 0.0
+            var dodgePredictedClearanceRewardSum = 0.0
             var terminationReasonCounts: [String: Int] = [:]
             let impactSpheres =
                 options.unitreeG1Task == .ballDodge &&
@@ -1074,6 +1082,30 @@ private enum TaskRolloutMain {
                             Double(transition.energyReward)
                         contactRewardSum +=
                             Double(transition.contactReward)
+                        dodgeLinkClearanceRewardSum += Double(
+                            transition.dodgeLinkClearanceReward
+                        )
+                        dodgeEvasionRewardSum += Double(
+                            transition.dodgeEvasionReward
+                        )
+                        dodgeMissRewardSum += Double(
+                            transition.dodgeMissReward
+                        )
+                        dodgeSafeStillnessRewardSum += Double(
+                            transition.dodgeSafeStillnessReward
+                        )
+                        dodgeSafeActionRateRewardSum += Double(
+                            transition.dodgeSafeActionRateReward
+                        )
+                        dodgeCBFCorrectionRewardSum += Double(
+                            transition.dodgeCbfCorrectionReward
+                        )
+                        dodgeCBFBufferRewardSum += Double(
+                            transition.dodgeCbfBufferReward
+                        )
+                        dodgePredictedClearanceRewardSum += Double(
+                            transition.dodgePredictedClearanceReward
+                        )
                         if transition.impactSequenceIndex > 0 {
                             let impact = Int(
                                 transition.impactSequenceIndex - 1
@@ -1373,6 +1405,30 @@ private enum TaskRolloutMain {
                     Double(max(transitionCount, 1)),
                 "mean_contact_reward":
                     contactRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_link_clearance_reward":
+                    dodgeLinkClearanceRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_evasion_reward":
+                    dodgeEvasionRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_miss_reward":
+                    dodgeMissRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_safe_stillness_reward":
+                    dodgeSafeStillnessRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_safe_action_rate_reward":
+                    dodgeSafeActionRateRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_cbf_correction_reward":
+                    dodgeCBFCorrectionRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_cbf_buffer_reward":
+                    dodgeCBFBufferRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_predicted_clearance_reward":
+                    dodgePredictedClearanceRewardSum /
                     Double(max(transitionCount, 1)),
                 "policy_sample_count": policySampleCount,
                 "policy_rollout_fingerprint":
