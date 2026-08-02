@@ -28,6 +28,7 @@ constant float kQuaternionTolerance = 2.0e-5f;
 constant float kQuaternionMinimum = 1.0e-12f;
 constant float kFloatEpsilon = 1.1920928955078125e-7f;
 constant float kFloatMaximum = 3.402823466e38f;
+constant float kTwoPi = 6.28318530717958647692f;
 constant float kAbsolutePivotFloor = 1.0e-12f;
 constant uint kABAMaxBodies = MR_ABA_COMPILED_MAX_BODIES;
 constant uint kABAMaxDofs = MR_ABA_COMPILED_MAX_DOFS;
@@ -1473,7 +1474,10 @@ kernel void MR_ABA_KERNEL_NAME(
                 candidateNextV[5]
             );
         const float angle = length(rotationVector);
-        const float halfAngle = 0.5f * angle;
+        const float reducedAngle = angle > kTwoPi
+            ? fmod(angle, kTwoPi)
+            : angle;
+        const float halfAngle = 0.5f * reducedAngle;
         const float scale = angle > 1.0e-6f
             ? sin(halfAngle) / angle
             : 0.5f - angle * angle / 48.0f;

@@ -1103,6 +1103,35 @@ int main() {
             "G1 ABA replay was not bitwise deterministic"
         );
 
+        auto extremeAngularQ = g1Q;
+        extremeAngularQ.resize(1u);
+        auto extremeAngularV = g1V;
+        extremeAngularV.resize(1u);
+        extremeAngularV[0][3] = 2.544452864e9f;
+        extremeAngularV[0][4] = -1.272226432e9f;
+        extremeAngularV[0][5] = 6.36113216e8f;
+        auto extremeAngularEffort = g1Effort;
+        extremeAngularEffort.resize(1u);
+        const ABAResult extremeAngularGpu = runMetal(
+            g1,
+            extremeAngularQ,
+            extremeAngularV,
+            extremeAngularEffort,
+            {},
+            true
+        );
+        require(
+            extremeAngularGpu.statuses[0].code == kABASuccess &&
+                std::all_of(
+                    extremeAngularGpu.nextQ.begin(),
+                    extremeAngularGpu.nextQ.end(),
+                    [](const float value) {
+                        return std::isfinite(value);
+                    }
+                ),
+            "finite extreme angular velocity broke ABA quaternion integration"
+        );
+
         auto invalidQ = g1Q;
         invalidQ.resize(1u);
         invalidQ[0][0] =
