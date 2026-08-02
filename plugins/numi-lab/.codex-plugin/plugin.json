@@ -1,24 +1,46 @@
 {
   "name": "numi-lab",
-  "version": "0.1.0",
-  "description": "Operate and extend the local Apple-native Numi robotics laboratory through Codex.",
+  "version": "0.1.0+codex.20260802225512",
+  "description": "Train, evaluate, and extend robots locally through Codex and Apple Silicon.",
   "author": {
     "name": "Numi Lab"
   },
-  "keywords": ["robotics", "metal", "mlx", "apple-silicon", "reinforcement-learning"],
+  "homepage": "https://github.com/Numi2/numi-lab",
+  "repository": "https://github.com/Numi2/numi-lab",
+  "keywords": [
+    "robotics",
+    "metal",
+    "mlx",
+    "apple-silicon",
+    "reinforcement-learning"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Numi Lab",
-    "shortDescription": "Train robots locally with Codex and Apple Silicon.",
-    "longDescription": "Codex discovers, configures, operates, and extends the installed Numi Lab robotics runtime while preserving evidence and user control.",
+    "shortDescription": "Your Apple-native robotics laboratory inside Codex.",
+    "longDescription": "Turn natural-language intent into local robot simulation, training, evaluation, and new capabilities on Apple Silicon. Codex configures and extends the laboratory while Numi runs native Metal physics and MLX learning, preserves reproducible evidence, and keeps the user in control.",
     "developerName": "Numi Lab",
     "category": "Developer Tools",
-    "capabilities": ["Robotics", "Training", "Simulation", "Evaluation", "Extensible"],
-    "defaultPrompt": [
-      "Train a robot with Numi Lab.",
-      "Evaluate my strongest robot policy.",
-      "Show what this Numi Lab can do."
+    "capabilities": [
+      "Local robot training",
+      "Metal simulation",
+      "MLX learning",
+      "Policy evaluation",
+      "User extensions"
     ],
-    "brandColor": "#6E5CFF"
+    "defaultPrompt": [
+      "Train a G1 robot to dodge incoming objects.",
+      "Evaluate my strongest policy on held-out trials.",
+      "Add a new robot capability to this Numi Lab."
+    ],
+    "brandColor": "#7C5CFF",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "logoDark": "./assets/logo.png",
+    "screenshots": [
+      "./assets/screenshot-g1.png",
+      "./assets/screenshot-sensors.png",
+      "./assets/screenshot-franka.png"
+    ]
   }
 }
