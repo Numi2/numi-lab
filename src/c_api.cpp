@@ -566,12 +566,173 @@ metalrobo::UnitreeG1Task unitreeG1Task(const std::uint32_t value) {
     }
 }
 
+const metalrobo::InteractionClip& selectedInteractionClip(
+    const metalrobo::InteractionPack& pack,
+    const std::string_view clipId
+) {
+    const auto found = std::find_if(
+        pack.clips.begin(),
+        pack.clips.end(),
+        [clipId](const metalrobo::InteractionClip& clip) {
+            return clip.id == clipId;
+        }
+    );
+    if (found == pack.clips.end()) {
+        throw std::invalid_argument(
+            "InteractionPack clip does not exist: " +
+            std::string{clipId}
+        );
+    }
+    return *found;
+}
+
+void authorG1InteractionTrackingTask(
+    metalrobo::TaskPack& task,
+    const metalrobo::InteractionPack& interactions,
+    const metalrobo::InteractionClip& clip,
+    const MRTaskRolloutConfigC& config
+) {
+    task.id = "unitree_g1_interaction_tracking/" +
+        interactions.id + "/" + clip.id;
+    task.curriculumLevelCount = 1u;
+    task.commands = {};
+    task.commands.standingProbability = 1.0f;
+    task.pushes.maximumVelocity = 0.0f;
+    task.pushes.minimumIntervalSeconds = 5.0f;
+    task.pushes.maximumIntervalSeconds = 5.0f;
+    task.randomization.clear();
+    task.maximumActionDelaySteps = 0u;
+    task.maximumObservationDelaySteps = 0u;
+    if (!clip.loop) {
+        const double durationSeconds =
+            static_cast<double>(clip.frameCount - 1u) /
+            static_cast<double>(clip.framesPerSecond);
+        const double steps = std::ceil(
+            durationSeconds /
+            static_cast<double>(config.control_timestep_seconds)
+        ) + 1.0;
+        if (!std::isfinite(steps) || steps < 2.0 ||
+            steps > static_cast<double>(
+                std::numeric_limits<std::uint32_t>::max()
+            )) {
+            throw std::invalid_argument(
+                "InteractionPack duration does not fit the task horizon"
+            );
+        }
+        task.maximumEpisodeSteps =
+            static_cast<std::uint32_t>(steps);
+    }
+
+    const auto appendObservation =
+        [&task](const metalrobo::TaskObservationOperatorSpec& operation) {
+            task.actorFrame.push_back(operation);
+            task.critic.push_back(operation);
+        };
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        appendObservation({
+            .source = metalrobo::TaskObservationSource::interactionPhase,
+            .component = component,
+        });
+    }
+    for (const metalrobo::TaskActionBinding& action : task.actions) {
+        appendObservation({
+            .source = metalrobo::TaskObservationSource::
+                interactionJointPositionError,
+            .target = action.joint,
+        });
+    }
+    for (const metalrobo::InteractionContactTrack& track :
+         interactions.contactTracks) {
+        for (std::uint32_t component = 0u; component < 2u; ++component) {
+            appendObservation({
+                .source = metalrobo::TaskObservationSource::
+                    interactionContactMode,
+                .target = track.id,
+                .component = component,
+            });
+        }
+        for (std::uint32_t component = 0u;
+             component < metalrobo::kInteractionContactFeatureCount;
+             ++component) {
+            appendObservation({
+                .source = metalrobo::TaskObservationSource::
+                    interactionContactTarget,
+                .target = track.id,
+                .component = component,
+            });
+            appendObservation({
+                .source = metalrobo::TaskObservationSource::
+                    interactionContactValidity,
+                .target = track.id,
+                .component = component,
+            });
+        }
+    }
+
+    task.rewards = {
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                interactionJointTracking,
+            .weight = 0.5f,
+            .parameters = {0.25f, 0.0f, 0.0f, 0.0f},
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                projectedGravityHorizontalSquared,
+            .weight = -1.0f,
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                jointVelocitySquared,
+            .weight = -0.001f,
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                jointAccelerationSquared,
+            .weight = -2.5e-7f,
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                actionRateSquared,
+            .weight = -0.02f,
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                jointLimitViolationAbsolute,
+            .weight = -5.0f,
+            .parameters = {0.9f, 0.0f, 0.0f, 0.0f},
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::mechanicalPower,
+            .weight = -2.0e-5f,
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::forbiddenContact,
+            .sourceGroup = "undesired_contact",
+            .weight = -1.0f,
+        },
+    };
+    for (const metalrobo::InteractionContactTrack& track :
+         interactions.contactTracks) {
+        task.rewards.push_back({
+            .operation = metalrobo::TaskRewardOperator::
+                interactionContactTracking,
+            .sourceGroup = track.taskContactGroup,
+            .target = track.id,
+            .weight = 2.0f,
+            .parameters = {0.65f, 1.0f, 0.0f, 0.0f},
+        });
+    }
+}
+
 std::unique_ptr<MRTaskRolloutHandle>
 createCompiledTaskRollout(
     metalrobo::LocomotionWorld authored,
     const MRTaskRolloutConfigC& config,
     const char* metallibPath,
-    const std::string_view source
+    const std::string_view source,
+    const metalrobo::InteractionPack* interactions = nullptr,
+    const std::string_view interactionClip = {}
 ) {
     validateTaskRolloutConfiguration(config);
 
@@ -620,12 +781,28 @@ createCompiledTaskRollout(
     }
 
     metalrobo::CompiledLocomotionWorld compiled;
-    const metalrobo::LocomotionWorldCompileDiagnostics
-        compiledStatus = metalrobo::compileLocomotionWorld(
-            authored,
-            authored.articulationIndex,
-            compiled
-        );
+    metalrobo::LocomotionWorldCompileDiagnostics compiledStatus;
+    compiledStatus.world = metalrobo::compileMetalWorld(
+        authored.model,
+        authored.articulationIndex,
+        compiled.world,
+        authored.task.capacities
+    );
+    if (compiledStatus.world.succeeded()) {
+        compiledStatus.task = interactions == nullptr
+            ? metalrobo::compileTaskProgram(
+                  authored.task,
+                  compiled.world,
+                  compiled.task
+              )
+            : metalrobo::compileTaskProgram(
+                  authored.task,
+                  *interactions,
+                  interactionClip,
+                  compiled.world,
+                  compiled.task
+              );
+    }
     if (!compiledStatus.world.succeeded()) {
         throw std::runtime_error(
             std::string{source} +
@@ -1860,6 +2037,66 @@ MRTaskRolloutHandle* mr_create_unitree_g1_task_rollout(
                 metallib_path,
                 "bundled G1"
             );
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
+MRTaskRolloutHandle* mr_create_unitree_g1_interaction_rollout(
+    const MRTaskRolloutConfigC* config,
+    const uint32_t surface_value,
+    const char* interaction_pack_path,
+    const char* interaction_clip_id,
+    const char* metallib_path
+) {
+    if (config == nullptr || interaction_pack_path == nullptr ||
+        interaction_pack_path[0] == '\0' ||
+        interaction_clip_id == nullptr ||
+        interaction_clip_id[0] == '\0') {
+        gLastError =
+            "InteractionPack path, clip identity, and task-rollout config are required.";
+        return nullptr;
+    }
+
+    MRTaskRolloutHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        metalrobo::InteractionPack interactions;
+        const metalrobo::LearningPackResult loaded =
+            metalrobo::readInteractionPack(
+                interaction_pack_path,
+                interactions
+            );
+        if (!loaded.succeeded()) {
+            throw std::invalid_argument(
+                std::string{"InteractionPack load failed ["} +
+                metalrobo::learningPackStatusName(loaded.status) +
+                "]: " + loaded.message
+            );
+        }
+        const metalrobo::InteractionClip& clip =
+            selectedInteractionClip(
+                interactions,
+                interaction_clip_id
+            );
+        metalrobo::LocomotionWorld authored =
+            metalrobo::makeUnitreeG1LocomotionWorld(
+                locomotionSurface(surface_value),
+                metalrobo::UnitreeG1Task::velocity
+            );
+        authorG1InteractionTrackingTask(
+            authored.task,
+            interactions,
+            clip,
+            *config
+        );
+        auto handle = createCompiledTaskRollout(
+            std::move(authored),
+            *config,
+            metallib_path,
+            "bundled G1 interaction",
+            &interactions,
+            clip.id
+        );
         result = handle.release();
     });
     return status == 0 ? result : nullptr;

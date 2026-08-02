@@ -2,7 +2,8 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 20u
+#define MR_TASK_PROGRAM_ABI_VERSION 21u
+#define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -12,6 +13,22 @@ enum MRTaskProgramFlags : mr_u32 {
     // Advance on completed whole-projectile outcomes and balance failures,
     // rather than locomotion command tracking.
     MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM = 1u << 4u,
+    // Action values become bounded residuals around the current retargeted
+    // joint reference instead of offsets from the mechanism default pose.
+    MR_TASK_PROGRAM_INTERACTION_REFERENCE = 1u << 5u,
+};
+
+enum MRTaskInteractionFlags : mr_u32 {
+    MR_TASK_INTERACTION_LOOP = 1u << 0u,
+};
+
+enum MRTaskInteractionContactMode : mr_u32 {
+    MR_TASK_INTERACTION_CONTACT_FREE = 0u,
+    MR_TASK_INTERACTION_CONTACT_APPROACH = 1u,
+    MR_TASK_INTERACTION_CONTACT_STICK = 2u,
+    MR_TASK_INTERACTION_CONTACT_ROLL = 3u,
+    MR_TASK_INTERACTION_CONTACT_SLIDE = 4u,
+    MR_TASK_INTERACTION_CONTACT_RELEASE = 5u,
 };
 
 enum MRTaskThreatClass : mr_u32 {
@@ -63,6 +80,20 @@ enum MRTaskObservationOpcode : mr_u32 {
     // by row-major pressure cells. Spatial resolution is authored per contact
     // group and compiled into fixed tables.
     MR_TASK_OBSERVE_SUPPORT_PATCH = 19u,
+    // Difference between the live joint position and the selected
+    // InteractionPack clip's current joint target.
+    MR_TASK_OBSERVE_INTERACTION_JOINT_POSITION_ERROR = 20u,
+    // Expected contact (component 0) and confidence (component 1) for one
+    // compiled contact track. Generated contact remains intent, not evidence.
+    MR_TASK_OBSERVE_INTERACTION_CONTACT_MODE = 21u,
+    // One of the 13 compact contact targets: wrench 6, CoP 2, area 1, and
+    // row-major 2x2 pressure 4. Invalid target components publish zero.
+    MR_TASK_OBSERVE_INTERACTION_CONTACT_TARGET = 22u,
+    // Reference phase sin, cos, and normalized progress.
+    MR_TASK_OBSERVE_INTERACTION_PHASE = 23u,
+    // Per-feature validity for the compact interaction contact target. This
+    // keeps an unknown generated field distinct from a valid zero target.
+    MR_TASK_OBSERVE_INTERACTION_CONTACT_VALIDITY = 24u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -133,6 +164,12 @@ enum MRTaskRewardOpcode : mr_u32 {
     // time to closest approach; the deployed actor still consumes only its
     // authored sensor observations.
     MR_TASK_REWARD_PROJECTILE_PREDICTED_CLEARANCE = 38u,
+    // Exponential joint-position tracking against the selected interaction
+    // reference. A named joint group may restrict the action set.
+    MR_TASK_REWARD_INTERACTION_JOINT_TRACKING = 39u,
+    // Contact-mode and validity-masked compact-field tracking. Solved contact
+    // supplies the achieved values; the reference never overwrites physics.
+    MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING = 40u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -211,7 +248,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // termination operators, randomization operators, bias slots,
     // terrain-sample offsets.
     mr_uint4 counts2;
-    // Impact events, contact-member radii, and reserved table counts.
+    // Impact events, contact-member radii, interaction tracks, and frames.
     mr_uint4 counts3;
     // actor frame, history length, contact metric count, delay-state count.
     mr_uint4 layout;
@@ -270,6 +307,14 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_float4 threatTeacher;
     // Anchor global body, tracked-body count, feature count, arena byte offset.
     mr_uint4 motion;
+    // Interaction frames, joint targets/frame, contact tracks, flags.
+    mr_uint4 interaction;
+    // Reference fps, duration seconds, reserved, reserved.
+    mr_float4 interactionTiming;
+    // Root targets, joint targets, contact descriptors, sample metadata.
+    mr_uint4 interactionOffsets0;
+    // Contact targets, tolerances, reserved, reserved.
+    mr_uint4 interactionOffsets1;
 } MRTaskProgramHeaderGPU;
 
 typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
@@ -339,6 +384,19 @@ typedef struct MR_ALIGN16 MRTaskImpactEventGPU {
     // Projectile collision-envelope radius and reserved values.
     mr_float4 projectile;
 } MRTaskImpactEventGPU;
+
+typedef struct MR_ALIGN16 MRTaskInteractionContactGPU {
+    // Task contact-group index, pack track index, per-frame feature offset,
+    // and fixed compact feature count.
+    mr_uint4 binding;
+} MRTaskInteractionContactGPU;
+
+typedef struct MR_ALIGN16 MRTaskInteractionSampleGPU {
+    // Contact mode, valid feature mask, provenance flags, reserved.
+    mr_uint4 metadata;
+    // Confidence in x; remaining lanes are reserved.
+    mr_float4 confidence;
+} MRTaskInteractionSampleGPU;
 
 typedef struct MR_ALIGN16 MRTaskBiasSpecGPU {
     // lower, upper, reserved, reserved.
@@ -476,7 +534,7 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 496u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 560u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 112u);
@@ -485,6 +543,8 @@ static_assert(sizeof(MRTaskRewardOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskImpactEventGPU) == 48u);
+static_assert(sizeof(MRTaskInteractionContactGPU) == 16u);
+static_assert(sizeof(MRTaskInteractionSampleGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
 static_assert(sizeof(MRTaskStateGPU) == 160u);
 static_assert(sizeof(MRTaskCurriculumStateGPU) == 64u);

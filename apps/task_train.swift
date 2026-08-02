@@ -27,6 +27,8 @@ private struct Options {
     var checkpointDirectory: String?
     var checkpointInterval = 0
     var motionPack: String?
+    var interactionPack: String?
+    var interactionClip: String?
     var worldPack: String?
     var taskPack: String?
     var urdf: String?
@@ -161,6 +163,12 @@ private struct Options {
                 index += 1
             case "--motion-pack":
                 motionPack = try value()
+                index += 1
+            case "--interaction-pack":
+                interactionPack = try value()
+                index += 1
+            case "--interaction-clip":
+                interactionClip = try value()
                 index += 1
             case "--world-pack":
                 worldPack = try value()
@@ -423,6 +431,26 @@ private struct Options {
         if worldPack != nil && urdf != nil {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--world-pack and --urdf are mutually exclusive."
+            )
+        }
+        if (interactionPack == nil) != (interactionClip == nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Interaction tracking requires both --interaction-pack and --interaction-clip."
+            )
+        }
+        if let interactionPack,
+           interactionPack.isEmpty || interactionClip?.isEmpty != false
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "InteractionPack path and clip identity cannot be empty."
+            )
+        }
+        if interactionPack != nil &&
+            (worldPack != nil || urdf != nil || taskPack != nil ||
+             unitreeG1Task != .velocity)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "InteractionPack v1 training uses the bundled G1 velocity mechanics preset and cannot be combined with imported mechanics or another --task."
             )
         }
         if (worldPack != nil || urdf != nil) != (taskPack != nil) {
@@ -900,6 +928,21 @@ private func makeContext(
         dynamicSpheres: dynamicSpheres,
         unitreeG1Task: options.unitreeG1Task
     )
+    if let interactionPack = options.interactionPack,
+       let interactionClip = options.interactionClip
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                unitreeG1Interaction: URL(
+                    fileURLWithPath: interactionPack
+                ),
+                clipID: interactionClip,
+                configuration: configuration,
+                metallibPath: options.metallib
+            ),
+            "bundled_g1_interaction"
+        )
+    }
     if let worldPack = options.worldPack,
        let taskPack = options.taskPack
     {

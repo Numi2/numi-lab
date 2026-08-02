@@ -26,7 +26,8 @@ does not yet establish real-robot transfer.
   coupled Coulomb friction, terrain, and transactional state publication.
 - Resident batched Metal worlds with native reset, randomization,
   observations, rewards, termination, policy inference, and rollout capture.
-- Robot-independent `TaskPack` tables and fingerprinted `PolicyPack` actors.
+- Robot-independent `TaskPack` tables, generated motion/contact
+  `InteractionPack` references, and fingerprinted `PolicyPack` actors.
 - Native RGB, metric depth, normals, identities, motion, and tactile outputs
   from authored presentation and sensor geometry.
 - Swift rollout and PPO scheduling with MLX restricted to the learning
@@ -164,6 +165,8 @@ images use their official upstream visual meshes.
 URDF / authored world
         +
 TaskPack
+        +
+InteractionPack (optional generated joint/contact intent)
         +
 PolicyPack
         |

@@ -8,15 +8,16 @@ loop.
 
 ```mermaid
 flowchart LR
-    A["URDF, MJCF, or WorldPack"] --> D["Native compiler"]
-    B["TaskPack"] --> D
-    C["PolicyPack"] --> D
-    D --> E["Indices, tables, capacities, fingerprints"]
-    E --> F["Persistent MetalWorld"]
-    F --> G["Native physics, task, sensing, and inference"]
-    G --> H["Compact rollout batch"]
-    H --> I["MLX learner"]
-    I --> C
+    A["URDF, MJCF, or WorldPack"] --> E["Native compiler"]
+    B["TaskPack"] --> E
+    C["InteractionPack"] --> E
+    D["PolicyPack"] --> E
+    E --> F["Indices, tables, capacities, fingerprints"]
+    F --> G["Persistent MetalWorld"]
+    G --> H["Native physics, task, sensing, and inference"]
+    H --> I["Compact rollout batch"]
+    I --> J["MLX learner"]
+    J --> D
 ```
 
 There is one runtime architecture:
@@ -24,6 +25,7 @@ There is one runtime architecture:
 - mechanics and scene composition come from an `EngineModel`, imported robot,
   or `MRWorldPack`;
 - robot-independent task semantics come from a `TaskPack`;
+- optional generated motion/contact intent comes from an `InteractionPack`;
 - actor/critic weights and normalization come from a `PolicyPack`;
 - `MetalWorldContext` owns persistent simulator state and native submission;
 - Swift owns rollout length, chunking, completion, timeouts, and policy
@@ -135,6 +137,80 @@ mr_create_world_pack_locomotion_rollout
 A custom `.metal` kernel is justified only by a new physics primitive, sensor
 modality, or task operator. A different joint layout is data, not shader code.
 
+## InteractionPack: generated intent, solved outcome
+
+`InteractionPack` v1 is the immutable bridge from a desired outcome or
+generative motion/contact model into the native task compiler. A pack stores:
+
+- source repository, exact revision, license, and the canonical
+  `metalrobo_z_up_x_forward_xyzw` coordinate contract;
+- named joints plus frame-rate-stamped root and joint targets;
+- named contact tracks bound to TaskPack contact groups and one support
+  counterpart;
+- per-frame contact mode, confidence, provenance flags, and validity masks;
+- a 13-value compact target field per contact: force 3 (N), torque 3 (N m),
+  CoP 2 (m), occupied area 1 (m2), and row-major 2x2 pressure 4 (Pa), with
+  matching tolerances in the same units.
+
+`compileTaskProgram(task, interactions, clip, world, output)` retargets the
+pack's named joints into the TaskPack action order and resolves every contact
+track into stable native indices. Compilation is transactional. It rejects
+missing or ambiguous names, a counterpart that is not the TaskPack terrain
+body, joint positions outside the compiled mechanism limits, finite-difference
+velocities above the compiled limits, or a contact track without the current
+2x2 support-field contract. V1 also requires that terrain be the world's only
+external scene body; this prevents a foot/object collision from being counted
+as the requested foot/support-surface contact before counterpart-filtered
+reductions exist. The selected provenance, intent, masks, targets, and
+tolerances participate in the task fingerprint.
+
+The Metal task executor advances the reference from episode time. Native
+observation operators publish phase, live-minus-reference joint error,
+expected contact/confidence, target fields, and their per-feature validity.
+Native rewards
+track joints and compare expected contact against the solver-resolved support
+field. The current joint target is also the implicit-position controller's
+baseline: normalized policy actions are bounded residuals around it, so zero
+residual follows the generated guide and PPO exploration is local. The
+reference can never write contact state or replace NumiSolver's force, CoP,
+area, or pressure outcome. Non-looping clips set the bundled G1 interaction
+task horizon from clip duration and control cadence.
+
+The bundled C/Swift route
+`mr_create_unitree_g1_interaction_rollout` / `MetalRoboTaskRolloutContext`
+authors a contact-primary G1 tracking task, then uses the unchanged native
+rollout and MLX PPO path. Both actor and critic receive the reference suffix;
+contact tracking has the primary positive weight, joint tracking is the
+kinematic guide, and joint-limit, energy, forbidden-contact, balance, and
+termination terms remain safety constraints. Rollout `tracking_score` is the
+confidence-normalized mean of the selected interaction joint/contact scores,
+not the dormant locomotion-command metric.
+
+ARDY conversion is deliberately narrower than the format. Its G1 CSV supplies
+root plus 29 joint coordinates and its NPZ supplies four binary heel/toe
+channels. The converter reorders root quaternions from wxyz to xyzw, validates
+joint position and velocity envelopes, combines heel/toe into left/right
+predicted contact modes, and leaves every physical-field validity mask empty.
+It does not invent pressure from a boolean contact prediction:
+
+```sh
+metalrobo-ardy-interaction \
+  --motion-npz /path/to/ardy-motion.npz \
+  --qpos-csv /path/to/ardy-g1-qpos.csv \
+  --output /path/to/motion.interactionpack \
+  --id desired-outcome-001 \
+  --clip-id ardy-g1 \
+  --source-revision <ardy-git-revision> \
+  --counterpart locomotion_ground
+```
+
+The root trajectory is retained as auditable generative intent in v1, while
+the native tracking objective uses joint and contact targets so the simulated
+root remains a physical outcome. A future calibrated contact generator can
+populate pressure/wrench masks directly. Dense tactile maps, a learned
+contact-world model, hardware OOD gating, a trained champion, and sim-to-real
+transfer are not implied by this first executable slice.
+
 ## PolicyPack
 
 `PolicyPack` is the immutable learner/deployment boundary. It stores:
@@ -215,10 +291,13 @@ solver contact evidence; packs without tactile sensors allocate no tactile
 state.
 
 Task observation operators currently publish proprioception, commands,
-terrain, contact metrics, and physical/controller parameters. Adding native
-tactile summaries or learned tactile features to a TaskPack requires an
-explicit observation operator and a composed native tactile stage. Dataset
-training alone does not claim that runtime integration.
+terrain, contact metrics, compact support fields, interaction references, and
+physical/controller parameters. Interaction pressure targets are intent;
+their achieved values come from the same solver-resolved support field used by
+the ordinary TaskPack operators. Adding dense native tactile summaries or
+learned tactile features to a TaskPack still requires an explicit observation
+operator and a composed native tactile stage. Dataset training alone does not
+claim that runtime integration.
 
 ## Learning and rollout boundary
 
@@ -282,6 +361,9 @@ Use the smallest owner for a change:
 ```sh
 cmake --build build --target metalrobo_task_program_check
 ./build/bin/metalrobo_task_program_check
+# Supplying a real generated pack additionally executes the interaction
+# operators on Metal and checks the C/Swift rollout boundary.
+./build/bin/metalrobo_task_program_check /path/to/reference.interactionpack
 
 ./build/bin/metalrobo_task_rollout \
   --metallib build/shaders/MetalRobo.metallib \
@@ -302,6 +384,7 @@ importing or scheduling simulator state.
 ## Main implementation files
 
 - `include/metalrobo/LocomotionWorld.hpp`
+- `include/metalrobo/InteractionPack.hpp`
 - `include/metalrobo/TaskProgram.hpp`
 - `include/metalrobo/PolicyProgram.hpp`
 - `include/metalrobo/MetalWorld.hpp`
@@ -319,3 +402,4 @@ importing or scheduling simulator state.
 - `apps/task_train.swift`
 - `python/metalrobo/mlx_policy_learning.py`
 - `python/metalrobo/mlx_policy_worker.py`
+- `python/metalrobo/ardy_interaction_convert.py`

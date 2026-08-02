@@ -1,5 +1,6 @@
 #pragma once
 
+#include "metalrobo/InteractionPack.hpp"
 #include "metalrobo/MetalWorldCapacity.hpp"
 #include "metalrobo/task_program_types.h"
 
@@ -8,6 +9,7 @@
 #include <memory>
 #include <span>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace metalrobo {
@@ -38,6 +40,15 @@ enum class TaskObservationSource : std::uint32_t {
     maskedDepth = MR_TASK_OBSERVE_MASKED_DEPTH,
     supportSense = MR_TASK_OBSERVE_SUPPORT_SENSE,
     supportPatch = MR_TASK_OBSERVE_SUPPORT_PATCH,
+    interactionJointPositionError =
+        MR_TASK_OBSERVE_INTERACTION_JOINT_POSITION_ERROR,
+    interactionContactMode =
+        MR_TASK_OBSERVE_INTERACTION_CONTACT_MODE,
+    interactionContactTarget =
+        MR_TASK_OBSERVE_INTERACTION_CONTACT_TARGET,
+    interactionPhase = MR_TASK_OBSERVE_INTERACTION_PHASE,
+    interactionContactValidity =
+        MR_TASK_OBSERVE_INTERACTION_CONTACT_VALIDITY,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -96,6 +107,10 @@ enum class TaskRewardOperator : std::uint32_t {
     jointCbfBuffer = MR_TASK_REWARD_JOINT_CBF_BUFFER,
     projectilePredictedClearance =
         MR_TASK_REWARD_PROJECTILE_PREDICTED_CLEARANCE,
+    interactionJointTracking =
+        MR_TASK_REWARD_INTERACTION_JOINT_TRACKING,
+    interactionContactTracking =
+        MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -371,6 +386,8 @@ struct TaskProgramLayout {
     std::uint32_t biasCount = 0u;
     std::uint32_t delayStateCount = 0u;
     std::uint32_t motionFeatureCount = 0u;
+    std::uint32_t interactionFrameCount = 0u;
+    std::uint32_t interactionContactCount = 0u;
 };
 
 class CompiledTaskProgram {
@@ -408,6 +425,18 @@ public:
     impactEvents() const noexcept;
     [[nodiscard]] std::span<const std::uint32_t>
     motionBodies() const noexcept;
+    [[nodiscard]] std::span<const float>
+    interactionRootTargets() const noexcept;
+    [[nodiscard]] std::span<const float>
+    interactionJointTargets() const noexcept;
+    [[nodiscard]] std::span<const MRTaskInteractionContactGPU>
+    interactionContacts() const noexcept;
+    [[nodiscard]] std::span<const MRTaskInteractionSampleGPU>
+    interactionSamples() const noexcept;
+    [[nodiscard]] std::span<const float>
+    interactionContactTargets() const noexcept;
+    [[nodiscard]] std::span<const float>
+    interactionContactTolerances() const noexcept;
     [[nodiscard]] std::span<const MRTaskBiasSpecGPU>
     biasSpecs() const noexcept;
     [[nodiscard]] std::span<const mr_float4>
@@ -426,10 +455,29 @@ private:
         const CompiledWorld&,
         CompiledTaskProgram&
     );
+    friend TaskCompileDiagnostics compileTaskProgram(
+        const TaskPack&,
+        const InteractionPack&,
+        std::string_view,
+        const CompiledWorld&,
+        CompiledTaskProgram&
+    );
 };
 
 [[nodiscard]] TaskCompileDiagnostics compileTaskProgram(
     const TaskPack& pack,
+    const CompiledWorld& world,
+    CompiledTaskProgram& output
+);
+
+// Selects one generated reference transactionally. Named joints are
+// retargeted into TaskPack action order, policy actions become bounded
+// residuals around the current reference, and contact targets remain
+// expected values compared against solver-resolved physical outcomes.
+[[nodiscard]] TaskCompileDiagnostics compileTaskProgram(
+    const TaskPack& pack,
+    const InteractionPack& interactions,
+    std::string_view clipId,
     const CompiledWorld& world,
     CompiledTaskProgram& output
 );

@@ -343,6 +343,24 @@ geometry and history remain owned by `MetalTactileContext`; attaching those
 maps to a task is still an explicit integration. A pack with neither tactile
 sensors nor support-patch observations creates no tactile-specific resources.
 
+### Contact-first interaction references
+
+`InteractionPack` uses this exact compact support representation as a temporal
+learning target. Each named contact track carries expected mode and confidence
+plus validity-masked `[force3, torque3, CoP2, area1, pressure4]` targets and
+tolerances. The native interaction reward compares only valid channels against
+the solver-resolved TaskPack support patch; an invalid channel contributes
+nothing. Contact mode is scored from actual contact incidence. Generated data
+is therefore intent, while achieved force and pressure remain physics evidence.
+
+The ARDY G1 bridge currently imports heel/toe booleans as predicted left/right
+contact modes. It sets all 13 physical-field masks to zero because ARDY does
+not provide solver or sensor pressure. A future contact generator may populate
+predicted fields and masks, and a replay/calibration path may mark measured or
+physics-certified samples separately. Those provenance flags survive artifact
+serialization and task fingerprinting; they do not turn predictions into
+measurements.
+
 Debug hits are disabled by default. The choice is specialized when the Metal
 pipelines are created, not carried as a per-frame flag. In headless mode the
 dense hit, hit-history, and hit-readback allocations collapse to fixed dummy
@@ -544,3 +562,6 @@ device, build, task shape, and invocation.
   does not yet publish dense maps or `MetalTactileContext` summaries as
   observation operators. Closing that device-resident dense-sensor-to-policy
   edge is required before claiming native Tacmap-feature RL.
+- InteractionPack contact-mode and compact 2x2 support-field tracking execute
+  in the generic native rollout today. This is not dense elastomer prediction,
+  a calibrated hardware contact-world model, or hardware transfer evidence.

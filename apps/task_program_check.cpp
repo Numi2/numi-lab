@@ -6,13 +6,16 @@
 #include "metalrobo/RobotDescriptionCooker.hpp"
 #include "metalrobo/TaskProgram.hpp"
 #include "metalrobo/WorldPack.hpp"
+#include "metalrobo/c_api.h"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -45,6 +48,9 @@ public:
         motion = directory /
             ("metalrobo_task_program_check_" + suffix +
              ".motionpack");
+        interaction = directory /
+            ("metalrobo_task_program_check_" + suffix +
+             ".interactionpack");
     }
 
     ~TemporaryPackFiles() {
@@ -54,6 +60,7 @@ public:
         std::filesystem::remove(rollout, ignored);
         std::filesystem::remove(borrowedRollout, ignored);
         std::filesystem::remove(motion, ignored);
+        std::filesystem::remove(interaction, ignored);
     }
 
     std::filesystem::path task;
@@ -61,10 +68,329 @@ public:
     std::filesystem::path rollout;
     std::filesystem::path borrowedRollout;
     std::filesystem::path motion;
+    std::filesystem::path interaction;
 };
 
 [[noreturn]] void fail(const std::string& message) {
     throw std::runtime_error(message);
+}
+
+struct InteractionRuntimeEvidence {
+    std::string device;
+    double gpuMilliseconds = 0.0;
+    float firstReward = 0.0f;
+};
+
+InteractionRuntimeEvidence runInteractionRuntimeProbe(
+    const metalrobo::LocomotionWorld& authored,
+    const metalrobo::CompiledWorld& world,
+    const metalrobo::CompiledTaskProgram& program,
+    const float framesPerSecond,
+    const bool expectPhysicalTargets
+) {
+    constexpr std::size_t controlStepCount = 6u;
+    const std::size_t nq = world.nq();
+    const std::size_t nv = world.nv();
+    const MRArticulationGPU& articulation =
+        authored.model.articulations[world.articulationIndex()];
+    std::vector<float> initialQ(nq);
+    std::vector<float> initialV(nv);
+    std::copy_n(
+        authored.model.defaultQ.begin() + articulation.qOffset,
+        nq,
+        initialQ.begin()
+    );
+    std::copy_n(
+        authored.model.defaultV.begin() + articulation.vOffset,
+        nv,
+        initialV.begin()
+    );
+    std::vector<float> actions(
+        controlStepCount * program.layout().actionCount,
+        0.0f
+    );
+    std::vector<std::uint32_t> resetMasks(controlStepCount, 0u);
+    const metalrobo::MetalWorldBatch batch{
+        .environmentCount = 1u,
+        .controlStepCount = controlStepCount,
+        .initialQ = initialQ,
+        .initialV = initialV,
+        .actions = actions,
+        .policyRevision = 19u,
+        .resetMasks = resetMasks,
+        .initialSceneBodies = authored.sceneBodies,
+    };
+    const metalrobo::MetalWorldStepConfig config{
+        .timestepSeconds = 1.0f / framesPerSecond,
+        .physicsSubsteps = 4u,
+        .solverMode = metalrobo::MetalWorldSolverMode::temporalCone,
+        .actuationMode =
+            metalrobo::MetalWorldActuationMode::implicitPositionDrive,
+        .taskProgram = program,
+        .taskSeed = 0x41524459u,
+        .velocityIterations = 2u,
+        .finalVelocityIterations = 1u,
+        .ccdMode = metalrobo::MetalWorldCCDMode::disabled,
+        .deterministic = true,
+        .warmStart = true,
+    };
+    metalrobo::MetalWorldContext context;
+    metalrobo::MetalWorldResult first;
+    metalrobo::MetalWorldResult replay;
+    const metalrobo::MetalWorldDiagnostics firstStatus =
+        context.run(world, batch, config, first);
+    const metalrobo::MetalWorldDiagnostics replayStatus =
+        context.run(world, batch, config, replay);
+    const std::size_t actorSize =
+        program.layout().actorObservationSize;
+    if (!firstStatus.succeeded() || !replayStatus.succeeded() ||
+        firstStatus.successfulStepCount != controlStepCount ||
+        replayStatus.successfulStepCount != controlStepCount ||
+        firstStatus.failedStepCount != 0u ||
+        replayStatus.failedStepCount != 0u ||
+        first.actorObservations.size() !=
+            controlStepCount * actorSize ||
+        first.transitions.size() != controlStepCount) {
+        fail(
+            "native interaction rollout failed: " +
+            firstStatus.message + " " + replayStatus.message
+        );
+    }
+    if (first.actorObservations != replay.actorObservations ||
+        first.finalQ != replay.finalQ ||
+        first.finalV != replay.finalV ||
+        first.transitions.size() != replay.transitions.size() ||
+        std::memcmp(
+            first.transitions.data(),
+            replay.transitions.data(),
+            first.transitions.size() * sizeof(MRTaskTransitionGPU)
+        ) != 0) {
+        fail("native interaction rollout was not bit-identical on replay");
+    }
+    if (!std::ranges::all_of(
+            first.actorObservations,
+            [](const float value) { return std::isfinite(value); }
+        ) ||
+        !std::ranges::all_of(
+            first.transitions,
+            [](const MRTaskTransitionGPU& transition) {
+                return std::isfinite(transition.rewardAndState.x);
+            }
+        )) {
+        fail("native interaction rollout published non-finite learning data");
+    }
+
+    std::size_t progressIndex = actorSize;
+    std::size_t confidenceIndex = actorSize;
+    std::vector<std::size_t> physicalTargetIndices;
+    std::vector<std::size_t> physicalValidityIndices;
+    const auto operators = program.actorOperators();
+    for (std::size_t index = 0u; index < operators.size(); ++index) {
+        const MRTaskObservationOperatorGPU& operation = operators[index];
+        if (operation.source.x == MR_TASK_OBSERVE_INTERACTION_PHASE &&
+            operation.source.z == 2u) {
+            progressIndex = index;
+        } else if (
+            operation.source.x == MR_TASK_OBSERVE_INTERACTION_CONTACT_MODE &&
+            operation.source.z == 1u
+        ) {
+            confidenceIndex = index;
+        } else if (
+            operation.source.x == MR_TASK_OBSERVE_INTERACTION_CONTACT_TARGET
+        ) {
+            physicalTargetIndices.push_back(index);
+        } else if (
+            operation.source.x ==
+                MR_TASK_OBSERVE_INTERACTION_CONTACT_VALIDITY
+        ) {
+            physicalValidityIndices.push_back(index);
+        }
+    }
+    if (progressIndex == actorSize || confidenceIndex == actorSize ||
+        physicalTargetIndices.empty() || physicalValidityIndices.empty()) {
+        fail("native interaction probe could not resolve appended observations");
+    }
+    const float firstProgress = first.actorObservations[progressIndex];
+    const float lastProgress = first.actorObservations[
+        (controlStepCount - 1u) * actorSize + progressIndex
+    ];
+    bool observedPredictionConfidence = false;
+    bool observedPhysicalTarget = false;
+    bool observedPhysicalValidity = false;
+    for (std::size_t step = 0u; step < controlStepCount; ++step) {
+        const std::size_t base = step * actorSize;
+        const float confidence =
+            first.actorObservations[base + confidenceIndex];
+        observedPredictionConfidence |= confidence > 0.0f;
+        for (const std::size_t targetIndex : physicalTargetIndices) {
+            const float target =
+                first.actorObservations[base + targetIndex];
+            observedPhysicalTarget |= target != 0.0f;
+            if (!expectPhysicalTargets && target != 0.0f) {
+                fail(
+                    "predicted ARDY contact published fabricated physical targets"
+                );
+            }
+        }
+        for (const std::size_t validityIndex : physicalValidityIndices) {
+            const float validity =
+                first.actorObservations[base + validityIndex];
+            observedPhysicalValidity |= validity == 1.0f;
+            if (!expectPhysicalTargets && validity != 0.0f) {
+                fail(
+                    "predicted ARDY contact published fabricated physical validity"
+                );
+            }
+        }
+    }
+    if (!(lastProgress > firstProgress) ||
+        !observedPredictionConfidence) {
+        fail("native interaction reference did not advance through frames");
+    }
+    if (expectPhysicalTargets &&
+        (!observedPhysicalTarget || !observedPhysicalValidity)) {
+        fail("native interaction reference did not publish physical targets");
+    }
+    return {
+        .device = firstStatus.deviceName,
+        .gpuMilliseconds = firstStatus.gpuElapsedMilliseconds,
+        .firstReward = first.transitions.front().rewardAndState.x,
+    };
+}
+
+metalrobo::InteractionPack makeG1InteractionFixture(
+    const metalrobo::LocomotionWorld& authored
+) {
+    constexpr std::uint32_t frameCount = 3u;
+    constexpr std::uint32_t contactCount = 2u;
+    metalrobo::InteractionPack pack{
+        .id = "numilab_g1_weight_shift",
+        .sourceRepository = "MetalRobo",
+        .sourceRevision = "f95c488-fixture",
+        .license = "Apache-2.0",
+        .coordinateFrame = metalrobo::kInteractionCoordinateFrame,
+        .contactTracks = {
+            {
+                .id = "left_foot",
+                .taskContactGroup = "left_foot_contact",
+                .counterpart = authored.task.terrain.body,
+            },
+            {
+                .id = "right_foot",
+                .taskContactGroup = "right_foot_contact",
+                .counterpart = authored.task.terrain.body,
+            },
+        },
+    };
+    pack.jointNames.reserve(authored.task.actions.size());
+    for (const metalrobo::TaskActionBinding& action :
+         authored.task.actions) {
+        pack.jointNames.push_back(action.joint);
+    }
+
+    metalrobo::InteractionClip clip{
+        .id = "weight_shift_left_lift_right",
+        .desiredOutcome =
+            "Shift weight onto the left foot and lift the right foot while balanced.",
+        .framesPerSecond = 50.0f,
+        .frameCount = frameCount,
+        .loop = false,
+    };
+    clip.rootTargets.reserve(
+        frameCount * metalrobo::kInteractionRootTargetCount
+    );
+    clip.jointTargets.reserve(
+        frameCount * authored.task.actions.size()
+    );
+    for (std::uint32_t frame = 0u; frame < frameCount; ++frame) {
+        clip.rootTargets.insert(
+            clip.rootTargets.end(),
+            authored.model.defaultQ.begin(),
+            authored.model.defaultQ.begin() + 7
+        );
+        clip.jointTargets.insert(
+            clip.jointTargets.end(),
+            authored.model.defaultQ.begin() + 7,
+            authored.model.defaultQ.begin() + 36
+        );
+    }
+    // A small feasible guide accompanies the contact transition. Contact is
+    // still the primary target and is measured from the solver.
+    clip.jointTargets[1u * 29u + 1u] += 0.04f;
+    clip.jointTargets[1u * 29u + 7u] += 0.04f;
+    clip.jointTargets[2u * 29u + 1u] += 0.08f;
+    clip.jointTargets[2u * 29u + 7u] += 0.08f;
+    clip.jointTargets[2u * 29u + 9u] += 0.12f;
+
+    const std::size_t sampleCount = frameCount * contactCount;
+    clip.contactModes = {
+        static_cast<std::uint32_t>(
+            metalrobo::InteractionContactMode::stick
+        ),
+        static_cast<std::uint32_t>(
+            metalrobo::InteractionContactMode::stick
+        ),
+        static_cast<std::uint32_t>(
+            metalrobo::InteractionContactMode::stick
+        ),
+        static_cast<std::uint32_t>(
+            metalrobo::InteractionContactMode::stick
+        ),
+        static_cast<std::uint32_t>(
+            metalrobo::InteractionContactMode::stick
+        ),
+        static_cast<std::uint32_t>(
+            metalrobo::InteractionContactMode::free
+        ),
+    };
+    clip.contactFeatureMasks.assign(sampleCount, 0u);
+    clip.contactSampleFlags.assign(
+        sampleCount,
+        metalrobo::interactionSamplePhysicsCertified
+    );
+    clip.contactConfidence.assign(sampleCount, 1.0f);
+    clip.contactTargets.assign(
+        sampleCount * metalrobo::kInteractionContactFeatureCount,
+        0.0f
+    );
+    clip.contactTolerances.assign(
+        sampleCount * metalrobo::kInteractionContactFeatureCount,
+        0.0f
+    );
+    const auto setSupportTarget = [&clip](
+        const std::uint32_t frame,
+        const std::uint32_t track,
+        const float load
+    ) {
+        const std::size_t sample = frame * 2u + track;
+        constexpr std::uint32_t mask =
+            (1u << 2u) | (1u << 6u) | (1u << 7u) |
+            (1u << 8u) | (1u << 9u) | (1u << 10u) |
+            (1u << 11u) | (1u << 12u);
+        clip.contactFeatureMasks[sample] = mask;
+        const std::size_t base =
+            sample * metalrobo::kInteractionContactFeatureCount;
+        clip.contactTargets[base + 2u] = load;
+        clip.contactTargets[base + 8u] = 0.020f;
+        for (std::uint32_t cell = 0u; cell < 4u; ++cell) {
+            clip.contactTargets[base + 9u + cell] =
+                load / 0.020f;
+        }
+        clip.contactTolerances[base + 2u] = 75.0f;
+        clip.contactTolerances[base + 6u] = 0.02f;
+        clip.contactTolerances[base + 7u] = 0.02f;
+        clip.contactTolerances[base + 8u] = 0.01f;
+        for (std::uint32_t cell = 0u; cell < 4u; ++cell) {
+            clip.contactTolerances[base + 9u + cell] = 5000.0f;
+        }
+    };
+    setSupportTarget(0u, 0u, 350.0f);
+    setSupportTarget(0u, 1u, 350.0f);
+    setSupportTarget(1u, 0u, 550.0f);
+    setSupportTarget(1u, 1u, 150.0f);
+    setSupportTarget(2u, 0u, 650.0f);
+    pack.clips.push_back(std::move(clip));
+    return pack;
 }
 
 std::uint64_t compileImportedRobotFixture() {
@@ -292,8 +618,16 @@ std::uint64_t checkWorldPackLocomotionImport() {
 
 } // namespace
 
-int main() {
+int main(const int argc, const char* const* argv) {
     try {
+        if (argc > 2) {
+            fail("usage: metalrobo_task_program_check [interactionpack]");
+        }
+        std::uint64_t externalInteractionArtifact = 0u;
+        std::uint64_t externalInteractionTask = 0u;
+        InteractionRuntimeEvidence fixtureRuntime;
+        InteractionRuntimeEvidence externalRuntime;
+        bool externalNativeExecuted = false;
         metalrobo::LocomotionWorld authored =
             metalrobo::makeUnitreeG1LocomotionWorld(
                 metalrobo::LocomotionSurface::terrain
@@ -382,6 +716,413 @@ int main() {
             program.terrainSampleOffsets().size() != 187u ||
             program.terrainResetTranslations().size() != 11u) {
             fail("compiled G1 task tables are incomplete");
+        }
+
+        TemporaryPackFiles interactionFiles;
+        const metalrobo::InteractionPack authoredInteraction =
+            makeG1InteractionFixture(authored);
+        const metalrobo::LearningPackResult interactionWrite =
+            metalrobo::writeInteractionPack(
+                authoredInteraction,
+                interactionFiles.interaction
+            );
+        metalrobo::InteractionPack loadedInteraction;
+        const metalrobo::LearningPackResult interactionRead =
+            metalrobo::readInteractionPack(
+                interactionFiles.interaction,
+                loadedInteraction
+            );
+        if (!interactionWrite.succeeded() ||
+            !interactionRead.succeeded() ||
+            loadedInteraction.id != authoredInteraction.id ||
+            loadedInteraction.clips.front().desiredOutcome !=
+                authoredInteraction.clips.front().desiredOutcome ||
+            loadedInteraction.clips.front().jointTargets !=
+                authoredInteraction.clips.front().jointTargets ||
+            loadedInteraction.clips.front().contactTargets !=
+                authoredInteraction.clips.front().contactTargets) {
+            fail("InteractionPack round trip changed contact-first intent");
+        }
+
+        metalrobo::TaskPack interactionTask = authored.task;
+        for (std::uint32_t component = 0u; component < 3u; ++component) {
+            interactionTask.actorFrame.push_back({
+                .source =
+                    metalrobo::TaskObservationSource::interactionPhase,
+                .component = component,
+            });
+        }
+        interactionTask.actorFrame.push_back({
+            .source = metalrobo::TaskObservationSource::
+                interactionJointPositionError,
+            .target = "left_hip_roll_joint",
+        });
+        for (const std::string_view track :
+             {std::string_view{"left_foot"},
+              std::string_view{"right_foot"}}) {
+            interactionTask.actorFrame.push_back({
+                .source = metalrobo::TaskObservationSource::
+                    interactionContactMode,
+                .target = std::string{track},
+                .component = 0u,
+            });
+            interactionTask.actorFrame.push_back({
+                .source = metalrobo::TaskObservationSource::
+                    interactionContactMode,
+                .target = std::string{track},
+                .component = 1u,
+            });
+            constexpr std::array<std::uint32_t, 8u> features{
+                2u, 6u, 7u, 8u, 9u, 10u, 11u, 12u,
+            };
+            for (const std::uint32_t component : features) {
+                interactionTask.actorFrame.push_back({
+                    .source = metalrobo::TaskObservationSource::
+                        interactionContactTarget,
+                    .target = std::string{track},
+                    .component = component,
+                });
+                interactionTask.actorFrame.push_back({
+                    .source = metalrobo::TaskObservationSource::
+                        interactionContactValidity,
+                    .target = std::string{track},
+                    .component = component,
+                });
+            }
+        }
+        interactionTask.rewards.push_back({
+            .operation = metalrobo::TaskRewardOperator::
+                interactionJointTracking,
+            .weight = 0.5f,
+            .parameters = {0.25f, 0.0f, 0.0f, 0.0f},
+        });
+        interactionTask.rewards.push_back({
+            .operation = metalrobo::TaskRewardOperator::
+                interactionContactTracking,
+            .sourceGroup = "left_foot_contact",
+            .target = "left_foot",
+            .weight = 1.0f,
+            .parameters = {0.6f, 1.0f, 0.0f, 0.0f},
+        });
+        interactionTask.rewards.push_back({
+            .operation = metalrobo::TaskRewardOperator::
+                interactionContactTracking,
+            .sourceGroup = "right_foot_contact",
+            .target = "right_foot",
+            .weight = 1.0f,
+            .parameters = {0.6f, 1.0f, 0.0f, 0.0f},
+        });
+        metalrobo::CompiledTaskProgram interactionProgram;
+        const metalrobo::TaskCompileDiagnostics interactionStatus =
+            metalrobo::compileTaskProgram(
+                interactionTask,
+                loadedInteraction,
+                "weight_shift_left_lift_right",
+                world,
+                interactionProgram
+            );
+        const auto& interactionLayout = interactionProgram.layout();
+        if (!interactionStatus.succeeded() ||
+            interactionLayout.actorFrameSize !=
+                layout.actorFrameSize + 40u ||
+            interactionLayout.interactionFrameCount != 3u ||
+            interactionLayout.interactionContactCount != 2u ||
+            interactionProgram.header().interaction.x != 3u ||
+            interactionProgram.header().interaction.y != 29u ||
+            interactionProgram.header().interaction.z != 2u ||
+            interactionProgram.header().counts3.z != 2u ||
+            interactionProgram.header().counts3.w != 3u ||
+            (interactionProgram.header().schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_REFERENCE) == 0u ||
+            interactionProgram.interactionRootTargets().size() != 21u ||
+            interactionProgram.interactionJointTargets().size() != 87u ||
+            interactionProgram.interactionContacts().size() != 2u ||
+            interactionProgram.interactionSamples().size() != 6u ||
+            interactionProgram.interactionContactTargets().size() != 78u ||
+            interactionProgram.interactionContactTolerances().size() != 78u ||
+            interactionProgram.interactionContacts()[0].binding.x != 0u ||
+            interactionProgram.interactionContacts()[1].binding.x != 1u ||
+            interactionProgram.interactionSamples()[5].metadata.x !=
+                MR_TASK_INTERACTION_CONTACT_FREE ||
+            interactionProgram.interactionSamples()[0].metadata.z !=
+                metalrobo::interactionSamplePhysicsCertified ||
+            interactionProgram.interactionContactTargets()[2u] != 350.0f ||
+            interactionProgram.interactionContactTargets()[
+                4u * metalrobo::kInteractionContactFeatureCount + 2u
+            ] != 650.0f) {
+            fail(
+                "G1 InteractionPack did not compile into exact native reference tables"
+            );
+        }
+        std::uint32_t interactionPhase = 0u;
+        std::uint32_t interactionJoint = 0u;
+        std::uint32_t interactionMode = 0u;
+        std::uint32_t interactionTarget = 0u;
+        std::uint32_t interactionValidity = 0u;
+        for (const MRTaskObservationOperatorGPU& operation :
+             interactionProgram.actorOperators()) {
+            interactionPhase += operation.source.x ==
+                MR_TASK_OBSERVE_INTERACTION_PHASE ? 1u : 0u;
+            interactionJoint += operation.source.x ==
+                MR_TASK_OBSERVE_INTERACTION_JOINT_POSITION_ERROR ? 1u : 0u;
+            interactionMode += operation.source.x ==
+                MR_TASK_OBSERVE_INTERACTION_CONTACT_MODE ? 1u : 0u;
+            interactionTarget += operation.source.x ==
+                MR_TASK_OBSERVE_INTERACTION_CONTACT_TARGET ? 1u : 0u;
+            interactionValidity += operation.source.x ==
+                MR_TASK_OBSERVE_INTERACTION_CONTACT_VALIDITY ? 1u : 0u;
+        }
+        std::uint32_t interactionJointReward = 0u;
+        std::uint32_t interactionContactReward = 0u;
+        for (const MRTaskRewardOperatorGPU& operation :
+             interactionProgram.rewardOperators()) {
+            interactionJointReward += operation.source.x ==
+                MR_TASK_REWARD_INTERACTION_JOINT_TRACKING ? 1u : 0u;
+            interactionContactReward += operation.source.x ==
+                MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING ? 1u : 0u;
+        }
+        if (interactionPhase != 3u || interactionJoint != 1u ||
+            interactionMode != 4u || interactionTarget != 16u ||
+            interactionValidity != 16u ||
+            interactionJointReward != 1u ||
+            interactionContactReward != 2u) {
+            fail("contact-first actor or reward operators are incomplete");
+        }
+        metalrobo::CompiledTaskProgram repeatedInteraction;
+        const auto repeatedInteractionStatus =
+            metalrobo::compileTaskProgram(
+                interactionTask,
+                loadedInteraction,
+                "weight_shift_left_lift_right",
+                world,
+                repeatedInteraction
+            );
+        if (!repeatedInteractionStatus.succeeded() ||
+            repeatedInteraction.fingerprint() !=
+                interactionProgram.fingerprint()) {
+            fail("interaction task compilation is not deterministic");
+        }
+        const std::uint64_t preservedInteraction =
+            repeatedInteraction.fingerprint();
+        metalrobo::InteractionPack brokenInteraction =
+            loadedInteraction;
+        brokenInteraction.contactTracks[0].taskContactGroup =
+            "missing_contact_group";
+        const auto brokenInteractionStatus =
+            metalrobo::compileTaskProgram(
+                interactionTask,
+                brokenInteraction,
+                "weight_shift_left_lift_right",
+                world,
+                repeatedInteraction
+            );
+        if (brokenInteractionStatus.status !=
+                metalrobo::TaskCompileStatus::unresolvedSemantic ||
+            repeatedInteraction.fingerprint() != preservedInteraction) {
+            fail(
+                "unresolved interaction semantics were not transactionally rejected"
+            );
+        }
+        metalrobo::InteractionPack unsafeInteraction =
+            loadedInteraction;
+        unsafeInteraction.clips.front().jointTargets.front() = 100.0f;
+        const auto unsafeInteractionStatus =
+            metalrobo::compileTaskProgram(
+                interactionTask,
+                unsafeInteraction,
+                "weight_shift_left_lift_right",
+                world,
+                repeatedInteraction
+            );
+        if (unsafeInteractionStatus.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeatedInteraction.fingerprint() != preservedInteraction) {
+            fail(
+                "out-of-envelope interaction target was not transactionally rejected"
+            );
+        }
+        metalrobo::InteractionPack unsafeVelocity =
+            loadedInteraction;
+        unsafeVelocity.clips.front().jointTargets[
+            authored.task.actions.size()
+        ] = 2.0f;
+        const auto unsafeVelocityStatus =
+            metalrobo::compileTaskProgram(
+                interactionTask,
+                unsafeVelocity,
+                "weight_shift_left_lift_right",
+                world,
+                repeatedInteraction
+            );
+        if (unsafeVelocityStatus.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeatedInteraction.fingerprint() != preservedInteraction) {
+            fail(
+                "out-of-envelope interaction velocity was not transactionally rejected"
+            );
+        }
+        metalrobo::InteractionPack wrongCounterpart =
+            loadedInteraction;
+        wrongCounterpart.contactTracks.front().counterpart =
+            "missing_support_surface";
+        const auto wrongCounterpartStatus =
+            metalrobo::compileTaskProgram(
+                interactionTask,
+                wrongCounterpart,
+                "weight_shift_left_lift_right",
+                world,
+                repeatedInteraction
+            );
+        if (wrongCounterpartStatus.status !=
+                metalrobo::TaskCompileStatus::unresolvedSemantic ||
+            repeatedInteraction.fingerprint() != preservedInteraction) {
+            fail(
+                "interaction counterpart mismatch was not transactionally rejected"
+            );
+        }
+        const auto missingInteractionStatus =
+            metalrobo::compileTaskProgram(
+                interactionTask,
+                world,
+                repeatedInteraction
+            );
+        if (missingInteractionStatus.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeatedInteraction.fingerprint() != preservedInteraction) {
+            fail(
+                "interaction operators compiled without a selected reference"
+            );
+        }
+        if (argc == 2) {
+            fixtureRuntime = runInteractionRuntimeProbe(
+                authored,
+                world,
+                interactionProgram,
+                authoredInteraction.clips.front().framesPerSecond,
+                true
+            );
+            metalrobo::InteractionPack externalInteraction;
+            const auto externalRead = metalrobo::readInteractionPack(
+                argv[1],
+                externalInteraction
+            );
+            if (!externalRead.succeeded() ||
+                externalInteraction.jointNames.size() != 29u ||
+                externalInteraction.contactTracks.size() != 2u ||
+                externalInteraction.clips.size() != 1u) {
+                fail("external InteractionPack did not satisfy the G1 contract");
+            }
+            const metalrobo::InteractionClip& externalClip =
+                externalInteraction.clips.front();
+            const bool predictedOnly = std::ranges::all_of(
+                externalClip.contactSampleFlags,
+                [](const std::uint32_t flags) {
+                    return flags ==
+                        metalrobo::interactionSamplePredicted;
+                }
+            );
+            const bool noFabricatedPhysicalTargets =
+                std::ranges::all_of(
+                    externalClip.contactFeatureMasks,
+                    [](const std::uint32_t mask) {
+                        return mask == 0u;
+                    }
+                );
+            if (externalClip.frameCount < 2u ||
+                !predictedOnly || !noFabricatedPhysicalTargets) {
+                fail(
+                    "external generated contact was mislabeled as physical evidence"
+                );
+            }
+            metalrobo::CompiledTaskProgram externalProgram;
+            const auto externalCompile =
+                metalrobo::compileTaskProgram(
+                    interactionTask,
+                    externalInteraction,
+                    externalClip.id,
+                    world,
+                    externalProgram
+                );
+            if (!externalCompile.succeeded() ||
+                externalProgram.layout().interactionFrameCount !=
+                    externalClip.frameCount ||
+                externalProgram.layout().interactionContactCount != 2u ||
+                externalProgram.interactionJointTargets().size() !=
+                    static_cast<std::size_t>(externalClip.frameCount) *
+                        29u) {
+                fail(
+                    "external ARDY interaction did not compile into the G1 task"
+                );
+            }
+            externalInteractionArtifact = externalRead.contentHash;
+            externalInteractionTask = externalProgram.fingerprint();
+            externalRuntime = runInteractionRuntimeProbe(
+                authored,
+                world,
+                externalProgram,
+                externalClip.framesPerSecond,
+                false
+            );
+            const MRTaskRolloutConfigC rolloutConfig{
+                .environment_count = 1u,
+                .physics_substeps = 4u,
+                .velocity_iterations = 2u,
+                .final_velocity_iterations = 1u,
+                .control_timestep_seconds =
+                    1.0f / externalClip.framesPerSecond,
+                .seed = 0x41524459u,
+            };
+            std::unique_ptr<
+                MRTaskRolloutHandle,
+                decltype(&mr_task_rollout_destroy)
+            > rollout{
+                mr_create_unitree_g1_interaction_rollout(
+                    &rolloutConfig,
+                    MR_LOCOMOTION_SURFACE_TERRAIN,
+                    argv[1],
+                    externalClip.id.c_str(),
+                    nullptr
+                ),
+                &mr_task_rollout_destroy,
+            };
+            if (!rollout) {
+                fail(
+                    "C/Swift interaction rollout boundary failed: " +
+                    std::string{mr_last_error()}
+                );
+            }
+            const MRTaskRolloutLayoutC rolloutLayout =
+                mr_task_rollout_layout(rollout.get());
+            constexpr std::uint32_t rolloutSteps = 6u;
+            std::vector<float> rolloutActions(
+                rolloutSteps * rolloutLayout.action_count,
+                0.0f
+            );
+            MRTaskRolloutAdvanceC advance{};
+            if (rolloutLayout.action_count != 29u ||
+                rolloutLayout.actor_observation_count != 186u ||
+                rolloutLayout.critic_observation_count != 186u ||
+                mr_task_rollout_advance(
+                    rollout.get(),
+                    rolloutActions.data(),
+                    rolloutActions.size(),
+                    nullptr,
+                    0u,
+                    rolloutSteps,
+                    23u,
+                    0u,
+                    &advance
+                ) != 0 ||
+                advance.successful_environment_steps != rolloutSteps ||
+                advance.failed_environment_steps != 0u ||
+                mr_task_rollout_actor_observations(rollout.get()) == nullptr ||
+                mr_task_rollout_transitions(rollout.get()) == nullptr) {
+                fail(
+                    "C/Swift interaction rollout did not publish a complete native batch: " +
+                    std::string{mr_last_error()}
+                );
+            }
+            externalNativeExecuted = true;
         }
         metalrobo::LocomotionWorld recovery =
             metalrobo::makeUnitreeG1LocomotionWorld(
@@ -1347,6 +2088,24 @@ int main() {
             << " policy_artifact=" << policyWrite.contentHash
             << " rollout_artifact="
             << rolloutWrite.contentHash
+            << " interaction_artifact="
+            << interactionWrite.contentHash
+            << " interaction_task="
+            << interactionProgram.fingerprint()
+            << " external_interaction_artifact="
+            << externalInteractionArtifact
+            << " external_interaction_task="
+            << externalInteractionTask
+            << " external_native="
+            << (externalNativeExecuted ? 1u : 0u)
+            << " external_native_device=\""
+            << externalRuntime.device << '"'
+            << " external_native_gpu_ms="
+            << externalRuntime.gpuMilliseconds
+            << " external_native_reward="
+            << externalRuntime.firstReward
+            << " fixture_native_reward="
+            << fixtureRuntime.firstReward
             << " imported=" << importedFingerprint
             << " world_pack=" << worldPackFingerprint
             << '\n';

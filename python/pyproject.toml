@@ -18,6 +18,7 @@ dependencies = [
 [project.scripts]
 metalrobo = "metalrobo.cli:main"
 metalrobo-tactile = "metalrobo.tactile_cli:main"
+metalrobo-ardy-interaction = "metalrobo.ardy_interaction_convert:main"
 
 [project.optional-dependencies]
 tactile-dataset = [

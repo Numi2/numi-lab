@@ -9,6 +9,7 @@ Swift rollout scheduler
         v
 native persistent MetalWorld
   + compiled TaskPack
+  + optional compiled InteractionPack clip
   + compiled PolicyPack
         |
         v
@@ -41,6 +42,64 @@ python3 -m pip install -e .
 The package pins `mlx>=0.32,<0.33`. It no longer builds a Python physics
 extension: native and shared rollout records carry an ABI fingerprint, and
 the learner rejects stale artifacts before an update.
+
+## ARDY to contact-first InteractionPack
+
+The ARDY bridge consumes its G1 qpos CSV together with the matching motion
+NPZ. It converts root quaternion order, checks the exact 29-joint position and
+velocity contract, and stores heel/toe predictions as left/right contact
+intent. ARDY does not provide force or pressure, so all physical target masks
+remain invalid rather than being synthesized:
+
+```sh
+metalrobo-ardy-interaction \
+  --motion-npz /path/to/ardy-motion.npz \
+  --qpos-csv /path/to/ardy-g1-qpos.csv \
+  --output runs/g1/ardy.interactionpack \
+  --id desired-outcome-001 \
+  --clip-id ardy-g1 \
+  --source-revision <exact-ardy-git-revision> \
+  --counterpart locomotion_ground
+```
+
+The counterpart must match the selected training scene: use
+`locomotion_ground` for `--scene ground` or `locomotion_terrain` for
+`--scene terrain`. Start the ordinary native/MLX training command with the
+two additional selection arguments:
+
+```sh
+../build/bin/metalrobo_task_train \
+  --metallib ../build/shaders/MetalRobo.metallib \
+  --native-library ../build/lib/libmetalrobo.dylib \
+  --mlx-python .venv/bin/python \
+  --python-root . \
+  --initialize-policy g1_contact_first \
+  --policy-pack runs/g1/initial.policypack \
+  --updated-policy-pack runs/g1/policy.policypack \
+  --deployment-policy-pack runs/g1/deployment.policypack \
+  --rollout-pack runs/g1/latest.rolloutpack \
+  --learner-state runs/g1/learner.safetensors \
+  --interaction-pack runs/g1/ardy.interactionpack \
+  --interaction-clip ardy-g1 \
+  --envs 1024 --steps 24 --chunk 8 --updates 1000 \
+  --scene ground
+```
+
+This route appends phase, joint-reference error, contact mode/confidence,
+contact targets, and per-feature validity to both actor and critic. Native
+rewards compare
+the reference with live joint state and solver-resolved contact. Policy
+actions are bounded residuals around the current reference joint target, so
+the exploration neighborhood follows the generated motion instead of the
+default pose. Swift and MLX then use the same PPO loop as every other TaskPack.
+The command proves an executable learning path, not a trained or
+hardware-qualified policy.
+
+Run the converter contract check with:
+
+```sh
+python3 probes/ardy_interaction_convert_check.py
+```
 
 ## Generic MLX policy learner
 

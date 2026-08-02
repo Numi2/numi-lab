@@ -33,6 +33,7 @@ constexpr std::uint32_t kTaskKind = 1u;
 constexpr std::uint32_t kPolicyKind = 2u;
 constexpr std::uint32_t kPolicyRolloutKind = 3u;
 constexpr std::uint32_t kMotionKind = 4u;
+constexpr std::uint32_t kInteractionKind = 5u;
 constexpr std::uint64_t kFNVOffset = 14695981039346656037ull;
 constexpr std::uint64_t kFNVPrime = 1099511628211ull;
 constexpr std::uint64_t kMaximumPayloadBytes =
@@ -431,6 +432,177 @@ LearningPackResult validateMotionArtifact(
             LearningPackStatus::invalidPack,
             "MotionPack tracked bodies or clip samples are invalid"
         );
+    }
+    return {};
+}
+
+LearningPackResult validateInteractionArtifact(
+    const InteractionPack& pack
+) {
+    if (pack.id.empty() || pack.sourceRepository.empty() ||
+        pack.sourceRevision.empty() || pack.license.empty() ||
+        pack.coordinateFrame != kInteractionCoordinateFrame ||
+        pack.jointNames.empty() || pack.contactTracks.empty() ||
+        pack.clips.empty() || !stringFits(pack.id) ||
+        !stringFits(pack.sourceRepository) ||
+        !stringFits(pack.sourceRevision) ||
+        !stringFits(pack.license) ||
+        !stringFits(pack.coordinateFrame) ||
+        !countFits(pack.jointNames.size()) ||
+        !countFits(pack.contactTracks.size()) ||
+        !countFits(pack.clips.size())) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "InteractionPack identity, provenance, or coordinate contract is invalid"
+        );
+    }
+    const auto uniqueStrings = [](const auto& values) {
+        for (std::size_t index = 0u; index < values.size(); ++index) {
+            if (values[index].empty() || !stringFits(values[index]) ||
+                std::find(
+                    values.begin(),
+                    values.begin() +
+                        static_cast<std::ptrdiff_t>(index),
+                    values[index]
+                ) != values.begin() +
+                    static_cast<std::ptrdiff_t>(index)) {
+                return false;
+            }
+        }
+        return true;
+    };
+    if (!uniqueStrings(pack.jointNames)) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "InteractionPack joint semantics are empty or duplicated"
+        );
+    }
+    std::vector<std::string> contactIds;
+    contactIds.reserve(pack.contactTracks.size());
+    for (const InteractionContactTrack& track : pack.contactTracks) {
+        if (track.id.empty() || track.taskContactGroup.empty() ||
+            track.counterpart.empty() || !stringFits(track.id) ||
+            !stringFits(track.taskContactGroup) ||
+            !stringFits(track.counterpart) ||
+            std::find(contactIds.begin(), contactIds.end(), track.id) !=
+                contactIds.end()) {
+            return fail(
+                LearningPackStatus::invalidPack,
+                "InteractionPack contact semantics are invalid or duplicated"
+            );
+        }
+        contactIds.push_back(track.id);
+    }
+    const auto finiteValues = [](const std::span<const float> values) {
+        return std::all_of(
+            values.begin(),
+            values.end(),
+            [](const float value) { return std::isfinite(value); }
+        );
+    };
+    std::vector<std::string> clipIds;
+    clipIds.reserve(pack.clips.size());
+    constexpr std::uint32_t validSampleFlags =
+        interactionSamplePredicted |
+        interactionSamplePhysicsCertified;
+    for (const InteractionClip& clip : pack.clips) {
+        const std::uint64_t frameCount = clip.frameCount;
+        const std::uint64_t contactSampleCount =
+            frameCount * pack.contactTracks.size();
+        const std::uint64_t contactValueCount =
+            contactSampleCount * kInteractionContactFeatureCount;
+        const std::uint64_t rootValueCount =
+            frameCount * kInteractionRootTargetCount;
+        const std::uint64_t jointValueCount =
+            frameCount * pack.jointNames.size();
+        if (clip.id.empty() || clip.desiredOutcome.empty() ||
+            !stringFits(clip.id) ||
+            !stringFits(clip.desiredOutcome) ||
+            std::find(clipIds.begin(), clipIds.end(), clip.id) !=
+                clipIds.end() ||
+            !std::isfinite(clip.framesPerSecond) ||
+            !(clip.framesPerSecond > 0.0f) ||
+            clip.frameCount < 2u ||
+            rootValueCount != clip.rootTargets.size() ||
+            jointValueCount != clip.jointTargets.size() ||
+            contactSampleCount != clip.contactModes.size() ||
+            contactSampleCount != clip.contactFeatureMasks.size() ||
+            contactSampleCount != clip.contactSampleFlags.size() ||
+            contactSampleCount != clip.contactConfidence.size() ||
+            contactValueCount != clip.contactTargets.size() ||
+            contactValueCount != clip.contactTolerances.size() ||
+            !countFits(clip.rootTargets.size()) ||
+            !countFits(clip.jointTargets.size()) ||
+            !countFits(clip.contactModes.size()) ||
+            !countFits(clip.contactTargets.size()) ||
+            !finiteValues(clip.rootTargets) ||
+            !finiteValues(clip.jointTargets) ||
+            !finiteValues(clip.contactConfidence) ||
+            !finiteValues(clip.contactTargets) ||
+            !finiteValues(clip.contactTolerances)) {
+            return fail(
+                LearningPackStatus::invalidPack,
+                "InteractionPack clip dimensions or samples are invalid"
+            );
+        }
+        for (std::uint32_t frame = 0u; frame < clip.frameCount; ++frame) {
+            const std::size_t root =
+                static_cast<std::size_t>(frame) *
+                kInteractionRootTargetCount;
+            const float x = clip.rootTargets[root + 3u];
+            const float y = clip.rootTargets[root + 4u];
+            const float z = clip.rootTargets[root + 5u];
+            const float w = clip.rootTargets[root + 6u];
+            const float norm = x * x + y * y + z * z + w * w;
+            if (std::abs(norm - 1.0f) > 1.0e-3f) {
+                return fail(
+                    LearningPackStatus::invalidPack,
+                    "InteractionPack root quaternion is not normalized"
+                );
+            }
+        }
+        for (std::size_t sample = 0u;
+             sample < clip.contactModes.size();
+             ++sample) {
+            if (clip.contactModes[sample] >
+                    static_cast<std::uint32_t>(
+                        InteractionContactMode::release
+                    ) ||
+                (clip.contactFeatureMasks[sample] &
+                    ~kInteractionContactFeatureMask) != 0u ||
+                clip.contactSampleFlags[sample] == 0u ||
+                (clip.contactSampleFlags[sample] &
+                    ~validSampleFlags) != 0u ||
+                clip.contactConfidence[sample] < 0.0f ||
+                clip.contactConfidence[sample] > 1.0f) {
+                return fail(
+                    LearningPackStatus::invalidPack,
+                    "InteractionPack contact mode, mask, provenance, or confidence is invalid"
+                );
+            }
+            const std::size_t featureBase =
+                sample * kInteractionContactFeatureCount;
+            for (std::uint32_t feature = 0u;
+                 feature < kInteractionContactFeatureCount;
+                 ++feature) {
+                const bool valid =
+                    (clip.contactFeatureMasks[sample] &
+                     (1u << feature)) != 0u;
+                const float target =
+                    clip.contactTargets[featureBase + feature];
+                const float tolerance =
+                    clip.contactTolerances[featureBase + feature];
+                if ((valid && !(tolerance > 0.0f)) ||
+                    (!valid && tolerance < 0.0f) ||
+                    (valid && feature >= 8u && target < 0.0f)) {
+                    return fail(
+                        LearningPackStatus::invalidPack,
+                        "InteractionPack contact target or tolerance is invalid"
+                    );
+                }
+            }
+        }
+        clipIds.push_back(clip.id);
     }
     return {};
 }
@@ -1386,6 +1558,94 @@ bool deserializeMotion(
         ) && reader.finished();
 }
 
+std::vector<std::byte> serializeInteraction(
+    const InteractionPack& pack
+) {
+    Writer writer{0u};
+    writer.string(pack.id);
+    writer.string(pack.sourceRepository);
+    writer.string(pack.sourceRevision);
+    writer.string(pack.license);
+    writer.string(pack.coordinateFrame);
+    writer.strings(pack.jointNames);
+    writeRichVector(
+        writer,
+        pack.contactTracks,
+        [](Writer& output, const InteractionContactTrack& track) {
+            output.string(track.id);
+            output.string(track.taskContactGroup);
+            output.string(track.counterpart);
+        }
+    );
+    writeRichVector(
+        writer,
+        pack.clips,
+        [](Writer& output, const InteractionClip& clip) {
+            output.string(clip.id);
+            output.string(clip.desiredOutcome);
+            output.pod(clip.framesPerSecond);
+            output.pod(clip.frameCount);
+            const std::uint32_t loop = clip.loop ? 1u : 0u;
+            output.pod(loop);
+            output.vector(clip.rootTargets);
+            output.vector(clip.jointTargets);
+            output.vector(clip.contactModes);
+            output.vector(clip.contactFeatureMasks);
+            output.vector(clip.contactSampleFlags);
+            output.vector(clip.contactConfidence);
+            output.vector(clip.contactTargets);
+            output.vector(clip.contactTolerances);
+        }
+    );
+    return writer.data();
+}
+
+bool deserializeInteraction(
+    const std::span<const std::byte> payload,
+    InteractionPack& pack
+) {
+    Reader reader{payload};
+    return reader.string(pack.id) &&
+        reader.string(pack.sourceRepository) &&
+        reader.string(pack.sourceRevision) &&
+        reader.string(pack.license) &&
+        reader.string(pack.coordinateFrame) &&
+        reader.strings(pack.jointNames) &&
+        readRichVector(
+            reader,
+            pack.contactTracks,
+            [](Reader& source, InteractionContactTrack& track) {
+                return source.string(track.id) &&
+                    source.string(track.taskContactGroup) &&
+                    source.string(track.counterpart);
+            }
+        ) &&
+        readRichVector(
+            reader,
+            pack.clips,
+            [](Reader& source, InteractionClip& clip) {
+                std::uint32_t loop = 0u;
+                if (!source.string(clip.id) ||
+                    !source.string(clip.desiredOutcome) ||
+                    !source.pod(clip.framesPerSecond) ||
+                    !source.pod(clip.frameCount) ||
+                    !source.pod(loop) || loop > 1u ||
+                    !source.vector(clip.rootTargets) ||
+                    !source.vector(clip.jointTargets) ||
+                    !source.vector(clip.contactModes) ||
+                    !source.vector(clip.contactFeatureMasks) ||
+                    !source.vector(clip.contactSampleFlags) ||
+                    !source.vector(clip.contactConfidence) ||
+                    !source.vector(clip.contactTargets) ||
+                    !source.vector(clip.contactTolerances)) {
+                    return false;
+                }
+                clip.loop = loop != 0u;
+                return true;
+            }
+        ) && reader.finished();
+}
+
 bool writeAll(
     const int descriptor,
     const void* bytes,
@@ -1841,6 +2101,71 @@ LearningPackResult readMotionPack(
     }
     output = std::move(staged);
     return result;
+}
+
+LearningPackResult writeInteractionPack(
+    const InteractionPack& pack,
+    const std::filesystem::path& path
+) {
+    try {
+        const LearningPackResult validation =
+            validateInteractionArtifact(pack);
+        if (!validation.succeeded()) {
+            return validation;
+        }
+        return writePack(
+            serializeInteraction(pack),
+            kInteractionKind,
+            kInteractionPackFormatVersion,
+            path
+        );
+    } catch (const std::bad_alloc&) {
+        return fail(
+            LearningPackStatus::capacityOverflow,
+            "InteractionPack serialization allocation failed"
+        );
+    } catch (const std::exception& error) {
+        return fail(
+            LearningPackStatus::internalFailure,
+            error.what()
+        );
+    }
+}
+
+LearningPackResult readInteractionPack(
+    const std::filesystem::path& path,
+    InteractionPack& output
+) {
+    InteractionPack staged;
+    LearningPackResult result = readPack(
+        path,
+        kInteractionKind,
+        kInteractionPackFormatVersion,
+        staged,
+        deserializeInteraction
+    );
+    if (!result.succeeded()) {
+        return result;
+    }
+    const LearningPackResult validation =
+        validateInteractionArtifact(staged);
+    if (!validation.succeeded()) {
+        LearningPackResult corrupt = validation;
+        corrupt.status = LearningPackStatus::corruptPayload;
+        return corrupt;
+    }
+    output = std::move(staged);
+    return result;
+}
+
+bool validInteractionPack(
+    const InteractionPack& pack
+) noexcept {
+    try {
+        return validateInteractionArtifact(pack).succeeded();
+    } catch (...) {
+        return false;
+    }
 }
 
 const char* learningPackStatusName(

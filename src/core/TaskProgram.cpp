@@ -18,6 +18,11 @@
 
 namespace metalrobo {
 
+static_assert(
+    kInteractionContactFeatureCount ==
+        MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT
+);
+
 struct CompiledTaskProgram::Storage {
     std::uint64_t fingerprint = 0u;
     std::uint64_t worldFingerprint = 0u;
@@ -37,6 +42,12 @@ struct CompiledTaskProgram::Storage {
         randomizationOperators;
     std::vector<MRTaskImpactEventGPU> impactEvents;
     std::vector<std::uint32_t> motionBodies;
+    std::vector<float> interactionRootTargets;
+    std::vector<float> interactionJointTargets;
+    std::vector<MRTaskInteractionContactGPU> interactionContacts;
+    std::vector<MRTaskInteractionSampleGPU> interactionSamples;
+    std::vector<float> interactionContactTargets;
+    std::vector<float> interactionContactTolerances;
     std::vector<MRTaskBiasSpecGPU> biasSpecs;
     std::vector<mr_float4> terrainSampleOffsets;
     std::vector<mr_float4> terrainResetTranslations;
@@ -468,6 +479,54 @@ CompiledTaskProgram::motionBodies() const noexcept {
         : std::span<const std::uint32_t>{};
 }
 
+std::span<const float>
+CompiledTaskProgram::interactionRootTargets() const noexcept {
+    return valid()
+        ? std::span<const float>{storage_->interactionRootTargets}
+        : std::span<const float>{};
+}
+
+std::span<const float>
+CompiledTaskProgram::interactionJointTargets() const noexcept {
+    return valid()
+        ? std::span<const float>{storage_->interactionJointTargets}
+        : std::span<const float>{};
+}
+
+std::span<const MRTaskInteractionContactGPU>
+CompiledTaskProgram::interactionContacts() const noexcept {
+    return valid()
+        ? std::span<const MRTaskInteractionContactGPU>{
+              storage_->interactionContacts
+          }
+        : std::span<const MRTaskInteractionContactGPU>{};
+}
+
+std::span<const MRTaskInteractionSampleGPU>
+CompiledTaskProgram::interactionSamples() const noexcept {
+    return valid()
+        ? std::span<const MRTaskInteractionSampleGPU>{
+              storage_->interactionSamples
+          }
+        : std::span<const MRTaskInteractionSampleGPU>{};
+}
+
+std::span<const float>
+CompiledTaskProgram::interactionContactTargets() const noexcept {
+    return valid()
+        ? std::span<const float>{storage_->interactionContactTargets}
+        : std::span<const float>{};
+}
+
+std::span<const float>
+CompiledTaskProgram::interactionContactTolerances() const noexcept {
+    return valid()
+        ? std::span<const float>{
+              storage_->interactionContactTolerances
+          }
+        : std::span<const float>{};
+}
+
 std::span<const MRTaskBiasSpecGPU>
 CompiledTaskProgram::biasSpecs() const noexcept {
     return valid()
@@ -507,12 +566,59 @@ TaskCompileDiagnostics compileTaskProgram(
     const CompiledWorld& world,
     CompiledTaskProgram& output
 ) {
+    static const InteractionPack noInteraction;
+    return compileTaskProgram(
+        pack,
+        noInteraction,
+        {},
+        world,
+        output
+    );
+}
+
+TaskCompileDiagnostics compileTaskProgram(
+    const TaskPack& pack,
+    const InteractionPack& interactions,
+    const std::string_view clipId,
+    const CompiledWorld& world,
+    CompiledTaskProgram& output
+) {
     if (!world.valid()) {
         return reject(
             TaskCompileStatus::invalidWorld,
             "world",
             "task compilation requires a valid compiled world"
         );
+    }
+    const InteractionClip* interactionClip = nullptr;
+    if (!clipId.empty()) {
+        if (!validInteractionPack(interactions)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "interaction",
+                "selected InteractionPack is structurally invalid"
+            );
+        }
+        for (const InteractionClip& candidate : interactions.clips) {
+            if (candidate.id != clipId) {
+                continue;
+            }
+            if (interactionClip != nullptr) {
+                return reject(
+                    TaskCompileStatus::ambiguousSemantic,
+                    std::string{clipId},
+                    "InteractionPack clip identity is ambiguous"
+                );
+            }
+            interactionClip = &candidate;
+        }
+        if (interactionClip == nullptr) {
+            return reject(
+                TaskCompileStatus::unresolvedSemantic,
+                std::string{clipId},
+                "InteractionPack clip does not exist"
+            );
+        }
     }
     const EngineModel& model = world.model();
     if (model.bodyNames.size() != model.bodies.size() ||
@@ -1166,6 +1272,179 @@ TaskCompileDiagnostics compileTaskProgram(
         jointGroupIds.push_back(group.id);
     }
 
+    std::vector<std::string> interactionContactIds;
+    if (interactionClip != nullptr) {
+        staged->interactionRootTargets =
+            interactionClip->rootTargets;
+        std::vector<std::uint32_t> interactionJointIndices;
+        interactionJointIndices.reserve(pack.actions.size());
+        for (const TaskActionBinding& action : pack.actions) {
+            const auto found = std::find(
+                interactions.jointNames.begin(),
+                interactions.jointNames.end(),
+                action.joint
+            );
+            if (found == interactions.jointNames.end()) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    action.joint,
+                    "InteractionPack does not provide every task action joint"
+                );
+            }
+            interactionJointIndices.push_back(
+                static_cast<std::uint32_t>(
+                    found - interactions.jointNames.begin()
+                )
+            );
+        }
+        staged->interactionJointTargets.reserve(
+            static_cast<std::size_t>(interactionClip->frameCount) *
+            pack.actions.size()
+        );
+        for (std::uint32_t frame = 0u;
+             frame < interactionClip->frameCount;
+             ++frame) {
+            const std::size_t sourceBase =
+                static_cast<std::size_t>(frame) *
+                interactions.jointNames.size();
+            for (const std::uint32_t joint : interactionJointIndices) {
+                staged->interactionJointTargets.push_back(
+                    interactionClip->jointTargets[sourceBase + joint]
+                );
+            }
+        }
+        for (std::uint32_t frame = 0u;
+             frame < interactionClip->frameCount;
+             ++frame) {
+            for (std::uint32_t action = 0u;
+                 action < pack.actions.size();
+                 ++action) {
+                const MRTaskActionBindingGPU& binding =
+                    staged->actionBindings[action];
+                const MRDofPropertiesGPU& properties =
+                    model.dofs[binding.indices.w];
+                const std::size_t targetIndex =
+                    static_cast<std::size_t>(frame) *
+                        pack.actions.size() +
+                    action;
+                const float target =
+                    staged->interactionJointTargets[targetIndex];
+                constexpr float positionTolerance = 1.0e-4f;
+                if ((properties.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u &&
+                    (target < properties.limits.x - positionTolerance ||
+                     target > properties.limits.y + positionTolerance)) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        pack.actions[action].joint,
+                        "InteractionPack joint target exceeds the compiled mechanism limit"
+                    );
+                }
+                if (frame == 0u ||
+                    (properties.flags & MR_DOF_FLAG_VELOCITY_LIMIT) == 0u) {
+                    continue;
+                }
+                const float previous = staged->interactionJointTargets[
+                    targetIndex - pack.actions.size()
+                ];
+                const float requestedVelocity =
+                    std::abs(target - previous) *
+                    interactionClip->framesPerSecond;
+                if (requestedVelocity >
+                    properties.limits.z * (1.0f + 1.0e-5f)) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        pack.actions[action].joint,
+                        "InteractionPack joint target exceeds the compiled mechanism velocity limit"
+                    );
+                }
+            }
+        }
+
+        interactionContactIds.reserve(
+            interactions.contactTracks.size()
+        );
+        if (world.sceneBodyIndices().size() != 1u) {
+            return reject(
+                TaskCompileStatus::invalidWorld,
+                "interaction",
+                "InteractionPack v1 requires one resolved support-surface scene body so contact outcomes cannot alias another counterpart"
+            );
+        }
+        staged->interactionContacts.reserve(
+            interactions.contactTracks.size()
+        );
+        for (std::uint32_t trackIndex = 0u;
+             trackIndex < interactions.contactTracks.size();
+             ++trackIndex) {
+            const InteractionContactTrack& track =
+                interactions.contactTracks[trackIndex];
+            if (track.counterpart != pack.terrain.body) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    track.counterpart,
+                    "InteractionPack v1 contact counterpart must match the TaskPack terrain body"
+                );
+            }
+            const std::uint32_t contactGroup = namedGroup(
+                contactGroupIds,
+                track.taskContactGroup
+            );
+            if (contactGroup == MR_INVALID_INDEX) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    track.taskContactGroup,
+                    "InteractionPack contact track has no TaskPack contact group"
+                );
+            }
+            const MRTaskContactGroupGPU& compiledGroup =
+                staged->contactGroups[contactGroup];
+            if ((compiledGroup.members.z &
+                 MR_TASK_CONTACT_SUPPORT) == 0u ||
+                compiledGroup.supportPatch.x != 2u ||
+                compiledGroup.supportPatch.y != 2u ||
+                compiledGroup.supportPatch.z != 4u) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    track.taskContactGroup,
+                    "InteractionPack v1 contact tracks require a 2x2 support patch"
+                );
+            }
+            staged->interactionContacts.push_back({{
+                contactGroup,
+                trackIndex,
+                trackIndex * kInteractionContactFeatureCount,
+                kInteractionContactFeatureCount,
+            }});
+            interactionContactIds.push_back(track.id);
+        }
+        const std::size_t contactSampleCount =
+            static_cast<std::size_t>(interactionClip->frameCount) *
+            interactions.contactTracks.size();
+        staged->interactionSamples.reserve(contactSampleCount);
+        for (std::size_t sample = 0u;
+             sample < contactSampleCount;
+             ++sample) {
+            staged->interactionSamples.push_back({
+                {
+                    interactionClip->contactModes[sample],
+                    interactionClip->contactFeatureMasks[sample],
+                    interactionClip->contactSampleFlags[sample],
+                    0u,
+                },
+                {
+                    interactionClip->contactConfidence[sample],
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                },
+            });
+        }
+        staged->interactionContactTargets =
+            interactionClip->contactTargets;
+        staged->interactionContactTolerances =
+            interactionClip->contactTolerances;
+    }
+
     const auto compileObservations =
         [&](const std::vector<TaskObservationOperatorSpec>& specs,
             std::vector<MRTaskObservationOperatorGPU>& compiled)
@@ -1238,6 +1517,72 @@ TaskCompileDiagnostics compileTaskProgram(
                 }
                 break;
             }
+            case TaskObservationSource::interactionJointPositionError: {
+                if (interactionClip == nullptr) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        spec.target,
+                        "interaction joint observation requires a selected InteractionPack clip"
+                    );
+                }
+                bool ambiguous = false;
+                const std::uint32_t joint = uniqueIndex(
+                    model.jointNames,
+                    spec.target,
+                    ambiguous
+                );
+                sourceIndex =
+                    joint == MR_INVALID_INDEX
+                    ? MR_INVALID_INDEX
+                    : actionIndexForJoint(actionJoints, joint);
+                if (ambiguous || sourceIndex == MR_INVALID_INDEX) {
+                    return reject(
+                        ambiguous
+                            ? TaskCompileStatus::ambiguousSemantic
+                            : TaskCompileStatus::unresolvedSemantic,
+                        spec.target,
+                        "interaction joint observation has no task action binding"
+                    );
+                }
+                break;
+            }
+            case TaskObservationSource::interactionContactMode:
+            case TaskObservationSource::interactionContactTarget:
+            case TaskObservationSource::interactionContactValidity:
+                if (interactionClip == nullptr) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        spec.target,
+                        "interaction contact observation requires a selected InteractionPack clip"
+                    );
+                }
+                sourceIndex = namedGroup(
+                    interactionContactIds,
+                    spec.target
+                );
+                if (sourceIndex == MR_INVALID_INDEX) {
+                    return reject(
+                        TaskCompileStatus::unresolvedSemantic,
+                        spec.target,
+                        "interaction contact track does not exist"
+                    );
+                }
+                componentLimit =
+                    spec.source ==
+                        TaskObservationSource::interactionContactMode
+                    ? 2u
+                    : kInteractionContactFeatureCount;
+                break;
+            case TaskObservationSource::interactionPhase:
+                if (interactionClip == nullptr) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        "interaction",
+                        "interaction phase observation requires a selected InteractionPack clip"
+                    );
+                }
+                componentLimit = 3u;
+                break;
             case TaskObservationSource::rootHeight:
                 break;
             case TaskObservationSource::supportSense:
@@ -1558,6 +1903,57 @@ TaskCompileDiagnostics compileTaskProgram(
                 reward.sourceGroup
             );
             break;
+        case TaskRewardOperator::interactionJointTracking:
+            if (interactionClip == nullptr) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    "interaction",
+                    "interaction joint tracking requires a selected InteractionPack clip"
+                );
+            }
+            if (!reward.sourceGroup.empty()) {
+                sourceIndex = namedGroup(
+                    jointGroupIds,
+                    reward.sourceGroup
+                );
+            }
+            break;
+        case TaskRewardOperator::interactionContactTracking:
+            if (interactionClip == nullptr ||
+                reward.sourceGroup.empty() || reward.target.empty()) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    reward.target,
+                    "interaction contact tracking requires a selected clip, contact group, and contact track"
+                );
+            }
+            sourceIndex = namedGroup(
+                contactGroupIds,
+                reward.sourceGroup
+            );
+            targetIndex = namedGroup(
+                interactionContactIds,
+                reward.target
+            );
+            if (sourceIndex == MR_INVALID_INDEX ||
+                targetIndex == MR_INVALID_INDEX) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    sourceIndex == MR_INVALID_INDEX
+                        ? reward.sourceGroup
+                        : reward.target,
+                    "interaction contact reward semantic does not exist"
+                );
+            }
+            if (staged->interactionContacts[targetIndex]
+                    .binding.x != sourceIndex) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    reward.target,
+                    "interaction contact track is bound to a different TaskPack contact group"
+                );
+            }
+            break;
         case TaskRewardOperator::gaitContactMatch:
         case TaskRewardOperator::swingClearance:
         case TaskRewardOperator::footClearance:
@@ -1709,6 +2105,26 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 reward.sourceGroup,
                 "tracking and clearance reward widths must be positive"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::interactionJointTracking &&
+            !(reward.parameters.x > 0.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.sourceGroup,
+                "interaction joint tracking width must be positive"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::interactionContactTracking &&
+            (reward.parameters.x < 0.0f ||
+             reward.parameters.x > 1.0f ||
+             !(reward.parameters.y > 0.0f))) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.target,
+                "interaction contact tracking requires a mode blend in [0, 1] and positive field temperature"
             );
         }
         if (reward.operation ==
@@ -2596,6 +3012,12 @@ TaskCompileDiagnostics compileTaskProgram(
         .motionFeatureCount = static_cast<std::uint32_t>(
             9u * staged->motionBodies.size()
         ),
+        .interactionFrameCount = interactionClip == nullptr
+            ? 0u
+            : interactionClip->frameCount,
+        .interactionContactCount = static_cast<std::uint32_t>(
+            staged->interactionContacts.size()
+        ),
     };
 
     staged->header.counts0 = {
@@ -2702,6 +3124,10 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_THREAT_TEACHER;
     }
+    if (interactionClip != nullptr) {
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_INTERACTION_REFERENCE;
+    }
     staged->header.locomotion = {
         pack.baseHeightTarget,
         pack.gaitPeriodSeconds,
@@ -2749,6 +3175,12 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.counts3.y = static_cast<std::uint32_t>(
         staged->contactMemberRadii.size()
     );
+    staged->header.counts3.z = static_cast<std::uint32_t>(
+        staged->interactionContacts.size()
+    );
+    staged->header.counts3.w = interactionClip == nullptr
+        ? 0u
+        : interactionClip->frameCount;
     staged->header.articulation = {
         articulation.firstBody,
         articulation.bodyCount,
@@ -2815,6 +3247,27 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.threat.urgencySeconds,
         pack.threat.desiredVelocityHorizonSeconds,
         pack.threat.projectionEpsilon,
+        0.0f,
+    };
+    staged->header.interaction = {
+        interactionClip == nullptr ? 0u : interactionClip->frameCount,
+        interactionClip == nullptr ? 0u : actionCount,
+        static_cast<std::uint32_t>(
+            staged->interactionContacts.size()
+        ),
+        interactionClip != nullptr && interactionClip->loop
+            ? MR_TASK_INTERACTION_LOOP
+            : 0u,
+    };
+    staged->header.interactionTiming = {
+        interactionClip == nullptr
+            ? 0.0f
+            : interactionClip->framesPerSecond,
+        interactionClip == nullptr
+            ? 0.0f
+            : static_cast<float>(interactionClip->frameCount - 1u) /
+                interactionClip->framesPerSecond,
+        0.0f,
         0.0f,
     };
 
@@ -2966,6 +3419,50 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->layout.motionFeatureCount,
         motionOffset,
     };
+    staged->header.interactionOffsets0 = {
+        appendArena(
+            std::span<const float>{staged->interactionRootTargets}
+        ),
+        appendArena(
+            std::span<const float>{staged->interactionJointTargets}
+        ),
+        appendArena(
+            std::span<const MRTaskInteractionContactGPU>{
+                staged->interactionContacts
+            }
+        ),
+        appendArena(
+            std::span<const MRTaskInteractionSampleGPU>{
+                staged->interactionSamples
+            }
+        ),
+    };
+    staged->header.interactionOffsets1 = {
+        appendArena(
+            std::span<const float>{
+                staged->interactionContactTargets
+            }
+        ),
+        appendArena(
+            std::span<const float>{
+                staged->interactionContactTolerances
+            }
+        ),
+        0u,
+        0u,
+    };
+    if (staged->header.interactionOffsets0.x == MR_INVALID_INDEX ||
+        staged->header.interactionOffsets0.y == MR_INVALID_INDEX ||
+        staged->header.interactionOffsets0.z == MR_INVALID_INDEX ||
+        staged->header.interactionOffsets0.w == MR_INVALID_INDEX ||
+        staged->header.interactionOffsets1.x == MR_INVALID_INDEX ||
+        staged->header.interactionOffsets1.y == MR_INVALID_INDEX) {
+        return reject(
+            TaskCompileStatus::arithmeticOverflow,
+            "interaction",
+            "compiled interaction reference exceeds the arena ABI"
+        );
+    }
 
     Hash hash;
     hash.string(pack.id);
@@ -2986,6 +3483,24 @@ TaskCompileDiagnostics compileTaskProgram(
         hash.string(group.id);
         for (const std::string& joint : group.joints) {
             hash.string(joint);
+        }
+    }
+    if (interactionClip != nullptr) {
+        hash.string(interactions.id);
+        hash.string(interactions.sourceRepository);
+        hash.string(interactions.sourceRevision);
+        hash.string(interactions.license);
+        hash.string(interactions.coordinateFrame);
+        hash.string(interactionClip->id);
+        hash.string(interactionClip->desiredOutcome);
+        for (const std::string& joint : interactions.jointNames) {
+            hash.string(joint);
+        }
+        for (const InteractionContactTrack& track :
+             interactions.contactTracks) {
+            hash.string(track.id);
+            hash.string(track.taskContactGroup);
+            hash.string(track.counterpart);
         }
     }
     staged->fingerprint = hash.finish();

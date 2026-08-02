@@ -355,9 +355,65 @@ inline float rootHeight(
     return rootWorldPosition(program, q).z;
 }
 
+inline uint interactionFrame(
+    device const MRTaskProgramHeaderGPU& program,
+    thread const MRTaskStateGPU& state,
+    const float controlStepSeconds
+) {
+    if (program.interaction.x == 0u) {
+        return 0u;
+    }
+    const uint unbounded = uint(floor(
+        float(state.episode.x) * controlStepSeconds *
+        program.interactionTiming.x
+    ));
+    return (program.interaction.w & MR_TASK_INTERACTION_LOOP) != 0u
+        ? unbounded % program.interaction.x
+        : min(unbounded, program.interaction.x - 1u);
+}
+
+inline float supportPatchFeature(
+    device const MRTaskProgramHeaderGPU& program,
+    const MRTaskContactGroupGPU group,
+    device const float* compactContact,
+    const uint component
+) {
+    if (component < 6u) {
+        return compactContact[group.reference.y + component];
+    }
+    if (component < 8u) {
+        return compactContact[
+            group.members.w + 4u + (component - 6u)
+        ];
+    }
+    const float2 extent =
+        group.supportPatchBounds.zw -
+        group.supportPatchBounds.xy;
+    const float cellArea =
+        extent.x * extent.y /
+        max(float(group.supportPatch.z), 1.0f);
+    if (component == 8u) {
+        uint occupied = 0u;
+        for (uint cell = 0u;
+             cell < group.supportPatch.z;
+             ++cell) {
+            occupied += compactContact[
+                group.supportPatch.w + cell
+            ] > program.dynamics.y ? 1u : 0u;
+        }
+        return float(occupied) * cellArea;
+    }
+    const uint cell = component - 9u;
+    return compactContact[
+        group.supportPatch.w + cell
+    ] / max(cellArea, 1.0e-9f);
+}
+
 inline float cleanObservation(
     device const MRTaskProgramHeaderGPU& program,
     const MRTaskObservationOperatorGPU operation,
+    device const uchar* arena,
+    const float controlStepSeconds,
     device const MRTaskActionBindingGPU* actions,
     device const MRTaskContactGroupGPU* contactGroups,
     device const float4* terrainSamples,
@@ -415,6 +471,114 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_PREVIOUS_ACTION:
         value = previousAction[operation.source.y];
         break;
+    case MR_TASK_OBSERVE_INTERACTION_JOINT_POSITION_ERROR: {
+        const uint frame = interactionFrame(
+            program,
+            state,
+            controlStepSeconds
+        );
+        device const float* targets = taskTable<float>(
+            arena,
+            program.interactionOffsets0.y
+        );
+        const MRTaskActionBindingGPU binding =
+            actions[operation.source.y];
+        value = q[binding.indices.z] - targets[
+            frame * program.interaction.y + operation.source.y
+        ];
+        break;
+    }
+    case MR_TASK_OBSERVE_INTERACTION_CONTACT_MODE: {
+        const uint frame = interactionFrame(
+            program,
+            state,
+            controlStepSeconds
+        );
+        device const MRTaskInteractionSampleGPU* samples =
+            taskTable<MRTaskInteractionSampleGPU>(
+                arena,
+                program.interactionOffsets0.w
+            );
+        const MRTaskInteractionSampleGPU sample = samples[
+            frame * program.interaction.z + operation.source.y
+        ];
+        if (operation.source.z == 0u) {
+            value = sample.metadata.x ==
+                        MR_TASK_INTERACTION_CONTACT_STICK ||
+                    sample.metadata.x ==
+                        MR_TASK_INTERACTION_CONTACT_ROLL ||
+                    sample.metadata.x ==
+                        MR_TASK_INTERACTION_CONTACT_SLIDE
+                ? 1.0f
+                : 0.0f;
+        } else {
+            value = sample.confidence.x;
+        }
+        break;
+    }
+    case MR_TASK_OBSERVE_INTERACTION_CONTACT_TARGET: {
+        const uint frame = interactionFrame(
+            program,
+            state,
+            controlStepSeconds
+        );
+        const uint sampleIndex =
+            frame * program.interaction.z + operation.source.y;
+        device const MRTaskInteractionSampleGPU* samples =
+            taskTable<MRTaskInteractionSampleGPU>(
+                arena,
+                program.interactionOffsets0.w
+            );
+        const uint feature = operation.source.z;
+        if ((samples[sampleIndex].metadata.y &
+             (1u << feature)) != 0u) {
+            device const float* targets = taskTable<float>(
+                arena,
+                program.interactionOffsets1.x
+            );
+            value = targets[
+                sampleIndex *
+                    MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT +
+                feature
+            ];
+        }
+        break;
+    }
+    case MR_TASK_OBSERVE_INTERACTION_CONTACT_VALIDITY: {
+        const uint frame = interactionFrame(
+            program,
+            state,
+            controlStepSeconds
+        );
+        const uint sampleIndex =
+            frame * program.interaction.z + operation.source.y;
+        device const MRTaskInteractionSampleGPU* samples =
+            taskTable<MRTaskInteractionSampleGPU>(
+                arena,
+                program.interactionOffsets0.w
+            );
+        value = (samples[sampleIndex].metadata.y &
+                 (1u << operation.source.z)) != 0u
+            ? 1.0f
+            : 0.0f;
+        break;
+    }
+    case MR_TASK_OBSERVE_INTERACTION_PHASE: {
+        const uint frame = interactionFrame(
+            program,
+            state,
+            controlStepSeconds
+        );
+        const float progress = program.interaction.x > 1u
+            ? float(frame) / float(program.interaction.x - 1u)
+            : 0.0f;
+        value = operation.source.z == 0u
+            ? sin(kTwoPi * progress)
+            : operation.source.z == 1u
+            ? cos(kTwoPi * progress)
+            : progress;
+        break;
+    }
     case MR_TASK_OBSERVE_ROOT_LINEAR_VELOCITY_LOCAL:
         value = rotateInverse(
             orientation,
@@ -489,39 +653,12 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_SUPPORT_PATCH: {
         const MRTaskContactGroupGPU group =
             contactGroups[operation.source.y];
-        const uint component = operation.source.z;
-        if (component < 6u) {
-            value = compactContact[
-                group.reference.y + component
-            ];
-        } else if (component < 8u) {
-            value = compactContact[
-                group.members.w + 4u + (component - 6u)
-            ];
-        } else {
-            const float2 extent =
-                group.supportPatchBounds.zw -
-                group.supportPatchBounds.xy;
-            const float cellArea =
-                extent.x * extent.y /
-                max(float(group.supportPatch.z), 1.0f);
-            if (component == 8u) {
-                uint occupied = 0u;
-                for (uint cell = 0u;
-                     cell < group.supportPatch.z;
-                     ++cell) {
-                    occupied += compactContact[
-                        group.supportPatch.w + cell
-                    ] > program.dynamics.y ? 1u : 0u;
-                }
-                value = float(occupied) * cellArea;
-            } else {
-                const uint cell = component - 9u;
-                value = compactContact[
-                    group.supportPatch.w + cell
-                ] / max(cellArea, 1.0e-9f);
-            }
-        }
+        value = supportPatchFeature(
+            program,
+            group,
+            compactContact,
+            operation.source.z
+        );
         break;
     }
     case MR_TASK_OBSERVE_SUPPORT_SENSE: {
@@ -638,6 +775,7 @@ inline float cleanObservation(
 inline void writeFrame(
     device const MRTaskDispatchGPU& dispatch,
     device const MRTaskProgramHeaderGPU& program,
+    device const uchar* arena,
     device const MRTaskObservationOperatorGPU* actorOperators,
     device const MRTaskActionBindingGPU* actions,
     device const MRTaskContactGroupGPU* contactGroups,
@@ -679,6 +817,8 @@ inline void writeFrame(
         float value = cleanObservation(
             program,
             operation,
+            arena,
+            dispatch.timing.x,
             actions,
             contactGroups,
             terrainSamples,
@@ -725,6 +865,8 @@ inline void writeFrame(
         const float value = cleanObservation(
             program,
             operation,
+            arena,
+            dispatch.timing.x,
             actions,
             contactGroups,
             terrainSamples,
@@ -769,6 +911,8 @@ inline void writeFrame(
 
 inline void writeCriticFrame(
     device const MRTaskProgramHeaderGPU& program,
+    device const uchar* arena,
+    const float controlStepSeconds,
     device const MRTaskObservationOperatorGPU* criticOperators,
     device const MRTaskActionBindingGPU* actions,
     device const MRTaskContactGroupGPU* contactGroups,
@@ -795,6 +939,8 @@ inline void writeCriticFrame(
         output[index] = cleanObservation(
             program,
             operation,
+            arena,
+            controlStepSeconds,
             actions,
             contactGroups,
             terrainSamples,
@@ -1213,6 +1359,11 @@ kernel void mr_locomotion_task_joint_cbf_teacher(
         taskTable<uint>(arena, program.offsets1.x);
     device const float* memberRadii =
         taskTable<float>(arena, program.offsets3.w);
+    device const float* interactionJointTargets =
+        taskTable<float>(
+            arena,
+            program.interactionOffsets0.y
+        );
     const MRTaskImpactEventGPU event =
         impactEvents[state.threatMetadata.w];
     const uint bodyBase =
@@ -1269,14 +1420,26 @@ kernel void mr_locomotion_task_joint_cbf_teacher(
         ) * velocity;
     }
     float gradientNormSquared = 0.0f;
+    const uint referenceFrame = interactionFrame(
+        program,
+        state,
+        dispatch.timing.x
+    );
     for (uint action = 0u; action < program.counts0.x; ++action) {
         const MRTaskActionBindingGPU binding = actions[action];
         const uint dof = binding.indices.w - program.root.w;
         if (dof >= dispatch.counts.w) {
             continue;
         }
+        const float reference =
+            (program.schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u
+            ? interactionJointTargets[
+                  referenceFrame * program.interaction.y + action
+              ]
+            : defaultQ[binding.indices.z];
         const float target = clamp(
-            defaultQ[binding.indices.z] +
+            reference +
                 binding.parameters.x * clamp(
                     actionStream[actionBase + action],
                     -1.0f,
@@ -1459,6 +1622,11 @@ kernel void mr_locomotion_task_observe(
             arena,
             program.offsets0.x
         );
+    device const float* interactionJointTargets =
+        taskTable<float>(
+            arena,
+            program.interactionOffsets0.y
+        );
     device const MRTaskObservationOperatorGPU*
         actorOperators =
             taskTable<MRTaskObservationOperatorGPU>(
@@ -1500,7 +1668,6 @@ kernel void mr_locomotion_task_observe(
             arena,
             program.offsets3.z
         );
-
     const uint maskIndex =
         pass.controlStep * dispatch.counts.x + environment;
     const uint qBase = environment * dispatch.counts.z;
@@ -1554,6 +1721,17 @@ kernel void mr_locomotion_task_observe(
              ++coordinate) {
             resetQ[qBase + coordinate] =
                 defaultQ[coordinate];
+        }
+        if ((program.schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u) {
+            for (uint action = 0u;
+                 action < program.interaction.y;
+                 ++action) {
+                const MRTaskActionBindingGPU binding =
+                    actions[action];
+                resetQ[qBase + binding.indices.z] =
+                    interactionJointTargets[action];
+            }
         }
         for (uint coordinate = 0u;
              coordinate < dispatch.counts.w;
@@ -1781,9 +1959,14 @@ kernel void mr_locomotion_task_observe(
                      ++action) {
                     const MRTaskActionBindingGPU binding =
                         actions[action];
+                    const float reference =
+                        (program.schedule.w &
+                         MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u
+                        ? interactionJointTargets[action]
+                        : defaultQ[binding.indices.z];
                     resetQ[qBase + binding.indices.z] =
                         clamp(
-                            defaultQ[binding.indices.z] +
+                            reference +
                                 randomRange(
                                     dispatch,
                                     environment,
@@ -2060,6 +2243,7 @@ kernel void mr_locomotion_task_observe(
         writeFrame(
             dispatch,
             program,
+            arena,
             actorOperators,
             actions,
             contactGroups,
@@ -2105,6 +2289,8 @@ kernel void mr_locomotion_task_observe(
             criticHistory + criticHistoryBase;
         writeCriticFrame(
             program,
+            arena,
+            dispatch.timing.x,
             criticOperators,
             actions,
             contactGroups,
@@ -2412,6 +2598,11 @@ kernel void mr_locomotion_task_apply_actions(
             arena,
             program.offsets0.x
         );
+    device const float* interactionJointTargets =
+        taskTable<float>(
+            arena,
+            program.interactionOffsets0.y
+        );
     const uint actionBase =
         pass.controlStep * dispatch.strides.x +
         environment * program.counts0.x;
@@ -2420,6 +2611,11 @@ kernel void mr_locomotion_task_apply_actions(
         program.layout.w *
         program.counts0.x;
     const MRTaskStateGPU state = taskStates[environment];
+    const uint referenceFrame = interactionFrame(
+        program,
+        state,
+        dispatch.timing.x
+    );
 
     for (uint coordinate = 0u;
          coordinate < dispatch.counts.w;
@@ -2501,6 +2697,13 @@ kernel void mr_locomotion_task_apply_actions(
             filterSlot * program.counts0.x +
             action
         ];
+        const float reference =
+            (program.schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u
+            ? interactionJointTargets[
+                  referenceFrame * program.interaction.y + action
+              ]
+            : defaultQ[binding.indices.z];
         effortTrajectory[
             pass.controlStep *
                 worldDispatch.effortStepStride +
@@ -2508,7 +2711,7 @@ kernel void mr_locomotion_task_apply_actions(
                 worldDispatch.effortEnvironmentStride +
             binding.indices.w
         ] = clamp(
-            defaultQ[binding.indices.z] +
+            reference +
                 binding.parameters.x * filtered,
             binding.parameters.y,
             binding.parameters.z
@@ -2661,6 +2864,33 @@ kernel void mr_locomotion_task_complete(
             arena,
             program.offsets3.z
         );
+    device const float* interactionJointTargets =
+        taskTable<float>(
+            arena,
+            program.interactionOffsets0.y
+        );
+    device const MRTaskInteractionContactGPU*
+        interactionContacts =
+            taskTable<MRTaskInteractionContactGPU>(
+                arena,
+                program.interactionOffsets0.z
+            );
+    device const MRTaskInteractionSampleGPU*
+        interactionSamples =
+            taskTable<MRTaskInteractionSampleGPU>(
+                arena,
+                program.interactionOffsets0.w
+            );
+    device const float* interactionContactTargets =
+        taskTable<float>(
+            arena,
+            program.interactionOffsets1.x
+        );
+    device const float* interactionContactTolerances =
+        taskTable<float>(
+            arena,
+            program.interactionOffsets1.y
+        );
 
     const uint qBase = environment * dispatch.counts.z;
     const uint vBase = environment * dispatch.counts.w;
@@ -2691,6 +2921,11 @@ kernel void mr_locomotion_task_complete(
     const uint contactBase =
         environment * contactDispatch.constraintStride;
     MRTaskStateGPU state = taskStates[environment];
+    const uint referenceFrame = interactionFrame(
+        program,
+        state,
+        dispatch.timing.x
+    );
     const uint curriculum = min(
         curriculumState[0].commandLevel,
         program.schedule.z - 1u
@@ -3290,12 +3525,16 @@ kernel void mr_locomotion_task_complete(
     float reward = 0.0f;
     float4 rewardBreakdown0 = float4(0.0f);
     float4 rewardBreakdown1 = float4(0.0f);
+    float interactionTrackingSum = 0.0f;
+    float interactionTrackingWeight = 0.0f;
     for (uint rewardIndex = 0u;
          rewardIndex < program.counts1.w;
          ++rewardIndex) {
         const MRTaskRewardOperatorGPU operation =
             rewards[rewardIndex];
         float value = 0.0f;
+        float interactionMetric = 0.0f;
+        float interactionMetricWeight = 0.0f;
         switch (operation.source.x) {
         case MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING:
             value = exp(
@@ -3849,12 +4088,145 @@ kernel void mr_locomotion_task_complete(
                 }
             }
             break;
+        case MR_TASK_REWARD_INTERACTION_JOINT_TRACKING: {
+            float squaredError = 0.0f;
+            float jointCount = 0.0f;
+            if (operation.source.y == MR_INVALID_INDEX) {
+                for (uint action = 0u;
+                     action < program.interaction.y;
+                     ++action) {
+                    const MRTaskActionBindingGPU binding =
+                        actions[action];
+                    const float delta =
+                        qState[qBase + binding.indices.z] -
+                        interactionJointTargets[
+                            referenceFrame * program.interaction.y +
+                            action
+                        ];
+                    squaredError += delta * delta;
+                    jointCount += 1.0f;
+                }
+            } else {
+                const MRTaskIndexGroupGPU group =
+                    jointGroups[operation.source.y];
+                for (uint member = 0u;
+                     member < group.members.y;
+                     ++member) {
+                    const uint action = jointMembers[
+                        group.members.x + member
+                    ];
+                    const MRTaskActionBindingGPU binding =
+                        actions[action];
+                    const float delta =
+                        qState[qBase + binding.indices.z] -
+                        interactionJointTargets[
+                            referenceFrame * program.interaction.y +
+                            action
+                        ];
+                    squaredError += delta * delta;
+                    jointCount += 1.0f;
+                }
+            }
+            value = exp(
+                -(squaredError / max(jointCount, 1.0f)) /
+                max(operation.parameters.y, 1.0e-8f)
+            );
+            interactionMetric = value;
+            interactionMetricWeight = 1.0f;
+            break;
+        }
+        case MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING: {
+            const uint trackIndex = operation.source.z;
+            const MRTaskInteractionContactGPU track =
+                interactionContacts[trackIndex];
+            if (track.binding.x != operation.source.y) {
+                value = 0.0f;
+                break;
+            }
+            const uint sampleIndex =
+                referenceFrame * program.interaction.z + trackIndex;
+            const MRTaskInteractionSampleGPU sample =
+                interactionSamples[sampleIndex];
+            const MRTaskContactGroupGPU group =
+                contactGroups[operation.source.y];
+            const bool expectedContact =
+                sample.metadata.x ==
+                    MR_TASK_INTERACTION_CONTACT_STICK ||
+                sample.metadata.x ==
+                    MR_TASK_INTERACTION_CONTACT_ROLL ||
+                sample.metadata.x ==
+                    MR_TASK_INTERACTION_CONTACT_SLIDE;
+            const bool actualContact = compactContact[
+                compactBase + group.members.w
+            ] > program.dynamics.y;
+            const float modeScore = float(
+                expectedContact == actualContact
+            );
+            float normalizedSquaredError = 0.0f;
+            float validFeatureCount = 0.0f;
+            device const float* compact =
+                compactContact + compactBase;
+            for (uint feature = 0u;
+                 feature <
+                    MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT;
+                 ++feature) {
+                if ((sample.metadata.y & (1u << feature)) == 0u) {
+                    continue;
+                }
+                const uint targetIndex =
+                    sampleIndex *
+                        MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT +
+                    feature;
+                const float tolerance = max(
+                    interactionContactTolerances[targetIndex],
+                    1.0e-8f
+                );
+                const float delta =
+                    (
+                        supportPatchFeature(
+                            program,
+                            group,
+                            compact,
+                            feature
+                        ) -
+                        interactionContactTargets[targetIndex]
+                    ) /
+                    tolerance;
+                normalizedSquaredError += min(
+                    delta * delta,
+                    1.0e6f
+                );
+                validFeatureCount += 1.0f;
+            }
+            const float fieldScore = validFeatureCount > 0.0f
+                ? exp(
+                      -(normalizedSquaredError / validFeatureCount) /
+                      max(operation.parameters.z, 1.0e-8f)
+                  )
+                : modeScore;
+            const float confidence = clamp(
+                sample.confidence.x,
+                0.0f,
+                1.0f
+            );
+            const float contactScore = mix(
+                fieldScore,
+                modeScore,
+                clamp(operation.parameters.y, 0.0f, 1.0f)
+            );
+            value = confidence * contactScore;
+            interactionMetric = value;
+            interactionMetricWeight = confidence;
+            break;
+        }
         default:
             value = 0.0f;
             break;
         }
         const float contribution =
             operation.parameters.x * value;
+        interactionTrackingSum += interactionMetric;
+        interactionTrackingWeight += interactionMetricWeight;
         reward += contribution;
         switch (operation.source.x) {
         case MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING:
@@ -3863,6 +4235,7 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_GAIT_CONTACT_MATCH:
         case MR_TASK_REWARD_SWING_CLEARANCE:
         case MR_TASK_REWARD_FOOT_CLEARANCE:
+        case MR_TASK_REWARD_INTERACTION_JOINT_TRACKING:
             rewardBreakdown0.x += contribution;
             break;
         case MR_TASK_REWARD_ROOT_VERTICAL_VELOCITY_SQUARED:
@@ -3910,6 +4283,7 @@ kernel void mr_locomotion_task_complete(
             break;
         case MR_TASK_REWARD_SUPPORT_SLIP:
         case MR_TASK_REWARD_FORBIDDEN_CONTACT:
+        case MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING:
             rewardBreakdown1.w += contribution;
             break;
         default:
@@ -4018,13 +4392,22 @@ kernel void mr_locomotion_task_complete(
 
     const float episodeReturn =
         state.airReturnTracking.z + reward;
-    // Unitree's linear-command curriculum is gated by the linear tracking
-    // reward alone. Keep the combined linear/yaw score below for rollout
-    // reporting, but do not let a still-learning yaw controller prevent an
-    // otherwise successful episode from expanding the x/y command range.
+    // The base locomotion curriculum remains gated by linear tracking alone.
+    // Interaction tasks instead report and accumulate the confidence-
+    // normalized mean of their joint/contact reference scores.
+    const float interactionTrackingScore =
+        interactionTrackingWeight > 0.0f
+        ? interactionTrackingSum / interactionTrackingWeight
+        : 0.0f;
+    const bool interactionReference =
+        (program.schedule.w &
+         MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u;
+    const float curriculumTracking = interactionReference
+        ? interactionTrackingScore
+        : tracking;
     const float episodeTracking =
-        state.airReturnTracking.w + tracking;
-    const float linearEpisodeTrackingScore =
+        state.airReturnTracking.w + curriculumTracking;
+    const float episodeMeanTrackingScore =
         episodeTracking /
         max(float(episodeSteps), 1.0f);
     const bool recoveryCurriculum =
@@ -4037,9 +4420,10 @@ kernel void mr_locomotion_task_complete(
             float(recoveryEventCount);
     const float episodeTrackingScore = recoveryCurriculum
         ? episodeRecoveryScore
-        : linearEpisodeTrackingScore;
-    const float trackingScore =
-        0.5f * (tracking + yawTracking);
+        : episodeMeanTrackingScore;
+    const float trackingScore = interactionReference
+        ? interactionTrackingScore
+        : 0.5f * (tracking + yawTracking);
     const bool successful =
         timeout &&
         !physicsError &&
@@ -4197,6 +4581,7 @@ kernel void mr_locomotion_task_complete(
         writeFrame(
             dispatch,
             program,
+            arena,
             actorOperators,
             actions,
             contactGroups,
@@ -4263,6 +4648,8 @@ kernel void mr_locomotion_task_complete(
                 program.counts0.z;
         writeCriticFrame(
             program,
+            arena,
+            dispatch.timing.x,
             criticOperators,
             actions,
             contactGroups,

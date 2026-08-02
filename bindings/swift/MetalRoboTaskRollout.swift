@@ -801,6 +801,44 @@ public final class MetalRoboTaskRolloutContext {
         handle = created
     }
 
+    /// Loads one generated contact/motion reference and binds it to the
+    /// bundled G1 through the generic native task executor. The selected clip
+    /// supplies intent; solved contact remains the achieved physical signal.
+    public init(
+        unitreeG1Interaction interactionPackURL: URL,
+        clipID: String,
+        configuration: MetalRoboTaskRolloutConfiguration,
+        metallibPath: String? = nil
+    ) throws {
+        guard !clipID.isEmpty else {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "InteractionPack clip identity cannot be empty."
+            )
+        }
+        let created: OpaquePointer? =
+            Self.withNativeConfiguration(configuration) { config in
+                interactionPackURL.path.withCString { interactionPack in
+                    clipID.withCString { clip in
+                        withOptionalCString(metallibPath) { metallib in
+                            mr_create_unitree_g1_interaction_rollout(
+                                config,
+                                configuration.surface.rawValue,
+                                interactionPack,
+                                clip,
+                                metallib
+                            )
+                        }
+                    }
+                }
+            }
+        guard let created else {
+            throw MetalRoboTaskRolloutError.native(
+                Self.lastError()
+            )
+        }
+        handle = created
+    }
+
     /// Imports mechanics from URDF/SRDF and task semantics from a persisted
     /// TaskPack. No robot-specific runtime or Metal shader is involved.
     public init(

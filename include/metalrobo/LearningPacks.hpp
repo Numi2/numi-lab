@@ -1,5 +1,6 @@
 #pragma once
 
+#include "metalrobo/InteractionPack.hpp"
 #include "metalrobo/PolicyProgram.hpp"
 #include "metalrobo/TaskProgram.hpp"
 
@@ -18,6 +19,7 @@ inline constexpr std::uint32_t kPolicyPackFormatVersion = 3u;
 inline constexpr std::uint32_t
     kPolicyRolloutPackFormatVersion = 4u;
 inline constexpr std::uint32_t kMotionPackFormatVersion = 1u;
+inline constexpr std::uint32_t kInteractionPackFormatVersion = 1u;
 
 struct MotionClip {
     std::string id;
@@ -156,6 +158,16 @@ struct LearningPackResult {
 [[nodiscard]] LearningPackResult readMotionPack(
     const std::filesystem::path& path,
     MotionPack& output
+);
+
+[[nodiscard]] LearningPackResult writeInteractionPack(
+    const InteractionPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readInteractionPack(
+    const std::filesystem::path& path,
+    InteractionPack& output
 );
 
 [[nodiscard]] const char* learningPackStatusName(

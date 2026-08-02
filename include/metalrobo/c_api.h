@@ -521,6 +521,18 @@ MR_API MRTaskRolloutHandle* mr_create_unitree_g1_task_rollout(
     uint32_t task,
     const char* metallib_path
 );
+// Loads a generated InteractionPack, binds the selected clip to the bundled
+// G1 mechanics, and authors a contact-primary tracking TaskPack. Joint/contact
+// references become the position-controller baseline plus native observation
+// and reward operators. Policy actions are bounded residuals; NumiSolver
+// remains the authority for achieved contact and safety termination.
+MR_API MRTaskRolloutHandle* mr_create_unitree_g1_interaction_rollout(
+    const MRTaskRolloutConfigC* config,
+    uint32_t surface,
+    const char* interaction_pack_path,
+    const char* interaction_clip_id,
+    const char* metallib_path
+);
 // Cooks a floating-base URDF/SRDF, loads its authored TaskPack, resolves every
 // semantic binding, and creates the same generic native executor used by G1.
 // srdf_path and metallib_path may be null; all other pointers are required.
