@@ -13559,6 +13559,28 @@ MetalWorldDiagnostics validateAndPublish(
             contactDetail =
                 " contact_status=" +
                 std::to_string(contact.code) +
+                " required_pairs=" +
+                std::to_string(contact.requiredPairs) +
+                " pair_capacity=" +
+                std::to_string(contactDispatch.pairCapacity) +
+                " required_raw_contacts=" +
+                std::to_string(contact.requiredRawContacts) +
+                " raw_contact_capacity=" +
+                std::to_string(
+                    contactDispatch.rawContactCapacity
+                ) +
+                " required_manifolds=" +
+                std::to_string(contact.requiredManifolds) +
+                " manifold_capacity=" +
+                std::to_string(
+                    contactDispatch.manifoldCapacity
+                ) +
+                " required_constraints=" +
+                std::to_string(contact.requiredConstraints) +
+                " constraint_capacity=" +
+                std::to_string(
+                    contactDispatch.constraintCapacity
+                ) +
                 " failing_constraint=" +
                 std::to_string(
                     contact.firstFailingConstraint
