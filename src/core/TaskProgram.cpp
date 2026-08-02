@@ -808,9 +808,15 @@ TaskCompileDiagnostics compileTaskProgram(
             "visual depth requires dimensions, one to four unique sorted offsets beginning at zero, and a finite positive range"
         );
     }
-    const std::uint64_t visualComponentCount =
+    const std::uint64_t visualPixelComponentCount =
         static_cast<std::uint64_t>(pack.visual.width) *
         pack.visual.height * pack.visual.frameOffsets.size();
+    const std::uint64_t visualFeatureComponentCount =
+        pack.visual.includeDerivedFeatures
+        ? MR_TASK_MASKED_DEPTH_FEATURE_COUNT
+        : 0u;
+    const std::uint64_t visualComponentCount =
+        visualPixelComponentCount + visualFeatureComponentCount;
     if (visualComponentCount >
         std::numeric_limits<std::uint32_t>::max()) {
         return reject(
@@ -3119,6 +3125,10 @@ TaskCompileDiagnostics compileTaskProgram(
         }
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM;
+    }
+    if (pack.visual.includeDerivedFeatures) {
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_MASKED_DEPTH_FEATURES;
     }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=

@@ -31,7 +31,7 @@ _LEARNING_PACK_HEADER = struct.Struct("<8sIIQQ")
 _POLICY_KIND = 2
 _POLICY_FORMAT_VERSION = 3
 _POLICY_ROLLOUT_KIND = 3
-_POLICY_ROLLOUT_FORMAT_VERSION = 4
+_POLICY_ROLLOUT_FORMAT_VERSION = 5
 _MOTION_KIND = 4
 _MOTION_FORMAT_VERSION = 1
 _TRANSITION_DTYPE = np.dtype(
@@ -52,6 +52,14 @@ _TRANSITION_DTYPE = np.dtype(
         ("posture_reward", "<f4"),
         ("energy_reward", "<f4"),
         ("contact_reward", "<f4"),
+        ("dodge_link_clearance_reward", "<f4"),
+        ("dodge_evasion_reward", "<f4"),
+        ("dodge_miss_reward", "<f4"),
+        ("dodge_safe_stillness_reward", "<f4"),
+        ("dodge_safe_action_rate_reward", "<f4"),
+        ("dodge_cbf_correction_reward", "<f4"),
+        ("dodge_cbf_buffer_reward", "<f4"),
+        ("dodge_predicted_clearance_reward", "<f4"),
         ("policy_revision", "<u8"),
         ("timeout_bootstrap_value", "<f4"),
         ("episode_tracking_score", "<f4"),
@@ -717,6 +725,14 @@ def read_policy_rollout_pack(
         transitions["joint_velocity_reward"],
         transitions["joint_acceleration_reward"],
         transitions["control_reward"],
+        transitions["dodge_link_clearance_reward"],
+        transitions["dodge_evasion_reward"],
+        transitions["dodge_miss_reward"],
+        transitions["dodge_safe_stillness_reward"],
+        transitions["dodge_safe_action_rate_reward"],
+        transitions["dodge_cbf_correction_reward"],
+        transitions["dodge_cbf_buffer_reward"],
+        transitions["dodge_predicted_clearance_reward"],
         transitions["posture_reward"],
         transitions["energy_reward"],
         transitions["contact_reward"],
@@ -1681,6 +1697,9 @@ class MLXPolicyLearner:
         path: str | Path,
         configuration: MLXPPOConfiguration = MLXPPOConfiguration(),
         *,
+        actor_observation_count: int | None = None,
+        actor_observation_extension_mean: float = 0.0,
+        actor_observation_extension_offset: int | None = None,
         library_path: str | Path | None = None,
     ) -> "MLXPolicyLearner":
         """Restore trainable PPO state from the canonical native artifact."""
@@ -1732,8 +1751,33 @@ class MLXPolicyLearner:
             ),
             observation_clip=pack.observation_clip,
         )
+        target_actor_observations = (
+            pack.actor_observation_count
+            if actor_observation_count is None
+            else actor_observation_count
+        )
+        if target_actor_observations < pack.actor_observation_count:
+            raise ValueError(
+                "PPO resume cannot discard PolicyPack observations"
+            )
+        if not math.isfinite(actor_observation_extension_mean):
+            raise ValueError(
+                "actor observation extension mean must be finite"
+            )
+        extension_count = (
+            target_actor_observations - pack.actor_observation_count
+        )
+        extension_offset = (
+            pack.actor_observation_count
+            if actor_observation_extension_offset is None
+            else actor_observation_extension_offset
+        )
+        if not 0 <= extension_offset <= pack.actor_observation_count:
+            raise ValueError(
+                "actor observation extension offset is outside the source contract"
+            )
         learner = cls(
-            pack.actor_observation_count,
+            target_actor_observations,
             pack.critic_observation_count,
             pack.action_count,
             restored_configuration,
@@ -1742,6 +1786,8 @@ class MLXPolicyLearner:
         def restore_layers(
             network: nn.Sequential,
             source: tuple[NativePolicyDenseLayer, ...],
+            *,
+            extend_first_input: bool = False,
         ) -> None:
             destination = [
                 layer
@@ -1752,27 +1798,68 @@ class MLXPolicyLearner:
                 raise RuntimeError(
                     "MLX network construction disagrees with PolicyPack"
                 )
-            for target, artifact in zip(destination, source, strict=True):
-                target.weight = mx.array(
+            for layer_index, (target, artifact) in enumerate(
+                zip(destination, source, strict=True)
+            ):
+                weights = np.asarray(
                     artifact.weights,
-                    dtype=mx.float32,
+                    dtype=np.float32,
                 )
+                if (extend_first_input and layer_index == 0 and
+                        extension_count > 0):
+                    weights = np.concatenate(
+                        (
+                            weights[:, :extension_offset],
+                            np.zeros(
+                                (weights.shape[0], extension_count),
+                                dtype=np.float32,
+                            ),
+                            weights[:, extension_offset:],
+                        ),
+                        axis=1,
+                    )
+                target.weight = mx.array(weights, dtype=mx.float32)
                 target.bias = mx.array(
                     artifact.bias,
                     dtype=mx.float32,
                 )
 
-        restore_layers(learner.model.actor, pack.layers)
+        restore_layers(
+            learner.model.actor,
+            pack.layers,
+            extend_first_input=True,
+        )
         restore_layers(learner.model.critic, pack.critic_layers)
         learner.model.log_standard_deviation = mx.array(
             pack.action_log_standard_deviation,
             dtype=mx.float32,
         )
+        actor_mean = np.concatenate(
+            (
+                pack.effective_observation_mean[:extension_offset],
+                np.full(
+                    extension_count,
+                    actor_observation_extension_mean,
+                    dtype=np.float32,
+                ),
+                pack.effective_observation_mean[extension_offset:],
+            ),
+        )
+        actor_inverse_standard_deviation = np.concatenate(
+            (
+                pack.effective_observation_inverse_standard_deviation[
+                    :extension_offset
+                ],
+                np.ones(extension_count, dtype=np.float32),
+                pack.effective_observation_inverse_standard_deviation[
+                    extension_offset:
+                ],
+            ),
+        )
         learner.set_observation_normalization(
-            actor_mean=pack.effective_observation_mean,
+            actor_mean=actor_mean,
             actor_inverse_standard_deviation=(
-                pack
-                    .effective_observation_inverse_standard_deviation
+                actor_inverse_standard_deviation
             ),
             critic_mean=pack.effective_critic_observation_mean,
             critic_inverse_standard_deviation=(
@@ -1812,18 +1899,33 @@ class MLXPolicyLearner:
         actor_observation_extension_offset: int | None = None,
         library_path: str | Path | None = None,
     ) -> "MLXPolicyLearner":
-        """Start PPO from a deterministic deployment actor.
+        """Start PPO from an existing actor contract.
 
-        Deployment PolicyPacks intentionally omit optimizer state and a
-        critic. This path preserves the exact actor and normalization
-        contract, creates a fresh critic for the new task, and initializes a
-        new stochastic exploration head. A wider observation contract is
-        initialized with zero-connected new inputs, preserving the actor's
-        exact output until learning uses them. It is initialization, not
-        resume.
+        A stochastic PolicyPack preserves its critic and exploration head; a
+        deterministic deployment pack creates fresh versions of those two
+        training-only components. A wider observation contract is initialized
+        with zero-connected new inputs, preserving the actor's exact output
+        until learning uses them. Optimizer restoration remains an explicit
+        learner-checkpoint operation.
         """
 
         pack = read_policy_pack(path, library_path=library_path)
+        if (
+            pack.critic_layers and
+            pack.action_log_standard_deviation.size == pack.action_count
+        ):
+            return cls.from_policy_pack(
+                path,
+                configuration,
+                actor_observation_count=actor_observation_count,
+                actor_observation_extension_mean=(
+                    actor_observation_extension_mean
+                ),
+                actor_observation_extension_offset=(
+                    actor_observation_extension_offset
+                ),
+                library_path=library_path,
+            )
         expected_activations = [3] * (len(pack.layers) - 1) + [0]
         if [layer.activation for layer in pack.layers] != expected_activations:
             raise ValueError(

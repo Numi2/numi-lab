@@ -752,6 +752,30 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
                         transition.rewardBreakdown1.w
                     ) &&
                     std::isfinite(
+                        transition.dodgeRewardBreakdown0.x
+                    ) &&
+                    std::isfinite(
+                        transition.dodgeRewardBreakdown0.y
+                    ) &&
+                    std::isfinite(
+                        transition.dodgeRewardBreakdown0.z
+                    ) &&
+                    std::isfinite(
+                        transition.dodgeRewardBreakdown0.w
+                    ) &&
+                    std::isfinite(
+                        transition.dodgeRewardBreakdown1.x
+                    ) &&
+                    std::isfinite(
+                        transition.dodgeRewardBreakdown1.y
+                    ) &&
+                    std::isfinite(
+                        transition.dodgeRewardBreakdown1.z
+                    ) &&
+                    std::isfinite(
+                        transition.dodgeRewardBreakdown1.w
+                    ) &&
+                    std::isfinite(
                         transition.timeoutBootstrapValue
                     ) &&
                     std::isfinite(
@@ -1173,6 +1197,10 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.visual.depthJitterMeters);
     writer.pod(pack.visual.depthNoiseSigmaMeters);
     writer.pod(pack.visual.edgeFlickerProbability);
+    writer.pod(pack.visual.curriculumCorruptionGain);
+    writer.pod(static_cast<std::uint8_t>(
+        pack.visual.includeDerivedFeatures ? 1u : 0u
+    ));
     writer.string(pack.threat.protectedGroup);
     writer.pod(pack.threat.activationSpeed);
     writer.pod(pack.threat.horizonSeconds);
@@ -1204,6 +1232,7 @@ bool deserializeTask(
 ) {
     Reader reader{payload};
     std::uint8_t cleanHistory = 0u;
+    std::uint8_t visualDerivedFeatures = 0u;
     if (!reader.string(pack.id) ||
         !reader.pod(pack.capacities) ||
         !readRichVector(
@@ -1330,6 +1359,8 @@ bool deserializeTask(
         !reader.pod(pack.visual.depthJitterMeters) ||
         !reader.pod(pack.visual.depthNoiseSigmaMeters) ||
         !reader.pod(pack.visual.edgeFlickerProbability) ||
+        !reader.pod(pack.visual.curriculumCorruptionGain) ||
+        !reader.pod(visualDerivedFeatures) ||
         !reader.string(pack.threat.protectedGroup) ||
         !reader.pod(pack.threat.activationSpeed) ||
         !reader.pod(pack.threat.horizonSeconds) ||
@@ -1356,6 +1387,7 @@ bool deserializeTask(
         return false;
     }
     pack.criticIncludesCleanHistory = cleanHistory != 0u;
+    pack.visual.includeDerivedFeatures = visualDerivedFeatures != 0u;
     return true;
 }
 

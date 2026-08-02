@@ -1,0 +1,77 @@
+# Numi CLI
+
+`numi` is a deliberately small doorway from Codex into Numi Lab. Codex owns
+reasoning and adaptation; the CLI discovers and dispatches capabilities from
+the installed runtime and the user's overlays.
+
+## Core
+
+```sh
+./tools/numi doctor
+./tools/numi context
+./tools/numi run train --help
+./tools/numi version
+```
+
+Make the local runtime available throughout Codex with one command:
+
+```sh
+./tools/numi codex install
+```
+
+This registers the repository marketplace, installs and enables the Numi Lab
+plugin, and links the dispatcher into `${XDG_BIN_HOME:-~/.local/bin}` without
+replacing an existing command. Start a new Codex task after installation so its
+Numi Lab skill is loaded.
+
+`numi train` and `numi evaluate` are discovered commands, not core CLI logic.
+The dispatcher searches in this order:
+
+1. `<workspace>/.numi/commands`
+2. `NUMI_COMMAND_PATH`
+3. `${XDG_CONFIG_HOME:-~/.config}/numi/commands`
+4. the Numi Lab source tree
+5. the installed `libexec/numi` directory
+
+The first executable with the requested name wins. A custom capability only
+needs to implement normal command-line behavior and may optionally answer
+`--numi-describe` with a one-line description for `numi context`.
+
+## User-owned overlays
+
+Codex may create commands, instructions, profiles, robots, tasks, evaluators,
+or other transparent files beneath `.numi`. The core does not parse a global
+robotics schema and does not reject configuration owned by a capability.
+
+```text
+.numi/
+├── instructions.md
+├── config.toml
+├── commands/
+├── profiles/
+├── robots/
+├── tasks/
+└── evaluators/
+```
+
+Generated training and evaluation evidence defaults to `.numi/runs`, which is
+ignored by Git. Set `NUMI_RUNS_DIR` or `NUMI_RUN_DIR` to place it elsewhere.
+Each bundled command records its arguments, source revision, stdout, and native
+artifacts without changing the underlying runtime interface.
+
+## Codex bootstrap
+
+The plugin under `plugins/numi-lab` intentionally contains a small skill. It
+teaches Codex to begin with `numi context`; changing robotics knowledge remains
+owned by the live installation, its commands, and its source.
+
+Validate the plugin from the plugin-creator skill root:
+
+```sh
+python3 scripts/validate_plugin.py \
+  /path/to/MetalRobo/plugins/numi-lab
+```
+
+The initial repository plugin is distribution-ready source, not a personal
+marketplace installation. Release packaging can install or register it without
+coupling the runtime to a particular Codex version.

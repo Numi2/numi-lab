@@ -689,6 +689,12 @@ private final class MLXLearnerWorker {
         if options.overrideResumedLearningRate {
             arguments.append("--override-resumed-learning-rate")
         }
+        if let offset = options.actorObservationExtensionOffset {
+            arguments.append(contentsOf: [
+                "--actor-observation-extension-offset",
+                String(offset),
+            ])
+        }
         if let motionPack = options.motionPack {
             arguments.append(contentsOf: [
                 "--motion-pack", motionPack,

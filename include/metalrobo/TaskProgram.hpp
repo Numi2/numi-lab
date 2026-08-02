@@ -276,6 +276,10 @@ struct TaskVisualProgram {
     // preserves the authored observation distribution at every level; one
     // doubles dropout, jitter, noise, and edge flicker at the final level.
     float curriculumCorruptionGain = 0.0f;
+    // Append confidence, bearing, elevation, nearness, and apparent area for
+    // each sparse frame plus four temporal changes. Every value is reduced
+    // from the corrupted masked-depth plane; this never exposes scene truth.
+    bool includeDerivedFeatures = false;
 };
 
 // Privileged training-time threat analysis. The compiler resolves the

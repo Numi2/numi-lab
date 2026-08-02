@@ -561,6 +561,69 @@ kernel void mr_hybrid_masked_depth_history(
             actorObservations[actorOutputOffset + destination] = value;
         }
     }
+    // Reduce the exact corrupted depth history consumed above. These compact
+    // values improve sample efficiency without exposing scene positions,
+    // velocities, or instance transforms to the deployed actor.
+    const uint featureCount = uint(uniforms.curriculum.z + 0.5f);
+    if (lane == 0u &&
+        featureCount == MR_TASK_MASKED_DEPTH_FEATURE_COUNT) {
+        float features[MR_TASK_MASKED_DEPTH_FEATURE_COUNT];
+        for (uint feature = 0u; feature < featureCount; ++feature) {
+            features[feature] = 0.0f;
+        }
+        for (uint frame = 0u; frame < uniforms.history.y; ++frame) {
+            const uint offset = min(sparseOffsets[frame], episodeStep);
+            const uint sourceSlot =
+                (ringSlot + uniforms.history.x -
+                 (offset % uniforms.history.x)) % uniforms.history.x;
+            float visible = 0.0f;
+            float centroidX = 0.0f;
+            float centroidY = 0.0f;
+            float nearness = 0.0f;
+            for (uint pixel = 0u; pixel < pixelCount; ++pixel) {
+                const float value = depthHistory[
+                    historyBase + sourceSlot * pixelCount + pixel
+                ];
+                if (!(value < 1.0f - 1.0e-6f)) {
+                    continue;
+                }
+                const uint x = pixel % uniforms.counts.z;
+                const uint y = pixel / uniforms.counts.z;
+                visible += 1.0f;
+                centroidX +=
+                    (2.0f * (float(x) + 0.5f) /
+                     float(uniforms.counts.z)) - 1.0f;
+                centroidY +=
+                    1.0f - (2.0f * (float(y) + 0.5f) /
+                            float(uniforms.counts.y));
+                nearness += 1.0f - value;
+            }
+            const uint base = frame * 5u;
+            if (visible > 0.0f) {
+                const float inverseVisible = 1.0f / visible;
+                features[base + 0u] = min(visible * 0.25f, 1.0f);
+                features[base + 1u] = centroidX * inverseVisible;
+                features[base + 2u] = centroidY * inverseVisible;
+                features[base + 3u] = nearness * inverseVisible;
+                features[base + 4u] = visible / float(pixelCount);
+            }
+        }
+        if (uniforms.history.y > 1u) {
+            const uint oldest = (uniforms.history.y - 1u) * 5u;
+            features[20u] = features[1u] - features[oldest + 1u];
+            features[21u] = features[2u] - features[oldest + 2u];
+            features[22u] = features[3u] - features[oldest + 3u];
+            features[23u] = features[4u] - features[oldest + 4u];
+        }
+        const uint featureDestination =
+            environment * uniforms.layout.x + uniforms.history.z +
+            uniforms.history.y * pixelCount;
+        for (uint feature = 0u; feature < featureCount; ++feature) {
+            actorObservations[
+                actorOutputOffset + featureDestination + feature
+            ] = features[feature];
+        }
+    }
 }
 using namespace raytracing;
 

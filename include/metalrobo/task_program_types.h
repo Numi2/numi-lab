@@ -2,8 +2,9 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 21u
+#define MR_TASK_PROGRAM_ABI_VERSION 22u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
+#define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -13,9 +14,13 @@ enum MRTaskProgramFlags : mr_u32 {
     // Advance on completed whole-projectile outcomes and balance failures,
     // rather than locomotion command tracking.
     MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM = 1u << 4u,
+    // The masked-depth suffix also contains compact features derived from
+    // the corrupted sparse depth frames on device. No scene state enters
+    // these slots.
+    MR_TASK_PROGRAM_MASKED_DEPTH_FEATURES = 1u << 5u,
     // Action values become bounded residuals around the current retargeted
     // joint reference instead of offsets from the mechanism default pose.
-    MR_TASK_PROGRAM_INTERACTION_REFERENCE = 1u << 5u,
+    MR_TASK_PROGRAM_INTERACTION_REFERENCE = 1u << 6u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
@@ -67,8 +72,9 @@ enum MRTaskObservationOpcode : mr_u32 {
     // velocity xyz. Simulation supplies the contract natively; deployment
     // may populate the same slots from an RGB-D perception provider.
     MR_TASK_OBSERVE_OBJECT_TRACK = 16u,
-    // Deployable ball-only metric depth. Each scalar component addresses one
-    // row-major pixel in one sparse temporal frame declared by TaskPack.
+    // Deployable ball-only metric depth. Initial scalar components address
+    // row-major pixels in sparse temporal frames. When the visual feature
+    // flag is set, 24 camera-derived summary components follow the pixels.
     // The native visual stage overwrites these zero-valued physics slots.
     MR_TASK_OBSERVE_MASKED_DEPTH = 17u,
     // Device-resident aggregate over every authored support contact group:
@@ -522,6 +528,11 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
     mr_float4 rewardBreakdown0;
     // action-control, posture/limits, energy, and contact contributions.
     mr_float4 rewardBreakdown1;
+    // Dodge link-clearance, evasion, miss, and safe-stillness contributions.
+    mr_float4 dodgeRewardBreakdown0;
+    // Dodge safe-action-rate, CBF correction, CBF buffer, and predicted
+    // clearance contributions.
+    mr_float4 dodgeRewardBreakdown1;
     mr_u64 policyRevision;
     // V of the accepted post-transition state for timeout bootstrapping.
     float timeoutBootstrapValue;
@@ -548,6 +559,6 @@ static_assert(sizeof(MRTaskInteractionSampleGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
 static_assert(sizeof(MRTaskStateGPU) == 160u);
 static_assert(sizeof(MRTaskCurriculumStateGPU) == 64u);
-static_assert(sizeof(MRTaskTransitionGPU) == 96u);
+static_assert(sizeof(MRTaskTransitionGPU) == 128u);
 #endif
 #endif

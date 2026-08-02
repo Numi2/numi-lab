@@ -466,6 +466,8 @@ int main() {
         trackerConfig.maskedDepthActorFrameOffset =
             kActorFrameSize * kActorHistoryLength;
         trackerConfig.maskedDepthFrameOffsets = {0u, 1u};
+        trackerConfig.maskedDepthFeatureCount =
+            MR_TASK_MASKED_DEPTH_FEATURE_COUNT;
         trackerConfig.maskedDepthNearMeters = 0.1f;
         trackerConfig.maskedDepthFarMeters = 5.0f;
         trackerConfig.maskedDepthPixelDropoutProbability = 0.1f;
@@ -491,7 +493,7 @@ int main() {
                         options:MTLResourceStorageModeShared];
         const std::uint32_t kTrackWidth =
             kActorFrameSize * kActorHistoryLength +
-            2u * visualPixels;
+            2u * visualPixels + MR_TASK_MASKED_DEPTH_FEATURE_COUNT;
         const std::size_t trackElements =
             kEnvironmentCount * kTrackWidth;
         id<MTLBuffer> resetBuffer = [device
@@ -577,6 +579,7 @@ int main() {
         const float* currentDepth =
             tracked + kActorFrameSize * kActorHistoryLength;
         const float* previousDepth = currentDepth + visualPixels;
+        const float* depthFeatures = previousDepth + visualPixels;
         require(
             std::all_of(
                 currentDepth,
@@ -595,7 +598,22 @@ int main() {
                 currentDepth,
                 currentDepth + visualPixels,
                 previousDepth
-            ),
+            ) &&
+            std::all_of(
+                depthFeatures,
+                depthFeatures + MR_TASK_MASKED_DEPTH_FEATURE_COUNT,
+                [](const float value) {
+                    return std::isfinite(value) &&
+                        value >= -1.0f && value <= 1.0f;
+                }
+            ) &&
+            depthFeatures[0u] > 0.0f &&
+            depthFeatures[0u] == depthFeatures[5u] &&
+            depthFeatures[3u] == depthFeatures[8u] &&
+            depthFeatures[20u] == 0.0f &&
+            depthFeatures[21u] == 0.0f &&
+            depthFeatures[22u] == 0.0f &&
+            depthFeatures[23u] == 0.0f,
             "device masked-depth reset history is invalid"
         );
         const std::vector<float> firstDepth(

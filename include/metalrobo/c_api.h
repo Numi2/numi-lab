@@ -211,6 +211,14 @@ typedef struct MRTaskTransitionC {
     float posture_reward;
     float energy_reward;
     float contact_reward;
+    float dodge_link_clearance_reward;
+    float dodge_evasion_reward;
+    float dodge_miss_reward;
+    float dodge_safe_stillness_reward;
+    float dodge_safe_action_rate_reward;
+    float dodge_cbf_correction_reward;
+    float dodge_cbf_buffer_reward;
+    float dodge_predicted_clearance_reward;
     uint64_t policy_revision;
     float timeout_bootstrap_value;
     float episode_tracking_score;

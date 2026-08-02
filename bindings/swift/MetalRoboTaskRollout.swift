@@ -597,6 +597,14 @@ public struct MetalRoboTaskTransition: Sendable {
     public let postureReward: Float
     public let energyReward: Float
     public let contactReward: Float
+    public let dodgeLinkClearanceReward: Float
+    public let dodgeEvasionReward: Float
+    public let dodgeMissReward: Float
+    public let dodgeSafeStillnessReward: Float
+    public let dodgeSafeActionRateReward: Float
+    public let dodgeCbfCorrectionReward: Float
+    public let dodgeCbfBufferReward: Float
+    public let dodgePredictedClearanceReward: Float
     public let policyRevision: UInt64
     public let timeoutBootstrapValue: Float
     public let episodeTrackingScore: Float
@@ -623,6 +631,19 @@ public struct MetalRoboTaskTransition: Sendable {
         postureReward = native.posture_reward
         energyReward = native.energy_reward
         contactReward = native.contact_reward
+        dodgeLinkClearanceReward =
+            native.dodge_link_clearance_reward
+        dodgeEvasionReward = native.dodge_evasion_reward
+        dodgeMissReward = native.dodge_miss_reward
+        dodgeSafeStillnessReward =
+            native.dodge_safe_stillness_reward
+        dodgeSafeActionRateReward =
+            native.dodge_safe_action_rate_reward
+        dodgeCbfCorrectionReward =
+            native.dodge_cbf_correction_reward
+        dodgeCbfBufferReward = native.dodge_cbf_buffer_reward
+        dodgePredictedClearanceReward =
+            native.dodge_predicted_clearance_reward
         policyRevision = native.policy_revision
         timeoutBootstrapValue =
             native.timeout_bootstrap_value
@@ -1892,6 +1913,21 @@ public final class MetalRoboTaskRolloutContext {
             value.posture_reward = transition.postureReward
             value.energy_reward = transition.energyReward
             value.contact_reward = transition.contactReward
+            value.dodge_link_clearance_reward =
+                transition.dodgeLinkClearanceReward
+            value.dodge_evasion_reward =
+                transition.dodgeEvasionReward
+            value.dodge_miss_reward = transition.dodgeMissReward
+            value.dodge_safe_stillness_reward =
+                transition.dodgeSafeStillnessReward
+            value.dodge_safe_action_rate_reward =
+                transition.dodgeSafeActionRateReward
+            value.dodge_cbf_correction_reward =
+                transition.dodgeCbfCorrectionReward
+            value.dodge_cbf_buffer_reward =
+                transition.dodgeCbfBufferReward
+            value.dodge_predicted_clearance_reward =
+                transition.dodgePredictedClearanceReward
             value.policy_revision =
                 transition.policyRevision
             value.timeout_bootstrap_value =

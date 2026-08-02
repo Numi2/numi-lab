@@ -1,0 +1,46 @@
+{
+  "name": "numi-lab",
+  "version": "0.1.0+codex.20260802230144",
+  "description": "Train, evaluate, and extend robots locally through Codex and Apple Silicon.",
+  "author": {
+    "name": "Numi Lab"
+  },
+  "homepage": "https://github.com/Numi2/numi-lab",
+  "repository": "https://github.com/Numi2/numi-lab",
+  "keywords": [
+    "robotics",
+    "metal",
+    "mlx",
+    "apple-silicon",
+    "reinforcement-learning"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Numi Lab",
+    "shortDescription": "Your Apple-native robotics laboratory inside Codex.",
+    "longDescription": "Turn natural-language intent into local robot simulation, training, evaluation, and new capabilities on Apple Silicon. Codex configures and extends the laboratory while Numi runs native Metal physics and MLX learning, preserves reproducible evidence, and keeps the user in control.",
+    "developerName": "Numi Lab",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Local robot training",
+      "Metal simulation",
+      "MLX learning",
+      "Policy evaluation",
+      "User extensions"
+    ],
+    "defaultPrompt": [
+      "Train a G1 robot to dodge incoming objects.",
+      "Evaluate my strongest policy on held-out trials.",
+      "Add a new robot capability to this Numi Lab."
+    ],
+    "brandColor": "#7C5CFF",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "logoDark": "./assets/logo.png",
+    "screenshots": [
+      "./assets/screenshot-g1.png",
+      "./assets/screenshot-sensors.png",
+      "./assets/screenshot-franka.png"
+    ]
+  }
+}

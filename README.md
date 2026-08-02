@@ -210,6 +210,21 @@ Run focused checks rather than every executable:
 ./build/bin/metalrobo_visual_platform_probe
 ```
 
+Codex can operate the same native runtime through the deliberately small,
+self-describing Numi CLI:
+
+```sh
+./tools/numi doctor
+./tools/numi context
+./tools/numi codex install
+./tools/numi train --help
+./tools/numi evaluate --help
+```
+
+Capabilities are executable overlays rather than a fixed robotics schema, so a
+user or Codex can add `.numi/commands/<name>` without changing the CLI. See
+[the Numi CLI contract](docs/NUMI_CLI.md).
+
 Native rollout example:
 
 ```sh

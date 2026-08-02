@@ -1321,7 +1321,7 @@ int main(const int argc, const char* const* argv) {
             compiledDodge.task.header().counts2.x != 3u ||
             compiledDodge.task.layout().actorFrameSize != 122u ||
             compiledDodge.task.layout().actorHistoryLength != 5u ||
-            compiledDodge.task.layout().actorObservationSize != 1186u ||
+            compiledDodge.task.layout().actorObservationSize != 1210u ||
             compiledDodge.task.layout().criticObservationSize != 174u ||
             compiledDodge.task.layout().contactMetricCount != 51u ||
             compiledDodge.task.header().dynamics.z != 0.20f ||
@@ -1348,6 +1348,8 @@ int main(const int argc, const char* const* argv) {
             std::abs(
                 compiledDodge.task.header().commandUpper.w - 0.02f
             ) > 1.0e-6f ||
+            (compiledDodge.task.header().schedule.w &
+             MR_TASK_PROGRAM_MASKED_DEPTH_FEATURES) == 0u ||
             (compiledDodge.task.header().schedule.w &
              MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM) == 0u ||
             (compiledDodge.task.header().schedule.w &
@@ -1506,7 +1508,9 @@ int main(const int argc, const char* const* argv) {
                 fail("G1 dodge actor contains privileged object tracks");
             }
         }
-        if (maskedDepth != 4u * 16u * 9u ||
+        if (maskedDepth !=
+                4u * 16u * 9u +
+                    MR_TASK_MASKED_DEPTH_FEATURE_COUNT ||
             scaledAngularVelocity != 3u ||
             scaledJointVelocity != 29u ||
             normalizedGravity != 3u ||
@@ -1966,6 +1970,12 @@ int main(const int argc, const char* const* argv) {
                 static_cast<float>(index) * 0.1f;
             rollout.transitions[index].termination.x =
                 index + 1u == sampleCount ? 1u : 0u;
+            rollout.transitions[index].dodgeRewardBreakdown0 = {
+                0.01f, 0.02f, 0.03f, 0.04f,
+            };
+            rollout.transitions[index].dodgeRewardBreakdown1 = {
+                -0.01f, -0.02f, -0.03f, 0.05f,
+            };
             rollout.transitions[index].policyRevision =
                 policy.revision;
         }
@@ -2032,7 +2042,11 @@ int main(const int argc, const char* const* argv) {
             loadedRollout.transitions.size() !=
                 rollout.transitions.size() ||
             loadedRollout.transitions.back()
-                    .termination.x != 1u) {
+                    .termination.x != 1u ||
+            loadedRollout.transitions.back()
+                    .dodgeRewardBreakdown0.z != 0.03f ||
+            loadedRollout.transitions.back()
+                    .dodgeRewardBreakdown1.w != 0.05f) {
             fail(
                 "PolicyRolloutPack round trip changed its learning records"
             );

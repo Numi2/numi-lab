@@ -78,6 +78,104 @@
 +\mathrm{new\_intelligence}+\mathrm{new\_closed\_loop},\qquad
 \mathrm{mission}\ne\mathrm{current\_task}
 ```
+
+## NUMI.CODEX
+
+```math
+\mathrm{Codex}=\mathrm{roboticist},\qquad
+\mathrm{NumiLab}=\mathrm{apple\_native\_laboratory},\qquad
+\mathrm{owner}=\mathrm{user}
+```
+
+```math
+\vec{c}_{\mathrm{core}}=
+\begin{bmatrix}
+\mathrm{doctor}&\mathrm{context}&\mathrm{run}&\mathrm{dynamic\_dispatch}
+\end{bmatrix},\qquad
+\mathrm{core\_knowledge}(\mathrm{robot/task/sensor/trainer})=\vec{0}
+```
+
+```math
+\mathrm{intent}_{\mathrm{user}}\to
+\mathrm{reason/configure/extend}_{\mathrm{Codex}}\to
+\mathrm{execute}_{\mathrm{NumiLab}}\to
+\mathrm{evidence}_{\mathrm{physical}}
+```
+
+```math
+\mathrm{begin}_{\mathrm{robotics}}:\qquad
+\mathtt{numi\ doctor}\to
+\mathtt{numi\ context}\to
+\mathtt{numi\ capability\ --help}\to
+\mathrm{inspect\_owner}\to\mathrm{act}
+```
+
+```math
+\mathrm{Codex\text{-}Numi\ integration}\ne
+\begin{bmatrix}
+\mathrm{fixed\_robotics\_schema}&\mathrm{second\_planner}&
+\mathrm{workflow\_engine}&\mathrm{closed\_task\_catalog}
+\end{bmatrix}
+```
+
+```math
+\vec{L}_{\mathrm{freedom}}=
+\begin{bmatrix}
+\mathrm{configure}&\mathrm{extend}&\mathrm{rewrite}
+\end{bmatrix},\qquad
+L_i\to L_{i+1}\iff L_i\ \mathrm{is\ insufficient}
+```
+
+```math
+\mathrm{capability}_{\mathrm{new}}=
+\mathrm{executable}\left(\mathtt{.numi/commands/name}\right),\qquad
+\Delta\mathrm{capability}\not\Rightarrow\Delta\mathrm{core\ CLI}
+```
+
+```math
+\mathrm{resolve}(c)=
+\begin{bmatrix}
+\mathrm{workspace\ overlay}&\mathrm{extra\ command\ path}&
+\mathrm{user\ overlay}&\mathrm{bundled}&\mathrm{installed}
+\end{bmatrix}_{\mathrm{first\ match}}
+```
+
+```math
+\mathrm{configuration}_{\mathrm{effective}}=
+\mathrm{Numi\ defaults}+\mathrm{machine}+\mathrm{user}+\mathrm{workspace}+
+\mathrm{experiment}+\mathrm{invocation},qquad
+\mathrm{provenance}(\mathrm{configuration})=1
+```
+
+```math
+\mathrm{knowledge}_{\mathrm{current}}=
+\mathtt{numi\ context}+\mathtt{capability\ --help}+\mathrm{repository\ code},qquad
+\mathrm{bootstrap\ skill}=\mathrm{small+stable}
+```
+
+```math
+\mathrm{self\text{-}updating}_{\mathrm{behavior}}=
+\mathrm{stable\ dispatcher}+\mathrm{runtime\ discovery}+\mathrm{capability\ overlays},qquad
+\mathrm{update}_{\mathrm{runtime}}\cap\mathrm{overwrite}_{\mathrm{user\ overlays}}=\varnothing
+```
+
+```math
+\vec{E}_{\mathrm{Numi\ run}}=
+\begin{bmatrix}
+\mathrm{arguments}&\mathrm{revision}&\mathrm{worktree\ status}&
+\mathrm{runtime\ hashes}&\mathrm{artifact\ hashes}&\mathrm{stdout/stderr}&
+\mathrm{failed\ steps}&\mathrm{throughput}&\mathrm{memory}&\mathrm{physical\ outcome}
+\end{bmatrix}
+```
+
+```math
+\mathrm{autonomy}_{\mathrm{simulation/training/evaluation}}=1,
+\qquad
+\mathrm{hardware\ execution}\iff
+\mathrm{owner\ arming}\land\mathrm{limits}\land\mathrm{emergency\ stop}\land
+\mathrm{approval\ policy}
+```
+
 ## PRIORITY
 
 ```math

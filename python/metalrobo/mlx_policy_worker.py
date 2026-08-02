@@ -295,6 +295,7 @@ def _restore_learner_state(
     ppo_resumable_schedule_fields: frozenset[str] = (
         _PPO_RESUMABLE_SCHEDULE_FIELDS
     ),
+    actor_observation_extension_offset: int | None = None,
 ) -> tuple[bool, int, int]:
     target = path.expanduser().resolve()
     if target.suffix != ".safetensors":
@@ -311,9 +312,6 @@ def _restore_learner_state(
         "format": "metalrobo.mlx-learner-state",
         "schema": "3" if motion_prior is not None else "2",
         "policy_id": learner.policy_id,
-        "actor_observation_count": str(
-            learner.actor_observation_count
-        ),
         "critic_observation_count": str(
             learner.critic_observation_count
         ),
@@ -330,23 +328,77 @@ def _restore_learner_state(
                 ),
             }
         )
-    if any(
-        metadata.get(key) != value
+    try:
+        saved_actor_observation_count = int(
+            metadata["actor_observation_count"]
+        )
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError(
+            "MLX learner actor observation contract is invalid"
+        ) from error
+    actor_extension_count = (
+        learner.actor_observation_count -
+        saved_actor_observation_count
+    )
+    migrate_actor_input = (
+        actor_observation_extension_offset is not None and
+        actor_extension_count > 0 and
+        0 <= actor_observation_extension_offset <=
+            saved_actor_observation_count
+    )
+    if (
+        saved_actor_observation_count !=
+            learner.actor_observation_count and
+        not migrate_actor_input
+    ):
+        raise ValueError(
+            "MLX learner actor observation contract differs from the PolicyPack"
+        )
+    metadata_mismatches = [
+        key
         for key, value in expected_metadata.items()
-    ) or not _configuration_matches(
+        if metadata.get(key) != value
+    ]
+    configuration_matches = _configuration_matches(
         metadata.get("configuration"),
         _configuration_record(learner),
         ppo_resumable_schedule_fields,
-    ) or (
+    )
+    motion_configuration_matches = not (
         motion_prior is not None
-        and not _configuration_matches(
+    ) or _configuration_matches(
             metadata.get("motion_configuration"),
             _motion_configuration_record(motion_prior),
             _MOTION_RESUMABLE_SCHEDULE_FIELDS,
         )
+    ppo_mismatches: list[str] = []
+    if not configuration_matches:
+        saved_contract = _configuration_contract(
+            metadata.get("configuration"),
+            ppo_resumable_schedule_fields,
+        )
+        current_contract = _configuration_contract(
+            _configuration_record(learner),
+            ppo_resumable_schedule_fields,
+        )
+        ppo_mismatches = sorted(
+            key
+            for key in set(saved_contract) | set(current_contract)
+            if saved_contract.get(key) != current_contract.get(key)
+        )
+    if (
+        metadata_mismatches or
+        not configuration_matches or
+        not motion_configuration_matches
     ):
         raise ValueError(
-            "MLX learner state contract differs from the PolicyPack or PPO configuration"
+            "MLX learner state contract differs from the PolicyPack or PPO "
+            "configuration: metadata=" +
+            ",".join(metadata_mismatches) +
+            f", ppo={configuration_matches}" +
+            (f"[{','.join(ppo_mismatches)}]" if ppo_mismatches else "") +
+            ", "
+            f"motion={motion_configuration_matches}"
         )
     try:
         revision = int(metadata["policy_revision"])
@@ -388,8 +440,41 @@ def _restore_learner_state(
         raise ValueError(
             "MLX learner state model topology is incompatible"
         )
+
+    def extend_actor_input(
+        name: str,
+        actual: mx.array,
+        expected: mx.array,
+    ) -> mx.array:
+        if (
+            migrate_actor_input and
+            "actor.layers.0.weight" in name and
+            len(actual.shape) == 2 and
+            tuple(actual.shape) == (
+                expected.shape[0],
+                expected.shape[1] - actor_extension_count,
+            )
+        ):
+            offset = int(actor_observation_extension_offset)
+            return mx.concatenate(
+                (
+                    actual[:, :offset],
+                    mx.zeros(
+                        (actual.shape[0], actor_extension_count),
+                        dtype=actual.dtype,
+                    ),
+                    actual[:, offset:],
+                ),
+                axis=1,
+            )
+        return actual
+
     for name, expected in expected_model.items():
-        actual = model_arrays[name]
+        actual = extend_actor_input(
+            name,
+            model_arrays[name],
+            expected,
+        )
         if (
             tuple(actual.shape) != tuple(expected.shape)
             or actual.dtype != expected.dtype
@@ -397,6 +482,7 @@ def _restore_learner_state(
             raise ValueError(
                 f"MLX learner state model tensor {name} is incompatible"
             )
+        model_arrays[name] = actual
     learner.model.update(
         tree_unflatten(sorted(model_arrays.items())),
         strict=True,
@@ -415,7 +501,11 @@ def _restore_learner_state(
             "MLX learner state optimizer topology is incompatible"
         )
     for name, expected in expected_optimizer.items():
-        actual = optimizer_arrays[name]
+        actual = extend_actor_input(
+            name,
+            optimizer_arrays[name],
+            expected,
+        )
         if (
             tuple(actual.shape) != tuple(expected.shape)
             or actual.dtype != expected.dtype
@@ -423,6 +513,7 @@ def _restore_learner_state(
             raise ValueError(
                 f"MLX learner state optimizer tensor {name} is incompatible"
             )
+        optimizer_arrays[name] = actual
     learner.optimizer.state = tree_unflatten(
         sorted(optimizer_arrays.items())
     )
@@ -633,6 +724,30 @@ def _rollout_metrics(rollout: Any) -> dict[str, Any]:
         "mean_contact_reward": float(
             np.mean(transitions["contact_reward"])
         ),
+        "mean_dodge_link_clearance_reward": float(
+            np.mean(transitions["dodge_link_clearance_reward"])
+        ),
+        "mean_dodge_evasion_reward": float(
+            np.mean(transitions["dodge_evasion_reward"])
+        ),
+        "mean_dodge_miss_reward": float(
+            np.mean(transitions["dodge_miss_reward"])
+        ),
+        "mean_dodge_safe_stillness_reward": float(
+            np.mean(transitions["dodge_safe_stillness_reward"])
+        ),
+        "mean_dodge_safe_action_rate_reward": float(
+            np.mean(transitions["dodge_safe_action_rate_reward"])
+        ),
+        "mean_dodge_cbf_correction_reward": float(
+            np.mean(transitions["dodge_cbf_correction_reward"])
+        ),
+        "mean_dodge_cbf_buffer_reward": float(
+            np.mean(transitions["dodge_cbf_buffer_reward"])
+        ),
+        "mean_dodge_predicted_clearance_reward": float(
+            np.mean(transitions["dodge_predicted_clearance_reward"])
+        ),
         "done_count": int(np.sum(transitions["done"])),
         "timeout_count": int(np.sum(transitions["timeout"])),
         "termination_reason_counts": {
@@ -686,6 +801,7 @@ def _serve(arguments: argparse.Namespace) -> int:
         _PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS
         if arguments.override_resumed_learning_rate
         else _PPO_RESUMABLE_SCHEDULE_FIELDS,
+        arguments.actor_observation_extension_offset,
     )
     if restored and arguments.override_resumed_learning_rate:
         learner.optimizer.learning_rate = arguments.learning_rate
@@ -1024,7 +1140,10 @@ def main() -> int:
     initialize.add_argument(
         "--actor-policy-pack",
         type=Path,
-        help="initialize the actor from a deterministic PolicyPack",
+        help=(
+            "initialize from a PolicyPack actor, preserving its critic and "
+            "exploration head when present"
+        ),
     )
     initialize.add_argument(
         "--actor-observation-extension-mean",
@@ -1064,6 +1183,14 @@ def main() -> int:
         "--learner-state",
         type=Path,
         required=True,
+    )
+    serve.add_argument(
+        "--actor-observation-extension-offset",
+        type=int,
+        help=(
+            "explicitly migrate a narrower learner checkpoint by inserting "
+            "zero actor weights and Adam moments at this source index"
+        ),
     )
     serve.add_argument(
         "--override-resumed-learning-rate",
