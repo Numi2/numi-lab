@@ -731,7 +731,8 @@ typedef struct MR_ALIGN16 MRMetalWorldStatusGPU {
     mr_u32 flags;
 
     // Minimum/maximum ABA pivot, maximum absolute acceleration, and maximum
-    // root-quaternion norm error across successfully committed substeps.
+    // root-quaternion norm error across successfully committed substeps. On
+    // an ABA failure this retains that typed ABA record's diagnostics.
     mr_float4 diagnostics;
 } MRMetalWorldStatusGPU;
 

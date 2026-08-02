@@ -27,6 +27,7 @@ namespace {
 constant float kQuaternionTolerance = 2.0e-5f;
 constant float kQuaternionMinimum = 1.0e-12f;
 constant float kFloatEpsilon = 1.1920928955078125e-7f;
+constant float kFloatMaximum = 3.402823466e38f;
 constant float kAbsolutePivotFloor = 1.0e-12f;
 constant uint kABAMaxBodies = MR_ABA_COMPILED_MAX_BODIES;
 constant uint kABAMaxDofs = MR_ABA_COMPILED_MAX_DOFS;
@@ -1494,6 +1495,25 @@ kernel void MR_ABA_KERNEL_NAME(
                 updated,
                 false
             )) {
+            status.diagnostics = float4(
+                maximumAcceleration,
+                isfinite(angle) ? angle : kFloatMaximum,
+                max(
+                    abs(candidateNextV[3]),
+                    max(
+                        abs(candidateNextV[4]),
+                        abs(candidateNextV[5])
+                    )
+                ),
+                length(
+                    float4(
+                        environmentQ[3],
+                        environmentQ[4],
+                        environmentQ[5],
+                        environmentQ[6]
+                    )
+                )
+            );
             setFailure(status, MR_ABA_NONFINITE_RESULT, 3u);
             statuses[environment] = status;
             return;

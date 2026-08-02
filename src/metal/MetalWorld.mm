@@ -13555,7 +13555,23 @@ MetalWorldDiagnostics validateAndPublish(
                 diagnostics.firstFailingEnvironment;
             const MRMetalWorldContactStatusGPU& contact =
                 result.contactStatuses[index];
+            const MRMetalWorldStatusGPU& worldStatus =
+                result.statuses[index];
             contactDetail =
+                " aba_status=" +
+                std::to_string(worldStatus.abaCode) +
+                " failing_substep=" +
+                std::to_string(worldStatus.failingSubstep) +
+                " failing_index=" +
+                std::to_string(worldStatus.failingIndex) +
+                " aba_diagnostic_0=" +
+                std::to_string(worldStatus.diagnostics.x) +
+                " aba_diagnostic_1=" +
+                std::to_string(worldStatus.diagnostics.y) +
+                " aba_diagnostic_2=" +
+                std::to_string(worldStatus.diagnostics.z) +
+                " aba_diagnostic_3=" +
+                std::to_string(worldStatus.diagnostics.w) +
                 " contact_status=" +
                 std::to_string(contact.code) +
                 " required_pairs=" +

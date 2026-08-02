@@ -399,6 +399,7 @@ kernel void mr_metal_world_commit(
     bool allABASucceeded = validPass;
     uint failureCode = MR_ABA_SUCCESS;
     uint failureIndex = MR_INVALID_INDEX;
+    float4 failureDiagnostics = float4(0.0f);
     float4 abaDiagnostics =
         float4(kFloatMaximum, 0.0f, 0.0f, 0.0f);
     for (uint articulation = 0u;
@@ -427,6 +428,9 @@ kernel void mr_metal_world_commit(
             failureIndex = validRecord
                 ? aba.failingIndex
                 : MR_INVALID_INDEX;
+            failureDiagnostics = validRecord
+                ? aba.diagnostics
+                : float4(0.0f);
         }
         if (validRecord && aba.code == MR_ABA_SUCCESS) {
             abaDiagnostics.x = min(
@@ -462,6 +466,9 @@ kernel void mr_metal_world_commit(
         status.failingIndex = validABARecord
             ? failureIndex
             : MR_INVALID_INDEX;
+        status.diagnostics = validABARecord
+            ? failureDiagnostics
+            : float4(0.0f);
     }
 
     const uint qBase = environment * dispatch.qStride;
