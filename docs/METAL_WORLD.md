@@ -184,14 +184,15 @@ deterministic without global append atomics.
 
 The temporal cone solver rebuilds body transforms, contacts, manifolds, point
 Jacobians, and response columns on every microstep. Eligible one-articulation
-task worlds assemble the active contact rows into the response arena and
+task worlds may assemble the active contact rows into the response arena and
 apply inverse ABA directly, so they neither materialize a dense mass matrix
 nor factor it. Capacity rows stay explicitly zero and the inverse operator
-visits only the device-published active constraint count. Directly streaming
-those response columns into the solve remains explicit opt-in: a deterministic
-1,024-environment, 256-step ball-dodge continuation exposed a catastrophic
-finite angular response on that route, so production uses the materialized
-matrix-free response arena until the streamed path passes the same horizon.
+visits only the device-published active constraint count. That matrix-free
+route and its direct-streaming specialization remain explicit opt-ins: paired
+deterministic 1,024-environment, 256-step ball-dodge continuations exposed
+catastrophic finite angular responses on both forms. Production therefore
+uses the existing dense articulated factor until the inverse-ABA response
+path passes the same horizon without failed steps.
 Multi-articulation,
 rod, authored-generalized-constraint, quality-solver, and explicit
 qualification runs retain the dense factor path. Normal and both tangential

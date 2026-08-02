@@ -355,8 +355,9 @@ struct MetalWorldStepConfig {
     bool deterministic = true;
     bool warmStart = true;
     // Uses inverse ABA instead of a dense articulated factor for eligible
-    // single-articulation contact graphs.
-    bool matrixFreeArticulatedContact = true;
+    // single-articulation contact graphs. The optimization remains explicit
+    // opt-in until its long-horizon contact response is qualified.
+    bool matrixFreeArticulatedContact = false;
     // Streams inverse-ABA response columns directly into the contact solve.
     // This optimization is quarantined behind explicit opt-in while the
     // materialized matrix-free path remains the production default.
