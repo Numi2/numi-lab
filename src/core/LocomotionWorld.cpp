@@ -1532,6 +1532,34 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
                     TaskObservationSource::gaitPhase;
         }
     );
+    // Standing commands are identically zero in this task. Reuse those exact
+    // three actor/critic slots for native plantar evidence so the existing
+    // network and optimizer remain shape-compatible: total support load,
+    // phase-signed bilateral load balance, and maximum support slip. The
+    // generic operator reduces every authored support group and carries no
+    // G1-specific Metal path.
+    const auto installSupportSense = [](
+        std::vector<TaskObservationOperatorSpec>& observations
+    ) {
+        constexpr std::array<float, 3u> scales{
+            0.002f, 1.0f, 1.0f,
+        };
+        for (TaskObservationOperatorSpec& observation : observations) {
+            if (observation.source != TaskObservationSource::command) {
+                continue;
+            }
+            observation.source = TaskObservationSource::supportSense;
+            observation.target.clear();
+            observation.scale = scales[observation.component];
+            observation.offset = 0.0f;
+            observation.noiseAmplitude = 0.0f;
+            observation.biasLower = 0.0f;
+            observation.biasUpper = 0.0f;
+            observation.normalizeVector3 = false;
+        }
+    };
+    installSupportSense(task.actorFrame);
+    installSupportSense(task.critic);
     // Preserve the official G1 actor's exact five-frame, 96-value
     // proprioceptive prefix. Masked depth is appended below as a direct
     // device-observation suffix with its own sparse temporal offsets.

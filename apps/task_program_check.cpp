@@ -499,8 +499,8 @@ int main() {
             ) > 1.0e-6f ||
             compiledBallRecovery.task.header().dynamics.x != 0.0f ||
             compiledBallRecovery.world.sceneBodyCount() != 7u ||
-            compiledBallRecovery.world.capacities().candidatePairs != 256u ||
-            compiledBallRecovery.world.capacities().constraintRows != 384u) {
+            compiledBallRecovery.world.capacities().candidatePairs != 128u ||
+            compiledBallRecovery.world.capacities().constraintRows != 192u) {
             fail("compiled G1 physical-ball task is incomplete");
         }
         std::uint32_t objectTrackOperators = 0u;
@@ -648,6 +648,8 @@ int main() {
         std::uint32_t scaledAngularVelocity = 0u;
         std::uint32_t scaledJointVelocity = 0u;
         std::uint32_t normalizedGravity = 0u;
+        std::uint32_t supportSense = 0u;
+        std::uint32_t commandObservations = 0u;
         for (const MRTaskObservationOperatorGPU& operation :
              compiledDodge.task.actorOperators()) {
             maskedDepth += operation.source.x ==
@@ -669,6 +671,10 @@ int main() {
                      MR_TASK_OBSERVATION_NORMALIZE_VECTOR3) != 0u
                 ? 1u
                 : 0u;
+            supportSense += operation.source.x ==
+                MR_TASK_OBSERVE_SUPPORT_SENSE ? 1u : 0u;
+            commandObservations += operation.source.x ==
+                MR_TASK_OBSERVE_COMMAND ? 1u : 0u;
             if (operation.source.x == MR_TASK_OBSERVE_OBJECT_TRACK) {
                 fail("G1 dodge actor contains privileged object tracks");
             }
@@ -676,7 +682,9 @@ int main() {
         if (maskedDepth != 4u * 16u * 9u ||
             scaledAngularVelocity != 3u ||
             scaledJointVelocity != 29u ||
-            normalizedGravity != 3u) {
+            normalizedGravity != 3u ||
+            supportSense != 3u ||
+            commandObservations != 0u) {
             fail("G1 dodge deployment observation contract changed");
         }
         for (const MRTaskRewardOperatorGPU& operation :

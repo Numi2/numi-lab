@@ -1207,6 +1207,23 @@ TaskCompileDiagnostics compileTaskProgram(
             }
             case TaskObservationSource::rootHeight:
                 break;
+            case TaskObservationSource::supportSense:
+                componentLimit = 3u;
+                if (std::none_of(
+                        staged->contactGroups.begin(),
+                        staged->contactGroups.end(),
+                        [](const MRTaskContactGroupGPU& group) {
+                            return (group.members.z &
+                                    MR_TASK_CONTACT_SUPPORT) != 0u;
+                        }
+                    )) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        "support_sense",
+                        "support-sense observation requires an authored support contact group"
+                    );
+                }
+                break;
             case TaskObservationSource::gaitPhase:
                 componentLimit = 2u;
                 break;

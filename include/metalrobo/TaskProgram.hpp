@@ -36,6 +36,7 @@ enum class TaskObservationSource : std::uint32_t {
     recoveryEvent = MR_TASK_OBSERVE_RECOVERY_EVENT,
     objectTrack = MR_TASK_OBSERVE_OBJECT_TRACK,
     maskedDepth = MR_TASK_OBSERVE_MASKED_DEPTH,
+    supportSense = MR_TASK_OBSERVE_SUPPORT_SENSE,
 };
 
 enum class TaskRewardOperator : std::uint32_t {

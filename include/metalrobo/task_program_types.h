@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 18u
+#define MR_TASK_PROGRAM_ABI_VERSION 19u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -54,6 +54,10 @@ enum MRTaskObservationOpcode : mr_u32 {
     // row-major pixel in one sparse temporal frame declared by TaskPack.
     // The native visual stage overwrites these zero-valued physics slots.
     MR_TASK_OBSERVE_MASKED_DEPTH = 17u,
+    // Device-resident aggregate over every authored support contact group:
+    // total normal load, phase-signed load balance, and maximum planar slip.
+    // This is compact plantar/contact evidence, not inferred touch.
+    MR_TASK_OBSERVE_SUPPORT_SENSE = 18u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {

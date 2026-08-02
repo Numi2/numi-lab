@@ -486,6 +486,42 @@ inline float cleanObservation(
         ];
         break;
     }
+    case MR_TASK_OBSERVE_SUPPORT_SENSE: {
+        float totalLoad = 0.0f;
+        float signedLoad = 0.0f;
+        float maximumSlip = 0.0f;
+        for (uint groupIndex = 0u;
+             groupIndex < program.counts0.w;
+             ++groupIndex) {
+            const MRTaskContactGroupGPU group =
+                contactGroups[groupIndex];
+            if ((group.members.z & MR_TASK_CONTACT_SUPPORT) == 0u) {
+                continue;
+            }
+            const uint metric = group.members.w;
+            const float load = max(compactContact[metric], 0.0f);
+            totalLoad += load;
+            signedLoad += load * cos(group.gait.x);
+            maximumSlip = max(
+                maximumSlip,
+                max(compactContact[metric + 1u], 0.0f)
+            );
+        }
+        switch (operation.source.z) {
+        case 0u:
+            value = totalLoad;
+            break;
+        case 1u:
+            value = totalLoad > 1.0e-6f
+                ? signedLoad / totalLoad
+                : 0.0f;
+            break;
+        default:
+            value = maximumSlip;
+            break;
+        }
+        break;
+    }
     case MR_TASK_OBSERVE_GAIT_PHASE: {
         const float commandMagnitude = length(
             state.commandAndPhase.xyz
