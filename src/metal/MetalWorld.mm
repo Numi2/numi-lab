@@ -387,9 +387,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> multiOperatorComposePipeline = nil;
     __strong id<MTLComputePipelineState> factorDispatchPipeline = nil;
     __strong id<MTLComputePipelineState> pointQueryTailPipeline = nil;
-    __strong id<MTLComputePipelineState> streamedRhsPipeline = nil;
     __strong id<MTLComputePipelineState> streamedInversePipeline = nil;
-    __strong id<MTLComputePipelineState> streamedValidatePipeline = nil;
     __strong id<MTLComputePipelineState> evaluateIRPipeline = nil;
     __strong id<MTLComputePipelineState> islandPipeline = nil;
     __strong id<MTLComputePipelineState> buildTilesPipeline = nil;
@@ -4712,9 +4710,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> multiOperatorCompose = nil;
     __strong id<MTLComputePipelineState> factorDispatch = nil;
     __strong id<MTLComputePipelineState> pointQueryTail = nil;
-    __strong id<MTLComputePipelineState> streamedRhs = nil;
     __strong id<MTLComputePipelineState> streamedInverse = nil;
-    __strong id<MTLComputePipelineState> streamedValidate = nil;
     __strong id<MTLComputePipelineState> evaluateIR = nil;
     __strong id<MTLComputePipelineState> islands = nil;
     __strong id<MTLComputePipelineState> buildTiles = nil;
@@ -4916,14 +4912,8 @@ MetalWorldDiagnostics initializeContext(
     pointQueryTail = createContactPipeline(
         @"mr_world_fill_point_query_tail"
     );
-    streamedRhs = createContactPipeline(
-        @"mr_world_assemble_streamed_response_rhs"
-    );
     streamedInverse = createContactPipeline(
         @"mr_world_parallel_streaming_articulated_inverse_mass"
-    );
-    streamedValidate = createContactPipeline(
-        @"mr_world_validate_streamed_response"
     );
     evaluateIR =
         createContactPipeline(@"mr_world_evaluate_constraint_ir");
@@ -5093,9 +5083,7 @@ MetalWorldDiagnostics initializeContext(
         multiOperatorCompose == nil ||
         factorDispatch == nil ||
         pointQueryTail == nil ||
-        streamedRhs == nil ||
         streamedInverse == nil ||
-        streamedValidate == nil ||
         evaluateIR == nil ||
         islands == nil ||
         buildTiles == nil ||
@@ -5410,9 +5398,7 @@ MetalWorldDiagnostics initializeContext(
         multiOperatorCompose;
     context.factorDispatchPipeline = factorDispatch;
     context.pointQueryTailPipeline = pointQueryTail;
-    context.streamedRhsPipeline = streamedRhs;
     context.streamedInversePipeline = streamedInverse;
-    context.streamedValidatePipeline = streamedValidate;
     context.evaluateIRPipeline = evaluateIR;
     context.islandPipeline = islands;
     context.buildTilesPipeline = buildTiles;
@@ -8702,30 +8688,8 @@ bool encodeStreamedArticulatedResponses(
         return false;
     }
     encoder.label = @"MetalWorld streamed articulated responses";
-    [encoder setComputePipelineState:context.streamedRhsPipeline];
-    const std::array<std::size_t, 9u> assemblyBuffers{{
-        kContactDispatch,
-        kPointJacobians,
-        kCandidateBodies,
-        kContacts,
-        kEvaluatedRows,
-        kResponseColumns,
-        kContactStatuses,
-        kCandidateRodWitnesses,
-        kRodConstraintWitnessIndices,
-    }};
-    for (NSUInteger argument = 0u;
-         argument < assemblyBuffers.size();
-         ++argument) {
-        [encoder setBuffer:context.buffers[assemblyBuffers[argument]]
-                    offset:0u
-                   atIndex:argument];
-    }
-    [encoder
-        dispatchThreadgroups:MTLSizeMake(environmentCount, 1u, 1u)
-        threadsPerThreadgroup:MTLSizeMake(MR_SIMD_WIDTH, 1u, 1u)];
     [encoder setComputePipelineState:context.streamedInversePipeline];
-    const std::array<std::size_t, 21u> buffers{{
+    const std::array<std::size_t, 26u> buffers{{
         kWorld,
         kArticulations,
         kJoints,
@@ -8747,6 +8711,11 @@ bool encodeStreamedArticulatedResponses(
         kTaskBodyParameters,
         kTaskControllerParameters,
         kContactStatuses,
+        kContactDispatch,
+        kPointJacobians,
+        kCandidateBodies,
+        kContacts,
+        kEvaluatedRows,
     }};
     for (NSUInteger argument = 0u;
          argument < buffers.size();
@@ -8763,21 +8732,6 @@ bool encodeStreamedArticulatedResponses(
     [encoder
         dispatchThreadgroups:MTLSizeMake(environmentCount, 1u, 1u)
         threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
-    [encoder setComputePipelineState:context.streamedValidatePipeline];
-    [encoder setBuffer:context.buffers[kContactDispatch]
-                 offset:0u
-                atIndex:0u];
-    [encoder setBuffer:context.buffers[kInverseMassStatuses]
-                 offset:0u
-                atIndex:1u];
-    [encoder setBuffer:context.buffers[kContactStatuses]
-                 offset:0u
-                atIndex:2u];
-    dispatchWorldThreads(
-        encoder,
-        context.streamedValidatePipeline,
-        environmentCount
-    );
     [encoder endEncoding];
     return true;
 }

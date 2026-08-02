@@ -275,6 +275,80 @@ inline bool validVectorStrides(
     return required <= ulong(environmentStride);
 }
 
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+inline float streamedContactRhsValue(
+    constant const MRMetalWorldContactDispatchGPU& contactDispatch,
+    device const float* pointJacobians,
+    device const MRBodyStateGPU* candidateBodies,
+    device const MRContactConstraintGPU* contacts,
+    device const MREvaluatedConstraintIRRowGPU* evaluatedRows,
+    const uint environment,
+    const uint rhsIndex,
+    const uint dof
+) {
+    const uint localConstraint = rhsIndex / 3u;
+    const uint axis = rhsIndex - 3u * localConstraint;
+    const uint constraintBase =
+        environment * contactDispatch.constraintStride;
+    const uint rowBase = environment * contactDispatch.rowStride;
+    const uint bodyBase =
+        environment * contactDispatch.bodyStateStride;
+    const uint pointJacobianBase =
+        environment *
+        (contactDispatch.pointQueryStride * 3u * contactDispatch.nv);
+    device const MRContactConstraintGPU& contact =
+        contacts[constraintBase + localConstraint];
+    if ((contact.flags & MR_CONSTRAINT_FLAG_ROD_ENDPOINT) != 0u) {
+        return 0.0f;
+    }
+    device const MRBodyStateGPU* bodies =
+        candidateBodies + bodyBase;
+    float3 jacobianColumn = float3(0.0f);
+    const uint queryA = 2u * localConstraint;
+    const uint queryB = queryA + 1u;
+    if (bodies[contact.bodyA].flagsAndIndices[1] !=
+        MR_INVALID_INDEX) {
+        jacobianColumn -= float3(
+            pointJacobians[
+                pointJacobianBase +
+                (queryA * 3u + 0u) * contactDispatch.nv + dof
+            ],
+            pointJacobians[
+                pointJacobianBase +
+                (queryA * 3u + 1u) * contactDispatch.nv + dof
+            ],
+            pointJacobians[
+                pointJacobianBase +
+                (queryA * 3u + 2u) * contactDispatch.nv + dof
+            ]
+        );
+    }
+    if (bodies[contact.bodyB].flagsAndIndices[1] !=
+        MR_INVALID_INDEX) {
+        jacobianColumn += float3(
+            pointJacobians[
+                pointJacobianBase +
+                (queryB * 3u + 0u) * contactDispatch.nv + dof
+            ],
+            pointJacobians[
+                pointJacobianBase +
+                (queryB * 3u + 1u) * contactDispatch.nv + dof
+            ],
+            pointJacobians[
+                pointJacobianBase +
+                (queryB * 3u + 2u) * contactDispatch.nv + dof
+            ]
+        );
+    }
+    return dot(
+        evaluatedRows[
+            rowBase + 3u * localConstraint + axis
+        ].direction.xyz,
+        jacobianColumn
+    );
+}
+#endif
+
 } // namespace
 
 // Applies M(q)^-1 to one to three generalized vectors. One 32-lane
@@ -1536,6 +1610,38 @@ inline void clearParallelInverseMassFailure(
     laneIndices[lane] = MR_INVALID_INDEX;
 }
 
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+inline void publishStreamingContactStatus(
+    device MRMetalWorldContactStatusGPU* contactStatuses,
+    const uint environment,
+    thread const MRInverseMassStatusGPU& inverse
+) {
+    if (inverse.code == MR_INVERSE_MASS_SUCCESS) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = contactStatuses[environment];
+    if (status.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    status.code =
+        inverse.code == MR_INVERSE_MASS_NONFINITE_INPUT
+        ? MR_STEP_NONFINITE_INPUT
+        : inverse.code == MR_INVERSE_MASS_FACTORIZATION_FAILED
+        ? MR_STEP_FACTORIZATION_FAILED
+        : inverse.code == MR_INVERSE_MASS_NONFINITE_RESULT
+        ? MR_STEP_NONFINITE_RESULT
+        : MR_STEP_UNSUPPORTED;
+    status.firstFailingConstraint = inverse.failingIndex;
+    status.diagnostics = float4(
+        float(inverse.code),
+        float(inverse.failingIndex),
+        inverse.diagnostics.x,
+        inverse.diagnostics.y
+    );
+    contactStatuses[environment] = status;
+}
+#endif
+
 } // namespace
 
 // Schedule-driven block-diagonal ABA inverse application. One SIMD32
@@ -1574,8 +1680,15 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
     device const float4* controllerParameters [[buffer(19)]],
 #endif
 #if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
-    device const MRMetalWorldContactStatusGPU* contactStatuses
+    device MRMetalWorldContactStatusGPU* contactStatuses
         [[buffer(20)]],
+    constant const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(21)]],
+    device const float* pointJacobians [[buffer(22)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(23)]],
+    device const MRContactConstraintGPU* contacts [[buffer(24)]],
+    device const MREvaluatedConstraintIRRowGPU* evaluatedRows
+        [[buffer(25)]],
 #endif
     uint2 packet [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
@@ -1688,6 +1801,13 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
             status.code = selectedFailureCode;
             status.failingIndex = selectedFailureIndex;
             statuses[statusIndex] = status;
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+            publishStreamingContactStatus(
+                contactStatuses,
+                environment,
+                status
+            );
+#endif
         }
         return;
     }
@@ -1696,6 +1816,11 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
         if (lane == 0u) {
             status.diagnostics = float4(0.0f);
             statuses[statusIndex] = status;
+            publishStreamingContactStatus(
+                contactStatuses,
+                environment,
+                status
+            );
         }
         return;
     }
@@ -1781,6 +1906,13 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
             status.code = selectedFailureCode;
             status.failingIndex = selectedFailureIndex;
             statuses[statusIndex] = status;
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+            publishStreamingContactStatus(
+                contactStatuses,
+                environment,
+                status
+            );
+#endif
         }
         return;
     }
@@ -1792,6 +1924,33 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
     const uint rhsEnvironmentBase =
         rhsStreamBase +
         environment * dispatch.rhsEnvironmentStride;
+
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+    const uint activeRhsElements =
+        activeRhsCount * articulation.nv;
+    for (uint flat = lane;
+         flat < activeRhsElements;
+         flat += 32u) {
+        const uint rhsIndex = flat / articulation.nv;
+        const uint localV = flat - rhsIndex * articulation.nv;
+        output[
+            outputStreamBase +
+            environment * dispatch.outputEnvironmentStride +
+            rhsIndex * dispatch.outputVectorStride +
+            localV
+        ] = streamedContactRhsValue(
+            contactDispatch,
+            pointJacobians,
+            candidateBodies,
+            contacts,
+            evaluatedRows,
+            environment,
+            rhsIndex,
+            localV
+        );
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+#endif
 
     clearParallelInverseMassFailure(
         laneFailureCodes,
@@ -1844,6 +2003,13 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
             status.code = selectedFailureCode;
             status.failingIndex = selectedFailureIndex;
             statuses[statusIndex] = status;
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+            publishStreamingContactStatus(
+                contactStatuses,
+                environment,
+                status
+            );
+#endif
         }
         return;
     }
@@ -2073,6 +2239,13 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
                 status.code = selectedFailureCode;
                 status.failingIndex = selectedFailureIndex;
                 statuses[statusIndex] = status;
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+                publishStreamingContactStatus(
+                    contactStatuses,
+                    environment,
+                    status
+                );
+#endif
             }
             return;
         }
@@ -2175,6 +2348,13 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
             status.code = selectedFailureCode;
             status.failingIndex = selectedFailureIndex;
             statuses[statusIndex] = status;
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+            publishStreamingContactStatus(
+                contactStatuses,
+                environment,
+                status
+            );
+#endif
         }
         return;
     }
@@ -2392,6 +2572,13 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
                 status.code = selectedFailureCode;
                 status.failingIndex = selectedFailureIndex;
                 statuses[statusIndex] = status;
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+                publishStreamingContactStatus(
+                    contactStatuses,
+                    environment,
+                    status
+                );
+#endif
             }
             return;
         }
@@ -2511,6 +2698,13 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
             status.code = selectedFailureCode;
             status.failingIndex = selectedFailureIndex;
             statuses[statusIndex] = status;
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+            publishStreamingContactStatus(
+                contactStatuses,
+                environment,
+                status
+            );
+#endif
         }
         return;
     }
@@ -2792,6 +2986,13 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
                 status.code = selectedFailureCode;
                 status.failingIndex = selectedFailureIndex;
                 statuses[statusIndex] = status;
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+                publishStreamingContactStatus(
+                    contactStatuses,
+                    environment,
+                    status
+                );
+#endif
             }
             return;
         }
@@ -2852,6 +3053,13 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
             status.code = selectedFailureCode;
             status.failingIndex = selectedFailureIndex;
             statuses[statusIndex] = status;
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+            publishStreamingContactStatus(
+                contactStatuses,
+                environment,
+                status
+            );
+#endif
         }
         return;
     }
@@ -2885,6 +3093,13 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
             maximumInputShared
         );
         statuses[statusIndex] = status;
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+        publishStreamingContactStatus(
+            contactStatuses,
+            environment,
+            status
+        );
+#endif
     }
 }
 
