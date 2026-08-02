@@ -1,0 +1,100 @@
+#!/bin/sh
+
+set -u
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf 'Evaluate a robot policy and publish physical outcome evidence.\n'
+    exit 0
+fi
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+    cat <<'EOF'
+Usage: numi evaluate [metalrobo_task_rollout arguments...]
+
+Every native rollout option passes through unchanged. Numi supplies the local
+Metal library and uses the compiled native policy unless another action source
+is selected. Common options:
+
+  --policy-pack PATH
+  --native-policy | --zero-actions
+  --task velocity|disturbance-recovery|supine-get-up|ball-recovery|ball-dodge
+  --envs N --steps N --repeats N --chunk N
+  --rollout-pack PATH --state-trace PATH --capture-dir PATH
+
+Use NUMI_RUNS_DIR, NUMI_RUN_DIR, or NUMI_BUILD_DIR to change generated paths.
+EOF
+    exit 0
+fi
+
+numi_has_option() {
+    numi_sought_option=$1
+    shift
+    for numi_argument do
+        [ "$numi_argument" = "$numi_sought_option" ] && return 0
+    done
+    return 1
+}
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+numi_workspace=${NUMI_WORKSPACE_ROOT:-$numi_root}
+numi_build=${NUMI_BUILD_DIR:-$numi_root/build}
+if [ -x "$numi_build/bin/metalrobo_task_rollout" ]; then
+    numi_evaluator=$numi_build/bin/metalrobo_task_rollout
+else
+    numi_evaluator=$numi_root/bin/metalrobo_task_rollout
+fi
+[ -x "$numi_evaluator" ] || {
+    printf 'numi evaluate: missing %s; run numi doctor\n' "$numi_evaluator" >&2
+    exit 1
+}
+
+numi_run_stamp=$(date -u '+%Y%m%dT%H%M%SZ')
+numi_runs_root=${NUMI_RUNS_DIR:-$numi_workspace/.numi/runs}
+numi_run=${NUMI_RUN_DIR:-$numi_runs_root/evaluate-$numi_run_stamp-$$}
+mkdir -p "$numi_run"
+
+if [ -f "$numi_build/shaders/MetalRobo.metallib" ]; then
+    numi_metallib=$numi_build/shaders/MetalRobo.metallib
+else
+    numi_metallib=$numi_root/lib/metalrobo/MetalRobo.metallib
+fi
+
+numi_has_option --metallib "$@" || set -- --metallib "$numi_metallib" "$@"
+if ! numi_has_option --policy-pack "$@" &&
+   ! numi_has_option --native-policy "$@" &&
+   ! numi_has_option --zero-actions "$@"; then
+    set -- --native-policy "$@"
+fi
+
+printf '%s\n' "$@" > "$numi_run/arguments.txt"
+if command -v git >/dev/null 2>&1 && git -C "$numi_root" rev-parse HEAD >/dev/null 2>&1; then
+    git -C "$numi_root" rev-parse HEAD > "$numi_run/revision.txt"
+    git -C "$numi_root" status --short > "$numi_run/worktree-status.txt"
+elif [ -f "$numi_root/share/numi/REVISION" ]; then
+    cp "$numi_root/share/numi/REVISION" "$numi_run/revision.txt"
+fi
+if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$numi_evaluator" "$numi_metallib" \
+        > "$numi_run/runtime.sha256"
+fi
+printf 'numi evaluate: artifacts %s\n' "$numi_run" >&2
+
+numi_stdout_pipe=$numi_run/stdout.pipe
+numi_stderr_pipe=$numi_run/stderr.pipe
+mkfifo "$numi_stdout_pipe" "$numi_stderr_pipe"
+trap 'rm -f "$numi_stdout_pipe" "$numi_stderr_pipe"' EXIT
+tee "$numi_run/stdout.log" < "$numi_stdout_pipe" &
+numi_stdout_tee=$!
+tee "$numi_run/stderr.log" < "$numi_stderr_pipe" >&2 &
+numi_stderr_tee=$!
+"$numi_evaluator" "$@" > "$numi_stdout_pipe" 2> "$numi_stderr_pipe"
+numi_status=$?
+wait "$numi_stdout_tee"
+wait "$numi_stderr_tee"
+rm -f "$numi_stdout_pipe" "$numi_stderr_pipe"
+trap - EXIT
+if command -v shasum >/dev/null 2>&1; then
+    find "$numi_run" -maxdepth 1 -type f ! -name artifacts.sha256 \
+        -exec shasum -a 256 {} \; > "$numi_run/artifacts.sha256"
+fi
+exit "$numi_status"

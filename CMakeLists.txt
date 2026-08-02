@@ -7,6 +7,26 @@ project(
     LANGUAGES C CXX OBJCXX
 )
 
+execute_process(
+    COMMAND git -C "${CMAKE_CURRENT_SOURCE_DIR}" rev-parse HEAD
+    OUTPUT_VARIABLE NUMI_SOURCE_REVISION
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if(NOT NUMI_SOURCE_REVISION)
+    set(NUMI_SOURCE_REVISION "unknown")
+endif()
+configure_file(
+    numi/VERSION.in
+    generated/numi/VERSION
+    @ONLY
+)
+configure_file(
+    numi/REVISION.in
+    generated/numi/REVISION
+    @ONLY
+)
+
 if(NOT APPLE)
     message(FATAL_ERROR "MetalRobo 0.4 targets Apple Silicon macOS.")
 endif()
@@ -2022,6 +2042,38 @@ install(
         metalrobo_episode_compile
         metalrobo_visual_cook
         metalrobo_environment_cook
+)
+if(METALROBO_HAS_SWIFT)
+    install(
+        TARGETS
+            metalrobo_task_rollout
+            metalrobo_task_train
+    )
+endif()
+install(PROGRAMS tools/numi DESTINATION bin)
+install(
+    PROGRAMS
+        numi/commands/train
+        numi/commands/evaluate
+    DESTINATION libexec/numi
+)
+install(
+    DIRECTORY plugins/numi-lab
+    DESTINATION share/numi/codex
+)
+install(
+    FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/generated/numi/VERSION"
+        "${CMAKE_CURRENT_BINARY_DIR}/generated/numi/REVISION"
+    DESTINATION share/numi
+)
+install(
+    DIRECTORY python/metalrobo
+    DESTINATION share/numi/python
+    FILES_MATCHING
+        PATTERN "__pycache__" EXCLUDE
+        PATTERN "*.py"
+        PATTERN "py.typed"
 )
 install(DIRECTORY include/ DESTINATION include)
 install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)

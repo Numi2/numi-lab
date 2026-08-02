@@ -1,0 +1,264 @@
+#!/bin/sh
+
+set -u
+
+numi_die() {
+    printf 'numi: %s\n' "$*" >&2
+    exit 1
+}
+
+numi_script_dir=$(CDPATH= cd "$(dirname "$0")" && pwd -P)
+
+numi_find_workspace() {
+    numi_candidate=$(pwd -P)
+    while [ "$numi_candidate" != "/" ]; do
+        if [ -d "$numi_candidate/.numi" ] || [ -f "$numi_candidate/CMakeLists.txt" ]; then
+            printf '%s\n' "$numi_candidate"
+            return
+        fi
+        numi_candidate=$(dirname "$numi_candidate")
+    done
+    pwd -P
+}
+
+numi_workspace_root=$(numi_find_workspace)
+
+if [ "${NUMI_LAB_ROOT:-}" != "" ]; then
+    numi_lab_root=$NUMI_LAB_ROOT
+elif [ -f "$numi_script_dir/../CMakeLists.txt" ]; then
+    numi_lab_root=$(CDPATH= cd "$numi_script_dir/.." && pwd -P)
+else
+    numi_lab_root=$(CDPATH= cd "$numi_script_dir/.." && pwd -P)
+fi
+
+NUMI_LAB_ROOT=$numi_lab_root
+NUMI_WORKSPACE_ROOT=$numi_workspace_root
+export NUMI_LAB_ROOT NUMI_WORKSPACE_ROOT
+
+numi_command_directories() {
+    if [ -d "$NUMI_WORKSPACE_ROOT/.numi/commands" ]; then
+        printf '%s\n' "$NUMI_WORKSPACE_ROOT/.numi/commands"
+    fi
+
+    if [ "${NUMI_COMMAND_PATH:-}" != "" ]; then
+        printf '%s\n' "$NUMI_COMMAND_PATH" | tr ':' '\n'
+    fi
+
+    if [ "${XDG_CONFIG_HOME:-}" != "" ]; then
+        printf '%s\n' "$XDG_CONFIG_HOME/numi/commands"
+    elif [ "${HOME:-}" != "" ]; then
+        printf '%s\n' "$HOME/.config/numi/commands"
+    fi
+
+    printf '%s\n' "$NUMI_LAB_ROOT/numi/commands"
+    printf '%s\n' "$numi_script_dir/../libexec/numi"
+}
+
+numi_find_command() {
+    numi_requested_command=$1
+    numi_old_ifs=$IFS
+    IFS='
+'
+    for numi_command_directory in $(numi_command_directories); do
+        if [ -x "$numi_command_directory/$numi_requested_command" ] &&
+            [ ! -d "$numi_command_directory/$numi_requested_command" ]; then
+            IFS=$numi_old_ifs
+            printf '%s\n' "$numi_command_directory/$numi_requested_command"
+            return 0
+        fi
+    done
+    IFS=$numi_old_ifs
+    return 1
+}
+
+numi_list_commands() {
+    numi_old_ifs=$IFS
+    IFS='
+'
+    for numi_command_directory in $(numi_command_directories); do
+        [ -d "$numi_command_directory" ] || continue
+        for numi_command_path in "$numi_command_directory"/*; do
+            [ -x "$numi_command_path" ] || continue
+            [ -d "$numi_command_path" ] && continue
+            basename "$numi_command_path"
+        done
+    done | awk '!seen[$0]++' | sort
+    IFS=$numi_old_ifs
+}
+
+numi_version() {
+    if [ -f "$NUMI_LAB_ROOT/CMakeLists.txt" ]; then
+        awk '
+            seen_project && $1 == "VERSION" { print $2; exit }
+            $1 == "project(" { seen_project = 1 }
+        ' "$NUMI_LAB_ROOT/CMakeLists.txt"
+    elif [ -f "$NUMI_LAB_ROOT/share/numi/VERSION" ]; then
+        sed -n '1p' "$NUMI_LAB_ROOT/share/numi/VERSION"
+    else
+        printf 'development\n'
+    fi
+}
+
+numi_doctor() {
+    numi_doctor_status=0
+    printf 'Numi Lab doctor\n\n'
+    printf 'Runtime root: %s\n' "$NUMI_LAB_ROOT"
+    printf 'Workspace:    %s\n' "$NUMI_WORKSPACE_ROOT"
+
+    if [ "$(uname -s)" = "Darwin" ]; then
+        printf 'macOS:        ok (%s)\n' "$(sw_vers -productVersion 2>/dev/null || printf unknown)"
+    else
+        printf 'macOS:        missing (Numi Lab targets Apple Silicon macOS)\n'
+        numi_doctor_status=1
+    fi
+
+    if [ "$(uname -m)" = "arm64" ]; then
+        printf 'Apple Silicon: ok\n'
+    else
+        printf 'Apple Silicon: missing (%s)\n' "$(uname -m)"
+        numi_doctor_status=1
+    fi
+
+    if command -v xcrun >/dev/null 2>&1 && xcrun --find metal >/dev/null 2>&1; then
+        printf 'Metal tools:  ok\n'
+    else
+        printf 'Metal tools:  missing (install current Xcode command-line tools)\n'
+        numi_doctor_status=1
+    fi
+
+    numi_build_dir=${NUMI_BUILD_DIR:-$NUMI_LAB_ROOT/build}
+    if [ -x "$numi_build_dir/bin/metalrobo_task_train" ]; then
+        numi_runtime_bin_dir=$numi_build_dir/bin
+    else
+        numi_runtime_bin_dir=$NUMI_LAB_ROOT/bin
+    fi
+    for numi_runtime in metalrobo_task_train metalrobo_task_rollout; do
+        if [ -x "$numi_runtime_bin_dir/$numi_runtime" ]; then
+            printf '%-13s ok\n' "$numi_runtime:"
+        else
+            printf '%-13s missing (%s)\n' "$numi_runtime:" "$numi_runtime_bin_dir/$numi_runtime"
+            numi_doctor_status=1
+        fi
+    done
+
+    if [ -x "$NUMI_LAB_ROOT/python/.venv/bin/python" ]; then
+        numi_python=$NUMI_LAB_ROOT/python/.venv/bin/python
+    elif command -v python3 >/dev/null 2>&1; then
+        numi_python=$(command -v python3)
+    else
+        numi_python=
+    fi
+
+    if [ "$numi_python" != "" ] && "$numi_python" -c 'import mlx' >/dev/null 2>&1; then
+        printf 'MLX learner:  ok (%s)\n' "$numi_python"
+    else
+        printf 'MLX learner:  missing (install the python/ package in an environment with MLX)\n'
+        numi_doctor_status=1
+    fi
+
+    printf '\nCapabilities:\n'
+    numi_list_commands | sed 's/^/  /'
+    return "$numi_doctor_status"
+}
+
+numi_context() {
+    printf 'Numi Lab %s\n\n' "$(numi_version)"
+    printf 'Runtime root: %s\n' "$NUMI_LAB_ROOT"
+    printf 'Workspace:    %s\n' "$NUMI_WORKSPACE_ROOT"
+    if command -v git >/dev/null 2>&1 && git -C "$NUMI_LAB_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        printf 'Revision:     %s\n' "$(git -C "$NUMI_LAB_ROOT" rev-parse --short HEAD)"
+        printf 'Branch:       %s\n' "$(git -C "$NUMI_LAB_ROOT" branch --show-current)"
+        numi_dirty_count=$(git -C "$NUMI_LAB_ROOT" status --short | wc -l | tr -d ' ')
+        printf 'Dirty paths:  %s\n' "$numi_dirty_count"
+    elif [ -f "$NUMI_LAB_ROOT/share/numi/REVISION" ]; then
+        printf 'Revision:     %.12s\n' "$(sed -n '1p' "$NUMI_LAB_ROOT/share/numi/REVISION")"
+    fi
+
+    printf '\nActive configuration overlays:\n'
+    numi_overlay_count=0
+    numi_user_config_root=${XDG_CONFIG_HOME:-${HOME:-}/.config}
+    for numi_overlay in \
+        "$numi_user_config_root/numi/instructions.md" \
+        "$numi_user_config_root/numi/config.toml" \
+        "$NUMI_WORKSPACE_ROOT/.numi/instructions.md" \
+        "$NUMI_WORKSPACE_ROOT/.numi/config.toml" \
+        "$NUMI_WORKSPACE_ROOT/AGENTS.md"; do
+        if [ -f "$numi_overlay" ]; then
+            printf '  %s\n' "$numi_overlay"
+            numi_overlay_count=$((numi_overlay_count + 1))
+        fi
+    done
+    [ "$numi_overlay_count" -gt 0 ] || printf '  none\n'
+
+    printf '\nAvailable capabilities:\n'
+    numi_list_commands | while IFS= read -r numi_capability; do
+        numi_capability_path=$(numi_find_command "$numi_capability") || continue
+        numi_description=$(
+            "$numi_capability_path" --numi-describe 2>/dev/null | sed -n '1p'
+        )
+        [ "$numi_description" != "" ] || numi_description='No description provided.'
+        printf '  %-12s %s\n' "$numi_capability" "$numi_description"
+    done
+
+    printf '\nFreedom model:\n'
+    printf '  Workspace commands: %s\n' "$NUMI_WORKSPACE_ROOT/.numi/commands"
+    printf '  User commands:      %s\n' "$numi_user_config_root/numi/commands"
+    printf '  Extra command path: NUMI_COMMAND_PATH\n'
+    printf '  Runtime override:   NUMI_LAB_ROOT\n'
+    printf '  Build override:     NUMI_BUILD_DIR\n'
+    printf '\nRun `numi <capability> --help` for its current interface.\n'
+}
+
+numi_help() {
+    cat <<'EOF'
+Usage: numi <command> [arguments...]
+
+Core commands:
+  doctor                 Verify this Apple machine and Numi runtime
+  context                Describe the live lab, overlays, and capabilities
+  run <capability> ...   Run a discovered capability
+  version                Print the Numi Lab version
+  help                   Show this help
+
+Any other command is discovered from workspace, user, extra, bundled, then
+installed command directories. Add an executable to .numi/commands to teach
+this workspace a new capability without changing the CLI.
+EOF
+}
+
+numi_dispatch() {
+    numi_dispatch_name=$1
+    shift
+    numi_dispatch_path=$(numi_find_command "$numi_dispatch_name") ||
+        numi_die "unknown capability '$numi_dispatch_name'; run 'numi context'"
+    exec "$numi_dispatch_path" "$@"
+}
+
+numi_main_command=${1:-help}
+if [ "$#" -gt 0 ]; then
+    shift
+fi
+
+case "$numi_main_command" in
+    help|-h|--help)
+        numi_help
+        ;;
+    version|--version)
+        numi_version
+        ;;
+    doctor)
+        numi_doctor "$@"
+        ;;
+    context)
+        numi_context "$@"
+        ;;
+    run)
+        [ "$#" -gt 0 ] || numi_die "run requires a capability"
+        numi_run_name=$1
+        shift
+        numi_dispatch "$numi_run_name" "$@"
+        ;;
+    *)
+        numi_dispatch "$numi_main_command" "$@"
+        ;;
+esac
