@@ -92,8 +92,7 @@ the reference with live joint state and solver-resolved contact. Policy
 actions are bounded residuals around the current reference joint target, so
 the exploration neighborhood follows the generated motion instead of the
 default pose. Swift and MLX then use the same PPO loop as every other TaskPack.
-The command proves an executable learning path, not a trained or
-hardware-qualified policy.
+The command proves an executable learning path, not a trained policy.
 
 Run the converter contract check with:
 

@@ -563,5 +563,5 @@ device, build, task shape, and invocation.
   observation operators. Closing that device-resident dense-sensor-to-policy
   edge is required before claiming native Tacmap-feature RL.
 - InteractionPack contact-mode and compact 2x2 support-field tracking execute
-  in the generic native rollout today. This is not dense elastomer prediction,
-  a calibrated hardware contact-world model, or hardware transfer evidence.
+  in the generic native rollout today. This is not dense elastomer prediction
+  or a calibrated contact-world model.

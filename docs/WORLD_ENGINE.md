@@ -206,10 +206,9 @@ metalrobo-ardy-interaction \
 
 The root trajectory is retained as auditable generative intent in v1, while
 the native tracking objective uses joint and contact targets so the simulated
-root remains a physical outcome. A future calibrated contact generator can
-populate pressure/wrench masks directly. Dense tactile maps, a learned
-contact-world model, hardware OOD gating, a trained champion, and sim-to-real
-transfer are not implied by this first executable slice.
+root remains a physical outcome. A calibrated contact generator can populate
+pressure/wrench masks directly. Dense tactile maps, a learned contact-world
+model, and a trained champion are not implied by this first executable slice.
 
 ## PolicyPack
 
