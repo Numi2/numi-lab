@@ -8,7 +8,8 @@
 \vec{\iota}=
 \begin{bmatrix}\mathrm{numi\_lab}&\mathrm{codex\_continuity}&
 \mathrm{apple\_native\_robotics\_learning}&\mathrm{ultimate\_physics\_learning\_system}&
-\mathrm{compound\_platform\_advantage}&\mathrm{evidence\_over\_claims}
+\mathrm{compound\_platform\_advantage}&\mathrm{sensorimotor\_intelligence}&
+\mathrm{evidence\_over\_claims}
 \end{bmatrix}
 ```
 
@@ -74,7 +75,7 @@
 
 ```math
 \mathrm{mission}_{t+1}=\mathrm{mission}_{t}+\mathrm{new\_capability}+\mathrm{new\_scale}
-+\mathrm{new\_intelligence},\qquad
++\mathrm{new\_intelligence}+\mathrm{new\_closed\_loop},\qquad
 \mathrm{mission}\ne\mathrm{current\_task}
 ```
 ## PRIORITY
@@ -92,7 +93,7 @@
 \mathrm{physics\_breadth+fidelity+stable\_coupling}&
 \mathrm{memory\_compaction+environment\_scale+energy\_efficiency}&
 \mathrm{streamed\_operators+fused\_device\_execution}&
-\mathrm{zero\_tax\_visual+tactile+proprioceptive\_sensing}&
+\mathrm{zero\_tax\_visual+plantar+tactile+proprioceptive\_sensing}&
 \mathrm{multitask+multirobot+long\_horizon\_curricula}&
 \mathrm{generic\_artifact\_compiler+one\_path\_user\_flow}&
 \mathrm{matched\_end\_to\_end\_frontier\_benchmarks}
@@ -223,6 +224,72 @@
 \mathrm{FP64\_parity}&\mathrm{reset/contact/cadence/transaction\_equivalence}&
 \mathrm{zero\_failed\_steps}
 \end{bmatrix}=\vec{1}
+```
+
+## NUMI.SENSORIMOTOR
+
+```math
+\vec{s}_{\mathrm{embodied}}=
+\begin{bmatrix}
+\mathrm{vision}&\mathrm{proprioception}&\mathrm{plantar}&\mathrm{contact}
+\end{bmatrix}
+```
+
+```math
+\vec{f}_{\mathrm{embodied}}=
+\begin{bmatrix}
+\mathrm{anticipate\_external\_threat}&\mathrm{estimate\_body\_motion}&
+\mathrm{estimate\_support\_state}&\mathrm{measure\_physical\_outcome}
+\end{bmatrix},\qquad s_i\leftrightarrow f_i
+```
+
+```math
+\mathrm{evasive\_intelligence}=
+\mathrm{anticipation}_{\mathrm{vision}}+
+\mathrm{load\_transfer}_{\mathrm{plantar}}+
+\mathrm{body\_state}_{\mathrm{proprioception}}+
+\mathrm{outcome}_{\mathrm{contact}}
+```
+
+```math
+\vec{p}_{\mathrm{foot}}=
+\begin{bmatrix}
+\vec{F}_{3}&\vec{\tau}_{3}&\mathrm{CoP}_{2}&
+\mathrm{area}_{1}&\mathrm{pressure}_{4}
+\end{bmatrix}\in\mathbb{R}^{13},\qquad
+\vec{o}_{\mathrm{plantar}}\in\mathbb{R}^{2\times13\times5}
+```
+
+```math
+\vec{o}_{\mathrm{plantar}}=
+\mathrm{history}\left(\mathrm{solver\_resolved\_support\_field}\right),\qquad
+\mathrm{actor\_observation}\in\mathbb{R}^{1186}
+```
+
+```math
+\mathrm{production\_plantar}=\mathrm{compact\_support\_field}
+\ne\mathrm{dense\_deformation\_atlas},\qquad
+\mathrm{pressure}_{c}=\frac{\mathrm{solved\_normal\_force}_{c}}{\mathrm{authored\_cell\_area}_{c}}
+```
+
+```math
+\mathrm{learned\_value}\not\equiv\Delta\mathrm{reward},\qquad
+\vec{E}_{\mathrm{behavior}}=
+\begin{bmatrix}
+\mathrm{clean\_dodge\_rate}&\mathrm{any\_link\_hit\_rate}&\mathrm{fall\_rate}&
+\mathrm{support\_margin}&\mathrm{CoP\_recovery}&\mathrm{stabilization\_time}
+\end{bmatrix}
+```
+
+```math
+\mathrm{continue\_training}(k)=
+\mathrm{select\_stable\_checkpoint}(k)+
+\mathrm{lower\_variance\_update}+\mathrm{longer\_horizon}+\mathrm{held\_out\_evaluation}
+```
+
+```math
+\mathrm{plantar\_balance}\in\mathrm{capabilities}\subset
+\mathrm{embodied\_learning}\subset\mathrm{physics\_journey}
 ```
 
 ## NUMI.12288
