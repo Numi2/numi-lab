@@ -1699,6 +1699,7 @@ class MLXPolicyLearner:
         *,
         actor_observation_count: int | None = None,
         actor_observation_extension_mean: float = 0.0,
+        actor_observation_extension_inverse_standard_deviation: float = 1.0,
         actor_observation_extension_offset: int | None = None,
         library_path: str | Path | None = None,
     ) -> "MLXPolicyLearner":
@@ -1763,6 +1764,16 @@ class MLXPolicyLearner:
         if not math.isfinite(actor_observation_extension_mean):
             raise ValueError(
                 "actor observation extension mean must be finite"
+            )
+        if (
+            not math.isfinite(
+                actor_observation_extension_inverse_standard_deviation
+            ) or
+            actor_observation_extension_inverse_standard_deviation <= 0.0
+        ):
+            raise ValueError(
+                "actor observation extension inverse standard deviation "
+                "must be finite and positive"
             )
         extension_count = (
             target_actor_observations - pack.actor_observation_count
@@ -1850,7 +1861,11 @@ class MLXPolicyLearner:
                 pack.effective_observation_inverse_standard_deviation[
                     :extension_offset
                 ],
-                np.ones(extension_count, dtype=np.float32),
+                np.full(
+                    extension_count,
+                    actor_observation_extension_inverse_standard_deviation,
+                    dtype=np.float32,
+                ),
                 pack.effective_observation_inverse_standard_deviation[
                     extension_offset:
                 ],
@@ -1896,6 +1911,7 @@ class MLXPolicyLearner:
         *,
         actor_observation_count: int | None = None,
         actor_observation_extension_mean: float = 0.0,
+        actor_observation_extension_inverse_standard_deviation: float = 1.0,
         actor_observation_extension_offset: int | None = None,
         library_path: str | Path | None = None,
     ) -> "MLXPolicyLearner":
@@ -1920,6 +1936,9 @@ class MLXPolicyLearner:
                 actor_observation_count=actor_observation_count,
                 actor_observation_extension_mean=(
                     actor_observation_extension_mean
+                ),
+                actor_observation_extension_inverse_standard_deviation=(
+                    actor_observation_extension_inverse_standard_deviation
                 ),
                 actor_observation_extension_offset=(
                     actor_observation_extension_offset
@@ -1951,6 +1970,16 @@ class MLXPolicyLearner:
         if not math.isfinite(actor_observation_extension_mean):
             raise ValueError(
                 "actor observation extension mean must be finite"
+            )
+        if (
+            not math.isfinite(
+                actor_observation_extension_inverse_standard_deviation
+            ) or
+            actor_observation_extension_inverse_standard_deviation <= 0.0
+        ):
+            raise ValueError(
+                "actor observation extension inverse standard deviation "
+                "must be finite and positive"
             )
         extension_count = (
             target_actor_observations - pack.actor_observation_count
@@ -2016,7 +2045,11 @@ class MLXPolicyLearner:
                 pack.effective_observation_inverse_standard_deviation[
                     :extension_offset
                 ],
-                np.ones(extension_count, dtype=np.float32),
+                np.full(
+                    extension_count,
+                    actor_observation_extension_inverse_standard_deviation,
+                    dtype=np.float32,
+                ),
                 pack.effective_observation_inverse_standard_deviation[
                     extension_offset:
                 ],

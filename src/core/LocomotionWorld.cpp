@@ -1531,8 +1531,8 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     task.commands.minimumEpisodeSurvivalFraction = 0.02f;
     task.pushes.projectileStandingProbability = 0.20f;
     task.pushes.projectileTargetHorizontalRadius = 0.40f;
-    task.pushes.projectileHorizontalSpeedLower = 2.5f;
-    task.pushes.projectileHorizontalSpeedUpper = 5.5f;
+    task.pushes.projectileHorizontalSpeedLower = 1.0f;
+    task.pushes.projectileHorizontalSpeedUpper = 6.0f;
     task.pushes.projectileTargetHeightLower = 0.45f;
     task.pushes.projectileTargetHeightUpper = 1.35f;
 
@@ -1549,13 +1549,39 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         {{ 0.25f,  0.45f}},
         {{ 0.45f,  0.65f}},
     }};
+    constexpr std::array<std::array<float, 2>, 4> speedBands{{
+        {{1.0f, 2.0f}},
+        {{2.0f, 3.0f}},
+        {{3.5f, 4.5f}},
+        {{5.0f, 6.0f}},
+    }};
     for (std::uint32_t sphere = 0u; sphere < lateralRanges.size(); ++sphere) {
         const std::string name =
             "locomotion_dynamic_sphere_" + std::to_string(sphere);
+        const std::uint32_t impactAxis =
+            sphere == 2u || sphere == 3u ? 1u : 0u;
+        const float direction =
+            sphere == 0u || sphere == 2u || sphere == 4u
+            ? 1.0f
+            : -1.0f;
         for (TaskRandomizationOperatorSpec& random : task.randomization) {
+            if (random.target != name) {
+                continue;
+            }
+            if (random.operation ==
+                    TaskRandomizationOperator::sceneBodyVelocity &&
+                random.component == impactAxis &&
+                random.minimumCurriculumLevel < speedBands.size()) {
+                const auto& band = speedBands[
+                    random.minimumCurriculumLevel
+                ];
+                random.parameters = direction > 0.0f
+                    ? mr_float4{band[0], band[1], 0.0f, 0.0f}
+                    : mr_float4{-band[1], -band[0], 0.0f, 0.0f};
+                continue;
+            }
             if (random.operation !=
-                    TaskRandomizationOperator::sceneBodyPosition ||
-                random.target != name) {
+                    TaskRandomizationOperator::sceneBodyPosition) {
                 continue;
             }
             switch (random.component) {

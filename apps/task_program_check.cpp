@@ -1364,8 +1364,8 @@ int main(const int argc, const char* const* argv) {
             compiledDodge.task.header().motion.z != 117u ||
             compiledDodge.task.layout().motionFeatureCount != 117u ||
             compiledDodge.task.motionBodies().size() != 13u ||
-            compiledDodge.task.header().projectile.x != 2.5f ||
-            compiledDodge.task.header().projectile.y != 5.5f ||
+            compiledDodge.task.header().projectile.x != 1.0f ||
+            compiledDodge.task.header().projectile.y != 6.0f ||
             compiledDodge.task.header().projectile.z != 0.45f ||
             compiledDodge.task.header().projectile.w != 1.35f ||
             compiledDodge.task.header().projectileGravity.w != 0.40f ||
@@ -1388,13 +1388,48 @@ int main(const int argc, const char* const* argv) {
             fail("G1 dodge group has no collidable members");
         }
         std::uint32_t stagedDodgeVelocities = 0u;
+        std::uint32_t acquisitionDodgeVelocities = 0u;
         std::uint32_t forwardDodgePositions = 0u;
         for (const MRTaskRandomizationOperatorGPU& operation :
              compiledDodge.task.randomizationOperators()) {
             if (operation.target.x ==
                     MR_TASK_RANDOMIZE_SCENE_BODY_VELOCITY &&
+                operation.target.w == 0u) {
+                const float lower = std::min(
+                    std::abs(operation.parameters.x),
+                    std::abs(operation.parameters.y)
+                );
+                const float upper = std::max(
+                    std::abs(operation.parameters.x),
+                    std::abs(operation.parameters.y)
+                );
+                acquisitionDodgeVelocities +=
+                    lower == 1.0f && upper == 2.0f ? 1u : 0u;
+            }
+            if (operation.target.x ==
+                    MR_TASK_RANDOMIZE_SCENE_BODY_VELOCITY &&
                 operation.target.w >= 1u &&
                 operation.target.w <= 3u) {
+                constexpr std::array<std::array<float, 2>, 4>
+                    expectedSpeedBands{{
+                        {{1.0f, 2.0f}},
+                        {{2.0f, 3.0f}},
+                        {{3.5f, 4.5f}},
+                        {{5.0f, 6.0f}},
+                    }};
+                const auto& expected =
+                    expectedSpeedBands[operation.target.w];
+                const float lower = std::min(
+                    std::abs(operation.parameters.x),
+                    std::abs(operation.parameters.y)
+                );
+                const float upper = std::max(
+                    std::abs(operation.parameters.x),
+                    std::abs(operation.parameters.y)
+                );
+                if (lower != expected[0] || upper != expected[1]) {
+                    fail("G1 dodge projectile-speed band changed");
+                }
                 ++stagedDodgeVelocities;
             }
             if (operation.target.x !=
@@ -1416,7 +1451,8 @@ int main(const int argc, const char* const* argv) {
                 fail("G1 dodge launch origin left the camera frustum");
             }
         }
-        if (stagedDodgeVelocities != 18u ||
+        if (acquisitionDodgeVelocities != 6u ||
+            stagedDodgeVelocities != 18u ||
             forwardDodgePositions != 18u) {
             fail("G1 dodge projectile-speed ladder is incomplete");
         }

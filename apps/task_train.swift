@@ -20,6 +20,7 @@ private struct Options {
     var initializeActorPolicyPack: String?
     var actorObservationExtensionOffset: Int?
     var actorObservationExtensionMean: Double?
+    var actorObservationExtensionInverseStandardDeviation = 1.0
     var updatedPolicyPack: String?
     var deploymentPolicyPack: String?
     var rolloutPack: String?
@@ -49,6 +50,8 @@ private struct Options {
     var maximumLearningRate = 1.0e-2
     var fixedLearningRate = false
     var overrideResumedLearningRate = false
+    var overrideResumedCurriculumLevel = false
+    var overrideResumedExploration = false
     var clipRatio = 0.2
     var valueCoefficient = 1.0
     // The production default starts with a 0.2 standard deviation in policy
@@ -142,6 +145,17 @@ private struct Options {
                     )
                 }
                 actorObservationExtensionMean = parsed
+                index += 1
+            case "--actor-observation-extension-inverse-standard-deviation":
+                guard let parsed = Double(try value()),
+                      parsed.isFinite,
+                      parsed > 0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--actor-observation-extension-inverse-standard-deviation requires a finite positive value."
+                    )
+                }
+                actorObservationExtensionInverseStandardDeviation = parsed
                 index += 1
             case "--updated-policy-pack":
                 updatedPolicyPack = try value()
@@ -250,6 +264,10 @@ private struct Options {
                 fixedLearningRate = true
             case "--override-resumed-learning-rate":
                 overrideResumedLearningRate = true
+            case "--override-resumed-exploration":
+                overrideResumedExploration = true
+            case "--override-resumed-curriculum-level":
+                overrideResumedCurriculumLevel = true
             case "--clip-ratio":
                 clipRatio = try Self.double(value(), option)
                 index += 1
@@ -567,6 +585,11 @@ private func initializePolicyIfRequested(
             "--actor-policy-pack", actor,
             "--actor-observation-extension-mean",
             String(extensionMean),
+            "--actor-observation-extension-inverse-standard-deviation",
+            String(
+                options
+                    .actorObservationExtensionInverseStandardDeviation
+            ),
         ])
     }
     if let offset = options.actorObservationExtensionOffset {
@@ -688,6 +711,12 @@ private final class MLXLearnerWorker {
         }
         if options.overrideResumedLearningRate {
             arguments.append("--override-resumed-learning-rate")
+        }
+        if options.overrideResumedCurriculumLevel {
+            arguments.append("--override-resumed-curriculum-level")
+        }
+        if options.overrideResumedExploration {
+            arguments.append("--override-resumed-exploration")
         }
         if let offset = options.actorObservationExtensionOffset {
             arguments.append(contentsOf: [
@@ -1462,6 +1491,12 @@ private enum TaskTrainMain {
                     learner.stateRestored,
                 "resumed_learning_rate_overridden":
                     options.overrideResumedLearningRate &&
+                    learner.stateRestored,
+                "resumed_curriculum_level_overridden":
+                    options.overrideResumedCurriculumLevel &&
+                    learner.stateRestored,
+                "resumed_exploration_overridden":
+                    options.overrideResumedExploration &&
                     learner.stateRestored,
                 "native_submission_count": NSNumber(
                     value:

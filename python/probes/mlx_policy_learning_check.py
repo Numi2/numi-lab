@@ -535,6 +535,7 @@ def main() -> int:
                 learner.configuration,
                 actor_observation_count=actor_count + 7,
                 actor_observation_extension_mean=1.0,
+                actor_observation_extension_inverse_standard_deviation=4.0,
                 library_path=arguments.library,
             )
             restored, restored_level, restored_reference = (
@@ -615,6 +616,7 @@ def main() -> int:
                 learner.configuration,
                 actor_observation_count=actor_count + 7,
                 actor_observation_extension_mean=1.0,
+                actor_observation_extension_inverse_standard_deviation=4.0,
                 library_path=arguments.library,
             )
             expanded_actor = expanded.model.actor_mean(
@@ -642,6 +644,16 @@ def main() -> int:
             if not np.array_equal(expanded_mean[-7:], np.ones(7)):
                 raise RuntimeError(
                     "observation expansion mean was not published"
+                )
+            expanded_inverse_standard_deviation = np.asarray(
+                expanded.model.actor_observation_inverse_standard_deviation
+            )
+            if not np.array_equal(
+                expanded_inverse_standard_deviation[-7:],
+                np.full(7, 4.0, dtype=np.float32),
+            ):
+                raise RuntimeError(
+                    "observation expansion inverse standard deviation was not published"
                 )
             insertion = actor_count // 2
             inserted = MLXPolicyLearner.from_actor_policy_pack(

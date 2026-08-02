@@ -37,6 +37,9 @@ _PPO_RESUMABLE_SCHEDULE_FIELDS = frozenset(
 _PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS = frozenset(
     {"learning_rate", "adaptive_learning_rate"}
 )
+_PPO_EXPLICIT_EXPLORATION_OVERRIDE_FIELDS = frozenset(
+    {"initial_log_standard_deviation"}
+)
 _MOTION_RESUMABLE_SCHEDULE_FIELDS = frozenset(
     {"minibatch_size", "seed"}
 )
@@ -798,15 +801,44 @@ def _serve(arguments: argparse.Namespace) -> int:
         arguments.learner_state,
         motion_prior,
         _PPO_RESUMABLE_SCHEDULE_FIELDS |
-        _PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS
-        if arguments.override_resumed_learning_rate
-        else _PPO_RESUMABLE_SCHEDULE_FIELDS,
+        (_PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS
+         if arguments.override_resumed_learning_rate else frozenset()) |
+        (_PPO_EXPLICIT_EXPLORATION_OVERRIDE_FIELDS
+         if arguments.override_resumed_exploration else frozenset()),
         arguments.actor_observation_extension_offset,
     )
+    if restored and arguments.override_resumed_curriculum_level:
+        task_curriculum_level = arguments.initial_task_curriculum_level
+        task_curriculum_reference_rates = (
+            arguments.initial_task_curriculum_reference_rates
+        )
     if restored and arguments.override_resumed_learning_rate:
         learner.optimizer.learning_rate = arguments.learning_rate
         learner.refresh_compiled_training_state()
         mx.eval(learner.optimizer.state)
+    if restored and arguments.override_resumed_exploration:
+        learner.model.log_standard_deviation = mx.full(
+            (learner.action_count,),
+            arguments.initial_log_standard_deviation,
+            dtype=mx.float32,
+        )
+        optimizer_state = dict(tree_flatten(learner.optimizer.state))
+        for name in (
+            "log_standard_deviation.m",
+            "log_standard_deviation.v",
+        ):
+            if name in optimizer_state:
+                optimizer_state[name] = mx.zeros_like(
+                    optimizer_state[name]
+                )
+        learner.optimizer.state = tree_unflatten(
+            sorted(optimizer_state.items())
+        )
+        learner.refresh_compiled_training_state()
+        mx.eval(
+            learner.model.log_standard_deviation,
+            learner.optimizer.state,
+        )
     if not restored:
         task_curriculum_level = arguments.initial_task_curriculum_level
         task_curriculum_reference_rates = (
@@ -841,6 +873,13 @@ def _serve(arguments: argparse.Namespace) -> int:
             "learner_state_restored": restored,
             "resumed_learning_rate_overridden": bool(
                 restored and arguments.override_resumed_learning_rate
+            ),
+            "resumed_curriculum_level_overridden": bool(
+                restored and
+                arguments.override_resumed_curriculum_level
+            ),
+            "resumed_exploration_overridden": bool(
+                restored and arguments.override_resumed_exploration
             ),
             "motion_prior_enabled": motion_prior is not None,
             "motion_pack_hash": (
@@ -1020,6 +1059,10 @@ def _initialize(arguments: argparse.Namespace) -> int:
             actor_observation_extension_mean=(
                 arguments.actor_observation_extension_mean
             ),
+            actor_observation_extension_inverse_standard_deviation=(
+                arguments
+                .actor_observation_extension_inverse_standard_deviation
+            ),
             actor_observation_extension_offset=(
                 arguments.actor_observation_extension_offset
             ),
@@ -1155,6 +1198,15 @@ def main() -> int:
         ),
     )
     initialize.add_argument(
+        "--actor-observation-extension-inverse-standard-deviation",
+        type=float,
+        default=1.0,
+        help=(
+            "normalization inverse standard deviation for observations "
+            "appended beyond the source PolicyPack contract"
+        ),
+    )
+    initialize.add_argument(
         "--actor-observation-extension-offset",
         type=int,
         help=(
@@ -1198,6 +1250,22 @@ def main() -> int:
         help=(
             "restore model, Adam, motion, and curriculum state while "
             "explicitly replacing the PPO learning-rate schedule"
+        ),
+    )
+    serve.add_argument(
+        "--override-resumed-curriculum-level",
+        action="store_true",
+        help=(
+            "restore model, Adam, and motion state while explicitly "
+            "replacing curriculum level and reference rates"
+        ),
+    )
+    serve.add_argument(
+        "--override-resumed-exploration",
+        action="store_true",
+        help=(
+            "restore model, critic, motion, and curriculum state while "
+            "explicitly replacing policy exploration and its Adam moments"
         ),
     )
     serve.add_argument(
