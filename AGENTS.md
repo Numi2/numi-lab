@@ -40,30 +40,44 @@ SOLVER    := TemporalCone small-step coupled solve; algorithm evidence>label
 
 ## NUMI.NORTHSTAR
 
+```math
+\Theta \in \mathbb{R}^{2\times6\times3},\qquad
+\Theta_{r,m,h}=\frac{\operatorname{NumiLab}_{m}}
+                         {\operatorname{Rival}_{r,m}}
+```
+
 ```text
-THRONE := ultimate robotics physics + learning simulator
-RIVALS := MuJoCo + IsaacLab/NVIDIA
-WIN    := measured superiority, not compatibility theater
+r = [MuJoCo, IsaacLab]
+m = [correctness, end_to_end_speed, transitions_per_joule,
+     inverse_bytes_per_env, inverse_time_to_policy_quality, native_multimodal]
+h = [floor, promotion, north_star]
+```
 
-MOAT := AppleSilicon(unified_memory + Metal + Swift + MLX)
-        -> one device-resident physics/sensing/rollout/learning organism
-SCOPE := rigid + articulated + contact + terrain + vision + tactile + control
-        + deterministic replay + massive parallel RL
-EDGE  := no PCIe boundary; no Python scheduler; no duplicated world tensors;
-         authored multimodal sensors; compiled generic task programs
+```math
+\Theta =
+\begin{bmatrix}
+  [ [1.00,1.00,1.00], [1.00,1.50,3.00], [1.00,2.00,5.00],
+    [1.00,1.50,3.00], [1.00,1.25,2.00], [1.00,2.00,5.00] ],\\
+  [ [1.00,1.00,1.00], [1.00,1.25,2.00], [1.00,2.00,4.00],
+    [1.00,1.50,3.00], [1.00,1.25,2.00], [1.00,2.00,4.00] ]
+\end{bmatrix}
+```
 
-TARGET.correct := reference-grade mechanics + stable contact + exact transactions
-TARGET.fast    := highest useful transitions/s per watt and per retained byte
-TARGET.scale   := memory-bounded env growth with zero failed steps
-TARGET.learn   := wall-clock policy quality, not empty simulator throughput
-TARGET.truth   := reproducible public scenes, commands, fingerprints, outcomes
+```math
+g=[c,d,t,z]\in\{0,1\}^{4},\qquad
+\operatorname{promote}(h) \iff
+\left(\bigwedge_i g_i=1\right)\land
+\left(\bigwedge_{r,m}\widehat{\Theta}_{r,m}\ge\Theta_{r,m,h}\right)
+```
 
-DETHRONE := beat MuJoCo on end-to-end Apple-native robotics workloads;
-            beat IsaacLab on accessible local throughput, efficiency, and
-            integrated visual-tactile learning without NVIDIA dependency
-PROVE    := paired benchmark + matched semantics + physical outcome + profiler
-DENY     := benchmark gaming | unsupported superiority claim | vendor mimicry
-LAW      := every result may raise ambition; no result may lower correctness
+```text
+c := matched-semantics correctness + physical outcomes
+d := deterministic replay + exact reset/contact/transaction behavior
+t := public command + profiler + fingerprint reproducibility
+z := zero failed environment steps; no benchmark-semantic weakening
+
+ratio orientation: higher is always better; inverse_* converts cost to utility
+tensor values: targets, never claims; rivals measured on matched workloads
 ```
 
 ## PERF
