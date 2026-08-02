@@ -7,7 +7,8 @@
 ```math
 \vec{\iota}=
 \begin{bmatrix}\mathrm{numi\_lab}&\mathrm{codex\_continuity}&
-\mathrm{apple\_native\_robotics\_learning}&\mathrm{evidence\_over\_claims}
+\mathrm{apple\_native\_robotics\_learning}&\mathrm{ultimate\_physics\_learning\_system}&
+\mathrm{compound\_platform\_advantage}&\mathrm{evidence\_over\_claims}
 \end{bmatrix}
 ```
 
@@ -20,8 +21,9 @@
 ```math
 \vec{q}=
 \begin{bmatrix}
-\mathrm{inspect\_owner}&\mathrm{trace\_live\_path}&\mathrm{change\_small}&
-\mathrm{verify\_owner}&\mathrm{measure\_outcome}&\mathrm{publish\_scoped}
+\mathrm{inspect\_owners}&\mathrm{trace\_live\_system}&\mathrm{change\_high\_leverage}&
+\mathrm{verify\_proportional\_risk}&\mathrm{measure\_system\_outcome}&
+\mathrm{compound\_advantage}&\mathrm{publish\_scoped}
 \end{bmatrix},\qquad q_i\to q_{i+1}
 ```
 
@@ -62,7 +64,8 @@
 ```math
 \mathrm{read}(\Delta)=D_{\mathrm{owner}(\Delta)}\to
 \mathrm{code}_{\mathrm{live\_path}(\Delta)},\qquad
-\left|\vec{D}_{\mathrm{loaded}}\right|=1
+1\le\left|\vec{D}_{\mathrm{loaded}}\right|\le
+\left|\mathrm{owners}(\Delta)\right|
 ```
 
 ## ARCH
@@ -70,6 +73,15 @@
 ```math
 \vec{P}=
 \begin{bmatrix}\mathrm{WorldPack}&\mathrm{TaskPack}&\mathrm{PolicyPack}&\mathrm{MotionPack?}\end{bmatrix}
+```
+
+```math
+\vec{\Phi}_{\mathrm{physics}}=
+\begin{bmatrix}
+\mathrm{rigid}&\mathrm{articulated}&\mathrm{contact}&\mathrm{terrain}&
+\mathrm{rod}&\mathrm{deformable}&\mathrm{tactile}&\mathrm{vision}
+\end{bmatrix},\qquad
+\lim_{t\to\infty}\vec{\Phi}_{\mathrm{production}}(t)=\vec{1}
 ```
 
 ```math
@@ -193,9 +205,17 @@
 ```
 
 ```math
-\mathrm{promote}(h)\iff
+\mathrm{accept}(\Delta)\iff
+cdz=1\land
+\left(\bigvee_m\Delta\widehat{\Theta}_m>0\right)\land
+\left(\Delta\widehat{\Theta}_{\mathrm{regression}}\ge-\vec{\epsilon}\right)
+```
+
+```math
+\mathrm{north\_star}(h)\iff
 \left(\bigwedge_i g_i=1\right)\land
-\left(\bigwedge_{r,m}\widehat{\Theta}_{r,m}\ge\Theta_{r,m,h}\right)
+\left(\bigwedge_{r,m}\widehat{\Theta}_{r,m}\ge\Theta_{r,m,h}\right),\qquad
+\mathrm{accept}(\Delta)\not\Rightarrow\mathrm{north\_star}(h)
 ```
 
 ```math
@@ -265,6 +285,7 @@
 \begin{bmatrix}
 \mathrm{qualify\_16384}&\mathrm{stream\_inverse\_ABA}&
 \mathrm{zero\_tax\_vision}&\mathrm{10000+\_learning\_transitions/s}&
+\mathrm{rigid+articulated+rod+deformable\_physics}&
 \mathrm{balance+locomotion+manipulation+tactile+recovery}&
 \mathrm{matched\_end\_to\_end\_rival\_workloads}
 \end{bmatrix}
@@ -290,8 +311,11 @@
 
 ```math
 \mathrm{fuse}(a,b)\iff
-\Delta\mathrm{materialization}<0\ \lor\ \Delta\mathrm{synchronization}<0,
-\qquad \Delta\mathrm{dispatches}<0\not\Rightarrow\mathrm{fuse}
+\min\begin{bmatrix}
+\Delta\mathrm{materialization}&\Delta\mathrm{synchronization}&\Delta\mathrm{traffic}&
+\Delta\mathrm{latency}&\Delta\mathrm{energy}
+\end{bmatrix}<0
+\land\vec{a}_{\mathrm{absolute}}=\vec{1}
 ```
 
 ```math
@@ -355,7 +379,8 @@
 \vec{k}_{\mathrm{Metal}}=
 \begin{bmatrix}
 \mathrm{dedicated\_Mac}&\mathrm{isolated\_worktree}&
-\mathrm{single\_live\_run}&\mathrm{checkpointed\_soak}
+\mathrm{resource\_partitioned\_runs}&\mathrm{no\_duplicate\_run}&
+\mathrm{checkpointed\_soak}
 \end{bmatrix}=\vec{1}
 ```
 
@@ -387,7 +412,7 @@
 
 ```math
 \vec{p}=
-\begin{bmatrix}p_0&p_1&p_2&p_3&p_4&p_5\end{bmatrix}
+\begin{bmatrix}p_0&p_1&p_2&p_3&p_4&p_5&p_6&p_7&p_8\end{bmatrix}
 ```
 
 ```math
@@ -395,16 +420,28 @@
 \begin{bmatrix}
 \mathrm{correctness+deterministic\_contact/observation/reset}&
 \mathrm{end\_to\_end\_native\_learning\_throughput+time\_to\_quality}&
-\mathrm{streamed\_inverse\_ABA+fused\_response}&
-\mathrm{direct\_visual\_winner+zero\_intermediates}&
-\mathrm{16K\_qualification+memory\_compaction}&
-\mathrm{multitask\_visual+tactile+contact\_curricula}
+\mathrm{physics\_breadth+fidelity+stable\_coupling}&
+\mathrm{memory\_compaction+environment\_scale+energy\_efficiency}&
+\mathrm{streamed\_operators+fused\_device\_execution}&
+\mathrm{zero\_tax\_visual+tactile+proprioceptive\_sensing}&
+\mathrm{multitask+multirobot+long\_horizon\_curricula}&
+\mathrm{generic\_artifact\_compiler+one\_path\_user\_flow}&
+\mathrm{matched\_end\_to\_end\_frontier\_benchmarks}
 \end{bmatrix}
 ```
 
 ```math
-\vec{\pi}=\begin{bmatrix}1.00&0.95&0.90&0.85&0.80&0.75\end{bmatrix},\qquad
-\mathrm{select}=\max_i\left(\pi_i\,\mathrm{measured\_impact}(p_i)\right)
+\pi_i(t)=
+\frac{\mathrm{measured\_impact}(p_i)\,
+\mathrm{compounding}(p_i)\,\mathrm{unblocked\_surface}(p_i)}
+{\mathrm{cost}(p_i)\,\mathrm{risk}(p_i)},\qquad
+\mathrm{select}(t)=\max_i\pi_i(t)
+```
+
+```math
+\forall\Delta\in\mathrm{accepted}:\quad
+\mathrm{frontier}_{t+1}\succeq\mathrm{frontier}_{t},\qquad
+\mathrm{benchmark}\in\mathrm{instruments}\ne\mathrm{mission}
 ```
 
 ## CONTINUITY
@@ -413,7 +450,8 @@
 \vec{K}=
 \begin{bmatrix}
 \mathrm{architecture}&\mathrm{decision\_rules}&\mathrm{failure\_lessons}&
-\mathrm{repository\_evidence}&\mathrm{honest\_limits}
+\mathrm{repository\_evidence}&\mathrm{measured\_frontier}&
+\mathrm{compounding\_ambition}&\mathrm{honest\_limits}
 \end{bmatrix}
 ```
 
@@ -435,4 +473,10 @@
 
 ```math
 \mathrm{continuity}=\mathrm{consistent\_judgment}+\mathrm{repository\_evidence}+\mathrm{honest\_limits}
+```
+
+```math
+\mathrm{mission}_{t+1}=\mathrm{mission}_{t}+\mathrm{new\_capability}+\mathrm{new\_scale}
++\mathrm{new\_intelligence},\qquad
+\mathrm{mission}\ne\mathrm{current\_task}
 ```
