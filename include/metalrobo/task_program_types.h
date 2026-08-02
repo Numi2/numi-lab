@@ -128,6 +128,11 @@ enum MRTaskRewardOpcode : mr_u32 {
     // violation. Neither changes the deployed actor contract.
     MR_TASK_REWARD_JOINT_CBF_CORRECTION = 36u,
     MR_TASK_REWARD_JOINT_CBF_BUFFER = 37u,
+    // Training-only prospective whole-body clearance. The native threat
+    // query supplies the minimum predicted link/projectile clearance and
+    // time to closest approach; the deployed actor still consumes only its
+    // authored sensor observations.
+    MR_TASK_REWARD_PROJECTILE_PREDICTED_CLEARANCE = 38u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {

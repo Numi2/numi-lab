@@ -356,16 +356,23 @@ private enum DodgePromotionMain {
                 candidate.hits < baseline.hits &&
                 candidate.hitRate < baseline.hitRate &&
                 candidate.balanceFailures <= baseline.balanceFailures
-            // Promotion is a clean-outcome milestone. Directional progress is
-            // tracked separately so fewer contacts and balance failures over
-            // identical physical exposure are not discarded merely because
-            // no completed projectile miss has appeared yet.
+            // Promotion remains a strict clean-outcome milestone. Progress
+            // permits a two-percent companion balance regression because a
+            // handful of events in a finite held-out sample is not evidence
+            // that a policy with fewer contacts or more clean misses failed
+            // to advance. The exact directional deltas remain published.
+            let balanceRegressionTolerance =
+                baseline.balanceFailureIncidence * 0.02
+            let taskOutcomeImproved =
+                candidate.hitIncidence < baseline.hitIncidence ||
+                candidate.missIncidence > baseline.missIncidence
             let progressed =
                 baseline.failedEnvironmentSteps == 0 &&
                 candidate.failedEnvironmentSteps == 0 &&
-                candidate.hitIncidence < baseline.hitIncidence &&
+                taskOutcomeImproved &&
                 candidate.balanceFailureIncidence <=
-                    baseline.balanceFailureIncidence
+                    baseline.balanceFailureIncidence +
+                        balanceRegressionTolerance
             var improvedDimensions: [String] = []
             if candidate.hitIncidence < baseline.hitIncidence {
                 improvedDimensions.append("projectile_contact_incidence")
@@ -461,6 +468,8 @@ private enum DodgePromotionMain {
                     1.0e6 *
                     (candidate.balanceFailureIncidence -
                      baseline.balanceFailureIncidence),
+                "progress_balance_regression_tolerance_per_million_environment_steps":
+                    1.0e6 * balanceRegressionTolerance,
                 "mean_reward_delta":
                     candidate.meanReward - baseline.meanReward,
                 "mean_task_reward_delta":

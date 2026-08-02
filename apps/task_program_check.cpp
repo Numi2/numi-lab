@@ -576,7 +576,7 @@ int main() {
             compiledDodge
         );
         if (!dodgeStatus.succeeded() ||
-            compiledDodge.task.header().counts1.w != 33u ||
+            compiledDodge.task.header().counts1.w != 34u ||
             compiledDodge.task.header().counts2.x != 3u ||
             compiledDodge.task.layout().actorFrameSize != 122u ||
             compiledDodge.task.layout().actorHistoryLength != 5u ||
@@ -594,12 +594,12 @@ int main() {
             compiledDodge.task.header().visualHistory.w != 18u ||
             compiledDodge.task.header().visualRange.x != 0.1f ||
             compiledDodge.task.header().visualRange.y != 5.0f ||
-            compiledDodge.task.header().visualRange.z != 0.15f ||
+            compiledDodge.task.header().visualRange.z != 1.0f ||
             compiledDodge.task.header().visualRange.w != 1.0f ||
-            compiledDodge.task.header().visualCorruption.x != 0.02f ||
-            compiledDodge.task.header().visualCorruption.y != 0.10f ||
-            compiledDodge.task.header().visualCorruption.z != 0.15f ||
-            compiledDodge.task.header().visualCorruption.w != 0.03f ||
+            compiledDodge.task.header().visualCorruption.x != 0.005f ||
+            compiledDodge.task.header().visualCorruption.y != 0.03f ||
+            compiledDodge.task.header().visualCorruption.z != 0.05f ||
+            compiledDodge.task.header().visualCorruption.w != 0.01f ||
             compiledDodge.task.header().schedule.z != 4u ||
             std::abs(
                 compiledDodge.task.header().locomotion.w - 0.03f
@@ -705,6 +705,7 @@ int main() {
         std::uint32_t safeActionRate = 0u;
         std::uint32_t jointCbfCorrection = 0u;
         std::uint32_t jointCbfBuffer = 0u;
+        std::uint32_t predictedClearance = 0u;
         std::uint32_t ungatedVelocityTracking = 0u;
         std::uint32_t maskedDepth = 0u;
         std::uint32_t scaledAngularVelocity = 0u;
@@ -806,6 +807,13 @@ int main() {
                 }
                 ++jointCbfBuffer;
             } else if (operation.source.x ==
+                       MR_TASK_REWARD_PROJECTILE_PREDICTED_CLEARANCE) {
+                if (operation.parameters.x != 2.0f ||
+                    operation.parameters.y != 0.25f) {
+                    fail("compiled predicted-clearance reward changed");
+                }
+                ++predictedClearance;
+            } else if (operation.source.x ==
                            MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING ||
                        operation.source.x ==
                            MR_TASK_REWARD_YAW_VELOCITY_TRACKING) {
@@ -818,6 +826,7 @@ int main() {
         if (barriers != 6u || evasions != 6u || misses != 1u ||
             safeStillness != 1u || safeActionRate != 1u ||
             jointCbfCorrection != 1u || jointCbfBuffer != 1u ||
+            predictedClearance != 1u ||
             ungatedVelocityTracking != 0u) {
             fail("G1 dodge shaping operators are incomplete");
         }

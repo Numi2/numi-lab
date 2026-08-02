@@ -1635,11 +1635,15 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         .frameOffsets = {0u, 3u, 8u, 18u},
         .nearDepthMeters = 0.1f,
         .farDepthMeters = 5.0f,
-        .fullDropoutProbability = 0.02f,
-        .pixelDropoutProbability = 0.10f,
-        .depthJitterMeters = 0.15f,
-        .depthNoiseSigmaMeters = 0.03f,
-        .edgeFlickerProbability = 0.15f,
+        // At 16x9 a physical ball may cover only one winner pixel. Expand
+        // that exact segmented winner by one pixel so the deployed actor
+        // receives a reliable shape-compatible signal. Higher curriculum
+        // levels still scale the remaining sensor corruption.
+        .fullDropoutProbability = 0.005f,
+        .pixelDropoutProbability = 0.03f,
+        .depthJitterMeters = 0.05f,
+        .depthNoiseSigmaMeters = 0.01f,
+        .edgeFlickerProbability = 1.0f,
         .curriculumCorruptionGain = 1.0f,
     };
     const std::uint32_t visualPixels =
@@ -1748,6 +1752,13 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     task.rewards.push_back({
         .operation = TaskRewardOperator::jointCbfBuffer,
         .weight = -0.20f,
+    });
+    task.rewards.push_back({
+        .operation =
+            TaskRewardOperator::projectilePredictedClearance,
+        .weight = 2.0f,
+        // Clearance scale for the urgency-weighted signed tanh reward.
+        .parameters = {0.25f, 0.0f, 0.0f, 0.0f},
     });
     task.terminations.push_back({
         .operation = TaskTerminationOperator::projectileContact,

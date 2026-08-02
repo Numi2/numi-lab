@@ -94,6 +94,8 @@ enum class TaskRewardOperator : std::uint32_t {
         MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE,
     jointCbfCorrection = MR_TASK_REWARD_JOINT_CBF_CORRECTION,
     jointCbfBuffer = MR_TASK_REWARD_JOINT_CBF_BUFFER,
+    projectilePredictedClearance =
+        MR_TASK_REWARD_PROJECTILE_PREDICTED_CLEARANCE,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {

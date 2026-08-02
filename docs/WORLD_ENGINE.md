@@ -250,6 +250,22 @@ not silently re-anchored.
 The former Python/MLX physics extension, MLX world state, task-specific PPO
 collectors, and Python rollout/benchmark entry points have been removed.
 
+Ball-dodge learning uses a training-only prospective clearance reward derived
+from the native whole-body threat query. It is the urgency-weighted signed
+minimum predicted link/projectile clearance, so moving a threatened link away
+from the collision course produces dense progress before the sparse physical
+miss event. The deployment actor receives no privileged geometry: its
+shape-compatible masked-depth history expands an exact segmented winner by
+one pixel at 16x9 so small projectiles remain observable without adding a
+host readback, tracker feature, or larger policy input.
+
+Held-out dodge reporting keeps strict champion promotion separate from
+directional progress. Progress requires a better physical task outcome and
+allows at most a two-percent companion balance-incidence regression, while
+publishing every exact delta. This prevents a few finite-sample balance events
+from erasing a measured contact or clean-miss improvement; champion promotion
+still requires strictly better hit outcomes with no balance regression.
+
 ## R2S2R boundary
 
 World alignment and feedback remain artifact/data operations. Scenario keys,

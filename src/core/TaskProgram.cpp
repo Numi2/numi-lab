@@ -1636,6 +1636,7 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::projectileSafeActionRate:
         case TaskRewardOperator::jointCbfCorrection:
         case TaskRewardOperator::jointCbfBuffer:
+        case TaskRewardOperator::projectilePredictedClearance:
             break;
         case TaskRewardOperator::projectileEvasion: {
             bool ambiguous = false;
@@ -1755,12 +1756,23 @@ TaskCompileDiagnostics compileTaskProgram(
         if ((reward.operation ==
                  TaskRewardOperator::jointCbfCorrection ||
              reward.operation ==
-                 TaskRewardOperator::jointCbfBuffer) &&
+                 TaskRewardOperator::jointCbfBuffer ||
+             reward.operation ==
+                 TaskRewardOperator::projectilePredictedClearance) &&
             pack.threat.protectedGroup.empty()) {
             return reject(
                 TaskCompileStatus::invalidPack,
-                "joint_cbf",
-                "Joint-CBF rewards require a compiled threat program"
+                "threat_reward",
+                "threat-derived rewards require a compiled threat program"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::projectilePredictedClearance &&
+            !(reward.parameters.x > 0.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "projectile_predicted_clearance",
+                "predicted projectile clearance requires a positive distance scale"
             );
         }
         if (reward.operation ==

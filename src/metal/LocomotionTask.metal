@@ -3585,6 +3585,26 @@ kernel void mr_locomotion_task_complete(
                 ? state.threatTeacher.y
                 : 0.0f;
             break;
+        case MR_TASK_REWARD_PROJECTILE_PREDICTED_CLEARANCE:
+            if (state.threatMetadata.x != MR_INVALID_INDEX &&
+                isfinite(state.threatGeometry.x) &&
+                isfinite(state.threatGeometry.y)) {
+                const float urgency = 1.0f - clamp(
+                    state.threatGeometry.y /
+                        max(program.threatTiming.y, 1.0e-6f),
+                    0.0f,
+                    1.0f
+                );
+                value = clamp(
+                    urgency * tanh(
+                        state.threatGeometry.x /
+                            max(operation.parameters.y, 1.0e-4f)
+                    ),
+                    -1.0f,
+                    1.0f
+                );
+            }
+            break;
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
             value = velocitySquared;
             break;
@@ -3866,6 +3886,7 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE:
         case MR_TASK_REWARD_JOINT_CBF_CORRECTION:
         case MR_TASK_REWARD_JOINT_CBF_BUFFER:
+        case MR_TASK_REWARD_PROJECTILE_PREDICTED_CLEARANCE:
             rewardBreakdown1.x += contribution;
             break;
         case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED:
