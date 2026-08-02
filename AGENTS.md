@@ -146,6 +146,18 @@
 ```
 
 ```math
+\mathrm{promotion}(\Delta)=0\not\Rightarrow\mathrm{progress}(\Delta)=0,
+\qquad
+\mathrm{progress}(\Delta)=
+\begin{bmatrix}
+\Delta\mathrm{contact\_incidence}&
+\Delta\mathrm{clean\_miss\_incidence}&
+\Delta\mathrm{balance\_failure\_incidence}&
+\Delta\mathrm{physical\_metrics}
+\end{bmatrix}
+```
+
+```math
 \mathrm{soak}\ne\mathrm{promotion},\qquad
 \mathrm{simulator\_evidence}\ne\mathrm{hardware\_evidence}
 ```
