@@ -1536,6 +1536,49 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     task.pushes.projectileTargetHeightLower = 0.45f;
     task.pushes.projectileTargetHeightUpper = 1.35f;
 
+    // This deployment task has one forward-facing torso camera. Keep every
+    // launch origin inside its horizontal frustum so the actor is never
+    // terminated by a threat that its authored sensor cannot observe. The
+    // six lanes retain meaningful approach-angle diversity; broader azimuth
+    // belongs to a later pack with corresponding side/rear sensing.
+    constexpr std::array<std::array<float, 2>, 6> lateralRanges{{
+        {{-0.65f, -0.45f}},
+        {{-0.40f, -0.20f}},
+        {{-0.15f,  0.05f}},
+        {{ 0.05f,  0.25f}},
+        {{ 0.25f,  0.45f}},
+        {{ 0.45f,  0.65f}},
+    }};
+    for (std::uint32_t sphere = 0u; sphere < lateralRanges.size(); ++sphere) {
+        const std::string name =
+            "locomotion_dynamic_sphere_" + std::to_string(sphere);
+        for (TaskRandomizationOperatorSpec& random : task.randomization) {
+            if (random.operation !=
+                    TaskRandomizationOperator::sceneBodyPosition ||
+                random.target != name) {
+                continue;
+            }
+            switch (random.component) {
+            case 0u:
+                random.parameters = {1.30f, 1.70f, 0.0f, 0.0f};
+                break;
+            case 1u:
+                random.parameters = {
+                    lateralRanges[sphere][0],
+                    lateralRanges[sphere][1],
+                    0.0f,
+                    0.0f,
+                };
+                break;
+            case 2u:
+                random.parameters = {1.00f, 1.35f, 0.0f, 0.0f};
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
     // Deployment sees only ball-segmentation-masked depth. Preserve exact
     // object tracks in the critic for asymmetric PPO, but remove them from
     // the actor so privileged state cannot leak into the deployed policy.

@@ -2258,15 +2258,25 @@ kernel void mr_locomotion_task_observe(
                             program.projectile.w
                         )
                     );
-                    const float horizontalSpeed = randomRange(
-                        dispatch,
-                        environment,
-                        state.episode.y,
-                        0u,
-                        4099u + impact * 4u,
-                        program.projectile.x,
-                        program.projectile.y
+                    // Scene-body velocity randomization owns the authored
+                    // curriculum bands. Preserve its horizontal magnitude
+                    // when retargeting the throw instead of replacing every
+                    // level with the task-wide fallback range.
+                    const float authoredHorizontalSpeed = length(
+                        scheduled.linearVelocityAndInverseMass.xy
                     );
+                    const float horizontalSpeed =
+                        authoredHorizontalSpeed > 0.0f
+                        ? authoredHorizontalSpeed
+                        : randomRange(
+                              dispatch,
+                              environment,
+                              state.episode.y,
+                              0u,
+                              4099u + impact * 4u,
+                              program.projectile.x,
+                              program.projectile.y
+                          );
                     const float3 delta = target - scheduled.position.xyz;
                     const float flightSeconds = max(
                         length(delta.xy) / horizontalSpeed,

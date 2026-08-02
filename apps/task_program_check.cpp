@@ -645,6 +645,7 @@ int main() {
             fail("G1 dodge group has no collidable members");
         }
         std::uint32_t stagedDodgeVelocities = 0u;
+        std::uint32_t forwardDodgePositions = 0u;
         for (const MRTaskRandomizationOperatorGPU& operation :
              compiledDodge.task.randomizationOperators()) {
             if (operation.target.x ==
@@ -653,8 +654,27 @@ int main() {
                 operation.target.w <= 3u) {
                 ++stagedDodgeVelocities;
             }
+            if (operation.target.x !=
+                    MR_TASK_RANDOMIZE_SCENE_BODY_POSITION) {
+                continue;
+            }
+            ++forwardDodgePositions;
+            const bool validRange = operation.target.z == 0u
+                ? operation.parameters.x == 1.30f &&
+                    operation.parameters.y == 1.70f
+                : operation.target.z == 1u
+                    ? operation.parameters.x >= -0.65f &&
+                        operation.parameters.y <= 0.65f &&
+                        operation.parameters.x < operation.parameters.y
+                    : operation.target.z == 2u &&
+                        operation.parameters.x == 1.00f &&
+                        operation.parameters.y == 1.35f;
+            if (!validRange) {
+                fail("G1 dodge launch origin left the camera frustum");
+            }
         }
-        if (stagedDodgeVelocities != 18u) {
+        if (stagedDodgeVelocities != 18u ||
+            forwardDodgePositions != 18u) {
             fail("G1 dodge projectile-speed ladder is incomplete");
         }
         metalrobo::TaskPack overwideDodge = dodge.task;
