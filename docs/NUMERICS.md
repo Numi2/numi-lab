@@ -168,6 +168,13 @@ The composed CPU world partitions independent connected islands, so any one
 connected island above 128 contacts returns capacity overflow. It does not
 drop the excess contacts.
 
+The Metal temporal-cone block symmetrizes and scale-normalizes each coupled
+3x3 point response before inversion. Its deterministic CFM floor is one
+percent of the dominant response. This bounds amplification from redundant or
+nearly rank-deficient articulated contacts while leaving the full articulated
+mass factor and response construction unchanged; it is not a post-step
+velocity clamp.
+
 The currently composed quality world accepts one isotropic Coulomb
 coefficient. A material with distinct static and dynamic coefficients,
 torsional/rolling friction, or a hard impulse cap returns `MR_STEP_UNSUPPORTED`

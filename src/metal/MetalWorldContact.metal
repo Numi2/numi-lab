@@ -11,7 +11,11 @@ namespace {
 constant float kQuaternionMinimum = 1.0e-12f;
 constant float kMatrixFloor = 1.0e-10f;
 constant float kConeEpsilon = 1.0e-7f;
-constant float kContactMatrixRegularization = 1.0e-4f;
+// The coupled point response is scale-normalized below. Keep its smallest
+// resolved mode at one percent of the dominant response so redundant or
+// nearly rank-deficient articulated contacts cannot turn a bounded target
+// velocity into an unbounded impulse correction.
+constant float kContactMatrixRegularization = 1.0e-2f;
 
 struct Mat3 {
     float3 row0;
