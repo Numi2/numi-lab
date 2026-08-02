@@ -306,9 +306,10 @@ struct TaskPack {
     // curriculum evidence. Recovery rewards and touch events remain usable
     // independently when this is false.
     bool recoveryCompletionCurriculum = false;
-    // Promote difficulty from persistent any-link projectile outcomes. The
-    // success threshold becomes minimum clean-dodge fraction and the command
-    // survival fraction becomes maximum balance-failure fraction.
+    // Adapt projectile difficulty from exposure-normalized contact, clean
+    // miss, and balance-failure rates. The success threshold becomes the
+    // minimum relative improvement and the command survival fraction becomes
+    // the maximum tolerated regression in a companion metric.
     bool projectileOutcomeCurriculum = false;
     std::vector<TaskContactGroup> contactGroups;
     std::vector<TaskJointGroup> jointGroups;

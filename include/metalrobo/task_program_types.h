@@ -371,7 +371,11 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
 
 // One compact task-wide curriculum controller remains device-resident across
 // submissions. The command level is global, matching the authored Unitree
-// curriculum, while terrain difficulty remains environment-local.
+// curriculum, while terrain difficulty remains environment-local. Projectile
+// curricula use the two reserved words as one 64-bit same-level reference:
+// three 20-bit rates per million environment steps, two level bits, and one
+// validity bit. This preserves the resident ABI, exact unit resolution over
+// the full possible rate range, and exposure-normalized comparisons.
 typedef struct MR_ALIGN16 MRTaskCurriculumStateGPU {
     mr_u64 controlSteps;
     mr_u64 completedEpisodeCount;
@@ -381,6 +385,66 @@ typedef struct MR_ALIGN16 MRTaskCurriculumStateGPU {
     mr_u32 reserved0;
     mr_u32 reserved1;
 } MRTaskCurriculumStateGPU;
+
+enum MRTaskCurriculumDecision : mr_u32 {
+    MR_TASK_CURRICULUM_HOLD = 0u,
+    MR_TASK_CURRICULUM_ADVANCE = 1u,
+    MR_TASK_CURRICULUM_RETREAT = 2u,
+};
+
+// Pure shared decision rule used by Metal and the focused task-program check.
+// Rates are exposure-normalized before entry. A meaningful improvement in any
+// one outcome may advance when the companion safety outcomes remain stable;
+// a severe one-sided regression may retreat, except at the lowest level.
+static inline mr_u32 mr_task_projectile_curriculum_decision(
+    mr_u32 level,
+    mr_u32 levelCount,
+    float contactRate,
+    float cleanMissRate,
+    float balanceFailureRate,
+    float referenceContactRate,
+    float referenceCleanMissRate,
+    float referenceBalanceFailureRate,
+    float minimumImprovement,
+    float companionTolerance
+) {
+    const float improvedScale = 1.0f - minimumImprovement;
+    const float stableScale = 1.0f + companionTolerance;
+    const float severeScale = 1.0f + 3.0f * minimumImprovement;
+    const mr_u32 contactImproved =
+        contactRate <= referenceContactRate * improvedScale;
+    const mr_u32 balanceImproved =
+        balanceFailureRate <=
+            referenceBalanceFailureRate * improvedScale;
+    const mr_u32 contactStable =
+        contactRate <= referenceContactRate * stableScale;
+    const mr_u32 balanceStable =
+        balanceFailureRate <=
+            referenceBalanceFailureRate * stableScale;
+    const float cleanMissFloor = referenceCleanMissRate > 1000.0f
+        ? referenceCleanMissRate
+        : 1000.0f;
+    const mr_u32 cleanMissImproved =
+        cleanMissRate >= referenceCleanMissRate +
+            minimumImprovement * cleanMissFloor;
+    if (level + 1u < levelCount &&
+        ((contactImproved && balanceStable) ||
+         (balanceImproved && contactStable) ||
+         (cleanMissImproved && contactStable && balanceStable))) {
+        return MR_TASK_CURRICULUM_ADVANCE;
+    }
+    const mr_u32 contactSevere =
+        contactRate > referenceContactRate * severeScale;
+    const mr_u32 balanceSevere =
+        balanceFailureRate >
+            referenceBalanceFailureRate * severeScale;
+    if (level > 0u &&
+        ((contactSevere && !balanceImproved) ||
+         (balanceSevere && !contactImproved))) {
+        return MR_TASK_CURRICULUM_RETREAT;
+    }
+    return MR_TASK_CURRICULUM_HOLD;
+}
 
 typedef struct MR_ALIGN16 MRTaskTransitionGPU {
     // reward, tracking score, root height, tilt.

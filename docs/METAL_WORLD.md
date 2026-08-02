@@ -595,6 +595,19 @@ without allocating the complete 1,684-pair topology envelope per environment.
 Typed overflow and transactional rollback remain the authority if a future
 trajectory exceeds this operational contract.
 
+Ball-dodge learning uses four task-wide levels aligned to the four authored
+projectile-speed bands. Masked-depth corruption rises over the same normalized
+range, while the complete balance-domain distribution remains present at every
+level so curriculum movement does not remove competencies required by a
+resumed actor. Every 1,000-control-step window reports projectile contacts,
+clean misses, and height/tilt failures per million environment steps. The
+device-resident controller anchors a reference at the current level and moves
+up when one outcome improves by at least three percent while companion outcomes
+remain within two percent; a severe regression can move it down. A level change
+starts a fresh same-difficulty reference window. This adaptive movement is a
+training signal, not a promotion claim: held-out physical evaluation reports
+progress and qualification separately.
+
 Visual policy rollouts keep physics and inference at the authored control
 rate, but sample the camera at its independent sensor cadence. The generic
 device tracker retains depth, identity, and validity in private buffers and

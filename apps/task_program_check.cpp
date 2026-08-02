@@ -600,12 +600,12 @@ int main() {
             compiledDodge.task.header().visualCorruption.y != 0.10f ||
             compiledDodge.task.header().visualCorruption.z != 0.15f ||
             compiledDodge.task.header().visualCorruption.w != 0.03f ||
-            compiledDodge.task.header().schedule.z != 9u ||
+            compiledDodge.task.header().schedule.z != 4u ||
             std::abs(
-                compiledDodge.task.header().locomotion.w - 0.55f
+                compiledDodge.task.header().locomotion.w - 0.03f
             ) > 1.0e-6f ||
             std::abs(
-                compiledDodge.task.header().commandUpper.w - 0.35f
+                compiledDodge.task.header().commandUpper.w - 0.02f
             ) > 1.0e-6f ||
             (compiledDodge.task.header().schedule.w &
              MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM) == 0u ||
@@ -643,6 +643,50 @@ int main() {
         }
         if (collidableMembers == 0u) {
             fail("G1 dodge group has no collidable members");
+        }
+        std::uint32_t stagedDodgeVelocities = 0u;
+        for (const MRTaskRandomizationOperatorGPU& operation :
+             compiledDodge.task.randomizationOperators()) {
+            if (operation.target.x ==
+                    MR_TASK_RANDOMIZE_SCENE_BODY_VELOCITY &&
+                operation.target.w >= 1u &&
+                operation.target.w <= 3u) {
+                ++stagedDodgeVelocities;
+            }
+        }
+        if (stagedDodgeVelocities != 18u) {
+            fail("G1 dodge projectile-speed ladder is incomplete");
+        }
+        const auto curriculumDecision = [](
+            const std::uint32_t level,
+            const float contacts,
+            const float misses,
+            const float balance,
+            const float referenceContacts = 10000.0f,
+            const float referenceMisses = 0.0f,
+            const float referenceBalance = 10000.0f
+        ) {
+            return mr_task_projectile_curriculum_decision(
+                level, 4u, contacts, misses, balance,
+                referenceContacts, referenceMisses, referenceBalance,
+                0.03f, 0.02f
+            );
+        };
+        if (curriculumDecision(0u, 9600.0f, 0.0f, 10100.0f) !=
+                MR_TASK_CURRICULUM_ADVANCE ||
+            curriculumDecision(0u, 10100.0f, 0.0f, 9600.0f) !=
+                MR_TASK_CURRICULUM_ADVANCE ||
+            curriculumDecision(0u, 10100.0f, 31.0f, 10100.0f) !=
+                MR_TASK_CURRICULUM_ADVANCE ||
+            curriculumDecision(0u, 9800.0f, 0.0f, 10000.0f) !=
+                MR_TASK_CURRICULUM_HOLD ||
+            curriculumDecision(1u, 11000.0f, 0.0f, 10000.0f) !=
+                MR_TASK_CURRICULUM_RETREAT ||
+            curriculumDecision(0u, 11000.0f, 0.0f, 10000.0f) !=
+                MR_TASK_CURRICULUM_HOLD ||
+            curriculumDecision(1u, 11000.0f, 0.0f, 9600.0f) !=
+                MR_TASK_CURRICULUM_HOLD) {
+            fail("G1 dodge progress curriculum decisions changed");
         }
         std::uint32_t barriers = 0u;
         std::uint32_t evasions = 0u;

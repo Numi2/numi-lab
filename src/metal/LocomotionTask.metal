@@ -4330,7 +4330,10 @@ kernel void mr_locomotion_task_complete(
 
 // One native thread owns the global command curriculum. Episode outcomes are
 // accumulated across the whole evaluation window, so early-reset environments
-// rejoin the promotion evidence instead of becoming permanently phase-shifted.
+// rejoin the evidence instead of becoming permanently phase-shifted. The
+// projectile controller compares exposure-normalized rates against an anchored
+// same-level reference. This is a learning-progress controller; held-out
+// qualification remains an independent stricter decision.
 kernel void mr_locomotion_task_update_curriculum(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -4392,8 +4395,7 @@ kernel void mr_locomotion_task_update_curriculum(
             }
         }
     }
-    if (completedSteps % ulong(program.schedule.x) == 0ul &&
-        level + 1u < program.schedule.z) {
+    if (completedSteps % ulong(program.schedule.x) == 0ul) {
         const float completed =
             float(state.completedEpisodeCount);
         const float meanTracking =
@@ -4401,20 +4403,85 @@ kernel void mr_locomotion_task_update_curriculum(
         const float survivalFraction =
             float(state.timeoutEpisodeCount) /
             max(completed, 1.0f);
-        const float balanceFailureFraction =
-            state.trackingScoreSum / max(completed, 1.0f);
-        const bool advance = projectileCurriculum
-            ? state.completedEpisodeCount != 0ul &&
-                survivalFraction >= program.locomotion.w &&
-                balanceFailureFraction <= program.commandUpper.w
-            : state.completedEpisodeCount != 0ul &&
+        bool advance = !projectileCurriculum &&
+            level + 1u < program.schedule.z &&
+            state.completedEpisodeCount != 0ul &&
                 meanTracking > program.locomotion.w &&
                 survivalFraction >= program.commandUpper.w;
+        bool retreat = false;
+        if (projectileCurriculum) {
+            const ulong exposure =
+                ulong(program.schedule.x) * ulong(dispatch.counts.x);
+            const float rateScale = 1000000.0f /
+                max(float(exposure), 1.0f);
+            const float contactRate =
+                float(state.completedEpisodeCount -
+                      state.timeoutEpisodeCount) * rateScale;
+            const float cleanMissRate =
+                float(state.timeoutEpisodeCount) * rateScale;
+            const float balanceFailureRate =
+                state.trackingScoreSum * rateScale;
+            const ulong packedContact = ulong(min(
+                uint(round(contactRate)), 1000000u
+            ));
+            const ulong packedCleanMiss = ulong(min(
+                uint(round(cleanMissRate)), 1000000u
+            ));
+            const ulong packedBalance = ulong(min(
+                uint(round(balanceFailureRate)), 1000000u
+            ));
+            const ulong packedReference =
+                ulong(state.reserved0) |
+                (ulong(state.reserved1) << 32ul);
+            const bool referenceValid =
+                (packedReference & (1ul << 63ul)) != 0ul;
+            const uint referenceLevel = uint(
+                (packedReference >> 60ul) & 0x3ul
+            );
+            if (!referenceValid || referenceLevel != level) {
+                const ulong reference = packedContact |
+                    (packedBalance << 20ul) |
+                    (packedCleanMiss << 40ul) |
+                    (ulong(level) << 60ul) |
+                    (1ul << 63ul);
+                state.reserved0 = uint(reference);
+                state.reserved1 = uint(reference >> 32ul);
+            } else {
+                const float referenceContact = float(
+                    packedReference & 0xffffful
+                );
+                const float referenceBalance = float(
+                    (packedReference >> 20ul) & 0xffffful
+                );
+                const float referenceCleanMiss = float(
+                    (packedReference >> 40ul) & 0xffffful
+                );
+                const uint decision =
+                    mr_task_projectile_curriculum_decision(
+                        level,
+                        program.schedule.z,
+                        contactRate,
+                        cleanMissRate,
+                        balanceFailureRate,
+                        referenceContact,
+                        referenceCleanMiss,
+                        referenceBalance,
+                        program.locomotion.w,
+                        program.commandUpper.w
+                    );
+                advance = decision == MR_TASK_CURRICULUM_ADVANCE;
+                retreat = decision == MR_TASK_CURRICULUM_RETREAT;
+            }
+        }
         if (advance) {
             ++level;
+            state.reserved0 = 0u;
+            state.reserved1 = 0u;
+        } else if (retreat) {
+            --level;
+            state.reserved0 = 0u;
+            state.reserved1 = 0u;
         }
-    }
-    if (completedSteps % ulong(program.schedule.x) == 0ul) {
         state.completedEpisodeCount = 0ul;
         state.timeoutEpisodeCount = 0ul;
         state.trackingScoreSum = 0.0f;

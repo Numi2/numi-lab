@@ -1519,10 +1519,16 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     TaskPack task =
         makeUnitreeG1BallDisturbanceRecoveryTaskPack(surface);
     task.id = "unitree_g1_ball_dodge";
-    task.curriculumLevelCount = 9u;
+    // Four levels correspond to the four authored projectile-speed bands.
+    // Visual corruption rises over the same normalized range, so every level
+    // has a physical and perceptual meaning instead of adding corruption-only
+    // tail levels.
+    task.curriculumLevelCount = 4u;
     task.projectileOutcomeCurriculum = true;
-    task.successTrackingThreshold = 0.55f;
-    task.commands.minimumEpisodeSurvivalFraction = 0.35f;
+    // Projectile curricula interpret these as the minimum relative
+    // improvement and maximum companion-metric regression per comparison.
+    task.successTrackingThreshold = 0.03f;
+    task.commands.minimumEpisodeSurvivalFraction = 0.02f;
     task.pushes.projectileStandingProbability = 0.20f;
     task.pushes.projectileTargetHorizontalRadius = 0.40f;
     task.pushes.projectileHorizontalSpeedLower = 2.5f;
@@ -1756,12 +1762,15 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     // gate and one-control-step dwell prevent the hopping exploit caused by
     // waiting for both feet or a settled pose before every launch.
     for (TaskRandomizationOperatorSpec& random : task.randomization) {
-        // The promoted visual actor was trained with the complete balance
-        // domain distribution. Preserve that distribution at level zero;
-        // progressive difficulty is owned by visual corruption and outcome
-        // promotion, not by removing actuator/state variability the parent
-        // policy relies on.
-        random.minimumCurriculumLevel = 0u;
+        // Preserve the complete balance domain at level zero because the
+        // resumed actor already depends on it. Retain only the parent's three
+        // staged projectile-speed overrides; launch scheduling, base velocity,
+        // and impact events must remain active from level zero.
+        if (random.operation !=
+                TaskRandomizationOperator::sceneBodyVelocity ||
+            random.minimumCurriculumLevel > 3u) {
+            random.minimumCurriculumLevel = 0u;
+        }
         if (random.operation ==
                 TaskRandomizationOperator::sceneBodyEventImpact) {
             random.parameters = {
