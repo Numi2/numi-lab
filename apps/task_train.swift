@@ -46,6 +46,7 @@ private struct Options {
     var minimumLearningRate = 1.0e-5
     var maximumLearningRate = 1.0e-2
     var fixedLearningRate = false
+    var overrideResumedLearningRate = false
     var clipRatio = 0.2
     var valueCoefficient = 1.0
     // The production default starts with a 0.2 standard deviation in policy
@@ -239,6 +240,8 @@ private struct Options {
                 index += 1
             case "--fixed-learning-rate":
                 fixedLearningRate = true
+            case "--override-resumed-learning-rate":
+                overrideResumedLearningRate = true
             case "--clip-ratio":
                 clipRatio = try Self.double(value(), option)
                 index += 1
@@ -654,6 +657,9 @@ private final class MLXLearnerWorker {
         ]
         if options.fixedLearningRate {
             arguments.append("--fixed-learning-rate")
+        }
+        if options.overrideResumedLearningRate {
+            arguments.append("--override-resumed-learning-rate")
         }
         if let motionPack = options.motionPack {
             arguments.append(contentsOf: [
@@ -1404,6 +1410,9 @@ private enum TaskTrainMain {
                         ),
                 ],
                 "learner_state_restored":
+                    learner.stateRestored,
+                "resumed_learning_rate_overridden":
+                    options.overrideResumedLearningRate &&
                     learner.stateRestored,
                 "native_submission_count": NSNumber(
                     value:

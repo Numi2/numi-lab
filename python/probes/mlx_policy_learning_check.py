@@ -23,6 +23,7 @@ from metalrobo.mlx_policy_learning import (
 )
 from metalrobo.mlx_policy_worker import (
     _MOTION_RESUMABLE_SCHEDULE_FIELDS,
+    _PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS,
     _PPO_RESUMABLE_SCHEDULE_FIELDS,
     _configuration_matches,
     _valid_curriculum_levels,
@@ -141,6 +142,37 @@ def check_resumable_schedule_contracts() -> None:
     ):
         raise RuntimeError(
             "PPO algorithm changes incorrectly pass learner resume"
+        )
+    fine_tuned_ppo = {
+        **scaled_ppo,
+        "learning_rate": 1.0e-6,
+        "adaptive_learning_rate": False,
+    }
+    if _configuration_matches(
+        json.dumps(ppo),
+        json.dumps(fine_tuned_ppo),
+        _PPO_RESUMABLE_SCHEDULE_FIELDS,
+    ):
+        raise RuntimeError(
+            "learning-rate changes passed an exact learner resume"
+        )
+    if not _configuration_matches(
+        json.dumps(ppo),
+        json.dumps(fine_tuned_ppo),
+        _PPO_RESUMABLE_SCHEDULE_FIELDS |
+        _PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS,
+    ):
+        raise RuntimeError(
+            "explicit learning-rate fine-tuning was rejected"
+        )
+    if _configuration_matches(
+        json.dumps(ppo),
+        json.dumps({**fine_tuned_ppo, "clip_ratio": 0.3}),
+        _PPO_RESUMABLE_SCHEDULE_FIELDS |
+        _PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS,
+    ):
+        raise RuntimeError(
+            "learning-rate override admitted another PPO algorithm change"
         )
     motion = {
         "hidden_sizes": [32],

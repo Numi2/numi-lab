@@ -34,6 +34,9 @@ from .mlx_policy_learning import (
 _PPO_RESUMABLE_SCHEDULE_FIELDS = frozenset(
     {"minibatch_size", "seed"}
 )
+_PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS = frozenset(
+    {"learning_rate", "adaptive_learning_rate"}
+)
 _MOTION_RESUMABLE_SCHEDULE_FIELDS = frozenset(
     {"minibatch_size", "seed"}
 )
@@ -289,6 +292,9 @@ def _restore_learner_state(
     learner: MLXPolicyLearner,
     path: Path,
     motion_prior: MLXMotionPrior | None = None,
+    ppo_resumable_schedule_fields: frozenset[str] = (
+        _PPO_RESUMABLE_SCHEDULE_FIELDS
+    ),
 ) -> tuple[bool, int, int]:
     target = path.expanduser().resolve()
     if target.suffix != ".safetensors":
@@ -330,7 +336,7 @@ def _restore_learner_state(
     ) or not _configuration_matches(
         metadata.get("configuration"),
         _configuration_record(learner),
-        _PPO_RESUMABLE_SCHEDULE_FIELDS,
+        ppo_resumable_schedule_fields,
     ) or (
         motion_prior is not None
         and not _configuration_matches(
@@ -676,7 +682,15 @@ def _serve(arguments: argparse.Namespace) -> int:
         learner,
         arguments.learner_state,
         motion_prior,
+        _PPO_RESUMABLE_SCHEDULE_FIELDS |
+        _PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS
+        if arguments.override_resumed_learning_rate
+        else _PPO_RESUMABLE_SCHEDULE_FIELDS,
     )
+    if restored and arguments.override_resumed_learning_rate:
+        learner.optimizer.learning_rate = arguments.learning_rate
+        learner.refresh_compiled_training_state()
+        mx.eval(learner.optimizer.state)
     if not restored:
         task_curriculum_level = arguments.initial_task_curriculum_level
         task_curriculum_reference_rates = (
@@ -709,6 +723,9 @@ def _serve(arguments: argparse.Namespace) -> int:
                 else 0
             ),
             "learner_state_restored": restored,
+            "resumed_learning_rate_overridden": bool(
+                restored and arguments.override_resumed_learning_rate
+            ),
             "motion_prior_enabled": motion_prior is not None,
             "motion_pack_hash": (
                 motion_prior.motion_pack.content_hash
@@ -1047,6 +1064,14 @@ def main() -> int:
         "--learner-state",
         type=Path,
         required=True,
+    )
+    serve.add_argument(
+        "--override-resumed-learning-rate",
+        action="store_true",
+        help=(
+            "restore model, Adam, motion, and curriculum state while "
+            "explicitly replacing the PPO learning-rate schedule"
+        ),
     )
     serve.add_argument(
         "--deployment-policy-pack",
