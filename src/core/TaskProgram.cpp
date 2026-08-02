@@ -2676,6 +2676,13 @@ TaskCompileDiagnostics compileTaskProgram(
                 "projectile-outcome curriculum requires an event projectile sequence"
             );
         }
+        if (pack.curriculumLevelCount > 4u) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "projectile_curriculum",
+                "projectile progress references support at most four authored levels"
+            );
+        }
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM;
     }

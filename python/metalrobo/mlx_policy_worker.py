@@ -161,10 +161,32 @@ def _require_finite_motion_state(
         )
 
 
+def _valid_curriculum_reference(level: int, reference: int) -> bool:
+    if reference == 0:
+        return True
+    return (
+        0 <= reference <= np.iinfo(np.uint64).max
+        and reference & (1 << 63) != 0
+        and ((reference >> 60) & 0x3) == level
+    )
+
+
+def _valid_curriculum_levels(
+    level_series: np.ndarray,
+    initial_level: int,
+) -> bool:
+    return (
+        level_series.size != 0
+        and abs(int(level_series[0]) - initial_level) <= 1
+        and not np.any(np.abs(np.diff(level_series)) > 1)
+    )
+
+
 def _write_learner_state(
     learner: MLXPolicyLearner,
     path: Path,
     task_curriculum_level: int,
+    task_curriculum_reference_rates: int,
     motion_prior: MLXMotionPrior | None = None,
 ) -> Path:
     """Atomically checkpoint model parameters and Adam moments."""
@@ -173,6 +195,13 @@ def _write_learner_state(
         raise ValueError("learner state requires a policy identity")
     if not 0 <= task_curriculum_level <= np.iinfo(np.uint32).max:
         raise ValueError("task curriculum level exceeds uint32")
+    if not 0 <= task_curriculum_reference_rates <= np.iinfo(np.uint64).max:
+        raise ValueError("task curriculum reference exceeds uint64")
+    if not _valid_curriculum_reference(
+        task_curriculum_level,
+        task_curriculum_reference_rates,
+    ):
+        raise ValueError("task curriculum reference disagrees with its level")
     learner._require_finite_training_state()
     target = path.expanduser().resolve()
     if target.suffix != ".safetensors":
@@ -225,6 +254,9 @@ def _write_learner_state(
         "action_count": str(learner.action_count),
         "configuration": _configuration_record(learner),
         "task_curriculum_level": str(task_curriculum_level),
+        "task_curriculum_reference_rates": str(
+            task_curriculum_reference_rates
+        ),
     }
     if motion_prior is not None:
         metadata.update(
@@ -257,12 +289,12 @@ def _restore_learner_state(
     learner: MLXPolicyLearner,
     path: Path,
     motion_prior: MLXMotionPrior | None = None,
-) -> tuple[bool, int]:
+) -> tuple[bool, int, int]:
     target = path.expanduser().resolve()
     if target.suffix != ".safetensors":
         raise ValueError("learner state path must end in .safetensors")
     if not target.is_file():
-        return False, 0
+        return False, 0, 0
     loaded = mx.load(target, return_metadata=True)
     if not isinstance(loaded, tuple) or len(loaded) != 2:
         raise ValueError("MLX learner state has no metadata")
@@ -315,6 +347,9 @@ def _restore_learner_state(
         task_curriculum_level = int(
             metadata["task_curriculum_level"]
         )
+        task_curriculum_reference_rates = int(
+            metadata.get("task_curriculum_reference_rates", "0")
+        )
     except (KeyError, TypeError, ValueError) as error:
         raise ValueError(
             "MLX learner state revision or task curriculum is invalid"
@@ -325,6 +360,15 @@ def _restore_learner_state(
         )
     if not 0 <= task_curriculum_level <= np.iinfo(np.uint32).max:
         raise ValueError("MLX learner task curriculum exceeds uint32")
+    if not 0 <= task_curriculum_reference_rates <= np.iinfo(np.uint64).max:
+        raise ValueError("MLX learner task curriculum reference exceeds uint64")
+    if not _valid_curriculum_reference(
+        task_curriculum_level,
+        task_curriculum_reference_rates,
+    ):
+        raise ValueError(
+            "MLX learner task curriculum reference disagrees with its level"
+        )
 
     expected_model = dict(
         tree_flatten(learner.model.trainable_parameters())
@@ -448,7 +492,11 @@ def _restore_learner_state(
     learner._require_finite_training_state()
     if motion_prior is not None:
         _require_finite_motion_state(motion_prior)
-    return True, task_curriculum_level
+    return (
+        True,
+        task_curriculum_level,
+        task_curriculum_reference_rates,
+    )
 
 
 def _validate_rollout(
@@ -496,14 +544,9 @@ def _validate_rollout(
             "PolicyRolloutPack task-wide curriculum differs across environments"
         )
     level_series = levels[:, 0].astype(np.int64)
-    if (
-        int(level_series[0]) < task_curriculum_level
-        or int(level_series[0]) > task_curriculum_level + 1
-        or np.any(np.diff(level_series) < 0)
-        or np.any(np.diff(level_series) > 1)
-    ):
+    if not _valid_curriculum_levels(level_series, task_curriculum_level):
         raise ValueError(
-            "PolicyRolloutPack task curriculum is not monotonic"
+            "PolicyRolloutPack task curriculum changes by more than one level"
         )
     return (
         rollout,
@@ -599,6 +642,10 @@ def _serve(arguments: argparse.Namespace) -> int:
         np.uint32
     ).max:
         raise ValueError("initial task curriculum level exceeds uint32")
+    if not 0 <= arguments.initial_task_curriculum_reference_rates <= np.iinfo(
+        np.uint64
+    ).max:
+        raise ValueError("initial task curriculum reference exceeds uint64")
     learner = MLXPolicyLearner.from_policy_pack(
         arguments.policy_pack,
         _configuration(arguments),
@@ -621,13 +668,20 @@ def _serve(arguments: argparse.Namespace) -> int:
                 seed=arguments.seed,
             ),
         )
-    restored, task_curriculum_level = _restore_learner_state(
+    (
+        restored,
+        task_curriculum_level,
+        task_curriculum_reference_rates,
+    ) = _restore_learner_state(
         learner,
         arguments.learner_state,
         motion_prior,
     )
     if not restored:
         task_curriculum_level = arguments.initial_task_curriculum_level
+        task_curriculum_reference_rates = (
+            arguments.initial_task_curriculum_reference_rates
+        )
     current_policy = learner.write_policy_pack(
         arguments.output_policy_pack,
         library_path=arguments.native_library,
@@ -662,6 +716,9 @@ def _serve(arguments: argparse.Namespace) -> int:
                 else 0
             ),
             "task_curriculum_level": task_curriculum_level,
+            "task_curriculum_reference_rates": str(
+                task_curriculum_reference_rates
+            ),
             "policy_pack": str(current_policy),
             "deployment_policy_pack":
                 str(current_deployment_policy),
@@ -687,6 +744,23 @@ def _serve(arguments: argparse.Namespace) -> int:
             rollout_value = request.get("rollout_pack")
             if not isinstance(rollout_value, str) or not rollout_value:
                 raise ValueError("update requires rollout_pack")
+            reference_value = request.get(
+                "task_curriculum_reference_rates"
+            )
+            if not isinstance(reference_value, str):
+                raise ValueError(
+                    "update requires a decimal task curriculum reference"
+                )
+            try:
+                rollout_curriculum_reference_rates = int(reference_value)
+            except ValueError as error:
+                raise ValueError(
+                    "task curriculum reference is not an integer"
+                ) from error
+            if not 0 <= rollout_curriculum_reference_rates <= np.iinfo(
+                np.uint64
+            ).max:
+                raise ValueError("task curriculum reference exceeds uint64")
             (
                 rollout,
                 expected_task_fingerprint,
@@ -698,6 +772,13 @@ def _serve(arguments: argparse.Namespace) -> int:
                 task_curriculum_level,
                 arguments.native_library,
             )
+            if not _valid_curriculum_reference(
+                rollout_curriculum_level,
+                rollout_curriculum_reference_rates,
+            ):
+                raise ValueError(
+                    "rollout curriculum reference disagrees with its level"
+                )
             revision_before = learner.revision
             learning_rewards = None
             motion_metrics: dict[str, float] = {}
@@ -725,9 +806,13 @@ def _serve(arguments: argparse.Namespace) -> int:
                 learner,
                 arguments.learner_state,
                 rollout_curriculum_level,
+                rollout_curriculum_reference_rates,
                 motion_prior,
             )
             task_curriculum_level = rollout_curriculum_level
+            task_curriculum_reference_rates = (
+                rollout_curriculum_reference_rates
+            )
             response = {
                 "status": "updated",
                 "policy_revision_before": revision_before,
@@ -740,6 +825,9 @@ def _serve(arguments: argparse.Namespace) -> int:
                 "deployment_policy_pack": str(deployment_artifact),
                 "learner_state": str(learner_state),
                 "task_curriculum_level": task_curriculum_level,
+                "task_curriculum_reference_rates": str(
+                    task_curriculum_reference_rates
+                ),
                 **_rollout_metrics(rollout),
                 **metrics,
             }
@@ -973,6 +1061,11 @@ def main() -> int:
     )
     serve.add_argument(
         "--initial-task-curriculum-level",
+        type=int,
+        default=0,
+    )
+    serve.add_argument(
+        "--initial-task-curriculum-reference-rates",
         type=int,
         default=0,
     )

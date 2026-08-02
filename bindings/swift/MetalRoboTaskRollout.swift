@@ -618,6 +618,61 @@ public struct MetalRoboTaskTransition: Sendable {
     }
 }
 
+public enum MetalRoboTaskCurriculumDecision: UInt32, Sendable {
+    case hold = 0
+    case advance = 1
+    case retreat = 2
+}
+
+public struct MetalRoboTaskCurriculumCheckpoint: Sendable {
+    public let level: UInt32
+    public let referenceRates: UInt64
+
+    public init(level: UInt32, referenceRates: UInt64 = 0) {
+        self.level = level
+        self.referenceRates = referenceRates
+    }
+}
+
+public struct MetalRoboTaskCurriculumTelemetry: Sendable {
+    public let controlSteps: UInt64
+    public let checkpoint: MetalRoboTaskCurriculumCheckpoint
+    public let referenceValid: Bool
+    public let referenceLevel: UInt32
+    public let referenceContactRate: UInt32
+    public let referenceCleanMissRate: UInt32
+    public let referenceBalanceFailureRate: UInt32
+    public let lastContactRate: UInt32
+    public let lastCleanMissRate: UInt32
+    public let lastBalanceFailureRate: UInt32
+    public let lastDecision: MetalRoboTaskCurriculumDecision
+
+    fileprivate init(_ native: MRTaskCurriculumTelemetryC) throws {
+        guard let decision = MetalRoboTaskCurriculumDecision(
+            rawValue: native.last_decision
+        ) else {
+            throw MetalRoboTaskRolloutError.native(
+                "Native task curriculum published an invalid decision."
+            )
+        }
+        controlSteps = native.control_steps
+        checkpoint = MetalRoboTaskCurriculumCheckpoint(
+            level: native.command_level,
+            referenceRates: native.reference_rates
+        )
+        referenceValid = native.reference_valid != 0
+        referenceLevel = native.reference_level
+        referenceContactRate = native.reference_contact_rate
+        referenceCleanMissRate = native.reference_clean_miss_rate
+        referenceBalanceFailureRate =
+            native.reference_balance_failure_rate
+        lastContactRate = native.last_contact_rate
+        lastCleanMissRate = native.last_clean_miss_rate
+        lastBalanceFailureRate = native.last_balance_failure_rate
+        lastDecision = decision
+    }
+}
+
 public struct MetalRoboPolicyRolloutBatch: Sendable {
     public let controlStepCount: Int
     public let environmentCount: Int
@@ -887,6 +942,35 @@ public final class MetalRoboTaskRolloutContext {
                 Self.lastError()
             )
         }
+    }
+
+    public func setCurriculumCheckpoint(
+        _ checkpoint: MetalRoboTaskCurriculumCheckpoint
+    ) throws {
+        guard mr_task_rollout_set_curriculum_checkpoint(
+            handle,
+            checkpoint.level,
+            checkpoint.referenceRates
+        ) == 0 else {
+            throw MetalRoboTaskRolloutError.native(
+                Self.lastError()
+            )
+        }
+    }
+
+    public func curriculumTelemetry() throws
+        -> MetalRoboTaskCurriculumTelemetry
+    {
+        var native = MRTaskCurriculumTelemetryC()
+        guard mr_task_rollout_curriculum_telemetry(
+            handle,
+            &native
+        ) == 0 else {
+            throw MetalRoboTaskRolloutError.native(
+                Self.lastError()
+            )
+        }
+        return try MetalRoboTaskCurriculumTelemetry(native)
     }
 
     public func setStateReadback(_ enabled: Bool) throws {

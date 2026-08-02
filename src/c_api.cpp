@@ -147,6 +147,15 @@ static_assert(
     offsetof(MRTaskTransitionC, curriculum_level) ==
     offsetof(MRTaskTransitionGPU, taskProgress)
 );
+static_assert(sizeof(MRTaskCurriculumTelemetryC) == 56u);
+static_assert(
+    static_cast<unsigned>(MR_TASK_CURRICULUM_C_HOLD) ==
+        static_cast<unsigned>(MR_TASK_CURRICULUM_HOLD) &&
+    static_cast<unsigned>(MR_TASK_CURRICULUM_C_ADVANCE) ==
+        static_cast<unsigned>(MR_TASK_CURRICULUM_ADVANCE) &&
+    static_cast<unsigned>(MR_TASK_CURRICULUM_C_RETREAT) ==
+        static_cast<unsigned>(MR_TASK_CURRICULUM_RETREAT)
+);
 
 namespace {
 
@@ -1989,6 +1998,18 @@ int mr_task_rollout_set_curriculum_level(
     MRTaskRolloutHandle* handle,
     const uint32_t level
 ) {
+    return mr_task_rollout_set_curriculum_checkpoint(
+        handle,
+        level,
+        0u
+    );
+}
+
+int mr_task_rollout_set_curriculum_checkpoint(
+    MRTaskRolloutHandle* handle,
+    const uint32_t level,
+    const uint64_t reference_rates
+) {
     if (!requireTaskRolloutHandle(handle)) {
         return -1;
     }
@@ -2003,7 +2024,62 @@ int mr_task_rollout_set_curriculum_level(
                 "task curriculum level exceeds the compiled TaskPack"
             );
         }
+        if (reference_rates != 0u) {
+            const bool valid =
+                (reference_rates & (uint64_t{1u} << 63u)) != 0u;
+            const uint32_t referenceLevel = static_cast<uint32_t>(
+                (reference_rates >> 60u) & 0x3u
+            );
+            if (!valid || referenceLevel != level) {
+                throw std::invalid_argument(
+                    "task curriculum reference does not match its level"
+                );
+            }
+        }
         handle->stepConfig.taskCurriculumLevel = level;
+        handle->stepConfig.taskCurriculumReferenceRates =
+            reference_rates;
+    });
+}
+
+int mr_task_rollout_curriculum_telemetry(
+    const MRTaskRolloutHandle* handle,
+    MRTaskCurriculumTelemetryC* telemetry
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return -1;
+    }
+    if (telemetry == nullptr) {
+        gLastError = "task curriculum telemetry output is null.";
+        return -1;
+    }
+    return translateErrors([&] {
+        if (!handle->residentState.valid()) {
+            throw std::logic_error(
+                "task curriculum telemetry requires a completed resident submission"
+            );
+        }
+        const MRTaskCurriculumStateGPU& state =
+            handle->result.curriculumState;
+        const uint64_t reference = state.referenceRates;
+        telemetry->control_steps = state.controlSteps;
+        telemetry->reference_rates = reference;
+        telemetry->command_level = state.commandLevel;
+        telemetry->reference_valid =
+            (reference & (uint64_t{1u} << 63u)) != 0u ? 1u : 0u;
+        telemetry->reference_level = static_cast<uint32_t>(
+            (reference >> 60u) & 0x3u
+        );
+        telemetry->reference_contact_rate =
+            static_cast<uint32_t>(reference & 0xfffffu);
+        telemetry->reference_balance_failure_rate =
+            static_cast<uint32_t>((reference >> 20u) & 0xfffffu);
+        telemetry->reference_clean_miss_rate =
+            static_cast<uint32_t>((reference >> 40u) & 0xfffffu);
+        telemetry->last_contact_rate = state.lastWindow.x;
+        telemetry->last_clean_miss_rate = state.lastWindow.y;
+        telemetry->last_balance_failure_rate = state.lastWindow.z;
+        telemetry->last_decision = state.lastWindow.w;
     });
 }
 
@@ -2491,6 +2567,10 @@ int mr_task_rollout_advance(
                 ) + "]: " + diagnostics.message
             );
         }
+        handle->stepConfig.taskCurriculumLevel =
+            handle->result.curriculumState.commandLevel;
+        handle->stepConfig.taskCurriculumReferenceRates =
+            handle->result.curriculumState.referenceRates;
     });
 }
 

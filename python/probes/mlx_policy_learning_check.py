@@ -25,7 +25,27 @@ from metalrobo.mlx_policy_worker import (
     _MOTION_RESUMABLE_SCHEDULE_FIELDS,
     _PPO_RESUMABLE_SCHEDULE_FIELDS,
     _configuration_matches,
+    _valid_curriculum_levels,
+    _valid_curriculum_reference,
 )
+
+
+def check_adaptive_curriculum_contract() -> None:
+    reference = (1 << 63) | (2 << 60) | 10000 | (14000 << 20)
+    if not _valid_curriculum_reference(2, reference):
+        raise RuntimeError("valid curriculum reference was rejected")
+    if _valid_curriculum_reference(1, reference):
+        raise RuntimeError("cross-level curriculum reference was accepted")
+    if not _valid_curriculum_levels(
+        np.asarray((1, 1, 0, 0, 1), dtype=np.int64),
+        1,
+    ):
+        raise RuntimeError("bounded adaptive curriculum was rejected")
+    if _valid_curriculum_levels(
+        np.asarray((1, 3), dtype=np.int64),
+        1,
+    ):
+        raise RuntimeError("multi-level curriculum jump was accepted")
 
 
 def make_learner() -> MLXPolicyLearner:
@@ -369,6 +389,7 @@ def main() -> int:
     arguments = parser.parse_args()
     check_gae_boundaries()
     check_resumable_schedule_contracts()
+    check_adaptive_curriculum_contract()
 
     if arguments.collector is not None:
         if arguments.metallib is None or arguments.library is None:

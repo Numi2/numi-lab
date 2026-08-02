@@ -583,6 +583,7 @@ private final class MLXLearnerWorker {
     private(set) var deploymentPolicyPackPath: String
     private(set) var stateRestored: Bool
     private(set) var taskCurriculumLevel: UInt32
+    private(set) var taskCurriculumReferenceRates: UInt64
     private var closed = false
 
     init(options: Options) throws {
@@ -620,6 +621,8 @@ private final class MLXLearnerWorker {
             options.nativeLibrary,
             "--initial-task-curriculum-level",
             String(options.initialCurriculumLevel),
+            "--initial-task-curriculum-reference-rates",
+            "0",
             "--update-epochs",
             String(options.updateEpochs),
             "--minibatch-size",
@@ -677,6 +680,7 @@ private final class MLXLearnerWorker {
         deploymentPolicyPackPath = ""
         stateRestored = false
         taskCurriculumLevel = 0
+        taskCurriculumReferenceRates = 0
         let ready = try response()
         guard ready["status"] as? String == "ready",
               let revisionValue =
@@ -697,6 +701,10 @@ private final class MLXLearnerWorker {
                   ready["learner_state_restored"] as? Bool,
               let curriculumValue =
                   ready["task_curriculum_level"] as? NSNumber,
+              let curriculumReference =
+                  ready["task_curriculum_reference_rates"] as? String,
+              let parsedCurriculumReference =
+                  UInt64(curriculumReference),
               curriculumValue.uint64Value <= UInt64(UInt32.max)
         else {
             throw MetalRoboTaskRolloutError.native(
@@ -713,6 +721,7 @@ private final class MLXLearnerWorker {
             readyDeploymentPolicyPack
         stateRestored = restored
         taskCurriculumLevel = curriculumValue.uint32Value
+        taskCurriculumReferenceRates = parsedCurriculumReference
     }
 
     deinit {
@@ -721,11 +730,17 @@ private final class MLXLearnerWorker {
         }
     }
 
-    func update(rolloutPack: String) throws -> [String: Any] {
+    func update(
+        rolloutPack: String,
+        curriculumCheckpoint: MetalRoboTaskCurriculumCheckpoint
+    ) throws -> [String: Any] {
         try request(
             [
                 "operation": "update",
                 "rollout_pack": rolloutPack,
+                "task_curriculum_reference_rates": String(
+                    curriculumCheckpoint.referenceRates
+                ),
             ]
         )
         let result = try response()
@@ -738,12 +753,17 @@ private final class MLXLearnerWorker {
                   result["deployment_policy_pack"] as? String,
               let updatedCurriculum =
                   result["task_curriculum_level"] as? NSNumber,
+              let updatedReference =
+                  result["task_curriculum_reference_rates"] as? String,
+              let parsedUpdatedReference = UInt64(updatedReference),
               before.uint64Value == revision,
               after.uint64Value == revision + 1,
               updatedCurriculum.uint64Value <=
                   UInt64(UInt32.max),
-              updatedCurriculum.uint64Value >=
-                  UInt64(taskCurriculumLevel),
+              updatedCurriculum.uint32Value ==
+                  curriculumCheckpoint.level,
+              parsedUpdatedReference ==
+                  curriculumCheckpoint.referenceRates,
               deploymentPolicyPack ==
                   deploymentPolicyPackPath
         else {
@@ -754,6 +774,7 @@ private final class MLXLearnerWorker {
         }
         revision = after.uint64Value
         taskCurriculumLevel = updatedCurriculum.uint32Value
+        taskCurriculumReferenceRates = parsedUpdatedReference
         return result
     }
 
@@ -961,8 +982,12 @@ private enum TaskTrainMain {
                 )
             }
             let learner = try MLXLearnerWorker(options: options)
-            try context.setCurriculumLevel(
-                learner.taskCurriculumLevel
+            try context.setCurriculumCheckpoint(
+                MetalRoboTaskCurriculumCheckpoint(
+                    level: learner.taskCurriculumLevel,
+                    referenceRates:
+                        learner.taskCurriculumReferenceRates
+                )
             )
             try context.loadPolicy(
                 at: URL(fileURLWithPath: learner.policyPackPath)
@@ -984,6 +1009,8 @@ private enum TaskTrainMain {
             let initialRevision = learner.revision
             let initialCurriculumLevel =
                 learner.taskCurriculumLevel
+            let initialCurriculumReferenceRates =
+                learner.taskCurriculumReferenceRates
             var installedRevision = learner.revision
             let warmup = try context.advanceWithPolicy(
                 controlStepCount: 1,
@@ -1000,6 +1027,8 @@ private enum TaskTrainMain {
                     "Initial PolicyPack failed native warmup."
                 )
             }
+            let warmupCurriculumTelemetry =
+                try context.curriculumTelemetry()
             try context.reset(seed: options.seed)
 
             let baseline = context.layout
@@ -1011,6 +1040,8 @@ private enum TaskTrainMain {
             var stageHighWater: [String: Int] = [:]
             var failedSteps = 0
             var lastLearning: [String: Any] = [:]
+            var lastCurriculumTelemetry =
+                warmupCurriculumTelemetry
             let samplesPerUpdate =
                 options.environments * options.steps
             let (trainingSamples, trainingSamplesOverflow) =
@@ -1146,20 +1177,48 @@ private enum TaskTrainMain {
                     id: "swift_native_training_rollout",
                     to: URL(fileURLWithPath: rolloutPack)
                 )
-                guard let rolloutCurriculumLevel =
-                          transitions.last?.curriculumLevel,
-                      rolloutCurriculumLevel >=
-                          learner.taskCurriculumLevel
+                var previousCurriculumLevel =
+                    learner.taskCurriculumLevel
+                var rolloutCurriculumLevel =
+                    previousCurriculumLevel
+                var validCurriculum = true
+                for step in 0..<options.steps {
+                    let base = step * options.environments
+                    let level = transitions[base].curriculumLevel
+                    if !transitions[
+                        base..<(base + options.environments)
+                    ].allSatisfy({ $0.curriculumLevel == level }) ||
+                        abs(
+                            Int64(level) -
+                                Int64(previousCurriculumLevel)
+                        ) > 1
+                    {
+                        validCurriculum = false
+                        break
+                    }
+                    previousCurriculumLevel = level
+                    rolloutCurriculumLevel = level
+                }
+                lastCurriculumTelemetry =
+                    try context.curriculumTelemetry()
+                guard validCurriculum,
+                      rolloutCurriculumLevel ==
+                          lastCurriculumTelemetry.checkpoint.level
                 else {
                     throw MetalRoboTaskRolloutError.native(
-                        "Native rollout did not publish a monotonic task curriculum."
+                        "Native rollout published an invalid adaptive task curriculum."
                     )
                 }
                 lastLearning = try learner.update(
-                    rolloutPack: rolloutPack
+                    rolloutPack: rolloutPack,
+                    curriculumCheckpoint:
+                        lastCurriculumTelemetry.checkpoint
                 )
                 guard learner.taskCurriculumLevel ==
-                          rolloutCurriculumLevel
+                          rolloutCurriculumLevel,
+                      learner.taskCurriculumReferenceRates ==
+                          lastCurriculumTelemetry
+                              .checkpoint.referenceRates
                 else {
                     throw MetalRoboTaskRolloutError.native(
                         "Learner checkpoint disagrees with the native rollout curriculum."
@@ -1255,6 +1314,10 @@ private enum TaskTrainMain {
                                 "update=\(updateIndex + 1) " +
                                 "revision=\(installedRevision) " +
                                 "curriculum=\(learner.taskCurriculumLevel) " +
+                                "curriculum_decision=\(lastCurriculumTelemetry.lastDecision) " +
+                                "contact_rate=\(lastCurriculumTelemetry.lastContactRate) " +
+                                "miss_rate=\(lastCurriculumTelemetry.lastCleanMissRate) " +
+                                "balance_rate=\(lastCurriculumTelemetry.lastBalanceFailureRate) " +
                                 "reward=\(reward) " +
                                 "tracking=\(tracking) " +
                                 "height=\(height) " +
@@ -1307,8 +1370,39 @@ private enum TaskTrainMain {
                 "final_policy_revision": installedRevision,
                 "initial_task_curriculum_level":
                     initialCurriculumLevel,
+                "initial_task_curriculum_reference_rates":
+                    String(initialCurriculumReferenceRates),
                 "final_task_curriculum_level":
                     learner.taskCurriculumLevel,
+                "final_task_curriculum_reference_rates":
+                    String(learner.taskCurriculumReferenceRates),
+                "final_curriculum_telemetry": [
+                    "control_steps":
+                        lastCurriculumTelemetry.controlSteps,
+                    "reference_valid":
+                        lastCurriculumTelemetry.referenceValid,
+                    "reference_level":
+                        lastCurriculumTelemetry.referenceLevel,
+                    "reference_contact_rate":
+                        lastCurriculumTelemetry.referenceContactRate,
+                    "reference_clean_miss_rate":
+                        lastCurriculumTelemetry.referenceCleanMissRate,
+                    "reference_balance_failure_rate":
+                        lastCurriculumTelemetry
+                            .referenceBalanceFailureRate,
+                    "last_contact_rate":
+                        lastCurriculumTelemetry.lastContactRate,
+                    "last_clean_miss_rate":
+                        lastCurriculumTelemetry.lastCleanMissRate,
+                    "last_balance_failure_rate":
+                        lastCurriculumTelemetry
+                            .lastBalanceFailureRate,
+                    "last_decision":
+                        String(
+                            describing:
+                                lastCurriculumTelemetry.lastDecision
+                        ),
+                ],
                 "learner_state_restored":
                     learner.stateRestored,
                 "native_submission_count": NSNumber(

@@ -4430,9 +4430,7 @@ kernel void mr_locomotion_task_update_curriculum(
             const ulong packedBalance = ulong(min(
                 uint(round(balanceFailureRate)), 1000000u
             ));
-            const ulong packedReference =
-                ulong(state.reserved0) |
-                (ulong(state.reserved1) << 32ul);
+            const ulong packedReference = state.referenceRates;
             const bool referenceValid =
                 (packedReference & (1ul << 63ul)) != 0ul;
             const uint referenceLevel = uint(
@@ -4444,8 +4442,13 @@ kernel void mr_locomotion_task_update_curriculum(
                     (packedCleanMiss << 40ul) |
                     (ulong(level) << 60ul) |
                     (1ul << 63ul);
-                state.reserved0 = uint(reference);
-                state.reserved1 = uint(reference >> 32ul);
+                state.referenceRates = reference;
+                state.lastWindow = uint4(
+                    uint(packedContact),
+                    uint(packedCleanMiss),
+                    uint(packedBalance),
+                    MR_TASK_CURRICULUM_HOLD
+                );
             } else {
                 const float referenceContact = float(
                     packedReference & 0xffffful
@@ -4471,16 +4474,20 @@ kernel void mr_locomotion_task_update_curriculum(
                     );
                 advance = decision == MR_TASK_CURRICULUM_ADVANCE;
                 retreat = decision == MR_TASK_CURRICULUM_RETREAT;
+                state.lastWindow = uint4(
+                    uint(packedContact),
+                    uint(packedCleanMiss),
+                    uint(packedBalance),
+                    decision
+                );
             }
         }
         if (advance) {
             ++level;
-            state.reserved0 = 0u;
-            state.reserved1 = 0u;
+            state.referenceRates = 0ul;
         } else if (retreat) {
             --level;
-            state.reserved0 = 0u;
-            state.reserved1 = 0u;
+            state.referenceRates = 0ul;
         }
         state.completedEpisodeCount = 0ul;
         state.timeoutEpisodeCount = 0ul;

@@ -616,6 +616,7 @@ struct MetalWorldSubmissionState {
     std::uint64_t policyRevision = 0u;
     bool hasRods = false;
     bool contactMode = false;
+    bool nativeTask = false;
     bool captureContactEvidence = false;
     bool publishFinalState = true;
     bool publishStateTrajectory = true;
@@ -7573,7 +7574,8 @@ bool encodeResidentStateInitialization(
     const bool contactMode,
     const bool hasRods,
     const bool nativeTask,
-    const std::uint32_t initialCurriculumLevel
+    const std::uint32_t initialCurriculumLevel,
+    const std::uint64_t initialCurriculumReferenceRates
 ) {
     if (nativeTask) {
         const MRTaskCurriculumStateGPU initialCurriculum{
@@ -7582,8 +7584,8 @@ bool encodeResidentStateInitialization(
             .timeoutEpisodeCount = 0u,
             .trackingScoreSum = 0.0f,
             .commandLevel = initialCurriculumLevel,
-            .reserved0 = 0u,
-            .reserved1 = 0u,
+            .referenceRates = initialCurriculumReferenceRates,
+            .lastWindow = {},
         };
         copyToBuffer(
             context.uploadBuffers[kTaskCurriculumState],
@@ -15724,6 +15726,23 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 staged.statuses,
                 buffers[kPublicStatuses]
             );
+            if (pending->nativeTask) {
+                id<MTLBuffer> curriculumBuffer =
+                    stateOutputBuffer(kTaskCurriculumState);
+                if (curriculumBuffer == nil ||
+                    curriculumBuffer.contents == nullptr) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalBufferFailure,
+                        "task curriculum readback is unavailable"
+                    );
+                }
+                std::memcpy(
+                    &staged.curriculumState,
+                    curriculumBuffer.contents,
+                    sizeof(staged.curriculumState)
+                );
+            }
             if (staged.layout.actionElements != 0u) {
                 copyOutput(
                     staged.actorObservations,
@@ -16268,7 +16287,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     contactMode,
                     world.rodCount() != 0u,
                     nativeTask,
-                    config.taskCurriculumLevel
+                    config.taskCurriculumLevel,
+                    config.taskCurriculumReferenceRates
                 )) {
                 return reject(
                     std::move(diagnostics),
@@ -16933,6 +16953,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             }
 
             std::vector<std::size_t> readbackIndices;
+            if (nativeTask) {
+                readbackIndices.push_back(kTaskCurriculumState);
+            }
             if (config.publishFinalState) {
                 readbackIndices.push_back(sourceQ);
                 readbackIndices.push_back(sourceV);
@@ -17014,6 +17037,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 : batch.policyRevision;
             pending->hasRods = world.rodCount() != 0u;
             pending->contactMode = contactMode;
+            pending->nativeTask = nativeTask;
             pending->captureContactEvidence =
                 config.captureContactEvidence;
             pending->publishFinalState =

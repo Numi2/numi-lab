@@ -372,18 +372,22 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
 // One compact task-wide curriculum controller remains device-resident across
 // submissions. The command level is global, matching the authored Unitree
 // curriculum, while terrain difficulty remains environment-local. Projectile
-// curricula use the two reserved words as one 64-bit same-level reference:
+// curricula use one 64-bit same-level reference:
 // three 20-bit rates per million environment steps, two level bits, and one
-// validity bit. This preserves the resident ABI, exact unit resolution over
-// the full possible rate range, and exposure-normalized comparisons.
+// validity bit. This preserves exact unit resolution over the full possible
+// rate range and exposure-normalized comparisons. The last
+// completed window and decision are retained for telemetry and checkpoint
+// diagnosis; they are not inputs to the next decision.
 typedef struct MR_ALIGN16 MRTaskCurriculumStateGPU {
     mr_u64 controlSteps;
     mr_u64 completedEpisodeCount;
     mr_u64 timeoutEpisodeCount;
     float trackingScoreSum;
     mr_u32 commandLevel;
-    mr_u32 reserved0;
-    mr_u32 reserved1;
+    mr_u64 referenceRates;
+    // Contact, clean-miss, and balance-failure rates per million environment
+    // steps, followed by MRTaskCurriculumDecision.
+    mr_uint4 lastWindow;
 } MRTaskCurriculumStateGPU;
 
 enum MRTaskCurriculumDecision : mr_u32 {
@@ -478,7 +482,7 @@ static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskImpactEventGPU) == 48u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
 static_assert(sizeof(MRTaskStateGPU) == 160u);
-static_assert(sizeof(MRTaskCurriculumStateGPU) == 48u);
+static_assert(sizeof(MRTaskCurriculumStateGPU) == 64u);
 static_assert(sizeof(MRTaskTransitionGPU) == 96u);
 #endif
 #endif

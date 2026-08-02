@@ -657,6 +657,16 @@ int main() {
         if (stagedDodgeVelocities != 18u) {
             fail("G1 dodge projectile-speed ladder is incomplete");
         }
+        metalrobo::TaskPack overwideDodge = dodge.task;
+        overwideDodge.curriculumLevelCount = 5u;
+        metalrobo::CompiledTaskProgram rejectedDodge;
+        if (metalrobo::compileTaskProgram(
+                overwideDodge,
+                compiledDodge.world,
+                rejectedDodge
+            ).status != metalrobo::TaskCompileStatus::invalidPack) {
+            fail("overwide dodge progress reference was accepted");
+        }
         const auto curriculumDecision = [](
             const std::uint32_t level,
             const float contacts,

@@ -342,6 +342,9 @@ struct MetalWorldStepConfig {
     // Initial task-wide command curriculum restored at a training boundary.
     // It is consumed only when a new resident state is initialized.
     std::uint32_t taskCurriculumLevel = 0u;
+    // Anchored same-difficulty projectile reference. Partial window counters
+    // intentionally restart with the new resident environment episodes.
+    std::uint64_t taskCurriculumReferenceRates = 0u;
     std::uint32_t velocityIterations = 1u;
     std::uint32_t finalVelocityIterations = 1u;
     MetalWorldCCDMode ccdMode = MetalWorldCCDMode::speculative;
@@ -557,6 +560,10 @@ struct MetalWorldResult {
     std::vector<float> actorObservations;
     std::vector<float> criticObservations;
     std::vector<MRTaskTransitionGPU> transitions;
+    // Task-wide state after the final encoded curriculum reduction. Reading
+    // this fixed 64-byte record does not publish per-environment simulator
+    // state or add work inside the physics/task hot loops.
+    MRTaskCurriculumStateGPU curriculumState{};
     // Training-only anchor-relative tracked-link poses, packed
     // [control step][environment][feature].
     std::vector<float> motionFeatures;

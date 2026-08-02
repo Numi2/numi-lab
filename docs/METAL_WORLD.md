@@ -608,6 +608,15 @@ starts a fresh same-difficulty reference window. This adaptive movement is a
 training signal, not a promotion claim: held-out physical evaluation reports
 progress and qualification separately.
 
+Each completed window publishes its three rates, reference, and
+hold/advance/retreat decision through one fixed task-wide readback record. The
+learner checkpoint retains the level and anchored reference across processes;
+fresh environment episodes restart only the partial window counters. Swift and
+MLX accept bounded one-level movement in either direction while rejecting
+multi-level jumps. This prevents repeated short continuations from forgetting
+accumulated progress and prevents a justified retreat from being misclassified
+as a corrupt rollout.
+
 Visual policy rollouts keep physics and inference at the authored control
 rate, but sample the camera at its independent sensor cadence. The generic
 device tracker retains depth, identity, and validity in private buffers and

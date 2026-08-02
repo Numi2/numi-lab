@@ -169,6 +169,28 @@ typedef struct MRTaskRolloutAdvanceC {
     double submission_milliseconds;
 } MRTaskRolloutAdvanceC;
 
+typedef enum MRTaskCurriculumDecisionC {
+    MR_TASK_CURRICULUM_C_HOLD = 0,
+    MR_TASK_CURRICULUM_C_ADVANCE = 1,
+    MR_TASK_CURRICULUM_C_RETREAT = 2,
+} MRTaskCurriculumDecisionC;
+
+typedef struct MRTaskCurriculumTelemetryC {
+    uint64_t control_steps;
+    // Opaque checkpoint payload. Persist and restore it with command_level.
+    uint64_t reference_rates;
+    uint32_t command_level;
+    uint32_t reference_valid;
+    uint32_t reference_level;
+    uint32_t reference_contact_rate;
+    uint32_t reference_clean_miss_rate;
+    uint32_t reference_balance_failure_rate;
+    uint32_t last_contact_rate;
+    uint32_t last_clean_miss_rate;
+    uint32_t last_balance_failure_rate;
+    uint32_t last_decision;
+} MRTaskCurriculumTelemetryC;
+
 typedef struct MRTaskTransitionC {
     float reward;
     float tracking_score;
@@ -526,6 +548,20 @@ MR_API int mr_task_rollout_reset(
 MR_API int mr_task_rollout_set_curriculum_level(
     MRTaskRolloutHandle* handle,
     uint32_t level
+);
+// Restores the accepted level plus its same-difficulty progress reference.
+// Partial window counters restart because resident environment episodes are
+// new. reference_rates must be zero or a payload previously returned below.
+MR_API int mr_task_rollout_set_curriculum_checkpoint(
+    MRTaskRolloutHandle* handle,
+    uint32_t level,
+    uint64_t reference_rates
+);
+// Returns the task-wide state published by the most recent successful native
+// submission. This fixed record is independent of environment count.
+MR_API int mr_task_rollout_curriculum_telemetry(
+    const MRTaskRolloutHandle* handle,
+    MRTaskCurriculumTelemetryC* telemetry
 );
 // Installs one immutable compiled policy artifact. The call copies all
 // caller-owned spans; subsequent advances take no action stream and run
