@@ -13030,8 +13030,9 @@ MetalWorldDiagnostics validateAndPublish(
                 (
                     contactStatus->environment != environment ||
                     contactStatus->controlStep != controlStep ||
-                    contactStatus->physicsSubstep >=
-                        dispatch.physicsSubsteps ||
+                    (contactStatus->code == MR_STEP_SUCCESS &&
+                     contactStatus->physicsSubstep >=
+                         dispatch.physicsSubsteps) ||
                     contactStatus->code >=
                         MR_STEP_STATUS_COUNT ||
                     !finite(contactStatus->residuals) ||
@@ -13050,6 +13051,29 @@ MetalWorldDiagnostics validateAndPublish(
                     std::move(diagnostics),
                     MetalWorldHostStatus::internalFailure,
                     "GPU returned a malformed contact-world status record"
+                    " at environment " + std::to_string(environment) +
+                    ", control step " + std::to_string(controlStep) +
+                    ": environment=" +
+                    std::to_string(contactStatus->environment) +
+                    ", controlStep=" +
+                    std::to_string(contactStatus->controlStep) +
+                    ", physicsSubstep=" +
+                    std::to_string(contactStatus->physicsSubstep) +
+                    ", code=" + std::to_string(contactStatus->code) +
+                    ", activePairs=" +
+                    std::to_string(contactStatus->activePairs) + "/" +
+                    std::to_string(contactStatus->requiredPairs) +
+                    ", activeContacts=" +
+                    std::to_string(contactStatus->activeContacts) + "/" +
+                    std::to_string(contactStatus->requiredConstraints) +
+                    ", islands=" +
+                    std::to_string(contactStatus->islandCount) + "/" +
+                    std::to_string(contactStatus->requiredIslands) +
+                    ", eventTimes=[" +
+                    std::to_string(contactStatus->eventTimes.x) + "," +
+                    std::to_string(contactStatus->eventTimes.y) + "," +
+                    std::to_string(contactStatus->eventTimes.z) + "," +
+                    std::to_string(contactStatus->eventTimes.w) + "]"
                 );
             }
             MetalWorldStatus& summary =

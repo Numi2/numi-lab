@@ -28,6 +28,7 @@
 #include <initializer_list>
 #include <limits>
 #include <memory>
+#include <numbers>
 #include <numeric>
 #include <ranges>
 #include <span>
@@ -895,6 +896,9 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         config.camera_parent_body[0] == '\0' ||
         config.width == 0u || config.height == 0u ||
         config.minimum_visible_pixels == 0u ||
+        !std::isfinite(config.vertical_field_of_view_degrees) ||
+        config.vertical_field_of_view_degrees < 0.0f ||
+        config.vertical_field_of_view_degrees >= 180.0f ||
         !std::isfinite(config.nominal_rate_hz) ||
         !(config.nominal_rate_hz > 0.0f)) {
         throw std::invalid_argument(
@@ -1123,9 +1127,23 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     };
     camera.width = config.width;
     camera.height = config.height;
+    const float focalLengthPixels =
+        config.vertical_field_of_view_degrees > 0.0f
+        ? 0.5f * static_cast<float>(config.height) /
+            std::tan(
+                0.5f * config.vertical_field_of_view_degrees *
+                std::numbers::pi_v<float> / 180.0f
+            )
+        : 0.875f * static_cast<float>(config.width);
+    if (!std::isfinite(focalLengthPixels) ||
+        !(focalLengthPixels > 0.0f)) {
+        throw std::invalid_argument(
+            "visual observation field of view produces invalid intrinsics"
+        );
+    }
     camera.intrinsics = {
-        0.875f * static_cast<float>(config.width),
-        0.875f * static_cast<float>(config.width),
+        focalLengthPixels,
+        focalLengthPixels,
         0.5f * static_cast<float>(config.width),
         0.5f * static_cast<float>(config.height),
     };

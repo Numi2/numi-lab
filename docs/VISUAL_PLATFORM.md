@@ -159,6 +159,13 @@ dodge task uses a 16x9 plane normalized over 0.1--5.0 m at offsets 0, 3, 8,
 and 18 control steps. Object tracks remain critic-only for this task. Reset
 fills the complete depth ring from the first accepted post-reset frame, so no
 visual belief crosses episode boundaries.
+The bundled head sensor authors a 54-degree vertical field of view and a
+50 Hz cadence. Its torso-local mount is 0.08 m forward and 0.45 m upward with
+the optical axis pitched 20 degrees above torso-forward. At the task's 50 Hz
+control rate, every sparse-history slot therefore represents a distinct
+physical exposure; a slower sensor intentionally repeats held frames. The C
+rollout boundary accepts an explicit vertical field of view in degrees; zero
+retains the legacy focal-length rule for existing callers.
 `MetalRoboTaskRolloutContext.attachVisualObservation` compiles authored pack
 references, a body-bound camera, the matching `WorldFamily`, and this tracker
 before resident initialization. Explicit rigid-body pack bindings keep moving

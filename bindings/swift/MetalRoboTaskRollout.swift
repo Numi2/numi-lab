@@ -223,6 +223,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
     public var width: UInt32
     public var height: UInt32
     public var minimumVisiblePixels: UInt32
+    public var verticalFieldOfViewDegrees: Float
     public var nominalRateHz: Float
     public var maximumRetainedBytes: UInt64
     public var captureWidth: UInt32
@@ -237,6 +238,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         width: UInt32 = 160,
         height: UInt32 = 120,
         minimumVisiblePixels: UInt32 = 4,
+        verticalFieldOfViewDegrees: Float = 0,
         nominalRateHz: Float = 15,
         maximumRetainedBytes: UInt64 = 0,
         captureWidth: UInt32 = 0,
@@ -250,6 +252,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         self.width = width
         self.height = height
         self.minimumVisiblePixels = minimumVisiblePixels
+        self.verticalFieldOfViewDegrees = verticalFieldOfViewDegrees
         self.nominalRateHz = nominalRateHz
         self.maximumRetainedBytes = maximumRetainedBytes
         self.captureWidth = captureWidth
@@ -303,17 +306,31 @@ public struct MetalRoboTaskVisualObservationConfiguration:
                 instanceID: UInt32(100 + index)
             ))
         }
-        let rootHalf = Float(0.7071067811865476)
+        // The optical +z axis is pitched 20 degrees above torso-forward.
+        // This preserves the lower part of the image for descending throws
+        // while extending useful coverage through the head-height band.
+        let cameraHalfAngle = Float(35.0 * .pi / 180.0)
         return Self(
             packs: packs,
             environmentPackURL: environmentPackURL,
             cameraParentBody: "torso_link",
-            cameraPosition: SIMD3(0.0, 0.0, 0.28),
-            // Visual camera +z looks along the torso's local +x axis.
-            cameraOrientation: SIMD4(0.0, rootHalf, 0.0, rootHalf),
+            cameraPosition: SIMD3(0.08, 0.0, 0.45),
+            // A +70-degree local-y rotation maps optical +z to a forward
+            // ray pitched +20 degrees in torso coordinates.
+            cameraOrientation: SIMD4(
+                0.0,
+                sin(cameraHalfAngle),
+                0.0,
+                cos(cameraHalfAngle)
+            ),
             width: 16,
             height: 9,
             minimumVisiblePixels: 1,
+            verticalFieldOfViewDegrees: 54,
+            // The task's sparse offsets (0, 3, 8, 18) assume distinct 50 Hz
+            // camera samples. An implicit 15 Hz default aliases those frames
+            // and weakens the looming cue used to infer approach velocity.
+            nominalRateHz: 50,
             maximumRetainedBytes: 4 * 1024 * 1024 * 1024
         )
     }
@@ -1216,6 +1233,8 @@ public final class MetalRoboTaskRolloutContext {
                         native.height = configuration.height
                         native.minimum_visible_pixels =
                             configuration.minimumVisiblePixels
+                        native.vertical_field_of_view_degrees =
+                            configuration.verticalFieldOfViewDegrees
                         native.nominal_rate_hz =
                             configuration.nominalRateHz
                         native.maximum_retained_bytes =

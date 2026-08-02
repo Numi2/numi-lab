@@ -90,6 +90,9 @@ typedef struct MRTaskVisualObservationConfigC {
     uint32_t width;
     uint32_t height;
     uint32_t minimum_visible_pixels;
+    // Zero retains the legacy focal-length rule. A positive value authors
+    // the physical vertical field of view in degrees.
+    float vertical_field_of_view_degrees;
     // Authored sensor cadence. Physics and inference retain their independent
     // control rate and hold the latest private observation between samples.
     float nominal_rate_hz;
