@@ -360,7 +360,7 @@ struct MetalWorldStepConfig {
     bool matrixFreeArticulatedContact = false;
     // Streams inverse-ABA response columns directly into the contact solve.
     // This optimization is quarantined behind explicit opt-in while the
-    // materialized matrix-free path remains the production default.
+    // dense articulated factor remains the production default.
     bool streamedArticulatedContactResponses = false;
     bool captureContactEvidence = false;
     // Full state/trajectory publication is an explicit inspection boundary.
