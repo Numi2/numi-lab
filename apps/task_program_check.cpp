@@ -336,7 +336,7 @@ int main() {
             layout.criticFrameSize != 98u ||
             layout.criticHistoryLength != 1u ||
             layout.criticObservationSize != 98u ||
-            layout.contactMetricCount != 37u ||
+            layout.contactMetricCount != 45u ||
             layout.delayStateCount != 3u) {
             fail("compiled G1 task layout changed");
         }
@@ -358,6 +358,13 @@ int main() {
             program.header().counts2.x != 2u ||
             program.header().counts2.y != 0u ||
             program.header().articulation.w != 1u ||
+            program.contactGroups().size() < 2u ||
+            program.contactGroups()[0].supportPatch.x != 2u ||
+            program.contactGroups()[0].supportPatch.y != 2u ||
+            program.contactGroups()[0].supportPatch.z != 4u ||
+            program.contactGroups()[1].supportPatch.x != 2u ||
+            program.contactGroups()[1].supportPatch.y != 2u ||
+            program.contactGroups()[1].supportPatch.z != 4u ||
             program.header().commandLower.x != 0.0f ||
             program.header().commandLower.y != 0.0f ||
             program.header().commandLower.z != 0.0f ||
@@ -424,7 +431,7 @@ int main() {
             compiledGetUp.task.layout().actorObservationSize != 920u ||
             compiledGetUp.task.layout().criticFrameSize != 98u ||
             compiledGetUp.task.layout().criticObservationSize != 980u ||
-            compiledGetUp.task.layout().contactMetricCount != 43u ||
+            compiledGetUp.task.layout().contactMetricCount != 51u ||
             compiledGetUp.task.header().counts1.w != 12u ||
             compiledGetUp.task.header().counts2.x != 0u ||
             compiledGetUp.task.header().counts2.y != 31u) {
@@ -489,7 +496,7 @@ int main() {
         if (compiledBallRecovery.task.header().counts2.y != 67u ||
             compiledBallRecovery.task.layout().actorObservationSize != 140u ||
             compiledBallRecovery.task.layout().criticObservationSize != 148u ||
-            compiledBallRecovery.task.layout().contactMetricCount != 43u ||
+            compiledBallRecovery.task.layout().contactMetricCount != 51u ||
             compiledBallRecovery.task.header().counts0.w != 5u ||
             compiledBallRecovery.task.header().counts1.w != 20u ||
             (compiledBallRecovery.task.header().schedule.w &
@@ -571,10 +578,11 @@ int main() {
         if (!dodgeStatus.succeeded() ||
             compiledDodge.task.header().counts1.w != 33u ||
             compiledDodge.task.header().counts2.x != 3u ||
-            compiledDodge.task.layout().actorFrameSize != 96u ||
+            compiledDodge.task.layout().actorFrameSize != 122u ||
             compiledDodge.task.layout().actorHistoryLength != 5u ||
-            compiledDodge.task.layout().actorObservationSize != 1056u ||
-            compiledDodge.task.layout().criticObservationSize != 148u ||
+            compiledDodge.task.layout().actorObservationSize != 1186u ||
+            compiledDodge.task.layout().criticObservationSize != 174u ||
+            compiledDodge.task.layout().contactMetricCount != 51u ||
             compiledDodge.task.header().dynamics.z != 0.20f ||
             compiledDodge.task.header().visualLayout.x != 16u ||
             compiledDodge.task.header().visualLayout.y != 9u ||
@@ -649,6 +657,7 @@ int main() {
         std::uint32_t scaledJointVelocity = 0u;
         std::uint32_t normalizedGravity = 0u;
         std::uint32_t supportSense = 0u;
+        std::uint32_t supportPatch = 0u;
         std::uint32_t commandObservations = 0u;
         for (const MRTaskObservationOperatorGPU& operation :
              compiledDodge.task.actorOperators()) {
@@ -673,6 +682,8 @@ int main() {
                 : 0u;
             supportSense += operation.source.x ==
                 MR_TASK_OBSERVE_SUPPORT_SENSE ? 1u : 0u;
+            supportPatch += operation.source.x ==
+                MR_TASK_OBSERVE_SUPPORT_PATCH ? 1u : 0u;
             commandObservations += operation.source.x ==
                 MR_TASK_OBSERVE_COMMAND ? 1u : 0u;
             if (operation.source.x == MR_TASK_OBSERVE_OBJECT_TRACK) {
@@ -684,6 +695,7 @@ int main() {
             scaledJointVelocity != 29u ||
             normalizedGravity != 3u ||
             supportSense != 3u ||
+            supportPatch != 26u ||
             commandObservations != 0u) {
             fail("G1 dodge deployment observation contract changed");
         }
@@ -909,6 +921,21 @@ int main() {
             repeated.fingerprint() != preserved) {
             fail(
                 "mismatched task capacity contract was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack invalidPatch = authored.task;
+        invalidPatch.contactGroups.front().supportPatchWidth = 0u;
+        const metalrobo::TaskCompileDiagnostics patchRejected =
+            metalrobo::compileTaskProgram(
+                invalidPatch,
+                world,
+                repeated
+            );
+        if (patchRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "invalid support patch was not transactionally rejected"
             );
         }
 

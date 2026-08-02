@@ -46,7 +46,10 @@ struct G1FootFrame {
     // runtime state, quaternion xyzw.
     mr_float4 solePosition{};
     mr_float4 soleRotation{};
-    std::array<std::uint32_t, 4> sphereShapeIndices{};
+    // Current production mechanics use one convex box sole per foot.
+    std::uint32_t soleShapeIndex = MR_INVALID_INDEX;
+    // Min x/y and max x/y relative to solePosition in link axes.
+    mr_float4 supportPatchBounds{};
 };
 
 struct G1ImuFrame {

@@ -34,6 +34,10 @@ code.
 - C++, C, Swift, and Python interfaces.
 - Generic TaskPack observation operators for named 6-axis contact-group
   wrenches in a reference-body frame.
+- Generic authored support patches that publish local wrench, center of
+  pressure, occupied area, and fixed-grid pressure with ordinary actor
+  history. Pressure is solved normal force per authored cell area; it is not
+  inferred from deformation depth.
 - Fixed-capacity masked object-local contact labels for estimator training.
 - An opt-in metric-map and 3D query debugger.
 - A paired-data MLX camera-to-depth translator trainer for the physical side.
@@ -100,7 +104,7 @@ impulses divided by the explicitly supplied impulse interval.
 | Collision/contact | Target geometry reuses cooked engine shapes and BVH4; each solved contact contributes to at most two directly looked-up tactile sensors with opposite wrench signs. |
 | Physics stepping | The tactile encoder accepts body states and solver contacts from the same step and distinguishes observation `dt` from impulse `dt`. |
 | Metal resources | Static geometry is shared; dense outputs/history are fixed-capacity environment-major private buffers. |
-| RL observations | Depth, depth velocity, tangent motion, validity, identity, named summaries, and status remain in native Metal buffers. TaskPacks can directly select named 6-axis contact-group wrench channels. |
+| RL observations | Depth, depth velocity, tangent motion, validity, identity, named summaries, and status remain in native Metal buffers. TaskPacks can directly select named 6-axis contact-group wrenches or authored support-patch wrench, CoP, occupied-area, and pressure-grid channels. |
 | Checkpoints | One exact tactile JSON contract is stored beside the policy. |
 | Replay | Frame index, reset mask, timestamp, and the existing world identity make the temporal contract explicit. |
 | Debugging | Optional PGM, CSV, OBJ, and JSON export; no renderer or readback is required in headless training. |
@@ -148,10 +152,10 @@ do not fabricate pressure or distributed force.
 ## Authored embodiments
 
 - Franka retains its two 32x32 fingertip atlases and one-element backing lists.
-- Unitree G1 has two 32x32 plantar atlases. Each atlas is four deterministic
-  spherical-cap patches separated by invalid cells and backed by the four
-  existing contact spheres of one foot. The target is explicitly authored
-  terrain; no hand sensing is inferred.
+- Unitree G1 has two 32x32 rectangular plantar atlases aligned with the two
+  production convex box soles. Every cell has exact metric area and the
+  outward normal follows the sole toward the support surface. The target is
+  explicitly authored terrain; no hand sensing is inferred.
 - The dVRK PSM Large Needle Driver has one 32x32 inner-jaw atlas per jaw. Each
   atlas contains a medial capsule strip and two tooth patches backed by that
   jaw's capsule and tooth spheres. The single-PSM needle world has two sensors;
@@ -330,10 +334,14 @@ scene or infer sensors from collision geometry.
 The native compiled-task path reconstructs named contact-group wrenches
 directly from solved impulses. `MRContactConstraintGPU` retains the exact
 tangent basis for those impulse components, so the six-axis result is
-well-defined in the group reference-body frame. Dense tactile geometry and
-history remain owned by `MetalTactileContext`; composing its summaries and
-maps into the generic task executor is a separate explicit integration. A
-pack with no tactile sensors creates no tactile pipelines or resources.
+well-defined in the group reference-body frame. An optional authored support
+patch additionally bins normal force in reference-body coordinates, publishes
+force-weighted local CoP and occupied cell area, and passes those channels
+through the ordinary actor-history ring. This compact contact field avoids
+materializing a dense atlas in large locomotion rollouts. Dense deformation
+geometry and history remain owned by `MetalTactileContext`; attaching those
+maps to a task is still an explicit integration. A pack with neither tactile
+sensors nor support-patch observations creates no tactile-specific resources.
 
 Debug hits are disabled by default. The choice is specialized when the Metal
 pipelines are created, not carried as a per-frame flag. In headless mode the

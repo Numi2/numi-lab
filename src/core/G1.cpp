@@ -778,7 +778,8 @@ const G1ModelMetadata& unitreeG1Metadata() noexcept {
                 -0.035 - kBodies[6].centerOfMass[2]
             ),
             f4(0.0, 0.0, 0.0, 1.0),
-            {0u, 1u, 2u, 3u},
+            0u,
+            f4(-0.089, -0.036, 0.097, 0.036),
         };
         value.feet[1] = {
             "right_sole",
@@ -790,7 +791,8 @@ const G1ModelMetadata& unitreeG1Metadata() noexcept {
                 -0.035 - kBodies[12].centerOfMass[2]
             ),
             f4(0.0, 0.0, 0.0, 1.0),
-            {4u, 5u, 6u, 7u},
+            1u,
+            f4(-0.089, -0.036, 0.097, 0.036),
         };
 
         value.imus[0] = {

@@ -188,6 +188,12 @@ LearningPackResult validateTaskArtifact(
         }
     }
     for (const TaskContactGroup& value : pack.contactGroups) {
+        const bool hasSupportPatch =
+            value.supportPatchWidth != 0u ||
+            value.supportPatchHeight != 0u;
+        const std::uint64_t supportPatchCellCount =
+            static_cast<std::uint64_t>(value.supportPatchWidth) *
+            value.supportPatchHeight;
         if (!stringFits(value.id) ||
             !stringFits(value.referenceBody) ||
             !countFits(value.bodies.size()) ||
@@ -199,6 +205,24 @@ LearningPackResult validateTaskArtifact(
             return fail(
                 LearningPackStatus::capacityOverflow,
                 "TaskPack contact-group table exceeds the 32-bit artifact boundary"
+            );
+        }
+        if (hasSupportPatch &&
+            (!value.support ||
+             value.supportPatchWidth == 0u ||
+             value.supportPatchHeight == 0u ||
+             supportPatchCellCount > 64u ||
+             !std::isfinite(value.supportPatchBounds.x) ||
+             !std::isfinite(value.supportPatchBounds.y) ||
+             !std::isfinite(value.supportPatchBounds.z) ||
+             !std::isfinite(value.supportPatchBounds.w) ||
+             !(value.supportPatchBounds.z >
+                 value.supportPatchBounds.x) ||
+             !(value.supportPatchBounds.w >
+                 value.supportPatchBounds.y))) {
+            return fail(
+                LearningPackStatus::invalidPack,
+                "TaskPack support patch is invalid"
             );
         }
     }
@@ -897,6 +921,9 @@ std::vector<std::byte> serializeTask(
             target.pod(value.localReference);
             target.pod(value.gaitPhaseOffsetRadians);
             target.pod(value.stanceFraction);
+            target.pod(value.supportPatchBounds);
+            target.pod(value.supportPatchWidth);
+            target.pod(value.supportPatchHeight);
         }
     );
     writeRichVector(
@@ -1042,7 +1069,10 @@ bool deserializeTask(
                     !source.pod(
                         value.gaitPhaseOffsetRadians
                     ) ||
-                    !source.pod(value.stanceFraction)) {
+                    !source.pod(value.stanceFraction) ||
+                    !source.pod(value.supportPatchBounds) ||
+                    !source.pod(value.supportPatchWidth) ||
+                    !source.pod(value.supportPatchHeight)) {
                     return false;
                 }
                 value.support = support != 0u;

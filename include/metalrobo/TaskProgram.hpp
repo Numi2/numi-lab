@@ -37,6 +37,7 @@ enum class TaskObservationSource : std::uint32_t {
     objectTrack = MR_TASK_OBSERVE_OBJECT_TRACK,
     maskedDepth = MR_TASK_OBSERVE_MASKED_DEPTH,
     supportSense = MR_TASK_OBSERVE_SUPPORT_SENSE,
+    supportPatch = MR_TASK_OBSERVE_SUPPORT_PATCH,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -158,6 +159,11 @@ struct TaskContactGroup {
     mr_float4 localReference{};
     float gaitPhaseOffsetRadians = 0.0f;
     float stanceFraction = 0.5f;
+    // Optional spatial support field in the reference body's link frame,
+    // relative to localReference. A zero width and height disable it.
+    mr_float4 supportPatchBounds{};
+    std::uint32_t supportPatchWidth = 0u;
+    std::uint32_t supportPatchHeight = 0u;
 };
 
 struct TaskJointGroup {

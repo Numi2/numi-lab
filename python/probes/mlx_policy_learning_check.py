@@ -528,6 +528,44 @@ def main() -> int:
                 raise RuntimeError(
                     "observation expansion mean was not published"
                 )
+            insertion = actor_count // 2
+            inserted = MLXPolicyLearner.from_actor_policy_pack(
+                deployment,
+                critic_count + 7,
+                learner.configuration,
+                actor_observation_count=actor_count + 7,
+                actor_observation_extension_mean=0.25,
+                actor_observation_extension_offset=insertion,
+                library_path=arguments.library,
+            )
+            inserted_actor = inserted.model.actor_mean(
+                mx.concatenate(
+                    (
+                        actor[:, :insertion],
+                        mx.full((sample_count, 7), 0.25),
+                        actor[:, insertion:],
+                    ),
+                    axis=1,
+                )
+            )
+            mx.eval(inserted_actor)
+            if not np.array_equal(
+                np.asarray(expected_actor),
+                np.asarray(inserted_actor),
+            ):
+                raise RuntimeError(
+                    "zero-connected observation insertion changed policy output"
+                )
+            inserted_mean = np.asarray(
+                inserted.model.actor_observation_mean
+            )
+            if not np.array_equal(
+                inserted_mean[insertion:insertion + 7],
+                np.full(7, 0.25, dtype=np.float32),
+            ):
+                raise RuntimeError(
+                    "observation insertion mean was not published"
+                )
         print(
             json.dumps(
                 {

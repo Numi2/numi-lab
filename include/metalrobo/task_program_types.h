@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 19u
+#define MR_TASK_PROGRAM_ABI_VERSION 20u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -58,6 +58,11 @@ enum MRTaskObservationOpcode : mr_u32 {
     // total normal load, phase-signed load balance, and maximum planar slip.
     // This is compact plantar/contact evidence, not inferred touch.
     MR_TASK_OBSERVE_SUPPORT_SENSE = 18u,
+    // Authored support-patch observation. Components are local force xyz,
+    // local torque xyz, local center of pressure xy, occupied area, followed
+    // by row-major pressure cells. Spatial resolution is authored per contact
+    // group and compiled into fixed tables.
+    MR_TASK_OBSERVE_SUPPORT_PATCH = 19u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -289,6 +294,10 @@ typedef struct MR_ALIGN16 MRTaskContactGroupGPU {
     mr_float4 kinematicReference;
     // gait phase offset, stance fraction, reserved, reserved.
     mr_float4 gait;
+    // Support-patch bounds relative to localReference: min x/y, max x/y.
+    mr_float4 supportPatchBounds;
+    // Patch width, height, cell count, first compact pressure-cell metric.
+    mr_uint4 supportPatch;
 } MRTaskContactGroupGPU;
 
 typedef struct MR_ALIGN16 MRTaskIndexGroupGPU {
@@ -397,7 +406,7 @@ static_assert(sizeof(MRTaskDispatchGPU) == 96u);
 static_assert(sizeof(MRTaskProgramHeaderGPU) == 496u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
-static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
+static_assert(sizeof(MRTaskContactGroupGPU) == 112u);
 static_assert(sizeof(MRTaskIndexGroupGPU) == 16u);
 static_assert(sizeof(MRTaskRewardOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);

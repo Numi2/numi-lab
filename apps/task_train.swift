@@ -18,6 +18,8 @@ private struct Options {
     var policyPack: String?
     var initializePolicyID: String?
     var initializeActorPolicyPack: String?
+    var actorObservationExtensionOffset: Int?
+    var actorObservationExtensionMean: Double?
     var updatedPolicyPack: String?
     var deploymentPolicyPack: String?
     var rolloutPack: String?
@@ -121,6 +123,22 @@ private struct Options {
                 index += 1
             case "--initialize-actor-policy-pack":
                 initializeActorPolicyPack = try value()
+                index += 1
+            case "--actor-observation-extension-offset":
+                actorObservationExtensionOffset = try Self.integer(
+                    value(),
+                    option
+                )
+                index += 1
+            case "--actor-observation-extension-mean":
+                guard let parsed = Double(try value()),
+                      parsed.isFinite
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--actor-observation-extension-mean requires a finite value."
+                    )
+                }
+                actorObservationExtensionMean = parsed
                 index += 1
             case "--updated-policy-pack":
                 updatedPolicyPack = try value()
@@ -295,6 +313,13 @@ private struct Options {
         if (checkpointDirectory == nil) != (checkpointInterval == 0) {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "Checkpoint snapshots require both --checkpoint-directory and a positive --checkpoint-interval."
+            )
+        }
+        if let offset = actorObservationExtensionOffset,
+           offset < 0
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--actor-observation-extension-offset must be non-negative."
             )
         }
         let (sampleCount, sampleOverflow) =
@@ -504,10 +529,19 @@ private func initializePolicyIfRequested(
         String(options.initialLogStandardDeviation),
     ]
     if let actor = options.initializeActorPolicyPack {
+        let extensionMean =
+            options.actorObservationExtensionMean ??
+            actorObservationExtensionMean
         arguments.append(contentsOf: [
             "--actor-policy-pack", actor,
             "--actor-observation-extension-mean",
-            String(actorObservationExtensionMean),
+            String(extensionMean),
+        ])
+    }
+    if let offset = options.actorObservationExtensionOffset {
+        arguments.append(contentsOf: [
+            "--actor-observation-extension-offset",
+            String(offset),
         ])
     }
     process.arguments = arguments

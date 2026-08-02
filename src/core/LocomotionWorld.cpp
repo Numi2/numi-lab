@@ -788,6 +788,10 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         },
         .gaitPhaseOffsetRadians = 0.0f,
         .stanceFraction = 0.55f,
+        .supportPatchBounds =
+            metadata.feet[0].supportPatchBounds,
+        .supportPatchWidth = 2u,
+        .supportPatchHeight = 2u,
     });
     task.contactGroups.push_back({
         .id = "right_foot_contact",
@@ -804,6 +808,10 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         .gaitPhaseOffsetRadians =
             3.14159265358979323846f,
         .stanceFraction = 0.55f,
+        .supportPatchBounds =
+            metadata.feet[1].supportPatchBounds,
+        .supportPatchWidth = 2u,
+        .supportPatchHeight = 2u,
     });
     std::vector<std::string> undesiredContactBodies;
     undesiredContactBodies.reserve(
@@ -1579,6 +1587,40 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
             break;
         }
     }
+    // Append each authored sole's local resultant and spatial pressure field
+    // to the temporal proprioceptive frame. These 13 values are generic
+    // support-patch components: force xyz, torque xyz, CoP xy, occupied area,
+    // and the G1 pack's 2x2 row-major pressure grid. The bounds coincide with
+    // the current single-box sole support polygon; another TaskPack may choose
+    // any fixed grid up to the compiled limit without changing Metal code.
+    constexpr std::array<float, 13u> supportPatchScales{
+        0.002f, 0.002f, 0.002f,
+        0.02f, 0.02f, 0.02f,
+        10.0f, 10.0f,
+        100.0f,
+        2.0e-5f, 2.0e-5f, 2.0e-5f, 2.0e-5f,
+    };
+    const auto appendSupportPatches = [&supportPatchScales](
+        std::vector<TaskObservationOperatorSpec>& observations
+    ) {
+        for (const std::string_view group : {
+                 std::string_view{"left_foot_contact"},
+                 std::string_view{"right_foot_contact"},
+             }) {
+            for (std::uint32_t component = 0u;
+                 component < supportPatchScales.size();
+                 ++component) {
+                observations.push_back({
+                    .source = TaskObservationSource::supportPatch,
+                    .target = std::string{group},
+                    .component = component,
+                    .scale = supportPatchScales[component],
+                });
+            }
+        }
+    };
+    appendSupportPatches(task.actorFrame);
+    appendSupportPatches(task.critic);
     task.visual = {
         .width = 16u,
         .height = 9u,

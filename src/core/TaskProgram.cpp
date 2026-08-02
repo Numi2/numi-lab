@@ -874,6 +874,12 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->contactGroups.reserve(pack.contactGroups.size());
     std::uint32_t contactMetricCount = 0u;
     for (const TaskContactGroup& group : pack.contactGroups) {
+        const bool hasSupportPatch =
+            group.supportPatchWidth != 0u ||
+            group.supportPatchHeight != 0u;
+        const std::uint64_t supportPatchCellCount =
+            static_cast<std::uint64_t>(group.supportPatchWidth) *
+            group.supportPatchHeight;
         if (group.id.empty() || group.bodies.empty() ||
             !finite(group.localReference) ||
             !finite(group.gaitPhaseOffsetRadians) ||
@@ -889,6 +895,22 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 group.id,
                 "contact group identity, members, or parameters are invalid"
+            );
+        }
+        if (hasSupportPatch &&
+            (!group.support ||
+             group.supportPatchWidth == 0u ||
+             group.supportPatchHeight == 0u ||
+             supportPatchCellCount > 64u ||
+             !finite(group.supportPatchBounds) ||
+             !(group.supportPatchBounds.z >
+                 group.supportPatchBounds.x) ||
+             !(group.supportPatchBounds.w >
+                 group.supportPatchBounds.y))) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                group.id,
+                "support patch requires a support group, finite ordered bounds, and 1 to 64 cells"
             );
         }
         if (group.support && group.forbidden) {
@@ -1017,8 +1039,12 @@ TaskCompileDiagnostics compileTaskProgram(
         }
         const std::uint32_t metricOffset =
             contactMetricCount;
+        const std::uint32_t supportCellCount =
+            static_cast<std::uint32_t>(supportPatchCellCount);
         const std::uint32_t baseMetricWidth =
-            group.support ? 6u : group.forbidden ? 1u : 0u;
+            group.support
+            ? 6u + supportCellCount
+            : group.forbidden ? 1u : 0u;
         constexpr std::uint32_t localWrenchWidth = 6u;
         const std::uint32_t metricWidth =
             baseMetricWidth + localWrenchWidth;
@@ -1061,6 +1087,13 @@ TaskCompileDiagnostics compileTaskProgram(
                 group.stanceFraction,
                 0.0f,
                 0.0f,
+            },
+            group.supportPatchBounds,
+            {
+                group.supportPatchWidth,
+                group.supportPatchHeight,
+                supportCellCount,
+                metricOffset + 6u,
             },
         });
         contactGroupIds.push_back(group.id);
@@ -1224,6 +1257,31 @@ TaskCompileDiagnostics compileTaskProgram(
                     );
                 }
                 break;
+            case TaskObservationSource::supportPatch: {
+                sourceIndex = namedGroup(
+                    contactGroupIds,
+                    spec.target
+                );
+                if (sourceIndex == MR_INVALID_INDEX) {
+                    return reject(
+                        TaskCompileStatus::unresolvedSemantic,
+                        spec.target,
+                        "support-patch observation contact group does not exist"
+                    );
+                }
+                const MRTaskContactGroupGPU& group =
+                    staged->contactGroups[sourceIndex];
+                if ((group.members.z & MR_TASK_CONTACT_SUPPORT) == 0u ||
+                    group.supportPatch.z == 0u) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        spec.target,
+                        "support-patch observation requires an authored support patch"
+                    );
+                }
+                componentLimit = 9u + group.supportPatch.z;
+                break;
+            }
             case TaskObservationSource::gaitPhase:
                 componentLimit = 2u;
                 break;

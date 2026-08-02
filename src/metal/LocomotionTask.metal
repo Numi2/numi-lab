@@ -486,6 +486,44 @@ inline float cleanObservation(
         ];
         break;
     }
+    case MR_TASK_OBSERVE_SUPPORT_PATCH: {
+        const MRTaskContactGroupGPU group =
+            contactGroups[operation.source.y];
+        const uint component = operation.source.z;
+        if (component < 6u) {
+            value = compactContact[
+                group.reference.y + component
+            ];
+        } else if (component < 8u) {
+            value = compactContact[
+                group.members.w + 4u + (component - 6u)
+            ];
+        } else {
+            const float2 extent =
+                group.supportPatchBounds.zw -
+                group.supportPatchBounds.xy;
+            const float cellArea =
+                extent.x * extent.y /
+                max(float(group.supportPatch.z), 1.0f);
+            if (component == 8u) {
+                uint occupied = 0u;
+                for (uint cell = 0u;
+                     cell < group.supportPatch.z;
+                     ++cell) {
+                    occupied += compactContact[
+                        group.supportPatch.w + cell
+                    ] > program.dynamics.y ? 1u : 0u;
+                }
+                value = float(occupied) * cellArea;
+            } else {
+                const uint cell = component - 9u;
+                value = compactContact[
+                    group.supportPatch.w + cell
+                ] / max(cellArea, 1.0e-9f);
+            }
+        }
+        break;
+    }
     case MR_TASK_OBSERVE_SUPPORT_SENSE: {
         float totalLoad = 0.0f;
         float signedLoad = 0.0f;
@@ -2677,6 +2715,13 @@ kernel void mr_locomotion_task_complete(
             compactContact[metric + 3u] = 0.0f;
             compactContact[metric + 4u] = 0.0f;
             compactContact[metric + 5u] = 0.0f;
+            for (uint cell = 0u;
+                 cell < group.supportPatch.z;
+                 ++cell) {
+                compactContact[
+                    compactBase + group.supportPatch.w + cell
+                ] = 0.0f;
+            }
         } else if ((group.members.z &
                     MR_TASK_CONTACT_FORBIDDEN) != 0u) {
             compactContact[metric] = 0.0f;
@@ -2771,6 +2816,11 @@ kernel void mr_locomotion_task_complete(
                 referenceBody.orientation,
                 forceWorld
             );
+            const float3 contactLocal = rotateInverse(
+                referenceBody.orientation,
+                constraint.pointAndSeparation.xyz -
+                    referencePosition
+            );
             const float3 torqueLocal = rotateInverse(
                 referenceBody.orientation,
                 torqueWorld
@@ -2787,11 +2837,45 @@ kernel void mr_locomotion_task_complete(
                  MR_TASK_CONTACT_SUPPORT) != 0u) {
                 compactContact[metric + 0u] += impulse;
                 compactContact[metric + 4u] +=
-                    impulse *
-                    constraint.pointAndSeparation.x;
+                    impulse * contactLocal.x;
                 compactContact[metric + 5u] +=
-                    impulse *
-                    constraint.pointAndSeparation.y;
+                    impulse * contactLocal.y;
+                if (group.supportPatch.z != 0u &&
+                    contactLocal.x >=
+                        group.supportPatchBounds.x &&
+                    contactLocal.x <=
+                        group.supportPatchBounds.z &&
+                    contactLocal.y >=
+                        group.supportPatchBounds.y &&
+                    contactLocal.y <=
+                        group.supportPatchBounds.w) {
+                    const float2 normalized = clamp(
+                        (
+                            contactLocal.xy -
+                            group.supportPatchBounds.xy
+                        ) /
+                        (
+                            group.supportPatchBounds.zw -
+                            group.supportPatchBounds.xy
+                        ),
+                        float2(0.0f),
+                        float2(0.999999f)
+                    );
+                    const uint column = min(
+                        uint(normalized.x *
+                            float(group.supportPatch.x)),
+                        group.supportPatch.x - 1u
+                    );
+                    const uint row = min(
+                        uint(normalized.y *
+                            float(group.supportPatch.y)),
+                        group.supportPatch.y - 1u
+                    );
+                    compactContact[
+                        compactBase + group.supportPatch.w +
+                        row * group.supportPatch.x + column
+                    ] += impulse;
+                }
             }
             if ((group.members.z &
                  MR_TASK_CONTACT_FORBIDDEN) != 0u) {
@@ -2869,9 +2953,7 @@ kernel void mr_locomotion_task_complete(
             ? float2(
                   compactContact[metric + 4u],
                   compactContact[metric + 5u]
-              ) /
-                  impulse -
-                  position.xy
+              ) / impulse
             : float2(0.0f);
         compactContact[metric + 0u] = force;
         compactContact[metric + 1u] = slip;
@@ -2879,6 +2961,13 @@ kernel void mr_locomotion_task_complete(
         compactContact[metric + 3u] = clearance;
         compactContact[metric + 4u] = cop.x;
         compactContact[metric + 5u] = cop.y;
+        for (uint cell = 0u;
+             cell < group.supportPatch.z;
+             ++cell) {
+            compactContact[
+                compactBase + group.supportPatch.w + cell
+            ] /= dispatch.timing.y;
+        }
     }
 
     device const float* q = qState + qBase;

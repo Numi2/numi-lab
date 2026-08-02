@@ -1809,6 +1809,7 @@ class MLXPolicyLearner:
         *,
         actor_observation_count: int | None = None,
         actor_observation_extension_mean: float = 0.0,
+        actor_observation_extension_offset: int | None = None,
         library_path: str | Path | None = None,
     ) -> "MLXPolicyLearner":
         """Start PPO from a deterministic deployment actor.
@@ -1849,6 +1850,21 @@ class MLXPolicyLearner:
             raise ValueError(
                 "actor observation extension mean must be finite"
             )
+        extension_count = (
+            target_actor_observations - pack.actor_observation_count
+        )
+        extension_offset = (
+            pack.actor_observation_count
+            if actor_observation_extension_offset is None
+            else actor_observation_extension_offset
+        )
+        if (
+            extension_offset < 0
+            or extension_offset > pack.actor_observation_count
+        ):
+            raise ValueError(
+                "actor observation extension offset is outside the source contract"
+            )
         learner = cls(
             target_actor_observations,
             critic_observation_count,
@@ -1868,31 +1884,41 @@ class MLXPolicyLearner:
             zip(destination, pack.layers, strict=True)
         ):
             weights = np.asarray(artifact.weights, dtype=np.float32)
-            if layer_index == 0 and (
-                target_actor_observations > pack.actor_observation_count
-            ):
-                weights = np.pad(
-                    weights,
+            if layer_index == 0 and extension_count > 0:
+                weights = np.concatenate(
                     (
-                        (0, 0),
-                        (
-                            0,
-                            target_actor_observations -
-                            pack.actor_observation_count,
+                        weights[:, :extension_offset],
+                        np.zeros(
+                            (weights.shape[0], extension_count),
+                            dtype=np.float32,
                         ),
+                        weights[:, extension_offset:],
                     ),
+                    axis=1,
                 )
             target.weight = mx.array(weights, dtype=mx.float32)
             target.bias = mx.array(artifact.bias, dtype=mx.float32)
-        actor_mean = np.pad(
-            pack.effective_observation_mean,
-            (0, target_actor_observations - pack.actor_observation_count),
-            constant_values=actor_observation_extension_mean,
+        actor_mean = np.concatenate(
+            (
+                pack.effective_observation_mean[:extension_offset],
+                np.full(
+                    extension_count,
+                    actor_observation_extension_mean,
+                    dtype=np.float32,
+                ),
+                pack.effective_observation_mean[extension_offset:],
+            ),
         )
-        actor_inverse_standard_deviation = np.pad(
-            pack.effective_observation_inverse_standard_deviation,
-            (0, target_actor_observations - pack.actor_observation_count),
-            constant_values=1.0,
+        actor_inverse_standard_deviation = np.concatenate(
+            (
+                pack.effective_observation_inverse_standard_deviation[
+                    :extension_offset
+                ],
+                np.ones(extension_count, dtype=np.float32),
+                pack.effective_observation_inverse_standard_deviation[
+                    extension_offset:
+                ],
+            ),
         )
         learner.set_observation_normalization(
             actor_mean=actor_mean,

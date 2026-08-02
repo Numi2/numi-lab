@@ -799,6 +799,9 @@ def _initialize(arguments: argparse.Namespace) -> int:
             actor_observation_extension_mean=(
                 arguments.actor_observation_extension_mean
             ),
+            actor_observation_extension_offset=(
+                arguments.actor_observation_extension_offset
+            ),
             library_path=arguments.native_library,
         )
         if (
@@ -925,6 +928,14 @@ def main() -> int:
         help=(
             "normalization mean for observations appended beyond the source "
             "PolicyPack contract"
+        ),
+    )
+    initialize.add_argument(
+        "--actor-observation-extension-offset",
+        type=int,
+        help=(
+            "insert zero-connected observations before this source-policy "
+            "index; defaults to appending them"
         ),
     )
     initialize.add_argument(

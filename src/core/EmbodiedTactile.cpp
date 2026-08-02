@@ -142,13 +142,23 @@ TactileSensorSpec makeG1SoleSensor(
     const G1FootFrame& foot,
     const std::uint32_t targetShape
 ) {
+    if (foot.soleShapeIndex >= model.shapes.size() ||
+        model.shapes[foot.soleShapeIndex].bodyIndex != foot.bodyIndex ||
+        model.shapes[foot.soleShapeIndex].shapeType != MR_SHAPE_BOX ||
+        !std::isfinite(foot.supportPatchBounds.x) ||
+        !std::isfinite(foot.supportPatchBounds.y) ||
+        !std::isfinite(foot.supportPatchBounds.z) ||
+        !std::isfinite(foot.supportPatchBounds.w) ||
+        !(foot.supportPatchBounds.z > foot.supportPatchBounds.x) ||
+        !(foot.supportPatchBounds.w > foot.supportPatchBounds.y)) {
+        throw std::logic_error(
+            "G1 plantar atlas requires the production box sole"
+        );
+    }
     TactileSensorSpec sensor;
     sensor.id = std::string{foot.name} + "_tactile";
     sensor.parentBodyIndex = foot.bodyIndex;
-    sensor.backingShapeIndices.assign(
-        foot.sphereShapeIndices.begin(),
-        foot.sphereShapeIndices.end()
-    );
+    sensor.backingShapeIndices = {foot.soleShapeIndex};
     sensor.localPose.position = foot.solePosition;
     sensor.localPose.orientation = foot.soleRotation;
     sensor.width = kAtlasWidth;
@@ -162,71 +172,29 @@ TactileSensorSpec makeG1SoleSensor(
     sensor.targetShapeIndices = {targetShape};
     sensor.samples.reserve(kAtlasWidth * kAtlasHeight);
 
-    constexpr std::uint32_t tileSize = 16u;
-    constexpr float maximumAngle =
-        55.0f * std::numbers::pi_v<float> / 180.0f;
-    const float normalRadius = std::sin(maximumAngle);
-    const float normalStep =
-        2.0f * normalRadius / static_cast<float>(tileSize);
+    const float lowerX = foot.supportPatchBounds.x;
+    const float upperX = foot.supportPatchBounds.z;
+    const float lowerY = foot.supportPatchBounds.y;
+    const float upperY = foot.supportPatchBounds.w;
+    const float cellWidth =
+        (upperX - lowerX) / static_cast<float>(kAtlasWidth);
+    const float cellHeight =
+        (upperY - lowerY) / static_cast<float>(kAtlasHeight);
     for (std::uint32_t v = 0u; v < kAtlasHeight; ++v) {
         for (std::uint32_t u = 0u; u < kAtlasWidth; ++u) {
-            const std::uint32_t patch =
-                (v / tileSize) * 2u + (u / tileSize);
-            const float nx =
-                (
-                    (static_cast<float>(u % tileSize) + 0.5f) /
-                        static_cast<float>(tileSize) *
-                        2.0f -
-                    1.0f
-                ) * normalRadius;
-            const float ny =
-                (
-                    (static_cast<float>(v % tileSize) + 0.5f) /
-                        static_cast<float>(tileSize) *
-                        2.0f -
-                    1.0f
-                ) * normalRadius;
-            const float radialSquared = nx * nx + ny * ny;
-            if (radialSquared >= normalRadius * normalRadius) {
-                sensor.samples.push_back(invalidSample(u, v));
-                continue;
-            }
-            const std::uint32_t shapeIndex =
-                foot.sphereShapeIndices[patch];
-            const MRShapeGPU& sphere = model.shapes[shapeIndex];
-            const mr_float4 center{
-                sphere.localPosition.x - foot.solePosition.x,
-                sphere.localPosition.y - foot.solePosition.y,
-                sphere.localPosition.z - foot.solePosition.z,
-                0.0f,
-            };
-            const mr_float4 normal = normalized({
-                nx,
-                ny,
-                -std::sqrt(1.0f - radialSquared),
-                0.0f,
-            });
-            const mr_float4 tangentU = tangentFromReference(
-                normal,
-                {1.0f, 0.0f, 0.0f, 0.0f}
-            );
-            const mr_float4 tangentV =
-                normalized(cross3(normal, tangentU));
-            const float surfaceRadius =
-                sphere.dimensions.x + kG1ShellThickness;
             sensor.samples.push_back({
                 {
-                    center.x + normal.x * surfaceRadius,
-                    center.y + normal.y * surfaceRadius,
-                    center.z + normal.z * surfaceRadius,
+                    lowerX +
+                        (static_cast<float>(u) + 0.5f) * cellWidth,
+                    lowerY +
+                        (static_cast<float>(v) + 0.5f) * cellHeight,
+                    0.0f,
                     0.0f,
                 },
-                normal,
-                tangentU,
-                tangentV,
-                surfaceRadius * surfaceRadius *
-                    normalStep * normalStep /
-                    std::max(-normal.z, 1.0e-4f),
+                {0.0f, 0.0f, -1.0f, 0.0f},
+                {1.0f, 0.0f, 0.0f, 0.0f},
+                {0.0f, -1.0f, 0.0f, 0.0f},
+                cellWidth * cellHeight,
                 kG1ShellThickness,
                 u,
                 v,
@@ -507,7 +475,7 @@ EngineModel makeUnitreeG1TactileEngineModel() {
     // the virtual plantar layer. It is not a measured G1 foot material.
     model.materials.at(0u).response.z = 2.0e-6f;
     model.materials.at(0u).response.w = 0.02f;
-    for (std::uint32_t shapeIndex = 0u; shapeIndex < 8u;
+    for (std::uint32_t shapeIndex = 0u; shapeIndex < 2u;
          ++shapeIndex) {
         model.shapes[shapeIndex].contactRestAndBoundingRadius.x =
             kG1ContactOffset;

@@ -1877,6 +1877,7 @@ void validateEmbodiedTactileAtlases() {
         const metalrobo::EngineModel& model,
         const metalrobo::EpisodeTwin& episode,
         const std::uint32_t expectedBackings,
+        const bool expectsInvalidSamples,
         const std::string_view label
     ) {
         metalrobo::WorldTemplate world;
@@ -1928,9 +1929,12 @@ void validateEmbodiedTactileAtlases() {
             );
         }
         require(
-            validSamples > 0u && invalidSamples > 0u,
+            validSamples > 0u &&
+                (expectsInvalidSamples
+                    ? invalidSamples > 0u
+                    : invalidSamples == 0u),
             std::string{label} +
-                " atlas did not preserve explicit invalid space"
+                " atlas validity mask changed"
         );
         const auto bodies = separatedBodyStates(model);
         const auto cpu = observeCpu(
@@ -1952,8 +1956,9 @@ void validateEmbodiedTactileAtlases() {
     validateAtlas(
         g1Model,
         metalrobo::makeUnitreeG1TactileEpisodeTwin(),
-        4u,
-        "g1-spherical-cap-atlas"
+        1u,
+        false,
+        "g1-production-box-sole-atlas"
     );
 
     const auto psmModel =
@@ -1962,6 +1967,7 @@ void validateEmbodiedTactileAtlases() {
         psmModel,
         metalrobo::makeDvrkPsmTactileEpisodeTwin(),
         3u,
+        true,
         "psm-irregular-jaw-atlas"
     );
 
