@@ -13372,10 +13372,9 @@ MetalWorldDiagnostics validateAndPublish(
             } else {
                 if (status.successfulSubsteps >=
                         dispatch.physicsSubsteps ||
-                    (!contactMode &&
-                     status.abaCode == MR_ABA_SUCCESS) ||
-                    (contactStatus != nullptr &&
-                     contactStatus->code == MR_STEP_SUCCESS) ||
+                    (status.abaCode == MR_ABA_SUCCESS &&
+                     (contactStatus == nullptr ||
+                      contactStatus->code == MR_STEP_SUCCESS)) ||
                     status.failingSubstep >=
                         dispatch.physicsSubsteps ||
                     (publishStateTrajectory &&
