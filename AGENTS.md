@@ -42,15 +42,33 @@ SOLVER    := TemporalCone small-step coupled solve; algorithm evidence>label
 
 ```math
 \Theta \in \mathbb{R}^{2\times6\times3},\qquad
-\Theta_{r,m,h}=\frac{\operatorname{NumiLab}_{m}}
-                         {\operatorname{Rival}_{r,m}}
+\Theta_{r,m,h}=\frac{\mathrm{NumiLab}_{m}}
+                         {\mathrm{Rival}_{r,m}}
 ```
 
-```text
-r = [MuJoCo, IsaacLab]
-m = [correctness, end_to_end_speed, transitions_per_joule,
-     inverse_bytes_per_env, inverse_time_to_policy_quality, native_multimodal]
-h = [floor, promotion, north_star]
+```math
+\vec{r}=
+\begin{bmatrix}r_0&r_1\end{bmatrix}=
+\begin{bmatrix}\mathrm{MuJoCo}&\mathrm{IsaacLab}\end{bmatrix}
+```
+
+```math
+\vec{m}=
+\begin{bmatrix}m_0&m_1&m_2&m_3&m_4&m_5\end{bmatrix}=
+\begin{bmatrix}
+\mathrm{correctness}&
+\mathrm{end\_to\_end\_speed}&
+\mathrm{transitions\_per\_joule}&
+\mathrm{inverse\_bytes\_per\_env}&
+\mathrm{inverse\_time\_to\_policy\_quality}&
+\mathrm{native\_multimodal}
+\end{bmatrix}
+```
+
+```math
+\vec{h}=
+\begin{bmatrix}h_0&h_1&h_2\end{bmatrix}=
+\begin{bmatrix}\mathrm{floor}&\mathrm{promotion}&\mathrm{north\_star}\end{bmatrix}
 ```
 
 ```math
@@ -65,7 +83,7 @@ h = [floor, promotion, north_star]
 
 ```math
 g=[c,d,t,z]\in\{0,1\}^{4},\qquad
-\operatorname{promote}(h) \iff
+\mathrm{promote}(h) \iff
 \left(\bigwedge_i g_i=1\right)\land
 \left(\bigwedge_{r,m}\widehat{\Theta}_{r,m}\ge\Theta_{r,m,h}\right)
 ```
