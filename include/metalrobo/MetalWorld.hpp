@@ -354,9 +354,13 @@ struct MetalWorldStepConfig {
     bool applyBodyDamping = true;
     bool deterministic = true;
     bool warmStart = true;
-    // Uses streamed inverse ABA for eligible single-articulation contact
-    // graphs. Disable only for dense-factor qualification A/B runs.
+    // Uses inverse ABA instead of a dense articulated factor for eligible
+    // single-articulation contact graphs.
     bool matrixFreeArticulatedContact = true;
+    // Streams inverse-ABA response columns directly into the contact solve.
+    // This optimization is quarantined behind explicit opt-in while the
+    // materialized matrix-free path remains the production default.
+    bool streamedArticulatedContactResponses = false;
     bool captureContactEvidence = false;
     // Full state/trajectory publication is an explicit inspection boundary.
     // Native rollout sessions disable both and retain simulator state on the

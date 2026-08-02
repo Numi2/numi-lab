@@ -3496,6 +3496,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             world.model().constraintProgram.cones.size()
         );
     if (config.matrixFreeArticulatedContact &&
+        config.streamedArticulatedContactResponses &&
         nativeTask &&
         config.solverMode == MetalWorldSolverMode::temporalCone &&
         world.articulationCount() == 1u &&
