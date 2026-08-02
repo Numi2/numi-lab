@@ -364,6 +364,49 @@
 \ne\mathrm{single\_policy\_proof}
 ```
 
+## NUMI.STREAMED.INVERSE.ABA
+
+```math
+\vec{Q}_{\mathrm{stream}}=
+\begin{bmatrix}
+\mathrm{environments}&\mathrm{updates}&\mathrm{steps/update}&
+\mathrm{transitions}&\mathrm{failed\_steps}&\mathrm{elapsed\_seconds}&
+\mathrm{transitions/s}
+\end{bmatrix}
+=
+\begin{bmatrix}
+1024&16&256&4194304&0&734.829&5707.865
+\end{bmatrix}
+```
+
+```math
+\vec{Q}_{\mathrm{dense}}=
+\begin{bmatrix}
+1024&16&256&4194304&0&1022.013&4103.962
+\end{bmatrix},\qquad
+\frac{Q_{\mathrm{stream,tps}}}{Q_{\mathrm{dense,tps}}}=1.390
+```
+
+```math
+\vec{Q}_{\mathrm{numerics}}=
+\begin{bmatrix}
+\mathrm{warm\_start}&\mathrm{inverse\_ABA}&\mathrm{direct\_stream}&
+\mathrm{contact\_CFM}&\mathrm{final\_minimum\_reward}&\mathrm{final\_loss}&
+\mathrm{final\_KL}
+\end{bmatrix}
+=
+\begin{bmatrix}
+1&1&1&0.01&-2.605783&1.594130&0.000352
+\end{bmatrix}
+```
+
+```math
+\mathrm{conditioned\_streamed\_inverse\_ABA}=
+\mathrm{production\_default},\qquad
+\mathrm{qualification\_artifact}=
+\mathtt{/Users/n/MetalRobo-training/g1\text{-}1024\text{-}plantar\text{-}conditioned\text{-}streamed\text{-}long16\text{-}20260802}
+```
+
 ## NUMI.NORTHSTAR
 
 ```math
