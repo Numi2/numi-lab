@@ -38,20 +38,32 @@ VISUAL    := authored Presentation; never collision-derived; no fallback scene
 SOLVER    := TemporalCone small-step coupled solve; algorithm evidence>label
 ```
 
-## G1.DODGE
+## NUMI.NORTHSTAR
 
 ```text
-GOAL   := clean_any_link_miss + balance + credible_evasion
-ACTOR  := masked_depth(native) + proprioception
-TEACH  := privileged Joint-CBF during training only
-SAFE   := Link-CBF(all_links); contact_record persistent; contact != terminate
-MISS   := no(projectile_to_any_link_contact over full_throw_lifetime)
-THREAT := closest_approach,time_to_impact,strike_height,link,escape_latch
-MOTION := MotionPack -> duck|lean|sidestep|step_over; reject=twitch
-RAND   := direction,height,speed,link,mode,latency,corruption
-ANCHOR := preserve standing; recovery separate unless task explicitly combines
-PROMOTE:= seeded multi-seed any-link benchmark vs preserved champion
-DENY   := reward_only_promotion | visual-only_claim | overwrite_champion
+THRONE := ultimate robotics physics + learning simulator
+RIVALS := MuJoCo + IsaacLab/NVIDIA
+WIN    := measured superiority, not compatibility theater
+
+MOAT := AppleSilicon(unified_memory + Metal + Swift + MLX)
+        -> one device-resident physics/sensing/rollout/learning organism
+SCOPE := rigid + articulated + contact + terrain + vision + tactile + control
+        + deterministic replay + massive parallel RL
+EDGE  := no PCIe boundary; no Python scheduler; no duplicated world tensors;
+         authored multimodal sensors; compiled generic task programs
+
+TARGET.correct := reference-grade mechanics + stable contact + exact transactions
+TARGET.fast    := highest useful transitions/s per watt and per retained byte
+TARGET.scale   := memory-bounded env growth with zero failed steps
+TARGET.learn   := wall-clock policy quality, not empty simulator throughput
+TARGET.truth   := reproducible public scenes, commands, fingerprints, outcomes
+
+DETHRONE := beat MuJoCo on end-to-end Apple-native robotics workloads;
+            beat IsaacLab on accessible local throughput, efficiency, and
+            integrated visual-tactile learning without NVIDIA dependency
+PROVE    := paired benchmark + matched semantics + physical outcome + profiler
+DENY     := benchmark gaming | unsupported superiority claim | vendor mimicry
+LAW      := every result may raise ambition; no result may lower correctness
 ```
 
 ## PERF
