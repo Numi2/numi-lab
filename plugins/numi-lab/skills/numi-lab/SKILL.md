@@ -17,6 +17,61 @@ Do not force requests into a fixed robotics schema or invent a second planner.
 4. Inspect the owning repository code when the request needs behavior that the
    installed commands do not already provide.
 
+## Apple Silicon execution model
+
+Use Numi Lab as one Apple-native system, not as a Python simulator wrapped by
+Codex:
+
+- The native compiler resolves robot mechanics, `WorldPack`, `TaskPack`, and
+  `PolicyPack` artifacts into stable indices, fixed-capacity tables, and
+  fingerprints. A new robot is authored data and mechanics, not a new shader
+  or host execution mode.
+- Metal owns persistent physics, contact, terrain, task operators, sensing,
+  rendering, policy inference, simulator state, and counter-based randomness.
+  Keep the control loop device-resident and free of per-environment host loops,
+  per-step string lookup, and unnecessary readback.
+- Swift owns rollout length, chunking, the asynchronous submission/wait
+  boundary, timeouts, atomic resets, policy revision, and error publication. It
+  reuses bounded rollout storage rather than accumulating per-chunk copies.
+- MLX owns batch learning only. It consumes compact memory-mapped rollout
+  artifacts and publishes the next fingerprinted `PolicyPack`; it does not own
+  physics, simulator state, or rollout scheduling.
+- Apple unified memory is shared capacity, not permission to duplicate data.
+  Account for retained native heaps, transient private arenas, MLX active and
+  cached allocations, publication buffers, and the device's recommended
+  working set. Prefer borrowed buffers, fused encoders, and explicit lifetime
+  boundaries.
+- One environment control step is a transaction. Accepted state publishes;
+  failed state rolls back with typed status while healthy environments
+  continue. Chunk size and scheduling must not change random streams or replay.
+- GPU submission is asynchronous. A ticket wait is the explicit host
+  publication boundary; rendering or sensing callbacks may encode against
+  borrowed buffers but must not independently commit, wait, or retain them.
+
+Do not infer hardware execution from an Apple Silicon build, a CPU probe, or a
+simulator result. Report the actual device, runtime path, memory behavior, GPU
+status, and physical or replay evidence produced by the run.
+
+## Infrastructure routing
+
+Load only the owner documentation needed for the request, then trace its live
+code path:
+
+- Robot, task, policy, artifact, or compiler architecture: `docs/WORLD_ENGINE.md`.
+- Metal execution, submissions, private heaps, unified-memory scale, and native
+  training: `docs/METAL_WORLD.md`.
+- Rendering, RGB-D, device observations, and zero-readback perception:
+  `docs/VISUAL_PLATFORM.md`.
+- FP32/FP64 parity, contact correctness, transactionality, and solver evidence:
+  `docs/NUMERICS.md`.
+- Tactile geometry, contact fields, and sensor bridge work:
+  `docs/TACTILE_GEOMETRY_BRIDGE.md`.
+
+For cross-layer changes, preserve the ownership boundary: C++ compiles and
+validates the world, Metal executes the hot loop, Swift schedules bounded
+rollouts, and MLX learns from published batches. Change the lowest owning
+layer that can express the requested capability.
+
 ## Freedom model
 
 Use the smallest sufficient level, without asking the user to translate intent

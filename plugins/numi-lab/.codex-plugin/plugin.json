@@ -1,6 +1,6 @@
 {
   "name": "numi-lab",
-  "version": "0.1.0+codex.20260802225512",
+  "version": "0.1.0+codex.20260802230144",
   "description": "Train, evaluate, and extend robots locally through Codex and Apple Silicon.",
   "author": {
     "name": "Numi Lab"
