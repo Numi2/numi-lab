@@ -219,7 +219,9 @@ def configure_scene(options: argparse.Namespace):
         metallic=0.18,
         roughness=0.26,
     )
-    bpy.ops.mesh.primitive_plane_add(size=200.0, location=(0.0, 0.0, -0.006))
+    # Presentation shares the solver's exact z=0 support plane. Never lower
+    # the visible floor to conceal contact penetration.
+    bpy.ops.mesh.primitive_plane_add(size=200.0, location=(0.0, 0.0, 0.0))
     floor = bpy.context.object
     floor.name = "Numi studio floor"
     floor.data.materials.append(floor_surface)

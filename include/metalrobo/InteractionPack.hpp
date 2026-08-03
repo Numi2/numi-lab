@@ -48,8 +48,11 @@ struct InteractionClip {
     std::uint32_t frameCount = 0u;
     bool loop = false;
 
-    // Frame-major MetalRobo root pose: position xyz followed by quaternion
-    // xyzw. Joint targets follow InteractionPack::jointNames.
+    // Frame-major MetalRobo root-link pose: link-origin position xyz followed
+    // by quaternion xyzw. The compiler/runtime converts this authored link
+    // frame to the solver's floating-root COM coordinates; artifact producers
+    // must never perform that mechanism-specific conversion themselves.
+    // Joint targets follow InteractionPack::jointNames.
     std::vector<float> rootTargets;
     std::vector<float> jointTargets;
 

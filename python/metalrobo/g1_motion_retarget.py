@@ -85,6 +85,7 @@ class G1Kinematics:
     links: tuple[str, ...]
     joints: tuple[Joint, ...]
     joint_indices: Mapping[str, int]
+    root_center_of_mass: np.ndarray
     source_sha256: str
 
     @classmethod
@@ -125,7 +126,30 @@ class G1Kinematics:
             raise ValueError("URDF does not contain the canonical 29-DoF G1")
         if "pelvis" not in links:
             raise ValueError("G1 URDF has no pelvis root")
-        return cls(links, tuple(joints), indices, _sha256(path))
+        pelvis = root.find("link[@name='pelvis']")
+        inertial_origin = (
+            None if pelvis is None else pelvis.find("inertial/origin")
+        )
+        root_center_of_mass = _vector(
+            None if inertial_origin is None
+            else inertial_origin.attrib.get("xyz"),
+            (0.0, 0.0, 0.0),
+        )
+        return cls(
+            links,
+            tuple(joints),
+            indices,
+            root_center_of_mass,
+            _sha256(path),
+        )
+
+    def root_link_position(
+        self,
+        center_of_mass_position: np.ndarray,
+        root_rotation: np.ndarray,
+    ) -> np.ndarray:
+        """Convert solver root-COM translation to the URDF root-link origin."""
+        return center_of_mass_position - root_rotation @ self.root_center_of_mass
 
     def forward(self, q: np.ndarray) -> dict[str, np.ndarray]:
         if q.shape != (29,) or not np.isfinite(q).all():
@@ -687,9 +711,12 @@ def solver_trace_to_g1(
     link_transforms = np.empty(
         (q.shape[0], len(model.links), 7), dtype=np.float64
     )
+    root_link_poses = np.empty((q.shape[0], 7), dtype=np.float64)
     for frame_index, state in enumerate(q):
-        root_position = state[:3]
         root_rotation = Rotation.from_quat(state[3:7]).as_matrix()
+        root_position = model.root_link_position(state[:3], root_rotation)
+        root_link_poses[frame_index, :3] = root_position
+        root_link_poses[frame_index, 3:] = state[3:7]
         local_poses = model.forward(state[7:])
         for link_index, name in enumerate(model.links):
             local = local_poses[name]
@@ -701,7 +728,8 @@ def solver_trace_to_g1(
             )
 
     arrays = {
-        "root_position_quaternion_xyzw": q[:, :7].astype(np.float32),
+        "root_position_quaternion_xyzw": root_link_poses.astype(np.float32),
+        "solver_root_com_position_quaternion_xyzw": q[:, :7].astype(np.float32),
         "joint_positions": q[:, 7:].astype(np.float32),
         "step": np.asarray(steps, dtype=np.uint32),
         "link_names": np.asarray(model.links, dtype=np.str_),
@@ -714,6 +742,12 @@ def solver_trace_to_g1(
             "accepted NumiSolver configurations; forward kinematics only; "
             "no synthesized dynamics or presentation correction"
         ),
+        "root_frame_contract": {
+            "solver_configuration": "root center of mass pose",
+            "render_and_interaction": "root link-origin pose",
+            "root_center_of_mass_local_xyz": model.root_center_of_mass.tolist(),
+            "conversion": "link_origin = com_position - rotation * local_com",
+        },
         "state_trace": {
             "path": str(state_trace),
             "sha256": _sha256(state_trace),

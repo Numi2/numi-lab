@@ -15,6 +15,7 @@ from metalrobo.ardy_interaction_convert import (
     _G1_JOINT_UPPER,
     _G1_JOINT_VELOCITY,
 )
+from metalrobo.g1_motion_retarget import G1Kinematics
 
 
 _G1_NAMES = (
@@ -40,6 +41,23 @@ _G1_PARENTS = np.asarray(
 
 
 class ARDYG1Test(unittest.TestCase):
+    def test_solver_com_pose_converts_to_root_link_origin(self) -> None:
+        model = G1Kinematics(
+            links=("pelvis",),
+            joints=(),
+            joint_indices={},
+            root_center_of_mass=np.asarray((0.01, -0.02, -0.08)),
+            source_sha256="fixture",
+        )
+        rotation = Rotation.from_euler("xyz", (0.3, -0.2, 0.4)).as_matrix()
+        link_origin = np.asarray((0.5, -0.25, 0.9))
+        com_position = link_origin + rotation @ model.root_center_of_mass
+        np.testing.assert_allclose(
+            model.root_link_position(com_position, rotation),
+            link_origin,
+            atol=1.0e-12,
+        )
+
     def test_native_joint_frame_conversion_round_trips_hinge_angles(self) -> None:
         desired = np.linspace(-0.2, 0.2, len(_G1_SKEL_JOINTS))
         local = np.repeat(np.eye(3)[None], len(_G1_NAMES), axis=0)

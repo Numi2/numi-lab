@@ -13,6 +13,11 @@
 - A floating articulation uses root COM `xyz` plus quaternion in `q`
   (`nq = 7 + joint nq`) and world COM linear velocity plus world angular
   velocity in `v` (`nv = 6 + joint nv`).
+- Authored `InteractionPack` root targets, task root observations, and visual
+  transforms use the root-link origin. Reset converts a target to generalized
+  coordinates as `COM_world = link_world + R * COM_local`; state publication
+  converts back as `link_world = COM_world - R * COM_local`. These conversions
+  are mechanism boundaries, never presentation offsets or floor correction.
 - Contact normals point from body A to body B. Geometric witnesses retain
   separate points on A and B and signed separation.
 

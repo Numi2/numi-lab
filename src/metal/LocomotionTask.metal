@@ -2295,10 +2295,35 @@ kernel void mr_locomotion_task_observe(
         }
         if ((program.schedule.w &
              MR_TASK_PROGRAM_INTERACTION_RESET) != 0u) {
-            for (uint component = 0u; component < 7u; ++component) {
-                resetQ[qBase + program.root.z + component] =
-                    interactionRootTargets[component];
-            }
+            const float4 targetOrientation = float4(
+                interactionRootTargets[3u],
+                interactionRootTargets[4u],
+                interactionRootTargets[5u],
+                interactionRootTargets[6u]
+            );
+            const float3 targetRootLinkPosition = float3(
+                interactionRootTargets[0u],
+                interactionRootTargets[1u],
+                interactionRootTargets[2u]
+            );
+            // Generalized floating-root translation is the root body's COM,
+            // while InteractionPack and task observations author the root-link
+            // origin. rootReference is link-origin minus COM in body space.
+            const float3 targetRootCOMPosition =
+                targetRootLinkPosition - rotate(
+                    targetOrientation,
+                    program.rootReference.xyz
+                );
+            resetQ[qBase + program.root.z + 0u] =
+                targetRootCOMPosition.x;
+            resetQ[qBase + program.root.z + 1u] =
+                targetRootCOMPosition.y;
+            resetQ[qBase + program.root.z + 2u] =
+                targetRootCOMPosition.z;
+            resetQ[qBase + program.root.z + 3u] = targetOrientation.x;
+            resetQ[qBase + program.root.z + 4u] = targetOrientation.y;
+            resetQ[qBase + program.root.z + 5u] = targetOrientation.z;
+            resetQ[qBase + program.root.z + 6u] = targetOrientation.w;
             for (uint action = 0u;
                  action < program.interaction.y;
                  ++action) {
@@ -4675,11 +4700,7 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_INTERACTION_ROOT_TRACKING: {
             const uint targetBase = referenceFrame * 7u;
             const float3 positionDelta =
-                float3(
-                    qState[qBase + program.root.z + 0u],
-                    qState[qBase + program.root.z + 1u],
-                    qState[qBase + program.root.z + 2u]
-                ) -
+                rootWorldPosition(program, qState + qBase) -
                 float3(
                     interactionRootTargets[targetBase + 0u],
                     interactionRootTargets[targetBase + 1u],

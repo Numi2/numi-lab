@@ -62,6 +62,24 @@ struct JointSource {
     double velocity;
 };
 
+// Exact local envelope of the pinned left/right ankle-roll visual meshes,
+// reduced to one non-overlapping sole box. The upper face stays at the former
+// MuJoCo-Lab sole height (-0.015 m); the remaining faces cover the physical
+// shell instead of allowing the visible heel and toe to pass through support.
+constexpr double kSoleMinimumX = -0.06584137;
+constexpr double kSoleMaximumX = 0.14236535;
+constexpr double kSoleHalfY = 0.03784090;
+constexpr double kSoleMinimumZ = -0.03540915;
+constexpr double kSoleMaximumZ = -0.015;
+constexpr double kSoleCenterX =
+    0.5 * (kSoleMinimumX + kSoleMaximumX);
+constexpr double kSoleCenterZ =
+    0.5 * (kSoleMinimumZ + kSoleMaximumZ);
+constexpr double kSoleHalfX =
+    0.5 * (kSoleMaximumX - kSoleMinimumX);
+constexpr double kSoleHalfZ =
+    0.5 * (kSoleMaximumZ - kSoleMinimumZ);
+
 constexpr std::array<BodySource, kUnitreeG1BodyCount> kBodies{{
     {
         "pelvis", MR_INVALID_INDEX, MR_INVALID_INDEX, 3.814,
@@ -773,26 +791,26 @@ const G1ModelMetadata& unitreeG1Metadata() noexcept {
             "left_ankle_roll_link",
             6u,
             f4(
-                0.035 - kBodies[6].centerOfMass[0],
+                kSoleCenterX - kBodies[6].centerOfMass[0],
                 0.0 - kBodies[6].centerOfMass[1],
-                -0.035 - kBodies[6].centerOfMass[2]
+                kSoleMinimumZ - kBodies[6].centerOfMass[2]
             ),
             f4(0.0, 0.0, 0.0, 1.0),
             0u,
-            f4(-0.089, -0.036, 0.097, 0.036),
+            f4(-kSoleHalfX, -kSoleHalfY, kSoleHalfX, kSoleHalfY),
         };
         value.feet[1] = {
             "right_sole",
             "right_ankle_roll_link",
             12u,
             f4(
-                0.035 - kBodies[12].centerOfMass[0],
+                kSoleCenterX - kBodies[12].centerOfMass[0],
                 0.0 - kBodies[12].centerOfMass[1],
-                -0.035 - kBodies[12].centerOfMass[2]
+                kSoleMinimumZ - kBodies[12].centerOfMass[2]
             ),
             f4(0.0, 0.0, 0.0, 1.0),
             1u,
-            f4(-0.089, -0.036, 0.097, 0.036),
+            f4(-kSoleHalfX, -kSoleHalfY, kSoleHalfX, kSoleHalfY),
         };
 
         value.imus[0] = {
@@ -953,20 +971,20 @@ EngineModel makeUnitreeG1EngineModel() {
     material.geometry = f4(0.0, 0.0, 0.0, 0.0);
     model.materials.push_back(material);
 
-    // One convex sole per foot preserves the MuJoCo-Lab support polygon
-    // without creating seven mutually overlapping contact manifolds.
+    // One convex sole per foot covers the pinned visible shell without
+    // creating seven mutually overlapping contact manifolds.
     const mr_float4 identity = f4(0.0, 0.0, 0.0, 1.0);
     for (const std::uint32_t bodyIndex : {6u, 12u}) {
         model.shapes.push_back(makePrimitive(
             bodyIndex,
             MR_SHAPE_BOX,
-            f4(0.039, 0.0, -0.025),
+            f4(kSoleCenterX, 0.0, kSoleCenterZ),
             identity,
-            f4(0.093, 0.036, 0.01, 0.0),
+            f4(kSoleHalfX, kSoleHalfY, kSoleHalfZ, 0.0),
             std::sqrt(
-                0.093 * 0.093 +
-                0.036 * 0.036 +
-                0.01 * 0.01
+                kSoleHalfX * kSoleHalfX +
+                kSoleHalfY * kSoleHalfY +
+                kSoleHalfZ * kSoleHalfZ
             )
         ));
     }

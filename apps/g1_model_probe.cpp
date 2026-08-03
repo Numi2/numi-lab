@@ -399,7 +399,7 @@ int main() {
                     close(
                         foot.solePosition.x +
                             model.bodies[expectedBody].centerOfMass.x,
-                        0.035
+                        0.03826199
                     ) &&
                     close(
                         foot.solePosition.y +
@@ -409,7 +409,7 @@ int main() {
                     close(
                         foot.solePosition.z +
                             model.bodies[expectedBody].centerOfMass.z,
-                        -0.035
+                        -0.03540915
                     ) &&
                     close(foot.soleRotation.w, 1.0),
                 "derived G1 sole frame is incorrect"
@@ -418,10 +418,10 @@ int main() {
             require(
                 shape.bodyIndex == expectedBody &&
                     shape.shapeType == MR_SHAPE_BOX &&
-                    close(shape.dimensions.x, 0.093) &&
-                    close(shape.dimensions.y, 0.036) &&
-                    close(shape.dimensions.z, 0.01),
-                "MuJoCo-Lab sole collision box is incorrect"
+                    close(shape.dimensions.x, 0.10410336) &&
+                    close(shape.dimensions.y, 0.03784090) &&
+                    close(shape.dimensions.z, 0.010204575),
+                "visible-envelope sole collision box is incorrect"
             );
         }
         for (std::size_t shape = 2u; shape < 6u; ++shape) {
