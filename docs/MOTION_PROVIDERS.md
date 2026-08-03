@@ -28,6 +28,22 @@ feature. The separately published
 can encode arbitrary prompts; upstream reference embeddings permit a smaller
 exact runtime qualification without installing the text encoder.
 
+With the model cache and pinned Unitree description installed, the complete
+prompt-to-G1 presentation path is one command:
+
+```sh
+numi motion imagine-g1 \
+  --prompt 'perform a standing backflip, jump upward, rotate backward in the air, and land on both feet' \
+  --seed 4
+```
+
+It encodes the prompt, runs ARDY Core, maps the resulting root and whole-body
+motion onto the authored 29-DoF G1 within position and per-frame velocity
+limits, applies the official Unitree visual meshes, and publishes a GIF, MP4,
+source motion, retarget artifact, and provenance evidence. Optional paths and
+render settings remain available through `numi motion imagine-g1 --help`; the
+normal local cache locations require no repeated path arguments.
+
 Keep downloaded model graphs outside Git. `numi motion inspect` validates the
 fixed graph contract and can recompute every SHA-256 before inference:
 
@@ -92,6 +108,35 @@ auto` therefore discarded that attempt and reran from the original seed on
 the arm64 CPU provider. This is a working Apple Silicon inference path, not a
 claim of current Apple GPU execution. The provider boundary allows a later
 Core ML or Metal-native backend without changing motion-artifact semantics.
+
+The reusable INT4 Llama 3 text encoder is a separate approximately 4.6 GiB
+external-weight graph. On the measured arm64 Mac, it turns arbitrary prompt
+text into the same `[1, 4096]` ARDY feature contract. Its Llama 3 license,
+acceptable-use policy, source revision, tokenizer hash, graph hash, and
+external-data hash remain part of the run evidence.
+
+### G1 retargeting and presentation
+
+`numi.motion-retarget.v1` uses the pinned official Unitree G1 29-DoF URDF and
+bounded sequential full-body endpoint IK. ARDY's continuous-6D root
+orientation is transformed from its y-up frame into G1's z-up/x-forward
+frame; limb direction and root translation drive the retarget while G1 keeps
+its own proportions. Every joint target is constrained by authored position
+and velocity limits, with torso/forearm self-clearance objectives. Because the
+ARDY Core horizon ends after 40 frames and can stop before a landing is
+settled, the retarget appends a labelled, bounded transition to the authored
+G1 reset posture instead of displaying a malformed terminal pose. The
+artifact retains endpoint errors, self-clearance, maximum velocity ratio,
+link transforms, source fingerprints, URDF hash, and joint order.
+
+The Blender presentation consumes those exact link transforms and the
+official Unitree meshes. It is deliberately downstream of the numeric
+artifact, so a GIF cannot change or conceal the retarget. This remains a
+kinematic imagination preview. The renderer applies and records only a
+whole-frame vertical correction when the official visual bounds would cross
+the presentation floor; it does not reshape the motion or individual limbs.
+Actuation, balance, collision, contact, and landing success become evidence
+only after the trajectory is executed by NumiSolver.
 
 For presentation evidence, render the actual proposal rather than recreating
 the motion manually:

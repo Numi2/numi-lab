@@ -11,9 +11,14 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import platform
+import re
+import shutil
+import subprocess
 import time
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -364,6 +369,7 @@ def infer_motion(
     seed: int,
     provider: str,
     verify_hashes: bool,
+    text_encoder_evidence: Mapping[str, Any] | None = None,
 ) -> ARDYMotionResult:
     try:
         import onnxruntime as ort
@@ -414,6 +420,7 @@ def infer_motion(
         "model_artifacts": validated,
         "prompt": prompt,
         "text_feature_sha256": _array_fingerprint({"text_feature": text_feature}),
+        "text_encoder": text_encoder_evidence,
         "seed": seed,
         "requested_provider": provider,
         "selected_provider": selected,
@@ -453,6 +460,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     feature = infer_parser.add_mutually_exclusive_group(required=True)
     feature.add_argument("--text-feature", type=Path)
     feature.add_argument("--reference-text-features", type=Path)
+    feature.add_argument("--text-encoder-directory", type=Path)
     feature.add_argument("--unconditioned", action="store_true")
     infer_parser.add_argument("--prompt", default="")
     infer_parser.add_argument("--seed", type=int, default=0)
@@ -460,22 +468,238 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--provider", choices=("auto", "coreml", "cpu"), default="auto"
     )
     infer_parser.add_argument("--verify-hashes", action="store_true")
+    retarget_parser = subparsers.add_parser("retarget-g1")
+    retarget_parser.add_argument("--motion-proposal", type=Path, required=True)
+    retarget_parser.add_argument("--g1-urdf", type=Path, required=True)
+    retarget_parser.add_argument("--output-directory", type=Path, required=True)
+    imagine_parser = subparsers.add_parser("imagine-g1")
+    imagine_parser.add_argument("--prompt", required=True)
+    imagine_parser.add_argument("--model-directory", type=Path)
+    imagine_parser.add_argument(
+        "--text-encoder-directory", type=Path
+    )
+    imagine_parser.add_argument("--g1-urdf", type=Path)
+    imagine_parser.add_argument("--output-directory", type=Path)
+    imagine_parser.add_argument("--seed", type=int, default=0)
+    imagine_parser.add_argument(
+        "--provider", choices=("auto", "coreml", "cpu"), default="cpu"
+    )
+    imagine_parser.add_argument("--verify-hashes", action="store_true")
+    imagine_parser.add_argument("--width", type=int, default=960)
+    imagine_parser.add_argument("--height", type=int, default=1200)
+    imagine_parser.add_argument("--samples", type=int, default=64)
     arguments = parser.parse_args(argv)
     if arguments.command == "inspect":
         print(json.dumps(inspect_model(
             arguments.model_directory, arguments.verify_hashes
         ), indent=2, sort_keys=True))
         return 0
+    if arguments.command == "retarget-g1":
+        from .g1_motion_retarget import retarget_g1, write_retarget
+
+        arrays, evidence = retarget_g1(
+            arguments.motion_proposal,
+            arguments.g1_urdf,
+        )
+        write_retarget(arguments.output_directory, arrays, evidence)
+        print(json.dumps(evidence, indent=2, sort_keys=True))
+        return 0
+    if arguments.command == "imagine-g1":
+        from .ardy_text_encoder import encode_prompt
+        from .g1_motion_retarget import retarget_g1, write_retarget
+
+        if not arguments.prompt.strip():
+            parser.error("--prompt must not be empty")
+        numi_root = Path(os.environ.get("NUMI_LAB_ROOT", Path.cwd()))
+        model_root = Path(
+            os.environ.get(
+                "NUMI_MODELS_DIR",
+                Path.home() / "MetalRobo-training",
+            )
+        )
+        model_directory = arguments.model_directory or Path(
+            os.environ.get(
+                "NUMI_ARDY_CORE_MODEL",
+                model_root / "ardy-core-rp-onnx",
+            )
+        )
+        text_encoder_directory = arguments.text_encoder_directory or Path(
+            os.environ.get(
+                "NUMI_ARDY_TEXT_ENCODER",
+                model_root / "ardy-text-encoder-int4",
+            )
+        )
+        g1_urdf = arguments.g1_urdf or Path(
+            os.environ.get(
+                "NUMI_G1_URDF",
+                numi_root
+                / "build"
+                / "unitree_ros"
+                / "robots"
+                / "g1_description"
+                / "g1_29dof_rev_1_0.urdf",
+            )
+        )
+        prompt_slug = re.sub(
+            r"[^a-z0-9]+", "-", arguments.prompt.strip().lower()
+        ).strip("-")[:48] or "motion"
+        default_output = (
+            numi_root
+            / ".numi"
+            / "runs"
+            / (
+                f"ardy-g1-{prompt_slug}-"
+                f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+            )
+        )
+        output = (arguments.output_directory or default_output).resolve()
+        motion_directory = output / "motion"
+        retarget_directory = output / "g1-retarget"
+        frames_directory = output / "frames"
+        text_feature, encoder_evidence = encode_prompt(
+            text_encoder_directory,
+            arguments.prompt.strip(),
+            arguments.provider,
+            arguments.verify_hashes,
+        )
+        motion = infer_motion(
+            model_directory,
+            text_feature,
+            arguments.prompt.strip(),
+            arguments.seed,
+            arguments.provider,
+            arguments.verify_hashes,
+            encoder_evidence,
+        )
+        motion.write(motion_directory)
+        arrays, retarget_evidence = retarget_g1(
+            motion_directory,
+            g1_urdf,
+        )
+        write_retarget(retarget_directory, arrays, retarget_evidence)
+
+        blender = shutil.which("blender")
+        ffmpeg = shutil.which("ffmpeg")
+        if blender is None or ffmpeg is None:
+            raise RuntimeError("numi motion imagine-g1 needs Blender and ffmpeg")
+        renderer = numi_root / "tools" / "render_g1_motion.py"
+        if not renderer.is_file():
+            raise FileNotFoundError(renderer)
+        if frames_directory.exists():
+            shutil.rmtree(frames_directory)
+        frames_directory.mkdir(parents=True, exist_ok=True)
+        render_started = time.perf_counter()
+        subprocess.run(
+            [
+                blender,
+                "--background",
+                "--python",
+                str(renderer),
+                "--",
+                "--retarget-directory",
+                str(retarget_directory),
+                "--g1-urdf",
+                str(g1_urdf),
+                "--frames",
+                str(frames_directory),
+                "--width",
+                str(arguments.width),
+                "--height",
+                str(arguments.height),
+                "--samples",
+                str(arguments.samples),
+            ],
+            check=True,
+        )
+        render_seconds = time.perf_counter() - render_started
+        render_evidence_path = output / "render-evidence.json"
+        render_evidence = json.loads(render_evidence_path.read_text(encoding="utf-8"))
+        palette = output / "palette.png"
+        gif = output / "ardy-g1.gif"
+        video = output / "ardy-g1.mp4"
+        frame_pattern = str(frames_directory / "g1-%04d.png")
+        subprocess.run(
+            [
+                ffmpeg, "-y", "-loglevel", "error", "-framerate", "20",
+                "-i", frame_pattern, "-vf",
+                "fps=20,scale=720:-1:flags=lanczos,"
+                "palettegen=max_colors=256:stats_mode=diff",
+                str(palette),
+            ],
+            check=True,
+        )
+        subprocess.run(
+            [
+                ffmpeg, "-y", "-loglevel", "error", "-framerate", "20",
+                "-i", frame_pattern, "-i", str(palette), "-lavfi",
+                "fps=20,scale=720:-1:flags=lanczos[x];"
+                "[x][1:v]paletteuse=dither=sierra2_4a:diff_mode=rectangle",
+                "-loop", "0", str(gif),
+            ],
+            check=True,
+        )
+        subprocess.run(
+            [
+                ffmpeg, "-y", "-loglevel", "error", "-framerate", "20",
+                "-i", frame_pattern, "-c:v", "libx264", "-preset", "slow",
+                "-crf", "16", "-pix_fmt", "yuv420p", "-movflags",
+                "+faststart", str(video),
+            ],
+            check=True,
+        )
+        pipeline_evidence = {
+            "format": "numi.imagine-g1.v1",
+            "prompt": arguments.prompt.strip(),
+            "seed": arguments.seed,
+            "source_motion": str(motion_directory / "evidence.json"),
+            "g1_retarget": str(retarget_directory / "evidence.json"),
+            "render": {
+                "renderer": str(renderer),
+                "blender": blender,
+                "width": arguments.width,
+                "height": arguments.height,
+                "fps": 20,
+                "frame_count": int(retarget_evidence["frame_count"]),
+                "elapsed_seconds": render_seconds,
+                "presentation": render_evidence,
+            },
+            "gif": {"path": gif.name, "sha256": _sha256(gif)},
+            "video": {"path": video.name, "sha256": _sha256(video)},
+            "authority": (
+                "ARDY-conditioned G1 kinematic preview; NumiSolver physics "
+                "has not been applied"
+            ),
+        }
+        (output / "evidence.json").write_text(
+            json.dumps(pipeline_evidence, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        print(json.dumps(pipeline_evidence, indent=2, sort_keys=True))
+        return 0
     if arguments.text_feature is not None:
         text_feature = _load_text_feature(arguments.text_feature)
+        text_encoder_evidence = None
     elif arguments.reference_text_features is not None:
         if not arguments.prompt.strip():
             parser.error("--reference-text-features requires --prompt")
         text_feature = load_reference_text_feature(
             arguments.reference_text_features, arguments.prompt
         )
+        text_encoder_evidence = None
+    elif arguments.text_encoder_directory is not None:
+        if not arguments.prompt.strip():
+            parser.error("--text-encoder-directory requires --prompt")
+        from .ardy_text_encoder import encode_prompt
+
+        text_feature, text_encoder_evidence = encode_prompt(
+            arguments.text_encoder_directory,
+            arguments.prompt.strip(),
+            arguments.provider,
+            arguments.verify_hashes,
+        )
     else:
         text_feature = np.zeros((1, 1, 4096), dtype=np.float32)
+        text_encoder_evidence = None
     result = infer_motion(
         arguments.model_directory,
         text_feature,
@@ -483,6 +707,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         arguments.seed,
         arguments.provider,
         arguments.verify_hashes,
+        text_encoder_evidence,
     )
     result.write(arguments.output_directory)
     print(json.dumps(result.evidence, indent=2, sort_keys=True))

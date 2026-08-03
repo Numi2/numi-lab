@@ -94,6 +94,31 @@ The following G1 runs exercise standing, disturbance response, perception,
 generated motion, destructive contact, and get-up learning. They are evidence
 for shared simulator capabilities, not the product boundary.
 
+### Prompt-to-G1 motion imagination
+
+![ARDY-generated standing backflip retargeted onto Unitree G1](docs/media/ardy-g1-backflip-apple-silicon.gif)
+
+The retained animation begins with the prompt `perform a standing backflip,
+jump upward, rotate backward in the air, and land on both feet`. Numi runs the
+INT4 ARDY Llama 3 text encoder and ARDY Core ONNX model on arm64 Apple Silicon,
+then applies bounded full-body retargeting to the official 29-DoF Unitree G1
+mechanics and renders the official visual meshes. The same workflow is exposed
+as:
+
+```sh
+numi motion imagine-g1 \
+  --prompt 'perform a standing backflip, jump upward, rotate backward in the air, and land on both feet' \
+  --seed 4
+```
+
+This is direct model and retarget evidence, not a hand-authored animation. The
+ARDY source horizon is 40 frames; Numi visibly completes it with a bounded
+24-frame transition to the authored G1 reset posture so an unfinished model
+tail cannot leave crossed limbs or a floating terminal frame. It is also
+intentionally not physical-success evidence: the displayed trajectory has not
+yet passed through G1 actuation, balance, collision, contact, or landing in
+NumiSolver.
+
 ### Native G1 standing
 
 The actor was converted once to `PolicyPack` and runs through numi-lab's
