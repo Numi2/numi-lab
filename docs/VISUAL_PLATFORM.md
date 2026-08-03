@@ -255,6 +255,30 @@ are bound to the originating frame index and timestamp before they can enter a
 policy observation; zero detections are represented by valid zero-length
 tensors rather than a malformed result.
 
+### Foundation-policy action chunks
+
+`numi foundation` is the provider-neutral boundary for a vision-language-action
+model that proposes a finite action chunk. Its first adapter consumes NVIDIA's
+staged GR00T N1.7 G1 ONNX export: calibrated ego RGB and named G1 joint state
+enter the provider, and named 16-step joint, effort, navigation, and base-height
+arrays leave it. The artifact hash, observation fingerprint, stochastic-noise
+fingerprint, execution providers, tensor shapes, and per-stage timings accompany
+every chunk.
+
+This is intentionally outside the simulator hot loop. A foundation model owns
+neither contact nor dynamics and its output is not physical-success evidence.
+Numi's native controller may track, reject, blend, or distill a proposed chunk;
+Metal remains authoritative for physics, sensing, constraints, rollout, and
+measured outcome. This separation also permits future GR00T, MLX, Core ML, or
+other providers without changing the episode or simulator contracts.
+
+The ONNX adapter executes preprocessing, visual-language backbone, action head,
+and decode as sequential stages. On Apple, ONNX Runtime prefers Core ML and
+retains CPU as an explicit unsupported-operator fallback. Only compact stage
+outputs survive between large stages. That makes correctness possible on
+today's unified-memory Macs while retaining a direct path to future graph
+fusion, MLX conversion, persistent sessions, and faster Apple hardware.
+
 ### Policy observations
 
 `PolicyObservationAssemblerV1` supports:
@@ -317,3 +341,5 @@ multi-camera RGB, validity-masked metric depth, state, and actions.
   `schemas/perception_provider.schema.json`
 - Reference integration:
   `apps/visual_platform_probe.cpp`
+- Foundation action-chunk adapter:
+  `python/metalrobo/foundation_policy.py` and `numi foundation`

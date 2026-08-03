@@ -2070,6 +2070,7 @@ install(
         numi/commands/codex
         numi/commands/train
         numi/commands/evaluate
+        numi/commands/foundation
     DESTINATION libexec/numi
 )
 install(

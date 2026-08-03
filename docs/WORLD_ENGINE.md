@@ -495,6 +495,15 @@ checkpoints therefore contain learner state, not simulator difficulty policy.
 The former Python/MLX physics extension, MLX world state, task-specific PPO
 collectors, and Python rollout/benchmark entry points have been removed.
 
+Foundation policies remain on the same side of this boundary as any other
+policy: they propose intent, never simulator state. `numi foundation infer`
+emits a content-addressed action chunk plus execution evidence. A native
+rollout or teacher compiler must map that named chunk into the robot's authored
+action space and then measure it through the ordinary Metal physics path.
+Keeping the adapter staged and provider-neutral allows slow-but-correct Apple
+execution now without freezing the architecture around current latency or one
+vendor runtime.
+
 Ball-dodge learning uses a training-only prospective clearance reward derived
 from the native whole-body threat query. It is the urgency-weighted signed
 minimum predicted link/projectile clearance, so moving a threatened link away

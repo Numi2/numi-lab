@@ -45,6 +45,10 @@ numi_linked_version=$($numi_temp/numi version)
 numi_codex_description=$($numi_repo/tools/numi codex --numi-describe)
 [ "$numi_codex_description" = "Install or inspect Numi Lab inside Codex." ]
 
+numi_foundation_description=$($numi_repo/tools/numi foundation --numi-describe)
+[ "$numi_foundation_description" = \
+    "Inspect or run a foundation model as a fingerprinted action-chunk proposer." ]
+
 numi_context=$(
     cd "$numi_temp/workspace"
     NUMI_LAB_ROOT=$numi_repo \

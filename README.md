@@ -32,6 +32,8 @@ does not yet establish real-robot transfer.
   from authored presentation and sensor geometry.
 - Swift rollout and PPO scheduling with MLX restricted to the learning
   backend.
+- Provider-neutral foundation-policy action chunks, including a qualified
+  GR00T N1.7 G1 execution path through Core ML on Apple Silicon.
 - Bundled Unitree G1, Franka, and research PSM models.
 
 ## NumiSolver: the production physics path
@@ -282,6 +284,7 @@ Only current subsystem contracts remain under `docs`:
 - [Metal execution and TemporalCone](docs/METAL_WORLD.md)
 - [Numerical rules](docs/NUMERICS.md)
 - [Visual presentation](docs/VISUAL_PLATFORM.md)
+- [Foundation policies on Apple Silicon](docs/FOUNDATION_POLICIES.md)
 - [Tactile geometry](docs/TACTILE_GEOMETRY_BRIDGE.md)
 
 ## Roadmap
