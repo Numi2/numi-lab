@@ -223,23 +223,201 @@ def _local_root_condition(
     return ((local - local_mean) / local_std).astype(np.float32)
 
 
+def _provider_attempts(
+    requested: str,
+    available: Sequence[str],
+) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    cpu = ("cpu", ("CPUExecutionProvider",))
+    coreml = (
+        "coreml",
+        ("CoreMLExecutionProvider", "CPUExecutionProvider"),
+    )
+    if requested == "cpu":
+        return (cpu,)
+    if requested not in {"auto", "coreml"}:
+        raise ValueError(f"unsupported ARDY provider: {requested}")
+    if "CoreMLExecutionProvider" not in available:
+        if requested == "coreml":
+            raise RuntimeError("ONNX Runtime has no CoreMLExecutionProvider")
+        return (cpu,)
+    return (coreml,) if requested == "coreml" else (coreml, cpu)
+
+
+def _output_parity(
+    candidate: Sequence[np.ndarray],
+    reference: Sequence[np.ndarray],
+    *,
+    absolute_tolerance: float = 5.0e-4,
+    relative_tolerance: float = 5.0e-3,
+) -> dict[str, Any]:
+    if len(candidate) != len(reference):
+        return {
+            "passed": False,
+            "reason": "output-count mismatch",
+            "candidate_output_count": len(candidate),
+            "reference_output_count": len(reference),
+        }
+    maximum_absolute_error = 0.0
+    maximum_relative_error = 0.0
+    squared_error_sum = 0.0
+    reference_squared_sum = 0.0
+    candidate_reference_dot = 0.0
+    candidate_squared_sum = 0.0
+    element_count = 0
+    shapes: list[list[int]] = []
+    passed = True
+    for candidate_value, reference_value in zip(candidate, reference, strict=True):
+        candidate_array = np.asarray(candidate_value, dtype=np.float32)
+        reference_array = np.asarray(reference_value, dtype=np.float32)
+        shapes.append(list(reference_array.shape))
+        if (
+            candidate_array.shape != reference_array.shape
+            or not np.isfinite(candidate_array).all()
+            or not np.isfinite(reference_array).all()
+        ):
+            passed = False
+            continue
+        absolute_error = np.abs(candidate_array - reference_array)
+        relative_error = absolute_error / np.maximum(
+            np.abs(reference_array), 1.0e-6
+        )
+        maximum_absolute_error = max(
+            maximum_absolute_error,
+            float(np.max(absolute_error, initial=0.0)),
+        )
+        maximum_relative_error = max(
+            maximum_relative_error,
+            float(np.max(relative_error, initial=0.0)),
+        )
+        squared_error_sum += float(np.sum(absolute_error.astype(np.float64) ** 2))
+        reference_squared_sum += float(
+            np.sum(reference_array.astype(np.float64) ** 2)
+        )
+        candidate_squared_sum += float(
+            np.sum(candidate_array.astype(np.float64) ** 2)
+        )
+        candidate_reference_dot += float(np.sum(
+            candidate_array.astype(np.float64)
+            * reference_array.astype(np.float64)
+        ))
+        element_count += int(reference_array.size)
+        passed = passed and bool(np.allclose(
+            candidate_array,
+            reference_array,
+            atol=absolute_tolerance,
+            rtol=relative_tolerance,
+        ))
+    return {
+        "passed": passed,
+        "reference_provider": "cpu",
+        "absolute_tolerance": absolute_tolerance,
+        "relative_tolerance": relative_tolerance,
+        "maximum_absolute_error": maximum_absolute_error,
+        "maximum_relative_error": maximum_relative_error,
+        "root_mean_square_error": (
+            math.sqrt(squared_error_sum / element_count)
+            if element_count else None
+        ),
+        "relative_l2_error": (
+            math.sqrt(squared_error_sum / reference_squared_sum)
+            if reference_squared_sum > 0.0 else None
+        ),
+        "cosine_similarity": (
+            candidate_reference_dot
+            / math.sqrt(candidate_squared_sum * reference_squared_sum)
+            if candidate_squared_sum > 0.0 and reference_squared_sum > 0.0
+            else 0.0
+        ),
+        "output_shapes": shapes,
+    }
+
+
+def _run_denoiser_stage(
+    ort: Any,
+    graph: Path,
+    providers: Sequence[str],
+    initial_hybrid: np.ndarray,
+    fixed_feeds: Mapping[str, np.ndarray],
+    cumulative: np.ndarray,
+    previous: np.ndarray,
+) -> tuple[np.ndarray, dict[str, Any]]:
+    started = time.perf_counter()
+    session = ort.InferenceSession(str(graph), providers=list(providers))
+    loaded = time.perf_counter()
+    hybrid = initial_hybrid.copy()
+    step_seconds: list[float] = []
+    for timestep in range(9, -1, -1):
+        step_started = time.perf_counter()
+        predicted = session.run(
+            None,
+            {
+                **fixed_feeds,
+                "x": hybrid,
+                "timesteps": np.asarray([timestep], dtype=np.int64),
+            },
+        )[0]
+        alpha = cumulative[timestep]
+        epsilon = (
+            hybrid[:, :10] / np.sqrt(alpha) - predicted[:, :10]
+        ) / np.sqrt((1.0 - alpha) / alpha)
+        hybrid[:, :10] = (
+            predicted[:, :10] * np.sqrt(previous[timestep])
+            + np.sqrt(1.0 - previous[timestep]) * epsilon
+        )
+        if not np.isfinite(hybrid[:, :10]).all():
+            raise RuntimeError(f"ARDY denoising step {timestep} is non-finite")
+        step_seconds.append(time.perf_counter() - step_started)
+    finished = time.perf_counter()
+    return hybrid, {
+        "session_providers": session.get_providers(),
+        "load_seconds": loaded - started,
+        "inference_seconds": finished - loaded,
+        "step_seconds": step_seconds,
+    }
+
+
+def _run_decoder_stage(
+    ort: Any,
+    graph: Path,
+    providers: Sequence[str],
+    latent_tokens: np.ndarray,
+    local_root: np.ndarray,
+    frame_generation_mask: np.ndarray,
+) -> tuple[list[np.ndarray], dict[str, Any]]:
+    started = time.perf_counter()
+    session = ort.InferenceSession(str(graph), providers=list(providers))
+    loaded = time.perf_counter()
+    decoded = session.run(
+        None,
+        {
+            "latent_tokens": latent_tokens,
+            "external_cond": local_root,
+            "motion_pad_mask": frame_generation_mask,
+        },
+    )
+    finished = time.perf_counter()
+    arrays = [np.asarray(value, dtype=np.float32) for value in decoded]
+    if not arrays or any(not np.isfinite(value).all() for value in arrays):
+        raise RuntimeError("ARDY decoder produced non-finite output")
+    return arrays, {
+        "session_providers": session.get_providers(),
+        "load_seconds": loaded - started,
+        "inference_seconds": finished - loaded,
+    }
+
+
 def _run_ardy(
     ort: Any,
     model_directory: Path,
     contract: Mapping[str, Any],
     text_feature: np.ndarray,
     seed: int,
-    providers: Sequence[str],
+    requested_provider: str,
+    available_providers: Sequence[str],
 ) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
-    denoiser_started = time.perf_counter()
-    denoiser = ort.InferenceSession(
-        str(model_directory / "fp32" / "denoiser.onnx"),
-        providers=list(providers),
-    )
-    denoiser_loaded = time.perf_counter()
     generator = np.random.default_rng(seed)
-    hybrid = np.zeros((1, 64, 148), dtype=np.float32)
-    hybrid[:, :10] = generator.standard_normal(
+    initial_hybrid = np.zeros((1, 64, 148), dtype=np.float32)
+    initial_hybrid[:, :10] = generator.standard_normal(
         (1, 10, 148), dtype=np.float32
     )
     frame_generation_mask = np.zeros((1, 256), dtype=np.float32)
@@ -262,47 +440,118 @@ def _run_ardy(
         "observed_motion": np.zeros((1, 256, 330), dtype=np.float32),
     }
     cumulative, previous = _cosine_diffusion()
-    step_seconds: list[float] = []
-    for timestep in range(9, -1, -1):
-        step_started = time.perf_counter()
-        predicted = denoiser.run(
-            None,
-            {
-                **fixed_feeds,
-                "x": hybrid,
-                "timesteps": np.asarray([timestep], dtype=np.int64),
-            },
-        )[0]
-        alpha = cumulative[timestep]
-        epsilon = (
-            hybrid[:, :10] / np.sqrt(alpha) - predicted[:, :10]
-        ) / np.sqrt((1.0 - alpha) / alpha)
-        hybrid[:, :10] = (
-            predicted[:, :10] * np.sqrt(previous[timestep])
-            + np.sqrt(1.0 - previous[timestep]) * epsilon
-        )
-        if not np.isfinite(hybrid[:, :10]).all():
-            raise RuntimeError(f"ARDY denoising step {timestep} is non-finite")
-        step_seconds.append(time.perf_counter() - step_started)
-    denoiser_finished = time.perf_counter()
+    attempts = _provider_attempts(requested_provider, available_providers)
+    denoiser_graph = model_directory / "fp32" / "denoiser.onnx"
+    denoiser_failures: list[dict[str, Any]] = []
+    denoiser_cpu_cache: tuple[np.ndarray, dict[str, Any]] | None = None
+    denoiser_result: np.ndarray | None = None
+    denoiser_evidence: dict[str, Any] | None = None
+    for name, providers in attempts:
+        parity = None
+        try:
+            if name == "cpu" and denoiser_cpu_cache is not None:
+                candidate, stage = denoiser_cpu_cache
+            else:
+                candidate, stage = _run_denoiser_stage(
+                    ort,
+                    denoiser_graph,
+                    providers,
+                    initial_hybrid,
+                    fixed_feeds,
+                    cumulative,
+                    previous,
+                )
+            if name == "coreml":
+                denoiser_cpu_cache = _run_denoiser_stage(
+                    ort,
+                    denoiser_graph,
+                    ("CPUExecutionProvider",),
+                    initial_hybrid,
+                    fixed_feeds,
+                    cumulative,
+                    previous,
+                )
+                parity = _output_parity(
+                    (candidate[:, :10],),
+                    (denoiser_cpu_cache[0][:, :10],),
+                )
+                if not parity["passed"]:
+                    raise RuntimeError(
+                        "CoreML denoiser failed CPU parity: "
+                        f"max_abs={parity['maximum_absolute_error']:.6g}"
+                    )
+            denoiser_result = candidate
+            denoiser_evidence = {
+                **stage,
+                "selected_provider": name,
+                "provider_failures": list(denoiser_failures),
+                "cpu_parity": parity,
+            }
+            break
+        except Exception as error:
+            failure: dict[str, Any] = {"provider": name, "error": str(error)}
+            if parity is not None:
+                failure["cpu_parity"] = parity
+            denoiser_failures.append(failure)
+            if requested_provider != "auto":
+                raise
+    if denoiser_result is None or denoiser_evidence is None:
+        raise RuntimeError("ARDY denoiser failed on every available provider")
 
-    root_normalized = hybrid[:, :, :20].reshape(1, 256, 5)
+    root_normalized = denoiser_result[:, :, :20].reshape(1, 256, 5)
     local_root = _local_root_condition(root_normalized, contract)
-    decoder_started = time.perf_counter()
-    decoder = ort.InferenceSession(
-        str(model_directory / "fp32" / "decoder.onnx"),
-        providers=list(providers),
-    )
-    decoder_loaded = time.perf_counter()
-    decoded = decoder.run(
-        None,
-        {
-            "latent_tokens": hybrid[:, :, 20:],
-            "external_cond": local_root,
-            "motion_pad_mask": frame_generation_mask,
-        },
-    )
-    decoder_finished = time.perf_counter()
+    decoder_graph = model_directory / "fp32" / "decoder.onnx"
+    decoder_failures: list[dict[str, Any]] = []
+    decoder_cpu_cache: tuple[list[np.ndarray], dict[str, Any]] | None = None
+    decoded: list[np.ndarray] | None = None
+    decoder_evidence: dict[str, Any] | None = None
+    for name, providers in attempts:
+        parity = None
+        try:
+            if name == "cpu" and decoder_cpu_cache is not None:
+                candidate, stage = decoder_cpu_cache
+            else:
+                candidate, stage = _run_decoder_stage(
+                    ort,
+                    decoder_graph,
+                    providers,
+                    denoiser_result[:, :, 20:],
+                    local_root,
+                    frame_generation_mask,
+                )
+            if name == "coreml":
+                decoder_cpu_cache = _run_decoder_stage(
+                    ort,
+                    decoder_graph,
+                    ("CPUExecutionProvider",),
+                    denoiser_result[:, :, 20:],
+                    local_root,
+                    frame_generation_mask,
+                )
+                parity = _output_parity(candidate, decoder_cpu_cache[0])
+                if not parity["passed"]:
+                    raise RuntimeError(
+                        "CoreML decoder failed CPU parity: "
+                        f"max_abs={parity['maximum_absolute_error']:.6g}"
+                    )
+            decoded = candidate
+            decoder_evidence = {
+                **stage,
+                "selected_provider": name,
+                "provider_failures": list(decoder_failures),
+                "cpu_parity": parity,
+            }
+            break
+        except Exception as error:
+            failure = {"provider": name, "error": str(error)}
+            if parity is not None:
+                failure["cpu_parity"] = parity
+            decoder_failures.append(failure)
+            if requested_provider != "auto":
+                raise
+    if decoded is None or decoder_evidence is None:
+        raise RuntimeError("ARDY decoder failed on every available provider")
+
     body_normalized = np.asarray(decoded[1], dtype=np.float32)
     motion_normalized = np.concatenate(
         (root_normalized, body_normalized), axis=2
@@ -323,17 +572,8 @@ def _run_ardy(
         "foot_contacts": (motion[0, :, 326:330] > 0.5).astype(np.uint8),
     }
     stages = {
-        "denoiser": {
-            "providers": denoiser.get_providers(),
-            "load_seconds": denoiser_loaded - denoiser_started,
-            "inference_seconds": denoiser_finished - denoiser_loaded,
-            "step_seconds": step_seconds,
-        },
-        "decoder": {
-            "providers": decoder.get_providers(),
-            "load_seconds": decoder_loaded - decoder_started,
-            "inference_seconds": decoder_finished - decoder_loaded,
-        },
+        "denoiser": denoiser_evidence,
+        "decoder": decoder_evidence,
     }
     return arrays, stages
 
@@ -380,37 +620,44 @@ def infer_motion(
         (model_directory / "model_contract.json").read_text(encoding="utf-8")
     )
     available = ort.get_available_providers()
-    if provider == "cpu":
-        attempts = [("cpu", ["CPUExecutionProvider"])]
-    elif provider == "coreml":
-        if "CoreMLExecutionProvider" not in available:
-            raise RuntimeError("ONNX Runtime has no CoreMLExecutionProvider")
-        attempts = [("coreml", ["CoreMLExecutionProvider", "CPUExecutionProvider"])]
-    elif provider == "auto":
-        attempts = []
-        if "CoreMLExecutionProvider" in available:
-            attempts.append(("coreml", ["CoreMLExecutionProvider", "CPUExecutionProvider"]))
-        attempts.append(("cpu", ["CPUExecutionProvider"]))
-    else:
-        raise ValueError(f"unsupported ARDY provider: {provider}")
     started = time.perf_counter()
-    failures: list[dict[str, str]] = []
-    arrays: dict[str, np.ndarray] | None = None
-    stages: dict[str, Any] | None = None
-    selected = ""
-    for name, providers in attempts:
-        try:
-            arrays, stages = _run_ardy(
-                ort, model_directory, contract, text_feature, seed, providers
-            )
-            selected = name
-            break
-        except Exception as error:
-            failures.append({"provider": name, "error": str(error)})
-            if provider != "auto":
-                raise
-    if arrays is None or stages is None:
-        raise RuntimeError("ARDY failed on every available execution provider")
+    arrays, stages = _run_ardy(
+        ort,
+        model_directory,
+        contract,
+        text_feature,
+        seed,
+        provider,
+        available,
+    )
+    stage_providers = {
+        name: str(stage["selected_provider"])
+        for name, stage in stages.items()
+    }
+    if text_encoder_evidence is not None:
+        stage_providers = {
+            "text_encoder": str(text_encoder_evidence["selected_provider"]),
+            **stage_providers,
+        }
+    unique_stage_providers = set(stage_providers.values())
+    selected = (
+        next(iter(unique_stage_providers))
+        if len(unique_stage_providers) == 1
+        else "mixed"
+    )
+    failures = [
+        {"stage": stage_name, **failure}
+        for stage_name, stage in stages.items()
+        for failure in stage["provider_failures"]
+    ]
+    if text_encoder_evidence is not None:
+        failures = [
+            {
+                "stage": "text_encoder",
+                **failure,
+            }
+            for failure in text_encoder_evidence["provider_failures"]
+        ] + failures
     evidence = {
         "format": ARDY_MOTION_FORMAT,
         "status": "runtime-qualified",
@@ -424,6 +671,7 @@ def infer_motion(
         "seed": seed,
         "requested_provider": provider,
         "selected_provider": selected,
+        "selected_provider_by_stage": stage_providers,
         "provider_failures": failures,
         "available_providers": available,
         "stages": stages,
@@ -482,7 +730,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     imagine_parser.add_argument("--output-directory", type=Path)
     imagine_parser.add_argument("--seed", type=int, default=0)
     imagine_parser.add_argument(
-        "--provider", choices=("auto", "coreml", "cpu"), default="cpu"
+        "--provider", choices=("auto", "coreml", "cpu"), default="auto"
     )
     imagine_parser.add_argument("--verify-hashes", action="store_true")
     imagine_parser.add_argument("--width", type=int, default=960)

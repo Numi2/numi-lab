@@ -17,7 +17,8 @@ Usage: numi motion inspect --model-directory PATH [--verify-hashes]
            [--provider auto|coreml|cpu] [--seed N] [--verify-hashes]
        numi motion retarget-g1 --motion-proposal PATH --g1-urdf FILE \
            --output-directory PATH
-       numi motion imagine-g1 --prompt TEXT [--output-directory PATH]
+       numi motion imagine-g1 --prompt TEXT [--output-directory PATH] \
+           [--provider auto|coreml|cpu]
 
 ARDY is a motion-imagination provider, not a robot action policy. The current
 provider executes TREE Industries' ARDY Core 20 FPS Horizon40 ONNX graphs and
@@ -30,6 +31,10 @@ NPY/NPZ. Reference embeddings are accepted for exact runtime qualification.
 Once the ARDY cache and pinned G1 description are installed, `imagine-g1`
 encodes one prompt, generates motion, retargets it within G1 limits, and
 returns both GIF and MP4 evidence.
+
+`--provider auto` selects the text encoder, denoiser, and decoder separately.
+Each Core ML result must pass its CPU comparison; only a failing graph falls
+back, and the artifact records provider and parity evidence per stage.
 EOF
     exit 0
 fi

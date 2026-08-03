@@ -9,6 +9,8 @@ from metalrobo.ardy_onnx import (
     ARDY_MOTION_FORMAT,
     ARDYMotionResult,
     _cosine_diffusion,
+    _output_parity,
+    _provider_attempts,
     _validate_contract,
 )
 
@@ -44,6 +46,30 @@ class ARDYONNXTest(unittest.TestCase):
             evidence = json.loads((target / "evidence.json").read_text())
             self.assertEqual(evidence["format"], ARDY_MOTION_FORMAT)
             self.assertEqual(evidence["motion_proposal"]["shapes"]["root_positions"], [40, 3])
+
+    def test_provider_attempts_are_stage_local(self) -> None:
+        available = ("CoreMLExecutionProvider", "CPUExecutionProvider")
+        self.assertEqual(
+            _provider_attempts("auto", available),
+            (
+                (
+                    "coreml",
+                    ("CoreMLExecutionProvider", "CPUExecutionProvider"),
+                ),
+                ("cpu", ("CPUExecutionProvider",)),
+            ),
+        )
+        self.assertEqual(
+            _provider_attempts("cpu", available),
+            (("cpu", ("CPUExecutionProvider",)),),
+        )
+
+    def test_coreml_candidate_requires_cpu_parity(self) -> None:
+        reference = np.asarray((1.0, 2.0, 3.0), dtype=np.float32)
+        close = reference + np.asarray((1.0e-5, -1.0e-5, 0.0), dtype=np.float32)
+        wrong = reference + np.asarray((0.0, 0.0, 0.1), dtype=np.float32)
+        self.assertTrue(_output_parity((close,), (reference,))["passed"])
+        self.assertFalse(_output_parity((wrong,), (reference,))["passed"])
 
 
 if __name__ == "__main__":

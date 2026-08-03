@@ -113,14 +113,14 @@ numi motion imagine-g1 \
 
 This is direct model and retarget evidence, not a hand-authored animation. The
 ARDY source horizon is 40 frames. For this aerial motion, Numi detects and
-rejects the nine-frame malformed source tail before it can become a fake
-landing, then completes the motion through labelled 14-frame airborne
-alignment, 14-frame flat-foot descent, and 16-frame bilateral-support phases.
-The G1 is upright and in a symmetric landing crouch before descending; both
-feet are then held at exact world-space support targets while the joints settle
-to the authored standing posture. That prevents crossed legs, inverted ankles,
-sliding feet, floating contact, and the post-contact joint snap that the raw
-model tail produced. It is also
+rejects the non-ballistic source tail before it can become a fake landing.
+From the rising flight state it preserves horizontal momentum, applies
+`9.81 m/s²` gravity, continues one uninterrupted backward rotation, and
+reaches an upright symmetric landing crouch with nonzero impact velocity.
+Only after touchdown are both feet held at exact world-space support targets
+while the joints settle to the authored standing posture. That removes the
+mid-air slowdown as well as crossed legs, inverted ankles, sliding feet,
+floating contact, and the post-contact joint snap. It is also
 intentionally not physical-success evidence: the displayed trajectory has not
 yet passed through G1 actuation, balance, collision, contact, or landing in
 NumiSolver.

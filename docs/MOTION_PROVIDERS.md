@@ -102,12 +102,26 @@ On arm64 macOS, the prompt `wave with the right hand while standing` produced
 An exact repeat with the same seed produced arrays fingerprint
 `18206200595415908c3a8ecbdfe83b75290d93760583ba745c68bc6664e7a3d6`.
 
-ONNX Runtime's Core ML provider accepted only a partition of this export and
-failed inside one delegated partition on the measured machine. `--provider
-auto` therefore discarded that attempt and reran from the original seed on
-the arm64 CPU provider. This is a working Apple Silicon inference path, not a
-claim of current Apple GPU execution. The provider boundary allows a later
-Core ML or Metal-native backend without changing motion-artifact semantics.
+Provider selection is independent for the text encoder, denoiser, and decoder.
+On the measured arm64 Mac, the INT4 text encoder retained its Core ML attempt:
+its CPU comparison had cosine similarity `0.99999986`, relative L2 error
+`0.000524`, and maximum absolute error `0.007064`. The current denoiser still
+fails inside a delegated Core ML partition and therefore falls back by itself.
+The decoder executes through Core ML but its strict CPU comparison currently
+rejects a maximum absolute error of `0.018033`, so only that stage falls back.
+Evidence records the selected provider, failures, timings, output shapes, and
+CPU-parity result per stage. This is a mixed Apple Silicon inference path, not
+a claim that every operation currently executes on the Apple GPU. A future
+static-shape FP16/Core ML graph can replace either stage without changing the
+motion-artifact contract or fallback boundary.
+
+Merely replacing the public symbolic dimensions with `[1,64,148]`,
+`[1,256]`, and their decoder equivalents is insufficient: the measured
+specialized denoiser still failed in the same delegated Core ML partition.
+The optimized export must also eliminate or specialize the internal
+zero-length history `Slice`/dynamic selection path before FP16 MLProgram
+qualification; Numi does not retain a static-labelled graph that only moves
+the failure.
 
 The reusable INT4 Llama 3 text encoder is a separate approximately 4.6 GiB
 external-weight graph. On the measured arm64 Mac, it turns arbitrary prompt
@@ -127,14 +141,17 @@ and velocity limits, with torso/forearm self-clearance plus explicit left/right
 knee, ankle, and shank separation objectives. Because the
 ARDY Core horizon ends after 40 frames and can stop before a landing is
 settled, the retarget detects and rejects a malformed airborne tail instead of
-displaying it as a landing. It then separates attitude recovery from contact:
-first align the root upright and move into a symmetric G1 landing crouch while
-airborne, then descend with flat feet, then keep both feet exactly locked to
-their world-space support targets while the body settles to the G1 reset
-posture. The artifact labels every source, alignment, descent, and support
-frame and retains the rejected-frame count, touchdown index, endpoint errors,
-support foot-lock error, self-clearance, maximum joint/root speed, link
-transforms, source fingerprints, URDF hash, and joint order.
+displaying it as a landing. The replacement flight begins while the root is
+still rising, carries entry horizontal velocity without a discontinuity,
+follows one gravity-only ballistic arc, and completes the backward rotation at
+constant angular speed. The legs and feet reach a symmetric landing crouch at
+touchdown; only the post-contact support phase may remove flight momentum and
+keep both feet exactly locked while the body settles to the G1 reset posture.
+The artifact labels source, ballistic-flight, and support frames and retains
+takeoff/impact velocities, gravity and acceleration residual, angular-speed
+variation, rejected-frame count, touchdown index, endpoint errors, support
+foot-lock error, self-clearance, maximum joint/root speed, link transforms,
+source fingerprints, URDF hash, and joint order.
 
 The Blender presentation consumes those exact link transforms and the
 official Unitree meshes. It is deliberately downstream of the numeric

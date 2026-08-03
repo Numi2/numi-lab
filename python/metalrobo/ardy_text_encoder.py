@@ -109,57 +109,74 @@ def encode_prompt(
         directory / "tokenizer" / "tokenizer.json",
         prompt,
     )
-    available = ort.get_available_providers()
-    if provider == "cpu":
-        attempts: Sequence[tuple[str, Sequence[str]]] = (
-            ("cpu", ("CPUExecutionProvider",)),
-        )
-    elif provider == "coreml":
-        attempts = (("coreml", ("CoreMLExecutionProvider", "CPUExecutionProvider")),)
-    elif provider == "auto":
-        attempts = tuple(
-            ([
-                ("coreml", ("CoreMLExecutionProvider", "CPUExecutionProvider")),
-            ] if "CoreMLExecutionProvider" in available else [])
-            + [("cpu", ("CPUExecutionProvider",))]
-        )
-    else:
-        raise ValueError(f"unsupported ARDY text provider: {provider}")
+    from .ardy_onnx import _output_parity, _provider_attempts
 
-    failures: list[dict[str, str]] = []
+    available = ort.get_available_providers()
+    attempts = _provider_attempts(provider, available)
+
+    graph = directory / "onnx" / "text_encoder_int4.onnx"
+    feeds = {
+        "input_ids": input_ids,
+        "attention_mask": attention_mask,
+        "embed_mask": embed_mask,
+    }
+
+    def run_session(
+        providers: Sequence[str],
+    ) -> tuple[np.ndarray, dict[str, Any]]:
+        load_started = time.perf_counter()
+        session = ort.InferenceSession(str(graph), providers=list(providers))
+        loaded = time.perf_counter()
+        inference_started = time.perf_counter()
+        value = session.run(["text_embedding"], feeds)[0]
+        finished = time.perf_counter()
+        result = np.asarray(value, dtype=np.float32).reshape(1, 1, 4096)
+        if not np.isfinite(result).all():
+            raise RuntimeError("ARDY text encoder produced non-finite output")
+        return result, {
+            "session_providers": session.get_providers(),
+            "load_seconds": loaded - load_started,
+            "inference_seconds": finished - inference_started,
+        }
+
+    failures: list[dict[str, Any]] = []
     embedding: np.ndarray | None = None
+    selected_stage: dict[str, Any] | None = None
+    cpu_cache: tuple[np.ndarray, dict[str, Any]] | None = None
     selected = ""
     started = time.perf_counter()
-    load_seconds = 0.0
-    inference_seconds = 0.0
     for name, providers in attempts:
+        parity = None
         try:
-            load_started = time.perf_counter()
-            session = ort.InferenceSession(
-                str(directory / "onnx" / "text_encoder_int4.onnx"),
-                providers=list(providers),
-            )
-            load_seconds = time.perf_counter() - load_started
-            inference_started = time.perf_counter()
-            value = session.run(
-                ["text_embedding"],
-                {
-                    "input_ids": input_ids,
-                    "attention_mask": attention_mask,
-                    "embed_mask": embed_mask,
-                },
-            )[0]
-            inference_seconds = time.perf_counter() - inference_started
-            embedding = np.asarray(value, dtype=np.float32).reshape(1, 1, 4096)
-            if not np.isfinite(embedding).all():
-                raise RuntimeError("ARDY text encoder produced non-finite output")
+            if name == "cpu" and cpu_cache is not None:
+                candidate, stage = cpu_cache
+            else:
+                candidate, stage = run_session(providers)
+            if name == "coreml":
+                cpu_cache = run_session(("CPUExecutionProvider",))
+                parity = _output_parity(
+                    (candidate,),
+                    (cpu_cache[0],),
+                    absolute_tolerance=1.0e-2,
+                    relative_tolerance=5.0e-3,
+                )
+                if not parity["passed"]:
+                    raise RuntimeError(
+                        "CoreML text encoder failed CPU parity: "
+                        f"max_abs={parity['maximum_absolute_error']:.6g}"
+                    )
+            embedding = candidate
+            selected_stage = {**stage, "cpu_parity": parity}
             selected = name
             break
         except Exception as error:
-            failures.append({"provider": name, "error": str(error)})
+            failure: dict[str, Any] = {"provider": name, "error": str(error)}
+            if parity is not None:
+                failure["cpu_parity"] = parity
+            failures.append(failure)
             if provider != "auto":
                 raise
-    if embedding is None:
+    if embedding is None or selected_stage is None:
         raise RuntimeError("ARDY text encoder failed on every available provider")
     return embedding, {
         **model,
@@ -167,8 +184,7 @@ def encode_prompt(
         "selected_provider": selected,
         "provider_failures": failures,
         "available_providers": available,
-        "load_seconds": load_seconds,
-        "inference_seconds": inference_seconds,
+        **selected_stage,
         "elapsed_seconds": time.perf_counter() - started,
         "token_count": int(np.sum(attention_mask)),
         "embedded_token_count": int(np.sum(embed_mask)),
