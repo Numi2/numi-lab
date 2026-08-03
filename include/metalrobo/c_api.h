@@ -50,6 +50,12 @@ typedef enum MRUnitreeG1TaskC {
     MR_UNITREE_G1_TASK_BALL_DODGE = 4,
 } MRUnitreeG1TaskC;
 
+typedef enum MRInteractionReferenceModeC {
+    MR_INTERACTION_REFERENCE_TASK_DEFAULT = 0,
+    MR_INTERACTION_REFERENCE_GUIDE = 1,
+    MR_INTERACTION_REFERENCE_RESET_ONLY = 2,
+} MRInteractionReferenceModeC;
+
 typedef struct MRTaskRolloutDynamicSphereC {
     float position[3];
     float linear_velocity[3];
@@ -68,6 +74,16 @@ typedef struct MRTaskRolloutConfigC {
     const MRTaskRolloutDynamicSphereC* dynamic_spheres;
     uint32_t dynamic_sphere_count;
     uint32_t disable_task_terminations;
+    uint32_t interaction_reference_mode;
+    float interaction_student_authority;
+    uint32_t override_interaction_student_authority;
+    // Diagnostic/correctness path: materialize inverse-ABA response columns
+    // before contact solve instead of consuming the direct streamed path.
+    uint32_t materialize_articulated_contact_responses;
+    // Optional inclusive reset-band range within the compiled TaskPack.
+    uint32_t override_difficulty_band_range;
+    uint32_t minimum_difficulty_band;
+    uint32_t maximum_difficulty_band;
 } MRTaskRolloutConfigC;
 
 typedef struct MRTaskVisualPackC {
@@ -172,27 +188,17 @@ typedef struct MRTaskRolloutAdvanceC {
     double submission_milliseconds;
 } MRTaskRolloutAdvanceC;
 
-typedef enum MRTaskCurriculumDecisionC {
-    MR_TASK_CURRICULUM_C_HOLD = 0,
-    MR_TASK_CURRICULUM_C_ADVANCE = 1,
-    MR_TASK_CURRICULUM_C_RETREAT = 2,
-} MRTaskCurriculumDecisionC;
-
-typedef struct MRTaskCurriculumTelemetryC {
+typedef struct MRTaskEvidenceTelemetryC {
     uint64_t control_steps;
-    // Opaque checkpoint payload. Persist and restore it with command_level.
-    uint64_t reference_rates;
-    uint32_t command_level;
-    uint32_t reference_valid;
-    uint32_t reference_level;
-    uint32_t reference_contact_rate;
-    uint32_t reference_clean_miss_rate;
-    uint32_t reference_balance_failure_rate;
+    uint64_t evidence_windows;
+    uint32_t pending_completed_episode_count;
+    uint32_t pending_timeout_episode_count;
+    uint32_t last_completed_episode_count;
     uint32_t last_contact_rate;
     uint32_t last_clean_miss_rate;
     uint32_t last_balance_failure_rate;
-    uint32_t last_decision;
-} MRTaskCurriculumTelemetryC;
+    uint32_t last_mean_tracking_per_million;
+} MRTaskEvidenceTelemetryC;
 
 typedef struct MRTaskTransitionC {
     float reward;
@@ -222,7 +228,7 @@ typedef struct MRTaskTransitionC {
     uint64_t policy_revision;
     float timeout_bootstrap_value;
     float episode_tracking_score;
-    uint32_t curriculum_level;
+    uint32_t difficulty_band;
     uint32_t terrain_level;
     // One-based authored impact-sequence index, or zero outside an event.
     uint32_t impact_sequence_index;
@@ -579,25 +585,11 @@ MR_API int mr_task_rollout_reset(
     MRTaskRolloutHandle* handle,
     uint64_t seed
 );
-// Restores the compact task-wide curriculum checkpoint before the first
-// resident submission. Per-environment simulator state remains native.
-MR_API int mr_task_rollout_set_curriculum_level(
-    MRTaskRolloutHandle* handle,
-    uint32_t level
-);
-// Restores the accepted level plus its same-difficulty progress reference.
-// Partial window counters restart because resident environment episodes are
-// new. reference_rates must be zero or a payload previously returned below.
-MR_API int mr_task_rollout_set_curriculum_checkpoint(
-    MRTaskRolloutHandle* handle,
-    uint32_t level,
-    uint64_t reference_rates
-);
 // Returns the task-wide state published by the most recent successful native
 // submission. This fixed record is independent of environment count.
-MR_API int mr_task_rollout_curriculum_telemetry(
+MR_API int mr_task_rollout_evidence_telemetry(
     const MRTaskRolloutHandle* handle,
-    MRTaskCurriculumTelemetryC* telemetry
+    MRTaskEvidenceTelemetryC* telemetry
 );
 // Installs one immutable compiled policy artifact. The call copies all
 // caller-owned spans; subsequent advances take no action stream and run

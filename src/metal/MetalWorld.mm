@@ -276,7 +276,7 @@ enum BufferIndex : std::size_t {
     kPolicyLatents = 216u,
     kPolicyLogProbabilities = 217u,
     kPolicyValues = 218u,
-    kTaskCurriculumState = 219u,
+    kTaskEvidenceState = 219u,
     kTaskMotionFeatures = 220u,
     kInverseMassStatuses = 221u,
     kInverseMassDispatch = 222u,
@@ -341,7 +341,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> taskEffortPipeline = nil;
     __strong id<MTLComputePipelineState> taskImpactContactPipeline = nil;
     __strong id<MTLComputePipelineState> taskCompletePipeline = nil;
-    __strong id<MTLComputePipelineState> taskCurriculumPipeline = nil;
+    __strong id<MTLComputePipelineState> taskEvidencePipeline = nil;
     __strong id<MTLComputePipelineState> policyDensePipeline = nil;
     __strong id<MTLComputePipelineState> policySamplePipeline = nil;
     __strong id<MTLComputePipelineState> contactPreparePipeline = nil;
@@ -2808,10 +2808,10 @@ bool buildRequirements(
             taskEnvironments,
             requirements.entries[kTaskState]
         ) ||
-        !makeRequirement<MRTaskCurriculumStateGPU>(
-            "native resident task curriculum state",
+        !makeRequirement<MRTaskEvidenceStateGPU>(
+            "native resident task evidence state",
             nativeTask ? 1u : 0u,
-            requirements.entries[kTaskCurriculumState]
+            requirements.entries[kTaskEvidenceState]
         ) ||
         !makeRequirement<float>(
             "native delayed action history",
@@ -4396,8 +4396,8 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld normalized task actions";
     case kTaskState:
         return @"MetalWorld resident task state";
-    case kTaskCurriculumState:
-        return @"MetalWorld resident task curriculum state";
+    case kTaskEvidenceState:
+        return @"MetalWorld resident task evidence state";
     case kTaskActionHistory:
         return @"MetalWorld resident action history";
     case kTaskActorHistory:
@@ -4689,7 +4689,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> taskEffort = nil;
     __strong id<MTLComputePipelineState> taskImpactContact = nil;
     __strong id<MTLComputePipelineState> taskComplete = nil;
-    __strong id<MTLComputePipelineState> taskCurriculum = nil;
+    __strong id<MTLComputePipelineState> taskEvidence = nil;
     __strong id<MTLComputePipelineState> policyDense = nil;
     __strong id<MTLComputePipelineState> policySample = nil;
     __strong id<MTLComputePipelineState> contactPrepare = nil;
@@ -4814,8 +4814,8 @@ MetalWorldDiagnostics initializeContext(
     );
     taskComplete =
         createContactPipeline(@"mr_locomotion_task_complete");
-    taskCurriculum = createContactPipeline(
-        @"mr_locomotion_task_update_curriculum"
+    taskEvidence = createContactPipeline(
+        @"mr_locomotion_task_update_evidence"
     );
     policyDense =
         createContactPipeline(@"mr_policy_dense_layer");
@@ -5056,7 +5056,7 @@ MetalWorldDiagnostics initializeContext(
         taskEffort == nil ||
         taskImpactContact == nil ||
         taskComplete == nil ||
-        taskCurriculum == nil ||
+        taskEvidence == nil ||
         policyDense == nil ||
         policySample == nil ||
         contactPrepare == nil ||
@@ -5174,7 +5174,7 @@ MetalWorldDiagnostics initializeContext(
         taskApply.maxTotalThreadsPerThreadgroup == 0u ||
         taskEffort.maxTotalThreadsPerThreadgroup == 0u ||
         taskComplete.maxTotalThreadsPerThreadgroup == 0u ||
-        taskCurriculum.maxTotalThreadsPerThreadgroup == 0u ||
+        taskEvidence.maxTotalThreadsPerThreadgroup == 0u ||
         policyDense.maxTotalThreadsPerThreadgroup == 0u ||
         policySample.maxTotalThreadsPerThreadgroup == 0u ||
         contactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
@@ -5365,7 +5365,7 @@ MetalWorldDiagnostics initializeContext(
     context.taskEffortPipeline = taskEffort;
     context.taskImpactContactPipeline = taskImpactContact;
     context.taskCompletePipeline = taskComplete;
-    context.taskCurriculumPipeline = taskCurriculum;
+    context.taskEvidencePipeline = taskEvidence;
     context.policyDensePipeline = policyDense;
     context.policySamplePipeline = policySample;
     context.contactPreparePipeline = contactPrepare;
@@ -5642,7 +5642,7 @@ bool privatePersistentBuffer(const std::size_t index) {
     case kRodWitnessesA:
     case kRodWitnessesB:
     case kTaskState:
-    case kTaskCurriculumState:
+    case kTaskEvidenceState:
     case kTaskActionHistory:
     case kTaskActorHistory:
     case kTaskCleanHistory:
@@ -5670,7 +5670,7 @@ bool privatePersistentInputBuffer(const std::size_t index) {
     case kResetRodEdges:
     case kRodNodesA:
     case kRodEdgesA:
-    case kTaskCurriculumState:
+    case kTaskEvidenceState:
         return true;
     default:
         return false;
@@ -7325,6 +7325,12 @@ void uploadBatch(
                 ? 1.0f
                 : 0.0f,
         };
+        task.sampling = {
+            config.minimumDifficultyBand,
+            config.maximumDifficultyBand,
+            0u,
+            0u,
+        };
         task.seed = config.taskSeed;
         task.policyRevision =
             nativePolicy
@@ -7589,24 +7595,26 @@ bool encodeResidentStateInitialization(
     const RequiredBuffers& requirements,
     const bool contactMode,
     const bool hasRods,
-    const bool nativeTask,
-    const std::uint32_t initialCurriculumLevel,
-    const std::uint64_t initialCurriculumReferenceRates
+    const bool nativeTask
 ) {
     if (nativeTask) {
-        const MRTaskCurriculumStateGPU initialCurriculum{
+        const MRTaskEvidenceStateGPU initialEvidence{
             .controlSteps = 0u,
+            .evidenceWindows = 0u,
             .completedEpisodeCount = 0u,
             .timeoutEpisodeCount = 0u,
+            .impactContactCount = 0u,
+            .impactCleanMissCount = 0u,
+            .balanceFailureCount = 0u,
             .trackingScoreSum = 0.0f,
-            .commandLevel = initialCurriculumLevel,
-            .referenceRates = initialCurriculumReferenceRates,
+            .lastCompletedEpisodeCount = 0u,
+            .reserved = 0u,
             .lastWindow = {},
         };
         copyToBuffer(
-            context.uploadBuffers[kTaskCurriculumState],
-            &initialCurriculum,
-            requirements.entries[kTaskCurriculumState]
+            context.uploadBuffers[kTaskEvidenceState],
+            &initialEvidence,
+            requirements.entries[kTaskEvidenceState]
         );
     }
     id<MTLBlitCommandEncoder> encoder =
@@ -7648,7 +7656,7 @@ bool encodeResidentStateInitialization(
     }
     if (nativeTask) {
         clear(kTaskState);
-        clear(kTaskCurriculumState);
+        clear(kTaskEvidenceState);
         clear(kTaskActionHistory);
         clear(kTaskActorHistory);
         clear(kTaskCleanHistory);
@@ -7660,13 +7668,13 @@ bool encodeResidentStateInitialization(
         clear(kTaskContactCompact);
         [encoder
             copyFromBuffer:
-                context.uploadBuffers[kTaskCurriculumState]
+                context.uploadBuffers[kTaskEvidenceState]
               sourceOffset:0u
                   toBuffer:
-                context.buffers[kTaskCurriculumState]
+                context.buffers[kTaskEvidenceState]
          destinationOffset:0u
                      size:requirements
-                              .entries[kTaskCurriculumState]
+                              .entries[kTaskEvidenceState]
                               .logicalBytes];
     }
     [encoder endEncoding];
@@ -8923,7 +8931,7 @@ bool encodeTaskObserve(
             {28u, kShapes},
             {29u, kGeometryHeaders},
             {30u, kGeometryVertices},
-            {5u, kTaskCurriculumState},
+            {5u, kTaskEvidenceState},
         },
         &pass,
         4u,
@@ -9480,7 +9488,7 @@ bool encodeTaskComplete(
             {0u, kTaskDispatch},
             {1u, kTaskProgramHeader},
             {2u, kTaskProgramArena},
-            {3u, kTaskCurriculumState},
+            {3u, kTaskEvidenceState},
             {4u, kContactDispatch},
             {6u, qState},
             {7u, vState},
@@ -9514,7 +9522,7 @@ bool encodeTaskComplete(
     );
 }
 
-bool encodeTaskCurriculum(
+bool encodeTaskEvidence(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
     const MRMetalWorldPassGPU& pass
@@ -9522,12 +9530,12 @@ bool encodeTaskCurriculum(
     return encodeContactThreadKernel(
         context,
         commandBuffer,
-        context.taskCurriculumPipeline,
-        @"compiled task curriculum reduction",
+        context.taskEvidencePipeline,
+        @"compiled task evidence reduction",
         {
             {0u, kTaskDispatch},
             {1u, kTaskProgramHeader},
-            {2u, kTaskCurriculumState},
+            {2u, kTaskEvidenceState},
             {3u, kTaskTransitions},
         },
         &pass,
@@ -15774,20 +15782,20 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 buffers[kPublicStatuses]
             );
             if (pending->nativeTask) {
-                id<MTLBuffer> curriculumBuffer =
-                    stateOutputBuffer(kTaskCurriculumState);
-                if (curriculumBuffer == nil ||
-                    curriculumBuffer.contents == nullptr) {
+                id<MTLBuffer> evidenceBuffer =
+                    stateOutputBuffer(kTaskEvidenceState);
+                if (evidenceBuffer == nil ||
+                    evidenceBuffer.contents == nullptr) {
                     return reject(
                         std::move(diagnostics),
                         MetalWorldHostStatus::metalBufferFailure,
-                        "task curriculum readback is unavailable"
+                        "task evidence readback is unavailable"
                     );
                 }
                 std::memcpy(
-                    &staged.curriculumState,
-                    curriculumBuffer.contents,
-                    sizeof(staged.curriculumState)
+                    &staged.evidenceState,
+                    evidenceBuffer.contents,
+                    sizeof(staged.evidenceState)
                 );
             }
             if (staged.layout.actionElements != 0u) {
@@ -16337,9 +16345,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     requirements,
                     contactMode,
                     world.rodCount() != 0u,
-                    nativeTask,
-                    config.taskCurriculumLevel,
-                    config.taskCurriculumReferenceRates
+                    nativeTask
                 )) {
                 return reject(
                     std::move(diagnostics),
@@ -16932,7 +16938,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                              sourceScene,
                              batch.environmentCount
                          ) ||
-                         !encodeTaskCurriculum(
+                         !encodeTaskEvidence(
                              *selectedState,
                              commandBuffer,
                              pass
@@ -17005,7 +17011,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
 
             std::vector<std::size_t> readbackIndices;
             if (nativeTask) {
-                readbackIndices.push_back(kTaskCurriculumState);
+                readbackIndices.push_back(kTaskEvidenceState);
             }
             if (config.publishFinalState) {
                 readbackIndices.push_back(sourceQ);

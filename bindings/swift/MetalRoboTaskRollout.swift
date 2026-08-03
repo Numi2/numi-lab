@@ -91,6 +91,12 @@ public enum MetalRoboUnitreeG1Task: UInt32, Sendable {
     case ballDodge = 4
 }
 
+public enum MetalRoboInteractionReferenceMode: UInt32, Sendable {
+    case taskDefault = 0
+    case guide = 1
+    case resetOnly = 2
+}
+
 public struct MetalRoboDynamicSphere: Sendable {
     public var position: SIMD3<Float>
     public var linearVelocity: SIMD3<Float>
@@ -259,6 +265,51 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         self.captureHeight = captureHeight
     }
 
+    public static func unitreeG1(
+        robotPackDirectory: URL,
+        environmentPackURL: URL? = nil
+    ) throws -> Self {
+        let robotPacks = try FileManager.default
+            .contentsOfDirectory(
+                at: robotPackDirectory,
+                includingPropertiesForKeys: nil,
+                options: [.skipsHiddenFiles]
+            )
+            .filter { $0.pathExtension == "mrvpack" }
+            .sorted { $0.lastPathComponent < $1.lastPathComponent }
+        guard !robotPacks.isEmpty else {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "The G1 visual-pack directory contains no .mrvpack files."
+            )
+        }
+        let cameraHalfAngle = Float(35.0 * .pi / 180.0)
+        return Self(
+            packs: robotPacks.map {
+                MetalRoboTaskVisualPack(
+                    url: $0,
+                    assetID: "robot",
+                    semanticID: 1,
+                    instanceID: 1
+                )
+            },
+            environmentPackURL: environmentPackURL,
+            cameraParentBody: "torso_link",
+            cameraPosition: SIMD3(0.08, 0.0, 0.45),
+            cameraOrientation: SIMD4(
+                0.0,
+                sin(cameraHalfAngle),
+                0.0,
+                cos(cameraHalfAngle)
+            ),
+            width: 16,
+            height: 9,
+            minimumVisiblePixels: 1,
+            verticalFieldOfViewDegrees: 54,
+            nominalRateHz: 50,
+            maximumRetainedBytes: 4 * 1024 * 1024 * 1024
+        )
+    }
+
     public static func unitreeG1BallRecovery(
         robotPackDirectory: URL,
         ballPackDirectory: URL,
@@ -425,6 +476,10 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var seed: UInt64
     public var dynamicSpheres: [MetalRoboDynamicSphere]
     public var disableTaskTerminations: Bool
+    public var materializeArticulatedContactResponses: Bool
+    public var difficultyBandRange: ClosedRange<UInt32>?
+    public var interactionReferenceMode: MetalRoboInteractionReferenceMode
+    public var interactionStudentAuthority: Float?
     public var unitreeG1Task: MetalRoboUnitreeG1Task
 
     public init(
@@ -437,6 +492,11 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         seed: UInt64 = 0,
         dynamicSpheres: [MetalRoboDynamicSphere] = [],
         disableTaskTerminations: Bool = false,
+        materializeArticulatedContactResponses: Bool = false,
+        difficultyBandRange: ClosedRange<UInt32>? = nil,
+        interactionReferenceMode: MetalRoboInteractionReferenceMode =
+            .taskDefault,
+        interactionStudentAuthority: Float? = nil,
         unitreeG1Task: MetalRoboUnitreeG1Task = .velocity
     ) {
         self.environmentCount = environmentCount
@@ -448,6 +508,11 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.seed = seed
         self.dynamicSpheres = dynamicSpheres
         self.disableTaskTerminations = disableTaskTerminations
+        self.materializeArticulatedContactResponses =
+            materializeArticulatedContactResponses
+        self.difficultyBandRange = difficultyBandRange
+        self.interactionReferenceMode = interactionReferenceMode
+        self.interactionStudentAuthority = interactionStudentAuthority
         self.unitreeG1Task = unitreeG1Task
     }
 }
@@ -608,7 +673,7 @@ public struct MetalRoboTaskTransition: Sendable {
     public let policyRevision: UInt64
     public let timeoutBootstrapValue: Float
     public let episodeTrackingScore: Float
-    public let curriculumLevel: UInt32
+    public let difficultyBand: UInt32
     public let terrainLevel: UInt32
     public let impactSequenceIndex: UInt32
     public let impactEventFlags: UInt32
@@ -649,65 +714,38 @@ public struct MetalRoboTaskTransition: Sendable {
             native.timeout_bootstrap_value
         episodeTrackingScore =
             native.episode_tracking_score
-        curriculumLevel = native.curriculum_level
+        difficultyBand = native.difficulty_band
         terrainLevel = native.terrain_level
         impactSequenceIndex = native.impact_sequence_index
         impactEventFlags = native.impact_event_flags
     }
 }
 
-public enum MetalRoboTaskCurriculumDecision: UInt32, Sendable {
-    case hold = 0
-    case advance = 1
-    case retreat = 2
-}
-
-public struct MetalRoboTaskCurriculumCheckpoint: Sendable {
-    public let level: UInt32
-    public let referenceRates: UInt64
-
-    public init(level: UInt32, referenceRates: UInt64 = 0) {
-        self.level = level
-        self.referenceRates = referenceRates
-    }
-}
-
-public struct MetalRoboTaskCurriculumTelemetry: Sendable {
+public struct MetalRoboTaskEvidenceTelemetry: Sendable {
     public let controlSteps: UInt64
-    public let checkpoint: MetalRoboTaskCurriculumCheckpoint
-    public let referenceValid: Bool
-    public let referenceLevel: UInt32
-    public let referenceContactRate: UInt32
-    public let referenceCleanMissRate: UInt32
-    public let referenceBalanceFailureRate: UInt32
+    public let evidenceWindows: UInt64
+    public let pendingCompletedEpisodeCount: UInt32
+    public let pendingTimeoutEpisodeCount: UInt32
+    public let lastCompletedEpisodeCount: UInt32
     public let lastContactRate: UInt32
     public let lastCleanMissRate: UInt32
     public let lastBalanceFailureRate: UInt32
-    public let lastDecision: MetalRoboTaskCurriculumDecision
+    public let lastMeanTrackingPerMillion: UInt32
 
-    fileprivate init(_ native: MRTaskCurriculumTelemetryC) throws {
-        guard let decision = MetalRoboTaskCurriculumDecision(
-            rawValue: native.last_decision
-        ) else {
-            throw MetalRoboTaskRolloutError.native(
-                "Native task curriculum published an invalid decision."
-            )
-        }
+    fileprivate init(_ native: MRTaskEvidenceTelemetryC) {
         controlSteps = native.control_steps
-        checkpoint = MetalRoboTaskCurriculumCheckpoint(
-            level: native.command_level,
-            referenceRates: native.reference_rates
-        )
-        referenceValid = native.reference_valid != 0
-        referenceLevel = native.reference_level
-        referenceContactRate = native.reference_contact_rate
-        referenceCleanMissRate = native.reference_clean_miss_rate
-        referenceBalanceFailureRate =
-            native.reference_balance_failure_rate
+        evidenceWindows = native.evidence_windows
+        pendingCompletedEpisodeCount =
+            native.pending_completed_episode_count
+        pendingTimeoutEpisodeCount =
+            native.pending_timeout_episode_count
+        lastCompletedEpisodeCount =
+            native.last_completed_episode_count
         lastContactRate = native.last_contact_rate
         lastCleanMissRate = native.last_clean_miss_rate
         lastBalanceFailureRate = native.last_balance_failure_rate
-        lastDecision = decision
+        lastMeanTrackingPerMillion =
+            native.last_mean_tracking_per_million
     }
 }
 
@@ -948,6 +986,19 @@ public final class MetalRoboTaskRolloutContext {
         native.seed = configuration.seed
         native.disable_task_terminations =
             configuration.disableTaskTerminations ? 1 : 0
+        native.materialize_articulated_contact_responses =
+            configuration.materializeArticulatedContactResponses ? 1 : 0
+        if let range = configuration.difficultyBandRange {
+            native.override_difficulty_band_range = 1
+            native.minimum_difficulty_band = range.lowerBound
+            native.maximum_difficulty_band = range.upperBound
+        }
+        native.interaction_reference_mode =
+            configuration.interactionReferenceMode.rawValue
+        if let authority = configuration.interactionStudentAuthority {
+            native.interaction_student_authority = authority
+            native.override_interaction_student_authority = 1
+        }
         return native
     }
 
@@ -1012,36 +1063,11 @@ public final class MetalRoboTaskRolloutContext {
         }
     }
 
-    public func setCurriculumLevel(_ level: UInt32) throws {
-        guard mr_task_rollout_set_curriculum_level(
-            handle,
-            level
-        ) == 0 else {
-            throw MetalRoboTaskRolloutError.native(
-                Self.lastError()
-            )
-        }
-    }
-
-    public func setCurriculumCheckpoint(
-        _ checkpoint: MetalRoboTaskCurriculumCheckpoint
-    ) throws {
-        guard mr_task_rollout_set_curriculum_checkpoint(
-            handle,
-            checkpoint.level,
-            checkpoint.referenceRates
-        ) == 0 else {
-            throw MetalRoboTaskRolloutError.native(
-                Self.lastError()
-            )
-        }
-    }
-
-    public func curriculumTelemetry() throws
-        -> MetalRoboTaskCurriculumTelemetry
+    public func evidenceTelemetry() throws
+        -> MetalRoboTaskEvidenceTelemetry
     {
-        var native = MRTaskCurriculumTelemetryC()
-        guard mr_task_rollout_curriculum_telemetry(
+        var native = MRTaskEvidenceTelemetryC()
+        guard mr_task_rollout_evidence_telemetry(
             handle,
             &native
         ) == 0 else {
@@ -1049,7 +1075,7 @@ public final class MetalRoboTaskRolloutContext {
                 Self.lastError()
             )
         }
-        return try MetalRoboTaskCurriculumTelemetry(native)
+        return MetalRoboTaskEvidenceTelemetry(native)
     }
 
     public func setStateReadback(_ enabled: Bool) throws {
@@ -1968,8 +1994,8 @@ public final class MetalRoboTaskRolloutContext {
                 transition.timeoutBootstrapValue
             value.episode_tracking_score =
                 transition.episodeTrackingScore
-            value.curriculum_level =
-                transition.curriculumLevel
+            value.difficulty_band =
+                transition.difficultyBand
             value.terrain_level = transition.terrainLevel
             value.impact_sequence_index =
                 transition.impactSequenceIndex

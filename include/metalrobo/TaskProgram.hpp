@@ -114,6 +114,7 @@ enum class TaskRewardOperator : std::uint32_t {
     restoration = MR_TASK_REWARD_RESTORATION,
     interactionRootTracking =
         MR_TASK_REWARD_INTERACTION_ROOT_TRACKING,
+    wholeBodyRecovery = MR_TASK_REWARD_WHOLE_BODY_RECOVERY,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -215,6 +216,12 @@ struct TaskTerminationOperatorSpec {
     // priority reduction. This closes the early-termination loophole when
     // the task also contains per-step penalties.
     float failurePenalty = 0.0f;
+    // Inclusive reset-band applicability. The default preserves the former
+    // all-band behavior. Band-local reset boundaries let one TaskPack train
+    // overlapping recovery skills without treating a valid floor pose as a
+    // failure merely because standing practice should restart after a fall.
+    std::uint32_t minimumDifficultyBand = 0u;
+    std::uint32_t maximumDifficultyBand = MR_INVALID_INDEX;
 };
 
 struct TaskRandomizationOperatorSpec {
@@ -222,22 +229,23 @@ struct TaskRandomizationOperatorSpec {
         TaskRandomizationOperator::rootPosition;
     std::string target;
     std::uint32_t component = 0u;
-    // The operator is inactive below this global task-curriculum level.
-    std::uint32_t minimumCurriculumLevel = 0u;
+    // The operator is inactive below this sampled difficulty band.
+    std::uint32_t minimumDifficultyBand = 0u;
     mr_float4 parameters{};
 };
 
 struct TaskCommandProgram {
-    // Initial range, hard range limits, and per-curriculum-level expansion.
+    // Initial range, hard range limits, and per-difficulty-band expansion.
     mr_float4 lower{};
     mr_float4 upper{};
     mr_float4 limitLower{};
     mr_float4 limitUpper{};
-    mr_float4 curriculumStep{};
+    mr_float4 difficultyStep{};
     float standingProbability = 0.0f;
-    // Fraction of completed, non-physics episodes that must reach the time
-    // limit during a curriculum window before command difficulty advances.
-    float minimumEpisodeSurvivalFraction = 0.0f;
+    // Shapes deterministic episode sampling over every authored band. One is
+    // uniform; values above one retain more easy episodes without excluding
+    // difficult evidence.
+    float difficultySamplingExponent = 2.0f;
     float minimumDurationSeconds = 5.0f;
     float maximumDurationSeconds = 10.0f;
 };
@@ -275,10 +283,10 @@ struct TaskVisualProgram {
     float depthJitterMeters = 0.0f;
     float depthNoiseSigmaMeters = 0.0f;
     float edgeFlickerProbability = 0.0f;
-    // Additional corruption applied at the final curriculum level. Zero
+    // Additional corruption applied at the hardest difficulty band. Zero
     // preserves the authored observation distribution at every level; one
     // doubles dropout, jitter, noise, and edge flicker at the final level.
-    float curriculumCorruptionGain = 0.0f;
+    float difficultyCorruptionGain = 0.0f;
     // Append confidence, bearing, elevation, nearness, and apparent area for
     // each sparse frame plus four temporal changes. Every value is reduced
     // from the corrupted masked-depth plane; this never exposes scene truth.
@@ -329,15 +337,6 @@ struct TaskPack {
     std::vector<TaskObservationOperatorSpec> critic;
     std::uint32_t criticHistoryLength = 1u;
     bool criticIncludesCleanHistory = true;
-    // Selects recovery-completion ratio instead of ordinary task tracking as
-    // curriculum evidence. Recovery rewards and touch events remain usable
-    // independently when this is false.
-    bool recoveryCompletionCurriculum = false;
-    // Adapt projectile difficulty from exposure-normalized contact, clean
-    // miss, and balance-failure rates. The success threshold becomes the
-    // minimum relative improvement and the command survival fraction becomes
-    // the maximum tolerated regression in a companion metric.
-    bool projectileOutcomeCurriculum = false;
     std::vector<TaskContactGroup> contactGroups;
     std::vector<TaskJointGroup> jointGroups;
     std::vector<TaskRewardOperatorSpec> rewards;
@@ -352,12 +351,22 @@ struct TaskPack {
     std::uint32_t maximumEpisodeSteps = 1000u;
     std::uint32_t maximumActionDelaySteps = 0u;
     std::uint32_t maximumObservationDelaySteps = 0u;
-    std::uint32_t curriculumLevelCount = 1u;
+    // All bands remain eligible on every episode; this is an authored
+    // difficulty discretization, not an advancement ladder.
+    std::uint32_t difficultyBandCount = 1u;
+    // Normalized blend from an InteractionPack joint reference to the
+    // student's absolute mechanism-space target.
+    // Zero runs the student in shadow mode while retaining executed targets
+    // as distillation labels; one grants the full authored action range.
+    float interactionStudentAuthority = 0.1f;
+    // When false, an InteractionPack still supplies the initial physical
+    // state but no longer supplies runtime joint targets or teacher actions.
+    bool interactionControlReference = true;
     float baseHeightTarget = 0.0f;
     float gaitPeriodSeconds = 0.8f;
     float clearanceTarget = 0.1f;
-    // Episode-mean linear-velocity tracking required to advance the command
-    // curriculum. Angular tracking is an independent reward/metric.
+    // Episode-mean linear-velocity tracking used as a physical outcome.
+    // Angular tracking is an independent reward/metric.
     float successTrackingThreshold = 0.8f;
     float supportForceThreshold = 1.0f;
 };
@@ -481,9 +490,10 @@ private:
 );
 
 // Selects one generated reference transactionally. Named joints are
-// retargeted into TaskPack action order, policy actions become bounded
-// residuals around the current reference, and contact targets remain
-// expected values compared against solver-resolved physical outcomes.
+// retargeted into TaskPack action order, the controller blends the reference
+// with absolute student targets at the authored authority, and contact
+// targets remain expected values compared against solver-resolved physical
+// outcomes.
 [[nodiscard]] TaskCompileDiagnostics compileTaskProgram(
     const TaskPack& pack,
     const InteractionPack& interactions,

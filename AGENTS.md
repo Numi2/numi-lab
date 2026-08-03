@@ -239,13 +239,12 @@ L_i\to L_{i+1}\iff L_i\ \mathrm{is\ insufficient}
 ```
 
 ```math
-\mathrm{incumbent\_champion}_{t+1}=\mathrm{incumbent\_champion}_{t}
-\quad\mathrm{unless}\quad\mathrm{promotion\_gate}=1
+\mathrm{valid}(\Delta)\Rightarrow
+\mathrm{evidence}_{t+1}=\mathrm{evidence}_{t}\cup\{\Delta\},\qquad
+\mathrm{invalid\_physics}(\Delta)\Rightarrow\mathrm{rollback}(\Delta)
 ```
 
 ```math
-\mathrm{promotion}(\Delta)=0\not\Rightarrow\mathrm{progress}(\Delta)=0,
-\qquad
 \mathrm{progress}(\Delta)=
 \begin{bmatrix}
 \Delta\mathrm{contact\_incidence}&
@@ -256,7 +255,9 @@ L_i\to L_{i+1}\iff L_i\ \mathrm{is\ insufficient}
 ```
 
 ```math
-\mathrm{soak}\ne\mathrm{promotion},\qquad
+\mathrm{production\_selection}=\mathrm{explicit}(
+\mathrm{pareto\_evidence},\mathrm{uncertainty},\mathrm{scope}),\qquad
+\mathrm{soak}\ne\mathrm{physical\_proof},\qquad
 \mathrm{simulator\_evidence}\ne\mathrm{hardware\_evidence}
 ```
 
@@ -571,7 +572,7 @@ L_i\to L_{i+1}\iff L_i\ \mathrm{is\ insufficient}
 ```math
 \vec{h}=
 \begin{bmatrix}h_0&h_1&h_2\end{bmatrix}=
-\begin{bmatrix}\mathrm{floor}&\mathrm{promotion}&\mathrm{north\_star}\end{bmatrix}
+\begin{bmatrix}\mathrm{floor}&\mathrm{production}&\mathrm{north\_star}\end{bmatrix}
 ```
 
 ```math

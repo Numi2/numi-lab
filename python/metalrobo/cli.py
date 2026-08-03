@@ -63,19 +63,11 @@ def _g1_parser(parser: argparse.ArgumentParser) -> None:
         required=True,
         help="pinned unitree_mujoco g1/scene_29dof.xml",
     )
-    sim2sim_mode = sim2sim.add_mutually_exclusive_group()
-    sim2sim_mode.add_argument(
+    sim2sim.add_argument(
         "--velocity-command",
         type=float,
         nargs=3,
         metavar=("VX", "VY", "YAW"),
-    )
-    sim2sim_mode.add_argument(
-        "--promotion-suite",
-        action="store_true",
-        help=(
-            "run the fixed idle, linear, lateral, and yaw command gate"
-        ),
     )
     sim2sim.add_argument("--seconds", type=float, default=20.0)
     sim2sim.add_argument(
@@ -168,29 +160,18 @@ def _sim2sim_g1(args: argparse.Namespace) -> int:
         args.official_model,
         library_path=args.library,
     )
-    report = (
-        runner.run_promotion_suite(
-            seconds=args.seconds,
-            zero_action=args.zero_action,
-        )
-        if args.promotion_suite
-        else runner.run(
-            np.asarray(
-                args.velocity_command or (0.5, 0.0, 0.0),
-                dtype=np.float32,
-            ),
-            seconds=args.seconds,
-            zero_action=args.zero_action,
-        )
+    report = runner.run(
+        np.asarray(
+            args.velocity_command or (0.5, 0.0, 0.0),
+            dtype=np.float32,
+        ),
+        seconds=args.seconds,
+        zero_action=args.zero_action,
     )
     print(
         json.dumps(
             {
-                "operation": (
-                    "g1-sim2sim-promotion"
-                    if args.promotion_suite
-                    else "g1-sim2sim"
-                ),
+                "operation": "g1-sim2sim",
                 "controller": (
                     "zero_action_baseline"
                     if args.zero_action

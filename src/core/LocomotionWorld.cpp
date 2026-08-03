@@ -640,7 +640,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     task.maximumEpisodeSteps = 1000u;
     task.maximumActionDelaySteps = 0u;
     task.maximumObservationDelaySteps = 0u;
-    task.curriculumLevelCount = 11u;
+    task.difficultyBandCount = 11u;
     task.baseHeightTarget = 0.78f;
     task.gaitPeriodSeconds = 0.6f;
     task.clearanceTarget = 0.10f;
@@ -656,11 +656,11 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     task.commands.limitUpper = {
         1.0f, 0.5f, 1.0f, 0.0f,
     };
-    task.commands.curriculumStep = {
+    task.commands.difficultyStep = {
         0.1f, 0.1f, 0.1f, 0.0f,
     };
     task.commands.standingProbability = 1.0f;
-    task.commands.minimumEpisodeSurvivalFraction = 0.8f;
+    task.commands.difficultySamplingExponent = 2.0f;
     task.commands.minimumDurationSeconds = 10.0f;
     task.commands.maximumDurationSeconds = 10.0f;
     task.pushes.maximumVelocity = 0.0f;
@@ -1040,16 +1040,16 @@ TaskPack makeUnitreeG1DisturbanceRecoveryTaskPack(
     task.commands.upper = {};
     task.commands.limitLower = {};
     task.commands.limitUpper = {};
-    task.commands.curriculumStep = {};
+    task.commands.difficultyStep = {};
     task.commands.standingProbability = 1.0f;
-    task.commands.minimumEpisodeSurvivalFraction = 0.8f;
+    task.commands.difficultySamplingExponent = 2.0f;
     task.commands.minimumDurationSeconds = 10.0f;
     task.commands.maximumDurationSeconds = 10.0f;
 
-    // The runtime scales the maximum impulse velocity by curriculum level.
+    // The runtime scales the maximum impulse velocity by sampled difficulty.
     // Level zero therefore proves quiet standing before disturbances ramp to
     // 2.5 m/s from deterministic, replayable horizontal directions.
-    task.curriculumLevelCount = 11u;
+    task.difficultyBandCount = 11u;
     task.pushes.maximumVelocity = 2.5f;
     task.pushes.minimumIntervalSeconds = 1.5f;
     task.pushes.maximumIntervalSeconds = 3.0f;
@@ -1057,41 +1057,41 @@ TaskPack makeUnitreeG1DisturbanceRecoveryTaskPack(
     task.randomization = {
         {
             .operation = TaskRandomizationOperator::rootPosition,
-            .minimumCurriculumLevel = 2u,
+            .minimumDifficultyBand = 2u,
             .parameters = {0.02f, 0.02f, 0.01f, 0.0f},
         },
         {
             .operation = TaskRandomizationOperator::actionPosition,
-            .minimumCurriculumLevel = 3u,
+            .minimumDifficultyBand = 3u,
             .parameters = {-0.03f, 0.03f, 0.0f, 0.0f},
         },
         {
             .operation = TaskRandomizationOperator::actionVelocity,
-            .minimumCurriculumLevel = 4u,
+            .minimumDifficultyBand = 4u,
             .parameters = {-0.10f, 0.10f, 0.0f, 0.0f},
         },
         {
             .operation = TaskRandomizationOperator::bodyParameter,
             .target = "robot",
             .component = 0u,
-            .minimumCurriculumLevel = 5u,
+            .minimumDifficultyBand = 5u,
             .parameters = {0.9f, 1.1f, 0.0f, 0.0f},
         },
         {
             .operation = TaskRandomizationOperator::controllerParameter,
             .component = 0u,
-            .minimumCurriculumLevel = 6u,
+            .minimumDifficultyBand = 6u,
             .parameters = {0.9f, 1.1f, 0.0f, 0.0f},
         },
         {
             .operation = TaskRandomizationOperator::controllerParameter,
             .component = 1u,
-            .minimumCurriculumLevel = 7u,
+            .minimumDifficultyBand = 7u,
             .parameters = {0.9f, 1.1f, 0.0f, 0.0f},
         },
         {
             .operation = TaskRandomizationOperator::actionDelay,
-            .minimumCurriculumLevel = 8u,
+            .minimumDifficultyBand = 8u,
             .parameters = {0.0f, 2.0f, 0.0f, 0.0f},
         },
     };
@@ -1104,18 +1104,61 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
     const G1ModelMetadata& metadata = unitreeG1Metadata();
     TaskPack task = makeUnitreeG1LocomotionTaskPack(surface);
     task.id = "unitree_g1_supine_get_up_discovery";
-    task.maximumEpisodeSteps = 750u;
-    task.curriculumLevelCount = 1u;
+    // Recovery legitimately brings knees, hands, arms, trunk, and both feet
+    // into the same contact graph. A 1,024-environment exploratory batch
+    // measured 33 simultaneous manifolds (37 raw contacts, 43 constraints),
+    // exceeding the standing profile's 32-manifold envelope. Publish a
+    // recovery-owned capacity instead of clipping a valid physical state.
+    task.capacities.rawContacts = 192u;
+    task.capacities.manifolds = 64u;
+    task.capacities.constraintBlocks = 96u;
+    task.capacities.constraintRows = 288u;
+    task.capacities.endpointRuntimeRecords = 192u;
+    task.capacities.articulationPointQueries = 192u;
+    task.capacities.qualityRows = 288u;
+    task.capacities.islandConstraintReferences = 96u;
+    // Five seconds covers a human-scale get-up and quiet stabilization while
+    // refreshing every reset state often enough for mixed-state PPO batches.
+    task.maximumEpisodeSteps = 256u;
+    task.difficultyBandCount = 8u;
+    // Do not let an unqualified student perturb a physically successful
+    // get-up guide. The executed reference is still published in autonomous
+    // normalized action coordinates for shadow-mode distillation.
+    task.interactionStudentAuthority = 0.0f;
     task.commands.lower = {};
     task.commands.upper = {};
     task.commands.limitLower = {};
     task.commands.limitUpper = {};
-    task.commands.curriculumStep = {};
+    task.commands.difficultyStep = {};
     task.commands.standingProbability = 1.0f;
+    task.commands.difficultySamplingExponent = 1.0f;
     task.pushes.maximumVelocity = 0.0f;
     task.pushes.minimumIntervalSeconds = 10.0f;
     task.pushes.maximumIntervalSeconds = 10.0f;
     task.terminations.clear();
+    // A standing attempt has ceased to contain useful balance corrections
+    // once the pelvis is low or the body has tipped beyond recovery. Restart
+    // only the standing reset bands promptly; floor and squat bands must be
+    // allowed to inhabit exactly those states while learning to rise.
+    task.terminations = {
+        {
+            .operation =
+                TaskTerminationOperator::minimumRootHeight,
+            .reason = MR_TASK_TERMINATION_HEIGHT,
+            .priority = 1u,
+            .threshold = 0.45f,
+            .failurePenalty = -2.0f,
+            .minimumDifficultyBand = 4u,
+        },
+        {
+            .operation = TaskTerminationOperator::maximumTilt,
+            .reason = MR_TASK_TERMINATION_TILT,
+            .priority = 2u,
+            .threshold = 0.9f,
+            .failurePenalty = -2.0f,
+            .minimumDifficultyBand = 4u,
+        },
+    };
 
     // Get-up needs the complete mechanism range: a locomotion-sized residual
     // cannot represent the hip, knee, waist, and shoulder travel between a
@@ -1128,39 +1171,112 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
         0.35f, 0.18f, 0.0f, 0.87f, 0.0f, 0.0f, 0.0f,
         0.35f, -0.18f, 0.0f, 0.87f, 0.0f, 0.0f, 0.0f,
     }};
+    std::array<float, kUnitreeG1JointCount>
+        previousActionObservationScales{};
     for (std::size_t index = 0u; index < task.actions.size(); ++index) {
         const G1JointLimit& limit = metadata.jointLimits[index];
-        task.actions[index].scale = std::max(
+        const float fullRangeScale = std::max(
             std::abs(limit.lowerPosition - nominalStance[index]),
             std::abs(limit.upperPosition - nominalStance[index])
         );
+        previousActionObservationScales[index] =
+            fullRangeScale / task.actions[index].scale;
+        task.actions[index].scale = fullRangeScale;
+        // Balance and load transfer require immediate ankle/hip corrections.
+        // A blanket multi-tick target filter made nominal standing collapse
+        // before the actor could counter the fall. Contact conditioning and
+        // bounded policy exploration own the former random-target spike; do
+        // not hide actuator bandwidth from the recovery controller.
+        task.actions[index].responseTimeSeconds = 0.0f;
     }
 
-    // HumanUP's successful Stage-I actor uses ten meaningful proprioceptive
-    // frames rather than exposing command and gait-phase slots that are
-    // constant in a get-up task. The critic additionally sees translational
-    // state, height, and bilateral support contact.
-    std::vector<TaskObservationOperatorSpec> actorFrame;
-    actorFrame.reserve(92u);
-    actorFrame.insert(
-        actorFrame.end(),
+    // Keep recovery's deployable proprioceptive prefix identical to the
+    // standing/dodge actor: five temporal frames, plantar support sense, and
+    // both 2x2 sole pressure fields. This makes balance a transferable skill
+    // instead of asking get-up to rediscover it through a different input
+    // layout. Camera observations remain outside this task; recovery phase is
+    // appended once by the imagined-interaction compiler.
+    std::vector<TaskObservationOperatorSpec> criticFrame;
+    criticFrame.reserve(93u);
+    criticFrame.insert(
+        criticFrame.end(),
         task.actorFrame.begin(),
         task.actorFrame.begin() + 5
     );
-    actorFrame.insert(
-        actorFrame.end(),
+    criticFrame.insert(
+        criticFrame.end(),
         task.actorFrame.begin() + 11,
         task.actorFrame.end()
     );
-    task.actorFrame = std::move(actorFrame);
-    // Preserve the proven 92-value temporal proprioceptive frame while
-    // exposing the missing up/down orientation sign once as current context.
-    task.actorCurrent.push_back({
-        .source = TaskObservationSource::projectedGravity,
-        .component = 2u,
-    });
-    task.critic = task.actorFrame;
-    task.critic.push_back(task.actorCurrent.back());
+    criticFrame.push_back(task.actorFrame[5u]);
+
+    std::erase_if(
+        task.actorFrame,
+        [](const TaskObservationOperatorSpec& observation) {
+            return observation.source == TaskObservationSource::gaitPhase;
+        }
+    );
+    constexpr std::array<float, 3u> supportSenseScales{
+        0.002f, 1.0f, 1.0f,
+    };
+    for (TaskObservationOperatorSpec& observation : task.actorFrame) {
+        if (observation.source == TaskObservationSource::command) {
+            observation.source = TaskObservationSource::supportSense;
+            observation.target.clear();
+            observation.scale = supportSenseScales[observation.component];
+            observation.offset = 0.0f;
+            observation.noiseAmplitude = 0.0f;
+            observation.biasLower = 0.0f;
+            observation.biasUpper = 0.0f;
+            observation.normalizeVector3 = false;
+            continue;
+        }
+        if (observation.source ==
+                TaskObservationSource::rootAngularVelocityLocal) {
+            observation.scale = 0.2f;
+        } else if (observation.source ==
+                       TaskObservationSource::jointVelocity) {
+            observation.scale = 0.05f;
+        } else if (observation.source ==
+                       TaskObservationSource::projectedGravity) {
+            observation.normalizeVector3 = true;
+        } else if (observation.source ==
+                       TaskObservationSource::previousAction) {
+            for (std::size_t joint = 0u;
+                 joint < metadata.jointLimits.size();
+                 ++joint) {
+                if (observation.target ==
+                        metadata.jointLimits[joint].name) {
+                    observation.scale =
+                        previousActionObservationScales[joint];
+                    break;
+                }
+            }
+        }
+    }
+    constexpr std::array<float, 13u> supportPatchScales{
+        0.002f, 0.002f, 0.002f,
+        0.02f, 0.02f, 0.02f,
+        10.0f, 10.0f,
+        100.0f,
+        2.0e-5f, 2.0e-5f, 2.0e-5f, 2.0e-5f,
+    };
+    for (const std::string_view group : {
+             std::string_view{"left_foot_contact"},
+             std::string_view{"right_foot_contact"},
+         }) {
+        for (std::uint32_t component = 0u;
+             component < supportPatchScales.size();
+             ++component) {
+            task.actorFrame.push_back({
+                .source = TaskObservationSource::supportPatch,
+                .target = std::string{group},
+                .component = component,
+                .scale = supportPatchScales[component],
+            });
+        }
+    }
+    task.critic = std::move(criticFrame);
     const std::vector<TaskObservationOperatorSpec> privilegedState{
         {
             .source = TaskObservationSource::rootLinearVelocityLocal,
@@ -1196,21 +1312,9 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
         privilegedState.begin(),
         privilegedState.end()
     );
-    task.actorHistoryLength = 10u;
+    task.actorHistoryLength = 5u;
     task.criticHistoryLength = 10u;
 
-    task.contactGroups.push_back({
-        .id = "torso_reference",
-        .bodies = {"torso_link"},
-        .referenceBody = "torso_link",
-        // G1 authored body positions are centers of mass. This reference is
-        // the torso link-frame origin used by the source task's head/upper-
-        // body height shaping.
-        .localReference = {
-            -0.0020313345f, -0.00033972675f,
-            -0.18459715f, 0.0f,
-        },
-    });
     const auto appendRecoveryContact =
         [&task](const std::string& id, const std::string& body) {
             task.contactGroups.push_back({
@@ -1236,6 +1340,16 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
         "right_knee_link"
     );
     task.contactGroups.push_back({
+        .id = "recovery_assist_contact",
+        .bodies = {
+            "left_wrist_yaw_link",
+            "right_wrist_yaw_link",
+            "left_knee_link",
+            "right_knee_link",
+        },
+        .referenceBody = "pelvis",
+    });
+    task.contactGroups.push_back({
         .id = "trunk_contact",
         .bodies = {"pelvis", "torso_link"},
         .referenceBody = "pelvis",
@@ -1243,40 +1357,47 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
 
     task.rewards = {
         {
-            .operation = TaskRewardOperator::rootHeightNormalized,
-            .weight = 5.0f,
-        },
-        {
-            .operation = TaskRewardOperator::bodyHeightExponential,
-            .sourceGroup = "torso_reference",
-            .weight = 5.0f,
-            .parameters = {1.0f, 0.0f, 0.0f, 0.0f},
-        },
-        {
             .operation = TaskRewardOperator::rootHeightProgress,
             .weight = 1.0f,
         },
         {
-            .operation = TaskRewardOperator::bodyUpExponential,
-            .weight = 0.25f,
+            // This integrates to the accepted reduction in tilt over the
+            // episode. It supplies direct temporal credit for rolling and
+            // levering the torso upward, including intermediate hand/knee
+            // support, without prescribing a particular joint trajectory.
+            .operation = TaskRewardOperator::recoveryTiltProgress,
+            .sourceGroup = "trunk_contact",
+            .weight = 8.0f,
+            .parameters = {1.40f, 0.60f, 0.40f, 0.0f},
         },
         {
-            .operation = TaskRewardOperator::supportContactCount,
-            .weight = 2.5f,
+            // A sustained upright recovery is a positive event, not a
+            // condition that suppresses partial height or tilt progress.
+            .operation = TaskRewardOperator::recoveryCompletion,
+            .sourceGroup = "trunk_contact",
+            .weight = 20.0f,
+            .parameters = {1.40f, 0.60f, 0.40f, 0.0f},
         },
         {
-            .operation = TaskRewardOperator::supportHeightExponential,
-            .weight = 2.5f,
-            .parameters = {10.0f, 0.0f, 0.0f, 0.0f},
+            // Reward the physically meaningful continuum from bracing on a
+            // hand/knee, through trunk clearance and CoP-supported load
+            // transfer, to a quiet bilateral stand. The native solver owns
+            // every contact and support value; this does not prescribe a
+            // kinematic animation or hide partial progress behind a gate.
+            .operation = TaskRewardOperator::wholeBodyRecovery,
+            .sourceGroup = "recovery_assist_contact",
+            .target = "trunk_contact",
+            .weight = 40.0f,
+            .parameters = {0.65f, 0.80f, 0.45f, 0.50f},
         },
         {
             .operation = TaskRewardOperator::standingCompletion,
-            .weight = 10.0f,
+            .weight = 40.0f,
             .parameters = {0.65f, 0.8f, 0.0f, 0.0f},
         },
         {
             .operation = TaskRewardOperator::restoration,
-            .weight = 8.0f,
+            .weight = 40.0f,
             .parameters = {0.22f, 0.40f, 0.94f, 0.35f},
         },
         {
@@ -1334,6 +1455,64 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
             },
         });
     }
+    // Uniform reset sampling replaces a promotion ladder. Bands 0-1 remain
+    // supine, 2 is low squat, 3 is high squat, and 4-7 are nominal standing.
+    // This keeps every recovery state live in every update while spending
+    // half the batch on the balance skill required to finish a get-up.
+    constexpr std::array<float, kUnitreeG1JointCount> lowSquat{{
+        -1.05f, 0.0f, 0.0f, 2.10f, -0.85f, 0.0f,
+        -1.05f, 0.0f, 0.0f, 2.10f, -0.85f, 0.0f,
+        0.0f, 0.0f, 0.25f,
+        0.90f, 0.25f, 0.0f, 1.20f, 0.0f, 0.0f, 0.0f,
+        0.90f, -0.25f, 0.0f, 1.20f, 0.0f, 0.0f, 0.0f,
+    }};
+    constexpr std::array<float, kUnitreeG1JointCount> highSquat{{
+        -0.60f, 0.0f, 0.0f, 1.20f, -0.60f, 0.0f,
+        -0.60f, 0.0f, 0.0f, 1.20f, -0.60f, 0.0f,
+        0.0f, 0.0f, 0.10f,
+        0.60f, 0.20f, 0.0f, 1.00f, 0.0f, 0.0f, 0.0f,
+        0.60f, -0.20f, 0.0f, 1.00f, 0.0f, 0.0f, 0.0f,
+    }};
+    const auto appendResetPose =
+        [&task, &metadata](
+            const std::uint32_t band,
+            const float rootHeight,
+            const std::array<float, kUnitreeG1JointCount>& pose
+        ) {
+            task.randomization.push_back({
+                .operation = TaskRandomizationOperator::rootOrientation,
+                .minimumDifficultyBand = band,
+                .parameters = {0.0f, 0.0f, 0.0f, 1.0f},
+            });
+            task.randomization.push_back({
+                .operation = TaskRandomizationOperator::rootHeight,
+                .minimumDifficultyBand = band,
+                .parameters = {
+                    rootHeight, rootHeight, 0.0f, 0.0f,
+                },
+            });
+            for (std::size_t index = 0u; index < pose.size(); ++index) {
+                task.randomization.push_back({
+                    .operation =
+                        TaskRandomizationOperator::jointPosition,
+                    .target = std::string{
+                        metadata.jointLimits[index].name
+                    },
+                    .minimumDifficultyBand = band,
+                    .parameters = {
+                        pose[index], pose[index], 0.0f, 0.0f,
+                    },
+                });
+            }
+        };
+    appendResetPose(2u, 0.30f, lowSquat);
+    appendResetPose(3u, 0.52f, highSquat);
+    // rootHeight writes the floating-base COM coordinate. The canonical
+    // standing reset is a 0.8 m pelvis link-frame origin, while G1's pelvis
+    // COM is 0.07603006 m below that frame. Using 0.78 here launched the feet
+    // roughly 5.6 cm above the floor and turned every standing episode into
+    // an avoidable landing impact.
+    appendResetPose(4u, 0.72396994f, nominalStance);
     return task;
 }
 
@@ -1344,9 +1523,9 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
     TaskPack task = makeUnitreeG1DisturbanceRecoveryTaskPack(surface);
     task.id = "unitree_g1_ball_disturbance_recovery";
     task.pushes.maximumVelocity = 0.0f;
-    // This stage learns pre-fall stability. Promotion is based on completing
-    // the episode while remaining stationary, not on recovery completion;
-    // recovery events below are shaping signals only.
+    // This stage learns pre-fall stability. Episode completion and recovery
+    // events are both retained as physical outcomes rather than collapsed into
+    // a promotion verdict.
     task.successTrackingThreshold = 0.70f;
     // Solver-derived contact wrench is the native touch signal for impacts.
     // G1's dense tactile atlases are plantar-only, so a separate semantic
@@ -1541,7 +1720,7 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
                     TaskRandomizationOperator::sceneBodyVelocity,
                 .target = name,
                 .component = impactAxis,
-                .minimumCurriculumLevel = level,
+                .minimumDifficultyBand = level,
                 .parameters = direction > 0.0f
                     ? mr_float4{
                           speedLower, speedUpper, 0.0f, 0.0f,
@@ -1564,7 +1743,7 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
                 TaskRandomizationOperator::sceneBodyEventImpact,
             .target = name,
             .component = sphere,
-            .minimumCurriculumLevel = 1u,
+            .minimumDifficultyBand = 1u,
             .parameters = {
                 0.05f, 0.50f, 2.0f, 0.70f,
             },
@@ -1583,12 +1762,10 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     // Visual corruption rises over the same normalized range, so every level
     // has a physical and perceptual meaning instead of adding corruption-only
     // tail levels.
-    task.curriculumLevelCount = 4u;
-    task.projectileOutcomeCurriculum = true;
-    // Projectile curricula interpret these as the minimum relative
-    // improvement and maximum companion-metric regression per comparison.
-    task.successTrackingThreshold = 0.03f;
-    task.commands.minimumEpisodeSurvivalFraction = 0.02f;
+    task.difficultyBandCount = 4u;
+    // Bias toward easier throws while keeping every authored speed band in
+    // the deterministic episode distribution from the first update.
+    task.commands.difficultySamplingExponent = 1.5f;
     task.pushes.projectileStandingProbability = 0.20f;
     task.pushes.projectileTargetHorizontalRadius = 0.40f;
     task.pushes.projectileHorizontalSpeedLower = 1.0f;
@@ -1631,9 +1808,9 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
             if (random.operation ==
                     TaskRandomizationOperator::sceneBodyVelocity &&
                 random.component == impactAxis &&
-                random.minimumCurriculumLevel < speedBands.size()) {
+                random.minimumDifficultyBand < speedBands.size()) {
                 const auto& band = speedBands[
-                    random.minimumCurriculumLevel
+                    random.minimumDifficultyBand
                 ];
                 random.parameters = direction > 0.0f
                     ? mr_float4{band[0], band[1], 0.0f, 0.0f}
@@ -1766,14 +1943,14 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         .farDepthMeters = 5.0f,
         // At 16x9 a physical ball may cover only one winner pixel. Expand
         // that exact segmented winner by one pixel so the deployed actor
-        // receives a reliable shape-compatible signal. Higher curriculum
+        // receives a reliable shape-compatible signal. Harder difficulty
         // levels still scale the remaining sensor corruption.
         .fullDropoutProbability = 0.005f,
         .pixelDropoutProbability = 0.03f,
         .depthJitterMeters = 0.05f,
         .depthNoiseSigmaMeters = 0.01f,
         .edgeFlickerProbability = 1.0f,
-        .curriculumCorruptionGain = 1.0f,
+        .difficultyCorruptionGain = 1.0f,
         .includeDerivedFeatures = true,
     };
     const std::uint32_t visualPixels =
@@ -1920,8 +2097,8 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         // and impact events must remain active from level zero.
         if (random.operation !=
                 TaskRandomizationOperator::sceneBodyVelocity ||
-            random.minimumCurriculumLevel > 3u) {
-            random.minimumCurriculumLevel = 0u;
+            random.minimumDifficultyBand > 3u) {
+            random.minimumDifficultyBand = 0u;
         }
         if (random.operation ==
                 TaskRandomizationOperator::sceneBodyEventImpact) {
@@ -1949,6 +2126,16 @@ LocomotionWorld makeUnitreeG1LocomotionWorld(
                 ? makeUnitreeG1SupineGetUpDiscoveryTaskPack(surface)
                 : makeUnitreeG1LocomotionTaskPack(surface),
     };
+    if (task == UnitreeG1Task::supineGetUpDiscovery &&
+        !world.model.materials.empty()) {
+        // Whole-body get-up creates dense self/ground contact from rest.
+        // Give the rubberized contact layer a finite physical compliance of
+        // 1.25e-7 m/N per material. Two equal materials combine to 2.5e-7
+        // m/N, or 0.01 impulse regularization at the authored 200 Hz physics
+        // step. This conditions the actual contact law instead of clipping a
+        // catastrophic post-solve state or weakening solver validation.
+        world.model.materials.front().response.z = 1.25e-7f;
+    }
     appendLocomotionSurface(
         world.model,
         world.sceneBodies,

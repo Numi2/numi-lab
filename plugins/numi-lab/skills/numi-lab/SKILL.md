@@ -94,7 +94,9 @@ directory, policy/checkpoint paths, failed environment steps, throughput,
 memory, replay/fingerprint evidence, and task-specific physical outcomes that
 the run actually produced. Reward or test success alone is not physical proof.
 
-Never replace an incumbent policy unless the relevant evaluation gate passes.
+Retain every physically valid candidate and its measured outcome. Changing the
+configured production policy is an explicit evidence-backed selection, not a
+binary verdict that erases partial progress.
 Simulator evidence is not hardware evidence. Simulation, authoring, and local
 training may be autonomous; real hardware execution must obey the owner's
 configured arming, limits, emergency stop, and approval policy.

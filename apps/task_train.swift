@@ -10,7 +10,6 @@ private struct Options {
     var surface = MetalRoboLocomotionSurface.terrain
     var unitreeG1Task = MetalRoboUnitreeG1Task.velocity
     var seed: UInt64 = 20_260_731
-    var initialCurriculumLevel: UInt32 = 0
     var metallib = "build/shaders/MetalRobo.metallib"
     var nativeLibrary = "build/lib/libmetalrobo.dylib"
     var mlxPython: String?
@@ -25,11 +24,17 @@ private struct Options {
     var deploymentPolicyPack: String?
     var rolloutPack: String?
     var learnerState: String?
+    var outputLearnerState: String?
     var checkpointDirectory: String?
     var checkpointInterval = 0
     var motionPack: String?
     var interactionPack: String?
     var interactionClip: String?
+    var interactionStudentAuthority: Float?
+    var interactionResetOnly = false
+    var materializeArticulatedContactResponses = false
+    var minimumDifficultyBand: Int?
+    var maximumDifficultyBand: Int?
     var worldPack: String?
     var taskPack: String?
     var urdf: String?
@@ -50,10 +55,10 @@ private struct Options {
     var maximumLearningRate = 1.0e-2
     var fixedLearningRate = false
     var overrideResumedLearningRate = false
-    var overrideResumedCurriculumLevel = false
     var overrideResumedExploration = false
     var clipRatio = 0.2
     var valueCoefficient = 1.0
+    var imaginationDistillationCoefficient = 1.0
     // The production default starts with a 0.2 standard deviation in policy
     // coordinates. With the bundled 0.25-radian action scale this is 0.05 rad
     // of target exploration, rather than a new order-one target every 20 ms.
@@ -100,14 +105,6 @@ private struct Options {
                     )
                 }
                 seed = parsed
-                index += 1
-            case "--initial-curriculum-level":
-                guard let parsed = UInt32(try value()) else {
-                    throw MetalRoboTaskRolloutError.invalidShape(
-                        "--initial-curriculum-level requires an unsigned 32-bit integer."
-                    )
-                }
-                initialCurriculumLevel = parsed
                 index += 1
             case "--metallib":
                 metallib = try value()
@@ -169,6 +166,9 @@ private struct Options {
             case "--learner-state":
                 learnerState = try value()
                 index += 1
+            case "--output-learner-state":
+                outputLearnerState = try value()
+                index += 1
             case "--checkpoint-directory":
                 checkpointDirectory = try value()
                 index += 1
@@ -183,6 +183,28 @@ private struct Options {
                 index += 1
             case "--interaction-clip":
                 interactionClip = try value()
+                index += 1
+            case "--interaction-student-authority":
+                guard let parsed = Float(try value()),
+                      parsed.isFinite,
+                      parsed >= 0,
+                      parsed <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-student-authority must be in [0, 1]."
+                    )
+                }
+                interactionStudentAuthority = parsed
+                index += 1
+            case "--interaction-reset-only":
+                interactionResetOnly = true
+            case "--materialize-articulated-contact-responses":
+                materializeArticulatedContactResponses = true
+            case "--minimum-difficulty-band":
+                minimumDifficultyBand = try Self.integer(value(), option)
+                index += 1
+            case "--maximum-difficulty-band":
+                maximumDifficultyBand = try Self.integer(value(), option)
                 index += 1
             case "--world-pack":
                 worldPack = try value()
@@ -266,13 +288,15 @@ private struct Options {
                 overrideResumedLearningRate = true
             case "--override-resumed-exploration":
                 overrideResumedExploration = true
-            case "--override-resumed-curriculum-level":
-                overrideResumedCurriculumLevel = true
             case "--clip-ratio":
                 clipRatio = try Self.double(value(), option)
                 index += 1
             case "--value-coefficient":
                 valueCoefficient = try Self.double(value(), option)
+                index += 1
+            case "--imagination-distillation-coefficient":
+                imaginationDistillationCoefficient =
+                    try Self.double(value(), option)
                 index += 1
             case "--entropy-coefficient":
                 entropyCoefficient = try Self.double(value(), option)
@@ -314,6 +338,16 @@ private struct Options {
             // 256 x 20 ms = 5.12 s: long enough for launch, interception,
             // avoidance, and settling instead of truncating the event.
             steps = 256
+        }
+        if (minimumDifficultyBand == nil) !=
+            (maximumDifficultyBand == nil) ||
+            (minimumDifficultyBand ?? 0) < 0 ||
+            (minimumDifficultyBand ?? 0) >
+                (maximumDifficultyBand ?? 0)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "difficulty-band overrides require an ordered non-negative minimum and maximum."
+            )
         }
         guard environments > 0,
               steps > 0,
@@ -382,6 +416,9 @@ private struct Options {
             learnerState =
                 updatedPolicyPack + ".learner.safetensors"
         }
+        if outputLearnerState == nil {
+            outputLearnerState = learnerState
+        }
         if deploymentPolicyPack == nil {
             deploymentPolicyPack =
                 updatedPolicyPack + ".deployment.policypack"
@@ -415,6 +452,7 @@ private struct Options {
             maximumLearningRate,
             clipRatio,
             valueCoefficient,
+            imaginationDistillationCoefficient,
             entropyCoefficient,
             initialLogStandardDeviation,
             maximumGradientNorm,
@@ -431,6 +469,7 @@ private struct Options {
               learningRate <= maximumLearningRate,
               clipRatio > 0,
               valueCoefficient >= 0,
+              imaginationDistillationCoefficient >= 0,
               entropyCoefficient >= 0,
               initialLogStandardDeviation >= -5,
               initialLogStandardDeviation <= 2,
@@ -461,6 +500,16 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "InteractionPack path and clip identity cannot be empty."
+            )
+        }
+        if interactionStudentAuthority != nil && interactionPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--interaction-student-authority requires an InteractionPack."
+            )
+        }
+        if interactionResetOnly && interactionPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--interaction-reset-only requires an InteractionPack."
             )
         }
         if interactionPack != nil &&
@@ -638,8 +687,6 @@ private final class MLXLearnerWorker {
     private(set) var policyPackPath: String
     private(set) var deploymentPolicyPackPath: String
     private(set) var stateRestored: Bool
-    private(set) var taskCurriculumLevel: UInt32
-    private(set) var taskCurriculumReferenceRates: UInt64
     private var closed = false
 
     init(options: Options) throws {
@@ -648,7 +695,8 @@ private final class MLXLearnerWorker {
               let outputPolicyPack = options.updatedPolicyPack,
               let deploymentPolicyPack =
                   options.deploymentPolicyPack,
-              let learnerState = options.learnerState
+              let learnerState = options.learnerState,
+              let outputLearnerState = options.outputLearnerState
         else {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "MLX learner paths are incomplete."
@@ -672,13 +720,11 @@ private final class MLXLearnerWorker {
             "--deployment-policy-pack",
             deploymentPolicyPack,
             "--learner-state",
+            outputLearnerState,
+            "--restore-learner-state",
             learnerState,
             "--native-library",
             options.nativeLibrary,
-            "--initial-task-curriculum-level",
-            String(options.initialCurriculumLevel),
-            "--initial-task-curriculum-reference-rates",
-            "0",
             "--update-epochs",
             String(options.updateEpochs),
             "--minibatch-size",
@@ -693,6 +739,8 @@ private final class MLXLearnerWorker {
             String(options.clipRatio),
             "--value-coefficient",
             String(options.valueCoefficient),
+            "--imagination-distillation-coefficient",
+            String(options.imaginationDistillationCoefficient),
             "--entropy-coefficient",
             String(options.entropyCoefficient),
             "--maximum-gradient-norm",
@@ -713,9 +761,6 @@ private final class MLXLearnerWorker {
         }
         if options.overrideResumedLearningRate {
             arguments.append("--override-resumed-learning-rate")
-        }
-        if options.overrideResumedCurriculumLevel {
-            arguments.append("--override-resumed-curriculum-level")
         }
         if options.overrideResumedExploration {
             arguments.append("--override-resumed-exploration")
@@ -750,8 +795,6 @@ private final class MLXLearnerWorker {
         policyPackPath = ""
         deploymentPolicyPackPath = ""
         stateRestored = false
-        taskCurriculumLevel = 0
-        taskCurriculumReferenceRates = 0
         let ready = try response()
         guard ready["status"] as? String == "ready",
               let revisionValue =
@@ -769,14 +812,7 @@ private final class MLXLearnerWorker {
               let readyDeploymentPolicyPack =
                   ready["deployment_policy_pack"] as? String,
               let restored =
-                  ready["learner_state_restored"] as? Bool,
-              let curriculumValue =
-                  ready["task_curriculum_level"] as? NSNumber,
-              let curriculumReference =
-                  ready["task_curriculum_reference_rates"] as? String,
-              let parsedCurriculumReference =
-                  UInt64(curriculumReference),
-              curriculumValue.uint64Value <= UInt64(UInt32.max)
+                  ready["learner_state_restored"] as? Bool
         else {
             throw MetalRoboTaskRolloutError.native(
                 "MLX learner did not publish a valid ready record."
@@ -791,8 +827,6 @@ private final class MLXLearnerWorker {
         deploymentPolicyPackPath =
             readyDeploymentPolicyPack
         stateRestored = restored
-        taskCurriculumLevel = curriculumValue.uint32Value
-        taskCurriculumReferenceRates = parsedCurriculumReference
     }
 
     deinit {
@@ -801,17 +835,11 @@ private final class MLXLearnerWorker {
         }
     }
 
-    func update(
-        rolloutPack: String,
-        curriculumCheckpoint: MetalRoboTaskCurriculumCheckpoint
-    ) throws -> [String: Any] {
+    func update(rolloutPack: String) throws -> [String: Any] {
         try request(
             [
                 "operation": "update",
                 "rollout_pack": rolloutPack,
-                "task_curriculum_reference_rates": String(
-                    curriculumCheckpoint.referenceRates
-                ),
             ]
         )
         let result = try response()
@@ -822,19 +850,8 @@ private final class MLXLearnerWorker {
                   result["policy_revision_after"] as? NSNumber,
               let deploymentPolicyPack =
                   result["deployment_policy_pack"] as? String,
-              let updatedCurriculum =
-                  result["task_curriculum_level"] as? NSNumber,
-              let updatedReference =
-                  result["task_curriculum_reference_rates"] as? String,
-              let parsedUpdatedReference = UInt64(updatedReference),
               before.uint64Value == revision,
               after.uint64Value == revision + 1,
-              updatedCurriculum.uint64Value <=
-                  UInt64(UInt32.max),
-              updatedCurriculum.uint32Value ==
-                  curriculumCheckpoint.level,
-              parsedUpdatedReference ==
-                  curriculumCheckpoint.referenceRates,
               deploymentPolicyPack ==
                   deploymentPolicyPackPath
         else {
@@ -844,8 +861,6 @@ private final class MLXLearnerWorker {
             throw MetalRoboTaskRolloutError.native(message)
         }
         revision = after.uint64Value
-        taskCurriculumLevel = updatedCurriculum.uint32Value
-        taskCurriculumReferenceRates = parsedUpdatedReference
         return result
     }
 
@@ -963,6 +978,17 @@ private func makeContext(
         surface: options.surface,
         seed: options.seed,
         dynamicSpheres: dynamicSpheres,
+        materializeArticulatedContactResponses:
+            options.materializeArticulatedContactResponses,
+        difficultyBandRange:
+            options.minimumDifficultyBand.map {
+                UInt32($0)...UInt32(options.maximumDifficultyBand!)
+            },
+        interactionReferenceMode: options.interactionResetOnly
+            ? .resetOnly
+            : .taskDefault,
+        interactionStudentAuthority:
+            options.interactionStudentAuthority,
         unitreeG1Task: options.unitreeG1Task
     )
     if let interactionPack = options.interactionPack,
@@ -1061,20 +1087,13 @@ private enum TaskTrainMain {
                   let deploymentPolicyPack =
                       options.deploymentPolicyPack,
                   let rolloutPack = options.rolloutPack,
-                  let learnerState = options.learnerState
+                  let learnerState = options.outputLearnerState
             else {
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "Training artifact paths are incomplete."
                 )
             }
             let learner = try MLXLearnerWorker(options: options)
-            try context.setCurriculumCheckpoint(
-                MetalRoboTaskCurriculumCheckpoint(
-                    level: learner.taskCurriculumLevel,
-                    referenceRates:
-                        learner.taskCurriculumReferenceRates
-                )
-            )
             try context.loadPolicy(
                 at: URL(fileURLWithPath: learner.policyPackPath)
             )
@@ -1093,10 +1112,6 @@ private enum TaskTrainMain {
                 )
             }
             let initialRevision = learner.revision
-            let initialCurriculumLevel =
-                learner.taskCurriculumLevel
-            let initialCurriculumReferenceRates =
-                learner.taskCurriculumReferenceRates
             var installedRevision = learner.revision
             let warmup = try context.advanceWithPolicy(
                 controlStepCount: 1,
@@ -1113,8 +1128,8 @@ private enum TaskTrainMain {
                     "Initial PolicyPack failed native warmup."
                 )
             }
-            let warmupCurriculumTelemetry =
-                try context.curriculumTelemetry()
+            let warmupEvidenceTelemetry =
+                try context.evidenceTelemetry()
             try context.reset(seed: options.seed)
 
             let baseline = context.layout
@@ -1126,8 +1141,8 @@ private enum TaskTrainMain {
             var stageHighWater: [String: Int] = [:]
             var failedSteps = 0
             var lastLearning: [String: Any] = [:]
-            var lastCurriculumTelemetry =
-                warmupCurriculumTelemetry
+            var lastEvidenceTelemetry =
+                warmupEvidenceTelemetry
             let samplesPerUpdate =
                 options.environments * options.steps
             let (trainingSamples, trainingSamplesOverflow) =
@@ -1270,53 +1285,11 @@ private enum TaskTrainMain {
                     id: "swift_native_training_rollout",
                     to: URL(fileURLWithPath: rolloutPack)
                 )
-                var previousCurriculumLevel =
-                    learner.taskCurriculumLevel
-                var rolloutCurriculumLevel =
-                    previousCurriculumLevel
-                var validCurriculum = true
-                for step in 0..<options.steps {
-                    let base = step * options.environments
-                    let level = transitions[base].curriculumLevel
-                    if !transitions[
-                        base..<(base + options.environments)
-                    ].allSatisfy({ $0.curriculumLevel == level }) ||
-                        abs(
-                            Int64(level) -
-                                Int64(previousCurriculumLevel)
-                        ) > 1
-                    {
-                        validCurriculum = false
-                        break
-                    }
-                    previousCurriculumLevel = level
-                    rolloutCurriculumLevel = level
-                }
-                lastCurriculumTelemetry =
-                    try context.curriculumTelemetry()
-                guard validCurriculum,
-                      rolloutCurriculumLevel ==
-                          lastCurriculumTelemetry.checkpoint.level
-                else {
-                    throw MetalRoboTaskRolloutError.native(
-                        "Native rollout published an invalid adaptive task curriculum."
-                    )
-                }
+                lastEvidenceTelemetry =
+                    try context.evidenceTelemetry()
                 lastLearning = try learner.update(
-                    rolloutPack: rolloutPack,
-                    curriculumCheckpoint:
-                        lastCurriculumTelemetry.checkpoint
+                    rolloutPack: rolloutPack
                 )
-                guard learner.taskCurriculumLevel ==
-                          rolloutCurriculumLevel,
-                      learner.taskCurriculumReferenceRates ==
-                          lastCurriculumTelemetry
-                              .checkpoint.referenceRates
-                else {
-                    throw MetalRoboTaskRolloutError.native(
-                        "Learner checkpoint disagrees with the native rollout curriculum."
-                    )
-                }
                 try context.loadPolicy(
                     at: URL(fileURLWithPath: updatedPolicyPack)
                 )
@@ -1406,11 +1379,9 @@ private enum TaskTrainMain {
                             (
                                 "update=\(updateIndex + 1) " +
                                 "revision=\(installedRevision) " +
-                                "curriculum=\(learner.taskCurriculumLevel) " +
-                                "curriculum_decision=\(lastCurriculumTelemetry.lastDecision) " +
-                                "contact_rate=\(lastCurriculumTelemetry.lastContactRate) " +
-                                "miss_rate=\(lastCurriculumTelemetry.lastCleanMissRate) " +
-                                "balance_rate=\(lastCurriculumTelemetry.lastBalanceFailureRate) " +
+                                "contact_rate=\(lastEvidenceTelemetry.lastContactRate) " +
+                                "miss_rate=\(lastEvidenceTelemetry.lastCleanMissRate) " +
+                                "balance_rate=\(lastEvidenceTelemetry.lastBalanceFailureRate) " +
                                 "reward=\(reward) " +
                                 "tracking=\(tracking) " +
                                 "height=\(height) " +
@@ -1461,48 +1432,35 @@ private enum TaskTrainMain {
                 "training_samples": trainingSamples,
                 "initial_policy_revision": initialRevision,
                 "final_policy_revision": installedRevision,
-                "initial_task_curriculum_level":
-                    initialCurriculumLevel,
-                "initial_task_curriculum_reference_rates":
-                    String(initialCurriculumReferenceRates),
-                "final_task_curriculum_level":
-                    learner.taskCurriculumLevel,
-                "final_task_curriculum_reference_rates":
-                    String(learner.taskCurriculumReferenceRates),
-                "final_curriculum_telemetry": [
+                "final_physical_evidence": [
                     "control_steps":
-                        lastCurriculumTelemetry.controlSteps,
-                    "reference_valid":
-                        lastCurriculumTelemetry.referenceValid,
-                    "reference_level":
-                        lastCurriculumTelemetry.referenceLevel,
-                    "reference_contact_rate":
-                        lastCurriculumTelemetry.referenceContactRate,
-                    "reference_clean_miss_rate":
-                        lastCurriculumTelemetry.referenceCleanMissRate,
-                    "reference_balance_failure_rate":
-                        lastCurriculumTelemetry
-                            .referenceBalanceFailureRate,
+                        lastEvidenceTelemetry.controlSteps,
+                    "evidence_windows":
+                        lastEvidenceTelemetry.evidenceWindows,
+                    "pending_completed_episode_count":
+                        lastEvidenceTelemetry
+                            .pendingCompletedEpisodeCount,
+                    "pending_timeout_episode_count":
+                        lastEvidenceTelemetry
+                            .pendingTimeoutEpisodeCount,
+                    "last_completed_episode_count":
+                        lastEvidenceTelemetry
+                            .lastCompletedEpisodeCount,
                     "last_contact_rate":
-                        lastCurriculumTelemetry.lastContactRate,
+                        lastEvidenceTelemetry.lastContactRate,
                     "last_clean_miss_rate":
-                        lastCurriculumTelemetry.lastCleanMissRate,
+                        lastEvidenceTelemetry.lastCleanMissRate,
                     "last_balance_failure_rate":
-                        lastCurriculumTelemetry
+                        lastEvidenceTelemetry
                             .lastBalanceFailureRate,
-                    "last_decision":
-                        String(
-                            describing:
-                                lastCurriculumTelemetry.lastDecision
-                        ),
+                    "last_mean_tracking_per_million":
+                        lastEvidenceTelemetry
+                            .lastMeanTrackingPerMillion,
                 ],
                 "learner_state_restored":
                     learner.stateRestored,
                 "resumed_learning_rate_overridden":
                     options.overrideResumedLearningRate &&
-                    learner.stateRestored,
-                "resumed_curriculum_level_overridden":
-                    options.overrideResumedCurriculumLevel &&
                     learner.stateRestored,
                 "resumed_exploration_overridden":
                     options.overrideResumedExploration &&

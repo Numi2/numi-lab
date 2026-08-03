@@ -2,18 +2,14 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 24u
+#define MR_TASK_PROGRAM_ABI_VERSION 29u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
     MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY = 1u << 1u,
-    MR_TASK_PROGRAM_RECOVERY_CURRICULUM = 1u << 2u,
     MR_TASK_PROGRAM_THREAT_TEACHER = 1u << 3u,
-    // Advance on completed whole-projectile outcomes and balance failures,
-    // rather than locomotion command tracking.
-    MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM = 1u << 4u,
     // The masked-depth suffix also contains compact features derived from
     // the corrupted sparse depth frames on device. No scene state enters
     // these slots.
@@ -21,6 +17,10 @@ enum MRTaskProgramFlags : mr_u32 {
     // Action values become bounded residuals around the current retargeted
     // joint reference instead of offsets from the mechanism default pose.
     MR_TASK_PROGRAM_INTERACTION_REFERENCE = 1u << 6u,
+    // Initialize the mechanism from the first InteractionPack frame. This is
+    // intentionally independent of reference control so distilled policies
+    // can be evaluated autonomously from the exact demonstrated state.
+    MR_TASK_PROGRAM_INTERACTION_RESET = 1u << 7u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
@@ -183,6 +183,11 @@ enum MRTaskRewardOpcode : mr_u32 {
     // Smooth tracking of authored root position and orientation. Parameters
     // are positive position and orientation squared-error widths.
     MR_TASK_REWARD_INTERACTION_ROOT_TRACKING = 42u,
+    // Dense, phase-readable physical get-up objective. source.y is the
+    // hand/knee assist group and source.z is the trunk group. Parameters are
+    // standing height, upright cosine, horizontal support radius, and quiet
+    // generalized-speed scale. Feet and CoP come from authored support groups.
+    MR_TASK_REWARD_WHOLE_BODY_RECOVERY = 43u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -241,6 +246,14 @@ enum MRTaskImpactTransitionFlags : mr_u32 {
     // Standing plus nominal posture, root pose, and stillness. The learner
     // still requires a sustained streak before accepting teacher actions.
     MR_TASK_OUTCOME_RESTORED = 1u << 30u,
+    // Phase evidence for a get-up transition. These are observations of the
+    // accepted solver state, never curriculum or promotion gates.
+    MR_TASK_OUTCOME_RECOVERY_BRACE = 1u << 29u,
+    MR_TASK_OUTCOME_TRUNK_CLEAR = 1u << 28u,
+    MR_TASK_OUTCOME_FOOT_SUPPORT = 1u << 27u,
+    MR_TASK_OUTCOME_SUPPORT_TRANSFER = 1u << 26u,
+    MR_TASK_OUTCOME_RECOVERY_RISE = 1u << 25u,
+    MR_TASK_OUTCOME_QUIET_STAND = 1u << 24u,
 };
 
 // Per-submission dimensions and attribution. Every stride is in elements.
@@ -253,6 +266,9 @@ typedef struct MR_ALIGN16 MRTaskDispatchGPU {
     mr_uint4 outputs;
     // control dt, physics dt, publish final actor, publish terminal critic.
     mr_float4 timing;
+    // sampled difficulty-band lower bound, inclusive upper bound, reserved.
+    // MR_INVALID_INDEX in y selects the compiled TaskPack upper bound.
+    mr_uint4 sampling;
     mr_u64 seed;
     mr_u64 policyRevision;
     mr_u64 taskFingerprint;
@@ -277,7 +293,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_uint4 root;
     // terrain scene-body local index, shape index, geometry index, profiles.
     mr_uint4 terrain;
-    // max episode steps, max observation delay, curriculum levels, flags.
+    // max episode steps, max observation delay, difficulty bands, flags.
     mr_uint4 schedule;
     // base height target, gait period, clearance target, success threshold.
     mr_float4 locomotion;
@@ -301,7 +317,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // termination operators, randomization operators, bias specs, terrain
     // samples.
     mr_uint4 offsets2;
-    // Terrain reset profiles, command curriculum, impact events, and
+    // Terrain reset profiles, command difficulty ranges, impact events, and
     // contact-member radii.
     mr_uint4 offsets3;
     mr_u64 taskFingerprint;
@@ -391,17 +407,19 @@ typedef struct MR_ALIGN16 MRTaskTerminationOperatorGPU {
     mr_uint4 source;
     // threshold, one-shot failure penalty, and reserved values.
     mr_float4 parameters;
+    // Inclusive minimum/maximum difficulty band; remaining lanes reserved.
+    mr_uint4 schedule;
 } MRTaskTerminationOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskRandomizationOperatorGPU {
-    // opcode, resolved group/index, component, minimum curriculum level.
+    // opcode, resolved group/index, component, minimum difficulty band.
     mr_uint4 target;
     // lower, upper, auxiliary lower, auxiliary upper.
     mr_float4 parameters;
 } MRTaskRandomizationOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskImpactEventGPU {
-    // Scene-body local index, sequence order, minimum curriculum, global body.
+    // Scene-body local index, sequence order, minimum difficulty, global body.
     mr_uint4 binding;
     // Stable tilt, stable seconds, maximum flight seconds, minimum height.
     mr_float4 gate;
@@ -430,7 +448,7 @@ typedef struct MR_ALIGN16 MRTaskBiasSpecGPU {
 } MRTaskBiasSpecGPU;
 
 typedef struct MR_ALIGN16 MRTaskStateGPU {
-    // episode step, episode index, curriculum level, terrain level.
+    // episode step, episode index, difficulty band, terrain level.
     mr_uint4 episode;
     // command steps, push steps, actuator delay, observation delay.
     mr_uint4 schedule;
@@ -456,86 +474,25 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     mr_uint4 threatMetadata;
 } MRTaskStateGPU;
 
-// One compact task-wide curriculum controller remains device-resident across
-// submissions. The command level is global, matching the authored Unitree
-// curriculum, while terrain difficulty remains environment-local. Projectile
-// curricula use one 64-bit same-level reference:
-// three 20-bit rates per million environment steps, two level bits, and one
-// validity bit. This preserves exact unit resolution over the full possible
-// rate range and exposure-normalized comparisons. The last
-// completed window and decision are retained for telemetry and checkpoint
-// diagnosis; they are not inputs to the next decision.
-typedef struct MR_ALIGN16 MRTaskCurriculumStateGPU {
+// Compact task-wide physical evidence accumulated on device. It does not own
+// a difficulty level or decide whether learning may proceed. Every authored
+// difficulty band remains episode-sampleable; this record only publishes
+// exposure-normalized outcomes for the evidence ledger.
+typedef struct MR_ALIGN16 MRTaskEvidenceStateGPU {
     mr_u64 controlSteps;
-    mr_u64 completedEpisodeCount;
-    mr_u64 timeoutEpisodeCount;
+    mr_u64 evidenceWindows;
+    mr_u32 completedEpisodeCount;
+    mr_u32 timeoutEpisodeCount;
+    mr_u32 impactContactCount;
+    mr_u32 impactCleanMissCount;
+    mr_u32 balanceFailureCount;
     float trackingScoreSum;
-    mr_u32 commandLevel;
-    mr_u64 referenceRates;
+    mr_u32 lastCompletedEpisodeCount;
+    mr_u32 reserved;
     // Contact, clean-miss, and balance-failure rates per million environment
-    // steps, followed by MRTaskCurriculumDecision.
+    // steps, followed by mean completed-episode tracking per million.
     mr_uint4 lastWindow;
-} MRTaskCurriculumStateGPU;
-
-enum MRTaskCurriculumDecision : mr_u32 {
-    MR_TASK_CURRICULUM_HOLD = 0u,
-    MR_TASK_CURRICULUM_ADVANCE = 1u,
-    MR_TASK_CURRICULUM_RETREAT = 2u,
-};
-
-// Pure shared decision rule used by Metal and the focused task-program check.
-// Rates are exposure-normalized before entry. A meaningful improvement in any
-// one outcome may advance when the companion safety outcomes remain stable;
-// a severe one-sided regression may retreat, except at the lowest level.
-static inline mr_u32 mr_task_projectile_curriculum_decision(
-    mr_u32 level,
-    mr_u32 levelCount,
-    float contactRate,
-    float cleanMissRate,
-    float balanceFailureRate,
-    float referenceContactRate,
-    float referenceCleanMissRate,
-    float referenceBalanceFailureRate,
-    float minimumImprovement,
-    float companionTolerance
-) {
-    const float improvedScale = 1.0f - minimumImprovement;
-    const float stableScale = 1.0f + companionTolerance;
-    const float severeScale = 1.0f + 3.0f * minimumImprovement;
-    const mr_u32 contactImproved =
-        contactRate <= referenceContactRate * improvedScale;
-    const mr_u32 balanceImproved =
-        balanceFailureRate <=
-            referenceBalanceFailureRate * improvedScale;
-    const mr_u32 contactStable =
-        contactRate <= referenceContactRate * stableScale;
-    const mr_u32 balanceStable =
-        balanceFailureRate <=
-            referenceBalanceFailureRate * stableScale;
-    const float cleanMissFloor = referenceCleanMissRate > 1000.0f
-        ? referenceCleanMissRate
-        : 1000.0f;
-    const mr_u32 cleanMissImproved =
-        cleanMissRate >= referenceCleanMissRate +
-            minimumImprovement * cleanMissFloor;
-    if (level + 1u < levelCount &&
-        ((contactImproved && balanceStable) ||
-         (balanceImproved && contactStable) ||
-         (cleanMissImproved && contactStable && balanceStable))) {
-        return MR_TASK_CURRICULUM_ADVANCE;
-    }
-    const mr_u32 contactSevere =
-        contactRate > referenceContactRate * severeScale;
-    const mr_u32 balanceSevere =
-        balanceFailureRate >
-            referenceBalanceFailureRate * severeScale;
-    if (level > 0u &&
-        ((contactSevere && !balanceImproved) ||
-         (balanceSevere && !contactImproved))) {
-        return MR_TASK_CURRICULUM_RETREAT;
-    }
-    return MR_TASK_CURRICULUM_HOLD;
-}
+} MRTaskEvidenceStateGPU;
 
 typedef struct MR_ALIGN16 MRTaskTransitionGPU {
     // reward, tracking score, root height, tilt.
@@ -556,27 +513,27 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
     float timeoutBootstrapValue;
     // Mean linear tracking score for a non-physics episode ending here.
     float episodeTrackingScore;
-    // Global command curriculum and environment-local terrain levels.
+    // Episode difficulty band and terrain profile.
     mr_uint4 taskProgress;
 } MRTaskTransitionGPU;
 
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
-static_assert(sizeof(MRTaskDispatchGPU) == 96u);
+static_assert(sizeof(MRTaskDispatchGPU) == 112u);
 static_assert(sizeof(MRTaskProgramHeaderGPU) == 560u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 112u);
 static_assert(sizeof(MRTaskIndexGroupGPU) == 16u);
 static_assert(sizeof(MRTaskRewardOperatorGPU) == 48u);
-static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
+static_assert(sizeof(MRTaskTerminationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskImpactEventGPU) == 48u);
 static_assert(sizeof(MRTaskInteractionContactGPU) == 16u);
 static_assert(sizeof(MRTaskInteractionSampleGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
 static_assert(sizeof(MRTaskStateGPU) == 160u);
-static_assert(sizeof(MRTaskCurriculumStateGPU) == 64u);
+static_assert(sizeof(MRTaskEvidenceStateGPU) == 64u);
 static_assert(sizeof(MRTaskTransitionGPU) == 128u);
 #endif
 #endif

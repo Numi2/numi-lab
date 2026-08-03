@@ -26,18 +26,6 @@ G1_ACTOR_OBSERVATION_SIZE = (
 )
 G1_ACTION_COUNT = (G1_ACTOR_FRAME_SIZE - 9) // 3
 
-G1_PROMOTION_COMMANDS = (
-    ("idle", (0.0, 0.0, 0.0)),
-    ("forward_slow", (0.1, 0.0, 0.0)),
-    ("forward", (0.5, 0.0, 0.0)),
-    ("reverse", (-0.5, 0.0, 0.0)),
-    ("left", (0.0, 0.3, 0.0)),
-    ("right", (0.0, -0.3, 0.0)),
-    ("yaw_left", (0.0, 0.0, 0.2)),
-    ("yaw_right", (0.0, 0.0, -0.2)),
-)
-
-
 @dataclass(frozen=True, slots=True)
 class G1DeployableSensors:
     """Only signals available to the deployed proprioceptive actor."""
@@ -1228,87 +1216,10 @@ class UnitreeG1MuJoCoRunner:
             "saturated_joint_samples": saturated_joint_samples,
         }
 
-    def run_promotion_suite(
-        self,
-        *,
-        seconds: float = 20.0,
-        zero_action: bool = False,
-        minimum_survival_fraction: float = 0.99,
-        minimum_response_ratio: float = 0.25,
-    ) -> dict[str, Any]:
-        """Run deterministic commands that distinguish balance from gait."""
-
-        if not 0.0 < minimum_survival_fraction <= 1.0:
-            raise ValueError(
-                "minimum survival fraction must be in (0, 1]"
-            )
-        if not math.isfinite(minimum_response_ratio) or (
-            minimum_response_ratio <= 0.0
-        ):
-            raise ValueError("minimum response ratio must be positive")
-        reports: list[dict[str, Any]] = []
-        failures: list[str] = []
-        for name, command in G1_PROMOTION_COMMANDS:
-            report = self.run(
-                np.asarray(command, dtype=np.float32),
-                seconds=seconds,
-                zero_action=zero_action,
-            )
-            report["case"] = name
-            survived = (
-                report["survival_fraction"]
-                >= minimum_survival_fraction
-            )
-            response = True
-            if abs(command[0]) + abs(command[1]) > 0.0:
-                response = (
-                    report["planar_response_ratio"]
-                    >= minimum_response_ratio
-                )
-            elif abs(command[2]) > 0.0:
-                response = (
-                    report["yaw_response_ratio"]
-                    >= minimum_response_ratio
-                )
-            else:
-                response = (
-                    math.hypot(
-                        report["mean_local_vx"],
-                        report["mean_local_vy"],
-                    ) <= 0.1
-                    and abs(report["mean_local_yaw_velocity"])
-                    <= 0.2
-                )
-            report["survival_pass"] = survived
-            report["response_pass"] = response
-            report["case_pass"] = survived and response
-            if not report["case_pass"]:
-                failures.append(name)
-            reports.append(report)
-        return {
-            "policy_id": self.policy.pack.id,
-            "policy_revision": self.policy.pack.revision,
-            "controller": (
-                "zero_action_baseline"
-                if zero_action
-                else "policy"
-            ),
-            "requested_seconds_per_case": float(seconds),
-            "minimum_survival_fraction": (
-                minimum_survival_fraction
-            ),
-            "minimum_response_ratio": minimum_response_ratio,
-            "promotion_ready": not failures,
-            "failed_cases": failures,
-            "cases": reports,
-        }
-
-
 __all__ = [
     "G1DeployableSensors",
     "G1NumpyPolicy",
     "G1ObservationHistory",
-    "G1_PROMOTION_COMMANDS",
     "UnitreeG1MuJoCoRunner",
     "export_g1_coreml",
     "export_g1_mlx",

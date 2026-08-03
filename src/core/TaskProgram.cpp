@@ -713,7 +713,10 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.actorHistoryLength == 0u ||
         pack.criticHistoryLength == 0u ||
         pack.maximumEpisodeSteps == 0u ||
-        pack.curriculumLevelCount == 0u ||
+        pack.difficultyBandCount == 0u ||
+        !finite(pack.interactionStudentAuthority) ||
+        pack.interactionStudentAuthority < 0.0f ||
+        pack.interactionStudentAuthority > 1.0f ||
         !finite(pack.baseHeightTarget) ||
         !finite(pack.gaitPeriodSeconds) ||
         !(pack.gaitPeriodSeconds > 0.0f) ||
@@ -725,15 +728,12 @@ TaskCompileDiagnostics compileTaskProgram(
         !finite(pack.commands.upper) ||
         !finite(pack.commands.limitLower) ||
         !finite(pack.commands.limitUpper) ||
-        !finite(pack.commands.curriculumStep) ||
+        !finite(pack.commands.difficultyStep) ||
         !finite(pack.commands.standingProbability) ||
         pack.commands.standingProbability < 0.0f ||
         pack.commands.standingProbability > 1.0f ||
-        !finite(
-            pack.commands.minimumEpisodeSurvivalFraction
-        ) ||
-        pack.commands.minimumEpisodeSurvivalFraction < 0.0f ||
-        pack.commands.minimumEpisodeSurvivalFraction > 1.0f ||
+        !finite(pack.commands.difficultySamplingExponent) ||
+        !(pack.commands.difficultySamplingExponent > 0.0f) ||
         !finite(pack.commands.minimumDurationSeconds) ||
         !finite(pack.commands.maximumDurationSeconds) ||
         !(pack.commands.minimumDurationSeconds > 0.0f) ||
@@ -802,8 +802,8 @@ TaskCompileDiagnostics compileTaskProgram(
          !finite(pack.visual.edgeFlickerProbability) ||
          pack.visual.edgeFlickerProbability < 0.0f ||
          pack.visual.edgeFlickerProbability > 1.0f ||
-         !finite(pack.visual.curriculumCorruptionGain) ||
-         pack.visual.curriculumCorruptionGain < 0.0f)) {
+         !finite(pack.visual.difficultyCorruptionGain) ||
+         pack.visual.difficultyCorruptionGain < 0.0f)) {
         return reject(
             TaskCompileStatus::invalidPack,
             "visual",
@@ -848,9 +848,9 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.commands.limitUpper.z,
     };
     const std::array commandCurriculumStep{
-        pack.commands.curriculumStep.x,
-        pack.commands.curriculumStep.y,
-        pack.commands.curriculumStep.z,
+        pack.commands.difficultyStep.x,
+        pack.commands.difficultyStep.y,
+        pack.commands.difficultyStep.z,
     };
     for (std::size_t component = 0u;
          component < commandLower.size();
@@ -865,7 +865,7 @@ TaskCompileDiagnostics compileTaskProgram(
             return reject(
                 TaskCompileStatus::invalidPack,
                 "commands",
-                "command range, limits, or curriculum step are invalid"
+                "command range, limits, or difficulty step are invalid"
             );
         }
     }
@@ -2071,6 +2071,33 @@ TaskCompileDiagnostics compileTaskProgram(
                 );
             }
             break;
+        case TaskRewardOperator::wholeBodyRecovery:
+            if (reward.sourceGroup.empty() || reward.target.empty()) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    "whole_body_recovery",
+                    "whole-body recovery requires assist and trunk contact groups"
+                );
+            }
+            sourceIndex = namedGroup(
+                contactGroupIds,
+                reward.sourceGroup
+            );
+            targetIndex = namedGroup(
+                contactGroupIds,
+                reward.target
+            );
+            if (sourceIndex == MR_INVALID_INDEX ||
+                targetIndex == MR_INVALID_INDEX) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    sourceIndex == MR_INVALID_INDEX
+                        ? reward.sourceGroup
+                        : reward.target,
+                    "whole-body recovery contact semantic does not exist"
+                );
+            }
+            break;
         case TaskRewardOperator::linkClearanceBarrier: {
             sourceIndex = namedGroup(
                 contactGroupIds,
@@ -2336,6 +2363,19 @@ TaskCompileDiagnostics compileTaskProgram(
             );
         }
         if (reward.operation ==
+                TaskRewardOperator::wholeBodyRecovery &&
+            (!(reward.parameters.x > 0.0f) ||
+             !(reward.parameters.y > 0.0f) ||
+             reward.parameters.y > 1.0f ||
+             !(reward.parameters.z > 0.0f) ||
+             !(reward.parameters.w > 0.0f))) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "whole_body_recovery",
+                "whole-body recovery requires positive height, support radius, and speed scale plus upright cosine in (0, 1]"
+            );
+        }
+        if (reward.operation ==
                 TaskRewardOperator::interactionRootTracking &&
             (!(reward.parameters.x > 0.0f) ||
              !(reward.parameters.y > 0.0f))) {
@@ -2414,6 +2454,13 @@ TaskCompileDiagnostics compileTaskProgram(
         if (!finite(termination.threshold) ||
             !finite(termination.failurePenalty) ||
             termination.failurePenalty > 0.0f ||
+            termination.minimumDifficultyBand >=
+                pack.difficultyBandCount ||
+            (termination.maximumDifficultyBand != MR_INVALID_INDEX &&
+             (termination.maximumDifficultyBand >=
+                  pack.difficultyBandCount ||
+              termination.maximumDifficultyBand <
+                  termination.minimumDifficultyBand)) ||
             termination.reason ==
                 MR_TASK_TERMINATION_CONTINUING ||
             termination.reason >
@@ -2474,6 +2521,12 @@ TaskCompileDiagnostics compileTaskProgram(
                 0.0f,
                 0.0f,
             },
+            {
+                termination.minimumDifficultyBand,
+                termination.maximumDifficultyBand,
+                0u,
+                0u,
+            },
         });
     }
 
@@ -2486,12 +2539,12 @@ TaskCompileDiagnostics compileTaskProgram(
         const TaskRandomizationOperatorSpec& random =
             pack.randomization[operatorIndex];
         if (!finite(random.parameters) ||
-            random.minimumCurriculumLevel >=
-                pack.curriculumLevelCount) {
+            random.minimumDifficultyBand >=
+                pack.difficultyBandCount) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 random.target,
-                "randomization parameters or curriculum gate are invalid"
+                "randomization parameters or difficulty band are invalid"
             );
         }
         std::uint32_t targetIndex = MR_INVALID_INDEX;
@@ -2805,7 +2858,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 {
                     targetIndex,
                     random.component,
-                    random.minimumCurriculumLevel,
+                    random.minimumDifficultyBand,
                     targetBodyIndex,
                 },
                 compiledParameters,
@@ -2817,7 +2870,7 @@ TaskCompileDiagnostics compileTaskProgram(
                     static_cast<std::uint32_t>(random.operation),
                     targetIndex,
                     random.component,
-                    random.minimumCurriculumLevel,
+                    random.minimumDifficultyBand,
                 },
                 compiledParameters,
             });
@@ -2848,7 +2901,7 @@ TaskCompileDiagnostics compileTaskProgram(
             return reject(
                 TaskCompileStatus::invalidPack,
                 "event_impacts",
-                "one event impact sequence must share one minimum curriculum level"
+                "one event impact sequence must share one minimum difficulty band"
             );
         }
     }
@@ -3214,7 +3267,7 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.schedule = {
         pack.maximumEpisodeSteps,
         pack.maximumObservationDelaySteps,
-        pack.curriculumLevelCount,
+        pack.difficultyBandCount,
         heightfieldTerrain
             ? MR_TASK_PROGRAM_TERRAIN
             : 0u,
@@ -3222,36 +3275,6 @@ TaskCompileDiagnostics compileTaskProgram(
     if (pack.criticIncludesCleanHistory) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY;
-    }
-    if (pack.recoveryCompletionCurriculum &&
-        !hasRecoveryDefinition) {
-        return reject(
-            TaskCompileStatus::invalidPack,
-            "recovery_curriculum",
-            "recovery-completion curriculum requires a recovery event definition"
-        );
-    }
-    if (pack.recoveryCompletionCurriculum) {
-        staged->header.schedule.w |=
-            MR_TASK_PROGRAM_RECOVERY_CURRICULUM;
-    }
-    if (pack.projectileOutcomeCurriculum) {
-        if (staged->impactEvents.empty()) {
-            return reject(
-                TaskCompileStatus::invalidPack,
-                "projectile_curriculum",
-                "projectile-outcome curriculum requires an event projectile sequence"
-            );
-        }
-        if (pack.curriculumLevelCount > 4u) {
-            return reject(
-                TaskCompileStatus::invalidPack,
-                "projectile_curriculum",
-                "projectile progress references support at most four authored levels"
-            );
-        }
-        staged->header.schedule.w |=
-            MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM;
     }
     if (pack.visual.includeDerivedFeatures) {
         staged->header.schedule.w |=
@@ -3263,7 +3286,11 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     if (interactionClip != nullptr) {
         staged->header.schedule.w |=
-            MR_TASK_PROGRAM_INTERACTION_REFERENCE;
+            MR_TASK_PROGRAM_INTERACTION_RESET;
+        if (pack.interactionControlReference) {
+            staged->header.schedule.w |=
+                MR_TASK_PROGRAM_INTERACTION_REFERENCE;
+        }
     }
     staged->header.locomotion = {
         pack.baseHeightTarget,
@@ -3276,11 +3303,11 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.commands.standingProbability;
     staged->header.commandUpper = pack.commands.upper;
     staged->header.commandUpper.w =
-        pack.commands.minimumEpisodeSurvivalFraction;
+        pack.commands.difficultySamplingExponent;
     staged->commandCurriculum = {
         pack.commands.limitLower,
         pack.commands.limitUpper,
-        pack.commands.curriculumStep,
+        pack.commands.difficultyStep,
     };
     staged->header.scheduleSeconds = {
         pack.commands.minimumDurationSeconds,
@@ -3352,7 +3379,7 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.visual.nearDepthMeters,
         pack.visual.farDepthMeters,
         pack.visual.edgeFlickerProbability,
-        pack.visual.curriculumCorruptionGain,
+        pack.visual.difficultyCorruptionGain,
     };
     staged->header.visualCorruption = {
         pack.visual.fullDropoutProbability,
@@ -3403,9 +3430,11 @@ TaskCompileDiagnostics compileTaskProgram(
             : static_cast<float>(interactionClip->frameCount - 1u) /
                 interactionClip->framesPerSecond,
         // The autonomous policy owns the full mechanism-scale action range.
-        // During imagined execution it supplies only bounded corrections
-        // around the reference, which remains a proposal to the controller.
-        interactionClip == nullptr ? 0.0f : 0.1f,
+        // Authored student authority controls whether it corrects the guide
+        // during collection or learns in observation-only shadow mode.
+        interactionClip == nullptr
+            ? 0.0f
+            : pack.interactionStudentAuthority,
         0.0f,
     };
 

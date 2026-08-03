@@ -63,7 +63,7 @@ _TRANSITION_DTYPE = np.dtype(
         ("policy_revision", "<u8"),
         ("timeout_bootstrap_value", "<f4"),
         ("episode_tracking_score", "<f4"),
-        ("curriculum_level", "<u4"),
+        ("difficulty_band", "<u4"),
         ("terrain_level", "<u4"),
         ("impact_sequence_index", "<u4"),
         ("impact_event_flags", "<u4"),
@@ -200,27 +200,37 @@ class NativePolicyRollout:
                     environments,
                 ).astype(bool),
             )
+            root_height = self.transitions["root_height"].reshape(
+                steps,
+                environments,
+            )
+            tilt = self.transitions["tilt"].reshape(
+                steps,
+                environments,
+            )
             for environment in range(environments):
                 start: int | None = None
                 active_sequence = 0
-                get_up_start: int | None = 0
-                get_up_credit = 0.0
-                standing_streak = 0
-                restoration_streak = 0
+                environment_flags = flags[:, environment].astype(
+                    np.uint32
+                )
+                get_up = bool(
+                    root_height[0, environment] < 0.5
+                    or np.any(
+                        environment_flags
+                        & np.uint32((1 << 31) | (1 << 30))
+                    )
+                )
                 for step in range(steps):
                     current = int(sequence[step, environment])
                     policy_weights[step, environment] = float(
-                        current == 0
+                        current == 0 and not get_up
                     )
                     if current != active_sequence:
                         active_sequence = current
                         start = step if current != 0 else None
                     if failed[step, environment]:
                         start = None
-                        get_up_start = step + 1
-                        get_up_credit = 0.0
-                        standing_streak = 0
-                        restoration_streak = 0
                     if (
                         start is not None
                         and int(flags[step, environment]) & 4
@@ -228,50 +238,59 @@ class NativePolicyRollout:
                             failed[start : step + 1, environment]
                         )
                     ):
-                        teacher_weights[
-                            start : step + 1,
-                            environment,
-                        ] = 1.0
-                        start = None
-                    outcome_flags = int(flags[step, environment])
-                    standing = not failed[step, environment] and (
-                        outcome_flags & (1 << 31)
-                    ) != 0
-                    restored = not failed[step, environment] and (
-                        outcome_flags & (1 << 30)
-                    ) != 0
-                    standing_streak = (
-                        standing_streak + 1 if standing else 0
-                    )
-                    restoration_streak = (
-                        restoration_streak + 1 if restored else 0
-                    )
-                    # Ten clean standing frames prove useful physical
-                    # progress even when the stricter settled restoration
-                    # outcome has not yet held for half a second. Give that
-                    # trajectory graded imitation credit; reserve full
-                    # teacher authority for sustained restoration.
-                    if standing_streak >= 10:
-                        get_up_credit = max(get_up_credit, 0.35)
-                    if (
-                        get_up_start is not None
-                        and restoration_streak >= 25
-                        and not np.any(
-                            failed[get_up_start : step + 1, environment]
+                        prefix = slice(start, step + 1)
+                        prefix_stability = np.clip(
+                            1.0
+                            - tilt[prefix, environment]
+                            / np.float32(np.pi),
+                            0.0,
+                            1.0,
                         )
-                    ):
-                        get_up_credit = 1.0
-                    if get_up_start is not None and get_up_credit > 0.0:
-                        teacher_weights[
-                            get_up_start : step + 1,
-                            environment,
-                        ] = get_up_credit
-                        policy_weights[
-                            get_up_start : step + 1,
-                            environment,
-                        ] = 0.0
-                    if get_up_credit >= 1.0:
-                        get_up_start = None
+                        teacher_weights[prefix, environment] = np.maximum(
+                            teacher_weights[prefix, environment],
+                            0.5 + 0.5 * prefix_stability,
+                        )
+                        start = None
+                    if not get_up or failed[
+                        step,
+                        environment,
+                    ]:
+                        continue
+                    previous = max(step - 1, 0)
+                    height_progress = max(
+                        float(root_height[step, environment])
+                        - float(root_height[previous, environment]),
+                        0.0,
+                    )
+                    tilt_recovery = max(
+                        float(tilt[previous, environment])
+                        - float(tilt[step, environment]),
+                        0.0,
+                    )
+                    stability = float(
+                        np.clip(
+                            1.0
+                            - tilt[step, environment]
+                            / np.float32(np.pi),
+                            0.0,
+                            1.0,
+                        )
+                    )
+                    outcome = int(flags[step, environment])
+                    standing = float((outcome & (1 << 31)) != 0)
+                    restored = float((outcome & (1 << 30)) != 0)
+                    teacher_weights[step, environment] = np.float32(
+                        np.clip(
+                            0.10
+                            + 0.35 * stability
+                            + 2.0 * height_progress
+                            + 0.5 * tilt_recovery
+                            + 0.20 * standing
+                            + 0.35 * restored,
+                            0.0,
+                            1.0,
+                        )
+                    )
         return MLXPolicyBatch.from_numpy(
             actor_observations=self.actor_observations.reshape(
                 self.sample_count,
@@ -1830,6 +1849,27 @@ class MLXPolicyLearner:
             outputs=self._training_state,
         )
 
+    def zero_actor_output(self) -> None:
+        """Start a stabilizer from the mechanism-default action exactly."""
+
+        linear_layers = [
+            layer
+            for layer in self.model.actor.layers
+            if isinstance(layer, nn.Linear)
+        ]
+        if not linear_layers:
+            raise RuntimeError("actor contains no linear output layer")
+        output = linear_layers[-1]
+        output.weight = mx.zeros_like(output.weight)
+        output.bias = mx.zeros_like(output.bias)
+        self.optimizer = optim.Adam(
+            learning_rate=self.configuration.learning_rate,
+            bias_correction=True,
+        )
+        self.optimizer.init(self.model.trainable_parameters())
+        self.refresh_compiled_training_state()
+        mx.eval(self.model.parameters(), self.optimizer.state)
+
     @staticmethod
     def _copied_state_tree(state: Any) -> Any:
         """Copy tree containers while retaining immutable evaluated arrays."""
@@ -2254,6 +2294,195 @@ class MLXPolicyLearner:
         learner.set_action_contract(
             action_bias=pack.effective_action_bias,
             action_scale=pack.effective_action_scale,
+            action_clip=pack.action_clip,
+        )
+        learner.policy_id = pack.id
+        learner.revision = 1
+        learner.optimizer = optim.Adam(
+            learning_rate=restored_configuration.learning_rate,
+            bias_correction=True,
+        )
+        learner.optimizer.init(learner.model.trainable_parameters())
+        learner.refresh_compiled_training_state()
+        mx.eval(learner.model.parameters(), learner.optimizer.state)
+        return learner
+
+    @classmethod
+    def from_projected_actor_policy_pack(
+        cls,
+        path: str | Path,
+        critic_observation_count: int,
+        source_actor_indices: tuple[int | None, ...],
+        configuration: MLXPPOConfiguration = MLXPPOConfiguration(),
+        *,
+        action_multiplier:
+            np.ndarray | tuple[float, ...] | None = None,
+        source_observation_defaults:
+            np.ndarray | tuple[float, ...] | None = None,
+        library_path: str | Path | None = None,
+    ) -> "MLXPolicyLearner":
+        """Project an actor onto a semantically selected input contract.
+
+        Each target observation names one source observation index. ``None``
+        creates a zero-connected target input with identity normalization.
+        Source observations not selected are evaluated at their normalization
+        mean unless explicit raw defaults are supplied. Their constant
+        normalized contribution is folded into the first-layer bias, so a
+        no-threat camera image can be removed without changing policy output.
+        An optional per-action multiplier adapts normalized outputs when the
+        destination TaskPack uses different joint scales.
+        """
+
+        pack = read_policy_pack(path, library_path=library_path)
+        expected_activations = [3] * (len(pack.layers) - 1) + [0]
+        if [layer.activation for layer in pack.layers] != expected_activations:
+            raise ValueError(
+                "actor projection supports ELU hidden layers and an "
+                "identity output layer"
+            )
+        if not source_actor_indices:
+            raise ValueError("actor projection requires target observations")
+        selected = [
+            index
+            for index in source_actor_indices
+            if index is not None
+        ]
+        if any(
+            index < 0 or index >= pack.actor_observation_count
+            for index in selected
+        ):
+            raise ValueError(
+                "actor projection source index is outside the PolicyPack contract"
+            )
+        if len(set(selected)) != len(selected):
+            raise ValueError("actor projection source indices must be unique")
+        if source_observation_defaults is None:
+            source_defaults = pack.effective_observation_mean.copy()
+        else:
+            source_defaults = np.asarray(
+                source_observation_defaults,
+                dtype=np.float32,
+            )
+        if (
+            source_defaults.shape != (pack.actor_observation_count,)
+            or not np.all(np.isfinite(source_defaults))
+        ):
+            raise ValueError(
+                "actor projection source defaults must be finite and match the source observation count"
+            )
+        if action_multiplier is None:
+            multiplier = np.ones(pack.action_count, dtype=np.float32)
+        else:
+            multiplier = np.asarray(
+                action_multiplier,
+                dtype=np.float32,
+            )
+        if (
+            multiplier.shape != (pack.action_count,)
+            or not np.all(np.isfinite(multiplier))
+            or np.any(multiplier <= 0.0)
+        ):
+            raise ValueError(
+                "actor projection action multiplier must be finite, positive, and match the action count"
+            )
+
+        restored_configuration = replace(
+            configuration,
+            hidden_sizes=tuple(
+                layer.output_count for layer in pack.layers[:-1]
+            ),
+            observation_clip=pack.observation_clip,
+        )
+        learner = cls(
+            len(source_actor_indices),
+            critic_observation_count,
+            pack.action_count,
+            restored_configuration,
+        )
+        destination = [
+            layer
+            for layer in learner.model.actor.layers
+            if isinstance(layer, nn.Linear)
+        ]
+        if len(destination) != len(pack.layers):
+            raise RuntimeError(
+                "MLX actor construction disagrees with PolicyPack"
+            )
+        for layer_index, (target, artifact) in enumerate(
+            zip(destination, pack.layers, strict=True)
+        ):
+            weights = np.asarray(artifact.weights, dtype=np.float32)
+            bias = np.asarray(artifact.bias, dtype=np.float32)
+            if layer_index == 0:
+                source_weights = weights
+                projected = np.zeros(
+                    (weights.shape[0], len(source_actor_indices)),
+                    dtype=np.float32,
+                )
+                for target_index, source_index in enumerate(
+                    source_actor_indices
+                ):
+                    if source_index is not None:
+                        projected[:, target_index] = weights[:, source_index]
+                weights = projected
+                omitted = np.ones(
+                    pack.actor_observation_count,
+                    dtype=bool,
+                )
+                omitted[selected] = False
+                normalized_defaults = np.clip(
+                    (
+                        source_defaults.astype(np.float64)
+                        - pack.effective_observation_mean.astype(np.float64)
+                    ) *
+                    pack.effective_observation_inverse_standard_deviation.astype(
+                        np.float64
+                    ),
+                    -pack.observation_clip,
+                    pack.observation_clip,
+                )
+                bias = bias.astype(np.float64) + np.sum(
+                    source_weights[:, omitted].astype(np.float64)
+                    * normalized_defaults[omitted][None, :],
+                    axis=1,
+                    dtype=np.float64,
+                )
+                if not np.all(np.isfinite(bias)) or np.any(
+                    np.abs(bias) > np.finfo(np.float32).max
+                ):
+                    raise ValueError(
+                        "actor projection defaults produce a non-finite first-layer bias"
+                    )
+                bias = bias.astype(np.float32)
+            target.weight = mx.array(weights, dtype=mx.float32)
+            target.bias = mx.array(bias, dtype=mx.float32)
+
+        actor_mean = np.zeros(len(source_actor_indices), dtype=np.float32)
+        actor_inverse_standard_deviation = np.ones(
+            len(source_actor_indices),
+            dtype=np.float32,
+        )
+        for target_index, source_index in enumerate(source_actor_indices):
+            if source_index is None:
+                continue
+            actor_mean[target_index] = (
+                pack.effective_observation_mean[source_index]
+            )
+            actor_inverse_standard_deviation[target_index] = (
+                pack.effective_observation_inverse_standard_deviation[
+                    source_index
+                ]
+            )
+        learner.set_observation_normalization(
+            actor_mean=actor_mean,
+            actor_inverse_standard_deviation=(
+                actor_inverse_standard_deviation
+            ),
+            observation_clip=pack.observation_clip,
+        )
+        learner.set_action_contract(
+            action_bias=pack.effective_action_bias * multiplier,
+            action_scale=pack.effective_action_scale * multiplier,
             action_clip=pack.action_clip,
         )
         learner.policy_id = pack.id

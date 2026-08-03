@@ -1090,6 +1090,39 @@ inline uint durationSteps(
     );
 }
 
+inline uint sampledDifficultyBand(
+    device const MRTaskDispatchGPU& dispatch,
+    device const MRTaskProgramHeaderGPU& program,
+    const uint environment,
+    const uint episode
+) {
+    const uint bandCount = max(program.schedule.z, 1u);
+    const uint minimumBand = min(
+        dispatch.sampling.x,
+        bandCount - 1u
+    );
+    const uint requestedMaximum = dispatch.sampling.y == MR_INVALID_INDEX
+        ? bandCount - 1u
+        : dispatch.sampling.y;
+    const uint maximumBand = max(
+        minimumBand,
+        min(requestedMaximum, bandCount - 1u)
+    );
+    const uint sampledBandCount = maximumBand - minimumBand + 1u;
+    if (sampledBandCount == 1u) {
+        return minimumBand;
+    }
+    const float exponent = max(program.commandUpper.w, 0.01f);
+    const float sample = pow(
+        randomUnit(dispatch, environment, episode, 0u, 15u),
+        exponent
+    );
+    return minimumBand + min(
+        uint(floor(sample * float(sampledBandCount))),
+        sampledBandCount - 1u
+    );
+}
+
 inline float3 sampledCommand(
     device const MRTaskDispatchGPU& dispatch,
     device const MRTaskProgramHeaderGPU& program,
@@ -1720,7 +1753,7 @@ kernel void mr_locomotion_task_observe(
     device const MRGeometryHeaderGPU* geometryHeaders
         [[buffer(29)]],
     device const float4* geometryVertices [[buffer(30)]],
-    device const MRTaskCurriculumStateGPU* curriculumState
+    device const MRTaskEvidenceStateGPU* evidenceState
         [[buffer(5)]],
     device float* criticHistory [[buffer(13)]],
     const uint environment [[thread_position_in_grid]]
@@ -1828,11 +1861,6 @@ kernel void mr_locomotion_task_observe(
     const uint sceneBase =
         environment * dispatch.strides.w;
     MRTaskStateGPU state = taskStates[environment];
-    const uint globalCurriculum = min(
-        curriculumState[0].commandLevel,
-        program.schedule.z - 1u
-    );
-    state.episode.z = globalCurriculum;
     const bool reset =
         state.status.x == 0u ||
         state.status.y != 0u ||
@@ -1841,14 +1869,17 @@ kernel void mr_locomotion_task_observe(
 
     if (reset) {
         const uint episode = state.episode.y + 1u;
-        const uint curriculum = globalCurriculum;
+        const uint curriculum = sampledDifficultyBand(
+            dispatch,
+            program,
+            environment,
+            episode
+        );
+        state.episode.z = curriculum;
         const uint terrainLevel =
             program.terrain.w == 0u
             ? 0u
-            : min(
-                  state.episode.w,
-                  program.terrain.w - 1u
-              );
+            : min(curriculum, program.terrain.w - 1u);
         for (uint coordinate = 0u;
              coordinate < dispatch.counts.z;
              ++coordinate) {
@@ -1856,7 +1887,7 @@ kernel void mr_locomotion_task_observe(
                 defaultQ[coordinate];
         }
         if ((program.schedule.w &
-             MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u) {
+             MR_TASK_PROGRAM_INTERACTION_RESET) != 0u) {
             for (uint action = 0u;
                  action < program.interaction.y;
                  ++action) {
@@ -2094,7 +2125,7 @@ kernel void mr_locomotion_task_observe(
                         actions[action];
                     const float reference =
                         (program.schedule.w &
-                         MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u
+                         MR_TASK_PROGRAM_INTERACTION_RESET) != 0u
                         ? interactionJointTargets[action]
                         : defaultQ[binding.indices.z];
                     resetQ[qBase + binding.indices.z] =
@@ -2263,7 +2294,7 @@ kernel void mr_locomotion_task_observe(
             }
         }
         if ((program.schedule.w &
-             MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u) {
+             MR_TASK_PROGRAM_INTERACTION_RESET) != 0u) {
             for (uint component = 0u; component < 7u; ++component) {
                 resetQ[qBase + program.root.z + component] =
                     interactionRootTargets[component];
@@ -2474,7 +2505,7 @@ kernel void mr_locomotion_task_observe(
     if (!reset &&
         impactSequenceEnabled(state) &&
         program.counts3.x > 0u &&
-        globalCurriculum >= impactEvents[0].binding.z) {
+        state.episode.z >= impactEvents[0].binding.z) {
         const uint order = impactOrder(state);
         uint activeScene = impactScene(state);
         bool newlyLaunched = false;
@@ -2871,21 +2902,23 @@ kernel void mr_locomotion_task_apply_actions(
             filterSlot * program.counts0.x +
             action
         ];
-        const float reference =
+        const bool interactionReference =
             (program.schedule.w &
-             MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u
-            ? interactionJointTargets[
-                  referenceFrame * program.interaction.y + action
-              ]
-            : defaultQ[binding.indices.z];
-        const float residualScale =
-            (program.schedule.w &
-             MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u
-            ? program.interactionTiming.z
-            : 1.0f;
+             MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u;
+        const float studentTarget =
+            defaultQ[binding.indices.z] +
+            binding.parameters.x * filtered;
+        const float targetCandidate = interactionReference
+            ? mix(
+                  interactionJointTargets[
+                      referenceFrame * program.interaction.y + action
+                  ],
+                  studentTarget,
+                  program.interactionTiming.z
+              )
+            : studentTarget;
         const float target = clamp(
-            reference +
-                residualScale * binding.parameters.x * filtered,
+            targetCandidate,
             binding.parameters.y,
             binding.parameters.z
         );
@@ -2954,7 +2987,7 @@ kernel void mr_locomotion_task_complete(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
     device const uchar* arena [[buffer(2)]],
-    device const MRTaskCurriculumStateGPU* curriculumState
+    device const MRTaskEvidenceStateGPU* evidenceState
         [[buffer(3)]],
     device const MRMetalWorldContactDispatchGPU& contactDispatch
         [[buffer(4)]],
@@ -3121,10 +3154,9 @@ kernel void mr_locomotion_task_complete(
         dispatch.timing.x
     );
     const uint curriculum = min(
-        curriculumState[0].commandLevel,
+        state.episode.z,
         program.schedule.z - 1u
     );
-    state.episode.z = curriculum;
     const MRMetalWorldStatusGPU worldStatus =
         worldStatuses[environment];
     const MRMetalWorldContactStatusGPU contactStatus =
@@ -3732,6 +3764,7 @@ kernel void mr_locomotion_task_complete(
     float interactionTrackingWeight = 0.0f;
     bool standingCompleted = false;
     bool restoredCompleted = false;
+    uint recoveryOutcomeFlags = 0u;
     float4 dodgeRewardBreakdown0 = float4(0.0f);
     float4 dodgeRewardBreakdown1 = float4(0.0f);
     for (uint rewardIndex = 0u;
@@ -3784,16 +3817,21 @@ kernel void mr_locomotion_task_complete(
             );
             break;
         case MR_TASK_REWARD_ROOT_HEIGHT_PROGRESS:
-            value = min(
-                max(
-                    height - state.airReturnTracking.y,
-                    0.0f
-                ) / dispatch.timing.x,
+            // Signed potential progress: rising earns exactly what settling
+            // back down loses, preventing repeated bounce from manufacturing
+            // height reward without a higher final physical state.
+            value = clamp(
+                (height - state.airReturnTracking.y) /
+                    dispatch.timing.x,
+                -2.0f,
                 2.0f
             );
             break;
         case MR_TASK_REWARD_UPRIGHTNESS:
-            value = clamp(0.5f * (1.0f - gravity.z), 0.0f, 1.0f);
+            // Horizontal is not half-standing. Reward only the component of
+            // body-up aligned with world-up; squaring retains a smooth slope
+            // while concentrating value near an actually upright posture.
+            value = pow(clamp(-gravity.z, 0.0f, 1.0f), 2.0f);
             break;
         case MR_TASK_REWARD_SUPPORT_CONTACT_COUNT: {
             float supportCount = 0.0f;
@@ -4016,6 +4054,174 @@ kernel void mr_locomotion_task_complete(
                 rootError <= operation.parameters.z &&
                 orientationCosine >= operation.parameters.w &&
                 generalizedSpeedRms <= operation.auxiliary.x;
+            break;
+        }
+        case MR_TASK_REWARD_WHOLE_BODY_RECOVERY: {
+            const MRTaskContactGroupGPU assistGroup =
+                contactGroups[operation.source.y];
+            const MRTaskContactGroupGPU trunkGroup =
+                contactGroups[operation.source.z];
+            const uint assistWrench =
+                compactBase + assistGroup.reference.y;
+            const uint trunkWrench =
+                compactBase + trunkGroup.reference.y;
+            const bool assistContact = length(float3(
+                compactContact[assistWrench + 0u],
+                compactContact[assistWrench + 1u],
+                compactContact[assistWrench + 2u]
+            )) > program.dynamics.y;
+            const bool trunkContact = length(float3(
+                compactContact[trunkWrench + 0u],
+                compactContact[trunkWrench + 1u],
+                compactContact[trunkWrench + 2u]
+            )) > program.dynamics.y;
+
+            float supported = 0.0f;
+            float supportTotal = 0.0f;
+            float2 supportCenter = float2(0.0f);
+            float copMarginSum = 0.0f;
+            for (uint groupIndex = 0u;
+                 groupIndex < program.counts0.w;
+                 ++groupIndex) {
+                const MRTaskContactGroupGPU group =
+                    contactGroups[groupIndex];
+                if ((group.members.z & MR_TASK_CONTACT_SUPPORT) == 0u) {
+                    continue;
+                }
+                supportTotal += 1.0f;
+                const uint metric = compactBase + group.members.w;
+                const bool contact = compactContact[metric] >
+                    program.dynamics.y;
+                if (!contact) {
+                    continue;
+                }
+                supported += 1.0f;
+                const MRBodyStateGPU body = bodyStates[
+                    bodyBase + group.reference.x
+                ];
+                supportCenter += (
+                    body.position.xyz +
+                    rotate(body.orientation, group.localReference.xyz)
+                ).xy;
+                const float2 cop = float2(
+                    compactContact[metric + 4u],
+                    compactContact[metric + 5u]
+                );
+                const float margin = min(
+                    min(
+                        cop.x - group.supportPatchBounds.x,
+                        group.supportPatchBounds.z - cop.x
+                    ),
+                    min(
+                        cop.y - group.supportPatchBounds.y,
+                        group.supportPatchBounds.w - cop.y
+                    )
+                );
+                const float halfMinimumExtent = 0.5f * min(
+                    group.supportPatchBounds.z -
+                        group.supportPatchBounds.x,
+                    group.supportPatchBounds.w -
+                        group.supportPatchBounds.y
+                );
+                copMarginSum += clamp(
+                    margin / max(halfMinimumExtent, 1.0e-5f),
+                    0.0f,
+                    1.0f
+                );
+            }
+
+            const bool anyFootSupport = supported > 0.0f;
+            const float supportScore = supportTotal > 0.0f
+                ? supported / supportTotal
+                : 0.0f;
+            const float copMarginScore = supported > 0.0f
+                ? copMarginSum / supported
+                : 0.0f;
+            const float2 rootXY = rootWorldPosition(program, q).xy;
+            const float supportDistance = anyFootSupport
+                ? length(rootXY - supportCenter / supported)
+                : operation.parameters.w;
+            const float baseOverSupportScore = anyFootSupport
+                ? exp(
+                      -(supportDistance * supportDistance) /
+                      max(
+                          operation.parameters.w *
+                              operation.parameters.w,
+                          1.0e-8f
+                      )
+                  )
+                : 0.0f;
+            // Continuous from the floor: a crouch at 0.14 m is not placed in
+            // a zero-gradient dead zone merely because standing is 0.65 m.
+            const float heightScore = clamp(
+                height / max(operation.parameters.y, 1.0e-4f),
+                0.0f,
+                1.0f
+            );
+            const float uprightScore = clamp(
+                -gravity.z / max(operation.parameters.z, 1.0e-4f),
+                0.0f,
+                1.0f
+            );
+            const float generalizedSpeedRms = sqrt(
+                (
+                    velocitySquared +
+                    dot(baseLinear, baseLinear) +
+                    dot(baseAngular, baseAngular)
+                ) /
+                max(float(program.counts0.x + 6u), 1.0f)
+            );
+            const float stillnessScore = exp(
+                -(generalizedSpeedRms * generalizedSpeedRms) /
+                max(
+                    operation.auxiliary.x * operation.auxiliary.x,
+                    1.0e-8f
+                )
+            );
+            const float trunkClear = float(!trunkContact);
+            const float transferQuality =
+                trunkClear * supportScore * baseOverSupportScore;
+            const float braceQuality = float(assistContact) *
+                (1.0f - transferQuality);
+            const float riseQuality = transferQuality *
+                sqrt(max(heightScore * uprightScore, 0.0f));
+            const float quietStandQuality = riseQuality *
+                copMarginScore * stillnessScore;
+
+            // Additive physical qualities expose partial progress. Bracing
+            // fades continuously only after load transfer, preventing it
+            // from becoming the final local optimum.
+            value =
+                0.05f * braceQuality +
+                0.10f * trunkClear +
+                0.15f * supportScore +
+                0.15f * baseOverSupportScore +
+                0.10f * copMarginScore +
+                0.25f * riseQuality +
+                0.20f * quietStandQuality;
+
+            recoveryOutcomeFlags |= assistContact
+                ? MR_TASK_OUTCOME_RECOVERY_BRACE : 0u;
+            recoveryOutcomeFlags |= !trunkContact
+                ? MR_TASK_OUTCOME_TRUNK_CLEAR : 0u;
+            recoveryOutcomeFlags |= anyFootSupport
+                ? MR_TASK_OUTCOME_FOOT_SUPPORT : 0u;
+            recoveryOutcomeFlags |=
+                !trunkContact && anyFootSupport &&
+                    baseOverSupportScore >= 0.50f &&
+                    copMarginScore > 0.0f
+                ? MR_TASK_OUTCOME_SUPPORT_TRANSFER : 0u;
+            recoveryOutcomeFlags |=
+                riseQuality >= 0.35f
+                ? MR_TASK_OUTCOME_RECOVERY_RISE : 0u;
+            recoveryOutcomeFlags |=
+                height >= operation.parameters.y &&
+                    -gravity.z >= operation.parameters.z &&
+                    supportScore >= 0.999f &&
+                    baseOverSupportScore >= 0.50f &&
+                    copMarginScore > 0.0f &&
+                    generalizedSpeedRms <= operation.auxiliary.x
+                ? MR_TASK_OUTCOME_QUIET_STAND : 0u;
             break;
         }
         case MR_TASK_REWARD_RECOVERY_TILT_PROGRESS:
@@ -4666,6 +4872,7 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_INTERACTION_ROOT_TRACKING:
         case MR_TASK_REWARD_RECOVERY_TILT_PROGRESS:
         case MR_TASK_REWARD_RECOVERY_COMPLETION:
+        case MR_TASK_REWARD_WHOLE_BODY_RECOVERY:
         case MR_TASK_REWARD_LINK_CLEARANCE_BARRIER:
         case MR_TASK_REWARD_PROJECTILE_MISS:
         case MR_TASK_REWARD_PROJECTILE_EVASION:
@@ -4725,6 +4932,13 @@ kernel void mr_locomotion_task_complete(
          ++index) {
         const MRTaskTerminationOperatorGPU operation =
             terminations[index];
+        const uint maximumBand = operation.schedule.y == MR_INVALID_INDEX
+            ? program.schedule.z - 1u
+            : operation.schedule.y;
+        if (curriculum < operation.schedule.x ||
+            curriculum > maximumBand) {
+            continue;
+        }
         bool triggered = false;
         switch (operation.source.x) {
         case MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT:
@@ -4807,59 +5021,28 @@ kernel void mr_locomotion_task_complete(
 
     const float episodeReturn =
         state.airReturnTracking.z + reward;
-    // The base locomotion curriculum remains gated by linear tracking alone.
-    // Interaction tasks instead report and accumulate the confidence-
-    // normalized mean of their joint/contact reference scores.
+    // Report continuous episode evidence; it never decides whether another
+    // difficulty band or learner update is allowed.
     const float interactionTrackingScore =
         interactionTrackingWeight > 0.0f
         ? interactionTrackingSum / interactionTrackingWeight
         : 0.0f;
     const bool interactionReference =
         (program.schedule.w &
-         MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u;
-    const float curriculumTracking = interactionReference
+         MR_TASK_PROGRAM_INTERACTION_RESET) != 0u;
+    const float evidenceTracking = interactionReference
         ? interactionTrackingScore
         : tracking;
     const float episodeTracking =
-        state.airReturnTracking.w + curriculumTracking;
+        state.airReturnTracking.w + evidenceTracking;
     const float episodeMeanTrackingScore =
         episodeTracking /
         max(float(episodeSteps), 1.0f);
-    const bool recoveryCurriculum =
-        (program.schedule.w &
-         MR_TASK_PROGRAM_RECOVERY_CURRICULUM) != 0u;
-    const float episodeRecoveryScore =
-        recoveryEventCount == 0u
-        ? 0.0f
-        : float(recoveryCompletionCount) /
-            float(recoveryEventCount);
-    const float episodeTrackingScore = recoveryCurriculum
-        ? episodeRecoveryScore
-        : episodeMeanTrackingScore;
+    const float episodeTrackingScore = episodeMeanTrackingScore;
     const float trackingScore = interactionReference
         ? interactionTrackingScore
         : 0.5f * (tracking + yawTracking);
-    const bool successful =
-        timeout &&
-        !physicsError &&
-        episodeTrackingScore >= program.locomotion.w;
-    uint terrainLevel = state.episode.w;
-    if (done) {
-        if (successful) {
-            if (program.terrain.w != 0u &&
-                curriculum >= min(3u, program.schedule.z - 1u)) {
-                terrainLevel = min(
-                    terrainLevel + 1u,
-                    program.terrain.w - 1u
-                );
-            }
-        } else if (program.terrain.w != 0u) {
-            terrainLevel =
-                terrainLevel == 0u
-                ? 0u
-                : terrainLevel - 1u;
-        }
-    }
+    const uint terrainLevel = state.episode.w;
 
     if (!done && state.schedule.x <= 1u) {
         state.commandAndPhase.xyz = sampledCommand(
@@ -5187,22 +5370,19 @@ kernel void mr_locomotion_task_complete(
             ? 0u
             : activeImpactEvent + 1u,
         impactTransitionFlags |
+            recoveryOutcomeFlags |
             (standingCompleted ? MR_TASK_OUTCOME_STANDING : 0u) |
             (restoredCompleted ? MR_TASK_OUTCOME_RESTORED : 0u)
     );
     transitions[transitionIndex] = transition;
 }
 
-// One native thread owns the global command curriculum. Episode outcomes are
-// accumulated across the whole evaluation window, so early-reset environments
-// rejoin the evidence instead of becoming permanently phase-shifted. The
-// projectile controller compares exposure-normalized rates against an anchored
-// same-level reference. This is a learning-progress controller; held-out
-// qualification remains an independent stricter decision.
-kernel void mr_locomotion_task_update_curriculum(
+// One native thread reduces task-wide physical evidence. It never changes the
+// episode sampling distribution or emits a pass/fail decision.
+kernel void mr_locomotion_task_update_evidence(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
-    device MRTaskCurriculumStateGPU* curriculumState
+    device MRTaskEvidenceStateGPU* evidenceState
         [[buffer(2)]],
     device MRTaskTransitionGPU* transitions [[buffer(3)]],
     constant MRMetalWorldPassGPU& pass [[buffer(4)]],
@@ -5217,40 +5397,27 @@ kernel void mr_locomotion_task_update_curriculum(
         return;
     }
 
-    MRTaskCurriculumStateGPU state = curriculumState[0];
+    MRTaskEvidenceStateGPU state = evidenceState[0];
     const ulong completedSteps = state.controlSteps + 1ul;
-    uint level = min(
-        state.commandLevel,
-        program.schedule.z - 1u
-    );
     const uint transitionBase =
         pass.controlStep * dispatch.outputs.z;
-    const bool projectileCurriculum =
-        (program.schedule.w &
-         MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM) != 0u;
     for (uint environment = 0u;
          environment < dispatch.counts.x;
          ++environment) {
         const MRTaskTransitionGPU transition =
             transitions[transitionBase + environment];
-        if (projectileCurriculum) {
-            const uint impact = transition.taskProgress.w;
-            const bool cleanMiss =
-                (impact & MR_TASK_IMPACT_MISSED) != 0u;
-            const bool contact =
-                (impact & MR_TASK_IMPACT_CONTACT) != 0u;
-            if (cleanMiss || contact) {
-                ++state.completedEpisodeCount;
-                state.timeoutEpisodeCount += ulong(cleanMiss);
-            }
-            if (transition.termination.x != 0u &&
-                (transition.termination.w ==
-                     MR_TASK_TERMINATION_HEIGHT ||
-                 transition.termination.w ==
-                     MR_TASK_TERMINATION_TILT)) {
-                state.trackingScoreSum += 1.0f;
-            }
-        } else if (transition.termination.x != 0u &&
+        const uint impact = transition.taskProgress.w;
+        state.impactContactCount +=
+            (impact & MR_TASK_IMPACT_CONTACT) != 0u ? 1u : 0u;
+        state.impactCleanMissCount +=
+            (impact & MR_TASK_IMPACT_MISSED) != 0u ? 1u : 0u;
+        state.balanceFailureCount +=
+            transition.termination.x != 0u &&
+            (transition.termination.w == MR_TASK_TERMINATION_HEIGHT ||
+             transition.termination.w == MR_TASK_TERMINATION_TILT)
+            ? 1u
+            : 0u;
+        if (transition.termination.x != 0u &&
             transition.termination.z == 0u) {
             state.trackingScoreSum +=
                 transition.episodeTrackingScore;
@@ -5263,114 +5430,28 @@ kernel void mr_locomotion_task_update_curriculum(
     if (completedSteps % ulong(program.schedule.x) == 0ul) {
         const float completed =
             float(state.completedEpisodeCount);
-        const float meanTracking =
-            state.trackingScoreSum / max(completed, 1.0f);
-        const float survivalFraction =
-            float(state.timeoutEpisodeCount) /
-            max(completed, 1.0f);
-        bool advance = !projectileCurriculum &&
-            level + 1u < program.schedule.z &&
-            state.completedEpisodeCount != 0ul &&
-                meanTracking > program.locomotion.w &&
-                survivalFraction >= program.commandUpper.w;
-        bool retreat = false;
-        if (projectileCurriculum) {
-            const ulong exposure =
-                ulong(program.schedule.x) * ulong(dispatch.counts.x);
-            const float rateScale = 1000000.0f /
-                max(float(exposure), 1.0f);
-            const float contactRate =
-                float(state.completedEpisodeCount -
-                      state.timeoutEpisodeCount) * rateScale;
-            const float cleanMissRate =
-                float(state.timeoutEpisodeCount) * rateScale;
-            const float balanceFailureRate =
-                state.trackingScoreSum * rateScale;
-            const ulong packedContact = ulong(min(
-                uint(round(contactRate)), 1000000u
-            ));
-            const ulong packedCleanMiss = ulong(min(
-                uint(round(cleanMissRate)), 1000000u
-            ));
-            const ulong packedBalance = ulong(min(
-                uint(round(balanceFailureRate)), 1000000u
-            ));
-            const ulong packedReference = state.referenceRates;
-            const bool referenceValid =
-                (packedReference & (1ul << 63ul)) != 0ul;
-            const uint referenceLevel = uint(
-                (packedReference >> 60ul) & 0x3ul
-            );
-            if (!referenceValid || referenceLevel != level) {
-                const ulong reference = packedContact |
-                    (packedBalance << 20ul) |
-                    (packedCleanMiss << 40ul) |
-                    (ulong(level) << 60ul) |
-                    (1ul << 63ul);
-                state.referenceRates = reference;
-                state.lastWindow = uint4(
-                    uint(packedContact),
-                    uint(packedCleanMiss),
-                    uint(packedBalance),
-                    MR_TASK_CURRICULUM_HOLD
-                );
-            } else {
-                const float referenceContact = float(
-                    packedReference & 0xffffful
-                );
-                const float referenceBalance = float(
-                    (packedReference >> 20ul) & 0xffffful
-                );
-                const float referenceCleanMiss = float(
-                    (packedReference >> 40ul) & 0xffffful
-                );
-                const uint decision =
-                    mr_task_projectile_curriculum_decision(
-                        level,
-                        program.schedule.z,
-                        contactRate,
-                        cleanMissRate,
-                        balanceFailureRate,
-                        referenceContact,
-                        referenceCleanMiss,
-                        referenceBalance,
-                        program.locomotion.w,
-                        program.commandUpper.w
-                    );
-                advance = decision == MR_TASK_CURRICULUM_ADVANCE;
-                retreat = decision == MR_TASK_CURRICULUM_RETREAT;
-                state.lastWindow = uint4(
-                    uint(packedContact),
-                    uint(packedCleanMiss),
-                    uint(packedBalance),
-                    decision
-                );
-            }
-        }
-        if (advance) {
-            ++level;
-            state.referenceRates = 0ul;
-        } else if (retreat) {
-            --level;
-            state.referenceRates = 0ul;
-        }
-        state.completedEpisodeCount = 0ul;
-        state.timeoutEpisodeCount = 0ul;
+        const ulong exposure =
+            ulong(program.schedule.x) * ulong(dispatch.counts.x);
+        const float rateScale = 1000000.0f /
+            max(float(exposure), 1.0f);
+        state.lastCompletedEpisodeCount = state.completedEpisodeCount;
+        state.lastWindow = uint4(
+            uint(round(float(state.impactContactCount) * rateScale)),
+            uint(round(float(state.impactCleanMissCount) * rateScale)),
+            uint(round(float(state.balanceFailureCount) * rateScale)),
+            uint(round(
+                state.trackingScoreSum /
+                max(completed, 1.0f) * 1000000.0f
+            ))
+        );
+        ++state.evidenceWindows;
+        state.completedEpisodeCount = 0u;
+        state.timeoutEpisodeCount = 0u;
+        state.impactContactCount = 0u;
+        state.impactCleanMissCount = 0u;
+        state.balanceFailureCount = 0u;
         state.trackingScoreSum = 0.0f;
     }
     state.controlSteps = completedSteps;
-    state.commandLevel = level;
-    curriculumState[0] = state;
-    for (uint environment = 0u;
-         environment < dispatch.counts.x;
-         ++environment) {
-        device MRTaskTransitionGPU& transition =
-            transitions[transitionBase + environment];
-        transition.taskProgress = uint4(
-            level,
-            transition.taskProgress.y,
-            transition.taskProgress.z,
-            transition.taskProgress.w
-        );
-    }
+    evidenceState[0] = state;
 }

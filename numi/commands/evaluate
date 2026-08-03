@@ -19,6 +19,7 @@ is selected. Common options:
   --interaction-pack PATH --interaction-clip ID
   --native-policy | --zero-actions
   --task velocity|disturbance-recovery|supine-get-up|ball-recovery|ball-dodge
+  --minimum-difficulty-band N --maximum-difficulty-band N
   --envs N --steps N --repeats N --chunk N
   --rollout-pack PATH --state-trace PATH --capture-dir PATH
 
@@ -94,6 +95,9 @@ wait "$numi_stdout_tee"
 wait "$numi_stderr_tee"
 rm -f "$numi_stdout_pipe" "$numi_stderr_pipe"
 trap - EXIT
+if [ "$numi_status" -eq 0 ] && [ -s "$numi_run/stdout.log" ]; then
+    cp "$numi_run/stdout.log" "$numi_run/evidence.json"
+fi
 if command -v shasum >/dev/null 2>&1; then
     find "$numi_run" -maxdepth 1 -type f ! -name artifacts.sha256 \
         -exec shasum -a 256 {} \; > "$numi_run/artifacts.sha256"

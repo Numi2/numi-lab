@@ -29,28 +29,8 @@ from metalrobo.mlx_policy_worker import (
     _PPO_RESUMABLE_SCHEDULE_FIELDS,
     _configuration_matches,
     _restore_learner_state,
-    _valid_curriculum_levels,
-    _valid_curriculum_reference,
     _write_learner_state,
 )
-
-
-def check_adaptive_curriculum_contract() -> None:
-    reference = (1 << 63) | (2 << 60) | 10000 | (14000 << 20)
-    if not _valid_curriculum_reference(2, reference):
-        raise RuntimeError("valid curriculum reference was rejected")
-    if _valid_curriculum_reference(1, reference):
-        raise RuntimeError("cross-level curriculum reference was accepted")
-    if not _valid_curriculum_levels(
-        np.asarray((1, 1, 0, 0, 1), dtype=np.int64),
-        1,
-    ):
-        raise RuntimeError("bounded adaptive curriculum was rejected")
-    if _valid_curriculum_levels(
-        np.asarray((1, 3), dtype=np.int64),
-        1,
-    ):
-        raise RuntimeError("multi-level curriculum jump was accepted")
 
 
 def make_learner() -> MLXPolicyLearner:
@@ -119,7 +99,7 @@ def check_gae_boundaries() -> None:
         )
 
 
-def check_realized_imagination_gate() -> None:
+def check_realized_imagination_weighting() -> None:
     transitions = np.zeros(
         4,
         dtype=[
@@ -128,12 +108,15 @@ def check_realized_imagination_gate() -> None:
             ("timeout", "<u4"),
             ("physics_error", "<u4"),
             ("timeout_bootstrap_value", "<f4"),
+            ("root_height", "<f4"),
+            ("tilt", "<f4"),
             ("impact_sequence_index", "<u4"),
             ("impact_event_flags", "<u4"),
         ],
     )
     transitions["impact_sequence_index"] = (1, 1, 1, 0)
     transitions["impact_event_flags"][2] = 4
+    transitions["root_height"] = 0.75
     rollout = NativePolicyRollout(
         id="realized_imagination_gate",
         task_fingerprint=1,
@@ -187,6 +170,12 @@ def check_realized_imagination_gate() -> None:
 
     get_up_steps = 30
     get_up_transitions = np.zeros(get_up_steps, dtype=transitions.dtype)
+    get_up_transitions["root_height"] = np.linspace(
+        0.1, 0.72, get_up_steps, dtype=np.float32
+    )
+    get_up_transitions["tilt"] = np.linspace(
+        1.4, 0.1, get_up_steps, dtype=np.float32
+    )
     get_up_transitions["impact_event_flags"][5:] = 1 << 30
     get_up = replace(
         rollout,
@@ -200,15 +189,22 @@ def check_realized_imagination_gate() -> None:
         transitions=get_up_transitions,
         teacher_actions=np.ones(get_up_steps, dtype=np.float32),
     ).policy_batch()
-    if not np.array_equal(
-        get_up.teacher_weights,
-        np.ones(get_up_steps, dtype=np.float32),
-    ) or np.any(get_up.policy_weights):
+    if (
+        np.any(get_up.teacher_weights <= 0.0)
+        or get_up.teacher_weights[-1] <= get_up.teacher_weights[0]
+        or np.any(get_up.policy_weights)
+    ):
         raise RuntimeError(
-            "sustained physics-restored stance did not qualify get-up"
+            "physical get-up progress did not receive local teacher weight"
         )
 
     standing_transitions = np.zeros(get_up_steps, dtype=transitions.dtype)
+    standing_transitions["root_height"] = np.linspace(
+        0.1, 0.68, get_up_steps, dtype=np.float32
+    )
+    standing_transitions["tilt"] = np.linspace(
+        1.4, 0.2, get_up_steps, dtype=np.float32
+    )
     standing_transitions["impact_event_flags"][12:] = 1 << 31
     standing = replace(
         rollout,
@@ -222,12 +218,39 @@ def check_realized_imagination_gate() -> None:
         transitions=standing_transitions,
         teacher_actions=np.ones(get_up_steps, dtype=np.float32),
     ).policy_batch()
-    if not np.array_equal(
-        standing.teacher_weights,
-        np.full(get_up_steps, 0.35, dtype=np.float32),
-    ) or np.any(standing.policy_weights):
+    if (
+        np.any(standing.teacher_weights <= 0.0)
+        or standing.teacher_weights[-1] <= standing.teacher_weights[0]
+        or np.any(standing.policy_weights)
+    ):
         raise RuntimeError(
             "sustained physics-standing progress did not receive graded credit"
+        )
+
+    collapsed_transitions = standing_transitions.copy()
+    collapsed_transitions[25:]["impact_event_flags"] = 0
+    collapsed = replace(
+        rollout,
+        id="rejected_get_up_collapse",
+        control_step_count=get_up_steps,
+        actor_observations=np.zeros(get_up_steps, dtype=np.float32),
+        critic_observations=np.zeros(get_up_steps, dtype=np.float32),
+        latents=np.zeros(get_up_steps, dtype=np.float32),
+        old_log_probabilities=np.zeros(get_up_steps, dtype=np.float32),
+        old_values=np.zeros(get_up_steps, dtype=np.float32),
+        transitions=collapsed_transitions,
+        teacher_actions=np.ones(get_up_steps, dtype=np.float32),
+    ).policy_batch()
+    if (
+        np.any(collapsed.teacher_weights[:25] <= 0.0)
+        or not np.allclose(
+            collapsed.teacher_weights[:25],
+            standing.teacher_weights[:25],
+        )
+        or np.any(collapsed.policy_weights)
+    ):
+        raise RuntimeError(
+            "later collapse erased earlier accepted physical progress"
         )
 
 
@@ -537,9 +560,8 @@ def main() -> int:
     parser.add_argument("--chunk", type=int, default=4)
     arguments = parser.parse_args()
     check_gae_boundaries()
-    check_realized_imagination_gate()
+    check_realized_imagination_weighting()
     check_resumable_schedule_contracts()
-    check_adaptive_curriculum_contract()
 
     if arguments.collector is not None:
         if arguments.metallib is None or arguments.library is None:
@@ -591,6 +613,14 @@ def main() -> int:
             (sample_count, critic_count),
         ).astype(np.float32)
     )
+    zero_learner = make_learner()
+    zero_learner.zero_actor_output()
+    zero_means = zero_learner.model.actor_mean(actor)
+    mx.eval(zero_means)
+    if float(np.max(np.abs(np.asarray(zero_means)))) != 0.0:
+        raise RuntimeError(
+            "zero-output actor initialization did not publish exact default actions"
+        )
     latents = mx.array(
         generator.normal(
             0.0,
@@ -662,7 +692,7 @@ def main() -> int:
             expected_actor = learner.model.actor_mean(actor)
             mx.eval(expected_actor)
             learner_state = Path(actor_directory) / "learner.safetensors"
-            _write_learner_state(learner, learner_state, 0, 0)
+            _write_learner_state(learner, learner_state)
             resumed_expanded = MLXPolicyLearner.from_actor_policy_pack(
                 artifact,
                 critic_count,
@@ -672,12 +702,10 @@ def main() -> int:
                 actor_observation_extension_inverse_standard_deviation=4.0,
                 library_path=arguments.library,
             )
-            restored, restored_level, restored_reference = (
-                _restore_learner_state(
-                    resumed_expanded,
-                    learner_state,
-                    actor_observation_extension_offset=actor_count,
-                )
+            restored = _restore_learner_state(
+                resumed_expanded,
+                learner_state,
+                actor_observation_extension_offset=actor_count,
             )
             resumed_actor = resumed_expanded.model.actor_mean(
                 mx.concatenate(
@@ -687,8 +715,7 @@ def main() -> int:
             )
             mx.eval(resumed_actor, resumed_expanded.optimizer.state)
             if (
-                not restored or restored_level != 0 or
-                restored_reference != 0 or
+                not restored or
                 not np.array_equal(
                     np.asarray(expected_actor),
                     np.asarray(resumed_actor),
@@ -839,6 +866,65 @@ def main() -> int:
             ):
                 raise RuntimeError(
                     "observation insertion mean was not published"
+                )
+            selected_indices = tuple(range(0, actor_count, 2))
+            projection = selected_indices + (None, None, None)
+            action_multiplier = np.linspace(
+                0.2,
+                0.8,
+                action_count,
+                dtype=np.float32,
+            )
+            projection_defaults = (
+                deployed.effective_observation_mean
+                + 0.1 /
+                deployed.effective_observation_inverse_standard_deviation
+            ).astype(np.float32)
+            projected = (
+                MLXPolicyLearner.from_projected_actor_policy_pack(
+                    deployment,
+                    critic_count,
+                    projection,
+                    learner.configuration,
+                    action_multiplier=action_multiplier,
+                    source_observation_defaults=projection_defaults,
+                    library_path=arguments.library,
+                )
+            )
+            source_at_mean = np.broadcast_to(
+                projection_defaults,
+                (sample_count, actor_count),
+            ).copy()
+            source_at_mean[:, selected_indices] = np.asarray(actor)[
+                :, selected_indices
+            ]
+            projected_input = np.concatenate(
+                (
+                    np.asarray(actor)[:, selected_indices],
+                    np.zeros((sample_count, 3), dtype=np.float32),
+                ),
+                axis=1,
+            )
+            source_mean = learner.model.actor_mean(mx.array(source_at_mean))
+            projected_mean = projected.model.actor_mean(
+                mx.array(projected_input)
+            )
+            mx.eval(source_mean, projected_mean)
+            expected_action = action_multiplier * (
+                deployed.effective_action_bias[None, :]
+                + deployed.effective_action_scale[None, :]
+                * np.asarray(source_mean)
+            )
+            projected_action = (
+                projected.action_bias[None, :]
+                + projected.action_scale[None, :]
+                * np.asarray(projected_mean)
+            )
+            if float(
+                np.max(np.abs(expected_action - projected_action))
+            ) > 1.0e-5:
+                raise RuntimeError(
+                    "actor projection changed the selected source policy"
                 )
         print(
             json.dumps(

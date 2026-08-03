@@ -177,12 +177,9 @@ The final critic value is evaluated against the accepted post-rollout state
 inside the last Metal submission. It does not consume or discard a physics
 transition. The training PolicyPack retains the diagonal-Gaussian behavior
 distribution; the deployment PolicyPack contains the same actor revision
-without exploration. Re-running without `--initialize-policy` restores the
-model, Adam state, and native task-wide curriculum level from the learner
-sidecar. The worker derives curriculum state from the fingerprinted rollout;
-it does not trust a duplicate scheduler value. The current sidecar schema is
-strict; a new simulator context begins a fresh synchronized curriculum window
-because its environment episodes are also new.
+without exploration. Re-running without `--initialize-policy` restores model
+and Adam state from the learner sidecar. Difficulty sampling remains native,
+deterministic episode data and is not checkpointed as learner authority.
 
 PolicyPack v3 is the raw-Gaussian behavior boundary. Historical v2 packs remain
 readable by the independent deployment evaluator with their original tanh
@@ -265,12 +262,6 @@ metalrobo g1 sim2sim \
   --official-model \
     /path/to/unitree_mujoco/unitree_robots/g1/scene_29dof.xml
 
-metalrobo g1 sim2sim \
-  --promotion-suite --seconds 20 \
-  --policy-pack /path/to/policy.policypack \
-  --library ../build/lib/libmetalrobo.dylib \
-  --official-model \
-    /path/to/unitree_mujoco/unitree_robots/g1/scene_29dof.xml
 ```
 
 `import-unitree` accepts only the clean Unitree MuJoCo-Lab revision pinned by
@@ -278,10 +269,9 @@ the importer and verifies the official ONNX digest and deployment joint map.
 It writes the actor, observation normalization, and provenance into the
 ordinary generic PolicyPack format, with no runtime adapter.
 
-The promotion suite recomputes the low-level PD drive at every MuJoCo physics
-substep and reports realized local velocity, displacement, saturation and
-termination across idle, forward, reverse, lateral and yaw commands. Balance
-without command response cannot pass it.
+Sim-to-sim runs report realized local velocity, displacement, saturation, and
+termination for the requested command. They publish evidence rather than a
+binary promotion verdict.
 
 The old MLX-owned physics, world-state, contact, reset, reward, and rollout
 adapters have been removed. New robot mechanics enter through the native

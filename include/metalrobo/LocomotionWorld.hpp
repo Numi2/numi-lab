@@ -103,9 +103,9 @@ void appendLocomotionDynamicSpheres(
     LocomotionSurface surface
 );
 
-// Zero-command standing and balance-recovery curriculum. Native randomized
+// Zero-command standing and balance-recovery workload. Native randomized
 // impulses are the high-throughput training proxy; ordinary dynamic bodies
-// remain the promotion test for physical impact transfer.
+// provide complementary physical-impact evidence.
 [[nodiscard]] TaskPack makeUnitreeG1DisturbanceRecoveryTaskPack(
     LocomotionSurface surface
 );

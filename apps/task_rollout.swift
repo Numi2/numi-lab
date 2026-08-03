@@ -124,7 +124,7 @@ private func fingerprint(
             into: &hash
         )
         fingerprintWord(
-            UInt64(transition.curriculumLevel),
+            UInt64(transition.difficultyBand),
             byteCount: 4,
             into: &hash
         )
@@ -157,7 +157,6 @@ private struct Options {
     var surface = MetalRoboLocomotionSurface.terrain
     var unitreeG1Task = MetalRoboUnitreeG1Task.velocity
     var seed: UInt64 = 20_260_731
-    var curriculumLevel: UInt32 = 0
     var metallib = "build/shaders/MetalRobo.metallib"
     var verbose = false
     var nativePolicy = false
@@ -173,6 +172,11 @@ private struct Options {
     var srdf: String?
     var dynamicSpheres: [MetalRoboDynamicSphere] = []
     var disableTaskTerminations = false
+    var materializeArticulatedContactResponses = false
+    var minimumDifficultyBand: Int?
+    var maximumDifficultyBand: Int?
+    var interactionResetOnly = false
+    var interactionStudentAuthority: Float?
     var stateTrace: String?
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
@@ -224,14 +228,6 @@ private struct Options {
                 }
                 seed = parsed
                 index += 1
-            case "--curriculum-level":
-                guard let parsed = UInt32(try value()) else {
-                    throw MetalRoboTaskRolloutError.invalidShape(
-                        "--curriculum-level requires an unsigned 32-bit integer."
-                    )
-                }
-                curriculumLevel = parsed
-                index += 1
             case "--metallib":
                 metallib = try value()
                 index += 1
@@ -275,6 +271,28 @@ private struct Options {
                 scheduledResets = false
             case "--continue-after-termination":
                 disableTaskTerminations = true
+            case "--materialize-articulated-contact-responses":
+                materializeArticulatedContactResponses = true
+            case "--minimum-difficulty-band":
+                minimumDifficultyBand = try Self.integer(value(), option)
+                index += 1
+            case "--maximum-difficulty-band":
+                maximumDifficultyBand = try Self.integer(value(), option)
+                index += 1
+            case "--interaction-reset-only":
+                interactionResetOnly = true
+            case "--interaction-student-authority":
+                guard let parsed = Float(try value()),
+                      parsed.isFinite,
+                      parsed >= 0,
+                      parsed <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-student-authority must be in [0, 1]."
+                    )
+                }
+                interactionStudentAuthority = parsed
+                index += 1
             case "--policy-pack":
                 policyPack = try value()
                 index += 1
@@ -377,6 +395,16 @@ private struct Options {
                 "envs, steps, repeats, chunk, physics substeps, and velocity iterations must be positive; final velocity iterations must be non-negative."
             )
         }
+        if (minimumDifficultyBand == nil) !=
+            (maximumDifficultyBand == nil) ||
+            (minimumDifficultyBand ?? 0) < 0 ||
+            (minimumDifficultyBand ?? 0) >
+                (maximumDifficultyBand ?? 0)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "difficulty-band overrides require an ordered non-negative minimum and maximum."
+            )
+        }
         if nativePolicy && policyPack != nil {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--native-policy and --policy-pack are mutually exclusive."
@@ -411,6 +439,16 @@ private struct Options {
                 "InteractionPack path and clip identity cannot be empty."
             )
         }
+        if interactionResetOnly && interactionPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--interaction-reset-only requires an InteractionPack."
+            )
+        }
+        if interactionStudentAuthority != nil && interactionPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--interaction-student-authority requires an InteractionPack."
+            )
+        }
         if interactionPack != nil &&
             (worldPack != nil || urdf != nil || taskPack != nil ||
              (unitreeG1Task != .velocity &&
@@ -438,20 +476,28 @@ private struct Options {
                 "--state-trace requires --envs 1 --repeats 1 --chunk 1."
             )
         }
-        if (g1VisualPackDirectory == nil) !=
-            (ballVisualPackDirectory == nil)
-        {
+        if g1VisualPackDirectory == nil && ballVisualPackDirectory != nil {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "Visual rollout requires both --g1-visual-pack-dir and --ball-visual-pack-dir."
+                "--ball-visual-pack-dir requires --g1-visual-pack-dir."
             )
         }
         if g1VisualPackDirectory != nil &&
             ((unitreeG1Task != .ballDisturbanceRecovery &&
-              unitreeG1Task != .ballDodge) ||
+              unitreeG1Task != .ballDodge &&
+              unitreeG1Task != .supineGetUpDiscovery) ||
              worldPack != nil || urdf != nil)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "The bundled visual preset requires --task ball-recovery or ball-dodge."
+                "The bundled visual preset requires --task supine-get-up, ball-recovery, or ball-dodge."
+            )
+        }
+        if (unitreeG1Task == .ballDisturbanceRecovery ||
+            unitreeG1Task == .ballDodge) &&
+            g1VisualPackDirectory != nil &&
+            ballVisualPackDirectory == nil
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Ball-task visualization requires --ball-visual-pack-dir."
             )
         }
         if captureDirectory != nil &&
@@ -482,19 +528,26 @@ private struct Options {
 private func makeG1VisualObservation(
     options: Options
 ) throws -> MetalRoboTaskVisualObservationConfiguration? {
-    guard let directory = options.g1VisualPackDirectory,
-          let ballDirectory = options.ballVisualPackDirectory
-    else {
+    guard let directory = options.g1VisualPackDirectory else {
         return nil
     }
-    var observation = try MetalRoboTaskVisualObservationConfiguration
-        .unitreeG1BallRecovery(
-        robotPackDirectory: URL(fileURLWithPath: directory),
-        ballPackDirectory: URL(fileURLWithPath: ballDirectory),
-        environmentPackURL: options.visualEnvironmentPack.map {
-            URL(fileURLWithPath: $0)
-        }
-    )
+    let robotDirectory = URL(fileURLWithPath: directory)
+    let environment = options.visualEnvironmentPack.map {
+        URL(fileURLWithPath: $0)
+    }
+    var observation: MetalRoboTaskVisualObservationConfiguration
+    if let ballDirectory = options.ballVisualPackDirectory {
+        observation = try .unitreeG1BallRecovery(
+            robotPackDirectory: robotDirectory,
+            ballPackDirectory: URL(fileURLWithPath: ballDirectory),
+            environmentPackURL: environment
+        )
+    } else {
+        observation = try .unitreeG1(
+            robotPackDirectory: robotDirectory,
+            environmentPackURL: environment
+        )
+    }
     if options.captureDirectory != nil {
         observation.captureWidth = UInt32(options.captureWidth)
         observation.captureHeight = UInt32(options.captureHeight)
@@ -557,6 +610,17 @@ private func makeContext(
         seed: options.seed,
         dynamicSpheres: dynamicSpheres,
         disableTaskTerminations: options.disableTaskTerminations,
+        materializeArticulatedContactResponses:
+            options.materializeArticulatedContactResponses,
+        difficultyBandRange:
+            options.minimumDifficultyBand.map {
+                UInt32($0)...UInt32(options.maximumDifficultyBand!)
+            },
+        interactionReferenceMode: options.interactionResetOnly
+            ? .resetOnly
+            : .taskDefault,
+        interactionStudentAuthority:
+            options.interactionStudentAuthority,
         unitreeG1Task: options.unitreeG1Task
     )
     if let interactionPack = options.interactionPack,
@@ -691,9 +755,6 @@ private enum TaskRolloutMain {
             if options.stateTrace != nil || options.captureDirectory != nil {
                 try context.setStateReadback(true)
             }
-            try context.setCurriculumLevel(
-                options.curriculumLevel
-            )
             let usesCompiledPolicy =
                 options.nativePolicy || options.policyPack != nil
             if let policyPack = options.policyPack {
@@ -891,8 +952,8 @@ private enum TaskRolloutMain {
             var failedSteps = 0
             var policySampleCount = 0
             var transitionCount = 0
-            var minimumCurriculumLevel = UInt32.max
-            var finalCurriculumLevel = options.curriculumLevel
+            var minimumDifficultyBand = UInt32.max
+            var maximumDifficultyBand: UInt32 = 0
             var terminationCount = 0
             var rewardSum = 0.0
             var trackingSum = 0.0
@@ -902,6 +963,17 @@ private enum TaskRolloutMain {
             var maximumTilt = 0.0
             var standingStepCount = 0
             var restoredStepCount = 0
+            var recoveryBraceStepCount = 0
+            var trunkClearStepCount = 0
+            var footSupportStepCount = 0
+            var supportTransferStepCount = 0
+            var recoveryRiseStepCount = 0
+            var quietStandStepCount = 0
+            var transitionCountByDifficultyBand: [UInt32: Int] = [:]
+            var rootHeightSumByDifficultyBand: [UInt32: Double] = [:]
+            var tiltSumByDifficultyBand: [UInt32: Double] = [:]
+            var recoveryPhaseCountsByDifficultyBand:
+                [UInt32: [String: Int]] = [:]
             var taskRewardSum = 0.0
             var baseRewardSum = 0.0
             var jointVelocityRewardSum = 0.0
@@ -1081,19 +1153,27 @@ private enum TaskRolloutMain {
                     }
                     for transition in observedTransitions {
                         transitionCount += 1
-                        minimumCurriculumLevel = min(
-                            minimumCurriculumLevel,
-                            transition.curriculumLevel
+                        let difficultyBand = transition.difficultyBand
+                        transitionCountByDifficultyBand[
+                            difficultyBand,
+                            default: 0
+                        ] += 1
+                        rootHeightSumByDifficultyBand[
+                            difficultyBand,
+                            default: 0
+                        ] += Double(transition.rootHeight)
+                        tiltSumByDifficultyBand[
+                            difficultyBand,
+                            default: 0
+                        ] += Double(transition.tilt)
+                        minimumDifficultyBand = min(
+                            minimumDifficultyBand,
+                            transition.difficultyBand
                         )
-                        guard transition.curriculumLevel >=
-                                finalCurriculumLevel
-                        else {
-                            throw MetalRoboTaskRolloutError.native(
-                                "Native task curriculum regressed."
-                            )
-                        }
-                        finalCurriculumLevel =
-                            transition.curriculumLevel
+                        maximumDifficultyBand = max(
+                            maximumDifficultyBand,
+                            transition.difficultyBand
+                        )
                         rewardSum += Double(transition.reward)
                         trackingSum +=
                             Double(transition.trackingScore)
@@ -1111,10 +1191,66 @@ private enum TaskRolloutMain {
                         if transition.impactEventFlags &
                             (UInt32(1) << 31) != 0 {
                             standingStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["standing", default: 0] += 1
                         }
                         if transition.impactEventFlags &
                             (UInt32(1) << 30) != 0 {
                             restoredStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["restored", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 29) != 0 {
+                            recoveryBraceStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["brace", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 28) != 0 {
+                            trunkClearStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["trunk_clear", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 27) != 0 {
+                            footSupportStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["foot_support", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 26) != 0 {
+                            supportTransferStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["support_transfer", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 25) != 0 {
+                            recoveryRiseStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["rise", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 24) != 0 {
+                            quietStandStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["quiet_stand", default: 0] += 1
                         }
                         taskRewardSum +=
                             Double(transition.taskReward)
@@ -1319,6 +1455,54 @@ private enum TaskRolloutMain {
                 (terminationReasonCounts[
                     String(MetalRoboTaskTerminationReason.tilt.rawValue)
                 ] ?? 0)
+            let evidence = try context.evidenceTelemetry()
+            let recoveryPhaseRatesByDifficultyBand: [String: Any] =
+                Dictionary(
+                    uniqueKeysWithValues:
+                        transitionCountByDifficultyBand.keys.sorted().map {
+                            band in
+                            let count = max(
+                                transitionCountByDifficultyBand[band] ?? 0,
+                                1
+                            )
+                            let phases =
+                                recoveryPhaseCountsByDifficultyBand[band] ?? [:]
+                            return (
+                                String(band),
+                                [
+                                    "transition_count": count,
+                                    "mean_root_height":
+                                        (rootHeightSumByDifficultyBand[band] ?? 0) /
+                                        Double(count),
+                                    "mean_tilt":
+                                        (tiltSumByDifficultyBand[band] ?? 0) /
+                                        Double(count),
+                                    "brace": Double(phases["brace"] ?? 0) /
+                                        Double(count),
+                                    "trunk_clear":
+                                        Double(phases["trunk_clear"] ?? 0) /
+                                        Double(count),
+                                    "foot_support":
+                                        Double(phases["foot_support"] ?? 0) /
+                                        Double(count),
+                                    "support_transfer":
+                                        Double(phases["support_transfer"] ?? 0) /
+                                        Double(count),
+                                    "rise": Double(phases["rise"] ?? 0) /
+                                        Double(count),
+                                    "standing":
+                                        Double(phases["standing"] ?? 0) /
+                                        Double(count),
+                                    "quiet_stand":
+                                        Double(phases["quiet_stand"] ?? 0) /
+                                        Double(count),
+                                    "restored":
+                                        Double(phases["restored"] ?? 0) /
+                                        Double(count),
+                                ] as [String: Any]
+                            )
+                        }
+                )
             let output: [String: Any] = [
                 "benchmark": "swift_native_task_rollout",
                 "benchmark_seed": NSNumber(value: options.seed),
@@ -1333,6 +1517,10 @@ private enum TaskRolloutMain {
                     : "host_stream",
                 "device": context.deviceName,
                 "solver_mode": "temporal_cone",
+                "articulated_contact_responses":
+                    options.materializeArticulatedContactResponses
+                    ? "materialized_inverse_aba"
+                    : "streamed_inverse_aba",
                 "scene":
                     options.surface == .terrain
                     ? "terrain"
@@ -1363,12 +1551,27 @@ private enum TaskRolloutMain {
                 "velocity_iterations": options.velocityIterations,
                 "final_velocity_iterations":
                     options.finalVelocityIterations,
-                "initial_task_curriculum_level":
-                    options.curriculumLevel,
-                "minimum_task_curriculum_level":
-                    minimumCurriculumLevel,
-                "final_task_curriculum_level":
-                    finalCurriculumLevel,
+                "minimum_sampled_difficulty_band":
+                    minimumDifficultyBand,
+                "maximum_sampled_difficulty_band":
+                    maximumDifficultyBand,
+                "physical_evidence": [
+                    "control_steps": evidence.controlSteps,
+                    "evidence_windows": evidence.evidenceWindows,
+                    "pending_completed_episode_count":
+                        evidence.pendingCompletedEpisodeCount,
+                    "pending_timeout_episode_count":
+                        evidence.pendingTimeoutEpisodeCount,
+                    "last_completed_episode_count":
+                        evidence.lastCompletedEpisodeCount,
+                    "last_contact_rate": evidence.lastContactRate,
+                    "last_clean_miss_rate":
+                        evidence.lastCleanMissRate,
+                    "last_balance_failure_rate":
+                        evidence.lastBalanceFailureRate,
+                    "last_mean_tracking_per_million":
+                        evidence.lastMeanTrackingPerMillion,
+                ],
                 "submission_count":
                     NSNumber(
                         value:
@@ -1433,6 +1636,31 @@ private enum TaskRolloutMain {
                 "maximum_tilt": maximumTilt,
                 "standing_step_count": standingStepCount,
                 "restored_step_count": restoredStepCount,
+                "recovery_brace_step_count":
+                    recoveryBraceStepCount,
+                "trunk_clear_step_count": trunkClearStepCount,
+                "foot_support_step_count": footSupportStepCount,
+                "support_transfer_step_count":
+                    supportTransferStepCount,
+                "recovery_rise_step_count": recoveryRiseStepCount,
+                "quiet_stand_step_count": quietStandStepCount,
+                "recovery_phase_rates": [
+                    "brace": Double(recoveryBraceStepCount) /
+                        Double(max(transitionCount, 1)),
+                    "trunk_clear": Double(trunkClearStepCount) /
+                        Double(max(transitionCount, 1)),
+                    "foot_support": Double(footSupportStepCount) /
+                        Double(max(transitionCount, 1)),
+                    "support_transfer":
+                        Double(supportTransferStepCount) /
+                        Double(max(transitionCount, 1)),
+                    "rise": Double(recoveryRiseStepCount) /
+                        Double(max(transitionCount, 1)),
+                    "quiet_stand": Double(quietStandStepCount) /
+                        Double(max(transitionCount, 1)),
+                ],
+                "recovery_phase_rates_by_difficulty_band":
+                    recoveryPhaseRatesByDifficultyBand,
                 "mean_task_reward":
                     taskRewardSum /
                     Double(max(transitionCount, 1)),

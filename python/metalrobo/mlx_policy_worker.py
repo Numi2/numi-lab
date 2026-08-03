@@ -35,7 +35,12 @@ _PPO_RESUMABLE_SCHEDULE_FIELDS = frozenset(
     {"minibatch_size", "seed"}
 )
 _PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS = frozenset(
-    {"learning_rate", "adaptive_learning_rate"}
+    {
+        "learning_rate",
+        "adaptive_learning_rate",
+        "minimum_learning_rate",
+        "maximum_learning_rate",
+    }
 )
 _PPO_EXPLICIT_EXPLORATION_OVERRIDE_FIELDS = frozenset(
     {"initial_log_standard_deviation"}
@@ -70,6 +75,9 @@ def _configuration(
         learning_rate=arguments.learning_rate,
         clip_ratio=arguments.clip_ratio,
         value_coefficient=arguments.value_coefficient,
+        imagination_distillation_coefficient=(
+            arguments.imagination_distillation_coefficient
+        ),
         entropy_coefficient=arguments.entropy_coefficient,
         maximum_gradient_norm=arguments.maximum_gradient_norm,
         target_kl=target_kl,
@@ -167,47 +175,15 @@ def _require_finite_motion_state(
         )
 
 
-def _valid_curriculum_reference(level: int, reference: int) -> bool:
-    if reference == 0:
-        return True
-    return (
-        0 <= reference <= np.iinfo(np.uint64).max
-        and reference & (1 << 63) != 0
-        and ((reference >> 60) & 0x3) == level
-    )
-
-
-def _valid_curriculum_levels(
-    level_series: np.ndarray,
-    initial_level: int,
-) -> bool:
-    return (
-        level_series.size != 0
-        and abs(int(level_series[0]) - initial_level) <= 1
-        and not np.any(np.abs(np.diff(level_series)) > 1)
-    )
-
-
 def _write_learner_state(
     learner: MLXPolicyLearner,
     path: Path,
-    task_curriculum_level: int,
-    task_curriculum_reference_rates: int,
     motion_prior: MLXMotionPrior | None = None,
 ) -> Path:
     """Atomically checkpoint model parameters and Adam moments."""
 
     if not learner.policy_id:
         raise ValueError("learner state requires a policy identity")
-    if not 0 <= task_curriculum_level <= np.iinfo(np.uint32).max:
-        raise ValueError("task curriculum level exceeds uint32")
-    if not 0 <= task_curriculum_reference_rates <= np.iinfo(np.uint64).max:
-        raise ValueError("task curriculum reference exceeds uint64")
-    if not _valid_curriculum_reference(
-        task_curriculum_level,
-        task_curriculum_reference_rates,
-    ):
-        raise ValueError("task curriculum reference disagrees with its level")
     learner._require_finite_training_state()
     target = path.expanduser().resolve()
     if target.suffix != ".safetensors":
@@ -259,10 +235,6 @@ def _write_learner_state(
         ),
         "action_count": str(learner.action_count),
         "configuration": _configuration_record(learner),
-        "task_curriculum_level": str(task_curriculum_level),
-        "task_curriculum_reference_rates": str(
-            task_curriculum_reference_rates
-        ),
     }
     if motion_prior is not None:
         metadata.update(
@@ -299,12 +271,12 @@ def _restore_learner_state(
         _PPO_RESUMABLE_SCHEDULE_FIELDS
     ),
     actor_observation_extension_offset: int | None = None,
-) -> tuple[bool, int, int]:
+) -> bool:
     target = path.expanduser().resolve()
     if target.suffix != ".safetensors":
         raise ValueError("learner state path must end in .safetensors")
     if not target.is_file():
-        return False, 0, 0
+        return False
     loaded = mx.load(target, return_metadata=True)
     if not isinstance(loaded, tuple) or len(loaded) != 2:
         raise ValueError("MLX learner state has no metadata")
@@ -405,30 +377,11 @@ def _restore_learner_state(
         )
     try:
         revision = int(metadata["policy_revision"])
-        task_curriculum_level = int(
-            metadata["task_curriculum_level"]
-        )
-        task_curriculum_reference_rates = int(
-            metadata.get("task_curriculum_reference_rates", "0")
-        )
     except (KeyError, TypeError, ValueError) as error:
-        raise ValueError(
-            "MLX learner state revision or task curriculum is invalid"
-        ) from error
+        raise ValueError("MLX learner state revision is invalid") from error
     if revision < learner.revision:
         raise ValueError(
             "MLX learner state is older than the supplied PolicyPack"
-        )
-    if not 0 <= task_curriculum_level <= np.iinfo(np.uint32).max:
-        raise ValueError("MLX learner task curriculum exceeds uint32")
-    if not 0 <= task_curriculum_reference_rates <= np.iinfo(np.uint64).max:
-        raise ValueError("MLX learner task curriculum reference exceeds uint64")
-    if not _valid_curriculum_reference(
-        task_curriculum_level,
-        task_curriculum_reference_rates,
-    ):
-        raise ValueError(
-            "MLX learner task curriculum reference disagrees with its level"
         )
 
     expected_model = dict(
@@ -592,20 +545,15 @@ def _restore_learner_state(
     learner._require_finite_training_state()
     if motion_prior is not None:
         _require_finite_motion_state(motion_prior)
-    return (
-        True,
-        task_curriculum_level,
-        task_curriculum_reference_rates,
-    )
+    return True
 
 
 def _validate_rollout(
     learner: MLXPolicyLearner,
     rollout_path: Path,
     expected_task_fingerprint: int | None,
-    task_curriculum_level: int,
     native_library: Path,
-) -> tuple[Any, int, int]:
+) -> tuple[Any, int]:
     rollout = read_policy_rollout_pack(
         rollout_path,
         library_path=native_library,
@@ -635,29 +583,45 @@ def _validate_rollout(
         raise ValueError(
             "PolicyRolloutPack contains a physics failure"
         )
-    levels = rollout.transitions["curriculum_level"].reshape(
-        rollout.control_step_count,
-        rollout.environment_count,
-    )
-    if np.any(levels != levels[:, :1]):
-        raise ValueError(
-            "PolicyRolloutPack task-wide curriculum differs across environments"
-        )
-    level_series = levels[:, 0].astype(np.int64)
-    if not _valid_curriculum_levels(level_series, task_curriculum_level):
-        raise ValueError(
-            "PolicyRolloutPack task curriculum changes by more than one level"
-        )
-    return (
-        rollout,
-        rollout.task_fingerprint,
-        int(level_series[-1]),
-    )
+    return rollout, rollout.task_fingerprint
 
 
 def _rollout_metrics(rollout: Any) -> dict[str, Any]:
     transitions = rollout.transitions
     rewards = transitions["reward"]
+    recovery_phase_rates_by_difficulty_band: dict[str, Any] = {}
+    for raw_band in np.unique(transitions["difficulty_band"]):
+        band = int(raw_band)
+        selected = transitions["difficulty_band"] == raw_band
+        flags = transitions["impact_event_flags"][selected].astype(
+            np.uint32
+        )
+        count = int(np.sum(selected))
+        recovery_phase_rates_by_difficulty_band[str(band)] = {
+            "transition_count": count,
+            "mean_root_height": float(
+                np.mean(transitions["root_height"][selected])
+            ),
+            "mean_tilt": float(
+                np.mean(transitions["tilt"][selected])
+            ),
+            "brace": float(np.mean((flags & (1 << 29)) != 0)),
+            "trunk_clear": float(
+                np.mean((flags & (1 << 28)) != 0)
+            ),
+            "foot_support": float(
+                np.mean((flags & (1 << 27)) != 0)
+            ),
+            "support_transfer": float(
+                np.mean((flags & (1 << 26)) != 0)
+            ),
+            "rise": float(np.mean((flags & (1 << 25)) != 0)),
+            "standing": float(np.mean((flags & (1 << 31)) != 0)),
+            "quiet_stand": float(
+                np.mean((flags & (1 << 24)) != 0)
+            ),
+            "restored": float(np.mean((flags & (1 << 30)) != 0)),
+        }
     reasons, counts = np.unique(
         transitions["termination_reason"][
             transitions["done"].astype(bool)
@@ -703,6 +667,9 @@ def _rollout_metrics(rollout: Any) -> dict[str, Any]:
             np.mean(transitions["root_height"])
         ),
         "mean_tilt": float(np.mean(transitions["tilt"])),
+        "recovery_phase_rates_by_difficulty_band": (
+            recovery_phase_rates_by_difficulty_band
+        ),
         "mean_task_reward": float(
             np.mean(transitions["task_reward"])
         ),
@@ -762,14 +729,6 @@ def _rollout_metrics(rollout: Any) -> dict[str, Any]:
 
 
 def _serve(arguments: argparse.Namespace) -> int:
-    if not 0 <= arguments.initial_task_curriculum_level <= np.iinfo(
-        np.uint32
-    ).max:
-        raise ValueError("initial task curriculum level exceeds uint32")
-    if not 0 <= arguments.initial_task_curriculum_reference_rates <= np.iinfo(
-        np.uint64
-    ).max:
-        raise ValueError("initial task curriculum reference exceeds uint64")
     learner = MLXPolicyLearner.from_policy_pack(
         arguments.policy_pack,
         _configuration(arguments),
@@ -792,13 +751,9 @@ def _serve(arguments: argparse.Namespace) -> int:
                 seed=arguments.seed,
             ),
         )
-    (
-        restored,
-        task_curriculum_level,
-        task_curriculum_reference_rates,
-    ) = _restore_learner_state(
+    restored = _restore_learner_state(
         learner,
-        arguments.learner_state,
+        arguments.restore_learner_state,
         motion_prior,
         _PPO_RESUMABLE_SCHEDULE_FIELDS |
         (_PPO_EXPLICIT_LEARNING_RATE_OVERRIDE_FIELDS
@@ -807,11 +762,6 @@ def _serve(arguments: argparse.Namespace) -> int:
          if arguments.override_resumed_exploration else frozenset()),
         arguments.actor_observation_extension_offset,
     )
-    if restored and arguments.override_resumed_curriculum_level:
-        task_curriculum_level = arguments.initial_task_curriculum_level
-        task_curriculum_reference_rates = (
-            arguments.initial_task_curriculum_reference_rates
-        )
     if restored and arguments.override_resumed_learning_rate:
         learner.optimizer.learning_rate = arguments.learning_rate
         learner.refresh_compiled_training_state()
@@ -838,11 +788,6 @@ def _serve(arguments: argparse.Namespace) -> int:
         mx.eval(
             learner.model.log_standard_deviation,
             learner.optimizer.state,
-        )
-    if not restored:
-        task_curriculum_level = arguments.initial_task_curriculum_level
-        task_curriculum_reference_rates = (
-            arguments.initial_task_curriculum_reference_rates
         )
     current_policy = learner.write_policy_pack(
         arguments.output_policy_pack,
@@ -874,10 +819,6 @@ def _serve(arguments: argparse.Namespace) -> int:
             "resumed_learning_rate_overridden": bool(
                 restored and arguments.override_resumed_learning_rate
             ),
-            "resumed_curriculum_level_overridden": bool(
-                restored and
-                arguments.override_resumed_curriculum_level
-            ),
             "resumed_exploration_overridden": bool(
                 restored and arguments.override_resumed_exploration
             ),
@@ -886,10 +827,6 @@ def _serve(arguments: argparse.Namespace) -> int:
                 motion_prior.motion_pack.content_hash
                 if motion_prior is not None
                 else 0
-            ),
-            "task_curriculum_level": task_curriculum_level,
-            "task_curriculum_reference_rates": str(
-                task_curriculum_reference_rates
             ),
             "policy_pack": str(current_policy),
             "deployment_policy_pack":
@@ -916,41 +853,15 @@ def _serve(arguments: argparse.Namespace) -> int:
             rollout_value = request.get("rollout_pack")
             if not isinstance(rollout_value, str) or not rollout_value:
                 raise ValueError("update requires rollout_pack")
-            reference_value = request.get(
-                "task_curriculum_reference_rates"
-            )
-            if not isinstance(reference_value, str):
-                raise ValueError(
-                    "update requires a decimal task curriculum reference"
-                )
-            try:
-                rollout_curriculum_reference_rates = int(reference_value)
-            except ValueError as error:
-                raise ValueError(
-                    "task curriculum reference is not an integer"
-                ) from error
-            if not 0 <= rollout_curriculum_reference_rates <= np.iinfo(
-                np.uint64
-            ).max:
-                raise ValueError("task curriculum reference exceeds uint64")
             (
                 rollout,
                 expected_task_fingerprint,
-                rollout_curriculum_level,
             ) = _validate_rollout(
                 learner,
                 Path(rollout_value).expanduser().resolve(),
                 expected_task_fingerprint,
-                task_curriculum_level,
                 arguments.native_library,
             )
-            if not _valid_curriculum_reference(
-                rollout_curriculum_level,
-                rollout_curriculum_reference_rates,
-            ):
-                raise ValueError(
-                    "rollout curriculum reference disagrees with its level"
-                )
             revision_before = learner.revision
             learning_rewards = None
             motion_metrics: dict[str, float] = {}
@@ -977,13 +888,7 @@ def _serve(arguments: argparse.Namespace) -> int:
             learner_state = _write_learner_state(
                 learner,
                 arguments.learner_state,
-                rollout_curriculum_level,
-                rollout_curriculum_reference_rates,
                 motion_prior,
-            )
-            task_curriculum_level = rollout_curriculum_level
-            task_curriculum_reference_rates = (
-                rollout_curriculum_reference_rates
             )
             response = {
                 "status": "updated",
@@ -996,10 +901,6 @@ def _serve(arguments: argparse.Namespace) -> int:
                 "policy_pack": str(artifact),
                 "deployment_policy_pack": str(deployment_artifact),
                 "learner_state": str(learner_state),
-                "task_curriculum_level": task_curriculum_level,
-                "task_curriculum_reference_rates": str(
-                    task_curriculum_reference_rates
-                ),
                 **_rollout_metrics(rollout),
                 **metrics,
             }
@@ -1076,9 +977,12 @@ def _initialize(arguments: argparse.Namespace) -> int:
                 "actor initialization PolicyPack disagrees with the native "
                 "task observation or action contract"
             )
+    if arguments.zero_actor_output:
+        learner.zero_actor_output()
     artifact = learner.write_policy_pack(
         arguments.output,
         policy_id=arguments.policy_id,
+        stochastic=not arguments.deterministic,
         library_path=arguments.native_library,
     )
     _emit(
@@ -1111,6 +1015,11 @@ def _add_ppo_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--learning-rate", type=float, default=1.0e-3)
     parser.add_argument("--clip-ratio", type=float, default=0.2)
     parser.add_argument("--value-coefficient", type=float, default=1.0)
+    parser.add_argument(
+        "--imagination-distillation-coefficient",
+        type=float,
+        default=1.0,
+    )
     parser.add_argument("--entropy-coefficient", type=float, default=0.001)
     parser.add_argument(
         "--maximum-gradient-norm",
@@ -1189,6 +1098,16 @@ def main() -> int:
         ),
     )
     initialize.add_argument(
+        "--zero-actor-output",
+        action="store_true",
+        help="zero the final actor layer so the initial action is exactly the mechanism default",
+    )
+    initialize.add_argument(
+        "--deterministic",
+        action="store_true",
+        help="write an actor-only deployment PolicyPack",
+    )
+    initialize.add_argument(
         "--actor-observation-extension-mean",
         type=float,
         default=0.0,
@@ -1237,6 +1156,11 @@ def main() -> int:
         required=True,
     )
     serve.add_argument(
+        "--restore-learner-state",
+        type=Path,
+        help="immutable learner state used only for restoration",
+    )
+    serve.add_argument(
         "--actor-observation-extension-offset",
         type=int,
         help=(
@@ -1248,23 +1172,15 @@ def main() -> int:
         "--override-resumed-learning-rate",
         action="store_true",
         help=(
-            "restore model, Adam, motion, and curriculum state while "
+            "restore model, Adam, and motion state while "
             "explicitly replacing the PPO learning-rate schedule"
-        ),
-    )
-    serve.add_argument(
-        "--override-resumed-curriculum-level",
-        action="store_true",
-        help=(
-            "restore model, Adam, and motion state while explicitly "
-            "replacing curriculum level and reference rates"
         ),
     )
     serve.add_argument(
         "--override-resumed-exploration",
         action="store_true",
         help=(
-            "restore model, critic, motion, and curriculum state while "
+            "restore model, critic, and motion state while "
             "explicitly replacing policy exploration and its Adam moments"
         ),
     )
@@ -1278,16 +1194,6 @@ def main() -> int:
         "--native-library",
         type=Path,
         required=True,
-    )
-    serve.add_argument(
-        "--initial-task-curriculum-level",
-        type=int,
-        default=0,
-    )
-    serve.add_argument(
-        "--initial-task-curriculum-reference-rates",
-        type=int,
-        default=0,
     )
     serve.add_argument(
         "--motion-pack",

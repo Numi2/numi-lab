@@ -130,15 +130,11 @@ local velocity, yaw tracking, support slip, foot clearance, and terrain
 sampling therefore agree with URDF link frames without a runtime name lookup.
 The mechanical-power reward consumes the actual effort after actuator
 limiting and the torque-speed envelope; it does not reconstruct a nominal
-controller torque from post-step state. Unitree's x/y command curriculum is
-one task-wide native controller, gated by mean episode linear tracking at the
-authored episode boundary. Yaw tracking remains a reward and reported rollout
-metric but cannot incorrectly block linear range expansion. Each transition
-publishes the accepted level. The learner derives its checkpoint from those
-records; Swift cannot claim a different level. The level, model parameters,
-and Adam moments are restored together before the next resident Metal state
-is initialized. A restarted simulator begins a fresh synchronized curriculum
-evaluation window because its environment episodes are also new.
+controller torque from post-step state. Unitree's authored command bands are
+sampled independently for every deterministic episode. An exponent biases the
+distribution toward easier bands while leaving the entire range observable.
+Each transition publishes the sampled band; learner checkpoints contain only
+model and optimizer state.
 
 ## Encoded graphs
 
@@ -556,8 +552,8 @@ retained buffer capacity, and 9.49 GB of transient private capacity. Those
 figures describe allocator classes and must not be added as if every byte were
 simultaneously resident. A longer 96-step rollout also passes, but its larger
 publication artifact creates materially more memory pressure than the 64-step
-qualification. Long campaigns therefore use measured horizon and swap behavior
-as promotion evidence in addition to raw environment count.
+qualification. Long campaigns therefore retain measured horizon and swap
+behavior alongside raw environment count.
 
 Before contact staging compaction, the 8,192 profile required 20.79 GB against
 the device's 19.07 GB recommended working set. Diagnostics identified 7.06 GB
@@ -605,27 +601,13 @@ without allocating the complete 1,684-pair topology envelope per environment.
 Typed overflow and transactional rollback remain the authority if a future
 trajectory exceeds this operational contract.
 
-Ball-dodge learning uses four task-wide levels aligned to the four authored
-projectile-speed bands. Masked-depth corruption rises over the same normalized
-range, while the complete balance-domain distribution remains present at every
-level so curriculum movement does not remove competencies required by a
-resumed actor. Every 1,000-control-step window reports projectile contacts,
-clean misses, and height/tilt failures per million environment steps. The
-device-resident controller anchors a reference at the current level and moves
-up when one outcome improves by at least three percent while companion outcomes
-remain within two percent; a severe regression can move it down. A level change
-starts a fresh same-difficulty reference window. This adaptive movement is a
-training signal, not a promotion claim: held-out physical evaluation reports
-progress and qualification separately.
-
-Each completed window publishes its three rates, reference, and
-hold/advance/retreat decision through one fixed task-wide readback record. The
-learner checkpoint retains the level and anchored reference across processes;
-fresh environment episodes restart only the partial window counters. Swift and
-MLX accept bounded one-level movement in either direction while rejecting
-multi-level jumps. This prevents repeated short continuations from forgetting
-accumulated progress and prevents a justified retreat from being misclassified
-as a corrupt rollout.
+Ball-dodge learning uses four authored projectile-speed bands. Every band is
+sampled from the first update, with a mild easy-band bias and no advancement
+decision. Masked-depth corruption follows the sampled band. Every
+1,000-control-step window reports projectile contacts, clean misses,
+height/tilt failures, and mean tracking as exposure-normalized evidence. The
+device-resident reducer cannot modify sampling or reject learning, and no
+simulator progress state is stored in MLX checkpoints.
 
 Visual policy rollouts keep physics and inference at the authored control
 rate, but sample the camera at its independent sensor cadence. The generic
@@ -648,12 +630,12 @@ and reward stream were bit-identical.
 ### Balance recovery and get-up training
 
 Bundled G1 recovery uses the generic compiled TaskPack path. Select
-`--task disturbance-recovery` to fine-tune a standing actor through a native
-curriculum of horizontal impulses, reset noise, mass/controller variation,
+`--task disturbance-recovery` to fine-tune a standing actor through sampled
+horizontal impulses, reset noise, mass/controller variation,
 and action delay. `--initialize-actor-policy-pack` copies an existing
 deployment actor exactly, creates a fresh critic and exploration head, and
 therefore initializes a new task without pretending to resume missing
-optimizer state. Ordinary dynamic balls remain the physical promotion test.
+optimizer state. Ordinary dynamic balls provide additional physical evidence.
 
 Select `--task supine-get-up` for Stage-I get-up discovery. This task uses a
 fixed supine reset, ten-frame meaningful proprioceptive history, an asymmetric
@@ -671,8 +653,8 @@ dynamic rigid spheres. The bundled app supplies their authored mechanics while
 the generic TaskPack randomizes position, velocity, height, direction, and
 launch step per environment and episode. They use the same broadphase,
 manifolds, islands, and temporal-cone solve as every other scene body. This is
-the physical disturbance curriculum; native root-velocity impulses remain a
-fast early curriculum, not the final promotion evidence.
+the physical disturbance distribution; native root-velocity impulses remain a
+high-throughput complementary workload.
 
 ## Decisive probes
 
@@ -728,5 +710,5 @@ with MetalWorld's private heaps in unified memory: on the M4 Pro, five resumed
 uncleared worker grew from 0.50 GB to 6.69 GB over five updates. Update records
 publish active, cached, released-cache, and peak MLX byte counts. Revision
 checkpoints retain the stochastic PolicyPack and matching learner state for
-resume, plus a separately named deterministic deployment PolicyPack for
-promotion evaluation.
+resume, plus a separately named deterministic PolicyPack for physical
+evaluation and explicit deployment selection.

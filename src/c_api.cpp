@@ -145,18 +145,10 @@ static_assert(
     offsetof(MRTaskTransitionGPU, episodeTrackingScore)
 );
 static_assert(
-    offsetof(MRTaskTransitionC, curriculum_level) ==
+    offsetof(MRTaskTransitionC, difficulty_band) ==
     offsetof(MRTaskTransitionGPU, taskProgress)
 );
-static_assert(sizeof(MRTaskCurriculumTelemetryC) == 56u);
-static_assert(
-    static_cast<unsigned>(MR_TASK_CURRICULUM_C_HOLD) ==
-        static_cast<unsigned>(MR_TASK_CURRICULUM_HOLD) &&
-    static_cast<unsigned>(MR_TASK_CURRICULUM_C_ADVANCE) ==
-        static_cast<unsigned>(MR_TASK_CURRICULUM_ADVANCE) &&
-    static_cast<unsigned>(MR_TASK_CURRICULUM_C_RETREAT) ==
-        static_cast<unsigned>(MR_TASK_CURRICULUM_RETREAT)
-);
+static_assert(sizeof(MRTaskEvidenceTelemetryC) == 48u);
 
 namespace {
 
@@ -532,6 +524,34 @@ void validateTaskRolloutConfiguration(
             "task-rollout dynamic sphere count exceeds 64"
         );
     }
+    if (config.interaction_reference_mode >
+        MR_INTERACTION_REFERENCE_RESET_ONLY) {
+        throw std::invalid_argument(
+            "task-rollout interaction reference mode is invalid"
+        );
+    }
+    if (config.override_interaction_student_authority > 1u ||
+        (config.override_interaction_student_authority != 0u &&
+         (!std::isfinite(config.interaction_student_authority) ||
+          config.interaction_student_authority < 0.0f ||
+          config.interaction_student_authority > 1.0f))) {
+        throw std::invalid_argument(
+            "task-rollout interaction student authority must be in [0, 1]"
+        );
+    }
+    if (config.materialize_articulated_contact_responses > 1u) {
+        throw std::invalid_argument(
+            "materialized articulated-contact response flag is invalid"
+        );
+    }
+    if (config.override_difficulty_band_range > 1u ||
+        (config.override_difficulty_band_range != 0u &&
+         config.minimum_difficulty_band >
+             config.maximum_difficulty_band)) {
+        throw std::invalid_argument(
+            "task-rollout difficulty-band range is invalid"
+        );
+    }
 }
 
 metalrobo::LocomotionSurface locomotionSurface(
@@ -594,7 +614,7 @@ void authorG1InteractionTrackingTask(
 ) {
     task.id = "unitree_g1_interaction_tracking/" +
         interactions.id + "/" + clip.id;
-    task.curriculumLevelCount = 1u;
+    task.difficultyBandCount = 1u;
     task.commands = {};
     task.commands.standingProbability = 1.0f;
     task.pushes.maximumVelocity = 0.0f;
@@ -758,17 +778,18 @@ void authorG1ImaginedTask(
     }
     const auto appendObservation =
         [&task](const metalrobo::TaskObservationOperatorSpec& operation) {
-            // Imagination intent supervises the critic and produces executed
-            // action labels; the autonomous actor must learn from deployable
-            // proprioception rather than depend on a reference unavailable
-            // after distillation.
             task.critic.push_back(operation);
         };
     for (std::uint32_t component = 0u; component < 3u; ++component) {
-        appendObservation({
+        const metalrobo::TaskObservationOperatorSpec phase{
             .source = metalrobo::TaskObservationSource::interactionPhase,
             .component = component,
-        });
+        };
+        // Elapsed recovery phase is a deployable mode-clock signal. It lets
+        // the actor distinguish rising from settling without exposing the
+        // imagined joint/contact targets, which remain critic-only intent.
+        task.actorCurrent.push_back(phase);
+        task.critic.push_back(phase);
     }
     for (const metalrobo::TaskActionBinding& action : task.actions) {
         appendObservation({
@@ -952,6 +973,16 @@ createCompiledTaskRollout(
     handle->stepConfig.applyBodyDamping = true;
     handle->stepConfig.deterministic = true;
     handle->stepConfig.warmStart = true;
+    handle->stepConfig.streamedArticulatedContactResponses =
+        config.materialize_articulated_contact_responses == 0u;
+    handle->stepConfig.minimumDifficultyBand =
+        config.override_difficulty_band_range != 0u
+        ? config.minimum_difficulty_band
+        : 0u;
+    handle->stepConfig.maximumDifficultyBand =
+        config.override_difficulty_band_range != 0u
+        ? config.maximum_difficulty_band
+        : MR_INVALID_INDEX;
     handle->stepConfig.captureContactEvidence = false;
     handle->stepConfig.publishFinalState = false;
     handle->stepConfig.publishStateTrajectory = false;
@@ -2232,6 +2263,17 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
                 *config
             );
         }
+        if (config->interaction_reference_mode ==
+            MR_INTERACTION_REFERENCE_GUIDE) {
+            authored.task.interactionControlReference = true;
+        } else if (config->interaction_reference_mode ==
+                   MR_INTERACTION_REFERENCE_RESET_ONLY) {
+            authored.task.interactionControlReference = false;
+        }
+        if (config->override_interaction_student_authority != 0u) {
+            authored.task.interactionStudentAuthority =
+                config->interaction_student_authority;
+        }
         auto handle = createCompiledTaskRollout(
             std::move(authored),
             *config,
@@ -2392,92 +2434,38 @@ int mr_task_rollout_reset(
     );
 }
 
-int mr_task_rollout_set_curriculum_level(
-    MRTaskRolloutHandle* handle,
-    const uint32_t level
-) {
-    return mr_task_rollout_set_curriculum_checkpoint(
-        handle,
-        level,
-        0u
-    );
-}
-
-int mr_task_rollout_set_curriculum_checkpoint(
-    MRTaskRolloutHandle* handle,
-    const uint32_t level,
-    const uint64_t reference_rates
-) {
-    if (!requireTaskRolloutHandle(handle)) {
-        return -1;
-    }
-    return translateErrors([&] {
-        if (handle->residentState.valid()) {
-            throw std::logic_error(
-                "task curriculum must be restored before resident initialization"
-            );
-        }
-        if (level >= handle->taskProgram.header().schedule.z) {
-            throw std::invalid_argument(
-                "task curriculum level exceeds the compiled TaskPack"
-            );
-        }
-        if (reference_rates != 0u) {
-            const bool valid =
-                (reference_rates & (uint64_t{1u} << 63u)) != 0u;
-            const uint32_t referenceLevel = static_cast<uint32_t>(
-                (reference_rates >> 60u) & 0x3u
-            );
-            if (!valid || referenceLevel != level) {
-                throw std::invalid_argument(
-                    "task curriculum reference does not match its level"
-                );
-            }
-        }
-        handle->stepConfig.taskCurriculumLevel = level;
-        handle->stepConfig.taskCurriculumReferenceRates =
-            reference_rates;
-    });
-}
-
-int mr_task_rollout_curriculum_telemetry(
+int mr_task_rollout_evidence_telemetry(
     const MRTaskRolloutHandle* handle,
-    MRTaskCurriculumTelemetryC* telemetry
+    MRTaskEvidenceTelemetryC* telemetry
 ) {
     if (!requireTaskRolloutHandle(handle)) {
         return -1;
     }
     if (telemetry == nullptr) {
-        gLastError = "task curriculum telemetry output is null.";
+        gLastError = "task evidence telemetry output is null.";
         return -1;
     }
     return translateErrors([&] {
         if (!handle->residentState.valid()) {
             throw std::logic_error(
-                "task curriculum telemetry requires a completed resident submission"
+                "task evidence telemetry requires a completed resident submission"
             );
         }
-        const MRTaskCurriculumStateGPU& state =
-            handle->result.curriculumState;
-        const uint64_t reference = state.referenceRates;
+        const MRTaskEvidenceStateGPU& state =
+            handle->result.evidenceState;
         telemetry->control_steps = state.controlSteps;
-        telemetry->reference_rates = reference;
-        telemetry->command_level = state.commandLevel;
-        telemetry->reference_valid =
-            (reference & (uint64_t{1u} << 63u)) != 0u ? 1u : 0u;
-        telemetry->reference_level = static_cast<uint32_t>(
-            (reference >> 60u) & 0x3u
-        );
-        telemetry->reference_contact_rate =
-            static_cast<uint32_t>(reference & 0xfffffu);
-        telemetry->reference_balance_failure_rate =
-            static_cast<uint32_t>((reference >> 20u) & 0xfffffu);
-        telemetry->reference_clean_miss_rate =
-            static_cast<uint32_t>((reference >> 40u) & 0xfffffu);
+        telemetry->evidence_windows = state.evidenceWindows;
+        telemetry->pending_completed_episode_count =
+            state.completedEpisodeCount;
+        telemetry->pending_timeout_episode_count =
+            state.timeoutEpisodeCount;
+        telemetry->last_completed_episode_count =
+            state.lastCompletedEpisodeCount;
         telemetry->last_contact_rate = state.lastWindow.x;
         telemetry->last_clean_miss_rate = state.lastWindow.y;
         telemetry->last_balance_failure_rate = state.lastWindow.z;
-        telemetry->last_decision = state.lastWindow.w;
+        telemetry->last_mean_tracking_per_million =
+            state.lastWindow.w;
     });
 }
 
@@ -2965,10 +2953,6 @@ int mr_task_rollout_advance(
                 ) + "]: " + diagnostics.message
             );
         }
-        handle->stepConfig.taskCurriculumLevel =
-            handle->result.curriculumState.commandLevel;
-        handle->stepConfig.taskCurriculumReferenceRates =
-            handle->result.curriculumState.referenceRates;
     });
 }
 
@@ -3095,6 +3079,8 @@ const float* mr_task_rollout_teacher_actions(
     const MRTaskRolloutHandle* handle
 ) {
     return requireTaskRolloutHandle(handle) &&
+        (handle->taskProgram.header().schedule.w &
+         MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u &&
         !handle->result.teacherActions.empty()
         ? handle->result.teacherActions.data()
         : nullptr;

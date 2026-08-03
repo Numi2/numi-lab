@@ -710,7 +710,7 @@ int main(const int argc, const char* const* argv) {
             program.header().commandUpper.y != 0.0f ||
             program.header().commandUpper.z != 0.0f ||
             std::abs(
-                program.header().commandUpper.w - 0.8f
+                program.header().commandUpper.w - 2.0f
             ) > 1.0e-6f ||
             program.terminationOperators()[0].parameters.y !=
                 -2.0f ||
@@ -843,6 +843,8 @@ int main(const int argc, const char* const* argv) {
             interactionProgram.header().counts3.w != 40u ||
             (interactionProgram.header().schedule.w &
              MR_TASK_PROGRAM_INTERACTION_REFERENCE) == 0u ||
+            (interactionProgram.header().schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_RESET) == 0u ||
             interactionProgram.interactionRootTargets().size() != 21u ||
             interactionProgram.interactionJointTargets().size() != 87u ||
             interactionProgram.interactionContacts().size() != 2u ||
@@ -1177,18 +1179,88 @@ int main(const int argc, const char* const* argv) {
                 getUpStatus.task.message
             );
         }
-        if (compiledGetUp.task.layout().actorFrameSize != 92u ||
-            compiledGetUp.task.layout().actorObservationSize != 921u ||
+        if (compiledGetUp.task.layout().actorFrameSize != 122u ||
+            compiledGetUp.task.layout().actorHistoryLength != 5u ||
+            compiledGetUp.task.layout().actorObservationSize != 610u ||
             compiledGetUp.task.layout().criticFrameSize != 99u ||
             compiledGetUp.task.layout().criticObservationSize != 990u ||
             compiledGetUp.task.layout().contactMetricCount != 81u ||
             compiledGetUp.task.actionBindings().size() != 29u ||
             compiledGetUp.task.actionBindings()[3].parameters.x < 2.5f ||
             compiledGetUp.task.actionBindings()[15].parameters.x < 3.4f ||
-            compiledGetUp.task.header().counts1.w != 13u ||
-            compiledGetUp.task.header().counts2.x != 0u ||
-            compiledGetUp.task.header().counts2.y != 31u) {
-            fail("compiled G1 supine get-up task is incomplete");
+            compiledGetUp.task.header().counts1.w != 11u ||
+            compiledGetUp.task.header().counts2.x != 2u ||
+            compiledGetUp.task.header().counts2.y != 124u ||
+            compiledGetUp.task.header().schedule.z != 8u ||
+            compiledGetUp.task.terminationOperators()[0].schedule.x != 4u ||
+            compiledGetUp.task.terminationOperators()[0].schedule.y !=
+                MR_INVALID_INDEX ||
+            compiledGetUp.task.terminationOperators()[1].schedule.x != 4u ||
+            compiledGetUp.task.terminationOperators()[1].schedule.y !=
+                MR_INVALID_INDEX) {
+            fail(
+                "compiled G1 supine get-up task is incomplete: actor_frame=" +
+                std::to_string(
+                    compiledGetUp.task.layout().actorFrameSize
+                ) + " actor_history=" +
+                std::to_string(
+                    compiledGetUp.task.layout().actorHistoryLength
+                ) + " actor=" +
+                std::to_string(
+                    compiledGetUp.task.layout().actorObservationSize
+                ) + " critic_frame=" +
+                std::to_string(
+                    compiledGetUp.task.layout().criticFrameSize
+                ) + " critic=" +
+                std::to_string(
+                    compiledGetUp.task.layout().criticObservationSize
+                )
+            );
+        }
+        metalrobo::InteractionPack getUpInteraction = loadedInteraction;
+        for (auto& track : getUpInteraction.contactTracks) {
+            track.counterpart = "locomotion_ground";
+        }
+        metalrobo::CompiledTaskProgram getUpInteractionProgram;
+        const auto getUpInteractionStatus =
+            metalrobo::compileTaskProgram(
+                getUp.task,
+                getUpInteraction,
+                "weight_shift_left_lift_right",
+                compiledGetUp.world,
+                getUpInteractionProgram
+            );
+        if (!getUpInteractionStatus.succeeded() ||
+            getUpInteractionProgram.header().interactionTiming.z != 0.0f ||
+            (getUpInteractionProgram.header().schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_RESET) == 0u ||
+            (getUpInteractionProgram.header().schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_REFERENCE) == 0u) {
+            fail(
+                "G1 get-up student did not compile in shadow mode: " +
+                getUpInteractionStatus.element + ": " +
+                getUpInteractionStatus.message
+            );
+        }
+        metalrobo::TaskPack autonomousGetUp = getUp.task;
+        autonomousGetUp.interactionControlReference = false;
+        metalrobo::CompiledTaskProgram autonomousGetUpProgram;
+        const auto autonomousGetUpStatus =
+            metalrobo::compileTaskProgram(
+                autonomousGetUp,
+                getUpInteraction,
+                "weight_shift_left_lift_right",
+                compiledGetUp.world,
+                autonomousGetUpProgram
+            );
+        if (!autonomousGetUpStatus.succeeded() ||
+            (autonomousGetUpProgram.header().schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_RESET) == 0u ||
+            (autonomousGetUpProgram.header().schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u) {
+            fail(
+                "G1 get-up autonomous reset did not separate initialization from reference control"
+            );
         }
         const auto getUpRewards = compiledGetUp.task.rewardOperators();
         const auto standingReward = std::find_if(
@@ -1208,10 +1280,10 @@ int main(const int argc, const char* const* argv) {
         );
         if (standingReward == getUpRewards.end() ||
             restorationReward == getUpRewards.end() ||
-            std::abs(standingReward->parameters.x - 10.0f) > 1.0e-6f ||
+            std::abs(standingReward->parameters.x - 40.0f) > 1.0e-6f ||
             std::abs(standingReward->parameters.y - 0.65f) > 1.0e-6f ||
             std::abs(standingReward->parameters.z - 0.8f) > 1.0e-6f ||
-            std::abs(restorationReward->parameters.x - 8.0f) > 1.0e-6f ||
+            std::abs(restorationReward->parameters.x - 40.0f) > 1.0e-6f ||
             std::abs(restorationReward->parameters.y - 0.22f) > 1.0e-6f ||
             std::abs(restorationReward->parameters.z - 0.40f) > 1.0e-6f ||
             std::abs(restorationReward->parameters.w - 0.94f) > 1.0e-6f ||
@@ -1280,8 +1352,6 @@ int main(const int argc, const char* const* argv) {
             compiledBallRecovery.task.layout().contactMetricCount != 51u ||
             compiledBallRecovery.task.header().counts0.w != 5u ||
             compiledBallRecovery.task.header().counts1.w != 20u ||
-            (compiledBallRecovery.task.header().schedule.w &
-             MR_TASK_PROGRAM_RECOVERY_CURRICULUM) != 0u ||
             std::abs(
                 compiledBallRecovery.task.header().locomotion.w - 0.70f
             ) > 1.0e-6f ||
@@ -1320,7 +1390,7 @@ int main(const int argc, const char* const* argv) {
         }
         if (stagedImpactVelocities != 18u ||
             baseLaunchSchedules != 6u) {
-            fail("G1 physical-ball curriculum is incomplete");
+            fail("G1 physical-ball difficulty distribution is incomplete");
         }
         const auto impactEvents =
             compiledBallRecovery.task.impactEvents();
@@ -1383,15 +1453,13 @@ int main(const int argc, const char* const* argv) {
             compiledDodge.task.header().visualCorruption.w != 0.01f ||
             compiledDodge.task.header().schedule.z != 4u ||
             std::abs(
-                compiledDodge.task.header().locomotion.w - 0.03f
+                compiledDodge.task.header().locomotion.w - 0.70f
             ) > 1.0e-6f ||
             std::abs(
-                compiledDodge.task.header().commandUpper.w - 0.02f
+                compiledDodge.task.header().commandUpper.w - 1.5f
             ) > 1.0e-6f ||
             (compiledDodge.task.header().schedule.w &
              MR_TASK_PROGRAM_MASKED_DEPTH_FEATURES) == 0u ||
-            (compiledDodge.task.header().schedule.w &
-             MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM) == 0u ||
             (compiledDodge.task.header().schedule.w &
              MR_TASK_PROGRAM_THREAT_TEACHER) == 0u ||
             compiledDodge.task.header().threat.x == MR_INVALID_INDEX ||
@@ -1495,47 +1563,6 @@ int main(const int argc, const char* const* argv) {
             stagedDodgeVelocities != 18u ||
             forwardDodgePositions != 18u) {
             fail("G1 dodge projectile-speed ladder is incomplete");
-        }
-        metalrobo::TaskPack overwideDodge = dodge.task;
-        overwideDodge.curriculumLevelCount = 5u;
-        metalrobo::CompiledTaskProgram rejectedDodge;
-        if (metalrobo::compileTaskProgram(
-                overwideDodge,
-                compiledDodge.world,
-                rejectedDodge
-            ).status != metalrobo::TaskCompileStatus::invalidPack) {
-            fail("overwide dodge progress reference was accepted");
-        }
-        const auto curriculumDecision = [](
-            const std::uint32_t level,
-            const float contacts,
-            const float misses,
-            const float balance,
-            const float referenceContacts = 10000.0f,
-            const float referenceMisses = 0.0f,
-            const float referenceBalance = 10000.0f
-        ) {
-            return mr_task_projectile_curriculum_decision(
-                level, 4u, contacts, misses, balance,
-                referenceContacts, referenceMisses, referenceBalance,
-                0.03f, 0.02f
-            );
-        };
-        if (curriculumDecision(0u, 9600.0f, 0.0f, 10100.0f) !=
-                MR_TASK_CURRICULUM_ADVANCE ||
-            curriculumDecision(0u, 10100.0f, 0.0f, 9600.0f) !=
-                MR_TASK_CURRICULUM_ADVANCE ||
-            curriculumDecision(0u, 10100.0f, 31.0f, 10100.0f) !=
-                MR_TASK_CURRICULUM_ADVANCE ||
-            curriculumDecision(0u, 9800.0f, 0.0f, 10000.0f) !=
-                MR_TASK_CURRICULUM_HOLD ||
-            curriculumDecision(1u, 11000.0f, 0.0f, 10000.0f) !=
-                MR_TASK_CURRICULUM_RETREAT ||
-            curriculumDecision(0u, 11000.0f, 0.0f, 10000.0f) !=
-                MR_TASK_CURRICULUM_HOLD ||
-            curriculumDecision(1u, 11000.0f, 0.0f, 9600.0f) !=
-                MR_TASK_CURRICULUM_HOLD) {
-            fail("G1 dodge progress curriculum decisions changed");
         }
         std::uint32_t barriers = 0u;
         std::uint32_t evasions = 0u;

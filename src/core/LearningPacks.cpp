@@ -84,7 +84,7 @@ LearningPackResult validateTaskArtifact(
         pack.actorHistoryLength == 0u ||
         pack.criticHistoryLength == 0u ||
         pack.maximumEpisodeSteps == 0u ||
-        pack.curriculumLevelCount == 0u) {
+        pack.difficultyBandCount == 0u) {
         return fail(
             LearningPackStatus::invalidPack,
             "TaskPack identity, dimensions, or episode limits are invalid"
@@ -93,7 +93,8 @@ LearningPackResult validateTaskArtifact(
     const auto probability = [](const float value) {
         return std::isfinite(value) && value >= 0.0f && value <= 1.0f;
     };
-    if (!probability(pack.visual.fullDropoutProbability) ||
+    if (!probability(pack.interactionStudentAuthority) ||
+        !probability(pack.visual.fullDropoutProbability) ||
         !probability(pack.visual.pixelDropoutProbability) ||
         !probability(pack.visual.edgeFlickerProbability) ||
         !std::isfinite(pack.visual.depthJitterMeters) ||
@@ -1163,6 +1164,8 @@ std::vector<std::byte> serializeTask(
             target.pod(value.priority);
             target.pod(value.threshold);
             target.pod(value.failurePenalty);
+            target.pod(value.minimumDifficultyBand);
+            target.pod(value.maximumDifficultyBand);
         }
     );
     writeRichVector(
@@ -1173,7 +1176,7 @@ std::vector<std::byte> serializeTask(
             writeEnum(target, value.operation);
             target.string(value.target);
             target.pod(value.component);
-            target.pod(value.minimumCurriculumLevel);
+            target.pod(value.minimumDifficultyBand);
             target.pod(value.parameters);
         }
     );
@@ -1181,9 +1184,9 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.commands.upper);
     writer.pod(pack.commands.limitLower);
     writer.pod(pack.commands.limitUpper);
-    writer.pod(pack.commands.curriculumStep);
+    writer.pod(pack.commands.difficultyStep);
     writer.pod(pack.commands.standingProbability);
-    writer.pod(pack.commands.minimumEpisodeSurvivalFraction);
+    writer.pod(pack.commands.difficultySamplingExponent);
     writer.pod(pack.commands.minimumDurationSeconds);
     writer.pod(pack.commands.maximumDurationSeconds);
     writer.pod(pack.pushes.maximumVelocity);
@@ -1208,7 +1211,7 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.visual.depthJitterMeters);
     writer.pod(pack.visual.depthNoiseSigmaMeters);
     writer.pod(pack.visual.edgeFlickerProbability);
-    writer.pod(pack.visual.curriculumCorruptionGain);
+    writer.pod(pack.visual.difficultyCorruptionGain);
     writer.pod(static_cast<std::uint8_t>(
         pack.visual.includeDerivedFeatures ? 1u : 0u
     ));
@@ -1228,7 +1231,11 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.maximumEpisodeSteps);
     writer.pod(pack.maximumActionDelaySteps);
     writer.pod(pack.maximumObservationDelaySteps);
-    writer.pod(pack.curriculumLevelCount);
+    writer.pod(pack.difficultyBandCount);
+    writer.pod(pack.interactionStudentAuthority);
+    writer.pod(static_cast<std::uint8_t>(
+        pack.interactionControlReference ? 1u : 0u
+    ));
     writer.pod(pack.baseHeightTarget);
     writer.pod(pack.gaitPeriodSeconds);
     writer.pod(pack.clearanceTarget);
@@ -1244,6 +1251,7 @@ bool deserializeTask(
     Reader reader{payload};
     std::uint8_t cleanHistory = 0u;
     std::uint8_t visualDerivedFeatures = 0u;
+    std::uint8_t interactionControlReference = 0u;
     if (!reader.string(pack.id) ||
         !reader.pod(pack.capacities) ||
         !readRichVector(
@@ -1327,7 +1335,9 @@ bool deserializeTask(
                     source.pod(value.reason) &&
                     source.pod(value.priority) &&
                     source.pod(value.threshold) &&
-                    source.pod(value.failurePenalty);
+                    source.pod(value.failurePenalty) &&
+                    source.pod(value.minimumDifficultyBand) &&
+                    source.pod(value.maximumDifficultyBand);
             }
         ) ||
         !readRichVector(
@@ -1338,7 +1348,7 @@ bool deserializeTask(
                 return readEnum(source, value.operation) &&
                     source.string(value.target) &&
                     source.pod(value.component) &&
-                    source.pod(value.minimumCurriculumLevel) &&
+                    source.pod(value.minimumDifficultyBand) &&
                     source.pod(value.parameters);
             }
         ) ||
@@ -1346,11 +1356,9 @@ bool deserializeTask(
         !reader.pod(pack.commands.upper) ||
         !reader.pod(pack.commands.limitLower) ||
         !reader.pod(pack.commands.limitUpper) ||
-        !reader.pod(pack.commands.curriculumStep) ||
+        !reader.pod(pack.commands.difficultyStep) ||
         !reader.pod(pack.commands.standingProbability) ||
-        !reader.pod(
-            pack.commands.minimumEpisodeSurvivalFraction
-        ) ||
+        !reader.pod(pack.commands.difficultySamplingExponent) ||
         !reader.pod(pack.commands.minimumDurationSeconds) ||
         !reader.pod(pack.commands.maximumDurationSeconds) ||
         !reader.pod(pack.pushes.maximumVelocity) ||
@@ -1375,7 +1383,7 @@ bool deserializeTask(
         !reader.pod(pack.visual.depthJitterMeters) ||
         !reader.pod(pack.visual.depthNoiseSigmaMeters) ||
         !reader.pod(pack.visual.edgeFlickerProbability) ||
-        !reader.pod(pack.visual.curriculumCorruptionGain) ||
+        !reader.pod(pack.visual.difficultyCorruptionGain) ||
         !reader.pod(visualDerivedFeatures) ||
         !reader.string(pack.threat.protectedGroup) ||
         !reader.pod(pack.threat.activationSpeed) ||
@@ -1393,7 +1401,10 @@ bool deserializeTask(
         !reader.pod(pack.maximumEpisodeSteps) ||
         !reader.pod(pack.maximumActionDelaySteps) ||
         !reader.pod(pack.maximumObservationDelaySteps) ||
-        !reader.pod(pack.curriculumLevelCount) ||
+        !reader.pod(pack.difficultyBandCount) ||
+        !reader.pod(pack.interactionStudentAuthority) ||
+        !reader.pod(interactionControlReference) ||
+        interactionControlReference > 1u ||
         !reader.pod(pack.baseHeightTarget) ||
         !reader.pod(pack.gaitPeriodSeconds) ||
         !reader.pod(pack.clearanceTarget) ||
@@ -1404,6 +1415,8 @@ bool deserializeTask(
     }
     pack.criticIncludesCleanHistory = cleanHistory != 0u;
     pack.visual.includeDerivedFeatures = visualDerivedFeatures != 0u;
+    pack.interactionControlReference =
+        interactionControlReference != 0u;
     return true;
 }
 

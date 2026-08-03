@@ -15,6 +15,7 @@ Numi supplies fresh artifact paths and local runtime paths when they are not
 provided. Every native trainer option passes through unchanged. Common options:
 
   --task velocity|disturbance-recovery|supine-get-up|ball-recovery|ball-dodge
+  --minimum-difficulty-band N --maximum-difficulty-band N
   --interaction-pack PATH --interaction-clip ID
   --envs N --steps N --updates N --chunk N
   --policy-pack PATH                 Resume or use an existing PolicyPack
@@ -109,6 +110,8 @@ numi_has_option --rollout-pack "$@" ||
     set -- --rollout-pack "$numi_run/rollout.rolloutpack" "$@"
 numi_has_option --learner-state "$@" ||
     set -- --learner-state "$numi_run/learner.safetensors" "$@"
+numi_has_option --output-learner-state "$@" ||
+    set -- --output-learner-state "$numi_run/learner.safetensors" "$@"
 
 printf '%s\n' "$@" > "$numi_run/arguments.txt"
 if command -v git >/dev/null 2>&1 && git -C "$numi_root" rev-parse HEAD >/dev/null 2>&1; then
@@ -137,6 +140,9 @@ wait "$numi_stdout_tee"
 wait "$numi_stderr_tee"
 rm -f "$numi_stdout_pipe" "$numi_stderr_pipe"
 trap - EXIT
+if [ "$numi_status" -eq 0 ] && [ -s "$numi_run/stdout.log" ]; then
+    cp "$numi_run/stdout.log" "$numi_run/evidence.json"
+fi
 if command -v shasum >/dev/null 2>&1; then
     find "$numi_run" -maxdepth 1 -type f ! -name artifacts.sha256 \
         -exec shasum -a 256 {} \; > "$numi_run/artifacts.sha256"

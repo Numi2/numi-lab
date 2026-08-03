@@ -102,7 +102,7 @@ pack = compile_episode_manifest(
 - reward operators and continuous-time weights;
 - termination priorities and reasons;
 - reset and domain-randomization operators;
-- command curriculum, pushes, terrain samples, and corruption parameters;
+- sampled difficulty bands, pushes, terrain samples, and corruption parameters;
 - the requested native capacity profile.
 
 Names such as `left_ankle_pitch`, `foot_contact`, or `left_index_tip` exist
@@ -116,7 +116,7 @@ barrier resolves one dynamic scene body and one semantic protected-body group,
 then evaluates the most-binding per-link constraint before contact. A dense
 projectile-evasion operator supplies gross root clearance and stillness, while
 event-scoped contact termination, clean-miss reward, ball-free standing
-anchors, launch timing, and speed curriculum remain TaskPack data rather than
+anchors, launch timing, and speed bands remain TaskPack data rather than
 a robot-specific runtime path.
 
 The bundled G1 task is one preset expressed through this same format. Imported
@@ -169,12 +169,19 @@ observation operators publish phase, live-minus-reference joint error,
 expected contact/confidence, target fields, and their per-feature validity.
 Native rewards
 track joints and compare expected contact against the solver-resolved support
-field. The current joint target is also the implicit-position controller's
-baseline: normalized policy actions are bounded residuals around it, so zero
-residual follows the generated guide and PPO exploration is local. The
+field. The implicit-position controller blends the generated joint target
+toward the student's absolute mechanism-space target using an authored
+student-authority fraction. Zero follows the generated guide; one is fully
+autonomous. The
 reference can never write contact state or replace NumiSolver's force, CoP,
 area, or pressure outcome. Non-looping clips set the bundled G1 interaction
 task horizon from clip duration and control cadence.
+
+TaskPack authors may set interaction student authority to zero for pure
+shadow-mode distillation. The reference then executes without student
+perturbation while the exact mechanism-scale target is still published as the
+teacher action. G1 get-up uses this mode until the autonomous student is
+qualified; ordinary interaction tracking retains bounded blended control.
 
 The bundled C/Swift route
 `mr_create_unitree_g1_interaction_rollout` / `MetalRoboTaskRolloutContext`
@@ -252,6 +259,124 @@ weight at zero.
 Thus imagination proposes behavior, physics decides whether it becomes a
 teacher, and an unsuccessful generated dodge is ordinary negative evidence.
 
+Get-up distillation can run with zero student authority so collection
+follows the physics-executed guide without an untrained policy perturbing it.
+The actor receives only an elapsed recovery phase encoding alongside its
+deployable proprioception; imagined joint errors and contact intent remain
+critic-only. A recovery-mode controller can generate the same phase clock
+after a fall without retaining the imagined trajectory.
+Autonomous qualification uses `task_rollout --interaction-reset-only`: the
+first interaction frame initializes the exact demonstrated fallen state, then
+the reference is disconnected from control and teacher output. A policy only
+passes when it generates the recovery itself under NumiSolver.
+The same mode in `task_train` leaves the PPO actor enabled, making it the
+closed-loop recovery path when an authored joint sequence is not itself a
+successful physical teacher. Teacher usefulness is transition-local and
+continuous. Accepted height progress, tilt recovery, stability, standing, and
+restoration increase an action label's weight. A later collapse reduces its
+own unstable labels but does not erase earlier physically useful actions.
+
+Recovery sampling must not treat an interpolated animation frame as a
+contact-valid physical state. `examples/interaction/get_up.py` can author a
+reset pack from an accepted native state trace using
+`--solver-state-trace`, `--solver-state-step`, and `--episode-frames`. The
+trace payload hash is retained as source revision, all future contact modes
+remain free, and the short episode horizon can be aligned with the learning
+boundary. This supports a measured backward frontier over states that
+NumiSolver actually reached; geometric `--start-frame` slices remain useful
+for intent inspection but are not physical qualification evidence.
+
+#### Get-up teacher use and staged pipeline
+
+Use the ARDY interaction teacher when the desired motion is known more clearly
+than the autonomous action policy: recovery, standing stabilization, a
+supported transition, or another short contact-rich skill. Do not use it to
+declare generated motion physically correct. ARDY proposes root, joint, and
+contact intent; the native controller converts the joint target actually sent
+to the mechanism into normalized teacher actions; NumiSolver remains the sole
+authority for contact, support, state acceptance, termination, and outcome.
+
+Get-up is trained as overlapping regions instead of one all-or-nothing
+curriculum:
+
+1. quiet stance and near-fall correction;
+2. supported squat to quiet stance;
+3. fallen state to supported squat;
+4. one autonomous policy over the union, followed by full supine evaluation.
+
+The get-up TaskPack uses reset bands `0...1` for supine states, `2` for a low
+squat, `3` for a high squat, and `4...7` for standing. Invocation-level
+`--minimum-difficulty-band` and `--maximum-difficulty-band` select a region
+without cloning or changing the TaskPack. Height and tilt terminations apply
+only to standing bands `4...7`: after an unrecoverable standing fall, the next
+sample begins promptly instead of filling the remainder of the rollout with a
+motionless body. Floor and squat regions retain low and tilted states as valid
+learning states. These are sample-allocation boundaries, not policy-promotion
+gates; continuous per-band phase metrics still report partial progress.
+
+Author a solver-trace-backed teacher rather than resetting from an arbitrary
+interpolated animation frame:
+
+```sh
+python3 examples/interaction/get_up.py \
+  --output-directory runs/get-up-teacher \
+  --solver-state-trace runs/accepted/state.tsv \
+  --solver-state-step 1 \
+  --solver-state-target stand \
+  --episode-frames 258 \
+  --generate-only
+```
+
+`--solver-state-target hold` repeats the accepted state for a support test;
+`stand` interpolates an action-level squat-to-stand proposal toward the
+physics-calibrated standing endpoint. A failed hold or guided rise rejects the
+authored state as a teacher source, but it remains useful diagnostic evidence.
+
+Collect and distill the teacher with no student authority:
+
+```sh
+numi train \
+  --task supine-get-up --scene ground \
+  --minimum-difficulty-band 4 --maximum-difficulty-band 4 \
+  --interaction-pack runs/get-up-teacher/stand.interactionpack \
+  --interaction-clip stand --interaction-student-authority 0 \
+  --envs 1024 --steps 256 --updates 8 --chunk 8 \
+  --imagination-distillation-coefficient 10 \
+  --materialize-articulated-contact-responses
+```
+
+The behavior actor does not perturb this collection. Executed teacher actions
+are excluded from the PPO actor ratio. Stable solver-realized transitions
+receive continuous teacher weight and a Huber distillation loss; failed or
+collapsed transitions do not become positive teacher labels. The critic still
+learns their realized returns.
+
+Disconnect the teacher for autonomous evaluation while preserving only its
+first accepted reset state:
+
+```sh
+numi evaluate \
+  --task supine-get-up --scene ground \
+  --minimum-difficulty-band 4 --maximum-difficulty-band 4 \
+  --interaction-pack runs/get-up-teacher/stand.interactionpack \
+  --interaction-clip stand --interaction-reset-only \
+  --policy-pack runs/get-up-student/deployment.policypack \
+  --envs 256 --steps 256 --repeats 1 --chunk 8 \
+  --materialize-articulated-contact-responses
+```
+
+The retained standing experiment used a native ankle calibration before
+authoring: symmetric normalized ankle pitch `+0.22` mapped to a
+`-0.040808 rad` target in the full-range get-up action contract. Its best
+static sweep reached `0.9182` restored-state and `0.9426` quiet-stand
+incidence. In a matched autonomous comparison, the ARDY-distilled student
+reduced height/tilt terminations from `833` to `456`, raised restored-state
+incidence from `0.7160` to `0.8389`, and reduced mean tilt from `0.2235 rad`
+to `0.1096 rad`, with zero failed physics steps. The former authored high
+squat did not remain dynamically supported and is intentionally not a teacher;
+a solver-reached balanced squat is still required before extending this
+pipeline toward the floor.
+
 The raise-left-hand example validates generated joint intent through native
 physics and accepted-state kinematics. It does not establish a successful
 dodge teacher, a trained dodge policy, or sim-to-real transfer.
@@ -284,7 +409,7 @@ exploration distribution.
 - private q/v and scene state;
 - manifold headers, points, pair caches, witnesses, and warm starts;
 - actuator delay/backlash and sensor history;
-- episode counters, curriculum state, and counter-based RNG streams;
+- episode counters, physical-evidence state, and counter-based RNG streams;
 - private placement heaps and bounded transient arenas.
 
 Every control transition is one native transaction:
@@ -302,7 +427,7 @@ flowchart LR
 ```
 
 A reset atomically replaces articulation and scene state, manifolds, warm
-starts, actuator state, tactile/sensor history, counters, curriculum command,
+starts, actuator state, tactile/sensor history, counters, sampled difficulty,
 and RNG episode identity. A physics failure restores the environment's
 control-step checkpoint and publishes a typed status; unrelated environments
 continue.
@@ -361,15 +486,11 @@ Timeout transitions include one native critic scalar evaluated from the
 accepted post-transition history before reset. GAE uses that scalar while
 still cutting recurrence at the episode boundary.
 
-The command curriculum is task-wide rather than environment-local. One native
-reduction adapts it only at an authored window boundary and publishes its level
-in every transition. The MLX worker accepts bounded one-level advances and
-retreats, rejects larger jumps or cross-environment disagreement, and
-atomically stores the level plus same-difficulty reference with model and
-optimizer state. Resume restores that reference before the first resident
-submission. Partial-window counters and the global clock restart because the
-new simulator context has fresh environment episodes; accumulated progress is
-not silently re-anchored.
+Every episode deterministically samples from all authored difficulty bands.
+An authored exponent may bias sampling toward easier regions without excluding
+hard evidence. The native task-wide reduction publishes exposure-normalized
+physical outcomes only; it cannot hold, advance, or retreat learning. MLX
+checkpoints therefore contain learner state, not simulator difficulty policy.
 
 The former Python/MLX physics extension, MLX world state, task-specific PPO
 collectors, and Python rollout/benchmark entry points have been removed.
@@ -383,12 +504,11 @@ shape-compatible masked-depth history expands an exact segmented winner by
 one pixel at 16x9 so small projectiles remain observable without adding a
 host readback, tracker feature, or larger policy input.
 
-Held-out dodge reporting keeps strict champion promotion separate from
-directional progress. Progress requires a better physical task outcome and
-allows at most a two-percent companion balance-incidence regression, while
-publishing every exact delta. This prevents a few finite-sample balance events
-from erasing a measured contact or clean-miss improvement; champion promotion
-still requires strictly better hit outcomes with no balance regression.
+Held-out dodge reporting publishes the complete physical outcome vector:
+contacts, clean misses, balance failures, support behavior, throughput, and
+uncertainty. No scalar verdict discards a valid candidate. Selecting the
+configured production policy remains an explicit comparison of immutable run
+artifacts.
 
 ## R2S2R boundary
 
