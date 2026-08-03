@@ -1,6 +1,6 @@
-"""Apple-native host integration for TREE Industries' ARDY Core ONNX export.
+"""Apple-native host integration for TREE Industries' ARDY ONNX exports.
 
-ARDY proposes human motion. It does not own robot control or Numi physics.
+ARDY proposes motion. It does not own robot control or Numi physics.
 This module executes the exported diffusion/decoder graphs and publishes a
 versioned, fingerprinted skeleton-motion proposal for downstream consumers.
 """
@@ -33,6 +33,38 @@ ARDY_GRAPH_HASHES = {
     "denoiser": "c0745f310b373c93858eb02bb7f30bae0ee139258e608ef4a317e8882e9bfac3",
     "decoder": "5a9ba4e1d1f537c61f91d63d63685f7f2176dffc8b9dd12cc88783d205987d2e",
 }
+ARDY_G1_REPOSITORY = "TREEIndustries/ARDY-G1-RP-25FPS-Horizon52-ONNX"
+ARDY_G1_REVISION = "d36d7069d514f9e6534c44c9fcf2463733298326"
+ARDY_G1_GRAPH_HASHES = {
+    "encoder": "d29bf5c592200f5fd557fb4e39fdc53099c1703f23df41854a694c834b7a8de1",
+    "denoiser": "a9e3c463f0807bec94629048ecdf66cf5291837a99efd475b3677836ad345b13",
+    "decoder": "45fb14fd8fb85d01204341c16fefab82812c48ec4d82fb7e3ecf5138d14506a0",
+}
+
+_ARDY_MODEL_SPECS = {
+    "ARDY-Core-RP-20FPS-Horizon40": {
+        "repository": ARDY_REPOSITORY,
+        "revision": ARDY_REVISION,
+        "skeleton": "cskel27",
+        "fps": 20,
+        "horizon_frames": 40,
+        "motion_dim": 330,
+        "body_dim": 325,
+        "joint_count": 27,
+        "graph_hashes": ARDY_GRAPH_HASHES,
+    },
+    "ARDY-G1-RP-25FPS-Horizon52": {
+        "repository": ARDY_G1_REPOSITORY,
+        "revision": ARDY_G1_REVISION,
+        "skeleton": "g1skel34",
+        "fps": 25,
+        "horizon_frames": 52,
+        "motion_dim": 414,
+        "body_dim": 409,
+        "joint_count": 34,
+        "graph_hashes": ARDY_G1_GRAPH_HASHES,
+    },
+}
 
 
 def _sha256(path: Path, block_size: int = 8 * 1024 * 1024) -> str:
@@ -54,12 +86,20 @@ def _array_fingerprint(arrays: Mapping[str, np.ndarray]) -> str:
     return digest.hexdigest()
 
 
+def _model_spec(contract: Mapping[str, Any]) -> Mapping[str, Any]:
+    model = contract.get("model")
+    if model not in _ARDY_MODEL_SPECS:
+        raise ValueError(f"unsupported ARDY model contract: {model}")
+    return _ARDY_MODEL_SPECS[str(model)]
+
+
 def _validate_contract(contract: Mapping[str, Any]) -> None:
+    spec = _model_spec(contract)
     expected = {
-        "model": "ARDY-Core-RP-20FPS-Horizon40",
-        "skeleton": "cskel27",
-        "fps": 20,
-        "horizon_frames": 40,
+        "model": contract["model"],
+        "skeleton": spec["skeleton"],
+        "fps": spec["fps"],
+        "horizon_frames": spec["horizon_frames"],
         "frames_per_token": 4,
         "max_tokens": 64,
         "max_frames": 256,
@@ -67,11 +107,11 @@ def _validate_contract(contract: Mapping[str, Any]) -> None:
         "hybrid_dim": 148,
         "root_dim": 5,
         "latent_dim": 128,
-        "motion_dim": 330,
-        "body_dim": 325,
+        "motion_dim": spec["motion_dim"],
+        "body_dim": spec["body_dim"],
         "local_root_dim": 4,
         "text_dim": 4096,
-        "joint_count": 27,
+        "joint_count": spec["joint_count"],
     }
     mismatches = [
         key for key, value in expected.items() if contract.get(key) != value
@@ -81,10 +121,10 @@ def _validate_contract(contract: Mapping[str, Any]) -> None:
             "ARDY model contract is incompatible: " + ", ".join(mismatches)
         )
     if (
-        len(contract.get("joint_names", ())) != 27
-        or len(contract.get("joint_parents", ())) != 27
-        or len(contract.get("motion_mean", ())) != 330
-        or len(contract.get("motion_std", ())) != 330
+        len(contract.get("joint_names", ())) != spec["joint_count"]
+        or len(contract.get("joint_parents", ())) != spec["joint_count"]
+        or len(contract.get("motion_mean", ())) != spec["motion_dim"]
+        or len(contract.get("motion_std", ())) != spec["motion_dim"]
         or len(contract.get("local_root_mean", ())) != 4
         or len(contract.get("local_root_std", ())) != 4
     ):
@@ -97,8 +137,9 @@ def inspect_model(model_directory: Path, verify_hashes: bool) -> dict[str, Any]:
     if not isinstance(contract, dict):
         raise ValueError("ARDY model contract must be a JSON object")
     _validate_contract(contract)
+    spec = _model_spec(contract)
     graphs: dict[str, Any] = {}
-    for name, expected_hash in ARDY_GRAPH_HASHES.items():
+    for name, expected_hash in spec["graph_hashes"].items():
         path = model_directory / "fp32" / f"{name}.onnx"
         if not path.is_file():
             raise FileNotFoundError(path)
@@ -113,8 +154,8 @@ def inspect_model(model_directory: Path, verify_hashes: bool) -> dict[str, Any]:
         }
     return {
         "format": ARDY_MOTION_FORMAT,
-        "repository": ARDY_REPOSITORY,
-        "revision": ARDY_REVISION,
+        "repository": spec["repository"],
+        "revision": spec["revision"],
         "contract": {
             "path": contract_path.name,
             "sha256": _sha256(contract_path),
@@ -340,6 +381,7 @@ def _run_denoiser_stage(
     fixed_feeds: Mapping[str, np.ndarray],
     cumulative: np.ndarray,
     previous: np.ndarray,
+    generation_tokens: int,
 ) -> tuple[np.ndarray, dict[str, Any]]:
     started = time.perf_counter()
     session = ort.InferenceSession(str(graph), providers=list(providers))
@@ -358,13 +400,14 @@ def _run_denoiser_stage(
         )[0]
         alpha = cumulative[timestep]
         epsilon = (
-            hybrid[:, :10] / np.sqrt(alpha) - predicted[:, :10]
+            hybrid[:, :generation_tokens] / np.sqrt(alpha)
+            - predicted[:, :generation_tokens]
         ) / np.sqrt((1.0 - alpha) / alpha)
-        hybrid[:, :10] = (
-            predicted[:, :10] * np.sqrt(previous[timestep])
+        hybrid[:, :generation_tokens] = (
+            predicted[:, :generation_tokens] * np.sqrt(previous[timestep])
             + np.sqrt(1.0 - previous[timestep]) * epsilon
         )
-        if not np.isfinite(hybrid[:, :10]).all():
+        if not np.isfinite(hybrid[:, :generation_tokens]).all():
             raise RuntimeError(f"ARDY denoising step {timestep} is non-finite")
         step_seconds.append(time.perf_counter() - step_started)
     finished = time.perf_counter()
@@ -416,19 +459,24 @@ def _run_ardy(
     available_providers: Sequence[str],
 ) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
     generator = np.random.default_rng(seed)
+    horizon_frames = int(contract["horizon_frames"])
+    frames_per_token = int(contract["frames_per_token"])
+    generation_tokens = int(math.ceil(horizon_frames / frames_per_token))
+    motion_dim = int(contract["motion_dim"])
+    joint_count = int(contract["joint_count"])
     initial_hybrid = np.zeros((1, 64, 148), dtype=np.float32)
-    initial_hybrid[:, :10] = generator.standard_normal(
-        (1, 10, 148), dtype=np.float32
+    initial_hybrid[:, :generation_tokens] = generator.standard_normal(
+        (1, generation_tokens, 148), dtype=np.float32
     )
     frame_generation_mask = np.zeros((1, 256), dtype=np.float32)
-    frame_generation_mask[:, :40] = 1.0
+    frame_generation_mask[:, :horizon_frames] = 1.0
     token_generation_mask = np.zeros((1, 64), dtype=np.float32)
-    token_generation_mask[:, :10] = 1.0
+    token_generation_mask[:, :generation_tokens] = 1.0
     fixed_feeds = {
         "cfg_weight_text": np.asarray([2.0], dtype=np.float32),
         "cfg_weight_cstr": np.asarray([0.0], dtype=np.float32),
         "history_len": np.asarray([0], dtype=np.int64),
-        "generation_len": np.asarray([40], dtype=np.int64),
+        "generation_len": np.asarray([horizon_frames], dtype=np.int64),
         "history_mask": np.zeros((1, 256), dtype=np.float32),
         "generation_mask": frame_generation_mask,
         "history_token_mask": np.zeros((1, 64), dtype=np.float32),
@@ -436,8 +484,8 @@ def _run_ardy(
         "future_token_mask": np.zeros((1, 64), dtype=np.float32),
         "text_feat": text_feature,
         "first_heading_angle": np.zeros(1, dtype=np.float32),
-        "motion_mask": np.zeros((1, 256, 330), dtype=np.float32),
-        "observed_motion": np.zeros((1, 256, 330), dtype=np.float32),
+        "motion_mask": np.zeros((1, 256, motion_dim), dtype=np.float32),
+        "observed_motion": np.zeros((1, 256, motion_dim), dtype=np.float32),
     }
     cumulative, previous = _cosine_diffusion()
     attempts = _provider_attempts(requested_provider, available_providers)
@@ -460,6 +508,7 @@ def _run_ardy(
                     fixed_feeds,
                     cumulative,
                     previous,
+                    generation_tokens,
                 )
             if name == "coreml":
                 denoiser_cpu_cache = _run_denoiser_stage(
@@ -470,10 +519,11 @@ def _run_ardy(
                     fixed_feeds,
                     cumulative,
                     previous,
+                    generation_tokens,
                 )
                 parity = _output_parity(
-                    (candidate[:, :10],),
-                    (denoiser_cpu_cache[0][:, :10],),
+                    (candidate[:, :generation_tokens],),
+                    (denoiser_cpu_cache[0][:, :generation_tokens],),
                 )
                 if not parity["passed"]:
                     raise RuntimeError(
@@ -555,21 +605,29 @@ def _run_ardy(
     body_normalized = np.asarray(decoded[1], dtype=np.float32)
     motion_normalized = np.concatenate(
         (root_normalized, body_normalized), axis=2
-    )[:, :40]
+    )[:, :horizon_frames]
     mean = np.asarray(contract["motion_mean"], dtype=np.float32)
     standard_deviation = np.asarray(contract["motion_std"], dtype=np.float32)
     motion = motion_normalized * standard_deviation + mean
-    if motion.shape != (1, 40, 330) or not np.isfinite(motion).all():
+    if motion.shape != (1, horizon_frames, motion_dim) or not np.isfinite(motion).all():
         raise RuntimeError("ARDY decoder produced an invalid motion tensor")
+    local_position_end = 5 + (joint_count - 1) * 3
+    rotation_end = local_position_end + joint_count * 6
+    velocity_end = rotation_end + joint_count * 3
     arrays = {
         "normalized_motion": motion_normalized[0].astype(np.float32),
         "root_positions": motion[0, :, :3].astype(np.float32),
         "root_heading": motion[0, :, 3:5].astype(np.float32),
-        "local_joint_positions": motion[0, :, 5:83].reshape(40, 26, 3).astype(np.float32),
-        "global_rotations_6d": motion[0, :, 83:245].reshape(40, 27, 6).astype(np.float32),
-        "joint_velocities": motion[0, :, 245:326].reshape(40, 27, 3).astype(np.float32),
-        "foot_contact_scores": motion[0, :, 326:330].astype(np.float32),
-        "foot_contacts": (motion[0, :, 326:330] > 0.5).astype(np.uint8),
+        "local_joint_positions": motion[0, :, 5:local_position_end]
+        .reshape(horizon_frames, joint_count - 1, 3).astype(np.float32),
+        "global_rotations_6d": motion[0, :, local_position_end:rotation_end]
+        .reshape(horizon_frames, joint_count, 6).astype(np.float32),
+        "joint_velocities": motion[0, :, rotation_end:velocity_end]
+        .reshape(horizon_frames, joint_count, 3).astype(np.float32),
+        "foot_contact_scores": motion[0, :, velocity_end:velocity_end + 4]
+        .astype(np.float32),
+        "foot_contacts": (motion[0, :, velocity_end:velocity_end + 4] > 0.5)
+        .astype(np.uint8),
     }
     stages = {
         "denoiser": denoiser_evidence,
@@ -662,8 +720,8 @@ def infer_motion(
         "format": ARDY_MOTION_FORMAT,
         "status": "runtime-qualified",
         "model_role": "motion proposal only; downstream simulation remains authoritative",
-        "model_repository": ARDY_REPOSITORY,
-        "model_revision": ARDY_REVISION,
+        "model_repository": validated["repository"],
+        "model_revision": validated["revision"],
         "model_artifacts": validated,
         "prompt": prompt,
         "text_feature_sha256": _array_fingerprint({"text_feature": text_feature}),
@@ -722,6 +780,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     retarget_parser.add_argument("--output-directory", type=Path, required=True)
     imagine_parser = subparsers.add_parser("imagine-g1")
     imagine_parser.add_argument("--prompt", required=True)
+    imagine_parser.add_argument(
+        "--model-family", choices=("g1", "core"), default="g1"
+    )
     imagine_parser.add_argument("--model-directory", type=Path)
     imagine_parser.add_argument(
         "--text-encoder-directory", type=Path
@@ -755,6 +816,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     if arguments.command == "imagine-g1":
         from .ardy_text_encoder import encode_prompt
         from .ardy_interaction_convert import write_retarget_interaction_pack
+        from .ardy_g1 import (
+            native_g1_mechanism,
+            write_native_g1_interaction_pack,
+        )
         from .g1_motion_retarget import (
             retarget_g1,
             solver_trace_to_g1,
@@ -770,12 +835,18 @@ def main(argv: Sequence[str] | None = None) -> int:
                 Path.home() / "MetalRobo-training",
             )
         )
-        model_directory = arguments.model_directory or Path(
-            os.environ.get(
+        if arguments.model_directory is not None:
+            model_directory = arguments.model_directory
+        elif arguments.model_family == "g1":
+            model_directory = Path(os.environ.get(
+                "NUMI_ARDY_G1_MODEL",
+                model_root / "ardy-g1-rp-h52-onnx",
+            ))
+        else:
+            model_directory = Path(os.environ.get(
                 "NUMI_ARDY_CORE_MODEL",
                 model_root / "ardy-core-rp-onnx",
-            )
-        )
+            ))
         text_encoder_directory = arguments.text_encoder_directory or Path(
             os.environ.get(
                 "NUMI_ARDY_TEXT_ENCODER",
@@ -829,29 +900,50 @@ def main(argv: Sequence[str] | None = None) -> int:
             encoder_evidence,
         )
         motion.write(motion_directory)
-        arrays, retarget_evidence = retarget_g1(
-            motion_directory,
-            g1_urdf,
+        actual_skeleton = str(motion.evidence["skeleton"]["id"])
+        expected_skeleton = (
+            "g1skel34" if arguments.model_family == "g1" else "cskel27"
         )
+        if actual_skeleton != expected_skeleton:
+            raise ValueError(
+                f"--model-family {arguments.model_family} requires "
+                f"{expected_skeleton}, model supplies {actual_skeleton}"
+            )
+        if actual_skeleton == "g1skel34":
+            arrays, retarget_evidence = native_g1_mechanism(
+                motion_directory, g1_urdf
+            )
+        else:
+            arrays, retarget_evidence = retarget_g1(
+                motion_directory, g1_urdf
+            )
         write_retarget(retarget_directory, arrays, retarget_evidence)
 
-        _, interaction_fingerprint = write_retarget_interaction_pack(
-            output=interaction_pack,
-            root_targets=arrays["root_position_quaternion_xyzw"],
-            joint_targets=arrays["joint_positions"],
-            frames_per_second=float(retarget_evidence["fps"]),
-            desired_outcome=arguments.prompt.strip(),
-            source_repository=retarget_evidence["source_motion"][
-                "model_repository"
-            ],
-            source_revision=retarget_evidence["source_motion"][
-                "model_revision"
-            ],
-            pack_id=(
-                "ardy-core-g1-"
-                + retarget_evidence["source_motion"]["arrays_fingerprint"][:16]
-            ),
-        )
+        if actual_skeleton == "g1skel34":
+            _, interaction_fingerprint = write_native_g1_interaction_pack(
+                output=interaction_pack,
+                arrays=arrays,
+                evidence=retarget_evidence,
+                desired_outcome=arguments.prompt.strip(),
+            )
+        else:
+            _, interaction_fingerprint = write_retarget_interaction_pack(
+                output=interaction_pack,
+                root_targets=arrays["root_position_quaternion_xyzw"],
+                joint_targets=arrays["joint_positions"],
+                frames_per_second=float(retarget_evidence["fps"]),
+                desired_outcome=arguments.prompt.strip(),
+                source_repository=retarget_evidence["source_motion"][
+                    "model_repository"
+                ],
+                source_revision=retarget_evidence["source_motion"][
+                    "model_revision"
+                ],
+                pack_id=(
+                    "ardy-core-g1-"
+                    + retarget_evidence["source_motion"]["arrays_fingerprint"][:16]
+                ),
+            )
         numi = numi_root / "tools" / "numi"
         if not os.access(numi, os.X_OK):
             raise FileNotFoundError(numi)
@@ -980,6 +1072,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             "format": "numi.imagine-g1.v2",
             "prompt": arguments.prompt.strip(),
             "seed": arguments.seed,
+            "model_family": arguments.model_family,
+            "motion_to_mechanism": (
+                "native-g1-joint-frames"
+                if actual_skeleton == "g1skel34"
+                else "core-endpoint-ik-retarget"
+            ),
             "source_motion": str(motion_directory / "evidence.json"),
             "g1_retarget": str(retarget_directory / "evidence.json"),
             "interaction_pack": {

@@ -82,11 +82,11 @@ semantics permit.
    outputs, robot joints, controller limits, and contact intent. Author and
    qualify Franka, PSM, and additional provider adapters without adding robot
    branches to the simulator or compiler path.
-3. **Motion-provider realization.** The first `numi.motion-proposal.v1`
-   provider now runs ARDY Core ONNX on Apple Silicon and preserves its human
-   skeleton trajectory without pretending it is a robot action policy. Add
-   robot-authored retargeters and InteractionPack compilation so imagined
-   motion becomes physically testable intent through the same native path.
+3. **Motion-provider realization.** `numi.motion-proposal.v1` now supports both
+   generic ARDY Core and native ARDY G1 ONNX on Apple Silicon. G1 motion uses
+   NVIDIA-authored joint frames, a provenance-recorded mechanism projection,
+   InteractionPack compilation, and NumiSolver physical realization without
+   pretending the kinematic model is a robot action policy.
 4. **Broader physical qualification.** Maintain focused deterministic replay,
    transaction, contact, joint-limit, sensor, and coupling probes for each
    physics family, plus end-to-end robot workloads that expose real behavior.

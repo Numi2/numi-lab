@@ -17,6 +17,32 @@ A motion proposal is useful teacher material, but it is not proof that a robot
 can reproduce the motion. Joint limits, actuation, balance, collision, contact,
 and the world remain authoritative in the native simulator.
 
+## ARDY G1 ONNX
+
+The default G1 provider is
+[`TREEIndustries/ARDY-G1-RP-25FPS-Horizon52-ONNX`](https://huggingface.co/TREEIndustries/ARDY-G1-RP-25FPS-Horizon52-ONNX)
+at pinned revision `d36d7069d514f9e6534c44c9fcf2463733298326`. It emits a
+52-frame, 25 FPS `g1skel34` Unitree G1 proposal. Numi converts the generated
+global rotations to local rotations through the model's authored hierarchy,
+then applies NVIDIA ARDY's pinned G1-to-MuJoCo joint-frame and hinge-axis
+contract. This is a native embodiment conversion, not human-skeleton IK.
+
+The model is learned and can emit small position or velocity overshoots. Numi
+retains the raw 29 joint coordinates, then computes the closest L2 trajectory
+satisfying the authored Unitree position and velocity limits. The artifact
+records every correction by joint. This mechanism projection does not splice
+poses, smooth a landing, prescribe root dynamics, or change gravity/contact.
+
+```sh
+numi motion imagine-g1 --prompt 'do backflip' --seed 4
+```
+
+This command compiles ARDY's binary heel/toe predictions as predicted contact
+modes with unknown force, wrench, CoP, area, and pressure fields. NumiSolver
+then applies actuation, gravity, collision, and contact on every physical
+substep. `--model-family core` selects the retained generic model and bounded
+Core-to-G1 retargeter instead.
+
 ## ARDY Core ONNX
 
 The first provider runs
@@ -28,11 +54,12 @@ feature. The separately published
 can encode arbitrary prompts; upstream reference embeddings permit a smaller
 exact runtime qualification without installing the text encoder.
 
-With the model cache and pinned Unitree description installed, the complete
-prompt-to-G1 presentation path is one command:
+With the model cache and pinned Unitree description installed, the retained
+Core-to-G1 path is:
 
 ```sh
 numi motion imagine-g1 \
+  --model-family core \
   --prompt 'perform a standing backflip, jump upward, rotate backward in the air, and land on both feet' \
   --seed 4
 ```

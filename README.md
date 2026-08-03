@@ -59,8 +59,8 @@ The durable platform direction is described in
   backend.
 - Provider-neutral foundation-policy action chunks, including a qualified
   GR00T N1.7 G1 execution path through Core ML on Apple Silicon.
-- Fingerprinted motion-provider proposals, including ARDY Core prompt-to-motion
-  inference through ONNX Runtime on arm64 Apple Silicon.
+- Fingerprinted motion-provider proposals, including native ARDY G1 and generic
+  ARDY Core prompt-to-motion inference on arm64 Apple Silicon.
 - Bundled Unitree G1, Franka, and research PSM models.
 
 ## NumiSolver: the production physics path
@@ -97,12 +97,14 @@ for shared simulator capabilities, not the product boundary.
 ### Prompt-to-G1 motion imagination
 
 Numi runs the
-INT4 ARDY Llama 3 text encoder and ARDY Core ONNX model on arm64 Apple Silicon,
-then applies bounded full-body retargeting to the official 29-DoF Unitree G1
-mechanics. The source proposal can be inspected kinematically, but a rendered
-landing is publishable only after the proposal has been executed through G1
-actuation, gravity, collision, and contact in NumiSolver. The workflow begins
-with:
+INT4 ARDY Llama 3 text encoder and native ARDY G1 Horizon52 ONNX model on arm64
+Apple Silicon. Its 34-joint G1 skeleton is converted through NVIDIA's authored
+joint frames directly to the official 29-DoF mechanism—without human-skeleton
+IK. Raw model joints remain in the evidence while the executable reference is
+the closest sequence satisfying Unitree position and velocity limits. The
+generic ARDY Core model remains available through `--model-family core`.
+Rendered physical evidence is published only after actuation, gravity,
+collision, and contact in NumiSolver. The workflow begins with:
 
 ```sh
 numi motion imagine-g1 \
@@ -110,15 +112,16 @@ numi motion imagine-g1 \
   --seed 4
 ```
 
-The retargeter preserves ARDY's complete 40-frame temporal proposal and never
-invents flight, touchdown, foot locks, or a settling pose. InteractionPack may
-use the joint-space proposal as controller intent, while the root remains a
-simulated outcome. NumiSolver applies the compiled world's gravity every
-physics substep and resolves whether the robot takes off, lands, slips, falls,
-or recovers. `imagine-g1` now performs that physical realization by default;
-its GIF and MP4 are forward-kinematic renders of accepted solver states, not
-of the provider root trajectory. A failed physical realization stays visible
-as a failed result; presentation code must not repair it.
+The provider bridge preserves the complete temporal proposal—52 native G1
+frames or 40 Core frames—and never invents flight, touchdown, foot locks, or a
+settling pose. InteractionPack may use the joint-space proposal as controller
+intent, while the root remains a simulated outcome. NumiSolver applies the
+compiled world's gravity every physics substep and resolves whether the robot
+takes off, lands, slips, falls, or recovers. `imagine-g1` performs that physical
+realization by default; its GIF and MP4 are forward-kinematic renders of
+accepted solver states, not of the provider root trajectory. A failed physical
+realization stays visible as a failed result; presentation code must not repair
+it.
 
 ### Native G1 standing
 

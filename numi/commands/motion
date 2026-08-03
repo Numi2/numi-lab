@@ -18,20 +18,22 @@ Usage: numi motion inspect --model-directory PATH [--verify-hashes]
        numi motion retarget-g1 --motion-proposal PATH --g1-urdf FILE \
            --output-directory PATH
        numi motion imagine-g1 --prompt TEXT [--output-directory PATH] \
-           [--provider auto|coreml|cpu]
+           [--model-family g1|core] [--provider auto|coreml|cpu]
 
-ARDY is a motion-imagination provider, not a robot action policy. The current
-provider executes TREE Industries' ARDY Core 20 FPS Horizon40 ONNX graphs and
-publishes a fingerprinted 40-frame cskel27 motion proposal. Robot retargeting,
-InteractionPack compilation, and native physical realization are separate.
+ARDY is a motion-imagination provider, not a robot action policy. Numi supports
+both ARDY G1 25 FPS Horizon52 and ARDY Core 20 FPS Horizon40 ONNX graphs. G1
+publishes native g1skel34 motion; Core publishes generic cskel27 human motion.
+InteractionPack compilation and native physical realization remain separate.
 
 The model directory stays outside the repository. Pair arbitrary prompts with
 the separately licensed ARDY text encoder and pass its [1,1,4096] feature as
 NPY/NPZ. Reference embeddings are accepted for exact runtime qualification.
 Once the ARDY cache and pinned G1 description are installed, `imagine-g1`
-encodes one prompt, generates motion, retargets it within G1 limits, compiles
-an InteractionPack, executes it through native Metal physics, and returns GIF
-and MP4 evidence rendered only from accepted NumiSolver states.
+defaults to native ARDY G1, projects its raw joint sequence to the closest
+mechanism-feasible trajectory, compiles an InteractionPack, executes it through
+native Metal physics, and returns GIF and MP4 evidence rendered only from
+accepted NumiSolver states. Pass `--model-family core` to retain the generic
+Core-to-G1 retargeting path.
 
 `--provider auto` selects the text encoder, denoiser, and decoder separately.
 Each Core ML result must pass its CPU comparison; only a failing graph falls

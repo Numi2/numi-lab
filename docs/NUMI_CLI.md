@@ -48,7 +48,7 @@ numi motion infer --model-directory /path/to/ardy --output-directory /path/to/ru
 ```
 
 See [Motion providers](MOTION_PROVIDERS.md) for the artifact boundary and the
-qualified ARDY Core ONNX path.
+qualified native ARDY G1 and generic ARDY Core ONNX paths.
 
 ## User-owned overlays
 
