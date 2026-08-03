@@ -17,6 +17,7 @@ is selected. Common options:
 
   --policy-pack PATH
   --interaction-pack PATH --interaction-clip ID
+  --visual-observation-config PATH
   --native-policy | --zero-actions | --action-stream actions.f32
   --task velocity|disturbance-recovery|supine-get-up|ball-recovery|ball-dodge
   --minimum-difficulty-band N --maximum-difficulty-band N

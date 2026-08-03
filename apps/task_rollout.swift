@@ -182,6 +182,7 @@ private struct Options {
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
+    var visualObservationConfig: String?
     var captureDirectory: String?
     var captureWidth = 480
     var captureHeight = 270
@@ -369,6 +370,9 @@ private struct Options {
             case "--visual-environment-pack":
                 visualEnvironmentPack = try value()
                 index += 1
+            case "--visual-observation-config":
+                visualObservationConfig = try value()
+                index += 1
             case "--capture-dir":
                 captureDirectory = try value()
                 index += 1
@@ -495,6 +499,15 @@ private struct Options {
                 "--ball-visual-pack-dir requires --g1-visual-pack-dir."
             )
         }
+        if visualObservationConfig != nil &&
+            (g1VisualPackDirectory != nil ||
+             ballVisualPackDirectory != nil ||
+             visualEnvironmentPack != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--visual-observation-config cannot be combined with legacy visual preset options."
+            )
+        }
         if g1VisualPackDirectory != nil &&
             ((unitreeG1Task != .ballDisturbanceRecovery &&
               unitreeG1Task != .ballDodge &&
@@ -516,12 +529,13 @@ private struct Options {
         }
         if captureDirectory != nil &&
             (environments != 1 || chunk != 1 ||
-             g1VisualPackDirectory == nil ||
+             (g1VisualPackDirectory == nil &&
+              visualObservationConfig == nil) ||
              captureWidth <= 0 || captureHeight <= 0 ||
              captureStride <= 0)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "Native capture requires one environment, chunk 1, visual packs, positive dimensions, and a positive stride."
+                "Native capture requires one environment, chunk 1, a visual observation, positive dimensions, and a positive stride."
             )
         }
         if capturePolicyCamera && captureDirectory == nil {
@@ -544,9 +558,22 @@ private struct Options {
     }
 }
 
-private func makeG1VisualObservation(
+private func makeVisualObservation(
     options: Options
 ) throws -> MetalRoboTaskVisualObservationConfiguration? {
+    if let path = options.visualObservationConfig {
+        var observation = try
+            MetalRoboTaskVisualObservationConfiguration.loadArtifact(
+                at: URL(fileURLWithPath: path)
+            )
+        if options.captureDirectory != nil {
+            observation.captureWidth = UInt32(options.captureWidth)
+            observation.captureHeight = UInt32(options.captureHeight)
+            observation.capturePolicyCamera =
+                options.capturePolicyCamera
+        }
+        return observation
+    }
     guard let directory = options.g1VisualPackDirectory else {
         return nil
     }
@@ -796,7 +823,7 @@ private enum TaskRolloutMain {
             let (context, worldSource) =
                 try makeContext(options: options)
             let visualObservation =
-                try makeG1VisualObservation(options: options)
+                try makeVisualObservation(options: options)
             if let visualObservation {
                 try context.attachVisualObservation(
                     visualObservation
@@ -1623,6 +1650,8 @@ private enum TaskRolloutMain {
                     visualObservation != nil,
                 "visual_scene_fingerprint":
                     context.visualSceneFingerprint,
+                "visual_observation_config":
+                    options.visualObservationConfig ?? "",
                 "state_trace": options.stateTrace ?? "",
                 "environments": options.environments,
                 "steps_per_repeat": options.steps,

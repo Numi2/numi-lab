@@ -206,12 +206,33 @@ def write_interaction_pack(
     contact_targets: np.ndarray | None = None,
     contact_tolerances: np.ndarray | None = None,
     loop: bool = False,
+    joint_names: tuple[str, ...] = _G1_JOINTS,
+    joint_lower: np.ndarray = _G1_JOINT_LOWER,
+    joint_upper: np.ndarray = _G1_JOINT_UPPER,
+    joint_velocity: np.ndarray = _G1_JOINT_VELOCITY,
 ) -> tuple[Path, int]:
     """Write one generated-intent clip through the canonical pack ABI."""
     root = np.asarray(root_targets, dtype=np.float32)
     joints = np.asarray(joint_targets, dtype=np.float32)
     modes = np.asarray(contact_modes, dtype=np.uint32)
     confidence = np.asarray(contact_confidence, dtype=np.float32)
+    names = tuple(str(name) for name in joint_names)
+    lower = np.asarray(joint_lower, dtype=np.float32)
+    upper = np.asarray(joint_upper, dtype=np.float32)
+    velocity = np.asarray(joint_velocity, dtype=np.float32)
+    if (
+        not names
+        or len(set(names)) != len(names)
+        or lower.shape != (len(names),)
+        or upper.shape != (len(names),)
+        or velocity.shape != (len(names),)
+        or not np.isfinite(lower).all()
+        or not np.isfinite(upper).all()
+        or not np.isfinite(velocity).all()
+        or np.any(lower > upper)
+        or np.any(velocity <= 0.0)
+    ):
+        raise ValueError("joint semantics and mechanism limits are invalid")
     if not np.isfinite(frames_per_second) or frames_per_second <= 0.0:
         raise ValueError("frames per second must be finite and positive")
     if root.ndim != 2 or root.shape[1] != 7:
@@ -219,21 +240,21 @@ def write_interaction_pack(
     frame_count = root.shape[0]
     if frame_count < 2 or not np.isfinite(root).all():
         raise ValueError("root targets must contain at least two finite frames")
-    if joints.shape != (frame_count, len(_G1_JOINTS)):
-        raise ValueError("joint targets must cover every canonical G1 joint")
+    if joints.shape != (frame_count, len(names)):
+        raise ValueError("joint targets must cover every authored joint")
     if not np.isfinite(joints).all():
         raise ValueError("joint targets must be finite")
-    if np.any(joints < _G1_JOINT_LOWER) or np.any(joints > _G1_JOINT_UPPER):
+    if np.any(joints < lower) or np.any(joints > upper):
         frame, joint = np.argwhere(
-            (joints < _G1_JOINT_LOWER) | (joints > _G1_JOINT_UPPER)
+            (joints < lower) | (joints > upper)
         )[0]
         raise ValueError(
-            f"joint target is outside the G1 mechanism limit: frame={frame} "
-            f"joint={_G1_JOINTS[joint]} value={joints[frame, joint]:.6f}"
+            f"joint target is outside the mechanism limit: frame={frame} "
+            f"joint={names[joint]} value={joints[frame, joint]:.6f}"
         )
     joint_velocity_ratio = (
         np.abs(np.diff(joints, axis=0)) * frames_per_second
-        / _G1_JOINT_VELOCITY[None, :]
+        / velocity[None, :]
     )
     if np.any(joint_velocity_ratio > 1.0 + 1.0e-5):
         frame, joint = np.unravel_index(
@@ -241,9 +262,9 @@ def write_interaction_pack(
             joint_velocity_ratio.shape,
         )
         raise ValueError(
-            f"joint target exceeds the G1 velocity limit: "
+            f"joint target exceeds the mechanism velocity limit: "
             f"transition={frame}->{frame + 1} "
-            f"joint={_G1_JOINTS[joint]} "
+            f"joint={names[joint]} "
             f"ratio={joint_velocity_ratio[frame, joint]:.6f}"
         )
     quaternions = root[:, 3:]
@@ -314,7 +335,7 @@ def write_interaction_pack(
             _string(source_revision),
             _string(license_name),
             _string("metalrobo_z_up_x_forward_xyzw"),
-            _strings(_G1_JOINTS),
+            _strings(names),
             struct.pack("<Q", len(tracks)),
             b"".join(
                 _string(track_id) + _string(group) + _string(counterpart)

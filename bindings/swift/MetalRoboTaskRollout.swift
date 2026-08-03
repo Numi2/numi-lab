@@ -221,6 +221,55 @@ public struct MetalRoboTaskVisualPack: Sendable {
 public struct MetalRoboTaskVisualObservationConfiguration:
     Sendable
 {
+    private struct Artifact: Decodable {
+        struct Pack: Decodable {
+            let path: String
+            let assetID: String
+            let semanticID: UInt32
+            let instanceID: UInt32
+
+            private enum CodingKeys: String, CodingKey {
+                case path
+                case assetID = "asset_id"
+                case semanticID = "semantic_id"
+                case instanceID = "instance_id"
+            }
+        }
+
+        struct Camera: Decodable {
+            let parentBody: String
+            let position: [Float]
+            let orientation: [Float]
+            let width: UInt32
+            let height: UInt32
+            let minimumVisiblePixels: UInt32
+            let verticalFieldOfViewDegrees: Float
+            let nominalRateHz: Float
+            let maximumRetainedBytes: UInt64
+
+            private enum CodingKeys: String, CodingKey {
+                case parentBody = "parent_body"
+                case position, orientation, width, height
+                case minimumVisiblePixels = "minimum_visible_pixels"
+                case verticalFieldOfViewDegrees =
+                    "vertical_field_of_view_degrees"
+                case nominalRateHz = "nominal_rate_hz"
+                case maximumRetainedBytes = "maximum_retained_bytes"
+            }
+        }
+
+        let format: String
+        let id: String
+        let packs: [Pack]
+        let environmentPack: String?
+        let camera: Camera
+
+        private enum CodingKeys: String, CodingKey {
+            case format, id, packs, camera
+            case environmentPack = "environment_pack"
+        }
+    }
+
     public var packs: [MetalRoboTaskVisualPack]
     public var environmentPackURL: URL?
     public var cameraParentBody: String
@@ -266,6 +315,71 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         self.captureWidth = captureWidth
         self.captureHeight = captureHeight
         self.capturePolicyCamera = capturePolicyCamera
+    }
+
+    public static func loadArtifact(at url: URL) throws -> Self {
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        let artifact: Artifact
+        do {
+            artifact = try decoder.decode(Artifact.self, from: data)
+        } catch {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Visual observation artifact is invalid: \(error)"
+            )
+        }
+        guard artifact.format == "numi.visual-observation.v1",
+              !artifact.id.isEmpty,
+              !artifact.packs.isEmpty,
+              !artifact.camera.parentBody.isEmpty,
+              artifact.camera.position.count == 3,
+              artifact.camera.orientation.count == 4,
+              artifact.camera.position.allSatisfy(\.isFinite),
+              artifact.camera.orientation.allSatisfy(\.isFinite),
+              artifact.camera.verticalFieldOfViewDegrees.isFinite,
+              artifact.camera.nominalRateHz.isFinite
+        else {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Visual observation artifact has an invalid identity, camera, or pack table."
+            )
+        }
+        let base = url.deletingLastPathComponent()
+        func resolve(_ path: String) -> URL {
+            URL(fileURLWithPath: path, relativeTo: base)
+                .standardizedFileURL
+        }
+        return Self(
+            packs: artifact.packs.map { pack in
+                MetalRoboTaskVisualPack(
+                    url: resolve(pack.path),
+                    assetID: pack.assetID,
+                    semanticID: pack.semanticID,
+                    instanceID: pack.instanceID
+                )
+            },
+            environmentPackURL: artifact.environmentPack.map(resolve),
+            cameraParentBody: artifact.camera.parentBody,
+            cameraPosition: SIMD3(
+                artifact.camera.position[0],
+                artifact.camera.position[1],
+                artifact.camera.position[2]
+            ),
+            cameraOrientation: SIMD4(
+                artifact.camera.orientation[0],
+                artifact.camera.orientation[1],
+                artifact.camera.orientation[2],
+                artifact.camera.orientation[3]
+            ),
+            width: artifact.camera.width,
+            height: artifact.camera.height,
+            minimumVisiblePixels:
+                artifact.camera.minimumVisiblePixels,
+            verticalFieldOfViewDegrees:
+                artifact.camera.verticalFieldOfViewDegrees,
+            nominalRateHz: artifact.camera.nominalRateHz,
+            maximumRetainedBytes:
+                artifact.camera.maximumRetainedBytes
+        )
     }
 
     public static func unitreeG1(

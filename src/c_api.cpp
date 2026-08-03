@@ -1217,7 +1217,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         !std::isfinite(config.nominal_rate_hz) ||
         !(config.nominal_rate_hz > 0.0f)) {
         throw std::invalid_argument(
-            "visual observation packs, head camera, and dimensions are required"
+            "visual observation packs, articulated camera, and dimensions are required"
         );
     }
     const std::string selectedProfile =
@@ -1247,7 +1247,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     if (handle.model.bodies[parentBodyIndex].articulationIndex ==
         MR_INVALID_INDEX) {
         throw std::invalid_argument(
-            "head camera must be attached to an articulated link"
+            "visual camera must be attached to an articulated link"
         );
     }
 
@@ -1544,7 +1544,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         episode.sensors.push_back(std::move(presentation));
     }
     episode.task = {
-        "visual_ball_stability",
+        "compiled_task_visual_observation",
         "robot",
         manipulatedAsset,
         targetAsset,

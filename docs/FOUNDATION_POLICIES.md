@@ -81,11 +81,16 @@ submission:
 The concrete commands after capture and inference are:
 
 ```sh
+numi foundation adapter \
+    --native-library /path/to/libmetalrobo.dylib \
+    --output /path/to/run/g1-groot.adapter.json
+
 numi foundation observation \
     --camera-frame /path/to/capture/frame-000000.ppm \
     --state-trace /path/to/capture/state.tsv \
     --output /path/to/run/observation.npz \
-    --evidence /path/to/run/observation.evidence.json
+    --evidence /path/to/run/observation.evidence.json \
+    --adapter /path/to/run/g1-groot.adapter.json
 
 numi foundation compile-interaction \
     --action-chunk /path/to/run/action_chunk.npz \
@@ -94,7 +99,8 @@ numi foundation compile-interaction \
     --output /path/to/run/foundation-teacher.interactionpack \
     --evidence /path/to/run/interaction.evidence.json \
     --id foundation-teacher-v1 \
-    --desired-outcome "raise the left hand while preserving balance"
+    --desired-outcome "raise the left hand while preserving balance" \
+    --adapter /path/to/run/g1-groot.adapter.json
 
 numi train \
     --task velocity --scene ground \
@@ -104,6 +110,14 @@ numi train \
     --envs 1024 --steps 27 --updates 1 --chunk 1
 ```
 
+`numi.foundation-adapter.v1` is an inspectable, schema-backed artifact. It
+declares model state groups and outputs, robot joint ordering, root and joint
+state offsets, controller scale/rate/position limits, and InteractionPack
+contact tracks. Compilation verifies its controller fingerprint against the
+live native library before emitting actions, so an adapter cannot silently
+outlive a changed robot contract. The schema is
+`schemas/foundation_adapter.schema.json`.
+
 Pure teacher control is marked in every transition. Its sampled student action
 receives zero PPO weight because the student did not cause the physics, while
 the executed action remains available for behavior cloning. Failed or
@@ -112,7 +126,7 @@ continuous weight instead of being discarded behind a binary success gate.
 With nonzero student authority, the student owns a residual and ordinary PPO
 attribution remains valid; the absolute generated pose is not imitated twice.
 
-The current first adapter maps G1 waist and both seven-joint arms. The bundled
+The current authored adapter maps G1 waist and both seven-joint arms. The bundled
 29-DoF robot has no dexterous-hand actuators, so hand outputs are retained in
 evidence but not executed. Navigation, base-height, and effort outputs are also
 retained but not yet mapped. Lower-body targets stay on Numi's native standing

@@ -24,6 +24,7 @@ from metalrobo.ardy_interaction_convert import write_interaction_pack
 
 
 ACTION_CHUNK_FORMAT = "numi.foundation-action-chunk.v1"
+FOUNDATION_ADAPTER_FORMAT = "numi.foundation-adapter.v1"
 GROOT_APPLE_PNP_REPOSITORY = "nvidia/GR00T-N1.7-ApplePnP-V1"
 GROOT_STAGES = (
     "preprocess_video",
@@ -68,6 +69,241 @@ G1_GROUP_JOINTS = {
         "right_wrist_yaw_joint",
     ),
 }
+
+
+def _g1_foundation_adapter(native_library: Path) -> dict[str, Any]:
+    contract = _native_g1_contract(native_library)
+    return {
+        "format": FOUNDATION_ADAPTER_FORMAT,
+        "id": "groot-n17-unitree-g1-29dof",
+        "provider": "nvidia/GR00T-N1.7-ApplePnP-V1",
+        "robot": str(contract.get("robot", "unitree_g1")),
+        "observation": {
+            "root_archive_key": "numi_root_q",
+            "root_q_offset": 0,
+            "root_q_count": 7,
+            "joint_q_offset": 7,
+            "state_groups": [
+                {
+                    "name": name,
+                    "joints": list(joints),
+                    "placeholder_count": 0,
+                }
+                for name, joints in G1_GROUP_JOINTS.items()
+            ] + [
+                {
+                    "name": "left_hand",
+                    "joints": [],
+                    "placeholder_count": 7,
+                },
+                {
+                    "name": "right_hand",
+                    "joints": [],
+                    "placeholder_count": 7,
+                },
+            ],
+        },
+        "action_outputs": [
+            {"name": name, "joints": list(G1_GROUP_JOINTS[name])}
+            for name in ("waist", "left_arm", "right_arm")
+        ],
+        "controller": {
+            name: contract[name]
+            for name in (
+                "joint_order",
+                "default_pose",
+                "task_action_scale",
+                "velocity_limits",
+                "position_limits",
+                "policy_timestep_seconds",
+            )
+        },
+        "interaction": {
+            "contact_tracks": [
+                {
+                    "id": "left_foot",
+                    "task_contact_group": "left_foot_contact",
+                    "counterpart": "locomotion_ground",
+                    "mode": 2,
+                    "confidence": 0.5,
+                },
+                {
+                    "id": "right_foot",
+                    "task_contact_group": "right_foot_contact",
+                    "counterpart": "locomotion_ground",
+                    "mode": 2,
+                    "confidence": 0.5,
+                },
+            ]
+        },
+        "unmapped_output_semantics": {
+            "left_hand": "robot has no corresponding actuator group",
+            "right_hand": "robot has no corresponding actuator group",
+            "navigate_command": "navigation command mapping is not authored",
+            "base_height_command": "base-height mapping is not authored",
+            "effort_*": "effort output mapping is not authored",
+        },
+        "native_contract": {
+            "library_sha256": _sha256(native_library),
+            "contract_fingerprint": _array_fingerprint({
+                key: np.asarray(contract[key])
+                for key in (
+                    "default_pose",
+                    "task_action_scale",
+                    "velocity_limits",
+                    "position_limits",
+                )
+            }),
+        },
+    }
+
+
+def _validate_foundation_adapter(adapter: Mapping[str, Any]) -> None:
+    if (
+        adapter.get("format") != FOUNDATION_ADAPTER_FORMAT
+        or not str(adapter.get("id", "")).strip()
+        or not str(adapter.get("provider", "")).strip()
+        or not str(adapter.get("robot", "")).strip()
+    ):
+        raise ValueError("foundation adapter identity is invalid")
+    observation = adapter.get("observation")
+    controller = adapter.get("controller")
+    action_outputs = adapter.get("action_outputs")
+    interaction = adapter.get("interaction")
+    if not isinstance(observation, dict) or not isinstance(controller, dict):
+        raise ValueError("foundation adapter observation or controller is missing")
+    groups = observation.get("state_groups")
+    if not isinstance(groups, list) or not groups:
+        raise ValueError("foundation adapter has no state groups")
+    group_names: set[str] = set()
+    for group in groups:
+        if not isinstance(group, dict):
+            raise ValueError("foundation adapter state group is invalid")
+        name = str(group.get("name", ""))
+        joints = group.get("joints")
+        placeholders = group.get("placeholder_count")
+        if (
+            not name
+            or name in group_names
+            or not isinstance(joints, list)
+            or not isinstance(placeholders, int)
+            or placeholders < 0
+            or (not joints and placeholders == 0)
+            or (joints and placeholders != 0)
+        ):
+            raise ValueError("foundation adapter state group contract is invalid")
+        group_names.add(name)
+    joint_order = tuple(str(value) for value in controller.get("joint_order", ()))
+    joint_count = len(joint_order)
+    if joint_count == 0 or len(set(joint_order)) != joint_count:
+        raise ValueError("foundation adapter joint order is invalid")
+    arrays = {
+        "default_pose": np.asarray(controller.get("default_pose"), dtype=np.float32),
+        "task_action_scale": np.asarray(
+            controller.get("task_action_scale"), dtype=np.float32
+        ),
+        "velocity_limits": np.asarray(
+            controller.get("velocity_limits"), dtype=np.float32
+        ),
+        "position_limits": np.asarray(
+            controller.get("position_limits"), dtype=np.float32
+        ),
+    }
+    if (
+        arrays["default_pose"].shape != (joint_count,)
+        or arrays["task_action_scale"].shape != (joint_count,)
+        or arrays["velocity_limits"].shape != (joint_count,)
+        or arrays["position_limits"].shape != (joint_count, 2)
+        or not all(np.isfinite(value).all() for value in arrays.values())
+        or np.any(arrays["task_action_scale"] <= 0.0)
+        or np.any(arrays["velocity_limits"] <= 0.0)
+    ):
+        raise ValueError("foundation adapter controller arrays are invalid")
+    timestep = controller.get("policy_timestep_seconds")
+    if not isinstance(timestep, (int, float)) or not np.isfinite(timestep) or timestep <= 0:
+        raise ValueError("foundation adapter control timestep is invalid")
+    if not isinstance(action_outputs, list) or not action_outputs:
+        raise ValueError("foundation adapter has no action outputs")
+    known_joints = set(joint_order)
+    for output in action_outputs:
+        if (
+            not isinstance(output, dict)
+            or not str(output.get("name", ""))
+            or not isinstance(output.get("joints"), list)
+            or not output["joints"]
+            or not set(output["joints"]).issubset(known_joints)
+        ):
+            raise ValueError("foundation adapter action output is invalid")
+    tracks = interaction.get("contact_tracks") if isinstance(interaction, dict) else None
+    if not isinstance(tracks, list) or not tracks:
+        raise ValueError("foundation adapter has no interaction contact tracks")
+    for track in tracks:
+        if (
+            not isinstance(track, dict)
+            or not str(track.get("id", ""))
+            or not str(track.get("task_contact_group", ""))
+            or not str(track.get("counterpart", ""))
+            or not isinstance(track.get("mode"), int)
+            or not 0 <= track["mode"] <= 5
+            or not isinstance(track.get("confidence"), (int, float))
+            or not 0.0 <= track["confidence"] <= 1.0
+        ):
+            raise ValueError("foundation adapter interaction track is invalid")
+
+
+def _load_foundation_adapter(path: Path) -> dict[str, Any]:
+    adapter = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(adapter, dict):
+        raise ValueError("foundation adapter must be a JSON object")
+    _validate_foundation_adapter(adapter)
+    return adapter
+
+
+def write_foundation_adapter(
+    native_library: Path,
+    output: Path,
+) -> dict[str, Any]:
+    adapter = _g1_foundation_adapter(native_library)
+    _validate_foundation_adapter(adapter)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(
+        json.dumps(adapter, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return {
+        "format": FOUNDATION_ADAPTER_FORMAT,
+        "adapter": str(output),
+        "sha256": _sha256(output),
+        "id": adapter["id"],
+        "provider": adapter["provider"],
+        "robot": adapter["robot"],
+    }
+
+
+def _verify_adapter_native_contract(
+    adapter: Mapping[str, Any], native_library: Path
+) -> None:
+    """Reject a stale robot adapter before it can produce controller actions."""
+    expected = adapter.get("native_contract")
+    if not isinstance(expected, dict):
+        return
+    expected_fingerprint = str(expected.get("contract_fingerprint", ""))
+    if not expected_fingerprint:
+        return
+    contract = _native_g1_contract(native_library)
+    observed = _array_fingerprint({
+        key: np.asarray(contract[key])
+        for key in (
+            "default_pose",
+            "task_action_scale",
+            "velocity_limits",
+            "position_limits",
+        )
+    })
+    if observed != expected_fingerprint:
+        raise ValueError(
+            "foundation adapter native controller contract is stale; regenerate it"
+        )
 
 
 def _sha256(path: Path, block_size: int = 8 * 1024 * 1024) -> str:
@@ -271,28 +507,66 @@ def compile_numi_observation(
     output: Path,
     evidence_path: Path,
     step: int | None,
+    adapter: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     image = _read_ppm(camera_frame)
     selected_step, q = _read_state_trace(state_trace, step)
-    if q.size < 36:
-        raise ValueError(f"bundled G1 state must have at least 36 q values, received {q.size}")
-    joints = q[7:36]
+    if adapter is None:
+        root_offset = 0
+        root_count = 7
+        joint_offset = 7
+        joint_order = tuple(
+            joint
+            for group in G1_GROUP_JOINTS.values()
+            for joint in group
+        )
+        groups = [
+            {"name": name, "joints": list(joints), "placeholder_count": 0}
+            for name, joints in G1_GROUP_JOINTS.items()
+        ] + [
+            {"name": "left_hand", "joints": [], "placeholder_count": 7},
+            {"name": "right_hand", "joints": [], "placeholder_count": 7},
+        ]
+        root_key = "numi_root_q"
+    else:
+        _validate_foundation_adapter(adapter)
+        observation_contract = adapter["observation"]
+        controller = adapter["controller"]
+        root_offset = int(observation_contract["root_q_offset"])
+        root_count = int(observation_contract["root_q_count"])
+        joint_offset = int(observation_contract["joint_q_offset"])
+        joint_order = tuple(controller["joint_order"])
+        groups = observation_contract["state_groups"]
+        root_key = str(observation_contract["root_archive_key"])
+    required_q = max(root_offset + root_count, joint_offset + len(joint_order))
+    if root_count != 7 or q.size < required_q:
+        raise ValueError(
+            f"robot state must contain {required_q} q values with a seven-value root; "
+            f"received {q.size}"
+        )
+    joints = q[joint_offset : joint_offset + len(joint_order)]
+    index_by_name = {name: index for index, name in enumerate(joint_order)}
     state: dict[str, np.ndarray] = {}
-    offset = 0
-    for name in ("left_leg", "right_leg", "waist", "left_arm", "right_arm"):
-        count = len(G1_GROUP_JOINTS[name])
-        state[name] = joints[offset : offset + count].reshape(1, count).copy()
-        offset += count
-    # Numi's bundled 29-DoF G1 has no dexterous-hand joints. The model's hand
-    # channels remain explicit zero-valid placeholders and are never mapped to
-    # simulator actuators.
-    state["left_hand"] = np.zeros((1, 7), dtype=np.float32)
-    state["right_hand"] = np.zeros((1, 7), dtype=np.float32)
+    placeholder_groups: list[str] = []
+    for group in groups:
+        name = str(group["name"])
+        names = tuple(str(value) for value in group["joints"])
+        placeholder_count = int(group["placeholder_count"])
+        if names:
+            if any(joint not in index_by_name for joint in names):
+                raise ValueError(f"adapter state group {name} has an unknown joint")
+            state[name] = np.asarray(
+                [[joints[index_by_name[joint]] for joint in names]],
+                dtype=np.float32,
+            )
+        else:
+            state[name] = np.zeros((1, placeholder_count), dtype=np.float32)
+            placeholder_groups.append(name)
     output.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
         output,
         ego_view=image,
-        numi_root_q=q[:7].reshape(1, 7),
+        **{root_key: q[root_offset : root_offset + root_count].reshape(1, 7)},
         **state,
     )
     evidence = {
@@ -304,7 +578,12 @@ def compile_numi_observation(
         "camera_shape": list(image.shape),
         "root_state_shape": [1, 7],
         "state_shapes": {name: list(value.shape) for name, value in state.items()},
-        "hand_state_semantics": "zero placeholders; bundled Numi G1 has no hand actuators",
+        "placeholder_state_groups": placeholder_groups,
+        "foundation_adapter": None if adapter is None else {
+            "id": adapter["id"],
+            "provider": adapter["provider"],
+            "robot": adapter["robot"],
+        },
     }
     evidence_path.parent.mkdir(parents=True, exist_ok=True)
     evidence_path.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -321,19 +600,25 @@ def compile_numi_interaction_pack(
     desired_outcome: str,
     source_hz: float,
     prefix_hold_frames: int,
+    adapter: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Compile generated upper-body intent into Numi's native motion teacher."""
     if not pack_id.strip() or not desired_outcome.strip():
         raise ValueError("interaction identity and desired outcome are required")
     if prefix_hold_frames < 0:
         raise ValueError("prefix_hold_frames must be non-negative")
+    if adapter is None:
+        adapter = _g1_foundation_adapter(native_library)
+    _validate_foundation_adapter(adapter)
+    _verify_adapter_native_contract(adapter, native_library)
+    root_key = str(adapter["observation"]["root_archive_key"])
     with np.load(observation, allow_pickle=False) as archive:
-        if "numi_root_q" not in archive.files:
+        if root_key not in archive.files:
             raise ValueError(
-                "foundation observation lacks numi_root_q; recompile it from "
+                f"foundation observation lacks {root_key}; recompile it from "
                 "the synchronized Numi state trace"
             )
-        root = np.asarray(archive["numi_root_q"], dtype=np.float32).reshape(-1)
+        root = np.asarray(archive[root_key], dtype=np.float32).reshape(-1)
     if root.shape != (7,) or not np.isfinite(root).all():
         raise ValueError("Numi root state must contain seven finite q values")
     quaternion_norm = float(np.linalg.norm(root[3:]))
@@ -341,16 +626,24 @@ def compile_numi_interaction_pack(
         raise ValueError("Numi root quaternion is degenerate")
     root[3:] /= quaternion_norm
 
-    contract = _native_g1_contract(native_library)
+    contract = adapter["controller"]
     default_pose = np.asarray(contract["default_pose"], dtype=np.float32)
     action_scale = np.asarray(contract["task_action_scale"], dtype=np.float32)
-    _, groups = _load_observation(observation)
+    groups: dict[str, np.ndarray] = {}
+    with np.load(observation, allow_pickle=False) as archive:
+        for group in adapter["observation"]["state_groups"]:
+            name = str(group["name"])
+            groups[name] = np.asarray(archive[name], dtype=np.float32)
     captured_joints = default_pose.copy()
     index_by_name = {
         str(name): index for index, name in enumerate(contract["joint_order"])
     }
-    for group, names in G1_GROUP_JOINTS.items():
-        values = groups[group].reshape(-1)
+    for group in adapter["observation"]["state_groups"]:
+        group_name = str(group["name"])
+        names = tuple(str(name) for name in group["joints"])
+        if not names:
+            continue
+        values = groups[group_name].reshape(-1)
         for source_index, name in enumerate(names):
             captured_joints[index_by_name[name]] = values[source_index]
 
@@ -366,8 +659,11 @@ def compile_numi_interaction_pack(
             action_evidence,
             source_hz,
             0,
+            adapter,
         )
-        normalized = np.fromfile(action_stream, dtype="<f4").reshape(-1, 29)
+        normalized = np.fromfile(action_stream, dtype="<f4").reshape(
+            -1, len(contract["joint_order"])
+        )
 
     joint_targets = default_pose[None, :] + normalized * action_scale[None, :]
     if prefix_hold_frames:
@@ -382,12 +678,32 @@ def compile_numi_interaction_pack(
         )
     frame_count = int(joint_targets.shape[0])
     root_targets = np.repeat(root[None, :], frame_count, axis=0)
-    tracks = (
-        ("left_foot", "left_foot_contact", "locomotion_ground"),
-        ("right_foot", "right_foot_contact", "locomotion_ground"),
+    track_contracts = adapter["interaction"]["contact_tracks"]
+    tracks = tuple(
+        (
+            str(track["id"]),
+            str(track["task_contact_group"]),
+            str(track["counterpart"]),
+        )
+        for track in track_contracts
     )
-    contact_modes = np.full((frame_count, 2), 2, dtype=np.uint32)
-    contact_confidence = np.full((frame_count, 2), 0.5, dtype=np.float32)
+    contact_modes = np.repeat(
+        np.asarray(
+            [[int(track["mode"]) for track in track_contracts]],
+            dtype=np.uint32,
+        ),
+        frame_count,
+        axis=0,
+    )
+    contact_confidence = np.repeat(
+        np.asarray(
+            [[float(track["confidence"]) for track in track_contracts]],
+            dtype=np.float32,
+        ),
+        frame_count,
+        axis=0,
+    )
+    position_limits = np.asarray(contract["position_limits"], dtype=np.float32)
     target, content_hash = write_interaction_pack(
         output=output,
         pack_id=pack_id.strip(),
@@ -402,6 +718,12 @@ def compile_numi_interaction_pack(
         tracks=tracks,
         contact_modes=contact_modes,
         contact_confidence=contact_confidence,
+        joint_names=tuple(str(name) for name in contract["joint_order"]),
+        joint_lower=position_limits[:, 0],
+        joint_upper=position_limits[:, 1],
+        joint_velocity=np.asarray(
+            contract["velocity_limits"], dtype=np.float32
+        ),
     )
     evidence = {
         "format": "numi.foundation-interaction.v1",
@@ -424,17 +746,23 @@ def compile_numi_interaction_pack(
             "path": str(native_library),
             "sha256": _sha256(native_library),
         },
+        "foundation_adapter": {
+            "id": adapter["id"],
+            "provider": adapter["provider"],
+            "robot": adapter["robot"],
+        },
         "frames_per_second": float(compiled["control_hz"]),
         "frame_count": frame_count,
         "prefix_hold_frames": prefix_hold_frames,
         "mapped_joint_groups": compiled["mapped_joint_groups"],
         "ignored_model_outputs": compiled["ignored_model_outputs"],
         "lower_body_semantics": (
-            "captured stance held initially, then native default-pose targets"
+            "captured robot pose held initially; unmapped joints then use the "
+            "adapter-authored native default pose"
         ),
         "contact_semantics": (
-            "bilateral support intent authored by the Numi bridge; no generated "
-            "wrench, center-of-pressure, or pressure claims"
+            "adapter-authored contact intent only; no generated wrench, "
+            "center-of-pressure, or pressure claims"
         ),
         "position_clamps": compiled["position_clamps"],
         "velocity_clamps": compiled["velocity_clamps"],
@@ -471,12 +799,17 @@ def compile_numi_action_stream(
     evidence_path: Path,
     source_hz: float,
     prefix_zero_steps: int,
+    adapter: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     if not np.isfinite(source_hz) or source_hz <= 0.0:
         raise ValueError("source_hz must be finite and positive")
     if prefix_zero_steps < 0:
         raise ValueError("prefix_zero_steps must be non-negative")
-    contract = _native_g1_contract(native_library)
+    if adapter is None:
+        adapter = _g1_foundation_adapter(native_library)
+    _validate_foundation_adapter(adapter)
+    _verify_adapter_native_contract(adapter, native_library)
+    contract = adapter["controller"]
     joint_order = tuple(str(name) for name in contract["joint_order"])
     default_pose = np.asarray(contract["default_pose"], dtype=np.float32)
     action_scale = np.asarray(contract["task_action_scale"], dtype=np.float32)
@@ -484,46 +817,71 @@ def compile_numi_action_stream(
     position_limits = np.asarray(contract["position_limits"], dtype=np.float32)
     joint_count = len(joint_order)
     if (
-        joint_count != 29
-        or default_pose.shape != (joint_count,)
+        default_pose.shape != (joint_count,)
         or action_scale.shape != (joint_count,)
         or velocity_limits.shape != (joint_count,)
         or position_limits.shape != (joint_count, 2)
         or np.any(action_scale <= 0.0)
     ):
-        raise ValueError("native G1 deployment arrays are inconsistent")
+        raise ValueError("foundation adapter controller arrays are inconsistent")
     index_by_name = {name: index for index, name in enumerate(joint_order)}
 
-    _, current_groups = _load_observation(observation)
+    group_contracts = {
+        str(group["name"]): group
+        for group in adapter["observation"]["state_groups"]
+    }
+    current_groups: dict[str, np.ndarray] = {}
+    with np.load(observation, allow_pickle=False) as archive:
+        for name, group in group_contracts.items():
+            if name not in archive.files:
+                raise ValueError(f"foundation observation is missing state group {name}")
+            expected = len(group["joints"]) or int(group["placeholder_count"])
+            value = np.asarray(archive[name], dtype=np.float32)
+            if value.shape != (1, expected) or not np.isfinite(value).all():
+                raise ValueError(
+                    f"foundation observation state group {name} is invalid"
+                )
+            current_groups[name] = value
     current = default_pose.copy()
-    for group, names in G1_GROUP_JOINTS.items():
+    for group, specification in group_contracts.items():
+        names = tuple(str(name) for name in specification["joints"])
+        if not names:
+            continue
         values = current_groups[group].reshape(-1)
         for source_index, name in enumerate(names):
             current[index_by_name[name]] = values[source_index]
 
     with np.load(action_chunk, allow_pickle=False) as archive:
+        output_contracts = {
+            str(output["name"]): tuple(str(name) for name in output["joints"])
+            for output in adapter["action_outputs"]
+        }
+        missing_outputs = sorted(set(output_contracts).difference(archive.files))
+        if missing_outputs:
+            raise ValueError(
+                "foundation action chunk is missing adapter outputs: "
+                + ", ".join(missing_outputs)
+            )
         mapped = {
             group: np.asarray(archive[group], dtype=np.float32)[0]
-            for group in ("waist", "left_arm", "right_arm")
+            for group in output_contracts
         }
         ignored_outputs = sorted(
             set(archive.files).difference(mapped)
         )
     source_steps = next(iter(mapped.values())).shape[0]
     if source_steps < 1 or any(
-        values.shape != (source_steps, len(G1_GROUP_JOINTS[group]))
+        values.shape != (source_steps, len(output_contracts[group]))
         for group, values in mapped.items()
     ):
-        raise ValueError("foundation action chunk has incompatible G1 arrays")
+        raise ValueError("foundation action chunk is incompatible with the adapter")
     control_hz = 1.0 / float(contract["policy_timestep_seconds"])
     duration = (source_steps - 1) / source_hz
     destination_steps = int(round(duration * control_hz)) + 1
     source_time = np.arange(source_steps, dtype=np.float64) / source_hz
     destination_time = np.arange(destination_steps, dtype=np.float64) / control_hz
     desired = np.repeat(default_pose[None, :], destination_steps, axis=0)
-    for group, names in G1_GROUP_JOINTS.items():
-        if group not in mapped:
-            continue
+    for group, names in output_contracts.items():
         for source_index, name in enumerate(names):
             joint = index_by_name[name]
             desired[:, joint] = np.interp(
@@ -540,8 +898,8 @@ def compile_numi_action_stream(
     timestep = 1.0 / control_hz
     mapped_indices = [
         index_by_name[name]
-        for group in ("waist", "left_arm", "right_arm")
-        for name in G1_GROUP_JOINTS[group]
+        for names in output_contracts.values()
+        for name in names
     ]
     for step_index in range(destination_steps):
         for joint in mapped_indices:
@@ -579,9 +937,16 @@ def compile_numi_action_stream(
         "control_steps": int(normalized.shape[0]),
         "prefix_zero_steps": prefix_zero_steps,
         "joint_order": list(joint_order),
-        "mapped_joint_groups": ["waist", "left_arm", "right_arm"],
+        "mapped_joint_groups": list(output_contracts),
+        "foundation_adapter": {
+            "id": adapter["id"],
+            "provider": adapter["provider"],
+            "robot": adapter["robot"],
+        },
         "ignored_model_outputs": ignored_outputs,
-        "lower_body_semantics": "zero normalized action; native default-pose balance controller",
+        "lower_body_semantics": (
+            "zero normalized action around the adapter-authored native default pose"
+        ),
         "position_clamps": position_clamps,
         "velocity_clamps": velocity_clamps,
         "normalized_clamps": normalized_clamps,
@@ -759,6 +1124,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     fetch_parser.add_argument("--revision", default="main")
     fetch_parser.add_argument("--model-directory", type=Path, required=True)
 
+    adapter_parser = subparsers.add_parser(
+        "adapter", help="author a versioned robot/foundation mapping artifact"
+    )
+    adapter_parser.add_argument("--native-library", type=Path, required=True)
+    adapter_parser.add_argument("--output", type=Path, required=True)
+
     observation_parser = subparsers.add_parser(
         "observation", help="compile synchronized Numi camera and G1 state"
     )
@@ -767,6 +1138,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     observation_parser.add_argument("--step", type=int)
     observation_parser.add_argument("--output", type=Path, required=True)
     observation_parser.add_argument("--evidence", type=Path, required=True)
+    observation_parser.add_argument("--adapter", type=Path)
 
     actions_parser = subparsers.add_parser(
         "compile-actions", help="map a foundation chunk into Numi's G1 controller"
@@ -778,6 +1150,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     actions_parser.add_argument("--evidence", type=Path, required=True)
     actions_parser.add_argument("--source-hz", type=float, default=30.0)
     actions_parser.add_argument("--prefix-zero-steps", type=int, default=1)
+    actions_parser.add_argument("--adapter", type=Path)
 
     interaction_parser = subparsers.add_parser(
         "compile-interaction",
@@ -792,6 +1165,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     interaction_parser.add_argument("--desired-outcome", required=True)
     interaction_parser.add_argument("--source-hz", type=float, default=30.0)
     interaction_parser.add_argument("--prefix-hold-frames", type=int, default=1)
+    interaction_parser.add_argument("--adapter", type=Path)
 
     infer_parser = subparsers.add_parser("infer", help="produce one fingerprinted action chunk")
     infer_parser.add_argument("--model-directory", type=Path, required=True)
@@ -809,6 +1183,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     if arguments.command == "fetch":
         print(json.dumps(_fetch(arguments.repository, arguments.revision, arguments.model_directory), indent=2, sort_keys=True))
         return 0
+    if arguments.command == "adapter":
+        print(json.dumps(write_foundation_adapter(
+            arguments.native_library,
+            arguments.output,
+        ), indent=2, sort_keys=True))
+        return 0
     if arguments.command == "observation":
         print(json.dumps(compile_numi_observation(
             arguments.camera_frame,
@@ -816,6 +1196,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             arguments.output,
             arguments.evidence,
             arguments.step,
+            None if arguments.adapter is None else _load_foundation_adapter(arguments.adapter),
         ), indent=2, sort_keys=True))
         return 0
     if arguments.command == "compile-actions":
@@ -827,6 +1208,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             arguments.evidence,
             arguments.source_hz,
             arguments.prefix_zero_steps,
+            None if arguments.adapter is None else _load_foundation_adapter(arguments.adapter),
         ), indent=2, sort_keys=True))
         return 0
     if arguments.command == "compile-interaction":
@@ -840,6 +1222,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             arguments.desired_outcome,
             arguments.source_hz,
             arguments.prefix_hold_frames,
+            None if arguments.adapter is None else _load_foundation_adapter(arguments.adapter),
         ), indent=2, sort_keys=True))
         return 0
     if bool(arguments.observation) == bool(arguments.synthetic_observation):

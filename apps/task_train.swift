@@ -42,6 +42,7 @@ private struct Options {
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
+    var visualObservationConfig: String?
     var updateEpochs = 5
     // Zero derives the batch size from minibatchesPerEpoch so environment
     // scaling increases Apple-GPU matrix width instead of optimizer launches.
@@ -226,6 +227,9 @@ private struct Options {
                 index += 1
             case "--visual-environment-pack":
                 visualEnvironmentPack = try value()
+                index += 1
+            case "--visual-observation-config":
+                visualObservationConfig = try value()
                 index += 1
             case "--scene":
                 switch try value() {
@@ -430,6 +434,15 @@ private struct Options {
                 "Visual training requires both --g1-visual-pack-dir and --ball-visual-pack-dir."
             )
         }
+        if visualObservationConfig != nil &&
+            (g1VisualPackDirectory != nil ||
+             ballVisualPackDirectory != nil ||
+             visualEnvironmentPack != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--visual-observation-config cannot be combined with legacy visual preset options."
+            )
+        }
         if g1VisualPackDirectory != nil &&
             ((unitreeG1Task != .ballDisturbanceRecovery &&
               unitreeG1Task != .ballDodge) ||
@@ -440,7 +453,8 @@ private struct Options {
             )
         }
         if unitreeG1Task == .ballDodge &&
-            g1VisualPackDirectory == nil
+            g1VisualPackDirectory == nil &&
+            visualObservationConfig == nil
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "Ball-dodge training requires authored G1 and ball Visual Presentation packs."
@@ -557,6 +571,31 @@ private struct Options {
         }
         return parsed
     }
+}
+
+private func makeVisualObservation(
+    options: Options
+) throws -> MetalRoboTaskVisualObservationConfiguration? {
+    if let path = options.visualObservationConfig {
+        return try MetalRoboTaskVisualObservationConfiguration
+            .loadArtifact(at: URL(fileURLWithPath: path))
+    }
+    guard let robotDirectory = options.g1VisualPackDirectory,
+          let ballDirectory = options.ballVisualPackDirectory
+    else {
+        return nil
+    }
+    return try .unitreeG1BallRecovery(
+        robotPackDirectory: URL(
+            fileURLWithPath: robotDirectory
+        ),
+        ballPackDirectory: URL(
+            fileURLWithPath: ballDirectory
+        ),
+        environmentPackURL: options.visualEnvironmentPack.map {
+            URL(fileURLWithPath: $0)
+        }
+    )
 }
 
 private func mlxEnvironment(options: Options) -> [String: String] {
@@ -1053,25 +1092,10 @@ private enum TaskTrainMain {
             )
             let (context, worldSource) =
                 try makeContext(options: options)
-            if let robotDirectory =
-                    options.g1VisualPackDirectory,
-               let ballDirectory =
-                    options.ballVisualPackDirectory
-            {
-                try context.attachVisualObservation(
-                    .unitreeG1BallRecovery(
-                        robotPackDirectory: URL(
-                            fileURLWithPath: robotDirectory
-                        ),
-                        ballPackDirectory: URL(
-                            fileURLWithPath: ballDirectory
-                        ),
-                        environmentPackURL:
-                            options.visualEnvironmentPack.map {
-                                URL(fileURLWithPath: $0)
-                            }
-                    )
-                )
+            if let visualObservation = try makeVisualObservation(
+                options: options
+            ) {
+                try context.attachVisualObservation(visualObservation)
             }
             try initializePolicyIfRequested(
                 options: options,
@@ -1423,6 +1447,8 @@ private enum TaskTrainMain {
                     context.visualSceneFingerprint != 0,
                 "visual_scene_fingerprint":
                     context.visualSceneFingerprint,
+                "visual_observation_config":
+                    options.visualObservationConfig ?? "",
                 "environments": options.environments,
                 "steps_per_update": options.steps,
                 "updates": options.updates,

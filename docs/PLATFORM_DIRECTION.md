@@ -72,12 +72,16 @@ semantics permit.
 
 ## Highest-leverage next work
 
-1. **General sensor composition.** Remove remaining G1/ball-specific visual
-   attachment surfaces. Let authored cameras, tracked entities, tactile fields,
-   and histories bind through the compiled world and task contracts.
-2. **Generic action-chunk compilation.** Move the first GR00T/G1 mapper behind
-   robot-authored state and action semantics so other robots and foundation
-   models can use the same observation -> proposal -> InteractionPack path.
+1. **General sensor composition.** The first `numi.visual-observation.v1`
+   artifact now binds arbitrary VisualPacks and an articulated camera to the
+   compiled task sensor program. Continue the same contract for tactile fields,
+   additional camera kinds, and histories; the old G1/ball flags are only a
+   compatibility preset.
+2. **Generic action-chunk compilation.** The first
+   `numi.foundation-adapter.v1` artifact now owns state layout, named model
+   outputs, robot joints, controller limits, and contact intent. Author and
+   qualify Franka, PSM, and additional provider adapters without adding robot
+   branches to the simulator or compiler path.
 3. **Broader physical qualification.** Maintain focused deterministic replay,
    transaction, contact, joint-limit, sensor, and coupling probes for each
    physics family, plus end-to-end robot workloads that expose real behavior.

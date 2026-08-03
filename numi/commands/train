@@ -17,6 +17,7 @@ provided. Every native trainer option passes through unchanged. Common options:
   --task velocity|disturbance-recovery|supine-get-up|ball-recovery|ball-dodge
   --minimum-difficulty-band N --maximum-difficulty-band N
   --interaction-pack PATH --interaction-clip ID
+  --visual-observation-config PATH       Authored camera and visual bindings
   --envs N --steps N --updates N --chunk N
   --policy-pack PATH                 Resume or use an existing PolicyPack
   --initialize-policy ID            Initialize a new policy

@@ -279,6 +279,28 @@ outputs survive between large stages. That makes correctness possible on
 today's unified-memory Macs while retaining a direct path to future graph
 fusion, MLX conversion, persistent sessions, and faster Apple hardware.
 
+### Authored visual-observation binding
+
+`numi.visual-observation.v1` removes robot and task identity from the rollout
+attachment surface. The JSON artifact lists VisualPacks with their authored
+asset, semantic, and instance identities; an optional environment pack; and a
+camera parent, local pose, calibration, cadence, visibility threshold, and
+retained-memory budget. Relative paths resolve beside the artifact, so the
+configuration is portable and fingerprintable.
+
+The Swift rollout loads this artifact, while the native compiler resolves body
+indices, tracked task entities, masked-depth slots, history, and observation
+layout from the mechanics and TaskPack. Metal still performs rendering and
+sensing. `--g1-visual-pack-dir` and `--ball-visual-pack-dir` remain compatibility
+syntax that expands to the same runtime configuration; they are not a separate
+sensor path. The schema is `schemas/visual_observation.schema.json`.
+
+```sh
+numi evaluate --task ball-dodge --scene ground \
+    --visual-observation-config /path/to/visual-observation.json \
+    --envs 1 --steps 32 --chunk 1 --native-policy
+```
+
 ### Policy observations
 
 `PolicyObservationAssemblerV1` supports:
@@ -337,7 +359,8 @@ multi-camera RGB, validity-masked metric depth, state, and actions.
 - Shared Metal ABI: `include/metalrobo/visual_platform_types.h`
 - Metal runtime: `include/metalrobo/MetalHybridRenderer.hpp`
 - Python contracts and episode stream: `python/metalrobo/visual.py`
-- JSON schemas: `schemas/visual_*` and
+- JSON schemas: `schemas/visual_*`, `schemas/visual_observation.schema.json`,
+  `schemas/foundation_adapter.schema.json`, and
   `schemas/perception_provider.schema.json`
 - Reference integration:
   `apps/visual_platform_probe.cpp`

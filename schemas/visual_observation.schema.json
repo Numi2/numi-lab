@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://numi-lab.local/schemas/visual_observation.schema.json",
+  "title": "Numi Lab Visual Observation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "id", "packs", "camera"],
+  "properties": {
+    "format": { "const": "numi.visual-observation.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "environment_pack": { "type": "string", "minLength": 1 },
+    "packs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "asset_id", "semantic_id", "instance_id"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "asset_id": { "type": "string", "minLength": 1 },
+          "semantic_id": { "type": "integer", "minimum": 1, "maximum": 4294967294 },
+          "instance_id": { "type": "integer", "minimum": 1, "maximum": 4294967294 }
+        }
+      }
+    },
+    "camera": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parent_body", "position", "orientation", "width", "height",
+        "minimum_visible_pixels", "vertical_field_of_view_degrees",
+        "nominal_rate_hz", "maximum_retained_bytes"
+      ],
+      "properties": {
+        "parent_body": { "type": "string", "minLength": 1 },
+        "position": {
+          "type": "array", "minItems": 3, "maxItems": 3,
+          "items": { "type": "number" }
+        },
+        "orientation": {
+          "type": "array", "minItems": 4, "maxItems": 4,
+          "items": { "type": "number" }
+        },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "minimum_visible_pixels": { "type": "integer", "minimum": 1 },
+        "vertical_field_of_view_degrees": {
+          "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 180
+        },
+        "nominal_rate_hz": { "type": "number", "exclusiveMinimum": 0 },
+        "maximum_retained_bytes": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}
