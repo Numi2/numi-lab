@@ -138,9 +138,22 @@ def add_room(scene):
     for x in (-0.88, -0.28, 0.32, 0.92):
         add_box("wall panel", (x, 1.282, 0.83), (0.265, 0.008, 0.78), wall_inset, 0.012)
 
-    # Franka is bolted to a dedicated plinth beside the operating surface.
-    add_cylinder("robot pedestal", 0.235, 0.12, (0.0, 0.0, -0.135), steel)
-    add_cylinder("robot pedestal inset", 0.19, 0.01, (0.0, 0.0, -0.071), cyan)
+    # Two Franka stations are placed symmetrically around the operative field.
+    for side, x, y in (("left", 0.0, 0.0), ("right", 1.24, 0.16)):
+        add_cylinder(
+            f"{side} robot pedestal",
+            0.235,
+            0.12,
+            (x, y, -0.135),
+            steel,
+        )
+        add_cylinder(
+            f"{side} robot pedestal inset",
+            0.19,
+            0.01,
+            (x, y, -0.071),
+            cyan,
+        )
 
     # 1.10 x 0.72 m operating table, 0.39 m high in this compact workcell.
     add_box("operating table", (0.65, 0.12, 0.315), (0.55, 0.36, 0.045), steel, 0.035)
@@ -331,15 +344,32 @@ def place_surgical_assets(root: Path) -> None:
     needle_thread.rotation_euler.z = math.radians(-18.0)
 
 
+def place_robot_station(
+    roots,
+    name: str,
+    location: tuple[float, float, float],
+    yaw: float,
+) -> None:
+    station = bpy.data.objects.new(name, None)
+    bpy.context.scene.collection.objects.link(station)
+    bpy.context.view_layer.update()
+    for root in roots.values():
+        world = root.matrix_world.copy()
+        root.parent = station
+        root.matrix_world = world
+    station.location = location
+    station.rotation_euler.z = yaw
+
+
 def set_camera(camera, phase: float) -> None:
     angle = math.radians(-49.0 + 3.5 * math.sin(phase))
-    radius = 2.82 + 0.035 * math.cos(phase)
+    radius = 3.30 + 0.04 * math.cos(phase)
     camera.location = (
-        0.34 + radius * math.cos(angle),
-        0.02 + radius * math.sin(angle),
-        1.48 + 0.035 * math.sin(phase),
+        0.62 + radius * math.cos(angle),
+        0.08 + radius * math.sin(angle),
+        1.56 + 0.035 * math.sin(phase),
     )
-    point_camera(camera, (0.42, 0.12, 0.39))
+    point_camera(camera, (0.62, 0.08, 0.42))
 
 
 def main() -> None:
@@ -351,8 +381,16 @@ def main() -> None:
         raise RuntimeError("--pose-step is outside the accepted trajectory")
 
     camera = configure_scene(options)
-    robot = import_franka(options.franka_description, options.converted_meshes)
-    apply_pose(robot, poses[options.pose_step])
+    left_robot = import_franka(options.franka_description, options.converted_meshes)
+    apply_pose(left_robot, poses[options.pose_step])
+    right_robot = import_franka(options.franka_description, options.converted_meshes)
+    apply_pose(right_robot, poses[options.pose_step])
+    place_robot_station(
+        right_robot,
+        "right Franka visual station",
+        (1.24, 0.16, 0.0),
+        math.pi,
+    )
     place_surgical_assets(options.surgery_assets_root)
 
     if options.output is not None:

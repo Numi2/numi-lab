@@ -176,14 +176,16 @@ images use their official upstream visual meshes.
 
 ### Authored surgical workcell
 
-![Franka in the numi-lab surgical workcell](docs/media/numi-lab-franka-surgery-room.gif)
+![Dual Franka arms in the numi-lab surgical workcell](docs/media/numi-lab-franka-surgery-room.gif)
 
-The scene combines an official-mesh Franka at an accepted Numi Lab pose with
-an operating table, sterile drape, instrument tray, suturable tissue phantom,
-unsutured incision, curved needle, and coiled suture presentation. The visible
-surgical props are authored presentation, not yet physics-bound task objects;
-this media does not claim needle contact, tissue deformation, suturing, task
-completion, clinical validity, or hardware execution.
+The scene combines two official-mesh Franka arms facing an operating table
+with a sterile drape, instrument tray, suturable tissue phantom, unsutured
+incision, curved needle, and coiled suture presentation. Both arms start from
+one accepted Numi Lab pose, with a rigid station transform applied to the
+second arm. The second robot and surgical props are authored presentation, not
+yet a compiled dual-robot physics task; this media does not claim coordinated
+motion, needle contact, tissue deformation, suturing, task completion,
+clinical validity, or hardware execution.
 
 ## Architecture
 
