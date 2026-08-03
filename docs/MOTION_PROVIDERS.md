@@ -122,12 +122,15 @@ bounded sequential full-body endpoint IK. ARDY's continuous-6D root
 orientation is transformed from its y-up frame into G1's z-up/x-forward
 frame; limb direction and root translation drive the retarget while G1 keeps
 its own proportions. Every joint target is constrained by authored position
-and velocity limits, with torso/forearm self-clearance objectives. Because the
+and velocity limits, with torso/forearm self-clearance plus explicit left/right
+knee, ankle, and shank separation objectives. Because the
 ARDY Core horizon ends after 40 frames and can stop before a landing is
-settled, the retarget appends a labelled, bounded transition to the authored
-G1 reset posture instead of displaying a malformed terminal pose. The
-artifact retains endpoint errors, self-clearance, maximum velocity ratio,
-link transforms, source fingerprints, URDF hash, and joint order.
+settled, the retarget appends a labelled, bounded landing phase instead of
+displaying a malformed terminal pose. Feet orient before descent; terminal IK
+tracks authored left/right touchdown targets, locks them at contact, and only
+then completes the G1 reset posture. The artifact retains endpoint errors,
+terminal foot-lock error, self-clearance, maximum velocity ratio, link
+transforms, source fingerprints, URDF hash, and joint order.
 
 The Blender presentation consumes those exact link transforms and the
 official Unitree meshes. It is deliberately downstream of the numeric

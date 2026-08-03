@@ -113,8 +113,10 @@ numi motion imagine-g1 \
 
 This is direct model and retarget evidence, not a hand-authored animation. The
 ARDY source horizon is 40 frames; Numi visibly completes it with a bounded
-24-frame transition to the authored G1 reset posture so an unfinished model
-tail cannot leave crossed limbs or a floating terminal frame. It is also
+30-frame landing phase. The feet orient before descent, touchdown is solved
+against fixed G1 foot targets, and only then does the posture finish settling,
+so an unfinished model tail cannot leave crossed limbs, sliding feet, or a
+floating terminal frame. It is also
 intentionally not physical-success evidence: the displayed trajectory has not
 yet passed through G1 actuation, balance, collision, contact, or landing in
 NumiSolver.
