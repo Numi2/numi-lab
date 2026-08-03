@@ -118,18 +118,22 @@ external-data hash remain part of the run evidence.
 ### G1 retargeting and presentation
 
 `numi.motion-retarget.v1` uses the pinned official Unitree G1 29-DoF URDF and
-bounded sequential full-body endpoint IK. ARDY's continuous-6D root
+bounded source endpoint IK followed, when needed, by a robot-authored aerial
+completion. ARDY's continuous-6D root
 orientation is transformed from its y-up frame into G1's z-up/x-forward
 frame; limb direction and root translation drive the retarget while G1 keeps
 its own proportions. Every joint target is constrained by authored position
 and velocity limits, with torso/forearm self-clearance plus explicit left/right
 knee, ankle, and shank separation objectives. Because the
 ARDY Core horizon ends after 40 frames and can stop before a landing is
-settled, the retarget appends a labelled, bounded landing phase instead of
-displaying a malformed terminal pose. Feet orient before descent; terminal IK
-tracks authored left/right touchdown targets, locks them at contact, and only
-then completes the G1 reset posture. The artifact retains endpoint errors,
-terminal foot-lock error, self-clearance, maximum velocity ratio, link
+settled, the retarget detects and rejects a malformed airborne tail instead of
+displaying it as a landing. It then separates attitude recovery from contact:
+first align the root upright and move into a symmetric G1 landing crouch while
+airborne, then descend with flat feet, then keep both feet exactly locked to
+their world-space support targets while the body settles to the G1 reset
+posture. The artifact labels every source, alignment, descent, and support
+frame and retains the rejected-frame count, touchdown index, endpoint errors,
+support foot-lock error, self-clearance, maximum joint/root speed, link
 transforms, source fingerprints, URDF hash, and joint order.
 
 The Blender presentation consumes those exact link transforms and the

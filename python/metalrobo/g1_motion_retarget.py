@@ -487,172 +487,241 @@ def retarget_g1(
     )
     root_world[:, 3:] = Rotation.from_matrix(root_rotations).as_quat()
 
-    terminal_frame_count = 30
-    touchdown_frame_count = 28
-    foot_orientation_frame_count = 10
-    terminal_phase = np.linspace(
-        1.0 / terminal_frame_count,
-        1.0,
-        terminal_frame_count,
-        dtype=np.float64,
-    )
-    terminal_blend = terminal_phase * terminal_phase * (3.0 - 2.0 * terminal_phase)
-    touchdown_phase = np.minimum(
-        np.arange(1, terminal_frame_count + 1, dtype=np.float64)
-        / touchdown_frame_count,
-        1.0,
-    )
-    touchdown_blend = (
-        touchdown_phase * touchdown_phase * (3.0 - 2.0 * touchdown_phase)
-    )
-    foot_orientation_phase = np.minimum(
-        np.arange(1, terminal_frame_count + 1, dtype=np.float64)
-        / foot_orientation_frame_count,
-        1.0,
-    )
-    foot_orientation_blend = (
-        foot_orientation_phase
-        * foot_orientation_phase
-        * (3.0 - 2.0 * foot_orientation_phase)
-    )
-    terminal_root = np.repeat(root_world[-1][None, :], terminal_frame_count, axis=0)
-    terminal_root[:, 2] = (
-        root_world[-1, 2] * (1.0 - touchdown_blend) + 0.793 * touchdown_blend
-    )
-    terminal_root[:, 3:] = Slerp(
-        (0.0, 1.0),
-        Rotation.from_quat((root_world[-1, 3:], (0.0, 0.0, 0.0, 1.0))),
-    )(touchdown_blend).as_quat()
-
     foot_links = ("left_ankle_roll_link", "right_ankle_roll_link")
-    source_terminal_poses = model.forward(q_frames[-1])
-    source_terminal_rotation = Rotation.from_quat(root_world[-1, 3:]).as_matrix()
-    touchdown_root_position = terminal_root[-1, :3]
-    touchdown_targets: list[tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]] = []
-    for foot_link in foot_links:
-        source_local = source_terminal_poses[foot_link]
-        source_position = (
-            root_world[-1, :3]
-            + source_terminal_rotation @ source_local[:3, 3]
-        )
-        source_orientation = source_terminal_rotation @ source_local[:3, :3]
-        final_local = rest[foot_link]
-        final_position = touchdown_root_position + final_local[:3, 3]
-        touchdown_targets.append((
-            source_position,
-            final_position,
-            source_orientation,
-            final_local[:3, :3],
-        ))
-
-    terminal_q = np.empty((terminal_frame_count, 29), dtype=np.float64)
-    terminal_foot_errors = np.empty((terminal_frame_count, 2), dtype=np.float64)
-    terminal_active = np.arange(15, dtype=np.int64)
-    terminal_previous = q_frames[-1].copy()
-    for terminal_index in range(terminal_frame_count):
-        posture_blend = terminal_blend[terminal_index]
-        contact_blend = touchdown_blend[terminal_index]
-        reference = (
-            q_frames[-1] * (1.0 - posture_blend)
-            + G1_RESET_Q * posture_blend
-        )
-        reference[terminal_active] = (
-            q_frames[-1, terminal_active] * (1.0 - contact_blend)
-            + G1_RESET_Q[terminal_active] * contact_blend
-        )
-        ankle_indices = np.asarray((4, 5, 10, 11), dtype=np.int64)
-        orientation_blend = foot_orientation_blend[terminal_index]
-        reference[ankle_indices] = (
-            q_frames[-1, ankle_indices] * (1.0 - orientation_blend)
-            + G1_RESET_Q[ankle_indices] * orientation_blend
-        )
-        root_rotation = Rotation.from_quat(
-            terminal_root[terminal_index, 3:]
-        ).as_matrix()
-        foot_targets: list[tuple[str, np.ndarray, np.ndarray]] = []
-        for foot_link, target in zip(foot_links, touchdown_targets, strict=True):
-            source_position, final_position, source_orientation, final_orientation = target
-            target_position = (
-                source_position * (1.0 - contact_blend)
-                + final_position * contact_blend
-            )
-            target_orientation = Slerp(
-                (0.0, 1.0),
-                Rotation.from_matrix((source_orientation, final_orientation)),
-            )((orientation_blend,)).as_matrix()[0]
-            foot_targets.append((foot_link, target_position, target_orientation))
-
-        def terminal_residual(active_q: np.ndarray) -> np.ndarray:
-            q = reference.copy()
-            q[terminal_active] = active_q
-            poses = model.forward(q)
-            foot_terms: list[np.ndarray] = []
-            for foot_link, target_position, target_orientation in foot_targets:
-                local = poses[foot_link]
-                world_position = (
-                    terminal_root[terminal_index, :3]
-                    + root_rotation @ local[:3, 3]
+    source_frame_count = q_frames.shape[0]
+    root_rise = float(np.max(root_world[:, 2]) - root_world[0, 2])
+    root_rotations_world = Rotation.from_quat(root_world[:, 3:])
+    root_turn = float(
+        np.max((root_rotations_world[0].inv() * root_rotations_world).magnitude())
+    )
+    aerial_completion = root_rise > 0.20 and root_turn > np.deg2rad(90.0)
+    phase_ids = np.zeros(source_frame_count, dtype=np.uint8)
+    completion_evidence: dict[str, Any] = {"applied": False}
+    if aerial_completion:
+        peak_frame = int(np.argmax(root_world[:, 2]))
+        splice_frame = source_frame_count - 1
+        minimum_airborne_ankle_height = 0.15
+        for frame_index in range(peak_frame + 1, source_frame_count):
+            poses = model.forward(q_frames[frame_index])
+            root_rotation = Rotation.from_quat(
+                root_world[frame_index, 3:]
+            ).as_matrix()
+            ankle_heights = [
+                float(
+                    (
+                        root_world[frame_index, :3]
+                        + root_rotation @ poses[foot_link][:3, 3]
+                    )[2]
                 )
-                world_orientation = root_rotation @ local[:3, :3]
-                foot_terms.extend((
-                    (world_position - target_position) / 0.0005,
-                    Rotation.from_matrix(
-                        target_orientation.T @ world_orientation
-                    ).as_rotvec() / 0.03,
-                ))
-            continuity = (
-                active_q - terminal_previous[terminal_active]
-            ) / 0.24
-            posture = (
-                active_q - reference[terminal_active]
-            ) / 0.16
-            return np.concatenate((*foot_terms, continuity, posture))
+                for foot_link in foot_links
+            ]
+            if min(ankle_heights) < minimum_airborne_ankle_height:
+                splice_frame = max(peak_frame, frame_index - 1)
+                break
 
-        solved = least_squares(
-            terminal_residual,
-            terminal_previous[terminal_active],
-            bounds=(
-                np.maximum(
-                    _G1_JOINT_LOWER[terminal_active],
-                    terminal_previous[terminal_active]
-                    - maximum_frame_delta[terminal_active],
-                ),
-                np.minimum(
-                    _G1_JOINT_UPPER[terminal_active],
-                    terminal_previous[terminal_active]
-                    + maximum_frame_delta[terminal_active],
-                ),
-            ),
-            method="trf",
-            ftol=1.0e-10,
-            xtol=1.0e-10,
-            gtol=1.0e-10,
-            max_nfev=160,
+        retained_source_count = splice_frame + 1
+        alignment_frame_count = 14
+        descent_frame_count = 14
+        support_frame_count = 16
+        landing_q = G1_RESET_Q.copy()
+        landing_q[[0, 6]] = -0.45
+        landing_q[[1, 2, 5, 7, 8, 11, 12, 13, 14]] = 0.0
+        landing_q[[3, 9]] = 0.90
+        landing_q[[4, 10]] = -0.45
+
+        final_root = np.asarray(
+            (root_world[splice_frame, 0], root_world[splice_frame, 1], 0.793),
+            dtype=np.float64,
         )
-        q = reference.copy()
-        q[terminal_active] = solved.x
-        if terminal_index >= touchdown_frame_count - 1:
-            q = G1_RESET_Q.copy()
-        poses = model.forward(q)
-        for foot_index, (foot_link, target_position, _) in enumerate(foot_targets):
-            local = poses[foot_link]
-            world_position = (
-                terminal_root[terminal_index, :3]
-                + root_rotation @ local[:3, 3]
+        target_foot_positions = np.asarray(
+            [final_root + rest[foot_link][:3, 3] for foot_link in foot_links],
+            dtype=np.float64,
+        )
+        landing_poses = model.forward(landing_q)
+        landing_foot_positions = np.asarray(
+            [landing_poses[foot_link][:3, 3] for foot_link in foot_links],
+            dtype=np.float64,
+        )
+        contact_root = np.mean(
+            target_foot_positions - landing_foot_positions,
+            axis=0,
+        )
+        airborne_root = contact_root.copy()
+        airborne_root[2] = max(
+            float(root_world[splice_frame, 2]),
+            float(contact_root[2] + 0.32),
+        )
+
+        alignment_phase = np.linspace(
+            1.0 / alignment_frame_count,
+            1.0,
+            alignment_frame_count,
+            dtype=np.float64,
+        )
+        alignment_blend = (
+            alignment_phase * alignment_phase * (3.0 - 2.0 * alignment_phase)
+        )
+        alignment_q = (
+            q_frames[splice_frame][None, :] * (1.0 - alignment_blend[:, None])
+            + landing_q[None, :] * alignment_blend[:, None]
+        )
+        alignment_root = np.empty((alignment_frame_count, 7), dtype=np.float64)
+        alignment_root[:, :3] = (
+            root_world[splice_frame, :3][None, :]
+            * (1.0 - alignment_blend[:, None])
+            + airborne_root[None, :] * alignment_blend[:, None]
+        )
+        alignment_root[:, 3:] = Slerp(
+            (0.0, 1.0),
+            Rotation.from_quat((
+                root_world[splice_frame, 3:],
+                (0.0, 0.0, 0.0, 1.0),
+            )),
+        )(alignment_blend).as_quat()
+
+        descent_phase = np.linspace(
+            1.0 / descent_frame_count,
+            1.0,
+            descent_frame_count,
+            dtype=np.float64,
+        )
+        descent_blend = (
+            descent_phase * descent_phase * (3.0 - 2.0 * descent_phase)
+        )
+        descent_q = np.repeat(
+            landing_q[None, :], descent_frame_count, axis=0
+        )
+        descent_root = np.empty((descent_frame_count, 7), dtype=np.float64)
+        descent_root[:, :3] = (
+            airborne_root[None, :] * (1.0 - descent_blend[:, None])
+            + contact_root[None, :] * descent_blend[:, None]
+        )
+        descent_root[:, 3:] = (0.0, 0.0, 0.0, 1.0)
+
+        support_phase = np.linspace(
+            1.0 / support_frame_count,
+            1.0,
+            support_frame_count,
+            dtype=np.float64,
+        )
+        support_blend = (
+            support_phase * support_phase * (3.0 - 2.0 * support_phase)
+        )
+        support_q = (
+            landing_q[None, :] * (1.0 - support_blend[:, None])
+            + G1_RESET_Q[None, :] * support_blend[:, None]
+        )
+        support_root = np.empty((support_frame_count, 7), dtype=np.float64)
+        support_errors = np.empty((support_frame_count, 2), dtype=np.float64)
+        for frame_index, q in enumerate(support_q):
+            poses = model.forward(q)
+            local_feet = np.asarray(
+                [poses[foot_link][:3, 3] for foot_link in foot_links],
+                dtype=np.float64,
             )
-            terminal_foot_errors[terminal_index, foot_index] = np.linalg.norm(
-                world_position - target_position
+            support_root[frame_index, :3] = np.mean(
+                target_foot_positions - local_feet,
+                axis=0,
             )
-        terminal_q[terminal_index] = q
-        terminal_previous = q
-    q_frames = np.concatenate((q_frames, terminal_q), axis=0)
-    root_world = np.concatenate((root_world, terminal_root), axis=0)
+            support_root[frame_index, 3:] = (0.0, 0.0, 0.0, 1.0)
+            support_errors[frame_index] = np.linalg.norm(
+                support_root[frame_index, :3][None, :]
+                + local_feet
+                - target_foot_positions,
+                axis=1,
+            )
+        maximum_support_error = float(np.max(support_errors))
+        if maximum_support_error > 1.0e-9:
+            raise RuntimeError(
+                "aerial completion failed to preserve bilateral foot support"
+            )
+
+        q_frames = np.concatenate((
+            q_frames[:retained_source_count],
+            alignment_q,
+            descent_q,
+            support_q,
+        ))
+        root_world = np.concatenate((
+            root_world[:retained_source_count],
+            alignment_root,
+            descent_root,
+            support_root,
+        ))
+        endpoint_errors = endpoint_errors[:retained_source_count]
+        phase_ids = np.concatenate((
+            np.zeros(retained_source_count, dtype=np.uint8),
+            np.ones(alignment_frame_count, dtype=np.uint8),
+            np.full(descent_frame_count, 2, dtype=np.uint8),
+            np.full(support_frame_count, 3, dtype=np.uint8),
+        ))
+        touchdown_frame = (
+            retained_source_count
+            + alignment_frame_count
+            + descent_frame_count
+            - 1
+        )
+        completion_root = root_world[retained_source_count - 1 :]
+        completion_linear_speed = np.linalg.norm(
+            np.diff(completion_root[:, :3], axis=0), axis=1
+        ) * fps
+        completion_delta_rotation = (
+            Rotation.from_quat(completion_root[:-1, 3:]).inv()
+            * Rotation.from_quat(completion_root[1:, 3:])
+        )
+        completion_angular_speed = completion_delta_rotation.magnitude() * fps
+        completion_evidence = {
+            "applied": True,
+            "method": (
+                "truncate corrupt source tail; airborne attitude alignment; "
+                "flat-foot descent; exact bilateral support settle"
+            ),
+            "source_frame_count": source_frame_count,
+            "retained_source_frame_count": retained_source_count,
+            "rejected_source_tail_frame_count": (
+                source_frame_count - retained_source_count
+            ),
+            "splice_frame": splice_frame,
+            "splice_minimum_ankle_height_m": minimum_airborne_ankle_height,
+            "alignment_frame_count": alignment_frame_count,
+            "descent_frame_count": descent_frame_count,
+            "support_frame_count": support_frame_count,
+            "touchdown_frame": touchdown_frame,
+            "landing_joint_targets_rad": {
+                "hip_pitch": -0.45,
+                "hip_roll": 0.0,
+                "hip_yaw": 0.0,
+                "knee": 0.90,
+                "ankle_pitch": -0.45,
+                "ankle_roll": 0.0,
+            },
+            "maximum_support_foot_position_error_m": float(
+                maximum_support_error
+            ),
+            "maximum_completion_root_linear_speed_mps": float(
+                np.max(completion_linear_speed, initial=0.0)
+            ),
+            "maximum_completion_root_angular_speed_radps": float(
+                np.max(completion_angular_speed, initial=0.0)
+            ),
+            "contact_root_height_m": float(contact_root[2]),
+            "airborne_alignment_root_height_m": float(airborne_root[2]),
+            "final_root_height_m": float(support_root[-1, 2]),
+        }
     velocity_ratio = (
         np.abs(np.diff(q_frames, axis=0)) * fps
         / _G1_JOINT_VELOCITY.astype(np.float64)[None, :]
     )
     if np.max(velocity_ratio, initial=0.0) > 1.0 + 1.0e-6:
         raise RuntimeError("terminal completion exceeds an authored G1 velocity limit")
+    root_linear_speed = np.linalg.norm(
+        np.diff(root_world[:, :3], axis=0), axis=1
+    ) * fps
+    root_delta_rotation = (
+        Rotation.from_quat(root_world[:-1, 3:]).inv()
+        * Rotation.from_quat(root_world[1:, 3:])
+    )
+    root_angular_speed = root_delta_rotation.magnitude() * fps
 
     link_transforms = np.empty((q_frames.shape[0], len(model.links), 7), dtype=np.float64)
     clearance_frames = np.empty((q_frames.shape[0], 10), dtype=np.float64)
@@ -678,6 +747,7 @@ def retarget_g1(
         "root_position_quaternion_xyzw": root_world.astype(np.float32),
         "joint_positions": q_frames.astype(np.float32),
         "endpoint_errors_m": endpoint_errors.astype(np.float32),
+        "phase_ids": phase_ids,
         "link_names": np.asarray(model.links, dtype=np.str_),
         "link_position_quaternion_xyzw": link_transforms.astype(np.float32),
     }
@@ -705,11 +775,19 @@ def retarget_g1(
         "frame_count": int(q_frames.shape[0]),
         "joint_order": list(_G1_JOINTS),
         "retarget": {
-            "method": "bounded sequential full-body endpoint IK",
+            "method": (
+                "bounded source endpoint IK plus robot-authored aerial completion"
+            ),
             "mean_endpoint_error_m": float(np.mean(endpoint_errors)),
             "maximum_endpoint_error_m": float(np.max(endpoint_errors)),
             "maximum_joint_velocity_ratio": float(
                 np.max(velocity_ratio, initial=0.0)
+            ),
+            "maximum_root_linear_speed_mps": float(
+                np.max(root_linear_speed, initial=0.0)
+            ),
+            "maximum_root_angular_speed_radps": float(
+                np.max(root_angular_speed, initial=0.0)
             ),
             "joint_limits_satisfied": True,
             "source_human_proportions_copied": False,
@@ -729,19 +807,7 @@ def retarget_g1(
                 np.min(clearance_frames[:, 9])
             ),
             "source_frame_count": int(source.shape[0]),
-            "terminal_completion": {
-                "frame_count": terminal_frame_count,
-                "method": (
-                    "foot-locked touchdown IK then bounded posture completion"
-                ),
-                "touchdown_frame_count": touchdown_frame_count,
-                "foot_orientation_frame_count": foot_orientation_frame_count,
-                "maximum_post_touchdown_foot_position_error_m": float(
-                    np.max(terminal_foot_errors[touchdown_frame_count - 1 :])
-                ),
-                "target_root_height_m": 0.793,
-                "target_root_orientation_xyzw": [0.0, 0.0, 0.0, 1.0],
-            },
+            "terminal_completion": completion_evidence,
         },
         "authority": (
             "kinematic preview only; NumiSolver contact, balance, and actuation "
