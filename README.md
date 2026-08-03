@@ -6,7 +6,7 @@
 
 `C++23` · `Metal` · `Objective-C++` · `Swift` · `MLX`
 
-<img src="docs/media/metalrobo-unitree-g1.webp" alt="Unitree G1 rendered by numi-lab" width="100%" />
+<img src="docs/media/numi-lab-franka-exploration.gif" alt="Franka exploring forward, right, and left in numi-lab" width="100%" />
 
 </div>
 
