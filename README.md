@@ -96,34 +96,27 @@ for shared simulator capabilities, not the product boundary.
 
 ### Prompt-to-G1 motion imagination
 
-![ARDY-generated standing backflip retargeted onto Unitree G1](docs/media/ardy-g1-backflip-apple-silicon.gif)
-
-The retained animation begins with the prompt `perform a standing backflip,
-jump upward, rotate backward in the air, and land on both feet`. Numi runs the
+Numi runs the
 INT4 ARDY Llama 3 text encoder and ARDY Core ONNX model on arm64 Apple Silicon,
 then applies bounded full-body retargeting to the official 29-DoF Unitree G1
-mechanics and renders the official visual meshes. The same workflow is exposed
-as:
+mechanics. The source proposal can be inspected kinematically, but a rendered
+landing is publishable only after the proposal has been executed through G1
+actuation, gravity, collision, and contact in NumiSolver. The workflow begins
+with:
 
 ```sh
 numi motion imagine-g1 \
-  --prompt 'perform a standing backflip, jump upward, rotate backward in the air, and land on both feet' \
+  --prompt 'do backflip' \
   --seed 4
 ```
 
-This is direct model and retarget evidence, not a hand-authored animation. The
-ARDY source horizon is 40 frames. For this aerial motion, Numi detects and
-rejects the non-ballistic source tail before it can become a fake landing.
-From the rising flight state it preserves horizontal momentum, applies
-`9.81 m/s²` gravity, continues one uninterrupted backward rotation, and
-reaches an upright symmetric landing crouch with nonzero impact velocity.
-Only after touchdown are both feet held at exact world-space support targets
-while the joints settle to the authored standing posture. That removes the
-mid-air slowdown as well as crossed legs, inverted ankles, sliding feet,
-floating contact, and the post-contact joint snap. It is also
-intentionally not physical-success evidence: the displayed trajectory has not
-yet passed through G1 actuation, balance, collision, contact, or landing in
-NumiSolver.
+The retargeter preserves ARDY's complete 40-frame temporal proposal and never
+invents flight, touchdown, foot locks, or a settling pose. InteractionPack may
+use the joint-space proposal as controller intent, while the root remains a
+simulated outcome. NumiSolver applies the compiled world's gravity every
+physics substep and resolves whether the robot takes off, lands, slips, falls,
+or recovers. A failed physical realization stays visible as a failed result;
+presentation code must not repair it.
 
 ### Native G1 standing
 

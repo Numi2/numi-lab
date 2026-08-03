@@ -487,267 +487,26 @@ def retarget_g1(
     )
     root_world[:, 3:] = Rotation.from_matrix(root_rotations).as_quat()
 
-    foot_links = ("left_ankle_roll_link", "right_ankle_roll_link")
-    source_frame_count = q_frames.shape[0]
-    root_rise = float(np.max(root_world[:, 2]) - root_world[0, 2])
-    root_rotations_world = Rotation.from_quat(root_world[:, 3:])
-    root_turn = float(
-        np.max((root_rotations_world[0].inv() * root_rotations_world).magnitude())
-    )
-    aerial_completion = root_rise > 0.20 and root_turn > np.deg2rad(90.0)
-    phase_ids = np.zeros(source_frame_count, dtype=np.uint8)
-    completion_evidence: dict[str, Any] = {"applied": False}
-    if aerial_completion:
-        gravity = np.asarray((0.0, 0.0, -9.81), dtype=np.float64)
-        source_root_velocity = np.diff(root_world[:, :3], axis=0) * fps
-        flight_candidates = np.flatnonzero(
-            (root_world[1:, 2] - root_world[0, 2] >= 0.20)
-            & (source_root_velocity[:, 2] > 0.0)
-        )
-        if flight_candidates.size == 0:
-            raise RuntimeError("aerial motion has no rising flight splice")
-        flight_start_frame = int(flight_candidates[0] + 1)
-        retained_source_count = flight_start_frame + 1
-        support_frame_count = 16
-        landing_q = G1_RESET_Q.copy()
-        landing_q[[0, 6]] = -0.45
-        landing_q[[1, 2, 5, 7, 8, 11, 12, 13, 14]] = 0.0
-        landing_q[[3, 9]] = 0.90
-        landing_q[[4, 10]] = -0.45
-
-        flight_start_rotation = root_rotations_world[flight_start_frame]
-        upright_correction = (
-            flight_start_rotation.inv() * Rotation.identity()
-        ).as_rotvec()
-        correction_angle = float(np.linalg.norm(upright_correction))
-        if correction_angle < 1.0e-6:
-            raise RuntimeError("aerial splice is already upright")
-        rotation_axis = upright_correction / correction_angle
-        source_entry_rotation = (
-            root_rotations_world[flight_start_frame - 1].inv()
-            * root_rotations_world[flight_start_frame]
-        ).as_rotvec()
-        turn_direction = -1.0 if np.dot(source_entry_rotation, rotation_axis) < 0 else 1.0
-        flight_rotation_vector = upright_correction + (
-            turn_direction * 2.0 * np.pi * rotation_axis
-        )
-        target_angular_speed = 7.0
-        flight_duration = float(np.clip(
-            np.linalg.norm(flight_rotation_vector) / target_angular_speed,
-            0.65,
-            0.90,
-        ))
-        flight_frame_count = max(2, int(round(flight_duration * fps)))
-        flight_duration = flight_frame_count / fps
-        flight_times = (
-            np.arange(1, flight_frame_count + 1, dtype=np.float64) / fps
-        )
-        flight_phase = flight_times / flight_duration
-
-        source_entry_velocity = source_root_velocity[flight_start_frame - 1]
-        landing_xy = (
-            root_world[flight_start_frame, :2]
-            + source_entry_velocity[:2] * flight_duration
-        )
-        rest_foot_positions = np.asarray(
-            [rest[foot_link][:3, 3] for foot_link in foot_links],
-            dtype=np.float64,
-        )
-        landing_poses = model.forward(landing_q)
-        landing_foot_positions = np.asarray(
-            [landing_poses[foot_link][:3, 3] for foot_link in foot_links],
-            dtype=np.float64,
-        )
-        landing_to_rest_root_delta = np.mean(
-            landing_foot_positions - rest_foot_positions, axis=0
-        )
-        contact_root = np.asarray(
-            (
-                landing_xy[0],
-                landing_xy[1],
-                0.793 - landing_to_rest_root_delta[2],
-            ),
-            dtype=np.float64,
-        )
-        target_foot_positions = (
-            contact_root[None, :] + landing_foot_positions
-        )
-        takeoff_velocity = source_entry_velocity.copy()
-        takeoff_velocity[2] = (
-            contact_root[2]
-            - root_world[flight_start_frame, 2]
-            - 0.5 * gravity[2] * flight_duration * flight_duration
-        ) / flight_duration
-
-        flight_root = np.empty((flight_frame_count, 7), dtype=np.float64)
-        flight_root[:, :3] = (
-            root_world[flight_start_frame, :3][None, :]
-            + flight_times[:, None] * takeoff_velocity[None, :]
-            + 0.5 * flight_times[:, None] ** 2 * gravity[None, :]
-        )
-        flight_root[:, 3:] = (
-            flight_start_rotation
-            * Rotation.from_rotvec(
-                flight_phase[:, None] * flight_rotation_vector[None, :]
-            )
-        ).as_quat()
-        flight_root[-1, :3] = contact_root
-        flight_root[-1, 3:] = (0.0, 0.0, 0.0, 1.0)
-
-        posture_blend = flight_phase * flight_phase * (3.0 - 2.0 * flight_phase)
-        flight_q = (
-            q_frames[flight_start_frame][None, :]
-            * (1.0 - posture_blend[:, None])
-            + landing_q[None, :] * posture_blend[:, None]
-        )
-
-        support_phase = np.linspace(
-            1.0 / support_frame_count,
-            1.0,
-            support_frame_count,
-            dtype=np.float64,
-        )
-        support_blend = (
-            support_phase * support_phase * (3.0 - 2.0 * support_phase)
-        )
-        support_q = (
-            landing_q[None, :] * (1.0 - support_blend[:, None])
-            + G1_RESET_Q[None, :] * support_blend[:, None]
-        )
-        support_root = np.empty((support_frame_count, 7), dtype=np.float64)
-        support_errors = np.empty((support_frame_count, 2), dtype=np.float64)
-        for frame_index, q in enumerate(support_q):
-            poses = model.forward(q)
-            local_feet = np.asarray(
-                [poses[foot_link][:3, 3] for foot_link in foot_links],
-                dtype=np.float64,
-            )
-            support_root[frame_index, :3] = np.mean(
-                target_foot_positions - local_feet,
-                axis=0,
-            )
-            support_root[frame_index, 3:] = (0.0, 0.0, 0.0, 1.0)
-            support_errors[frame_index] = np.linalg.norm(
-                support_root[frame_index, :3][None, :]
-                + local_feet
-                - target_foot_positions,
-                axis=1,
-            )
-        maximum_support_error = float(np.max(support_errors))
-        if maximum_support_error > 1.0e-9:
-            raise RuntimeError(
-                "aerial completion failed to preserve bilateral foot support"
-            )
-
-        q_frames = np.concatenate((
-            q_frames[:retained_source_count],
-            flight_q,
-            support_q,
-        ))
-        root_world = np.concatenate((
-            root_world[:retained_source_count],
-            flight_root,
-            support_root,
-        ))
-        endpoint_errors = endpoint_errors[:retained_source_count]
-        phase_ids = np.concatenate((
-            np.zeros(retained_source_count, dtype=np.uint8),
-            np.ones(flight_frame_count, dtype=np.uint8),
-            np.full(support_frame_count, 3, dtype=np.uint8),
-        ))
-        touchdown_frame = retained_source_count + flight_frame_count - 1
-        ballistic_positions = np.concatenate((
-            root_world[flight_start_frame, :3][None, :],
-            flight_root[:, :3],
-        ))
-        ballistic_velocities = np.diff(ballistic_positions, axis=0) * fps
-        ballistic_accelerations = np.diff(ballistic_velocities, axis=0) * fps
-        ballistic_acceleration_error = np.linalg.norm(
-            ballistic_accelerations - gravity[None, :], axis=1
-        )
-        flight_rotations = Rotation.from_quat(np.concatenate((
-            root_world[flight_start_frame, 3:][None, :],
-            flight_root[:, 3:],
-        )))
-        flight_angular_speeds = (
-            flight_rotations[:-1].inv() * flight_rotations[1:]
-        ).magnitude() * fps
-        impact_velocity = takeoff_velocity + gravity * flight_duration
-        touchdown_orientation_error = Rotation.from_quat(
-            flight_root[-1, 3:]
-        ).magnitude()
-        if (
-            np.max(ballistic_acceleration_error, initial=0.0) > 1.0e-9
-            or touchdown_orientation_error > 1.0e-9
-        ):
-            raise RuntimeError(
-                "aerial completion violated ballistic or touchdown invariants"
-            )
-        horizontal_entry_discontinuity = float(np.linalg.norm(
-            ballistic_velocities[0, :2] - source_entry_velocity[:2]
-        ))
-        if horizontal_entry_discontinuity > 1.0e-9:
-            raise RuntimeError(
-                "aerial completion failed to preserve horizontal momentum"
-            )
-        completion_evidence = {
-            "applied": True,
-            "method": (
-                "truncate non-ballistic source tail; preserve horizontal "
-                "momentum through gravity-only flight; complete one continuous "
-                "backward rotation; exact bilateral support settle"
-            ),
-            "source_frame_count": source_frame_count,
-            "retained_source_frame_count": retained_source_count,
-            "rejected_source_tail_frame_count": (
-                source_frame_count - retained_source_count
-            ),
-            "flight_start_frame": flight_start_frame,
-            "flight_frame_count": flight_frame_count,
-            "flight_duration_seconds": flight_duration,
-            "gravity_mps2": gravity.tolist(),
-            "takeoff_velocity_mps": takeoff_velocity.tolist(),
-            "source_entry_velocity_mps": source_entry_velocity.tolist(),
-            "takeoff_velocity_adjustment_mps": (
-                takeoff_velocity - source_entry_velocity
-            ).tolist(),
-            "impact_velocity_mps": impact_velocity.tolist(),
-            "maximum_ballistic_acceleration_error_mps2": float(
-                np.max(ballistic_acceleration_error, initial=0.0)
-            ),
-            "horizontal_entry_velocity_discontinuity_mps": (
-                horizontal_entry_discontinuity
-            ),
-            "flight_angular_speed_radps": float(np.mean(flight_angular_speeds)),
-            "maximum_flight_angular_speed_variation_radps": float(
-                np.max(
-                    np.abs(flight_angular_speeds - np.mean(flight_angular_speeds)),
-                    initial=0.0,
-                )
-            ),
-            "touchdown_orientation_error_rad": float(
-                touchdown_orientation_error
-            ),
-            "support_frame_count": support_frame_count,
-            "touchdown_frame": touchdown_frame,
-            "landing_joint_targets_rad": {
-                "hip_pitch": -0.45,
-                "hip_roll": 0.0,
-                "hip_yaw": 0.0,
-                "knee": 0.90,
-                "ankle_pitch": -0.45,
-                "ankle_roll": 0.0,
-            },
-            "maximum_support_foot_position_error_m": maximum_support_error,
-            "contact_root_height_m": float(contact_root[2]),
-            "final_root_height_m": float(support_root[-1, 2]),
-        }
+    # ARDY owns the generated motion intent. Retargeting changes embodiment,
+    # not dynamics: it must never splice, extend, settle, or prescribe a
+    # physically plausible-looking root trajectory. The full source horizon is
+    # retained verbatim in time. Gravity, free flight, impact, support, and
+    # recovery become outcomes only when these joint targets are executed by
+    # the native InteractionPack/NumiSolver path.
+    phase_ids = np.zeros(q_frames.shape[0], dtype=np.uint8)
+    completion_evidence: dict[str, Any] = {
+        "applied": False,
+        "reason": "motion providers and retargeters cannot author dynamics",
+        "physical_realization_required": True,
+        "source_frames_retained": int(q_frames.shape[0]),
+        "frames_synthesized": 0,
+    }
     velocity_ratio = (
         np.abs(np.diff(q_frames, axis=0)) * fps
         / _G1_JOINT_VELOCITY.astype(np.float64)[None, :]
     )
     if np.max(velocity_ratio, initial=0.0) > 1.0 + 1.0e-6:
-        raise RuntimeError("terminal completion exceeds an authored G1 velocity limit")
+        raise RuntimeError("ARDY retarget exceeds an authored G1 velocity limit")
     root_linear_speed = np.linalg.norm(
         np.diff(root_world[:, :3], axis=0), axis=1
     ) * fps
@@ -810,7 +569,7 @@ def retarget_g1(
         "joint_order": list(_G1_JOINTS),
         "retarget": {
             "method": (
-                "bounded source endpoint IK plus robot-authored aerial completion"
+                "bounded source endpoint IK without synthesized dynamics"
             ),
             "mean_endpoint_error_m": float(np.mean(endpoint_errors)),
             "maximum_endpoint_error_m": float(np.max(endpoint_errors)),

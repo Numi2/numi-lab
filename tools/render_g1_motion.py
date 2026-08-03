@@ -18,7 +18,7 @@ from pathlib import Path
 
 import bpy
 import numpy as np
-from mathutils import Matrix, Quaternion, Vector
+from mathutils import Matrix, Vector
 
 
 def arguments() -> argparse.Namespace:
@@ -188,48 +188,6 @@ def apply_motion(
             root.keyframe_insert(data_path="rotation_quaternion", frame=frame_index)
 
 
-def enforce_floor_clearance(
-    roots: dict[str, object],
-    names: list[str],
-    transforms: np.ndarray,
-    *,
-    minimum_z: float = 0.002,
-) -> tuple[np.ndarray, dict[str, object]]:
-    """Lift whole frames only when an official visual mesh crosses the floor."""
-    corrected = transforms.copy()
-    shifts: list[float] = []
-    raw_minima: list[float] = []
-    for frame_index, frame in enumerate(transforms):
-        raw_minimum = float("inf")
-        for link_index, name in enumerate(names):
-            value = frame[link_index]
-            link_matrix = Matrix.Translation(Vector(value[:3]))
-            link_matrix @= Quaternion(
-                (float(value[6]), float(value[3]), float(value[4]), float(value[5]))
-            ).to_matrix().to_4x4()
-            for child in roots[name].children:
-                visual_matrix = link_matrix @ child.matrix_local
-                for corner in child.bound_box:
-                    raw_minimum = min(
-                        raw_minimum,
-                        float((visual_matrix @ Vector(corner)).z),
-                    )
-        if not np.isfinite(raw_minimum):
-            raise RuntimeError(f"frame {frame_index} has no G1 visual bounds")
-        shift = max(0.0, minimum_z - raw_minimum)
-        corrected[frame_index, :, 2] += shift
-        raw_minima.append(raw_minimum)
-        shifts.append(shift)
-    return corrected, {
-        "method": "whole-frame official-visual AABB floor-clearance correction",
-        "minimum_visual_z_m": minimum_z,
-        "raw_minimum_visual_z_m": min(raw_minima),
-        "maximum_vertical_correction_m": max(shifts),
-        "corrected_frame_count": sum(shift > 0.0 for shift in shifts),
-        "per_frame_vertical_correction_m": shifts,
-    }
-
-
 def configure_scene(options: argparse.Namespace):
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete(use_global=False)
@@ -344,9 +302,6 @@ def render(options: argparse.Namespace) -> None:
         options.retarget_directory / "g1_motion_retarget.npz"
     )
     roots = import_g1(options.g1_urdf, names)
-    transforms, floor_clearance = enforce_floor_clearance(
-        roots, names, transforms
-    )
     apply_motion(roots, names, transforms)
     apply_camera_motion(camera, names, transforms)
     scene = bpy.context.scene
@@ -364,7 +319,8 @@ def render(options: argparse.Namespace) -> None:
         bpy.ops.render.render(write_still=True)
     evidence = {
         "format": "numi.g1-presentation.v1",
-        "floor_clearance": floor_clearance,
+        "transform_policy": "exact retarget transforms; no floor correction",
+        "dynamics_synthesized": False,
     }
     (options.frames.parent / "render-evidence.json").write_text(
         json.dumps(evidence, indent=2, sort_keys=True) + "\n",

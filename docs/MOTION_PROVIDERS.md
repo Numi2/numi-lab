@@ -132,35 +132,25 @@ external-data hash remain part of the run evidence.
 ### G1 retargeting and presentation
 
 `numi.motion-retarget.v1` uses the pinned official Unitree G1 29-DoF URDF and
-bounded source endpoint IK followed, when needed, by a robot-authored aerial
-completion. ARDY's continuous-6D root
+bounded source endpoint IK. ARDY's continuous-6D root
 orientation is transformed from its y-up frame into G1's z-up/x-forward
 frame; limb direction and root translation drive the retarget while G1 keeps
 its own proportions. Every joint target is constrained by authored position
 and velocity limits, with torso/forearm self-clearance plus explicit left/right
-knee, ankle, and shank separation objectives. Because the
-ARDY Core horizon ends after 40 frames and can stop before a landing is
-settled, the retarget detects and rejects a malformed airborne tail instead of
-displaying it as a landing. The replacement flight begins while the root is
-still rising, carries entry horizontal velocity without a discontinuity,
-follows one gravity-only ballistic arc, and completes the backward rotation at
-constant angular speed. The legs and feet reach a symmetric landing crouch at
-touchdown; only the post-contact support phase may remove flight momentum and
-keep both feet exactly locked while the body settles to the G1 reset posture.
-The artifact labels source, ballistic-flight, and support frames and retains
-takeoff/impact velocities, gravity and acceleration residual, angular-speed
-variation, rejected-frame count, touchdown index, endpoint errors, support
-foot-lock error, self-clearance, maximum joint/root speed, link transforms,
-source fingerprints, URDF hash, and joint order.
+knee, ankle, and shank separation objectives. The full 40-frame ARDY horizon
+is retained in temporal order. The retargeter never replaces or extends its
+tail, authors a ballistic arc, locks feet to the floor, or blends toward a
+standing pose. The artifact records that zero dynamics frames were synthesized,
+along with endpoint errors, self-clearance, maximum joint/root speed, link
+transforms, source fingerprints, URDF hash, and joint order.
 
 The Blender presentation consumes those exact link transforms and the
 official Unitree meshes. It is deliberately downstream of the numeric
-artifact, so a GIF cannot change or conceal the retarget. This remains a
-kinematic imagination preview. The renderer applies and records only a
-whole-frame vertical correction when the official visual bounds would cross
-the presentation floor; it does not reshape the motion or individual limbs.
-Actuation, balance, collision, contact, and landing success become evidence
-only after the trajectory is executed by NumiSolver.
+artifact, so a GIF cannot change or conceal the retarget. It may visualize the
+raw kinematic proposal, but it cannot claim or cosmetically construct a
+landing. Actuation, gravity, balance, collision, contact, and landing success
+become evidence only after the joint-space intent is executed by NumiSolver;
+the simulated root is never copied from the provider trajectory.
 
 For presentation evidence, render the actual proposal rather than recreating
 the motion manually:
