@@ -37,6 +37,19 @@ The first executable with the requested name wins. A custom capability only
 needs to implement normal command-line behavior and may optionally answer
 `--numi-describe` with a one-line description for `numi context`.
 
+Motion imagination is another discovered capability. It executes a provider
+without giving that provider authority over robot actions or physical truth:
+
+```sh
+numi motion --help
+numi motion inspect --model-directory /path/to/ardy --verify-hashes
+numi motion infer --model-directory /path/to/ardy --output-directory /path/to/run \
+  --text-feature /path/to/text-feature.npy --prompt 'raise the left hand'
+```
+
+See [Motion providers](MOTION_PROVIDERS.md) for the artifact boundary and the
+qualified ARDY Core ONNX path.
+
 ## User-owned overlays
 
 Codex may create commands, instructions, profiles, robots, tasks, evaluators,

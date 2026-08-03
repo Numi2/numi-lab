@@ -59,6 +59,8 @@ The durable platform direction is described in
   backend.
 - Provider-neutral foundation-policy action chunks, including a qualified
   GR00T N1.7 G1 execution path through Core ML on Apple Silicon.
+- Fingerprinted motion-provider proposals, including ARDY Core prompt-to-motion
+  inference through ONNX Runtime on arm64 Apple Silicon.
 - Bundled Unitree G1, Franka, and research PSM models.
 
 ## NumiSolver: the production physics path

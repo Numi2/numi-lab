@@ -63,7 +63,7 @@ accepted state, exact replay, physical evidence, compact learning data
 | Terrain and support | height fields, support contacts, pressure | walking, balance, recovery |
 | Vision and identity | RGB-D, segmentation, motion, camera history | grasping, navigation, inspection |
 | Touch and force | wrench, CoP, area, pressure, tactile history | manipulation, locomotion, tool use |
-| Learning and teachers | PolicyPack, InteractionPack, rollout evidence | BC, PPO, generated motion, VLA teachers |
+| Learning and teachers | MotionProposal, PolicyPack, InteractionPack, rollout evidence | BC, PPO, motion imagination, VLA teachers |
 | World variation | compiled distributions and deterministic reset | robustness, curricula, system ID |
 
 The examples are deliberately non-exclusive. A new capability should improve
@@ -82,19 +82,24 @@ semantics permit.
    outputs, robot joints, controller limits, and contact intent. Author and
    qualify Franka, PSM, and additional provider adapters without adding robot
    branches to the simulator or compiler path.
-3. **Broader physical qualification.** Maintain focused deterministic replay,
+3. **Motion-provider realization.** The first `numi.motion-proposal.v1`
+   provider now runs ARDY Core ONNX on Apple Silicon and preserves its human
+   skeleton trajectory without pretending it is a robot action policy. Add
+   robot-authored retargeters and InteractionPack compilation so imagined
+   motion becomes physically testable intent through the same native path.
+4. **Broader physical qualification.** Maintain focused deterministic replay,
    transaction, contact, joint-limit, sensor, and coupling probes for each
    physics family, plus end-to-end robot workloads that expose real behavior.
-4. **Manipulation and multi-robot depth.** Turn the existing Franka and PSM
+5. **Manipulation and multi-robot depth.** Turn the existing Franka and PSM
    mechanics and scenes into fully physical tasks with tools, movable objects,
    coordinated contacts, and task-owned sensing.
-5. **Coupled-material production.** Continue integrating rigid, articulated,
+6. **Coupled-material production.** Continue integrating rigid, articulated,
    rod, and deformable solvers through shared contacts and explicit energy,
    stability, capacity, and memory evidence.
-6. **Apple performance as a feature.** Profile bytes, synchronization,
+7. **Apple performance as a feature.** Profile bytes, synchronization,
    occupancy, retained memory, transient arenas, MLX overlap, and energy. Fuse
    work only when exact replay and physical semantics remain unchanged.
-7. **One user flow.** Evolve `numi` as a small discoverable doorway into
+8. **One user flow.** Evolve `numi` as a small discoverable doorway into
    transparent capabilities, not a second planner or fixed robotics workflow.
 
 ## How workloads should be reported

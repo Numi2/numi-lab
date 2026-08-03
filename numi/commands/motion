@@ -1,0 +1,44 @@
+#!/bin/sh
+
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf 'Inspect or run motion-imagination models such as ARDY.\n'
+    exit 0
+fi
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+    cat <<'EOF'
+Usage: numi motion inspect --model-directory PATH [--verify-hashes]
+       numi motion infer --model-directory PATH --output-directory PATH \
+           (--text-feature embedding.npy | \
+            --reference-text-features reference.json --prompt TEXT | \
+            --unconditioned) \
+           [--provider auto|coreml|cpu] [--seed N] [--verify-hashes]
+
+ARDY is a motion-imagination provider, not a robot action policy. The current
+provider executes TREE Industries' ARDY Core 20 FPS Horizon40 ONNX graphs and
+publishes a fingerprinted 40-frame cskel27 motion proposal. Robot retargeting,
+InteractionPack compilation, and native physical realization are separate.
+
+The model directory stays outside the repository. Pair arbitrary prompts with
+the separately licensed ARDY text encoder and pass its [1,1,4096] feature as
+NPY/NPZ. Reference embeddings are accepted for exact runtime qualification.
+EOF
+    exit 0
+fi
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+if [ -f "$numi_root/python/metalrobo/ardy_onnx.py" ]; then
+    numi_python_root=$numi_root/python
+else
+    numi_python_root=$numi_root/share/numi/python
+fi
+numi_python=$(command -v python3 2>/dev/null || true)
+[ -x "$numi_python" ] &&
+    "$numi_python" -c 'import numpy, onnxruntime' >/dev/null 2>&1 || {
+        printf 'numi motion: Python needs numpy and onnxruntime\n' >&2
+        exit 1
+    }
+PYTHONPATH=$numi_python_root${PYTHONPATH:+:$PYTHONPATH} \
+    "$numi_python" -m metalrobo.ardy_onnx "$@"
