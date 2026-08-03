@@ -174,6 +174,17 @@ images use their official upstream visual meshes.
 
 ![Franka FR3v2 rendered by numi-lab](docs/media/metalrobo-franka-fr3v2.webp)
 
+### Authored surgical workcell
+
+![Franka in the numi-lab surgical workcell](docs/media/numi-lab-franka-surgery-room.gif)
+
+The scene combines an official-mesh Franka at an accepted Numi Lab pose with
+an operating table, sterile drape, instrument tray, suturable tissue phantom,
+unsutured incision, curved needle, and coiled suture presentation. The visible
+surgical props are authored presentation, not yet physics-bound task objects;
+this media does not claim needle contact, tissue deformation, suturing, task
+completion, clinical validity, or hardware execution.
+
 ## Architecture
 
 ```text
