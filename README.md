@@ -286,9 +286,11 @@ Only current subsystem contracts remain under `docs`:
 - G1 mechanics and visual assets are pinned to official Unitree sources; the
   retained standing actor is a fingerprinted third-party artifact.
 - Franka imagery uses official FR3v2 visual assets.
-- The retained robot images and animations are native numi-lab renderer
-  outputs captured on Apple M4. They are not generated concept art and do not
-  come from an external simulator's renderer.
+- The retained G1 and Franka images and animations are native numi-lab
+  renderer outputs captured on Apple M4. They are not generated concept art.
+- The dVRK PSM showcase below uses the authored PSM USD in an offline
+  presentation pass while preserving Numi Lab's robot identity and scene
+  conventions; it is not evidence of native-renderer or hardware execution.
 - Internal agreement, stable simulation, and simulator policy performance are
   not proof of real-world fidelity, safety, or transfer.
 - The PSM uses the pinned JHU Classic arm and Large Needle Driver kinematic,
@@ -304,3 +306,7 @@ Third-party sources and required notices are recorded in
 
 Copyright © 2026 Numan Thabit. All rights reserved. Third-party components
 remain subject to their respective copyrights and licenses.
+
+## dVRK PSM in Numi Lab
+
+![dVRK PSM in a Numi Lab surgical scene](docs/media/numi-lab-dvrk-psm.gif)
