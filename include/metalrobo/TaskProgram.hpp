@@ -111,6 +111,9 @@ enum class TaskRewardOperator : std::uint32_t {
         MR_TASK_REWARD_INTERACTION_JOINT_TRACKING,
     interactionContactTracking =
         MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING,
+    restoration = MR_TASK_REWARD_RESTORATION,
+    interactionRootTracking =
+        MR_TASK_REWARD_INTERACTION_ROOT_TRACKING,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -318,8 +321,11 @@ struct TaskPack {
     // world's topology-derived envelope.
     MetalWorldCapacityProfile capacities;
     std::vector<TaskActionBinding> actions;
+    // Temporal proprioception retained in the actor history. Current task
+    // intent belongs in actorCurrent so it is appended only once.
     std::vector<TaskObservationOperatorSpec> actorFrame;
     std::uint32_t actorHistoryLength = 1u;
+    std::vector<TaskObservationOperatorSpec> actorCurrent;
     std::vector<TaskObservationOperatorSpec> critic;
     std::uint32_t criticHistoryLength = 1u;
     bool criticIncludesCleanHistory = true;

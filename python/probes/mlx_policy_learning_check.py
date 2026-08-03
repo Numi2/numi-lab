@@ -185,6 +185,51 @@ def check_realized_imagination_gate() -> None:
             "failed shielded imagination re-entered the PPO actor ratio"
         )
 
+    get_up_steps = 30
+    get_up_transitions = np.zeros(get_up_steps, dtype=transitions.dtype)
+    get_up_transitions["impact_event_flags"][5:] = 1 << 30
+    get_up = replace(
+        rollout,
+        id="realized_get_up_gate",
+        control_step_count=get_up_steps,
+        actor_observations=np.zeros(get_up_steps, dtype=np.float32),
+        critic_observations=np.zeros(get_up_steps, dtype=np.float32),
+        latents=np.zeros(get_up_steps, dtype=np.float32),
+        old_log_probabilities=np.zeros(get_up_steps, dtype=np.float32),
+        old_values=np.zeros(get_up_steps, dtype=np.float32),
+        transitions=get_up_transitions,
+        teacher_actions=np.ones(get_up_steps, dtype=np.float32),
+    ).policy_batch()
+    if not np.array_equal(
+        get_up.teacher_weights,
+        np.ones(get_up_steps, dtype=np.float32),
+    ) or np.any(get_up.policy_weights):
+        raise RuntimeError(
+            "sustained physics-restored stance did not qualify get-up"
+        )
+
+    standing_transitions = np.zeros(get_up_steps, dtype=transitions.dtype)
+    standing_transitions["impact_event_flags"][12:] = 1 << 31
+    standing = replace(
+        rollout,
+        id="realized_get_up_progress",
+        control_step_count=get_up_steps,
+        actor_observations=np.zeros(get_up_steps, dtype=np.float32),
+        critic_observations=np.zeros(get_up_steps, dtype=np.float32),
+        latents=np.zeros(get_up_steps, dtype=np.float32),
+        old_log_probabilities=np.zeros(get_up_steps, dtype=np.float32),
+        old_values=np.zeros(get_up_steps, dtype=np.float32),
+        transitions=standing_transitions,
+        teacher_actions=np.ones(get_up_steps, dtype=np.float32),
+    ).policy_batch()
+    if not np.array_equal(
+        standing.teacher_weights,
+        np.full(get_up_steps, 0.35, dtype=np.float32),
+    ) or np.any(standing.policy_weights):
+        raise RuntimeError(
+            "sustained physics-standing progress did not receive graded credit"
+        )
+
 
 def check_resumable_schedule_contracts() -> None:
     ppo = {
@@ -679,6 +724,19 @@ def main() -> int:
                 stochastic=False,
                 library_path=arguments.library,
             )
+            deployed = read_policy_pack(
+                deployment,
+                library_path=arguments.library,
+            )
+            if (
+                deployed.critic_layers
+                or deployed.critic_observation_mean.size
+                or deployed.critic_observation_inverse_standard_deviation.size
+                or deployed.action_log_standard_deviation.size
+            ):
+                raise RuntimeError(
+                    "deterministic deployment retained training-only state"
+                )
             initialized = MLXPolicyLearner.from_actor_policy_pack(
                 deployment,
                 critic_count,

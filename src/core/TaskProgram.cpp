@@ -669,6 +669,7 @@ TaskCompileDiagnostics compileTaskProgram(
     };
     if (!countFits(pack.actions.size()) ||
         !countFits(pack.actorFrame.size()) ||
+        !countFits(pack.actorCurrent.size()) ||
         !countFits(pack.critic.size()) ||
         !countFits(pack.contactGroups.size()) ||
         !countFits(pack.jointGroups.size()) ||
@@ -693,6 +694,7 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     const std::uint64_t observationOperatorCount =
         static_cast<std::uint64_t>(pack.actorFrame.size()) +
+        pack.actorCurrent.size() +
         pack.critic.size();
     if (contactMemberCount >=
             std::numeric_limits<std::uint32_t>::max() ||
@@ -1381,6 +1383,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 );
             };
             return observesContact(pack.actorFrame) ||
+                observesContact(pack.actorCurrent) ||
                 observesContact(pack.critic) ||
                 std::ranges::any_of(
                     pack.rewards,
@@ -1429,15 +1432,27 @@ TaskCompileDiagnostics compileTaskProgram(
             }
             const MRTaskContactGroupGPU& compiledGroup =
                 staged->contactGroups[contactGroup];
-            if ((compiledGroup.members.z &
-                 MR_TASK_CONTACT_SUPPORT) == 0u ||
-                compiledGroup.supportPatch.x != 2u ||
-                compiledGroup.supportPatch.y != 2u ||
-                compiledGroup.supportPatch.z != 4u) {
+            bool usesCompactField = false;
+            for (std::uint32_t frame = 0u;
+                 frame < interactionClip->frameCount;
+                 ++frame) {
+                const std::size_t sample =
+                    static_cast<std::size_t>(frame) *
+                        interactions.contactTracks.size() +
+                    trackIndex;
+                usesCompactField = usesCompactField ||
+                    interactionClip->contactFeatureMasks[sample] != 0u;
+            }
+            if (usesCompactField &&
+                ((compiledGroup.members.z &
+                  MR_TASK_CONTACT_SUPPORT) == 0u ||
+                 compiledGroup.supportPatch.x != 2u ||
+                 compiledGroup.supportPatch.y != 2u ||
+                 compiledGroup.supportPatch.z != 4u)) {
                 return reject(
                     TaskCompileStatus::invalidPack,
                     track.taskContactGroup,
-                    "InteractionPack v1 contact tracks require a 2x2 support patch"
+                    "InteractionPack compact contact fields require a 2x2 support patch; mode-only tracks may bind generic contact groups"
                 );
             }
             staged->interactionContacts.push_back({{
@@ -1849,9 +1864,55 @@ TaskCompileDiagnostics compileTaskProgram(
         return {};
     };
 
+    if (std::ranges::any_of(
+            pack.actorCurrent,
+            [](const TaskObservationOperatorSpec& observation) {
+                return observation.source ==
+                        TaskObservationSource::maskedDepth ||
+                    observation.source ==
+                        TaskObservationSource::objectTrack ||
+                    observation.normalizeVector3;
+            }
+        )) {
+        return reject(
+            TaskCompileStatus::invalidPack,
+            "actor_current",
+            "actorCurrent cannot contain renderer-owned sources or history-vector normalization"
+        );
+    }
+    const std::size_t visualSuffixCount =
+        static_cast<std::size_t>(visualComponentCount);
+    if (visualSuffixCount > pack.actorFrame.size()) {
+        return reject(
+            TaskCompileStatus::invalidPack,
+            "visual",
+            "visual observation suffix exceeds the actor frame"
+        );
+    }
+    const std::size_t temporalActorCount =
+        pack.actorFrame.size() - visualSuffixCount;
+    std::vector<TaskObservationOperatorSpec> orderedActor;
+    orderedActor.reserve(
+        pack.actorFrame.size() + pack.actorCurrent.size()
+    );
+    orderedActor.insert(
+        orderedActor.end(),
+        pack.actorFrame.begin(),
+        pack.actorFrame.begin() + temporalActorCount
+    );
+    orderedActor.insert(
+        orderedActor.end(),
+        pack.actorCurrent.begin(),
+        pack.actorCurrent.end()
+    );
+    orderedActor.insert(
+        orderedActor.end(),
+        pack.actorFrame.begin() + temporalActorCount,
+        pack.actorFrame.end()
+    );
     TaskCompileDiagnostics observationStatus =
         compileObservations(
-            pack.actorFrame,
+            orderedActor,
             staged->actorOperators
         );
     if (!observationStatus.succeeded()) {
@@ -1946,6 +2007,15 @@ TaskCompileDiagnostics compileTaskProgram(
                 sourceIndex = namedGroup(
                     jointGroupIds,
                     reward.sourceGroup
+                );
+            }
+            break;
+        case TaskRewardOperator::interactionRootTracking:
+            if (interactionClip == nullptr) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    "interaction",
+                    "interaction root tracking requires a selected InteractionPack clip"
                 );
             }
             break;
@@ -2115,6 +2185,7 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::supportHeightExponential:
         case TaskRewardOperator::bodyUpExponential:
         case TaskRewardOperator::standingCompletion:
+        case TaskRewardOperator::restoration:
             break;
         default:
             return reject(
@@ -2252,6 +2323,28 @@ TaskCompileDiagnostics compileTaskProgram(
                 "standing completion requires positive height and cosine in (0, 1]"
             );
         }
+        if (reward.operation == TaskRewardOperator::restoration &&
+            (!(reward.parameters.x > 0.0f) ||
+             !(reward.parameters.y > 0.0f) ||
+             !(reward.parameters.z > 0.0f) ||
+             reward.parameters.z > 1.0f ||
+             !(reward.parameters.w > 0.0f))) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "restoration",
+                "restoration requires positive joint, position, and speed tolerances plus an orientation cosine in (0, 1]"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::interactionRootTracking &&
+            (!(reward.parameters.x > 0.0f) ||
+             !(reward.parameters.y > 0.0f))) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "interaction_root_tracking",
+                "interaction root tracking requires positive position and orientation widths"
+            );
+        }
         if ((reward.operation ==
                  TaskRewardOperator::recoveryTiltProgress ||
              reward.operation ==
@@ -2303,6 +2396,12 @@ TaskCompileDiagnostics compileTaskProgram(
                 compiledParameters.x,
                 compiledParameters.y,
                 compiledParameters.z,
+            },
+            {
+                compiledParameters.w,
+                0.0f,
+                0.0f,
+                0.0f,
             },
         });
     }
@@ -2990,7 +3089,10 @@ TaskCompileDiagnostics compileTaskProgram(
             "task operator count exceeds the 32-bit GPU ABI"
         );
     }
+    const std::uint32_t currentActorObservationCount =
+        static_cast<std::uint32_t>(pack.actorCurrent.size());
     const std::uint32_t directActorObservationCount =
+        currentActorObservationCount +
         static_cast<std::uint32_t>(visualComponentCount);
     if (directActorObservationCount > actorOperatorCount) {
         return reject(
@@ -3213,9 +3315,7 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.counts3.z = static_cast<std::uint32_t>(
         staged->interactionContacts.size()
     );
-    staged->header.counts3.w = interactionClip == nullptr
-        ? 0u
-        : interactionClip->frameCount;
+    staged->header.counts3.w = currentActorObservationCount;
     staged->header.articulation = {
         articulation.firstBody,
         articulation.bodyCount,
@@ -3302,7 +3402,10 @@ TaskCompileDiagnostics compileTaskProgram(
             ? 0.0f
             : static_cast<float>(interactionClip->frameCount - 1u) /
                 interactionClip->framesPerSecond,
-        0.0f,
+        // The autonomous policy owns the full mechanism-scale action range.
+        // During imagined execution it supplies only bounded corrections
+        // around the reference, which remains a proposal to the controller.
+        interactionClip == nullptr ? 0.0f : 0.1f,
         0.0f,
     };
 

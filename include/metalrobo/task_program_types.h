@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 22u
+#define MR_TASK_PROGRAM_ABI_VERSION 24u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
@@ -176,6 +176,13 @@ enum MRTaskRewardOpcode : mr_u32 {
     // Contact-mode and validity-masked compact-field tracking. Solved contact
     // supplies the achieved values; the reference never overwrites physics.
     MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING = 40u,
+    // Smooth whole-recovery objective plus strict per-step restoration truth.
+    // Parameters are maximum joint RMS error, maximum root-XY error,
+    // minimum root-orientation cosine, and maximum generalized-speed RMS.
+    MR_TASK_REWARD_RESTORATION = 41u,
+    // Smooth tracking of authored root position and orientation. Parameters
+    // are positive position and orientation squared-error widths.
+    MR_TASK_REWARD_INTERACTION_ROOT_TRACKING = 42u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -227,6 +234,13 @@ enum MRTaskImpactTransitionFlags : mr_u32 {
     // First solver contact between the active projectile and any link in the
     // compiled articulation. This is evidence, not a termination decision.
     MR_TASK_IMPACT_CONTACT = 1u << 4u,
+    // Generic task-outcome evidence sharing the transition flag word. This is
+    // emitted only when the standing-completion operator observes bilateral
+    // solver support, sufficient root height, and uprightness together.
+    MR_TASK_OUTCOME_STANDING = 1u << 31u,
+    // Standing plus nominal posture, root pose, and stillness. The learner
+    // still requires a sustained streak before accepting teacher actions.
+    MR_TASK_OUTCOME_RESTORED = 1u << 30u,
 };
 
 // Per-submission dimensions and attribution. Every stride is in elements.
@@ -254,7 +268,8 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // termination operators, randomization operators, bias slots,
     // terrain-sample offsets.
     mr_uint4 counts2;
-    // Impact events, contact-member radii, interaction tracks, and frames.
+    // Impact events, contact-member radii, interaction tracks, and current
+    // non-visual actor observations.
     mr_uint4 counts3;
     // actor frame, history length, contact metric count, delay-state count.
     mr_uint4 layout;
@@ -366,6 +381,9 @@ typedef struct MR_ALIGN16 MRTaskRewardOperatorGPU {
     mr_uint4 source;
     // weight and three operator parameters.
     mr_float4 parameters;
+    // Fourth operator parameter and reserved lanes. Most rewards leave this
+    // zero; whole-state restoration requires the fourth tolerance.
+    mr_float4 auxiliary;
 } MRTaskRewardOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskTerminationOperatorGPU {
@@ -550,7 +568,7 @@ static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 112u);
 static_assert(sizeof(MRTaskIndexGroupGPU) == 16u);
-static_assert(sizeof(MRTaskRewardOperatorGPU) == 32u);
+static_assert(sizeof(MRTaskRewardOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskImpactEventGPU) == 48u);

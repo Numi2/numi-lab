@@ -479,6 +479,9 @@ std::uint64_t compileImportedRobotFixture() {
             .scale = 0.01f,
         },
     };
+    authored.task.actorCurrent = {{
+        .source = metalrobo::TaskObservationSource::rootHeight,
+    }};
     authored.task.critic = {{
         .source =
             metalrobo::TaskObservationSource::rootHeight,
@@ -529,11 +532,12 @@ std::uint64_t compileImportedRobotFixture() {
         compiled.task.layout();
     if (layout.actionCount != 1u ||
         layout.actorFrameSize != 3u ||
-        layout.actorObservationSize != 6u ||
+        layout.actorObservationSize != 7u ||
         layout.criticFrameSize != 1u ||
         layout.criticHistoryLength != 1u ||
         layout.criticObservationSize != 7u ||
         layout.contactMetricCount != 12u ||
+        compiled.task.header().counts3.w != 1u ||
         compiled.task.actionBindings().front().indices.x != 0u ||
         std::abs(
             compiled.task.header().rootReference.z - 0.05f
@@ -746,13 +750,13 @@ int main(const int argc, const char* const* argv) {
 
         metalrobo::TaskPack interactionTask = authored.task;
         for (std::uint32_t component = 0u; component < 3u; ++component) {
-            interactionTask.actorFrame.push_back({
+            interactionTask.actorCurrent.push_back({
                 .source =
                     metalrobo::TaskObservationSource::interactionPhase,
                 .component = component,
             });
         }
-        interactionTask.actorFrame.push_back({
+        interactionTask.actorCurrent.push_back({
             .source = metalrobo::TaskObservationSource::
                 interactionJointPositionError,
             .target = "left_hip_roll_joint",
@@ -760,13 +764,13 @@ int main(const int argc, const char* const* argv) {
         for (const std::string_view track :
              {std::string_view{"left_foot"},
               std::string_view{"right_foot"}}) {
-            interactionTask.actorFrame.push_back({
+            interactionTask.actorCurrent.push_back({
                 .source = metalrobo::TaskObservationSource::
                     interactionContactMode,
                 .target = std::string{track},
                 .component = 0u,
             });
-            interactionTask.actorFrame.push_back({
+            interactionTask.actorCurrent.push_back({
                 .source = metalrobo::TaskObservationSource::
                     interactionContactMode,
                 .target = std::string{track},
@@ -776,13 +780,13 @@ int main(const int argc, const char* const* argv) {
                 2u, 6u, 7u, 8u, 9u, 10u, 11u, 12u,
             };
             for (const std::uint32_t component : features) {
-                interactionTask.actorFrame.push_back({
+                interactionTask.actorCurrent.push_back({
                     .source = metalrobo::TaskObservationSource::
                         interactionContactTarget,
                     .target = std::string{track},
                     .component = component,
                 });
-                interactionTask.actorFrame.push_back({
+                interactionTask.actorCurrent.push_back({
                     .source = metalrobo::TaskObservationSource::
                         interactionContactValidity,
                     .target = std::string{track},
@@ -824,14 +828,19 @@ int main(const int argc, const char* const* argv) {
         const auto& interactionLayout = interactionProgram.layout();
         if (!interactionStatus.succeeded() ||
             interactionLayout.actorFrameSize !=
-                layout.actorFrameSize + 40u ||
+                layout.actorFrameSize ||
+            interactionLayout.actorObservationSize !=
+                layout.actorObservationSize + 40u ||
             interactionLayout.interactionFrameCount != 3u ||
             interactionLayout.interactionContactCount != 2u ||
             interactionProgram.header().interaction.x != 3u ||
             interactionProgram.header().interaction.y != 29u ||
             interactionProgram.header().interaction.z != 2u ||
+            std::abs(
+                interactionProgram.header().interactionTiming.z - 0.1f
+            ) > 1.0e-6f ||
             interactionProgram.header().counts3.z != 2u ||
-            interactionProgram.header().counts3.w != 3u ||
+            interactionProgram.header().counts3.w != 40u ||
             (interactionProgram.header().schedule.w &
              MR_TASK_PROGRAM_INTERACTION_REFERENCE) == 0u ||
             interactionProgram.interactionRootTargets().size() != 21u ||
@@ -1169,14 +1178,45 @@ int main(const int argc, const char* const* argv) {
             );
         }
         if (compiledGetUp.task.layout().actorFrameSize != 92u ||
-            compiledGetUp.task.layout().actorObservationSize != 920u ||
-            compiledGetUp.task.layout().criticFrameSize != 98u ||
-            compiledGetUp.task.layout().criticObservationSize != 980u ||
-            compiledGetUp.task.layout().contactMetricCount != 51u ||
-            compiledGetUp.task.header().counts1.w != 12u ||
+            compiledGetUp.task.layout().actorObservationSize != 921u ||
+            compiledGetUp.task.layout().criticFrameSize != 99u ||
+            compiledGetUp.task.layout().criticObservationSize != 990u ||
+            compiledGetUp.task.layout().contactMetricCount != 81u ||
+            compiledGetUp.task.actionBindings().size() != 29u ||
+            compiledGetUp.task.actionBindings()[3].parameters.x < 2.5f ||
+            compiledGetUp.task.actionBindings()[15].parameters.x < 3.4f ||
+            compiledGetUp.task.header().counts1.w != 13u ||
             compiledGetUp.task.header().counts2.x != 0u ||
             compiledGetUp.task.header().counts2.y != 31u) {
             fail("compiled G1 supine get-up task is incomplete");
+        }
+        const auto getUpRewards = compiledGetUp.task.rewardOperators();
+        const auto standingReward = std::find_if(
+            getUpRewards.begin(),
+            getUpRewards.end(),
+            [](const MRTaskRewardOperatorGPU& reward) {
+                return reward.source.x ==
+                    MR_TASK_REWARD_STANDING_COMPLETION;
+            }
+        );
+        const auto restorationReward = std::find_if(
+            getUpRewards.begin(),
+            getUpRewards.end(),
+            [](const MRTaskRewardOperatorGPU& reward) {
+                return reward.source.x == MR_TASK_REWARD_RESTORATION;
+            }
+        );
+        if (standingReward == getUpRewards.end() ||
+            restorationReward == getUpRewards.end() ||
+            std::abs(standingReward->parameters.x - 10.0f) > 1.0e-6f ||
+            std::abs(standingReward->parameters.y - 0.65f) > 1.0e-6f ||
+            std::abs(standingReward->parameters.z - 0.8f) > 1.0e-6f ||
+            std::abs(restorationReward->parameters.x - 8.0f) > 1.0e-6f ||
+            std::abs(restorationReward->parameters.y - 0.22f) > 1.0e-6f ||
+            std::abs(restorationReward->parameters.z - 0.40f) > 1.0e-6f ||
+            std::abs(restorationReward->parameters.w - 0.94f) > 1.0e-6f ||
+            std::abs(restorationReward->auxiliary.x - 0.35f) > 1.0e-6f) {
+            fail("get-up completion thresholds changed GPU ABI lanes");
         }
         metalrobo::LocomotionWorld ballRecovery =
             metalrobo::makeUnitreeG1LocomotionWorld(

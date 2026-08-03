@@ -1104,7 +1104,7 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
     const G1ModelMetadata& metadata = unitreeG1Metadata();
     TaskPack task = makeUnitreeG1LocomotionTaskPack(surface);
     task.id = "unitree_g1_supine_get_up_discovery";
-    task.maximumEpisodeSteps = 500u;
+    task.maximumEpisodeSteps = 750u;
     task.curriculumLevelCount = 1u;
     task.commands.lower = {};
     task.commands.upper = {};
@@ -1116,6 +1116,25 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
     task.pushes.minimumIntervalSeconds = 10.0f;
     task.pushes.maximumIntervalSeconds = 10.0f;
     task.terminations.clear();
+
+    // Get-up needs the complete mechanism range: a locomotion-sized residual
+    // cannot represent the hip, knee, waist, and shoulder travel between a
+    // fallen configuration and nominal stance. Keep normalized actions while
+    // making every reachable joint target expressible around the stance.
+    constexpr std::array<float, kUnitreeG1JointCount> nominalStance{{
+        -0.1f, 0.0f, 0.0f, 0.3f, -0.2f, 0.0f,
+        -0.1f, 0.0f, 0.0f, 0.3f, -0.2f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.35f, 0.18f, 0.0f, 0.87f, 0.0f, 0.0f, 0.0f,
+        0.35f, -0.18f, 0.0f, 0.87f, 0.0f, 0.0f, 0.0f,
+    }};
+    for (std::size_t index = 0u; index < task.actions.size(); ++index) {
+        const G1JointLimit& limit = metadata.jointLimits[index];
+        task.actions[index].scale = std::max(
+            std::abs(limit.lowerPosition - nominalStance[index]),
+            std::abs(limit.upperPosition - nominalStance[index])
+        );
+    }
 
     // HumanUP's successful Stage-I actor uses ten meaningful proprioceptive
     // frames rather than exposing command and gait-phase slots that are
@@ -1134,7 +1153,14 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
         task.actorFrame.end()
     );
     task.actorFrame = std::move(actorFrame);
+    // Preserve the proven 92-value temporal proprioceptive frame while
+    // exposing the missing up/down orientation sign once as current context.
+    task.actorCurrent.push_back({
+        .source = TaskObservationSource::projectedGravity,
+        .component = 2u,
+    });
     task.critic = task.actorFrame;
+    task.critic.push_back(task.actorCurrent.back());
     const std::vector<TaskObservationOperatorSpec> privilegedState{
         {
             .source = TaskObservationSource::rootLinearVelocityLocal,
@@ -1185,6 +1211,35 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
             -0.18459715f, 0.0f,
         },
     });
+    const auto appendRecoveryContact =
+        [&task](const std::string& id, const std::string& body) {
+            task.contactGroups.push_back({
+                .id = id,
+                .bodies = {body},
+                .referenceBody = body,
+            });
+        };
+    appendRecoveryContact(
+        "left_hand_contact",
+        "left_wrist_yaw_link"
+    );
+    appendRecoveryContact(
+        "right_hand_contact",
+        "right_wrist_yaw_link"
+    );
+    appendRecoveryContact(
+        "left_knee_contact",
+        "left_knee_link"
+    );
+    appendRecoveryContact(
+        "right_knee_contact",
+        "right_knee_link"
+    );
+    task.contactGroups.push_back({
+        .id = "trunk_contact",
+        .bodies = {"pelvis", "torso_link"},
+        .referenceBody = "pelvis",
+    });
 
     task.rewards = {
         {
@@ -1218,6 +1273,11 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
             .operation = TaskRewardOperator::standingCompletion,
             .weight = 10.0f,
             .parameters = {0.65f, 0.8f, 0.0f, 0.0f},
+        },
+        {
+            .operation = TaskRewardOperator::restoration,
+            .weight = 8.0f,
+            .parameters = {0.22f, 0.40f, 0.94f, 0.35f},
         },
         {
             .operation = TaskRewardOperator::jointVelocitySquared,

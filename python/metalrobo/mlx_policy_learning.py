@@ -203,6 +203,10 @@ class NativePolicyRollout:
             for environment in range(environments):
                 start: int | None = None
                 active_sequence = 0
+                get_up_start: int | None = 0
+                get_up_credit = 0.0
+                standing_streak = 0
+                restoration_streak = 0
                 for step in range(steps):
                     current = int(sequence[step, environment])
                     policy_weights[step, environment] = float(
@@ -213,6 +217,10 @@ class NativePolicyRollout:
                         start = step if current != 0 else None
                     if failed[step, environment]:
                         start = None
+                        get_up_start = step + 1
+                        get_up_credit = 0.0
+                        standing_streak = 0
+                        restoration_streak = 0
                     if (
                         start is not None
                         and int(flags[step, environment]) & 4
@@ -225,6 +233,45 @@ class NativePolicyRollout:
                             environment,
                         ] = 1.0
                         start = None
+                    outcome_flags = int(flags[step, environment])
+                    standing = not failed[step, environment] and (
+                        outcome_flags & (1 << 31)
+                    ) != 0
+                    restored = not failed[step, environment] and (
+                        outcome_flags & (1 << 30)
+                    ) != 0
+                    standing_streak = (
+                        standing_streak + 1 if standing else 0
+                    )
+                    restoration_streak = (
+                        restoration_streak + 1 if restored else 0
+                    )
+                    # Ten clean standing frames prove useful physical
+                    # progress even when the stricter settled restoration
+                    # outcome has not yet held for half a second. Give that
+                    # trajectory graded imitation credit; reserve full
+                    # teacher authority for sustained restoration.
+                    if standing_streak >= 10:
+                        get_up_credit = max(get_up_credit, 0.35)
+                    if (
+                        get_up_start is not None
+                        and restoration_streak >= 25
+                        and not np.any(
+                            failed[get_up_start : step + 1, environment]
+                        )
+                    ):
+                        get_up_credit = 1.0
+                    if get_up_start is not None and get_up_credit > 0.0:
+                        teacher_weights[
+                            get_up_start : step + 1,
+                            environment,
+                        ] = get_up_credit
+                        policy_weights[
+                            get_up_start : step + 1,
+                            environment,
+                        ] = 0.0
+                    if get_up_credit >= 1.0:
+                        get_up_start = None
         return MLXPolicyBatch.from_numpy(
             actor_observations=self.actor_observations.reshape(
                 self.sample_count,
@@ -2804,30 +2851,31 @@ class MLXPolicyLearner:
                 )
             )
         critic_layers = []
-        critic_linear = [
-            layer
-            for layer in self.model.critic.layers
-            if isinstance(layer, nn.Linear)
-        ]
-        for index, layer in enumerate(critic_linear):
-            mx.eval(layer.weight, layer.bias)
-            critic_layers.append(
-                PolicyDenseLayerArtifact(
-                    weights=np.asarray(
-                        layer.weight,
-                        dtype=np.float32,
-                    ),
-                    bias=np.asarray(
-                        layer.bias,
-                        dtype=np.float32,
-                    ),
-                    activation=(
-                        0
-                        if index + 1 == len(critic_linear)
-                        else 3
-                    ),
+        if stochastic:
+            critic_linear = [
+                layer
+                for layer in self.model.critic.layers
+                if isinstance(layer, nn.Linear)
+            ]
+            for index, layer in enumerate(critic_linear):
+                mx.eval(layer.weight, layer.bias)
+                critic_layers.append(
+                    PolicyDenseLayerArtifact(
+                        weights=np.asarray(
+                            layer.weight,
+                            dtype=np.float32,
+                        ),
+                        bias=np.asarray(
+                            layer.bias,
+                            dtype=np.float32,
+                        ),
+                        activation=(
+                            0
+                            if index + 1 == len(critic_linear)
+                            else 3
+                        ),
+                    )
                 )
-            )
         log_standard_deviation = mx.clip(
             self.model.log_standard_deviation,
             -5.0,
@@ -2858,9 +2906,13 @@ class MLXPolicyLearner:
                     dtype=np.float32,
                 )
             ),
-            critic_observation_mean=np.asarray(
-                self.model.critic_observation_mean,
-                dtype=np.float32,
+            critic_observation_mean=(
+                np.asarray(
+                    self.model.critic_observation_mean,
+                    dtype=np.float32,
+                )
+                if stochastic
+                else ()
             ),
             critic_observation_inverse_standard_deviation=(
                 np.asarray(
@@ -2868,6 +2920,8 @@ class MLXPolicyLearner:
                         .critic_observation_inverse_standard_deviation,
                     dtype=np.float32,
                 )
+                if stochastic
+                else ()
             ),
             action_log_standard_deviation=(
                 np.asarray(

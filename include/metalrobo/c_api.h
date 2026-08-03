@@ -543,9 +543,9 @@ MR_API MRTaskRolloutHandle* mr_create_unitree_g1_interaction_rollout(
     const char* interaction_clip_id,
     const char* metallib_path
 );
-// Composes generated imagination with a bundled G1 task. Ball-dodge consumes
-// the selected clip as joint-space intent without treating generated contact
-// predictions as projectile-world contact truth.
+// Composes generated imagination with a bundled G1 task. Ball-dodge and
+// supine-get-up consume the selected clip as joint-space intent without
+// treating generated contact predictions as physical truth.
 MR_API MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
     const MRTaskRolloutConfigC* config,
     uint32_t surface,

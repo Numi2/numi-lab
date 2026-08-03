@@ -921,6 +921,72 @@ inline void writeFrame(
     }
 }
 
+inline void writeCurrentActor(
+    device const MRTaskDispatchGPU& dispatch,
+    device const MRTaskProgramHeaderGPU& program,
+    device const uchar* arena,
+    device const MRTaskObservationOperatorGPU* actorOperators,
+    device const MRTaskActionBindingGPU* actions,
+    device const MRTaskContactGroupGPU* contactGroups,
+    device const float4* terrainSamples,
+    const uint environment,
+    const uint episode,
+    const uint episodeStep,
+    device const float* q,
+    device const float* v,
+    device const float* defaultQ,
+    thread const MRTaskStateGPU& state,
+    device const float* previousAction,
+    device const float* sensorBias,
+    device const float* compactContact,
+    device const float4* bodyParameters,
+    device const float4* controllerParameters,
+    device const MRBodyStateGPU* sceneBodies,
+    device const MRShapeGPU* shapes,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    device float* output
+) {
+    for (uint index = 0u; index < program.counts3.w; ++index) {
+        const MRTaskObservationOperatorGPU operation =
+            actorOperators[program.layout.x + index];
+        float value = cleanObservation(
+            program,
+            operation,
+            arena,
+            dispatch.timing.x,
+            actions,
+            contactGroups,
+            terrainSamples,
+            q,
+            v,
+            defaultQ,
+            state,
+            previousAction,
+            compactContact,
+            bodyParameters,
+            controllerParameters,
+            sceneBodies,
+            shapes,
+            geometryHeaders,
+            geometryVertices
+        );
+        value +=
+            operation.transform.z *
+            randomSigned(
+                dispatch,
+                environment,
+                episode,
+                episodeStep,
+                operation.auxiliary.y
+            );
+        if (operation.auxiliary.x != MR_INVALID_INDEX) {
+            value += sensorBias[operation.auxiliary.x];
+        }
+        output[index] = value;
+    }
+}
+
 inline void writeCriticFrame(
     device const MRTaskProgramHeaderGPU& program,
     device const uchar* arena,
@@ -1689,6 +1755,11 @@ kernel void mr_locomotion_task_observe(
             arena,
             program.interactionOffsets0.y
         );
+    device const float* interactionRootTargets =
+        taskTable<float>(
+            arena,
+            program.interactionOffsets0.x
+        );
     device const MRTaskObservationOperatorGPU*
         actorOperators =
             taskTable<MRTaskObservationOperatorGPU>(
@@ -2191,6 +2262,20 @@ kernel void mr_locomotion_task_observe(
                 break;
             }
         }
+        if ((program.schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u) {
+            for (uint component = 0u; component < 7u; ++component) {
+                resetQ[qBase + program.root.z + component] =
+                    interactionRootTargets[component];
+            }
+            for (uint action = 0u;
+                 action < program.interaction.y;
+                 ++action) {
+                const MRTaskActionBindingGPU binding = actions[action];
+                resetQ[qBase + binding.indices.z] =
+                    interactionJointTargets[action];
+            }
+        }
         controllerParameters[environment].z =
             float(actionDelay) * dispatch.timing.x;
 
@@ -2587,6 +2672,32 @@ kernel void mr_locomotion_task_observe(
         actorObservations[actorOutputBase + index] =
             actorHistory[historyBase + index];
     }
+    writeCurrentActor(
+        dispatch,
+        program,
+        arena,
+        actorOperators,
+        actions,
+        contactGroups,
+        terrainSamples,
+        environment,
+        state.episode.y,
+        0u,
+        resetQ + qBase,
+        resetV + vBase,
+        defaultQ,
+        state,
+        actionHistory + delayBase,
+        sensorBias + biasBase,
+        compactContact + contactBase,
+        bodyParameters + bodyParameterBase,
+        controllerParameters + environment,
+        resetScene + sceneBase,
+        shapes,
+        geometryHeaders,
+        geometryVertices,
+        actorObservations + actorOutputBase + historyElements
+    );
     publishCritic(
         program,
         cleanHistory + historyBase,
@@ -2767,8 +2878,14 @@ kernel void mr_locomotion_task_apply_actions(
                   referenceFrame * program.interaction.y + action
               ]
             : defaultQ[binding.indices.z];
+        const float residualScale =
+            (program.schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u
+            ? program.interactionTiming.z
+            : 1.0f;
         const float target = clamp(
-            reference + binding.parameters.x * filtered,
+            reference +
+                residualScale * binding.parameters.x * filtered,
             binding.parameters.y,
             binding.parameters.z
         );
@@ -2940,6 +3057,11 @@ kernel void mr_locomotion_task_complete(
         taskTable<float>(
             arena,
             program.interactionOffsets0.y
+        );
+    device const float* interactionRootTargets =
+        taskTable<float>(
+            arena,
+            program.interactionOffsets0.x
         );
     device const MRTaskInteractionContactGPU*
         interactionContacts =
@@ -3420,21 +3542,30 @@ kernel void mr_locomotion_task_complete(
     float recoveryStableTilt = 0.0f;
     float recoveryStableDuration = 0.0f;
     uint recoveryContactGroup = MR_INVALID_INDEX;
+    bool standingConfigured = false;
+    float standingHeight = program.locomotion.x;
+    float standingCosine = 0.8f;
     for (uint rewardIndex = 0u;
          rewardIndex < program.counts1.w;
          ++rewardIndex) {
         const MRTaskRewardOperatorGPU operation =
             rewards[rewardIndex];
-        if (operation.source.x ==
+        if (!recoveryConfigured &&
+            (operation.source.x ==
                 MR_TASK_REWARD_RECOVERY_TILT_PROGRESS ||
             operation.source.x ==
-                MR_TASK_REWARD_RECOVERY_COMPLETION) {
+                MR_TASK_REWARD_RECOVERY_COMPLETION)) {
             recoveryConfigured = true;
             recoveryActivationTilt = operation.parameters.y;
             recoveryStableTilt = operation.parameters.z;
             recoveryStableDuration = operation.parameters.w;
             recoveryContactGroup = operation.source.y;
-            break;
+        }
+        if (operation.source.x ==
+                MR_TASK_REWARD_STANDING_COMPLETION) {
+            standingConfigured = true;
+            standingHeight = operation.parameters.y;
+            standingCosine = operation.parameters.z;
         }
     }
     bool recoveryTouch = false;
@@ -3599,6 +3730,8 @@ kernel void mr_locomotion_task_complete(
     float4 rewardBreakdown1 = float4(0.0f);
     float interactionTrackingSum = 0.0f;
     float interactionTrackingWeight = 0.0f;
+    bool standingCompleted = false;
+    bool restoredCompleted = false;
     float4 dodgeRewardBreakdown0 = float4(0.0f);
     float4 dodgeRewardBreakdown1 = float4(0.0f);
     for (uint rewardIndex = 0u;
@@ -3742,7 +3875,7 @@ kernel void mr_locomotion_task_complete(
             value = exp(-gravity.z);
             break;
         case MR_TASK_REWARD_STANDING_COMPLETION: {
-            bool bothSupported = true;
+            bool anySupported = false;
             uint supportTotal = 0u;
             for (uint groupIndex = 0u;
                  groupIndex < program.counts0.w;
@@ -3752,18 +3885,137 @@ kernel void mr_locomotion_task_complete(
                 if ((group.members.z & MR_TASK_CONTACT_SUPPORT) == 0u) {
                     continue;
                 }
-                bothSupported = bothSupported &&
-                    compactContact[
-                        compactBase + group.members.w
-                    ] > program.dynamics.y;
+                anySupported = anySupported || compactContact[
+                    compactBase + group.members.w
+                ] > program.dynamics.y;
                 ++supportTotal;
             }
             value = float(
                 supportTotal > 0u &&
-                bothSupported &&
+                anySupported &&
                 height >= operation.parameters.y &&
                 gravity.z <= -operation.parameters.z
             );
+            standingCompleted = standingCompleted || value > 0.5f;
+            break;
+        }
+        case MR_TASK_REWARD_RESTORATION: {
+            bool anySupported = false;
+            float supported = 0.0f;
+            float supportTotal = 0.0f;
+            for (uint groupIndex = 0u;
+                 groupIndex < program.counts0.w;
+                 ++groupIndex) {
+                const MRTaskContactGroupGPU group =
+                    contactGroups[groupIndex];
+                if ((group.members.z & MR_TASK_CONTACT_SUPPORT) == 0u) {
+                    continue;
+                }
+                const bool contact = compactContact[
+                    compactBase + group.members.w
+                ] > program.dynamics.y;
+                anySupported = anySupported || contact;
+                supported += float(contact);
+                supportTotal += 1.0f;
+            }
+            float jointErrorSquared = 0.0f;
+            for (uint action = 0u;
+                 action < program.counts0.x;
+                 ++action) {
+                const MRTaskActionBindingGPU binding = actions[action];
+                const float error =
+                    q[binding.indices.z] - defaultQ[binding.indices.z];
+                jointErrorSquared += error * error;
+            }
+            const float jointRms = sqrt(
+                jointErrorSquared /
+                max(float(program.counts0.x), 1.0f)
+            );
+            const float3 position = rootWorldPosition(program, q);
+            const float3 targetPosition =
+                rootWorldPosition(program, defaultQ);
+            const float rootError = length(
+                position.xy - targetPosition.xy
+            );
+            const float4 targetOrientation =
+                rootOrientation(program, defaultQ);
+            const float orientationCosine = clamp(
+                abs(dot(orientation, targetOrientation)),
+                0.0f,
+                1.0f
+            );
+            const float generalizedSpeedRms = sqrt(
+                (
+                    velocitySquared +
+                    dot(baseLinear, baseLinear) +
+                    dot(baseAngular, baseAngular)
+                ) /
+                max(float(program.counts0.x + 6u), 1.0f)
+            );
+            const float heightScore = smoothstep(
+                0.15f,
+                max(standingHeight, 0.1501f),
+                height
+            );
+            const float uprightScore = smoothstep(
+                0.0f,
+                max(standingCosine, 1.0e-4f),
+                -gravity.z
+            );
+            const float supportScore = supportTotal > 0.0f
+                ? supported / supportTotal
+                : 0.0f;
+            const float postureScore = exp(
+                -jointErrorSquared /
+                max(
+                    float(program.counts0.x) *
+                        operation.parameters.y *
+                        operation.parameters.y,
+                    1.0e-8f
+                )
+            );
+            const float positionScore = exp(
+                -(rootError * rootError) /
+                max(
+                    operation.parameters.z * operation.parameters.z,
+                    1.0e-8f
+                )
+            );
+            const float orientationScore = smoothstep(
+                0.0f,
+                operation.parameters.w,
+                orientationCosine
+            );
+            const float stillnessScore = exp(
+                -(generalizedSpeedRms * generalizedSpeedRms) /
+                max(
+                    operation.auxiliary.x * operation.auxiliary.x,
+                    1.0e-8f
+                )
+            );
+            const float standingQuality =
+                heightScore * uprightScore * supportScore;
+            value =
+                0.20f * heightScore +
+                0.20f * uprightScore +
+                0.20f * supportScore +
+                standingQuality *
+                    (
+                        0.15f * postureScore +
+                        0.10f * positionScore +
+                        0.10f * orientationScore +
+                        0.05f * stillnessScore
+                    );
+            restoredCompleted = restoredCompleted ||
+                standingConfigured &&
+                supportTotal > 0.0f &&
+                anySupported &&
+                height >= standingHeight &&
+                gravity.z <= -standingCosine &&
+                jointRms <= operation.parameters.y &&
+                rootError <= operation.parameters.z &&
+                orientationCosine >= operation.parameters.w &&
+                generalizedSpeedRms <= operation.auxiliary.x;
             break;
         }
         case MR_TASK_REWARD_RECOVERY_TILT_PROGRESS:
@@ -4209,6 +4461,54 @@ kernel void mr_locomotion_task_complete(
             interactionMetricWeight = 1.0f;
             break;
         }
+        case MR_TASK_REWARD_INTERACTION_ROOT_TRACKING: {
+            const uint targetBase = referenceFrame * 7u;
+            const float3 positionDelta =
+                float3(
+                    qState[qBase + program.root.z + 0u],
+                    qState[qBase + program.root.z + 1u],
+                    qState[qBase + program.root.z + 2u]
+                ) -
+                float3(
+                    interactionRootTargets[targetBase + 0u],
+                    interactionRootTargets[targetBase + 1u],
+                    interactionRootTargets[targetBase + 2u]
+                );
+            const float4 rawOrientation = float4(
+                qState[qBase + program.root.z + 3u],
+                qState[qBase + program.root.z + 4u],
+                qState[qBase + program.root.z + 5u],
+                qState[qBase + program.root.z + 6u]
+            );
+            const float4 orientation = rawOrientation * rsqrt(
+                max(dot(rawOrientation, rawOrientation), 1.0e-12f)
+            );
+            const float4 rawTargetOrientation = float4(
+                interactionRootTargets[targetBase + 3u],
+                interactionRootTargets[targetBase + 4u],
+                interactionRootTargets[targetBase + 5u],
+                interactionRootTargets[targetBase + 6u]
+            );
+            const float4 targetOrientation =
+                rawTargetOrientation * rsqrt(max(
+                    dot(rawTargetOrientation, rawTargetOrientation),
+                    1.0e-12f
+                ));
+            const float orientationError =
+                1.0f - abs(dot(orientation, targetOrientation));
+            const float positionScore = exp(
+                -dot(positionDelta, positionDelta) /
+                max(operation.parameters.y, 1.0e-8f)
+            );
+            const float orientationScore = exp(
+                -(orientationError * orientationError) /
+                max(operation.parameters.z, 1.0e-8f)
+            );
+            value = 0.5f * (positionScore + orientationScore);
+            interactionMetric = value;
+            interactionMetricWeight = 1.0f;
+            break;
+        }
         case MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING: {
             const uint trackIndex = operation.source.z;
             const MRTaskInteractionContactGPU track =
@@ -4230,9 +4530,18 @@ kernel void mr_locomotion_task_complete(
                     MR_TASK_INTERACTION_CONTACT_ROLL ||
                 sample.metadata.x ==
                     MR_TASK_INTERACTION_CONTACT_SLIDE;
-            const bool actualContact = compactContact[
-                compactBase + group.members.w
-            ] > program.dynamics.y;
+            const bool supportGroup =
+                (group.members.z & MR_TASK_CONTACT_SUPPORT) != 0u;
+            const uint wrench = compactBase + group.reference.y;
+            const bool actualContact = supportGroup
+                ? compactContact[
+                      compactBase + group.members.w
+                  ] > program.dynamics.y
+                : length(float3(
+                      compactContact[wrench + 0u],
+                      compactContact[wrench + 1u],
+                      compactContact[wrench + 2u]
+                  )) > program.dynamics.y;
             const float modeScore = float(
                 expectedContact == actualContact
             );
@@ -4353,6 +4662,8 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_SUPPORT_HEIGHT_EXPONENTIAL:
         case MR_TASK_REWARD_BODY_UP_EXPONENTIAL:
         case MR_TASK_REWARD_STANDING_COMPLETION:
+        case MR_TASK_REWARD_RESTORATION:
+        case MR_TASK_REWARD_INTERACTION_ROOT_TRACKING:
         case MR_TASK_REWARD_RECOVERY_TILT_PROGRESS:
         case MR_TASK_REWARD_RECOVERY_COMPLETION:
         case MR_TASK_REWARD_LINK_CLEARANCE_BARRIER:
@@ -4697,7 +5008,8 @@ kernel void mr_locomotion_task_complete(
             vState + vBase,
             defaultQ,
             state,
-            currentAction,
+            actionHistory + delayBase +
+                (program.layout.w - 2u) * program.counts0.x,
             sensorBias + biasBase,
             compactContact + compactBase,
             bodyParameters + bodyParameterBase,
@@ -4798,6 +5110,33 @@ kernel void mr_locomotion_task_complete(
             actorObservations[actorOutputBase + index] =
                 actorHistory[historyBase + index];
         }
+        writeCurrentActor(
+            dispatch,
+            program,
+            arena,
+            actorOperators,
+            actions,
+            contactGroups,
+            terrainSamples,
+            environment,
+            state.episode.y,
+            episodeSteps,
+            qState + qBase,
+            vState + vBase,
+            defaultQ,
+            state,
+            actionHistory + delayBase +
+                (program.layout.w - 2u) * program.counts0.x,
+            sensorBias + biasBase,
+            compactContact + compactBase,
+            bodyParameters + bodyParameterBase,
+            controllerParameters + environment,
+            sceneState + sceneBase,
+            shapes,
+            geometryHeaders,
+            geometryVertices,
+            actorObservations + actorOutputBase + historyElements
+        );
     }
     if (dispatch.timing.w != 0.0f) {
         const uint criticObservationSize =
@@ -4847,7 +5186,9 @@ kernel void mr_locomotion_task_complete(
         activeImpactEvent == MR_INVALID_INDEX
             ? 0u
             : activeImpactEvent + 1u,
-        impactTransitionFlags
+        impactTransitionFlags |
+            (standingCompleted ? MR_TASK_OUTCOME_STANDING : 0u) |
+            (restoredCompleted ? MR_TASK_OUTCOME_RESTORED : 0u)
     );
     transitions[transitionIndex] = transition;
 }

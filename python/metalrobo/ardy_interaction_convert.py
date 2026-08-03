@@ -186,6 +186,184 @@ def _content_hash(payload: bytes) -> int:
     return result or 1
 
 
+def write_interaction_pack(
+    *,
+    output: Path,
+    pack_id: str,
+    clip_id: str,
+    desired_outcome: str,
+    source_repository: str,
+    source_revision: str,
+    license_name: str,
+    frames_per_second: float,
+    root_targets: np.ndarray,
+    joint_targets: np.ndarray,
+    tracks: tuple[tuple[str, str, str], ...],
+    contact_modes: np.ndarray,
+    contact_confidence: np.ndarray,
+    contact_feature_masks: np.ndarray | None = None,
+    contact_sample_flags: np.ndarray | None = None,
+    contact_targets: np.ndarray | None = None,
+    contact_tolerances: np.ndarray | None = None,
+    loop: bool = False,
+) -> tuple[Path, int]:
+    """Write one generated-intent clip through the canonical pack ABI."""
+    root = np.asarray(root_targets, dtype=np.float32)
+    joints = np.asarray(joint_targets, dtype=np.float32)
+    modes = np.asarray(contact_modes, dtype=np.uint32)
+    confidence = np.asarray(contact_confidence, dtype=np.float32)
+    if not np.isfinite(frames_per_second) or frames_per_second <= 0.0:
+        raise ValueError("frames per second must be finite and positive")
+    if root.ndim != 2 or root.shape[1] != 7:
+        raise ValueError("root targets must have shape [frames, 7]")
+    frame_count = root.shape[0]
+    if frame_count < 2 or not np.isfinite(root).all():
+        raise ValueError("root targets must contain at least two finite frames")
+    if joints.shape != (frame_count, len(_G1_JOINTS)):
+        raise ValueError("joint targets must cover every canonical G1 joint")
+    if not np.isfinite(joints).all():
+        raise ValueError("joint targets must be finite")
+    if np.any(joints < _G1_JOINT_LOWER) or np.any(joints > _G1_JOINT_UPPER):
+        frame, joint = np.argwhere(
+            (joints < _G1_JOINT_LOWER) | (joints > _G1_JOINT_UPPER)
+        )[0]
+        raise ValueError(
+            f"joint target is outside the G1 mechanism limit: frame={frame} "
+            f"joint={_G1_JOINTS[joint]} value={joints[frame, joint]:.6f}"
+        )
+    joint_velocity_ratio = (
+        np.abs(np.diff(joints, axis=0)) * frames_per_second
+        / _G1_JOINT_VELOCITY[None, :]
+    )
+    if np.any(joint_velocity_ratio > 1.0 + 1.0e-5):
+        frame, joint = np.unravel_index(
+            np.argmax(joint_velocity_ratio),
+            joint_velocity_ratio.shape,
+        )
+        raise ValueError(
+            f"joint target exceeds the G1 velocity limit: "
+            f"transition={frame}->{frame + 1} "
+            f"joint={_G1_JOINTS[joint]} "
+            f"ratio={joint_velocity_ratio[frame, joint]:.6f}"
+        )
+    quaternions = root[:, 3:]
+    quaternion_norms = np.linalg.norm(quaternions, axis=1)
+    if np.any(np.abs(quaternion_norms - 1.0) > 1.0e-3):
+        raise ValueError("root target quaternions must be normalized")
+    if modes.shape != (frame_count, len(tracks)):
+        raise ValueError("contact modes must have shape [frames, tracks]")
+    if not tracks or len({track[0] for track in tracks}) != len(tracks):
+        raise ValueError("contact tracks must be nonempty and uniquely named")
+    if any(not all(field.strip() for field in track) for track in tracks):
+        raise ValueError("contact track identities must be nonempty")
+    if np.any(modes > 5):
+        raise ValueError("contact modes must use the canonical 0 through 5 enum")
+    if confidence.shape != modes.shape or np.any(~np.isfinite(confidence)):
+        raise ValueError(
+            "contact confidence must be finite and match contact modes"
+        )
+    if np.any(confidence < 0.0) or np.any(confidence > 1.0):
+        raise ValueError("contact confidence must lie in [0, 1]")
+    sample_count = frame_count * len(tracks)
+    masks = (
+        np.zeros(sample_count, dtype=np.uint32)
+        if contact_feature_masks is None
+        else np.asarray(contact_feature_masks, dtype=np.uint32).reshape(-1)
+    )
+    flags = (
+        np.full(sample_count, _SAMPLE_PREDICTED, dtype=np.uint32)
+        if contact_sample_flags is None
+        else np.asarray(contact_sample_flags, dtype=np.uint32).reshape(-1)
+    )
+    values = (
+        np.zeros(
+            sample_count * _CONTACT_FEATURE_COUNT,
+            dtype=np.float32,
+        )
+        if contact_targets is None
+        else np.asarray(contact_targets, dtype=np.float32).reshape(-1)
+    )
+    tolerances = (
+        np.zeros_like(values)
+        if contact_tolerances is None
+        else np.asarray(contact_tolerances, dtype=np.float32).reshape(-1)
+    )
+    if masks.size != sample_count or flags.size != sample_count:
+        raise ValueError("contact metadata must cover every frame and track")
+    unknown_feature_bits = np.uint32(
+        ~((1 << _CONTACT_FEATURE_COUNT) - 1) & 0xFFFFFFFF
+    )
+    if np.any(masks & unknown_feature_bits):
+        raise ValueError("contact feature mask contains unknown bits")
+    if np.any(flags & np.uint32(0xFFFFFFFC)):
+        raise ValueError("contact sample flags contain unknown bits")
+    if (
+        values.size != sample_count * _CONTACT_FEATURE_COUNT
+        or tolerances.size != values.size
+    ):
+        raise ValueError("contact fields must cover all 13 values per sample")
+    if not np.isfinite(values).all() or not np.isfinite(tolerances).all():
+        raise ValueError("contact targets and tolerances must be finite")
+    if np.any(tolerances < 0.0):
+        raise ValueError("contact tolerances must be nonnegative")
+
+    payload = b"".join(
+        (
+            _string(pack_id),
+            _string(source_repository),
+            _string(source_revision),
+            _string(license_name),
+            _string("metalrobo_z_up_x_forward_xyzw"),
+            _strings(_G1_JOINTS),
+            struct.pack("<Q", len(tracks)),
+            b"".join(
+                _string(track_id) + _string(group) + _string(counterpart)
+                for track_id, group, counterpart in tracks
+            ),
+            struct.pack("<Q", 1),
+            _string(clip_id),
+            _string(desired_outcome),
+            struct.pack(
+                "<fII",
+                frames_per_second,
+                frame_count,
+                int(loop),
+            ),
+            _vector(root, "<f4"),
+            _vector(joints, "<f4"),
+            _vector(modes, "<u4"),
+            _vector(masks, "<u4"),
+            _vector(flags, "<u4"),
+            _vector(confidence, "<f4"),
+            _vector(values, "<f4"),
+            _vector(tolerances, "<f4"),
+        )
+    )
+    content_hash = _content_hash(payload)
+    header = _HEADER.pack(
+        b"MRLEARN\0",
+        _INTERACTION_VERSION,
+        _INTERACTION_KIND,
+        len(payload),
+        content_hash,
+    )
+    target = output.expanduser().resolve()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{target.name}.", dir=target.parent
+    )
+    try:
+        with os.fdopen(descriptor, "wb") as destination:
+            destination.write(header)
+            destination.write(payload)
+            destination.flush()
+            os.fsync(destination.fileno())
+        os.replace(temporary_name, target)
+    finally:
+        Path(temporary_name).unlink(missing_ok=True)
+    return target, content_hash
+
+
 def _load_inputs(
     qpos_csv: Path,
     motion_npz: Path,
@@ -287,77 +465,38 @@ def convert(arguments: argparse.Namespace) -> None:
         _CONTACT_MODE_STICK,
         _CONTACT_MODE_FREE,
     ).astype("<u4")
-    contact_sample_count = frame_count * 2
-    masks = np.zeros(contact_sample_count, dtype="<u4")
-    flags = np.full(contact_sample_count, _SAMPLE_PREDICTED, dtype="<u4")
     confidence = np.full(
-        contact_sample_count,
+        (frame_count, 2),
         arguments.contact_confidence,
-        dtype="<f4",
-    )
-    contact_values = np.zeros(
-        contact_sample_count * _CONTACT_FEATURE_COUNT,
-        dtype="<f4",
+        dtype=np.float32,
     )
 
     tracks = (
         ("left_foot", arguments.left_contact_group, arguments.counterpart),
         ("right_foot", arguments.right_contact_group, arguments.counterpart),
     )
-    payload = b"".join(
-        (
-            _string(arguments.id),
-            _string(arguments.source_repository),
-            _string(arguments.source_revision),
-            _string(arguments.license),
-            _string("metalrobo_z_up_x_forward_xyzw"),
-            _strings(_G1_JOINTS),
-            struct.pack("<Q", len(tracks)),
-            b"".join(
-                _string(track_id) + _string(group) + _string(counterpart)
-                for track_id, group, counterpart in tracks
-            ),
-            struct.pack("<Q", 1),
-            _string(arguments.clip_id),
-            _string(desired_outcome),
-            struct.pack("<fII", fps, frame_count, int(arguments.loop)),
-            _vector(root, "<f4"),
-            _vector(joints, "<f4"),
-            _vector(modes, "<u4"),
-            _vector(masks, "<u4"),
-            _vector(flags, "<u4"),
-            _vector(confidence, "<f4"),
-            _vector(contact_values, "<f4"),
-            _vector(contact_values, "<f4"),
-        )
+    target, content_hash = write_interaction_pack(
+        output=arguments.output,
+        pack_id=arguments.id,
+        clip_id=arguments.clip_id,
+        desired_outcome=desired_outcome,
+        source_repository=arguments.source_repository,
+        source_revision=arguments.source_revision,
+        license_name=arguments.license,
+        frames_per_second=fps,
+        root_targets=root,
+        joint_targets=joints,
+        tracks=tracks,
+        contact_modes=modes,
+        contact_confidence=confidence,
+        loop=arguments.loop,
     )
-    header = _HEADER.pack(
-        b"MRLEARN\0",
-        _INTERACTION_VERSION,
-        _INTERACTION_KIND,
-        len(payload),
-        _content_hash(payload),
-    )
-    target = arguments.output.expanduser().resolve()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary_name = tempfile.mkstemp(
-        prefix=f".{target.name}.", dir=target.parent
-    )
-    try:
-        with os.fdopen(descriptor, "wb") as output:
-            output.write(header)
-            output.write(payload)
-            output.flush()
-            os.fsync(output.fileno())
-        os.replace(temporary_name, target)
-    finally:
-        Path(temporary_name).unlink(missing_ok=True)
     print(
         f"wrote {target} frames={frame_count} fps={fps:.6f} "
         f"left_contact_frames={int(np.count_nonzero(contact_by_track[:, 0]))} "
         f"right_contact_frames={int(np.count_nonzero(contact_by_track[:, 1]))} "
         f"peak_joint_velocity_ratio={peak_velocity_ratio:.6f} "
-        f"content_hash={_content_hash(payload)} bytes={target.stat().st_size}"
+        f"content_hash={content_hash} bytes={target.stat().st_size}"
     )
 
 

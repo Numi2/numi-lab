@@ -466,10 +466,11 @@ private struct Options {
         if interactionPack != nil &&
             (worldPack != nil || urdf != nil || taskPack != nil ||
              (unitreeG1Task != .velocity &&
-              unitreeG1Task != .ballDodge))
+              unitreeG1Task != .ballDodge &&
+              unitreeG1Task != .supineGetUpDiscovery))
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "InteractionPack training uses bundled G1 velocity or ball-dodge mechanics and cannot be combined with imported mechanics."
+                "InteractionPack training uses bundled G1 velocity, ball-dodge, or supine-get-up mechanics and cannot be combined with imported mechanics."
             )
         }
         if (worldPack != nil || urdf != nil) != (taskPack != nil) {

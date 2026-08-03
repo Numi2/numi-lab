@@ -147,6 +147,7 @@ LearningPackResult validateTaskArtifact(
     }
     if (!countFits(pack.actions.size()) ||
         !countFits(pack.actorFrame.size()) ||
+        !countFits(pack.actorCurrent.size()) ||
         !countFits(pack.critic.size()) ||
         !countFits(pack.contactGroups.size()) ||
         !countFits(pack.jointGroups.size()) ||
@@ -168,6 +169,11 @@ LearningPackResult validateTaskArtifact(
     if (!std::all_of(
             pack.actorFrame.begin(),
             pack.actorFrame.end(),
+            validObservation
+        ) ||
+        !std::all_of(
+            pack.actorCurrent.begin(),
+            pack.actorCurrent.end(),
             validObservation
         ) ||
         !std::all_of(
@@ -1100,6 +1106,7 @@ std::vector<std::byte> serializeTask(
     );
     writeRichVector(writer, pack.actorFrame, writeObservation);
     writer.pod(pack.actorHistoryLength);
+    writeRichVector(writer, pack.actorCurrent, writeObservation);
     writeRichVector(writer, pack.critic, writeObservation);
     writer.pod(pack.criticHistoryLength);
     writer.pod(static_cast<std::uint8_t>(
@@ -1254,6 +1261,11 @@ bool deserializeTask(
             readObservation
         ) ||
         !reader.pod(pack.actorHistoryLength) ||
+        !readRichVector(
+            reader,
+            pack.actorCurrent,
+            readObservation
+        ) ||
         !readRichVector(reader, pack.critic, readObservation) ||
         !reader.pod(pack.criticHistoryLength) ||
         !reader.pod(cleanHistory) ||

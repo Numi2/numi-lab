@@ -625,7 +625,7 @@ void authorG1InteractionTrackingTask(
 
     const auto appendObservation =
         [&task](const metalrobo::TaskObservationOperatorSpec& operation) {
-            task.actorFrame.push_back(operation);
+            task.actorCurrent.push_back(operation);
             task.critic.push_back(operation);
         };
     for (std::uint32_t component = 0u; component < 3u; ++component) {
@@ -678,6 +678,12 @@ void authorG1InteractionTrackingTask(
         },
         {
             .operation = metalrobo::TaskRewardOperator::
+                interactionRootTracking,
+            .weight = 2.0f,
+            .parameters = {0.04f, 0.08f, 0.0f, 0.0f},
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::
                 projectedGravityHorizontalSquared,
             .weight = -1.0f,
         },
@@ -725,16 +731,95 @@ void authorG1InteractionTrackingTask(
     }
 }
 
-void authorG1ImaginedDodgeTask(
-    metalrobo::TaskPack& task
+void authorG1ImaginedTask(
+    metalrobo::TaskPack& task,
+    const metalrobo::InteractionPack& interactions,
+    const metalrobo::InteractionClip& clip,
+    const MRTaskRolloutConfigC& config
 ) {
     task.id += "/imagined_interaction";
+    if (!clip.loop) {
+        const double durationSeconds =
+            static_cast<double>(clip.frameCount - 1u) /
+            static_cast<double>(clip.framesPerSecond);
+        const double steps = std::ceil(
+            durationSeconds /
+            static_cast<double>(config.control_timestep_seconds)
+        ) + 1.0;
+        if (!std::isfinite(steps) || steps < 2.0 ||
+            steps > static_cast<double>(
+                std::numeric_limits<std::uint32_t>::max()
+            )) {
+            throw std::invalid_argument(
+                "InteractionPack duration does not fit the imagined-task horizon"
+            );
+        }
+        task.maximumEpisodeSteps = static_cast<std::uint32_t>(steps);
+    }
+    const auto appendObservation =
+        [&task](const metalrobo::TaskObservationOperatorSpec& operation) {
+            // Imagination intent supervises the critic and produces executed
+            // action labels; the autonomous actor must learn from deployable
+            // proprioception rather than depend on a reference unavailable
+            // after distillation.
+            task.critic.push_back(operation);
+        };
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        appendObservation({
+            .source = metalrobo::TaskObservationSource::interactionPhase,
+            .component = component,
+        });
+    }
+    for (const metalrobo::TaskActionBinding& action : task.actions) {
+        appendObservation({
+            .source = metalrobo::TaskObservationSource::
+                interactionJointPositionError,
+            .target = action.joint,
+        });
+    }
+    for (const metalrobo::InteractionContactTrack& track :
+         interactions.contactTracks) {
+        for (std::uint32_t component = 0u; component < 2u; ++component) {
+            appendObservation({
+                .source = metalrobo::TaskObservationSource::
+                    interactionContactMode,
+                .target = track.id,
+                .component = component,
+            });
+        }
+        for (std::uint32_t component = 0u; component < 3u; ++component) {
+            appendObservation({
+                .source = metalrobo::TaskObservationSource::
+                    contactWrenchLocal,
+                .target = track.taskContactGroup,
+                .component = component,
+                .scale = 0.01f,
+            });
+        }
+    }
     task.rewards.push_back({
         .operation = metalrobo::TaskRewardOperator::
             interactionJointTracking,
-        .weight = 0.25f,
+        .weight = 0.5f,
         .parameters = {0.25f, 0.0f, 0.0f, 0.0f},
     });
+    task.rewards.push_back({
+        .operation = metalrobo::TaskRewardOperator::
+            interactionRootTracking,
+        .weight = 2.0f,
+        .parameters = {0.04f, 0.08f, 0.0f, 0.0f},
+    });
+    for (const metalrobo::InteractionContactTrack& track :
+         interactions.contactTracks) {
+        task.rewards.push_back({
+            .operation = metalrobo::TaskRewardOperator::
+                interactionContactTracking,
+            .sourceGroup = track.taskContactGroup,
+            .target = track.id,
+            .weight = 1.0f,
+            .parameters = {1.0f, 1.0f, 1.0f, 0.0f},
+        });
+    }
 }
 
 std::unique_ptr<MRTaskRolloutHandle>
@@ -1660,7 +1745,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         trackerConfig.maskedDepthHeight = taskHeader.visualLayout.y;
         trackerConfig.maskedDepthActorFrameOffset =
             handle.taskProgram.layout().actorFrameSize *
-            handle.taskProgram.layout().actorHistoryLength;
+            handle.taskProgram.layout().actorHistoryLength +
+            taskHeader.counts3.w;
         trackerConfig.maskedDepthNearMeters = taskHeader.visualRange.x;
         trackerConfig.maskedDepthFarMeters = taskHeader.visualRange.y;
         trackerConfig.maskedDepthEdgeFlickerProbability =
@@ -2120,9 +2206,10 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
         const metalrobo::UnitreeG1Task task =
             unitreeG1Task(task_value);
         if (task != metalrobo::UnitreeG1Task::velocity &&
-            task != metalrobo::UnitreeG1Task::ballDodge) {
+            task != metalrobo::UnitreeG1Task::ballDodge &&
+            task != metalrobo::UnitreeG1Task::supineGetUpDiscovery) {
             throw std::invalid_argument(
-                "InteractionPack task composition supports velocity or ball-dodge."
+                "InteractionPack task composition supports velocity, ball-dodge, or supine-get-up."
             );
         }
         metalrobo::LocomotionWorld authored =
@@ -2138,7 +2225,12 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
                 *config
             );
         } else {
-            authorG1ImaginedDodgeTask(authored.task);
+            authorG1ImaginedTask(
+                authored.task,
+                interactions,
+                clip,
+                *config
+            );
         }
         auto handle = createCompiledTaskRollout(
             std::move(authored),

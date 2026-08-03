@@ -414,11 +414,12 @@ private struct Options {
         if interactionPack != nil &&
             (worldPack != nil || urdf != nil || taskPack != nil ||
              (unitreeG1Task != .velocity &&
-              unitreeG1Task != .ballDodge) ||
+              unitreeG1Task != .ballDodge &&
+              unitreeG1Task != .supineGetUpDiscovery) ||
              !dynamicSpheres.isEmpty)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "InteractionPack evaluation uses bundled G1 velocity or ball-dodge mechanics and cannot be combined with imported mechanics or --ball."
+                "InteractionPack evaluation uses bundled G1 velocity, ball-dodge, or supine-get-up mechanics and cannot be combined with imported mechanics or --ball."
             )
         }
         if (worldPack != nil || urdf != nil) != (taskPack != nil) {
@@ -900,6 +901,7 @@ private enum TaskRolloutMain {
             var maximumRootHeight = 0.0
             var maximumTilt = 0.0
             var standingStepCount = 0
+            var restoredStepCount = 0
             var taskRewardSum = 0.0
             var baseRewardSum = 0.0
             var jointVelocityRewardSum = 0.0
@@ -1106,10 +1108,13 @@ private enum TaskRolloutMain {
                             maximumTilt,
                             Double(transition.tilt)
                         )
-                        if transition.rootHeight >= 0.65 &&
-                            transition.tilt <= 0.6435011
-                        {
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 31) != 0 {
                             standingStepCount += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 30) != 0 {
+                            restoredStepCount += 1
                         }
                         taskRewardSum +=
                             Double(transition.taskReward)
@@ -1427,6 +1432,7 @@ private enum TaskRolloutMain {
                 "maximum_root_height": maximumRootHeight,
                 "maximum_tilt": maximumTilt,
                 "standing_step_count": standingStepCount,
+                "restored_step_count": restoredStepCount,
                 "mean_task_reward":
                     taskRewardSum /
                     Double(max(transitionCount, 1)),
