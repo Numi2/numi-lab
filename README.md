@@ -2,7 +2,7 @@
 
 # numi-lab
 
-**Native robot simulation and learning infrastructure for Apple Silicon.**
+**An Apple-native physics and robotics laboratory.**
 
 `C++23` · `Metal` · `Objective-C++` · `Swift` · `MLX`
 
@@ -17,6 +17,31 @@ not step the production simulator.
 
 This is a pre-release research engine. It is not a finished robot product and
 does not yet establish real-robot transfer.
+
+Numi Lab is not a G1, locomotion, recovery, or dodge product. Those are useful
+qualification workloads over one shared simulator. The platform goal is a
+general robotics laboratory for Apple Silicon: many robots, scenes, tasks,
+materials, sensors, controllers, and learning systems executing through the
+same compiled native physics path.
+
+## Platform scope
+
+- **Physics:** rigid bodies, floating and fixed articulations, coupled contact,
+  terrain, rods, deformables, tactile fields, and stable cross-domain coupling.
+- **Robotics:** locomotion, manipulation, recovery, mobile manipulation,
+  multi-robot interaction, and research surgical mechanisms.
+- **Sensing:** proprioception, contact, plantar pressure, RGB-D, identities,
+  motion, tactile observations, and future task-authored sensor combinations.
+- **Intelligence:** native policies, generated motion, demonstrations,
+  foundation-model proposals, imitation, reinforcement learning, and recovery.
+- **Scale:** persistent batched Metal execution, deterministic replay,
+  transactional failure isolation, unified-memory accounting, and profiling.
+- **Extensibility:** robot mechanics plus `WorldPack`, `TaskPack`,
+  `InteractionPack`, and `PolicyPack` artifacts—not new robot-specific shader
+  modes or a fixed catalog of tasks.
+
+The durable platform direction is described in
+[Numi Lab platform direction](docs/PLATFORM_DIRECTION.md).
 
 ## What runs today
 
@@ -61,7 +86,13 @@ own exact-cone Metal implementation—not PhysX TGS and not a renamed PGS loop.
 A slower `qualityNewton` mode exists for numerical comparison; it is not the
 throughput rollout path.
 
-## Native G1 evidence
+## Selected qualification workloads
+
+The following G1 runs exercise standing, disturbance response, perception,
+generated motion, destructive contact, and get-up learning. They are evidence
+for shared simulator capabilities, not the product boundary.
+
+### Native G1 standing
 
 The actor was converted once to `PolicyPack` and runs through numi-lab's
 native Metal inference engine with a zero velocity command. On Apple M4, the
@@ -81,7 +112,7 @@ The animation is rendered by numi-lab's native `sensor_reference` path from
 the accepted state trace. No external simulator supplies pixels or
 intermediate motion.
 
-### Physical disturbance and recovery
+### Physical disturbance and recovery workload
 
 The balls below are ordinary dynamic scene bodies in the same broadphase,
 manifold, island, and temporal-cone solve as G1.
@@ -102,7 +133,7 @@ velocity, and launch time. In an identical 8-environment, 500-step evaluation:
 These are simulator results. The trained experimental policy artifact is not
 currently bundled in the repository.
 
-### Perceptive dodge path
+### Perceptive dodge workload
 
 The G1 dodge TaskPack now exposes only deployable proprioception plus four
 ball-only 16x9 masked-depth frames at sparse offsets `0, 3, 8, 18`. Authored
@@ -125,10 +156,11 @@ rise relative to the pelvis. The reproducible example and stricter claim
 boundary are documented in
 [World engine: InteractionPack](docs/WORLD_ENGINE.md#interactionpack-generated-intent-solved-outcome).
 
-For dodge learning, generated actions become distillation targets only after
-a clean NumiSolver miss window. Contact, falling, incomplete sequences, and
-physics failures receive no teacher weight. This is physically gated learning
-infrastructure, not yet a claim of a solved dodge policy.
+Across tasks, generated actions become distillation targets only in proportion
+to solver-measured physical outcomes. Stable partial progress is retained;
+failed or terminated transitions cannot be attributed to the teacher as
+successful behavior. Dodge supplies one set of outcome signals, while
+manipulation, recovery, locomotion, and contact-rich tasks supply their own.
 
 ### Deliberately destructive test
 
@@ -142,7 +174,7 @@ of aftermath remain visible. All 425 control steps completed with zero physics
 failures. This demonstrates continuous native dynamics under a destructive
 load, not successful recovery.
 
-## Get-up status: not solved yet
+### Get-up workload status: not solved yet
 
 The Stage-I supine task now has ten frames of proprioceptive history, a
 privileged critic, full-body contact, and generic height, support, body-up,

@@ -61,11 +61,14 @@ Each run writes:
   observation and noise fingerprints, providers, tensor shapes, stage timing,
   host information, and the action-chunk fingerprint.
 
-## Camera-to-teacher pipeline
+## General proposal-to-teacher pipeline
 
-The production bridge uses the robot's torso-mounted policy camera, the exact
-post-step G1 generalized coordinates, and the existing native motion-teacher
-artifact. Foundation inference never blocks a Metal submission:
+The bridge is architecturally robot- and task-neutral: synchronized authored
+sensors and robot state become a typed observation; a provider proposes a
+finite action chunk; a robot-owned adapter compiles it into an
+`InteractionPack`; and native physics measures the result. The first qualified
+adapter happens to use G1 and GR00T. Foundation inference never blocks a Metal
+submission:
 
 1. capture one synchronized policy-camera frame and state row;
 2. infer a finite named action chunk outside the simulator hot loop;
@@ -91,15 +94,13 @@ numi foundation compile-interaction \
     --output /path/to/run/foundation-teacher.interactionpack \
     --evidence /path/to/run/interaction.evidence.json \
     --id foundation-teacher-v1 \
-    --desired-outcome "move away from the visible projectile while balanced"
+    --desired-outcome "raise the left hand while preserving balance"
 
 numi train \
-    --task ball-dodge --scene ground \
+    --task velocity --scene ground \
     --interaction-pack /path/to/run/foundation-teacher.interactionpack \
     --interaction-clip foundation-teacher-v1 \
     --interaction-student-authority 0 \
-    --g1-visual-pack-dir /path/to/g1-visual-packs \
-    --ball-visual-pack-dir /path/to/ball-visual-packs \
     --envs 1024 --steps 27 --updates 1 --chunk 1
 ```
 
@@ -111,12 +112,14 @@ continuous weight instead of being discarded behind a binary success gate.
 With nonzero student authority, the student owns a residual and ordinary PPO
 attribution remains valid; the absolute generated pose is not imitated twice.
 
-The current G1 bridge maps waist and both seven-joint arms. The bundled 29-DoF
-robot has no dexterous-hand actuators, so hand outputs are retained in evidence
-but not executed. Navigation, base-height, and effort outputs are also retained
-but not yet mapped. Lower-body targets stay on Numi's native standing posture;
-this is an explicit first slice, not a claim that the upstream manipulation
-policy already knows whole-body dodge motion.
+The current first adapter maps G1 waist and both seven-joint arms. The bundled
+29-DoF robot has no dexterous-hand actuators, so hand outputs are retained in
+evidence but not executed. Navigation, base-height, and effort outputs are also
+retained but not yet mapped. Lower-body targets stay on Numi's native standing
+posture; this is an explicit first slice, not a claim that the upstream
+manipulation policy already knows whole-body motion. This mapping belongs to
+the adapter, not the simulator core; additional robots should provide their
+own named state, action, rate, and limit contracts.
 
 ## Qualified Mac mini result
 
@@ -153,10 +156,11 @@ stages within unified-memory limits, and selectively port dominant operators
 to MLX or native Metal. The provider-neutral action-chunk boundary does not
 change as Apple hardware and runtimes improve.
 
-## Real observation and teacher qualification
+## One real-observation qualification workload
 
-On 2026-08-03, Numi captured a real 640x480 torso-camera view of the authored
-ball-dodge scene and synchronized it with G1 state at step 1. The exact
+On 2026-08-03, Numi used ball dodge as one convenient dynamic-scene workload.
+It captured a real 640x480 torso-camera view and synchronized it with G1 state
+at step 1. The exact
 observation drove the full GR00T graph on the Mac mini, producing a finite
 16-frame chunk. Numi resampled it from 30 Hz to 50 Hz, enforced authored joint
 position and velocity limits, and executed the resulting 27-frame
