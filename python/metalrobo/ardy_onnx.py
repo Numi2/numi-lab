@@ -754,7 +754,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
     if arguments.command == "imagine-g1":
         from .ardy_text_encoder import encode_prompt
-        from .g1_motion_retarget import retarget_g1, write_retarget
+        from .ardy_interaction_convert import write_retarget_interaction_pack
+        from .g1_motion_retarget import (
+            retarget_g1,
+            solver_trace_to_g1,
+            write_retarget,
+        )
 
         if not arguments.prompt.strip():
             parser.error("--prompt must not be empty")
@@ -803,6 +808,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         output = (arguments.output_directory or default_output).resolve()
         motion_directory = output / "motion"
         retarget_directory = output / "g1-retarget"
+        interaction_pack = output / "ardy-g1.interactionpack"
+        physical_run_directory = output / "physical-run"
+        state_trace = output / "solver-state.tsv"
+        solver_motion_directory = output / "solver-motion"
         frames_directory = output / "frames"
         text_feature, encoder_evidence = encode_prompt(
             text_encoder_directory,
@@ -826,6 +835,73 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         write_retarget(retarget_directory, arrays, retarget_evidence)
 
+        _, interaction_fingerprint = write_retarget_interaction_pack(
+            output=interaction_pack,
+            root_targets=arrays["root_position_quaternion_xyzw"],
+            joint_targets=arrays["joint_positions"],
+            frames_per_second=float(retarget_evidence["fps"]),
+            desired_outcome=arguments.prompt.strip(),
+            source_repository=retarget_evidence["source_motion"][
+                "model_repository"
+            ],
+            source_revision=retarget_evidence["source_motion"][
+                "model_revision"
+            ],
+            pack_id=(
+                "ardy-core-g1-"
+                + retarget_evidence["source_motion"]["arrays_fingerprint"][:16]
+            ),
+        )
+        numi = numi_root / "tools" / "numi"
+        if not os.access(numi, os.X_OK):
+            raise FileNotFoundError(numi)
+        physical_timestep = 0.02
+        # Stop one transaction before the non-looping clip timeout resets the
+        # episode. The final rendered frame must remain the physical outcome,
+        # not the next episode's initialized pose.
+        physical_steps = max(2, int(math.ceil(
+            int(retarget_evidence["frame_count"])
+            / float(retarget_evidence["fps"])
+            / physical_timestep
+        )) - 1)
+        evaluation_environment = os.environ.copy()
+        evaluation_environment["NUMI_RUN_DIR"] = str(physical_run_directory)
+        subprocess.run(
+            [
+                str(numi),
+                "evaluate",
+                "--interaction-pack", str(interaction_pack),
+                "--interaction-clip", "ardy-g1",
+                "--zero-actions",
+                "--interaction-student-authority", "0",
+                "--task", "velocity",
+                "--scene", "ground",
+                "--envs", "1",
+                "--steps", str(physical_steps),
+                "--repeats", "1",
+                "--chunk", "1",
+                "--physics-substeps", "8",
+                "--velocity-iterations", "8",
+                "--final-velocity-iterations", "4",
+                "--continue-after-termination",
+                "--no-scheduled-resets",
+                "--state-trace", str(state_trace),
+            ],
+            check=True,
+            env=evaluation_environment,
+        )
+        physical_report = json.loads(
+            (physical_run_directory / "evidence.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        solver_arrays, solver_evidence = solver_trace_to_g1(
+            state_trace, g1_urdf
+        )
+        write_retarget(
+            solver_motion_directory, solver_arrays, solver_evidence
+        )
+
         blender = shutil.which("blender")
         ffmpeg = shutil.which("ffmpeg")
         if blender is None or ffmpeg is None:
@@ -845,7 +921,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 str(renderer),
                 "--",
                 "--retarget-directory",
-                str(retarget_directory),
+                str(solver_motion_directory),
                 "--g1-urdf",
                 str(g1_urdf),
                 "--frames",
@@ -866,11 +942,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         gif = output / "ardy-g1.gif"
         video = output / "ardy-g1.mp4"
         frame_pattern = str(frames_directory / "g1-%04d.png")
+        physical_fps = float(solver_evidence["fps"])
+        physical_fps_text = f"{physical_fps:.9g}"
         subprocess.run(
             [
-                ffmpeg, "-y", "-loglevel", "error", "-framerate", "20",
+                ffmpeg, "-y", "-loglevel", "error", "-framerate",
+                physical_fps_text,
                 "-i", frame_pattern, "-vf",
-                "fps=20,scale=720:-1:flags=lanczos,"
+                "fps=25,scale=720:-1:flags=lanczos,"
                 "palettegen=max_colors=256:stats_mode=diff",
                 str(palette),
             ],
@@ -878,9 +957,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         subprocess.run(
             [
-                ffmpeg, "-y", "-loglevel", "error", "-framerate", "20",
+                ffmpeg, "-y", "-loglevel", "error", "-framerate",
+                physical_fps_text,
                 "-i", frame_pattern, "-i", str(palette), "-lavfi",
-                "fps=20,scale=720:-1:flags=lanczos[x];"
+                "fps=25,scale=720:-1:flags=lanczos[x];"
                 "[x][1:v]paletteuse=dither=sierra2_4a:diff_mode=rectangle",
                 "-loop", "0", str(gif),
             ],
@@ -888,7 +968,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         subprocess.run(
             [
-                ffmpeg, "-y", "-loglevel", "error", "-framerate", "20",
+                ffmpeg, "-y", "-loglevel", "error", "-framerate",
+                physical_fps_text,
                 "-i", frame_pattern, "-c:v", "libx264", "-preset", "slow",
                 "-crf", "16", "-pix_fmt", "yuv420p", "-movflags",
                 "+faststart", str(video),
@@ -896,26 +977,53 @@ def main(argv: Sequence[str] | None = None) -> int:
             check=True,
         )
         pipeline_evidence = {
-            "format": "numi.imagine-g1.v1",
+            "format": "numi.imagine-g1.v2",
             "prompt": arguments.prompt.strip(),
             "seed": arguments.seed,
             "source_motion": str(motion_directory / "evidence.json"),
             "g1_retarget": str(retarget_directory / "evidence.json"),
+            "interaction_pack": {
+                "path": interaction_pack.name,
+                "sha256": _sha256(interaction_pack),
+                "content_fingerprint": interaction_fingerprint,
+                "contact_fields": "unknown; no force or pressure synthesized",
+            },
+            "physical_run": {
+                "path": str(physical_run_directory),
+                "state_trace": str(state_trace),
+                "device": physical_report["device"],
+                "solver": physical_report["solver_mode"],
+                "gravity": "compiled world gravity; integrated every substep",
+                "physics_substeps": physical_report["physics_substeps"],
+                "control_steps": physical_steps,
+                "failed_environment_steps": physical_report[
+                    "failed_environment_steps"
+                ],
+                "maximum_root_height": physical_report["maximum_root_height"],
+                "maximum_tilt": physical_report["maximum_tilt"],
+                "termination_count": physical_report["termination_count"],
+                "mean_tracking_score": physical_report[
+                    "mean_tracking_score"
+                ],
+            },
+            "solver_motion": str(
+                solver_motion_directory / "evidence.json"
+            ),
             "render": {
                 "renderer": str(renderer),
                 "blender": blender,
                 "width": arguments.width,
                 "height": arguments.height,
-                "fps": 20,
-                "frame_count": int(retarget_evidence["frame_count"]),
+                "fps": physical_fps,
+                "frame_count": int(solver_evidence["frame_count"]),
                 "elapsed_seconds": render_seconds,
                 "presentation": render_evidence,
             },
             "gif": {"path": gif.name, "sha256": _sha256(gif)},
             "video": {"path": video.name, "sha256": _sha256(video)},
             "authority": (
-                "ARDY-conditioned G1 kinematic preview; NumiSolver physics "
-                "has not been applied"
+                "ARDY joint intent executed by native G1 drives; every rendered "
+                "pose comes from an accepted NumiSolver state"
             ),
         }
         (output / "evidence.json").write_text(

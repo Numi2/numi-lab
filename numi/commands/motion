@@ -29,8 +29,9 @@ The model directory stays outside the repository. Pair arbitrary prompts with
 the separately licensed ARDY text encoder and pass its [1,1,4096] feature as
 NPY/NPZ. Reference embeddings are accepted for exact runtime qualification.
 Once the ARDY cache and pinned G1 description are installed, `imagine-g1`
-encodes one prompt, generates motion, retargets it within G1 limits, and
-returns both GIF and MP4 evidence.
+encodes one prompt, generates motion, retargets it within G1 limits, compiles
+an InteractionPack, executes it through native Metal physics, and returns GIF
+and MP4 evidence rendered only from accepted NumiSolver states.
 
 `--provider auto` selects the text encoder, denoiser, and decoder separately.
 Each Core ML result must pass its CPU comparison; only a failing graph falls

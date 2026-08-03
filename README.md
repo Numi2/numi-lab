@@ -115,8 +115,10 @@ invents flight, touchdown, foot locks, or a settling pose. InteractionPack may
 use the joint-space proposal as controller intent, while the root remains a
 simulated outcome. NumiSolver applies the compiled world's gravity every
 physics substep and resolves whether the robot takes off, lands, slips, falls,
-or recovers. A failed physical realization stays visible as a failed result;
-presentation code must not repair it.
+or recovers. `imagine-g1` now performs that physical realization by default;
+its GIF and MP4 are forward-kinematic renders of accepted solver states, not
+of the provider root trajectory. A failed physical realization stays visible
+as a failed result; presentation code must not repair it.
 
 ### Native G1 standing
 

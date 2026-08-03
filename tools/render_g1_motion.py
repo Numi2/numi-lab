@@ -319,7 +319,7 @@ def render(options: argparse.Namespace) -> None:
         bpy.ops.render.render(write_still=True)
     evidence = {
         "format": "numi.g1-presentation.v1",
-        "transform_policy": "exact retarget transforms; no floor correction",
+        "transform_policy": "exact supplied link transforms; no floor correction",
         "dynamics_synthesized": False,
     }
     (options.frames.parent / "render-evidence.json").write_text(

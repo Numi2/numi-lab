@@ -152,6 +152,23 @@ landing. Actuation, gravity, balance, collision, contact, and landing success
 become evidence only after the joint-space intent is executed by NumiSolver;
 the simulated root is never copied from the provider trajectory.
 
+`numi motion imagine-g1` performs that physical execution by default. It
+compiles the complete retargeted joint sequence into an InteractionPack with
+unknown contact fields, applies zero student residual, and records one native
+solver configuration per control step. Rendering uses only forward kinematics
+of those accepted configurations. The generated-motion root remains auditable
+intent and an optional reward reference; after initialization it never writes
+the simulated root. A physical fall therefore renders as a fall.
+
+Generic InteractionPack tracking does not inherit standing-only upright
+penalties or height/tilt terminations. Those contradict intentional rotation,
+get-up, crawling, and other non-standing motion. The generated root trajectory
+is the task-relative posture objective; numerical solver failures still roll
+back transactionally, forbidden contacts and mechanism limits remain physical
+costs, and non-looping clips retain their finite timeout. Whole-body generated
+motion uses a measured 64-manifold contact envelope (two Wave32 cohorts); this
+changes capacity only, not contact generation or acceptance.
+
 For presentation evidence, render the actual proposal rather than recreating
 the motion manually:
 

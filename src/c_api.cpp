@@ -626,6 +626,22 @@ void authorG1InteractionTrackingTask(
     task.pushes.minimumIntervalSeconds = 5.0f;
     task.pushes.maximumIntervalSeconds = 5.0f;
     task.randomization.clear();
+    // The standing profile's 32-manifold envelope is too small for generated
+    // whole-body motions. The first physically coherent ARDY residual batch
+    // measured 33 simultaneous manifolds (37 raw contacts) at control step
+    // zero. Reuse the qualified two-Wave32 get-up envelope without changing
+    // contact generation, solver acceptance, or transactional rollback.
+    task.capacities.manifolds = std::max(
+        task.capacities.manifolds,
+        64u
+    );
+    // A generic generated motion may deliberately leave the standing height
+    // and orientation envelope (acrobatics, get-up, crawling, manipulation).
+    // The InteractionPack root target is the task-relative posture authority;
+    // inherited locomotion tilt/height terminations would reject the desired
+    // motion before physics can evaluate it. Numerical failures remain owned
+    // by the transactional solver and non-looping clips retain their horizon.
+    task.terminations.clear();
     task.maximumActionDelaySteps = 0u;
     task.maximumObservationDelaySteps = 0u;
     if (!clip.loop) {
@@ -706,11 +722,6 @@ void authorG1InteractionTrackingTask(
                 interactionRootTracking,
             .weight = 2.0f,
             .parameters = {0.04f, 0.08f, 0.0f, 0.0f},
-        },
-        {
-            .operation = metalrobo::TaskRewardOperator::
-                projectedGravityHorizontalSquared,
-            .weight = -1.0f,
         },
         {
             .operation = metalrobo::TaskRewardOperator::

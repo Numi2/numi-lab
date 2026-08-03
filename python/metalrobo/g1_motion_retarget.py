@@ -629,3 +629,101 @@ def write_retarget(
         json.dumps(document, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+
+def solver_trace_to_g1(
+    state_trace: Path,
+    urdf_path: Path,
+) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
+    """Convert accepted native G1 configurations to render-only FK.
+
+    This function does not retarget, filter, floor-correct, or integrate the
+    motion. Every transform is derived from an accepted NumiSolver state.
+    """
+    lines = state_trace.read_text(encoding="utf-8").splitlines()
+    if len(lines) < 2 or not lines[0].startswith("# step "):
+        raise ValueError("Numi state trace is empty or has an invalid header")
+    fields = lines[0].split()
+    try:
+        configuration_count = int(next(
+            field.split("=", 1)[1]
+            for field in fields
+            if field.startswith("nq=")
+        ))
+        timestep = float(next(
+            field.split("=", 1)[1]
+            for field in fields
+            if field.startswith("timestep=")
+        ))
+    except (StopIteration, ValueError) as error:
+        raise ValueError("Numi state trace header is incomplete") from error
+    expected_configuration_count = 7 + len(_G1_JOINTS)
+    if configuration_count != expected_configuration_count or timestep <= 0.0:
+        raise ValueError("Numi state trace is not a canonical G1 trace")
+
+    steps: list[int] = []
+    configurations: list[list[float]] = []
+    for line in lines[1:]:
+        values = line.split("\t")
+        if len(values) < 1 + configuration_count:
+            raise ValueError("Numi state trace contains a truncated sample")
+        steps.append(int(values[0]))
+        configurations.append([
+            float(value) for value in values[1 : 1 + configuration_count]
+        ])
+    q = np.asarray(configurations, dtype=np.float64)
+    if (
+        q.shape != (len(steps), configuration_count)
+        or len(steps) < 2
+        or not np.isfinite(q).all()
+        or any(second <= first for first, second in zip(steps, steps[1:]))
+    ):
+        raise ValueError("Numi state trace samples are invalid")
+    quaternion_norm = np.linalg.norm(q[:, 3:7], axis=1)
+    if np.any(np.abs(quaternion_norm - 1.0) > 1.0e-3):
+        raise ValueError("Numi state trace contains an invalid root quaternion")
+
+    model = G1Kinematics.from_urdf(urdf_path)
+    link_transforms = np.empty(
+        (q.shape[0], len(model.links), 7), dtype=np.float64
+    )
+    for frame_index, state in enumerate(q):
+        root_position = state[:3]
+        root_rotation = Rotation.from_quat(state[3:7]).as_matrix()
+        local_poses = model.forward(state[7:])
+        for link_index, name in enumerate(model.links):
+            local = local_poses[name]
+            link_transforms[frame_index, link_index, :3] = (
+                root_position + root_rotation @ local[:3, 3]
+            )
+            link_transforms[frame_index, link_index, 3:] = (
+                Rotation.from_matrix(root_rotation @ local[:3, :3]).as_quat()
+            )
+
+    arrays = {
+        "root_position_quaternion_xyzw": q[:, :7].astype(np.float32),
+        "joint_positions": q[:, 7:].astype(np.float32),
+        "step": np.asarray(steps, dtype=np.uint32),
+        "link_names": np.asarray(model.links, dtype=np.str_),
+        "link_position_quaternion_xyzw": link_transforms.astype(np.float32),
+    }
+    evidence = {
+        "format": "numi.g1-solver-state-render.v1",
+        "status": "physical-simulator-state",
+        "authority": (
+            "accepted NumiSolver configurations; forward kinematics only; "
+            "no synthesized dynamics or presentation correction"
+        ),
+        "state_trace": {
+            "path": str(state_trace),
+            "sha256": _sha256(state_trace),
+            "timestep_seconds": timestep,
+        },
+        "frame_count": int(q.shape[0]),
+        "fps": 1.0 / timestep,
+        "robot_urdf": {
+            "path": str(urdf_path),
+            "sha256": model.source_sha256,
+        },
+    }
+    return arrays, evidence

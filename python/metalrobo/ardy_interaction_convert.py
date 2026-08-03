@@ -462,6 +462,46 @@ def _metalrobo_targets(
     return root.astype(np.float32), joints, peak_velocity_ratio
 
 
+def write_retarget_interaction_pack(
+    *,
+    output: Path,
+    root_targets: np.ndarray,
+    joint_targets: np.ndarray,
+    frames_per_second: float,
+    desired_outcome: str,
+    source_repository: str,
+    source_revision: str,
+    pack_id: str,
+    clip_id: str = "ardy-g1",
+    counterpart: str = "locomotion_ground",
+) -> tuple[Path, int]:
+    """Compile ARDY-retargeted G1 intent without inventing contact truth."""
+    joints = np.asarray(joint_targets, dtype=np.float32)
+    if joints.ndim != 2:
+        raise ValueError("retargeted joint intent must be frame-major")
+    frame_count = joints.shape[0]
+    return write_interaction_pack(
+        output=output,
+        pack_id=pack_id,
+        clip_id=clip_id,
+        desired_outcome=desired_outcome,
+        source_repository=source_repository,
+        source_revision=source_revision,
+        license_name="Apache-2.0",
+        frames_per_second=frames_per_second,
+        root_targets=root_targets,
+        joint_targets=joints,
+        tracks=(
+            ("left_foot", "left_foot_contact", counterpart),
+            ("right_foot", "right_foot_contact", counterpart),
+        ),
+        contact_modes=np.full(
+            (frame_count, 2), _CONTACT_MODE_FREE, dtype=np.uint32
+        ),
+        contact_confidence=np.zeros((frame_count, 2), dtype=np.float32),
+    )
+
+
 def convert(arguments: argparse.Namespace) -> None:
     qpos, contacts, fps, source_outcome = _load_inputs(
         arguments.qpos_csv,
