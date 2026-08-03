@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf '%s\n' "Run Franka's official forward/right/left exploration sequence in native Metal."
+    exit 0
+fi
+
+franka_workspace=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+franka_build=${NUMI_BUILD_DIR:-"$franka_workspace/build"}
+
+cmake -S "$franka_workspace" -B "$franka_build" -DCMAKE_BUILD_TYPE=Release >/dev/null
+cmake --build "$franka_build" --target metalrobo_franka_explore -j 4 >/dev/null
+
+if [ "$#" -eq 0 ]; then
+    set -- --output "$franka_build/franka-exploration.csv"
+fi
+
+exec "$franka_build/bin/metalrobo_franka_explore" "$@"

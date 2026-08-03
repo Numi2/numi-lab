@@ -871,6 +871,35 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+add_executable(
+    metalrobo_franka_explore
+    examples/franka_explore/metal_main.cpp
+)
+target_include_directories(
+    metalrobo_franka_explore
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/examples/franka_explore"
+)
+target_link_libraries(
+    metalrobo_franka_explore
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_franka_explore
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_franka_explore
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 add_executable(metalrobo_collision_probe apps/collision_probe.cpp)
 target_link_libraries(metalrobo_collision_probe PRIVATE metalrobo)
 set_target_properties(
