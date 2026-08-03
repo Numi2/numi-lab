@@ -721,6 +721,7 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
     public let actorObservations: [Float]
     public let criticObservations: [Float]
     public let motionFeatures: [Float]
+    public let teacherActions: [Float]
     public let latents: [Float]
     public let logProbabilities: [Float]
     public let values: [Float]
@@ -781,6 +782,7 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
             criticObservations:
                 batches.flatMap(\.criticObservations),
             motionFeatures: batches.flatMap(\.motionFeatures),
+            teacherActions: batches.flatMap(\.teacherActions),
             latents: batches.flatMap(\.latents),
             logProbabilities:
                 batches.flatMap(\.logProbabilities),
@@ -841,9 +843,10 @@ public final class MetalRoboTaskRolloutContext {
                 interactionPackURL.path.withCString { interactionPack in
                     clipID.withCString { clip in
                         withOptionalCString(metallibPath) { metallib in
-                            mr_create_unitree_g1_interaction_rollout(
+                            mr_create_unitree_g1_interaction_task_rollout(
                                 config,
                                 configuration.surface.rawValue,
+                                configuration.unitreeG1Task.rawValue,
                                 interactionPack,
                                 clip,
                                 metallib
@@ -1580,6 +1583,21 @@ public final class MetalRoboTaskRolloutContext {
         )
     }
 
+    public func teacherActions(
+        controlStepCount: Int
+    ) -> [Float] {
+        let count = controlStepCount * layout.environmentCount *
+            layout.actionCount
+        guard let values =
+                mr_task_rollout_teacher_actions(handle)
+        else {
+            return []
+        }
+        return Array(
+            UnsafeBufferPointer(start: values, count: count)
+        )
+    }
+
     public func transitions(
         controlStepCount: Int
     ) throws -> [MetalRoboTaskTransition] {
@@ -1720,6 +1738,9 @@ public final class MetalRoboTaskRolloutContext {
             motionFeatures: try motionFeatures(
                 controlStepCount: controlStepCount
             ),
+            teacherActions: teacherActions(
+                controlStepCount: controlStepCount
+            ),
             latents: try policyLatents(
                 controlStepCount: controlStepCount
             ),
@@ -1744,6 +1765,7 @@ public final class MetalRoboTaskRolloutContext {
         actorObservations: inout [Float],
         criticObservations: inout [Float],
         motionFeatures: inout [Float],
+        teacherActions: inout [Float],
         latents: inout [Float],
         logProbabilities: inout [Float],
         values: inout [Float],
@@ -1806,6 +1828,14 @@ public final class MetalRoboTaskRolloutContext {
                 )
             )
         }
+        if let teacher = mr_task_rollout_teacher_actions(handle) {
+            teacherActions.append(
+                contentsOf: UnsafeBufferPointer(
+                    start: teacher,
+                    count: latentCount
+                )
+            )
+        }
         latents.append(
             contentsOf: UnsafeBufferPointer(
                 start: latent,
@@ -1864,6 +1894,9 @@ public final class MetalRoboTaskRolloutContext {
               batch.motionFeatures.count ==
                   batch.sampleCount *
                   batch.motionFeatureCount,
+              batch.teacherActions.isEmpty ||
+                  batch.teacherActions.count ==
+                  batch.sampleCount * batch.actionCount,
               batch.latents.count ==
                   batch.sampleCount * batch.actionCount,
               batch.logProbabilities.count ==
@@ -1883,6 +1916,7 @@ public final class MetalRoboTaskRolloutContext {
         native.critic_observation_count =
             batch.criticObservations.count
         native.motion_feature_count = batch.motionFeatures.count
+        native.teacher_action_count = batch.teacherActions.count
         native.latent_count = batch.latents.count
         native.log_probability_count =
             batch.logProbabilities.count
@@ -1948,6 +1982,7 @@ public final class MetalRoboTaskRolloutContext {
                 batch.actorObservations,
                 batch.criticObservations,
                 batch.motionFeatures,
+                batch.teacherActions,
                 batch.latents,
                 batch.logProbabilities,
                 batch.values,
@@ -1957,10 +1992,11 @@ public final class MetalRoboTaskRolloutContext {
             native.actor_observations = buffers[0].baseAddress
             native.critic_observations = buffers[1].baseAddress
             native.motion_features = buffers[2].baseAddress
-            native.latents = buffers[3].baseAddress
-            native.log_probabilities = buffers[4].baseAddress
-            native.values = buffers[5].baseAddress
-            native.bootstrap_values = buffers[6].baseAddress
+            native.teacher_actions = buffers[3].baseAddress
+            native.latents = buffers[4].baseAddress
+            native.log_probabilities = buffers[5].baseAddress
+            native.values = buffers[6].baseAddress
+            native.bootstrap_values = buffers[7].baseAddress
             return nativeTransitions.withUnsafeBufferPointer {
                 transitions in
                 native.transitions = transitions.baseAddress

@@ -113,6 +113,21 @@ The native task and visual kernels are qualified on Apple M4. No trained dodge
 policy or G1/ball visual packs are bundled yet, so this is an implemented
 training path—not a claimed dodge result.
 
+### Generated intent, physically accepted
+
+The minimal `raise left hand` InteractionPack example demonstrates the
+generated-intent boundary without a projectile or learned policy. On Apple M4
+it completed all 50 native control steps standing, with zero physics failures
+or terminations; accepted-state kinematics measured a `0.190 m` left-wrist
+rise relative to the pelvis. The reproducible example and stricter claim
+boundary are documented in
+[World engine: InteractionPack](docs/WORLD_ENGINE.md#interactionpack-generated-intent-solved-outcome).
+
+For dodge learning, generated actions become distillation targets only after
+a clean NumiSolver miss window. Contact, falling, incomplete sequences, and
+physics failures receive no teacher weight. This is physically gated learning
+infrastructure, not yet a claim of a solved dodge policy.
+
 ### Deliberately destructive test
 
 ![G1 struck by light balls followed by 1 through 8 kg spheres](docs/media/g1-twelve-ball-escalation.gif)

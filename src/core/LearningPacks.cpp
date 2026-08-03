@@ -680,6 +680,8 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
         pack.actorObservations.size() != actorElements ||
         pack.criticObservations.size() != criticElements ||
         pack.motionFeatures.size() != motionElements ||
+        (!pack.teacherActions.empty() &&
+         pack.teacherActions.size() != actionElements) ||
         pack.latents.size() != actionElements ||
         pack.logProbabilities.size() != samples ||
         pack.values.size() != samples ||
@@ -705,6 +707,7 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
     if (!finiteValues(pack.actorObservations) ||
         !finiteValues(pack.criticObservations) ||
         !finiteValues(pack.motionFeatures) ||
+        !finiteValues(pack.teacherActions) ||
         !finiteValues(pack.latents) ||
         !finiteValues(pack.logProbabilities) ||
         !finiteValues(pack.values) ||
@@ -795,7 +798,7 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
         8u + pack.id.size() +
         3u * sizeof(std::uint64_t) +
         6u * sizeof(std::uint32_t) +
-        8u * sizeof(std::uint64_t);
+        9u * sizeof(std::uint64_t);
     if (payloadBytes > kMaximumPayloadBytes) {
         return fail(
             LearningPackStatus::capacityOverflow,
@@ -819,6 +822,7 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
     if (!addTable(pack.actorObservations) ||
         !addTable(pack.criticObservations) ||
         !addTable(pack.motionFeatures) ||
+        !addTable(pack.teacherActions) ||
         !addTable(pack.latents) ||
         !addTable(pack.logProbabilities) ||
         !addTable(pack.values) ||
@@ -1486,10 +1490,11 @@ std::vector<std::byte> serializePolicyRollout(const Pack& pack) {
         8u + pack.id.size() +
         3u * sizeof(std::uint64_t) +
         6u * sizeof(std::uint32_t) +
-        8u * sizeof(std::uint64_t) +
+        9u * sizeof(std::uint64_t) +
         pack.actorObservations.size() * sizeof(float) +
         pack.criticObservations.size() * sizeof(float) +
         pack.motionFeatures.size() * sizeof(float) +
+        pack.teacherActions.size() * sizeof(float) +
         pack.latents.size() * sizeof(float) +
         pack.logProbabilities.size() * sizeof(float) +
         pack.values.size() * sizeof(float) +
@@ -1510,6 +1515,7 @@ std::vector<std::byte> serializePolicyRollout(const Pack& pack) {
     writer.vector(pack.actorObservations);
     writer.vector(pack.criticObservations);
     writer.vector(pack.motionFeatures);
+    writer.vector(pack.teacherActions);
     writer.vector(pack.latents);
     writer.vector(pack.logProbabilities);
     writer.vector(pack.values);
@@ -1536,6 +1542,7 @@ bool deserializePolicyRollout(
         reader.vector(pack.actorObservations) &&
         reader.vector(pack.criticObservations) &&
         reader.vector(pack.motionFeatures) &&
+        reader.vector(pack.teacherActions) &&
         reader.vector(pack.latents) &&
         reader.vector(pack.logProbabilities) &&
         reader.vector(pack.values) &&
@@ -2019,6 +2026,7 @@ LearningPackResult writePolicyRolloutPack(
             .actorObservations = pack.actorObservations,
             .criticObservations = pack.criticObservations,
             .motionFeatures = pack.motionFeatures,
+            .teacherActions = pack.teacherActions,
             .latents = pack.latents,
             .logProbabilities = pack.logProbabilities,
             .values = pack.values,

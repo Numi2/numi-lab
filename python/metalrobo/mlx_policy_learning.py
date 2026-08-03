@@ -11,7 +11,7 @@ from __future__ import annotations
 import math
 import struct
 import time
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -31,7 +31,7 @@ _LEARNING_PACK_HEADER = struct.Struct("<8sIIQQ")
 _POLICY_KIND = 2
 _POLICY_FORMAT_VERSION = 3
 _POLICY_ROLLOUT_KIND = 3
-_POLICY_ROLLOUT_FORMAT_VERSION = 5
+_POLICY_ROLLOUT_FORMAT_VERSION = 6
 _MOTION_KIND = 4
 _MOTION_FORMAT_VERSION = 1
 _TRANSITION_DTYPE = np.dtype(
@@ -94,6 +94,9 @@ class NativePolicyRollout:
     old_values: np.ndarray
     bootstrap_values: np.ndarray
     transitions: np.ndarray
+    teacher_actions: np.ndarray = field(
+        default_factory=lambda: np.empty(0, dtype=np.float32)
+    )
 
     @property
     def sample_count(self) -> int:
@@ -165,6 +168,63 @@ class NativePolicyRollout:
             )
             advantages[step] = running
         returns = advantages + values
+        teacher_actions = self.teacher_actions.reshape(
+            self.sample_count,
+            self.action_count,
+        ) if self.teacher_actions.size else np.zeros(
+            (self.sample_count, self.action_count),
+            dtype=np.float32,
+        )
+        teacher_weights = np.zeros(
+            (steps, environments),
+            dtype=np.float32,
+        )
+        policy_weights = np.ones(
+            (steps, environments),
+            dtype=np.float32,
+        )
+        if self.teacher_actions.size:
+            sequence = self.transitions[
+                "impact_sequence_index"
+            ].reshape(steps, environments)
+            flags = self.transitions[
+                "impact_event_flags"
+            ].reshape(steps, environments)
+            failed = np.logical_or(
+                self.transitions["physics_error"].reshape(
+                    steps,
+                    environments,
+                ).astype(bool),
+                self.transitions["done"].reshape(
+                    steps,
+                    environments,
+                ).astype(bool),
+            )
+            for environment in range(environments):
+                start: int | None = None
+                active_sequence = 0
+                for step in range(steps):
+                    current = int(sequence[step, environment])
+                    policy_weights[step, environment] = float(
+                        current == 0
+                    )
+                    if current != active_sequence:
+                        active_sequence = current
+                        start = step if current != 0 else None
+                    if failed[step, environment]:
+                        start = None
+                    if (
+                        start is not None
+                        and int(flags[step, environment]) & 4
+                        and not np.any(
+                            failed[start : step + 1, environment]
+                        )
+                    ):
+                        teacher_weights[
+                            start : step + 1,
+                            environment,
+                        ] = 1.0
+                        start = None
         return MLXPolicyBatch.from_numpy(
             actor_observations=self.actor_observations.reshape(
                 self.sample_count,
@@ -182,6 +242,13 @@ class NativePolicyRollout:
             old_values=self.old_values,
             advantages=advantages.reshape(self.sample_count),
             returns=returns.reshape(self.sample_count),
+            teacher_actions=teacher_actions,
+            teacher_weights=teacher_weights.reshape(
+                self.sample_count
+            ),
+            policy_weights=policy_weights.reshape(
+                self.sample_count
+            ),
         )
 
 
@@ -689,6 +756,11 @@ def read_policy_rollout_pack(
         np.dtype("<f4"),
         sample_count * motion_feature_count,
     )
+    teacher_actions = reader.vector(np.dtype("<f4"))
+    if teacher_actions.size not in (0, sample_count * action_count):
+        raise ValueError(
+            "PolicyRolloutPack teacher action shape is invalid"
+        )
     latents = reader.vector(
         np.dtype("<f4"),
         sample_count * action_count,
@@ -712,6 +784,7 @@ def read_policy_rollout_pack(
         actor,
         critic,
         motion_features,
+        teacher_actions,
         latents,
         log_probabilities,
         values,
@@ -766,6 +839,7 @@ def read_policy_rollout_pack(
         actor_observations=actor,
         critic_observations=critic,
         motion_features=motion_features,
+        teacher_actions=teacher_actions,
         latents=latents,
         old_log_probabilities=log_probabilities,
         old_values=values,
@@ -879,6 +953,7 @@ class MLXPPOConfiguration:
     clip_ratio: float = 0.2
     value_coefficient: float = 1.0
     entropy_coefficient: float = 0.001
+    imagination_distillation_coefficient: float = 1.0
     maximum_gradient_norm: float = 1.0
     target_kl: float | None = 0.01
     adaptive_learning_rate: bool = True
@@ -916,6 +991,9 @@ class MLXPPOConfiguration:
             "clip ratio": self.clip_ratio,
             "value coefficient": self.value_coefficient,
             "entropy coefficient": self.entropy_coefficient,
+            "imagination distillation coefficient": (
+                self.imagination_distillation_coefficient
+            ),
             "gradient norm limit": self.maximum_gradient_norm,
             "discount": self.discount,
             "GAE lambda": self.gae_lambda,
@@ -927,6 +1005,10 @@ class MLXPPOConfiguration:
             raise ValueError("PPO scalar configuration must be finite")
         if self.learning_rate <= 0.0:
             raise ValueError("PPO learning rate must be positive")
+        if self.imagination_distillation_coefficient < 0.0:
+            raise ValueError(
+                "imagination distillation coefficient must be nonnegative"
+            )
         if (
             self.minimum_learning_rate <= 0.0
             or self.maximum_learning_rate
@@ -990,6 +1072,9 @@ class MLXPolicyBatch:
     old_values: np.ndarray
     advantages: np.ndarray
     returns: np.ndarray
+    teacher_actions: np.ndarray | None = None
+    teacher_weights: np.ndarray | None = None
+    policy_weights: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         # Preserve the public direct-construction path while normalizing legacy
@@ -1008,6 +1093,37 @@ class MLXPolicyBatch:
                 name,
                 np.asarray(getattr(self, name), dtype=np.float32),
             )
+        sample_count = int(self.actor_observations.shape[0])
+        action_count = int(self.latents.shape[1])
+        object.__setattr__(
+            self,
+            "teacher_actions",
+            np.zeros(
+                (sample_count, action_count),
+                dtype=np.float32,
+            ) if self.teacher_actions is None else np.asarray(
+                self.teacher_actions,
+                dtype=np.float32,
+            ),
+        )
+        object.__setattr__(
+            self,
+            "teacher_weights",
+            np.zeros(sample_count, dtype=np.float32)
+            if self.teacher_weights is None else np.asarray(
+                self.teacher_weights,
+                dtype=np.float32,
+            ),
+        )
+        object.__setattr__(
+            self,
+            "policy_weights",
+            np.ones(sample_count, dtype=np.float32)
+            if self.policy_weights is None else np.asarray(
+                self.policy_weights,
+                dtype=np.float32,
+            ),
+        )
 
     @classmethod
     def from_numpy(
@@ -1020,6 +1136,9 @@ class MLXPolicyBatch:
         old_values: np.ndarray,
         advantages: np.ndarray,
         returns: np.ndarray,
+        teacher_actions: np.ndarray | None = None,
+        teacher_weights: np.ndarray | None = None,
+        policy_weights: np.ndarray | None = None,
     ) -> "MLXPolicyBatch":
         return cls(
             actor_observations=np.asarray(
@@ -1038,6 +1157,9 @@ class MLXPolicyBatch:
             old_values=np.asarray(old_values, dtype=np.float32),
             advantages=np.asarray(advantages, dtype=np.float32),
             returns=np.asarray(returns, dtype=np.float32),
+            teacher_actions=teacher_actions,
+            teacher_weights=teacher_weights,
+            policy_weights=policy_weights,
         )
 
     def validate(
@@ -1067,12 +1189,32 @@ class MLXPolicyBatch:
             "old_values": (self.old_values, (sample_count,)),
             "advantages": (self.advantages, (sample_count,)),
             "returns": (self.returns, (sample_count,)),
+            "teacher_actions": (
+                self.teacher_actions,
+                (sample_count, action_count),
+            ),
+            "teacher_weights": (
+                self.teacher_weights,
+                (sample_count,),
+            ),
+            "policy_weights": (
+                self.policy_weights,
+                (sample_count,),
+            ),
         }
         for label, (value, shape) in expected.items():
             if tuple(int(dimension) for dimension in value.shape) != shape:
                 raise ValueError(f"{label} batch shape is invalid")
         if sample_count == 0:
             raise ValueError("policy batch must contain samples")
+        if np.any(self.teacher_weights < 0.0) or np.any(
+            self.teacher_weights > 1.0
+        ):
+            raise ValueError("teacher weights must be in [0, 1]")
+        if np.any(self.policy_weights < 0.0) or np.any(
+            self.policy_weights > 1.0
+        ):
+            raise ValueError("policy weights must be in [0, 1]")
         tables = {
             "actor_observations": self.actor_observations,
             **{
@@ -2232,6 +2374,9 @@ class MLXPolicyLearner:
         old_values: mx.array,
         advantages: mx.array,
         returns: mx.array,
+        teacher_actions: mx.array,
+        teacher_weights: mx.array,
+        policy_weights: mx.array,
     ) -> tuple[mx.array, dict[str, mx.array]]:
         log_probabilities, entropy, values = self.model.evaluate(
             actor_observations,
@@ -2249,8 +2394,8 @@ class MLXPolicyLearner:
         inverse_current_variance = mx.exp(
             -2.0 * current_log_standard_deviation
         )
-        kl_divergence = mx.mean(
-            mx.sum(
+        ppo_weight = mx.maximum(mx.sum(policy_weights), 1.0)
+        kl_per_sample = mx.sum(
                 current_log_standard_deviation
                 - old_log_standard_deviation
                 + 0.5
@@ -2268,7 +2413,9 @@ class MLXPolicyLearner:
                 ),
                 axis=-1,
             )
-        )
+        kl_divergence = mx.sum(
+            kl_per_sample * policy_weights
+        ) / ppo_weight
         log_ratio = log_probabilities - old_log_probabilities
         ratio = mx.exp(log_ratio)
         unclipped = ratio * advantages
@@ -2277,7 +2424,9 @@ class MLXPolicyLearner:
             1.0 - self.configuration.clip_ratio,
             1.0 + self.configuration.clip_ratio,
         ) * advantages
-        policy_loss = -mx.mean(mx.minimum(unclipped, clipped))
+        policy_loss = -mx.sum(
+            mx.minimum(unclipped, clipped) * policy_weights
+        ) / ppo_weight
         clipped_values = old_values + mx.clip(
             values - old_values,
             -self.configuration.clip_ratio,
@@ -2289,27 +2438,43 @@ class MLXPolicyLearner:
                 mx.square(clipped_values - returns),
             )
         )
-        entropy_mean = mx.mean(entropy)
+        entropy_mean = mx.sum(
+            entropy * policy_weights
+        ) / ppo_weight
+        teacher_error = mx.abs(current_means - teacher_actions)
+        teacher_huber = mx.where(
+            teacher_error <= 1.0,
+            0.5 * mx.square(teacher_error),
+            teacher_error - 0.5,
+        )
+        teacher_weight = mx.maximum(mx.sum(teacher_weights), 1.0)
+        imagination_loss = mx.sum(
+            mx.mean(teacher_huber, axis=-1) * teacher_weights
+        ) / teacher_weight
         loss = (
             policy_loss
             + self.configuration.value_coefficient * value_loss
             - self.configuration.entropy_coefficient * entropy_mean
+            + self.configuration.imagination_distillation_coefficient
+            * imagination_loss
         )
         return loss, {
             "loss": loss,
             "policy_loss": policy_loss,
             "value_loss": value_loss,
             "entropy": entropy_mean,
+            "imagination_loss": imagination_loss,
+            "imagination_fraction": mx.mean(teacher_weights),
             "kl_divergence": kl_divergence,
-            "approximate_kl": mx.mean(
-                (ratio - 1.0) - log_ratio
-            ),
-            "clip_fraction": mx.mean(
+            "approximate_kl": mx.sum(
+                ((ratio - 1.0) - log_ratio) * policy_weights
+            ) / ppo_weight,
+            "clip_fraction": mx.sum(
                 (
                     mx.abs(ratio - 1.0)
                     > self.configuration.clip_ratio
-                ).astype(mx.float32)
-            ),
+                ).astype(mx.float32) * policy_weights
+            ) / ppo_weight,
         }
 
     def _training_step(
@@ -2323,6 +2488,9 @@ class MLXPolicyLearner:
         old_values: mx.array,
         advantages: mx.array,
         returns: mx.array,
+        teacher_actions: mx.array,
+        teacher_weights: mx.array,
+        policy_weights: mx.array,
     ) -> tuple[mx.array, dict[str, mx.array]]:
         (loss, metrics), gradients = self._loss_and_gradient(
             actor_observations,
@@ -2334,6 +2502,9 @@ class MLXPolicyLearner:
             old_values,
             advantages,
             returns,
+            teacher_actions,
+            teacher_weights,
+            policy_weights,
         )
         _, actor_gradient_norm = optim.clip_grad_norm(
             {
@@ -2458,6 +2629,18 @@ class MLXPolicyLearner:
                     ),
                     mx.array(advantages[indices], dtype=mx.float32),
                     mx.array(batch.returns[indices], dtype=mx.float32),
+                    mx.array(
+                        batch.teacher_actions[indices],
+                        dtype=mx.float32,
+                    ),
+                    mx.array(
+                        batch.teacher_weights[indices],
+                        dtype=mx.float32,
+                    ),
+                    mx.array(
+                        batch.policy_weights[indices],
+                        dtype=mx.float32,
+                    ),
                 )
                 mx.eval(
                     loss,

@@ -8,6 +8,7 @@ import json
 import os
 import subprocess
 import tempfile
+from dataclasses import replace
 from pathlib import Path
 
 import mlx.core as mx
@@ -115,6 +116,73 @@ def check_gae_boundaries() -> None:
         raise RuntimeError(
             "GAE crossed an episode boundary or bootstrapped a timeout "
             f"from the wrong state: {advantages}"
+        )
+
+
+def check_realized_imagination_gate() -> None:
+    transitions = np.zeros(
+        4,
+        dtype=[
+            ("reward", "<f4"),
+            ("done", "<u4"),
+            ("timeout", "<u4"),
+            ("physics_error", "<u4"),
+            ("timeout_bootstrap_value", "<f4"),
+            ("impact_sequence_index", "<u4"),
+            ("impact_event_flags", "<u4"),
+        ],
+    )
+    transitions["impact_sequence_index"] = (1, 1, 1, 0)
+    transitions["impact_event_flags"][2] = 4
+    rollout = NativePolicyRollout(
+        id="realized_imagination_gate",
+        task_fingerprint=1,
+        policy_fingerprint=1,
+        policy_revision=1,
+        environment_count=1,
+        control_step_count=4,
+        actor_observation_count=1,
+        critic_observation_count=1,
+        action_count=1,
+        motion_feature_count=0,
+        actor_observations=np.zeros(4, dtype=np.float32),
+        critic_observations=np.zeros(4, dtype=np.float32),
+        motion_features=np.zeros(0, dtype=np.float32),
+        latents=np.zeros(4, dtype=np.float32),
+        old_log_probabilities=np.zeros(4, dtype=np.float32),
+        old_values=np.zeros(4, dtype=np.float32),
+        bootstrap_values=np.zeros(1, dtype=np.float32),
+        transitions=transitions,
+        teacher_actions=np.ones(4, dtype=np.float32),
+    )
+    weights = rollout.policy_batch().teacher_weights
+    policy_weights = rollout.policy_batch().policy_weights
+    if not np.array_equal(
+        weights,
+        np.asarray((1.0, 1.0, 1.0, 0.0), dtype=np.float32),
+    ):
+        raise RuntimeError(
+            "clean native realization did not back-label its imagination window"
+        )
+    if not np.array_equal(
+        policy_weights,
+        np.asarray((0.0, 0.0, 0.0, 1.0), dtype=np.float32),
+    ):
+        raise RuntimeError(
+            "shielded imagination was scored with an uncorrected PPO action"
+        )
+    transitions["physics_error"][1] = 1
+    failed = replace(rollout, transitions=transitions)
+    if np.any(failed.policy_batch().teacher_weights):
+        raise RuntimeError(
+            "failed native imagination was published as teacher truth"
+        )
+    if not np.array_equal(
+        failed.policy_batch().policy_weights,
+        policy_weights,
+    ):
+        raise RuntimeError(
+            "failed shielded imagination re-entered the PPO actor ratio"
         )
 
 
@@ -424,6 +492,7 @@ def main() -> int:
     parser.add_argument("--chunk", type=int, default=4)
     arguments = parser.parse_args()
     check_gae_boundaries()
+    check_realized_imagination_gate()
     check_resumable_schedule_contracts()
     check_adaptive_curriculum_contract()
 
@@ -507,8 +576,28 @@ def main() -> int:
         old_values=old_values,
         advantages=advantages,
         returns=returns,
+        teacher_actions=np.ones(
+            (sample_count, action_count),
+            dtype=np.float32,
+        ),
+        teacher_weights=np.concatenate(
+            (
+                np.ones(sample_count // 4, dtype=np.float32),
+                np.zeros(
+                    sample_count - sample_count // 4,
+                    dtype=np.float32,
+                ),
+            )
+        ),
     )
     metrics = learner.update(batch)
+    if (
+        metrics.get("imagination_fraction", 0.0) <= 0.0
+        or metrics.get("imagination_loss", 0.0) <= 0.0
+    ):
+        raise RuntimeError(
+            "successful imagination did not supervise the actor"
+        )
 
     if arguments.output is None:
         temporary = tempfile.TemporaryDirectory()

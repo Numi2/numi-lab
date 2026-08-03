@@ -1366,10 +1366,35 @@ TaskCompileDiagnostics compileTaskProgram(
             }
         }
 
+        const auto usesInteractionContact = [&pack] {
+            const auto observesContact = [](const auto& operations) {
+                return std::ranges::any_of(
+                    operations,
+                    [](const TaskObservationOperatorSpec& operation) {
+                        return operation.source ==
+                                TaskObservationSource::interactionContactMode ||
+                            operation.source ==
+                                TaskObservationSource::interactionContactTarget ||
+                            operation.source ==
+                                TaskObservationSource::interactionContactValidity;
+                    }
+                );
+            };
+            return observesContact(pack.actorFrame) ||
+                observesContact(pack.critic) ||
+                std::ranges::any_of(
+                    pack.rewards,
+                    [](const TaskRewardOperatorSpec& reward) {
+                        return reward.operation ==
+                            TaskRewardOperator::interactionContactTracking;
+                    }
+                );
+        }();
         interactionContactIds.reserve(
             interactions.contactTracks.size()
         );
-        if (world.sceneBodyIndices().size() != 1u) {
+        if (usesInteractionContact &&
+            world.sceneBodyIndices().size() != 1u) {
             return reject(
                 TaskCompileStatus::invalidWorld,
                 "interaction",

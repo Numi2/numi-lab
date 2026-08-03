@@ -465,10 +465,11 @@ private struct Options {
         }
         if interactionPack != nil &&
             (worldPack != nil || urdf != nil || taskPack != nil ||
-             unitreeG1Task != .velocity)
+             (unitreeG1Task != .velocity &&
+              unitreeG1Task != .ballDodge))
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "InteractionPack v1 training uses the bundled G1 velocity mechanics preset and cannot be combined with imported mechanics or another --task."
+                "InteractionPack training uses bundled G1 velocity or ball-dodge mechanics and cannot be combined with imported mechanics."
             )
         }
         if (worldPack != nil || urdf != nil) != (taskPack != nil) {
@@ -1140,6 +1141,7 @@ private enum TaskTrainMain {
             var actorObservations: [Float] = []
             var criticObservations: [Float] = []
             var motionFeatures: [Float] = []
+            var teacherActions: [Float] = []
             var latents: [Float] = []
             var logProbabilities: [Float] = []
             var values: [Float] = []
@@ -1154,6 +1156,9 @@ private enum TaskTrainMain {
             )
             motionFeatures.reserveCapacity(
                 samplesPerUpdate * layout.motionFeatureCount
+            )
+            teacherActions.reserveCapacity(
+                samplesPerUpdate * layout.actionCount
             )
             latents.reserveCapacity(
                 samplesPerUpdate * layout.actionCount
@@ -1170,6 +1175,7 @@ private enum TaskTrainMain {
                     keepingCapacity: true
                 )
                 motionFeatures.removeAll(keepingCapacity: true)
+                teacherActions.removeAll(keepingCapacity: true)
                 latents.removeAll(keepingCapacity: true)
                 logProbabilities.removeAll(keepingCapacity: true)
                 values.removeAll(keepingCapacity: true)
@@ -1200,6 +1206,7 @@ private enum TaskTrainMain {
                         criticObservations:
                             &criticObservations,
                         motionFeatures: &motionFeatures,
+                        teacherActions: &teacherActions,
                         latents: &latents,
                         logProbabilities:
                             &logProbabilities,
@@ -1248,6 +1255,7 @@ private enum TaskTrainMain {
                     actorObservations: actorObservations,
                     criticObservations: criticObservations,
                     motionFeatures: motionFeatures,
+                    teacherActions: teacherActions,
                     latents: latents,
                     logProbabilities: logProbabilities,
                     values: values,

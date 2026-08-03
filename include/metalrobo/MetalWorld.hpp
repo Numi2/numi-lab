@@ -423,6 +423,7 @@ struct MetalWorldLayout {
     std::size_t criticObservationElements = 0u;
     std::size_t transitionElements = 0u;
     std::size_t motionFeatureElements = 0u;
+    std::size_t teacherActionElements = 0u;
     std::size_t policyLatentElements = 0u;
     std::size_t policyLogProbabilityElements = 0u;
     std::size_t policyValueElements = 0u;
@@ -567,6 +568,9 @@ struct MetalWorldResult {
     // Training-only anchor-relative tracked-link poses, packed
     // [control step][environment][feature].
     std::vector<float> motionFeatures;
+    // Canonical normalized actions relative to the deployment task's default
+    // pose. Populated when generated imagination is physically executed.
+    std::vector<float> teacherActions;
     std::vector<float> policyLatents;
     std::vector<float> policyLogProbabilities;
     std::vector<float> policyValues;

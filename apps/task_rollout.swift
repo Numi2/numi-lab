@@ -413,10 +413,12 @@ private struct Options {
         }
         if interactionPack != nil &&
             (worldPack != nil || urdf != nil || taskPack != nil ||
-             unitreeG1Task != .velocity || !dynamicSpheres.isEmpty)
+             (unitreeG1Task != .velocity &&
+              unitreeG1Task != .ballDodge) ||
+             !dynamicSpheres.isEmpty)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "InteractionPack v1 evaluation uses the bundled G1 velocity mechanics preset and cannot be combined with imported mechanics, another --task, or --ball."
+                "InteractionPack evaluation uses bundled G1 velocity or ball-dodge mechanics and cannot be combined with imported mechanics or --ball."
             )
         }
         if (worldPack != nil || urdf != nil) != (taskPack != nil) {

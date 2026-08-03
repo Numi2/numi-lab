@@ -725,6 +725,18 @@ void authorG1InteractionTrackingTask(
     }
 }
 
+void authorG1ImaginedDodgeTask(
+    metalrobo::TaskPack& task
+) {
+    task.id += "/imagined_interaction";
+    task.rewards.push_back({
+        .operation = metalrobo::TaskRewardOperator::
+            interactionJointTracking,
+        .weight = 0.25f,
+        .parameters = {0.25f, 0.0f, 0.0f, 0.0f},
+    });
+}
+
 std::unique_ptr<MRTaskRolloutHandle>
 createCompiledTaskRollout(
     metalrobo::LocomotionWorld authored,
@@ -2058,6 +2070,24 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_rollout(
     const char* interaction_clip_id,
     const char* metallib_path
 ) {
+    return mr_create_unitree_g1_interaction_task_rollout(
+        config,
+        surface_value,
+        MR_UNITREE_G1_TASK_VELOCITY,
+        interaction_pack_path,
+        interaction_clip_id,
+        metallib_path
+    );
+}
+
+MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
+    const MRTaskRolloutConfigC* config,
+    const uint32_t surface_value,
+    const uint32_t task_value,
+    const char* interaction_pack_path,
+    const char* interaction_clip_id,
+    const char* metallib_path
+) {
     if (config == nullptr || interaction_pack_path == nullptr ||
         interaction_pack_path[0] == '\0' ||
         interaction_clip_id == nullptr ||
@@ -2087,17 +2117,29 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_rollout(
                 interactions,
                 interaction_clip_id
             );
+        const metalrobo::UnitreeG1Task task =
+            unitreeG1Task(task_value);
+        if (task != metalrobo::UnitreeG1Task::velocity &&
+            task != metalrobo::UnitreeG1Task::ballDodge) {
+            throw std::invalid_argument(
+                "InteractionPack task composition supports velocity or ball-dodge."
+            );
+        }
         metalrobo::LocomotionWorld authored =
             metalrobo::makeUnitreeG1LocomotionWorld(
                 locomotionSurface(surface_value),
-                metalrobo::UnitreeG1Task::velocity
+                task
             );
-        authorG1InteractionTrackingTask(
-            authored.task,
-            interactions,
-            clip,
-            *config
-        );
+        if (task == metalrobo::UnitreeG1Task::velocity) {
+            authorG1InteractionTrackingTask(
+                authored.task,
+                interactions,
+                clip,
+                *config
+            );
+        } else {
+            authorG1ImaginedDodgeTask(authored.task);
+        }
         auto handle = createCompiledTaskRollout(
             std::move(authored),
             *config,
@@ -2957,6 +2999,15 @@ const float* mr_task_rollout_motion_features(
         : nullptr;
 }
 
+const float* mr_task_rollout_teacher_actions(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->result.teacherActions.empty()
+        ? handle->result.teacherActions.data()
+        : nullptr;
+}
+
 const MRTaskTransitionC* mr_task_rollout_transitions(
     const MRTaskRolloutHandle* handle
 ) {
@@ -3142,6 +3193,11 @@ int mr_task_rollout_write_policy_rollout_pack(
                 batch->motion_features,
                 batch->motion_feature_count,
                 "rollout motion features"
+            ),
+            .teacherActions = floats(
+                batch->teacher_actions,
+                batch->teacher_action_count,
+                "rollout teacher actions"
             ),
             .latents = floats(
                 batch->latents,

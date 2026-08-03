@@ -17,7 +17,7 @@ namespace metalrobo {
 inline constexpr std::uint32_t kTaskPackFormatVersion = 8u;
 inline constexpr std::uint32_t kPolicyPackFormatVersion = 3u;
 inline constexpr std::uint32_t
-    kPolicyRolloutPackFormatVersion = 5u;
+    kPolicyRolloutPackFormatVersion = 6u;
 inline constexpr std::uint32_t kMotionPackFormatVersion = 1u;
 inline constexpr std::uint32_t kInteractionPackFormatVersion = 1u;
 
@@ -55,6 +55,9 @@ struct PolicyRolloutPack {
     std::vector<float> actorObservations;
     std::vector<float> criticObservations;
     std::vector<float> motionFeatures;
+    // Optional physically executed imagination targets in the deployment
+    // actor's normalized action coordinates. Empty means no teacher.
+    std::vector<float> teacherActions;
     std::vector<float> latents;
     std::vector<float> logProbabilities;
     std::vector<float> values;
@@ -78,6 +81,7 @@ struct PolicyRolloutPackView {
     std::span<const float> actorObservations;
     std::span<const float> criticObservations;
     std::span<const float> motionFeatures;
+    std::span<const float> teacherActions;
     std::span<const float> latents;
     std::span<const float> logProbabilities;
     std::span<const float> values;

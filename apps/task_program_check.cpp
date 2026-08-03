@@ -1988,6 +1988,10 @@ int main(const int argc, const char* const* argv) {
             sampleCount * layout.motionFeatureCount,
             0.375f
         );
+        rollout.teacherActions.assign(
+            sampleCount * layout.actionCount,
+            -0.25f
+        );
         rollout.latents.assign(
             sampleCount * layout.actionCount,
             0.125f
@@ -2047,6 +2051,8 @@ int main(const int argc, const char* const* argv) {
                         rollout.criticObservations,
                     .motionFeatures =
                         rollout.motionFeatures,
+                    .teacherActions =
+                        rollout.teacherActions,
                     .latents = rollout.latents,
                     .logProbabilities =
                         rollout.logProbabilities,
@@ -2075,6 +2081,8 @@ int main(const int argc, const char* const* argv) {
                 rollout.policyFingerprint ||
             loadedRollout.actorObservations !=
                 rollout.actorObservations ||
+            loadedRollout.teacherActions !=
+                rollout.teacherActions ||
             loadedRollout.transitions.size() !=
                 rollout.transitions.size() ||
             loadedRollout.transitions.back()

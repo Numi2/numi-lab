@@ -281,6 +281,8 @@ typedef struct MRPolicyRolloutBatchC {
     size_t critic_observation_count;
     const float* motion_features;
     size_t motion_feature_count;
+    const float* teacher_actions;
+    size_t teacher_action_count;
     const float* latents;
     size_t latent_count;
     const float* log_probabilities;
@@ -541,6 +543,17 @@ MR_API MRTaskRolloutHandle* mr_create_unitree_g1_interaction_rollout(
     const char* interaction_clip_id,
     const char* metallib_path
 );
+// Composes generated imagination with a bundled G1 task. Ball-dodge consumes
+// the selected clip as joint-space intent without treating generated contact
+// predictions as projectile-world contact truth.
+MR_API MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
+    const MRTaskRolloutConfigC* config,
+    uint32_t surface,
+    uint32_t task,
+    const char* interaction_pack_path,
+    const char* interaction_clip_id,
+    const char* metallib_path
+);
 // Cooks a floating-base URDF/SRDF, loads its authored TaskPack, resolves every
 // semantic binding, and creates the same generic native executor used by G1.
 // srdf_path and metallib_path may be null; all other pointers are required.
@@ -666,6 +679,9 @@ MR_API const float* mr_task_rollout_critic_observations(
     const MRTaskRolloutHandle* handle
 );
 MR_API const float* mr_task_rollout_motion_features(
+    const MRTaskRolloutHandle* handle
+);
+MR_API const float* mr_task_rollout_teacher_actions(
     const MRTaskRolloutHandle* handle
 );
 MR_API const MRTaskTransitionC* mr_task_rollout_transitions(

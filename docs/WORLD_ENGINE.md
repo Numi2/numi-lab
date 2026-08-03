@@ -204,11 +204,57 @@ metalrobo-ardy-interaction \
   --counterpart locomotion_ground
 ```
 
+The smallest executable example deliberately asks for only one outcome:
+`raise left hand`. It authors a smooth 61-frame left-shoulder reference,
+retains both feet as predicted support contacts, converts the result through
+the same InteractionPack boundary, and executes 50 control steps through the
+native implicit drives and NumiSolver:
+
+```sh
+python3 examples/interaction/raise_left_hand.py \
+  --output-directory build/raise-left-hand
+```
+
+On Apple M4, the retained proof completed `50 / 50` standing steps with zero
+physics failures and zero terminations. The physical shoulder moved from
+`0.350 rad` to `-0.811 rad`, mean interaction tracking was `0.9478`, and peak
+tilt was `0.3257 rad`. An FP64 forward-kinematics inspection of accepted
+states measured the left wrist COM rising by `0.190 m` relative to the pelvis
+and `0.142 m` in world height by step 40. Negative shoulder pitch is important
+for this model: it raises the hand forward; positive pitch sweeps it backward.
+These are simulator measurements from this generated fixture, not human-motion
+data or real-robot evidence.
+
 The root trajectory is retained as auditable generative intent in v1, while
 the native tracking objective uses joint and contact targets so the simulated
 root remains a physical outcome. A calibrated contact generator can populate
 pressure/wrench masks directly. Dense tactile maps, a learned contact-world
 model, and a trained champion are not implied by this first executable slice.
+
+### Physically realized imagination teacher
+
+An InteractionPack may also compose with the bundled ball-dodge task. In that
+case the generated clip supplies joint-space intent only: predicted generated
+contacts are not accepted as projectile or support truth. Native closest
+approach aligns the clip, the whole-body link CBF may correct its residual
+action, and the implicit drive publishes the action that was actually sent to
+NumiSolver in canonical deployment coordinates.
+
+`PolicyRolloutPack` v6 carries that optional teacher-action stream. The MLX
+learner back-labels an imagined window only after NumiSolver reports a clean
+physical miss with no task termination or physics error. Every active imagined
+threat window is excluded from the PPO actor ratio because its CBF-corrected
+executed action may differ from the sampled action whose log probability was
+recorded. Qualified samples receive a Huber action-distillation loss; the
+critic still learns realized returns from both successes and failures. A
+contact, fall, incomplete sequence, or rejected physics step leaves teacher
+weight at zero.
+Thus imagination proposes behavior, physics decides whether it becomes a
+teacher, and an unsuccessful generated dodge is ordinary negative evidence.
+
+The raise-left-hand example validates generated joint intent through native
+physics and accepted-state kinematics. It does not establish a successful
+dodge teacher, a trained dodge policy, or sim-to-real transfer.
 
 ## PolicyPack
 

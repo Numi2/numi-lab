@@ -35,7 +35,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 231u;
+constexpr std::size_t kRawBufferCount = 232u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -288,6 +288,7 @@ enum BufferIndex : std::size_t {
     kParallelScheduleInboundJoint = 228u,
     kParallelScheduleChildOffsets = 229u,
     kParallelScheduleChildIndices = 230u,
+    kTaskTeacherActions = 231u,
 };
 
 struct BufferRequirement {
@@ -2873,6 +2874,11 @@ bool buildRequirements(
             requirements.entries[kTaskMotionFeatures]
         ) ||
         !makeRequirement<float>(
+            "native physically realized imagination actions",
+            layout.teacherActionElements,
+            requirements.entries[kTaskTeacherActions]
+        ) ||
+        !makeRequirement<float>(
             "native compact contact metrics",
             taskContactElements,
             requirements.entries[kTaskContactCompact]
@@ -3781,6 +3787,13 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 transitionCount,
                 taskLayout.motionFeatureCount,
                 layout.motionFeatureElements
+            ) ||
+            !checkedMultiply(
+                taskLayout.interactionFrameCount != 0u
+                    ? transitionCount
+                    : 0u,
+                taskLayout.actionCount,
+                layout.teacherActionElements
             )) {
             return reject(
                 std::move(diagnostics),
@@ -4000,6 +4013,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         layout.criticObservationElements,
         layout.transitionElements,
         layout.motionFeatureElements,
+        layout.teacherActionElements,
         layout.policyLatentElements,
         layout.policyLogProbabilityElements,
         layout.policyValueElements,
@@ -4408,6 +4422,8 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld task transitions";
     case kTaskMotionFeatures:
         return @"MetalWorld motion-prior features";
+    case kTaskTeacherActions:
+        return @"MetalWorld physically realized imagination actions";
     case kTaskContactCompact:
         return @"MetalWorld resident compact contact metrics";
     case kTaskDefaultQ:
@@ -9386,6 +9402,7 @@ bool encodeTaskApplyActions(
             {7u, kTaskDefaultQ},
             {8u, kTaskState},
             {9u, kTaskActionHistory},
+            {10u, kTaskTeacherActions},
         },
         &pass,
         4u,
@@ -13529,6 +13546,7 @@ MetalWorldDiagnostics validateAndPublish(
         if (!finiteFloats(staged.actorObservations) ||
             !finiteFloats(staged.criticObservations) ||
             !finiteFloats(staged.motionFeatures) ||
+            !finiteFloats(staged.teacherActions) ||
             !finiteFloats(staged.policyLatents) ||
             !finiteFloats(
                 staged.policyLogProbabilities
@@ -15630,6 +15648,9 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 staged.motionFeatures.resize(
                     staged.layout.motionFeatureElements
                 );
+                staged.teacherActions.resize(
+                    staged.layout.teacherActionElements
+                );
                 staged.policyLatents.resize(
                     staged.layout.policyLatentElements
                 );
@@ -15785,6 +15806,10 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 copyOutput(
                     staged.motionFeatures,
                     buffers[kTaskMotionFeatures]
+                );
+                copyOutput(
+                    staged.teacherActions,
+                    buffers[kTaskTeacherActions]
                 );
                 if (staged.layout.policyLatentElements != 0u) {
                     copyOutput(

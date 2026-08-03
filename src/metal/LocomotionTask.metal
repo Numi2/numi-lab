@@ -363,9 +363,21 @@ inline uint interactionFrame(
     if (program.interaction.x == 0u) {
         return 0u;
     }
+    float elapsedSeconds =
+        float(state.episode.x) * controlStepSeconds;
+    if (program.threat.y != 0u &&
+        state.threatMetadata.x != MR_INVALID_INDEX) {
+        // ARDY supplies imagined outcome timing. Align its final pose with
+        // native closest approach rather than replaying from episode reset.
+        elapsedSeconds = max(
+            program.interactionTiming.y - state.threatGeometry.y,
+            0.0f
+        );
+    } else if (program.threat.y != 0u) {
+        elapsedSeconds = 0.0f;
+    }
     const uint unbounded = uint(floor(
-        float(state.episode.x) * controlStepSeconds *
-        program.interactionTiming.x
+        elapsedSeconds * program.interactionTiming.x
     ));
     return (program.interaction.w & MR_TASK_INTERACTION_LOOP) != 0u
         ? unbounded % program.interaction.x
@@ -1323,7 +1335,7 @@ kernel void mr_locomotion_task_joint_cbf_teacher(
     constant MRMetalWorldPassGPU& pass [[buffer(4)]],
     device const float* qState [[buffer(5)]],
     device const float* vState [[buffer(6)]],
-    device const float* actionStream [[buffer(7)]],
+    device float* actionStream [[buffer(7)]],
     device const float* defaultQ [[buffer(8)]],
     device const MRBodyStateGPU* bodyStates [[buffer(9)]],
     device const float* pointJacobians [[buffer(10)]],
@@ -1494,6 +1506,56 @@ kernel void mr_locomotion_task_joint_cbf_teacher(
         constraint + projectionScale * gradientNormSquared - urgency,
         urgency
     );
+    if ((program.schedule.w &
+         MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u) {
+        for (uint action = 0u;
+             action < program.counts0.x;
+             ++action) {
+            const MRTaskActionBindingGPU binding = actions[action];
+            const uint dof = binding.indices.w - program.root.w;
+            if (dof >= dispatch.counts.w ||
+                !(binding.parameters.x > 0.0f)) {
+                continue;
+            }
+            const float3 column = float3(
+                pointJacobians[
+                    jacobianBase + 0u * dispatch.counts.w + dof
+                ],
+                pointJacobians[
+                    jacobianBase + 1u * dispatch.counts.w + dof
+                ],
+                pointJacobians[
+                    jacobianBase + 2u * dispatch.counts.w + dof
+                ]
+            );
+            const float gradient = 2.0f * dot(separation, column);
+            const float reference = interactionJointTargets[
+                referenceFrame * program.interaction.y + action
+            ];
+            const float requestedTarget = clamp(
+                reference + binding.parameters.x * clamp(
+                    actionStream[actionBase + action],
+                    -1.0f,
+                    1.0f
+                ),
+                binding.parameters.y,
+                binding.parameters.z
+            );
+            const float correctedTarget = clamp(
+                requestedTarget +
+                    program.threatTeacher.y *
+                    projectionScale * gradient,
+                binding.parameters.y,
+                binding.parameters.z
+            );
+            actionStream[actionBase + action] = clamp(
+                (correctedTarget - reference) /
+                    binding.parameters.x,
+                -1.0f,
+                1.0f
+            );
+        }
+    }
     taskStates[environment] = state;
 }
 
@@ -2574,6 +2636,7 @@ kernel void mr_locomotion_task_apply_actions(
     device const float* defaultQ [[buffer(7)]],
     device const MRTaskStateGPU* taskStates [[buffer(8)]],
     device float* actionHistory [[buffer(9)]],
+    device float* teacherActions [[buffer(10)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -2704,18 +2767,27 @@ kernel void mr_locomotion_task_apply_actions(
                   referenceFrame * program.interaction.y + action
               ]
             : defaultQ[binding.indices.z];
+        const float target = clamp(
+            reference + binding.parameters.x * filtered,
+            binding.parameters.y,
+            binding.parameters.z
+        );
         effortTrajectory[
             pass.controlStep *
                 worldDispatch.effortStepStride +
             environment *
                 worldDispatch.effortEnvironmentStride +
             binding.indices.w
-        ] = clamp(
-            reference +
-                binding.parameters.x * filtered,
-            binding.parameters.y,
-            binding.parameters.z
-        );
+        ] = target;
+        if ((program.schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u) {
+            teacherActions[actionBase + action] = clamp(
+                (target - defaultQ[binding.indices.z]) /
+                    binding.parameters.x,
+                -1.0f,
+                1.0f
+            );
+        }
     }
 }
 
