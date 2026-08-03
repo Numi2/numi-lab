@@ -291,7 +291,12 @@ Only current subsystem contracts remain under `docs`:
   come from an external simulator's renderer.
 - Internal agreement, stable simulation, and simulator policy performance are
   not proof of real-world fidelity, safety, or transfer.
-- The PSM world is robotics research infrastructure, not a clinical or
+- The PSM uses the pinned JHU Classic arm and Large Needle Driver kinematic,
+  limit, effort, and actuator-coupling records. Its jaw transmission is an
+  executable generalized gear constraint. Body masses/reset/drives come from
+  pinned ORBIT-Surgical records; collision shapes and inertias remain explicit
+  research approximations because the public sources do not provide identified
+  hardware tensors. It is robotics research infrastructure, not a clinical or
   biomechanical simulator.
 
 Third-party sources and required notices are recorded in

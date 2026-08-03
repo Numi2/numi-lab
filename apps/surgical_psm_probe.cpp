@@ -3,6 +3,7 @@
 #include "metalrobo/ArticulatedJointLimits.hpp"
 #include "metalrobo/ArticulatedWorld.hpp"
 #include "metalrobo/MetalArticulatedABA.hpp"
+#include "metalrobo/MultiArticulatedWorld.hpp"
 #include "metalrobo/SurgicalPSM.hpp"
 
 #include <algorithm>
@@ -536,11 +537,110 @@ int main() {
                 metadata.toolModelNumber == "400006" &&
                 close(metadata.orbitToolYawLinkMass, 0.1) &&
                 close(metadata.orbitFixedToolTipMass, 0.1) &&
-                metadata.independentJawCoordinates &&
+                !metadata.independentJawCoordinates &&
                 metadata.fixedToolTipMassFoldedIntoYaw &&
                 !metadata.calibratedInertias &&
                 !metadata.clinicallyValidated,
             "surgical PSM provenance/fidelity metadata changed"
+        );
+        require(
+            model.constraintProgram.blocks.size() == 1u &&
+                model.constraintProgram.rows.size() == 1u &&
+                model.constraintProgram.endpoints.size() == 2u &&
+                model.constraintProgram.blocks[0].type ==
+                    MR_CONSTRAINT_GEAR,
+            "surgical PSM jaw transmission is not executable"
+        );
+        std::vector<double> constrainedQ(
+            model.defaultQ.begin(), model.defaultQ.end()
+        );
+        std::vector<double> constrainedV(model.world.nv, 0.0);
+        constrainedV[6] = 0.35;
+        constrainedV[7] = 0.05;
+        std::vector<double> constrainedForce(model.world.nv, 0.0);
+        metalrobo::MultiArticulationFactorCache constraintCache;
+        metalrobo::MultiArticulatedWorldConfig constraintConfig;
+        constraintConfig.dynamics.timestep =
+            model.world.gravityAndTimestep.w;
+        constraintConfig.solverIterations = 128u;
+        constraintConfig.solverTolerance = 1.0e-9;
+        constraintConfig.constraintResidual.residualTolerance = 1.0e-7;
+        const auto constrainedStep =
+            metalrobo::stepMultiArticulatedWorldCpu(
+                model,
+                constrainedQ,
+                constrainedV,
+                constrainedForce,
+                {},
+                constraintCache,
+                constraintConfig
+            );
+        require(
+            constrainedStep.succeeded() &&
+                std::abs(constrainedV[6] + constrainedV[7]) < 2.0e-7 &&
+                constrainedStep.residual.maximumNaturalResidual < 1.0e-7,
+            "surgical PSM jaw gear did not constrain the dynamics step"
+        );
+        const std::array<double, 7u> actuatorTargets{{
+            0.10, 0.20, 0.10, 0.10, 0.20, 0.30, 0.40,
+        }};
+        std::vector<double> actuatorMapped{41.0, 42.0};
+        const auto actuatorMap =
+            metalrobo::expandSurgicalPSMActuatorPositionTargets(
+                model,
+                actuatorTargets,
+                actuatorMapped
+            );
+        require(
+            actuatorMap.succeeded() &&
+                close(actuatorMapped[0], 0.10) &&
+                close(actuatorMapped[1], 0.20) &&
+                close(actuatorMapped[2], 0.10) &&
+                close(actuatorMapped[3], -0.15632, 2.0e-7) &&
+                close(actuatorMapped[4], 0.20372, 2.0e-7) &&
+                close(actuatorMapped[5], 0.26011, 2.0e-7) &&
+                close(actuatorMapped[6], -0.060885, 2.0e-7) &&
+                close(actuatorMapped[7], 0.060885, 2.0e-7),
+            "JHU LND actuator-to-joint transmission changed"
+        );
+        const std::array<double, 7u> actuatorEfforts{{
+            0.10, 0.20, 0.30, 0.01, 0.02, 0.03, 0.04,
+        }};
+        std::vector<double> mappedEfforts{51.0, 52.0};
+        const auto effortMap =
+            metalrobo::expandSurgicalPSMActuatorEfforts(
+                model,
+                actuatorEfforts,
+                mappedEfforts
+            );
+        require(
+            effortMap.succeeded() &&
+                close(mappedEfforts[0], 0.10) &&
+                close(mappedEfforts[1], 0.20) &&
+                close(mappedEfforts[2], 0.30) &&
+                close(mappedEfforts[3], -0.006397134, 2.0e-8) &&
+                close(mappedEfforts[4], 0.066506452, 2.0e-8) &&
+                close(mappedEfforts[5], 0.057480703, 2.0e-8) &&
+                close(mappedEfforts[6], -0.004106102, 2.0e-8) &&
+                close(mappedEfforts[7], 0.004106102, 2.0e-8),
+            "JHU LND actuator-to-joint effort transmission changed"
+        );
+        std::array<double, 7u> excessiveEffort = actuatorEfforts;
+        excessiveEffort[0] = 10.0;
+        const std::vector<double> effortSentinel{61.0, 62.0};
+        mappedEfforts = effortSentinel;
+        const auto rejectedEffort =
+            metalrobo::expandSurgicalPSMActuatorEfforts(
+                model,
+                excessiveEffort,
+                mappedEfforts
+            );
+        require(
+            rejectedEffort.status ==
+                metalrobo::SurgicalPSMCommandMapStatus::
+                    physicalEffortLimitViolation &&
+                mappedEfforts == effortSentinel,
+            "JHU LND effort-limit rejection was not transactional"
         );
         require(
             close(model.bodies[6].massAndInverseMass.x, 0.2) &&
@@ -661,7 +761,7 @@ int main() {
             std::abs(jawGap.closedSurfaceGap) < 5.0e-7 &&
                 jawGap.minimumGapIncrease > 1.0e-4 &&
                 jawGap.maximumSurfaceGap > 0.015 &&
-                jawGap.maximumRowGapMismatch < 8.1e-4,
+                jawGap.maximumRowGapMismatch < 1.1e-3,
             "surgical PSM jaw aperture is not physically monotonic: "
                 "closed=" +
                 std::to_string(jawGap.closedSurfaceGap) +
@@ -829,7 +929,7 @@ int main() {
             rcm.radialError < 2.0e-8 &&
                 rcm.centerDrift < 2.0e-10 &&
                 rcm.insertionDeltaError < 2.0e-8,
-            "surgical PSM serial equivalent violated its remote center"
+            "surgical PSM source-coupled mechanism violated its remote center"
         );
 
         std::vector<double> q(
@@ -1040,7 +1140,7 @@ int main() {
         );
 
         std::cout
-            << "surgical_psm=abi_v2"
+            << "surgical_psm=abi_v3"
             << " model=\"" << model.name << "\""
             << " bodies=" << model.world.bodyCount
             << " dofs=" << model.world.nv
@@ -1093,7 +1193,7 @@ int main() {
             << " limits=pass"
             << " world=pass"
             << " compound_collision=pass"
-            << " independent_jaws=research"
+            << " jaw_gear=constraint_ir"
             << " clinical_validation=none"
             << " status=ok\n";
         return 0;

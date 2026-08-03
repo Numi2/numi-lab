@@ -384,6 +384,16 @@ products remain open. The force/actuation ABA step still needs the same
 frontier conversion; full multi-articulation collision/island composition
 remains the next shared-world boundary.
 
+The canonical fixed-root PSM is not an independent-jaw approximation. It owns
+one unbounded generalized gear row enforcing equal-and-opposite jaw velocity,
+and its hardware-facing command map evaluates the pinned JHU Large Needle
+Driver 400006 `ActuatorToJointPosition` matrix before publishing collision-jaw
+targets. Arm/tool position bounds and effort limits are likewise the pinned
+JHU values. The dual-PSM composer replaces each local jaw row with its rebased
+equivalent alongside the floating-base locks. Cable elasticity, backlash,
+sterile-adapter compliance, and unit-specific calibration are not published by
+that source and remain outside the qualified fidelity boundary.
+
 The surgical DER path now uses a separate shared-ABI graph in the same
 metallib. It resolves homogeneous rigid bindings into environment-major
 attachment targets, runs the SIMD32 rod projection, records the accumulated

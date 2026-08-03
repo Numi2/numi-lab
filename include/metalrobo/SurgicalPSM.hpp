@@ -20,6 +20,7 @@ inline constexpr std::size_t
     kSurgicalPSMLogicalPositionTargetCount = 7u;
 inline constexpr std::size_t
     kSurgicalPSMLogicalJawApertureIndex = 6u;
+inline constexpr std::size_t kSurgicalPSMToolActuatorCount = 4u;
 
 struct SurgicalPSMJointMetadata {
     std::string_view name;
@@ -74,6 +75,13 @@ struct SurgicalPSMModelMetadata {
     bool fixedToolTipMassFoldedIntoYaw = false;
     bool calibratedInertias = false;
     bool clinicallyValidated = false;
+
+    // JHU Large Needle Driver 400006 transmission. Rows are the physical
+    // roll, wrist-pitch, wrist-yaw, and jaw coordinates; columns are the four
+    // tool actuator coordinates. This is q_tool = C * q_actuator.
+    std::array<float,
+        kSurgicalPSMToolActuatorCount *
+        kSurgicalPSMToolActuatorCount> actuatorToJointPosition{};
 };
 
 // Open-source attribution and fidelity boundary
@@ -98,11 +106,13 @@ struct SurgicalPSMModelMetadata {
 [[nodiscard]] const SurgicalPSMModelMetadata&
 surgicalPSMMetadata() noexcept;
 
-// Fixed-root, eight-coordinate dVRK-style PSM with a Classic Large Needle
-// Driver. The first six coordinates reproduce the research control topology:
+// Fixed-root, eight-coordinate dVRK PSM with a Classic Large Needle Driver.
+// The first six coordinates reproduce the research control topology:
 // yaw, pitch, prismatic insertion, roll, wrist pitch, wrist yaw. The two jaws
-// remain independent generalized coordinates because tendon/transmission
-// constraints are not yet executable in the articulated ABA path.
+// are retained as collision-bearing generalized coordinates and coupled by an
+// executable ConstraintIR gear row. Source-provenanced JHU actuator coupling
+// is exposed separately because actuator coordinates are not generalized
+// coordinates and must not be baked into the rigid-body tree.
 [[nodiscard]] EngineModel
 makeDvrkPsmLargeNeedleDriverEngineModel();
 
@@ -113,6 +123,7 @@ enum class SurgicalPSMCommandMapStatus : std::uint32_t {
     nonfiniteTarget,
     negativeJawAperture,
     physicalLimitViolation,
+    physicalEffortLimitViolation,
 };
 
 struct SurgicalPSMCommandMapDiagnostics {
@@ -144,6 +155,33 @@ expandSurgicalPSMLogicalPositionTargets(
     const EngineModel& model,
     std::span<const double> logicalTargets,
     std::vector<double>& physicalTargets
+);
+
+// Hardware-facing position-command map:
+//   actuator[0..2] -> arm yaw, pitch, insertion
+//   actuator[3..6] -> LND roll, pitch, yaw, jaw actuator coordinates
+// The pinned JHU 4x4 ActuatorToJointPosition matrix is applied to the tool
+// coordinates, then the resulting jaw coordinate is represented by the two
+// constrained collision jaws. No clamping is performed and output remains
+// unchanged on rejection.
+[[nodiscard]] SurgicalPSMCommandMapDiagnostics
+expandSurgicalPSMActuatorPositionTargets(
+    const EngineModel& model,
+    std::span<const double> actuatorTargets,
+    std::vector<double>& physicalTargets
+);
+
+// Hardware-facing effort map, conjugate to the position map by virtual work:
+//   tau_tool_joint = inverse(transpose(C)) * tau_tool_actuator
+// where C is the pinned JHU ActuatorToJointPosition matrix. The jaw effort is
+// expanded into equal-and-opposite generalized efforts for the constrained
+// collision jaws. Inputs and source-authored joint effort limits are checked;
+// output remains unchanged on rejection.
+[[nodiscard]] SurgicalPSMCommandMapDiagnostics
+expandSurgicalPSMActuatorEfforts(
+    const EngineModel& model,
+    std::span<const double> actuatorEfforts,
+    std::vector<double>& generalizedEfforts
 );
 
 // Canonical ORBIT reset expressed in the seven-coordinate command space.

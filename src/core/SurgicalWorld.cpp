@@ -309,8 +309,7 @@ void appendFloatingPsm(
         source.articulations[0].rootType != MR_ROOT_FIXED ||
         source.world.nq != kSurgicalPSMJointCount ||
         source.world.nv != kSurgicalPSMJointCount ||
-        !source.geometryHeaders.empty() ||
-        !source.constraintProgram.empty()) {
+        !source.geometryHeaders.empty()) {
         throw std::invalid_argument(
             "dual PSM composer requires the canonical primitive fixed-root PSM"
         );

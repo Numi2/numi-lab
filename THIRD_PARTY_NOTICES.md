@@ -167,8 +167,8 @@ not presented as hardware truth.
 
 ## ORBIT-Surgical PSM model data
 
-The topology, body masses, joint limits, reset state, and named actuator
-preset in `src/core/SurgicalPSM.cpp` are adapted from ORBIT-Surgical commit
+The topology, body masses, reset state, and named actuator preset in
+`src/core/SurgicalPSM.cpp` are adapted from ORBIT-Surgical commit
 `6e47534f7d412e4be523116f250c992a63146883`, specifically `psm_col.usd` and
 `orbit/surgical/assets/psm.py`. The fixed 0.1 kg tooltip mass is folded into
 its moving yaw parent; its combined inertia is an explicitly documented
@@ -207,9 +207,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 The JHU dVRK Classic PSM and Large Needle Driver definitions at
 `sawIntuitiveResearchKit` commit
-`53a401d014e5ef8a7d5e3ad05f0680084507662c` supply controller/kinematic
-records for the Classic shaft and wrist and are also used to cross-check the
-serial model. Their repository points to the CISST Software License Agreement
+`53a401d014e5ef8a7d5e3ad05f0680084507662c` supply the authoritative modified
+DH geometry, position and effort limits, Classic shaft/wrist dimensions, and
+the Large Needle Driver 400006 4x4 `ActuatorToJointPosition` transmission used
+by the serial model and its hardware-facing command map. Their repository
+points to the CISST Software License Agreement
 at
 <https://github.com/jhu-cisst/cisst/blob/7e95680b9461009b745567f382d1b498eabc046b/license.txt>.
 The complete agreement and required attribution preface are retained in

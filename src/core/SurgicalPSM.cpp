@@ -1,5 +1,7 @@
 #include "metalrobo/SurgicalPSM.hpp"
 
+#include "metalrobo/ConstraintIR.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -39,9 +41,10 @@
 // use is neither recommended nor advised. The complete agreement is retained
 // in licenses/CISST_LICENSE.txt.
 //
-// The full dVRK mechanism contains transmissions, cable coupling, parallel
-// structure, sterile-adapter compliance, and hardware-specific calibration
-// that are not represented here. This is an original serial rigid-body
+// The full dVRK mechanism contains cable elasticity, backlash, sterile-adapter
+// compliance, and hardware-specific calibration that are not published by
+// the primary source and therefore cannot be truthfully invented here. This
+// is an original serial rigid-body
 // equivalent: its first three axes share an exact remote center and its true
 // prismatic coordinate moves a 0.4162 m Classic shaft through that center.
 // ORBIT's fixed 0.1 kg psm_tool_tip_link is folded into its 0.1 kg moving yaw
@@ -102,6 +105,21 @@ constexpr double kFoldedToolYawCenterZ =
     kOrbitFixedToolTipMass * kCanonicalFixedToolTipZ /
     kFoldedToolYawMass;
 constexpr std::uint32_t kRobotCollisionGroup = 1u << 8u;
+constexpr std::uint32_t kJawConstraintKey = 0x50534d4au;
+constexpr std::array<double, 16u> kActuatorToJointPosition{{
+    -1.5632,  0.0000,  0.0000,  0.0000,
+     0.0000,  1.0186,  0.0000,  0.0000,
+     0.0000, -0.8306,  0.6089,  0.6089,
+     0.0000,  0.0000, -1.2177,  1.2177,
+}};
+// inverse(transpose(kActuatorToJointPosition)); retained explicitly so the
+// real-time command boundary performs a fixed multiply, not a matrix solve.
+constexpr std::array<double, 16u> kActuatorToJointEffort{{
+    -0.639713408393, 0.0,            0.0,            0.0,
+     0.0,            0.981739642647, 0.669595128250, 0.669595128250,
+     0.0,            0.0,            0.821152898670, 0.821152898670,
+     0.0,            0.0,           -0.410610166708, 0.410610166708,
+}};
 
 constexpr std::array<double, 6> boxInertia(
     const double mass,
@@ -245,56 +263,56 @@ constexpr std::array<JointSource, kSurgicalPSMJointCount> kJoints{{
         "psm_yaw_joint",
         0u, 1u, MR_JOINT_REVOLUTE,
         {0.0, 0.0, 0.0}, {0.0, 0.0, 1.0},
-        -1.588299954610, 1.588299954610,
-        12.0, 1.0, 800.0, 40.0, 0.01,
+        -1.588, 1.588,
+        3.316101, 1.0, 800.0, 40.0, 0.01,
     },
     {
         "psm_pitch_end_joint",
         1u, 2u, MR_JOINT_REVOLUTE,
         {0.0, 0.0, 0.0}, {0.0, 1.0, 0.0},
-        -0.925100006500, 0.925100006500,
-        12.0, 1.0, 800.0, 40.0, 0.01,
+        -0.925025, 0.925025,
+        3.316101, 1.0, 800.0, 40.0, 0.01,
     },
     {
         "psm_main_insertion_joint",
         2u, 3u, MR_JOINT_PRISMATIC,
         {0.0, 0.0, 0.0}, {0.0, 0.0, 1.0},
-        0.0565, 0.24, 12.0, 1.0, 800.0, 40.0, 0.02,
+        0.0, 0.24, 9.877926, 1.0, 800.0, 40.0, 0.02,
     },
     {
         "psm_tool_roll_joint",
         3u, 4u, MR_JOINT_REVOLUTE,
         {0.0, 0.0, 0.0}, {0.0, 0.0, 1.0},
-        -4.537899688417, 4.537899688417,
-        12.0, 1.0, 800.0, 40.0, 0.001,
+        -4.53786, 4.53786,
+        0.33, 1.0, 800.0, 40.0, 0.001,
     },
     {
         "psm_tool_pitch_joint",
         4u, 5u, MR_JOINT_REVOLUTE,
         {0.0, 0.0, 0.0}, {0.0, 1.0, 0.0},
-        -1.396299878977, 1.396299878977,
-        12.0, 1.0, 800.0, 40.0, 0.0002,
+        -1.39626, 1.39626,
+        0.25, 1.0, 800.0, 40.0, 0.0002,
     },
     {
         "psm_tool_yaw_joint",
         5u, 6u, MR_JOINT_REVOLUTE,
         {0.0, 0.0, kWristLinkOffset}, {1.0, 0.0, 0.0},
-        -0.523598775598, 0.523598775598,
-        12.0, 1.0, 800.0, 40.0, 0.0002,
+        -1.39626, 1.39626,
+        0.20, 1.0, 800.0, 40.0, 0.0002,
     },
     {
         "psm_tool_gripper1_joint",
         6u, 7u, MR_JOINT_REVOLUTE,
         {0.0, 0.0, 0.012}, {0.0, -1.0, 0.0},
-        -0.523598775598, 0.0,
-        0.1, 0.2, 500.0, 0.1, 0.00002,
+        -0.698132, 0.0,
+        0.16, 0.2, 500.0, 0.1, 0.00002,
     },
     {
         "psm_tool_gripper2_joint",
         6u, 8u, MR_JOINT_REVOLUTE,
         {0.0, 0.0, 0.012}, {0.0, -1.0, 0.0},
-        0.0, 0.523598775598,
-        0.1, 0.2, 500.0, 0.1, 0.00002,
+        0.0, 0.698132,
+        0.16, 0.2, 500.0, 0.1, 0.00002,
     },
 }};
 
@@ -567,11 +585,12 @@ const SurgicalPSMModelMetadata& surgicalPSMMetadata() noexcept {
     static const SurgicalPSMModelMetadata metadata = [] {
         SurgicalPSMModelMetadata value{};
         value.modelName =
-            "dvrk_psm_classic_lnd_serial_rcm_research_abi_v2";
+            "dvrk_psm_classic_lnd_source_coupled_abi_v3";
         value.fidelityContract =
-            "research serial RCM equivalent; ORBIT topology/limits/reset/"
-            "drive and masses with fixed tooltip folded into yaw; authored "
-            "primitive inertias/collision; independent jaws; no calibration "
+            "source-grounded serial RCM mechanism; JHU limits/efforts/LND "
+            "actuator coupling and executable symmetric jaw gear; ORBIT "
+            "masses/reset/drive with fixed tooltip folded into yaw; authored "
+            "primitive inertias/collision; no hardware-specific calibration "
             "or clinical validation";
 
         value.orbitRepository =
@@ -644,10 +663,18 @@ const SurgicalPSMModelMetadata& surgicalPSMMetadata() noexcept {
             static_cast<float>(kOrbitToolYawLinkMass);
         value.orbitFixedToolTipMass =
             static_cast<float>(kOrbitFixedToolTipMass);
-        value.independentJawCoordinates = true;
+        value.independentJawCoordinates = false;
         value.fixedToolTipMassFoldedIntoYaw = true;
         value.calibratedInertias = false;
         value.clinicallyValidated = false;
+        std::transform(
+            kActuatorToJointPosition.begin(),
+            kActuatorToJointPosition.end(),
+            value.actuatorToJointPosition.begin(),
+            [](const double entry) {
+                return static_cast<float>(entry);
+            }
+        );
         return value;
     }();
     return metadata;
@@ -732,6 +759,41 @@ EngineModel makeDvrkPsmLargeNeedleDriverEngineModel() {
 
     model.defaultQ.assign(kDefaultQ.begin(), kDefaultQ.end());
     model.defaultV.assign(kSurgicalPSMJointCount, 0.0f);
+
+    std::array<ConstraintIREndpoint, 2u> jawEndpoints{{
+        makeConstraintIRGeneralizedEndpoint(0u, 6u, 6u, 0u, 1.0f),
+        makeConstraintIRGeneralizedEndpoint(0u, 7u, 7u, 0u, 1.0f),
+    }};
+    ConstraintIRRow jawRow{};
+    jawRow.direction = f4(1.0, 0.0, 0.0);
+    jawRow.timeConstant = 0.01f;
+    jawRow.dampingRatio = 1.0f;
+    jawRow.impulseLower = -kConstraintIRUnbounded;
+    jawRow.impulseUpper = kConstraintIRUnbounded;
+    std::array<ConstraintIRRow, 1u> jawRows{{jawRow}};
+    std::array<float, 1u> jawWarmStart{{0.0f}};
+    ConstraintIRStableKey jawKey{};
+    jawKey.words[0] = kJawConstraintKey;
+    std::array<ConstraintIRSourceBlock, 1u> jawSources{{{
+        .key = jawKey,
+        .type = MR_CONSTRAINT_GEAR,
+        .flags = 0u,
+        .islandIndex = 0u,
+        .eventSlot = kConstraintIRInvalidIndex,
+        .endpoints = jawEndpoints,
+        .rows = jawRows,
+        .cone = std::nullopt,
+        .warmImpulses = jawWarmStart,
+    }}};
+    ConstraintIRCompilationResult jawProgram =
+        compileConstraintIR(jawSources);
+    if (!jawProgram.succeeded()) {
+        throw std::logic_error(
+            "internal surgical PSM jaw transmission is invalid: " +
+            jawProgram.diagnostics.message
+        );
+    }
+    model.constraintProgram = std::move(jawProgram.ir);
 
     std::string reason;
     if (!model.valid(&reason)) {
@@ -854,6 +916,128 @@ expandSurgicalPSMLogicalPositionTargets(
     return diagnostics;
 }
 
+SurgicalPSMCommandMapDiagnostics
+expandSurgicalPSMActuatorPositionTargets(
+    const EngineModel& model,
+    const std::span<const double> actuatorTargets,
+    std::vector<double>& physicalTargets
+) {
+    SurgicalPSMCommandMapDiagnostics diagnostics;
+    if (actuatorTargets.size() !=
+        kSurgicalPSMLogicalPositionTargetCount) {
+        diagnostics.status =
+            SurgicalPSMCommandMapStatus::invalidDimensions;
+        return diagnostics;
+    }
+    for (std::size_t index = 0u;
+         index < actuatorTargets.size();
+         ++index) {
+        if (!std::isfinite(actuatorTargets[index])) {
+            diagnostics.status =
+                SurgicalPSMCommandMapStatus::nonfiniteTarget;
+            diagnostics.rejectedLogicalIndex =
+                static_cast<std::uint32_t>(index);
+            return diagnostics;
+        }
+    }
+
+    std::array<double,
+        kSurgicalPSMLogicalPositionTargetCount> logical{};
+    std::copy_n(actuatorTargets.begin(), 3u, logical.begin());
+    std::array<double, kSurgicalPSMToolActuatorCount> tool{};
+    for (std::size_t row = 0u;
+         row < kSurgicalPSMToolActuatorCount;
+         ++row) {
+        for (std::size_t column = 0u;
+             column < kSurgicalPSMToolActuatorCount;
+             ++column) {
+            tool[row] +=
+                kActuatorToJointPosition[
+                    row * kSurgicalPSMToolActuatorCount + column
+                ] * actuatorTargets[3u + column];
+        }
+    }
+    logical[3] = tool[0];
+    logical[4] = tool[1];
+    logical[5] = tool[2];
+    logical[kSurgicalPSMLogicalJawApertureIndex] = tool[3];
+    return expandSurgicalPSMLogicalPositionTargets(
+        model,
+        logical,
+        physicalTargets
+    );
+}
+
+SurgicalPSMCommandMapDiagnostics
+expandSurgicalPSMActuatorEfforts(
+    const EngineModel& model,
+    const std::span<const double> actuatorEfforts,
+    std::vector<double>& generalizedEfforts
+) {
+    SurgicalPSMCommandMapDiagnostics diagnostics;
+    if (model.dofs.size() != kSurgicalPSMJointCount) {
+        diagnostics.status = SurgicalPSMCommandMapStatus::invalidModel;
+        return diagnostics;
+    }
+    if (actuatorEfforts.size() !=
+        kSurgicalPSMLogicalPositionTargetCount) {
+        diagnostics.status =
+            SurgicalPSMCommandMapStatus::invalidDimensions;
+        return diagnostics;
+    }
+    for (std::size_t index = 0u;
+         index < actuatorEfforts.size();
+         ++index) {
+        if (!std::isfinite(actuatorEfforts[index])) {
+            diagnostics.status =
+                SurgicalPSMCommandMapStatus::nonfiniteTarget;
+            diagnostics.rejectedLogicalIndex =
+                static_cast<std::uint32_t>(index);
+            return diagnostics;
+        }
+    }
+
+    std::vector<double> candidate(kSurgicalPSMJointCount, 0.0);
+    std::copy_n(actuatorEfforts.begin(), 3u, candidate.begin());
+    std::array<double, kSurgicalPSMToolActuatorCount> tool{};
+    for (std::size_t row = 0u;
+         row < kSurgicalPSMToolActuatorCount;
+         ++row) {
+        for (std::size_t column = 0u;
+             column < kSurgicalPSMToolActuatorCount;
+             ++column) {
+            tool[row] +=
+                kActuatorToJointEffort[
+                    row * kSurgicalPSMToolActuatorCount + column
+                ] * actuatorEfforts[3u + column];
+        }
+    }
+    candidate[3] = tool[0];
+    candidate[4] = tool[1];
+    candidate[5] = tool[2];
+    candidate[6] = -tool[3];
+    candidate[7] = tool[3];
+    for (std::size_t index = 0u;
+         index < candidate.size();
+         ++index) {
+        const double limit = model.dofs[index].limits.w;
+        if (!std::isfinite(limit) || limit < 0.0 ||
+            std::abs(candidate[index]) > limit) {
+            diagnostics.status =
+                SurgicalPSMCommandMapStatus::physicalEffortLimitViolation;
+            diagnostics.rejectedLogicalIndex =
+                index < 3u
+                ? static_cast<std::uint32_t>(index)
+                : MR_INVALID_INDEX;
+            diagnostics.rejectedPhysicalIndex =
+                static_cast<std::uint32_t>(index);
+            return diagnostics;
+        }
+    }
+    generalizedEfforts = std::move(candidate);
+    return diagnostics;
+}
+
 std::array<float, kSurgicalPSMLogicalPositionTargetCount>
 surgicalPSMDefaultLogicalPositionTargets() noexcept {
     return {
@@ -883,6 +1067,8 @@ const char* surgicalPSMCommandMapStatusName(
         return "negative_jaw_aperture";
     case SurgicalPSMCommandMapStatus::physicalLimitViolation:
         return "physical_limit_violation";
+    case SurgicalPSMCommandMapStatus::physicalEffortLimitViolation:
+        return "physical_effort_limit_violation";
     }
     return "unknown";
 }
