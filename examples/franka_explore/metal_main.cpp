@@ -33,6 +33,7 @@ struct Options {
     double controlTimestep = 0.02;
     std::uint32_t physicsSubsteps = 4u;
     std::filesystem::path output = "franka-exploration.csv";
+    std::filesystem::path poseOutput;
     std::string metallib;
 };
 
@@ -78,13 +79,15 @@ Options parseOptions(const int argc, char** argv) {
             );
         } else if (argument == "--output") {
             result.output = value();
+        } else if (argument == "--pose-output") {
+            result.poseOutput = value();
         } else if (argument == "--metallib") {
             result.metallib = value();
         } else if (argument == "--help") {
             std::cout
                 << "usage: metalrobo_franka_explore [--dt SECONDS] "
                    "[--physics-substeps N] [--output PATH] "
-                   "[--metallib PATH]\n";
+                   "[--pose-output PATH] [--metallib PATH]\n";
             std::exit(0);
         } else {
             throw std::runtime_error(
@@ -181,7 +184,33 @@ bool identicalStatuses(
         ) == 0);
 }
 
-std::array<double, 3u> handPosition(
+std::array<double, 3u> rotateVector(
+    const std::array<double, 4u>& quaternion,
+    const std::array<double, 3u>& vector
+) {
+    const std::array<double, 3u> q{
+        quaternion[0],
+        quaternion[1],
+        quaternion[2],
+    };
+    const std::array<double, 3u> uv{
+        q[1] * vector[2] - q[2] * vector[1],
+        q[2] * vector[0] - q[0] * vector[2],
+        q[0] * vector[1] - q[1] * vector[0],
+    };
+    const std::array<double, 3u> uuv{
+        q[1] * uv[2] - q[2] * uv[1],
+        q[2] * uv[0] - q[0] * uv[2],
+        q[0] * uv[1] - q[1] * uv[0],
+    };
+    return {
+        vector[0] + 2.0 * (quaternion[3] * uv[0] + uuv[0]),
+        vector[1] + 2.0 * (quaternion[3] * uv[1] + uuv[1]),
+        vector[2] + 2.0 * (quaternion[3] * uv[2] + uuv[2]),
+    };
+}
+
+std::vector<metalrobo::ArticulatedBodyKinematics> bodyKinematics(
     const metalrobo::EngineModel& model,
     const std::span<const float> q,
     const std::span<const float> v
@@ -198,10 +227,10 @@ std::array<double, 3u> handPosition(
         v64,
         bodies
     );
-    if (!diagnostics.succeeded() || bodies.size() <= kHandBodyIndex) {
-        throw std::runtime_error("FP64 Franka hand kinematics failed");
+    if (!diagnostics.succeeded()) {
+        throw std::runtime_error("FP64 Franka body kinematics failed");
     }
-    return bodies[kHandBodyIndex].centerOfMassPosition;
+    return bodies;
 }
 
 double distance(
@@ -288,6 +317,16 @@ int main(int argc, char** argv) {
         csv << std::setprecision(9)
             << "step,time_s,waypoint,target_q1,actual_q1,hand_x_m,"
                "hand_y_m,hand_z_m\n";
+        std::ofstream poseCsv;
+        if (!options.poseOutput.empty()) {
+            poseCsv.open(options.poseOutput);
+            if (!poseCsv) {
+                throw std::runtime_error("could not open pose artifact");
+            }
+            poseCsv << std::setprecision(12)
+                << "step,time_s,body_index,link_x_m,link_y_m,link_z_m,"
+                   "qx,qy,qz,qw\n";
+        }
         std::vector<std::array<double, 3u>> waypointPositions;
         waypointPositions.reserve(kOfficialWaypoints.size());
         double maximumJointError = 0.0;
@@ -307,7 +346,35 @@ int main(int argc, char** argv) {
                 state.first(compiled.nq());
             const std::span<const float> actualV =
                 state.subspan(compiled.nq(), compiled.nv());
-            const auto position = handPosition(model, actualQ, actualV);
+            const auto bodies = bodyKinematics(model, actualQ, actualV);
+            if (bodies.size() <= kHandBodyIndex) {
+                throw std::runtime_error("Franka hand body is unavailable");
+            }
+            const auto position =
+                bodies[kHandBodyIndex].centerOfMassPosition;
+            if (poseCsv) {
+                for (const auto& body : bodies) {
+                    const auto& centerOfMass =
+                        model.bodies[body.bodyIndex].centerOfMass;
+                    const auto worldOffset = rotateVector(
+                        body.orientation,
+                        {
+                            static_cast<double>(centerOfMass.x),
+                            static_cast<double>(centerOfMass.y),
+                            static_cast<double>(centerOfMass.z),
+                        }
+                    );
+                    poseCsv << step << ','
+                        << step * options.controlTimestep << ','
+                        << body.bodyIndex << ','
+                        << body.centerOfMassPosition[0] - worldOffset[0] << ','
+                        << body.centerOfMassPosition[1] - worldOffset[1] << ','
+                        << body.centerOfMassPosition[2] - worldOffset[2] << ','
+                        << body.orientation[0] << ',' << body.orientation[1]
+                        << ',' << body.orientation[2] << ','
+                        << body.orientation[3] << '\n';
+                }
+            }
             minimumHeight = std::min(minimumHeight, position[2]);
             maximumHeight = std::max(maximumHeight, position[2]);
             const std::size_t targetOffset = step * compiled.nv();
@@ -332,6 +399,7 @@ int main(int argc, char** argv) {
             }
         }
         csv.close();
+        poseCsv.close();
         if (waypointPositions.size() != kOfficialWaypoints.size()) {
             throw std::runtime_error("not every Franka waypoint was measured");
         }
