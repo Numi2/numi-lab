@@ -354,10 +354,10 @@ struct TaskPack {
     // All bands remain eligible on every episode; this is an authored
     // difficulty discretization, not an advancement ladder.
     std::uint32_t difficultyBandCount = 1u;
-    // Normalized blend from an InteractionPack joint reference to the
-    // student's absolute mechanism-space target.
+    // Fraction of the student's normalized balance/control residual added to
+    // the InteractionPack mechanism-space motion reference.
     // Zero runs the student in shadow mode while retaining executed targets
-    // as distillation labels; one grants the full authored action range.
+    // as distillation labels; one grants the full residual action range.
     float interactionStudentAuthority = 0.1f;
     // When false, an InteractionPack still supplies the initial physical
     // state but no longer supplies runtime joint targets or teacher actions.

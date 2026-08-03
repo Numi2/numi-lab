@@ -234,6 +234,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
     public var maximumRetainedBytes: UInt64
     public var captureWidth: UInt32
     public var captureHeight: UInt32
+    public var capturePolicyCamera: Bool
 
     public init(
         packs: [MetalRoboTaskVisualPack],
@@ -248,7 +249,8 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         nominalRateHz: Float = 15,
         maximumRetainedBytes: UInt64 = 0,
         captureWidth: UInt32 = 0,
-        captureHeight: UInt32 = 0
+        captureHeight: UInt32 = 0,
+        capturePolicyCamera: Bool = false
     ) {
         self.packs = packs
         self.environmentPackURL = environmentPackURL
@@ -263,6 +265,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         self.maximumRetainedBytes = maximumRetainedBytes
         self.captureWidth = captureWidth
         self.captureHeight = captureHeight
+        self.capturePolicyCamera = capturePolicyCamera
     }
 
     public static func unitreeG1(
@@ -1329,6 +1332,8 @@ public final class MetalRoboTaskRolloutContext {
                             configuration.maximumRetainedBytes
                         native.capture_width = configuration.captureWidth
                         native.capture_height = configuration.captureHeight
+                        native.capture_policy_camera =
+                            configuration.capturePolicyCamera ? 1 : 0
                         return mr_task_rollout_attach_visual_observation(
                             handle,
                             &native

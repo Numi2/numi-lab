@@ -85,6 +85,7 @@ struct MRTaskVisualRuntime {
     std::vector<MRBodyStateGPU> previousCaptureBodies;
     std::uint64_t captureFrameIndex = 0u;
     bool captureEnabled = false;
+    bool capturePolicyCamera = false;
     std::uint64_t sceneFingerprint = 0u;
 };
 
@@ -236,6 +237,8 @@ std::string unitreeG1DeploymentContractJSON() {
         velocityLimits{};
     std::array<float, metalrobo::kUnitreeG1JointCount>
         effortLimits{};
+    const std::span<const float> actionScales =
+        metalrobo::unitreeG1LocomotionActionScales();
     for (std::size_t index = 0u;
          index < metadata.jointLimits.size();
          ++index) {
@@ -253,6 +256,8 @@ std::string unitreeG1DeploymentContractJSON() {
             metadata.jointLimits[index].maximumEffort;
     }
     writeScalarArray("default_pose", defaultPose);
+    output << ',';
+    writeScalarArray("task_action_scale", actionScales);
     output << ',';
     writeScalarArray("stiffness", stiffness);
     output << ',';
@@ -755,7 +760,8 @@ void authorG1ImaginedTask(
     metalrobo::TaskPack& task,
     const metalrobo::InteractionPack& interactions,
     const metalrobo::InteractionClip& clip,
-    const MRTaskRolloutConfigC& config
+    const MRTaskRolloutConfigC& config,
+    const bool includeInteractionContacts
 ) {
     task.id += "/imagined_interaction";
     if (!clip.loop) {
@@ -798,8 +804,10 @@ void authorG1ImaginedTask(
             .target = action.joint,
         });
     }
-    for (const metalrobo::InteractionContactTrack& track :
-         interactions.contactTracks) {
+    if (includeInteractionContacts) for (
+        const metalrobo::InteractionContactTrack& track :
+        interactions.contactTracks
+    ) {
         for (std::uint32_t component = 0u; component < 2u; ++component) {
             appendObservation({
                 .source = metalrobo::TaskObservationSource::
@@ -830,8 +838,10 @@ void authorG1ImaginedTask(
         .weight = 2.0f,
         .parameters = {0.04f, 0.08f, 0.0f, 0.0f},
     });
-    for (const metalrobo::InteractionContactTrack& track :
-         interactions.contactTracks) {
+    if (includeInteractionContacts) for (
+        const metalrobo::InteractionContactTrack& track :
+        interactions.contactTracks
+    ) {
         task.rewards.push_back({
             .operation = metalrobo::TaskRewardOperator::
                 interactionContactTracking,
@@ -1464,28 +1474,66 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     camera.minimumDepthMeters = 0.05f;
     camera.maximumDepthMeters = 8.0f;
     episode.sensors.push_back(std::move(camera));
+    if (config.capture_policy_camera > 1u) {
+        throw std::invalid_argument(
+            "visual capture policy-camera flag is invalid"
+        );
+    }
+    if (config.capture_policy_camera != 0u &&
+        !(config.vertical_field_of_view_degrees > 0.0f)) {
+        throw std::invalid_argument(
+            "policy-camera capture requires an authored vertical field of view"
+        );
+    }
     if (config.capture_width != 0u && config.capture_height != 0u) {
         metalrobo::SensorSpec presentation;
-        presentation.id = "presentation_camera";
+        presentation.id = config.capture_policy_camera != 0u
+            ? "foundation_policy_camera"
+            : "presentation_camera";
         presentation.parentAssetId = "robot";
-        presentation.parentKind = MR_WORLD_SENSOR_PARENT_WORLD;
+        presentation.parentKind = config.capture_policy_camera != 0u
+            ? MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK
+            : MR_WORLD_SENSOR_PARENT_WORLD;
+        presentation.parentBodyIndex = config.capture_policy_camera != 0u
+            ? parentBodyIndex
+            : MR_INVALID_INDEX;
         presentation.kind = MR_WORLD_SENSOR_RGBD;
-        presentation.localPose.position = {
-            1.05f, -1.30f, 1.05f, 0.0f,
-        };
-        // Reuse the qualified Studio Small 03 presentation camera, aimed at
-        // the nominal standing pelvis height with local +z as optical axis.
-        presentation.localPose.orientation = {
-            -0.73858354f,
-            -0.26102070f,
-            0.20711737f,
-            0.58605883f,
-        };
+        presentation.localPose.position = config.capture_policy_camera != 0u
+            ? mr_float4{
+                  config.camera_position[0],
+                  config.camera_position[1],
+                  config.camera_position[2],
+                  0.0f,
+              }
+            : mr_float4{1.05f, -1.30f, 1.05f, 0.0f};
+        // External media keeps the qualified Studio Small 03 view. Teacher
+        // capture instead inherits the deployable policy sensor pose.
+        presentation.localPose.orientation = config.capture_policy_camera != 0u
+            ? mr_float4{
+                  config.camera_orientation[0],
+                  config.camera_orientation[1],
+                  config.camera_orientation[2],
+                  config.camera_orientation[3],
+              }
+            : mr_float4{
+                  -0.73858354f,
+                  -0.26102070f,
+                  0.20711737f,
+                  0.58605883f,
+              };
         presentation.width = config.capture_width;
         presentation.height = config.capture_height;
+        const float captureFocalLengthPixels =
+            config.capture_policy_camera != 0u
+            ? 0.5f * static_cast<float>(config.capture_height) /
+                std::tan(
+                    0.5f * config.vertical_field_of_view_degrees *
+                    std::numbers::pi_v<float> / 180.0f
+                )
+            : 0.90f * static_cast<float>(config.capture_height);
         presentation.intrinsics = {
-            0.90f * static_cast<float>(config.capture_height),
-            0.90f * static_cast<float>(config.capture_height),
+            captureFocalLengthPixels,
+            captureFocalLengthPixels,
             0.5f * static_cast<float>(config.capture_width),
             0.5f * static_cast<float>(config.capture_height),
         };
@@ -1740,6 +1788,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             );
         }
         runtime->captureEnabled = true;
+        runtime->capturePolicyCamera =
+            config.capture_policy_camera != 0u;
     }
 
     metalrobo::MetalHybridObjectTrackerConfig trackerConfig;
@@ -2260,7 +2310,8 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
                 authored.task,
                 interactions,
                 clip,
-                *config
+                *config,
+                task != metalrobo::UnitreeG1Task::ballDodge
             );
         }
         if (config->interaction_reference_mode ==
@@ -2616,7 +2667,8 @@ size_t mr_task_rollout_copy_visual_rgba(
                     projectile.linearVelocityAndInverseMass.y +
                 projectile.linearVelocityAndInverseMass.z *
                     projectile.linearVelocityAndInverseMass.z;
-            if (speedSquared <= 0.25f) {
+            if (!handle->visualRuntime->capturePolicyCamera &&
+                speedSquared <= 0.25f) {
                 // Staged and expired projectiles remain real simulator state,
                 // but are not active presentation subjects. The onboard
                 // sensor path above continues to consume untouched states.

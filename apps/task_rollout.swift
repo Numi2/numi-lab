@@ -161,6 +161,7 @@ private struct Options {
     var verbose = false
     var nativePolicy = false
     var zeroActions = false
+    var actionStream: String?
     var scheduledResets = true
     var policyPack: String?
     var rolloutPack: String?
@@ -185,6 +186,7 @@ private struct Options {
     var captureWidth = 480
     var captureHeight = 270
     var captureStride = 1
+    var capturePolicyCamera = false
 
     init(arguments: [String]) throws {
         var index = 1
@@ -267,6 +269,9 @@ private struct Options {
                 nativePolicy = true
             case "--zero-actions":
                 zeroActions = true
+            case "--action-stream":
+                actionStream = try value()
+                index += 1
             case "--no-scheduled-resets":
                 scheduledResets = false
             case "--continue-after-termination":
@@ -376,6 +381,8 @@ private struct Options {
             case "--capture-stride":
                 captureStride = try Self.integer(value(), option)
                 index += 1
+            case "--capture-policy-camera":
+                capturePolicyCamera = true
             default:
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "Unknown option \(option)."
@@ -413,6 +420,13 @@ private struct Options {
         if zeroActions && (nativePolicy || policyPack != nil) {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--zero-actions cannot be combined with a compiled policy."
+            )
+        }
+        if actionStream != nil &&
+            (zeroActions || nativePolicy || policyPack != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--action-stream cannot be combined with another action source."
             )
         }
         if rolloutPack != nil &&
@@ -510,6 +524,11 @@ private struct Options {
                 "Native capture requires one environment, chunk 1, visual packs, positive dimensions, and a positive stride."
             )
         }
+        if capturePolicyCamera && captureDirectory == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--capture-policy-camera requires --capture-dir."
+            )
+        }
     }
 
     private static func integer(
@@ -551,6 +570,7 @@ private func makeG1VisualObservation(
     if options.captureDirectory != nil {
         observation.captureWidth = UInt32(options.captureWidth)
         observation.captureHeight = UInt32(options.captureHeight)
+        observation.capturePolicyCamera = options.capturePolicyCamera
     }
     return observation
 }
@@ -588,6 +608,36 @@ private func writeCaptureFrame(
     data.append(contentsOf: pixels)
     let name = String(format: "frame-%06d.ppm", index)
     try data.write(to: directory.appendingPathComponent(name))
+}
+
+private func readActionStream(
+    path: String,
+    expectedCount: Int
+) throws -> [Float] {
+    let data = try Data(contentsOf: URL(fileURLWithPath: path))
+    let byteCount = expectedCount.multipliedReportingOverflow(
+        by: MemoryLayout<Float>.stride
+    )
+    guard expectedCount > 0,
+          !byteCount.overflow,
+          data.count == byteCount.partialValue
+    else {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "--action-stream must contain exactly \(expectedCount) little-endian Float32 values."
+        )
+    }
+    var values = [Float](repeating: 0, count: expectedCount)
+    let copied = values.withUnsafeMutableBufferPointer { buffer in
+        data.copyBytes(to: UnsafeMutableRawBufferPointer(buffer))
+    }
+    guard copied == data.count,
+          values.allSatisfy(\.isFinite)
+    else {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "--action-stream contains an invalid Float32 value."
+        )
+    }
+    return values
 }
 
 private func makeContext(
@@ -754,6 +804,27 @@ private enum TaskRolloutMain {
             }
             if options.stateTrace != nil || options.captureDirectory != nil {
                 try context.setStateReadback(true)
+            }
+            let streamedActions: [Float]? = try options.actionStream.map {
+                let layout = context.layout
+                let stepEnvironments = options.environments
+                    .multipliedReportingOverflow(by: options.steps)
+                let samples = stepEnvironments.partialValue
+                    .multipliedReportingOverflow(by: options.repeats)
+                let elements = samples.partialValue
+                    .multipliedReportingOverflow(by: layout.actionCount)
+                guard !stepEnvironments.overflow,
+                      !samples.overflow,
+                      !elements.overflow
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--action-stream dimensions overflow Int."
+                    )
+                }
+                return try readActionStream(
+                    path: $0,
+                    expectedCount: elements.partialValue
+                )
             }
             let usesCompiledPolicy =
                 options.nativePolicy || options.policyPack != nil
@@ -1073,7 +1144,14 @@ private enum TaskRolloutMain {
                         )
                     } else {
                         let actionBatch: [Float]
-                        if options.zeroActions {
+                        if let streamedActions {
+                            let actionCount = context.layout.actionCount
+                            let start = globalStep * options.environments *
+                                actionCount
+                            let end = start + stepCount *
+                                options.environments * actionCount
+                            actionBatch = Array(streamedActions[start..<end])
+                        } else if options.zeroActions {
                             actionBatch = [Float](
                                 repeating: 0,
                                 count:
@@ -1514,7 +1592,10 @@ private enum TaskRolloutMain {
                     ? "compiled_policy"
                     : options.zeroActions
                     ? "zero"
+                    : options.actionStream != nil
+                    ? "foundation_action_stream"
                     : "host_stream",
+                "action_stream": options.actionStream ?? "",
                 "device": context.deviceName,
                 "solver_mode": "temporal_cone",
                 "articulated_contact_responses":

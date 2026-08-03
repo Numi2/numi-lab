@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 29u
+#define MR_TASK_PROGRAM_ABI_VERSION 31u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
@@ -254,6 +254,13 @@ enum MRTaskImpactTransitionFlags : mr_u32 {
     MR_TASK_OUTCOME_SUPPORT_TRANSFER = 1u << 26u,
     MR_TASK_OUTCOME_RECOVERY_RISE = 1u << 25u,
     MR_TASK_OUTCOME_QUIET_STAND = 1u << 24u,
+    // The policy contributed an additive residual to an authored interaction
+    // target. PPO remains valid; absolute teacher imitation is not.
+    MR_TASK_OUTCOME_POLICY_RESIDUAL = 1u << 23u,
+    // An InteractionPack supplied the complete executed action. The sampled
+    // student action did not control physics, so PPO attribution is invalid;
+    // the transition remains eligible for outcome-weighted distillation.
+    MR_TASK_OUTCOME_INTERACTION_TEACHER = 1u << 22u,
 };
 
 // Per-submission dimensions and attribution. Every stride is in elements.

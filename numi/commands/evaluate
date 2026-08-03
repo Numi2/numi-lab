@@ -17,7 +17,7 @@ is selected. Common options:
 
   --policy-pack PATH
   --interaction-pack PATH --interaction-clip ID
-  --native-policy | --zero-actions
+  --native-policy | --zero-actions | --action-stream actions.f32
   --task velocity|disturbance-recovery|supine-get-up|ball-recovery|ball-dodge
   --minimum-difficulty-band N --maximum-difficulty-band N
   --envs N --steps N --repeats N --chunk N
@@ -33,6 +33,20 @@ numi_has_option() {
     shift
     for numi_argument do
         [ "$numi_argument" = "$numi_sought_option" ] && return 0
+    done
+    return 1
+}
+
+numi_option_value() {
+    numi_sought_option=$1
+    shift
+    numi_take_next=0
+    for numi_argument do
+        if [ "$numi_take_next" -eq 1 ]; then
+            printf '%s\n' "$numi_argument"
+            return 0
+        fi
+        [ "$numi_argument" = "$numi_sought_option" ] && numi_take_next=1
     done
     return 1
 }
@@ -64,7 +78,8 @@ fi
 numi_has_option --metallib "$@" || set -- --metallib "$numi_metallib" "$@"
 if ! numi_has_option --policy-pack "$@" &&
    ! numi_has_option --native-policy "$@" &&
-   ! numi_has_option --zero-actions "$@"; then
+   ! numi_has_option --zero-actions "$@" &&
+   ! numi_has_option --action-stream "$@"; then
     set -- --native-policy "$@"
 fi
 
@@ -78,6 +93,15 @@ fi
 if command -v shasum >/dev/null 2>&1; then
     shasum -a 256 "$numi_evaluator" "$numi_metallib" \
         > "$numi_run/runtime.sha256"
+    numi_action_stream=$(numi_option_value --action-stream "$@" || true)
+    if [ "$numi_action_stream" != "" ]; then
+        [ -f "$numi_action_stream" ] || {
+            printf 'numi evaluate: missing action stream %s\n' \
+                "$numi_action_stream" >&2
+            exit 1
+        }
+        shasum -a 256 "$numi_action_stream" > "$numi_run/input.sha256"
+    fi
 fi
 printf 'numi evaluate: artifacts %s\n' "$numi_run" >&2
 

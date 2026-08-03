@@ -61,6 +61,63 @@ Each run writes:
   observation and noise fingerprints, providers, tensor shapes, stage timing,
   host information, and the action-chunk fingerprint.
 
+## Camera-to-teacher pipeline
+
+The production bridge uses the robot's torso-mounted policy camera, the exact
+post-step G1 generalized coordinates, and the existing native motion-teacher
+artifact. Foundation inference never blocks a Metal submission:
+
+1. capture one synchronized policy-camera frame and state row;
+2. infer a finite named action chunk outside the simulator hot loop;
+3. compile the accepted named joints into a full, rate-limited G1
+   `InteractionPack`;
+4. replay the pack through ordinary Metal physics with a native student actor;
+5. distill executed teacher actions in proportion to measured stability and
+   progress.
+
+The concrete commands after capture and inference are:
+
+```sh
+numi foundation observation \
+    --camera-frame /path/to/capture/frame-000000.ppm \
+    --state-trace /path/to/capture/state.tsv \
+    --output /path/to/run/observation.npz \
+    --evidence /path/to/run/observation.evidence.json
+
+numi foundation compile-interaction \
+    --action-chunk /path/to/run/action_chunk.npz \
+    --observation /path/to/run/observation.npz \
+    --native-library /path/to/libmetalrobo.dylib \
+    --output /path/to/run/foundation-teacher.interactionpack \
+    --evidence /path/to/run/interaction.evidence.json \
+    --id foundation-teacher-v1 \
+    --desired-outcome "move away from the visible projectile while balanced"
+
+numi train \
+    --task ball-dodge --scene ground \
+    --interaction-pack /path/to/run/foundation-teacher.interactionpack \
+    --interaction-clip foundation-teacher-v1 \
+    --interaction-student-authority 0 \
+    --g1-visual-pack-dir /path/to/g1-visual-packs \
+    --ball-visual-pack-dir /path/to/ball-visual-packs \
+    --envs 1024 --steps 27 --updates 1 --chunk 1
+```
+
+Pure teacher control is marked in every transition. Its sampled student action
+receives zero PPO weight because the student did not cause the physics, while
+the executed action remains available for behavior cloning. Failed or
+terminated steps receive no teacher weight. Stable partial progress receives a
+continuous weight instead of being discarded behind a binary success gate.
+With nonzero student authority, the student owns a residual and ordinary PPO
+attribution remains valid; the absolute generated pose is not imitated twice.
+
+The current G1 bridge maps waist and both seven-joint arms. The bundled 29-DoF
+robot has no dexterous-hand actuators, so hand outputs are retained in evidence
+but not executed. Navigation, base-height, and effort outputs are also retained
+but not yet mapped. Lower-body targets stay on Numi's native standing posture;
+this is an explicit first slice, not a claim that the upstream manipulation
+policy already knows whole-body dodge motion.
+
 ## Qualified Mac mini result
 
 On 2026-08-03, the complete model executed on a 24 GB Apple M4 Pro Mac mini:
@@ -96,13 +153,39 @@ stages within unified-memory limits, and selectively port dominant operators
 to MLX or native Metal. The provider-neutral action-chunk boundary does not
 change as Apple hardware and runtimes improve.
 
+## Real observation and teacher qualification
+
+On 2026-08-03, Numi captured a real 640x480 torso-camera view of the authored
+ball-dodge scene and synchronized it with G1 state at step 1. The exact
+observation drove the full GR00T graph on the Mac mini, producing a finite
+16-frame chunk. Numi resampled it from 30 Hz to 50 Hz, enforced authored joint
+position and velocity limits, and executed the resulting 27-frame
+`InteractionPack` through Metal:
+
+| Measurement | Result |
+| --- | ---: |
+| Failed Metal environment steps | `0 / 27` |
+| Terminations | `0 / 27` |
+| Mean root height | `0.77766 m` |
+| Maximum tilt | `0.06260 rad` |
+| Mean tracking score | `0.97485` |
+| Visual observation active during teacher rollout | `true` |
+| Teacher-attributed transitions | `27 / 27` |
+| PPO weight on pure-teacher transitions | `0` |
+| Mean continuous distillation weight | `0.99175` |
+
+A one-update MLX smoke distillation consumed those 27 native visual samples,
+advanced policy revision 1 to 2, reported `policy_loss = 0`, and reported an
+imagination loss of `0.0218893`. This validates the data path and attribution;
+it does not establish dodge competence because no projectile trial completed
+inside the short 27-step chunk.
+
 ## Claim boundary and integration path
 
-The qualified run used a deterministic synthetic observation. It proves that
-the full foundation-policy graph executes on Apple Silicon and that Numi can
-produce a reproducible typed action artifact. It does not prove that this
-pick-and-place policy can dodge, get up, or safely control Numi's simulated
-G1.
+The synthetic replay proves runtime determinism. The real-observation run adds
+camera/state wiring, controller mapping, native physical execution, and one
+teacher update. Neither proves that this pick-and-place policy can dodge, get
+up, or safely control a real G1.
 
 Task use requires three additional physical steps:
 

@@ -103,6 +103,12 @@ void appendLocomotionDynamicSpheres(
     LocomotionSurface surface
 );
 
+// Canonical normalized-action radians used by the bundled G1 TaskPack and
+// deployment adapters. Keeping one native source prevents teacher providers
+// from silently targeting a different controller contract.
+[[nodiscard]] std::span<const float>
+unitreeG1LocomotionActionScales() noexcept;
+
 // Zero-command standing and balance-recovery workload. Native randomized
 // impulses are the high-throughput training proxy; ordinary dynamic bodies
 // provide complementary physical-impact evidence.

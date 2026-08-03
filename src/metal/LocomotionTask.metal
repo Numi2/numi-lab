@@ -2909,13 +2909,10 @@ kernel void mr_locomotion_task_apply_actions(
             defaultQ[binding.indices.z] +
             binding.parameters.x * filtered;
         const float targetCandidate = interactionReference
-            ? mix(
-                  interactionJointTargets[
-                      referenceFrame * program.interaction.y + action
-                  ],
-                  studentTarget,
-                  program.interactionTiming.z
-              )
+            ? interactionJointTargets[
+                  referenceFrame * program.interaction.y + action
+              ] + program.interactionTiming.z *
+                  (studentTarget - defaultQ[binding.indices.z])
             : studentTarget;
         const float target = clamp(
             targetCandidate,
@@ -2931,12 +2928,20 @@ kernel void mr_locomotion_task_apply_actions(
         ] = target;
         if ((program.schedule.w &
              MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u) {
-            teacherActions[actionBase + action] = clamp(
-                (target - defaultQ[binding.indices.z]) /
-                    binding.parameters.x,
-                -1.0f,
-                1.0f
-            );
+            // With nonzero student authority the policy owns a residual on
+            // top of ARDY's motion, so the neutral teacher residual is zero.
+            // At zero authority this is pure teacher collection for an
+            // autonomous student and the absolute interaction action remains
+            // the correct distillation label.
+            teacherActions[actionBase + action] =
+                program.interactionTiming.z > 0.0f
+                ? 0.0f
+                : clamp(
+                    (target - defaultQ[binding.indices.z]) /
+                        binding.parameters.x,
+                    -1.0f,
+                    1.0f
+                );
         }
     }
 }
@@ -5372,7 +5377,19 @@ kernel void mr_locomotion_task_complete(
         impactTransitionFlags |
             recoveryOutcomeFlags |
             (standingCompleted ? MR_TASK_OUTCOME_STANDING : 0u) |
-            (restoredCompleted ? MR_TASK_OUTCOME_RESTORED : 0u)
+            (restoredCompleted ? MR_TASK_OUTCOME_RESTORED : 0u) |
+            (
+                (program.schedule.w &
+                 MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u &&
+                    program.interactionTiming.z > 0.0f
+                ? MR_TASK_OUTCOME_POLICY_RESIDUAL : 0u
+            ) |
+            (
+                (program.schedule.w &
+                 MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u &&
+                    program.interactionTiming.z == 0.0f
+                ? MR_TASK_OUTCOME_INTERACTION_TEACHER : 0u
+            )
     );
     transitions[transitionIndex] = transition;
 }

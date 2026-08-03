@@ -119,6 +119,9 @@ typedef struct MRTaskVisualObservationConfigC {
     // path and allocates no second renderer.
     uint32_t capture_width;
     uint32_t capture_height;
+    // Capture a high-resolution camera with the policy sensor's authored
+    // parent and pose instead of the external presentation camera.
+    uint32_t capture_policy_camera;
 } MRTaskVisualObservationConfigC;
 
 typedef struct MRTaskRolloutLayoutC {

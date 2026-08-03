@@ -3429,9 +3429,9 @@ TaskCompileDiagnostics compileTaskProgram(
             ? 0.0f
             : static_cast<float>(interactionClip->frameCount - 1u) /
                 interactionClip->framesPerSecond,
-        // The autonomous policy owns the full mechanism-scale action range.
-        // Authored student authority controls whether it corrects the guide
-        // during collection or learns in observation-only shadow mode.
+        // Authored student authority scales the learned control residual
+        // around the guide during collection. Zero remains observation-only
+        // shadow mode; autonomous evaluation disables the guide explicitly.
         interactionClip == nullptr
             ? 0.0f
             : pack.interactionStudentAuthority,

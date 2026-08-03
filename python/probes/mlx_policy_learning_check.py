@@ -253,6 +253,45 @@ def check_realized_imagination_weighting() -> None:
             "later collapse erased earlier accepted physical progress"
         )
 
+    foundation_transitions = np.zeros(4, dtype=transitions.dtype)
+    foundation_transitions["root_height"] = (0.78, 0.77, 0.76, 0.75)
+    foundation_transitions["tilt"] = (0.01, 0.03, 0.06, 0.08)
+    foundation_transitions["impact_event_flags"] = 1 << 22
+    foundation = replace(
+        rollout,
+        id="foundation_interaction_teacher",
+        actor_observations=np.zeros(4, dtype=np.float32),
+        critic_observations=np.zeros(4, dtype=np.float32),
+        latents=np.zeros(4, dtype=np.float32),
+        old_log_probabilities=np.zeros(4, dtype=np.float32),
+        old_values=np.zeros(4, dtype=np.float32),
+        transitions=foundation_transitions,
+        teacher_actions=np.ones(4, dtype=np.float32),
+    ).policy_batch()
+    if (
+        np.any(foundation.teacher_weights <= 0.0)
+        or np.any(foundation.policy_weights)
+    ):
+        raise RuntimeError(
+            "pure InteractionPack control was not isolated to distillation"
+        )
+    foundation_transitions["done"][2] = 1
+    failed_foundation = replace(
+        rollout,
+        id="failed_foundation_interaction_teacher",
+        actor_observations=np.zeros(4, dtype=np.float32),
+        critic_observations=np.zeros(4, dtype=np.float32),
+        latents=np.zeros(4, dtype=np.float32),
+        old_log_probabilities=np.zeros(4, dtype=np.float32),
+        old_values=np.zeros(4, dtype=np.float32),
+        transitions=foundation_transitions,
+        teacher_actions=np.ones(4, dtype=np.float32),
+    ).policy_batch()
+    if failed_foundation.teacher_weights[2] != 0.0:
+        raise RuntimeError(
+            "terminated InteractionPack control became teacher truth"
+        )
+
 
 def check_resumable_schedule_contracts() -> None:
     ppo = {

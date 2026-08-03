@@ -13,6 +13,15 @@
 namespace metalrobo {
 namespace {
 
+constexpr std::array<float, kUnitreeG1JointCount>
+    kUnitreeG1ActionScales{{
+        0.55f, 0.35f, 0.55f, 0.35f, 0.44f, 0.44f,
+        0.55f, 0.35f, 0.55f, 0.35f, 0.44f, 0.44f,
+        0.55f, 0.44f, 0.44f,
+        0.44f, 0.44f, 0.44f, 0.44f, 0.44f, 0.07f, 0.07f,
+        0.44f, 0.44f, 0.44f, 0.44f, 0.44f, 0.07f, 0.07f,
+    }};
+
 MRBodyPropertiesGPU staticBody() {
     MRBodyPropertiesGPU body{};
     body.articulationIndex = MR_INVALID_INDEX;
@@ -667,13 +676,8 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     task.pushes.minimumIntervalSeconds = 5.0f;
     task.pushes.maximumIntervalSeconds = 5.0f;
 
-    constexpr std::array<float, kUnitreeG1JointCount> actionScales{{
-        0.55f, 0.35f, 0.55f, 0.35f, 0.44f, 0.44f,
-        0.55f, 0.35f, 0.55f, 0.35f, 0.44f, 0.44f,
-        0.55f, 0.44f, 0.44f,
-        0.44f, 0.44f, 0.44f, 0.44f, 0.44f, 0.07f, 0.07f,
-        0.44f, 0.44f, 0.44f, 0.44f, 0.44f, 0.07f, 0.07f,
-    }};
+    const std::span<const float> actionScales =
+        unitreeG1LocomotionActionScales();
     task.actions.reserve(metadata.jointLimits.size());
     for (std::size_t index = 0u;
          index < metadata.jointLimits.size();
@@ -1025,6 +1029,11 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     };
 
     return task;
+}
+
+std::span<const float>
+unitreeG1LocomotionActionScales() noexcept {
+    return kUnitreeG1ActionScales;
 }
 
 TaskPack makeUnitreeG1DisturbanceRecoveryTaskPack(

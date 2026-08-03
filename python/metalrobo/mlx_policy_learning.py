@@ -223,9 +223,27 @@ class NativePolicyRollout:
                 )
                 for step in range(steps):
                     current = int(sequence[step, environment])
-                    policy_weights[step, environment] = float(
-                        current == 0 and not get_up
+                    residual_control = bool(
+                        int(environment_flags[step]) & (1 << 23)
                     )
+                    interaction_teacher = bool(
+                        int(environment_flags[step]) & (1 << 22)
+                    )
+                    policy_weights[step, environment] = float(
+                        residual_control or
+                        (
+                            not interaction_teacher
+                            and current == 0
+                            and not get_up
+                        )
+                    )
+                    if residual_control:
+                        # ARDY already supplies the absolute motion. The
+                        # sampled actor action is an executed residual, so it
+                        # has a valid PPO ratio and must not be trained toward
+                        # the absolute teacher pose a second time.
+                        start = None
+                        continue
                     if current != active_sequence:
                         active_sequence = current
                         start = step if current != 0 else None
@@ -255,6 +273,35 @@ class NativePolicyRollout:
                         step,
                         environment,
                     ]:
+                        if interaction_teacher and not failed[
+                            step,
+                            environment,
+                        ]:
+                            # Generated motion is intent, while Metal supplies
+                            # the physical evidence. Retain stable partial
+                            # progress continuously instead of requiring a
+                            # binary task-completion gate.
+                            stability = np.clip(
+                                1.0
+                                - tilt[step, environment]
+                                / np.float32(np.pi),
+                                0.0,
+                                1.0,
+                            )
+                            height_quality = np.clip(
+                                root_height[step, environment]
+                                / np.float32(0.78),
+                                0.0,
+                                1.0,
+                            )
+                            teacher_weights[step, environment] = max(
+                                teacher_weights[step, environment],
+                                np.float32(
+                                    0.15
+                                    + 0.45 * stability
+                                    + 0.40 * height_quality
+                                ),
+                            )
                         continue
                     previous = max(step - 1, 0)
                     height_progress = max(

@@ -1104,11 +1104,21 @@ private enum TaskTrainMain {
                   learner.criticObservationCount ==
                       layout.criticObservationCount,
                   learner.actionCount == layout.actionCount,
-                  learner.motionFeatureCount ==
-                      layout.motionFeatureCount
+                  (
+                      learner.motionFeatureCount == 0 ||
+                      learner.motionFeatureCount ==
+                          layout.motionFeatureCount
+                  )
             else {
                 throw MetalRoboTaskRolloutError.invalidShape(
-                    "PolicyPack dimensions do not match the compiled task."
+                    "PolicyPack dimensions do not match the compiled task: "
+                    + "actor \(learner.actorObservationCount)/"
+                    + "\(layout.actorObservationCount), critic "
+                    + "\(learner.criticObservationCount)/"
+                    + "\(layout.criticObservationCount), actions "
+                    + "\(learner.actionCount)/\(layout.actionCount), motion "
+                    + "\(learner.motionFeatureCount)/"
+                    + "\(layout.motionFeatureCount)."
                 )
             }
             let initialRevision = learner.revision
