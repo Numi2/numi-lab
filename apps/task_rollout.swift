@@ -1164,6 +1164,18 @@ private enum TaskRolloutMain {
                 repeating: 0,
                 count: options.environments
             )
+            var initialForwardPositionByEnvironment = [Double](
+                repeating: .nan,
+                count: options.environments
+            )
+            var maximumForwardProgressByEnvironment = [Double](
+                repeating: 0.0,
+                count: options.environments
+            )
+            var finalForwardProgressByEnvironment = [Double](
+                repeating: 0.0,
+                count: options.environments
+            )
             var footSupportStepCountByEnvironment = [Int](
                 repeating: 0,
                 count: options.environments
@@ -1215,6 +1227,10 @@ private enum TaskRolloutMain {
             let supportsG1SquatEvidence =
                 options.stateTrace != nil &&
                 options.unitreeG1Task == .supineGetUpDiscovery &&
+                options.worldPack == nil && options.urdf == nil
+            let supportsG1ForwardEvidence =
+                options.stateTrace != nil &&
+                options.unitreeG1Task == .velocity &&
                 options.worldPack == nil && options.urdf == nil
             var impactTouches = [Int](
                 repeating: 0,
@@ -1596,6 +1612,41 @@ private enum TaskRolloutMain {
                         let environment = options.stateTraceEnvironment
                         let allConfigurations =
                             try context.finalConfiguration()
+                        if supportsG1ForwardEvidence &&
+                            traceLayout.configurationCount >= 7
+                        {
+                            for metricEnvironment in
+                                0..<options.environments
+                            {
+                                let metricBase = metricEnvironment *
+                                    traceLayout.configurationCount
+                                let position = Double(
+                                    allConfigurations[metricBase]
+                                )
+                                if !initialForwardPositionByEnvironment[
+                                    metricEnvironment
+                                ].isFinite {
+                                    initialForwardPositionByEnvironment[
+                                        metricEnvironment
+                                    ] = position
+                                }
+                                let origin = initialForwardPositionByEnvironment[
+                                    metricEnvironment
+                                ]
+                                let progress = position - origin
+                                maximumForwardProgressByEnvironment[
+                                    metricEnvironment
+                                ] = max(
+                                    maximumForwardProgressByEnvironment[
+                                        metricEnvironment
+                                    ],
+                                    progress
+                                )
+                                finalForwardProgressByEnvironment[
+                                    metricEnvironment
+                                ] = progress
+                            }
+                        }
                         if supportsG1SquatEvidence &&
                             traceLayout.configurationCount > 16 {
                             for metricEnvironment in
@@ -1850,6 +1901,19 @@ private enum TaskRolloutMain {
                 )
             let cleanHorizonEnvironmentCount =
                 terminationCountByEnvironment.filter { $0 == 0 }.count
+            let forwardEvidenceAvailable =
+                supportsG1ForwardEvidence &&
+                initialForwardPositionByEnvironment.allSatisfy {
+                    $0.isFinite
+                }
+            let meanPeakForwardProgress = forwardEvidenceAvailable
+                ? maximumForwardProgressByEnvironment.reduce(0.0, +) /
+                    Double(max(options.environments, 1))
+                : 0.0
+            let meanFinalForwardProgress = forwardEvidenceAvailable
+                ? finalForwardProgressByEnvironment.reduce(0.0, +) /
+                    Double(max(options.environments, 1))
+                : 0.0
             let squatCycleEvidenceByEnvironment: [[String: Any]] =
                 (0..<options.environments).map { environment in
                     let available = supportsG1SquatEvidence &&
@@ -2110,6 +2174,23 @@ private enum TaskRolloutMain {
                 "clean_horizon_environment_rate":
                     Double(cleanHorizonEnvironmentCount) /
                     Double(max(options.environments, 1)),
+                "forward_progress_available": forwardEvidenceAvailable,
+                "mean_peak_forward_progress_m":
+                    meanPeakForwardProgress,
+                "mean_final_forward_progress_m":
+                    meanFinalForwardProgress,
+                "maximum_forward_progress_m":
+                    forwardEvidenceAvailable
+                    ? maximumForwardProgressByEnvironment.max() ?? 0.0
+                    : 0.0,
+                "peak_forward_progress_by_environment_m":
+                    forwardEvidenceAvailable
+                    ? maximumForwardProgressByEnvironment
+                    : [],
+                "final_forward_progress_by_environment_m":
+                    forwardEvidenceAvailable
+                    ? finalForwardProgressByEnvironment
+                    : [],
                 "squat_cycle_evidence": squatCycleEvidence,
                 "squat_cycle_completed_environment_count":
                     completedSquatCycleEnvironments.count,

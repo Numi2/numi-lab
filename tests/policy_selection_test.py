@@ -96,6 +96,29 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(decision["selected"], "incumbent")
         self.assertIn("mean root height decreased", decision["regressions"])
 
+    def test_forward_reach_is_explicit_progress(self) -> None:
+        incumbent = {
+            "task": "velocity",
+            "termination_count": 0,
+            "termination_count_by_environment": [0] * 256,
+            "failed_environment_steps": 0,
+            "forward_progress_available": True,
+            "mean_peak_forward_progress_m": 0.42,
+            "mean_tracking_score": 0.52,
+            "mean_tilt": 0.35,
+            "mean_root_height": 0.60,
+        }
+        candidate = {
+            **incumbent,
+            "mean_peak_forward_progress_m": 0.45,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertIn(
+            "mean peak forward progress increased",
+            decision["improvements"],
+        )
+
     def test_one_deterministic_completion_is_progress(self) -> None:
         incumbent = {
             "task": "supine-get-up",

@@ -99,6 +99,11 @@ of the generated motion. The legacy
 Held-out policy selection omits all reset-curriculum options and evaluates the
 complete physical trajectory from its canonical initial state.
 
+For the bundled G1 forward-running task, canonical evaluation also publishes
+mean and per-environment peak forward displacement in meters. Forward reach is
+the primary task outcome; tracking, root height, tilt, contact, and failed-step
+evidence distinguish physically useful travel from pose matching or collapse.
+
 ## Codex bootstrap
 
 The plugin under `plugins/numi-lab` intentionally contains a small skill. It

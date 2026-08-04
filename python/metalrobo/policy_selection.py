@@ -221,6 +221,19 @@ def compare_evidence(
             elif new_support > old_support + 0.005:
                 improvements.append("bilateral support rate increased")
     else:
+        old_forward = float(
+            incumbent.get("mean_peak_forward_progress_m", 0)
+        )
+        new_forward = float(
+            candidate.get("mean_peak_forward_progress_m", 0)
+        )
+        if bool(incumbent.get("forward_progress_available")) and bool(
+            candidate.get("forward_progress_available")
+        ):
+            if new_forward < old_forward - 0.005:
+                regressions.append("mean peak forward progress decreased")
+            elif new_forward > old_forward + 0.005:
+                improvements.append("mean peak forward progress increased")
         old_tracking = float(incumbent.get("mean_tracking_score", 0))
         new_tracking = float(candidate.get("mean_tracking_score", 0))
         if new_tracking < old_tracking - 0.001:
@@ -237,6 +250,12 @@ def compare_evidence(
 
     old_height = float(incumbent.get("mean_root_height", 0))
     new_height = float(candidate.get("mean_root_height", 0))
+    old_forward = float(
+        incumbent.get("mean_peak_forward_progress_m", 0)
+    )
+    new_forward = float(
+        candidate.get("mean_peak_forward_progress_m", 0)
+    )
     upright_tasks = {
         "velocity",
         "disturbance-recovery",
@@ -267,6 +286,8 @@ def compare_evidence(
             "candidate_mean_tilt": new_tilt,
             "incumbent_mean_root_height": old_height,
             "candidate_mean_root_height": new_height,
+            "incumbent_mean_peak_forward_progress_m": old_forward,
+            "candidate_mean_peak_forward_progress_m": new_forward,
         },
     }
 
