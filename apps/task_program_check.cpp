@@ -1645,6 +1645,24 @@ int main(const int argc, const char* const* argv) {
         }
         metalrobo::LocomotionWorld manipulation = dodge;
         manipulation.task.id = "generic_rigid_object_manipulation_probe";
+        manipulation.task.outcomes = {
+            {"grasp", "reward",
+                metalrobo::TaskOutcomeSource::rewardContribution,
+                metalrobo::TaskOutcomeDirection::higherIsBetter,
+                metalrobo::TaskRewardOperator::objectGrasp},
+            {"lift", "reward",
+                metalrobo::TaskOutcomeSource::rewardContribution,
+                metalrobo::TaskOutcomeDirection::higherIsBetter,
+                metalrobo::TaskRewardOperator::objectLift},
+            {"position", "reward",
+                metalrobo::TaskOutcomeSource::rewardContribution,
+                metalrobo::TaskOutcomeDirection::higherIsBetter,
+                metalrobo::TaskRewardOperator::objectPosition},
+            {"placement", "reward",
+                metalrobo::TaskOutcomeSource::rewardContribution,
+                metalrobo::TaskOutcomeDirection::higherIsBetter,
+                metalrobo::TaskRewardOperator::objectPlacement},
+        };
         manipulation.task.rewards = {
             {
                 .operation = metalrobo::TaskRewardOperator::objectGrasp,
@@ -1681,7 +1699,9 @@ int main(const int argc, const char* const* argv) {
                 compiledManipulation
             );
         if (!manipulationStatus.succeeded() ||
-            compiledManipulation.task.rewardOperators().size() != 4u) {
+            compiledManipulation.task.rewardOperators().size() != 4u ||
+            compiledManipulation.task.outcomes().size() != 4u ||
+            compiledManipulation.task.header().interactionOffsets1.w != 4u) {
             fail("generic rigid-object manipulation rewards did not compile");
         }
         for (const MRTaskRewardOperatorGPU& operation :

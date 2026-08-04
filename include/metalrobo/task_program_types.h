@@ -389,7 +389,9 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_float4 interactionCurriculum;
     // Root targets, joint targets, contact descriptors, sample metadata.
     mr_uint4 interactionOffsets0;
-    // Contact targets, tolerances, reserved, reserved.
+    // Contact targets, tolerances, reward-outcome operation table, count.
+    // The final table contains at most eight reward opcodes. Each entry maps
+    // to the same-numbered generic transition outcome channel.
     mr_uint4 interactionOffsets1;
 } MRTaskProgramHeaderGPU;
 
@@ -546,11 +548,10 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
     mr_float4 rewardBreakdown0;
     // action-control, posture/limits, energy, and contact contributions.
     mr_float4 rewardBreakdown1;
-    // Dodge link-clearance, evasion, miss, and safe-stillness contributions.
-    mr_float4 dodgeRewardBreakdown0;
-    // Dodge safe-action-rate, CBF correction, CBF buffer, and predicted
-    // clearance contributions.
-    mr_float4 dodgeRewardBreakdown1;
+    // Task-authored reward outcome channels 0...3 and 4...7. Their meanings
+    // and units live in the compiled typed outcome schema.
+    mr_float4 outcomeChannels0;
+    mr_float4 outcomeChannels1;
     mr_u64 policyRevision;
     // V of the accepted post-transition state for timeout bootstrapping.
     float timeoutBootstrapValue;

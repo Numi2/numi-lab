@@ -31,6 +31,8 @@ struct CompiledTaskProgram::Storage {
     TaskProgramLayout layout{};
     MRTaskProgramHeaderGPU header{};
     std::vector<MRTaskActionBindingGPU> actionBindings;
+    std::vector<CompiledTaskOutcomeSpec> outcomes;
+    std::vector<std::uint32_t> outcomeRewardOperations;
     std::vector<MRTaskObservationOperatorGPU> actorOperators;
     std::vector<MRTaskObservationOperatorGPU> criticOperators;
     std::vector<MRTaskContactGroupGPU> contactGroups;
@@ -386,6 +388,13 @@ CompiledTaskProgram::actionBindings() const noexcept {
               storage_->actionBindings
           }
         : std::span<const MRTaskActionBindingGPU>{};
+}
+
+std::span<const CompiledTaskOutcomeSpec>
+CompiledTaskProgram::outcomes() const noexcept {
+    return valid()
+        ? std::span<const CompiledTaskOutcomeSpec>{storage_->outcomes}
+        : std::span<const CompiledTaskOutcomeSpec>{};
 }
 
 std::span<const MRTaskObservationOperatorGPU>
@@ -996,6 +1005,63 @@ TaskCompileDiagnostics compileTaskProgram(
 
     auto staged = std::make_shared<CompiledTaskProgram::Storage>();
     staged->worldFingerprint = world.fingerprint();
+    std::vector<std::string> outcomeIds{
+        "reward", "task_reward", "done", "timeout", "physics_error",
+    };
+    outcomeIds.reserve(outcomeIds.size() + pack.outcomes.size());
+    staged->outcomes.reserve(pack.outcomes.size());
+    staged->outcomeRewardOperations.reserve(8u);
+    for (const TaskOutcomeSpec& outcome : pack.outcomes) {
+        const auto source = static_cast<std::uint32_t>(outcome.source);
+        const auto direction = static_cast<std::uint32_t>(outcome.direction);
+        const bool taskAuthoredSource =
+            (source >= 2u && source <= 4u) ||
+            source == 8u || source == 9u;
+        if (outcome.id.empty() || outcome.unit.empty() ||
+            !taskAuthoredSource ||
+            direction > 2u ||
+            std::ranges::find(outcomeIds, outcome.id) != outcomeIds.end()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                outcome.id,
+                "outcomes require unique nonempty identities and units with a supported source and direction"
+            );
+        }
+        outcomeIds.push_back(outcome.id);
+        std::uint32_t compiledSource = source;
+        if (outcome.source == TaskOutcomeSource::rewardContribution) {
+            const auto rewardOperation = static_cast<std::uint32_t>(
+                outcome.rewardOperation
+            );
+            if (staged->outcomeRewardOperations.size() >= 8u ||
+                std::ranges::find(
+                    staged->outcomeRewardOperations,
+                    rewardOperation
+                ) != staged->outcomeRewardOperations.end() ||
+                std::ranges::none_of(
+                    pack.rewards,
+                    [&](const TaskRewardOperatorSpec& reward) {
+                        return reward.operation == outcome.rewardOperation;
+                    }
+                )) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    outcome.id,
+                    "a reward outcome requires one unique authored reward operator and one of eight native channels"
+                );
+            }
+            compiledSource = 9u + static_cast<std::uint32_t>(
+                staged->outcomeRewardOperations.size()
+            );
+            staged->outcomeRewardOperations.push_back(rewardOperation);
+        }
+        staged->outcomes.push_back({
+            outcome.id,
+            outcome.unit,
+            compiledSource,
+            outcome.direction,
+        });
+    }
 
     std::vector<std::uint32_t> actionJoints;
     actionJoints.reserve(pack.actions.size());
@@ -1409,7 +1475,6 @@ TaskCompileDiagnostics compileTaskProgram(
         });
         jointGroupIds.push_back(group.id);
     }
-
     std::vector<std::string> interactionContactIds;
     if (interactionClip != nullptr) {
         staged->interactionRootTargets =
@@ -3896,15 +3961,22 @@ TaskCompileDiagnostics compileTaskProgram(
                 staged->interactionContactTolerances
             }
         ),
-        0u,
-        0u,
+        appendArena(
+            std::span<const std::uint32_t>{
+                staged->outcomeRewardOperations
+            }
+        ),
+        static_cast<std::uint32_t>(
+            staged->outcomeRewardOperations.size()
+        ),
     };
     if (staged->header.interactionOffsets0.x == MR_INVALID_INDEX ||
         staged->header.interactionOffsets0.y == MR_INVALID_INDEX ||
         staged->header.interactionOffsets0.z == MR_INVALID_INDEX ||
         staged->header.interactionOffsets0.w == MR_INVALID_INDEX ||
         staged->header.interactionOffsets1.x == MR_INVALID_INDEX ||
-        staged->header.interactionOffsets1.y == MR_INVALID_INDEX) {
+        staged->header.interactionOffsets1.y == MR_INVALID_INDEX ||
+        staged->header.interactionOffsets1.z == MR_INVALID_INDEX) {
         return reject(
             TaskCompileStatus::arithmeticOverflow,
             "interaction",
@@ -3979,6 +4051,13 @@ TaskCompileDiagnostics compileTaskProgram(
             hash.string(joint);
         }
     }
+    for (const CompiledTaskOutcomeSpec& outcome : staged->outcomes) {
+        hash.string(outcome.id);
+        hash.string(outcome.unit);
+        hash.scalar(outcome.source);
+        hash.scalar(outcome.direction);
+    }
+    hash.span<std::uint32_t>(staged->outcomeRewardOperations);
     if (interactionClip != nullptr) {
         hash.string(interactions.id);
         hash.string(interactions.sourceRepository);

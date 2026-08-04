@@ -3503,6 +3503,8 @@ kernel void mr_locomotion_task_complete(
             arena,
             program.interactionOffsets1.y
         );
+    device const uint* outcomeRewardOperations =
+        taskTable<uint>(arena, program.interactionOffsets1.z);
 
     const uint qBase = environment * dispatch.counts.z;
     const uint vBase = environment * dispatch.counts.w;
@@ -4155,8 +4157,8 @@ kernel void mr_locomotion_task_complete(
     bool standingCompleted = false;
     bool restoredCompleted = false;
     uint recoveryOutcomeFlags = 0u;
-    float4 dodgeRewardBreakdown0 = float4(0.0f);
-    float4 dodgeRewardBreakdown1 = float4(0.0f);
+    float4 outcomeChannels0 = float4(0.0f);
+    float4 outcomeChannels1 = float4(0.0f);
     for (uint rewardIndex = 0u;
          rewardIndex < program.counts1.w;
          ++rewardIndex) {
@@ -5429,33 +5431,17 @@ kernel void mr_locomotion_task_complete(
         interactionTrackingSum += interactionMetric;
         interactionTrackingWeight += interactionMetricWeight;
         reward += contribution;
-        switch (operation.source.x) {
-        case MR_TASK_REWARD_LINK_CLEARANCE_BARRIER:
-            dodgeRewardBreakdown0.x += contribution;
-            break;
-        case MR_TASK_REWARD_PROJECTILE_EVASION:
-            dodgeRewardBreakdown0.y += contribution;
-            break;
-        case MR_TASK_REWARD_PROJECTILE_MISS:
-            dodgeRewardBreakdown0.z += contribution;
-            break;
-        case MR_TASK_REWARD_PROJECTILE_SAFE_STILLNESS:
-            dodgeRewardBreakdown0.w += contribution;
-            break;
-        case MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE:
-            dodgeRewardBreakdown1.x += contribution;
-            break;
-        case MR_TASK_REWARD_JOINT_CBF_CORRECTION:
-            dodgeRewardBreakdown1.y += contribution;
-            break;
-        case MR_TASK_REWARD_JOINT_CBF_BUFFER:
-            dodgeRewardBreakdown1.z += contribution;
-            break;
-        case MR_TASK_REWARD_PROJECTILE_PREDICTED_CLEARANCE:
-            dodgeRewardBreakdown1.w += contribution;
-            break;
-        default:
-            break;
+        for (uint channel = 0u;
+             channel < program.interactionOffsets1.w;
+             ++channel) {
+            if (outcomeRewardOperations[channel] != operation.source.x) {
+                continue;
+            }
+            if (channel < 4u) {
+                outcomeChannels0[channel] += contribution;
+            } else {
+                outcomeChannels1[channel - 4u] += contribution;
+            }
         }
         switch (operation.source.x) {
         case MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING:
@@ -5532,8 +5518,8 @@ kernel void mr_locomotion_task_complete(
     reward *= dispatch.timing.x;
     rewardBreakdown0 *= dispatch.timing.x;
     rewardBreakdown1 *= dispatch.timing.x;
-    dodgeRewardBreakdown0 *= dispatch.timing.x;
-    dodgeRewardBreakdown1 *= dispatch.timing.x;
+    outcomeChannels0 *= dispatch.timing.x;
+    outcomeChannels1 *= dispatch.timing.x;
 
     const float tracking = exp(-trackingError / 0.25f);
     const float yawTracking = exp(-yawError / 0.25f);
@@ -5972,8 +5958,8 @@ kernel void mr_locomotion_task_complete(
     );
     transition.rewardBreakdown0 = rewardBreakdown0;
     transition.rewardBreakdown1 = rewardBreakdown1;
-    transition.dodgeRewardBreakdown0 = dodgeRewardBreakdown0;
-    transition.dodgeRewardBreakdown1 = dodgeRewardBreakdown1;
+    transition.outcomeChannels0 = outcomeChannels0;
+    transition.outcomeChannels1 = outcomeChannels1;
     transition.policyRevision =
         dispatch.policyRevision;
     transition.episodeTrackingScore =

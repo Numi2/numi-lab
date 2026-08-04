@@ -727,8 +727,16 @@ int main() {
         );
         const std::uint32_t cubeBody =
             static_cast<std::uint32_t>(franka.bodies.size());
+        const bool namesBodies = !franka.bodyNames.empty();
+        const bool namesShapes = !franka.shapeNames.empty();
         franka.bodies.push_back(cubeProperties());
         franka.shapes.push_back(cubeShape(cubeBody));
+        if (namesBodies) {
+            franka.bodyNames.push_back("contact_probe_cube");
+        }
+        if (namesShapes) {
+            franka.shapeNames.push_back("contact_probe_cube_collision");
+        }
         franka.world.bodyCount =
             static_cast<std::uint32_t>(franka.bodies.size());
         franka.world.shapeCount =
@@ -741,9 +749,14 @@ int main() {
                 0u,
                 frankaWorld
             );
+        if (!frankaCompiled.succeeded()) {
+            throw std::runtime_error(
+                "Franka-plus-cube compilation failed: " +
+                frankaCompiled.message
+            );
+        }
         require(
-            frankaCompiled.succeeded() &&
-                frankaWorld.sceneBodyCount() == 1u &&
+            frankaWorld.sceneBodyCount() == 1u &&
                 std::none_of(
                     frankaWorld.eligiblePairs().begin(),
                     frankaWorld.eligiblePairs().end(),
@@ -752,7 +765,7 @@ int main() {
                             MR_COLLISION_PAIR_UNSUPPORTED;
                     }
                 ),
-            "Franka-plus-cube compilation failed"
+            "Franka-plus-cube compilation produced invalid topology"
         );
 
         MRBodyStateGPU cube{};

@@ -13570,8 +13570,8 @@ MetalWorldDiagnostics validateAndPublish(
                         finite(transition.rewardAndState) &&
                         finite(transition.rewardBreakdown0) &&
                         finite(transition.rewardBreakdown1) &&
-                        finite(transition.dodgeRewardBreakdown0) &&
-                        finite(transition.dodgeRewardBreakdown1) &&
+                        finite(transition.outcomeChannels0) &&
+                        finite(transition.outcomeChannels1) &&
                         transition.policyRevision ==
                             expectedPolicyRevision &&
                         transition.termination.x <= 1u &&

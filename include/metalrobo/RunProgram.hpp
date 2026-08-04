@@ -114,6 +114,12 @@ struct RunProfile {
     std::uint32_t finalVelocityIterations = 2u;
     float controlTimestepSeconds = 1.0f / 50.0f;
     std::uint64_t seed = 1u;
+    // These are execution semantics, not call-site preferences. Keeping them
+    // in the compiled profile prevents a constructor from silently changing
+    // the solver or reset distribution after the run was fingerprinted.
+    bool streamedArticulatedContactResponses = true;
+    std::uint32_t minimumDifficultyBand = 0u;
+    std::uint32_t maximumDifficultyBand = MR_INVALID_INDEX;
 };
 
 struct RunManifest {

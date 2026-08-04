@@ -162,6 +162,42 @@ struct TaskActionBinding {
     float responseTimeSeconds = 0.0f;
 };
 
+// Stable sources already produced by the native task transaction. TaskPack
+// authors select which measurements are meaningful for their task; runtime
+// construction never infers semantics from observation or reward operators.
+enum class TaskOutcomeSource : std::uint32_t {
+    trackingScore = 2u,
+    rootHeight = 3u,
+    tilt = 4u,
+    contactReward = 8u,
+    // The compiler assigns one of eight generic native outcome channels and
+    // accumulates every matching reward-operator contribution into it.
+    rewardContribution = 9u,
+};
+
+enum class TaskOutcomeDirection : std::uint32_t {
+    neutral = 0u,
+    higherIsBetter = 1u,
+    lowerIsBetter = 2u,
+};
+
+struct TaskOutcomeSpec {
+    std::string id;
+    std::string unit;
+    TaskOutcomeSource source = TaskOutcomeSource::trackingScore;
+    TaskOutcomeDirection direction = TaskOutcomeDirection::neutral;
+    TaskRewardOperator rewardOperation = TaskRewardOperator::constant;
+};
+
+struct CompiledTaskOutcomeSpec {
+    std::string id;
+    std::string unit;
+    // MRTaskOutcomeSourceC numeric value. Reward contributions resolve to
+    // generic channels 0...7 during compilation.
+    std::uint32_t source = 0u;
+    TaskOutcomeDirection direction = TaskOutcomeDirection::neutral;
+};
+
 struct TaskObservationOperatorSpec {
     TaskObservationSource source =
         TaskObservationSource::rootAngularVelocityLocal;
@@ -338,6 +374,9 @@ struct TaskPack {
     // world's topology-derived envelope.
     MetalWorldCapacityProfile capacities;
     std::vector<TaskActionBinding> actions;
+    // Universal transaction outcomes are supplied by the compiler. This
+    // table contains only task-authored physical/competence measurements.
+    std::vector<TaskOutcomeSpec> outcomes;
     // Temporal proprioception retained in the actor history. Current task
     // intent belongs in actorCurrent so it is appended only once.
     std::vector<TaskObservationOperatorSpec> actorFrame;
@@ -441,6 +480,8 @@ public:
     [[nodiscard]] const MRTaskProgramHeaderGPU& header() const noexcept;
     [[nodiscard]] std::span<const MRTaskActionBindingGPU>
     actionBindings() const noexcept;
+    [[nodiscard]] std::span<const CompiledTaskOutcomeSpec>
+    outcomes() const noexcept;
     [[nodiscard]] std::span<const MRTaskObservationOperatorGPU>
     actorOperators() const noexcept;
     [[nodiscard]] std::span<const MRTaskObservationOperatorGPU>

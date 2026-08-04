@@ -3,6 +3,7 @@
 #include "metalrobo/Franka.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -94,9 +95,28 @@ int main(int argc, char** argv) {
             "Franka scene penetrated its physical support surface"
         );
         require(
-            mr_task_rollout_outcome_count(compiled.get()) == 5u,
-            "Franka task leaked locomotion-shaped public outcomes"
+            mr_task_rollout_outcome_count(compiled.get()) == 9u,
+            "Franka task did not publish its four typed manipulation outcomes"
         );
+        constexpr std::array<const char*, 4u> manipulationOutcomes{
+            "grasp_reward", "lift_reward", "object_position_reward",
+            "placement_reward",
+        };
+        const float* outcomeValues =
+            mr_task_rollout_outcome_values(compiled.get());
+        require(outcomeValues != nullptr,
+            "Franka typed outcome values were not published");
+        for (std::uint32_t index = 0u;
+             index < manipulationOutcomes.size(); ++index) {
+            const char* id = mr_task_rollout_outcome_id(
+                compiled.get(), 5u + index
+            );
+            require(
+                id != nullptr && id == std::string{manipulationOutcomes[index]} &&
+                    std::isfinite(outcomeValues[(steps - 1u) * 9u + 5u + index]),
+                "Franka manipulation outcome channel is missing or non-finite"
+            );
+        }
         std::unique_ptr<MRRuntimeHandle, decltype(&mr_destroy)> legacy{
             mr_create_franka(1u, config.seed, metallib), &mr_destroy
         };
@@ -131,7 +151,9 @@ int main(int argc, char** argv) {
         for (std::uint32_t joint = 0u; joint < 7u; ++joint) {
             maximumLegacyJointError = std::max(
                 maximumLegacyJointError,
-                std::abs(q[joint] - legacyObservations[joint])
+                static_cast<double>(
+                    std::abs(q[joint] - legacyObservations[joint])
+                )
             );
         }
         for (std::uint32_t body = 0u; body < 8u; ++body) {

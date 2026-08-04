@@ -234,14 +234,14 @@ typedef struct MRTaskTransitionC {
     float posture_reward;
     float energy_reward;
     float contact_reward;
-    float dodge_link_clearance_reward;
-    float dodge_evasion_reward;
-    float dodge_miss_reward;
-    float dodge_safe_stillness_reward;
-    float dodge_safe_action_rate_reward;
-    float dodge_cbf_correction_reward;
-    float dodge_cbf_buffer_reward;
-    float dodge_predicted_clearance_reward;
+    float task_outcome_channel_0;
+    float task_outcome_channel_1;
+    float task_outcome_channel_2;
+    float task_outcome_channel_3;
+    float task_outcome_channel_4;
+    float task_outcome_channel_5;
+    float task_outcome_channel_6;
+    float task_outcome_channel_7;
     uint64_t policy_revision;
     float timeout_bootstrap_value;
     float episode_tracking_score;
@@ -272,14 +272,14 @@ typedef enum MRTaskOutcomeSourceC {
     MR_TASK_OUTCOME_TIMEOUT = 6,
     MR_TASK_OUTCOME_PHYSICS_ERROR = 7,
     MR_TASK_OUTCOME_CONTACT_REWARD = 8,
-    MR_TASK_OUTCOME_PROJECTILE_CLEARANCE_REWARD = 9,
-    MR_TASK_OUTCOME_PROJECTILE_EVASION_REWARD = 10,
-    MR_TASK_OUTCOME_PROJECTILE_MISS_REWARD = 11,
-    MR_TASK_OUTCOME_PROJECTILE_SAFE_STILLNESS_REWARD = 12,
-    MR_TASK_OUTCOME_PROJECTILE_SAFE_ACTION_REWARD = 13,
-    MR_TASK_OUTCOME_CBF_CORRECTION_REWARD = 14,
-    MR_TASK_OUTCOME_CBF_BUFFER_REWARD = 15,
-    MR_TASK_OUTCOME_PROJECTILE_PREDICTED_CLEARANCE_REWARD = 16,
+    MR_TASK_OUTCOME_CHANNEL_0 = 9,
+    MR_TASK_OUTCOME_CHANNEL_1 = 10,
+    MR_TASK_OUTCOME_CHANNEL_2 = 11,
+    MR_TASK_OUTCOME_CHANNEL_3 = 12,
+    MR_TASK_OUTCOME_CHANNEL_4 = 13,
+    MR_TASK_OUTCOME_CHANNEL_5 = 14,
+    MR_TASK_OUTCOME_CHANNEL_6 = 15,
+    MR_TASK_OUTCOME_CHANNEL_7 = 16,
 } MRTaskOutcomeSourceC;
 
 typedef enum MRPolicyActivationC {

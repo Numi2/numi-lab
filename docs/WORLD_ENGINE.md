@@ -145,9 +145,18 @@ A custom `.metal` kernel is justified only by a new physics primitive, sensor
 modality, or task operator. A different joint layout is data, not shader code.
 
 Evaluation publishes a task-dependent typed outcome schema. Universal
-transaction outcomes (`reward`, `done`, `timeout`, and `physics_error`) are
-always present; tracking, root-state, contact, projectile, and CBF outcomes
-appear only when the compiled task authors the corresponding operators.
+transaction outcomes (`reward`, `task_reward`, `done`, `timeout`, and
+`physics_error`) are always present. Every additional outcome is declared by
+the `TaskPack`, validated and fingerprinted by `compileTaskProgram`, and then
+published exactly as authored. Runtime construction does not inspect reward
+or observation operators to guess that tracking, root state, contact,
+projectile, or CBF measurements should exist.
+TaskPack format v15 can also bind as many as eight typed outcome channels to
+authored reward operators. The Metal task completion kernel accumulates every
+matching contribution directly into those generic channels. Ball avoidance
+uses them for its eight task rewards; Franka uses the same mechanism for
+grasp, lift, object-position, and placement rewards. The public transition ABI
+therefore contains generic task channels rather than dodge-named fields.
 `PolicyRolloutPack` v7 persists a robot/task-independent 64-byte learner
 transition plus that typed outcome table. The fixed `MRTaskTransitionC`
 remains only as an internal executor-to-Swift aggregation boundary. New

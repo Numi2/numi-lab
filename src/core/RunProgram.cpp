@@ -267,6 +267,11 @@ RunCompileDiagnostics compileRun(
             manifest.profile.environmentCount == 0u ||
             manifest.profile.controlSteps == 0u ||
             manifest.profile.physicsSubsteps == 0u ||
+            manifest.profile.velocityIterations == 0u ||
+            manifest.profile.finalVelocityIterations == 0u ||
+            (manifest.profile.maximumDifficultyBand != MR_INVALID_INDEX &&
+             manifest.profile.minimumDifficultyBand >
+                 manifest.profile.maximumDifficultyBand) ||
             !std::isfinite(manifest.profile.controlTimestepSeconds) ||
             !(manifest.profile.controlTimestepSeconds > 0.0f)) {
             return reject(
@@ -587,8 +592,17 @@ RunCompileDiagnostics compileRun(
         runHash.scalar(staged.profile_.environmentCount);
         runHash.scalar(staged.profile_.controlSteps);
         runHash.scalar(staged.profile_.physicsSubsteps);
+        runHash.scalar(staged.profile_.velocityIterations);
+        runHash.scalar(staged.profile_.finalVelocityIterations);
         runHash.scalar(staged.profile_.controlTimestepSeconds);
         runHash.scalar(staged.profile_.seed);
+        runHash.scalar(staged.profile_.streamedArticulatedContactResponses);
+        runHash.scalar(staged.profile_.minimumDifficultyBand);
+        runHash.scalar(staged.profile_.maximumDifficultyBand);
+        runHash.bytes(
+            &staged.profile_.capacities,
+            sizeof(staged.profile_.capacities)
+        );
         runHash.string(staged.teacher_.id);
         runHash.scalar(staged.teacher_.kind);
         runHash.scalar(staged.teacher_.artifactFingerprint);

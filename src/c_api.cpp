@@ -640,6 +640,14 @@ void authorG1InteractionTrackingTask(
 ) {
     task.id = "unitree_g1_interaction_tracking/" +
         interactions.id + "/" + clip.id;
+    task.outcomes = {
+        {"tracking", "ratio",
+            metalrobo::TaskOutcomeSource::trackingScore,
+            metalrobo::TaskOutcomeDirection::higherIsBetter},
+        {"contact_reward", "reward",
+            metalrobo::TaskOutcomeSource::contactReward,
+            metalrobo::TaskOutcomeDirection::higherIsBetter},
+    };
     task.difficultyBandCount = 1u;
     task.commands = {};
     task.commands.standingProbability = 1.0f;
@@ -869,6 +877,19 @@ void authorG1ImaginedTask(
     const bool includeInteractionContacts
 ) {
     task.id += "/imagined_interaction";
+    if (std::ranges::none_of(
+            task.outcomes,
+            [](const metalrobo::TaskOutcomeSpec& outcome) {
+                return outcome.source ==
+                    metalrobo::TaskOutcomeSource::trackingScore;
+            }
+        )) {
+        task.outcomes.push_back({
+            "tracking", "ratio",
+            metalrobo::TaskOutcomeSource::trackingScore,
+            metalrobo::TaskOutcomeDirection::higherIsBetter,
+        });
+    }
     if (!clip.loop) {
         const double durationSeconds =
             static_cast<double>(clip.frameCount - 1u) /
@@ -964,7 +985,7 @@ createTaskRolloutHandle(
     metalrobo::CompiledWorld world,
     metalrobo::CompiledTaskProgram taskProgram,
     std::vector<MRBodyStateGPU> defaultSceneBodies,
-    const MRTaskRolloutConfigC& config,
+    const metalrobo::RunProfile& profile,
     const char* metallibPath,
     std::string taskId,
     const std::string_view source
@@ -1003,98 +1024,13 @@ createTaskRolloutHandle(
         MR_TASK_OUTCOME_NEUTRAL);
     appendOutcome("physics_error", "bool", MR_TASK_OUTCOME_PHYSICS_ERROR,
         MR_TASK_OUTCOME_LOWER_IS_BETTER);
-    const auto hasReward = [&handle](const std::uint32_t operation) {
-        return std::ranges::any_of(
-            handle->taskProgram.rewardOperators(),
-            [operation](const MRTaskRewardOperatorGPU& value) {
-                return value.source.x == operation;
-            }
-        );
-    };
-    const auto hasObservation = [&handle](const std::uint32_t source) {
-        const auto contains = [source](const auto operators) {
-            return std::ranges::any_of(
-                operators,
-                [source](const MRTaskObservationOperatorGPU& value) {
-                    return value.source.x == source;
-                }
-            );
-        };
-        return contains(handle->taskProgram.actorOperators()) ||
-            contains(handle->taskProgram.criticOperators());
-    };
-    const bool trackingOutcome =
-        hasReward(MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING) ||
-        hasReward(MR_TASK_REWARD_INTERACTION_JOINT_TRACKING) ||
-        hasReward(MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING) ||
-        hasReward(MR_TASK_REWARD_INTERACTION_ROOT_TRACKING);
-    if (trackingOutcome) appendOutcome(
-        "tracking", "ratio", MR_TASK_OUTCOME_TRACKING_SCORE,
-        MR_TASK_OUTCOME_HIGHER_IS_BETTER
-    );
-    const bool rootHeightOutcome =
-        hasObservation(MR_TASK_OBSERVE_ROOT_HEIGHT) ||
-        hasReward(MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED) ||
-        hasReward(MR_TASK_REWARD_ROOT_HEIGHT_NORMALIZED) ||
-        hasReward(MR_TASK_REWARD_ROOT_HEIGHT_PROGRESS);
-    if (rootHeightOutcome) appendOutcome(
-        "root_height", "m", MR_TASK_OUTCOME_ROOT_HEIGHT,
-        MR_TASK_OUTCOME_NEUTRAL
-    );
-    const bool tiltOutcome =
-        hasObservation(MR_TASK_OBSERVE_PROJECTED_GRAVITY) ||
-        hasReward(MR_TASK_REWARD_TILT_SQUARED) ||
-        hasReward(MR_TASK_REWARD_UPRIGHTNESS) ||
-        hasReward(MR_TASK_REWARD_RECOVERY_TILT_PROGRESS);
-    if (tiltOutcome) appendOutcome(
-        "tilt", "rad", MR_TASK_OUTCOME_TILT,
-        MR_TASK_OUTCOME_LOWER_IS_BETTER
-    );
-    const bool contactOutcome = std::ranges::any_of(
-        handle->taskProgram.rewardOperators(),
-        [](const MRTaskRewardOperatorGPU& value) {
-            return value.source.x == MR_TASK_REWARD_GAIT_CONTACT_MATCH ||
-                value.source.x == MR_TASK_REWARD_SWING_CLEARANCE ||
-                value.source.x == MR_TASK_REWARD_SUPPORT_SLIP ||
-                value.source.x == MR_TASK_REWARD_FORBIDDEN_CONTACT ||
-                value.source.x == MR_TASK_REWARD_FOOT_CLEARANCE ||
-                value.source.x == MR_TASK_REWARD_SUPPORT_CONTACT_COUNT ||
-                value.source.x == MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING;
-        }
-    );
-    if (contactOutcome) appendOutcome(
-        "contact_reward", "reward", MR_TASK_OUTCOME_CONTACT_REWARD,
-        MR_TASK_OUTCOME_HIGHER_IS_BETTER
-    );
-    const std::array projectileOutcomes{
-        std::tuple{MR_TASK_REWARD_LINK_CLEARANCE_BARRIER,
-            "projectile_clearance_reward",
-            MR_TASK_OUTCOME_PROJECTILE_CLEARANCE_REWARD},
-        std::tuple{MR_TASK_REWARD_PROJECTILE_EVASION,
-            "projectile_evasion_reward",
-            MR_TASK_OUTCOME_PROJECTILE_EVASION_REWARD},
-        std::tuple{MR_TASK_REWARD_PROJECTILE_MISS,
-            "projectile_miss_reward",
-            MR_TASK_OUTCOME_PROJECTILE_MISS_REWARD},
-        std::tuple{MR_TASK_REWARD_PROJECTILE_SAFE_STILLNESS,
-            "projectile_safe_stillness_reward",
-            MR_TASK_OUTCOME_PROJECTILE_SAFE_STILLNESS_REWARD},
-        std::tuple{MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE,
-            "projectile_safe_action_reward",
-            MR_TASK_OUTCOME_PROJECTILE_SAFE_ACTION_REWARD},
-        std::tuple{MR_TASK_REWARD_JOINT_CBF_CORRECTION,
-            "cbf_correction_reward",
-            MR_TASK_OUTCOME_CBF_CORRECTION_REWARD},
-        std::tuple{MR_TASK_REWARD_JOINT_CBF_BUFFER,
-            "cbf_buffer_reward",
-            MR_TASK_OUTCOME_CBF_BUFFER_REWARD},
-        std::tuple{MR_TASK_REWARD_PROJECTILE_PREDICTED_CLEARANCE,
-            "projectile_predicted_clearance_reward",
-            MR_TASK_OUTCOME_PROJECTILE_PREDICTED_CLEARANCE_REWARD},
-    };
-    for (const auto& [operation, id, sourceValue] : projectileOutcomes) {
-        if (hasReward(operation)) appendOutcome(
-            id, "reward", sourceValue, MR_TASK_OUTCOME_HIGHER_IS_BETTER
+    for (const metalrobo::CompiledTaskOutcomeSpec& outcome :
+         handle->taskProgram.outcomes()) {
+        appendOutcome(
+            outcome.id,
+            outcome.unit,
+            outcome.source,
+            static_cast<std::uint32_t>(outcome.direction)
         );
     }
     handle->defaultSceneBodies = std::move(defaultSceneBodies);
@@ -1106,35 +1042,31 @@ createTaskRolloutHandle(
             " scene-state count does not match compiled topology"
         );
     }
-    handle->environmentCount = config.environment_count;
-    handle->stepConfig.timestepSeconds = config.control_timestep_seconds;
-    handle->stepConfig.physicsSubsteps = config.physics_substeps;
+    handle->environmentCount = profile.environmentCount;
+    handle->stepConfig.timestepSeconds = profile.controlTimestepSeconds;
+    handle->stepConfig.physicsSubsteps = profile.physicsSubsteps;
     handle->stepConfig.solverMode =
         metalrobo::MetalWorldSolverMode::temporalCone;
     handle->stepConfig.actuationMode =
         metalrobo::MetalWorldActuationMode::implicitPositionDrive;
-    handle->stepConfig.velocityIterations = config.velocity_iterations;
+    handle->stepConfig.velocityIterations = profile.velocityIterations;
     handle->stepConfig.finalVelocityIterations =
-        config.final_velocity_iterations;
+        profile.finalVelocityIterations;
     handle->stepConfig.ccdMode = metalrobo::MetalWorldCCDMode::disabled;
     handle->stepConfig.applyBodyDamping = true;
     handle->stepConfig.deterministic = true;
     handle->stepConfig.warmStart = true;
     handle->stepConfig.streamedArticulatedContactResponses =
-        config.materialize_articulated_contact_responses == 0u;
+        profile.streamedArticulatedContactResponses;
     handle->stepConfig.minimumDifficultyBand =
-        config.override_difficulty_band_range != 0u
-        ? config.minimum_difficulty_band
-        : 0u;
+        profile.minimumDifficultyBand;
     handle->stepConfig.maximumDifficultyBand =
-        config.override_difficulty_band_range != 0u
-        ? config.maximum_difficulty_band
-        : MR_INVALID_INDEX;
+        profile.maximumDifficultyBand;
     handle->stepConfig.captureContactEvidence = false;
     handle->stepConfig.publishFinalState = false;
     handle->stepConfig.publishStateTrajectory = false;
     handle->stepConfig.taskProgram = handle->taskProgram;
-    resetTaskRolloutState(*handle, config.seed);
+    resetTaskRolloutState(*handle, profile.seed);
     return handle;
 }
 
@@ -1153,22 +1085,22 @@ float taskOutcomeValue(
     case MR_TASK_OUTCOME_PHYSICS_ERROR:
         return static_cast<float>(transition.physics_error);
     case MR_TASK_OUTCOME_CONTACT_REWARD: return transition.contact_reward;
-    case MR_TASK_OUTCOME_PROJECTILE_CLEARANCE_REWARD:
-        return transition.dodge_link_clearance_reward;
-    case MR_TASK_OUTCOME_PROJECTILE_EVASION_REWARD:
-        return transition.dodge_evasion_reward;
-    case MR_TASK_OUTCOME_PROJECTILE_MISS_REWARD:
-        return transition.dodge_miss_reward;
-    case MR_TASK_OUTCOME_PROJECTILE_SAFE_STILLNESS_REWARD:
-        return transition.dodge_safe_stillness_reward;
-    case MR_TASK_OUTCOME_PROJECTILE_SAFE_ACTION_REWARD:
-        return transition.dodge_safe_action_rate_reward;
-    case MR_TASK_OUTCOME_CBF_CORRECTION_REWARD:
-        return transition.dodge_cbf_correction_reward;
-    case MR_TASK_OUTCOME_CBF_BUFFER_REWARD:
-        return transition.dodge_cbf_buffer_reward;
-    case MR_TASK_OUTCOME_PROJECTILE_PREDICTED_CLEARANCE_REWARD:
-        return transition.dodge_predicted_clearance_reward;
+    case MR_TASK_OUTCOME_CHANNEL_0:
+        return transition.task_outcome_channel_0;
+    case MR_TASK_OUTCOME_CHANNEL_1:
+        return transition.task_outcome_channel_1;
+    case MR_TASK_OUTCOME_CHANNEL_2:
+        return transition.task_outcome_channel_2;
+    case MR_TASK_OUTCOME_CHANNEL_3:
+        return transition.task_outcome_channel_3;
+    case MR_TASK_OUTCOME_CHANNEL_4:
+        return transition.task_outcome_channel_4;
+    case MR_TASK_OUTCOME_CHANNEL_5:
+        return transition.task_outcome_channel_5;
+    case MR_TASK_OUTCOME_CHANNEL_6:
+        return transition.task_outcome_channel_6;
+    case MR_TASK_OUTCOME_CHANNEL_7:
+        return transition.task_outcome_channel_7;
     default: return 0.0f;
     }
 }
@@ -1257,12 +1189,26 @@ createCompiledTaskRollout(
         );
     }
 
+    metalrobo::RunProfile profile;
+    profile.id = "legacy_locomotion_rollout";
+    profile.environmentCount = config.environment_count;
+    profile.physicsSubsteps = config.physics_substeps;
+    profile.velocityIterations = config.velocity_iterations;
+    profile.finalVelocityIterations = config.final_velocity_iterations;
+    profile.controlTimestepSeconds = config.control_timestep_seconds;
+    profile.seed = config.seed;
+    profile.streamedArticulatedContactResponses =
+        config.materialize_articulated_contact_responses == 0u;
+    if (config.override_difficulty_band_range != 0u) {
+        profile.minimumDifficultyBand = config.minimum_difficulty_band;
+        profile.maximumDifficultyBand = config.maximum_difficulty_band;
+    }
     return createTaskRolloutHandle(
         std::move(authored.model),
         std::move(compiled.world),
         std::move(compiled.task),
         std::move(authored.sceneBodies),
-        config,
+        profile,
         metallibPath,
         authored.task.id,
         source
@@ -1323,6 +1269,14 @@ metalrobo::RunManifest makeUnitreeG1RunManifest(
     manifest.profile.controlTimestepSeconds =
         config.control_timestep_seconds;
     manifest.profile.seed = config.seed;
+    manifest.profile.streamedArticulatedContactResponses =
+        config.materialize_articulated_contact_responses == 0u;
+    if (config.override_difficulty_band_range != 0u) {
+        manifest.profile.minimumDifficultyBand =
+            config.minimum_difficulty_band;
+        manifest.profile.maximumDifficultyBand =
+            config.maximum_difficulty_band;
+    }
 
     switch (taskKind) {
     case metalrobo::UnitreeG1Task::velocity:
@@ -1435,17 +1389,23 @@ metalrobo::RunManifest makeFrankaPickPlaceRunManifest(
     manifest.profile.controlTimestepSeconds =
         config.control_timestep_seconds;
     manifest.profile.seed = config.seed;
+    manifest.profile.streamedArticulatedContactResponses =
+        config.materialize_articulated_contact_responses == 0u;
+    if (config.override_difficulty_band_range != 0u) {
+        manifest.profile.minimumDifficultyBand =
+            config.minimum_difficulty_band;
+        manifest.profile.maximumDifficultyBand =
+            config.maximum_difficulty_band;
+    }
     manifest.profile.capacities = manifest.task.capacities;
     return manifest;
 }
 
 std::unique_ptr<MRTaskRolloutHandle> createCompiledRunTaskRollout(
     metalrobo::RunManifest manifest,
-    const MRTaskRolloutConfigC& config,
     const char* metallibPath,
     const std::string_view source
 ) {
-    validateTaskRolloutConfiguration(config);
     // Task composition (notably an InteractionPack) may refine the measured
     // contact profile after the base manifest is authored. The executable run
     // must compile the final task's exact capacity contract, never a stale
@@ -1469,7 +1429,7 @@ std::unique_ptr<MRTaskRolloutHandle> createCompiledRunTaskRollout(
             compiled.defaultSceneBodies().begin(),
             compiled.defaultSceneBodies().end()
         },
-        config,
+        compiled.profile(),
         metallibPath,
         manifest.task.id,
         source
@@ -2699,6 +2659,7 @@ MRTaskRolloutHandle* mr_create_unitree_g1_task_rollout(
 
     MRTaskRolloutHandle* result = nullptr;
     const int status = translateErrors([&] {
+        validateTaskRolloutConfiguration(*config);
         const metalrobo::LocomotionSurface surface =
             locomotionSurface(surface_value);
         auto handle = createCompiledRunTaskRollout(
@@ -2707,7 +2668,6 @@ MRTaskRolloutHandle* mr_create_unitree_g1_task_rollout(
                 unitreeG1Task(task_value),
                 *config
             ),
-            *config,
             metallib_path,
             "bundled G1"
         );
@@ -2726,9 +2686,9 @@ MRTaskRolloutHandle* mr_create_franka_pick_place_task_rollout(
     }
     MRTaskRolloutHandle* result = nullptr;
     const int status = translateErrors([&] {
+        validateTaskRolloutConfiguration(*config);
         auto handle = createCompiledRunTaskRollout(
             makeFrankaPickPlaceRunManifest(*config),
-            *config,
             metallib_path,
             "bundled Franka pick/place"
         );
@@ -2773,6 +2733,7 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
 
     MRTaskRolloutHandle* result = nullptr;
     const int status = translateErrors([&] {
+        validateTaskRolloutConfiguration(*config);
         metalrobo::InteractionPack interactions;
         const metalrobo::LearningPackResult loaded =
             metalrobo::readInteractionPack(
@@ -2855,7 +2816,6 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
         };
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest),
-            *config,
             metallib_path,
             "bundled G1 interaction"
         );

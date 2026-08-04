@@ -712,6 +712,16 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     const G1ModelMetadata& metadata = unitreeG1Metadata();
     TaskPack task;
     task.id = "unitree_g1_mjlab_velocity";
+    task.outcomes = {
+        {"tracking", "ratio", TaskOutcomeSource::trackingScore,
+            TaskOutcomeDirection::higherIsBetter},
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::neutral},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"contact_reward", "reward", TaskOutcomeSource::contactReward,
+            TaskOutcomeDirection::higherIsBetter},
+    };
     // The topology envelope contains every eligible self-collision pair.
     // Locomotion instead compiles an explicit operational arena. A fresh-seed
     // ball-dodge continuation reached 145 active pairs, so retain six Wave32
@@ -1203,6 +1213,14 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
     const G1ModelMetadata& metadata = unitreeG1Metadata();
     TaskPack task = makeUnitreeG1LocomotionTaskPack(surface);
     task.id = "unitree_g1_supine_get_up_discovery";
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::neutral},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"contact_reward", "reward", TaskOutcomeSource::contactReward,
+            TaskOutcomeDirection::higherIsBetter},
+    };
     // Recovery legitimately brings knees, hands, arms, trunk, and both feet
     // into the same contact graph. A 1,024-environment exploratory batch
     // measured 33 simultaneous manifolds (37 raw contacts, 43 constraints),
@@ -1857,6 +1875,40 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     TaskPack task =
         makeUnitreeG1BallDisturbanceRecoveryTaskPack(surface);
     task.id = "unitree_g1_ball_dodge";
+    task.outcomes.insert(task.outcomes.end(), {
+        {"projectile_clearance_reward", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::linkClearanceBarrier},
+        {"projectile_evasion_reward", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::projectileEvasion},
+        {"projectile_miss_reward", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::projectileMiss},
+        {"projectile_safe_stillness_reward", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::projectileSafeStillness},
+        {"projectile_safe_action_reward", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::projectileSafeActionRate},
+        {"cbf_correction_reward", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::jointCbfCorrection},
+        {"cbf_buffer_reward", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::jointCbfBuffer},
+        {"projectile_predicted_clearance_reward", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::projectilePredictedClearance},
+    });
     // Four levels correspond to the four authored projectile-speed bands.
     // Visual corruption rises over the same normalized range, so every level
     // has a physical and perceptual meaning instead of adding corruption-only

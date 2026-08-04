@@ -68,8 +68,23 @@ int main() {
                 compiled.world().sceneBodyCount() == 1u &&
                 compiled.defaultSceneBodies().size() == 1u &&
                 compiled.worldFamily().worldTemplate.sensors.size() == 1u &&
-                compiled.task().fingerprint() != 0u,
+                compiled.task().fingerprint() != 0u &&
+                compiled.task().outcomes().size() == 4u,
             "CompiledRun did not retain modular package identities"
+        );
+
+        metalrobo::RunManifest alternateProfile = manifest;
+        alternateProfile.profile.velocityIterations += 1u;
+        metalrobo::CompiledRun compiledAlternateProfile;
+        const auto alternateProfileStatus = metalrobo::compileRun(
+            alternateProfile,
+            compiledAlternateProfile
+        );
+        require(
+            alternateProfileStatus.succeeded() &&
+                compiledAlternateProfile.fingerprint() !=
+                    compiled.fingerprint(),
+            "solver-profile semantics are missing from the run fingerprint"
         );
 
         metalrobo::RunManifest invalid = manifest;
@@ -117,7 +132,8 @@ int main() {
                 compiledFranka.model().articulations.size() == 1u &&
                 compiledFranka.model().bodies.size() == 15u &&
                 compiledFranka.defaultSceneBodies().size() == 4u &&
-                compiledFranka.task().actionBindings().size() == 9u,
+                compiledFranka.task().actionBindings().size() == 9u &&
+                compiledFranka.task().outcomes().size() == 4u,
             "Franka CompiledRun lost robot, scene, reset, or action topology"
         );
         std::cout

@@ -855,18 +855,18 @@ public struct MetalRoboTaskTransition: Sendable {
         energyReward = native.energy_reward
         contactReward = native.contact_reward
         dodgeLinkClearanceReward =
-            native.dodge_link_clearance_reward
-        dodgeEvasionReward = native.dodge_evasion_reward
-        dodgeMissReward = native.dodge_miss_reward
+            native.task_outcome_channel_0
+        dodgeEvasionReward = native.task_outcome_channel_1
+        dodgeMissReward = native.task_outcome_channel_2
         dodgeSafeStillnessReward =
-            native.dodge_safe_stillness_reward
+            native.task_outcome_channel_3
         dodgeSafeActionRateReward =
-            native.dodge_safe_action_rate_reward
+            native.task_outcome_channel_4
         dodgeCbfCorrectionReward =
-            native.dodge_cbf_correction_reward
-        dodgeCbfBufferReward = native.dodge_cbf_buffer_reward
+            native.task_outcome_channel_5
+        dodgeCbfBufferReward = native.task_outcome_channel_6
         dodgePredictedClearanceReward =
-            native.dodge_predicted_clearance_reward
+            native.task_outcome_channel_7
         policyRevision = native.policy_revision
         timeoutBootstrapValue =
             native.timeout_bootstrap_value
@@ -2206,20 +2206,20 @@ public final class MetalRoboTaskRolloutContext {
             value.posture_reward = transition.postureReward
             value.energy_reward = transition.energyReward
             value.contact_reward = transition.contactReward
-            value.dodge_link_clearance_reward =
+            value.task_outcome_channel_0 =
                 transition.dodgeLinkClearanceReward
-            value.dodge_evasion_reward =
+            value.task_outcome_channel_1 =
                 transition.dodgeEvasionReward
-            value.dodge_miss_reward = transition.dodgeMissReward
-            value.dodge_safe_stillness_reward =
+            value.task_outcome_channel_2 = transition.dodgeMissReward
+            value.task_outcome_channel_3 =
                 transition.dodgeSafeStillnessReward
-            value.dodge_safe_action_rate_reward =
+            value.task_outcome_channel_4 =
                 transition.dodgeSafeActionRateReward
-            value.dodge_cbf_correction_reward =
+            value.task_outcome_channel_5 =
                 transition.dodgeCbfCorrectionReward
-            value.dodge_cbf_buffer_reward =
+            value.task_outcome_channel_6 =
                 transition.dodgeCbfBufferReward
-            value.dodge_predicted_clearance_reward =
+            value.task_outcome_channel_7 =
                 transition.dodgePredictedClearanceReward
             value.policy_revision =
                 transition.policyRevision

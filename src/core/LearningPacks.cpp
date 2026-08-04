@@ -148,6 +148,7 @@ LearningPackResult validateTaskArtifact(
         );
     }
     if (!countFits(pack.actions.size()) ||
+        !countFits(pack.outcomes.size()) ||
         !countFits(pack.actorFrame.size()) ||
         !countFits(pack.actorCurrent.size()) ||
         !countFits(pack.critic.size()) ||
@@ -193,6 +194,14 @@ LearningPackResult validateTaskArtifact(
             return fail(
                 LearningPackStatus::capacityOverflow,
                 "TaskPack action semantic exceeds the 32-bit artifact boundary"
+            );
+        }
+    }
+    for (const TaskOutcomeSpec& value : pack.outcomes) {
+        if (!stringFits(value.id) || !stringFits(value.unit)) {
+            return fail(
+                LearningPackStatus::capacityOverflow,
+                "TaskPack outcome identity or unit exceeds the 32-bit artifact boundary"
             );
         }
     }
@@ -1072,6 +1081,17 @@ std::vector<std::byte> serializeTask(
             target.pod(value.responseTimeSeconds);
         }
     );
+    writeRichVector(
+        writer,
+        pack.outcomes,
+        [](Writer& target, const TaskOutcomeSpec& value) {
+            target.string(value.id);
+            target.string(value.unit);
+            writeEnum(target, value.source);
+            writeEnum(target, value.direction);
+            writeEnum(target, value.rewardOperation);
+        }
+    );
     writeRichVector(writer, pack.actorFrame, writeObservation);
     writer.pod(pack.actorHistoryLength);
     writeRichVector(writer, pack.actorCurrent, writeObservation);
@@ -1229,6 +1249,17 @@ bool deserializeTask(
                 return source.string(value.joint) &&
                     source.pod(value.scale) &&
                     source.pod(value.responseTimeSeconds);
+            }
+        ) ||
+        !readRichVector(
+            reader,
+            pack.outcomes,
+            [](Reader& source, TaskOutcomeSpec& value) {
+                return source.string(value.id) &&
+                    source.string(value.unit) &&
+                    readEnum(source, value.source) &&
+                    readEnum(source, value.direction) &&
+                    readEnum(source, value.rewardOperation);
             }
         ) ||
         !readRichVector(

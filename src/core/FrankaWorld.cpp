@@ -802,6 +802,22 @@ std::vector<MRBodyStateGPU> makeFrankaPickPlaceSceneState() {
 TaskPack makeFrankaPickPlaceTaskPack() {
     TaskPack task;
     task.id = "franka_pick_place_v1";
+    task.outcomes = {
+        {"grasp_reward", "reward", TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::objectGrasp},
+        {"lift_reward", "reward", TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::objectLift},
+        {"object_position_reward", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::objectPosition},
+        {"placement_reward", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::objectPlacement},
+    };
     const std::array<std::string_view, 9u> joints{{
         "panda_joint1", "panda_joint2", "panda_joint3",
         "panda_joint4", "panda_joint5", "panda_joint6",
