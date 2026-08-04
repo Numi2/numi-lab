@@ -117,6 +117,8 @@ enum class TaskRewardOperator : std::uint32_t {
     interactionRootTracking =
         MR_TASK_REWARD_INTERACTION_ROOT_TRACKING,
     wholeBodyRecovery = MR_TASK_REWARD_WHOLE_BODY_RECOVERY,
+    interactionRootLinearVelocityError =
+        MR_TASK_REWARD_INTERACTION_ROOT_LINEAR_VELOCITY_ERROR,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -361,6 +363,11 @@ struct TaskPack {
     // Zero runs the student in shadow mode while retaining executed targets
     // as distillation labels; one grants the full residual action range.
     float interactionStudentAuthority = 0.1f;
+    // Interaction reference-state curriculum strength. A value f samples
+    // later phases for fraction f of resets, over [0, f] of the clip, while
+    // the remaining 1-f resets retain the canonical frame-zero trajectory.
+    // The solver remains authoritative for every subsequent transition.
+    float interactionResetPhaseFraction = 0.0f;
     // When false, an InteractionPack still supplies the initial physical
     // state but no longer supplies runtime joint targets or teacher actions.
     bool interactionControlReference = true;

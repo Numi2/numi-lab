@@ -275,7 +275,10 @@ def main() -> int:
     parser.add_argument("--evaluator", type=Path, required=True)
     parser.add_argument("--metallib", type=Path, required=True)
     parser.add_argument("--incumbent", type=Path, required=True)
-    parser.add_argument("--candidate", type=Path, required=True)
+    parser.add_argument(
+        "--candidate", type=Path, action="append", required=True
+    )
+    parser.add_argument("--checkpoint-directory", type=Path)
     parser.add_argument("--deployment", type=Path, required=True)
     parser.add_argument("--evidence-directory", type=Path, required=True)
     parser.add_argument("--maximum-environments", type=int, default=256)
@@ -294,12 +297,31 @@ def main() -> int:
     options.evidence_directory.mkdir(parents=True, exist_ok=True)
     # Deployment is safe even if evaluation itself is interrupted or fails.
     _atomic_copy(options.incumbent, options.deployment)
+    candidate_policies: list[Path] = []
+    if options.checkpoint_directory is not None:
+        candidate_policies.extend(sorted(
+            options.checkpoint_directory.glob(
+                "revision-*.candidate.policypack"
+            )
+        ))
+    candidate_policies.extend(options.candidate)
+    candidate_policies = list(dict.fromkeys(candidate_policies))
+
     records: dict[str, dict[str, Any]] = {}
+    policies: dict[str, Path] = {"incumbent": options.incumbent}
+    if len(candidate_policies) == 1:
+        policies["candidate"] = candidate_policies[0]
+    else:
+        for index, policy in enumerate(candidate_policies):
+            revision = policy.name.removeprefix("revision-").split(".")[0]
+            label = (
+                f"candidate-{revision}"
+                if revision.isdigit()
+                else f"candidate-{index:03d}"
+            )
+            policies[label] = policy
     try:
-        for name, policy in (
-            ("incumbent", options.incumbent),
-            ("candidate", options.candidate),
-        ):
+        for name, policy in policies.items():
             records[name] = _evaluate(
                 options.evaluator,
                 evaluation_arguments(
@@ -329,18 +351,41 @@ def main() -> int:
         )
         print(encoded, end="")
         return 1
-    decision = compare_evidence(records["incumbent"], records["candidate"])
+    candidate_names = [name for name in policies if name != "incumbent"]
+    champion = "incumbent"
+    comparisons: dict[str, dict[str, Any]] = {}
+    for name in candidate_names:
+        comparison = compare_evidence(records[champion], records[name])
+        comparisons[name] = comparison
+        if comparison["selected"] == "candidate":
+            champion = name
+
+    reported_candidate = (
+        champion if champion != "incumbent" else candidate_names[-1]
+    )
+    decision = compare_evidence(
+        records["incumbent"], records[reported_candidate]
+    )
+    if champion == "incumbent":
+        decision["selected"] = "incumbent"
+        decision["candidate_advanced_deployment"] = False
     decision.update(
         {
             "incumbent_policy_pack": str(options.incumbent),
-            "candidate_policy_pack": str(options.candidate),
+            "candidate_policy_pack": str(policies[reported_candidate]),
             "deployment_policy_pack": str(options.deployment),
             "maximum_evaluation_environments": options.maximum_environments,
             "held_out_seed": options.held_out_seed,
+            "evaluated_candidate_policy_packs": [
+                str(policies[name]) for name in candidate_names
+            ],
+            "selected_candidate_label": champion
+            if champion != "incumbent" else None,
+            "checkpoint_comparisons": comparisons,
         }
     )
     if decision["candidate_advanced_deployment"]:
-        _atomic_copy(options.candidate, options.deployment)
+        _atomic_copy(policies[champion], options.deployment)
     encoded = json.dumps(decision, indent=2, sort_keys=True) + "\n"
     (options.evidence_directory / "selection.json").write_text(
         encoded, encoding="utf-8"

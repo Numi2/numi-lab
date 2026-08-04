@@ -198,11 +198,16 @@ if [ "$numi_status" -eq 0 ]; then
             'import json,sys; evidence=json.load(open(sys.argv[1])); print(int(evidence.get("maximum_episode_steps", sys.argv[2])))' \
             "$numi_run/evidence.json" "$numi_training_steps"
     )
+    numi_checkpoint_directory=$(
+        numi_option_value --checkpoint-directory "$@" || true
+    )
     "$numi_python" "$numi_python_root/metalrobo/policy_selection.py" \
         --evaluator "$numi_evaluator" \
         --metallib "$numi_metallib" \
         --incumbent "$numi_incumbent_deployment" \
         --candidate "$numi_candidate_deployment" \
+        --checkpoint-directory \
+            "${numi_checkpoint_directory:-$numi_run/no-checkpoints}" \
         --deployment "$numi_protected_deployment" \
         --evidence-directory "$numi_run/selection" \
         --maximum-environments "${NUMI_SELECTION_ENVS:-256}" \

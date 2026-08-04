@@ -2481,43 +2481,105 @@ kernel void mr_locomotion_task_observe(
                 break;
             }
         }
+        uint interactionResetStep = 0u;
         if ((program.schedule.w &
              MR_TASK_PROGRAM_INTERACTION_RESET) != 0u) {
-            const float4 targetOrientation = float4(
-                interactionRootTargets[3u],
-                interactionRootTargets[4u],
-                interactionRootTargets[5u],
-                interactionRootTargets[6u]
+            if (program.interactionTiming.w > 0.0f &&
+                program.interaction.x > 1u &&
+                program.interactionTiming.x > 0.0f &&
+                dispatch.timing.x > 0.0f &&
+                program.schedule.x > 1u) {
+                const float clipControlSteps =
+                    float(program.interaction.x - 1u) /
+                    (program.interactionTiming.x * dispatch.timing.x);
+                const uint maximumResetStep = uint(floor(
+                    min(
+                        float(program.schedule.x - 2u),
+                        clipControlSteps
+                    ) * program.interactionTiming.w
+                ));
+                const float curriculumSample = randomUnit(
+                    dispatch,
+                    environment,
+                    episode,
+                    0u,
+                    4094u
+                );
+                const float canonicalFraction =
+                    1.0f - program.interactionTiming.w;
+                if (curriculumSample >= canonicalFraction) {
+                    const float phaseSample =
+                        (curriculumSample - canonicalFraction) /
+                        program.interactionTiming.w;
+                    interactionResetStep = min(
+                        uint(floor(
+                            phaseSample *
+                            float(maximumResetStep + 1u)
+                        )),
+                        maximumResetStep
+                    );
+                }
+            }
+            const float resetFramePosition = min(
+                float(interactionResetStep) *
+                    dispatch.timing.x *
+                    program.interactionTiming.x,
+                float(program.interaction.x - 1u)
             );
-            const float3 targetRootLinkPosition = float3(
-                interactionRootTargets[0u],
-                interactionRootTargets[1u],
-                interactionRootTargets[2u]
+            const uint resetFrame = uint(floor(resetFramePosition));
+            const uint nextResetFrame = interactionNextFrame(
+                program,
+                resetFrame
+            );
+            const float resetBlend =
+                resetFramePosition - floor(resetFramePosition);
+            const uint rootBase = resetFrame * 7u;
+            const uint nextRootBase = nextResetFrame * 7u;
+            const float4 frameOrientation = float4(
+                interactionRootTargets[rootBase + 3u],
+                interactionRootTargets[rootBase + 4u],
+                interactionRootTargets[rootBase + 5u],
+                interactionRootTargets[rootBase + 6u]
+            );
+            const float4 nextOrientation = float4(
+                interactionRootTargets[nextRootBase + 3u],
+                interactionRootTargets[nextRootBase + 4u],
+                interactionRootTargets[nextRootBase + 5u],
+                interactionRootTargets[nextRootBase + 6u]
+            );
+            const float4 targetOrientation = quaternionInterpolate(
+                frameOrientation,
+                nextOrientation,
+                resetBlend
+            );
+            const float3 frameRootLinkPosition = float3(
+                interactionRootTargets[rootBase + 0u],
+                interactionRootTargets[rootBase + 1u],
+                interactionRootTargets[rootBase + 2u]
+            );
+            const float3 nextRootLinkPosition = float3(
+                interactionRootTargets[nextRootBase + 0u],
+                interactionRootTargets[nextRootBase + 1u],
+                interactionRootTargets[nextRootBase + 2u]
             );
             // Generalized floating-root translation is the root body's COM,
             // while InteractionPack and task observations author the root-link
             // origin. rootReference is link-origin minus COM in body space.
-            const float3 targetRootCOMPosition =
-                targetRootLinkPosition - rotate(
-                    targetOrientation,
+            const float3 frameRootCOMPosition =
+                frameRootLinkPosition - rotate(
+                    frameOrientation,
                     program.rootReference.xyz
                 );
-            const float4 nextOrientation = float4(
-                interactionRootTargets[10u],
-                interactionRootTargets[11u],
-                interactionRootTargets[12u],
-                interactionRootTargets[13u]
-            );
-            const float3 nextRootLinkPosition = float3(
-                interactionRootTargets[7u],
-                interactionRootTargets[8u],
-                interactionRootTargets[9u]
-            );
             const float3 nextRootCOMPosition =
                 nextRootLinkPosition - rotate(
                     nextOrientation,
                     program.rootReference.xyz
                 );
+            const float3 targetRootCOMPosition = mix(
+                frameRootCOMPosition,
+                nextRootCOMPosition,
+                resetBlend
+            );
             resetQ[qBase + program.root.z + 0u] =
                 targetRootCOMPosition.x;
             resetQ[qBase + program.root.z + 1u] =
@@ -2529,17 +2591,17 @@ kernel void mr_locomotion_task_observe(
             resetQ[qBase + program.root.z + 5u] = targetOrientation.z;
             resetQ[qBase + program.root.z + 6u] = targetOrientation.w;
             resetV[vBase + program.root.w + 0u] =
-                (nextRootCOMPosition.x - targetRootCOMPosition.x) *
+                (nextRootCOMPosition.x - frameRootCOMPosition.x) *
                 program.interactionTiming.x;
             resetV[vBase + program.root.w + 1u] =
-                (nextRootCOMPosition.y - targetRootCOMPosition.y) *
+                (nextRootCOMPosition.y - frameRootCOMPosition.y) *
                 program.interactionTiming.x;
             resetV[vBase + program.root.w + 2u] =
-                (nextRootCOMPosition.z - targetRootCOMPosition.z) *
+                (nextRootCOMPosition.z - frameRootCOMPosition.z) *
                 program.interactionTiming.x;
             const float3 rootAngularVelocity =
                 quaternionWorldAngularVelocity(
-                    targetOrientation,
+                    frameOrientation,
                     nextOrientation,
                     program.interactionTiming.x
                 );
@@ -2553,13 +2615,20 @@ kernel void mr_locomotion_task_observe(
                  action < program.interaction.y;
                  ++action) {
                 const MRTaskActionBindingGPU binding = actions[action];
+                const uint jointIndex =
+                    resetFrame * program.interaction.y + action;
+                const uint nextJointIndex =
+                    nextResetFrame * program.interaction.y + action;
                 resetQ[qBase + binding.indices.z] =
-                    interactionJointTargets[action];
+                    mix(
+                        interactionJointTargets[jointIndex],
+                        interactionJointTargets[nextJointIndex],
+                        resetBlend
+                    );
                 resetV[vBase + binding.indices.w] =
                     (
-                        interactionJointTargets[
-                            program.interaction.y + action
-                        ] - interactionJointTargets[action]
+                        interactionJointTargets[nextJointIndex] -
+                        interactionJointTargets[jointIndex]
                     ) * program.interactionTiming.x;
             }
         }
@@ -2567,7 +2636,7 @@ kernel void mr_locomotion_task_observe(
             float(actionDelay) * dispatch.timing.x;
 
         state.episode = uint4(
-            0u,
+            interactionResetStep,
             episode,
             curriculum,
             terrainLevel
@@ -5119,6 +5188,32 @@ kernel void mr_locomotion_task_complete(
             interactionMetricWeight = 1.0f;
             break;
         }
+        case MR_TASK_REWARD_INTERACTION_ROOT_LINEAR_VELOCITY_ERROR: {
+            const uint targetBase = referenceFrame * 7u;
+            const uint nextTargetBase = nextReferenceFrame * 7u;
+            const float3 targetLinearVelocity =
+                (float3(
+                    interactionRootTargets[nextTargetBase + 0u],
+                    interactionRootTargets[nextTargetBase + 1u],
+                    interactionRootTargets[nextTargetBase + 2u]
+                ) - float3(
+                    interactionRootTargets[targetBase + 0u],
+                    interactionRootTargets[targetBase + 1u],
+                    interactionRootTargets[targetBase + 2u]
+                )) * program.interactionTiming.x;
+            const float3 linearVelocityDelta =
+                rootWorldLinearVelocity(
+                    program,
+                    qState + qBase,
+                    vState + vBase
+                ) - targetLinearVelocity;
+            const float scaledError = length(linearVelocityDelta) /
+                max(operation.parameters.y, 1.0e-8f);
+            // Pseudo-Huber growth stays informative far from a fast teacher
+            // without the unbounded quadratic leverage of a squared penalty.
+            value = sqrt(1.0f + scaledError * scaledError) - 1.0f;
+            break;
+        }
         case MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING: {
             const uint trackIndex = operation.source.z;
             const MRTaskInteractionContactGPU track =
@@ -5274,6 +5369,7 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_STANDING_COMPLETION:
         case MR_TASK_REWARD_RESTORATION:
         case MR_TASK_REWARD_INTERACTION_ROOT_TRACKING:
+        case MR_TASK_REWARD_INTERACTION_ROOT_LINEAR_VELOCITY_ERROR:
         case MR_TASK_REWARD_RECOVERY_TILT_PROGRESS:
         case MR_TASK_REWARD_RECOVERY_COMPLETION:
         case MR_TASK_REWARD_WHOLE_BODY_RECOVERY:

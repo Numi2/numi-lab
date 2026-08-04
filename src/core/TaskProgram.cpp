@@ -717,6 +717,9 @@ TaskCompileDiagnostics compileTaskProgram(
         !finite(pack.interactionStudentAuthority) ||
         pack.interactionStudentAuthority < 0.0f ||
         pack.interactionStudentAuthority > 1.0f ||
+        !finite(pack.interactionResetPhaseFraction) ||
+        pack.interactionResetPhaseFraction < 0.0f ||
+        pack.interactionResetPhaseFraction > 1.0f ||
         !finite(pack.baseHeightTarget) ||
         !finite(pack.gaitPeriodSeconds) ||
         !(pack.gaitPeriodSeconds > 0.0f) ||
@@ -2027,6 +2030,7 @@ TaskCompileDiagnostics compileTaskProgram(
             }
             break;
         case TaskRewardOperator::interactionRootTracking:
+        case TaskRewardOperator::interactionRootLinearVelocityError:
             if (interactionClip == nullptr) {
                 return reject(
                     TaskCompileStatus::invalidPack,
@@ -2399,6 +2403,15 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 "interaction_root_tracking",
                 "interaction root tracking requires positive position and orientation widths"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::interactionRootLinearVelocityError &&
+            !(reward.parameters.x > 0.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "interaction_root_linear_velocity_error",
+                "interaction root linear-velocity error requires a positive velocity scale"
             );
         }
         if ((reward.operation ==
@@ -3451,7 +3464,9 @@ TaskCompileDiagnostics compileTaskProgram(
         interactionClip == nullptr
             ? 0.0f
             : pack.interactionStudentAuthority,
-        0.0f,
+        interactionClip == nullptr
+            ? 0.0f
+            : pack.interactionResetPhaseFraction,
     };
 
     const auto appendArena =

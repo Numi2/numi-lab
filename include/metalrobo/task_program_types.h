@@ -193,6 +193,11 @@ enum MRTaskRewardOpcode : mr_u32 {
     // standing height, upright cosine, horizontal support radius, and quiet
     // generalized-speed scale. Feet and CoP come from authored support groups.
     MR_TASK_REWARD_WHOLE_BODY_RECOVERY = 43u,
+    // Robust physical velocity error against an InteractionPack root motion.
+    // Unlike an exponential score, this retains learning signal when the
+    // student stalls far from a fast reference. Parameter x is the velocity
+    // scale in meters per second.
+    MR_TASK_REWARD_INTERACTION_ROOT_LINEAR_VELOCITY_ERROR = 44u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {

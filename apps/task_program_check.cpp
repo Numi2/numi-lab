@@ -836,6 +836,7 @@ int main(const int argc, const char* const* argv) {
             .weight = 1.0f,
             .parameters = {0.6f, 1.0f, 0.0f, 0.0f},
         });
+        interactionTask.interactionResetPhaseFraction = 0.75f;
         metalrobo::CompiledTaskProgram interactionProgram;
         const metalrobo::TaskCompileDiagnostics interactionStatus =
             metalrobo::compileTaskProgram(
@@ -858,6 +859,9 @@ int main(const int argc, const char* const* argv) {
             interactionProgram.header().interaction.z != 2u ||
             std::abs(
                 interactionProgram.header().interactionTiming.z - 0.1f
+            ) > 1.0e-6f ||
+            std::abs(
+                interactionProgram.header().interactionTiming.w - 0.75f
             ) > 1.0e-6f ||
             interactionProgram.header().counts3.z != 2u ||
             interactionProgram.header().counts3.w != 40u ||

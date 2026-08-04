@@ -77,6 +77,8 @@ typedef struct MRTaskRolloutConfigC {
     uint32_t interaction_reference_mode;
     float interaction_student_authority;
     uint32_t override_interaction_student_authority;
+    float interaction_reset_phase_fraction;
+    uint32_t override_interaction_reset_phase_fraction;
     // Diagnostic/correctness path: materialize inverse-ABA response columns
     // before contact solve instead of consuming the direct streamed path.
     uint32_t materialize_articulated_contact_responses;

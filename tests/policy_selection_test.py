@@ -88,6 +88,8 @@ class PolicySelectionTest(unittest.TestCase):
                 "stand",
                 "--interaction-student-authority",
                 "0",
+                "--interaction-reset-phase-fraction",
+                "0.8",
             ],
             policy_pack=Path("candidate.policypack"),
             metallib=Path("MetalRobo.metallib"),
@@ -98,6 +100,7 @@ class PolicySelectionTest(unittest.TestCase):
         )
         self.assertIn("--interaction-reset-only", arguments)
         self.assertNotIn("--interaction-student-authority", arguments)
+        self.assertNotIn("--interaction-reset-phase-fraction", arguments)
         environment_index = len(arguments) - 1 - arguments[::-1].index(
             "--envs"
         )

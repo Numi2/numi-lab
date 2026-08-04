@@ -597,6 +597,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var difficultyBandRange: ClosedRange<UInt32>?
     public var interactionReferenceMode: MetalRoboInteractionReferenceMode
     public var interactionStudentAuthority: Float?
+    public var interactionResetPhaseFraction: Float?
     public var unitreeG1Task: MetalRoboUnitreeG1Task
 
     public init(
@@ -614,6 +615,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         interactionReferenceMode: MetalRoboInteractionReferenceMode =
             .taskDefault,
         interactionStudentAuthority: Float? = nil,
+        interactionResetPhaseFraction: Float? = nil,
         unitreeG1Task: MetalRoboUnitreeG1Task = .velocity
     ) {
         self.environmentCount = environmentCount
@@ -630,6 +632,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.difficultyBandRange = difficultyBandRange
         self.interactionReferenceMode = interactionReferenceMode
         self.interactionStudentAuthority = interactionStudentAuthority
+        self.interactionResetPhaseFraction = interactionResetPhaseFraction
         self.unitreeG1Task = unitreeG1Task
     }
 }
@@ -1117,6 +1120,10 @@ public final class MetalRoboTaskRolloutContext {
         if let authority = configuration.interactionStudentAuthority {
             native.interaction_student_authority = authority
             native.override_interaction_student_authority = 1
+        }
+        if let fraction = configuration.interactionResetPhaseFraction {
+            native.interaction_reset_phase_fraction = fraction
+            native.override_interaction_reset_phase_fraction = 1
         }
         return native
     }

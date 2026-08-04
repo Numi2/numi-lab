@@ -670,6 +670,53 @@ void authorG1InteractionTrackingTask(
             static_cast<std::uint32_t>(steps);
     }
 
+    // Generated-motion tracking has no locomotion command, and the selected
+    // interaction publishes its own phase below. Reuse those five otherwise
+    // dead/redundant actor slots for solver-resolved support state without
+    // changing the policy shape: total load, left/right load balance, maximum
+    // support slip, and each foot's actual support load. ARDY remains intent;
+    // these values come only from accepted NumiSolver contacts.
+    const auto installSupportState = [](
+        std::vector<metalrobo::TaskObservationOperatorSpec>& observations
+    ) {
+        for (metalrobo::TaskObservationOperatorSpec& observation :
+             observations) {
+            if (observation.source ==
+                    metalrobo::TaskObservationSource::command) {
+                observation.source =
+                    metalrobo::TaskObservationSource::supportSense;
+                observation.target.clear();
+                observation.scale = observation.component == 0u
+                    ? 0.002f
+                    : 1.0f;
+                observation.offset = 0.0f;
+                observation.noiseAmplitude = 0.0f;
+                observation.biasLower = 0.0f;
+                observation.biasUpper = 0.0f;
+                observation.normalizeVector3 = false;
+                continue;
+            }
+            if (observation.source !=
+                    metalrobo::TaskObservationSource::gaitPhase) {
+                continue;
+            }
+            observation.source =
+                metalrobo::TaskObservationSource::contactMetric;
+            observation.target = observation.component == 0u
+                ? "left_foot_contact"
+                : "right_foot_contact";
+            observation.component = 0u;
+            observation.scale = 0.002f;
+            observation.offset = 0.0f;
+            observation.noiseAmplitude = 0.0f;
+            observation.biasLower = 0.0f;
+            observation.biasUpper = 0.0f;
+            observation.normalizeVector3 = false;
+        }
+    };
+    installSupportState(task.actorFrame);
+    installSupportState(task.critic);
+
     const auto appendObservation =
         [&task](const metalrobo::TaskObservationOperatorSpec& operation) {
             task.actorCurrent.push_back(operation);
@@ -733,8 +780,40 @@ void authorG1InteractionTrackingTask(
         {
             .operation = metalrobo::TaskRewardOperator::
                 interactionRootTracking,
+            .weight = 3.0f,
+            // Broad widths retain a useful gradient after a dynamic tracking
+            // error instead of saturating the exponential while the robot is
+            // still recoverable.
+            .parameters = {1.0f, 0.20f, 1.0f, 1.0f},
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                rootHeightNormalized,
             .weight = 2.0f,
-            .parameters = {0.04f, 0.08f, 0.25f, 0.5f},
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                interactionRootLinearVelocityError,
+            .weight = -0.75f,
+            .parameters = {1.0f, 0.0f, 0.0f, 0.0f},
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::uprightness,
+            .weight = 2.0f,
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::tiltSquared,
+            .weight = -1.0f,
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                rootVerticalVelocitySquared,
+            .weight = -0.25f,
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                rootRollPitchVelocitySquared,
+            .weight = -0.05f,
         },
         {
             .operation = metalrobo::TaskRewardOperator::
@@ -762,9 +841,13 @@ void authorG1InteractionTrackingTask(
             .weight = -2.0e-5f,
         },
         {
+            .operation = metalrobo::TaskRewardOperator::supportSlip,
+            .weight = -0.25f,
+        },
+        {
             .operation = metalrobo::TaskRewardOperator::forbiddenContact,
             .sourceGroup = "undesired_contact",
-            .weight = -1.0f,
+            .weight = -3.0f,
         },
     };
     for (const metalrobo::InteractionContactTrack& track :
@@ -774,7 +857,7 @@ void authorG1InteractionTrackingTask(
                 interactionContactTracking,
             .sourceGroup = track.taskContactGroup,
             .target = track.id,
-            .weight = 2.0f,
+            .weight = 1.0f,
             .parameters = {0.65f, 1.0f, 0.0f, 0.0f},
         });
     }
@@ -2348,6 +2431,10 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
         if (config->override_interaction_student_authority != 0u) {
             authored.task.interactionStudentAuthority =
                 config->interaction_student_authority;
+        }
+        if (config->override_interaction_reset_phase_fraction != 0u) {
+            authored.task.interactionResetPhaseFraction =
+                config->interaction_reset_phase_fraction;
         }
         auto handle = createCompiledTaskRollout(
             std::move(authored),

@@ -94,6 +94,7 @@ LearningPackResult validateTaskArtifact(
         return std::isfinite(value) && value >= 0.0f && value <= 1.0f;
     };
     if (!probability(pack.interactionStudentAuthority) ||
+        !probability(pack.interactionResetPhaseFraction) ||
         !probability(pack.visual.fullDropoutProbability) ||
         !probability(pack.visual.pixelDropoutProbability) ||
         !probability(pack.visual.edgeFlickerProbability) ||
@@ -1233,6 +1234,7 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.maximumObservationDelaySteps);
     writer.pod(pack.difficultyBandCount);
     writer.pod(pack.interactionStudentAuthority);
+    writer.pod(pack.interactionResetPhaseFraction);
     writer.pod(static_cast<std::uint8_t>(
         pack.interactionControlReference ? 1u : 0u
     ));
@@ -1403,6 +1405,7 @@ bool deserializeTask(
         !reader.pod(pack.maximumObservationDelaySteps) ||
         !reader.pod(pack.difficultyBandCount) ||
         !reader.pod(pack.interactionStudentAuthority) ||
+        !reader.pod(pack.interactionResetPhaseFraction) ||
         !reader.pod(interactionControlReference) ||
         interactionControlReference > 1u ||
         !reader.pod(pack.baseHeightTarget) ||

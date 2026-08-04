@@ -178,6 +178,7 @@ private struct Options {
     var maximumDifficultyBand: Int?
     var interactionResetOnly = false
     var interactionStudentAuthority: Float?
+    var interactionResetPhaseFraction: Float?
     var stateTrace: String?
     var stateTraceEnvironment = 0
     var g1VisualPackDirectory: String?
@@ -299,6 +300,18 @@ private struct Options {
                     )
                 }
                 interactionStudentAuthority = parsed
+                index += 1
+            case "--interaction-reset-phase-fraction":
+                guard let parsed = Float(try value()),
+                      parsed.isFinite,
+                      parsed >= 0,
+                      parsed <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-reset-phase-fraction must be in [0, 1]."
+                    )
+                }
+                interactionResetPhaseFraction = parsed
                 index += 1
             case "--policy-pack":
                 policyPack = try value()
@@ -469,6 +482,11 @@ private struct Options {
         if interactionStudentAuthority != nil && interactionPack == nil {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--interaction-student-authority requires an InteractionPack."
+            )
+        }
+        if interactionResetPhaseFraction != nil && interactionPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--interaction-reset-phase-fraction requires an InteractionPack."
             )
         }
         if interactionPack != nil &&
@@ -712,6 +730,8 @@ private func makeContext(
             : .taskDefault,
         interactionStudentAuthority:
             options.interactionStudentAuthority,
+        interactionResetPhaseFraction:
+            options.interactionResetPhaseFraction,
         unitreeG1Task: options.unitreeG1Task
     )
     if let interactionPack = options.interactionPack,
