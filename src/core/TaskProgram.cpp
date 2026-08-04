@@ -667,14 +667,114 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     const MRArticulationGPU& articulation =
         model.articulations[world.articulationIndex()];
-    if (articulation.rootType != MR_ROOT_FLOATING ||
-        articulation.nq < 7u ||
-        articulation.nv < 6u) {
+    const bool fixedRoot = articulation.rootType == MR_ROOT_FIXED;
+    const bool floatingRoot =
+        articulation.rootType == MR_ROOT_FLOATING &&
+        articulation.nq >= 7u && articulation.nv >= 6u;
+    if (!fixedRoot && !floatingRoot) {
         return reject(
             TaskCompileStatus::invalidWorld,
             "world.articulation",
-            "locomotion task programs require a floating root"
+            "task programs require a fixed root or a complete floating root"
         );
+    }
+    if (fixedRoot) {
+        const auto fixedObservation = [](const TaskObservationSource source) {
+            switch (source) {
+            case TaskObservationSource::command:
+            case TaskObservationSource::jointPositionError:
+            case TaskObservationSource::jointVelocity:
+            case TaskObservationSource::previousAction:
+            case TaskObservationSource::contactMetric:
+            case TaskObservationSource::bodyParameterMean:
+            case TaskObservationSource::bodyParameter:
+            case TaskObservationSource::controllerParameter:
+            case TaskObservationSource::contactWrenchLocal:
+            case TaskObservationSource::objectTrack:
+            case TaskObservationSource::maskedDepth:
+                return true;
+            default:
+                return false;
+            }
+        };
+        const auto observationsSupported = [&](const auto& operators) {
+            return std::ranges::all_of(
+                operators,
+                [&](const TaskObservationOperatorSpec& operation) {
+                    return fixedObservation(operation.source);
+                }
+            );
+        };
+        const auto fixedReward = [](const TaskRewardOperator operation) {
+            switch (operation) {
+            case TaskRewardOperator::constant:
+            case TaskRewardOperator::jointVelocitySquared:
+            case TaskRewardOperator::jointAccelerationSquared:
+            case TaskRewardOperator::actionRateSquared:
+            case TaskRewardOperator::jointLimitViolationSquared:
+            case TaskRewardOperator::jointLimitViolationAbsolute:
+            case TaskRewardOperator::mechanicalPower:
+            case TaskRewardOperator::jointGroupPostureSquared:
+            case TaskRewardOperator::jointGroupPostureAbsolute:
+            case TaskRewardOperator::forbiddenContact:
+            case TaskRewardOperator::objectGrasp:
+            case TaskRewardOperator::objectLift:
+            case TaskRewardOperator::objectPosition:
+            case TaskRewardOperator::objectPlacement:
+                return true;
+            default:
+                return false;
+            }
+        };
+        const bool rewardsSupported = std::ranges::all_of(
+            pack.rewards,
+            [&](const TaskRewardOperatorSpec& operation) {
+                return fixedReward(operation.operation);
+            }
+        );
+        const bool terminationsSupported = std::ranges::all_of(
+            pack.terminations,
+            [](const TaskTerminationOperatorSpec& operation) {
+                return operation.operation ==
+                    TaskTerminationOperator::contactGroup;
+            }
+        );
+        const bool randomizationSupported = std::ranges::all_of(
+            pack.randomization,
+            [](const TaskRandomizationOperatorSpec& operation) {
+                switch (operation.operation) {
+                case TaskRandomizationOperator::actionPosition:
+                case TaskRandomizationOperator::bodyParameter:
+                case TaskRandomizationOperator::bodyPayload:
+                case TaskRandomizationOperator::controllerParameter:
+                case TaskRandomizationOperator::actionDelay:
+                case TaskRandomizationOperator::observationDelay:
+                case TaskRandomizationOperator::actionVelocity:
+                case TaskRandomizationOperator::jointPosition:
+                case TaskRandomizationOperator::sceneBodyPosition:
+                case TaskRandomizationOperator::sceneBodyVelocity:
+                case TaskRandomizationOperator::sceneBodyLaunchStep:
+                case TaskRandomizationOperator::sceneBodyEventImpact:
+                    return true;
+                default:
+                    return false;
+                }
+            }
+        );
+        if (!observationsSupported(pack.actorFrame) ||
+            !observationsSupported(pack.actorCurrent) ||
+            !observationsSupported(pack.critic) ||
+            !rewardsSupported || !terminationsSupported ||
+            !randomizationSupported || interactionClip != nullptr ||
+            pack.pushes.maximumVelocity != 0.0f ||
+            !pack.terrain.body.empty() ||
+            !pack.threat.protectedGroup.empty()) {
+            return reject(
+                TaskCompileStatus::unsupportedOperator,
+                "fixed_root",
+                "fixed-root tasks contain an operator that requires floating-root semantics"
+            );
+        }
     }
     const auto countFits = [](const std::size_t count) {
         return count <
@@ -3441,6 +3541,9 @@ TaskCompileDiagnostics compileTaskProgram(
     if (pack.visual.includeDerivedFeatures) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_MASKED_DEPTH_FEATURES;
+    }
+    if (fixedRoot) {
+        staged->header.schedule.w |= MR_TASK_PROGRAM_FIXED_ROOT;
     }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=

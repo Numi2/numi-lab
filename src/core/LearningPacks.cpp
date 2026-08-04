@@ -650,6 +650,7 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
     std::uint64_t criticElements = 0u;
     std::uint64_t actionElements = 0u;
     std::uint64_t motionElements = 0u;
+    std::uint64_t outcomeElements = 0u;
     if (!multiply(
             pack.environmentCount,
             pack.controlStepCount,
@@ -675,6 +676,11 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
             pack.motionFeatureCount,
             motionElements
         ) ||
+        !multiply(
+            samples,
+            pack.outcomes.size(),
+            outcomeElements
+        ) ||
         samples >
             std::numeric_limits<std::size_t>::max() ||
         actorElements >
@@ -684,6 +690,8 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
         actionElements >
             std::numeric_limits<std::size_t>::max() ||
         motionElements >
+            std::numeric_limits<std::size_t>::max() ||
+        outcomeElements >
             std::numeric_limits<std::size_t>::max() ||
         pack.actorObservations.size() != actorElements ||
         pack.criticObservations.size() != criticElements ||
@@ -695,7 +703,16 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
         pack.values.size() != samples ||
         pack.bootstrapValues.size() !=
             pack.environmentCount ||
-        pack.transitions.size() != samples) {
+        pack.transitions.size() != samples ||
+        pack.outcomeValues.size() != outcomeElements ||
+        !std::all_of(
+            pack.outcomes.begin(),
+            pack.outcomes.end(),
+            [](const PolicyOutcomeDescriptor& outcome) {
+                return !outcome.id.empty() && stringFits(outcome.id) &&
+                    stringFits(outcome.unit) && outcome.direction <= 2u;
+            }
+        )) {
         return fail(
             LearningPackStatus::invalidPack,
             "PolicyRolloutPack tensors do not match its declared dimensions"
@@ -720,78 +737,15 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
         !finiteValues(pack.logProbabilities) ||
         !finiteValues(pack.values) ||
         !finiteValues(pack.bootstrapValues) ||
+        !finiteValues(pack.outcomeValues) ||
         !std::all_of(
             pack.transitions.begin(),
             pack.transitions.end(),
-            [&](const MRTaskTransitionGPU& transition) {
+            [&](const MRLearningTransitionGPU& transition) {
                 return transition.policyRevision ==
                         pack.policyRevision &&
-                    std::isfinite(
-                        transition.rewardAndState.x
-                    ) &&
-                    std::isfinite(
-                        transition.rewardAndState.y
-                    ) &&
-                    std::isfinite(
-                        transition.rewardAndState.z
-                    ) &&
-                    std::isfinite(
-                        transition.rewardAndState.w
-                    ) &&
-                    std::isfinite(
-                        transition.rewardBreakdown0.x
-                    ) &&
-                    std::isfinite(
-                        transition.rewardBreakdown0.y
-                    ) &&
-                    std::isfinite(
-                        transition.rewardBreakdown0.z
-                    ) &&
-                    std::isfinite(
-                        transition.rewardBreakdown0.w
-                    ) &&
-                    std::isfinite(
-                        transition.rewardBreakdown1.x
-                    ) &&
-                    std::isfinite(
-                        transition.rewardBreakdown1.y
-                    ) &&
-                    std::isfinite(
-                        transition.rewardBreakdown1.z
-                    ) &&
-                    std::isfinite(
-                        transition.rewardBreakdown1.w
-                    ) &&
-                    std::isfinite(
-                        transition.dodgeRewardBreakdown0.x
-                    ) &&
-                    std::isfinite(
-                        transition.dodgeRewardBreakdown0.y
-                    ) &&
-                    std::isfinite(
-                        transition.dodgeRewardBreakdown0.z
-                    ) &&
-                    std::isfinite(
-                        transition.dodgeRewardBreakdown0.w
-                    ) &&
-                    std::isfinite(
-                        transition.dodgeRewardBreakdown1.x
-                    ) &&
-                    std::isfinite(
-                        transition.dodgeRewardBreakdown1.y
-                    ) &&
-                    std::isfinite(
-                        transition.dodgeRewardBreakdown1.z
-                    ) &&
-                    std::isfinite(
-                        transition.dodgeRewardBreakdown1.w
-                    ) &&
-                    std::isfinite(
-                        transition.timeoutBootstrapValue
-                    ) &&
-                    std::isfinite(
-                        transition.episodeTrackingScore
-                    ) &&
+                    std::isfinite(transition.rewardAndBootstrap.x) &&
+                    std::isfinite(transition.rewardAndBootstrap.y) &&
                     transition.termination.x <= 1u &&
                     transition.termination.y <= 1u &&
                     transition.termination.z <= 1u;
@@ -806,7 +760,18 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
         8u + pack.id.size() +
         3u * sizeof(std::uint64_t) +
         6u * sizeof(std::uint32_t) +
-        9u * sizeof(std::uint64_t);
+        11u * sizeof(std::uint64_t);
+    for (const PolicyOutcomeDescriptor& outcome : pack.outcomes) {
+        const std::uint64_t descriptorBytes =
+            20u + outcome.id.size() + outcome.unit.size();
+        if (descriptorBytes > kMaximumPayloadBytes - payloadBytes) {
+            return fail(
+                LearningPackStatus::capacityOverflow,
+                "PolicyRolloutPack outcome schema exceeds the artifact boundary"
+            );
+        }
+        payloadBytes += descriptorBytes;
+    }
     if (payloadBytes > kMaximumPayloadBytes) {
         return fail(
             LearningPackStatus::capacityOverflow,
@@ -835,6 +800,7 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
         !addTable(pack.logProbabilities) ||
         !addTable(pack.values) ||
         !addTable(pack.bootstrapValues) ||
+        !addTable(pack.outcomeValues) ||
         !addTable(pack.transitions)) {
         return fail(
             LearningPackStatus::capacityOverflow,
@@ -1533,11 +1499,11 @@ bool deserializePolicy(
 
 template <typename Pack>
 std::vector<std::byte> serializePolicyRollout(const Pack& pack) {
-    const std::size_t payloadBytes =
+    std::size_t payloadBytes =
         8u + pack.id.size() +
         3u * sizeof(std::uint64_t) +
         6u * sizeof(std::uint32_t) +
-        9u * sizeof(std::uint64_t) +
+        11u * sizeof(std::uint64_t) +
         pack.actorObservations.size() * sizeof(float) +
         pack.criticObservations.size() * sizeof(float) +
         pack.motionFeatures.size() * sizeof(float) +
@@ -1546,8 +1512,13 @@ std::vector<std::byte> serializePolicyRollout(const Pack& pack) {
         pack.logProbabilities.size() * sizeof(float) +
         pack.values.size() * sizeof(float) +
         pack.bootstrapValues.size() * sizeof(float) +
+        pack.outcomeValues.size() * sizeof(float) +
         pack.transitions.size() *
-            sizeof(MRTaskTransitionGPU);
+            sizeof(MRLearningTransitionGPU);
+    for (const PolicyOutcomeDescriptor& outcome : pack.outcomes) {
+        payloadBytes +=
+            20u + outcome.id.size() + outcome.unit.size();
+    }
     Writer writer{payloadBytes};
     writer.string(pack.id);
     writer.pod(pack.taskFingerprint);
@@ -1567,6 +1538,13 @@ std::vector<std::byte> serializePolicyRollout(const Pack& pack) {
     writer.vector(pack.logProbabilities);
     writer.vector(pack.values);
     writer.vector(pack.bootstrapValues);
+    writer.pod(static_cast<std::uint64_t>(pack.outcomes.size()));
+    for (const PolicyOutcomeDescriptor& outcome : pack.outcomes) {
+        writer.string(outcome.id);
+        writer.string(outcome.unit);
+        writer.pod(outcome.direction);
+    }
+    writer.vector(pack.outcomeValues);
     writer.vector(pack.transitions);
     return writer.data();
 }
@@ -1594,6 +1572,16 @@ bool deserializePolicyRollout(
         reader.vector(pack.logProbabilities) &&
         reader.vector(pack.values) &&
         reader.vector(pack.bootstrapValues) &&
+        readRichVector(
+            reader,
+            pack.outcomes,
+            [](Reader& source, PolicyOutcomeDescriptor& outcome) {
+                return source.string(outcome.id) &&
+                    source.string(outcome.unit) &&
+                    source.pod(outcome.direction);
+            }
+        ) &&
+        reader.vector(pack.outcomeValues) &&
         reader.vector(pack.transitions) &&
         reader.finished();
 }
@@ -2104,6 +2092,8 @@ LearningPackResult writePolicyRolloutPack(
             .logProbabilities = pack.logProbabilities,
             .values = pack.values,
             .bootstrapValues = pack.bootstrapValues,
+            .outcomes = pack.outcomes,
+            .outcomeValues = pack.outcomeValues,
             .transitions = pack.transitions,
         },
         path

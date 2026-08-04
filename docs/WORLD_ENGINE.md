@@ -147,10 +147,11 @@ modality, or task operator. A different joint layout is data, not shader code.
 Evaluation publishes a task-dependent typed outcome schema. Universal
 transaction outcomes (`reward`, `done`, `timeout`, and `physics_error`) are
 always present; tracking, root-state, contact, projectile, and CBF outcomes
-appear only when the compiled task authors the corresponding operators. The
-fixed `MRTaskTransitionC` layout remains temporarily as the PolicyRolloutPack
-compatibility payload, not the product result model. New consumers enumerate
-`mr_task_rollout_outcome_*` and do not inherit G1/dodge assumptions.
+appear only when the compiled task authors the corresponding operators.
+`PolicyRolloutPack` v7 persists a robot/task-independent 64-byte learner
+transition plus that typed outcome table. The fixed `MRTaskTransitionC`
+remains only as an internal executor-to-Swift aggregation boundary. New
+consumers enumerate `mr_task_rollout_outcome_*` and inherit no G1 assumptions.
 
 ## InteractionPack: generated intent, solved outcome
 
@@ -274,7 +275,7 @@ approach aligns the clip, the whole-body link CBF may correct its residual
 action, and the implicit drive publishes the action that was actually sent to
 NumiSolver in canonical deployment coordinates.
 
-`PolicyRolloutPack` v6 carries that optional teacher-action stream. The MLX
+`PolicyRolloutPack` v7 carries that optional teacher-action stream. The MLX
 learner back-labels an imagined window only after NumiSolver reports a clean
 physical miss with no task termination or physics error. Every active imagined
 threat window is excluded from the PPO actor ratio because its CBF-corrected
@@ -539,9 +540,17 @@ every batch.
 
 The learner process receives a memory-mapped `PolicyRolloutPack` containing
 only actor/critic observations, actions/latents, old log probabilities, values,
-rewards, terminations, and compact diagnostics. MLX performs PPO updates and
-writes the next native PolicyPack through the canonical C++ writer. It never
-receives simulator caches or schedules a physics transition.
+a universal reward/termination transaction, and task-authored typed outcomes.
+MLX performs PPO updates and writes the next native PolicyPack through the
+canonical C++ writer. It never receives simulator caches or schedules a
+physics transition.
+
+Fixed-base manipulation uses the same path. The bundled Franka Hand compiles
+from `RobotPack + ScenePack + TaskPack` into `CompiledRun`; its pick object,
+workspace, target fixture, and clutter are independent scene objects, and the
+task publishes only universal outcomes until object-specific typed sources are
+authored. `metalrobo_franka_compiled_run_probe` executes 64 Metal contact steps
+and checks finite joint state, support-surface penetration, and outcome shape.
 
 Timeout transitions include one native critic scalar evaluated from the
 accepted post-transition history before reset. GAE uses that scalar while

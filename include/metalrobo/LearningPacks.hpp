@@ -17,7 +17,7 @@ namespace metalrobo {
 inline constexpr std::uint32_t kTaskPackFormatVersion = 14u;
 inline constexpr std::uint32_t kPolicyPackFormatVersion = 4u;
 inline constexpr std::uint32_t
-    kPolicyRolloutPackFormatVersion = 6u;
+    kPolicyRolloutPackFormatVersion = 7u;
 inline constexpr std::uint32_t kMotionPackFormatVersion = 1u;
 inline constexpr std::uint32_t kInteractionPackFormatVersion = 1u;
 
@@ -25,6 +25,12 @@ struct MotionClip {
     std::string id;
     float framesPerSecond = 0.0f;
     std::vector<float> features;
+};
+
+struct PolicyOutcomeDescriptor {
+    std::string id;
+    std::string unit;
+    std::uint32_t direction = 0u;
 };
 
 // Canonical compact expert-motion artifact. Each frame uses the task's
@@ -62,7 +68,10 @@ struct PolicyRolloutPack {
     std::vector<float> logProbabilities;
     std::vector<float> values;
     std::vector<float> bootstrapValues;
-    std::vector<MRTaskTransitionGPU> transitions;
+    std::vector<PolicyOutcomeDescriptor> outcomes;
+    // Step-major [sample][outcome].
+    std::vector<float> outcomeValues;
+    std::vector<MRLearningTransitionGPU> transitions;
 };
 
 // Synchronous zero-copy publication view for large native rollout batches.
@@ -86,7 +95,9 @@ struct PolicyRolloutPackView {
     std::span<const float> logProbabilities;
     std::span<const float> values;
     std::span<const float> bootstrapValues;
-    std::span<const MRTaskTransitionGPU> transitions;
+    std::span<const PolicyOutcomeDescriptor> outcomes;
+    std::span<const float> outcomeValues;
+    std::span<const MRLearningTransitionGPU> transitions;
 };
 
 enum class LearningPackStatus : std::uint32_t {

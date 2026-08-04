@@ -402,6 +402,18 @@ EngineModel makeFrankaPandaHandEngineModel() {
     model.defaultQ.push_back(0.035f);
     model.defaultV.push_back(0.0f);
     model.defaultV.push_back(0.0f);
+    model.bodyNames.insert(
+        model.bodyNames.end(),
+        {"panda_hand", "panda_leftfinger", "panda_rightfinger"}
+    );
+    model.jointNames.insert(
+        model.jointNames.end(),
+        {"panda_hand_joint", "panda_finger_joint1", "panda_finger_joint2"}
+    );
+    model.dofNames.insert(
+        model.dofNames.end(),
+        {"panda_finger_joint1", "panda_finger_joint2"}
+    );
 
     std::string reason;
     if (!model.valid(&reason)) {

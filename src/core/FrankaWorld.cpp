@@ -2,6 +2,7 @@
 
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/Franka.hpp"
+#include "metalrobo/RunProgram.hpp"
 
 #include <algorithm>
 #include <array>
@@ -394,6 +395,153 @@ void setDynamicBoxInertia(
 
 } // namespace
 
+EngineModel makeFrankaPickPlaceSceneEngineModel() {
+    const EngineModel robot = makeFrankaPandaHandEngineModel();
+    EngineModel scene;
+    scene.name = "franka_pick_place_scene_v1";
+    scene.world.abiVersion = MR_ENGINE_ABI_VERSION;
+    scene.world.gravityAndTimestep = robot.world.gravityAndTimestep;
+    scene.world.solverScales = robot.world.solverScales;
+    scene.world.solverType = robot.world.solverType;
+    scene.world.frictionConeType = robot.world.frictionConeType;
+    scene.world.pairCapacity = 32u;
+    scene.world.contactCapacity = 64u;
+    scene.world.constraintCapacity = 128u;
+    scene.world.islandCapacity = 4u;
+
+    MRMaterialGPU sceneMaterial = robot.materials.front();
+    sceneMaterial.friction = {0.7f, 0.6f, 0.0f, 0.0f};
+    sceneMaterial.response = {0.05f, 0.15f, 0.0f, 0.0f};
+    scene.materials.push_back(sceneMaterial);
+    scene.bodies = {
+        sceneBody(MR_MOTION_DYNAMIC, 0.10f,
+            {0.025f, 0.025f, 0.025f, 0.0f}),
+        sceneBody(MR_MOTION_STATIC, 0.0f, {}),
+        sceneBody(MR_MOTION_STATIC, 0.0f, {}),
+        sceneBody(MR_MOTION_DYNAMIC, 0.08f,
+            {0.03f, 0.03f, 0.03f, 0.0f}),
+    };
+    scene.shapes.push_back(sceneBox(
+        0u, 0u, {0.025f, 0.025f, 0.025f, 0.0f}, 1001u
+    ));
+    MRShapeGPU ground{};
+    ground.bodyIndex = 1u;
+    ground.shapeType = MR_SHAPE_PLANE;
+    ground.materialIndex = 0u;
+    ground.collisionGroup = 4u;
+    ground.collisionMask = 1u;
+    ground.slotGeneration = 1002u;
+    ground.localPosition.w = 1.0f;
+    constexpr float kSqrtHalf = 0.7071067811865476f;
+    ground.localRotation = {kSqrtHalf, 0.0f, 0.0f, kSqrtHalf};
+    scene.shapes.push_back(ground);
+    MRShapeGPU target = sceneBox(
+        2u, 0u, {0.06f, 0.06f, 0.004f, 0.0f}, 1003u
+    );
+    target.collisionGroup = 4u;
+    target.collisionMask = 1u;
+    scene.shapes.push_back(target);
+    scene.shapes.push_back(sceneBox(
+        3u, 0u, {0.03f, 0.03f, 0.03f, 0.0f}, 1004u
+    ));
+    scene.bodyNames = {
+        "pick_object", "workspace", "target_fixture", "clutter"
+    };
+    scene.world.bodyCount = static_cast<std::uint32_t>(scene.bodies.size());
+    scene.world.shapeCount = static_cast<std::uint32_t>(scene.shapes.size());
+    scene.world.materialCount =
+        static_cast<std::uint32_t>(scene.materials.size());
+    std::string reason;
+    if (!scene.valid(&reason)) {
+        throw std::logic_error(
+            "Franka pick-place scene compilation failed: " + reason
+        );
+    }
+    return scene;
+}
+
+ScenePack makeFrankaPickPlaceScenePack() {
+    const EngineModel authored = makeFrankaPickPlaceSceneEngineModel();
+    const auto mechanics = [&](const std::uint32_t index) {
+        EngineModel model;
+        model.name = "franka_scene_" + authored.bodyNames[index];
+        model.world = authored.world;
+        model.world.bodyCount = 1u;
+        model.world.shapeCount = 1u;
+        model.world.materialCount = 1u;
+        model.bodies.push_back(authored.bodies[index]);
+        MRShapeGPU shape = authored.shapes[index];
+        shape.bodyIndex = 0u;
+        shape.materialIndex = 0u;
+        model.shapes.push_back(shape);
+        model.materials.push_back(authored.materials.front());
+        model.bodyNames.push_back(authored.bodyNames[index]);
+        std::string reason;
+        if (!model.valid(&reason)) {
+            throw std::logic_error(
+                "Franka scene object compilation failed: " + reason
+            );
+        }
+        return model;
+    };
+    const auto state = [](const std::uint32_t motion, const mr_float4 pose) {
+        return std::vector<MRBodyStateGPU>{sceneState(0u, motion, pose)};
+    };
+    ScenePack scene;
+    scene.id = "franka_pick_place_scene";
+    scene.objects = {
+        {
+            .id = "pick_object",
+            .semanticClass = "manipulated_object",
+            .role = MR_WORLD_ASSET_MANIPULATED,
+            .render = MR_WORLD_RENDER_MESH_PBR,
+            .collision = MR_WORLD_COLLISION_PRIMITIVES,
+            .dynamics = MR_WORLD_DYNAMICS_RIGID,
+            .mechanics = mechanics(0u),
+            .defaultBodyStates = state(
+                MR_MOTION_DYNAMIC, {0.50f, 0.0f, 0.025f, 0.0f}
+            ),
+        },
+        {
+            .id = "workspace",
+            .semanticClass = "support_surface",
+            .role = MR_WORLD_ASSET_BACKGROUND,
+            .render = MR_WORLD_RENDER_NONE,
+            .collision = MR_WORLD_COLLISION_PRIMITIVES,
+            .dynamics = MR_WORLD_DYNAMICS_STATIC,
+            .mechanics = mechanics(1u),
+            .defaultBodyStates = state(
+                MR_MOTION_STATIC, {0.0f, 0.0f, 0.0f, 0.0f}
+            ),
+        },
+        {
+            .id = "target_fixture",
+            .semanticClass = "placement_target",
+            .role = MR_WORLD_ASSET_FIXTURE,
+            .render = MR_WORLD_RENDER_MESH_PBR,
+            .collision = MR_WORLD_COLLISION_PRIMITIVES,
+            .dynamics = MR_WORLD_DYNAMICS_STATIC,
+            .mechanics = mechanics(2u),
+            .defaultBodyStates = state(
+                MR_MOTION_STATIC, {0.45f, 0.25f, 0.0f, 0.0f}
+            ),
+        },
+        {
+            .id = "clutter",
+            .semanticClass = "dynamic_clutter",
+            .role = MR_WORLD_ASSET_CLUTTER,
+            .render = MR_WORLD_RENDER_MESH_PBR,
+            .collision = MR_WORLD_COLLISION_PRIMITIVES,
+            .dynamics = MR_WORLD_DYNAMICS_RIGID,
+            .mechanics = mechanics(3u),
+            .defaultBodyStates = state(
+                MR_MOTION_DYNAMIC, {0.35f, -0.25f, 0.03f, 0.0f}
+            ),
+        },
+    };
+    return scene;
+}
+
 EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
     EpisodeTwin episode;
     episode.id = "franka_pick_place_anchor_v1";
@@ -562,6 +710,10 @@ EngineModel makeFrankaPickPlaceEngineModel() {
         0.08f,
         {0.03f, 0.03f, 0.03f, 0.0f}
     ));
+    model.bodyNames.insert(
+        model.bodyNames.end(),
+        {"pick_object", "workspace", "target_fixture", "clutter"}
+    );
 
     model.shapes.push_back(sceneBox(
         11u,
@@ -645,6 +797,88 @@ std::vector<MRBodyStateGPU> makeFrankaPickPlaceSceneState() {
             {0.35f, -0.25f, 0.03f, 0.0f}
         ),
     };
+}
+
+TaskPack makeFrankaPickPlaceTaskPack() {
+    TaskPack task;
+    task.id = "franka_pick_place_v1";
+    const std::array<std::string_view, 9u> joints{{
+        "panda_joint1", "panda_joint2", "panda_joint3",
+        "panda_joint4", "panda_joint5", "panda_joint6",
+        "panda_joint7", "panda_finger_joint1",
+        "panda_finger_joint2",
+    }};
+    for (const std::string_view joint : joints) {
+        const bool finger = joint.find("finger") != std::string_view::npos;
+        task.actions.push_back({
+            std::string{joint}, finger ? 0.01f : 0.25f, 0.04f
+        });
+        for (const TaskObservationSource source : {
+                 TaskObservationSource::jointPositionError,
+                 TaskObservationSource::jointVelocity,
+                 TaskObservationSource::previousAction,
+             }) {
+            task.actorFrame.push_back({
+                .source = source,
+                .target = std::string{joint},
+            });
+            task.critic.push_back({
+                .source = source,
+                .target = std::string{joint},
+            });
+        }
+    }
+    for (std::uint32_t component = 0u; component < 7u; ++component) {
+        TaskObservationOperatorSpec object{
+            .source = TaskObservationSource::objectTrack,
+            .target = "pick_object",
+            .component = component,
+        };
+        task.actorFrame.push_back(object);
+        task.critic.push_back(std::move(object));
+    }
+    task.actorHistoryLength = 3u;
+    task.criticHistoryLength = 3u;
+    task.contactGroups.push_back({
+        .id = "gripper",
+        .bodies = {"panda_leftfinger", "panda_rightfinger"},
+        .referenceBody = "panda_hand",
+    });
+    task.jointGroups.push_back({
+        .id = "arm",
+        .joints = {
+            "panda_joint1", "panda_joint2", "panda_joint3",
+            "panda_joint4", "panda_joint5", "panda_joint6",
+            "panda_joint7",
+        },
+    });
+    task.rewards = {
+        {TaskRewardOperator::constant, {}, {}, 0.02f, {}},
+        {TaskRewardOperator::objectGrasp, "gripper", "pick_object",
+            2.0f, {2.0f, 2.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::objectLift, {}, "pick_object",
+            3.0f, {0.03f, 0.18f, 0.0f, 0.0f}},
+        {TaskRewardOperator::objectPosition, {}, "pick_object",
+            1.5f, {0.45f, 0.25f, 0.025f, 0.02f}},
+        {TaskRewardOperator::objectPlacement, "target_fixture", "pick_object",
+            5.0f, {0.01f, 0.01f, 0.04f, 0.0f}},
+        {TaskRewardOperator::actionRateSquared, {}, {}, -0.01f, {}},
+        {TaskRewardOperator::jointLimitViolationSquared, {}, {}, -0.2f, {}},
+        {TaskRewardOperator::mechanicalPower, {}, {}, -0.0002f, {}},
+    };
+    task.randomization = {
+        {TaskRandomizationOperator::sceneBodyPosition, "pick_object", 0u,
+            0u, {-0.08f, 0.08f, 0.0f, 0.0f}},
+        {TaskRandomizationOperator::sceneBodyPosition, "pick_object", 1u,
+            0u, {-0.08f, 0.08f, 0.0f, 0.0f}},
+    };
+    task.maximumEpisodeSteps = 750u;
+    task.maximumActionDelaySteps = 2u;
+    task.maximumObservationDelaySteps = 2u;
+    task.difficultyBandCount = 4u;
+    task.commands.minimumDurationSeconds = 15.0f;
+    task.commands.maximumDurationSeconds = 15.0f;
+    return task;
 }
 
 WorldProgram makeFrankaPickPlaceWorldProgram() {

@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 34u
+#define MR_TASK_PROGRAM_ABI_VERSION 35u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
@@ -21,6 +21,10 @@ enum MRTaskProgramFlags : mr_u32 {
     // intentionally independent of reference control so distilled policies
     // can be evaluated autonomously from the exact demonstrated state.
     MR_TASK_PROGRAM_INTERACTION_RESET = 1u << 7u,
+    // The selected articulation has a world-fixed root. Root-frame helpers
+    // use the authored fixed frame instead of interpreting joint q/v slots as
+    // a floating pose. This enables manipulation tasks on the same program.
+    MR_TASK_PROGRAM_FIXED_ROOT = 1u << 8u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
@@ -556,6 +560,20 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
     mr_uint4 taskProgress;
 } MRTaskTransitionGPU;
 
+// Robot/task-independent learner transaction. Task-specific measurements are
+// carried by the PolicyRolloutPack outcome table rather than extending this
+// ABI for each new robot or competency.
+typedef struct MR_ALIGN16 MRLearningTransitionGPU {
+    // Integrated reward and accepted timeout bootstrap value.
+    mr_float4 rewardAndBootstrap;
+    // done, timeout, physics error, termination reason.
+    mr_uint4 termination;
+    // difficulty band, terrain/profile index, impact sequence, event flags.
+    mr_uint4 context;
+    mr_u64 policyRevision;
+    mr_u64 reserved;
+} MRLearningTransitionGPU;
+
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 112u);
@@ -574,5 +592,6 @@ static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
 static_assert(sizeof(MRTaskStateGPU) == 160u);
 static_assert(sizeof(MRTaskEvidenceStateGPU) == 64u);
 static_assert(sizeof(MRTaskTransitionGPU) == 128u);
+static_assert(sizeof(MRLearningTransitionGPU) == 64u);
 #endif
 #endif

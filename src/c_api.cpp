@@ -1027,9 +1027,7 @@ createTaskRolloutHandle(
         hasReward(MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING) ||
         hasReward(MR_TASK_REWARD_INTERACTION_JOINT_TRACKING) ||
         hasReward(MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING) ||
-        hasReward(MR_TASK_REWARD_INTERACTION_ROOT_TRACKING) ||
-        hasReward(MR_TASK_REWARD_OBJECT_POSITION) ||
-        hasReward(MR_TASK_REWARD_OBJECT_PLACEMENT);
+        hasReward(MR_TASK_REWARD_INTERACTION_ROOT_TRACKING);
     if (trackingOutcome) appendOutcome(
         "tracking", "ratio", MR_TASK_OUTCOME_TRACKING_SCORE,
         MR_TASK_OUTCOME_HIGHER_IS_BETTER
@@ -1392,6 +1390,52 @@ metalrobo::RunManifest makeUnitreeG1RunManifest(
                 std::move(sphereComponent.defaultBodyStates),
         });
     }
+    return manifest;
+}
+
+metalrobo::RunManifest makeFrankaPickPlaceRunManifest(
+    const MRTaskRolloutConfigC& config
+) {
+    auto robot = metalrobo::builtinRobotPack("franka_panda");
+    if (!robot) {
+        throw std::logic_error("bundled Franka RobotPack is unavailable");
+    }
+    metalrobo::RunManifest manifest;
+    manifest.id = "franka_pick_place_run";
+    manifest.robot = std::move(*robot);
+    manifest.scene = metalrobo::makeFrankaPickPlaceScenePack();
+    manifest.sensors.id = "franka_default_sensors";
+    manifest.sensors.worldSensors =
+        metalrobo::makeFrankaPickPlaceEpisodeTwin().sensors;
+    for (metalrobo::SensorSpec& sensor : manifest.sensors.worldSensors) {
+        if (sensor.parentAssetId == "franka") {
+            sensor.parentAssetId = manifest.robot.id;
+        }
+    }
+    manifest.task = metalrobo::makeFrankaPickPlaceTaskPack();
+    if (config.disable_task_terminations != 0u) {
+        manifest.task.terminations.clear();
+    }
+    manifest.reality.id = "franka_nominal_reality";
+    manifest.reality.program =
+        metalrobo::makeFrankaPickPlaceWorldProgram();
+    for (metalrobo::VariationParameter& variation :
+         manifest.reality.program.variations) {
+        if (variation.targetId == "franka") {
+            variation.targetId = manifest.robot.id;
+        }
+    }
+    manifest.profile.id = "native_task_rollout";
+    manifest.profile.environmentCount = config.environment_count;
+    manifest.profile.controlSteps = 1u;
+    manifest.profile.physicsSubsteps = config.physics_substeps;
+    manifest.profile.velocityIterations = config.velocity_iterations;
+    manifest.profile.finalVelocityIterations =
+        config.final_velocity_iterations;
+    manifest.profile.controlTimestepSeconds =
+        config.control_timestep_seconds;
+    manifest.profile.seed = config.seed;
+    manifest.profile.capacities = manifest.task.capacities;
     return manifest;
 }
 
@@ -2672,6 +2716,27 @@ MRTaskRolloutHandle* mr_create_unitree_g1_task_rollout(
     return status == 0 ? result : nullptr;
 }
 
+MRTaskRolloutHandle* mr_create_franka_pick_place_task_rollout(
+    const MRTaskRolloutConfigC* config,
+    const char* metallib_path
+) {
+    if (config == nullptr) {
+        gLastError = "task-rollout config is null.";
+        return nullptr;
+    }
+    MRTaskRolloutHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        auto handle = createCompiledRunTaskRollout(
+            makeFrankaPickPlaceRunManifest(*config),
+            *config,
+            metallib_path,
+            "bundled Franka pick/place"
+        );
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
 MRTaskRolloutHandle* mr_create_unitree_g1_interaction_rollout(
     const MRTaskRolloutConfigC* config,
     const uint32_t surface_value,
@@ -3837,16 +3902,52 @@ int mr_task_rollout_write_policy_rollout_pack(
                 "rollout transition pointer is null"
             );
         }
-        std::vector<MRTaskTransitionGPU> transitions(
+        std::vector<MRLearningTransitionGPU> transitions(
             batch->transition_count
         );
-        if (!transitions.empty()) {
-            std::memcpy(
-                transitions.data(),
-                batch->transitions,
-                transitions.size() *
-                    sizeof(MRTaskTransitionGPU)
-            );
+        std::vector<metalrobo::PolicyOutcomeDescriptor> outcomes;
+        outcomes.reserve(handle->outcomes.size());
+        for (const MRTaskOutcomeDescriptor& outcome : handle->outcomes) {
+            outcomes.push_back({
+                .id = outcome.id,
+                .unit = outcome.unit,
+                .direction = outcome.direction,
+            });
+        }
+        std::vector<float> outcomeValues;
+        outcomeValues.reserve(
+            batch->transition_count * handle->outcomes.size()
+        );
+        for (std::size_t index = 0u;
+             index < batch->transition_count;
+             ++index) {
+            const MRTaskTransitionC& source = batch->transitions[index];
+            MRLearningTransitionGPU& destination = transitions[index];
+            destination.rewardAndBootstrap = {
+                source.reward,
+                source.timeout_bootstrap_value,
+                0.0f,
+                0.0f,
+            };
+            destination.termination = {
+                source.done,
+                source.timeout,
+                source.physics_error,
+                source.termination_reason,
+            };
+            destination.context = {
+                source.difficulty_band,
+                source.terrain_level,
+                source.impact_sequence_index,
+                source.impact_event_flags,
+            };
+            destination.policyRevision = source.policy_revision;
+            for (const MRTaskOutcomeDescriptor& outcome :
+                 handle->outcomes) {
+                outcomeValues.push_back(
+                    taskOutcomeValue(source, outcome.source)
+                );
+            }
         }
         const metalrobo::PolicyRolloutPackView authored{
             .id = batch_id,
@@ -3910,6 +4011,8 @@ int mr_task_rollout_write_policy_rollout_pack(
                 batch->bootstrap_value_count,
                 "rollout bootstrap values"
             ),
+            .outcomes = outcomes,
+            .outcomeValues = outcomeValues,
             .transitions = transitions,
         };
         const metalrobo::LearningPackResult written =

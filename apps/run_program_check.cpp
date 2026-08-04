@@ -1,4 +1,5 @@
 #include "metalrobo/RunProgram.hpp"
+#include "metalrobo/FrankaWorld.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -88,6 +89,37 @@ int main() {
                 metalrobo::builtinRobotPack("dvrk_psm").has_value(),
             "robot catalog is incomplete"
         );
+
+        metalrobo::RunManifest franka;
+        franka.id = "franka_pick_place_compiled_run_check";
+        franka.robot = *metalrobo::builtinRobotPack("franka_panda");
+        franka.scene = metalrobo::makeFrankaPickPlaceScenePack();
+        franka.sensors.id = "franka_default_sensors";
+        franka.task = metalrobo::makeFrankaPickPlaceTaskPack();
+        franka.reality.id = "nominal_reality";
+        franka.profile.id = "franka_check_profile";
+        franka.profile.environmentCount = 8u;
+        franka.profile.controlSteps = 32u;
+        franka.profile.physicsSubsteps = 4u;
+        franka.profile.controlTimestepSeconds = 1.0f / 60.0f;
+        metalrobo::CompiledRun compiledFranka;
+        const auto frankaStatus =
+            metalrobo::compileRun(franka, compiledFranka);
+        require(
+            frankaStatus.succeeded(),
+            "Franka CompiledRun failed [" +
+                std::string(metalrobo::runCompileStatusName(
+                    frankaStatus.status)) + "] " +
+                frankaStatus.element + ": " + frankaStatus.message
+        );
+        require(
+            compiledFranka.valid() &&
+                compiledFranka.model().articulations.size() == 1u &&
+                compiledFranka.model().bodies.size() == 15u &&
+                compiledFranka.defaultSceneBodies().size() == 4u &&
+                compiledFranka.task().actionBindings().size() == 9u,
+            "Franka CompiledRun lost robot, scene, reset, or action topology"
+        );
         std::cout
             << "run_program_check=ok"
             << " run=" << compiled.fingerprint()
@@ -96,6 +128,8 @@ int main() {
             << " world=" << compiled.world().fingerprint()
             << " task=" << compiled.task().fingerprint()
             << " robots=" << ids.size()
+            << " franka_run=" << compiledFranka.fingerprint()
+            << " franka_task=" << compiledFranka.task().fingerprint()
             << " transactional=yes\n";
         return 0;
     } catch (const std::exception& error) {

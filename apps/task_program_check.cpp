@@ -2286,20 +2286,21 @@ int main(const int argc, const char* const* argv) {
         );
         rollout.values.assign(sampleCount, 0.75f);
         rollout.bootstrapValues.assign(2u, 0.5f);
+        rollout.outcomes = {
+            {"tracking", "ratio", 1u},
+            {"projectile_miss_reward", "reward", 1u},
+        };
+        rollout.outcomeValues.resize(sampleCount * 2u);
         rollout.transitions.resize(sampleCount);
         for (std::size_t index = 0u;
              index < sampleCount;
              ++index) {
-            rollout.transitions[index].rewardAndState.x =
+            rollout.transitions[index].rewardAndBootstrap.x =
                 static_cast<float>(index) * 0.1f;
             rollout.transitions[index].termination.x =
                 index + 1u == sampleCount ? 1u : 0u;
-            rollout.transitions[index].dodgeRewardBreakdown0 = {
-                0.01f, 0.02f, 0.03f, 0.04f,
-            };
-            rollout.transitions[index].dodgeRewardBreakdown1 = {
-                -0.01f, -0.02f, -0.03f, 0.05f,
-            };
+            rollout.outcomeValues[index * 2u] = 0.03f;
+            rollout.outcomeValues[index * 2u + 1u] = 0.05f;
             rollout.transitions[index].policyRevision =
                 policy.revision;
         }
@@ -2343,6 +2344,8 @@ int main(const int argc, const char* const* argv) {
                     .values = rollout.values,
                     .bootstrapValues =
                         rollout.bootstrapValues,
+                    .outcomes = rollout.outcomes,
+                    .outcomeValues = rollout.outcomeValues,
                     .transitions = rollout.transitions,
                 },
                 packFiles.borrowedRollout
@@ -2371,12 +2374,21 @@ int main(const int argc, const char* const* argv) {
                 rollout.transitions.size() ||
             loadedRollout.transitions.back()
                     .termination.x != 1u ||
-            loadedRollout.transitions.back()
-                    .dodgeRewardBreakdown0.z != 0.03f ||
-            loadedRollout.transitions.back()
-                    .dodgeRewardBreakdown1.w != 0.05f) {
+            loadedRollout.outcomes.size() != 2u ||
+            loadedRollout.outcomes.back().id !=
+                "projectile_miss_reward" ||
+            loadedRollout.outcomeValues.back() != 0.05f) {
             fail(
-                "PolicyRolloutPack round trip changed its learning records"
+                "PolicyRolloutPack round trip changed its learning records: " +
+                rolloutWrite.message + " / " + borrowedWrite.message +
+                " / " + rolloutRead.message +
+                " hashes=" + std::to_string(rolloutWrite.contentHash) +
+                "," + std::to_string(borrowedWrite.contentHash) +
+                " outcomes=" + std::to_string(loadedRollout.outcomes.size()) +
+                " values=" + std::to_string(loadedRollout.outcomeValues.size()) +
+                " last=" + (loadedRollout.outcomeValues.empty()
+                    ? std::string{"empty"}
+                    : std::to_string(loadedRollout.outcomeValues.back()))
             );
         }
         metalrobo::MotionPack motion{

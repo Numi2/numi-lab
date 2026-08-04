@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/WorldCompiler.hpp"
+#include "metalrobo/TaskProgram.hpp"
 
 namespace metalrobo {
 
@@ -13,6 +14,14 @@ namespace metalrobo {
 // FER arm + Franka Hand, one dynamic pick object, static ground and target,
 // and one dynamic clutter body.
 [[nodiscard]] EngineModel makeFrankaPickPlaceEngineModel();
+
+// Scene-only component used by CompiledRun. Body, shape, and material indices
+// are local; composition owns every global rebase.
+[[nodiscard]] EngineModel makeFrankaPickPlaceSceneEngineModel();
+
+// Robot-independent pick/place objective bound to Franka semantics only when
+// CompiledRun resolves the selected RobotPack.
+[[nodiscard]] TaskPack makeFrankaPickPlaceTaskPack();
 
 // Scene-state records ordered exactly as CompiledWorld::sceneBodyIndices().
 [[nodiscard]] std::vector<MRBodyStateGPU>

@@ -321,6 +321,9 @@ inline float4 rootOrientation(
     device const MRTaskProgramHeaderGPU& program,
     device const float* q
 ) {
+    if ((program.schedule.w & MR_TASK_PROGRAM_FIXED_ROOT) != 0u) {
+        return float4(0.0f, 0.0f, 0.0f, 1.0f);
+    }
     return float4(
         q[program.root.z + 3u],
         q[program.root.z + 4u],
@@ -343,6 +346,9 @@ inline float3 rootWorldPosition(
     device const MRTaskProgramHeaderGPU& program,
     device const float* q
 ) {
+    if ((program.schedule.w & MR_TASK_PROGRAM_FIXED_ROOT) != 0u) {
+        return float3(0.0f);
+    }
     return float3(
         q[program.root.z + 0u],
         q[program.root.z + 1u],
@@ -355,6 +361,9 @@ inline float3 rootWorldLinearVelocity(
     device const float* q,
     device const float* v
 ) {
+    if ((program.schedule.w & MR_TASK_PROGRAM_FIXED_ROOT) != 0u) {
+        return float3(0.0f);
+    }
     const float3 offset =
         rootReferenceOffset(program, q);
     return float3(
@@ -368,6 +377,20 @@ inline float3 rootWorldLinearVelocity(
             v[program.root.w + 5u]
         ),
         offset
+    );
+}
+
+inline float3 rootWorldAngularVelocity(
+    device const MRTaskProgramHeaderGPU& program,
+    device const float* v
+) {
+    if ((program.schedule.w & MR_TASK_PROGRAM_FIXED_ROOT) != 0u) {
+        return float3(0.0f);
+    }
+    return float3(
+        v[program.root.w + 3u],
+        v[program.root.w + 4u],
+        v[program.root.w + 5u]
     );
 }
 
@@ -513,11 +536,7 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_ROOT_ANGULAR_VELOCITY_LOCAL:
         value = rotateInverse(
             orientation,
-            float3(
-                v[program.root.w + 3u],
-                v[program.root.w + 4u],
-                v[program.root.w + 5u]
-            )
+            rootWorldAngularVelocity(program, v)
         )[operation.source.z];
         break;
     case MR_TASK_OBSERVE_PROJECTED_GRAVITY:
@@ -3827,11 +3846,7 @@ kernel void mr_locomotion_task_complete(
     );
     const float3 baseAngular = rotateInverse(
         orientation,
-        float3(
-            vState[vBase + program.root.w + 3u],
-            vState[vBase + program.root.w + 4u],
-            vState[vBase + program.root.w + 5u]
-        )
+        rootWorldAngularVelocity(program, v)
     );
     const float3 gravity = normalizedOr(
         rotateInverse(

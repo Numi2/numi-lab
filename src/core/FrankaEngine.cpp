@@ -295,6 +295,20 @@ EngineModel makeFrankaPandaEngineModel() {
 
     model.defaultQ = source.homePosition;
     model.defaultV.assign(kFrankaPandaJointCount, 0.0f);
+    model.bodyNames.reserve(kFrankaPandaBodyCount);
+    for (std::size_t body = 0u; body < kFrankaPandaBodyCount; ++body) {
+        model.bodyNames.push_back("panda_link" + std::to_string(body));
+    }
+    model.jointNames.reserve(kFrankaPandaJointCount);
+    model.dofNames.reserve(kFrankaPandaJointCount);
+    for (std::size_t joint = 0u;
+         joint < kFrankaPandaJointCount;
+         ++joint) {
+        const std::string name =
+            "panda_joint" + std::to_string(joint + 1u);
+        model.jointNames.push_back(name);
+        model.dofNames.push_back(name);
+    }
 
     std::string reason;
     if (!model.valid(&reason)) {

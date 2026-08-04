@@ -632,7 +632,11 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             {"manipulation", "grasping", "force_control"}
         );
         addBodyRole(pack, "base", {"panda_link0"});
-        addBodyRole(pack, "gripper", {"panda_hand"});
+        addBodyRole(pack, "gripper", {
+            "panda_hand", "panda_leftfinger", "panda_rightfinger"
+        });
+        addBodyRole(pack, "left_finger", {"panda_leftfinger"});
+        addBodyRole(pack, "right_finger", {"panda_rightfinger"});
         return pack;
     }
     if (id == "dvrk_psm") {

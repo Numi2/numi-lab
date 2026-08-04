@@ -198,6 +198,7 @@ private:
 [[nodiscard]] std::optional<RobotPack> builtinRobotPack(
     std::string_view id
 );
+[[nodiscard]] ScenePack makeFrankaPickPlaceScenePack();
 [[nodiscard]] const char* runCompileStatusName(
     RunCompileStatus status
 ) noexcept;

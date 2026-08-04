@@ -115,15 +115,12 @@ def check_realized_imagination_weighting() -> None:
             ("timeout", "<u4"),
             ("physics_error", "<u4"),
             ("timeout_bootstrap_value", "<f4"),
-            ("root_height", "<f4"),
-            ("tilt", "<f4"),
             ("impact_sequence_index", "<u4"),
             ("impact_event_flags", "<u4"),
         ],
     )
     transitions["impact_sequence_index"] = (1, 1, 1, 0)
     transitions["impact_event_flags"][2] = 4
-    transitions["root_height"] = 0.75
     rollout = NativePolicyRollout(
         id="realized_imagination_gate",
         task_fingerprint=1,
@@ -143,6 +140,10 @@ def check_realized_imagination_weighting() -> None:
         old_values=np.zeros(4, dtype=np.float32),
         bootstrap_values=np.zeros(1, dtype=np.float32),
         transitions=transitions,
+        outcomes={
+            "root_height": np.full(4, 0.75, dtype=np.float32),
+            "tilt": np.zeros(4, dtype=np.float32),
+        },
         teacher_actions=np.ones(4, dtype=np.float32),
     )
     weights = rollout.policy_batch().teacher_weights
@@ -177,10 +178,10 @@ def check_realized_imagination_weighting() -> None:
 
     get_up_steps = 30
     get_up_transitions = np.zeros(get_up_steps, dtype=transitions.dtype)
-    get_up_transitions["root_height"] = np.linspace(
+    get_up_root_height = np.linspace(
         0.1, 0.72, get_up_steps, dtype=np.float32
     )
-    get_up_transitions["tilt"] = np.linspace(
+    get_up_tilt = np.linspace(
         1.4, 0.1, get_up_steps, dtype=np.float32
     )
     get_up_transitions["impact_event_flags"][5:] = 1 << 30
@@ -194,6 +195,10 @@ def check_realized_imagination_weighting() -> None:
         old_log_probabilities=np.zeros(get_up_steps, dtype=np.float32),
         old_values=np.zeros(get_up_steps, dtype=np.float32),
         transitions=get_up_transitions,
+        outcomes={
+            "root_height": get_up_root_height,
+            "tilt": get_up_tilt,
+        },
         teacher_actions=np.ones(get_up_steps, dtype=np.float32),
     ).policy_batch()
     if (
@@ -206,10 +211,10 @@ def check_realized_imagination_weighting() -> None:
         )
 
     standing_transitions = np.zeros(get_up_steps, dtype=transitions.dtype)
-    standing_transitions["root_height"] = np.linspace(
+    standing_root_height = np.linspace(
         0.1, 0.68, get_up_steps, dtype=np.float32
     )
-    standing_transitions["tilt"] = np.linspace(
+    standing_tilt = np.linspace(
         1.4, 0.2, get_up_steps, dtype=np.float32
     )
     standing_transitions["impact_event_flags"][12:] = 1 << 31
@@ -223,6 +228,10 @@ def check_realized_imagination_weighting() -> None:
         old_log_probabilities=np.zeros(get_up_steps, dtype=np.float32),
         old_values=np.zeros(get_up_steps, dtype=np.float32),
         transitions=standing_transitions,
+        outcomes={
+            "root_height": standing_root_height,
+            "tilt": standing_tilt,
+        },
         teacher_actions=np.ones(get_up_steps, dtype=np.float32),
     ).policy_batch()
     if (
@@ -246,6 +255,10 @@ def check_realized_imagination_weighting() -> None:
         old_log_probabilities=np.zeros(get_up_steps, dtype=np.float32),
         old_values=np.zeros(get_up_steps, dtype=np.float32),
         transitions=collapsed_transitions,
+        outcomes={
+            "root_height": standing_root_height,
+            "tilt": standing_tilt,
+        },
         teacher_actions=np.ones(get_up_steps, dtype=np.float32),
     ).policy_batch()
     if (
@@ -261,8 +274,12 @@ def check_realized_imagination_weighting() -> None:
         )
 
     foundation_transitions = np.zeros(4, dtype=transitions.dtype)
-    foundation_transitions["root_height"] = (0.78, 0.77, 0.76, 0.75)
-    foundation_transitions["tilt"] = (0.01, 0.03, 0.06, 0.08)
+    foundation_root_height = np.asarray(
+        (0.78, 0.77, 0.76, 0.75), dtype=np.float32
+    )
+    foundation_tilt = np.asarray(
+        (0.01, 0.03, 0.06, 0.08), dtype=np.float32
+    )
     foundation_transitions["impact_event_flags"] = 1 << 22
     foundation = replace(
         rollout,
@@ -273,6 +290,10 @@ def check_realized_imagination_weighting() -> None:
         old_log_probabilities=np.zeros(4, dtype=np.float32),
         old_values=np.zeros(4, dtype=np.float32),
         transitions=foundation_transitions,
+        outcomes={
+            "root_height": foundation_root_height,
+            "tilt": foundation_tilt,
+        },
         teacher_actions=np.ones(4, dtype=np.float32),
     ).policy_batch()
     if (
@@ -292,6 +313,10 @@ def check_realized_imagination_weighting() -> None:
         old_log_probabilities=np.zeros(4, dtype=np.float32),
         old_values=np.zeros(4, dtype=np.float32),
         transitions=foundation_transitions,
+        outcomes={
+            "root_height": foundation_root_height,
+            "tilt": foundation_tilt,
+        },
         teacher_actions=np.ones(4, dtype=np.float32),
     ).policy_batch()
     if failed_foundation.teacher_weights[2] != 0.0:

@@ -31,42 +31,25 @@ _LEARNING_PACK_HEADER = struct.Struct("<8sIIQQ")
 _POLICY_KIND = 2
 _POLICY_FORMAT_VERSION = 4
 _POLICY_ROLLOUT_KIND = 3
-_POLICY_ROLLOUT_FORMAT_VERSION = 6
+_POLICY_ROLLOUT_FORMAT_VERSION = 7
 _MOTION_KIND = 4
 _MOTION_FORMAT_VERSION = 1
 _TRANSITION_DTYPE = np.dtype(
     [
         ("reward", "<f4"),
-        ("tracking_score", "<f4"),
-        ("root_height", "<f4"),
-        ("tilt", "<f4"),
+        ("timeout_bootstrap_value", "<f4"),
+        ("reserved_float0", "<f4"),
+        ("reserved_float1", "<f4"),
         ("done", "<u4"),
         ("timeout", "<u4"),
         ("physics_error", "<u4"),
         ("termination_reason", "<u4"),
-        ("task_reward", "<f4"),
-        ("base_reward", "<f4"),
-        ("joint_velocity_reward", "<f4"),
-        ("joint_acceleration_reward", "<f4"),
-        ("control_reward", "<f4"),
-        ("posture_reward", "<f4"),
-        ("energy_reward", "<f4"),
-        ("contact_reward", "<f4"),
-        ("dodge_link_clearance_reward", "<f4"),
-        ("dodge_evasion_reward", "<f4"),
-        ("dodge_miss_reward", "<f4"),
-        ("dodge_safe_stillness_reward", "<f4"),
-        ("dodge_safe_action_rate_reward", "<f4"),
-        ("dodge_cbf_correction_reward", "<f4"),
-        ("dodge_cbf_buffer_reward", "<f4"),
-        ("dodge_predicted_clearance_reward", "<f4"),
-        ("policy_revision", "<u8"),
-        ("timeout_bootstrap_value", "<f4"),
-        ("episode_tracking_score", "<f4"),
         ("difficulty_band", "<u4"),
         ("terrain_level", "<u4"),
         ("impact_sequence_index", "<u4"),
         ("impact_event_flags", "<u4"),
+        ("policy_revision", "<u8"),
+        ("reserved", "<u8"),
     ],
     align=False,
 )
@@ -94,6 +77,9 @@ class NativePolicyRollout:
     old_values: np.ndarray
     bootstrap_values: np.ndarray
     transitions: np.ndarray
+    outcomes: dict[str, np.ndarray] = field(default_factory=dict)
+    outcome_units: dict[str, str] = field(default_factory=dict)
+    outcome_directions: dict[str, int] = field(default_factory=dict)
     teacher_actions: np.ndarray = field(
         default_factory=lambda: np.empty(0, dtype=np.float32)
     )
@@ -101,6 +87,17 @@ class NativePolicyRollout:
     @property
     def sample_count(self) -> int:
         return self.environment_count * self.control_step_count
+
+    def outcome(
+        self,
+        identifier: str,
+        *,
+        default: float = 0.0,
+    ) -> np.ndarray:
+        values = self.outcomes.get(identifier)
+        if values is not None:
+            return values
+        return np.full(self.sample_count, default, dtype=np.float32)
 
     def policy_batch(
         self,
@@ -200,11 +197,11 @@ class NativePolicyRollout:
                     environments,
                 ).astype(bool),
             )
-            root_height = self.transitions["root_height"].reshape(
+            root_height = self.outcome("root_height").reshape(
                 steps,
                 environments,
             )
-            tilt = self.transitions["tilt"].reshape(
+            tilt = self.outcome("tilt").reshape(
                 steps,
                 environments,
             )
@@ -919,6 +916,27 @@ def read_policy_rollout_pack(
         np.dtype("<f4"),
         environment_count,
     )
+    outcome_count = reader.unsigned64()
+    if outcome_count > 4096:
+        raise ValueError("PolicyRolloutPack outcome schema is invalid")
+    outcome_schema: list[tuple[str, str, int]] = []
+    for _ in range(outcome_count):
+        outcome_id = reader.string()
+        outcome_unit = reader.string()
+        outcome_direction = reader.unsigned32()
+        if (
+            not outcome_id
+            or outcome_direction > 2
+            or any(existing[0] == outcome_id for existing in outcome_schema)
+        ):
+            raise ValueError("PolicyRolloutPack outcome descriptor is invalid")
+        outcome_schema.append(
+            (outcome_id, outcome_unit, outcome_direction)
+        )
+    outcome_values = reader.vector(
+        np.dtype("<f4"),
+        sample_count * outcome_count,
+    ).reshape(sample_count, outcome_count)
     transitions = reader.vector(
         _TRANSITION_DTYPE,
         sample_count,
@@ -935,27 +953,8 @@ def read_policy_rollout_pack(
         values,
         bootstrap_values,
         transitions["reward"],
-        transitions["tracking_score"],
-        transitions["root_height"],
-        transitions["tilt"],
-        transitions["task_reward"],
-        transitions["base_reward"],
-        transitions["joint_velocity_reward"],
-        transitions["joint_acceleration_reward"],
-        transitions["control_reward"],
-        transitions["dodge_link_clearance_reward"],
-        transitions["dodge_evasion_reward"],
-        transitions["dodge_miss_reward"],
-        transitions["dodge_safe_stillness_reward"],
-        transitions["dodge_safe_action_rate_reward"],
-        transitions["dodge_cbf_correction_reward"],
-        transitions["dodge_cbf_buffer_reward"],
-        transitions["dodge_predicted_clearance_reward"],
-        transitions["posture_reward"],
-        transitions["energy_reward"],
-        transitions["contact_reward"],
+        outcome_values,
         transitions["timeout_bootstrap_value"],
-        transitions["episode_tracking_score"],
     )
     if not all(np.isfinite(table).all() for table in float_tables):
         raise ValueError("PolicyRolloutPack contains non-finite values")
@@ -990,6 +989,17 @@ def read_policy_rollout_pack(
         old_values=values,
         bootstrap_values=bootstrap_values,
         transitions=transitions,
+        outcomes={
+            identifier: outcome_values[:, index]
+            for index, (identifier, _, _) in enumerate(outcome_schema)
+        },
+        outcome_units={
+            identifier: unit for identifier, unit, _ in outcome_schema
+        },
+        outcome_directions={
+            identifier: direction
+            for identifier, _, direction in outcome_schema
+        },
     )
 
 

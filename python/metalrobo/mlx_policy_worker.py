@@ -589,6 +589,8 @@ def _validate_rollout(
 def _rollout_metrics(rollout: Any) -> dict[str, Any]:
     transitions = rollout.transitions
     rewards = transitions["reward"]
+    root_height = rollout.outcome("root_height")
+    tilt = rollout.outcome("tilt")
     recovery_phase_rates_by_difficulty_band: dict[str, Any] = {}
     for raw_band in np.unique(transitions["difficulty_band"]):
         band = int(raw_band)
@@ -600,10 +602,10 @@ def _rollout_metrics(rollout: Any) -> dict[str, Any]:
         recovery_phase_rates_by_difficulty_band[str(band)] = {
             "transition_count": count,
             "mean_root_height": float(
-                np.mean(transitions["root_height"][selected])
+                np.mean(root_height[selected])
             ),
             "mean_tilt": float(
-                np.mean(transitions["tilt"][selected])
+                np.mean(tilt[selected])
             ),
             "brace": float(np.mean((flags & (1 << 29)) != 0)),
             "trunk_clear": float(
@@ -648,75 +650,23 @@ def _rollout_metrics(rollout: Any) -> dict[str, Any]:
                 "recovery_count": int(np.sum((flags & 2) != 0)),
                 "miss_count": int(np.sum((flags & 4) != 0)),
                 "peak_tilt": float(
-                    np.max(transitions["tilt"][selected])
+                    np.max(tilt[selected])
                 ),
                 "minimum_root_height": float(
-                    np.min(transitions["root_height"][selected])
+                    np.min(root_height[selected])
                 ),
             }
         )
-    return {
+    metrics = {
         "mean_reward": float(np.mean(rewards)),
         "reward_standard_deviation": float(np.std(rewards)),
         "minimum_reward": float(np.min(rewards)),
         "maximum_reward": float(np.max(rewards)),
-        "mean_tracking_score": float(
-            np.mean(transitions["tracking_score"])
-        ),
-        "mean_root_height": float(
-            np.mean(transitions["root_height"])
-        ),
-        "mean_tilt": float(np.mean(transitions["tilt"])),
+        "mean_tracking_score": float(np.mean(rollout.outcome("tracking"))),
+        "mean_root_height": float(np.mean(root_height)),
+        "mean_tilt": float(np.mean(tilt)),
         "recovery_phase_rates_by_difficulty_band": (
             recovery_phase_rates_by_difficulty_band
-        ),
-        "mean_task_reward": float(
-            np.mean(transitions["task_reward"])
-        ),
-        "mean_base_reward": float(
-            np.mean(transitions["base_reward"])
-        ),
-        "mean_joint_velocity_reward": float(
-            np.mean(transitions["joint_velocity_reward"])
-        ),
-        "mean_joint_acceleration_reward": float(
-            np.mean(transitions["joint_acceleration_reward"])
-        ),
-        "mean_control_reward": float(
-            np.mean(transitions["control_reward"])
-        ),
-        "mean_posture_reward": float(
-            np.mean(transitions["posture_reward"])
-        ),
-        "mean_energy_reward": float(
-            np.mean(transitions["energy_reward"])
-        ),
-        "mean_contact_reward": float(
-            np.mean(transitions["contact_reward"])
-        ),
-        "mean_dodge_link_clearance_reward": float(
-            np.mean(transitions["dodge_link_clearance_reward"])
-        ),
-        "mean_dodge_evasion_reward": float(
-            np.mean(transitions["dodge_evasion_reward"])
-        ),
-        "mean_dodge_miss_reward": float(
-            np.mean(transitions["dodge_miss_reward"])
-        ),
-        "mean_dodge_safe_stillness_reward": float(
-            np.mean(transitions["dodge_safe_stillness_reward"])
-        ),
-        "mean_dodge_safe_action_rate_reward": float(
-            np.mean(transitions["dodge_safe_action_rate_reward"])
-        ),
-        "mean_dodge_cbf_correction_reward": float(
-            np.mean(transitions["dodge_cbf_correction_reward"])
-        ),
-        "mean_dodge_cbf_buffer_reward": float(
-            np.mean(transitions["dodge_cbf_buffer_reward"])
-        ),
-        "mean_dodge_predicted_clearance_reward": float(
-            np.mean(transitions["dodge_predicted_clearance_reward"])
         ),
         "done_count": int(np.sum(transitions["done"])),
         "timeout_count": int(np.sum(transitions["timeout"])),
@@ -726,6 +676,35 @@ def _rollout_metrics(rollout: Any) -> dict[str, Any]:
         },
         "impact_sequence_metrics": impact_metrics,
     }
+    metrics["outcomes"] = {
+        identifier: {
+            "mean": float(np.mean(values)),
+            "unit": rollout.outcome_units[identifier],
+            "direction": rollout.outcome_directions[identifier],
+        }
+        for identifier, values in rollout.outcomes.items()
+    }
+    compatibility = {
+        "mean_task_reward": "task_reward",
+        "mean_contact_reward": "contact_reward",
+        "mean_dodge_link_clearance_reward":
+            "projectile_clearance_reward",
+        "mean_dodge_evasion_reward": "projectile_evasion_reward",
+        "mean_dodge_miss_reward": "projectile_miss_reward",
+        "mean_dodge_safe_stillness_reward":
+            "projectile_safe_stillness_reward",
+        "mean_dodge_safe_action_rate_reward":
+            "projectile_safe_action_reward",
+        "mean_dodge_cbf_correction_reward": "cbf_correction_reward",
+        "mean_dodge_cbf_buffer_reward": "cbf_buffer_reward",
+        "mean_dodge_predicted_clearance_reward":
+            "projectile_predicted_clearance_reward",
+    }
+    metrics.update({
+        key: float(np.mean(rollout.outcome(outcome)))
+        for key, outcome in compatibility.items()
+    })
+    return metrics
 
 
 def _serve(arguments: argparse.Namespace) -> int:

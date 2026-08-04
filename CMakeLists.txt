@@ -903,6 +903,22 @@ set_target_properties(
 )
 
 add_executable(
+    metalrobo_franka_compiled_run_probe
+    apps/franka_compiled_run_probe.cpp
+)
+target_link_libraries(
+    metalrobo_franka_compiled_run_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_franka_compiled_run_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
     metalrobo_franka_explore
     examples/franka_explore/metal_main.cpp
 )

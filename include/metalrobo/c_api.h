@@ -253,9 +253,9 @@ typedef struct MRTaskTransitionC {
     uint32_t impact_event_flags;
 } MRTaskTransitionC;
 
-// Task-dependent typed outcome view. The legacy transition record remains a
-// rollout-pack compatibility payload; evaluation and product integrations
-// should enumerate this schema instead of assuming humanoid or dodge fields.
+// Task-dependent typed outcome view. MRTaskTransitionC remains an internal
+// executor publication boundary for existing Swift aggregation; persisted
+// learner artifacts use MRLearningTransitionGPU plus this typed schema.
 typedef enum MRTaskOutcomeDirectionC {
     MR_TASK_OUTCOME_NEUTRAL = 0,
     MR_TASK_OUTCOME_HIGHER_IS_BETTER = 1,
@@ -586,6 +586,12 @@ MR_API MRTaskRolloutHandle* mr_create_unitree_g1_task_rollout(
     const MRTaskRolloutConfigC* config,
     uint32_t surface,
     uint32_t task,
+    const char* metallib_path
+);
+// Runs the bundled Franka Hand pick/place RobotPack + ScenePack + TaskPack
+// through the same CompiledRun/MetalWorld executor used by every learner.
+MR_API MRTaskRolloutHandle* mr_create_franka_pick_place_task_rollout(
+    const MRTaskRolloutConfigC* config,
     const char* metallib_path
 );
 // Loads a generated InteractionPack, binds the selected clip to the bundled
