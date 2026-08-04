@@ -7,8 +7,10 @@
 
 #include <array>
 #include <cmath>
+#include <cstdlib>
 #include <cstdint>
 #include <cstring>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
@@ -151,6 +153,45 @@ int main() {
                 std::abs(finalWrenches[0].torque.z - oracle.wrench.torque.z),
             });
             require(wrenchParity < 2.0e-4f, "X500 CPU/Metal actuator wrench parity exceeded");
+            const char* tracePath = std::getenv("PX4_X500_TRACE");
+            if (tracePath != nullptr && tracePath[0] != '\0') {
+                std::ofstream trace(tracePath);
+                require(trace.good(), "cannot write X500 trace");
+                trace << "time_s,x_m,y_m,z_m,qx,qy,qz,qw\n";
+                MRBodyStateGPU traceState = initialState(propertiesOne, 0u);
+                traceState.position.z = 0.60f;
+                std::memcpy(bodyBuffer.contents, &traceState, sizeof(traceState));
+                MRMulticopterStateGPU traceMotors{};
+                traceMotors.rotorSpeed01 = f4(hover, hover, hover, hover);
+                std::memcpy(motorBuffer.contents, &traceMotors, sizeof(traceMotors));
+                auto* traceCommands = static_cast<float*>(commandBuffer.contents);
+                for (std::uint32_t rotor = 0; rotor < 4u; ++rotor) traceCommands[rotor] = 810.0f;
+                MRMulticopterDispatchGPU traceDispatch{};
+                traceDispatch.environmentCount = 1u;
+                traceDispatch.bodyStride = 1u;
+                std::memcpy(multicopterDispatchBuffer.contents, &traceDispatch, sizeof(traceDispatch));
+                MRFreeBodyBatchGPU traceBatch = freeBodyBatch;
+                traceBatch.bodyCount = 1u;
+                std::memcpy(freeBodyBatchBuffer.contents, &traceBatch, sizeof(traceBatch));
+                for (std::uint32_t step = 0; step < kSteps; ++step) {
+                    id<MTLCommandBuffer> traceCommand = [queue commandBuffer];
+                    id<MTLComputeCommandEncoder> traceEncoder = [traceCommand computeCommandEncoder];
+                    require(traceCommand != nil && traceEncoder != nil, "cannot encode X500 trace step");
+                    encodeMulticopter(traceEncoder, multicopterPipe, rotorsBuffer, modelBuffer, motorBuffer, commandBuffer, bodyBuffer, wrenchBuffer, multicopterDispatchBuffer, 1u);
+                    encodeFreeBody(traceEncoder, freeBodyPipe, propertyBuffer, bodyBuffer, wrenchBuffer, freeBodyBatchBuffer, statusBuffer, 1u);
+                    [traceEncoder endEncoding]; [traceCommand commit]; [traceCommand waitUntilCompleted];
+                    require(traceCommand.status == MTLCommandBufferStatusCompleted, "X500 trace GPU step failed");
+                    const auto* current = static_cast<const MRBodyStateGPU*>(bodyBuffer.contents);
+                    const auto* status = static_cast<const MRFreeBodyStatusGPU*>(statusBuffer.contents);
+                    require(status[0].code == MR_STEP_SUCCESS, "X500 trace physics step failed");
+                    if (step % 10u == 0u) {
+                        trace << std::fixed << std::setprecision(7) << (step + 1u) * kDt << ','
+                              << current[0].position.x << ',' << current[0].position.y << ',' << current[0].position.z << ','
+                              << current[0].orientation.x << ',' << current[0].orientation.y << ',' << current[0].orientation.z << ',' << current[0].orientation.w << '\n';
+                    }
+                }
+                require(trace.good(), "X500 trace write failed");
+            }
             std::cout << std::fixed << std::setprecision(7) << "robot=px4_x500 source_revision=e00d3b9cde682dbcb3bf6f30a2f2b8ef4325dae8 device=" << string(device.name) << " environments=" << kEnvironments << " steps=" << kSteps << " hover_rad_s=" << hover << " maximum_altitude_error_m=" << maximumAltitudeError << " actuator_wrench_parity=" << wrenchParity << " failed_steps=0 status=pass\n";
             return 0;
         } catch (const std::exception& exception) { std::cerr << "metalrobo_px4_x500_gpu_probe: " << exception.what() << '\n'; return 1; }

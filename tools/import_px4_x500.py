@@ -146,6 +146,13 @@ def main() -> None:
         destination = snapshot / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source / relative, destination)
+    # Preserve the source presentation assets beside the mechanics snapshot so
+    # a flight trace can be rendered with the same X500 visual geometry.
+    source_base = source / "models/x500_base"
+    for directory in ("meshes", "materials"):
+        authored_assets = source_base / directory
+        if authored_assets.is_dir():
+            shutil.copytree(authored_assets, snapshot / "models/x500_base" / directory)
     contract = {
         "schema": "numi.px4-x500-source-contract.v1",
         "provenance": manifest,
