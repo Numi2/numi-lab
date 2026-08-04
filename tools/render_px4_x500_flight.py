@@ -37,6 +37,73 @@ def import_mesh(path: Path) -> list[bpy.types.Object]:
     return objects
 
 
+def import_collada_geometry(path: Path, material: bpy.types.Material) -> list[bpy.types.Object]:
+    """Import the position/triangle geometry from the pinned source DAE.
+
+    Blender 5 no longer bundles the Collada operator.  Keeping this small
+    reader here lets the renderer use the upstream X500 presentation mesh
+    rather than substituting a collision proxy.
+    """
+    root = etree.parse(path).getroot()
+    namespace = {"c": root.tag.split("}")[0].removeprefix("{")}
+    objects: list[bpy.types.Object] = []
+    for geometry in root.findall(".//c:library_geometries/c:geometry", namespace):
+        mesh = geometry.find("c:mesh", namespace)
+        if mesh is None:
+            continue
+        sources = {source.attrib["id"]: source for source in mesh.findall("c:source", namespace)}
+        vertices = mesh.find("c:vertices", namespace)
+        if vertices is None:
+            continue
+        vertex_sources = {
+            input_.attrib["semantic"]: input_.attrib["source"].removeprefix("#")
+            for input_ in vertices.findall("c:input", namespace)
+        }
+        position_source = sources.get(vertex_sources.get("POSITION", ""))
+        if position_source is None:
+            continue
+        values = [float(value) for value in position_source.findtext("c:float_array", "", namespace).split()]
+        stride = int(position_source.find("c:technique_common/c:accessor", namespace).attrib.get("stride", "3"))
+        positions = [tuple(values[index : index + 3]) for index in range(0, len(values), stride)]
+        faces: list[tuple[int, int, int]] = []
+        for triangles in mesh.findall("c:triangles", namespace):
+            inputs = triangles.findall("c:input", namespace)
+            vertex_input = next((input_ for input_ in inputs if input_.attrib["semantic"] == "VERTEX"), None)
+            if vertex_input is None:
+                continue
+            input_stride = 1 + max(int(input_.attrib.get("offset", "0")) for input_ in inputs)
+            vertex_offset = int(vertex_input.attrib.get("offset", "0"))
+            indices = [int(value) for value in triangles.findtext("c:p", "", namespace).split()]
+            for index in range(0, len(indices), 3 * input_stride):
+                faces.append(tuple(indices[index + corner * input_stride + vertex_offset] for corner in range(3)))
+        if not faces:
+            continue
+        data = bpy.data.meshes.new(f"{path.stem}:{geometry.attrib.get('name', geometry.attrib['id'])}")
+        data.from_pydata(positions, [], faces)
+        data.materials.append(material)
+        object_ = bpy.data.objects.new(data.name, data)
+        bpy.context.collection.objects.link(object_)
+        objects.append(object_)
+    if not objects:
+        raise RuntimeError(f"no triangle geometry found in {path}")
+    return objects
+
+
+def pose_values(text: str | None) -> tuple[float, float, float, float, float, float]:
+    return tuple(float(value) for value in (text or "0 0 0 0 0 0").split())  # type: ignore[return-value]
+
+
+def pbr_material(name: str, color: tuple[float, float, float, float], metallic: float, roughness: float) -> bpy.types.Material:
+    material = bpy.data.materials.new(name)
+    material.diffuse_color = color
+    material.use_nodes = True
+    bsdf = material.node_tree.nodes.get("Principled BSDF")
+    bsdf.inputs["Base Color"].default_value = color
+    bsdf.inputs["Metallic"].default_value = metallic
+    bsdf.inputs["Roughness"].default_value = roughness
+    return material
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--trace", type=Path, required=True)
@@ -44,59 +111,69 @@ def main() -> None:
     parser.add_argument("--frames", type=Path, required=True)
     parser.add_argument("--width", type=int, default=640)
     parser.add_argument("--height", type=int, default=640)
+    parser.add_argument("--first-frame", type=int, default=1)
+    parser.add_argument("--last-frame", type=int)
+    parser.add_argument("--sample-stride", type=int, default=1, help="render every Nth accepted trace state")
     if "--" not in sys.argv:
         raise RuntimeError("Blender arguments must follow --")
     options = parser.parse_args(sys.argv[sys.argv.index("--") + 1 :])
     rows = parse_trace(options.trace)
+    if options.sample_stride < 1:
+        raise RuntimeError("sample stride must be positive")
+    rows = rows[:: options.sample_stride]
     mesh_root = options.source_root / "models/x500_base/meshes"
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete(use_global=False)
     scene = bpy.context.scene
-    scene.render.engine = "BLENDER_WORKBENCH"
-    scene.display.shading.light = "STUDIO"
-    scene.display.shading.studio_light = "rim.sl"
-    scene.display.shading.color_type = "MATERIAL"
-    scene.display.shading.show_shadows = True
-    scene.display.shading.show_cavity = True
+    scene.render.engine = "BLENDER_EEVEE"
+    scene.render.image_settings.color_mode = "RGBA"
+    scene.render.image_settings.color_depth = "8"
+    scene.render.film_transparent = False
+    scene.world.color = (0.012, 0.018, 0.035)
     scene.render.resolution_x = options.width
     scene.render.resolution_y = options.height
     scene.render.resolution_percentage = 100
     scene.render.image_settings.file_format = "PNG"
     scene.render.fps = 24
-    scene.frame_start = 1
-    scene.frame_end = len(rows)
+    if options.first_frame < 1 or options.first_frame > len(rows):
+        raise RuntimeError("first frame is outside the trace")
+    scene.frame_start = options.first_frame
+    scene.frame_end = min(options.last_frame or len(rows), len(rows))
+    if scene.frame_end < scene.frame_start:
+        raise RuntimeError("last frame precedes first frame")
     options.frames.mkdir(parents=True, exist_ok=True)
     scene.render.filepath = str(options.frames / "x500-")
 
-    material = bpy.data.materials.new("PX4 source mesh cobalt")
-    material.diffuse_color = (0.055, 0.42, 1.0, 1.0)
+    carbon_material = pbr_material("PX4 carbon-fibre frame", (0.012, 0.018, 0.025, 1.0), 0.32, 0.29)
+    motor_material = pbr_material("PX4 machined motor", (0.11, 0.14, 0.18, 1.0), 0.92, 0.18)
+    prop_material = pbr_material("PX4 composite propeller", (0.018, 0.025, 0.035, 1.0), 0.45, 0.22)
     frame = bpy.data.objects.new("PX4 X500 source-frame root", None)
     bpy.context.collection.objects.link(frame)
     source_sdf = etree.parse(options.source_root / "models/x500_base/model.sdf").getroot()
-    for collision in source_sdf.findall("./model/link[@name='base_link']/collision"):
-        size = collision.findtext("./geometry/box/size")
-        pose = collision.findtext("pose")
-        if size is None or pose is None:
-            continue
-        dimensions = tuple(float(value) for value in size.split())
-        x, y, z, roll, pitch, yaw = (float(value) for value in pose.split())
-        bpy.ops.mesh.primitive_cube_add(location=(x, y, z), rotation=(roll, pitch, yaw))
-        source_collision = bpy.context.object
-        source_collision.name = collision.attrib.get("name", "x500 source collision")
-        source_collision.dimensions = dimensions
-        source_collision.data.materials.append(material)
-        source_collision.parent = frame
-
-    prop_positions = ((0.174, -0.174, 0.060), (-0.174, 0.174, 0.060), (0.174, 0.174, 0.060), (-0.174, -0.174, 0.060))
-    for index, position in enumerate(prop_positions):
-        prop = import_mesh(mesh_root / ("1345_prop_ccw.stl" if index < 2 else "1345_prop_cw.stl"))
-        for object_ in prop:
-            object_.parent = frame
-            object_.location = position
-            object_.scale = (0.846153846, 0.846153846, 0.846153846)
-            if object_.type == "MESH":
-                object_.data.materials.clear()
-                object_.data.materials.append(material)
+    for link in source_sdf.findall("./model/link"):
+        link_pose = pose_values(link.findtext("pose"))
+        for visual in link.findall("visual"):
+            mesh_uri = visual.findtext("./geometry/mesh/uri")
+            if mesh_uri is None:
+                continue
+            visual_pose = pose_values(visual.findtext("pose"))
+            mesh_path = mesh_root / Path(mesh_uri).name
+            source_material = motor_material if mesh_path.name.startswith("5010") else prop_material if mesh_path.suffix == ".stl" else carbon_material
+            objects = import_collada_geometry(mesh_path, source_material) if mesh_path.suffix == ".dae" else import_mesh(mesh_path)
+            # The source DAE motor assets retain their authoring-centimetre
+            # geometry with a 0.01 scene-node transform.  Preserve that
+            # transform here rather than scaling the physical airframe.
+            authoring_scale = 0.01 if mesh_path.name in {"5010Base.dae", "5010Bell.dae"} else 1.0
+            for object_ in objects:
+                object_.parent = frame
+                object_.location = tuple(link_pose[index] + visual_pose[index] for index in range(3))
+                object_.rotation_euler = tuple(link_pose[index + 3] + visual_pose[index + 3] for index in range(3))
+                scale = visual.findtext("./geometry/mesh/scale")
+                source_scale = tuple(float(value) for value in (scale or "1 1 1").split())
+                object_.scale = tuple(authoring_scale * value for value in source_scale)
+                if object_.type == "MESH":
+                    object_.data.materials.clear()
+                    object_.data.materials.append(source_material)
 
     for frame_number, row in enumerate(rows, 1):
         frame.location = (row["x_m"], row["y_m"], row["z_m"])
@@ -108,8 +185,7 @@ def main() -> None:
     bpy.ops.mesh.primitive_plane_add(size=40, location=(0, 0, 0))
     ground = bpy.context.object
     ground.name = "ground reference plane"
-    ground_material = bpy.data.materials.new("matte ground")
-    ground_material.diffuse_color = (0.16, 0.19, 0.25, 1.0)
+    ground_material = pbr_material("matte ground", (0.018, 0.027, 0.045, 1.0), 0.15, 0.36)
     ground.data.materials.append(ground_material)
     # Follow the accepted body state: the vehicle stays legible while the
     # ground plane supplies the ascent reference.  The trace itself remains
@@ -117,14 +193,24 @@ def main() -> None:
     bpy.ops.object.camera_add()
     camera = bpy.context.object
     camera.parent = frame
-    camera.location = (2.0, -2.6, 1.45)
+    camera.location = (1.15, -1.45, 0.78)
     camera.data.lens = 58
     point_at(camera, Vector((0.0, 0.0, 0.0)))
     scene.camera = camera
-    bpy.ops.object.light_add(type="AREA", location=(3.5, -4.0, 7.0))
-    bpy.context.object.data.energy = 1500
-    bpy.context.object.data.shape = "DISK"
-    bpy.context.object.data.size = 5.0
+    for location, energy, size, color in (
+        ((1.8, -2.4, 3.0), 950.0, 2.0, (0.62, 0.78, 1.0)),
+        ((-2.0, -0.8, 2.0), 700.0, 1.6, (0.16, 0.42, 1.0)),
+        ((0.2, 1.8, 1.6), 600.0, 1.2, (0.35, 0.55, 1.0)),
+    ):
+        bpy.ops.object.light_add(type="AREA")
+        light = bpy.context.object
+        light.parent = frame
+        light.location = location
+        light.data.energy = energy
+        light.data.shape = "DISK"
+        light.data.size = size
+        light.data.color = color
+        point_at(light, Vector((0.0, 0.0, 0.0)))
     options.frames.mkdir(parents=True, exist_ok=True)
     bpy.ops.render.render(animation=True)
 
