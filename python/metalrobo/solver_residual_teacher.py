@@ -87,6 +87,25 @@ def _rank_quality(values: np.ndarray, *, higher: bool) -> np.ndarray:
     return ranks if higher else 1.0 - ranks
 
 
+def _soft_advantage_weights(
+    quality: np.ndarray,
+    *,
+    temperature: float,
+) -> np.ndarray:
+    """Exponentially emphasize better ranks without excluding any sample."""
+
+    values = np.asarray(quality, dtype=np.float64)
+    if values.ndim != 1 or not np.all(np.isfinite(values)):
+        raise ValueError("quality must be a finite one-dimensional array")
+    if not np.isfinite(temperature) or temperature < 0.0:
+        raise ValueError("advantage temperature must be finite and nonnegative")
+    if values.size == 0:
+        return np.zeros(0, dtype=np.float32)
+    return np.exp(
+        temperature * (values - np.max(values))
+    ).astype(np.float32)
+
+
 def rank_physical_realizations(
     evidence: dict[str, Any],
     *,
@@ -199,6 +218,8 @@ def distill_residual_frontier(
     learning_rate: float,
     update_epochs: int,
     minibatch_size: int,
+    environment_advantage_temperature: float,
+    step_advantage_temperature: float,
     seed: int,
     native_library_path: Path | None = None,
 ) -> dict[str, Any]:
@@ -229,14 +250,20 @@ def distill_residual_frontier(
     steps = rollout.control_step_count
     environments = rollout.environment_count
     samples = rollout.sample_count
-    environment_weights = np.asarray(
-        [0.10 + 0.90 * candidate.quality for candidate in candidates],
-        dtype=np.float32,
+    environment_weights = _soft_advantage_weights(
+        np.asarray(
+            [candidate.quality for candidate in candidates],
+            dtype=np.float64,
+        ),
+        temperature=environment_advantage_temperature,
     )
-    step_reward_quality = _rank_quality(
-        transitions["reward"].reshape(samples).astype(np.float64),
-        higher=True,
-    ).astype(np.float32).reshape(steps, environments)
+    step_reward_quality = _soft_advantage_weights(
+        _rank_quality(
+            transitions["reward"].reshape(samples).astype(np.float64),
+            higher=True,
+        ),
+        temperature=step_advantage_temperature,
+    ).reshape(steps, environments)
     valid = (
         (transitions["physics_error"] == 0)
         & (transitions["done"] == 0)
@@ -244,7 +271,7 @@ def distill_residual_frontier(
     teacher_weights = (
         environment_weights[np.newaxis, :]
         * valid
-        * (np.float32(0.25) + np.float32(0.75) * step_reward_quality)
+        * step_reward_quality
     ).reshape(samples)
     if not np.any(teacher_weights > 0.0):
         raise ValueError("physical search has no valid transitions")
@@ -305,7 +332,7 @@ def distill_residual_frontier(
         library_path=native_library_path,
     )
     result = {
-        "schema": "numi.solver-residual-teacher.v2",
+        "schema": "numi.solver-residual-teacher.v3",
         "principle": (
             "ARDY supplies nominal motion; sampled policy residuals are "
             "continuously weighted by NumiSolver physical outcomes without "
@@ -337,6 +364,21 @@ def distill_residual_frontier(
         ],
         "teacher_sample_count": int(np.count_nonzero(teacher_weights)),
         "mean_teacher_weight": float(np.mean(teacher_weights)),
+        "teacher_weighting": {
+            "method": "continuous_rank_advantage",
+            "environment_temperature": environment_advantage_temperature,
+            "step_temperature": step_advantage_temperature,
+            "effective_sample_count": float(
+                np.square(np.sum(teacher_weights, dtype=np.float64))
+                / max(
+                    np.sum(
+                        np.square(teacher_weights, dtype=np.float64),
+                        dtype=np.float64,
+                    ),
+                    np.finfo(np.float64).tiny,
+                )
+            ),
+        },
         "learning_rate": learning_rate,
         "update_epochs": update_epochs,
         "training_metrics": metrics,
@@ -431,6 +473,12 @@ def _add_distillation_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--learning-rate", type=float, default=2.0e-6)
     parser.add_argument("--update-epochs", type=int, default=2)
     parser.add_argument("--minibatch-size", type=int, default=4096)
+    parser.add_argument(
+        "--environment-advantage-temperature", type=float, default=6.0
+    )
+    parser.add_argument(
+        "--step-advantage-temperature", type=float, default=2.0
+    )
     parser.add_argument("--seed", type=int, default=2650443581)
 
 
@@ -461,6 +509,12 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument("--learning-rate", type=float, default=2.0e-6)
     run.add_argument("--update-epochs", type=int, default=2)
     run.add_argument("--minibatch-size", type=int, default=4096)
+    run.add_argument(
+        "--environment-advantage-temperature", type=float, default=6.0
+    )
+    run.add_argument(
+        "--step-advantage-temperature", type=float, default=2.0
+    )
     run.add_argument("--seed", type=int, default=2650443581)
     return parser
 
@@ -498,6 +552,10 @@ def main(arguments: Sequence[str] | None = None) -> int:
         learning_rate=options.learning_rate,
         update_epochs=options.update_epochs,
         minibatch_size=options.minibatch_size,
+        environment_advantage_temperature=(
+            options.environment_advantage_temperature
+        ),
+        step_advantage_temperature=options.step_advantage_temperature,
         seed=options.seed,
         native_library_path=options.native_library,
     )

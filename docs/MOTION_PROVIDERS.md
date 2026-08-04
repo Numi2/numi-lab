@@ -227,9 +227,10 @@ final forward displacement, tracking, mean/minimum root height, mean/maximum
 tilt, termination, and physics-error evidence per environment. Numi reports
 the non-dominated physical frontier, but does not use it as an admission gate.
 Every physically valid trajectory contributes continuously according to
-reference-relative tracking and its realized TaskPack reward. A small
-actor-only Huber update moves toward the weighted sampled residuals; critic
-gradient is zero in this update.
+reference-relative tracking and its realized TaskPack reward. Smooth
+rank-advantage weighting lets better physical realizations teach much more
+strongly without an elite cutoff. A small actor-only Huber update moves toward
+the weighted sampled residuals; critic gradient is zero in this update.
 It writes both a stochastic full continuation PolicyPack and a deterministic
 deployment candidate so matched evaluation never confuses exploration noise
 with the actor that would ship.

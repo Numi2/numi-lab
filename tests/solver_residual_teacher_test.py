@@ -1,6 +1,11 @@
 import unittest
 
-from metalrobo.solver_residual_teacher import rank_physical_realizations
+import numpy as np
+
+from metalrobo.solver_residual_teacher import (
+    _soft_advantage_weights,
+    rank_physical_realizations,
+)
 
 
 class SolverResidualTeacherTest(unittest.TestCase):
@@ -64,6 +69,22 @@ class SolverResidualTeacherTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "physics_error_count"):
             rank_physical_realizations(
                 evidence, environment_count=1
+            )
+
+    def test_soft_advantage_weighting_emphasizes_without_exclusion(self) -> None:
+        weights = _soft_advantage_weights(
+            np.asarray([0.0, 0.5, 1.0]),
+            temperature=6.0,
+        )
+        self.assertTrue(np.all(weights > 0.0))
+        self.assertAlmostEqual(float(weights[-1]), 1.0)
+        self.assertGreater(float(weights[-1] / weights[0]), 400.0)
+
+    def test_soft_advantage_temperature_rejects_negative_value(self) -> None:
+        with self.assertRaisesRegex(ValueError, "temperature"):
+            _soft_advantage_weights(
+                np.asarray([0.0, 1.0]),
+                temperature=-1.0,
             )
 
 
