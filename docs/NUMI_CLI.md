@@ -99,10 +99,32 @@ of the generated motion. The legacy
 Held-out policy selection omits all reset-curriculum options and evaluates the
 complete physical trajectory from its canonical initial state.
 
-For the bundled G1 forward-running task, canonical evaluation also publishes
-mean and per-environment peak forward displacement in meters. Forward reach is
-the primary task outcome; tracking, root height, tilt, contact, and failed-step
-evidence distinguish physically useful travel from pose matching or collapse.
+For the bundled G1 forward-running task, canonical evaluation publishes mean
+and per-environment peak and final forward displacement in meters plus
+per-environment tracking, mean/minimum root height, mean/maximum tilt,
+termination, and physics-error evidence. Forward reach is the primary task
+outcome. Held-out selection uses a continuous locomotion-progress score rather
+than allowing any small height or tilt tradeoff to veto forward progress;
+device-rejected physics steps remain invalid evidence. Every candidate is
+retained, and all saved checkpoints are compared directly with the immutable
+incumbent so the result does not depend on checkpoint ordering.
+
+For generated motions that need physical correction without a hand-authored
+pose, run the solver-residual teacher:
+
+```sh
+numi residual-teacher run \
+  --policy-pack runs/source.policypack \
+  --interaction-pack runs/ardy.interactionpack \
+  --interaction-clip ardy-g1 \
+  --output-directory runs/solver-residual-search
+```
+
+This searches native stochastic policy residuals under normal gravity and
+contact, retains the physical Pareto frontier, and writes an actor-distilled
+full continuation plus deterministic deployment candidate. It does not promote
+that candidate; use the same held-out physical rollout to compare deployment
+actor with deployment actor.
 
 ## Codex bootstrap
 

@@ -218,6 +218,22 @@ floating root. Pipeline evidence reports achieved displacement and root/joint
 tracking errors explicitly. A completed solver horizon means only that every
 transaction remained valid, not that the requested motion succeeded.
 
+`numi residual-teacher run` supplies the missing solver-in-the-loop bridge for
+motions that are plausible but not dynamically feasible. ARDY remains the
+nominal joint-space motion and the native stochastic policy supplies batched,
+closed-loop residual candidates. Gravity, actuator limits, collision, and
+contact remain active for every candidate. The evaluator publishes peak and
+final forward displacement, tracking, mean/minimum root height, mean/maximum
+tilt, termination, and physics-error evidence per environment. Numi retains
+the non-dominated physical frontier and performs a small actor-only Huber
+update toward its sampled residuals; critic gradient is zero in this update.
+It writes both a stochastic full continuation PolicyPack and a deterministic
+deployment candidate so matched evaluation never confuses exploration noise
+with the actor that would ship.
+The command never authors root state, support, contact, or a corrective pose.
+Its output is only a candidate and must beat the source policy in a matched
+physical rollout before deployment.
+
 Generic InteractionPack tracking does not inherit standing-only upright
 penalties or height/tilt terminations. Those contradict intentional rotation,
 get-up, crawling, and other non-standing motion. The generated root trajectory

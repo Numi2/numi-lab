@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 from metalrobo.policy_selection import (  # noqa: E402
     compare_evidence,
     evaluation_arguments,
+    select_candidate_champion,
 )
 
 
@@ -118,6 +119,71 @@ class PolicySelectionTest(unittest.TestCase):
             "mean peak forward progress increased",
             decision["improvements"],
         )
+
+    def test_forward_progress_is_not_vetoed_by_balance_tradeoff(self) -> None:
+        incumbent = {
+            "task": "velocity",
+            "termination_count_by_environment": [0] * 256,
+            "height_or_tilt_termination_count": 0,
+            "failed_environment_steps": 0,
+            "forward_progress_available": True,
+            "mean_peak_forward_progress_m": 1.88,
+            "mean_final_forward_progress_m": 1.68,
+            "mean_tracking_score": 0.526,
+            "mean_root_height": 0.59,
+            "mean_tilt": 0.38,
+        }
+        candidate = {
+            **incumbent,
+            "mean_peak_forward_progress_m": 2.04,
+            "mean_final_forward_progress_m": 1.85,
+            "mean_tracking_score": 0.534,
+            "mean_root_height": 0.52,
+            "mean_tilt": 0.56,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertGreater(decision["selection_score"], 0.0)
+        self.assertIn("mean tilt increased", decision["regressions"])
+        self.assertIn("mean root height decreased", decision["regressions"])
+
+    def test_all_locomotion_checkpoints_compare_directly_to_incumbent(
+        self,
+    ) -> None:
+        incumbent = {
+            "task": "velocity",
+            "termination_count_by_environment": [0] * 256,
+            "height_or_tilt_termination_count": 0,
+            "failed_environment_steps": 0,
+            "forward_progress_available": True,
+            "mean_peak_forward_progress_m": 1.95,
+            "mean_final_forward_progress_m": 1.80,
+            "mean_tracking_score": 0.525,
+            "mean_root_height": 0.605,
+            "mean_tilt": 0.352,
+        }
+        candidates = {
+            "revision-206": {
+                **incumbent,
+                "mean_peak_forward_progress_m": 2.044,
+                "mean_final_forward_progress_m": 1.852,
+                "mean_tracking_score": 0.534,
+                "mean_root_height": 0.521,
+                "mean_tilt": 0.565,
+            },
+            "revision-162": {
+                **incumbent,
+                "mean_peak_forward_progress_m": 1.936,
+                "mean_final_forward_progress_m": 1.780,
+                "mean_root_height": 0.595,
+                "mean_tilt": 0.371,
+            },
+        }
+        champion, comparisons = select_candidate_champion(
+            incumbent, candidates
+        )
+        self.assertEqual(champion, "revision-206")
+        self.assertEqual(set(comparisons), set(candidates))
 
     def test_one_deterministic_completion_is_progress(self) -> None:
         incumbent = {

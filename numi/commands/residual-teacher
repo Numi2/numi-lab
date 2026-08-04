@@ -1,0 +1,69 @@
+#!/bin/sh
+
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf 'Search ARDY residuals through native physics and distil the physical frontier.\n'
+    exit 0
+fi
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ] || [ "$#" -eq 0 ]; then
+    cat <<'EOF'
+Usage: numi residual-teacher run \
+         --policy-pack policy.policypack \
+         --interaction-pack motion.interactionpack \
+         --interaction-clip ID --output-directory PATH \
+         [--envs 256] [--steps 104] [--elite-count 8]
+       numi residual-teacher distill \
+         --policy-pack policy.policypack \
+         --rollout-pack search.rolloutpack \
+         --rollout-evidence search.evidence.json \
+         --output-policy candidate.policypack \
+         --output-deployment-policy candidate.deployment.policypack \
+         --output-evidence distillation.evidence.json
+
+ARDY supplies nominal joint motion. The stochastic native policy supplies
+closed-loop residual candidates. NumiSolver applies gravity and contact to
+every candidate, then the non-dominated physical frontier is distilled with a
+small supervised actor update. No pose, root trajectory, support, or contact
+state is authored. The resulting policy is a candidate; matched physical
+evaluation is required before deployment promotion.
+EOF
+    exit 0
+fi
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+numi_build=${NUMI_BUILD_DIR:-$numi_root/build}
+if [ -f "$numi_root/python/metalrobo/solver_residual_teacher.py" ]; then
+    numi_python_root=$numi_root/python
+else
+    numi_python_root=$numi_root/share/numi/python
+fi
+
+numi_path_python=$(command -v python3 2>/dev/null || true)
+numi_python=
+for numi_candidate_python in \
+    "${NUMI_MLX_PYTHON:-}" \
+    "$numi_root/python/.venv/bin/python" \
+    "$numi_path_python"; do
+    [ -x "$numi_candidate_python" ] || continue
+    if "$numi_candidate_python" -c 'import mlx, numpy' >/dev/null 2>&1; then
+        numi_python=$numi_candidate_python
+        break
+    fi
+done
+[ "$numi_python" != "" ] || {
+    printf 'numi residual-teacher: Python with MLX is unavailable\n' >&2
+    exit 1
+}
+
+set -- "$@" \
+    --native-library "$numi_build/lib/libmetalrobo.dylib"
+if [ "${1:-}" = "run" ]; then
+    set -- "$@" \
+        --evaluator "$numi_build/bin/metalrobo_task_rollout" \
+        --metallib "$numi_build/shaders/MetalRobo.metallib"
+fi
+
+PYTHONPATH=$numi_python_root${PYTHONPATH:+:$PYTHONPATH} \
+    "$numi_python" -m metalrobo.solver_residual_teacher "$@"

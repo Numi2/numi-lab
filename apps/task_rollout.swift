@@ -1164,6 +1164,34 @@ private enum TaskRolloutMain {
                 repeating: 0,
                 count: options.environments
             )
+            var transitionCountByEnvironment = [Int](
+                repeating: 0,
+                count: options.environments
+            )
+            var trackingSumByEnvironment = [Double](
+                repeating: 0.0,
+                count: options.environments
+            )
+            var rootHeightSumByEnvironment = [Double](
+                repeating: 0.0,
+                count: options.environments
+            )
+            var minimumRootHeightByEnvironment = [Double](
+                repeating: .infinity,
+                count: options.environments
+            )
+            var tiltSumByEnvironment = [Double](
+                repeating: 0.0,
+                count: options.environments
+            )
+            var maximumTiltByEnvironment = [Double](
+                repeating: 0.0,
+                count: options.environments
+            )
+            var physicsErrorCountByEnvironment = [Int](
+                repeating: 0,
+                count: options.environments
+            )
             var initialForwardPositionByEnvironment = [Double](
                 repeating: .nan,
                 count: options.environments
@@ -1398,6 +1426,39 @@ private enum TaskRolloutMain {
                         let transitionEnvironment =
                             transitionIndex % options.environments
                         transitionCount += 1
+                        transitionCountByEnvironment[
+                            transitionEnvironment
+                        ] += 1
+                        trackingSumByEnvironment[
+                            transitionEnvironment
+                        ] += Double(transition.trackingScore)
+                        rootHeightSumByEnvironment[
+                            transitionEnvironment
+                        ] += Double(transition.rootHeight)
+                        minimumRootHeightByEnvironment[
+                            transitionEnvironment
+                        ] = min(
+                            minimumRootHeightByEnvironment[
+                                transitionEnvironment
+                            ],
+                            Double(transition.rootHeight)
+                        )
+                        tiltSumByEnvironment[
+                            transitionEnvironment
+                        ] += Double(transition.tilt)
+                        maximumTiltByEnvironment[
+                            transitionEnvironment
+                        ] = max(
+                            maximumTiltByEnvironment[
+                                transitionEnvironment
+                            ],
+                            Double(transition.tilt)
+                        )
+                        if transition.physicsError {
+                            physicsErrorCountByEnvironment[
+                                transitionEnvironment
+                            ] += 1
+                        }
                         let difficultyBand = transition.difficultyBand
                         transitionCountByDifficultyBand[
                             difficultyBand,
@@ -2169,6 +2230,50 @@ private enum TaskRolloutMain {
                     terminationReasonCounts,
                 "termination_count_by_environment":
                     terminationCountByEnvironment,
+                "physics_error_count_by_environment":
+                    physicsErrorCountByEnvironment,
+                "mean_tracking_score_by_environment":
+                    trackingSumByEnvironment.enumerated().map {
+                        environment, sum in
+                        sum / Double(
+                            max(
+                                transitionCountByEnvironment[
+                                    environment
+                                ],
+                                1
+                            )
+                        )
+                    },
+                "mean_root_height_by_environment":
+                    rootHeightSumByEnvironment.enumerated().map {
+                        environment, sum in
+                        sum / Double(
+                            max(
+                                transitionCountByEnvironment[
+                                    environment
+                                ],
+                                1
+                            )
+                        )
+                    },
+                "minimum_root_height_by_environment":
+                    minimumRootHeightByEnvironment.map {
+                        $0.isFinite ? $0 : 0.0
+                    },
+                "mean_tilt_by_environment":
+                    tiltSumByEnvironment.enumerated().map {
+                        environment, sum in
+                        sum / Double(
+                            max(
+                                transitionCountByEnvironment[
+                                    environment
+                                ],
+                                1
+                            )
+                        )
+                    },
+                "maximum_tilt_by_environment":
+                    maximumTiltByEnvironment,
                 "clean_horizon_environment_count":
                     cleanHorizonEnvironmentCount,
                 "clean_horizon_environment_rate":

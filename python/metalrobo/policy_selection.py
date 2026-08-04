@@ -171,7 +171,7 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
 def compare_evidence(
     incumbent: dict[str, Any], candidate: dict[str, Any]
 ) -> dict[str, Any]:
-    """Return a conservative Pareto selection without discarding progress."""
+    """Compare matched physical evidence while retaining useful tradeoffs."""
     task = str(candidate.get("task", incumbent.get("task", "unknown")))
     incumbent_termination = _physical_failure_rate(incumbent)
     candidate_termination = _physical_failure_rate(candidate)
@@ -234,6 +234,20 @@ def compare_evidence(
                 regressions.append("mean peak forward progress decreased")
             elif new_forward > old_forward + 0.005:
                 improvements.append("mean peak forward progress increased")
+            old_final = float(
+                incumbent.get(
+                    "mean_final_forward_progress_m", old_forward
+                )
+            )
+            new_final = float(
+                candidate.get(
+                    "mean_final_forward_progress_m", new_forward
+                )
+            )
+            if new_final < old_final - 0.005:
+                regressions.append("mean final forward progress decreased")
+            elif new_final > old_final + 0.005:
+                improvements.append("mean final forward progress increased")
         old_tracking = float(incumbent.get("mean_tracking_score", 0))
         new_tracking = float(candidate.get("mean_tracking_score", 0))
         if new_tracking < old_tracking - 0.001:
@@ -268,7 +282,46 @@ def compare_evidence(
         elif new_height > old_height + 0.005:
             improvements.append("mean root height increased")
 
-    selected = not regressions and bool(improvements)
+    locomotion_score: float | None = None
+    if (
+        task == "velocity"
+        and bool(incumbent.get("forward_progress_available"))
+        and bool(candidate.get("forward_progress_available"))
+    ):
+        old_final = float(
+            incumbent.get("mean_final_forward_progress_m", old_forward)
+        )
+        new_final = float(
+            candidate.get("mean_final_forward_progress_m", new_forward)
+        )
+        peak_progress = (new_forward - old_forward) / max(
+            abs(old_forward), 0.25
+        )
+        final_progress = (new_final - old_final) / max(
+            abs(old_final), 0.25
+        )
+        tracking_progress = float(
+            candidate.get("mean_tracking_score", 0)
+        ) - float(incumbent.get("mean_tracking_score", 0))
+        height_progress = (new_height - old_height) / 0.78
+        tilt_progress = (old_tilt - new_tilt) / 3.141592653589793
+        failure_progress = incumbent_termination - candidate_termination
+        locomotion_score = (
+            0.35 * peak_progress
+            + 0.35 * final_progress
+            + 0.10 * tracking_progress
+            + 0.10 * height_progress
+            + 0.10 * tilt_progress
+            + failure_progress
+        )
+        # A device-rejected step is invalid evidence. Ordinary physical
+        # tradeoffs remain continuous contributions rather than veto gates.
+        selected = (
+            int(candidate.get("failed_environment_steps", 0)) == 0
+            and locomotion_score > 1.0e-12
+        )
+    else:
+        selected = not regressions and bool(improvements)
     return {
         "schema": "numi.policy-selection.v1",
         "task": task,
@@ -277,6 +330,12 @@ def compare_evidence(
         "regressions": regressions,
         "improvements": improvements,
         "candidate_retained": True,
+        "selection_score": locomotion_score,
+        "selection_method": (
+            "continuous_locomotion_progress"
+            if locomotion_score is not None
+            else "task_physical_comparison"
+        ),
         "metrics": {
             "incumbent_termination_rate": incumbent_termination,
             "candidate_termination_rate": candidate_termination,
@@ -288,6 +347,16 @@ def compare_evidence(
             "candidate_mean_root_height": new_height,
             "incumbent_mean_peak_forward_progress_m": old_forward,
             "candidate_mean_peak_forward_progress_m": new_forward,
+            "incumbent_mean_final_forward_progress_m": float(
+                incumbent.get(
+                    "mean_final_forward_progress_m", old_forward
+                )
+            ),
+            "candidate_mean_final_forward_progress_m": float(
+                candidate.get(
+                    "mean_final_forward_progress_m", new_forward
+                )
+            ),
         },
     }
 
@@ -304,6 +373,51 @@ def _atomic_copy(source: Path, destination: Path) -> None:
         os.replace(temporary, destination)
     finally:
         temporary.unlink(missing_ok=True)
+
+
+def select_candidate_champion(
+    incumbent: dict[str, Any],
+    candidates: dict[str, dict[str, Any]],
+) -> tuple[str, dict[str, dict[str, Any]]]:
+    """Select a checkpoint without making locomotion order-dependent."""
+
+    continuous_locomotion = (
+        str(incumbent.get("task", "")) == "velocity"
+        and bool(incumbent.get("forward_progress_available"))
+        and all(
+            bool(record.get("forward_progress_available"))
+            for record in candidates.values()
+        )
+    )
+    comparisons: dict[str, dict[str, Any]] = {}
+    if continuous_locomotion:
+        for name, record in candidates.items():
+            comparisons[name] = compare_evidence(incumbent, record)
+        eligible = [
+            name
+            for name in candidates
+            if comparisons[name]["selected"] == "candidate"
+        ]
+        champion = (
+            max(
+                eligible,
+                key=lambda name: float(
+                    comparisons[name].get("selection_score") or 0.0
+                ),
+            )
+            if eligible
+            else "incumbent"
+        )
+        return champion, comparisons
+
+    champion = "incumbent"
+    records = {"incumbent": incumbent, **candidates}
+    for name in candidates:
+        comparison = compare_evidence(records[champion], records[name])
+        comparisons[name] = comparison
+        if comparison["selected"] == "candidate":
+            champion = name
+    return champion, comparisons
 
 
 def _evaluate(
@@ -401,13 +515,10 @@ def main() -> int:
         print(encoded, end="")
         return 1
     candidate_names = [name for name in policies if name != "incumbent"]
-    champion = "incumbent"
-    comparisons: dict[str, dict[str, Any]] = {}
-    for name in candidate_names:
-        comparison = compare_evidence(records[champion], records[name])
-        comparisons[name] = comparison
-        if comparison["selected"] == "candidate":
-            champion = name
+    champion, comparisons = select_candidate_champion(
+        records["incumbent"],
+        {name: records[name] for name in candidate_names},
+    )
 
     reported_candidate = (
         champion if champion != "incumbent" else candidate_names[-1]
