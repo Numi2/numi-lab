@@ -57,6 +57,12 @@ find_library(IMAGEIO_FRAMEWORK ImageIO REQUIRED)
 find_library(METALKIT_FRAMEWORK MetalKit REQUIRED)
 find_library(MODELIO_FRAMEWORK ModelIO REQUIRED)
 find_package(SQLite3 REQUIRED)
+if(TARGET SQLite3::SQLite3)
+    set(METALROBO_SQLITE_TARGET SQLite3::SQLite3)
+else()
+    # CMake before 4.3 only publishes the historical imported target.
+    set(METALROBO_SQLITE_TARGET SQLite::SQLite3)
+endif()
 find_package(LibXml2 REQUIRED)
 
 set(METALROBO_SHADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
@@ -661,7 +667,7 @@ target_link_libraries(
         "${IMAGEIO_FRAMEWORK}"
         "${METALKIT_FRAMEWORK}"
         "${MODELIO_FRAMEWORK}"
-        SQLite::SQLite3
+        "${METALROBO_SQLITE_TARGET}"
         LibXml2::LibXml2
 )
 set_target_properties(
