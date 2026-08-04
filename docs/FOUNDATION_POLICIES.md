@@ -110,6 +110,33 @@ numi train \
     --envs 1024 --steps 27 --updates 1 --chunk 1
 ```
 
+For manipulation while preserving a separately authored support motion, compose
+the proposal over an existing `InteractionPack` rather than asking the
+manipulation model to generate locomotion:
+
+```sh
+numi foundation compile-interaction \
+    --action-chunk /path/to/run/action_chunk.npz \
+    --observation /path/to/run/observation.npz \
+    --native-library /path/to/libmetalrobo.dylib \
+    --base-interaction-pack /path/to/stable-stance.interactionpack \
+    --base-interaction-clip stable-stance \
+    --proposal-blend 1.0 \
+    --prefix-hold-frames 0 \
+    --output /path/to/run/groot-manipulation.interactionpack \
+    --evidence /path/to/run/groot-manipulation.evidence.json \
+    --id groot-manipulation-v1 \
+    --desired-outcome "pick up the apple and place it on the plate"
+```
+
+Composition authenticates the base pack, preserves its root trajectory,
+unmapped joints, contact modes, original contact confidence, physical-field
+validity masks, and provenance flags, then overlays only the named joints
+declared by the robot adapter. The GR00T chunk is phase-resampled over the base
+timeline, limited by the native controller contract, and revalidated by the
+canonical `InteractionPack` writer. This is generated intent: it cannot write
+root state, contact state, or solver outcomes.
+
 `numi.foundation-adapter.v1` is an inspectable, schema-backed artifact. It
 declares model state groups and outputs, robot joint ordering, root and joint
 state offsets, controller scale/rate/position limits, and InteractionPack
@@ -126,14 +153,49 @@ continuous weight instead of being discarded behind a binary success gate.
 With nonzero student authority, the student owns a residual and ordinary PPO
 attribution remains valid; the absolute generated pose is not imitated twice.
 
-The current authored adapter maps G1 waist and both seven-joint arms. The bundled
-29-DoF robot has no dexterous-hand actuators, so hand outputs are retained in
-evidence but not executed. Navigation, base-height, and effort outputs are also
-retained but not yet mapped. Lower-body targets stay on Numi's native standing
-posture; this is an explicit first slice, not a claim that the upstream
-manipulation policy already knows whole-body motion. This mapping belongs to
-the adapter, not the simulator core; additional robots should provide their
-own named state, action, rate, and limit contracts.
+The current authored adapter maps G1 waist and both seven-joint arms. This is
+the ApplePnP checkpoint's intended manipulation surface; it is not a locomotion
+teacher. The qualified real and synthetic outputs both carried zero navigation
+commands, so Numi does not fabricate running guidance from that channel.
+Navigation, base-height, and effort outputs remain in evidence until their
+coordinate and controller semantics are explicitly calibrated.
+
+The bundled 29-DoF robot has no dexterous-hand mechanics, so hand outputs are
+retained but not executed. The adapter already recognizes the checkpoint's
+seven named joints per hand and will map them only when the selected robot's
+native deployment contract actually contains all corresponding actuators. A
+physical apple pickup therefore still requires authored hand links, inertias,
+joint limits, collision geometry, actuators, and tactile/contact groups plus an
+apple-and-plate world/task. Attaching an object to an empty wrist or treating a
+visual overlap as a grasp would not be valid physical evidence.
+
+Task ABI 33 adds the provider-neutral physical vocabulary needed by that task:
+
+- `objectGrasp` counts distinct members of a named finger/contact group that
+  contact the selected dynamic object and uses only its solved normal force;
+  contact with the floor or another object cannot satisfy it.
+- `objectLift` measures the simulated object's world height while gravity and
+  rigid contact remain active.
+- `objectPosition` supplies dense world-space transport progress.
+- `objectPlacement` multiplies object-to-target proximity by linear and angular
+  quietness, so an object merely passing over the plate at speed is not a
+  successful placement.
+
+The generic URDF cooker also accepts collision-free, inertial-less fixed leaf
+frames by omitting them from the physical articulation. It does not assign fake
+mass to camera or IMU frames. The official Unitree G1-with-Dex3 description at
+revision `f3772ce54c56ef2d34c6aee8100bc768896c7d19` passes that topology stage and
+exposes the exact 14 hand joints expected by ApplePnP. Full collision cooking is
+not yet qualified: directly convex-hulling its high-resolution STLs is too slow
+for the intended asset pipeline. Numi must consume authored low-poly collision
+meshes or add deterministic collision decimation before claiming that robot as
+ready for native pick-and-place rollouts.
+
+Lower-body targets use Numi's native standing posture when no motion base is
+provided. With a base pack, lower body, root, and contact intent are preserved
+from that base. This mapping belongs to the adapter, not the simulator core;
+additional robots should provide their own named state, action, rate, and limit
+contracts.
 
 ## Qualified Mac mini result
 

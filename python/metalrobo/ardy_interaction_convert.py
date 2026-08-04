@@ -14,6 +14,7 @@ import argparse
 import os
 import struct
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
@@ -25,6 +26,184 @@ _CONTACT_FEATURE_COUNT = 13
 _CONTACT_MODE_FREE = 0
 _CONTACT_MODE_STICK = 2
 _SAMPLE_PREDICTED = 1
+
+
+@dataclass(frozen=True)
+class InteractionClipArrays:
+    """One decoded InteractionPack clip with frame-major typed arrays."""
+
+    id: str
+    desired_outcome: str
+    frames_per_second: float
+    loop: bool
+    root_targets: np.ndarray
+    joint_targets: np.ndarray
+    contact_modes: np.ndarray
+    contact_feature_masks: np.ndarray
+    contact_sample_flags: np.ndarray
+    contact_confidence: np.ndarray
+    contact_targets: np.ndarray
+    contact_tolerances: np.ndarray
+
+
+@dataclass(frozen=True)
+class InteractionPackArrays:
+    """Decoded provider-neutral InteractionPack data for safe composition."""
+
+    id: str
+    source_repository: str
+    source_revision: str
+    license_name: str
+    coordinate_frame: str
+    joint_names: tuple[str, ...]
+    tracks: tuple[tuple[str, str, str], ...]
+    clips: tuple[InteractionClipArrays, ...]
+    content_hash: int
+
+
+class _InteractionReader:
+    def __init__(self, payload: bytes) -> None:
+        self.payload = payload
+        self.offset = 0
+
+    def unsigned(self) -> int:
+        if self.offset + 8 > len(self.payload):
+            raise ValueError("InteractionPack payload is truncated")
+        value = struct.unpack_from("<Q", self.payload, self.offset)[0]
+        self.offset += 8
+        return value
+
+    def string(self) -> str:
+        count = self.unsigned()
+        end = self.offset + count
+        if end > len(self.payload):
+            raise ValueError("InteractionPack string is truncated")
+        try:
+            value = self.payload[self.offset:end].decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise ValueError("InteractionPack string is not UTF-8") from error
+        self.offset = end
+        return value
+
+    def vector(self, dtype: str) -> np.ndarray:
+        count = self.unsigned()
+        item_size = np.dtype(dtype).itemsize
+        end = self.offset + count * item_size
+        if end > len(self.payload):
+            raise ValueError("InteractionPack vector is truncated")
+        values = np.frombuffer(
+            self.payload,
+            dtype=dtype,
+            count=count,
+            offset=self.offset,
+        ).copy()
+        self.offset = end
+        return values
+
+
+def read_interaction_pack(path: Path) -> InteractionPackArrays:
+    """Read and authenticate one InteractionPack without invoking physics."""
+
+    artifact = path.read_bytes()
+    if len(artifact) < _HEADER.size:
+        raise ValueError("InteractionPack header is truncated")
+    magic, version, kind, payload_size, content_hash = _HEADER.unpack_from(artifact)
+    payload = artifact[_HEADER.size :]
+    if (
+        magic != b"MRLEARN\0"
+        or version != _INTERACTION_VERSION
+        or kind != _INTERACTION_KIND
+        or payload_size != len(payload)
+        or content_hash != _content_hash(payload)
+    ):
+        raise ValueError("InteractionPack header or content hash is invalid")
+
+    reader = _InteractionReader(payload)
+    pack_id = reader.string()
+    source_repository = reader.string()
+    source_revision = reader.string()
+    license_name = reader.string()
+    coordinate_frame = reader.string()
+    joint_names = tuple(reader.string() for _ in range(reader.unsigned()))
+    tracks = tuple(
+        (reader.string(), reader.string(), reader.string())
+        for _ in range(reader.unsigned())
+    )
+    clips: list[InteractionClipArrays] = []
+    for _ in range(reader.unsigned()):
+        clip_id = reader.string()
+        desired_outcome = reader.string()
+        if reader.offset + 12 > len(payload):
+            raise ValueError("InteractionPack clip header is truncated")
+        frames_per_second, frame_count, loop = struct.unpack_from(
+            "<fII", payload, reader.offset
+        )
+        reader.offset += 12
+        root_targets = reader.vector("<f4")
+        joint_targets = reader.vector("<f4")
+        contact_modes = reader.vector("<u4")
+        contact_feature_masks = reader.vector("<u4")
+        contact_sample_flags = reader.vector("<u4")
+        contact_confidence = reader.vector("<f4")
+        contact_targets = reader.vector("<f4")
+        contact_tolerances = reader.vector("<f4")
+        track_count = len(tracks)
+        try:
+            root_targets = root_targets.reshape(frame_count, 7)
+            joint_targets = joint_targets.reshape(frame_count, len(joint_names))
+            contact_modes = contact_modes.reshape(frame_count, track_count)
+            contact_feature_masks = contact_feature_masks.reshape(
+                frame_count, track_count
+            )
+            contact_sample_flags = contact_sample_flags.reshape(
+                frame_count, track_count
+            )
+            contact_confidence = contact_confidence.reshape(
+                frame_count, track_count
+            )
+            contact_targets = contact_targets.reshape(
+                frame_count, track_count, _CONTACT_FEATURE_COUNT
+            )
+            contact_tolerances = contact_tolerances.reshape(
+                frame_count, track_count, _CONTACT_FEATURE_COUNT
+            )
+        except ValueError as error:
+            raise ValueError("InteractionPack clip array sizes are inconsistent") from error
+        clips.append(InteractionClipArrays(
+            id=clip_id,
+            desired_outcome=desired_outcome,
+            frames_per_second=float(frames_per_second),
+            loop=bool(loop),
+            root_targets=root_targets,
+            joint_targets=joint_targets,
+            contact_modes=contact_modes,
+            contact_feature_masks=contact_feature_masks,
+            contact_sample_flags=contact_sample_flags,
+            contact_confidence=contact_confidence,
+            contact_targets=contact_targets,
+            contact_tolerances=contact_tolerances,
+        ))
+    if reader.offset != len(payload):
+        raise ValueError("InteractionPack payload has trailing bytes")
+    if (
+        not pack_id
+        or coordinate_frame != "metalrobo_z_up_x_forward_xyzw"
+        or not joint_names
+        or len(set(joint_names)) != len(joint_names)
+        or not clips
+    ):
+        raise ValueError("InteractionPack identity or coordinate contract is invalid")
+    return InteractionPackArrays(
+        id=pack_id,
+        source_repository=source_repository,
+        source_revision=source_revision,
+        license_name=license_name,
+        coordinate_frame=coordinate_frame,
+        joint_names=joint_names,
+        tracks=tracks,
+        clips=tuple(clips),
+        content_hash=content_hash,
+    )
 
 
 def foot_contact_contract(

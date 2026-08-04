@@ -25,7 +25,9 @@ Usage: numi foundation inspect --model-directory PATH [--verify-hashes]
        numi foundation compile-interaction --action-chunk action_chunk.npz \
            --observation observation.npz --native-library PATH \
            --output teacher.interactionpack --evidence FILE --id ID \
-           --desired-outcome TEXT [--adapter adapter.json]
+           --desired-outcome TEXT [--adapter adapter.json] \
+           [--base-interaction-pack motion.interactionpack \
+            --base-interaction-clip ID --proposal-blend 0.0...1.0]
 
 The versioned adapter owns robot state layout, model tensor mapping, controller
 limits, and interaction contacts. The initial adapter executes NVIDIA's staged
@@ -37,6 +39,8 @@ This capability proposes action chunks only. Native Metal simulation remains
 the authority for dynamics, contacts, safety, rollout, and physical evidence.
 compile-interaction converts a proposal into the existing InteractionPack
 teacher path; only successful native trajectories receive distillation weight.
+An optional motion base preserves its root, lower-body, contact confidence, and
+validity fields while the adapter applies bounded named GR00T joint guidance.
 Set NUMI_FOUNDATION_PYTHON to choose an isolated ONNX Runtime environment.
 The fetch command additionally requires huggingface_hub and records the exact
 resolved repository revision beside the downloaded artifact.

@@ -70,6 +70,18 @@
         }
       }
     },
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maximum_joint_proposal_blend"],
+      "properties": {
+        "maximum_joint_proposal_blend": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
     "unmapped_output_semantics": { "type": "object", "additionalProperties": { "type": "string" } },
     "native_contract": {
       "type": "object",

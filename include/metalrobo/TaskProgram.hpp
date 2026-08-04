@@ -119,6 +119,10 @@ enum class TaskRewardOperator : std::uint32_t {
     wholeBodyRecovery = MR_TASK_REWARD_WHOLE_BODY_RECOVERY,
     interactionRootLinearVelocityError =
         MR_TASK_REWARD_INTERACTION_ROOT_LINEAR_VELOCITY_ERROR,
+    objectGrasp = MR_TASK_REWARD_OBJECT_GRASP,
+    objectLift = MR_TASK_REWARD_OBJECT_LIFT,
+    objectPosition = MR_TASK_REWARD_OBJECT_POSITION,
+    objectPlacement = MR_TASK_REWARD_OBJECT_PLACEMENT,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -200,7 +204,8 @@ struct TaskRewardOperatorSpec {
     TaskRewardOperator operation =
         TaskRewardOperator::constant;
     std::string sourceGroup;
-    // Dynamic scene-body identity for projectile-relative operators.
+    // Dynamic scene-body identity for projectile-relative and rigid-object
+    // manipulation operators.
     std::string target;
     // Reward rate in units per second. The native task integrates every
     // weighted term over the control interval, keeping TaskPacks invariant

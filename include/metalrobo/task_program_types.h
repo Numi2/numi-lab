@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 32u
+#define MR_TASK_PROGRAM_ABI_VERSION 33u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
@@ -198,6 +198,20 @@ enum MRTaskRewardOpcode : mr_u32 {
     // student stalls far from a fast reference. Parameter x is the velocity
     // scale in meters per second.
     MR_TASK_REWARD_INTERACTION_ROOT_LINEAR_VELOCITY_ERROR = 44u,
+    // Generic rigid-object manipulation objectives. source.z selects one
+    // compiled scene body. Grasp additionally uses source.y as a semantic
+    // robot contact group and counts distinct group members contacting only
+    // that object; unrelated floor or self contact cannot satisfy it.
+    MR_TASK_REWARD_OBJECT_GRASP = 45u,
+    // Smooth world-height progress between authored lower/upper heights.
+    MR_TASK_REWARD_OBJECT_LIFT = 46u,
+    // Exponential world-space object-position tracking. The authored xyz is
+    // the goal and w is the positive squared-error width.
+    MR_TASK_REWARD_OBJECT_POSITION = 47u,
+    // Stable physical placement relative to a named scene-body target.
+    // source.y selects the goal body; authored x/y/z are positive position,
+    // linear-speed, and angular-speed squared-error widths.
+    MR_TASK_REWARD_OBJECT_PLACEMENT = 48u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {

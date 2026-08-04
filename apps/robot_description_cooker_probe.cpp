@@ -53,6 +53,7 @@ constexpr std::string_view kUrdf = R"(
       <geometry><capsule radius="0.015" length="0.08"/></geometry>
     </collision>
   </link>
+  <link name="camera_frame"/>
   <joint name="base_to_tool" type="revolute">
     <parent link="base"/>
     <child link="tool"/>
@@ -69,6 +70,11 @@ constexpr std::string_view kUrdf = R"(
     <axis xyz="0 1 0"/>
     <limit lower="-2" upper="2" effort="10" velocity="3"/>
     <mimic joint="base_to_tool" multiplier="-0.5" offset="0.2"/>
+  </joint>
+  <joint name="tool_to_camera" type="fixed">
+    <parent link="tool"/>
+    <child link="camera_frame"/>
+    <origin xyz="0.05 0 0.15" rpy="0 0 0"/>
   </joint>
   <transmission name="base_drive">
     <joint name="base_to_tool"/>
@@ -87,8 +93,57 @@ constexpr std::string_view kSrdf = R"(
 
 } // namespace
 
-int main() {
+int main(const int argc, const char* const* argv) {
     try {
+        if (argc == 2) {
+            metalrobo::RobotDescriptionCookOptions options;
+            options.rootMode =
+                metalrobo::RobotDescriptionRootMode::floating;
+            options.meshMode =
+                metalrobo::RobotDescriptionMeshMode::convexHull;
+            metalrobo::EngineModel imported;
+            const auto importedDiagnostics =
+                metalrobo::cookRobotDescriptionFiles(
+                    argv[1],
+                    {},
+                    imported,
+                    options
+                );
+            require(
+                importedDiagnostics.succeeded(),
+                std::string("external URDF cook failed: ") +
+                    metalrobo::robotDescriptionStatusName(
+                        importedDiagnostics.status
+                    ) + " " + importedDiagnostics.element + " " +
+                    importedDiagnostics.message
+            );
+            std::string importedReason;
+            require(
+                imported.valid(&importedReason),
+                "external cooked model invalid: " + importedReason
+            );
+            std::cout
+                << "robot_description_external=ok"
+                << " name=" << imported.name
+                << " links=" << importedDiagnostics.linkCount
+                << " joints=" << importedDiagnostics.jointCount
+                << " dofs=" << importedDiagnostics.dofCount
+                << " colliders=" << importedDiagnostics.colliderCount
+                << " mesh_assets="
+                << importedDiagnostics.meshAssetCount
+                << " mesh_vertices="
+                << importedDiagnostics.meshVertexCount
+                << " mesh_triangles="
+                << importedDiagnostics.meshTriangleCount
+                << " fingerprint="
+                << importedDiagnostics.sourceFingerprint
+                << '\n';
+            return 0;
+        }
+        require(
+            argc == 1,
+            "usage: metalrobo_robot_description_cooker_probe [robot.urdf]"
+        );
         metalrobo::EngineModel model;
         const auto diagnostics =
             metalrobo::cookRobotDescription(

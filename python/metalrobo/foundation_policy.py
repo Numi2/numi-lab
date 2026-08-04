@@ -20,7 +20,11 @@ from typing import Any, Mapping, Sequence
 
 import numpy as np
 
-from metalrobo.ardy_interaction_convert import write_interaction_pack
+from metalrobo.ardy_interaction_convert import (
+    InteractionClipArrays,
+    read_interaction_pack,
+    write_interaction_pack,
+)
 
 
 ACTION_CHUNK_FORMAT = "numi.foundation-action-chunk.v1"
@@ -69,13 +73,74 @@ G1_GROUP_JOINTS = {
         "right_wrist_yaw_joint",
     ),
 }
+G1_HAND_STATE_JOINTS = {
+    "left_hand": (
+        "left_hand_thumb_0_joint", "left_hand_thumb_1_joint",
+        "left_hand_thumb_2_joint", "left_hand_middle_0_joint",
+        "left_hand_middle_1_joint", "left_hand_index_0_joint",
+        "left_hand_index_1_joint",
+    ),
+    "right_hand": (
+        "right_hand_thumb_0_joint", "right_hand_thumb_1_joint",
+        "right_hand_thumb_2_joint", "right_hand_index_0_joint",
+        "right_hand_index_1_joint", "right_hand_middle_0_joint",
+        "right_hand_middle_1_joint",
+    ),
+}
+G1_HAND_ACTION_JOINTS = {
+    side: tuple(
+        f"{side}_hand_{finger}_{joint}_joint"
+        for finger, count in (("index", 2), ("middle", 2), ("thumb", 3))
+        for joint in range(count)
+    )
+    for side in ("left", "right")
+}
 
 
 def _g1_foundation_adapter(native_library: Path) -> dict[str, Any]:
     contract = _native_g1_contract(native_library)
+    native_joints = set(str(name) for name in contract["joint_order"])
+    hand_supported = {
+        name: set(joints).issubset(native_joints)
+        for name, joints in G1_HAND_STATE_JOINTS.items()
+    }
+    state_groups = [
+        {
+            "name": name,
+            "joints": list(joints),
+            "placeholder_count": 0,
+        }
+        for name, joints in G1_GROUP_JOINTS.items()
+    ]
+    for name, joints in G1_HAND_STATE_JOINTS.items():
+        state_groups.append({
+            "name": name,
+            "joints": list(joints) if hand_supported[name] else [],
+            "placeholder_count": 0 if hand_supported[name] else 7,
+        })
+    action_outputs = [
+        {"name": name, "joints": list(G1_GROUP_JOINTS[name])}
+        for name in ("waist", "left_arm", "right_arm")
+    ]
+    action_outputs.extend(
+        {"name": name, "joints": list(G1_HAND_ACTION_JOINTS[name.split("_")[0]])}
+        for name in ("left_hand", "right_hand")
+        if hand_supported[name]
+    )
+    unmapped_output_semantics = {
+        "navigate_command": "navigation command mapping is not authored",
+        "base_height_command": "base-height mapping is not authored",
+        "effort_*": "effort output mapping is not authored",
+    }
+    for name in ("left_hand", "right_hand"):
+        if not hand_supported[name]:
+            unmapped_output_semantics[name] = (
+                "robot deployment contract has no corresponding hand actuators"
+            )
     return {
         "format": FOUNDATION_ADAPTER_FORMAT,
-        "id": "groot-n17-unitree-g1-29dof",
+        "id": "groot-n17-unitree-g1-dex3" if all(hand_supported.values())
+        else "groot-n17-unitree-g1-29dof",
         "provider": "nvidia/GR00T-N1.7-ApplePnP-V1",
         "robot": str(contract.get("robot", "unitree_g1")),
         "observation": {
@@ -87,30 +152,9 @@ def _g1_foundation_adapter(native_library: Path) -> dict[str, Any]:
                 contract["root_center_of_mass_local_xyz"]
             ),
             "joint_q_offset": 7,
-            "state_groups": [
-                {
-                    "name": name,
-                    "joints": list(joints),
-                    "placeholder_count": 0,
-                }
-                for name, joints in G1_GROUP_JOINTS.items()
-            ] + [
-                {
-                    "name": "left_hand",
-                    "joints": [],
-                    "placeholder_count": 7,
-                },
-                {
-                    "name": "right_hand",
-                    "joints": [],
-                    "placeholder_count": 7,
-                },
-            ],
+            "state_groups": state_groups,
         },
-        "action_outputs": [
-            {"name": name, "joints": list(G1_GROUP_JOINTS[name])}
-            for name in ("waist", "left_arm", "right_arm")
-        ],
+        "action_outputs": action_outputs,
         "controller": {
             name: contract[name]
             for name in (
@@ -128,13 +172,13 @@ def _g1_foundation_adapter(native_library: Path) -> dict[str, Any]:
             # bilateral support with an arbitrary confidence.
             "contact_tracks": []
         },
-        "unmapped_output_semantics": {
-            "left_hand": "robot has no corresponding actuator group",
-            "right_hand": "robot has no corresponding actuator group",
-            "navigate_command": "navigation command mapping is not authored",
-            "base_height_command": "base-height mapping is not authored",
-            "effort_*": "effort output mapping is not authored",
+        "composition": {
+            # Composition never bypasses controller position/rate limits or
+            # NumiSolver. The adapter permits the model's intended full arm
+            # authority; callers may request a smaller experimental blend.
+            "maximum_joint_proposal_blend": 1.0,
         },
+        "unmapped_output_semantics": unmapped_output_semantics,
         "native_contract": {
             "library_sha256": _sha256(native_library),
             "contract_fingerprint": _array_fingerprint({
@@ -251,6 +295,16 @@ def _validate_foundation_adapter(adapter: Mapping[str, Any]) -> None:
             or not 0.0 <= track["confidence"] <= 1.0
         ):
             raise ValueError("foundation adapter interaction track is invalid")
+    composition = adapter.get("composition")
+    if composition is not None:
+        maximum_blend = composition.get("maximum_joint_proposal_blend") \
+            if isinstance(composition, dict) else None
+        if (
+            not isinstance(maximum_blend, (int, float))
+            or not np.isfinite(maximum_blend)
+            or not 0.0 <= maximum_blend <= 1.0
+        ):
+            raise ValueError("foundation adapter composition contract is invalid")
 
 
 def _load_foundation_adapter(path: Path) -> dict[str, Any]:
@@ -592,6 +646,91 @@ def compile_numi_observation(
     return evidence
 
 
+def _selected_interaction_clip(
+    clips: Sequence[InteractionClipArrays], clip_id: str | None
+) -> InteractionClipArrays:
+    if clip_id is None:
+        if len(clips) != 1:
+            raise ValueError(
+                "base InteractionPack contains multiple clips; select one explicitly"
+            )
+        return clips[0]
+    matches = [clip for clip in clips if clip.id == clip_id]
+    if len(matches) != 1:
+        raise ValueError(f"base InteractionPack has no unique clip {clip_id!r}")
+    return matches[0]
+
+
+def _compose_joint_proposal(
+    base: np.ndarray,
+    base_joint_names: Sequence[str],
+    proposal: np.ndarray,
+    proposal_joint_names: Sequence[str],
+    mapped_joint_names: Sequence[str],
+    blend: float,
+) -> tuple[np.ndarray, dict[str, Any]]:
+    """Overlay a bounded named proposal without replacing the motion base."""
+
+    base_values = np.asarray(base, dtype=np.float32)
+    proposal_values = np.asarray(proposal, dtype=np.float32)
+    base_names = tuple(str(name) for name in base_joint_names)
+    proposal_names = tuple(str(name) for name in proposal_joint_names)
+    mapped_names = tuple(dict.fromkeys(str(name) for name in mapped_joint_names))
+    if (
+        base_values.ndim != 2
+        or base_values.shape[1] != len(base_names)
+        or proposal_values.ndim != 2
+        or proposal_values.shape[1] != len(proposal_names)
+        or base_values.shape[0] < 2
+        or proposal_values.shape[0] < 1
+        or not np.isfinite(base_values).all()
+        or not np.isfinite(proposal_values).all()
+        or not np.isfinite(blend)
+        or not 0.0 <= blend <= 1.0
+        or len(set(base_names)) != len(base_names)
+        or len(set(proposal_names)) != len(proposal_names)
+    ):
+        raise ValueError("foundation/base joint composition inputs are invalid")
+    base_index = {name: index for index, name in enumerate(base_names)}
+    proposal_index = {name: index for index, name in enumerate(proposal_names)}
+    missing_base = sorted(set(proposal_names).difference(base_index))
+    missing_proposal = sorted(set(mapped_names).difference(proposal_index))
+    if missing_base or missing_proposal:
+        raise ValueError(
+            "foundation/base joint composition has incompatible names: "
+            f"missing_base={missing_base} missing_proposal={missing_proposal}"
+        )
+
+    # Preserve the base timeline. The finite GR00T chunk is normalized across
+    # that interval, which slows rather than accelerates its motion and leaves
+    # the canonical InteractionPack velocity validator authoritative.
+    source_phase = np.linspace(0.0, 1.0, proposal_values.shape[0])
+    destination_phase = np.linspace(0.0, 1.0, base_values.shape[0])
+    result = base_values.copy()
+    maximum_delta = 0.0
+    for name in mapped_names:
+        generated = np.interp(
+            destination_phase,
+            source_phase,
+            proposal_values[:, proposal_index[name]],
+        ).astype(np.float32)
+        column = base_index[name]
+        composed = (1.0 - blend) * result[:, column] + blend * generated
+        maximum_delta = max(
+            maximum_delta,
+            float(np.max(np.abs(composed - result[:, column]))),
+        )
+        result[:, column] = composed
+    return result, {
+        "proposal_blend": float(blend),
+        "mapped_joint_names": list(mapped_names),
+        "base_frames": int(base_values.shape[0]),
+        "proposal_frames": int(proposal_values.shape[0]),
+        "maximum_absolute_joint_delta_radians": maximum_delta,
+        "timeline_mapping": "proposal phase normalized over preserved base timeline",
+    }
+
+
 def compile_numi_interaction_pack(
     action_chunk: Path,
     observation: Path,
@@ -603,6 +742,9 @@ def compile_numi_interaction_pack(
     source_hz: float,
     prefix_hold_frames: int,
     adapter: Mapping[str, Any] | None = None,
+    base_interaction_pack: Path | None = None,
+    base_interaction_clip: str | None = None,
+    proposal_blend: float | None = None,
 ) -> dict[str, Any]:
     """Compile generated upper-body intent into Numi's native motion teacher."""
     if not pack_id.strip() or not desired_outcome.strip():
@@ -613,42 +755,44 @@ def compile_numi_interaction_pack(
         adapter = _g1_foundation_adapter(native_library)
     _validate_foundation_adapter(adapter)
     _verify_adapter_native_contract(adapter, native_library)
-    if (
-        adapter["observation"].get("root_frame") != "center_of_mass"
-        or "root_center_of_mass_local_xyz" not in adapter["observation"]
-    ):
-        raise ValueError(
-            "foundation adapter cannot author InteractionPack roots without "
-            "an explicit solver center-of-mass frame contract"
-        )
-    root_key = str(adapter["observation"]["root_archive_key"])
-    with np.load(observation, allow_pickle=False) as archive:
-        if root_key not in archive.files:
+    root_link: np.ndarray | None = None
+    if base_interaction_pack is None:
+        if (
+            adapter["observation"].get("root_frame") != "center_of_mass"
+            or "root_center_of_mass_local_xyz" not in adapter["observation"]
+        ):
             raise ValueError(
-                f"foundation observation lacks {root_key}; recompile it from "
-                "the synchronized Numi state trace"
+                "foundation adapter cannot author InteractionPack roots without "
+                "an explicit solver center-of-mass frame contract"
             )
-        root = np.asarray(archive[root_key], dtype=np.float32).reshape(-1)
-    if root.shape != (7,) or not np.isfinite(root).all():
-        raise ValueError("Numi root state must contain seven finite q values")
-    quaternion_norm = float(np.linalg.norm(root[3:]))
-    if quaternion_norm <= 1.0e-6:
-        raise ValueError("Numi root quaternion is degenerate")
-    root[3:] /= quaternion_norm
-    x, y, z, w = (float(value) for value in root[3:])
-    root_rotation = np.asarray(
-        (
-            (1.0 - 2.0 * (y * y + z * z), 2.0 * (x * y - z * w), 2.0 * (x * z + y * w)),
-            (2.0 * (x * y + z * w), 1.0 - 2.0 * (x * x + z * z), 2.0 * (y * z - x * w)),
-            (2.0 * (x * z - y * w), 2.0 * (y * z + x * w), 1.0 - 2.0 * (x * x + y * y)),
-        ),
-        dtype=np.float32,
-    )
-    root_link = root.copy()
-    root_link[:3] -= root_rotation @ np.asarray(
-        adapter["observation"]["root_center_of_mass_local_xyz"],
-        dtype=np.float32,
-    )
+        root_key = str(adapter["observation"]["root_archive_key"])
+        with np.load(observation, allow_pickle=False) as archive:
+            if root_key not in archive.files:
+                raise ValueError(
+                    f"foundation observation lacks {root_key}; recompile it from "
+                    "the synchronized Numi state trace"
+                )
+            root = np.asarray(archive[root_key], dtype=np.float32).reshape(-1)
+        if root.shape != (7,) or not np.isfinite(root).all():
+            raise ValueError("Numi root state must contain seven finite q values")
+        quaternion_norm = float(np.linalg.norm(root[3:]))
+        if quaternion_norm <= 1.0e-6:
+            raise ValueError("Numi root quaternion is degenerate")
+        root[3:] /= quaternion_norm
+        x, y, z, w = (float(value) for value in root[3:])
+        root_rotation = np.asarray(
+            (
+                (1.0 - 2.0 * (y * y + z * z), 2.0 * (x * y - z * w), 2.0 * (x * z + y * w)),
+                (2.0 * (x * y + z * w), 1.0 - 2.0 * (x * x + z * z), 2.0 * (y * z - x * w)),
+                (2.0 * (x * z - y * w), 2.0 * (y * z + x * w), 1.0 - 2.0 * (x * x + y * y)),
+            ),
+            dtype=np.float32,
+        )
+        root_link = root.copy()
+        root_link[:3] -= root_rotation @ np.asarray(
+            adapter["observation"]["root_center_of_mass_local_xyz"],
+            dtype=np.float32,
+        )
 
     contract = adapter["controller"]
     default_pose = np.asarray(contract["default_pose"], dtype=np.float32)
@@ -689,59 +833,193 @@ def compile_numi_interaction_pack(
             -1, len(contract["joint_order"])
         )
 
-    joint_targets = default_pose[None, :] + normalized * action_scale[None, :]
-    if prefix_hold_frames:
-        joint_targets = np.concatenate(
-            (
-                np.repeat(
-                    captured_joints[None, :], prefix_hold_frames, axis=0
+    generated_joint_targets = (
+        default_pose[None, :] + normalized * action_scale[None, :]
+    )
+    maximum_blend = float(
+        adapter.get("composition", {}).get("maximum_joint_proposal_blend", 0.0)
+    )
+    if base_interaction_pack is None:
+        if base_interaction_clip is not None or proposal_blend is not None:
+            raise ValueError(
+                "base clip and proposal blend require --base-interaction-pack"
+            )
+        joint_targets = generated_joint_targets
+        if prefix_hold_frames:
+            joint_targets = np.concatenate(
+                (
+                    np.repeat(
+                        captured_joints[None, :], prefix_hold_frames, axis=0
+                    ),
+                    joint_targets,
                 ),
-                joint_targets,
+                axis=0,
+            )
+        frame_count = int(joint_targets.shape[0])
+        assert root_link is not None
+        root_targets = np.repeat(root_link[None, :], frame_count, axis=0)
+        track_contracts = adapter["interaction"]["contact_tracks"]
+        tracks = tuple(
+            (
+                str(track["id"]),
+                str(track["task_contact_group"]),
+                str(track["counterpart"]),
+            )
+            for track in track_contracts
+        )
+        contact_modes = np.repeat(
+            np.asarray(
+                [[int(track["mode"]) for track in track_contracts]],
+                dtype=np.uint32,
             ),
+            frame_count,
             axis=0,
         )
-    frame_count = int(joint_targets.shape[0])
-    root_targets = np.repeat(root_link[None, :], frame_count, axis=0)
-    track_contracts = adapter["interaction"]["contact_tracks"]
-    tracks = tuple(
-        (
-            str(track["id"]),
-            str(track["task_contact_group"]),
-            str(track["counterpart"]),
+        contact_confidence = np.repeat(
+            np.asarray(
+                [[float(track["confidence"]) for track in track_contracts]],
+                dtype=np.float32,
+            ),
+            frame_count,
+            axis=0,
         )
-        for track in track_contracts
-    )
-    contact_modes = np.repeat(
-        np.asarray(
-            [[int(track["mode"]) for track in track_contracts]],
-            dtype=np.uint32,
-        ),
-        frame_count,
-        axis=0,
-    )
-    contact_confidence = np.repeat(
-        np.asarray(
-            [[float(track["confidence"]) for track in track_contracts]],
-            dtype=np.float32,
-        ),
-        frame_count,
-        axis=0,
-    )
+        contact_feature_masks = None
+        contact_sample_flags = None
+        contact_targets = None
+        contact_tolerances = None
+        frames_per_second = float(compiled["control_hz"])
+        loop = False
+        composition_evidence = None
+        root_semantics = (
+            "captured solver center-of-mass pose converted to the "
+            "InteractionPack root-link origin"
+        )
+        source_repository = "NumiLab/foundation-policy"
+        source_revision = _sha256(action_chunk)
+    else:
+        effective_blend = 1.0 if proposal_blend is None else proposal_blend
+        if (
+            not np.isfinite(effective_blend)
+            or not 0.0 <= effective_blend <= maximum_blend
+        ):
+            raise ValueError(
+                "proposal blend exceeds the robot-authored foundation composition limit"
+            )
+        base_pack = read_interaction_pack(base_interaction_pack)
+        base_clip = _selected_interaction_clip(
+            base_pack.clips, base_interaction_clip
+        )
+        base_index = {
+            name: index for index, name in enumerate(base_pack.joint_names)
+        }
+        missing_base_joints = sorted(set(contract["joint_order"]).difference(base_index))
+        if missing_base_joints:
+            raise ValueError(
+                "base InteractionPack does not cover adapter joints: "
+                + ", ".join(missing_base_joints)
+            )
+        ordered_base_joints = base_clip.joint_targets[:, [
+            base_index[str(name)] for name in contract["joint_order"]
+        ]]
+        mapped_joint_names = tuple(
+            name
+            for output_contract in adapter["action_outputs"]
+            for name in output_contract["joints"]
+        )
+        joint_targets, composition_evidence = _compose_joint_proposal(
+            ordered_base_joints,
+            contract["joint_order"],
+            generated_joint_targets,
+            contract["joint_order"],
+            mapped_joint_names,
+            effective_blend,
+        )
+        root_targets = base_clip.root_targets.copy()
+        tracks = base_pack.tracks
+        contact_modes = base_clip.contact_modes.copy()
+        contact_feature_masks = base_clip.contact_feature_masks.copy()
+        contact_sample_flags = base_clip.contact_sample_flags.copy()
+        contact_confidence = base_clip.contact_confidence.copy()
+        contact_targets = base_clip.contact_targets.copy()
+        contact_tolerances = base_clip.contact_tolerances.copy()
+        if prefix_hold_frames:
+            joint_targets = np.concatenate((
+                np.repeat(joint_targets[:1], prefix_hold_frames, axis=0),
+                joint_targets,
+            ))
+            root_targets = np.concatenate((
+                np.repeat(root_targets[:1], prefix_hold_frames, axis=0),
+                root_targets,
+            ))
+            contact_modes = np.concatenate((
+                np.repeat(contact_modes[:1], prefix_hold_frames, axis=0),
+                contact_modes,
+            ))
+            contact_feature_masks = np.concatenate((
+                np.repeat(contact_feature_masks[:1], prefix_hold_frames, axis=0),
+                contact_feature_masks,
+            ))
+            contact_sample_flags = np.concatenate((
+                np.repeat(contact_sample_flags[:1], prefix_hold_frames, axis=0),
+                contact_sample_flags,
+            ))
+            contact_confidence = np.concatenate((
+                np.repeat(contact_confidence[:1], prefix_hold_frames, axis=0),
+                contact_confidence,
+            ))
+            contact_targets = np.concatenate((
+                np.repeat(contact_targets[:1], prefix_hold_frames, axis=0),
+                contact_targets,
+            ))
+            contact_tolerances = np.concatenate((
+                np.repeat(contact_tolerances[:1], prefix_hold_frames, axis=0),
+                contact_tolerances,
+            ))
+        frame_count = int(joint_targets.shape[0])
+        frames_per_second = base_clip.frames_per_second
+        loop = base_clip.loop
+        composition_evidence.update({
+            "base_interaction_pack": {
+                "path": str(base_interaction_pack),
+                "sha256": _sha256(base_interaction_pack),
+                "content_hash": base_pack.content_hash,
+                "pack_id": base_pack.id,
+                "clip_id": base_clip.id,
+            },
+            "preserved_root_targets": True,
+            "preserved_contact_tracks": True,
+            "preserved_contact_confidence": True,
+            "preserved_contact_feature_masks": True,
+            "maximum_authored_proposal_blend": maximum_blend,
+        })
+        root_semantics = (
+            "root trajectory preserved byte-for-byte from the base InteractionPack "
+            "before optional prefix duplication"
+        )
+        source_repository = "NumiLab/foundation-motion-composition"
+        source_revision = hashlib.sha256(
+            (_sha256(base_interaction_pack) + _sha256(action_chunk)).encode("ascii")
+        ).hexdigest()
     position_limits = np.asarray(contract["position_limits"], dtype=np.float32)
     target, content_hash = write_interaction_pack(
         output=output,
         pack_id=pack_id.strip(),
         clip_id=pack_id.strip(),
         desired_outcome=desired_outcome.strip(),
-        source_repository="NumiLab/foundation-policy",
-        source_revision=_sha256(action_chunk),
-        license_name="generated-intent; upstream model terms apply",
-        frames_per_second=float(compiled["control_hz"]),
+        source_repository=source_repository,
+        source_revision=source_revision,
+        license_name="generated-intent; upstream model and motion terms apply",
+        frames_per_second=frames_per_second,
         root_targets=root_targets,
         joint_targets=joint_targets,
         tracks=tracks,
         contact_modes=contact_modes,
         contact_confidence=contact_confidence,
+        contact_feature_masks=contact_feature_masks,
+        contact_sample_flags=contact_sample_flags,
+        contact_targets=contact_targets,
+        contact_tolerances=contact_tolerances,
+        loop=loop,
         joint_names=tuple(str(name) for name in contract["joint_order"]),
         joint_lower=position_limits[:, 0],
         joint_upper=position_limits[:, 1],
@@ -775,22 +1053,33 @@ def compile_numi_interaction_pack(
             "provider": adapter["provider"],
             "robot": adapter["robot"],
         },
-        "frames_per_second": float(compiled["control_hz"]),
+        "frames_per_second": frames_per_second,
         "frame_count": frame_count,
         "prefix_hold_frames": prefix_hold_frames,
         "mapped_joint_groups": compiled["mapped_joint_groups"],
         "ignored_model_outputs": compiled["ignored_model_outputs"],
         "lower_body_semantics": (
-            "captured robot pose held initially; unmapped joints then use the "
-            "adapter-authored native default pose"
+            "preserved from the selected base InteractionPack"
+            if composition_evidence is not None
+            else "captured robot pose held initially; unmapped joints then use "
+                 "the adapter-authored native default pose"
         ),
-        "root_frame_conversion": (
-            "captured solver center-of-mass pose converted to the "
-            "InteractionPack root-link origin"
-        ),
+        "root_semantics": root_semantics,
+        "composition": composition_evidence,
+        "unmapped_guidance": {
+            "navigate_command": (
+                "preserved in action-chunk evidence; no calibrated locomotion mapping"
+            ),
+            "base_height_command": (
+                "preserved in action-chunk evidence; no calibrated root-frame mapping"
+            ),
+        },
         "contact_semantics": (
-            "adapter-authored contact intent only; no generated wrench, "
-            "center-of-pressure, or pressure claims"
+            "base InteractionPack contact intent and validity preserved; "
+            "NumiSolver remains the physical outcome authority"
+            if composition_evidence is not None
+            else "adapter-authored contact intent only; no generated wrench, "
+                 "center-of-pressure, or pressure claims"
         ),
         "position_clamps": compiled["position_clamps"],
         "velocity_clamps": compiled["velocity_clamps"],
@@ -1194,6 +1483,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     interaction_parser.add_argument("--source-hz", type=float, default=30.0)
     interaction_parser.add_argument("--prefix-hold-frames", type=int, default=1)
     interaction_parser.add_argument("--adapter", type=Path)
+    interaction_parser.add_argument(
+        "--base-interaction-pack",
+        type=Path,
+        help="preserve an existing root/lower-body/contact motion base",
+    )
+    interaction_parser.add_argument(
+        "--base-interaction-clip",
+        help="clip id when the base InteractionPack contains multiple clips",
+    )
+    interaction_parser.add_argument(
+        "--proposal-blend",
+        type=float,
+        help="bounded GR00T joint authority over the preserved motion base",
+    )
 
     infer_parser = subparsers.add_parser("infer", help="produce one fingerprinted action chunk")
     infer_parser.add_argument("--model-directory", type=Path, required=True)
@@ -1251,6 +1554,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             arguments.source_hz,
             arguments.prefix_hold_frames,
             None if arguments.adapter is None else _load_foundation_adapter(arguments.adapter),
+            arguments.base_interaction_pack,
+            arguments.base_interaction_clip,
+            arguments.proposal_blend,
         ), indent=2, sort_keys=True))
         return 0
     if bool(arguments.observation) == bool(arguments.synthetic_observation):

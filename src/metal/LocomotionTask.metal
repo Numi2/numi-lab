@@ -5214,6 +5214,103 @@ kernel void mr_locomotion_task_complete(
             value = sqrt(1.0f + scaledError * scaledError) - 1.0f;
             break;
         }
+        case MR_TASK_REWARD_OBJECT_GRASP: {
+            const MRTaskContactGroupGPU group =
+                contactGroups[operation.source.y];
+            const MRBodyStateGPU object =
+                sceneState[sceneBase + operation.source.z];
+            const uint objectBody = object.flagsAndIndices[2];
+            uint distinctMembers = 0u;
+            float normalForce = 0.0f;
+            for (uint member = 0u;
+                 member < group.members.y;
+                 ++member) {
+                const uint memberBody =
+                    contactMembers[group.members.x + member];
+                bool touching = false;
+                for (uint contact = 0u;
+                     contact < activeContacts;
+                     ++contact) {
+                    const MRContactConstraintGPU constraint =
+                        contacts[contactBase + contact];
+                    const bool matched =
+                        (constraint.bodyA == memberBody &&
+                         constraint.bodyB == objectBody) ||
+                        (constraint.bodyB == memberBody &&
+                         constraint.bodyA == objectBody);
+                    if (!matched) {
+                        continue;
+                    }
+                    touching = true;
+                    normalForce += abs(constraint.impulses.x) /
+                        dispatch.timing.y;
+                }
+                distinctMembers += uint(touching);
+            }
+            const float memberScore = smoothstep(
+                0.0f,
+                max(operation.parameters.y, 1.0f),
+                float(distinctMembers)
+            );
+            const float forceScore = 1.0f - exp(
+                -normalForce /
+                max(operation.parameters.z, 1.0e-6f)
+            );
+            value = memberScore * forceScore;
+            break;
+        }
+        case MR_TASK_REWARD_OBJECT_LIFT: {
+            const MRBodyStateGPU object =
+                sceneState[sceneBase + operation.source.z];
+            value = smoothstep(
+                operation.parameters.y,
+                operation.parameters.z,
+                object.position.z
+            );
+            break;
+        }
+        case MR_TASK_REWARD_OBJECT_POSITION: {
+            const MRBodyStateGPU object =
+                sceneState[sceneBase + operation.source.z];
+            const float3 delta = object.position.xyz - float3(
+                operation.parameters.y,
+                operation.parameters.z,
+                operation.parameters.w
+            );
+            value = exp(
+                -dot(delta, delta) /
+                max(operation.auxiliary.x, 1.0e-8f)
+            );
+            break;
+        }
+        case MR_TASK_REWARD_OBJECT_PLACEMENT: {
+            const MRBodyStateGPU object =
+                sceneState[sceneBase + operation.source.z];
+            const MRBodyStateGPU goal =
+                sceneState[sceneBase + operation.source.y];
+            const float3 positionDelta =
+                object.position.xyz - goal.position.xyz;
+            const float positionScore = exp(
+                -dot(positionDelta, positionDelta) /
+                max(operation.parameters.y, 1.0e-8f)
+            );
+            const float quietScore = 0.5f * (
+                exp(
+                    -dot(
+                        object.linearVelocityAndInverseMass.xyz,
+                        object.linearVelocityAndInverseMass.xyz
+                    ) / max(operation.parameters.z, 1.0e-8f)
+                ) +
+                exp(
+                    -dot(
+                        object.angularVelocity.xyz,
+                        object.angularVelocity.xyz
+                    ) / max(operation.parameters.w, 1.0e-8f)
+                )
+            );
+            value = positionScore * quietScore;
+            break;
+        }
         case MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING: {
             const uint trackIndex = operation.source.z;
             const MRTaskInteractionContactGPU track =
@@ -5370,6 +5467,10 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_RESTORATION:
         case MR_TASK_REWARD_INTERACTION_ROOT_TRACKING:
         case MR_TASK_REWARD_INTERACTION_ROOT_LINEAR_VELOCITY_ERROR:
+        case MR_TASK_REWARD_OBJECT_GRASP:
+        case MR_TASK_REWARD_OBJECT_LIFT:
+        case MR_TASK_REWARD_OBJECT_POSITION:
+        case MR_TASK_REWARD_OBJECT_PLACEMENT:
         case MR_TASK_REWARD_RECOVERY_TILT_PROGRESS:
         case MR_TASK_REWARD_RECOVERY_COMPLETION:
         case MR_TASK_REWARD_WHOLE_BODY_RECOVERY:

@@ -1614,6 +1614,57 @@ int main(const int argc, const char* const* argv) {
         if (collidableMembers == 0u) {
             fail("G1 dodge group has no collidable members");
         }
+        metalrobo::LocomotionWorld manipulation = dodge;
+        manipulation.task.id = "generic_rigid_object_manipulation_probe";
+        manipulation.task.rewards = {
+            {
+                .operation = metalrobo::TaskRewardOperator::objectGrasp,
+                .sourceGroup = "impact_contact",
+                .target = "locomotion_dynamic_sphere_0",
+                .weight = 1.0f,
+                .parameters = {2.0f, 20.0f, 0.0f, 0.0f},
+            },
+            {
+                .operation = metalrobo::TaskRewardOperator::objectLift,
+                .target = "locomotion_dynamic_sphere_0",
+                .weight = 1.0f,
+                .parameters = {0.1f, 0.5f, 0.0f, 0.0f},
+            },
+            {
+                .operation = metalrobo::TaskRewardOperator::objectPosition,
+                .target = "locomotion_dynamic_sphere_0",
+                .weight = 1.0f,
+                .parameters = {0.5f, 0.0f, 0.8f, 0.01f},
+            },
+            {
+                .operation = metalrobo::TaskRewardOperator::objectPlacement,
+                .sourceGroup = "locomotion_ground",
+                .target = "locomotion_dynamic_sphere_0",
+                .weight = 1.0f,
+                .parameters = {0.01f, 0.01f, 0.04f, 0.0f},
+            },
+        };
+        metalrobo::CompiledLocomotionWorld compiledManipulation;
+        const auto manipulationStatus =
+            metalrobo::compileLocomotionWorld(
+                manipulation,
+                0u,
+                compiledManipulation
+            );
+        if (!manipulationStatus.succeeded() ||
+            compiledManipulation.task.rewardOperators().size() != 4u) {
+            fail("generic rigid-object manipulation rewards did not compile");
+        }
+        for (const MRTaskRewardOperatorGPU& operation :
+             compiledManipulation.task.rewardOperators()) {
+            if (operation.source.z != 1u) {
+                fail("manipulation reward did not bind the selected scene object");
+            }
+            if (operation.source.x == MR_TASK_REWARD_OBJECT_GRASP &&
+                operation.source.y == MR_INVALID_INDEX) {
+                fail("object grasp did not bind its semantic contact group");
+            }
+        }
         std::uint32_t stagedDodgeVelocities = 0u;
         std::uint32_t acquisitionDodgeVelocities = 0u;
         std::uint32_t forwardDodgePositions = 0u;

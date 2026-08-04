@@ -1074,67 +1074,69 @@ RobotDescriptionDiagnostics cookRobotDescription(
                 firstChild(inertial, "inertia");
             Transform inertialOrigin;
             const auto massValue = property(mass, "value");
-            if (inertial == nullptr ||
-                mass == nullptr ||
+            if (inertial != nullptr &&
+                (mass == nullptr ||
                 inertia == nullptr ||
                 !massValue.has_value() ||
                 !parseDouble(*massValue, link.mass) ||
                 !(link.mass > 0.0) ||
-                !parseOrigin(inertial, inertialOrigin)) {
+                !parseOrigin(inertial, inertialOrigin))) {
                 return fail(
                     std::move(diagnostics),
                     RobotDescriptionStatus::invalidInertial,
-                    "every executable link requires a positive inertial",
+                    "an authored inertial must be complete and positive",
                     link.name
                 );
             }
-            link.centerOfMass =
-                inertialOrigin.translation;
-            Mat3 authored{};
-            const std::array<const char*, 6> names{
-                "ixx", "ixy", "ixz",
-                "iyy", "iyz", "izz",
-            };
-            std::array<double, 6> values{};
-            for (std::size_t index = 0u;
-                 index < names.size();
-                 ++index) {
-                const auto value =
-                    property(inertia, names[index]);
-                if (!value.has_value() ||
-                    !parseDouble(*value, values[index])) {
+            if (inertial != nullptr) {
+                link.centerOfMass =
+                    inertialOrigin.translation;
+                Mat3 authored{};
+                const std::array<const char*, 6> names{
+                    "ixx", "ixy", "ixz",
+                    "iyy", "iyz", "izz",
+                };
+                std::array<double, 6> values{};
+                for (std::size_t index = 0u;
+                     index < names.size();
+                     ++index) {
+                    const auto value =
+                        property(inertia, names[index]);
+                    if (!value.has_value() ||
+                        !parseDouble(*value, values[index])) {
+                        return fail(
+                            std::move(diagnostics),
+                            RobotDescriptionStatus::invalidInertial,
+                            "link inertia tensor is incomplete",
+                            link.name
+                        );
+                    }
+                }
+                authored = {{
+                    {values[0], values[1], values[2]},
+                    {values[1], values[3], values[4]},
+                    {values[2], values[4], values[5]},
+                }};
+                if (!positiveDefinite(authored)) {
                     return fail(
                         std::move(diagnostics),
                         RobotDescriptionStatus::invalidInertial,
-                        "link inertia tensor is incomplete",
+                        "link inertia is not positive definite",
                         link.name
                     );
                 }
-            }
-            authored = {{
-                {values[0], values[1], values[2]},
-                {values[1], values[3], values[4]},
-                {values[2], values[4], values[5]},
-            }};
-            if (!positiveDefinite(authored)) {
-                return fail(
-                    std::move(diagnostics),
-                    RobotDescriptionStatus::invalidInertial,
-                    "link inertia is not positive definite",
-                    link.name
-                );
-            }
-            link.inertia =
-                inertialOrigin.rotation *
-                authored *
-                transpose(inertialOrigin.rotation);
-            if (!positiveDefinite(link.inertia)) {
-                return fail(
-                    std::move(diagnostics),
-                    RobotDescriptionStatus::invalidInertial,
-                    "rotated link inertia is invalid",
-                    link.name
-                );
+                link.inertia =
+                    inertialOrigin.rotation *
+                    authored *
+                    transpose(inertialOrigin.rotation);
+                if (!positiveDefinite(link.inertia)) {
+                    return fail(
+                        std::move(diagnostics),
+                        RobotDescriptionStatus::invalidInertial,
+                        "rotated link inertia is invalid",
+                        link.name
+                    );
+                }
             }
 
             for (xmlNode* collision :
@@ -1644,6 +1646,60 @@ RobotDescriptionDiagnostics cookRobotDescription(
             childJoint.emplace(joint.child, index);
             outgoing[joint.parent].push_back(index);
             joints.push_back(std::move(joint));
+        }
+        // URDF commonly carries inertial-less fixed sensor/visual frames.
+        // They are coordinate annotations, not physical bodies. Collapse only
+        // collision-free leaves; a massless movable, collision-bearing, root,
+        // or branching link remains an explicit authoring error.
+        std::set<std::size_t> collapsedJoints;
+        std::vector<std::string> collapsedLinks;
+        for (const auto& [name, link] : links) {
+            if (link.mass > 0.0) {
+                continue;
+            }
+            const auto incoming = childJoint.find(name);
+            const auto children = outgoing.find(name);
+            const bool leaf = children == outgoing.end() ||
+                children->second.empty();
+            if (incoming == childJoint.end() ||
+                joints[incoming->second].type != MR_JOINT_FIXED ||
+                !leaf || !link.collisions.empty()) {
+                return fail(
+                    std::move(diagnostics),
+                    RobotDescriptionStatus::invalidInertial,
+                    "an executable link requires a positive inertial; only collision-free fixed leaf frames may omit it",
+                    name
+                );
+            }
+            collapsedJoints.insert(incoming->second);
+            collapsedLinks.push_back(name);
+        }
+        if (!collapsedLinks.empty()) {
+            std::vector<ParsedJoint> physicalJoints;
+            physicalJoints.reserve(
+                joints.size() - collapsedJoints.size()
+            );
+            for (std::size_t index = 0u;
+                 index < joints.size();
+                 ++index) {
+                if (!collapsedJoints.contains(index)) {
+                    physicalJoints.push_back(
+                        std::move(joints[index])
+                    );
+                }
+            }
+            joints = std::move(physicalJoints);
+            for (const std::string& name : collapsedLinks) {
+                links.erase(name);
+            }
+            childJoint.clear();
+            outgoing.clear();
+            for (std::size_t index = 0u;
+                 index < joints.size();
+                 ++index) {
+                childJoint.emplace(joints[index].child, index);
+                outgoing[joints[index].parent].push_back(index);
+            }
         }
         std::map<std::string, std::size_t> jointByName;
         for (std::size_t index = 0u;

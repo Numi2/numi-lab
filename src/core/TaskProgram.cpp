@@ -2211,6 +2211,83 @@ TaskCompileDiagnostics compileTaskProgram(
             );
             break;
         }
+        case TaskRewardOperator::objectGrasp:
+        case TaskRewardOperator::objectLift:
+        case TaskRewardOperator::objectPosition:
+        case TaskRewardOperator::objectPlacement: {
+            if (reward.target.empty() ||
+                (reward.operation == TaskRewardOperator::objectGrasp &&
+                 reward.sourceGroup.empty())) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    reward.target,
+                    "object manipulation reward requires a dynamic scene target and grasp also requires a contact group"
+                );
+            }
+            if (reward.operation == TaskRewardOperator::objectGrasp) {
+                sourceIndex = namedGroup(
+                    contactGroupIds,
+                    reward.sourceGroup
+                );
+            }
+            bool ambiguous = false;
+            const std::uint32_t body = uniqueIndex(
+                model.bodyNames,
+                reward.target,
+                ambiguous
+            );
+            const auto sceneBody = body == MR_INVALID_INDEX
+                ? world.sceneBodyIndices().end()
+                : std::find(
+                      world.sceneBodyIndices().begin(),
+                      world.sceneBodyIndices().end(),
+                      body
+                  );
+            if (ambiguous ||
+                sceneBody == world.sceneBodyIndices().end() ||
+                body == MR_INVALID_INDEX ||
+                model.bodies[body].motionType != MR_MOTION_DYNAMIC) {
+                return reject(
+                    ambiguous
+                        ? TaskCompileStatus::ambiguousSemantic
+                        : TaskCompileStatus::unresolvedSemantic,
+                    reward.target,
+                    "object manipulation target must resolve to one dynamic scene body"
+                );
+            }
+            targetIndex = static_cast<std::uint32_t>(
+                sceneBody - world.sceneBodyIndices().begin()
+            );
+            if (reward.operation == TaskRewardOperator::objectPlacement) {
+                bool goalAmbiguous = false;
+                const std::uint32_t goalBody = uniqueIndex(
+                    model.bodyNames,
+                    reward.sourceGroup,
+                    goalAmbiguous
+                );
+                const auto goalScene = goalBody == MR_INVALID_INDEX
+                    ? world.sceneBodyIndices().end()
+                    : std::find(
+                          world.sceneBodyIndices().begin(),
+                          world.sceneBodyIndices().end(),
+                          goalBody
+                      );
+                if (reward.sourceGroup.empty() || goalAmbiguous ||
+                    goalScene == world.sceneBodyIndices().end()) {
+                    return reject(
+                        goalAmbiguous
+                            ? TaskCompileStatus::ambiguousSemantic
+                            : TaskCompileStatus::unresolvedSemantic,
+                        reward.sourceGroup,
+                        "object placement requires one named scene-body goal"
+                    );
+                }
+                sourceIndex = static_cast<std::uint32_t>(
+                    goalScene - world.sceneBodyIndices().begin()
+                );
+            }
+            break;
+        }
         case TaskRewardOperator::linearVelocityTracking:
         case TaskRewardOperator::yawVelocityTracking:
         case TaskRewardOperator::constant:
@@ -2412,6 +2489,41 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 "interaction_root_linear_velocity_error",
                 "interaction root linear-velocity error requires a positive velocity scale"
+            );
+        }
+        if (reward.operation == TaskRewardOperator::objectGrasp &&
+            (reward.parameters.x < 1.0f ||
+             !(reward.parameters.y > 0.0f))) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.target,
+                "object grasp requires at least one distinct contact member and a positive force scale"
+            );
+        }
+        if (reward.operation == TaskRewardOperator::objectLift &&
+            !(reward.parameters.y > reward.parameters.x)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.target,
+                "object lift requires an upper height greater than its lower height"
+            );
+        }
+        if (reward.operation == TaskRewardOperator::objectPosition &&
+            !(reward.parameters.w > 0.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.target,
+                "object position requires a positive squared-error width"
+            );
+        }
+        if (reward.operation == TaskRewardOperator::objectPlacement &&
+            (!(reward.parameters.x > 0.0f) ||
+             !(reward.parameters.y > 0.0f) ||
+             !(reward.parameters.z > 0.0f))) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.target,
+                "object placement requires positive position, linear-speed, and angular-speed squared-error widths"
             );
         }
         if ((reward.operation ==
