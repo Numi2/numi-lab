@@ -114,6 +114,7 @@ def main() -> None:
     parser.add_argument("--first-frame", type=int, default=1)
     parser.add_argument("--last-frame", type=int)
     parser.add_argument("--sample-stride", type=int, default=1, help="render every Nth accepted trace state")
+    parser.add_argument("--world-camera", action="store_true", help="hold a world-fixed camera to show accepted translation")
     if "--" not in sys.argv:
         raise RuntimeError("Blender arguments must follow --")
     options = parser.parse_args(sys.argv[sys.argv.index("--") + 1 :])
@@ -187,15 +188,23 @@ def main() -> None:
     ground.name = "ground reference plane"
     ground_material = pbr_material("matte ground", (0.018, 0.027, 0.045, 1.0), 0.15, 0.36)
     ground.data.materials.append(ground_material)
-    # Follow the accepted body state: the vehicle stays legible while the
-    # ground plane supplies the ascent reference.  The trace itself remains
-    # untouched; this is presentation only.
+    # Follow mode keeps detailed vehicle inspection legible. World mode keeps
+    # the camera fixed, so solved translation and attitude remain visible.
     bpy.ops.object.camera_add()
     camera = bpy.context.object
-    camera.parent = frame
-    camera.location = (1.15, -1.45, 0.78)
-    camera.data.lens = 58
-    point_at(camera, Vector((0.0, 0.0, 0.0)))
+    if options.world_camera:
+        centre = Vector((
+            sum(row["x_m"] for row in rows) / len(rows),
+            sum(row["y_m"] for row in rows) / len(rows),
+            sum(row["z_m"] for row in rows) / len(rows),
+        ))
+        camera.location = centre + Vector((1.5, -2.0, 1.15))
+        point_at(camera, centre)
+    else:
+        camera.parent = frame
+        camera.location = (1.15, -1.45, 0.78)
+        point_at(camera, Vector((0.0, 0.0, 0.0)))
+    camera.data.lens = 65 if options.world_camera else 58
     scene.camera = camera
     for location, energy, size, color in (
         ((1.8, -2.4, 3.0), 950.0, 2.0, (0.62, 0.78, 1.0)),
@@ -204,7 +213,8 @@ def main() -> None:
     ):
         bpy.ops.object.light_add(type="AREA")
         light = bpy.context.object
-        light.parent = frame
+        if not options.world_camera:
+            light.parent = frame
         light.location = location
         light.data.energy = energy
         light.data.shape = "DISK"

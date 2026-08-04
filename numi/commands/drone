@@ -6,6 +6,10 @@ if [ "${1:-}" = "--numi-describe" ]; then
     exit 0
 fi
 drone_workspace=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+if [ "${1:-}" = "--help" ]; then
+    printf '%s\n' "usage: numi drone source --output DIR | flight [--trace FILE] | control collective roll pitch yaw | maneuvers --trace FILE"
+    exit 0
+fi
 if [ "${1:-}" = "control" ]; then
     shift
     if [ "$#" -ne 4 ]; then
@@ -16,6 +20,17 @@ if [ "${1:-}" = "control" ]; then
     cmake -S "$drone_workspace" -B "$drone_build" -DCMAKE_BUILD_TYPE=Release >/dev/null
     cmake --build "$drone_build" --target metalrobo_px4_x500_gpu_probe -j 4 >/dev/null
     PX4_X500_ACTION="$1 $2 $3 $4" exec "$drone_build/bin/metalrobo_px4_x500_gpu_probe"
+fi
+if [ "${1:-}" = "maneuvers" ]; then
+    shift
+    if [ "${1:-}" != "--trace" ] || [ "$#" -ne 2 ]; then
+        printf '%s\n' "usage: numi drone maneuvers --trace trace.csv" >&2
+        exit 2
+    fi
+    drone_build=${NUMI_BUILD_DIR:-"$drone_workspace/build"}
+    cmake -S "$drone_workspace" -B "$drone_build" -DCMAKE_BUILD_TYPE=Release >/dev/null
+    cmake --build "$drone_build" --target metalrobo_px4_x500_gpu_probe -j 4 >/dev/null
+    PX4_X500_MANEUVER_TRACE="$2" exec "$drone_build/bin/metalrobo_px4_x500_gpu_probe"
 fi
 if [ "${1:-}" = "flight" ]; then
     shift

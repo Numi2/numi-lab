@@ -6,6 +6,7 @@
 #include "metalrobo/PX4X500.hpp"
 
 #include <array>
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <cstdint>
@@ -111,6 +112,53 @@ mr_float4 requestedAction() {
     if (!(input >> result.x >> result.y >> result.z >> result.w) || (input >> std::ws && !input.eof())) throw std::runtime_error("PX4_X500_ACTION must contain collective roll pitch yaw");
     return result;
 }
+
+mr_float4 scriptedManeuverAction(const float time, const MRBodyStateGPU& body) {
+    // This is a deterministic, policy-format reference for visual inspection,
+    // not a learned controller.  Every pose still comes from the accepted
+    // Metal free-body/rotor solve below.
+    float targetX = 0.0f;
+    float targetY = 0.0f;
+    float targetZ = 1.0f;
+    float yaw = 0.0f;
+    if (time < 1.5f) {
+        targetZ = 1.0f + 0.50f * time / 1.5f;
+    } else if (time < 3.0f) {
+        targetZ = 1.50f;
+        targetY = -0.12f * (time - 1.5f) / 1.5f;
+    } else if (time < 4.5f) {
+        targetZ = 1.50f;
+        targetY = -0.12f;
+        targetX = 0.12f * (time - 3.0f) / 1.5f;
+    } else if (time < 5.6f) {
+        targetZ = 1.50f;
+        targetY = -0.12f;
+        targetX = 0.12f;
+        yaw = time < 5.2f ? 0.08f : -0.05f;
+    } else {
+        targetZ = 1.50f - 0.32f * (time - 5.6f);
+        targetY = -0.12f;
+        targetX = 0.12f;
+    }
+    const auto clampAction = [](const float value, const float limit) {
+        return std::clamp(value, -limit, limit);
+    };
+    const float collective = clampAction(
+        0.25f * (targetZ - body.position.z) - 0.18f * body.linearVelocityAndInverseMass.z,
+        0.12f
+    );
+    // Positive roll/pitch action produces negative world-y/world-x thrust
+    // after the source rotor mixer, respectively.
+    const float roll = clampAction(
+        0.005f * (body.position.y - targetY) + 0.080f * body.linearVelocityAndInverseMass.y,
+        0.020f
+    );
+    const float pitch = clampAction(
+        0.005f * (body.position.x - targetX) + 0.080f * body.linearVelocityAndInverseMass.x,
+        0.020f
+    );
+    return f4(collective, roll, pitch, yaw);
+}
 } // namespace
 
 int main() {
@@ -182,6 +230,11 @@ int main() {
             const auto* finalStatuses = static_cast<const MRFreeBodyStatusGPU*>(statusBuffer.contents);
             const auto* finalWrenches = static_cast<const MRBodyWrenchGPU*>(wrenchBuffer.contents);
             const auto* finalTransitions = static_cast<const MRMulticopterFlightTransitionGPU*>(transitionBuffer.contents);
+            const MRBodyStateGPU qualificationFinalState = finalStates[0];
+            const MRMulticopterFlightTransitionGPU qualificationTransition = finalTransitions[0];
+            MRBodyStateGPU maneuverFinalState{};
+            MRMulticopterFlightTransitionGPU maneuverFinalTransition{};
+            bool wroteManeuverTrace = false;
             float maximumAltitudeError = 0.0f;
             for (std::uint32_t index = 0; index < kEnvironments; ++index) {
                 require(finalStatuses[index].code == MR_STEP_SUCCESS, "X500 free-body step failed");
@@ -199,18 +252,22 @@ int main() {
                 std::abs(finalWrenches[0].torque.z - oracle.wrench.torque.z),
             });
             if (neutralAction) require(wrenchParity < 2.0e-4f, "X500 CPU/Metal actuator wrench parity exceeded");
-            const char* tracePath = std::getenv("PX4_X500_TRACE");
+            const char* maneuverTracePath = std::getenv("PX4_X500_MANEUVER_TRACE");
+            const char* tracePath = maneuverTracePath != nullptr && maneuverTracePath[0] != '\0'
+                ? maneuverTracePath : std::getenv("PX4_X500_TRACE");
             if (tracePath != nullptr && tracePath[0] != '\0') {
+                const bool scriptedManeuvers = maneuverTracePath != nullptr && maneuverTracePath[0] != '\0';
                 std::ofstream trace(tracePath);
                 require(trace.good(), "cannot write X500 trace");
-                trace << "time_s,x_m,y_m,z_m,qx,qy,qz,qw\n";
+                trace << "time_s,x_m,y_m,z_m,qx,qy,qz,qw,collective,roll,pitch,yaw\n";
                 MRBodyStateGPU traceState = initialState(propertiesOne, 0u);
-                traceState.position.z = 0.60f;
+                traceState.position.z = scriptedManeuvers ? 1.0f : 0.60f;
                 std::memcpy(bodyBuffer.contents, &traceState, sizeof(traceState));
                 MRMulticopterStateGPU traceMotors{};
                 traceMotors.rotorSpeed01 = f4(hover, hover, hover, hover);
                 std::memcpy(motorBuffer.contents, &traceMotors, sizeof(traceMotors));
                 auto* traceCommands = static_cast<float*>(commandBuffer.contents);
+                auto* traceActions = static_cast<MRMulticopterActionGPU*>(actionBuffer.contents);
                 for (std::uint32_t rotor = 0; rotor < 4u; ++rotor) traceCommands[rotor] = 810.0f;
                 MRMulticopterDispatchGPU traceDispatch{};
                 traceDispatch.environmentCount = 1u;
@@ -219,26 +276,44 @@ int main() {
                 MRFreeBodyBatchGPU traceBatch = freeBodyBatch;
                 traceBatch.bodyCount = 1u;
                 std::memcpy(freeBodyBatchBuffer.contents, &traceBatch, sizeof(traceBatch));
-                for (std::uint32_t step = 0; step < kSteps; ++step) {
+                const std::uint32_t traceSteps = scriptedManeuvers ? 6000u : kSteps;
+                for (std::uint32_t step = 0; step < traceSteps; ++step) {
+                    const auto currentBeforeStep = static_cast<const MRBodyStateGPU*>(bodyBuffer.contents)[0];
+                    const auto traceAction = scriptedManeuvers
+                        ? scriptedManeuverAction((step + 1u) * kDt, currentBeforeStep) : f4(0, 0, 0, 0);
+                    traceActions[0].collectiveRollPitchYaw = traceAction;
                     id<MTLCommandBuffer> traceCommand = [queue commandBuffer];
                     id<MTLComputeCommandEncoder> traceEncoder = [traceCommand computeCommandEncoder];
                     require(traceCommand != nil && traceEncoder != nil, "cannot encode X500 trace step");
+                    if (scriptedManeuvers) encodeMixer(traceEncoder, mixerPipe, rotorsBuffer, modelBuffer, actionBuffer, commandBuffer, mixerBuffer, multicopterDispatchBuffer, 1u);
                     encodeMulticopter(traceEncoder, multicopterPipe, rotorsBuffer, modelBuffer, motorBuffer, commandBuffer, bodyBuffer, wrenchBuffer, multicopterDispatchBuffer, 1u);
                     encodeFreeBody(traceEncoder, freeBodyPipe, propertyBuffer, bodyBuffer, wrenchBuffer, freeBodyBatchBuffer, statusBuffer, 1u);
+                    if (scriptedManeuvers) encodeTask(traceEncoder, taskPipe, modelBuffer, motorBuffer, bodyBuffer, transitionBuffer, taskBuffer, multicopterDispatchBuffer, 1u);
                     [traceEncoder endEncoding]; [traceCommand commit]; [traceCommand waitUntilCompleted];
                     require(traceCommand.status == MTLCommandBufferStatusCompleted, "X500 trace GPU step failed");
                     const auto* current = static_cast<const MRBodyStateGPU*>(bodyBuffer.contents);
                     const auto* status = static_cast<const MRFreeBodyStatusGPU*>(statusBuffer.contents);
                     require(status[0].code == MR_STEP_SUCCESS, "X500 trace physics step failed");
+                    if (scriptedManeuvers) {
+                        const auto* transition = static_cast<const MRMulticopterFlightTransitionGPU*>(transitionBuffer.contents);
+                        require(transition[0].rewardAndDone.y == 0.0f, "X500 maneuver task terminated");
+                        maneuverFinalState = current[0];
+                        maneuverFinalTransition = transition[0];
+                        wroteManeuverTrace = true;
+                    }
                     if (step % 10u == 0u) {
                         trace << std::fixed << std::setprecision(7) << (step + 1u) * kDt << ','
                               << current[0].position.x << ',' << current[0].position.y << ',' << current[0].position.z << ','
-                              << current[0].orientation.x << ',' << current[0].orientation.y << ',' << current[0].orientation.z << ',' << current[0].orientation.w << '\n';
+                              << current[0].orientation.x << ',' << current[0].orientation.y << ',' << current[0].orientation.z << ',' << current[0].orientation.w << ','
+                              << traceAction.x << ',' << traceAction.y << ',' << traceAction.z << ',' << traceAction.w << '\n';
                     }
                 }
                 require(trace.good(), "X500 trace write failed");
             }
-            std::cout << std::fixed << std::setprecision(7) << "robot=px4_x500 source_revision=e00d3b9cde682dbcb3bf6f30a2f2b8ef4325dae8 device=" << string(device.name) << " environments=" << kEnvironments << " steps=" << kSteps << " auto_reset=" << autoReset << " hover_rad_s=" << hover << " policy_action=" << action.x << ',' << action.y << ',' << action.z << ',' << action.w << " final_position_m=" << finalStates[0].position.x << ',' << finalStates[0].position.y << ',' << finalStates[0].position.z << " task_reward=" << finalTransitions[0].rewardAndDone.x << " task_done=" << finalTransitions[0].rewardAndDone.y << " task_tilt_rad=" << finalTransitions[0].rewardAndDone.z << " task_target_distance_m=" << finalTransitions[0].rewardAndDone.w << " maximum_altitude_error_m=" << maximumAltitudeError << " actuator_wrench_parity=" << wrenchParity << " failed_steps=0 status=pass\n";
+            std::cout << std::fixed << std::setprecision(7) << "robot=px4_x500 source_revision=e00d3b9cde682dbcb3bf6f30a2f2b8ef4325dae8 device=" << string(device.name) << " environments=" << kEnvironments << " steps=" << kSteps << " auto_reset=" << autoReset << " hover_rad_s=" << hover << " policy_action=" << action.x << ',' << action.y << ',' << action.z << ',' << action.w << " final_position_m=" << qualificationFinalState.position.x << ',' << qualificationFinalState.position.y << ',' << qualificationFinalState.position.z << " task_reward=" << qualificationTransition.rewardAndDone.x << " task_done=" << qualificationTransition.rewardAndDone.y << " task_tilt_rad=" << qualificationTransition.rewardAndDone.z << " task_target_distance_m=" << qualificationTransition.rewardAndDone.w << " maximum_altitude_error_m=" << maximumAltitudeError << " actuator_wrench_parity=" << wrenchParity << " failed_steps=0 status=pass\n";
+            if (wroteManeuverTrace) {
+                std::cout << "maneuver_final_position_m=" << maneuverFinalState.position.x << ',' << maneuverFinalState.position.y << ',' << maneuverFinalState.position.z << " maneuver_reward=" << maneuverFinalTransition.rewardAndDone.x << " maneuver_tilt_rad=" << maneuverFinalTransition.rewardAndDone.z << " maneuver_target_distance_m=" << maneuverFinalTransition.rewardAndDone.w << " task_terminations=0 status=pass\n";
+            }
             return 0;
         } catch (const std::exception& exception) { std::cerr << "metalrobo_px4_x500_gpu_probe: " << exception.what() << '\n'; return 1; }
     }
