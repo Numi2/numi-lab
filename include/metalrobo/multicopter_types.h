@@ -41,9 +41,43 @@ typedef struct MR_ALIGN16 MRMulticopterDispatchGPU {
     mr_float4 windVelocity;
 } MRMulticopterDispatchGPU;
 
+// Canonical policy action: collective thrust, roll, pitch, yaw, each clipped
+// to [-1, 1].  A policy writes this device buffer directly; the mixer produces
+// source-unit rotor speed targets without a host control loop.
+typedef struct MR_ALIGN16 MRMulticopterActionGPU {
+    mr_float4 collectiveRollPitchYaw;
+} MRMulticopterActionGPU;
+
+// Hover speed followed by rad/s action scales for collective, roll/pitch, yaw.
+typedef struct MR_ALIGN16 MRMulticopterMixerGPU {
+    mr_float4 hoverAndScales;
+} MRMulticopterMixerGPU;
+
+// A compact, Markov hover/position task contract. Observation lanes are
+// target-relative position, world velocity, body-up direction, angular
+// velocity, and normalized rotor speeds. rewardAndDone = reward, done, tilt,
+// target-distance. The policy need not observe privileged reward lanes.
+typedef struct MR_ALIGN16 MRMulticopterFlightTaskGPU {
+    mr_float4 targetPositionAndMinimumHeight;
+    mr_float4 maximumHeightTiltAndScales;
+} MRMulticopterFlightTaskGPU;
+
+typedef struct MR_ALIGN16 MRMulticopterFlightTransitionGPU {
+    mr_float4 positionErrorAndHeight;
+    mr_float4 linearVelocity;
+    mr_float4 bodyUpAndTilt;
+    mr_float4 angularVelocity;
+    mr_float4 normalizedRotorSpeed;
+    mr_float4 rewardAndDone;
+} MRMulticopterFlightTransitionGPU;
+
 #ifndef __METAL_VERSION__
 static_assert(sizeof(MRMulticopterRotorGPU) == 16);
 static_assert(sizeof(MRMulticopterModelGPU) == 48);
 static_assert(sizeof(MRMulticopterStateGPU) == 32);
 static_assert(sizeof(MRMulticopterDispatchGPU) == 32);
+static_assert(sizeof(MRMulticopterActionGPU) == 16);
+static_assert(sizeof(MRMulticopterMixerGPU) == 16);
+static_assert(sizeof(MRMulticopterFlightTaskGPU) == 32);
+static_assert(sizeof(MRMulticopterFlightTransitionGPU) == 96);
 #endif

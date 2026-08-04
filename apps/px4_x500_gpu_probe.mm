@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -84,6 +85,32 @@ void encodeFreeBody(id<MTLComputeCommandEncoder> encoder, id<MTLComputePipelineS
     [encoder setBuffer:wrenches offset:0 atIndex:2]; [encoder setBuffer:batch offset:0 atIndex:3]; [encoder setBuffer:statuses offset:0 atIndex:4];
     [encoder dispatchThreads:MTLSizeMake(count, 1, 1) threadsPerThreadgroup:MTLSizeMake(32, 1, 1)];
 }
+void encodeMixer(id<MTLComputeCommandEncoder> encoder, id<MTLComputePipelineState> pipe, id<MTLBuffer> rotors, id<MTLBuffer> model, id<MTLBuffer> actions, id<MTLBuffer> commands, id<MTLBuffer> mixer, id<MTLBuffer> dispatch, std::uint32_t count) {
+    [encoder setComputePipelineState:pipe];
+    [encoder setBuffer:rotors offset:0 atIndex:0]; [encoder setBuffer:model offset:0 atIndex:1];
+    [encoder setBuffer:actions offset:0 atIndex:2]; [encoder setBuffer:commands offset:0 atIndex:3];
+    [encoder setBuffer:mixer offset:0 atIndex:4]; [encoder setBuffer:dispatch offset:0 atIndex:5];
+    [encoder dispatchThreads:MTLSizeMake(count, 1, 1) threadsPerThreadgroup:MTLSizeMake(32, 1, 1)];
+}
+void encodeTask(id<MTLComputeCommandEncoder> encoder, id<MTLComputePipelineState> pipe, id<MTLBuffer> model, id<MTLBuffer> motors, id<MTLBuffer> bodies, id<MTLBuffer> transitions, id<MTLBuffer> task, id<MTLBuffer> dispatch, std::uint32_t count) {
+    [encoder setComputePipelineState:pipe];
+    [encoder setBuffer:model offset:0 atIndex:0]; [encoder setBuffer:motors offset:0 atIndex:1]; [encoder setBuffer:bodies offset:0 atIndex:2];
+    [encoder setBuffer:transitions offset:0 atIndex:3]; [encoder setBuffer:task offset:0 atIndex:4]; [encoder setBuffer:dispatch offset:0 atIndex:5];
+    [encoder dispatchThreads:MTLSizeMake(count, 1, 1) threadsPerThreadgroup:MTLSizeMake(32, 1, 1)];
+}
+void encodeReset(id<MTLComputeCommandEncoder> encoder, id<MTLComputePipelineState> pipe, id<MTLBuffer> bodies, id<MTLBuffer> motors, id<MTLBuffer> transitions, id<MTLBuffer> resetBodies, id<MTLBuffer> resetMotors, id<MTLBuffer> dispatch, std::uint32_t count) {
+    [encoder setComputePipelineState:pipe];
+    [encoder setBuffer:bodies offset:0 atIndex:0]; [encoder setBuffer:motors offset:0 atIndex:1]; [encoder setBuffer:transitions offset:0 atIndex:2];
+    [encoder setBuffer:resetBodies offset:0 atIndex:3]; [encoder setBuffer:resetMotors offset:0 atIndex:4]; [encoder setBuffer:dispatch offset:0 atIndex:5];
+    [encoder dispatchThreads:MTLSizeMake(count, 1, 1) threadsPerThreadgroup:MTLSizeMake(32, 1, 1)];
+}
+mr_float4 requestedAction() {
+    const char* text = std::getenv("PX4_X500_ACTION");
+    if (text == nullptr || text[0] == '\0') return f4(0, 0, 0, 0);
+    std::istringstream input(text); mr_float4 result{};
+    if (!(input >> result.x >> result.y >> result.z >> result.w) || (input >> std::ws && !input.eof())) throw std::runtime_error("PX4_X500_ACTION must contain collective roll pitch yaw");
+    return result;
+}
 } // namespace
 
 int main() {
@@ -99,7 +126,14 @@ int main() {
             for (std::uint32_t index = 0; index < kEnvironments; ++index) states.push_back(initialState(propertiesOne, index));
             std::vector<MRMulticopterStateGPU> motors(kEnvironments);
             for (auto& motor : motors) { motor.rotorSpeed01 = f4(hover, hover, hover, hover); }
+            const auto resetStates = states;
+            const auto resetMotors = motors;
+            const bool autoReset = std::getenv("PX4_X500_AUTO_RESET") != nullptr;
             std::vector<float> commands(kEnvironments * 4u, hover);
+            std::vector<MRMulticopterActionGPU> actions(kEnvironments, {requestedAction()});
+            MRMulticopterMixerGPU mixer{}; mixer.hoverAndScales = f4(hover, 120.0f, 35.0f, 12.0f);
+            MRMulticopterFlightTaskGPU task{}; task.targetPositionAndMinimumHeight = f4(0, 0, 2.0f, 0.20f); task.maximumHeightTiltAndScales = f4(8.0f, 0.90f, 0.45f, 2.0f);
+            std::vector<MRMulticopterFlightTransitionGPU> transitions(kEnvironments);
             std::vector<MRBodyWrenchGPU> wrenches(kEnvironments);
             std::vector<MRFreeBodyStatusGPU> statuses(kEnvironments);
             std::vector<MRMulticopterRotorGPU> rotors(rotorArray.begin(), rotorArray.end());
@@ -121,29 +155,41 @@ int main() {
             id<MTLLibrary> library = [device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:METALROBO_DEFAULT_METALLIB]] error:&error];
             require(library != nil, "failed metallib: " + errorString(error));
             const auto multicopterPipe = pipeline(device, library, @"mr_step_multicopters");
+            const auto mixerPipe = pipeline(device, library, @"mr_mix_multicopter_actions");
+            const auto taskPipe = pipeline(device, library, @"mr_evaluate_multicopter_flight_task");
+            const auto resetPipe = pipeline(device, library, @"mr_reset_multicopter_flights");
             const auto freeBodyPipe = pipeline(device, library, @"mr_integrate_free_bodies");
             const auto rotorsBuffer = buffer(device, rotors, @"x500 rotors"); const auto modelBuffer = scalarBuffer(device, model, @"x500 model");
             const auto motorBuffer = buffer(device, motors, @"x500 motors"); const auto commandBuffer = buffer(device, commands, @"x500 commands");
+            const auto resetBodyBuffer = buffer(device, resetStates, @"x500 task reset bodies"); const auto resetMotorBuffer = buffer(device, resetMotors, @"x500 task reset motors");
+            const auto actionBuffer = buffer(device, actions, @"x500 policy actions"); const auto mixerBuffer = scalarBuffer(device, mixer, @"x500 mixer");
+            const auto transitionBuffer = buffer(device, transitions, @"x500 flight transitions"); const auto taskBuffer = scalarBuffer(device, task, @"x500 flight task");
             const auto propertyBuffer = buffer(device, properties, @"x500 properties"); const auto bodyBuffer = buffer(device, states, @"x500 bodies");
             const auto wrenchBuffer = buffer(device, wrenches, @"x500 wrenches"); const auto statusBuffer = buffer(device, statuses, @"x500 statuses");
             const auto multicopterDispatchBuffer = scalarBuffer(device, multicopterDispatch, @"x500 actuator dispatch"); const auto freeBodyBatchBuffer = scalarBuffer(device, freeBodyBatch, @"x500 free body batch");
             id<MTLCommandBuffer> command = [queue commandBuffer]; require(command != nil, "no Metal command buffer");
             id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder]; require(encoder != nil, "no Metal encoder");
             for (std::uint32_t step = 0; step < kSteps; ++step) {
+                encodeMixer(encoder, mixerPipe, rotorsBuffer, modelBuffer, actionBuffer, commandBuffer, mixerBuffer, multicopterDispatchBuffer, kEnvironments);
                 encodeMulticopter(encoder, multicopterPipe, rotorsBuffer, modelBuffer, motorBuffer, commandBuffer, bodyBuffer, wrenchBuffer, multicopterDispatchBuffer, kEnvironments);
                 encodeFreeBody(encoder, freeBodyPipe, propertyBuffer, bodyBuffer, wrenchBuffer, freeBodyBatchBuffer, statusBuffer, kEnvironments);
+                encodeTask(encoder, taskPipe, modelBuffer, motorBuffer, bodyBuffer, transitionBuffer, taskBuffer, multicopterDispatchBuffer, kEnvironments);
+                if (autoReset) encodeReset(encoder, resetPipe, bodyBuffer, motorBuffer, transitionBuffer, resetBodyBuffer, resetMotorBuffer, multicopterDispatchBuffer, kEnvironments);
             }
             [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
             require(command.status == MTLCommandBufferStatusCompleted, "X500 Metal command failed: " + errorString(command.error));
             const auto* finalStates = static_cast<const MRBodyStateGPU*>(bodyBuffer.contents);
             const auto* finalStatuses = static_cast<const MRFreeBodyStatusGPU*>(statusBuffer.contents);
             const auto* finalWrenches = static_cast<const MRBodyWrenchGPU*>(wrenchBuffer.contents);
+            const auto* finalTransitions = static_cast<const MRMulticopterFlightTransitionGPU*>(transitionBuffer.contents);
             float maximumAltitudeError = 0.0f;
             for (std::uint32_t index = 0; index < kEnvironments; ++index) {
                 require(finalStatuses[index].code == MR_STEP_SUCCESS, "X500 free-body step failed");
                 maximumAltitudeError = std::max(maximumAltitudeError, std::abs(finalStates[index].position.z - 2.0f));
             }
-            require(maximumAltitudeError < 2.0e-3f, "X500 source hover drift exceeds gate");
+            const auto action = actions.front().collectiveRollPitchYaw;
+            const bool neutralAction = action.x == 0.0f && action.y == 0.0f && action.z == 0.0f && action.w == 0.0f;
+            if (neutralAction) require(maximumAltitudeError < 2.0e-3f, "X500 source hover drift exceeds gate");
             const float wrenchParity = std::max({
                 std::abs(finalWrenches[0].force.x - oracle.wrench.force.x),
                 std::abs(finalWrenches[0].force.y - oracle.wrench.force.y),
@@ -152,7 +198,7 @@ int main() {
                 std::abs(finalWrenches[0].torque.y - oracle.wrench.torque.y),
                 std::abs(finalWrenches[0].torque.z - oracle.wrench.torque.z),
             });
-            require(wrenchParity < 2.0e-4f, "X500 CPU/Metal actuator wrench parity exceeded");
+            if (neutralAction) require(wrenchParity < 2.0e-4f, "X500 CPU/Metal actuator wrench parity exceeded");
             const char* tracePath = std::getenv("PX4_X500_TRACE");
             if (tracePath != nullptr && tracePath[0] != '\0') {
                 std::ofstream trace(tracePath);
@@ -192,7 +238,7 @@ int main() {
                 }
                 require(trace.good(), "X500 trace write failed");
             }
-            std::cout << std::fixed << std::setprecision(7) << "robot=px4_x500 source_revision=e00d3b9cde682dbcb3bf6f30a2f2b8ef4325dae8 device=" << string(device.name) << " environments=" << kEnvironments << " steps=" << kSteps << " hover_rad_s=" << hover << " maximum_altitude_error_m=" << maximumAltitudeError << " actuator_wrench_parity=" << wrenchParity << " failed_steps=0 status=pass\n";
+            std::cout << std::fixed << std::setprecision(7) << "robot=px4_x500 source_revision=e00d3b9cde682dbcb3bf6f30a2f2b8ef4325dae8 device=" << string(device.name) << " environments=" << kEnvironments << " steps=" << kSteps << " auto_reset=" << autoReset << " hover_rad_s=" << hover << " policy_action=" << action.x << ',' << action.y << ',' << action.z << ',' << action.w << " final_position_m=" << finalStates[0].position.x << ',' << finalStates[0].position.y << ',' << finalStates[0].position.z << " task_reward=" << finalTransitions[0].rewardAndDone.x << " task_done=" << finalTransitions[0].rewardAndDone.y << " task_tilt_rad=" << finalTransitions[0].rewardAndDone.z << " task_target_distance_m=" << finalTransitions[0].rewardAndDone.w << " maximum_altitude_error_m=" << maximumAltitudeError << " actuator_wrench_parity=" << wrenchParity << " failed_steps=0 status=pass\n";
             return 0;
         } catch (const std::exception& exception) { std::cerr << "metalrobo_px4_x500_gpu_probe: " << exception.what() << '\n'; return 1; }
     }
