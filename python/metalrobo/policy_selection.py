@@ -151,20 +151,30 @@ def _support_rate(record: dict[str, Any]) -> float | None:
     return sum(values) / len(values) if values else None
 
 
+def _physical_failure_rate(record: dict[str, Any]) -> float:
+    """Exclude ordinary horizon timeouts from physical policy failures."""
+
+    environments = max(
+        len(record.get("termination_count_by_environment", [])), 1
+    )
+    if "height_or_tilt_termination_count" in record:
+        failures = int(record["height_or_tilt_termination_count"])
+    else:
+        failures = max(
+            int(record.get("termination_count", 0))
+            - int(record.get("timeout_count", 0)),
+            0,
+        )
+    return failures / environments
+
+
 def compare_evidence(
     incumbent: dict[str, Any], candidate: dict[str, Any]
 ) -> dict[str, Any]:
     """Return a conservative Pareto selection without discarding progress."""
     task = str(candidate.get("task", incumbent.get("task", "unknown")))
-    environment_count = max(
-        len(candidate.get("termination_count_by_environment", [])), 1
-    )
-    incumbent_termination = (
-        float(incumbent.get("termination_count", 0)) / environment_count
-    )
-    candidate_termination = (
-        float(candidate.get("termination_count", 0)) / environment_count
-    )
+    incumbent_termination = _physical_failure_rate(incumbent)
+    candidate_termination = _physical_failure_rate(candidate)
     regressions: list[str] = []
     improvements: list[str] = []
 
@@ -225,6 +235,20 @@ def compare_evidence(
     elif new_tilt < old_tilt - 0.001:
         improvements.append("mean tilt decreased")
 
+    old_height = float(incumbent.get("mean_root_height", 0))
+    new_height = float(candidate.get("mean_root_height", 0))
+    upright_tasks = {
+        "velocity",
+        "disturbance-recovery",
+        "ball-recovery",
+        "ball-dodge",
+    }
+    if task in upright_tasks and (old_height > 0.0 or new_height > 0.0):
+        if new_height < old_height - 0.01:
+            regressions.append("mean root height decreased")
+        elif new_height > old_height + 0.005:
+            improvements.append("mean root height increased")
+
     selected = not regressions and bool(improvements)
     return {
         "schema": "numi.policy-selection.v1",
@@ -237,8 +261,12 @@ def compare_evidence(
         "metrics": {
             "incumbent_termination_rate": incumbent_termination,
             "candidate_termination_rate": candidate_termination,
+            "incumbent_physical_failure_rate": incumbent_termination,
+            "candidate_physical_failure_rate": candidate_termination,
             "incumbent_mean_tilt": old_tilt,
             "candidate_mean_tilt": new_tilt,
+            "incumbent_mean_root_height": old_height,
+            "candidate_mean_root_height": new_height,
         },
     }
 

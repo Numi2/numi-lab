@@ -2484,7 +2484,8 @@ kernel void mr_locomotion_task_observe(
         uint interactionResetStep = 0u;
         if ((program.schedule.w &
              MR_TASK_PROGRAM_INTERACTION_RESET) != 0u) {
-            if (program.interactionTiming.w > 0.0f &&
+            if (program.interactionCurriculum.x > 0.0f &&
+                program.interactionCurriculum.y > 0.0f &&
                 program.interaction.x > 1u &&
                 program.interactionTiming.x > 0.0f &&
                 dispatch.timing.x > 0.0f &&
@@ -2496,7 +2497,7 @@ kernel void mr_locomotion_task_observe(
                     min(
                         float(program.schedule.x - 2u),
                         clipControlSteps
-                    ) * program.interactionTiming.w
+                    ) * program.interactionCurriculum.y
                 ));
                 const float curriculumSample = randomUnit(
                     dispatch,
@@ -2506,11 +2507,11 @@ kernel void mr_locomotion_task_observe(
                     4094u
                 );
                 const float canonicalFraction =
-                    1.0f - program.interactionTiming.w;
+                    1.0f - program.interactionCurriculum.x;
                 if (curriculumSample >= canonicalFraction) {
                     const float phaseSample =
                         (curriculumSample - canonicalFraction) /
-                        program.interactionTiming.w;
+                        program.interactionCurriculum.x;
                     interactionResetStep = min(
                         uint(floor(
                             phaseSample *

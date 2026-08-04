@@ -80,6 +80,8 @@ task before either command executes:
 numi train \
   --interaction-pack runs/ardy.interactionpack \
   --interaction-clip ardy-g1 \
+  --interaction-reset-phase-probability 0.20 \
+  --interaction-reset-maximum-phase 0.85 \
   --initialize-policy g1_contact_first
 
 numi evaluate \
@@ -87,6 +89,15 @@ numi evaluate \
   --interaction-clip ardy-g1 \
   --policy-pack runs/deployment.policypack
 ```
+
+The two reset controls are deliberately independent. The probability controls
+how often training begins away from frame zero; the maximum phase controls how
+late those resets may begin. For example, `0.20` and `0.85` retain 80% canonical
+starts while exposing the policy to continuation states across the first 85%
+of the generated motion. The legacy
+`--interaction-reset-phase-fraction` remains available as a coupled shorthand.
+Held-out policy selection omits all reset-curriculum options and evaluates the
+complete physical trajectory from its canonical initial state.
 
 ## Codex bootstrap
 

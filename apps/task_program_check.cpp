@@ -863,6 +863,12 @@ int main(const int argc, const char* const* argv) {
             std::abs(
                 interactionProgram.header().interactionTiming.w - 0.75f
             ) > 1.0e-6f ||
+            std::abs(
+                interactionProgram.header().interactionCurriculum.x - 0.75f
+            ) > 1.0e-6f ||
+            std::abs(
+                interactionProgram.header().interactionCurriculum.y - 0.75f
+            ) > 1.0e-6f ||
             interactionProgram.header().counts3.z != 2u ||
             interactionProgram.header().counts3.w != 40u ||
             (interactionProgram.header().schedule.w &
@@ -887,6 +893,29 @@ int main(const int argc, const char* const* argv) {
             ] != 650.0f) {
             fail(
                 "G1 InteractionPack did not compile into exact native reference tables"
+            );
+        }
+        metalrobo::TaskPack splitCurriculumTask = interactionTask;
+        splitCurriculumTask.interactionResetPhaseProbability = 0.2f;
+        splitCurriculumTask.interactionResetMaximumPhase = 0.85f;
+        metalrobo::CompiledTaskProgram splitCurriculumProgram;
+        const auto splitCurriculumStatus = metalrobo::compileTaskProgram(
+            splitCurriculumTask,
+            loadedInteraction,
+            "weight_shift_left_lift_right",
+            world,
+            splitCurriculumProgram
+        );
+        if (!splitCurriculumStatus.succeeded() ||
+            std::abs(
+                splitCurriculumProgram.header().interactionCurriculum.x - 0.2f
+            ) > 1.0e-6f ||
+            std::abs(
+                splitCurriculumProgram.header().interactionCurriculum.y - 0.85f
+            ) > 1.0e-6f) {
+            fail(
+                "Interaction reset probability and depth did not compile "
+                "independently: " + splitCurriculumStatus.message
             );
         }
         std::uint32_t interactionPhase = 0u;

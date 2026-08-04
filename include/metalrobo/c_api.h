@@ -86,6 +86,10 @@ typedef struct MRTaskRolloutConfigC {
     uint32_t override_difficulty_band_range;
     uint32_t minimum_difficulty_band;
     uint32_t maximum_difficulty_band;
+    float interaction_reset_phase_probability;
+    uint32_t override_interaction_reset_phase_probability;
+    float interaction_reset_maximum_phase;
+    uint32_t override_interaction_reset_maximum_phase;
 } MRTaskRolloutConfigC;
 
 typedef struct MRTaskVisualPackC {

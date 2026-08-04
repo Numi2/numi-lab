@@ -720,6 +720,14 @@ TaskCompileDiagnostics compileTaskProgram(
         !finite(pack.interactionResetPhaseFraction) ||
         pack.interactionResetPhaseFraction < 0.0f ||
         pack.interactionResetPhaseFraction > 1.0f ||
+        !finite(pack.interactionResetPhaseProbability) ||
+        (pack.interactionResetPhaseProbability != -1.0f &&
+         (pack.interactionResetPhaseProbability < 0.0f ||
+          pack.interactionResetPhaseProbability > 1.0f)) ||
+        !finite(pack.interactionResetMaximumPhase) ||
+        (pack.interactionResetMaximumPhase != -1.0f &&
+         (pack.interactionResetMaximumPhase < 0.0f ||
+          pack.interactionResetMaximumPhase > 1.0f)) ||
         !finite(pack.baseHeightTarget) ||
         !finite(pack.gaitPeriodSeconds) ||
         !(pack.gaitPeriodSeconds > 0.0f) ||
@@ -3579,6 +3587,20 @@ TaskCompileDiagnostics compileTaskProgram(
         interactionClip == nullptr
             ? 0.0f
             : pack.interactionResetPhaseFraction,
+    };
+    const float resetProbability =
+        pack.interactionResetPhaseProbability >= 0.0f
+        ? pack.interactionResetPhaseProbability
+        : pack.interactionResetPhaseFraction;
+    const float maximumResetPhase =
+        pack.interactionResetMaximumPhase >= 0.0f
+        ? pack.interactionResetMaximumPhase
+        : pack.interactionResetPhaseFraction;
+    staged->header.interactionCurriculum = {
+        interactionClip == nullptr ? 0.0f : resetProbability,
+        interactionClip == nullptr ? 0.0f : maximumResetPhase,
+        0.0f,
+        0.0f,
     };
 
     const auto appendArena =

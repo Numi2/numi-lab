@@ -53,6 +53,49 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(decision["selected"], "candidate")
         self.assertTrue(decision["candidate_advanced_deployment"])
 
+    def test_horizon_timeouts_are_not_physical_terminations(self) -> None:
+        incumbent = {
+            "task": "velocity",
+            "termination_count": 154,
+            "timeout_count": 154,
+            "height_or_tilt_termination_count": 0,
+            "termination_count_by_environment": [0] * 102 + [1] * 154,
+            "failed_environment_steps": 0,
+            "mean_tracking_score": 0.52,
+            "mean_tilt": 0.35,
+            "mean_root_height": 0.60,
+        }
+        candidate = {
+            **incumbent,
+            "termination_count": 200,
+            "timeout_count": 200,
+            "mean_tracking_score": 0.53,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertEqual(
+            decision["metrics"]["candidate_termination_rate"], 0.0
+        )
+
+    def test_tracking_gain_cannot_buy_collapsed_root_height(self) -> None:
+        incumbent = {
+            "task": "velocity",
+            "termination_count": 0,
+            "termination_count_by_environment": [0] * 256,
+            "failed_environment_steps": 0,
+            "mean_tracking_score": 0.52,
+            "mean_tilt": 0.35,
+            "mean_root_height": 0.60,
+        }
+        candidate = {
+            **incumbent,
+            "mean_tracking_score": 0.54,
+            "mean_root_height": 0.55,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn("mean root height decreased", decision["regressions"])
+
     def test_one_deterministic_completion_is_progress(self) -> None:
         incumbent = {
             "task": "supine-get-up",

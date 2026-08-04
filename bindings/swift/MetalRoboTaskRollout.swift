@@ -598,6 +598,8 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var interactionReferenceMode: MetalRoboInteractionReferenceMode
     public var interactionStudentAuthority: Float?
     public var interactionResetPhaseFraction: Float?
+    public var interactionResetPhaseProbability: Float?
+    public var interactionResetMaximumPhase: Float?
     public var unitreeG1Task: MetalRoboUnitreeG1Task
 
     public init(
@@ -616,6 +618,8 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
             .taskDefault,
         interactionStudentAuthority: Float? = nil,
         interactionResetPhaseFraction: Float? = nil,
+        interactionResetPhaseProbability: Float? = nil,
+        interactionResetMaximumPhase: Float? = nil,
         unitreeG1Task: MetalRoboUnitreeG1Task = .velocity
     ) {
         self.environmentCount = environmentCount
@@ -633,6 +637,9 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.interactionReferenceMode = interactionReferenceMode
         self.interactionStudentAuthority = interactionStudentAuthority
         self.interactionResetPhaseFraction = interactionResetPhaseFraction
+        self.interactionResetPhaseProbability =
+            interactionResetPhaseProbability
+        self.interactionResetMaximumPhase = interactionResetMaximumPhase
         self.unitreeG1Task = unitreeG1Task
     }
 }
@@ -1124,6 +1131,16 @@ public final class MetalRoboTaskRolloutContext {
         if let fraction = configuration.interactionResetPhaseFraction {
             native.interaction_reset_phase_fraction = fraction
             native.override_interaction_reset_phase_fraction = 1
+        }
+        if let probability =
+            configuration.interactionResetPhaseProbability
+        {
+            native.interaction_reset_phase_probability = probability
+            native.override_interaction_reset_phase_probability = 1
+        }
+        if let maximumPhase = configuration.interactionResetMaximumPhase {
+            native.interaction_reset_maximum_phase = maximumPhase
+            native.override_interaction_reset_maximum_phase = 1
         }
         return native
     }

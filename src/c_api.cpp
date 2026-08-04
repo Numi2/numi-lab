@@ -2436,6 +2436,14 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
             authored.task.interactionResetPhaseFraction =
                 config->interaction_reset_phase_fraction;
         }
+        if (config->override_interaction_reset_phase_probability != 0u) {
+            authored.task.interactionResetPhaseProbability =
+                config->interaction_reset_phase_probability;
+        }
+        if (config->override_interaction_reset_maximum_phase != 0u) {
+            authored.task.interactionResetMaximumPhase =
+                config->interaction_reset_maximum_phase;
+        }
         auto handle = createCompiledTaskRollout(
             std::move(authored),
             *config,

@@ -33,6 +33,8 @@ private struct Options {
     var interactionClip: String?
     var interactionStudentAuthority: Float?
     var interactionResetPhaseFraction: Float?
+    var interactionResetPhaseProbability: Float?
+    var interactionResetMaximumPhase: Float?
     var interactionResetOnly = false
     var materializeArticulatedContactResponses = false
     var minimumDifficultyBand: Int?
@@ -213,6 +215,30 @@ private struct Options {
                     )
                 }
                 interactionResetPhaseFraction = parsed
+                index += 1
+            case "--interaction-reset-phase-probability":
+                guard let parsed = Float(try value()),
+                      parsed.isFinite,
+                      parsed >= 0,
+                      parsed <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-reset-phase-probability must be in [0, 1]."
+                    )
+                }
+                interactionResetPhaseProbability = parsed
+                index += 1
+            case "--interaction-reset-maximum-phase":
+                guard let parsed = Float(try value()),
+                      parsed.isFinite,
+                      parsed >= 0,
+                      parsed <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-reset-maximum-phase must be in [0, 1]."
+                    )
+                }
+                interactionResetMaximumPhase = parsed
                 index += 1
             case "--interaction-reset-only":
                 interactionResetOnly = true
@@ -545,6 +571,13 @@ private struct Options {
         if interactionResetPhaseFraction != nil && interactionPack == nil {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--interaction-reset-phase-fraction requires an InteractionPack."
+            )
+        }
+        if (interactionResetPhaseProbability != nil ||
+            interactionResetMaximumPhase != nil) && interactionPack == nil
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Interaction reset curriculum options require an InteractionPack."
             )
         }
         if interactionResetOnly && interactionPack == nil {
@@ -1060,6 +1093,10 @@ private func makeContext(
             options.interactionStudentAuthority,
         interactionResetPhaseFraction:
             options.interactionResetPhaseFraction,
+        interactionResetPhaseProbability:
+            options.interactionResetPhaseProbability,
+        interactionResetMaximumPhase:
+            options.interactionResetMaximumPhase,
         unitreeG1Task: options.unitreeG1Task
     )
     if let interactionPack = options.interactionPack,

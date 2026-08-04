@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 33u
+#define MR_TASK_PROGRAM_ABI_VERSION 34u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
@@ -377,8 +377,12 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_uint4 motion;
     // Interaction frames, joint targets/frame, contact tracks, flags.
     mr_uint4 interaction;
-    // Reference fps, duration seconds, reserved, reserved.
+    // Reference fps, duration seconds, student authority, legacy reset fraction.
     mr_float4 interactionTiming;
+    // Reset probability, maximum normalized reset phase, reserved, reserved.
+    // These axes are independent so rare late-phase practice does not erase
+    // the canonical frame-zero training distribution.
+    mr_float4 interactionCurriculum;
     // Root targets, joint targets, contact descriptors, sample metadata.
     mr_uint4 interactionOffsets0;
     // Contact targets, tolerances, reserved, reserved.
@@ -555,7 +559,7 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 112u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 560u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 576u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 48u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 112u);

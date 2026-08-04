@@ -373,6 +373,11 @@ struct TaskPack {
     // the remaining 1-f resets retain the canonical frame-zero trajectory.
     // The solver remains authoritative for every subsequent transition.
     float interactionResetPhaseFraction = 0.0f;
+    // Negative values preserve the legacy coupled fraction above. Runtime
+    // configuration may independently choose how often a reset is sampled
+    // away from frame zero and how far through the clip it may begin.
+    float interactionResetPhaseProbability = -1.0f;
+    float interactionResetMaximumPhase = -1.0f;
     // When false, an InteractionPack still supplies the initial physical
     // state but no longer supplies runtime joint targets or teacher actions.
     bool interactionControlReference = true;
