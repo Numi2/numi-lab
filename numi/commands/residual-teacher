@@ -13,7 +13,7 @@ Usage: numi residual-teacher run \
          --policy-pack policy.policypack \
          --interaction-pack motion.interactionpack \
          --interaction-clip ID --output-directory PATH \
-         [--envs 256] [--steps 104] [--elite-count 8]
+         [--envs 256] [--steps 104]
        numi residual-teacher distill \
          --policy-pack policy.policypack \
          --rollout-pack search.rolloutpack \
@@ -24,10 +24,11 @@ Usage: numi residual-teacher run \
 
 ARDY supplies nominal joint motion. The stochastic native policy supplies
 closed-loop residual candidates. NumiSolver applies gravity and contact to
-every candidate, then the non-dominated physical frontier is distilled with a
-small supervised actor update. No pose, root trajectory, support, or contact
-state is authored. The resulting policy is a candidate; matched physical
-evaluation is required before deployment promotion.
+every candidate. Every physically valid trajectory contributes continuously
+according to reference-relative tracking and its realized TaskPack reward;
+the Pareto frontier remains evidence rather than an admission gate. No pose,
+root trajectory, support, or contact state is authored. The resulting policy
+is a candidate; matched physical evaluation remains separate from learning.
 EOF
     exit 0
 fi

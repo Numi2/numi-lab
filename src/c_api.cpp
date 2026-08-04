@@ -788,33 +788,16 @@ void authorG1InteractionTrackingTask(
         },
         {
             .operation = metalrobo::TaskRewardOperator::
-                rootHeightNormalized,
-            .weight = 2.0f,
-        },
-        {
-            .operation = metalrobo::TaskRewardOperator::
                 interactionRootLinearVelocityError,
             .weight = -0.75f,
             .parameters = {1.0f, 0.0f, 0.0f, 0.0f},
         },
-        {
-            .operation = metalrobo::TaskRewardOperator::uprightness,
-            .weight = 2.0f,
-        },
-        {
-            .operation = metalrobo::TaskRewardOperator::tiltSquared,
-            .weight = -1.0f,
-        },
-        {
-            .operation = metalrobo::TaskRewardOperator::
-                rootVerticalVelocitySquared,
-            .weight = -0.25f,
-        },
-        {
-            .operation = metalrobo::TaskRewardOperator::
-                rootRollPitchVelocitySquared,
-            .weight = -0.05f,
-        },
+        // Do not add standing-relative height, uprightness, tilt, or root
+        // velocity costs here.  Generated motion may intentionally crouch,
+        // get up, turn, jump, or rotate.  interactionRootTracking already
+        // scores position, orientation, linear velocity, and angular velocity
+        // against the selected trajectory, so the same compiled objective is
+        // meaningful for every motion without classifying it on the host.
         {
             .operation = metalrobo::TaskRewardOperator::
                 jointVelocitySquared,

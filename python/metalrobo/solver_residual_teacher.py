@@ -1,8 +1,10 @@
-"""Turn physics-qualified stochastic residual rollouts into teacher labels.
+"""Turn solver-realized stochastic residual rollouts into teacher labels.
 
 ARDY remains the nominal motion.  A native PolicyPack samples closed-loop
 residuals, NumiSolver measures every candidate under gravity and contact, and
-this module distils only the non-dominated physical trajectories.  It never
+this module gives every physically valid trajectory a continuous contribution
+according to reference-relative tracking and realized TaskPack reward.  The
+non-dominated set remains evidence, not an admission gate.  This module never
 authors a pose, root trajectory, contact, or support state.
 """
 
@@ -31,6 +33,7 @@ class ResidualCandidate:
     maximum_tilt: float
     termination_count: int
     physics_error_count: int
+    mean_reward: float = 0.0
     pareto: bool = False
     quality: float = 0.0
 
@@ -84,31 +87,42 @@ def _rank_quality(values: np.ndarray, *, higher: bool) -> np.ndarray:
     return ranks if higher else 1.0 - ranks
 
 
-def select_physical_frontier(
+def rank_physical_realizations(
     evidence: dict[str, Any],
     *,
     environment_count: int,
-    elite_count: int,
+    mean_rewards: np.ndarray | None = None,
 ) -> tuple[list[ResidualCandidate], list[int]]:
-    """Find non-dominated candidates and continuously rank that frontier."""
+    """Continuously rank all realizations and report their Pareto set."""
 
     if environment_count <= 0:
         raise ValueError("environment_count must be positive")
-    if elite_count <= 0:
-        raise ValueError("elite_count must be positive")
     arrays = {
         field: _finite_array(evidence, key, environment_count)
         for field, key in _ARRAY_FIELDS.items()
     }
+    rewards = (
+        np.zeros(environment_count, dtype=np.float64)
+        if mean_rewards is None
+        else np.asarray(mean_rewards, dtype=np.float64)
+    )
+    if rewards.shape != (environment_count,):
+        raise ValueError(
+            "mean_rewards must contain one value per environment "
+            f"({environment_count})"
+        )
+    if not np.all(np.isfinite(rewards)):
+        raise ValueError("mean_rewards contains a non-finite value")
+
+    # Reference-relative tracking and the authored TaskPack reward are valid
+    # across standing, locomotion, get-up, crouching, manipulation, and
+    # acrobatics.  Absolute forward distance, height, and world tilt remain in
+    # evidence, but they cannot rank a generic motion: low height may be the
+    # requested crouch and large tilt may be the requested rotation.
     objectives = np.column_stack(
         (
-            arrays["peak_forward_progress_m"],
-            arrays["final_forward_progress_m"],
             arrays["mean_tracking_score"],
-            arrays["mean_root_height"],
-            arrays["minimum_root_height"],
-            -arrays["mean_tilt"],
-            -arrays["maximum_tilt"],
+            rewards,
             -arrays["termination_count"],
             -arrays["physics_error_count"],
         )
@@ -121,24 +135,15 @@ def select_physical_frontier(
         dominates[candidate] = False
         pareto[candidate] = not bool(np.any(dominates))
 
-    # Forward travel is the primary locomotion outcome.  Every other term is
-    # still continuous: there is no success threshold that discards progress.
+    reward_weight = 0.25 if mean_rewards is not None else 0.0
     quality = (
-        0.30 * _rank_quality(arrays["peak_forward_progress_m"], higher=True)
-        + 0.25 * _rank_quality(arrays["final_forward_progress_m"], higher=True)
-        + 0.10 * _rank_quality(arrays["mean_tracking_score"], higher=True)
-        + 0.10 * _rank_quality(arrays["mean_root_height"], higher=True)
-        + 0.05 * _rank_quality(arrays["minimum_root_height"], higher=True)
-        + 0.05 * _rank_quality(arrays["mean_tilt"], higher=False)
-        + 0.025 * _rank_quality(arrays["maximum_tilt"], higher=False)
-        + 0.10 * _rank_quality(arrays["termination_count"], higher=False)
-        + 0.025 * _rank_quality(arrays["physics_error_count"], higher=False)
+        (0.65 + 0.25 - reward_weight)
+        * _rank_quality(arrays["mean_tracking_score"], higher=True)
+        + reward_weight * _rank_quality(rewards, higher=True)
+        + 0.05 * _rank_quality(arrays["termination_count"], higher=False)
+        + 0.05 * _rank_quality(arrays["physics_error_count"], higher=False)
     )
-    frontier = np.flatnonzero(pareto)
-    ranked_frontier = frontier[
-        np.argsort(-quality[frontier], kind="stable")
-    ]
-    selected = ranked_frontier[: min(elite_count, ranked_frontier.size)]
+    ranked = np.argsort(-quality, kind="stable")
     candidates = [
         ResidualCandidate(
             environment=environment,
@@ -150,12 +155,29 @@ def select_physical_frontier(
                 )
                 for field, values in arrays.items()
             },
+            mean_reward=float(rewards[environment]),
             pareto=bool(pareto[environment]),
             quality=float(quality[environment]),
         )
         for environment in range(environment_count)
     ]
-    return candidates, [int(value) for value in selected]
+    return candidates, [int(value) for value in ranked]
+
+
+# Retain the public name for callers written against the first residual
+# teacher.  Ranking now returns every realization; the Pareto flag is evidence
+# rather than a filter.
+def select_physical_frontier(
+    evidence: dict[str, Any],
+    *,
+    environment_count: int,
+    elite_count: int | None = None,
+) -> tuple[list[ResidualCandidate], list[int]]:
+    del elite_count
+    return rank_physical_realizations(
+        evidence,
+        environment_count=environment_count,
+    )
 
 
 def _sha256(path: Path) -> str:
@@ -174,7 +196,6 @@ def distill_residual_frontier(
     output_policy_path: Path,
     output_deployment_policy_path: Path,
     output_evidence_path: Path,
-    elite_count: int,
     learning_rate: float,
     update_epochs: int,
     minibatch_size: int,
@@ -193,58 +214,40 @@ def distill_residual_frontier(
         library_path=native_library_path,
     )
     evidence = json.loads(evidence_path.read_text())
-    candidates, selected = select_physical_frontier(
+    transitions = rollout.transitions.reshape(
+        rollout.control_step_count, rollout.environment_count
+    )
+    mean_rewards = np.mean(transitions["reward"], axis=0)
+    candidates, ranked = rank_physical_realizations(
         evidence,
         environment_count=rollout.environment_count,
-        elite_count=elite_count,
+        mean_rewards=mean_rewards,
     )
-    if not selected:
-        raise ValueError("physical frontier did not contain a candidate")
+    if not ranked:
+        raise ValueError("physical search did not contain a candidate")
 
     steps = rollout.control_step_count
     environments = rollout.environment_count
     samples = rollout.sample_count
-    selected_mask = np.zeros(environments, dtype=np.float32)
-    selected_quality = np.asarray(
-        [candidates[index].quality for index in selected],
+    environment_weights = np.asarray(
+        [0.10 + 0.90 * candidate.quality for candidate in candidates],
         dtype=np.float32,
     )
-    quality_floor = float(np.min(selected_quality))
-    quality_span = max(float(np.max(selected_quality)) - quality_floor, 1.0e-6)
-    for environment in selected:
-        selected_mask[environment] = np.float32(
-            0.5
-            + 0.5
-            * (candidates[environment].quality - quality_floor)
-            / quality_span
-        )
-
-    transitions = rollout.transitions.reshape(steps, environments)
-    stable = np.clip(
-        1.0 - transitions["tilt"] / np.float32(np.pi),
-        0.0,
-        1.0,
-    )
-    height = np.clip(
-        transitions["root_height"] / np.float32(0.78),
-        0.0,
-        1.0,
-    )
+    step_reward_quality = _rank_quality(
+        transitions["reward"].reshape(samples).astype(np.float64),
+        higher=True,
+    ).astype(np.float32).reshape(steps, environments)
     valid = (
         (transitions["physics_error"] == 0)
         & (transitions["done"] == 0)
     ).astype(np.float32)
     teacher_weights = (
-        selected_mask[np.newaxis, :]
+        environment_weights[np.newaxis, :]
         * valid
-        * (
-            np.float32(0.25)
-            + np.float32(0.45) * stable
-            + np.float32(0.30) * height
-        )
+        * (np.float32(0.25) + np.float32(0.75) * step_reward_quality)
     ).reshape(samples)
     if not np.any(teacher_weights > 0.0):
-        raise ValueError("selected frontier has no valid physical transitions")
+        raise ValueError("physical search has no valid transitions")
 
     configuration = MLXPPOConfiguration(
         update_epochs=update_epochs,
@@ -302,10 +305,11 @@ def distill_residual_frontier(
         library_path=native_library_path,
     )
     result = {
-        "schema": "numi.solver-residual-teacher.v1",
+        "schema": "numi.solver-residual-teacher.v2",
         "principle": (
             "ARDY supplies nominal motion; sampled policy residuals are "
-            "ranked only by NumiSolver physical outcomes."
+            "continuously weighted by NumiSolver physical outcomes without "
+            "a motion-class or elite admission gate."
         ),
         "source_policy": str(policy_pack_path),
         "source_policy_sha256": _sha256(policy_pack_path),
@@ -324,9 +328,12 @@ def distill_residual_frontier(
         "physical_frontier_environments": [
             candidate.environment for candidate in candidates if candidate.pareto
         ],
-        "selected_environments": selected,
-        "selected_candidates": [
-            asdict(candidates[environment]) for environment in selected
+        "ranked_environments": ranked,
+        "contributing_environments": [
+            candidate.environment for candidate in candidates
+        ],
+        "ranked_candidates": [
+            asdict(candidates[environment]) for environment in ranked
         ],
         "teacher_sample_count": int(np.count_nonzero(teacher_weights)),
         "mean_teacher_weight": float(np.mean(teacher_weights)),
@@ -421,7 +428,6 @@ def _add_distillation_arguments(parser: argparse.ArgumentParser) -> None:
     )
     parser.add_argument("--output-evidence", type=Path, required=True)
     parser.add_argument("--native-library", type=Path)
-    parser.add_argument("--elite-count", type=int, default=8)
     parser.add_argument("--learning-rate", type=float, default=2.0e-6)
     parser.add_argument("--update-epochs", type=int, default=2)
     parser.add_argument("--minibatch-size", type=int, default=4096)
@@ -452,7 +458,6 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument("--native-library", type=Path)
     run.add_argument("--envs", type=int, default=256)
     run.add_argument("--steps", type=int, default=104)
-    run.add_argument("--elite-count", type=int, default=8)
     run.add_argument("--learning-rate", type=float, default=2.0e-6)
     run.add_argument("--update-epochs", type=int, default=2)
     run.add_argument("--minibatch-size", type=int, default=4096)
@@ -490,7 +495,6 @@ def main(arguments: Sequence[str] | None = None) -> int:
         output_policy_path=options.output_policy,
         output_deployment_policy_path=options.output_deployment_policy,
         output_evidence_path=options.output_evidence,
-        elite_count=options.elite_count,
         learning_rate=options.learning_rate,
         update_epochs=options.update_epochs,
         minibatch_size=options.minibatch_size,

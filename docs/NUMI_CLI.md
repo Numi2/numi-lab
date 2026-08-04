@@ -121,10 +121,12 @@ numi residual-teacher run \
 ```
 
 This searches native stochastic policy residuals under normal gravity and
-contact, retains the physical Pareto frontier, and writes an actor-distilled
-full continuation plus deterministic deployment candidate. It does not promote
-that candidate; use the same held-out physical rollout to compare deployment
-actor with deployment actor.
+contact. Every physically valid trajectory contributes continuously according
+to reference-relative tracking and its realized TaskPack reward; the physical
+Pareto frontier is retained as evidence rather than as an admission gate. The
+command writes an actor-distilled full continuation plus deterministic
+deployment candidate. It does not promote that candidate; use the same
+held-out physical rollout to compare deployment actor with deployment actor.
 
 ## Codex bootstrap
 

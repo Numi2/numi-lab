@@ -195,13 +195,15 @@ qualified; ordinary interaction tracking retains bounded blended control.
 
 The bundled C/Swift route
 `mr_create_unitree_g1_interaction_rollout` / `MetalRoboTaskRolloutContext`
-authors a contact-primary G1 tracking task, then uses the unchanged native
-rollout and MLX PPO path. Both actor and critic receive the reference suffix;
-contact tracking has the primary positive weight, joint tracking is the
-kinematic guide, and joint-limit, energy, forbidden-contact, balance, and
-termination terms remain safety constraints. Rollout `tracking_score` is the
-confidence-normalized mean of the selected interaction joint/contact scores,
-not the dormant locomotion-command metric.
+authors a reference-relative G1 realization task, then uses the unchanged
+native rollout and MLX PPO path. Both actor and critic receive the reference
+suffix. Root pose and velocity, joint motion, and confidence-weighted contact
+intent are soft trajectory objectives; joint limits, energy, support slip, and
+forbidden contacts remain solver-grounded costs. No absolute standing height,
+world-upright, tilt, or root-velocity term is injected, because those would
+contradict crouching, get-up, jumping, and rotation. Rollout `tracking_score`
+is the confidence-normalized mean of the selected interaction tracking
+operators, not the dormant locomotion-command metric.
 
 ARDY conversion is deliberately narrower than the format. Its G1 CSV supplies
 root plus 29 joint coordinates and its NPZ supplies four binary heel/toe

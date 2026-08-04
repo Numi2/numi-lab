@@ -1,10 +1,10 @@
 import unittest
 
-from metalrobo.solver_residual_teacher import select_physical_frontier
+from metalrobo.solver_residual_teacher import rank_physical_realizations
 
 
 class SolverResidualTeacherTest(unittest.TestCase):
-    def test_frontier_keeps_progress_stability_tradeoffs(self) -> None:
+    def test_every_realization_contributes_in_continuous_rank_order(self) -> None:
         evidence = {
             "peak_forward_progress_by_environment_m": [1.0, 1.4, 1.2, 0.5],
             "final_forward_progress_by_environment_m": [0.9, 1.0, 1.15, 0.2],
@@ -16,14 +16,36 @@ class SolverResidualTeacherTest(unittest.TestCase):
             "termination_count_by_environment": [0, 0, 0, 1],
             "physics_error_count_by_environment": [0, 0, 0, 0],
         }
-        candidates, selected = select_physical_frontier(
-            evidence, environment_count=4, elite_count=4
+        candidates, ranked = rank_physical_realizations(
+            evidence,
+            environment_count=4,
+            mean_rewards=[0.4, 0.5, 0.7, -1.0],
         )
-        self.assertTrue(candidates[1].pareto)  # greatest peak progress
-        self.assertTrue(candidates[2].pareto)  # stable best final progress
-        self.assertFalse(candidates[3].pareto)  # dominated everywhere
-        self.assertEqual(set(selected), {1, 2})
-        self.assertEqual(selected[0], 2)
+        self.assertEqual(set(ranked), {0, 1, 2, 3})
+        self.assertEqual(ranked[0], 2)
+        self.assertEqual(ranked[-1], 3)
+        self.assertTrue(candidates[2].pareto)
+        self.assertFalse(candidates[3].pareto)
+
+    def test_world_tilt_and_height_do_not_rank_generic_motion(self) -> None:
+        evidence = {
+            "peak_forward_progress_by_environment_m": [0.0, 0.0],
+            "final_forward_progress_by_environment_m": [0.0, 0.0],
+            "mean_tracking_score_by_environment": [0.9, 0.4],
+            "mean_root_height_by_environment": [0.1, 0.8],
+            "minimum_root_height_by_environment": [0.0, 0.7],
+            "mean_tilt_by_environment": [2.5, 0.0],
+            "maximum_tilt_by_environment": [3.1, 0.1],
+            "termination_count_by_environment": [0, 0],
+            "physics_error_count_by_environment": [0, 0],
+        }
+        candidates, ranked = rank_physical_realizations(
+            evidence,
+            environment_count=2,
+            mean_rewards=[0.8, 0.2],
+        )
+        self.assertEqual(ranked, [0, 1])
+        self.assertGreater(candidates[0].quality, candidates[1].quality)
 
     def test_missing_per_environment_evidence_is_rejected(self) -> None:
         evidence = {
@@ -40,8 +62,8 @@ class SolverResidualTeacherTest(unittest.TestCase):
             )
         }
         with self.assertRaisesRegex(ValueError, "physics_error_count"):
-            select_physical_frontier(
-                evidence, environment_count=1, elite_count=1
+            rank_physical_realizations(
+                evidence, environment_count=1
             )
 
 
