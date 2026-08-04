@@ -17,6 +17,8 @@ is selected. Common options:
 
   --policy-pack PATH
   --interaction-pack PATH --interaction-clip ID
+  --world-pack PATH --task-pack PATH
+  --urdf PATH [--srdf PATH] --task-pack PATH
   --visual-observation-config PATH
   --native-policy | --zero-actions | --action-stream actions.f32
   --task velocity|disturbance-recovery|supine-get-up|ball-recovery|ball-dodge

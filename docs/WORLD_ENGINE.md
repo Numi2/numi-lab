@@ -427,6 +427,18 @@ If matched evaluation fails or is interrupted, deployment is already restored
 to the incumbent and the command reports failure rather than publishing an
 unevaluated actor.
 
+Selection follows the authored execution path. Bundled locomotion, dodge, and
+get-up tasks retain their dedicated physical outcome vectors. Imported
+`WorldPack` and URDF tasks instead compare the authored TaskPack reward,
+overall reward, tracking evidence when present, and physical failure rate.
+They never inherit G1 root-height, uprightness, tilt, or forward-progress
+assumptions merely because the public executable also supports locomotion.
+Every saved generic checkpoint compares directly with the same immutable
+incumbent so candidate order cannot decide deployment.
+Matched evaluation also preserves the authored visual-observation config and
+visual environment pack; a camera-bound policy is never judged after silently
+removing the sensors that define its observation contract.
+
 For zero-student-authority interaction collection, selection retains the
 accepted interaction reset state but removes teacher actions. This prevents an
 ARDY trajectory from satisfying the held-out comparison on behalf of the

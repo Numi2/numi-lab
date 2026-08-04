@@ -17,6 +17,8 @@ provided. Every native trainer option passes through unchanged. Common options:
   --task velocity|disturbance-recovery|supine-get-up|ball-recovery|ball-dodge
   --minimum-difficulty-band N --maximum-difficulty-band N
   --interaction-pack PATH --interaction-clip ID
+  --world-pack PATH --task-pack PATH     Train any authored WorldPack task
+  --urdf PATH [--srdf PATH] --task-pack PATH
   --interaction-reset-phase-probability F  Fraction of noncanonical resets
   --interaction-reset-maximum-phase F      Latest normalized clip reset phase
   --visual-observation-config PATH       Authored camera and visual bindings
@@ -26,8 +28,10 @@ provided. Every native trainer option passes through unchanged. Common options:
   --checkpoint-directory PATH --checkpoint-interval N
 
 Every run retains its post-update candidate. Numi evaluates that candidate and
-the immutable pre-training incumbent on the same held-out physical rollout;
-only the better non-regressing policy advances deployment.policypack.
+the immutable pre-training incumbent on the same held-out physical rollout.
+Bundled tasks use their physical outcome vectors; imported WorldPack and URDF
+tasks use their authored task outcome without humanoid height or tilt
+assumptions. Only the better policy advances deployment.policypack.
 
 Use NUMI_RUNS_DIR, NUMI_RUN_DIR, NUMI_BUILD_DIR, or NUMI_MLX_PYTHON to change
 the generated locations without changing the command. NUMI_SELECTION_ENVS

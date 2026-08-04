@@ -185,6 +185,107 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(champion, "revision-206")
         self.assertEqual(set(comparisons), set(candidates))
 
+    def test_world_pack_selection_uses_authored_task_outcome(self) -> None:
+        incumbent = {
+            "task": "velocity",
+            "world_source": "world_pack",
+            "termination_count_by_environment": [0] * 32,
+            "failed_environment_steps": 0,
+            "mean_task_reward": 0.20,
+            "mean_reward": 0.18,
+            "mean_tracking_score": 0.50,
+            "mean_root_height": 0.8,
+            "mean_tilt": 0.1,
+        }
+        candidate = {
+            **incumbent,
+            "mean_task_reward": 0.28,
+            "mean_reward": 0.24,
+            "mean_root_height": 0.0,
+            "mean_tilt": 1.4,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertEqual(
+            decision["selection_method"],
+            "continuous_authored_task_outcome",
+        )
+        self.assertNotIn("mean tilt increased", decision["regressions"])
+        self.assertNotIn(
+            "mean root height decreased", decision["regressions"]
+        )
+
+    def test_world_pack_failed_step_never_advances(self) -> None:
+        incumbent = {
+            "task": "velocity",
+            "world_source": "urdf",
+            "termination_count_by_environment": [0] * 16,
+            "failed_environment_steps": 0,
+            "mean_task_reward": 0.1,
+            "mean_reward": 0.1,
+        }
+        candidate = {
+            **incumbent,
+            "failed_environment_steps": 1,
+            "mean_task_reward": 0.5,
+            "mean_reward": 0.5,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "candidate has failed environment steps",
+            decision["regressions"],
+        )
+
+    def test_world_pack_reward_sign_change_cannot_buy_total_failure(self) -> None:
+        incumbent = {
+            "task": "velocity",
+            "world_source": "world_pack",
+            "termination_count_by_environment": [0] * 16,
+            "failed_environment_steps": 0,
+            "mean_task_reward": -1.0,
+            "mean_reward": -1.0,
+            "mean_tracking_score": 0.0,
+        }
+        candidate = {
+            **incumbent,
+            "termination_count_by_environment": [1] * 16,
+            "termination_count": 16,
+            "mean_task_reward": 1.0,
+            "mean_reward": 1.0,
+            "mean_tracking_score": 1.0,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertLessEqual(decision["selection_score"], 0.0)
+
+    def test_world_pack_checkpoints_compare_to_one_incumbent(self) -> None:
+        incumbent = {
+            "task": "velocity",
+            "world_source": "world_pack",
+            "termination_count_by_environment": [0] * 16,
+            "failed_environment_steps": 0,
+            "mean_task_reward": 0.2,
+            "mean_reward": 0.2,
+        }
+        candidates = {
+            "first": {
+                **incumbent,
+                "mean_task_reward": 0.24,
+                "mean_reward": 0.21,
+            },
+            "best": {
+                **incumbent,
+                "mean_task_reward": 0.30,
+                "mean_reward": 0.27,
+            },
+        }
+        champion, comparisons = select_candidate_champion(
+            incumbent, candidates
+        )
+        self.assertEqual(champion, "best")
+        self.assertEqual(set(comparisons), set(candidates))
+
     def test_one_deterministic_completion_is_progress(self) -> None:
         incumbent = {
             "task": "supine-get-up",
@@ -241,6 +342,35 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(arguments[seed_index + 1], "42")
         steps_index = len(arguments) - 1 - arguments[::-1].index("--steps")
         self.assertEqual(arguments[steps_index + 1], "103")
+
+    def test_generic_sensor_contract_is_preserved_for_evaluation(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--world-pack",
+                "workcell.mrworld",
+                "--task-pack",
+                "grasp.taskpack",
+                "--visual-observation-config",
+                "cameras.json",
+                "--visual-environment-pack",
+                "studio.mrenv",
+                "--envs",
+                "64",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=32,
+            held_out_seed=17,
+        )
+        for option, value in (
+            ("--world-pack", "workcell.mrworld"),
+            ("--task-pack", "grasp.taskpack"),
+            ("--visual-observation-config", "cameras.json"),
+            ("--visual-environment-pack", "studio.mrenv"),
+        ):
+            index = arguments.index(option)
+            self.assertEqual(arguments[index + 1], value)
 
 
 if __name__ == "__main__":

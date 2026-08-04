@@ -34,6 +34,7 @@ _VALUE_OPTIONS = frozenset(
         "--srdf",
         "--g1-visual-pack-dir",
         "--ball-visual-pack-dir",
+        "--visual-observation-config",
         "--visual-environment-pack",
     }
 )
@@ -43,6 +44,8 @@ _FLAG_OPTIONS = frozenset(
         "--materialize-articulated-contact-responses",
     }
 )
+
+_GENERIC_WORLD_SOURCES = frozenset({"world_pack", "urdf"})
 
 
 def _option_value(arguments: Sequence[str], option: str) -> str | None:
@@ -157,7 +160,11 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
     environments = max(
         len(record.get("termination_count_by_environment", [])), 1
     )
-    if "height_or_tilt_termination_count" in record:
+    if (
+        "height_or_tilt_termination_count" in record
+        and str(record.get("world_source", ""))
+        not in _GENERIC_WORLD_SOURCES
+    ):
         failures = int(record["height_or_tilt_termination_count"])
     else:
         failures = max(
@@ -168,11 +175,25 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
     return failures / environments
 
 
+def _uses_generic_task_outcome(record: dict[str, Any]) -> bool:
+    """Return whether selection must avoid bundled humanoid assumptions."""
+
+    return str(record.get("world_source", "")) in _GENERIC_WORLD_SOURCES
+
+
+def _relative_progress(old: float, new: float, floor: float) -> float:
+    progress = (new - old) / max(abs(old), abs(new), floor)
+    return max(-1.0, min(progress, 1.0))
+
+
 def compare_evidence(
     incumbent: dict[str, Any], candidate: dict[str, Any]
 ) -> dict[str, Any]:
     """Compare matched physical evidence while retaining useful tradeoffs."""
     task = str(candidate.get("task", incumbent.get("task", "unknown")))
+    generic_task = _uses_generic_task_outcome(candidate) or (
+        _uses_generic_task_outcome(incumbent)
+    )
     incumbent_termination = _physical_failure_rate(incumbent)
     candidate_termination = _physical_failure_rate(candidate)
     regressions: list[str] = []
@@ -185,7 +206,28 @@ def compare_evidence(
     elif candidate_termination < incumbent_termination - 1.0e-12:
         improvements.append("termination rate decreased")
 
-    if task == "ball-dodge":
+    if generic_task:
+        old_task_reward = float(incumbent.get("mean_task_reward", 0))
+        new_task_reward = float(candidate.get("mean_task_reward", 0))
+        if new_task_reward < old_task_reward - 1.0e-12:
+            regressions.append("authored task outcome decreased")
+        elif new_task_reward > old_task_reward + 1.0e-12:
+            improvements.append("authored task outcome increased")
+
+        old_reward = float(incumbent.get("mean_reward", 0))
+        new_reward = float(candidate.get("mean_reward", 0))
+        if new_reward < old_reward - 1.0e-12:
+            regressions.append("total task reward decreased")
+        elif new_reward > old_reward + 1.0e-12:
+            improvements.append("total task reward increased")
+
+        old_tracking = float(incumbent.get("mean_tracking_score", 0))
+        new_tracking = float(candidate.get("mean_tracking_score", 0))
+        if new_tracking < old_tracking - 0.001:
+            regressions.append("tracking score decreased")
+        elif new_tracking > old_tracking + 0.001:
+            improvements.append("tracking score increased")
+    elif task == "ball-dodge":
         pairs = (
             ("any_link_dodge_rate", 1.0, "clean dodge rate"),
             ("any_link_projectile_hit_rate", -1.0, "projectile hit rate"),
@@ -257,10 +299,11 @@ def compare_evidence(
 
     old_tilt = float(incumbent.get("mean_tilt", 0))
     new_tilt = float(candidate.get("mean_tilt", 0))
-    if new_tilt > old_tilt + 0.005:
-        regressions.append("mean tilt increased")
-    elif new_tilt < old_tilt - 0.001:
-        improvements.append("mean tilt decreased")
+    if not generic_task:
+        if new_tilt > old_tilt + 0.005:
+            regressions.append("mean tilt increased")
+        elif new_tilt < old_tilt - 0.001:
+            improvements.append("mean tilt decreased")
 
     old_height = float(incumbent.get("mean_root_height", 0))
     new_height = float(candidate.get("mean_root_height", 0))
@@ -276,14 +319,42 @@ def compare_evidence(
         "ball-recovery",
         "ball-dodge",
     }
-    if task in upright_tasks and (old_height > 0.0 or new_height > 0.0):
+    if (
+        not generic_task
+        and task in upright_tasks
+        and (old_height > 0.0 or new_height > 0.0)
+    ):
         if new_height < old_height - 0.01:
             regressions.append("mean root height decreased")
         elif new_height > old_height + 0.005:
             improvements.append("mean root height increased")
 
-    locomotion_score: float | None = None
-    if (
+    selection_score: float | None = None
+    selection_method = "task_physical_comparison"
+    if generic_task:
+        old_task_reward = float(incumbent.get("mean_task_reward", 0))
+        new_task_reward = float(candidate.get("mean_task_reward", 0))
+        old_reward = float(incumbent.get("mean_reward", 0))
+        new_reward = float(candidate.get("mean_reward", 0))
+        old_tracking = float(incumbent.get("mean_tracking_score", 0))
+        new_tracking = float(candidate.get("mean_tracking_score", 0))
+        selection_score = (
+            0.60
+            * _relative_progress(
+                old_task_reward, new_task_reward, 0.05
+            )
+            + 0.25
+            * _relative_progress(old_reward, new_reward, 0.05)
+            + 0.15 * (new_tracking - old_tracking)
+            + incumbent_termination
+            - candidate_termination
+        )
+        selected = (
+            int(candidate.get("failed_environment_steps", 0)) == 0
+            and selection_score > 1.0e-12
+        )
+        selection_method = "continuous_authored_task_outcome"
+    elif (
         task == "velocity"
         and bool(incumbent.get("forward_progress_available"))
         and bool(candidate.get("forward_progress_available"))
@@ -306,7 +377,7 @@ def compare_evidence(
         height_progress = (new_height - old_height) / 0.78
         tilt_progress = (old_tilt - new_tilt) / 3.141592653589793
         failure_progress = incumbent_termination - candidate_termination
-        locomotion_score = (
+        selection_score = (
             0.35 * peak_progress
             + 0.35 * final_progress
             + 0.10 * tracking_progress
@@ -318,8 +389,9 @@ def compare_evidence(
         # tradeoffs remain continuous contributions rather than veto gates.
         selected = (
             int(candidate.get("failed_environment_steps", 0)) == 0
-            and locomotion_score > 1.0e-12
+            and selection_score > 1.0e-12
         )
+        selection_method = "continuous_locomotion_progress"
     else:
         selected = not regressions and bool(improvements)
     return {
@@ -330,13 +402,14 @@ def compare_evidence(
         "regressions": regressions,
         "improvements": improvements,
         "candidate_retained": True,
-        "selection_score": locomotion_score,
-        "selection_method": (
-            "continuous_locomotion_progress"
-            if locomotion_score is not None
-            else "task_physical_comparison"
-        ),
+        "selection_score": selection_score,
+        "selection_method": selection_method,
         "metrics": {
+            "world_source": str(
+                candidate.get(
+                    "world_source", incumbent.get("world_source", "")
+                )
+            ),
             "incumbent_termination_rate": incumbent_termination,
             "candidate_termination_rate": candidate_termination,
             "incumbent_physical_failure_rate": incumbent_termination,
@@ -356,6 +429,24 @@ def compare_evidence(
                 candidate.get(
                     "mean_final_forward_progress_m", new_forward
                 )
+            ),
+            "incumbent_mean_task_reward": float(
+                incumbent.get("mean_task_reward", 0)
+            ),
+            "candidate_mean_task_reward": float(
+                candidate.get("mean_task_reward", 0)
+            ),
+            "incumbent_mean_reward": float(
+                incumbent.get("mean_reward", 0)
+            ),
+            "candidate_mean_reward": float(
+                candidate.get("mean_reward", 0)
+            ),
+            "incumbent_mean_tracking_score": float(
+                incumbent.get("mean_tracking_score", 0)
+            ),
+            "candidate_mean_tracking_score": float(
+                candidate.get("mean_tracking_score", 0)
             ),
         },
     }
@@ -381,7 +472,7 @@ def select_candidate_champion(
 ) -> tuple[str, dict[str, dict[str, Any]]]:
     """Select a checkpoint without making locomotion order-dependent."""
 
-    continuous_locomotion = (
+    continuous_comparison = _uses_generic_task_outcome(incumbent) or (
         str(incumbent.get("task", "")) == "velocity"
         and bool(incumbent.get("forward_progress_available"))
         and all(
@@ -390,7 +481,7 @@ def select_candidate_champion(
         )
     )
     comparisons: dict[str, dict[str, Any]] = {}
-    if continuous_locomotion:
+    if continuous_comparison:
         for name, record in candidates.items():
             comparisons[name] = compare_evidence(incumbent, record)
         eligible = [
