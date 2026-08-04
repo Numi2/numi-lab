@@ -27,6 +27,7 @@ namespace {
 constexpr std::uint32_t kEnvironments = 1024u;
 constexpr std::uint32_t kSteps = 2000u;
 constexpr float kDt = 0.001f;
+constexpr float kPi = 3.14159265358979323846f;
 
 mr_float4 f4(float x, float y, float z, float w = 0.0f) { return {x, y, z, w}; }
 void require(bool condition, const std::string& message) { if (!condition) throw std::runtime_error(message); }
@@ -113,6 +114,20 @@ mr_float4 requestedAction() {
     return result;
 }
 
+float wrapRadians(float value) {
+    while (value > kPi) value -= 2.0f * kPi;
+    while (value < -kPi) value += 2.0f * kPi;
+    return value;
+}
+
+float rollRadians(const MRBodyStateGPU& body) {
+    const auto q = body.orientation;
+    return std::atan2(
+        2.0f * (q.w * q.x + q.y * q.z),
+        1.0f - 2.0f * (q.x * q.x + q.y * q.y)
+    );
+}
+
 mr_float4 scriptedManeuverAction(const float time, const MRBodyStateGPU& body) {
     // This is a deterministic, policy-format reference for visual inspection,
     // not a learned controller.  Every pose still comes from the accepted
@@ -158,6 +173,38 @@ mr_float4 scriptedManeuverAction(const float time, const MRBodyStateGPU& body) {
         0.020f
     );
     return f4(collective, roll, pitch, yaw);
+}
+
+mr_float4 scriptedRollAction(const float time, const MRBodyStateGPU& body, const float completedRoll) {
+    // A deterministic policy-format reference for a single, torque-driven
+    // roll. It consumes only the accepted simulator state. The actual action
+    // is still mixed, motor-lagged, and integrated by Metal below.
+    constexpr float startTime = 0.35f;
+    constexpr float targetRoll = 2.0f * kPi;
+    constexpr float brakingAcceleration = 12.0f;
+    const float remainingRoll = targetRoll - completedRoll;
+    const float forwardRate = std::max(body.angularVelocity.x, 0.0f);
+    const float stoppingDistance = forwardRate * forwardRate / (2.0f * brakingAcceleration);
+    float roll = 0.0f;
+    if (time >= startTime && remainingRoll > 0.0f) {
+        // Accelerate only while there is enough remaining angle to brake the
+        // accepted angular rate. This keeps the reference a one-turn roll
+        // rather than a rendered slice of an unbounded spin.
+        roll = remainingRoll > stoppingDistance + 0.10f ? 0.90f : -0.90f;
+    } else if (remainingRoll <= 0.0f) {
+        roll = std::clamp(
+            -0.85f * (completedRoll - targetRoll) - 0.30f * body.angularVelocity.x,
+            -0.90f,
+            0.90f
+        );
+    }
+    const float bodyUpZ = 1.0f - 2.0f * (body.orientation.x * body.orientation.x + body.orientation.y * body.orientation.y);
+    const float collective = bodyUpZ > 0.20f ? std::clamp(
+        0.35f * (14.0f - body.position.z) - 0.10f * body.linearVelocityAndInverseMass.z,
+        -0.10f,
+        0.80f
+    ) : 0.0f;
+    return f4(collective, roll, 0.0f, 0.0f);
 }
 } // namespace
 
@@ -235,6 +282,11 @@ int main() {
             MRBodyStateGPU maneuverFinalState{};
             MRMulticopterFlightTransitionGPU maneuverFinalTransition{};
             bool wroteManeuverTrace = false;
+            MRBodyStateGPU rollFinalState{};
+            bool wroteRollTrace = false;
+            float rollTravelRadians = 0.0f;
+            float rollMinimumAltitude = 0.0f;
+            float rollMaximumTilt = 0.0f;
             float maximumAltitudeError = 0.0f;
             for (std::uint32_t index = 0; index < kEnvironments; ++index) {
                 require(finalStatuses[index].code == MR_STEP_SUCCESS, "X500 free-body step failed");
@@ -252,16 +304,19 @@ int main() {
                 std::abs(finalWrenches[0].torque.z - oracle.wrench.torque.z),
             });
             if (neutralAction) require(wrenchParity < 2.0e-4f, "X500 CPU/Metal actuator wrench parity exceeded");
+            const char* rollTracePath = std::getenv("PX4_X500_ROLL_TRACE");
             const char* maneuverTracePath = std::getenv("PX4_X500_MANEUVER_TRACE");
-            const char* tracePath = maneuverTracePath != nullptr && maneuverTracePath[0] != '\0'
+            const char* tracePath = rollTracePath != nullptr && rollTracePath[0] != '\0'
+                ? rollTracePath : maneuverTracePath != nullptr && maneuverTracePath[0] != '\0'
                 ? maneuverTracePath : std::getenv("PX4_X500_TRACE");
             if (tracePath != nullptr && tracePath[0] != '\0') {
+                const bool scriptedRoll = rollTracePath != nullptr && rollTracePath[0] != '\0';
                 const bool scriptedManeuvers = maneuverTracePath != nullptr && maneuverTracePath[0] != '\0';
                 std::ofstream trace(tracePath);
                 require(trace.good(), "cannot write X500 trace");
-                trace << "time_s,x_m,y_m,z_m,qx,qy,qz,qw,collective,roll,pitch,yaw,rotor0_rad_s,rotor1_rad_s,rotor2_rad_s,rotor3_rad_s\n";
+                trace << "time_s,x_m,y_m,z_m,qx,qy,qz,qw,collective,roll,pitch,yaw,rotor0_rad_s,rotor1_rad_s,rotor2_rad_s,rotor3_rad_s,angular_velocity_x_rad_s,roll_travel_rad\n";
                 MRBodyStateGPU traceState = initialState(propertiesOne, 0u);
-                traceState.position.z = scriptedManeuvers ? 1.0f : 0.60f;
+                traceState.position.z = scriptedRoll ? 14.0f : scriptedManeuvers ? 1.0f : 0.60f;
                 std::memcpy(bodyBuffer.contents, &traceState, sizeof(traceState));
                 MRMulticopterStateGPU traceMotors{};
                 traceMotors.rotorSpeed01 = f4(hover, hover, hover, hover);
@@ -276,16 +331,19 @@ int main() {
                 MRFreeBodyBatchGPU traceBatch = freeBodyBatch;
                 traceBatch.bodyCount = 1u;
                 std::memcpy(freeBodyBatchBuffer.contents, &traceBatch, sizeof(traceBatch));
-                const std::uint32_t traceSteps = scriptedManeuvers ? 6000u : kSteps;
+                const std::uint32_t traceSteps = scriptedRoll ? 2600u : scriptedManeuvers ? 6000u : kSteps;
+                float previousRoll = 0.0f;
+                bool havePreviousRoll = false;
                 for (std::uint32_t step = 0; step < traceSteps; ++step) {
                     const auto currentBeforeStep = static_cast<const MRBodyStateGPU*>(bodyBuffer.contents)[0];
-                    const auto traceAction = scriptedManeuvers
-                        ? scriptedManeuverAction((step + 1u) * kDt, currentBeforeStep) : f4(0, 0, 0, 0);
+                    const auto traceAction = scriptedRoll
+                        ? scriptedRollAction((step + 1u) * kDt, currentBeforeStep, rollTravelRadians)
+                        : scriptedManeuvers ? scriptedManeuverAction((step + 1u) * kDt, currentBeforeStep) : f4(0, 0, 0, 0);
                     traceActions[0].collectiveRollPitchYaw = traceAction;
                     id<MTLCommandBuffer> traceCommand = [queue commandBuffer];
                     id<MTLComputeCommandEncoder> traceEncoder = [traceCommand computeCommandEncoder];
                     require(traceCommand != nil && traceEncoder != nil, "cannot encode X500 trace step");
-                    if (scriptedManeuvers) encodeMixer(traceEncoder, mixerPipe, rotorsBuffer, modelBuffer, actionBuffer, commandBuffer, mixerBuffer, multicopterDispatchBuffer, 1u);
+                    if (scriptedManeuvers || scriptedRoll) encodeMixer(traceEncoder, mixerPipe, rotorsBuffer, modelBuffer, actionBuffer, commandBuffer, mixerBuffer, multicopterDispatchBuffer, 1u);
                     encodeMulticopter(traceEncoder, multicopterPipe, rotorsBuffer, modelBuffer, motorBuffer, commandBuffer, bodyBuffer, wrenchBuffer, multicopterDispatchBuffer, 1u);
                     encodeFreeBody(traceEncoder, freeBodyPipe, propertyBuffer, bodyBuffer, wrenchBuffer, freeBodyBatchBuffer, statusBuffer, 1u);
                     if (scriptedManeuvers) encodeTask(traceEncoder, taskPipe, modelBuffer, motorBuffer, bodyBuffer, transitionBuffer, taskBuffer, multicopterDispatchBuffer, 1u);
@@ -294,6 +352,17 @@ int main() {
                     const auto* current = static_cast<const MRBodyStateGPU*>(bodyBuffer.contents);
                     const auto* status = static_cast<const MRFreeBodyStatusGPU*>(statusBuffer.contents);
                     require(status[0].code == MR_STEP_SUCCESS, "X500 trace physics step failed");
+                    if (scriptedRoll) {
+                        const float currentRoll = rollRadians(current[0]);
+                        if (havePreviousRoll) rollTravelRadians += wrapRadians(currentRoll - previousRoll);
+                        previousRoll = currentRoll;
+                        havePreviousRoll = true;
+                        rollMinimumAltitude = wroteRollTrace ? std::min(rollMinimumAltitude, current[0].position.z) : current[0].position.z;
+                        const float bodyUpZ = 1.0f - 2.0f * (current[0].orientation.x * current[0].orientation.x + current[0].orientation.y * current[0].orientation.y);
+                        rollMaximumTilt = std::max(rollMaximumTilt, std::acos(std::clamp(bodyUpZ, -1.0f, 1.0f)));
+                        rollFinalState = current[0];
+                        wroteRollTrace = true;
+                    }
                     if (scriptedManeuvers) {
                         const auto* transition = static_cast<const MRMulticopterFlightTransitionGPU*>(transitionBuffer.contents);
                         require(transition[0].rewardAndDone.y == 0.0f, "X500 maneuver task terminated");
@@ -308,14 +377,22 @@ int main() {
                               << current[0].orientation.x << ',' << current[0].orientation.y << ',' << current[0].orientation.z << ',' << current[0].orientation.w << ','
                               << traceAction.x << ',' << traceAction.y << ',' << traceAction.z << ',' << traceAction.w << ','
                               << currentMotors[0].rotorSpeed01.x << ',' << currentMotors[0].rotorSpeed01.y << ','
-                              << currentMotors[0].rotorSpeed01.z << ',' << currentMotors[0].rotorSpeed01.w << '\n';
+                              << currentMotors[0].rotorSpeed01.z << ',' << currentMotors[0].rotorSpeed01.w << ','
+                              << current[0].angularVelocity.x << ',' << rollTravelRadians << '\n';
                     }
                 }
                 require(trace.good(), "X500 trace write failed");
+                if (scriptedRoll) {
+                    require(rollMaximumTilt > 3.0f, "X500 roll never reached an inverted attitude");
+                    require(std::abs(rollTravelRadians - 2.0f * kPi) < 0.10f, "X500 roll did not settle to one turn");
+                }
             }
             std::cout << std::fixed << std::setprecision(7) << "robot=px4_x500 source_revision=e00d3b9cde682dbcb3bf6f30a2f2b8ef4325dae8 device=" << string(device.name) << " environments=" << kEnvironments << " steps=" << kSteps << " auto_reset=" << autoReset << " hover_rad_s=" << hover << " policy_action=" << action.x << ',' << action.y << ',' << action.z << ',' << action.w << " final_position_m=" << qualificationFinalState.position.x << ',' << qualificationFinalState.position.y << ',' << qualificationFinalState.position.z << " task_reward=" << qualificationTransition.rewardAndDone.x << " task_done=" << qualificationTransition.rewardAndDone.y << " task_tilt_rad=" << qualificationTransition.rewardAndDone.z << " task_target_distance_m=" << qualificationTransition.rewardAndDone.w << " maximum_altitude_error_m=" << maximumAltitudeError << " actuator_wrench_parity=" << wrenchParity << " failed_steps=0 status=pass\n";
             if (wroteManeuverTrace) {
                 std::cout << "maneuver_final_position_m=" << maneuverFinalState.position.x << ',' << maneuverFinalState.position.y << ',' << maneuverFinalState.position.z << " maneuver_reward=" << maneuverFinalTransition.rewardAndDone.x << " maneuver_tilt_rad=" << maneuverFinalTransition.rewardAndDone.z << " maneuver_target_distance_m=" << maneuverFinalTransition.rewardAndDone.w << " task_terminations=0 status=pass\n";
+            }
+            if (wroteRollTrace) {
+                std::cout << "roll_final_position_m=" << rollFinalState.position.x << ',' << rollFinalState.position.y << ',' << rollFinalState.position.z << " roll_travel_rad=" << rollTravelRadians << " roll_turns=" << rollTravelRadians / (2.0f * kPi) << " roll_minimum_altitude_m=" << rollMinimumAltitude << " roll_maximum_tilt_rad=" << rollMaximumTilt << " task_evaluation=disabled_for_acrobatic_trace status=pass\n";
             }
             return 0;
         } catch (const std::exception& exception) { std::cerr << "metalrobo_px4_x500_gpu_probe: " << exception.what() << '\n'; return 1; }

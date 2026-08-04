@@ -115,12 +115,15 @@ def main() -> None:
     parser.add_argument("--last-frame", type=int)
     parser.add_argument("--sample-stride", type=int, default=1, help="render every Nth accepted trace state")
     parser.add_argument("--world-camera", action="store_true", help="hold a world-fixed camera to show accepted translation")
+    parser.add_argument("--tracking-camera", action="store_true", help="track accepted translation while keeping camera attitude world-aligned")
     if "--" not in sys.argv:
         raise RuntimeError("Blender arguments must follow --")
     options = parser.parse_args(sys.argv[sys.argv.index("--") + 1 :])
     rows = parse_trace(options.trace)
     if options.sample_stride < 1:
         raise RuntimeError("sample stride must be positive")
+    if options.world_camera and options.tracking_camera:
+        raise RuntimeError("choose either --world-camera or --tracking-camera")
     rows = rows[:: options.sample_stride]
     mesh_root = options.source_root / "models/x500_base/meshes"
     bpy.ops.object.select_all(action="SELECT")
@@ -232,6 +235,8 @@ def main() -> None:
     ground.data.materials.append(ground_material)
     # Follow mode keeps detailed vehicle inspection legible. World mode keeps
     # the camera fixed, so solved translation and attitude remain visible.
+    # Tracking mode follows only accepted translation: it never inherits the
+    # airframe rotation, so a roll remains visible without synthesising pose.
     bpy.ops.object.camera_add()
     camera = bpy.context.object
     if options.world_camera:
@@ -242,6 +247,14 @@ def main() -> None:
         ))
         camera.location = centre + Vector((1.5, -2.0, 1.15))
         point_at(camera, centre)
+    elif options.tracking_camera:
+        camera_offset = Vector((1.45, -2.15, 0.95))
+        for frame_number, row in enumerate(rows, 1):
+            target = Vector((row["x_m"], row["y_m"], row["z_m"]))
+            camera.location = target + camera_offset
+            point_at(camera, target)
+            camera.keyframe_insert(data_path="location", frame=frame_number)
+            camera.keyframe_insert(data_path="rotation_euler", frame=frame_number)
     else:
         camera.parent = frame
         camera.location = (1.15, -1.45, 0.78)
@@ -255,14 +268,23 @@ def main() -> None:
     ):
         bpy.ops.object.light_add(type="AREA")
         light = bpy.context.object
-        if not options.world_camera:
+        if not options.world_camera and not options.tracking_camera:
             light.parent = frame
-        light.location = location
         light.data.energy = energy
         light.data.shape = "DISK"
         light.data.size = size
         light.data.color = color
-        point_at(light, Vector((0.0, 0.0, 0.0)))
+        if options.tracking_camera:
+            light_offset = Vector(location)
+            for frame_number, row in enumerate(rows, 1):
+                target = Vector((row["x_m"], row["y_m"], row["z_m"]))
+                light.location = target + light_offset
+                point_at(light, target)
+                light.keyframe_insert(data_path="location", frame=frame_number)
+                light.keyframe_insert(data_path="rotation_euler", frame=frame_number)
+        else:
+            light.location = location
+            point_at(light, Vector((0.0, 0.0, 0.0)))
     options.frames.mkdir(parents=True, exist_ok=True)
     bpy.ops.render.render(animation=True)
 
