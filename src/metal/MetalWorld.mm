@@ -35,7 +35,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 232u;
+constexpr std::size_t kRawBufferCount = 239u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -289,6 +289,13 @@ enum BufferIndex : std::size_t {
     kParallelScheduleChildOffsets = 229u,
     kParallelScheduleChildIndices = 230u,
     kTaskTeacherActions = 231u,
+    kMulticopterRotors = 232u,
+    kMulticopterModel = 233u,
+    kMulticopterMixer = 234u,
+    kMulticopterStateA = 235u,
+    kMulticopterStateB = 236u,
+    kMulticopterCandidateState = 237u,
+    kMulticopterDispatch = 238u,
 };
 
 struct BufferRequirement {
@@ -301,6 +308,24 @@ struct BufferRequirement {
 struct RequiredBuffers {
     std::array<BufferRequirement, kRawBufferCount> entries{};
 };
+
+std::uint64_t multicopterFingerprint(
+    const MetalWorldMulticopterProgram& program
+) {
+    if (!program.valid()) {
+        return 0u;
+    }
+    std::uint64_t hash = kFNVOffset;
+    const auto append = [&](const void* bytes, const std::size_t count) {
+        const auto* values = static_cast<const std::byte*>(bytes);
+        for (std::size_t index = 0u; index < count; ++index) {
+            hash ^= std::to_integer<std::uint8_t>(values[index]);
+            hash *= kFNVPrime;
+        }
+    };
+    append(&program, sizeof(program));
+    return hash == 0u ? 1u : hash;
+}
 
 bool privateTransientBuffer(std::size_t index);
 bool privatePersistentBuffer(std::size_t index);
@@ -338,10 +363,13 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> taskJointCbfPipeline = nil;
     __strong id<MTLComputePipelineState> taskMotionPipeline = nil;
     __strong id<MTLComputePipelineState> taskApplyPipeline = nil;
+    __strong id<MTLComputePipelineState> taskNativeActuatorPipeline = nil;
     __strong id<MTLComputePipelineState> taskEffortPipeline = nil;
     __strong id<MTLComputePipelineState> taskImpactContactPipeline = nil;
     __strong id<MTLComputePipelineState> taskCompletePipeline = nil;
     __strong id<MTLComputePipelineState> taskEvidencePipeline = nil;
+    __strong id<MTLComputePipelineState> multicopterPipeline = nil;
+    __strong id<MTLComputePipelineState> multicopterCommitPipeline = nil;
     __strong id<MTLComputePipelineState> policyDensePipeline = nil;
     __strong id<MTLComputePipelineState> policySamplePipeline = nil;
     __strong id<MTLComputePipelineState> contactPreparePipeline = nil;
@@ -458,6 +486,7 @@ struct MetalWorldContextState {
     std::uint64_t boundModelFingerprint = 0u;
     std::uint64_t boundTaskFingerprint = 0u;
     std::uint64_t boundPolicyFingerprint = 0u;
+    std::uint64_t boundMulticopterFingerprint = 0u;
     std::uint64_t stateArenaGeneration = 0u;
     std::weak_ptr<MetalWorldResidentStateData> residentOwner;
     MetalWorldContextStats stats{};
@@ -642,6 +671,17 @@ std::string describeError(NSError* error) {
     std::string result = nsString(error.localizedDescription);
     if (result.empty()) {
         result = nsString(error.description);
+    }
+    NSArray<id<MTLCommandBufferEncoderInfo>>* encoders =
+        error.userInfo[MTLCommandBufferEncoderInfoErrorKey];
+    for (id<MTLCommandBufferEncoderInfo> encoder in encoders) {
+        if (encoder.errorState == MTLCommandEncoderErrorStateFaulted ||
+            encoder.errorState == MTLCommandEncoderErrorStateAffected) {
+            result += " encoder=\"" + nsString(encoder.label) + "\"";
+            result += encoder.errorState == MTLCommandEncoderErrorStateFaulted
+                ? " state=faulted"
+                : " state=affected";
+        }
     }
     return result.empty() ? "unknown Metal error" : result;
 }
@@ -1321,6 +1361,18 @@ std::uint64_t fingerprint(const EngineModel& model) {
     return hash == 0u ? 1u : hash;
 }
 
+bool taskHasActuatorKind(
+    const CompiledTaskProgram& task,
+    const std::uint32_t kind
+) {
+    return std::ranges::any_of(
+        task.actionBindings(),
+        [kind](const MRTaskActionBindingGPU& binding) {
+            return binding.actuator.x == kind;
+        }
+    );
+}
+
 std::vector<MRActuatorProfileGPU> executionActuatorProfiles(
     const EngineModel& model
 ) {
@@ -1470,6 +1522,7 @@ bool buildRequirements(
     const MetalWorldLayout& layout,
     const CompiledTaskProgram& taskProgram,
     const CompiledPolicyProgram& policyProgram,
+    const MetalWorldMulticopterProgram& multicopterProgram,
     RequiredBuffers& requirements,
     std::size_t& totalRequiredBytes
 ) {
@@ -1606,9 +1659,55 @@ bool buildRequirements(
             requirements.entries[kWorkingEffort]
         ) ||
         !makeRequirement<MRABABodyWrenchGPU>(
-            "body-wrench placeholder",
-            0u,
+            "external body wrenches",
+            (layout.dispatch.flags &
+             MR_METAL_WORLD_HAS_BODY_WRENCHES) != 0u
+                ? layout.dispatch.environmentCount * model.bodies.size()
+                : 0u,
             requirements.entries[kBodyWrenchPlaceholder]
+        ) ||
+        !makeRequirement<MRMulticopterRotorGPU>(
+            "compiled multicopter rotors",
+            multicopterProgram.valid()
+                ? multicopterProgram.model.rotorCount
+                : 0u,
+            requirements.entries[kMulticopterRotors]
+        ) ||
+        !makeRequirement<MRMulticopterModelGPU>(
+            "compiled multicopter model",
+            multicopterProgram.valid() ? 1u : 0u,
+            requirements.entries[kMulticopterModel]
+        ) ||
+        !makeRequirement<MRMulticopterMixerGPU>(
+            "compiled multicopter mixer",
+            multicopterProgram.valid() ? 1u : 0u,
+            requirements.entries[kMulticopterMixer]
+        ) ||
+        !makeRequirement<MRMulticopterStateGPU>(
+            "resident multicopter motor state A",
+            multicopterProgram.valid()
+                ? layout.dispatch.environmentCount
+                : 0u,
+            requirements.entries[kMulticopterStateA]
+        ) ||
+        !makeRequirement<MRMulticopterStateGPU>(
+            "resident multicopter motor state B",
+            multicopterProgram.valid()
+                ? layout.dispatch.environmentCount
+                : 0u,
+            requirements.entries[kMulticopterStateB]
+        ) ||
+        !makeRequirement<MRMulticopterStateGPU>(
+            "candidate multicopter motor state",
+            multicopterProgram.valid()
+                ? layout.dispatch.environmentCount
+                : 0u,
+            requirements.entries[kMulticopterCandidateState]
+        ) ||
+        !makeRequirement<MRCompiledMulticopterDispatchGPU>(
+            "compiled multicopter dispatch",
+            multicopterProgram.valid() ? 1u : 0u,
+            requirements.entries[kMulticopterDispatch]
         ) ||
         !makeRequirement<float>(
             "candidate acceleration",
@@ -2994,6 +3093,32 @@ MetalWorldDiagnostics validateAndBuildLayout(
     }
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
+    const bool hasBodyWrenches = config.multicopterProgram.valid() ||
+        (nativeTask && taskHasActuatorKind(
+            config.taskProgram,
+            MR_TASK_ACTUATOR_BODY_WRENCH));
+    if (config.multicopterProgram.valid()) {
+        const auto& multicopter = config.multicopterProgram;
+        if (!nativeTask ||
+            multicopter.articulationIndex >= world.articulationCount() ||
+            multicopter.bodyIndex >= world.model().bodies.size() ||
+            world.model().bodies[multicopter.bodyIndex].articulationIndex !=
+                multicopter.articulationIndex ||
+            config.taskProgram.layout().actionCount <
+                multicopter.firstAction + 4u ||
+            !std::isfinite(multicopter.model.motorAndTimestep.w) ||
+            std::abs(
+                multicopter.model.motorAndTimestep.w -
+                config.timestepSeconds /
+                    static_cast<float>(config.physicsSubsteps)
+            ) > 1.0e-8f) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::invalidDimensions,
+                "compiled multicopter program does not match the task, body, articulation, or physics cadence"
+            );
+        }
+    }
     const bool contactMode =
         config.solverMode != MetalWorldSolverMode::freeMotionABA;
     const bool qualityMode =
@@ -3230,6 +3355,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
              ? static_cast<mr_u32>(
                    MR_METAL_WORLD_NATIVE_TASK
                )
+             : 0u) |
+        (hasBodyWrenches
+             ? static_cast<mr_u32>(
+                   MR_METAL_WORLD_HAS_BODY_WRENCHES
+               )
              : 0u);
     dispatch.nq = world.model().world.nq;
     dispatch.nv = world.model().world.nv;
@@ -3320,11 +3450,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
              ? static_cast<mr_u32>(
                    MR_ABA_IMPLICIT_DRIVES
                )
+             : 0u) |
+        (hasBodyWrenches
+             ? static_cast<mr_u32>(MR_ABA_HAS_BODY_WRENCHES)
              : 0u);
     aba.qStride = dispatch.qStride;
     aba.vStride = dispatch.vStride;
     aba.effortStride = dispatch.effortEnvironmentStride;
-    aba.wrenchStride = 0u;
+    aba.wrenchStride = hasBodyWrenches
+        ? static_cast<mr_u32>(world.model().bodies.size())
+        : 0u;
     aba.accelerationStride = dispatch.vStride;
     aba.nextVStride = dispatch.vStride;
     aba.nextQStride = dispatch.qStride;
@@ -3346,7 +3481,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
         work.qBase = owned.qOffset;
         work.vBase = owned.vOffset;
         work.effortBase = owned.vOffset;
-        work.wrenchBase = 0u;
+        work.wrenchBase = hasBodyWrenches
+            ? owned.firstBody
+            : 0u;
         work.accelerationBase = owned.vOffset;
         work.nextVBase = owned.vOffset;
         work.nextQBase = owned.qOffset;
@@ -4072,6 +4209,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             layout,
             config.taskProgram,
             config.policyProgram,
+            config.multicopterProgram,
             requirements,
             totalRequiredBytes
         )) {
@@ -4355,7 +4493,21 @@ NSString* bufferLabel(const std::size_t index) {
     case kWorkingEffort:
         return @"MetalWorld working effort";
     case kBodyWrenchPlaceholder:
-        return @"MetalWorld body-wrench placeholder";
+        return @"MetalWorld external body wrenches";
+    case kMulticopterRotors:
+        return @"MetalWorld compiled multicopter rotors";
+    case kMulticopterModel:
+        return @"MetalWorld compiled multicopter model";
+    case kMulticopterMixer:
+        return @"MetalWorld compiled multicopter mixer";
+    case kMulticopterStateA:
+        return @"MetalWorld resident multicopter motor state A";
+    case kMulticopterStateB:
+        return @"MetalWorld resident multicopter motor state B";
+    case kMulticopterCandidateState:
+        return @"MetalWorld candidate multicopter motor state";
+    case kMulticopterDispatch:
+        return @"MetalWorld compiled multicopter dispatch";
     case kCandidateAcceleration:
         return @"MetalWorld candidate acceleration";
     case kCandidateV:
@@ -4686,10 +4838,13 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> taskJointCbf = nil;
     __strong id<MTLComputePipelineState> taskMotion = nil;
     __strong id<MTLComputePipelineState> taskApply = nil;
+    __strong id<MTLComputePipelineState> taskNativeActuator = nil;
     __strong id<MTLComputePipelineState> taskEffort = nil;
     __strong id<MTLComputePipelineState> taskImpactContact = nil;
     __strong id<MTLComputePipelineState> taskComplete = nil;
     __strong id<MTLComputePipelineState> taskEvidence = nil;
+    __strong id<MTLComputePipelineState> multicopter = nil;
+    __strong id<MTLComputePipelineState> multicopterCommit = nil;
     __strong id<MTLComputePipelineState> policyDense = nil;
     __strong id<MTLComputePipelineState> policySample = nil;
     __strong id<MTLComputePipelineState> contactPrepare = nil;
@@ -4807,8 +4962,17 @@ MetalWorldDiagnostics initializeContext(
     );
     taskApply =
         createContactPipeline(@"mr_locomotion_task_apply_actions");
+    taskNativeActuator = createContactPipeline(
+        @"mr_locomotion_task_apply_native_actuators"
+    );
     taskEffort =
         createContactPipeline(@"mr_locomotion_task_measure_effort");
+    multicopter = createContactPipeline(
+        @"mr_step_compiled_multicopters"
+    );
+    multicopterCommit = createContactPipeline(
+        @"mr_commit_compiled_multicopters"
+    );
     taskImpactContact = createContactPipeline(
         @"mr_locomotion_task_latch_impact_contact"
     );
@@ -5053,10 +5217,13 @@ MetalWorldDiagnostics initializeContext(
         taskJointCbf == nil ||
         taskMotion == nil ||
         taskApply == nil ||
+        taskNativeActuator == nil ||
         taskEffort == nil ||
         taskImpactContact == nil ||
         taskComplete == nil ||
         taskEvidence == nil ||
+        multicopter == nil ||
+        multicopterCommit == nil ||
         policyDense == nil ||
         policySample == nil ||
         contactPrepare == nil ||
@@ -5175,6 +5342,8 @@ MetalWorldDiagnostics initializeContext(
         taskEffort.maxTotalThreadsPerThreadgroup == 0u ||
         taskComplete.maxTotalThreadsPerThreadgroup == 0u ||
         taskEvidence.maxTotalThreadsPerThreadgroup == 0u ||
+        multicopter.maxTotalThreadsPerThreadgroup == 0u ||
+        multicopterCommit.maxTotalThreadsPerThreadgroup == 0u ||
         policyDense.maxTotalThreadsPerThreadgroup == 0u ||
         policySample.maxTotalThreadsPerThreadgroup == 0u ||
         contactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
@@ -5362,10 +5531,13 @@ MetalWorldDiagnostics initializeContext(
     context.taskJointCbfPipeline = taskJointCbf;
     context.taskMotionPipeline = taskMotion;
     context.taskApplyPipeline = taskApply;
+    context.taskNativeActuatorPipeline = taskNativeActuator;
     context.taskEffortPipeline = taskEffort;
     context.taskImpactContactPipeline = taskImpactContact;
     context.taskCompletePipeline = taskComplete;
     context.taskEvidencePipeline = taskEvidence;
+    context.multicopterPipeline = multicopter;
+    context.multicopterCommitPipeline = multicopterCommit;
     context.policyDensePipeline = policyDense;
     context.policySamplePipeline = policySample;
     context.contactPreparePipeline = contactPrepare;
@@ -5498,11 +5670,12 @@ std::size_t growthCapacity(
 bool privateTransientBuffer(const std::size_t index) {
     switch (index) {
     case kWorkingEffort:
+    case kBodyWrenchPlaceholder:
+    case kMulticopterCandidateState:
     case kCandidateAcceleration:
     case kCandidateV:
     case kCandidateQ:
     case kABAStatuses:
-    case kBodyWrenchPlaceholder:
     case kBodyPoses:
     case kFutureBodyPoses:
     case kPointWorld:
@@ -5652,6 +5825,8 @@ bool privatePersistentBuffer(const std::size_t index) {
     case kTaskBodyParameters:
     case kTaskControllerParameters:
     case kTaskContactCompact:
+    case kMulticopterStateA:
+    case kMulticopterStateB:
         return true;
     default:
         return false;
@@ -5694,6 +5869,10 @@ bool privateImmutableBuffer(const std::size_t index) {
         index == kEligiblePairs ||
         index == kDynamicNodes ||
         index == kBodyDynamicNodes ||
+        index == kMulticopterRotors ||
+        index == kMulticopterModel ||
+        index == kMulticopterMixer ||
+        index == kMulticopterDispatch ||
         index == kRodColliders ||
         index == kRodShapeSources ||
         index == kRodToolPairs ||
@@ -6131,6 +6310,7 @@ MetalWorldDiagnostics ensureBufferArena(
         context.boundModelFingerprint = 0u;
         context.boundTaskFingerprint = 0u;
         context.boundPolicyFingerprint = 0u;
+        context.boundMulticopterFingerprint = 0u;
     }
     if (persistentStateBufferReplaced) {
         ++context.stateArenaGeneration;
@@ -6949,6 +7129,63 @@ void uploadBatch(
         context.boundTaskFingerprint =
             config.taskProgram.fingerprint();
     }
+    const std::uint64_t multicopterHash =
+        multicopterFingerprint(config.multicopterProgram);
+    if (config.multicopterProgram.valid() &&
+        context.boundMulticopterFingerprint != multicopterHash) {
+        id<MTLBlitCommandEncoder> actuatorUpload = nil;
+        if (context.config.preferPrivateHeaps) {
+            actuatorUpload = [commandBuffer blitCommandEncoder];
+            if (actuatorUpload == nil) {
+                throw std::runtime_error(
+                    "failed to create compiled-actuator upload encoder"
+                );
+            }
+            actuatorUpload.label =
+                @"MetalWorld immutable multicopter program upload";
+        }
+        const auto& multicopter = config.multicopterProgram;
+        const MRArticulationGPU& articulation =
+            model.articulations[multicopter.articulationIndex];
+        MRCompiledMulticopterDispatchGPU dispatch{};
+        dispatch.environmentCount = layout.dispatch.environmentCount;
+        dispatch.qStride = layout.dispatch.qStride;
+        dispatch.vStride = layout.dispatch.vStride;
+        dispatch.bodyStride = static_cast<mr_u32>(model.bodies.size());
+        dispatch.qOffset = articulation.qOffset;
+        dispatch.vOffset = articulation.vOffset;
+        dispatch.bodyIndex = multicopter.bodyIndex;
+        dispatch.localBodyIndex =
+            multicopter.bodyIndex - articulation.firstBody;
+        dispatch.actionCount = config.taskProgram.layout().actionCount;
+        dispatch.actionHistoryStride =
+            config.taskProgram.layout().delayStateCount *
+            config.taskProgram.layout().actionCount;
+        dispatch.filterSlot =
+            config.taskProgram.layout().delayStateCount - 1u;
+        dispatch.firstAction = multicopter.firstAction;
+        dispatch.windVelocity = multicopter.windVelocity;
+        const std::array<std::pair<std::size_t, const void*>, 4u>
+            sources{{
+                {kMulticopterRotors, multicopter.rotors.data()},
+                {kMulticopterModel, &multicopter.model},
+                {kMulticopterMixer, &multicopter.mixer},
+                {kMulticopterDispatch, &dispatch},
+            }};
+        for (const auto& [index, source] : sources) {
+            stagePrivateBuffer(
+                context,
+                index,
+                source,
+                requirements.entries[index],
+                actuatorUpload
+            );
+        }
+        if (actuatorUpload != nil) {
+            [actuatorUpload endEncoding];
+        }
+        context.boundMulticopterFingerprint = multicopterHash;
+    }
     if (nativePolicy &&
         context.boundPolicyFingerprint !=
             config.policyProgram.fingerprint()) {
@@ -7328,7 +7565,7 @@ void uploadBatch(
         task.sampling = {
             config.minimumDifficultyBand,
             config.maximumDifficultyBand,
-            0u,
+            static_cast<mr_u32>(model.bodies.size()),
             0u,
         };
         task.seed = config.taskSeed;
@@ -7666,6 +7903,9 @@ bool encodeResidentStateInitialization(
         clear(kTaskBodyParameters);
         clear(kTaskControllerParameters);
         clear(kTaskContactCompact);
+        clear(kMulticopterStateA);
+        clear(kMulticopterStateB);
+        clear(kMulticopterCandidateState);
         [encoder
             copyFromBuffer:
                 context.uploadBuffers[kTaskEvidenceState]
@@ -9414,6 +9654,97 @@ bool encodeTaskApplyActions(
         },
         &pass,
         4u,
+        environmentCount
+    );
+}
+
+bool encodeMulticopterActuation(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t qState,
+    const std::size_t vState,
+    const std::size_t sourceMotorState,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.multicopterPipeline,
+        @"compiled multicopter actuator program",
+        {
+            {0u, kMulticopterRotors},
+            {1u, kMulticopterModel},
+            {2u, kMulticopterMixer},
+            {3u, kMulticopterDispatch},
+            {4u, kTaskActionHistory},
+            {5u, kResetMasks},
+            {6u, qState},
+            {7u, vState},
+            {8u, sourceMotorState},
+            {9u, kMulticopterCandidateState},
+            {10u, kBodyWrenchPlaceholder},
+        },
+        &pass,
+        11u,
+        environmentCount
+    );
+}
+
+bool encodeTaskNativeActuators(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t qState,
+    const std::size_t vState,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskNativeActuatorPipeline,
+        @"compiled typed robot actuator program",
+        {
+            {0u, kTaskDispatch},
+            {1u, kTaskProgramHeader},
+            {2u, kTaskProgramArena},
+            {3u, kWorldDispatch},
+            {5u, qState},
+            {6u, vState},
+            {7u, kTaskActionHistory},
+            {8u, kDofs},
+            {9u, kActuatorProfiles},
+            {10u, kBodyPoses},
+            {11u, kWorkingEffort},
+            {12u, kBodyWrenchPlaceholder},
+        },
+        &pass,
+        4u,
+        environmentCount
+    );
+}
+
+bool encodeMulticopterCommit(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const std::size_t sourceMotorState,
+    const std::size_t destinationMotorState,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.multicopterCommitPipeline,
+        @"transactional multicopter motor-state commit",
+        {
+            {0u, sourceMotorState},
+            {1u, kMulticopterCandidateState},
+            {2u, destinationMotorState},
+            {3u, kEnvironmentStatuses},
+            {4u, kMulticopterDispatch},
+        },
+        nullptr,
+        0u,
         environmentCount
     );
 }
@@ -16329,8 +16660,13 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             selectedState->useTaskBodyParameters = nativeTask;
             selectedState->stats.memoryPlan =
                 diagnostics.layout.memoryPlan;
+            MTLCommandBufferDescriptor* commandDescriptor =
+                [MTLCommandBufferDescriptor new];
+            commandDescriptor.errorOptions =
+                MTLCommandBufferErrorOptionEncoderExecutionStatus;
             id<MTLCommandBuffer> commandBuffer =
-                [selectedState->queue commandBuffer];
+                [selectedState->queue
+                    commandBufferWithDescriptor:commandDescriptor];
             if (commandBuffer == nil) {
                 return reject(
                     std::move(diagnostics),
@@ -16383,6 +16719,14 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 sourceQ == kStateQA ? kStateQB : kStateQA;
             std::size_t destinationV =
                 sourceV == kStateVA ? kStateVB : kStateVA;
+            std::size_t sourceMotorState =
+                sourceQ == kStateQA
+                ? kMulticopterStateA
+                : kMulticopterStateB;
+            std::size_t destinationMotorState =
+                sourceMotorState == kMulticopterStateA
+                ? kMulticopterStateB
+                : kMulticopterStateA;
             mr_u32 activePairClassMask = 0u;
             for (const MRCompiledCollisionPairGPU& pair :
                  world.eligiblePairs()) {
@@ -16696,6 +17040,29 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             )
                         ) &&
                         (
+                            !nativeTask ||
+                            encodeTaskNativeActuators(
+                                *selectedState,
+                                commandBuffer,
+                                pass,
+                                sourceQ,
+                                sourceV,
+                                batch.environmentCount
+                            )
+                        ) &&
+                        (
+                            !config.multicopterProgram.valid() ||
+                            encodeMulticopterActuation(
+                                *selectedState,
+                                commandBuffer,
+                                pass,
+                                sourceQ,
+                                sourceV,
+                                sourceMotorState,
+                                batch.environmentCount
+                            )
+                        ) &&
+                        (
                             useHybridContact ||
                             encodeABA(
                                 *selectedState,
@@ -16878,6 +17245,16 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     const bool encodedTaskImpactContact =
                         encodedRodPublication &&
                         (
+                            !config.multicopterProgram.valid() ||
+                            encodeMulticopterCommit(
+                                *selectedState,
+                                commandBuffer,
+                                sourceMotorState,
+                                destinationMotorState,
+                                batch.environmentCount
+                            )
+                        ) &&
+                        (
                             !taskTracksImpactContacts ||
                             !contactMode ||
                             encodeTaskImpactContact(
@@ -16900,6 +17277,12 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     }
                     std::swap(sourceQ, destinationQ);
                     std::swap(sourceV, destinationV);
+                    if (config.multicopterProgram.valid()) {
+                        std::swap(
+                            sourceMotorState,
+                            destinationMotorState
+                        );
+                    }
                     if (world.rodCount() != 0u) {
                         std::swap(
                             sourceRodNodes,

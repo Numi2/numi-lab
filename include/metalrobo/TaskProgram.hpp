@@ -156,12 +156,49 @@ enum class TaskRandomizationOperator : std::uint32_t {
         MR_TASK_RANDOMIZE_WORLD_BODY_PARAMETER,
 };
 
-struct TaskActionBinding {
+enum class RobotActuatorKind : std::uint32_t {
+    jointPosition = 0u,
+    jointVelocity = 1u,
+    jointEffort = 2u,
+    tendonPosition = 3u,
+    gripperPosition = 4u,
+    rotorMixer = 5u,
+    bodyWrench = 6u,
+};
+
+// One sparse tendon Jacobian term. The coefficient maps generalized joint
+// displacement/velocity into tendon length/rate and maps scalar tendon force
+// back into generalized effort through J^T.
+struct RobotActuatorTermSpec {
     std::string joint;
+    float coefficient = 0.0f;
+};
+
+// Robot-authored controller truth. Tasks select actuator identities and never
+// name mechanism joints or reinterpret normalized action coordinates.
+struct RobotActuatorSpec {
+    std::string id;
+    RobotActuatorKind kind = RobotActuatorKind::jointPosition;
+    // Joint, tendon, gripper, rotor set, or body identity according to kind.
+    std::string target;
     float scale = 0.25f;
     // First-order target-filter time constant in seconds. Zero disables
     // filtering, so the physical response is independent of control rate.
     float responseTimeSeconds = 0.0f;
+    // Kind-specific immutable controller parameters. Zero is the canonical
+    // value for kinds whose executable program owns its coefficients.
+    mr_float4 parameters{};
+    // Component within a vector actuator contract (for example collective,
+    // roll, pitch, yaw for a rotor mixer, or local force xyz / torque xyz for
+    // a body wrench).
+    std::uint32_t component = 0u;
+    // Required only for tendonPosition. parameters then contain tendon
+    // stiffness, damping, maximum absolute force, and reserved.
+    std::vector<RobotActuatorTermSpec> terms;
+};
+
+struct TaskActionBinding {
+    std::string actuator;
 };
 
 // Stable sources already produced by the native task transaction. TaskPack
@@ -340,6 +377,27 @@ struct TaskVisualProgram {
     bool includeDerivedFeatures = false;
 };
 
+// Executable sensing owned by SensorPack. Task objectives may reference the
+// resulting channels, but TaskPack never owns observation construction,
+// history, corruption, or sensor cadence.
+struct TaskObservationProgram {
+    std::vector<TaskObservationOperatorSpec> actorFrame;
+    std::uint32_t actorHistoryLength = 1u;
+    std::vector<TaskObservationOperatorSpec> actorCurrent;
+    std::vector<TaskObservationOperatorSpec> critic;
+    std::uint32_t criticHistoryLength = 1u;
+    bool criticIncludesCleanHistory = true;
+    TaskVisualProgram visual;
+};
+
+// Executable task-state variation owned by RealityPack. These operators are
+// lowered into the same atomic reset transaction as WorldProgram variation.
+struct TaskResetProgram {
+    std::vector<TaskRandomizationOperatorSpec> operators;
+    std::uint32_t maximumActionDelaySteps = 0u;
+    std::uint32_t maximumObservationDelaySteps = 0u;
+};
+
 // Privileged training-time threat analysis. The compiler resolves the
 // protected semantic group; active projectile identity comes from the
 // ordinary event sequence. Deployment actors never receive these values.
@@ -379,31 +437,16 @@ struct TaskPack {
     // Universal transaction outcomes are supplied by the compiler. This
     // table contains only task-authored physical/competence measurements.
     std::vector<TaskOutcomeSpec> outcomes;
-    // Legacy artifact fields retained while persisted TaskPacks migrate.
-    // CompiledRun rejects these as TaskPack-owned execution; its SensorPack
-    // is the sole source of the fused native observation program.
-    std::vector<TaskObservationOperatorSpec> actorFrame;
-    std::uint32_t actorHistoryLength = 1u;
-    std::vector<TaskObservationOperatorSpec> actorCurrent;
-    std::vector<TaskObservationOperatorSpec> critic;
-    std::uint32_t criticHistoryLength = 1u;
-    bool criticIncludesCleanHistory = true;
     std::vector<TaskContactGroup> contactGroups;
     std::vector<TaskJointGroup> jointGroups;
     std::vector<TaskRewardOperatorSpec> rewards;
     std::vector<TaskTerminationOperatorSpec> terminations;
-    // Legacy artifact field retained for direct TaskPack readers. CompiledRun
-    // requires RealityPack to own and execute reset variation.
-    std::vector<TaskRandomizationOperatorSpec> randomization;
     TaskCommandProgram commands;
     TaskPushProgram pushes;
     TaskTerrainProgram terrain;
-    TaskVisualProgram visual;
     TaskThreatProgram threat;
     TaskMotionProgram motion;
     std::uint32_t maximumEpisodeSteps = 1000u;
-    std::uint32_t maximumActionDelaySteps = 0u;
-    std::uint32_t maximumObservationDelaySteps = 0u;
     // All bands remain eligible on every episode; this is an authored
     // difficulty discretization, not an advancement ladder.
     std::uint32_t difficultyBandCount = 1u;
@@ -538,11 +581,17 @@ private:
 
     friend TaskCompileDiagnostics compileTaskProgram(
         const TaskPack&,
+        std::span<const RobotActuatorSpec>,
+        const TaskObservationProgram&,
+        const TaskResetProgram&,
         const CompiledWorld&,
         CompiledTaskProgram&
     );
     friend TaskCompileDiagnostics compileTaskProgram(
         const TaskPack&,
+        std::span<const RobotActuatorSpec>,
+        const TaskObservationProgram&,
+        const TaskResetProgram&,
         const InteractionPack&,
         std::string_view,
         const CompiledWorld&,
@@ -552,6 +601,9 @@ private:
 
 [[nodiscard]] TaskCompileDiagnostics compileTaskProgram(
     const TaskPack& pack,
+    std::span<const RobotActuatorSpec> actuators,
+    const TaskObservationProgram& observations,
+    const TaskResetProgram& reset,
     const CompiledWorld& world,
     CompiledTaskProgram& output
 );
@@ -563,6 +615,9 @@ private:
 // outcomes.
 [[nodiscard]] TaskCompileDiagnostics compileTaskProgram(
     const TaskPack& pack,
+    std::span<const RobotActuatorSpec> actuators,
+    const TaskObservationProgram& observations,
+    const TaskResetProgram& reset,
     const InteractionPack& interactions,
     std::string_view clipId,
     const CompiledWorld& world,

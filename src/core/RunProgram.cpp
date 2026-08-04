@@ -1,4 +1,5 @@
 #include "metalrobo/RunProgram.hpp"
+#include "metalrobo/PX4X500.hpp"
 
 #include "metalrobo/Franka.hpp"
 #include "metalrobo/G1.hpp"
@@ -97,6 +98,10 @@ bool validRoles(const RobotPack& robot, std::string& reason) {
         case RobotSemanticKind::dof:
             names = &robot.mechanics.dofNames;
             break;
+        default:
+            reason = "robot semantic role '" + semantic.id +
+                "' has an unknown kind";
+            return false;
         }
         std::unordered_set<std::string> members;
         for (const std::string& member : semantic.members) {
@@ -110,6 +115,174 @@ bool validRoles(const RobotPack& robot, std::string& reason) {
         }
     }
     return true;
+}
+
+bool validActuators(const RobotPack& robot, std::string& reason) {
+    std::unordered_set<std::string> ids;
+    std::unordered_set<std::string> controlledJoints;
+    for (const RobotActuatorSpec& actuator : robot.actuators) {
+        if (actuator.id.empty() || actuator.target.empty() ||
+            !ids.insert(actuator.id).second ||
+            !std::isfinite(actuator.scale) || !(actuator.scale > 0.0f) ||
+            !std::isfinite(actuator.responseTimeSeconds) ||
+            actuator.responseTimeSeconds < 0.0f ||
+            !std::isfinite(actuator.parameters.x) ||
+            !std::isfinite(actuator.parameters.y) ||
+            !std::isfinite(actuator.parameters.z) ||
+            !std::isfinite(actuator.parameters.w)) {
+            reason = "robot actuators require unique identities, targets, and finite positive scales";
+            return false;
+        }
+        switch (actuator.kind) {
+        case RobotActuatorKind::jointPosition:
+        case RobotActuatorKind::jointVelocity:
+        case RobotActuatorKind::jointEffort:
+        case RobotActuatorKind::gripperPosition:
+            if (std::ranges::count(
+                    robot.mechanics.jointNames,
+                    actuator.target
+                ) != 1) {
+                reason = "robot actuator '" + actuator.id +
+                    "' has an unresolved joint target '" +
+                    actuator.target + "'";
+                return false;
+            }
+            if (!controlledJoints.insert(actuator.target).second) {
+                reason = "robot joint '" + actuator.target +
+                    "' is controlled by more than one physical actuator";
+                return false;
+            }
+            break;
+        case RobotActuatorKind::tendonPosition:
+            if (actuator.terms.empty() ||
+                !(actuator.parameters.x > 0.0f) ||
+                actuator.parameters.y < 0.0f ||
+                !(actuator.parameters.z > 0.0f)) {
+                reason = "tendon actuator '" + actuator.id +
+                    "' requires stiffness, damping, force limit, and sparse terms";
+                return false;
+            }
+            {
+                std::unordered_set<std::string> tendonJoints;
+                for (const RobotActuatorTermSpec& term : actuator.terms) {
+                    if (term.joint.empty() ||
+                        !std::isfinite(term.coefficient) ||
+                        term.coefficient == 0.0f ||
+                        !tendonJoints.insert(term.joint).second ||
+                        std::ranges::count(
+                            robot.mechanics.jointNames,
+                            term.joint
+                        ) != 1) {
+                        reason = "tendon actuator '" + actuator.id +
+                            "' has a duplicate or unresolved sparse term";
+                        return false;
+                    }
+                    if (!controlledJoints.insert(term.joint).second) {
+                        reason = "robot joint '" + term.joint +
+                            "' is shared by incompatible physical actuators";
+                        return false;
+                    }
+                }
+            }
+            break;
+        case RobotActuatorKind::rotorMixer:
+        case RobotActuatorKind::bodyWrench:
+            // These target robot-authored named controller groups or bodies;
+            // their specialized compiler validates the concrete program.
+            break;
+        default:
+            reason = "robot actuator '" + actuator.id +
+                "' has an unknown kind";
+            return false;
+        }
+    }
+    return true;
+}
+
+std::optional<std::string> compileActuatorModes(
+    EngineModel& model,
+    const std::span<const RobotActuatorSpec> actuators
+) {
+    const auto disableImplicitDrive = [&](const std::string_view jointName)
+        -> std::optional<std::string> {
+        const auto joint = std::ranges::find(model.jointNames, jointName);
+        if (joint == model.jointNames.end()) {
+            return "actuator joint is absent from composed mechanics: " +
+                std::string{jointName};
+        }
+        const std::uint32_t jointIndex = static_cast<std::uint32_t>(
+            joint - model.jointNames.begin());
+        auto dof = std::ranges::find_if(
+            model.dofs,
+            [jointIndex](const MRDofPropertiesGPU& candidate) {
+                return candidate.jointIndex == jointIndex;
+            }
+        );
+        if (dof == model.dofs.end() ||
+            std::ranges::count_if(
+                model.dofs,
+                [jointIndex](const MRDofPropertiesGPU& candidate) {
+                    return candidate.jointIndex == jointIndex;
+                }
+            ) != 1u) {
+            return "non-position actuator requires one scalar DoF: " +
+                std::string{jointName};
+        }
+        // Velocity, effort, and tendon programs write physical generalized
+        // effort from live microstep state. Leaving the position-drive flag
+        // enabled would add a second hidden controller and implicit inertia.
+        dof->flags &= ~static_cast<std::uint32_t>(MR_DOF_FLAG_DRIVE);
+        dof->drive.x = 0.0f;
+        dof->drive.y = 0.0f;
+        return std::nullopt;
+    };
+    for (const RobotActuatorSpec& actuator : actuators) {
+        if (actuator.kind == RobotActuatorKind::jointVelocity ||
+            actuator.kind == RobotActuatorKind::jointEffort) {
+            if (const auto error = disableImplicitDrive(actuator.target)) {
+                return error;
+            }
+        } else if (actuator.kind == RobotActuatorKind::tendonPosition) {
+            for (const RobotActuatorTermSpec& term : actuator.terms) {
+                if (const auto error = disableImplicitDrive(term.joint)) {
+                    return error;
+                }
+            }
+        }
+    }
+    return std::nullopt;
+}
+
+std::uint64_t robotPackFingerprint(const RobotPack& robot) {
+    Hash hash;
+    hash.scalar(engineModelFingerprint(robot.mechanics));
+    hash.scalar(robot.revision);
+    hash.string(robot.sourceRepository);
+    hash.string(robot.sourceRevision);
+    hash.scalar<std::uint64_t>(robot.actuators.size());
+    for (const RobotActuatorSpec& actuator : robot.actuators) {
+        hash.string(actuator.id);
+        hash.scalar(actuator.kind);
+        hash.string(actuator.target);
+        hash.scalar(actuator.scale);
+        hash.scalar(actuator.responseTimeSeconds);
+        hash.scalar(actuator.parameters);
+        hash.scalar(actuator.component);
+        hash.scalar<std::uint64_t>(actuator.terms.size());
+        for (const RobotActuatorTermSpec& term : actuator.terms) {
+            hash.string(term.joint);
+            hash.scalar(term.coefficient);
+        }
+    }
+    if (robot.multicopter) {
+        hash.bytes(&robot.multicopter->model, sizeof(robot.multicopter->model));
+        hash.bytes(robot.multicopter->rotors.data(),
+            sizeof(robot.multicopter->rotors));
+        hash.bytes(&robot.multicopter->mixer, sizeof(robot.multicopter->mixer));
+        hash.string(robot.multicopter->bodyRole);
+        hash.scalar(robot.multicopter->windVelocity);
+    }
+    return hash.finish();
 }
 
 std::uint64_t sensorFingerprint(
@@ -153,31 +326,13 @@ bool anyCapacity(const MetalWorldCapacityProfile& capacity) {
     return std::memcmp(&capacity, &empty, sizeof(capacity)) != 0;
 }
 
-bool taskOwnsSensorExecution(const TaskPack& task) {
-    return !task.actorFrame.empty() || !task.actorCurrent.empty() ||
-        !task.critic.empty() || task.actorHistoryLength != 1u ||
-        task.criticHistoryLength != 1u ||
-        !task.criticIncludesCleanHistory || task.visual.width != 0u ||
-        task.visual.height != 0u || !task.visual.frameOffsets.empty();
-}
-
-bool taskOwnsRealityExecution(const TaskPack& task) {
-    return !task.randomization.empty() ||
-        task.maximumActionDelaySteps != 0u ||
-        task.maximumObservationDelaySteps != 0u;
-}
-
 std::optional<std::string> lowerRealityProgram(
     const WorldTemplate& world,
     const RunProfile& profile,
     RealityPack const& reality,
-    TaskPack& executable
+    TaskResetProgram& executable
 ) {
-    executable.randomization = reality.taskState;
-    executable.maximumActionDelaySteps =
-        reality.maximumActionDelaySteps;
-    executable.maximumObservationDelaySteps =
-        reality.maximumObservationDelaySteps;
+    executable = reality.reset;
     const EngineModel& model = world.engineModel;
     const auto appendBodyParameter = [&executable, &model](
         const WorldAsset& asset,
@@ -188,7 +343,7 @@ std::optional<std::string> lowerRealityProgram(
             if (body >= model.bodyNames.size()) {
                 return "reality asset body range exceeds compiled mechanics";
             }
-            executable.randomization.push_back({
+            executable.operators.push_back({
                 .operation = TaskRandomizationOperator::worldBodyParameter,
                 .target = model.bodyNames[body],
                 .component = component,
@@ -233,7 +388,7 @@ std::optional<std::string> lowerRealityProgram(
                         MR_INVALID_INDEX) {
                     continue;
                 }
-                executable.randomization.push_back({
+                executable.operators.push_back({
                     .operation =
                         TaskRandomizationOperator::sceneBodyPosition,
                     .target = model.bodyNames[body],
@@ -275,7 +430,7 @@ std::optional<std::string> lowerRealityProgram(
                       MR_WORLD_TARGET_ROBOT_DAMPING_SCALE
                     ? 1u
                     : 3u;
-            executable.randomization.push_back({
+            executable.operators.push_back({
                 .operation =
                     TaskRandomizationOperator::controllerParameter,
                 .component = component,
@@ -301,7 +456,7 @@ std::optional<std::string> lowerRealityProgram(
                 executable.maximumActionDelaySteps,
                 upper
             );
-            executable.randomization.push_back({
+            executable.operators.push_back({
                 .operation = TaskRandomizationOperator::actionDelay,
                 .parameters = {
                     static_cast<float>(lower),
@@ -350,16 +505,46 @@ RobotPack genericRobot(
         .kind = RobotSemanticKind::body,
         .members = pack.mechanics.bodyNames,
     });
-    pack.roles.push_back({
-        .id = "all_joints",
-        .kind = RobotSemanticKind::joint,
-        .members = pack.mechanics.jointNames,
-    });
-    pack.roles.push_back({
-        .id = "all_dofs",
-        .kind = RobotSemanticKind::dof,
-        .members = pack.mechanics.dofNames,
-    });
+    if (!pack.mechanics.jointNames.empty()) {
+        pack.roles.push_back({
+            .id = "all_joints",
+            .kind = RobotSemanticKind::joint,
+            .members = pack.mechanics.jointNames,
+        });
+    }
+    if (!pack.mechanics.dofNames.empty()) {
+        pack.roles.push_back({
+            .id = "all_dofs",
+            .kind = RobotSemanticKind::dof,
+            .members = pack.mechanics.dofNames,
+        });
+    }
+    for (std::uint32_t joint = 0u;
+         joint < pack.mechanics.jointNames.size();
+         ++joint) {
+        const auto dof = std::ranges::find_if(
+            pack.mechanics.dofs,
+            [joint](const MRDofPropertiesGPU& candidate) {
+                return candidate.jointIndex == joint &&
+                    (candidate.flags & MR_DOF_FLAG_ACTUATED) != 0u;
+            }
+        );
+        if (dof == pack.mechanics.dofs.end() ||
+            std::ranges::count_if(
+                pack.mechanics.dofs,
+                [joint](const MRDofPropertiesGPU& candidate) {
+                    return candidate.jointIndex == joint;
+                }
+            ) != 1u) {
+            continue;
+        }
+        pack.actuators.push_back({
+            .id = pack.mechanics.jointNames[joint],
+            .kind = RobotActuatorKind::jointPosition,
+            .target = pack.mechanics.jointNames[joint],
+            .scale = 0.25f,
+        });
+    }
     return pack;
 }
 
@@ -459,6 +644,10 @@ const VisualSensorProgram*
 CompiledRun::visualSensorProgram() const noexcept {
     return visualSensorProgram_ ? &*visualSensorProgram_ : nullptr;
 }
+const MetalWorldMulticopterProgram*
+CompiledRun::multicopterProgram() const noexcept {
+    return multicopterProgram_ ? &*multicopterProgram_ : nullptr;
+}
 
 RunCompileDiagnostics compileRun(
     const RunManifest& manifest,
@@ -546,20 +735,6 @@ RunCompileDiagnostics compileRun(
                 );
             }
         }
-        if (taskOwnsSensorExecution(manifest.task)) {
-            return reject(
-                RunCompileStatus::invalidManifest,
-                manifest.task.id,
-                "TaskPack contains observation execution; move it to SensorPack"
-            );
-        }
-        if (taskOwnsRealityExecution(manifest.task)) {
-            return reject(
-                RunCompileStatus::invalidManifest,
-                manifest.task.id,
-                "TaskPack contains reset variation execution; move it to RealityPack"
-            );
-        }
         if (manifest.teacher.kind == TeacherKind::none) {
             if (manifest.teacher.interactions.has_value() ||
                 !manifest.teacher.interactionClip.empty()) {
@@ -592,7 +767,8 @@ RunCompileDiagnostics compileRun(
             !manifest.robot.mechanics.valid(&reason) ||
             manifest.robot.primaryArticulationIndex >=
                 manifest.robot.mechanics.articulations.size() ||
-            !validRoles(manifest.robot, reason)) {
+            !validRoles(manifest.robot, reason) ||
+            !validActuators(manifest.robot, reason)) {
             return reject(
                 RunCompileStatus::invalidRobot,
                 manifest.robot.id,
@@ -631,6 +807,14 @@ RunCompileDiagnostics compileRun(
                 RunCompileStatus::compositionFailure,
                 "scene",
                 composition.message
+            );
+        }
+        if (const auto actuatorError = compileActuatorModes(
+                model, manifest.robot.actuators)) {
+            return reject(
+                RunCompileStatus::invalidRobot,
+                manifest.robot.id,
+                *actuatorError
             );
         }
 
@@ -843,34 +1027,20 @@ RunCompileDiagnostics compileRun(
             return reject(RunCompileStatus::worldFailure, "reality",
                 familyStatus.message);
         }
-        // Compile the independently authored runtime programs into one fused
-        // native transaction. This is a compile-time lowering only: Metal
-        // executes the resolved sensor, reality and teacher tables directly,
-        // with no runtime adapter or duplicated host logic.
-        TaskPack executableTask = manifest.task;
-        executableTask.actorFrame = manifest.sensors.actorFrame;
-        executableTask.actorHistoryLength =
-            manifest.sensors.actorHistoryLength;
-        executableTask.actorCurrent = manifest.sensors.actorCurrent;
-        executableTask.critic = manifest.sensors.critic;
-        executableTask.criticHistoryLength =
-            manifest.sensors.criticHistoryLength;
-        executableTask.criticIncludesCleanHistory =
-            manifest.sensors.criticIncludesCleanHistory;
-        executableTask.visual = manifest.sensors.visual;
-        if (executableTask.actorFrame.empty() ||
-            executableTask.critic.empty()) {
+        if (manifest.sensors.observation.actorFrame.empty() ||
+            manifest.sensors.observation.critic.empty()) {
             return reject(
                 RunCompileStatus::invalidManifest,
                 manifest.sensors.id,
                 "SensorPack must author executable actor and critic observations"
             );
         }
+        TaskResetProgram executableReset;
         if (const auto realityError = lowerRealityProgram(
                 worldTemplate,
                 manifest.profile,
                 manifest.reality,
-                executableTask
+                executableReset
             )) {
             return reject(
                 RunCompileStatus::invalidManifest,
@@ -897,20 +1067,105 @@ RunCompileDiagnostics compileRun(
         const TaskCompileDiagnostics taskStatus =
             manifest.teacher.interactions
             ? compileTaskProgram(
-                  executableTask,
+                  manifest.task,
+                  manifest.robot.actuators,
+                  manifest.sensors.observation,
+                  executableReset,
                   *manifest.teacher.interactions,
                   manifest.teacher.interactionClip,
                   staged.world_,
                   staged.task_
               )
             : compileTaskProgram(
-                  executableTask,
+                  manifest.task,
+                  manifest.robot.actuators,
+                  manifest.sensors.observation,
+                  executableReset,
                   staged.world_,
                   staged.task_
               );
         if (!taskStatus.succeeded()) {
             return reject(RunCompileStatus::taskFailure, taskStatus.element,
                 taskStatus.message);
+        }
+        if (manifest.robot.multicopter) {
+            const MulticopterActuatorPack& authored =
+                *manifest.robot.multicopter;
+            const RobotSemanticRole* bodyRole = role(
+                manifest.robot,
+                authored.bodyRole,
+                RobotSemanticKind::body
+            );
+            if (bodyRole == nullptr || bodyRole->members.size() != 1u ||
+                authored.model.rotorCount == 0u ||
+                authored.model.rotorCount > MR_MULTICOPTER_MAX_ROTORS) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    manifest.robot.id + ".multicopter",
+                    "multicopter program requires one body role and a valid rotor model"
+                );
+            }
+            // model_ is published below; resolve against the composed model
+            // that the task and MetalWorld already compiled.
+            const auto composedBody = std::ranges::find(
+                model.bodyNames,
+                bodyRole->members.front()
+            );
+            std::array<std::uint32_t, 4u> actionByComponent{
+                MR_INVALID_INDEX, MR_INVALID_INDEX,
+                MR_INVALID_INDEX, MR_INVALID_INDEX,
+            };
+            for (std::uint32_t action = 0u;
+                 action < manifest.task.actions.size();
+                 ++action) {
+                const auto actuator = std::ranges::find_if(
+                    manifest.robot.actuators,
+                    [&](const RobotActuatorSpec& value) {
+                        return value.id ==
+                            manifest.task.actions[action].actuator;
+                    }
+                );
+                if (actuator == manifest.robot.actuators.end() ||
+                    actuator->kind != RobotActuatorKind::rotorMixer) {
+                    continue;
+                }
+                if (actuator->component >= actionByComponent.size() ||
+                    actionByComponent[actuator->component] !=
+                        MR_INVALID_INDEX ||
+                    actuator->target != bodyRole->members.front()) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        actuator->id,
+                        "rotor mixer components must uniquely bind the multicopter body"
+                    );
+                }
+                actionByComponent[actuator->component] = action;
+            }
+            if (composedBody == model.bodyNames.end() ||
+                !std::ranges::equal(
+                    actionByComponent,
+                    std::array<std::uint32_t, 4u>{0u, 1u, 2u, 3u}
+                )) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    manifest.robot.id + ".multicopter",
+                    "multicopter body or canonical four-lane task action contract is unresolved"
+                );
+            }
+            staged.multicopterProgram_ = MetalWorldMulticopterProgram{
+                .model = authored.model,
+                .rotors = authored.rotors,
+                .mixer = authored.mixer,
+                .articulationIndex = manifest.robot.primaryArticulationIndex,
+                .bodyIndex = static_cast<std::uint32_t>(
+                    composedBody - model.bodyNames.begin()
+                ),
+                .firstAction = 0u,
+                .windVelocity = authored.windVelocity,
+            };
+            staged.multicopterProgram_->model.motorAndTimestep.w =
+                manifest.profile.controlTimestepSeconds /
+                static_cast<float>(manifest.profile.physicsSubsteps);
         }
         if (manifest.policy) {
             const PolicyCompileDiagnostics policyStatus =
@@ -932,9 +1187,7 @@ RunCompileDiagnostics compileRun(
         staged.profile_.physics = compose;
         staged.teacher_ = manifest.teacher;
         staged.visualSensorProgram_ = manifest.sensors.deviceVisual;
-        staged.robotFingerprint_ = engineModelFingerprint(
-            manifest.robot.mechanics
-        );
+        staged.robotFingerprint_ = robotPackFingerprint(manifest.robot);
         {
             Hash sensorHash;
             sensorHash.scalar(sensorFingerprint(episode.sensors));
@@ -961,9 +1214,9 @@ RunCompileDiagnostics compileRun(
                     staged.task_.randomizationOperators().size_bytes()
                 );
             }
-            realityHash.scalar(executableTask.maximumActionDelaySteps);
+            realityHash.scalar(executableReset.maximumActionDelaySteps);
             realityHash.scalar(
-                executableTask.maximumObservationDelaySteps
+                executableReset.maximumObservationDelaySteps
             );
             staged.realityFingerprint_ = realityHash.finish();
         }
@@ -996,6 +1249,20 @@ RunCompileDiagnostics compileRun(
         }
         runHash.scalar(staged.task_.fingerprint());
         runHash.scalar(staged.policy_.fingerprint());
+        if (staged.multicopterProgram_) {
+            const MetalWorldMulticopterProgram& multicopter =
+                *staged.multicopterProgram_;
+            runHash.bytes(&multicopter.model, sizeof(multicopter.model));
+            runHash.bytes(
+                multicopter.rotors.data(),
+                sizeof(multicopter.rotors)
+            );
+            runHash.bytes(&multicopter.mixer, sizeof(multicopter.mixer));
+            runHash.scalar(multicopter.articulationIndex);
+            runHash.scalar(multicopter.bodyIndex);
+            runHash.scalar(multicopter.firstAction);
+            runHash.scalar(multicopter.windVelocity);
+        }
         runHash.string(staged.profile_.id);
         runHash.scalar(staged.profile_.environmentCount);
         runHash.scalar(staged.profile_.controlSteps);
@@ -1023,10 +1290,265 @@ RunCompileDiagnostics compileRun(
 }
 
 std::vector<std::string> builtinRobotIds() {
-    return {"unitree_g1", "franka_panda", "dvrk_psm"};
+    return {"unitree_g1", "franka_panda", "dvrk_psm", "px4_x500"};
+}
+
+ScenePack makePX4X500HoverScenePack() {
+    const auto robot = builtinRobotPack("px4_x500");
+    if (!robot) {
+        throw std::logic_error("bundled PX4 X500 RobotPack is unavailable");
+    }
+    LocomotionSceneComponent ground = makeLocomotionSurfaceComponent(
+        robot->mechanics,
+        LocomotionSurface::ground
+    );
+    ScenePack scene;
+    scene.id = "px4_x500_hover_scene";
+    scene.objects.push_back({
+        .id = "flight_ground",
+        .semanticClass = "ground",
+        .role = MR_WORLD_ASSET_FIXTURE,
+        .render = MR_WORLD_RENDER_PROCEDURAL,
+        .collision = MR_WORLD_COLLISION_PRIMITIVES,
+        .dynamics = MR_WORLD_DYNAMICS_STATIC,
+        .mechanics = std::move(ground.mechanics),
+        .defaultBodyStates = std::move(ground.defaultBodyStates),
+    });
+    return scene;
+}
+
+TaskPack makePX4X500HoverTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task;
+    task.id = "px4_x500_hover";
+    task.actions = {
+        {"rotor_mixer.collective"},
+        {"rotor_mixer.roll"},
+        {"rotor_mixer.pitch"},
+        {"rotor_mixer.yaw"},
+    };
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::neutral},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"tracking", "ratio", TaskOutcomeSource::trackingScore,
+            TaskOutcomeDirection::higherIsBetter},
+    };
+    task.capacities = {
+        .candidatePairs = 32u,
+        .rawContacts = 64u,
+        .manifolds = 16u,
+        .constraintBlocks = 32u,
+        .constraintRows = 96u,
+        .hardConvexPairs = 32u,
+        .ccdCandidates = 16u,
+        .ccdEvents = 4u,
+        .endpointRuntimeRecords = 64u,
+        .qualityRows = 96u,
+        .islandConstraintReferences = 32u,
+    };
+    task.maximumEpisodeSteps = 1000u;
+    task.difficultyBandCount = 1u;
+    task.baseHeightTarget = 2.0f;
+    task.gaitPeriodSeconds = 1.0f;
+    task.successTrackingThreshold = 0.85f;
+    task.supportForceThreshold = 0.0f;
+    task.commands.lower = {};
+    task.commands.upper = {};
+    task.commands.limitLower = {};
+    task.commands.limitUpper = {};
+    task.commands.difficultyStep = {};
+    task.commands.standingProbability = 1.0f;
+    task.commands.minimumDurationSeconds = 20.0f;
+    task.commands.maximumDurationSeconds = 20.0f;
+    task.pushes.minimumIntervalSeconds = 20.0f;
+    task.pushes.maximumIntervalSeconds = 20.0f;
+    task.rewards = {
+        {TaskRewardOperator::constant, {}, {}, 0.25f},
+        {TaskRewardOperator::rootHeightErrorSquared, {}, {}, -1.0f},
+        {TaskRewardOperator::tiltSquared, {}, {}, -0.5f},
+        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.1f},
+        {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.05f},
+        {TaskRewardOperator::actionRateSquared, {}, {}, -0.01f},
+    };
+    task.terminations = {
+        {TaskTerminationOperator::minimumRootHeight, {},
+            MR_TASK_TERMINATION_HEIGHT, 10u, 0.15f, -1.0f},
+        {TaskTerminationOperator::maximumTilt, {},
+            MR_TASK_TERMINATION_TILT, 20u, 1.20f, -1.0f},
+    };
+    observations.actorHistoryLength = 1u;
+    observations.criticHistoryLength = 1u;
+    observations.criticIncludesCleanHistory = false;
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::rootLinearVelocityLocal,
+            .component = component,
+            .scale = 0.5f,
+        });
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::rootAngularVelocityLocal,
+            .component = component,
+            .scale = 0.25f,
+        });
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::projectedGravity,
+            .component = component,
+            .normalizeVector3 = true,
+        });
+    }
+    observations.actorFrame.push_back({
+        .source = TaskObservationSource::rootHeight,
+        .scale = 0.5f,
+        .offset = -1.0f,
+    });
+    for (const TaskActionBinding& action : task.actions) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::previousAction,
+            .target = action.actuator,
+        });
+    }
+    observations.critic = observations.actorFrame;
+    reset.maximumActionDelaySteps = 0u;
+    reset.maximumObservationDelaySteps = 0u;
+    reset.operators = {
+        {.operation = TaskRandomizationOperator::rootPosition,
+            .parameters = {0.05f, 0.05f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::rootYaw,
+            .parameters = {-0.10f, 0.10f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::rootHeight,
+            .parameters = {1.95f, 2.05f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::velocity,
+            .parameters = {-0.02f, 0.02f, 0.0f, 0.0f}},
+    };
+    return task;
 }
 
 std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
+    if (id == "px4_x500") {
+        EngineModel mechanics = makeFreeSphereEngineModel();
+        mechanics.name = "px4_x500";
+        mechanics.world.gravityAndTimestep = {
+            0.0f, 0.0f, -9.81f, 1.0f / 240.0f,
+        };
+        mechanics.articulations[0u].rootBody = 0u;
+        mechanics.articulations[0u].firstBody = 0u;
+        mechanics.bodies = {makePX4X500BodyProperties()};
+        mechanics.bodies[0u].articulationIndex = 0u;
+        mechanics.bodyNames = {"x500_base"};
+        mechanics.world.bodyCount = 1u;
+        mechanics.dofNames = {
+            "root_x", "root_y", "root_z",
+            "root_rx", "root_ry", "root_rz",
+        };
+        mechanics.defaultQ = {
+            0.0f, 0.0f, 2.0f,
+            0.0f, 0.0f, 0.0f, 1.0f,
+        };
+        mechanics.shapes.clear();
+        const auto appendBox = [&](const mr_float4 position,
+                                   const mr_float4 rotation,
+                                   const mr_float4 halfExtents) {
+            MRShapeGPU shape{};
+            shape.bodyIndex = 0u;
+            shape.shapeType = MR_SHAPE_BOX;
+            shape.materialIndex = 0u;
+            shape.collisionGroup = 1u;
+            shape.collisionMask = ~0u;
+            shape.slotGeneration = static_cast<std::uint32_t>(
+                mechanics.shapes.size() + 1u
+            );
+            shape.localPosition = position;
+            shape.localPosition.w = 1.0f;
+            shape.localRotation = rotation;
+            shape.dimensions = halfExtents;
+            shape.contactRestAndBoundingRadius = {
+                0.001f, 0.0f,
+                std::sqrt(
+                    halfExtents.x * halfExtents.x +
+                    halfExtents.y * halfExtents.y +
+                    halfExtents.z * halfExtents.z
+                ),
+                0.0f,
+            };
+            mechanics.shapes.push_back(shape);
+        };
+        const mr_float4 identity{0.0f, 0.0f, 0.0f, 1.0f};
+        appendBox({0.0f, 0.0f, 0.007f, 1.0f}, identity,
+            {0.1767766953f, 0.1767766953f, 0.025f, 0.0f});
+        const float halfRoll = 0.175f;
+        appendBox({0.0f, -0.098f, -0.123f, 1.0f},
+            {-std::sin(halfRoll), 0.0f, 0.0f, std::cos(halfRoll)},
+            {0.0075f, 0.0075f, 0.105f, 0.0f});
+        appendBox({0.0f, 0.098f, -0.123f, 1.0f},
+            {std::sin(halfRoll), 0.0f, 0.0f, std::cos(halfRoll)},
+            {0.0075f, 0.0075f, 0.105f, 0.0f});
+        appendBox({0.0f, -0.132f, -0.2195f, 1.0f}, identity,
+            {0.125f, 0.0075f, 0.0075f, 0.0f});
+        appendBox({0.0f, 0.132f, -0.2195f, 1.0f}, identity,
+            {0.125f, 0.0075f, 0.0075f, 0.0f});
+        constexpr std::array<mr_float4, 4u> rotorPositions{{
+            {0.174f, -0.174f, 0.06f, 1.0f},
+            {-0.174f, 0.174f, 0.06f, 1.0f},
+            {0.174f, 0.174f, 0.06f, 1.0f},
+            {-0.174f, -0.174f, 0.06f, 1.0f},
+        }};
+        for (const mr_float4 position : rotorPositions) {
+            appendBox(position, identity,
+                {0.1396153846f, 0.0084615385f,
+                 0.0004230769f, 0.0f});
+        }
+        mechanics.world.shapeCount = static_cast<std::uint32_t>(
+            mechanics.shapes.size()
+        );
+        mechanics.shapeNames.clear();
+        for (std::size_t index = 0u; index < mechanics.shapes.size();
+             ++index) {
+            mechanics.shapeNames.push_back(
+                "x500_base/collision_" + std::to_string(index)
+            );
+        }
+        RobotPack pack = genericRobot(
+            "px4_x500",
+            std::move(mechanics),
+            {"flight", "hover", "aerial_manipulation"}
+        );
+        pack.sourceRepository =
+            "https://github.com/PX4/PX4-gazebo-models.git";
+        pack.sourceRevision =
+            "e00d3b9cde682dbcb3bf6f30a2f2b8ef4325dae8";
+        pack.license = "BSD-3-Clause";
+        addBodyRole(pack, "airframe", {"x500_base"});
+        const auto model = makePX4X500MulticopterModel(1.0f / 240.0f);
+        const float hover = std::sqrt(
+            pack.mechanics.bodies[0u].massAndInverseMass.x * 9.81f /
+            (4.0f * model.coefficients.x)
+        );
+        pack.actuators.clear();
+        constexpr std::array<std::string_view, 4u> lanes{
+            "collective", "roll", "pitch", "yaw",
+        };
+        for (std::uint32_t component = 0u; component < lanes.size();
+             ++component) {
+            pack.actuators.push_back({
+                .id = "rotor_mixer." + std::string{lanes[component]},
+                .kind = RobotActuatorKind::rotorMixer,
+                .target = "x500_base",
+                .scale = 1.0f,
+                .component = component,
+            });
+        }
+        pack.multicopter = MulticopterActuatorPack{
+            .model = model,
+            .rotors = makePX4X500Rotors(),
+            .mixer = {{hover, 120.0f, 35.0f, 12.0f}},
+            .bodyRole = "airframe",
+        };
+        return pack;
+    }
     if (id == "unitree_g1") {
         RobotPack pack = genericRobot(
             "unitree_g1",
@@ -1037,6 +1559,13 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         pack.sourceRepository = std::string(metadata.sourceRepository);
         pack.sourceRevision = std::string(metadata.sourceCommit);
         pack.license = std::string(metadata.sourceLicense);
+        const std::span<const float> scales =
+            unitreeG1LocomotionActionScales();
+        for (std::size_t index = 0u;
+             index < pack.actuators.size() && index < scales.size();
+             ++index) {
+            pack.actuators[index].scale = scales[index];
+        }
         addBodyRole(pack, "left_foot", {"left_ankle_roll_link"});
         addBodyRole(pack, "right_foot", {"right_ankle_roll_link"});
         addBodyRole(pack, "pelvis", {"pelvis"});
@@ -1050,6 +1579,16 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             makeFrankaPandaHandEngineModel(),
             {"manipulation", "grasping", "force_control"}
         );
+        for (RobotActuatorSpec& actuator : pack.actuators) {
+            actuator.scale = actuator.target.find("finger") !=
+                    std::string::npos
+                ? 0.01f
+                : 0.25f;
+            actuator.responseTimeSeconds = 0.04f;
+            if (actuator.target.find("finger") != std::string::npos) {
+                actuator.kind = RobotActuatorKind::gripperPosition;
+            }
+        }
         addBodyRole(pack, "base", {"panda_link0"});
         addBodyRole(pack, "gripper", {
             "panda_hand", "panda_leftfinger", "panda_rightfinger"

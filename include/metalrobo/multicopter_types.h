@@ -53,6 +53,28 @@ typedef struct MR_ALIGN16 MRMulticopterMixerGPU {
     mr_float4 hoverAndScales;
 } MRMulticopterMixerGPU;
 
+// Resolved CompiledRun binding for the universal MetalWorld state layout.
+// The program reads filtered task actions and writes an ABA body wrench; it
+// does not own integration, gravity, collision, contact, or episode state.
+typedef struct MR_ALIGN16 MRCompiledMulticopterDispatchGPU {
+    mr_u32 environmentCount;
+    mr_u32 qStride;
+    mr_u32 vStride;
+    mr_u32 bodyStride;
+
+    mr_u32 qOffset;
+    mr_u32 vOffset;
+    mr_u32 bodyIndex;
+    mr_u32 localBodyIndex;
+
+    mr_u32 actionCount;
+    mr_u32 actionHistoryStride;
+    mr_u32 filterSlot;
+    mr_u32 firstAction;
+
+    mr_float4 windVelocity;
+} MRCompiledMulticopterDispatchGPU;
+
 // A compact, Markov hover/position task contract. Observation lanes are
 // target-relative position, world velocity, body-up direction, angular
 // velocity, and normalized rotor speeds. rewardAndDone = reward, done, tilt,
@@ -78,6 +100,7 @@ static_assert(sizeof(MRMulticopterStateGPU) == 32);
 static_assert(sizeof(MRMulticopterDispatchGPU) == 32);
 static_assert(sizeof(MRMulticopterActionGPU) == 16);
 static_assert(sizeof(MRMulticopterMixerGPU) == 16);
+static_assert(sizeof(MRCompiledMulticopterDispatchGPU) == 64);
 static_assert(sizeof(MRMulticopterFlightTaskGPU) == 32);
 static_assert(sizeof(MRMulticopterFlightTransitionGPU) == 96);
 #endif

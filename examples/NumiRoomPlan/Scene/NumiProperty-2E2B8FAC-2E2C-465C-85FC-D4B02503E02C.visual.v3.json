@@ -1,0 +1,23 @@
+{
+  "schema_version": 3,
+  "id": "numi_property_roomplan_scan.visual.v3",
+  "coordinate_convention": "x-forward,y-left,z-up",
+  "world_fingerprint": 9086517682512196999,
+  "fingerprint": 2852369877894046265,
+  "visual_pack_hashes": ["sha256:d46264c9d9f50c776439c5265f694cd337e2889ae061d0e5351f411891e9efc9"],
+  "environment_map_hash": "builtin:neutral-studio-v2",
+  "light_rig_hash": "builtin:indoor-area-v1",
+  "preprocessing_provenance": "numi_roomplan_import/v1/native_visual_scene_compile",
+  "render_scene": {
+    "id": "numi_property_roomplan_scan.visual.v3.runtime",
+    "asset_count": 5,
+    "body_count": 15,
+    "gaussian_count": 0,
+    "visual_pack_count": 1,
+    "sensor_binding_count": 2,
+    "light_count": 1,
+    "environment_id": "neutral_studio",
+    "light_rig_id": "indoor_area",
+    "fingerprint": 11492681571020377155
+  }
+}

@@ -19,7 +19,8 @@ inline bool validWorldDispatch(
         MR_METAL_WORLD_FREE_MOTION_ONLY |
         MR_METAL_WORLD_CONTACTS |
         MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES |
-        MR_METAL_WORLD_NATIVE_TASK;
+        MR_METAL_WORLD_NATIVE_TASK |
+        MR_METAL_WORLD_HAS_BODY_WRENCHES;
     const uint modeFlags =
         dispatch.flags &
         (MR_METAL_WORLD_FREE_MOTION_ONLY |

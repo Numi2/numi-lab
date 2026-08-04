@@ -32,7 +32,7 @@ code.
   RMS tangential speed, maximum motion, and friction-utilization summaries.
 - World compiler and `MRWorldPack` persistence.
 - C++, C, Swift, and Python interfaces.
-- Generic TaskPack observation operators for named 6-axis contact-group
+- Generic SensorPack observation operators for named 6-axis contact-group
   wrenches in a reference-body frame.
 - Generic authored support patches that publish local wrench, center of
   pressure, occupied area, and fixed-grid pressure with ordinary actor
@@ -104,7 +104,7 @@ impulses divided by the explicitly supplied impulse interval.
 | Collision/contact | Target geometry reuses cooked engine shapes and BVH4; each solved contact contributes to at most two directly looked-up tactile sensors with opposite wrench signs. |
 | Physics stepping | The tactile encoder accepts body states and solver contacts from the same step and distinguishes observation `dt` from impulse `dt`. |
 | Metal resources | Static geometry is shared; dense outputs/history are fixed-capacity environment-major private buffers. |
-| RL observations | Depth, depth velocity, tangent motion, validity, identity, named summaries, and status remain in native Metal buffers. TaskPacks can directly select named 6-axis contact-group wrenches or authored support-patch wrench, CoP, occupied-area, and pressure-grid channels. |
+| RL observations | Depth, depth velocity, tangent motion, validity, identity, named summaries, and status remain in native Metal buffers. SensorPacks can directly select named 6-axis contact-group wrenches or authored support-patch wrench, CoP, occupied-area, and pressure-grid channels. |
 | Checkpoints | One exact tactile JSON contract is stored beside the policy. |
 | Replay | Frame index, reset mask, timestamp, and the existing world identity make the temporal contract explicit. |
 | Debugging | Optional PGM, CSV, OBJ, and JSON export; no renderer or readback is required in headless training. |

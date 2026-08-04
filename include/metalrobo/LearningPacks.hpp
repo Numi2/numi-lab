@@ -3,6 +3,7 @@
 #include "metalrobo/InteractionPack.hpp"
 #include "metalrobo/PolicyProgram.hpp"
 #include "metalrobo/TaskProgram.hpp"
+#include "metalrobo/WorldCompiler.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -14,7 +15,10 @@
 
 namespace metalrobo {
 
-inline constexpr std::uint32_t kTaskPackFormatVersion = 15u;
+inline constexpr std::uint32_t kTaskPackFormatVersion = 16u;
+inline constexpr std::uint32_t kRobotActuatorPackFormatVersion = 2u;
+inline constexpr std::uint32_t kSensorProgramPackFormatVersion = 1u;
+inline constexpr std::uint32_t kRealityProgramPackFormatVersion = 2u;
 inline constexpr std::uint32_t kPolicyPackFormatVersion = 4u;
 inline constexpr std::uint32_t
     kPolicyRolloutPackFormatVersion = 7u;
@@ -120,6 +124,29 @@ struct LearningPackResult {
     }
 };
 
+struct RobotActuatorPack {
+    std::string id;
+    std::vector<RobotActuatorSpec> actuators;
+};
+
+struct SensorProgramPack {
+    std::string id;
+    TaskObservationProgram observation;
+};
+
+struct RealityProgramPack {
+    std::string id;
+    // Executable world/physics variation is owned here, independently of the
+    // scene package. The run compiler resolves it directly against the
+    // selected world and executes the lowered program on Metal.
+    WorldProgram program;
+    // Optional identity of an upstream compiled program from which this
+    // authored program was recovered. It participates in run provenance but
+    // never substitutes for the executable semantics above.
+    std::uint64_t sourceProgramFingerprint = 0u;
+    TaskResetProgram reset;
+};
+
 // Canonical content fingerprint used by every learning-pack wire format.
 // Exposed so zero-copy readers can validate an already mapped payload without
 // allocating a second payload or reimplementing the hash in another language.
@@ -138,6 +165,36 @@ struct LearningPackResult {
 [[nodiscard]] LearningPackResult readTaskPack(
     const std::filesystem::path& path,
     TaskPack& output
+);
+
+[[nodiscard]] LearningPackResult writeRobotActuatorPack(
+    const RobotActuatorPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readRobotActuatorPack(
+    const std::filesystem::path& path,
+    RobotActuatorPack& output
+);
+
+[[nodiscard]] LearningPackResult writeSensorProgramPack(
+    const SensorProgramPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readSensorProgramPack(
+    const std::filesystem::path& path,
+    SensorProgramPack& output
+);
+
+[[nodiscard]] LearningPackResult writeRealityProgramPack(
+    const RealityProgramPack& pack,
+    const std::filesystem::path& path
+);
+
+[[nodiscard]] LearningPackResult readRealityProgramPack(
+    const std::filesystem::path& path,
+    RealityProgramPack& output
 );
 
 [[nodiscard]] LearningPackResult writePolicyPack(

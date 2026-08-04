@@ -316,6 +316,10 @@ void appendTerrain(
 LocomotionWorldCompileDiagnostics compileLocomotionWorld(
     const LocomotionWorld& authored,
     const std::uint32_t articulationIndex,
+    const TaskPack& task,
+    const std::span<const RobotActuatorSpec> actuators,
+    const TaskObservationProgram& observations,
+    const TaskResetProgram& reset,
     CompiledLocomotionWorld& compiled
 ) {
     LocomotionWorldCompileDiagnostics diagnostics;
@@ -324,13 +328,16 @@ LocomotionWorldCompileDiagnostics compileLocomotionWorld(
         authored.model,
         articulationIndex,
         staged.world,
-        authored.task.capacities
+        task.capacities
     );
     if (!diagnostics.world.succeeded()) {
         return diagnostics;
     }
     diagnostics.task = compileTaskProgram(
-        authored.task,
+        task,
+        actuators,
+        observations,
+        reset,
         staged.world,
         staged.task
     );
@@ -593,8 +600,7 @@ LocomotionSceneComponent makeLocomotionDynamicSphereComponent(
 }
 
 LocomotionWorld makeWorldPackLocomotionWorld(
-    const MRWorldPack& worldPack,
-    TaskPack task
+    const MRWorldPack& worldPack
 ) {
     std::string reason;
     if (!worldPack.valid(&reason)) {
@@ -623,7 +629,6 @@ LocomotionWorld makeWorldPackLocomotionWorld(
 
     LocomotionWorld result;
     result.model = authored.engineModel;
-    result.task = std::move(task);
     result.articulationIndex = robot.articulationIndex;
     std::vector<std::uint32_t> bodyToScene(
         result.model.bodies.size(),
@@ -707,7 +712,9 @@ LocomotionWorld makeWorldPackLocomotionWorld(
 }
 
 TaskPack makeUnitreeG1LocomotionTaskPack(
-    const LocomotionSurface surface
+    const LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
 ) {
     const G1ModelMetadata& metadata = unitreeG1Metadata();
     TaskPack task;
@@ -743,12 +750,12 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         .qualityRows = 192u,
         .islandConstraintReferences = 64u,
     };
-    task.actorHistoryLength = 1u;
-    task.criticHistoryLength = 1u;
-    task.criticIncludesCleanHistory = false;
+    observations.actorHistoryLength = 1u;
+    observations.criticHistoryLength = 1u;
+    observations.criticIncludesCleanHistory = false;
     task.maximumEpisodeSteps = 1000u;
-    task.maximumActionDelaySteps = 0u;
-    task.maximumObservationDelaySteps = 0u;
+    reset.maximumActionDelaySteps = 0u;
+    reset.maximumObservationDelaySteps = 0u;
     task.difficultyBandCount = 11u;
     task.baseHeightTarget = 0.78f;
     task.gaitPeriodSeconds = 0.6f;
@@ -776,17 +783,13 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     task.pushes.minimumIntervalSeconds = 5.0f;
     task.pushes.maximumIntervalSeconds = 5.0f;
 
-    const std::span<const float> actionScales =
-        unitreeG1LocomotionActionScales();
     task.actions.reserve(metadata.jointLimits.size());
     for (std::size_t index = 0u;
          index < metadata.jointLimits.size();
          ++index) {
         const G1JointLimit& joint = metadata.jointLimits[index];
         task.actions.push_back({
-            .joint = std::string{joint.name},
-            .scale = actionScales[index],
-            .responseTimeSeconds = 0.0f,
+            .actuator = std::string{joint.name},
         });
     }
 
@@ -813,7 +816,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     for (std::uint32_t component = 0u;
          component < 3u;
          ++component) {
-        task.actorFrame.push_back(observation(
+        observations.actorFrame.push_back(observation(
             TaskObservationSource::rootAngularVelocityLocal,
             {},
             component
@@ -822,7 +825,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     for (std::uint32_t component = 0u;
          component < 3u;
          ++component) {
-        task.actorFrame.push_back(observation(
+        observations.actorFrame.push_back(observation(
             TaskObservationSource::projectedGravity,
             {},
             component
@@ -831,7 +834,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     for (std::uint32_t component = 0u;
          component < 3u;
          ++component) {
-        task.actorFrame.push_back(observation(
+        observations.actorFrame.push_back(observation(
             TaskObservationSource::command,
             {},
             component
@@ -840,34 +843,34 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     for (std::uint32_t component = 0u;
          component < 2u;
          ++component) {
-        task.actorFrame.push_back(observation(
+        observations.actorFrame.push_back(observation(
             TaskObservationSource::gaitPhase,
             {},
             component
         ));
     }
     for (const G1JointLimit& joint : metadata.jointLimits) {
-        task.actorFrame.push_back(observation(
+        observations.actorFrame.push_back(observation(
             TaskObservationSource::jointPositionError,
             joint.name,
             0u
         ));
     }
     for (const G1JointLimit& joint : metadata.jointLimits) {
-        task.actorFrame.push_back(observation(
+        observations.actorFrame.push_back(observation(
             TaskObservationSource::jointVelocity,
             joint.name,
             0u
         ));
     }
     for (const G1JointLimit& joint : metadata.jointLimits) {
-        task.actorFrame.push_back(observation(
+        observations.actorFrame.push_back(observation(
             TaskObservationSource::previousAction,
             joint.name,
             0u
         ));
     }
-    task.critic = task.actorFrame;
+    observations.critic = observations.actorFrame;
 
     const auto bodyNames =
         [&metadata](
@@ -1137,9 +1140,13 @@ unitreeG1LocomotionActionScales() noexcept {
 }
 
 TaskPack makeUnitreeG1DisturbanceRecoveryTaskPack(
-    const LocomotionSurface surface
+    const LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
 ) {
-    TaskPack task = makeUnitreeG1LocomotionTaskPack(surface);
+    TaskPack task = makeUnitreeG1LocomotionTaskPack(
+        surface, observations, reset
+    );
     task.id = "unitree_g1_disturbance_recovery";
 
     // This skill owns balance and recovery, not commanded locomotion. Keeping
@@ -1162,8 +1169,8 @@ TaskPack makeUnitreeG1DisturbanceRecoveryTaskPack(
     task.pushes.maximumVelocity = 2.5f;
     task.pushes.minimumIntervalSeconds = 1.5f;
     task.pushes.maximumIntervalSeconds = 3.0f;
-    task.maximumActionDelaySteps = 2u;
-    task.randomization = {
+    reset.maximumActionDelaySteps = 2u;
+    reset.operators = {
         {
             .operation = TaskRandomizationOperator::rootPosition,
             .minimumDifficultyBand = 2u,
@@ -1208,10 +1215,14 @@ TaskPack makeUnitreeG1DisturbanceRecoveryTaskPack(
 }
 
 TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
-    const LocomotionSurface surface
+    const LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
 ) {
     const G1ModelMetadata& metadata = unitreeG1Metadata();
-    TaskPack task = makeUnitreeG1LocomotionTaskPack(surface);
+    TaskPack task = makeUnitreeG1LocomotionTaskPack(
+        surface, observations, reset
+    );
     task.id = "unitree_g1_supine_get_up_discovery";
     task.outcomes = {
         {"root_height", "m", TaskOutcomeSource::rootHeight,
@@ -1228,12 +1239,18 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
     // recovery-owned capacity instead of clipping a valid physical state.
     task.capacities.rawContacts = 192u;
     task.capacities.manifolds = 64u;
-    task.capacities.constraintBlocks = 96u;
-    task.capacities.constraintRows = 288u;
-    task.capacities.endpointRuntimeRecords = 192u;
-    task.capacities.articulationPointQueries = 192u;
-    task.capacities.qualityRows = 288u;
-    task.capacities.islandConstraintReferences = 96u;
+    task.capacities.constraintBlocks = 128u;
+    task.capacities.constraintRows = 384u;
+    task.capacities.endpointRuntimeRecords = 256u;
+    task.capacities.articulationPointQueries = 256u;
+    task.capacities.qualityRows = 384u;
+    task.capacities.islandConstraintReferences = 128u;
+    // Supine recovery exposes the convex hulls that remain separated during
+    // nominal standing. The first canonical supine reset reached the
+    // hard-convex reserve before the raw-contact/manifold capacities, so keep
+    // the recovery arena aligned with its 192-pair operational envelope.
+    task.capacities.hardConvexPairs = 192u;
+    task.capacities.meshTriangleCandidates = 4096u;
     // Five seconds covers a human-scale get-up and quiet stabilization while
     // refreshing every reset state often enough for mixed-state PPO batches.
     task.maximumEpisodeSteps = 256u;
@@ -1297,14 +1314,8 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
             std::abs(limit.upperPosition - nominalStance[index])
         );
         previousActionObservationScales[index] =
-            fullRangeScale / task.actions[index].scale;
-        task.actions[index].scale = fullRangeScale;
-        // Balance and load transfer require immediate ankle/hip corrections.
-        // A blanket multi-tick target filter made nominal standing collapse
-        // before the actor could counter the fall. Contact conditioning and
-        // bounded policy exploration own the former random-target spike; do
-        // not hide actuator bandwidth from the recovery controller.
-        task.actions[index].responseTimeSeconds = 0.0f;
+            fullRangeScale /
+            unitreeG1LocomotionActionScales()[index];
     }
 
     // Keep recovery's deployable proprioceptive prefix identical to the
@@ -1317,18 +1328,18 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
     criticFrame.reserve(93u);
     criticFrame.insert(
         criticFrame.end(),
-        task.actorFrame.begin(),
-        task.actorFrame.begin() + 5
+        observations.actorFrame.begin(),
+        observations.actorFrame.begin() + 5
     );
     criticFrame.insert(
         criticFrame.end(),
-        task.actorFrame.begin() + 11,
-        task.actorFrame.end()
+        observations.actorFrame.begin() + 11,
+        observations.actorFrame.end()
     );
-    criticFrame.push_back(task.actorFrame[5u]);
+    criticFrame.push_back(observations.actorFrame[5u]);
 
     std::erase_if(
-        task.actorFrame,
+        observations.actorFrame,
         [](const TaskObservationOperatorSpec& observation) {
             return observation.source == TaskObservationSource::gaitPhase;
         }
@@ -1336,7 +1347,7 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
     constexpr std::array<float, 3u> supportSenseScales{
         0.002f, 1.0f, 1.0f,
     };
-    for (TaskObservationOperatorSpec& observation : task.actorFrame) {
+    for (TaskObservationOperatorSpec& observation : observations.actorFrame) {
         if (observation.source == TaskObservationSource::command) {
             observation.source = TaskObservationSource::supportSense;
             observation.target.clear();
@@ -1385,7 +1396,7 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
         for (std::uint32_t component = 0u;
              component < supportPatchScales.size();
              ++component) {
-            task.actorFrame.push_back({
+            observations.actorFrame.push_back({
                 .source = TaskObservationSource::supportPatch,
                 .target = std::string{group},
                 .component = component,
@@ -1393,7 +1404,7 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
             });
         }
     }
-    task.critic = std::move(criticFrame);
+    observations.critic = std::move(criticFrame);
     const std::vector<TaskObservationOperatorSpec> privilegedState{
         {
             .source = TaskObservationSource::rootLinearVelocityLocal,
@@ -1424,13 +1435,13 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
             .scale = 0.01f,
         },
     };
-    task.critic.insert(
-        task.critic.end(),
+    observations.critic.insert(
+        observations.critic.end(),
         privilegedState.begin(),
         privilegedState.end()
     );
-    task.actorHistoryLength = 5u;
-    task.criticHistoryLength = 10u;
+    observations.actorHistoryLength = 5u;
+    observations.criticHistoryLength = 10u;
 
     const auto appendRecoveryContact =
         [&task](const std::string& id, const std::string& body) {
@@ -1549,7 +1560,7 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
         0.4665f, 0.8218f, 0.4253f, 1.2972f, 0.0f, 0.0f, 0.0f,
         0.1429f, -1.0324f, -0.4241f, 1.4075f, 0.0f, 0.0f, 0.0f,
     }};
-    task.randomization = {
+    reset.operators = {
         {
             .operation = TaskRandomizationOperator::rootOrientation,
             .parameters = {
@@ -1564,7 +1575,7 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
         },
     };
     for (std::size_t index = 0u; index < supine.size(); ++index) {
-        task.randomization.push_back({
+        reset.operators.push_back({
             .operation = TaskRandomizationOperator::jointPosition,
             .target = std::string{metadata.jointLimits[index].name},
             .parameters = {
@@ -1591,17 +1602,17 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
         0.60f, -0.20f, 0.0f, 1.00f, 0.0f, 0.0f, 0.0f,
     }};
     const auto appendResetPose =
-        [&task, &metadata](
+        [&reset, &metadata](
             const std::uint32_t band,
             const float rootHeight,
             const std::array<float, kUnitreeG1JointCount>& pose
         ) {
-            task.randomization.push_back({
+            reset.operators.push_back({
                 .operation = TaskRandomizationOperator::rootOrientation,
                 .minimumDifficultyBand = band,
                 .parameters = {0.0f, 0.0f, 0.0f, 1.0f},
             });
-            task.randomization.push_back({
+            reset.operators.push_back({
                 .operation = TaskRandomizationOperator::rootHeight,
                 .minimumDifficultyBand = band,
                 .parameters = {
@@ -1609,7 +1620,7 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
                 },
             });
             for (std::size_t index = 0u; index < pose.size(); ++index) {
-                task.randomization.push_back({
+                reset.operators.push_back({
                     .operation =
                         TaskRandomizationOperator::jointPosition,
                     .target = std::string{
@@ -1634,10 +1645,14 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
 }
 
 TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
-    const LocomotionSurface surface
+    const LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
 ) {
     const G1ModelMetadata& metadata = unitreeG1Metadata();
-    TaskPack task = makeUnitreeG1DisturbanceRecoveryTaskPack(surface);
+    TaskPack task = makeUnitreeG1DisturbanceRecoveryTaskPack(
+        surface, observations, reset
+    );
     task.id = "unitree_g1_ball_disturbance_recovery";
     task.pushes.maximumVelocity = 0.0f;
     // This stage learns pre-fall stability. Episode completion and recovery
@@ -1673,8 +1688,8 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
             .target = name,
             .component = 0u,
         };
-        task.actorFrame.push_back(confidence);
-        task.critic.push_back(confidence);
+        observations.actorFrame.push_back(confidence);
+        observations.critic.push_back(confidence);
         for (std::uint32_t component = 1u;
              component < 7u;
              ++component) {
@@ -1686,8 +1701,8 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
                 .scale = position ? 0.5f : 0.2f,
                 .noiseAmplitude = position ? 0.01f : 0.02f,
             };
-            task.actorFrame.push_back(track);
-            task.critic.push_back(track);
+            observations.actorFrame.push_back(track);
+            observations.critic.push_back(track);
         }
     }
 
@@ -1739,8 +1754,8 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
             .component = 3u,
         },
     };
-    task.critic.insert(
-        task.critic.end(),
+    observations.critic.insert(
+        observations.critic.end(),
         recoveryCritic.begin(),
         recoveryCritic.end()
     );
@@ -1804,7 +1819,7 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
         const std::string name =
             "locomotion_dynamic_sphere_" + std::to_string(sphere);
         for (std::uint32_t component = 0u; component < 3u; ++component) {
-            task.randomization.push_back({
+            reset.operators.push_back({
                 .operation = TaskRandomizationOperator::sceneBodyPosition,
                 .target = name,
                 .component = component,
@@ -1813,7 +1828,7 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
                     positionUpper[sphere][component], 0.0f, 0.0f,
                 },
             });
-            task.randomization.push_back({
+            reset.operators.push_back({
                 .operation = TaskRandomizationOperator::sceneBodyVelocity,
                 .target = name,
                 .component = component,
@@ -1832,7 +1847,7 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
         for (std::uint32_t level = 1u; level <= 3u; ++level) {
             const float speedLower = 2.0f + float(level);
             const float speedUpper = 3.0f + float(level);
-            task.randomization.push_back({
+            reset.operators.push_back({
                 .operation =
                     TaskRandomizationOperator::sceneBodyVelocity,
                 .target = name,
@@ -1847,7 +1862,7 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
                       },
             });
         }
-        task.randomization.push_back({
+        reset.operators.push_back({
             .operation = TaskRandomizationOperator::sceneBodyLaunchStep,
             .target = name,
             .parameters = {
@@ -1855,7 +1870,7 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
                 0.0f, 0.0f,
             },
         });
-        task.randomization.push_back({
+        reset.operators.push_back({
             .operation =
                 TaskRandomizationOperator::sceneBodyEventImpact,
             .target = name,
@@ -1870,10 +1885,14 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
 }
 
 TaskPack makeUnitreeG1BallDodgeTaskPack(
-    const LocomotionSurface surface
+    const LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
 ) {
     TaskPack task =
-        makeUnitreeG1BallDisturbanceRecoveryTaskPack(surface);
+        makeUnitreeG1BallDisturbanceRecoveryTaskPack(
+            surface, observations, reset
+        );
     task.id = "unitree_g1_ball_dodge";
     task.outcomes.insert(task.outcomes.end(), {
         {"projectile_clearance_reward", "reward",
@@ -1952,7 +1971,7 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
             sphere == 0u || sphere == 2u || sphere == 4u
             ? 1.0f
             : -1.0f;
-        for (TaskRandomizationOperatorSpec& random : task.randomization) {
+        for (TaskRandomizationOperatorSpec& random : reset.operators) {
             if (random.target != name) {
                 continue;
             }
@@ -1997,7 +2016,7 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     // object tracks in the critic for asymmetric PPO, but remove them from
     // the actor so privileged state cannot leak into the deployed policy.
     std::erase_if(
-        task.actorFrame,
+        observations.actorFrame,
         [](const TaskObservationOperatorSpec& observation) {
             return observation.source ==
                     TaskObservationSource::objectTrack ||
@@ -2031,13 +2050,13 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
             observation.normalizeVector3 = false;
         }
     };
-    installSupportSense(task.actorFrame);
-    installSupportSense(task.critic);
+    installSupportSense(observations.actorFrame);
+    installSupportSense(observations.critic);
     // Preserve the official G1 actor's exact five-frame, 96-value
     // proprioceptive prefix. Masked depth is appended below as a direct
     // device-observation suffix with its own sparse temporal offsets.
-    task.actorHistoryLength = 5u;
-    for (TaskObservationOperatorSpec& observation : task.actorFrame) {
+    observations.actorHistoryLength = 5u;
+    for (TaskObservationOperatorSpec& observation : observations.actorFrame) {
         switch (observation.source) {
         case TaskObservationSource::rootAngularVelocityLocal:
             observation.scale = 0.2f;
@@ -2084,9 +2103,9 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
             }
         }
     };
-    appendSupportPatches(task.actorFrame);
-    appendSupportPatches(task.critic);
-    task.visual = {
+    appendSupportPatches(observations.actorFrame);
+    appendSupportPatches(observations.critic);
+    observations.visual = {
         .width = 16u,
         .height = 9u,
         .frameOffsets = {0u, 3u, 8u, 18u},
@@ -2105,14 +2124,14 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         .includeDerivedFeatures = true,
     };
     const std::uint32_t visualPixels =
-        task.visual.width * task.visual.height;
+        observations.visual.width * observations.visual.height;
     for (std::uint32_t frame = 0u;
-         frame < task.visual.frameOffsets.size();
+         frame < observations.visual.frameOffsets.size();
          ++frame) {
         for (std::uint32_t pixel = 0u;
              pixel < visualPixels;
              ++pixel) {
-            task.actorFrame.push_back({
+            observations.actorFrame.push_back({
                 .source = TaskObservationSource::maskedDepth,
                 .component = frame * visualPixels + pixel,
             });
@@ -2121,11 +2140,11 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     for (std::uint32_t feature = 0u;
          feature < MR_TASK_MASKED_DEPTH_FEATURE_COUNT;
          ++feature) {
-        task.actorFrame.push_back({
+        observations.actorFrame.push_back({
             .source = TaskObservationSource::maskedDepth,
             .component =
                 static_cast<std::uint32_t>(
-                    task.visual.frameOffsets.size()
+                    observations.visual.frameOffsets.size()
                 ) * visualPixels + feature,
         });
     }
@@ -2241,7 +2260,7 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     // A dodge throw is timed, not recovery-gated. A permissive tilt/height
     // gate and one-control-step dwell prevent the hopping exploit caused by
     // waiting for both feet or a settled pose before every launch.
-    for (TaskRandomizationOperatorSpec& random : task.randomization) {
+    for (TaskRandomizationOperatorSpec& random : reset.operators) {
         // Preserve the complete balance domain at level zero because the
         // resumed actor already depends on it. Retain only the parent's three
         // staged projectile-speed overrides; launch scheduling, base velocity,
@@ -2262,31 +2281,10 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
 }
 
 LocomotionWorld makeUnitreeG1LocomotionWorld(
-    const LocomotionSurface surface,
-    const UnitreeG1Task task
+    const LocomotionSurface surface
 ) {
-    LocomotionWorld world{
-        .model = makeUnitreeG1EngineModel(),
-        .task = task == UnitreeG1Task::disturbanceRecovery
-            ? makeUnitreeG1DisturbanceRecoveryTaskPack(surface)
-            : task == UnitreeG1Task::ballDodge
-                ? makeUnitreeG1BallDodgeTaskPack(surface)
-            : task == UnitreeG1Task::ballDisturbanceRecovery
-                ? makeUnitreeG1BallDisturbanceRecoveryTaskPack(surface)
-            : task == UnitreeG1Task::supineGetUpDiscovery
-                ? makeUnitreeG1SupineGetUpDiscoveryTaskPack(surface)
-                : makeUnitreeG1LocomotionTaskPack(surface),
-    };
-    if (task == UnitreeG1Task::supineGetUpDiscovery &&
-        !world.model.materials.empty()) {
-        // Whole-body get-up creates dense self/ground contact from rest.
-        // Give the rubberized contact layer a finite physical compliance of
-        // 1.25e-7 m/N per material. Two equal materials combine to 2.5e-7
-        // m/N, or 0.01 impulse regularization at the authored 200 Hz physics
-        // step. This conditions the actual contact law instead of clipping a
-        // catastrophic post-solve state or weakening solver validation.
-        world.model.materials.front().response.z = 1.25e-7f;
-    }
+    LocomotionWorld world;
+    world.model = makeUnitreeG1EngineModel();
     appendLocomotionSurface(
         world.model,
         world.sceneBodies,

@@ -13,42 +13,12 @@ void require(const bool condition, const std::string& message) {
     }
 }
 
-void assignPrograms(metalrobo::RunManifest& manifest) {
-    manifest.sensors.actorFrame =
-        std::move(manifest.task.actorFrame);
-    manifest.sensors.actorHistoryLength =
-        manifest.task.actorHistoryLength;
-    manifest.sensors.actorCurrent =
-        std::move(manifest.task.actorCurrent);
-    manifest.sensors.critic = std::move(manifest.task.critic);
-    manifest.sensors.criticHistoryLength =
-        manifest.task.criticHistoryLength;
-    manifest.sensors.criticIncludesCleanHistory =
-        manifest.task.criticIncludesCleanHistory;
-    manifest.sensors.visual = std::move(manifest.task.visual);
-    manifest.task.actorHistoryLength = 1u;
-    manifest.task.criticHistoryLength = 1u;
-    manifest.task.criticIncludesCleanHistory = true;
-    manifest.reality.taskState =
-        std::move(manifest.task.randomization);
-    manifest.reality.maximumActionDelaySteps =
-        manifest.task.maximumActionDelaySteps;
-    manifest.reality.maximumObservationDelaySteps =
-        manifest.task.maximumObservationDelaySteps;
-    manifest.task.maximumActionDelaySteps = 0u;
-    manifest.task.maximumObservationDelaySteps = 0u;
-    manifest.teacher.id = "no_teacher";
-}
 }
 
 int main() {
     try {
         auto robot = metalrobo::builtinRobotPack("unitree_g1");
         require(robot.has_value(), "bundled G1 RobotPack is missing");
-        metalrobo::LocomotionWorld authored =
-            metalrobo::makeUnitreeG1LocomotionWorld(
-                metalrobo::LocomotionSurface::ground
-            );
         metalrobo::RunManifest manifest;
         manifest.id = "run_program_check";
         manifest.robot = *robot;
@@ -68,12 +38,15 @@ int main() {
             .defaultBodyStates = surface.defaultBodyStates,
         });
         manifest.sensors.id = "g1_default_sensors";
+        manifest.task = metalrobo::makeUnitreeG1LocomotionTaskPack(
+            metalrobo::LocomotionSurface::ground,
+            manifest.sensors.observation,
+            manifest.reality.reset);
         metalrobo::SensorSpec imu;
         imu.id = "pelvis_state";
         imu.kind = MR_WORLD_SENSOR_STATE;
         imu.nominalRateHz = 50.0f;
         manifest.sensors.mounted.push_back({imu, "pelvis"});
-        manifest.task = authored.task;
         manifest.reality.id = "nominal_reality";
         manifest.reality.program.id = "runtime_reality";
         manifest.reality.program.variations.push_back({
@@ -89,7 +62,7 @@ int main() {
         manifest.profile.controlSteps = 104u;
         manifest.profile.physicsSubsteps = 4u;
         manifest.profile.controlTimestepSeconds = 0.02f;
-        assignPrograms(manifest);
+        manifest.teacher.id = "no_teacher";
 
         metalrobo::CompiledRun compiled;
         const auto status = metalrobo::compileRun(manifest, compiled);
@@ -108,7 +81,7 @@ int main() {
                 compiled.task().fingerprint() != 0u &&
                 compiled.task().outcomes().size() == 4u &&
                 compiled.task().randomizationOperators().size() ==
-                    manifest.reality.taskState.size() + 1u &&
+                    manifest.reality.reset.operators.size() + 1u &&
                 compiled.realityFingerprint() != 0u &&
                 compiled.teacherFingerprint() != 0u,
             "CompiledRun did not retain modular package identities"
@@ -162,8 +135,7 @@ int main() {
         );
 
         metalrobo::RunManifest duplicatedOwnership = manifest;
-        duplicatedOwnership.task.actorFrame =
-            duplicatedOwnership.sensors.actorFrame;
+        duplicatedOwnership.sensors.observation.actorFrame.clear();
         metalrobo::CompiledRun duplicateOutput;
         const auto duplicateStatus = metalrobo::compileRun(
             duplicatedOwnership,
@@ -172,7 +144,7 @@ int main() {
         require(
             duplicateStatus.status ==
                 metalrobo::RunCompileStatus::invalidManifest,
-            "duplicate TaskPack/SensorPack execution ownership was accepted"
+            "missing SensorPack execution ownership was accepted"
         );
 
         metalrobo::RunManifest unsupportedTeacher = manifest;
@@ -216,9 +188,10 @@ int main() {
 
         const auto ids = metalrobo::builtinRobotIds();
         require(
-            ids.size() == 3u &&
+            ids.size() == 4u &&
                 metalrobo::builtinRobotPack("franka_panda").has_value() &&
-                metalrobo::builtinRobotPack("dvrk_psm").has_value(),
+                metalrobo::builtinRobotPack("dvrk_psm").has_value() &&
+                metalrobo::builtinRobotPack("px4_x500").has_value(),
             "robot catalog is incomplete"
         );
 
@@ -227,14 +200,17 @@ int main() {
         franka.robot = *metalrobo::builtinRobotPack("franka_panda");
         franka.scene = metalrobo::makeFrankaPickPlaceScenePack();
         franka.sensors.id = "franka_default_sensors";
-        franka.task = metalrobo::makeFrankaPickPlaceTaskPack();
+        franka.task = metalrobo::makeFrankaPickPlaceTaskPack(
+            franka.sensors.observation,
+            franka.reality.reset
+        );
         franka.reality.id = "nominal_reality";
         franka.profile.id = "franka_check_profile";
         franka.profile.environmentCount = 8u;
         franka.profile.controlSteps = 32u;
         franka.profile.physicsSubsteps = 4u;
         franka.profile.controlTimestepSeconds = 1.0f / 60.0f;
-        assignPrograms(franka);
+        franka.teacher.id = "no_teacher";
         metalrobo::CompiledRun compiledFranka;
         const auto frankaStatus =
             metalrobo::compileRun(franka, compiledFranka);
@@ -254,6 +230,45 @@ int main() {
                 compiledFranka.task().outcomes().size() == 4u,
             "Franka CompiledRun lost robot, scene, reset, or action topology"
         );
+
+        metalrobo::RunManifest px4;
+        px4.id = "px4_x500_compiled_run_check";
+        px4.robot = *metalrobo::builtinRobotPack("px4_x500");
+        px4.scene = metalrobo::makePX4X500HoverScenePack();
+        px4.sensors.id = "px4_x500_state_sensors";
+        px4.task = metalrobo::makePX4X500HoverTaskPack(
+            px4.sensors.observation, px4.reality.reset);
+        px4.reality.id = "px4_x500_nominal_reality";
+        px4.teacher.id = "no_teacher";
+        px4.profile.id = "px4_x500_check_profile";
+        px4.profile.environmentCount = 8u;
+        px4.profile.controlSteps = 64u;
+        px4.profile.physicsSubsteps = 4u;
+        px4.profile.controlTimestepSeconds = 1.0f / 60.0f;
+        metalrobo::CompiledRun compiledPX4;
+        const auto px4Status = metalrobo::compileRun(px4, compiledPX4);
+        require(
+            px4Status.succeeded(),
+            "PX4 CompiledRun failed [" +
+                std::string(metalrobo::runCompileStatusName(
+                    px4Status.status)) + "] " +
+                px4Status.element + ": " + px4Status.message
+        );
+        require(
+            compiledPX4.valid() &&
+                compiledPX4.multicopterProgram() != nullptr &&
+                compiledPX4.model().articulations.size() == 1u &&
+                compiledPX4.defaultSceneBodies().size() == 1u &&
+                compiledPX4.task().actionBindings().size() == 4u &&
+                std::all_of(
+                    compiledPX4.task().actionBindings().begin(),
+                    compiledPX4.task().actionBindings().end(),
+                    [](const MRTaskActionBindingGPU& binding) {
+                        return binding.actuator.x ==
+                            MR_TASK_ACTUATOR_ROTOR_MIXER;
+                    }),
+            "PX4 CompiledRun lost its rotor, scene, or action program"
+        );
         std::cout
             << "run_program_check=ok"
             << " run=" << compiled.fingerprint()
@@ -268,6 +283,8 @@ int main() {
             << " robots=" << ids.size()
             << " franka_run=" << compiledFranka.fingerprint()
             << " franka_task=" << compiledFranka.task().fingerprint()
+            << " px4_run=" << compiledPX4.fingerprint()
+            << " px4_task=" << compiledPX4.task().fingerprint()
             << " transactional=yes\n";
         return 0;
     } catch (const std::exception& error) {

@@ -72,7 +72,18 @@ Compilation rejects observation execution left in `TaskPack`, reset variation
 left in `TaskPack`, a disabled teacher carrying executable data, or a teacher
 kind without a native program. The three independently fingerprinted programs
 are fused into one Metal control transaction at compile time; there is no
-runtime adapter, source-kind branch, or second implementation of their logic.
+runtime adapter, source-kind branch in the compiled executor/hot loop, or
+second implementation of their logic.
+
+Persisted imported runs preserve the same ownership instead of rebuilding a
+combined task artifact. `TaskPack` v16, `RobotActuatorPack` v2,
+`SensorProgramPack`, and `RealityProgramPack` are separate transactional files.
+The run compiler requires all four, validates their fingerprints independently,
+and passes their authored programs directly to compilation. No observation or
+reset field is copied out of `TaskPack` because those fields no longer exist.
+`RealityProgramPack` v2 persists the executable `WorldProgram`, its optional
+upstream compiled-program fingerprint, and atomic reset operators; a scene
+package can no longer replace reality semantics during run construction.
 
 ## World authoring and artifacts
 
@@ -142,7 +153,7 @@ pack = compile_episode_manifest(
 
 `TaskPack` is the robot-independent objective description. It contains:
 
-- action-to-joint bindings and action scales;
+- action-to-actuator identities;
 - named semantic contact and joint groups;
 - reward operators and continuous-time weights;
 - termination priorities and reasons;
@@ -154,6 +165,21 @@ only at authoring time. `compileTaskProgram` resolves them against the selected
 world and emits stable indices, compact tables, exact counts, validated
 capacities, and a fingerprint. The GPU loop consumes no strings and has no
 per-robot branch.
+
+The selected `RobotPack` owns the actuator contract. Each actuator declares a
+stable ID, typed execution kind, semantic target, range/scale, response time,
+and optional component parameters. Joint-position and gripper-position
+contracts lower to scalar implicit drives. Joint-velocity and direct-effort
+contracts produce bounded generalized effort from live microstep state. Sparse
+tendon contracts evaluate tendon length and rate, solve their scalar compliant
+controller, and scatter force through the authored Jacobian transpose. Six
+body-wrench lanes apply body-local force and torque through the universal ABA
+external-wrench arena. PX4 rotor-mixer lanes lower to a robot-authored motor
+and device-wrench program. Every non-position controller executes before each
+physics substep; gravity, collision, contact, friction, reset and rollback stay
+on the same MetalWorld transaction. Unsupported or internally conflicting
+contracts reject at compile time—they are never reinterpreted as position
+control.
 
 Projectile avoidance is authored through the same operators. A clearance
 barrier resolves one dynamic scene body and one semantic protected-body group,
@@ -186,7 +212,7 @@ the `TaskPack`, validated and fingerprinted by `compileTaskProgram`, and then
 published exactly as authored. Runtime construction does not inspect reward
 or observation operators to guess that tracking, root state, contact,
 projectile, or CBF measurements should exist.
-TaskPack format v15 can also bind as many as eight typed outcome channels to
+TaskPack format v16 can also bind as many as eight typed outcome channels to
 authored reward operators. The Metal task completion kernel accumulates every
 matching contribution directly into those generic channels. Ball avoidance
 uses them for its eight task rewards; Franka uses the same mechanism for

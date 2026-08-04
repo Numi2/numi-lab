@@ -31,6 +31,7 @@ struct CompiledTaskProgram::Storage {
     TaskProgramLayout layout{};
     MRTaskProgramHeaderGPU header{};
     std::vector<MRTaskActionBindingGPU> actionBindings;
+    std::vector<MRTaskActuatorTermGPU> actuatorTerms;
     std::vector<CompiledTaskOutcomeSpec> outcomes;
     std::vector<std::uint32_t> outcomeRewardOperations;
     std::vector<MRTaskObservationOperatorGPU> actorOperators;
@@ -131,8 +132,9 @@ bool narrowCount(const std::size_t value, T& output) {
     return true;
 }
 
+template <typename NameRange>
 std::uint32_t uniqueIndex(
-    const std::vector<std::string>& names,
+    const NameRange& names,
     const std::string_view target,
     bool& ambiguous
 ) {
@@ -585,12 +587,18 @@ CompiledTaskProgram::arena() const noexcept {
 
 TaskCompileDiagnostics compileTaskProgram(
     const TaskPack& pack,
+    const std::span<const RobotActuatorSpec> actuators,
+    const TaskObservationProgram& observations,
+    const TaskResetProgram& reset,
     const CompiledWorld& world,
     CompiledTaskProgram& output
 ) {
     static const InteractionPack noInteraction;
     return compileTaskProgram(
         pack,
+        actuators,
+        observations,
+        reset,
         noInteraction,
         {},
         world,
@@ -600,6 +608,9 @@ TaskCompileDiagnostics compileTaskProgram(
 
 TaskCompileDiagnostics compileTaskProgram(
     const TaskPack& pack,
+    const std::span<const RobotActuatorSpec> actuators,
+    const TaskObservationProgram& observations,
+    const TaskResetProgram& reset,
     const InteractionPack& interactions,
     const std::string_view clipId,
     const CompiledWorld& world,
@@ -646,7 +657,8 @@ TaskCompileDiagnostics compileTaskProgram(
     if (model.bodyNames.size() != model.bodies.size() ||
         model.jointNames.size() != model.joints.size() ||
         !uniqueNonempty(model.bodyNames) ||
-        !uniqueNonempty(model.jointNames)) {
+        (!model.jointNames.empty() &&
+         !uniqueNonempty(model.jointNames))) {
         return reject(
             TaskCompileStatus::invalidWorld,
             "world.semantics",
@@ -749,7 +761,7 @@ TaskCompileDiagnostics compileTaskProgram(
             }
         );
         const bool randomizationSupported = std::ranges::all_of(
-            pack.randomization,
+            reset.operators,
             [](const TaskRandomizationOperatorSpec& operation) {
                 switch (operation.operation) {
                 case TaskRandomizationOperator::actionPosition:
@@ -771,9 +783,9 @@ TaskCompileDiagnostics compileTaskProgram(
                 }
             }
         );
-        if (!observationsSupported(pack.actorFrame) ||
-            !observationsSupported(pack.actorCurrent) ||
-            !observationsSupported(pack.critic) ||
+        if (!observationsSupported(observations.actorFrame) ||
+            !observationsSupported(observations.actorCurrent) ||
+            !observationsSupported(observations.critic) ||
             !rewardsSupported || !terminationsSupported ||
             !randomizationSupported || interactionClip != nullptr ||
             pack.pushes.maximumVelocity != 0.0f ||
@@ -791,14 +803,14 @@ TaskCompileDiagnostics compileTaskProgram(
             std::numeric_limits<std::uint32_t>::max();
     };
     if (!countFits(pack.actions.size()) ||
-        !countFits(pack.actorFrame.size()) ||
-        !countFits(pack.actorCurrent.size()) ||
-        !countFits(pack.critic.size()) ||
+        !countFits(observations.actorFrame.size()) ||
+        !countFits(observations.actorCurrent.size()) ||
+        !countFits(observations.critic.size()) ||
         !countFits(pack.contactGroups.size()) ||
         !countFits(pack.jointGroups.size()) ||
         !countFits(pack.rewards.size()) ||
         !countFits(pack.terminations.size()) ||
-        !countFits(pack.randomization.size()) ||
+        !countFits(reset.operators.size()) ||
         !countFits(pack.terrain.sampleOffsets.size()) ||
         !countFits(pack.terrain.resetTranslations.size())) {
         return reject(
@@ -816,9 +828,9 @@ TaskCompileDiagnostics compileTaskProgram(
         jointMemberCount += group.joints.size();
     }
     const std::uint64_t observationOperatorCount =
-        static_cast<std::uint64_t>(pack.actorFrame.size()) +
-        pack.actorCurrent.size() +
-        pack.critic.size();
+        static_cast<std::uint64_t>(observations.actorFrame.size()) +
+        observations.actorCurrent.size() +
+        observations.critic.size();
     if (contactMemberCount >=
             std::numeric_limits<std::uint32_t>::max() ||
         jointMemberCount >=
@@ -832,9 +844,9 @@ TaskCompileDiagnostics compileTaskProgram(
         );
     }
     if (pack.id.empty() || pack.actions.empty() ||
-        pack.actorFrame.empty() ||
-        pack.actorHistoryLength == 0u ||
-        pack.criticHistoryLength == 0u ||
+        observations.actorFrame.empty() ||
+        observations.actorHistoryLength == 0u ||
+        observations.criticHistoryLength == 0u ||
         pack.maximumEpisodeSteps == 0u ||
         pack.difficultyBandCount == 0u ||
         !finite(pack.interactionStudentAuthority) ||
@@ -896,48 +908,48 @@ TaskCompileDiagnostics compileTaskProgram(
         !(pack.pushes.minimumIntervalSeconds > 0.0f) ||
         pack.pushes.maximumIntervalSeconds <
             pack.pushes.minimumIntervalSeconds ||
-        pack.maximumObservationDelaySteps >=
-            pack.actorHistoryLength) {
+        reset.maximumObservationDelaySteps >=
+            observations.actorHistoryLength) {
         return reject(
             TaskCompileStatus::invalidPack,
             "task",
             "task identity, dimensions, timing, or scalar parameters are invalid"
         );
     }
-    const bool hasVisualProgram = pack.visual.width != 0u ||
-        pack.visual.height != 0u ||
-        !pack.visual.frameOffsets.empty();
+    const bool hasVisualProgram = observations.visual.width != 0u ||
+        observations.visual.height != 0u ||
+        !observations.visual.frameOffsets.empty();
     if (hasVisualProgram &&
-        (pack.visual.width == 0u || pack.visual.height == 0u ||
-         pack.visual.frameOffsets.empty() ||
-         pack.visual.frameOffsets.size() > 4u ||
-         pack.visual.frameOffsets.front() != 0u ||
-         !std::ranges::is_sorted(pack.visual.frameOffsets) ||
+        (observations.visual.width == 0u || observations.visual.height == 0u ||
+         observations.visual.frameOffsets.empty() ||
+         observations.visual.frameOffsets.size() > 4u ||
+         observations.visual.frameOffsets.front() != 0u ||
+         !std::ranges::is_sorted(observations.visual.frameOffsets) ||
          std::adjacent_find(
-             pack.visual.frameOffsets.begin(),
-             pack.visual.frameOffsets.end()
+             observations.visual.frameOffsets.begin(),
+             observations.visual.frameOffsets.end()
          ) !=
-             pack.visual.frameOffsets.end() ||
-         !finite(pack.visual.nearDepthMeters) ||
-         !finite(pack.visual.farDepthMeters) ||
-         !(pack.visual.nearDepthMeters > 0.0f) ||
-         !(pack.visual.farDepthMeters >
-           pack.visual.nearDepthMeters) ||
-         !finite(pack.visual.fullDropoutProbability) ||
-         pack.visual.fullDropoutProbability < 0.0f ||
-         pack.visual.fullDropoutProbability > 1.0f ||
-         !finite(pack.visual.pixelDropoutProbability) ||
-         pack.visual.pixelDropoutProbability < 0.0f ||
-         pack.visual.pixelDropoutProbability > 1.0f ||
-         !finite(pack.visual.depthJitterMeters) ||
-         pack.visual.depthJitterMeters < 0.0f ||
-         !finite(pack.visual.depthNoiseSigmaMeters) ||
-         pack.visual.depthNoiseSigmaMeters < 0.0f ||
-         !finite(pack.visual.edgeFlickerProbability) ||
-         pack.visual.edgeFlickerProbability < 0.0f ||
-         pack.visual.edgeFlickerProbability > 1.0f ||
-         !finite(pack.visual.difficultyCorruptionGain) ||
-         pack.visual.difficultyCorruptionGain < 0.0f)) {
+             observations.visual.frameOffsets.end() ||
+         !finite(observations.visual.nearDepthMeters) ||
+         !finite(observations.visual.farDepthMeters) ||
+         !(observations.visual.nearDepthMeters > 0.0f) ||
+         !(observations.visual.farDepthMeters >
+           observations.visual.nearDepthMeters) ||
+         !finite(observations.visual.fullDropoutProbability) ||
+         observations.visual.fullDropoutProbability < 0.0f ||
+         observations.visual.fullDropoutProbability > 1.0f ||
+         !finite(observations.visual.pixelDropoutProbability) ||
+         observations.visual.pixelDropoutProbability < 0.0f ||
+         observations.visual.pixelDropoutProbability > 1.0f ||
+         !finite(observations.visual.depthJitterMeters) ||
+         observations.visual.depthJitterMeters < 0.0f ||
+         !finite(observations.visual.depthNoiseSigmaMeters) ||
+         observations.visual.depthNoiseSigmaMeters < 0.0f ||
+         !finite(observations.visual.edgeFlickerProbability) ||
+         observations.visual.edgeFlickerProbability < 0.0f ||
+         observations.visual.edgeFlickerProbability > 1.0f ||
+         !finite(observations.visual.difficultyCorruptionGain) ||
+         observations.visual.difficultyCorruptionGain < 0.0f)) {
         return reject(
             TaskCompileStatus::invalidPack,
             "visual",
@@ -945,10 +957,10 @@ TaskCompileDiagnostics compileTaskProgram(
         );
     }
     const std::uint64_t visualPixelComponentCount =
-        static_cast<std::uint64_t>(pack.visual.width) *
-        pack.visual.height * pack.visual.frameOffsets.size();
+        static_cast<std::uint64_t>(observations.visual.width) *
+        observations.visual.height * observations.visual.frameOffsets.size();
     const std::uint64_t visualFeatureComponentCount =
-        pack.visual.includeDerivedFeatures
+        observations.visual.includeDerivedFeatures
         ? MR_TASK_MASKED_DEPTH_FEATURE_COUNT
         : 0u;
     const std::uint64_t visualComponentCount =
@@ -1065,30 +1077,240 @@ TaskCompileDiagnostics compileTaskProgram(
     }
 
     std::vector<std::uint32_t> actionJoints;
+    std::vector<std::string_view> actionTargets;
+    std::vector<std::string> actionIds;
     actionJoints.reserve(pack.actions.size());
+    actionTargets.reserve(pack.actions.size());
+    actionIds.reserve(pack.actions.size());
     staged->actionBindings.reserve(pack.actions.size());
     for (std::size_t actionIndex = 0u;
          actionIndex < pack.actions.size();
          ++actionIndex) {
         const TaskActionBinding& binding =
             pack.actions[actionIndex];
+        const auto actuator = std::ranges::find_if(
+            actuators,
+            [&](const RobotActuatorSpec& candidate) {
+                return candidate.id == binding.actuator;
+            }
+        );
+        if (actuator == actuators.end()) {
+            return reject(
+                TaskCompileStatus::unresolvedSemantic,
+                binding.actuator,
+                "task action does not resolve to a robot actuator"
+            );
+        }
+        if (std::ranges::count_if(
+                actuators,
+                [&](const RobotActuatorSpec& candidate) {
+                    return candidate.id == binding.actuator;
+                }
+            ) != 1) {
+            return reject(
+                TaskCompileStatus::ambiguousSemantic,
+                binding.actuator,
+                "robot actuator identity is ambiguous"
+            );
+        }
+        if (interactionClip != nullptr &&
+            actuator->kind != RobotActuatorKind::jointPosition &&
+            actuator->kind != RobotActuatorKind::gripperPosition) {
+            return reject(
+                TaskCompileStatus::unsupportedOperator,
+                actuator->id,
+                "InteractionPack joint references require position or gripper actuators"
+            );
+        }
+        const bool jointActuator =
+            actuator->kind == RobotActuatorKind::jointPosition ||
+            actuator->kind == RobotActuatorKind::jointVelocity ||
+            actuator->kind == RobotActuatorKind::jointEffort ||
+            actuator->kind == RobotActuatorKind::gripperPosition;
+        if (!jointActuator &&
+            actuator->kind != RobotActuatorKind::tendonPosition &&
+            actuator->kind != RobotActuatorKind::rotorMixer &&
+            actuator->kind != RobotActuatorKind::bodyWrench) {
+            return reject(
+                TaskCompileStatus::unsupportedOperator,
+                actuator->id,
+                "actuator kind is not supported by the compiled executor"
+            );
+        }
+        if (actuator->kind == RobotActuatorKind::tendonPosition) {
+            if (actuator->terms.empty() ||
+                !finite(actuator->parameters) ||
+                !(actuator->parameters.x > 0.0f) ||
+                actuator->parameters.y < 0.0f ||
+                !(actuator->parameters.z > 0.0f) ||
+                !finite(actuator->scale) || !(actuator->scale > 0.0f) ||
+                !finite(actuator->responseTimeSeconds) ||
+                actuator->responseTimeSeconds < 0.0f) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    actuator->id,
+                    "tendon actuator requires finite stiffness, damping, force limit, scale, and sparse terms"
+                );
+            }
+            const std::uint32_t firstTerm =
+                static_cast<std::uint32_t>(staged->actuatorTerms.size());
+            float defaultLength = 0.0f;
+            std::vector<std::uint32_t> tendonDofs;
+            for (const RobotActuatorTermSpec& term : actuator->terms) {
+                bool ambiguousTerm = false;
+                const std::uint32_t jointIndex = uniqueIndex(
+                    model.jointNames, term.joint, ambiguousTerm);
+                const auto dofFound = std::find_if(
+                    model.dofs.begin(), model.dofs.end(),
+                    [jointIndex](const MRDofPropertiesGPU& dof) {
+                        return dof.jointIndex == jointIndex;
+                    }
+                );
+                const std::size_t jointDofCount = std::count_if(
+                    model.dofs.begin(), model.dofs.end(),
+                    [jointIndex](const MRDofPropertiesGPU& dof) {
+                        return dof.jointIndex == jointIndex;
+                    }
+                );
+                if (ambiguousTerm || jointIndex == MR_INVALID_INDEX ||
+                    dofFound == model.dofs.end() || jointDofCount != 1u ||
+                    dofFound->articulationIndex != world.articulationIndex() ||
+                    (dofFound->flags & MR_DOF_FLAG_ACTUATED) == 0u ||
+                    (dofFound->flags & MR_DOF_FLAG_EFFORT_LIMIT) == 0u ||
+                    !(dofFound->limits.w > 0.0f) ||
+                    dofFound->qIndex == MR_INVALID_INDEX ||
+                    dofFound->vIndex == MR_INVALID_INDEX ||
+                    !finite(term.coefficient) || term.coefficient == 0.0f) {
+                    return reject(
+                        ambiguousTerm
+                            ? TaskCompileStatus::ambiguousSemantic
+                            : TaskCompileStatus::invalidPack,
+                        term.joint,
+                        "tendon term requires one actuated scalar DoF in the selected articulation"
+                    );
+                }
+                const std::uint32_t dofIndex =
+                    static_cast<std::uint32_t>(
+                        dofFound - model.dofs.begin());
+                if (std::find(
+                        tendonDofs.begin(), tendonDofs.end(), dofIndex
+                    ) != tendonDofs.end()) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        actuator->id,
+                        "tendon actuator repeats a generalized coordinate"
+                    );
+                }
+                tendonDofs.push_back(dofIndex);
+                defaultLength += term.coefficient *
+                    model.defaultQ[dofFound->qIndex];
+                staged->actuatorTerms.push_back({
+                    {dofIndex, dofFound->qIndex, dofFound->vIndex, 0u},
+                    {term.coefficient, 0.0f, 0.0f, 0.0f},
+                });
+            }
+            actionJoints.push_back(MR_INVALID_INDEX);
+            actionTargets.push_back(actuator->target);
+            actionIds.push_back(actuator->id);
+            staged->actionBindings.push_back({
+                {
+                    static_cast<std::uint32_t>(actionIndex),
+                    firstTerm,
+                    static_cast<std::uint32_t>(actuator->terms.size()),
+                    MR_INVALID_INDEX,
+                },
+                {
+                    actuator->scale,
+                    -std::numeric_limits<float>::max(),
+                    std::numeric_limits<float>::max(),
+                    actuator->responseTimeSeconds,
+                },
+                {
+                    actuator->parameters.x,
+                    actuator->parameters.y,
+                    actuator->parameters.z,
+                    defaultLength,
+                },
+                {
+                    static_cast<std::uint32_t>(actuator->kind),
+                    MR_INVALID_INDEX,
+                    actuator->component,
+                    0u,
+                },
+            });
+            continue;
+        }
+        if (!jointActuator) {
+            bool bodyAmbiguous = false;
+            const std::uint32_t bodyIndex = uniqueIndex(
+                model.bodyNames,
+                actuator->target,
+                bodyAmbiguous
+            );
+            if (bodyAmbiguous || bodyIndex == MR_INVALID_INDEX ||
+                (bodyIndex != MR_INVALID_INDEX &&
+                 (model.bodies[bodyIndex].articulationIndex !=
+                      world.articulationIndex() ||
+                  model.bodies[bodyIndex].motionType != MR_MOTION_DYNAMIC)) ||
+                !finite(actuator->scale) || !(actuator->scale > 0.0f) ||
+                !finite(actuator->parameters) ||
+                !finite(actuator->responseTimeSeconds) ||
+                actuator->responseTimeSeconds < 0.0f ||
+                (actuator->kind == RobotActuatorKind::rotorMixer &&
+                 actuator->component >= 4u) ||
+                (actuator->kind == RobotActuatorKind::bodyWrench &&
+                 actuator->component >= 6u)) {
+                return reject(
+                    bodyAmbiguous
+                        ? TaskCompileStatus::ambiguousSemantic
+                        : TaskCompileStatus::invalidPack,
+                    actuator->target,
+                    "vector actuator requires one resolved body, finite response, and a valid component"
+                );
+            }
+            actionJoints.push_back(MR_INVALID_INDEX);
+            actionTargets.push_back(actuator->target);
+            actionIds.push_back(actuator->id);
+            staged->actionBindings.push_back({
+                {
+                    static_cast<std::uint32_t>(actionIndex),
+                    MR_INVALID_INDEX,
+                    MR_INVALID_INDEX,
+                    MR_INVALID_INDEX,
+                },
+                {
+                    actuator->scale,
+                    -1.0f,
+                    1.0f,
+                    actuator->responseTimeSeconds,
+                },
+                actuator->parameters,
+                {
+                    static_cast<std::uint32_t>(actuator->kind),
+                    bodyIndex,
+                    actuator->component,
+                    0u,
+                },
+            });
+            continue;
+        }
         bool ambiguous = false;
         const std::uint32_t jointIndex = uniqueIndex(
             model.jointNames,
-            binding.joint,
+            actuator->target,
             ambiguous
         );
         if (ambiguous) {
             return reject(
                 TaskCompileStatus::ambiguousSemantic,
-                binding.joint,
+                actuator->target,
                 "action joint identity is ambiguous"
             );
         }
         if (jointIndex == MR_INVALID_INDEX) {
             return reject(
                 TaskCompileStatus::unresolvedSemantic,
-                binding.joint,
+                actuator->target,
                 "action joint does not exist in the compiled world"
             );
         }
@@ -1099,7 +1321,7 @@ TaskCompileDiagnostics compileTaskProgram(
             ) != actionJoints.end()) {
             return reject(
                 TaskCompileStatus::invalidPack,
-                binding.joint,
+                actuator->target,
                 "a joint may have only one action binding"
             );
         }
@@ -1143,13 +1365,13 @@ TaskCompileDiagnostics compileTaskProgram(
                 articulation.vOffset,
                 articulation.nv
             ) ||
-            !finite(binding.scale) ||
-            !(binding.scale > 0.0f) ||
-            !finite(binding.responseTimeSeconds) ||
-            binding.responseTimeSeconds < 0.0f) {
+            !finite(actuator->scale) ||
+            !(actuator->scale > 0.0f) ||
+            !finite(actuator->responseTimeSeconds) ||
+            actuator->responseTimeSeconds < 0.0f) {
             return reject(
                 TaskCompileStatus::invalidPack,
-                binding.joint,
+                actuator->target,
                 "action binding requires one actuated scalar position DoF"
             );
         }
@@ -1158,6 +1380,59 @@ TaskCompileDiagnostics compileTaskProgram(
                 dofFound - model.dofs.begin()
             );
         actionJoints.push_back(jointIndex);
+        actionTargets.push_back(actuator->target);
+        actionIds.push_back(actuator->id);
+        float lowerTarget = dofFound->limits.x;
+        float upperTarget = dofFound->limits.y;
+        mr_float4 drive{
+            dofFound->drive.x,
+            dofFound->drive.y,
+            dofFound->limits.w,
+            dofFound->limits.z,
+        };
+        if (actuator->kind == RobotActuatorKind::jointVelocity) {
+            const float speedLimit =
+                (dofFound->flags & MR_DOF_FLAG_VELOCITY_LIMIT) != 0u &&
+                    dofFound->limits.z > 0.0f
+                ? dofFound->limits.z
+                : actuator->scale;
+            const float velocityGain = actuator->parameters.x > 0.0f
+                ? actuator->parameters.x
+                : dofFound->drive.y;
+            if (!(velocityGain > 0.0f)) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    actuator->id,
+                    "joint-velocity actuator requires a positive robot-authored velocity gain"
+                );
+            }
+            lowerTarget = -speedLimit;
+            upperTarget = speedLimit;
+            drive.x = 0.0f;
+            drive.y = velocityGain;
+        } else if (actuator->kind == RobotActuatorKind::jointEffort) {
+            if ((dofFound->flags & MR_DOF_FLAG_EFFORT_LIMIT) == 0u ||
+                !(dofFound->limits.w > 0.0f)) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    actuator->id,
+                    "joint-effort actuator requires an authored effort limit"
+                );
+            }
+            lowerTarget = -dofFound->limits.w;
+            upperTarget = dofFound->limits.w;
+            drive.x = 0.0f;
+            drive.y = 0.0f;
+        }
+        if (actuator->kind == RobotActuatorKind::jointVelocity &&
+            ((dofFound->flags & MR_DOF_FLAG_EFFORT_LIMIT) == 0u ||
+             !(dofFound->limits.w > 0.0f))) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                actuator->id,
+                "joint-velocity actuator requires an authored effort limit"
+            );
+        }
         staged->actionBindings.push_back({
             {
                 static_cast<std::uint32_t>(actionIndex),
@@ -1166,16 +1441,17 @@ TaskCompileDiagnostics compileTaskProgram(
                 dofFound->vIndex,
             },
             {
-                binding.scale,
-                dofFound->limits.x,
-                dofFound->limits.y,
-                binding.responseTimeSeconds,
+                actuator->scale,
+                lowerTarget,
+                upperTarget,
+                actuator->responseTimeSeconds,
             },
+            drive,
             {
-                dofFound->drive.x,
-                dofFound->drive.y,
-                0.0f,
-                0.0f,
+                static_cast<std::uint32_t>(actuator->kind),
+                articulation.rootBody,
+                actuator->component,
+                0u,
             },
         });
     }
@@ -1482,16 +1758,18 @@ TaskCompileDiagnostics compileTaskProgram(
             interactionClip->rootTargets;
         std::vector<std::uint32_t> interactionJointIndices;
         interactionJointIndices.reserve(pack.actions.size());
-        for (const TaskActionBinding& action : pack.actions) {
+        for (std::size_t action = 0u;
+             action < pack.actions.size();
+             ++action) {
             const auto found = std::find(
                 interactions.jointNames.begin(),
                 interactions.jointNames.end(),
-                action.joint
+                actionTargets[action]
             );
             if (found == interactions.jointNames.end()) {
                 return reject(
                     TaskCompileStatus::unresolvedSemantic,
-                    action.joint,
+                    std::string{actionTargets[action]},
                     "InteractionPack does not provide every task action joint"
                 );
             }
@@ -1539,7 +1817,7 @@ TaskCompileDiagnostics compileTaskProgram(
                      target > properties.limits.y + positionTolerance)) {
                     return reject(
                         TaskCompileStatus::invalidPack,
-                        pack.actions[action].joint,
+                        std::string{actionTargets[action]},
                         "InteractionPack joint target exceeds the compiled mechanism limit"
                     );
                 }
@@ -1557,14 +1835,14 @@ TaskCompileDiagnostics compileTaskProgram(
                     properties.limits.z * (1.0f + 1.0e-5f)) {
                     return reject(
                         TaskCompileStatus::invalidPack,
-                        pack.actions[action].joint,
+                        std::string{actionTargets[action]},
                         "InteractionPack joint target exceeds the compiled mechanism velocity limit"
                     );
                 }
             }
         }
 
-        const auto usesInteractionContact = [&pack] {
+        const auto usesInteractionContact = [&pack, &observations] {
             const auto observesContact = [](const auto& operations) {
                 return std::ranges::any_of(
                     operations,
@@ -1578,9 +1856,9 @@ TaskCompileDiagnostics compileTaskProgram(
                     }
                 );
             };
-            return observesContact(pack.actorFrame) ||
-                observesContact(pack.actorCurrent) ||
-                observesContact(pack.critic) ||
+            return observesContact(observations.actorFrame) ||
+                observesContact(observations.actorCurrent) ||
+                observesContact(observations.critic) ||
                 std::ranges::any_of(
                     pack.rewards,
                     [](const TaskRewardOperatorSpec& reward) {
@@ -1731,8 +2009,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 componentLimit = 3u;
                 break;
             case TaskObservationSource::jointPositionError:
-            case TaskObservationSource::jointVelocity:
-            case TaskObservationSource::previousAction: {
+            case TaskObservationSource::jointVelocity: {
                 bool ambiguous = false;
                 const std::uint32_t joint = uniqueIndex(
                     model.jointNames,
@@ -1755,6 +2032,20 @@ TaskCompileDiagnostics compileTaskProgram(
                         TaskCompileStatus::unresolvedSemantic,
                         spec.target,
                         "observation joint has no action binding"
+                    );
+                }
+                break;
+            }
+            case TaskObservationSource::previousAction: {
+                bool ambiguous = false;
+                sourceIndex = uniqueIndex(actionIds, spec.target, ambiguous);
+                if (ambiguous || sourceIndex == MR_INVALID_INDEX) {
+                    return reject(
+                        ambiguous
+                            ? TaskCompileStatus::ambiguousSemantic
+                            : TaskCompileStatus::unresolvedSemantic,
+                        spec.target,
+                        "previous-action observation has no unique actuator binding"
                     );
                 }
                 break;
@@ -1924,7 +2215,7 @@ TaskCompileDiagnostics compileTaskProgram(
                     return reject(
                         TaskCompileStatus::invalidPack,
                         "visual",
-                        "masked-depth observation requires a TaskPack visual program"
+                        "masked-depth observation requires a SensorPack visual program"
                     );
                 }
                 sourceIndex = 0u;
@@ -2071,7 +2362,7 @@ TaskCompileDiagnostics compileTaskProgram(
     };
 
     if (std::ranges::any_of(
-            pack.actorCurrent,
+            observations.actorCurrent,
             [](const TaskObservationOperatorSpec& observation) {
                 return observation.source ==
                         TaskObservationSource::maskedDepth ||
@@ -2088,7 +2379,7 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     const std::size_t visualSuffixCount =
         static_cast<std::size_t>(visualComponentCount);
-    if (visualSuffixCount > pack.actorFrame.size()) {
+    if (visualSuffixCount > observations.actorFrame.size()) {
         return reject(
             TaskCompileStatus::invalidPack,
             "visual",
@@ -2096,25 +2387,25 @@ TaskCompileDiagnostics compileTaskProgram(
         );
     }
     const std::size_t temporalActorCount =
-        pack.actorFrame.size() - visualSuffixCount;
+        observations.actorFrame.size() - visualSuffixCount;
     std::vector<TaskObservationOperatorSpec> orderedActor;
     orderedActor.reserve(
-        pack.actorFrame.size() + pack.actorCurrent.size()
+        observations.actorFrame.size() + observations.actorCurrent.size()
     );
     orderedActor.insert(
         orderedActor.end(),
-        pack.actorFrame.begin(),
-        pack.actorFrame.begin() + temporalActorCount
+        observations.actorFrame.begin(),
+        observations.actorFrame.begin() + temporalActorCount
     );
     orderedActor.insert(
         orderedActor.end(),
-        pack.actorCurrent.begin(),
-        pack.actorCurrent.end()
+        observations.actorCurrent.begin(),
+        observations.actorCurrent.end()
     );
     orderedActor.insert(
         orderedActor.end(),
-        pack.actorFrame.begin() + temporalActorCount,
-        pack.actorFrame.end()
+        observations.actorFrame.begin() + temporalActorCount,
+        observations.actorFrame.end()
     );
     TaskCompileDiagnostics observationStatus =
         compileObservations(
@@ -2151,7 +2442,7 @@ TaskCompileDiagnostics compileTaskProgram(
         }
     }
     if (std::ranges::any_of(
-            pack.critic,
+            observations.critic,
             [](const TaskObservationOperatorSpec& observation) {
                 return observation.source ==
                     TaskObservationSource::maskedDepth;
@@ -2164,7 +2455,7 @@ TaskCompileDiagnostics compileTaskProgram(
         );
     }
     observationStatus = compileObservations(
-        pack.critic,
+        observations.critic,
         staged->criticOperators
     );
     if (!observationStatus.succeeded()) {
@@ -2859,13 +3150,25 @@ TaskCompileDiagnostics compileTaskProgram(
     }
 
     staged->randomizationOperators.reserve(
-        pack.randomization.size()
+        reset.operators.size()
     );
     for (std::size_t operatorIndex = 0u;
-         operatorIndex < pack.randomization.size();
+         operatorIndex < reset.operators.size();
          ++operatorIndex) {
         const TaskRandomizationOperatorSpec& random =
-            pack.randomization[operatorIndex];
+            reset.operators[operatorIndex];
+        if ((random.operation ==
+                TaskRandomizationOperator::actionPosition ||
+             random.operation ==
+                TaskRandomizationOperator::actionVelocity) &&
+            std::ranges::find(actionJoints, MR_INVALID_INDEX) !=
+                actionJoints.end()) {
+            return reject(
+                TaskCompileStatus::unsupportedOperator,
+                random.target,
+                "joint action-state randomization cannot target vector actuators"
+            );
+        }
         if (!finite(random.parameters) ||
             random.minimumDifficultyBand >=
                 pack.difficultyBandCount) {
@@ -3150,7 +3453,7 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRandomizationOperator::actionDelay:
             if (!integerStepRange(
                     random.parameters,
-                    pack.maximumActionDelaySteps
+                    reset.maximumActionDelaySteps
                 )) {
                 return reject(
                     TaskCompileStatus::invalidPack,
@@ -3162,7 +3465,7 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRandomizationOperator::observationDelay:
             if (!integerStepRange(
                     random.parameters,
-                    pack.maximumObservationDelaySteps
+                    reset.maximumObservationDelaySteps
                 )) {
                 return reject(
                     TaskCompileStatus::invalidPack,
@@ -3484,6 +3787,7 @@ TaskCompileDiagnostics compileTaskProgram(
     std::uint32_t actorOperatorCount = 0u;
     std::uint32_t criticOperatorCount = 0u;
     std::uint32_t biasCount = 0u;
+    std::uint32_t actuatorTermCount = 0u;
     if (!narrowCount(staged->actionBindings.size(), actionCount) ||
         !narrowCount(
             staged->actorOperators.size(),
@@ -3493,7 +3797,8 @@ TaskCompileDiagnostics compileTaskProgram(
             staged->criticOperators.size(),
             criticOperatorCount
         ) ||
-        !narrowCount(staged->biasSpecs.size(), biasCount)) {
+        !narrowCount(staged->biasSpecs.size(), biasCount) ||
+        !narrowCount(staged->actuatorTerms.size(), actuatorTermCount)) {
         return reject(
             TaskCompileStatus::arithmeticOverflow,
             "layout",
@@ -3501,7 +3806,7 @@ TaskCompileDiagnostics compileTaskProgram(
         );
     }
     const std::uint32_t currentActorObservationCount =
-        static_cast<std::uint32_t>(pack.actorCurrent.size());
+        static_cast<std::uint32_t>(observations.actorCurrent.size());
     const std::uint32_t directActorObservationCount =
         currentActorObservationCount +
         static_cast<std::uint32_t>(visualComponentCount);
@@ -3516,21 +3821,21 @@ TaskCompileDiagnostics compileTaskProgram(
         actorOperatorCount - directActorObservationCount;
     const std::uint64_t temporalActorObservationSize =
         static_cast<std::uint64_t>(actorFrameSize) *
-        pack.actorHistoryLength;
+        observations.actorHistoryLength;
     const std::uint64_t actorObservationSize =
         temporalActorObservationSize +
         directActorObservationCount;
     const std::uint64_t criticObservationSize =
-        (pack.criticIncludesCleanHistory
+        (observations.criticIncludesCleanHistory
              ? temporalActorObservationSize
              : 0u) +
         static_cast<std::uint64_t>(criticOperatorCount) *
-            pack.criticHistoryLength;
+            observations.criticHistoryLength;
     if (actorObservationSize >
             std::numeric_limits<std::uint32_t>::max() ||
         criticObservationSize >
             std::numeric_limits<std::uint32_t>::max() ||
-        pack.maximumActionDelaySteps >
+        reset.maximumActionDelaySteps >
             std::numeric_limits<std::uint32_t>::max() - 3u) {
         return reject(
             TaskCompileStatus::arithmeticOverflow,
@@ -3541,18 +3846,18 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->layout = {
         .actionCount = actionCount,
         .actorFrameSize = actorFrameSize,
-        .actorHistoryLength = pack.actorHistoryLength,
+        .actorHistoryLength = observations.actorHistoryLength,
         .actorObservationSize =
             static_cast<std::uint32_t>(actorObservationSize),
         .criticFrameSize = criticOperatorCount,
-        .criticHistoryLength = pack.criticHistoryLength,
+        .criticHistoryLength = observations.criticHistoryLength,
         .criticObservationSize =
             static_cast<std::uint32_t>(criticObservationSize),
         .contactMetricCount = contactMetricCount,
         .biasCount = biasCount,
         // Raw actions retain one preceding sample beyond the delay window;
         // the final slot is the independent filtered actuator target.
-        .delayStateCount = pack.maximumActionDelaySteps + 3u,
+        .delayStateCount = reset.maximumActionDelaySteps + 3u,
         .motionFeatureCount = static_cast<std::uint32_t>(
             9u * staged->motionBodies.size()
         ),
@@ -3600,7 +3905,7 @@ TaskCompileDiagnostics compileTaskProgram(
     };
     staged->header.layout = {
         actorFrameSize,
-        pack.actorHistoryLength,
+        observations.actorHistoryLength,
         contactMetricCount,
         staged->layout.delayStateCount,
     };
@@ -3624,17 +3929,17 @@ TaskCompileDiagnostics compileTaskProgram(
             MR_SHAPE_HEIGHTFIELD;
     staged->header.schedule = {
         pack.maximumEpisodeSteps,
-        pack.maximumObservationDelaySteps,
+        reset.maximumObservationDelaySteps,
         pack.difficultyBandCount,
         heightfieldTerrain
             ? MR_TASK_PROGRAM_TERRAIN
             : 0u,
     };
-    if (pack.criticIncludesCleanHistory) {
+    if (observations.criticIncludesCleanHistory) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY;
     }
-    if (pack.visual.includeDerivedFeatures) {
+    if (observations.visual.includeDerivedFeatures) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_MASKED_DEPTH_FEATURES;
     }
@@ -3708,7 +4013,7 @@ TaskCompileDiagnostics compileTaskProgram(
         articulation.firstBody,
         articulation.bodyCount,
         MR_TASK_PROGRAM_ABI_VERSION,
-        pack.criticHistoryLength,
+        observations.criticHistoryLength,
     };
     const mr_float4 rootCenterOfMass =
         model.bodies[articulation.rootBody].centerOfMass;
@@ -3719,34 +4024,34 @@ TaskCompileDiagnostics compileTaskProgram(
         0.0f,
     };
     staged->header.visualLayout = {
-        pack.visual.width,
-        pack.visual.height,
-        static_cast<std::uint32_t>(pack.visual.frameOffsets.size()),
-        pack.visual.frameOffsets.empty()
+        observations.visual.width,
+        observations.visual.height,
+        static_cast<std::uint32_t>(observations.visual.frameOffsets.size()),
+        observations.visual.frameOffsets.empty()
             ? 0u
-            : pack.visual.frameOffsets.back(),
+            : observations.visual.frameOffsets.back(),
     };
     staged->header.visualHistory = {
-        pack.visual.frameOffsets.size() > 0u
-            ? pack.visual.frameOffsets[0u] : 0u,
-        pack.visual.frameOffsets.size() > 1u
-            ? pack.visual.frameOffsets[1u] : 0u,
-        pack.visual.frameOffsets.size() > 2u
-            ? pack.visual.frameOffsets[2u] : 0u,
-        pack.visual.frameOffsets.size() > 3u
-            ? pack.visual.frameOffsets[3u] : 0u,
+        observations.visual.frameOffsets.size() > 0u
+            ? observations.visual.frameOffsets[0u] : 0u,
+        observations.visual.frameOffsets.size() > 1u
+            ? observations.visual.frameOffsets[1u] : 0u,
+        observations.visual.frameOffsets.size() > 2u
+            ? observations.visual.frameOffsets[2u] : 0u,
+        observations.visual.frameOffsets.size() > 3u
+            ? observations.visual.frameOffsets[3u] : 0u,
     };
     staged->header.visualRange = {
-        pack.visual.nearDepthMeters,
-        pack.visual.farDepthMeters,
-        pack.visual.edgeFlickerProbability,
-        pack.visual.difficultyCorruptionGain,
+        observations.visual.nearDepthMeters,
+        observations.visual.farDepthMeters,
+        observations.visual.edgeFlickerProbability,
+        observations.visual.difficultyCorruptionGain,
     };
     staged->header.visualCorruption = {
-        pack.visual.fullDropoutProbability,
-        pack.visual.pixelDropoutProbability,
-        pack.visual.depthJitterMeters,
-        pack.visual.depthNoiseSigmaMeters,
+        observations.visual.fullDropoutProbability,
+        observations.visual.pixelDropoutProbability,
+        observations.visual.depthJitterMeters,
+        observations.visual.depthNoiseSigmaMeters,
     };
     staged->header.threat = {
         threatGroup,
@@ -4001,13 +4306,24 @@ TaskCompileDiagnostics compileTaskProgram(
             staged->outcomeRewardOperations.size()
         ),
     };
+    staged->header.actuatorTerms = {
+        appendArena(
+            std::span<const MRTaskActuatorTermGPU>{
+                staged->actuatorTerms
+            }
+        ),
+        actuatorTermCount,
+        0u,
+        0u,
+    };
     if (staged->header.interactionOffsets0.x == MR_INVALID_INDEX ||
         staged->header.interactionOffsets0.y == MR_INVALID_INDEX ||
         staged->header.interactionOffsets0.z == MR_INVALID_INDEX ||
         staged->header.interactionOffsets0.w == MR_INVALID_INDEX ||
         staged->header.interactionOffsets1.x == MR_INVALID_INDEX ||
         staged->header.interactionOffsets1.y == MR_INVALID_INDEX ||
-        staged->header.interactionOffsets1.z == MR_INVALID_INDEX) {
+        staged->header.interactionOffsets1.z == MR_INVALID_INDEX ||
+        staged->header.actuatorTerms.x == MR_INVALID_INDEX) {
         return reject(
             TaskCompileStatus::arithmeticOverflow,
             "interaction",
@@ -4020,8 +4336,10 @@ TaskCompileDiagnostics compileTaskProgram(
     actionHash.span<MRTaskActionBindingGPU>(
         staged->actionBindings
     );
-    for (const TaskActionBinding& action : pack.actions) {
-        actionHash.string(action.joint);
+    actionHash.span<MRTaskActuatorTermGPU>(staged->actuatorTerms);
+    for (std::size_t action = 0u; action < pack.actions.size(); ++action) {
+        actionHash.string(pack.actions[action].actuator);
+        actionHash.string(actionTargets[action]);
     }
     staged->actionFingerprint = actionHash.finish();
 
@@ -4047,18 +4365,18 @@ TaskCompileDiagnostics compileTaskProgram(
     observationHash.span<float>(staged->contactMemberRadii);
     observationHash.span<mr_float4>(staged->terrainSampleOffsets);
     observationHash.span<std::uint32_t>(staged->motionBodies);
-    observationHash.scalar(pack.visual.width);
-    observationHash.scalar(pack.visual.height);
-    observationHash.span<std::uint32_t>(pack.visual.frameOffsets);
-    observationHash.scalar(pack.visual.nearDepthMeters);
-    observationHash.scalar(pack.visual.farDepthMeters);
-    observationHash.scalar(pack.visual.fullDropoutProbability);
-    observationHash.scalar(pack.visual.pixelDropoutProbability);
-    observationHash.scalar(pack.visual.depthJitterMeters);
-    observationHash.scalar(pack.visual.depthNoiseSigmaMeters);
-    observationHash.scalar(pack.visual.edgeFlickerProbability);
-    observationHash.scalar(pack.visual.difficultyCorruptionGain);
-    observationHash.scalar(pack.visual.includeDerivedFeatures);
+    observationHash.scalar(observations.visual.width);
+    observationHash.scalar(observations.visual.height);
+    observationHash.span<std::uint32_t>(observations.visual.frameOffsets);
+    observationHash.scalar(observations.visual.nearDepthMeters);
+    observationHash.scalar(observations.visual.farDepthMeters);
+    observationHash.scalar(observations.visual.fullDropoutProbability);
+    observationHash.scalar(observations.visual.pixelDropoutProbability);
+    observationHash.scalar(observations.visual.depthJitterMeters);
+    observationHash.scalar(observations.visual.depthNoiseSigmaMeters);
+    observationHash.scalar(observations.visual.edgeFlickerProbability);
+    observationHash.scalar(observations.visual.difficultyCorruptionGain);
+    observationHash.scalar(observations.visual.includeDerivedFeatures);
     staged->observationFingerprint = observationHash.finish();
 
     Hash hash;
@@ -4066,8 +4384,9 @@ TaskCompileDiagnostics compileTaskProgram(
     hash.scalar(world.fingerprint());
     hash.scalar(staged->header);
     hash.span<std::byte>(staged->arena);
-    for (const TaskActionBinding& action : pack.actions) {
-        hash.string(action.joint);
+    for (std::size_t action = 0u; action < pack.actions.size(); ++action) {
+        hash.string(pack.actions[action].actuator);
+        hash.string(actionTargets[action]);
     }
     for (const TaskContactGroup& group : pack.contactGroups) {
         hash.string(group.id);

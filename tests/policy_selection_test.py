@@ -306,6 +306,25 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(decision["selected"], "candidate")
         self.assertEqual(decision["regressions"], [])
 
+    def test_internal_g1_get_up_task_id_uses_get_up_metrics(self) -> None:
+        incumbent = {
+            "task": "unitree_g1_supine_get_up_discovery",
+            "termination_count": 80,
+            "termination_count_by_environment": [0] * 20 + [1] * 80,
+            "failed_environment_steps": 0,
+            "mean_tilt": 0.2,
+            "squat_cycle_completed_environment_rate": 0.10,
+        }
+        candidate = {
+            **incumbent,
+            "termination_count": 78,
+            "termination_count_by_environment": [0] * 22 + [1] * 78,
+            "squat_cycle_completed_environment_rate": 0.12,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["task"], "supine-get-up")
+        self.assertEqual(decision["selected"], "candidate")
+
     def test_zero_authority_teacher_is_removed_for_student_evaluation(self) -> None:
         arguments = evaluation_arguments(
             [
@@ -332,7 +351,10 @@ class PolicySelectionTest(unittest.TestCase):
             evaluation_steps=103,
         )
         self.assertIn("--interaction-reset-only", arguments)
-        self.assertNotIn("--interaction-student-authority", arguments)
+        authority_index = len(arguments) - 1 - arguments[::-1].index(
+            "--interaction-student-authority"
+        )
+        self.assertEqual(arguments[authority_index + 1], "0")
         self.assertNotIn("--interaction-reset-phase-fraction", arguments)
         environment_index = len(arguments) - 1 - arguments[::-1].index(
             "--envs"

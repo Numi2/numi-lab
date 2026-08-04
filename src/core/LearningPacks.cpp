@@ -34,6 +34,9 @@ constexpr std::uint32_t kPolicyKind = 2u;
 constexpr std::uint32_t kPolicyRolloutKind = 3u;
 constexpr std::uint32_t kMotionKind = 4u;
 constexpr std::uint32_t kInteractionKind = 5u;
+constexpr std::uint32_t kRobotActuatorKind = 6u;
+constexpr std::uint32_t kSensorProgramKind = 7u;
+constexpr std::uint32_t kRealityProgramKind = 8u;
 constexpr std::uint64_t kFNVOffset = 14695981039346656037ull;
 constexpr std::uint64_t kFNVPrime = 1099511628211ull;
 constexpr std::uint64_t kMaximumPayloadBytes =
@@ -80,9 +83,6 @@ LearningPackResult validateTaskArtifact(
 ) {
     if (pack.id.empty() || !stringFits(pack.id) ||
         pack.actions.empty() ||
-        pack.actorFrame.empty() ||
-        pack.actorHistoryLength == 0u ||
-        pack.criticHistoryLength == 0u ||
         pack.maximumEpisodeSteps == 0u ||
         pack.difficultyBandCount == 0u) {
         return fail(
@@ -94,17 +94,10 @@ LearningPackResult validateTaskArtifact(
         return std::isfinite(value) && value >= 0.0f && value <= 1.0f;
     };
     if (!probability(pack.interactionStudentAuthority) ||
-        !probability(pack.interactionResetPhaseFraction) ||
-        !probability(pack.visual.fullDropoutProbability) ||
-        !probability(pack.visual.pixelDropoutProbability) ||
-        !probability(pack.visual.edgeFlickerProbability) ||
-        !std::isfinite(pack.visual.depthJitterMeters) ||
-        pack.visual.depthJitterMeters < 0.0f ||
-        !std::isfinite(pack.visual.depthNoiseSigmaMeters) ||
-        pack.visual.depthNoiseSigmaMeters < 0.0f) {
+        !probability(pack.interactionResetPhaseFraction)) {
         return fail(
             LearningPackStatus::invalidPack,
-            "TaskPack visual corruption is invalid"
+            "TaskPack interaction configuration is invalid"
         );
     }
     if (!pack.threat.protectedGroup.empty() &&
@@ -149,48 +142,20 @@ LearningPackResult validateTaskArtifact(
     }
     if (!countFits(pack.actions.size()) ||
         !countFits(pack.outcomes.size()) ||
-        !countFits(pack.actorFrame.size()) ||
-        !countFits(pack.actorCurrent.size()) ||
-        !countFits(pack.critic.size()) ||
         !countFits(pack.contactGroups.size()) ||
         !countFits(pack.jointGroups.size()) ||
         !countFits(pack.rewards.size()) ||
         !countFits(pack.terminations.size()) ||
-        !countFits(pack.randomization.size()) ||
         !countFits(pack.terrain.sampleOffsets.size()) ||
         !countFits(pack.terrain.resetTranslations.size()) ||
-        !countFits(pack.visual.frameOffsets.size()) ||
         !countFits(pack.motion.trackedBodies.size())) {
         return fail(
             LearningPackStatus::capacityOverflow,
             "TaskPack table count exceeds the 32-bit artifact boundary"
         );
     }
-    const auto validObservation = [](const auto& value) {
-        return stringFits(value.target);
-    };
-    if (!std::all_of(
-            pack.actorFrame.begin(),
-            pack.actorFrame.end(),
-            validObservation
-        ) ||
-        !std::all_of(
-            pack.actorCurrent.begin(),
-            pack.actorCurrent.end(),
-            validObservation
-        ) ||
-        !std::all_of(
-            pack.critic.begin(),
-            pack.critic.end(),
-            validObservation
-        )) {
-        return fail(
-            LearningPackStatus::capacityOverflow,
-            "TaskPack observation semantic exceeds the 32-bit artifact boundary"
-        );
-    }
     for (const TaskActionBinding& value : pack.actions) {
-        if (!stringFits(value.joint)) {
+        if (!stringFits(value.actuator)) {
             return fail(
                 LearningPackStatus::capacityOverflow,
                 "TaskPack action semantic exceeds the 32-bit artifact boundary"
@@ -275,13 +240,6 @@ LearningPackResult validateTaskArtifact(
             pack.terminations.end(),
             semanticFits
         ) ||
-        !std::all_of(
-            pack.randomization.begin(),
-            pack.randomization.end(),
-            [](const auto& value) {
-                return stringFits(value.target);
-            }
-        ) ||
         !stringFits(pack.terrain.body) ||
         !stringFits(pack.threat.protectedGroup) ||
         !stringFits(pack.motion.anchorBody) ||
@@ -293,6 +251,146 @@ LearningPackResult validateTaskArtifact(
         return fail(
             LearningPackStatus::capacityOverflow,
             "TaskPack operator semantic exceeds the 32-bit artifact boundary"
+        );
+    }
+    return {};
+}
+
+LearningPackResult validateRobotActuatorArtifact(
+    const RobotActuatorPack& pack
+) {
+    if (pack.id.empty() || !stringFits(pack.id) ||
+        pack.actuators.empty() || !countFits(pack.actuators.size()) ||
+        !std::all_of(
+            pack.actuators.begin(),
+            pack.actuators.end(),
+            [](const RobotActuatorSpec& actuator) {
+                const bool tendon = actuator.kind ==
+                    RobotActuatorKind::tendonPosition;
+                return static_cast<std::uint32_t>(actuator.kind) <=
+                        static_cast<std::uint32_t>(
+                            RobotActuatorKind::bodyWrench) &&
+                    stringFits(actuator.id) &&
+                    stringFits(actuator.target) &&
+                    !actuator.id.empty() && !actuator.target.empty() &&
+                    std::isfinite(actuator.scale) && actuator.scale > 0.0f &&
+                    std::isfinite(actuator.responseTimeSeconds) &&
+                    actuator.responseTimeSeconds >= 0.0f &&
+                    std::isfinite(actuator.parameters.x) &&
+                    std::isfinite(actuator.parameters.y) &&
+                    std::isfinite(actuator.parameters.z) &&
+                    std::isfinite(actuator.parameters.w) &&
+                    countFits(actuator.terms.size()) &&
+                    (tendon == !actuator.terms.empty()) &&
+                    std::all_of(
+                        actuator.terms.begin(), actuator.terms.end(),
+                        [](const RobotActuatorTermSpec& term) {
+                            return !term.joint.empty() &&
+                                stringFits(term.joint) &&
+                                std::isfinite(term.coefficient) &&
+                                term.coefficient != 0.0f;
+                        }
+                    );
+            }
+        )) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "RobotActuatorPack identity or actuator contract is invalid"
+        );
+    }
+    return {};
+}
+
+LearningPackResult validateSensorProgramArtifact(
+    const SensorProgramPack& pack
+) {
+    const TaskObservationProgram& observations = pack.observation;
+    if (pack.id.empty() || !stringFits(pack.id) ||
+        observations.actorFrame.empty() || observations.critic.empty() ||
+        observations.actorHistoryLength == 0u ||
+        observations.criticHistoryLength == 0u ||
+        !countFits(observations.actorFrame.size()) ||
+        !countFits(observations.actorCurrent.size()) ||
+        !countFits(observations.critic.size())) {
+        return fail(LearningPackStatus::invalidPack,
+            "SensorProgramPack must author bounded actor and critic observations");
+    }
+    const auto observationFits = [](const auto& values) {
+        return std::all_of(
+            values.begin(),
+            values.end(),
+            [](const TaskObservationOperatorSpec& operation) {
+                return stringFits(operation.target);
+            }
+        );
+    };
+    if (!observationFits(observations.actorFrame) ||
+        !observationFits(observations.actorCurrent) ||
+        !observationFits(observations.critic)) {
+        return fail(
+            LearningPackStatus::capacityOverflow,
+            "SensorProgramPack observation semantic exceeds the 32-bit artifact boundary"
+        );
+    }
+    return {};
+}
+
+LearningPackResult validateRealityProgramArtifact(
+    const RealityProgramPack& pack
+) {
+    if (pack.id.empty() || !stringFits(pack.id) ||
+        pack.program.id.empty() || !stringFits(pack.program.id) ||
+        !countFits(pack.program.variations.size()) ||
+        !countFits(pack.reset.operators.size()) ||
+        !std::all_of(
+            pack.program.variations.begin(),
+            pack.program.variations.end(),
+            [](const VariationParameter& variation) {
+                const bool identityFits =
+                    !variation.id.empty() && stringFits(variation.id) &&
+                    stringFits(variation.targetId) &&
+                    countFits(variation.categoricalValues.size());
+                const bool enumFits =
+                    variation.axis <= MR_WORLD_VARIATION_CAMERA &&
+                    variation.distribution <=
+                        MR_WORLD_DISTRIBUTION_CATEGORICAL &&
+                    variation.target <=
+                        MR_WORLD_TARGET_ASSET_COLLISION_ALTERNATIVE;
+                const bool parametersFinite =
+                    std::isfinite(variation.parameters.x) &&
+                    std::isfinite(variation.parameters.y) &&
+                    std::isfinite(variation.parameters.z) &&
+                    std::isfinite(variation.parameters.w);
+                if (!identityFits || !enumFits || !parametersFinite) {
+                    return false;
+                }
+                switch (variation.distribution) {
+                case MR_WORLD_DISTRIBUTION_CONSTANT:
+                    return true;
+                case MR_WORLD_DISTRIBUTION_UNIFORM:
+                    return variation.parameters.x <= variation.parameters.y;
+                case MR_WORLD_DISTRIBUTION_LOG_UNIFORM:
+                    return variation.parameters.x > 0.0f &&
+                        variation.parameters.x <= variation.parameters.y;
+                case MR_WORLD_DISTRIBUTION_NORMAL_CLAMPED:
+                    return variation.parameters.y > 0.0f &&
+                        variation.parameters.z <= variation.parameters.w;
+                case MR_WORLD_DISTRIBUTION_CATEGORICAL:
+                    return !variation.categoricalValues.empty();
+                default:
+                    return false;
+                }
+            }
+        ) ||
+        !std::all_of(
+            pack.reset.operators.begin(), pack.reset.operators.end(),
+            [](const TaskRandomizationOperatorSpec& operation) {
+                return stringFits(operation.target);
+            }
+        )) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "RealityProgramPack executable variation or reset semantics are invalid"
         );
     }
     return {};
@@ -994,46 +1092,6 @@ bool readEnum(Reader& reader, Enum& value) {
     return true;
 }
 
-void writeObservation(
-    Writer& writer,
-    const TaskObservationOperatorSpec& value
-) {
-    writeEnum(writer, value.source);
-    writer.string(value.target);
-    writer.pod(value.component);
-    writer.pod(value.scale);
-    writer.pod(value.offset);
-    writer.pod(value.noiseAmplitude);
-    writer.pod(value.biasLower);
-    writer.pod(value.biasUpper);
-    writer.pod(
-        static_cast<std::uint8_t>(
-            value.normalizeVector3
-        )
-    );
-}
-
-bool readObservation(
-    Reader& reader,
-    TaskObservationOperatorSpec& value
-) {
-    std::uint8_t normalize = 0u;
-    if (!readEnum(reader, value.source) ||
-        !reader.string(value.target) ||
-        !reader.pod(value.component) ||
-        !reader.pod(value.scale) ||
-        !reader.pod(value.offset) ||
-        !reader.pod(value.noiseAmplitude) ||
-        !reader.pod(value.biasLower) ||
-        !reader.pod(value.biasUpper) ||
-        !reader.pod(normalize) ||
-        normalize > 1u) {
-        return false;
-    }
-    value.normalizeVector3 = normalize != 0u;
-    return true;
-}
-
 template <typename T, typename Function>
 void writeRichVector(
     Writer& writer,
@@ -1076,9 +1134,7 @@ std::vector<std::byte> serializeTask(
         writer,
         pack.actions,
         [](Writer& target, const TaskActionBinding& value) {
-            target.string(value.joint);
-            target.pod(value.scale);
-            target.pod(value.responseTimeSeconds);
+            target.string(value.actuator);
         }
     );
     writeRichVector(
@@ -1092,14 +1148,6 @@ std::vector<std::byte> serializeTask(
             writeEnum(target, value.rewardOperation);
         }
     );
-    writeRichVector(writer, pack.actorFrame, writeObservation);
-    writer.pod(pack.actorHistoryLength);
-    writeRichVector(writer, pack.actorCurrent, writeObservation);
-    writeRichVector(writer, pack.critic, writeObservation);
-    writer.pod(pack.criticHistoryLength);
-    writer.pod(static_cast<std::uint8_t>(
-        pack.criticIncludesCleanHistory
-    ));
     writeRichVector(
         writer,
         pack.contactGroups,
@@ -1155,18 +1203,6 @@ std::vector<std::byte> serializeTask(
             target.pod(value.maximumDifficultyBand);
         }
     );
-    writeRichVector(
-        writer,
-        pack.randomization,
-        [](Writer& target,
-           const TaskRandomizationOperatorSpec& value) {
-            writeEnum(target, value.operation);
-            target.string(value.target);
-            target.pod(value.component);
-            target.pod(value.minimumDifficultyBand);
-            target.pod(value.parameters);
-        }
-    );
     writer.pod(pack.commands.lower);
     writer.pod(pack.commands.upper);
     writer.pod(pack.commands.limitLower);
@@ -1188,20 +1224,6 @@ std::vector<std::byte> serializeTask(
     writer.string(pack.terrain.body);
     writer.vector(pack.terrain.sampleOffsets);
     writer.vector(pack.terrain.resetTranslations);
-    writer.pod(pack.visual.width);
-    writer.pod(pack.visual.height);
-    writer.vector(pack.visual.frameOffsets);
-    writer.pod(pack.visual.nearDepthMeters);
-    writer.pod(pack.visual.farDepthMeters);
-    writer.pod(pack.visual.fullDropoutProbability);
-    writer.pod(pack.visual.pixelDropoutProbability);
-    writer.pod(pack.visual.depthJitterMeters);
-    writer.pod(pack.visual.depthNoiseSigmaMeters);
-    writer.pod(pack.visual.edgeFlickerProbability);
-    writer.pod(pack.visual.difficultyCorruptionGain);
-    writer.pod(static_cast<std::uint8_t>(
-        pack.visual.includeDerivedFeatures ? 1u : 0u
-    ));
     writer.string(pack.threat.protectedGroup);
     writer.pod(pack.threat.activationSpeed);
     writer.pod(pack.threat.horizonSeconds);
@@ -1216,8 +1238,6 @@ std::vector<std::byte> serializeTask(
     writer.string(pack.motion.anchorBody);
     writer.strings(pack.motion.trackedBodies);
     writer.pod(pack.maximumEpisodeSteps);
-    writer.pod(pack.maximumActionDelaySteps);
-    writer.pod(pack.maximumObservationDelaySteps);
     writer.pod(pack.difficultyBandCount);
     writer.pod(pack.interactionStudentAuthority);
     writer.pod(pack.interactionResetPhaseFraction);
@@ -1237,8 +1257,6 @@ bool deserializeTask(
     TaskPack& pack
 ) {
     Reader reader{payload};
-    std::uint8_t cleanHistory = 0u;
-    std::uint8_t visualDerivedFeatures = 0u;
     std::uint8_t interactionControlReference = 0u;
     if (!reader.string(pack.id) ||
         !reader.pod(pack.capacities) ||
@@ -1246,9 +1264,7 @@ bool deserializeTask(
             reader,
             pack.actions,
             [](Reader& source, TaskActionBinding& value) {
-                return source.string(value.joint) &&
-                    source.pod(value.scale) &&
-                    source.pod(value.responseTimeSeconds);
+                return source.string(value.actuator);
             }
         ) ||
         !readRichVector(
@@ -1262,21 +1278,6 @@ bool deserializeTask(
                     readEnum(source, value.rewardOperation);
             }
         ) ||
-        !readRichVector(
-            reader,
-            pack.actorFrame,
-            readObservation
-        ) ||
-        !reader.pod(pack.actorHistoryLength) ||
-        !readRichVector(
-            reader,
-            pack.actorCurrent,
-            readObservation
-        ) ||
-        !readRichVector(reader, pack.critic, readObservation) ||
-        !reader.pod(pack.criticHistoryLength) ||
-        !reader.pod(cleanHistory) ||
-        cleanHistory > 1u ||
         !readRichVector(
             reader,
             pack.contactGroups,
@@ -1339,18 +1340,6 @@ bool deserializeTask(
                     source.pod(value.maximumDifficultyBand);
             }
         ) ||
-        !readRichVector(
-            reader,
-            pack.randomization,
-            [](Reader& source,
-               TaskRandomizationOperatorSpec& value) {
-                return readEnum(source, value.operation) &&
-                    source.string(value.target) &&
-                    source.pod(value.component) &&
-                    source.pod(value.minimumDifficultyBand) &&
-                    source.pod(value.parameters);
-            }
-        ) ||
         !reader.pod(pack.commands.lower) ||
         !reader.pod(pack.commands.upper) ||
         !reader.pod(pack.commands.limitLower) ||
@@ -1372,18 +1361,6 @@ bool deserializeTask(
         !reader.string(pack.terrain.body) ||
         !reader.vector(pack.terrain.sampleOffsets) ||
         !reader.vector(pack.terrain.resetTranslations) ||
-        !reader.pod(pack.visual.width) ||
-        !reader.pod(pack.visual.height) ||
-        !reader.vector(pack.visual.frameOffsets) ||
-        !reader.pod(pack.visual.nearDepthMeters) ||
-        !reader.pod(pack.visual.farDepthMeters) ||
-        !reader.pod(pack.visual.fullDropoutProbability) ||
-        !reader.pod(pack.visual.pixelDropoutProbability) ||
-        !reader.pod(pack.visual.depthJitterMeters) ||
-        !reader.pod(pack.visual.depthNoiseSigmaMeters) ||
-        !reader.pod(pack.visual.edgeFlickerProbability) ||
-        !reader.pod(pack.visual.difficultyCorruptionGain) ||
-        !reader.pod(visualDerivedFeatures) ||
         !reader.string(pack.threat.protectedGroup) ||
         !reader.pod(pack.threat.activationSpeed) ||
         !reader.pod(pack.threat.horizonSeconds) ||
@@ -1398,8 +1375,6 @@ bool deserializeTask(
         !reader.string(pack.motion.anchorBody) ||
         !reader.strings(pack.motion.trackedBodies) ||
         !reader.pod(pack.maximumEpisodeSteps) ||
-        !reader.pod(pack.maximumActionDelaySteps) ||
-        !reader.pod(pack.maximumObservationDelaySteps) ||
         !reader.pod(pack.difficultyBandCount) ||
         !reader.pod(pack.interactionStudentAuthority) ||
         !reader.pod(pack.interactionResetPhaseFraction) ||
@@ -1413,11 +1388,304 @@ bool deserializeTask(
         !reader.finished()) {
         return false;
     }
-    pack.criticIncludesCleanHistory = cleanHistory != 0u;
-    pack.visual.includeDerivedFeatures = visualDerivedFeatures != 0u;
     pack.interactionControlReference =
         interactionControlReference != 0u;
     return true;
+}
+
+void writeObservationOperator(
+    Writer& writer,
+    const TaskObservationOperatorSpec& operation
+) {
+    writeEnum(writer, operation.source);
+    writer.string(operation.target);
+    writer.pod(operation.component);
+    writer.pod(operation.scale);
+    writer.pod(operation.offset);
+    writer.pod(operation.noiseAmplitude);
+    writer.pod(operation.biasLower);
+    writer.pod(operation.biasUpper);
+    writer.pod(static_cast<std::uint8_t>(
+        operation.normalizeVector3 ? 1u : 0u
+    ));
+}
+
+bool readObservationOperator(
+    Reader& reader,
+    TaskObservationOperatorSpec& operation
+) {
+    std::uint8_t normalize = 0u;
+    if (!readEnum(reader, operation.source) ||
+        !reader.string(operation.target) ||
+        !reader.pod(operation.component) ||
+        !reader.pod(operation.scale) ||
+        !reader.pod(operation.offset) ||
+        !reader.pod(operation.noiseAmplitude) ||
+        !reader.pod(operation.biasLower) ||
+        !reader.pod(operation.biasUpper) ||
+        !reader.pod(normalize) || normalize > 1u) {
+        return false;
+    }
+    operation.normalizeVector3 = normalize != 0u;
+    return true;
+}
+
+void writeObservationProgram(
+    Writer& writer,
+    const TaskObservationProgram& observations
+) {
+    writeRichVector(
+        writer,
+        observations.actorFrame,
+        writeObservationOperator
+    );
+    writer.pod(observations.actorHistoryLength);
+    writeRichVector(
+        writer,
+        observations.actorCurrent,
+        writeObservationOperator
+    );
+    writeRichVector(
+        writer,
+        observations.critic,
+        writeObservationOperator
+    );
+    writer.pod(observations.criticHistoryLength);
+    writer.pod(static_cast<std::uint8_t>(
+        observations.criticIncludesCleanHistory ? 1u : 0u
+    ));
+    writer.pod(observations.visual.width);
+    writer.pod(observations.visual.height);
+    writer.vector(observations.visual.frameOffsets);
+    writer.pod(observations.visual.nearDepthMeters);
+    writer.pod(observations.visual.farDepthMeters);
+    writer.pod(observations.visual.fullDropoutProbability);
+    writer.pod(observations.visual.pixelDropoutProbability);
+    writer.pod(observations.visual.depthJitterMeters);
+    writer.pod(observations.visual.depthNoiseSigmaMeters);
+    writer.pod(observations.visual.edgeFlickerProbability);
+    writer.pod(observations.visual.difficultyCorruptionGain);
+    writer.pod(static_cast<std::uint8_t>(
+        observations.visual.includeDerivedFeatures ? 1u : 0u
+    ));
+}
+
+bool readObservationProgram(
+    Reader& reader,
+    TaskObservationProgram& observations
+) {
+    std::uint8_t cleanHistory = 0u;
+    std::uint8_t derivedFeatures = 0u;
+    if (!readRichVector(
+            reader,
+            observations.actorFrame,
+            readObservationOperator
+        ) ||
+        !reader.pod(observations.actorHistoryLength) ||
+        !readRichVector(
+            reader,
+            observations.actorCurrent,
+            readObservationOperator
+        ) ||
+        !readRichVector(
+            reader,
+            observations.critic,
+            readObservationOperator
+        ) ||
+        !reader.pod(observations.criticHistoryLength) ||
+        !reader.pod(cleanHistory) || cleanHistory > 1u ||
+        !reader.pod(observations.visual.width) ||
+        !reader.pod(observations.visual.height) ||
+        !reader.vector(observations.visual.frameOffsets) ||
+        !reader.pod(observations.visual.nearDepthMeters) ||
+        !reader.pod(observations.visual.farDepthMeters) ||
+        !reader.pod(observations.visual.fullDropoutProbability) ||
+        !reader.pod(observations.visual.pixelDropoutProbability) ||
+        !reader.pod(observations.visual.depthJitterMeters) ||
+        !reader.pod(observations.visual.depthNoiseSigmaMeters) ||
+        !reader.pod(observations.visual.edgeFlickerProbability) ||
+        !reader.pod(observations.visual.difficultyCorruptionGain) ||
+        !reader.pod(derivedFeatures) || derivedFeatures > 1u) {
+        return false;
+    }
+    observations.criticIncludesCleanHistory = cleanHistory != 0u;
+    observations.visual.includeDerivedFeatures = derivedFeatures != 0u;
+    return true;
+}
+
+void writeResetOperator(
+    Writer& writer,
+    const TaskRandomizationOperatorSpec& operation
+) {
+    writeEnum(writer, operation.operation);
+    writer.string(operation.target);
+    writer.pod(operation.component);
+    writer.pod(operation.minimumDifficultyBand);
+    writer.pod(operation.parameters);
+}
+
+bool readResetOperator(
+    Reader& reader,
+    TaskRandomizationOperatorSpec& operation
+) {
+    return readEnum(reader, operation.operation) &&
+        reader.string(operation.target) &&
+        reader.pod(operation.component) &&
+        reader.pod(operation.minimumDifficultyBand) &&
+        reader.pod(operation.parameters);
+}
+
+void writeResetProgram(
+    Writer& writer,
+    const TaskResetProgram& reset
+) {
+    writeRichVector(writer, reset.operators, writeResetOperator);
+    writer.pod(reset.maximumActionDelaySteps);
+    writer.pod(reset.maximumObservationDelaySteps);
+}
+
+bool readResetProgram(
+    Reader& reader,
+    TaskResetProgram& reset
+) {
+    return readRichVector(reader, reset.operators, readResetOperator) &&
+        reader.pod(reset.maximumActionDelaySteps) &&
+        reader.pod(reset.maximumObservationDelaySteps);
+}
+
+void writeActuator(
+    Writer& writer,
+    const RobotActuatorSpec& actuator
+) {
+    writer.string(actuator.id);
+    writeEnum(writer, actuator.kind);
+    writer.string(actuator.target);
+    writer.pod(actuator.scale);
+    writer.pod(actuator.responseTimeSeconds);
+    writer.pod(actuator.parameters);
+    writer.pod(actuator.component);
+    writeRichVector(
+        writer,
+        actuator.terms,
+        [](Writer& target, const RobotActuatorTermSpec& term) {
+            target.string(term.joint);
+            target.pod(term.coefficient);
+        }
+    );
+}
+
+bool readActuator(
+    Reader& reader,
+    RobotActuatorSpec& actuator
+) {
+    return reader.string(actuator.id) &&
+        readEnum(reader, actuator.kind) &&
+        reader.string(actuator.target) &&
+        reader.pod(actuator.scale) &&
+        reader.pod(actuator.responseTimeSeconds) &&
+        reader.pod(actuator.parameters) &&
+        reader.pod(actuator.component) &&
+        readRichVector(
+            reader,
+            actuator.terms,
+            [](Reader& source, RobotActuatorTermSpec& term) {
+                return source.string(term.joint) &&
+                    source.pod(term.coefficient);
+            }
+        );
+}
+
+std::vector<std::byte> serializeRobotActuators(
+    const RobotActuatorPack& pack
+) {
+    Writer writer;
+    writer.string(pack.id);
+    writeRichVector(writer, pack.actuators, writeActuator);
+    return writer.data();
+}
+
+bool deserializeRobotActuators(
+    const std::span<const std::byte> payload,
+    RobotActuatorPack& pack
+) {
+    Reader reader{payload};
+    return reader.string(pack.id) &&
+        readRichVector(reader, pack.actuators, readActuator) &&
+        reader.finished();
+}
+
+std::vector<std::byte> serializeSensorProgram(
+    const SensorProgramPack& pack
+) {
+    Writer writer;
+    writer.string(pack.id);
+    writeObservationProgram(writer, pack.observation);
+    return writer.data();
+}
+
+bool deserializeSensorProgram(
+    const std::span<const std::byte> payload,
+    SensorProgramPack& pack
+) {
+    Reader reader{payload};
+    return reader.string(pack.id) &&
+        readObservationProgram(reader, pack.observation) &&
+        reader.finished();
+}
+
+std::vector<std::byte> serializeRealityProgram(
+    const RealityProgramPack& pack
+) {
+    Writer writer;
+    writer.string(pack.id);
+    writer.string(pack.program.id);
+    writer.pod(pack.program.instanceFlags);
+    writeRichVector(
+        writer,
+        pack.program.variations,
+        [](Writer& target, const VariationParameter& variation) {
+            target.string(variation.id);
+            target.pod(variation.axis);
+            target.pod(variation.distribution);
+            target.pod(variation.target);
+            target.string(variation.targetId);
+            target.pod(variation.parameters);
+            target.vector(variation.categoricalValues);
+            target.pod(variation.stream);
+            target.pod(variation.salt);
+        }
+    );
+    writer.pod(pack.sourceProgramFingerprint);
+    writeResetProgram(writer, pack.reset);
+    return writer.data();
+}
+
+bool deserializeRealityProgram(
+    const std::span<const std::byte> payload,
+    RealityProgramPack& pack
+) {
+    Reader reader{payload};
+    return reader.string(pack.id) &&
+        reader.string(pack.program.id) &&
+        reader.pod(pack.program.instanceFlags) &&
+        readRichVector(
+            reader,
+            pack.program.variations,
+            [](Reader& source, VariationParameter& variation) {
+                return source.string(variation.id) &&
+                    source.pod(variation.axis) &&
+                    source.pod(variation.distribution) &&
+                    source.pod(variation.target) &&
+                    source.string(variation.targetId) &&
+                    source.pod(variation.parameters) &&
+                    source.vector(variation.categoricalValues) &&
+                    source.pod(variation.stream) &&
+                    source.pod(variation.salt);
+            }
+        ) &&
+        reader.pod(pack.sourceProgramFingerprint) &&
+        readResetProgram(reader, pack.reset) &&
+        reader.finished();
 }
 
 std::vector<std::byte> serializePolicy(
@@ -2052,6 +2320,92 @@ LearningPackResult readTaskPack(
         output,
         deserializeTask
     );
+}
+
+LearningPackResult writeRobotActuatorPack(
+    const RobotActuatorPack& pack,
+    const std::filesystem::path& path
+) {
+    try {
+        const LearningPackResult validation =
+            validateRobotActuatorArtifact(pack);
+        if (!validation.succeeded()) {
+            return validation;
+        }
+        return writePack(
+            serializeRobotActuators(pack),
+            kRobotActuatorKind,
+            kRobotActuatorPackFormatVersion,
+            path
+        );
+    } catch (const std::bad_alloc&) {
+        return fail(
+            LearningPackStatus::capacityOverflow,
+            "RobotActuatorPack serialization allocation failed"
+        );
+    } catch (const std::exception& error) {
+        return fail(
+            LearningPackStatus::internalFailure,
+            error.what()
+        );
+    }
+}
+
+LearningPackResult readRobotActuatorPack(
+    const std::filesystem::path& path,
+    RobotActuatorPack& output
+) {
+    return readPack(
+        path,
+        kRobotActuatorKind,
+        kRobotActuatorPackFormatVersion,
+        output,
+        deserializeRobotActuators
+    );
+}
+
+LearningPackResult writeSensorProgramPack(
+    const SensorProgramPack& pack,
+    const std::filesystem::path& path
+) {
+    const LearningPackResult validation = validateSensorProgramArtifact(pack);
+    if (!validation.succeeded()) return validation;
+    try {
+        return writePack(serializeSensorProgram(pack), kSensorProgramKind,
+            kSensorProgramPackFormatVersion, path);
+    } catch (const std::exception& error) {
+        return fail(LearningPackStatus::internalFailure, error.what());
+    }
+}
+
+LearningPackResult readSensorProgramPack(
+    const std::filesystem::path& path,
+    SensorProgramPack& output
+) {
+    return readPack(path, kSensorProgramKind,
+        kSensorProgramPackFormatVersion, output, deserializeSensorProgram);
+}
+
+LearningPackResult writeRealityProgramPack(
+    const RealityProgramPack& pack,
+    const std::filesystem::path& path
+) {
+    const LearningPackResult validation = validateRealityProgramArtifact(pack);
+    if (!validation.succeeded()) return validation;
+    try {
+        return writePack(serializeRealityProgram(pack), kRealityProgramKind,
+            kRealityProgramPackFormatVersion, path);
+    } catch (const std::exception& error) {
+        return fail(LearningPackStatus::internalFailure, error.what());
+    }
+}
+
+LearningPackResult readRealityProgramPack(
+    const std::filesystem::path& path,
+    RealityProgramPack& output
+) {
+    return readPack(path, kRealityProgramKind,
+        kRealityProgramPackFormatVersion, output, deserializeRealityProgram);
 }
 
 LearningPackResult writePolicyPack(

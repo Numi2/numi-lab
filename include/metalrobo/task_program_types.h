@@ -2,7 +2,15 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 35u
+#define MR_TASK_PROGRAM_ABI_VERSION 37u
+
+#define MR_TASK_ACTUATOR_JOINT_POSITION 0u
+#define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
+#define MR_TASK_ACTUATOR_JOINT_EFFORT 2u
+#define MR_TASK_ACTUATOR_TENDON_POSITION 3u
+#define MR_TASK_ACTUATOR_GRIPPER_POSITION 4u
+#define MR_TASK_ACTUATOR_ROTOR_MIXER 5u
+#define MR_TASK_ACTUATOR_BODY_WRENCH 6u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
@@ -304,7 +312,7 @@ typedef struct MR_ALIGN16 MRTaskDispatchGPU {
     mr_uint4 outputs;
     // control dt, physics dt, publish final actor, publish terminal critic.
     mr_float4 timing;
-    // sampled difficulty-band lower bound, inclusive upper bound, reserved.
+    // sampled difficulty-band lower/upper bound, compiled body count, reserved.
     // MR_INVALID_INDEX in y selects the compiled TaskPack upper bound.
     mr_uint4 sampling;
     mr_u64 seed;
@@ -396,6 +404,8 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // The final table contains at most eight reward opcodes. Each entry maps
     // to the same-numbered generic transition outcome channel.
     mr_uint4 interactionOffsets1;
+    // Sparse tendon actuator terms: byte offset, count, reserved, reserved.
+    mr_uint4 actuatorTerms;
 } MRTaskProgramHeaderGPU;
 
 typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
@@ -407,7 +417,18 @@ typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
     // playback uses these values to preserve the reference joint velocity
     // through the implicit position-drive target without bypassing physics.
     mr_float4 drive;
+    // actuator kind, resolved body/component, component lane, reserved.
+    // Joint actuators retain indices.y/z/w as DoF/q/v; non-joint actuators
+    // use MR_INVALID_INDEX there and are consumed by their compiled program.
+    mr_uint4 actuator;
 } MRTaskActionBindingGPU;
+
+typedef struct MR_ALIGN16 MRTaskActuatorTermGPU {
+    // Global DoF, q, and v indices; remaining lane reserved.
+    mr_uint4 indices;
+    // Tendon Jacobian coefficient; remaining lanes reserved.
+    mr_float4 coefficient;
+} MRTaskActuatorTermGPU;
 
 typedef struct MR_ALIGN16 MRTaskObservationOperatorGPU {
     // opcode, resolved source index, component, flags.
@@ -581,8 +602,9 @@ typedef struct MR_ALIGN16 MRLearningTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 112u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 576u);
-static_assert(sizeof(MRTaskActionBindingGPU) == 48u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 592u);
+static_assert(sizeof(MRTaskActionBindingGPU) == 64u);
+static_assert(sizeof(MRTaskActuatorTermGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 112u);
 static_assert(sizeof(MRTaskIndexGroupGPU) == 16u);

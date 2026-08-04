@@ -158,24 +158,30 @@ std::vector<double> loweredG1Configuration(
         0.0
     );
     std::vector<metalrobo::ArticulatedPointQuery> queries;
-    std::vector<double> radii;
-    for (const MRShapeGPU& shape : model.shapes) {
-        if ((shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) == 0u &&
-            shape.shapeType == MR_SHAPE_SPHERE) {
-            queries.push_back({
-                shape.bodyIndex,
-                {
-                    shape.localPosition.x,
-                    shape.localPosition.y,
-                    shape.localPosition.z,
-                },
-            });
-            radii.push_back(shape.dimensions.x);
-        }
+    for (const metalrobo::G1FootFrame& foot :
+         metalrobo::unitreeG1Metadata().feet) {
+        require(
+            foot.soleShapeIndex < model.shapes.size(),
+            "G1 authored sole shape index is invalid"
+        );
+        const MRShapeGPU& shape = model.shapes[foot.soleShapeIndex];
+        require(
+            (shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) == 0u &&
+                shape.shapeType == MR_SHAPE_BOX,
+            "G1 authored sole is not an executable box"
+        );
+        queries.push_back({
+            shape.bodyIndex,
+            {
+                shape.localPosition.x,
+                shape.localPosition.y,
+                shape.localPosition.z - shape.dimensions.z,
+            },
+        });
     }
     require(
-        queries.size() == metalrobo::kUnitreeG1FootSphereCount,
-        "G1 executable foot sphere set changed"
+        queries.size() == metalrobo::kUnitreeG1SoleShapeCount,
+        "G1 executable sole-box set changed"
     );
     std::vector<metalrobo::ArticulatedPointKinematics>
         points(queries.size());
@@ -203,7 +209,7 @@ std::vector<double> loweredG1Configuration(
     for (std::size_t index = 0u; index < points.size(); ++index) {
         minimumBottom = std::min(
             minimumBottom,
-            points[index].position[2] - radii[index]
+            points[index].position[2]
         );
     }
     require(
@@ -218,8 +224,16 @@ std::vector<double> loweredG1Configuration(
 
 int main() {
     try {
-        const metalrobo::EngineModel model =
+        metalrobo::EngineModel model =
             metalrobo::makeUnitreeG1EngineModel();
+        // This probe exercises the CPU primitive/contact oracle. The
+        // production Metal path executes the authored convex hulls, while
+        // the CPU oracle intentionally rejects MR_SHAPE_CONVEX today.
+        for (MRShapeGPU& shape : model.shapes) {
+            if (shape.shapeType == MR_SHAPE_CONVEX) {
+                shape.flags |= MR_SHAPE_FLAG_SIMULATION_DISABLED;
+            }
+        }
         const std::size_t nv = model.articulations[0].nv;
         const std::vector<double> zeroForce(nv, 0.0);
 
@@ -247,12 +261,42 @@ int main() {
                 defaultConfig,
                 defaultCache
             );
-        require(
-            defaultDiagnostics.succeeded() &&
-                defaultDiagnostics.contactCount == 0u &&
-                defaultCache.step == 1u,
-            "default-constructed articulated world is not executable"
-        );
+        if (!(defaultDiagnostics.succeeded() &&
+              defaultDiagnostics.contactCount == 0u &&
+              defaultCache.step == 1u)) {
+            throw std::runtime_error(
+                "default-constructed articulated world is not executable code=" +
+                std::to_string(defaultDiagnostics.code) +
+                " failure=" +
+                std::to_string(static_cast<std::uint32_t>(
+                    defaultDiagnostics.failure
+                )) +
+                " free_status=" +
+                std::to_string(static_cast<std::uint32_t>(
+                    defaultDiagnostics.freeDynamics.status
+                )) +
+                " collision_status=" +
+                std::to_string(static_cast<std::uint32_t>(
+                    defaultDiagnostics.collisionKinematics.status
+                )) +
+                " contacts=" +
+                std::to_string(defaultDiagnostics.contactCount) +
+                " required_pairs=" +
+                std::to_string(defaultDiagnostics.collision.requiredPairs) +
+                " required_raw=" +
+                std::to_string(defaultDiagnostics.collision.requiredRawContacts) +
+                " required_manifolds=" +
+                std::to_string(defaultDiagnostics.collision.requiredManifolds) +
+                " cache_step=" + std::to_string(defaultCache.step) +
+                " dt=" + std::to_string(defaultConfig.dynamics.timestep) +
+                " eval_dt=" + std::to_string(
+                    defaultConfig.constraintEvaluation.timestep
+                ) +
+                " limit_dt=" + std::to_string(
+                    defaultConfig.jointLimits.timestep
+                )
+            );
+        }
 
         // No-contact composition must be exactly the existing symplectic
         // articulated free-motion step, including generalized forces.
@@ -909,6 +953,7 @@ int main() {
             << " mixed_contact_limits=yes"
             << " late_rollback=yes"
             << " overflow_rollback=yes"
+            << " convex_disabled_for_cpu_oracle=yes"
             << " status=ok\n";
         return 0;
     } catch (const std::exception& error) {

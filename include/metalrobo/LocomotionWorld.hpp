@@ -29,7 +29,6 @@ enum class UnitreeG1Task : std::uint32_t {
 struct LocomotionWorld {
     EngineModel model;
     std::vector<MRBodyStateGPU> sceneBodies;
-    TaskPack task;
     std::uint32_t articulationIndex = 0u;
 };
 
@@ -71,6 +70,10 @@ struct LocomotionWorldCompileDiagnostics {
 compileLocomotionWorld(
     const LocomotionWorld& authored,
     std::uint32_t articulationIndex,
+    const TaskPack& task,
+    std::span<const RobotActuatorSpec> actuators,
+    const TaskObservationProgram& observations,
+    const TaskResetProgram& reset,
     CompiledLocomotionWorld& compiled
 );
 
@@ -108,20 +111,20 @@ void appendLocomotionDynamicSpheres(
 // pack owns mechanics and scene composition; TaskPack remains a separate
 // learning contract resolved against those exact semantic names.
 [[nodiscard]] LocomotionWorld makeWorldPackLocomotionWorld(
-    const MRWorldPack& worldPack,
-    TaskPack task
+    const MRWorldPack& worldPack
 );
 
 // Official 29-DoF Unitree G1 mechanics plus the current locomotion surface.
 [[nodiscard]] LocomotionWorld makeUnitreeG1LocomotionWorld(
-    LocomotionSurface surface,
-    UnitreeG1Task task = UnitreeG1Task::velocity
+    LocomotionSurface surface
 );
 
 // Bundled policy/task contract expressed entirely through the same authored
 // TaskPack accepted for imported robots.
 [[nodiscard]] TaskPack makeUnitreeG1LocomotionTaskPack(
-    LocomotionSurface surface
+    LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
 );
 
 // Canonical normalized-action radians used by the bundled G1 TaskPack and
@@ -134,27 +137,35 @@ unitreeG1LocomotionActionScales() noexcept;
 // impulses are the high-throughput training proxy; ordinary dynamic bodies
 // provide complementary physical-impact evidence.
 [[nodiscard]] TaskPack makeUnitreeG1DisturbanceRecoveryTaskPack(
-    LocomotionSurface surface
+    LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
 );
 
 // HumanUP-style Stage-I discovery task: fixed supine reset, full-body
 // collision, dense height/upright/support shaping, and weak regularization.
 [[nodiscard]] TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
-    LocomotionSurface surface
+    LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
 );
 
 // Balance recovery driven by randomized ordinary rigid spheres. Sphere
 // mechanics are supplied by the world while this TaskPack only authors their
 // per-episode launch envelopes through generic scene-body operators.
 [[nodiscard]] TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
-    LocomotionSurface surface
+    LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
 );
 
 // Perception-conditioned, contact-free projectile avoidance. The actor uses
 // ball-only masked depth while native privileged link-clearance operators
 // shape the critic and task reward before physical contact.
 [[nodiscard]] TaskPack makeUnitreeG1BallDodgeTaskPack(
-    LocomotionSurface surface
+    LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
 );
 
 } // namespace metalrobo

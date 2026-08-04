@@ -3061,6 +3061,15 @@ kernel void mr_locomotion_task_observe(
         actorObservations[actorOutputBase + index] =
             actorHistory[historyBase + index];
     }
+    device const float* observationQ = reset
+        ? resetQ + qBase
+        : sourceQ + qBase;
+    device const float* observationV = reset
+        ? resetV + vBase
+        : sourceV + vBase;
+    device const MRBodyStateGPU* observationScene = reset
+        ? resetScene + sceneBase
+        : sourceScene + sceneBase;
     writeCurrentActor(
         dispatch,
         program,
@@ -3072,8 +3081,8 @@ kernel void mr_locomotion_task_observe(
         environment,
         state.episode.y,
         0u,
-        resetQ + qBase,
-        resetV + vBase,
+        observationQ,
+        observationV,
         defaultQ,
         state,
         actionHistory + delayBase,
@@ -3081,7 +3090,7 @@ kernel void mr_locomotion_task_observe(
         compactContact + contactBase,
         bodyParameters + bodyParameterBase,
         controllerParameters + environment,
-        resetScene + sceneBase,
+        observationScene,
         shapes,
         geometryHeaders,
         geometryVertices,
@@ -3269,6 +3278,15 @@ kernel void mr_locomotion_task_apply_actions(
             filterSlot * program.counts0.x +
             action
         ];
+        if (binding.actuator.x != MR_TASK_ACTUATOR_JOINT_POSITION &&
+            binding.actuator.x != MR_TASK_ACTUATOR_GRIPPER_POSITION) {
+            // Velocity, effort, tendon, and body-wrench commands are
+            // evaluated from live microstep state by the generic actuator
+            // pass. Rotor mixers have their own compiled robot program. A
+            // task without an executable TeacherPack has no teacher-action
+            // allocation, so none of these branches may touch that stream.
+            continue;
+        }
         const bool interactionReference =
             (program.schedule.w &
              MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u;
@@ -3339,6 +3357,189 @@ kernel void mr_locomotion_task_apply_actions(
     }
 }
 
+inline float actuatorEffortEnvelope(
+    device const MRDofPropertiesGPU& dof,
+    device const MRActuatorProfileGPU& actuator,
+    const float velocity
+) {
+    const float speedFraction = clamp(
+        abs(velocity) /
+            max(actuator.motorAndSpeed.z, 1.175494351e-38f),
+        0.0f,
+        1.0f
+    );
+    const float dofLimit =
+        (dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) != 0u &&
+            dof.limits.w > 0.0f
+        ? dof.limits.w
+        : 3.402823466e+38f;
+    return min(
+        dofLimit,
+        actuator.transmissionAndEnvelope.z *
+            actuator.motorAndSpeed.w *
+            (1.0f - speedFraction)
+    );
+}
+
+inline float actuatorDryFriction(
+    device const MRDofPropertiesGPU& dof,
+    const float velocity,
+    const float requested
+) {
+    const float friction = dof.drive.w;
+    if (!(friction > 0.0f)) {
+        return 0.0f;
+    }
+    return abs(velocity) > 1.0e-4f
+        ? -copysign(friction, velocity)
+        : -clamp(requested, -friction, friction);
+}
+
+// Executes every effort-producing RobotPack actuator from the live accepted
+// microstep state. Position/gripper targets remain in the implicit-drive
+// trajectory; rotor mixers remain in their robot-authored program. This pass
+// adds no integration or kinematic override: it only writes generalized
+// effort and world-frame body wrench consumed by the ordinary ABA solve.
+kernel void mr_locomotion_task_apply_native_actuators(
+    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
+    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
+    device const uchar* arena [[buffer(2)]],
+    device const MRMetalWorldDispatchGPU& worldDispatch [[buffer(3)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(4)]],
+    device const float* qState [[buffer(5)]],
+    device const float* vState [[buffer(6)]],
+    device const float* actionHistory [[buffer(7)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(8)]],
+    device const MRActuatorProfileGPU* actuatorProfiles [[buffer(9)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(10)]],
+    device float* workingEffort [[buffer(11)]],
+    device MRABABodyWrenchGPU* bodyWrenches [[buffer(12)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        pass.physicsSubstep >= worldDispatch.physicsSubsteps ||
+        dispatch.counts.x != worldDispatch.environmentCount ||
+        dispatch.counts.z != worldDispatch.nq ||
+        dispatch.counts.w != worldDispatch.nv ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        dispatch.worldFingerprint != program.worldFingerprint ||
+        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        program.layout.w < 2u) {
+        return;
+    }
+    device const MRTaskActionBindingGPU* actions =
+        taskTable<MRTaskActionBindingGPU>(arena, program.offsets0.x);
+    device const MRTaskActuatorTermGPU* terms =
+        taskTable<MRTaskActuatorTermGPU>(arena, program.actuatorTerms.x);
+    const uint bodyCount = dispatch.sampling.z;
+    if ((worldDispatch.flags & MR_METAL_WORLD_HAS_BODY_WRENCHES) != 0u) {
+        for (uint body = 0u; body < bodyCount; ++body) {
+            bodyWrenches[environment * bodyCount + body] = {};
+        }
+    }
+    const uint qBase = environment * dispatch.counts.z;
+    const uint vBase = environment * dispatch.counts.w;
+    const uint filterSlot = program.layout.w - 1u;
+    const uint historyBase =
+        environment * program.layout.w * program.counts0.x +
+        filterSlot * program.counts0.x;
+    for (uint action = 0u; action < program.counts0.x; ++action) {
+        const MRTaskActionBindingGPU binding = actions[action];
+        const uint kind = binding.actuator.x;
+        if (kind == MR_TASK_ACTUATOR_JOINT_POSITION ||
+            kind == MR_TASK_ACTUATOR_GRIPPER_POSITION ||
+            kind == MR_TASK_ACTUATOR_ROTOR_MIXER) {
+            continue;
+        }
+        const float filtered = actionHistory[historyBase + action];
+        if (kind == MR_TASK_ACTUATOR_JOINT_VELOCITY ||
+            kind == MR_TASK_ACTUATOR_JOINT_EFFORT) {
+            const uint dofIndex = binding.indices.y;
+            const uint velocityIndex = binding.indices.w;
+            if (dofIndex >= dispatch.counts.w ||
+                velocityIndex >= dispatch.counts.w) {
+                continue;
+            }
+            device const MRDofPropertiesGPU& dof = dofs[dofIndex];
+            const float velocity = vState[vBase + velocityIndex];
+            const float target = clamp(
+                binding.parameters.x * filtered,
+                binding.parameters.y,
+                binding.parameters.z
+            );
+            float effort = kind == MR_TASK_ACTUATOR_JOINT_VELOCITY
+                ? binding.drive.y * (target - velocity)
+                : target;
+            effort += actuatorDryFriction(dof, velocity, effort);
+            const float envelope = actuatorEffortEnvelope(
+                dof, actuatorProfiles[dofIndex], velocity);
+            workingEffort[vBase + velocityIndex] =
+                clamp(effort, -envelope, envelope);
+            continue;
+        }
+        if (kind == MR_TASK_ACTUATOR_TENDON_POSITION) {
+            const uint first = binding.indices.y;
+            const uint count = binding.indices.z;
+            if (first > program.actuatorTerms.y ||
+                count > program.actuatorTerms.y - first) {
+                continue;
+            }
+            float length = 0.0f;
+            float rate = 0.0f;
+            for (uint termIndex = 0u; termIndex < count; ++termIndex) {
+                const MRTaskActuatorTermGPU term = terms[first + termIndex];
+                length += term.coefficient.x *
+                    qState[qBase + term.indices.y];
+                rate += term.coefficient.x *
+                    vState[vBase + term.indices.z];
+            }
+            const float target =
+                binding.drive.w + binding.parameters.x * filtered;
+            const float tension = clamp(
+                binding.drive.x * (target - length) -
+                    binding.drive.y * rate,
+                -binding.drive.z,
+                binding.drive.z
+            );
+            for (uint termIndex = 0u; termIndex < count; ++termIndex) {
+                const MRTaskActuatorTermGPU term = terms[first + termIndex];
+                const uint dofIndex = term.indices.x;
+                const uint velocityIndex = term.indices.z;
+                const float velocity = vState[vBase + velocityIndex];
+                device const MRDofPropertiesGPU& dof = dofs[dofIndex];
+                float effort = term.coefficient.x * tension;
+                effort += actuatorDryFriction(dof, velocity, effort);
+                effort += workingEffort[vBase + velocityIndex];
+                const float envelope = actuatorEffortEnvelope(
+                    dof, actuatorProfiles[dofIndex], velocity);
+                workingEffort[vBase + velocityIndex] =
+                    clamp(effort, -envelope, envelope);
+            }
+            continue;
+        }
+        if (kind == MR_TASK_ACTUATOR_BODY_WRENCH &&
+            (worldDispatch.flags & MR_METAL_WORLD_HAS_BODY_WRENCHES) != 0u &&
+            binding.actuator.y < bodyCount && binding.actuator.z < 6u) {
+            const uint bodyIndex = binding.actuator.y;
+            const uint wrenchIndex = environment * bodyCount + bodyIndex;
+            const MRArticulatedBodyPoseGPU pose =
+                bodyPoses[wrenchIndex];
+            const uint component = binding.actuator.z;
+            float3 local = float3(0.0f);
+            local[component % 3u] = binding.parameters.x * filtered;
+            const float3 world = rotate(pose.orientation, local);
+            MRABABodyWrenchGPU wrench = bodyWrenches[wrenchIndex];
+            if (component < 3u) {
+                wrench.force.xyz += world;
+            } else {
+                wrench.torque.xyz += world;
+            }
+            bodyWrenches[wrenchIndex] = wrench;
+        }
+    }
+}
+
 kernel void mr_locomotion_task_measure_effort(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -3369,8 +3570,11 @@ kernel void mr_locomotion_task_measure_effort(
     for (uint action = 0u;
          action < program.counts0.x;
          ++action) {
-        const uint velocityIndex =
-            actions[action].indices.w;
+        const MRTaskActionBindingGPU binding = actions[action];
+        if (binding.indices.w == MR_INVALID_INDEX) {
+            continue;
+        }
+        const uint velocityIndex = binding.indices.w;
         mechanicalPower += abs(
             workingEffort[vBase + velocityIndex] *
             vState[vBase + velocityIndex]
@@ -3925,6 +4129,23 @@ kernel void mr_locomotion_task_complete(
          ++action) {
         const MRTaskActionBindingGPU binding =
             actions[action];
+        const float currentAction = actionHistory[
+            delayBase +
+            rawLastSlot * program.counts0.x +
+            action
+        ];
+        const float previousAction = actionHistory[
+            delayBase +
+            previousRawSlot * program.counts0.x +
+            action
+        ];
+        const float actionDelta = currentAction - previousAction;
+        actionRateSquared += actionDelta * actionDelta;
+        if (binding.indices.y == MR_INVALID_INDEX ||
+            binding.indices.z == MR_INVALID_INDEX ||
+            binding.indices.w == MR_INVALID_INDEX) {
+            continue;
+        }
         const MRDofPropertiesGPU dof =
             dofs[binding.indices.y];
         const float position =
@@ -3939,18 +4160,6 @@ kernel void mr_locomotion_task_complete(
                 ]
             ) /
             dispatch.timing.x;
-        const float currentAction = actionHistory[
-            delayBase +
-            rawLastSlot * program.counts0.x +
-            action
-        ];
-        const float previousAction = actionHistory[
-            delayBase +
-            previousRawSlot * program.counts0.x +
-            action
-        ];
-        const float actionDelta =
-            currentAction - previousAction;
         const float lower =
             max(dof.limits.x - position, 0.0f);
         const float upper =
@@ -3958,8 +4167,6 @@ kernel void mr_locomotion_task_complete(
         velocitySquared += velocity * velocity;
         accelerationSquared +=
             acceleration * acceleration;
-        actionRateSquared +=
-            actionDelta * actionDelta;
         limitViolationSquared +=
             lower * lower + upper * upper;
     }
@@ -5886,11 +6093,11 @@ kernel void mr_locomotion_task_complete(
         for (uint action = 0u;
              action < program.counts0.x;
              ++action) {
-            previousJointVelocity[
-                previousVelocityBase + action
-            ] = vState[
-                vBase + actions[action].indices.w
-            ];
+            const uint velocityIndex = actions[action].indices.w;
+            previousJointVelocity[previousVelocityBase + action] =
+                velocityIndex == MR_INVALID_INDEX
+                ? 0.0f
+                : vState[vBase + velocityIndex];
         }
     }
 

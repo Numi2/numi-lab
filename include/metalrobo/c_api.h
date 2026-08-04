@@ -159,6 +159,7 @@ enum MRRunManifestSourceC {
     MR_RUN_SOURCE_FRANKA_PICK_PLACE = 1u,
     MR_RUN_SOURCE_IMPORTED_URDF = 2u,
     MR_RUN_SOURCE_WORLD_PACK = 3u,
+    MR_RUN_SOURCE_PX4_X500 = 4u,
 };
 
 // Single native construction boundary for training, evaluation and
@@ -173,6 +174,9 @@ typedef struct MRRunManifestC {
     const char* srdf_path;
     const char* world_pack_path;
     const char* task_pack_path;
+    const char* robot_actuator_pack_path;
+    const char* sensor_program_pack_path;
+    const char* reality_program_pack_path;
     const char* teacher_pack_path;
     const char* teacher_clip_id;
     const MRTaskVisualObservationConfigC* visual_sensor_program;

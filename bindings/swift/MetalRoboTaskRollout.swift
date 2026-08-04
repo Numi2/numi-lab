@@ -1004,8 +1004,15 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
 public enum MetalRoboRunSource: Sendable {
     case unitreeG1
     case frankaPickPlace
-    case importedURDF(urdf: URL, srdf: URL?, taskPack: URL)
-    case worldPack(world: URL, taskPack: URL)
+    case px4X500
+    case importedURDF(
+        urdf: URL, srdf: URL?, taskPack: URL, actuatorPack: URL,
+        sensorPack: URL, realityPack: URL
+    )
+    case worldPack(
+        world: URL, taskPack: URL, actuatorPack: URL,
+        sensorPack: URL, realityPack: URL
+    )
 }
 
 public struct MetalRoboTeacherSource: Sendable {
@@ -1056,20 +1063,35 @@ public final class MetalRoboTaskRolloutContext {
         var srdfPath: String?
         var worldPackPath: String?
         var taskPackPath: String?
+        var actuatorPackPath: String?
+        var sensorPackPath: String?
+        var realityPackPath: String?
         switch authored.source {
         case .unitreeG1:
             source = MR_RUN_SOURCE_UNITREE_G1.rawValue
         case .frankaPickPlace:
             source = MR_RUN_SOURCE_FRANKA_PICK_PLACE.rawValue
-        case let .importedURDF(urdf, srdf, taskPack):
+        case .px4X500:
+            source = MR_RUN_SOURCE_PX4_X500.rawValue
+        case let .importedURDF(
+            urdf, srdf, taskPack, actuatorPack, sensorPack, realityPack
+        ):
             source = MR_RUN_SOURCE_IMPORTED_URDF.rawValue
             urdfPath = urdf.path
             srdfPath = srdf?.path
             taskPackPath = taskPack.path
-        case let .worldPack(world, taskPack):
+            actuatorPackPath = actuatorPack.path
+            sensorPackPath = sensorPack.path
+            realityPackPath = realityPack.path
+        case let .worldPack(
+            world, taskPack, actuatorPack, sensorPack, realityPack
+        ):
             source = MR_RUN_SOURCE_WORLD_PACK.rawValue
             worldPackPath = world.path
             taskPackPath = taskPack.path
+            actuatorPackPath = actuatorPack.path
+            sensorPackPath = sensorPack.path
+            realityPackPath = realityPack.path
         }
         let created: OpaquePointer? = try Self.withNativeVisualSensor(
             authored.visualSensor
@@ -1079,6 +1101,12 @@ public final class MetalRoboTaskRolloutContext {
                     withOptionalCString(srdfPath) { srdf in
                         withOptionalCString(worldPackPath) { world in
                             withOptionalCString(taskPackPath) { task in
+                                withOptionalCString(actuatorPackPath) {
+                                    actuatorPack in
+                                withOptionalCString(sensorPackPath) {
+                                    sensorPack in
+                                withOptionalCString(realityPackPath) {
+                                    realityPack in
                                 withOptionalCString(
                                     authored.teacher?.pack.path
                                 ) { teacherPack in
@@ -1098,6 +1126,12 @@ public final class MetalRoboTaskRolloutContext {
                                             manifest.srdf_path = srdf
                                             manifest.world_pack_path = world
                                             manifest.task_pack_path = task
+                                            manifest.robot_actuator_pack_path =
+                                                actuatorPack
+                                            manifest.sensor_program_pack_path =
+                                                sensorPack
+                                            manifest.reality_program_pack_path =
+                                                realityPack
                                             manifest.teacher_pack_path =
                                                 teacherPack
                                             manifest.teacher_clip_id =
@@ -1110,6 +1144,9 @@ public final class MetalRoboTaskRolloutContext {
                                             )
                                         }
                                     }
+                                }
+                                }
+                                }
                                 }
                             }
                         }

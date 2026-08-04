@@ -799,7 +799,10 @@ std::vector<MRBodyStateGPU> makeFrankaPickPlaceSceneState() {
     };
 }
 
-TaskPack makeFrankaPickPlaceTaskPack() {
+TaskPack makeFrankaPickPlaceTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
     TaskPack task;
     task.id = "franka_pick_place_v1";
     task.outcomes = {
@@ -825,20 +828,19 @@ TaskPack makeFrankaPickPlaceTaskPack() {
         "panda_finger_joint2",
     }};
     for (const std::string_view joint : joints) {
-        const bool finger = joint.find("finger") != std::string_view::npos;
         task.actions.push_back({
-            std::string{joint}, finger ? 0.01f : 0.25f, 0.04f
+            .actuator = std::string{joint}
         });
         for (const TaskObservationSource source : {
                  TaskObservationSource::jointPositionError,
                  TaskObservationSource::jointVelocity,
                  TaskObservationSource::previousAction,
              }) {
-            task.actorFrame.push_back({
+            observations.actorFrame.push_back({
                 .source = source,
                 .target = std::string{joint},
             });
-            task.critic.push_back({
+            observations.critic.push_back({
                 .source = source,
                 .target = std::string{joint},
             });
@@ -850,11 +852,11 @@ TaskPack makeFrankaPickPlaceTaskPack() {
             .target = "pick_object",
             .component = component,
         };
-        task.actorFrame.push_back(object);
-        task.critic.push_back(std::move(object));
+        observations.actorFrame.push_back(object);
+        observations.critic.push_back(std::move(object));
     }
-    task.actorHistoryLength = 3u;
-    task.criticHistoryLength = 3u;
+    observations.actorHistoryLength = 3u;
+    observations.criticHistoryLength = 3u;
     task.contactGroups.push_back({
         .id = "gripper",
         .bodies = {"panda_leftfinger", "panda_rightfinger"},
@@ -882,15 +884,15 @@ TaskPack makeFrankaPickPlaceTaskPack() {
         {TaskRewardOperator::jointLimitViolationSquared, {}, {}, -0.2f, {}},
         {TaskRewardOperator::mechanicalPower, {}, {}, -0.0002f, {}},
     };
-    task.randomization = {
+    reset.operators = {
         {TaskRandomizationOperator::sceneBodyPosition, "pick_object", 0u,
             0u, {-0.08f, 0.08f, 0.0f, 0.0f}},
         {TaskRandomizationOperator::sceneBodyPosition, "pick_object", 1u,
             0u, {-0.08f, 0.08f, 0.0f, 0.0f}},
     };
     task.maximumEpisodeSteps = 750u;
-    task.maximumActionDelaySteps = 2u;
-    task.maximumObservationDelaySteps = 2u;
+    reset.maximumActionDelaySteps = 2u;
+    reset.maximumObservationDelaySteps = 2u;
     task.difficultyBandCount = 4u;
     task.commands.minimumDurationSeconds = 15.0f;
     task.commands.maximumDurationSeconds = 15.0f;

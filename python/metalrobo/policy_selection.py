@@ -46,6 +46,13 @@ _FLAG_OPTIONS = frozenset(
 )
 
 _GENERIC_WORLD_SOURCES = frozenset({"world_pack", "urdf"})
+_EVALUATION_OVERRIDE_OPTIONS = frozenset(
+    {
+        "--envs",
+        "--steps",
+        "--seed",
+    }
+)
 
 
 def _option_value(arguments: Sequence[str], option: str) -> str | None:
@@ -54,6 +61,25 @@ def _option_value(arguments: Sequence[str], option: str) -> str | None:
         if value == option:
             result = arguments[index + 1]
     return result
+
+
+def _task_kind(task_id: str) -> str:
+    """Map authored task IDs onto the stable promotion-policy vocabulary."""
+
+    normalized = task_id.strip().lower().replace("_", "-")
+    if "supine" in normalized and "get-up" in normalized:
+        return "supine-get-up"
+    if "ball" in normalized and "dodge" in normalized:
+        return "ball-dodge"
+    if "ball" in normalized and (
+        "recovery" in normalized or "disturbance" in normalized
+    ):
+        return "ball-recovery"
+    if "disturbance" in normalized or "recovery" in normalized:
+        return "disturbance-recovery"
+    if "velocity" in normalized or "locomotion" in normalized:
+        return "velocity"
+    return normalized
 
 
 def evaluation_arguments(
@@ -74,7 +100,8 @@ def evaluation_arguments(
         if option in _VALUE_OPTIONS:
             if index + 1 >= len(training_arguments):
                 raise ValueError(f"{option} is missing its value")
-            projected.extend((option, training_arguments[index + 1]))
+            if option not in _EVALUATION_OVERRIDE_OPTIONS:
+                projected.extend((option, training_arguments[index + 1]))
             index += 2
             continue
         if option in _FLAG_OPTIONS:
@@ -92,7 +119,10 @@ def evaluation_arguments(
     )
     if student_authority is not None and float(student_authority) == 0.0:
         # A zero-authority rollout measures the teacher, not the learned actor.
-        # Keep the teacher's accepted reset state, then evaluate autonomously.
+        # Keep the zero authority in the task contract, keep the teacher's
+        # accepted reset state, then evaluate autonomously. Removing the
+        # option would silently restore the default 0.1 authority and produce
+        # a different task fingerprint.
         filtered: list[str] = []
         skip = False
         for value in projected:
@@ -105,13 +135,19 @@ def evaluation_arguments(
             if value == "--interaction-reset-only":
                 continue
             filtered.append(value)
-        projected = filtered + ["--interaction-reset-only"]
+        projected = filtered + [
+            "--interaction-student-authority",
+            "0",
+            "--interaction-reset-only",
+        ]
 
     # Appended values win if a caller supplied the same option earlier.
     projected.extend(
         (
             "--envs",
             str(evaluation_environments),
+            "--steps",
+            str(evaluation_steps or int(_option_value(training_arguments, "--steps") or 1)),
             "--repeats",
             "1",
             "--chunk",
@@ -129,7 +165,6 @@ def evaluation_arguments(
     if evaluation_steps is not None:
         if evaluation_steps <= 0:
             raise ValueError("evaluation steps must be positive")
-        projected.extend(("--steps", str(evaluation_steps)))
     return projected
 
 
@@ -190,7 +225,8 @@ def compare_evidence(
     incumbent: dict[str, Any], candidate: dict[str, Any]
 ) -> dict[str, Any]:
     """Compare matched physical evidence while retaining useful tradeoffs."""
-    task = str(candidate.get("task", incumbent.get("task", "unknown")))
+    task_id = str(candidate.get("task", incumbent.get("task", "unknown")))
+    task = _task_kind(task_id)
     generic_task = _uses_generic_task_outcome(candidate) or (
         _uses_generic_task_outcome(incumbent)
     )

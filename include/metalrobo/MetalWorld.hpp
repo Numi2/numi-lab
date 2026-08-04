@@ -3,6 +3,7 @@
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MetalWorldCapacity.hpp"
+#include "metalrobo/multicopter_types.h"
 #include "metalrobo/PolicyProgram.hpp"
 #include "metalrobo/TaskProgram.hpp"
 #include "metalrobo/parallel_aba_shared.h"
@@ -274,7 +275,7 @@ struct MetalWorldBatch {
     std::span<const MRRodEdgeStateGPU> resetRodEdges{};
 };
 
-// Device-resident observation extension encoded after the generic TaskPack
+// Device-resident observation extension encoded after the generic SensorPack
 // has built proprioception and immediately before policy inference. Buffers
 // are borrowed id<MTLBuffer> values and commandBuffer is a borrowed
 // id<MTLCommandBuffer>; the callback may encode work but must not commit,
@@ -320,6 +321,29 @@ struct MetalWorldDeviceObservationProgram {
     }
 };
 
+// Immutable robot-authored multicopter actuator program. MetalWorld executes
+// it immediately before every ABA microstep and writes the resulting
+// world-frame wrench into the same external-wrench arena used by articulated
+// dynamics. Gravity, collision, contact, and reset therefore remain the
+// ordinary universal physics path.
+struct MetalWorldMulticopterProgram {
+    MRMulticopterModelGPU model{};
+    std::array<MRMulticopterRotorGPU, MR_MULTICOPTER_MAX_ROTORS> rotors{};
+    MRMulticopterMixerGPU mixer{};
+    std::uint32_t articulationIndex = MR_INVALID_INDEX;
+    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    std::uint32_t firstAction = MR_INVALID_INDEX;
+    mr_float4 windVelocity{};
+
+    [[nodiscard]] bool valid() const noexcept {
+        return model.rotorCount != 0u &&
+            model.rotorCount <= MR_MULTICOPTER_MAX_ROTORS &&
+            articulationIndex != MR_INVALID_INDEX &&
+            bodyIndex != MR_INVALID_INDEX &&
+            firstAction != MR_INVALID_INDEX;
+    }
+};
+
 struct MetalWorldStepConfig {
     // Control-period duration. The immutable model gravity is retained and
     // its authored integration timestep is replaced by
@@ -340,6 +364,10 @@ struct MetalWorldStepConfig {
     // Optional generic native inference program. With no policy program,
     // normalized actions remain an explicit learner/deployment input.
     CompiledPolicyProgram policyProgram{};
+    // Optional compiled robot actuator program. This is an execution program,
+    // not a constructor hint; its complete contents participate in the run
+    // fingerprint before reaching MetalWorld.
+    MetalWorldMulticopterProgram multicopterProgram{};
     // Optional renderer/perception pass. It receives only borrowed device
     // resources and executes inside the native rollout command buffer.
     MetalWorldDeviceObservationProgram deviceObservationProgram{};

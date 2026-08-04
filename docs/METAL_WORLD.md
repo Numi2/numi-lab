@@ -55,6 +55,14 @@ compilation, so articulated, rigid, kinematic, and static bodies cannot be
 silently collapsed into one dynamics class. Persisted reality and external
 sensor-program content hashes are part of the immutable run identity.
 
+Imported runs persist those authorities independently as `TaskPack` v16,
+`RobotActuatorPack` v2, `SensorProgramPack`, and `RealityProgramPack`. Runtime
+construction requires every artifact and compiles it directly; there is no
+combined execution wrapper and no authoring-time transfer of observation or
+reset fields through `TaskPack`. `RealityProgramPack` v2 is the authority for
+both world/physics variation and task-state reset semantics; `MRWorldPack`
+supplies scene mechanics and assets but does not override that program.
+
 `PolicyPack` owns dense actor weights, normalization, output transforms, clips,
 and a monotonically increasing revision. `compilePolicyProgram` verifies its
 observation/action contract against the compiled task and proves finite
@@ -102,12 +110,12 @@ body and scene velocity, recognizes a clean miss, and terminates only when the
 active projectile's solved contact pair contains a protected member. Ordinary
 support contact therefore cannot become a false dodge failure.
 
-The bundled Unitree G1 factory is mechanics plus one bundled TaskPack. Imported
-floating-base URDF/SRDF models use the same `compileLocomotionWorld` path and
-the Swift `MetalRoboTaskRolloutContext` initializer accepts a persisted
-TaskPack directly. Other importers can construct the same `EngineModel` C++
-boundary; a new `.metal` extension is appropriate only for a new physics
-primitive, sensor modality, or task operator.
+The bundled Unitree G1 factory is mechanics plus independently authored task,
+actuator, sensor, and reality programs. Imported floating-base URDF/SRDF and
+WorldPack sources provide the same four artifact authorities to
+`mr_create_task_rollout`; the public executor always retains one `CompiledRun`.
+A new `.metal` extension is appropriate only for a new physics primitive,
+sensor modality, task operator, or genuinely new typed actuator executor.
 
 Swift owns rollout length, chunking, submission/wait boundaries, resets,
 policy revision, and error reporting. `MetalWorldResidentState` keeps
@@ -116,14 +124,14 @@ sensor history, episode state, and RNG state private across submissions.
 Reset is one native transaction. Only actor/critic observations, transition
 records, and explicit diagnostics cross the learning boundary.
 An optional device-observation program composes rendering or perception into
-the same command buffer after TaskPack proprioception and before generic policy
+the same command buffer after SensorPack proprioception and before generic policy
 inference. MetalWorld selects the exact accepted-or-reset q and scene state
 into its unused ping-pong destination, refreshes articulated kinematics, and
 publishes one global body arena. The callback may encode work against borrowed
 buffers but cannot commit, wait, or retain them. Visual state therefore stays
 synchronized on reset without another capacity-sized simulator copy.
 Temporal proprioception and direct device observations have independent
-layouts: TaskPack history multiplies only the temporal frame, while a rendered
+layouts: SensorPack history multiplies only the temporal frame, while a rendered
 depth or tactile suffix is appended once with its own native history program.
 The final rollout chunk appends a value-only policy evaluation for the
 accepted post-step state to the same command buffer. Bootstrap values

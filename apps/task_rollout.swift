@@ -169,6 +169,9 @@ private struct Options {
     var interactionClip: String?
     var worldPack: String?
     var taskPack: String?
+    var robotActuatorPack: String?
+    var sensorProgramPack: String?
+    var realityProgramPack: String?
     var urdf: String?
     var srdf: String?
     var dynamicSpheres: [MetalRoboDynamicSphere] = []
@@ -357,6 +360,15 @@ private struct Options {
             case "--task-pack":
                 taskPack = try value()
                 index += 1
+            case "--robot-actuator-pack":
+                robotActuatorPack = try value()
+                index += 1
+            case "--sensor-program-pack":
+                sensorProgramPack = try value()
+                index += 1
+            case "--reality-program-pack":
+                realityProgramPack = try value()
+                index += 1
             case "--urdf":
                 urdf = try value()
                 index += 1
@@ -524,6 +536,8 @@ private struct Options {
         }
         if interactionPack != nil &&
             (worldPack != nil || urdf != nil || taskPack != nil ||
+             robotActuatorPack != nil || sensorProgramPack != nil ||
+             realityProgramPack != nil ||
              (unitreeG1Task != .velocity &&
               unitreeG1Task != .ballDodge &&
               unitreeG1Task != .supineGetUpDiscovery) ||
@@ -533,9 +547,15 @@ private struct Options {
                 "InteractionPack evaluation uses bundled G1 velocity, ball-dodge, or supine-get-up mechanics and cannot be combined with imported mechanics or --ball."
             )
         }
-        if (worldPack != nil || urdf != nil) != (taskPack != nil) {
+        let importing = worldPack != nil || urdf != nil
+        let ownerArtifacts = [
+            taskPack, robotActuatorPack, sensorProgramPack, realityProgramPack,
+        ]
+        if importing != ownerArtifacts.allSatisfy({ $0 != nil }) ||
+            (!importing && ownerArtifacts.contains(where: { $0 != nil }))
+        {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "Imported mechanics require exactly one --task-pack."
+                "Imported mechanics require --task-pack, --robot-actuator-pack, --sensor-program-pack, and --reality-program-pack."
             )
         }
         if srdf != nil && urdf == nil {
@@ -792,14 +812,20 @@ private func makeContext(
         )
     }
     if let worldPack = options.worldPack,
-       let taskPack = options.taskPack
+       let taskPack = options.taskPack,
+       let actuatorPack = options.robotActuatorPack,
+       let sensorPack = options.sensorProgramPack,
+       let realityPack = options.realityProgramPack
     {
         return (
             try MetalRoboTaskRolloutContext(
                 manifest: MetalRoboRunManifest(
                     source: .worldPack(
                         world: URL(fileURLWithPath: worldPack),
-                        taskPack: URL(fileURLWithPath: taskPack)
+                        taskPack: URL(fileURLWithPath: taskPack),
+                        actuatorPack: URL(fileURLWithPath: actuatorPack),
+                        sensorPack: URL(fileURLWithPath: sensorPack),
+                        realityPack: URL(fileURLWithPath: realityPack)
                     ),
                     sensorsAndPhysics: configuration,
                     visualSensor: visualSensor
@@ -810,7 +836,10 @@ private func makeContext(
         )
     }
     if let urdf = options.urdf,
-       let taskPack = options.taskPack
+       let taskPack = options.taskPack,
+       let actuatorPack = options.robotActuatorPack,
+       let sensorPack = options.sensorProgramPack,
+       let realityPack = options.realityProgramPack
     {
         return (
             try MetalRoboTaskRolloutContext(
@@ -820,7 +849,10 @@ private func makeContext(
                         srdf: options.srdf.map {
                             URL(fileURLWithPath: $0)
                         },
-                        taskPack: URL(fileURLWithPath: taskPack)
+                        taskPack: URL(fileURLWithPath: taskPack),
+                        actuatorPack: URL(fileURLWithPath: actuatorPack),
+                        sensorPack: URL(fileURLWithPath: sensorPack),
+                        realityPack: URL(fileURLWithPath: realityPack)
                     ),
                     sensorsAndPhysics: configuration,
                     visualSensor: visualSensor

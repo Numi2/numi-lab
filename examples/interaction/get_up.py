@@ -217,6 +217,142 @@ def _root_targets() -> np.ndarray:
     return _solver_roots_to_link(roots)
 
 
+def _contact_first_targets() -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Author a deliberately slow, contact-first recovery chain.
+
+    The previous clip raised the root target while the native body was still
+    supine.  That is a useful kinematic reference for visualization, but it
+    is a poor physical teacher: the position drive can move joints, not the
+    floating base, and the solver has no support surface to realize the
+    requested root motion.  This clip keeps the root low while the hands and
+    knees become available supports, then introduces feet and elevation.
+
+    The four returned arrays are root-link targets, joint targets, contact
+    modes, and confidence.  They are still intent only; NumiSolver remains
+    the source of physical contact and body motion truth.
+    """
+
+    frames = (0, 120, 280, 460, 620, 780, 940, 1100)
+    poses = (
+        SUPINE,
+        BRACE,
+        BRACE,
+        TUCK,
+        SUPPORTED_SQUAT,
+        HALF_STAND,
+        STANDING,
+        STANDING,
+    )
+    joint_targets = _interpolate_keyframes(frames, poses)
+
+    # These are COM-coordinate waypoints.  Convert once to the root-link
+    # contract consumed by InteractionPack v1; do not mix the two frames.
+    root_positions = (
+        (0.0, 0.0, 0.01850436),
+        (0.0, 0.0, 0.01850436),
+        (-0.02, 0.0, 0.035),
+        (-0.08, 0.0, 0.10),
+        (-0.08, 0.0, 0.28),
+        (-0.03, 0.0, 0.50),
+        (0.0, 0.0, 0.72396994),
+        (0.0, 0.0, 0.72396994),
+    )
+    supine_q = np.asarray(
+        (-0.0098234, 0.49986, 0.017525, -0.86587),
+        dtype=np.float32,
+    )
+    identity = np.asarray((0.0, 0.0, 0.0, 1.0), dtype=np.float32)
+    orientations = (
+        supine_q,
+        supine_q,
+        supine_q,
+        _slerp(supine_q, identity, 0.12),
+        _slerp(supine_q, identity, 0.34),
+        _slerp(supine_q, identity, 0.68),
+        identity,
+        identity,
+    )
+    roots = np.empty((frames[-1] + 1, 7), dtype=np.float32)
+    for segment, (start, end) in enumerate(zip(frames[:-1], frames[1:])):
+        for frame in range(start, end + 1):
+            blend = _smooth((frame - start) / max(end - start, 1))
+            roots[frame, :3] = np.asarray(root_positions[segment]) + blend * (
+                np.asarray(root_positions[segment + 1])
+                - np.asarray(root_positions[segment])
+            )
+            roots[frame, 3:] = _slerp(
+                orientations[segment], orientations[segment + 1], blend
+            )
+    root_targets = _solver_roots_to_link(roots)
+
+    modes = np.full((roots.shape[0], len(CONTACT_TRACKS)), FREE, dtype=np.uint32)
+    # Feet are not requested until the body is already in a supported squat.
+    modes[620:780, 0:2] = APPROACH
+    modes[780:, 0:2] = STICK
+    # Hands are the first support and remain available through the tuck.
+    modes[60:120, 2:4] = APPROACH
+    modes[120:720, 2:4] = STICK
+    modes[720:780, 2:4] = RELEASE
+    # Knees join the support graph after the hands have had time to brace.
+    modes[320:400, 4:6] = APPROACH
+    modes[400:700, 4:6] = STICK
+    modes[700:760, 4:6] = RELEASE
+    # The trunk is allowed to remain a stabilizing support until the pelvis
+    # has begun to clear; releasing it before that point caused the old clip
+    # to lose the only stable contact graph.
+    modes[:520, 6] = STICK
+    modes[520:620, 6] = RELEASE
+    confidence = np.where(modes == STICK, 0.85, 0.35).astype(np.float32)
+    return root_targets, joint_targets, modes, confidence
+
+
+def author_contact_first(
+    output_directory: Path,
+    episode_frames: int | None = None,
+) -> tuple[Path, str, int]:
+    """Write the canonical staged contact-first get-up intent."""
+
+    root_targets, joint_targets, modes, confidence = _contact_first_targets()
+    if episode_frames is not None:
+        if episode_frames < 2 or episode_frames > root_targets.shape[0]:
+            raise ValueError(
+                "contact-first episode frames must lie in [2, 1101]"
+            )
+        root_targets = root_targets[:episode_frames]
+        joint_targets = joint_targets[:episode_frames]
+        modes = modes[:episode_frames]
+        confidence = confidence[:episode_frames]
+    output_directory.mkdir(parents=True, exist_ok=True)
+    identity = "get-up-contact-first"
+    if episode_frames is not None:
+        identity += f"-frames-{root_targets.shape[0]:04d}"
+    target, content_hash = write_interaction_pack(
+        output=output_directory / f"{identity}.interactionpack",
+        pack_id=identity,
+        clip_id=identity,
+        desired_outcome=(
+            "brace with both hands, tuck onto both knees, transfer to both "
+            "feet, and settle into a stable upright stance"
+        ),
+        source_repository="MetalRobo/examples/interaction",
+        source_revision="contact-first-staged-v2",
+        license_name="Apache-2.0",
+        frames_per_second=FPS,
+        root_targets=root_targets,
+        joint_targets=joint_targets,
+        tracks=CONTACT_TRACKS,
+        contact_modes=modes,
+        contact_confidence=confidence,
+    )
+    print(json.dumps({
+        "pack": str(target),
+        "frames": int(root_targets.shape[0]),
+        "authoring_mode": "contact-first",
+        "content_hash": content_hash,
+    }, indent=2))
+    return target, identity, int(root_targets.shape[0])
+
+
 def author(
     output_directory: Path,
     start_frame: int = 0,
@@ -599,6 +735,8 @@ def execute(
             "--no-scheduled-resets",
             "--interaction-pack", str(pack_path),
             "--interaction-clip", clip_id,
+            "--minimum-difficulty-band", "0",
+            "--maximum-difficulty-band", "0",
             "--state-trace", str(trace),
         ),
         check=False,
@@ -627,6 +765,12 @@ def main() -> None:
         default=REPOSITORY / "build/bin/metalrobo_task_rollout",
     )
     parser.add_argument("--generate-only", action="store_true")
+    parser.add_argument(
+        "--authoring-mode",
+        choices=("contact-first", "legacy-kinematic"),
+        default="contact-first",
+        help="contact-first is the canonical physical-teacher authoring mode",
+    )
     parser.add_argument("--start-frame", type=int, default=0)
     parser.add_argument("--hold-frames", type=int, default=0)
     parser.add_argument("--episode-frames", type=int)
@@ -675,12 +819,23 @@ def main() -> None:
             arguments.episode_frames,
         )
     else:
-        pack, clip_id, frame_count = author(
-            arguments.output_directory.resolve(),
-            arguments.start_frame,
-            arguments.hold_frames,
-            arguments.episode_frames,
-        )
+        if arguments.authoring_mode == "contact-first":
+            if arguments.start_frame != 0 or arguments.hold_frames:
+                parser.error(
+                    "contact-first cannot combine with --start-frame or "
+                    "--hold-frames; use --authoring-mode legacy-kinematic"
+                )
+            pack, clip_id, frame_count = author_contact_first(
+                arguments.output_directory.resolve(),
+                arguments.episode_frames,
+            )
+        else:
+            pack, clip_id, frame_count = author(
+                arguments.output_directory.resolve(),
+                arguments.start_frame,
+                arguments.hold_frames,
+                arguments.episode_frames,
+            )
     if not arguments.generate_only:
         execute(pack, clip_id, frame_count, arguments.rollout.resolve())
 

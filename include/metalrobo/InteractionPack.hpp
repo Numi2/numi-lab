@@ -30,7 +30,7 @@ enum InteractionSampleFlags : std::uint32_t {
     interactionSamplePhysicsCertified = 1u << 1u,
 };
 
-// Feature order deliberately matches TaskPack support-patch observations:
+// Feature order deliberately matches SensorPack support-patch observations:
 // local force xyz (N), local torque xyz (N*m), local CoP xy (m), occupied
 // area (m^2), then a 2x2 row-major pressure field (Pa). A validity bit gates
 // every feature independently, so a motion generator's binary foot contact

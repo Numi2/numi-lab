@@ -1421,11 +1421,11 @@ target_compile_definitions(
         METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
 )
 
-add_executable(metalrobo_px4_x500_gpu_probe apps/px4_x500_gpu_probe.mm)
+add_executable(metalrobo_px4_x500_gpu_probe apps/px4_x500_gpu_probe.cpp)
 add_dependencies(metalrobo_px4_x500_gpu_probe metalrobo_shaders)
 target_compile_definitions(metalrobo_px4_x500_gpu_probe PRIVATE METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}")
-target_compile_options(metalrobo_px4_x500_gpu_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
-target_link_libraries(metalrobo_px4_x500_gpu_probe PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+target_compile_options(metalrobo_px4_x500_gpu_probe PRIVATE -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_px4_x500_gpu_probe PRIVATE metalrobo)
 set_target_properties(metalrobo_px4_x500_gpu_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
 target_compile_options(
     metalrobo_free_body_gpu_probe
@@ -2041,6 +2041,31 @@ target_compile_options(
 )
 set_target_properties(
     metalrobo_visual_cook
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(
+    metalrobo_room_scan_scene
+    tools/room_scan_scene.cpp
+)
+target_link_libraries(
+    metalrobo_room_scan_scene
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_room_scan_scene
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_room_scan_scene
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

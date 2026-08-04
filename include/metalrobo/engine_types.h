@@ -41,7 +41,7 @@
 // Versioned first generic Metal-world graph. One submission may encode many
 // control steps, each with a bounded number of ABA physics substeps, without
 // a command-buffer completion or CPU-visible intermediate state.
-#define MR_METAL_WORLD_ABI_VERSION 5u
+#define MR_METAL_WORLD_ABI_VERSION 6u
 #define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
 #define MR_METAL_WORLD_CONTACT_ABI_VERSION 8u
 #define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
@@ -681,6 +681,10 @@ enum MRMetalWorldFlags : mr_u32 {
     // Native task kernels own reset, control, randomization, observation,
     // reward, and termination around the physics graph.
     MR_METAL_WORLD_NATIVE_TASK = 1u << 6u,
+    // The compiled RobotPack owns one or more body-wrench-producing actuator
+    // programs. The shared environment-major wrench arena is cleared and
+    // rebuilt before every ABA microstep.
+    MR_METAL_WORLD_HAS_BODY_WRENCHES = 1u << 7u,
 };
 
 // Immutable strides and dimensions for one environment-major rollout.

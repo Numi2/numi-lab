@@ -4,6 +4,7 @@
 #include "metalrobo/InteractionPack.hpp"
 #include "metalrobo/LearningPacks.hpp"
 #include "metalrobo/LocomotionWorld.hpp"
+#include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/WorldCompiler.hpp"
 
 #include <cstdint>
@@ -27,6 +28,14 @@ struct RobotSemanticRole {
     std::vector<std::string> members;
 };
 
+struct MulticopterActuatorPack {
+    MRMulticopterModelGPU model{};
+    std::array<MRMulticopterRotorGPU, MR_MULTICOPTER_MAX_ROTORS> rotors{};
+    MRMulticopterMixerGPU mixer{};
+    std::string bodyRole;
+    mr_float4 windVelocity{};
+};
+
 // A robot is mechanics plus stable semantic roles and default sensor mounts.
 // Tasks and policies never own the mechanics. A pack may be copied and
 // configured without changing the bundled default.
@@ -41,6 +50,8 @@ struct RobotPack {
     std::uint32_t primaryArticulationIndex = 0u;
     std::vector<std::string> capabilities;
     std::vector<RobotSemanticRole> roles;
+    std::vector<RobotActuatorSpec> actuators;
+    std::optional<MulticopterActuatorPack> multicopter;
 };
 
 struct SceneObject {
@@ -120,13 +131,7 @@ struct SensorPack {
     // Executable observation program. These operators are resolved once by
     // the run compiler and executed by Metal after accepted physics, before
     // policy inference. TaskPack owns objectives, never sensing semantics.
-    std::vector<TaskObservationOperatorSpec> actorFrame;
-    std::uint32_t actorHistoryLength = 1u;
-    std::vector<TaskObservationOperatorSpec> actorCurrent;
-    std::vector<TaskObservationOperatorSpec> critic;
-    std::uint32_t criticHistoryLength = 1u;
-    bool criticIncludesCleanHistory = true;
-    TaskVisualProgram visual;
+    TaskObservationProgram observation;
 };
 
 // Reality variations use the existing device-resident WorldProgram targets:
@@ -145,9 +150,7 @@ struct RealityPack {
     // task-state operators cover reset semantics whose targets are not world
     // assets (joint state, action/observation delay and event scheduling).
     // Both streams execute inside the same atomic Metal reset transaction.
-    std::vector<TaskRandomizationOperatorSpec> taskState;
-    std::uint32_t maximumActionDelaySteps = 0u;
-    std::uint32_t maximumObservationDelaySteps = 0u;
+    TaskResetProgram reset;
 };
 
 enum class TeacherKind : std::uint32_t {
@@ -244,6 +247,8 @@ public:
     [[nodiscard]] const TeacherPack& teacher() const noexcept;
     [[nodiscard]] const VisualSensorProgram*
     visualSensorProgram() const noexcept;
+    [[nodiscard]] const MetalWorldMulticopterProgram*
+    multicopterProgram() const noexcept;
 
 private:
     std::uint64_t fingerprint_ = 0u;
@@ -261,6 +266,7 @@ private:
     RunProfile profile_;
     TeacherPack teacher_;
     std::optional<VisualSensorProgram> visualSensorProgram_;
+    std::optional<MetalWorldMulticopterProgram> multicopterProgram_;
 
     friend RunCompileDiagnostics compileRun(
         const RunManifest&,
@@ -279,6 +285,11 @@ private:
     std::string_view id
 );
 [[nodiscard]] ScenePack makeFrankaPickPlaceScenePack();
+[[nodiscard]] ScenePack makePX4X500HoverScenePack();
+[[nodiscard]] TaskPack makePX4X500HoverTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
 [[nodiscard]] const char* runCompileStatusName(
     RunCompileStatus status
 ) noexcept;

@@ -4,6 +4,7 @@
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/PolicyProgram.hpp"
 #include "metalrobo/RobotDescriptionCooker.hpp"
+#include "metalrobo/RunProgram.hpp"
 #include "metalrobo/TaskProgram.hpp"
 #include "metalrobo/WorldPack.hpp"
 #include "metalrobo/c_api.h"
@@ -36,6 +37,15 @@ public:
         task = directory /
             ("metalrobo_task_program_check_" + suffix +
              ".taskpack");
+        actuators = directory /
+            ("metalrobo_task_program_check_" + suffix +
+             ".actuatorpack");
+        sensors = directory /
+            ("metalrobo_task_program_check_" + suffix +
+             ".sensorpack");
+        reality = directory /
+            ("metalrobo_task_program_check_" + suffix +
+             ".realitypack");
         policy = directory /
             ("metalrobo_task_program_check_" + suffix +
              ".policypack");
@@ -59,6 +69,9 @@ public:
     ~TemporaryPackFiles() {
         std::error_code ignored;
         std::filesystem::remove(task, ignored);
+        std::filesystem::remove(actuators, ignored);
+        std::filesystem::remove(sensors, ignored);
+        std::filesystem::remove(reality, ignored);
         std::filesystem::remove(policy, ignored);
         std::filesystem::remove(rollout, ignored);
         std::filesystem::remove(borrowedRollout, ignored);
@@ -68,6 +81,9 @@ public:
     }
 
     std::filesystem::path task;
+    std::filesystem::path actuators;
+    std::filesystem::path sensors;
+    std::filesystem::path reality;
     std::filesystem::path policy;
     std::filesystem::path rollout;
     std::filesystem::path borrowedRollout;
@@ -78,6 +94,80 @@ public:
 
 [[noreturn]] void fail(const std::string& message) {
     throw std::runtime_error(message);
+}
+
+struct TaskWorldFixture : metalrobo::LocomotionWorld {
+    metalrobo::TaskPack task;
+    std::vector<metalrobo::RobotActuatorSpec> actuators;
+    metalrobo::TaskObservationProgram observations;
+    metalrobo::TaskResetProgram reset;
+};
+
+TaskWorldFixture makeG1TaskWorld(
+    const metalrobo::LocomotionSurface surface,
+    const metalrobo::UnitreeG1Task taskKind =
+        metalrobo::UnitreeG1Task::velocity
+) {
+    TaskWorldFixture result;
+    static_cast<metalrobo::LocomotionWorld&>(result) =
+        metalrobo::makeUnitreeG1LocomotionWorld(surface);
+    const auto robot = metalrobo::builtinRobotPack("unitree_g1");
+    if (!robot) fail("bundled G1 controller contract is unavailable");
+    result.actuators = robot->actuators;
+    switch (taskKind) {
+    case metalrobo::UnitreeG1Task::velocity:
+        result.task = metalrobo::makeUnitreeG1LocomotionTaskPack(
+            surface, result.observations, result.reset);
+        break;
+    case metalrobo::UnitreeG1Task::disturbanceRecovery:
+        result.task = metalrobo::makeUnitreeG1DisturbanceRecoveryTaskPack(
+            surface, result.observations, result.reset);
+        break;
+    case metalrobo::UnitreeG1Task::supineGetUpDiscovery:
+        result.task = metalrobo::makeUnitreeG1SupineGetUpDiscoveryTaskPack(
+            surface, result.observations, result.reset);
+        if (!result.model.materials.empty()) {
+            result.model.materials.front().response.z = 1.25e-7f;
+        }
+        for (auto& actuator : result.actuators) {
+            const auto joint = std::ranges::find(
+                result.model.jointNames, actuator.target);
+            if (joint == result.model.jointNames.end()) continue;
+            const auto jointIndex = static_cast<std::uint32_t>(
+                joint - result.model.jointNames.begin());
+            const auto dof = std::ranges::find_if(
+                result.model.dofs,
+                [jointIndex](const MRDofPropertiesGPU& candidate) {
+                    return candidate.jointIndex == jointIndex;
+                });
+            if (dof == result.model.dofs.end() ||
+                dof->qIndex >= result.model.defaultQ.size()) continue;
+            const float rest = result.model.defaultQ[dof->qIndex];
+            actuator.scale = std::max(
+                std::abs(dof->limits.x - rest),
+                std::abs(dof->limits.y - rest));
+        }
+        break;
+    case metalrobo::UnitreeG1Task::ballDisturbanceRecovery:
+        result.task =
+            metalrobo::makeUnitreeG1BallDisturbanceRecoveryTaskPack(
+                surface, result.observations, result.reset);
+        break;
+    case metalrobo::UnitreeG1Task::ballDodge:
+        result.task = metalrobo::makeUnitreeG1BallDodgeTaskPack(
+            surface, result.observations, result.reset);
+        break;
+    }
+    return result;
+}
+
+metalrobo::LocomotionWorldCompileDiagnostics compileTaskWorld(
+    const TaskWorldFixture& authored,
+    metalrobo::CompiledLocomotionWorld& compiled
+) {
+    return metalrobo::compileLocomotionWorld(
+        authored, authored.articulationIndex, authored.task,
+        authored.actuators, authored.observations, authored.reset, compiled);
 }
 
 struct InteractionRuntimeEvidence {
@@ -271,7 +361,7 @@ InteractionRuntimeEvidence runInteractionRuntimeProbe(
 }
 
 metalrobo::InteractionPack makeG1InteractionFixture(
-    const metalrobo::LocomotionWorld& authored
+    const TaskWorldFixture& authored
 ) {
     constexpr std::uint32_t frameCount = 3u;
     constexpr std::uint32_t contactCount = 2u;
@@ -297,7 +387,7 @@ metalrobo::InteractionPack makeG1InteractionFixture(
     pack.jointNames.reserve(authored.task.actions.size());
     for (const metalrobo::TaskActionBinding& action :
          authored.task.actions) {
-        pack.jointNames.push_back(action.joint);
+        pack.jointNames.push_back(action.actuator);
     }
 
     metalrobo::InteractionClip clip{
@@ -452,7 +542,7 @@ std::uint64_t compileImportedRobotFixture() {
   </joint>
 </robot>
 )";
-    metalrobo::LocomotionWorld authored;
+    TaskWorldFixture authored;
     metalrobo::RobotDescriptionCookOptions options;
     options.rootMode =
         metalrobo::RobotDescriptionRootMode::floating;
@@ -478,11 +568,16 @@ std::uint64_t compileImportedRobotFixture() {
 
     authored.task.id = "generic_locomotion_fixture";
     authored.task.actions = {{
-        .joint = "hip",
+        .actuator = "hip",
+    }};
+    authored.actuators = {{
+        .id = "hip",
+        .kind = metalrobo::RobotActuatorKind::jointPosition,
+        .target = "hip",
         .scale = 0.2f,
     }};
-    authored.task.actorHistoryLength = 2u;
-    authored.task.actorFrame = {
+    authored.observations.actorHistoryLength = 2u;
+    authored.observations.actorFrame = {
         {
             .source =
                 metalrobo::TaskObservationSource::
@@ -504,10 +599,10 @@ std::uint64_t compileImportedRobotFixture() {
             .scale = 0.01f,
         },
     };
-    authored.task.actorCurrent = {{
+    authored.observations.actorCurrent = {{
         .source = metalrobo::TaskObservationSource::rootHeight,
     }};
-    authored.task.critic = {{
+    authored.observations.critic = {{
         .source =
             metalrobo::TaskObservationSource::rootHeight,
     }};
@@ -539,11 +634,7 @@ std::uint64_t compileImportedRobotFixture() {
 
     metalrobo::CompiledLocomotionWorld compiled;
     const metalrobo::LocomotionWorldCompileDiagnostics status =
-        metalrobo::compileLocomotionWorld(
-            authored,
-            0u,
-            compiled
-        );
+        compileTaskWorld(authored, compiled);
     if (!status.world.succeeded() ||
         !status.task.succeeded()) {
         fail(
@@ -624,12 +715,9 @@ std::uint64_t checkWorldPackLocomotionImport() {
         !packStatus.succeeded()) {
         fail("WorldPack locomotion fixture did not compile");
     }
-    metalrobo::TaskPack task;
-    task.id = "world_pack_import_fixture";
     const metalrobo::LocomotionWorld imported =
         metalrobo::makeWorldPackLocomotionWorld(
-            pack,
-            std::move(task)
+            pack
         );
     const auto expectedScene =
         metalrobo::makeFrankaPickPlaceSceneState();
@@ -654,15 +742,113 @@ std::uint64_t checkWorldPackLocomotionImport() {
     }
 
     TemporaryPackFiles files;
+    metalrobo::TaskObservationProgram frankaObservations;
+    metalrobo::TaskResetProgram frankaReset;
+    metalrobo::TaskPack frankaTask;
+    frankaTask.id = "franka_typed_actuator_pipeline_v1";
+    metalrobo::RobotActuatorPack frankaActuators;
+    frankaActuators.id = "franka_typed_actuators";
+    const auto appendActuator = [&frankaTask, &frankaObservations,
+                                 &frankaActuators](
+        metalrobo::RobotActuatorSpec actuator
+    ) {
+        const std::string id = actuator.id;
+        frankaTask.actions.push_back({.actuator = id});
+        frankaObservations.actorFrame.push_back({
+            .source = metalrobo::TaskObservationSource::previousAction,
+            .target = id,
+        });
+        frankaObservations.critic.push_back({
+            .source = metalrobo::TaskObservationSource::previousAction,
+            .target = id,
+        });
+        frankaActuators.actuators.push_back(std::move(actuator));
+    };
+    appendActuator({
+        .id = "joint1_velocity",
+        .kind = metalrobo::RobotActuatorKind::jointVelocity,
+        .target = "panda_joint1",
+        .scale = 0.40f,
+        .parameters = {20.0f, 0.0f, 0.0f, 0.0f},
+    });
+    appendActuator({
+        .id = "joint2_effort",
+        .kind = metalrobo::RobotActuatorKind::jointEffort,
+        .target = "panda_joint2",
+        .scale = 5.0f,
+    });
+    appendActuator({
+        .id = "elbow_tendon",
+        .kind = metalrobo::RobotActuatorKind::tendonPosition,
+        .target = "elbow_synergy",
+        .scale = 0.08f,
+        .parameters = {45.0f, 4.0f, 18.0f, 0.0f},
+        .terms = {
+            {.joint = "panda_joint3", .coefficient = 1.0f},
+            {.joint = "panda_joint4", .coefficient = -0.5f},
+        },
+    });
+    constexpr std::array<std::string_view, 6u> wrenchIds{{
+        "hand_force_x", "hand_force_y", "hand_force_z",
+        "hand_torque_x", "hand_torque_y", "hand_torque_z",
+    }};
+    for (std::uint32_t component = 0u; component < wrenchIds.size();
+         ++component) {
+        appendActuator({
+            .id = std::string{wrenchIds[component]},
+            .kind = metalrobo::RobotActuatorKind::bodyWrench,
+            .target = "panda_link7",
+            .scale = component < 3u ? 8.0f : 2.0f,
+            .component = component,
+        });
+    }
+    frankaTask.rewards.push_back({
+        .operation = metalrobo::TaskRewardOperator::constant,
+        .weight = 0.0f,
+    });
+    frankaTask.maximumEpisodeSteps = 256u;
     const metalrobo::WorldPackResult worldWrite =
         metalrobo::writeWorldPack(pack, files.world);
     const metalrobo::LearningPackResult taskWrite =
-        metalrobo::writeTaskPack(
-            metalrobo::makeFrankaPickPlaceTaskPack(),
-            files.task
-        );
-    if (!worldWrite.succeeded() || !taskWrite.succeeded()) {
+        metalrobo::writeTaskPack(frankaTask, files.task);
+    const metalrobo::LearningPackResult actuatorWrite =
+        metalrobo::writeRobotActuatorPack(
+            frankaActuators,
+            files.actuators);
+    const metalrobo::LearningPackResult sensorWrite =
+        metalrobo::writeSensorProgramPack(
+            {.id = "franka_sensors", .observation = frankaObservations},
+            files.sensors);
+    const metalrobo::LearningPackResult realityWrite =
+        metalrobo::writeRealityProgramPack(
+            {
+                .id = "franka_reality",
+                .program = reality,
+                .sourceProgramFingerprint = family.program.fingerprint,
+                .reset = frankaReset,
+            },
+            files.reality);
+    if (!worldWrite.succeeded() || !taskWrite.succeeded() ||
+        !actuatorWrite.succeeded() || !sensorWrite.succeeded() ||
+        !realityWrite.succeeded()) {
         fail("WorldPack runtime fixtures could not be persisted");
+    }
+    metalrobo::RealityProgramPack loadedReality;
+    const metalrobo::LearningPackResult realityRead =
+        metalrobo::readRealityProgramPack(files.reality, loadedReality);
+    if (!realityRead.succeeded() ||
+        loadedReality.id != "franka_reality" ||
+        loadedReality.program.id != reality.id ||
+        loadedReality.program.variations.size() != 1u ||
+        loadedReality.program.variations.front().id !=
+            "pick_object_mass" ||
+        loadedReality.program.variations.front().targetId !=
+            "pick_object" ||
+        loadedReality.sourceProgramFingerprint !=
+            family.program.fingerprint ||
+        loadedReality.reset.operators.size() !=
+            frankaReset.operators.size()) {
+        fail("RealityProgramPack did not preserve executable ownership");
     }
     const MRTaskRolloutConfigC profile{
         .environment_count = 1u,
@@ -674,11 +860,17 @@ std::uint64_t checkWorldPackLocomotionImport() {
     };
     const std::string worldPath = files.world.string();
     const std::string taskPath = files.task.string();
+    const std::string actuatorPath = files.actuators.string();
+    const std::string sensorPath = files.sensors.string();
+    const std::string realityPath = files.reality.string();
     const MRRunManifestC manifest{
         .profile = profile,
         .source = MR_RUN_SOURCE_WORLD_PACK,
         .world_pack_path = worldPath.c_str(),
         .task_pack_path = taskPath.c_str(),
+        .robot_actuator_pack_path = actuatorPath.c_str(),
+        .sensor_program_pack_path = sensorPath.c_str(),
+        .reality_program_pack_path = realityPath.c_str(),
     };
     std::unique_ptr<MRTaskRolloutHandle, decltype(&mr_task_rollout_destroy)>
         rollout{
@@ -693,19 +885,105 @@ std::uint64_t checkWorldPackLocomotionImport() {
     }
     const MRTaskRolloutLayoutC layout =
         mr_task_rollout_layout(rollout.get());
-    std::vector<float> actions(4u * layout.action_count, 0.0f);
-    MRTaskRolloutAdvanceC advance{};
     if (layout.reality_fingerprint == 0u ||
-        mr_task_rollout_advance(
-            rollout.get(), actions.data(), actions.size(), nullptr, 0u,
-            4u, 1u, 0u, &advance
-        ) != 0 ||
-        advance.failed_environment_steps != 0u) {
+        layout.action_count != frankaActuators.actuators.size() ||
+        mr_task_rollout_set_state_readback(rollout.get(), 1u) != 0) {
         fail(
-            "WorldPack RealityProgram did not execute cleanly: " +
+            "typed WorldPack rollout could not enable inspection: " +
             std::string{mr_last_error()}
         );
     }
+    constexpr std::uint32_t kProbeSteps = 64u;
+    const auto runProbe = [&](const std::uint32_t actionIndex,
+                              const float command,
+                              const std::uint64_t revision) {
+        if (mr_task_rollout_reset(rollout.get(), profile.seed) != 0) {
+            fail("typed actuator rollout reset failed: " +
+                 std::string{mr_last_error()});
+        }
+        std::vector<float> actions(
+            static_cast<std::size_t>(kProbeSteps) * layout.action_count,
+            0.0f
+        );
+        if (actionIndex != MR_INVALID_INDEX) {
+            for (std::uint32_t step = 0u; step < kProbeSteps; ++step) {
+                actions[static_cast<std::size_t>(step) *
+                    layout.action_count + actionIndex] = command;
+            }
+        }
+        MRTaskRolloutAdvanceC advance{};
+        if (mr_task_rollout_advance(
+                rollout.get(), actions.data(), actions.size(), nullptr, 0u,
+                kProbeSteps, revision, 0u, &advance
+            ) != 0 ||
+            advance.failed_environment_steps != 0u ||
+            advance.successful_environment_steps != kProbeSteps) {
+            fail("typed actuator Metal execution failed: " +
+                 std::string{mr_last_error()});
+        }
+        const float* finalQ = mr_task_rollout_final_q(rollout.get());
+        if (finalQ == nullptr) {
+            fail("typed actuator rollout did not publish final state");
+        }
+        std::vector<float> result(finalQ, finalQ + layout.nq);
+        if (!std::ranges::all_of(result, [](const float value) {
+                return std::isfinite(value);
+            })) {
+            fail("typed actuator rollout produced a non-finite state");
+        }
+        return result;
+    };
+    const std::vector<float> baseline =
+        runProbe(MR_INVALID_INDEX, 0.0f, 1u);
+    const auto maximumDifference = [&baseline](
+        const std::vector<float>& candidate
+    ) {
+        float difference = 0.0f;
+        for (std::size_t index = 0u; index < baseline.size(); ++index) {
+            difference = std::max(
+                difference,
+                std::abs(candidate[index] - baseline[index])
+            );
+        }
+        return difference;
+    };
+    const std::array<std::pair<std::uint32_t, float>, 9u> probes{{
+        {0u, 0.45f},
+        {1u, 0.35f},
+        {2u, 0.40f},
+        {3u, 0.75f},
+        {4u, 0.75f},
+        {5u, 0.75f},
+        {6u, 0.75f},
+        {7u, 0.75f},
+        {8u, 0.75f},
+    }};
+    std::array<float, probes.size()> physicalDifferences{};
+    for (std::uint32_t probe = 0u; probe < probes.size(); ++probe) {
+        const std::vector<float> actuated = runProbe(
+            probes[probe].first,
+            probes[probe].second,
+            2u + probe
+        );
+        physicalDifferences[probe] = maximumDifference(actuated);
+        if (!(physicalDifferences[probe] > 1.0e-5f)) {
+            fail("typed actuator did not alter the physical state: " +
+                 frankaActuators.actuators[probes[probe].first].id);
+        }
+    }
+    const float minimumBodyWrenchDifference = *std::min_element(
+        physicalDifferences.begin() + 3u,
+        physicalDifferences.end()
+    );
+    std::cout
+        << "typed_actuator_pipeline=ok"
+        << " velocity_delta=" << physicalDifferences[0]
+        << " effort_delta=" << physicalDifferences[1]
+        << " tendon_delta=" << physicalDifferences[2]
+        << " minimum_body_wrench_delta=" << minimumBodyWrenchDifference
+        << " body_wrench_components=6"
+        << " steps_per_probe=" << kProbeSteps
+        << " failed=0\n";
     return pack.contentHash;
 }
 
@@ -721,17 +999,13 @@ int main(const int argc, const char* const* argv) {
         InteractionRuntimeEvidence fixtureRuntime;
         InteractionRuntimeEvidence externalRuntime;
         bool externalNativeExecuted = false;
-        metalrobo::LocomotionWorld authored =
-            metalrobo::makeUnitreeG1LocomotionWorld(
+        TaskWorldFixture authored =
+            makeG1TaskWorld(
                 metalrobo::LocomotionSurface::terrain
             );
         metalrobo::CompiledLocomotionWorld compiledWorld;
         const metalrobo::LocomotionWorldCompileDiagnostics
-            compileStatus = metalrobo::compileLocomotionWorld(
-                authored,
-                0u,
-                compiledWorld
-            );
+            compileStatus = compileTaskWorld(authored, compiledWorld);
         if (!compileStatus.world.succeeded()) {
             fail(
                 "world compilation failed: " +
@@ -838,14 +1112,16 @@ int main(const int argc, const char* const* argv) {
         }
 
         metalrobo::TaskPack interactionTask = authored.task;
+        metalrobo::TaskObservationProgram interactionObservations =
+            authored.observations;
         for (std::uint32_t component = 0u; component < 3u; ++component) {
-            interactionTask.actorCurrent.push_back({
+            interactionObservations.actorCurrent.push_back({
                 .source =
                     metalrobo::TaskObservationSource::interactionPhase,
                 .component = component,
             });
         }
-        interactionTask.actorCurrent.push_back({
+        interactionObservations.actorCurrent.push_back({
             .source = metalrobo::TaskObservationSource::
                 interactionJointPositionError,
             .target = "left_hip_roll_joint",
@@ -853,13 +1129,13 @@ int main(const int argc, const char* const* argv) {
         for (const std::string_view track :
              {std::string_view{"left_foot"},
               std::string_view{"right_foot"}}) {
-            interactionTask.actorCurrent.push_back({
+            interactionObservations.actorCurrent.push_back({
                 .source = metalrobo::TaskObservationSource::
                     interactionContactMode,
                 .target = std::string{track},
                 .component = 0u,
             });
-            interactionTask.actorCurrent.push_back({
+            interactionObservations.actorCurrent.push_back({
                 .source = metalrobo::TaskObservationSource::
                     interactionContactMode,
                 .target = std::string{track},
@@ -869,13 +1145,13 @@ int main(const int argc, const char* const* argv) {
                 2u, 6u, 7u, 8u, 9u, 10u, 11u, 12u,
             };
             for (const std::uint32_t component : features) {
-                interactionTask.actorCurrent.push_back({
+                interactionObservations.actorCurrent.push_back({
                     .source = metalrobo::TaskObservationSource::
                         interactionContactTarget,
                     .target = std::string{track},
                     .component = component,
                 });
-                interactionTask.actorCurrent.push_back({
+                interactionObservations.actorCurrent.push_back({
                     .source = metalrobo::TaskObservationSource::
                         interactionContactValidity,
                     .target = std::string{track},
@@ -910,6 +1186,9 @@ int main(const int argc, const char* const* argv) {
         const metalrobo::TaskCompileDiagnostics interactionStatus =
             metalrobo::compileTaskProgram(
                 interactionTask,
+                authored.actuators,
+                interactionObservations,
+                authored.reset,
                 loadedInteraction,
                 "weight_shift_left_lift_right",
                 world,
@@ -970,6 +1249,9 @@ int main(const int argc, const char* const* argv) {
         metalrobo::CompiledTaskProgram splitCurriculumProgram;
         const auto splitCurriculumStatus = metalrobo::compileTaskProgram(
             splitCurriculumTask,
+            authored.actuators,
+            interactionObservations,
+            authored.reset,
             loadedInteraction,
             "weight_shift_left_lift_right",
             world,
@@ -1025,6 +1307,9 @@ int main(const int argc, const char* const* argv) {
         const auto repeatedInteractionStatus =
             metalrobo::compileTaskProgram(
                 interactionTask,
+                authored.actuators,
+                interactionObservations,
+                authored.reset,
                 loadedInteraction,
                 "weight_shift_left_lift_right",
                 world,
@@ -1044,6 +1329,9 @@ int main(const int argc, const char* const* argv) {
         const auto brokenInteractionStatus =
             metalrobo::compileTaskProgram(
                 interactionTask,
+                authored.actuators,
+                interactionObservations,
+                authored.reset,
                 brokenInteraction,
                 "weight_shift_left_lift_right",
                 world,
@@ -1062,6 +1350,9 @@ int main(const int argc, const char* const* argv) {
         const auto unsafeInteractionStatus =
             metalrobo::compileTaskProgram(
                 interactionTask,
+                authored.actuators,
+                interactionObservations,
+                authored.reset,
                 unsafeInteraction,
                 "weight_shift_left_lift_right",
                 world,
@@ -1082,6 +1373,9 @@ int main(const int argc, const char* const* argv) {
         const auto unsafeVelocityStatus =
             metalrobo::compileTaskProgram(
                 interactionTask,
+                authored.actuators,
+                interactionObservations,
+                authored.reset,
                 unsafeVelocity,
                 "weight_shift_left_lift_right",
                 world,
@@ -1101,6 +1395,9 @@ int main(const int argc, const char* const* argv) {
         const auto wrongCounterpartStatus =
             metalrobo::compileTaskProgram(
                 interactionTask,
+                authored.actuators,
+                interactionObservations,
+                authored.reset,
                 wrongCounterpart,
                 "weight_shift_left_lift_right",
                 world,
@@ -1116,6 +1413,9 @@ int main(const int argc, const char* const* argv) {
         const auto missingInteractionStatus =
             metalrobo::compileTaskProgram(
                 interactionTask,
+                authored.actuators,
+                interactionObservations,
+                authored.reset,
                 world,
                 repeatedInteraction
             );
@@ -1202,20 +1502,18 @@ int main(const int argc, const char* const* argv) {
                 externalUsesGround
                 ? metalrobo::LocomotionSurface::ground
                 : metalrobo::LocomotionSurface::terrain;
-            metalrobo::LocomotionWorld externalAuthored =
-                metalrobo::makeUnitreeG1LocomotionWorld(externalSurface);
+            TaskWorldFixture externalAuthored =
+                makeG1TaskWorld(externalSurface);
             metalrobo::CompiledLocomotionWorld externalWorld;
             const auto externalWorldStatus =
-                metalrobo::compileLocomotionWorld(
-                    externalAuthored,
-                    0u,
-                    externalWorld
-                );
+                compileTaskWorld(externalAuthored, externalWorld);
             if (!externalWorldStatus.world.succeeded() ||
                 !externalWorldStatus.task.succeeded()) {
                 fail("external InteractionPack surface world did not compile");
             }
             metalrobo::TaskPack externalTask = interactionTask;
+            metalrobo::TaskObservationProgram externalObservations =
+                interactionObservations;
             externalTask.terrain = externalAuthored.task.terrain;
             if (noAuthoredContact) {
                 const auto isInteractionContactObservation =
@@ -1231,15 +1529,15 @@ int main(const int argc, const char* const* argv) {
                                     interactionContactValidity;
                     };
                 std::erase_if(
-                    externalTask.actorFrame,
+                    externalObservations.actorFrame,
                     isInteractionContactObservation
                 );
                 std::erase_if(
-                    externalTask.actorCurrent,
+                    externalObservations.actorCurrent,
                     isInteractionContactObservation
                 );
                 std::erase_if(
-                    externalTask.critic,
+                    externalObservations.critic,
                     isInteractionContactObservation
                 );
                 std::erase_if(
@@ -1255,6 +1553,9 @@ int main(const int argc, const char* const* argv) {
             const auto externalCompile =
                 metalrobo::compileTaskProgram(
                     externalTask,
+                    externalAuthored.actuators,
+                    externalObservations,
+                    externalAuthored.reset,
                     externalInteraction,
                     externalClip.id,
                     externalWorld.world,
@@ -1354,18 +1655,14 @@ int main(const int argc, const char* const* argv) {
             }
             externalNativeExecuted = true;
         }
-        metalrobo::LocomotionWorld recovery =
-            metalrobo::makeUnitreeG1LocomotionWorld(
+        TaskWorldFixture recovery =
+            makeG1TaskWorld(
                 metalrobo::LocomotionSurface::terrain,
                 metalrobo::UnitreeG1Task::disturbanceRecovery
             );
         metalrobo::CompiledLocomotionWorld compiledRecovery;
         const auto recoveryStatus =
-            metalrobo::compileLocomotionWorld(
-                recovery,
-                0u,
-                compiledRecovery
-            );
+            compileTaskWorld(recovery, compiledRecovery);
         if (!recoveryStatus.succeeded() ||
             compiledRecovery.task.layout().actorObservationSize != 98u ||
             compiledRecovery.task.layout().criticObservationSize != 98u ||
@@ -1380,17 +1677,13 @@ int main(const int argc, const char* const* argv) {
                 "compiled G1 disturbance-recovery task is incomplete"
             );
         }
-        metalrobo::LocomotionWorld getUp =
-            metalrobo::makeUnitreeG1LocomotionWorld(
+        TaskWorldFixture getUp =
+            makeG1TaskWorld(
                 metalrobo::LocomotionSurface::ground,
                 metalrobo::UnitreeG1Task::supineGetUpDiscovery
             );
         metalrobo::CompiledLocomotionWorld compiledGetUp;
-        const auto getUpStatus = metalrobo::compileLocomotionWorld(
-            getUp,
-            0u,
-            compiledGetUp
-        );
+        const auto getUpStatus = compileTaskWorld(getUp, compiledGetUp);
         if (!getUpStatus.succeeded()) {
             fail(
                 "G1 supine get-up task failed to compile: " +
@@ -1444,6 +1737,9 @@ int main(const int argc, const char* const* argv) {
         const auto getUpInteractionStatus =
             metalrobo::compileTaskProgram(
                 getUp.task,
+                getUp.actuators,
+                getUp.observations,
+                getUp.reset,
                 getUpInteraction,
                 "weight_shift_left_lift_right",
                 compiledGetUp.world,
@@ -1467,6 +1763,9 @@ int main(const int argc, const char* const* argv) {
         const auto autonomousGetUpStatus =
             metalrobo::compileTaskProgram(
                 autonomousGetUp,
+                getUp.actuators,
+                getUp.observations,
+                getUp.reset,
                 getUpInteraction,
                 "weight_shift_left_lift_right",
                 compiledGetUp.world,
@@ -1509,8 +1808,8 @@ int main(const int argc, const char* const* argv) {
             std::abs(restorationReward->auxiliary.x - 0.35f) > 1.0e-6f) {
             fail("get-up completion thresholds changed GPU ABI lanes");
         }
-        metalrobo::LocomotionWorld ballRecovery =
-            metalrobo::makeUnitreeG1LocomotionWorld(
+        TaskWorldFixture ballRecovery =
+            makeG1TaskWorld(
                 metalrobo::LocomotionSurface::ground,
                 metalrobo::UnitreeG1Task::ballDisturbanceRecovery
             );
@@ -1552,11 +1851,7 @@ int main(const int argc, const char* const* argv) {
         );
         metalrobo::CompiledLocomotionWorld compiledBallRecovery;
         const auto ballRecoveryStatus =
-            metalrobo::compileLocomotionWorld(
-                ballRecovery,
-                0u,
-                compiledBallRecovery
-            );
+            compileTaskWorld(ballRecovery, compiledBallRecovery);
         if (!ballRecoveryStatus.succeeded()) {
             fail(
                 "G1 ball-recovery task failed to compile: " +
@@ -1630,8 +1925,8 @@ int main(const int argc, const char* const* argv) {
                 fail("G1 event-driven impact gates changed");
             }
         }
-        metalrobo::LocomotionWorld dodge =
-            metalrobo::makeUnitreeG1LocomotionWorld(
+        TaskWorldFixture dodge =
+            makeG1TaskWorld(
                 metalrobo::LocomotionSurface::ground,
                 metalrobo::UnitreeG1Task::ballDodge
             );
@@ -1640,11 +1935,7 @@ int main(const int argc, const char* const* argv) {
             recoverySpheres
         );
         metalrobo::CompiledLocomotionWorld compiledDodge;
-        const auto dodgeStatus = metalrobo::compileLocomotionWorld(
-            dodge,
-            0u,
-            compiledDodge
-        );
+        const auto dodgeStatus = compileTaskWorld(dodge, compiledDodge);
         if (!dodgeStatus.succeeded() ||
             compiledDodge.task.header().counts1.w != 34u ||
             compiledDodge.task.header().counts2.x != 3u ||
@@ -1714,7 +2005,7 @@ int main(const int argc, const char* const* argv) {
         if (collidableMembers == 0u) {
             fail("G1 dodge group has no collidable members");
         }
-        metalrobo::LocomotionWorld manipulation = dodge;
+        TaskWorldFixture manipulation = dodge;
         manipulation.task.id = "generic_rigid_object_manipulation_probe";
         manipulation.task.outcomes = {
             {"grasp", "reward",
@@ -1764,11 +2055,7 @@ int main(const int argc, const char* const* argv) {
         };
         metalrobo::CompiledLocomotionWorld compiledManipulation;
         const auto manipulationStatus =
-            metalrobo::compileLocomotionWorld(
-                manipulation,
-                0u,
-                compiledManipulation
-            );
+            compileTaskWorld(manipulation, compiledManipulation);
         if (!manipulationStatus.succeeded() ||
             compiledManipulation.task.rewardOperators().size() != 4u ||
             compiledManipulation.task.outcomes().size() != 4u ||
@@ -2009,7 +2296,7 @@ int main(const int argc, const char* const* argv) {
                 fail("G1 dodge event schedule is recovery-gated");
             }
         }
-        metalrobo::LocomotionWorld disturbed = authored;
+        TaskWorldFixture disturbed = authored;
         const std::array disturbanceSpheres{
             metalrobo::LocomotionDynamicSphere{
                 .position = {-1.0f, 0.0f, 1.0f, 1.0f},
@@ -2025,11 +2312,7 @@ int main(const int argc, const char* const* argv) {
         );
         metalrobo::CompiledLocomotionWorld disturbedCompiled;
         const auto disturbedStatus =
-            metalrobo::compileLocomotionWorld(
-                disturbed,
-                0u,
-                disturbedCompiled
-            );
+            compileTaskWorld(disturbed, disturbedCompiled);
         const MRBodyStateGPU& disturbanceState =
             disturbed.sceneBodies.back();
         if (!disturbedStatus.succeeded() ||
@@ -2052,33 +2335,25 @@ int main(const int argc, const char* const* argv) {
                 "generic dynamic locomotion sphere did not enter the compiled world"
             );
         }
-        metalrobo::LocomotionWorld invalidEndpointCapacity =
+        TaskWorldFixture invalidEndpointCapacity =
             authored;
         invalidEndpointCapacity.task.capacities
             .endpointRuntimeRecords -= 1u;
         metalrobo::CompiledLocomotionWorld invalidCompiledWorld;
         const auto invalidEndpointStatus =
-            metalrobo::compileLocomotionWorld(
-                invalidEndpointCapacity,
-                0u,
-                invalidCompiledWorld
-            );
+            compileTaskWorld(invalidEndpointCapacity, invalidCompiledWorld);
         if (invalidEndpointStatus.world.status !=
             metalrobo::MetalWorldHostStatus::capacityOverflow) {
             fail(
                 "noncanonical endpoint-runtime capacity was not rejected"
             );
         }
-        metalrobo::LocomotionWorld invalidQueryCapacity =
+        TaskWorldFixture invalidQueryCapacity =
             authored;
         invalidQueryCapacity.task.capacities
             .articulationPointQueries += 1u;
         const auto invalidQueryStatus =
-            metalrobo::compileLocomotionWorld(
-                invalidQueryCapacity,
-                0u,
-                invalidCompiledWorld
-            );
+            compileTaskWorld(invalidQueryCapacity, invalidCompiledWorld);
         if (invalidQueryStatus.world.status !=
             metalrobo::MetalWorldHostStatus::capacityOverflow) {
             fail(
@@ -2106,6 +2381,9 @@ int main(const int argc, const char* const* argv) {
         const metalrobo::TaskCompileDiagnostics repeatedStatus =
             metalrobo::compileTaskProgram(
                 authored.task,
+                authored.actuators,
+                authored.observations,
+                authored.reset,
                 world,
                 repeated
             );
@@ -2115,13 +2393,16 @@ int main(const int argc, const char* const* argv) {
         }
 
         metalrobo::TaskPack broken = authored.task;
-        broken.actions.front().joint =
+        broken.actions.front().actuator =
             "missing_joint_from_import";
         const std::uint64_t preserved =
             repeated.fingerprint();
         const metalrobo::TaskCompileDiagnostics rejected =
             metalrobo::compileTaskProgram(
                 broken,
+                authored.actuators,
+                authored.observations,
+                authored.reset,
                 world,
                 repeated
             );
@@ -2133,11 +2414,36 @@ int main(const int argc, const char* const* argv) {
                 "unresolved semantic binding was not transactionally rejected"
             );
         }
+        std::vector<metalrobo::RobotActuatorSpec> velocityActuators =
+            authored.actuators;
+        velocityActuators.front().kind =
+            metalrobo::RobotActuatorKind::jointVelocity;
+        metalrobo::CompiledTaskProgram velocityProgram;
+        const metalrobo::TaskCompileDiagnostics velocityActuator =
+            metalrobo::compileTaskProgram(
+                authored.task,
+                velocityActuators,
+                authored.observations,
+                authored.reset,
+                world,
+                velocityProgram
+            );
+        if (!velocityActuator.succeeded() ||
+            velocityProgram.actionBindings().front().actuator.x !=
+                MR_TASK_ACTUATOR_JOINT_VELOCITY ||
+            velocityProgram.fingerprint() == preserved) {
+            fail(
+                "typed joint-velocity actuator did not compile into its native program"
+            );
+        }
         metalrobo::TaskPack mismatched = authored.task;
         ++mismatched.capacities.candidatePairs;
         const metalrobo::TaskCompileDiagnostics
             capacityRejected = metalrobo::compileTaskProgram(
                 mismatched,
+                authored.actuators,
+                authored.observations,
+                authored.reset,
                 world,
                 repeated
             );
@@ -2153,6 +2459,9 @@ int main(const int argc, const char* const* argv) {
         const metalrobo::TaskCompileDiagnostics patchRejected =
             metalrobo::compileTaskProgram(
                 invalidPatch,
+                authored.actuators,
+                authored.observations,
+                authored.reset,
                 world,
                 repeated
             );
@@ -2326,6 +2635,9 @@ int main(const int argc, const char* const* argv) {
             roundTripTaskStatus =
                 metalrobo::compileTaskProgram(
                     loadedTask,
+                    authored.actuators,
+                    authored.observations,
+                    authored.reset,
                     world,
                     roundTripTask
                 );

@@ -266,33 +266,38 @@ int main() {
         // Determine the current sole clearance through the engine's analytic
         // point kinematics, then lower only the floating root enough to create
         // a controlled 0.5 mm overlap.
-        std::vector<metalrobo::ArticulatedPointQuery> sphereQueries;
-        std::vector<double> sphereRadii;
-        for (const MRShapeGPU& shape : model.shapes) {
-            if (
+        std::vector<metalrobo::ArticulatedPointQuery> supportQueries;
+        std::vector<MRShapeGPU> supportShapes;
+        for (const metalrobo::G1FootFrame& foot :
+             metalrobo::unitreeG1Metadata().feet) {
+            require(
+                foot.soleShapeIndex < model.shapes.size(),
+                "G1 authored sole shape index is invalid"
+            );
+            const MRShapeGPU& shape = model.shapes[foot.soleShapeIndex];
+            require(
                 (shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) == 0u &&
-                shape.shapeType == MR_SHAPE_SPHERE
-            ) {
-                sphereQueries.push_back({
-                    shape.bodyIndex,
-                    {
-                        shape.localPosition.x,
-                        shape.localPosition.y,
-                        shape.localPosition.z,
-                    },
-                });
-                sphereRadii.push_back(shape.dimensions.x);
-            }
+                    shape.shapeType == MR_SHAPE_BOX,
+                "G1 authored sole is not an executable box"
+            );
+            supportQueries.push_back({
+                shape.bodyIndex,
+                {
+                    shape.localPosition.x,
+                    shape.localPosition.y,
+                    shape.localPosition.z - shape.dimensions.z,
+                },
+            });
+            supportShapes.push_back(shape);
         }
         require(
-            sphereQueries.size() ==
-                metalrobo::kUnitreeG1FootSphereCount,
-            "G1 executable foot-sphere set changed"
+            supportQueries.size() == metalrobo::kUnitreeG1SoleShapeCount,
+            "G1 executable sole-box set changed"
         );
         std::vector<metalrobo::ArticulatedPointKinematics>
-            defaultSphereKinematics(sphereQueries.size());
-        std::vector<double> sphereJacobians(
-            sphereQueries.size() * 3u * zeroVelocity.size(),
+            defaultSupportKinematics(supportQueries.size());
+        std::vector<double> supportJacobians(
+            supportQueries.size() * 3u * zeroVelocity.size(),
             0.0
         );
         auto dynamicsDiagnostics =
@@ -301,24 +306,21 @@ int main() {
                 0u,
                 q,
                 zeroVelocity,
-                sphereQueries,
-                defaultSphereKinematics,
-                sphereJacobians,
+                supportQueries,
+                defaultSupportKinematics,
+                supportJacobians,
                 dynamicsConfig
             );
         require(
             dynamicsDiagnostics.succeeded(),
-            "default G1 sphere kinematics failed"
+            "default G1 sole kinematics failed"
         );
         double defaultMinimumBottom =
             std::numeric_limits<double>::infinity();
-        for (std::size_t sphere = 0u;
-             sphere < sphereQueries.size();
-             ++sphere) {
+        for (const auto& point : defaultSupportKinematics) {
             defaultMinimumBottom = std::min(
                 defaultMinimumBottom,
-                defaultSphereKinematics[sphere].position[2] -
-                    sphereRadii[sphere]
+                point.position[2]
             );
         }
         constexpr double desiredPenetration = 5.0e-4;
@@ -342,26 +344,27 @@ int main() {
                 bodyKinematics,
                 dynamicsConfig
             );
-        require(
-            dynamicsDiagnostics.succeeded(),
-            "lowered G1 body kinematics failed"
-        );
+        if (!dynamicsDiagnostics.succeeded()) {
+            throw std::runtime_error(
+                "lowered G1 body kinematics failed status=" +
+                std::to_string(static_cast<std::uint32_t>(
+                    dynamicsDiagnostics.status
+                )) +
+                " bodies=" +
+                std::to_string(dynamicsDiagnostics.bodyCount) +
+                " dofs=" +
+                std::to_string(dynamicsDiagnostics.dofCount) +
+                " q_count=" + std::to_string(q.size()) +
+                " v_count=" + std::to_string(freeVelocity.size()) +
+                " qz=" + std::to_string(q[2])
+            );
+        }
         std::vector<MRBodyStateGPU> states =
             makeCollisionStates(model, bodyKinematics);
 
         std::vector<MRShapeGPU> shapes;
-        shapes.reserve(
-            metalrobo::kUnitreeG1FootSphereCount + 1u
-        );
-        for (const MRShapeGPU& shape : model.shapes) {
-            if (
-                (shape.flags &
-                 MR_SHAPE_FLAG_SIMULATION_DISABLED) == 0u &&
-                shape.shapeType == MR_SHAPE_SPHERE
-            ) {
-                shapes.push_back(shape);
-            }
-        }
+        shapes.reserve(supportShapes.size() + 1u);
+        shapes.insert(shapes.end(), supportShapes.begin(), supportShapes.end());
         shapes.push_back(makeZUpGroundPlane(
             static_cast<std::uint32_t>(states.size() - 1u)
         ));

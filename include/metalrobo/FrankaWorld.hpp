@@ -21,7 +21,10 @@ namespace metalrobo {
 
 // Robot-independent pick/place objective bound to Franka semantics only when
 // CompiledRun resolves the selected RobotPack.
-[[nodiscard]] TaskPack makeFrankaPickPlaceTaskPack();
+[[nodiscard]] TaskPack makeFrankaPickPlaceTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
 
 // Scene-state records ordered exactly as CompiledWorld::sceneBodyIndices().
 [[nodiscard]] std::vector<MRBodyStateGPU>

@@ -17,7 +17,7 @@ host execution mode, or second simulator.
 The shared path is:
 
 ```text
-mechanics + WorldPack + TaskPack + sensors
+RobotPack + WorldPack + SensorPack + TaskPack + RealityPack
                  +
 InteractionPack or PolicyPack (optional)
                  |
@@ -38,9 +38,10 @@ accepted state, exact replay, physical evidence, compact learning data
    contact, force, pressure, success, failure, or recovery.
 2. **Robots are authored mechanics and artifacts.** Robot identity is resolved
    during compilation and disappears from the hot loop.
-3. **Tasks are replaceable programs.** Observations, actions, rewards,
-   outcomes, resets, and randomization compile from `TaskPack`; the core CLI
-   does not become a catalog of hard-coded tasks.
+3. **Tasks are replaceable programs.** Actions, rewards, objectives, and
+   outcomes compile from `TaskPack`; sensing and observation encoding compile
+   from `SensorPack`; resets and randomization compile from `RealityPack`.
+   The core CLI does not become a catalog of hard-coded tasks.
 4. **Sensors are composable.** RGB-D, tactile, plantar, proprioceptive, contact,
    and task-specific sensing share timestamp, reset, history, and publication
    semantics without host readback in production.
