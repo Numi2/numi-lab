@@ -181,11 +181,42 @@ the simulated root is never copied from the provider trajectory.
 
 `numi motion imagine-g1` performs that physical execution by default. It
 compiles the complete retargeted joint sequence into an InteractionPack with
-unknown contact fields, applies zero student residual, and records one native
+ARDY's predicted foot-contact modes and per-sample confidence while keeping
+force, wrench, CoP, area, and pressure fields explicitly unknown. It applies
+zero student residual and records one native
 solver configuration per control step. Rendering uses only forward kinematics
 of those accepted configurations. The generated-motion root remains auditable
 intent and an optional reward reference; after initialization it never writes
 the simulated root. A physical fall therefore renders as a fall.
+
+Interaction reset initializes the complete first-frame generalized state, not
+only its configuration: root-link motion is converted to root-COM linear and
+angular velocity, and joint velocities come from the next reference frame.
+The implicit physical drives track both reference position and velocity while
+retaining gravity, motor envelopes, effort limits, collision, and solved
+contact. Joint/root references are interpolated at the control cadence, so a
+25 Hz ARDY clip does not become a 50 Hz staircase. This prevents the controller
+from damping every generated movement as if it were a sequence of static poses.
+
+Generated fields are never replaced with plausible constants. Native ARDY-G1
+and ARDY-Core retain the model's four foot-contact scores through embodiment
+conversion and collapse them into left/right modes with confidence derived
+from distance to the model's decision boundary. A provider with no contact
+output, such as the current GR00T action-chunk adapter, authors no contact
+tracks; it does not invent bilateral support. Unknown contact force fields use
+empty validity masks, so their zero storage values cannot be consumed as
+physical truth. Legacy binary-only imports default to zero confidence unless
+the caller explicitly supplies confidence provenance.
+
+Generated G1 motion is still kinematic intent, not a dynamically feasible
+torque or contact-force trajectory. The action-level tracking policy therefore
+observes root-link position, orientation, linear-velocity, and angular-velocity
+errors in addition to joint, phase, and contact intent. Those signals let PPO
+or distillation learn physical balance corrections, and the interaction reward
+scores joint and floating-root velocities as well as pose. They never actuate the
+floating root. Pipeline evidence reports achieved displacement and root/joint
+tracking errors explicitly. A completed solver horizon means only that every
+transaction remained valid, not that the requested motion succeeded.
 
 Generic InteractionPack tracking does not inherit standing-only upright
 penalties or height/tilt terminations. Those contradict intentional rotation,

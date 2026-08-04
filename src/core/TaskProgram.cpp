@@ -980,6 +980,12 @@ TaskCompileDiagnostics compileTaskProgram(
                 dofFound->limits.y,
                 binding.responseTimeSeconds,
             },
+            {
+                dofFound->drive.x,
+                dofFound->drive.y,
+                0.0f,
+                0.0f,
+            },
         });
     }
 
@@ -1628,6 +1634,16 @@ TaskCompileDiagnostics compileTaskProgram(
                     );
                 }
                 componentLimit = 3u;
+                break;
+            case TaskObservationSource::interactionRootTrackingError:
+                if (interactionClip == nullptr) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        "interaction",
+                        "interaction root tracking observation requires a selected InteractionPack clip"
+                    );
+                }
+                componentLimit = 12u;
                 break;
             case TaskObservationSource::rootHeight:
                 break;

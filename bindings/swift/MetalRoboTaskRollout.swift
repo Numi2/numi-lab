@@ -643,6 +643,7 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
     public let criticObservationCount: Int
     public let sceneBodyCount: Int
     public let motionFeatureCount: Int
+    public let maximumEpisodeSteps: Int
     public let submittedControlSteps: UInt64
     public let completedEnvironmentSteps: UInt64
     public let submissionCount: UInt64
@@ -666,6 +667,7 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
             Int(native.critic_observation_count)
         sceneBodyCount = Int(native.scene_body_count)
         motionFeatureCount = Int(native.motion_feature_count)
+        maximumEpisodeSteps = Int(native.maximum_episode_steps)
         submittedControlSteps = native.submitted_control_steps
         completedEnvironmentSteps =
             native.completed_environment_steps

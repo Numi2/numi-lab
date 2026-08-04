@@ -143,6 +143,8 @@ InteractionRuntimeEvidence runInteractionRuntimeProbe(
         context.run(world, batch, config, replay);
     const std::size_t actorSize =
         program.layout().actorObservationSize;
+    const bool expectContactIntent =
+        program.layout().interactionContactCount != 0u;
     if (!firstStatus.succeeded() || !replayStatus.succeeded() ||
         firstStatus.successfulStepCount != controlStepCount ||
         replayStatus.successfulStepCount != controlStepCount ||
@@ -206,8 +208,11 @@ InteractionRuntimeEvidence runInteractionRuntimeProbe(
             physicalValidityIndices.push_back(index);
         }
     }
-    if (progressIndex == actorSize || confidenceIndex == actorSize ||
-        physicalTargetIndices.empty() || physicalValidityIndices.empty()) {
+    if (progressIndex == actorSize ||
+        (expectContactIntent &&
+         (confidenceIndex == actorSize ||
+          physicalTargetIndices.empty() ||
+          physicalValidityIndices.empty()))) {
         fail("native interaction probe could not resolve appended observations");
     }
     const float firstProgress = first.actorObservations[progressIndex];
@@ -219,9 +224,11 @@ InteractionRuntimeEvidence runInteractionRuntimeProbe(
     bool observedPhysicalValidity = false;
     for (std::size_t step = 0u; step < controlStepCount; ++step) {
         const std::size_t base = step * actorSize;
-        const float confidence =
-            first.actorObservations[base + confidenceIndex];
-        observedPredictionConfidence |= confidence > 0.0f;
+        if (expectContactIntent) {
+            const float confidence =
+                first.actorObservations[base + confidenceIndex];
+            observedPredictionConfidence |= confidence > 0.0f;
+        }
         for (const std::size_t targetIndex : physicalTargetIndices) {
             const float target =
                 first.actorObservations[base + targetIndex];
@@ -244,7 +251,7 @@ InteractionRuntimeEvidence runInteractionRuntimeProbe(
         }
     }
     if (!(lastProgress > firstProgress) ||
-        !observedPredictionConfidence) {
+        (expectContactIntent && !observedPredictionConfidence)) {
         fail("native interaction reference did not advance through frames");
     }
     if (expectPhysicalTargets &&
@@ -303,10 +310,23 @@ metalrobo::InteractionPack makeG1InteractionFixture(
         frameCount * authored.task.actions.size()
     );
     for (std::uint32_t frame = 0u; frame < frameCount; ++frame) {
+        const MRBodyPropertiesGPU& rootBody =
+            authored.model.bodies[
+                authored.model.articulations.front().rootBody
+            ];
+        const std::array<float, 7u> rootLinkPose{
+            authored.model.defaultQ[0] - rootBody.centerOfMass.x,
+            authored.model.defaultQ[1] - rootBody.centerOfMass.y,
+            authored.model.defaultQ[2] - rootBody.centerOfMass.z,
+            authored.model.defaultQ[3],
+            authored.model.defaultQ[4],
+            authored.model.defaultQ[5],
+            authored.model.defaultQ[6],
+        };
         clip.rootTargets.insert(
             clip.rootTargets.end(),
-            authored.model.defaultQ.begin(),
-            authored.model.defaultQ.begin() + 7
+            rootLinkPose.begin(),
+            rootLinkPose.end()
         );
         clip.jointTargets.insert(
             clip.jointTargets.end(),
@@ -1019,9 +1039,20 @@ int main(const int argc, const char* const* argv) {
             );
             if (!externalRead.succeeded() ||
                 externalInteraction.jointNames.size() != 29u ||
-                externalInteraction.contactTracks.size() != 2u ||
                 externalInteraction.clips.size() != 1u) {
-                fail("external InteractionPack did not satisfy the G1 contract");
+                fail(
+                    "external InteractionPack did not satisfy the G1 contract: " +
+                    externalRead.message +
+                    " joints=" + std::to_string(
+                        externalInteraction.jointNames.size()
+                    ) +
+                    " contacts=" + std::to_string(
+                        externalInteraction.contactTracks.size()
+                    ) +
+                    " clips=" + std::to_string(
+                        externalInteraction.clips.size()
+                    )
+                );
             }
             const metalrobo::InteractionClip& externalClip =
                 externalInteraction.clips.front();
@@ -1045,31 +1076,107 @@ int main(const int argc, const char* const* argv) {
                     "external generated contact was mislabeled as physical evidence"
                 );
             }
+            const bool noAuthoredContact =
+                externalInteraction.contactTracks.empty();
+            const bool externalUsesGround = noAuthoredContact ||
+                std::ranges::all_of(
+                externalInteraction.contactTracks,
+                [](const metalrobo::InteractionContactTrack& track) {
+                    return track.counterpart == "locomotion_ground";
+                }
+            );
+            const bool externalUsesTerrain = std::ranges::all_of(
+                externalInteraction.contactTracks,
+                [](const metalrobo::InteractionContactTrack& track) {
+                    return track.counterpart == "locomotion_terrain";
+                }
+            );
+            if (!externalUsesGround && !externalUsesTerrain) {
+                fail(
+                    "external InteractionPack mixes or does not name a bundled locomotion surface"
+                );
+            }
+            const metalrobo::LocomotionSurface externalSurface =
+                externalUsesGround
+                ? metalrobo::LocomotionSurface::ground
+                : metalrobo::LocomotionSurface::terrain;
+            metalrobo::LocomotionWorld externalAuthored =
+                metalrobo::makeUnitreeG1LocomotionWorld(externalSurface);
+            metalrobo::CompiledLocomotionWorld externalWorld;
+            const auto externalWorldStatus =
+                metalrobo::compileLocomotionWorld(
+                    externalAuthored,
+                    0u,
+                    externalWorld
+                );
+            if (!externalWorldStatus.world.succeeded() ||
+                !externalWorldStatus.task.succeeded()) {
+                fail("external InteractionPack surface world did not compile");
+            }
+            metalrobo::TaskPack externalTask = interactionTask;
+            externalTask.terrain = externalAuthored.task.terrain;
+            if (noAuthoredContact) {
+                const auto isInteractionContactObservation =
+                    [](const metalrobo::TaskObservationOperatorSpec& operation) {
+                        return operation.source ==
+                                metalrobo::TaskObservationSource::
+                                    interactionContactMode ||
+                            operation.source ==
+                                metalrobo::TaskObservationSource::
+                                    interactionContactTarget ||
+                            operation.source ==
+                                metalrobo::TaskObservationSource::
+                                    interactionContactValidity;
+                    };
+                std::erase_if(
+                    externalTask.actorFrame,
+                    isInteractionContactObservation
+                );
+                std::erase_if(
+                    externalTask.actorCurrent,
+                    isInteractionContactObservation
+                );
+                std::erase_if(
+                    externalTask.critic,
+                    isInteractionContactObservation
+                );
+                std::erase_if(
+                    externalTask.rewards,
+                    [](const metalrobo::TaskRewardOperatorSpec& reward) {
+                        return reward.operation ==
+                            metalrobo::TaskRewardOperator::
+                                interactionContactTracking;
+                    }
+                );
+            }
             metalrobo::CompiledTaskProgram externalProgram;
             const auto externalCompile =
                 metalrobo::compileTaskProgram(
-                    interactionTask,
+                    externalTask,
                     externalInteraction,
                     externalClip.id,
-                    world,
+                    externalWorld.world,
                     externalProgram
                 );
             if (!externalCompile.succeeded() ||
                 externalProgram.layout().interactionFrameCount !=
                     externalClip.frameCount ||
-                externalProgram.layout().interactionContactCount != 2u ||
+                externalProgram.layout().interactionContactCount !=
+                    externalInteraction.contactTracks.size() ||
                 externalProgram.interactionJointTargets().size() !=
                     static_cast<std::size_t>(externalClip.frameCount) *
                         29u) {
                 fail(
-                    "external ARDY interaction did not compile into the G1 task"
+                    "external ARDY interaction did not compile into the G1 task: " +
+                    externalCompile.element + ": " +
+                    externalCompile.message
                 );
             }
             externalInteractionArtifact = externalRead.contentHash;
             externalInteractionTask = externalProgram.fingerprint();
             externalRuntime = runInteractionRuntimeProbe(
-                authored,
-                world,
+                externalAuthored,
+                externalWorld.world,
                 externalProgram,
                 externalClip.framesPerSecond,
                 false
@@ -1089,7 +1196,9 @@ int main(const int argc, const char* const* argv) {
             > rollout{
                 mr_create_unitree_g1_interaction_rollout(
                     &rolloutConfig,
-                    MR_LOCOMOTION_SURFACE_TERRAIN,
+                    externalUsesGround
+                        ? MR_LOCOMOTION_SURFACE_GROUND
+                        : MR_LOCOMOTION_SURFACE_TERRAIN,
                     argv[1],
                     externalClip.id.c_str(),
                     nullptr
@@ -1105,14 +1214,20 @@ int main(const int argc, const char* const* argv) {
             const MRTaskRolloutLayoutC rolloutLayout =
                 mr_task_rollout_layout(rollout.get());
             constexpr std::uint32_t rolloutSteps = 6u;
+            const std::uint32_t expectedInteractionObservationCount =
+                142u + 28u * static_cast<std::uint32_t>(
+                    externalInteraction.contactTracks.size()
+                );
             std::vector<float> rolloutActions(
                 rolloutSteps * rolloutLayout.action_count,
                 0.0f
             );
             MRTaskRolloutAdvanceC advance{};
             if (rolloutLayout.action_count != 29u ||
-                rolloutLayout.actor_observation_count != 186u ||
-                rolloutLayout.critic_observation_count != 186u ||
+                rolloutLayout.actor_observation_count !=
+                    expectedInteractionObservationCount ||
+                rolloutLayout.critic_observation_count !=
+                    expectedInteractionObservationCount ||
                 mr_task_rollout_advance(
                     rollout.get(),
                     rolloutActions.data(),
@@ -1803,7 +1918,11 @@ int main(const int argc, const char* const* argv) {
             if (binding.indices.x != action ||
                 binding.indices.y != 6u + action ||
                 binding.indices.z != 7u + action ||
-                binding.indices.w != 6u + action) {
+                binding.indices.w != 6u + action ||
+                binding.drive.x !=
+                    authored.model.dofs[binding.indices.w].drive.x ||
+                binding.drive.y !=
+                    authored.model.dofs[binding.indices.w].drive.y) {
                 fail("semantic action binding did not resolve");
             }
         }

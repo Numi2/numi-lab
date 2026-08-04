@@ -82,6 +82,10 @@ def _g1_foundation_adapter(native_library: Path) -> dict[str, Any]:
             "root_archive_key": "numi_root_q",
             "root_q_offset": 0,
             "root_q_count": 7,
+            "root_frame": str(contract["solver_root_frame"]),
+            "root_center_of_mass_local_xyz": list(
+                contract["root_center_of_mass_local_xyz"]
+            ),
             "joint_q_offset": 7,
             "state_groups": [
                 {
@@ -119,22 +123,10 @@ def _g1_foundation_adapter(native_library: Path) -> dict[str, Any]:
             )
         },
         "interaction": {
-            "contact_tracks": [
-                {
-                    "id": "left_foot",
-                    "task_contact_group": "left_foot_contact",
-                    "counterpart": "locomotion_ground",
-                    "mode": 2,
-                    "confidence": 0.5,
-                },
-                {
-                    "id": "right_foot",
-                    "task_contact_group": "right_foot_contact",
-                    "counterpart": "locomotion_ground",
-                    "mode": 2,
-                    "confidence": 0.5,
-                },
-            ]
+            # GR00T's action chunk does not predict a contact schedule. An
+            # empty contract preserves that absence instead of fabricating
+            # bilateral support with an arbitrary confidence.
+            "contact_tracks": []
         },
         "unmapped_output_semantics": {
             "left_hand": "robot has no corresponding actuator group",
@@ -173,6 +165,16 @@ def _validate_foundation_adapter(adapter: Mapping[str, Any]) -> None:
     if not isinstance(observation, dict) or not isinstance(controller, dict):
         raise ValueError("foundation adapter observation or controller is missing")
     groups = observation.get("state_groups")
+    if "root_frame" in observation or "root_center_of_mass_local_xyz" in observation:
+        root_center_of_mass = np.asarray(
+            observation.get("root_center_of_mass_local_xyz"), dtype=np.float32
+        )
+        if (
+            observation.get("root_frame") != "center_of_mass"
+            or root_center_of_mass.shape != (3,)
+            or not np.isfinite(root_center_of_mass).all()
+        ):
+            raise ValueError("foundation adapter root frame contract is invalid")
     if not isinstance(groups, list) or not groups:
         raise ValueError("foundation adapter has no state groups")
     group_names: set[str] = set()
@@ -235,8 +237,8 @@ def _validate_foundation_adapter(adapter: Mapping[str, Any]) -> None:
         ):
             raise ValueError("foundation adapter action output is invalid")
     tracks = interaction.get("contact_tracks") if isinstance(interaction, dict) else None
-    if not isinstance(tracks, list) or not tracks:
-        raise ValueError("foundation adapter has no interaction contact tracks")
+    if not isinstance(tracks, list):
+        raise ValueError("foundation adapter interaction contact tracks are invalid")
     for track in tracks:
         if (
             not isinstance(track, dict)
@@ -611,6 +613,14 @@ def compile_numi_interaction_pack(
         adapter = _g1_foundation_adapter(native_library)
     _validate_foundation_adapter(adapter)
     _verify_adapter_native_contract(adapter, native_library)
+    if (
+        adapter["observation"].get("root_frame") != "center_of_mass"
+        or "root_center_of_mass_local_xyz" not in adapter["observation"]
+    ):
+        raise ValueError(
+            "foundation adapter cannot author InteractionPack roots without "
+            "an explicit solver center-of-mass frame contract"
+        )
     root_key = str(adapter["observation"]["root_archive_key"])
     with np.load(observation, allow_pickle=False) as archive:
         if root_key not in archive.files:
@@ -625,6 +635,20 @@ def compile_numi_interaction_pack(
     if quaternion_norm <= 1.0e-6:
         raise ValueError("Numi root quaternion is degenerate")
     root[3:] /= quaternion_norm
+    x, y, z, w = (float(value) for value in root[3:])
+    root_rotation = np.asarray(
+        (
+            (1.0 - 2.0 * (y * y + z * z), 2.0 * (x * y - z * w), 2.0 * (x * z + y * w)),
+            (2.0 * (x * y + z * w), 1.0 - 2.0 * (x * x + z * z), 2.0 * (y * z - x * w)),
+            (2.0 * (x * z - y * w), 2.0 * (y * z + x * w), 1.0 - 2.0 * (x * x + y * y)),
+        ),
+        dtype=np.float32,
+    )
+    root_link = root.copy()
+    root_link[:3] -= root_rotation @ np.asarray(
+        adapter["observation"]["root_center_of_mass_local_xyz"],
+        dtype=np.float32,
+    )
 
     contract = adapter["controller"]
     default_pose = np.asarray(contract["default_pose"], dtype=np.float32)
@@ -677,7 +701,7 @@ def compile_numi_interaction_pack(
             axis=0,
         )
     frame_count = int(joint_targets.shape[0])
-    root_targets = np.repeat(root[None, :], frame_count, axis=0)
+    root_targets = np.repeat(root_link[None, :], frame_count, axis=0)
     track_contracts = adapter["interaction"]["contact_tracks"]
     tracks = tuple(
         (
@@ -759,6 +783,10 @@ def compile_numi_interaction_pack(
         "lower_body_semantics": (
             "captured robot pose held initially; unmapped joints then use the "
             "adapter-authored native default pose"
+        ),
+        "root_frame_conversion": (
+            "captured solver center-of-mass pose converted to the "
+            "InteractionPack root-link origin"
         ),
         "contact_semantics": (
             "adapter-authored contact intent only; no generated wrench, "

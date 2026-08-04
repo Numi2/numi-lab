@@ -22,6 +22,7 @@ private struct Options {
     var actorObservationExtensionInverseStandardDeviation = 1.0
     var updatedPolicyPack: String?
     var deploymentPolicyPack: String?
+    var incumbentPolicyPack: String?
     var rolloutPack: String?
     var learnerState: String?
     var outputLearnerState: String?
@@ -160,6 +161,9 @@ private struct Options {
                 index += 1
             case "--deployment-policy-pack":
                 deploymentPolicyPack = try value()
+                index += 1
+            case "--incumbent-policy-pack":
+                incumbentPolicyPack = try value()
                 index += 1
             case "--rollout-pack":
                 rolloutPack = try value()
@@ -426,6 +430,10 @@ private struct Options {
         if deploymentPolicyPack == nil {
             deploymentPolicyPack =
                 updatedPolicyPack + ".deployment.policypack"
+        }
+        if incumbentPolicyPack == nil {
+            incumbentPolicyPack =
+                updatedPolicyPack + ".incumbent.policypack"
         }
         if (g1VisualPackDirectory == nil) !=
             (ballVisualPackDirectory == nil)
@@ -734,6 +742,8 @@ private final class MLXLearnerWorker {
               let outputPolicyPack = options.updatedPolicyPack,
               let deploymentPolicyPack =
                   options.deploymentPolicyPack,
+              let incumbentPolicyPack =
+                  options.incumbentPolicyPack,
               let learnerState = options.learnerState,
               let outputLearnerState = options.outputLearnerState
         else {
@@ -758,6 +768,8 @@ private final class MLXLearnerWorker {
             outputPolicyPack,
             "--deployment-policy-pack",
             deploymentPolicyPack,
+            "--incumbent-policy-pack",
+            incumbentPolicyPack,
             "--learner-state",
             outputLearnerState,
             "--restore-learner-state",
@@ -1354,7 +1366,7 @@ private enum TaskTrainMain {
                         (
                             deploymentPolicyPack,
                             directory.appendingPathComponent(
-                                "revision-\(revision).deployment.policypack"
+                                "revision-\(revision).candidate.policypack"
                             )
                         ),
                         (
@@ -1451,6 +1463,8 @@ private enum TaskTrainMain {
                     options.visualObservationConfig ?? "",
                 "environments": options.environments,
                 "steps_per_update": options.steps,
+                "maximum_episode_steps":
+                    finalLayout.maximumEpisodeSteps,
                 "updates": options.updates,
                 "control_steps_per_submission": options.chunk,
                 "minibatch_size": options.minibatchSize,
@@ -1528,6 +1542,11 @@ private enum TaskTrainMain {
                 "policy_pack": updatedPolicyPack,
                 "deployment_policy_pack":
                     deploymentPolicyPack,
+                "candidate_deployment_policy_pack":
+                    deploymentPolicyPack,
+                "deployment_selection_performed": false,
+                "incumbent_policy_pack":
+                    options.incumbentPolicyPack!,
                 "learner_state": learnerState,
                 "last_learning_update": lastLearning,
             ]

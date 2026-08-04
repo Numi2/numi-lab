@@ -197,6 +197,12 @@ std::string unitreeG1DeploymentContractJSON() {
         << "\"physics_timestep_seconds\":0.005,"
         << "\"policy_timestep_seconds\":0.02,"
         << "\"drive_prediction_seconds\":0.005,"
+        << "\"solver_root_frame\":\"center_of_mass\","
+        << "\"interaction_root_frame\":\"root_link_origin\","
+        << "\"root_center_of_mass_local_xyz\":["
+        << model.bodies[articulation.rootBody].centerOfMass.x << ','
+        << model.bodies[articulation.rootBody].centerOfMass.y << ','
+        << model.bodies[articulation.rootBody].centerOfMass.z << "],"
         << "\"action_scale_radians\":0.25,"
         << "\"actor_frame_size\":96,"
         << "\"actor_history_length\":5,";
@@ -675,6 +681,13 @@ void authorG1InteractionTrackingTask(
             .component = component,
         });
     }
+    for (std::uint32_t component = 0u; component < 12u; ++component) {
+        appendObservation({
+            .source = metalrobo::TaskObservationSource::
+                interactionRootTrackingError,
+            .component = component,
+        });
+    }
     for (const metalrobo::TaskActionBinding& action : task.actions) {
         appendObservation({
             .source = metalrobo::TaskObservationSource::
@@ -715,13 +728,13 @@ void authorG1InteractionTrackingTask(
             .operation = metalrobo::TaskRewardOperator::
                 interactionJointTracking,
             .weight = 0.5f,
-            .parameters = {0.25f, 0.0f, 0.0f, 0.0f},
+            .parameters = {0.25f, 1.0f, 0.0f, 0.0f},
         },
         {
             .operation = metalrobo::TaskRewardOperator::
                 interactionRootTracking,
             .weight = 2.0f,
-            .parameters = {0.04f, 0.08f, 0.0f, 0.0f},
+            .parameters = {0.04f, 0.08f, 0.25f, 0.5f},
         },
         {
             .operation = metalrobo::TaskRewardOperator::
@@ -841,13 +854,13 @@ void authorG1ImaginedTask(
         .operation = metalrobo::TaskRewardOperator::
             interactionJointTracking,
         .weight = 0.5f,
-        .parameters = {0.25f, 0.0f, 0.0f, 0.0f},
+        .parameters = {0.25f, 1.0f, 0.0f, 0.0f},
     });
     task.rewards.push_back({
         .operation = metalrobo::TaskRewardOperator::
             interactionRootTracking,
         .weight = 2.0f,
-        .parameters = {0.04f, 0.08f, 0.0f, 0.0f},
+        .parameters = {0.04f, 0.08f, 0.25f, 0.5f},
     });
     if (includeInteractionContacts) for (
         const metalrobo::InteractionContactTrack& track :
@@ -3043,6 +3056,8 @@ MRTaskRolloutLayoutC mr_task_rollout_layout(
         );
     result.motion_feature_count =
         handle->taskProgram.layout().motionFeatureCount;
+    result.maximum_episode_steps =
+        handle->taskProgram.header().schedule.x;
     result.submitted_control_steps =
         handle->submittedControlSteps;
     result.completed_environment_steps =

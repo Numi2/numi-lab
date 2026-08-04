@@ -49,6 +49,8 @@ enum class TaskObservationSource : std::uint32_t {
     interactionPhase = MR_TASK_OBSERVE_INTERACTION_PHASE,
     interactionContactValidity =
         MR_TASK_OBSERVE_INTERACTION_CONTACT_VALIDITY,
+    interactionRootTrackingError =
+        MR_TASK_OBSERVE_INTERACTION_ROOT_TRACKING_ERROR,
 };
 
 enum class TaskRewardOperator : std::uint32_t {

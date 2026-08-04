@@ -169,13 +169,23 @@ observation operators publish phase, live-minus-reference joint error,
 expected contact/confidence, target fields, and their per-feature validity.
 Native rewards
 track joints and compare expected contact against the solver-resolved support
-field. The implicit-position controller blends the generated joint target
-toward the student's absolute mechanism-space target using an authored
-student-authority fraction. Zero follows the generated guide; one is fully
-autonomous. The
+field. The implicit-position controller adds an authored fraction of the
+student's normalized balance/control residual to the generated
+mechanism-space motion target. Zero follows the generated guide; autonomous
+evaluation disables the guide rather than misusing residual authority. The
 reference can never write contact state or replace NumiSolver's force, CoP,
 area, or pressure outcome. Non-looping clips set the bundled G1 interaction
 task horizon from clip duration and control cadence.
+
+Distillation follows the same coordinate contract. At zero student authority,
+the label is ARDY's absolute normalized action for later autonomous use. With
+nonzero authority, ARDY is already the motion base and the teacher label is a
+zero residual; encoding the composed pose as a residual would apply the motion
+twice. PPO may still learn a nonzero balance or recovery correction from the
+solver-realized outcome. Each transition records whether the sampled policy
+action was actually executed as a residual: those samples retain PPO weight
+and receive no absolute-pose imitation weight. Pure zero-authority teacher
+samples do the inverse.
 
 TaskPack authors may set interaction student authority to zero for pure
 shadow-mode distillation. The reference then executes without student
@@ -400,6 +410,28 @@ last rollout submission without advancing physics. Training PolicyPacks may be
 stochastic; deployment PolicyPacks contain the same actor revision without an
 exploration distribution.
 
+`numi train` gives those artifacts distinct roles. The learner writes
+`candidate.policypack` and `candidate.deployment.policypack`; it cannot write
+the protected `deployment.policypack`. At learner startup it also publishes an
+immutable deterministic `incumbent.deployment.policypack`. After training,
+Numi evaluates incumbent and candidate with the same held-out seed, task,
+horizon, authored packs, and solver mode. The candidate is always retained,
+including when it demonstrates only partial progress or a useful failure.
+Only the protected deployment artifact is selected: an atomic copy advances
+to the candidate when task-specific physical outcomes improve without a
+safety or physical-outcome regression; otherwise it remains byte-identical to
+the incumbent. Both rollout records and `selection.json` are part of the run.
+If matched evaluation fails or is interrupted, deployment is already restored
+to the incumbent and the command reports failure rather than publishing an
+unevaluated actor.
+
+For zero-student-authority interaction collection, selection retains the
+accepted interaction reset state but removes teacher actions. This prevents an
+ARDY trajectory from satisfying the held-out comparison on behalf of the
+student. Supine get-up selection measures per-environment termination,
+bilateral support, knee excursion, pelvis descent, and return to the initial
+pose; pelvis height or mean tilt alone is not treated as task completion.
+
 ## Persistent native execution
 
 `MetalWorldContext` owns:
@@ -515,9 +547,9 @@ host readback, tracker feature, or larger policy input.
 
 Held-out dodge reporting publishes the complete physical outcome vector:
 contacts, clean misses, balance failures, support behavior, throughput, and
-uncertainty. No scalar verdict discards a valid candidate. Selecting the
-configured production policy remains an explicit comparison of immutable run
-artifacts.
+uncertainty. No scalar verdict discards a valid candidate. The protected
+deployment selection compares the immutable incumbent and candidate artifacts;
+the candidate remains available whether or not it advances deployment.
 
 ## R2S2R boundary
 

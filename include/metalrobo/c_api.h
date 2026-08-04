@@ -133,6 +133,7 @@ typedef struct MRTaskRolloutLayoutC {
     uint32_t critic_observation_count;
     uint32_t scene_body_count;
     uint32_t motion_feature_count;
+    uint32_t maximum_episode_steps;
     uint64_t submitted_control_steps;
     uint64_t completed_environment_steps;
     uint64_t submission_count;

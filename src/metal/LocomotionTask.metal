@@ -157,6 +157,29 @@ inline float4 quaternionProduct(
     );
 }
 
+inline float3 quaternionWorldAngularVelocity(
+    const float4 first,
+    const float4 second,
+    const float framesPerSecond
+) {
+    const float4 firstUnit = normalize(first);
+    const float4 secondUnit = normalize(second);
+    float4 delta = quaternionProduct(
+        secondUnit,
+        float4(-firstUnit.xyz, firstUnit.w)
+    );
+    delta *= delta.w < 0.0f ? -1.0f : 1.0f;
+    const float sineHalfAngle = length(delta.xyz);
+    if (sineHalfAngle <= 1.0e-7f) {
+        return 2.0f * framesPerSecond * delta.xyz;
+    }
+    const float angle = 2.0f * atan2(
+        sineHalfAngle,
+        clamp(delta.w, -1.0f, 1.0f)
+    );
+    return delta.xyz * (framesPerSecond * angle / sineHalfAngle);
+}
+
 inline float3 normalizedOr(
     const float3 value,
     const float3 fallback
@@ -355,13 +378,13 @@ inline float rootHeight(
     return rootWorldPosition(program, q).z;
 }
 
-inline uint interactionFrame(
+inline float interactionFramePosition(
     device const MRTaskProgramHeaderGPU& program,
     thread const MRTaskStateGPU& state,
     const float controlStepSeconds
 ) {
     if (program.interaction.x == 0u) {
-        return 0u;
+        return 0.0f;
     }
     float elapsedSeconds =
         float(state.episode.x) * controlStepSeconds;
@@ -376,12 +399,54 @@ inline uint interactionFrame(
     } else if (program.threat.y != 0u) {
         elapsedSeconds = 0.0f;
     }
-    const uint unbounded = uint(floor(
-        elapsedSeconds * program.interactionTiming.x
-    ));
+    const float unbounded =
+        elapsedSeconds * program.interactionTiming.x;
     return (program.interaction.w & MR_TASK_INTERACTION_LOOP) != 0u
-        ? unbounded % program.interaction.x
-        : min(unbounded, program.interaction.x - 1u);
+        ? fmod(unbounded, float(program.interaction.x))
+        : min(unbounded, float(program.interaction.x - 1u));
+}
+
+inline uint interactionFrame(
+    device const MRTaskProgramHeaderGPU& program,
+    thread const MRTaskStateGPU& state,
+    const float controlStepSeconds
+) {
+    return uint(floor(interactionFramePosition(
+        program,
+        state,
+        controlStepSeconds
+    )));
+}
+
+inline float interactionFrameBlend(
+    device const MRTaskProgramHeaderGPU& program,
+    thread const MRTaskStateGPU& state,
+    const float controlStepSeconds
+) {
+    const float position = interactionFramePosition(
+        program,
+        state,
+        controlStepSeconds
+    );
+    return position - floor(position);
+}
+
+inline uint interactionNextFrame(
+    device const MRTaskProgramHeaderGPU& program,
+    const uint frame
+) {
+    return (program.interaction.w & MR_TASK_INTERACTION_LOOP) != 0u
+        ? (frame + 1u) % program.interaction.x
+        : min(frame + 1u, program.interaction.x - 1u);
+}
+
+inline float4 quaternionInterpolate(
+    const float4 first,
+    float4 second,
+    const float amount
+) {
+    second *= dot(first, second) < 0.0f ? -1.0f : 1.0f;
+    return normalize(mix(first, second, amount));
 }
 
 inline float supportPatchFeature(
@@ -489,15 +554,24 @@ inline float cleanObservation(
             state,
             controlStepSeconds
         );
+        const uint nextFrame = interactionNextFrame(program, frame);
+        const float blend = interactionFrameBlend(
+            program,
+            state,
+            controlStepSeconds
+        );
         device const float* targets = taskTable<float>(
             arena,
             program.interactionOffsets0.y
         );
         const MRTaskActionBindingGPU binding =
             actions[operation.source.y];
-        value = q[binding.indices.z] - targets[
-            frame * program.interaction.y + operation.source.y
-        ];
+        const float reference = mix(
+            targets[frame * program.interaction.y + operation.source.y],
+            targets[nextFrame * program.interaction.y + operation.source.y],
+            blend
+        );
+        value = q[binding.indices.z] - reference;
         break;
     }
     case MR_TASK_OBSERVE_INTERACTION_CONTACT_MODE: {
@@ -576,19 +650,118 @@ inline float cleanObservation(
         break;
     }
     case MR_TASK_OBSERVE_INTERACTION_PHASE: {
-        const uint frame = interactionFrame(
+        const float framePosition = interactionFramePosition(
             program,
             state,
             controlStepSeconds
         );
         const float progress = program.interaction.x > 1u
-            ? float(frame) / float(program.interaction.x - 1u)
+            ? framePosition / float(program.interaction.x - 1u)
             : 0.0f;
         value = operation.source.z == 0u
             ? sin(kTwoPi * progress)
             : operation.source.z == 1u
             ? cos(kTwoPi * progress)
             : progress;
+        break;
+    }
+    case MR_TASK_OBSERVE_INTERACTION_ROOT_TRACKING_ERROR: {
+        const uint frame = interactionFrame(
+            program,
+            state,
+            controlStepSeconds
+        );
+        const uint nextFrame = interactionNextFrame(program, frame);
+        const float blend = interactionFrameBlend(
+            program,
+            state,
+            controlStepSeconds
+        );
+        device const float* targets = taskTable<float>(
+            arena,
+            program.interactionOffsets0.x
+        );
+        const uint targetBase = frame * 7u;
+        const uint nextBase = nextFrame * 7u;
+        const float3 framePosition = float3(
+            targets[targetBase + 0u],
+            targets[targetBase + 1u],
+            targets[targetBase + 2u]
+        );
+        const float4 frameOrientation = float4(
+            targets[targetBase + 3u],
+            targets[targetBase + 4u],
+            targets[targetBase + 5u],
+            targets[targetBase + 6u]
+        );
+        const float3 nextPosition = float3(
+            targets[nextBase + 0u],
+            targets[nextBase + 1u],
+            targets[nextBase + 2u]
+        );
+        const float4 nextOrientation = float4(
+            targets[nextBase + 3u],
+            targets[nextBase + 4u],
+            targets[nextBase + 5u],
+            targets[nextBase + 6u]
+        );
+        const float3 targetPosition = mix(
+            framePosition,
+            nextPosition,
+            blend
+        );
+        const float4 targetOrientation = quaternionInterpolate(
+            frameOrientation,
+            nextOrientation,
+            blend
+        );
+        if (operation.source.z < 3u) {
+            value = rotateInverse(
+                orientation,
+                targetPosition - rootWorldPosition(program, q)
+            )[operation.source.z];
+        } else if (operation.source.z < 6u) {
+            float4 delta = quaternionProduct(
+                float4(-orientation.xyz, orientation.w),
+                targetOrientation
+            );
+            delta *= delta.w < 0.0f ? -1.0f : 1.0f;
+            const float sineHalfAngle = length(delta.xyz);
+            const float angle = sineHalfAngle > 1.0e-7f
+                ? 2.0f * atan2(
+                    sineHalfAngle,
+                    clamp(delta.w, -1.0f, 1.0f)
+                )
+                : 2.0f * sineHalfAngle;
+            const float3 orientationError = sineHalfAngle > 1.0e-7f
+                ? delta.xyz * (angle / sineHalfAngle)
+                : 2.0f * delta.xyz;
+            value = orientationError[operation.source.z - 3u];
+        } else if (operation.source.z < 9u) {
+            const float3 targetVelocity =
+                (nextPosition - framePosition) *
+                program.interactionTiming.x;
+            value = rotateInverse(
+                orientation,
+                targetVelocity - rootWorldLinearVelocity(program, q, v)
+            )[operation.source.z - 6u];
+        } else {
+            const float3 targetAngularVelocity =
+                quaternionWorldAngularVelocity(
+                    frameOrientation,
+                    nextOrientation,
+                    program.interactionTiming.x
+                );
+            const float3 currentAngularVelocity = float3(
+                v[program.root.w + 3u],
+                v[program.root.w + 4u],
+                v[program.root.w + 5u]
+            );
+            value = rotateInverse(
+                orientation,
+                targetAngularVelocity - currentAngularVelocity
+            )[operation.source.z - 9u];
+        }
         break;
     }
     case MR_TASK_OBSERVE_ROOT_LINEAR_VELOCITY_LOCAL:
@@ -1536,6 +1709,15 @@ kernel void mr_locomotion_task_joint_cbf_teacher(
         state,
         dispatch.timing.x
     );
+    const uint nextReferenceFrame = interactionNextFrame(
+        program,
+        referenceFrame
+    );
+    const float referenceBlend = interactionFrameBlend(
+        program,
+        state,
+        dispatch.timing.x
+    );
     for (uint action = 0u; action < program.counts0.x; ++action) {
         const MRTaskActionBindingGPU binding = actions[action];
         const uint dof = binding.indices.w - program.root.w;
@@ -1545,9 +1727,15 @@ kernel void mr_locomotion_task_joint_cbf_teacher(
         const float reference =
             (program.schedule.w &
              MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u
-            ? interactionJointTargets[
-                  referenceFrame * program.interaction.y + action
-              ]
+            ? mix(
+                  interactionJointTargets[
+                      referenceFrame * program.interaction.y + action
+                  ],
+                  interactionJointTargets[
+                      nextReferenceFrame * program.interaction.y + action
+                  ],
+                  referenceBlend
+              )
             : defaultQ[binding.indices.z];
         const float target = clamp(
             reference +
@@ -2314,6 +2502,22 @@ kernel void mr_locomotion_task_observe(
                     targetOrientation,
                     program.rootReference.xyz
                 );
+            const float4 nextOrientation = float4(
+                interactionRootTargets[10u],
+                interactionRootTargets[11u],
+                interactionRootTargets[12u],
+                interactionRootTargets[13u]
+            );
+            const float3 nextRootLinkPosition = float3(
+                interactionRootTargets[7u],
+                interactionRootTargets[8u],
+                interactionRootTargets[9u]
+            );
+            const float3 nextRootCOMPosition =
+                nextRootLinkPosition - rotate(
+                    nextOrientation,
+                    program.rootReference.xyz
+                );
             resetQ[qBase + program.root.z + 0u] =
                 targetRootCOMPosition.x;
             resetQ[qBase + program.root.z + 1u] =
@@ -2324,12 +2528,39 @@ kernel void mr_locomotion_task_observe(
             resetQ[qBase + program.root.z + 4u] = targetOrientation.y;
             resetQ[qBase + program.root.z + 5u] = targetOrientation.z;
             resetQ[qBase + program.root.z + 6u] = targetOrientation.w;
+            resetV[vBase + program.root.w + 0u] =
+                (nextRootCOMPosition.x - targetRootCOMPosition.x) *
+                program.interactionTiming.x;
+            resetV[vBase + program.root.w + 1u] =
+                (nextRootCOMPosition.y - targetRootCOMPosition.y) *
+                program.interactionTiming.x;
+            resetV[vBase + program.root.w + 2u] =
+                (nextRootCOMPosition.z - targetRootCOMPosition.z) *
+                program.interactionTiming.x;
+            const float3 rootAngularVelocity =
+                quaternionWorldAngularVelocity(
+                    targetOrientation,
+                    nextOrientation,
+                    program.interactionTiming.x
+                );
+            resetV[vBase + program.root.w + 3u] =
+                rootAngularVelocity.x;
+            resetV[vBase + program.root.w + 4u] =
+                rootAngularVelocity.y;
+            resetV[vBase + program.root.w + 5u] =
+                rootAngularVelocity.z;
             for (uint action = 0u;
                  action < program.interaction.y;
                  ++action) {
                 const MRTaskActionBindingGPU binding = actions[action];
                 resetQ[qBase + binding.indices.z] =
                     interactionJointTargets[action];
+                resetV[vBase + binding.indices.w] =
+                    (
+                        interactionJointTargets[
+                            program.interaction.y + action
+                        ] - interactionJointTargets[action]
+                    ) * program.interactionTiming.x;
             }
         }
         controllerParameters[environment].z =
@@ -2846,6 +3077,15 @@ kernel void mr_locomotion_task_apply_actions(
         state,
         dispatch.timing.x
     );
+    const uint nextReferenceFrame = interactionNextFrame(
+        program,
+        referenceFrame
+    );
+    const float referenceBlend = interactionFrameBlend(
+        program,
+        state,
+        dispatch.timing.x
+    );
 
     for (uint coordinate = 0u;
          coordinate < dispatch.counts.w;
@@ -2933,12 +3173,38 @@ kernel void mr_locomotion_task_apply_actions(
         const float studentTarget =
             defaultQ[binding.indices.z] +
             binding.parameters.x * filtered;
-        const float targetCandidate = interactionReference
-            ? interactionJointTargets[
-                  referenceFrame * program.interaction.y + action
-              ] + program.interactionTiming.z *
-                  (studentTarget - defaultQ[binding.indices.z])
-            : studentTarget;
+        float targetCandidate = studentTarget;
+        if (interactionReference) {
+            const float frameReference = interactionJointTargets[
+                referenceFrame * program.interaction.y + action
+            ];
+            const float nextReference = interactionJointTargets[
+                nextReferenceFrame * program.interaction.y + action
+            ];
+            const float reference = mix(
+                frameReference,
+                nextReference,
+                referenceBlend
+            );
+            const float referenceVelocity =
+                (nextReference - frameReference) *
+                program.interactionTiming.x;
+            // MetalWorld's implicit drive evaluates position at q + h*v and
+            // damps v toward zero. Lead the position target by
+            // (h + kd/kp)*v_ref so the same physical drive instead tracks
+            // both ARDY's q_ref and v_ref. Gravity, contact, effort limits,
+            // and the articulated solve remain authoritative.
+            const float velocityLeadSeconds =
+                dispatch.timing.y +
+                (binding.drive.x > 0.0f
+                    ? binding.drive.y / binding.drive.x
+                    : 0.0f);
+            targetCandidate =
+                reference +
+                velocityLeadSeconds * referenceVelocity +
+                program.interactionTiming.z *
+                    (studentTarget - defaultQ[binding.indices.z]);
+        }
         const float target = clamp(
             targetCandidate,
             binding.parameters.y,
@@ -3179,6 +3445,15 @@ kernel void mr_locomotion_task_complete(
         environment * contactDispatch.constraintStride;
     MRTaskStateGPU state = taskStates[environment];
     const uint referenceFrame = interactionFrame(
+        program,
+        state,
+        dispatch.timing.x
+    );
+    const uint nextReferenceFrame = interactionNextFrame(
+        program,
+        referenceFrame
+    );
+    const float referenceBlend = interactionFrameBlend(
         program,
         state,
         dispatch.timing.x
@@ -4652,6 +4927,7 @@ kernel void mr_locomotion_task_complete(
             break;
         case MR_TASK_REWARD_INTERACTION_JOINT_TRACKING: {
             float squaredError = 0.0f;
+            float squaredVelocityError = 0.0f;
             float jointCount = 0.0f;
             if (operation.source.y == MR_INVALID_INDEX) {
                 for (uint action = 0u;
@@ -4659,13 +4935,30 @@ kernel void mr_locomotion_task_complete(
                      ++action) {
                     const MRTaskActionBindingGPU binding =
                         actions[action];
+                    const float reference = mix(
+                        interactionJointTargets[
+                            referenceFrame * program.interaction.y + action
+                        ],
+                        interactionJointTargets[
+                            nextReferenceFrame * program.interaction.y + action
+                        ],
+                        referenceBlend
+                    );
                     const float delta =
                         qState[qBase + binding.indices.z] -
-                        interactionJointTargets[
-                            referenceFrame * program.interaction.y +
-                            action
-                        ];
+                        reference;
+                    const float referenceVelocity =
+                        (interactionJointTargets[
+                            nextReferenceFrame * program.interaction.y + action
+                        ] - interactionJointTargets[
+                            referenceFrame * program.interaction.y + action
+                        ]) * program.interactionTiming.x;
+                    const float velocityDelta =
+                        vState[vBase + binding.indices.w] -
+                        referenceVelocity;
                     squaredError += delta * delta;
+                    squaredVelocityError +=
+                        velocityDelta * velocityDelta;
                     jointCount += 1.0f;
                 }
             } else {
@@ -4679,33 +4972,68 @@ kernel void mr_locomotion_task_complete(
                     ];
                     const MRTaskActionBindingGPU binding =
                         actions[action];
+                    const float reference = mix(
+                        interactionJointTargets[
+                            referenceFrame * program.interaction.y + action
+                        ],
+                        interactionJointTargets[
+                            nextReferenceFrame * program.interaction.y + action
+                        ],
+                        referenceBlend
+                    );
                     const float delta =
                         qState[qBase + binding.indices.z] -
-                        interactionJointTargets[
-                            referenceFrame * program.interaction.y +
-                            action
-                        ];
+                        reference;
+                    const float referenceVelocity =
+                        (interactionJointTargets[
+                            nextReferenceFrame * program.interaction.y + action
+                        ] - interactionJointTargets[
+                            referenceFrame * program.interaction.y + action
+                        ]) * program.interactionTiming.x;
+                    const float velocityDelta =
+                        vState[vBase + binding.indices.w] -
+                        referenceVelocity;
                     squaredError += delta * delta;
+                    squaredVelocityError +=
+                        velocityDelta * velocityDelta;
                     jointCount += 1.0f;
                 }
             }
-            value = exp(
+            const float positionScore = exp(
                 -(squaredError / max(jointCount, 1.0f)) /
                 max(operation.parameters.y, 1.0e-8f)
             );
+            const float velocityScore = operation.parameters.z > 0.0f
+                ? exp(
+                      -(squaredVelocityError /
+                          max(jointCount, 1.0f)) /
+                      operation.parameters.z
+                  )
+                : positionScore;
+            value = 0.5f * (positionScore + velocityScore);
             interactionMetric = value;
             interactionMetricWeight = 1.0f;
             break;
         }
         case MR_TASK_REWARD_INTERACTION_ROOT_TRACKING: {
             const uint targetBase = referenceFrame * 7u;
-            const float3 positionDelta =
-                rootWorldPosition(program, qState + qBase) -
+            const uint nextTargetBase = nextReferenceFrame * 7u;
+            const float3 targetPosition = mix(
                 float3(
                     interactionRootTargets[targetBase + 0u],
                     interactionRootTargets[targetBase + 1u],
                     interactionRootTargets[targetBase + 2u]
-                );
+                ),
+                float3(
+                    interactionRootTargets[nextTargetBase + 0u],
+                    interactionRootTargets[nextTargetBase + 1u],
+                    interactionRootTargets[nextTargetBase + 2u]
+                ),
+                referenceBlend
+            );
+            const float3 positionDelta =
+                rootWorldPosition(program, qState + qBase) -
+                targetPosition;
             const float4 rawOrientation = float4(
                 qState[qBase + program.root.z + 3u],
                 qState[qBase + program.root.z + 4u],
@@ -4721,11 +5049,17 @@ kernel void mr_locomotion_task_complete(
                 interactionRootTargets[targetBase + 5u],
                 interactionRootTargets[targetBase + 6u]
             );
-            const float4 targetOrientation =
-                rawTargetOrientation * rsqrt(max(
-                    dot(rawTargetOrientation, rawTargetOrientation),
-                    1.0e-12f
-                ));
+            const float4 rawNextTargetOrientation = float4(
+                interactionRootTargets[nextTargetBase + 3u],
+                interactionRootTargets[nextTargetBase + 4u],
+                interactionRootTargets[nextTargetBase + 5u],
+                interactionRootTargets[nextTargetBase + 6u]
+            );
+            const float4 targetOrientation = quaternionInterpolate(
+                normalize(rawTargetOrientation),
+                normalize(rawNextTargetOrientation),
+                referenceBlend
+            );
             const float orientationError =
                 1.0f - abs(dot(orientation, targetOrientation));
             const float positionScore = exp(
@@ -4736,7 +5070,51 @@ kernel void mr_locomotion_task_complete(
                 -(orientationError * orientationError) /
                 max(operation.parameters.z, 1.0e-8f)
             );
-            value = 0.5f * (positionScore + orientationScore);
+            const float3 targetLinearVelocity =
+                (float3(
+                    interactionRootTargets[nextTargetBase + 0u],
+                    interactionRootTargets[nextTargetBase + 1u],
+                    interactionRootTargets[nextTargetBase + 2u]
+                ) - float3(
+                    interactionRootTargets[targetBase + 0u],
+                    interactionRootTargets[targetBase + 1u],
+                    interactionRootTargets[targetBase + 2u]
+                )) * program.interactionTiming.x;
+            const float3 linearVelocityDelta =
+                rootWorldLinearVelocity(
+                    program,
+                    qState + qBase,
+                    vState + vBase
+                ) - targetLinearVelocity;
+            const float linearVelocityScore =
+                operation.parameters.w > 0.0f
+                ? exp(
+                      -dot(linearVelocityDelta, linearVelocityDelta) /
+                      operation.parameters.w
+                  )
+                : positionScore;
+            const float3 targetAngularVelocity =
+                quaternionWorldAngularVelocity(
+                    rawTargetOrientation,
+                    rawNextTargetOrientation,
+                    program.interactionTiming.x
+                );
+            const float3 angularVelocityDelta = float3(
+                vState[vBase + program.root.w + 3u],
+                vState[vBase + program.root.w + 4u],
+                vState[vBase + program.root.w + 5u]
+            ) - targetAngularVelocity;
+            const float angularVelocityScore =
+                operation.auxiliary.x > 0.0f
+                ? exp(
+                      -dot(angularVelocityDelta, angularVelocityDelta) /
+                      operation.auxiliary.x
+                  )
+                : orientationScore;
+            value = 0.25f * (
+                positionScore + orientationScore +
+                linearVelocityScore + angularVelocityScore
+            );
             interactionMetric = value;
             interactionMetricWeight = 1.0f;
             break;

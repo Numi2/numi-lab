@@ -798,6 +798,11 @@ def _serve(arguments: argparse.Namespace) -> int:
         stochastic=False,
         library_path=arguments.native_library,
     )
+    incumbent_policy = learner.write_policy_pack(
+        arguments.incumbent_policy_pack,
+        stochastic=False,
+        library_path=arguments.native_library,
+    )
     expected_task_fingerprint: int | None = None
     _emit(
         sys.stdout,
@@ -831,6 +836,7 @@ def _serve(arguments: argparse.Namespace) -> int:
             "policy_pack": str(current_policy),
             "deployment_policy_pack":
                 str(current_deployment_policy),
+            "incumbent_policy_pack": str(incumbent_policy),
         },
     )
     for encoded in sys.stdin:
@@ -1188,7 +1194,16 @@ def main() -> int:
         "--deployment-policy-pack",
         type=Path,
         required=True,
-        help="deterministic actor PolicyPack for evaluation and deployment",
+        help="latest deterministic candidate PolicyPack",
+    )
+    serve.add_argument(
+        "--incumbent-policy-pack",
+        type=Path,
+        required=True,
+        help=(
+            "immutable deterministic pre-training PolicyPack for matched "
+            "incumbent evaluation"
+        ),
     )
     serve.add_argument(
         "--native-library",

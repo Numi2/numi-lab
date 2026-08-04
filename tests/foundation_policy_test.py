@@ -49,6 +49,8 @@ class FoundationPolicyTest(unittest.TestCase):
             },
         }
         _validate_foundation_adapter(adapter)
+        adapter["interaction"]["contact_tracks"] = []
+        _validate_foundation_adapter(adapter)
         adapter["action_outputs"][0]["joints"] = ["unknown_joint"]
         with self.assertRaises(ValueError):
             _validate_foundation_adapter(adapter)

@@ -14,6 +14,7 @@ from metalrobo.ardy_interaction_convert import (
     _G1_JOINT_LOWER,
     _G1_JOINT_UPPER,
     _G1_JOINT_VELOCITY,
+    foot_contact_contract,
 )
 from metalrobo.g1_motion_retarget import G1Kinematics
 
@@ -41,6 +42,21 @@ _G1_PARENTS = np.asarray(
 
 
 class ARDYG1Test(unittest.TestCase):
+    def test_native_contact_modes_preserve_model_confidence(self) -> None:
+        modes, confidence = foot_contact_contract(
+            np.asarray(
+                ((1, 0, 0, 0), (0, 0, 1, 1)), dtype=np.uint8
+            ),
+            np.asarray(
+                ((0.9, 0.2, 0.49, 0.1), (0.5, 0.5, 0.7, 0.8)),
+                dtype=np.float32,
+            ),
+        )
+        np.testing.assert_array_equal(modes, ((2, 0), (0, 2)))
+        np.testing.assert_allclose(
+            confidence, ((0.8, 0.02), (0.0, 0.6)), atol=1.0e-7
+        )
+
     def test_solver_com_pose_converts_to_root_link_origin(self) -> None:
         model = G1Kinematics(
             links=("pelvis",),

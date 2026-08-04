@@ -106,6 +106,15 @@ generic ARDY Core model remains available through `--model-family core`.
 Rendered physical evidence is published only after actuation, gravity,
 collision, and contact in NumiSolver. The workflow begins with:
 
+![ARDY-G1 run-forward kinematic proposal on the Unitree G1 mechanism](docs/media/ardy-g1-run-forward-kinematic.gif)
+
+The run-forward clip above is the Apple-Silicon ARDY model's kinematic
+proposal after exact G1 joint-frame conversion and authored mechanism-limit
+projection. It demonstrates prompt-to-G1 motion intent; it is deliberately not
+presented as a dynamically realized run. NumiSolver execution remains the
+authority for momentum, support, gravity, slip, impact, and whether the robot
+stays upright.
+
 ```sh
 numi motion imagine-g1 \
   --prompt 'do backflip' \

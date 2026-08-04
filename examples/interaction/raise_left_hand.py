@@ -39,7 +39,7 @@ def author(output_directory: Path) -> Path:
             (
                 # ARDY CSV convention: root xyz, quaternion wxyz, joints.
                 np.asarray(
-                    (0.0, 0.0, 0.72396994, 1.0, 0.0, 0.0, 0.0),
+                    (0.0, 0.0, 0.8, 1.0, 0.0, 0.0, 0.0),
                     dtype=np.float32,
                 ),
                 RESET_JOINTS,

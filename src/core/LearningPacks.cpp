@@ -449,7 +449,7 @@ LearningPackResult validateInteractionArtifact(
     if (pack.id.empty() || pack.sourceRepository.empty() ||
         pack.sourceRevision.empty() || pack.license.empty() ||
         pack.coordinateFrame != kInteractionCoordinateFrame ||
-        pack.jointNames.empty() || pack.contactTracks.empty() ||
+        pack.jointNames.empty() ||
         pack.clips.empty() || !stringFits(pack.id) ||
         !stringFits(pack.sourceRepository) ||
         !stringFits(pack.sourceRevision) ||

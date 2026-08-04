@@ -23,8 +23,14 @@ provided. Every native trainer option passes through unchanged. Common options:
   --initialize-policy ID            Initialize a new policy
   --checkpoint-directory PATH --checkpoint-interval N
 
+Every run retains its post-update candidate. Numi evaluates that candidate and
+the immutable pre-training incumbent on the same held-out physical rollout;
+only the better non-regressing policy advances deployment.policypack.
+
 Use NUMI_RUNS_DIR, NUMI_RUN_DIR, NUMI_BUILD_DIR, or NUMI_MLX_PYTHON to change
-the generated locations without changing the command.
+the generated locations without changing the command. NUMI_SELECTION_ENVS
+sets the held-out comparison width (default 256); NUMI_SELECTION_SEED changes
+its shared deterministic seed.
 EOF
     exit 0
 fi
@@ -34,6 +40,20 @@ numi_has_option() {
     shift
     for numi_argument do
         [ "$numi_argument" = "$numi_sought_option" ] && return 0
+    done
+    return 1
+}
+
+numi_option_value() {
+    numi_sought_option=$1
+    shift
+    numi_take_next=0
+    for numi_argument do
+        if [ "$numi_take_next" -eq 1 ]; then
+            printf '%s\n' "$numi_argument"
+            return 0
+        fi
+        [ "$numi_argument" = "$numi_sought_option" ] && numi_take_next=1
     done
     return 1
 }
@@ -104,9 +124,23 @@ if ! numi_has_option --policy-pack "$@"; then
         set -- --initialize-policy unitree_g1_native_locomotion "$@"
 fi
 numi_has_option --updated-policy-pack "$@" ||
-    set -- --updated-policy-pack "$numi_run/policy.policypack" "$@"
-numi_has_option --deployment-policy-pack "$@" ||
-    set -- --deployment-policy-pack "$numi_run/deployment.policypack" "$@"
+    set -- --updated-policy-pack "$numi_run/candidate.policypack" "$@"
+numi_requested_deployment=$(
+    numi_option_value --deployment-policy-pack "$@" || true
+)
+numi_protected_deployment=${numi_requested_deployment:-$numi_run/deployment.policypack}
+numi_candidate_deployment=$numi_run/candidate.deployment.policypack
+numi_incumbent_deployment=$numi_run/incumbent.deployment.policypack
+[ "$numi_protected_deployment" != "$numi_candidate_deployment" ] &&
+[ "$numi_protected_deployment" != "$numi_incumbent_deployment" ] || {
+    printf 'numi train: protected deployment path collides with a reserved selection artifact\n' >&2
+    exit 2
+}
+# These are appended deliberately: the native parser's last value wins, so an
+# explicitly requested deployment path is protected from learner writes too.
+set -- "$@" \
+    --deployment-policy-pack "$numi_candidate_deployment" \
+    --incumbent-policy-pack "$numi_incumbent_deployment"
 numi_has_option --rollout-pack "$@" ||
     set -- --rollout-pack "$numi_run/rollout.rolloutpack" "$@"
 numi_has_option --learner-state "$@" ||
@@ -144,8 +178,42 @@ trap - EXIT
 if [ "$numi_status" -eq 0 ] && [ -s "$numi_run/stdout.log" ]; then
     cp "$numi_run/stdout.log" "$numi_run/evidence.json"
 fi
+if [ "$numi_status" -eq 0 ]; then
+    if [ -x "$numi_build/bin/metalrobo_task_rollout" ]; then
+        numi_evaluator=$numi_build/bin/metalrobo_task_rollout
+    else
+        numi_evaluator=$numi_root/bin/metalrobo_task_rollout
+    fi
+    [ -x "$numi_evaluator" ] || {
+        printf 'numi train: missing evaluator %s; deployment remains unselected\n' \
+            "$numi_evaluator" >&2
+        numi_status=1
+    }
+fi
+if [ "$numi_status" -eq 0 ]; then
+    printf 'numi train: matched incumbent/candidate selection\n' >&2
+    numi_training_steps=$(numi_option_value --steps "$@" || printf '1\n')
+    numi_selection_steps=$(
+        "$numi_python" -c \
+            'import json,sys; evidence=json.load(open(sys.argv[1])); print(int(evidence.get("maximum_episode_steps", sys.argv[2])))' \
+            "$numi_run/evidence.json" "$numi_training_steps"
+    )
+    "$numi_python" "$numi_python_root/metalrobo/policy_selection.py" \
+        --evaluator "$numi_evaluator" \
+        --metallib "$numi_metallib" \
+        --incumbent "$numi_incumbent_deployment" \
+        --candidate "$numi_candidate_deployment" \
+        --deployment "$numi_protected_deployment" \
+        --evidence-directory "$numi_run/selection" \
+        --maximum-environments "${NUMI_SELECTION_ENVS:-256}" \
+        --held-out-seed "${NUMI_SELECTION_SEED:-2650443581}" \
+        --evaluation-steps "$numi_selection_steps" \
+        -- "$@" > "$numi_run/selection.log"
+    numi_status=$?
+    cat "$numi_run/selection.log"
+fi
 if command -v shasum >/dev/null 2>&1; then
-    find "$numi_run" -maxdepth 1 -type f ! -name artifacts.sha256 \
+    find "$numi_run" -type f ! -name artifacts.sha256 \
         -exec shasum -a 256 {} \; > "$numi_run/artifacts.sha256"
 fi
 exit "$numi_status"

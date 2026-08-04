@@ -25,6 +25,41 @@ _CONTACT_FEATURE_COUNT = 13
 _CONTACT_MODE_FREE = 0
 _CONTACT_MODE_STICK = 2
 _SAMPLE_PREDICTED = 1
+
+
+def foot_contact_contract(
+    foot_contacts: np.ndarray,
+    foot_contact_scores: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Preserve ARDY's four contact probabilities as two foot intents."""
+
+    contacts = np.asarray(foot_contacts, dtype=np.uint8)
+    scores = np.asarray(foot_contact_scores, dtype=np.float32)
+    if (
+        contacts.ndim != 2
+        or contacts.shape[1] != 4
+        or scores.shape != contacts.shape
+        or not np.isfinite(scores).all()
+        or not np.array_equal(contacts != 0, scores > 0.5)
+    ):
+        raise ValueError(
+            "ARDY foot contacts and scores must be finite, aligned [frames, 4] arrays"
+        )
+    contact_by_foot = np.stack(
+        (np.any(contacts[:, :2], axis=1), np.any(contacts[:, 2:], axis=1)),
+        axis=1,
+    )
+    modes = np.where(
+        contact_by_foot, _CONTACT_MODE_STICK, _CONTACT_MODE_FREE
+    ).astype(np.uint32)
+    probabilities = np.stack(
+        (np.max(scores[:, :2], axis=1), np.max(scores[:, 2:], axis=1)),
+        axis=1,
+    )
+    confidence = np.clip(
+        2.0 * np.abs(probabilities - 0.5), 0.0, 1.0
+    ).astype(np.float32)
+    return modes, confidence
 _FNV_OFFSET = 14695981039346656037
 _FNV_PRIME = 1099511628211
 
@@ -273,8 +308,8 @@ def write_interaction_pack(
         raise ValueError("root target quaternions must be normalized")
     if modes.shape != (frame_count, len(tracks)):
         raise ValueError("contact modes must have shape [frames, tracks]")
-    if not tracks or len({track[0] for track in tracks}) != len(tracks):
-        raise ValueError("contact tracks must be nonempty and uniquely named")
+    if len({track[0] for track in tracks}) != len(tracks):
+        raise ValueError("contact tracks must be uniquely named")
     if any(not all(field.strip() for field in track) for track in tracks):
         raise ValueError("contact track identities must be nonempty")
     if np.any(modes > 5):
@@ -472,6 +507,8 @@ def write_retarget_interaction_pack(
     source_repository: str,
     source_revision: str,
     pack_id: str,
+    foot_contacts: np.ndarray | None = None,
+    foot_contact_scores: np.ndarray | None = None,
     clip_id: str = "ardy-g1",
     counterpart: str = "locomotion_ground",
 ) -> tuple[Path, int]:
@@ -480,6 +517,22 @@ def write_retarget_interaction_pack(
     if joints.ndim != 2:
         raise ValueError("retargeted joint intent must be frame-major")
     frame_count = joints.shape[0]
+    if (foot_contacts is None) != (foot_contact_scores is None):
+        raise ValueError(
+            "retargeted contact intent requires both contacts and scores"
+        )
+    if foot_contacts is None:
+        tracks: tuple[tuple[str, str, str], ...] = ()
+        modes = np.empty((frame_count, 0), dtype=np.uint32)
+        confidence = np.empty((frame_count, 0), dtype=np.float32)
+    else:
+        tracks = (
+            ("left_foot", "left_foot_contact", counterpart),
+            ("right_foot", "right_foot_contact", counterpart),
+        )
+        modes, confidence = foot_contact_contract(
+            foot_contacts, foot_contact_scores
+        )
     return write_interaction_pack(
         output=output,
         pack_id=pack_id,
@@ -491,14 +544,9 @@ def write_retarget_interaction_pack(
         frames_per_second=frames_per_second,
         root_targets=root_targets,
         joint_targets=joints,
-        tracks=(
-            ("left_foot", "left_foot_contact", counterpart),
-            ("right_foot", "right_foot_contact", counterpart),
-        ),
-        contact_modes=np.full(
-            (frame_count, 2), _CONTACT_MODE_FREE, dtype=np.uint32
-        ),
-        contact_confidence=np.zeros((frame_count, 2), dtype=np.float32),
+        tracks=tracks,
+        contact_modes=modes,
+        contact_confidence=confidence,
     )
 
 
@@ -528,7 +576,8 @@ def convert(arguments: argparse.Namespace) -> None:
     ).astype("<u4")
     confidence = np.full(
         (frame_count, 2),
-        arguments.contact_confidence,
+        0.0 if arguments.contact_confidence is None
+        else arguments.contact_confidence,
         dtype=np.float32,
     )
 
@@ -578,11 +627,14 @@ def main() -> None:
     parser.add_argument("--left-contact-group", default="left_foot_contact")
     parser.add_argument("--right-contact-group", default="right_foot_contact")
     parser.add_argument("--counterpart", default="locomotion_ground")
-    parser.add_argument("--contact-confidence", type=float, default=0.5)
+    parser.add_argument("--contact-confidence", type=float)
     parser.add_argument("--joint-limit-margin", type=float, default=1.0e-4)
     parser.add_argument("--loop", action="store_true")
     arguments = parser.parse_args()
-    if not 0.0 <= arguments.contact_confidence <= 1.0:
+    if (
+        arguments.contact_confidence is not None
+        and not 0.0 <= arguments.contact_confidence <= 1.0
+    ):
         parser.error("--contact-confidence must be in [0, 1]")
     if arguments.joint_limit_margin < 0.0:
         parser.error("--joint-limit-margin must be nonnegative")

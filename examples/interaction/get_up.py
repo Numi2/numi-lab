@@ -27,6 +27,9 @@ FREE = 0
 APPROACH = 1
 STICK = 2
 RELEASE = 5
+ROOT_CENTER_OF_MASS_LOCAL = np.asarray(
+    (0.0, 0.0, -0.076030060304), dtype=np.float32
+)
 
 CONTACT_TRACKS = (
     ("left_foot", "left_foot_contact", "locomotion_ground"),
@@ -94,6 +97,21 @@ HALF_STAND[14] = 0.10
 HALF_STAND[15:19] = (-0.35, 0.25, 0.0, 0.55)
 HALF_STAND[22:26] = (-0.35, -0.25, 0.0, 0.55)
 
+# Squat motion is authored as a displacement around the mechanism's nominal
+# stance. The standing policy then contributes its complete learned residual,
+# including the calibrated ankle bias, without double-counting that bias in
+# the ARDY reference.
+SQUAT_STANCE = STANDING.copy()
+SQUAT_STANCE[4] = -0.20
+SQUAT_STANCE[10] = -0.20
+
+# A deliberately shallow, quasi-static squat for the first cyclic skill. It
+# preserves bilateral foot support and asks the existing balance policy to
+# solve only a small center-of-mass excursion before depth is increased.
+SHALLOW_SQUAT = SQUAT_STANCE.copy()
+SHALLOW_SQUAT[0:6] = (-0.20, 0.0, 0.0, 0.48, -0.28, 0.0)
+SHALLOW_SQUAT[6:12] = (-0.20, 0.0, 0.0, 0.48, -0.28, 0.0)
+
 
 def _normalized(quaternion: np.ndarray) -> np.ndarray:
     return quaternion / np.linalg.norm(quaternion)
@@ -118,6 +136,23 @@ def _slerp(left: np.ndarray, right: np.ndarray, amount: float) -> np.ndarray:
 def _smooth(amount: float) -> float:
     clipped = float(np.clip(amount, 0.0, 1.0))
     return clipped * clipped * (3.0 - 2.0 * clipped)
+
+
+def _solver_roots_to_link(roots: np.ndarray) -> np.ndarray:
+    """Convert solver COM poses to InteractionPack root-link poses."""
+
+    result = np.asarray(roots, dtype=np.float32).copy()
+    quaternion = result[:, 3:7]
+    vector = np.repeat(
+        ROOT_CENTER_OF_MASS_LOCAL[None, :], result.shape[0], axis=0
+    )
+    first_cross = np.cross(quaternion[:, :3], vector)
+    rotated = vector + 2.0 * (
+        quaternion[:, 3:4] * first_cross
+        + np.cross(quaternion[:, :3], first_cross)
+    )
+    result[:, :3] -= rotated
+    return result
 
 
 def _interpolate_keyframes(
@@ -179,7 +214,7 @@ def _root_targets() -> np.ndarray:
                 orientations[segment + 1],
                 blend,
             )
-    return roots
+    return _solver_roots_to_link(roots)
 
 
 def author(
@@ -333,7 +368,9 @@ def author_solver_state(
         raise ValueError("solver state root quaternion is not normalized")
 
     output_directory.mkdir(parents=True, exist_ok=True)
-    root_targets = np.repeat(state[:7][None, :], episode_frames, axis=0)
+    root_targets = _solver_roots_to_link(
+        np.repeat(state[:7][None, :], episode_frames, axis=0)
+    )
     joint_targets = np.repeat(
         state[7:][None, :],
         episode_frames,
@@ -422,6 +459,7 @@ def author_solver_state_to_stand(
             - state[:3]
         )
         root_targets[frame, 3:] = _slerp(state[3:7], identity_q, blend)
+    root_targets = _solver_roots_to_link(root_targets)
     modes = np.full(
         (episode_frames, len(CONTACT_TRACKS)), FREE, dtype=np.uint32
     )
@@ -452,6 +490,93 @@ def author_solver_state_to_stand(
         "content_hash": content_hash,
     }, indent=2))
     return target, identity, episode_frames
+
+
+def author_squat_cycles(
+    output_directory: Path,
+    cycle_count: int,
+) -> tuple[Path, str, int]:
+    """Author slow bilateral shallow-squat cycles from nominal stance."""
+
+    if cycle_count <= 0:
+        raise ValueError("squat cycle count must be positive")
+    # Keep the first motor primitive short: 0.9 s down, 0.1 s settle,
+    # 0.9 s up, 0.1 s settle. ARDY owns the smooth motion while the imported
+    # standing controller spends its authority on balance rather than waiting
+    # through a long static prelude.
+    hold_frames = 5
+    move_frames = 45
+    keyframes = [0]
+    poses = [SQUAT_STANCE]
+    heights = [0.72396994]
+    frame = hold_frames
+    keyframes.append(frame)
+    poses.append(SQUAT_STANCE)
+    heights.append(0.72396994)
+    for _ in range(cycle_count):
+        frame += move_frames
+        keyframes.append(frame)
+        poses.append(SHALLOW_SQUAT)
+        heights.append(0.68)
+        frame += hold_frames
+        keyframes.append(frame)
+        poses.append(SHALLOW_SQUAT)
+        heights.append(0.68)
+        frame += move_frames
+        keyframes.append(frame)
+        poses.append(SQUAT_STANCE)
+        heights.append(0.72396994)
+        frame += hold_frames
+        keyframes.append(frame)
+        poses.append(SQUAT_STANCE)
+        heights.append(0.72396994)
+
+    joint_targets = _interpolate_keyframes(
+        tuple(keyframes),
+        tuple(poses),
+    )
+    root_targets = np.empty((frame + 1, 7), dtype=np.float32)
+    root_targets[:, :2] = 0.0
+    root_targets[:, 3:] = np.asarray(
+        (0.0, 0.0, 0.0, 1.0), dtype=np.float32
+    )
+    root_targets[:, 2] = _interpolate_keyframes(
+        tuple(keyframes),
+        tuple(np.asarray((height,), dtype=np.float32) for height in heights),
+    )[:, 0]
+    root_targets = _solver_roots_to_link(root_targets)
+    tracks = CONTACT_TRACKS[:2]
+    modes = np.full(
+        (frame + 1, len(tracks)), STICK, dtype=np.uint32
+    )
+    confidence = np.full(modes.shape, 0.35, dtype=np.float32)
+    confidence[:, :] = 0.90
+    identity = f"standing-shallow-squat-cycles-{cycle_count:02d}"
+    output_directory.mkdir(parents=True, exist_ok=True)
+    target, content_hash = write_interaction_pack(
+        output=output_directory / f"{identity}.interactionpack",
+        pack_id=identity,
+        clip_id=identity,
+        desired_outcome=(
+            "lower into a bilateral shallow squat and return to quiet stance"
+        ),
+        source_repository="MetalRobo/examples/interaction",
+        source_revision="shallow-squat-cycle-v2",
+        license_name="Apache-2.0",
+        frames_per_second=FPS,
+        root_targets=root_targets,
+        joint_targets=joint_targets,
+        tracks=tracks,
+        contact_modes=modes,
+        contact_confidence=confidence,
+    )
+    print(json.dumps({
+        "pack": str(target),
+        "frames": frame + 1,
+        "squat_cycles": cycle_count,
+        "content_hash": content_hash,
+    }, indent=2))
+    return target, identity, frame + 1
 
 
 def execute(
@@ -505,6 +630,7 @@ def main() -> None:
     parser.add_argument("--start-frame", type=int, default=0)
     parser.add_argument("--hold-frames", type=int, default=0)
     parser.add_argument("--episode-frames", type=int)
+    parser.add_argument("--squat-cycles", type=int, default=0)
     parser.add_argument("--solver-state-trace", type=Path)
     parser.add_argument("--solver-state-step", type=int)
     parser.add_argument(
@@ -519,7 +645,18 @@ def main() -> None:
         parser.error(
             "--solver-state-trace and --solver-state-step are required together"
         )
-    if arguments.solver_state_trace is not None:
+    if arguments.squat_cycles:
+        if (arguments.solver_state_trace is not None or
+                arguments.start_frame != 0 or arguments.hold_frames or
+                arguments.episode_frames is not None):
+            parser.error(
+                "--squat-cycles cannot combine with recovery authoring options"
+            )
+        pack, clip_id, frame_count = author_squat_cycles(
+            arguments.output_directory.resolve(),
+            arguments.squat_cycles,
+        )
+    elif arguments.solver_state_trace is not None:
         if arguments.episode_frames is None:
             parser.error("solver-state authoring requires --episode-frames")
         if arguments.start_frame != 0 or arguments.hold_frames:

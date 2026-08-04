@@ -16,13 +16,12 @@ from scipy.optimize import Bounds, LinearConstraint, minimize
 from scipy.spatial.transform import Rotation
 
 from .ardy_interaction_convert import (
-    _CONTACT_MODE_FREE,
-    _CONTACT_MODE_STICK,
     _G1_JOINT_LOWER,
     _G1_JOINTS,
     _G1_JOINT_UPPER,
     _G1_JOINT_VELOCITY,
     _metalrobo_targets,
+    foot_contact_contract,
     write_interaction_pack,
 )
 from .g1_motion_retarget import G1Kinematics
@@ -254,14 +253,19 @@ def native_g1_mechanism(
         root_positions = np.asarray(archive["root_positions"], dtype=np.float64)
         rotations = np.asarray(archive["global_rotations_6d"], dtype=np.float64)
         contacts = np.asarray(archive["foot_contacts"], dtype=np.uint8)
+        contact_scores = np.asarray(
+            archive["foot_contact_scores"], dtype=np.float32
+        )
     frame_count = int(source["frame_count"])
     fps = float(source["fps"])
     if (
         root_positions.shape != (frame_count, 3)
         or rotations.shape != (frame_count, 34, 6)
         or contacts.shape != (frame_count, 4)
+        or contact_scores.shape != (frame_count, 4)
         or not np.isfinite(root_positions).all()
         or not np.isfinite(rotations).all()
+        or not np.isfinite(contact_scores).all()
     ):
         raise ValueError("ARDY-G1 proposal arrays do not match the model contract")
 
@@ -295,7 +299,7 @@ def native_g1_mechanism(
         "ardy_joint_positions": raw_joint_targets,
         "joint_positions": joint_targets,
         "foot_contacts": contacts,
-        "phase_ids": np.zeros(frame_count, dtype=np.uint8),
+        "foot_contact_scores": contact_scores,
         "link_names": np.asarray(model.links, dtype=np.str_),
         "link_position_quaternion_xyzw": link_transforms.astype(np.float32),
     }
@@ -338,14 +342,9 @@ def write_native_g1_interaction_pack(
     desired_outcome: str,
     clip_id: str = "ardy-g1",
 ) -> tuple[Path, int]:
-    contacts = np.asarray(arrays["foot_contacts"], dtype=np.uint8)
-    contact_by_foot = np.stack(
-        (np.any(contacts[:, :2], axis=1), np.any(contacts[:, 2:], axis=1)),
-        axis=1,
+    modes, contact_confidence = foot_contact_contract(
+        arrays["foot_contacts"], arrays["foot_contact_scores"]
     )
-    modes = np.where(
-        contact_by_foot, _CONTACT_MODE_STICK, _CONTACT_MODE_FREE
-    ).astype(np.uint32)
     source = evidence["source_motion"]
     return write_interaction_pack(
         output=output,
@@ -363,5 +362,5 @@ def write_native_g1_interaction_pack(
             ("right_foot", "right_foot_contact", "locomotion_ground"),
         ),
         contact_modes=modes,
-        contact_confidence=np.full(modes.shape, 0.5, dtype=np.float32),
+        contact_confidence=contact_confidence,
     )

@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 31u
+#define MR_TASK_PROGRAM_ABI_VERSION 32u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
@@ -100,6 +100,11 @@ enum MRTaskObservationOpcode : mr_u32 {
     // Per-feature validity for the compact interaction contact target. This
     // keeps an unknown generated field distinct from a valid zero target.
     MR_TASK_OBSERVE_INTERACTION_CONTACT_VALIDITY = 24u,
+    // Root-link tracking state for generated motion: root-local position
+    // error xyz, orientation error axis-angle xyz, linear-velocity error xyz,
+    // and angular-velocity error xyz. This exposes the physical tracking
+    // problem to an action policy without granting root actuation.
+    MR_TASK_OBSERVE_INTERACTION_ROOT_TRACKING_ERROR = 25u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -366,6 +371,10 @@ typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
     mr_uint4 indices;
     // normalized scale, lower target, upper target, response time seconds.
     mr_float4 parameters;
+    // Authored drive stiffness, damping, reserved, reserved. Interaction
+    // playback uses these values to preserve the reference joint velocity
+    // through the implicit position-drive target without bypassing physics.
+    mr_float4 drive;
 } MRTaskActionBindingGPU;
 
 typedef struct MR_ALIGN16 MRTaskObservationOperatorGPU {
@@ -528,7 +537,7 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 112u);
 static_assert(sizeof(MRTaskProgramHeaderGPU) == 560u);
-static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
+static_assert(sizeof(MRTaskActionBindingGPU) == 48u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 112u);
 static_assert(sizeof(MRTaskIndexGroupGPU) == 16u);

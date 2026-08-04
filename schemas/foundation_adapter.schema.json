@@ -17,6 +17,13 @@
         "root_archive_key": { "type": "string", "minLength": 1 },
         "root_q_offset": { "type": "integer", "minimum": 0 },
         "root_q_count": { "const": 7 },
+        "root_frame": { "const": "center_of_mass" },
+        "root_center_of_mass_local_xyz": {
+          "type": "array",
+          "prefixItems": [{ "type": "number" }, { "type": "number" }, { "type": "number" }],
+          "minItems": 3,
+          "maxItems": 3
+        },
         "joint_q_offset": { "type": "integer", "minimum": 0 },
         "state_groups": {
           "type": "array", "minItems": 1,
@@ -48,7 +55,7 @@
       "required": ["contact_tracks"],
       "properties": {
         "contact_tracks": {
-          "type": "array", "minItems": 1,
+          "type": "array",
           "items": {
             "type": "object",
             "required": ["id", "task_contact_group", "counterpart", "mode", "confidence"],

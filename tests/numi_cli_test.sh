@@ -25,11 +25,35 @@ printf '%s\n' '#!/bin/sh' \
     > "$numi_temp/extra/custom"
 chmod +x "$numi_temp/extra/custom"
 
-printf '%s\n' '#!/bin/sh' 'printf "fake-train\n"' \
+printf '%s\n' '#!/bin/sh' \
+    'incumbent=' \
+    'candidate=' \
+    'take=' \
+    'for argument do' \
+    '  if [ "$take" = incumbent ]; then incumbent=$argument; take=; continue; fi' \
+    '  if [ "$take" = candidate ]; then candidate=$argument; take=; continue; fi' \
+    '  [ "$argument" = --incumbent-policy-pack ] && take=incumbent' \
+    '  [ "$argument" = --deployment-policy-pack ] && take=candidate' \
+    'done' \
+    'mkdir -p "$(dirname "$incumbent")"' \
+    'printf "incumbent\n" > "$incumbent"' \
+    'printf "candidate\n" > "$candidate"' \
+    'printf "{\"status\":\"trained\"}\n"' \
     > "$numi_temp/fake-build/bin/metalrobo_task_train"
 chmod +x "$numi_temp/fake-build/bin/metalrobo_task_train"
 
-printf '%s\n' '#!/bin/sh' 'printf "fake-evaluate\n"' \
+printf '%s\n' '#!/bin/sh' \
+    'policy=' \
+    'take=0' \
+    'for argument do' \
+    '  if [ "$take" -eq 1 ]; then policy=$argument; take=0; continue; fi' \
+    '  [ "$argument" = --policy-pack ] && take=1' \
+    'done' \
+    'case "$policy" in' \
+    '  *candidate*) printf "{\"task\":\"velocity\",\"termination_count\":0,\"termination_count_by_environment\":[0],\"failed_environment_steps\":0,\"mean_tracking_score\":0.5,\"mean_tilt\":0.1}\n" ;;' \
+    '  *incumbent*) printf "{\"task\":\"velocity\",\"termination_count\":1,\"termination_count_by_environment\":[1],\"failed_environment_steps\":0,\"mean_tracking_score\":0.4,\"mean_tilt\":0.2}\n" ;;' \
+    '  *) printf "fake-evaluate\n" ;;' \
+    'esac' \
     > "$numi_temp/fake-build/bin/metalrobo_task_rollout"
 chmod +x "$numi_temp/fake-build/bin/metalrobo_task_rollout"
 printf 'fake native library\n' > "$numi_temp/fake-build/lib/libmetalrobo.dylib"
@@ -83,7 +107,8 @@ numi_train_output=$(
             --interaction-clip sample-clip \
             --updates 1
 )
-[ "$numi_train_output" = "fake-train" ]
+printf '%s\n' "$numi_train_output" | grep '"status":"trained"' >/dev/null
+printf '%s\n' "$numi_train_output" | grep '"selected": "candidate"' >/dev/null
 grep -- '--initialize-policy' "$numi_train_run/arguments.txt" >/dev/null
 grep -- '--updated-policy-pack' "$numi_train_run/arguments.txt" >/dev/null
 grep -- '--mlx-python' "$numi_train_run/arguments.txt" >/dev/null
@@ -92,6 +117,15 @@ grep -- 'sample-clip' "$numi_train_run/arguments.txt" >/dev/null
 test -s "$numi_train_run/revision.txt"
 test -s "$numi_train_run/runtime.sha256"
 test -s "$numi_train_run/artifacts.sha256"
+test -s "$numi_train_run/candidate.deployment.policypack"
+test -s "$numi_train_run/incumbent.deployment.policypack"
+test -s "$numi_train_run/deployment.policypack"
+cmp "$numi_train_run/candidate.deployment.policypack" \
+    "$numi_train_run/deployment.policypack"
+test -s "$numi_train_run/selection/incumbent.evidence.json"
+test -s "$numi_train_run/selection/candidate.evidence.json"
+grep '"candidate_retained": true' \
+    "$numi_train_run/selection/selection.json" >/dev/null
 
 numi_evaluate_run=$numi_temp/runs/evaluate
 numi_evaluate_output=$(

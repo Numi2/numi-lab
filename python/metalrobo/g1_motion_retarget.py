@@ -23,6 +23,7 @@ from .ardy_interaction_convert import (
 
 G1_RETARGET_FORMAT = "numi.motion-retarget.v1"
 G1_SOURCE_REVISION = "aa0f5c68b5aba347bad409e71b6430407da758d7"
+G1_DEFAULT_ROOT_LINK_HEIGHT = 0.8
 G1_RESET_Q = np.asarray(
     (
         -0.1, 0.0, 0.0, 0.3, -0.2, 0.0,
@@ -336,6 +337,16 @@ def retarget_g1(
     with np.load(proposal_directory / "motion_proposal.npz") as archive:
         source, source_rotations = _source_joints(archive)
         root_positions = np.asarray(archive["root_positions"], dtype=np.float64)
+        foot_contacts = np.asarray(archive["foot_contacts"], dtype=np.uint8)
+        foot_contact_scores = np.asarray(
+            archive["foot_contact_scores"], dtype=np.float32
+        )
+    if (
+        foot_contacts.shape != (source.shape[0], 4)
+        or foot_contact_scores.shape != foot_contacts.shape
+        or not np.isfinite(foot_contact_scores).all()
+    ):
+        raise ValueError("ARDY contact intent does not match the motion horizon")
 
     model = G1Kinematics.from_urdf(urdf_path)
     rest = model.forward(G1_RESET_Q)
@@ -499,7 +510,10 @@ def retarget_g1(
     root_world = np.empty((source.shape[0], 7), dtype=np.float64)
     root_world[:, 0] = root_positions[:, 2] - source_origin[2]
     root_world[:, 1] = root_positions[:, 0] - source_origin[0]
-    root_world[:, 2] = 0.793 + (root_positions[:, 1] - source_origin[1])
+    root_world[:, 2] = (
+        G1_DEFAULT_ROOT_LINK_HEIGHT +
+        (root_positions[:, 1] - source_origin[1])
+    )
     ardy_to_g1 = np.asarray(
         ((0.0, 0.0, 1.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0)),
         dtype=np.float64,
@@ -517,7 +531,6 @@ def retarget_g1(
     # retained verbatim in time. Gravity, free flight, impact, support, and
     # recovery become outcomes only when these joint targets are executed by
     # the native InteractionPack/NumiSolver path.
-    phase_ids = np.zeros(q_frames.shape[0], dtype=np.uint8)
     completion_evidence: dict[str, Any] = {
         "applied": False,
         "reason": "motion providers and retargeters cannot author dynamics",
@@ -563,8 +576,9 @@ def retarget_g1(
     arrays = {
         "root_position_quaternion_xyzw": root_world.astype(np.float32),
         "joint_positions": q_frames.astype(np.float32),
+        "foot_contacts": foot_contacts,
+        "foot_contact_scores": foot_contact_scores,
         "endpoint_errors_m": endpoint_errors.astype(np.float32),
-        "phase_ids": phase_ids,
         "link_names": np.asarray(model.links, dtype=np.str_),
         "link_position_quaternion_xyzw": link_transforms.astype(np.float32),
     }

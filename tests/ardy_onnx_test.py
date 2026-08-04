@@ -10,6 +10,7 @@ from metalrobo.ardy_onnx import (
     ARDYMotionResult,
     _cosine_diffusion,
     _output_parity,
+    _physical_tracking_outcome,
     _provider_attempts,
     _validate_contract,
 )
@@ -70,6 +71,25 @@ class ARDYONNXTest(unittest.TestCase):
         wrong = reference + np.asarray((0.0, 0.0, 0.1), dtype=np.float32)
         self.assertTrue(_output_parity((close,), (reference,))["passed"])
         self.assertFalse(_output_parity((wrong,), (reference,))["passed"])
+
+    def test_physical_tracking_reports_progress_without_gating(self) -> None:
+        reference = {
+            "root_position_quaternion_xyzw": np.asarray(
+                ((0, 0, 1, 0, 0, 0, 1), (1, 0, 1, 0, 0, 0, 1)),
+                dtype=np.float32,
+            ),
+            "joint_positions": np.zeros((2, 2), dtype=np.float32),
+        }
+        solver = {
+            "root_position_quaternion_xyzw": np.asarray(
+                ((0.25, 0, 1, 0, 0, 0, 1), (0.5, 0, 1, 0, 0, 0, 1)),
+                dtype=np.float32,
+            ),
+            "joint_positions": np.zeros((2, 2), dtype=np.float32),
+        }
+        outcome = _physical_tracking_outcome(reference, solver, 1.0, 2.0)
+        self.assertEqual(outcome["projected_progress_ratio"], 0.25)
+        self.assertIn("not a promotion", outcome["semantics"])
 
 
 if __name__ == "__main__":

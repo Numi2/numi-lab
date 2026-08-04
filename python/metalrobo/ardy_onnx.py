@@ -86,6 +86,56 @@ def _array_fingerprint(arrays: Mapping[str, np.ndarray]) -> str:
     return digest.hexdigest()
 
 
+def _physical_tracking_outcome(
+    reference: Mapping[str, np.ndarray],
+    solver: Mapping[str, np.ndarray],
+    reference_fps: float,
+    solver_fps: float,
+) -> dict[str, Any]:
+    """Measure physical execution against motion intent without gating it."""
+
+    reference_root = np.asarray(
+        reference["root_position_quaternion_xyzw"], dtype=np.float64
+    )
+    solver_root = np.asarray(
+        solver["root_position_quaternion_xyzw"], dtype=np.float64
+    )
+    reference_joints = np.asarray(reference["joint_positions"], dtype=np.float64)
+    solver_joints = np.asarray(solver["joint_positions"], dtype=np.float64)
+    solver_time = (np.arange(solver_root.shape[0], dtype=np.float64) + 1.0) / solver_fps
+    reference_time = np.arange(reference_root.shape[0], dtype=np.float64) / reference_fps
+    sample_time = np.minimum(solver_time, reference_time[-1])
+    sampled_root_position = np.column_stack(
+        [np.interp(sample_time, reference_time, reference_root[:, axis]) for axis in range(3)]
+    )
+    sampled_joints = np.column_stack(
+        [np.interp(sample_time, reference_time, reference_joints[:, axis]) for axis in range(reference_joints.shape[1])]
+    )
+    position_error = solver_root[:, :3] - sampled_root_position
+    joint_error = solver_joints - sampled_joints
+    intended_displacement = reference_root[-1, :3] - reference_root[0, :3]
+    achieved_displacement = solver_root[-1, :3] - solver_root[0, :3]
+    intended_distance = float(np.linalg.norm(intended_displacement))
+    if intended_distance > 1.0e-8:
+        direction = intended_displacement / intended_distance
+        projected_progress = float(np.dot(achieved_displacement, direction))
+        progress_ratio: float | None = projected_progress / intended_distance
+    else:
+        projected_progress = 0.0
+        progress_ratio = None
+    return {
+        "semantics": "measurement only; not a promotion or rejection gate",
+        "reference_root_displacement_xyz_m": intended_displacement.tolist(),
+        "solver_root_displacement_xyz_m": achieved_displacement.tolist(),
+        "projected_progress_m": projected_progress,
+        "projected_progress_ratio": progress_ratio,
+        "root_position_rmse_m": float(np.sqrt(np.mean(np.square(position_error)))),
+        "root_position_final_error_m": float(np.linalg.norm(position_error[-1])),
+        "joint_position_rmse_rad": float(np.sqrt(np.mean(np.square(joint_error)))),
+        "joint_position_final_rmse_rad": float(np.sqrt(np.mean(np.square(joint_error[-1])))),
+    }
+
+
 def _model_spec(contract: Mapping[str, Any]) -> Mapping[str, Any]:
     model = contract.get("model")
     if model not in _ARDY_MODEL_SPECS:
@@ -943,6 +993,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "ardy-core-g1-"
                     + retarget_evidence["source_motion"]["arrays_fingerprint"][:16]
                 ),
+                foot_contacts=arrays["foot_contacts"],
+                foot_contact_scores=arrays["foot_contact_scores"],
             )
         numi = numi_root / "tools" / "numi"
         if not os.access(numi, os.X_OK):
@@ -989,6 +1041,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         solver_arrays, solver_evidence = solver_trace_to_g1(
             state_trace, g1_urdf
+        )
+        physical_tracking = _physical_tracking_outcome(
+            arrays,
+            solver_arrays,
+            float(retarget_evidence["fps"]),
+            float(solver_evidence["fps"]),
         )
         write_retarget(
             solver_motion_directory, solver_arrays, solver_evidence
@@ -1103,6 +1161,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "mean_tracking_score": physical_report[
                     "mean_tracking_score"
                 ],
+                "clean_horizon_semantics": (
+                    "solver transactions completed without an authored "
+                    "termination; this is not motion-success evidence"
+                ),
+                "reference_tracking_outcome": physical_tracking,
             },
             "solver_motion": str(
                 solver_motion_directory / "evidence.json"

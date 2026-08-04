@@ -179,6 +179,7 @@ private struct Options {
     var interactionResetOnly = false
     var interactionStudentAuthority: Float?
     var stateTrace: String?
+    var stateTraceEnvironment = 0
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
@@ -361,6 +362,9 @@ private struct Options {
             case "--state-trace":
                 stateTrace = try value()
                 index += 1
+            case "--state-trace-environment":
+                stateTraceEnvironment = try Self.integer(value(), option)
+                index += 1
             case "--g1-visual-pack-dir":
                 g1VisualPackDirectory = try value()
                 index += 1
@@ -488,10 +492,20 @@ private struct Options {
                 "--srdf requires --urdf."
             )
         }
-        if stateTrace != nil &&
-            (environments != 1 || repeats != 1 || chunk != 1) {
+        if stateTrace != nil && (repeats != 1 || chunk != 1) {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--state-trace requires --envs 1 --repeats 1 --chunk 1."
+                "--state-trace requires --repeats 1 --chunk 1."
+            )
+        }
+        if stateTrace == nil && stateTraceEnvironment != 0 {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--state-trace-environment requires --state-trace."
+            )
+        }
+        if stateTraceEnvironment < 0 ||
+            stateTraceEnvironment >= environments {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--state-trace-environment must select an active environment."
             )
         }
         if g1VisualPackDirectory == nil && ballVisualPackDirectory != nil {
@@ -1089,6 +1103,50 @@ private enum TaskRolloutMain {
             var dodgeCBFBufferRewardSum = 0.0
             var dodgePredictedClearanceRewardSum = 0.0
             var terminationReasonCounts: [String: Int] = [:]
+            var terminationCountByEnvironment = [Int](
+                repeating: 0,
+                count: options.environments
+            )
+            var footSupportStepCountByEnvironment = [Int](
+                repeating: 0,
+                count: options.environments
+            )
+            var initialPelvisHeightByEnvironment = [Double](
+                repeating: .nan,
+                count: options.environments
+            )
+            var minimumPelvisHeightByEnvironment = [Double](
+                repeating: .infinity,
+                count: options.environments
+            )
+            var finalPelvisHeightByEnvironment = [Double](
+                repeating: .nan,
+                count: options.environments
+            )
+            var initialKneeFlexionByEnvironment = [Double](
+                repeating: .nan,
+                count: options.environments
+            )
+            var maximumLeftKneeFlexionByEnvironment = [Double](
+                repeating: -.infinity,
+                count: options.environments
+            )
+            var maximumRightKneeFlexionByEnvironment = [Double](
+                repeating: -.infinity,
+                count: options.environments
+            )
+            var finalKneeFlexionByEnvironment = [Double](
+                repeating: .nan,
+                count: options.environments
+            )
+            var tracedFootSupportStepCount = 0
+            var tracedInitialPelvisHeight: Double?
+            var tracedMinimumPelvisHeight = Double.infinity
+            var tracedFinalPelvisHeight: Double?
+            var tracedInitialKneeFlexion: Double?
+            var tracedMaximumLeftKneeFlexion = -Double.infinity
+            var tracedMaximumRightKneeFlexion = -Double.infinity
+            var tracedFinalKneeFlexion: Double?
             let impactSpheres =
                 options.unitreeG1Task == .ballDodge &&
                 options.dynamicSpheres.isEmpty
@@ -1097,6 +1155,10 @@ private enum TaskRolloutMain {
                 options.dynamicSpheres.isEmpty
                 ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
                 : options.dynamicSpheres
+            let supportsG1SquatEvidence =
+                options.stateTrace != nil &&
+                options.unitreeG1Task == .supineGetUpDiscovery &&
+                options.worldPack == nil && options.urdf == nil
             var impactTouches = [Int](
                 repeating: 0,
                 count: impactSpheres.count
@@ -1124,7 +1186,8 @@ private enum TaskRolloutMain {
                 stateTraceLines.append(
                     "# step nq=\(traceLayout.configurationCount) " +
                     "scene_bodies=\(traceLayout.sceneBodyCount) " +
-                    "scene_stride=13 timestep=0.02"
+                    "scene_stride=13 timestep=0.02 " +
+                    "environment=\(options.stateTraceEnvironment)"
                 )
             }
             let captureDirectory = options.captureDirectory.map {
@@ -1256,7 +1319,11 @@ private enum TaskRolloutMain {
                                 controlStepCount: stepCount
                             )
                     }
-                    for transition in observedTransitions {
+                    for (transitionIndex, transition) in
+                        observedTransitions.enumerated()
+                    {
+                        let transitionEnvironment =
+                            transitionIndex % options.environments
                         transitionCount += 1
                         let difficultyBand = transition.difficultyBand
                         transitionCountByDifficultyBand[
@@ -1328,6 +1395,13 @@ private enum TaskRolloutMain {
                         if transition.impactEventFlags &
                             (UInt32(1) << 27) != 0 {
                             footSupportStepCount += 1
+                            footSupportStepCountByEnvironment[
+                                transitionEnvironment
+                            ] += 1
+                            if transitionEnvironment ==
+                                options.stateTraceEnvironment {
+                                tracedFootSupportStepCount += 1
+                            }
                             recoveryPhaseCountsByDifficultyBand[
                                 difficultyBand,
                                 default: [:]
@@ -1430,6 +1504,9 @@ private enum TaskRolloutMain {
                         }
                         if transition.done {
                             terminationCount += 1
+                            terminationCountByEnvironment[
+                                transitionEnvironment
+                            ] += 1
                             let reason = String(
                                 transition.terminationReason
                             )
@@ -1458,9 +1535,115 @@ private enum TaskRolloutMain {
                     }
                     failedSteps += advance.failedEnvironmentSteps
                     if options.stateTrace != nil {
-                        let values =
-                            try context.finalConfiguration() +
-                            context.finalSceneStates()
+                        let traceLayout = context.layout
+                        let environment = options.stateTraceEnvironment
+                        let allConfigurations =
+                            try context.finalConfiguration()
+                        if supportsG1SquatEvidence &&
+                            traceLayout.configurationCount > 16 {
+                            for metricEnvironment in
+                                0..<options.environments
+                            {
+                                let metricBase = metricEnvironment *
+                                    traceLayout.configurationCount
+                                let pelvisHeight = Double(
+                                    allConfigurations[metricBase + 2]
+                                )
+                                let leftKnee = Double(
+                                    allConfigurations[metricBase + 10]
+                                )
+                                let rightKnee = Double(
+                                    allConfigurations[metricBase + 16]
+                                )
+                                let kneeFlexion =
+                                    0.5 * (leftKnee + rightKnee)
+                                if initialPelvisHeightByEnvironment[
+                                    metricEnvironment
+                                ].isNaN {
+                                    initialPelvisHeightByEnvironment[
+                                        metricEnvironment
+                                    ] = pelvisHeight
+                                    initialKneeFlexionByEnvironment[
+                                        metricEnvironment
+                                    ] = kneeFlexion
+                                }
+                                minimumPelvisHeightByEnvironment[
+                                    metricEnvironment
+                                ] = min(
+                                    minimumPelvisHeightByEnvironment[
+                                        metricEnvironment
+                                    ],
+                                    pelvisHeight
+                                )
+                                maximumLeftKneeFlexionByEnvironment[
+                                    metricEnvironment
+                                ] = max(
+                                    maximumLeftKneeFlexionByEnvironment[
+                                        metricEnvironment
+                                    ],
+                                    leftKnee
+                                )
+                                maximumRightKneeFlexionByEnvironment[
+                                    metricEnvironment
+                                ] = max(
+                                    maximumRightKneeFlexionByEnvironment[
+                                        metricEnvironment
+                                    ],
+                                    rightKnee
+                                )
+                                finalPelvisHeightByEnvironment[
+                                    metricEnvironment
+                                ] = pelvisHeight
+                                finalKneeFlexionByEnvironment[
+                                    metricEnvironment
+                                ] = kneeFlexion
+                            }
+                        }
+                        let qStart =
+                            environment * traceLayout.configurationCount
+                        let qEnd =
+                            qStart + traceLayout.configurationCount
+                        let configuration = Array(
+                            allConfigurations[qStart..<qEnd]
+                        )
+                        let allSceneStates =
+                            try context.finalSceneStates()
+                        let sceneStride =
+                            traceLayout.sceneBodyCount * 13
+                        let sceneStart = environment * sceneStride
+                        let sceneEnd = sceneStart + sceneStride
+                        let scene = Array(
+                            allSceneStates[sceneStart..<sceneEnd]
+                        )
+                        let values = configuration + scene
+                        if configuration.count > 16 {
+                            let pelvisHeight =
+                                Double(configuration[2])
+                            let leftKnee =
+                                Double(configuration[10])
+                            let rightKnee =
+                                Double(configuration[16])
+                            let kneeFlexion =
+                                0.5 * (leftKnee + rightKnee)
+                            if tracedInitialPelvisHeight == nil {
+                                tracedInitialPelvisHeight = pelvisHeight
+                                tracedInitialKneeFlexion = kneeFlexion
+                            }
+                            tracedMinimumPelvisHeight = min(
+                                tracedMinimumPelvisHeight,
+                                pelvisHeight
+                            )
+                            tracedMaximumLeftKneeFlexion = max(
+                                tracedMaximumLeftKneeFlexion,
+                                leftKnee
+                            )
+                            tracedMaximumRightKneeFlexion = max(
+                                tracedMaximumRightKneeFlexion,
+                                rightKnee
+                            )
+                            tracedFinalPelvisHeight = pelvisHeight
+                            tracedFinalKneeFlexion = kneeFlexion
+                        }
                         let payload = values.map {
                             String(format: "%.9g", $0)
                         }.joined(separator: "\t")
@@ -1608,9 +1791,152 @@ private enum TaskRolloutMain {
                             )
                         }
                 )
+            let cleanHorizonEnvironmentCount =
+                terminationCountByEnvironment.filter { $0 == 0 }.count
+            let squatCycleEvidenceByEnvironment: [[String: Any]] =
+                (0..<options.environments).map { environment in
+                    let available = supportsG1SquatEvidence &&
+                        initialPelvisHeightByEnvironment[
+                            environment
+                        ].isFinite &&
+                        minimumPelvisHeightByEnvironment[
+                            environment
+                        ].isFinite &&
+                        finalPelvisHeightByEnvironment[
+                            environment
+                        ].isFinite &&
+                        initialKneeFlexionByEnvironment[
+                            environment
+                        ].isFinite &&
+                        maximumLeftKneeFlexionByEnvironment[
+                            environment
+                        ].isFinite &&
+                        maximumRightKneeFlexionByEnvironment[
+                            environment
+                        ].isFinite &&
+                        finalKneeFlexionByEnvironment[
+                            environment
+                        ].isFinite
+                    let initialPelvis = available
+                        ? initialPelvisHeightByEnvironment[environment]
+                        : 0.0
+                    let minimumPelvis = available
+                        ? minimumPelvisHeightByEnvironment[environment]
+                        : 0.0
+                    let finalPelvis = available
+                        ? finalPelvisHeightByEnvironment[environment]
+                        : 0.0
+                    let initialKnee = available
+                        ? initialKneeFlexionByEnvironment[environment]
+                        : 0.0
+                    let finalKnee = available
+                        ? finalKneeFlexionByEnvironment[environment]
+                        : 0.0
+                    let pelvisExcursion = initialPelvis - minimumPelvis
+                    let kneeExcursion = available
+                        ? min(
+                            maximumLeftKneeFlexionByEnvironment[
+                                environment
+                            ],
+                            maximumRightKneeFlexionByEnvironment[
+                                environment
+                            ]
+                        ) - initialKnee
+                        : 0.0
+                    let returned = available &&
+                        abs(finalPelvis - initialPelvis) <= 0.05 &&
+                        abs(finalKnee - initialKnee) <= 0.08
+                    return [
+                        "environment": environment,
+                        "available": available,
+                        "termination_count":
+                            terminationCountByEnvironment[environment],
+                        "pelvis_descent": pelvisExcursion,
+                        "bilateral_knee_excursion": kneeExcursion,
+                        "bilateral_support_rate": Double(
+                            footSupportStepCountByEnvironment[environment]
+                        ) / Double(max(options.steps * options.repeats, 1)),
+                        "returned_to_initial_pose": returned,
+                        "completed": available &&
+                            terminationCountByEnvironment[environment] == 0 &&
+                            pelvisExcursion >= 0.02 &&
+                            kneeExcursion >= 0.10 &&
+                            returned,
+                    ]
+                }
+            let completedSquatCycleEnvironments =
+                squatCycleEvidenceByEnvironment.compactMap { evidence in
+                    evidence["completed"] as? Bool == true
+                        ? evidence["environment"] as? Int
+                        : nil
+                }
+            let tracedStateAvailable =
+                supportsG1SquatEvidence &&
+                tracedInitialPelvisHeight != nil &&
+                tracedInitialKneeFlexion != nil &&
+                tracedFinalPelvisHeight != nil &&
+                tracedFinalKneeFlexion != nil &&
+                tracedMinimumPelvisHeight.isFinite &&
+                tracedMaximumLeftKneeFlexion.isFinite &&
+                tracedMaximumRightKneeFlexion.isFinite
+            let initialPelvisHeight = tracedInitialPelvisHeight ?? 0.0
+            let finalPelvisHeight = tracedFinalPelvisHeight ?? 0.0
+            let initialKneeFlexion = tracedInitialKneeFlexion ?? 0.0
+            let finalKneeFlexion = tracedFinalKneeFlexion ?? 0.0
+            let pelvisDescent = tracedStateAvailable
+                ? initialPelvisHeight - tracedMinimumPelvisHeight
+                : 0.0
+            let bilateralKneeExcursion = tracedStateAvailable
+                ? min(
+                    tracedMaximumLeftKneeFlexion,
+                    tracedMaximumRightKneeFlexion
+                ) - initialKneeFlexion
+                : 0.0
+            let returnedToInitialPose = tracedStateAvailable &&
+                abs(finalPelvisHeight - initialPelvisHeight) <= 0.05 &&
+                abs(finalKneeFlexion - initialKneeFlexion) <= 0.08
+            let tracedTerminationCount =
+                terminationCountByEnvironment[
+                    options.stateTraceEnvironment
+                ]
+            let squatCycleEvidence: [String: Any] = [
+                "available": tracedStateAvailable,
+                "environment": options.stateTraceEnvironment,
+                "termination_count": tracedTerminationCount,
+                "initial_pelvis_height": initialPelvisHeight,
+                "minimum_pelvis_height": tracedStateAvailable
+                    ? tracedMinimumPelvisHeight : 0.0,
+                "final_pelvis_height": finalPelvisHeight,
+                "pelvis_descent": pelvisDescent,
+                "initial_mean_knee_flexion": initialKneeFlexion,
+                "maximum_left_knee_flexion": tracedStateAvailable
+                    ? tracedMaximumLeftKneeFlexion : 0.0,
+                "maximum_right_knee_flexion": tracedStateAvailable
+                    ? tracedMaximumRightKneeFlexion : 0.0,
+                "bilateral_knee_excursion": bilateralKneeExcursion,
+                "final_mean_knee_flexion": finalKneeFlexion,
+                "bilateral_support_rate":
+                    Double(tracedFootSupportStepCount) /
+                    Double(max(options.steps * options.repeats, 1)),
+                "returned_to_initial_pose": returnedToInitialPose,
+                "completed": tracedStateAvailable &&
+                    tracedTerminationCount == 0 &&
+                    pelvisDescent >= 0.02 &&
+                    bilateralKneeExcursion >= 0.10 &&
+                    returnedToInitialPose,
+            ]
             let output: [String: Any] = [
                 "benchmark": "swift_native_task_rollout",
                 "benchmark_seed": NSNumber(value: options.seed),
+                "task": options.unitreeG1Task == .velocity
+                    ? "velocity"
+                    : options.unitreeG1Task == .disturbanceRecovery
+                    ? "disturbance-recovery"
+                    : options.unitreeG1Task == .supineGetUpDiscovery
+                    ? "supine-get-up"
+                    : options.unitreeG1Task == .ballDisturbanceRecovery
+                    ? "ball-recovery"
+                    : "ball-dodge",
                 "world_source": worldSource,
                 "action_source":
                     options.policyPack != nil
@@ -1655,6 +1981,8 @@ private enum TaskRolloutMain {
                 "state_trace": options.stateTrace ?? "",
                 "environments": options.environments,
                 "steps_per_repeat": options.steps,
+                "maximum_episode_steps":
+                    layout.maximumEpisodeSteps,
                 "repeats": options.repeats,
                 "control_steps_per_submission": options.chunk,
                 "physics_substeps": options.physicsSubsteps,
@@ -1718,6 +2046,23 @@ private enum TaskRolloutMain {
                 "termination_count": terminationCount,
                 "termination_reason_counts":
                     terminationReasonCounts,
+                "termination_count_by_environment":
+                    terminationCountByEnvironment,
+                "clean_horizon_environment_count":
+                    cleanHorizonEnvironmentCount,
+                "clean_horizon_environment_rate":
+                    Double(cleanHorizonEnvironmentCount) /
+                    Double(max(options.environments, 1)),
+                "squat_cycle_evidence": squatCycleEvidence,
+                "squat_cycle_completed_environment_count":
+                    completedSquatCycleEnvironments.count,
+                "squat_cycle_completed_environment_rate":
+                    Double(completedSquatCycleEnvironments.count) /
+                    Double(max(options.environments, 1)),
+                "squat_cycle_completed_environments":
+                    completedSquatCycleEnvironments,
+                "squat_cycle_evidence_by_environment":
+                    squatCycleEvidenceByEnvironment,
                 "any_link_projectile_hit_count":
                     anyLinkProjectileHitCount,
                 "clean_projectile_miss_count":
