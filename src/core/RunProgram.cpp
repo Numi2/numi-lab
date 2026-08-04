@@ -385,6 +385,34 @@ void addBodyRole(
 
 } // namespace
 
+std::uint64_t visualSensorProgramFingerprint(
+    const VisualSensorProgram& program
+) {
+    Hash hash;
+    hash.scalar<std::uint64_t>(program.assets.size());
+    for (const VisualSensorAssetProgram& asset : program.assets) {
+        hash.string(asset.contentHash);
+        hash.string(asset.assetId);
+        hash.scalar(asset.semanticId);
+        hash.scalar(asset.instanceId);
+    }
+    hash.string(program.environmentContentHash);
+    hash.string(program.rendererProfile);
+    hash.string(program.cameraParentBody);
+    hash.scalar(program.cameraPosition);
+    hash.scalar(program.cameraOrientation);
+    hash.scalar(program.width);
+    hash.scalar(program.height);
+    hash.scalar(program.minimumVisiblePixels);
+    hash.scalar(program.verticalFieldOfViewDegrees);
+    hash.scalar(program.nominalRateHz);
+    hash.scalar(program.maximumRetainedBytes);
+    hash.scalar(program.captureWidth);
+    hash.scalar(program.captureHeight);
+    hash.scalar(program.capturePolicyCamera);
+    return hash.finish();
+}
+
 bool CompiledRun::valid() const noexcept {
     return fingerprint_ != 0u && robotFingerprint_ != 0u &&
         sensorFingerprint_ != 0u && realityFingerprint_ != 0u &&
@@ -427,6 +455,10 @@ const PolicyPack* CompiledRun::boundPolicy() const noexcept {
 }
 const RunProfile& CompiledRun::profile() const noexcept { return profile_; }
 const TeacherPack& CompiledRun::teacher() const noexcept { return teacher_; }
+const VisualSensorProgram*
+CompiledRun::visualSensorProgram() const noexcept {
+    return visualSensorProgram_ ? &*visualSensorProgram_ : nullptr;
+}
 
 RunCompileDiagnostics compileRun(
     const RunManifest& manifest,
@@ -453,6 +485,66 @@ RunCompileDiagnostics compileRun(
                 "manifest",
                 "run identity, package identities, execution counts, or timestep are invalid"
             );
+        }
+        if (manifest.sensors.deviceVisual) {
+            const VisualSensorProgram& visual =
+                *manifest.sensors.deviceVisual;
+            const auto finite4 = [](const mr_float4 value) {
+                return std::isfinite(value.x) &&
+                    std::isfinite(value.y) &&
+                    std::isfinite(value.z) &&
+                    std::isfinite(value.w);
+            };
+            const double orientationNormSquared =
+                static_cast<double>(visual.cameraOrientation.x) *
+                    visual.cameraOrientation.x +
+                static_cast<double>(visual.cameraOrientation.y) *
+                    visual.cameraOrientation.y +
+                static_cast<double>(visual.cameraOrientation.z) *
+                    visual.cameraOrientation.z +
+                static_cast<double>(visual.cameraOrientation.w) *
+                    visual.cameraOrientation.w;
+            const bool validAssets = !visual.assets.empty() &&
+                std::ranges::all_of(
+                    visual.assets,
+                    [](const VisualSensorAssetProgram& asset) {
+                        return !asset.path.empty() &&
+                            !asset.assetId.empty() &&
+                            !asset.contentHash.empty() &&
+                            asset.semanticId != 0u &&
+                            asset.semanticId != MR_INVALID_INDEX &&
+                            asset.instanceId != 0u &&
+                            asset.instanceId != MR_INVALID_INDEX;
+                    }
+                );
+            if (!validAssets || visual.fingerprint == 0u ||
+                visual.fingerprint !=
+                    visualSensorProgramFingerprint(visual) ||
+                (!visual.environmentPath.empty() !=
+                 !visual.environmentContentHash.empty()) ||
+                (!visual.rendererProfile.empty() &&
+                 visual.rendererProfile != "sensor_fast") ||
+                visual.cameraParentBody.empty() ||
+                !finite4(visual.cameraPosition) ||
+                !finite4(visual.cameraOrientation) ||
+                std::abs(orientationNormSquared - 1.0) > 1.0e-5 ||
+                visual.width == 0u || visual.height == 0u ||
+                visual.minimumVisiblePixels == 0u ||
+                !std::isfinite(visual.verticalFieldOfViewDegrees) ||
+                visual.verticalFieldOfViewDegrees < 0.0f ||
+                visual.verticalFieldOfViewDegrees >= 180.0f ||
+                !std::isfinite(visual.nominalRateHz) ||
+                !(visual.nominalRateHz > 0.0f) ||
+                ((visual.captureWidth == 0u) !=
+                 (visual.captureHeight == 0u)) ||
+                (visual.capturePolicyCamera &&
+                 !(visual.verticalFieldOfViewDegrees > 0.0f))) {
+                return reject(
+                    RunCompileStatus::invalidManifest,
+                    manifest.sensors.id,
+                    "SensorPack visual program is invalid"
+                );
+            }
         }
         if (taskOwnsSensorExecution(manifest.task)) {
             return reject(
@@ -821,17 +913,17 @@ RunCompileDiagnostics compileRun(
                 taskStatus.message);
         }
         if (manifest.policy) {
-            PolicyPack bound = *manifest.policy;
-            if (bound.contract.version == 0u) {
-                bindPolicyPack(bound, staged.task_);
-            }
             const PolicyCompileDiagnostics policyStatus =
-                compilePolicyProgram(bound, staged.task_, staged.policy_);
+                compilePolicyProgram(
+                    *manifest.policy,
+                    staged.task_,
+                    staged.policy_
+                );
             if (!policyStatus.succeeded()) {
                 return reject(RunCompileStatus::policyFailure,
                     policyStatus.element, policyStatus.message);
             }
-            staged.boundPolicy_ = std::move(bound);
+            staged.boundPolicy_ = *manifest.policy;
         }
         staged.worldFamily_ = std::move(family);
         staged.model_ = std::move(model);
@@ -839,6 +931,7 @@ RunCompileDiagnostics compileRun(
         staged.profile_ = manifest.profile;
         staged.profile_.physics = compose;
         staged.teacher_ = manifest.teacher;
+        staged.visualSensorProgram_ = manifest.sensors.deviceVisual;
         staged.robotFingerprint_ = engineModelFingerprint(
             manifest.robot.mechanics
         );
@@ -847,7 +940,9 @@ RunCompileDiagnostics compileRun(
             sensorHash.scalar(sensorFingerprint(episode.sensors));
             sensorHash.scalar(staged.task_.observationFingerprint());
             sensorHash.scalar(
-                manifest.sensors.externalProgramFingerprint
+                manifest.sensors.deviceVisual
+                ? manifest.sensors.deviceVisual->fingerprint
+                : 0u
             );
             staged.sensorFingerprint_ = sensorHash.finish();
         }

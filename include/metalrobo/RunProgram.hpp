@@ -73,17 +73,50 @@ struct MountedSensor {
     std::string mountRole;
 };
 
+struct VisualSensorAssetProgram {
+    std::string path;
+    std::string assetId;
+    std::string contentHash;
+    std::uint32_t semanticId = 0u;
+    std::uint32_t instanceId = 0u;
+};
+
+// Immutable resource and camera program for the device-resident visual
+// sensor. File paths locate content-addressed artifacts; their hashes bind
+// the compiled run and are rechecked when device resources are materialized.
+struct VisualSensorProgram {
+    std::vector<VisualSensorAssetProgram> assets;
+    std::string environmentPath;
+    std::string environmentContentHash;
+    std::string rendererProfile = "sensor_fast";
+    std::string cameraParentBody;
+    mr_float4 cameraPosition{};
+    mr_float4 cameraOrientation{0.0f, 0.0f, 0.0f, 1.0f};
+    std::uint32_t width = 0u;
+    std::uint32_t height = 0u;
+    std::uint32_t minimumVisiblePixels = 0u;
+    float verticalFieldOfViewDegrees = 0.0f;
+    float nominalRateHz = 0.0f;
+    std::uint64_t maximumRetainedBytes = 0u;
+    std::uint32_t captureWidth = 0u;
+    std::uint32_t captureHeight = 0u;
+    bool capturePolicyCamera = false;
+    std::uint64_t fingerprint = 0u;
+};
+
+// Content identity for the complete executable visual sensor program. Paths
+// are deliberately excluded: artifacts are bound by their content hashes.
+[[nodiscard]] std::uint64_t visualSensorProgramFingerprint(
+    const VisualSensorProgram& program
+);
+
 // Physical mounts, timing, calibration, noise and dropout have one owner.
 // TaskPack may consume the resulting observation, but does not own the sensor.
 struct SensorPack {
     std::string id;
     std::vector<MountedSensor> mounted;
     std::vector<SensorSpec> worldSensors;
-    // Fingerprint of an executable provider-owned sensor artifact compiled
-    // during manifest construction (for example a physics-bound visual
-    // sensor graph). Zero means the observation program is fully described
-    // by the native operators and SensorSpec tables below.
-    std::uint64_t externalProgramFingerprint = 0u;
+    std::optional<VisualSensorProgram> deviceVisual;
     // Executable observation program. These operators are resolved once by
     // the run compiler and executed by Metal after accepted physics, before
     // policy inference. TaskPack owns objectives, never sensing semantics.
@@ -209,6 +242,8 @@ public:
     [[nodiscard]] const PolicyPack* boundPolicy() const noexcept;
     [[nodiscard]] const RunProfile& profile() const noexcept;
     [[nodiscard]] const TeacherPack& teacher() const noexcept;
+    [[nodiscard]] const VisualSensorProgram*
+    visualSensorProgram() const noexcept;
 
 private:
     std::uint64_t fingerprint_ = 0u;
@@ -225,6 +260,7 @@ private:
     std::optional<PolicyPack> boundPolicy_;
     RunProfile profile_;
     TeacherPack teacher_;
+    std::optional<VisualSensorProgram> visualSensorProgram_;
 
     friend RunCompileDiagnostics compileRun(
         const RunManifest&,

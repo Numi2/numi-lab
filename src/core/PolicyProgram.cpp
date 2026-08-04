@@ -250,26 +250,20 @@ PolicyCompileDiagnostics compilePolicyProgram(
             "policy identity, revision, networks, distribution, or clipping is invalid"
         );
     }
-    const bool legacyContract = pack.contract.version == 0u &&
-        pack.contract.worldFingerprint == 0u &&
-        pack.contract.taskFingerprint == 0u &&
-        pack.contract.observationFingerprint == 0u &&
-        pack.contract.actionFingerprint == 0u;
-    if (!legacyContract && !pack.contract.exact()) {
+    if (!pack.contract.exact()) {
         return reject(
             PolicyCompileStatus::invalidPack,
             "contract",
-            "policy contract must be either an intact legacy marker or a complete version-1 binding"
+            "policy contract must be a complete version-1 binding"
         );
     }
-    if (pack.contract.exact() &&
-        (pack.contract.worldFingerprint !=
+    if (pack.contract.worldFingerprint !=
              task.worldFingerprint() ||
          pack.contract.taskFingerprint != task.fingerprint() ||
          pack.contract.observationFingerprint !=
              task.observationFingerprint() ||
          pack.contract.actionFingerprint !=
-             task.actionFingerprint())) {
+             task.actionFingerprint()) {
         return reject(
             PolicyCompileStatus::incompatibleContract,
             "contract",

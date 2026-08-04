@@ -951,6 +951,12 @@ private enum TaskRolloutMain {
                     MetalRoboPolicyPack(
                         id: "native_rollout_zero_policy",
                         revision: 7,
+                        contractVersion: 1,
+                        worldFingerprint: layout.worldFingerprint,
+                        taskFingerprint: layout.taskFingerprint,
+                        observationFingerprint:
+                            layout.observationFingerprint,
+                        actionFingerprint: layout.actionFingerprint,
                         layers: [
                             .init(
                                 inputCount:

@@ -131,6 +131,13 @@ struct MRTaskRolloutHandle {
     double totalSubmissionMilliseconds = 0.0;
 };
 
+namespace {
+void installTaskVisualRuntime(
+    MRTaskRolloutHandle& handle,
+    const metalrobo::VisualSensorProgram& program
+);
+}
+
 static_assert(sizeof(MRHybridGaussianC) == 80u);
 static_assert(sizeof(MRHybridGaussianGPU) == 80u);
 static_assert(
@@ -166,37 +173,6 @@ static_assert(sizeof(MRTaskEvidenceTelemetryC) == 48u);
 namespace {
 
 thread_local std::string gLastError;
-
-class ManifestFingerprint {
-public:
-    void bytes(const void* data, const std::size_t size) {
-        const auto* values = static_cast<const unsigned char*>(data);
-        for (std::size_t index = 0u; index < size; ++index) {
-            value_ ^= values[index];
-            value_ *= 1099511628211ull;
-        }
-    }
-
-    template <typename T>
-    void scalar(const T& value) {
-        bytes(&value, sizeof(value));
-    }
-
-    void string(const char* value) {
-        const std::string_view text = value == nullptr
-            ? std::string_view{}
-            : std::string_view{value};
-        scalar<std::uint64_t>(text.size());
-        bytes(text.data(), text.size());
-    }
-
-    [[nodiscard]] std::uint64_t finish() const noexcept {
-        return value_ == 0u ? 1u : value_;
-    }
-
-private:
-    std::uint64_t value_ = 1469598103934665603ull;
-};
 
 std::string unitreeG1DeploymentContractJSON() {
     const metalrobo::G1ModelMetadata& metadata =
@@ -1086,6 +1062,10 @@ createTaskRolloutHandle(
     handle->stepConfig.publishFinalState = false;
     handle->stepConfig.publishStateTrajectory = false;
     handle->stepConfig.taskProgram = taskProgram;
+    if (const metalrobo::VisualSensorProgram* visual =
+            handle->run.visualSensorProgram()) {
+        installTaskVisualRuntime(*handle, *visual);
+    }
     resetTaskRolloutState(*handle, profile.seed);
     return handle;
 }
@@ -1329,6 +1309,13 @@ void assignNativeRunPrograms(metalrobo::RunManifest& manifest) {
     sensors.criticIncludesCleanHistory =
         task.criticIncludesCleanHistory;
     sensors.visual = std::move(task.visual);
+    // Moving a program only transfers owned vectors; scalar dimensions and
+    // cadence remain in the source object. Clear the complete old owner so
+    // compileRun can prove there is exactly one executable sensor authority.
+    task.actorFrame.clear();
+    task.actorCurrent.clear();
+    task.critic.clear();
+    task.visual = {};
     task.actorHistoryLength = 1u;
     task.criticHistoryLength = 1u;
     task.criticIncludesCleanHistory = true;
@@ -1446,16 +1433,21 @@ metalrobo::WorldProgram authoredWorldProgram(
     return authored;
 }
 
-std::uint64_t visualSensorProgramFingerprint(
+metalrobo::VisualSensorProgram visualSensorProgram(
     const MRTaskVisualObservationConfigC& config
 ) {
+    if (config.capture_policy_camera > 1u) {
+        throw std::invalid_argument(
+            "visual capture policy-camera flag is invalid"
+        );
+    }
     if (config.pack_count != 0u && config.packs == nullptr) {
         throw std::invalid_argument(
             "visual SensorPack asset bindings are missing"
         );
     }
-    ManifestFingerprint hash;
-    hash.scalar(config.pack_count);
+    metalrobo::VisualSensorProgram program;
+    program.assets.reserve(config.pack_count);
     for (std::uint32_t index = 0u; index < config.pack_count; ++index) {
         const MRTaskVisualPackC& reference = config.packs[index];
         if (reference.path == nullptr || reference.path[0] == '\0' ||
@@ -1475,10 +1467,13 @@ std::uint64_t visualSensorProgramFingerprint(
                 "visual SensorPack asset load failed: " + reason
             );
         }
-        hash.scalar(pack.contentHash);
-        hash.string(reference.asset_id);
-        hash.scalar(reference.semantic_id);
-        hash.scalar(reference.instance_id);
+        program.assets.push_back({
+            reference.path,
+            reference.asset_id,
+            pack.contentHash,
+            reference.semantic_id,
+            reference.instance_id,
+        });
     }
     if (config.environment_pack_path != nullptr &&
         config.environment_pack_path[0] != '\0') {
@@ -1493,24 +1488,42 @@ std::uint64_t visualSensorProgramFingerprint(
                 "visual SensorPack environment load failed: " + reason
             );
         }
-        hash.scalar(environment.contentHash);
-    } else {
-        hash.scalar<std::uint64_t>(0u);
+        program.environmentPath = config.environment_pack_path;
+        program.environmentContentHash = environment.contentHash;
     }
-    hash.string(config.renderer_profile);
-    hash.string(config.camera_parent_body);
-    hash.bytes(config.camera_position, sizeof(config.camera_position));
-    hash.bytes(config.camera_orientation, sizeof(config.camera_orientation));
-    hash.scalar(config.width);
-    hash.scalar(config.height);
-    hash.scalar(config.minimum_visible_pixels);
-    hash.scalar(config.vertical_field_of_view_degrees);
-    hash.scalar(config.nominal_rate_hz);
-    hash.scalar(config.maximum_retained_bytes);
-    hash.scalar(config.capture_width);
-    hash.scalar(config.capture_height);
-    hash.scalar(config.capture_policy_camera);
-    return hash.finish();
+    program.rendererProfile =
+        config.renderer_profile == nullptr
+        ? std::string{}
+        : config.renderer_profile;
+    program.cameraParentBody =
+        config.camera_parent_body == nullptr
+        ? std::string{}
+        : config.camera_parent_body;
+    program.cameraPosition = {
+        config.camera_position[0],
+        config.camera_position[1],
+        config.camera_position[2],
+        0.0f,
+    };
+    program.cameraOrientation = {
+        config.camera_orientation[0],
+        config.camera_orientation[1],
+        config.camera_orientation[2],
+        config.camera_orientation[3],
+    };
+    program.width = config.width;
+    program.height = config.height;
+    program.minimumVisiblePixels = config.minimum_visible_pixels;
+    program.verticalFieldOfViewDegrees =
+        config.vertical_field_of_view_degrees;
+    program.nominalRateHz = config.nominal_rate_hz;
+    program.maximumRetainedBytes = config.maximum_retained_bytes;
+    program.captureWidth = config.capture_width;
+    program.captureHeight = config.capture_height;
+    program.capturePolicyCamera = config.capture_policy_camera != 0u;
+    program.fingerprint =
+        metalrobo::visualSensorProgramFingerprint(program);
+    return program;
 }
 
 std::unique_ptr<MRTaskRolloutHandle> createCompiledRunTaskRollout(
@@ -1521,8 +1534,8 @@ std::unique_ptr<MRTaskRolloutHandle> createCompiledRunTaskRollout(
 ) {
     assignNativeRunPrograms(manifest);
     if (visualSensor != nullptr) {
-        manifest.sensors.externalProgramFingerprint =
-            visualSensorProgramFingerprint(*visualSensor);
+        manifest.sensors.deviceVisual =
+            visualSensorProgram(*visualSensor);
     }
     // Task composition (notably an InteractionPack) may refine the measured
     // contact profile after the base manifest is authored. The executable run
@@ -1758,27 +1771,24 @@ metalrobo::WorldAsset makeRolloutVisualAsset(
 
 std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     MRTaskRolloutHandle& handle,
-    const MRTaskVisualObservationConfigC& config
+    const metalrobo::VisualSensorProgram& program
 ) {
-    if (config.packs == nullptr || config.pack_count == 0u ||
-        config.camera_parent_body == nullptr ||
-        config.camera_parent_body[0] == '\0' ||
-        config.width == 0u || config.height == 0u ||
-        config.minimum_visible_pixels == 0u ||
-        !std::isfinite(config.vertical_field_of_view_degrees) ||
-        config.vertical_field_of_view_degrees < 0.0f ||
-        config.vertical_field_of_view_degrees >= 180.0f ||
-        !std::isfinite(config.nominal_rate_hz) ||
-        !(config.nominal_rate_hz > 0.0f)) {
+    if (program.assets.empty() || program.cameraParentBody.empty() ||
+        program.width == 0u || program.height == 0u ||
+        program.minimumVisiblePixels == 0u ||
+        !std::isfinite(program.verticalFieldOfViewDegrees) ||
+        program.verticalFieldOfViewDegrees < 0.0f ||
+        program.verticalFieldOfViewDegrees >= 180.0f ||
+        !std::isfinite(program.nominalRateHz) ||
+        !(program.nominalRateHz > 0.0f)) {
         throw std::invalid_argument(
             "visual observation packs, articulated camera, and dimensions are required"
         );
     }
     const std::string selectedProfile =
-        config.renderer_profile == nullptr ||
-            config.renderer_profile[0] == '\0'
+        program.rendererProfile.empty()
         ? "sensor_fast"
-        : config.renderer_profile;
+        : program.rendererProfile;
     if (selectedProfile != "sensor_fast") {
         throw std::invalid_argument(
             "closed-loop visual observation currently requires sensor_fast"
@@ -1787,7 +1797,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
 
     const auto parentBody = std::ranges::find(
         handle.model.bodyNames,
-        config.camera_parent_body
+        program.cameraParentBody
     );
     if (parentBody == handle.model.bodyNames.end()) {
         throw std::invalid_argument(
@@ -1990,27 +2000,22 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     camera.parentBodyIndex = parentBodyIndex;
     camera.kind = MR_WORLD_SENSOR_RGBD;
     camera.localPose.position = {
-        config.camera_position[0],
-        config.camera_position[1],
-        config.camera_position[2],
+        program.cameraPosition.x,
+        program.cameraPosition.y,
+        program.cameraPosition.z,
         0.0f,
     };
-    camera.localPose.orientation = {
-        config.camera_orientation[0],
-        config.camera_orientation[1],
-        config.camera_orientation[2],
-        config.camera_orientation[3],
-    };
-    camera.width = config.width;
-    camera.height = config.height;
+    camera.localPose.orientation = program.cameraOrientation;
+    camera.width = program.width;
+    camera.height = program.height;
     const float focalLengthPixels =
-        config.vertical_field_of_view_degrees > 0.0f
-        ? 0.5f * static_cast<float>(config.height) /
+        program.verticalFieldOfViewDegrees > 0.0f
+        ? 0.5f * static_cast<float>(program.height) /
             std::tan(
-                0.5f * config.vertical_field_of_view_degrees *
+                0.5f * program.verticalFieldOfViewDegrees *
                 std::numbers::pi_v<float> / 180.0f
             )
-        : 0.875f * static_cast<float>(config.width);
+        : 0.875f * static_cast<float>(program.width);
     if (!std::isfinite(focalLengthPixels) ||
         !(focalLengthPixels > 0.0f)) {
         throw std::invalid_argument(
@@ -2020,76 +2025,61 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     camera.intrinsics = {
         focalLengthPixels,
         focalLengthPixels,
-        0.5f * static_cast<float>(config.width),
-        0.5f * static_cast<float>(config.height),
+        0.5f * static_cast<float>(program.width),
+        0.5f * static_cast<float>(program.height),
     };
-    camera.nominalRateHz = config.nominal_rate_hz;
+    camera.nominalRateHz = program.nominalRateHz;
     camera.exposureSeconds = 1.0f / 240.0f;
     camera.minimumDepthMeters = 0.05f;
     camera.maximumDepthMeters = 8.0f;
     episode.sensors.push_back(std::move(camera));
-    if (config.capture_policy_camera > 1u) {
-        throw std::invalid_argument(
-            "visual capture policy-camera flag is invalid"
-        );
-    }
-    if (config.capture_policy_camera != 0u &&
-        !(config.vertical_field_of_view_degrees > 0.0f)) {
+    if (program.capturePolicyCamera &&
+        !(program.verticalFieldOfViewDegrees > 0.0f)) {
         throw std::invalid_argument(
             "policy-camera capture requires an authored vertical field of view"
         );
     }
-    if (config.capture_width != 0u && config.capture_height != 0u) {
+    if (program.captureWidth != 0u && program.captureHeight != 0u) {
         metalrobo::SensorSpec presentation;
-        presentation.id = config.capture_policy_camera != 0u
+        presentation.id = program.capturePolicyCamera
             ? "foundation_policy_camera"
             : "presentation_camera";
         presentation.parentAssetId = "robot";
-        presentation.parentKind = config.capture_policy_camera != 0u
+        presentation.parentKind = program.capturePolicyCamera
             ? MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK
             : MR_WORLD_SENSOR_PARENT_WORLD;
-        presentation.parentBodyIndex = config.capture_policy_camera != 0u
+        presentation.parentBodyIndex = program.capturePolicyCamera
             ? parentBodyIndex
             : MR_INVALID_INDEX;
         presentation.kind = MR_WORLD_SENSOR_RGBD;
-        presentation.localPose.position = config.capture_policy_camera != 0u
-            ? mr_float4{
-                  config.camera_position[0],
-                  config.camera_position[1],
-                  config.camera_position[2],
-                  0.0f,
-              }
+        presentation.localPose.position = program.capturePolicyCamera
+            ? program.cameraPosition
             : mr_float4{1.05f, -1.30f, 1.05f, 0.0f};
         // External media keeps the qualified Studio Small 03 view. Teacher
         // capture instead inherits the deployable policy sensor pose.
-        presentation.localPose.orientation = config.capture_policy_camera != 0u
-            ? mr_float4{
-                  config.camera_orientation[0],
-                  config.camera_orientation[1],
-                  config.camera_orientation[2],
-                  config.camera_orientation[3],
-              }
+        presentation.localPose.orientation = program.capturePolicyCamera
+            ? program.cameraOrientation
             : mr_float4{
                   -0.73858354f,
                   -0.26102070f,
                   0.20711737f,
                   0.58605883f,
               };
-        presentation.width = config.capture_width;
-        presentation.height = config.capture_height;
+        presentation.width = program.captureWidth;
+        presentation.height = program.captureHeight;
         const float captureFocalLengthPixels =
-            config.capture_policy_camera != 0u
-            ? 0.5f * static_cast<float>(config.capture_height) /
+            program.capturePolicyCamera
+            ? 0.5f * static_cast<float>(program.captureHeight) /
                 std::tan(
-                    0.5f * config.vertical_field_of_view_degrees *
+                    0.5f * program.verticalFieldOfViewDegrees *
                     std::numbers::pi_v<float> / 180.0f
                 )
-            : 0.90f * static_cast<float>(config.capture_height);
+            : 0.90f * static_cast<float>(program.captureHeight);
         presentation.intrinsics = {
             captureFocalLengthPixels,
             captureFocalLengthPixels,
-            0.5f * static_cast<float>(config.capture_width),
-            0.5f * static_cast<float>(config.capture_height),
+            0.5f * static_cast<float>(program.captureWidth),
+            0.5f * static_cast<float>(program.captureHeight),
         };
         presentation.nominalRateHz = 50.0f;
         presentation.exposureSeconds = 1.0f / 240.0f;
@@ -2120,12 +2110,12 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             worldStatus.message
         );
     }
-    metalrobo::WorldProgram program;
-    program.id = episode.id + ".program";
+    metalrobo::WorldProgram worldProgram;
+    worldProgram.id = episode.id + ".program";
     const metalrobo::WorldCompileResult familyStatus =
         metalrobo::compileWorldFamily(
             runtime->worldTemplate,
-            program,
+            worldProgram,
             runtime->family
         );
     if (!familyStatus.succeeded()) {
@@ -2136,28 +2126,19 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     }
 
     std::vector<metalrobo::VisualAssetReferenceV3> references;
-    references.reserve(config.pack_count);
+    references.reserve(program.assets.size());
     std::unordered_map<std::string, std::uint32_t> trackedInstances;
-    for (std::uint32_t index = 0u;
-         index < config.pack_count;
+    for (std::size_t index = 0u;
+         index < program.assets.size();
          ++index) {
-        const MRTaskVisualPackC& source = config.packs[index];
-        if (source.path == nullptr || source.path[0] == '\0' ||
-            source.asset_id == nullptr || source.asset_id[0] == '\0' ||
-            source.semantic_id == 0u ||
-            source.semantic_id == MR_INVALID_INDEX ||
-            source.instance_id == 0u ||
-            source.instance_id == MR_INVALID_INDEX) {
-            throw std::invalid_argument(
-                "visual pack binding is incomplete"
-            );
-        }
+        const metalrobo::VisualSensorAssetProgram& source =
+            program.assets[index];
         const std::uint32_t assetIndex =
-            runtime->worldTemplate.assetIndex(source.asset_id);
+            runtime->worldTemplate.assetIndex(source.assetId);
         if (assetIndex == MR_INVALID_INDEX) {
             throw std::invalid_argument(
                 std::string{"visual pack references unknown asset: "} +
-                source.asset_id
+                source.assetId
             );
         }
         metalrobo::VisualAssetPackV2 pack;
@@ -2171,24 +2152,30 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 "visual pack load failed: " + reason
             );
         }
+        if (pack.contentHash != source.contentHash) {
+            throw std::runtime_error(
+                "visual pack content changed after run compilation: " +
+                source.path
+            );
+        }
         const bool robotPresentationPack =
-            config.capture_width != 0u &&
-            source.instance_id == 1u &&
-            source.asset_id == std::string_view{"robot"};
+            program.captureWidth != 0u &&
+            source.instanceId == 1u &&
+            source.assetId == "robot";
         const std::uint32_t instanceId =
             robotPresentationPack && index != 0u
-            ? 1'000u + index
-            : source.instance_id;
+            ? 1'000u + static_cast<std::uint32_t>(index)
+            : source.instanceId;
         references.push_back({
             source.path,
             pack.contentHash,
             assetIndex,
-            source.semantic_id,
+            source.semanticId,
             instanceId,
         });
         const auto sceneName = std::ranges::find(
             handle.model.bodyNames,
-            source.asset_id
+            source.assetId
         );
         if (sceneName != handle.model.bodyNames.end()) {
             const std::uint32_t body =
@@ -2214,22 +2201,21 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                     throw std::invalid_argument(
                         std::string{
                             "tracked visual pack is not bound to physics body: "
-                        } + source.asset_id
+                        } + source.assetId
                     );
                 }
-                trackedInstances[source.asset_id] = source.instance_id;
+                trackedInstances[source.assetId] = source.instanceId;
             }
         }
     }
 
     metalrobo::VisualEnvironmentReferenceV2 environment =
         metalrobo::makeNeutralStudioEnvironmentV2();
-    if (config.environment_pack_path != nullptr &&
-        config.environment_pack_path[0] != '\0') {
+    if (!program.environmentPath.empty()) {
         metalrobo::VisualEnvironmentPackV2 pack;
         std::string reason;
         if (!metalrobo::readVisualEnvironmentPackIndex(
-                config.environment_pack_path,
+                program.environmentPath,
                 pack,
                 &reason
             )) {
@@ -2237,8 +2223,13 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 "visual environment pack load failed: " + reason
             );
         }
+        if (pack.contentHash != program.environmentContentHash) {
+            throw std::runtime_error(
+                "visual environment content changed after run compilation"
+            );
+        }
         environment.id = pack.id;
-        environment.packPath = config.environment_pack_path;
+        environment.packPath = program.environmentPath;
         environment.contentHash = pack.contentHash;
         environment.intensity = 0.12f;
     }
@@ -2280,14 +2271,14 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
 
     metalrobo::MetalHybridRendererConfig rendererConfig;
     rendererConfig.metallibPath = handle.metallibPath;
-    rendererConfig.width = config.width;
-    rendererConfig.height = config.height;
+    rendererConfig.width = program.width;
+    rendererConfig.height = program.height;
     // Closed-loop masked depth consumes exact geometric winners directly.
     // Media capture has its own retained renderer below.
     rendererConfig.retainObservationBuffers = false;
     rendererConfig.geometricObservationsOnly = true;
-    if (config.maximum_retained_bytes != 0u) {
-        if (config.maximum_retained_bytes >
+    if (program.maximumRetainedBytes != 0u) {
+        if (program.maximumRetainedBytes >
             std::numeric_limits<std::size_t>::max()) {
             throw std::invalid_argument(
                 "visual retained-memory budget exceeds size_t"
@@ -2295,7 +2286,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         }
         rendererConfig.maximumRetainedBytes =
             static_cast<std::size_t>(
-                config.maximum_retained_bytes
+                program.maximumRetainedBytes
             );
     }
     runtime->renderer = metalrobo::MetalHybridRenderer{
@@ -2313,17 +2304,11 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             "]: " + rendered.message
         );
     }
-    if ((config.capture_width == 0u) !=
-        (config.capture_height == 0u)) {
-        throw std::invalid_argument(
-            "visual capture width and height must both be zero or nonzero"
-        );
-    }
-    if (config.capture_width != 0u) {
+    if (program.captureWidth != 0u) {
         metalrobo::MetalHybridRendererConfig captureConfig;
         captureConfig.metallibPath = handle.metallibPath;
-        captureConfig.width = config.capture_width;
-        captureConfig.height = config.capture_height;
+        captureConfig.width = program.captureWidth;
+        captureConfig.height = program.captureHeight;
         captureConfig.retainObservationBuffers = true;
         runtime->captureRenderer = metalrobo::MetalHybridRenderer{
             std::move(captureConfig)
@@ -2342,8 +2327,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             );
         }
         runtime->captureEnabled = true;
-        runtime->capturePolicyCamera =
-            config.capture_policy_camera != 0u;
+        runtime->capturePolicyCamera = program.capturePolicyCamera;
     }
 
     metalrobo::MetalHybridObjectTrackerConfig trackerConfig;
@@ -2354,7 +2338,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     trackerConfig.maximumActorHistoryLength =
         handle.taskProgram.layout().actorHistoryLength;
     trackerConfig.timestepSeconds = handle.stepConfig.timestepSeconds;
-    trackerConfig.nominalSensorRateHz = config.nominal_rate_hz;
+    trackerConfig.nominalSensorRateHz = program.nominalRateHz;
     trackerConfig.maximumTrackSpeedMetersPerSecond = 10.0f;
     for (const auto& [sceneIndex, offset] : trackedOffsets) {
         const std::string& assetId =
@@ -2372,7 +2356,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             .actorFrameOffset = offset,
             .positionScale = positionScales[sceneIndex],
             .velocityScale = velocityScales[sceneIndex],
-            .minimumVisiblePixels = config.minimum_visible_pixels,
+            .minimumVisiblePixels = program.minimumVisiblePixels,
         });
     }
     if (maskedDepthCount != 0u) {
@@ -2442,7 +2426,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
 
 void installTaskVisualRuntime(
     MRTaskRolloutHandle& handle,
-    const MRTaskVisualObservationConfigC& config
+    const metalrobo::VisualSensorProgram& program
 ) {
     if (handle.residentState.valid()) {
         throw std::logic_error(
@@ -2450,16 +2434,16 @@ void installTaskVisualRuntime(
         );
     }
     std::unique_ptr<MRTaskVisualRuntime> candidate =
-        compileTaskVisualRuntime(handle, config);
-    const metalrobo::MetalWorldDeviceObservationProgram program =
+        compileTaskVisualRuntime(handle, program);
+    const metalrobo::MetalWorldDeviceObservationProgram observationProgram =
         candidate->tracker.observationProgram();
-    if (!program.valid()) {
+    if (!observationProgram.valid()) {
         throw std::runtime_error(
             "compiled SensorPack visual program is invalid"
         );
     }
     handle.visualRuntime = std::move(candidate);
-    handle.stepConfig.deviceObservationProgram = program;
+    handle.stepConfig.deviceObservationProgram = observationProgram;
 }
 
 std::runtime_error worldFamilyError(
@@ -3002,19 +2986,6 @@ MRTaskRolloutHandle* mr_create_task_rollout(
         gLastError = "run manifest source is invalid.";
         return nullptr;
     }
-    if (result == nullptr || manifest->visual_sensor_program == nullptr) {
-        return result;
-    }
-    const int status = translateErrors([&] {
-        installTaskVisualRuntime(
-            *result,
-            *manifest->visual_sensor_program
-        );
-    });
-    if (status != 0) {
-        delete result;
-        return nullptr;
-    }
     return result;
 }
 
@@ -3083,12 +3054,6 @@ int mr_task_rollout_set_policy(
     return translateErrors([&] {
         metalrobo::PolicyPack authored =
             policyPackFromC(*policy);
-        if (authored.contract.version == 0u) {
-            metalrobo::bindPolicyPack(
-                authored,
-                handle->taskProgram
-            );
-        }
         installPolicyPack(*handle, authored);
     });
 }

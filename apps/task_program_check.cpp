@@ -2220,6 +2220,18 @@ int main(const int argc, const char* const* argv) {
             layout.actionCount,
             -0.5f
         );
+        metalrobo::CompiledPolicyProgram unboundPolicyOutput;
+        const auto unboundPolicyStatus =
+            metalrobo::compilePolicyProgram(
+                policy,
+                program,
+                unboundPolicyOutput
+            );
+        if (unboundPolicyStatus.status !=
+                metalrobo::PolicyCompileStatus::invalidPack ||
+            unboundPolicyOutput.valid()) {
+            fail("unbound PolicyPack was accepted");
+        }
         metalrobo::bindPolicyPack(policy, program);
         metalrobo::CompiledPolicyProgram compiledPolicy;
         const metalrobo::PolicyCompileDiagnostics

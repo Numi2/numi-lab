@@ -55,6 +55,9 @@ not descriptive sidecars:
   through `MetalRoboRunManifest.visualSensor`; no sensor can be attached after
   construction. The referenced visual/environment artifact hashes and every
   camera/tracker parameter participate in the SensorPack and run fingerprints.
+  `CompiledRun` retains that complete immutable `VisualSensorProgram`; executor
+  construction materializes device resources from it directly and rejects an
+  artifact whose content changed after compilation.
 - `RealityPack` owns the `WorldProgram` plus task-state reset variation. The
   run compiler lowers supported constant/uniform scene, mass, friction,
   restitution, damping, controller, payload and latency variations into the
@@ -461,6 +464,11 @@ dodge teacher, a trained dodge policy, or sim-to-real transfer.
 `compilePolicyProgram` verifies actor/action dimensions against the compiled
 TaskPack and fingerprints the complete program. Installation is transactional:
 an incompatible or corrupt pack leaves the active policy unchanged.
+Every PolicyPack must carry a complete version-1 binding to the exact world,
+task, observation, and action fingerprints. Neither `compileRun` nor the live
+C/Swift installation boundary auto-binds an unbound pack. Diagnostic policies
+are authored against the executor layout explicitly, so equal tensor shapes
+can never substitute for semantic compatibility.
 
 The Metal hot loop evaluates the actor between native observation construction
 and action application. A final critic-only evaluation can be appended to the

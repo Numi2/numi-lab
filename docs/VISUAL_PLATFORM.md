@@ -175,7 +175,11 @@ retains the legacy focal-length rule for existing callers.
 camera, the matching `WorldFamily`, and this tracker as part of SensorPack
 compilation. There is no post-construction sensor attachment API. Explicit
 visual/environment content hashes and the complete sensor configuration enter
-the SensorPack fingerprint before the executor is created. Explicit
+the SensorPack fingerprint before the executor is created. The immutable
+`CompiledRun` retains the complete executable visual program, and executor
+construction reads only that retained program. Device materialization reloads
+the content-addressed packs and rejects any hash change instead of executing a
+different sensor under the compiled identity. Explicit
 rigid-body pack bindings keep moving scene objects on the accepted physics
 timeline; articulated bindings keep robot presentation on link states. Reset
 clears temporal tracks atomically with simulator reset, and rollout chunk size

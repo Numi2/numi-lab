@@ -115,7 +115,23 @@ int main() {
         );
 
         metalrobo::RunManifest alternateSensor = manifest;
-        alternateSensor.sensors.externalProgramFingerprint = 0x53454e534f52ull;
+        metalrobo::VisualSensorProgram visual;
+        visual.assets.push_back({
+            "fixture.visualpack",
+            "robot",
+            "fixture-content-hash",
+            1u,
+            1u,
+        });
+        visual.cameraParentBody = "pelvis";
+        visual.width = 16u;
+        visual.height = 16u;
+        visual.minimumVisiblePixels = 1u;
+        visual.nominalRateHz = 50.0f;
+        visual.fingerprint =
+            metalrobo::visualSensorProgramFingerprint(visual);
+        const std::uint64_t visualFingerprint = visual.fingerprint;
+        alternateSensor.sensors.deviceVisual = std::move(visual);
         metalrobo::CompiledRun compiledAlternateSensor;
         const auto alternateSensorStatus = metalrobo::compileRun(
             alternateSensor,
@@ -123,11 +139,26 @@ int main() {
         );
         require(
             alternateSensorStatus.succeeded() &&
+                compiledAlternateSensor.visualSensorProgram() != nullptr &&
+                compiledAlternateSensor.visualSensorProgram()->fingerprint ==
+                    visualFingerprint &&
                 compiledAlternateSensor.sensorFingerprint() !=
                     compiled.sensorFingerprint() &&
                 compiledAlternateSensor.fingerprint() !=
                     compiled.fingerprint(),
-            "external SensorPack program is missing from run identity"
+            "executable SensorPack program is missing from run identity"
+        );
+
+        metalrobo::RunManifest tamperedSensor = alternateSensor;
+        tamperedSensor.sensors.deviceVisual->width += 1u;
+        metalrobo::CompiledRun tamperedSensorOutput;
+        require(
+            metalrobo::compileRun(
+                tamperedSensor,
+                tamperedSensorOutput
+            ).status == metalrobo::RunCompileStatus::invalidManifest &&
+                !tamperedSensorOutput.valid(),
+            "tampered visual SensorProgram fingerprint was accepted"
         );
 
         metalrobo::RunManifest duplicatedOwnership = manifest;
