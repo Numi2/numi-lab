@@ -1,0 +1,19 @@
+{
+  "schema": "numi.robot-source.v1",
+  "id": "px4_x500",
+  "upstream": {
+    "repository": "https://github.com/PX4/PX4-gazebo-models.git",
+    "commit": "e00d3b9cde682dbcb3bf6f30a2f2b8ef4325dae8",
+    "license_file": "models/x500_base/LICENSE",
+    "license_sha256": "cee4ef94e73cd38fb2886f5d7e7a04d6488f54b1e70cd8b1b29d74f38bfdba5b"
+  },
+  "required_files": {
+    "models/x500/model.sdf": "cb76a4afd439f253a8c516b1fcd3528f80347619cfa46bebb620557054fbf125",
+    "models/x500_base/model.sdf": "e807dca3406f7cd5cb3d545898601c3ec17e0e5242e25cf467a69df1812cf436"
+  },
+  "source_contract": {
+    "format": "SDF 1.9",
+    "coordinates": "Gazebo ENU, Z up",
+    "authority": "PX4 source mechanics, motor, collision, and sensor parameters are retained before conversion into a fingerprinted Numi artifact."
+  }
+}

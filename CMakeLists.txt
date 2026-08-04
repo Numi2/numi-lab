@@ -75,6 +75,9 @@ set(METALROBO_UNIFIED_QUALITY_SOURCE
 set(METALROBO_FREE_BODY_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/FreeBodyDynamics.metal"
 )
+set(METALROBO_MULTICOPTER_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MulticopterDynamics.metal"
+)
 set(METALROBO_COLLISION_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/Collision.metal"
 )
@@ -134,6 +137,9 @@ set(METALROBO_UNIFIED_QUALITY_AIR
 )
 set(METALROBO_FREE_BODY_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboFreeBodyDynamics.air"
+)
+set(METALROBO_MULTICOPTER_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMulticopterDynamics.air"
 )
 set(METALROBO_COLLISION_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboCollision.air"
@@ -256,6 +262,12 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_FREE_BODY_SOURCE}"
             -o "${METALROBO_FREE_BODY_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_MULTICOPTER_SOURCE}"
+            -o "${METALROBO_MULTICOPTER_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -442,6 +454,7 @@ add_custom_command(
             "${METALROBO_QUALITY_CONTACT_AIR}"
             "${METALROBO_UNIFIED_QUALITY_AIR}"
             "${METALROBO_FREE_BODY_AIR}"
+            "${METALROBO_MULTICOPTER_AIR}"
             "${METALROBO_COLLISION_AIR}"
             "${METALROBO_BROADPHASE_AIR}"
             "${METALROBO_ARTICULATED_OPERATOR_AIR}"
@@ -474,6 +487,7 @@ add_custom_command(
         "${METALROBO_QUALITY_CONTACT_SOURCE}"
         "${METALROBO_UNIFIED_QUALITY_SOURCE}"
         "${METALROBO_FREE_BODY_SOURCE}"
+        "${METALROBO_MULTICOPTER_SOURCE}"
         "${METALROBO_COLLISION_SOURCE}"
         "${METALROBO_BROADPHASE_SOURCE}"
         "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
@@ -495,6 +509,7 @@ add_custom_command(
         "${METALROBO_SCENE_QUERY_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/multicopter_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/task_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/policy_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
@@ -581,6 +596,8 @@ add_library(
     src/core/DiscreteElasticRod.cpp
     src/core/Collision.cpp
     src/core/FreeBodyDynamics.cpp
+    src/core/Multicopter.cpp
+    src/core/PX4X500.cpp
     src/core/ArticulatedDynamics.cpp
     src/core/ArticulatedActuation.cpp
     src/core/ArticulatedJointLimits.cpp
@@ -1382,6 +1399,13 @@ target_compile_definitions(
     PRIVATE
         METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
 )
+
+add_executable(metalrobo_px4_x500_gpu_probe apps/px4_x500_gpu_probe.mm)
+add_dependencies(metalrobo_px4_x500_gpu_probe metalrobo_shaders)
+target_compile_definitions(metalrobo_px4_x500_gpu_probe PRIVATE METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}")
+target_compile_options(metalrobo_px4_x500_gpu_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_px4_x500_gpu_probe PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+set_target_properties(metalrobo_px4_x500_gpu_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
 target_compile_options(
     metalrobo_free_body_gpu_probe
     PRIVATE

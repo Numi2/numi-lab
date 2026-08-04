@@ -1,0 +1,24 @@
+#!/bin/sh
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf '%s\n' "Acquire the pinned PX4 X500 source or run its native Metal hover qualification."
+    exit 0
+fi
+
+drone_workspace=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+if [ "${1:-}" = "flight" ]; then
+    shift
+    if [ "$#" -ne 0 ]; then
+        printf '%s\n' "usage: numi drone flight" >&2
+        exit 2
+    fi
+    drone_build=${NUMI_BUILD_DIR:-"$drone_workspace/build"}
+    cmake -S "$drone_workspace" -B "$drone_build" -DCMAKE_BUILD_TYPE=Release >/dev/null
+    cmake --build "$drone_build" --target metalrobo_px4_x500_gpu_probe -j 4 >/dev/null
+    exec "$drone_build/bin/metalrobo_px4_x500_gpu_probe"
+fi
+if [ "${1:-}" = "source" ]; then
+    shift
+fi
+exec python3 "$drone_workspace/tools/import_px4_x500.py" "$@"

@@ -1,0 +1,158 @@
+#import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
+
+#include "metalrobo/FreeBodyDynamics.hpp"
+#include "metalrobo/Multicopter.hpp"
+#include "metalrobo/PX4X500.hpp"
+
+#include <array>
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <iomanip>
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+#ifndef METALROBO_DEFAULT_METALLIB
+#define METALROBO_DEFAULT_METALLIB ""
+#endif
+
+namespace {
+constexpr std::uint32_t kEnvironments = 1024u;
+constexpr std::uint32_t kSteps = 2000u;
+constexpr float kDt = 0.001f;
+
+mr_float4 f4(float x, float y, float z, float w = 0.0f) { return {x, y, z, w}; }
+void require(bool condition, const std::string& message) { if (!condition) throw std::runtime_error(message); }
+std::string string(NSString* value) { return value == nil || value.UTF8String == nullptr ? "" : std::string(value.UTF8String); }
+std::string errorString(NSError* error) { return error == nil ? "unknown Metal error" : string(error.localizedDescription); }
+
+MRBodyStateGPU initialState(const MRBodyPropertiesGPU& properties, std::uint32_t index) {
+    MRBodyStateGPU state{};
+    state.position = f4(float(index % 32u) * 3.0f, float(index / 32u) * 3.0f, 2.0f, 1.0f);
+    state.orientation = f4(0, 0, 0, 1);
+    state.linearVelocityAndInverseMass = f4(0, 0, 0, properties.massAndInverseMass.y);
+    state.inverseInertiaWorldRow0 = properties.inverseInertiaRow0;
+    state.inverseInertiaWorldRow1 = properties.inverseInertiaRow1;
+    state.inverseInertiaWorldRow2 = properties.inverseInertiaRow2;
+    state.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+    state.flagsAndIndices[1] = MR_INVALID_INDEX;
+    state.flagsAndIndices[2] = index;
+    return state;
+}
+
+template <typename T>
+id<MTLBuffer> buffer(id<MTLDevice> device, const std::vector<T>& values, NSString* label) {
+    require(!values.empty(), "empty Metal buffer");
+    id<MTLBuffer> result = [device newBufferWithBytes:values.data() length:values.size() * sizeof(T) options:MTLResourceStorageModeShared];
+    require(result != nil, "failed to allocate " + string(label));
+    result.label = label;
+    return result;
+}
+
+template <typename T>
+id<MTLBuffer> scalarBuffer(id<MTLDevice> device, const T& value, NSString* label) {
+    const std::vector<T> values{value};
+    return buffer(device, values, label);
+}
+
+id<MTLComputePipelineState> pipeline(id<MTLDevice> device, id<MTLLibrary> library, NSString* name) {
+    NSError* error = nil;
+    id<MTLFunction> function = [library newFunctionWithName:name];
+    require(function != nil, "missing Metal function " + string(name));
+    id<MTLComputePipelineState> result = [device newComputePipelineStateWithFunction:function error:&error];
+    require(result != nil, "failed pipeline " + string(name) + ": " + errorString(error));
+    return result;
+}
+
+void encodeMulticopter(id<MTLComputeCommandEncoder> encoder, id<MTLComputePipelineState> pipe, id<MTLBuffer> rotors, id<MTLBuffer> model, id<MTLBuffer> motorState, id<MTLBuffer> commands, id<MTLBuffer> bodies, id<MTLBuffer> wrenches, id<MTLBuffer> dispatch, std::uint32_t count) {
+    [encoder setComputePipelineState:pipe];
+    [encoder setBuffer:rotors offset:0 atIndex:0]; [encoder setBuffer:model offset:0 atIndex:1];
+    [encoder setBuffer:motorState offset:0 atIndex:2]; [encoder setBuffer:commands offset:0 atIndex:3];
+    [encoder setBuffer:bodies offset:0 atIndex:4]; [encoder setBuffer:wrenches offset:0 atIndex:5];
+    [encoder setBuffer:dispatch offset:0 atIndex:6];
+    [encoder dispatchThreads:MTLSizeMake(count, 1, 1) threadsPerThreadgroup:MTLSizeMake(32, 1, 1)];
+}
+
+void encodeFreeBody(id<MTLComputeCommandEncoder> encoder, id<MTLComputePipelineState> pipe, id<MTLBuffer> properties, id<MTLBuffer> bodies, id<MTLBuffer> wrenches, id<MTLBuffer> batch, id<MTLBuffer> statuses, std::uint32_t count) {
+    [encoder setComputePipelineState:pipe];
+    [encoder setBuffer:properties offset:0 atIndex:0]; [encoder setBuffer:bodies offset:0 atIndex:1];
+    [encoder setBuffer:wrenches offset:0 atIndex:2]; [encoder setBuffer:batch offset:0 atIndex:3]; [encoder setBuffer:statuses offset:0 atIndex:4];
+    [encoder dispatchThreads:MTLSizeMake(count, 1, 1) threadsPerThreadgroup:MTLSizeMake(32, 1, 1)];
+}
+} // namespace
+
+int main() {
+    @autoreleasepool {
+        try {
+            const auto model = metalrobo::makePX4X500MulticopterModel(kDt);
+            const auto rotorArray = metalrobo::makePX4X500Rotors();
+            const auto propertiesOne = metalrobo::makePX4X500BodyProperties();
+            const float hover = std::sqrt(propertiesOne.massAndInverseMass.x * 9.81f / (4.0f * model.coefficients.x));
+            require(hover < model.motorAndTimestep.z, "X500 source motor limit cannot hover the sourced mass");
+            std::vector<MRBodyPropertiesGPU> properties(kEnvironments, propertiesOne);
+            std::vector<MRBodyStateGPU> states; states.reserve(kEnvironments);
+            for (std::uint32_t index = 0; index < kEnvironments; ++index) states.push_back(initialState(propertiesOne, index));
+            std::vector<MRMulticopterStateGPU> motors(kEnvironments);
+            for (auto& motor : motors) { motor.rotorSpeed01 = f4(hover, hover, hover, hover); }
+            std::vector<float> commands(kEnvironments * 4u, hover);
+            std::vector<MRBodyWrenchGPU> wrenches(kEnvironments);
+            std::vector<MRFreeBodyStatusGPU> statuses(kEnvironments);
+            std::vector<MRMulticopterRotorGPU> rotors(rotorArray.begin(), rotorArray.end());
+            MRMulticopterStateGPU oracleMotors{};
+            oracleMotors.rotorSpeed01 = f4(hover, hover, hover, hover);
+            const std::array<float, MR_MULTICOPTER_MAX_ROTORS> oracleCommands{
+                hover, hover, hover, hover, 0, 0, 0, 0,
+            };
+            const auto oracle = metalrobo::stepMulticopter(
+                model, rotorArray, oracleMotors, oracleCommands, states.front()
+            );
+            require(oracle.succeeded(), "FP64 X500 actuator oracle rejected hover");
+            MRMulticopterDispatchGPU multicopterDispatch{}; multicopterDispatch.environmentCount = kEnvironments; multicopterDispatch.bodyStride = 1u;
+            MRFreeBodyBatchGPU freeBodyBatch{}; freeBodyBatch.bodyCount = kEnvironments; freeBodyBatch.integratorType = MR_FREE_BODY_IMPLICIT_MIDPOINT; freeBodyBatch.nonlinearIterations = 12u; freeBodyBatch.gravityAndTimestep = f4(0, 0, -9.81f, kDt); freeBodyBatch.convergence = f4(2.0e-6f, 0, 0);
+
+            id<MTLDevice> device = MTLCreateSystemDefaultDevice(); require(device != nil, "no Metal device");
+            id<MTLCommandQueue> queue = [device newCommandQueue]; require(queue != nil, "no Metal queue");
+            NSError* error = nil;
+            id<MTLLibrary> library = [device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:METALROBO_DEFAULT_METALLIB]] error:&error];
+            require(library != nil, "failed metallib: " + errorString(error));
+            const auto multicopterPipe = pipeline(device, library, @"mr_step_multicopters");
+            const auto freeBodyPipe = pipeline(device, library, @"mr_integrate_free_bodies");
+            const auto rotorsBuffer = buffer(device, rotors, @"x500 rotors"); const auto modelBuffer = scalarBuffer(device, model, @"x500 model");
+            const auto motorBuffer = buffer(device, motors, @"x500 motors"); const auto commandBuffer = buffer(device, commands, @"x500 commands");
+            const auto propertyBuffer = buffer(device, properties, @"x500 properties"); const auto bodyBuffer = buffer(device, states, @"x500 bodies");
+            const auto wrenchBuffer = buffer(device, wrenches, @"x500 wrenches"); const auto statusBuffer = buffer(device, statuses, @"x500 statuses");
+            const auto multicopterDispatchBuffer = scalarBuffer(device, multicopterDispatch, @"x500 actuator dispatch"); const auto freeBodyBatchBuffer = scalarBuffer(device, freeBodyBatch, @"x500 free body batch");
+            id<MTLCommandBuffer> command = [queue commandBuffer]; require(command != nil, "no Metal command buffer");
+            id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder]; require(encoder != nil, "no Metal encoder");
+            for (std::uint32_t step = 0; step < kSteps; ++step) {
+                encodeMulticopter(encoder, multicopterPipe, rotorsBuffer, modelBuffer, motorBuffer, commandBuffer, bodyBuffer, wrenchBuffer, multicopterDispatchBuffer, kEnvironments);
+                encodeFreeBody(encoder, freeBodyPipe, propertyBuffer, bodyBuffer, wrenchBuffer, freeBodyBatchBuffer, statusBuffer, kEnvironments);
+            }
+            [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
+            require(command.status == MTLCommandBufferStatusCompleted, "X500 Metal command failed: " + errorString(command.error));
+            const auto* finalStates = static_cast<const MRBodyStateGPU*>(bodyBuffer.contents);
+            const auto* finalStatuses = static_cast<const MRFreeBodyStatusGPU*>(statusBuffer.contents);
+            const auto* finalWrenches = static_cast<const MRBodyWrenchGPU*>(wrenchBuffer.contents);
+            float maximumAltitudeError = 0.0f;
+            for (std::uint32_t index = 0; index < kEnvironments; ++index) {
+                require(finalStatuses[index].code == MR_STEP_SUCCESS, "X500 free-body step failed");
+                maximumAltitudeError = std::max(maximumAltitudeError, std::abs(finalStates[index].position.z - 2.0f));
+            }
+            require(maximumAltitudeError < 2.0e-3f, "X500 source hover drift exceeds gate");
+            const float wrenchParity = std::max({
+                std::abs(finalWrenches[0].force.x - oracle.wrench.force.x),
+                std::abs(finalWrenches[0].force.y - oracle.wrench.force.y),
+                std::abs(finalWrenches[0].force.z - oracle.wrench.force.z),
+                std::abs(finalWrenches[0].torque.x - oracle.wrench.torque.x),
+                std::abs(finalWrenches[0].torque.y - oracle.wrench.torque.y),
+                std::abs(finalWrenches[0].torque.z - oracle.wrench.torque.z),
+            });
+            require(wrenchParity < 2.0e-4f, "X500 CPU/Metal actuator wrench parity exceeded");
+            std::cout << std::fixed << std::setprecision(7) << "robot=px4_x500 source_revision=e00d3b9cde682dbcb3bf6f30a2f2b8ef4325dae8 device=" << string(device.name) << " environments=" << kEnvironments << " steps=" << kSteps << " hover_rad_s=" << hover << " maximum_altitude_error_m=" << maximumAltitudeError << " actuator_wrench_parity=" << wrenchParity << " failed_steps=0 status=pass\n";
+            return 0;
+        } catch (const std::exception& exception) { std::cerr << "metalrobo_px4_x500_gpu_probe: " << exception.what() << '\n'; return 1; }
+    }
+}
