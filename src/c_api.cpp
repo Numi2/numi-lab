@@ -14,6 +14,7 @@
 #include "metalrobo/Runtime.hpp"
 #include "metalrobo/RuntimeAbi.hpp"
 #include "metalrobo/RobotDescriptionCooker.hpp"
+#include "metalrobo/RunProgram.hpp"
 #include "metalrobo/VisualPlatform.hpp"
 #include "metalrobo/WorldPack.hpp"
 
@@ -36,6 +37,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -89,6 +91,13 @@ struct MRTaskVisualRuntime {
     std::uint64_t sceneFingerprint = 0u;
 };
 
+struct MRTaskOutcomeDescriptor {
+    std::string id;
+    std::string unit;
+    std::uint32_t source = MR_TASK_OUTCOME_REWARD;
+    std::uint32_t direction = MR_TASK_OUTCOME_NEUTRAL;
+};
+
 struct MRTaskRolloutHandle {
     explicit MRTaskRolloutHandle(
         metalrobo::MetalWorldConfig config
@@ -108,10 +117,15 @@ struct MRTaskRolloutHandle {
     metalrobo::MetalWorldResult result;
     std::vector<std::uint32_t> statusCodes;
     std::vector<std::uint32_t> activeContacts;
+    std::vector<MRTaskOutcomeDescriptor> outcomes;
+    std::vector<float> outcomeValues;
     std::unique_ptr<MRTaskVisualRuntime> visualRuntime;
     std::string deviceName;
     std::string metallibPath;
     std::string taskId;
+    std::uint64_t runFingerprint = 0u;
+    std::uint64_t robotFingerprint = 0u;
+    std::uint64_t sensorFingerprint = 0u;
     std::uint32_t environmentCount = 0u;
     std::uint64_t submittedControlSteps = 0u;
     std::uint64_t completedEnvironmentSteps = 0u;
@@ -945,6 +959,223 @@ void authorG1ImaginedTask(
 }
 
 std::unique_ptr<MRTaskRolloutHandle>
+createTaskRolloutHandle(
+    metalrobo::EngineModel model,
+    metalrobo::CompiledWorld world,
+    metalrobo::CompiledTaskProgram taskProgram,
+    std::vector<MRBodyStateGPU> defaultSceneBodies,
+    const MRTaskRolloutConfigC& config,
+    const char* metallibPath,
+    std::string taskId,
+    const std::string_view source
+) {
+    metalrobo::MetalWorldConfig worldConfig;
+    if (metallibPath != nullptr && metallibPath[0] != '\0') {
+        worldConfig.metallibPath = metallibPath;
+    }
+    worldConfig.maximumInFlightSubmissions = 1u;
+    auto handle = std::make_unique<MRTaskRolloutHandle>(
+        std::move(worldConfig)
+    );
+    if (metallibPath != nullptr && metallibPath[0] != '\0') {
+        handle->metallibPath = metallibPath;
+    }
+    handle->model = std::move(model);
+    handle->world = std::move(world);
+    handle->taskProgram = std::move(taskProgram);
+    const auto appendOutcome = [&handle](
+        std::string id,
+        std::string unit,
+        const std::uint32_t source,
+        const std::uint32_t direction
+    ) {
+        handle->outcomes.push_back({
+            std::move(id), std::move(unit), source, direction
+        });
+    };
+    appendOutcome("reward", "reward", MR_TASK_OUTCOME_REWARD,
+        MR_TASK_OUTCOME_HIGHER_IS_BETTER);
+    appendOutcome("task_reward", "reward", MR_TASK_OUTCOME_TASK_REWARD,
+        MR_TASK_OUTCOME_HIGHER_IS_BETTER);
+    appendOutcome("done", "bool", MR_TASK_OUTCOME_DONE,
+        MR_TASK_OUTCOME_LOWER_IS_BETTER);
+    appendOutcome("timeout", "bool", MR_TASK_OUTCOME_TIMEOUT,
+        MR_TASK_OUTCOME_NEUTRAL);
+    appendOutcome("physics_error", "bool", MR_TASK_OUTCOME_PHYSICS_ERROR,
+        MR_TASK_OUTCOME_LOWER_IS_BETTER);
+    const auto hasReward = [&handle](const std::uint32_t operation) {
+        return std::ranges::any_of(
+            handle->taskProgram.rewardOperators(),
+            [operation](const MRTaskRewardOperatorGPU& value) {
+                return value.source.x == operation;
+            }
+        );
+    };
+    const auto hasObservation = [&handle](const std::uint32_t source) {
+        const auto contains = [source](const auto operators) {
+            return std::ranges::any_of(
+                operators,
+                [source](const MRTaskObservationOperatorGPU& value) {
+                    return value.source.x == source;
+                }
+            );
+        };
+        return contains(handle->taskProgram.actorOperators()) ||
+            contains(handle->taskProgram.criticOperators());
+    };
+    const bool trackingOutcome =
+        hasReward(MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING) ||
+        hasReward(MR_TASK_REWARD_INTERACTION_JOINT_TRACKING) ||
+        hasReward(MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING) ||
+        hasReward(MR_TASK_REWARD_INTERACTION_ROOT_TRACKING) ||
+        hasReward(MR_TASK_REWARD_OBJECT_POSITION) ||
+        hasReward(MR_TASK_REWARD_OBJECT_PLACEMENT);
+    if (trackingOutcome) appendOutcome(
+        "tracking", "ratio", MR_TASK_OUTCOME_TRACKING_SCORE,
+        MR_TASK_OUTCOME_HIGHER_IS_BETTER
+    );
+    const bool rootHeightOutcome =
+        hasObservation(MR_TASK_OBSERVE_ROOT_HEIGHT) ||
+        hasReward(MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED) ||
+        hasReward(MR_TASK_REWARD_ROOT_HEIGHT_NORMALIZED) ||
+        hasReward(MR_TASK_REWARD_ROOT_HEIGHT_PROGRESS);
+    if (rootHeightOutcome) appendOutcome(
+        "root_height", "m", MR_TASK_OUTCOME_ROOT_HEIGHT,
+        MR_TASK_OUTCOME_NEUTRAL
+    );
+    const bool tiltOutcome =
+        hasObservation(MR_TASK_OBSERVE_PROJECTED_GRAVITY) ||
+        hasReward(MR_TASK_REWARD_TILT_SQUARED) ||
+        hasReward(MR_TASK_REWARD_UPRIGHTNESS) ||
+        hasReward(MR_TASK_REWARD_RECOVERY_TILT_PROGRESS);
+    if (tiltOutcome) appendOutcome(
+        "tilt", "rad", MR_TASK_OUTCOME_TILT,
+        MR_TASK_OUTCOME_LOWER_IS_BETTER
+    );
+    const bool contactOutcome = std::ranges::any_of(
+        handle->taskProgram.rewardOperators(),
+        [](const MRTaskRewardOperatorGPU& value) {
+            return value.source.x == MR_TASK_REWARD_GAIT_CONTACT_MATCH ||
+                value.source.x == MR_TASK_REWARD_SWING_CLEARANCE ||
+                value.source.x == MR_TASK_REWARD_SUPPORT_SLIP ||
+                value.source.x == MR_TASK_REWARD_FORBIDDEN_CONTACT ||
+                value.source.x == MR_TASK_REWARD_FOOT_CLEARANCE ||
+                value.source.x == MR_TASK_REWARD_SUPPORT_CONTACT_COUNT ||
+                value.source.x == MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING;
+        }
+    );
+    if (contactOutcome) appendOutcome(
+        "contact_reward", "reward", MR_TASK_OUTCOME_CONTACT_REWARD,
+        MR_TASK_OUTCOME_HIGHER_IS_BETTER
+    );
+    const std::array projectileOutcomes{
+        std::tuple{MR_TASK_REWARD_LINK_CLEARANCE_BARRIER,
+            "projectile_clearance_reward",
+            MR_TASK_OUTCOME_PROJECTILE_CLEARANCE_REWARD},
+        std::tuple{MR_TASK_REWARD_PROJECTILE_EVASION,
+            "projectile_evasion_reward",
+            MR_TASK_OUTCOME_PROJECTILE_EVASION_REWARD},
+        std::tuple{MR_TASK_REWARD_PROJECTILE_MISS,
+            "projectile_miss_reward",
+            MR_TASK_OUTCOME_PROJECTILE_MISS_REWARD},
+        std::tuple{MR_TASK_REWARD_PROJECTILE_SAFE_STILLNESS,
+            "projectile_safe_stillness_reward",
+            MR_TASK_OUTCOME_PROJECTILE_SAFE_STILLNESS_REWARD},
+        std::tuple{MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE,
+            "projectile_safe_action_reward",
+            MR_TASK_OUTCOME_PROJECTILE_SAFE_ACTION_REWARD},
+        std::tuple{MR_TASK_REWARD_JOINT_CBF_CORRECTION,
+            "cbf_correction_reward",
+            MR_TASK_OUTCOME_CBF_CORRECTION_REWARD},
+        std::tuple{MR_TASK_REWARD_JOINT_CBF_BUFFER,
+            "cbf_buffer_reward",
+            MR_TASK_OUTCOME_CBF_BUFFER_REWARD},
+        std::tuple{MR_TASK_REWARD_PROJECTILE_PREDICTED_CLEARANCE,
+            "projectile_predicted_clearance_reward",
+            MR_TASK_OUTCOME_PROJECTILE_PREDICTED_CLEARANCE_REWARD},
+    };
+    for (const auto& [operation, id, sourceValue] : projectileOutcomes) {
+        if (hasReward(operation)) appendOutcome(
+            id, "reward", sourceValue, MR_TASK_OUTCOME_HIGHER_IS_BETTER
+        );
+    }
+    handle->defaultSceneBodies = std::move(defaultSceneBodies);
+    handle->taskId = std::move(taskId);
+    if (handle->world.sceneBodyCount() !=
+            handle->defaultSceneBodies.size()) {
+        throw std::runtime_error(
+            std::string{source} +
+            " scene-state count does not match compiled topology"
+        );
+    }
+    handle->environmentCount = config.environment_count;
+    handle->stepConfig.timestepSeconds = config.control_timestep_seconds;
+    handle->stepConfig.physicsSubsteps = config.physics_substeps;
+    handle->stepConfig.solverMode =
+        metalrobo::MetalWorldSolverMode::temporalCone;
+    handle->stepConfig.actuationMode =
+        metalrobo::MetalWorldActuationMode::implicitPositionDrive;
+    handle->stepConfig.velocityIterations = config.velocity_iterations;
+    handle->stepConfig.finalVelocityIterations =
+        config.final_velocity_iterations;
+    handle->stepConfig.ccdMode = metalrobo::MetalWorldCCDMode::disabled;
+    handle->stepConfig.applyBodyDamping = true;
+    handle->stepConfig.deterministic = true;
+    handle->stepConfig.warmStart = true;
+    handle->stepConfig.streamedArticulatedContactResponses =
+        config.materialize_articulated_contact_responses == 0u;
+    handle->stepConfig.minimumDifficultyBand =
+        config.override_difficulty_band_range != 0u
+        ? config.minimum_difficulty_band
+        : 0u;
+    handle->stepConfig.maximumDifficultyBand =
+        config.override_difficulty_band_range != 0u
+        ? config.maximum_difficulty_band
+        : MR_INVALID_INDEX;
+    handle->stepConfig.captureContactEvidence = false;
+    handle->stepConfig.publishFinalState = false;
+    handle->stepConfig.publishStateTrajectory = false;
+    handle->stepConfig.taskProgram = handle->taskProgram;
+    resetTaskRolloutState(*handle, config.seed);
+    return handle;
+}
+
+float taskOutcomeValue(
+    const MRTaskTransitionC& transition,
+    const std::uint32_t source
+) {
+    switch (source) {
+    case MR_TASK_OUTCOME_REWARD: return transition.reward;
+    case MR_TASK_OUTCOME_TASK_REWARD: return transition.task_reward;
+    case MR_TASK_OUTCOME_TRACKING_SCORE: return transition.tracking_score;
+    case MR_TASK_OUTCOME_ROOT_HEIGHT: return transition.root_height;
+    case MR_TASK_OUTCOME_TILT: return transition.tilt;
+    case MR_TASK_OUTCOME_DONE: return static_cast<float>(transition.done);
+    case MR_TASK_OUTCOME_TIMEOUT: return static_cast<float>(transition.timeout);
+    case MR_TASK_OUTCOME_PHYSICS_ERROR:
+        return static_cast<float>(transition.physics_error);
+    case MR_TASK_OUTCOME_CONTACT_REWARD: return transition.contact_reward;
+    case MR_TASK_OUTCOME_PROJECTILE_CLEARANCE_REWARD:
+        return transition.dodge_link_clearance_reward;
+    case MR_TASK_OUTCOME_PROJECTILE_EVASION_REWARD:
+        return transition.dodge_evasion_reward;
+    case MR_TASK_OUTCOME_PROJECTILE_MISS_REWARD:
+        return transition.dodge_miss_reward;
+    case MR_TASK_OUTCOME_PROJECTILE_SAFE_STILLNESS_REWARD:
+        return transition.dodge_safe_stillness_reward;
+    case MR_TASK_OUTCOME_PROJECTILE_SAFE_ACTION_REWARD:
+        return transition.dodge_safe_action_rate_reward;
+    case MR_TASK_OUTCOME_CBF_CORRECTION_REWARD:
+        return transition.dodge_cbf_correction_reward;
+    case MR_TASK_OUTCOME_CBF_BUFFER_REWARD:
+        return transition.dodge_cbf_buffer_reward;
+    case MR_TASK_OUTCOME_PROJECTILE_PREDICTED_CLEARANCE_REWARD:
+        return transition.dodge_predicted_clearance_reward;
+    default: return 0.0f;
+    }
+}
+
+std::unique_ptr<MRTaskRolloutHandle>
 createCompiledTaskRollout(
     metalrobo::LocomotionWorld authored,
     const MRTaskRolloutConfigC& config,
@@ -983,20 +1214,6 @@ createCompiledTaskRollout(
     );
     if (config.disable_task_terminations != 0u) {
         authored.task.terminations.clear();
-    }
-
-    metalrobo::MetalWorldConfig worldConfig;
-    if (metallibPath != nullptr &&
-        metallibPath[0] != '\0') {
-        worldConfig.metallibPath = metallibPath;
-    }
-    worldConfig.maximumInFlightSubmissions = 1u;
-    auto handle =
-        std::make_unique<MRTaskRolloutHandle>(
-            std::move(worldConfig)
-        );
-    if (metallibPath != nullptr && metallibPath[0] != '\0') {
-        handle->metallibPath = metallibPath;
     }
 
     metalrobo::CompiledLocomotionWorld compiled;
@@ -1042,54 +1259,180 @@ createCompiledTaskRollout(
         );
     }
 
-    handle->model = std::move(authored.model);
-    handle->defaultSceneBodies =
-        std::move(authored.sceneBodies);
-    handle->world = std::move(compiled.world);
-    handle->taskProgram = std::move(compiled.task);
-    handle->taskId = authored.task.id;
-    if (handle->world.sceneBodyCount() !=
-            handle->defaultSceneBodies.size()) {
+    return createTaskRolloutHandle(
+        std::move(authored.model),
+        std::move(compiled.world),
+        std::move(compiled.task),
+        std::move(authored.sceneBodies),
+        config,
+        metallibPath,
+        authored.task.id,
+        source
+    );
+}
+
+std::vector<metalrobo::LocomotionDynamicSphere>
+locomotionDynamicSpheres(const MRTaskRolloutConfigC& config) {
+    std::vector<metalrobo::LocomotionDynamicSphere> spheres;
+    spheres.reserve(config.dynamic_sphere_count);
+    for (std::uint32_t index = 0u;
+         index < config.dynamic_sphere_count;
+         ++index) {
+        const MRTaskRolloutDynamicSphereC& source =
+            config.dynamic_spheres[index];
+        spheres.push_back({
+            .position = {
+                source.position[0], source.position[1],
+                source.position[2], 1.0f,
+            },
+            .linearVelocity = {
+                source.linear_velocity[0],
+                source.linear_velocity[1],
+                source.linear_velocity[2], 0.0f,
+            },
+            .radius = source.radius,
+            .mass = source.mass,
+            .launchStep = source.launch_step,
+        });
+    }
+    return spheres;
+}
+
+metalrobo::RunManifest makeUnitreeG1RunManifest(
+    const metalrobo::LocomotionSurface surface,
+    const metalrobo::UnitreeG1Task taskKind,
+    const MRTaskRolloutConfigC& config
+) {
+    auto robot = metalrobo::builtinRobotPack("unitree_g1");
+    if (!robot) {
+        throw std::logic_error("bundled G1 RobotPack is unavailable");
+    }
+    metalrobo::RunManifest manifest;
+    manifest.id = "unitree_g1_run";
+    manifest.robot = std::move(*robot);
+    manifest.scene.id = surface == metalrobo::LocomotionSurface::ground
+        ? "ground_scene"
+        : "terrain_scene";
+    manifest.sensors.id = "unitree_g1_default_sensors";
+    manifest.reality.id = "nominal_reality";
+    manifest.profile.id = "native_task_rollout";
+    manifest.profile.environmentCount = config.environment_count;
+    manifest.profile.controlSteps = 1u;
+    manifest.profile.physicsSubsteps = config.physics_substeps;
+    manifest.profile.velocityIterations = config.velocity_iterations;
+    manifest.profile.finalVelocityIterations =
+        config.final_velocity_iterations;
+    manifest.profile.controlTimestepSeconds =
+        config.control_timestep_seconds;
+    manifest.profile.seed = config.seed;
+
+    switch (taskKind) {
+    case metalrobo::UnitreeG1Task::velocity:
+        manifest.task = metalrobo::makeUnitreeG1LocomotionTaskPack(surface);
+        break;
+    case metalrobo::UnitreeG1Task::disturbanceRecovery:
+        manifest.task =
+            metalrobo::makeUnitreeG1DisturbanceRecoveryTaskPack(surface);
+        break;
+    case metalrobo::UnitreeG1Task::supineGetUpDiscovery:
+        manifest.task =
+            metalrobo::makeUnitreeG1SupineGetUpDiscoveryTaskPack(surface);
+        if (!manifest.robot.mechanics.materials.empty()) {
+            manifest.robot.mechanics.materials.front().response.z =
+                1.25e-7f;
+        }
+        break;
+    case metalrobo::UnitreeG1Task::ballDisturbanceRecovery:
+        manifest.task = metalrobo::
+            makeUnitreeG1BallDisturbanceRecoveryTaskPack(surface);
+        break;
+    case metalrobo::UnitreeG1Task::ballDodge:
+        manifest.task = metalrobo::makeUnitreeG1BallDodgeTaskPack(surface);
+        break;
+    }
+    if (config.disable_task_terminations != 0u) {
+        manifest.task.terminations.clear();
+    }
+    manifest.profile.capacities = manifest.task.capacities;
+    const metalrobo::LocomotionSceneComponent surfaceComponent =
+        metalrobo::makeLocomotionSurfaceComponent(
+            manifest.robot.mechanics,
+            surface
+        );
+    manifest.scene.objects.push_back({
+        .id = surface == metalrobo::LocomotionSurface::ground
+            ? "locomotion_ground"
+            : "locomotion_terrain",
+        .semanticClass = "support_surface",
+        .role = MR_WORLD_ASSET_FIXTURE,
+        .render = MR_WORLD_RENDER_NONE,
+        .collision = surface == metalrobo::LocomotionSurface::ground
+            ? MR_WORLD_COLLISION_PRIMITIVES
+            : MR_WORLD_COLLISION_TRIANGLE_MESH,
+        .dynamics = MR_WORLD_DYNAMICS_STATIC,
+        .mechanics = surfaceComponent.mechanics,
+        .defaultBodyStates = surfaceComponent.defaultBodyStates,
+    });
+    const auto spheres = locomotionDynamicSpheres(config);
+    if (!spheres.empty()) {
+        metalrobo::LocomotionSceneComponent sphereComponent =
+            metalrobo::makeLocomotionDynamicSphereComponent(
+                manifest.robot.mechanics,
+                spheres
+            );
+        manifest.scene.objects.push_back({
+            .id = "locomotion_dynamic_spheres",
+            .semanticClass = "dynamic_projectile",
+            .role = MR_WORLD_ASSET_MANIPULATED,
+            .render = MR_WORLD_RENDER_NONE,
+            .collision = MR_WORLD_COLLISION_PRIMITIVES,
+            .dynamics = MR_WORLD_DYNAMICS_RIGID,
+            .mechanics = std::move(sphereComponent.mechanics),
+            .defaultBodyStates =
+                std::move(sphereComponent.defaultBodyStates),
+        });
+    }
+    return manifest;
+}
+
+std::unique_ptr<MRTaskRolloutHandle> createCompiledRunTaskRollout(
+    metalrobo::RunManifest manifest,
+    const MRTaskRolloutConfigC& config,
+    const char* metallibPath,
+    const std::string_view source
+) {
+    validateTaskRolloutConfiguration(config);
+    // Task composition (notably an InteractionPack) may refine the measured
+    // contact profile after the base manifest is authored. The executable run
+    // must compile the final task's exact capacity contract, never a stale
+    // snapshot copied before that composition.
+    manifest.profile.capacities = manifest.task.capacities;
+    metalrobo::CompiledRun compiled;
+    const metalrobo::RunCompileDiagnostics status =
+        metalrobo::compileRun(manifest, compiled);
+    if (!status.succeeded()) {
         throw std::runtime_error(
-            std::string{source} +
-            " scene-state count does not match compiled topology"
+            std::string{source} + " CompiledRun failed [" +
+            metalrobo::runCompileStatusName(status.status) + "]: " +
+            status.element + ": " + status.message
         );
     }
-
-    handle->environmentCount = config.environment_count;
-    handle->stepConfig.timestepSeconds =
-        config.control_timestep_seconds;
-    handle->stepConfig.physicsSubsteps =
-        config.physics_substeps;
-    handle->stepConfig.solverMode =
-        metalrobo::MetalWorldSolverMode::temporalCone;
-    handle->stepConfig.actuationMode =
-        metalrobo::MetalWorldActuationMode::
-            implicitPositionDrive;
-    handle->stepConfig.velocityIterations =
-        config.velocity_iterations;
-    handle->stepConfig.finalVelocityIterations =
-        config.final_velocity_iterations;
-    handle->stepConfig.ccdMode =
-        metalrobo::MetalWorldCCDMode::disabled;
-    handle->stepConfig.applyBodyDamping = true;
-    handle->stepConfig.deterministic = true;
-    handle->stepConfig.warmStart = true;
-    handle->stepConfig.streamedArticulatedContactResponses =
-        config.materialize_articulated_contact_responses == 0u;
-    handle->stepConfig.minimumDifficultyBand =
-        config.override_difficulty_band_range != 0u
-        ? config.minimum_difficulty_band
-        : 0u;
-    handle->stepConfig.maximumDifficultyBand =
-        config.override_difficulty_band_range != 0u
-        ? config.maximum_difficulty_band
-        : MR_INVALID_INDEX;
-    handle->stepConfig.captureContactEvidence = false;
-    handle->stepConfig.publishFinalState = false;
-    handle->stepConfig.publishStateTrajectory = false;
-    handle->stepConfig.taskProgram = handle->taskProgram;
-    resetTaskRolloutState(*handle, config.seed);
+    auto handle = createTaskRolloutHandle(
+        compiled.model(),
+        compiled.world(),
+        compiled.task(),
+        std::vector<MRBodyStateGPU>{
+            compiled.defaultSceneBodies().begin(),
+            compiled.defaultSceneBodies().end()
+        },
+        config,
+        metallibPath,
+        manifest.task.id,
+        source
+    );
+    handle->runFingerprint = compiled.fingerprint();
+    handle->robotFingerprint = compiled.robotFingerprint();
+    handle->sensorFingerprint = compiled.sensorFingerprint();
     return handle;
 }
 
@@ -2314,16 +2657,16 @@ MRTaskRolloutHandle* mr_create_unitree_g1_task_rollout(
     const int status = translateErrors([&] {
         const metalrobo::LocomotionSurface surface =
             locomotionSurface(surface_value);
-        auto handle =
-            createCompiledTaskRollout(
-                metalrobo::makeUnitreeG1LocomotionWorld(
-                    surface,
-                    unitreeG1Task(task_value)
-                ),
-                *config,
-                metallib_path,
-                "bundled G1"
-            );
+        auto handle = createCompiledRunTaskRollout(
+            makeUnitreeG1RunManifest(
+                surface,
+                unitreeG1Task(task_value),
+                *config
+            ),
+            *config,
+            metallib_path,
+            "bundled G1"
+        );
         result = handle.release();
     });
     return status == 0 ? result : nullptr;
@@ -2392,21 +2735,21 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
                 "InteractionPack task composition supports velocity, ball-dodge, or supine-get-up."
             );
         }
-        metalrobo::LocomotionWorld authored =
-            metalrobo::makeUnitreeG1LocomotionWorld(
-                locomotionSurface(surface_value),
-                task
-            );
+        metalrobo::RunManifest manifest = makeUnitreeG1RunManifest(
+            locomotionSurface(surface_value),
+            task,
+            *config
+        );
         if (task == metalrobo::UnitreeG1Task::velocity) {
             authorG1InteractionTrackingTask(
-                authored.task,
+                manifest.task,
                 interactions,
                 clip,
                 *config
             );
         } else {
             authorG1ImaginedTask(
-                authored.task,
+                manifest.task,
                 interactions,
                 clip,
                 *config,
@@ -2415,34 +2758,41 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
         }
         if (config->interaction_reference_mode ==
             MR_INTERACTION_REFERENCE_GUIDE) {
-            authored.task.interactionControlReference = true;
+            manifest.task.interactionControlReference = true;
         } else if (config->interaction_reference_mode ==
                    MR_INTERACTION_REFERENCE_RESET_ONLY) {
-            authored.task.interactionControlReference = false;
+            manifest.task.interactionControlReference = false;
         }
         if (config->override_interaction_student_authority != 0u) {
-            authored.task.interactionStudentAuthority =
+            manifest.task.interactionStudentAuthority =
                 config->interaction_student_authority;
         }
         if (config->override_interaction_reset_phase_fraction != 0u) {
-            authored.task.interactionResetPhaseFraction =
+            manifest.task.interactionResetPhaseFraction =
                 config->interaction_reset_phase_fraction;
         }
         if (config->override_interaction_reset_phase_probability != 0u) {
-            authored.task.interactionResetPhaseProbability =
+            manifest.task.interactionResetPhaseProbability =
                 config->interaction_reset_phase_probability;
         }
         if (config->override_interaction_reset_maximum_phase != 0u) {
-            authored.task.interactionResetMaximumPhase =
+            manifest.task.interactionResetMaximumPhase =
                 config->interaction_reset_maximum_phase;
         }
-        auto handle = createCompiledTaskRollout(
-            std::move(authored),
+        manifest.interactions = interactions;
+        manifest.interactionClip = clip.id;
+        manifest.teacher = {
+            .id = interactions.id,
+            .kind = metalrobo::TeacherKind::motionImagination,
+            .provider = "interaction_pack",
+            .model = clip.id,
+            .artifact = interaction_pack_path,
+        };
+        auto handle = createCompiledRunTaskRollout(
+            std::move(manifest),
             *config,
             metallib_path,
-            "bundled G1 interaction",
-            &interactions,
-            clip.id
+            "bundled G1 interaction"
         );
         result = handle.release();
     });
@@ -3104,6 +3454,22 @@ int mr_task_rollout_advance(
             );
         }
         handle->result = std::move(published);
+        handle->outcomeValues.clear();
+        handle->outcomeValues.reserve(
+            handle->result.transitions.size() *
+            handle->outcomes.size()
+        );
+        for (const MRTaskTransitionGPU& native :
+             handle->result.transitions) {
+            const auto& transition =
+                reinterpret_cast<const MRTaskTransitionC&>(native);
+            for (const MRTaskOutcomeDescriptor& outcome :
+                 handle->outcomes) {
+                handle->outcomeValues.push_back(
+                    taskOutcomeValue(transition, outcome.source)
+                );
+            }
+        }
         handle->deviceName = diagnostics.deviceName;
         handle->submittedControlSteps += control_step_count;
         handle->completedEnvironmentSteps +=
@@ -3158,6 +3524,9 @@ MRTaskRolloutLayoutC mr_task_rollout_layout(
         handle->taskProgram.observationFingerprint();
     result.action_fingerprint =
         handle->taskProgram.actionFingerprint();
+    result.run_fingerprint = handle->runFingerprint;
+    result.robot_fingerprint = handle->robotFingerprint;
+    result.sensor_fingerprint = handle->sensorFingerprint;
     result.submitted_control_steps =
         handle->submittedControlSteps;
     result.completed_environment_steps =
@@ -3282,6 +3651,62 @@ const MRTaskTransitionC* mr_task_rollout_transitions(
         ? reinterpret_cast<const MRTaskTransitionC*>(
               handle->result.transitions.data()
           )
+        : nullptr;
+}
+
+uint32_t mr_task_rollout_outcome_count(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle)
+        ? static_cast<uint32_t>(handle->outcomes.size())
+        : 0u;
+}
+
+const char* mr_task_rollout_outcome_id(
+    const MRTaskRolloutHandle* handle,
+    const uint32_t outcome_index
+) {
+    if (!requireTaskRolloutHandle(handle) ||
+        outcome_index >= handle->outcomes.size()) {
+        gLastError = "task outcome index is out of range.";
+        return nullptr;
+    }
+    gLastError.clear();
+    return handle->outcomes[outcome_index].id.c_str();
+}
+
+const char* mr_task_rollout_outcome_unit(
+    const MRTaskRolloutHandle* handle,
+    const uint32_t outcome_index
+) {
+    if (!requireTaskRolloutHandle(handle) ||
+        outcome_index >= handle->outcomes.size()) {
+        gLastError = "task outcome index is out of range.";
+        return nullptr;
+    }
+    gLastError.clear();
+    return handle->outcomes[outcome_index].unit.c_str();
+}
+
+uint32_t mr_task_rollout_outcome_direction(
+    const MRTaskRolloutHandle* handle,
+    const uint32_t outcome_index
+) {
+    if (!requireTaskRolloutHandle(handle) ||
+        outcome_index >= handle->outcomes.size()) {
+        gLastError = "task outcome index is out of range.";
+        return MR_TASK_OUTCOME_NEUTRAL;
+    }
+    gLastError.clear();
+    return handle->outcomes[outcome_index].direction;
+}
+
+const float* mr_task_rollout_outcome_values(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->outcomeValues.empty()
+        ? handle->outcomeValues.data()
         : nullptr;
 }
 

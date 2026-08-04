@@ -144,6 +144,9 @@ typedef struct MRTaskRolloutLayoutC {
     uint64_t task_fingerprint;
     uint64_t observation_fingerprint;
     uint64_t action_fingerprint;
+    uint64_t run_fingerprint;
+    uint64_t robot_fingerprint;
+    uint64_t sensor_fingerprint;
     uint64_t submitted_control_steps;
     uint64_t completed_environment_steps;
     uint64_t submission_count;
@@ -249,6 +252,35 @@ typedef struct MRTaskTransitionC {
     // MR_TASK_IMPACT_* transition flags.
     uint32_t impact_event_flags;
 } MRTaskTransitionC;
+
+// Task-dependent typed outcome view. The legacy transition record remains a
+// rollout-pack compatibility payload; evaluation and product integrations
+// should enumerate this schema instead of assuming humanoid or dodge fields.
+typedef enum MRTaskOutcomeDirectionC {
+    MR_TASK_OUTCOME_NEUTRAL = 0,
+    MR_TASK_OUTCOME_HIGHER_IS_BETTER = 1,
+    MR_TASK_OUTCOME_LOWER_IS_BETTER = 2,
+} MRTaskOutcomeDirectionC;
+
+typedef enum MRTaskOutcomeSourceC {
+    MR_TASK_OUTCOME_REWARD = 0,
+    MR_TASK_OUTCOME_TASK_REWARD = 1,
+    MR_TASK_OUTCOME_TRACKING_SCORE = 2,
+    MR_TASK_OUTCOME_ROOT_HEIGHT = 3,
+    MR_TASK_OUTCOME_TILT = 4,
+    MR_TASK_OUTCOME_DONE = 5,
+    MR_TASK_OUTCOME_TIMEOUT = 6,
+    MR_TASK_OUTCOME_PHYSICS_ERROR = 7,
+    MR_TASK_OUTCOME_CONTACT_REWARD = 8,
+    MR_TASK_OUTCOME_PROJECTILE_CLEARANCE_REWARD = 9,
+    MR_TASK_OUTCOME_PROJECTILE_EVASION_REWARD = 10,
+    MR_TASK_OUTCOME_PROJECTILE_MISS_REWARD = 11,
+    MR_TASK_OUTCOME_PROJECTILE_SAFE_STILLNESS_REWARD = 12,
+    MR_TASK_OUTCOME_PROJECTILE_SAFE_ACTION_REWARD = 13,
+    MR_TASK_OUTCOME_CBF_CORRECTION_REWARD = 14,
+    MR_TASK_OUTCOME_CBF_BUFFER_REWARD = 15,
+    MR_TASK_OUTCOME_PROJECTILE_PREDICTED_CLEARANCE_REWARD = 16,
+} MRTaskOutcomeSourceC;
 
 typedef enum MRPolicyActivationC {
     MR_POLICY_ACTIVATION_C_IDENTITY = 0,
@@ -699,6 +731,25 @@ MR_API const float* mr_task_rollout_teacher_actions(
     const MRTaskRolloutHandle* handle
 );
 MR_API const MRTaskTransitionC* mr_task_rollout_transitions(
+    const MRTaskRolloutHandle* handle
+);
+MR_API uint32_t mr_task_rollout_outcome_count(
+    const MRTaskRolloutHandle* handle
+);
+MR_API const char* mr_task_rollout_outcome_id(
+    const MRTaskRolloutHandle* handle,
+    uint32_t outcome_index
+);
+MR_API const char* mr_task_rollout_outcome_unit(
+    const MRTaskRolloutHandle* handle,
+    uint32_t outcome_index
+);
+MR_API uint32_t mr_task_rollout_outcome_direction(
+    const MRTaskRolloutHandle* handle,
+    uint32_t outcome_index
+);
+// Latest submission values packed [transition][outcome].
+MR_API const float* mr_task_rollout_outcome_values(
     const MRTaskRolloutHandle* handle
 );
 MR_API const float* mr_task_rollout_policy_latents(

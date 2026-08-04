@@ -25,6 +25,20 @@ int main() {
         manifest.id = "run_program_check";
         manifest.robot = *robot;
         manifest.scene.id = "flat_ground_scene";
+        const metalrobo::LocomotionSceneComponent surface =
+            metalrobo::makeLocomotionSurfaceComponent(
+                manifest.robot.mechanics,
+                metalrobo::LocomotionSurface::ground
+            );
+        manifest.scene.objects.push_back({
+            .id = "locomotion_ground",
+            .semanticClass = "support_surface",
+            .role = MR_WORLD_ASSET_FIXTURE,
+            .collision = MR_WORLD_COLLISION_PRIMITIVES,
+            .dynamics = MR_WORLD_DYNAMICS_STATIC,
+            .mechanics = surface.mechanics,
+            .defaultBodyStates = surface.defaultBodyStates,
+        });
         manifest.sensors.id = "g1_default_sensors";
         metalrobo::SensorSpec imu;
         imu.id = "pelvis_state";
@@ -32,16 +46,6 @@ int main() {
         imu.nominalRateHz = 50.0f;
         manifest.sensors.mounted.push_back({imu, "pelvis"});
         manifest.task = authored.task;
-        manifest.task.terrain = {};
-        const auto removeTerrainObservation = [](auto& operators) {
-            std::erase_if(operators, [](const auto& spec) {
-                return spec.source ==
-                    metalrobo::TaskObservationSource::terrainHeight;
-            });
-        };
-        removeTerrainObservation(manifest.task.actorFrame);
-        removeTerrainObservation(manifest.task.actorCurrent);
-        removeTerrainObservation(manifest.task.critic);
         manifest.reality.id = "nominal_reality";
         manifest.profile.id = "check_profile";
         manifest.profile.environmentCount = 32u;
@@ -60,6 +64,8 @@ int main() {
         require(
             compiled.valid() && compiled.robotFingerprint() != 0u &&
                 compiled.sensorFingerprint() != 0u &&
+                compiled.world().sceneBodyCount() == 1u &&
+                compiled.defaultSceneBodies().size() == 1u &&
                 compiled.worldFamily().worldTemplate.sensors.size() == 1u &&
                 compiled.task().fingerprint() != 0u,
             "CompiledRun did not retain modular package identities"

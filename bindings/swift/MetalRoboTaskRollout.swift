@@ -673,6 +673,9 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
     public let taskFingerprint: UInt64
     public let observationFingerprint: UInt64
     public let actionFingerprint: UInt64
+    public let runFingerprint: UInt64
+    public let robotFingerprint: UInt64
+    public let sensorFingerprint: UInt64
     public let submittedControlSteps: UInt64
     public let completedEnvironmentSteps: UInt64
     public let submissionCount: UInt64
@@ -701,6 +704,9 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
         taskFingerprint = native.task_fingerprint
         observationFingerprint = native.observation_fingerprint
         actionFingerprint = native.action_fingerprint
+        runFingerprint = native.run_fingerprint
+        robotFingerprint = native.robot_fingerprint
+        sensorFingerprint = native.sensor_fingerprint
         submittedControlSteps = native.submitted_control_steps
         completedEnvironmentSteps =
             native.completed_environment_steps
@@ -871,6 +877,12 @@ public struct MetalRoboTaskTransition: Sendable {
         impactSequenceIndex = native.impact_sequence_index
         impactEventFlags = native.impact_event_flags
     }
+}
+
+public struct MetalRoboTaskOutcomeDescriptor: Sendable {
+    public let id: String
+    public let unit: String
+    public let direction: UInt32
 }
 
 public struct MetalRoboTaskEvidenceTelemetry: Sendable {
@@ -1818,6 +1830,46 @@ public final class MetalRoboTaskRolloutContext {
         }
         return UnsafeBufferPointer(start: values, count: count)
             .map(MetalRoboTaskTransition.init)
+    }
+
+    public var outcomeSchema: [MetalRoboTaskOutcomeDescriptor] {
+        let count = Int(mr_task_rollout_outcome_count(handle))
+        return (0..<count).compactMap { index in
+            guard let id = mr_task_rollout_outcome_id(
+                    handle, UInt32(index)
+                  ),
+                  let unit = mr_task_rollout_outcome_unit(
+                    handle, UInt32(index)
+                  )
+            else { return nil }
+            return MetalRoboTaskOutcomeDescriptor(
+                id: String(cString: id),
+                unit: String(cString: unit),
+                direction: mr_task_rollout_outcome_direction(
+                    handle, UInt32(index)
+                )
+            )
+        }
+    }
+
+    // Latest submission values packed [transition][outcome]. The schema is
+    // compiled from the selected task; consumers do not assume G1 or dodge.
+    public func outcomeValues(
+        controlStepCount: Int
+    ) throws -> [Float] {
+        let count = controlStepCount * layout.environmentCount *
+            outcomeSchema.count
+        guard count == 0 || mr_task_rollout_outcome_values(handle) != nil
+        else {
+            throw MetalRoboTaskRolloutError.native(
+                "Task outcome stream is unavailable."
+            )
+        }
+        guard count != 0 else { return [] }
+        return Array(UnsafeBufferPointer(
+            start: mr_task_rollout_outcome_values(handle)!,
+            count: count
+        ))
     }
 
     public func policyLatents(

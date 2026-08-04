@@ -222,7 +222,9 @@ void addBodyRole(
 
 bool CompiledRun::valid() const noexcept {
     return fingerprint_ != 0u && robotFingerprint_ != 0u &&
-        sensorFingerprint_ != 0u && world_.valid() && task_.valid() &&
+        sensorFingerprint_ != 0u && model_.valid() && world_.valid() &&
+        defaultSceneBodies_.size() == world_.sceneBodyCount() &&
+        task_.valid() &&
         (!boundPolicy_.has_value() || policy_.valid());
 }
 
@@ -239,6 +241,11 @@ const WorldFamily& CompiledRun::worldFamily() const noexcept {
     return worldFamily_;
 }
 const CompiledWorld& CompiledRun::world() const noexcept { return world_; }
+const EngineModel& CompiledRun::model() const noexcept { return model_; }
+std::span<const MRBodyStateGPU>
+CompiledRun::defaultSceneBodies() const noexcept {
+    return defaultSceneBodies_;
+}
 const CompiledTaskProgram& CompiledRun::task() const noexcept { return task_; }
 const CompiledPolicyProgram& CompiledRun::policy() const noexcept {
     return policy_;
@@ -297,7 +304,7 @@ RunCompileDiagnostics compileRun(
                     reason.empty() ? "scene object is invalid" : reason
                 );
             }
-            components.push_back({&object.mechanics, object.id});
+            components.push_back({&object.mechanics, object.id, true});
         }
         EngineModelComposeConfig compose = manifest.profile.physics;
         compose.name = manifest.id;
@@ -312,6 +319,71 @@ RunCompileDiagnostics compileRun(
                 RunCompileStatus::compositionFailure,
                 "scene",
                 composition.message
+            );
+        }
+
+        std::vector<MRBodyStateGPU> defaultSceneBodies;
+        std::uint32_t stateBodyOffset = 0u;
+        const auto appendStates = [&defaultSceneBodies](
+            const EngineModel& mechanics,
+            const std::span<const MRBodyStateGPU> states,
+            const std::uint32_t bodyOffset,
+            const std::string_view owner
+        ) -> std::optional<std::string> {
+            const std::size_t expected = std::ranges::count_if(
+                mechanics.bodies,
+                [](const MRBodyPropertiesGPU& body) {
+                    return body.articulationIndex == MR_INVALID_INDEX;
+                }
+            );
+            if (states.size() != expected) {
+                return std::string{owner} +
+                    " reset-state count does not match its scene bodies";
+            }
+            for (const MRBodyStateGPU& source : states) {
+                const std::uint32_t localBody = source.flagsAndIndices[2];
+                if (localBody >= mechanics.bodies.size() ||
+                    mechanics.bodies[localBody].articulationIndex !=
+                        MR_INVALID_INDEX) {
+                    return std::string{owner} +
+                        " reset state references a non-scene body";
+                }
+                MRBodyStateGPU state = source;
+                state.flagsAndIndices[2] = bodyOffset + localBody;
+                defaultSceneBodies.push_back(state);
+            }
+            return std::nullopt;
+        };
+        if (const auto error = appendStates(
+                manifest.robot.mechanics,
+                manifest.robot.defaultSceneBodies,
+                stateBodyOffset,
+                manifest.robot.id
+            )) {
+            return reject(
+                RunCompileStatus::invalidRobot,
+                manifest.robot.id,
+                *error
+            );
+        }
+        stateBodyOffset += static_cast<std::uint32_t>(
+            manifest.robot.mechanics.bodies.size()
+        );
+        for (const SceneObject& object : manifest.scene.objects) {
+            if (const auto error = appendStates(
+                    object.mechanics,
+                    object.defaultBodyStates,
+                    stateBodyOffset,
+                    object.id
+                )) {
+                return reject(
+                    RunCompileStatus::invalidManifest,
+                    object.id,
+                    *error
+                );
+            }
+            stateBodyOffset += static_cast<std::uint32_t>(
+                object.mechanics.bodies.size()
             );
         }
 
@@ -455,11 +527,19 @@ RunCompileDiagnostics compileRun(
             return reject(RunCompileStatus::worldFailure, "physics",
                 worldStatus.message);
         }
-        const TaskCompileDiagnostics taskStatus = compileTaskProgram(
-            manifest.task,
-            staged.world_,
-            staged.task_
-        );
+        const TaskCompileDiagnostics taskStatus = manifest.interactions
+            ? compileTaskProgram(
+                  manifest.task,
+                  *manifest.interactions,
+                  manifest.interactionClip,
+                  staged.world_,
+                  staged.task_
+              )
+            : compileTaskProgram(
+                  manifest.task,
+                  staged.world_,
+                  staged.task_
+              );
         if (!taskStatus.succeeded()) {
             return reject(RunCompileStatus::taskFailure, taskStatus.element,
                 taskStatus.message);
@@ -478,6 +558,8 @@ RunCompileDiagnostics compileRun(
             staged.boundPolicy_ = std::move(bound);
         }
         staged.worldFamily_ = std::move(family);
+        staged.model_ = std::move(model);
+        staged.defaultSceneBodies_ = std::move(defaultSceneBodies);
         staged.profile_ = manifest.profile;
         staged.profile_.physics = compose;
         staged.teacher_ = manifest.teacher;
@@ -491,6 +573,14 @@ RunCompileDiagnostics compileRun(
         runHash.scalar(staged.sensorFingerprint_);
         runHash.scalar(staged.worldFamily_.fingerprint);
         runHash.scalar(staged.world_.fingerprint());
+        runHash.scalar<std::uint64_t>(staged.defaultSceneBodies_.size());
+        if (!staged.defaultSceneBodies_.empty()) {
+            runHash.bytes(
+                staged.defaultSceneBodies_.data(),
+                staged.defaultSceneBodies_.size() *
+                    sizeof(MRBodyStateGPU)
+            );
+        }
         runHash.scalar(staged.task_.fingerprint());
         runHash.scalar(staged.policy_.fingerprint());
         runHash.string(staged.profile_.id);

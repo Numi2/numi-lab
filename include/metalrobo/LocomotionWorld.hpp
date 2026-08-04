@@ -41,6 +41,15 @@ struct LocomotionDynamicSphere {
     std::uint32_t launchStep = 0u;
 };
 
+// A scene component owns both immutable mechanics and the reset state of each
+// non-articulated body in that mechanics package. Body indices in reset state
+// records are component-local; the run compiler rebases them during scene
+// composition.
+struct LocomotionSceneComponent {
+    EngineModel mechanics;
+    std::vector<MRBodyStateGPU> defaultBodyStates;
+};
+
 struct CompiledLocomotionWorld {
     CompiledWorld world;
     CompiledTaskProgram task;
@@ -80,6 +89,18 @@ void appendLocomotionSurface(
 // or robot-specific shader is involved.
 void appendLocomotionDynamicSpheres(
     LocomotionWorld& world,
+    std::span<const LocomotionDynamicSphere> spheres
+);
+
+// Package-oriented scene factories used by CompiledRun. These preserve the
+// exact surface and rigid-body mechanics of the legacy mutable builders while
+// keeping them outside the robot's mechanics package.
+[[nodiscard]] LocomotionSceneComponent makeLocomotionSurfaceComponent(
+    const EngineModel& referenceMechanics,
+    LocomotionSurface surface
+);
+[[nodiscard]] LocomotionSceneComponent makeLocomotionDynamicSphereComponent(
+    const EngineModel& referenceMechanics,
     std::span<const LocomotionDynamicSphere> spheres
 );
 

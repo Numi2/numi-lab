@@ -32,6 +32,13 @@ There is one runtime architecture:
   revisions;
 - MLX owns only batch learning and publishes the next PolicyPack.
 
+Bundled G1 training, evaluation, and InteractionPack realization now compile
+their real executable through `CompiledRun`. Robot mechanics, support surfaces,
+and dynamic projectiles are separate packages with independently owned reset
+state; the run compiler fingerprints the exact model, scene state, task,
+sensors, teacher, and profile before MetalWorld is created. `LocomotionWorld`
+remains only on imported compatibility paths while those packages migrate.
+
 ## World authoring and artifacts
 
 `EpisodeTwinCompiler` is the capture-to-world entry point. Its capture manifest
@@ -136,6 +143,14 @@ mr_create_world_pack_locomotion_rollout
 
 A custom `.metal` kernel is justified only by a new physics primitive, sensor
 modality, or task operator. A different joint layout is data, not shader code.
+
+Evaluation publishes a task-dependent typed outcome schema. Universal
+transaction outcomes (`reward`, `done`, `timeout`, and `physics_error`) are
+always present; tracking, root-state, contact, projectile, and CBF outcomes
+appear only when the compiled task authors the corresponding operators. The
+fixed `MRTaskTransitionC` layout remains temporarily as the PolicyRolloutPack
+compatibility payload, not the product result model. New consumers enumerate
+`mr_task_rollout_outcome_*` and do not inherit G1/dodge assumptions.
 
 ## InteractionPack: generated intent, solved outcome
 

@@ -56,6 +56,12 @@ observation/action contract against the compiled task and proves finite
 accumulator bounds before publishing immutable GPU tables. The generic dense
 kernel has no robot, joint, or network-width branches.
 
+Bundled G1 train/evaluate handles are now created from `CompiledRun`; their
+layout publishes run, robot, sensor, world, task, observation, and action
+fingerprints as direct execution evidence. Public evaluation consumes the
+compiled task-dependent outcome schema rather than assuming a humanoid or
+projectile task.
+
 Locomotion worlds may also author independent dynamic scene bodies. The
 generic sphere helper is a convenience builder for projectile and disturbance
 scenes; the resulting bodies use the same broadphase, manifolds, islands, and

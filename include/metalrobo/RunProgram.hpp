@@ -1,12 +1,14 @@
 #pragma once
 
 #include "metalrobo/EngineModelComposer.hpp"
+#include "metalrobo/InteractionPack.hpp"
 #include "metalrobo/LearningPacks.hpp"
 #include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/WorldCompiler.hpp"
 
 #include <cstdint>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -35,6 +37,7 @@ struct RobotPack {
     std::string sourceRevision;
     std::string license;
     EngineModel mechanics;
+    std::vector<MRBodyStateGPU> defaultSceneBodies;
     std::uint32_t primaryArticulationIndex = 0u;
     std::vector<std::string> capabilities;
     std::vector<RobotSemanticRole> roles;
@@ -49,6 +52,7 @@ struct SceneObject {
         MR_WORLD_COLLISION_PRIMITIVES;
     MRWorldDynamicsRepresentation dynamics = MR_WORLD_DYNAMICS_RIGID;
     EngineModel mechanics;
+    std::vector<MRBodyStateGPU> defaultBodyStates;
 };
 
 // Objects are independent physical components. The compiler deterministically
@@ -120,6 +124,8 @@ struct RunManifest {
     TaskPack task;
     RealityPack reality;
     TeacherPack teacher;
+    std::optional<InteractionPack> interactions;
+    std::string interactionClip;
     std::optional<PolicyPack> policy;
     RunProfile profile;
 };
@@ -153,6 +159,9 @@ public:
     [[nodiscard]] std::uint64_t sensorFingerprint() const noexcept;
     [[nodiscard]] const WorldFamily& worldFamily() const noexcept;
     [[nodiscard]] const CompiledWorld& world() const noexcept;
+    [[nodiscard]] const EngineModel& model() const noexcept;
+    [[nodiscard]] std::span<const MRBodyStateGPU>
+    defaultSceneBodies() const noexcept;
     [[nodiscard]] const CompiledTaskProgram& task() const noexcept;
     [[nodiscard]] const CompiledPolicyProgram& policy() const noexcept;
     [[nodiscard]] const PolicyPack* boundPolicy() const noexcept;
@@ -164,6 +173,8 @@ private:
     std::uint64_t robotFingerprint_ = 0u;
     std::uint64_t sensorFingerprint_ = 0u;
     WorldFamily worldFamily_;
+    EngineModel model_;
+    std::vector<MRBodyStateGPU> defaultSceneBodies_;
     CompiledWorld world_;
     CompiledTaskProgram task_;
     CompiledPolicyProgram policy_;

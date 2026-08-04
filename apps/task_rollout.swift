@@ -1279,6 +1279,12 @@ private enum TaskRolloutMain {
             var impactSequenceEnabledSteps = 0
             var policyRolloutFingerprint:
                 UInt64 = 1_469_598_103_934_665_603
+            let outcomeSchema = context.outcomeSchema
+            var outcomeSums = [Double](
+                repeating: 0,
+                count: outcomeSchema.count
+            )
+            var outcomeSampleCount = 0
             var collectedPolicyBatches:
                 [MetalRoboPolicyRolloutBatch] = []
             var stateTraceLines: [String] = []
@@ -1420,6 +1426,25 @@ private enum TaskRolloutMain {
                                 controlStepCount: stepCount
                             )
                     }
+                    let typedOutcomes = try context.outcomeValues(
+                        controlStepCount: stepCount
+                    )
+                    guard typedOutcomes.count ==
+                            observedTransitions.count * outcomeSchema.count
+                    else {
+                        throw MetalRoboTaskRolloutError.native(
+                            "Task-authored outcome shape is inconsistent."
+                        )
+                    }
+                    for transitionIndex in observedTransitions.indices {
+                        let base = transitionIndex * outcomeSchema.count
+                        for outcomeIndex in outcomeSchema.indices {
+                            outcomeSums[outcomeIndex] += Double(
+                                typedOutcomes[base + outcomeIndex]
+                            )
+                        }
+                    }
+                    outcomeSampleCount += observedTransitions.count
                     for (transitionIndex, transition) in
                         observedTransitions.enumerated()
                     {
@@ -2111,6 +2136,28 @@ private enum TaskRolloutMain {
                 "benchmark": "swift_native_task_rollout",
                 "benchmark_seed": NSNumber(value: options.seed),
                 "task": context.taskID,
+                "run_fingerprint": String(context.layout.runFingerprint),
+                "robot_fingerprint": String(
+                    context.layout.robotFingerprint
+                ),
+                "sensor_fingerprint": String(
+                    context.layout.sensorFingerprint
+                ),
+                "outcomes": Dictionary(uniqueKeysWithValues:
+                    outcomeSchema.enumerated().map { index, descriptor in
+                        (
+                            descriptor.id,
+                            [
+                                "mean": outcomeSampleCount == 0
+                                    ? 0.0
+                                    : outcomeSums[index] /
+                                        Double(outcomeSampleCount),
+                                "unit": descriptor.unit,
+                                "direction": descriptor.direction,
+                            ] as [String: Any]
+                        )
+                    }
+                ),
                 "world_source": worldSource,
                 "action_source":
                     options.policyPack != nil

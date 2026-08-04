@@ -502,6 +502,96 @@ void appendLocomotionDynamicSpheres(
         static_cast<std::uint32_t>(world.model.materials.size());
 }
 
+namespace {
+
+EngineModel makeSceneComponentBase(
+    const EngineModel& reference,
+    const std::string_view name
+) {
+    if (reference.materials.empty()) {
+        throw std::invalid_argument(
+            "scene component requires a reference material"
+        );
+    }
+    EngineModel component;
+    component.name = std::string{name};
+    component.world = reference.world;
+    component.world.articulationCount = 0u;
+    component.world.bodyCount = 0u;
+    component.world.jointCount = 0u;
+    component.world.nq = 0u;
+    component.world.nv = 0u;
+    component.world.shapeCount = 0u;
+    component.materials.push_back(reference.materials.front());
+    component.world.materialCount = 1u;
+    return component;
+}
+
+} // namespace
+
+LocomotionSceneComponent makeLocomotionSurfaceComponent(
+    const EngineModel& referenceMechanics,
+    const LocomotionSurface surface
+) {
+    LocomotionSceneComponent component;
+    component.mechanics = makeSceneComponentBase(
+        referenceMechanics,
+        surface == LocomotionSurface::ground
+            ? "locomotion_ground"
+            : "locomotion_terrain"
+    );
+    appendLocomotionSurface(
+        component.mechanics,
+        component.defaultBodyStates,
+        surface
+    );
+    component.mechanics.bodyNames = {
+        surface == LocomotionSurface::ground
+            ? "locomotion_ground"
+            : "locomotion_terrain"
+    };
+    component.mechanics.shapeNames = {
+        component.mechanics.bodyNames.front() + "/collision"
+    };
+    std::string reason;
+    if (!component.mechanics.valid(&reason)) {
+        throw std::runtime_error(
+            "locomotion surface component is invalid: " + reason
+        );
+    }
+    return component;
+}
+
+LocomotionSceneComponent makeLocomotionDynamicSphereComponent(
+    const EngineModel& referenceMechanics,
+    const std::span<const LocomotionDynamicSphere> spheres
+) {
+    LocomotionWorld authored;
+    authored.model = makeSceneComponentBase(
+        referenceMechanics,
+        "locomotion_dynamic_spheres"
+    );
+    appendLocomotionDynamicSpheres(authored, spheres);
+    authored.model.bodyNames.clear();
+    authored.model.shapeNames.clear();
+    for (std::size_t index = 0u; index < spheres.size(); ++index) {
+        const std::string id =
+            "locomotion_dynamic_sphere_" + std::to_string(index);
+        authored.model.bodyNames.push_back(id);
+        authored.model.shapeNames.push_back(id + "/collision");
+    }
+    std::string reason;
+    if (!authored.model.valid(&reason)) {
+        throw std::runtime_error(
+            "locomotion sphere component is invalid: " + reason
+        );
+    }
+    return {
+        .mechanics = std::move(authored.model),
+        .defaultBodyStates = std::move(authored.sceneBodies),
+    };
+}
+
 LocomotionWorld makeWorldPackLocomotionWorld(
     const MRWorldPack& worldPack,
     TaskPack task
