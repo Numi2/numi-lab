@@ -79,7 +79,7 @@ semantics permit.
    additional camera kinds, and histories; the old G1/ball flags are only a
    compatibility preset.
 2. **Generic action-chunk compilation.** The first
-   `numi.foundation-adapter.v1` artifact now owns state layout, named model
+   `numi.foundation-adapter.v2` artifact now owns state layout, named model
    outputs, robot joints, controller limits, and contact intent. Author and
    qualify Franka, PSM, and additional provider adapters without adding robot
    branches to the simulator or compiler path.

@@ -1452,11 +1452,11 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
             });
         };
     appendRecoveryContact(
-        "left_hand_contact",
+        "left_wrist_contact",
         "left_wrist_yaw_link"
     );
     appendRecoveryContact(
-        "right_hand_contact",
+        "right_wrist_contact",
         "right_wrist_yaw_link"
     );
     appendRecoveryContact(

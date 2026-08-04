@@ -16,6 +16,7 @@ from metalrobo.foundation_policy import (
     G1_HAND_ACTION_JOINTS,
     G1_HAND_STATE_JOINTS,
     _array_fingerprint,
+    compile_numi_observation,
     _compose_joint_proposal,
     _g1_foundation_adapter,
     _provider_order,
@@ -24,6 +25,83 @@ from metalrobo.foundation_policy import (
 
 
 class FoundationPolicyTest(unittest.TestCase):
+    def test_observation_requires_explicit_model_constant_authority(self) -> None:
+        adapter = {
+            "format": FOUNDATION_ADAPTER_FORMAT,
+            "id": "test-cross-embodiment-provider",
+            "provider": "test/provider",
+            "robot": "test_arm",
+            "observation": {
+                "root_archive_key": "root",
+                "root_q_offset": 0,
+                "root_q_count": 7,
+                "joint_q_offset": 7,
+                "state_groups": [
+                    {
+                        "name": "arm",
+                        "source": {
+                            "kind": "joint_positions",
+                            "joints": ["joint_a"],
+                        },
+                    },
+                    {
+                        "name": "model_hand",
+                        "source": {
+                            "kind": "model_constant",
+                            "values": [0.0, 0.0],
+                            "semantics": "provider hand absent from the robot",
+                        },
+                    },
+                ],
+            },
+            "action_outputs": [{"name": "arm", "joints": ["joint_a"]}],
+            "controller": {
+                "joint_order": ["joint_a"],
+                "default_pose": [0.0],
+                "task_action_scale": [0.5],
+                "velocity_limits": [1.0],
+                "position_limits": [[-1.0, 1.0]],
+                "policy_timestep_seconds": 0.02,
+            },
+            "interaction": {"contact_tracks": []},
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            camera = root / "camera.ppm"
+            trace = root / "state.tsv"
+            output = root / "observation.npz"
+            evidence = root / "evidence.json"
+            camera.write_bytes(
+                b"P6\n640 480\n255\n" + bytes(640 * 480 * 3)
+            )
+            trace.write_text(
+                "# step nq=8\n0\t0\t0\t0\t0\t0\t0\t1\t0.25\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ValueError, "explicit model-only constants"):
+                compile_numi_observation(
+                    camera, trace, output, evidence, None, adapter
+                )
+            result = compile_numi_observation(
+                camera,
+                trace,
+                output,
+                evidence,
+                None,
+                adapter,
+                allow_model_constants=True,
+            )
+            self.assertEqual(
+                list(result["model_constant_state_groups"]), ["model_hand"]
+            )
+            with np.load(output, allow_pickle=False) as archive:
+                self.assertTrue(
+                    np.array_equal(
+                        archive["model_hand"],
+                        np.zeros((1, 2), dtype=np.float32),
+                    )
+                )
+
     def test_g1_dex3_contract_maps_exact_hand_state_and_action_orders(self) -> None:
         joints = tuple(
             joint
@@ -63,15 +141,55 @@ class FoundationPolicyTest(unittest.TestCase):
         for side in ("left", "right"):
             name = f"{side}_hand"
             self.assertEqual(
-                state_groups[name]["joints"],
+                state_groups[name]["source"]["joints"],
                 list(G1_HAND_STATE_JOINTS[name]),
             )
-            self.assertEqual(state_groups[name]["placeholder_count"], 0)
+            self.assertEqual(
+                state_groups[name]["source"]["kind"],
+                "joint_positions",
+            )
             self.assertEqual(
                 outputs[name]["joints"],
                 list(G1_HAND_ACTION_JOINTS[side]),
             )
             self.assertNotIn(name, adapter["unmapped_output_semantics"])
+
+    def test_g1_29dof_contract_exposes_model_constants_without_fake_hands(self) -> None:
+        joints = tuple(
+            joint for group in G1_GROUP_JOINTS.values() for joint in group
+        )
+        contract = {
+            "robot": "unitree_g1",
+            "joint_order": list(joints),
+            "default_pose": [0.0] * len(joints),
+            "task_action_scale": [0.25] * len(joints),
+            "velocity_limits": [1.0] * len(joints),
+            "position_limits": [[-1.0, 1.0]] * len(joints),
+            "policy_timestep_seconds": 0.02,
+            "solver_root_frame": "center_of_mass",
+            "root_center_of_mass_local_xyz": [0.0, 0.0, 0.0],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory) / "libmetalrobo.dylib"
+            library.write_bytes(b"test-library")
+            with patch(
+                "metalrobo.foundation_policy._native_g1_contract",
+                return_value=contract,
+            ):
+                adapter = _g1_foundation_adapter(library)
+        state_groups = {
+            group["name"]: group
+            for group in adapter["observation"]["state_groups"]
+        }
+        outputs = {output["name"] for output in adapter["action_outputs"]}
+        for side in ("left", "right"):
+            name = f"{side}_hand"
+            source = state_groups[name]["source"]
+            self.assertEqual(source["kind"], "model_constant")
+            self.assertEqual(source["values"], [0.0] * 7)
+            self.assertIn("no corresponding mechanics", source["semantics"])
+            self.assertNotIn(name, outputs)
+            self.assertIn(name, adapter["unmapped_output_semantics"])
 
     def test_interaction_pack_reader_authenticates_and_preserves_fields(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -120,7 +238,13 @@ class FoundationPolicyTest(unittest.TestCase):
                 "root_q_count": 7,
                 "joint_q_offset": 7,
                 "state_groups": [
-                    {"name": "arm", "joints": ["joint_a"], "placeholder_count": 0},
+                    {
+                        "name": "arm",
+                        "source": {
+                            "kind": "joint_positions",
+                            "joints": ["joint_a"],
+                        },
+                    },
                 ],
             },
             "action_outputs": [{"name": "arm", "joints": ["joint_a"]}],

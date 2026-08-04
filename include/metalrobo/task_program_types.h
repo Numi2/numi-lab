@@ -87,7 +87,8 @@ enum MRTaskObservationOpcode : mr_u32 {
     // Deployable ball-only metric depth. Initial scalar components address
     // row-major pixels in sparse temporal frames. When the visual feature
     // flag is set, 24 camera-derived summary components follow the pixels.
-    // The native visual stage overwrites these zero-valued physics slots.
+    // The native visual stage exclusively writes these direct actor slots;
+    // the physical-state observation kernel never materializes substitutes.
     MR_TASK_OBSERVE_MASKED_DEPTH = 17u,
     // Device-resident aggregate over every authored support contact group:
     // total normal load, phase-signed load balance, and maximum planar slip.

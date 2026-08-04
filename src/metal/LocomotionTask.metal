@@ -962,12 +962,9 @@ inline float cleanObservation(
         value = relativeVelocity[operation.source.z - 4u];
         break;
     }
-    case MR_TASK_OBSERVE_MASKED_DEPTH:
-        // Filled by the attached Visual Presentation device program after
-        // the physics-authored observation pass and before policy inference.
-        value = 0.0f;
-        break;
     default:
+        // Compilation rejects unknown sources. Device visual sources are a
+        // separate direct suffix and never enter this physical-state reader.
         value = 0.0f;
         break;
     }

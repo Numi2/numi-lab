@@ -2436,7 +2436,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 return reject(
                     TaskCompileStatus::invalidPack,
                     "visual",
-                    "masked-depth components must be the complete contiguous suffix of the actor frame"
+                    "masked-depth components must be the complete contiguous direct suffix of the actor program"
                 );
             }
         }

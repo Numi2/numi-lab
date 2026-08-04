@@ -1514,7 +1514,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         RobotPack pack = genericRobot(
             "px4_x500",
             std::move(mechanics),
-            {"flight", "hover", "aerial_manipulation"}
+            {"flight", "hover"}
         );
         pack.sourceRepository =
             "https://github.com/PX4/PX4-gazebo-models.git";
@@ -1553,7 +1553,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         RobotPack pack = genericRobot(
             "unitree_g1",
             makeUnitreeG1EngineModel(),
-            {"balance", "locomotion", "whole_body_motion", "manipulation"}
+            {"balance", "locomotion", "whole_body_motion", "upper_body_motion"}
         );
         const G1ModelMetadata& metadata = unitreeG1Metadata();
         pack.sourceRepository = std::string(metadata.sourceRepository);
@@ -1569,8 +1569,8 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         addBodyRole(pack, "left_foot", {"left_ankle_roll_link"});
         addBodyRole(pack, "right_foot", {"right_ankle_roll_link"});
         addBodyRole(pack, "pelvis", {"pelvis"});
-        addBodyRole(pack, "left_hand", {"left_wrist_yaw_link"});
-        addBodyRole(pack, "right_hand", {"right_wrist_yaw_link"});
+        addBodyRole(pack, "left_wrist", {"left_wrist_yaw_link"});
+        addBodyRole(pack, "right_wrist", {"right_wrist_yaw_link"});
         return pack;
     }
     if (id == "franka_panda") {

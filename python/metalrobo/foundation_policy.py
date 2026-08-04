@@ -28,7 +28,7 @@ from metalrobo.ardy_interaction_convert import (
 
 
 ACTION_CHUNK_FORMAT = "numi.foundation-action-chunk.v1"
-FOUNDATION_ADAPTER_FORMAT = "numi.foundation-adapter.v1"
+FOUNDATION_ADAPTER_FORMAT = "numi.foundation-adapter.v2"
 GROOT_APPLE_PNP_REPOSITORY = "nvidia/GR00T-N1.7-ApplePnP-V1"
 GROOT_STAGES = (
     "preprocess_video",
@@ -107,17 +107,30 @@ def _g1_foundation_adapter(native_library: Path) -> dict[str, Any]:
     state_groups = [
         {
             "name": name,
-            "joints": list(joints),
-            "placeholder_count": 0,
+            "source": {
+                "kind": "joint_positions",
+                "joints": list(joints),
+            },
         }
         for name, joints in G1_GROUP_JOINTS.items()
     ]
     for name, joints in G1_HAND_STATE_JOINTS.items():
-        state_groups.append({
-            "name": name,
-            "joints": list(joints) if hand_supported[name] else [],
-            "placeholder_count": 0 if hand_supported[name] else 7,
-        })
+        if hand_supported[name]:
+            source = {
+                "kind": "joint_positions",
+                "joints": list(joints),
+            }
+        else:
+            source = {
+                "kind": "model_constant",
+                "values": [0.0] * len(joints),
+                "semantics": (
+                    "ApplePnP Dex3 input held at its authored open-angle "
+                    "state; the selected 29-DoF robot has no corresponding "
+                    "mechanics, sensor state, or actuator authority"
+                ),
+            }
+        state_groups.append({"name": name, "source": source})
     action_outputs = [
         {"name": name, "joints": list(G1_GROUP_JOINTS[name])}
         for name in ("waist", "left_arm", "right_arm")
@@ -226,18 +239,30 @@ def _validate_foundation_adapter(adapter: Mapping[str, Any]) -> None:
         if not isinstance(group, dict):
             raise ValueError("foundation adapter state group is invalid")
         name = str(group.get("name", ""))
-        joints = group.get("joints")
-        placeholders = group.get("placeholder_count")
-        if (
-            not name
-            or name in group_names
-            or not isinstance(joints, list)
-            or not isinstance(placeholders, int)
-            or placeholders < 0
-            or (not joints and placeholders == 0)
-            or (joints and placeholders != 0)
-        ):
+        source = group.get("source")
+        if not name or name in group_names or not isinstance(source, dict):
             raise ValueError("foundation adapter state group contract is invalid")
+        kind = source.get("kind")
+        if kind == "joint_positions":
+            joints = source.get("joints")
+            if (
+                not isinstance(joints, list)
+                or not joints
+                or any(not str(joint) for joint in joints)
+                or len(set(joints)) != len(joints)
+            ):
+                raise ValueError("foundation adapter joint-state source is invalid")
+        elif kind == "model_constant":
+            values = np.asarray(source.get("values"), dtype=np.float32)
+            if (
+                values.ndim != 1
+                or values.size == 0
+                or not np.isfinite(values).all()
+                or not str(source.get("semantics", "")).strip()
+            ):
+                raise ValueError("foundation adapter model-constant source is invalid")
+        else:
+            raise ValueError("foundation adapter state source kind is invalid")
         group_names.add(name)
     joint_order = tuple(str(value) for value in controller.get("joint_order", ()))
     joint_count = len(joint_order)
@@ -271,15 +296,38 @@ def _validate_foundation_adapter(adapter: Mapping[str, Any]) -> None:
     if not isinstance(action_outputs, list) or not action_outputs:
         raise ValueError("foundation adapter has no action outputs")
     known_joints = set(joint_order)
+    observed_state_joints: set[str] = set()
+    for group in groups:
+        source = group["source"]
+        if source["kind"] != "joint_positions":
+            continue
+        group_joints = set(str(joint) for joint in source["joints"])
+        if (
+            not group_joints.issubset(known_joints)
+            or observed_state_joints.intersection(group_joints)
+        ):
+            raise ValueError(
+                "foundation adapter state sources overlap or reference unknown joints"
+            )
+        observed_state_joints.update(group_joints)
+    output_names: set[str] = set()
+    output_joints: set[str] = set()
     for output in action_outputs:
+        name = str(output.get("name", "")) if isinstance(output, dict) else ""
+        joints = output.get("joints") if isinstance(output, dict) else None
         if (
             not isinstance(output, dict)
-            or not str(output.get("name", ""))
-            or not isinstance(output.get("joints"), list)
-            or not output["joints"]
-            or not set(output["joints"]).issubset(known_joints)
+            or not name
+            or name in output_names
+            or not isinstance(joints, list)
+            or not joints
+            or len(set(joints)) != len(joints)
+            or not set(joints).issubset(known_joints)
+            or output_joints.intersection(joints)
         ):
             raise ValueError("foundation adapter action output is invalid")
+        output_names.add(name)
+        output_joints.update(joints)
     tracks = interaction.get("contact_tracks") if isinstance(interaction, dict) else None
     if not isinstance(tracks, list):
         raise ValueError("foundation adapter interaction contact tracks are invalid")
@@ -305,6 +353,22 @@ def _validate_foundation_adapter(adapter: Mapping[str, Any]) -> None:
             or not 0.0 <= maximum_blend <= 1.0
         ):
             raise ValueError("foundation adapter composition contract is invalid")
+
+
+def _state_group_width(group: Mapping[str, Any]) -> int:
+    source = group["source"]
+    return len(
+        source["joints"]
+        if source["kind"] == "joint_positions"
+        else source["values"]
+    )
+
+
+def _state_group_joints(group: Mapping[str, Any]) -> tuple[str, ...]:
+    source = group["source"]
+    if source["kind"] != "joint_positions":
+        return ()
+    return tuple(str(name) for name in source["joints"])
 
 
 def _load_foundation_adapter(path: Path) -> dict[str, Any]:
@@ -563,37 +627,32 @@ def compile_numi_observation(
     output: Path,
     evidence_path: Path,
     step: int | None,
-    adapter: Mapping[str, Any] | None = None,
+    adapter: Mapping[str, Any],
+    allow_model_constants: bool = False,
 ) -> dict[str, Any]:
     image = _read_ppm(camera_frame)
     selected_step, q = _read_state_trace(state_trace, step)
-    if adapter is None:
-        root_offset = 0
-        root_count = 7
-        joint_offset = 7
-        joint_order = tuple(
-            joint
-            for group in G1_GROUP_JOINTS.values()
-            for joint in group
+    _validate_foundation_adapter(adapter)
+    observation_contract = adapter["observation"]
+    controller = adapter["controller"]
+    root_offset = int(observation_contract["root_q_offset"])
+    root_count = int(observation_contract["root_q_count"])
+    joint_offset = int(observation_contract["joint_q_offset"])
+    joint_order = tuple(controller["joint_order"])
+    groups = observation_contract["state_groups"]
+    root_key = str(observation_contract["root_archive_key"])
+    model_constant_groups = [
+        str(group["name"])
+        for group in groups
+        if group["source"]["kind"] == "model_constant"
+    ]
+    if model_constant_groups and not allow_model_constants:
+        raise ValueError(
+            "foundation adapter requires explicit model-only constants for: "
+            + ", ".join(model_constant_groups)
+            + "; use a physically matching robot or opt in with "
+              "--allow-model-constants for bounded cross-embodiment inference"
         )
-        groups = [
-            {"name": name, "joints": list(joints), "placeholder_count": 0}
-            for name, joints in G1_GROUP_JOINTS.items()
-        ] + [
-            {"name": "left_hand", "joints": [], "placeholder_count": 7},
-            {"name": "right_hand", "joints": [], "placeholder_count": 7},
-        ]
-        root_key = "numi_root_q"
-    else:
-        _validate_foundation_adapter(adapter)
-        observation_contract = adapter["observation"]
-        controller = adapter["controller"]
-        root_offset = int(observation_contract["root_q_offset"])
-        root_count = int(observation_contract["root_q_count"])
-        joint_offset = int(observation_contract["joint_q_offset"])
-        joint_order = tuple(controller["joint_order"])
-        groups = observation_contract["state_groups"]
-        root_key = str(observation_contract["root_archive_key"])
     required_q = max(root_offset + root_count, joint_offset + len(joint_order))
     if root_count != 7 or q.size < required_q:
         raise ValueError(
@@ -603,11 +662,9 @@ def compile_numi_observation(
     joints = q[joint_offset : joint_offset + len(joint_order)]
     index_by_name = {name: index for index, name in enumerate(joint_order)}
     state: dict[str, np.ndarray] = {}
-    placeholder_groups: list[str] = []
     for group in groups:
         name = str(group["name"])
-        names = tuple(str(value) for value in group["joints"])
-        placeholder_count = int(group["placeholder_count"])
+        names = _state_group_joints(group)
         if names:
             if any(joint not in index_by_name for joint in names):
                 raise ValueError(f"adapter state group {name} has an unknown joint")
@@ -616,8 +673,10 @@ def compile_numi_observation(
                 dtype=np.float32,
             )
         else:
-            state[name] = np.zeros((1, placeholder_count), dtype=np.float32)
-            placeholder_groups.append(name)
+            values = np.asarray(
+                group["source"]["values"], dtype=np.float32
+            )
+            state[name] = values.reshape(1, -1)
     output.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
         output,
@@ -634,8 +693,15 @@ def compile_numi_observation(
         "camera_shape": list(image.shape),
         "root_state_shape": [1, 7],
         "state_shapes": {name: list(value.shape) for name, value in state.items()},
-        "placeholder_state_groups": placeholder_groups,
-        "foundation_adapter": None if adapter is None else {
+        "model_constant_state_groups": {
+            str(group["name"]): {
+                "values": list(group["source"]["values"]),
+                "semantics": str(group["source"]["semantics"]),
+            }
+            for group in groups
+            if group["source"]["kind"] == "model_constant"
+        },
+        "foundation_adapter": {
             "id": adapter["id"],
             "provider": adapter["provider"],
             "robot": adapter["robot"],
@@ -741,7 +807,7 @@ def compile_numi_interaction_pack(
     desired_outcome: str,
     source_hz: float,
     prefix_hold_frames: int,
-    adapter: Mapping[str, Any] | None = None,
+    adapter: Mapping[str, Any],
     base_interaction_pack: Path | None = None,
     base_interaction_clip: str | None = None,
     proposal_blend: float | None = None,
@@ -752,7 +818,7 @@ def compile_numi_interaction_pack(
     if prefix_hold_frames < 0:
         raise ValueError("prefix_hold_frames must be non-negative")
     if adapter is None:
-        adapter = _g1_foundation_adapter(native_library)
+        raise ValueError("foundation interaction compilation requires an adapter")
     _validate_foundation_adapter(adapter)
     _verify_adapter_native_contract(adapter, native_library)
     root_link: np.ndarray | None = None
@@ -808,7 +874,7 @@ def compile_numi_interaction_pack(
     }
     for group in adapter["observation"]["state_groups"]:
         group_name = str(group["name"])
-        names = tuple(str(name) for name in group["joints"])
+        names = _state_group_joints(group)
         if not names:
             continue
         values = groups[group_name].reshape(-1)
@@ -1116,14 +1182,14 @@ def compile_numi_action_stream(
     evidence_path: Path,
     source_hz: float,
     prefix_zero_steps: int,
-    adapter: Mapping[str, Any] | None = None,
+    adapter: Mapping[str, Any],
 ) -> dict[str, Any]:
     if not np.isfinite(source_hz) or source_hz <= 0.0:
         raise ValueError("source_hz must be finite and positive")
     if prefix_zero_steps < 0:
         raise ValueError("prefix_zero_steps must be non-negative")
     if adapter is None:
-        adapter = _g1_foundation_adapter(native_library)
+        raise ValueError("foundation action compilation requires an adapter")
     _validate_foundation_adapter(adapter)
     _verify_adapter_native_contract(adapter, native_library)
     contract = adapter["controller"]
@@ -1152,16 +1218,25 @@ def compile_numi_action_stream(
         for name, group in group_contracts.items():
             if name not in archive.files:
                 raise ValueError(f"foundation observation is missing state group {name}")
-            expected = len(group["joints"]) or int(group["placeholder_count"])
+            expected = _state_group_width(group)
             value = np.asarray(archive[name], dtype=np.float32)
             if value.shape != (1, expected) or not np.isfinite(value).all():
                 raise ValueError(
                     f"foundation observation state group {name} is invalid"
                 )
+            source = group["source"]
+            if source["kind"] == "model_constant" and not np.array_equal(
+                value.reshape(-1),
+                np.asarray(source["values"], dtype=np.float32),
+            ):
+                raise ValueError(
+                    f"foundation observation model constant {name} disagrees "
+                    "with its authenticated adapter"
+                )
             current_groups[name] = value
     current = default_pose.copy()
     for group, specification in group_contracts.items():
-        names = tuple(str(name) for name in specification["joints"])
+        names = _state_group_joints(specification)
         if not names:
             continue
         values = current_groups[group].reshape(-1)
@@ -1455,7 +1530,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     observation_parser.add_argument("--step", type=int)
     observation_parser.add_argument("--output", type=Path, required=True)
     observation_parser.add_argument("--evidence", type=Path, required=True)
-    observation_parser.add_argument("--adapter", type=Path)
+    observation_parser.add_argument("--adapter", type=Path, required=True)
+    observation_parser.add_argument(
+        "--allow-model-constants",
+        action="store_true",
+        help=(
+            "explicitly permit model-only inputs for a different embodiment; "
+            "these values are recorded and never exposed as physical state"
+        ),
+    )
 
     actions_parser = subparsers.add_parser(
         "compile-actions", help="map a foundation chunk into Numi's G1 controller"
@@ -1467,7 +1550,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     actions_parser.add_argument("--evidence", type=Path, required=True)
     actions_parser.add_argument("--source-hz", type=float, default=30.0)
     actions_parser.add_argument("--prefix-zero-steps", type=int, default=1)
-    actions_parser.add_argument("--adapter", type=Path)
+    actions_parser.add_argument("--adapter", type=Path, required=True)
 
     interaction_parser = subparsers.add_parser(
         "compile-interaction",
@@ -1482,7 +1565,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     interaction_parser.add_argument("--desired-outcome", required=True)
     interaction_parser.add_argument("--source-hz", type=float, default=30.0)
     interaction_parser.add_argument("--prefix-hold-frames", type=int, default=1)
-    interaction_parser.add_argument("--adapter", type=Path)
+    interaction_parser.add_argument("--adapter", type=Path, required=True)
     interaction_parser.add_argument(
         "--base-interaction-pack",
         type=Path,
@@ -1527,7 +1610,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             arguments.output,
             arguments.evidence,
             arguments.step,
-            None if arguments.adapter is None else _load_foundation_adapter(arguments.adapter),
+            _load_foundation_adapter(arguments.adapter),
+            arguments.allow_model_constants,
         ), indent=2, sort_keys=True))
         return 0
     if arguments.command == "compile-actions":
@@ -1539,7 +1623,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             arguments.evidence,
             arguments.source_hz,
             arguments.prefix_zero_steps,
-            None if arguments.adapter is None else _load_foundation_adapter(arguments.adapter),
+            _load_foundation_adapter(arguments.adapter),
         ), indent=2, sort_keys=True))
         return 0
     if arguments.command == "compile-interaction":
@@ -1553,7 +1637,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             arguments.desired_outcome,
             arguments.source_hz,
             arguments.prefix_hold_frames,
-            None if arguments.adapter is None else _load_foundation_adapter(arguments.adapter),
+            _load_foundation_adapter(arguments.adapter),
             arguments.base_interaction_pack,
             arguments.base_interaction_clip,
             arguments.proposal_blend,

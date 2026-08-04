@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["format", "id", "provider", "robot", "observation", "action_outputs", "controller", "interaction"],
   "properties": {
-    "format": { "const": "numi.foundation-adapter.v1" },
+    "format": { "const": "numi.foundation-adapter.v2" },
     "id": { "type": "string", "minLength": 1 },
     "provider": { "type": "string", "minLength": 1 },
     "robot": { "type": "string", "minLength": 1 },
@@ -100,10 +100,40 @@
       }
     },
     "stateGroup": {
-      "allOf": [
-        { "$ref": "#/$defs/namedJoints" },
-        { "type": "object", "required": ["placeholder_count"], "properties": { "placeholder_count": { "type": "integer", "minimum": 0 } } }
-      ]
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "source"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "source": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "joints"],
+              "properties": {
+                "kind": { "const": "joint_positions" },
+                "joints": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "type": "string", "minLength": 1 }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "values", "semantics"],
+              "properties": {
+                "kind": { "const": "model_constant" },
+                "values": { "$ref": "#/$defs/numberArray" },
+                "semantics": { "type": "string", "minLength": 1 }
+              }
+            }
+          ]
+        }
+      }
     },
     "numberArray": { "type": "array", "minItems": 1, "items": { "type": "number" } },
     "positiveArray": { "type": "array", "minItems": 1, "items": { "type": "number", "exclusiveMinimum": 0 } }

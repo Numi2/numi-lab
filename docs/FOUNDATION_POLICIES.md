@@ -90,7 +90,8 @@ numi foundation observation \
     --state-trace /path/to/capture/state.tsv \
     --output /path/to/run/observation.npz \
     --evidence /path/to/run/observation.evidence.json \
-    --adapter /path/to/run/g1-groot.adapter.json
+    --adapter /path/to/run/g1-groot.adapter.json \
+    --allow-model-constants
 
 numi foundation compile-interaction \
     --action-chunk /path/to/run/action_chunk.npz \
@@ -137,13 +138,20 @@ timeline, limited by the native controller contract, and revalidated by the
 canonical `InteractionPack` writer. This is generated intent: it cannot write
 root state, contact state, or solver outcomes.
 
-`numi.foundation-adapter.v1` is an inspectable, schema-backed artifact. It
+`numi.foundation-adapter.v2` is an inspectable, schema-backed artifact. It
 declares model state groups and outputs, robot joint ordering, root and joint
 state offsets, controller scale/rate/position limits, and InteractionPack
 contact tracks. Compilation verifies its controller fingerprint against the
 live native library before emitting actions, so an adapter cannot silently
 outlive a changed robot contract. The schema is
 `schemas/foundation_adapter.schema.json`.
+
+Every state group now declares an executable source. `joint_positions` reads
+named physical robot state. `model_constant` is reserved for an explicit
+cross-embodiment assumption, records both its values and semantics, and is
+rejected unless observation compilation opts in with
+`--allow-model-constants`. The old adapter-less path and its silently
+zero-filled hand state no longer exist.
 
 Pure teacher control is marked in every transition. Its sampled student action
 receives zero PPO weight because the student did not cause the physics, while
@@ -161,9 +169,11 @@ Navigation, base-height, and effort outputs remain in evidence until their
 coordinate and controller semantics are explicitly calibrated.
 
 The bundled 29-DoF robot has no dexterous-hand mechanics, so hand outputs are
-retained but not executed. The adapter already recognizes the checkpoint's
-seven named joints per hand and will map them only when the selected robot's
-native deployment contract actually contains all corresponding actuators. A
+retained but not executed. For upper-body transfer, the model's missing Dex3
+inputs are explicit model-only constants and require the opt-in shown above;
+they are not published as sensed robot state. The adapter recognizes the
+checkpoint's seven named joints per hand and maps them only when the selected
+robot's native deployment contract contains all corresponding actuators. A
 physical apple pickup therefore still requires authored hand links, inertias,
 joint limits, collision geometry, actuators, and tactile/contact groups plus an
 apple-and-plate world/task. Attaching an object to an empty wrist or treating a

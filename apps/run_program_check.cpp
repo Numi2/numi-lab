@@ -13,12 +13,38 @@ void require(const bool condition, const std::string& message) {
     }
 }
 
+bool contains(const std::vector<std::string>& values, const std::string_view value) {
+    return std::find(values.begin(), values.end(), value) != values.end();
+}
+
+bool containsRole(
+    const std::vector<metalrobo::RobotSemanticRole>& roles,
+    const std::string_view id
+) {
+    return std::any_of(
+        roles.begin(),
+        roles.end(),
+        [id](const metalrobo::RobotSemanticRole& role) {
+            return role.id == id;
+        }
+    );
+}
+
 }
 
 int main() {
     try {
         auto robot = metalrobo::builtinRobotPack("unitree_g1");
         require(robot.has_value(), "bundled G1 RobotPack is missing");
+        require(
+            !contains(robot->capabilities, "manipulation") &&
+                contains(robot->capabilities, "upper_body_motion") &&
+                containsRole(robot->roles, "left_wrist") &&
+                containsRole(robot->roles, "right_wrist") &&
+                !containsRole(robot->roles, "left_hand") &&
+                !containsRole(robot->roles, "right_hand"),
+            "bundled 29-DoF G1 claims hand mechanics or manipulation it does not own"
+        );
         metalrobo::RunManifest manifest;
         manifest.id = "run_program_check";
         manifest.robot = *robot;
@@ -187,11 +213,13 @@ int main() {
         );
 
         const auto ids = metalrobo::builtinRobotIds();
+        const auto px4Robot = metalrobo::builtinRobotPack("px4_x500");
         require(
             ids.size() == 4u &&
                 metalrobo::builtinRobotPack("franka_panda").has_value() &&
                 metalrobo::builtinRobotPack("dvrk_psm").has_value() &&
-                metalrobo::builtinRobotPack("px4_x500").has_value(),
+                px4Robot.has_value() &&
+                !contains(px4Robot->capabilities, "aerial_manipulation"),
             "robot catalog is incomplete"
         );
 
