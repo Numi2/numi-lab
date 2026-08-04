@@ -609,55 +609,75 @@ RunCompileDiagnostics compileRun(
 
         EpisodeTwin episode;
         episode.id = manifest.id;
-        WorldAsset robotAsset;
-        robotAsset.id = manifest.robot.id;
-        robotAsset.semanticClass = "robot";
-        robotAsset.role = MR_WORLD_ASSET_ROBOT;
-        robotAsset.collision = collisionRepresentation(
-            manifest.robot.mechanics
-        );
-        robotAsset.dynamics = MR_WORLD_DYNAMICS_ARTICULATED;
-        robotAsset.articulationIndex =
-            manifest.robot.primaryArticulationIndex;
-        robotAsset.bodyIndices = indices(manifest.robot.mechanics.bodies);
-        robotAsset.shapeIndices = indices(manifest.robot.mechanics.shapes);
-        robotAsset.materialIndices = indices(manifest.robot.mechanics.materials);
-        episode.assets.push_back(std::move(robotAsset));
-
-        std::uint32_t bodyOffset = static_cast<std::uint32_t>(
-            manifest.robot.mechanics.bodies.size()
-        );
-        std::uint32_t shapeOffset = static_cast<std::uint32_t>(
-            manifest.robot.mechanics.shapes.size()
-        );
-        std::uint32_t materialOffset = static_cast<std::uint32_t>(
-            manifest.robot.mechanics.materials.size()
-        );
-        std::uint32_t articulationOffset = static_cast<std::uint32_t>(
-            manifest.robot.mechanics.articulations.size()
-        );
-        for (const SceneObject& object : manifest.scene.objects) {
-            WorldAsset asset;
-            asset.id = object.id;
-            asset.semanticClass = object.semanticClass;
-            asset.role = object.role;
-            asset.render = object.render;
-            asset.collision = object.collision;
-            asset.dynamics = object.dynamics;
-            asset.articulationIndex = object.mechanics.articulations.empty()
-                ? MR_INVALID_INDEX
-                : articulationOffset;
-            asset.bodyIndices = indices(object.mechanics.bodies, bodyOffset);
-            asset.shapeIndices = indices(object.mechanics.shapes, shapeOffset);
-            asset.materialIndices = indices(
-                object.mechanics.materials,
-                materialOffset
+        if (!manifest.scene.authoredAssets.empty()) {
+            if (!manifest.scene.objects.empty()) {
+                return reject(
+                    RunCompileStatus::invalidManifest,
+                    manifest.scene.id,
+                    "ScenePack cannot mix authored asset bindings with "
+                    "composable objects"
+                );
+            }
+            episode.assets = manifest.scene.authoredAssets;
+        } else {
+            WorldAsset robotAsset;
+            robotAsset.id = manifest.robot.id;
+            robotAsset.semanticClass = "robot";
+            robotAsset.role = MR_WORLD_ASSET_ROBOT;
+            robotAsset.collision = collisionRepresentation(
+                manifest.robot.mechanics
             );
-            episode.assets.push_back(std::move(asset));
-            bodyOffset += static_cast<std::uint32_t>(object.mechanics.bodies.size());
-            shapeOffset += static_cast<std::uint32_t>(object.mechanics.shapes.size());
-            materialOffset += static_cast<std::uint32_t>(object.mechanics.materials.size());
-            articulationOffset += static_cast<std::uint32_t>(object.mechanics.articulations.size());
+            robotAsset.dynamics = MR_WORLD_DYNAMICS_ARTICULATED;
+            robotAsset.articulationIndex =
+                manifest.robot.primaryArticulationIndex;
+            robotAsset.bodyIndices = indices(manifest.robot.mechanics.bodies);
+            robotAsset.shapeIndices = indices(manifest.robot.mechanics.shapes);
+            robotAsset.materialIndices = indices(manifest.robot.mechanics.materials);
+            episode.assets.push_back(std::move(robotAsset));
+
+            std::uint32_t bodyOffset = static_cast<std::uint32_t>(
+                manifest.robot.mechanics.bodies.size()
+            );
+            std::uint32_t shapeOffset = static_cast<std::uint32_t>(
+                manifest.robot.mechanics.shapes.size()
+            );
+            std::uint32_t materialOffset = static_cast<std::uint32_t>(
+                manifest.robot.mechanics.materials.size()
+            );
+            std::uint32_t articulationOffset = static_cast<std::uint32_t>(
+                manifest.robot.mechanics.articulations.size()
+            );
+            for (const SceneObject& object : manifest.scene.objects) {
+                WorldAsset asset;
+                asset.id = object.id;
+                asset.semanticClass = object.semanticClass;
+                asset.role = object.role;
+                asset.render = object.render;
+                asset.collision = object.collision;
+                asset.dynamics = object.dynamics;
+                asset.articulationIndex = object.mechanics.articulations.empty()
+                    ? MR_INVALID_INDEX
+                    : articulationOffset;
+                asset.bodyIndices = indices(object.mechanics.bodies, bodyOffset);
+                asset.shapeIndices = indices(object.mechanics.shapes, shapeOffset);
+                asset.materialIndices = indices(
+                    object.mechanics.materials,
+                    materialOffset
+                );
+                episode.assets.push_back(std::move(asset));
+                bodyOffset += static_cast<std::uint32_t>(
+                    object.mechanics.bodies.size()
+                );
+                shapeOffset += static_cast<std::uint32_t>(
+                    object.mechanics.shapes.size()
+                );
+                materialOffset += static_cast<std::uint32_t>(
+                    object.mechanics.materials.size()
+                );
+                articulationOffset += static_cast<std::uint32_t>(
+                    object.mechanics.articulations.size()
+                );
+            }
         }
 
         episode.sensors = manifest.sensors.worldSensors;
@@ -731,7 +751,6 @@ RunCompileDiagnostics compileRun(
             return reject(RunCompileStatus::worldFailure, "reality",
                 familyStatus.message);
         }
-
         // Compile the independently authored runtime programs into one fused
         // native transaction. This is a compile-time lowering only: Metal
         // executes the resolved sensor, reality and teacher tables directly,
@@ -827,11 +846,17 @@ RunCompileDiagnostics compileRun(
             Hash sensorHash;
             sensorHash.scalar(sensorFingerprint(episode.sensors));
             sensorHash.scalar(staged.task_.observationFingerprint());
+            sensorHash.scalar(
+                manifest.sensors.externalProgramFingerprint
+            );
             staged.sensorFingerprint_ = sensorHash.finish();
         }
         {
             Hash realityHash;
             realityHash.scalar(staged.worldFamily_.program.fingerprint);
+            realityHash.scalar(
+                manifest.reality.sourceProgramFingerprint
+            );
             realityHash.scalar<std::uint64_t>(
                 staged.task_.randomizationOperators().size()
             );

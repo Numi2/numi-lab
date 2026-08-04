@@ -25,6 +25,7 @@
 #include <filesystem>
 #include <iomanip>
 #include <initializer_list>
+#include <iterator>
 #include <limits>
 #include <memory>
 #include <numbers>
@@ -165,6 +166,37 @@ static_assert(sizeof(MRTaskEvidenceTelemetryC) == 48u);
 namespace {
 
 thread_local std::string gLastError;
+
+class ManifestFingerprint {
+public:
+    void bytes(const void* data, const std::size_t size) {
+        const auto* values = static_cast<const unsigned char*>(data);
+        for (std::size_t index = 0u; index < size; ++index) {
+            value_ ^= values[index];
+            value_ *= 1099511628211ull;
+        }
+    }
+
+    template <typename T>
+    void scalar(const T& value) {
+        bytes(&value, sizeof(value));
+    }
+
+    void string(const char* value) {
+        const std::string_view text = value == nullptr
+            ? std::string_view{}
+            : std::string_view{value};
+        scalar<std::uint64_t>(text.size());
+        bytes(text.data(), text.size());
+    }
+
+    [[nodiscard]] std::uint64_t finish() const noexcept {
+        return value_ == 0u ? 1u : value_;
+    }
+
+private:
+    std::uint64_t value_ = 1469598103934665603ull;
+};
 
 std::string unitreeG1DeploymentContractJSON() {
     const metalrobo::G1ModelMetadata& metadata =
@@ -1284,10 +1316,9 @@ void assignNativeRunPrograms(metalrobo::RunManifest& manifest) {
     metalrobo::SensorPack& sensors = manifest.sensors;
     metalrobo::RealityPack& reality = manifest.reality;
     if (!sensors.actorFrame.empty() ||
-        !sensors.actorCurrent.empty() || !sensors.critic.empty() ||
-        !reality.taskState.empty()) {
+        !sensors.actorCurrent.empty() || !sensors.critic.empty()) {
         throw std::invalid_argument(
-            "run manifest contains duplicate executable pack ownership"
+            "run manifest contains duplicate SensorPack execution ownership"
         );
     }
     sensors.actorFrame = std::move(task.actorFrame);
@@ -1302,11 +1333,20 @@ void assignNativeRunPrograms(metalrobo::RunManifest& manifest) {
     task.criticHistoryLength = 1u;
     task.criticIncludesCleanHistory = true;
 
-    reality.taskState = std::move(task.randomization);
-    reality.maximumActionDelaySteps =
-        task.maximumActionDelaySteps;
-    reality.maximumObservationDelaySteps =
-        task.maximumObservationDelaySteps;
+    reality.taskState.insert(
+        reality.taskState.end(),
+        std::make_move_iterator(task.randomization.begin()),
+        std::make_move_iterator(task.randomization.end())
+    );
+    task.randomization.clear();
+    reality.maximumActionDelaySteps = std::max(
+        reality.maximumActionDelaySteps,
+        task.maximumActionDelaySteps
+    );
+    reality.maximumObservationDelaySteps = std::max(
+        reality.maximumObservationDelaySteps,
+        task.maximumObservationDelaySteps
+    );
     task.maximumActionDelaySteps = 0u;
     task.maximumObservationDelaySteps = 0u;
     if (manifest.teacher.id.empty()) {
@@ -1355,12 +1395,135 @@ metalrobo::RunManifest makeImportedRunManifest(
     return manifest;
 }
 
+metalrobo::WorldProgram authoredWorldProgram(
+    const metalrobo::CompiledWorldProgram& compiled
+) {
+    if (compiled.variationIds.size() != compiled.variations.size() ||
+        compiled.variationTargetIds.size() !=
+            compiled.variations.size()) {
+        throw std::invalid_argument(
+            "compiled WorldProgram identity tables are inconsistent"
+        );
+    }
+    metalrobo::WorldProgram authored;
+    authored.id = compiled.id;
+    authored.instanceFlags = compiled.instanceFlags;
+    authored.variations.reserve(compiled.variations.size());
+    for (std::size_t index = 0u;
+         index < compiled.variations.size();
+         ++index) {
+        const MRWorldVariationGPU& source = compiled.variations[index];
+        const std::uint32_t first = source.categorical.x;
+        const std::uint32_t count = source.categorical.y;
+        if (first > compiled.categoricalValues.size() ||
+            count > compiled.categoricalValues.size() - first) {
+            throw std::invalid_argument(
+                "compiled WorldProgram categorical range is invalid"
+            );
+        }
+        metalrobo::VariationParameter variation;
+        variation.id = compiled.variationIds[index];
+        variation.axis = static_cast<MRWorldVariationAxis>(
+            source.binding.x
+        );
+        variation.distribution =
+            static_cast<MRWorldDistributionKind>(source.binding.y);
+        variation.target = static_cast<MRWorldVariationTarget>(
+            source.binding.z
+        );
+        variation.targetId = compiled.variationTargetIds[index];
+        variation.parameters = source.parameters;
+        variation.categoricalValues.assign(
+            compiled.categoricalValues.begin() + first,
+            compiled.categoricalValues.begin() + first + count
+        );
+        variation.stream = source.random.x;
+        variation.salt =
+            static_cast<std::uint64_t>(source.random.y) |
+            (static_cast<std::uint64_t>(source.random.z) << 32u);
+        authored.variations.push_back(std::move(variation));
+    }
+    return authored;
+}
+
+std::uint64_t visualSensorProgramFingerprint(
+    const MRTaskVisualObservationConfigC& config
+) {
+    if (config.pack_count != 0u && config.packs == nullptr) {
+        throw std::invalid_argument(
+            "visual SensorPack asset bindings are missing"
+        );
+    }
+    ManifestFingerprint hash;
+    hash.scalar(config.pack_count);
+    for (std::uint32_t index = 0u; index < config.pack_count; ++index) {
+        const MRTaskVisualPackC& reference = config.packs[index];
+        if (reference.path == nullptr || reference.path[0] == '\0' ||
+            reference.asset_id == nullptr || reference.asset_id[0] == '\0') {
+            throw std::invalid_argument(
+                "visual SensorPack contains an incomplete asset binding"
+            );
+        }
+        metalrobo::VisualAssetPackV2 pack;
+        std::string reason;
+        if (!metalrobo::readVisualAssetPackIndex(
+                reference.path,
+                pack,
+                &reason
+            )) {
+            throw std::invalid_argument(
+                "visual SensorPack asset load failed: " + reason
+            );
+        }
+        hash.scalar(pack.contentHash);
+        hash.string(reference.asset_id);
+        hash.scalar(reference.semantic_id);
+        hash.scalar(reference.instance_id);
+    }
+    if (config.environment_pack_path != nullptr &&
+        config.environment_pack_path[0] != '\0') {
+        metalrobo::VisualEnvironmentPackV2 environment;
+        std::string reason;
+        if (!metalrobo::readVisualEnvironmentPackIndex(
+                config.environment_pack_path,
+                environment,
+                &reason
+            )) {
+            throw std::invalid_argument(
+                "visual SensorPack environment load failed: " + reason
+            );
+        }
+        hash.scalar(environment.contentHash);
+    } else {
+        hash.scalar<std::uint64_t>(0u);
+    }
+    hash.string(config.renderer_profile);
+    hash.string(config.camera_parent_body);
+    hash.bytes(config.camera_position, sizeof(config.camera_position));
+    hash.bytes(config.camera_orientation, sizeof(config.camera_orientation));
+    hash.scalar(config.width);
+    hash.scalar(config.height);
+    hash.scalar(config.minimum_visible_pixels);
+    hash.scalar(config.vertical_field_of_view_degrees);
+    hash.scalar(config.nominal_rate_hz);
+    hash.scalar(config.maximum_retained_bytes);
+    hash.scalar(config.capture_width);
+    hash.scalar(config.capture_height);
+    hash.scalar(config.capture_policy_camera);
+    return hash.finish();
+}
+
 std::unique_ptr<MRTaskRolloutHandle> createCompiledRunTaskRollout(
     metalrobo::RunManifest manifest,
     const char* metallibPath,
-    const std::string_view source
+    const std::string_view source,
+    const MRTaskVisualObservationConfigC* visualSensor
 ) {
     assignNativeRunPrograms(manifest);
+    if (visualSensor != nullptr) {
+        manifest.sensors.externalProgramFingerprint =
+            visualSensorProgramFingerprint(*visualSensor);
+    }
     // Task composition (notably an InteractionPack) may refine the measured
     // contact profile after the base manifest is authored. The executable run
     // must compile the final task's exact capacity contract, never a stale
@@ -2461,6 +2624,7 @@ static MRTaskRolloutHandle* createUnitreeG1Run(
     const MRTaskRolloutConfigC* config,
     const uint32_t surface_value,
     const uint32_t task_value,
+    const MRTaskVisualObservationConfigC* visual_sensor,
     const char* metallib_path
 ) {
     if (config == nullptr) {
@@ -2480,7 +2644,8 @@ static MRTaskRolloutHandle* createUnitreeG1Run(
                 *config
             ),
             metallib_path,
-            "bundled G1"
+            "bundled G1",
+            visual_sensor
         );
         result = handle.release();
     });
@@ -2489,6 +2654,7 @@ static MRTaskRolloutHandle* createUnitreeG1Run(
 
 static MRTaskRolloutHandle* createFrankaRun(
     const MRTaskRolloutConfigC* config,
+    const MRTaskVisualObservationConfigC* visual_sensor,
     const char* metallib_path
 ) {
     if (config == nullptr) {
@@ -2501,7 +2667,8 @@ static MRTaskRolloutHandle* createFrankaRun(
         auto handle = createCompiledRunTaskRollout(
             makeFrankaPickPlaceRunManifest(*config),
             metallib_path,
-            "bundled Franka pick/place"
+            "bundled Franka pick/place",
+            visual_sensor
         );
         result = handle.release();
     });
@@ -2514,6 +2681,7 @@ static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
     const uint32_t task_value,
     const char* interaction_pack_path,
     const char* interaction_clip_id,
+    const MRTaskVisualObservationConfigC* visual_sensor,
     const char* metallib_path
 ) {
     if (config == nullptr || interaction_pack_path == nullptr ||
@@ -2612,7 +2780,8 @@ static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest),
             metallib_path,
-            "bundled G1 interaction"
+            "bundled G1 interaction",
+            visual_sensor
         );
         result = handle.release();
     });
@@ -2625,6 +2794,7 @@ static MRTaskRolloutHandle* createImportedURDFRun(
     const char* task_pack_path,
     const MRTaskRolloutConfigC* config,
     const uint32_t surface_value,
+    const MRTaskVisualObservationConfigC* visual_sensor,
     const char* metallib_path
 ) {
     if (config == nullptr ||
@@ -2689,7 +2859,8 @@ static MRTaskRolloutHandle* createImportedURDFRun(
                 "imported_urdf_run"
             ),
             metallib_path,
-            "imported URDF"
+            "imported URDF",
+            visual_sensor
         );
         result = handle.release();
     });
@@ -2700,6 +2871,7 @@ static MRTaskRolloutHandle* createWorldPackRun(
     const char* world_pack_path,
     const char* task_pack_path,
     const MRTaskRolloutConfigC* config,
+    const MRTaskVisualObservationConfigC* visual_sensor,
     const char* metallib_path
 ) {
     if (config == nullptr ||
@@ -2739,17 +2911,29 @@ static MRTaskRolloutHandle* createWorldPackRun(
                 ) + "]: " + worldLoaded.message
             );
         }
-        auto handle = createCompiledRunTaskRollout(
-            makeImportedRunManifest(
-                metalrobo::makeWorldPackLocomotionWorld(
-                    worldPack,
-                    std::move(task)
-                ),
-                *config,
-                "world_pack_run"
+        metalrobo::RunManifest run = makeImportedRunManifest(
+            metalrobo::makeWorldPackLocomotionWorld(
+                worldPack,
+                std::move(task)
             ),
+            *config,
+            "world_pack_run"
+        );
+        run.robot.id = worldPack.family.worldTemplate.task.robotAssetId;
+        run.scene.authoredAssets =
+            worldPack.family.worldTemplate.assets;
+        run.sensors.worldSensors =
+            worldPack.family.worldTemplate.sensors;
+        run.reality.program = authoredWorldProgram(
+            worldPack.family.program
+        );
+        run.reality.sourceProgramFingerprint =
+            worldPack.family.program.fingerprint;
+        auto handle = createCompiledRunTaskRollout(
+            std::move(run),
             metallib_path,
-            "MRWorldPack"
+            "MRWorldPack",
+            visual_sensor
         );
         result = handle.release();
     });
@@ -2774,6 +2958,7 @@ MRTaskRolloutHandle* mr_create_task_rollout(
                 manifest->task,
                 manifest->teacher_pack_path,
                 manifest->teacher_clip_id,
+                manifest->visual_sensor_program,
                 manifest->metallib_path
             );
             break;
@@ -2782,12 +2967,14 @@ MRTaskRolloutHandle* mr_create_task_rollout(
             &manifest->profile,
             manifest->surface,
             manifest->task,
+            manifest->visual_sensor_program,
             manifest->metallib_path
         );
         break;
     case MR_RUN_SOURCE_FRANKA_PICK_PLACE:
         result = createFrankaRun(
             &manifest->profile,
+            manifest->visual_sensor_program,
             manifest->metallib_path
         );
         break;
@@ -2798,6 +2985,7 @@ MRTaskRolloutHandle* mr_create_task_rollout(
             manifest->task_pack_path,
             &manifest->profile,
             manifest->surface,
+            manifest->visual_sensor_program,
             manifest->metallib_path
         );
         break;
@@ -2806,6 +2994,7 @@ MRTaskRolloutHandle* mr_create_task_rollout(
             manifest->world_pack_path,
             manifest->task_pack_path,
             &manifest->profile,
+            manifest->visual_sensor_program,
             manifest->metallib_path
         );
         break;

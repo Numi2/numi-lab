@@ -51,6 +51,9 @@ public:
         interaction = directory /
             ("metalrobo_task_program_check_" + suffix +
              ".interactionpack");
+        world = directory /
+            ("metalrobo_task_program_check_" + suffix +
+             ".mrworld");
     }
 
     ~TemporaryPackFiles() {
@@ -61,6 +64,7 @@ public:
         std::filesystem::remove(borrowedRollout, ignored);
         std::filesystem::remove(motion, ignored);
         std::filesystem::remove(interaction, ignored);
+        std::filesystem::remove(world, ignored);
     }
 
     std::filesystem::path task;
@@ -69,6 +73,7 @@ public:
     std::filesystem::path borrowedRollout;
     std::filesystem::path motion;
     std::filesystem::path interaction;
+    std::filesystem::path world;
 };
 
 [[noreturn]] void fail(const std::string& message) {
@@ -595,10 +600,20 @@ std::uint64_t checkWorldPackLocomotionImport() {
             worldTemplate
         );
     metalrobo::WorldFamily family;
+    metalrobo::WorldProgram reality;
+    reality.id = "world_pack_runtime_reality";
+    reality.variations.push_back({
+        .id = "pick_object_mass",
+        .axis = MR_WORLD_VARIATION_PHYSICS,
+        .distribution = MR_WORLD_DISTRIBUTION_UNIFORM,
+        .target = MR_WORLD_TARGET_ASSET_MASS_SCALE,
+        .targetId = "pick_object",
+        .parameters = {0.9f, 1.1f, 0.0f, 0.0f},
+    });
     const metalrobo::WorldCompileResult familyStatus =
         metalrobo::compileWorldFamily(
             worldTemplate,
-            metalrobo::makeFrankaPickPlaceWorldProgram(),
+            reality,
             family
         );
     metalrobo::MRWorldPack pack;
@@ -635,6 +650,60 @@ std::uint64_t checkWorldPackLocomotionImport() {
         !hasDynamicMass) {
         fail(
             "WorldPack did not materialize executable mechanics and scene state"
+        );
+    }
+
+    TemporaryPackFiles files;
+    const metalrobo::WorldPackResult worldWrite =
+        metalrobo::writeWorldPack(pack, files.world);
+    const metalrobo::LearningPackResult taskWrite =
+        metalrobo::writeTaskPack(
+            metalrobo::makeFrankaPickPlaceTaskPack(),
+            files.task
+        );
+    if (!worldWrite.succeeded() || !taskWrite.succeeded()) {
+        fail("WorldPack runtime fixtures could not be persisted");
+    }
+    const MRTaskRolloutConfigC profile{
+        .environment_count = 1u,
+        .physics_substeps = 4u,
+        .velocity_iterations = 4u,
+        .final_velocity_iterations = 2u,
+        .control_timestep_seconds = 1.0f / 60.0f,
+        .seed = 0x574f524c44ull,
+    };
+    const std::string worldPath = files.world.string();
+    const std::string taskPath = files.task.string();
+    const MRRunManifestC manifest{
+        .profile = profile,
+        .source = MR_RUN_SOURCE_WORLD_PACK,
+        .world_pack_path = worldPath.c_str(),
+        .task_pack_path = taskPath.c_str(),
+    };
+    std::unique_ptr<MRTaskRolloutHandle, decltype(&mr_task_rollout_destroy)>
+        rollout{
+            mr_create_task_rollout(&manifest),
+            &mr_task_rollout_destroy,
+        };
+    if (!rollout) {
+        fail(
+            "WorldPack runtime creation failed: " +
+            std::string{mr_last_error()}
+        );
+    }
+    const MRTaskRolloutLayoutC layout =
+        mr_task_rollout_layout(rollout.get());
+    std::vector<float> actions(4u * layout.action_count, 0.0f);
+    MRTaskRolloutAdvanceC advance{};
+    if (layout.reality_fingerprint == 0u ||
+        mr_task_rollout_advance(
+            rollout.get(), actions.data(), actions.size(), nullptr, 0u,
+            4u, 1u, 0u, &advance
+        ) != 0 ||
+        advance.failed_environment_steps != 0u) {
+        fail(
+            "WorldPack RealityProgram did not execute cleanly: " +
+            std::string{mr_last_error()}
         );
     }
     return pack.contentHash;

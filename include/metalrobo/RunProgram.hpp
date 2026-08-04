@@ -60,6 +60,11 @@ struct SceneObject {
 struct ScenePack {
     std::string id;
     std::vector<SceneObject> objects;
+    // Exact asset ownership for a precompiled scene package such as
+    // MRWorldPack. When present, these bindings describe the already-composed
+    // mechanics directly; the run compiler validates them instead of
+    // flattening the whole world into one synthetic robot asset.
+    std::vector<WorldAsset> authoredAssets;
 };
 
 struct MountedSensor {
@@ -74,6 +79,11 @@ struct SensorPack {
     std::string id;
     std::vector<MountedSensor> mounted;
     std::vector<SensorSpec> worldSensors;
+    // Fingerprint of an executable provider-owned sensor artifact compiled
+    // during manifest construction (for example a physics-bound visual
+    // sensor graph). Zero means the observation program is fully described
+    // by the native operators and SensorSpec tables below.
+    std::uint64_t externalProgramFingerprint = 0u;
     // Executable observation program. These operators are resolved once by
     // the run compiler and executed by Metal after accepted physics, before
     // policy inference. TaskPack owns objectives, never sensing semantics.
@@ -93,6 +103,10 @@ struct SensorPack {
 struct RealityPack {
     std::string id;
     WorldProgram program;
+    // Preserves the artifact identity of an imported compiled WorldProgram.
+    // The semantic program still compiles and executes directly through this
+    // pack; this value binds the resulting run to its persisted provenance.
+    std::uint64_t sourceProgramFingerprint = 0u;
     // Executable reset program. WorldProgram is the source for scene,
     // physics, controller, camera and appearance variation. These additional
     // task-state operators cover reset semantics whose targets are not world

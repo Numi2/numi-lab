@@ -114,6 +114,22 @@ int main() {
             "CompiledRun did not retain modular package identities"
         );
 
+        metalrobo::RunManifest alternateSensor = manifest;
+        alternateSensor.sensors.externalProgramFingerprint = 0x53454e534f52ull;
+        metalrobo::CompiledRun compiledAlternateSensor;
+        const auto alternateSensorStatus = metalrobo::compileRun(
+            alternateSensor,
+            compiledAlternateSensor
+        );
+        require(
+            alternateSensorStatus.succeeded() &&
+                compiledAlternateSensor.sensorFingerprint() !=
+                    compiled.sensorFingerprint() &&
+                compiledAlternateSensor.fingerprint() !=
+                    compiled.fingerprint(),
+            "external SensorPack program is missing from run identity"
+        );
+
         metalrobo::RunManifest duplicatedOwnership = manifest;
         duplicatedOwnership.task.actorFrame =
             duplicatedOwnership.sensors.actorFrame;

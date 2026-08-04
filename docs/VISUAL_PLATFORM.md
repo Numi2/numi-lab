@@ -174,6 +174,8 @@ retains the legacy focal-length rule for existing callers.
 `MetalRoboRunManifest.visualSensor` authors pack references, a body-bound
 camera, the matching `WorldFamily`, and this tracker as part of SensorPack
 compilation. There is no post-construction sensor attachment API. Explicit
+visual/environment content hashes and the complete sensor configuration enter
+the SensorPack fingerprint before the executor is created. Explicit
 rigid-body pack bindings keep moving scene objects on the accepted physics
 timeline; articulated bindings keep robot presentation on link states. Reset
 clears temporal tracks atomically with simulator reset, and rollout chunk size

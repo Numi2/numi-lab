@@ -53,7 +53,8 @@ not descriptive sidecars:
   compiler resolves them into the native observation tables that Metal runs
   after accepted physics and before policy inference. Visual sensors enter
   through `MetalRoboRunManifest.visualSensor`; no sensor can be attached after
-  construction.
+  construction. The referenced visual/environment artifact hashes and every
+  camera/tracker parameter participate in the SensorPack and run fingerprints.
 - `RealityPack` owns the `WorldProgram` plus task-state reset variation. The
   run compiler lowers supported constant/uniform scene, mass, friction,
   restitution, damping, controller, payload and latency variations into the
@@ -108,6 +109,11 @@ uses the same counter-based key structure in native Metal.
 composition, authored presentation, sensors, task anchors, provenance, and
 compiled variation data. Loading is transactional and rejects incompatible
 format, ABI, payload length, content hash, or family fingerprint.
+Its original asset-to-body/shape/material bindings are retained by ScenePack
+when compiling a run. The importer does not relabel the complete world as a
+synthetic robot asset, and the persisted WorldProgram is executed with its
+original artifact fingerprint retained in the run identity instead of being
+dropped or reinterpreted at runtime.
 
 Compile a capture directly:
 

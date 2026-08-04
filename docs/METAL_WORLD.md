@@ -50,6 +50,10 @@ reset variation, and `TeacherPack` owns pre-actuation proposals. `compileRun`
 resolves every authored body, joint, sensor and variation once, then fuses the
 three executable programs into fixed Metal tables. GPU execution consumes only
 those tables, counts, offsets and fingerprints.
+Imported WorldPacks retain their exact asset ownership table during this
+compilation, so articulated, rigid, kinematic, and static bodies cannot be
+silently collapsed into one dynamics class. Persisted reality and external
+sensor-program content hashes are part of the immutable run identity.
 
 `PolicyPack` owns dense actor weights, normalization, output transforms, clips,
 and a monotonically increasing revision. `compilePolicyProgram` verifies its
