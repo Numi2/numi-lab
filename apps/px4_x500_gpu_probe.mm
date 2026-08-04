@@ -259,7 +259,7 @@ int main() {
                 const bool scriptedManeuvers = maneuverTracePath != nullptr && maneuverTracePath[0] != '\0';
                 std::ofstream trace(tracePath);
                 require(trace.good(), "cannot write X500 trace");
-                trace << "time_s,x_m,y_m,z_m,qx,qy,qz,qw,collective,roll,pitch,yaw\n";
+                trace << "time_s,x_m,y_m,z_m,qx,qy,qz,qw,collective,roll,pitch,yaw,rotor0_rad_s,rotor1_rad_s,rotor2_rad_s,rotor3_rad_s\n";
                 MRBodyStateGPU traceState = initialState(propertiesOne, 0u);
                 traceState.position.z = scriptedManeuvers ? 1.0f : 0.60f;
                 std::memcpy(bodyBuffer.contents, &traceState, sizeof(traceState));
@@ -302,10 +302,13 @@ int main() {
                         wroteManeuverTrace = true;
                     }
                     if (step % 10u == 0u) {
+                        const auto* currentMotors = static_cast<const MRMulticopterStateGPU*>(motorBuffer.contents);
                         trace << std::fixed << std::setprecision(7) << (step + 1u) * kDt << ','
                               << current[0].position.x << ',' << current[0].position.y << ',' << current[0].position.z << ','
                               << current[0].orientation.x << ',' << current[0].orientation.y << ',' << current[0].orientation.z << ',' << current[0].orientation.w << ','
-                              << traceAction.x << ',' << traceAction.y << ',' << traceAction.z << ',' << traceAction.w << '\n';
+                              << traceAction.x << ',' << traceAction.y << ',' << traceAction.z << ',' << traceAction.w << ','
+                              << currentMotors[0].rotorSpeed01.x << ',' << currentMotors[0].rotorSpeed01.y << ','
+                              << currentMotors[0].rotorSpeed01.z << ',' << currentMotors[0].rotorSpeed01.w << '\n';
                     }
                 }
                 require(trace.good(), "X500 trace write failed");

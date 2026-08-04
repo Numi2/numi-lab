@@ -150,8 +150,18 @@ def main() -> None:
     prop_material = pbr_material("PX4 composite propeller", (0.018, 0.025, 0.035, 1.0), 0.45, 0.22)
     frame = bpy.data.objects.new("PX4 X500 source-frame root", None)
     bpy.context.collection.objects.link(frame)
+    rotor_spinners: dict[int, tuple[bpy.types.Object, tuple[float, float, float]]] = {}
+    rotor_directions: dict[int, float] = {}
+    source_vehicle_sdf = etree.parse(options.source_root / "models/x500/model.sdf").getroot()
+    for plugin in source_vehicle_sdf.findall(".//plugin"):
+        link_name = plugin.findtext("linkName", "")
+        direction = plugin.findtext("turningDirection", "")
+        if link_name.startswith("rotor_") and direction in {"ccw", "cw"}:
+            rotor_directions[int(link_name.removeprefix("rotor_"))] = 1.0 if direction == "ccw" else -1.0
     source_sdf = etree.parse(options.source_root / "models/x500_base/model.sdf").getroot()
     for link in source_sdf.findall("./model/link"):
+        link_name = link.attrib.get("name", "")
+        rotor_index = int(link_name.removeprefix("rotor_")) if link_name.startswith("rotor_") else None
         link_pose = pose_values(link.findtext("pose"))
         for visual in link.findall("visual"):
             mesh_uri = visual.findtext("./geometry/mesh/uri")
@@ -165,10 +175,24 @@ def main() -> None:
             # geometry with a 0.01 scene-node transform.  Preserve that
             # transform here rather than scaling the physical airframe.
             authoring_scale = 0.01 if mesh_path.name in {"5010Base.dae", "5010Bell.dae"} else 1.0
+            source_location = tuple(link_pose[index] + visual_pose[index] for index in range(3))
+            source_rotation = tuple(link_pose[index + 3] + visual_pose[index + 3] for index in range(3))
+            propeller = rotor_index is not None and mesh_path.suffix == ".stl"
+            spinner = None
+            if propeller:
+                spinner = bpy.data.objects.new(f"PX4 rotor {rotor_index} spin root", None)
+                bpy.context.collection.objects.link(spinner)
+                spinner.parent = frame
+                # The SDF revolute joint is at the rotor-link origin. Its
+                # visual offset belongs below this root, otherwise the mesh
+                # would orbit around its own offset instead of the motor shaft.
+                spinner.location = link_pose[:3]
+                spinner.rotation_euler = link_pose[3:]
+                rotor_spinners[rotor_index] = (spinner, link_pose[3:])
             for object_ in objects:
-                object_.parent = frame
-                object_.location = tuple(link_pose[index] + visual_pose[index] for index in range(3))
-                object_.rotation_euler = tuple(link_pose[index + 3] + visual_pose[index + 3] for index in range(3))
+                object_.parent = spinner if spinner is not None else frame
+                object_.location = visual_pose[:3] if spinner is not None else source_location
+                object_.rotation_euler = visual_pose[3:] if spinner is not None else source_rotation
                 scale = visual.findtext("./geometry/mesh/scale")
                 source_scale = tuple(float(value) for value in (scale or "1 1 1").split())
                 object_.scale = tuple(authoring_scale * value for value in source_scale)
@@ -182,6 +206,24 @@ def main() -> None:
         frame.rotation_quaternion = (row["qw"], row["qx"], row["qy"], row["qz"])
         frame.keyframe_insert(data_path="location", frame=frame_number)
         frame.keyframe_insert(data_path="rotation_quaternion", frame=frame_number)
+
+    if all(f"rotor{index}_rad_s" in rows[0] for index in range(4)):
+        angles = [0.0, 0.0, 0.0, 0.0]
+        previous_time = rows[0]["time_s"]
+        for frame_number, row in enumerate(rows, 1):
+            dt = 0.0 if frame_number == 1 else row["time_s"] - previous_time
+            for index in range(4):
+                spinner_entry = rotor_spinners.get(index)
+                if spinner_entry is None:
+                    continue
+                spinner, base_rotation = spinner_entry
+                direction = rotor_directions.get(index)
+                if direction is None:
+                    raise RuntimeError(f"missing PX4 turning direction for rotor {index}")
+                angles[index] += direction * row[f"rotor{index}_rad_s"] * dt
+                spinner.rotation_euler = (base_rotation[0], base_rotation[1], base_rotation[2] + angles[index])
+                spinner.keyframe_insert(data_path="rotation_euler", frame=frame_number)
+            previous_time = row["time_s"]
 
     bpy.ops.mesh.primitive_plane_add(size=40, location=(0, 0, 0))
     ground = bpy.context.object
