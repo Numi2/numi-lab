@@ -8,10 +8,10 @@ loop.
 
 ```mermaid
 flowchart LR
-    A["URDF, MJCF, or WorldPack"] --> E["Native compiler"]
-    B["TaskPack"] --> E
-    C["InteractionPack"] --> E
-    D["PolicyPack"] --> E
+    A["RobotPack + ScenePack"] --> E["Run compiler"]
+    B["SensorPack + TaskPack"] --> E
+    C["RealityPack + TeacherPack"] --> E
+    D["PolicyPack + RunProfile"] --> E
     E --> F["Indices, tables, capacities, fingerprints"]
     F --> G["Persistent MetalWorld"]
     G --> H["Native physics, task, sensing, and inference"]
@@ -32,12 +32,43 @@ There is one runtime architecture:
   revisions;
 - MLX owns only batch learning and publishes the next PolicyPack.
 
-Bundled G1 training, evaluation, and InteractionPack realization now compile
-their real executable through `CompiledRun`. Robot mechanics, support surfaces,
-and dynamic projectiles are separate packages with independently owned reset
-state; the run compiler fingerprints the exact model, scene state, task,
-sensors, teacher, and profile before MetalWorld is created. `LocomotionWorld`
-remains only on imported compatibility paths while those packages migrate.
+Every rollout source now constructs one `RunManifest`, compiles one immutable
+`CompiledRun`, and calls the same executor constructor. Bundled G1, ARDY-backed
+G1, Franka, imported URDF and WorldPack entry points no longer own separate
+task compilers or runtime constructors. The public C boundary exports only
+`mr_create_task_rollout`; Swift exposes `MetalRoboRunManifest` for training,
+evaluation and deployment. The executor retains that `CompiledRun` as runtime
+authority instead of disassembling it into independently mutable copies.
+The former `Model + Runtime + Physics.metal` Franka executor has been deleted;
+Franka benchmarks and qualification now use the same MetalWorld path as every
+other compiled run.
+
+## Executable run programs
+
+`SensorPack`, `RealityPack`, and `TeacherPack` are executable compiler inputs,
+not descriptive sidecars:
+
+- `SensorPack` owns mounted/world sensor contracts, actor and critic
+  observation operators, histories, and the visual observation program. The
+  compiler resolves them into the native observation tables that Metal runs
+  after accepted physics and before policy inference. Visual sensors enter
+  through `MetalRoboRunManifest.visualSensor`; no sensor can be attached after
+  construction.
+- `RealityPack` owns the `WorldProgram` plus task-state reset variation. The
+  run compiler lowers supported constant/uniform scene, mass, friction,
+  restitution, damping, controller, payload and latency variations into the
+  atomic Metal reset program. Unsupported distributions or targets reject the
+  run; they are never retained as passive metadata.
+- `TeacherPack` owns the fingerprinted proposal artifact and its executable
+  logic. Motion imagination contains the selected `InteractionPack` clip;
+  compilation resolves it into the native pre-actuation reference/teacher
+  program. Physics, contacts and achieved outcomes remain solver-owned.
+
+Compilation rejects observation execution left in `TaskPack`, reset variation
+left in `TaskPack`, a disabled teacher carrying executable data, or a teacher
+kind without a native program. The three independently fingerprinted programs
+are fused into one Metal control transaction at compile time; there is no
+runtime adapter, source-kind branch, or second implementation of their logic.
 
 ## World authoring and artifacts
 
@@ -100,16 +131,13 @@ pack = compile_episode_manifest(
 
 ## TaskPack
 
-`TaskPack` is the robot-independent closed-loop task description. It contains:
+`TaskPack` is the robot-independent objective description. It contains:
 
 - action-to-joint bindings and action scales;
-- temporal actor and asymmetric-critic observation operators plus direct
-  device-observation suffixes, each with its own history contract;
 - named semantic contact and joint groups;
 - reward operators and continuous-time weights;
 - termination priorities and reasons;
-- reset and domain-randomization operators;
-- sampled difficulty bands, pushes, terrain samples, and corruption parameters;
+- sampled difficulty bands, pushes and terrain semantics;
 - the requested native capacity profile.
 
 Names such as `left_ankle_pitch`, `foot_contact`, or `left_index_tip` exist
@@ -127,18 +155,16 @@ anchors, launch timing, and speed bands remain TaskPack data rather than
 a robot-specific runtime path.
 
 The bundled G1 task is one preset expressed through this same format. Imported
-URDF robots and WorldPacks use the same compiler and executor:
+URDF robots and WorldPacks build the same manifest and executor:
 
 ```text
-makeUnitreeG1LocomotionWorld
-mr_create_urdf_locomotion_rollout
-mr_create_world_pack_locomotion_rollout
+MetalRoboRunManifest / MRRunManifestC
               |
               v
-      compileLocomotionWorld
+          compileRun
               |
               v
-      generic Metal task executor
+   one retained CompiledRun executor
 ```
 
 A custom `.metal` kernel is justified only by a new physics primitive, sensor
@@ -218,13 +244,12 @@ perturbation while the exact mechanism-scale target is still published as the
 teacher action. G1 get-up uses this mode until the autonomous student is
 qualified; ordinary interaction tracking retains bounded blended control.
 
-The bundled C/Swift route
-`mr_create_unitree_g1_interaction_rollout` / `MetalRoboTaskRolloutContext`
-authors a reference-relative G1 realization task, then uses the unchanged
-native rollout and MLX PPO path. Both actor and critic receive the reference
-suffix. Root pose and velocity, joint motion, and confidence-weighted contact
-intent are soft trajectory objectives; joint limits, energy, support slip, and
-forbidden contacts remain solver-grounded costs. No absolute standing height,
+The C/Swift route authors a `MetalRoboRunManifest` whose `TeacherPack` owns the
+selected interaction artifact and clip, then uses the unchanged native rollout
+and MLX PPO path. Both actor and critic receive the reference suffix. Root pose
+and velocity, joint motion, and confidence-weighted contact intent are soft
+trajectory objectives; joint limits, energy, support slip, and forbidden
+contacts remain solver-grounded costs. No absolute standing height,
 world-upright, tilt, or root-velocity term is injected, because those would
 contradict crouching, get-up, jumping, and rotation. Rollout `tracking_score`
 is the confidence-normalized mean of the selected interaction tracking
@@ -531,14 +556,14 @@ collision geometry. Tactile sensors consume authored sensor geometry and
 solver contact evidence; packs without tactile sensors allocate no tactile
 state.
 
-Task observation operators currently publish proprioception, commands,
+SensorPack observation operators currently publish proprioception, commands,
 terrain, contact metrics, compact support fields, interaction references, and
 physical/controller parameters. Interaction pressure targets are intent;
 their achieved values come from the same solver-resolved support field used by
 the ordinary TaskPack operators. Adding dense native tactile summaries or
-learned tactile features to a TaskPack still requires an explicit observation
-operator and a composed native tactile stage. Dataset training alone does not
-claim that runtime integration.
+learned tactile features requires an explicit SensorPack observation operator
+and a composed native tactile stage. Dataset training alone does not claim
+that runtime integration.
 
 ## Learning and rollout boundary
 

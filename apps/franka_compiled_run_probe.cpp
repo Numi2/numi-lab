@@ -1,6 +1,4 @@
 #include "metalrobo/c_api.h"
-#include "metalrobo/ArticulatedDynamics.hpp"
-#include "metalrobo/Franka.hpp"
 
 #include <algorithm>
 #include <array>
@@ -30,9 +28,14 @@ int main(int argc, char** argv) {
             .control_timestep_seconds = 1.0f / 60.0f,
             .seed = 0x4652414e4b41ull,
         };
+        const MRRunManifestC manifest{
+            .profile = config,
+            .source = MR_RUN_SOURCE_FRANKA_PICK_PLACE,
+            .metallib_path = metallib,
+        };
         std::unique_ptr<MRTaskRolloutHandle, decltype(&mr_task_rollout_destroy)>
             compiled{
-                mr_create_franka_pick_place_task_rollout(&config, metallib),
+                mr_create_task_rollout(&manifest),
                 &mr_task_rollout_destroy,
             };
         require(compiled != nullptr,
@@ -117,56 +120,6 @@ int main(int argc, char** argv) {
                 "Franka manipulation outcome channel is missing or non-finite"
             );
         }
-        std::unique_ptr<MRRuntimeHandle, decltype(&mr_destroy)> legacy{
-            mr_create_franka(1u, config.seed, metallib), &mr_destroy
-        };
-        require(legacy != nullptr,
-            "legacy Franka creation failed: " + std::string{mr_last_error()});
-        std::vector<float> legacyActions(7u, 0.0f);
-        for (std::uint32_t step = 0u; step < steps; ++step) {
-            require(mr_step(legacy.get(), legacyActions.data(), 7u) == 0,
-                "legacy Franka advance failed");
-        }
-        const float* legacyPositions = mr_body_positions(legacy.get());
-        const float* legacyObservations = mr_observations(legacy.get());
-        require(legacyPositions != nullptr,
-            "legacy Franka did not publish body poses");
-        require(legacyObservations != nullptr,
-            "legacy Franka did not publish observations");
-        const metalrobo::EngineModel robot =
-            metalrobo::makeFrankaPandaHandEngineModel();
-        std::vector<double> q64(q, q + layout.nq);
-        std::vector<double> v64(layout.nv, 0.0);
-        std::vector<metalrobo::ArticulatedBodyKinematics> kinematics(
-            robot.bodies.size()
-        );
-        const auto kinematicStatus =
-            metalrobo::computeArticulatedBodyKinematics(
-                robot, 0u, q64, v64, kinematics
-            );
-        require(kinematicStatus.succeeded(),
-            "Franka final-state kinematics failed");
-        double maximumLegacyPositionError = 0.0;
-        double maximumLegacyJointError = 0.0;
-        for (std::uint32_t joint = 0u; joint < 7u; ++joint) {
-            maximumLegacyJointError = std::max(
-                maximumLegacyJointError,
-                static_cast<double>(
-                    std::abs(q[joint] - legacyObservations[joint])
-                )
-            );
-        }
-        for (std::uint32_t body = 0u; body < 8u; ++body) {
-            for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
-                maximumLegacyPositionError = std::max(
-                    maximumLegacyPositionError,
-                    std::abs(
-                        kinematics[body].centerOfMassPosition[axis] -
-                        legacyPositions[body * 4u + axis]
-                    )
-                );
-            }
-        }
         std::cout
             << "franka_compiled_run=ok"
             << " run=" << layout.run_fingerprint
@@ -176,10 +129,7 @@ int main(int argc, char** argv) {
             << " failed=" << advance.failed_environment_steps
             << " contacts=" << advance.maximum_active_contacts
             << " max_joint_drift=" << maximumJointDrift
-            << " legacy_joint_error=" << maximumLegacyJointError
-            << " legacy_position_error=" << maximumLegacyPositionError
-            << " legacy_equivalent=no"
-            << " legacy_executor_retained=yes"
+            << " executor=compiled_run"
             << " object_z=" << objectHeight
             << " clutter_z=" << clutterHeight
             << " outcomes=" << mr_task_rollout_outcome_count(compiled.get())

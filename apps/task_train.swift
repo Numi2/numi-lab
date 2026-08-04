@@ -1088,6 +1088,7 @@ private final class MLXLearnerWorker {
 private func makeContext(
     options: Options
 ) throws -> (MetalRoboTaskRolloutContext, String) {
+    let visualSensor = try makeVisualObservation(options: options)
     let dynamicSpheres: [MetalRoboDynamicSphere] =
         options.unitreeG1Task == .ballDodge
         ? MetalRoboDynamicSphere.g1BallDodgeDefaults
@@ -1123,11 +1124,15 @@ private func makeContext(
     {
         return (
             try MetalRoboTaskRolloutContext(
-                unitreeG1Interaction: URL(
-                    fileURLWithPath: interactionPack
+                manifest: MetalRoboRunManifest(
+                    source: .unitreeG1,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    teacher: MetalRoboTeacherSource(
+                        pack: URL(fileURLWithPath: interactionPack),
+                        clipID: interactionClip
+                    )
                 ),
-                clipID: interactionClip,
-                configuration: configuration,
                 metallibPath: options.metallib
             ),
             "bundled_g1_interaction"
@@ -1138,9 +1143,14 @@ private func makeContext(
     {
         return (
             try MetalRoboTaskRolloutContext(
-                worldPack: URL(fileURLWithPath: worldPack),
-                taskPack: URL(fileURLWithPath: taskPack),
-                configuration: configuration,
+                manifest: MetalRoboRunManifest(
+                    source: .worldPack(
+                        world: URL(fileURLWithPath: worldPack),
+                        taskPack: URL(fileURLWithPath: taskPack)
+                    ),
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor
+                ),
                 metallibPath: options.metallib
             ),
             "world_pack"
@@ -1151,12 +1161,17 @@ private func makeContext(
     {
         return (
             try MetalRoboTaskRolloutContext(
-                importedURDF: URL(fileURLWithPath: urdf),
-                srdf: options.srdf.map {
-                    URL(fileURLWithPath: $0)
-                },
-                taskPack: URL(fileURLWithPath: taskPack),
-                configuration: configuration,
+                manifest: MetalRoboRunManifest(
+                    source: .importedURDF(
+                        urdf: URL(fileURLWithPath: urdf),
+                        srdf: options.srdf.map {
+                            URL(fileURLWithPath: $0)
+                        },
+                        taskPack: URL(fileURLWithPath: taskPack)
+                    ),
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor
+                ),
                 metallibPath: options.metallib
             ),
             "urdf"
@@ -1164,7 +1179,11 @@ private func makeContext(
     }
     return (
         try MetalRoboTaskRolloutContext(
-            unitreeG1: configuration,
+            manifest: MetalRoboRunManifest(
+                source: .unitreeG1,
+                sensorsAndPhysics: configuration,
+                visualSensor: visualSensor
+            ),
             metallibPath: options.metallib
         ),
         "bundled_g1"
@@ -1180,11 +1199,6 @@ private enum TaskTrainMain {
             )
             let (context, worldSource) =
                 try makeContext(options: options)
-            if let visualObservation = try makeVisualObservation(
-                options: options
-            ) {
-                try context.attachVisualObservation(visualObservation)
-            }
             try initializePolicyIfRequested(
                 options: options,
                 layout: context.layout,

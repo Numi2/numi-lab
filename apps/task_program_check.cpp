@@ -1223,19 +1223,21 @@ int main(const int argc, const char* const* argv) {
                     1.0f / externalClip.framesPerSecond,
                 .seed = 0x41524459u,
             };
+            const MRRunManifestC runManifest{
+                .profile = rolloutConfig,
+                .source = MR_RUN_SOURCE_UNITREE_G1,
+                .surface = externalUsesGround
+                    ? MR_LOCOMOTION_SURFACE_GROUND
+                    : MR_LOCOMOTION_SURFACE_TERRAIN,
+                .task = MR_UNITREE_G1_TASK_VELOCITY,
+                .teacher_pack_path = argv[1],
+                .teacher_clip_id = externalClip.id.c_str(),
+            };
             std::unique_ptr<
                 MRTaskRolloutHandle,
                 decltype(&mr_task_rollout_destroy)
             > rollout{
-                mr_create_unitree_g1_interaction_rollout(
-                    &rolloutConfig,
-                    externalUsesGround
-                        ? MR_LOCOMOTION_SURFACE_GROUND
-                        : MR_LOCOMOTION_SURFACE_TERRAIN,
-                    argv[1],
-                    externalClip.id.c_str(),
-                    nullptr
-                ),
+                mr_create_task_rollout(&runManifest),
                 &mr_task_rollout_destroy,
             };
             if (!rollout) {

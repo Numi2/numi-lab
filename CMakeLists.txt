@@ -60,9 +60,6 @@ find_package(SQLite3 REQUIRED)
 find_package(LibXml2 REQUIRED)
 
 set(METALROBO_SHADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
-set(METALROBO_PHYSICS_SOURCE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/Physics.metal"
-)
 set(METALROBO_CONSTRAINT_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ConstraintSolver.metal"
 )
@@ -122,9 +119,6 @@ set(METALROBO_TACTILE_SOURCE
 )
 set(METALROBO_SCENE_QUERY_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/SceneQuery.metal"
-)
-set(METALROBO_PHYSICS_AIR
-    "${METALROBO_SHADER_DIR}/MetalRoboPhysics.air"
 )
 set(METALROBO_CONSTRAINT_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboConstraintSolver.air"
@@ -230,12 +224,6 @@ set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
 add_custom_command(
     OUTPUT "${METALROBO_METALLIB}"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}"
-    COMMAND xcrun -sdk macosx metal
-            -std=metal4.0
-            -O3
-            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
-            -c "${METALROBO_PHYSICS_SOURCE}"
-            -o "${METALROBO_PHYSICS_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -449,7 +437,6 @@ add_custom_command(
             -c "${METALROBO_SCENE_QUERY_SOURCE}"
             -o "${METALROBO_SCENE_QUERY_AIR}"
     COMMAND xcrun -sdk macosx metallib
-            "${METALROBO_PHYSICS_AIR}"
             "${METALROBO_CONSTRAINT_AIR}"
             "${METALROBO_QUALITY_CONTACT_AIR}"
             "${METALROBO_UNIFIED_QUALITY_AIR}"
@@ -482,7 +469,6 @@ add_custom_command(
             "${METALROBO_SCENE_QUERY_AIR}"
             -o "${METALROBO_METALLIB}"
     DEPENDS
-        "${METALROBO_PHYSICS_SOURCE}"
         "${METALROBO_CONSTRAINT_SOURCE}"
         "${METALROBO_QUALITY_CONTACT_SOURCE}"
         "${METALROBO_UNIFIED_QUALITY_SOURCE}"
@@ -634,7 +620,6 @@ add_library(
     src/metal/MetalWorldFamily.mm
     src/metal/MetalHybridRenderer.mm
     src/metal/MetalTactile.mm
-    src/metal/MetalRuntime.mm
     src/c_api.cpp
 )
 add_dependencies(
@@ -760,15 +745,6 @@ add_executable(metalrobo_cpu_probe apps/cpu_probe.cpp)
 target_link_libraries(metalrobo_cpu_probe PRIVATE metalrobo)
 set_target_properties(
     metalrobo_cpu_probe
-    PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
-        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
-)
-
-add_executable(metalrobo_parity_probe apps/parity_probe.cpp)
-target_link_libraries(metalrobo_parity_probe PRIVATE metalrobo)
-set_target_properties(
-    metalrobo_parity_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

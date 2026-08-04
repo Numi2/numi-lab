@@ -74,6 +74,16 @@ struct SensorPack {
     std::string id;
     std::vector<MountedSensor> mounted;
     std::vector<SensorSpec> worldSensors;
+    // Executable observation program. These operators are resolved once by
+    // the run compiler and executed by Metal after accepted physics, before
+    // policy inference. TaskPack owns objectives, never sensing semantics.
+    std::vector<TaskObservationOperatorSpec> actorFrame;
+    std::uint32_t actorHistoryLength = 1u;
+    std::vector<TaskObservationOperatorSpec> actorCurrent;
+    std::vector<TaskObservationOperatorSpec> critic;
+    std::uint32_t criticHistoryLength = 1u;
+    bool criticIncludesCleanHistory = true;
+    TaskVisualProgram visual;
 };
 
 // Reality variations use the existing device-resident WorldProgram targets:
@@ -83,6 +93,14 @@ struct SensorPack {
 struct RealityPack {
     std::string id;
     WorldProgram program;
+    // Executable reset program. WorldProgram is the source for scene,
+    // physics, controller, camera and appearance variation. These additional
+    // task-state operators cover reset semantics whose targets are not world
+    // assets (joint state, action/observation delay and event scheduling).
+    // Both streams execute inside the same atomic Metal reset transaction.
+    std::vector<TaskRandomizationOperatorSpec> taskState;
+    std::uint32_t maximumActionDelaySteps = 0u;
+    std::uint32_t maximumObservationDelaySteps = 0u;
 };
 
 enum class TeacherKind : std::uint32_t {
@@ -101,6 +119,10 @@ struct TeacherPack {
     std::string model;
     std::string artifact;
     std::uint64_t artifactFingerprint = 0u;
+    // Motion imagination is compiled directly into the native teacher
+    // program. The runtime never reloads or interprets the artifact.
+    std::optional<InteractionPack> interactions;
+    std::string interactionClip;
 };
 
 struct RunProfile {
@@ -130,8 +152,6 @@ struct RunManifest {
     TaskPack task;
     RealityPack reality;
     TeacherPack teacher;
-    std::optional<InteractionPack> interactions;
-    std::string interactionClip;
     std::optional<PolicyPack> policy;
     RunProfile profile;
 };
@@ -163,6 +183,8 @@ public:
     [[nodiscard]] std::uint64_t fingerprint() const noexcept;
     [[nodiscard]] std::uint64_t robotFingerprint() const noexcept;
     [[nodiscard]] std::uint64_t sensorFingerprint() const noexcept;
+    [[nodiscard]] std::uint64_t realityFingerprint() const noexcept;
+    [[nodiscard]] std::uint64_t teacherFingerprint() const noexcept;
     [[nodiscard]] const WorldFamily& worldFamily() const noexcept;
     [[nodiscard]] const CompiledWorld& world() const noexcept;
     [[nodiscard]] const EngineModel& model() const noexcept;
@@ -178,6 +200,8 @@ private:
     std::uint64_t fingerprint_ = 0u;
     std::uint64_t robotFingerprint_ = 0u;
     std::uint64_t sensorFingerprint_ = 0u;
+    std::uint64_t realityFingerprint_ = 0u;
+    std::uint64_t teacherFingerprint_ = 0u;
     WorldFamily worldFamily_;
     EngineModel model_;
     std::vector<MRBodyStateGPU> defaultSceneBodies_;

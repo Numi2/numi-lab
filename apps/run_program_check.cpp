@@ -12,6 +12,33 @@ void require(const bool condition, const std::string& message) {
         throw std::runtime_error(message);
     }
 }
+
+void assignPrograms(metalrobo::RunManifest& manifest) {
+    manifest.sensors.actorFrame =
+        std::move(manifest.task.actorFrame);
+    manifest.sensors.actorHistoryLength =
+        manifest.task.actorHistoryLength;
+    manifest.sensors.actorCurrent =
+        std::move(manifest.task.actorCurrent);
+    manifest.sensors.critic = std::move(manifest.task.critic);
+    manifest.sensors.criticHistoryLength =
+        manifest.task.criticHistoryLength;
+    manifest.sensors.criticIncludesCleanHistory =
+        manifest.task.criticIncludesCleanHistory;
+    manifest.sensors.visual = std::move(manifest.task.visual);
+    manifest.task.actorHistoryLength = 1u;
+    manifest.task.criticHistoryLength = 1u;
+    manifest.task.criticIncludesCleanHistory = true;
+    manifest.reality.taskState =
+        std::move(manifest.task.randomization);
+    manifest.reality.maximumActionDelaySteps =
+        manifest.task.maximumActionDelaySteps;
+    manifest.reality.maximumObservationDelaySteps =
+        manifest.task.maximumObservationDelaySteps;
+    manifest.task.maximumActionDelaySteps = 0u;
+    manifest.task.maximumObservationDelaySteps = 0u;
+    manifest.teacher.id = "no_teacher";
+}
 }
 
 int main() {
@@ -48,11 +75,21 @@ int main() {
         manifest.sensors.mounted.push_back({imu, "pelvis"});
         manifest.task = authored.task;
         manifest.reality.id = "nominal_reality";
+        manifest.reality.program.id = "runtime_reality";
+        manifest.reality.program.variations.push_back({
+            .id = "robot_gain",
+            .axis = MR_WORLD_VARIATION_ROBOT_STATE,
+            .distribution = MR_WORLD_DISTRIBUTION_UNIFORM,
+            .target = MR_WORLD_TARGET_ROBOT_GAIN_SCALE,
+            .targetId = manifest.robot.id,
+            .parameters = {0.9f, 1.1f, 0.0f, 0.0f},
+        });
         manifest.profile.id = "check_profile";
         manifest.profile.environmentCount = 32u;
         manifest.profile.controlSteps = 104u;
         manifest.profile.physicsSubsteps = 4u;
         manifest.profile.controlTimestepSeconds = 0.02f;
+        assignPrograms(manifest);
 
         metalrobo::CompiledRun compiled;
         const auto status = metalrobo::compileRun(manifest, compiled);
@@ -69,8 +106,41 @@ int main() {
                 compiled.defaultSceneBodies().size() == 1u &&
                 compiled.worldFamily().worldTemplate.sensors.size() == 1u &&
                 compiled.task().fingerprint() != 0u &&
-                compiled.task().outcomes().size() == 4u,
+                compiled.task().outcomes().size() == 4u &&
+                compiled.task().randomizationOperators().size() ==
+                    manifest.reality.taskState.size() + 1u &&
+                compiled.realityFingerprint() != 0u &&
+                compiled.teacherFingerprint() != 0u,
             "CompiledRun did not retain modular package identities"
+        );
+
+        metalrobo::RunManifest duplicatedOwnership = manifest;
+        duplicatedOwnership.task.actorFrame =
+            duplicatedOwnership.sensors.actorFrame;
+        metalrobo::CompiledRun duplicateOutput;
+        const auto duplicateStatus = metalrobo::compileRun(
+            duplicatedOwnership,
+            duplicateOutput
+        );
+        require(
+            duplicateStatus.status ==
+                metalrobo::RunCompileStatus::invalidManifest,
+            "duplicate TaskPack/SensorPack execution ownership was accepted"
+        );
+
+        metalrobo::RunManifest unsupportedTeacher = manifest;
+        unsupportedTeacher.teacher = {
+            .id = "passive_foundation_teacher",
+            .kind = metalrobo::TeacherKind::foundationActionChunk,
+        };
+        const auto teacherStatus = metalrobo::compileRun(
+            unsupportedTeacher,
+            duplicateOutput
+        );
+        require(
+            teacherStatus.status ==
+                metalrobo::RunCompileStatus::invalidManifest,
+            "TeacherPack without native execution was accepted"
         );
 
         metalrobo::RunManifest alternateProfile = manifest;
@@ -117,6 +187,7 @@ int main() {
         franka.profile.controlSteps = 32u;
         franka.profile.physicsSubsteps = 4u;
         franka.profile.controlTimestepSeconds = 1.0f / 60.0f;
+        assignPrograms(franka);
         metalrobo::CompiledRun compiledFranka;
         const auto frankaStatus =
             metalrobo::compileRun(franka, compiledFranka);
@@ -141,6 +212,10 @@ int main() {
             << " run=" << compiled.fingerprint()
             << " robot=" << compiled.robotFingerprint()
             << " sensors=" << compiled.sensorFingerprint()
+            << " reality=" << compiled.realityFingerprint()
+            << " teacher=" << compiled.teacherFingerprint()
+            << " reality_ops="
+            << compiled.task().randomizationOperators().size()
             << " world=" << compiled.world().fingerprint()
             << " task=" << compiled.task().fingerprint()
             << " robots=" << ids.size()

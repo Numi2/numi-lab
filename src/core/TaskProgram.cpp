@@ -764,6 +764,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 case TaskRandomizationOperator::sceneBodyVelocity:
                 case TaskRandomizationOperator::sceneBodyLaunchStep:
                 case TaskRandomizationOperator::sceneBodyEventImpact:
+                case TaskRandomizationOperator::worldBodyParameter:
                     return true;
                 default:
                     return false;
@@ -2879,6 +2880,36 @@ TaskCompileDiagnostics compileTaskProgram(
         mr_float4 compiledParameters = random.parameters;
         bool impactEvent = false;
         switch (random.operation) {
+        case TaskRandomizationOperator::worldBodyParameter: {
+            bool ambiguous = false;
+            targetIndex = uniqueIndex(
+                model.bodyNames,
+                random.target,
+                ambiguous
+            );
+            if (ambiguous || targetIndex == MR_INVALID_INDEX ||
+                random.component >= 4u) {
+                return reject(
+                    ambiguous
+                        ? TaskCompileStatus::ambiguousSemantic
+                        : TaskCompileStatus::unresolvedSemantic,
+                    random.target,
+                    "reality body-parameter target is unresolved"
+                );
+            }
+            if (!orderedRange(random.parameters) ||
+                (random.component == 0u &&
+                 !(random.parameters.x > 0.0f)) ||
+                (random.component != 0u &&
+                 random.parameters.x < 0.0f)) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    random.target,
+                    "reality body-parameter range is physically invalid"
+                );
+            }
+            break;
+        }
         case TaskRandomizationOperator::bodyParameter:
             targetIndex = namedGroup(
                 contactGroupIds,

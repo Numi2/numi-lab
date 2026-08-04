@@ -2410,6 +2410,19 @@ kernel void mr_locomotion_task_observe(
                 }
                 break;
             }
+            case MR_TASK_RANDOMIZE_WORLD_BODY_PARAMETER:
+                bodyParameters[
+                    bodyParameterBase + operation.target.y
+                ][operation.target.z] = randomRange(
+                    dispatch,
+                    environment,
+                    episode,
+                    0u,
+                    channel,
+                    operation.parameters.x,
+                    operation.parameters.y
+                );
+                break;
             case MR_TASK_RANDOMIZE_BODY_PAYLOAD: {
                 const uint body = operation.target.y;
                 const float payload = randomRange(

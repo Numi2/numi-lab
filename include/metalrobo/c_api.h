@@ -17,7 +17,6 @@
 extern "C" {
 #endif
 
-typedef struct MRRuntimeHandle MRRuntimeHandle;
 typedef struct MRWorldFamilyHandle MRWorldFamilyHandle;
 typedef struct MRHybridRendererHandle MRHybridRendererHandle;
 typedef struct MRTactileHandle MRTactileHandle;
@@ -29,13 +28,6 @@ typedef struct MRWorldAppearanceInstanceGPU
     MRWorldAppearanceInstanceGPU;
 typedef struct MRWorldScenarioHeaderGPU MRWorldScenarioHeaderGPU;
 typedef struct MRWorldScenarioValueGPU MRWorldScenarioValueGPU;
-
-typedef struct MRRuntimeStatsC {
-    double last_gpu_milliseconds;
-    double total_gpu_milliseconds;
-    uint64_t control_steps;
-    uint64_t physics_steps;
-} MRRuntimeStatsC;
 
 typedef enum MRLocomotionSurfaceC {
     MR_LOCOMOTION_SURFACE_GROUND = 0,
@@ -147,6 +139,8 @@ typedef struct MRTaskRolloutLayoutC {
     uint64_t run_fingerprint;
     uint64_t robot_fingerprint;
     uint64_t sensor_fingerprint;
+    uint64_t reality_fingerprint;
+    uint64_t teacher_fingerprint;
     uint64_t submitted_control_steps;
     uint64_t completed_environment_steps;
     uint64_t submission_count;
@@ -159,6 +153,31 @@ typedef struct MRTaskRolloutLayoutC {
     double total_gpu_milliseconds;
     double total_submission_milliseconds;
 } MRTaskRolloutLayoutC;
+
+enum MRRunManifestSourceC {
+    MR_RUN_SOURCE_UNITREE_G1 = 0u,
+    MR_RUN_SOURCE_FRANKA_PICK_PLACE = 1u,
+    MR_RUN_SOURCE_IMPORTED_URDF = 2u,
+    MR_RUN_SOURCE_WORLD_PACK = 3u,
+};
+
+// Single native construction boundary for training, evaluation and
+// deployment. Source paths are compile inputs; after return the executor owns
+// one immutable CompiledRun and never dispatches by source kind again.
+typedef struct MRRunManifestC {
+    MRTaskRolloutConfigC profile;
+    uint32_t source;
+    uint32_t surface;
+    uint32_t task;
+    const char* urdf_path;
+    const char* srdf_path;
+    const char* world_pack_path;
+    const char* task_pack_path;
+    const char* teacher_pack_path;
+    const char* teacher_clip_id;
+    const MRTaskVisualObservationConfigC* visual_sensor_program;
+    const char* metallib_path;
+} MRRunManifestC;
 
 typedef struct MRTaskRolloutStageHighWaterC {
     uint32_t candidate_pairs;
@@ -539,103 +558,8 @@ MR_API int mr_compile_episode_manifest(
     const char* artifact_store_path
 );
 
-MR_API MRRuntimeHandle* mr_create_franka(
-    uint32_t environment_count,
-    uint64_t seed,
-    const char* metallib_path
-);
-MR_API void mr_destroy(MRRuntimeHandle* handle);
-
-MR_API int mr_reset(MRRuntimeHandle* handle, uint64_t seed);
-MR_API int mr_step(
-    MRRuntimeHandle* handle,
-    const float* normalized_actions,
-    size_t action_count
-);
-
-MR_API uint32_t mr_environment_count(const MRRuntimeHandle* handle);
-MR_API uint32_t mr_action_count(const MRRuntimeHandle* handle);
-MR_API uint32_t mr_observation_count(const MRRuntimeHandle* handle);
-MR_API uint32_t mr_link_count(const MRRuntimeHandle* handle);
-
-// Returned spans alias shared simulator memory and remain valid until destroy.
-MR_API const float* mr_observations(const MRRuntimeHandle* handle);
-MR_API const float* mr_rewards(const MRRuntimeHandle* handle);
-MR_API const uint8_t* mr_terminated(const MRRuntimeHandle* handle);
-MR_API const float* mr_body_positions(const MRRuntimeHandle* handle);
-MR_API const float* mr_body_rotations(const MRRuntimeHandle* handle);
-
-MR_API MRRuntimeStatsC mr_stats(const MRRuntimeHandle* handle);
-MR_API const char* mr_device_name(const MRRuntimeHandle* handle);
-
-// Creates the bundled G1 mechanics and locomotion TaskPack through the same
-// compiled task-program route used by imported robots. The returned executor
-// is robot-independent: the caller owns rollout chunking and supplies packed
-// normalized [step][environment][compiled action] values plus an optional
-// [step][environment] reset mask. One advance call submits and waits for
-// exactly one native Metal command buffer.
-MR_API MRTaskRolloutHandle*
-mr_create_unitree_g1_locomotion_rollout(
-    const MRTaskRolloutConfigC* config,
-    uint32_t surface,
-    const char* metallib_path
-);
-// Selects another bundled G1 TaskPack without changing the generic executor
-// or the stable rollout-configuration ABI above.
-MR_API MRTaskRolloutHandle* mr_create_unitree_g1_task_rollout(
-    const MRTaskRolloutConfigC* config,
-    uint32_t surface,
-    uint32_t task,
-    const char* metallib_path
-);
-// Runs the bundled Franka Hand pick/place RobotPack + ScenePack + TaskPack
-// through the same CompiledRun/MetalWorld executor used by every learner.
-MR_API MRTaskRolloutHandle* mr_create_franka_pick_place_task_rollout(
-    const MRTaskRolloutConfigC* config,
-    const char* metallib_path
-);
-// Loads a generated InteractionPack, binds the selected clip to the bundled
-// G1 mechanics, and authors a contact-primary tracking TaskPack. Joint/contact
-// references become the position-controller baseline plus native observation
-// and reward operators. Policy actions are bounded residuals; NumiSolver
-// remains the authority for achieved contact and safety termination.
-MR_API MRTaskRolloutHandle* mr_create_unitree_g1_interaction_rollout(
-    const MRTaskRolloutConfigC* config,
-    uint32_t surface,
-    const char* interaction_pack_path,
-    const char* interaction_clip_id,
-    const char* metallib_path
-);
-// Composes generated imagination with a bundled G1 task. Ball-dodge and
-// supine-get-up consume the selected clip as joint-space intent without
-// treating generated contact predictions as physical truth.
-MR_API MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
-    const MRTaskRolloutConfigC* config,
-    uint32_t surface,
-    uint32_t task,
-    const char* interaction_pack_path,
-    const char* interaction_clip_id,
-    const char* metallib_path
-);
-// Cooks a floating-base URDF/SRDF, loads its authored TaskPack, resolves every
-// semantic binding, and creates the same generic native executor used by G1.
-// srdf_path and metallib_path may be null; all other pointers are required.
-MR_API MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
-    const char* urdf_path,
-    const char* srdf_path,
-    const char* task_pack_path,
-    const MRTaskRolloutConfigC* config,
-    uint32_t surface,
-    const char* metallib_path
-);
-// Loads complete mechanics/scene composition from MRWorldPack and resolves a
-// separate TaskPack against it. The authored pack, not a runtime preset,
-// owns terrain and other scene bodies.
-MR_API MRTaskRolloutHandle* mr_create_world_pack_locomotion_rollout(
-    const char* world_pack_path,
-    const char* task_pack_path,
-    const MRTaskRolloutConfigC* config,
-    const char* metallib_path
+MR_API MRTaskRolloutHandle* mr_create_task_rollout(
+    const MRRunManifestC* manifest
 );
 MR_API void mr_task_rollout_destroy(MRTaskRolloutHandle* handle);
 MR_API int mr_task_rollout_reset(
@@ -663,14 +587,6 @@ MR_API int mr_task_rollout_load_policy_pack(
 );
 MR_API int mr_task_rollout_clear_policy(
     MRTaskRolloutHandle* handle
-);
-// Compiles one authored Visual Presentation scene, head camera, and compact
-// object tracker into the native rollout. Object-track observation slots are
-// resolved from the TaskPack and matching asset ids; rendered depth and
-// identity remain device-resident through policy inference.
-MR_API int mr_task_rollout_attach_visual_observation(
-    MRTaskRolloutHandle* handle,
-    const MRTaskVisualObservationConfigC* config
 );
 // Copies the most recently completed native visual-observation frame as
 // environment-major linear RGBA floats. Returns the required float count;

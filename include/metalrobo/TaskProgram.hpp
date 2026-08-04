@@ -152,6 +152,8 @@ enum class TaskRandomizationOperator : std::uint32_t {
     sceneBodyLaunchStep = MR_TASK_RANDOMIZE_SCENE_BODY_LAUNCH_STEP,
     sceneBodyEventImpact =
         MR_TASK_RANDOMIZE_SCENE_BODY_EVENT_IMPACT,
+    worldBodyParameter =
+        MR_TASK_RANDOMIZE_WORLD_BODY_PARAMETER,
 };
 
 struct TaskActionBinding {
@@ -377,8 +379,9 @@ struct TaskPack {
     // Universal transaction outcomes are supplied by the compiler. This
     // table contains only task-authored physical/competence measurements.
     std::vector<TaskOutcomeSpec> outcomes;
-    // Temporal proprioception retained in the actor history. Current task
-    // intent belongs in actorCurrent so it is appended only once.
+    // Legacy artifact fields retained while persisted TaskPacks migrate.
+    // CompiledRun rejects these as TaskPack-owned execution; its SensorPack
+    // is the sole source of the fused native observation program.
     std::vector<TaskObservationOperatorSpec> actorFrame;
     std::uint32_t actorHistoryLength = 1u;
     std::vector<TaskObservationOperatorSpec> actorCurrent;
@@ -389,6 +392,8 @@ struct TaskPack {
     std::vector<TaskJointGroup> jointGroups;
     std::vector<TaskRewardOperatorSpec> rewards;
     std::vector<TaskTerminationOperatorSpec> terminations;
+    // Legacy artifact field retained for direct TaskPack readers. CompiledRun
+    // requires RealityPack to own and execute reset variation.
     std::vector<TaskRandomizationOperatorSpec> randomization;
     TaskCommandProgram commands;
     TaskPushProgram pushes;

@@ -153,6 +153,171 @@ bool anyCapacity(const MetalWorldCapacityProfile& capacity) {
     return std::memcmp(&capacity, &empty, sizeof(capacity)) != 0;
 }
 
+bool taskOwnsSensorExecution(const TaskPack& task) {
+    return !task.actorFrame.empty() || !task.actorCurrent.empty() ||
+        !task.critic.empty() || task.actorHistoryLength != 1u ||
+        task.criticHistoryLength != 1u ||
+        !task.criticIncludesCleanHistory || task.visual.width != 0u ||
+        task.visual.height != 0u || !task.visual.frameOffsets.empty();
+}
+
+bool taskOwnsRealityExecution(const TaskPack& task) {
+    return !task.randomization.empty() ||
+        task.maximumActionDelaySteps != 0u ||
+        task.maximumObservationDelaySteps != 0u;
+}
+
+std::optional<std::string> lowerRealityProgram(
+    const WorldTemplate& world,
+    const RunProfile& profile,
+    RealityPack const& reality,
+    TaskPack& executable
+) {
+    executable.randomization = reality.taskState;
+    executable.maximumActionDelaySteps =
+        reality.maximumActionDelaySteps;
+    executable.maximumObservationDelaySteps =
+        reality.maximumObservationDelaySteps;
+    const EngineModel& model = world.engineModel;
+    const auto appendBodyParameter = [&executable, &model](
+        const WorldAsset& asset,
+        const std::uint32_t component,
+        const mr_float4 range
+    ) -> std::optional<std::string> {
+        for (const std::uint32_t body : asset.bodyIndices) {
+            if (body >= model.bodyNames.size()) {
+                return "reality asset body range exceeds compiled mechanics";
+            }
+            executable.randomization.push_back({
+                .operation = TaskRandomizationOperator::worldBodyParameter,
+                .target = model.bodyNames[body],
+                .component = component,
+                .parameters = range,
+            });
+        }
+        return std::nullopt;
+    };
+    for (const VariationParameter& variation :
+         reality.program.variations) {
+        mr_float4 range{};
+        switch (variation.distribution) {
+        case MR_WORLD_DISTRIBUTION_CONSTANT:
+            range = {variation.parameters.x, variation.parameters.x,
+                0.0f, 0.0f};
+            break;
+        case MR_WORLD_DISTRIBUTION_UNIFORM:
+            range = variation.parameters;
+            break;
+        default:
+            return "runtime RealityProgram currently requires constant or uniform physical distributions: " +
+                variation.id;
+        }
+        const std::uint32_t assetIndex =
+            world.assetIndex(variation.targetId);
+        const WorldAsset* asset = assetIndex == MR_INVALID_INDEX
+            ? nullptr
+            : &world.assets[assetIndex];
+        switch (variation.target) {
+        case MR_WORLD_TARGET_ASSET_POSITION_X:
+        case MR_WORLD_TARGET_ASSET_POSITION_Y:
+        case MR_WORLD_TARGET_ASSET_POSITION_Z: {
+            if (asset == nullptr) {
+                return "reality position target is unresolved: " +
+                    variation.targetId;
+            }
+            const std::uint32_t component =
+                variation.target - MR_WORLD_TARGET_ASSET_POSITION_X;
+            for (const std::uint32_t body : asset->bodyIndices) {
+                if (body >= model.bodyNames.size() ||
+                    model.bodies[body].articulationIndex !=
+                        MR_INVALID_INDEX) {
+                    continue;
+                }
+                executable.randomization.push_back({
+                    .operation =
+                        TaskRandomizationOperator::sceneBodyPosition,
+                    .target = model.bodyNames[body],
+                    .component = component,
+                    .parameters = range,
+                });
+            }
+            break;
+        }
+        case MR_WORLD_TARGET_ASSET_MASS_SCALE:
+        case MR_WORLD_TARGET_ASSET_FRICTION_SCALE:
+        case MR_WORLD_TARGET_ASSET_RESTITUTION_SCALE:
+        case MR_WORLD_TARGET_ASSET_DAMPING_SCALE: {
+            if (asset == nullptr) {
+                return "reality physical target is unresolved: " +
+                    variation.targetId;
+            }
+            const std::uint32_t component =
+                variation.target - MR_WORLD_TARGET_ASSET_MASS_SCALE;
+            if (const auto error = appendBodyParameter(
+                    *asset, component, range
+                )) {
+                return error;
+            }
+            break;
+        }
+        case MR_WORLD_TARGET_ROBOT_GAIN_SCALE:
+        case MR_WORLD_TARGET_ROBOT_DAMPING_SCALE:
+        case MR_WORLD_TARGET_ROBOT_PAYLOAD_SCALE: {
+            if (asset == nullptr ||
+                asset->articulationIndex == MR_INVALID_INDEX) {
+                return "reality controller target is unresolved: " +
+                    variation.targetId;
+            }
+            const std::uint32_t component =
+                variation.target == MR_WORLD_TARGET_ROBOT_GAIN_SCALE
+                ? 0u
+                : variation.target ==
+                      MR_WORLD_TARGET_ROBOT_DAMPING_SCALE
+                    ? 1u
+                    : 3u;
+            executable.randomization.push_back({
+                .operation =
+                    TaskRandomizationOperator::controllerParameter,
+                .component = component,
+                .parameters = range,
+            });
+            break;
+        }
+        case MR_WORLD_TARGET_ROBOT_LATENCY_SECONDS: {
+            if (asset == nullptr ||
+                asset->articulationIndex == MR_INVALID_INDEX) {
+                return "reality latency target is unresolved: " +
+                    variation.targetId;
+            }
+            const float inverseStep =
+                1.0f / profile.controlTimestepSeconds;
+            const std::uint32_t lower = static_cast<std::uint32_t>(
+                std::max(0.0f, std::floor(range.x * inverseStep))
+            );
+            const std::uint32_t upper = static_cast<std::uint32_t>(
+                std::max(0.0f, std::ceil(range.y * inverseStep))
+            );
+            executable.maximumActionDelaySteps = std::max(
+                executable.maximumActionDelaySteps,
+                upper
+            );
+            executable.randomization.push_back({
+                .operation = TaskRandomizationOperator::actionDelay,
+                .parameters = {
+                    static_cast<float>(lower),
+                    static_cast<float>(upper), 0.0f, 0.0f,
+                },
+            });
+            break;
+        }
+        default:
+            return "RealityProgram target has no native task-runtime execution path: " +
+                variation.id;
+        }
+    }
+    return std::nullopt;
+}
+
 MRWorldCollisionRepresentation collisionRepresentation(
     const EngineModel& model
 ) {
@@ -222,7 +387,8 @@ void addBodyRole(
 
 bool CompiledRun::valid() const noexcept {
     return fingerprint_ != 0u && robotFingerprint_ != 0u &&
-        sensorFingerprint_ != 0u && model_.valid() && world_.valid() &&
+        sensorFingerprint_ != 0u && realityFingerprint_ != 0u &&
+        teacherFingerprint_ != 0u && model_.valid() && world_.valid() &&
         defaultSceneBodies_.size() == world_.sceneBodyCount() &&
         task_.valid() &&
         (!boundPolicy_.has_value() || policy_.valid());
@@ -236,6 +402,12 @@ std::uint64_t CompiledRun::robotFingerprint() const noexcept {
 }
 std::uint64_t CompiledRun::sensorFingerprint() const noexcept {
     return valid() ? sensorFingerprint_ : 0u;
+}
+std::uint64_t CompiledRun::realityFingerprint() const noexcept {
+    return valid() ? realityFingerprint_ : 0u;
+}
+std::uint64_t CompiledRun::teacherFingerprint() const noexcept {
+    return valid() ? teacherFingerprint_ : 0u;
 }
 const WorldFamily& CompiledRun::worldFamily() const noexcept {
     return worldFamily_;
@@ -262,7 +434,9 @@ RunCompileDiagnostics compileRun(
 ) {
     try {
         if (manifest.id.empty() || manifest.robot.id.empty() ||
-            manifest.scene.id.empty() || manifest.task.id.empty() ||
+            manifest.scene.id.empty() || manifest.sensors.id.empty() ||
+            manifest.task.id.empty() || manifest.reality.id.empty() ||
+            manifest.teacher.id.empty() ||
             manifest.profile.id.empty() ||
             manifest.profile.environmentCount == 0u ||
             manifest.profile.controlSteps == 0u ||
@@ -278,6 +452,47 @@ RunCompileDiagnostics compileRun(
                 RunCompileStatus::invalidManifest,
                 "manifest",
                 "run identity, package identities, execution counts, or timestep are invalid"
+            );
+        }
+        if (taskOwnsSensorExecution(manifest.task)) {
+            return reject(
+                RunCompileStatus::invalidManifest,
+                manifest.task.id,
+                "TaskPack contains observation execution; move it to SensorPack"
+            );
+        }
+        if (taskOwnsRealityExecution(manifest.task)) {
+            return reject(
+                RunCompileStatus::invalidManifest,
+                manifest.task.id,
+                "TaskPack contains reset variation execution; move it to RealityPack"
+            );
+        }
+        if (manifest.teacher.kind == TeacherKind::none) {
+            if (manifest.teacher.interactions.has_value() ||
+                !manifest.teacher.interactionClip.empty()) {
+                return reject(
+                    RunCompileStatus::invalidManifest,
+                    manifest.teacher.id,
+                    "disabled TeacherPack contains executable teacher data"
+                );
+            }
+        } else if (manifest.teacher.kind ==
+                       TeacherKind::motionImagination) {
+            if (!manifest.teacher.interactions.has_value() ||
+                manifest.teacher.interactionClip.empty() ||
+                manifest.teacher.artifactFingerprint == 0u) {
+                return reject(
+                    RunCompileStatus::invalidManifest,
+                    manifest.teacher.id,
+                    "motion-imagination TeacherPack requires a fingerprinted InteractionPack and clip"
+                );
+            }
+        } else {
+            return reject(
+                RunCompileStatus::invalidManifest,
+                manifest.teacher.id,
+                "TeacherPack kind has no native executable program"
             );
         }
         std::string reason;
@@ -517,6 +732,42 @@ RunCompileDiagnostics compileRun(
                 familyStatus.message);
         }
 
+        // Compile the independently authored runtime programs into one fused
+        // native transaction. This is a compile-time lowering only: Metal
+        // executes the resolved sensor, reality and teacher tables directly,
+        // with no runtime adapter or duplicated host logic.
+        TaskPack executableTask = manifest.task;
+        executableTask.actorFrame = manifest.sensors.actorFrame;
+        executableTask.actorHistoryLength =
+            manifest.sensors.actorHistoryLength;
+        executableTask.actorCurrent = manifest.sensors.actorCurrent;
+        executableTask.critic = manifest.sensors.critic;
+        executableTask.criticHistoryLength =
+            manifest.sensors.criticHistoryLength;
+        executableTask.criticIncludesCleanHistory =
+            manifest.sensors.criticIncludesCleanHistory;
+        executableTask.visual = manifest.sensors.visual;
+        if (executableTask.actorFrame.empty() ||
+            executableTask.critic.empty()) {
+            return reject(
+                RunCompileStatus::invalidManifest,
+                manifest.sensors.id,
+                "SensorPack must author executable actor and critic observations"
+            );
+        }
+        if (const auto realityError = lowerRealityProgram(
+                worldTemplate,
+                manifest.profile,
+                manifest.reality,
+                executableTask
+            )) {
+            return reject(
+                RunCompileStatus::invalidManifest,
+                manifest.reality.id,
+                *realityError
+            );
+        }
+
         CompiledRun staged;
         const MetalWorldCapacityProfile capacities =
             anyCapacity(manifest.profile.capacities)
@@ -532,16 +783,17 @@ RunCompileDiagnostics compileRun(
             return reject(RunCompileStatus::worldFailure, "physics",
                 worldStatus.message);
         }
-        const TaskCompileDiagnostics taskStatus = manifest.interactions
+        const TaskCompileDiagnostics taskStatus =
+            manifest.teacher.interactions
             ? compileTaskProgram(
-                  manifest.task,
-                  *manifest.interactions,
-                  manifest.interactionClip,
+                  executableTask,
+                  *manifest.teacher.interactions,
+                  manifest.teacher.interactionClip,
                   staged.world_,
                   staged.task_
               )
             : compileTaskProgram(
-                  manifest.task,
+                  executableTask,
                   staged.world_,
                   staged.task_
               );
@@ -571,11 +823,47 @@ RunCompileDiagnostics compileRun(
         staged.robotFingerprint_ = engineModelFingerprint(
             manifest.robot.mechanics
         );
-        staged.sensorFingerprint_ = sensorFingerprint(episode.sensors);
+        {
+            Hash sensorHash;
+            sensorHash.scalar(sensorFingerprint(episode.sensors));
+            sensorHash.scalar(staged.task_.observationFingerprint());
+            staged.sensorFingerprint_ = sensorHash.finish();
+        }
+        {
+            Hash realityHash;
+            realityHash.scalar(staged.worldFamily_.program.fingerprint);
+            realityHash.scalar<std::uint64_t>(
+                staged.task_.randomizationOperators().size()
+            );
+            if (!staged.task_.randomizationOperators().empty()) {
+                realityHash.bytes(
+                    staged.task_.randomizationOperators().data(),
+                    staged.task_.randomizationOperators().size_bytes()
+                );
+            }
+            realityHash.scalar(executableTask.maximumActionDelaySteps);
+            realityHash.scalar(
+                executableTask.maximumObservationDelaySteps
+            );
+            staged.realityFingerprint_ = realityHash.finish();
+        }
+        {
+            Hash teacherHash;
+            teacherHash.string(staged.teacher_.id);
+            teacherHash.scalar(staged.teacher_.kind);
+            teacherHash.string(staged.teacher_.provider);
+            teacherHash.string(staged.teacher_.model);
+            teacherHash.scalar(staged.teacher_.artifactFingerprint);
+            teacherHash.string(staged.teacher_.interactionClip);
+            teacherHash.scalar(staged.task_.fingerprint());
+            staged.teacherFingerprint_ = teacherHash.finish();
+        }
         Hash runHash;
         runHash.string(manifest.id);
         runHash.scalar(staged.robotFingerprint_);
         runHash.scalar(staged.sensorFingerprint_);
+        runHash.scalar(staged.realityFingerprint_);
+        runHash.scalar(staged.teacherFingerprint_);
         runHash.scalar(staged.worldFamily_.fingerprint);
         runHash.scalar(staged.world_.fingerprint());
         runHash.scalar<std::uint64_t>(staged.defaultSceneBodies_.size());
@@ -603,9 +891,6 @@ RunCompileDiagnostics compileRun(
             &staged.profile_.capacities,
             sizeof(staged.profile_.capacities)
         );
-        runHash.string(staged.teacher_.id);
-        runHash.scalar(staged.teacher_.kind);
-        runHash.scalar(staged.teacher_.artifactFingerprint);
         staged.fingerprint_ = runHash.finish();
         output = std::move(staged);
         return {};

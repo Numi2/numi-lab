@@ -28,13 +28,13 @@ without preventing healthy environments in the same dispatch from publishing.
 
 ## Compiled task and policy execution
 
-A robot model does not select a Metal shader. The production locomotion path is
-compiled from three independent artifacts:
+A robot model does not select a Metal shader. Every production run is compiled
+from independently owned packages:
 
 ```text
-URDF/SRDF or authored EngineModel
-        + TaskPack
-        + PolicyPack
+RobotPack + ScenePack + SensorPack
+        + TaskPack + RealityPack
+        + TeacherPack + PolicyPack + RunProfile
         |
         v
 stable semantic indices, tables, capacities, fingerprints
@@ -43,12 +43,13 @@ stable semantic indices, tables, capacities, fingerprints
 MetalWorld + LocomotionTask.metal + PolicyInference.metal
 ```
 
-`TaskPack` owns action-to-joint bindings, observation/history operators,
-semantic contact and joint groups, rewards, termination, reset/randomization,
-command/push programs, terrain samples, and its operational contact-graph
-capacity contract. `compileTaskProgram` resolves every authored body and joint
-name once against the compiled world. GPU execution consumes only fixed tables,
-counts, offsets, and fingerprints.
+`TaskPack` owns action bindings, semantic groups, objectives, termination,
+commands, terrain semantics and its operational contact-graph capacity.
+`SensorPack` owns observation/history execution, `RealityPack` owns atomic
+reset variation, and `TeacherPack` owns pre-actuation proposals. `compileRun`
+resolves every authored body, joint, sensor and variation once, then fuses the
+three executable programs into fixed Metal tables. GPU execution consumes only
+those tables, counts, offsets and fingerprints.
 
 `PolicyPack` owns dense actor weights, normalization, output transforms, clips,
 and a monotonically increasing revision. `compilePolicyProgram` verifies its
@@ -56,14 +57,24 @@ observation/action contract against the compiled task and proves finite
 accumulator bounds before publishing immutable GPU tables. The generic dense
 kernel has no robot, joint, or network-width branches.
 
-Bundled G1 train/evaluate handles are now created from `CompiledRun`. The
+Every train/evaluate/deployment handle is now created from `CompiledRun`. The
 compiled `RunProfile` is the only source for environment count, timestep,
 substeps, solver iterations, streamed inverse-ABA selection, reset-band range,
 and seed; constructor configuration cannot silently replace those semantics
-after fingerprinting. Layout evidence publishes run, robot, sensor, world,
-task, observation, and action fingerprints. Public evaluation consumes the
+after fingerprinting. Layout evidence publishes run, robot, sensor, reality,
+teacher, world, task, observation, and action fingerprints. The executor
+retains the immutable `CompiledRun`; its model, world and program references
+cannot diverge after construction. Public evaluation consumes the
 TaskPack-authored outcome schema rather than assuming a humanoid or projectile
 task.
+
+The sole public constructor is `mr_create_task_rollout(MRRunManifestC)`, and
+Swift uses `MetalRoboRunManifest`. Bundled G1, ARDY-backed G1, Franka, imported
+URDF and WorldPack sources all terminate at this boundary. Source selection is
+finished before compilation and never enters the Metal hot loop.
+The legacy Franka `Runtime` interface and its separate `Physics.metal` shader
+no longer exist; benchmark, evaluation and deployment cannot select a second
+physics implementation.
 
 Locomotion worlds may also author independent dynamic scene bodies. The
 generic sphere helper is a convenience builder for projectile and disturbance
@@ -659,7 +670,7 @@ metadata-capable loader from that extension.
 
 Select `--task ball-recovery` to train and evaluate against four ordinary
 dynamic rigid spheres. The bundled app supplies their authored mechanics while
-the generic TaskPack randomizes position, velocity, height, direction, and
+the run's RealityPack randomizes position, velocity, height, direction, and
 launch step per environment and episode. They use the same broadphase,
 manifolds, islands, and temporal-cone solve as every other scene body. This is
 the physical disturbance distribution; native root-velocity impulses remain a

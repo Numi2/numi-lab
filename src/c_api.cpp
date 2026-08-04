@@ -10,8 +10,6 @@
 #include "metalrobo/MetalTactile.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
-#include "metalrobo/Model.hpp"
-#include "metalrobo/Runtime.hpp"
 #include "metalrobo/RuntimeAbi.hpp"
 #include "metalrobo/RobotDescriptionCooker.hpp"
 #include "metalrobo/RunProgram.hpp"
@@ -42,11 +40,6 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
-
-struct MRRuntimeHandle {
-    std::unique_ptr<metalrobo::Runtime> runtime;
-    std::string deviceName;
-};
 
 struct MRWorldFamilyHandle {
     std::atomic_uint32_t references{1u};
@@ -100,12 +93,18 @@ struct MRTaskOutcomeDescriptor {
 
 struct MRTaskRolloutHandle {
     explicit MRTaskRolloutHandle(
-        metalrobo::MetalWorldConfig config
-    ) : context(std::move(config)) {}
+        metalrobo::MetalWorldConfig config,
+        metalrobo::CompiledRun compiled
+    ) : run(std::move(compiled)),
+        model(run.model()),
+        world(run.world()),
+        taskProgram(run.task()),
+        context(std::move(config)) {}
 
-    metalrobo::EngineModel model;
-    metalrobo::CompiledWorld world;
-    metalrobo::CompiledTaskProgram taskProgram;
+    metalrobo::CompiledRun run;
+    const metalrobo::EngineModel& model;
+    const metalrobo::CompiledWorld& world;
+    const metalrobo::CompiledTaskProgram& taskProgram;
     metalrobo::MetalWorldContext context;
     metalrobo::MetalWorldResidentState residentState;
     metalrobo::MetalWorldStepConfig stepConfig;
@@ -123,9 +122,6 @@ struct MRTaskRolloutHandle {
     std::string deviceName;
     std::string metallibPath;
     std::string taskId;
-    std::uint64_t runFingerprint = 0u;
-    std::uint64_t robotFingerprint = 0u;
-    std::uint64_t sensorFingerprint = 0u;
     std::uint32_t environmentCount = 0u;
     std::uint64_t submittedControlSteps = 0u;
     std::uint64_t completedEnvironmentSteps = 0u;
@@ -317,14 +313,6 @@ int translateErrors(Function&& function) noexcept {
         gLastError = "MetalRobo failed with an unknown native exception.";
     }
     return -1;
-}
-
-bool requireHandle(const MRRuntimeHandle* handle) {
-    if (handle != nullptr && handle->runtime != nullptr) {
-        return true;
-    }
-    gLastError = "MetalRobo runtime handle is null.";
-    return false;
 }
 
 bool requireWorldFamilyHandle(const MRWorldFamilyHandle* handle) {
@@ -981,11 +969,7 @@ void authorG1ImaginedTask(
 
 std::unique_ptr<MRTaskRolloutHandle>
 createTaskRolloutHandle(
-    metalrobo::EngineModel model,
-    metalrobo::CompiledWorld world,
-    metalrobo::CompiledTaskProgram taskProgram,
-    std::vector<MRBodyStateGPU> defaultSceneBodies,
-    const metalrobo::RunProfile& profile,
+    metalrobo::CompiledRun run,
     const char* metallibPath,
     std::string taskId,
     const std::string_view source
@@ -996,14 +980,14 @@ createTaskRolloutHandle(
     }
     worldConfig.maximumInFlightSubmissions = 1u;
     auto handle = std::make_unique<MRTaskRolloutHandle>(
-        std::move(worldConfig)
+        std::move(worldConfig),
+        std::move(run)
     );
     if (metallibPath != nullptr && metallibPath[0] != '\0') {
         handle->metallibPath = metallibPath;
     }
-    handle->model = std::move(model);
-    handle->world = std::move(world);
-    handle->taskProgram = std::move(taskProgram);
+    const metalrobo::CompiledTaskProgram& taskProgram =
+        handle->run.task();
     const auto appendOutcome = [&handle](
         std::string id,
         std::string unit,
@@ -1025,7 +1009,7 @@ createTaskRolloutHandle(
     appendOutcome("physics_error", "bool", MR_TASK_OUTCOME_PHYSICS_ERROR,
         MR_TASK_OUTCOME_LOWER_IS_BETTER);
     for (const metalrobo::CompiledTaskOutcomeSpec& outcome :
-         handle->taskProgram.outcomes()) {
+         taskProgram.outcomes()) {
         appendOutcome(
             outcome.id,
             outcome.unit,
@@ -1033,15 +1017,19 @@ createTaskRolloutHandle(
             static_cast<std::uint32_t>(outcome.direction)
         );
     }
-    handle->defaultSceneBodies = std::move(defaultSceneBodies);
+    handle->defaultSceneBodies.assign(
+        handle->run.defaultSceneBodies().begin(),
+        handle->run.defaultSceneBodies().end()
+    );
     handle->taskId = std::move(taskId);
-    if (handle->world.sceneBodyCount() !=
+    if (handle->run.world().sceneBodyCount() !=
             handle->defaultSceneBodies.size()) {
         throw std::runtime_error(
             std::string{source} +
             " scene-state count does not match compiled topology"
         );
     }
+    const metalrobo::RunProfile& profile = handle->run.profile();
     handle->environmentCount = profile.environmentCount;
     handle->stepConfig.timestepSeconds = profile.controlTimestepSeconds;
     handle->stepConfig.physicsSubsteps = profile.physicsSubsteps;
@@ -1065,7 +1053,7 @@ createTaskRolloutHandle(
     handle->stepConfig.captureContactEvidence = false;
     handle->stepConfig.publishFinalState = false;
     handle->stepConfig.publishStateTrajectory = false;
-    handle->stepConfig.taskProgram = handle->taskProgram;
+    handle->stepConfig.taskProgram = taskProgram;
     resetTaskRolloutState(*handle, profile.seed);
     return handle;
 }
@@ -1105,116 +1093,6 @@ float taskOutcomeValue(
     }
 }
 
-std::unique_ptr<MRTaskRolloutHandle>
-createCompiledTaskRollout(
-    metalrobo::LocomotionWorld authored,
-    const MRTaskRolloutConfigC& config,
-    const char* metallibPath,
-    const std::string_view source,
-    const metalrobo::InteractionPack* interactions = nullptr,
-    const std::string_view interactionClip = {}
-) {
-    validateTaskRolloutConfiguration(config);
-
-    std::vector<metalrobo::LocomotionDynamicSphere> spheres;
-    spheres.reserve(config.dynamic_sphere_count);
-    for (std::uint32_t index = 0u;
-         index < config.dynamic_sphere_count;
-         ++index) {
-        const MRTaskRolloutDynamicSphereC& source =
-            config.dynamic_spheres[index];
-        spheres.push_back({
-            .position = {
-                source.position[0], source.position[1],
-                source.position[2], 1.0f,
-            },
-            .linearVelocity = {
-                source.linear_velocity[0],
-                source.linear_velocity[1],
-                source.linear_velocity[2], 0.0f,
-            },
-            .radius = source.radius,
-            .mass = source.mass,
-            .launchStep = source.launch_step,
-        });
-    }
-    metalrobo::appendLocomotionDynamicSpheres(
-        authored,
-        spheres
-    );
-    if (config.disable_task_terminations != 0u) {
-        authored.task.terminations.clear();
-    }
-
-    metalrobo::CompiledLocomotionWorld compiled;
-    metalrobo::LocomotionWorldCompileDiagnostics compiledStatus;
-    compiledStatus.world = metalrobo::compileMetalWorld(
-        authored.model,
-        authored.articulationIndex,
-        compiled.world,
-        authored.task.capacities
-    );
-    if (compiledStatus.world.succeeded()) {
-        compiledStatus.task = interactions == nullptr
-            ? metalrobo::compileTaskProgram(
-                  authored.task,
-                  compiled.world,
-                  compiled.task
-              )
-            : metalrobo::compileTaskProgram(
-                  authored.task,
-                  *interactions,
-                  interactionClip,
-                  compiled.world,
-                  compiled.task
-              );
-    }
-    if (!compiledStatus.world.succeeded()) {
-        throw std::runtime_error(
-            std::string{source} +
-            " Metal world compile failed [" +
-            metalrobo::metalWorldHostStatusName(
-                compiledStatus.world.status
-            ) + "]: " + compiledStatus.world.message
-        );
-    }
-    if (!compiledStatus.task.succeeded()) {
-        throw std::runtime_error(
-            std::string{source} +
-            " TaskPack compile failed [" +
-            metalrobo::taskCompileStatusName(
-                compiledStatus.task.status
-            ) + "]: " + compiledStatus.task.element +
-            ": " + compiledStatus.task.message
-        );
-    }
-
-    metalrobo::RunProfile profile;
-    profile.id = "legacy_locomotion_rollout";
-    profile.environmentCount = config.environment_count;
-    profile.physicsSubsteps = config.physics_substeps;
-    profile.velocityIterations = config.velocity_iterations;
-    profile.finalVelocityIterations = config.final_velocity_iterations;
-    profile.controlTimestepSeconds = config.control_timestep_seconds;
-    profile.seed = config.seed;
-    profile.streamedArticulatedContactResponses =
-        config.materialize_articulated_contact_responses == 0u;
-    if (config.override_difficulty_band_range != 0u) {
-        profile.minimumDifficultyBand = config.minimum_difficulty_band;
-        profile.maximumDifficultyBand = config.maximum_difficulty_band;
-    }
-    return createTaskRolloutHandle(
-        std::move(authored.model),
-        std::move(compiled.world),
-        std::move(compiled.task),
-        std::move(authored.sceneBodies),
-        profile,
-        metallibPath,
-        authored.task.id,
-        source
-    );
-}
-
 std::vector<metalrobo::LocomotionDynamicSphere>
 locomotionDynamicSpheres(const MRTaskRolloutConfigC& config) {
     std::vector<metalrobo::LocomotionDynamicSphere> spheres;
@@ -1242,23 +1120,10 @@ locomotionDynamicSpheres(const MRTaskRolloutConfigC& config) {
     return spheres;
 }
 
-metalrobo::RunManifest makeUnitreeG1RunManifest(
-    const metalrobo::LocomotionSurface surface,
-    const metalrobo::UnitreeG1Task taskKind,
+void applyRunProfile(
+    metalrobo::RunManifest& manifest,
     const MRTaskRolloutConfigC& config
 ) {
-    auto robot = metalrobo::builtinRobotPack("unitree_g1");
-    if (!robot) {
-        throw std::logic_error("bundled G1 RobotPack is unavailable");
-    }
-    metalrobo::RunManifest manifest;
-    manifest.id = "unitree_g1_run";
-    manifest.robot = std::move(*robot);
-    manifest.scene.id = surface == metalrobo::LocomotionSurface::ground
-        ? "ground_scene"
-        : "terrain_scene";
-    manifest.sensors.id = "unitree_g1_default_sensors";
-    manifest.reality.id = "nominal_reality";
     manifest.profile.id = "native_task_rollout";
     manifest.profile.environmentCount = config.environment_count;
     manifest.profile.controlSteps = 1u;
@@ -1277,6 +1142,26 @@ metalrobo::RunManifest makeUnitreeG1RunManifest(
         manifest.profile.maximumDifficultyBand =
             config.maximum_difficulty_band;
     }
+}
+
+metalrobo::RunManifest makeUnitreeG1RunManifest(
+    const metalrobo::LocomotionSurface surface,
+    const metalrobo::UnitreeG1Task taskKind,
+    const MRTaskRolloutConfigC& config
+) {
+    auto robot = metalrobo::builtinRobotPack("unitree_g1");
+    if (!robot) {
+        throw std::logic_error("bundled G1 RobotPack is unavailable");
+    }
+    metalrobo::RunManifest manifest;
+    manifest.id = "unitree_g1_run";
+    manifest.robot = std::move(*robot);
+    manifest.scene.id = surface == metalrobo::LocomotionSurface::ground
+        ? "ground_scene"
+        : "terrain_scene";
+    manifest.sensors.id = "unitree_g1_default_sensors";
+    manifest.reality.id = "nominal_reality";
+    applyRunProfile(manifest, config);
 
     switch (taskKind) {
     case metalrobo::UnitreeG1Task::velocity:
@@ -1359,13 +1244,6 @@ metalrobo::RunManifest makeFrankaPickPlaceRunManifest(
     manifest.robot = std::move(*robot);
     manifest.scene = metalrobo::makeFrankaPickPlaceScenePack();
     manifest.sensors.id = "franka_default_sensors";
-    manifest.sensors.worldSensors =
-        metalrobo::makeFrankaPickPlaceEpisodeTwin().sensors;
-    for (metalrobo::SensorSpec& sensor : manifest.sensors.worldSensors) {
-        if (sensor.parentAssetId == "franka") {
-            sensor.parentAssetId = manifest.robot.id;
-        }
-    }
     manifest.task = metalrobo::makeFrankaPickPlaceTaskPack();
     if (config.disable_task_terminations != 0u) {
         manifest.task.terminations.clear();
@@ -1373,30 +1251,106 @@ metalrobo::RunManifest makeFrankaPickPlaceRunManifest(
     manifest.reality.id = "franka_nominal_reality";
     manifest.reality.program =
         metalrobo::makeFrankaPickPlaceWorldProgram();
+    // This run has no visual sensor executor yet. Retain only variations with
+    // a direct native physics/controller/reset effect; camera, appearance and
+    // topology alternatives must never survive as passive metadata.
+    std::erase_if(
+        manifest.reality.program.variations,
+        [](const metalrobo::VariationParameter& variation) {
+            return variation.target >=
+                    MR_WORLD_TARGET_ASSET_RENDER_ALTERNATIVE ||
+                variation.target == MR_WORLD_TARGET_ASSET_SCALE ||
+                variation.target ==
+                    MR_WORLD_TARGET_ASSET_ORIENTATION_ROLL ||
+                variation.target ==
+                    MR_WORLD_TARGET_ASSET_ORIENTATION_PITCH ||
+                variation.target ==
+                    MR_WORLD_TARGET_ASSET_ORIENTATION_YAW;
+        }
+    );
     for (metalrobo::VariationParameter& variation :
          manifest.reality.program.variations) {
         if (variation.targetId == "franka") {
             variation.targetId = manifest.robot.id;
         }
     }
-    manifest.profile.id = "native_task_rollout";
-    manifest.profile.environmentCount = config.environment_count;
-    manifest.profile.controlSteps = 1u;
-    manifest.profile.physicsSubsteps = config.physics_substeps;
-    manifest.profile.velocityIterations = config.velocity_iterations;
-    manifest.profile.finalVelocityIterations =
-        config.final_velocity_iterations;
-    manifest.profile.controlTimestepSeconds =
-        config.control_timestep_seconds;
-    manifest.profile.seed = config.seed;
-    manifest.profile.streamedArticulatedContactResponses =
-        config.materialize_articulated_contact_responses == 0u;
-    if (config.override_difficulty_band_range != 0u) {
-        manifest.profile.minimumDifficultyBand =
-            config.minimum_difficulty_band;
-        manifest.profile.maximumDifficultyBand =
-            config.maximum_difficulty_band;
+    applyRunProfile(manifest, config);
+    manifest.profile.capacities = manifest.task.capacities;
+    return manifest;
+}
+
+void assignNativeRunPrograms(metalrobo::RunManifest& manifest) {
+    metalrobo::TaskPack& task = manifest.task;
+    metalrobo::SensorPack& sensors = manifest.sensors;
+    metalrobo::RealityPack& reality = manifest.reality;
+    if (!sensors.actorFrame.empty() ||
+        !sensors.actorCurrent.empty() || !sensors.critic.empty() ||
+        !reality.taskState.empty()) {
+        throw std::invalid_argument(
+            "run manifest contains duplicate executable pack ownership"
+        );
     }
+    sensors.actorFrame = std::move(task.actorFrame);
+    sensors.actorHistoryLength = task.actorHistoryLength;
+    sensors.actorCurrent = std::move(task.actorCurrent);
+    sensors.critic = std::move(task.critic);
+    sensors.criticHistoryLength = task.criticHistoryLength;
+    sensors.criticIncludesCleanHistory =
+        task.criticIncludesCleanHistory;
+    sensors.visual = std::move(task.visual);
+    task.actorHistoryLength = 1u;
+    task.criticHistoryLength = 1u;
+    task.criticIncludesCleanHistory = true;
+
+    reality.taskState = std::move(task.randomization);
+    reality.maximumActionDelaySteps =
+        task.maximumActionDelaySteps;
+    reality.maximumObservationDelaySteps =
+        task.maximumObservationDelaySteps;
+    task.maximumActionDelaySteps = 0u;
+    task.maximumObservationDelaySteps = 0u;
+    if (manifest.teacher.id.empty()) {
+        manifest.teacher.id = "no_teacher";
+    }
+}
+
+metalrobo::RunManifest makeImportedRunManifest(
+    metalrobo::LocomotionWorld authored,
+    const MRTaskRolloutConfigC& config,
+    std::string id
+) {
+    metalrobo::RunManifest manifest;
+    manifest.id = std::move(id);
+    manifest.robot.id = manifest.id + ".robot";
+    manifest.robot.mechanics = std::move(authored.model);
+    manifest.robot.defaultSceneBodies =
+        std::move(authored.sceneBodies);
+    manifest.robot.primaryArticulationIndex =
+        authored.articulationIndex;
+    manifest.robot.capabilities = {"authored_task_execution"};
+    manifest.robot.roles = {
+        {
+            .id = "whole_body",
+            .kind = metalrobo::RobotSemanticKind::body,
+            .members = manifest.robot.mechanics.bodyNames,
+        },
+        {
+            .id = "all_joints",
+            .kind = metalrobo::RobotSemanticKind::joint,
+            .members = manifest.robot.mechanics.jointNames,
+        },
+        {
+            .id = "all_dofs",
+            .kind = metalrobo::RobotSemanticKind::dof,
+            .members = manifest.robot.mechanics.dofNames,
+        },
+    };
+    manifest.scene.id = manifest.id + ".scene";
+    manifest.sensors.id = manifest.id + ".sensors";
+    manifest.task = std::move(authored.task);
+    manifest.reality.id = manifest.id + ".reality";
+    manifest.teacher.id = "no_teacher";
+    applyRunProfile(manifest, config);
     manifest.profile.capacities = manifest.task.capacities;
     return manifest;
 }
@@ -1406,6 +1360,7 @@ std::unique_ptr<MRTaskRolloutHandle> createCompiledRunTaskRollout(
     const char* metallibPath,
     const std::string_view source
 ) {
+    assignNativeRunPrograms(manifest);
     // Task composition (notably an InteractionPack) may refine the measured
     // contact profile after the base manifest is authored. The executable run
     // must compile the final task's exact capacity contract, never a stale
@@ -1422,21 +1377,11 @@ std::unique_ptr<MRTaskRolloutHandle> createCompiledRunTaskRollout(
         );
     }
     auto handle = createTaskRolloutHandle(
-        compiled.model(),
-        compiled.world(),
-        compiled.task(),
-        std::vector<MRBodyStateGPU>{
-            compiled.defaultSceneBodies().begin(),
-            compiled.defaultSceneBodies().end()
-        },
-        compiled.profile(),
+        std::move(compiled),
         metallibPath,
         manifest.task.id,
         source
     );
-    handle->runFingerprint = compiled.fingerprint();
-    handle->robotFingerprint = compiled.robotFingerprint();
-    handle->sensorFingerprint = compiled.sensorFingerprint();
     return handle;
 }
 
@@ -2332,6 +2277,28 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     return runtime;
 }
 
+void installTaskVisualRuntime(
+    MRTaskRolloutHandle& handle,
+    const MRTaskVisualObservationConfigC& config
+) {
+    if (handle.residentState.valid()) {
+        throw std::logic_error(
+            "SensorPack must compile before resident initialization"
+        );
+    }
+    std::unique_ptr<MRTaskVisualRuntime> candidate =
+        compileTaskVisualRuntime(handle, config);
+    const metalrobo::MetalWorldDeviceObservationProgram program =
+        candidate->tracker.observationProgram();
+    if (!program.valid()) {
+        throw std::runtime_error(
+            "compiled SensorPack visual program is invalid"
+        );
+    }
+    handle.visualRuntime = std::move(candidate);
+    handle.stepConfig.deviceObservationProgram = program;
+}
+
 std::runtime_error worldFamilyError(
     const char* operation,
     const metalrobo::MetalWorldFamilyDiagnostics& diagnostics
@@ -2490,163 +2457,7 @@ int mr_compile_episode_manifest(
     });
 }
 
-MRRuntimeHandle* mr_create_franka(
-    const uint32_t environment_count,
-    const uint64_t seed,
-    const char* metallib_path
-) {
-    if (environment_count == 0) {
-        gLastError = "environment_count must be greater than zero.";
-        return nullptr;
-    }
-
-    MRRuntimeHandle* result = nullptr;
-    const int status = translateErrors([&] {
-        metalrobo::RuntimeDescriptor descriptor;
-        descriptor.environmentCount = environment_count;
-        descriptor.seed = seed;
-        descriptor.autoReset = true;
-        descriptor.captureBodyPoses = true;
-        if (metallib_path != nullptr) {
-            descriptor.metallibPath = metallib_path;
-        }
-
-        auto handle = std::make_unique<MRRuntimeHandle>();
-        handle->runtime = metalrobo::makeMetalRuntime(
-            metalrobo::makeFrankaPandaModel(),
-            descriptor
-        );
-        handle->deviceName = handle->runtime->deviceName();
-        result = handle.release();
-    });
-    return status == 0 ? result : nullptr;
-}
-
-void mr_destroy(MRRuntimeHandle* handle) {
-    delete handle;
-}
-
-int mr_reset(MRRuntimeHandle* handle, const uint64_t seed) {
-    if (!requireHandle(handle)) {
-        return -1;
-    }
-    return translateErrors([&] { handle->runtime->reset(seed); });
-}
-
-int mr_step(
-    MRRuntimeHandle* handle,
-    const float* normalized_actions,
-    const size_t action_count
-) {
-    if (!requireHandle(handle)) {
-        return -1;
-    }
-    const std::size_t required =
-        static_cast<std::size_t>(handle->runtime->environmentCount()) *
-        handle->runtime->model().gpu.actionCount;
-    if (normalized_actions == nullptr) {
-        gLastError = "normalized_actions is null.";
-        return -1;
-    }
-    if (action_count != required) {
-        gLastError =
-            "action_count does not match environment_count * action_count.";
-        return -1;
-    }
-    return translateErrors([&] {
-        handle->runtime->step(
-            std::span<const float>(normalized_actions, action_count)
-        );
-    });
-}
-
-uint32_t mr_environment_count(const MRRuntimeHandle* handle) {
-    return requireHandle(handle) ? handle->runtime->environmentCount() : 0;
-}
-
-uint32_t mr_action_count(const MRRuntimeHandle* handle) {
-    return requireHandle(handle) ? handle->runtime->model().gpu.actionCount : 0;
-}
-
-uint32_t mr_observation_count(const MRRuntimeHandle* handle) {
-    return requireHandle(handle)
-        ? handle->runtime->model().gpu.observationCount
-        : 0;
-}
-
-uint32_t mr_link_count(const MRRuntimeHandle* handle) {
-    return requireHandle(handle) ? handle->runtime->model().gpu.linkCount : 0;
-}
-
-const float* mr_observations(const MRRuntimeHandle* handle) {
-    if (!requireHandle(handle)) {
-        return nullptr;
-    }
-    return handle->runtime->observations().data();
-}
-
-const float* mr_rewards(const MRRuntimeHandle* handle) {
-    if (!requireHandle(handle)) {
-        return nullptr;
-    }
-    return handle->runtime->rewards().data();
-}
-
-const uint8_t* mr_terminated(const MRRuntimeHandle* handle) {
-    if (!requireHandle(handle)) {
-        return nullptr;
-    }
-    return handle->runtime->terminated().data();
-}
-
-const float* mr_body_positions(const MRRuntimeHandle* handle) {
-    if (!requireHandle(handle)) {
-        return nullptr;
-    }
-    return handle->runtime->bodyPositions().data();
-}
-
-const float* mr_body_rotations(const MRRuntimeHandle* handle) {
-    if (!requireHandle(handle)) {
-        return nullptr;
-    }
-    return handle->runtime->bodyRotations().data();
-}
-
-MRRuntimeStatsC mr_stats(const MRRuntimeHandle* handle) {
-    MRRuntimeStatsC result{};
-    if (!requireHandle(handle)) {
-        return result;
-    }
-    const metalrobo::RuntimeStats stats = handle->runtime->stats();
-    result.last_gpu_milliseconds = stats.lastGpuMilliseconds;
-    result.total_gpu_milliseconds = stats.totalGpuMilliseconds;
-    result.control_steps = stats.controlSteps;
-    result.physics_steps = stats.physicsSteps;
-    return result;
-}
-
-const char* mr_device_name(const MRRuntimeHandle* handle) {
-    if (!requireHandle(handle)) {
-        return "";
-    }
-    return handle->deviceName.c_str();
-}
-
-MRTaskRolloutHandle* mr_create_unitree_g1_locomotion_rollout(
-    const MRTaskRolloutConfigC* config,
-    const uint32_t surface_value,
-    const char* metallib_path
-) {
-    return mr_create_unitree_g1_task_rollout(
-        config,
-        surface_value,
-        MR_UNITREE_G1_TASK_VELOCITY,
-        metallib_path
-    );
-}
-
-MRTaskRolloutHandle* mr_create_unitree_g1_task_rollout(
+static MRTaskRolloutHandle* createUnitreeG1Run(
     const MRTaskRolloutConfigC* config,
     const uint32_t surface_value,
     const uint32_t task_value,
@@ -2676,7 +2487,7 @@ MRTaskRolloutHandle* mr_create_unitree_g1_task_rollout(
     return status == 0 ? result : nullptr;
 }
 
-MRTaskRolloutHandle* mr_create_franka_pick_place_task_rollout(
+static MRTaskRolloutHandle* createFrankaRun(
     const MRTaskRolloutConfigC* config,
     const char* metallib_path
 ) {
@@ -2697,24 +2508,7 @@ MRTaskRolloutHandle* mr_create_franka_pick_place_task_rollout(
     return status == 0 ? result : nullptr;
 }
 
-MRTaskRolloutHandle* mr_create_unitree_g1_interaction_rollout(
-    const MRTaskRolloutConfigC* config,
-    const uint32_t surface_value,
-    const char* interaction_pack_path,
-    const char* interaction_clip_id,
-    const char* metallib_path
-) {
-    return mr_create_unitree_g1_interaction_task_rollout(
-        config,
-        surface_value,
-        MR_UNITREE_G1_TASK_VELOCITY,
-        interaction_pack_path,
-        interaction_clip_id,
-        metallib_path
-    );
-}
-
-MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
+static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
     const MRTaskRolloutConfigC* config,
     const uint32_t surface_value,
     const uint32_t task_value,
@@ -2805,14 +2599,15 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
             manifest.task.interactionResetMaximumPhase =
                 config->interaction_reset_maximum_phase;
         }
-        manifest.interactions = interactions;
-        manifest.interactionClip = clip.id;
         manifest.teacher = {
             .id = interactions.id,
             .kind = metalrobo::TeacherKind::motionImagination,
             .provider = "interaction_pack",
             .model = clip.id,
             .artifact = interaction_pack_path,
+            .artifactFingerprint = loaded.contentHash,
+            .interactions = interactions,
+            .interactionClip = clip.id,
         };
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest),
@@ -2824,7 +2619,7 @@ MRTaskRolloutHandle* mr_create_unitree_g1_interaction_task_rollout(
     return status == 0 ? result : nullptr;
 }
 
-MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
+static MRTaskRolloutHandle* createImportedURDFRun(
     const char* urdf_path,
     const char* srdf_path,
     const char* task_pack_path,
@@ -2887,9 +2682,12 @@ MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
             authored.sceneBodies,
             surface
         );
-        auto handle = createCompiledTaskRollout(
-            std::move(authored),
-            *config,
+        auto handle = createCompiledRunTaskRollout(
+            makeImportedRunManifest(
+                std::move(authored),
+                *config,
+                "imported_urdf_run"
+            ),
             metallib_path,
             "imported URDF"
         );
@@ -2898,7 +2696,7 @@ MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
     return status == 0 ? result : nullptr;
 }
 
-MRTaskRolloutHandle* mr_create_world_pack_locomotion_rollout(
+static MRTaskRolloutHandle* createWorldPackRun(
     const char* world_pack_path,
     const char* task_pack_path,
     const MRTaskRolloutConfigC* config,
@@ -2941,18 +2739,94 @@ MRTaskRolloutHandle* mr_create_world_pack_locomotion_rollout(
                 ) + "]: " + worldLoaded.message
             );
         }
-        auto handle = createCompiledTaskRollout(
-            metalrobo::makeWorldPackLocomotionWorld(
-                worldPack,
-                std::move(task)
+        auto handle = createCompiledRunTaskRollout(
+            makeImportedRunManifest(
+                metalrobo::makeWorldPackLocomotionWorld(
+                    worldPack,
+                    std::move(task)
+                ),
+                *config,
+                "world_pack_run"
             ),
-            *config,
             metallib_path,
             "MRWorldPack"
         );
         result = handle.release();
     });
     return status == 0 ? result : nullptr;
+}
+
+MRTaskRolloutHandle* mr_create_task_rollout(
+    const MRRunManifestC* manifest
+) {
+    if (manifest == nullptr) {
+        gLastError = "run manifest is null.";
+        return nullptr;
+    }
+    MRTaskRolloutHandle* result = nullptr;
+    switch (manifest->source) {
+    case MR_RUN_SOURCE_UNITREE_G1:
+        if (manifest->teacher_pack_path != nullptr &&
+            manifest->teacher_pack_path[0] != '\0') {
+            result = createUnitreeG1TeacherRun(
+                &manifest->profile,
+                manifest->surface,
+                manifest->task,
+                manifest->teacher_pack_path,
+                manifest->teacher_clip_id,
+                manifest->metallib_path
+            );
+            break;
+        }
+        result = createUnitreeG1Run(
+            &manifest->profile,
+            manifest->surface,
+            manifest->task,
+            manifest->metallib_path
+        );
+        break;
+    case MR_RUN_SOURCE_FRANKA_PICK_PLACE:
+        result = createFrankaRun(
+            &manifest->profile,
+            manifest->metallib_path
+        );
+        break;
+    case MR_RUN_SOURCE_IMPORTED_URDF:
+        result = createImportedURDFRun(
+            manifest->urdf_path,
+            manifest->srdf_path,
+            manifest->task_pack_path,
+            &manifest->profile,
+            manifest->surface,
+            manifest->metallib_path
+        );
+        break;
+    case MR_RUN_SOURCE_WORLD_PACK:
+        result = createWorldPackRun(
+            manifest->world_pack_path,
+            manifest->task_pack_path,
+            &manifest->profile,
+            manifest->metallib_path
+        );
+        break;
+    default:
+        gLastError = "run manifest source is invalid.";
+        return nullptr;
+    }
+    if (result == nullptr || manifest->visual_sensor_program == nullptr) {
+        return result;
+    }
+    const int status = translateErrors([&] {
+        installTaskVisualRuntime(
+            *result,
+            *manifest->visual_sensor_program
+        );
+    });
+    if (status != 0) {
+        delete result;
+        return nullptr;
+    }
+    return result;
 }
 
 void mr_task_rollout_destroy(MRTaskRolloutHandle* handle) {
@@ -3070,37 +2944,6 @@ int mr_task_rollout_clear_policy(
     handle->stepConfig.policyProgram = {};
     gLastError.clear();
     return 0;
-}
-
-int mr_task_rollout_attach_visual_observation(
-    MRTaskRolloutHandle* handle,
-    const MRTaskVisualObservationConfigC* config
-) {
-    if (!requireTaskRolloutHandle(handle)) {
-        return -1;
-    }
-    if (config == nullptr) {
-        gLastError = "visual observation configuration is null.";
-        return -1;
-    }
-    return translateErrors([&] {
-        if (handle->residentState.valid()) {
-            throw std::logic_error(
-                "visual observation must be attached before resident initialization"
-            );
-        }
-        std::unique_ptr<MRTaskVisualRuntime> candidate =
-            compileTaskVisualRuntime(*handle, *config);
-        const metalrobo::MetalWorldDeviceObservationProgram program =
-            candidate->tracker.observationProgram();
-        if (!program.valid()) {
-            throw std::runtime_error(
-                "compiled visual observation program is invalid"
-            );
-        }
-        handle->visualRuntime = std::move(candidate);
-        handle->stepConfig.deviceObservationProgram = program;
-    });
 }
 
 size_t mr_task_rollout_copy_visual_rgba(
@@ -3549,9 +3392,11 @@ MRTaskRolloutLayoutC mr_task_rollout_layout(
         handle->taskProgram.observationFingerprint();
     result.action_fingerprint =
         handle->taskProgram.actionFingerprint();
-    result.run_fingerprint = handle->runFingerprint;
-    result.robot_fingerprint = handle->robotFingerprint;
-    result.sensor_fingerprint = handle->sensorFingerprint;
+    result.run_fingerprint = handle->run.fingerprint();
+    result.robot_fingerprint = handle->run.robotFingerprint();
+    result.sensor_fingerprint = handle->run.sensorFingerprint();
+    result.reality_fingerprint = handle->run.realityFingerprint();
+    result.teacher_fingerprint = handle->run.teacherFingerprint();
     result.submitted_control_steps =
         handle->submittedControlSteps;
     result.completed_environment_steps =

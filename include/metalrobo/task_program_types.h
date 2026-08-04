@@ -257,6 +257,9 @@ enum MRTaskRandomizationOpcode : mr_u32 {
     // Event-driven physical impact sequence. The compiler resolves these into
     // a dedicated immutable table; reset randomization never executes them.
     MR_TASK_RANDOMIZE_SCENE_BODY_EVENT_IMPACT = 16u,
+    // Compiled RealityProgram target. This addresses one resolved world body
+    // directly, so physics variation does not depend on a task contact group.
+    MR_TASK_RANDOMIZE_WORLD_BODY_PARAMETER = 17u,
 };
 
 enum MRTaskImpactTransitionFlags : mr_u32 {

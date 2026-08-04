@@ -171,13 +171,13 @@ control rate, every sparse-history slot therefore represents a distinct
 physical exposure; a slower sensor intentionally repeats held frames. The C
 rollout boundary accepts an explicit vertical field of view in degrees; zero
 retains the legacy focal-length rule for existing callers.
-`MetalRoboTaskRolloutContext.attachVisualObservation` compiles authored pack
-references, a body-bound camera, the matching `WorldFamily`, and this tracker
-before resident initialization. Explicit rigid-body pack bindings keep moving
-scene objects on the accepted physics timeline; articulated bindings keep
-robot presentation on link states. Reset clears temporal tracks atomically
-with simulator reset, and rollout chunk size does not alter the published
-observation artifact.
+`MetalRoboRunManifest.visualSensor` authors pack references, a body-bound
+camera, the matching `WorldFamily`, and this tracker as part of SensorPack
+compilation. There is no post-construction sensor attachment API. Explicit
+rigid-body pack bindings keep moving scene objects on the accepted physics
+timeline; articulated bindings keep robot presentation on link states. Reset
+clears temporal tracks atomically with simulator reset, and rollout chunk size
+does not alter the published observation artifact.
 `encodeGraph` additionally accepts an active-compute callback surface and a
 complete set of caller-owned observation buffers. The Python
 `visual_observation` custom primitive uses that surface to write linear RGB,
@@ -279,21 +279,20 @@ outputs survive between large stages. That makes correctness possible on
 today's unified-memory Macs while retaining a direct path to future graph
 fusion, MLX conversion, persistent sessions, and faster Apple hardware.
 
-### Authored visual-observation binding
+### Authored visual-observation program
 
-`numi.visual-observation.v1` removes robot and task identity from the rollout
-attachment surface. The JSON artifact lists VisualPacks with their authored
+`numi.visual-observation.v1` removes robot and task identity from the sensor
+authoring surface. The JSON artifact lists VisualPacks with their authored
 asset, semantic, and instance identities; an optional environment pack; and a
 camera parent, local pose, calibration, cadence, visibility threshold, and
 retained-memory budget. Relative paths resolve beside the artifact, so the
 configuration is portable and fingerprintable.
 
-The Swift rollout loads this artifact, while the native compiler resolves body
-indices, tracked task entities, masked-depth slots, history, and observation
-layout from the mechanics and TaskPack. Metal still performs rendering and
-sensing. `--g1-visual-pack-dir` and `--ball-visual-pack-dir` remain compatibility
-syntax that expands to the same runtime configuration; they are not a separate
-sensor path. The schema is `schemas/visual_observation.schema.json`.
+The Swift manifest loads this artifact before construction, while the native
+compiler resolves body indices, tracked task entities, masked-depth slots,
+history, and observation layout from the mechanics and SensorPack. Metal still
+performs rendering and sensing. The schema is
+`schemas/visual_observation.schema.json`.
 
 ```sh
 numi evaluate --task ball-dodge --scene ground \

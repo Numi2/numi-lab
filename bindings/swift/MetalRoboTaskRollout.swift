@@ -676,6 +676,8 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
     public let runFingerprint: UInt64
     public let robotFingerprint: UInt64
     public let sensorFingerprint: UInt64
+    public let realityFingerprint: UInt64
+    public let teacherFingerprint: UInt64
     public let submittedControlSteps: UInt64
     public let completedEnvironmentSteps: UInt64
     public let submissionCount: UInt64
@@ -707,6 +709,8 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
         runFingerprint = native.run_fingerprint
         robotFingerprint = native.robot_fingerprint
         sensorFingerprint = native.sensor_fingerprint
+        realityFingerprint = native.reality_fingerprint
+        teacherFingerprint = native.teacher_fingerprint
         submittedControlSteps = native.submitted_control_steps
         completedEnvironmentSteps =
             native.completed_environment_steps
@@ -997,136 +1001,122 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
 /// Swift owns rollout chunking and policy revisions. Native code owns the
 /// compiled world and task program, persistent private Metal state, reset
 /// transaction, and compact learning publication.
+public enum MetalRoboRunSource: Sendable {
+    case unitreeG1
+    case frankaPickPlace
+    case importedURDF(urdf: URL, srdf: URL?, taskPack: URL)
+    case worldPack(world: URL, taskPack: URL)
+}
+
+public struct MetalRoboTeacherSource: Sendable {
+    public let pack: URL
+    public let clipID: String
+
+    public init(pack: URL, clipID: String) {
+        self.pack = pack
+        self.clipID = clipID
+    }
+}
+
+public struct MetalRoboRunManifest: Sendable {
+    public let source: MetalRoboRunSource
+    public let sensorsAndPhysics: MetalRoboTaskRolloutConfiguration
+    public let visualSensor:
+        MetalRoboTaskVisualObservationConfiguration?
+    public let teacher: MetalRoboTeacherSource?
+
+    public init(
+        source: MetalRoboRunSource,
+        sensorsAndPhysics: MetalRoboTaskRolloutConfiguration,
+        visualSensor: MetalRoboTaskVisualObservationConfiguration? = nil,
+        teacher: MetalRoboTeacherSource? = nil
+    ) {
+        self.source = source
+        self.sensorsAndPhysics = sensorsAndPhysics
+        self.visualSensor = visualSensor
+        self.teacher = teacher
+    }
+}
+
 public final class MetalRoboTaskRolloutContext {
     private var handle: OpaquePointer?
 
-    /// Bundled G1 is a mechanics + TaskPack preset; execution uses the same
-    /// generic compiled task path as imported robots.
     public init(
-        unitreeG1 configuration: MetalRoboTaskRolloutConfiguration,
+        manifest authored: MetalRoboRunManifest,
         metallibPath: String? = nil
     ) throws {
-        let created: OpaquePointer? =
-            Self.withNativeConfiguration(configuration) { config in
-                withOptionalCString(metallibPath) {
-                    metallib in
-                    mr_create_unitree_g1_task_rollout(
-                        config,
-                        configuration.surface.rawValue,
-                        configuration.unitreeG1Task.rawValue,
-                        metallib
-                    )
-                }
-            }
-        guard let created else {
-            throw MetalRoboTaskRolloutError.native(
-                Self.lastError()
-            )
-        }
-        handle = created
-    }
-
-    /// Loads one generated contact/motion reference and binds it to the
-    /// bundled G1 through the generic native task executor. The selected clip
-    /// supplies intent; solved contact remains the achieved physical signal.
-    public init(
-        unitreeG1Interaction interactionPackURL: URL,
-        clipID: String,
-        configuration: MetalRoboTaskRolloutConfiguration,
-        metallibPath: String? = nil
-    ) throws {
-        guard !clipID.isEmpty else {
+        if let teacher = authored.teacher, teacher.clipID.isEmpty {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "InteractionPack clip identity cannot be empty."
             )
         }
-        let created: OpaquePointer? =
-            Self.withNativeConfiguration(configuration) { config in
-                interactionPackURL.path.withCString { interactionPack in
-                    clipID.withCString { clip in
-                        withOptionalCString(metallibPath) { metallib in
-                            mr_create_unitree_g1_interaction_task_rollout(
-                                config,
-                                configuration.surface.rawValue,
-                                configuration.unitreeG1Task.rawValue,
-                                interactionPack,
-                                clip,
-                                metallib
-                            )
-                        }
-                    }
-                }
-            }
-        guard let created else {
-            throw MetalRoboTaskRolloutError.native(
-                Self.lastError()
-            )
+        let configuration = authored.sensorsAndPhysics
+        var source = MR_RUN_SOURCE_UNITREE_G1.rawValue
+        var urdfPath: String?
+        var srdfPath: String?
+        var worldPackPath: String?
+        var taskPackPath: String?
+        switch authored.source {
+        case .unitreeG1:
+            source = MR_RUN_SOURCE_UNITREE_G1.rawValue
+        case .frankaPickPlace:
+            source = MR_RUN_SOURCE_FRANKA_PICK_PLACE.rawValue
+        case let .importedURDF(urdf, srdf, taskPack):
+            source = MR_RUN_SOURCE_IMPORTED_URDF.rawValue
+            urdfPath = urdf.path
+            srdfPath = srdf?.path
+            taskPackPath = taskPack.path
+        case let .worldPack(world, taskPack):
+            source = MR_RUN_SOURCE_WORLD_PACK.rawValue
+            worldPackPath = world.path
+            taskPackPath = taskPack.path
         }
-        handle = created
-    }
-
-    /// Imports mechanics from URDF/SRDF and task semantics from a persisted
-    /// TaskPack. No robot-specific runtime or Metal shader is involved.
-    public init(
-        importedURDF urdfURL: URL,
-        srdf srdfURL: URL? = nil,
-        taskPack taskPackURL: URL,
-        configuration: MetalRoboTaskRolloutConfiguration,
-        metallibPath: String? = nil
-    ) throws {
-        let created: OpaquePointer? =
+        let created: OpaquePointer? = try Self.withNativeVisualSensor(
+            authored.visualSensor
+        ) { visualSensor in
             Self.withNativeConfiguration(configuration) { config in
-                urdfURL.path.withCString { urdf in
-                    taskPackURL.path.withCString { taskPack in
-                        withOptionalCString(srdfURL?.path) {
-                            srdf in
-                            withOptionalCString(metallibPath) {
-                                metallib in
-                                mr_create_urdf_locomotion_rollout(
-                                    urdf,
-                                    srdf,
-                                    taskPack,
-                                    config,
-                                    configuration.surface.rawValue,
-                                    metallib
-                                )
+                withOptionalCString(urdfPath) { urdf in
+                    withOptionalCString(srdfPath) { srdf in
+                        withOptionalCString(worldPackPath) { world in
+                            withOptionalCString(taskPackPath) { task in
+                                withOptionalCString(
+                                    authored.teacher?.pack.path
+                                ) { teacherPack in
+                                    withOptionalCString(
+                                        authored.teacher?.clipID
+                                    ) { teacherClip in
+                                        withOptionalCString(metallibPath) {
+                                            metallib in
+                                            var manifest = MRRunManifestC()
+                                            manifest.profile = config.pointee
+                                            manifest.source = source
+                                            manifest.surface =
+                                                configuration.surface.rawValue
+                                            manifest.task = configuration
+                                                .unitreeG1Task.rawValue
+                                            manifest.urdf_path = urdf
+                                            manifest.srdf_path = srdf
+                                            manifest.world_pack_path = world
+                                            manifest.task_pack_path = task
+                                            manifest.teacher_pack_path =
+                                                teacherPack
+                                            manifest.teacher_clip_id =
+                                                teacherClip
+                                            manifest.visual_sensor_program =
+                                                visualSensor
+                                            manifest.metallib_path = metallib
+                                            return mr_create_task_rollout(
+                                                &manifest
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-        guard let created else {
-            throw MetalRoboTaskRolloutError.native(
-                Self.lastError()
-            )
         }
-        handle = created
-    }
-
-    /// Loads complete mechanics and scene composition from MRWorldPack, then
-    /// resolves a separate TaskPack through the generic native executor.
-    public init(
-        worldPack worldPackURL: URL,
-        taskPack taskPackURL: URL,
-        configuration: MetalRoboTaskRolloutConfiguration,
-        metallibPath: String? = nil
-    ) throws {
-        let created: OpaquePointer? =
-            Self.withNativeConfiguration(configuration) { config in
-                worldPackURL.path.withCString { worldPack in
-                    taskPackURL.path.withCString { taskPack in
-                        withOptionalCString(metallibPath) {
-                            metallib in
-                            mr_create_world_pack_locomotion_rollout(
-                                worldPack,
-                                taskPack,
-                                config,
-                                metallib
-                            )
-                        }
-                    }
-                }
-            }
         guard let created else {
             throw MetalRoboTaskRolloutError.native(
                 Self.lastError()
@@ -1206,6 +1196,85 @@ public final class MetalRoboTaskRolloutContext {
             native.dynamic_spheres = buffer.baseAddress
             native.dynamic_sphere_count = UInt32(buffer.count)
             return withUnsafePointer(to: &native, body)
+        }
+    }
+
+    private static func withNativeVisualSensor<Result>(
+        _ configuration:
+            MetalRoboTaskVisualObservationConfiguration?,
+        _ body: (
+            UnsafePointer<MRTaskVisualObservationConfigC>?
+        ) -> Result
+    ) throws -> Result {
+        guard let configuration else {
+            return body(nil)
+        }
+        guard !configuration.packs.isEmpty,
+              configuration.width > 0,
+              configuration.height > 0,
+              configuration.minimumVisiblePixels > 0
+        else {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Visual SensorPack requires packs and nonzero dimensions."
+            )
+        }
+        var strings: [String] = []
+        strings.reserveCapacity(2 * configuration.packs.count + 1)
+        for pack in configuration.packs {
+            strings.append(pack.url.path)
+            strings.append(pack.assetID)
+        }
+        strings.append(configuration.cameraParentBody)
+        return withUnsafeCStringBuffers(strings) { pointers in
+            var nativePacks: [MRTaskVisualPackC] = []
+            nativePacks.reserveCapacity(configuration.packs.count)
+            for index in configuration.packs.indices {
+                var pack = MRTaskVisualPackC()
+                pack.path = pointers[2 * index]
+                pack.asset_id = pointers[2 * index + 1]
+                pack.semantic_id = configuration.packs[index].semanticID
+                pack.instance_id = configuration.packs[index].instanceID
+                nativePacks.append(pack)
+            }
+            return nativePacks.withUnsafeBufferPointer { packs in
+                withOptionalCString(
+                    configuration.environmentPackURL?.path
+                ) { environment in
+                    "sensor_fast".withCString { profile in
+                        var native = MRTaskVisualObservationConfigC()
+                        native.packs = packs.baseAddress
+                        native.pack_count = UInt32(packs.count)
+                        native.environment_pack_path = environment
+                        native.renderer_profile = profile
+                        native.camera_parent_body = pointers.last!
+                        native.camera_position = (
+                            configuration.cameraPosition.x,
+                            configuration.cameraPosition.y,
+                            configuration.cameraPosition.z
+                        )
+                        native.camera_orientation = (
+                            configuration.cameraOrientation.x,
+                            configuration.cameraOrientation.y,
+                            configuration.cameraOrientation.z,
+                            configuration.cameraOrientation.w
+                        )
+                        native.width = configuration.width
+                        native.height = configuration.height
+                        native.minimum_visible_pixels =
+                            configuration.minimumVisiblePixels
+                        native.vertical_field_of_view_degrees =
+                            configuration.verticalFieldOfViewDegrees
+                        native.nominal_rate_hz = configuration.nominalRateHz
+                        native.maximum_retained_bytes =
+                            configuration.maximumRetainedBytes
+                        native.capture_width = configuration.captureWidth
+                        native.capture_height = configuration.captureHeight
+                        native.capture_policy_camera =
+                            configuration.capturePolicyCamera ? 1 : 0
+                        return withUnsafePointer(to: &native, body)
+                    }
+                }
+            }
         }
     }
 
@@ -1443,94 +1512,6 @@ public final class MetalRoboTaskRolloutContext {
 
     public func clearPolicy() throws {
         guard mr_task_rollout_clear_policy(handle) == 0 else {
-            throw MetalRoboTaskRolloutError.native(
-                Self.lastError()
-            )
-        }
-    }
-
-    public func attachVisualObservation(
-        _ configuration:
-            MetalRoboTaskVisualObservationConfiguration
-    ) throws {
-        guard !configuration.packs.isEmpty,
-              configuration.width > 0,
-              configuration.height > 0,
-              configuration.minimumVisiblePixels > 0
-        else {
-            throw MetalRoboTaskRolloutError.invalidShape(
-                "Visual observation requires packs and nonzero dimensions."
-            )
-        }
-        var strings: [String] = []
-        strings.reserveCapacity(
-            2 * configuration.packs.count + 1
-        )
-        for pack in configuration.packs {
-            strings.append(pack.url.path)
-            strings.append(pack.assetID)
-        }
-        strings.append(configuration.cameraParentBody)
-        let status = withUnsafeCStringBuffers(strings) {
-            pointers in
-            var nativePacks: [MRTaskVisualPackC] = []
-            nativePacks.reserveCapacity(configuration.packs.count)
-            for index in configuration.packs.indices {
-                var pack = MRTaskVisualPackC()
-                pack.path = pointers[2 * index]
-                pack.asset_id = pointers[2 * index + 1]
-                pack.semantic_id =
-                    configuration.packs[index].semanticID
-                pack.instance_id =
-                    configuration.packs[index].instanceID
-                nativePacks.append(pack)
-            }
-            return nativePacks.withUnsafeBufferPointer { packs in
-                withOptionalCString(
-                    configuration.environmentPackURL?.path
-                ) { environment in
-                    "sensor_fast".withCString { profile in
-                        var native =
-                            MRTaskVisualObservationConfigC()
-                        native.packs = packs.baseAddress
-                        native.pack_count = UInt32(packs.count)
-                        native.environment_pack_path = environment
-                        native.renderer_profile = profile
-                        native.camera_parent_body = pointers.last!
-                        native.camera_position = (
-                            configuration.cameraPosition.x,
-                            configuration.cameraPosition.y,
-                            configuration.cameraPosition.z
-                        )
-                        native.camera_orientation = (
-                            configuration.cameraOrientation.x,
-                            configuration.cameraOrientation.y,
-                            configuration.cameraOrientation.z,
-                            configuration.cameraOrientation.w
-                        )
-                        native.width = configuration.width
-                        native.height = configuration.height
-                        native.minimum_visible_pixels =
-                            configuration.minimumVisiblePixels
-                        native.vertical_field_of_view_degrees =
-                            configuration.verticalFieldOfViewDegrees
-                        native.nominal_rate_hz =
-                            configuration.nominalRateHz
-                        native.maximum_retained_bytes =
-                            configuration.maximumRetainedBytes
-                        native.capture_width = configuration.captureWidth
-                        native.capture_height = configuration.captureHeight
-                        native.capture_policy_camera =
-                            configuration.capturePolicyCamera ? 1 : 0
-                        return mr_task_rollout_attach_visual_observation(
-                            handle,
-                            &native
-                        )
-                    }
-                }
-            }
-        }
-        guard status == 0 else {
             throw MetalRoboTaskRolloutError.native(
                 Self.lastError()
             )
