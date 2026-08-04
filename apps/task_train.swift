@@ -715,6 +715,14 @@ private func initializePolicyIfRequested(
         String(layout.criticObservationCount),
         "--actions",
         String(layout.actionCount),
+        "--world-fingerprint",
+        String(layout.worldFingerprint),
+        "--task-fingerprint",
+        String(layout.taskFingerprint),
+        "--observation-fingerprint",
+        String(layout.observationFingerprint),
+        "--action-fingerprint",
+        String(layout.actionFingerprint),
         "--policy-id",
         identifier,
         "--output",
@@ -787,7 +795,10 @@ private final class MLXLearnerWorker {
     private(set) var stateRestored: Bool
     private var closed = false
 
-    init(options: Options) throws {
+    init(
+        options: Options,
+        layout: MetalRoboTaskRolloutLayout
+    ) throws {
         guard let executable = options.mlxPython,
               let policyPack = options.policyPack,
               let outputPolicyPack = options.updatedPolicyPack,
@@ -857,6 +868,14 @@ private final class MLXLearnerWorker {
             String(options.initialLogStandardDeviation),
             "--seed",
             String(options.learnerSeed),
+            "--world-fingerprint",
+            String(layout.worldFingerprint),
+            "--task-fingerprint",
+            String(layout.taskFingerprint),
+            "--observation-fingerprint",
+            String(layout.observationFingerprint),
+            "--action-fingerprint",
+            String(layout.actionFingerprint),
         ]
         if options.fixedLearningRate {
             arguments.append("--fixed-learning-rate")
@@ -1186,7 +1205,10 @@ private enum TaskTrainMain {
                     "Training artifact paths are incomplete."
                 )
             }
-            let learner = try MLXLearnerWorker(options: options)
+            let learner = try MLXLearnerWorker(
+                options: options,
+                layout: context.layout
+            )
             try context.loadPolicy(
                 at: URL(fileURLWithPath: learner.policyPackPath)
             )

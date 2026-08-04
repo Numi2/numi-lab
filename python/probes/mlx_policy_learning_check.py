@@ -34,7 +34,7 @@ from metalrobo.mlx_policy_worker import (
 
 
 def make_learner() -> MLXPolicyLearner:
-    return MLXPolicyLearner(
+    learner = MLXPolicyLearner(
         480,
         495,
         29,
@@ -48,6 +48,13 @@ def make_learner() -> MLXPolicyLearner:
             seed=17,
         ),
     )
+    learner.bind_contract(
+        world_fingerprint=1,
+        task_fingerprint=2,
+        observation_fingerprint=3,
+        action_fingerprint=4,
+    )
+    return learner
 
 
 def check_gae_boundaries() -> None:

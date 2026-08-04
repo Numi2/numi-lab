@@ -1,0 +1,578 @@
+#include "metalrobo/RunProgram.hpp"
+
+#include "metalrobo/Franka.hpp"
+#include "metalrobo/G1.hpp"
+#include "metalrobo/SurgicalPSM.hpp"
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstring>
+#include <limits>
+#include <new>
+#include <ranges>
+#include <span>
+#include <unordered_set>
+#include <utility>
+
+namespace metalrobo {
+namespace {
+
+constexpr std::uint64_t kFNVOffset = 1469598103934665603ull;
+constexpr std::uint64_t kFNVPrime = 1099511628211ull;
+
+class Hash {
+public:
+    void bytes(const void* data, const std::size_t size) {
+        const auto* values = static_cast<const unsigned char*>(data);
+        for (std::size_t index = 0u; index < size; ++index) {
+            value_ ^= values[index];
+            value_ *= kFNVPrime;
+        }
+    }
+    template <typename T> void scalar(const T& value) {
+        bytes(&value, sizeof(value));
+    }
+    void string(const std::string_view value) {
+        scalar<std::uint64_t>(value.size());
+        bytes(value.data(), value.size());
+    }
+    [[nodiscard]] std::uint64_t finish() const noexcept {
+        return value_ == 0u ? 1u : value_;
+    }
+private:
+    std::uint64_t value_ = kFNVOffset;
+};
+
+RunCompileDiagnostics reject(
+    const RunCompileStatus status,
+    std::string element,
+    std::string message
+) {
+    return {status, std::move(element), std::move(message)};
+}
+
+template <typename T>
+std::vector<std::uint32_t> indices(
+    const std::vector<T>& values,
+    const std::uint32_t offset = 0u
+) {
+    std::vector<std::uint32_t> result(values.size());
+    for (std::size_t index = 0u; index < values.size(); ++index) {
+        result[index] = offset + static_cast<std::uint32_t>(index);
+    }
+    return result;
+}
+
+const RobotSemanticRole* role(
+    const RobotPack& robot,
+    const std::string_view id,
+    const RobotSemanticKind kind
+) {
+    const auto found = std::ranges::find_if(
+        robot.roles,
+        [&](const RobotSemanticRole& candidate) {
+            return candidate.id == id && candidate.kind == kind;
+        }
+    );
+    return found == robot.roles.end() ? nullptr : &*found;
+}
+
+bool validRoles(const RobotPack& robot, std::string& reason) {
+    std::unordered_set<std::string> ids;
+    for (const RobotSemanticRole& semantic : robot.roles) {
+        if (semantic.id.empty() || semantic.members.empty() ||
+            !ids.insert(semantic.id).second) {
+            reason = "robot semantic roles must have unique nonempty identities";
+            return false;
+        }
+        const std::vector<std::string>* names = nullptr;
+        switch (semantic.kind) {
+        case RobotSemanticKind::body:
+            names = &robot.mechanics.bodyNames;
+            break;
+        case RobotSemanticKind::joint:
+            names = &robot.mechanics.jointNames;
+            break;
+        case RobotSemanticKind::dof:
+            names = &robot.mechanics.dofNames;
+            break;
+        }
+        std::unordered_set<std::string> members;
+        for (const std::string& member : semantic.members) {
+            if (!members.insert(member).second ||
+                std::ranges::count(*names, member) != 1) {
+                reason = "robot semantic role '" + semantic.id +
+                    "' contains a duplicate or unresolved member '" +
+                    member + "'";
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+std::uint64_t sensorFingerprint(
+    const std::span<const SensorSpec> sensors
+) {
+    Hash hash;
+    hash.scalar<std::uint64_t>(sensors.size());
+    for (const SensorSpec& sensor : sensors) {
+        hash.string(sensor.id);
+        hash.string(sensor.parentAssetId);
+        hash.scalar(sensor.parentKind);
+        hash.scalar(sensor.parentBodyIndex);
+        hash.scalar(sensor.kind);
+        hash.scalar(sensor.localPose.position);
+        hash.scalar(sensor.localPose.orientation);
+        hash.scalar(sensor.width);
+        hash.scalar(sensor.height);
+        hash.scalar(sensor.intrinsics);
+        hash.scalar(sensor.distortion);
+        hash.scalar(sensor.focalScale);
+        hash.scalar(sensor.colorNoiseSigma);
+        hash.scalar(sensor.depthNoiseSigma);
+        hash.scalar(sensor.depthDropout);
+        hash.scalar(sensor.latencySeconds);
+        hash.scalar(sensor.nominalRateHz);
+        hash.scalar(sensor.exposureSeconds);
+        hash.scalar(sensor.shutterReadoutSeconds);
+        hash.scalar(sensor.shutterModel);
+        hash.scalar(sensor.shutterDirection);
+        hash.scalar(sensor.frameJitterSeconds);
+        hash.scalar(sensor.minimumDepthMeters);
+        hash.scalar(sensor.maximumDepthMeters);
+        hash.scalar(sensor.depthQuantumMeters);
+        hash.scalar(sensor.motionBlurScale);
+    }
+    return hash.finish();
+}
+
+bool anyCapacity(const MetalWorldCapacityProfile& capacity) {
+    const MetalWorldCapacityProfile empty{};
+    return std::memcmp(&capacity, &empty, sizeof(capacity)) != 0;
+}
+
+MRWorldCollisionRepresentation collisionRepresentation(
+    const EngineModel& model
+) {
+    if (std::ranges::any_of(model.shapes, [](const MRShapeGPU& shape) {
+            return shape.shapeType == MR_SHAPE_TRIANGLE_MESH;
+        })) {
+        return MR_WORLD_COLLISION_TRIANGLE_MESH;
+    }
+    if (std::ranges::any_of(model.shapes, [](const MRShapeGPU& shape) {
+            return shape.shapeType == MR_SHAPE_CONVEX;
+        })) {
+        return MR_WORLD_COLLISION_CONVEX;
+    }
+    return model.shapes.empty()
+        ? MR_WORLD_COLLISION_NONE
+        : MR_WORLD_COLLISION_PRIMITIVES;
+}
+
+RobotPack genericRobot(
+    std::string id,
+    EngineModel mechanics,
+    std::vector<std::string> capabilities
+) {
+    RobotPack pack;
+    pack.id = std::move(id);
+    pack.mechanics = std::move(mechanics);
+    pack.capabilities = std::move(capabilities);
+    pack.roles.push_back({
+        .id = "whole_body",
+        .kind = RobotSemanticKind::body,
+        .members = pack.mechanics.bodyNames,
+    });
+    pack.roles.push_back({
+        .id = "all_joints",
+        .kind = RobotSemanticKind::joint,
+        .members = pack.mechanics.jointNames,
+    });
+    pack.roles.push_back({
+        .id = "all_dofs",
+        .kind = RobotSemanticKind::dof,
+        .members = pack.mechanics.dofNames,
+    });
+    return pack;
+}
+
+void addBodyRole(
+    RobotPack& pack,
+    std::string id,
+    std::initializer_list<std::string_view> members
+) {
+    std::vector<std::string> resolved;
+    for (const std::string_view member : members) {
+        if (std::ranges::count(pack.mechanics.bodyNames, member) == 1) {
+            resolved.emplace_back(member);
+        }
+    }
+    if (!resolved.empty()) {
+        pack.roles.push_back({
+            .id = std::move(id),
+            .kind = RobotSemanticKind::body,
+            .members = std::move(resolved),
+        });
+    }
+}
+
+} // namespace
+
+bool CompiledRun::valid() const noexcept {
+    return fingerprint_ != 0u && robotFingerprint_ != 0u &&
+        sensorFingerprint_ != 0u && world_.valid() && task_.valid() &&
+        (!boundPolicy_.has_value() || policy_.valid());
+}
+
+std::uint64_t CompiledRun::fingerprint() const noexcept {
+    return valid() ? fingerprint_ : 0u;
+}
+std::uint64_t CompiledRun::robotFingerprint() const noexcept {
+    return valid() ? robotFingerprint_ : 0u;
+}
+std::uint64_t CompiledRun::sensorFingerprint() const noexcept {
+    return valid() ? sensorFingerprint_ : 0u;
+}
+const WorldFamily& CompiledRun::worldFamily() const noexcept {
+    return worldFamily_;
+}
+const CompiledWorld& CompiledRun::world() const noexcept { return world_; }
+const CompiledTaskProgram& CompiledRun::task() const noexcept { return task_; }
+const CompiledPolicyProgram& CompiledRun::policy() const noexcept {
+    return policy_;
+}
+const PolicyPack* CompiledRun::boundPolicy() const noexcept {
+    return boundPolicy_ ? &*boundPolicy_ : nullptr;
+}
+const RunProfile& CompiledRun::profile() const noexcept { return profile_; }
+const TeacherPack& CompiledRun::teacher() const noexcept { return teacher_; }
+
+RunCompileDiagnostics compileRun(
+    const RunManifest& manifest,
+    CompiledRun& output
+) {
+    try {
+        if (manifest.id.empty() || manifest.robot.id.empty() ||
+            manifest.scene.id.empty() || manifest.task.id.empty() ||
+            manifest.profile.id.empty() ||
+            manifest.profile.environmentCount == 0u ||
+            manifest.profile.controlSteps == 0u ||
+            manifest.profile.physicsSubsteps == 0u ||
+            !std::isfinite(manifest.profile.controlTimestepSeconds) ||
+            !(manifest.profile.controlTimestepSeconds > 0.0f)) {
+            return reject(
+                RunCompileStatus::invalidManifest,
+                "manifest",
+                "run identity, package identities, execution counts, or timestep are invalid"
+            );
+        }
+        std::string reason;
+        if (manifest.robot.revision == 0u ||
+            !manifest.robot.mechanics.valid(&reason) ||
+            manifest.robot.primaryArticulationIndex >=
+                manifest.robot.mechanics.articulations.size() ||
+            !validRoles(manifest.robot, reason)) {
+            return reject(
+                RunCompileStatus::invalidRobot,
+                manifest.robot.id,
+                reason.empty() ? "robot package is invalid" : reason
+            );
+        }
+
+        std::vector<EngineModelComponent> components;
+        components.reserve(1u + manifest.scene.objects.size());
+        components.push_back({
+            &manifest.robot.mechanics,
+            manifest.robot.id,
+            true,
+        });
+        for (const SceneObject& object : manifest.scene.objects) {
+            if (object.id.empty() || object.semanticClass.empty() ||
+                !object.mechanics.valid(&reason)) {
+                return reject(
+                    RunCompileStatus::invalidManifest,
+                    object.id,
+                    reason.empty() ? "scene object is invalid" : reason
+                );
+            }
+            components.push_back({&object.mechanics, object.id});
+        }
+        EngineModelComposeConfig compose = manifest.profile.physics;
+        compose.name = manifest.id;
+        compose.gravityAndTimestep.w =
+            manifest.profile.controlTimestepSeconds /
+            static_cast<float>(manifest.profile.physicsSubsteps);
+        EngineModel model;
+        const EngineModelComposeDiagnostics composition =
+            composeEngineModels(components, model, compose);
+        if (!composition.succeeded()) {
+            return reject(
+                RunCompileStatus::compositionFailure,
+                "scene",
+                composition.message
+            );
+        }
+
+        EpisodeTwin episode;
+        episode.id = manifest.id;
+        WorldAsset robotAsset;
+        robotAsset.id = manifest.robot.id;
+        robotAsset.semanticClass = "robot";
+        robotAsset.role = MR_WORLD_ASSET_ROBOT;
+        robotAsset.collision = collisionRepresentation(
+            manifest.robot.mechanics
+        );
+        robotAsset.dynamics = MR_WORLD_DYNAMICS_ARTICULATED;
+        robotAsset.articulationIndex =
+            manifest.robot.primaryArticulationIndex;
+        robotAsset.bodyIndices = indices(manifest.robot.mechanics.bodies);
+        robotAsset.shapeIndices = indices(manifest.robot.mechanics.shapes);
+        robotAsset.materialIndices = indices(manifest.robot.mechanics.materials);
+        episode.assets.push_back(std::move(robotAsset));
+
+        std::uint32_t bodyOffset = static_cast<std::uint32_t>(
+            manifest.robot.mechanics.bodies.size()
+        );
+        std::uint32_t shapeOffset = static_cast<std::uint32_t>(
+            manifest.robot.mechanics.shapes.size()
+        );
+        std::uint32_t materialOffset = static_cast<std::uint32_t>(
+            manifest.robot.mechanics.materials.size()
+        );
+        std::uint32_t articulationOffset = static_cast<std::uint32_t>(
+            manifest.robot.mechanics.articulations.size()
+        );
+        for (const SceneObject& object : manifest.scene.objects) {
+            WorldAsset asset;
+            asset.id = object.id;
+            asset.semanticClass = object.semanticClass;
+            asset.role = object.role;
+            asset.render = object.render;
+            asset.collision = object.collision;
+            asset.dynamics = object.dynamics;
+            asset.articulationIndex = object.mechanics.articulations.empty()
+                ? MR_INVALID_INDEX
+                : articulationOffset;
+            asset.bodyIndices = indices(object.mechanics.bodies, bodyOffset);
+            asset.shapeIndices = indices(object.mechanics.shapes, shapeOffset);
+            asset.materialIndices = indices(
+                object.mechanics.materials,
+                materialOffset
+            );
+            episode.assets.push_back(std::move(asset));
+            bodyOffset += static_cast<std::uint32_t>(object.mechanics.bodies.size());
+            shapeOffset += static_cast<std::uint32_t>(object.mechanics.shapes.size());
+            materialOffset += static_cast<std::uint32_t>(object.mechanics.materials.size());
+            articulationOffset += static_cast<std::uint32_t>(object.mechanics.articulations.size());
+        }
+
+        episode.sensors = manifest.sensors.worldSensors;
+        std::unordered_set<std::string> sensorIds;
+        for (const SensorSpec& sensor : episode.sensors) {
+            if (!sensorIds.insert(sensor.id).second) {
+                return reject(RunCompileStatus::invalidManifest, sensor.id,
+                    "sensor identity is duplicated");
+            }
+        }
+        for (const MountedSensor& mounted : manifest.sensors.mounted) {
+            const RobotSemanticRole* mount = role(
+                manifest.robot,
+                mounted.mountRole,
+                RobotSemanticKind::body
+            );
+            if (mount == nullptr || mount->members.size() != 1u) {
+                return reject(
+                    RunCompileStatus::unresolvedRole,
+                    mounted.mountRole,
+                    "sensor mount must resolve to exactly one robot body"
+                );
+            }
+            const auto body = std::ranges::find(
+                manifest.robot.mechanics.bodyNames,
+                mount->members.front()
+            );
+            SensorSpec sensor = mounted.sensor;
+            if (sensor.id.empty() || !sensorIds.insert(sensor.id).second) {
+                return reject(RunCompileStatus::invalidManifest, sensor.id,
+                    "mounted sensor identity is empty or duplicated");
+            }
+            sensor.parentAssetId = manifest.robot.id;
+            sensor.parentBodyIndex = static_cast<std::uint32_t>(
+                body - manifest.robot.mechanics.bodyNames.begin()
+            );
+            sensor.parentKind = MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK;
+            episode.sensors.push_back(std::move(sensor));
+        }
+        episode.task = {
+            .id = manifest.task.id,
+            .robotAssetId = manifest.robot.id,
+            .controlPeriodSeconds = manifest.profile.controlTimestepSeconds,
+            .horizonSeconds = static_cast<double>(
+                manifest.profile.controlTimestepSeconds
+            ) * manifest.task.maximumEpisodeSteps,
+        };
+
+        WorldTemplate worldTemplate;
+        const WorldCompileResult twin = compileEpisodeTwin(
+            episode,
+            model,
+            worldTemplate
+        );
+        if (!twin.succeeded()) {
+            return reject(RunCompileStatus::worldFailure, "world", twin.message);
+        }
+        WorldProgram program = manifest.reality.program;
+        if (program.id.empty()) {
+            program.id = manifest.reality.id.empty()
+                ? manifest.id + ".reality"
+                : manifest.reality.id;
+        }
+        WorldFamily family;
+        const WorldCompileResult familyStatus = compileWorldFamily(
+            worldTemplate,
+            program,
+            family
+        );
+        if (!familyStatus.succeeded()) {
+            return reject(RunCompileStatus::worldFailure, "reality",
+                familyStatus.message);
+        }
+
+        CompiledRun staged;
+        const MetalWorldCapacityProfile capacities =
+            anyCapacity(manifest.profile.capacities)
+            ? manifest.profile.capacities
+            : manifest.task.capacities;
+        const MetalWorldCompileDiagnostics worldStatus = compileMetalWorld(
+            model,
+            manifest.robot.primaryArticulationIndex,
+            staged.world_,
+            capacities
+        );
+        if (!worldStatus.succeeded()) {
+            return reject(RunCompileStatus::worldFailure, "physics",
+                worldStatus.message);
+        }
+        const TaskCompileDiagnostics taskStatus = compileTaskProgram(
+            manifest.task,
+            staged.world_,
+            staged.task_
+        );
+        if (!taskStatus.succeeded()) {
+            return reject(RunCompileStatus::taskFailure, taskStatus.element,
+                taskStatus.message);
+        }
+        if (manifest.policy) {
+            PolicyPack bound = *manifest.policy;
+            if (bound.contract.version == 0u) {
+                bindPolicyPack(bound, staged.task_);
+            }
+            const PolicyCompileDiagnostics policyStatus =
+                compilePolicyProgram(bound, staged.task_, staged.policy_);
+            if (!policyStatus.succeeded()) {
+                return reject(RunCompileStatus::policyFailure,
+                    policyStatus.element, policyStatus.message);
+            }
+            staged.boundPolicy_ = std::move(bound);
+        }
+        staged.worldFamily_ = std::move(family);
+        staged.profile_ = manifest.profile;
+        staged.profile_.physics = compose;
+        staged.teacher_ = manifest.teacher;
+        staged.robotFingerprint_ = engineModelFingerprint(
+            manifest.robot.mechanics
+        );
+        staged.sensorFingerprint_ = sensorFingerprint(episode.sensors);
+        Hash runHash;
+        runHash.string(manifest.id);
+        runHash.scalar(staged.robotFingerprint_);
+        runHash.scalar(staged.sensorFingerprint_);
+        runHash.scalar(staged.worldFamily_.fingerprint);
+        runHash.scalar(staged.world_.fingerprint());
+        runHash.scalar(staged.task_.fingerprint());
+        runHash.scalar(staged.policy_.fingerprint());
+        runHash.string(staged.profile_.id);
+        runHash.scalar(staged.profile_.environmentCount);
+        runHash.scalar(staged.profile_.controlSteps);
+        runHash.scalar(staged.profile_.physicsSubsteps);
+        runHash.scalar(staged.profile_.controlTimestepSeconds);
+        runHash.scalar(staged.profile_.seed);
+        runHash.string(staged.teacher_.id);
+        runHash.scalar(staged.teacher_.kind);
+        runHash.scalar(staged.teacher_.artifactFingerprint);
+        staged.fingerprint_ = runHash.finish();
+        output = std::move(staged);
+        return {};
+    } catch (const std::bad_alloc&) {
+        return reject(RunCompileStatus::internalFailure, "allocation",
+            "run compilation allocation failed");
+    } catch (const std::exception& error) {
+        return reject(RunCompileStatus::internalFailure, "exception", error.what());
+    }
+}
+
+std::vector<std::string> builtinRobotIds() {
+    return {"unitree_g1", "franka_panda", "dvrk_psm"};
+}
+
+std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
+    if (id == "unitree_g1") {
+        RobotPack pack = genericRobot(
+            "unitree_g1",
+            makeUnitreeG1EngineModel(),
+            {"balance", "locomotion", "whole_body_motion", "manipulation"}
+        );
+        const G1ModelMetadata& metadata = unitreeG1Metadata();
+        pack.sourceRepository = std::string(metadata.sourceRepository);
+        pack.sourceRevision = std::string(metadata.sourceCommit);
+        pack.license = std::string(metadata.sourceLicense);
+        addBodyRole(pack, "left_foot", {"left_ankle_roll_link"});
+        addBodyRole(pack, "right_foot", {"right_ankle_roll_link"});
+        addBodyRole(pack, "pelvis", {"pelvis"});
+        addBodyRole(pack, "left_hand", {"left_wrist_yaw_link"});
+        addBodyRole(pack, "right_hand", {"right_wrist_yaw_link"});
+        return pack;
+    }
+    if (id == "franka_panda") {
+        RobotPack pack = genericRobot(
+            "franka_panda",
+            makeFrankaPandaHandEngineModel(),
+            {"manipulation", "grasping", "force_control"}
+        );
+        addBodyRole(pack, "base", {"panda_link0"});
+        addBodyRole(pack, "gripper", {"panda_hand"});
+        return pack;
+    }
+    if (id == "dvrk_psm") {
+        RobotPack pack = genericRobot(
+            "dvrk_psm",
+            makeDvrkPsmLargeNeedleDriverEngineModel(),
+            {"surgical_research", "grasping", "remote_center_motion"}
+        );
+        const SurgicalPSMModelMetadata& metadata = surgicalPSMMetadata();
+        pack.sourceRepository = std::string(metadata.orbitRepository);
+        pack.sourceRevision = std::string(metadata.orbitCommit);
+        pack.license = std::string(metadata.orbitLicense);
+        return pack;
+    }
+    return std::nullopt;
+}
+
+const char* runCompileStatusName(const RunCompileStatus status) noexcept {
+    switch (status) {
+    case RunCompileStatus::success: return "success";
+    case RunCompileStatus::invalidManifest: return "invalid_manifest";
+    case RunCompileStatus::invalidRobot: return "invalid_robot";
+    case RunCompileStatus::unresolvedRole: return "unresolved_role";
+    case RunCompileStatus::compositionFailure: return "composition_failure";
+    case RunCompileStatus::worldFailure: return "world_failure";
+    case RunCompileStatus::taskFailure: return "task_failure";
+    case RunCompileStatus::policyFailure: return "policy_failure";
+    case RunCompileStatus::internalFailure: return "internal_failure";
+    }
+    return "unknown";
+}
+
+} // namespace metalrobo

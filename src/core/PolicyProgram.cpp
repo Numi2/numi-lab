@@ -199,6 +199,24 @@ CompiledPolicyProgram::arena() const noexcept {
         : std::span<const std::byte>{};
 }
 
+void bindPolicyPack(
+    PolicyPack& pack,
+    const CompiledTaskProgram& task
+) {
+    if (!task.valid()) {
+        pack.contract = {};
+        return;
+    }
+    pack.contract = {
+        .version = 1u,
+        .worldFingerprint = task.worldFingerprint(),
+        .taskFingerprint = task.fingerprint(),
+        .observationFingerprint =
+            task.observationFingerprint(),
+        .actionFingerprint = task.actionFingerprint(),
+    };
+}
+
 PolicyCompileDiagnostics compilePolicyProgram(
     const PolicyPack& pack,
     const CompiledTaskProgram& task,
@@ -230,6 +248,32 @@ PolicyCompileDiagnostics compilePolicyProgram(
             PolicyCompileStatus::invalidPack,
             "policy",
             "policy identity, revision, networks, distribution, or clipping is invalid"
+        );
+    }
+    const bool legacyContract = pack.contract.version == 0u &&
+        pack.contract.worldFingerprint == 0u &&
+        pack.contract.taskFingerprint == 0u &&
+        pack.contract.observationFingerprint == 0u &&
+        pack.contract.actionFingerprint == 0u;
+    if (!legacyContract && !pack.contract.exact()) {
+        return reject(
+            PolicyCompileStatus::invalidPack,
+            "contract",
+            "policy contract must be either an intact legacy marker or a complete version-1 binding"
+        );
+    }
+    if (pack.contract.exact() &&
+        (pack.contract.worldFingerprint !=
+             task.worldFingerprint() ||
+         pack.contract.taskFingerprint != task.fingerprint() ||
+         pack.contract.observationFingerprint !=
+             task.observationFingerprint() ||
+         pack.contract.actionFingerprint !=
+             task.actionFingerprint())) {
+        return reject(
+            PolicyCompileStatus::incompatibleContract,
+            "contract",
+            "policy is bound to different world, task, observation, or action semantics"
         );
     }
     if ((!pack.observationMean.empty() &&
@@ -745,6 +789,13 @@ PolicyCompileDiagnostics compilePolicyProgram(
 
     Hash hash;
     hash.string(pack.id);
+    if (pack.contract.exact()) {
+        hash.scalar(pack.contract.version);
+        hash.scalar(pack.contract.worldFingerprint);
+        hash.scalar(pack.contract.taskFingerprint);
+        hash.scalar(pack.contract.observationFingerprint);
+        hash.scalar(pack.contract.actionFingerprint);
+    }
     hash.scalar(staged->header);
     hash.bytes(staged->arena.data(), staged->arena.size());
     staged->fingerprint = hash.finish();

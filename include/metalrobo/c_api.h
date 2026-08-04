@@ -140,6 +140,10 @@ typedef struct MRTaskRolloutLayoutC {
     uint32_t scene_body_count;
     uint32_t motion_feature_count;
     uint32_t maximum_episode_steps;
+    uint64_t world_fingerprint;
+    uint64_t task_fingerprint;
+    uint64_t observation_fingerprint;
+    uint64_t action_fingerprint;
     uint64_t submitted_control_steps;
     uint64_t completed_environment_steps;
     uint64_t submission_count;
@@ -267,6 +271,11 @@ typedef struct MRPolicyDenseLayerC {
 typedef struct MRPolicyPackC {
     const char* id;
     uint64_t revision;
+    uint64_t contract_version;
+    uint64_t world_fingerprint;
+    uint64_t task_fingerprint;
+    uint64_t observation_fingerprint;
+    uint64_t action_fingerprint;
     const float* observation_mean;
     size_t observation_mean_count;
     const float* observation_inverse_standard_deviation;
@@ -654,6 +663,9 @@ MR_API int mr_task_rollout_advance(
     MRTaskRolloutAdvanceC* advance
 );
 MR_API MRTaskRolloutLayoutC mr_task_rollout_layout(
+    const MRTaskRolloutHandle* handle
+);
+MR_API const char* mr_task_rollout_task_id(
     const MRTaskRolloutHandle* handle
 );
 MR_API const char* mr_task_rollout_device_name(

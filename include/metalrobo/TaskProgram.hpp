@@ -435,6 +435,8 @@ public:
     [[nodiscard]] bool valid() const noexcept;
     [[nodiscard]] std::uint64_t fingerprint() const noexcept;
     [[nodiscard]] std::uint64_t worldFingerprint() const noexcept;
+    [[nodiscard]] std::uint64_t observationFingerprint() const noexcept;
+    [[nodiscard]] std::uint64_t actionFingerprint() const noexcept;
     [[nodiscard]] const TaskProgramLayout& layout() const noexcept;
     [[nodiscard]] const MRTaskProgramHeaderGPU& header() const noexcept;
     [[nodiscard]] std::span<const MRTaskActionBindingGPU>

@@ -569,6 +569,7 @@ add_library(
     src/core/CpuDynamics.cpp
     src/core/EngineModel.cpp
     src/core/EngineModelComposer.cpp
+    src/core/RunProgram.cpp
     src/core/ParallelABASchedule.cpp
     src/core/CompiledMetalMultiArticulatedProgram.cpp
     src/core/CompiledMetalMultiArticulatedContactProgram.cpp
@@ -794,6 +795,34 @@ set_target_properties(
 add_executable(
     metalrobo_task_program_check
     apps/task_program_check.cpp
+)
+
+add_executable(
+    metalrobo_run_program_check
+    apps/run_program_check.cpp
+)
+add_executable(
+    metalrobo_robot_catalog
+    apps/robot_catalog.cpp
+)
+target_link_libraries(metalrobo_robot_catalog PRIVATE metalrobo)
+set_target_properties(
+    metalrobo_robot_catalog
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+target_link_libraries(
+    metalrobo_run_program_check
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_run_program_check
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
 )
 target_link_libraries(
     metalrobo_task_program_check
@@ -2080,6 +2109,7 @@ install(
         metalrobo_episode_compile
         metalrobo_visual_cook
         metalrobo_environment_cook
+        metalrobo_robot_catalog
 )
 if(METALROBO_HAS_SWIFT)
     install(
@@ -2095,6 +2125,7 @@ install(
         numi/commands/train
         numi/commands/evaluate
         numi/commands/foundation
+        numi/commands/robots
     DESTINATION libexec/numi
 )
 install(

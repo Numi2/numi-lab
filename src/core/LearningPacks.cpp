@@ -294,14 +294,14 @@ LearningPackResult validatePolicyArtifact(
 ) {
     if (pack.id.empty() || !stringFits(pack.id) ||
         pack.revision == 0u ||
-        pack.layers.empty() ||
+        pack.layers.empty() || !pack.contract.exact() ||
         !std::isfinite(pack.observationClip) ||
         !(pack.observationClip > 0.0f) ||
         !std::isfinite(pack.actionClip) ||
         !(pack.actionClip > 0.0f)) {
         return fail(
             LearningPackStatus::invalidPack,
-            "PolicyPack identity, revision, layers, or clipping is invalid"
+            "PolicyPack identity, exact semantic contract, revision, layers, or clipping is invalid"
         );
     }
     if (!countFits(pack.layers.size()) ||
@@ -1464,15 +1464,21 @@ std::vector<std::byte> serializePolicy(
     writer.vector(pack.actionScale);
     writer.pod(pack.observationClip);
     writer.pod(pack.actionClip);
+    writer.pod(pack.contract.version);
+    writer.pod(pack.contract.worldFingerprint);
+    writer.pod(pack.contract.taskFingerprint);
+    writer.pod(pack.contract.observationFingerprint);
+    writer.pod(pack.contract.actionFingerprint);
     return writer.data();
 }
 
 bool deserializePolicy(
     const std::span<const std::byte> payload,
-    PolicyPack& pack
+    PolicyPack& pack,
+    const std::uint32_t formatVersion
 ) {
     Reader reader{payload};
-    return reader.string(pack.id) &&
+    if (!(reader.string(pack.id) &&
         reader.pod(pack.revision) &&
         reader.vector(pack.observationMean) &&
         reader.vector(
@@ -1508,7 +1514,20 @@ bool deserializePolicy(
         reader.vector(pack.actionBias) &&
         reader.vector(pack.actionScale) &&
         reader.pod(pack.observationClip) &&
-        reader.pod(pack.actionClip) &&
+        reader.pod(pack.actionClip))) {
+        return false;
+    }
+    if (formatVersion < 4u && reader.finished()) {
+        pack.contract = {};
+        return true;
+    }
+    return formatVersion == 4u &&
+        reader.pod(pack.contract.version) &&
+        reader.pod(pack.contract.worldFingerprint) &&
+        reader.pod(pack.contract.taskFingerprint) &&
+        reader.pod(pack.contract.observationFingerprint) &&
+        reader.pod(pack.contract.actionFingerprint) &&
+        pack.contract.exact() &&
         reader.finished();
 }
 
@@ -1855,7 +1874,8 @@ LearningPackResult readPack(
     const std::uint32_t expectedKind,
     const std::uint32_t expectedVersion,
     Pack& output,
-    Deserialize&& deserialize
+    Deserialize&& deserialize,
+    const std::uint32_t minimumVersion = 0u
 ) {
     try {
         std::error_code sizeError;
@@ -1884,7 +1904,11 @@ LearningPackResult readPack(
                 "learning pack header or kind is invalid"
             );
         }
-        if (header.formatVersion != expectedVersion) {
+        const std::uint32_t oldest = minimumVersion == 0u
+            ? expectedVersion
+            : minimumVersion;
+        if (header.formatVersion < oldest ||
+            header.formatVersion > expectedVersion) {
             return fail(
                 LearningPackStatus::unsupportedVersion,
                 "learning pack wire version is unsupported"
@@ -1917,7 +1941,27 @@ LearningPackResult readPack(
             );
         }
         Pack candidate;
-        if (!deserialize(payload, candidate)) {
+        const bool decoded = [&] {
+            if constexpr (std::is_invocable_r_v<
+                    bool,
+                    Deserialize,
+                    std::span<const std::byte>,
+                    Pack&,
+                    std::uint32_t
+                >) {
+                return deserialize(
+                    std::span<const std::byte>{payload},
+                    candidate,
+                    header.formatVersion
+                );
+            } else {
+                return deserialize(
+                    std::span<const std::byte>{payload},
+                    candidate
+                );
+            }
+        }();
+        if (!decoded) {
             return fail(
                 LearningPackStatus::corruptPayload,
                 "learning pack payload is malformed"
@@ -2029,7 +2073,8 @@ LearningPackResult readPolicyPack(
         kPolicyKind,
         kPolicyPackFormatVersion,
         output,
-        deserializePolicy
+        deserializePolicy,
+        3u
     );
 }
 

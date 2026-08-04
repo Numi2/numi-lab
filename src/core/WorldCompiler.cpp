@@ -1247,17 +1247,25 @@ bool WorldTemplate::valid(std::string* reason) const {
         return fail(reason, "world template task is invalid");
     }
     const std::uint32_t robot = assetIndex(task.robotAssetId);
-    const std::uint32_t manipulated = assetIndex(task.manipulatedAssetId);
-    const std::uint32_t target = assetIndex(task.targetAssetId);
     if (robot == MR_INVALID_INDEX ||
-        manipulated == MR_INVALID_INDEX ||
-        target == MR_INVALID_INDEX) {
-        return fail(reason, "task references an unknown asset");
+        assets[robot].role != MR_WORLD_ASSET_ROBOT) {
+        return fail(reason, "task references an unknown robot asset");
     }
-    if (assets[robot].role != MR_WORLD_ASSET_ROBOT ||
-        assets[manipulated].role != MR_WORLD_ASSET_MANIPULATED ||
-        findAnchor(assets[target], task.targetAnchorId) == MR_INVALID_INDEX) {
-        return fail(reason, "task asset roles or target anchor are invalid");
+    const bool objectTask = !task.manipulatedAssetId.empty() ||
+        !task.targetAssetId.empty() || !task.targetAnchorId.empty();
+    if (objectTask) {
+        const std::uint32_t manipulated =
+            assetIndex(task.manipulatedAssetId);
+        const std::uint32_t target = assetIndex(task.targetAssetId);
+        if (manipulated == MR_INVALID_INDEX ||
+            target == MR_INVALID_INDEX) {
+            return fail(reason, "task references an unknown object asset");
+        }
+        if (assets[manipulated].role != MR_WORLD_ASSET_MANIPULATED ||
+            findAnchor(assets[target], task.targetAnchorId) ==
+                MR_INVALID_INDEX) {
+            return fail(reason, "task object roles or target anchor are invalid");
+        }
     }
     return true;
 }

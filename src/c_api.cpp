@@ -111,6 +111,7 @@ struct MRTaskRolloutHandle {
     std::unique_ptr<MRTaskVisualRuntime> visualRuntime;
     std::string deviceName;
     std::string metallibPath;
+    std::string taskId;
     std::uint32_t environmentCount = 0u;
     std::uint64_t submittedControlSteps = 0u;
     std::uint64_t completedEnvironmentSteps = 0u;
@@ -1046,6 +1047,7 @@ createCompiledTaskRollout(
         std::move(authored.sceneBodies);
     handle->world = std::move(compiled.world);
     handle->taskProgram = std::move(compiled.task);
+    handle->taskId = authored.task.id;
     if (handle->world.sceneBodyCount() !=
             handle->defaultSceneBodies.size()) {
         throw std::runtime_error(
@@ -1127,6 +1129,13 @@ metalrobo::PolicyPack policyPackFromC(
     metalrobo::PolicyPack authored;
     authored.id = policy.id;
     authored.revision = policy.revision;
+    authored.contract = {
+        .version = policy.contract_version,
+        .worldFingerprint = policy.world_fingerprint,
+        .taskFingerprint = policy.task_fingerprint,
+        .observationFingerprint = policy.observation_fingerprint,
+        .actionFingerprint = policy.action_fingerprint,
+    };
     authored.observationMean = copyPolicyFloats(
         policy.observation_mean,
         policy.observation_mean_count,
@@ -2634,10 +2643,15 @@ int mr_task_rollout_set_policy(
         return -1;
     }
     return translateErrors([&] {
-        installPolicyPack(
-            *handle,
-            policyPackFromC(*policy)
-        );
+        metalrobo::PolicyPack authored =
+            policyPackFromC(*policy);
+        if (authored.contract.version == 0u) {
+            metalrobo::bindPolicyPack(
+                authored,
+                handle->taskProgram
+            );
+        }
+        installPolicyPack(*handle, authored);
     });
 }
 
@@ -3136,6 +3150,14 @@ MRTaskRolloutLayoutC mr_task_rollout_layout(
         handle->taskProgram.layout().motionFeatureCount;
     result.maximum_episode_steps =
         handle->taskProgram.header().schedule.x;
+    result.world_fingerprint =
+        handle->taskProgram.worldFingerprint();
+    result.task_fingerprint =
+        handle->taskProgram.fingerprint();
+    result.observation_fingerprint =
+        handle->taskProgram.observationFingerprint();
+    result.action_fingerprint =
+        handle->taskProgram.actionFingerprint();
     result.submitted_control_steps =
         handle->submittedControlSteps;
     result.completed_environment_steps =
@@ -3157,6 +3179,16 @@ MRTaskRolloutLayoutC mr_task_rollout_layout(
     result.total_submission_milliseconds =
         handle->totalSubmissionMilliseconds;
     return result;
+}
+
+const char* mr_task_rollout_task_id(
+    const MRTaskRolloutHandle* handle
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return nullptr;
+    }
+    gLastError.clear();
+    return handle->taskId.c_str();
 }
 
 const char* mr_task_rollout_device_name(

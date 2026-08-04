@@ -2129,6 +2129,7 @@ int main(const int argc, const char* const* argv) {
             layout.actionCount,
             -0.5f
         );
+        metalrobo::bindPolicyPack(policy, program);
         metalrobo::CompiledPolicyProgram compiledPolicy;
         const metalrobo::PolicyCompileDiagnostics
             policyStatus = metalrobo::compilePolicyProgram(
@@ -2153,6 +2154,19 @@ int main(const int argc, const char* const* argv) {
             compiledPolicy.actorLayers().size() != 2u ||
             compiledPolicy.criticLayers().size() != 2u) {
             fail("generic PolicyPack compilation failed");
+        }
+        metalrobo::PolicyPack wrongContract = policy;
+        wrongContract.contract.actionFingerprint ^= 1u;
+        const auto contractRejected =
+            metalrobo::compilePolicyProgram(
+                wrongContract,
+                program,
+                compiledPolicy
+            );
+        if (contractRejected.status !=
+                metalrobo::PolicyCompileStatus::incompatibleContract ||
+            compiledPolicy.fingerprint() == 0u) {
+            fail("semantic PolicyPack mismatch was not rejected");
         }
         metalrobo::PolicyPack badPolicy = policy;
         --badPolicy.layers.front().inputCount;

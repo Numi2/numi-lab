@@ -13690,6 +13690,7 @@ MetalWorldDiagnostics validateAndPublish(
 
 bool CompiledWorld::valid() const noexcept {
     return fingerprint_ != 0u &&
+        modelFingerprint_ != 0u &&
         articulationIndex_ < model_.articulations.size() &&
         capacityClass_ != MetalWorldCapacityClass::uncompiled;
 }
@@ -13900,6 +13901,16 @@ MetalWorldCapacityClass CompiledWorld::capacityClass()
 
 std::uint64_t CompiledWorld::fingerprint() const noexcept {
     return fingerprint_;
+}
+
+std::uint64_t CompiledWorld::modelFingerprint() const noexcept {
+    return valid() ? modelFingerprint_ : 0u;
+}
+
+std::uint64_t engineModelFingerprint(
+    const EngineModel& model
+) noexcept {
+    return model.valid(nullptr) ? fingerprint(model) : 0u;
 }
 
 MetalWorldCompileDiagnostics compileMetalWorld(
@@ -14590,6 +14601,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             );
         }
 
+        staged.modelFingerprint_ = fingerprint(staged.model_);
         staged.fingerprint_ = compiledFingerprint(
             staged.model_,
             staged.capacities_,

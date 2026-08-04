@@ -537,6 +537,11 @@ public struct MetalRoboPolicyDenseLayer: Sendable {
 public struct MetalRoboPolicyPack: Sendable {
     public var id: String
     public var revision: UInt64
+    public var contractVersion: UInt64
+    public var worldFingerprint: UInt64
+    public var taskFingerprint: UInt64
+    public var observationFingerprint: UInt64
+    public var actionFingerprint: UInt64
     public var observationMean: [Float]
     public var observationInverseStandardDeviation: [Float]
     public var layers: [MetalRoboPolicyDenseLayer]
@@ -552,6 +557,11 @@ public struct MetalRoboPolicyPack: Sendable {
     public init(
         id: String,
         revision: UInt64,
+        contractVersion: UInt64 = 0,
+        worldFingerprint: UInt64 = 0,
+        taskFingerprint: UInt64 = 0,
+        observationFingerprint: UInt64 = 0,
+        actionFingerprint: UInt64 = 0,
         observationMean: [Float] = [],
         observationInverseStandardDeviation: [Float] = [],
         layers: [MetalRoboPolicyDenseLayer],
@@ -566,6 +576,11 @@ public struct MetalRoboPolicyPack: Sendable {
     ) {
         self.id = id
         self.revision = revision
+        self.contractVersion = contractVersion
+        self.worldFingerprint = worldFingerprint
+        self.taskFingerprint = taskFingerprint
+        self.observationFingerprint = observationFingerprint
+        self.actionFingerprint = actionFingerprint
         self.observationMean = observationMean
         self.observationInverseStandardDeviation =
             observationInverseStandardDeviation
@@ -654,6 +669,10 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
     public let sceneBodyCount: Int
     public let motionFeatureCount: Int
     public let maximumEpisodeSteps: Int
+    public let worldFingerprint: UInt64
+    public let taskFingerprint: UInt64
+    public let observationFingerprint: UInt64
+    public let actionFingerprint: UInt64
     public let submittedControlSteps: UInt64
     public let completedEnvironmentSteps: UInt64
     public let submissionCount: UInt64
@@ -678,6 +697,10 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
         sceneBodyCount = Int(native.scene_body_count)
         motionFeatureCount = Int(native.motion_feature_count)
         maximumEpisodeSteps = Int(native.maximum_episode_steps)
+        worldFingerprint = native.world_fingerprint
+        taskFingerprint = native.task_fingerprint
+        observationFingerprint = native.observation_fingerprint
+        actionFingerprint = native.action_fingerprint
         submittedControlSteps = native.submitted_control_steps
         completedEnvironmentSteps =
             native.completed_environment_steps
@@ -1186,6 +1209,13 @@ public final class MetalRoboTaskRolloutContext {
         )
     }
 
+    public var taskID: String {
+        guard let value = mr_task_rollout_task_id(handle) else {
+            return "unknown"
+        }
+        return String(cString: value)
+    }
+
     public var deviceName: String {
         String(cString: mr_task_rollout_device_name(handle))
     }
@@ -1322,6 +1352,12 @@ public final class MetalRoboTaskRolloutContext {
             }
         var native = MRPolicyPackC()
         native.revision = policy.revision
+        native.contract_version = policy.contractVersion
+        native.world_fingerprint = policy.worldFingerprint
+        native.task_fingerprint = policy.taskFingerprint
+        native.observation_fingerprint =
+            policy.observationFingerprint
+        native.action_fingerprint = policy.actionFingerprint
         native.observation_mean = copy(
             policy.observationMean
         )

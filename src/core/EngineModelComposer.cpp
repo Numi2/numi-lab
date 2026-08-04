@@ -430,6 +430,36 @@ bool appendGeometry(
     return true;
 }
 
+void appendSemanticNames(
+    std::vector<std::string>& destination,
+    const std::vector<std::string>& source,
+    const std::size_t count,
+    const std::string_view instanceId,
+    const std::string_view kind,
+    const bool preserve
+) {
+    destination.reserve(destination.size() + count);
+    for (std::size_t index = 0u; index < count; ++index) {
+        const std::string_view authored = source.empty()
+            ? std::string_view{}
+            : std::string_view{source[index]};
+        if (preserve && !authored.empty()) {
+            destination.emplace_back(authored);
+            continue;
+        }
+        std::string name{instanceId};
+        name.push_back('/');
+        if (!authored.empty()) {
+            name.append(authored);
+        } else {
+            name.append(kind);
+            name.push_back('_');
+            name.append(std::to_string(index));
+        }
+        destination.push_back(std::move(name));
+    }
+}
+
 } // namespace
 
 EngineModelComposeDiagnostics composeEngineModels(
@@ -825,6 +855,38 @@ EngineModelComposeDiagnostics composeEngineModels(
                 staged.defaultV.end(),
                 source.defaultV.begin(),
                 source.defaultV.end()
+            );
+            appendSemanticNames(
+                staged.bodyNames,
+                source.bodyNames,
+                source.bodies.size(),
+                component.instanceId,
+                "body",
+                component.preserveSemanticNames
+            );
+            appendSemanticNames(
+                staged.jointNames,
+                source.jointNames,
+                source.joints.size(),
+                component.instanceId,
+                "joint",
+                component.preserveSemanticNames
+            );
+            appendSemanticNames(
+                staged.dofNames,
+                source.dofNames,
+                source.dofs.size(),
+                component.instanceId,
+                "dof",
+                component.preserveSemanticNames
+            );
+            appendSemanticNames(
+                staged.shapeNames,
+                source.shapeNames,
+                source.shapes.size(),
+                component.instanceId,
+                "shape",
+                component.preserveSemanticNames
             );
             islandOffset += source.world.islandCapacity;
             std::uint32_t maximumEvent = 0u;

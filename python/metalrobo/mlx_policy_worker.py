@@ -734,6 +734,7 @@ def _serve(arguments: argparse.Namespace) -> int:
         _configuration(arguments),
         library_path=arguments.native_library,
     )
+    _bind_contract(learner, arguments)
     motion_prior = None
     if arguments.motion_pack is not None:
         motion_prior = MLXMotionPrior(
@@ -985,6 +986,7 @@ def _initialize(arguments: argparse.Namespace) -> int:
             )
     if arguments.zero_actor_output:
         learner.zero_actor_output()
+    _bind_contract(learner, arguments)
     artifact = learner.write_policy_pack(
         arguments.output,
         policy_id=arguments.policy_id,
@@ -1061,6 +1063,51 @@ def _add_ppo_arguments(parser: argparse.ArgumentParser) -> None:
     )
     parser.add_argument("--observation-clip", type=float, default=100.0)
     parser.add_argument("--seed", type=int, default=1)
+
+
+def _add_contract_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--world-fingerprint", type=_positive, required=True)
+    parser.add_argument("--task-fingerprint", type=_positive, required=True)
+    parser.add_argument(
+        "--observation-fingerprint", type=_positive, required=True
+    )
+    parser.add_argument("--action-fingerprint", type=_positive, required=True)
+
+
+def _bind_contract(
+    learner: MLXPolicyLearner,
+    arguments: argparse.Namespace,
+) -> None:
+    requested = (
+        int(arguments.world_fingerprint),
+        int(arguments.task_fingerprint),
+        int(arguments.observation_fingerprint),
+        int(arguments.action_fingerprint),
+    )
+    existing = (
+        learner.world_fingerprint,
+        learner.task_fingerprint,
+        learner.observation_fingerprint,
+        learner.action_fingerprint,
+    )
+    explicit_observation_migration = (
+        getattr(arguments, "actor_observation_extension_offset", None)
+        is not None
+    )
+    if (
+        learner.contract_version != 0
+        and existing != requested
+        and not explicit_observation_migration
+    ):
+        raise ValueError(
+            "PolicyPack is bound to different world, task, observation, or action semantics"
+        )
+    learner.bind_contract(
+        world_fingerprint=requested[0],
+        task_fingerprint=requested[1],
+        observation_fingerprint=requested[2],
+        action_fingerprint=requested[3],
+    )
 
 
 def _positive(value: str) -> int:
@@ -1144,6 +1191,7 @@ def main() -> int:
         type=Path,
         required=True,
     )
+    _add_contract_arguments(initialize)
     _add_ppo_arguments(initialize)
 
     serve = operations.add_parser(
@@ -1233,6 +1281,7 @@ def main() -> int:
     serve.add_argument(
         "--motion-reward-coefficient", type=float, default=0.3
     )
+    _add_contract_arguments(serve)
     _add_ppo_arguments(serve)
 
     arguments = parser.parse_args()

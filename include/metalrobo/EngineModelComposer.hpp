@@ -13,6 +13,9 @@ struct EngineModelComponent {
     const EngineModel* model = nullptr;
     // Stable instance identity participates in composed ConstraintIR keys.
     std::string_view instanceId;
+    // Preserve authored semantic names for the primary robot so existing task
+    // roles remain stable. Other components are namespaced by instanceId.
+    bool preserveSemanticNames = false;
 };
 
 struct EngineModelComposeConfig {

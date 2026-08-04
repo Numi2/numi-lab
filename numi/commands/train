@@ -126,8 +126,18 @@ numi_has_option --mlx-python "$@" || set -- --mlx-python "$numi_python" "$@"
 
 if ! numi_has_option --policy-pack "$@"; then
     set -- --policy-pack "$numi_run/initial.policypack" "$@"
-    numi_has_option --initialize-policy "$@" ||
-        set -- --initialize-policy unitree_g1_native_locomotion "$@"
+    if ! numi_has_option --initialize-policy "$@"; then
+        if numi_has_option --world-pack "$@" ||
+           numi_has_option --urdf "$@"; then
+            numi_task_pack=$(numi_option_value --task-pack "$@" || true)
+            numi_task_name=${numi_task_pack##*/}
+            numi_task_name=${numi_task_name%%.*}
+            [ -n "$numi_task_name" ] || numi_task_name=authored_task
+            set -- --initialize-policy "${numi_task_name}_brain" "$@"
+        else
+            set -- --initialize-policy unitree_g1_native_locomotion "$@"
+        fi
+    fi
 fi
 numi_has_option --updated-policy-pack "$@" ||
     set -- --updated-policy-pack "$numi_run/candidate.policypack" "$@"

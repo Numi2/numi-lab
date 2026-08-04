@@ -1,0 +1,35 @@
+#!/bin/sh
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf '%s\n' "List or inspect configurable robot packages and their physical capabilities."
+    exit 0
+fi
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+    printf '%s\n' "usage: numi robots [list | inspect ROBOT_ID]"
+    exit 0
+fi
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+numi_build=${NUMI_BUILD_DIR:-$numi_root/build}
+if [ -x "$numi_build/bin/metalrobo_robot_catalog" ]; then
+    numi_catalog=$numi_build/bin/metalrobo_robot_catalog
+else
+    numi_catalog=$numi_root/bin/metalrobo_robot_catalog
+fi
+[ -x "$numi_catalog" ] || {
+    printf 'numi robots: missing robot catalog; run numi doctor\n' >&2
+    exit 1
+}
+
+case "${1:-list}" in
+    list) [ "$#" -le 1 ] || exit 2; exec "$numi_catalog" ;;
+    inspect)
+        [ "$#" -eq 2 ] || {
+            printf '%s\n' "usage: numi robots inspect ROBOT_ID" >&2
+            exit 2
+        }
+        exec "$numi_catalog" "$2"
+        ;;
+    *) printf '%s\n' "usage: numi robots [list | inspect ROBOT_ID]" >&2; exit 2 ;;
+esac

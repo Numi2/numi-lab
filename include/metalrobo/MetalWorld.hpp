@@ -172,6 +172,7 @@ public:
     minimumCapacities() const noexcept;
     [[nodiscard]] MetalWorldCapacityClass capacityClass()
         const noexcept;
+    [[nodiscard]] std::uint64_t modelFingerprint() const noexcept;
     [[nodiscard]] std::uint64_t fingerprint() const noexcept;
 
 private:
@@ -210,8 +211,15 @@ private:
     std::vector<std::uint32_t> bodyDynamicNodes_;
     std::vector<std::uint32_t> sceneBodyDynamicNodes_;
     std::vector<std::uint32_t> rodDynamicNodes_;
+    std::uint64_t modelFingerprint_ = 0u;
     std::uint64_t fingerprint_ = 0u;
 };
+
+// Canonical mechanics fingerprint independent of solver capacities, scene
+// scheduling, or task configuration. Returns zero for an invalid model.
+[[nodiscard]] std::uint64_t engineModelFingerprint(
+    const EngineModel& model
+) noexcept;
 
 // Validates and snapshots one canonical articulation transactionally. On
 // failure, compiled remains bit-for-bit logically unchanged.

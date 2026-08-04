@@ -96,6 +96,17 @@ def _g1_parser(parser: argparse.ArgumentParser) -> None:
         type=Path,
         help="native MetalRobo library used to write the PolicyPack",
     )
+    for name in (
+        "world-fingerprint",
+        "task-fingerprint",
+        "observation-fingerprint",
+        "action-fingerprint",
+    ):
+        import_unitree.add_argument(
+            f"--{name}",
+            type=lambda value: int(value, 0),
+            required=True,
+        )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -190,6 +201,10 @@ def _import_unitree_g1(args: argparse.Namespace) -> int:
     report = import_unitree_g1_mjlab_policy(
         args.official_repo,
         args.output_policy_pack,
+        world_fingerprint=args.world_fingerprint,
+        task_fingerprint=args.task_fingerprint,
+        observation_fingerprint=args.observation_fingerprint,
+        action_fingerprint=args.action_fingerprint,
         library_path=args.library,
     )
     print(

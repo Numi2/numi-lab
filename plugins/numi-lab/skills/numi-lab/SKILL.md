@@ -13,8 +13,11 @@ Do not force requests into a fixed robotics schema or invent a second planner.
 1. Run `numi doctor` when machine or installation readiness matters.
 2. Run `numi context` before choosing a workflow. It is the current source for
    installed capabilities, overlays, paths, revision, and extension points.
-3. Run `numi <capability> --help` before operating that capability.
-4. Inspect the owning repository code when the request needs behavior that the
+3. Run `numi robots list` or `numi robots inspect ROBOT_ID` before configuring
+   a robot. Use its authored capabilities and semantic roles rather than
+   assuming G1 joints, humanoid sensors, or locomotion outcomes.
+4. Run `numi <capability> --help` before operating that capability.
+5. Inspect the owning repository code when the request needs behavior that the
    installed commands do not already provide.
 
 ## Apple Silicon execution model
@@ -22,10 +25,17 @@ Do not force requests into a fixed robotics schema or invent a second planner.
 Use Numi Lab as one Apple-native system, not as a Python simulator wrapped by
 Codex:
 
-- The native compiler resolves robot mechanics, `WorldPack`, `TaskPack`, and
-  `PolicyPack` artifacts into stable indices, fixed-capacity tables, and
-  fingerprints. A new robot is authored data and mechanics, not a new shader
-  or host execution mode.
+- The native `CompiledRun` boundary composes `RobotPack`, scene objects,
+  `SensorPack`, `TaskPack`, `RealityPack`, optional `TeacherPack`, exact
+  `PolicyPack`, and `RunProfile` into stable indices, fixed-capacity tables,
+  and fingerprints. A new robot is authored mechanics, semantic roles and
+  capability data, not a new shader or host execution mode.
+- A robot brain is a `PolicyPack` permanently bound to exact world, task,
+  observation, and action fingerprints. Legacy v3 packs are migration inputs;
+  newly published v4 packs must not be dimension-only or silently rebound.
+- Teachers such as ARDY, GR00T, or demonstrations propose learning evidence.
+  They never bypass Metal gravity, collision, contact, sensing, resets, or
+  time and never become an alternate physics path.
 - Metal owns persistent physics, contact, terrain, task operators, sensing,
   rendering, policy inference, simulator state, and counter-based randomness.
   Keep the control loop device-resident and free of per-environment host loops,

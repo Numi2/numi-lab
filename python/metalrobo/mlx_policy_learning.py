@@ -29,7 +29,7 @@ from .native import (
 
 _LEARNING_PACK_HEADER = struct.Struct("<8sIIQQ")
 _POLICY_KIND = 2
-_POLICY_FORMAT_VERSION = 3
+_POLICY_FORMAT_VERSION = 4
 _POLICY_ROLLOUT_KIND = 3
 _POLICY_ROLLOUT_FORMAT_VERSION = 6
 _MOTION_KIND = 4
@@ -400,6 +400,11 @@ class NativePolicyPack:
 
     id: str
     revision: int
+    contract_version: int
+    world_fingerprint: int
+    task_fingerprint: int
+    observation_fingerprint: int
+    action_fingerprint: int
     observation_mean: np.ndarray
     observation_inverse_standard_deviation: np.ndarray
     layers: tuple[NativePolicyDenseLayer, ...]
@@ -672,7 +677,7 @@ def read_policy_pack(
     ) = _LEARNING_PACK_HEADER.unpack_from(data)
     if magic != b"MRLEARN\0":
         raise ValueError("PolicyPack magic is invalid")
-    if format_version not in (2, _POLICY_FORMAT_VERSION):
+    if format_version not in (2, 3, _POLICY_FORMAT_VERSION):
         raise ValueError("PolicyPack format version is unsupported")
     if kind != _POLICY_KIND:
         raise ValueError("Learning artifact is not a PolicyPack")
@@ -711,6 +716,28 @@ def read_policy_pack(
     action_scale = reader.vector(np.dtype("<f4"))
     observation_clip = reader.float32()
     action_clip = reader.float32()
+    if format_version >= 4:
+        contract_version = reader.unsigned64()
+        world_fingerprint = reader.unsigned64()
+        task_fingerprint = reader.unsigned64()
+        observation_fingerprint = reader.unsigned64()
+        action_fingerprint = reader.unsigned64()
+        if (
+            contract_version != 1
+            or min(
+                world_fingerprint,
+                task_fingerprint,
+                observation_fingerprint,
+                action_fingerprint,
+            ) <= 0
+        ):
+            raise ValueError("PolicyPack semantic contract is incomplete")
+    else:
+        contract_version = 0
+        world_fingerprint = 0
+        task_fingerprint = 0
+        observation_fingerprint = 0
+        action_fingerprint = 0
     if reader.cursor != len(payload):
         raise ValueError("PolicyPack contains trailing payload bytes")
     actor_count = layers[0].input_count
@@ -767,6 +794,11 @@ def read_policy_pack(
     return NativePolicyPack(
         id=identifier,
         revision=revision,
+        contract_version=contract_version,
+        world_fingerprint=world_fingerprint,
+        task_fingerprint=task_fingerprint,
+        observation_fingerprint=observation_fingerprint,
+        action_fingerprint=action_fingerprint,
         observation_mean=observation_mean,
         observation_inverse_standard_deviation=(
             observation_inverse_standard_deviation
@@ -1871,6 +1903,11 @@ class MLXPolicyLearner:
         self._compiled_training_step: Any = None
         self.refresh_compiled_training_state()
         self.policy_id: str | None = None
+        self.contract_version = 0
+        self.world_fingerprint = 0
+        self.task_fingerprint = 0
+        self.observation_fingerprint = 0
+        self.action_fingerprint = 0
         self.action_bias = np.zeros(
             (action_count,),
             dtype=np.float32,
@@ -1882,6 +1919,30 @@ class MLXPolicyLearner:
         self.action_clip = float(np.finfo(np.float32).max)
         self.revision = 1
         mx.eval(self.model.parameters(), self.optimizer.state)
+
+    def bind_contract(
+        self,
+        *,
+        world_fingerprint: int,
+        task_fingerprint: int,
+        observation_fingerprint: int,
+        action_fingerprint: int,
+    ) -> None:
+        values = (
+            int(world_fingerprint),
+            int(task_fingerprint),
+            int(observation_fingerprint),
+            int(action_fingerprint),
+        )
+        if min(values) <= 0 or max(values) > np.iinfo(np.uint64).max:
+            raise ValueError("policy semantic fingerprints must be nonzero uint64 values")
+        self.contract_version = 1
+        (
+            self.world_fingerprint,
+            self.task_fingerprint,
+            self.observation_fingerprint,
+            self.action_fingerprint,
+        ) = values
 
     def refresh_compiled_training_state(self) -> None:
         """Rebind the compiled update after replacing model/optimizer state."""
@@ -1985,9 +2046,9 @@ class MLXPolicyLearner:
             path,
             library_path=library_path,
         )
-        if pack.format_version != _POLICY_FORMAT_VERSION:
+        if pack.format_version == 2:
             raise ValueError(
-                "PPO resume requires a current v3 raw-Gaussian "
+                "PPO resume requires a v3+ raw-Gaussian "
                 "PolicyPack; v2 is evaluation-only because its squashed "
                 "behavior distribution cannot be migrated exactly"
             )
@@ -2165,6 +2226,11 @@ class MLXPolicyLearner:
             action_clip=pack.action_clip,
         )
         learner.policy_id = pack.id
+        learner.contract_version = pack.contract_version
+        learner.world_fingerprint = pack.world_fingerprint
+        learner.task_fingerprint = pack.task_fingerprint
+        learner.observation_fingerprint = pack.observation_fingerprint
+        learner.action_fingerprint = pack.action_fingerprint
         learner.revision = pack.revision
         learner.optimizer = optim.Adam(
             learning_rate=restored_configuration.learning_rate,
@@ -3169,6 +3235,11 @@ class MLXPolicyLearner:
             output,
             policy_id=resolved_policy_id,
             revision=self.revision,
+            contract_version=self.contract_version,
+            world_fingerprint=self.world_fingerprint,
+            task_fingerprint=self.task_fingerprint,
+            observation_fingerprint=self.observation_fingerprint,
+            action_fingerprint=self.action_fingerprint,
             layers=actor_layers,
             critic_layers=critic_layers,
             observation_mean=np.asarray(

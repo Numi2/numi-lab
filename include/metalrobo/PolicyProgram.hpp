@@ -31,11 +31,32 @@ struct PolicyDenseLayer {
     std::vector<float> bias;
 };
 
+// Immutable semantic contract for one robot brain. Dimensions alone are not
+// a safe deployment boundary: two tasks may have identical tensor shapes
+// while assigning different meaning to every value. Version zero is reserved
+// for pre-contract artifacts and may only be loaded through the explicit
+// legacy migration path.
+struct PolicyContract {
+    std::uint64_t version = 0u;
+    std::uint64_t worldFingerprint = 0u;
+    std::uint64_t taskFingerprint = 0u;
+    std::uint64_t observationFingerprint = 0u;
+    std::uint64_t actionFingerprint = 0u;
+
+    [[nodiscard]] bool exact() const noexcept {
+        return version == 1u && worldFingerprint != 0u &&
+            taskFingerprint != 0u &&
+            observationFingerprint != 0u &&
+            actionFingerprint != 0u;
+    }
+};
+
 // Portable learner/deployment boundary. MLX may update this artifact between
 // rollouts; physics and inference consume only the compiled immutable tables.
 struct PolicyPack {
     std::string id;
     std::uint64_t revision = 1u;
+    PolicyContract contract;
     // Actor normalization and actor dense network.
     std::vector<float> observationMean;
     std::vector<float> observationInverseStandardDeviation;
@@ -53,6 +74,13 @@ struct PolicyPack {
     float observationClip = 100.0f;
     float actionClip = std::numeric_limits<float>::max();
 };
+
+// Binds a newly initialized or deliberately migrated policy to the exact
+// compiled semantics it is allowed to control. Weight tensors are unchanged.
+void bindPolicyPack(
+    PolicyPack& pack,
+    const CompiledTaskProgram& task
+);
 
 enum class PolicyCompileStatus : std::uint32_t {
     success = 0u,

@@ -76,6 +76,10 @@ def import_unitree_g1_mjlab_policy(
     official_repository: str | Path,
     output: str | Path,
     *,
+    world_fingerprint: int,
+    task_fingerprint: int,
+    observation_fingerprint: int,
+    action_fingerprint: int,
     library_path: str | Path | None = None,
 ) -> dict[str, Any]:
     """Write the current official MuJoCo-Lab G1 actor as PolicyPack."""
@@ -137,6 +141,11 @@ def import_unitree_g1_mjlab_policy(
         output,
         policy_id="unitree_g1_mjlab_velocity_1425b15",
         revision=1,
+        contract_version=1,
+        world_fingerprint=world_fingerprint,
+        task_fingerprint=task_fingerprint,
+        observation_fingerprint=observation_fingerprint,
+        action_fingerprint=action_fingerprint,
         observation_mean=mean,
         observation_inverse_standard_deviation=(
             1.0 / standard_deviation

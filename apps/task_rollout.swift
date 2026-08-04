@@ -2110,15 +2110,7 @@ private enum TaskRolloutMain {
             let output: [String: Any] = [
                 "benchmark": "swift_native_task_rollout",
                 "benchmark_seed": NSNumber(value: options.seed),
-                "task": options.unitreeG1Task == .velocity
-                    ? "velocity"
-                    : options.unitreeG1Task == .disturbanceRecovery
-                    ? "disturbance-recovery"
-                    : options.unitreeG1Task == .supineGetUpDiscovery
-                    ? "supine-get-up"
-                    : options.unitreeG1Task == .ballDisturbanceRecovery
-                    ? "ball-recovery"
-                    : "ball-dodge",
+                "task": context.taskID,
                 "world_source": worldSource,
                 "action_source":
                     options.policyPack != nil

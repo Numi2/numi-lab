@@ -26,6 +26,8 @@ static_assert(
 struct CompiledTaskProgram::Storage {
     std::uint64_t fingerprint = 0u;
     std::uint64_t worldFingerprint = 0u;
+    std::uint64_t observationFingerprint = 0u;
+    std::uint64_t actionFingerprint = 0u;
     TaskProgramLayout layout{};
     MRTaskProgramHeaderGPU header{};
     std::vector<MRTaskActionBindingGPU> actionBindings;
@@ -338,6 +340,8 @@ bool CompiledTaskProgram::valid() const noexcept {
     return storage_ != nullptr &&
         storage_->fingerprint != 0u &&
         storage_->worldFingerprint != 0u &&
+        storage_->observationFingerprint != 0u &&
+        storage_->actionFingerprint != 0u &&
         storage_->header.taskFingerprint ==
             storage_->fingerprint &&
         storage_->header.worldFingerprint ==
@@ -353,6 +357,15 @@ std::uint64_t CompiledTaskProgram::fingerprint() const noexcept {
 
 std::uint64_t CompiledTaskProgram::worldFingerprint() const noexcept {
     return valid() ? storage_->worldFingerprint : 0u;
+}
+
+std::uint64_t
+CompiledTaskProgram::observationFingerprint() const noexcept {
+    return valid() ? storage_->observationFingerprint : 0u;
+}
+
+std::uint64_t CompiledTaskProgram::actionFingerprint() const noexcept {
+    return valid() ? storage_->actionFingerprint : 0u;
 }
 
 const TaskProgramLayout& CompiledTaskProgram::layout() const noexcept {
@@ -3795,6 +3808,52 @@ TaskCompileDiagnostics compileTaskProgram(
             "compiled interaction reference exceeds the arena ABI"
         );
     }
+
+    Hash actionHash;
+    actionHash.scalar(world.fingerprint());
+    actionHash.span<MRTaskActionBindingGPU>(
+        staged->actionBindings
+    );
+    for (const TaskActionBinding& action : pack.actions) {
+        actionHash.string(action.joint);
+    }
+    staged->actionFingerprint = actionHash.finish();
+
+    Hash observationHash;
+    observationHash.scalar(world.fingerprint());
+    observationHash.scalar(staged->layout.actorFrameSize);
+    observationHash.scalar(staged->layout.actorHistoryLength);
+    observationHash.scalar(staged->layout.actorObservationSize);
+    observationHash.scalar(staged->layout.criticFrameSize);
+    observationHash.scalar(staged->layout.criticHistoryLength);
+    observationHash.scalar(staged->layout.criticObservationSize);
+    observationHash.span<MRTaskObservationOperatorGPU>(
+        staged->actorOperators
+    );
+    observationHash.span<MRTaskObservationOperatorGPU>(
+        staged->criticOperators
+    );
+    observationHash.span<MRTaskBiasSpecGPU>(staged->biasSpecs);
+    observationHash.span<MRTaskContactGroupGPU>(
+        staged->contactGroups
+    );
+    observationHash.span<std::uint32_t>(staged->contactMembers);
+    observationHash.span<float>(staged->contactMemberRadii);
+    observationHash.span<mr_float4>(staged->terrainSampleOffsets);
+    observationHash.span<std::uint32_t>(staged->motionBodies);
+    observationHash.scalar(pack.visual.width);
+    observationHash.scalar(pack.visual.height);
+    observationHash.span<std::uint32_t>(pack.visual.frameOffsets);
+    observationHash.scalar(pack.visual.nearDepthMeters);
+    observationHash.scalar(pack.visual.farDepthMeters);
+    observationHash.scalar(pack.visual.fullDropoutProbability);
+    observationHash.scalar(pack.visual.pixelDropoutProbability);
+    observationHash.scalar(pack.visual.depthJitterMeters);
+    observationHash.scalar(pack.visual.depthNoiseSigmaMeters);
+    observationHash.scalar(pack.visual.edgeFlickerProbability);
+    observationHash.scalar(pack.visual.difficultyCorruptionGain);
+    observationHash.scalar(pack.visual.includeDerivedFeatures);
+    staged->observationFingerprint = observationHash.finish();
 
     Hash hash;
     hash.string(pack.id);
