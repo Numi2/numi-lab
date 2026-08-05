@@ -1233,24 +1233,25 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
             TaskOutcomeDirection::higherIsBetter},
     };
     // Recovery legitimately brings knees, hands, arms, trunk, and both feet
-    // into the same contact graph. A 4,096-environment developmental band-2
-    // soak later measured 215 candidate pairs and 81 simultaneous manifolds
-    // in one valid reset trajectory. Publish a recovery-owned arena with
-    // complete Wave32 cohorts of reserve instead of clipping valid physics.
-    task.capacities.candidatePairs = 320u;
-    task.capacities.rawContacts = 192u;
-    task.capacities.manifolds = 128u;
-    task.capacities.constraintBlocks = 128u;
-    task.capacities.constraintRows = 384u;
-    task.capacities.endpointRuntimeRecords = 256u;
-    task.capacities.articulationPointQueries = 256u;
-    task.capacities.qualityRows = 384u;
-    task.capacities.islandConstraintReferences = 128u;
+    // into the same contact graph. The first 4,096-environment band-2 soak
+    // measured a pathological but finite reset at 535 candidate pairs, 530
+    // raw contacts, 511 manifolds, and 519 constraint blocks. A 672-slot
+    // (21 Wave32) arena gives that measured envelope 20-31% reserve while
+    // staying below the Mac mini's recommended working-set limit at 4,096
+    // environments.
+    task.capacities.candidatePairs = 672u;
+    task.capacities.rawContacts = 672u;
+    task.capacities.manifolds = 672u;
+    task.capacities.constraintBlocks = 672u;
+    task.capacities.constraintRows = 2016u;
+    task.capacities.endpointRuntimeRecords = 1344u;
+    task.capacities.articulationPointQueries = 1344u;
+    task.capacities.qualityRows = 2016u;
+    task.capacities.islandConstraintReferences = 672u;
     // Supine recovery exposes the convex hulls that remain separated during
-    // nominal standing. The first canonical supine reset reached the
-    // hard-convex reserve before the raw-contact/manifold capacities, so keep
-    // the recovery arena aligned with its 192-pair operational envelope.
-    task.capacities.hardConvexPairs = 192u;
+    // nominal standing. Keep the convex reserve in the same measured
+    // envelope as the contact graph so the broadphase cannot fail first.
+    task.capacities.hardConvexPairs = 672u;
     task.capacities.meshTriangleCandidates = 4096u;
     // Five seconds covers a human-scale get-up and quiet stabilization while
     // refreshing every reset state often enough for mixed-state PPO batches.

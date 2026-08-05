@@ -1843,8 +1843,8 @@ int main(const int argc, const char* const* argv) {
             compiledAdult.task.layout().actorObservationSize !=
                 compiledDevelopmental.task.layout().actorObservationSize ||
             compiledAdult.task.layout().actorHistoryLength != 5u ||
-            compiledAdult.world.capacities().candidatePairs != 320u ||
-            compiledAdult.world.capacities().manifolds != 128u ||
+            compiledAdult.world.capacities().candidatePairs != 672u ||
+            compiledAdult.world.capacities().manifolds != 672u ||
             compiledAdult.task.randomizationOperators().size() != 38u ||
             compiledAdult.task.fingerprint() ==
                 compiledDevelopmental.task.fingerprint() ||
