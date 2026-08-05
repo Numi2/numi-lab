@@ -86,6 +86,24 @@ def _task_kind(task_id: str) -> str:
     return normalized
 
 
+def _adult_evaluation_bands(
+    training_arguments: Sequence[str],
+) -> tuple[int | None, int | None]:
+    """Return the current adult rung and its protected predecessor."""
+
+    if _task_kind(_option_value(training_arguments, "--task") or "") != (
+        "adult-locomotion"
+    ):
+        return None, None
+    maximum_band = _option_value(
+        training_arguments, "--maximum-difficulty-band"
+    )
+    if maximum_band is None:
+        return None, None
+    current_band = int(maximum_band)
+    return current_band, current_band - 1 if current_band > 0 else None
+
+
 def evaluation_arguments(
     training_arguments: Sequence[str],
     *,
@@ -790,25 +808,9 @@ def main() -> int:
     if training_arguments[:1] == ["--"]:
         training_arguments = training_arguments[1:]
 
-    task = _task_kind(_option_value(training_arguments, "--task") or "")
-    adult_current_band: int | None = None
-    adult_previous_band: int | None = None
-    if task == "adult-locomotion":
-        maximum_band = _option_value(
-            training_arguments, "--maximum-difficulty-band"
-        )
-        minimum_band = _option_value(
-            training_arguments, "--minimum-difficulty-band"
-        )
-        if maximum_band is not None:
-            adult_current_band = int(maximum_band)
-            training_minimum_band = int(
-                minimum_band if minimum_band is not None else maximum_band
-            )
-            if adult_current_band > training_minimum_band:
-                # The supervisor trains on adjacent bands. Protect the
-                # immediately preceding rung separately from the new one.
-                adult_previous_band = adult_current_band - 1
+    adult_current_band, adult_previous_band = _adult_evaluation_bands(
+        training_arguments
+    )
 
     options.evidence_directory.mkdir(parents=True, exist_ok=True)
     # Deployment is safe even if evaluation itself is interrupted or fails.

@@ -8,6 +8,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 
 from metalrobo.policy_selection import (  # noqa: E402
+    _adult_evaluation_bands,
     compare_adult_bands,
     compare_evidence,
     evaluation_arguments,
@@ -672,6 +673,30 @@ class PolicySelectionTest(unittest.TestCase):
         )
         self.assertEqual(arguments[minimum_index + 1], "2")
         self.assertEqual(arguments[maximum_index + 1], "2")
+
+    def test_single_band_adult_training_still_protects_previous_rung(self) -> None:
+        current, previous = _adult_evaluation_bands(
+            [
+                "--task",
+                "adult-locomotion",
+                "--minimum-difficulty-band",
+                "2",
+                "--maximum-difficulty-band",
+                "2",
+            ]
+        )
+        self.assertEqual((current, previous), (2, 1))
+        self.assertEqual(
+            _adult_evaluation_bands(
+                [
+                    "--task",
+                    "adult-locomotion",
+                    "--maximum-difficulty-band",
+                    "0",
+                ]
+            ),
+            (0, None),
+        )
 
 
 if __name__ == "__main__":
