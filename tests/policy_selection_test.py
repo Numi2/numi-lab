@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import json
 import sys
 from pathlib import Path
 import unittest
@@ -673,6 +674,31 @@ class PolicySelectionTest(unittest.TestCase):
         )
         self.assertEqual(arguments[minimum_index + 1], "2")
         self.assertEqual(arguments[maximum_index + 1], "2")
+
+    def test_checkpoint_comparisons_are_json_serializable(self) -> None:
+        incumbent = {
+            "task": "adult-locomotion",
+            "forward_progress_available": True,
+            "termination_count_by_environment": [0],
+            "failed_environment_steps": 0,
+            "mean_peak_forward_progress_m": 0.5,
+            "mean_final_forward_progress_m": 0.4,
+            "mean_tracking_score": 0.4,
+            "mean_root_height": 0.70,
+            "mean_tilt": 0.30,
+        }
+        candidate = {
+            **incumbent,
+            "mean_peak_forward_progress_m": 0.6,
+            "mean_final_forward_progress_m": 0.5,
+            "mean_tracking_score": 0.5,
+        }
+        _, comparisons = select_candidate_champion(
+            incumbent, {"candidate": candidate}
+        )
+        decision = dict(comparisons["candidate"])
+        decision["checkpoint_comparisons"] = comparisons
+        json.dumps(decision)
 
     def test_single_band_adult_training_still_protects_previous_rung(self) -> None:
         current, previous = _adult_evaluation_bands(

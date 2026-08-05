@@ -124,6 +124,7 @@ cmp "$numi_train_run/candidate.deployment.policypack" \
     "$numi_train_run/deployment.policypack"
 test -s "$numi_train_run/selection/incumbent.evidence.json"
 test -s "$numi_train_run/selection/candidate.evidence.json"
+test -s "$numi_train_run/selection.log"
 grep '"candidate_retained": true' \
     "$numi_train_run/selection/selection.json" >/dev/null
 

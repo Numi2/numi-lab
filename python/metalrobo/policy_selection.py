@@ -910,7 +910,11 @@ def main() -> int:
     reported_candidate = (
         champion if champion != "incumbent" else candidate_names[-1]
     )
-    decision = comparisons[reported_candidate]
+    # Copy the selected comparison before attaching the complete comparison
+    # table. Reusing the dictionary here would make checkpoint_comparisons
+    # contain itself and fail JSON publication with a circular-reference
+    # error after all expensive rollouts had already completed.
+    decision = dict(comparisons[reported_candidate])
     if champion == "incumbent":
         decision["selected"] = "incumbent"
         decision["candidate_advanced_deployment"] = False

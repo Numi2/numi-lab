@@ -226,7 +226,7 @@ if [ "$numi_status" -eq 0 ]; then
     numi_checkpoint_directory=$(
         numi_option_value --checkpoint-directory "$@" || true
     )
-    "$numi_python" "$numi_python_root/metalrobo/policy_selection.py" \
+    if "$numi_python" "$numi_python_root/metalrobo/policy_selection.py" \
         --evaluator "$numi_evaluator" \
         --metallib "$numi_metallib" \
         --incumbent "$numi_incumbent_deployment" \
@@ -238,8 +238,18 @@ if [ "$numi_status" -eq 0 ]; then
         --maximum-environments "${NUMI_SELECTION_ENVS:-256}" \
         --held-out-seed "${NUMI_SELECTION_SEED:-2650443581}" \
         --evaluation-steps "$numi_selection_steps" \
-        -- "$@" > "$numi_run/selection.log"
-    numi_status=$?
+        -- "$@" > "$numi_run/selection.log" 2>&1; then
+        numi_status=0
+    else
+        numi_status=$?
+        # Never leave a durable curriculum supervisor waiting forever when a
+        # selector fails outside its evaluator-error path. Preserve incumbent
+        # deployment and make the failure explicit for retry/inspection.
+        if [ ! -s "$numi_run/selection/selection.json" ]; then
+            printf '{\n  "schema": "numi.policy-selection.v1",\n  "selected": "incumbent",\n  "candidate_advanced_deployment": false,\n  "candidate_retained": true,\n  "selection_error": "selector exited with status %s"\n}\n' \
+                "$numi_status" > "$numi_run/selection/selection.json"
+        fi
+    fi
     cat "$numi_run/selection.log"
 fi
 if command -v shasum >/dev/null 2>&1; then
