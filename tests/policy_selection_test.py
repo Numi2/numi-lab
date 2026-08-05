@@ -348,6 +348,34 @@ class PolicySelectionTest(unittest.TestCase):
             decision["improvements"],
         )
 
+    def test_developmental_phase_regression_vetoes_support_tradeoff(self) -> None:
+        incumbent = {
+            "task": "unitree_g1_developmental_recovery",
+            "termination_count": 0,
+            "termination_count_by_environment": [0] * 64,
+            "failed_environment_steps": 0,
+            "mean_tilt": 1.2,
+            "squat_cycle_completed_environment_rate": 0.0,
+            "recovery_phase_rates": {
+                "brace": 0.56,
+                "foot_support": 0.43,
+            },
+        }
+        candidate = {
+            **incumbent,
+            "recovery_phase_rates": {
+                "brace": 0.43,
+                "foot_support": 0.49,
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn("brace rate decreased", decision["regressions"])
+        self.assertIn(
+            "foot_support rate increased",
+            decision["improvements"],
+        )
+
     def test_zero_authority_teacher_is_removed_for_student_evaluation(self) -> None:
         arguments = evaluation_arguments(
             [

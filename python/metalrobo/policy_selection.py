@@ -191,6 +191,15 @@ def _support_rate(record: dict[str, Any]) -> float | None:
     return sum(values) / len(values) if values else None
 
 
+def _recovery_phase_rate(
+    record: dict[str, Any], phase: str
+) -> float | None:
+    rates = record.get("recovery_phase_rates")
+    if not isinstance(rates, dict) or phase not in rates:
+        return None
+    return float(rates[phase])
+
+
 def _physical_failure_rate(record: dict[str, Any]) -> float:
     """Exclude ordinary horizon timeouts from physical policy failures."""
 
@@ -300,6 +309,25 @@ def compare_evidence(
                 regressions.append("bilateral support rate decreased")
             elif new_support > old_support + 0.005:
                 improvements.append("bilateral support rate increased")
+        # Recovery is staged: a later foothold or rise gain cannot buy a
+        # collapse in an earlier physical capability. Keep every authored
+        # phase monotonic when both matched rollouts publish that phase.
+        for phase in (
+            "brace",
+            "foot_support",
+            "rise",
+            "support_transfer",
+            "trunk_clear",
+            "quiet_stand",
+        ):
+            old_phase = _recovery_phase_rate(incumbent, phase)
+            new_phase = _recovery_phase_rate(candidate, phase)
+            if old_phase is None or new_phase is None:
+                continue
+            if new_phase < old_phase - 0.005:
+                regressions.append(f"{phase} rate decreased")
+            elif new_phase > old_phase + 0.005:
+                improvements.append(f"{phase} rate increased")
     else:
         old_forward = float(
             incumbent.get("mean_peak_forward_progress_m", 0)
