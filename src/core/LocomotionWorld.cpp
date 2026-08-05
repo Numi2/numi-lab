@@ -1233,12 +1233,13 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
             TaskOutcomeDirection::higherIsBetter},
     };
     // Recovery legitimately brings knees, hands, arms, trunk, and both feet
-    // into the same contact graph. A 1,024-environment exploratory batch
-    // measured 33 simultaneous manifolds (37 raw contacts, 43 constraints),
-    // exceeding the standing profile's 32-manifold envelope. Publish a
-    // recovery-owned capacity instead of clipping a valid physical state.
+    // into the same contact graph. A 4,096-environment developmental band-2
+    // soak later measured 215 candidate pairs and 81 simultaneous manifolds
+    // in one valid reset trajectory. Publish a recovery-owned arena with
+    // complete Wave32 cohorts of reserve instead of clipping valid physics.
+    task.capacities.candidatePairs = 320u;
     task.capacities.rawContacts = 192u;
-    task.capacities.manifolds = 64u;
+    task.capacities.manifolds = 128u;
     task.capacities.constraintBlocks = 128u;
     task.capacities.constraintRows = 384u;
     task.capacities.endpointRuntimeRecords = 256u;
