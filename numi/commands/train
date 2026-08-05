@@ -175,8 +175,19 @@ elif [ -f "$numi_root/share/numi/REVISION" ]; then
     cp "$numi_root/share/numi/REVISION" "$numi_run/revision.txt"
 fi
 if command -v shasum >/dev/null 2>&1; then
-    shasum -a 256 "$numi_trainer" "$numi_metallib" "$numi_native_library" \
-        > "$numi_run/runtime.sha256"
+    numi_command_path=$numi_root/numi/commands/train
+    [ -f "$numi_command_path" ] || numi_command_path=$0
+    numi_selector_path=$numi_python_root/metalrobo/policy_selection.py
+    if [ -f "$numi_selector_path" ]; then
+        shasum -a 256 \
+            "$numi_trainer" "$numi_metallib" "$numi_native_library" \
+            "$numi_command_path" "$numi_selector_path" \
+            > "$numi_run/runtime.sha256"
+    else
+        shasum -a 256 \
+            "$numi_trainer" "$numi_metallib" "$numi_native_library" \
+            "$numi_command_path" > "$numi_run/runtime.sha256"
+    fi
 fi
 printf 'numi train: artifacts %s\n' "$numi_run" >&2
 
