@@ -427,8 +427,11 @@ observation adapter. The actor's three support-sense slots become commanded
 velocity slots; the critic retains command and privileged support state. Adult
 episodes start from the solver-authored nominal standing pose, expand command
 bands from quiet standing to translation/yaw motion, and add deterministic
-reset, controller, action-delay, and horizontal-impulse stress. Its candidate
-is still subject to held-out forward progress, tracking, height, tilt, and
+reset, controller, action-delay, horizontal-impulse, and clock stress. The
+authored clock preserves the band-zero 10-second command horizon and 2-4-second
+disturbance interval, then compresses them progressively to 45% and 50% at the
+highest band without changing impulse magnitude. Its candidate is still
+subject to held-out forward progress, tracking, height, tilt, and
 physical-failure comparison before deployment.
 
 Author a solver-trace-backed teacher rather than resetting from an arbitrary

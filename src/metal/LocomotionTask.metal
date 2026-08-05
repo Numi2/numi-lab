@@ -1279,6 +1279,33 @@ inline uint durationSteps(
     );
 }
 
+inline float4 scheduleSecondsForBand(
+    device const MRTaskProgramHeaderGPU& program,
+    const uint curriculum
+) {
+    float4 seconds = program.scheduleSeconds;
+    if ((program.schedule.w & MR_TASK_PROGRAM_CLOCK_STRESS) == 0u ||
+        program.schedule.z <= 1u) {
+        return seconds;
+    }
+    const float progress = clamp(
+        float(curriculum) /
+            max(float(program.schedule.z - 1u), 1.0f),
+        0.0f,
+        1.0f
+    );
+    // Preserve the quiet adult rung, then progressively shorten both the
+    // command horizon and disturbance interval. This models a finite
+    // reaction budget without changing the physical impulse magnitude.
+    const float commandScale = mix(1.0f, 0.45f, progress);
+    const float disturbanceScale = mix(1.0f, 0.50f, progress);
+    seconds.x = max(0.5f, seconds.x * commandScale);
+    seconds.y = max(0.5f, seconds.y * commandScale);
+    seconds.z = max(0.5f, seconds.z * disturbanceScale);
+    seconds.w = max(0.5f, seconds.w * disturbanceScale);
+    return seconds;
+}
+
 inline uint sampledDifficultyBand(
     device const MRTaskDispatchGPU& dispatch,
     device const MRTaskProgramHeaderGPU& program,
@@ -2665,6 +2692,11 @@ kernel void mr_locomotion_task_observe(
         controllerParameters[environment].z =
             float(actionDelay) * dispatch.timing.x;
 
+        const float4 scheduleSeconds = scheduleSecondsForBand(
+            program,
+            curriculum
+        );
+
         state.episode = uint4(
             interactionResetStep,
             episode,
@@ -2678,8 +2710,8 @@ kernel void mr_locomotion_task_observe(
                 episode,
                 0u,
                 32u,
-                program.scheduleSeconds.x,
-                program.scheduleSeconds.y
+                scheduleSeconds.x,
+                scheduleSeconds.y
             ),
             durationSteps(
                 dispatch,
@@ -2687,8 +2719,8 @@ kernel void mr_locomotion_task_observe(
                 episode,
                 0u,
                 33u,
-                program.scheduleSeconds.z,
-                program.scheduleSeconds.w
+                scheduleSeconds.z,
+                scheduleSeconds.w
             ),
             actionDelay,
             observationDelay
@@ -5863,6 +5895,10 @@ kernel void mr_locomotion_task_complete(
         ? interactionTrackingScore
         : 0.5f * (tracking + yawTracking);
     const uint terrainLevel = state.episode.w;
+    const float4 scheduleSeconds = scheduleSecondsForBand(
+        program,
+        curriculum
+    );
 
     if (!done && state.schedule.x <= 1u) {
         state.commandAndPhase.xyz = sampledCommand(
@@ -5880,8 +5916,8 @@ kernel void mr_locomotion_task_complete(
             state.episode.y,
             episodeSteps,
             64u,
-            program.scheduleSeconds.x,
-            program.scheduleSeconds.y
+            scheduleSeconds.x,
+            scheduleSeconds.y
         );
     } else if (!done) {
         --state.schedule.x;
@@ -5893,8 +5929,8 @@ kernel void mr_locomotion_task_complete(
             state.episode.y,
             episodeSteps,
             65u,
-            program.scheduleSeconds.z,
-            program.scheduleSeconds.w
+            scheduleSeconds.z,
+            scheduleSeconds.w
         );
     } else {
         --state.schedule.y;

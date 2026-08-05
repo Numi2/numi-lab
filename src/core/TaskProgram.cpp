@@ -3946,6 +3946,13 @@ TaskCompileDiagnostics compileTaskProgram(
     if (fixedRoot) {
         staged->header.schedule.w |= MR_TASK_PROGRAM_FIXED_ROOT;
     }
+    if (pack.id == "unitree_g1_adult_locomotion") {
+        // Adult survivability includes temporal pressure: higher authored
+        // bands demand more frequent decisions and recovery events. Keep the
+        // mode in the compiled ABI so it is fingerprinted and replayable;
+        // the Metal hot loop consumes only this flag and numeric tables.
+        staged->header.schedule.w |= MR_TASK_PROGRAM_CLOCK_STRESS;
+    }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_THREAT_TEACHER;

@@ -693,10 +693,14 @@ task preserves the 610-value developmental actor history and 29-action ABI,
 converts the actor's three support-sense slots into velocity commands, and
 retains support patches for contact-rich balance. Its standing-only reset is
 followed by command-band expansion, deterministic actuator/reset variation,
-action delay, and native horizontal impulse stress. The critic receives the
-command and privileged support fields; deployment still requires matched
-held-out physical progress and no regression in termination, tilt, height, or
-tracking outcomes.
+action delay, native horizontal impulse, and clock stress. The adult clock
+keeps band zero at the authored 10-second command horizon and 2-4-second
+disturbance interval, then progressively compresses those windows to 45% and
+50% respectively by the highest band. Impulse magnitude is unchanged, so the
+policy must survive with less reaction time. The critic receives the command
+and privileged support fields; deployment still requires matched held-out
+physical progress and no regression in termination, tilt, height, or tracking
+outcomes.
 
 Select `--task ball-recovery` to train and evaluate against four ordinary
 dynamic rigid spheres. The bundled app supplies their authored mechanics while

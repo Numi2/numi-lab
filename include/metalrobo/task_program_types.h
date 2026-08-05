@@ -33,6 +33,10 @@ enum MRTaskProgramFlags : mr_u32 {
     // use the authored fixed frame instead of interpreting joint q/v slots as
     // a floating pose. This enables manipulation tasks on the same program.
     MR_TASK_PROGRAM_FIXED_ROOT = 1u << 8u,
+    // Progressive temporal pressure for authored survivability curricula.
+    // The compiled task keeps its band-zero clock and compresses command and
+    // disturbance intervals only as difficulty rises.
+    MR_TASK_PROGRAM_CLOCK_STRESS = 1u << 9u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

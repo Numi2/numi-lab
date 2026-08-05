@@ -1846,6 +1846,10 @@ int main(const int argc, const char* const* argv) {
             compiledAdult.world.capacities().candidatePairs != 672u ||
             compiledAdult.world.capacities().manifolds != 672u ||
             compiledAdult.task.randomizationOperators().size() != 38u ||
+            (compiledAdult.task.header().schedule.w &
+             MR_TASK_PROGRAM_CLOCK_STRESS) == 0u ||
+            (compiledDevelopmental.task.header().schedule.w &
+             MR_TASK_PROGRAM_CLOCK_STRESS) != 0u ||
             compiledAdult.task.fingerprint() ==
                 compiledDevelopmental.task.fingerprint() ||
             compiledAdult.task.outcomes().size() != 6u) {
