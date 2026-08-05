@@ -839,7 +839,7 @@ if(METALROBO_HAS_SWIFT)
         PROPERTIES
             Swift_LANGUAGE_VERSION 6
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
-            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+            BUILD_RPATH "@loader_path/../lib"
             INSTALL_RPATH "@loader_path/../lib"
     )
 
@@ -863,7 +863,7 @@ if(METALROBO_HAS_SWIFT)
         PROPERTIES
             Swift_LANGUAGE_VERSION 6
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
-            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+            BUILD_RPATH "@loader_path/../lib"
             INSTALL_RPATH "@loader_path/../lib"
     )
 endif()
