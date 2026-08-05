@@ -2,6 +2,7 @@
 
 import json
 import sys
+import tempfile
 from pathlib import Path
 import unittest
 
@@ -10,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 
 from metalrobo.policy_selection import (  # noqa: E402
     _adult_evaluation_bands,
+    _evaluate,
     compare_adult_bands,
     compare_evidence,
     evaluation_arguments,
@@ -699,6 +701,48 @@ class PolicySelectionTest(unittest.TestCase):
         decision = dict(comparisons["candidate"])
         decision["checkpoint_comparisons"] = comparisons
         json.dumps(decision)
+
+    def test_matching_evidence_contract_is_resumable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            evaluator = root / "evaluator.sh"
+            counter = root / "counter"
+            evaluator.write_text(
+                "#!/bin/sh\n"
+                f"count=0; test -f '{counter}' && count=$(cat '{counter}')\n"
+                "count=$((count + 1))\n"
+                f"printf '%s' \"$count\" > '{counter}'\n"
+                "printf '%s\\n' '{\"task\":\"adult-locomotion\",\"failed_environment_steps\":0}'\n",
+                encoding="utf-8",
+            )
+            evaluator.chmod(evaluator.stat().st_mode | 0o111)
+            metallib = root / "MetalRobo.metallib"
+            policy = root / "candidate.policypack"
+            state_trace = root / "candidate.state.tsv"
+            evidence = root / "candidate.evidence.json"
+            metallib.write_bytes(b"metallib")
+            policy.write_bytes(b"policy")
+            state_trace.write_text("trace\n", encoding="utf-8")
+            arguments = [
+                "--task",
+                "adult-locomotion",
+                "--envs",
+                "2",
+                "--steps",
+                "1",
+                "--seed",
+                "7",
+                "--metallib",
+                str(metallib),
+                "--policy-pack",
+                str(policy),
+                "--state-trace",
+                str(state_trace),
+            ]
+            first = _evaluate(evaluator, arguments, evidence)
+            second = _evaluate(evaluator, arguments, evidence)
+            self.assertEqual(first, second)
+            self.assertEqual(counter.read_text(encoding="utf-8"), "1")
 
     def test_single_band_adult_training_still_protects_previous_rung(self) -> None:
         current, previous = _adult_evaluation_bands(

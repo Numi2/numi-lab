@@ -7,6 +7,7 @@ protected deployment artifact should advance from the pre-training incumbent.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -61,6 +62,35 @@ def _option_value(arguments: Sequence[str], option: str) -> str | None:
         if value == option:
             result = arguments[index + 1]
     return result
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _evaluation_contract(evaluator: Path, arguments: Sequence[str]) -> str:
+    """Fingerprint the exact native rollout contract for resumable evidence."""
+
+    file_fingerprints: dict[str, str] = {}
+    for option in ("--metallib", "--policy-pack"):
+        value = _option_value(arguments, option)
+        if value is None:
+            continue
+        path = Path(value)
+        if path.is_file():
+            file_fingerprints[option] = _sha256_file(path)
+    contract = {
+        "evaluator": str(evaluator),
+        "evaluator_sha256": _sha256_file(evaluator),
+        "arguments": list(arguments),
+        "file_fingerprints": file_fingerprints,
+    }
+    encoded = json.dumps(contract, sort_keys=True).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def _task_kind(task_id: str) -> str:
@@ -774,6 +804,25 @@ def select_candidate_champion(
 def _evaluate(
     evaluator: Path, arguments: list[str], evidence_path: Path
 ) -> dict[str, Any]:
+    metadata_path = evidence_path.with_name(
+        f"{evidence_path.name}.meta.json"
+    )
+    contract = _evaluation_contract(evaluator, arguments)
+    state_trace_value = _option_value(arguments, "--state-trace")
+    state_trace = Path(state_trace_value) if state_trace_value else None
+    if evidence_path.is_file() and metadata_path.is_file():
+        try:
+            metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+            if (
+                metadata.get("contract_sha256") == contract
+                and state_trace is not None
+                and state_trace.is_file()
+                and state_trace.stat().st_size > 0
+            ):
+                return json.loads(evidence_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError, TypeError):
+            # A partial cache is treated as a miss and regenerated below.
+            pass
     completed = subprocess.run(
         [str(evaluator), *arguments],
         check=True,
@@ -781,6 +830,19 @@ def _evaluate(
         text=True,
     )
     evidence_path.write_text(completed.stdout, encoding="utf-8")
+    metadata_path.write_text(
+        json.dumps(
+            {
+                "schema": "numi.policy-evidence-cache.v1",
+                "contract_sha256": contract,
+                "state_trace": state_trace_value,
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     return json.loads(completed.stdout)
 
 
