@@ -567,6 +567,35 @@ class PolicySelectionTest(unittest.TestCase):
             index = arguments.index(option)
             self.assertEqual(arguments[index + 1], value)
 
+    def test_adult_selection_isolated_to_highest_training_band(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--task",
+                "adult-locomotion",
+                "--minimum-difficulty-band",
+                "2",
+                "--maximum-difficulty-band",
+                "3",
+                "--envs",
+                "4096",
+                "--steps",
+                "32",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=512,
+            held_out_seed=42,
+        )
+        minimum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--minimum-difficulty-band"
+        )
+        maximum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--maximum-difficulty-band"
+        )
+        self.assertEqual(arguments[minimum_index + 1], "3")
+        self.assertEqual(arguments[maximum_index + 1], "3")
+
 
 if __name__ == "__main__":
     unittest.main()

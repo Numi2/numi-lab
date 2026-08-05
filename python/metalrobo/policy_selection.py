@@ -145,6 +145,25 @@ def evaluation_arguments(
             "--interaction-reset-only",
         ]
 
+    # Adult training deliberately mixes the previous and current bands so
+    # the learner retains the earlier balance skill. Promotion evidence must
+    # answer a stricter question: did the candidate survive the newest band
+    # itself? Appending the maximum band makes the native evaluator's last
+    # value authoritative without changing the training rollout contract.
+    task = _task_kind(_option_value(training_arguments, "--task") or "")
+    maximum_band = _option_value(
+        training_arguments, "--maximum-difficulty-band"
+    )
+    if task == "adult-locomotion" and maximum_band is not None:
+        projected.extend(
+            (
+                "--minimum-difficulty-band",
+                maximum_band,
+                "--maximum-difficulty-band",
+                maximum_band,
+            )
+        )
+
     # Appended values win if a caller supplied the same option earlier.
     projected.extend(
         (
