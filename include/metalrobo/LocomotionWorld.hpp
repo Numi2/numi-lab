@@ -24,6 +24,7 @@ enum class UnitreeG1Task : std::uint32_t {
     supineGetUpDiscovery = 2u,
     ballDisturbanceRecovery = 3u,
     ballDodge = 4u,
+    developmentalRecovery = 5u,
 };
 
 struct LocomotionWorld {
@@ -145,6 +146,16 @@ unitreeG1LocomotionActionScales() noexcept;
 // HumanUP-style Stage-I discovery task: fixed supine reset, full-body
 // collision, dense height/upright/support shaping, and weak regularization.
 [[nodiscard]] TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
+    LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+
+// Native developmental recovery curriculum. This is intentionally separate
+// from supine discovery: it owns an intermediate physically tested tuck/brace
+// reset between the floor and squat stages and does not require an
+// InteractionPack or kinematic motion guide.
+[[nodiscard]] TaskPack makeUnitreeG1DevelopmentalRecoveryTaskPack(
     LocomotionSurface surface,
     TaskObservationProgram& observations,
     TaskResetProgram& reset

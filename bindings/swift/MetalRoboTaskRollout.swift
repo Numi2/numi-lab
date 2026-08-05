@@ -89,6 +89,7 @@ public enum MetalRoboUnitreeG1Task: UInt32, Sendable {
     case supineGetUpDiscovery = 2
     case ballDisturbanceRecovery = 3
     case ballDodge = 4
+    case developmentalRecovery = 5
 }
 
 public enum MetalRoboInteractionReferenceMode: UInt32, Sendable {
@@ -824,14 +825,18 @@ public struct MetalRoboTaskTransition: Sendable {
     public let postureReward: Float
     public let energyReward: Float
     public let contactReward: Float
-    public let dodgeLinkClearanceReward: Float
-    public let dodgeEvasionReward: Float
-    public let dodgeMissReward: Float
-    public let dodgeSafeStillnessReward: Float
-    public let dodgeSafeActionRateReward: Float
-    public let dodgeCbfCorrectionReward: Float
-    public let dodgeCbfBufferReward: Float
-    public let dodgePredictedClearanceReward: Float
+    // Generic fixed-width task-authored reward-contribution channels. Their
+    // meanings come exclusively from outcomeSchema. Individual scalars keep
+    // the transition four-byte aligned and avoid per-transition storage
+    // padding in large Apple unified-memory rollout batches.
+    public let taskOutcomeChannel0: Float
+    public let taskOutcomeChannel1: Float
+    public let taskOutcomeChannel2: Float
+    public let taskOutcomeChannel3: Float
+    public let taskOutcomeChannel4: Float
+    public let taskOutcomeChannel5: Float
+    public let taskOutcomeChannel6: Float
+    public let taskOutcomeChannel7: Float
     public let policyRevision: UInt64
     public let timeoutBootstrapValue: Float
     public let episodeTrackingScore: Float
@@ -858,19 +863,14 @@ public struct MetalRoboTaskTransition: Sendable {
         postureReward = native.posture_reward
         energyReward = native.energy_reward
         contactReward = native.contact_reward
-        dodgeLinkClearanceReward =
-            native.task_outcome_channel_0
-        dodgeEvasionReward = native.task_outcome_channel_1
-        dodgeMissReward = native.task_outcome_channel_2
-        dodgeSafeStillnessReward =
-            native.task_outcome_channel_3
-        dodgeSafeActionRateReward =
-            native.task_outcome_channel_4
-        dodgeCbfCorrectionReward =
-            native.task_outcome_channel_5
-        dodgeCbfBufferReward = native.task_outcome_channel_6
-        dodgePredictedClearanceReward =
-            native.task_outcome_channel_7
+        taskOutcomeChannel0 = native.task_outcome_channel_0
+        taskOutcomeChannel1 = native.task_outcome_channel_1
+        taskOutcomeChannel2 = native.task_outcome_channel_2
+        taskOutcomeChannel3 = native.task_outcome_channel_3
+        taskOutcomeChannel4 = native.task_outcome_channel_4
+        taskOutcomeChannel5 = native.task_outcome_channel_5
+        taskOutcomeChannel6 = native.task_outcome_channel_6
+        taskOutcomeChannel7 = native.task_outcome_channel_7
         policyRevision = native.policy_revision
         timeoutBootstrapValue =
             native.timeout_bootstrap_value
@@ -2225,20 +2225,21 @@ public final class MetalRoboTaskRolloutContext {
             value.energy_reward = transition.energyReward
             value.contact_reward = transition.contactReward
             value.task_outcome_channel_0 =
-                transition.dodgeLinkClearanceReward
+                transition.taskOutcomeChannel0
             value.task_outcome_channel_1 =
-                transition.dodgeEvasionReward
-            value.task_outcome_channel_2 = transition.dodgeMissReward
+                transition.taskOutcomeChannel1
+            value.task_outcome_channel_2 =
+                transition.taskOutcomeChannel2
             value.task_outcome_channel_3 =
-                transition.dodgeSafeStillnessReward
+                transition.taskOutcomeChannel3
             value.task_outcome_channel_4 =
-                transition.dodgeSafeActionRateReward
+                transition.taskOutcomeChannel4
             value.task_outcome_channel_5 =
-                transition.dodgeCbfCorrectionReward
+                transition.taskOutcomeChannel5
             value.task_outcome_channel_6 =
-                transition.dodgeCbfBufferReward
+                transition.taskOutcomeChannel6
             value.task_outcome_channel_7 =
-                transition.dodgePredictedClearanceReward
+                transition.taskOutcomeChannel7
             value.policy_revision =
                 transition.policyRevision
             value.timeout_bootstrap_value =

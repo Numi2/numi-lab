@@ -411,6 +411,15 @@ motionless body. Floor and squat regions retain low and tilted states as valid
 learning states. These are sample-allocation boundaries, not policy-promotion
 gates; continuous per-band phase metrics still report partial progress.
 
+`--task developmental-recovery` is a separate authored task, not an alias for
+`supine-get-up`. It preserves band 0 as the canonical floor state, adds a
+solver-tested tuck/brace reset at band 1, and retains the squat and standing
+regions above it. The pose is ordinary reset input: gravity, collision,
+contact, friction and transactional acceptance remain active from the first
+microstep. Its typed outcome program publishes height progress, tilt progress,
+whole-body recovery, standing completion and restoration contributions rather
+than an always-zero generic contact placeholder.
+
 Author a solver-trace-backed teacher rather than resetting from an arbitrary
 interpolated animation frame:
 

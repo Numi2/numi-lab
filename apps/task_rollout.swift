@@ -261,13 +261,15 @@ private struct Options {
                     unitreeG1Task = .disturbanceRecovery
                 case "supine-get-up":
                     unitreeG1Task = .supineGetUpDiscovery
+                case "developmental-recovery":
+                    unitreeG1Task = .developmentalRecovery
                 case "ball-recovery":
                     unitreeG1Task = .ballDisturbanceRecovery
                 case "ball-dodge":
                     unitreeG1Task = .ballDodge
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be velocity, disturbance-recovery, supine-get-up, ball-recovery, or ball-dodge."
+                        "--task must be velocity, disturbance-recovery, supine-get-up, developmental-recovery, ball-recovery, or ball-dodge."
                     )
                 }
                 index += 1
@@ -596,11 +598,12 @@ private struct Options {
         if g1VisualPackDirectory != nil &&
             ((unitreeG1Task != .ballDisturbanceRecovery &&
               unitreeG1Task != .ballDodge &&
-              unitreeG1Task != .supineGetUpDiscovery) ||
+              unitreeG1Task != .supineGetUpDiscovery &&
+              unitreeG1Task != .developmentalRecovery) ||
              worldPack != nil || urdf != nil)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "The bundled visual preset requires --task supine-get-up, ball-recovery, or ball-dodge."
+                "The bundled visual preset requires --task supine-get-up, developmental-recovery, ball-recovery, or ball-dodge."
             )
         }
         if (unitreeG1Task == .ballDisturbanceRecovery ||
@@ -1211,6 +1214,9 @@ private enum TaskRolloutMain {
             var dodgeCBFCorrectionRewardSum = 0.0
             var dodgeCBFBufferRewardSum = 0.0
             var dodgePredictedClearanceRewardSum = 0.0
+            let reportsDodgeRewardBreakdown =
+                options.worldPack == nil && options.urdf == nil &&
+                options.unitreeG1Task == .ballDodge
             var terminationReasonCounts: [String: Int] = [:]
             var terminationCountByEnvironment = [Int](
                 repeating: 0,
@@ -1306,7 +1312,8 @@ private enum TaskRolloutMain {
                 : options.dynamicSpheres
             let supportsG1SquatEvidence =
                 options.stateTrace != nil &&
-                options.unitreeG1Task == .supineGetUpDiscovery &&
+                (options.unitreeG1Task == .supineGetUpDiscovery ||
+                 options.unitreeG1Task == .developmentalRecovery) &&
                 options.worldPack == nil && options.urdf == nil
             let supportsG1ForwardEvidence =
                 options.stateTrace != nil &&
@@ -1658,30 +1665,32 @@ private enum TaskRolloutMain {
                             Double(transition.energyReward)
                         contactRewardSum +=
                             Double(transition.contactReward)
-                        dodgeLinkClearanceRewardSum += Double(
-                            transition.dodgeLinkClearanceReward
-                        )
-                        dodgeEvasionRewardSum += Double(
-                            transition.dodgeEvasionReward
-                        )
-                        dodgeMissRewardSum += Double(
-                            transition.dodgeMissReward
-                        )
-                        dodgeSafeStillnessRewardSum += Double(
-                            transition.dodgeSafeStillnessReward
-                        )
-                        dodgeSafeActionRateRewardSum += Double(
-                            transition.dodgeSafeActionRateReward
-                        )
-                        dodgeCBFCorrectionRewardSum += Double(
-                            transition.dodgeCbfCorrectionReward
-                        )
-                        dodgeCBFBufferRewardSum += Double(
-                            transition.dodgeCbfBufferReward
-                        )
-                        dodgePredictedClearanceRewardSum += Double(
-                            transition.dodgePredictedClearanceReward
-                        )
+                        if reportsDodgeRewardBreakdown {
+                            dodgeLinkClearanceRewardSum += Double(
+                                transition.taskOutcomeChannel0
+                            )
+                            dodgeEvasionRewardSum += Double(
+                                transition.taskOutcomeChannel1
+                            )
+                            dodgeMissRewardSum += Double(
+                                transition.taskOutcomeChannel2
+                            )
+                            dodgeSafeStillnessRewardSum += Double(
+                                transition.taskOutcomeChannel3
+                            )
+                            dodgeSafeActionRateRewardSum += Double(
+                                transition.taskOutcomeChannel4
+                            )
+                            dodgeCBFCorrectionRewardSum += Double(
+                                transition.taskOutcomeChannel5
+                            )
+                            dodgeCBFBufferRewardSum += Double(
+                                transition.taskOutcomeChannel6
+                            )
+                            dodgePredictedClearanceRewardSum += Double(
+                                transition.taskOutcomeChannel7
+                            )
+                        }
                         if transition.impactSequenceIndex > 0 {
                             let impact = Int(
                                 transition.impactSequenceIndex - 1
@@ -2184,7 +2193,7 @@ private enum TaskRolloutMain {
                     bilateralKneeExcursion >= 0.10 &&
                     returnedToInitialPose,
             ]
-            let output: [String: Any] = [
+            var output: [String: Any] = [
                 "benchmark": "swift_native_task_rollout",
                 "benchmark_seed": NSNumber(value: options.seed),
                 "task": context.taskID,
@@ -2480,30 +2489,6 @@ private enum TaskRolloutMain {
                 "mean_contact_reward":
                     contactRewardSum /
                     Double(max(transitionCount, 1)),
-                "mean_dodge_link_clearance_reward":
-                    dodgeLinkClearanceRewardSum /
-                    Double(max(transitionCount, 1)),
-                "mean_dodge_evasion_reward":
-                    dodgeEvasionRewardSum /
-                    Double(max(transitionCount, 1)),
-                "mean_dodge_miss_reward":
-                    dodgeMissRewardSum /
-                    Double(max(transitionCount, 1)),
-                "mean_dodge_safe_stillness_reward":
-                    dodgeSafeStillnessRewardSum /
-                    Double(max(transitionCount, 1)),
-                "mean_dodge_safe_action_rate_reward":
-                    dodgeSafeActionRateRewardSum /
-                    Double(max(transitionCount, 1)),
-                "mean_dodge_cbf_correction_reward":
-                    dodgeCBFCorrectionRewardSum /
-                    Double(max(transitionCount, 1)),
-                "mean_dodge_cbf_buffer_reward":
-                    dodgeCBFBufferRewardSum /
-                    Double(max(transitionCount, 1)),
-                "mean_dodge_predicted_clearance_reward":
-                    dodgePredictedClearanceRewardSum /
-                    Double(max(transitionCount, 1)),
                 "policy_sample_count": policySampleCount,
                 "policy_rollout_fingerprint":
                     usesCompiledPolicy
@@ -2512,6 +2497,25 @@ private enum TaskRolloutMain {
                 "rollout_pack": options.rolloutPack ?? "",
                 "rollout_pack_bytes": rolloutPackBytes,
             ]
+            if reportsDodgeRewardBreakdown {
+                let sampleCount = Double(max(transitionCount, 1))
+                output["mean_dodge_link_clearance_reward"] =
+                    dodgeLinkClearanceRewardSum / sampleCount
+                output["mean_dodge_evasion_reward"] =
+                    dodgeEvasionRewardSum / sampleCount
+                output["mean_dodge_miss_reward"] =
+                    dodgeMissRewardSum / sampleCount
+                output["mean_dodge_safe_stillness_reward"] =
+                    dodgeSafeStillnessRewardSum / sampleCount
+                output["mean_dodge_safe_action_rate_reward"] =
+                    dodgeSafeActionRateRewardSum / sampleCount
+                output["mean_dodge_cbf_correction_reward"] =
+                    dodgeCBFCorrectionRewardSum / sampleCount
+                output["mean_dodge_cbf_buffer_reward"] =
+                    dodgeCBFBufferRewardSum / sampleCount
+                output["mean_dodge_predicted_clearance_reward"] =
+                    dodgePredictedClearanceRewardSum / sampleCount
+            }
             let data = try JSONSerialization.data(
                 withJSONObject: output,
                 options: [.prettyPrinted, .sortedKeys]

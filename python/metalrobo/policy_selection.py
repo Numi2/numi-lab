@@ -67,6 +67,8 @@ def _task_kind(task_id: str) -> str:
     """Map authored task IDs onto the stable promotion-policy vocabulary."""
 
     normalized = task_id.strip().lower().replace("_", "-")
+    if "developmental" in normalized and "recovery" in normalized:
+        return "developmental-recovery"
     if "supine" in normalized and "get-up" in normalized:
         return "supine-get-up"
     if "ball" in normalized and "dodge" in normalized:
@@ -276,7 +278,7 @@ def compare_evidence(
                 regressions.append(f"{label} regressed")
             elif delta > 1.0e-12:
                 improvements.append(f"{label} improved")
-    elif task == "supine-get-up":
+    elif task in {"supine-get-up", "developmental-recovery"}:
         old_completed = _rate(
             incumbent,
             "squat_cycle_completed_environment_count",

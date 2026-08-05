@@ -325,6 +325,29 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(decision["task"], "supine-get-up")
         self.assertEqual(decision["selected"], "candidate")
 
+    def test_developmental_recovery_uses_recovery_metrics(self) -> None:
+        incumbent = {
+            "task": "unitree_g1_developmental_recovery",
+            "termination_count": 0,
+            "termination_count_by_environment": [0] * 64,
+            "failed_environment_steps": 0,
+            "mean_tilt": 1.2,
+            "squat_cycle_completed_environment_rate": 0.0,
+            "bilateral_support_step_rate": 0.80,
+        }
+        candidate = {
+            **incumbent,
+            "squat_cycle_completed_environment_rate": 0.02,
+            "bilateral_support_step_rate": 0.82,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["task"], "developmental-recovery")
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertIn(
+            "completed squat-cycle rate increased",
+            decision["improvements"],
+        )
+
     def test_zero_authority_teacher_is_removed_for_student_evaluation(self) -> None:
         arguments = evaluation_arguments(
             [

@@ -680,6 +680,14 @@ standing transition; a higher fallen-pose reward is not a trajectory. Learner
 checkpoints must use the `.safetensors` suffix because MLX selects its
 metadata-capable loader from that extension.
 
+Select `--task developmental-recovery` to retain supine discovery unchanged
+while inserting a distinct, physically executed tuck/brace region between the
+floor and squat resets. This task has its own fingerprint and policy contract;
+it cannot silently replace or resume a `supine-get-up` brain. The intermediate
+pose changes reset state only. NumiSolver still applies gravity, collision,
+contact and friction on every microstep, and task-authored typed outcomes expose
+the individual recovery contributions used for progress analysis.
+
 Select `--task ball-recovery` to train and evaluate against four ordinary
 dynamic rigid spheres. The bundled app supplies their authored mechanics while
 the run's RealityPack randomizes position, velocity, height, direction, and

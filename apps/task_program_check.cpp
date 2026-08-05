@@ -103,6 +103,31 @@ struct TaskWorldFixture : metalrobo::LocomotionWorld {
     metalrobo::TaskResetProgram reset;
 };
 
+void configureG1RecoveryFixture(TaskWorldFixture& fixture) {
+    if (!fixture.model.materials.empty()) {
+        fixture.model.materials.front().response.z = 1.25e-7f;
+    }
+    for (auto& actuator : fixture.actuators) {
+        const auto joint = std::ranges::find(
+            fixture.model.jointNames, actuator.target);
+        if (joint == fixture.model.jointNames.end()) continue;
+        const auto jointIndex = static_cast<std::uint32_t>(
+            joint - fixture.model.jointNames.begin());
+        const auto dof = std::ranges::find_if(
+            fixture.model.dofs,
+            [jointIndex](const MRDofPropertiesGPU& candidate) {
+                return candidate.jointIndex == jointIndex;
+            });
+        if (dof == fixture.model.dofs.end() ||
+            dof->qIndex >= fixture.model.defaultQ.size()) continue;
+        const float rest = fixture.model.defaultQ[dof->qIndex];
+        actuator.scale = std::max(
+            std::abs(dof->limits.x - rest),
+            std::abs(dof->limits.y - rest));
+        actuator.responseTimeSeconds = 0.0f;
+    }
+}
+
 TaskWorldFixture makeG1TaskWorld(
     const metalrobo::LocomotionSurface surface,
     const metalrobo::UnitreeG1Task taskKind =
@@ -126,27 +151,7 @@ TaskWorldFixture makeG1TaskWorld(
     case metalrobo::UnitreeG1Task::supineGetUpDiscovery:
         result.task = metalrobo::makeUnitreeG1SupineGetUpDiscoveryTaskPack(
             surface, result.observations, result.reset);
-        if (!result.model.materials.empty()) {
-            result.model.materials.front().response.z = 1.25e-7f;
-        }
-        for (auto& actuator : result.actuators) {
-            const auto joint = std::ranges::find(
-                result.model.jointNames, actuator.target);
-            if (joint == result.model.jointNames.end()) continue;
-            const auto jointIndex = static_cast<std::uint32_t>(
-                joint - result.model.jointNames.begin());
-            const auto dof = std::ranges::find_if(
-                result.model.dofs,
-                [jointIndex](const MRDofPropertiesGPU& candidate) {
-                    return candidate.jointIndex == jointIndex;
-                });
-            if (dof == result.model.dofs.end() ||
-                dof->qIndex >= result.model.defaultQ.size()) continue;
-            const float rest = result.model.defaultQ[dof->qIndex];
-            actuator.scale = std::max(
-                std::abs(dof->limits.x - rest),
-                std::abs(dof->limits.y - rest));
-        }
+        configureG1RecoveryFixture(result);
         break;
     case metalrobo::UnitreeG1Task::ballDisturbanceRecovery:
         result.task =
@@ -156,6 +161,12 @@ TaskWorldFixture makeG1TaskWorld(
     case metalrobo::UnitreeG1Task::ballDodge:
         result.task = metalrobo::makeUnitreeG1BallDodgeTaskPack(
             surface, result.observations, result.reset);
+        break;
+    case metalrobo::UnitreeG1Task::developmentalRecovery:
+        result.task = metalrobo::
+            makeUnitreeG1DevelopmentalRecoveryTaskPack(
+                surface, result.observations, result.reset);
+        configureG1RecoveryFixture(result);
         break;
     }
     return result;
@@ -1727,6 +1738,76 @@ int main(const int argc, const char* const* argv) {
                 std::to_string(
                     compiledGetUp.task.layout().criticObservationSize
                 )
+            );
+        }
+        const auto getUpBandOneOperators = std::ranges::count_if(
+            compiledGetUp.task.randomizationOperators(),
+            [](const MRTaskRandomizationOperatorGPU& operation) {
+                return operation.target.w == 1u;
+            }
+        );
+        if (getUpBandOneOperators != 0u) {
+            fail("supine get-up was silently replaced by a developmental reset");
+        }
+        const auto getUpOutcomes = compiledGetUp.task.outcomes();
+        if (getUpOutcomes.size() != 3u ||
+            std::ranges::none_of(
+                getUpOutcomes,
+                [](const metalrobo::CompiledTaskOutcomeSpec& outcome) {
+                    return outcome.id == "contact_reward";
+                }
+            )) {
+            fail("supine get-up policy contract changed unexpectedly");
+        }
+
+        TaskWorldFixture developmental =
+            makeG1TaskWorld(
+                metalrobo::LocomotionSurface::ground,
+                metalrobo::UnitreeG1Task::developmentalRecovery
+            );
+        metalrobo::CompiledLocomotionWorld compiledDevelopmental;
+        const auto developmentalStatus = compileTaskWorld(
+            developmental, compiledDevelopmental);
+        if (!developmentalStatus.succeeded()) {
+            fail(
+                "G1 developmental-recovery task failed to compile: " +
+                developmentalStatus.task.element + ": " +
+                developmentalStatus.task.message
+            );
+        }
+        const auto developmentalBandOneOperators = std::ranges::count_if(
+            compiledDevelopmental.task.randomizationOperators(),
+            [](const MRTaskRandomizationOperatorGPU& operation) {
+                return operation.target.w == 1u;
+            }
+        );
+        const auto developmentalOutcomes =
+            compiledDevelopmental.task.outcomes();
+        const auto hasOutcome = [&developmentalOutcomes](
+            const std::string_view id
+        ) {
+            return std::ranges::any_of(
+                developmentalOutcomes,
+                [id](const metalrobo::CompiledTaskOutcomeSpec& outcome) {
+                    return outcome.id == id;
+                }
+            );
+        };
+        if (developmental.task.id !=
+                "unitree_g1_developmental_recovery" ||
+            developmentalBandOneOperators != 31u ||
+            compiledDevelopmental.task.randomizationOperators().size() !=
+                compiledGetUp.task.randomizationOperators().size() + 31u ||
+            compiledDevelopmental.task.fingerprint() ==
+                compiledGetUp.task.fingerprint() ||
+            developmentalOutcomes.size() != 8u ||
+            !hasOutcome("height_progress") ||
+            !hasOutcome("tilt_progress") ||
+            !hasOutcome("whole_body_recovery") ||
+            !hasOutcome("restoration") ||
+            hasOutcome("contact_reward")) {
+            fail(
+                "developmental recovery lost its distinct reset or typed physical outcomes"
             );
         }
         metalrobo::InteractionPack getUpInteraction = loadedInteraction;

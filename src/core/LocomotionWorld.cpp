@@ -1644,6 +1644,111 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
     return task;
 }
 
+TaskPack makeUnitreeG1DevelopmentalRecoveryTaskPack(
+    const LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    // Start from the native physical recovery contract, then replace its
+    // flat floor-to-stand entry with an authored developmental rung. The
+    // solver, contacts, observations, rewards, and actuator ABI remain the
+    // authority; only the reset curriculum is specialized here.
+    TaskPack task = makeUnitreeG1SupineGetUpDiscoveryTaskPack(
+        surface,
+        observations,
+        reset
+    );
+    task.id = "unitree_g1_developmental_recovery";
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::neutral},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"height_progress", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::rootHeightProgress},
+        {"tilt_progress", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::recoveryTiltProgress},
+        {"recovery_completion", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::recoveryCompletion},
+        {"whole_body_recovery", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::wholeBodyRecovery},
+        {"standing_completion", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::standingCompletion},
+        {"restoration", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::restoration},
+    };
+
+    const G1ModelMetadata& metadata = unitreeG1Metadata();
+    // Keep the trunk supine but lift it into a tucked, four-point-supported
+    // developmental pose. This is deliberately a contact-rich rung: the
+    // learner first loads wrists/knees and changes its joint geometry, then
+    // rotates and lifts the trunk through later squat regions.
+    constexpr std::array<float, 4u> tuckOrientation{{
+        -0.0098234f, 0.49986f, 0.017525f, -0.86587f,
+    }};
+    constexpr std::array<float, kUnitreeG1JointCount> tuckBrace{{
+        -0.70f, 0.12f, 0.70f, 1.00f, -0.83f, 0.0f,
+        -0.70f, -0.12f, 0.70f, 1.00f, -0.83f, 0.0f,
+        0.0f, 0.0f, 0.15f,
+        0.68f, 0.54f, 0.21f, 1.25f, 0.0f, 0.0f, 0.0f,
+        0.52f, -0.64f, -0.21f, 1.30f, 0.0f, 0.0f, 0.0f,
+    }};
+
+    std::vector<TaskRandomizationOperatorSpec> tuckOperators;
+    tuckOperators.reserve(2u + tuckBrace.size());
+    tuckOperators.push_back({
+        .operation = TaskRandomizationOperator::rootOrientation,
+        .minimumDifficultyBand = 1u,
+        .parameters = {
+            tuckOrientation[0u], tuckOrientation[1u],
+            tuckOrientation[2u], tuckOrientation[3u],
+        },
+    });
+    tuckOperators.push_back({
+        .operation = TaskRandomizationOperator::rootHeight,
+        .minimumDifficultyBand = 1u,
+        .parameters = {0.115f, 0.115f, 0.0f, 0.0f},
+    });
+    for (std::size_t index = 0u; index < tuckBrace.size(); ++index) {
+        tuckOperators.push_back({
+            .operation = TaskRandomizationOperator::jointPosition,
+            .target = std::string{metadata.jointLimits[index].name},
+            .minimumDifficultyBand = 1u,
+            .parameters = {
+                tuckBrace[index], tuckBrace[index], 0.0f, 0.0f,
+            },
+        });
+    }
+
+    // Randomization operators are applied in authored order. Insert before
+    // the existing low-squat rung so band 1 overrides supine, while bands 2+
+    // still select their own progressively upright poses.
+    const auto firstSquat = std::ranges::find_if(
+        reset.operators,
+        [](const TaskRandomizationOperatorSpec& operation) {
+            return operation.minimumDifficultyBand >= 2u;
+        }
+    );
+    reset.operators.insert(
+        firstSquat,
+        tuckOperators.begin(),
+        tuckOperators.end()
+    );
+    return task;
+}
+
 TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
     const LocomotionSurface surface,
     TaskObservationProgram& observations,

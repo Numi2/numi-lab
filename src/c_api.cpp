@@ -603,6 +603,8 @@ metalrobo::UnitreeG1Task unitreeG1Task(const std::uint32_t value) {
         return metalrobo::UnitreeG1Task::ballDisturbanceRecovery;
     case MR_UNITREE_G1_TASK_BALL_DODGE:
         return metalrobo::UnitreeG1Task::ballDodge;
+    case MR_UNITREE_G1_TASK_DEVELOPMENTAL_RECOVERY:
+        return metalrobo::UnitreeG1Task::developmentalRecovery;
     default:
         throw std::invalid_argument("Unitree G1 task is invalid");
     }
@@ -1205,10 +1207,6 @@ metalrobo::RunManifest makeUnitreeG1RunManifest(
                 manifest.sensors.observation,
                 manifest.reality.reset
             );
-        if (!manifest.robot.mechanics.materials.empty()) {
-            manifest.robot.mechanics.materials.front().response.z =
-                1.25e-7f;
-        }
         break;
     case metalrobo::UnitreeG1Task::ballDisturbanceRecovery:
         manifest.task = metalrobo::
@@ -1225,8 +1223,21 @@ metalrobo::RunManifest makeUnitreeG1RunManifest(
             manifest.reality.reset
         );
         break;
+    case metalrobo::UnitreeG1Task::developmentalRecovery:
+        manifest.task = metalrobo::
+            makeUnitreeG1DevelopmentalRecoveryTaskPack(
+                surface,
+                manifest.sensors.observation,
+                manifest.reality.reset
+            );
+        break;
     }
-    if (taskKind == metalrobo::UnitreeG1Task::supineGetUpDiscovery) {
+    if (taskKind == metalrobo::UnitreeG1Task::supineGetUpDiscovery ||
+        taskKind == metalrobo::UnitreeG1Task::developmentalRecovery) {
+        if (!manifest.robot.mechanics.materials.empty()) {
+            manifest.robot.mechanics.materials.front().response.z =
+                1.25e-7f;
+        }
         for (metalrobo::RobotActuatorSpec& actuator :
              manifest.robot.actuators) {
             const auto joint = std::ranges::find(

@@ -21,7 +21,7 @@ is selected. Common options:
   --urdf PATH [--srdf PATH] --task-pack PATH
   --visual-observation-config PATH
   --native-policy | --zero-actions | --action-stream actions.f32
-  --task velocity|disturbance-recovery|supine-get-up|ball-recovery|ball-dodge
+  --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|ball-recovery|ball-dodge
   --minimum-difficulty-band N --maximum-difficulty-band N
   --envs N --steps N --repeats N --chunk N
   --rollout-pack PATH --state-trace PATH --capture-dir PATH
