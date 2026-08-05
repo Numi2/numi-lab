@@ -688,6 +688,16 @@ pose changes reset state only. NumiSolver still applies gravity, collision,
 contact and friction on every microstep, and task-authored typed outcomes expose
 the individual recovery contributions used for progress analysis.
 
+Select `--task adult-locomotion` for the next developmental transition. The
+task preserves the 610-value developmental actor history and 29-action ABI,
+converts the actor's three support-sense slots into velocity commands, and
+retains support patches for contact-rich balance. Its standing-only reset is
+followed by command-band expansion, deterministic actuator/reset variation,
+action delay, and native horizontal impulse stress. The critic receives the
+command and privileged support fields; deployment still requires matched
+held-out physical progress and no regression in termination, tilt, height, or
+tracking outcomes.
+
 Select `--task ball-recovery` to train and evaluate against four ordinary
 dynamic rigid spheres. The bundled app supplies their authored mechanics while
 the run's RealityPack randomizes position, velocity, height, direction, and

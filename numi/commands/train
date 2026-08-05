@@ -14,7 +14,7 @@ Usage: numi train [metalrobo_task_train arguments...]
 Numi supplies fresh artifact paths and local runtime paths when they are not
 provided. Every native trainer option passes through unchanged. Common options:
 
-  --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|ball-recovery|ball-dodge
+  --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|adult-locomotion|ball-recovery|ball-dodge
   --minimum-difficulty-band N --maximum-difficulty-band N
   --interaction-pack PATH --interaction-clip ID
   --world-pack PATH --task-pack PATH     Train any authored WorldPack task

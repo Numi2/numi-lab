@@ -420,6 +420,17 @@ microstep. Its typed outcome program publishes height progress, tilt progress,
 whole-body recovery, standing completion and restoration contributions rather
 than an always-zero generic contact placeholder.
 
+`--task adult-locomotion` is the next native developmental rung. It inherits
+the developmental actor's 610-value, five-frame proprioceptive/plantar ABI so
+the learned recovery actor can initialize a fresh critic without an
+observation adapter. The actor's three support-sense slots become commanded
+velocity slots; the critic retains command and privileged support state. Adult
+episodes start from the solver-authored nominal standing pose, expand command
+bands from quiet standing to translation/yaw motion, and add deterministic
+reset, controller, action-delay, and horizontal-impulse stress. Its candidate
+is still subject to held-out forward progress, tracking, height, tilt, and
+physical-failure comparison before deployment.
+
 Author a solver-trace-backed teacher rather than resetting from an arbitrary
 interpolated animation frame:
 

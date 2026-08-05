@@ -25,6 +25,7 @@ enum class UnitreeG1Task : std::uint32_t {
     ballDisturbanceRecovery = 3u,
     ballDodge = 4u,
     developmentalRecovery = 5u,
+    adultLocomotion = 6u,
 };
 
 struct LocomotionWorld {
@@ -156,6 +157,15 @@ unitreeG1LocomotionActionScales() noexcept;
 // reset between the floor and squat stages and does not require an
 // InteractionPack or kinematic motion guide.
 [[nodiscard]] TaskPack makeUnitreeG1DevelopmentalRecoveryTaskPack(
+    LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+
+// Native adult locomotion curriculum. This keeps the developmental actor's
+// five-frame proprioceptive/plantar contract while replacing recovery-only
+// resets and rewards with commanded locomotion plus disturbance stress.
+[[nodiscard]] TaskPack makeUnitreeG1AdultLocomotionTaskPack(
     LocomotionSurface surface,
     TaskObservationProgram& observations,
     TaskResetProgram& reset

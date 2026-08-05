@@ -308,13 +308,15 @@ private struct Options {
                     unitreeG1Task = .supineGetUpDiscovery
                 case "developmental-recovery":
                     unitreeG1Task = .developmentalRecovery
+                case "adult-locomotion":
+                    unitreeG1Task = .adultLocomotion
                 case "ball-recovery":
                     unitreeG1Task = .ballDisturbanceRecovery
                 case "ball-dodge":
                     unitreeG1Task = .ballDodge
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be velocity, disturbance-recovery, supine-get-up, developmental-recovery, ball-recovery, or ball-dodge."
+                        "--task must be velocity, disturbance-recovery, supine-get-up, developmental-recovery, adult-locomotion, ball-recovery, or ball-dodge."
                     )
                 }
                 index += 1

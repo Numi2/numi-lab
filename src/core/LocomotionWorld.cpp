@@ -1750,6 +1750,281 @@ TaskPack makeUnitreeG1DevelopmentalRecoveryTaskPack(
     return task;
 }
 
+TaskPack makeUnitreeG1AdultLocomotionTaskPack(
+    const LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    // Preserve the learned developmental actor ABI: the adult brain receives
+    // the same 610-value, five-frame proprioceptive/plantar history and the
+    // same 29 normalized joint actions. Only the task meaning changes: the
+    // three support-sense slots become commanded velocity slots, while the
+    // critic receives both command and privileged support state.
+    TaskPack task = makeUnitreeG1DevelopmentalRecoveryTaskPack(
+        surface, observations, reset
+    );
+    task.id = "unitree_g1_adult_locomotion";
+    task.outcomes = {
+        {"tracking", "ratio", TaskOutcomeSource::trackingScore,
+            TaskOutcomeDirection::higherIsBetter},
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::neutral},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"contact_reward", "reward", TaskOutcomeSource::contactReward,
+            TaskOutcomeDirection::higherIsBetter},
+        {"standing_completion", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::standingCompletion},
+        {"restoration", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::restoration},
+    };
+    task.maximumEpisodeSteps = 1000u;
+    task.difficultyBandCount = 11u;
+    task.baseHeightTarget = 0.78f;
+    task.gaitPeriodSeconds = 0.6f;
+    task.clearanceTarget = 0.10f;
+    task.successTrackingThreshold = 0.8f;
+    task.supportForceThreshold = 1.0f;
+    task.commands.lower = {0.0f, 0.0f, 0.0f, 0.0f};
+    task.commands.upper = {0.0f, 0.0f, 0.0f, 0.0f};
+    task.commands.limitLower = {-0.5f, -0.5f, -1.0f, 0.0f};
+    task.commands.limitUpper = {1.0f, 0.5f, 1.0f, 0.0f};
+    task.commands.difficultyStep = {0.1f, 0.1f, 0.1f, 0.0f};
+    // Keep a substantial quiet-command fraction while the adult learns to
+    // stand under command; this decays only through authored band expansion.
+    task.commands.standingProbability = 0.35f;
+    task.commands.difficultySamplingExponent = 2.0f;
+    task.commands.minimumDurationSeconds = 10.0f;
+    task.commands.maximumDurationSeconds = 10.0f;
+    // Adult locomotion is also a survivability task. Impulses are sampled by
+    // the same deterministic difficulty band as commands, so stress grows
+    // after the quiet standing rung instead of being an untracked hazard.
+    task.pushes.maximumVelocity = 1.5f;
+    task.pushes.minimumIntervalSeconds = 2.0f;
+    task.pushes.maximumIntervalSeconds = 4.0f;
+
+    std::erase_if(
+        task.contactGroups,
+        [](const TaskContactGroup& group) {
+            return group.id == "left_wrist_contact" ||
+                group.id == "right_wrist_contact" ||
+                group.id == "left_knee_contact" ||
+                group.id == "right_knee_contact" ||
+                group.id == "recovery_assist_contact" ||
+                group.id == "trunk_contact";
+        }
+    );
+
+    // The developmental reset contains supine, tuck, squat, and standing
+    // regions. Adult episodes begin from the solver-authored nominal standing
+    // pose only; later bands add measured reset/action/controller variation.
+    std::erase_if(
+        reset.operators,
+        [](const TaskRandomizationOperatorSpec& operation) {
+            return operation.minimumDifficultyBand < 4u;
+        }
+    );
+    for (TaskRandomizationOperatorSpec& operation : reset.operators) {
+        operation.minimumDifficultyBand = 0u;
+    }
+    reset.maximumActionDelaySteps = 2u;
+    reset.maximumObservationDelaySteps = 0u;
+    reset.operators.insert(
+        reset.operators.end(),
+        {
+            {
+                .operation = TaskRandomizationOperator::rootPosition,
+                .minimumDifficultyBand = 2u,
+                .parameters = {0.02f, 0.02f, 0.01f, 0.0f},
+            },
+            {
+                .operation = TaskRandomizationOperator::actionPosition,
+                .minimumDifficultyBand = 3u,
+                .parameters = {-0.03f, 0.03f, 0.0f, 0.0f},
+            },
+            {
+                .operation = TaskRandomizationOperator::actionVelocity,
+                .minimumDifficultyBand = 4u,
+                .parameters = {-0.10f, 0.10f, 0.0f, 0.0f},
+            },
+            {
+                .operation = TaskRandomizationOperator::bodyParameter,
+                .target = "robot",
+                .component = 0u,
+                .minimumDifficultyBand = 5u,
+                .parameters = {0.9f, 1.1f, 0.0f, 0.0f},
+            },
+            {
+                .operation = TaskRandomizationOperator::controllerParameter,
+                .component = 0u,
+                .minimumDifficultyBand = 6u,
+                .parameters = {0.9f, 1.1f, 0.0f, 0.0f},
+            },
+            {
+                .operation = TaskRandomizationOperator::controllerParameter,
+                .component = 1u,
+                .minimumDifficultyBand = 7u,
+                .parameters = {0.9f, 1.1f, 0.0f, 0.0f},
+            },
+            {
+                .operation = TaskRandomizationOperator::actionDelay,
+                .minimumDifficultyBand = 8u,
+                .parameters = {0.0f, 2.0f, 0.0f, 0.0f},
+            },
+        }
+    );
+
+    std::uint32_t convertedCommandSlots = 0u;
+    for (TaskObservationOperatorSpec& observation :
+             observations.actorFrame) {
+        if (observation.source != TaskObservationSource::supportSense ||
+            observation.component >= 3u) {
+            continue;
+        }
+        observation.source = TaskObservationSource::command;
+        observation.target.clear();
+        observation.scale = 1.0f;
+        observation.offset = 0.0f;
+        observation.noiseAmplitude = 0.0f;
+        observation.biasLower = 0.0f;
+        observation.biasUpper = 0.0f;
+        observation.normalizeVector3 = false;
+        ++convertedCommandSlots;
+    }
+    if (convertedCommandSlots != 3u) {
+        throw std::logic_error(
+            "adult G1 task lost its transferable command observation slots"
+        );
+    }
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        observations.critic.push_back({
+            .source = TaskObservationSource::command,
+            .component = component,
+        });
+        observations.critic.push_back({
+            .source = TaskObservationSource::supportSense,
+            .component = component,
+            .scale = component == 0u ? 0.002f : 1.0f,
+        });
+    }
+
+    task.rewards = {
+        {
+            .operation = TaskRewardOperator::linearVelocityTracking,
+            .weight = 1.0f,
+            .parameters = {0.25f, 0.0f, 0.0f, 0.0f},
+        },
+        {
+            .operation = TaskRewardOperator::yawVelocityTracking,
+            .weight = 0.5f,
+            .parameters = {0.25f, 0.0f, 0.0f, 0.0f},
+        },
+        {.operation = TaskRewardOperator::constant, .weight = 0.15f},
+        {
+            .operation = TaskRewardOperator::rootVerticalVelocitySquared,
+            .weight = -2.0f,
+        },
+        {
+            .operation = TaskRewardOperator::rootRollPitchVelocitySquared,
+            .weight = -0.05f,
+        },
+        {
+            .operation =
+                TaskRewardOperator::projectedGravityHorizontalSquared,
+            .weight = -5.0f,
+        },
+        {
+            .operation = TaskRewardOperator::rootHeightErrorSquared,
+            .weight = -10.0f,
+        },
+        {
+            .operation = TaskRewardOperator::jointVelocitySquared,
+            .weight = -0.001f,
+        },
+        {
+            .operation = TaskRewardOperator::jointAccelerationSquared,
+            .weight = -2.5e-7f,
+        },
+        {
+            .operation = TaskRewardOperator::actionRateSquared,
+            .weight = -0.05f,
+        },
+        {
+            .operation = TaskRewardOperator::jointLimitViolationAbsolute,
+            .weight = -5.0f,
+            .parameters = {0.9f, 0.0f, 0.0f, 0.0f},
+        },
+        {
+            .operation = TaskRewardOperator::mechanicalPower,
+            .weight = -2.0e-5f,
+        },
+        {
+            .operation = TaskRewardOperator::jointGroupPostureAbsolute,
+            .sourceGroup = "waist",
+            .weight = -1.0f,
+        },
+        {
+            .operation = TaskRewardOperator::jointGroupPostureAbsolute,
+            .sourceGroup = "hips",
+            .weight = -1.0f,
+        },
+        {
+            .operation = TaskRewardOperator::jointGroupPostureAbsolute,
+            .sourceGroup = "arms",
+            .weight = -0.1f,
+        },
+        {
+            .operation = TaskRewardOperator::gaitContactMatch,
+            .weight = 0.5f,
+        },
+        {
+            .operation = TaskRewardOperator::footClearance,
+            .weight = 1.0f,
+            .parameters = {0.05f, 2.0f, 0.0f, 0.0f},
+        },
+        {
+            .operation = TaskRewardOperator::supportSlip,
+            .weight = -0.2f,
+        },
+        {
+            .operation = TaskRewardOperator::forbiddenContact,
+            .sourceGroup = "undesired_contact",
+            .weight = -1.0f,
+        },
+        {
+            .operation = TaskRewardOperator::standingCompletion,
+            .weight = 20.0f,
+            .parameters = {0.65f, 0.8f, 0.0f, 0.0f},
+        },
+        {
+            .operation = TaskRewardOperator::restoration,
+            .weight = 10.0f,
+            .parameters = {0.22f, 0.40f, 0.94f, 0.35f},
+        },
+    };
+    task.terminations = {
+        {
+            .operation = TaskTerminationOperator::minimumRootHeight,
+            .reason = MR_TASK_TERMINATION_HEIGHT,
+            .priority = 1u,
+            .threshold = 0.2f,
+            .failurePenalty = -2.0f,
+        },
+        {
+            .operation = TaskTerminationOperator::maximumTilt,
+            .reason = MR_TASK_TERMINATION_TILT,
+            .priority = 2u,
+            .threshold = 1.22173048f,
+            .failurePenalty = -2.0f,
+        },
+    };
+    return task;
+}
+
 TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
     const LocomotionSurface surface,
     TaskObservationProgram& observations,

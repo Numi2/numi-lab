@@ -605,6 +605,8 @@ metalrobo::UnitreeG1Task unitreeG1Task(const std::uint32_t value) {
         return metalrobo::UnitreeG1Task::ballDodge;
     case MR_UNITREE_G1_TASK_DEVELOPMENTAL_RECOVERY:
         return metalrobo::UnitreeG1Task::developmentalRecovery;
+    case MR_UNITREE_G1_TASK_ADULT_LOCOMOTION:
+        return metalrobo::UnitreeG1Task::adultLocomotion;
     default:
         throw std::invalid_argument("Unitree G1 task is invalid");
     }
@@ -1226,6 +1228,14 @@ metalrobo::RunManifest makeUnitreeG1RunManifest(
     case metalrobo::UnitreeG1Task::developmentalRecovery:
         manifest.task = metalrobo::
             makeUnitreeG1DevelopmentalRecoveryTaskPack(
+                surface,
+                manifest.sensors.observation,
+                manifest.reality.reset
+            );
+        break;
+    case metalrobo::UnitreeG1Task::adultLocomotion:
+        manifest.task = metalrobo::
+            makeUnitreeG1AdultLocomotionTaskPack(
                 surface,
                 manifest.sensors.observation,
                 manifest.reality.reset

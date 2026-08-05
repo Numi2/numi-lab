@@ -168,6 +168,11 @@ TaskWorldFixture makeG1TaskWorld(
                 surface, result.observations, result.reset);
         configureG1RecoveryFixture(result);
         break;
+    case metalrobo::UnitreeG1Task::adultLocomotion:
+        result.task = metalrobo::
+            makeUnitreeG1AdultLocomotionTaskPack(
+                surface, result.observations, result.reset);
+        break;
     }
     return result;
 }
@@ -1808,6 +1813,44 @@ int main(const int argc, const char* const* argv) {
             hasOutcome("contact_reward")) {
             fail(
                 "developmental recovery lost its distinct reset or typed physical outcomes"
+            );
+        }
+
+        TaskWorldFixture adult =
+            makeG1TaskWorld(
+                metalrobo::LocomotionSurface::ground,
+                metalrobo::UnitreeG1Task::adultLocomotion
+            );
+        metalrobo::CompiledLocomotionWorld compiledAdult;
+        const auto adultStatus = compileTaskWorld(
+            adult, compiledAdult);
+        if (!adultStatus.succeeded()) {
+            fail(
+                "G1 adult-locomotion task failed to compile: " +
+                adultStatus.task.element + ": " +
+                adultStatus.task.message
+            );
+        }
+        const auto adultCommandSlots = std::ranges::count_if(
+            adult.observations.actorFrame,
+            [](const metalrobo::TaskObservationOperatorSpec& observation) {
+                return observation.source ==
+                    metalrobo::TaskObservationSource::command;
+            }
+        );
+        if (adult.task.id != "unitree_g1_adult_locomotion" ||
+            adultCommandSlots != 3u ||
+            compiledAdult.task.layout().actorObservationSize !=
+                compiledDevelopmental.task.layout().actorObservationSize ||
+            compiledAdult.task.layout().actorHistoryLength != 5u ||
+            compiledAdult.world.capacities().candidatePairs != 320u ||
+            compiledAdult.world.capacities().manifolds != 128u ||
+            compiledAdult.task.randomizationOperators().size() != 38u ||
+            compiledAdult.task.fingerprint() ==
+                compiledDevelopmental.task.fingerprint() ||
+            compiledAdult.task.outcomes().size() != 6u) {
+            fail(
+                "adult locomotion lost its transferable actor ABI, standing reset, or stress curriculum"
             );
         }
         metalrobo::InteractionPack getUpInteraction = loadedInteraction;
