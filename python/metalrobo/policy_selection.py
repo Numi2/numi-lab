@@ -67,6 +67,8 @@ def _task_kind(task_id: str) -> str:
     """Map authored task IDs onto the stable promotion-policy vocabulary."""
 
     normalized = task_id.strip().lower().replace("_", "-")
+    if "adult" in normalized and "locomotion" in normalized:
+        return "adult-locomotion"
     if "developmental" in normalized and "recovery" in normalized:
         return "developmental-recovery"
     if "supine" in normalized and "get-up" in normalized:
@@ -232,6 +234,77 @@ def _relative_progress(old: float, new: float, floor: float) -> float:
     return max(-1.0, min(progress, 1.0))
 
 
+def _authored_outcomes(record: dict[str, Any]) -> dict[str, tuple[float, int]]:
+    """Return the typed task outcomes emitted by the held-out rollout."""
+
+    encoded = record.get("outcomes")
+    if not isinstance(encoded, dict):
+        return {}
+    outcomes: dict[str, tuple[float, int]] = {}
+    for identifier, value in encoded.items():
+        if not isinstance(value, dict):
+            continue
+        try:
+            outcomes[str(identifier)] = (
+                float(value["mean"]),
+                int(value["direction"]),
+            )
+        except (KeyError, TypeError, ValueError):
+            continue
+    return outcomes
+
+
+def _compare_adult_authored_outcomes(
+    incumbent: dict[str, Any], candidate: dict[str, Any]
+) -> tuple[list[str], list[str], dict[str, dict[str, float | int]]]:
+    """Keep adult survivability outcomes from being traded for motion."""
+
+    old_outcomes = _authored_outcomes(incumbent)
+    new_outcomes = _authored_outcomes(candidate)
+    guarded = ("contact_reward", "standing_completion", "restoration")
+    regressions: list[str] = []
+    improvements: list[str] = []
+    metrics: dict[str, dict[str, float | int]] = {}
+    if not old_outcomes or not new_outcomes:
+        regressions.append("adult authored outcomes unavailable")
+        return regressions, improvements, metrics
+
+    for identifier in guarded:
+        old = old_outcomes.get(identifier)
+        new = new_outcomes.get(identifier)
+        if old is None or new is None or old[1] != new[1]:
+            regressions.append(
+                f"adult authored outcome schema missing {identifier}"
+            )
+            continue
+        old_mean, direction = old
+        new_mean, _ = new
+        tolerance = 1.0e-4 if identifier == "contact_reward" else 1.0e-3
+        metrics[f"incumbent_{identifier}"] = {
+            "mean": old_mean,
+            "direction": direction,
+        }
+        metrics[f"candidate_{identifier}"] = {
+            "mean": new_mean,
+            "direction": direction,
+        }
+        if direction == 1:
+            delta = new_mean - old_mean
+        elif direction == 2:
+            delta = old_mean - new_mean
+        else:
+            continue
+        if delta < -tolerance:
+            regressions.append(
+                f"adult authored outcome {identifier} decreased"
+            )
+        elif delta > tolerance:
+            improvements.append(
+                f"adult authored outcome {identifier} increased"
+            )
+    return regressions, improvements, metrics
+
+
 def compare_evidence(
     incumbent: dict[str, Any], candidate: dict[str, Any]
 ) -> dict[str, Any]:
@@ -363,6 +436,14 @@ def compare_evidence(
         elif new_tracking > old_tracking + 0.001:
             improvements.append("tracking score increased")
 
+    authored_outcome_metrics: dict[str, dict[str, float | int]] = {}
+    if task == "adult-locomotion":
+        authored_regressions, authored_improvements, authored_outcome_metrics = (
+            _compare_adult_authored_outcomes(incumbent, candidate)
+        )
+        regressions.extend(authored_regressions)
+        improvements.extend(authored_improvements)
+
     old_tilt = float(incumbent.get("mean_tilt", 0))
     new_tilt = float(candidate.get("mean_tilt", 0))
     if not generic_task:
@@ -381,6 +462,7 @@ def compare_evidence(
     )
     upright_tasks = {
         "velocity",
+        "adult-locomotion",
         "disturbance-recovery",
         "ball-recovery",
         "ball-dodge",
@@ -421,7 +503,7 @@ def compare_evidence(
         )
         selection_method = "continuous_authored_task_outcome"
     elif (
-        task == "velocity"
+        task in {"velocity", "adult-locomotion"}
         and bool(incumbent.get("forward_progress_available"))
         and bool(candidate.get("forward_progress_available"))
     ):
@@ -442,22 +524,47 @@ def compare_evidence(
         ) - float(incumbent.get("mean_tracking_score", 0))
         height_progress = (new_height - old_height) / 0.78
         tilt_progress = (old_tilt - new_tilt) / 3.141592653589793
-        failure_progress = incumbent_termination - candidate_termination
-        selection_score = (
-            0.35 * peak_progress
-            + 0.35 * final_progress
-            + 0.10 * tracking_progress
-            + 0.10 * height_progress
-            + 0.10 * tilt_progress
-            + failure_progress
-        )
-        # A device-rejected step is invalid evidence. Ordinary physical
-        # tradeoffs remain continuous contributions rather than veto gates.
-        selected = (
-            int(candidate.get("failed_environment_steps", 0)) == 0
-            and selection_score > 1.0e-12
-        )
-        selection_method = "continuous_locomotion_progress"
+        if task == "adult-locomotion":
+            # Terminations are counts accumulated over a long held-out
+            # rollout, not probabilities. Keep their influence bounded so a
+            # stationary policy cannot buy promotion by ending fewer episodes.
+            failure_progress = _relative_progress(
+                candidate_termination, incumbent_termination, 1.0
+            )
+            selection_score = (
+                0.32 * peak_progress
+                + 0.32 * final_progress
+                + 0.16 * tracking_progress
+                + 0.10 * height_progress
+                + 0.05 * tilt_progress
+                + 0.05 * failure_progress
+            )
+            # Adult promotion is a monotonic curriculum gate: survivability
+            # and authored standing outcomes must not be purchased by losing
+            # the locomotion capability learned at the previous band.
+            selected = (
+                int(candidate.get("failed_environment_steps", 0)) == 0
+                and not regressions
+                and selection_score > 1.0e-12
+            )
+            selection_method = "adult_locomotion_physical_comparison"
+        else:
+            failure_progress = incumbent_termination - candidate_termination
+            selection_score = (
+                0.35 * peak_progress
+                + 0.35 * final_progress
+                + 0.10 * tracking_progress
+                + 0.10 * height_progress
+                + 0.10 * tilt_progress
+                + failure_progress
+            )
+            # A device-rejected step is invalid evidence. Ordinary physical
+            # tradeoffs remain continuous contributions rather than veto gates.
+            selected = (
+                int(candidate.get("failed_environment_steps", 0)) == 0
+                and selection_score > 1.0e-12
+            )
+            selection_method = "continuous_locomotion_progress"
     else:
         selected = not regressions and bool(improvements)
     return {
@@ -514,6 +621,7 @@ def compare_evidence(
             "candidate_mean_tracking_score": float(
                 candidate.get("mean_tracking_score", 0)
             ),
+            "adult_authored_outcomes": authored_outcome_metrics,
         },
     }
 
@@ -538,8 +646,12 @@ def select_candidate_champion(
 ) -> tuple[str, dict[str, dict[str, Any]]]:
     """Select a checkpoint without making locomotion order-dependent."""
 
+    incumbent_task = _task_kind(str(incumbent.get("task", "")))
     continuous_comparison = _uses_generic_task_outcome(incumbent) or (
-        str(incumbent.get("task", "")) == "velocity"
+        incumbent_task in {
+            "velocity",
+            "adult-locomotion",
+        }
         and bool(incumbent.get("forward_progress_available"))
         and all(
             bool(record.get("forward_progress_available"))

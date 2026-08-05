@@ -147,6 +147,128 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertIn("mean tilt increased", decision["regressions"])
         self.assertIn("mean root height decreased", decision["regressions"])
 
+    def test_adult_promotion_cannot_buy_survivability_with_stillness(self) -> None:
+        incumbent = {
+            "task": "unitree_g1_adult_locomotion",
+            "termination_count_by_environment": [0] * 256,
+            "height_or_tilt_termination_count": 256,
+            "failed_environment_steps": 0,
+            "forward_progress_available": True,
+            "mean_peak_forward_progress_m": 0.49,
+            "mean_final_forward_progress_m": 0.14,
+            "mean_tracking_score": 0.62,
+            "mean_root_height": 0.705,
+            "mean_tilt": 0.242,
+            "outcomes": {
+                "contact_reward": {"mean": -0.00039, "direction": 1},
+                "standing_completion": {"mean": 0.309, "direction": 1},
+                "restoration": {"mean": 0.164, "direction": 1},
+            },
+        }
+        candidate = {
+            **incumbent,
+            "height_or_tilt_termination_count": 64,
+            "mean_peak_forward_progress_m": 0.0,
+            "mean_final_forward_progress_m": -0.09,
+            "mean_tracking_score": 0.60,
+            "mean_root_height": 0.718,
+            "mean_tilt": 0.189,
+            "outcomes": {
+                "contact_reward": {"mean": -0.00005, "direction": 1},
+                "standing_completion": {"mean": 0.335, "direction": 1},
+                "restoration": {"mean": 0.168, "direction": 1},
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["task"], "adult-locomotion")
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertEqual(
+            decision["selection_method"],
+            "adult_locomotion_physical_comparison",
+        )
+        self.assertIn(
+            "mean peak forward progress decreased",
+            decision["regressions"],
+        )
+
+    def test_adult_promotion_guards_authored_standing_outcomes(self) -> None:
+        incumbent = {
+            "task": "unitree_g1_adult_locomotion",
+            "termination_count_by_environment": [0] * 256,
+            "height_or_tilt_termination_count": 256,
+            "failed_environment_steps": 0,
+            "forward_progress_available": True,
+            "mean_peak_forward_progress_m": 0.40,
+            "mean_final_forward_progress_m": 0.30,
+            "mean_tracking_score": 0.50,
+            "mean_root_height": 0.70,
+            "mean_tilt": 0.25,
+            "outcomes": {
+                "contact_reward": {"mean": -0.00040, "direction": 1},
+                "standing_completion": {"mean": 0.30, "direction": 1},
+                "restoration": {"mean": 0.16, "direction": 1},
+            },
+        }
+        candidate = {
+            **incumbent,
+            "height_or_tilt_termination_count": 240,
+            "mean_peak_forward_progress_m": 0.45,
+            "mean_final_forward_progress_m": 0.34,
+            "mean_tracking_score": 0.51,
+            "mean_root_height": 0.71,
+            "mean_tilt": 0.24,
+            "outcomes": {
+                "contact_reward": {"mean": -0.00035, "direction": 1},
+                "standing_completion": {"mean": 0.28, "direction": 1},
+                "restoration": {"mean": 0.17, "direction": 1},
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "adult authored outcome standing_completion decreased",
+            decision["regressions"],
+        )
+
+    def test_adult_locomotion_progress_and_survivability_can_advance(self) -> None:
+        incumbent = {
+            "task": "unitree_g1_adult_locomotion",
+            "termination_count_by_environment": [0] * 256,
+            "height_or_tilt_termination_count": 256,
+            "failed_environment_steps": 0,
+            "forward_progress_available": True,
+            "mean_peak_forward_progress_m": 0.40,
+            "mean_final_forward_progress_m": 0.30,
+            "mean_tracking_score": 0.50,
+            "mean_root_height": 0.70,
+            "mean_tilt": 0.25,
+            "outcomes": {
+                "contact_reward": {"mean": -0.00040, "direction": 1},
+                "standing_completion": {"mean": 0.30, "direction": 1},
+                "restoration": {"mean": 0.16, "direction": 1},
+            },
+        }
+        candidate = {
+            **incumbent,
+            "height_or_tilt_termination_count": 240,
+            "mean_peak_forward_progress_m": 0.45,
+            "mean_final_forward_progress_m": 0.34,
+            "mean_tracking_score": 0.51,
+            "mean_root_height": 0.71,
+            "mean_tilt": 0.24,
+            "outcomes": {
+                "contact_reward": {"mean": -0.00035, "direction": 1},
+                "standing_completion": {"mean": 0.31, "direction": 1},
+                "restoration": {"mean": 0.17, "direction": 1},
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertEqual(
+            decision["selection_method"],
+            "adult_locomotion_physical_comparison",
+        )
+
     def test_all_locomotion_checkpoints_compare_directly_to_incumbent(
         self,
     ) -> None:

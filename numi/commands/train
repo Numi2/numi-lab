@@ -180,20 +180,15 @@ if command -v shasum >/dev/null 2>&1; then
 fi
 printf 'numi train: artifacts %s\n' "$numi_run" >&2
 
-numi_stdout_pipe=$numi_run/stdout.pipe
-numi_stderr_pipe=$numi_run/stderr.pipe
-mkfifo "$numi_stdout_pipe" "$numi_stderr_pipe"
-trap 'rm -f "$numi_stdout_pipe" "$numi_stderr_pipe"' EXIT
-tee "$numi_run/stdout.log" < "$numi_stdout_pipe" &
-numi_stdout_tee=$!
-tee "$numi_run/stderr.log" < "$numi_stderr_pipe" >&2 &
-numi_stderr_tee=$!
-"$numi_trainer" "$@" > "$numi_stdout_pipe" 2> "$numi_stderr_pipe"
+# Use regular files instead of FIFOs. The native trainer starts the MLX
+# worker as a child, and inherited FIFO descriptors can keep tee blocked after
+# the native process has exited. Completion must reach evidence/selection so
+# the next curriculum band can start; live monitoring can read these durable
+# logs without owning a pipe in the trainer's process tree.
+"$numi_trainer" "$@" > "$numi_run/stdout.log" 2> "$numi_run/stderr.log"
 numi_status=$?
-wait "$numi_stdout_tee"
-wait "$numi_stderr_tee"
-rm -f "$numi_stdout_pipe" "$numi_stderr_pipe"
-trap - EXIT
+cat "$numi_run/stderr.log" >&2
+cat "$numi_run/stdout.log"
 if [ "$numi_status" -eq 0 ] && [ -s "$numi_run/stdout.log" ]; then
     cp "$numi_run/stdout.log" "$numi_run/evidence.json"
 fi
