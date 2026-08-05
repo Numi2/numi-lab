@@ -13994,6 +13994,51 @@ MetalWorldDiagnostics validateAndPublish(
                 std::to_string(contact.diagnostics.z) +
                 " diagnostic_3=" +
                 std::to_string(contact.diagnostics.w);
+            if (index < result.qualityStatuses.size()) {
+                const MRUnifiedQualityStatusGPU& quality =
+                    result.qualityStatuses[index];
+                contactDetail +=
+                    " quality_status=" +
+                    std::to_string(quality.code) +
+                    " quality_path=" +
+                    std::to_string(quality.solvePath) +
+                    " quality_block=" +
+                    std::to_string(quality.failingBlock) +
+                    " quality_newton=" +
+                    std::to_string(quality.newtonIterations) +
+                    " quality_pcg=" +
+                    std::to_string(quality.pcgIterations) +
+                    " quality_backtracks=" +
+                    std::to_string(
+                        quality.lineSearchBacktracks
+                    ) +
+                    " quality_retries=" +
+                    std::to_string(quality.regularizationRetries) +
+                    " quality_cert0=" +
+                    std::to_string(quality.certificates0.x) +
+                    "," +
+                    std::to_string(quality.certificates0.y) +
+                    "," +
+                    std::to_string(quality.certificates0.z) +
+                    "," +
+                    std::to_string(quality.certificates0.w) +
+                    " quality_cert1=" +
+                    std::to_string(quality.certificates1.x) +
+                    "," +
+                    std::to_string(quality.certificates1.y) +
+                    "," +
+                    std::to_string(quality.certificates1.z) +
+                    "," +
+                    std::to_string(quality.certificates1.w) +
+                    " quality_numerics=" +
+                    std::to_string(quality.numerics.x) +
+                    "," +
+                    std::to_string(quality.numerics.y) +
+                    "," +
+                    std::to_string(quality.numerics.z) +
+                    "," +
+                    std::to_string(quality.numerics.w);
+            }
         }
         return reject(
             std::move(diagnostics),
