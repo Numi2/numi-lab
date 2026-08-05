@@ -1365,9 +1365,15 @@ private enum TaskTrainMain {
             transitions.reserveCapacity(samplesPerUpdate)
 
             for updateIndex in 0..<options.updates {
-                actorObservations.removeAll(
-                    keepingCapacity: true
-                )
+                try autoreleasepool {
+                    // Native Metal submissions and Foundation file bridges
+                    // create Objective-C temporaries per update. Bound their
+                    // lifetime to one rollout/learner transaction so a long
+                    // 4K-environment run does not trade throughput for an
+                    // ever-growing unified-memory footprint.
+                    actorObservations.removeAll(
+                        keepingCapacity: true
+                    )
                 criticObservations.removeAll(
                     keepingCapacity: true
                 )
@@ -1518,7 +1524,7 @@ private enum TaskTrainMain {
                         )
                     }
                 }
-                if options.verbose {
+                    if options.verbose {
                     let reward =
                         (lastLearning["mean_reward"] as? NSNumber)?
                             .doubleValue ?? 0
@@ -1573,6 +1579,7 @@ private enum TaskTrainMain {
                             ).utf8
                         )
                     )
+                    }
                 }
             }
             try learner.close()
