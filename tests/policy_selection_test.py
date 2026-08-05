@@ -8,6 +8,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 
 from metalrobo.policy_selection import (  # noqa: E402
+    compare_adult_bands,
     compare_evidence,
     evaluation_arguments,
     select_candidate_champion,
@@ -267,6 +268,55 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(
             decision["selection_method"],
             "adult_locomotion_physical_comparison",
+        )
+
+    def test_adult_previous_band_regression_blocks_new_band_progress(self) -> None:
+        incumbent = {
+            "task": "unitree_g1_adult_locomotion",
+            "termination_count_by_environment": [0] * 256,
+            "height_or_tilt_termination_count": 256,
+            "failed_environment_steps": 0,
+            "forward_progress_available": True,
+            "mean_peak_forward_progress_m": 0.40,
+            "mean_final_forward_progress_m": 0.30,
+            "mean_tracking_score": 0.50,
+            "mean_root_height": 0.70,
+            "mean_tilt": 0.25,
+            "outcomes": {
+                "contact_reward": {"mean": -0.00040, "direction": 1},
+                "standing_completion": {"mean": 0.30, "direction": 1},
+                "restoration": {"mean": 0.16, "direction": 1},
+            },
+        }
+        current_candidate = {
+            **incumbent,
+            "height_or_tilt_termination_count": 240,
+            "mean_peak_forward_progress_m": 0.45,
+            "mean_final_forward_progress_m": 0.34,
+            "mean_tracking_score": 0.51,
+            "mean_root_height": 0.71,
+            "mean_tilt": 0.24,
+            "outcomes": {
+                "contact_reward": {"mean": -0.00035, "direction": 1},
+                "standing_completion": {"mean": 0.31, "direction": 1},
+                "restoration": {"mean": 0.17, "direction": 1},
+            },
+        }
+        previous_candidate = {
+            **incumbent,
+            "mean_root_height": 0.68,
+            "mean_tilt": 0.30,
+        }
+        decision = compare_adult_bands(
+            incumbent,
+            current_candidate,
+            incumbent,
+            previous_candidate,
+        )
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertIn(
+            "previous-band: mean root height decreased",
+            decision["regressions"],
         )
 
     def test_all_locomotion_checkpoints_compare_directly_to_incumbent(
@@ -595,6 +645,33 @@ class PolicySelectionTest(unittest.TestCase):
         )
         self.assertEqual(arguments[minimum_index + 1], "3")
         self.assertEqual(arguments[maximum_index + 1], "3")
+
+    def test_adult_previous_band_selection_override_is_exact(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--task",
+                "adult-locomotion",
+                "--minimum-difficulty-band",
+                "2",
+                "--maximum-difficulty-band",
+                "3",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=512,
+            held_out_seed=42,
+            evaluation_minimum_band=2,
+            evaluation_maximum_band=2,
+        )
+        minimum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--minimum-difficulty-band"
+        )
+        maximum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--maximum-difficulty-band"
+        )
+        self.assertEqual(arguments[minimum_index + 1], "2")
+        self.assertEqual(arguments[maximum_index + 1], "2")
 
 
 if __name__ == "__main__":

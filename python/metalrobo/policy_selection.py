@@ -95,6 +95,8 @@ def evaluation_arguments(
     maximum_environments: int,
     held_out_seed: int,
     evaluation_steps: int | None = None,
+    evaluation_minimum_band: int | None = None,
+    evaluation_maximum_band: int | None = None,
 ) -> list[str]:
     """Project trainer arguments onto one deterministic rollout contract."""
     projected: list[str] = []
@@ -155,12 +157,22 @@ def evaluation_arguments(
         training_arguments, "--maximum-difficulty-band"
     )
     if task == "adult-locomotion" and maximum_band is not None:
+        selected_minimum_band = (
+            str(evaluation_minimum_band)
+            if evaluation_minimum_band is not None
+            else maximum_band
+        )
+        selected_maximum_band = (
+            str(evaluation_maximum_band)
+            if evaluation_maximum_band is not None
+            else maximum_band
+        )
         projected.extend(
             (
                 "--minimum-difficulty-band",
-                maximum_band,
+                selected_minimum_band,
                 "--maximum-difficulty-band",
-                maximum_band,
+                selected_maximum_band,
             )
         )
 
@@ -645,6 +657,27 @@ def compare_evidence(
     }
 
 
+def compare_adult_bands(
+    current_incumbent: dict[str, Any],
+    current_candidate: dict[str, Any],
+    previous_incumbent: dict[str, Any],
+    previous_candidate: dict[str, Any],
+) -> dict[str, Any]:
+    """Require new-band progress without regressing the previous rung."""
+
+    decision = compare_evidence(current_incumbent, current_candidate)
+    previous = compare_evidence(previous_incumbent, previous_candidate)
+    decision["previous_band_comparison"] = previous
+    if previous["regressions"]:
+        decision["regressions"].extend(
+            f"previous-band: {reason}"
+            for reason in previous["regressions"]
+        )
+        decision["selected"] = "incumbent"
+        decision["candidate_advanced_deployment"] = False
+    return decision
+
+
 def _atomic_copy(source: Path, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary_name = tempfile.mkstemp(
@@ -662,6 +695,8 @@ def _atomic_copy(source: Path, destination: Path) -> None:
 def select_candidate_champion(
     incumbent: dict[str, Any],
     candidates: dict[str, dict[str, Any]],
+    *,
+    comparison_overrides: dict[str, dict[str, Any]] | None = None,
 ) -> tuple[str, dict[str, dict[str, Any]]]:
     """Select a checkpoint without making locomotion order-dependent."""
 
@@ -680,7 +715,12 @@ def select_candidate_champion(
     comparisons: dict[str, dict[str, Any]] = {}
     if continuous_comparison:
         for name, record in candidates.items():
-            comparisons[name] = compare_evidence(incumbent, record)
+            comparisons[name] = (
+                comparison_overrides[name]
+                if comparison_overrides is not None
+                and name in comparison_overrides
+                else compare_evidence(incumbent, record)
+            )
         eligible = [
             name
             for name in candidates
@@ -701,7 +741,12 @@ def select_candidate_champion(
     champion = "incumbent"
     records = {"incumbent": incumbent, **candidates}
     for name in candidates:
-        comparison = compare_evidence(records[champion], records[name])
+        comparison = (
+            comparison_overrides[name]
+            if comparison_overrides is not None
+            and name in comparison_overrides
+            else compare_evidence(records[champion], records[name])
+        )
         comparisons[name] = comparison
         if comparison["selected"] == "candidate":
             champion = name
@@ -745,6 +790,26 @@ def main() -> int:
     if training_arguments[:1] == ["--"]:
         training_arguments = training_arguments[1:]
 
+    task = _task_kind(_option_value(training_arguments, "--task") or "")
+    adult_current_band: int | None = None
+    adult_previous_band: int | None = None
+    if task == "adult-locomotion":
+        maximum_band = _option_value(
+            training_arguments, "--maximum-difficulty-band"
+        )
+        minimum_band = _option_value(
+            training_arguments, "--minimum-difficulty-band"
+        )
+        if maximum_band is not None:
+            adult_current_band = int(maximum_band)
+            training_minimum_band = int(
+                minimum_band if minimum_band is not None else maximum_band
+            )
+            if adult_current_band > training_minimum_band:
+                # The supervisor trains on adjacent bands. Protect the
+                # immediately preceding rung separately from the new one.
+                adult_previous_band = adult_current_band - 1
+
     options.evidence_directory.mkdir(parents=True, exist_ok=True)
     # Deployment is safe even if evaluation itself is interrupted or fails.
     _atomic_copy(options.incumbent, options.deployment)
@@ -759,6 +824,7 @@ def main() -> int:
     candidate_policies = list(dict.fromkeys(candidate_policies))
 
     records: dict[str, dict[str, Any]] = {}
+    previous_band_records: dict[str, dict[str, Any]] = {}
     policies: dict[str, Path] = {"incumbent": options.incumbent}
     if len(candidate_policies) == 1:
         policies["candidate"] = candidate_policies[0]
@@ -788,6 +854,26 @@ def main() -> int:
                 ),
                 options.evidence_directory / f"{name}.evidence.json",
             )
+            if adult_previous_band is not None:
+                previous_band_records[name] = _evaluate(
+                    options.evaluator,
+                    evaluation_arguments(
+                        training_arguments,
+                        policy_pack=policy,
+                        metallib=options.metallib,
+                        state_trace=(
+                            options.evidence_directory
+                            / f"{name}.previous-band.state.tsv"
+                        ),
+                        maximum_environments=options.maximum_environments,
+                        held_out_seed=options.held_out_seed,
+                        evaluation_steps=options.evaluation_steps,
+                        evaluation_minimum_band=adult_previous_band,
+                        evaluation_maximum_band=adult_previous_band,
+                    ),
+                    options.evidence_directory
+                    / f"{name}.previous-band.evidence.json",
+                )
     except Exception as error:
         failure = {
             "schema": "numi.policy-selection.v1",
@@ -803,17 +889,26 @@ def main() -> int:
         print(encoded, end="")
         return 1
     candidate_names = [name for name in policies if name != "incumbent"]
+    comparison_overrides: dict[str, dict[str, Any]] | None = None
+    if adult_previous_band is not None:
+        comparison_overrides = {}
+        for name in candidate_names:
+            comparison_overrides[name] = compare_adult_bands(
+                records["incumbent"],
+                records[name],
+                previous_band_records["incumbent"],
+                previous_band_records[name],
+            )
     champion, comparisons = select_candidate_champion(
         records["incumbent"],
         {name: records[name] for name in candidate_names},
+        comparison_overrides=comparison_overrides,
     )
 
     reported_candidate = (
         champion if champion != "incumbent" else candidate_names[-1]
     )
-    decision = compare_evidence(
-        records["incumbent"], records[reported_candidate]
-    )
+    decision = comparisons[reported_candidate]
     if champion == "incumbent":
         decision["selected"] = "incumbent"
         decision["candidate_advanced_deployment"] = False
@@ -824,6 +919,8 @@ def main() -> int:
             "deployment_policy_pack": str(options.deployment),
             "maximum_evaluation_environments": options.maximum_environments,
             "held_out_seed": options.held_out_seed,
+            "adult_current_band": adult_current_band,
+            "adult_previous_band": adult_previous_band,
             "evaluated_candidate_policy_packs": [
                 str(policies[name]) for name in candidate_names
             ],
