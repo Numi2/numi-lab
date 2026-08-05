@@ -17,6 +17,7 @@ private struct Options {
     var policyPack: String?
     var initializePolicyID: String?
     var initializeActorPolicyPack: String?
+    var initializeActorFreshCritic = false
     var actorObservationExtensionOffset: Int?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
@@ -135,6 +136,8 @@ private struct Options {
             case "--initialize-actor-policy-pack":
                 initializeActorPolicyPack = try value()
                 index += 1
+            case "--initialize-actor-fresh-critic":
+                initializeActorFreshCritic = true
             case "--actor-observation-extension-offset":
                 actorObservationExtensionOffset = try Self.integer(
                     value(),
@@ -772,6 +775,9 @@ private func initializePolicyIfRequested(
                     .actorObservationExtensionInverseStandardDeviation
             ),
         ])
+        if options.initializeActorFreshCritic {
+            arguments.append("--actor-fresh-critic")
+        }
     }
     if let offset = options.actorObservationExtensionOffset {
         arguments.append(contentsOf: [

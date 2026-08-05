@@ -25,6 +25,9 @@ provided. Every native trainer option passes through unchanged. Common options:
   --envs N --steps N --updates N --chunk N
   --policy-pack PATH                 Resume or use an existing PolicyPack
   --initialize-policy ID            Initialize a new policy
+  --initialize-actor-policy-pack PATH
+                                    Initialize the actor from a source PolicyPack
+  --initialize-actor-fresh-critic    Keep that actor but initialize a new critic
   --checkpoint-directory PATH --checkpoint-interval N
 
 Every run retains its post-update candidate. Numi evaluates that candidate and

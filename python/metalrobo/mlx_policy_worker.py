@@ -942,6 +942,7 @@ def _initialize(arguments: argparse.Namespace) -> int:
             arguments.actor_policy_pack,
             arguments.critic_observations,
             _configuration(arguments),
+            preserve_critic=not arguments.actor_fresh_critic,
             actor_observation_count=arguments.actor_observations,
             actor_observation_extension_mean=(
                 arguments.actor_observation_extension_mean
@@ -1073,10 +1074,14 @@ def _bind_contract(
         getattr(arguments, "actor_observation_extension_offset", None)
         is not None
     )
+    explicit_actor_initialization = (
+        getattr(arguments, "actor_policy_pack", None) is not None
+    )
     if (
         learner.contract_version != 0
         and existing != requested
         and not explicit_observation_migration
+        and not explicit_actor_initialization
     ):
         raise ValueError(
             "PolicyPack is bound to different world, task, observation, or action semantics"
@@ -1127,6 +1132,14 @@ def main() -> int:
         help=(
             "initialize from a PolicyPack actor, preserving its critic and "
             "exploration head when present"
+        ),
+    )
+    initialize.add_argument(
+        "--actor-fresh-critic",
+        action="store_true",
+        help=(
+            "preserve only the source actor and initialize a fresh critic "
+            "for the requested privileged observation contract"
         ),
     )
     initialize.add_argument(

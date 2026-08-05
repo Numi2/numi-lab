@@ -855,6 +855,27 @@ def main() -> int:
                 raise RuntimeError(
                     "deployment actor initialization changed policy output"
                 )
+            fresh_critic = MLXPolicyLearner.from_actor_policy_pack(
+                artifact,
+                critic_count + 7,
+                learner.configuration,
+                preserve_critic=False,
+                actor_observation_count=actor_count,
+                library_path=arguments.library,
+            )
+            fresh_critic_actor = fresh_critic.model.actor_mean(actor)
+            mx.eval(fresh_critic_actor)
+            if (
+                fresh_critic.critic_observation_count != critic_count + 7
+                or not np.array_equal(
+                    np.asarray(expected_actor),
+                    np.asarray(fresh_critic_actor),
+                )
+            ):
+                raise RuntimeError(
+                    "fresh-critic actor initialization changed the actor "
+                    "or retained the source critic contract"
+                )
             expanded = MLXPolicyLearner.from_actor_policy_pack(
                 deployment,
                 critic_count + 7,

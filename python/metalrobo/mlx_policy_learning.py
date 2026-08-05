@@ -2261,6 +2261,7 @@ class MLXPolicyLearner:
         critic_observation_count: int,
         configuration: MLXPPOConfiguration = MLXPPOConfiguration(),
         *,
+        preserve_critic: bool = True,
         actor_observation_count: int | None = None,
         actor_observation_extension_mean: float = 0.0,
         actor_observation_extension_inverse_standard_deviation: float = 1.0,
@@ -2269,16 +2270,21 @@ class MLXPolicyLearner:
     ) -> "MLXPolicyLearner":
         """Start PPO from an existing actor contract.
 
-        A stochastic PolicyPack preserves its critic and exploration head; a
-        deterministic deployment pack creates fresh versions of those two
-        training-only components. A wider observation contract is initialized
-        with zero-connected new inputs, preserving the actor's exact output
-        until learning uses them. Optimizer restoration remains an explicit
-        learner-checkpoint operation.
+        By default, a stochastic PolicyPack preserves its critic and
+        exploration head; a deterministic deployment pack creates fresh
+        versions of those two training-only components. ``preserve_critic``
+        can be disabled when migrating an actor into a task with a different
+        privileged critic contract, so the critic is freshly initialized at
+        the requested width while the actor remains unchanged. A wider actor
+        observation contract is initialized with zero-connected new inputs,
+        preserving the actor's exact output until learning uses them.
+        Optimizer restoration remains an explicit learner-checkpoint
+        operation.
         """
 
         pack = read_policy_pack(path, library_path=library_path)
         if (
+            preserve_critic and
             pack.critic_layers and
             pack.action_log_standard_deviation.size == pack.action_count
         ):
