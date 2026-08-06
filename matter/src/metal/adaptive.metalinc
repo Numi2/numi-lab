@@ -1,0 +1,467 @@
+namespace numi_matter_metal {
+
+kernel void nm_adaptive_measure(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMParticleStateGPU* particles [[buffer(2)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device NMAdaptiveStateGPU* adaptive [[buffer(5)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || dispatch.objectCount == 0u) {
+        return;
+    }
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    device NMAdaptiveStateGPU& output =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if ((object.flags & NM_OBJECT_ADAPTIVE) == 0u ||
+        output.activeRepresentation == NM_REPRESENTATION_RIGID) {
+        return;
+    }
+
+    float localMass = 0.0f;
+    float3 localPosition = float3(0.0f);
+    float3 localMomentum = float3(0.0f);
+    if (object.representation == NM_REPRESENTATION_MPM) {
+        const uint base = environment * dispatch.particleCount + object.stateOffset;
+        for (uint local = lane; local < object.stateCount; local += 32u) {
+            const NMParticleStateGPU state = particles[base + local];
+            const float mass = state.positionAndMass.w;
+            localMass += mass;
+            localPosition += mass * state.positionAndMass.xyz;
+            localMomentum += mass * state.velocityAndReferenceVolume.xyz;
+        }
+    } else if (object.representation == NM_REPRESENTATION_FEM) {
+        const uint base = environment * dispatch.femNodeCount + object.stateOffset;
+        for (uint local = lane; local < object.stateCount; local += 32u) {
+            const NMFEMNodeStateGPU state = femNodes[base + local];
+            const float mass = state.positionAndMass.w;
+            localMass += mass;
+            localPosition += mass * state.positionAndMass.xyz;
+            localMomentum += mass * state.velocityAndInverseMass.xyz;
+        }
+    }
+    const float mass = simd_sum(localMass);
+    const float3 positionSum = float3(
+        simd_sum(localPosition.x),
+        simd_sum(localPosition.y),
+        simd_sum(localPosition.z)
+    );
+    const float3 momentum = float3(
+        simd_sum(localMomentum.x),
+        simd_sum(localMomentum.y),
+        simd_sum(localMomentum.z)
+    );
+    threadgroup float3 sharedCenter;
+    threadgroup float3 sharedVelocity;
+    if (lane == 0u) {
+        sharedCenter = mass > 0.0f ? positionSum / mass : float3(0.0f);
+        sharedVelocity = mass > 0.0f ? momentum / mass : float3(0.0f);
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    float ixx = 0.0f;
+    float iyy = 0.0f;
+    float izz = 0.0f;
+    float ixy = 0.0f;
+    float ixz = 0.0f;
+    float iyz = 0.0f;
+    float3 angularMomentum = float3(0.0f);
+    const auto accumulate = [&](const float pointMass, const float3 position, const float3 velocity) {
+        const float3 r = position - sharedCenter;
+        ixx += pointMass * (r.y * r.y + r.z * r.z);
+        iyy += pointMass * (r.x * r.x + r.z * r.z);
+        izz += pointMass * (r.x * r.x + r.y * r.y);
+        ixy -= pointMass * r.x * r.y;
+        ixz -= pointMass * r.x * r.z;
+        iyz -= pointMass * r.y * r.z;
+        angularMomentum += pointMass * cross(r, velocity - sharedVelocity);
+    };
+    if (object.representation == NM_REPRESENTATION_MPM) {
+        const uint base = environment * dispatch.particleCount + object.stateOffset;
+        for (uint local = lane; local < object.stateCount; local += 32u) {
+            const NMParticleStateGPU state = particles[base + local];
+            accumulate(
+                state.positionAndMass.w,
+                state.positionAndMass.xyz,
+                state.velocityAndReferenceVolume.xyz
+            );
+        }
+    } else if (object.representation == NM_REPRESENTATION_FEM) {
+        const uint base = environment * dispatch.femNodeCount + object.stateOffset;
+        for (uint local = lane; local < object.stateCount; local += 32u) {
+            const NMFEMNodeStateGPU state = femNodes[base + local];
+            accumulate(
+                state.positionAndMass.w,
+                state.positionAndMass.xyz,
+                state.velocityAndInverseMass.xyz
+            );
+        }
+    }
+    ixx = simd_sum(ixx);
+    iyy = simd_sum(iyy);
+    izz = simd_sum(izz);
+    ixy = simd_sum(ixy);
+    ixz = simd_sum(ixz);
+    iyz = simd_sum(iyz);
+    angularMomentum = float3(
+        simd_sum(angularMomentum.x),
+        simd_sum(angularMomentum.y),
+        simd_sum(angularMomentum.z)
+    );
+
+    float f00 = 0.0f;
+    float f01 = 0.0f;
+    float f02 = 0.0f;
+    float f10 = 0.0f;
+    float f11 = 0.0f;
+    float f12 = 0.0f;
+    float f20 = 0.0f;
+    float f21 = 0.0f;
+    float f22 = 0.0f;
+    float deformationWeight = 0.0f;
+    float maximumStrain = 0.0f;
+    float strainSquared = 0.0f;
+    float minimumJ = INFINITY;
+    if (object.representation == NM_REPRESENTATION_MPM) {
+        const uint base = environment * dispatch.particleCount + object.stateOffset;
+        for (uint local = lane; local < object.stateCount; local += 32u) {
+            const NMParticleStateGPU state = particles[base + local];
+            const float3x3 deformation = matrixFromRows(
+                state.deformationRow0,
+                state.deformationRow1,
+                state.deformationRow2
+            );
+            const float weight = state.positionAndMass.w;
+            f00 += weight * deformation[0][0];
+            f01 += weight * deformation[1][0];
+            f02 += weight * deformation[2][0];
+            f10 += weight * deformation[0][1];
+            f11 += weight * deformation[1][1];
+            f12 += weight * deformation[2][1];
+            f20 += weight * deformation[0][2];
+            f21 += weight * deformation[1][2];
+            f22 += weight * deformation[2][2];
+            deformationWeight += weight;
+            const float3x3 rotation = polarRotation(deformation);
+            const float strain = maximumAbs(deformation - rotation);
+            maximumStrain = max(maximumStrain, strain);
+            strainSquared += weight * strain * strain;
+            minimumJ = min(minimumJ, determinant(deformation));
+        }
+    } else if (object.representation == NM_REPRESENTATION_FEM) {
+        const uint nodeBase = environment * dispatch.femNodeCount;
+        for (uint local = lane; local < object.elementCount; local += 32u) {
+            const NMTetrahedronGPU tetrahedron =
+                tetrahedra[object.elementOffset + local];
+            const float3x3 deformation = tetrahedronDeformation(
+                tetrahedron,
+                femNodes,
+                nodeBase
+            );
+            const float weight = tetrahedron.inverseRestRow0.w;
+            f00 += weight * deformation[0][0];
+            f01 += weight * deformation[1][0];
+            f02 += weight * deformation[2][0];
+            f10 += weight * deformation[0][1];
+            f11 += weight * deformation[1][1];
+            f12 += weight * deformation[2][1];
+            f20 += weight * deformation[0][2];
+            f21 += weight * deformation[1][2];
+            f22 += weight * deformation[2][2];
+            deformationWeight += weight;
+            const float3x3 rotation = polarRotation(deformation);
+            const float strain = maximumAbs(deformation - rotation);
+            maximumStrain = max(maximumStrain, strain);
+            strainSquared += weight * strain * strain;
+            minimumJ = min(minimumJ, determinant(deformation));
+        }
+    }
+    f00 = simd_sum(f00); f01 = simd_sum(f01); f02 = simd_sum(f02);
+    f10 = simd_sum(f10); f11 = simd_sum(f11); f12 = simd_sum(f12);
+    f20 = simd_sum(f20); f21 = simd_sum(f21); f22 = simd_sum(f22);
+    deformationWeight = simd_sum(deformationWeight);
+    maximumStrain = simd_max(maximumStrain);
+    strainSquared = simd_sum(strainSquared);
+    minimumJ = simd_min(minimumJ);
+
+    if (lane == 0u && mass > 0.0f) {
+        const float3x3 inertia = transpose(float3x3(
+            float3(ixx, ixy, ixz),
+            float3(ixy, iyy, iyz),
+            float3(ixz, iyz, izz)
+        ));
+        float3x3 inverseInertia;
+        const bool invertible = invert3x3(inertia, inverseInertia);
+        const float3 angularVelocity = invertible
+            ? inverseInertia * angularMomentum
+            : float3(0.0f);
+        const float3x3 meanDeformation = deformationWeight > 0.0f
+            ? transpose(float3x3(
+                float3(f00, f01, f02),
+                float3(f10, f11, f12),
+                float3(f20, f21, f22)
+              )) / deformationWeight
+            : float3x3(1.0f);
+        const float3x3 rotation = polarRotation(meanDeformation);
+        const float reconstructionResidual = maximumAbs(meanDeformation - rotation);
+        output.massAndError = float4(
+            mass,
+            maximumStrain,
+            deformationWeight > 0.0f
+                ? sqrt(max(strainSquared / deformationWeight, 0.0f))
+                : 0.0f,
+            reconstructionResidual
+        );
+        output.centerAndRadius = float4(sharedCenter, 0.0f);
+        output.linearVelocityAndAngularSpeed = float4(
+            sharedVelocity,
+            length(angularVelocity)
+        );
+        output.angularVelocityAndMinimumJ = float4(
+            angularVelocity,
+            minimumJ
+        );
+        output.orientation = quaternionFromMatrix(rotation);
+        if (invertible) {
+            matrixToRows(
+                inverseInertia,
+                output.inverseInertiaRow0,
+                output.inverseInertiaRow1,
+                output.inverseInertiaRow2
+            );
+        } else {
+            output.inverseInertiaRow0 = float4(0.0f);
+            output.inverseInertiaRow1 = float4(0.0f);
+            output.inverseInertiaRow2 = float4(0.0f);
+        }
+    }
+}
+
+kernel void nm_adaptive_decide(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(2)]],
+    device NMAdaptiveStateGPU* adaptive [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total || dispatch.objectCount == 0u) {
+        return;
+    }
+    const uint objectIndex = global % dispatch.objectCount;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if ((object.flags & NM_OBJECT_ADAPTIVE) == 0u) {
+        return;
+    }
+    device NMAdaptiveStateGPU& state = adaptive[global];
+    const NMSchedulerStateGPU scheduler = schedulers[global];
+    if (state.activeRepresentation == NM_REPRESENTATION_RIGID) {
+        const bool promote =
+            scheduler.physical.x > scheduler.thresholds.x ||
+            scheduler.physical.z > object.fidelity.z ||
+            scheduler.requestedExponent > scheduler.baseExponent ||
+            scheduler.numerical.x < dispatch.numericalLimits.z;
+        if (promote) {
+            state.requestedRepresentation = object.representation;
+            state.stableFrames = 0u;
+        }
+        return;
+    }
+    const bool rigidEnough =
+        state.massAndError.y <= object.fidelity.w &&
+        state.massAndError.w <= object.fidelity.y &&
+        state.angularVelocityAndMinimumJ.w > dispatch.numericalLimits.z;
+    state.stableFrames = rigidEnough ? state.stableFrames + 1u : 0u;
+    if (state.stableFrames >= 30u) {
+        state.requestedRepresentation = NM_REPRESENTATION_RIGID;
+    } else {
+        state.requestedRepresentation = state.activeRepresentation;
+    }
+}
+
+kernel void nm_adaptive_demote_to_rigid(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMRigidProxyGPU* proxies [[buffer(3)]],
+    device NMAdaptiveStateGPU* adaptive [[buffer(4)]],
+    device NMRigidStateGPU* rigidStates [[buffer(5)]],
+    device MRBodyStateGPU* sceneBodies [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total || dispatch.objectCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.objectCount;
+    const uint objectIndex = global - environment * dispatch.objectCount;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    device NMAdaptiveStateGPU& state = adaptive[global];
+    if ((object.flags & NM_OBJECT_ADAPTIVE) == 0u ||
+        state.activeRepresentation == NM_REPRESENTATION_RIGID ||
+        state.requestedRepresentation != NM_REPRESENTATION_RIGID ||
+        object.rigidBinding >= dispatch.rigidProxyCount) {
+        return;
+    }
+    const NMRigidProxyGPU proxy = proxies[object.rigidBinding];
+    device NMRigidStateGPU& rigid = rigidStates[
+        environment * dispatch.rigidProxyCount + object.rigidBinding
+    ];
+    rigid.bodyCenter = state.centerAndRadius;
+    rigid.centerAndRadius.xyz = state.centerAndRadius.xyz;
+    rigid.orientation = state.orientation;
+    rigid.linearVelocityAndInverseMass = float4(
+        state.linearVelocityAndAngularSpeed.xyz,
+        state.massAndError.x > 0.0f ? 1.0f / state.massAndError.x : 0.0f
+    );
+    rigid.angularVelocity = float4(state.angularVelocityAndMinimumJ.xyz, 0.0f);
+    rigid.inverseInertiaRow0 = state.inverseInertiaRow0;
+    rigid.inverseInertiaRow1 = state.inverseInertiaRow1;
+    rigid.inverseInertiaRow2 = state.inverseInertiaRow2;
+    if ((proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
+        (proxy.flags & NM_RIGID_ARTICULATED) == 0u &&
+        proxy.bodyIndex < bridge.sceneBodyCount) {
+        device MRBodyStateGPU& body = sceneBodies[
+            environment * bridge.sceneStride + proxy.bodyIndex
+        ];
+        body.position.xyz = state.centerAndRadius.xyz;
+        body.orientation = state.orientation;
+        body.linearVelocityAndInverseMass = rigid.linearVelocityAndInverseMass;
+        body.angularVelocity.xyz = state.angularVelocityAndMinimumJ.xyz;
+        body.inverseInertiaWorldRow0 = state.inverseInertiaRow0;
+        body.inverseInertiaWorldRow1 = state.inverseInertiaRow1;
+        body.inverseInertiaWorldRow2 = state.inverseInertiaRow2;
+    }
+    state.activeRepresentation = NM_REPRESENTATION_RIGID;
+    state.requestedRepresentation = NM_REPRESENTATION_RIGID;
+    state.stableFrames = 0u;
+}
+
+kernel void nm_adaptive_promote_mpm(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(2)]],
+    device const NMRigidStateGPU* rigidStates [[buffer(3)]],
+    device NMParticleStateGPU* particles [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.particleCount;
+    if (global >= total || dispatch.particleCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.particleCount;
+    device NMParticleStateGPU& particle = particles[global];
+    const uint objectIndex = particle.identity.x;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMAdaptiveStateGPU state =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if (object.representation != NM_REPRESENTATION_MPM ||
+        state.activeRepresentation != NM_REPRESENTATION_RIGID ||
+        state.requestedRepresentation != NM_REPRESENTATION_MPM ||
+        object.rigidBinding >= dispatch.rigidProxyCount) {
+        return;
+    }
+    const NMRigidStateGPU rigid = rigidStates[
+        environment * dispatch.rigidProxyCount + object.rigidBinding
+    ];
+    const float4 demotionInverse = quaternionConjugate(state.orientation);
+    const float3 local = quaternionRotate(
+        demotionInverse,
+        particle.referenceAndTemperature.xyz - state.centerAndRadius.xyz
+    );
+    const float3 position = rigid.bodyCenter.xyz +
+        quaternionRotate(rigid.orientation, local);
+    particle.positionAndMass.xyz = position;
+    particle.velocityAndReferenceVolume.xyz =
+        rigid.linearVelocityAndInverseMass.xyz +
+        cross(rigid.angularVelocity.xyz, position - rigid.bodyCenter.xyz);
+    const float3x3 rotation = polarRotation(matrixFromRows(
+        rigid.inverseInertiaRow0,
+        rigid.inverseInertiaRow1,
+        rigid.inverseInertiaRow2
+    ));
+    matrixToRows(
+        rotation,
+        particle.deformationRow0,
+        particle.deformationRow1,
+        particle.deformationRow2
+    );
+    particle.affineRow0 = float4(0.0f);
+    particle.affineRow1 = float4(0.0f);
+    particle.affineRow2 = float4(0.0f);
+}
+
+kernel void nm_adaptive_promote_fem(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(2)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(3)]],
+    device const NMRigidStateGPU* rigidStates [[buffer(4)]],
+    device NMFEMNodeStateGPU* nodes [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.femNodeCount;
+    const uint nodeIndex = global - environment * dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[nodeIndex].objectIndex;
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount) {
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMAdaptiveStateGPU state =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        state.activeRepresentation != NM_REPRESENTATION_RIGID ||
+        state.requestedRepresentation != NM_REPRESENTATION_FEM ||
+        object.rigidBinding >= dispatch.rigidProxyCount) {
+        return;
+    }
+    const NMRigidStateGPU rigid = rigidStates[
+        environment * dispatch.rigidProxyCount + object.rigidBinding
+    ];
+    device NMFEMNodeStateGPU& node = nodes[global];
+    const float3 local = quaternionRotate(
+        quaternionConjugate(state.orientation),
+        node.restAndFixed.xyz - state.centerAndRadius.xyz
+    );
+    const float3 position = rigid.bodyCenter.xyz +
+        quaternionRotate(rigid.orientation, local);
+    node.positionAndMass.xyz = position;
+    node.velocityAndInverseMass.xyz =
+        rigid.linearVelocityAndInverseMass.xyz +
+        cross(rigid.angularVelocity.xyz, position - rigid.bodyCenter.xyz);
+}
+
+kernel void nm_adaptive_finish_promotion(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device NMAdaptiveStateGPU* adaptive [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total || dispatch.objectCount == 0u) {
+        return;
+    }
+    const uint objectIndex = global % dispatch.objectCount;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    device NMAdaptiveStateGPU& state = adaptive[global];
+    if ((object.flags & NM_OBJECT_ADAPTIVE) != 0u &&
+        state.activeRepresentation == NM_REPRESENTATION_RIGID &&
+        state.requestedRepresentation == object.representation) {
+        state.activeRepresentation = object.representation;
+        state.stableFrames = 0u;
+    }
+}
+
+} // namespace numi_matter_metal
