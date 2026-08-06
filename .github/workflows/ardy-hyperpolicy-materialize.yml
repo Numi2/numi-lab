@@ -1,7 +1,7 @@
 name: Materialize ARDY HyperPolicy integration
 
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - numisolver
     paths:
@@ -68,8 +68,7 @@ jobs:
           once('    src/metal/MetalWorld.mm\n', '    src/metal/MetalWorld.mm\n    src/metal/MetalHyperPolicy.mm\n', 'Objective-C++ unit')
           p.write_text(s)
           q = Path('tools/apply_ardy_hyperpolicy_integration.py')
-          t = q.read_text().replace('    patch_cmake()\n', '', 1)
-          q.write_text(t)
+          q.write_text(q.read_text().replace('    patch_cmake()\n', '', 1))
           PY
 
       - name: Integrate native and learner seams
