@@ -1,9 +1,7 @@
 #pragma once
 
-// Versioned, pointer-free ABI shared by C++, Objective-C++, and Metal.
-// Every offset and stride is measured in elements. Runtime storage is fixed
-// after cooking; kernels never allocate, append through unordered atomics, or
-// require a CPU-visible count to continue a step.
+// Pointer-free ABI shared by C++, Objective-C++, and Metal.
+// Every offset and stride is measured in elements, never bytes.
 
 #ifdef __METAL_VERSION__
 #include <metal_stdlib>
@@ -36,60 +34,48 @@ typedef struct NM_ALIGN16 nm_uint4 {
 
 #define NM_MATTER_ABI_VERSION 1u
 #define NM_INVALID_INDEX 0xffffffffu
-#define NM_SIMD_WIDTH 32u
-#define NM_MAX_EXPRESSION_STACK 96u
-#define NM_MAX_MATERIAL_PARAMETERS 32u
+#define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
-#define NM_TET_NODE_COUNT 4u
 #define NM_EVENT_CLASS_COUNT 8u
 #define NM_MAX_RATE_EXPONENT 8u
-#define NM_MAX_PCG_ITERATIONS 1024u
 
-#define NM_ENUM(name) enum name : nm_u32
-
-NM_ENUM(NMRepresentationKind) {
+enum NMRepresentationKind : nm_u32 {
     NM_REPRESENTATION_RIGID = 0u,
     NM_REPRESENTATION_MPM = 1u,
     NM_REPRESENTATION_FEM = 2u,
-    NM_REPRESENTATION_ROD = 3u,
-    NM_REPRESENTATION_SURFACE = 4u,
 };
 
-NM_ENUM(NMConstitutiveModelKind) {
+enum NMConstitutiveKind : nm_u32 {
     NM_CONSTITUTIVE_BYTECODE = 0u,
     NM_CONSTITUTIVE_NEO_HOOKEAN = 1u,
     NM_CONSTITUTIVE_COROTATED = 2u,
-    NM_CONSTITUTIVE_HENCKY = 3u,
-    NM_CONSTITUTIVE_DRUCKER_PRAGER = 4u,
-    NM_CONSTITUTIVE_VON_MISES = 5u,
-    NM_CONSTITUTIVE_NEWTONIAN = 6u,
-    NM_CONSTITUTIVE_VISCO_HYPERELASTIC = 7u,
+    NM_CONSTITUTIVE_DRUCKER_PRAGER = 3u,
+    NM_CONSTITUTIVE_VON_MISES = 4u,
+    NM_CONSTITUTIVE_VISCO_HYPERELASTIC = 5u,
 };
 
-NM_ENUM(NMExpressionOpcode) {
+enum NMExpressionOpcode : nm_u32 {
     NM_EXPR_CONSTANT = 0u,
     NM_EXPR_PARAMETER = 1u,
-    NM_EXPR_STATE = 2u,
-    NM_EXPR_F = 3u,
-    NM_EXPR_DF = 4u,
-    NM_EXPR_RATE = 5u,
-    NM_EXPR_DRATE = 6u,
-    NM_EXPR_ADD = 7u,
-    NM_EXPR_SUBTRACT = 8u,
-    NM_EXPR_MULTIPLY = 9u,
-    NM_EXPR_DIVIDE = 10u,
-    NM_EXPR_NEGATE = 11u,
-    NM_EXPR_LOG = 12u,
-    NM_EXPR_EXP = 13u,
-    NM_EXPR_SQRT = 14u,
-    NM_EXPR_ABS = 15u,
-    NM_EXPR_MIN = 16u,
-    NM_EXPR_MAX = 17u,
-    NM_EXPR_POW_INTEGER = 18u,
-    NM_EXPR_CLAMP = 19u,
+    NM_EXPR_F = 2u,
+    NM_EXPR_DF = 3u,
+    NM_EXPR_STATE = 4u,
+    NM_EXPR_ADD = 5u,
+    NM_EXPR_SUBTRACT = 6u,
+    NM_EXPR_MULTIPLY = 7u,
+    NM_EXPR_DIVIDE = 8u,
+    NM_EXPR_NEGATE = 9u,
+    NM_EXPR_LOG = 10u,
+    NM_EXPR_EXP = 11u,
+    NM_EXPR_SQRT = 12u,
+    NM_EXPR_ABS = 13u,
+    NM_EXPR_MIN = 14u,
+    NM_EXPR_MAX = 15u,
+    NM_EXPR_POW_INTEGER = 16u,
+    NM_EXPR_CLAMP = 17u,
 };
 
-NM_ENUM(NMMatterStatusCode) {
+enum NMStatusCode : nm_u32 {
     NM_STATUS_SUCCESS = 0u,
     NM_STATUS_INVALID_DISPATCH = 1u,
     NM_STATUS_CAPACITY_OVERFLOW = 2u,
@@ -98,67 +84,42 @@ NM_ENUM(NMMatterStatusCode) {
     NM_STATUS_INVALID_DEFORMATION = 5u,
     NM_STATUS_CONTACT_FAILURE = 6u,
     NM_STATUS_LINEAR_SOLVER_FAILURE = 7u,
-    NM_STATUS_EVENT_CAPACITY = 8u,
-    NM_STATUS_UNSUPPORTED = 9u,
+    NM_STATUS_UNSUPPORTED = 8u,
 };
 
-NM_ENUM(NMMatterFlags) {
+enum NMMatterFlags : nm_u32 {
     NM_MATTER_DETERMINISTIC = 1u << 0u,
-    NM_MATTER_ENABLE_CONTACT = 1u << 1u,
-    NM_MATTER_ENABLE_ADAPTIVE = 1u << 2u,
-    NM_MATTER_ENABLE_IDENTIFICATION = 1u << 3u,
-    NM_MATTER_CAPTURE_DIAGNOSTICS = 1u << 4u,
+    NM_MATTER_CONTACT = 1u << 1u,
+    NM_MATTER_ADAPTIVE = 1u << 2u,
+    NM_MATTER_IDENTIFICATION = 1u << 3u,
 };
 
-NM_ENUM(NMObjectFlags) {
+enum NMObjectFlags : nm_u32 {
     NM_OBJECT_ACTIVE = 1u << 0u,
-    NM_OBJECT_DYNAMIC = 1u << 1u,
-    NM_OBJECT_KINEMATIC = 1u << 2u,
-    NM_OBJECT_TWO_WAY_COUPLED = 1u << 3u,
-    NM_OBJECT_ADAPTIVE = 1u << 4u,
-    NM_OBJECT_IDENTIFIABLE = 1u << 5u,
+    NM_OBJECT_TWO_WAY_COUPLED = 1u << 1u,
+    NM_OBJECT_ADAPTIVE = 1u << 2u,
+    NM_OBJECT_IDENTIFIABLE = 1u << 3u,
 };
 
-NM_ENUM(NMMaterialFlags) {
-    NM_MATERIAL_HAS_DISSIPATION = 1u << 0u,
-    NM_MATERIAL_FAST_CONSTITUTIVE = 1u << 1u,
+enum NMRigidShapeKind : nm_u32 {
+    NM_RIGID_PLANE = 0u,
+    NM_RIGID_SPHERE = 1u,
+    NM_RIGID_CAPSULE = 2u,
+    NM_RIGID_BOX = 3u,
 };
 
-NM_ENUM(NMRigidProxyFlags) {
-    NM_RIGID_PROXY_ARTICULATED = 1u << 0u,
-    NM_RIGID_PROXY_DYNAMIC = 1u << 1u,
-    NM_RIGID_PROXY_KINEMATIC = 1u << 2u,
+enum NMRigidBindingFlags : nm_u32 {
+    NM_RIGID_ARTICULATED = 1u << 0u,
+    NM_RIGID_DYNAMIC = 1u << 1u,
 };
 
-NM_ENUM(NMRigidShapeKind) {
-    NM_RIGID_SHAPE_PLANE = 0u,
-    NM_RIGID_SHAPE_SPHERE = 1u,
-    NM_RIGID_SHAPE_CAPSULE = 2u,
-    NM_RIGID_SHAPE_BOX = 3u,
-    NM_RIGID_SHAPE_SDF = 4u,
-};
-
-NM_ENUM(NMContactFlags) {
+enum NMContactFlags : nm_u32 {
     NM_CONTACT_VALID = 1u << 0u,
     NM_CONTACT_STICKING = 1u << 1u,
     NM_CONTACT_NEW = 1u << 2u,
-    NM_CONTACT_ADHESIVE = 1u << 3u,
 };
 
-NM_ENUM(NMAdaptiveMode) {
-    NM_ADAPTIVE_CONTINUUM = 0u,
-    NM_ADAPTIVE_RIGID = 1u,
-    NM_ADAPTIVE_PROMOTING = 2u,
-    NM_ADAPTIVE_DEMOTING = 3u,
-};
-
-NM_ENUM(NMAdaptiveTriggerFlags) {
-    NM_ADAPTIVE_TRIGGER_VALID = 1u << 0u,
-    NM_ADAPTIVE_TRIGGER_FORCE_CONTINUUM = 1u << 1u,
-    NM_ADAPTIVE_TRIGGER_FORCE_RIGID = 1u << 2u,
-};
-
-NM_ENUM(NMEventClass) {
+enum NMEventClass : nm_u32 {
     NM_EVENT_CONTACT_ONSET = 0u,
     NM_EVENT_CONTACT_RELEASE = 1u,
     NM_EVENT_SLIP_ONSET = 2u,
@@ -167,11 +128,6 @@ NM_ENUM(NMEventClass) {
     NM_EVENT_INVERSION_RISK = 5u,
     NM_EVENT_SOLVER_RESIDUAL = 6u,
     NM_EVENT_RATE_CHANGE = 7u,
-};
-
-NM_ENUM(NMIdentificationFlags) {
-    NM_IDENTIFICATION_LOG_SPACE = 1u << 0u,
-    NM_IDENTIFICATION_ENABLED = 1u << 1u,
 };
 
 typedef struct NM_ALIGN16 NMMatterDispatchGPU {
@@ -186,7 +142,7 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
     nm_u32 gridNodeCount;
 
     nm_u32 femNodeCount;
-    nm_u32 tetCount;
+    nm_u32 tetrahedronCount;
     nm_u32 rigidProxyCount;
     nm_u32 contactPairCount;
 
@@ -195,9 +151,9 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
     nm_u32 identificationCandidateCount;
     nm_u32 eventStride;
 
-    // xyz gravity, w frame/control timestep.
+    // xyz gravity, w frame timestep.
     nm_float4 gravityAndTimestep;
-    // contact slop, max depenetration speed, determinant floor, finite limit.
+    // contact slop, maximum depenetration speed, determinant floor, finite limit.
     nm_float4 numericalLimits;
 } NMMatterDispatchGPU;
 
@@ -212,7 +168,7 @@ typedef struct NM_ALIGN16 NMMicrostepGPU {
     nm_u32 runIdentification;
     nm_u32 runAdaptiveTransfer;
 
-    // x dt, y 1/dt, z frame-relative time, w reserved.
+    // global microtick dt, inverse dt, frame-relative time, reserved.
     nm_float4 time;
 } NMMicrostepGPU;
 
@@ -223,8 +179,8 @@ typedef struct NM_ALIGN16 NMBridgeDispatchGPU {
     nm_u32 currentBodyStride;
 
     nm_u32 articulatedBodyCount;
-    nm_u32 articulatedStride;
     nm_u32 sceneBodyCount;
+    nm_u32 articulatedStride;
     nm_u32 sceneStride;
 
     nm_u32 reactionStride;
@@ -232,17 +188,28 @@ typedef struct NM_ALIGN16 NMBridgeDispatchGPU {
     nm_u32 reserved0;
     nm_u32 reserved1;
 
-    // x inverse dt (impulse->force), y dt, zw reserved.
+    // inverse dt, dt, reserved, reserved.
     nm_float4 time;
 } NMBridgeDispatchGPU;
+
+typedef struct NM_ALIGN16 NMIdentificationPassGPU {
+    nm_u32 candidateCount;
+    nm_u32 distributionCount;
+    nm_u32 generation;
+    nm_u32 flags;
+
+    nm_u32 seedLo;
+    nm_u32 seedHi;
+    nm_u32 reserved0;
+    nm_u32 reserved1;
+} NMIdentificationPassGPU;
 
 typedef struct NM_ALIGN16 NMExpressionInstructionGPU {
     nm_u32 opcode;
     nm_u32 index;
     nm_i32 integer;
     nm_u32 reserved;
-    // x scalar literal; yzw reserved.
-    nm_float4 literal;
+    nm_float4 immediate;
 } NMExpressionInstructionGPU;
 
 typedef struct NM_ALIGN16 NMScalarProgramGPU {
@@ -252,128 +219,106 @@ typedef struct NM_ALIGN16 NMScalarProgramGPU {
     nm_u32 flags;
 } NMScalarProgramGPU;
 
-typedef struct NM_ALIGN16 NMParameterRangeGPU {
-    // current/default, lower, upper, proposal sigma.
-    nm_float4 valueAndBounds;
-    // dimension L/M/T/temperature encoded as signed bytes cast to uint32.
-    nm_uint4 dimension;
-    // global parameter index, material-local index, flags, reserved.
-    nm_uint4 identity;
-} NMParameterRangeGPU;
-
 typedef struct NM_ALIGN16 NMMaterialGPU {
-    nm_u32 modelKind;
-    nm_u32 flags;
-    nm_u32 firstParameter;
+    nm_u32 constitutiveKind;
+    nm_u32 parameterOffset;
     nm_u32 parameterCount;
-
-    nm_u32 firstState;
     nm_u32 stateCount;
+
+    nm_u32 stressProgramOffset;
+    nm_u32 tangentProgramOffset;
     nm_u32 validityProgram;
-    nm_u32 reserved0;
+    nm_u32 flags;
 
-    // Nine scalar programs in row-major order for P=dPsi/dF.
-    nm_uint4 stressPrograms0;
-    nm_uint4 stressPrograms1;
-    nm_uint4 stressProgram8AndPadding;
-    // Nine scalar programs for dP(F)[dF].
-    nm_uint4 tangentPrograms0;
-    nm_uint4 tangentPrograms1;
-    nm_uint4 tangentProgram8AndPadding;
-    // Dissipative stress dPhi/dD and its directional derivative.
-    nm_uint4 dissipativeStressPrograms0;
-    nm_uint4 dissipativeStressPrograms1;
-    nm_uint4 dissipativeStressProgram8AndPadding;
-    nm_uint4 dissipativeTangentPrograms0;
-    nm_uint4 dissipativeTangentPrograms1;
-    nm_uint4 dissipativeTangentProgram8AndPadding;
-
-    // static friction, dynamic friction, restitution, adhesion stress.
+    // density, reference temperature, viscosity, yield stress.
+    nm_float4 bulk;
+    // static friction, dynamic friction, restitution, adhesion.
     nm_float4 interfaceResponse;
+    // hardening, damage rate, reserved, reserved.
+    nm_float4 inelastic;
     // minimum J, maximum J, maximum stress, maximum energy density.
-    nm_float4 validityLimits;
-    // Fast-path parameter indices: mu, lambda, viscosity, density.
-    nm_uint4 fastParameters;
+    nm_float4 validity;
 } NMMaterialGPU;
+
+typedef struct NM_ALIGN16 NMParameterRangeGPU {
+    // value, lower, upper, logarithmic flag.
+    nm_float4 valueAndBounds;
+} NMParameterRangeGPU;
 
 typedef struct NM_ALIGN16 NMContinuumObjectGPU {
     nm_u32 representation;
     nm_u32 materialIndex;
     nm_u32 flags;
+    nm_u32 schedulerIndex;
+
+    nm_u32 stateOffset;
+    nm_u32 stateCount;
+    nm_u32 elementOffset;
+    nm_u32 elementCount;
+
+    nm_u32 auxiliaryOffset;
+    nm_u32 auxiliaryCount;
     nm_u32 rigidBinding;
+    nm_u32 topologyGeneration;
 
-    nm_u32 firstParticle;
-    nm_u32 particleCount;
-    nm_u32 firstGridNode;
-    nm_u32 gridNodeCount;
-
-    nm_u32 firstFEMNode;
-    nm_u32 femNodeCount;
-    nm_u32 firstTet;
-    nm_u32 tetCount;
-
-    // characteristic length, deformation tolerance, promote strain, demote strain.
-    nm_float4 adaptation;
-    // reference center of mass xyz, reference total mass.
-    nm_float4 referenceCenterAndMass;
-    // reference inverse inertia rows about COM.
-    nm_float4 inverseInertiaRow0;
-    nm_float4 inverseInertiaRow1;
-    nm_float4 inverseInertiaRow2;
+    // base rate exponent, maximum exponent, PCG iterations, reserved.
+    nm_uint4 solver;
+    // characteristic length, rigid tolerance, promotion strain, demotion strain.
+    nm_float4 fidelity;
 } NMContinuumObjectGPU;
 
 typedef struct NM_ALIGN16 NMParticleStateGPU {
-    // world position xyz, mass.
     nm_float4 positionAndMass;
-    // world velocity xyz, reference volume.
-    nm_float4 velocityAndVolume;
-    // Deformation gradient F rows, row-major xyz; w reserved.
-    nm_float4 F0;
-    nm_float4 F1;
-    nm_float4 F2;
-    // APIC affine velocity matrix rows.
-    nm_float4 C0;
-    nm_float4 C1;
-    nm_float4 C2;
-    // Reference position xyz, object index.
-    nm_float4 referenceAndObject;
+    nm_float4 velocityAndReferenceVolume;
+    nm_float4 deformationRow0;
+    nm_float4 deformationRow1;
+    nm_float4 deformationRow2;
+    nm_float4 affineRow0;
+    nm_float4 affineRow1;
+    nm_float4 affineRow2;
+    nm_float4 referenceAndTemperature;
+    // object, material, topology generation, flags.
+    nm_uint4 identity;
 } NMParticleStateGPU;
 
 typedef struct NM_ALIGN16 NMGridNodeStateGPU {
-    // Reference/world node position xyz, mass.
     nm_float4 positionAndMass;
-    // Velocity xyz, accumulated temperature/unused.
-    nm_float4 velocityAndAux;
-    // Force xyz, reserved.
-    nm_float4 force;
+    nm_float4 velocityAndInverseMass;
+    nm_float4 forceAndEnergy;
+    nm_float4 candidateVelocity;
 } NMGridNodeStateGPU;
 
 typedef struct NM_ALIGN16 NMMPMStencilGPU {
     nm_u32 particleIndex;
     nm_u32 nodeIndex;
-    nm_u32 objectIndex;
     nm_u32 localSlot;
-    // x shape weight, yzw reference gradient.
-    nm_float4 weightAndGradient;
+    nm_u32 reserved;
+    // xyz reference gradient, w weight.
+    nm_float4 gradientAndWeight;
 } NMMPMStencilGPU;
 
+typedef struct NM_ALIGN16 NMIncidenceRangeGPU {
+    nm_u32 first;
+    nm_u32 count;
+    nm_u32 objectIndex;
+    nm_u32 reserved;
+} NMIncidenceRangeGPU;
+
 typedef struct NM_ALIGN16 NMFEMNodeStateGPU {
-    // world position xyz, mass.
     nm_float4 positionAndMass;
-    // velocity xyz, inverse mass.
     nm_float4 velocityAndInverseMass;
-    // reference position xyz, object index.
-    nm_float4 referenceAndObject;
+    nm_float4 restAndFixed;
+    nm_float4 deltaVelocity;
 } NMFEMNodeStateGPU;
 
 typedef struct NM_ALIGN16 NMTetrahedronGPU {
     nm_uint4 nodes;
-    // inverse rest matrix rows.
-    nm_float4 inverseRest0;
-    nm_float4 inverseRest1;
-    nm_float4 inverseRest2;
-    // x rest volume, y object index, z material index, w reserved.
-    nm_float4 volumeAndIdentity;
+    // inverse rest matrix rows; row0.w is rest volume.
+    nm_float4 inverseRestRow0;
+    nm_float4 inverseRestRow1;
+    nm_float4 inverseRestRow2;
+    // material, object, topology generation, flags.
+    nm_uint4 identity;
 } NMTetrahedronGPU;
 
 typedef struct NM_ALIGN16 NMFEMElementVectorGPU {
@@ -383,17 +328,10 @@ typedef struct NM_ALIGN16 NMFEMElementVectorGPU {
     nm_float4 node3;
 } NMFEMElementVectorGPU;
 
-typedef struct NM_ALIGN16 NMIncidenceRangeGPU {
-    nm_u32 first;
-    nm_u32 count;
-    nm_u32 owner;
-    nm_u32 flags;
-} NMIncidenceRangeGPU;
-
 typedef struct NM_ALIGN16 NMPCGScalarGPU {
-    // rr, pAp, alpha, beta.
-    nm_float4 values;
-    // initial rr, relative residual, iteration, flags.
+    // r.r, p.Ap, alpha, beta.
+    nm_float4 reduction;
+    // residual, initial residual, converged, iteration.
     nm_float4 diagnostics;
 } NMPCGScalarGPU;
 
@@ -403,130 +341,107 @@ typedef struct NM_ALIGN16 NMRigidProxyGPU {
     nm_u32 materialIndex;
     nm_u32 flags;
 
-    // World center or plane normal xyz; plane offset/radius in w.
+    // body-local center or plane normal; w radius or plane offset.
+    nm_float4 localCenterAndRadius;
+    // capsule endpoint B or box half extent.
+    nm_float4 localExtent;
+    nm_float4 localOrientation;
+} NMRigidProxyGPU;
+
+typedef struct NM_ALIGN16 NMRigidStateGPU {
     nm_float4 centerAndRadius;
-    // World orientation xyzw.
+    nm_float4 extent;
     nm_float4 orientation;
-    // Box half extents or capsule local half-axis xyz; contact offset in w.
-    nm_float4 extentAndOffset;
-    // Linear velocity xyz, inverse mass.
     nm_float4 linearVelocityAndInverseMass;
-    // Angular velocity xyz, reserved.
     nm_float4 angularVelocity;
-    // World inverse inertia rows.
+    nm_float4 bodyCenter;
     nm_float4 inverseInertiaRow0;
     nm_float4 inverseInertiaRow1;
     nm_float4 inverseInertiaRow2;
-} NMRigidProxyGPU;
+} NMRigidStateGPU;
 
 typedef struct NM_ALIGN16 NMContactPairGPU {
+    // Unified node index: MPM nodes first, then FEM nodes.
+    nm_u32 continuumNode;
+    nm_u32 rigidProxy;
     nm_u32 objectIndex;
-    nm_u32 continuumIndex;
-    nm_u32 rigidProxyIndex;
-    nm_u32 representation;
+    nm_u32 materialInterface;
 } NMContactPairGPU;
 
 typedef struct NM_ALIGN16 NMContactSampleGPU {
-    // continuum index, rigid proxy, object, flags.
+    // continuum node, rigid proxy, object, flags.
     nm_uint4 identity;
-    // contact point xyz, signed separation.
     nm_float4 pointAndSeparation;
-    // normal from rigid toward continuum xyz, pre-solve normal velocity.
     nm_float4 normalAndVelocity;
-    // impulse on continuum xyz, normal impulse magnitude.
-    nm_float4 impulse;
-    // tangential relative velocity xyz, slip speed.
-    nm_float4 tangentAndSlip;
+    // xyz impulse on rigid, w normal impulse.
+    nm_float4 impulseAndNormal;
+    // xyz angular impulse on rigid, w tangential impulse.
+    nm_float4 angularImpulseAndTangent;
 } NMContactSampleGPU;
 
 typedef struct NM_ALIGN16 NMRigidReactionGPU {
-    // Equal/opposite impulse on rigid body xyz, count in w.
     nm_float4 impulseAndCount;
-    // Angular impulse about body COM xyz, reserved.
     nm_float4 angularImpulse;
 } NMRigidReactionGPU;
 
 typedef struct NM_ALIGN16 NMAdaptiveStateGPU {
-    nm_u32 mode;
-    nm_u32 previousMode;
+    nm_u32 activeRepresentation;
+    nm_u32 requestedRepresentation;
     nm_u32 stableFrames;
-    nm_u32 transitionCount;
+    nm_u32 flags;
 
-    // measured strain, residual, max stress, minimum J.
-    nm_float4 measures;
-    // continuum COM xyz, total mass.
-    nm_float4 centerAndMass;
-    // linear velocity xyz, deformation sample weight.
-    nm_float4 linearVelocityAndWeight;
-    // angular velocity xyz, reserved.
-    nm_float4 angularVelocity;
-    // fitted orientation xyzw.
+    // mass, maximum strain, RMS strain, reconstruction residual.
+    nm_float4 massAndError;
+    nm_float4 centerAndRadius;
+    nm_float4 linearVelocityAndAngularSpeed;
+    // xyz angular velocity, w minimum determinant.
+    nm_float4 angularVelocityAndMinimumJ;
     nm_float4 orientation;
+    nm_float4 inverseInertiaRow0;
+    nm_float4 inverseInertiaRow1;
+    nm_float4 inverseInertiaRow2;
 } NMAdaptiveStateGPU;
 
-typedef struct NM_ALIGN16 NMAdaptiveTriggerGPU {
-    nm_u32 flags;
-    nm_u32 objectIndex;
-    nm_u32 reserved0;
-    nm_u32 reserved1;
-    // contact impulse, closing speed, equivalent stress, damage.
-    nm_float4 signals;
-} NMAdaptiveTriggerGPU;
-
-typedef struct NM_ALIGN16 NMSchedulerStateGPU {
-    nm_u32 rateExponent;
-    nm_u32 previousRateExponent;
-    nm_u32 highActivityFrames;
-    nm_u32 lowActivityFrames;
-
-    nm_u32 previousContactCount;
-    nm_u32 eventCursor;
-    nm_u32 activeThisMicrotick;
-    nm_u32 flags;
-
-    // max slip, max stress, min J, solver residual.
-    nm_float4 signals;
-} NMSchedulerStateGPU;
-
-typedef struct NM_ALIGN16 NMEventTokenGPU {
-    nm_u32 eventClass;
-    nm_u32 objectIndex;
-    nm_u32 controlStep;
-    nm_u32 microtick;
-    // severity, delta time, primary value, secondary value.
-    nm_float4 values;
-} NMEventTokenGPU;
-
 typedef struct NM_ALIGN16 NMIdentificationDistributionGPU {
-    nm_u32 parameterIndex;
-    nm_u32 flags;
-    nm_u32 generation;
-    nm_u32 reserved;
-    // mean, log standard deviation, lower, upper.
-    nm_float4 distribution;
-    // learning rate, sigma floor, sigma ceiling, baseline momentum.
-    nm_float4 optimizer;
+    // material, local parameter, global parameter, flags.
+    nm_uint4 identity;
+    // mean, standard deviation, lower, upper.
+    nm_float4 momentsAndBounds;
+    // learning rate, temperature, minimum std, logarithmic flag.
+    nm_float4 update;
 } NMIdentificationDistributionGPU;
 
 typedef struct NM_ALIGN16 NMIdentificationCandidateGPU {
-    nm_u32 parameterIndex;
-    nm_u32 candidateIndex;
-    nm_u32 generation;
-    nm_u32 flags;
-    // candidate value, normalized perturbation, loss, weight.
-    nm_float4 values;
+    nm_u32 environment;
+    nm_u32 candidate;
+    nm_u32 distribution;
+    nm_u32 antitheticPartner;
+    // value, normalized perturbation, loss, weight.
+    nm_float4 sample;
 } NMIdentificationCandidateGPU;
 
-typedef struct NM_ALIGN16 NMIdentificationPassGPU {
-    nm_u32 candidateCount;
-    nm_u32 distributionCount;
-    nm_u32 generation;
+typedef struct NM_ALIGN16 NMSchedulerStateGPU {
+    nm_u32 baseExponent;
+    nm_u32 activeExponent;
+    nm_u32 requestedExponent;
+    nm_u32 quietFrames;
+
+    // contact speed, slip impulse, maximum strain, maximum stress.
+    nm_float4 physical;
+    // minimum J, solver residual, damage, continuum-enabled flag.
+    nm_float4 numerical;
+    // contact, slip, strain, residual thresholds.
+    nm_float4 thresholds;
+} NMSchedulerStateGPU;
+
+typedef struct NM_ALIGN16 NMEventTokenGPU {
+    nm_u32 environment;
+    nm_u32 objectIndex;
+    nm_u32 eventClass;
     nm_u32 flags;
-    nm_u32 seedLo;
-    nm_u32 seedHi;
-    nm_u32 environmentParameterStride;
-    nm_u32 reserved;
-} NMIdentificationPassGPU;
+    // time in frame, severity, previous value, current value.
+    nm_float4 payload;
+} NMEventTokenGPU;
 
 typedef struct NM_ALIGN16 NMMatterStatusGPU {
     nm_u32 code;
@@ -535,42 +450,23 @@ typedef struct NM_ALIGN16 NMMatterStatusGPU {
     nm_u32 failingIndex;
 
     nm_u32 completedMicrosteps;
+    nm_u32 pcgIterations;
     nm_u32 contactCount;
     nm_u32 eventCount;
-    nm_u32 pcgIterations;
 
-    // max stress, min J, PCG residual, max penetration.
+    // minimum J, maximum stress, residual, correction.
     nm_float4 diagnostics;
 } NMMatterStatusGPU;
 
 #ifndef __METAL_VERSION__
 static_assert(sizeof(nm_float4) == 16);
 static_assert(sizeof(nm_uint4) == 16);
-static_assert(sizeof(NMMatterDispatchGPU) == 96);
-static_assert(sizeof(NMMicrostepGPU) == 48);
-static_assert(sizeof(NMBridgeDispatchGPU) == 64);
-static_assert(sizeof(NMExpressionInstructionGPU) == 32);
-static_assert(sizeof(NMScalarProgramGPU) == 16);
-static_assert(sizeof(NMParameterRangeGPU) == 48);
-static_assert(sizeof(NMContinuumObjectGPU) == 128);
-static_assert(sizeof(NMParticleStateGPU) == 144);
-static_assert(sizeof(NMGridNodeStateGPU) == 48);
-static_assert(sizeof(NMMPMStencilGPU) == 32);
-static_assert(sizeof(NMFEMNodeStateGPU) == 48);
-static_assert(sizeof(NMTetrahedronGPU) == 80);
-static_assert(sizeof(NMFEMElementVectorGPU) == 64);
-static_assert(sizeof(NMIncidenceRangeGPU) == 16);
-static_assert(sizeof(NMPCGScalarGPU) == 32);
-static_assert(sizeof(NMRigidProxyGPU) == 144);
-static_assert(sizeof(NMContactPairGPU) == 16);
-static_assert(sizeof(NMContactSampleGPU) == 80);
-static_assert(sizeof(NMRigidReactionGPU) == 32);
-static_assert(sizeof(NMAdaptiveStateGPU) == 96);
-static_assert(sizeof(NMAdaptiveTriggerGPU) == 32);
-static_assert(sizeof(NMSchedulerStateGPU) == 48);
-static_assert(sizeof(NMEventTokenGPU) == 32);
-static_assert(sizeof(NMIdentificationDistributionGPU) == 48);
-static_assert(sizeof(NMIdentificationCandidateGPU) == 32);
-static_assert(sizeof(NMIdentificationPassGPU) == 32);
-static_assert(sizeof(NMMatterStatusGPU) == 48);
+static_assert(sizeof(NMMatterDispatchGPU) % 16 == 0);
+static_assert(sizeof(NMMicrostepGPU) % 16 == 0);
+static_assert(sizeof(NMBridgeDispatchGPU) % 16 == 0);
+static_assert(sizeof(NMMaterialGPU) % 16 == 0);
+static_assert(sizeof(NMContinuumObjectGPU) % 16 == 0);
+static_assert(sizeof(NMParticleStateGPU) % 16 == 0);
+static_assert(sizeof(NMFEMNodeStateGPU) % 16 == 0);
+static_assert(sizeof(NMAdaptiveStateGPU) % 16 == 0);
 #endif
