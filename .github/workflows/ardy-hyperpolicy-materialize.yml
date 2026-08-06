@@ -6,6 +6,11 @@ on:
       - agent/ardy-hyperpolicy-production
     paths:
       - .github/hyperpolicy_integration_payload/READY
+  pull_request:
+    branches:
+      - numisolver
+    paths:
+      - .github/hyperpolicy_integration_payload/READY
 
 permissions:
   contents: write
@@ -17,6 +22,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: agent/ardy-hyperpolicy-production
 
       - name: Reconstruct production source payload
         shell: bash
@@ -68,42 +74,24 @@ jobs:
               'HyperPolicy AIR',
           )
 
-          policy_compile = '''    COMMAND xcrun -sdk macosx metal
-                  -std=metal4.0
-                  -O3
-                  -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
-                  -c "${METALROBO_POLICY_INFERENCE_SOURCE}"
-                  -o "${METALROBO_POLICY_INFERENCE_AIR}"
-          '''
-          if policy_compile not in s:
-              m = re.search(
-                  r'(    COMMAND xcrun -sdk macosx metal\n'
-                  r'            -std=metal4\.0\n'
-                  r'            -O3\n'
-                  r'            -I "\$\{CMAKE_CURRENT_SOURCE_DIR\}/include"\n'
-                  r'            -c "\$\{METALROBO_POLICY_INFERENCE_SOURCE\}"\n'
-                  r'            -o "\$\{METALROBO_POLICY_INFERENCE_AIR\}"\n)',
-                  s,
-              )
-              if not m:
-                  raise SystemExit('PolicyInference Metal compile block not found')
-              policy_compile = m.group(1)
-          hyper_compile = '''    COMMAND xcrun -sdk macosx metal
-                  -std=metal4.0
-                  -O3
-                  -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
-                  -c "${METALROBO_HYPER_POLICY_SOURCE}"
-                  -o "${METALROBO_HYPER_POLICY_AIR}"
-          '''
-          # Normalize indentation to the matched policy block.
+          m = re.search(
+              r'(    COMMAND xcrun -sdk macosx metal\n'
+              r'            -std=metal4\.0\n'
+              r'            -O3\n'
+              r'            -I "\$\{CMAKE_CURRENT_SOURCE_DIR\}/include"\n'
+              r'            -c "\$\{METALROBO_POLICY_INFERENCE_SOURCE\}"\n'
+              r'            -o "\$\{METALROBO_POLICY_INFERENCE_AIR\}"\n)',
+              s,
+          )
+          if not m:
+              raise SystemExit('PolicyInference Metal compile block not found')
+          policy_compile = m.group(1)
           hyper_compile = policy_compile.replace(
               'METALROBO_POLICY_INFERENCE_SOURCE', 'METALROBO_HYPER_POLICY_SOURCE'
           ).replace(
               'METALROBO_POLICY_INFERENCE_AIR', 'METALROBO_HYPER_POLICY_AIR'
           )
           once(policy_compile, policy_compile + hyper_compile, 'HyperPolicy Metal compile block')
-
-          # Add AIR to metallib link and both source/header to dependencies.
           once(
               '            "${METALROBO_POLICY_INFERENCE_AIR}"\n',
               '            "${METALROBO_POLICY_INFERENCE_AIR}"\n'
@@ -122,8 +110,6 @@ jobs:
               '            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/hyper_policy_program_types.h"\n',
               'HyperPolicy ABI dependency',
           )
-
-          # Explicit C++/Objective-C++ units: no reliance on source globbing.
           once(
               '    src/core/PolicyProgram.cpp\n',
               '    src/core/PolicyProgram.cpp\n'
@@ -139,8 +125,6 @@ jobs:
           )
           p.write_text(s)
 
-          # The payload patcher owns every non-CMake integration seam. Skip its
-          # stale build-file function because the live tree is already Metal 4.
           q = Path('tools/apply_ardy_hyperpolicy_integration.py')
           t = q.read_text()
           t = t.replace('    patch_cmake()\n', '', 1)
@@ -160,8 +144,6 @@ jobs:
           rm -rf .github/hyperpolicy_integration_payload
           rm -f .github/workflows/ardy-hyperpolicy-materialize.yml
           rm -f SOURCE_SHA256SUMS
-          # Keep the integration script: it documents every intentional seam
-          # between generated policy artifacts and the native executor.
           git config user.name "OpenAI Codex"
           git config user.email "codex@openai.com"
           git add -A
