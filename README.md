@@ -108,8 +108,6 @@ collision, and contact in NumiSolver. The workflow begins with:
 
 ![ARDY-G1 run-forward kinematic proposal on the Unitree G1 mechanism](docs/media/ardy-g1-run-forward-kinematic.gif)
 
-![G1 forward locomotion retained from native training](artifacts/g1-legs-locomotion-60min-20260805/retained-policy/retained-good-locomotion-episode.gif)
-
 The run-forward clip above is the Apple-Silicon ARDY model's kinematic
 proposal after exact G1 joint-frame conversion and authored mechanism-limit
 projection. It demonstrates prompt-to-G1 motion intent; it is deliberately not
@@ -133,6 +131,12 @@ realization by default; its GIF and MP4 are forward-kinematic renders of
 accepted solver states, not of the provider root trajectory. A failed physical
 realization stays visible as a failed result; presentation code must not repair
 it.
+
+![G1 forward locomotion retained from native training](artifacts/g1-legs-locomotion-60min-20260805/retained-policy/retained-good-locomotion-episode.gif)
+
+This is a render of a real locomotion-policy run executed inside the Numi Lab
+simulator and scene, using accepted solver states rather than synthesized
+motion.
 
 ### Native G1 standing
 
