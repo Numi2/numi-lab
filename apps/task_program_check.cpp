@@ -2,6 +2,7 @@
 #include "metalrobo/LearningPacks.hpp"
 #include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/MotionCompiler.hpp"
 #include "metalrobo/PolicyProgram.hpp"
 #include "metalrobo/RobotDescriptionCooker.hpp"
 #include "metalrobo/RunProgram.hpp"
@@ -1125,6 +1126,66 @@ int main(const int argc, const char* const* argv) {
             loadedInteraction.clips.front().contactTargets !=
                 authoredInteraction.clips.front().contactTargets) {
             fail("InteractionPack round trip changed contact-first intent");
+        }
+
+        const metalrobo::InteractionMotionCompileConfig motionConfig{
+            .id = "g1_visual_style_fixture",
+            .clipId = "weight_shift_left_lift_right",
+            .anchorBody = "pelvis",
+            .trackedBodies = {
+                "left_hip_roll_link",
+                "left_knee_link",
+                "left_ankle_roll_link",
+                "right_hip_roll_link",
+                "right_knee_link",
+                "right_ankle_roll_link",
+            },
+        };
+        metalrobo::MotionPack compiledMotion;
+        const metalrobo::MotionCompileResult motionCompile =
+            metalrobo::compileInteractionMotionPack(
+                loadedInteraction,
+                authored.model,
+                motionConfig,
+                compiledMotion
+            );
+        const bool finiteMotion =
+            !compiledMotion.clips.empty() &&
+            std::ranges::all_of(
+                compiledMotion.clips.front().features,
+                [](const float value) {
+                    return std::isfinite(value);
+                }
+            );
+        if (!motionCompile.succeeded() ||
+            compiledMotion.sourceRevision !=
+                loadedInteraction.sourceRevision ||
+            compiledMotion.featureCount != 54u ||
+            compiledMotion.clips.size() != 1u ||
+            (compiledMotion.clips.size() == 1u &&
+             compiledMotion.clips.front().features.size() != 162u) ||
+            !finiteMotion) {
+            fail(
+                "native InteractionPack motion compilation changed the "
+                "COM feature contract: " + motionCompile.message
+            );
+        }
+        metalrobo::MotionPack rejectedMotion = compiledMotion;
+        auto brokenMotionConfig = motionConfig;
+        brokenMotionConfig.trackedBodies.back() = "missing_body";
+        const metalrobo::MotionCompileResult rejectedMotionCompile =
+            metalrobo::compileInteractionMotionPack(
+                loadedInteraction,
+                authored.model,
+                brokenMotionConfig,
+                rejectedMotion
+            );
+        if (rejectedMotionCompile.succeeded() ||
+            rejectedMotionCompile.status !=
+                metalrobo::MotionCompileStatus::unresolvedBody ||
+            rejectedMotion.clips.front().features !=
+                compiledMotion.clips.front().features) {
+            fail("native motion compilation failure was not transactional");
         }
 
         metalrobo::TaskPack interactionTask = authored.task;

@@ -27,6 +27,12 @@ termination, reset, randomization, and counter-based RNG remain owned by the
 native runtime. A policy update never imports those opaque simulator
 internals.
 
+`InteractionPack` to `MotionPack` style compilation is also native. Use
+`numi motion compile-style`; it resolves the pinned robot mechanics and emits
+the exact body-COM feature contract used by the Metal task kernel. The Python
+`motion_pack_convert` module remains only for importing already sampled
+tracked-link NPZ datasets.
+
 ## Install
 
 Build the native library and Metal shaders first:

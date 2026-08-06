@@ -14,9 +14,6 @@ from pathlib import Path
 
 import numpy as np
 
-from .ardy_interaction_convert import read_interaction_pack
-from .g1_motion_retarget import G1Kinematics
-
 _HEADER = struct.Struct("<8sIIQQ")
 _MOTION_VERSION = 1
 _MOTION_KIND = 4
@@ -117,108 +114,24 @@ def _clip_features(
     )
 
 
-def _interaction_clip_features(
-    interaction_pack: Path,
-    urdf: Path,
-    clip_id: str | None,
-    anchor_body: str,
-    tracked_bodies: tuple[str, ...],
-) -> tuple[str, str, str, str, float, np.ndarray]:
-    """Turn visual G1 joint intent into root-invariant tracked-link features."""
-
-    pack = read_interaction_pack(interaction_pack)
-    clips = [clip for clip in pack.clips if clip_id is None or clip.id == clip_id]
-    if len(clips) != 1:
-        raise ValueError("InteractionPack clip identity is missing or ambiguous")
-    clip = clips[0]
-    model = G1Kinematics.from_urdf(urdf)
-    indices = {name: index for index, name in enumerate(pack.joint_names)}
-    try:
-        canonical = np.asarray(
-            [indices[name] for name in model.joint_indices], dtype=np.int64
-        )
-    except KeyError as error:
-        raise ValueError(
-            f"InteractionPack is missing G1 joint {error.args[0]}"
-        ) from error
-    features = np.empty(
-        (clip.joint_targets.shape[0], 9 * len(tracked_bodies)),
-        dtype=np.float32,
-    )
-    for frame, authored in enumerate(clip.joint_targets):
-        poses = model.forward(np.asarray(authored[canonical], dtype=np.float64))
-        if anchor_body not in poses or any(name not in poses for name in tracked_bodies):
-            raise ValueError("motion anchor or tracked G1 link is unresolved")
-        anchor = poses[anchor_body]
-        inverse = anchor[:3, :3].T
-        for body, name in enumerate(tracked_bodies):
-            pose = poses[name]
-            relative_position = inverse @ (
-                pose[:3, 3] - anchor[:3, 3]
-            )
-            relative_rotation = inverse @ pose[:3, :3]
-            base = 9 * body
-            features[frame, base : base + 3] = relative_position
-            features[frame, base + 3 : base + 9] = (
-                relative_rotation[:, :2].reshape(6)
-            )
-    return (
-        pack.source_repository,
-        pack.source_revision,
-        pack.license_name,
-        clip.id,
-        clip.frames_per_second,
-        features,
-    )
-
-
 def convert(arguments: argparse.Namespace) -> None:
+    body_order = tuple(arguments.body_order.split(","))
     tracked = tuple(arguments.tracked_bodies.split(","))
+    sources = sorted(arguments.input.rglob("*.npz"))
+    if not sources or not body_order or not tracked:
+        raise ValueError("input clips and body tables must be nonempty")
     clips: list[tuple[str, float, np.ndarray]] = []
-    source_repository = arguments.source_repository
-    source_revision = arguments.source_revision
-    license_name = arguments.license
-    if arguments.interaction_pack is not None:
-        if arguments.urdf is None:
-            raise ValueError("--interaction-pack requires --urdf")
-        (
-            inferred_repository,
-            inferred_revision,
-            inferred_license,
-            clip_id,
-            fps,
-            features,
-        ) = _interaction_clip_features(
-            arguments.interaction_pack,
-            arguments.urdf,
-            arguments.clip,
-            arguments.anchor_body,
-            tracked,
+    for source in sources:
+        fps, features = _clip_features(
+            source, body_order, arguments.anchor_body, tracked
         )
-        source_repository = source_repository or inferred_repository
-        source_revision = source_revision or inferred_revision
-        license_name = license_name or inferred_license
-        clips.append((clip_id, fps, features))
-    else:
-        if arguments.input is None or arguments.body_order is None:
-            raise ValueError("tracked-link NPZ input requires --input and --body-order")
-        body_order = tuple(arguments.body_order.split(","))
-        sources = sorted(arguments.input.rglob("*.npz"))
-        if not sources or not body_order:
-            raise ValueError("input clips and body tables must be nonempty")
-        for source in sources:
-            fps, features = _clip_features(
-                source, body_order, arguments.anchor_body, tracked
-            )
-            clips.append((source.stem, fps, features))
-    if not tracked or not source_repository or not source_revision or not license_name:
-        raise ValueError("motion provenance and tracked bodies must be nonempty")
+        clips.append((source.stem, fps, features))
     payload = b"".join(
         (
             _string(arguments.id),
-            _string(source_repository),
-            _string(source_revision),
-            _string(license_name),
+            _string(arguments.source_repository),
+            _string(arguments.source_revision),
+            _string(arguments.license),
             _string(arguments.anchor_body),
             _strings(tracked),
             struct.pack("<I", 9 * len(tracked)),
@@ -258,17 +171,13 @@ def convert(arguments: argparse.Namespace) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    sources = parser.add_mutually_exclusive_group(required=True)
-    sources.add_argument("--input", type=Path)
-    sources.add_argument("--interaction-pack", type=Path)
+    parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--id", required=True)
-    parser.add_argument("--source-repository")
-    parser.add_argument("--source-revision")
-    parser.add_argument("--license")
-    parser.add_argument("--body-order")
-    parser.add_argument("--urdf", type=Path)
-    parser.add_argument("--clip")
+    parser.add_argument("--source-repository", required=True)
+    parser.add_argument("--source-revision", required=True)
+    parser.add_argument("--license", default="MIT")
+    parser.add_argument("--body-order", required=True)
     parser.add_argument("--anchor-body", required=True)
     parser.add_argument("--tracked-bodies", required=True)
     convert(parser.parse_args())

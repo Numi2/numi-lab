@@ -580,6 +580,7 @@ add_library(
     src/core/TaskProgram.cpp
     src/core/PolicyProgram.cpp
     src/core/LearningPacks.cpp
+    src/core/MotionCompiler.cpp
     src/core/SurgicalPSM.cpp
     src/core/EmbodiedTactile.cpp
     src/core/Wave.cpp
@@ -1945,6 +1946,31 @@ set_target_properties(
 )
 
 add_executable(
+    metalrobo_motion_compile
+    apps/motion_compile.cpp
+)
+target_link_libraries(
+    metalrobo_motion_compile
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_motion_compile
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_motion_compile
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(
     metalrobo_episode_twin_product_probe
     apps/episode_twin_product_probe.cpp
 )
@@ -2130,6 +2156,7 @@ install(
         metalrobo_bench
         metalrobo_world_pack
         metalrobo_episode_compile
+        metalrobo_motion_compile
         metalrobo_visual_cook
         metalrobo_environment_cook
         metalrobo_robot_catalog
@@ -2148,6 +2175,7 @@ install(
         numi/commands/train
         numi/commands/evaluate
         numi/commands/foundation
+        numi/commands/motion
         numi/commands/robots
     DESTINATION libexec/numi
 )

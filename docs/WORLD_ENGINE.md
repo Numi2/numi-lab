@@ -250,6 +250,26 @@ as the requested foot/support-surface contact before counterpart-filtered
 reductions exist. The selected provenance, intent, masks, targets, and
 tolerances participate in the task fingerprint.
 
+Visual style compilation is native as well. `numi motion compile-style`
+loads an `InteractionPack`, resolves its named joints and tracked bodies
+against the pinned `EngineModel`, evaluates the same FP64 articulated
+kinematics used by NumiSolver, and writes a canonical `MotionPack` through the
+C++ artifact writer. Its nine features per tracked body are anchor-relative
+body-COM position plus the first two relative-rotation columns, exactly
+matching `mr_locomotion_task_motion_features`. This route does not require a
+URDF parser, NumPy, or Python and cannot certify generated intent as a solved
+physical outcome.
+
+```sh
+numi motion compile-style \
+  --robot unitree-g1 \
+  --interaction-pack run-forward.interactionpack \
+  --output run-forward.motionpack \
+  --id g1_run_forward_style \
+  --anchor-body pelvis \
+  --tracked-bodies left_hip_roll_link,left_knee_link,left_ankle_roll_link,right_hip_roll_link,right_knee_link,right_ankle_roll_link
+```
+
 The Metal task executor advances the reference from episode time. Native
 observation operators publish phase, live-minus-reference joint error,
 expected contact/confidence, target fields, and their per-feature validity.

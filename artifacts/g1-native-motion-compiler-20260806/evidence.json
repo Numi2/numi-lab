@@ -1,0 +1,57 @@
+{
+  "schema": "numi.native-motion-compiler-evidence.v1",
+  "date": "2026-08-06",
+  "device": "Apple M4",
+  "simulator": "NumiSolver Metal",
+  "scope": "simulator and learning evidence only",
+  "source": {
+    "interaction_pack_sha256": "742ba663b9c4ea2cfd994373424dd67d88f3882e7005610826e374230ad7e6e3",
+    "repository": "TREEIndustries/ARDY-G1-RP-25FPS-Horizon52-ONNX",
+    "revision": "d36d7069d514f9e6534c44c9fcf2463733298326",
+    "license": "NVIDIA Open Model License",
+    "role": "visual style intent only"
+  },
+  "native_motion_pack": {
+    "path": "g1-run-forward-legs.motionpack",
+    "sha256": "6a032ea472a621896afb64414192b837bcc8e874e535b6bdb1d0c3e2b0e07142",
+    "content_hash": 12594317560695749080,
+    "bytes": 11649,
+    "clip": "ardy-g1",
+    "frames": 52,
+    "frames_per_second": 25,
+    "features_per_frame": 54,
+    "anchor_body": "pelvis",
+    "tracked_body_count": 6,
+    "kinematics": "native FP64 articulated body-COM"
+  },
+  "superseded_python_artifact_comparison": {
+    "sha256": "826367dfd0fab1a19cc5682609b34d0e48ba82c1a5b10db8f00d06a39f0f4273",
+    "orientation_maximum_absolute_delta": 5.960464477539063e-08,
+    "position_mean_absolute_delta_m": 0.03279951587319374,
+    "position_maximum_absolute_delta_m": 0.12048786878585815,
+    "finding": "the retired path used URDF link origins while the Metal feature kernel uses body centers of mass"
+  },
+  "learning_pilot": {
+    "environments": 64,
+    "steps_per_update": 32,
+    "updates": 2,
+    "transitions": 4096,
+    "failed_environment_steps": 0,
+    "end_to_end_environment_steps_per_second": 3083.2450773248584,
+    "mean_root_height_m": 0.7836775183677673,
+    "mean_tilt_rad": 0.07226984947919846,
+    "mean_tracking_score": 0.5723168849945068,
+    "motion_reward_mean": 5.601381417363882e-06,
+    "motion_discriminator_loss": 0.6575154066085815,
+    "motion_expert_score": 0.05390509217977524,
+    "motion_policy_score": -1.5357822179794312,
+    "mlx_peak_memory_bytes": 39484116,
+    "candidate_mean_peak_forward_progress_m": 2.5566459270194173,
+    "candidate_mean_final_forward_progress_m": 1.0517951358342543,
+    "incumbent_mean_peak_forward_progress_m": 2.8114948170259595,
+    "incumbent_mean_final_forward_progress_m": 1.075655375723727,
+    "heldout_selection": "incumbent",
+    "promotion": false,
+    "promotion_reason": "the two-update candidate regressed held-out forward progress"
+  }
+}

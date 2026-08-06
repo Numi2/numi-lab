@@ -17,6 +17,9 @@ Usage: numi motion inspect --model-directory PATH [--verify-hashes]
            [--provider auto|coreml|cpu] [--seed N] [--verify-hashes]
        numi motion retarget-g1 --motion-proposal PATH --g1-urdf FILE \
            --output-directory PATH
+       numi motion compile-style --robot unitree-g1 \
+           --interaction-pack FILE --output FILE --id ID [--clip ID] \
+           --anchor-body BODY --tracked-bodies BODY[,BODY...]
        numi motion imagine-g1 --prompt TEXT [--output-directory PATH] \
            [--model-family g1|core] [--provider auto|coreml|cpu]
 
@@ -43,6 +46,20 @@ EOF
 fi
 
 numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+if [ "${1:-}" = "compile-style" ]; then
+    shift
+    numi_build=${NUMI_BUILD_DIR:-$numi_root/build}
+    if [ -x "$numi_build/bin/metalrobo_motion_compile" ]; then
+        numi_motion_compile=$numi_build/bin/metalrobo_motion_compile
+    else
+        numi_motion_compile=$numi_root/bin/metalrobo_motion_compile
+    fi
+    [ -x "$numi_motion_compile" ] || {
+        printf 'numi motion: native motion compiler is unavailable; run numi doctor\n' >&2
+        exit 1
+    }
+    exec "$numi_motion_compile" "$@"
+fi
 if [ -f "$numi_root/python/metalrobo/ardy_onnx.py" ]; then
     numi_python_root=$numi_root/python
 else
