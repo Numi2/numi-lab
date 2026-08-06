@@ -1,0 +1,100 @@
+name: Bootstrap ARDY hyper-policy core branch
+
+on:
+  push:
+    branches:
+      - numisolver
+    paths:
+      - .github/workflows/bootstrap-ardy-hyperpolicy-core.yml
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/ardy-hyperpolicy-core
+          fetch-depth: 0
+
+      - name: Authenticate and materialize source payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from __future__ import annotations
+
+          import base64
+          import gzip
+          import hashlib
+          import io
+          from pathlib import Path, PurePosixPath
+          import shutil
+          import tarfile
+
+          root = Path.cwd().resolve()
+          payload = root / ".github" / "hyperpolicy_payload"
+          parts = sorted(payload.glob("*.part"))
+          if [part.name for part in parts] != [f"{index:03d}.part" for index in range(9)]:
+              raise SystemExit("hyper-policy payload part set is incomplete")
+
+          encoded = "".join("".join(part.read_text().split()) for part in parts)
+          archive = base64.b64decode(encoded, validate=True)
+          expected_archive = "03031542166037c95f0e92f26480235f80a8fb82c079f25d2838b197037a5092"
+          if hashlib.sha256(archive).hexdigest() != expected_archive:
+              raise SystemExit("hyper-policy archive fingerprint is invalid")
+
+          expected = {
+              "python/metalrobo/ardy_hyperpolicy.py": "5b5e82f4a7040e40df05009dfcda107bfebd2ca76d3a28d4eface0ac073bd35a",
+              "python/metalrobo/mlx_ardy_hyperpolicy.py": "283dffb1c31b55a74b8637cbc7f0007d905675d285e08b4b8c4a98807edf089f",
+              "src/core/HyperPolicyProgram.cpp": "86230aefd3e6f004a74274bb0feae02b1af1d5ebf2ce86733db590d2f2ec46c6",
+              "src/metal/HyperPolicy.metal": "a121cf8f8d5c46f694db0e512b41d460297edd7a571447a948dd36a3c7498016",
+          }
+          raw_tar = gzip.decompress(archive)
+          with tarfile.open(fileobj=io.BytesIO(raw_tar), mode="r:") as source:
+              members = [member for member in source.getmembers() if member.isfile()]
+              names = {member.name for member in members}
+              if names != set(expected):
+                  raise SystemExit("hyper-policy archive file set is invalid")
+              for member in members:
+                  relative = PurePosixPath(member.name)
+                  if relative.is_absolute() or ".." in relative.parts:
+                      raise SystemExit("hyper-policy archive path is unsafe")
+                  stream = source.extractfile(member)
+                  if stream is None:
+                      raise SystemExit("hyper-policy archive member is unreadable")
+                  data = stream.read()
+                  if hashlib.sha256(data).hexdigest() != expected[member.name]:
+                      raise SystemExit(f"source fingerprint is invalid: {member.name}")
+                  destination = root.joinpath(*relative.parts)
+                  destination.parent.mkdir(parents=True, exist_ok=True)
+                  temporary = destination.with_suffix(destination.suffix + ".tmp")
+                  temporary.write_bytes(data)
+                  temporary.chmod(0o644)
+                  temporary.replace(destination)
+
+          for name, fingerprint in expected.items():
+              if hashlib.sha256((root / name).read_bytes()).hexdigest() != fingerprint:
+                  raise SystemExit(f"materialized source fingerprint changed: {name}")
+
+          shutil.rmtree(payload)
+          (root / ".github" / "workflows" / "materialize-ardy-hyperpolicy.yml").unlink()
+          PY
+
+      - name: Publish materialized core
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "numi-hyperpolicy-materializer"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A -- \
+            python/metalrobo/ardy_hyperpolicy.py \
+            python/metalrobo/mlx_ardy_hyperpolicy.py \
+            src/core/HyperPolicyProgram.cpp \
+            src/metal/HyperPolicy.metal \
+            .github/hyperpolicy_payload \
+            .github/workflows/materialize-ardy-hyperpolicy.yml
+          git commit -m "Implement ARDY hyper-policy core"
+          git push origin HEAD:agent/ardy-hyperpolicy-core
