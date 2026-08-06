@@ -1,0 +1,43 @@
+name: Matter source export
+
+on:
+  pull_request:
+    branches:
+      - numisolver
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    if: github.head_ref == 'codex/matter-compiler-foundation'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out proposed branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+
+      - name: Export matter integration sources
+        uses: actions/upload-artifact@v4
+        with:
+          name: matter-source-${{ github.event.pull_request.head.sha }}
+          if-no-files-found: error
+          retention-days: 1
+          include-hidden-files: true
+          path: |
+            AGENTS.md
+            CMakeLists.txt
+            include/metalrobo/MetalWorld.hpp
+            src/metal/MetalWorld.mm
+            src/metal/MetalWorld.metal
+            matter/**
+            numi/commands/**
+            src/c_api.cpp
+            src/core/LocomotionWorld.cpp
+            tools/render_g1_motion.py
