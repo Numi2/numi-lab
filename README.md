@@ -108,6 +108,8 @@ collision, and contact in NumiSolver. The workflow begins with:
 
 ![ARDY-G1 run-forward kinematic proposal on the Unitree G1 mechanism](docs/media/ardy-g1-run-forward-kinematic.gif)
 
+![G1 forward locomotion retained from native training](artifacts/g1-legs-locomotion-60min-20260805/retained-policy/retained-good-locomotion-episode.gif)
+
 The run-forward clip above is the Apple-Silicon ARDY model's kinematic
 proposal after exact G1 joint-frame conversion and authored mechanism-limit
 projection. It demonstrates prompt-to-G1 motion intent; it is deliberately not
@@ -246,8 +248,6 @@ Presentation comes from cooked USD, USDZ, GLB, or glTF assets. numi-lab does
 not synthesize a visible robot from collision geometry. The G1 and Franka
 images use their official upstream visual meshes.
 
-![Franka FR3v2 rendered by numi-lab](docs/media/metalrobo-franka-fr3v2.webp)
-
 ### Authored surgical workcell
 
 ![Dual Franka arms in the numi-lab surgical workcell](docs/media/numi-lab-franka-surgery-room.gif)
@@ -376,8 +376,8 @@ Only current subsystem contracts remain under `docs`:
 - Franka imagery uses official FR3v2 visual assets.
 - The retained G1 and Franka images and animations are native numi-lab
   renderer outputs captured on Apple M4. They are not generated concept art.
-- The dVRK PSM showcase below uses the authored PSM USD in an offline
-  presentation pass while preserving Numi Lab's robot identity and scene
+- The dVRK PSM showcase below is an authored offline presentation render
+  preserving Numi Lab's robot identity and scene
   conventions; it is not evidence of native-renderer or hardware execution.
 - Internal agreement, stable simulation, and simulator policy performance are
   not proof of real-world fidelity, safety, or transfer.
@@ -397,4 +397,4 @@ remain subject to their respective copyrights and licenses.
 
 ## dVRK PSM in Numi Lab
 
-![dVRK PSM in a Numi Lab surgical scene](docs/media/numi-lab-dvrk-psm.gif)
+![dVRK PSM in a Numi Lab surgical scene](docs/media/numi-lab-dvrk-psm-high-quality.png)
