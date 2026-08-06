@@ -1,3 +1,4 @@
 payload_sha256=fd151020faab300c6f280d394e6c27b9985c068b3fe0007e5c14633ba8acce6a
 chunks=7
 branch=agent/ardy-hyperpolicy-production
+trigger=production-final
