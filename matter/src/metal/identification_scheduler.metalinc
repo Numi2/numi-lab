@@ -1,0 +1,454 @@
+namespace numi_matter_metal {
+
+kernel void nm_prepare_status(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMMatterStatusGPU* statuses [[buffer(1)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    NMMatterStatusGPU status{};
+    status.code = NM_STATUS_SUCCESS;
+    status.environment = environment;
+    status.objectIndex = NM_INVALID_INDEX;
+    status.failingIndex = NM_INVALID_INDEX;
+    status.diagnostics = float4(INFINITY, 0.0f, 0.0f, 0.0f);
+    statuses[environment] = status;
+}
+
+kernel void nm_prepare_events(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMEventTokenGPU* events [[buffer(1)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.eventStride;
+    if (global < total) {
+        events[global] = {};
+    }
+}
+
+kernel void nm_prepare_reactions(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMRigidReactionGPU* frameReactions [[buffer(1)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidProxyCount;
+    if (global < total) {
+        frameReactions[global] = {};
+    }
+}
+
+kernel void nm_prepare_scheduler(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMSchedulerStateGPU* schedulers [[buffer(1)]],
+    device NMSchedulerStateGPU* previous [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total) {
+        return;
+    }
+    previous[global] = schedulers[global];
+    NMSchedulerStateGPU state = schedulers[global];
+    state.physical = float4(0.0f);
+    state.numerical.x = INFINITY;
+    state.numerical.y = 0.0f;
+    state.numerical.z = max(state.numerical.z, 0.0f);
+    schedulers[global] = state;
+}
+
+kernel void nm_reset_parameter_overlay(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMParameterRangeGPU* defaults [[buffer(1)]],
+    device float* environmentParameters [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.parameterCount;
+    if (global >= total || dispatch.parameterCount == 0u) {
+        return;
+    }
+    const uint parameter = global % dispatch.parameterCount;
+    environmentParameters[global] = defaults[parameter].valueAndBounds.x;
+}
+
+kernel void nm_identification_update(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMIdentificationPassGPU& pass [[buffer(1)]],
+    device NMIdentificationDistributionGPU* distributions [[buffer(2)]],
+    device NMIdentificationCandidateGPU* candidates [[buffer(3)]],
+    device const float* losses [[buffer(4)]],
+    uint distributionIndex [[thread_position_in_grid]]
+) {
+    if (distributionIndex >= pass.distributionCount ||
+        pass.candidateCount == 0u || pass.generation == 0u) {
+        return;
+    }
+    NMIdentificationDistributionGPU distribution =
+        distributions[distributionIndex];
+    const float temperature = max(distribution.update.y, 1.0e-6f);
+    float minimumLoss = INFINITY;
+    for (uint candidate = 0u; candidate < pass.candidateCount; ++candidate) {
+        const float loss = losses[candidate];
+        if (isfinite(loss)) {
+            minimumLoss = min(minimumLoss, loss);
+        }
+    }
+    if (!isfinite(minimumLoss)) {
+        return;
+    }
+    float sumWeight = 0.0f;
+    float weightedMean = 0.0f;
+    for (uint candidate = 0u; candidate < pass.candidateCount; ++candidate) {
+        const uint index = candidate * pass.distributionCount + distributionIndex;
+        NMIdentificationCandidateGPU record = candidates[index];
+        const float loss = losses[candidate];
+        const float weight = isfinite(loss)
+            ? exp(clamp(-(loss - minimumLoss) / temperature, -80.0f, 0.0f))
+            : 0.0f;
+        record.sample.z = loss;
+        record.sample.w = weight;
+        candidates[index] = record;
+        sumWeight += weight;
+        weightedMean += weight * record.sample.x;
+    }
+    if (!(sumWeight > 0.0f)) {
+        return;
+    }
+    weightedMean /= sumWeight;
+    float weightedVariance = 0.0f;
+    for (uint candidate = 0u; candidate < pass.candidateCount; ++candidate) {
+        const NMIdentificationCandidateGPU record =
+            candidates[candidate * pass.distributionCount + distributionIndex];
+        const float delta = record.sample.x - weightedMean;
+        weightedVariance += record.sample.w * delta * delta;
+    }
+    weightedVariance /= sumWeight;
+    const float learningRate = clamp(distribution.update.x, 0.0f, 1.0f);
+    const float minimumStd = max(distribution.update.z, 1.0e-9f);
+    distribution.momentsAndBounds.x = mix(
+        distribution.momentsAndBounds.x,
+        clamp(weightedMean, distribution.momentsAndBounds.z,
+            distribution.momentsAndBounds.w),
+        learningRate
+    );
+    distribution.momentsAndBounds.y = max(
+        mix(
+            distribution.momentsAndBounds.y,
+            sqrt(max(weightedVariance, 0.0f)),
+            learningRate
+        ),
+        minimumStd
+    );
+    distributions[distributionIndex] = distribution;
+}
+
+kernel void nm_identification_sample(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMIdentificationPassGPU& pass [[buffer(1)]],
+    device const NMIdentificationDistributionGPU* distributions [[buffer(2)]],
+    device NMIdentificationCandidateGPU* candidates [[buffer(3)]],
+    device float* environmentParameters [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = pass.candidateCount * pass.distributionCount;
+    if (global >= total || pass.distributionCount == 0u) {
+        return;
+    }
+    const uint candidate = global / pass.distributionCount;
+    const uint distributionIndex = global - candidate * pass.distributionCount;
+    const NMIdentificationDistributionGPU distribution =
+        distributions[distributionIndex];
+    const uint pair = candidate >> 1u;
+    const float baseNoise = normalSample(
+        pass.seedLo ^ hash32(pair * 0x9e3779b9u + distributionIndex),
+        pass.seedHi ^ hash32(pair * 0x85ebca6bu + distributionIndex)
+    );
+    const float perturbation = (candidate & 1u) == 0u
+        ? baseNoise
+        : -baseNoise;
+    const float latent = clamp(
+        distribution.momentsAndBounds.x +
+            distribution.momentsAndBounds.y * perturbation,
+        distribution.momentsAndBounds.z,
+        distribution.momentsAndBounds.w
+    );
+    const bool logarithmic = distribution.update.w > 0.5f;
+    const float physical = logarithmic ? exp(latent) : latent;
+    NMIdentificationCandidateGPU record{};
+    record.environment = candidate;
+    record.candidate = candidate;
+    record.distribution = distributionIndex;
+    record.antitheticPartner = candidate ^ 1u;
+    record.sample = float4(latent, perturbation, INFINITY, 0.0f);
+    candidates[global] = record;
+    const uint globalParameter = distribution.identity.z;
+    if (candidate < dispatch.environmentCount &&
+        globalParameter < dispatch.parameterCount) {
+        environmentParameters[
+            candidate * dispatch.parameterCount + globalParameter
+        ] = physical;
+    }
+}
+
+kernel void nm_scheduler_observe(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMContactSampleGPU* samples [[buffer(2)]],
+    device const NMGridNodeStateGPU* mpmNodes [[buffer(3)]],
+    device const NMIncidenceRangeGPU* mpmNodeRanges [[buffer(4)]],
+    device const NMParticleStateGPU* particles [[buffer(5)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(6)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(7)]],
+    device const NMMatterStatusGPU* statuses [[buffer(8)]],
+    device NMSchedulerStateGPU* schedulers [[buffer(9)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || dispatch.objectCount == 0u) {
+        return;
+    }
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    float contactSpeed = 0.0f;
+    float slipImpulse = 0.0f;
+    const uint sampleBase = environment * dispatch.contactPairCount;
+    for (uint pair = lane; pair < dispatch.contactPairCount; pair += 32u) {
+        const NMContactSampleGPU sample = samples[sampleBase + pair];
+        if ((sample.identity.w & NM_CONTACT_VALID) != 0u &&
+            sample.identity.z == objectIndex) {
+            contactSpeed = max(contactSpeed, max(-sample.normalAndVelocity.w, 0.0f));
+            slipImpulse = max(slipImpulse, sample.angularImpulseAndTangent.w);
+        }
+    }
+    contactSpeed = simd_max(contactSpeed);
+    slipImpulse = simd_max(slipImpulse);
+
+    float maximumStress = 0.0f;
+    const uint mpmNodeBase = environment * dispatch.gridNodeCount;
+    for (uint node = lane; node < dispatch.gridNodeCount; node += 32u) {
+        if (mpmNodeRanges[node].objectIndex == objectIndex) {
+            maximumStress = max(
+                maximumStress,
+                mpmNodes[mpmNodeBase + node].forceAndEnergy.w
+            );
+        }
+    }
+    maximumStress = simd_max(maximumStress);
+
+    float maximumStrain = 0.0f;
+    float minimumJ = INFINITY;
+    if (object.representation == NM_REPRESENTATION_MPM) {
+        const uint base = environment * dispatch.particleCount + object.stateOffset;
+        for (uint local = lane; local < object.stateCount; local += 32u) {
+            const NMParticleStateGPU particle = particles[base + local];
+            const float3x3 deformation = matrixFromRows(
+                particle.deformationRow0,
+                particle.deformationRow1,
+                particle.deformationRow2
+            );
+            maximumStrain = max(
+                maximumStrain,
+                maximumAbs(deformation - polarRotation(deformation))
+            );
+            minimumJ = min(minimumJ, determinant(deformation));
+        }
+    } else if (object.representation == NM_REPRESENTATION_FEM) {
+        const uint nodeBase = environment * dispatch.femNodeCount;
+        for (uint local = lane; local < object.elementCount; local += 32u) {
+            const NMTetrahedronGPU tetrahedron =
+                tetrahedra[object.elementOffset + local];
+            const float3x3 deformation = tetrahedronDeformation(
+                tetrahedron,
+                femNodes,
+                nodeBase
+            );
+            maximumStrain = max(
+                maximumStrain,
+                maximumAbs(deformation - polarRotation(deformation))
+            );
+            minimumJ = min(minimumJ, determinant(deformation));
+        }
+    }
+    maximumStrain = simd_max(maximumStrain);
+    minimumJ = simd_min(minimumJ);
+    if (lane == 0u) {
+        device NMSchedulerStateGPU& state =
+            schedulers[environment * dispatch.objectCount + objectIndex];
+        state.physical.x = max(state.physical.x, contactSpeed);
+        state.physical.y = max(state.physical.y, slipImpulse);
+        state.physical.z = max(state.physical.z, maximumStrain);
+        state.physical.w = max(state.physical.w, maximumStress);
+        state.numerical.x = min(state.numerical.x, minimumJ);
+        if (statuses[environment].code != NM_STATUS_SUCCESS &&
+            statuses[environment].objectIndex == objectIndex) {
+            state.numerical.y = max(
+                state.numerical.y,
+                abs(statuses[environment].diagnostics.z)
+            );
+        }
+        const bool urgent =
+            state.physical.x > state.thresholds.x ||
+            state.physical.y > state.thresholds.y ||
+            state.physical.z > state.thresholds.z ||
+            state.numerical.x < dispatch.numericalLimits.z ||
+            state.numerical.y > state.thresholds.w;
+        if (urgent) {
+            state.requestedExponent = min(
+                state.activeExponent + 1u,
+                min(object.solver.y, dispatch.maximumRateExponent)
+            );
+            state.activeExponent = max(
+                state.activeExponent,
+                state.requestedExponent
+            );
+            state.quietFrames = 0u;
+        }
+    }
+}
+
+inline void writeEvent(
+    device NMEventTokenGPU* events,
+    const NMMatterDispatchGPU dispatch,
+    const uint environment,
+    const uint objectIndex,
+    const uint eventClass,
+    const float severity,
+    const float previous,
+    const float current
+) {
+    const uint slot =
+        environment * dispatch.eventStride +
+        objectIndex * NM_EVENT_CLASS_COUNT +
+        eventClass;
+    NMEventTokenGPU event{};
+    event.environment = environment;
+    event.objectIndex = objectIndex;
+    event.eventClass = eventClass;
+    event.flags = 1u;
+    event.payload = float4(
+        dispatch.gravityAndTimestep.w,
+        severity,
+        previous,
+        current
+    );
+    events[slot] = event;
+}
+
+kernel void nm_scheduler_finalize(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMSchedulerStateGPU* previous [[buffer(2)]],
+    device NMSchedulerStateGPU* schedulers [[buffer(3)]],
+    device NMEventTokenGPU* events [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total || dispatch.objectCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.objectCount;
+    const uint objectIndex = global - environment * dispatch.objectCount;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU before = previous[global];
+    device NMSchedulerStateGPU& after = schedulers[global];
+    const bool contactBefore = before.physical.x > before.thresholds.x;
+    const bool contactAfter = after.physical.x > after.thresholds.x;
+    if (!contactBefore && contactAfter) {
+        writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_CONTACT_ONSET,
+            after.physical.x / max(after.thresholds.x, 1.0e-8f),
+            before.physical.x,
+            after.physical.x);
+    } else if (contactBefore && !contactAfter) {
+        writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_CONTACT_RELEASE,
+            1.0f,
+            before.physical.x,
+            after.physical.x);
+    }
+    if (before.physical.y <= before.thresholds.y &&
+        after.physical.y > after.thresholds.y) {
+        writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_SLIP_ONSET,
+            after.physical.y / max(after.thresholds.y, 1.0e-8f),
+            before.physical.y,
+            after.physical.y);
+    }
+    if (before.physical.z <= before.thresholds.z &&
+        after.physical.z > after.thresholds.z) {
+        writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_YIELD_ONSET,
+            after.physical.z / max(after.thresholds.z, 1.0e-8f),
+            before.physical.z,
+            after.physical.z);
+    }
+    if (before.numerical.z <= 0.0f && after.numerical.z > 0.0f) {
+        writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_DAMAGE_ONSET,
+            after.numerical.z,
+            before.numerical.z,
+            after.numerical.z);
+    }
+    if (after.numerical.x < dispatch.numericalLimits.z) {
+        writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_INVERSION_RISK,
+            dispatch.numericalLimits.z /
+                max(after.numerical.x, 1.0e-8f),
+            before.numerical.x,
+            after.numerical.x);
+    }
+    if (after.numerical.y > after.thresholds.w) {
+        writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_SOLVER_RESIDUAL,
+            after.numerical.y / max(after.thresholds.w, 1.0e-8f),
+            before.numerical.y,
+            after.numerical.y);
+    }
+
+    const bool quiet =
+        !contactAfter &&
+        after.physical.y <= after.thresholds.y &&
+        after.physical.z <= after.thresholds.z &&
+        after.numerical.x >= dispatch.numericalLimits.z &&
+        after.numerical.y <= after.thresholds.w;
+    if (quiet) {
+        after.quietFrames += 1u;
+        if (after.quietFrames >= 20u &&
+            after.activeExponent > after.baseExponent) {
+            after.activeExponent -= 1u;
+            after.requestedExponent = after.activeExponent;
+            after.quietFrames = 0u;
+        }
+    } else {
+        after.quietFrames = 0u;
+    }
+    after.activeExponent = min(
+        after.activeExponent,
+        min(object.solver.y, dispatch.maximumRateExponent)
+    );
+    if (after.activeExponent != before.activeExponent) {
+        writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_RATE_CHANGE,
+            abs(float(after.activeExponent) - float(before.activeExponent)),
+            float(before.activeExponent),
+            float(after.activeExponent));
+    }
+}
+
+kernel void nm_complete_microstep(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMMatterStatusGPU* statuses [[buffer(1)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment < dispatch.environmentCount &&
+        statuses[environment].code == NM_STATUS_SUCCESS) {
+        statuses[environment].completedMicrosteps += 1u;
+    }
+}
+
+} // namespace numi_matter_metal
