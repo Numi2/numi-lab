@@ -1,0 +1,328 @@
+namespace numi_matter_metal {
+
+inline float3x3 outerProduct(const float3 left, const float3 right) {
+    return float3x3(left * right.x, left * right.y, left * right.z);
+}
+
+kernel void nm_mpm_checkpoint(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMParticleStateGPU* accepted [[buffer(1)]],
+    device NMParticleStateGPU* checkpoint [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint count = dispatch.environmentCount * dispatch.particleCount;
+    if (global < count) {
+        checkpoint[global] = accepted[global];
+    }
+}
+
+kernel void nm_mpm_p2g(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMParticleStateGPU* particles [[buffer(7)]],
+    device NMGridNodeStateGPU* nodes [[buffer(8)]],
+    device const NMMPMStencilGPU* stencils [[buffer(9)]],
+    device const uint* nodeIncidence [[buffer(10)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(11)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(12)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(13)]],
+    device NMMatterStatusGPU* statuses [[buffer(14)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
+    if (global >= total || dispatch.gridNodeCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.gridNodeCount;
+    const uint nodeIndex = global - environment * dispatch.gridNodeCount;
+    device NMGridNodeStateGPU& node = nodes[global];
+    const float3 nodePosition = node.positionAndMass.xyz;
+    const NMIncidenceRangeGPU range = nodeRanges[nodeIndex];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount ||
+        !environmentHealthy(statuses, environment)) {
+        node.positionAndMass.w = 0.0f;
+        node.velocityAndInverseMass = float4(0.0f);
+        node.forceAndEnergy = float4(0.0f);
+        node.candidateVelocity = float4(0.0f);
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + range.objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + range.objectIndex];
+    if (object.representation != NM_REPRESENTATION_MPM ||
+        !objectDue(object, scheduler, adaptiveState, microstep)) {
+        node.positionAndMass.w = 0.0f;
+        node.velocityAndInverseMass = float4(0.0f);
+        node.forceAndEnergy = float4(0.0f);
+        node.candidateVelocity = float4(0.0f);
+        return;
+    }
+
+    float mass = 0.0f;
+    float3 momentum = float3(0.0f);
+    float3 internalForce = float3(0.0f);
+    float maximumStress = 0.0f;
+    const uint particleBase = environment * dispatch.particleCount;
+    device const float* parameters =
+        environmentParameters + environment * dispatch.parameterCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const NMMPMStencilGPU stencil =
+            stencils[nodeIncidence[range.first + local]];
+        const NMParticleStateGPU particle =
+            particles[particleBase + stencil.particleIndex];
+        if (particle.identity.x != range.objectIndex ||
+            (particle.identity.w & NM_OBJECT_ACTIVE) == 0u) {
+            continue;
+        }
+        const float weight = stencil.gradientAndWeight.w;
+        const float particleMass = particle.positionAndMass.w;
+        const float3 particlePosition = particle.positionAndMass.xyz;
+        const float3 particleVelocity = particle.velocityAndReferenceVolume.xyz;
+        const float3x3 affine = matrixFromRows(
+            particle.affineRow0,
+            particle.affineRow1,
+            particle.affineRow2
+        );
+        const float weightedMass = weight * particleMass;
+        mass += weightedMass;
+        momentum += weightedMass * (
+            particleVelocity + affine * (nodePosition - particlePosition)
+        );
+
+        const float3x3 deformation = matrixFromRows(
+            particle.deformationRow0,
+            particle.deformationRow1,
+            particle.deformationRow2
+        );
+        bool valid = true;
+        const NMMaterialGPU material = materials[particle.identity.y];
+        const float3x3 stress = evaluateStress(
+            material,
+            programs,
+            instructions,
+            parameters,
+            deformation,
+            valid
+        );
+        if (!valid) {
+            recordFailure(
+                statuses[environment],
+                NM_STATUS_NONFINITE_RESULT,
+                range.objectIndex,
+                stencil.particleIndex,
+                float4(determinant(deformation), 0.0f, 0.0f, 0.0f)
+            );
+            continue;
+        }
+        maximumStress = max(maximumStress, maximumAbs(stress));
+        internalForce -= particle.velocityAndReferenceVolume.w *
+            (stress * stencil.gradientAndWeight.xyz);
+    }
+
+    node.positionAndMass.w = mass;
+    node.forceAndEnergy = float4(internalForce, maximumStress);
+    if (mass > 0.0f) {
+        const float inverseMass = 1.0f / mass;
+        const float3 velocity = momentum * inverseMass;
+        const float dt = objectTimestep(dispatch, scheduler);
+        const float3 acceleration =
+            internalForce * inverseMass + dispatch.gravityAndTimestep.xyz;
+        node.velocityAndInverseMass = float4(velocity, inverseMass);
+        node.candidateVelocity = float4(velocity + dt * acceleration, 0.0f);
+        if (!finite3(node.candidateVelocity.xyz)) {
+            recordFailure(
+                statuses[environment],
+                NM_STATUS_NONFINITE_RESULT,
+                range.objectIndex,
+                nodeIndex,
+                float4(node.candidateVelocity.xyz, maximumStress)
+            );
+        }
+    } else {
+        node.velocityAndInverseMass = float4(0.0f);
+        node.candidateVelocity = float4(0.0f);
+    }
+}
+
+kernel void nm_mpm_g2p(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMParticleStateGPU* accepted [[buffer(7)]],
+    device NMParticleStateGPU* candidate [[buffer(8)]],
+    device const NMGridNodeStateGPU* nodes [[buffer(9)]],
+    device const NMMPMStencilGPU* stencils [[buffer(10)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(11)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.particleCount;
+    if (global >= total || dispatch.particleCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.particleCount;
+    const uint particleIndex = global - environment * dispatch.particleCount;
+    const NMParticleStateGPU particle = accepted[global];
+    const uint objectIndex = particle.identity.x;
+    if (objectIndex >= dispatch.objectCount) {
+        candidate[global] = particle;
+        recordFailure(
+            statuses[environment],
+            NM_STATUS_INVALID_DISPATCH,
+            objectIndex,
+            particleIndex,
+            float4(0.0f)
+        );
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if (!environmentHealthy(statuses, environment) ||
+        object.representation != NM_REPRESENTATION_MPM ||
+        !objectDue(object, scheduler, adaptiveState, microstep)) {
+        candidate[global] = particle;
+        return;
+    }
+
+    float3 velocity = float3(0.0f);
+    float3x3 velocityGradient = float3x3(0.0f);
+    const uint stencilBase = particleIndex * NM_MPM_STENCIL_WIDTH;
+    for (uint local = 0u; local < NM_MPM_STENCIL_WIDTH; ++local) {
+        const NMMPMStencilGPU stencil = stencils[stencilBase + local];
+        if (stencil.particleIndex != particleIndex ||
+            stencil.nodeIndex >= dispatch.gridNodeCount) {
+            recordFailure(
+                statuses[environment],
+                NM_STATUS_INVALID_DISPATCH,
+                objectIndex,
+                stencilBase + local,
+                float4(0.0f)
+            );
+            candidate[global] = particle;
+            return;
+        }
+        const NMGridNodeStateGPU node =
+            nodes[environment * dispatch.gridNodeCount + stencil.nodeIndex];
+        velocity += stencil.gradientAndWeight.w * node.candidateVelocity.xyz;
+        velocityGradient += outerProduct(
+            node.candidateVelocity.xyz,
+            stencil.gradientAndWeight.xyz
+        );
+    }
+    const float dt = objectTimestep(dispatch, scheduler);
+    const float3x3 deformation = matrixFromRows(
+        particle.deformationRow0,
+        particle.deformationRow1,
+        particle.deformationRow2
+    );
+    const float3x3 nextDeformation =
+        (float3x3(1.0f) + dt * velocityGradient) * deformation;
+    const float determinantValue = determinantSafe(nextDeformation);
+    const NMMaterialGPU material = materials[particle.identity.y];
+    bool valid = isfinite(determinantValue) &&
+        determinantValue >= material.validity.x &&
+        determinantValue <= material.validity.y;
+    if (valid && material.validityProgram != NM_INVALID_INDEX) {
+        float f[9];
+        float df[9] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+        for (uint row = 0u; row < 3u; ++row) {
+            for (uint column = 0u; column < 3u; ++column) {
+                f[3u * row + column] = nextDeformation[column][row];
+            }
+        }
+        const float margin = evaluateScalarProgram(
+            material.validityProgram,
+            programs,
+            instructions,
+            environmentParameters + environment * dispatch.parameterCount +
+                material.parameterOffset,
+            nullptr,
+            f,
+            df,
+            valid
+        );
+        valid = valid && margin > 0.0f;
+    }
+    if (!valid || !finite3(velocity)) {
+        candidate[global] = particle;
+        recordFailure(
+            statuses[environment],
+            NM_STATUS_INVALID_DEFORMATION,
+            objectIndex,
+            particleIndex,
+            float4(determinantValue, length(velocity), 0.0f, 0.0f)
+        );
+        return;
+    }
+
+    NMParticleStateGPU next = particle;
+    next.positionAndMass.xyz += dt * velocity;
+    next.velocityAndReferenceVolume.xyz = velocity;
+    matrixToRows(
+        nextDeformation,
+        next.deformationRow0,
+        next.deformationRow1,
+        next.deformationRow2
+    );
+    matrixToRows(
+        velocityGradient,
+        next.affineRow0,
+        next.affineRow1,
+        next.affineRow2
+    );
+    candidate[global] = next;
+}
+
+kernel void nm_mpm_commit_microstep(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device NMParticleStateGPU* accepted [[buffer(2)]],
+    device NMParticleStateGPU* candidate [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.particleCount;
+    if (global >= total || dispatch.particleCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.particleCount;
+    if (environmentHealthy(statuses, environment)) {
+        accepted[global] = candidate[global];
+    } else {
+        candidate[global] = accepted[global];
+    }
+}
+
+kernel void nm_mpm_rollback_frame(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device NMParticleStateGPU* accepted [[buffer(2)]],
+    device const NMParticleStateGPU* checkpoint [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.particleCount;
+    if (global >= total || dispatch.particleCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.particleCount;
+    if (!environmentHealthy(statuses, environment)) {
+        accepted[global] = checkpoint[global];
+    }
+}
+
+} // namespace numi_matter_metal
