@@ -1,0 +1,246 @@
+#include <metal_stdlib>
+
+#include "metalrobo/hyper_policy_program_types.h"
+#include "metalrobo/policy_program_types.h"
+
+using namespace metal;
+
+namespace {
+
+template <typename T>
+inline device const T* hyperTable(
+    device const uchar* arena,
+    const uint byteOffset
+) {
+    return reinterpret_cast<device const T*>(arena + byteOffset);
+}
+
+inline float hyperActivation(const uint operation, const float value) {
+    switch (operation) {
+    case MR_POLICY_ACTIVATION_IDENTITY:
+        return value;
+    case MR_POLICY_ACTIVATION_RELU:
+        return max(value, 0.0f);
+    case MR_POLICY_ACTIVATION_TANH:
+        return tanh(value);
+    case MR_POLICY_ACTIVATION_ELU:
+        return value >= 0.0f ? value : exp(value) - 1.0f;
+    case MR_POLICY_ACTIVATION_SILU:
+        return value / (1.0f + exp(-value));
+    default:
+        return 0.0f;
+    }
+}
+
+inline uint hyperInterval(
+    device const float* phases,
+    const uint count,
+    const float phase
+) {
+    uint low = 0u;
+    uint high = count - 1u;
+    while (low + 1u < high) {
+        const uint middle = (low + high) >> 1u;
+        if (phases[middle] <= phase) {
+            low = middle;
+        } else {
+            high = middle;
+        }
+    }
+    return min(low, count - 2u);
+}
+
+inline float hyperCubic(
+    device const float* phases,
+    device const float* values,
+    device const float* tangents,
+    const uint knotCount,
+    const uint valueStride,
+    const uint valueIndex,
+    const float unclampedPhase
+) {
+    const float phase = clamp(
+        unclampedPhase,
+        phases[0u],
+        phases[knotCount - 1u]
+    );
+    const uint interval = hyperInterval(phases, knotCount, phase);
+    const float leftPhase = phases[interval];
+    const float rightPhase = phases[interval + 1u];
+    const float width = max(rightPhase - leftPhase, 1.0e-8f);
+    const float u = clamp((phase - leftPhase) / width, 0.0f, 1.0f);
+    const float u2 = u * u;
+    const float u3 = u2 * u;
+    const float h00 = 2.0f * u3 - 3.0f * u2 + 1.0f;
+    const float h10 = u3 - 2.0f * u2 + u;
+    const float h01 = -2.0f * u3 + 3.0f * u2;
+    const float h11 = u3 - u2;
+    const uint left = interval * valueStride + valueIndex;
+    const uint right = (interval + 1u) * valueStride + valueIndex;
+    return h00 * values[left]
+        + h10 * width * tangents[left]
+        + h01 * values[right]
+        + h11 * width * tangents[right];
+}
+
+inline float hyperLinearReference(
+    device const float* phases,
+    device const float* values,
+    const uint frameCount,
+    const uint valueStride,
+    const uint valueIndex,
+    const float unclampedPhase
+) {
+    const float phase = clamp(
+        unclampedPhase,
+        phases[0u],
+        phases[frameCount - 1u]
+    );
+    const uint interval = hyperInterval(phases, frameCount, phase);
+    const float leftPhase = phases[interval];
+    const float rightPhase = phases[interval + 1u];
+    const float width = max(rightPhase - leftPhase, 1.0e-8f);
+    const float u = clamp((phase - leftPhase) / width, 0.0f, 1.0f);
+    const uint left = interval * valueStride + valueIndex;
+    const uint right = (interval + 1u) * valueStride + valueIndex;
+    return mix(values[left], values[right], u);
+}
+
+inline ulong hyperMix64(ulong value) {
+    value += 0x9e3779b97f4a7c15ul;
+    value =
+        (value ^ (value >> 30u)) *
+        0xbf58476d1ce4e5b9ul;
+    value =
+        (value ^ (value >> 27u)) *
+        0x94d049bb133111ebul;
+    return value ^ (value >> 31u);
+}
+
+inline float hyperUniform01(const ulong key) {
+    const uint sample = uint(hyperMix64(key) >> 40u);
+    return (float(sample) + 0.5f) * (1.0f / 16777216.0f);
+}
+
+inline float hyperNormal(const ulong key, const uint action) {
+    const ulong channel = key ^ hyperMix64(ulong(action) * 2ul);
+    const float first = hyperUniform01(channel);
+    const float second = hyperUniform01(
+        channel ^ 0xd2b74407b1ce6e93ul
+    );
+    return sqrt(-2.0f * log(first))
+        * cos(6.2831853071795864769f * second);
+}
+
+inline uint hyperReferenceContactMask(
+    device const uint* masks,
+    const uint frameCount,
+    const uint referenceIndex
+) {
+    return masks[min(referenceIndex, frameCount - 1u)];
+}
+
+inline bool hyperProgramValid(
+    device const MRHyperPolicyProgramHeaderGPU& program,
+    const ulong policyFingerprint,
+    const ulong taskFingerprint
+) {
+    return program.abi.x == MR_HYPER_POLICY_PROGRAM_ABI_VERSION
+        && program.policyFingerprint == policyFingerprint
+        && program.taskFingerprint == taskFingerprint
+        && program.counts0.x > 0u
+        && program.counts0.y > 0u
+        && program.counts0.z > 0u
+        && program.counts1.x >= 2u
+        && program.counts1.y >= 2u;
+}
+
+} // namespace
+
+// One thread per environment performs a bounded forward phase search, advances
+// the generated phase prior, and clamps progression at physical event guards.
+// The input signature is compact robot state assembled by the task runtime;
+// ARDY contact values in the immutable arena are reference intent only.
+kernel void mr_hyper_policy_update_phase(
+    device const MRHyperPolicyProgramHeaderGPU& program [[buffer(0)]],
+    device const uchar* arena [[buffer(1)]],
+    constant MRHyperPolicyPhaseDispatchGPU& dispatch [[buffer(2)]],
+    device const float* liveSignatures [[buffer(3)]],
+    device const uint* measuredContactMasks [[buffer(4)]],
+    device MRHyperPolicyPhaseStateGPU* phaseStates [[buffer(5)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x
+        || dispatch.counts.y != program.counts1.z
+        || dispatch.counts.w != program.counts2.y
+        || !hyperProgramValid(
+            program,
+            dispatch.policyFingerprint,
+            dispatch.taskFingerprint
+        )) {
+        return;
+    }
+
+    MRHyperPolicyPhaseStateGPU state = phaseStates[
+        dispatch.strides.z + environment
+    ];
+    if ((state.state.w & MR_HYPER_POLICY_PHASE_COMPLETE) != 0u) {
+        return;
+    }
+
+    device const float* referencePhases = hyperTable<float>(
+        arena, program.offsets3.y
+    );
+    device const float* referenceSignatures = hyperTable<float>(
+        arena, program.offsets3.w
+    );
+    device const float* signatureWeights = hyperTable<float>(
+        arena, program.offsets4.x
+    );
+    device const uint* referenceContactMasks = hyperTable<uint>(
+        arena, program.offsets4.y
+    );
+    const uint frameCount = program.counts1.y;
+    const uint signatureCount = program.counts1.z;
+    const uint firstReference = min(state.state.x, frameCount - 1u);
+    const uint lastReference = min(
+        frameCount,
+        firstReference + max(dispatch.counts.z, 1u) + 1u
+    );
+    const uint signatureBase =
+        environment * dispatch.strides.x;
+    const uint measuredMask = measuredContactMasks[
+        environment * dispatch.strides.y
+    ];
+    const float huberDelta = max(program.limits1.x, 1.0e-6f);
+
+    float bestCost = INFINITY;
+    uint bestReference = firstReference;
+    for (uint reference = firstReference;
+         reference < lastReference;
+         ++reference) {
+        float cost = 0.0f;
+        const uint referenceBase = reference * signatureCount;
+        for (uint feature = 0u;
+             feature < signatureCount;
+             ++feature) {
+            const float delta =
+                (referenceSignatures[referenceBase + feature]
+                    - liveSignatures[signatureBase + feature])
+                * signatureWeights[feature];
+            const float absolute = abs(delta);
+            cost += absolute <= huberDelta
+                ? 0.5f * delta * delta
+                : huberDelta * (absolute - 0.5f * huberDelta);
+        }
+        cost /= float(signatureCount);
+        const uint referenceMask = hyperReferenceContactMask(
+            referenceContactMasks, frameCount, reference
+        );
+        cost += 4.0f * float(popcount(referenceMask ^ measuredMask));
+        if (cost < bestCost) {
+            bestCost = cost;
+            bestReference = reference;
+        }
+    }
+

@@ -1,0 +1,143 @@
+// One thread per environment combines the reference action, generated
+// authority, actor residual, stochastic training sample (optional), and the
+// independently authored actuator envelope.  previousActions is updated in
+// place so slew limiting is rate-correct and requires no host round-trip.
+kernel void mr_hyper_policy_sample_and_finalize(
+    device const MRHyperPolicyProgramHeaderGPU& program [[buffer(0)]],
+    device const uchar* arena [[buffer(1)]],
+    constant MRHyperPolicyActionDispatchGPU& dispatch [[buffer(2)]],
+    device const MRHyperPolicyPhaseStateGPU* phaseStates [[buffer(3)]],
+    device const float* actorMean [[buffer(4)]],
+    device float* actions [[buffer(5)]],
+    device float* latents [[buffer(6)]],
+    device float* logProbabilities [[buffer(7)]],
+    device float* previousActions [[buffer(8)]],
+    device const float* actionLower [[buffer(9)]],
+    device const float* actionUpper [[buffer(10)]],
+    device const float* maximumActionRate [[buffer(11)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x
+        || dispatch.counts.y != program.counts0.z
+        || dispatch.counts.w != program.counts2.z
+        || !hyperProgramValid(
+            program,
+            dispatch.policyFingerprint,
+            dispatch.taskFingerprint
+        )) {
+        return;
+    }
+    device const float* actionBias = hyperTable<float>(
+        arena, program.offsets1.x
+    );
+    device const float* actionScale = hyperTable<float>(
+        arena, program.offsets1.y
+    );
+    device const float* knotPhases = hyperTable<float>(
+        arena, program.offsets1.z
+    );
+    device const float* authorityKnots = hyperTable<float>(
+        arena, program.offsets2.y
+    );
+    device const float* authorityTangents = hyperTable<float>(
+        arena, program.offsets2.z
+    );
+    device const float* referencePhases = hyperTable<float>(
+        arena, program.offsets3.y
+    );
+    device const float* referenceActions = hyperTable<float>(
+        arena, program.offsets3.z
+    );
+    const bool stochastic =
+        (program.counts2.z & MR_HYPER_POLICY_STOCHASTIC) != 0u;
+    device const float* logStandardDeviation = stochastic
+        ? hyperTable<float>(arena, program.offsets4.w)
+        : nullptr;
+    const float phase = phaseStates[environment].phase.x;
+    const uint meanBase = dispatch.offsets.x
+        + environment * dispatch.strides.x;
+    const uint actionBase = dispatch.offsets.y
+        + dispatch.counts.z * dispatch.strides.y
+        + environment * dispatch.counts.y;
+    const uint latentBase = dispatch.offsets.z
+        + dispatch.counts.z * dispatch.strides.y
+        + environment * dispatch.counts.y;
+    const uint scalarIndex = dispatch.offsets.w
+        + dispatch.counts.z * dispatch.strides.z
+        + environment;
+    const uint previousBase = dispatch.bounds.x
+        + environment * dispatch.strides.w;
+    ulong randomKey = dispatch.randomSeed;
+    randomKey ^= hyperMix64(
+        (ulong(environment) << 32u) | ulong(dispatch.counts.z)
+    );
+    randomKey ^= hyperMix64(program.revision);
+    randomKey ^= hyperMix64(program.sourceMotionFingerprint);
+
+    constexpr float kHalfLogTwoPi = 0.91893853320467274178f;
+    float logProbability = 0.0f;
+    for (uint action = 0u; action < dispatch.counts.y; ++action) {
+        const float mean = actorMean[meanBase + action];
+        float latent = mean;
+        if (stochastic) {
+            const float logStd = clamp(
+                logStandardDeviation[action], -5.0f, 2.0f
+            );
+            const float normal = hyperNormal(randomKey, action);
+            latent = fma(exp(logStd), normal, mean);
+            logProbability +=
+                -0.5f * normal * normal - logStd - kHalfLogTwoPi;
+        }
+        const float reference = hyperLinearReference(
+            referencePhases,
+            referenceActions,
+            program.counts1.y,
+            program.counts0.z,
+            action,
+            phase
+        );
+        const float authority = clamp(
+            hyperCubic(
+                knotPhases,
+                authorityKnots,
+                authorityTangents,
+                program.counts1.x,
+                program.counts0.z,
+                action,
+                phase
+            ),
+            0.0f,
+            1.0f
+        );
+        const float policyCoordinate = fma(
+            authority,
+            tanh(latent),
+            reference
+        );
+        float physical = clamp(
+            fma(actionScale[action], policyCoordinate, actionBias[action]),
+            -program.limits0.y,
+            program.limits0.y
+        );
+        const float previous = previousActions[previousBase + action];
+        const float maximumDelta = max(
+            maximumActionRate[dispatch.bounds.w + action]
+                * program.limits1.y,
+            0.0f
+        );
+        physical = clamp(
+            physical,
+            previous - maximumDelta,
+            previous + maximumDelta
+        );
+        physical = clamp(
+            physical,
+            actionLower[dispatch.bounds.y + action],
+            actionUpper[dispatch.bounds.z + action]
+        );
+        previousActions[previousBase + action] = physical;
+        actions[actionBase + action] = physical;
+        latents[latentBase + action] = latent;
+    }
+    logProbabilities[scalarIndex] = logProbability;
+}

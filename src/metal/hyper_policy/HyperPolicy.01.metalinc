@@ -1,0 +1,267 @@
+    device const float* knotPhases = hyperTable<float>(
+        arena, program.offsets1.z
+    );
+    device const float* phaseRateKnots = hyperTable<float>(
+        arena, program.offsets2.w
+    );
+    device const float* phaseRateTangents = hyperTable<float>(
+        arena, program.offsets3.x
+    );
+    const float phaseRate = max(
+        hyperCubic(
+            knotPhases,
+            phaseRateKnots,
+            phaseRateTangents,
+            program.counts1.x,
+            1u,
+            0u,
+            state.phase.x
+        ),
+        0.0f
+    );
+    const float predicted = state.phase.x + phaseRate * program.limits1.y;
+    const float aligned = max(state.phase.x, referencePhases[bestReference]);
+    float candidate = mix(
+        predicted,
+        aligned,
+        clamp(program.limits0.w, 0.0f, 1.0f)
+    );
+    candidate = min(
+        candidate,
+        state.phase.x + max(program.limits0.z, 0.0f)
+    );
+    candidate = clamp(candidate, state.phase.x, 1.0f);
+
+    uint eventIndex = state.state.y;
+    uint dwell = state.state.z;
+    uint flags = state.state.w & ~MR_HYPER_POLICY_PHASE_GUARD_BLOCKED;
+    device const MRHyperPolicyEventGuardGPU* events =
+        hyperTable<MRHyperPolicyEventGuardGPU>(
+            arena, program.offsets4.z
+        );
+    // Process at most four zero-dwell landmarks in one step. Contact-bearing
+    // guards always consume control steps through their dwell contract.
+    for (uint pass = 0u; pass < 4u && eventIndex < program.counts2.x; ++pass) {
+        const MRHyperPolicyEventGuardGPU event = events[eventIndex];
+        if (candidate + 1.0e-7f < event.phase.x) {
+            break;
+        }
+        const bool contactOn =
+            (measuredMask & event.contract.x) == event.contract.x;
+        const bool contactOff =
+            ((~measuredMask) & event.contract.y) == event.contract.y;
+        if (contactOn && contactOff) {
+            dwell += 1u;
+            if (dwell >= max(event.contract.z, 1u)) {
+                eventIndex += 1u;
+                dwell = 0u;
+                continue;
+            }
+        } else {
+            dwell = 0u;
+        }
+        candidate = min(candidate, event.phase.x);
+        flags |= MR_HYPER_POLICY_PHASE_GUARD_BLOCKED;
+        break;
+    }
+
+    if (candidate >= 1.0f - 1.0e-7f
+        && eventIndex >= program.counts2.x) {
+        candidate = 1.0f;
+        flags |= MR_HYPER_POLICY_PHASE_COMPLETE;
+    }
+    state.phase = float4(
+        candidate,
+        referencePhases[bestReference],
+        bestCost,
+        phaseRate
+    );
+    state.state = uint4(
+        bestReference,
+        eventIndex,
+        dwell,
+        flags
+    );
+    phaseStates[dispatch.strides.z + environment] = state;
+}
+
+// One thread per [environment, rank] computes the only temporary table needed
+// by a low-rank layer: generated-gate-scaled down projection plus the gate
+// itself.  The rank workspace stride must be at least 2 * layer rank.
+kernel void mr_hyper_policy_adapter_down(
+    device const MRHyperPolicyProgramHeaderGPU& program [[buffer(0)]],
+    device const uchar* arena [[buffer(1)]],
+    constant MRHyperPolicyLayerDispatchGPU& dispatch [[buffer(2)]],
+    device const MRHyperPolicyPhaseStateGPU* phaseStates [[buffer(3)]],
+    device const float* input [[buffer(4)]],
+    device float* rankWorkspace [[buffer(5)]],
+    const uint flatRank [[thread_position_in_grid]]
+) {
+    if (!hyperProgramValid(
+            program,
+            dispatch.policyFingerprint,
+            dispatch.taskFingerprint
+        )
+        || dispatch.counts.y >= program.counts0.x) {
+        return;
+    }
+    device const MRHyperPolicyLayerGPU* layers =
+        hyperTable<MRHyperPolicyLayerGPU>(arena, program.offsets0.x);
+    const MRHyperPolicyLayerGPU layer = layers[dispatch.counts.y];
+    const uint elements = dispatch.counts.x * layer.counts.z;
+    if (flatRank >= elements
+        || dispatch.counts.z != layer.counts.x
+        || dispatch.counts.w != layer.counts.y
+        || dispatch.strides.z < 2u * layer.counts.z) {
+        return;
+    }
+    const uint environment = flatRank / layer.counts.z;
+    const uint rank = flatRank - environment * layer.counts.z;
+    const uint inputBase = dispatch.offsets.x
+        + environment * dispatch.strides.x;
+    device const float* observationMean = hyperTable<float>(
+        arena, program.offsets0.y
+    );
+    device const float* observationInverseStd = hyperTable<float>(
+        arena, program.offsets0.z
+    );
+    device const float* down = hyperTable<float>(
+        arena, layer.offsets0.z
+    );
+    const uint downBase = rank * layer.counts.x;
+    float projection = 0.0f;
+    for (uint feature = 0u; feature < layer.counts.x; ++feature) {
+        float sample = input[inputBase + feature];
+        if (dispatch.counts.y == 0u) {
+            sample = clamp(
+                (sample - observationMean[feature])
+                    * observationInverseStd[feature],
+                -program.limits0.x,
+                program.limits0.x
+            );
+        }
+        projection = fma(down[downBase + feature], sample, projection);
+    }
+
+    device const float* knotPhases = hyperTable<float>(
+        arena, program.offsets1.z
+    );
+    device const float* coefficientKnots = hyperTable<float>(
+        arena, program.offsets1.w
+    );
+    device const float* coefficientTangents = hyperTable<float>(
+        arena, program.offsets2.x
+    );
+    device const float* coefficientLimits = hyperTable<float>(
+        arena, program.offsets0.w
+    );
+    const uint coefficient = layer.offsets1.y + rank;
+    const float phase = phaseStates[environment].phase.x;
+    const float gate = clamp(
+        hyperCubic(
+            knotPhases,
+            coefficientKnots,
+            coefficientTangents,
+            program.counts1.x,
+            program.counts0.w,
+            coefficient,
+            phase
+        ),
+        -coefficientLimits[coefficient],
+        coefficientLimits[coefficient]
+    );
+    const uint workspaceBase = dispatch.offsets.z
+        + environment * dispatch.strides.z;
+    rankWorkspace[workspaceBase + rank] = projection * gate;
+    rankWorkspace[workspaceBase + layer.counts.z + rank] = gate;
+}
+
+// Base dense multiplication and adapter-up are fused.  No per-environment
+// full weights are generated or written to memory.
+kernel void mr_hyper_policy_adapter_up(
+    device const MRHyperPolicyProgramHeaderGPU& program [[buffer(0)]],
+    device const uchar* arena [[buffer(1)]],
+    constant MRHyperPolicyLayerDispatchGPU& dispatch [[buffer(2)]],
+    device const float* input [[buffer(3)]],
+    device const float* rankWorkspace [[buffer(4)]],
+    device float* output [[buffer(5)]],
+    const uint flatOutput [[thread_position_in_grid]]
+) {
+    if (!hyperProgramValid(
+            program,
+            dispatch.policyFingerprint,
+            dispatch.taskFingerprint
+        )
+        || dispatch.counts.y >= program.counts0.x) {
+        return;
+    }
+    device const MRHyperPolicyLayerGPU* layers =
+        hyperTable<MRHyperPolicyLayerGPU>(arena, program.offsets0.x);
+    const MRHyperPolicyLayerGPU layer = layers[dispatch.counts.y];
+    const uint elements = dispatch.counts.x * layer.counts.y;
+    if (flatOutput >= elements
+        || dispatch.counts.z != layer.counts.x
+        || dispatch.counts.w != layer.counts.y
+        || dispatch.strides.z < 2u * layer.counts.z) {
+        return;
+    }
+    const uint environment = flatOutput / layer.counts.y;
+    const uint neuron = flatOutput - environment * layer.counts.y;
+    const uint inputBase = dispatch.offsets.x
+        + environment * dispatch.strides.x;
+    device const float* observationMean = hyperTable<float>(
+        arena, program.offsets0.y
+    );
+    device const float* observationInverseStd = hyperTable<float>(
+        arena, program.offsets0.z
+    );
+    device const float* weights = hyperTable<float>(
+        arena, layer.offsets0.x
+    );
+    device const float* bias = hyperTable<float>(
+        arena, layer.offsets0.y
+    );
+    device const float* up = hyperTable<float>(
+        arena, layer.offsets0.w
+    );
+    device const float* biasBasis = hyperTable<float>(
+        arena, layer.offsets1.x
+    );
+    const uint weightBase = neuron * layer.counts.x;
+    float value = bias[neuron];
+    for (uint feature = 0u; feature < layer.counts.x; ++feature) {
+        float sample = input[inputBase + feature];
+        if (dispatch.counts.y == 0u) {
+            sample = clamp(
+                (sample - observationMean[feature])
+                    * observationInverseStd[feature],
+                -program.limits0.x,
+                program.limits0.x
+            );
+        }
+        value = fma(weights[weightBase + feature], sample, value);
+    }
+    const uint workspaceBase = dispatch.offsets.z
+        + environment * dispatch.strides.z;
+    const uint adapterBase = neuron * layer.counts.z;
+    for (uint rank = 0u; rank < layer.counts.z; ++rank) {
+        value = fma(
+            up[adapterBase + rank],
+            rankWorkspace[workspaceBase + rank],
+            value
+        );
+        value = fma(
+            biasBasis[adapterBase + rank],
+            rankWorkspace[
+                workspaceBase + layer.counts.z + rank
+            ],
+            value
+        );
+    }
+    output[
+        dispatch.offsets.y
+        + environment * dispatch.strides.y
+        + neuron
+    ] = hyperActivation(layer.counts.w, value);
+}
+
