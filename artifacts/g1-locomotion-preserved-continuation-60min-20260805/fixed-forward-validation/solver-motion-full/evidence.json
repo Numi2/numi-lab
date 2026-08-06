@@ -1,0 +1,56 @@
+{
+  "authority": "accepted NumiSolver configurations; forward kinematics only; no synthesized dynamics or presentation correction",
+  "format": "numi.g1-solver-state-render.v1",
+  "fps": 50.0,
+  "frame_count": 1000,
+  "retarget_artifact": {
+    "arrays_fingerprint": "fcad2014f90175eb31a10ecfba1dc004f59f42f2dd5507c3bf0771fe00c929c1",
+    "path": "g1_motion_retarget.npz",
+    "sha256": "10cece1cf9f47b34cc0baf34f92fe7163e1c69b7392f2519b2e47508b4df7633",
+    "shapes": {
+      "joint_positions": [
+        1000,
+        29
+      ],
+      "link_names": [
+        39
+      ],
+      "link_position_quaternion_xyzw": [
+        1000,
+        39,
+        7
+      ],
+      "root_position_quaternion_xyzw": [
+        1000,
+        7
+      ],
+      "solver_root_com_position_quaternion_xyzw": [
+        1000,
+        7
+      ],
+      "step": [
+        1000
+      ]
+    }
+  },
+  "robot_urdf": {
+    "path": "/tmp/numi-g1-official-aa0f5c68/g1_29dof_rev_1_0.urdf",
+    "sha256": "c0ae739c640c3e2c00d1bdd8810b5d6e59601487bd1a3995859f9543269ee5c8"
+  },
+  "root_frame_contract": {
+    "conversion": "link_origin = com_position - rotation * local_com",
+    "render_and_interaction": "root link-origin pose",
+    "root_center_of_mass_local_xyz": [
+      0.0,
+      0.0,
+      -0.07605
+    ],
+    "solver_configuration": "root center of mass pose"
+  },
+  "state_trace": {
+    "path": "artifacts/g1-locomotion-preserved-continuation-60min-20260805/fixed-forward-validation/state.tsv",
+    "sha256": "d9ffab5a0eaf89d8e625f5d10f9a2216fb93c9ca9f4c072fd86268ad73cf427d",
+    "timestep_seconds": 0.02
+  },
+  "status": "physical-simulator-state"
+}

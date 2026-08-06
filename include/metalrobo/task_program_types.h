@@ -37,6 +37,10 @@ enum MRTaskProgramFlags : mr_u32 {
     // The compiled task keeps its band-zero clock and compresses command and
     // disturbance intervals only as difficulty rises.
     MR_TASK_PROGRAM_CLOCK_STRESS = 1u << 9u,
+    // ARDY_PHYSICS_GATED_REFERENCE_V4: the InteractionPack clock is
+    // advanced from accepted physical support/tracking state rather
+    // than unconditionally from episode time.
+    MR_TASK_PROGRAM_INTERACTION_PHYSICS_GATED = 1u << 10u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
@@ -122,6 +126,15 @@ enum MRTaskObservationOpcode : mr_u32 {
     // and angular-velocity error xyz. This exposes the physical tracking
     // problem to an action policy without granting root actuation.
     MR_TASK_OBSERVE_INTERACTION_ROOT_TRACKING_ERROR = 25u,
+    // A raw action from an earlier control transaction. source.z is the
+    // number of slots behind the newest raw action (one is lag-2 at the next
+    // policy decision), so imported recurrent-history policies need no host
+    // side action queue.
+    MR_TASK_OBSERVE_DELAYED_ACTION = 26u,
+    // Finite difference of the selected joint position over one control
+    // transaction.  This preserves policies trained from sampled encoders
+    // rather than the simulator's instantaneous generalized velocity.
+    MR_TASK_OBSERVE_JOINT_FINITE_DIFFERENCE_VELOCITY = 27u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -530,6 +543,9 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     mr_uint4 status;
     // commanded x/y/yaw velocity and gait phase.
     mr_float4 commandAndPhase;
+    // Additional task-authored command lanes.  The first lane extends the
+    // generic command observation from xyz to xyzw without aliasing phase.
+    mr_float4 commandExtension;
     // current mechanical power, reserved, episode return, tracking score.
     mr_float4 airReturnTracking;
     // previous tilt, peak event tilt, stable time, event active flag.
@@ -620,7 +636,7 @@ static_assert(sizeof(MRTaskImpactEventGPU) == 48u);
 static_assert(sizeof(MRTaskInteractionContactGPU) == 16u);
 static_assert(sizeof(MRTaskInteractionSampleGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
-static_assert(sizeof(MRTaskStateGPU) == 160u);
+static_assert(sizeof(MRTaskStateGPU) == 176u);
 static_assert(sizeof(MRTaskEvidenceStateGPU) == 64u);
 static_assert(sizeof(MRTaskTransitionGPU) == 128u);
 static_assert(sizeof(MRLearningTransitionGPU) == 64u);

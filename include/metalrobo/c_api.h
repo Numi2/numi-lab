@@ -42,6 +42,7 @@ typedef enum MRUnitreeG1TaskC {
     MR_UNITREE_G1_TASK_BALL_DODGE = 4,
     MR_UNITREE_G1_TASK_DEVELOPMENTAL_RECOVERY = 5,
     MR_UNITREE_G1_TASK_ADULT_LOCOMOTION = 6,
+    MR_UNITREE_G1_TASK_G1_LEGS_LOCOMOTION = 7,
 } MRUnitreeG1TaskC;
 
 typedef enum MRInteractionReferenceModeC {

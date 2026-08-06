@@ -727,6 +727,7 @@ def _serve(arguments: argparse.Namespace) -> int:
                 minibatch_size=arguments.motion_minibatch_size,
                 update_epochs=arguments.motion_update_epochs,
                 reward_coefficient=arguments.motion_reward_coefficient,
+                activation_mode=arguments.motion_activation,
                 maximum_gradient_norm=arguments.maximum_gradient_norm,
                 seed=arguments.seed,
             ),
@@ -1272,6 +1273,15 @@ def main() -> int:
     )
     serve.add_argument(
         "--motion-reward-coefficient", type=float, default=0.3
+    )
+    serve.add_argument(
+        "--motion-activation",
+        choices=("impact", "always"),
+        default="impact",
+        help=(
+            "activate motion reward only during impact sequences or on every "
+            "continuing transition"
+        ),
     )
     _add_contract_arguments(serve)
     _add_ppo_arguments(serve)

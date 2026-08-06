@@ -265,13 +265,15 @@ private struct Options {
                     unitreeG1Task = .developmentalRecovery
                 case "adult-locomotion":
                     unitreeG1Task = .adultLocomotion
+                case "g1-legs-locomotion":
+                    unitreeG1Task = .g1LegsLocomotion
                 case "ball-recovery":
                     unitreeG1Task = .ballDisturbanceRecovery
                 case "ball-dodge":
                     unitreeG1Task = .ballDodge
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be velocity, disturbance-recovery, supine-get-up, developmental-recovery, adult-locomotion, ball-recovery, or ball-dodge."
+                        "--task must be velocity, disturbance-recovery, supine-get-up, developmental-recovery, adult-locomotion, g1-legs-locomotion, ball-recovery, or ball-dodge."
                     )
                 }
                 index += 1
@@ -1320,7 +1322,8 @@ private enum TaskRolloutMain {
             let supportsG1ForwardEvidence =
                 options.stateTrace != nil &&
                 (options.unitreeG1Task == .velocity ||
-                 options.unitreeG1Task == .adultLocomotion) &&
+                 options.unitreeG1Task == .adultLocomotion ||
+                 options.unitreeG1Task == .g1LegsLocomotion) &&
                 options.worldPack == nil && options.urdf == nil
             var impactTouches = [Int](
                 repeating: 0,
@@ -2213,6 +2216,13 @@ private enum TaskRolloutMain {
                 "teacher_fingerprint": String(
                     context.layout.teacherFingerprint
                 ),
+                "world_fingerprint": String(layout.worldFingerprint),
+                "task_fingerprint": String(layout.taskFingerprint),
+                "observation_fingerprint":
+                    String(layout.observationFingerprint),
+                "action_fingerprint": String(layout.actionFingerprint),
+                "actor_observation_count": layout.actorObservationCount,
+                "action_count": layout.actionCount,
                 "outcomes": Dictionary(uniqueKeysWithValues:
                     outcomeSchema.enumerated().map { index, descriptor in
                         (

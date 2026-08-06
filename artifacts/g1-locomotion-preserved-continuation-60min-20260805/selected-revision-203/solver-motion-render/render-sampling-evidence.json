@@ -1,0 +1,13 @@
+{
+  "dynamics_synthesized": false,
+  "floor_correction": false,
+  "format": "numi.g1-render-sampling.v1",
+  "interpolation": false,
+  "presentation_rate_hz": 6.25,
+  "selected_frame_count": 125,
+  "source_frame_count": 1000,
+  "source_index_end": 992,
+  "source_index_start": 0,
+  "source_index_stride": 8,
+  "source_rate_hz": 50.0
+}

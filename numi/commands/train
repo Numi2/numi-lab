@@ -14,9 +14,13 @@ Usage: numi train [metalrobo_task_train arguments...]
 Numi supplies fresh artifact paths and local runtime paths when they are not
 provided. Every native trainer option passes through unchanged. Common options:
 
-  --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|adult-locomotion|ball-recovery|ball-dodge
+  --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|adult-locomotion|g1-legs-locomotion|ball-recovery|ball-dodge
   --minimum-difficulty-band N --maximum-difficulty-band N
   --interaction-pack PATH --interaction-clip ID
+  --motion-pack PATH [--motion-activation impact|always]
+                                    Visual motion style reward; always is for
+                                    locomotion without a threat sequence
+  --motion-reward-coefficient F     Blend visual style with physical reward
   --world-pack PATH --task-pack PATH     Train any authored WorldPack task
   --urdf PATH [--srdf PATH] --task-pack PATH
   --interaction-reset-phase-probability F  Fraction of noncanonical resets
@@ -84,6 +88,16 @@ numi_run_stamp=$(date -u '+%Y%m%dT%H%M%SZ')
 numi_runs_root=${NUMI_RUNS_DIR:-$numi_workspace/.numi/runs}
 numi_run=${NUMI_RUN_DIR:-$numi_runs_root/train-$numi_run_stamp-$$}
 mkdir -p "$numi_run"
+# A detached supervisor or a repeated SSH launch must not start a second
+# native trainer against the same artifact directory. Without this guard,
+# each copy appends its timeout/error stream to the same stderr.log and can
+# exhaust the host volume before the original failure is observable.
+numi_train_lock="$numi_run/.train.lock"
+if ! mkdir "$numi_train_lock" 2>/dev/null; then
+    printf 'numi train: run already active or locked: %s\n' "$numi_run" >&2
+    exit 3
+fi
+trap 'rmdir "$numi_train_lock" 2>/dev/null || true' EXIT HUP INT TERM
 
 if [ -f "$numi_root/python/metalrobo/mlx_policy_worker.py" ]; then
     numi_python_root=$numi_root/python

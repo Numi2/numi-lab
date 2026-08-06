@@ -24,6 +24,7 @@ numi_curriculum_seed_base=${NUMI_CURRICULUM_SEED_BASE:-2650444043}
 numi_curriculum_selection_envs=${NUMI_CURRICULUM_SELECTION_ENVS:-512}
 numi_curriculum_selection_seed=${NUMI_CURRICULUM_SELECTION_SEED:-2650443581}
 numi_curriculum_learning_rate=${NUMI_CURRICULUM_LEARNING_RATE:-1e-5}
+numi_curriculum_selection_timeout_seconds=${NUMI_CURRICULUM_SELECTION_TIMEOUT_SECONDS:-7200}
 
 numi_curriculum_band=$numi_curriculum_start_band
 numi_curriculum_retry=0
@@ -126,12 +127,33 @@ while [ "$numi_curriculum_band" -le "$numi_curriculum_max_band" ]; do
     if [ ! -s "$numi_curriculum_selection" ]; then
         if [ -e "$numi_curriculum_run" ]; then
             echo "waiting for existing run selection: $numi_curriculum_run"
+            numi_curriculum_wait_started=$(date +%s)
             while [ ! -s "$numi_curriculum_selection" ]; do
+                if [ "$numi_curriculum_selection_timeout_seconds" -gt 0 ]; then
+                    numi_curriculum_wait_now=$(date +%s)
+                    if [ $((numi_curriculum_wait_now - numi_curriculum_wait_started)) -ge "$numi_curriculum_selection_timeout_seconds" ]; then
+                        echo "timed out waiting for adult band $numi_curriculum_band selection: $numi_curriculum_run" >&2
+                        exit 7
+                    fi
+                fi
                 sleep 30
             done
         else
             echo "launching adult band $numi_curriculum_band retry $numi_curriculum_retry from parent=$numi_curriculum_parent_policy at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            numi_curriculum_launch
+            # The train overlay durably records an incumbent-retaining
+            # selection when the selector fails. Run the launch in an if
+            # context so set -e cannot discard that decision before the
+            # curriculum retry logic consumes it.
+            if numi_curriculum_launch; then
+                :
+            else
+                numi_curriculum_launch_status=$?
+                if [ ! -s "$numi_curriculum_selection" ]; then
+                    echo "adult band $numi_curriculum_band retry $numi_curriculum_retry failed without a selection decision" >&2
+                    exit "$numi_curriculum_launch_status"
+                fi
+                echo "adult band $numi_curriculum_band retry $numi_curriculum_retry produced an incumbent fallback selection"
+            fi
             echo "adult band $numi_curriculum_band retry $numi_curriculum_retry exited at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
         fi
     fi

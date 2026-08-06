@@ -1,0 +1,17 @@
+{
+  "dynamics_synthesized": false,
+  "floor_correction": false,
+  "format": "numi.g1-render-sampling.v1",
+  "interpolation": false,
+  "presentation_rate_hz": 6.25,
+  "selected_frame_count": 125,
+  "selected_source_indices": {
+    "end": 992,
+    "start": 0,
+    "stride": 8
+  },
+  "source_frame_count": 1000,
+  "source_rate_hz": 50.0,
+  "source_state_trace": "selection/candidate-00000108.state.tsv",
+  "source_trace_sha256": "128df7a12e510925504d92e54595efe1bb28f3b8e3fcbfbd8e4c2c39381d5079"
+}

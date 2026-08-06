@@ -1,0 +1,26 @@
+{
+  "schema": "numi.g1-locomotion-behavior-baseline.v1",
+  "policy_pack": "candidate.policypack",
+  "policy_pack_sha256": "23930cbf1af7f40b3a68a9456e865ef88986426f7847e6a42669e2582ff3b3d3",
+  "policy_rollout_fingerprint": "12774024940239570609",
+  "source_state_trace": "../selection/candidate-00000108.state.tsv",
+  "source_state_trace_sha256": "128df7a12e510925504d92e54595efe1bb28f3b8e3fcbfbd8e4c2c39381d5079",
+  "retained_episode": {
+    "start_frame_inclusive": 514,
+    "end_frame_exclusive": 771,
+    "timestep_seconds": 0.02,
+    "duration_seconds": 5.14,
+    "forward_progress_m": 2.82393863167,
+    "mean_forward_velocity_mps": 0.5515505139980469,
+    "planar_path_length_m": 2.876866341924938,
+    "mean_root_height_m": 0.7003755131128404,
+    "mean_tilt_rad": 0.12393249360775739,
+    "maximum_tilt_rad": 0.48454429851240727
+  },
+  "repeatability": {
+    "matching_episode_start_frame_inclusive": 257,
+    "matching_episode_end_frame_exclusive": 514,
+    "kinematic_summary_identical": true
+  },
+  "promotion_rule": "retain this immutable policy and episode; successors must preserve the episode-level locomotion outcome under matched deterministic evaluation before replacing it"
+}

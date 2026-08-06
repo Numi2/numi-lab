@@ -23,7 +23,10 @@ enum class TaskObservationSource : std::uint32_t {
     command = MR_TASK_OBSERVE_COMMAND,
     jointPositionError = MR_TASK_OBSERVE_JOINT_POSITION_ERROR,
     jointVelocity = MR_TASK_OBSERVE_JOINT_VELOCITY,
+    jointFiniteDifferenceVelocity =
+        MR_TASK_OBSERVE_JOINT_FINITE_DIFFERENCE_VELOCITY,
     previousAction = MR_TASK_OBSERVE_PREVIOUS_ACTION,
+    delayedAction = MR_TASK_OBSERVE_DELAYED_ACTION,
     rootLinearVelocityLocal =
         MR_TASK_OBSERVE_ROOT_LINEAR_VELOCITY_LOCAL,
     rootHeight = MR_TASK_OBSERVE_ROOT_HEIGHT,
@@ -468,6 +471,11 @@ struct TaskPack {
     // When false, an InteractionPack still supplies the initial physical
     // state but no longer supplies runtime joint targets or teacher actions.
     bool interactionControlReference = true;
+    // ARDY_PHYSICS_GATED_REFERENCE_V4. Runtime-only compilation
+    // choice: preserve the InteractionPack as absolute target authority,
+    // but advance it only when physical support and tracking permit.
+    // This does not change the persisted TaskPack wire format.
+    bool interactionPhysicsGated = false;
     float baseHeightTarget = 0.0f;
     float gaitPeriodSeconds = 0.8f;
     float clearanceTarget = 0.1f;

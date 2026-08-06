@@ -30,6 +30,7 @@ private struct Options {
     var checkpointDirectory: String?
     var checkpointInterval = 0
     var motionPack: String?
+    var motionActivation = "impact"
     var interactionPack: String?
     var interactionClip: String?
     var interactionStudentAuthority: Float?
@@ -59,6 +60,7 @@ private struct Options {
     var motionMinibatchesPerEpoch = 8
     var motionUpdateEpochs = 1
     var motionMinibatchSize = 0
+    var motionRewardCoefficient = 0.3
     var learningRate = 1.0e-3
     var minimumLearningRate = 1.0e-5
     var maximumLearningRate = 1.0e-2
@@ -192,6 +194,16 @@ private struct Options {
             case "--motion-pack":
                 motionPack = try value()
                 index += 1
+            case "--motion-activation":
+                motionActivation = try value()
+                guard motionActivation == "impact" ||
+                      motionActivation == "always"
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--motion-activation must be impact or always."
+                    )
+                }
+                index += 1
             case "--interaction-pack":
                 interactionPack = try value()
                 index += 1
@@ -313,13 +325,15 @@ private struct Options {
                     unitreeG1Task = .developmentalRecovery
                 case "adult-locomotion":
                     unitreeG1Task = .adultLocomotion
+                case "g1-legs-locomotion":
+                    unitreeG1Task = .g1LegsLocomotion
                 case "ball-recovery":
                     unitreeG1Task = .ballDisturbanceRecovery
                 case "ball-dodge":
                     unitreeG1Task = .ballDodge
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be velocity, disturbance-recovery, supine-get-up, developmental-recovery, adult-locomotion, ball-recovery, or ball-dodge."
+                        "--task must be velocity, disturbance-recovery, supine-get-up, developmental-recovery, adult-locomotion, g1-legs-locomotion, ball-recovery, or ball-dodge."
                     )
                 }
                 index += 1
@@ -338,6 +352,17 @@ private struct Options {
                 index += 1
             case "--motion-update-epochs":
                 motionUpdateEpochs = try Self.integer(value(), option)
+                index += 1
+            case "--motion-reward-coefficient":
+                guard let parsed = Double(try value()),
+                      parsed.isFinite,
+                      parsed >= 0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--motion-reward-coefficient must be finite and non-negative."
+                    )
+                }
+                motionRewardCoefficient = parsed
                 index += 1
             case "--learning-rate":
                 learningRate = try Self.double(value(), option)
@@ -424,6 +449,8 @@ private struct Options {
               minibatchesPerEpoch >= 0,
               motionMinibatchesPerEpoch > 0,
               motionUpdateEpochs > 0,
+              motionRewardCoefficient.isFinite,
+              motionRewardCoefficient >= 0,
               checkpointInterval >= 0,
               learnerSeed >= 0,
               let mlxPython,
@@ -929,6 +956,10 @@ private final class MLXLearnerWorker {
                 String(options.motionMinibatchSize),
                 "--motion-update-epochs",
                 String(options.motionUpdateEpochs),
+                "--motion-activation",
+                options.motionActivation,
+                "--motion-reward-coefficient",
+                String(options.motionRewardCoefficient),
             ])
         }
         process.arguments = arguments

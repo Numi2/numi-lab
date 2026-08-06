@@ -705,7 +705,9 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::command:
             case TaskObservationSource::jointPositionError:
             case TaskObservationSource::jointVelocity:
+            case TaskObservationSource::jointFiniteDifferenceVelocity:
             case TaskObservationSource::previousAction:
+            case TaskObservationSource::delayedAction:
             case TaskObservationSource::contactMetric:
             case TaskObservationSource::bodyParameterMean:
             case TaskObservationSource::bodyParameter:
@@ -2006,10 +2008,13 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::projectedGravity:
             case TaskObservationSource::command:
             case TaskObservationSource::rootLinearVelocityLocal:
-                componentLimit = 3u;
+                componentLimit = spec.source == TaskObservationSource::command
+                    ? 4u
+                    : 3u;
                 break;
             case TaskObservationSource::jointPositionError:
-            case TaskObservationSource::jointVelocity: {
+            case TaskObservationSource::jointVelocity:
+            case TaskObservationSource::jointFiniteDifferenceVelocity: {
                 bool ambiguous = false;
                 const std::uint32_t joint = uniqueIndex(
                     model.jointNames,
@@ -2036,7 +2041,8 @@ TaskCompileDiagnostics compileTaskProgram(
                 }
                 break;
             }
-            case TaskObservationSource::previousAction: {
+            case TaskObservationSource::previousAction:
+            case TaskObservationSource::delayedAction: {
                 bool ambiguous = false;
                 sourceIndex = uniqueIndex(actionIds, spec.target, ambiguous);
                 if (ambiguous || sourceIndex == MR_INVALID_INDEX) {
@@ -2047,6 +2053,10 @@ TaskCompileDiagnostics compileTaskProgram(
                         spec.target,
                         "previous-action observation has no unique actuator binding"
                     );
+                }
+                if (spec.source == TaskObservationSource::delayedAction) {
+                    componentLimit =
+                        reset.maximumActionDelaySteps + 2u;
                 }
                 break;
             }
@@ -3567,6 +3577,20 @@ TaskCompileDiagnostics compileTaskProgram(
         }
     }
 
+    // ARDY_PHYSICS_GATED_REFERENCE_V4 stores its fixed-point phase in
+    // MRTaskStateGPU::status.w. Impact sequences already own that lane,
+    // so compilation rejects the combination instead of aliasing state.
+    if (pack.interactionPhysicsGated &&
+        (interactionClip == nullptr ||
+         !pack.interactionControlReference ||
+         !staged->impactEvents.empty())) {
+        return reject(
+            TaskCompileStatus::invalidPack,
+            "interaction",
+            "physics-gated interaction requires an active reference and no impact sequence"
+        );
+    }
+
     std::uint32_t threatGroup = MR_INVALID_INDEX;
     if (!pack.threat.protectedGroup.empty()) {
         threatGroup = namedGroup(
@@ -3963,6 +3987,10 @@ TaskCompileDiagnostics compileTaskProgram(
         if (pack.interactionControlReference) {
             staged->header.schedule.w |=
                 MR_TASK_PROGRAM_INTERACTION_REFERENCE;
+        }
+        if (pack.interactionPhysicsGated) {
+            staged->header.schedule.w |=
+                MR_TASK_PROGRAM_INTERACTION_PHYSICS_GATED;
         }
     }
     staged->header.locomotion = {

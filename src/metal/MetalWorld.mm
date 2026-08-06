@@ -2934,7 +2934,7 @@ bool buildRequirements(
         ) ||
         !makeRequirement<float>(
             "native previous action velocity",
-            taskEnvironments * taskLayout.actionCount,
+            taskEnvironments * taskLayout.actionCount * 2u,
             requirements.entries[kTaskPreviousJointVelocity]
         ) ||
         !makeRequirement<float>(

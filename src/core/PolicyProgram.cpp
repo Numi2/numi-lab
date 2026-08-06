@@ -10,6 +10,7 @@
 #include <limits>
 #include <memory>
 #include <span>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -264,10 +265,19 @@ PolicyCompileDiagnostics compilePolicyProgram(
              task.observationFingerprint() ||
          pack.contract.actionFingerprint !=
              task.actionFingerprint()) {
+        std::ostringstream details;
+        details << "policy=(world=" << pack.contract.worldFingerprint
+                << ",task=" << pack.contract.taskFingerprint
+                << ",observation=" << pack.contract.observationFingerprint
+                << ",action=" << pack.contract.actionFingerprint
+                << ") task=(world=" << task.worldFingerprint()
+                << ",task=" << task.fingerprint()
+                << ",observation=" << task.observationFingerprint()
+                << ",action=" << task.actionFingerprint() << ")";
         return reject(
             PolicyCompileStatus::incompatibleContract,
             "contract",
-            "policy is bound to different world, task, observation, or action semantics"
+            details.str()
         );
     }
     if ((!pack.observationMean.empty() &&

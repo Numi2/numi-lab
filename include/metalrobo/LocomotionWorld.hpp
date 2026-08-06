@@ -26,6 +26,7 @@ enum class UnitreeG1Task : std::uint32_t {
     ballDodge = 4u,
     developmentalRecovery = 5u,
     adultLocomotion = 6u,
+    g1LegsLocomotion = 7u,
 };
 
 struct LocomotionWorld {
@@ -124,6 +125,16 @@ void appendLocomotionDynamicSpheres(
 // Bundled policy/task contract expressed entirely through the same authored
 // TaskPack accepted for imported robots.
 [[nodiscard]] TaskPack makeUnitreeG1LocomotionTaskPack(
+    LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+
+// Source-compatible actor contract for a pinned legs-only G1 locomotion
+// policy.  The TaskPack retains all 29 actuator bindings so the upper body
+// remains at its authored PD hold targets while the imported actor controls
+// only the first twelve leg lanes.
+[[nodiscard]] TaskPack makeUnitreeG1LegsLocomotionTaskPack(
     LocomotionSurface surface,
     TaskObservationProgram& observations,
     TaskResetProgram& reset

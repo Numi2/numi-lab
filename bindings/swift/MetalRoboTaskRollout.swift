@@ -91,6 +91,7 @@ public enum MetalRoboUnitreeG1Task: UInt32, Sendable {
     case ballDodge = 4
     case developmentalRecovery = 5
     case adultLocomotion = 6
+    case g1LegsLocomotion = 7
 }
 
 public enum MetalRoboInteractionReferenceMode: UInt32, Sendable {

@@ -1134,6 +1134,85 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     return task;
 }
 
+TaskPack makeUnitreeG1LegsLocomotionTaskPack(
+    const LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeUnitreeG1LocomotionTaskPack(
+        surface, observations, reset
+    );
+    task.id = "unitree_g1_legs_locomotion";
+    task.gaitPeriodSeconds = 0.7f;
+    task.baseHeightTarget = 0.83f;
+    // The published policy is a velocity-conditioned walker.  This native
+    // evaluation preset asks for a conservative 0.1 m/s forward gait; its
+    // fourth command lane remains authored zero through the command operator.
+    task.commands.lower = {0.1f, 0.0f, 0.0f, 0.0f};
+    task.commands.upper = {0.1f, 0.0f, 0.0f, 0.0f};
+    task.commands.standingProbability = 0.0f;
+    // Publish a training-only, pelvis-relative leg pose stream. This leaves
+    // the imported 240-observation/12-action actor ABI untouched while
+    // allowing a visual motion source to shape its gait through MotionPack.
+    // Physics, contacts, reward, termination, and the critic remain native.
+    task.motion = {
+        .anchorBody = "pelvis",
+        .trackedBodies = {
+            "left_hip_roll_link",
+            "left_knee_link",
+            "left_ankle_roll_link",
+            "right_hip_roll_link",
+            "right_knee_link",
+            "right_ankle_roll_link",
+        },
+    };
+    observations.actorFrame.clear();
+    observations.actorCurrent.clear();
+    observations.actorHistoryLength = 5u;
+
+    const G1ModelMetadata& metadata = unitreeG1Metadata();
+    constexpr std::size_t legCount = 12u;
+    const auto append = [&observations](
+        const TaskObservationSource source,
+        const std::string_view target,
+        const std::uint32_t component
+    ) {
+        observations.actorFrame.push_back({
+            .source = source,
+            .target = std::string{target},
+            .component = component,
+        });
+    };
+    for (std::size_t index = 0u; index < legCount; ++index) {
+        append(TaskObservationSource::delayedAction,
+               metadata.jointLimits[index].name, 1u);
+    }
+    for (std::uint32_t component = 0u; component < 4u; ++component) {
+        append(TaskObservationSource::command, {}, component);
+    }
+    for (std::size_t index = 0u; index < legCount; ++index) {
+        append(TaskObservationSource::jointPositionError,
+               metadata.jointLimits[index].name, 0u);
+    }
+    for (std::size_t index = 0u; index < legCount; ++index) {
+        append(TaskObservationSource::jointFiniteDifferenceVelocity,
+               metadata.jointLimits[index].name, 0u);
+    }
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        append(TaskObservationSource::projectedGravity, {}, component);
+    }
+    for (std::uint32_t component = 0u; component < 2u; ++component) {
+        append(TaskObservationSource::gaitPhase, {}, component);
+    }
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        append(TaskObservationSource::rootAngularVelocityLocal, {}, component);
+    }
+    if (observations.actorFrame.size() != 48u) {
+        throw std::logic_error("G1 legs actor frame must contain 48 values");
+    }
+    return task;
+}
+
 std::span<const float>
 unitreeG1LocomotionActionScales() noexcept {
     return kUnitreeG1ActionScales;

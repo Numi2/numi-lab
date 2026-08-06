@@ -1608,6 +1608,7 @@ class MLXMotionPriorConfiguration:
     minibatch_size: int = 4096
     update_epochs: int = 2
     reward_coefficient: float = 0.3
+    activation_mode: str = "impact"
     maximum_gradient_norm: float = 1.0
     seed: int = 1
 
@@ -1619,6 +1620,7 @@ class MLXMotionPriorConfiguration:
             or self.minibatch_size <= 0
             or self.update_epochs <= 0
             or self.reward_coefficient < 0.0
+            or self.activation_mode not in {"impact", "always"}
             or self.maximum_gradient_norm <= 0.0
             or self.seed < 0
         ):
@@ -1842,9 +1844,13 @@ class MLXMotionPrior:
             (steps, environments),
             dtype=np.float32,
         )
-        active = rollout.transitions[
-            "impact_sequence_index"
-        ].reshape(steps, environments)[1:] != 0
+        active = (
+            np.ones((steps - 1, environments), dtype=bool)
+            if self.configuration.activation_mode == "always"
+            else rollout.transitions[
+                "impact_sequence_index"
+            ].reshape(steps, environments)[1:] != 0
+        )
         rewards[1:][continuing] = np.asarray(
             style,
             dtype=np.float32,

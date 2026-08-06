@@ -607,6 +607,8 @@ metalrobo::UnitreeG1Task unitreeG1Task(const std::uint32_t value) {
         return metalrobo::UnitreeG1Task::developmentalRecovery;
     case MR_UNITREE_G1_TASK_ADULT_LOCOMOTION:
         return metalrobo::UnitreeG1Task::adultLocomotion;
+    case MR_UNITREE_G1_TASK_G1_LEGS_LOCOMOTION:
+        return metalrobo::UnitreeG1Task::g1LegsLocomotion;
     default:
         throw std::invalid_argument("Unitree G1 task is invalid");
     }
@@ -672,17 +674,60 @@ void authorG1InteractionTrackingTask(
     // inherited locomotion tilt/height terminations would reject the desired
     // motion before physics can evaluate it. Numerical failures remain owned
     // by the transactional solver and non-looping clips retain their horizon.
+    const bool physicsGated =
+        config.interaction_reference_mode !=
+        MR_INTERACTION_REFERENCE_RESET_ONLY;
+    task.interactionPhysicsGated = physicsGated;
+    if (physicsGated) {
+        task.id += "/physics-gated-v4";
+    }
     task.terminations.clear();
+    if (physicsGated && config.disable_task_terminations == 0u) {
+        // ARDY_PHYSICS_GATED_REFERENCE_V4: stop before ground contact
+        // can become a second, uncontrolled phase of the motion.
+        task.terminations = {
+            {
+                .operation = metalrobo::TaskTerminationOperator::
+                    minimumRootHeight,
+                .reason = MR_TASK_TERMINATION_HEIGHT,
+                .priority = 10u,
+                .threshold = 0.55f,
+                .failurePenalty = -5.0f,
+            },
+            {
+                .operation = metalrobo::TaskTerminationOperator::
+                    maximumTilt,
+                .reason = MR_TASK_TERMINATION_TILT,
+                .priority = 11u,
+                .threshold = 0.50f,
+                .failurePenalty = -5.0f,
+            },
+            {
+                .operation = metalrobo::TaskTerminationOperator::
+                    contactGroup,
+                .sourceGroup = "undesired_contact",
+                .reason = MR_TASK_TERMINATION_CONTACT,
+                .priority = 12u,
+                .threshold = 0.5f,
+                .failurePenalty = -5.0f,
+            },
+        };
+    }
     reset.maximumActionDelaySteps = 0u;
     reset.maximumObservationDelaySteps = 0u;
     if (!clip.loop) {
         const double durationSeconds =
             static_cast<double>(clip.frameCount - 1u) /
             static_cast<double>(clip.framesPerSecond);
-        const double steps = std::ceil(
+        const double nominalSteps = std::ceil(
             durationSeconds /
             static_cast<double>(config.control_timestep_seconds)
         ) + 1.0;
+        // A physics-gated clock may legitimately hold a frame while a
+        // foot releases or lands. Give it four nominal clip durations.
+        const double steps = physicsGated
+            ? 4.0 * nominalSteps
+            : nominalSteps;
         if (!std::isfinite(steps) || steps < 2.0 ||
             steps > static_cast<double>(
                 std::numeric_limits<std::uint32_t>::max()
@@ -1239,8 +1284,79 @@ metalrobo::RunManifest makeUnitreeG1RunManifest(
                 surface,
                 manifest.sensors.observation,
                 manifest.reality.reset
-            );
+        );
         break;
+    case metalrobo::UnitreeG1Task::g1LegsLocomotion:
+        manifest.task = metalrobo::makeUnitreeG1LegsLocomotionTaskPack(
+            surface,
+            manifest.sensors.observation,
+            manifest.reality.reset
+        );
+        break;
+    }
+    if (taskKind == metalrobo::UnitreeG1Task::g1LegsLocomotion) {
+        // The imported actor owns only the twelve leg motors.  Preserve its
+        // position-drive/reset contract for the rest of the G1 rather than
+        // allowing the generic whole-body action profile to move the arms.
+        constexpr std::array<float, 29u> targets{{
+            -0.1f, 0.0f, 0.0f, 0.3f, -0.2f, 0.0f,
+            -0.1f, 0.0f, 0.0f, 0.3f, -0.2f, 0.0f,
+            0.0f, 0.0f, 0.0f,
+            0.0f, 0.2f, 0.0f, 0.9f, 0.0f, 0.0f, 0.0f,
+            0.0f, -0.2f, 0.0f, 0.9f, 0.0f, 0.0f, 0.0f,
+        }};
+        constexpr std::array<float, 29u> stiffness{{
+            100.0f, 100.0f, 100.0f, 200.0f, 40.0f, 40.0f,
+            100.0f, 100.0f, 100.0f, 200.0f, 40.0f, 40.0f,
+            300.0f, 300.0f, 300.0f,
+            90.0f, 60.0f, 20.0f, 60.0f, 4.0f, 4.0f, 4.0f,
+            90.0f, 60.0f, 20.0f, 60.0f, 4.0f, 4.0f, 4.0f,
+        }};
+        constexpr std::array<float, 29u> damping{{
+            2.5f, 2.5f, 2.5f, 5.0f, 2.0f, 2.0f,
+            2.5f, 2.5f, 2.5f, 5.0f, 2.0f, 2.0f,
+            5.0f, 5.0f, 5.0f,
+            2.0f, 1.0f, 0.4f, 1.0f, 0.2f, 0.2f, 0.2f,
+            2.0f, 1.0f, 0.4f, 1.0f, 0.2f, 0.2f, 0.2f,
+        }};
+        constexpr std::uint32_t rootQCount = 7u;
+        // The imported policy was trained around a 0.83 m pelvis-link height. G1's
+        // generic task reset is 0.80 m, so preserve the source standing
+        // geometry before its PD controller takes the first policy action.
+        if (manifest.robot.mechanics.defaultQ.size() > 2u) {
+            manifest.robot.mechanics.defaultQ[2u] += 0.03f;
+        }
+        if (!manifest.robot.mechanics.materials.empty()) {
+            // The source validation scene uses MuJoCo's unit-friction
+            // flat floor.  Keep the imported policy on that authored contact
+            // contract instead of the bundled RL-Lab 0.6 preset.
+            manifest.robot.mechanics.materials.front().friction =
+                {1.0f, 1.0f, 0.0f, 0.0f};
+        }
+        for (std::size_t motor = 0u; motor < targets.size(); ++motor) {
+            const std::uint32_t qIndex = rootQCount +
+                static_cast<std::uint32_t>(motor);
+            if (qIndex < manifest.robot.mechanics.defaultQ.size()) {
+                manifest.robot.mechanics.defaultQ[qIndex] = targets[motor];
+            }
+            for (MRDofPropertiesGPU& dof : manifest.robot.mechanics.dofs) {
+                if (dof.jointIndex == motor) {
+                    dof.drive.x = stiffness[motor];
+                    dof.drive.y = damping[motor];
+                    if (motor < 12u) {
+                        // The source AGILE leg spec uses a 0.02 kg m^2
+                        // reflected actuator armature.  The bundled G1
+                        // locomotion preset has a lower hardware-specific
+                        // value, which makes this imported gait overreact.
+                        dof.drive.z = 0.02f;
+                    }
+                    break;
+                }
+            }
+            if (motor < 12u && motor < manifest.robot.actuators.size()) {
+                manifest.robot.actuators[motor].scale = 0.5f;
+            }
+        }
     }
     if (taskKind == metalrobo::UnitreeG1Task::supineGetUpDiscovery ||
         taskKind == metalrobo::UnitreeG1Task::developmentalRecovery) {

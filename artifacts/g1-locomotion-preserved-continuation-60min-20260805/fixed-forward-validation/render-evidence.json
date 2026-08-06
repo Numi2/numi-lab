@@ -1,0 +1,5 @@
+{
+  "dynamics_synthesized": false,
+  "format": "numi.g1-presentation.v1",
+  "transform_policy": "exact supplied link transforms; no floor correction"
+}

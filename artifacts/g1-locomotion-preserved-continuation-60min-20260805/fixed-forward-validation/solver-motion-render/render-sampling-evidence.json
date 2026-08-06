@@ -1,0 +1,9 @@
+{
+  "source_frames": 1000,
+  "selected_frames": 125,
+  "stride": 8,
+  "source_rate_hz": 50.0,
+  "presentation_rate_hz": 6.25,
+  "interpolation": false,
+  "floor_correction": false
+}

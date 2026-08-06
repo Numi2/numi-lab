@@ -18,6 +18,74 @@ constant uint kImpactOffsetMask = 0xffu << kImpactOffsetShift;
 constant uint kImpactContactLatched = 1u << 25u;
 constant uint kImpactContactPublished = 1u << 26u;
 
+// ARDY_PHYSICS_GATED_REFERENCE_V4. status.w is available in ordinary
+// interaction tracking and is compile-time excluded from impact-sequence tasks.
+constant uint kInteractionPhaseFractionBits = 16u;
+constant uint kInteractionPhaseScale = 1u << kInteractionPhaseFractionBits;
+constant uint kInteractionPhaseMask = (1u << 29u) - 1u;
+constant uint kInteractionRateShift = 29u;
+constant uint kInteractionRateMask = 3u << kInteractionRateShift;
+constant uint kInteractionFallLatched = 1u << 31u;
+
+inline bool interactionPhysicsGated(
+    device const MRTaskProgramHeaderGPU& program
+) {
+    return (program.schedule.w &
+            MR_TASK_PROGRAM_INTERACTION_PHYSICS_GATED) != 0u;
+}
+
+inline float packedInteractionFramePosition(
+    thread const MRTaskStateGPU& state
+) {
+    return float(state.status.w & kInteractionPhaseMask) /
+        float(kInteractionPhaseScale);
+}
+
+inline uint interactionRateCode(thread const MRTaskStateGPU& state) {
+    return (state.status.w & kInteractionRateMask) >>
+        kInteractionRateShift;
+}
+
+inline float interactionPlaybackRate(
+    device const MRTaskProgramHeaderGPU& program,
+    thread const MRTaskStateGPU& state
+) {
+    if (!interactionPhysicsGated(program)) {
+        return 1.0f;
+    }
+    switch (interactionRateCode(state)) {
+    case 1u: return 0.25f;
+    case 2u: return 0.50f;
+    case 3u: return 1.00f;
+    default: return 0.0f;
+    }
+}
+
+inline bool interactionFallIsLatched(
+    thread const MRTaskStateGPU& state
+) {
+    return (state.status.w & kInteractionFallLatched) != 0u;
+}
+
+inline uint packInteractionClock(
+    const float framePosition,
+    const uint rateCode,
+    const bool fallLatched
+) {
+    const float maximum =
+        float(kInteractionPhaseMask) / float(kInteractionPhaseScale);
+    const float bounded = clamp(framePosition, 0.0f, maximum);
+    const uint fixed = min(
+        uint(bounded * float(kInteractionPhaseScale) + 0.5f),
+        kInteractionPhaseMask
+    );
+    return fixed |
+        ((min(rateCode, 3u) << kInteractionRateShift) &
+         kInteractionRateMask) |
+        (fallLatched ? kInteractionFallLatched : 0u);
+}
+
+
 inline uint impactOrder(thread const MRTaskStateGPU& state) {
     return state.recoveryStats.w & kImpactOrderMask;
 }
@@ -409,6 +477,12 @@ inline float interactionFramePosition(
     if (program.interaction.x == 0u) {
         return 0.0f;
     }
+    if (interactionPhysicsGated(program)) {
+        const float position = packedInteractionFramePosition(state);
+        return (program.interaction.w & MR_TASK_INTERACTION_LOOP) != 0u
+            ? fmod(position, float(program.interaction.x))
+            : min(position, float(program.interaction.x - 1u));
+    }
     float elapsedSeconds =
         float(state.episode.x) * controlStepSeconds;
     if (program.threat.y != 0u &&
@@ -522,6 +596,7 @@ inline float cleanObservation(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* previousJointPosition,
     device const float* compactContact,
     device const float4* bodyParameters,
     device const float4* controllerParameters,
@@ -549,7 +624,9 @@ inline float cleanObservation(
         )[operation.source.z];
         break;
     case MR_TASK_OBSERVE_COMMAND:
-        value = state.commandAndPhase[operation.source.z];
+        value = operation.source.z < 3u
+            ? state.commandAndPhase[operation.source.z]
+            : state.commandExtension[operation.source.z - 3u];
         break;
     case MR_TASK_OBSERVE_JOINT_POSITION_ERROR: {
         const MRTaskActionBindingGPU binding =
@@ -564,8 +641,23 @@ inline float cleanObservation(
             actions[operation.source.y].indices.w
         ];
         break;
+    case MR_TASK_OBSERVE_JOINT_FINITE_DIFFERENCE_VELOCITY: {
+        const MRTaskActionBindingGPU binding =
+            actions[operation.source.y];
+        value = (
+            q[binding.indices.z] -
+            previousJointPosition[operation.source.y]
+        ) / controlStepSeconds;
+        break;
+    }
     case MR_TASK_OBSERVE_PREVIOUS_ACTION:
         value = previousAction[operation.source.y];
+        break;
+    case MR_TASK_OBSERVE_DELAYED_ACTION:
+        value = previousAction[
+            operation.source.y -
+            operation.source.z * program.counts0.x
+        ];
         break;
     case MR_TASK_OBSERVE_INTERACTION_JOINT_POSITION_ERROR: {
         const uint frame = interactionFrame(
@@ -989,6 +1081,7 @@ inline void writeFrame(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* previousJointPosition,
     device const float* sensorBias,
     device const float* compactContact,
     device const float4* bodyParameters,
@@ -1028,6 +1121,7 @@ inline void writeFrame(
             defaultQ,
             state,
             previousAction,
+            previousJointPosition,
             compactContact,
             bodyParameters,
             controllerParameters,
@@ -1076,6 +1170,7 @@ inline void writeFrame(
             defaultQ,
             state,
             previousAction,
+            previousJointPosition,
             compactContact,
             bodyParameters,
             controllerParameters,
@@ -1126,6 +1221,7 @@ inline void writeCurrentActor(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* previousJointPosition,
     device const float* sensorBias,
     device const float* compactContact,
     device const float4* bodyParameters,
@@ -1152,6 +1248,7 @@ inline void writeCurrentActor(
             defaultQ,
             state,
             previousAction,
+            previousJointPosition,
             compactContact,
             bodyParameters,
             controllerParameters,
@@ -1189,6 +1286,7 @@ inline void writeCriticFrame(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* previousJointPosition,
     device const float* compactContact,
     device const float4* bodyParameters,
     device const float4* controllerParameters,
@@ -1216,6 +1314,7 @@ inline void writeCriticFrame(
             defaultQ,
             state,
             previousAction,
+            previousJointPosition,
             compactContact,
             bodyParameters,
             controllerParameters,
@@ -2188,6 +2287,12 @@ kernel void mr_locomotion_task_observe(
             previousJointVelocity[
                 previousVelocityBase + action
             ] = 0.0f;
+            const uint qIndex = actions[action].indices.z;
+            previousJointVelocity[
+                previousVelocityBase + program.counts0.x + action
+            ] = qIndex == MR_INVALID_INDEX
+                ? 0.0f
+                : resetQ[qBase + qIndex];
             for (uint delay = 0u;
                  delay < program.layout.w;
                  ++delay) {
@@ -2725,11 +2830,25 @@ kernel void mr_locomotion_task_observe(
             actionDelay,
             observationDelay
         );
+        uint interactionClock = 0u;
+        if (interactionPhysicsGated(program)) {
+            const float resetFramePosition = min(
+                float(interactionResetStep) *
+                    dispatch.timing.x *
+                    program.interactionTiming.x,
+                float(program.interaction.x - 1u)
+            );
+            interactionClock = packInteractionClock(
+                resetFramePosition,
+                0u,
+                false
+            );
+        }
         state.status = uint4(
             1u,
             0u,
             MR_TASK_TERMINATION_CONTINUING,
-            0u
+            interactionClock
         );
         state.commandAndPhase = float4(
             sampledCommand(
@@ -2743,6 +2862,7 @@ kernel void mr_locomotion_task_observe(
             ),
             0.0f
         );
+        state.commandExtension = float4(0.0f);
         state.airReturnTracking = float4(
             0.0f,
             rootHeight(program, resetQ + qBase),
@@ -2821,6 +2941,7 @@ kernel void mr_locomotion_task_observe(
             defaultQ,
             state,
             actionHistory + delayBase,
+            previousJointVelocity + previousVelocityBase + program.counts0.x,
             sensorBias + biasBase,
             compactContact + contactBase,
             bodyParameters + bodyParameterBase,
@@ -2865,6 +2986,7 @@ kernel void mr_locomotion_task_observe(
             defaultQ,
             state,
             actionHistory + delayBase,
+            previousJointVelocity + previousVelocityBase + program.counts0.x,
             compactContact + contactBase,
             bodyParameters + bodyParameterBase,
             controllerParameters + environment,
@@ -3115,6 +3237,7 @@ kernel void mr_locomotion_task_observe(
         defaultQ,
         state,
         actionHistory + delayBase,
+        previousJointVelocity + previousVelocityBase + program.counts0.x,
         sensorBias + biasBase,
         compactContact + contactBase,
         bodyParameters + bodyParameterBase,
@@ -3256,11 +3379,11 @@ kernel void mr_locomotion_task_apply_actions(
                 action
             ];
         }
-        const float requested = clamp(
-            actionStream[actionBase + action],
-            -1.0f,
-            1.0f
-        );
+        // PolicyPack owns the action bound.  The task still clamps the
+        // resulting position target to the joint range below, so policies
+        // trained with residuals outside [-1, 1] retain their source action
+        // semantics without weakening physical target safety.
+        const float requested = actionStream[actionBase + action];
         const float previous = actionHistory[
             delayBase +
             filterSlot * program.counts0.x +
@@ -3337,7 +3460,8 @@ kernel void mr_locomotion_task_apply_actions(
             );
             const float referenceVelocity =
                 (nextReference - frameReference) *
-                program.interactionTiming.x;
+                program.interactionTiming.x *
+                interactionPlaybackRate(program, state);
             // MetalWorld's implicit drive evaluates position at q + h*v and
             // damps v toward zero. Lead the position target by
             // (h + kd/kp)*v_ref so the same physical drive instead tracks
@@ -3351,7 +3475,9 @@ kernel void mr_locomotion_task_apply_actions(
             targetCandidate =
                 reference +
                 velocityLeadSeconds * referenceVelocity +
-                program.interactionTiming.z *
+                (interactionPhysicsGated(program)
+                    ? 1.0f
+                    : program.interactionTiming.z) *
                     (studentTarget - defaultQ[binding.indices.z]);
         }
         const float target = clamp(
@@ -5871,6 +5997,200 @@ kernel void mr_locomotion_task_complete(
         rewardBreakdown0.y += failurePenalty;
     }
 
+    // ARDY_CLOSED_LOOP_BALANCE_POLICY_V5. The reference clock is
+    // subordinate to accepted physical support. The policy owns balance and
+    // unloading; ARDY owns the whole-body motion reference.
+    if (interactionPhysicsGated(program)) {
+        float gatedFramePosition = interactionFramePosition(
+            program,
+            state,
+            dispatch.timing.x
+        );
+        bool fallLatched = interactionFallIsLatched(state);
+        bool forbiddenContact = false;
+        uint actualSupportCount = 0u;
+        for (uint groupIndex = 0u;
+             groupIndex < program.counts0.w;
+             ++groupIndex) {
+            const MRTaskContactGroupGPU group = contactGroups[groupIndex];
+            if ((group.members.z & MR_TASK_CONTACT_SUPPORT) != 0u &&
+                compactContact[compactBase + group.members.w] >
+                    program.dynamics.y) {
+                ++actualSupportCount;
+            }
+            if ((group.members.z & MR_TASK_CONTACT_FORBIDDEN) != 0u &&
+                compactContact[compactBase + group.members.w] > 0.5f) {
+                forbiddenContact = true;
+            }
+        }
+
+        uint comparedContacts = 0u;
+        uint expectedContacts = 0u;
+        uint strictContactMismatches = 0u;
+        bool transitionMode = false;
+        for (uint contactIndex = 0u;
+             contactIndex < program.interaction.z;
+             ++contactIndex) {
+            const MRTaskInteractionContactGPU binding =
+                interactionContacts[contactIndex];
+            const uint sampleIndex =
+                referenceFrame * program.interaction.z + contactIndex;
+            const MRTaskInteractionSampleGPU sample =
+                interactionSamples[sampleIndex];
+            if (sample.confidence.x < 0.35f) {
+                continue;
+            }
+            const uint mode = sample.metadata.x;
+            const bool expectedContact =
+                mode == MR_TASK_INTERACTION_CONTACT_STICK ||
+                mode == MR_TASK_INTERACTION_CONTACT_ROLL ||
+                mode == MR_TASK_INTERACTION_CONTACT_SLIDE;
+            const bool transitional =
+                mode == MR_TASK_INTERACTION_CONTACT_RELEASE ||
+                mode == MR_TASK_INTERACTION_CONTACT_APPROACH;
+            const MRTaskContactGroupGPU group =
+                contactGroups[binding.binding.x];
+            const uint wrench = compactBase + group.reference.y;
+            const bool supportGroup =
+                (group.members.z & MR_TASK_CONTACT_SUPPORT) != 0u;
+            const bool actualContact = supportGroup
+                ? compactContact[compactBase + group.members.w] >
+                    program.dynamics.y
+                : length(float3(
+                      compactContact[wrench + 0u],
+                      compactContact[wrench + 1u],
+                      compactContact[wrench + 2u]
+                  )) > program.dynamics.y;
+            ++comparedContacts;
+            expectedContacts += expectedContact ? 1u : 0u;
+            transitionMode = transitionMode || transitional;
+            if (!transitional && expectedContact != actualContact) {
+                ++strictContactMismatches;
+            }
+        }
+
+        float jointErrorSquared = 0.0f;
+        for (uint action = 0u;
+             action < program.interaction.y;
+             ++action) {
+            const MRTaskActionBindingGPU binding = actions[action];
+            const float reference = mix(
+                interactionJointTargets[
+                    referenceFrame * program.interaction.y + action
+                ],
+                interactionJointTargets[
+                    nextReferenceFrame * program.interaction.y + action
+                ],
+                referenceBlend
+            );
+            const float error = qState[qBase + binding.indices.z] - reference;
+            jointErrorSquared += error * error;
+        }
+        const float jointRms = sqrt(
+            jointErrorSquared /
+            max(float(program.interaction.y), 1.0f)
+        );
+
+        const bool physicalFall =
+            height < 0.55f ||
+            tilt > 0.50f ||
+            forbiddenContact ||
+            reason == MR_TASK_TERMINATION_HEIGHT ||
+            reason == MR_TASK_TERMINATION_TILT ||
+            reason == MR_TASK_TERMINATION_CONTACT;
+        fallLatched = fallLatched || physicalFall;
+
+        // Bootstrap only after 0.30 s of actual quiet bilateral support. The
+        // spare training-only lane is unused by this non-threat task.
+        const bool bootstrapFrame = gatedFramePosition <= 0.50f;
+        float quietSupportSeconds = bootstrapFrame
+            ? state.threatTeacher.w
+            : 0.30f;
+        const bool quietSupport =
+            actualSupportCount >= 2u &&
+            height > 0.68f &&
+            tilt < 0.08f &&
+            length(baseLinear.xy) < 0.08f &&
+            abs(baseLinear.z) < 0.10f &&
+            length(baseAngular) < 0.20f;
+        if (bootstrapFrame) {
+            quietSupportSeconds = quietSupport
+                ? quietSupportSeconds + dispatch.timing.x
+                : 0.0f;
+        }
+        state.threatTeacher.w = quietSupportSeconds;
+        const bool bootstrapped =
+            !bootstrapFrame || quietSupportSeconds >= 0.30f;
+
+        uint nextRateCode = 0u;
+        const bool atEnd =
+            (program.interaction.w & MR_TASK_INTERACTION_LOOP) == 0u &&
+            gatedFramePosition >=
+                float(program.interaction.x - 1u) - 1.0e-4f;
+        const bool contactsReady =
+            comparedContacts == 0u || strictContactMismatches == 0u;
+        const bool expectedFlight =
+            comparedContacts > 0u && expectedContacts == 0u &&
+            !transitionMode;
+        const bool supportSafe =
+            actualSupportCount > 0u &&
+            height > 0.64f &&
+            tilt < 0.25f;
+
+        if (!fallLatched && !done && !atEnd && bootstrapped && contactsReady) {
+            if (transitionMode) {
+                // RELEASE must move far enough to unload; APPROACH must move
+                // far enough to make contact. Requiring equality here would
+                // deadlock both transitions on one static pose.
+                if (supportSafe && jointRms <= 0.60f) {
+                    nextRateCode = 1u;
+                }
+            } else if (expectedFlight) {
+                if (actualSupportCount == 0u &&
+                    height > 0.60f && tilt < 0.38f) {
+                    nextRateCode = 3u;
+                }
+            } else if (supportSafe) {
+                // The staged preload runs slowly. Once the ARDY stride begins,
+                // tight tracking may use half rate; lagging support stays slow.
+                const bool stagedPrefix = gatedFramePosition < 24.0f;
+                nextRateCode = stagedPrefix
+                    ? 1u
+                    : jointRms <= 0.24f
+                    ? 2u
+                    : jointRms <= 0.55f
+                    ? 1u
+                    : 0u;
+            }
+        }
+
+        const float nextRate = nextRateCode == 1u
+            ? 0.25f
+            : nextRateCode == 2u
+            ? 0.50f
+            : nextRateCode == 3u
+            ? 1.00f
+            : 0.0f;
+        gatedFramePosition +=
+            dispatch.timing.x * program.interactionTiming.x * nextRate;
+        if ((program.interaction.w & MR_TASK_INTERACTION_LOOP) != 0u) {
+            gatedFramePosition = fmod(
+                gatedFramePosition,
+                float(program.interaction.x)
+            );
+        } else {
+            gatedFramePosition = min(
+                gatedFramePosition,
+                float(program.interaction.x - 1u)
+            );
+        }
+        state.status.w = packInteractionClock(
+            gatedFramePosition,
+            nextRateCode,
+            fallLatched
+        );
+    }
+
     const float episodeReturn =
         state.airReturnTracking.z + reward;
     // Report continuous episode evidence; it never decides whether another
@@ -6049,6 +6369,7 @@ kernel void mr_locomotion_task_complete(
             state,
             actionHistory + delayBase +
                 (program.layout.w - 2u) * program.counts0.x,
+            previousJointVelocity + previousVelocityBase + program.counts0.x,
             sensorBias + biasBase,
             compactContact + compactBase,
             bodyParameters + bodyParameterBase,
@@ -6114,6 +6435,7 @@ kernel void mr_locomotion_task_complete(
             defaultQ,
             state,
             currentAction,
+            previousJointVelocity + previousVelocityBase + program.counts0.x,
             compactContact + compactBase,
             bodyParameters + bodyParameterBase,
             controllerParameters + environment,
@@ -6131,6 +6453,13 @@ kernel void mr_locomotion_task_complete(
                 velocityIndex == MR_INVALID_INDEX
                 ? 0.0f
                 : vState[vBase + velocityIndex];
+            const uint qIndex = actions[action].indices.z;
+            previousJointVelocity[
+                previousVelocityBase + program.counts0.x + action
+            ] =
+                qIndex == MR_INVALID_INDEX
+                ? 0.0f
+                : qState[qBase + qIndex];
         }
     }
 
@@ -6166,6 +6495,7 @@ kernel void mr_locomotion_task_complete(
             state,
             actionHistory + delayBase +
                 (program.layout.w - 2u) * program.counts0.x,
+            previousJointVelocity + previousVelocityBase + program.counts0.x,
             sensorBias + biasBase,
             compactContact + compactBase,
             bodyParameters + bodyParameterBase,
