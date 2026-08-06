@@ -1,6 +1,6 @@
 """Compatibility surface for the production MLX ARDY hyper-policy compiler."""
 
-from .hyperpolicy.mlx_model import (
+from .hyperpolicy.mlx_production_model import (
     ARDYHyperNetwork, ARDYHyperPolicyConfiguration, ARDYMotionConditionedPolicy,
     ARDYMotionEncoder, HyperNetworkOutput, MotionAdapterDecoder,
     PhaseVaryingLowRankActor,
