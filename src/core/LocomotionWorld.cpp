@@ -15,11 +15,11 @@ namespace {
 
 constexpr std::array<float, kUnitreeG1JointCount>
     kUnitreeG1ActionScales{{
-        0.55f, 0.35f, 0.55f, 0.35f, 0.44f, 0.44f,
-        0.55f, 0.35f, 0.55f, 0.35f, 0.44f, 0.44f,
-        0.55f, 0.44f, 0.44f,
-        0.44f, 0.44f, 0.44f, 0.44f, 0.44f, 0.07f, 0.07f,
-        0.44f, 0.44f, 0.44f, 0.44f, 0.44f, 0.07f, 0.07f,
+        1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
     }};
 
 MRBodyPropertiesGPU staticBody() {

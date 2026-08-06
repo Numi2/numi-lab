@@ -1353,8 +1353,12 @@ metalrobo::RunManifest makeUnitreeG1RunManifest(
                     break;
                 }
             }
-            if (motor < 12u && motor < manifest.robot.actuators.size()) {
-                manifest.robot.actuators[motor].scale = 0.5f;
+            if (motor < manifest.robot.actuators.size()) {
+                // Keep the imported policy's complete actuator vector at
+                // unit scale.  The authored effort limits remain the safety
+                // boundary; no joint receives an implicit half-strength
+                // reduction here.
+                manifest.robot.actuators[motor].scale = 1.0f;
             }
         }
     }
@@ -1387,12 +1391,10 @@ metalrobo::RunManifest makeUnitreeG1RunManifest(
                 dof->qIndex >= manifest.robot.mechanics.defaultQ.size()) {
                 continue;
             }
-            const float rest =
-                manifest.robot.mechanics.defaultQ[dof->qIndex];
-            actuator.scale = std::max(
-                std::abs(dof->limits.x - rest),
-                std::abs(dof->limits.y - rest)
-            );
+            // Keep G1 recovery actuators at unit scale too.  Joint travel
+            // remains represented by the authored limits, not an implicit
+            // per-joint action multiplier.
+            actuator.scale = 1.0f;
             actuator.responseTimeSeconds = 0.0f;
         }
     }
