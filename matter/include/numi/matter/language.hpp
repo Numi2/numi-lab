@@ -2,26 +2,24 @@
 
 #include "numi/matter/ir.hpp"
 
-#include <filesystem>
-#include <string>
-#include <string_view>
-#include <vector>
-
 namespace numi::matter {
 
-struct ParseResult {
-    MaterialProgram material;
-    std::vector<Diagnostic> diagnostics;
-    [[nodiscard]] bool succeeded() const noexcept;
-};
+[[nodiscard]] inline ParseResult parseMatterLanguage(
+    const std::string_view source
+) {
+    return parseMatter(source);
+}
 
-[[nodiscard]] ParseResult parseMatterLanguage(std::string_view source);
-[[nodiscard]] ParseResult parseMatterLanguageFile(
+[[nodiscard]] inline ParseResult parseMatterLanguageFile(
     const std::filesystem::path& path
-);
-[[nodiscard]] std::string dimensionName(Dimension dimension);
-[[nodiscard]] std::uint64_t materialFingerprint(
+) {
+    return parseMatterFile(path);
+}
+
+[[nodiscard]] inline std::uint64_t materialFingerprint(
     const MaterialProgram& material
-) noexcept;
+) noexcept {
+    return material.fingerprint;
+}
 
 } // namespace numi::matter
