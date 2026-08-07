@@ -4550,6 +4550,29 @@ VisualAssetCookDiagnostics cookUrdfVisualDescription(
                     "URDF visual origin or mesh scale is invalid"
                 );
             }
+            if (const auto centerOfMass =
+                    options.linkCenterOfMassOffsets.find(linkName);
+                centerOfMass != options.linkCenterOfMassOffsets.end()) {
+                // Physics state describes the body COM, whereas URDF visual
+                // coordinates are relative to the link origin.  Convert the
+                // mesh from link coordinates into the COM-centred runtime
+                // frame before applying the authored visual origin/scale.
+                Matrix4 originFromCenterOfMass{};
+                originFromCenterOfMass.value[0][0] = 1.0;
+                originFromCenterOfMass.value[1][1] = 1.0;
+                originFromCenterOfMass.value[2][2] = 1.0;
+                originFromCenterOfMass.value[3][3] = 1.0;
+                originFromCenterOfMass.value[0][3] =
+                    -centerOfMass->second.x;
+                originFromCenterOfMass.value[1][3] =
+                    -centerOfMass->second.y;
+                originFromCenterOfMass.value[2][3] =
+                    -centerOfMass->second.z;
+                authoredTransform = multiply(
+                    originFromCenterOfMass,
+                    authoredTransform
+                );
+            }
             for (std::uint32_t instanceIndex = 0u;
                  instanceIndex < pack.instances.size();
                  ++instanceIndex) {

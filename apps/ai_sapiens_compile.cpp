@@ -684,6 +684,10 @@ void writeVisualPresentation(
          body < cooked.bodyNames.size();
          ++body) {
         cookOptions.linkBodyIndices.emplace(cooked.bodyNames[body], body);
+        cookOptions.linkCenterOfMassOffsets.emplace(
+            cooked.bodyNames[body],
+            cooked.bodies[body].centerOfMass
+        );
     }
     if (!cookOptions.linkBodyIndices.contains("pelvis")) {
         throw std::runtime_error(
