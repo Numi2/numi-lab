@@ -1,139 +1,43 @@
-name: Materialize audited Matter improvements
+name: Codex Matter source export
 
 on:
   pull_request:
     types: [synchronize, reopened]
 
 permissions:
-  contents: write
-
-concurrency:
-  group: matter-audit-materialize
-  cancel-in-progress: true
+  contents: read
 
 jobs:
-  materialize:
-    if: github.event.pull_request.head.ref == 'codex/matter-compiler-foundation'
+  export:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     steps:
-      - name: Check out exact branch history
+      - name: Check out exact PR head
         uses: actions/checkout@v4
         with:
-          ref: codex/matter-compiler-foundation
-          fetch-depth: 0
-
-      - name: Repair transport, audit, and publish
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - name: Package exact head source
         shell: bash
-        env:
-          BASE_SHA: 01d171fab09a4f693fd231fd44d0e2b4c278b418
-          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
-          PATCH_SHA256: 42c3ca28683a394e42a1857cd8f57f2c33551a1f19fc08e15080a6cb17b69c02
         run: |
           set -euo pipefail
-
-          if [[ ! -f .github/matter-audit-improve-payload-00.txt ]]; then
-            echo "Audited Matter payload is already materialized."
-            exit 0
-          fi
-          test "$(git rev-parse HEAD)" = "${EXPECTED_HEAD}"
-
-          python3 - <<'PY'
-          from pathlib import Path
-          import hashlib
-
-          path = Path(".github/matter-audit-improve-payload-03.txt")
-          value = path.read_text()
-          before = hashlib.sha256(value.encode()).hexdigest()
-          if before != "13d272971ae8d977f5eb2e6327ea76780cfdc29bb08ed9b880a83962aebc79ad":
-              raise SystemExit(f"unexpected audit transport segment: {before}")
-          value = value[:872] + "p" + value[872:]
-          after = hashlib.sha256(value.encode()).hexdigest()
-          if after != "7be30a2b00fd490657a4fb0a47e43f6dca900f9dfed1a7d026a52496b42485e1":
-              raise SystemExit(f"repaired segment digest mismatch: {after}")
-          path.write_text(value)
-          PY
-
-          cat > /tmp/matter-audit-payload-checksums <<'CHECKSUMS'
-          887d75597988142e6a2a4564e4471999c212be84d94df57392333a3f4d16bb9d  .github/matter-audit-improve-payload-00.txt
-          0b76fdf534d8eade36cedfe302941d727084488dfad5773c71cb3084a30fde27  .github/matter-audit-improve-payload-01.txt
-          002eb06db0042344bef0a65073e4c8aa14b671a5b73d07252a009d6d5422aace  .github/matter-audit-improve-payload-02.txt
-          7be30a2b00fd490657a4fb0a47e43f6dca900f9dfed1a7d026a52496b42485e1  .github/matter-audit-improve-payload-03.txt
-          CHECKSUMS
-          sha256sum --check /tmp/matter-audit-payload-checksums
-
-          cat \
-            .github/matter-audit-improve-payload-00.txt \
-            .github/matter-audit-improve-payload-01.txt \
-            .github/matter-audit-improve-payload-02.txt \
-            .github/matter-audit-improve-payload-03.txt \
-            > /tmp/matter-audit-improve.b64
-          base64 --decode /tmp/matter-audit-improve.b64 \
-            | gzip -d > /tmp/matter-audit-improve.patch
-          echo "${PATCH_SHA256}  /tmp/matter-audit-improve.patch" \
-            | sha256sum --check -
-
-          git diff --quiet "${BASE_SHA}" -- \
+          tar \
+            --exclude=.git \
+            --exclude=build \
+            --exclude=build-* \
+            --exclude='*.nmatterpack' \
+            -czf /tmp/numi-matter-pr2-source.tar.gz \
             CMakeLists.txt \
-            apps/matter_physics_probe.mm \
-            include/metalrobo/MetalWorld.hpp \
+            apps \
+            include \
             matter \
-            src/metal/MetalWorld.mm
-          git apply --check /tmp/matter-audit-improve.patch
-          git apply /tmp/matter-audit-improve.patch
-
-          rm -f \
-            .github/matter-audit-improve.patch.gz.b64 \
-            .github/matter-audit-improve-payload-00.txt \
-            .github/matter-audit-improve-payload-01.txt \
-            .github/matter-audit-improve-payload-02.txt \
-            .github/matter-audit-improve-payload-03.txt \
-            .github/matter-audit-improve-payload-03a.txt \
-            .github/matter-audit-improve-payload-03b.txt
-          git diff --check
-
-          cmake -S matter -B /tmp/numi-matter-audit-build \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_TESTING=ON \
-            -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -Werror"
-          cmake --build /tmp/numi-matter-audit-build -j 3
-          ctest \
-            --test-dir /tmp/numi-matter-audit-build \
-            --output-on-failure \
-            -j 1
-
-          c++ -std=c++23 -Wall -Wextra -Wpedantic -Werror \
-            -I matter/include -I include \
-            -fsyntax-only matter/src/metal_world.cpp
-
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          metal = "\n".join(
-              path.read_text()
-              for path in Path("matter/src/metal").glob("*.metalinc")
-          ) + "\n" + Path("matter/src/matter_kernels.metal").read_text()
-          runtime = Path("matter/src/runtime.mm").read_text()
-          definitions = set(re.findall(
-              r"\bkernel\s+void\s+(nm_[A-Za-z0-9_]+)\s*\(",
-              metal,
-          ))
-          references = set(re.findall(r'"(nm_[A-Za-z0-9_]+)"', runtime))
-          if definitions != references:
-              raise SystemExit(
-                  f"Matter kernel mismatch: missing={sorted(references-definitions)} "
-                  f"unused={sorted(definitions-references)}"
-              )
-          print(f"Matter kernels: {len(definitions)} definitions/references")
-          PY
-
-          git config user.name "github-actions[bot]"
-          git config user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "Audit and harden Matter execution"
-          git push \
-            --force-with-lease=refs/heads/codex/matter-compiler-foundation:${EXPECTED_HEAD} \
-            origin HEAD:codex/matter-compiler-foundation
+            src \
+            numi \
+            tools \
+            .github
+      - name: Upload exact head source
+        uses: actions/upload-artifact@v4
+        with:
+          name: numi-matter-pr2-source-${{ github.event.pull_request.head.sha }}
+          path: /tmp/numi-matter-pr2-source.tar.gz
+          retention-days: 1
+          if-no-files-found: error
