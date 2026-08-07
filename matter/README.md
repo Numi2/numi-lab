@@ -129,7 +129,10 @@ contact authority for that fallback body. Matter scans the accepted constraint
 prefix, rejects generalized and disabled rows, and maps pre-solve normal speed
 and solved impulse only to the uniquely bound adaptive body. That signal
 re-promotes the authored continuum before collision ownership is republished,
-so unrelated rigid contacts cannot wake a dormant adaptive object.
+so unrelated rigid contacts cannot wake a dormant adaptive object. The
+dedicated GPU probe validates this mapping with a typed accepted post-solve
+contact record; the adapter forwards the corresponding MetalWorld arena in a
+full coupled submission.
 
 ### Inverse material identification
 
