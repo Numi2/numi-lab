@@ -173,7 +173,6 @@ jobs:
                    config.timestepSeconds = 1.0f / 480.0f;
           PATCH
 
-          sed -i '' 's/^          //' /tmp/matter-lazy-rod.patch
           git apply --check /tmp/matter-lazy-rod.patch
           git apply /tmp/matter-lazy-rod.patch
           git diff --check
