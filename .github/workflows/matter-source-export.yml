@@ -33,12 +33,8 @@ jobs:
           path: |
             AGENTS.md
             CMakeLists.txt
-            include/metalrobo/MetalWorld.hpp
-            include/metalrobo/engine_types.h
-            src/metal/MetalWorld.mm
-            src/metal/MetalWorld.metal
-            src/metal/MetalWorldContact.metal
-            src/metal/LocomotionTask.metal
+            include/metalrobo/**
+            src/metal/**
             matter/**
             numi/commands/**
             src/c_api.cpp
