@@ -31,6 +31,7 @@ struct CompiledTaskProgram::Storage {
     TaskProgramLayout layout{};
     MRTaskProgramHeaderGPU header{};
     std::vector<MRTaskActionBindingGPU> actionBindings;
+    std::vector<float> initialActionPositions;
     std::vector<MRTaskActuatorTermGPU> actuatorTerms;
     std::vector<CompiledTaskOutcomeSpec> outcomes;
     std::vector<std::uint32_t> outcomeRewardOperations;
@@ -919,6 +920,18 @@ TaskCompileDiagnostics compileTaskProgram(
             "task identity, dimensions, timing, or scalar parameters are invalid"
         );
     }
+    if ((!pack.initialActionPositions.empty() &&
+         pack.initialActionPositions.size() != pack.actions.size()) ||
+        !std::ranges::all_of(
+            pack.initialActionPositions,
+            [](const float value) { return std::isfinite(value); }
+        )) {
+        return reject(
+            TaskCompileStatus::invalidPack,
+            "initialActionPositions",
+            "initial action positions must be finite and match task actions"
+        );
+    }
     const bool hasVisualProgram = observations.visual.width != 0u ||
         observations.visual.height != 0u ||
         !observations.visual.frameOffsets.empty();
@@ -1020,6 +1033,7 @@ TaskCompileDiagnostics compileTaskProgram(
     }
 
     auto staged = std::make_shared<CompiledTaskProgram::Storage>();
+    staged->initialActionPositions = pack.initialActionPositions;
     staged->worldFingerprint = world.fingerprint();
     std::vector<std::string> outcomeIds{
         "reward", "task_reward", "done", "timeout", "physics_error",
@@ -4009,8 +4023,10 @@ TaskCompileDiagnostics compileTaskProgram(
             MR_TASK_PROGRAM_THREAT_TEACHER;
     }
     if (interactionClip != nullptr) {
-        staged->header.schedule.w |=
-            MR_TASK_PROGRAM_INTERACTION_RESET;
+        if (pack.interactionInitializeFromReference) {
+            staged->header.schedule.w |=
+                MR_TASK_PROGRAM_INTERACTION_RESET;
+        }
         if (pack.interactionControlReference) {
             staged->header.schedule.w |=
                 MR_TASK_PROGRAM_INTERACTION_REFERENCE;
@@ -4018,6 +4034,10 @@ TaskCompileDiagnostics compileTaskProgram(
         if (pack.interactionPhysicsGated) {
             staged->header.schedule.w |=
                 MR_TASK_PROGRAM_INTERACTION_PHYSICS_GATED;
+        }
+        if (pack.interactionAlignReferenceYaw) {
+            staged->header.schedule.w |=
+                MR_TASK_PROGRAM_INTERACTION_ALIGN_REFERENCE_YAW;
         }
     }
     staged->header.locomotion = {
@@ -4375,8 +4395,12 @@ TaskCompileDiagnostics compileTaskProgram(
             }
         ),
         actuatorTermCount,
-        0u,
-        0u,
+        appendArena(
+            std::span<const float>{staged->initialActionPositions}
+        ),
+        static_cast<std::uint32_t>(
+            staged->initialActionPositions.size()
+        ),
     };
     if (staged->header.interactionOffsets0.x == MR_INVALID_INDEX ||
         staged->header.interactionOffsets0.y == MR_INVALID_INDEX ||
@@ -4385,7 +4409,8 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->header.interactionOffsets1.x == MR_INVALID_INDEX ||
         staged->header.interactionOffsets1.y == MR_INVALID_INDEX ||
         staged->header.interactionOffsets1.z == MR_INVALID_INDEX ||
-        staged->header.actuatorTerms.x == MR_INVALID_INDEX) {
+        staged->header.actuatorTerms.x == MR_INVALID_INDEX ||
+        staged->header.actuatorTerms.z == MR_INVALID_INDEX) {
         return reject(
             TaskCompileStatus::arithmeticOverflow,
             "interaction",
