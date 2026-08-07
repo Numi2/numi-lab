@@ -685,6 +685,104 @@ inline float cleanObservation(
         value = q[binding.indices.z] - reference;
         break;
     }
+    case MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET:
+    case MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET_VELOCITY: {
+        const uint frame = interactionFrame(
+            program,
+            state,
+            controlStepSeconds
+        );
+        const uint nextFrame = interactionNextFrame(program, frame);
+        const float blend = interactionFrameBlend(
+            program,
+            state,
+            controlStepSeconds
+        );
+        device const float* targets = taskTable<float>(
+            arena,
+            program.interactionOffsets0.y
+        );
+        const float current = targets[
+            frame * program.interaction.y + operation.source.y
+        ];
+        const float next = targets[
+            nextFrame * program.interaction.y + operation.source.y
+        ];
+        value = operation.source.x == MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET
+            ? mix(current, next, blend)
+            : (next - current) * program.interactionTiming.x;
+        break;
+    }
+    case MR_TASK_OBSERVE_INTERACTION_ANCHOR_ORIENTATION: {
+        const uint frame = interactionFrame(
+            program,
+            state,
+            controlStepSeconds
+        );
+        const uint nextFrame = interactionNextFrame(program, frame);
+        const float blend = interactionFrameBlend(
+            program,
+            state,
+            controlStepSeconds
+        );
+        device const float* rootTargets = taskTable<float>(
+            arena,
+            program.interactionOffsets0.x
+        );
+        device const float* jointTargets = taskTable<float>(
+            arena,
+            program.interactionOffsets0.y
+        );
+        const uint rootBase = frame * 7u;
+        const uint nextRootBase = nextFrame * 7u;
+        const float4 referenceRoot = quaternionInterpolate(
+            float4(
+                rootTargets[rootBase + 3u], rootTargets[rootBase + 4u],
+                rootTargets[rootBase + 5u], rootTargets[rootBase + 6u]
+            ),
+            float4(
+                rootTargets[nextRootBase + 3u], rootTargets[nextRootBase + 4u],
+                rootTargets[nextRootBase + 5u], rootTargets[nextRootBase + 6u]
+            ),
+            blend
+        );
+        const float referenceWaist = mix(
+            jointTargets[frame * program.interaction.y + operation.source.y],
+            jointTargets[nextFrame * program.interaction.y + operation.source.y],
+            blend
+        );
+        const MRTaskActionBindingGPU binding = actions[operation.source.y];
+        const float liveWaist = q[binding.indices.z];
+        const float4 referenceTorso = quaternionProduct(
+            referenceRoot,
+            float4(0.0f, 0.0f, sin(0.5f * referenceWaist),
+                   cos(0.5f * referenceWaist))
+        );
+        const float4 liveTorso = quaternionProduct(
+            orientation,
+            float4(0.0f, 0.0f, sin(0.5f * liveWaist),
+                   cos(0.5f * liveWaist))
+        );
+        // The source publishes the transpose of this relative rotation's
+        // first two columns as its six-dimensional anchor representation.
+        const float4 relative = quaternionProduct(
+            float4(-referenceTorso.xyz, referenceTorso.w), liveTorso
+        );
+        const float x = relative.x;
+        const float y = relative.y;
+        const float z = relative.z;
+        const float w = relative.w;
+        const float values[6] = {
+            1.0f - 2.0f * (y * y + z * z),
+            2.0f * (x * y + z * w),
+            2.0f * (x * y - z * w),
+            1.0f - 2.0f * (x * x + z * z),
+            2.0f * (x * z + y * w),
+            2.0f * (y * z - x * w),
+        };
+        value = values[operation.source.z];
+        break;
+    }
     case MR_TASK_OBSERVE_INTERACTION_CONTACT_MODE: {
         const uint frame = interactionFrame(
             program,

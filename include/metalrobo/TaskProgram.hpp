@@ -54,6 +54,12 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_INTERACTION_CONTACT_VALIDITY,
     interactionRootTrackingError =
         MR_TASK_OBSERVE_INTERACTION_ROOT_TRACKING_ERROR,
+    interactionJointTarget =
+        MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET,
+    interactionJointTargetVelocity =
+        MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET_VELOCITY,
+    interactionAnchorOrientation =
+        MR_TASK_OBSERVE_INTERACTION_ANCHOR_ORIENTATION,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
