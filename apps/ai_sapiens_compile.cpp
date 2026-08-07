@@ -596,10 +596,9 @@ int main(const int argc, const char* const* argv) {
         cookOptions.packageSearchRoots = {options.source};
         // Keep the compiler's collision-model fingerprint on the same
         // contact contract that createImportedURDFRun resolves for these
-        // source-owned K1 packs.  The source MuJoCo tuple is sliding,
-        // torsional, rolling; MetalWorld stores static/dynamic sliding,
-        // rolling, torsional.
-        cookOptions.friction = {0.8F, 0.8F, 0.001F, 0.02F};
+        // source-owned K1 packs. The source floor is condim=3, so only its
+        // 0.8 sliding coefficient contributes to the contact rows.
+        cookOptions.friction = {0.8F, 0.8F, 0.0F, 0.0F};
         const auto cookedResult = metalrobo::cookRobotDescriptionFiles(
             collisionURDF, {}, cooked, cookOptions);
         if (!cookedResult.succeeded() || cookedResult.dofCount != 29u) {
