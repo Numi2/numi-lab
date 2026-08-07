@@ -389,7 +389,14 @@ struct EncodeRequest {
     // reconciliation uses it to roll continuum state back whenever the
     // enclosing rigid transaction rejected that environment.
     void* environmentStatuses = nullptr;
+    // Optional borrowed final MetalWorld contact solve, laid out
+    // [environment][rigidContactConstraintStride].  Matter consumes it only
+    // during a final post-commit adaptive transfer to re-promote the exact
+    // adaptive fallback body that contacted the rigid world.
+    void* rigidContactConstraints = nullptr; // id<MTLBuffer>, MRContactConstraintGPU
+    void* rigidContactStatuses = nullptr; // id<MTLBuffer>, MRMetalWorldContactStatusGPU
     std::uint32_t resetMaskStepStride = 0u;
+    std::uint32_t rigidContactConstraintStride = 0u;
     std::uint32_t controlStep = 0u;
     std::uint32_t physicsSubstep = 0u;
     std::uint32_t physicsSubsteps = 1u;

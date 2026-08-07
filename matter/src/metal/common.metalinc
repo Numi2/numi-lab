@@ -69,12 +69,17 @@ inline bool invert3x3(
     thread float3x3& inverseValue
 ) {
     const float determinantValue = determinant(value);
-    float scale = 1.0f;
+    float scale = 0.0f;
     for (uint column = 0u; column < 3u; ++column) {
         scale = max(scale, max(max(abs(value[column].x), abs(value[column].y)),
             abs(value[column].z)));
     }
-    if (!(abs(determinantValue) > 128.0f * kEpsilon * scale * scale * scale) ||
+    // Inertia is proportional to mass times length squared.  Adaptive
+    // objects may legitimately be millimetre-scale, so a unit absolute
+    // floor rejects their well-conditioned tensors and leaves an invalid
+    // zero inverse inertia for MetalWorld.  Use a purely relative test.
+    if (!(scale > 0.0f) ||
+        !(abs(determinantValue) > 128.0f * kEpsilon * scale * scale * scale) ||
         !isfinite(determinantValue)) {
         return false;
     }

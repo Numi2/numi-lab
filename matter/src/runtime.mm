@@ -477,7 +477,7 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
 
-        const std::array<const char*, 43> kernelNames{
+        const std::array<const char*, 44> kernelNames{
             "nm_prepare_status",
             "nm_prepare_events",
             "nm_prepare_reactions",
@@ -519,6 +519,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_reconcile_rigid_world_status",
             "nm_scheduler_reconcile",
             "nm_adaptive_measure",
+            "nm_adaptive_observe_rigid_contacts",
             "nm_adaptive_decide",
             "nm_adaptive_demote_to_rigid",
         };
@@ -1205,6 +1206,32 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.adaptive offset:0u atIndex:5u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:6u];
                 });
+                if (request.rigidContactConstraints != nullptr &&
+                    request.rigidContactStatuses != nullptr &&
+                    request.rigidContactConstraintStride != 0u) {
+                    const std::uint32_t contactConstraintStride =
+                        request.rigidContactConstraintStride;
+                    dispatchThreads(
+                        "nm_adaptive_observe_rigid_contacts",
+                        objectTotal,
+                        [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                            [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
+                            [encoder
+                                setBuffer:(__bridge id<MTLBuffer>)request.rigidContactConstraints
+                                offset:0u atIndex:3u];
+                            [encoder
+                                setBuffer:(__bridge id<MTLBuffer>)request.rigidContactStatuses
+                                offset:0u atIndex:4u];
+                            [encoder setBytes:&contactConstraintStride
+                                       length:sizeof(contactConstraintStride)
+                                      atIndex:5u];
+                            [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                        }
+                    );
+                }
                 dispatchThreads("nm_adaptive_decide", objectTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.objects offset:0u atIndex:1u];

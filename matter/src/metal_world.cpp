@@ -27,6 +27,9 @@ bool encodeMetalWorldMatter(
     request.rigid.bodyWrenchStride = pass.bodyWrenchStride;
     request.rigid.sceneStride = pass.sceneBodyStride;
     request.environmentStatuses = pass.environmentStatuses;
+    request.rigidContactConstraints = pass.contactConstraints;
+    request.rigidContactStatuses = pass.contactStatuses;
+    request.rigidContactConstraintStride = pass.contactConstraintStride;
     request.phase = pass.phase ==
             metalrobo::MetalWorldDevicePhysicsPhase::postCommit
         ? EncodePhase::postCommit

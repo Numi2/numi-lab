@@ -299,6 +299,88 @@ kernel void nm_adaptive_measure(
     }
 }
 
+// A continuum object no longer evaluates its own contact pairs after it has
+// demoted to rigid ownership.  The enclosing MetalWorld contact solve is the
+// sole authoritative source for its next promotion decision.  Scan only the
+// accepted constraint prefix and match the object's unique fallback body, so
+// unrelated rigid contacts cannot wake an adaptive object.
+kernel void nm_adaptive_observe_rigid_contacts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMRigidProxyGPU* proxies [[buffer(2)]],
+    device const MRContactConstraintGPU* contacts [[buffer(3)]],
+    device const MRMetalWorldContactStatusGPU* contactStatuses [[buffer(4)]],
+    constant uint& contactConstraintStride [[buffer(5)]],
+    device NMSchedulerStateGPU* schedulers [[buffer(6)]],
+    device const NMMatterStatusGPU* statuses [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total || dispatch.objectCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.objectCount;
+    const uint objectIndex = global - environment * dispatch.objectCount;
+    if (!environmentHealthy(statuses, environment)) {
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if ((object.flags & NM_OBJECT_ADAPTIVE) == 0u ||
+        object.rigidBinding >= dispatch.rigidProxyCount) {
+        return;
+    }
+    const NMRigidProxyGPU proxy = proxies[object.rigidBinding];
+    if ((proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
+        (proxy.flags & NM_RIGID_ARTICULATED) != 0u ||
+        proxy.bodyIndex == NM_INVALID_INDEX) {
+        return;
+    }
+    const MRMetalWorldContactStatusGPU contactStatus =
+        contactStatuses[environment];
+    if (contactStatus.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const uint count = min(
+        contactStatus.requiredConstraints,
+        contactConstraintStride
+    );
+    float maximumNormalSpeed = 0.0f;
+    float maximumImpulse = 0.0f;
+    const uint base = environment * contactConstraintStride;
+    for (uint constraintIndex = 0u;
+         constraintIndex < count;
+         ++constraintIndex) {
+        const MRContactConstraintGPU contact =
+            contacts[base + constraintIndex];
+        if ((contact.flags &
+             (MR_CONSTRAINT_FLAG_DISABLED | MR_CONSTRAINT_FLAG_GENERALIZED)) !=
+                0u ||
+            (contact.bodyA != proxy.bodyIndex &&
+             contact.bodyB != proxy.bodyIndex)) {
+            continue;
+        }
+        maximumNormalSpeed = max(
+            maximumNormalSpeed,
+            abs(contact.targetVelocityAndPreSolveNormal.w)
+        );
+        maximumImpulse = max(
+            maximumImpulse,
+            length(contact.impulses.xyz)
+        );
+    }
+    if (maximumNormalSpeed > 0.0f || maximumImpulse > 0.0f) {
+        device NMSchedulerStateGPU& scheduler = schedulers[global];
+        scheduler.physical.x = max(
+            scheduler.physical.x,
+            maximumNormalSpeed
+        );
+        scheduler.physical.y = max(
+            scheduler.physical.y,
+            maximumImpulse
+        );
+    }
+}
+
 kernel void nm_adaptive_decide(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumObjectGPU* objects [[buffer(1)]],

@@ -124,7 +124,12 @@ Adaptive objects retain both continuum topology and a body-backed rigid proxy. T
 
 Hysteresis controls demotion to rigid representation after a sustained low-strain interval. State transfer preserves centre of mass, linear momentum, angular momentum and the measured full inertia tensor. Demotion publishes an environment-specific world inverse inertia that MetalWorld validates and rotates through ordinary and CCD integration instead of replacing it with a mass-scaled authored tensor. The compiler retains an immutable mass-weighted rest centre for every continuum object; promotion reconstructs positions from that rest frame and writes the current rigid orientation as the deformation rotation, avoiding translation leakage or inertia-derived orientation. Adaptive bindings must be valid, body-backed and unique; the compiler rejects ambiguous mappings.
 
-The current adapter qualifies MPM-to-rigid demotion only. The promotion kernels consume scheduler contact, strain and numerical signals, but `MetalWorld` does not yet feed rigid-world contact evidence into those signals after an object has demoted. Autonomous rigid-contact re-promotion is therefore an exposed implementation gap, not a tested physics claim.
+After a demotion, the borrowed final `MetalWorld` contact arena becomes the
+contact authority for that fallback body. Matter scans the accepted constraint
+prefix, rejects generalized and disabled rows, and maps pre-solve normal speed
+and solved impulse only to the uniquely bound adaptive body. That signal
+re-promotes the authored continuum before collision ownership is republished,
+so unrelated rigid contacts cannot wake a dormant adaptive object.
 
 ### Inverse material identification
 
@@ -239,13 +244,14 @@ impact, an articulated-body continuum reaction consumed by MetalWorld ABA, a
 full-height implicit FEM impact, a near-plane CFL-resolved FEM contact,
 byte-identical MPM/FEM/scheduler rollback after an enclosing rigid transaction
 rejects the tentative continuum update, a 30-frame MPM-to-rigid ownership
-transfer with scene authority publication, and antithetic inverse-parameter
-sampling followed by a GPU posterior update from asymmetric candidate losses.
+transfer with valid measured inverse inertia and scene authority publication,
+the inverse rigid-contact transfer back to MPM through the typed borrowed
+post-solve arena, and antithetic inverse-parameter sampling followed by a GPU
+posterior update from asymmetric candidate losses.
 It is deliberately serial because all cases use the active GPU.
 
 This is continuum and analytic-proxy contact evidence, including one
 articulated rigid-reaction handoff through a full `MetalWorld` step. It also
 qualifies the inverse-identification kernel and its explicit loss-buffer
-contract—not a material-calibration result. It does not qualify adaptive
-rigid-contact re-promotion, longer-running material calibration, or physical
-material identification.
+contract—not a material-calibration result. It does not qualify longer-running
+material calibration or physical material identification.

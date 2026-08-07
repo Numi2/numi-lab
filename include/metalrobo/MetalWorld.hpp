@@ -295,6 +295,12 @@ struct MetalWorldDevicePhysicsPass {
     void* bodyWrenches = nullptr;
     void* resetMasks = nullptr;
     void* environmentStatuses = nullptr;
+    // Final per-environment contact state for this rigid substep.  Device
+    // physics may read this only during postCommit, after MetalWorld has
+    // accepted the contact solve; it remains borrowed with the command
+    // buffer and is never retained by the extension.
+    void* contactConstraints = nullptr;
+    void* contactStatuses = nullptr;
     std::uint64_t seed = 0u;
     MetalWorldDevicePhysicsPhase phase =
         MetalWorldDevicePhysicsPhase::preDynamics;
@@ -310,6 +316,7 @@ struct MetalWorldDevicePhysicsPass {
     std::uint32_t bodyStateStride = 0u;
     std::uint32_t sceneBodyStride = 0u;
     std::uint32_t bodyWrenchStride = 0u;
+    std::uint32_t contactConstraintStride = 0u;
     std::uint32_t resetMaskStepStride = 0u;
     float timestepSeconds = 0.0f;
 };

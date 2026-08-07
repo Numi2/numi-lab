@@ -366,7 +366,7 @@ MRBodyStateGPU adaptiveBodyState() {
     return state;
 }
 
-void runAdaptiveDemotion() {
+void runAdaptiveTransfer(const bool requirePromotion) {
     @autoreleasepool {
         const auto world = compileAdaptiveCase();
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
@@ -466,11 +466,107 @@ void runAdaptiveDemotion() {
                     (scene->flagsAndIndices[3] &
                      MR_BODY_STATE_COLLISION_DISABLED) == 0u,
             "adaptive demotion did not publish its rigid scene authority");
+        require(adaptive.inverseInertiaRow0.x > 0.0f &&
+                    adaptive.inverseInertiaRow1.y > 0.0f &&
+                    adaptive.inverseInertiaRow2.z > 0.0f,
+            "adaptive demotion produced no valid rigid inverse inertia");
+        if (requirePromotion) {
+            // The direct probe uses the same typed arena MetalWorld exposes
+            // after a solved contact substep.  The fallback body's real
+            // pre-solve normal speed crosses the authored promotion threshold.
+            *current = *scene;
+            id<MTLBuffer> contactStatuses = [device
+                newBufferWithLength:sizeof(MRMetalWorldContactStatusGPU)
+                options:MTLResourceStorageModeShared];
+            id<MTLBuffer> contacts = [device
+                newBufferWithLength:sizeof(MRContactConstraintGPU)
+                options:MTLResourceStorageModeShared];
+            require(contactStatuses != nil && contacts != nil,
+                "failed to allocate adaptive rigid contact evidence");
+            auto* contactStatus = static_cast<MRMetalWorldContactStatusGPU*>(
+                contactStatuses.contents
+            );
+            auto* contact = static_cast<MRContactConstraintGPU*>(contacts.contents);
+            require(contactStatus != nullptr && contact != nullptr,
+                "adaptive rigid contact evidence is unavailable");
+            *contactStatus = {};
+            contactStatus->code = MR_STEP_SUCCESS;
+            contactStatus->environment = 0u;
+            contactStatus->requiredConstraints = 1u;
+            contactStatus->activeContacts = 1u;
+            *contact = {};
+            contact->bodyA = 0u;
+            contact->bodyB = MR_INVALID_INDEX;
+            contact->targetVelocityAndPreSolveNormal.w = -1.0f;
+            contact->impulses.x = 0.1f;
+
+            id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+            require(commandBuffer != nil,
+                "failed to allocate adaptive promotion command buffer");
+            numi::matter::EncodeRequest request{};
+            request.commandBuffer = (__bridge void*)commandBuffer;
+            request.rigid.currentBodies = (__bridge void*)currentBodies;
+            request.rigid.bodyWrenches = (__bridge void*)bodyWrenches;
+            request.rigid.sceneBodies = (__bridge void*)sceneBodies;
+            request.rigid.currentBodyCount = 1u;
+            request.rigid.currentBodyStride = 1u;
+            request.rigid.bodyWrenchCount = 1u;
+            request.rigid.sceneBodyCount = 1u;
+            request.rigid.bodyWrenchStride = 1u;
+            request.rigid.sceneStride = 1u;
+            request.environmentStatuses = (__bridge void*)statuses;
+            request.rigidContactConstraints = (__bridge void*)contacts;
+            request.rigidContactStatuses = (__bridge void*)contactStatuses;
+            request.rigidContactConstraintStride = 1u;
+            request.controlStep = 30u;
+            request.physicsSubstep = 0u;
+            request.physicsSubsteps = 1u;
+            request.timestepSeconds = runtime.timestepSeconds();
+            request.phase = numi::matter::EncodePhase::preDynamics;
+            request.runAdaptiveTransfer = false;
+            auto encoded = runtime.encode(request);
+            require(encoded.encoded,
+                "adaptive promotion pre-dynamics encoding failed: " + encoded.message);
+            request.phase = numi::matter::EncodePhase::postCommit;
+            request.runAdaptiveTransfer = true;
+            encoded = runtime.encode(request);
+            require(encoded.encoded,
+                "adaptive promotion post-commit encoding failed: " + encoded.message);
+            [commandBuffer commit];
+            [commandBuffer waitUntilCompleted];
+            require(commandBuffer.status == MTLCommandBufferStatusCompleted &&
+                        matterStatus->code == NM_STATUS_SUCCESS,
+                "adaptive promotion command buffer did not complete successfully");
+
+            const auto promoted = runtime.snapshot();
+            require(promoted.available && promoted.adaptive.size() == 1u &&
+                        promoted.schedulers.size() == 1u,
+                "adaptive promotion did not publish diagnostic state");
+            require(promoted.adaptive[0].activeRepresentation ==
+                        NM_REPRESENTATION_MPM &&
+                        promoted.adaptive[0].requestedRepresentation ==
+                            NM_REPRESENTATION_MPM &&
+                        promoted.schedulers[0].physical.x >= 1.0f &&
+                        (scene->flagsAndIndices[3] &
+                         MR_BODY_STATE_COLLISION_DISABLED) != 0u,
+                "rigid contact did not restore continuum ownership");
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v1\""
+                << ",\"representation\":\"adaptive_rigid_to_mpm\""
+                << ",\"contact_speed\":"
+                << promoted.schedulers[0].physical.x
+                << ",\"continuum_collision_disabled\":true}\n";
+            return;
+        }
         std::cout
             << "{\"schema\":\"numi.matter.physics-probe.v1\""
             << ",\"representation\":\"adaptive_mpm_to_rigid\""
             << ",\"stable_frames\":" << adaptive.stableFrames
             << ",\"scene_x\":" << scene->position.x
+            << ",\"inverse_inertia_diag\":["
+            << adaptive.inverseInertiaRow0.x << ','
+            << adaptive.inverseInertiaRow1.y << ','
+            << adaptive.inverseInertiaRow2.z << ']'
             << "}\n";
     }
 }
@@ -853,23 +949,27 @@ int main(int argc, const char* argv[]) {
         const bool metalWorldCoupling = argc == 2 && std::string_view(argv[1]) == "--metal-world-coupling";
         const bool identification = argc == 2 && std::string_view(argv[1]) == "--identification";
         const bool adaptiveDemotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-demotion";
+        const bool adaptivePromotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-promotion";
         const bool femFree = argc == 2 && std::string_view(argv[1]) == "--fem-free";
         const bool femHighRate = argc == 2 && std::string_view(argv[1]) == "--fem-high-rate";
         const bool femHighDrop = argc == 2 && std::string_view(argv[1]) == "--fem-high-drop";
         require(
-            argc == 1 || femOnly || mpmOnly || mpmFree || mpmSingle || mpmSingleContact || mpmGentle || mpmRollback || metalWorldCoupling || identification || adaptiveDemotion || femFree || femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            argc == 1 || femOnly || mpmOnly || mpmFree || mpmSingle || mpmSingleContact || mpmGentle || mpmRollback || metalWorldCoupling || identification || adaptiveDemotion || adaptivePromotion || femFree || femHighRate || femHighDrop,
+            "usage: metalrobo_matter_physics_probe [--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (identification) {
             runIdentification();
         }
         if (adaptiveDemotion) {
-            runAdaptiveDemotion();
+            runAdaptiveTransfer(false);
+        }
+        if (adaptivePromotion) {
+            runAdaptiveTransfer(true);
         }
         if (metalWorldCoupling) {
             runMetalWorldCoupling();
         }
-        if (!identification && !adaptiveDemotion && !metalWorldCoupling &&
+        if (!identification && !adaptiveDemotion && !adaptivePromotion && !metalWorldCoupling &&
             !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
             const auto mpm = runCase(
@@ -908,7 +1008,7 @@ int main(int argc, const char* argv[]) {
         }
         if (!mpmOnly && !mpmFree && !mpmSingle && !mpmSingleContact &&
             !mpmGentle && !mpmRollback && !metalWorldCoupling &&
-            !identification && !adaptiveDemotion) {
+            !identification && !adaptiveDemotion && !adaptivePromotion) {
             const bool withPlane = !femFree;
             const auto fem = runCase(
                 compileCase(

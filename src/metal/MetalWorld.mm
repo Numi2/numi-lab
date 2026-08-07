@@ -9493,6 +9493,8 @@ bool encodeDevicePhysicsProgram(
         .resetMasks = (__bridge void*)context.buffers[kResetMasks],
         .environmentStatuses =
             (__bridge void*)context.buffers[kEnvironmentStatuses],
+        .contactConstraints = (__bridge void*)context.buffers[kContacts],
+        .contactStatuses = (__bridge void*)context.buffers[kContactStatuses],
         .seed = config.taskSeed,
         .phase = phase,
         .controlStep = pass.controlStep,
@@ -9508,6 +9510,7 @@ bool encodeDevicePhysicsProgram(
         .bodyStateStride = layout.contactDispatch.bodyStateStride,
         .sceneBodyStride = layout.contactDispatch.sceneBodyStride,
         .bodyWrenchStride = layout.contactDispatch.bodyStateStride,
+        .contactConstraintStride = layout.contactDispatch.constraintStride,
         .resetMaskStepStride = layout.dispatch.resetMaskStepStride,
         .timestepSeconds = layout.contactDispatch.timestepAndBias.x,
     };

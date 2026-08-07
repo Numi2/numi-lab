@@ -1528,6 +1528,10 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --adaptive-demotion
     )
     add_test(
+        NAME matter.integration.adaptive_rigid_contact_promotion
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --adaptive-promotion
+    )
+    add_test(
         NAME matter.physics.fem_plane_impact
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --fem-high-drop
     )
@@ -1542,6 +1546,7 @@ if(BUILD_TESTING)
         matter.integration.articulated_rigid_reaction
         matter.runtime.inverse_identification
         matter.physics.adaptive_mpm_demotion
+        matter.integration.adaptive_rigid_contact_promotion
         matter.physics.fem_plane_impact
         matter.physics.fem_near_plane_cfl
         PROPERTIES
