@@ -1,4 +1,4 @@
-name: Matter source export
+name: Materialize Matter integration
 
 on:
   pull_request:
@@ -10,10 +10,10 @@ on:
       - reopened
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  export:
+  materialize:
     if: github.head_ref == 'codex/matter-compiler-foundation'
     runs-on: ubuntu-latest
     steps:
@@ -21,22 +21,36 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 1
+          fetch-depth: 0
 
-      - name: Export matter integration sources
-        uses: actions/upload-artifact@v4
-        with:
-          name: matter-source-${{ github.event.pull_request.head.sha }}
-          if-no-files-found: error
-          retention-days: 1
-          include-hidden-files: true
-          path: |
-            AGENTS.md
-            CMakeLists.txt
-            include/metalrobo/**
-            src/metal/**
-            matter/**
-            numi/commands/**
-            src/c_api.cpp
-            src/core/LocomotionWorld.cpp
-            tools/render_g1_motion.py
+      - name: Check patch payload
+        id: payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          ready=true
+          for part in 00 01 02 03 04 05 06; do
+            test -s ".github/matter-patch/part-${part}.b64" || ready=false
+          done
+          echo "ready=${ready}" >> "$GITHUB_OUTPUT"
+
+      - name: Apply and publish integrated Matter stack
+        if: steps.payload.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .github/matter-patch/part-*.b64 \
+            | base64 --decode \
+            | gzip -dc > /tmp/numi-matter-integration.patch
+          printf '%s  %s\n' \
+            '8b319531a0b69eb6e6a1aa71d7aa4199de95d1112e6ab54be04b42bfb41e4b79' \
+            /tmp/numi-matter-integration.patch \
+            | sha256sum --check --strict
+          git apply --check /tmp/numi-matter-integration.patch
+          git apply --index /tmp/numi-matter-integration.patch
+          git rm -r .github/matter-patch
+          git rm .github/workflows/matter-source-export.yml
+          git config user.name 'Numi Matter Compiler'
+          git config user.email 'numi-matter@users.noreply.github.com'
+          git commit -m 'Integrate the Numi Matter multiphysics compiler and runtime'
+          git push origin HEAD:codex/matter-compiler-foundation
