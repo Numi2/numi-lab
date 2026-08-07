@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import math
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
 
 from .base import HyperBaseLayer, HyperBasePolicy
-from .mlx_model import ARDYHyperNetwork, ARDYHyperPolicyConfiguration, HyperNetworkOutput
+
+if TYPE_CHECKING:
+    from .mlx_model import ARDYHyperNetwork, HyperNetworkOutput
+
 
 class _LowRankFeedbackLayer(nn.Module):
     def __init__(self, source: HyperBaseLayer) -> None:
@@ -24,9 +27,7 @@ class _LowRankFeedbackLayer(nn.Module):
         self.bias = mx.array(source.bias, dtype=mx.float32)
         self.adapter_down = mx.array(source.adapter_down, dtype=mx.float32)
         self.adapter_up = mx.array(source.adapter_up, dtype=mx.float32)
-        self.adapter_bias_basis = mx.array(
-            source.adapter_bias_basis, dtype=mx.float32
-        )
+        self.adapter_bias_basis = mx.array(source.adapter_bias_basis, dtype=mx.float32)
         self.freeze(
             recurse=False,
             keys=["weight", "bias"],
@@ -37,9 +38,7 @@ class _LowRankFeedbackLayer(nn.Module):
         base = value @ mx.transpose(self.weight) + self.bias
         down = value @ mx.transpose(self.adapter_down)
         adapted = (down * coefficient) @ mx.transpose(self.adapter_up)
-        adapted = adapted + coefficient @ mx.transpose(
-            self.adapter_bias_basis
-        )
+        adapted = adapted + coefficient @ mx.transpose(self.adapter_bias_basis)
         result = base + adapted
         if self.activation == 3:
             negative = mx.exp(mx.minimum(result, 0.0)) - 1.0
@@ -55,16 +54,13 @@ class PhaseVaryingLowRankActor(nn.Module):
         hyper_base = hyper_base.with_fingerprint()
         hyper_base.validate(require_fingerprint=True)
         self.hyper_base_fingerprint = hyper_base.fingerprint
-        self.layers = [
-            _LowRankFeedbackLayer(layer) for layer in hyper_base.layers
-        ]
+        self.action_count = hyper_base.action_count
+        self.layers = [_LowRankFeedbackLayer(layer) for layer in hyper_base.layers]
         self.coefficient_offsets: tuple[tuple[int, int], ...] = tuple(
             (value.start or 0, value.stop or 0)
             for value in hyper_base.coefficient_slices
         )
-        self.observation_mean = mx.array(
-            hyper_base.observation_mean, dtype=mx.float32
-        )
+        self.observation_mean = mx.array(hyper_base.observation_mean, dtype=mx.float32)
         self.observation_inverse_standard_deviation = mx.array(
             hyper_base.observation_inverse_standard_deviation,
             dtype=mx.float32,
@@ -85,9 +81,8 @@ class PhaseVaryingLowRankActor(nn.Module):
         coefficients: mx.array,
     ) -> mx.array:
         value = mx.clip(
-            (
-                observations - self.observation_mean
-            ) * self.observation_inverse_standard_deviation,
+            (observations - self.observation_mean)
+            * self.observation_inverse_standard_deviation,
             -self.observation_clip,
             self.observation_clip,
         )
@@ -104,12 +99,15 @@ class PhaseVaryingLowRankActor(nn.Module):
         authority: mx.array,
         reference_actions: mx.array,
     ) -> mx.array:
-        return reference_actions + authority * mx.tanh(
-            self.actor_mean(observations, coefficients)
-        )
+        if reference_actions.shape != observations.shape[:-1] + (self.action_count,):
+            raise ValueError("reference action batch shape is invalid")
+        del reference_actions
+        return authority * mx.tanh(self.actor_mean(observations, coefficients))
 
 
 class ARDYMotionConditionedPolicy(nn.Module):
+    """Motion generator and residual feedback actor under one MLX module."""
+
     def __init__(
         self,
         hypernetwork: ARDYHyperNetwork,
@@ -119,8 +117,7 @@ class ARDYMotionConditionedPolicy(nn.Module):
         if (
             hypernetwork.configuration.coefficient_count
             != sum(layer.rank for layer in actor.layers)
-            or hypernetwork.configuration.action_count
-            != actor.layers[-1].output_count
+            or hypernetwork.configuration.action_count != actor.layers[-1].output_count
         ):
             raise ValueError("hypernetwork and feedback actor contracts differ")
         self.hypernetwork = hypernetwork
@@ -145,7 +142,6 @@ class ARDYMotionConditionedPolicy(nn.Module):
         )
 
 
-
 def _initialize_module(
     module: nn.Module,
     *,
@@ -160,9 +156,9 @@ def _initialize_module(
         )
         bound = math.sqrt(6.0 / float(input_count + output_count))
         child.weight = mx.array(
-            generator.uniform(
-                -bound, bound, (output_count, input_count)
-            ).astype(np.float32),
+            generator.uniform(-bound, bound, (output_count, input_count)).astype(
+                np.float32
+            ),
             dtype=mx.float32,
         )
         if getattr(child, "bias", None) is not None:
@@ -173,9 +169,7 @@ def _sinusoidal_encoding(frames: int, width: int) -> np.ndarray:
     position = np.arange(frames, dtype=np.float64)[:, None]
     half = width // 2
     frequency = np.exp(
-        -math.log(10_000.0)
-        * np.arange(half, dtype=np.float64)
-        / max(half - 1, 1)
+        -math.log(10_000.0) * np.arange(half, dtype=np.float64) / max(half - 1, 1)
     )[None, :]
     encoding = np.concatenate(
         (np.sin(position * frequency), np.cos(position * frequency)), axis=1

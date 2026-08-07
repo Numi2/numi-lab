@@ -1,6 +1,6 @@
 // One thread per environment combines the reference action, generated
 // authority, actor residual, stochastic training sample (optional), and the
-// independently authored actuator envelope.  previousActions is updated in
+// independently authored actuator envelope. previousActions is updated in
 // place so slew limiting is rate-correct and requires no host round-trip.
 kernel void mr_hyper_policy_sample_and_finalize(
     device const MRHyperPolicyProgramHeaderGPU& program [[buffer(0)]],
@@ -15,6 +15,10 @@ kernel void mr_hyper_policy_sample_and_finalize(
     device const float* actionLower [[buffer(9)]],
     device const float* actionUpper [[buffer(10)]],
     device const float* maximumActionRate [[buffer(11)]],
+    device const uint* resetMasks [[buffer(12)]],
+    device float* phaseTrace [[buffer(13)]],
+    device float* actionTrace [[buffer(14)]],
+    device const MRTaskStateGPU* taskStates [[buffer(15)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x
@@ -67,9 +71,16 @@ kernel void mr_hyper_policy_sample_and_finalize(
         + environment;
     const uint previousBase = dispatch.bounds.x
         + environment * dispatch.strides.w;
+    const bool reset = resetMasks[
+        dispatch.reset.x + environment * dispatch.reset.y
+    ] != 0u;
     ulong randomKey = dispatch.randomSeed;
     randomKey ^= hyperMix64(
         (ulong(environment) << 32u) | ulong(dispatch.counts.z)
+    );
+    const MRTaskStateGPU taskState = taskStates[environment];
+    randomKey ^= hyperMix64(
+        (ulong(taskState.episode.y) << 32u) | ulong(taskState.episode.x)
     );
     randomKey ^= hyperMix64(program.revision);
     randomKey ^= hyperMix64(program.sourceMotionFingerprint);
@@ -109,17 +120,29 @@ kernel void mr_hyper_policy_sample_and_finalize(
             0.0f,
             1.0f
         );
-        const float policyCoordinate = fma(
-            authority,
-            tanh(latent),
-            reference
-        );
+        // InteractionPack tracking owns the absolute reference target.
+        // HyperPolicy supplies the closed-loop residual in the same actor
+        // coordinates used by an ordinary Numi policy.  Keeping this split
+        // avoids applying the ARDY reference twice inside TaskProgram.
+        const float residualCoordinate = authority * tanh(latent);
+        const bool referenceResidual =
+            (program.counts2.z & MR_HYPER_POLICY_REFERENCE_RESIDUAL) != 0u;
+        const float policyCoordinate = referenceResidual
+            ? residualCoordinate
+            : reference + residualCoordinate;
         float physical = clamp(
             fma(actionScale[action], policyCoordinate, actionBias[action]),
             -program.limits0.y,
             program.limits0.y
         );
-        const float previous = previousActions[previousBase + action];
+        const float neutralPhysical = clamp(
+            actionBias[action],
+            actionLower[dispatch.bounds.y + action],
+            actionUpper[dispatch.bounds.z + action]
+        );
+        const float previous = reset
+            ? neutralPhysical
+            : previousActions[previousBase + action];
         const float maximumDelta = max(
             maximumActionRate[dispatch.bounds.w + action]
                 * program.limits1.y,
@@ -138,6 +161,14 @@ kernel void mr_hyper_policy_sample_and_finalize(
         previousActions[previousBase + action] = physical;
         actions[actionBase + action] = physical;
         latents[latentBase + action] = latent;
+        // PolicyRolloutPack teacherActions use deployment actor coordinates,
+        // before the immutable action scale/bias transform.
+        actionTrace[actionBase + action] = policyCoordinate;
     }
     logProbabilities[scalarIndex] = logProbability;
+    phaseTrace[
+        dispatch.reset.z
+        + dispatch.counts.z * dispatch.strides.z
+        + environment
+    ] = phase;
 }

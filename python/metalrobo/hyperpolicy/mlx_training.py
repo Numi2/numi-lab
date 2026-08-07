@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
-from typing import Any
+from typing import Mapping
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -12,6 +12,7 @@ import mlx.optimizers as optim
 import numpy as np
 
 from .mlx_model import ARDYHyperPolicyConfiguration, ARDYMotionConditionedPolicy
+
 
 @dataclass(frozen=True, slots=True)
 class HyperPolicySupervisionBatch:
@@ -50,10 +51,8 @@ class HyperPolicySupervisionBatch:
             or self.specialist_phase_rate_multiplier.shape != (batch, knots)
             or self.sample_motion_indices.shape != (samples,)
             or self.sample_phases.shape != (samples,)
-            or self.reference_actions.shape
-            != (samples, configuration.action_count)
-            or self.teacher_actions.shape
-            != (samples, configuration.action_count)
+            or self.reference_actions.shape != (samples, configuration.action_count)
+            or self.teacher_actions.shape != (samples, configuration.action_count)
             or self.sample_weights.shape != (samples,)
             or self.failure_targets.shape != (batch,)
             or samples == 0
@@ -97,15 +96,11 @@ class HyperPolicySupervisionBatch:
     def as_mx(self) -> dict[str, mx.array]:
         return {
             "motion_features": mx.array(self.motion_features, dtype=mx.float32),
-            "motion_valid_mask": mx.array(
-                self.motion_valid_mask, dtype=mx.float32
-            ),
+            "motion_valid_mask": mx.array(self.motion_valid_mask, dtype=mx.float32),
             "frame_phases": mx.array(self.frame_phases, dtype=mx.float32),
             "knot_phases": mx.array(self.knot_phases, dtype=mx.float32),
             "knot_mask": mx.array(self.knot_mask, dtype=mx.float32),
-            "knot_event_features": mx.array(
-                self.knot_event_features, dtype=mx.float32
-            ),
+            "knot_event_features": mx.array(self.knot_event_features, dtype=mx.float32),
             "specialist_coefficients": mx.array(
                 self.specialist_coefficients, dtype=mx.float32
             ),
@@ -115,23 +110,15 @@ class HyperPolicySupervisionBatch:
             "specialist_phase_rate_multiplier": mx.array(
                 self.specialist_phase_rate_multiplier, dtype=mx.float32
             ),
-            "actor_observations": mx.array(
-                self.actor_observations, dtype=mx.float32
-            ),
+            "actor_observations": mx.array(self.actor_observations, dtype=mx.float32),
             "sample_motion_indices": mx.array(
                 self.sample_motion_indices, dtype=mx.int32
             ),
             "sample_phases": mx.array(self.sample_phases, dtype=mx.float32),
-            "reference_actions": mx.array(
-                self.reference_actions, dtype=mx.float32
-            ),
-            "teacher_actions": mx.array(
-                self.teacher_actions, dtype=mx.float32
-            ),
+            "reference_actions": mx.array(self.reference_actions, dtype=mx.float32),
+            "teacher_actions": mx.array(self.teacher_actions, dtype=mx.float32),
             "sample_weights": mx.array(self.sample_weights, dtype=mx.float32),
-            "failure_targets": mx.array(
-                self.failure_targets, dtype=mx.float32
-            ),
+            "failure_targets": mx.array(self.failure_targets, dtype=mx.float32),
         }
 
 
@@ -203,22 +190,16 @@ class HyperPolicyMetaLearner:
         )
         knot_weight = batch["knot_mask"][..., None]
         coefficient_error = _huber(
-            output.coefficient_mean
-            - batch["specialist_coefficients"],
+            output.coefficient_mean - batch["specialist_coefficients"],
             0.05,
         )
-        coefficient_loss = _weighted_mean(
-            coefficient_error, knot_weight
-        )
+        coefficient_loss = _weighted_mean(coefficient_error, knot_weight)
         normalized_error = (
-            output.coefficient_mean
-            - batch["specialist_coefficients"]
+            output.coefficient_mean - batch["specialist_coefficients"]
         ) / mx.maximum(output.coefficient_uncertainty, 1.0e-5)
         uncertainty_loss = _weighted_mean(
             0.5 * mx.square(normalized_error)
-            + mx.log(
-                mx.maximum(output.coefficient_uncertainty, 1.0e-5)
-            ),
+            + mx.log(mx.maximum(output.coefficient_uncertainty, 1.0e-5)),
             knot_weight,
         )
         authority_loss = _weighted_mean(
@@ -237,18 +218,10 @@ class HyperPolicyMetaLearner:
             batch["knot_mask"],
         )
 
-        selected_coefficients = output.coefficient_mean[
-            batch["sample_motion_indices"]
-        ]
-        selected_authority = output.authority[
-            batch["sample_motion_indices"]
-        ]
-        selected_knot_phases = batch["knot_phases"][
-            batch["sample_motion_indices"]
-        ]
-        selected_knot_mask = batch["knot_mask"][
-            batch["sample_motion_indices"]
-        ]
+        selected_coefficients = output.coefficient_mean[batch["sample_motion_indices"]]
+        selected_authority = output.authority[batch["sample_motion_indices"]]
+        selected_knot_phases = batch["knot_phases"][batch["sample_motion_indices"]]
+        selected_knot_mask = batch["knot_mask"][batch["sample_motion_indices"]]
         sample_coefficients = _rbf_interpolate_mx(
             selected_knot_phases,
             selected_coefficients,
@@ -281,23 +254,16 @@ class HyperPolicyMetaLearner:
         )
 
         coefficient_delta = (
-            output.coefficient_mean[:, 1:]
-            - output.coefficient_mean[:, :-1]
+            output.coefficient_mean[:, 1:] - output.coefficient_mean[:, :-1]
         )
         phase_width = mx.maximum(
-            batch["knot_phases"][:, 1:]
-            - batch["knot_phases"][:, :-1],
+            batch["knot_phases"][:, 1:] - batch["knot_phases"][:, :-1],
             1.0e-4,
         )
-        pair_mask = (
-            batch["knot_mask"][:, 1:]
-            * batch["knot_mask"][:, :-1]
-        )
+        pair_mask = batch["knot_mask"][:, 1:] * batch["knot_mask"][:, :-1]
         smoothness_loss = _weighted_mean(
             mx.mean(
-                mx.square(
-                    coefficient_delta / phase_width[..., None]
-                ),
+                mx.square(coefficient_delta / phase_width[..., None]),
                 axis=-1,
             ),
             pair_mask,
@@ -310,9 +276,7 @@ class HyperPolicyMetaLearner:
             -batch["failure_targets"]
             * mx.log(mx.maximum(output.failure_probability, 1.0e-6))
             - (1.0 - batch["failure_targets"])
-            * mx.log(
-                mx.maximum(1.0 - output.failure_probability, 1.0e-6)
-            )
+            * mx.log(mx.maximum(1.0 - output.failure_probability, 1.0e-6))
         )
 
         weights = self.loss_weights
@@ -336,12 +300,8 @@ class HyperPolicyMetaLearner:
             "hyper_smoothness_loss": smoothness_loss,
             "hyper_coefficient_norm": coefficient_norm_loss,
             "hyper_failure_loss": failure_loss,
-            "hyper_predicted_failure": mx.mean(
-                output.failure_probability
-            ),
-            "hyper_ood_score": mx.mean(
-                output.out_of_distribution_score
-            ),
+            "hyper_predicted_failure": mx.mean(output.failure_probability),
+            "hyper_ood_score": mx.mean(output.out_of_distribution_score),
         }
         return loss, metrics
 
@@ -361,12 +321,9 @@ class HyperPolicyMetaLearner:
             self.model.parameters(),
             self.optimizer.state,
         )
-        result = {
-            name: float(value.item()) for name, value in metrics.items()
-        }
+        result = {name: float(value.item()) for name, value in metrics.items()}
         result["hyper_gradient_norm"] = float(gradient_norm.item())
         return result
-
 
 
 def _huber(value: mx.array, delta: float) -> mx.array:

@@ -1493,6 +1493,7 @@ private enum TaskTrainMain {
                     latents: latents,
                     logProbabilities: logProbabilities,
                     values: values,
+                    hyperPolicyPhases: [],
                     transitions: transitions
                 )
                 let bootstrapValues =

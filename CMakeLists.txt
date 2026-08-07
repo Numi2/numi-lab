@@ -111,6 +111,9 @@ set(METALROBO_LOCOMOTION_TASK_SOURCE
 set(METALROBO_POLICY_INFERENCE_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/PolicyInference.metal"
 )
+set(METALROBO_HYPER_POLICY_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/HyperPolicy.metal"
+)
 set(METALROBO_HYBRID_RENDERER_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/HybridRenderer.metal"
 )
@@ -226,6 +229,12 @@ set(METALROBO_SCENE_QUERY_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboSceneQuery.air"
 )
 set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
+set(METALROBO_HYPER_POLICY_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboHyperPolicy.air"
+)
+set(METALROBO_HYPER_POLICY_METALLIB
+    "${METALROBO_SHADER_DIR}/MetalRoboHyperPolicy.metallib"
+)
 
 add_custom_command(
     OUTPUT "${METALROBO_METALLIB}"
@@ -522,6 +531,32 @@ add_custom_command(
 
 add_custom_target(metalrobo_shaders ALL DEPENDS "${METALROBO_METALLIB}")
 
+add_custom_command(
+    OUTPUT "${METALROBO_HYPER_POLICY_METALLIB}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_HYPER_POLICY_SOURCE}"
+            -o "${METALROBO_HYPER_POLICY_AIR}"
+    COMMAND xcrun -sdk macosx metallib
+            "${METALROBO_HYPER_POLICY_AIR}"
+            -o "${METALROBO_HYPER_POLICY_METALLIB}"
+    DEPENDS
+            "${METALROBO_HYPER_POLICY_SOURCE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/hyper_policy/HyperPolicy.00.metalinc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/hyper_policy/HyperPolicy.01.metalinc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/hyper_policy/HyperPolicy.02.metalinc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/hyper_policy/HyperPolicy.03.metalinc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/hyper_policy_program_types.h"
+    VERBATIM
+)
+add_custom_target(
+    metalrobo_hyper_policy_shaders ALL
+    DEPENDS "${METALROBO_HYPER_POLICY_METALLIB}"
+)
+
 set(
     METALROBO_VISUAL_KERNEL_HASH_HEADER
     "${CMAKE_CURRENT_BINARY_DIR}/generated/VisualKernelHashes.h"
@@ -579,6 +614,8 @@ add_library(
     src/core/LocomotionWorld.cpp
     src/core/TaskProgram.cpp
     src/core/PolicyProgram.cpp
+    src/core/HyperPolicyProgram.cpp
+    src/core/HyperPolicyPacks.cpp
     src/core/LearningPacks.cpp
     src/core/MotionCompiler.cpp
     src/core/SurgicalPSM.cpp
@@ -624,6 +661,7 @@ add_library(
     src/metal/MetalQualityContactSolver.mm
     src/metal/MetalUnifiedQualitySolver.mm
     src/metal/MetalWorld.mm
+    src/metal/MetalHyperPolicy.mm
     src/metal/MetalWorldFamily.mm
     src/metal/MetalHybridRenderer.mm
     src/metal/MetalTactile.mm
@@ -632,6 +670,7 @@ add_library(
 add_dependencies(
     metalrobo
     metalrobo_shaders
+    metalrobo_hyper_policy_shaders
     metalrobo_visual_kernel_hashes
 )
 
@@ -2175,6 +2214,7 @@ install(
         numi/commands/train
         numi/commands/evaluate
         numi/commands/foundation
+        numi/commands/hyper-policy
         numi/commands/motion
         numi/commands/robots
     DESTINATION libexec/numi
@@ -2203,6 +2243,10 @@ install(
 )
 install(DIRECTORY include/ DESTINATION include)
 install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)
+install(
+    FILES "${METALROBO_HYPER_POLICY_METALLIB}"
+    DESTINATION lib/metalrobo
+)
 install(
     FILES
         schemas/capture_manifest.schema.json

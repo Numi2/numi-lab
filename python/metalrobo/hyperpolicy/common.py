@@ -22,6 +22,7 @@ _ACTIVATION_IDENTITY = 0
 _ACTIVATION_ELU = 3
 _EPSILON = 1.0e-8
 
+
 class MotionEventKind(IntEnum):
     """Provider-neutral physical phase landmarks.
 
@@ -65,7 +66,6 @@ class MotionEvent:
             raise ValueError("motion event contract is invalid")
 
 
-
 def event_safe_tangents(
     phases: np.ndarray,
     values: np.ndarray,
@@ -78,8 +78,10 @@ def event_safe_tangents(
     y = np.asarray(values, dtype=np.float64)
     if x.ndim != 1 or x.size < 2 or y.shape[0] != x.size:
         raise ValueError("event-safe tangent table dimensions are invalid")
-    if not np.isfinite(x).all() or not np.isfinite(y).all() or not np.all(
-        np.diff(x) > 0.0
+    if (
+        not np.isfinite(x).all()
+        or not np.isfinite(y).all()
+        or not np.all(np.diff(x) > 0.0)
     ):
         raise ValueError("event-safe tangent input is invalid")
     original_shape = y.shape
@@ -188,7 +190,6 @@ def evaluate_event_safe_cubic(
     ).astype(np.float32)
 
 
-
 def _canonicalize_heading(
     root_quaternion: np.ndarray,
     root_position: np.ndarray,
@@ -210,9 +211,7 @@ def _canonicalize_heading(
     origin[2] = 0.0
     canonical_position = (root_position - origin) @ rotation.T
     if tracked_position.shape[1]:
-        canonical_tracked = (
-            tracked_position - origin[None, None, :]
-        ) @ rotation.T
+        canonical_tracked = (tracked_position - origin[None, None, :]) @ rotation.T
     else:
         canonical_tracked = tracked_position.copy()
     return canonical_rotation, canonical_position, canonical_tracked
@@ -288,14 +287,11 @@ def _quaternion_slerp(first: np.ndarray, second: np.ndarray, t: float) -> np.nda
         dot = -dot
     dot = float(np.clip(dot, -1.0, 1.0))
     if dot > 0.9995:
-        return _normalize_quaternion(
-            ((1.0 - t) * left + t * right)[None]
-        )[0]
+        return _normalize_quaternion(((1.0 - t) * left + t * right)[None])[0]
     angle = math.acos(dot)
     sine = math.sin(angle)
     return (
-        math.sin((1.0 - t) * angle) / sine * left
-        + math.sin(t * angle) / sine * right
+        math.sin((1.0 - t) * angle) / sine * left + math.sin(t * angle) / sine * right
     )
 
 
@@ -306,9 +302,7 @@ def _finite_difference(values: np.ndarray, time: np.ndarray) -> np.ndarray:
     result[0] = (value[1] - value[0]) / (t[1] - t[0])
     result[-1] = (value[-1] - value[-2]) / (t[-1] - t[-2])
     if value.shape[0] > 2:
-        denominator = (t[2:] - t[:-2]).reshape(
-            (-1,) + (1,) * (value.ndim - 1)
-        )
+        denominator = (t[2:] - t[:-2]).reshape((-1,) + (1,) * (value.ndim - 1))
         result[1:-1] = (value[2:] - value[:-2]) / denominator
     return result
 
@@ -412,9 +406,7 @@ def _sample_rows_linear(
 
 def _array_bytes(value: np.ndarray) -> bytes:
     array = np.asarray(value)
-    header = _canonical_json(
-        {"dtype": array.dtype.str, "shape": list(array.shape)}
-    )
+    header = _canonical_json({"dtype": array.dtype.str, "shape": list(array.shape)})
     return header + b"\0" + np.ascontiguousarray(array).tobytes(order="C")
 
 
@@ -464,9 +456,7 @@ class _atomic_directory:
     def __enter__(self) -> Path:
         self.target.parent.mkdir(parents=True, exist_ok=True)
         self.staging = Path(
-            tempfile.mkdtemp(
-                prefix=f".{self.target.name}.", dir=self.target.parent
-            )
+            tempfile.mkdtemp(prefix=f".{self.target.name}.", dir=self.target.parent)
         )
         return self.staging
 

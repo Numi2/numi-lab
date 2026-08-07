@@ -14,6 +14,7 @@ from .generated import GeneratedMotionPolicy, build_generated_motion_policy
 from .motion import CanonicalARDYMotion
 from .mlx_model import ARDYHyperNetwork
 
+
 @dataclass(frozen=True, slots=True)
 class GeneratedAdapterDistribution:
     coefficient_mean: np.ndarray
@@ -45,18 +46,14 @@ class GeneratedAdapterDistribution:
         flat_count = int(self.coefficient_mean.size)
         order = 1 << max(0, (flat_count - 1).bit_length())
         digest = hashlib.sha256(seed_material.encode("utf-8")).digest()
-        rng = np.random.default_rng(
-            int.from_bytes(digest[:8], "little", signed=False)
-        )
+        rng = np.random.default_rng(int.from_bytes(digest[:8], "little", signed=False))
         permutation = rng.permutation(order)
         signs = rng.choice(np.asarray((-1.0, 1.0)), size=order)
         row = 1
         while len(result) < count:
             direction = _hadamard_row(order, row % order)
             direction = direction[permutation] * signs
-            direction = direction[:flat_count].reshape(
-                self.coefficient_mean.shape
-            )
+            direction = direction[:flat_count].reshape(self.coefficient_mean.shape)
             radius_index = (row + 1) // 2
             radius = maximum_standard_deviations * min(
                 1.0,
@@ -97,8 +94,7 @@ class ARDYHyperPolicyCompiler:
         configuration = self.hypernetwork.configuration
         if (
             motion.features.shape[1] != configuration.feature_count
-            or motion.knot_event_features.shape[1]
-            != configuration.event_feature_count
+            or motion.knot_event_features.shape[1] != configuration.event_feature_count
             or motion.frame_count > configuration.maximum_frames
         ):
             raise ValueError("canonical motion and hypernetwork contracts differ")
@@ -108,9 +104,7 @@ class ARDYHyperPolicyCompiler:
             mx.array(motion.phases[None], dtype=mx.float32),
             mx.array(motion.knot_phases[None], dtype=mx.float32),
             mx.ones((1, motion.knot_phases.size), dtype=mx.float32),
-            mx.array(
-                motion.knot_event_features[None], dtype=mx.float32
-            ),
+            mx.array(motion.knot_event_features[None], dtype=mx.float32),
         )
         mx.eval(
             output.coefficient_mean,
@@ -121,9 +115,7 @@ class ARDYHyperPolicyCompiler:
             output.out_of_distribution_score,
         )
         return GeneratedAdapterDistribution(
-            coefficient_mean=np.asarray(
-                output.coefficient_mean[0], dtype=np.float32
-            ),
+            coefficient_mean=np.asarray(output.coefficient_mean[0], dtype=np.float32),
             coefficient_uncertainty=np.asarray(
                 output.coefficient_uncertainty[0], dtype=np.float32
             ),
@@ -131,12 +123,8 @@ class ARDYHyperPolicyCompiler:
             phase_rate_multiplier=np.asarray(
                 output.phase_rate_multiplier[0], dtype=np.float32
             ),
-            failure_probability=float(
-                output.failure_probability[0].item()
-            ),
-            out_of_distribution_score=float(
-                output.out_of_distribution_score[0].item()
-            ),
+            failure_probability=float(output.failure_probability[0].item()),
+            out_of_distribution_score=float(output.out_of_distribution_score[0].item()),
         )
 
     def compile(
@@ -164,22 +152,17 @@ class ARDYHyperPolicyCompiler:
             coefficient_knots=coefficients,
             coefficient_uncertainty=distribution.coefficient_uncertainty,
             authority_knots=distribution.authority,
-            phase_rate_multiplier_knots=(
-                distribution.phase_rate_multiplier
-            ),
+            phase_rate_multiplier_knots=(distribution.phase_rate_multiplier),
             robot_fingerprint=robot_fingerprint,
             world_fingerprint=world_fingerprint,
             action_lower=action_lower,
             action_upper=action_upper,
             maximum_action_rate=maximum_action_rate,
-            predicted_failure_probability=(
-                distribution.failure_probability
-            ),
+            predicted_failure_probability=(distribution.failure_probability),
             predicted_out_of_distribution_score=(
                 distribution.out_of_distribution_score
             ),
         )
-
 
 
 def _hadamard_row(order: int, row: int) -> np.ndarray:

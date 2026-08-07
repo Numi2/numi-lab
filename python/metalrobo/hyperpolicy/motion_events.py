@@ -9,6 +9,7 @@ import numpy as np
 
 from .common import MotionEvent, MotionEventKind
 
+
 def _extract_motion_events(
     *,
     phases: np.ndarray,
@@ -37,13 +38,11 @@ def _extract_motion_events(
     )
 
     previous_mask = sum(
-        int(contact_modes[0, contact]) << contact
-        for contact in range(contacts)
+        int(contact_modes[0, contact]) << contact for contact in range(contacts)
     )
     for frame in range(1, frames):
         current_mask = sum(
-            int(contact_modes[frame, contact]) << contact
-            for contact in range(contacts)
+            int(contact_modes[frame, contact]) << contact for contact in range(contacts)
         )
         if current_mask == previous_mask:
             continue
@@ -68,18 +67,19 @@ def _extract_motion_events(
                 required_contact_on_mask=current_mask,
                 required_contact_off_mask=(~current_mask) & all_contact_mask,
                 confidence=confidence,
-                minimum_dwell_steps=3 if kind in (
+                minimum_dwell_steps=3
+                if kind
+                in (
                     MotionEventKind.landing,
                     MotionEventKind.support_change,
-                ) else 2,
+                )
+                else 2,
             )
         )
         previous_mask = current_mask
 
     vertical = root_linear_velocity[:, 2]
-    apex_candidates = np.flatnonzero(
-        (vertical[:-1] > 0.0) & (vertical[1:] <= 0.0)
-    )
+    apex_candidates = np.flatnonzero((vertical[:-1] > 0.0) & (vertical[1:] <= 0.0))
     for candidate in apex_candidates:
         frame = int(candidate + 1)
         airborne = np.sum(contact_modes[max(frame - 1, 0) : frame + 1]) == 0
@@ -110,8 +110,7 @@ def _extract_motion_events(
         if (
             deduplicated
             and event.kind == deduplicated[-1].kind
-            and abs(event.phase - deduplicated[-1].phase)
-                <= 0.5 / max(frames - 1, 1)
+            and abs(event.phase - deduplicated[-1].phase) <= 0.5 / max(frames - 1, 1)
         ):
             if event.confidence > deduplicated[-1].confidence:
                 deduplicated[-1] = event

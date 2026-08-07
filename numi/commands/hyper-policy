@@ -1,0 +1,54 @@
+#!/bin/sh
+
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf 'Compile ARDY motion into a verified event-synchronised HyperPolicy.\n'
+    exit 0
+fi
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ] || [ "$#" -eq 0 ]; then
+    cat <<'HELP'
+Usage: numi hyper-policy canonicalize --proposal-directory PATH --g1-urdf FILE --output PATH
+       numi hyper-policy initialize-checkpoint --policy-pack FILE --canonical-motion PATH \
+           --ranks N,N,... --output PATH
+       numi hyper-policy compile --canonical-motion PATH --checkpoint PATH \
+           --id ID --robot-fingerprint N --output PATH
+       numi hyper-policy meta-update --checkpoint PATH --items FILE --updates N --output PATH
+       numi hyper-policy create (--prompt TEXT | --proposal-directory PATH) \
+           --g1-urdf FILE --checkpoint PATH --id ID --output PATH \
+           --evaluator FILE --metallib FILE
+
+The product command performs ARDY generation when requested, exact G1
+canonicalization, motion-conditioned hypernetwork inference, deterministic
+candidate generation, NumiSolver qualification, bounded coefficient repair,
+and publication of an ARDY-free deployment HyperPolicyPack.
+HELP
+    exit 0
+fi
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+if [ -f "$numi_root/python/metalrobo/hyperpolicy/cli.py" ]; then
+    numi_python_root=$numi_root/python
+else
+    numi_python_root=$numi_root/share/numi/python
+fi
+numi_path_python=$(command -v python3 2>/dev/null || true)
+numi_python=
+for numi_candidate_python in \
+    "${NUMI_MLX_PYTHON:-}" \
+    "$numi_root/python/.venv/bin/python" \
+    "$numi_path_python"; do
+    [ -x "$numi_candidate_python" ] || continue
+    if "$numi_candidate_python" -c 'import numpy, mlx' >/dev/null 2>&1; then
+        numi_python=$numi_candidate_python
+        break
+    fi
+done
+[ "$numi_python" != "" ] || {
+    printf 'numi hyper-policy: Python with NumPy and MLX is unavailable\n' >&2
+    exit 1
+}
+
+PYTHONPATH=$numi_python_root${PYTHONPATH:+:$PYTHONPATH} \
+    "$numi_python" -m metalrobo.hyperpolicy.cli "$@"

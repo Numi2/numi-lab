@@ -7,18 +7,22 @@ import hashlib
 import json
 import math
 from pathlib import Path
-from typing import Any, Mapping, Sequence
 
 import numpy as np
 
 from .base import HyperBasePolicy
 from .common import (
-    MOTION_BUNDLE_FORMAT, MOTION_POLICY_FORMAT, MotionEvent,
-    _array_bytes, _atomic_directory, _canonical_json, _event_from_record,
-    _event_record, _verify_file_hashes, _write_array_files,
-    event_safe_tangents,
+    MOTION_POLICY_FORMAT,
+    MotionEvent,
+    _array_bytes,
+    _atomic_directory,
+    _canonical_json,
+    _event_from_record,
+    _event_record,
+    _verify_file_hashes,
+    _write_array_files,
 )
-from .motion import CanonicalARDYMotion
+
 
 @dataclass(frozen=True, slots=True)
 class GeneratedMotionPolicy:
@@ -96,9 +100,7 @@ class GeneratedMotionPolicy:
             or self.reference_joint_positions.shape != (frames, actions)
             or self.reference_joint_velocities.shape != (frames, actions)
             or self.reference_signature.shape[0] != frames
-            or self.signature_weights.shape != (
-                self.reference_signature.shape[1],
-            )
+            or self.signature_weights.shape != (self.reference_signature.shape[1],)
             or self.contact_modes.shape[0] != frames
             or self.coefficient_tangents.shape != (knots, coefficients)
             or self.coefficient_uncertainty.shape != (knots, coefficients)
@@ -185,9 +187,7 @@ class GeneratedMotionPolicy:
             "robot_fingerprint": int(self.robot_fingerprint),
             "world_fingerprint": int(self.world_fingerprint),
             "frames_per_second": float(self.frames_per_second),
-            "predicted_failure_probability": float(
-                self.predicted_failure_probability
-            ),
+            "predicted_failure_probability": float(self.predicted_failure_probability),
             "predicted_out_of_distribution_score": float(
                 self.predicted_out_of_distribution_score
             ),
@@ -247,9 +247,7 @@ class GeneratedMotionPolicy:
                 "robot_fingerprint": policy.robot_fingerprint,
                 "world_fingerprint": policy.world_fingerprint,
                 "frames_per_second": policy.frames_per_second,
-                "predicted_failure_probability": (
-                    policy.predicted_failure_probability
-                ),
+                "predicted_failure_probability": (policy.predicted_failure_probability),
                 "predicted_out_of_distribution_score": (
                     policy.predicted_out_of_distribution_score
                 ),
@@ -257,9 +255,7 @@ class GeneratedMotionPolicy:
                 "events": [_event_record(event) for event in policy.events],
                 "files": file_hashes,
             }
-            (staging / "manifest.json").write_bytes(
-                _canonical_json(manifest) + b"\n"
-            )
+            (staging / "manifest.json").write_bytes(_canonical_json(manifest) + b"\n")
         return target
 
     @classmethod
@@ -282,15 +278,11 @@ class GeneratedMotionPolicy:
             id=str(manifest["id"]),
             revision=int(manifest["revision"]),
             hyper_base_fingerprint=str(manifest["hyper_base_fingerprint"]),
-            source_motion_fingerprint=str(
-                manifest["source_motion_fingerprint"]
-            ),
+            source_motion_fingerprint=str(manifest["source_motion_fingerprint"]),
             robot_fingerprint=int(manifest["robot_fingerprint"]),
             world_fingerprint=int(manifest["world_fingerprint"]),
             frames_per_second=float(manifest["frames_per_second"]),
-            reference_phases=np.asarray(
-                arrays["reference_phases"], dtype=np.float32
-            ),
+            reference_phases=np.asarray(arrays["reference_phases"], dtype=np.float32),
             reference_root=np.asarray(arrays["reference_root"], dtype=np.float32),
             reference_joint_positions=np.asarray(
                 arrays["reference_joint_positions"], dtype=np.float32
@@ -298,35 +290,25 @@ class GeneratedMotionPolicy:
             reference_joint_velocities=np.asarray(
                 arrays["reference_joint_velocities"], dtype=np.float32
             ),
-            reference_actions=np.asarray(
-                arrays["reference_actions"], dtype=np.float32
-            ),
+            reference_actions=np.asarray(arrays["reference_actions"], dtype=np.float32),
             reference_signature=np.asarray(
                 arrays["reference_signature"], dtype=np.float32
             ),
-            signature_weights=np.asarray(
-                arrays["signature_weights"], dtype=np.float32
-            ),
+            signature_weights=np.asarray(arrays["signature_weights"], dtype=np.float32),
             contact_modes=np.asarray(arrays["contact_modes"], dtype=np.uint32),
             knot_phases=np.asarray(arrays["knot_phases"], dtype=np.float32),
-            coefficient_knots=np.asarray(
-                arrays["coefficient_knots"], dtype=np.float32
-            ),
+            coefficient_knots=np.asarray(arrays["coefficient_knots"], dtype=np.float32),
             coefficient_tangents=np.asarray(
                 arrays["coefficient_tangents"], dtype=np.float32
             ),
             coefficient_uncertainty=np.asarray(
                 arrays["coefficient_uncertainty"], dtype=np.float32
             ),
-            authority_knots=np.asarray(
-                arrays["authority_knots"], dtype=np.float32
-            ),
+            authority_knots=np.asarray(arrays["authority_knots"], dtype=np.float32),
             authority_tangents=np.asarray(
                 arrays["authority_tangents"], dtype=np.float32
             ),
-            phase_rate_knots=np.asarray(
-                arrays["phase_rate_knots"], dtype=np.float32
-            ),
+            phase_rate_knots=np.asarray(arrays["phase_rate_knots"], dtype=np.float32),
             phase_rate_tangents=np.asarray(
                 arrays["phase_rate_tangents"], dtype=np.float32
             ),
@@ -350,5 +332,7 @@ class GeneratedMotionPolicy:
         return policy
 
 
-
-from .bundle import MotionPolicyBundle, build_generated_motion_policy
+from .bundle import (  # noqa: E402
+    MotionPolicyBundle as MotionPolicyBundle,
+    build_generated_motion_policy as build_generated_motion_policy,
+)

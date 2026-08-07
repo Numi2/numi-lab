@@ -4,9 +4,11 @@
 #include "metalrobo/Franka.hpp"
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/G1.hpp"
+#include "metalrobo/HyperPolicyPacks.hpp"
 #include "metalrobo/LearningPacks.hpp"
 #include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
+#include "metalrobo/MetalHyperPolicy.hpp"
 #include "metalrobo/MetalTactile.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
@@ -109,6 +111,14 @@ struct MRTaskRolloutHandle {
     metalrobo::MetalWorldContext context;
     metalrobo::MetalWorldResidentState residentState;
     metalrobo::MetalWorldStepConfig stepConfig;
+    metalrobo::CompiledHyperPolicyProgram hyperPolicyProgram;
+    metalrobo::MetalHyperPolicyRuntime hyperPolicyRuntime;
+    std::vector<float> hyperPolicyPhases;
+    std::vector<float> hyperPolicyTeacherActions;
+    std::vector<float> hyperPolicyLatents;
+    std::vector<float> hyperPolicyLogProbabilities;
+    std::vector<float> hyperPolicyValues;
+    std::vector<float> hyperPolicyBootstrapValues;
     std::vector<MRBodyStateGPU> defaultSceneBodies;
     std::vector<float> resetQ;
     std::vector<float> resetV;
@@ -521,6 +531,13 @@ void resetTaskRolloutState(
     handle.result = {};
     handle.statusCodes.clear();
     handle.activeContacts.clear();
+    handle.hyperPolicyRuntime.reset();
+    handle.hyperPolicyPhases.clear();
+    handle.hyperPolicyTeacherActions.clear();
+    handle.hyperPolicyLatents.clear();
+    handle.hyperPolicyLogProbabilities.clear();
+    handle.hyperPolicyValues.clear();
+    handle.hyperPolicyBootstrapValues.clear();
 }
 
 void validateTaskRolloutConfiguration(
@@ -1839,7 +1856,49 @@ void installPolicyPack(
             status.message
         );
     }
+    handle.hyperPolicyRuntime = {};
+    handle.hyperPolicyProgram = {};
+    handle.stepConfig.deviceActionProgram = {};
     handle.stepConfig.policyProgram = std::move(compiled);
+}
+
+void installHyperPolicyPack(
+    MRTaskRolloutHandle& handle,
+    const metalrobo::HyperPolicyPack& authored
+) {
+    metalrobo::CompiledHyperPolicyProgram compiled;
+    const auto compilation = metalrobo::compileHyperPolicyProgram(
+        authored, handle.taskProgram, compiled
+    );
+    if (!compilation.succeeded()) {
+        throw std::invalid_argument(
+            "HyperPolicyPack compile failed at " + compilation.element +
+            ": " + compilation.message
+        );
+    }
+    metalrobo::MetalHyperPolicyRuntime runtime;
+    const auto created = metalrobo::createMetalHyperPolicyRuntime(
+        compiled,
+        handle.taskProgram,
+        {.metallibPath = handle.metallibPath},
+        runtime
+    );
+    if (!created.succeeded()) {
+        throw std::runtime_error(
+            "HyperPolicy Metal runtime failed: " + created.message
+        );
+    }
+    handle.stepConfig.policyProgram = {};
+    handle.hyperPolicyProgram = std::move(compiled);
+    handle.hyperPolicyRuntime = std::move(runtime);
+    handle.stepConfig.deviceActionProgram =
+        handle.hyperPolicyRuntime.actionProgram();
+    handle.hyperPolicyPhases.clear();
+    handle.hyperPolicyTeacherActions.clear();
+    handle.hyperPolicyLatents.clear();
+    handle.hyperPolicyLogProbabilities.clear();
+    handle.hyperPolicyValues.clear();
+    handle.hyperPolicyBootstrapValues.clear();
 }
 
 std::runtime_error worldFamilyError(
@@ -3304,6 +3363,43 @@ int mr_task_rollout_load_policy_pack(
     });
 }
 
+int mr_task_rollout_load_hyper_policy_pack(
+    MRTaskRolloutHandle* handle,
+    const char* hyper_policy_pack_path
+) {
+    if (!requireTaskRolloutHandle(handle) ||
+        hyper_policy_pack_path == nullptr ||
+        hyper_policy_pack_path[0] == '\0') {
+        gLastError = "HyperPolicyPack path is empty.";
+        return -1;
+    }
+    return translateErrors([&] {
+        metalrobo::HyperPolicyPack authored;
+        const auto loaded = metalrobo::readHyperPolicyPack(
+            hyper_policy_pack_path, authored
+        );
+        if (!loaded.succeeded()) {
+            throw std::invalid_argument(
+                "HyperPolicyPack load failed: " + loaded.message
+            );
+        }
+        installHyperPolicyPack(*handle, authored);
+    });
+}
+
+uint64_t mr_task_rollout_policy_revision(
+    const MRTaskRolloutHandle* handle
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return 0u;
+    }
+    return handle->hyperPolicyProgram.valid()
+        ? handle->hyperPolicyProgram.revision()
+        : handle->stepConfig.policyProgram.valid()
+            ? handle->stepConfig.policyProgram.revision()
+            : 0u;
+}
+
 int mr_task_rollout_clear_policy(
     MRTaskRolloutHandle* handle
 ) {
@@ -3311,6 +3407,15 @@ int mr_task_rollout_clear_policy(
         return -1;
     }
     handle->stepConfig.policyProgram = {};
+    handle->hyperPolicyRuntime = {};
+    handle->hyperPolicyProgram = {};
+    handle->stepConfig.deviceActionProgram = {};
+    handle->hyperPolicyPhases.clear();
+    handle->hyperPolicyTeacherActions.clear();
+    handle->hyperPolicyLatents.clear();
+    handle->hyperPolicyLogProbabilities.clear();
+    handle->hyperPolicyValues.clear();
+    handle->hyperPolicyBootstrapValues.clear();
     gLastError.clear();
     return 0;
 }
@@ -3520,8 +3625,17 @@ int mr_task_rollout_advance(
             handle->environmentCount;
         const bool nativePolicy =
             handle->stepConfig.policyProgram.valid();
+        const bool hyperPolicy =
+            handle->hyperPolicyProgram.valid() &&
+            handle->stepConfig.deviceActionProgram.valid();
+        const bool devicePolicy = nativePolicy || hyperPolicy;
+        if (hyperPolicy && evaluate_final_policy != 0u) {
+            throw std::invalid_argument(
+                "HyperPolicy has no deployment critic for final-value evaluation"
+            );
+        }
         const std::size_t requiredActions =
-            nativePolicy
+            devicePolicy
             ? 0u
             : checkedProduct(
                   {
@@ -3535,14 +3649,14 @@ int mr_task_rollout_advance(
             {control_step_count, environmentCount},
             "task-rollout reset mask"
         );
-        if ((!nativePolicy &&
+        if ((!devicePolicy &&
              normalized_actions == nullptr) ||
             normalized_action_count != requiredActions ||
-            (nativePolicy &&
+            (devicePolicy &&
              normalized_actions != nullptr)) {
             throw std::invalid_argument(
-                nativePolicy
-                ? "native-policy rollout does not accept a host action stream"
+                devicePolicy
+                ? "device-policy rollout does not accept a host action stream"
                 : "normalized task action count must equal step_count * environment_count * compiled action_count"
             );
         }
@@ -3588,13 +3702,17 @@ int mr_task_rollout_advance(
                 ? std::span<const float>{handle->resetV}
                 : std::span<const float>{},
             .actions =
-                nativePolicy
+                devicePolicy
                 ? std::span<const float>{}
                 : std::span<const float>{
                       normalized_actions,
                       normalized_action_count
                   },
-            .policyRevision = policy_revision,
+            .policyRevision = hyperPolicy
+                ? handle->hyperPolicyProgram.revision()
+                : nativePolicy
+                    ? handle->stepConfig.policyProgram.revision()
+                    : policy_revision,
             .resetMasks = handle->resetMasks,
             .initialSceneBodies =
                 initializeResidentState
@@ -3623,6 +3741,24 @@ int mr_task_rollout_advance(
             );
         if (diagnostics.succeeded()) {
             diagnostics = submission.wait(published);
+        }
+        if (hyperPolicy && diagnostics.succeeded()) {
+            if (!handle->hyperPolicyRuntime.copyRolloutTrace(
+                    control_step_count,
+                    static_cast<std::uint32_t>(environmentCount),
+                    handle->hyperPolicyPhases,
+                    handle->hyperPolicyTeacherActions,
+                    handle->hyperPolicyLatents,
+                    handle->hyperPolicyLogProbabilities
+                )) {
+                throw std::runtime_error(
+                    "HyperPolicy rollout trace readback failed"
+                );
+            }
+            handle->hyperPolicyValues.assign(requiredMasks, 0.0f);
+            handle->hyperPolicyBootstrapValues.assign(
+                environmentCount, 0.0f
+            );
         }
         advance->control_step_count = control_step_count;
         advance->successful_environment_steps =
@@ -3874,6 +4010,11 @@ const float* mr_task_rollout_motion_features(
 const float* mr_task_rollout_teacher_actions(
     const MRTaskRolloutHandle* handle
 ) {
+    if (requireTaskRolloutHandle(handle) &&
+        handle->hyperPolicyProgram.valid()) {
+        return handle->hyperPolicyTeacherActions.empty()
+            ? nullptr : handle->hyperPolicyTeacherActions.data();
+    }
     return requireTaskRolloutHandle(handle) &&
         (handle->taskProgram.header().schedule.w &
          MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u &&
@@ -3952,15 +4093,34 @@ const float* mr_task_rollout_outcome_values(
 const float* mr_task_rollout_policy_latents(
     const MRTaskRolloutHandle* handle
 ) {
+    if (requireTaskRolloutHandle(handle) &&
+        handle->hyperPolicyProgram.valid()) {
+        return handle->hyperPolicyLatents.empty()
+            ? nullptr : handle->hyperPolicyLatents.data();
+    }
     return requireTaskRolloutHandle(handle) &&
         !handle->result.policyLatents.empty()
         ? handle->result.policyLatents.data()
         : nullptr;
 }
 
+const float* mr_task_rollout_hyper_policy_phases(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->hyperPolicyPhases.empty()
+        ? handle->hyperPolicyPhases.data()
+        : nullptr;
+}
+
 const float* mr_task_rollout_policy_log_probabilities(
     const MRTaskRolloutHandle* handle
 ) {
+    if (requireTaskRolloutHandle(handle) &&
+        handle->hyperPolicyProgram.valid()) {
+        return handle->hyperPolicyLogProbabilities.empty()
+            ? nullptr : handle->hyperPolicyLogProbabilities.data();
+    }
     return requireTaskRolloutHandle(handle) &&
         !handle->result.policyLogProbabilities.empty()
         ? handle->result.policyLogProbabilities.data()
@@ -3970,6 +4130,11 @@ const float* mr_task_rollout_policy_log_probabilities(
 const float* mr_task_rollout_policy_values(
     const MRTaskRolloutHandle* handle
 ) {
+    if (requireTaskRolloutHandle(handle) &&
+        handle->hyperPolicyProgram.valid()) {
+        return handle->hyperPolicyValues.empty()
+            ? nullptr : handle->hyperPolicyValues.data();
+    }
     return requireTaskRolloutHandle(handle) &&
         !handle->result.policyValues.empty()
         ? handle->result.policyValues.data()
@@ -3981,6 +4146,10 @@ const float* mr_task_rollout_bootstrap_policy_values(
 ) {
     if (!requireTaskRolloutHandle(handle)) {
         return nullptr;
+    }
+    if (handle->hyperPolicyProgram.valid()) {
+        return handle->hyperPolicyBootstrapValues.empty()
+            ? nullptr : handle->hyperPolicyBootstrapValues.data();
     }
     const std::size_t offset =
         handle->result.transitions.size();
@@ -4053,9 +4222,18 @@ int mr_task_rollout_write_policy_rollout_pack(
         return -1;
     }
     return translateErrors([&] {
-        if (!handle->stepConfig.policyProgram.valid()) {
+        const bool densePolicy = handle->stepConfig.policyProgram.valid();
+        const bool hyperPolicy = handle->hyperPolicyProgram.valid();
+        if (!densePolicy && !hyperPolicy) {
             throw std::invalid_argument(
                 "a compiled policy must be installed before publishing a rollout pack"
+            );
+        }
+        if (hyperPolicy &&
+            (batch->hyper_policy_phases == nullptr ||
+             batch->hyper_policy_phase_count != batch->transition_count)) {
+            throw std::invalid_argument(
+                "HyperPolicy rollout requires one exact phase per transition"
             );
         }
         const auto floats = [](
@@ -4080,7 +4258,7 @@ int mr_task_rollout_write_policy_rollout_pack(
             batch->transition_count
         );
         std::vector<metalrobo::PolicyOutcomeDescriptor> outcomes;
-        outcomes.reserve(handle->outcomes.size());
+        outcomes.reserve(handle->outcomes.size() + (hyperPolicy ? 1u : 0u));
         for (const MRTaskOutcomeDescriptor& outcome : handle->outcomes) {
             outcomes.push_back({
                 .id = outcome.id,
@@ -4088,9 +4266,17 @@ int mr_task_rollout_write_policy_rollout_pack(
                 .direction = outcome.direction,
             });
         }
+        if (hyperPolicy) {
+            outcomes.push_back({
+                .id = "hyper_policy_phase",
+                .unit = "normalized_phase",
+                .direction = MR_TASK_OUTCOME_NEUTRAL,
+            });
+        }
         std::vector<float> outcomeValues;
         outcomeValues.reserve(
-            batch->transition_count * handle->outcomes.size()
+            batch->transition_count *
+            (handle->outcomes.size() + (hyperPolicy ? 1u : 0u))
         );
         for (std::size_t index = 0u;
              index < batch->transition_count;
@@ -4122,15 +4308,22 @@ int mr_task_rollout_write_policy_rollout_pack(
                     taskOutcomeValue(source, outcome.source)
                 );
             }
+            if (hyperPolicy) {
+                outcomeValues.push_back(batch->hyper_policy_phases[index]);
+            }
         }
         const metalrobo::PolicyRolloutPackView authored{
             .id = batch_id,
             .taskFingerprint =
                 handle->taskProgram.fingerprint(),
             .policyFingerprint =
-                handle->stepConfig.policyProgram.fingerprint(),
+                hyperPolicy
+                ? handle->hyperPolicyProgram.fingerprint()
+                : handle->stepConfig.policyProgram.fingerprint(),
             .policyRevision =
-                handle->stepConfig.policyProgram.revision(),
+                hyperPolicy
+                ? handle->hyperPolicyProgram.revision()
+                : handle->stepConfig.policyProgram.revision(),
             .environmentCount =
                 handle->environmentCount,
             .controlStepCount =

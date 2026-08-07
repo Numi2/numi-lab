@@ -43,10 +43,8 @@ class SpecialistAdapterBatch:
             or self.knot_mask.shape != (motions, knots)
             or self.sample_motion_indices.shape != (samples,)
             or self.sample_phases.shape != (samples,)
-            or self.reference_actions.shape
-            != (samples, configuration.action_count)
-            or self.teacher_actions.shape
-            != (samples, configuration.action_count)
+            or self.reference_actions.shape != (samples, configuration.action_count)
+            or self.teacher_actions.shape != (samples, configuration.action_count)
             or self.teacher_weights.shape != (samples,)
         ):
             raise ValueError("specialist adapter batch shape is invalid")
@@ -87,22 +85,14 @@ class SpecialistAdapterBatch:
         return {
             "knot_phases": mx.array(self.knot_phases, dtype=mx.float32),
             "knot_mask": mx.array(self.knot_mask, dtype=mx.float32),
-            "actor_observations": mx.array(
-                self.actor_observations, dtype=mx.float32
-            ),
+            "actor_observations": mx.array(self.actor_observations, dtype=mx.float32),
             "sample_motion_indices": mx.array(
                 self.sample_motion_indices, dtype=mx.int32
             ),
             "sample_phases": mx.array(self.sample_phases, dtype=mx.float32),
-            "reference_actions": mx.array(
-                self.reference_actions, dtype=mx.float32
-            ),
-            "teacher_actions": mx.array(
-                self.teacher_actions, dtype=mx.float32
-            ),
-            "teacher_weights": mx.array(
-                self.teacher_weights, dtype=mx.float32
-            ),
+            "reference_actions": mx.array(self.reference_actions, dtype=mx.float32),
+            "teacher_actions": mx.array(self.teacher_actions, dtype=mx.float32),
+            "teacher_weights": mx.array(self.teacher_weights, dtype=mx.float32),
         }
 
 
@@ -220,7 +210,8 @@ class MLXSpecialistAdapterLearner:
                 norm_coefficient,
                 authority_coefficient,
                 phase_rate_coefficient,
-            ) < 0.0
+            )
+            < 0.0
         ):
             raise ValueError("specialist adapter learner configuration is invalid")
         if (
@@ -264,16 +255,10 @@ class MLXSpecialistAdapterLearner:
         batch: Mapping[str, mx.array],
     ) -> tuple[mx.array, dict[str, mx.array]]:
         coefficients, authority, phase_rate = codebook.values()
-        selected_coefficients = coefficients[
-            batch["sample_motion_indices"]
-        ]
+        selected_coefficients = coefficients[batch["sample_motion_indices"]]
         selected_authority = authority[batch["sample_motion_indices"]]
-        selected_phases = batch["knot_phases"][
-            batch["sample_motion_indices"]
-        ]
-        selected_mask = batch["knot_mask"][
-            batch["sample_motion_indices"]
-        ]
+        selected_phases = batch["knot_phases"][batch["sample_motion_indices"]]
+        selected_mask = batch["knot_mask"][batch["sample_motion_indices"]]
         sample_coefficients = _rbf_interpolate(
             selected_phases,
             selected_coefficients,
@@ -364,9 +349,7 @@ class MLXSpecialistAdapterLearner:
         return SpecialistAdapterProgram(
             coefficients=np.asarray(coefficients, dtype=np.float32).copy(),
             authority=np.asarray(authority, dtype=np.float32).copy(),
-            phase_rate_multiplier=np.asarray(
-                phase_rate, dtype=np.float32
-            ).copy(),
+            phase_rate_multiplier=np.asarray(phase_rate, dtype=np.float32).copy(),
         )
 
 

@@ -11,6 +11,19 @@
             "knot/reference phases, signature width, or contact-track count is invalid"
         );
     }
+    if (std::any_of(
+            pack.contactGroupIndices.begin(),
+            pack.contactGroupIndices.end(),
+            [&](const std::uint32_t index) {
+                return index >= task.contactGroups().size();
+            }
+        )) {
+        return reject(
+            HyperPolicyCompileStatus::incompatibleContract,
+            "contactGroupIndices",
+            "generated contact tracks must resolve to compiled TaskPack contact groups"
+        );
+    }
     const std::uint64_t knotCount = pack.knotPhases.size();
     const std::uint64_t referenceCount = pack.referencePhases.size();
     const std::uint64_t knotCoefficientCount = knotCount * coefficientCount;
@@ -29,6 +42,7 @@
         pack.referenceSignatures.size() != referenceSignatureCount ||
         pack.signatureWeights.size() != pack.signatureCount ||
         pack.referenceContactMasks.size() != referenceCount ||
+        pack.contactGroupIndices.size() != pack.contactTrackCount ||
         !finite(pack.coefficientKnots) ||
         !finite(pack.coefficientTangents) ||
         !finite(pack.authorityKnots) ||
@@ -234,6 +248,9 @@
     const std::uint32_t contactMaskOffset = appendArena<std::uint32_t>(
         staged->arena, pack.referenceContactMasks
     );
+    const std::uint32_t contactGroupIndexOffset = appendArena<std::uint32_t>(
+        staged->arena, pack.contactGroupIndices
+    );
     const std::uint32_t eventOffset = appendArena<MRHyperPolicyEventGuardGPU>(
         staged->arena, events
     );
@@ -259,6 +276,7 @@
         referenceSignatureOffset,
         signatureWeightOffset,
         contactMaskOffset,
+        contactGroupIndexOffset,
         eventOffset,
         logStdOffset,
     };

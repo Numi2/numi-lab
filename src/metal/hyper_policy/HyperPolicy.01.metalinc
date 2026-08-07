@@ -85,9 +85,9 @@
     phaseStates[dispatch.strides.z + environment] = state;
 }
 
-// One thread per [environment, rank] computes the only temporary table needed
-// by a low-rank layer: generated-gate-scaled down projection plus the gate
-// itself.  The rank workspace stride must be at least 2 * layer rank.
+// One SIMD group per [environment, rank] computes the only temporary table
+// needed by a low-rank layer. Lanes cooperatively accumulate FP32 products;
+// only lane zero publishes the reduced projection and generated gate.
 kernel void mr_hyper_policy_adapter_down(
     device const MRHyperPolicyProgramHeaderGPU& program [[buffer(0)]],
     device const uchar* arena [[buffer(1)]],
@@ -95,7 +95,9 @@ kernel void mr_hyper_policy_adapter_down(
     device const MRHyperPolicyPhaseStateGPU* phaseStates [[buffer(3)]],
     device const float* input [[buffer(4)]],
     device float* rankWorkspace [[buffer(5)]],
-    const uint flatRank [[thread_position_in_grid]]
+    const uint3 group [[threadgroup_position_in_grid]],
+    const ushort lane [[thread_index_in_simdgroup]],
+    const ushort simdWidth [[threads_per_simdgroup]]
 ) {
     if (!hyperProgramValid(
             program,
@@ -108,15 +110,14 @@ kernel void mr_hyper_policy_adapter_down(
     device const MRHyperPolicyLayerGPU* layers =
         hyperTable<MRHyperPolicyLayerGPU>(arena, program.offsets0.x);
     const MRHyperPolicyLayerGPU layer = layers[dispatch.counts.y];
-    const uint elements = dispatch.counts.x * layer.counts.z;
-    if (flatRank >= elements
+    const uint rank = group.x;
+    const uint environment = group.y;
+    if (environment >= dispatch.counts.x || rank >= layer.counts.z
         || dispatch.counts.z != layer.counts.x
         || dispatch.counts.w != layer.counts.y
         || dispatch.strides.z < 2u * layer.counts.z) {
         return;
     }
-    const uint environment = flatRank / layer.counts.z;
-    const uint rank = flatRank - environment * layer.counts.z;
     const uint inputBase = dispatch.offsets.x
         + environment * dispatch.strides.x;
     device const float* observationMean = hyperTable<float>(
@@ -130,7 +131,7 @@ kernel void mr_hyper_policy_adapter_down(
     );
     const uint downBase = rank * layer.counts.x;
     float projection = 0.0f;
-    for (uint feature = 0u; feature < layer.counts.x; ++feature) {
+    for (uint feature = lane; feature < layer.counts.x; feature += simdWidth) {
         float sample = input[inputBase + feature];
         if (dispatch.counts.y == 0u) {
             sample = clamp(
@@ -142,6 +143,7 @@ kernel void mr_hyper_policy_adapter_down(
         }
         projection = fma(down[downBase + feature], sample, projection);
     }
+    projection = simd_sum(projection);
 
     device const float* knotPhases = hyperTable<float>(
         arena, program.offsets1.z
@@ -172,8 +174,10 @@ kernel void mr_hyper_policy_adapter_down(
     );
     const uint workspaceBase = dispatch.offsets.z
         + environment * dispatch.strides.z;
-    rankWorkspace[workspaceBase + rank] = projection * gate;
-    rankWorkspace[workspaceBase + layer.counts.z + rank] = gate;
+    if (lane == 0u) {
+        rankWorkspace[workspaceBase + rank] = projection * gate;
+        rankWorkspace[workspaceBase + layer.counts.z + rank] = gate;
+    }
 }
 
 // Base dense multiplication and adapter-up are fused.  No per-environment
@@ -185,7 +189,9 @@ kernel void mr_hyper_policy_adapter_up(
     device const float* input [[buffer(3)]],
     device const float* rankWorkspace [[buffer(4)]],
     device float* output [[buffer(5)]],
-    const uint flatOutput [[thread_position_in_grid]]
+    const uint3 group [[threadgroup_position_in_grid]],
+    const ushort lane [[thread_index_in_simdgroup]],
+    const ushort simdWidth [[threads_per_simdgroup]]
 ) {
     if (!hyperProgramValid(
             program,
@@ -198,15 +204,14 @@ kernel void mr_hyper_policy_adapter_up(
     device const MRHyperPolicyLayerGPU* layers =
         hyperTable<MRHyperPolicyLayerGPU>(arena, program.offsets0.x);
     const MRHyperPolicyLayerGPU layer = layers[dispatch.counts.y];
-    const uint elements = dispatch.counts.x * layer.counts.y;
-    if (flatOutput >= elements
+    const uint neuron = group.x;
+    const uint environment = group.y;
+    if (environment >= dispatch.counts.x || neuron >= layer.counts.y
         || dispatch.counts.z != layer.counts.x
         || dispatch.counts.w != layer.counts.y
         || dispatch.strides.z < 2u * layer.counts.z) {
         return;
     }
-    const uint environment = flatOutput / layer.counts.y;
-    const uint neuron = flatOutput - environment * layer.counts.y;
     const uint inputBase = dispatch.offsets.x
         + environment * dispatch.strides.x;
     device const float* observationMean = hyperTable<float>(
@@ -228,8 +233,8 @@ kernel void mr_hyper_policy_adapter_up(
         arena, layer.offsets1.x
     );
     const uint weightBase = neuron * layer.counts.x;
-    float value = bias[neuron];
-    for (uint feature = 0u; feature < layer.counts.x; ++feature) {
+    float value = lane == 0u ? bias[neuron] : 0.0f;
+    for (uint feature = lane; feature < layer.counts.x; feature += simdWidth) {
         float sample = input[inputBase + feature];
         if (dispatch.counts.y == 0u) {
             sample = clamp(
@@ -244,7 +249,7 @@ kernel void mr_hyper_policy_adapter_up(
     const uint workspaceBase = dispatch.offsets.z
         + environment * dispatch.strides.z;
     const uint adapterBase = neuron * layer.counts.z;
-    for (uint rank = 0u; rank < layer.counts.z; ++rank) {
+    for (uint rank = lane; rank < layer.counts.z; rank += simdWidth) {
         value = fma(
             up[adapterBase + rank],
             rankWorkspace[workspaceBase + rank],
@@ -258,10 +263,12 @@ kernel void mr_hyper_policy_adapter_up(
             value
         );
     }
-    output[
-        dispatch.offsets.y
-        + environment * dispatch.strides.y
-        + neuron
-    ] = hyperActivation(layer.counts.w, value);
+    value = simd_sum(value);
+    if (lane == 0u) {
+        output[
+            dispatch.offsets.y
+            + environment * dispatch.strides.y
+            + neuron
+        ] = hyperActivation(layer.counts.w, value);
+    }
 }
-

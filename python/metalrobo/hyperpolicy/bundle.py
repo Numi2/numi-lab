@@ -10,9 +10,15 @@ from pathlib import Path
 import numpy as np
 
 from .base import HyperBasePolicy
-from .common import MOTION_BUNDLE_FORMAT, _atomic_directory, _canonical_json, event_safe_tangents
+from .common import (
+    MOTION_BUNDLE_FORMAT,
+    _atomic_directory,
+    _canonical_json,
+    event_safe_tangents,
+)
 from .generated import GeneratedMotionPolicy
 from .motion import CanonicalARDYMotion
+
 
 @dataclass(frozen=True, slots=True)
 class MotionPolicyBundle:
@@ -42,9 +48,7 @@ class MotionPolicyBundle:
             }
             fingerprint = hashlib.sha256(_canonical_json(manifest)).hexdigest()
             manifest["fingerprint"] = fingerprint
-            (staging / "manifest.json").write_bytes(
-                _canonical_json(manifest) + b"\n"
-            )
+            (staging / "manifest.json").write_bytes(_canonical_json(manifest) + b"\n")
         return target
 
     @classmethod
@@ -63,16 +67,13 @@ class MotionPolicyBundle:
         ):
             raise ValueError("motion policy bundle fingerprint is invalid")
         base = HyperBasePolicy.read(source / "hyper-base")
-        motion = GeneratedMotionPolicy.read(
-            source / "motion-policy", hyper_base=base
-        )
+        motion = GeneratedMotionPolicy.read(source / "motion-policy", hyper_base=base)
         if (
             base.fingerprint != manifest["hyper_base_fingerprint"]
             or motion.fingerprint != manifest["motion_policy_fingerprint"]
         ):
             raise ValueError("motion policy bundle members do not match manifest")
         return cls(base, motion)
-
 
 
 def build_generated_motion_policy(
@@ -99,9 +100,7 @@ def build_generated_motion_policy(
     coefficients = np.asarray(coefficient_knots, dtype=np.float32)
     uncertainty = np.asarray(coefficient_uncertainty, dtype=np.float32)
     authority = np.asarray(authority_knots, dtype=np.float32)
-    phase_multiplier = np.asarray(
-        phase_rate_multiplier_knots, dtype=np.float32
-    )
+    phase_multiplier = np.asarray(phase_rate_multiplier_knots, dtype=np.float32)
     knot_count = motion.knot_phases.size
     if (
         coefficients.shape != (knot_count, hyper_base.coefficient_count)
@@ -144,9 +143,7 @@ def build_generated_motion_policy(
         motion.joint_positions - hyper_base.action_bias[None, :]
     ) / hyper_base.action_scale[None, :]
     if np.any(np.abs(reference_actions) > hyper_base.action_clip + 1.0e-5):
-        raise ValueError(
-            "ARDY reference lies outside the hyper-base action contract"
-        )
+        raise ValueError("ARDY reference lies outside the hyper-base action contract")
     generated = GeneratedMotionPolicy(
         id=policy_id,
         revision=1,
@@ -174,9 +171,7 @@ def build_generated_motion_policy(
         events=motion.events,
         action_lower=np.asarray(action_lower, dtype=np.float32),
         action_upper=np.asarray(action_upper, dtype=np.float32),
-        maximum_action_rate=np.asarray(
-            maximum_action_rate, dtype=np.float32
-        ),
+        maximum_action_rate=np.asarray(maximum_action_rate, dtype=np.float32),
         predicted_failure_probability=float(
             np.clip(predicted_failure_probability, 0.0, 1.0)
         ),

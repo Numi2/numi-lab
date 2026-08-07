@@ -376,6 +376,10 @@ typedef struct MRPolicyRolloutBatchC {
     size_t bootstrap_value_count;
     const MRTaskTransitionC* transitions;
     size_t transition_count;
+    // Optional exact event-synchronised phase trace. Empty for an
+    // ordinary PolicyPack; one value per transition for HyperPolicy.
+    const float* hyper_policy_phases;
+    size_t hyper_policy_phase_count;
 } MRPolicyRolloutBatchC;
 
 typedef struct MRWorldFamilyLayoutC {
@@ -592,6 +596,15 @@ MR_API int mr_task_rollout_load_policy_pack(
     MRTaskRolloutHandle* handle,
     const char* policy_pack_path
 );
+// Loads the canonical MRLEARN HyperPolicyPack and installs its
+// event-synchronised Metal action owner atomically.
+MR_API int mr_task_rollout_load_hyper_policy_pack(
+    MRTaskRolloutHandle* handle,
+    const char* hyper_policy_pack_path
+);
+MR_API uint64_t mr_task_rollout_policy_revision(
+    const MRTaskRolloutHandle* handle
+);
 MR_API int mr_task_rollout_clear_policy(
     MRTaskRolloutHandle* handle
 );
@@ -682,6 +695,11 @@ MR_API const float* mr_task_rollout_outcome_values(
     const MRTaskRolloutHandle* handle
 );
 MR_API const float* mr_task_rollout_policy_latents(
+    const MRTaskRolloutHandle* handle
+);
+// Exact phase used by each most-recent HyperPolicy transition.
+// Returns null for an ordinary PolicyPack or host action stream.
+MR_API const float* mr_task_rollout_hyper_policy_phases(
     const MRTaskRolloutHandle* handle
 );
 MR_API const float* mr_task_rollout_policy_log_probabilities(

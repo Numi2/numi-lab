@@ -18,20 +18,10 @@ class MotionPolicyBundle(_MotionPolicyBundle):
 
     def validate(self) -> None:
         super().validate()
-        if (
-            self.hyper_base.computed_fingerprint()
-            != self.hyper_base.fingerprint
-        ):
-            raise ValueError(
-                "hyper-base parameters changed after authentication"
-            )
-        if (
-            self.motion_policy.computed_fingerprint()
-            != self.motion_policy.fingerprint
-        ):
-            raise ValueError(
-                "generated motion policy changed after authentication"
-            )
+        if self.hyper_base.computed_fingerprint() != self.hyper_base.fingerprint:
+            raise ValueError("hyper-base parameters changed after authentication")
+        if self.motion_policy.computed_fingerprint() != self.motion_policy.fingerprint:
+            raise ValueError("generated motion policy changed after authentication")
 
 
 __all__ = ["MotionPolicyBundle", "build_generated_motion_policy"]

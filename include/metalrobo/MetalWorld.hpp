@@ -321,6 +321,62 @@ struct MetalWorldDeviceObservationProgram {
     }
 };
 
+// First-class device action ownership. The callback executes after native
+// observations and solved contact reduction, and before TaskProgram applies
+// the action row to physical actuators. Host action streams and the ordinary
+// dense PolicyProgram remain mutually exclusive with this path.
+struct MetalWorldDeviceActionPass {
+    void* commandBuffer = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* resetMasks = nullptr;
+    void* taskActions = nullptr;
+    void* taskContactCompact = nullptr;
+    void* taskProgramHeader = nullptr;
+    void* taskProgramArena = nullptr;
+    void* taskStates = nullptr;
+    void* actorObservations = nullptr;
+    std::size_t actorObservationOffsetElements = 0u;
+    std::size_t resetMaskOffsetElements = 0u;
+    std::uint64_t seed = 0u;
+    std::uint64_t taskFingerprint = 0u;
+    std::uint64_t policyRevision = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t controlStepCount = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t nq = 0u;
+    std::uint32_t nv = 0u;
+    std::uint32_t actionCount = 0u;
+    std::uint32_t actorObservationSize = 0u;
+    std::uint32_t contactMetricCount = 0u;
+};
+
+using MetalWorldDeviceActionEncode = bool (*)(
+    void* context,
+    const MetalWorldDeviceActionPass& pass
+) noexcept;
+
+struct MetalWorldDeviceActionProgram {
+    void* context = nullptr;
+    MetalWorldDeviceActionEncode encode = nullptr;
+    std::uint64_t policyRevision = 0u;
+    std::uint64_t taskFingerprint = 0u;
+    std::uint32_t actionCount = 0u;
+    bool stochastic = false;
+
+    [[nodiscard]] bool configured() const noexcept {
+        return context != nullptr || encode != nullptr ||
+            policyRevision != 0u || taskFingerprint != 0u ||
+            actionCount != 0u || stochastic;
+    }
+
+    [[nodiscard]] bool valid() const noexcept {
+        return context != nullptr && encode != nullptr &&
+            policyRevision != 0u && taskFingerprint != 0u &&
+            actionCount != 0u;
+    }
+};
+
 // Immutable robot-authored multicopter actuator program. MetalWorld executes
 // it immediately before every ABA microstep and writes the resulting
 // world-frame wrench into the same external-wrench arena used by articulated
@@ -371,6 +427,7 @@ struct MetalWorldStepConfig {
     // Optional renderer/perception pass. It receives only borrowed device
     // resources and executes inside the native rollout command buffer.
     MetalWorldDeviceObservationProgram deviceObservationProgram{};
+    MetalWorldDeviceActionProgram deviceActionProgram{};
     // Publish V(s_T) from the accepted post-rollout state in the same command
     // buffer. This does not apply the sampled action or advance physics.
     bool evaluateFinalPolicy = false;

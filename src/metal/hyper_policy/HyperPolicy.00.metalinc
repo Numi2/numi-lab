@@ -2,6 +2,7 @@
 
 #include "metalrobo/hyper_policy_program_types.h"
 #include "metalrobo/policy_program_types.h"
+#include "metalrobo/task_program_types.h"
 
 using namespace metal;
 
@@ -243,4 +244,3 @@ kernel void mr_hyper_policy_update_phase(
             bestReference = reference;
         }
     }
-

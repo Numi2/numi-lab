@@ -6,12 +6,12 @@ from pathlib import Path
 from typing import Sequence
 
 import mlx.core as mx
-import mlx.nn as nn
 import numpy as np
 
 from .base import HyperBaseLayer, HyperBasePolicy
 from .mlx_model import PhaseVaryingLowRankActor
 from ..mlx_policy_learning import NativePolicyPack, read_policy_pack
+
 
 def initialize_hyper_base_from_policy_pack(
     policy_pack: NativePolicyPack | str | Path,
@@ -50,9 +50,7 @@ def initialize_hyper_base_from_policy_pack(
             rows=source.output_count,
             columns=rank,
         ) * np.float32(1.0e-2)
-        bias_basis = np.zeros(
-            (source.output_count, rank), dtype=np.float32
-        )
+        bias_basis = np.zeros((source.output_count, rank), dtype=np.float32)
         layers.append(
             HyperBaseLayer(
                 input_count=source.input_count,
@@ -69,9 +67,7 @@ def initialize_hyper_base_from_policy_pack(
     coefficient_count = sum(int(value) for value in ranks)
     limits = np.asarray(coefficient_limit, dtype=np.float32)
     if limits.ndim == 0:
-        limits = np.full(
-            (coefficient_count,), float(limits), dtype=np.float32
-        )
+        limits = np.full((coefficient_count,), float(limits), dtype=np.float32)
     if limits.shape != (coefficient_count,):
         raise ValueError("coefficient limit width is invalid")
     base = HyperBasePolicy(
@@ -81,9 +77,7 @@ def initialize_hyper_base_from_policy_pack(
         task_fingerprint=pack.task_fingerprint,
         observation_fingerprint=pack.observation_fingerprint,
         action_fingerprint=pack.action_fingerprint,
-        observation_mean=pack.effective_observation_mean.astype(
-            np.float32, copy=True
-        ),
+        observation_mean=pack.effective_observation_mean.astype(np.float32, copy=True),
         observation_inverse_standard_deviation=(
             pack.effective_observation_inverse_standard_deviation.astype(
                 np.float32, copy=True
@@ -118,12 +112,8 @@ def export_hyper_base(
                 activation=source.activation,
                 weight=source.weight.copy(),
                 bias=source.bias.copy(),
-                adapter_down=np.asarray(
-                    runtime.adapter_down, dtype=np.float32
-                ).copy(),
-                adapter_up=np.asarray(
-                    runtime.adapter_up, dtype=np.float32
-                ).copy(),
+                adapter_down=np.asarray(runtime.adapter_down, dtype=np.float32).copy(),
+                adapter_up=np.asarray(runtime.adapter_up, dtype=np.float32).copy(),
                 adapter_bias_basis=np.asarray(
                     runtime.adapter_bias_basis, dtype=np.float32
                 ).copy(),
@@ -147,7 +137,6 @@ def export_hyper_base(
         observation_clip=template.observation_clip,
         action_clip=template.action_clip,
     ).with_fingerprint()
-
 
 
 def _orthogonal_rows(

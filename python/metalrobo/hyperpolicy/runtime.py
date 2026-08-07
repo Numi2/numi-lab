@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import math
-from typing import Sequence
 
 import numpy as np
 
-from .common import _ACTIVATION_ELU, _ACTIVATION_IDENTITY, _sample_rows_linear, evaluate_event_safe_cubic
+from .common import _ACTIVATION_ELU, _sample_rows_linear, evaluate_event_safe_cubic
 from .generated import GeneratedMotionPolicy, MotionPolicyBundle
+
 
 @dataclass(slots=True)
 class EventSynchronizedPhaseTracker:
@@ -93,9 +93,7 @@ class EventSynchronizedPhaseTracker:
         costs = np.mean(robust, axis=1)
         reference_masks = np.sum(
             self.policy.contact_modes[start:end].astype(np.uint32)
-            << np.arange(
-                self.policy.contact_modes.shape[1], dtype=np.uint32
-            )[None, :],
+            << np.arange(self.policy.contact_modes.shape[1], dtype=np.uint32)[None, :],
             axis=1,
             dtype=np.uint32,
         )
@@ -122,9 +120,8 @@ class EventSynchronizedPhaseTracker:
         predicted = self.phase + phase_rate * control_time_step
         aligned = max(self.phase, best_phase)
         candidate = (
-            (1.0 - self.alignment_blend) * predicted
-            + self.alignment_blend * aligned
-        )
+            1.0 - self.alignment_blend
+        ) * predicted + self.alignment_blend * aligned
         candidate = min(
             candidate,
             self.phase + self.maximum_phase_advance_per_step,
@@ -155,9 +152,7 @@ class EventSynchronizedPhaseTracker:
         self.phase = float(np.clip(max(self.phase, candidate), 0.0, 1.0))
         self.aligned_phase = best_phase
         self.reference_index = int(
-            np.searchsorted(
-                self.policy.reference_phases, self.phase, side="right"
-            ) - 1
+            np.searchsorted(self.policy.reference_phases, self.phase, side="right") - 1
         )
         self.reference_index = int(
             np.clip(self.reference_index, 0, self.policy.frame_count - 1)
@@ -176,9 +171,7 @@ class PhaseVaryingFeedbackPolicy:
 
     def __post_init__(self) -> None:
         self.bundle.validate()
-        self.phase_tracker = EventSynchronizedPhaseTracker(
-            self.bundle.motion_policy
-        )
+        self.phase_tracker = EventSynchronizedPhaseTracker(self.bundle.motion_policy)
         reference = self.bundle.motion_policy.reference_actions[0]
         self.previous_action = np.clip(
             self.bundle.hyper_base.action_scale * reference
@@ -239,13 +232,10 @@ class PhaseVaryingFeedbackPolicy:
             0.0,
             1.0,
         )
-        reference = _sample_rows_linear(
-            policy.reference_phases,
-            policy.reference_actions,
-            np.asarray([phase], dtype=np.float32),
-        )[0]
         latent = self._actor_mean(observation_value, coefficients)
-        policy_action = reference + authority * np.tanh(latent)
+        # InteractionPack/TaskProgram owns the absolute reference.
+        # This actor produces only the closed-loop residual.
+        policy_action = authority * np.tanh(latent)
         physical_action = np.clip(
             base.action_scale * policy_action + base.action_bias,
             -base.action_clip,
@@ -272,9 +262,8 @@ class PhaseVaryingFeedbackPolicy:
     ) -> np.ndarray:
         base = self.bundle.hyper_base
         value = np.clip(
-            (
-                observation - base.observation_mean
-            ) * base.observation_inverse_standard_deviation,
+            (observation - base.observation_mean)
+            * base.observation_inverse_standard_deviation,
             -base.observation_clip,
             base.observation_clip,
         ).astype(np.float32)

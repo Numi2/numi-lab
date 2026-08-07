@@ -33,7 +33,7 @@ g1-deployment = [
 ]
 
 [tool.setuptools]
-packages = ["metalrobo"]
+packages = ["metalrobo", "metalrobo.hyperpolicy"]
 
 [tool.setuptools.package-data]
 metalrobo = ["*.so", "*.dylib", "*.metallib", "py.typed"]

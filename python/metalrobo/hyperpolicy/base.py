@@ -7,15 +7,20 @@ import hashlib
 import json
 import math
 from pathlib import Path
-from typing import Any, Mapping, Sequence
 
 import numpy as np
 
 from .common import (
-    HYPER_BASE_FORMAT, _ACTIVATION_ELU, _ACTIVATION_IDENTITY,
-    _array_bytes, _atomic_directory, _canonical_json,
-    _verify_file_hashes, _write_array_files,
+    HYPER_BASE_FORMAT,
+    _ACTIVATION_ELU,
+    _ACTIVATION_IDENTITY,
+    _array_bytes,
+    _atomic_directory,
+    _canonical_json,
+    _verify_file_hashes,
+    _write_array_files,
 )
+
 
 @dataclass(frozen=True, slots=True)
 class HyperBaseLayer:
@@ -104,12 +109,12 @@ class HyperBasePolicy:
                 self.task_fingerprint,
                 self.observation_fingerprint,
                 self.action_fingerprint,
-            ) <= 0
+            )
+            <= 0
             or not self.layers
             or self.observation_mean.shape != (self.observation_count,)
-            or self.observation_inverse_standard_deviation.shape != (
-                self.observation_count,
-            )
+            or self.observation_inverse_standard_deviation.shape
+            != (self.observation_count,)
             or self.coefficient_limits.shape != (self.coefficient_count,)
             or self.action_bias.shape != (self.action_count,)
             or self.action_scale.shape != (self.action_count,)
@@ -145,7 +150,9 @@ class HyperBasePolicy:
             or np.any(self.coefficient_limits <= 0.0)
             or np.any(np.abs(self.action_scale) <= 1.0e-12)
         ):
-            raise ValueError("hyper-base normalization, limits, or action scale is invalid")
+            raise ValueError(
+                "hyper-base normalization, limits, or action scale is invalid"
+            )
 
     def computed_fingerprint(self) -> str:
         self.validate(require_fingerprint=False)
@@ -230,9 +237,7 @@ class HyperBasePolicy:
                 arrays[f"{prefix}_bias"] = layer.bias
                 arrays[f"{prefix}_adapter_down"] = layer.adapter_down
                 arrays[f"{prefix}_adapter_up"] = layer.adapter_up
-                arrays[f"{prefix}_adapter_bias_basis"] = (
-                    layer.adapter_bias_basis
-                )
+                arrays[f"{prefix}_adapter_bias_basis"] = layer.adapter_bias_basis
             file_hashes = _write_array_files(staging, arrays)
             manifest = {
                 "format": HYPER_BASE_FORMAT,
@@ -256,9 +261,7 @@ class HyperBasePolicy:
                 ],
                 "files": file_hashes,
             }
-            (staging / "manifest.json").write_bytes(
-                _canonical_json(manifest) + b"\n"
-            )
+            (staging / "manifest.json").write_bytes(_canonical_json(manifest) + b"\n")
         return target
 
     @classmethod
@@ -281,9 +284,7 @@ class HyperBasePolicy:
                 weight=np.asarray(
                     arrays[f"layer_{index:02d}_weight"], dtype=np.float32
                 ),
-                bias=np.asarray(
-                    arrays[f"layer_{index:02d}_bias"], dtype=np.float32
-                ),
+                bias=np.asarray(arrays[f"layer_{index:02d}_bias"], dtype=np.float32),
                 adapter_down=np.asarray(
                     arrays[f"layer_{index:02d}_adapter_down"], dtype=np.float32
                 ),
@@ -304,9 +305,7 @@ class HyperBasePolicy:
             task_fingerprint=int(manifest["task_fingerprint"]),
             observation_fingerprint=int(manifest["observation_fingerprint"]),
             action_fingerprint=int(manifest["action_fingerprint"]),
-            observation_mean=np.asarray(
-                arrays["observation_mean"], dtype=np.float32
-            ),
+            observation_mean=np.asarray(arrays["observation_mean"], dtype=np.float32),
             observation_inverse_standard_deviation=np.asarray(
                 arrays["observation_inverse_standard_deviation"],
                 dtype=np.float32,

@@ -186,6 +186,7 @@ std::uint64_t fingerprintPack(
     hash.vector<float>(pack.referenceSignatures);
     hash.vector<float>(pack.signatureWeights);
     hash.vector<std::uint32_t>(pack.referenceContactMasks);
+    hash.vector<std::uint32_t>(pack.contactGroupIndices);
     hash.vector<float>(pack.actionLower);
     hash.vector<float>(pack.actionUpper);
     hash.vector<float>(pack.maximumActionRate);

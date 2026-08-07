@@ -3093,6 +3093,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     }
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
+    const bool deviceAction = config.deviceActionProgram.valid();
     const bool hasBodyWrenches = config.multicopterProgram.valid() ||
         (nativeTask && taskHasActuatorKind(
             config.taskProgram,
@@ -3125,11 +3126,32 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.solverMode == MetalWorldSolverMode::qualityNewton;
     if (config.deviceObservationProgram.configured() &&
         (!config.deviceObservationProgram.valid() ||
-         !nativeTask || !nativePolicy)) {
+         !nativeTask || (!nativePolicy && !deviceAction))) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
-            "device observation program requires a complete callback, native task, and native policy"
+            "device observation program requires a complete callback, native task, and device policy"
+        );
+    }
+    if (config.deviceActionProgram.configured() && !deviceAction) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "device action program requires a complete callback, task identity, revision, and action width"
+        );
+    }
+    if (deviceAction &&
+        (!nativeTask || nativePolicy || config.evaluateFinalPolicy ||
+         config.deviceActionProgram.taskFingerprint !=
+             config.taskProgram.fingerprint() ||
+         config.deviceActionProgram.actionCount !=
+             config.taskProgram.layout().actionCount ||
+         (batch.policyRevision != 0u && batch.policyRevision !=
+             config.deviceActionProgram.policyRevision))) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "device action program does not match the native task, action contract, or revision"
         );
     }
     if (!std::isfinite(config.timestepSeconds) ||
@@ -4252,7 +4274,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     const std::size_t expectedEffortElements =
         nativeTask ? 0u : layout.effortElements;
     const std::size_t expectedActionElements =
-        nativeTask && !nativePolicy
+        nativeTask && !nativePolicy && !deviceAction
         ? layout.actionElements
         : 0u;
     if (batch.initialQ.size() != initialQElements ||
@@ -7091,6 +7113,7 @@ void uploadBatch(
 
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
+    const bool deviceAction = config.deviceActionProgram.valid();
     if (nativeTask &&
         context.boundTaskFingerprint !=
             config.taskProgram.fingerprint()) {
@@ -7572,6 +7595,8 @@ void uploadBatch(
         task.policyRevision =
             nativePolicy
             ? config.policyProgram.revision()
+            : deviceAction
+            ? config.deviceActionProgram.policyRevision
             : batch.policyRevision;
         task.taskFingerprint =
             config.taskProgram.fingerprint();
@@ -7581,7 +7606,7 @@ void uploadBatch(
             &task,
             requirements.entries[kTaskDispatch]
         );
-        if (!nativePolicy) {
+        if (!nativePolicy && !deviceAction) {
             copyToBuffer(
                 context.buffers[kTaskActions],
                 batch.actions.data(),
@@ -16692,6 +16717,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             const bool uploadInitialState =
                 !residentContinuation;
             const bool nativeTask = config.taskProgram.valid();
+            const bool deviceAction =
+                config.deviceActionProgram.valid();
             const bool taskTracksImpactContacts =
                 nativeTask &&
                 !config.taskProgram.impactEvents().empty();
@@ -16968,6 +16995,48 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 std::move(diagnostics),
                                 MetalWorldHostStatus::metalCommandFailure,
                                 "device observation program rejected the rollout pass"
+                            );
+                        }
+                    }
+                    if (deviceAction) {
+                        const TaskProgramLayout& taskLayout =
+                            config.taskProgram.layout();
+                        const MetalWorldDeviceActionPass action{
+                            .commandBuffer = (__bridge void*)commandBuffer,
+                            .q = (__bridge void*)selectedState->buffers[sourceQ],
+                            .v = (__bridge void*)selectedState->buffers[sourceV],
+                            .resetMasks = (__bridge void*)selectedState->buffers[kResetMasks],
+                            .taskActions = (__bridge void*)selectedState->buffers[kTaskActions],
+                            .taskContactCompact = (__bridge void*)selectedState->buffers[kTaskContactCompact],
+                            .taskProgramHeader = (__bridge void*)selectedState->buffers[kTaskProgramHeader],
+                            .taskProgramArena = (__bridge void*)selectedState->buffers[kTaskProgramArena],
+                            .taskStates = (__bridge void*)selectedState->buffers[kTaskState],
+                            .actorObservations = (__bridge void*)selectedState->buffers[kTaskActorObservations],
+                            .actorObservationOffsetElements =
+                                static_cast<std::size_t>(controlStep) *
+                                batch.environmentCount * taskLayout.actorObservationSize,
+                            .resetMaskOffsetElements =
+                                static_cast<std::size_t>(controlStep) * batch.environmentCount,
+                            .seed = config.taskSeed,
+                            .taskFingerprint = config.taskProgram.fingerprint(),
+                            .policyRevision = batch.policyRevision,
+                            .controlStep = controlStep,
+                            .controlStepCount = static_cast<std::uint32_t>(
+                                batch.controlStepCount
+                            ),
+                            .environmentCount = static_cast<std::uint32_t>(batch.environmentCount),
+                            .nq = diagnostics.layout.dispatch.nq,
+                            .nv = diagnostics.layout.dispatch.nv,
+                            .actionCount = taskLayout.actionCount,
+                            .actorObservationSize = taskLayout.actorObservationSize,
+                            .contactMetricCount = taskLayout.contactMetricCount,
+                        };
+                        if (!config.deviceActionProgram.encode(
+                                config.deviceActionProgram.context, action)) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalWorldHostStatus::metalCommandFailure,
+                                "device action program rejected the native task submission"
                             );
                         }
                     }

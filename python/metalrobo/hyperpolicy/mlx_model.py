@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
-from typing import Sequence
 
 import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
+
 
 @dataclass(frozen=True, slots=True)
 class ARDYHyperPolicyConfiguration:
@@ -45,7 +45,8 @@ class ARDYHyperPolicyConfiguration:
                 self.maximum_frames,
                 self.decoder_hidden_width,
                 self.decoder_layers,
-            ) <= 0
+            )
+            <= 0
             or self.model_width % self.attention_heads != 0
             or self.local_phase_sigma <= 0.0
             or self.minimum_uncertainty <= 0.0
@@ -106,8 +107,7 @@ class _RMSNorm(nn.Module):
 
     def __call__(self, value: mx.array) -> mx.array:
         inverse = 1.0 / mx.sqrt(
-            mx.mean(mx.square(value), axis=-1, keepdims=True)
-            + self.epsilon
+            mx.mean(mx.square(value), axis=-1, keepdims=True) + self.epsilon
         )
         return value * inverse * self.weight + self.bias
 
@@ -140,9 +140,9 @@ class _SelfAttention(nn.Module):
         query = split_heads(query)
         key = split_heads(key)
         payload = split_heads(payload)
-        score = (
-            query @ mx.transpose(key, (0, 1, 3, 2))
-        ) * (1.0 / math.sqrt(float(self.head_width)))
+        score = (query @ mx.transpose(key, (0, 1, 3, 2))) * (
+            1.0 / math.sqrt(float(self.head_width))
+        )
         key_mask = valid_mask[:, None, None, :]
         score = score + (1.0 - key_mask) * -1.0e4
         weight = mx.softmax(score, axis=-1)
@@ -180,12 +180,11 @@ class _TransformerBlock(nn.Module):
         self.feed_forward = _FeedForward(width, feed_forward_width)
 
     def __call__(self, value: mx.array, valid_mask: mx.array) -> mx.array:
-        value = value + self.attention(
-            self.attention_norm(value), valid_mask
+        value = value + self.attention(self.attention_norm(value), valid_mask)
+        value = (
+            value
+            + self.feed_forward(self.feed_forward_norm(value)) * valid_mask[..., None]
         )
-        value = value + self.feed_forward(
-            self.feed_forward_norm(value)
-        ) * valid_mask[..., None]
         return value
 
 
@@ -210,18 +209,14 @@ class ARDYMotionEncoder(nn.Module):
         feature_inverse_standard_deviation = (
             np.ones(configuration.feature_count, dtype=np.float32)
             if feature_inverse_standard_deviation is None
-            else np.asarray(
-                feature_inverse_standard_deviation, dtype=np.float32
-            )
+            else np.asarray(feature_inverse_standard_deviation, dtype=np.float32)
         )
         if (
             feature_mean.shape != (configuration.feature_count,)
             or feature_inverse_standard_deviation.shape
             != (configuration.feature_count,)
             or not np.isfinite(feature_mean).all()
-            or not np.isfinite(
-                feature_inverse_standard_deviation
-            ).all()
+            or not np.isfinite(feature_inverse_standard_deviation).all()
             or np.any(feature_inverse_standard_deviation <= 0.0)
         ):
             raise ValueError("motion feature normalization is invalid")
@@ -251,9 +246,7 @@ class ARDYMotionEncoder(nn.Module):
             for _ in range(configuration.transformer_blocks)
         ]
         self.final_norm = _RMSNorm(configuration.model_width)
-        self.pool_query = mx.zeros(
-            (configuration.model_width,), dtype=mx.float32
-        )
+        self.pool_query = mx.zeros((configuration.model_width,), dtype=mx.float32)
         self.position_encoding = mx.array(
             _sinusoidal_encoding(
                 configuration.maximum_frames,
@@ -292,16 +285,15 @@ class ARDYMotionEncoder(nn.Module):
         ) * self.feature_inverse_standard_deviation
         value = self.input_projection(mx.clip(normalized, -12.0, 12.0))
         value = (
-            value
-            + self.position_encoding[: int(frames)][None, :, :]
+            value + self.position_encoding[: int(frames)][None, :, :]
         ) * valid_mask[..., None]
         for block in self.blocks:
             value = block(value, valid_mask)
         value = self.final_norm(value) * valid_mask[..., None]
 
-        pool_score = mx.sum(
-            value * self.pool_query[None, None, :], axis=-1
-        ) * (1.0 / math.sqrt(float(self.configuration.model_width)))
+        pool_score = mx.sum(value * self.pool_query[None, None, :], axis=-1) * (
+            1.0 / math.sqrt(float(self.configuration.model_width))
+        )
         pool_score = pool_score + (1.0 - valid_mask) * -1.0e4
         pool_weight = mx.softmax(pool_score, axis=1) * valid_mask
         pool_weight = pool_weight / mx.maximum(
@@ -313,11 +305,7 @@ class ARDYMotionEncoder(nn.Module):
             knot_phases[:, :, None] - frame_phases[:, None, :]
         ) / self.configuration.local_phase_sigma
         local_weight = mx.exp(-0.5 * mx.square(phase_delta))
-        local_weight = (
-            local_weight
-            * valid_mask[:, None, :]
-            * knot_mask[:, :, None]
-        )
+        local_weight = local_weight * valid_mask[:, None, :] * knot_mask[:, :, None]
         local_weight = local_weight / mx.maximum(
             mx.sum(local_weight, axis=-1, keepdims=True), 1.0e-6
         )
@@ -352,9 +340,7 @@ class MotionAdapterDecoder(nn.Module):
             )
             previous = configuration.decoder_hidden_width
         output_count = (
-            2 * configuration.coefficient_count
-            + configuration.action_count
-            + 1
+            2 * configuration.coefficient_count + configuration.action_count + 1
         )
         layers.append(nn.Linear(previous, output_count, bias=True))
         self.knot_decoder = nn.Sequential(*layers)
@@ -383,9 +369,7 @@ class MotionAdapterDecoder(nn.Module):
         )
         # A zero final mean gives exact base-policy behavior before training.
         final = [
-            layer
-            for layer in self.knot_decoder.layers
-            if isinstance(layer, nn.Linear)
+            layer for layer in self.knot_decoder.layers if isinstance(layer, nn.Linear)
         ][-1]
         final.weight = mx.zeros_like(final.weight)
         final.bias = mx.zeros_like(final.bias)
@@ -417,9 +401,7 @@ class MotionAdapterDecoder(nn.Module):
         coefficient_count = self.configuration.coefficient_count
         action_count = self.configuration.action_count
         mean_raw = decoded[..., :coefficient_count]
-        uncertainty_raw = decoded[
-            ..., coefficient_count : 2 * coefficient_count
-        ]
+        uncertainty_raw = decoded[..., coefficient_count : 2 * coefficient_count]
         authority_raw = decoded[
             ...,
             2 * coefficient_count : 2 * coefficient_count + action_count,
@@ -434,9 +416,7 @@ class MotionAdapterDecoder(nn.Module):
         authority = _sigmoid(authority_raw)
         phase_rate = 1.5 * _sigmoid(phase_rate_raw)
         failure = _sigmoid(self.failure_head(global_code).squeeze(-1))
-        out_of_distribution = _softplus(
-            self.ood_head(global_code).squeeze(-1)
-        )
+        out_of_distribution = _softplus(self.ood_head(global_code).squeeze(-1))
         return HyperNetworkOutput(
             coefficient_mean=mean * knot_mask[..., None],
             coefficient_uncertainty=uncertainty * knot_mask[..., None],
@@ -462,9 +442,7 @@ class ARDYHyperNetwork(nn.Module):
         self.encoder = ARDYMotionEncoder(
             configuration,
             feature_mean=feature_mean,
-            feature_inverse_standard_deviation=(
-                feature_inverse_standard_deviation
-            ),
+            feature_inverse_standard_deviation=(feature_inverse_standard_deviation),
         )
         self.decoder = MotionAdapterDecoder(configuration)
 
@@ -493,9 +471,12 @@ class ARDYHyperNetwork(nn.Module):
         )
 
 
-
-from .mlx_actor import (
-    ARDYMotionConditionedPolicy, PhaseVaryingLowRankActor,
-    _initialize_module, _phase_fourier_mx, _sigmoid, _sinusoidal_encoding,
+from .mlx_actor import (  # noqa: E402
+    ARDYMotionConditionedPolicy as ARDYMotionConditionedPolicy,
+    PhaseVaryingLowRankActor as PhaseVaryingLowRankActor,
+    _initialize_module,
+    _phase_fourier_mx,
+    _sigmoid,
+    _sinusoidal_encoding,
     _softplus,
 )

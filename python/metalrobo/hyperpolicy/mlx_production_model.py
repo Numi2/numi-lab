@@ -31,9 +31,7 @@ class MotionAdapterDecoder(_MotionAdapterDecoder):
     def __init__(self, configuration: ARDYHyperPolicyConfiguration) -> None:
         super().__init__(configuration)
         final = [
-            layer
-            for layer in self.knot_decoder.layers
-            if isinstance(layer, nn.Linear)
+            layer for layer in self.knot_decoder.layers if isinstance(layer, nn.Linear)
         ][-1]
         output_count = int(final.bias.shape[0])
         coefficient_count = configuration.coefficient_count
@@ -45,8 +43,7 @@ class MotionAdapterDecoder(_MotionAdapterDecoder):
             max(configuration.minimum_uncertainty, 0.01),
         )
         uncertainty_span = (
-            configuration.maximum_uncertainty
-            - configuration.minimum_uncertainty
+            configuration.maximum_uncertainty - configuration.minimum_uncertainty
         )
         if uncertainty_span > 0.0:
             probability = np.clip(
@@ -61,9 +58,9 @@ class MotionAdapterDecoder(_MotionAdapterDecoder):
 
         # Generated residuals begin almost disabled. The immutable reference
         # action still executes, while physical teacher data earns authority.
-        bias[
-            2 * coefficient_count : 2 * coefficient_count + action_count
-        ] = math.log(0.01 / 0.99)
+        bias[2 * coefficient_count : 2 * coefficient_count + action_count] = math.log(
+            0.01 / 0.99
+        )
 
         # Decoder emits 1.5 * sigmoid(raw); log(2) maps exactly to 1.0.
         bias[-1] = math.log(2.0)
@@ -87,9 +84,7 @@ class ARDYHyperNetwork(nn.Module):
         self.encoder = ARDYMotionEncoder(
             configuration,
             feature_mean=feature_mean,
-            feature_inverse_standard_deviation=(
-                feature_inverse_standard_deviation
-            ),
+            feature_inverse_standard_deviation=(feature_inverse_standard_deviation),
         )
         self.decoder = MotionAdapterDecoder(configuration)
 

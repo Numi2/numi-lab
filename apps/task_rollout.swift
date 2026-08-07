@@ -164,6 +164,7 @@ private struct Options {
     var actionStream: String?
     var scheduledResets = true
     var policyPack: String?
+    var hyperPolicyPack: String?
     var rolloutPack: String?
     var interactionPack: String?
     var interactionClip: String?
@@ -351,6 +352,9 @@ private struct Options {
             case "--policy-pack":
                 policyPack = try value()
                 index += 1
+            case "--hyper-policy-pack":
+                hyperPolicyPack = try value()
+                index += 1
             case "--rollout-pack":
                 rolloutPack = try value()
                 index += 1
@@ -477,28 +481,32 @@ private struct Options {
                 "difficulty-band overrides require an ordered non-negative minimum and maximum."
             )
         }
-        if nativePolicy && policyPack != nil {
+        let compiledPolicyCount =
+            (nativePolicy ? 1 : 0) +
+            (policyPack == nil ? 0 : 1) +
+            (hyperPolicyPack == nil ? 0 : 1)
+        if compiledPolicyCount > 1 {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--native-policy and --policy-pack are mutually exclusive."
+                "--native-policy, --policy-pack, and --hyper-policy-pack are mutually exclusive."
             )
         }
-        if zeroActions && (nativePolicy || policyPack != nil) {
+        if zeroActions && (nativePolicy || policyPack != nil || hyperPolicyPack != nil) {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--zero-actions cannot be combined with a compiled policy."
             )
         }
         if actionStream != nil &&
-            (zeroActions || nativePolicy || policyPack != nil)
+            (zeroActions || nativePolicy || policyPack != nil || hyperPolicyPack != nil)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--action-stream cannot be combined with another action source."
             )
         }
         if rolloutPack != nil &&
-            !nativePolicy && policyPack == nil
+            !nativePolicy && policyPack == nil && hyperPolicyPack == nil
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--rollout-pack requires --native-policy or --policy-pack."
+                "--rollout-pack requires --native-policy, --policy-pack, or --hyper-policy-pack."
             )
         }
         if worldPack != nil && urdf != nil {
@@ -977,9 +985,15 @@ private enum TaskRolloutMain {
                     expectedCount: elements.partialValue
                 )
             }
+            let usesHyperPolicy = options.hyperPolicyPack != nil
             let usesCompiledPolicy =
-                options.nativePolicy || options.policyPack != nil
-            if let policyPack = options.policyPack {
+                options.nativePolicy || options.policyPack != nil ||
+                usesHyperPolicy
+            if let hyperPolicyPack = options.hyperPolicyPack {
+                try context.loadHyperPolicy(
+                    at: URL(fileURLWithPath: hyperPolicyPack)
+                )
+            } else if let policyPack = options.policyPack {
                 try context.loadPolicy(
                     at: URL(fileURLWithPath: policyPack)
                 )
@@ -1066,87 +1080,81 @@ private enum TaskRolloutMain {
             }
             var installedPolicyRevision: UInt64 = 0
             if usesCompiledPolicy {
-                _ = try context.advanceWithPolicy(
-                    resetMasks: [UInt32](
-                        repeating: 0,
-                        count: options.environments
-                    ),
-                    controlStepCount: 1
-                )
-                let revisions = try context.transitions(
-                    controlStepCount: 1
-                ).map(\.policyRevision)
-                guard let revision = revisions.first,
-                      revision != 0,
-                      revisions.allSatisfy({ $0 == revision })
-                else {
+                installedPolicyRevision = context.installedPolicyRevision
+                guard installedPolicyRevision != 0 else {
                     throw MetalRoboTaskRolloutError.native(
-                        "Native policy revision was not attached to transitions."
+                        "Installed policy did not publish a revision."
                     )
                 }
-                installedPolicyRevision = revision
-                let policyLogProbabilities =
-                    try context.policyLogProbabilities(
+                if !usesHyperPolicy {
+                    _ = try context.advanceWithPolicy(
+                        resetMasks: [UInt32](
+                            repeating: 0,
+                            count: options.environments
+                        ),
                         controlStepCount: 1
                     )
-                let policyValues =
-                    try context.policyValues(
+                    let revisions = try context.transitions(
+                        controlStepCount: 1
+                    ).map(\.policyRevision)
+                    guard revisions.allSatisfy({
+                        $0 == installedPolicyRevision
+                    }) else {
+                        throw MetalRoboTaskRolloutError.native(
+                            "Native policy revision was not attached to transitions."
+                        )
+                    }
+                    let policyLogProbabilities =
+                        try context.policyLogProbabilities(
+                            controlStepCount: 1
+                        )
+                    let policyValues = try context.policyValues(
                         controlStepCount: 1
                     )
-                let policyLatents =
-                    try context.policyLatents(
+                    let policyLatents = try context.policyLatents(
                         controlStepCount: 1
                     )
-                guard
-                    policyLogProbabilities
-                        .allSatisfy(\.isFinite),
-                    policyValues.allSatisfy(\.isFinite),
-                    policyLatents.allSatisfy(\.isFinite)
-                else {
-                    throw MetalRoboTaskRolloutError.native(
-                        "Native policy produced non-finite PPO records."
-                    )
-                }
-                if options.nativePolicy {
-                    let currentLayout = context.layout
-                    let logStandardDeviation = -2.0
-                    let standardDeviation =
-                        Foundation.exp(logStandardDeviation)
-                    let halfLogTwoPi =
-                        0.5 * Foundation.log(2 * Double.pi)
-                    for environment in 0..<options.environments {
-                        var expected = 0.0
-                        let base =
-                            environment *
-                            currentLayout.actionCount
-                        for action in
-                            0..<currentLayout.actionCount
-                        {
-                            let latent = Double(
-                                policyLatents[base + action]
-                            )
-                            let normal =
-                                latent / standardDeviation
-                            let gaussian =
-                                -0.5 * normal * normal -
-                                logStandardDeviation -
-                                halfLogTwoPi
-                            expected += gaussian
-                        }
-                        guard abs(
-                            expected -
-                            Double(
-                                policyLogProbabilities[
-                                    environment
-                                ]
-                            )
-                        ) < 2.0e-3,
-                              abs(policyValues[environment]) <
-                                  1.0e-6
-                        else {
-                            throw MetalRoboTaskRolloutError.native(
-                                "Native stochastic-policy record disagrees with the reference distribution."
-                            )
+                    guard
+                        policyLogProbabilities.allSatisfy(\.isFinite),
+                        policyValues.allSatisfy(\.isFinite),
+                        policyLatents.allSatisfy(\.isFinite)
+                    else {
+                        throw MetalRoboTaskRolloutError.native(
+                            "Native policy produced non-finite PPO records."
+                        )
+                    }
+                    if options.nativePolicy {
+                        let currentLayout = context.layout
+                        let logStandardDeviation = -2.0
+                        let standardDeviation =
+                            Foundation.exp(logStandardDeviation)
+                        let halfLogTwoPi =
+                            0.5 * Foundation.log(2 * Double.pi)
+                        for environment in 0..<options.environments {
+                            var expected = 0.0
+                            let base =
+                                environment * currentLayout.actionCount
+                            for action in 0..<currentLayout.actionCount {
+                                let latent = Double(
+                                    policyLatents[base + action]
+                                )
+                                let normal = latent / standardDeviation
+                                expected +=
+                                    -0.5 * normal * normal -
+                                    logStandardDeviation - halfLogTwoPi
+                            }
+                            guard abs(
+                                expected -
+                                    Double(
+                                        policyLogProbabilities[environment]
+                                    )
+                            ) < 2.0e-3,
+                                abs(policyValues[environment]) < 1.0e-6
+                            else {
+                                throw MetalRoboTaskRolloutError.native(
+                                    "Native stochastic-policy record disagrees with the reference distribution."
+                                )
+                            }
                         }
                     }
                 }
@@ -1398,6 +1406,7 @@ private enum TaskRolloutMain {
                             policyRevision:
                                 installedPolicyRevision,
                             evaluateFinalPolicy:
+                                !usesHyperPolicy &&
                                 options.rolloutPack != nil &&
                                 repeatIndex + 1 ==
                                     options.repeats &&
@@ -2240,7 +2249,9 @@ private enum TaskRolloutMain {
                 ),
                 "world_source": worldSource,
                 "action_source":
-                    options.policyPack != nil
+                    options.hyperPolicyPack != nil
+                    ? "hyper_policy_pack"
+                    : options.policyPack != nil
                     ? "policy_pack"
                     : options.nativePolicy
                     ? "compiled_policy"

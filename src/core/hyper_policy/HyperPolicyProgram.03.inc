@@ -51,6 +51,12 @@
             eventOffset,
             logStdOffset,
         },
+        .offsets5 = {
+            contactGroupIndexOffset,
+            0u,
+            0u,
+            0u,
+        },
         .limits0 = {
             pack.observationClip,
             pack.actionClip,

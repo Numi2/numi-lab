@@ -80,6 +80,10 @@ struct HyperPolicyPack {
     std::vector<float> signatureWeights;
     std::uint32_t contactTrackCount = 0u;
     std::vector<std::uint32_t> referenceContactMasks;
+    // Maps each generated contact track to one compiled TaskPack
+    // contact group. The runtime reads only solved compact contact
+    // loads from these groups; ARDY contact modes remain intent.
+    std::vector<std::uint32_t> contactGroupIndices;
     std::vector<HyperPolicyEventGuard> events;
 
     // Independently authored physical actuator envelope.  The hypernetwork may

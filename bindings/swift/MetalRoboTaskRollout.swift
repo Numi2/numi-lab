@@ -933,6 +933,8 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
     public let latents: [Float]
     public let logProbabilities: [Float]
     public let values: [Float]
+    // Exact event-synchronised phase; empty for ordinary policies.
+    public let hyperPolicyPhases: [Float]
     public let transitions: [MetalRoboTaskTransition]
 
     public var sampleCount: Int {
@@ -995,6 +997,8 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
             logProbabilities:
                 batches.flatMap(\.logProbabilities),
             values: batches.flatMap(\.values),
+            hyperPolicyPhases:
+                batches.flatMap(\.hyperPolicyPhases),
             transitions: batches.flatMap(\.transitions)
         )
     }
@@ -1538,6 +1542,21 @@ public final class MetalRoboTaskRolloutContext {
         }
     }
 
+    public func loadHyperPolicy(at url: URL) throws {
+        let status = url.path.withCString {
+            mr_task_rollout_load_hyper_policy_pack(handle, $0)
+        }
+        guard status == 0 else {
+            throw MetalRoboTaskRolloutError.native(
+                Self.lastError()
+            )
+        }
+    }
+
+    public var installedPolicyRevision: UInt64 {
+        mr_task_rollout_policy_revision(handle)
+    }
+
     public func loadPolicy(at url: URL) throws {
         let status = url.path.withCString {
             mr_task_rollout_load_policy_pack(handle, $0)
@@ -1892,6 +1911,18 @@ public final class MetalRoboTaskRolloutContext {
         ))
     }
 
+    public func hyperPolicyPhases(
+        controlStepCount: Int
+    ) -> [Float] {
+        let count = controlStepCount * layout.environmentCount
+        guard let values =
+                mr_task_rollout_hyper_policy_phases(handle)
+        else { return [] }
+        return Array(
+            UnsafeBufferPointer(start: values, count: count)
+        )
+    }
+
     public func policyLatents(
         controlStepCount: Int
     ) throws -> [Float] {
@@ -2028,6 +2059,9 @@ public final class MetalRoboTaskRolloutContext {
                     controlStepCount: controlStepCount
                 ),
             values: try policyValues(
+                controlStepCount: controlStepCount
+            ),
+            hyperPolicyPhases: hyperPolicyPhases(
                 controlStepCount: controlStepCount
             ),
             transitions: try transitions(
@@ -2181,6 +2215,8 @@ public final class MetalRoboTaskRolloutContext {
               batch.logProbabilities.count ==
                   batch.sampleCount,
               batch.values.count == batch.sampleCount,
+              batch.hyperPolicyPhases.isEmpty ||
+                  batch.hyperPolicyPhases.count == batch.sampleCount,
               batch.transitions.count == batch.sampleCount
         else {
             throw MetalRoboTaskRolloutError.invalidShape(
@@ -2202,6 +2238,8 @@ public final class MetalRoboTaskRolloutContext {
         native.value_count = batch.values.count
         native.bootstrap_value_count =
             bootstrapValues.count
+        native.hyper_policy_phase_count =
+            batch.hyperPolicyPhases.count
         let nativeTransitions = batch.transitions.map {
             transition in
             var value = MRTaskTransitionC()
@@ -2267,6 +2305,7 @@ public final class MetalRoboTaskRolloutContext {
                 batch.logProbabilities,
                 batch.values,
                 bootstrapValues,
+                batch.hyperPolicyPhases,
             ]
         ) { buffers in
             native.actor_observations = buffers[0].baseAddress
@@ -2277,6 +2316,7 @@ public final class MetalRoboTaskRolloutContext {
             native.log_probabilities = buffers[5].baseAddress
             native.values = buffers[6].baseAddress
             native.bootstrap_values = buffers[7].baseAddress
+            native.hyper_policy_phases = buffers[8].baseAddress
             return nativeTransitions.withUnsafeBufferPointer {
                 transitions in
                 native.transitions = transitions.baseAddress

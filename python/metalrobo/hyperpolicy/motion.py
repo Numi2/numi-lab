@@ -5,20 +5,33 @@ from __future__ import annotations
 from dataclasses import dataclass
 import hashlib
 import math
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping
 
 import numpy as np
 
 from .common import (
-    MotionEvent, MotionEventKind, _array_sha256, _canonical_json,
-    _canonicalize_heading, _finite_difference, _quaternion_angular_velocity,
-    _quaternion_log, _quaternion_to_matrix, _resample_cubic_limited,
-    _resample_linear, _resample_quaternion, _sample_rows_linear,
+    MotionEvent,
+    MotionEventKind,
+    _array_sha256,
+    _canonical_json,
+    _canonicalize_heading,
+    _finite_difference,
+    _quaternion_angular_velocity,
+    _quaternion_log,
+    _quaternion_to_matrix,
+    _resample_cubic_limited,
+    _resample_linear,
+    _resample_quaternion,
+    _sample_rows_linear,
 )
 from .motion_events import (
-    _adaptive_knot_phases, _event_frame_features, _extract_motion_events,
-    _phase_fourier_features, _select_tracked_links,
+    _adaptive_knot_phases,
+    _event_frame_features,
+    _extract_motion_events,
+    _phase_fourier_features,
+    _select_tracked_links,
 )
+
 
 @dataclass(frozen=True, slots=True)
 class CanonicalARDYMotion:
@@ -78,9 +91,7 @@ class CanonicalARDYMotion:
             or self.contact_confidence.shape != (frames, contacts)
             or self.features.shape != (frames, len(self.feature_schema))
             or self.reference_signature.shape[0] != frames
-            or self.signature_weights.shape != (
-                self.reference_signature.shape[1],
-            )
+            or self.signature_weights.shape != (self.reference_signature.shape[1],)
             or self.knot_phases.ndim != 1
             or self.knot_phases.size < 2
             or self.knot_event_features.shape[0] != self.knot_phases.size
@@ -142,14 +153,10 @@ class CanonicalARDYMotion:
         intent and are consumed only as reference features and event guards.
         """
 
-        root = np.asarray(
-            arrays["root_position_quaternion_xyzw"], dtype=np.float64
-        )
+        root = np.asarray(arrays["root_position_quaternion_xyzw"], dtype=np.float64)
         joints = np.asarray(arrays["joint_positions"], dtype=np.float64)
         raw_contacts = np.asarray(arrays["foot_contacts"], dtype=np.uint8)
-        raw_contact_scores = np.asarray(
-            arrays["foot_contact_scores"], dtype=np.float64
-        )
+        raw_contact_scores = np.asarray(arrays["foot_contact_scores"], dtype=np.float64)
         link_names_array = np.asarray(
             arrays.get("link_names", np.empty(0, dtype=np.str_))
         )
@@ -191,15 +198,9 @@ class CanonicalARDYMotion:
         source_time = np.linspace(0.0, source_duration, root.shape[0])
         target_time = np.linspace(0.0, source_duration, target_frame_count)
 
-        root_position = _resample_cubic_limited(
-            source_time, root[:, :3], target_time
-        )
-        root_rotation = _resample_quaternion(
-            source_time, root[:, 3:], target_time
-        )
-        joint_positions = _resample_cubic_limited(
-            source_time, joints, target_time
-        )
+        root_position = _resample_cubic_limited(source_time, root[:, :3], target_time)
+        root_rotation = _resample_quaternion(source_time, root[:, 3:], target_time)
+        joint_positions = _resample_cubic_limited(source_time, joints, target_time)
         contact_probabilities = np.stack(
             (
                 np.max(raw_contact_scores[:, :2], axis=1),
@@ -220,9 +221,7 @@ class CanonicalARDYMotion:
             tuple(str(value) for value in link_names_array.tolist()),
             maximum_tracked_links,
         )
-        tracked_names = tuple(
-            str(link_names_array[index]) for index in tracked_indices
-        )
+        tracked_names = tuple(str(link_names_array[index]) for index in tracked_indices)
         if tracked_indices:
             tracked_position = np.empty(
                 (target_frame_count, len(tracked_indices), 3),
@@ -235,9 +234,7 @@ class CanonicalARDYMotion:
                     target_time,
                 )
         else:
-            tracked_position = np.empty(
-                (target_frame_count, 0, 3), dtype=np.float64
-            )
+            tracked_position = np.empty((target_frame_count, 0, 3), dtype=np.float64)
 
         root_rotation, root_position, tracked_position = _canonicalize_heading(
             root_rotation, root_position, tracked_position
@@ -246,12 +243,8 @@ class CanonicalARDYMotion:
         joint_velocity = _finite_difference(joint_positions, target_time)
         joint_acceleration = _finite_difference(joint_velocity, target_time)
         root_linear_velocity = _finite_difference(root_position, target_time)
-        root_linear_acceleration = _finite_difference(
-            root_linear_velocity, target_time
-        )
-        root_angular_velocity = _quaternion_angular_velocity(
-            root_rotation, target_time
-        )
+        root_linear_acceleration = _finite_difference(root_linear_velocity, target_time)
+        root_angular_velocity = _quaternion_angular_velocity(root_rotation, target_time)
         tracked_relative = tracked_position - root_position[:, None, :]
         tracked_velocity = _finite_difference(tracked_relative, target_time)
         phases = np.linspace(0.0, 1.0, target_frame_count, dtype=np.float64)
@@ -270,16 +263,14 @@ class CanonicalARDYMotion:
             maximum_interval_seconds=maximum_knot_interval_seconds,
             maximum_knot_count=maximum_knot_count,
         )
-        event_frame_features = _event_frame_features(
-            target_frame_count, events
-        )
+        event_frame_features = _event_frame_features(target_frame_count, events)
         knot_event_features = _sample_rows_linear(
             phases, event_frame_features, knot_phases
         )
 
-        rotation_6d = _quaternion_to_matrix(root_rotation)[
-            :, :, :2
-        ].reshape(target_frame_count, 6)
+        rotation_6d = _quaternion_to_matrix(root_rotation)[:, :, :2].reshape(
+            target_frame_count, 6
+        )
         phase_features = _phase_fourier_features(phases, harmonics=4)
 
         feature_parts: list[np.ndarray] = [
@@ -298,9 +289,15 @@ class CanonicalARDYMotion:
             event_frame_features,
         ]
         feature_schema: list[str] = []
-        feature_schema.extend(f"joint.position.{index}" for index in range(joints.shape[1]))
-        feature_schema.extend(f"joint.velocity.{index}" for index in range(joints.shape[1]))
-        feature_schema.extend(f"joint.acceleration.{index}" for index in range(joints.shape[1]))
+        feature_schema.extend(
+            f"joint.position.{index}" for index in range(joints.shape[1])
+        )
+        feature_schema.extend(
+            f"joint.velocity.{index}" for index in range(joints.shape[1])
+        )
+        feature_schema.extend(
+            f"joint.acceleration.{index}" for index in range(joints.shape[1])
+        )
         feature_schema.extend(f"root.rotation6d.{index}" for index in range(6))
         feature_schema.extend(f"root.linear_velocity.{axis}" for axis in "xyz")
         feature_schema.extend(f"root.angular_velocity.{axis}" for axis in "xyz")
@@ -312,15 +309,14 @@ class CanonicalARDYMotion:
         feature_schema.extend(
             f"phase.fourier.{index}" for index in range(phase_features.shape[1])
         )
-        feature_schema.extend(
-            f"event.{kind.name}"
-            for kind in MotionEventKind
-        )
+        feature_schema.extend(f"event.{kind.name}" for kind in MotionEventKind)
         if tracked_relative.shape[1]:
-            feature_parts.extend((
-                tracked_relative.reshape(target_frame_count, -1),
-                tracked_velocity.reshape(target_frame_count, -1),
-            ))
+            feature_parts.extend(
+                (
+                    tracked_relative.reshape(target_frame_count, -1),
+                    tracked_velocity.reshape(target_frame_count, -1),
+                )
+            )
             for name in tracked_names:
                 feature_schema.extend(
                     f"link.{name}.relative_position.{axis}" for axis in "xyz"
@@ -356,9 +352,7 @@ class CanonicalARDYMotion:
 
         source_record = {
             "arrays_fingerprint": str(
-                evidence.get("source_motion", {}).get(
-                    "arrays_fingerprint", ""
-                )
+                evidence.get("source_motion", {}).get("arrays_fingerprint", "")
             ),
             "model_revision": str(
                 evidence.get("source_motion", {}).get("model_revision", "")
@@ -372,9 +366,7 @@ class CanonicalARDYMotion:
             "joint_sha256": _array_sha256(joint_positions),
             "contact_sha256": _array_sha256(contact_probabilities),
         }
-        source_fingerprint = hashlib.sha256(
-            _canonical_json(source_record)
-        ).hexdigest()
+        source_fingerprint = hashlib.sha256(_canonical_json(source_record)).hexdigest()
         motion = cls(
             source_fingerprint=source_fingerprint,
             prompt=str(evidence.get("source_motion", {}).get("prompt", "")),
@@ -397,5 +389,3 @@ class CanonicalARDYMotion:
         )
         motion.validate()
         return motion
-
-
