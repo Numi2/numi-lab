@@ -1,5 +1,6 @@
 #include "metalrobo/LearningPacks.hpp"
 #include "metalrobo/RobotDescriptionCooker.hpp"
+#include "metalrobo/VisualPresentation.hpp"
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -189,6 +190,95 @@ struct Arguments {
         throw std::runtime_error(
             "official K1 collision normalization did not remove the three "
             "high-detail mesh colliders");
+    }
+    return target;
+}
+
+[[nodiscard]] std::filesystem::path writeVisualURDF(
+    const std::filesystem::path& source,
+    const std::filesystem::path& output
+) {
+    const std::filesystem::path target = output / "k1-visual.urdf";
+    const std::filesystem::path packageRoot =
+        source / "ai_sapiens_description";
+    xmlDocPtr document = xmlReadFile(
+        urdfPath(source).c_str(), nullptr, XML_PARSE_NONET);
+    if (document == nullptr) {
+        throw std::runtime_error("could not parse official K1 visual URDF");
+    }
+    constexpr std::string_view kPackagePrefix =
+        "package://ai_sapiens_description/";
+    std::size_t resolvedMeshes = 0u;
+    for (xmlNodePtr link = xmlDocGetRootElement(document)->children;
+         link != nullptr;
+         link = link->next) {
+        if (link->type != XML_ELEMENT_NODE ||
+            xmlStrcmp(link->name, BAD_CAST "link") != 0) {
+            continue;
+        }
+        for (xmlNodePtr visual = link->children;
+             visual != nullptr;
+             visual = visual->next) {
+            if (visual->type != XML_ELEMENT_NODE ||
+                xmlStrcmp(visual->name, BAD_CAST "visual") != 0) {
+                continue;
+            }
+            for (xmlNodePtr geometry = visual->children;
+                 geometry != nullptr;
+                 geometry = geometry->next) {
+                if (geometry->type != XML_ELEMENT_NODE ||
+                    xmlStrcmp(geometry->name, BAD_CAST "geometry") != 0) {
+                    continue;
+                }
+                for (xmlNodePtr mesh = geometry->children;
+                     mesh != nullptr;
+                     mesh = mesh->next) {
+                    if (mesh->type != XML_ELEMENT_NODE ||
+                        xmlStrcmp(mesh->name, BAD_CAST "mesh") != 0) {
+                        continue;
+                    }
+                    xmlChar* rawFilename = xmlGetProp(
+                        mesh, BAD_CAST "filename");
+                    const std::string filename = rawFilename == nullptr
+                        ? std::string{}
+                        : reinterpret_cast<const char*>(rawFilename);
+                    xmlFree(rawFilename);
+                    if (!filename.starts_with(kPackagePrefix)) {
+                        xmlFreeDoc(document);
+                        throw std::runtime_error(
+                            "official K1 visual mesh does not use the expected package URI: " +
+                            filename
+                        );
+                    }
+                    const std::filesystem::path meshPath = packageRoot /
+                        filename.substr(kPackagePrefix.size());
+                    if (!std::filesystem::is_regular_file(meshPath)) {
+                        xmlFreeDoc(document);
+                        throw std::runtime_error(
+                            "official K1 visual mesh is missing: " +
+                            meshPath.string()
+                        );
+                    }
+                    const std::filesystem::path relative =
+                        std::filesystem::relative(meshPath, target.parent_path());
+                    const std::string localPath = relative.generic_string();
+                    xmlSetProp(
+                        mesh,
+                        BAD_CAST "filename",
+                        BAD_CAST localPath.c_str()
+                    );
+                    ++resolvedMeshes;
+                }
+            }
+        }
+    }
+    const int saved = xmlSaveFormatFileEnc(
+        target.c_str(), document, "UTF-8", 1);
+    xmlFreeDoc(document);
+    if (resolvedMeshes == 0u || saved < 0) {
+        throw std::runtime_error(
+            "official K1 visual URDF has no resolved mesh presentation"
+        );
     }
     return target;
 }
@@ -578,6 +668,86 @@ void writeOrThrow(
     }
 }
 
+void writeVisualPresentation(
+    const std::filesystem::path& visualURDF,
+    const metalrobo::EngineModel& cooked,
+    const std::filesystem::path& output
+) {
+    metalrobo::VisualAssetCookOptions cookOptions;
+    cookOptions.id = "robotis_ai_sapiens_k1";
+    cookOptions.license = "Apache-2.0";
+    cookOptions.preprocessingProvenance =
+        "ROBOTIS AI Sapiens K1;source=" +
+        std::string{kSourceRepository} + ";revision=" +
+        std::string{kSourceRevision};
+    for (std::uint32_t body = 0u;
+         body < cooked.bodyNames.size();
+         ++body) {
+        cookOptions.linkBodyIndices.emplace(cooked.bodyNames[body], body);
+    }
+    if (!cookOptions.linkBodyIndices.contains("pelvis")) {
+        throw std::runtime_error(
+            "official K1 visual camera parent pelvis is missing from cooked model"
+        );
+    }
+    std::vector<metalrobo::VisualAssetPackV2> packs;
+    const auto diagnostics = metalrobo::cookUrdfVisualDescription(
+        visualURDF, packs, cookOptions);
+    if (!diagnostics.succeeded()) {
+        throw std::runtime_error(
+            "official K1 visual cook failed [" +
+            std::string{metalrobo::visualAssetCookStatusName(
+                diagnostics.status)} + "]: " + diagnostics.message
+        );
+    }
+    const std::filesystem::path packDirectory = output / "visual";
+    std::filesystem::create_directories(packDirectory);
+    std::vector<std::filesystem::path> packPaths;
+    packPaths.reserve(packs.size());
+    for (std::size_t index = 0u; index < packs.size(); ++index) {
+        const std::filesystem::path path = packDirectory /
+            (packs[index].id + "_" + std::to_string(index) + ".mrvpack");
+        std::string reason;
+        if (!metalrobo::writeVisualAssetPack(packs[index], path, &reason)) {
+            throw std::runtime_error(
+                "could not write K1 visual pack " + path.string() + ": " +
+                reason
+            );
+        }
+        packPaths.push_back(path);
+    }
+    std::ofstream config{output / "k1-visual-observation.json"};
+    config << "{\n"
+           << "  \"format\": \"numi.visual-observation.v1\",\n"
+           << "  \"id\": \"robotis_ai_sapiens_k1_presentation_v1\",\n"
+           << "  \"packs\": [\n";
+    for (std::size_t index = 0u; index < packPaths.size(); ++index) {
+        config << "    {\"path\": \"visual/"
+               << packPaths[index].filename().string()
+               << "\", \"asset_id\": \"robot\", \"semantic_id\": 1, "
+                  "\"instance_id\": 1}"
+               << (index + 1u == packPaths.size() ? "\n" : ",\n");
+    }
+    config << "  ],\n"
+           << "  \"camera\": {\n"
+           << "    \"parent_body\": \"pelvis\",\n"
+           << "    \"position\": [0.0, 0.0, 0.0],\n"
+           << "    \"orientation\": [0.0, 0.0, 0.0, 1.0],\n"
+           << "    \"width\": 16,\n"
+           << "    \"height\": 9,\n"
+           << "    \"minimum_visible_pixels\": 1,\n"
+           << "    \"vertical_field_of_view_degrees\": 54.0,\n"
+           << "    \"nominal_rate_hz\": 50.0,\n"
+           << "    \"maximum_retained_bytes\": 0\n"
+           << "  }\n"
+           << "}\n";
+    if (!config) {
+        throw std::runtime_error(
+            "could not write K1 visual observation configuration"
+        );
+    }
+}
+
 } // namespace
 
 int main(const int argc, const char* const* argv) {
@@ -587,6 +757,8 @@ int main(const int argc, const char* const* argv) {
 
         std::filesystem::create_directories(options.output);
         const std::filesystem::path collisionURDF = writeCollisionURDF(
+            options.source, options.output);
+        const std::filesystem::path visualURDF = writeVisualURDF(
             options.source, options.output);
         metalrobo::EngineModel cooked;
         metalrobo::RobotDescriptionCookOptions cookOptions;
@@ -616,6 +788,7 @@ int main(const int argc, const char* const* argv) {
                     std::string{joint});
             }
         }
+        writeVisualPresentation(visualURDF, cooked, options.output);
 
         const auto task = options.output / "k1-velocity.taskpack";
         const auto actuators = options.output / "k1-velocity.actuatorpack";
@@ -656,6 +829,9 @@ int main(const int argc, const char* const* argv) {
                  << urdfPath(options.source).string() << "\",\n"
                  << "  \"collision_urdf\": \""
                  << collisionURDF.string() << "\",\n"
+                 << "  \"visual_urdf\": \""
+                 << visualURDF.string() << "\",\n"
+                 << "  \"visual_observation\": \"k1-visual-observation.json\",\n"
                  << "  \"urdf_fingerprint\": " << cookedResult.sourceFingerprint << ",\n"
                  << "  \"joint_count\": " << cookedResult.jointCount << ",\n"
                  << "  \"dof_count\": " << cookedResult.dofCount << ",\n"
