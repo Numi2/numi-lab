@@ -4688,11 +4688,55 @@ id<MTLComputePipelineState> makePipeline(
                                       error:error];
 }
 
+MetalWorldDiagnostics ensureGeneralizedConstraintPipeline(
+    detail::MetalWorldContextState& context,
+    MetalWorldDiagnostics diagnostics
+) {
+    if (diagnostics.layout.contactDispatch.authoredConstraintCount == 0u ||
+        context.generalizedConstraintSolvePipeline != nil) {
+        return diagnostics;
+    }
+    NSError* error = nil;
+    id<MTLComputePipelineState> pipeline = makePipeline(
+        context.device,
+        context.library,
+        @"mr_world_solve_generalized_constraints",
+        &error
+    );
+    if (pipeline == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create optional generalized-constraint pipeline: " +
+                describeError(error)
+        );
+    }
+    if (pipeline.maxTotalThreadsPerThreadgroup == 0u ||
+        pipeline.staticThreadgroupMemoryLength >
+            context.device.maxThreadgroupMemoryLength) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalDeviceUnsupported,
+            "device cannot execute the generalized-constraint kernel geometry"
+        );
+    }
+    context.generalizedConstraintSolvePipeline = pipeline;
+    ++context.stats.pipelineCreationCount;
+    return diagnostics;
+}
+
 MetalWorldDiagnostics initializeContext(
     detail::MetalWorldContextState& context,
     MetalWorldDiagnostics diagnostics
 ) {
     if (context.initialized) {
+        diagnostics = ensureGeneralizedConstraintPipeline(
+            context,
+            std::move(diagnostics)
+        );
+        if (!diagnostics.succeeded()) {
+            return diagnostics;
+        }
         diagnostics.deviceName = nsString(context.device.name);
         diagnostics.thermalState = thermalStateName(
             [NSProcessInfo processInfo].thermalState
@@ -4987,18 +5031,23 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> rodCCD = nil;
     __strong id<MTLComputePipelineState> rodCCDWitnessTag = nil;
     __strong id<MTLComputePipelineState> authoredIRSeed = nil;
-    __strong id<MTLComputePipelineState>
-        generalizedConstraintSolve = nil;
+    __strong NSString* failedContactPipelineName = nil;
+    __strong NSError* failedContactPipelineError = nil;
     auto createContactPipeline = [&](
         NSString* functionName
     ) {
-        error = nil;
-        return makePipeline(
+        NSError* pipelineError = nil;
+        id<MTLComputePipelineState> pipeline = makePipeline(
             device,
             library,
             functionName,
-            &error
+            &pipelineError
         );
+        if (pipeline == nil && failedContactPipelineName == nil) {
+            failedContactPipelineName = [functionName copy];
+            failedContactPipelineError = pipelineError;
+        }
+        return pipeline;
     };
     operatorPipeline =
         createContactPipeline(@"mr_articulated_operator");
@@ -5266,9 +5315,6 @@ MetalWorldDiagnostics initializeContext(
     authoredIRSeed = createContactPipeline(
         @"mr_world_seed_authored_constraint_ir"
     );
-    generalizedConstraintSolve = createContactPipeline(
-        @"mr_world_solve_generalized_constraints"
-    );
     if (operatorPipeline == nil ||
         parameterizedOperatorPipeline == nil ||
         bodyVelocityPipeline == nil ||
@@ -5368,13 +5414,16 @@ MetalWorldDiagnostics initializeContext(
         rodContactSolve == nil ||
         rodCommit == nil ||
         rodContactCommit == nil ||
-        authoredIRSeed == nil ||
-        generalizedConstraintSolve == nil) {
+        authoredIRSeed == nil) {
+        const std::string functionName = failedContactPipelineName == nil
+            ? std::string{"unknown"}
+            : nsString(failedContactPipelineName);
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::metalPipelineFailure,
-            "failed to create device-resident contact pipeline: " +
-                describeError(error)
+            "failed to create device-resident contact pipeline '" +
+                functionName + "': " +
+                describeError(failedContactPipelineError)
         );
     }
 
@@ -5521,8 +5570,6 @@ MetalWorldDiagnostics initializeContext(
         rodCommit.maxTotalThreadsPerThreadgroup == 0u ||
         rodContactCommit.maxTotalThreadsPerThreadgroup == 0u ||
         authoredIRSeed.maxTotalThreadsPerThreadgroup == 0u ||
-        generalizedConstraintSolve
-                .maxTotalThreadsPerThreadgroup == 0u ||
         rodStep.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
         qualityPrepare.staticThreadgroupMemoryLength >
@@ -5702,15 +5749,17 @@ MetalWorldDiagnostics initializeContext(
     context.rodCommitPipeline = rodCommit;
     context.rodContactCommitPipeline = rodContactCommit;
     context.authoredIRSeedPipeline = authoredIRSeed;
-    context.generalizedConstraintSolvePipeline =
-        generalizedConstraintSolve;
+    context.generalizedConstraintSolvePipeline = nil;
     context.stats.queriedThreadExecutionWidth =
         static_cast<std::uint32_t>(
             pairNarrowphase.threadExecutionWidth
         );
     context.initialized = true;
-    context.stats.pipelineCreationCount += 85u;
-    return diagnostics;
+    context.stats.pipelineCreationCount += 84u;
+    return ensureGeneralizedConstraintPipeline(
+        context,
+        std::move(diagnostics)
+    );
 }
 
 std::size_t growthCapacity(
@@ -13296,6 +13345,7 @@ bool encodeContactSubstep(
             sizeof(MRIndirectDispatchArgumentsGPU)
         ) ||
         (
+            context.boundContactDispatch.authoredConstraintCount != 0u &&
             !useQuality &&
             !encodeContactThreadKernel(
                 context,
@@ -13380,6 +13430,7 @@ bool encodeContactSubstep(
             )
         ) ||
         (
+            context.boundContactDispatch.authoredConstraintCount != 0u &&
             !useQuality &&
             !encodeContactThreadKernel(
                 context,

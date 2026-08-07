@@ -896,6 +896,19 @@ Outcome runCase(
         }
 
         Outcome outcome;
+        float initialMinimumHeight = std::numeric_limits<float>::infinity();
+        for (const NMParticleStateGPU& particle : world.mpm.particles) {
+            initialMinimumHeight = std::min(
+                initialMinimumHeight,
+                particle.positionAndMass.z
+            );
+        }
+        for (const NMFEMNodeStateGPU& node : world.fem.nodes) {
+            initialMinimumHeight = std::min(
+                initialMinimumHeight,
+                node.positionAndMass.z
+            );
+        }
         auto recordSnapshot = [&](const numi::matter::RuntimeStateSnapshot& snapshot) {
             require(snapshot.available, label + std::string(" snapshot: ") + snapshot.message);
             if (!snapshot.particles.empty()) {
@@ -1031,8 +1044,14 @@ Outcome runCase(
         }
         outcome.sawContactOnset = outcome.contactSamples > 0u;
         if (requireDescent) {
+            const float descentTolerance = std::max(
+                1.0e-6f,
+                std::abs(initialMinimumHeight) * 1.0e-6f
+            );
             require(
-                outcome.minimumHeight < 0.019f,
+                std::isfinite(initialMinimumHeight) &&
+                    outcome.minimumHeight <
+                        initialMinimumHeight - descentTolerance,
                 label + std::string(" did not advance under gravity")
             );
         }

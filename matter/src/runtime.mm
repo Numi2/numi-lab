@@ -489,9 +489,13 @@ RuntimeDiagnostics Runtime::initialize(
             configuration
         );
         NSError* libraryError = nil;
-        candidate->library = [candidate->device
-            newLibraryWithFile:[NSString stringWithUTF8String:metallib.string().c_str()]
-                         error:&libraryError];
+        NSString* metallibPath = [NSString
+            stringWithUTF8String:metallib.string().c_str()];
+        candidate->library = metallibPath == nil
+            ? nil
+            : [candidate->device
+                  newLibraryWithURL:[NSURL fileURLWithPath:metallibPath]
+                              error:&libraryError];
         if (candidate->library == nil) {
             diagnostics.message = "failed to load Numi Matter Metal library: " +
                 errorString(libraryError);
@@ -1245,8 +1249,6 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
         const NSUInteger objects = state.dispatch.objectCount;
         const NSUInteger particleTotal =
             environments * state.dispatch.particleCount;
-        const NSUInteger gridTotal =
-            environments * state.dispatch.gridNodeCount;
         const NSUInteger femNodeTotal =
             environments * state.dispatch.femNodeCount;
         const NSUInteger tetrahedronTotal =

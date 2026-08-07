@@ -237,18 +237,6 @@ using Mat3 = std::array<double, 9>;
     return selected;
 }
 
-struct GridKey {
-    std::uint32_t object = 0u;
-    int x = 0;
-    int y = 0;
-    int z = 0;
-
-    friend bool operator<(const GridKey& left, const GridKey& right) noexcept {
-        return std::tie(left.object, left.x, left.y, left.z) <
-            std::tie(right.object, right.x, right.y, right.z);
-    }
-};
-
 struct IncidenceEntry {
     std::uint32_t owner = 0u;
     std::uint32_t source = 0u;
@@ -287,22 +275,6 @@ void buildIncidence(
             : NM_INVALID_INDEX;
         ranges[owner] = range;
     }
-}
-
-[[nodiscard]] std::array<double, 3> quadraticWeights(const double coordinate) {
-    return {
-        0.5 * (1.5 - coordinate) * (1.5 - coordinate),
-        0.75 - (coordinate - 1.0) * (coordinate - 1.0),
-        0.5 * (coordinate - 0.5) * (coordinate - 0.5),
-    };
-}
-
-[[nodiscard]] std::array<double, 3> quadraticDerivatives(const double coordinate) {
-    return {
-        coordinate - 1.5,
-        -2.0 * (coordinate - 1.0),
-        coordinate - 0.5,
-    };
 }
 
 void appendProgram(
