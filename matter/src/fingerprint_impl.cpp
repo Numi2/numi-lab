@@ -1,0 +1,133 @@
+#include "numi/matter/detail.hpp"
+
+#include <cstddef>
+#include <cstdint>
+#include <span>
+
+namespace numi::matter {
+namespace {
+
+enum class FingerprintSection : std::uint32_t {
+    dispatch = 1u,
+    materials,
+    parameters,
+    instructions,
+    scalarPrograms,
+    objects,
+    mpmParticles,
+    mpmNodes,
+    mpmGrids,
+    mpmBlocks,
+    mpmBlockLookup,
+    mpmStencils,
+    mpmNodeIncidence,
+    mpmNodeRanges,
+    femNodes,
+    femTetrahedra,
+    femNodeIncidence,
+    femNodeRanges,
+    rigidProxies,
+    contactPairs,
+    contactNodeIncidence,
+    contactNodeRanges,
+    rigidIncidence,
+    rigidRanges,
+    adaptive,
+    schedulers,
+    identification,
+};
+
+template <typename T>
+void hashSection(
+    std::uint64_t& fingerprint,
+    const FingerprintSection section,
+    const std::span<const T> values
+) noexcept {
+    const std::uint32_t id = static_cast<std::uint32_t>(section);
+    const std::uint32_t elementSize = sizeof(T);
+    const std::uint64_t elementCount = values.size();
+    fingerprint = detail::hashBytes(&id, sizeof(id), fingerprint);
+    fingerprint = detail::hashBytes(
+        &elementSize,
+        sizeof(elementSize),
+        fingerprint
+    );
+    fingerprint = detail::hashBytes(
+        &elementCount,
+        sizeof(elementCount),
+        fingerprint
+    );
+    fingerprint = detail::hashBytes(
+        values.data(),
+        values.size_bytes(),
+        fingerprint
+    );
+}
+
+} // namespace
+
+std::uint64_t compiledWorldFingerprint(
+    const CompiledWorld& world
+) noexcept {
+    std::uint64_t fingerprint = 1469598103934665603ull;
+    hashSection(
+        fingerprint,
+        FingerprintSection::dispatch,
+        std::span<const NMMatterDispatchGPU>(&world.dispatch, 1u)
+    );
+    hashSection(fingerprint, FingerprintSection::materials,
+        std::span<const NMMaterialGPU>(world.materials));
+    hashSection(fingerprint, FingerprintSection::parameters,
+        std::span<const NMParameterRangeGPU>(world.parameters));
+    hashSection(fingerprint, FingerprintSection::instructions,
+        std::span<const NMExpressionInstructionGPU>(world.instructions));
+    hashSection(fingerprint, FingerprintSection::scalarPrograms,
+        std::span<const NMScalarProgramGPU>(world.scalarPrograms));
+    hashSection(fingerprint, FingerprintSection::objects,
+        std::span<const NMContinuumObjectGPU>(world.objects));
+    hashSection(fingerprint, FingerprintSection::mpmParticles,
+        std::span<const NMParticleStateGPU>(world.mpm.particles));
+    hashSection(fingerprint, FingerprintSection::mpmNodes,
+        std::span<const NMGridNodeStateGPU>(world.mpm.nodes));
+    hashSection(fingerprint, FingerprintSection::mpmGrids,
+        std::span<const NMMPMGridGPU>(world.mpm.grids));
+    hashSection(fingerprint, FingerprintSection::mpmBlocks,
+        std::span<const NMMPMBlockGPU>(world.mpm.blocks));
+    hashSection(fingerprint, FingerprintSection::mpmBlockLookup,
+        std::span<const std::uint32_t>(world.mpm.blockLookup));
+    hashSection(fingerprint, FingerprintSection::mpmStencils,
+        std::span<const NMMPMStencilGPU>(world.mpm.stencils));
+    hashSection(fingerprint, FingerprintSection::mpmNodeIncidence,
+        std::span<const std::uint32_t>(world.mpm.nodeIncidence));
+    hashSection(fingerprint, FingerprintSection::mpmNodeRanges,
+        std::span<const NMIncidenceRangeGPU>(world.mpm.nodeRanges));
+    hashSection(fingerprint, FingerprintSection::femNodes,
+        std::span<const NMFEMNodeStateGPU>(world.fem.nodes));
+    hashSection(fingerprint, FingerprintSection::femTetrahedra,
+        std::span<const NMTetrahedronGPU>(world.fem.tetrahedra));
+    hashSection(fingerprint, FingerprintSection::femNodeIncidence,
+        std::span<const std::uint32_t>(world.fem.nodeIncidence));
+    hashSection(fingerprint, FingerprintSection::femNodeRanges,
+        std::span<const NMIncidenceRangeGPU>(world.fem.nodeRanges));
+    hashSection(fingerprint, FingerprintSection::rigidProxies,
+        std::span<const NMRigidProxyGPU>(world.contact.rigidProxies));
+    hashSection(fingerprint, FingerprintSection::contactPairs,
+        std::span<const NMContactPairGPU>(world.contact.pairs));
+    hashSection(fingerprint, FingerprintSection::contactNodeIncidence,
+        std::span<const std::uint32_t>(world.contact.nodeIncidence));
+    hashSection(fingerprint, FingerprintSection::contactNodeRanges,
+        std::span<const NMIncidenceRangeGPU>(world.contact.nodeRanges));
+    hashSection(fingerprint, FingerprintSection::rigidIncidence,
+        std::span<const std::uint32_t>(world.contact.rigidIncidence));
+    hashSection(fingerprint, FingerprintSection::rigidRanges,
+        std::span<const NMIncidenceRangeGPU>(world.contact.rigidRanges));
+    hashSection(fingerprint, FingerprintSection::adaptive,
+        std::span<const NMAdaptiveStateGPU>(world.adaptive));
+    hashSection(fingerprint, FingerprintSection::schedulers,
+        std::span<const NMSchedulerStateGPU>(world.schedulers));
+    hashSection(fingerprint, FingerprintSection::identification,
+        std::span<const NMIdentificationDistributionGPU>(world.identification));
+    return fingerprint == 0u ? 1u : fingerprint;
+}
+
+} // namespace numi::matter
