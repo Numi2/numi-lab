@@ -70,8 +70,10 @@ runtime bindings against `visual_scene_manifest_v3.schema.json`.
 
 `composeVisualBodyStates` evaluates articulated bodies with MetalRobo's
 authoritative FP64 kinematics and combines them with sampled scene bodies in
-global `EngineModel` body order. The renderer therefore consumes the same
-poses used by collision and contact.
+global `EngineModel` body order. Articulated body poses are COM-centred, so
+URDF visual cooking applies each link's authored origin-from-COM offset before
+binding its mesh. The renderer therefore consumes the same poses used by
+collision and contact without disassembling link-origin geometry.
 
 ### Visual sensor runtime
 
