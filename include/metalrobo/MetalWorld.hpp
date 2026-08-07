@@ -275,6 +275,75 @@ struct MetalWorldBatch {
     std::span<const MRRodEdgeStateGPU> resetRodEdges{};
 };
 
+// Device-resident physics extension encoded inside every rigid-world
+// microstep after the global body-wrench arena is cleared and articulated/
+// scene body state is projected, but before ABA and scene prediction consume
+// those wrenches.
+// The callback borrows every object and may encode work only; it must not
+// commit, wait, retain, or replace the command buffer or its buffers.
+enum class MetalWorldDevicePhysicsPhase : std::uint32_t {
+    preDynamics = 0u,
+    postCommit = 1u,
+};
+
+struct MetalWorldDevicePhysicsPass {
+    void* commandBuffer = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* sceneBodies = nullptr;
+    void* currentBodies = nullptr;
+    void* bodyWrenches = nullptr;
+    void* resetMasks = nullptr;
+    void* environmentStatuses = nullptr;
+    std::uint64_t seed = 0u;
+    MetalWorldDevicePhysicsPhase phase =
+        MetalWorldDevicePhysicsPhase::preDynamics;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubsteps = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t articulationCount = 0u;
+    std::uint32_t bodyCount = 0u;
+    std::uint32_t sceneBodyCount = 0u;
+    std::uint32_t nq = 0u;
+    std::uint32_t nv = 0u;
+    std::uint32_t bodyStateStride = 0u;
+    std::uint32_t sceneBodyStride = 0u;
+    std::uint32_t bodyWrenchStride = 0u;
+    std::uint32_t resetMaskStepStride = 0u;
+    float timestepSeconds = 0.0f;
+};
+
+using MetalWorldDevicePhysicsEncode = bool (*)(
+    void* context,
+    const MetalWorldDevicePhysicsPass& pass
+);
+
+// Called only when MetalWorld abandons a command buffer after a device-physics
+// pass has been encoded but before submission. It releases runtime-side
+// transaction ownership; it must not commit, wait, or touch borrowed buffers.
+using MetalWorldDevicePhysicsAbort = void (*)(
+    void* context,
+    void* commandBuffer
+);
+
+struct MetalWorldDevicePhysicsProgram {
+    void* context = nullptr;
+    MetalWorldDevicePhysicsEncode encode = nullptr;
+    MetalWorldDevicePhysicsAbort abort = nullptr;
+    std::uint64_t fingerprint = 0u;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return context != nullptr && encode != nullptr && abort != nullptr &&
+            fingerprint != 0u;
+    }
+
+    [[nodiscard]] bool configured() const noexcept {
+        return context != nullptr || encode != nullptr || abort != nullptr ||
+            fingerprint != 0u;
+    }
+};
+
 // Device-resident observation extension encoded after the generic SensorPack
 // has built proprioception and immediately before policy inference. Buffers
 // are borrowed id<MTLBuffer> values and commandBuffer is a borrowed
@@ -368,6 +437,11 @@ struct MetalWorldStepConfig {
     // not a constructor hint; its complete contents participate in the run
     // fingerprint before reaching MetalWorld.
     MetalWorldMulticopterProgram multicopterProgram{};
+    // Optional multiphysics pass. It executes before rigid dynamics and again
+    // after transactional publication in every physics substep. The pre pass
+    // contributes to the shared global body-wrench arena; the post pass may
+    // synchronize accepted state and perform representation transfer.
+    MetalWorldDevicePhysicsProgram devicePhysicsProgram{};
     // Optional renderer/perception pass. It receives only borrowed device
     // resources and executes inside the native rollout command buffer.
     MetalWorldDeviceObservationProgram deviceObservationProgram{};
@@ -433,6 +507,7 @@ struct MetalWorldMemoryPlan {
 
 struct MetalWorldLayout {
     MRMetalWorldDispatchGPU dispatch{};
+    std::uint64_t devicePhysicsFingerprint = 0u;
     MRABADispatchGPU abaDispatch{};
     std::vector<MRMultiABADispatchGPU> abaDispatches;
     std::vector<MRArticulatedOperatorDispatchGPU>

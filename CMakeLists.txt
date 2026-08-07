@@ -65,6 +65,11 @@ else()
 endif()
 find_package(LibXml2 REQUIRED)
 
+# The Matter compiler/runtime is a first-class Numi Lab subsystem. It builds
+# its own Metal library and exposes a borrowed-command-buffer adapter consumed
+# by MetalWorld; no second simulation queue is created for normal stepping.
+add_subdirectory(matter)
+
 set(METALROBO_SHADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
 set(METALROBO_CONSTRAINT_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ConstraintSolver.metal"
@@ -629,16 +634,24 @@ add_library(
     src/metal/MetalTactile.mm
     src/c_api.cpp
 )
+target_sources(
+    metalrobo
+    PRIVATE
+        $<TARGET_OBJECTS:numi_matter_compiler_objects>
+        $<TARGET_OBJECTS:numi_matter_runtime_objects>
+)
 add_dependencies(
     metalrobo
     metalrobo_shaders
     metalrobo_visual_kernel_hashes
+    numi_matter_shaders
 )
 
 target_include_directories(
     metalrobo
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/matter/include>"
         "$<INSTALL_INTERFACE:include>"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
@@ -2175,6 +2188,7 @@ install(
         numi/commands/train
         numi/commands/evaluate
         numi/commands/foundation
+        numi/commands/matter
         numi/commands/motion
         numi/commands/robots
     DESTINATION libexec/numi

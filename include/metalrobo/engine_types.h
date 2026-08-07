@@ -43,7 +43,7 @@
 // a command-buffer completion or CPU-visible intermediate state.
 #define MR_METAL_WORLD_ABI_VERSION 6u
 #define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
-#define MR_METAL_WORLD_CONTACT_ABI_VERSION 8u
+#define MR_METAL_WORLD_CONTACT_ABI_VERSION 9u
 #define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
 #define MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR 8u
 #define MR_WAVE32_CONTACTS_PER_TILE 32u
@@ -103,6 +103,16 @@ enum MRBodyStateFlags : mr_u32 {
     // Task reset restores the authored scene-state velocity instead of
     // clearing it. Used by launched objects and moving reset fixtures.
     MR_BODY_STATE_PRESERVE_RESET_VELOCITY = 1u << 0u,
+    // The body remains dynamically integrated but its colliders are excluded
+    // from broadphase/narrowphase. Adaptive Matter objects use this bit so the
+    // rigid fallback and continuum representation are never simultaneously
+    // authoritative for contact.
+    MR_BODY_STATE_COLLISION_DISABLED = 1u << 1u,
+    // Dynamic scene state owns an environment-specific world-space inverse
+    // inertia tensor. Adaptive continuum-to-rigid transfer sets this bit so
+    // the exact measured inertia, not a mass-scaled authored approximation,
+    // remains authoritative across later rigid integration and contact.
+    MR_BODY_STATE_INERTIA_OVERRIDE = 1u << 2u,
 };
 
 #define MR_BODY_STATE_LAUNCH_STEP_SHIFT 8u
@@ -751,6 +761,10 @@ enum MRMetalWorldContactFlags : mr_u32 {
     MR_METAL_WORLD_CONTACT_QUALITY = 1u << 7u,
     MR_METAL_WORLD_CONTACT_BODY_PARAMETERS = 1u << 8u,
     MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES = 1u << 9u,
+    // Dynamic scene prediction consumes the same environment-major global
+    // body-wrench arena as ABA. This keeps continuum, typed actuator, and
+    // multicopter reactions additive under one clear/write/consume contract.
+    MR_METAL_WORLD_CONTACT_BODY_WRENCHES = 1u << 10u,
 };
 
 // One stable, cooker-produced pair. The pair stream is canonical collider

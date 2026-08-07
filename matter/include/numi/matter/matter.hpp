@@ -203,7 +203,12 @@ struct TetrahedronSource {
 
 struct RigidProxySource {
     NMRigidShapeKind shape = NM_RIGID_PLANE;
+    // Global EngineModel body index used by the global body-state and wrench
+    // arenas. NM_INVALID_INDEX creates a world-fixed proxy.
     std::uint32_t bodyIndex = NM_INVALID_INDEX;
+    // Environment-local scene-body index. Required only for a non-articulated
+    // dynamic proxy that may receive adaptive rigid-state publication.
+    std::uint32_t sceneBodyIndex = NM_INVALID_INDEX;
     std::uint32_t materialIndex = 0u;
     std::array<double, 3> localCenter{};
     std::array<double, 3> localExtent{};
@@ -334,25 +339,53 @@ struct RuntimeConfiguration {
     std::uint32_t environmentCount = 0u;
     bool captureEvents = true;
     bool captureDiagnostics = false;
+    // Normal rollout uses the current identified mean. Candidate sampling and
+    // distribution updates are opt-in because they deliberately perturb the
+    // material parameters of designated environments.
+    bool automaticIdentification = false;
+    bool adaptiveTransfer = true;
 };
 
 struct BorrowedRigidWorldBuffers {
     void* currentBodies = nullptr;       // id<MTLBuffer>, MRBodyStateGPU
-    void* articulatedWrenches = nullptr; // id<MTLBuffer>, MRABABodyWrenchGPU
+    // Environment-major global body wrench arena. Articulated ABA consumes
+    // its owned body range; MetalWorld scene prediction consumes free-body
+    // entries from the same arena.
+    void* bodyWrenches = nullptr;        // id<MTLBuffer>, MRABABodyWrenchGPU
     void* sceneBodies = nullptr;         // id<MTLBuffer>, MRBodyStateGPU
     std::uint32_t currentBodyCount = 0u;
     std::uint32_t currentBodyStride = 0u;
-    std::uint32_t articulatedBodyCount = 0u;
+    std::uint32_t bodyWrenchCount = 0u;
     std::uint32_t sceneBodyCount = 0u;
-    std::uint32_t articulatedStride = 0u;
+    std::uint32_t bodyWrenchStride = 0u;
     std::uint32_t sceneStride = 0u;
+};
+
+enum class EncodePhase : std::uint32_t {
+    preDynamics = 0u,
+    postCommit = 1u,
 };
 
 struct EncodeRequest {
     void* commandBuffer = nullptr; // borrowed id<MTLCommandBuffer>
     BorrowedRigidWorldBuffers rigid{};
+    EncodePhase phase = EncodePhase::preDynamics;
+    // Optional borrowed [control step][environment] reset stream. A zero
+    // stride disables reset consumption. Selected environments restore their
+    // continuum/adaptive state and parameter overlay; the learned posterior
+    // distribution remains persistent and republishes its current mean.
+    void* resetMasks = nullptr; // id<MTLBuffer>, uint32_t
+    // Borrowed [environment] MRMetalWorldStatusGPU stream. Post-commit
+    // reconciliation uses it to roll continuum state back whenever the
+    // enclosing rigid transaction rejected that environment.
+    void* environmentStatuses = nullptr;
+    std::uint32_t resetMaskStepStride = 0u;
     std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubsteps = 1u;
     std::uint64_t seed = 0u;
+    // Per-call frame duration. Zero selects the cooked package duration.
+    float timestepSeconds = 0.0f;
     bool runIdentification = false;
     bool runAdaptiveTransfer = true;
 };
@@ -378,8 +411,18 @@ public:
         const RuntimeConfiguration& configuration = {}
     );
     [[nodiscard]] RuntimeDiagnostics encode(const EncodeRequest& request);
+    // Releases a pre/post transaction when the enclosing MetalWorld command
+    // buffer is abandoned before commit. Safe to call for an unrelated or
+    // already-completed command buffer.
+    void cancel(void* commandBuffer) noexcept;
     [[nodiscard]] bool valid() const noexcept;
     [[nodiscard]] std::uint64_t fingerprint() const noexcept;
+    // Fingerprint of world semantics, runtime execution policy, ABI and the
+    // exact loaded Matter metallib, used by MetalWorld run identity.
+    [[nodiscard]] std::uint64_t deviceProgramFingerprint() const noexcept;
+    [[nodiscard]] bool automaticIdentificationEnabled() const noexcept;
+    [[nodiscard]] bool adaptiveTransferEnabled() const noexcept;
+    [[nodiscard]] float timestepSeconds() const noexcept;
     [[nodiscard]] void* eventBuffer() const noexcept;
     [[nodiscard]] void* statusBuffer() const noexcept;
     [[nodiscard]] void* parameterBuffer() const noexcept;

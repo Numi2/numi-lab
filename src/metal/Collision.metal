@@ -369,7 +369,9 @@ bool makeWorldShape(
     output.type = shape.shapeType;
     output.body = shape.bodyIndex;
     output.disabled =
-        (shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u;
+        (shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+        (body.flagsAndIndices[3] &
+         MR_BODY_STATE_COLLISION_DISABLED) != 0u;
     output.rotation =
         quaternionMultiply(bodyRotation, localRotation);
     output.center = body.position.xyz +

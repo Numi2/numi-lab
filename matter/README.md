@@ -2,7 +2,7 @@
 
 Numi Matter is a compiled multiphysics subsystem for Numi Lab. It keeps material semantics separate from numerical representation, then cooks a fixed-capacity Apple-GPU execution graph for the exact world being simulated.
 
-The module is deliberately self-contained under `matter/`. It can be built and evaluated without changing the existing Numi Lab production target, then linked into `metalrobo` once the owning `MetalWorld` call site is ready to schedule the borrowed-command-buffer encoder.
+The compiler and numerical implementation remain self-contained under `matter/`, while the runtime is integrated into the production `MetalWorld` command graph through a typed device-physics program. Matter and rigid dynamics now share one borrowed command buffer, one global body-wrench arena and one transactional control-step publication boundary.
 
 ## Implemented systems
 
@@ -102,17 +102,18 @@ Contact records are cleared on every microtick before evaluation, preventing ina
 
 ### Rigid-to-continuum coupling
 
-Rigid reactions are reduced per proxy without atomics. A final bridge executes once per environment:
+Rigid reactions are reduced per proxy without floating-point atomics, then gathered by global rigid-body index through one deterministic writer per body:
 
-- articulated targets receive `MRABABodyWrenchGPU` force and torque before inverse ABA;
-- free scene bodies receive direct velocity and angular-velocity impulses through `MRBodyStateGPU`;
+- articulated targets receive `MRABABodyWrenchGPU` force and torque before inverse ABA; their exact link twists are materialized from the same accepted `q/v` consumed by ABA rather than estimated from frame differences;
+- free scene bodies receive the same global body-wrench representation, which the scene predictor consumes during the rigid candidate step;
+- multiple contact proxies may contribute to one body without aliased writes;
 - static unbound proxies participate in contact but receive no state update.
 
-The runtime consumes a borrowed body-state arena and borrowed rigid output buffers. It never commits or waits on the borrowed command buffer.
+The runtime consumes borrowed body, wrench, scene-state and environment-status arenas. It never commits or waits on the borrowed command buffer. A Matter failure is translated into the enclosing `MetalWorld` status before rigid publication, and a later rigid failure restores MPM, FEM, scheduler state and event evidence to the same control-step checkpoint. Inverse-identification update and antithetic sampling execute at most once at the beginning of a fully encoded rollout command buffer; all later control steps in that submission consume the same candidate overlay.
 
 ### Adaptive representation
 
-Adaptive objects retain both continuum topology and a body-backed rigid proxy. The GPU measures:
+Adaptive objects retain both continuum topology and a body-backed rigid proxy. The runtime publishes explicit collision ownership on every transition, so the rigid fallback collider is disabled while the continuum representation is active and enabled only while the object is rigid. The GPU measures:
 
 - total mass and centre of mass;
 - linear and angular momentum;
@@ -121,11 +122,11 @@ Adaptive objects retain both continuum topology and a body-backed rigid proxy. T
 - peak and RMS strain;
 - minimum determinant and deformation residual.
 
-Hysteresis controls demotion to rigid representation after a sustained low-strain interval. Contact, strain or numerical events promote the object back to its authored MPM or FEM representation. State transfer preserves centre of mass, linear momentum and angular momentum. Promotion reconstructs continuum positions and velocities from the current rigid pose and twist. Adaptive bindings must be valid, body-backed and unique; the compiler rejects ambiguous mappings.
+Hysteresis controls demotion to rigid representation after a sustained low-strain interval. Contact, strain or numerical events promote the object back to its authored MPM or FEM representation. State transfer preserves centre of mass, linear momentum, angular momentum and the measured full inertia tensor. Demotion publishes an environment-specific world inverse inertia that MetalWorld validates and rotates through ordinary and CCD integration instead of replacing it with a mass-scaled authored tensor. The compiler retains an immutable mass-weighted rest centre for every continuum object; promotion reconstructs positions from that rest frame and writes the current rigid orientation as the deformation rotation, avoiding translation leakage or inertia-derived orientation. Adaptive bindings must be valid, body-backed and unique; the compiler rejects ambiguous mappings.
 
 ### Inverse material identification
 
-Identifiable material parameters receive a GPU-resident distribution. Candidate environments use deterministic antithetic normal perturbations, optional log-space sampling and bounded parameter overlays. After candidate losses are written into the exposed loss buffer, the update kernel performs temperature-weighted distribution fitting and republishes the learned mean and variance.
+Identifiable material parameters receive a GPU-resident distribution. Candidate environments use deterministic antithetic normal perturbations, optional log-space sampling and bounded parameter overlays. After candidate losses are written into the exposed loss buffer, the update kernel performs temperature-weighted distribution fitting and republishes the learned mean and variance. Automatic candidate perturbation is disabled for ordinary rollout and is enabled explicitly through `RuntimeConfiguration::automaticIdentification`; otherwise every environment uses the current identified mean.
 
 The compiler requires an even candidate count no larger than the environment count, so every candidate is actually simulated and every antithetic partner exists.
 
@@ -133,7 +134,7 @@ The compiler requires an even candidate count no larger than the environment cou
 
 Every continuum object has a power-of-two rate exponent. The fixed command graph contains the maximum number of microticks; each object executes only on its scheduled ticks. GPU event reduction observes contact onset/release, slip, strain/yield, damage, determinant risk, solver residual and requested rate changes. Events raise local substep frequency immediately and lower it only after a quiet-frame hysteresis period.
 
-Events are written to deterministic fixed slots rather than an unordered append queue. They can be consumed by Numi Lab's event-token learning layer without CPU synchronization.
+Events are written to deterministic fixed slots rather than an unordered append queue. Every token carries absolute episode time, time since that object's previous event, severity, and the previous/current signal values. Timing advances even when event readback is disabled, so later event deltas remain meaningful. They can be consumed by Numi Lab's event-token learning layer without CPU synchronization.
 
 ## Apple Silicon execution model
 
@@ -146,7 +147,8 @@ The runtime is designed around Apple GPU constraints rather than CUDA assumption
 - fixed-capacity deterministic gathers replace floating-point append/scatter atomics;
 - SIMD32 object reductions map to Apple GPU execution width;
 - environment and object parallelism remain independent;
-- all runtime identities are content-fingerprinted.
+- all runtime identities are content-fingerprinted, including the exact loaded Matter metallib;
+- the rigid microstep duration must exactly match the cooked Matter duration, preventing a caller from silently changing constitutive or multirate semantics after fingerprinting.
 
 ## Build
 
@@ -157,7 +159,7 @@ cmake -S matter -B build-matter -G Ninja
 cmake --build build-matter -j
 ```
 
-The module requires Apple Silicon macOS, CMake 3.28+, C++23 and Metal 4.0. It builds:
+The compiler and package tools are portable C++23. The runtime requires Apple Silicon macOS and Metal 4.0. With the Apple runtime enabled, the module builds:
 
 ```text
 libnumi_matter_compiler.a
@@ -169,7 +171,7 @@ numi-matterc
 Compile the included material and a cooked MPM/FEM demonstration world:
 
 ```bash
-build-matter/bin/numi-matterc \
+build-matter/numi-matterc \
   --material matter/materials/silicone.nmatter \
   --output silicone.nmatterpack \
   --generated-metal silicone.generated.metal \
@@ -179,30 +181,23 @@ build-matter/bin/numi-matterc \
 
 ## Numi Lab integration boundary
 
-The owning `MetalWorld` graph should call `Runtime::encode` after its external-wrench arena is cleared and before articulated ABA consumes those wrenches. Supply:
+Initialize the cooked Matter world once, then attach its adapter to the ordinary `MetalWorldStepConfig`:
 
 ```cpp
-numi::matter::EncodeRequest request{
-    .commandBuffer = borrowedCommandBuffer,
-    .rigid = {
-        .currentBodies = currentWorldBodyBuffer,
-        .articulatedWrenches = externalWrenchBuffer,
-        .sceneBodies = candidateSceneBodyBuffer,
-        .currentBodyCount = bodyCount,
-        .currentBodyStride = bodyStride,
-        .articulatedBodyCount = articulatedBodyCount,
-        .sceneBodyCount = sceneBodyCount,
-        .articulatedStride = articulatedWrenchStride,
-        .sceneStride = sceneBodyStride,
-    },
-    .controlStep = controlStep,
-    .seed = seed,
-};
+numi::matter::Runtime matterRuntime;
+const auto matterDiagnostics = matterRuntime.initialize(
+    compiledMatterWorld,
+    {.metallib = matterMetallib}
+);
 
-const auto diagnostics = matterRuntime.encode(request);
+metalrobo::MetalWorldStepConfig stepConfig;
+stepConfig.devicePhysicsProgram =
+    numi::matter::makeMetalWorldDevicePhysicsProgram(matterRuntime);
 ```
 
-A body-backed rigid proxy requires `currentBodies`. Unbound proxies are interpreted directly in world coordinates and are static. Adaptive representation additionally requires a unique body-backed proxy binding.
+`MetalWorld` invokes the adapter twice for every rigid physics substep. The pre-dynamics phase runs continuum microticks, accumulates equal-and-opposite reactions into the global body-wrench arena and latches Matter failures before ABA/contact publication. The post-commit phase reconciles rigid failure, performs final-step adaptive transfer, publishes collision ownership and emits event tokens. The adapter receives only borrowed device resources; it cannot commit, wait or retain the command buffer.
+
+A body-backed rigid proxy requires the global current-body arena. Dynamic free-body proxies also carry an explicit scene-body index. Adaptive bindings are restricted to unique dynamic scene bodies so promotion and demotion always have one writable rigid authority.
 
 ## Current fidelity boundary
 
@@ -210,7 +205,7 @@ The subsystem implements the complete architecture and executable kernels listed
 
 - the MPM path currently targets total-Lagrangian solids;
 - the FEM path uses tetrahedral solids and fixed-iteration matrix-free PCG;
-- contact supports analytic rigid proxies, not arbitrary deforming triangle-triangle IPC;
+- contact supports continuum nodes against analytic rigid proxies; continuum-continuum/self-contact and arbitrary deforming triangle-triangle IPC are not yet implemented;
 - fracture/topology mutation, Eulerian fluids, thermal coupling and porous flow require additional operators in the same Physics IR;
 - learned residual constitutive terms can be represented as future expression/program kinds but are not silently enabled.
 
@@ -224,4 +219,4 @@ The portable compiler and package code was built with:
 
 The included material compiled into a world containing both MPM and FEM objects, wrote a package, emitted specialized Metal and successfully round-tripped through `readPackage`. Source-level audits check shared-ABI sizes, kernel names, buffer bindings and delimiter balance.
 
-The current execution environment is Linux and does not provide Apple Metal or Objective-C++ frameworks. Therefore this delivery does not claim that the `.metal` and `.mm` targets were compiled or executed here. The repository code is structured for the existing Apple build machine to perform that final platform compilation directly.
+The current execution environment is Linux and does not provide the Apple Metal compiler or runtime. The portable compiler was built and exercised directly; the Objective-C++ runtime and MetalWorld adapter passed syntax compilation against minimal Apple API stubs; shared ABI and kernel-name parity checks also passed. The `.metal` kernels and the full production `MetalWorld.mm` still require the repository's Apple build machine for authoritative platform compilation and execution.

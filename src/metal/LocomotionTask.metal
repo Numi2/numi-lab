@@ -3588,11 +3588,10 @@ kernel void mr_locomotion_task_apply_native_actuators(
     device const MRTaskActuatorTermGPU* terms =
         taskTable<MRTaskActuatorTermGPU>(arena, program.actuatorTerms.x);
     const uint bodyCount = dispatch.sampling.z;
-    if ((worldDispatch.flags & MR_METAL_WORLD_HAS_BODY_WRENCHES) != 0u) {
-        for (uint body = 0u; body < bodyCount; ++body) {
-            bodyWrenches[environment * bodyCount + body] = {};
-        }
-    }
+    // MetalWorld clears the complete global wrench arena exactly once before
+    // all actuator and multiphysics producers execute. Every producer is
+    // therefore additive and cannot erase a reaction authored by another
+    // subsystem.
     const uint qBase = environment * dispatch.counts.z;
     const uint vBase = environment * dispatch.counts.w;
     const uint filterSlot = program.layout.w - 1u;

@@ -2,7 +2,8 @@ namespace numi_matter_metal {
 
 kernel void nm_prepare_status(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device NMMatterStatusGPU* statuses [[buffer(1)]],
+    device const MRMetalWorldStatusGPU* worldStatuses [[buffer(1)]],
+    device NMMatterStatusGPU* statuses [[buffer(2)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -14,6 +15,18 @@ kernel void nm_prepare_status(
     status.objectIndex = NM_INVALID_INDEX;
     status.failingIndex = NM_INVALID_INDEX;
     status.diagnostics = float4(INFINITY, 0.0f, 0.0f, 0.0f);
+
+    // MetalWorld keeps a control-step-wide failure latch. Once an earlier
+    // rigid or continuum substep has failed, later pre-encoded substeps must
+    // remain inert instead of resetting the Matter side to healthy and doing
+    // work that can no longer publish.
+    const MRMetalWorldStatusGPU world = worldStatuses[environment];
+    if (world.code != MR_STEP_SUCCESS) {
+        status.code = NM_STATUS_RIGID_WORLD_FAILURE;
+        status.failingIndex = world.code;
+        status.diagnostics = world.diagnostics;
+        status.diagnostics.w = float(world.successfulSubsteps);
+    }
     statuses[environment] = status;
 }
 
@@ -39,6 +52,22 @@ kernel void nm_prepare_reactions(
     }
 }
 
+// Captures the scheduler authority at the beginning of a complete control
+// step. MetalWorld may execute several rigid substeps, but any later failure
+// rolls the entire control step back; this snapshot therefore must not be
+// refreshed at intermediate substeps.
+kernel void nm_checkpoint_scheduler(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(1)]],
+    device NMSchedulerStateGPU* checkpoint [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global < total) {
+        checkpoint[global] = schedulers[global];
+    }
+}
+
 kernel void nm_prepare_scheduler(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device NMSchedulerStateGPU* schedulers [[buffer(1)]],
@@ -58,18 +87,81 @@ kernel void nm_prepare_scheduler(
     schedulers[global] = state;
 }
 
-kernel void nm_reset_parameter_overlay(
+// Applies an authored episode reset to every persistent continuum authority in
+// one deterministic, environment-major pass. The stateWidth indirection keeps
+// one dispatch independent of whether this world contains MPM, FEM, adaptive,
+// or identifiable state. Parameter overlays are reset only for environments
+// whose episode reset bit is set, so learned material beliefs persist through
+// ordinary control steps.
+kernel void nm_apply_episode_resets(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMParameterRangeGPU* defaults [[buffer(1)]],
-    device float* environmentParameters [[buffer(2)]],
+    constant NMResetPassGPU& pass [[buffer(1)]],
+    device const uint* resetMasks [[buffer(2)]],
+    device const NMParticleStateGPU* particleDefaults [[buffer(3)]],
+    device const NMFEMNodeStateGPU* femDefaults [[buffer(4)]],
+    device const NMAdaptiveStateGPU* adaptiveDefaults [[buffer(5)]],
+    device const NMSchedulerStateGPU* schedulerDefaults [[buffer(6)]],
+    device const NMParameterRangeGPU* parameterDefaults [[buffer(7)]],
+    device NMParticleStateGPU* particleAccepted [[buffer(8)]],
+    device NMParticleStateGPU* particleCandidate [[buffer(9)]],
+    device NMParticleStateGPU* particleCheckpoint [[buffer(10)]],
+    device NMFEMNodeStateGPU* femAccepted [[buffer(11)]],
+    device NMFEMNodeStateGPU* femCandidate [[buffer(12)]],
+    device NMFEMNodeStateGPU* femCheckpoint [[buffer(13)]],
+    device NMAdaptiveStateGPU* adaptive [[buffer(14)]],
+    device NMSchedulerStateGPU* schedulers [[buffer(15)]],
+    device NMSchedulerStateGPU* schedulerPrevious [[buffer(16)]],
+    device float* environmentParameters [[buffer(17)]],
+    device NMRigidStateGPU* rigidStates [[buffer(18)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.parameterCount;
-    if (global >= total || dispatch.parameterCount == 0u) {
+    if ((pass.flags & NM_RESET_ENABLED) == 0u ||
+        pass.stateWidth == 0u || pass.resetMaskStepStride == 0u) {
         return;
     }
-    const uint parameter = global % dispatch.parameterCount;
-    environmentParameters[global] = defaults[parameter].valueAndBounds.x;
+    const uint total = dispatch.environmentCount * pass.stateWidth;
+    if (global >= total) {
+        return;
+    }
+    const uint environment = global / pass.stateWidth;
+    const uint local = global - environment * pass.stateWidth;
+    const uint resetIndex =
+        pass.controlStep * pass.resetMaskStepStride + environment;
+    if (resetMasks[resetIndex] == 0u) {
+        return;
+    }
+
+    if (local < dispatch.particleCount) {
+        const uint index = environment * dispatch.particleCount + local;
+        const NMParticleStateGPU value = particleDefaults[index];
+        particleAccepted[index] = value;
+        particleCandidate[index] = value;
+        particleCheckpoint[index] = value;
+    }
+    if (local < dispatch.femNodeCount) {
+        const uint index = environment * dispatch.femNodeCount + local;
+        const NMFEMNodeStateGPU value = femDefaults[index];
+        femAccepted[index] = value;
+        femCandidate[index] = value;
+        femCheckpoint[index] = value;
+    }
+    if (local < dispatch.objectCount) {
+        const uint index = environment * dispatch.objectCount + local;
+        adaptive[index] = adaptiveDefaults[index];
+        schedulers[index] = schedulerDefaults[index];
+        schedulerPrevious[index] = schedulerDefaults[index];
+    }
+    if ((pass.flags & NM_RESET_PARAMETERS) != 0u &&
+        local < dispatch.parameterCount) {
+        environmentParameters[
+            environment * dispatch.parameterCount + local
+        ] = parameterDefaults[local].valueAndBounds.x;
+    }
+    if (local < dispatch.rigidProxyCount) {
+        rigidStates[
+            environment * dispatch.rigidProxyCount + local
+        ] = {};
+    }
 }
 
 kernel void nm_identification_update(
@@ -189,6 +281,38 @@ kernel void nm_identification_sample(
             candidate * dispatch.parameterCount + globalParameter
         ] = physical;
     }
+}
+
+// Publish the current posterior mean into every environment before candidate
+// perturbations are overlaid. Each distribution owns one global parameter,
+// so every destination has a single deterministic writer.
+kernel void nm_publish_identification_means(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMIdentificationDistributionGPU* distributions [[buffer(1)]],
+    device float* environmentParameters [[buffer(2)]],
+    constant uint& distributionCount [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * distributionCount;
+    if (global >= total || distributionCount == 0u) {
+        return;
+    }
+    const uint environment = global / distributionCount;
+    const uint distributionIndex = global - environment * distributionCount;
+    const NMIdentificationDistributionGPU distribution =
+        distributions[distributionIndex];
+    const uint parameter = distribution.identity.z;
+    if (parameter >= dispatch.parameterCount) {
+        return;
+    }
+    const float latent = clamp(
+        distribution.momentsAndBounds.x,
+        distribution.momentsAndBounds.z,
+        distribution.momentsAndBounds.w
+    );
+    environmentParameters[
+        environment * dispatch.parameterCount + parameter
+    ] = distribution.update.w > 0.5f ? exp(latent) : latent;
 }
 
 kernel void nm_scheduler_observe(
@@ -311,38 +435,124 @@ kernel void nm_scheduler_observe(
     }
 }
 
-inline void writeEvent(
+inline uint writeEvent(
     device NMEventTokenGPU* events,
     const NMMatterDispatchGPU dispatch,
     const uint environment,
     const uint objectIndex,
     const uint eventClass,
+    const bool capture,
+    const float eventTime,
+    const float deltaTime,
     const float severity,
     const float previous,
     const float current
 ) {
+    if (!capture) {
+        return 1u;
+    }
     const uint slot =
         environment * dispatch.eventStride +
         objectIndex * NM_EVENT_CLASS_COUNT +
         eventClass;
+    const NMEventTokenGPU existing = events[slot];
+    if ((existing.flags & 1u) != 0u &&
+        existing.payload.z > severity) {
+        return 1u;
+    }
     NMEventTokenGPU event{};
     event.environment = environment;
     event.objectIndex = objectIndex;
     event.eventClass = eventClass;
     event.flags = 1u;
     event.payload = float4(
-        dispatch.gravityAndTimestep.w,
+        eventTime,
+        deltaTime,
         severity,
-        previous,
         current
     );
+    event.transition = float4(previous, current, 0.0f, 0.0f);
     events[slot] = event;
+    return 1u;
 }
 
-kernel void nm_scheduler_finalize(
+inline uint matterStatusToWorldStatus(const uint code) {
+    switch (code) {
+    case NM_STATUS_SUCCESS:
+        return MR_STEP_SUCCESS;
+    case NM_STATUS_NONFINITE_INPUT:
+        return MR_STEP_NONFINITE_INPUT;
+    case NM_STATUS_NONFINITE_RESULT:
+        return MR_STEP_NONFINITE_RESULT;
+    case NM_STATUS_CAPACITY_OVERFLOW:
+        return MR_STEP_CONSTRAINT_CAPACITY_OVERFLOW;
+    case NM_STATUS_INVALID_DEFORMATION:
+    case NM_STATUS_CONTACT_FAILURE:
+    case NM_STATUS_LINEAR_SOLVER_FAILURE:
+        return MR_STEP_DID_NOT_CONVERGE;
+    case NM_STATUS_INVALID_DISPATCH:
+    case NM_STATUS_UNSUPPORTED:
+    case NM_STATUS_RIGID_WORLD_FAILURE:
+    default:
+        return MR_STEP_UNSUPPORTED;
+    }
+}
+
+// Makes the mixed rigid/continuum microstep one transaction. A rejected
+// continuum candidate latches the enclosing MetalWorld status before ABA and
+// contact publication, so q/v, scene bodies, manifolds, and continuum state
+// all restore their matching checkpoints for that environment.
+kernel void nm_latch_matter_status_into_rigid_world(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMContinuumObjectGPU* objects [[buffer(1)]],
-    device const NMSchedulerStateGPU* previous [[buffer(2)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(1)]],
+    device MRMetalWorldStatusGPU* worldStatuses [[buffer(2)]],
+    constant uint& physicsSubstep [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const NMMatterStatusGPU matter = matterStatuses[environment];
+    if (matter.code == NM_STATUS_SUCCESS) {
+        return;
+    }
+    MRMetalWorldStatusGPU world = worldStatuses[environment];
+    if (world.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    world.code = matterStatusToWorldStatus(matter.code);
+    world.abaCode = MR_ABA_SUCCESS;
+    world.failingSubstep = physicsSubstep;
+    world.failingIndex = matter.failingIndex;
+    world.diagnostics = matter.diagnostics;
+    worldStatuses[environment] = world;
+}
+
+kernel void nm_reconcile_rigid_world_status(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const MRMetalWorldStatusGPU* worldStatuses [[buffer(1)]],
+    device NMMatterStatusGPU* statuses [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        worldStatuses[environment].code == MR_STEP_SUCCESS) {
+        return;
+    }
+    NMMatterStatusGPU status = statuses[environment];
+    if (status.code == NM_STATUS_SUCCESS) {
+        status.code = NM_STATUS_RIGID_WORLD_FAILURE;
+        status.objectIndex = NM_INVALID_INDEX;
+        status.failingIndex = worldStatuses[environment].code;
+        status.diagnostics.w =
+            float(worldStatuses[environment].successfulSubsteps);
+        statuses[environment] = status;
+    }
+}
+
+kernel void nm_scheduler_reconcile(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device const NMSchedulerStateGPU* checkpoint [[buffer(2)]],
     device NMSchedulerStateGPU* schedulers [[buffer(3)]],
     device NMEventTokenGPU* events [[buffer(4)]],
     uint global [[thread_position_in_grid]]
@@ -352,62 +562,99 @@ kernel void nm_scheduler_finalize(
         return;
     }
     const uint environment = global / dispatch.objectCount;
+    if (environmentHealthy(statuses, environment)) {
+        return;
+    }
+
+    // Restore the control-step-start authority. A failure in any rigid or
+    // continuum substep invalidates every scheduler update in that step.
+    schedulers[global] = checkpoint[global];
+
+    // Event slots are fixed by environment/object/class, so one object thread
+    // can deterministically erase all evidence emitted by earlier successful
+    // substeps of the same now-rolled-back control step.
     const uint objectIndex = global - environment * dispatch.objectCount;
+    const uint eventBase =
+        environment * dispatch.eventStride +
+        objectIndex * NM_EVENT_CLASS_COUNT;
+    for (uint eventClass = 0u;
+         eventClass < NM_EVENT_CLASS_COUNT;
+         ++eventClass) {
+        events[eventBase + eventClass] = {};
+    }
+}
+
+kernel void nm_scheduler_finalize(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& frame [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMSchedulerStateGPU* previous [[buffer(3)]],
+    device NMSchedulerStateGPU* schedulers [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    device NMEventTokenGPU* events [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total || dispatch.objectCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.objectCount;
+    const uint objectIndex = global - environment * dispatch.objectCount;
+    if (!environmentHealthy(statuses, environment)) {
+        return;
+    }
     const NMContinuumObjectGPU object = objects[objectIndex];
     const NMSchedulerStateGPU before = previous[global];
     device NMSchedulerStateGPU& after = schedulers[global];
+    const bool capture =
+        (frame.flags & NM_MICROSTEP_CAPTURE_EVENTS) != 0u;
+    const float eventTime = before.timing.x + frame.time.w;
+    const float deltaTime = max(eventTime - before.timing.y, 0.0f);
+    uint eventCount = 0u;
+
     const bool contactBefore = before.physical.x > before.thresholds.x;
     const bool contactAfter = after.physical.x > after.thresholds.x;
     if (!contactBefore && contactAfter) {
-        writeEvent(events, dispatch, environment, objectIndex,
-            NM_EVENT_CONTACT_ONSET,
+        eventCount += writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_CONTACT_ONSET, capture, eventTime, deltaTime,
             after.physical.x / max(after.thresholds.x, 1.0e-8f),
-            before.physical.x,
-            after.physical.x);
+            before.physical.x, after.physical.x);
     } else if (contactBefore && !contactAfter) {
-        writeEvent(events, dispatch, environment, objectIndex,
-            NM_EVENT_CONTACT_RELEASE,
-            1.0f,
-            before.physical.x,
-            after.physical.x);
+        eventCount += writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_CONTACT_RELEASE, capture, eventTime, deltaTime,
+            1.0f, before.physical.x, after.physical.x);
     }
     if (before.physical.y <= before.thresholds.y &&
         after.physical.y > after.thresholds.y) {
-        writeEvent(events, dispatch, environment, objectIndex,
-            NM_EVENT_SLIP_ONSET,
+        eventCount += writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_SLIP_ONSET, capture, eventTime, deltaTime,
             after.physical.y / max(after.thresholds.y, 1.0e-8f),
-            before.physical.y,
-            after.physical.y);
+            before.physical.y, after.physical.y);
     }
     if (before.physical.z <= before.thresholds.z &&
         after.physical.z > after.thresholds.z) {
-        writeEvent(events, dispatch, environment, objectIndex,
-            NM_EVENT_YIELD_ONSET,
+        eventCount += writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_YIELD_ONSET, capture, eventTime, deltaTime,
             after.physical.z / max(after.thresholds.z, 1.0e-8f),
-            before.physical.z,
-            after.physical.z);
+            before.physical.z, after.physical.z);
     }
     if (before.numerical.z <= 0.0f && after.numerical.z > 0.0f) {
-        writeEvent(events, dispatch, environment, objectIndex,
-            NM_EVENT_DAMAGE_ONSET,
-            after.numerical.z,
-            before.numerical.z,
-            after.numerical.z);
+        eventCount += writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_DAMAGE_ONSET, capture, eventTime, deltaTime,
+            after.numerical.z, before.numerical.z, after.numerical.z);
     }
     if (after.numerical.x < dispatch.numericalLimits.z) {
-        writeEvent(events, dispatch, environment, objectIndex,
-            NM_EVENT_INVERSION_RISK,
+        eventCount += writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_INVERSION_RISK, capture, eventTime, deltaTime,
             dispatch.numericalLimits.z /
                 max(after.numerical.x, 1.0e-8f),
-            before.numerical.x,
-            after.numerical.x);
+            before.numerical.x, after.numerical.x);
     }
     if (after.numerical.y > after.thresholds.w) {
-        writeEvent(events, dispatch, environment, objectIndex,
-            NM_EVENT_SOLVER_RESIDUAL,
+        eventCount += writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_SOLVER_RESIDUAL, capture, eventTime, deltaTime,
             after.numerical.y / max(after.thresholds.w, 1.0e-8f),
-            before.numerical.y,
-            after.numerical.y);
+            before.numerical.y, after.numerical.y);
     }
 
     const bool quiet =
@@ -432,11 +679,17 @@ kernel void nm_scheduler_finalize(
         min(object.solver.y, dispatch.maximumRateExponent)
     );
     if (after.activeExponent != before.activeExponent) {
-        writeEvent(events, dispatch, environment, objectIndex,
-            NM_EVENT_RATE_CHANGE,
+        eventCount += writeEvent(events, dispatch, environment, objectIndex,
+            NM_EVENT_RATE_CHANGE, capture, eventTime, deltaTime,
             abs(float(after.activeExponent) - float(before.activeExponent)),
-            float(before.activeExponent),
-            float(after.activeExponent));
+            float(before.activeExponent), float(after.activeExponent));
+    }
+
+    after.timing.x = eventTime;
+    if (eventCount != 0u) {
+        after.timing.y = eventTime;
+        after.timing.z = deltaTime;
+        after.timing.w += float(eventCount);
     }
 }
 

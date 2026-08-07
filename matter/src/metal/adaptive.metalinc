@@ -1,5 +1,57 @@
 namespace numi_matter_metal {
 
+
+kernel void nm_publish_adaptive_rigid_ownership(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMRigidProxyGPU* proxies [[buffer(3)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(4)]],
+    device MRBodyStateGPU* currentBodies [[buffer(5)]],
+    device MRBodyStateGPU* sceneBodies [[buffer(6)]],
+    device const NMMatterStatusGPU* statuses [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total || dispatch.objectCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.objectCount;
+    const uint objectIndex = global - environment * dispatch.objectCount;
+    if (!environmentHealthy(statuses, environment)) {
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if ((object.flags & NM_OBJECT_ADAPTIVE) == 0u ||
+        object.rigidBinding >= dispatch.rigidProxyCount) {
+        return;
+    }
+    const NMRigidProxyGPU proxy = proxies[object.rigidBinding];
+    if ((proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
+        (proxy.flags & NM_RIGID_ARTICULATED) != 0u ||
+        proxy.bodyIndex >= bridge.currentBodyCount ||
+        proxy.sceneBodyIndex >= bridge.sceneBodyCount) {
+        return;
+    }
+    const NMAdaptiveStateGPU state = adaptive[global];
+    const bool rigidOwnsContact =
+        state.activeRepresentation == NM_REPRESENTATION_RIGID;
+    const uint bodyFlag = MR_BODY_STATE_COLLISION_DISABLED;
+    device MRBodyStateGPU& current = currentBodies[
+        environment * bridge.currentBodyStride + proxy.bodyIndex
+    ];
+    device MRBodyStateGPU& scene = sceneBodies[
+        environment * bridge.sceneStride + proxy.sceneBodyIndex
+    ];
+    if (rigidOwnsContact) {
+        current.flagsAndIndices[3] &= ~bodyFlag;
+        scene.flagsAndIndices[3] &= ~bodyFlag;
+    } else {
+        current.flagsAndIndices[3] |= bodyFlag;
+        scene.flagsAndIndices[3] |= bodyFlag;
+    }
+}
+
 kernel void nm_adaptive_measure(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumObjectGPU* objects [[buffer(1)]],
@@ -7,6 +59,7 @@ kernel void nm_adaptive_measure(
     device const NMFEMNodeStateGPU* femNodes [[buffer(3)]],
     device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
     device NMAdaptiveStateGPU* adaptive [[buffer(5)]],
+    device const NMMatterStatusGPU* statuses [[buffer(6)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -15,7 +68,8 @@ kernel void nm_adaptive_measure(
     }
     const uint environment = group / dispatch.objectCount;
     const uint objectIndex = group - environment * dispatch.objectCount;
-    if (environment >= dispatch.environmentCount) {
+    if (environment >= dispatch.environmentCount ||
+        !environmentHealthy(statuses, environment)) {
         return;
     }
     const NMContinuumObjectGPU object = objects[objectIndex];
@@ -250,13 +304,18 @@ kernel void nm_adaptive_decide(
     device const NMContinuumObjectGPU* objects [[buffer(1)]],
     device const NMSchedulerStateGPU* schedulers [[buffer(2)]],
     device NMAdaptiveStateGPU* adaptive [[buffer(3)]],
+    device const NMMatterStatusGPU* statuses [[buffer(4)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.objectCount;
     if (global >= total || dispatch.objectCount == 0u) {
         return;
     }
-    const uint objectIndex = global % dispatch.objectCount;
+    const uint environment = global / dispatch.objectCount;
+    const uint objectIndex = global - environment * dispatch.objectCount;
+    if (!environmentHealthy(statuses, environment)) {
+        return;
+    }
     const NMContinuumObjectGPU object = objects[objectIndex];
     if ((object.flags & NM_OBJECT_ADAPTIVE) == 0u) {
         return;
@@ -295,6 +354,7 @@ kernel void nm_adaptive_demote_to_rigid(
     device NMAdaptiveStateGPU* adaptive [[buffer(4)]],
     device NMRigidStateGPU* rigidStates [[buffer(5)]],
     device MRBodyStateGPU* sceneBodies [[buffer(6)]],
+    device const NMMatterStatusGPU* statuses [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.objectCount;
@@ -303,6 +363,9 @@ kernel void nm_adaptive_demote_to_rigid(
     }
     const uint environment = global / dispatch.objectCount;
     const uint objectIndex = global - environment * dispatch.objectCount;
+    if (!environmentHealthy(statuses, environment)) {
+        return;
+    }
     const NMContinuumObjectGPU object = objects[objectIndex];
     device NMAdaptiveStateGPU& state = adaptive[global];
     if ((object.flags & NM_OBJECT_ADAPTIVE) == 0u ||
@@ -328,9 +391,10 @@ kernel void nm_adaptive_demote_to_rigid(
     rigid.inverseInertiaRow2 = state.inverseInertiaRow2;
     if ((proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
         (proxy.flags & NM_RIGID_ARTICULATED) == 0u &&
-        proxy.bodyIndex < bridge.sceneBodyCount) {
+        proxy.sceneBodyIndex != NM_INVALID_INDEX &&
+        proxy.sceneBodyIndex < bridge.sceneBodyCount) {
         device MRBodyStateGPU& body = sceneBodies[
-            environment * bridge.sceneStride + proxy.bodyIndex
+            environment * bridge.sceneStride + proxy.sceneBodyIndex
         ];
         body.position.xyz = state.centerAndRadius.xyz;
         body.orientation = state.orientation;
@@ -339,6 +403,7 @@ kernel void nm_adaptive_demote_to_rigid(
         body.inverseInertiaWorldRow0 = state.inverseInertiaRow0;
         body.inverseInertiaWorldRow1 = state.inverseInertiaRow1;
         body.inverseInertiaWorldRow2 = state.inverseInertiaRow2;
+        body.flagsAndIndices[3] |= MR_BODY_STATE_INERTIA_OVERRIDE;
     }
     state.activeRepresentation = NM_REPRESENTATION_RIGID;
     state.requestedRepresentation = NM_REPRESENTATION_RIGID;
@@ -351,6 +416,7 @@ kernel void nm_adaptive_promote_mpm(
     device const NMAdaptiveStateGPU* adaptive [[buffer(2)]],
     device const NMRigidStateGPU* rigidStates [[buffer(3)]],
     device NMParticleStateGPU* particles [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.particleCount;
@@ -358,6 +424,9 @@ kernel void nm_adaptive_promote_mpm(
         return;
     }
     const uint environment = global / dispatch.particleCount;
+    if (!environmentHealthy(statuses, environment)) {
+        return;
+    }
     device NMParticleStateGPU& particle = particles[global];
     const uint objectIndex = particle.identity.x;
     const NMContinuumObjectGPU object = objects[objectIndex];
@@ -372,22 +441,20 @@ kernel void nm_adaptive_promote_mpm(
     const NMRigidStateGPU rigid = rigidStates[
         environment * dispatch.rigidProxyCount + object.rigidBinding
     ];
-    const float4 demotionInverse = quaternionConjugate(state.orientation);
-    const float3 local = quaternionRotate(
-        demotionInverse,
-        particle.referenceAndTemperature.xyz - state.centerAndRadius.xyz
-    );
+    const float3 local =
+        particle.referenceAndTemperature.xyz - state.referenceCenter.xyz;
     const float3 position = rigid.bodyCenter.xyz +
         quaternionRotate(rigid.orientation, local);
     particle.positionAndMass.xyz = position;
     particle.velocityAndReferenceVolume.xyz =
         rigid.linearVelocityAndInverseMass.xyz +
         cross(rigid.angularVelocity.xyz, position - rigid.bodyCenter.xyz);
-    const float3x3 rotation = polarRotation(matrixFromRows(
-        rigid.inverseInertiaRow0,
-        rigid.inverseInertiaRow1,
-        rigid.inverseInertiaRow2
-    ));
+    const float4 orientation = quaternionNormalize(rigid.orientation);
+    const float3x3 rotation = float3x3(
+        quaternionRotate(orientation, float3(1.0f, 0.0f, 0.0f)),
+        quaternionRotate(orientation, float3(0.0f, 1.0f, 0.0f)),
+        quaternionRotate(orientation, float3(0.0f, 0.0f, 1.0f))
+    );
     matrixToRows(
         rotation,
         particle.deformationRow0,
@@ -406,6 +473,7 @@ kernel void nm_adaptive_promote_fem(
     device const NMAdaptiveStateGPU* adaptive [[buffer(3)]],
     device const NMRigidStateGPU* rigidStates [[buffer(4)]],
     device NMFEMNodeStateGPU* nodes [[buffer(5)]],
+    device const NMMatterStatusGPU* statuses [[buffer(6)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -413,6 +481,9 @@ kernel void nm_adaptive_promote_fem(
         return;
     }
     const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) {
+        return;
+    }
     const uint nodeIndex = global - environment * dispatch.femNodeCount;
     const uint objectIndex = nodeRanges[nodeIndex].objectIndex;
     if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount) {
@@ -431,10 +502,7 @@ kernel void nm_adaptive_promote_fem(
         environment * dispatch.rigidProxyCount + object.rigidBinding
     ];
     device NMFEMNodeStateGPU& node = nodes[global];
-    const float3 local = quaternionRotate(
-        quaternionConjugate(state.orientation),
-        node.restAndFixed.xyz - state.centerAndRadius.xyz
-    );
+    const float3 local = node.restAndFixed.xyz - state.referenceCenter.xyz;
     const float3 position = rigid.bodyCenter.xyz +
         quaternionRotate(rigid.orientation, local);
     node.positionAndMass.xyz = position;
@@ -447,13 +515,18 @@ kernel void nm_adaptive_finish_promotion(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumObjectGPU* objects [[buffer(1)]],
     device NMAdaptiveStateGPU* adaptive [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.objectCount;
     if (global >= total || dispatch.objectCount == 0u) {
         return;
     }
-    const uint objectIndex = global % dispatch.objectCount;
+    const uint environment = global / dispatch.objectCount;
+    const uint objectIndex = global - environment * dispatch.objectCount;
+    if (!environmentHealthy(statuses, environment)) {
+        return;
+    }
     const NMContinuumObjectGPU object = objects[objectIndex];
     device NMAdaptiveStateGPU& state = adaptive[global];
     if ((object.flags & NM_OBJECT_ADAPTIVE) != 0u &&

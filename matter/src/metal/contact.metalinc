@@ -101,6 +101,18 @@ kernel void nm_project_rigid_states(
     }
     NMRigidStateGPU state{};
     projectProxy(proxy, body, bodyBacked, state);
+
+    // MetalWorld materializes articulated body twists directly from q/v after
+    // projecting poses. Continuum contact therefore consumes exact accepted
+    // link velocity without finite-difference history or a second dynamics
+    // solve; articulated inverse mass remains zero and reactions return only
+    // through the shared ABA body-wrench arena.
+    if ((proxy.flags & NM_RIGID_ARTICULATED) != 0u) {
+        state.linearVelocityAndInverseMass.w = 0.0f;
+        state.inverseInertiaRow0 = float4(0.0f);
+        state.inverseInertiaRow1 = float4(0.0f);
+        state.inverseInertiaRow2 = float4(0.0f);
+    }
     states[global] = state;
 }
 
@@ -326,6 +338,26 @@ kernel void nm_contact_evaluate(
     }
 
     const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
+    if (proxy.adaptiveObjectIndex != NM_INVALID_INDEX) {
+        if (proxy.adaptiveObjectIndex >= dispatch.objectCount) {
+            recordFailure(
+                statuses[environment],
+                NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex,
+                pairIndex,
+                float4(float(proxy.adaptiveObjectIndex), 0.0f, 0.0f, 0.0f)
+            );
+            return;
+        }
+        const NMAdaptiveStateGPU rigidOwner = adaptive[
+            environment * dispatch.objectCount +
+            proxy.adaptiveObjectIndex
+        ];
+        if (rigidOwner.activeRepresentation !=
+            NM_REPRESENTATION_RIGID) {
+            return;
+        }
+    }
     const NMRigidStateGPU rigid = rigidStates[
         environment * dispatch.rigidProxyCount + pair.rigidProxy
     ];
@@ -372,6 +404,16 @@ kernel void nm_contact_evaluate(
         (bias + bounce - normalVelocity) / normalResponse,
         0.0f
     );
+    const float staticFriction = sqrt(max(
+        materials[object.materialIndex].interfaceResponse.x *
+        materials[pair.materialInterface].interfaceResponse.x,
+        0.0f
+    ));
+    const float dynamicFriction = sqrt(max(
+        materials[object.materialIndex].interfaceResponse.y *
+        materials[pair.materialInterface].interfaceResponse.y,
+        0.0f
+    ));
     const float3 tangentVelocity =
         relativeVelocity - normalVelocity * normal;
     float3 tangentImpulseOnRigid = float3(0.0f);
@@ -382,16 +424,6 @@ kernel void nm_contact_evaluate(
             rigidDirectionalResponse(rigid, lever, tangent);
         if (tangentResponse > 1.0e-12f) {
             const float desiredMagnitude = tangentSpeed / tangentResponse;
-            const float staticFriction = sqrt(max(
-                materials[object.materialIndex].interfaceResponse.x *
-                materials[pair.materialInterface].interfaceResponse.x,
-                0.0f
-            ));
-            const float dynamicFriction = sqrt(max(
-                materials[object.materialIndex].interfaceResponse.y *
-                materials[pair.materialInterface].interfaceResponse.y,
-                0.0f
-            ));
             const float limit = desiredMagnitude <= staticFriction * normalImpulse
                 ? desiredMagnitude
                 : dynamicFriction * normalImpulse;
@@ -406,8 +438,8 @@ kernel void nm_contact_evaluate(
         pair.rigidProxy,
         pair.objectIndex,
         NM_CONTACT_VALID |
-            (length(tangentImpulseOnRigid) <
-                materials[object.materialIndex].interfaceResponse.x * normalImpulse
+            (length(tangentImpulseOnRigid) <=
+                staticFriction * normalImpulse
                 ? NM_CONTACT_STICKING
                 : 0u),
     };
@@ -515,44 +547,53 @@ kernel void nm_bridge_rigid_reactions(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
     device const NMRigidProxyGPU* proxies [[buffer(2)]],
-    device NMRigidReactionGPU* reactions [[buffer(3)]],
-    device MRABABodyWrenchGPU* articulatedWrenches [[buffer(4)]],
-    device MRBodyStateGPU* sceneBodies [[buffer(5)]],
+    device const NMRigidReactionGPU* reactions [[buffer(3)]],
+    device MRABABodyWrenchGPU* bodyWrenches [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    device const uint* bodyProxyIncidence [[buffer(6)]],
+    device const NMIncidenceRangeGPU* bodyProxyRanges [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.rigidProxyCount;
-    if (global >= total || dispatch.rigidProxyCount == 0u) {
+    const uint reactionBodyCount = bridge.reactionBodyCount;
+    const uint total = dispatch.environmentCount * reactionBodyCount;
+    if (global >= total || reactionBodyCount == 0u) {
         return;
     }
-    const uint environment = global / dispatch.rigidProxyCount;
-    const uint proxyIndex = global - environment * dispatch.rigidProxyCount;
-    const NMRigidProxyGPU proxy = proxies[proxyIndex];
-    const NMRigidReactionGPU reaction = reactions[global];
-    if (proxy.bodyIndex != NM_INVALID_INDEX &&
-        reaction.impulseAndCount.w > 0.0f) {
-        if ((proxy.flags & NM_RIGID_ARTICULATED) != 0u &&
-            proxy.bodyIndex < bridge.articulatedBodyCount) {
-            device MRABABodyWrenchGPU& wrench = articulatedWrenches[
-                environment * bridge.articulatedStride + proxy.bodyIndex
-            ];
-            wrench.force.xyz += bridge.time.x * reaction.impulseAndCount.xyz;
-            wrench.torque.xyz += bridge.time.x * reaction.angularImpulse.xyz;
-        } else if ((proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
-                   proxy.bodyIndex < bridge.sceneBodyCount) {
-            device MRBodyStateGPU& body = sceneBodies[
-                environment * bridge.sceneStride + proxy.bodyIndex
-            ];
-            if (bodyDynamic(body)) {
-                body.linearVelocityAndInverseMass.xyz +=
-                    body.linearVelocityAndInverseMass.w * reaction.impulseAndCount.xyz;
-                body.angularVelocity.xyz += bodyInverseInertia(
-                    body,
-                    reaction.angularImpulse.xyz
-                );
-            }
-        }
+    const uint environment = global / reactionBodyCount;
+    const uint bodyIndex = global - environment * reactionBodyCount;
+    if (!environmentHealthy(statuses, environment) ||
+        bodyIndex >= bridge.bodyWrenchCount) {
+        return;
     }
-    reactions[global] = {};
+
+    const NMIncidenceRangeGPU range = bodyProxyRanges[bodyIndex];
+    float3 impulse = float3(0.0f);
+    float3 angularImpulse = float3(0.0f);
+    const uint reactionBase = environment * dispatch.rigidProxyCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint proxyIndex = bodyProxyIncidence[range.first + local];
+        if (proxyIndex >= dispatch.rigidProxyCount) {
+            continue;
+        }
+        const NMRigidProxyGPU proxy = proxies[proxyIndex];
+        if (proxy.bodyIndex != bodyIndex ||
+            (proxy.flags &
+             (NM_RIGID_ARTICULATED | NM_RIGID_DYNAMIC)) == 0u) {
+            continue;
+        }
+        const NMRigidReactionGPU reaction =
+            reactions[reactionBase + proxyIndex];
+        impulse += reaction.impulseAndCount.xyz;
+        angularImpulse += reaction.angularImpulse.xyz;
+    }
+    if (!finite3(impulse) || !finite3(angularImpulse)) {
+        return;
+    }
+    device MRABABodyWrenchGPU& wrench = bodyWrenches[
+        environment * bridge.bodyWrenchStride + bodyIndex
+    ];
+    wrench.force.xyz += bridge.time.x * impulse;
+    wrench.torque.xyz += bridge.time.x * angularImpulse;
 }
 
 } // namespace numi_matter_metal

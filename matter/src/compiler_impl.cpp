@@ -55,18 +55,6 @@ using Mat3 = std::array<double, 9>;
     };
 }
 
-[[nodiscard]] Vec3 cross(const Vec3& left, const Vec3& right) noexcept {
-    return {
-        left[1] * right[2] - left[2] * right[1],
-        left[2] * right[0] - left[0] * right[2],
-        left[0] * right[1] - left[1] * right[0],
-    };
-}
-
-[[nodiscard]] double dot(const Vec3& left, const Vec3& right) noexcept {
-    return left[0] * right[0] + left[1] * right[1] + left[2] * right[2];
-}
-
 [[nodiscard]] double determinant(const Mat3& matrix) noexcept {
     return
         matrix[0] * (matrix[4] * matrix[8] - matrix[5] * matrix[7]) -
@@ -237,9 +225,6 @@ struct IncidenceEntry {
     std::uint32_t owner = 0u;
     std::uint32_t source = 0u;
 
-    friend bool operator<(const IncidenceEntry& left, const IncidenceEntry& right) noexcept {
-        return std::tie(left.owner, left.source) < std::tie(right.owner, right.source);
-    }
 };
 
 void buildIncidence(
@@ -249,7 +234,13 @@ void buildIncidence(
     std::vector<std::uint32_t>& incidence,
     std::vector<NMIncidenceRangeGPU>& ranges
 ) {
-    std::ranges::sort(entries);
+    std::ranges::sort(
+        entries,
+        [](const IncidenceEntry& left, const IncidenceEntry& right) {
+            return std::tie(left.owner, left.source) <
+                std::tie(right.owner, right.source);
+        }
+    );
     incidence.clear();
     ranges.assign(ownerCount, {});
     incidence.reserve(entries.size());
@@ -407,7 +398,13 @@ CompileResult compileWorld(
             !std::ranges::all_of(proxy.localOrientation, [](const double value) {
                 return finite(value);
             }) || !finite(proxy.radiusOrOffset) ||
-            proxy.materialIndex >= source.materials.size()) {
+            proxy.materialIndex >= source.materials.size() ||
+            (proxy.articulated && proxy.bodyIndex == NM_INVALID_INDEX) ||
+            (proxy.dynamic &&
+             (proxy.articulated ||
+              proxy.bodyIndex == NM_INVALID_INDEX ||
+              proxy.sceneBodyIndex == NM_INVALID_INDEX)) ||
+            (!proxy.dynamic && proxy.sceneBodyIndex != NM_INVALID_INDEX)) {
             result.diagnostics.push_back({
                 Diagnostic::Severity::error, 0u, 0u,
                 "rigid proxy contains invalid geometry or material binding",
@@ -417,10 +414,12 @@ CompileResult compileWorld(
         NMRigidProxyGPU cooked{};
         cooked.shapeKind = static_cast<nm_u32>(proxy.shape);
         cooked.bodyIndex = proxy.bodyIndex;
+        cooked.sceneBodyIndex = proxy.sceneBodyIndex;
         cooked.materialIndex = proxy.materialIndex;
         cooked.flags =
             (proxy.articulated ? NM_RIGID_ARTICULATED : 0u) |
             (proxy.dynamic ? NM_RIGID_DYNAMIC : 0u);
+        cooked.adaptiveObjectIndex = NM_INVALID_INDEX;
         cooked.localCenterAndRadius = f4(
             proxy.localCenter[0],
             proxy.localCenter[1],
@@ -447,6 +446,9 @@ CompileResult compileWorld(
     std::vector<IncidenceEntry> femIncidence;
     std::map<GridKey, std::uint32_t> gridNodes;
     std::set<std::uint32_t> adaptiveBindings;
+    std::set<std::uint32_t> adaptiveBodyBindings;
+    std::set<std::uint32_t> adaptiveSceneBindings;
+    std::map<std::uint32_t, std::uint32_t> adaptiveBodyOwners;
 
     world.objects.reserve(source.objects.size());
     world.adaptive.reserve(source.objects.size());
@@ -510,26 +512,35 @@ CompileResult compileWorld(
                     Diagnostic::Severity::error, 0u, 0u,
                     "MPM object '" + object.name + "' has no particles",
                 });
+                return result;
+            }
+            if (std::ranges::any_of(
+                    object.particles,
+                    [](const ParticleSource& particle) {
+                        return
+                            !finite(particle.position) ||
+                            !finite(particle.velocity) ||
+                            !(particle.mass > 0.0) ||
+                            !(particle.referenceVolume > 0.0) ||
+                            !finite(particle.mass) ||
+                            !finite(particle.referenceVolume);
+                    }
+                )) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "MPM object '" + object.name +
+                        "' contains nonfinite or nonpositive particle state",
+                });
+                return result;
             }
             descriptor.stateOffset = static_cast<nm_u32>(world.mpm.particles.size());
-            descriptor.stateCount = static_cast<nm_u32>(object.particles.size());
+            descriptor.stateCount = 0u;
             descriptor.elementOffset = static_cast<nm_u32>(world.mpm.stencils.size());
             const double h = object.characteristicLength;
             for (std::size_t localParticle = 0u;
                  localParticle < object.particles.size();
                  ++localParticle) {
                 const ParticleSource& sourceParticle = object.particles[localParticle];
-                if (!finite(sourceParticle.position) || !finite(sourceParticle.velocity) ||
-                    !(sourceParticle.mass > 0.0) ||
-                    !(sourceParticle.referenceVolume > 0.0) ||
-                    !finite(sourceParticle.mass) ||
-                    !finite(sourceParticle.referenceVolume)) {
-                    result.diagnostics.push_back({
-                        Diagnostic::Severity::error, 0u, 0u,
-                        "MPM particle contains nonfinite or nonpositive state",
-                    });
-                    continue;
-                }
                 NMParticleStateGPU particle{};
                 particle.positionAndMass = f4(
                     sourceParticle.position[0], sourceParticle.position[1],
@@ -630,6 +641,8 @@ CompileResult compileWorld(
                     }
                 }
             }
+            descriptor.stateCount =
+                static_cast<nm_u32>(world.mpm.particles.size()) - descriptor.stateOffset;
             descriptor.elementCount =
                 static_cast<nm_u32>(world.mpm.stencils.size()) - descriptor.elementOffset;
         } else if (representation == Representation::fem) {
@@ -638,17 +651,22 @@ CompileResult compileWorld(
                     Diagnostic::Severity::error, 0u, 0u,
                     "FEM object '" + object.name + "' requires nodes and tetrahedra",
                 });
+                return result;
+            }
+            if (std::ranges::any_of(
+                    object.femNodes,
+                    [](const Vec3& node) { return !finite(node); }
+                )) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "FEM object '" + object.name + "' contains a nonfinite node",
+                });
+                return result;
             }
             descriptor.stateOffset = static_cast<nm_u32>(world.fem.nodes.size());
             descriptor.stateCount = static_cast<nm_u32>(object.femNodes.size());
             descriptor.elementOffset = static_cast<nm_u32>(world.fem.tetrahedra.size());
             for (const Vec3& sourceNode : object.femNodes) {
-                if (!finite(sourceNode)) {
-                    result.diagnostics.push_back({
-                        Diagnostic::Severity::error, 0u, 0u,
-                        "FEM node is nonfinite",
-                    });
-                }
                 NMFEMNodeStateGPU node{};
                 node.positionAndMass = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
                 node.velocityAndInverseMass = f4();
@@ -742,7 +760,54 @@ CompileResult compileWorld(
         adaptive.requestedRepresentation = descriptor.representation;
         adaptive.angularVelocityAndMinimumJ.w = 1.0f;
         adaptive.orientation = f4(0.0, 0.0, 0.0, 1.0);
+
+        // The rest-frame centre is immutable transfer metadata. Promotion
+        // reconstructs every continuum point as C_rigid + R_rigid (X_rest -
+        // C_rest), so current translation never contaminates deformation.
+        double restMass = 0.0;
+        Vec3 restMoment{};
+        if (representation == Representation::mpm) {
+            for (std::uint32_t local = 0u; local < descriptor.stateCount; ++local) {
+                const NMParticleStateGPU& particle =
+                    world.mpm.particles[descriptor.stateOffset + local];
+                const double mass = particle.positionAndMass.w;
+                restMass += mass;
+                restMoment[0] += mass * particle.referenceAndTemperature.x;
+                restMoment[1] += mass * particle.referenceAndTemperature.y;
+                restMoment[2] += mass * particle.referenceAndTemperature.z;
+            }
+        } else if (representation == Representation::fem) {
+            for (std::uint32_t local = 0u; local < descriptor.stateCount; ++local) {
+                const NMFEMNodeStateGPU& node =
+                    world.fem.nodes[descriptor.stateOffset + local];
+                const double mass = node.positionAndMass.w;
+                restMass += mass;
+                restMoment[0] += mass * node.restAndFixed.x;
+                restMoment[1] += mass * node.restAndFixed.y;
+                restMoment[2] += mass * node.restAndFixed.z;
+            }
+        }
+        if (restMass > 0.0 && finite(restMass)) {
+            adaptive.referenceCenter = f4(
+                restMoment[0] / restMass,
+                restMoment[1] / restMass,
+                restMoment[2] / restMass,
+                0.0
+            );
+            adaptive.centerAndRadius = adaptive.referenceCenter;
+            adaptive.massAndError.x = static_cast<float>(restMass);
+        }
         if (object.adaptive) {
+            if (representation == Representation::rigid ||
+                descriptor.stateCount == 0u ||
+                !(restMass > 0.0) ||
+                !finite(restMass)) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "adaptive object '" + object.name +
+                        "' requires a positive-mass MPM or FEM representation",
+                });
+            }
             if (object.rigidBinding >= source.rigidProxies.size()) {
                 result.diagnostics.push_back({
                     Diagnostic::Severity::error, 0u, 0u,
@@ -750,12 +815,21 @@ CompileResult compileWorld(
                 });
             } else {
                 const RigidProxySource& binding = source.rigidProxies[object.rigidBinding];
-                if (binding.bodyIndex == NM_INVALID_INDEX ||
-                    !adaptiveBindings.insert(object.rigidBinding).second) {
+                if (!binding.dynamic || binding.articulated ||
+                    binding.bodyIndex == NM_INVALID_INDEX ||
+                    binding.sceneBodyIndex == NM_INVALID_INDEX ||
+                    !adaptiveBindings.insert(object.rigidBinding).second ||
+                    !adaptiveBodyBindings.insert(binding.bodyIndex).second ||
+                    !adaptiveSceneBindings.insert(binding.sceneBodyIndex).second) {
                     result.diagnostics.push_back({
                         Diagnostic::Severity::error, 0u, 0u,
-                        "adaptive rigid bindings must be body-backed and unique",
+                        "adaptive rigid bindings must own unique free-dynamic proxy and scene-body targets",
                     });
+                } else {
+                    adaptiveBodyOwners.emplace(
+                        binding.bodyIndex,
+                        objectIndex
+                    );
                 }
             }
         }
@@ -774,6 +848,17 @@ CompileResult compileWorld(
         );
         world.schedulers.push_back(scheduler);
         world.objects.push_back(descriptor);
+    }
+
+    // Every collision proxy attached to an adaptive fallback body shares the
+    // same representation owner. This disables the complete rigid shape set
+    // while continuum owns the object, rather than only the one proxy named by
+    // the object's transfer binding.
+    for (NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
+        const auto owner = adaptiveBodyOwners.find(proxy.bodyIndex);
+        if (owner != adaptiveBodyOwners.end()) {
+            proxy.adaptiveObjectIndex = owner->second;
+        }
     }
 
     buildIncidence(
@@ -810,10 +895,20 @@ CompileResult compileWorld(
              proxySize < world.contact.rigidProxies.size();
              ++proxySize) {
             const std::uint32_t proxy = static_cast<std::uint32_t>(proxySize);
+            const std::uint32_t objectIndex = unifiedNodeObjects[nodeSize];
+            // Every proxy on an adaptive fallback body represents the same
+            // matter. Generating any continuum↔fallback pair would apply an
+            // unphysical self-contact while the continuum representation is
+            // active, including additional shapes on the same rigid body.
+            if (objectIndex < world.objects.size() &&
+                world.contact.rigidProxies[proxySize]
+                    .adaptiveObjectIndex == objectIndex) {
+                continue;
+            }
             NMContactPairGPU pair{};
             pair.continuumNode = node;
             pair.rigidProxy = proxy;
-            pair.objectIndex = unifiedNodeObjects[nodeSize];
+            pair.objectIndex = objectIndex;
             pair.materialInterface = world.contact.rigidProxies[proxySize].materialIndex;
             const std::uint32_t pairIndex =
                 static_cast<std::uint32_t>(world.contact.pairs.size());

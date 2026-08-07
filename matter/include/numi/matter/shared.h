@@ -32,7 +32,7 @@ typedef struct NM_ALIGN16 nm_uint4 {
 } nm_uint4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 1u
+#define NM_MATTER_ABI_VERSION 4u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -85,6 +85,7 @@ enum NMStatusCode : nm_u32 {
     NM_STATUS_CONTACT_FAILURE = 6u,
     NM_STATUS_LINEAR_SOLVER_FAILURE = 7u,
     NM_STATUS_UNSUPPORTED = 8u,
+    NM_STATUS_RIGID_WORLD_FAILURE = 9u,
 };
 
 enum NMMatterFlags : nm_u32 {
@@ -111,6 +112,11 @@ enum NMRigidShapeKind : nm_u32 {
 enum NMRigidBindingFlags : nm_u32 {
     NM_RIGID_ARTICULATED = 1u << 0u,
     NM_RIGID_DYNAMIC = 1u << 1u,
+};
+
+enum NMResetFlags : nm_u32 {
+    NM_RESET_ENABLED = 1u << 0u,
+    NM_RESET_PARAMETERS = 1u << 1u,
 };
 
 enum NMContactFlags : nm_u32 {
@@ -157,6 +163,10 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
     nm_float4 numericalLimits;
 } NMMatterDispatchGPU;
 
+enum NMMicrostepFlags : nm_u32 {
+    NM_MICROSTEP_CAPTURE_EVENTS = 1u << 0u,
+};
+
 typedef struct NM_ALIGN16 NMMicrostepGPU {
     nm_u32 controlStep;
     nm_u32 microtick;
@@ -165,10 +175,10 @@ typedef struct NM_ALIGN16 NMMicrostepGPU {
 
     nm_u32 seedLo;
     nm_u32 seedHi;
-    nm_u32 runIdentification;
-    nm_u32 runAdaptiveTransfer;
+    nm_u32 flags;
+    nm_u32 reserved;
 
-    // global microtick dt, inverse dt, frame-relative time, reserved.
+    // microtick dt, inverse dt, execution time, duration.
     nm_float4 time;
 } NMMicrostepGPU;
 
@@ -178,19 +188,27 @@ typedef struct NM_ALIGN16 NMBridgeDispatchGPU {
     nm_u32 currentBodyCount;
     nm_u32 currentBodyStride;
 
-    nm_u32 articulatedBodyCount;
+    nm_u32 bodyWrenchCount;
     nm_u32 sceneBodyCount;
-    nm_u32 articulatedStride;
+    nm_u32 bodyWrenchStride;
     nm_u32 sceneStride;
 
     nm_u32 reactionStride;
     nm_u32 flags;
-    nm_u32 reserved0;
+    // Number of body-owned reaction ranges compiled by the runtime.
+    nm_u32 reactionBodyCount;
     nm_u32 reserved1;
 
     // inverse dt, dt, reserved, reserved.
     nm_float4 time;
 } NMBridgeDispatchGPU;
+
+typedef struct NM_ALIGN16 NMResetPassGPU {
+    nm_u32 controlStep;
+    nm_u32 resetMaskStepStride;
+    nm_u32 stateWidth;
+    nm_u32 flags;
+} NMResetPassGPU;
 
 typedef struct NM_ALIGN16 NMIdentificationPassGPU {
     nm_u32 candidateCount;
@@ -337,9 +355,19 @@ typedef struct NM_ALIGN16 NMPCGScalarGPU {
 
 typedef struct NM_ALIGN16 NMRigidProxyGPU {
     nm_u32 shapeKind;
+    // Global EngineModel body index. This is the canonical index used by the
+    // current-body arena and the unified external-wrench arena.
     nm_u32 bodyIndex;
+    // Environment-local scene-body index used only when adaptive transfer
+    // publishes a rigid state back into MetalWorld's scene-state stream.
+    nm_u32 sceneBodyIndex;
     nm_u32 materialIndex;
+
     nm_u32 flags;
+    // Adaptive continuum object that owns this rigid fallback, or invalid.
+    nm_u32 adaptiveObjectIndex;
+    nm_u32 reserved1;
+    nm_u32 reserved2;
 
     // body-local center or plane normal; w radius or plane offset.
     nm_float4 localCenterAndRadius;
@@ -392,7 +420,12 @@ typedef struct NM_ALIGN16 NMAdaptiveStateGPU {
 
     // mass, maximum strain, RMS strain, reconstruction residual.
     nm_float4 massAndError;
+    // Current world-space centre of mass; w is the measured bounding radius.
     nm_float4 centerAndRadius;
+    // Immutable authored rest-frame centre used for rigid-to-continuum
+    // reconstruction. Keeping it separate from the current COM prevents
+    // translation from leaking into the promoted deformation.
+    nm_float4 referenceCenter;
     nm_float4 linearVelocityAndAngularSpeed;
     // xyz angular velocity, w minimum determinant.
     nm_float4 angularVelocityAndMinimumJ;
@@ -432,6 +465,8 @@ typedef struct NM_ALIGN16 NMSchedulerStateGPU {
     nm_float4 numerical;
     // contact, slip, strain, residual thresholds.
     nm_float4 thresholds;
+    // elapsed episode time, last event time, last event delta, event count.
+    nm_float4 timing;
 } NMSchedulerStateGPU;
 
 typedef struct NM_ALIGN16 NMEventTokenGPU {
@@ -439,8 +474,10 @@ typedef struct NM_ALIGN16 NMEventTokenGPU {
     nm_u32 objectIndex;
     nm_u32 eventClass;
     nm_u32 flags;
-    // time in frame, severity, previous value, current value.
+    // episode time, delta since the previous object event, severity, current.
     nm_float4 payload;
+    // previous value, current value, reserved, reserved.
+    nm_float4 transition;
 } NMEventTokenGPU;
 
 typedef struct NM_ALIGN16 NMMatterStatusGPU {
@@ -463,10 +500,14 @@ static_assert(sizeof(nm_float4) == 16);
 static_assert(sizeof(nm_uint4) == 16);
 static_assert(sizeof(NMMatterDispatchGPU) % 16 == 0);
 static_assert(sizeof(NMMicrostepGPU) % 16 == 0);
+static_assert(sizeof(NMResetPassGPU) == 16);
 static_assert(sizeof(NMBridgeDispatchGPU) % 16 == 0);
+static_assert(sizeof(NMRigidProxyGPU) == 80);
 static_assert(sizeof(NMMaterialGPU) % 16 == 0);
 static_assert(sizeof(NMContinuumObjectGPU) % 16 == 0);
 static_assert(sizeof(NMParticleStateGPU) % 16 == 0);
 static_assert(sizeof(NMFEMNodeStateGPU) % 16 == 0);
-static_assert(sizeof(NMAdaptiveStateGPU) % 16 == 0);
+static_assert(sizeof(NMAdaptiveStateGPU) == 160);
+static_assert(sizeof(NMSchedulerStateGPU) == 80);
+static_assert(sizeof(NMEventTokenGPU) == 48);
 #endif

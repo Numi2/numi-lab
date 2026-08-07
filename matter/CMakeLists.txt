@@ -1,27 +1,54 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(
-    NumiMatter
-    VERSION 0.1.0
-    DESCRIPTION "Compiled heterogeneous matter runtime for Numi Lab"
-    LANGUAGES CXX
-)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    project(
+        NumiMatter
+        VERSION 0.1.0
+        DESCRIPTION "Compiled heterogeneous matter runtime for Numi Lab"
+        LANGUAGES CXX
+    )
+endif()
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_library(numi_matter_compiler STATIC src/matter.cpp)
+set(
+    NUMI_MATTER_COMPILER_SOURCES
+    src/matter.cpp
+    src/language_impl.cpp
+    src/constitutive_impl.cpp
+    src/compiler_impl.cpp
+    src/package_impl.cpp
+)
+
+# One canonical object set feeds both the standalone compiler library and the
+# parent MetalRobo dylib. This prevents the integrated runtime from depending
+# on archive extraction heuristics that can otherwise drop unreferenced public
+# Matter entry points from a shared library.
+add_library(numi_matter_compiler_objects OBJECT ${NUMI_MATTER_COMPILER_SOURCES})
 target_include_directories(
-    numi_matter_compiler
+    numi_matter_compiler_objects
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
         "$<INSTALL_INTERFACE:include>"
 )
 target_compile_options(
-    numi_matter_compiler
+    numi_matter_compiler_objects
     PRIVATE -Wall -Wextra -Wpedantic
+)
+
+add_library(
+    numi_matter_compiler
+    STATIC
+    $<TARGET_OBJECTS:numi_matter_compiler_objects>
+)
+target_include_directories(
+    numi_matter_compiler
+    PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:include>"
 )
 
 add_executable(numi-matterc tools/matterc.cpp)
@@ -53,38 +80,66 @@ if(APPLE)
             -o "${NUMI_MATTER_METALLIB}"
         DEPENDS
             src/matter_kernels.metal
+            src/metal/common.metalinc
+            src/metal/mpm.metalinc
+            src/metal/fem.metalinc
+            src/metal/contact.metalinc
+            src/metal/adaptive.metalinc
+            src/metal/identification_scheduler.metalinc
             include/numi/matter/shared.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
         VERBATIM
     )
     add_custom_target(numi_matter_shaders ALL DEPENDS "${NUMI_MATTER_METALLIB}")
 
-    add_library(numi_matter_runtime STATIC src/runtime.mm)
-    add_dependencies(numi_matter_runtime numi_matter_shaders)
+    add_library(
+        numi_matter_runtime_objects
+        OBJECT
+        src/runtime.mm
+        src/metal_world.cpp
+    )
+    add_dependencies(numi_matter_runtime_objects numi_matter_shaders)
     target_include_directories(
-        numi_matter_runtime
-        PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        numi_matter_runtime_objects
+        PUBLIC
+            "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+            "$<INSTALL_INTERFACE:include>"
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include"
     )
     target_compile_options(
+        numi_matter_runtime_objects
+        PRIVATE
+            "$<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra;-Wpedantic>"
+            "$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc;-Wall;-Wextra;-Wpedantic>"
+    )
+    target_compile_definitions(
+        numi_matter_runtime_objects
+        PRIVATE NUMI_MATTER_DEFAULT_METALLIB=\"${NUMI_MATTER_METALLIB}\"
+    )
+
+    add_library(
         numi_matter_runtime
-        PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic
+        STATIC
+        $<TARGET_OBJECTS:numi_matter_runtime_objects>
+    )
+    target_include_directories(
+        numi_matter_runtime
+        PUBLIC
+            "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+            "$<INSTALL_INTERFACE:include>"
     )
     target_link_libraries(
         numi_matter_runtime
         PUBLIC numi_matter_compiler
         PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}"
     )
-    target_compile_definitions(
-        numi_matter_runtime
-        PRIVATE NUMI_MATTER_DEFAULT_METALLIB=\"${NUMI_MATTER_METALLIB}\"
-    )
 
     install(FILES "${NUMI_MATTER_METALLIB}" DESTINATION lib/numi-matter)
     install(TARGETS numi_matter_runtime ARCHIVE DESTINATION lib)
 endif()
 
-install(TARGETS numi_matter_compiler numi-matterc
+install(
+    TARGETS numi_matter_compiler numi-matterc
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
 )
