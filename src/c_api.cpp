@@ -84,6 +84,7 @@ struct MRTaskVisualRuntime {
     std::uint64_t captureFrameIndex = 0u;
     bool captureEnabled = false;
     bool capturePolicyCamera = false;
+    bool deviceObservationEnabled = false;
     std::uint64_t sceneFingerprint = 0u;
 };
 
@@ -518,13 +519,15 @@ void resetTaskRolloutState(
                 "]: " + sampled.message
             );
         }
-        const auto tracker = handle.visualRuntime->tracker.reset();
-        if (!tracker.succeeded()) {
-            throw std::runtime_error(
-                std::string{"visual tracker reset failed ["} +
-                metalrobo::metalHybridRendererStatusName(tracker.status) +
-                "]: " + tracker.message
-            );
+        if (handle.visualRuntime->deviceObservationEnabled) {
+            const auto tracker = handle.visualRuntime->tracker.reset();
+            if (!tracker.succeeded()) {
+                throw std::runtime_error(
+                    std::string{"visual tracker reset failed ["} +
+                    metalrobo::metalHybridRendererStatusName(tracker.status) +
+                    "]: " + tracker.message
+                );
+            }
         }
     }
     handle.resetMasks.clear();
@@ -2109,9 +2112,12 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             "SensorPack masked-depth actor layout is incomplete"
         );
     }
-    if (trackedOffsets.empty() && maskedDepthCount == 0u) {
+    const bool deviceObservationEnabled =
+        !trackedOffsets.empty() || maskedDepthCount != 0u;
+    if (!deviceObservationEnabled &&
+        (program.captureWidth == 0u || program.captureHeight == 0u)) {
         throw std::invalid_argument(
-            "SensorPack has no device visual actor observations"
+            "visual runtime requires device observations or presentation capture"
         );
     }
 
@@ -2203,7 +2209,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         }
         episode.assets.push_back(std::move(asset));
     }
-    if (manipulatedAsset.empty() || targetAsset.empty()) {
+    if (deviceObservationEnabled &&
+        (manipulatedAsset.empty() || targetAsset.empty())) {
         throw std::invalid_argument(
             "visual object tracking requires a tracked rigid object and static scene asset"
         );
@@ -2303,15 +2310,25 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         presentation.maximumDepthMeters = 12.0f;
         episode.sensors.push_back(std::move(presentation));
     }
-    episode.task = {
-        "compiled_task_visual_observation",
-        "robot",
-        manipulatedAsset,
-        targetAsset,
-        "visual_rollout_target",
-        handle.stepConfig.timestepSeconds,
-        20.0,
-    };
+    episode.task = deviceObservationEnabled
+        ? metalrobo::TaskSpec{
+              "compiled_task_visual_observation",
+              "robot",
+              manipulatedAsset,
+              targetAsset,
+              "visual_rollout_target",
+              handle.stepConfig.timestepSeconds,
+              20.0,
+          }
+        : metalrobo::TaskSpec{
+              "compiled_task_presentation_capture",
+              "robot",
+              {},
+              {},
+              {},
+              handle.stepConfig.timestepSeconds,
+              20.0,
+          };
 
     auto runtime = std::make_unique<MRTaskVisualRuntime>();
     const metalrobo::WorldCompileResult worldStatus =
@@ -2624,18 +2641,21 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             );
         }
     }
-    const auto trackerStatus = runtime->tracker.compile(
-        runtime->renderer,
-        runtime->worlds,
-        std::move(trackerConfig)
-    );
-    if (!trackerStatus.succeeded()) {
-        throw std::runtime_error(
-            std::string{"visual tracker compile failed ["} +
-            metalrobo::metalHybridRendererStatusName(trackerStatus.status) +
-            "]: " + trackerStatus.message
+    if (deviceObservationEnabled) {
+        const auto trackerStatus = runtime->tracker.compile(
+            runtime->renderer,
+            runtime->worlds,
+            std::move(trackerConfig)
         );
+        if (!trackerStatus.succeeded()) {
+            throw std::runtime_error(
+                std::string{"visual tracker compile failed ["} +
+                metalrobo::metalHybridRendererStatusName(trackerStatus.status) +
+                "]: " + trackerStatus.message
+            );
+        }
     }
+    runtime->deviceObservationEnabled = deviceObservationEnabled;
     runtime->sceneFingerprint = manifest.fingerprint;
     return runtime;
 }
@@ -2651,15 +2671,17 @@ void installTaskVisualRuntime(
     }
     std::unique_ptr<MRTaskVisualRuntime> candidate =
         compileTaskVisualRuntime(handle, program);
-    const metalrobo::MetalWorldDeviceObservationProgram observationProgram =
-        candidate->tracker.observationProgram();
-    if (!observationProgram.valid()) {
-        throw std::runtime_error(
-            "compiled SensorPack visual program is invalid"
-        );
+    if (candidate->deviceObservationEnabled) {
+        const metalrobo::MetalWorldDeviceObservationProgram observationProgram =
+            candidate->tracker.observationProgram();
+        if (!observationProgram.valid()) {
+            throw std::runtime_error(
+                "compiled SensorPack visual program is invalid"
+            );
+        }
+        handle.stepConfig.deviceObservationProgram = observationProgram;
     }
     handle.visualRuntime = std::move(candidate);
-    handle.stepConfig.deviceObservationProgram = observationProgram;
 }
 
 std::runtime_error worldFamilyError(
