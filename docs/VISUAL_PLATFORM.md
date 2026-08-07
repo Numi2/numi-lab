@@ -36,7 +36,9 @@ body/link instances, camera bindings, the selected light rig, and an optional
 `VisualEnvironmentPackV2`; it never flattens authored geometry into a host
 scene arena.
 
-`metalrobo_visual_cook` accepts GLB, glTF, USD, USDA, USDC, and USDZ. The USD
+`metalrobo_visual_cook` accepts GLB, glTF, STL, USD, USDA, USDC, and USDZ. STL
+is imported through Model I/O without a coordinate or unit conversion so its
+authored URDF visual transform remains the single source of scale. The USD
 path uses Model I/O with `MTKMeshBufferAllocator`, applies stage units and
 up-axis conversion, preserves material subsets and symbolic link bindings,
 and writes a sectioned, content-addressed `.mrvpack`. Geometry, material
