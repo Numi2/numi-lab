@@ -827,9 +827,24 @@ add_executable(
     metalrobo_robot_catalog
     apps/robot_catalog.cpp
 )
+add_executable(
+    metalrobo_ai_sapiens_compile
+    apps/ai_sapiens_compile.cpp
+)
 target_link_libraries(metalrobo_robot_catalog PRIVATE metalrobo)
+target_link_libraries(
+    metalrobo_ai_sapiens_compile
+    PRIVATE metalrobo LibXml2::LibXml2
+)
 set_target_properties(
     metalrobo_robot_catalog
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+set_target_properties(
+    metalrobo_ai_sapiens_compile
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

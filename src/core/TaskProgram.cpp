@@ -1392,7 +1392,20 @@ TaskCompileDiagnostics compileTaskProgram(
             dofFound->limits.w,
             dofFound->limits.z,
         };
-        if (actuator->kind == RobotActuatorKind::jointVelocity) {
+        if (actuator->kind == RobotActuatorKind::jointPosition &&
+            (actuator->parameters.x != 0.0f ||
+             actuator->parameters.y != 0.0f)) {
+            if (!(actuator->parameters.x > 0.0f) ||
+                actuator->parameters.y < 0.0f) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    actuator->id,
+                    "joint-position actuator gain override requires positive stiffness and non-negative damping"
+                );
+            }
+            drive.x = actuator->parameters.x;
+            drive.y = actuator->parameters.y;
+        } else if (actuator->kind == RobotActuatorKind::jointVelocity) {
             const float speedLimit =
                 (dofFound->flags & MR_DOF_FLAG_VELOCITY_LIMIT) != 0u &&
                     dofFound->limits.z > 0.0f
@@ -1823,7 +1836,12 @@ TaskCompileDiagnostics compileTaskProgram(
                         "InteractionPack joint target exceeds the compiled mechanism limit"
                     );
                 }
-                if (frame == 0u ||
+                // A reset/observation-only InteractionPack may preserve a
+                // source trajectory whose sampled derivative exceeds this
+                // mechanism's drive limit.  It is not an executable target
+                // in that mode; the policy's ordinary position action and
+                // all solver/drive limits remain authoritative.
+                if (!pack.interactionControlReference || frame == 0u ||
                     (properties.flags & MR_DOF_FLAG_VELOCITY_LIMIT) == 0u) {
                     continue;
                 }
@@ -2060,7 +2078,10 @@ TaskCompileDiagnostics compileTaskProgram(
                 }
                 break;
             }
-            case TaskObservationSource::interactionJointPositionError: {
+            case TaskObservationSource::interactionJointPositionError:
+            case TaskObservationSource::interactionJointTarget:
+            case TaskObservationSource::interactionJointTargetVelocity:
+            case TaskObservationSource::interactionAnchorOrientation: {
                 if (interactionClip == nullptr) {
                     return reject(
                         TaskCompileStatus::invalidPack,
@@ -2086,6 +2107,10 @@ TaskCompileDiagnostics compileTaskProgram(
                         spec.target,
                         "interaction joint observation has no task action binding"
                     );
+                }
+                if (spec.source ==
+                        TaskObservationSource::interactionAnchorOrientation) {
+                    componentLimit = 6u;
                 }
                 break;
             }

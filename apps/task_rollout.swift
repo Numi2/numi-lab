@@ -549,16 +549,14 @@ private struct Options {
             )
         }
         if interactionPack != nil &&
-            (worldPack != nil || urdf != nil || taskPack != nil ||
-             robotActuatorPack != nil || sensorProgramPack != nil ||
-             realityProgramPack != nil ||
+            (worldPack != nil ||
              (unitreeG1Task != .velocity &&
               unitreeG1Task != .ballDodge &&
               unitreeG1Task != .supineGetUpDiscovery) ||
              !dynamicSpheres.isEmpty)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "InteractionPack evaluation uses bundled G1 velocity, ball-dodge, or supine-get-up mechanics and cannot be combined with imported mechanics or --ball."
+                "InteractionPack evaluation supports imported URDF owner packs or bundled G1 velocity, ball-dodge, and supine-get-up mechanics; it cannot be combined with a WorldPack or --ball."
             )
         }
         let importing = worldPack != nil || urdf != nil
@@ -808,7 +806,8 @@ private func makeContext(
         unitreeG1Task: options.unitreeG1Task
     )
     if let interactionPack = options.interactionPack,
-       let interactionClip = options.interactionClip
+       let interactionClip = options.interactionClip,
+       options.urdf == nil
     {
         return (
             try MetalRoboTaskRolloutContext(
@@ -870,7 +869,15 @@ private func makeContext(
                         realityPack: URL(fileURLWithPath: realityPack)
                     ),
                     sensorsAndPhysics: configuration,
-                    visualSensor: visualSensor
+                    visualSensor: visualSensor,
+                    teacher: options.interactionPack.flatMap { pack in
+                        options.interactionClip.map {
+                            MetalRoboTeacherSource(
+                                pack: URL(fileURLWithPath: pack),
+                                clipID: $0
+                            )
+                        }
+                    }
                 ),
                 metallibPath: options.metallib
             ),

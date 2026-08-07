@@ -2999,6 +2999,8 @@ static MRTaskRolloutHandle* createImportedURDFRun(
     const char* reality_program_pack_path,
     const MRTaskRolloutConfigC* config,
     const uint32_t surface_value,
+    const char* interaction_pack_path,
+    const char* interaction_clip_id,
     const MRTaskVisualObservationConfigC* visual_sensor,
     const char* metallib_path
 ) {
@@ -3043,6 +3045,42 @@ static MRTaskRolloutHandle* createImportedURDFRun(
                 "one or more imported run owner artifacts failed to load"
             );
         }
+        const bool hasInteraction = interaction_pack_path != nullptr &&
+            interaction_pack_path[0] != '\0';
+        if (hasInteraction != (interaction_clip_id != nullptr &&
+                               interaction_clip_id[0] != '\0')) {
+            throw std::invalid_argument(
+                "imported InteractionPack requires both a path and clip identity"
+            );
+        }
+        metalrobo::InteractionPack interactions;
+        metalrobo::LearningPackResult interactionLoaded;
+        const metalrobo::InteractionClip* interactionClip = nullptr;
+        std::string interactionClipId;
+        if (hasInteraction) {
+            interactionLoaded = metalrobo::readInteractionPack(
+                interaction_pack_path,
+                interactions
+            );
+            if (!interactionLoaded.succeeded()) {
+                throw std::invalid_argument(
+                    std::string{"InteractionPack load failed ["} +
+                    metalrobo::learningPackStatusName(
+                        interactionLoaded.status) + "]: " +
+                    interactionLoaded.message
+                );
+            }
+            interactionClip = &selectedInteractionClip(
+                interactions,
+                interaction_clip_id
+            );
+            interactionClipId = interactionClip->id;
+            // AI Sapiens mimic actors already emit the source's absolute
+            // joint-position commands.  The InteractionPack is their
+            // motion-conditioned observation/reset authority, not a second
+            // residual controller layered onto those commands.
+            task.interactionControlReference = false;
+        }
 
         metalrobo::RobotDescriptionCookOptions options;
         options.rootMode =
@@ -3068,23 +3106,46 @@ static MRTaskRolloutHandle* createImportedURDFRun(
                 cooked.message
             );
         }
-        metalrobo::appendLocomotionSurface(
-            authored.model,
-            authored.sceneBodies,
-            surface
+        metalrobo::LocomotionSceneComponent surfaceComponent =
+            metalrobo::makeLocomotionSurfaceComponent(
+                authored.model,
+                surface
+            );
+        metalrobo::RunManifest manifest = makeImportedRunManifest(
+            std::move(authored.model),
+            std::move(authored.sceneBodies),
+            authored.articulationIndex,
+            std::move(task),
+            std::move(actuators),
+            std::move(sensors),
+            std::move(reality),
+            *config,
+            "imported_urdf_run"
         );
+        manifest.scene.objects.push_back({
+            .id = "imported_locomotion_surface",
+            .semanticClass = "support_surface",
+            .role = MR_WORLD_ASSET_FIXTURE,
+            .render = MR_WORLD_RENDER_NONE,
+            .collision = MR_WORLD_COLLISION_PRIMITIVES,
+            .dynamics = MR_WORLD_DYNAMICS_STATIC,
+            .mechanics = std::move(surfaceComponent.mechanics),
+            .defaultBodyStates = std::move(surfaceComponent.defaultBodyStates),
+        });
+        if (interactionClip != nullptr) {
+            manifest.teacher = {
+                .id = interactions.id,
+                .kind = metalrobo::TeacherKind::motionImagination,
+                .provider = "interaction_pack",
+                .model = interactionClipId,
+                .artifact = interaction_pack_path,
+                .artifactFingerprint = interactionLoaded.contentHash,
+                .interactions = std::move(interactions),
+                .interactionClip = interactionClipId,
+            };
+        }
         auto handle = createCompiledRunTaskRollout(
-            makeImportedRunManifest(
-                std::move(authored.model),
-                std::move(authored.sceneBodies),
-                authored.articulationIndex,
-                std::move(task),
-                std::move(actuators),
-                std::move(sensors),
-                std::move(reality),
-                *config,
-                "imported_urdf_run"
-            ),
+            std::move(manifest),
             metallib_path,
             "imported URDF",
             visual_sensor
@@ -3234,6 +3295,8 @@ MRTaskRolloutHandle* mr_create_task_rollout(
             manifest->reality_program_pack_path,
             &manifest->profile,
             manifest->surface,
+            manifest->teacher_pack_path,
+            manifest->teacher_clip_id,
             manifest->visual_sensor_program,
             manifest->metallib_path
         );
