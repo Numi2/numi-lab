@@ -42,10 +42,10 @@ jobs:
           887d75597988142e6a2a4564e4471999c212be84d94df57392333a3f4d16bb9d  .github/matter-audit-improve-payload-00.txt
           0b76fdf534d8eade36cedfe302941d727084488dfad5773c71cb3084a30fde27  .github/matter-audit-improve-payload-01.txt
           002eb06db0042344bef0a65073e4c8aa14b671a5b73d07252a009d6d5422aace  .github/matter-audit-improve-payload-02.txt
-          e4b1a89b8d81997c38529a46decce8d1ed6555ea064bb388989f3b1175160e7e  .github/matter-audit-improve-payload-03a.txt
           b1e89eccef087ab4c832a746acb2d876e45ffa9ab49d8e5ea7f1c30e5ee33557  .github/matter-audit-improve-payload-03b.txt
           CHECKSUMS
           sha256sum --check /tmp/matter-audit-payload-checksums
+          sha256sum .github/matter-audit-improve-payload-03a.txt
 
           cat \
             .github/matter-audit-improve-payload-00.txt \
