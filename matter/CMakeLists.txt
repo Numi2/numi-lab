@@ -21,6 +21,7 @@ set(
     src/constitutive_impl.cpp
     src/compiler_impl.cpp
     src/fingerprint_impl.cpp
+    src/validation_impl.cpp
     src/package_impl.cpp
 )
 

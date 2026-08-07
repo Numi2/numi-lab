@@ -429,6 +429,7 @@ void runStatefulMaterial(
             request.physicsSubstep = 0u;
             request.physicsSubsteps = 1u;
             request.timestepSeconds = runtime.timestepSeconds();
+            request.runAdaptiveTransfer = false;
             auto encoded = runtime.encode(request);
             require(
                 encoded.encoded,
@@ -1069,16 +1070,26 @@ void runMetalWorldCoupling() {
         metalrobo::MetalWorldStepConfig config{};
         config.timestepSeconds = 1.0f / 480.0f;
         config.physicsSubsteps = 1u;
-        config.solverMode = metalrobo::MetalWorldSolverMode::temporalCone;
-        config.velocityIterations = 2u;
-        config.finalVelocityIterations = 1u;
+        // Matter owns the continuum-plane contact in this probe. MetalWorld
+        // only consumes the equal-and-opposite articulated body wrench, so
+        // running the rigid contact compiler here is redundant and can
+        // dominate qualification latency on shared Apple runners.
+        config.solverMode = metalrobo::MetalWorldSolverMode::freeMotionABA;
         config.matrixFreeArticulatedContact = false;
         config.streamedArticulatedContactResponses = false;
-        config.captureContactEvidence = true;
+        config.captureContactEvidence = false;
         config.devicePhysicsProgram =
             numi::matter::makeMetalWorldDevicePhysicsProgram(matter);
         require(config.devicePhysicsProgram.valid(),
             "Matter did not produce a valid MetalWorld adapter");
+        require(
+            (config.devicePhysicsProgram.flags &
+             metalrobo::MetalWorldDevicePhysicsWritesBodyWrenches) != 0u &&
+            (config.devicePhysicsProgram.flags &
+             metalrobo::
+                 MetalWorldDevicePhysicsRequiresRigidContactEvidence) == 0u,
+            "non-adaptive Matter coupling published incorrect device-physics capabilities"
+        );
 
         metalrobo::MetalWorldContext context;
         metalrobo::MetalWorldResult result;

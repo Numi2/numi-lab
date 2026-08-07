@@ -525,6 +525,15 @@ CompileResult compileWorld(
             break;
         }
         const std::uint32_t objectIndex = *objectIndexValue;
+        if (objectIndex > static_cast<std::uint32_t>(
+                std::numeric_limits<std::int32_t>::max()
+            )) {
+            result.diagnostics.push_back({
+                Diagnostic::Severity::error, 0u, 0u,
+                "object index exceeds the signed sparse-grid ABI",
+            });
+            return result;
+        }
         const ObjectSource& object = source.objects[objectIndexSize];
         if (object.materialIndex >= source.materials.size() ||
             object.name.empty() ||
@@ -707,7 +716,14 @@ CompileResult compileWorld(
                 static_cast<std::uint64_t>(blockDimensions[0]) *
                 blockDimensions[1] * blockDimensions[2];
             if (blockCount64 == 0u ||
-                blockCount64 > std::numeric_limits<std::uint32_t>::max() ||
+                blockCount64 >
+                    static_cast<std::uint64_t>(
+                        std::numeric_limits<std::int32_t>::max()
+                    ) ||
+                world.mpm.blocks.size() >
+                    static_cast<std::size_t>(
+                        std::numeric_limits<std::int32_t>::max()
+                    ) ||
                 world.mpm.blocks.size() >
                     std::numeric_limits<std::uint32_t>::max() - blockCount64 ||
                 world.mpm.blockLookup.size() >
@@ -1260,7 +1276,17 @@ CompileResult compileWorld(
     dispatch.maximumRateExponent = options.maximumRateExponent;
     dispatch.femPCGIterations = source.femPCGIterations;
     dispatch.identificationCandidateCount = source.identificationCandidates;
-    dispatch.eventStride = NM_EVENT_CLASS_COUNT * dispatch.objectCount;
+    const std::uint64_t eventStride =
+        static_cast<std::uint64_t>(NM_EVENT_CLASS_COUNT) *
+        dispatch.objectCount;
+    if (eventStride > std::numeric_limits<std::uint32_t>::max()) {
+        result.diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "event-token stride exceeds the 32-bit cooked ABI",
+        });
+        return result;
+    }
+    dispatch.eventStride = static_cast<nm_u32>(eventStride);
     dispatch.mpmGridCount = static_cast<nm_u32>(world.mpm.grids.size());
     dispatch.mpmBlockCount = static_cast<nm_u32>(world.mpm.blocks.size());
     dispatch.mpmBlockLookupCount =
@@ -1292,6 +1318,16 @@ CompileResult compileWorld(
     }
 
     world.fingerprint = compiledWorldFingerprint(world);
+    std::string layoutError;
+    if (!validateCompiledWorldLayout(world, &layoutError)) {
+        result.diagnostics.push_back({
+            Diagnostic::Severity::error,
+            0u,
+            0u,
+            "compiled Matter layout is invalid: " + layoutError,
+        });
+        return result;
+    }
     result.generatedMetal = options.emitSpecializedMetal
         ? emitSpecializedMetal(world.constitutive)
         : std::string{};

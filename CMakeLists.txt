@@ -1529,10 +1529,6 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm-rollback
     )
     add_test(
-        NAME matter.integration.articulated_rigid_reaction
-        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --metal-world-coupling
-    )
-    add_test(
         NAME matter.runtime.inverse_identification
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --identification
     )
@@ -1555,6 +1551,10 @@ if(BUILD_TESTING)
     add_test(
         NAME matter.physics.fem_near_plane_cfl
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --fem-high-rate
+    )
+    add_test(
+        NAME matter.integration.articulated_rigid_reaction
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --metal-world-coupling
     )
     set_tests_properties(
         matter.physics.mixed_mpm_fem

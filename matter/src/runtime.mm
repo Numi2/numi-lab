@@ -266,83 +266,6 @@ template <typename T>
     return buffer;
 }
 
-[[nodiscard]] bool expectedWorldLayout(const CompiledWorld& world) {
-    const NMMatterDispatchGPU& dispatch = world.dispatch;
-    const bool mpmRangesValid = std::ranges::all_of(
-        world.objects,
-        [&](const NMContinuumObjectGPU& object) {
-            return object.representation != NM_REPRESENTATION_MPM ||
-                (object.auxiliaryOffset <= world.mpm.nodes.size() &&
-                 object.auxiliaryCount <=
-                    world.mpm.nodes.size() - object.auxiliaryOffset);
-        }
-    );
-    const auto scalarRange = [&](
-        const std::uint32_t offset,
-        const std::uint32_t count
-    ) {
-        return offset != NM_INVALID_INDEX &&
-            offset <= world.scalarPrograms.size() &&
-            count <= world.scalarPrograms.size() - offset;
-    };
-    std::uint32_t maximumStateCount = 0u;
-    const bool materialStateValid = std::ranges::all_of(
-        world.materials,
-        [&](const NMMaterialGPU& material) {
-            maximumStateCount = std::max(maximumStateCount, material.stateCount);
-            const bool initialRange = material.stateCount == 0u ||
-                (material.stateInitialOffset <= world.stateInitials.size() &&
-                 material.stateCount <=
-                    world.stateInitials.size() - material.stateInitialOffset);
-            const bool statePrograms = material.stateCount == 0u ||
-                scalarRange(material.stateUpdateProgramOffset, material.stateCount);
-            const bool viscousPrograms =
-                material.viscousStressProgramOffset == NM_INVALID_INDEX &&
-                material.viscousTangentProgramOffset == NM_INVALID_INDEX
-                ? (material.flags & NM_MATERIAL_HAS_DISSIPATION) == 0u
-                : scalarRange(material.viscousStressProgramOffset, 9u) &&
-                  scalarRange(material.viscousTangentProgramOffset, 9u) &&
-                  material.dissipationProgram != NM_INVALID_INDEX &&
-                  material.dissipationProgram < world.scalarPrograms.size();
-            return material.stateCount <= NM_MAX_MATERIAL_STATE &&
-                scalarRange(material.stressProgramOffset, 9u) &&
-                scalarRange(material.tangentProgramOffset, 9u) &&
-                initialRange && statePrograms && viscousPrograms &&
-                (material.validityProgram == NM_INVALID_INDEX ||
-                 material.validityProgram < world.scalarPrograms.size());
-        }
-    );
-    return
-        dispatch.abiVersion == NM_MATTER_ABI_VERSION &&
-        dispatch.materialCount == world.materials.size() &&
-        dispatch.parameterCount == world.parameters.size() &&
-        dispatch.stateInitialCount == world.stateInitials.size() &&
-        dispatch.materialStateStride == maximumStateCount &&
-        dispatch.materialStateStride <= NM_MAX_MATERIAL_STATE &&
-        materialStateValid &&
-        dispatch.objectCount == world.objects.size() &&
-        dispatch.particleCount == world.mpm.particles.size() &&
-        dispatch.gridNodeCount == world.mpm.nodes.size() &&
-        dispatch.mpmGridCount == world.mpm.grids.size() &&
-        dispatch.mpmBlockCount == world.mpm.blocks.size() &&
-        dispatch.mpmBlockLookupCount == world.mpm.blockLookup.size() &&
-        dispatch.maximumParticlesPerBlock ==
-            NM_MPM_MAX_PARTICLES_PER_BLOCK &&
-        dispatch.femNodeCount == world.fem.nodes.size() &&
-        dispatch.tetrahedronCount == world.fem.tetrahedra.size() &&
-        dispatch.rigidProxyCount == world.contact.rigidProxies.size() &&
-        dispatch.contactPairCount == world.contact.pairs.size() &&
-        world.mpm.nodeRanges.size() == world.mpm.nodes.size() &&
-        world.fem.nodeRanges.size() == world.fem.nodes.size() &&
-        world.contact.nodeRanges.size() ==
-            world.mpm.nodes.size() + world.fem.nodes.size() &&
-        world.contact.rigidRanges.size() == world.contact.rigidProxies.size() &&
-        world.adaptive.size() == world.objects.size() &&
-        world.schedulers.size() == world.objects.size() &&
-        mpmRangesValid &&
-        world.fingerprint != 0u &&
-        world.fingerprint == compiledWorldFingerprint(world);
-}
 
 } // namespace
 
@@ -486,8 +409,11 @@ RuntimeDiagnostics Runtime::initialize(
 ) {
     @autoreleasepool {
         RuntimeDiagnostics diagnostics;
-        if (!expectedWorldLayout(world)) {
-            diagnostics.message = "compiled matter world has an inconsistent fixed-capacity layout";
+        std::string layoutError;
+        if (!validateCompiledWorldLayout(world, &layoutError)) {
+            diagnostics.message =
+                "compiled Matter world has an invalid fixed-capacity layout: " +
+                layoutError;
             return diagnostics;
         }
         if (configuration.environmentCount != 0u &&
@@ -1556,6 +1482,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.schedulers offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:3u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                [encoder setBuffer:state.pcgScalars offset:0u atIndex:5u];
             });
 
             [encoder endEncoding];
@@ -1953,6 +1880,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
                     [encoder setBuffer:state.elementOperator offset:0u atIndex:13u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:14u];
+                    [encoder setBuffer:state.pcgScalars offset:0u atIndex:15u];
                 });
                 dispatchThreads("nm_fem_apply_operator_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -1967,6 +1895,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
                     [encoder setBuffer:state.femDirection offset:0u atIndex:10u];
                     [encoder setBuffer:state.femOperatorValue offset:0u atIndex:11u];
+                    [encoder setBuffer:state.pcgScalars offset:0u atIndex:12u];
                 });
                 dispatchGroups32("nm_fem_reduce_pap", objectTotal, [&] {
                     setDispatch();
@@ -1995,6 +1924,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femAccepted offset:0u atIndex:1u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:2u];
                     [encoder setBuffer:state.femPreconditioned offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:4u];
+                    [encoder setBuffer:state.pcgScalars offset:0u atIndex:5u];
                 });
                 dispatchGroups32("nm_fem_reduce_new_rz", objectTotal, [&] {
                     setDispatch();
@@ -2263,6 +2194,15 @@ bool Runtime::automaticIdentificationEnabled() const noexcept {
 
 bool Runtime::adaptiveTransferEnabled() const noexcept {
     return state_ != nullptr && state_->adaptiveTransfer;
+}
+
+bool Runtime::requiresBodyWrenches() const noexcept {
+    return state_ != nullptr && state_->requiresBodyWrenches;
+}
+
+bool Runtime::requiresRigidContactEvidence() const noexcept {
+    return state_ != nullptr && state_->adaptiveTransfer &&
+        state_->hasAdaptive;
 }
 
 float Runtime::timestepSeconds() const noexcept {

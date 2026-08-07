@@ -345,6 +345,13 @@ struct CompileResult {
 [[nodiscard]] std::uint64_t compiledWorldFingerprint(
     const CompiledWorld& world
 ) noexcept;
+// Validates every pointer-free range, material program, sparse MPM block,
+// FEM incidence, contact binding, adaptive authority and canonical
+// fingerprint before a cooked world is serialized or allocated on Metal.
+[[nodiscard]] bool validateCompiledWorldLayout(
+    const CompiledWorld& world,
+    std::string* error = nullptr
+);
 [[nodiscard]] CompileResult compileWorld(
     const WorldSource& source,
     const CompileOptions& options = {}
@@ -481,6 +488,8 @@ public:
     [[nodiscard]] std::uint64_t deviceProgramFingerprint() const noexcept;
     [[nodiscard]] bool automaticIdentificationEnabled() const noexcept;
     [[nodiscard]] bool adaptiveTransferEnabled() const noexcept;
+    [[nodiscard]] bool requiresBodyWrenches() const noexcept;
+    [[nodiscard]] bool requiresRigidContactEvidence() const noexcept;
     [[nodiscard]] float timestepSeconds() const noexcept;
     [[nodiscard]] RuntimeStateSnapshot snapshot() const;
     [[nodiscard]] void* eventBuffer() const noexcept;

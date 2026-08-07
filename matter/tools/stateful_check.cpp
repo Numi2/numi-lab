@@ -326,6 +326,69 @@ void verifyConstitutiveSemantics(
     );
 }
 
+void verifyAdaptiveLayout() {
+    const auto parsed = numi::matter::parseMatterFile(
+        NUMI_MATTER_STATEFUL_MATERIAL
+    );
+    require(parsed.succeeded(), "adaptive validation material did not parse");
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 480.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.femPCGIterations = 4u;
+    source.materials.push_back(parsed.material);
+
+    numi::matter::RigidProxySource fallback;
+    fallback.shape = NM_RIGID_SPHERE;
+    fallback.bodyIndex = 0u;
+    fallback.sceneBodyIndex = 0u;
+    fallback.materialIndex = 0u;
+    fallback.radiusOrOffset = 0.01;
+    fallback.dynamic = true;
+    source.rigidProxies.push_back(fallback);
+
+    numi::matter::ObjectSource object;
+    object.name = "adaptive_stateful_mpm";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::mpm;
+    object.adaptive = true;
+    object.rigidBinding = 0u;
+    object.characteristicLength = 0.01;
+    object.mpmGridMinimum = {-0.02, -0.02, -0.02};
+    object.mpmGridMaximum = {0.02, 0.02, 0.02};
+    constexpr double spacing = 0.005;
+    constexpr double volume = spacing * spacing * spacing;
+    for (int z = 0; z < 2; ++z) {
+        for (int y = 0; y < 2; ++y) {
+            for (int x = 0; x < 2; ++x) {
+                object.particles.push_back({
+                    .position = {
+                        -0.005 + spacing * x,
+                        -0.005 + spacing * y,
+                        -0.005 + spacing * z,
+                    },
+                    .velocity = {0.0, 0.0, 0.0},
+                    .mass = 1100.0 * volume,
+                    .referenceVolume = volume,
+                });
+            }
+        }
+    }
+    source.objects.push_back(std::move(object));
+
+    auto compiled = numi::matter::compileWorld(source);
+    require(compiled.succeeded(), "adaptive stateful world did not compile");
+    std::string validationError;
+    require(
+        numi::matter::validateCompiledWorldLayout(
+            compiled.world,
+            &validationError
+        ),
+        validationError
+    );
+}
+
 [[nodiscard]] numi::matter::CompiledWorld compileStatefulWorld() {
     const auto parsed = numi::matter::parseMatterFile(
         NUMI_MATTER_STATEFUL_MATERIAL
@@ -347,6 +410,13 @@ void verifyConstitutiveSemantics(
     source.gravity = {0.0, 0.0, -9.81};
     source.femPCGIterations = 4u;
     source.materials.push_back(parsed.material);
+
+    numi::matter::RigidProxySource plane;
+    plane.shape = NM_RIGID_PLANE;
+    plane.materialIndex = 0u;
+    plane.localCenter = {0.0, 0.0, 1.0};
+    plane.radiusOrOffset = 0.0;
+    source.rigidProxies.push_back(plane);
 
     numi::matter::ObjectSource mpm;
     mpm.name = "stateful_mpm";
@@ -487,6 +557,68 @@ void verifyConstitutiveSemantics(
         "canonical fingerprint ignores initial material state"
     );
 
+    const auto requireRejected = [&](
+        numi::matter::CompiledWorld candidate,
+        const std::string_view expected
+    ) {
+        candidate.fingerprint =
+            numi::matter::compiledWorldFingerprint(candidate);
+        std::string validationError;
+        require(
+            !numi::matter::validateCompiledWorldLayout(
+                candidate,
+                &validationError
+            ),
+            "canonical layout validator accepted corrupted topology"
+        );
+        require(
+            validationError.find(expected) != std::string::npos,
+            "canonical layout validator returned the wrong diagnostic"
+        );
+    };
+
+    {
+        auto candidate = roundTrip;
+        candidate.materials.front().stateInitialOffset += 1u;
+        requireRejected(std::move(candidate), "initial-state arena");
+    }
+    {
+        auto candidate = roundTrip;
+        candidate.scalarPrograms.at(1u).firstInstruction += 1u;
+        requireRejected(std::move(candidate), "overlap or contain a gap");
+    }
+    {
+        auto candidate = roundTrip;
+        require(!candidate.mpm.blockLookup.empty(), "MPM block lookup is empty");
+        candidate.mpm.blockLookup.front() = NM_INVALID_INDEX;
+        requireRejected(std::move(candidate), "outside its grid block range");
+    }
+    {
+        auto candidate = roundTrip;
+        require(!candidate.fem.tetrahedra.empty(), "FEM topology is empty");
+        candidate.fem.tetrahedra.front().nodes.x = NM_INVALID_INDEX;
+        requireRejected(std::move(candidate), "outside the object or repeated");
+    }
+    {
+        auto candidate = roundTrip;
+        require(
+            !candidate.contact.nodeIncidence.empty(),
+            "contact incidence is empty"
+        );
+        candidate.contact.nodeIncidence.front() =
+            static_cast<std::uint32_t>(candidate.contact.pairs.size());
+        requireRejected(std::move(candidate), "source indices are invalid");
+    }
+    {
+        auto candidate = roundTrip;
+        require(
+            !candidate.identification.empty(),
+            "identification program is empty"
+        );
+        candidate.identification.front().identity.z = NM_INVALID_INDEX;
+        requireRejected(std::move(candidate), "parameter ownership");
+    }
+
     return roundTrip;
 }
 
@@ -494,6 +626,7 @@ void verifyConstitutiveSemantics(
 
 int main() {
     try {
+        verifyAdaptiveLayout();
         const auto world = compileStatefulWorld();
         std::cout
             << "{\"schema\":\"numi.matter.stateful-compiler.v1\""

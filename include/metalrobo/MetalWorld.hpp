@@ -286,6 +286,22 @@ enum class MetalWorldDevicePhysicsPhase : std::uint32_t {
     postCommit = 1u,
 };
 
+enum MetalWorldDevicePhysicsFlags : std::uint32_t {
+    // The pre-dynamics pass contributes forces/torques to MetalWorld's
+    // global MRABABodyWrenchGPU arena. This capability is independent of the
+    // rigid contact solver: a continuum-only contact world may drive ABA or
+    // free scene bodies while MetalWorld remains in free-motion mode.
+    MetalWorldDevicePhysicsWritesBodyWrenches = 1u << 0u,
+    // The post-commit pass consumes accepted rigid contact constraints. This
+    // is required for adaptive rigid->continuum promotion, but should not
+    // force every device-physics program through the rigid contact pipeline.
+    MetalWorldDevicePhysicsRequiresRigidContactEvidence = 1u << 1u,
+};
+
+inline constexpr std::uint32_t kMetalWorldDevicePhysicsKnownFlags =
+    MetalWorldDevicePhysicsWritesBodyWrenches |
+    MetalWorldDevicePhysicsRequiresRigidContactEvidence;
+
 struct MetalWorldDevicePhysicsPass {
     void* commandBuffer = nullptr;
     void* q = nullptr;
@@ -339,15 +355,17 @@ struct MetalWorldDevicePhysicsProgram {
     MetalWorldDevicePhysicsEncode encode = nullptr;
     MetalWorldDevicePhysicsAbort abort = nullptr;
     std::uint64_t fingerprint = 0u;
+    std::uint32_t flags = 0u;
 
     [[nodiscard]] bool valid() const noexcept {
         return context != nullptr && encode != nullptr && abort != nullptr &&
-            fingerprint != 0u;
+            fingerprint != 0u &&
+            (flags & ~kMetalWorldDevicePhysicsKnownFlags) == 0u;
     }
 
     [[nodiscard]] bool configured() const noexcept {
         return context != nullptr || encode != nullptr || abort != nullptr ||
-            fingerprint != 0u;
+            fingerprint != 0u || flags != 0u;
     }
 };
 

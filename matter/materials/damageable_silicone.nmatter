@@ -19,25 +19,25 @@ material damageable_silicone {
         lambda * (1 - damage)
     );
 
-    // Objective rate-dependent resistance is supplied by the symmetric
-    // velocity-gradient norm. Its derivative with respect to D is the
-    // viscous first-Piola contribution compiled for both MPM and FEM.
+    // Rate-dependent resistance is defined in material coordinates from
+    // Fdot. MPM reconstructs Fdot = L F from its APIC spatial gradient, while
+    // FEM evaluates Fdot directly from the rest-configuration velocity field.
     dissipation = 0.5 * eta * (
-        pow(D(0, 0), 2) +
-        pow(D(1, 1), 2) +
-        pow(D(2, 2), 2) +
-        0.5 * pow(D(0, 1) + D(1, 0), 2) +
-        0.5 * pow(D(0, 2) + D(2, 0), 2) +
-        0.5 * pow(D(1, 2) + D(2, 1), 2)
+        pow(Fdot(0, 0), 2) +
+        pow(Fdot(1, 1), 2) +
+        pow(Fdot(2, 2), 2) +
+        0.5 * pow(Fdot(0, 1) + Fdot(1, 0), 2) +
+        0.5 * pow(Fdot(0, 2) + Fdot(2, 0), 2) +
+        0.5 * pow(Fdot(1, 2) + Fdot(2, 1), 2)
     );
 
     update accumulated_strain = accumulated_strain + dt() * sqrt(
-        pow(D(0, 0), 2) +
-        pow(D(1, 1), 2) +
-        pow(D(2, 2), 2) +
-        0.5 * pow(D(0, 1) + D(1, 0), 2) +
-        0.5 * pow(D(0, 2) + D(2, 0), 2) +
-        0.5 * pow(D(1, 2) + D(2, 1), 2)
+        pow(Fdot(0, 0), 2) +
+        pow(Fdot(1, 1), 2) +
+        pow(Fdot(2, 2), 2) +
+        0.5 * pow(Fdot(0, 1) + Fdot(1, 0), 2) +
+        0.5 * pow(Fdot(0, 2) + Fdot(2, 0), 2) +
+        0.5 * pow(Fdot(1, 2) + Fdot(2, 1), 2)
     );
 
     update damage = clamp(

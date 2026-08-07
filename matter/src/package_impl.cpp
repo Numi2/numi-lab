@@ -56,6 +56,9 @@ enum class Section : std::uint32_t {
     generatedMetal,
 };
 
+inline constexpr std::uint32_t kSectionCount =
+    static_cast<std::uint32_t>(Section::generatedMetal);
+
 struct PackageHeader {
     std::array<char, 16> magic{};
     std::uint32_t version = 0u;
@@ -225,13 +228,10 @@ bool writePackage(
         return false;
     }
     const CompiledWorld& world = compiled.world;
-    const std::uint64_t canonicalFingerprint =
-        compiledWorldFingerprint(world);
-    if (world.dispatch.abiVersion != NM_MATTER_ABI_VERSION ||
-        world.fingerprint == 0u ||
-        world.fingerprint != canonicalFingerprint) {
+    std::string layoutError;
+    if (!validateCompiledWorldLayout(world, &layoutError)) {
         if (error != nullptr) {
-            *error = "compiled matter world has an invalid ABI or fingerprint";
+            *error = "cannot package an invalid Matter world: " + layoutError;
         }
         return false;
     }
@@ -248,7 +248,7 @@ bool writePackage(
     header.version = kPackageVersion;
     header.endian = kEndianMarker;
     header.matterAbiVersion = NM_MATTER_ABI_VERSION;
-    header.sectionCount = 29u;
+    header.sectionCount = kSectionCount;
     header.fingerprint = world.fingerprint;
     header.headerHash = headerHash(header);
     if (!writeRaw(stream, header)) {
@@ -345,7 +345,7 @@ bool readPackage(
         header.endian != kEndianMarker ||
         header.matterAbiVersion != NM_MATTER_ABI_VERSION ||
         header.headerHash != headerHash(header) ||
-        header.sectionCount > 1024u) {
+        header.sectionCount != kSectionCount) {
         if (error != nullptr) {
             *error = "invalid or unsupported matter package header";
         }
@@ -458,41 +458,22 @@ bool readPackage(
         }
     }
 
-    const bool mpmRangesValid = std::ranges::all_of(
-        candidate.objects,
-        [&](const NMContinuumObjectGPU& object) {
-            return object.representation != NM_REPRESENTATION_MPM ||
-                (object.auxiliaryOffset <= candidate.mpm.nodes.size() &&
-                 object.auxiliaryCount <=
-                    candidate.mpm.nodes.size() - object.auxiliaryOffset);
+    for (std::uint32_t id = 1u; id <= kSectionCount; ++id) {
+        if (!seen.contains(id)) {
+            if (error != nullptr) {
+                *error = "matter package is missing required section " +
+                    std::to_string(id);
+            }
+            return false;
         }
-    );
-    if (candidate.dispatch.abiVersion != NM_MATTER_ABI_VERSION ||
-        candidate.dispatch.materialCount != candidate.materials.size() ||
-        candidate.dispatch.parameterCount != candidate.parameters.size() ||
-        candidate.dispatch.stateInitialCount != candidate.stateInitials.size() ||
-        candidate.dispatch.materialStateStride > NM_MAX_MATERIAL_STATE ||
-        candidate.dispatch.objectCount != candidate.objects.size() ||
-        candidate.dispatch.particleCount != candidate.mpm.particles.size() ||
-        candidate.dispatch.gridNodeCount != candidate.mpm.nodes.size() ||
-        candidate.dispatch.mpmGridCount != candidate.mpm.grids.size() ||
-        candidate.dispatch.mpmBlockCount != candidate.mpm.blocks.size() ||
-        candidate.dispatch.mpmBlockLookupCount !=
-            candidate.mpm.blockLookup.size() ||
-        candidate.dispatch.femNodeCount != candidate.fem.nodes.size() ||
-        candidate.dispatch.tetrahedronCount != candidate.fem.tetrahedra.size() ||
-        candidate.dispatch.rigidProxyCount != candidate.contact.rigidProxies.size() ||
-        candidate.dispatch.contactPairCount != candidate.contact.pairs.size() ||
-        !mpmRangesValid) {
-        if (error != nullptr) {
-            *error = "matter package section counts disagree with its dispatch contract";
-        }
-        return false;
     }
-    candidate.fingerprint = compiledWorldFingerprint(candidate);
-    if (candidate.fingerprint != header.fingerprint) {
+
+    candidate.fingerprint = header.fingerprint;
+    std::string layoutError;
+    if (!validateCompiledWorldLayout(candidate, &layoutError)) {
         if (error != nullptr) {
-            *error = "matter package canonical execution fingerprint mismatch";
+            *error = "matter package contains an invalid execution layout: " +
+                layoutError;
         }
         return false;
     }

@@ -674,6 +674,12 @@ inline void evaluateSparseNode(
                         particle.deformationRow1,
                         particle.deformationRow2
                     );
+                    // APIC stores the spatial velocity gradient L. Matter
+                    // Language exposes the material deformation rate Fdot,
+                    // so MPM supplies Fdot = L F, matching FEM's rest-gradient
+                    // evaluation and preserving one constitutive meaning across
+                    // both discretizations.
+                    const float3x3 deformationRate = affine * deformation;
                     bool valid = true;
                     const NMMaterialGPU material = materials[particle.identity.y];
                     device const float* internalState =
@@ -691,7 +697,7 @@ inline void evaluateSparseNode(
                         parameters,
                         internalState,
                         deformation,
-                        affine,
+                        deformationRate,
                         objectTimestep(dispatch, scheduler),
                         temperature,
                         valid
@@ -959,6 +965,11 @@ kernel void nm_mpm_g2p(
     );
     const float3x3 nextDeformation =
         (float3x3(1.0f) + dt * velocityGradient) * deformation;
+    // G2P reconstructs the spatial velocity gradient L. Constitutive and
+    // evolution programs consume the material rate Fdot = L F at the same
+    // candidate state used for validity and publication.
+    const float3x3 nextDeformationRate =
+        velocityGradient * nextDeformation;
     const float determinantValue = determinantSafe(nextDeformation);
     const NMMaterialGPU material = materials[particle.identity.y];
     bool valid = isfinite(determinantValue) &&
@@ -977,7 +988,7 @@ kernel void nm_mpm_g2p(
                 environment * dispatch.parameterCount,
             internalState,
             nextDeformation,
-            velocityGradient,
+            nextDeformationRate,
             dt,
             particle.referenceAndTemperature.w,
             validityMargin
@@ -1040,7 +1051,7 @@ kernel void nm_mpm_g2p(
                     environment * dispatch.parameterCount,
                 internalState,
                 nextDeformation,
-                velocityGradient,
+                nextDeformationRate,
                 dt,
                 particle.referenceAndTemperature.w,
                 nextState
