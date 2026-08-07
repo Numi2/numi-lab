@@ -1,0 +1,46 @@
+name: Codex Matter source export
+
+on:
+  push:
+    branches:
+      - codex/matter-compiler-foundation
+    paths:
+      - .github/workflows/codex-matter-export.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Package source
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar \
+            --exclude=.git \
+            --exclude=build \
+            --exclude=build-* \
+            --exclude='*.nmatterpack' \
+            -czf /tmp/numi-matter-pr2-source.tar.gz \
+            CMakeLists.txt \
+            apps \
+            include \
+            matter \
+            src \
+            numi \
+            tools \
+            .github
+      - name: Upload source
+        uses: actions/upload-artifact@v4
+        with:
+          name: numi-matter-pr2-source-${{ github.sha }}
+          path: /tmp/numi-matter-pr2-source.tar.gz
+          retention-days: 1
+          if-no-files-found: error
