@@ -1,0 +1,43 @@
+name: Codex Matter source export
+
+on:
+  pull_request:
+    types: [synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - name: Package exact head source
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar \
+            --exclude=.git \
+            --exclude=build \
+            --exclude=build-* \
+            --exclude='*.nmatterpack' \
+            -czf /tmp/numi-matter-pr2-source.tar.gz \
+            CMakeLists.txt \
+            apps \
+            include \
+            matter \
+            src \
+            numi \
+            tools \
+            .github
+      - name: Upload exact head source
+        uses: actions/upload-artifact@v4
+        with:
+          name: numi-matter-pr2-source-${{ github.event.pull_request.head.sha }}
+          path: /tmp/numi-matter-pr2-source.tar.gz
+          retention-days: 1
+          if-no-files-found: error
