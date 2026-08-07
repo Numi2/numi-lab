@@ -1,0 +1,88 @@
+name: Materialize ARDY HyperPolicy integration
+
+on:
+  pull_request_target:
+    branches:
+      - numisolver
+    paths:
+      - .github/hyperpolicy_integration_payload/READY
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    if: github.event.pull_request.head.ref == 'agent/ardy-hyperpolicy-production'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: agent/ardy-hyperpolicy-production
+
+      - name: Reconstruct production source payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, hashlib
+          root = Path('.github/hyperpolicy_integration_payload')
+          encoded = b''.join((root / f'{i:02d}.part').read_bytes() for i in range(7))
+          payload = base64.b64decode(encoded, validate=True)
+          digest = hashlib.sha256(payload).hexdigest()
+          expected = 'fd151020faab300c6f280d394e6c27b9985c068b3fe0007e5c14633ba8acce6a'
+          if digest != expected:
+              raise SystemExit(f'HyperPolicy payload hash mismatch: {digest}')
+          Path('/tmp/ardy-hyperpolicy-integration.tar.gz').write_bytes(payload)
+          PY
+          tar -xzf /tmp/ardy-hyperpolicy-integration.tar.gz -C .
+
+      - name: Integrate current Metal 4 build graph
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path('CMakeLists.txt')
+          s = p.read_text()
+          def once(old, new, label):
+              global s
+              n = s.count(old)
+              if n != 1:
+                  raise SystemExit(f'{label}: expected one match, found {n}')
+              s = s.replace(old, new, 1)
+          once('set(METALROBO_POLICY_INFERENCE_SOURCE\n    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/PolicyInference.metal"\n)\n', 'set(METALROBO_POLICY_INFERENCE_SOURCE\n    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/PolicyInference.metal"\n)\nset(METALROBO_HYPER_POLICY_SOURCE\n    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/HyperPolicy.metal"\n)\n', 'HyperPolicy source')
+          once('set(METALROBO_POLICY_INFERENCE_AIR\n    "${METALROBO_SHADER_DIR}/MetalRoboPolicyInference.air"\n)\n', 'set(METALROBO_POLICY_INFERENCE_AIR\n    "${METALROBO_SHADER_DIR}/MetalRoboPolicyInference.air"\n)\nset(METALROBO_HYPER_POLICY_AIR\n    "${METALROBO_SHADER_DIR}/MetalRoboHyperPolicy.air"\n)\n', 'HyperPolicy AIR')
+          m = re.search(r'(    COMMAND xcrun -sdk macosx metal\n            -std=metal4\.0\n            -O3\n            -I "\$\{CMAKE_CURRENT_SOURCE_DIR\}/include"\n            -c "\$\{METALROBO_POLICY_INFERENCE_SOURCE\}"\n            -o "\$\{METALROBO_POLICY_INFERENCE_AIR\}"\n)', s)
+          if not m:
+              raise SystemExit('PolicyInference compile block not found')
+          block = m.group(1)
+          hyper = block.replace('METALROBO_POLICY_INFERENCE_SOURCE','METALROBO_HYPER_POLICY_SOURCE').replace('METALROBO_POLICY_INFERENCE_AIR','METALROBO_HYPER_POLICY_AIR')
+          once(block, block + hyper, 'HyperPolicy compile')
+          once('            "${METALROBO_POLICY_INFERENCE_AIR}"\n', '            "${METALROBO_POLICY_INFERENCE_AIR}"\n            "${METALROBO_HYPER_POLICY_AIR}"\n', 'metallib AIR')
+          once('            "${METALROBO_POLICY_INFERENCE_SOURCE}"\n', '            "${METALROBO_POLICY_INFERENCE_SOURCE}"\n            "${METALROBO_HYPER_POLICY_SOURCE}"\n', 'shader dependency')
+          once('            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/policy_program_types.h"\n', '            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/policy_program_types.h"\n            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/hyper_policy_program_types.h"\n', 'ABI dependency')
+          once('    src/core/PolicyProgram.cpp\n', '    src/core/PolicyProgram.cpp\n    src/core/HyperPolicyProgram.cpp\n    src/core/HyperPolicyPacks.cpp\n', 'core units')
+          once('    src/metal/MetalWorld.mm\n', '    src/metal/MetalWorld.mm\n    src/metal/MetalHyperPolicy.mm\n', 'Objective-C++ unit')
+          p.write_text(s)
+          q = Path('tools/apply_ardy_hyperpolicy_integration.py')
+          q.write_text(q.read_text().replace('    patch_cmake()\n', '', 1))
+          PY
+
+      - name: Integrate native and learner seams
+        run: python3 tools/apply_ardy_hyperpolicy_integration.py
+
+      - name: Commit completed implementation to development branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .github/hyperpolicy_integration_payload
+          rm -f .github/workflows/ardy-hyperpolicy-materialize.yml
+          rm -f SOURCE_SHA256SUMS
+          git config user.name "OpenAI Codex"
+          git config user.email "codex@openai.com"
+          git add -A
+          git commit -m "Complete ARDY HyperPolicy native integration"
+          git push origin HEAD:agent/ardy-hyperpolicy-production

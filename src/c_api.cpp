@@ -1299,22 +1299,22 @@ metalrobo::RunManifest makeUnitreeG1RunManifest(
         // position-drive/reset contract for the rest of the G1 rather than
         // allowing the generic whole-body action profile to move the arms.
         constexpr std::array<float, 29u> targets{{
-            -0.1f, 0.0f, 0.0f, 0.3f, -0.2f, 0.0f,
-            -0.1f, 0.0f, 0.0f, 0.3f, -0.2f, 0.0f,
+            -0.125f, 0.0f, 0.0f, 0.3f, -0.2f, 0.0f,
+            -0.125f, 0.0f, 0.0f, 0.3f, -0.2f, 0.0f,
             0.0f, 0.0f, 0.0f,
             0.0f, 0.2f, 0.0f, 0.9f, 0.0f, 0.0f, 0.0f,
             0.0f, -0.2f, 0.0f, 0.9f, 0.0f, 0.0f, 0.0f,
         }};
         constexpr std::array<float, 29u> stiffness{{
-            100.0f, 100.0f, 100.0f, 200.0f, 40.0f, 40.0f,
-            100.0f, 100.0f, 100.0f, 200.0f, 40.0f, 40.0f,
-            300.0f, 300.0f, 300.0f,
+            110.0f, 110.0f, 110.0f, 100.0f, 40.0f, 40.0f,
+            110.0f, 110.0f, 110.0f, 100.0f, 40.0f, 40.0f,
+            250.0f, 250.0f, 250.0f,
             90.0f, 60.0f, 20.0f, 60.0f, 4.0f, 4.0f, 4.0f,
             90.0f, 60.0f, 20.0f, 60.0f, 4.0f, 4.0f, 4.0f,
         }};
         constexpr std::array<float, 29u> damping{{
-            2.5f, 2.5f, 2.5f, 5.0f, 2.0f, 2.0f,
-            2.5f, 2.5f, 2.5f, 5.0f, 2.0f, 2.0f,
+            1.5f, 1.5f, 1.5f, 4.0f, 2.5f, 2.5f,
+            1.5f, 1.5f, 1.5f, 4.0f, 2.5f, 2.5f,
             5.0f, 5.0f, 5.0f,
             2.0f, 1.0f, 0.4f, 1.0f, 0.2f, 0.2f, 0.2f,
             2.0f, 1.0f, 0.4f, 1.0f, 0.2f, 0.2f, 0.2f,
@@ -1353,12 +1353,8 @@ metalrobo::RunManifest makeUnitreeG1RunManifest(
                     break;
                 }
             }
-            if (motor < manifest.robot.actuators.size()) {
-                // Keep the imported policy's complete actuator vector at
-                // unit scale.  The authored effort limits remain the safety
-                // boundary; no joint receives an implicit half-strength
-                // reduction here.
-                manifest.robot.actuators[motor].scale = 1.0f;
+            if (motor < 12u && motor < manifest.robot.actuators.size()) {
+                manifest.robot.actuators[motor].scale = 0.5f;
             }
         }
     }
