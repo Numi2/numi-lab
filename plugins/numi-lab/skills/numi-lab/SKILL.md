@@ -62,6 +62,56 @@ Do not infer hardware execution from an Apple Silicon build, a CPU probe, or a
 simulator result. Report the actual device, runtime path, memory behavior, GPU
 status, and physical or replay evidence produced by the run.
 
+## ARDY HyperPolicy moves
+
+Use `numi hyper-policy` when the user wants one concrete ARDY-imagined G1 move
+realized as a device-resident policy. ARDY supplies motion intent; it never
+supplies physics or deployable actions directly. The production path is:
+
+1. Run `numi doctor`, `numi context`, `numi robots inspect unitree_g1`, and
+   `numi hyper-policy --help` before selecting inputs.
+2. Prefer an existing authenticated proposal directory when reproducing a
+   known move. Use `--prompt` only when the installed ARDY model and text
+   encoder are available. When the owner supplies prompt text, pass it
+   verbatim rather than silently expanding its choreography. Native
+   `g1skel34` proposals use exact G1 mechanism projection; `cskel27` proposals
+   use the verified Core-to-G1 retarget path. Pin the G1 URDF, compiler
+   checkpoint, evaluator, main metallib, native library, seeds, task, scene,
+   and contact-group mapping.
+3. If no HyperPolicy compiler checkpoint exists, use
+   `numi hyper-policy canonicalize`, then `initialize-checkpoint` with a
+   fingerprint-compatible PolicyPack and explicit adapter ranks. A checkpoint
+   with zero training updates is integration-only; never describe its output
+   as a learned move or pass `--allow-untrained` without saying so.
+4. Use `numi hyper-policy create` for the production transaction. It
+   canonicalizes the motion, generates deterministic low-rank candidates,
+   writes authenticated HyperPolicyPacks, executes each through NumiSolver,
+   optionally repairs coefficients from an independently produced exact
+   solver-teacher rollout, and publishes a deployment only after its
+   configured physical gates pass. Never use a candidate's own executed
+   actions as its repair labels.
+5. For direct replay or diagnosis, run `metalrobo_task_rollout` with both the
+   matching `--interaction-pack`/`--interaction-clip` and
+   `--hyper-policy-pack`. The InteractionPack remains the physical reference;
+   HyperPolicy actions are residuals and must not apply the reference twice.
+   Always publish a `--rollout-pack` so the exact `hyper_policy_phase`, teacher
+   actions, policy revision, transition failures, and outcome schema can be
+   inspected.
+
+The live GPU dependency is accepted q/v plus the actor observation row and
+solver-resolved compact contact metrics. Phase update, low-rank adapters, and
+residual actions must remain in one command buffer before TaskProgram action
+application. Reset masks reset phase canonically; host warmups must not advance
+hidden phase state.
+
+Report the move prompt/identity, source and checkpoint fingerprints, native
+pack and rollout hashes, exact command, device, environment count, control
+steps, phase progression, failed steps, terminations, tracking, root height,
+tilt, contact outcomes, retained/peak memory, and artifact directory. A build
+or synthetic pack proves integration only. A short simulator rollout proves
+that execution path only. Neither is trained-motion quality, soak evidence, or
+real-hardware proof.
+
 ## Infrastructure routing
 
 Load only the owner documentation needed for the request, then trace its live

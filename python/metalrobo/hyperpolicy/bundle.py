@@ -139,11 +139,11 @@ def build_generated_motion_policy(
         event_phases=event_phases,
     )[:, 0]
 
-    reference_actions = (
-        motion.joint_positions - hyper_base.action_bias[None, :]
-    ) / hyper_base.action_scale[None, :]
-    if np.any(np.abs(reference_actions) > hyper_base.action_clip + 1.0e-5):
-        raise ValueError("ARDY reference lies outside the hyper-base action contract")
+    reference_actions = np.zeros_like(motion.joint_positions, dtype=np.float32)
+    active = np.abs(hyper_base.action_scale) > 1.0e-12
+    reference_actions[:, active] = (
+        motion.joint_positions[:, active] - hyper_base.action_bias[None, active]
+    ) / hyper_base.action_scale[None, active]
     generated = GeneratedMotionPolicy(
         id=policy_id,
         revision=1,

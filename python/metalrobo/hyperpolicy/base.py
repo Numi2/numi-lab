@@ -145,13 +145,11 @@ class HyperBasePolicy:
             )
         ):
             raise ValueError("hyper-base policy contains non-finite values")
-        if (
-            np.any(self.observation_inverse_standard_deviation <= 0.0)
-            or np.any(self.coefficient_limits <= 0.0)
-            or np.any(np.abs(self.action_scale) <= 1.0e-12)
+        if np.any(self.observation_inverse_standard_deviation <= 0.0) or np.any(
+            self.coefficient_limits <= 0.0
         ):
             raise ValueError(
-                "hyper-base normalization, limits, or action scale is invalid"
+                "hyper-base normalization or coefficient limits are invalid"
             )
 
     def computed_fingerprint(self) -> str:

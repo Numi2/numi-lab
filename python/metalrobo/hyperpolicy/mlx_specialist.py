@@ -251,10 +251,9 @@ class MLXSpecialistAdapterLearner:
 
     def _loss(
         self,
-        codebook: _SpecialistCodeBook,
         batch: Mapping[str, mx.array],
     ) -> tuple[mx.array, dict[str, mx.array]]:
-        coefficients, authority, phase_rate = codebook.values()
+        coefficients, authority, phase_rate = self.codebook.values()
         selected_coefficients = coefficients[batch["sample_motion_indices"]]
         selected_authority = authority[batch["sample_motion_indices"]]
         selected_phases = batch["knot_phases"][batch["sample_motion_indices"]]

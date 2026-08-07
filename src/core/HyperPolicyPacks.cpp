@@ -319,8 +319,7 @@ LearningPackResult validate(const HyperPolicyPack& pack) {
         );
     }
     for (std::size_t action = 0u; action < actions; ++action) {
-        if (!(pack.actionLower[action] < pack.actionUpper[action]) ||
-            std::abs(pack.actionScale[action]) <= 1.0e-12f) {
+        if (!(pack.actionLower[action] < pack.actionUpper[action])) {
             return fail(
                 LearningPackStatus::invalidPack,
                 "HyperPolicyPack action transform or physical envelope is invalid"

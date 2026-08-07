@@ -177,10 +177,9 @@ class HyperPolicyMetaLearner:
 
     def _loss(
         self,
-        model: ARDYMotionConditionedPolicy,
         batch: Mapping[str, mx.array],
     ) -> tuple[mx.array, dict[str, mx.array]]:
-        output = model.generate(
+        output = self.model.generate(
             batch["motion_features"],
             batch["motion_valid_mask"],
             batch["frame_phases"],
@@ -236,7 +235,7 @@ class HyperPolicyMetaLearner:
             batch["sample_phases"],
             sigma=self.configuration.local_phase_sigma,
         )
-        predicted_action = model.actor.policy_actions(
+        predicted_action = self.model.actor.policy_actions(
             batch["actor_observations"],
             sample_coefficients,
             sample_authority,

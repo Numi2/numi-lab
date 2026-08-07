@@ -7,7 +7,7 @@ import math
 
 import numpy as np
 
-from .common import _ACTIVATION_ELU, _sample_rows_linear, evaluate_event_safe_cubic
+from .common import _ACTIVATION_ELU, evaluate_event_safe_cubic
 from .generated import GeneratedMotionPolicy, MotionPolicyBundle
 
 
@@ -172,24 +172,16 @@ class PhaseVaryingFeedbackPolicy:
     def __post_init__(self) -> None:
         self.bundle.validate()
         self.phase_tracker = EventSynchronizedPhaseTracker(self.bundle.motion_policy)
-        reference = self.bundle.motion_policy.reference_actions[0]
         self.previous_action = np.clip(
-            self.bundle.hyper_base.action_scale * reference
-            + self.bundle.hyper_base.action_bias,
+            self.bundle.hyper_base.action_bias,
             self.bundle.motion_policy.action_lower,
             self.bundle.motion_policy.action_upper,
         ).astype(np.float32)
 
     def reset(self, phase: float = 0.0) -> None:
         self.phase_tracker.reset(phase)
-        reference = _sample_rows_linear(
-            self.bundle.motion_policy.reference_phases,
-            self.bundle.motion_policy.reference_actions,
-            np.asarray([phase], dtype=np.float32),
-        )[0]
         self.previous_action = np.clip(
-            self.bundle.hyper_base.action_scale * reference
-            + self.bundle.hyper_base.action_bias,
+            self.bundle.hyper_base.action_bias,
             self.bundle.motion_policy.action_lower,
             self.bundle.motion_policy.action_upper,
         ).astype(np.float32)

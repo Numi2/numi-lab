@@ -107,11 +107,6 @@ HyperPolicyCompileDiagnostics compileHyperPolicyProgram(
             [](const float value) { return !(value > 0.0f); }
         ) ||
         std::any_of(
-            pack.actionScale.begin(),
-            pack.actionScale.end(),
-            [](const float value) { return std::abs(value) <= 1.0e-12f; }
-        ) ||
-        std::any_of(
             pack.maximumActionRate.begin(),
             pack.maximumActionRate.end(),
             [](const float value) { return !(value > 0.0f); }
@@ -119,7 +114,7 @@ HyperPolicyCompileDiagnostics compileHyperPolicyProgram(
         return reject(
             HyperPolicyCompileStatus::invalidPack,
             "normalization",
-            "inverse standard deviations, action scales, and action rates must be nonzero"
+            "inverse standard deviations and action rates must be positive"
         );
     }
     for (std::uint32_t action = 0u;
@@ -205,4 +200,3 @@ HyperPolicyCompileDiagnostics compileHyperPolicyProgram(
             "every generated coefficient requires a finite positive bound"
         );
     }
-
