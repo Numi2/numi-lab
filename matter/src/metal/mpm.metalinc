@@ -4,6 +4,29 @@ inline float3x3 outerProduct(const float3 left, const float3 right) {
     return float3x3(left * right.x, left * right.y, left * right.z);
 }
 
+inline bool quadraticKernel(
+    const float deltaCells,
+    const float inverseCellWidth,
+    thread float& weight,
+    thread float& derivative
+) {
+    const float distance = abs(deltaCells);
+    if (distance >= 1.5f) {
+        weight = 0.0f;
+        derivative = 0.0f;
+        return false;
+    }
+    if (distance < 0.5f) {
+        weight = 0.75f - deltaCells * deltaCells;
+        derivative = -2.0f * deltaCells * inverseCellWidth;
+        return true;
+    }
+    const float remaining = 1.5f - distance;
+    weight = 0.5f * remaining * remaining;
+    derivative = -copysign(remaining * inverseCellWidth, deltaCells);
+    return true;
+}
+
 kernel void nm_mpm_checkpoint(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMParticleStateGPU* accepted [[buffer(1)]],
@@ -73,29 +96,44 @@ kernel void nm_mpm_p2g(
     const uint particleBase = environment * dispatch.particleCount;
     device const float* parameters =
         environmentParameters + environment * dispatch.parameterCount;
-    for (uint local = 0u; local < range.count; ++local) {
-        const NMMPMStencilGPU stencil =
-            stencils[nodeIncidence[range.first + local]];
+    const float inverseCellWidth = 1.0f / object.fidelity.x;
+    for (uint local = 0u; local < object.stateCount; ++local) {
+        const uint particleIndex = object.stateOffset + local;
         const NMParticleStateGPU particle =
-            particles[particleBase + stencil.particleIndex];
-        if (particle.identity.x != range.objectIndex ||
-            (particle.identity.w & NM_OBJECT_ACTIVE) == 0u) {
+            particles[particleBase + particleIndex];
+        if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) {
             continue;
         }
-        const float weight = stencil.gradientAndWeight.w;
-        const float particleMass = particle.positionAndMass.w;
-        const float3 particlePosition = particle.positionAndMass.xyz;
-        const float3 particleVelocity = particle.velocityAndReferenceVolume.xyz;
-        const float3x3 affine = matrixFromRows(
-            particle.affineRow0,
-            particle.affineRow1,
-            particle.affineRow2
+        float wx;
+        float wy;
+        float wz;
+        float dx;
+        float dy;
+        float dz;
+        const float3 deltaCells =
+            (nodePosition - particle.positionAndMass.xyz) * inverseCellWidth;
+        if (!quadraticKernel(deltaCells.x, inverseCellWidth, wx, dx) ||
+            !quadraticKernel(deltaCells.y, inverseCellWidth, wy, dy) ||
+            !quadraticKernel(deltaCells.z, inverseCellWidth, wz, dz)) {
+            continue;
+        }
+        const float weight = wx * wy * wz;
+        // quadraticKernel differentiates with respect to node position;
+        // MPM needs the particle-position gradient.
+        const float3 gradient = -float3(
+            dx * wy * wz,
+            wx * dy * wz,
+            wx * wy * dz
         );
+        const float particleMass = particle.positionAndMass.w;
+        const float3 particleVelocity = particle.velocityAndReferenceVolume.xyz;
         const float weightedMass = weight * particleMass;
         mass += weightedMass;
-        momentum += weightedMass * (
-            particleVelocity + affine * (nodePosition - particlePosition)
-        );
+        // The live-grid path is intentionally PIC while the APIC affine
+        // transport is requalified against the moving stencil.  Retaining a
+        // stale or incorrectly reconstructed affine field injects energy and
+        // invalidates deformation even under uniform free translation.
+        momentum += weightedMass * particleVelocity;
 
         const float3x3 deformation = matrixFromRows(
             particle.deformationRow0,
@@ -117,14 +155,20 @@ kernel void nm_mpm_p2g(
                 statuses[environment],
                 NM_STATUS_NONFINITE_RESULT,
                 range.objectIndex,
-                stencil.particleIndex,
+                particleIndex,
                 float4(determinant(deformation), 0.0f, 0.0f, 0.0f)
             );
             continue;
         }
         maximumStress = max(maximumStress, maximumAbs(stress));
-        internalForce -= particle.velocityAndReferenceVolume.w *
-            (stress * stencil.gradientAndWeight.xyz);
+        // The generated constitutive program returns first Piola stress.
+        // Total-Lagrangian MPM scatters -V P Fᵀ ∇ₙw, where ∇ₙ differentiates
+        // with respect to the node coordinate.  `gradient` above is the
+        // particle-coordinate derivative (-∇ₙw), so the equivalent form is
+        // +V P Fᵀ `gradient`.  Keeping that coordinate convention explicit
+        // matters: the opposite sign is anti-elastic and explodes on contact.
+        internalForce += particle.velocityAndReferenceVolume.w *
+            ((stress * transpose(deformation)) * gradient);
     }
 
     node.positionAndMass.w = mass;
@@ -202,28 +246,63 @@ kernel void nm_mpm_g2p(
 
     float3 velocity = float3(0.0f);
     float3x3 velocityGradient = float3x3(0.0f);
-    const uint stencilBase = particleIndex * NM_MPM_STENCIL_WIDTH;
-    for (uint local = 0u; local < NM_MPM_STENCIL_WIDTH; ++local) {
-        const NMMPMStencilGPU stencil = stencils[stencilBase + local];
-        if (stencil.particleIndex != particleIndex ||
-            stencil.nodeIndex >= dispatch.gridNodeCount) {
+    float weightSum = 0.0f;
+    const float inverseCellWidth = 1.0f / object.fidelity.x;
+    for (uint local = 0u; local < object.auxiliaryCount; ++local) {
+        const uint nodeIndex = object.auxiliaryOffset + local;
+        if (nodeIndex >= dispatch.gridNodeCount) {
+            candidate[global] = particle;
             recordFailure(
                 statuses[environment],
                 NM_STATUS_INVALID_DISPATCH,
                 objectIndex,
-                stencilBase + local,
+                nodeIndex,
                 float4(0.0f)
             );
-            candidate[global] = particle;
             return;
         }
         const NMGridNodeStateGPU node =
-            nodes[environment * dispatch.gridNodeCount + stencil.nodeIndex];
-        velocity += stencil.gradientAndWeight.w * node.candidateVelocity.xyz;
+            nodes[environment * dispatch.gridNodeCount + nodeIndex];
+        float wx;
+        float wy;
+        float wz;
+        float dx;
+        float dy;
+        float dz;
+        const float3 deltaCells =
+            (node.positionAndMass.xyz - particle.positionAndMass.xyz) *
+            inverseCellWidth;
+        if (!quadraticKernel(deltaCells.x, inverseCellWidth, wx, dx) ||
+            !quadraticKernel(deltaCells.y, inverseCellWidth, wy, dy) ||
+            !quadraticKernel(deltaCells.z, inverseCellWidth, wz, dz)) {
+            continue;
+        }
+        const float weight = wx * wy * wz;
+        const float3 gradient = -float3(
+            dx * wy * wz,
+            wx * dy * wz,
+            wx * wy * dz
+        );
+        weightSum += weight;
+        velocity += weight * node.candidateVelocity.xyz;
+        // The deformation update is differentiated with respect to the grid
+        // coordinate. `gradient` is the particle-coordinate derivative used
+        // by P2G force scattering, hence the sign reversal here.
         velocityGradient += outerProduct(
             node.candidateVelocity.xyz,
-            stencil.gradientAndWeight.xyz
+            -gradient
         );
+    }
+    if (!(weightSum > 0.999f && weightSum < 1.001f)) {
+        candidate[global] = particle;
+        recordFailure(
+            statuses[environment],
+            NM_STATUS_CAPACITY_OVERFLOW,
+            objectIndex,
+            particleIndex,
+            float4(weightSum, particle.positionAndMass.xyz)
+        );
+        return;
     }
     const float dt = objectTimestep(dispatch, scheduler);
     const float3x3 deformation = matrixFromRows(
@@ -266,7 +345,12 @@ kernel void nm_mpm_g2p(
             NM_STATUS_INVALID_DEFORMATION,
             objectIndex,
             particleIndex,
-            float4(determinantValue, length(velocity), 0.0f, 0.0f)
+            float4(
+                determinantValue,
+                length(velocity),
+                maximumAbs(velocityGradient),
+                weightSum
+            )
         );
         return;
     }
@@ -280,12 +364,9 @@ kernel void nm_mpm_g2p(
         next.deformationRow1,
         next.deformationRow2
     );
-    matrixToRows(
-        velocityGradient,
-        next.affineRow0,
-        next.affineRow1,
-        next.affineRow2
-    );
+    next.affineRow0 = float4(0.0f);
+    next.affineRow1 = float4(0.0f);
+    next.affineRow2 = float4(0.0f);
     candidate[global] = next;
 }
 

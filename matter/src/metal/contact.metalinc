@@ -380,10 +380,16 @@ kernel void nm_contact_evaluate(
         cross(rigid.angularVelocity.xyz, witness - rigid.centerAndRadius.xyz);
     const float3 relativeVelocity = velocity - rigidVelocity;
     const float normalVelocity = dot(relativeVelocity, normal);
-    if (separation > slop && normalVelocity >= 0.0f) {
+    const float dt = objectTimestep(dispatch, scheduler);
+    // A positive separation is not contact merely because the continuum is
+    // moving toward the proxy.  Admit a one-step speculative contact only
+    // when the current normal velocity can actually consume that gap; the old
+    // test constrained bodies arbitrarily far above a plane.
+    const float predictedSeparation = separation +
+        min(normalVelocity, 0.0f) * dt;
+    if (separation > slop && predictedSeparation > slop) {
         return;
     }
-    const float dt = objectTimestep(dispatch, scheduler);
     const float normalResponse = inverseMass +
         rigidDirectionalResponse(rigid, lever, normal);
     if (!(normalResponse > 1.0e-12f)) {

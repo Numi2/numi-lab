@@ -209,14 +209,37 @@ The subsystem implements the complete architecture and executable kernels listed
 - fracture/topology mutation, Eulerian fluids, thermal coupling and porous flow require additional operators in the same Physics IR;
 - learned residual constitutive terms can be represented as future expression/program kinds but are not silently enabled.
 
-## Validation performed in this delivery
+## Validation
 
-The portable compiler and package code was built with:
+The portable compiler and package code is built with:
 
 ```text
 -std=c++23 -Wall -Wextra -Wpedantic -Werror
 ```
 
-The included material compiled into a world containing both MPM and FEM objects, wrote a package, emitted specialized Metal and successfully round-tripped through `readPackage`. Source-level audits check shared-ABI sizes, kernel names, buffer bindings and delimiter balance.
+The included material compiles into a world containing both MPM and FEM
+objects, writes a package, emits specialized Metal and round-trips through
+`readPackage`. Source-level audits also check shared-ABI sizes, kernel names,
+buffer bindings and delimiter balance.
 
-The current execution environment is Linux and does not provide the Apple Metal compiler or runtime. The portable compiler was built and exercised directly; the Objective-C++ runtime and MetalWorld adapter passed syntax compilation against minimal Apple API stubs; shared ABI and kernel-name parity checks also passed. The `.metal` kernels and the full production `MetalWorld.mm` still require the repository's Apple build machine for authoritative platform compilation and execution.
+On an Apple Silicon Metal 4 build host, run the physics qualification suite
+after building the probe target:
+
+```bash
+cmake -S . -B build -G Ninja
+cmake --build build --target metalrobo_matter_physics_probe -j 3
+ctest --test-dir build -L matter --output-on-failure -j 1
+```
+
+The suite executes the actual `NumiMatter.metallib` through borrowed Metal
+command buffers. It checks MPM freefall, a coupled eight-particle MPM plane
+impact, a full-height implicit FEM impact, a near-plane CFL-resolved FEM
+contact, and byte-identical MPM/FEM/scheduler rollback after an enclosing
+rigid transaction rejects the tentative continuum update. It is deliberately
+serial because all cases use the active GPU.
+
+This is continuum and analytic-proxy contact evidence, not a blanket claim
+that every integration path is qualified. In particular, dynamic/articulated
+rigid reaction consumption by a full `MetalWorld` step, adaptive ownership
+transfer, inverse identification, and longer-running material calibration
+remain separate qualifications.

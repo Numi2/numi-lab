@@ -537,6 +537,69 @@ CompileResult compileWorld(
             descriptor.stateCount = 0u;
             descriptor.elementOffset = static_cast<nm_u32>(world.mpm.stencils.size());
             const double h = object.characteristicLength;
+            if (!finite(object.mpmGridMinimum) || !finite(object.mpmGridMaximum) ||
+                !(object.mpmGridMinimum[0] < object.mpmGridMaximum[0]) ||
+                !(object.mpmGridMinimum[1] < object.mpmGridMaximum[1]) ||
+                !(object.mpmGridMinimum[2] < object.mpmGridMaximum[2])) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "MPM object '" + object.name +
+                        "' requires finite increasing fixed-grid bounds",
+                });
+                return result;
+            }
+            const auto gridCoordinate = [&](const double value) -> std::optional<int> {
+                const double scaled = value / h;
+                if (!finite(scaled) ||
+                    scaled < static_cast<double>(std::numeric_limits<int>::min() + 2) ||
+                    scaled > static_cast<double>(std::numeric_limits<int>::max() - 3)) {
+                    return std::nullopt;
+                }
+                return static_cast<int>(std::floor(scaled));
+            };
+            const auto minimumX = gridCoordinate(object.mpmGridMinimum[0]);
+            const auto minimumY = gridCoordinate(object.mpmGridMinimum[1]);
+            const auto minimumZ = gridCoordinate(object.mpmGridMinimum[2]);
+            const auto maximumX = gridCoordinate(object.mpmGridMaximum[0]);
+            const auto maximumY = gridCoordinate(object.mpmGridMaximum[1]);
+            const auto maximumZ = gridCoordinate(object.mpmGridMaximum[2]);
+            if (!minimumX.has_value() || !minimumY.has_value() ||
+                !minimumZ.has_value() || !maximumX.has_value() ||
+                !maximumY.has_value() || !maximumZ.has_value()) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "MPM fixed-grid bounds exceed the cooked integer grid domain",
+                });
+                return result;
+            }
+            descriptor.auxiliaryOffset = static_cast<nm_u32>(world.mpm.nodes.size());
+            // Quadratic B-splines have 1.5-cell support.  Cook every node in
+            // the declared particle-centre domain plus that halo, then derive
+            // weights from live particle positions at execution time.
+            for (int z = *minimumZ - 1; z <= *maximumZ + 2; ++z) {
+                for (int y = *minimumY - 1; y <= *maximumY + 2; ++y) {
+                    for (int x = *minimumX - 1; x <= *maximumX + 2; ++x) {
+                        const GridKey key{objectIndex, x, y, z};
+                        const auto [iterator, inserted] = gridNodes.try_emplace(
+                            key,
+                            static_cast<std::uint32_t>(world.mpm.nodes.size())
+                        );
+                        if (inserted) {
+                            NMGridNodeStateGPU node{};
+                            node.positionAndMass = f4(
+                                static_cast<double>(key.x) * h,
+                                static_cast<double>(key.y) * h,
+                                static_cast<double>(key.z) * h,
+                                0.0
+                            );
+                            world.mpm.nodes.push_back(node);
+                            mpmNodeObjects.push_back(objectIndex);
+                        }
+                    }
+                }
+            }
+            descriptor.auxiliaryCount = static_cast<nm_u32>(world.mpm.nodes.size()) -
+                descriptor.auxiliaryOffset;
             for (std::size_t localParticle = 0u;
                  localParticle < object.particles.size();
                  ++localParticle) {
@@ -653,13 +716,15 @@ CompileResult compileWorld(
                 });
                 return result;
             }
-            if (std::ranges::any_of(
+            if (!finite(object.femInitialVelocity) ||
+                std::ranges::any_of(
                     object.femNodes,
                     [](const Vec3& node) { return !finite(node); }
                 )) {
                 result.diagnostics.push_back({
                     Diagnostic::Severity::error, 0u, 0u,
-                    "FEM object '" + object.name + "' contains a nonfinite node",
+                    "FEM object '" + object.name +
+                        "' contains a nonfinite node or initial velocity",
                 });
                 return result;
             }
@@ -669,7 +734,12 @@ CompileResult compileWorld(
             for (const Vec3& sourceNode : object.femNodes) {
                 NMFEMNodeStateGPU node{};
                 node.positionAndMass = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
-                node.velocityAndInverseMass = f4();
+                node.velocityAndInverseMass = f4(
+                    object.femInitialVelocity[0],
+                    object.femInitialVelocity[1],
+                    object.femInitialVelocity[2],
+                    0.0
+                );
                 node.restAndFixed = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
                 world.fem.nodes.push_back(node);
                 femNodeObjects.push_back(objectIndex);

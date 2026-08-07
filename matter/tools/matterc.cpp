@@ -86,6 +86,8 @@ void printDiagnostics(const std::vector<numi::matter::Diagnostic>& diagnostics) 
     object.materialIndex = material;
     object.representation = numi::matter::Representation::mpm;
     object.characteristicLength = 0.01;
+    object.mpmGridMinimum = {-0.04, -0.04, -0.02};
+    object.mpmGridMaximum = {0.04, 0.04, 0.12};
     object.promotionStrain = 0.04;
     object.demotionStrain = 0.002;
     constexpr double spacing = 0.01;

@@ -7,6 +7,8 @@ project(
     LANGUAGES C CXX OBJCXX
 )
 
+include(CTest)
+
 execute_process(
     COMMAND git -C "${CMAKE_CURRENT_SOURCE_DIR}" rev-parse HEAD
     OUTPUT_VARIABLE NUMI_SOURCE_REVISION
@@ -1468,6 +1470,70 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
+
+add_executable(metalrobo_matter_physics_probe apps/matter_physics_probe.mm)
+add_dependencies(metalrobo_matter_physics_probe numi_matter_shaders)
+target_compile_definitions(
+    metalrobo_matter_physics_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_compile_options(
+    metalrobo_matter_physics_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_matter_physics_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_matter_physics_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+if(BUILD_TESTING)
+    add_test(
+        NAME matter.physics.mpm_freefall
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm-free
+    )
+    add_test(
+        NAME matter.physics.mpm_plane_impact
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm
+    )
+    add_test(
+        NAME matter.runtime.mpm_transaction_rollback
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm-rollback
+    )
+    add_test(
+        NAME matter.physics.fem_plane_impact
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --fem-high-drop
+    )
+    add_test(
+        NAME matter.physics.fem_near_plane_cfl
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --fem-high-rate
+    )
+    set_tests_properties(
+        matter.physics.mpm_freefall
+        matter.physics.mpm_plane_impact
+        matter.runtime.mpm_transaction_rollback
+        matter.physics.fem_plane_impact
+        matter.physics.fem_near_plane_cfl
+        PROPERTIES
+            LABELS "matter;physics;metal"
+            TIMEOUT 180
+    )
+endif()
 
 add_executable(metalrobo_collision_gpu_probe apps/collision_gpu_probe.mm)
 add_dependencies(metalrobo_collision_gpu_probe metalrobo_shaders)

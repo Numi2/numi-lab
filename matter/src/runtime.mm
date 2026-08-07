@@ -268,6 +268,15 @@ template <typename T>
 
 [[nodiscard]] bool expectedWorldLayout(const CompiledWorld& world) {
     const NMMatterDispatchGPU& dispatch = world.dispatch;
+    const bool mpmRangesValid = std::ranges::all_of(
+        world.objects,
+        [&](const NMContinuumObjectGPU& object) {
+            return object.representation != NM_REPRESENTATION_MPM ||
+                (object.auxiliaryOffset <= world.mpm.nodes.size() &&
+                 object.auxiliaryCount <=
+                    world.mpm.nodes.size() - object.auxiliaryOffset);
+        }
+    );
     return
         dispatch.abiVersion == NM_MATTER_ABI_VERSION &&
         dispatch.materialCount == world.materials.size() &&
@@ -286,6 +295,7 @@ template <typename T>
         world.contact.rigidRanges.size() == world.contact.rigidProxies.size() &&
         world.adaptive.size() == world.objects.size() &&
         world.schedulers.size() == world.objects.size() &&
+        mpmRangesValid &&
         world.fingerprint != 0u;
 }
 
@@ -512,15 +522,21 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_adaptive_decide",
             "nm_adaptive_demote_to_rigid",
         };
-        const std::array<const char*, 4> finalKernelNames{
+        const std::array<const char*, 5> finalKernelNames{
             "nm_adaptive_promote_mpm",
             "nm_adaptive_promote_fem",
             "nm_adaptive_finish_promotion",
             "nm_scheduler_finalize",
+            "nm_finalize_status",
+        };
+        const auto kernel = [&](const char* name) {
+            const std::string qualified =
+                std::string("numi_matter_metal::") + name;
+            return [candidate->library newFunctionWithName:
+                [NSString stringWithUTF8String:qualified.c_str()]];
         };
         for (const char* name : kernelNames) {
-            NSString* functionName = [NSString stringWithUTF8String:name];
-            id<MTLFunction> function = [candidate->library newFunctionWithName:functionName];
+            id<MTLFunction> function = kernel(name);
             if (function == nil) {
                 diagnostics.message = std::string("missing Metal function ") + name;
                 return diagnostics;
@@ -537,8 +553,7 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->pipelines.emplace(name, pipeline);
         }
         for (const char* name : finalKernelNames) {
-            id<MTLFunction> function = [candidate->library
-                newFunctionWithName:[NSString stringWithUTF8String:name]];
+            id<MTLFunction> function = kernel(name);
             NSError* pipelineError = nil;
             id<MTLComputePipelineState> pipeline = function == nil
                 ? nil
@@ -553,8 +568,7 @@ RuntimeDiagnostics Runtime::initialize(
         }
         {
             const char* name = "nm_bridge_rigid_reactions";
-            id<MTLFunction> function = [candidate->library
-                newFunctionWithName:[NSString stringWithUTF8String:name]];
+            id<MTLFunction> function = kernel(name);
             NSError* pipelineError = nil;
             id<MTLComputePipelineState> pipeline = function == nil
                 ? nil
@@ -1276,6 +1290,13 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.statuses offset:0u atIndex:5u];
                 [encoder setBuffer:state.events offset:0u atIndex:6u];
             });
+            dispatchThreads("nm_finalize_status", environments, [&] {
+                setDispatch();
+                [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:2u];
+                [encoder setBuffer:state.contactSamples offset:0u atIndex:3u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+            });
 
             [encoder endEncoding];
             ownership->preDynamicsOpen = false;
@@ -1843,6 +1864,80 @@ bool Runtime::adaptiveTransferEnabled() const noexcept {
 
 float Runtime::timestepSeconds() const noexcept {
     return state_ ? state_->dispatch.gravityAndTimestep.w : 0.0f;
+}
+
+RuntimeStateSnapshot Runtime::snapshot() const {
+    RuntimeStateSnapshot snapshot;
+    if (state_ == nullptr) {
+        snapshot.message = "Matter runtime is not initialized";
+        return snapshot;
+    }
+    const auto ownership = state_->commandOwnership;
+    {
+        const std::lock_guard lock(ownership->mutex);
+        if (ownership->activeCommandBuffer != nullptr) {
+            snapshot.message =
+                "Matter state cannot be read while a borrowed transaction is active";
+            return snapshot;
+        }
+    }
+    @autoreleasepool {
+        const auto copy = [&](id<MTLBuffer> source) -> id<MTLBuffer> {
+            return [state_->device newBufferWithLength:source.length
+                                               options:MTLResourceStorageModeShared];
+        };
+        id<MTLBuffer> particles = copy(state_->particleAccepted);
+        id<MTLBuffer> femNodes = copy(state_->femAccepted);
+        id<MTLBuffer> schedulers = copy(state_->schedulers);
+        id<MTLBuffer> reactions = copy(state_->frameReactions);
+        if (particles == nil || femNodes == nil || schedulers == nil ||
+            reactions == nil) {
+            snapshot.message = "failed to allocate Matter diagnostic readback";
+            return snapshot;
+        }
+        id<MTLCommandBuffer> commandBuffer = [state_->queue commandBuffer];
+        id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
+        if (commandBuffer == nil || blit == nil) {
+            snapshot.message = "failed to create Matter diagnostic readback command";
+            return snapshot;
+        }
+        const auto encodeCopy = [&](id<MTLBuffer> source, id<MTLBuffer> target) {
+            if (source.length != 0u) {
+                [blit copyFromBuffer:source sourceOffset:0u
+                              toBuffer:target destinationOffset:0u
+                                  size:source.length];
+            }
+        };
+        encodeCopy(state_->particleAccepted, particles);
+        encodeCopy(state_->femAccepted, femNodes);
+        encodeCopy(state_->schedulers, schedulers);
+        encodeCopy(state_->frameReactions, reactions);
+        [blit endEncoding];
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+        if (commandBuffer.status != MTLCommandBufferStatusCompleted) {
+            snapshot.message = "Matter diagnostic readback command failed: " +
+                errorString(commandBuffer.error);
+            return snapshot;
+        }
+        const auto read = [](id<MTLBuffer> buffer, auto& values) {
+            using Value = typename std::decay_t<decltype(values)>::value_type;
+            values.resize(buffer.length / sizeof(Value));
+            if (!values.empty()) {
+                std::memcpy(
+                    values.data(),
+                    buffer.contents,
+                    values.size() * sizeof(Value)
+                );
+            }
+        };
+        read(particles, snapshot.particles);
+        read(femNodes, snapshot.femNodes);
+        read(schedulers, snapshot.schedulers);
+        read(reactions, snapshot.reactions);
+        snapshot.available = true;
+    }
+    return snapshot;
 }
 
 void* Runtime::eventBuffer() const noexcept {

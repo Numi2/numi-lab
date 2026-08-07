@@ -693,6 +693,71 @@ kernel void nm_scheduler_finalize(
     }
 }
 
+// NMMatterStatusGPU is environment-scoped.  Populate its summary from one
+// deterministic thread after every object has completed scheduler finalization
+// instead of letting the object workgroups race to write shared diagnostics.
+kernel void nm_finalize_status(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(2)]],
+    device const NMContactSampleGPU* samples [[buffer(3)]],
+    device NMMatterStatusGPU* statuses [[buffer(4)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        !environmentHealthy(statuses, environment)) {
+        return;
+    }
+    NMMatterStatusGPU status = statuses[environment];
+    float minimumJ = INFINITY;
+    float maximumStress = 0.0f;
+    float maximumResidual = 0.0f;
+    float maximumContactSpeed = 0.0f;
+    uint contacts = 0u;
+    uint contactedObjects = 0u;
+    uint femObjects = 0u;
+    for (uint objectIndex = 0u;
+         objectIndex < dispatch.objectCount;
+         ++objectIndex) {
+        const NMSchedulerStateGPU scheduler = schedulers[
+            environment * dispatch.objectCount + objectIndex
+        ];
+        minimumJ = min(minimumJ, scheduler.numerical.x);
+        maximumStress = max(maximumStress, scheduler.physical.w);
+        maximumResidual = max(maximumResidual, scheduler.numerical.y);
+        maximumContactSpeed = max(maximumContactSpeed, scheduler.physical.x);
+        if (scheduler.physical.x > 0.0f || scheduler.physical.y > 0.0f) {
+            ++contactedObjects;
+        }
+        if (objects[objectIndex].representation == NM_REPRESENTATION_FEM) {
+            ++femObjects;
+        }
+    }
+    const uint sampleBase = environment * dispatch.contactPairCount;
+    for (uint pairIndex = 0u;
+         pairIndex < dispatch.contactPairCount;
+         ++pairIndex) {
+        if ((samples[sampleBase + pairIndex].identity.w & NM_CONTACT_VALID) != 0u) {
+            ++contacts;
+        }
+    }
+    // Contact samples describe the final microtick. Scheduler physical
+    // observables retain the maximum over the complete control frame, so the
+    // larger count preserves a transient impact that released before status
+    // publication without manufacturing a contact from geometry alone.
+    status.contactCount = max(contacts, contactedObjects);
+    // The configured iteration count is meaningful only when an FEM object
+    // participated in the frame; this is an exact per-object solve bound.
+    status.pcgIterations = femObjects == 0u ? 0u : dispatch.femPCGIterations;
+    status.diagnostics = float4(
+        minimumJ,
+        maximumStress,
+        maximumResidual,
+        maximumContactSpeed
+    );
+    statuses[environment] = status;
+}
+
 kernel void nm_complete_microstep(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device NMMatterStatusGPU* statuses [[buffer(1)]],

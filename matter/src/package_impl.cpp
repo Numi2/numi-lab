@@ -1,5 +1,6 @@
 #include "numi/matter/detail.hpp"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cstddef>
@@ -434,6 +435,15 @@ bool readPackage(
         }
     }
 
+    const bool mpmRangesValid = std::ranges::all_of(
+        candidate.objects,
+        [&](const NMContinuumObjectGPU& object) {
+            return object.representation != NM_REPRESENTATION_MPM ||
+                (object.auxiliaryOffset <= candidate.mpm.nodes.size() &&
+                 object.auxiliaryCount <=
+                    candidate.mpm.nodes.size() - object.auxiliaryOffset);
+        }
+    );
     if (candidate.dispatch.abiVersion != NM_MATTER_ABI_VERSION ||
         candidate.dispatch.materialCount != candidate.materials.size() ||
         candidate.dispatch.objectCount != candidate.objects.size() ||
@@ -442,7 +452,8 @@ bool readPackage(
         candidate.dispatch.femNodeCount != candidate.fem.nodes.size() ||
         candidate.dispatch.tetrahedronCount != candidate.fem.tetrahedra.size() ||
         candidate.dispatch.rigidProxyCount != candidate.contact.rigidProxies.size() ||
-        candidate.dispatch.contactPairCount != candidate.contact.pairs.size()) {
+        candidate.dispatch.contactPairCount != candidate.contact.pairs.size() ||
+        !mpmRangesValid) {
         if (error != nullptr) {
             *error = "matter package section counts disagree with its dispatch contract";
         }

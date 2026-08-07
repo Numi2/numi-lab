@@ -228,10 +228,20 @@ struct ObjectSource {
     bool identifiable = false;
     std::uint32_t rigidBinding = NM_INVALID_INDEX;
     double characteristicLength = 0.01;
+    // MPM uses a fixed-capacity Eulerian background grid. These bounds are
+    // particle-centre limits in world coordinates; the compiler expands them
+    // by the quadratic B-spline support radius and rejects a particle that
+    // subsequently leaves the cooked domain rather than retaining stale
+    // particle-to-grid bindings.
+    std::array<double, 3> mpmGridMinimum{};
+    std::array<double, 3> mpmGridMaximum{};
     double rigidTolerance = 1.0e-4;
     double promotionStrain = 0.01;
     double demotionStrain = 0.002;
     std::vector<ParticleSource> particles;
+    // FEM topology is authored in the rest frame; this uniform velocity is
+    // copied to every unconstrained node at initialization.
+    std::array<double, 3> femInitialVelocity{};
     std::vector<std::array<double, 3>> femNodes;
     std::vector<TetrahedronSource> tetrahedra;
 };
@@ -397,6 +407,18 @@ struct RuntimeDiagnostics {
     std::string message;
 };
 
+// Explicit completion-time diagnostic readback.  This is intentionally a
+// snapshot rather than a live mapped view: authoritative simulation buffers
+// remain private to Metal and callers cannot observe partially encoded work.
+struct RuntimeStateSnapshot {
+    bool available = false;
+    std::string message;
+    std::vector<NMParticleStateGPU> particles;
+    std::vector<NMFEMNodeStateGPU> femNodes;
+    std::vector<NMSchedulerStateGPU> schedulers;
+    std::vector<NMRigidReactionGPU> reactions;
+};
+
 class Runtime {
 public:
     Runtime();
@@ -423,6 +445,7 @@ public:
     [[nodiscard]] bool automaticIdentificationEnabled() const noexcept;
     [[nodiscard]] bool adaptiveTransferEnabled() const noexcept;
     [[nodiscard]] float timestepSeconds() const noexcept;
+    [[nodiscard]] RuntimeStateSnapshot snapshot() const;
     [[nodiscard]] void* eventBuffer() const noexcept;
     [[nodiscard]] void* statusBuffer() const noexcept;
     [[nodiscard]] void* parameterBuffer() const noexcept;
