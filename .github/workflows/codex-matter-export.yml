@@ -23,7 +23,7 @@ jobs:
           ref: codex/matter-compiler-foundation
           fetch-depth: 0
 
-      - name: Correct, qualify, and publish
+      - name: Apply, qualify, and publish
         shell: bash
         env:
           EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
@@ -31,152 +31,153 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "${EXPECTED_HEAD}"
 
-          python3 - <<'PY'
-          from pathlib import Path
+          cat > /tmp/matter-lazy-rod.patch <<'PATCH'
+          --- a/src/metal/MetalWorld.mm
+          +++ b/src/metal/MetalWorld.mm
+          @@ -4746,6 +4746,43 @@
+               return diagnostics;
+           }
+           
+          +MetalWorldDiagnostics ensureRodCCDPipeline(
+          +    detail::MetalWorldContextState& context,
+          +    const bool hasRods,
+          +    MetalWorldDiagnostics diagnostics
+          +) {
+          +    if (!hasRods || context.rodCCDPipeline != nil) {
+          +        return diagnostics;
+          +    }
+          +    NSError* error = nil;
+          +    id<MTLComputePipelineState> pipeline = makePipeline(
+          +        context.device,
+          +        context.library,
+          +        @"mr_world_resolve_rod_ccd",
+          +        &error
+          +    );
+          +    if (pipeline == nil) {
+          +        return reject(
+          +            std::move(diagnostics),
+          +            MetalWorldHostStatus::metalPipelineFailure,
+          +            "failed to create optional rod-CCD pipeline: " +
+          +                describeError(error)
+          +        );
+          +    }
+          +    if (pipeline.maxTotalThreadsPerThreadgroup == 0u ||
+          +        pipeline.staticThreadgroupMemoryLength >
+          +            context.device.maxThreadgroupMemoryLength) {
+          +        return reject(
+          +            std::move(diagnostics),
+          +            MetalWorldHostStatus::metalDeviceUnsupported,
+          +            "device cannot execute the rod-CCD kernel geometry"
+          +        );
+          +    }
+          +    context.rodCCDPipeline = pipeline;
+          +    ++context.stats.pipelineCreationCount;
+          +    return diagnostics;
+          +}
+          +
+           MetalWorldDiagnostics ensureGeneralizedConstraintPipeline(
+               detail::MetalWorldContextState& context,
+               MetalWorldDiagnostics diagnostics
+          @@ -5092,7 +5129,6 @@
+               __strong id<MTLComputePipelineState> inactiveRodEventRestore = nil;
+               __strong id<MTLComputePipelineState> rodEventSegmentPublish = nil;
+               __strong id<MTLComputePipelineState> rodSweptProjection = nil;
+          -    __strong id<MTLComputePipelineState> rodCCD = nil;
+               __strong id<MTLComputePipelineState> rodCCDWitnessTag = nil;
+               __strong id<MTLComputePipelineState> authoredIRSeed = nil;
+               __strong NSString* failedContactPipelineName = nil;
+          @@ -5215,9 +5251,6 @@
+               rodSweptProjection = createContactPipeline(
+                   @"mr_world_project_swept_rod_colliders"
+               );
+          -    rodCCD = createContactPipeline(
+          -        @"mr_world_resolve_rod_ccd"
+          -    );
+               rodCCDWitnessTag = createContactPipeline(
+                   @"mr_world_tag_rod_ccd_witnesses"
+               );
+          @@ -5416,7 +5449,6 @@
+                   inactiveRodEventRestore == nil ||
+                   rodEventSegmentPublish == nil ||
+                   rodSweptProjection == nil ||
+          -        rodCCD == nil ||
+                   rodCCDWitnessTag == nil ||
+                   pairFlags == nil ||
+                   scanBlocks == nil ||
+          @@ -5738,7 +5770,7 @@
+               context.rodEventSegmentPublishPipeline =
+                   rodEventSegmentPublish;
+               context.rodSweptProjectionPipeline = rodSweptProjection;
+          -    context.rodCCDPipeline = rodCCD;
+          +    context.rodCCDPipeline = nil;
+               context.rodCCDWitnessTagPipeline = rodCCDWitnessTag;
+               context.pairFlagPipeline = pairFlags;
+               context.scanBlocksPipeline = scanBlocks;
+          @@ -5816,7 +5848,7 @@
+                       pairNarrowphase.threadExecutionWidth
+                   );
+               context.initialized = true;
+          -    context.stats.pipelineCreationCount += 83u;
+          +    context.stats.pipelineCreationCount += 82u;
+               diagnostics = ensureHybridCCDPipeline(
+                   context,
+                   std::move(diagnostics)
+          @@ -17107,6 +17139,14 @@
+                       std::move(diagnostics)
+                   );
+                   if (!diagnostics.succeeded()) {
+          +            return diagnostics;
+          +        }
+          +        diagnostics = ensureRodCCDPipeline(
+          +            *selectedState,
+          +            world.rodCount() != 0u,
+          +            std::move(diagnostics)
+          +        );
+          +        if (!diagnostics.succeeded()) {
+                       return diagnostics;
+                   }
+                   diagnostics = ensureBufferArena(
+          --- a/apps/matter_physics_probe.mm
+          +++ b/apps/matter_physics_probe.mm
+          @@ -559,16 +559,6 @@
+               float maximumVerticalVelocity = -std::numeric_limits<float>::infinity();
+           };
+           
+          -MRBodyStateGPU staticSceneBody() {
+          -    MRBodyStateGPU state{};
+          -    state.position.w = 1.0f;
+          -    state.orientation.w = 1.0f;
+          -    state.flagsAndIndices[0] = MR_MOTION_STATIC;
+          -    state.flagsAndIndices[1] = MR_INVALID_INDEX;
+          -    state.flagsAndIndices[2] = 0u;
+          -    return state;
+          -}
+          -
+           void runIdentification() {
+               @autoreleasepool {
+                   const auto world = compileCase(
+          @@ -1058,14 +1048,12 @@
+                       static_cast<std::size_t>(controlSteps) * rigidWorld.nv(),
+                       0.0f
+                   );
+          -        const std::array<MRBodyStateGPU, 1u> scene{staticSceneBody()};
+                   const metalrobo::MetalWorldBatch batch{
+                       .environmentCount = 1u,
+                       .controlStepCount = controlSteps,
+                       .initialQ = model.defaultQ,
+                       .initialV = model.defaultV,
+                       .efforts = efforts,
+          -            .initialSceneBodies = scene,
+                   };
+                   metalrobo::MetalWorldStepConfig config{};
+                   config.timestepSeconds = 1.0f / 480.0f;
+          PATCH
 
-          metal_path = Path("src/metal/MetalWorld.mm")
-          source = metal_path.read_text()
-
-          generalized = "MetalWorldDiagnostics ensureGeneralizedConstraintPipeline(\n"
-          helper = '''MetalWorldDiagnostics ensureRodCCDPipeline(
-              detail::MetalWorldContextState& context,
-              const bool hasRods,
-              MetalWorldDiagnostics diagnostics
-          ) {
-              if (!hasRods || context.rodCCDPipeline != nil) {
-                  return diagnostics;
-              }
-              NSError* error = nil;
-              id<MTLComputePipelineState> pipeline = makePipeline(
-                  context.device,
-                  context.library,
-                  @"mr_world_resolve_rod_ccd",
-                  &error
-              );
-              if (pipeline == nil) {
-                  return reject(
-                      std::move(diagnostics),
-                      MetalWorldHostStatus::metalPipelineFailure,
-                      "failed to create optional rod-CCD pipeline: " +
-                          describeError(error)
-                  );
-              }
-              if (pipeline.maxTotalThreadsPerThreadgroup == 0u ||
-                  pipeline.staticThreadgroupMemoryLength >
-                      context.device.maxThreadgroupMemoryLength) {
-                  return reject(
-                      std::move(diagnostics),
-                      MetalWorldHostStatus::metalDeviceUnsupported,
-                      "device cannot execute the rod-CCD kernel geometry"
-                  );
-              }
-              context.rodCCDPipeline = pipeline;
-              ++context.stats.pipelineCreationCount;
-              return diagnostics;
-          }
-
-          '''
-          declaration = "    __strong id<MTLComputePipelineState> rodCCD = nil;\n"
-          eager = '''    rodCCD = createContactPipeline(
-              @"mr_world_resolve_rod_ccd"
-          );
-          '''
-          required = "        rodCCD == nil ||\n"
-          assignment = "    context.rodCCDPipeline = rodCCD;\n"
-          count = "    context.stats.pipelineCreationCount += 83u;\n"
-          initialization = '''            diagnostics = initializeContext(
-                          *selectedState,
-                          std::move(diagnostics)
-                      );
-                      if (!diagnostics.succeeded()) {
-                          return diagnostics;
-                      }
-                      diagnostics = ensureBufferArena(
-          '''
-          initialization_replacement = '''            diagnostics = initializeContext(
-                          *selectedState,
-                          std::move(diagnostics)
-                      );
-                      if (!diagnostics.succeeded()) {
-                          return diagnostics;
-                      }
-                      diagnostics = ensureRodCCDPipeline(
-                          *selectedState,
-                          world.rodCount() != 0u,
-                          std::move(diagnostics)
-                      );
-                      if (!diagnostics.succeeded()) {
-                          return diagnostics;
-                      }
-                      diagnostics = ensureBufferArena(
-          '''
-          checks = {
-              generalized: 1,
-              declaration: 1,
-              eager: 1,
-              required: 1,
-              assignment: 1,
-              count: 1,
-              initialization: 1,
-          }
-          for text, expected in checks.items():
-              actual = source.count(text)
-              if actual != expected:
-                  raise SystemExit(
-                      f"MetalWorld source no longer matches audited lazy-rod edit: "
-                      f"expected {expected}, found {actual}: {text[:80]!r}"
-                  )
-          source = source.replace(generalized, helper + generalized, 1)
-          source = source.replace(declaration, "", 1)
-          source = source.replace(eager, "", 1)
-          source = source.replace(required, "", 1)
-          source = source.replace(
-              assignment,
-              "    context.rodCCDPipeline = nil;\n",
-              1,
-          )
-          source = source.replace(
-              count,
-              "    context.stats.pipelineCreationCount += 82u;\n",
-              1,
-          )
-          source = source.replace(
-              initialization,
-              initialization_replacement,
-              1,
-          )
-          metal_path.write_text(source)
-
-          probe_path = Path("apps/matter_physics_probe.mm")
-          probe = probe_path.read_text()
-          probe_helper = '''MRBodyStateGPU staticSceneBody() {
-              MRBodyStateGPU state{};
-              state.position.w = 1.0f;
-              state.orientation.w = 1.0f;
-              state.flagsAndIndices[0] = MR_MOTION_STATIC;
-              state.flagsAndIndices[1] = MR_INVALID_INDEX;
-              state.flagsAndIndices[2] = 0u;
-              return state;
-          }
-
-          '''
-          scene = "        const std::array<MRBodyStateGPU, 1u> scene{staticSceneBody()};\n"
-          field = (
-              "            .efforts = efforts,\n"
-              "            .initialSceneBodies = scene,\n"
-          )
-          for text in (probe_helper, scene, field):
-              if probe.count(text) != 1:
-                  raise SystemExit(
-                      "coupling probe source no longer matches the audited layout edit"
-                  )
-          probe = probe.replace(probe_helper, "", 1)
-          probe = probe.replace(scene, "", 1)
-          probe = probe.replace(field, "            .efforts = efforts,\n", 1)
-          probe_path.write_text(probe)
-          PY
-
+          sed -i '' 's/^          //' /tmp/matter-lazy-rod.patch
+          git apply --check /tmp/matter-lazy-rod.patch
+          git apply /tmp/matter-lazy-rod.patch
           git diff --check
+
           cmake -S . -B build-matter-lazy-rod \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
