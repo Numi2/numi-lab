@@ -2,6 +2,9 @@
 #import <Metal/Metal.h>
 
 #include "numi/matter/matter.hpp"
+#include "numi/matter/metal_world.hpp"
+#include "metalrobo/EngineModel.hpp"
+#include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/engine_types.h"
 
 #include <algorithm>
@@ -36,14 +39,16 @@ numi::matter::CompiledWorld compileCase(
     const bool singleMPMParticle = false,
     const bool fullRate = false,
     const bool nearPlane = false,
-    const bool gentleMPMContact = false
+    const bool gentleMPMContact = false,
+    const bool bodyBackedPlane = false,
+    const double frameTimestep = 1.0 / 240.0
 ) {
     const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
     require(parsed.succeeded(), "reference silicone material did not parse");
 
     numi::matter::WorldSource source;
     source.environmentCount = 1u;
-    source.frameTimestep = 1.0 / 240.0;
+    source.frameTimestep = frameTimestep;
     source.gravity = {0.0, 0.0, -9.81};
     source.femPCGIterations = 8u;
     source.materials.push_back(parsed.material);
@@ -53,6 +58,13 @@ numi::matter::CompiledWorld compileCase(
         plane.shape = NM_RIGID_PLANE;
         plane.localCenter = {0.0, 0.0, 1.0};
         plane.radiusOrOffset = 0.0;
+        if (bodyBackedPlane) {
+            // `makeFreeSphereEngineModel` owns its free articulated body at
+            // global body index 1.  A plane attached there gives Matter a
+            // real ABA wrench destination rather than a standalone proxy.
+            plane.bodyIndex = 1u;
+            plane.articulated = true;
+        }
         source.rigidProxies.push_back(plane);
     }
 
@@ -81,7 +93,15 @@ numi::matter::CompiledWorld compileCase(
                     particle.position = {
                         -0.005 + spacing * x,
                         -0.005 + spacing * y,
-                        (gentleMPMContact ? 0.015 : 0.03) + spacing * z,
+                        // The MetalWorld bridge probe begins inside the
+                        // quadratic-grid contact halo, so its first accepted
+                        // microstep necessarily exercises the body-wrench
+                        // handoff. Standalone drops retain their free-flight
+                        // approach trajectories below.
+                        (bodyBackedPlane
+                             ? 0.001
+                             : (gentleMPMContact ? 0.015 : 0.03)) +
+                            spacing * z,
                     };
                     particle.velocity = {0.0, 0.0, gentleMPMContact ? 0.0 : -1.0};
                     particle.mass = 1100.0 * volume;
@@ -134,6 +154,177 @@ struct Outcome {
     float minimumVerticalVelocity = std::numeric_limits<float>::infinity();
     float maximumVerticalVelocity = -std::numeric_limits<float>::infinity();
 };
+
+MRBodyStateGPU staticSceneBody() {
+    MRBodyStateGPU state{};
+    state.position.w = 1.0f;
+    state.orientation.w = 1.0f;
+    state.flagsAndIndices[0] = MR_MOTION_STATIC;
+    state.flagsAndIndices[1] = MR_INVALID_INDEX;
+    state.flagsAndIndices[2] = 0u;
+    return state;
+}
+
+void runMetalWorldCoupling() {
+    @autoreleasepool {
+        constexpr std::uint32_t controlSteps = 1u;
+        const auto matterWorld = compileCase(
+            numi::matter::Representation::mpm,
+            true,
+            false,
+            false,
+            false,
+            false,
+            true,
+            1.0 / 480.0
+        );
+        numi::matter::Runtime matter;
+        const auto initialized = matter.initialize(
+            matterWorld,
+            {
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = false,
+                .adaptiveTransfer = false,
+            }
+        );
+        require(initialized.encoded && matter.valid(),
+            "MetalWorld coupling could not initialize Matter: " + initialized.message);
+
+        const metalrobo::EngineModel model =
+            metalrobo::makeFreeSphereEngineModel();
+        metalrobo::CompiledWorld rigidWorld;
+        const auto compiled = metalrobo::compileMetalWorld(model, 0u, rigidWorld);
+        require(compiled.succeeded(),
+            "MetalWorld coupling could not compile free body: " + compiled.message);
+        std::vector<float> efforts(
+            static_cast<std::size_t>(controlSteps) * rigidWorld.nv(),
+            0.0f
+        );
+        const std::array<MRBodyStateGPU, 1u> scene{staticSceneBody()};
+        const metalrobo::MetalWorldBatch batch{
+            .environmentCount = 1u,
+            .controlStepCount = controlSteps,
+            .initialQ = model.defaultQ,
+            .initialV = model.defaultV,
+            .efforts = efforts,
+            .initialSceneBodies = scene,
+        };
+        metalrobo::MetalWorldStepConfig config{};
+        config.timestepSeconds = 1.0f / 480.0f;
+        config.physicsSubsteps = 1u;
+        config.solverMode = metalrobo::MetalWorldSolverMode::temporalCone;
+        config.velocityIterations = 2u;
+        config.finalVelocityIterations = 1u;
+        config.matrixFreeArticulatedContact = false;
+        config.streamedArticulatedContactResponses = false;
+        config.captureContactEvidence = true;
+        config.devicePhysicsProgram =
+            numi::matter::makeMetalWorldDevicePhysicsProgram(matter);
+        require(config.devicePhysicsProgram.valid(),
+            "Matter did not produce a valid MetalWorld adapter");
+
+        metalrobo::MetalWorldContext context;
+        metalrobo::MetalWorldResult result;
+        const auto ran = context.run(rigidWorld, batch, config, result);
+        const id<MTLBuffer> matterStatusBuffer =
+            (__bridge id<MTLBuffer>)matter.statusBuffer();
+        const auto* matterStatus = static_cast<const NMMatterStatusGPU*>(
+            matterStatusBuffer.contents
+        );
+        std::string matterFailure;
+        if (matterStatus != nullptr && matterStatus->code != NM_STATUS_SUCCESS) {
+            matterFailure = " matter_status=" +
+                std::to_string(matterStatus->code) +
+                " object=" + std::to_string(matterStatus->objectIndex) +
+                " index=" + std::to_string(matterStatus->failingIndex) +
+                " diagnostics=(" + std::to_string(matterStatus->diagnostics.x) +
+                "," + std::to_string(matterStatus->diagnostics.y) +
+                "," + std::to_string(matterStatus->diagnostics.z) +
+                "," + std::to_string(matterStatus->diagnostics.w) + ")";
+        }
+        const std::string layoutFailure =
+            " dispatch=(abi=" +
+            std::to_string(ran.layout.dispatch.abiVersion) +
+            ",flags=" + std::to_string(ran.layout.dispatch.flags) +
+            ",steps=" + std::to_string(ran.layout.dispatch.controlStepCount) +
+            ",substeps=" + std::to_string(ran.layout.dispatch.physicsSubsteps) +
+            ",nq=" + std::to_string(ran.layout.dispatch.nq) +
+            ",nv=" + std::to_string(ran.layout.dispatch.nv) + ")";
+        const std::string operatorFailure =
+            ran.layout.kinematicsDispatches.empty()
+            ? " operator=(missing)"
+            : " operator=(articulation=" + std::to_string(
+                ran.layout.kinematicsDispatches[0].articulationIndex
+            ) + ",env=" + std::to_string(
+                ran.layout.kinematicsDispatches[0].environmentCount
+            ) + ",flags=" + std::to_string(
+                ran.layout.kinematicsDispatches[0].flags
+            ) + ",point_count=" + std::to_string(
+                ran.layout.kinematicsDispatches[0].pointCount
+            ) + ",q_stride=" + std::to_string(
+                ran.layout.kinematicsDispatches[0].qStride
+            ) + ",body_stride=" + std::to_string(
+                ran.layout.kinematicsDispatches[0].bodyPoseStride
+            ) + ")";
+        const std::string contactFailure = result.contactStatuses.empty()
+            ? " contact=(missing)"
+            : " contact=(code=" + std::to_string(
+                result.contactStatuses[0].code
+            ) + ",constraint=" + std::to_string(
+                result.contactStatuses[0].firstFailingConstraint
+            ) + ",stable_low=" + std::to_string(
+                result.contactStatuses[0].firstFailingStableKeyLow
+            ) + ",stable_high=" + std::to_string(
+                result.contactStatuses[0].firstFailingStableKeyHigh
+            ) + ",flags=" + std::to_string(
+                result.contactStatuses[0].flags
+            ) + ",diagnostics=(" + std::to_string(
+                result.contactStatuses[0].diagnostics.x
+            ) + "," + std::to_string(
+                result.contactStatuses[0].diagnostics.y
+            ) + "," + std::to_string(
+                result.contactStatuses[0].diagnostics.z
+            ) + "," + std::to_string(
+                result.contactStatuses[0].diagnostics.w
+            ) + ")";
+        require(ran.succeeded(),
+            "MetalWorld/Matter coupling failed: " + ran.message +
+                matterFailure + layoutFailure + operatorFailure + contactFailure);
+        require(
+            result.environmentStatuses.size() == 1u &&
+                result.environmentStatuses[0].code == MR_STEP_SUCCESS &&
+                result.finalV.size() == rigidWorld.nv(),
+            "MetalWorld/Matter coupling did not publish an accepted state"
+        );
+        const auto snapshot = matter.snapshot();
+        require(snapshot.available && !snapshot.reactions.empty(),
+            "MetalWorld/Matter coupling did not publish Matter reactions");
+        const float reactionZ = snapshot.reactions[0].impulseAndCount.z;
+        // Matter sees a downward particle impact, so the equal-and-opposite
+        // impulse applied to the body-backed plane is downward as well.
+        require(reactionZ < -1.0e-6f,
+            "continuum impact did not accumulate a rigid reaction: reaction_z=" +
+                std::to_string(reactionZ) +
+                " final_body_velocity_z=" +
+                std::to_string(result.finalV[2]));
+        require(
+            result.finalV[2] < -1.0e-6f &&
+                std::abs(result.finalV[2] - reactionZ) < 1.0e-5f,
+            "MetalWorld ABA did not consume the continuum rigid reaction: reaction_z=" +
+                std::to_string(reactionZ) +
+                " final_body_velocity_z=" +
+                std::to_string(result.finalV[2])
+        );
+        std::cout
+            << "{\"schema\":\"numi.matter.physics-probe.v1\""
+            << ",\"representation\":\"mpm_articulated_coupling\""
+            << ",\"rigid_reaction_z\":" << reactionZ
+            << ",\"accepted_body_velocity_z\":" << result.finalV[2]
+            << ",\"gpu_milliseconds\":" << ran.gpuElapsedMilliseconds
+            << "}\n";
+    }
+}
 
 Outcome runCase(
     const numi::matter::CompiledWorld& world,
@@ -349,14 +540,18 @@ int main(int argc, const char* argv[]) {
         const bool mpmSingleContact = argc == 2 && std::string_view(argv[1]) == "--mpm-single-contact";
         const bool mpmGentle = argc == 2 && std::string_view(argv[1]) == "--mpm-gentle-contact";
         const bool mpmRollback = argc == 2 && std::string_view(argv[1]) == "--mpm-rollback";
+        const bool metalWorldCoupling = argc == 2 && std::string_view(argv[1]) == "--metal-world-coupling";
         const bool femFree = argc == 2 && std::string_view(argv[1]) == "--fem-free";
         const bool femHighRate = argc == 2 && std::string_view(argv[1]) == "--fem-high-rate";
         const bool femHighDrop = argc == 2 && std::string_view(argv[1]) == "--fem-high-drop";
         require(
-            argc == 1 || femOnly || mpmOnly || mpmFree || mpmSingle || mpmSingleContact || mpmGentle || mpmRollback || femFree || femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            argc == 1 || femOnly || mpmOnly || mpmFree || mpmSingle || mpmSingleContact || mpmGentle || mpmRollback || metalWorldCoupling || femFree || femHighRate || femHighDrop,
+            "usage: metalrobo_matter_physics_probe [--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
-        if (!femOnly && !femFree && !femHighRate && !femHighDrop) {
+        if (metalWorldCoupling) {
+            runMetalWorldCoupling();
+        }
+        if (!metalWorldCoupling && !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
             const auto mpm = runCase(
                 compileCase(
@@ -393,7 +588,7 @@ int main(int argc, const char* argv[]) {
                 << "}\n";
         }
         if (!mpmOnly && !mpmFree && !mpmSingle && !mpmSingleContact &&
-            !mpmGentle && !mpmRollback) {
+            !mpmGentle && !mpmRollback && !metalWorldCoupling) {
             const bool withPlane = !femFree;
             const auto fem = runCase(
                 compileCase(

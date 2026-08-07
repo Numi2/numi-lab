@@ -67,15 +67,15 @@ then emits bounded stack bytecode shared by MPM and FEM. This removes handwritte
 
 ### MPM backend
 
-The MPM path is a total-Lagrangian solid backend using fixed quadratic B-spline support over 27 nodes per material point. The cooker builds sparse grid nodes and deterministic node-owned incidence lists. Runtime kernels perform:
+The MPM path is a total-Lagrangian solid backend using fixed quadratic B-spline support over 27 nodes per material point. The cooker builds an object-owned fixed background-grid table and deterministic node-owned incidence lists. Runtime kernels perform:
 
-1. particle-to-grid mass, APIC momentum and constitutive-force gathering;
+1. particle-to-grid mass, PIC momentum and constitutive-force gathering;
 2. grid acceleration and integration;
 3. unified continuum contact projection;
-4. grid-to-particle velocity, affine field and deformation-gradient updates;
+4. grid-to-particle velocity and deformation-gradient updates;
 5. transactional candidate publication.
 
-Node-owned gathers avoid floating-point scatter atomics and produce stable accumulation order across runs. This backend is intended for elastic, viscoelastic and elastoplastic solids with large deformation. It is not presented as a general free-surface fluid implementation.
+Node-owned gathers avoid floating-point scatter atomics and produce stable accumulation order across runs. The current path deliberately uses PIC rather than an APIC affine update, and its cooked full background-grid table is a fixed-capacity execution contract rather than a sparse-grid implementation. This backend is intended for elastic, viscoelastic and elastoplastic solids with large deformation. It is not presented as a general free-surface fluid implementation.
 
 ### FEM backend
 
@@ -233,13 +233,14 @@ ctest --test-dir build -L matter --output-on-failure -j 1
 
 The suite executes the actual `NumiMatter.metallib` through borrowed Metal
 command buffers. It checks MPM freefall, a coupled eight-particle MPM plane
-impact, a full-height implicit FEM impact, a near-plane CFL-resolved FEM
-contact, and byte-identical MPM/FEM/scheduler rollback after an enclosing
-rigid transaction rejects the tentative continuum update. It is deliberately
-serial because all cases use the active GPU.
+impact, an articulated-body continuum reaction consumed by MetalWorld ABA, a
+full-height implicit FEM impact, a near-plane CFL-resolved FEM contact, and
+byte-identical MPM/FEM/scheduler rollback after an enclosing rigid transaction
+rejects the tentative continuum update. It is deliberately serial because all
+cases use the active GPU.
 
-This is continuum and analytic-proxy contact evidence, not a blanket claim
-that every integration path is qualified. In particular, dynamic/articulated
-rigid reaction consumption by a full `MetalWorld` step, adaptive ownership
+This is continuum and analytic-proxy contact evidence, including one
+articulated rigid-reaction handoff through a full `MetalWorld` step. It is not
+a blanket claim that every integration path is qualified: adaptive ownership
 transfer, inverse identification, and longer-running material calibration
 remain separate qualifications.

@@ -1516,6 +1516,10 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm-rollback
     )
     add_test(
+        NAME matter.integration.articulated_rigid_reaction
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --metal-world-coupling
+    )
+    add_test(
         NAME matter.physics.fem_plane_impact
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --fem-high-drop
     )
@@ -1527,6 +1531,7 @@ if(BUILD_TESTING)
         matter.physics.mpm_freefall
         matter.physics.mpm_plane_impact
         matter.runtime.mpm_transaction_rollback
+        matter.integration.articulated_rigid_reaction
         matter.physics.fem_plane_impact
         matter.physics.fem_near_plane_cfl
         PROPERTIES

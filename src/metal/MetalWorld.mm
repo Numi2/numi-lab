@@ -10636,6 +10636,19 @@ bool encodeABA(
     }
     encoder.label = @"MetalWorld ABA";
     [encoder setComputePipelineState:pipeline];
+    // The single-articulation ABA variants consume an articulation-local
+    // wrench slice, while the shared arena is indexed by global body. The
+    // multi-articulation variant applies MRMultiABADispatchGPU::wrenchBase
+    // itself, so only rebase the single-articulation binding here.
+    NSUInteger bodyWrenchOffset = 0u;
+    if (articulationCount == 1u &&
+        (context.boundContactDispatch.flags &
+         MR_METAL_WORLD_CONTACT_BODY_WRENCHES) != 0u &&
+        !context.boundArticulations.empty()) {
+        bodyWrenchOffset =
+            context.boundArticulations.front().firstBody *
+            sizeof(MRABABodyWrenchGPU);
+    }
     [encoder setBuffer:context.buffers[kWorld]
                  offset:0u
                 atIndex:0u];
@@ -10664,7 +10677,7 @@ bool encodeABA(
                  offset:0u
                 atIndex:8u];
     [encoder setBuffer:context.buffers[kBodyWrenchPlaceholder]
-                 offset:0u
+                 offset:bodyWrenchOffset
                 atIndex:9u];
     [encoder setBuffer:context.buffers[kCandidateAcceleration]
                  offset:0u

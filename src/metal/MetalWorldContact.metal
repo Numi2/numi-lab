@@ -2594,6 +2594,11 @@ kernel void mr_world_build_body_states(
             status.firstFailingStableKeyLow =
                 operatorStatus.code;
             status.firstFailingStableKeyHigh = owner;
+            // Preserve the originating operator failure in the ordinary
+            // contact diagnostic channel as well. Device-physics projection
+            // runs before contact generation, so otherwise a rejected
+            // articulation pose looks like an unexplained contact failure.
+            status.diagnostics = operatorStatus.diagnostics;
             statuses[environment] = status;
             return;
         }
