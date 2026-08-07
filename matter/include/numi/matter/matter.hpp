@@ -426,7 +426,7 @@ struct EncodeRequest {
     // Per-call frame duration. Zero selects the cooked package duration.
     float timestepSeconds = 0.0f;
     bool runIdentification = false;
-    bool runAdaptiveTransfer = true;
+    bool runAdaptiveTransfer = false;
 };
 
 struct RuntimeDiagnostics {
