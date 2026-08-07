@@ -1,6 +1,8 @@
 name: Matter Apple qualification
 
 on:
+  push:
+    branches: [codex/matter-compiler-foundation]
   pull_request:
     branches: [numisolver]
   workflow_dispatch:
