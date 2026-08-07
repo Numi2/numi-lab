@@ -60,7 +60,24 @@
         } else {
             dwell = 0u;
         }
-        candidate = min(candidate, event.phase.x);
+        // A contact guard cannot clamp exactly at the authored landmark: the
+        // landmark pose may be the last supported sample, making the contact
+        // transition impossible and deadlocking phase forever.  Let actuation
+        // advance through the authored transition interval, but never cross
+        // the next contact-bearing landmark.  The event index remains blocked,
+        // so takeoff cannot cross landing and landing cannot complete until
+        // the measured solver contact satisfies its guard.
+        float guardLimit = 1.0f;
+        for (uint future = eventIndex + 1u;
+             future < program.counts2.x;
+             ++future) {
+            const MRHyperPolicyEventGuardGPU landmark = events[future];
+            if ((landmark.contract.x | landmark.contract.y) != 0u) {
+                guardLimit = landmark.phase.x;
+                break;
+            }
+        }
+        candidate = min(candidate, guardLimit);
         flags |= MR_HYPER_POLICY_PHASE_GUARD_BLOCKED;
         break;
     }

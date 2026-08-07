@@ -33,6 +33,7 @@ _PHASE_OUTCOME = "hyper_policy_phase"
 @dataclass(frozen=True, slots=True)
 class SpecialistTrainingResult:
     program: SpecialistAdapterProgram
+    hyper_base: HyperBasePolicy
     metrics: dict[str, float]
     contributing_samples: int
 
@@ -78,56 +79,37 @@ def _phase_values(rollout: NativePolicyRollout) -> np.ndarray:
     return result
 
 
-def _rank01(values: np.ndarray) -> np.ndarray:
-    source = np.asarray(values, dtype=np.float64).reshape(-1)
-    if source.size <= 1:
-        return np.ones(source.shape, dtype=np.float32)
-    order = np.argsort(source, kind="stable")
-    ranks = np.empty(source.size, dtype=np.float64)
-    index = 0
-    while index < source.size:
-        end = index + 1
-        while end < source.size and source[order[end]] == source[order[index]]:
-            end += 1
-        ranks[order[index:end]] = 0.5 * (index + end - 1)
-        index = end
-    ranks /= source.size - 1
-    return ranks.astype(np.float32)
+def _advantage_weights(rollout: NativePolicyRollout) -> np.ndarray:
+    """Select stochastic residuals that beat their same-step population.
 
+    HyperPolicy rollouts are step-major, so centering the terminal-safe return
+    across environments at each control step removes phase/reward-scale drift.
+    Failed and terminal transitions cannot teach the deployment actor.  A
+    deterministic rollout consequently has no artificial self-imitation
+    signal: it must contain genuine solver-outcome variation to contribute.
+    """
 
-def _teacher_weights(rollout: NativePolicyRollout) -> np.ndarray:
     transitions = rollout.transitions
-    valid = (
+    valid = np.asarray(
         (transitions["physics_error"] == 0)
         & ((transitions["done"] == 0) | (transitions["timeout"] != 0))
-    ).astype(np.float32)
-    reward_quality = _rank01(transitions["reward"])
-    tracking = None
-    for identifier in (
-        "tracking_score",
-        "interaction_tracking",
-        "mean_tracking_score",
-    ):
-        if identifier in rollout.outcomes:
-            tracking = np.asarray(rollout.outcomes[identifier], dtype=np.float32)
-            break
-    if tracking is None:
-        tracking_quality = reward_quality
-    else:
-        finite = np.isfinite(tracking)
-        if not finite.all():
-            raise ValueError("rollout tracking outcome is non-finite")
-        minimum = float(np.min(tracking))
-        maximum = float(np.max(tracking))
-        tracking_quality = (
-            (tracking - minimum) / max(maximum - minimum, 1.0e-6)
-        ).astype(np.float32)
-    weight = valid * np.clip(
-        0.10 + 0.55 * tracking_quality + 0.35 * reward_quality,
-        0.0,
-        1.0,
+    ).reshape(rollout.control_step_count, rollout.environment_count)
+    advantages = rollout.policy_batch().advantages.reshape(
+        rollout.control_step_count, rollout.environment_count
     )
-    return weight.astype(np.float32)
+    centered = np.zeros_like(advantages, dtype=np.float32)
+    for step in range(rollout.control_step_count):
+        usable = valid[step]
+        if np.count_nonzero(usable) < 2:
+            continue
+        baseline = np.median(advantages[step, usable])
+        centered[step, usable] = advantages[step, usable] - baseline
+    positive = np.maximum(centered, 0.0)
+    selected = positive[positive > 0.0]
+    if selected.size == 0:
+        return np.zeros(rollout.sample_count, dtype=np.float32)
+    scale = max(float(np.percentile(selected, 90.0)), 1.0e-6)
+    return np.clip(positive / scale, 0.0, 1.0).reshape(-1).astype(np.float32)
 
 
 def specialist_batch_from_rollout(
@@ -138,6 +120,10 @@ def specialist_batch_from_rollout(
 ) -> SpecialistAdapterBatch:
     if rollout.teacher_actions.size == 0:
         raise ValueError("hyper-policy rollout did not publish executed teacherActions")
+    if np.allclose(rollout.old_log_probabilities, 0.0, atol=1.0e-7):
+        raise ValueError(
+            "specialist adaptation requires a stochastic HyperPolicy rollout"
+        )
     phases = _phase_values(rollout)
     reference = _sample_rows(
         motion_policy.reference_phases,
@@ -149,9 +135,11 @@ def specialist_batch_from_rollout(
     )
     if rollout.action_count != configuration.action_count:
         raise ValueError("rollout and hyper-policy action widths differ")
-    weights = _teacher_weights(rollout)
+    weights = _advantage_weights(rollout)
     if not np.any(weights > 0.0):
-        raise ValueError("rollout contains no physically valid teacher sample")
+        raise ValueError(
+            "rollout contains no above-baseline physically valid exploration sample"
+        )
     return SpecialistAdapterBatch(
         knot_phases=motion_policy.knot_phases[None].astype(np.float32),
         knot_mask=np.ones((1, motion_policy.knot_phases.size), dtype=np.float32),
@@ -198,6 +186,7 @@ def train_specialist_from_rollout(
         metrics = learner.update(batch)
     return SpecialistTrainingResult(
         program=learner.export(),
+        hyper_base=export_hyper_base(actor, hyper_base),
         metrics=metrics,
         contributing_samples=int(np.count_nonzero(batch.teacher_weights)),
     )

@@ -9,7 +9,8 @@ fi
 
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ] || [ "$#" -eq 0 ]; then
     cat <<'HELP'
-Usage: numi hyper-policy canonicalize --proposal-directory PATH --g1-urdf FILE --output PATH
+Usage: numi hyper-policy canonicalize --proposal-directory PATH --g1-urdf FILE --output PATH \
+           [--recovery-handoff-side left|right]
        numi hyper-policy initialize-checkpoint --policy-pack FILE --canonical-motion PATH \
            --ranks N,N,... --output PATH
        numi hyper-policy compile --canonical-motion PATH --checkpoint PATH \
@@ -17,12 +18,16 @@ Usage: numi hyper-policy canonicalize --proposal-directory PATH --g1-urdf FILE -
        numi hyper-policy meta-update --checkpoint PATH --items FILE --updates N --output PATH
        numi hyper-policy create (--prompt TEXT | --proposal-directory PATH) \
            --g1-urdf FILE --checkpoint PATH --id ID --output PATH \
-           --evaluator FILE --metallib FILE
+           --evaluator FILE --metallib FILE \
+           [--recovery-handoff-side left|right]
 
 The product command performs ARDY generation when requested, exact G1
 canonicalization, motion-conditioned hypernetwork inference, deterministic
 candidate generation, NumiSolver qualification, bounded coefficient repair,
 and publication of an ARDY-free deployment HyperPolicyPack.
+For an authored unilateral move, --recovery-handoff-side verifies takeoff,
+opposite-foot support, strike geometry, landing dwell, and selects the quietest
+authored bilateral-support frame before closed-loop physical recovery.
 HELP
     exit 0
 fi

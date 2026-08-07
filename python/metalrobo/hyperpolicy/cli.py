@@ -22,6 +22,33 @@ from .motion import CanonicalARDYMotion
 from .native_pack import write_native_hyper_policy_pack
 
 
+def _condition_untrained_adapter_base(base: HyperBasePolicy) -> HyperBasePolicy:
+    """Remove the bilinear zero-gradient scale from an untrained exact lift.
+
+    Generated coefficients are reset to zero by the caller, so normalizing the
+    adapter-up columns does not alter the lifted dense actor.  It does give the
+    first solver-advantage update a well-conditioned coefficient gradient.
+    """
+
+    layers = []
+    for layer in base.layers:
+        norms = np.linalg.norm(layer.adapter_up, axis=0, keepdims=True)
+        if np.any(norms <= 1.0e-8):
+            raise ValueError("untrained adapter basis contains a zero column")
+        layers.append(
+            replace(
+                layer,
+                adapter_up=(layer.adapter_up / norms).astype(np.float32),
+            )
+        )
+    return replace(
+        base,
+        revision=base.revision + 1,
+        layers=tuple(layers),
+        fingerprint="",
+    ).with_fingerprint()
+
+
 def _json_file(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
@@ -104,8 +131,12 @@ def _canonicalize(
     g1_urdf: Path,
     output_directory: Path,
     target_fps: float,
+    recovery_handoff_side: str | None = None,
 ) -> tuple[CanonicalARDYMotion, dict[str, np.ndarray], dict[str, Any]]:
-    from ..ardy_g1 import native_g1_mechanism
+    from ..ardy_g1 import (
+        native_g1_mechanism,
+        prepare_single_support_recovery_handoff,
+    )
     from ..g1_motion_retarget import retarget_g1
 
     source_evidence = json.loads(
@@ -121,12 +152,20 @@ def _canonicalize(
         raise ValueError(
             f"ARDY proposal skeleton must be g1skel34 or cskel27, got {skeleton_id!r}"
         )
+    if recovery_handoff_side is not None:
+        arrays, evidence = prepare_single_support_recovery_handoff(
+            arrays,
+            evidence,
+            g1_urdf,
+            swing_side=recovery_handoff_side,
+        )
     motion = CanonicalARDYMotion.from_native_g1(
         arrays,
         evidence,
         target_frames_per_second=target_fps,
     )
     write_canonical_motion(motion, output_directory)
+    _json_file(output_directory / "source.evidence.json", evidence)
     return motion, arrays, evidence
 
 
@@ -437,7 +476,8 @@ def _quality(
     )
     score = (
         mean_tracking
-        - 2.0 * termination_rate
+        - termination_rate
+        - termination_events / max(float(environments), 1.0)
         - 1000.0 * float(failed_steps != 0)
         - 1000.0 * float(physics_errors != 0.0)
     )
@@ -460,6 +500,7 @@ def _publish_candidate(
     base: HyperBasePolicy,
     policy: GeneratedMotionPolicy,
     contact_group_indices: Sequence[int],
+    action_log_standard_deviation: np.ndarray | None = None,
 ) -> tuple[Path, Path]:
     bundle_directory = directory / "bundle"
     MotionPolicyBundle(base.with_fingerprint(), policy).write(bundle_directory)
@@ -469,6 +510,7 @@ def _publish_candidate(
         hyper_base=base,
         motion_policy=policy,
         contact_group_indices=contact_group_indices,
+        action_log_standard_deviation=action_log_standard_deviation,
     )
     return bundle_directory, native_pack
 
@@ -513,6 +555,7 @@ def _canonicalize_command(arguments: argparse.Namespace) -> int:
         g1_urdf=arguments.g1_urdf,
         output_directory=arguments.output,
         target_fps=arguments.target_fps,
+        recovery_handoff_side=arguments.recovery_handoff_side,
     )
     print(
         json.dumps(
@@ -523,6 +566,7 @@ def _canonicalize_command(arguments: argparse.Namespace) -> int:
                 "event_count": len(motion.events),
                 "feature_count": motion.features.shape[1],
                 "source": evidence["source_motion"],
+                "execution_handoff": evidence.get("execution_handoff"),
             },
             indent=2,
             sort_keys=True,
@@ -658,6 +702,10 @@ def _create(arguments: argparse.Namespace) -> int:
         raise ValueError(
             "--repair-rollout-pack requires a positive --repair-updates value"
         )
+    if arguments.adapt_iterations < 0 or arguments.adapt_updates <= 0:
+        raise ValueError("adaptation iteration/update counts are invalid")
+    if not -5.0 <= arguments.exploration_log_std <= 2.0:
+        raise ValueError("exploration log standard deviation must be in [-5, 2]")
     proposal = arguments.proposal_directory
     if proposal is None:
         proposal = _imagine(
@@ -672,6 +720,7 @@ def _create(arguments: argparse.Namespace) -> int:
         g1_urdf=arguments.g1_urdf,
         output_directory=output / "canonical-motion",
         target_fps=arguments.target_fps,
+        recovery_handoff_side=arguments.recovery_handoff_side,
     )
     compiler, _, base, configuration, schema, checkpoint = _load_compiler(
         arguments.checkpoint
@@ -687,13 +736,16 @@ def _create(arguments: argparse.Namespace) -> int:
         raise ValueError("ARDY G1 and hyper-base action widths differ")
     robot_fingerprint = _word_fingerprint(arguments.g1_urdf)
     interaction_pack = output / "motion.interactionpack"
-    write_native_g1_interaction_pack(
-        output=interaction_pack,
-        arrays=arrays,
-        evidence=motion_evidence,
-        desired_outcome=motion.prompt,
-        clip_id=arguments.interaction_clip,
-    )
+    if arguments.authored_interaction_pack is None:
+        write_native_g1_interaction_pack(
+            output=interaction_pack,
+            arrays=arrays,
+            evidence=motion_evidence,
+            desired_outcome=motion.prompt,
+            clip_id=arguments.interaction_clip,
+        )
+    else:
+        shutil.copy2(arguments.authored_interaction_pack, interaction_pack)
     base = _bind_base_to_interaction_task(
         base=base,
         evaluator=arguments.evaluator,
@@ -718,22 +770,107 @@ def _create(arguments: argparse.Namespace) -> int:
         raise RuntimeError(
             "hypernetwork rejected the ARDY motion before physical execution"
         )
-    candidates = distribution.candidate_coefficients(
-        count=arguments.candidates,
-        seed_material=(
-            motion.source_fingerprint
-            + base.fingerprint
-            + str(checkpoint["training_updates"])
-        ),
-        maximum_standard_deviations=arguments.candidate_radius,
+    bootstrap_untrained = (
+        int(checkpoint["training_updates"]) == 0 and arguments.allow_untrained
     )
+    if bootstrap_untrained:
+        base = _condition_untrained_adapter_base(base)
+        zero = np.zeros(
+            (1, motion.knot_phases.size, base.coefficient_count),
+            dtype=np.float32,
+        )
+        if arguments.candidates > 1:
+            # An untrained uncertainty head is not evidence and commonly
+            # collapses coverage.  Use the authenticated coefficient envelope
+            # as the bounded prior for deterministic motion-level exploration.
+            bootstrap_distribution = replace(
+                distribution,
+                coefficient_mean=np.zeros_like(distribution.coefficient_mean),
+                coefficient_uncertainty=np.broadcast_to(
+                    base.coefficient_limits,
+                    distribution.coefficient_mean.shape,
+                ).copy(),
+            )
+            sampled = bootstrap_distribution.candidate_coefficients(
+                count=arguments.candidates - 1,
+                seed_material=(
+                    motion.source_fingerprint + base.fingerprint + "physical-bootstrap"
+                ),
+                maximum_standard_deviations=min(arguments.candidate_radius, 1.0),
+            )
+            candidates = np.concatenate((zero, sampled), axis=0)
+        else:
+            candidates = zero
+        initial_authority = np.ones(
+            (motion.knot_phases.size, base.action_count), dtype=np.float32
+        )
+    else:
+        candidates = distribution.candidate_coefficients(
+            count=arguments.candidates,
+            seed_material=(
+                motion.source_fingerprint
+                + base.fingerprint
+                + str(checkpoint["training_updates"])
+            ),
+            maximum_standard_deviations=arguments.candidate_radius,
+        )
+        initial_authority = distribution.authority
     records: list[dict[str, Any]] = []
-    best: tuple[float, GeneratedMotionPolicy, Path, Path, dict[str, Any]] | None = None
-    accepted: tuple[GeneratedMotionPolicy, Path, Path, dict[str, Any]] | None = None
+    best: (
+        tuple[
+            float,
+            HyperBasePolicy,
+            GeneratedMotionPolicy,
+            Path,
+            Path,
+            dict[str, Any],
+        ]
+        | None
+    ) = None
+    accepted: (
+        tuple[
+            HyperBasePolicy,
+            GeneratedMotionPolicy,
+            Path,
+            Path,
+            dict[str, Any],
+        ]
+        | None
+    ) = None
     steps = arguments.steps or (
         int(math.ceil(motion.duration_seconds * motion.frames_per_second))
         + arguments.stabilization_steps
     )
+
+    def qualify_phase(
+        rollout_path: Path,
+        passed: bool,
+        score: float,
+        metrics: dict[str, float],
+    ) -> tuple[bool, float, dict[str, float]]:
+        rollout_value = read_policy_rollout_pack(
+            rollout_path,
+            library_path=arguments.native_library,
+        )
+        phase_outcome = rollout_value.outcomes.get("hyper_policy_phase")
+        if phase_outcome is None:
+            raise ValueError("HyperPolicy rollout is missing exact phase evidence")
+        phase = np.asarray(phase_outcome, dtype=np.float32).reshape(
+            rollout_value.control_step_count,
+            rollout_value.environment_count,
+        )
+        maximum = np.max(phase, axis=0)
+        completion_rate = float(np.mean(maximum >= 1.0 - 1.0e-6))
+        mean_progress = float(np.mean(maximum))
+        result = dict(metrics)
+        result["phase_completion_rate"] = completion_rate
+        result["mean_maximum_phase"] = mean_progress
+        passed = passed and completion_rate >= (
+            1.0 - arguments.maximum_termination_rate
+        )
+        score += completion_rate + 0.25 * mean_progress
+        return passed, score, result
+
     for index, coefficients in enumerate(candidates):
         candidate_dir = output / "candidates" / f"candidate-{index:02d}"
         policy = _build_policy(
@@ -742,7 +879,7 @@ def _create(arguments: argparse.Namespace) -> int:
             motion=motion,
             coefficient_knots=coefficients,
             coefficient_uncertainty=distribution.coefficient_uncertainty,
-            authority_knots=distribution.authority,
+            authority_knots=initial_authority,
             phase_rate_multiplier=distribution.phase_rate_multiplier,
             reference_actions=reference,
             robot_fingerprint=robot_fingerprint,
@@ -778,6 +915,7 @@ def _create(arguments: argparse.Namespace) -> int:
             minimum_tracking=arguments.minimum_tracking,
             maximum_termination_rate=arguments.maximum_termination_rate,
         )
+        passed, score, metrics = qualify_phase(rollout, passed, score, metrics)
         record = {
             "candidate": index,
             "score": score,
@@ -789,11 +927,141 @@ def _create(arguments: argparse.Namespace) -> int:
         }
         records.append(record)
         if best is None or score > best[0]:
-            best = (score, policy, native, rollout, evidence)
+            best = (score, base, policy, native, rollout, evidence)
         if passed:
-            accepted = (policy, native, rollout, evidence)
+            accepted = (base, policy, native, rollout, evidence)
             break
     assert best is not None
+
+    adaptation_records: list[dict[str, Any]] = []
+    if accepted is None and arguments.adapt_iterations > 0:
+        current_score, current_base, current_policy, _, _, _ = best
+        for iteration in range(arguments.adapt_iterations):
+            iteration_dir = output / "adaptation" / f"iteration-{iteration:02d}"
+            exploration_std = np.full(
+                current_base.action_count,
+                arguments.exploration_log_std,
+                dtype=np.float32,
+            )
+            _, exploration_pack = _publish_candidate(
+                directory=iteration_dir / "exploration",
+                base=current_base,
+                policy=current_policy,
+                contact_group_indices=arguments.contact_group_indices,
+                action_log_standard_deviation=exploration_std,
+            )
+            exploration_evidence, exploration_rollout_path = _qualify(
+                evaluator=arguments.evaluator,
+                metallib=arguments.metallib,
+                native_pack=exploration_pack,
+                interaction_pack=interaction_pack,
+                interaction_clip=arguments.interaction_clip,
+                output_directory=iteration_dir / "exploration" / "rollout",
+                environments=arguments.environments,
+                steps=steps,
+                chunk=arguments.chunk,
+                seed=arguments.qualification_seed + iteration,
+                task=arguments.task,
+                scene=arguments.scene,
+            )
+            exploration_rollout = read_policy_rollout_pack(
+                exploration_rollout_path,
+                library_path=arguments.native_library,
+            )
+            repair = train_specialist_from_rollout(
+                rollout=exploration_rollout,
+                motion_policy=current_policy,
+                hyper_base=current_base,
+                configuration=configuration,
+                updates=arguments.adapt_updates,
+                initial=generated_program(current_policy),
+                learning_rate=arguments.adapt_learning_rate,
+            )
+            program = repair.program
+            candidate_base = repair.hyper_base
+            candidate_policy = _build_policy(
+                policy_id=f"{arguments.id}-adapted-{iteration:02d}",
+                hyper_base=candidate_base,
+                motion=motion,
+                coefficient_knots=program.coefficients[0],
+                coefficient_uncertainty=distribution.coefficient_uncertainty,
+                authority_knots=program.authority[0],
+                phase_rate_multiplier=program.phase_rate_multiplier[0],
+                reference_actions=reference,
+                robot_fingerprint=robot_fingerprint,
+                action_lower=lower,
+                action_upper=upper,
+                maximum_action_rate=rate,
+                failure_probability=distribution.failure_probability,
+                ood_score=distribution.out_of_distribution_score,
+            )
+            bundle, native = _publish_candidate(
+                directory=iteration_dir / "deterministic",
+                base=candidate_base,
+                policy=candidate_policy,
+                contact_group_indices=arguments.contact_group_indices,
+            )
+            evidence, rollout_path = _qualify(
+                evaluator=arguments.evaluator,
+                metallib=arguments.metallib,
+                native_pack=native,
+                interaction_pack=interaction_pack,
+                interaction_clip=arguments.interaction_clip,
+                output_directory=iteration_dir / "deterministic" / "qualification",
+                environments=arguments.environments,
+                steps=steps,
+                chunk=arguments.chunk,
+                seed=arguments.qualification_seed,
+                task=arguments.task,
+                scene=arguments.scene,
+            )
+            passed, score, metrics = _quality(
+                evidence,
+                environments=arguments.environments,
+                minimum_tracking=arguments.minimum_tracking,
+                maximum_termination_rate=arguments.maximum_termination_rate,
+            )
+            passed, score, metrics = qualify_phase(rollout_path, passed, score, metrics)
+            improved = score > current_score
+            adaptation_records.append(
+                {
+                    "iteration": iteration,
+                    "score": score,
+                    "incumbent_score": current_score,
+                    "improved": improved,
+                    "passed": passed,
+                    "metrics": metrics,
+                    "training_metrics": repair.metrics,
+                    "contributing_samples": repair.contributing_samples,
+                    "exploration_pack": str(exploration_pack),
+                    "exploration_rollout": str(exploration_rollout_path),
+                    "exploration_solver_evidence": exploration_evidence,
+                    "bundle": str(bundle),
+                    "native_pack": str(native),
+                    "rollout": str(rollout_path),
+                }
+            )
+            if improved:
+                current_score = score
+                current_base = candidate_base
+                current_policy = candidate_policy
+                best = (
+                    score,
+                    candidate_base,
+                    candidate_policy,
+                    native,
+                    rollout_path,
+                    evidence,
+                )
+            if passed:
+                accepted = (
+                    candidate_base,
+                    candidate_policy,
+                    native,
+                    rollout_path,
+                    evidence,
+                )
+                break
 
     repair_record: dict[str, Any] | None = None
     if accepted is None and arguments.repair_updates > 0:
@@ -802,17 +1070,17 @@ def _create(arguments: argparse.Namespace) -> int:
                 "specialist repair requires --repair-rollout-pack from an "
                 "independent solver teacher; a candidate cannot teach itself"
             )
-        _, best_policy, _, _, _ = best
+        _, best_base, best_policy, _, _, _ = best
         rollout = read_policy_rollout_pack(
             arguments.repair_rollout_pack,
             library_path=arguments.native_library,
         )
-        if rollout.task_fingerprint != base.task_fingerprint:
+        if rollout.task_fingerprint != best_base.task_fingerprint:
             raise ValueError("repair rollout and compiled InteractionPack task differ")
         repair = train_specialist_from_rollout(
             rollout=rollout,
             motion_policy=best_policy,
-            hyper_base=base,
+            hyper_base=best_base,
             configuration=configuration,
             updates=arguments.repair_updates,
             initial=generated_program(best_policy),
@@ -821,7 +1089,7 @@ def _create(arguments: argparse.Namespace) -> int:
         program = repair.program
         repaired = _build_policy(
             policy_id=f"{arguments.id}-repaired",
-            hyper_base=base,
+            hyper_base=repair.hyper_base,
             motion=motion,
             coefficient_knots=program.coefficients[0],
             coefficient_uncertainty=distribution.coefficient_uncertainty,
@@ -838,7 +1106,7 @@ def _create(arguments: argparse.Namespace) -> int:
         repair_dir = output / "repair"
         bundle, native = _publish_candidate(
             directory=repair_dir,
-            base=base,
+            base=repair.hyper_base,
             policy=repaired,
             contact_group_indices=arguments.contact_group_indices,
         )
@@ -862,11 +1130,12 @@ def _create(arguments: argparse.Namespace) -> int:
             minimum_tracking=arguments.minimum_tracking,
             maximum_termination_rate=arguments.maximum_termination_rate,
         )
+        passed, score, metrics = qualify_phase(rollout_path, passed, score, metrics)
         specialist_path = write_specialist_program(
             output / "specialist-program.npz",
             program=program,
             motion_fingerprint=motion.source_fingerprint,
-            hyper_base_fingerprint=base.fingerprint,
+            hyper_base_fingerprint=repair.hyper_base.fingerprint,
             metrics=repair.metrics,
         )
         repair_record = {
@@ -880,7 +1149,7 @@ def _create(arguments: argparse.Namespace) -> int:
             "rollout": str(rollout_path),
         }
         if passed:
-            accepted = (repaired, native, rollout_path, evidence)
+            accepted = (repair.hyper_base, repaired, native, rollout_path, evidence)
 
     _json_file(
         output / "candidate-selection.evidence.json",
@@ -890,6 +1159,7 @@ def _create(arguments: argparse.Namespace) -> int:
             "checkpoint": str(arguments.checkpoint),
             "checkpoint_training_updates": checkpoint["training_updates"],
             "candidates": records,
+            "adaptation": adaptation_records,
             "repair": repair_record,
         },
     )
@@ -897,11 +1167,11 @@ def _create(arguments: argparse.Namespace) -> int:
         raise RuntimeError(
             "no generated or repaired hyper-policy passed physical qualification"
         )
-    policy, native, rollout, evidence = accepted
+    deployment_base, policy, native, rollout, evidence = accepted
     final_bundle = output / "deployment.motionpolicy"
     if final_bundle.exists():
         shutil.rmtree(final_bundle)
-    MotionPolicyBundle(base.with_fingerprint(), policy).write(final_bundle)
+    MotionPolicyBundle(deployment_base.with_fingerprint(), policy).write(final_bundle)
     final_native = output / "deployment.hyperpolicypack"
     shutil.copy2(native, final_native)
     _json_file(
@@ -912,7 +1182,7 @@ def _create(arguments: argparse.Namespace) -> int:
             "native_pack": str(final_native),
             "rollout": str(rollout),
             "source_motion_fingerprint": motion.source_fingerprint,
-            "hyper_base_fingerprint": base.fingerprint,
+            "hyper_base_fingerprint": deployment_base.fingerprint,
             "policy_fingerprint": policy.fingerprint,
             "solver_evidence": evidence,
         },
@@ -943,6 +1213,7 @@ def _parser() -> argparse.ArgumentParser:
     canonical.add_argument("--g1-urdf", type=Path, required=True)
     canonical.add_argument("--output", type=Path, required=True)
     canonical.add_argument("--target-fps", type=float, default=50.0)
+    canonical.add_argument("--recovery-handoff-side", choices=("left", "right"))
     canonical.set_defaults(function=_canonicalize_command)
 
     initialize = commands.add_parser("initialize-checkpoint")
@@ -990,7 +1261,9 @@ def _parser() -> argparse.ArgumentParser:
     create.add_argument("--ardy-seed", type=int, default=4)
     create.add_argument("--qualification-seed", type=int, default=2650443581)
     create.add_argument("--target-fps", type=float, default=50.0)
+    create.add_argument("--recovery-handoff-side", choices=("left", "right"))
     create.add_argument("--interaction-clip", default="ardy-g1")
+    create.add_argument("--authored-interaction-pack", type=Path)
     create.add_argument("--task", default="velocity")
     create.add_argument("--scene", default="ground")
     create.add_argument("--environments", type=int, default=1024)
@@ -1002,6 +1275,10 @@ def _parser() -> argparse.ArgumentParser:
     create.add_argument("--repair-updates", type=int, default=0)
     create.add_argument("--repair-rollout-pack", type=Path)
     create.add_argument("--repair-learning-rate", type=float, default=2.0e-4)
+    create.add_argument("--adapt-iterations", type=int, default=0)
+    create.add_argument("--adapt-updates", type=int, default=16)
+    create.add_argument("--adapt-learning-rate", type=float, default=2.0e-4)
+    create.add_argument("--exploration-log-std", type=float, default=-2.3)
     create.add_argument("--minimum-tracking", type=float, default=0.65)
     create.add_argument("--maximum-termination-rate", type=float, default=0.05)
     create.add_argument("--maximum-predicted-failure", type=float, default=0.50)

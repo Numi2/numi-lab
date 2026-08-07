@@ -164,6 +164,10 @@ class _SpecialistCodeBook(nn.Module):
         self.raw_coefficients = mx.array(raw_coefficients, dtype=mx.float32)
         self.raw_authority = mx.array(raw_authority, dtype=mx.float32)
         self.raw_phase_rate = mx.array(raw_phase_rate, dtype=mx.float32)
+        # Phase evolution is owned by Metal contact/signature alignment.  A
+        # fixed-phase action regression has no causal signal for changing its
+        # rate, so preserve the compiler value instead of fitting a surrogate.
+        self.freeze(recurse=False, keys=["raw_phase_rate"], strict=True)
 
     def values(self) -> tuple[mx.array, mx.array, mx.array]:
         coefficients = mx.tanh(self.raw_coefficients) * self.coefficient_limits
@@ -173,7 +177,7 @@ class _SpecialistCodeBook(nn.Module):
 
 
 class MLXSpecialistAdapterLearner:
-    """Optimizes canonical adapter knots while the physical base stays fixed.
+    """Optimizes adapter bases and canonical knots around a fixed base actor.
 
     The same class serves the offline specialist stage and bounded compile-time
     repair. Passing the generated program as ``initial`` starts repair from the
@@ -238,9 +242,13 @@ class MLXSpecialistAdapterLearner:
             learning_rate=learning_rate,
             bias_correction=True,
         )
-        self.optimizer.init(self.codebook.trainable_parameters())
+        # Dense actor weights and observation normalization are frozen by the
+        # actor.  The low-rank bases are deliberately trainable: optimizing a
+        # codebook against tiny random bases has no useful physical authority.
+        self.model = _SpecialistModel(actor=self.actor, codebook=self.codebook)
+        self.optimizer.init(self.model.trainable_parameters())
         self._loss_and_gradient = nn.value_and_grad(
-            self.codebook,
+            self.model,
             self._loss,
         )
         mx.eval(
@@ -253,7 +261,7 @@ class MLXSpecialistAdapterLearner:
         self,
         batch: Mapping[str, mx.array],
     ) -> tuple[mx.array, dict[str, mx.array]]:
-        coefficients, authority, phase_rate = self.codebook.values()
+        coefficients, authority, phase_rate = self.model.codebook.values()
         selected_coefficients = coefficients[batch["sample_motion_indices"]]
         selected_authority = authority[batch["sample_motion_indices"]]
         selected_phases = batch["knot_phases"][batch["sample_motion_indices"]]
@@ -272,7 +280,7 @@ class MLXSpecialistAdapterLearner:
             batch["sample_phases"],
             self.configuration.local_phase_sigma,
         )
-        prediction = self.actor.policy_actions(
+        prediction = self.model.actor.policy_actions(
             batch["actor_observations"],
             sample_coefficients,
             sample_authority,
@@ -330,12 +338,13 @@ class MLXSpecialistAdapterLearner:
             gradients,
             max_norm=self.maximum_gradient_norm,
         )
-        self.optimizer.update(self.codebook, gradients)
+        self.optimizer.update(self.model, gradients)
         mx.eval(
             loss,
             gradient_norm,
             *metrics.values(),
             self.codebook.parameters(),
+            self.actor.parameters(),
             self.optimizer.state,
         )
         result = {name: float(value.item()) for name, value in metrics.items()}
@@ -350,6 +359,18 @@ class MLXSpecialistAdapterLearner:
             authority=np.asarray(authority, dtype=np.float32).copy(),
             phase_rate_multiplier=np.asarray(phase_rate, dtype=np.float32).copy(),
         )
+
+
+class _SpecialistModel(nn.Module):
+    def __init__(
+        self,
+        *,
+        actor: PhaseVaryingLowRankActor,
+        codebook: _SpecialistCodeBook,
+    ) -> None:
+        super().__init__()
+        self.actor = actor
+        self.codebook = codebook
 
 
 def _sigmoid(value: mx.array) -> mx.array:

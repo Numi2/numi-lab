@@ -86,10 +86,19 @@ supplies physics or deployable actions directly. The production path is:
 4. Use `numi hyper-policy create` for the production transaction. It
    canonicalizes the motion, generates deterministic low-rank candidates,
    writes authenticated HyperPolicyPacks, executes each through NumiSolver,
-   optionally repairs coefficients from an independently produced exact
-   solver-teacher rollout, and publishes a deployment only after its
-   configured physical gates pass. Never use a candidate's own executed
-   actions as its repair labels.
+   can consume an already qualified physical reference through
+   `--authored-interaction-pack`, and publishes a deployment only after its
+   configured physical gates pass. `--adapt-iterations` uses stochastic Metal
+   residual rollouts and above-baseline solver advantages; each deterministic
+   update is compared with and may be rolled back to the incumbent. Never use
+   a deterministic candidate's own actions as repair labels.
+   For a unilateral move whose authored suffix continues after landing, pass
+   `--recovery-handoff-side left|right`. The command must verify supported
+   takeoff, mechanism-space forward/lift geometry, authored landing dwell, and
+   select the quietest bilateral-support source frame. It may crop a later
+   unstable suffix, but it must report the boundary and must never insert,
+   blend, or modify ARDY poses. The non-looping reference then holds that
+   landing target while HyperPolicy and NumiSolver own physical recovery.
 5. For direct replay or diagnosis, run `metalrobo_task_rollout` with both the
    matching `--interaction-pack`/`--interaction-clip` and
    `--hyper-policy-pack`. The InteractionPack remains the physical reference;
@@ -97,6 +106,19 @@ supplies physics or deployable actions directly. The production path is:
    Always publish a `--rollout-pack` so the exact `hyper_policy_phase`, teacher
    actions, policy revision, transition failures, and outcome schema can be
    inspected.
+
+Before policy search, reject a retarget that expresses the prompt only through
+an authored root trajectory that joint drives cannot realize. For a unilateral
+kick, mechanism-space kinematics must show swing-foot clearance, forward
+excursion, small lateral error, and return, while ARDY contact intent must show
+opposite-foot support and landing dwell. Exact solver evidence must then show
+the corresponding world-frame motion and physical support. During replay, inspect
+the phase outcome: reaching a takeoff or landing guard is not completion. The
+event index must cross takeoff from measured contact-off, cross landing from
+measured contact-on, and reach the stop phase before the episode reset. A
+non-falling planted-foot solution is not a kick, and a held extended foot is
+not recovery. Render only an exact successful solver-state trace, selecting the
+reported environment explicitly with `--state-trace-environment` when needed.
 
 The live GPU dependency is accepted q/v plus the actor observation row and
 solver-resolved compact contact metrics. Phase update, low-rank adapters, and

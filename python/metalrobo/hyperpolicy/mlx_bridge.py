@@ -49,7 +49,7 @@ def initialize_hyper_base_from_policy_pack(
             generator,
             rows=source.output_count,
             columns=rank,
-        ) * np.float32(1.0e-2)
+        )
         bias_basis = np.zeros((source.output_count, rank), dtype=np.float32)
         layers.append(
             HyperBaseLayer(
