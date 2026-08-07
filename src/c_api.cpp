@@ -3206,6 +3206,25 @@ static MRTaskRolloutHandle* createImportedURDFRun(
             .mechanics = std::move(surfaceComponent.mechanics),
             .defaultBodyStates = std::move(surfaceComponent.defaultBodyStates),
         });
+        const auto spheres = locomotionDynamicSpheres(*config);
+        if (!spheres.empty()) {
+            metalrobo::LocomotionSceneComponent sphereComponent =
+                metalrobo::makeLocomotionDynamicSphereComponent(
+                    manifest.robot.mechanics,
+                    spheres
+                );
+            manifest.scene.objects.push_back({
+                .id = "locomotion_dynamic_spheres",
+                .semanticClass = "dynamic_projectile",
+                .role = MR_WORLD_ASSET_MANIPULATED,
+                .render = MR_WORLD_RENDER_NONE,
+                .collision = MR_WORLD_COLLISION_PRIMITIVES,
+                .dynamics = MR_WORLD_DYNAMICS_RIGID,
+                .mechanics = std::move(sphereComponent.mechanics),
+                .defaultBodyStates =
+                    std::move(sphereComponent.defaultBodyStates),
+            });
+        }
         if (interactionClip != nullptr) {
             manifest.teacher = {
                 .id = interactions.id,
