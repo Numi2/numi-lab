@@ -35,8 +35,11 @@ jobs:
 
           echo "${PAYLOAD_SHA256}  .github/matter-full-lazy-rods.patch.gz.b64" \
             | shasum -a 256 --check
-          base64 --decode .github/matter-full-lazy-rods.patch.gz.b64 \
-            | gzip -d > /tmp/matter-full-lazy-rods.patch
+          base64 -D \
+            -i .github/matter-full-lazy-rods.patch.gz.b64 \
+            -o /tmp/matter-full-lazy-rods.patch.gz
+          gzip -dc /tmp/matter-full-lazy-rods.patch.gz \
+            > /tmp/matter-full-lazy-rods.patch
           echo "${PATCH_SHA256}  /tmp/matter-full-lazy-rods.patch" \
             | shasum -a 256 --check
 
