@@ -1,38 +1,35 @@
-name: Materialize complete lazy rod pipelines
+name: Diagnose standalone rod Metal pipeline
 
 on:
   pull_request:
     types: [synchronize, reopened]
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: matter-complete-lazy-rods
+  group: matter-rod-pipeline-diagnostic
   cancel-in-progress: true
 
 jobs:
-  materialize:
+  diagnose:
     if: github.event.pull_request.head.ref == 'codex/matter-compiler-foundation'
     runs-on: macos-26
-    timeout-minutes: 60
+    timeout-minutes: 45
     steps:
-      - name: Check out exact branch history
+      - name: Check out exact PR head
         uses: actions/checkout@v4
         with:
-          ref: codex/matter-compiler-foundation
-          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
 
-      - name: Apply, qualify, and publish
+      - name: Apply audited lazy-rod patch and add exact diagnostics
         shell: bash
         env:
-          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
           PAYLOAD_SHA256: d1784e676308a305878951b6d2382b0e362e2ffe28f0f4d455120a17be7efafb
           PATCH_SHA256: 84d26238e070558d1127a59d66112193b80bcbd2a353ce69537ab4235d4a9893
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "${EXPECTED_HEAD}"
-
           echo "${PAYLOAD_SHA256}  .github/matter-full-lazy-rods.patch.gz.b64" \
             | shasum -a 256 --check
           base64 -D \
@@ -42,34 +39,118 @@ jobs:
             > /tmp/matter-full-lazy-rods.patch
           echo "${PATCH_SHA256}  /tmp/matter-full-lazy-rods.patch" \
             | shasum -a 256 --check
-
           git apply --check /tmp/matter-full-lazy-rods.patch
           git apply /tmp/matter-full-lazy-rods.patch
-          git diff --check
 
-          cmake -S . -B build-matter-complete-lazy-rods \
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/metal/MetalDiscreteElasticRod.mm")
+          source = path.read_text()
+          old = '''        error = nil;
+                  id<MTLComputePipelineState> pipeline = [device
+                      newComputePipelineStateWithFunction:function
+                                                     error:&error];
+                  id<MTLComputePipelineState> resolvePipeline = [device
+                      newComputePipelineStateWithFunction:resolveFunction
+                                                     error:&error];
+                  id<MTLComputePipelineState> applyPipeline = [device
+                      newComputePipelineStateWithFunction:applyFunction
+                                                     error:&error];
+                  id<MTLComputePipelineState> toolNarrowphasePipeline =
+                      toolPairs.empty()
+                      ? nil
+                      : [device
+                          newComputePipelineStateWithFunction:
+                              toolNarrowphaseFunction
+                          error:&error];
+                  id<MTLComputePipelineState> toolSolvePipeline =
+                      toolPairs.empty()
+                      ? nil
+                      : [device
+                          newComputePipelineStateWithFunction:
+                              toolSolveFunction
+                          error:&error];
+                  if (pipeline == nil ||
+                      resolvePipeline == nil ||
+                      applyPipeline == nil ||
+                      (!toolPairs.empty() &&
+                       (
+                           toolNarrowphasePipeline == nil ||
+                           toolSolvePipeline == nil
+                       ))) {
+                      return reject(
+                          std::move(diagnostics),
+                          MetalDiscreteElasticRodHostStatus::
+                              metalPipelineFailure,
+                          "failed to create rod pipeline: " +
+                              errorString(error)
+                      );
+                  }
+          '''
+          new = '''        std::string failedPipeline;
+                  std::string pipelineError;
+                  const auto createPipeline = [&amp;](
+                      id<MTLFunction> candidate,
+                      const char* name
+                  ) -> id<MTLComputePipelineState> {
+                      NSError* candidateError = nil;
+                      id<MTLComputePipelineState> result = [device
+                          newComputePipelineStateWithFunction:candidate
+                                                         error:&candidateError];
+                      if (result == nil && failedPipeline.empty()) {
+                          failedPipeline = name;
+                          pipelineError = errorString(candidateError);
+                      }
+                      return result;
+                  };
+                  id<MTLComputePipelineState> pipeline = createPipeline(
+                      function,
+                      "mr_discrete_elastic_rod_step"
+                  );
+                  id<MTLComputePipelineState> resolvePipeline = createPipeline(
+                      resolveFunction,
+                      "mr_resolve_rod_rigid_attachments"
+                  );
+                  id<MTLComputePipelineState> applyPipeline = createPipeline(
+                      applyFunction,
+                      "mr_apply_rod_rigid_reactions"
+                  );
+                  id<MTLComputePipelineState> toolNarrowphasePipeline =
+                      toolPairs.empty()
+                      ? nil
+                      : createPipeline(
+                          toolNarrowphaseFunction,
+                          "mr_rod_tool_narrowphase"
+                      );
+                  id<MTLComputePipelineState> toolSolvePipeline =
+                      toolPairs.empty()
+                      ? nil
+                      : createPipeline(
+                          toolSolveFunction,
+                          "mr_solve_rod_tool_contacts"
+                      );
+                  if (!failedPipeline.empty()) {
+                      return reject(
+                          std::move(diagnostics),
+                          MetalDiscreteElasticRodHostStatus::
+                              metalPipelineFailure,
+                          "failed to create rod pipeline '" +
+                              failedPipeline + "': " + pipelineError
+                      );
+                  }
+          '''.replace('&amp;', '&')
+          if source.count(old) != 1:
+              raise SystemExit(f"rod diagnostic source mismatch: {source.count(old)}")
+          path.write_text(source.replace(old, new, 1))
+          PY
+
+          git diff --check
+          cmake -S . -B build-rod-diagnostic \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_TESTING=ON
-          cmake --build build-matter-complete-lazy-rods \
-            --target \
-              metalrobo_matter_physics_probe \
-              metalrobo_metal_discrete_elastic_rod_probe \
+          cmake --build build-rod-diagnostic \
+            --target metalrobo_metal_discrete_elastic_rod_probe \
             -j 3
-
-          build-matter-complete-lazy-rods/bin/metalrobo_matter_physics_probe \
-            --metal-world-coupling
-          build-matter-complete-lazy-rods/bin/metalrobo_metal_discrete_elastic_rod_probe
-
-          rm .github/matter-full-lazy-rods.patch.gz.b64
-          git config user.name "github-actions[bot]"
-          git config user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            src/metal/MetalWorld.mm \
-            apps/matter_physics_probe.mm \
-            .github/matter-full-lazy-rods.patch.gz.b64
-          git commit -m "Lazily initialize optional rod pipelines"
-          git push \
-            --force-with-lease=refs/heads/codex/matter-compiler-foundation:${EXPECTED_HEAD} \
-            origin HEAD:codex/matter-compiler-foundation
+          build-rod-diagnostic/bin/metalrobo_metal_discrete_elastic_rod_probe
