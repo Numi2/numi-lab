@@ -1241,8 +1241,15 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.difficultyBandCount);
     writer.pod(pack.interactionStudentAuthority);
     writer.pod(pack.interactionResetPhaseFraction);
+    writer.vector(pack.initialActionPositions);
     writer.pod(static_cast<std::uint8_t>(
         pack.interactionControlReference ? 1u : 0u
+    ));
+    writer.pod(static_cast<std::uint8_t>(
+        pack.interactionInitializeFromReference ? 1u : 0u
+    ));
+    writer.pod(static_cast<std::uint8_t>(
+        pack.interactionAlignReferenceYaw ? 1u : 0u
     ));
     writer.pod(pack.baseHeightTarget);
     writer.pod(pack.gaitPeriodSeconds);
@@ -1258,6 +1265,8 @@ bool deserializeTask(
 ) {
     Reader reader{payload};
     std::uint8_t interactionControlReference = 0u;
+    std::uint8_t interactionInitializeFromReference = 0u;
+    std::uint8_t interactionAlignReferenceYaw = 0u;
     if (!reader.string(pack.id) ||
         !reader.pod(pack.capacities) ||
         !readRichVector(
@@ -1378,8 +1387,13 @@ bool deserializeTask(
         !reader.pod(pack.difficultyBandCount) ||
         !reader.pod(pack.interactionStudentAuthority) ||
         !reader.pod(pack.interactionResetPhaseFraction) ||
+        !reader.vector(pack.initialActionPositions) ||
         !reader.pod(interactionControlReference) ||
         interactionControlReference > 1u ||
+        !reader.pod(interactionInitializeFromReference) ||
+        interactionInitializeFromReference > 1u ||
+        !reader.pod(interactionAlignReferenceYaw) ||
+        interactionAlignReferenceYaw > 1u ||
         !reader.pod(pack.baseHeightTarget) ||
         !reader.pod(pack.gaitPeriodSeconds) ||
         !reader.pod(pack.clearanceTarget) ||
@@ -1390,6 +1404,10 @@ bool deserializeTask(
     }
     pack.interactionControlReference =
         interactionControlReference != 0u;
+    pack.interactionInitializeFromReference =
+        interactionInitializeFromReference != 0u;
+    pack.interactionAlignReferenceYaw =
+        interactionAlignReferenceYaw != 0u;
     return true;
 }
 

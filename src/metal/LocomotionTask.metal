@@ -225,6 +225,14 @@ inline float4 quaternionProduct(
     );
 }
 
+inline float4 yawQuaternion(const float4 orientation) {
+    const float yaw = atan2(
+        2.0f * (orientation.w * orientation.z + orientation.x * orientation.y),
+        1.0f - 2.0f * (orientation.y * orientation.y + orientation.z * orientation.z)
+    );
+    return float4(0.0f, 0.0f, sin(0.5f * yaw), cos(0.5f * yaw));
+}
+
 inline float3 quaternionWorldAngularVelocity(
     const float4 first,
     const float4 second,
@@ -739,7 +747,7 @@ inline float cleanObservation(
         );
         const uint rootBase = frame * 7u;
         const uint nextRootBase = nextFrame * 7u;
-        const float4 referenceRoot = quaternionInterpolate(
+        float4 referenceRoot = quaternionInterpolate(
             float4(
                 rootTargets[rootBase + 3u], rootTargets[rootBase + 4u],
                 rootTargets[rootBase + 5u], rootTargets[rootBase + 6u]
@@ -750,6 +758,18 @@ inline float cleanObservation(
             ),
             blend
         );
+        if ((program.schedule.w &
+             MR_TASK_PROGRAM_INTERACTION_ALIGN_REFERENCE_YAW) != 0u) {
+            const float4 initialReferenceRoot = float4(
+                rootTargets[3u], rootTargets[4u], rootTargets[5u], rootTargets[6u]
+            );
+            const float4 referenceYaw = yawQuaternion(initialReferenceRoot);
+            const float4 alignment = quaternionProduct(
+                yawQuaternion(rootOrientation(program, defaultQ)),
+                float4(-referenceYaw.xyz, referenceYaw.w)
+            );
+            referenceRoot = quaternionProduct(alignment, referenceRoot);
+        }
         const float referenceWaist = mix(
             jointTargets[frame * program.interaction.y + operation.source.y],
             jointTargets[nextFrame * program.interaction.y + operation.source.y],
@@ -2227,6 +2247,10 @@ kernel void mr_locomotion_task_observe(
             arena,
             program.interactionOffsets0.y
         );
+    device const float* initialActionPositions = taskTable<float>(
+        arena,
+        program.actuatorTerms.z
+    );
     device const float* interactionRootTargets =
         taskTable<float>(
             arena,
@@ -2327,6 +2351,12 @@ kernel void mr_locomotion_task_observe(
              ++coordinate) {
             resetQ[qBase + coordinate] =
                 defaultQ[coordinate];
+        }
+        if (program.actuatorTerms.w == program.counts0.x) {
+            for (uint action = 0u; action < program.counts0.x; ++action) {
+                resetQ[qBase + actions[action].indices.z] =
+                    initialActionPositions[action];
+            }
         }
         if ((program.schedule.w &
              MR_TASK_PROGRAM_INTERACTION_RESET) != 0u) {

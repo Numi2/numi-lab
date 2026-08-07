@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 39u
+#define MR_TASK_PROGRAM_ABI_VERSION 40u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -41,6 +41,7 @@ enum MRTaskProgramFlags : mr_u32 {
     // advanced from accepted physical support/tracking state rather
     // than unconditionally from episode time.
     MR_TASK_PROGRAM_INTERACTION_PHYSICS_GATED = 1u << 10u,
+    MR_TASK_PROGRAM_INTERACTION_ALIGN_REFERENCE_YAW = 1u << 11u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {
