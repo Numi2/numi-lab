@@ -122,7 +122,9 @@ Adaptive objects retain both continuum topology and a body-backed rigid proxy. T
 - peak and RMS strain;
 - minimum determinant and deformation residual.
 
-Hysteresis controls demotion to rigid representation after a sustained low-strain interval. Contact, strain or numerical events promote the object back to its authored MPM or FEM representation. State transfer preserves centre of mass, linear momentum, angular momentum and the measured full inertia tensor. Demotion publishes an environment-specific world inverse inertia that MetalWorld validates and rotates through ordinary and CCD integration instead of replacing it with a mass-scaled authored tensor. The compiler retains an immutable mass-weighted rest centre for every continuum object; promotion reconstructs positions from that rest frame and writes the current rigid orientation as the deformation rotation, avoiding translation leakage or inertia-derived orientation. Adaptive bindings must be valid, body-backed and unique; the compiler rejects ambiguous mappings.
+Hysteresis controls demotion to rigid representation after a sustained low-strain interval. State transfer preserves centre of mass, linear momentum, angular momentum and the measured full inertia tensor. Demotion publishes an environment-specific world inverse inertia that MetalWorld validates and rotates through ordinary and CCD integration instead of replacing it with a mass-scaled authored tensor. The compiler retains an immutable mass-weighted rest centre for every continuum object; promotion reconstructs positions from that rest frame and writes the current rigid orientation as the deformation rotation, avoiding translation leakage or inertia-derived orientation. Adaptive bindings must be valid, body-backed and unique; the compiler rejects ambiguous mappings.
+
+The current adapter qualifies MPM-to-rigid demotion only. The promotion kernels consume scheduler contact, strain and numerical signals, but `MetalWorld` does not yet feed rigid-world contact evidence into those signals after an object has demoted. Autonomous rigid-contact re-promotion is therefore an exposed implementation gap, not a tested physics claim.
 
 ### Inverse material identification
 
@@ -234,13 +236,16 @@ ctest --test-dir build -L matter --output-on-failure -j 1
 The suite executes the actual `NumiMatter.metallib` through borrowed Metal
 command buffers. It checks MPM freefall, a coupled eight-particle MPM plane
 impact, an articulated-body continuum reaction consumed by MetalWorld ABA, a
-full-height implicit FEM impact, a near-plane CFL-resolved FEM contact, and
+full-height implicit FEM impact, a near-plane CFL-resolved FEM contact,
 byte-identical MPM/FEM/scheduler rollback after an enclosing rigid transaction
-rejects the tentative continuum update. It is deliberately serial because all
-cases use the active GPU.
+rejects the tentative continuum update, a 30-frame MPM-to-rigid ownership
+transfer with scene authority publication, and antithetic inverse-parameter
+sampling followed by a GPU posterior update from asymmetric candidate losses.
+It is deliberately serial because all cases use the active GPU.
 
 This is continuum and analytic-proxy contact evidence, including one
-articulated rigid-reaction handoff through a full `MetalWorld` step. It is not
-a blanket claim that every integration path is qualified: adaptive ownership
-transfer, inverse identification, and longer-running material calibration
-remain separate qualifications.
+articulated rigid-reaction handoff through a full `MetalWorld` step. It also
+qualifies the inverse-identification kernel and its explicit loss-buffer
+contract—not a material-calibration result. It does not qualify adaptive
+rigid-contact re-promotion, longer-running material calibration, or physical
+material identification.

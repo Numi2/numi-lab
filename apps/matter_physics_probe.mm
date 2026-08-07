@@ -41,14 +41,17 @@ numi::matter::CompiledWorld compileCase(
     const bool nearPlane = false,
     const bool gentleMPMContact = false,
     const bool bodyBackedPlane = false,
-    const double frameTimestep = 1.0 / 240.0
+    const double frameTimestep = 1.0 / 240.0,
+    const std::uint32_t environmentCount = 1u,
+    const std::uint32_t identificationCandidates = 0u
 ) {
     const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
     require(parsed.succeeded(), "reference silicone material did not parse");
 
     numi::matter::WorldSource source;
-    source.environmentCount = 1u;
+    source.environmentCount = environmentCount;
     source.frameTimestep = frameTimestep;
+    source.identificationCandidates = identificationCandidates;
     source.gravity = {0.0, 0.0, -9.81};
     source.femPCGIterations = 8u;
     source.materials.push_back(parsed.material);
@@ -163,6 +166,313 @@ MRBodyStateGPU staticSceneBody() {
     state.flagsAndIndices[1] = MR_INVALID_INDEX;
     state.flagsAndIndices[2] = 0u;
     return state;
+}
+
+void runIdentification() {
+    @autoreleasepool {
+        const auto world = compileCase(
+            numi::matter::Representation::mpm,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            1.0 / 480.0,
+            2u,
+            2u
+        );
+        require(world.dispatch.identificationCandidateCount == 2u &&
+                    !world.identification.empty(),
+            "identification probe did not compile paired candidate state");
+
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        require(device != nil, "no Metal device is available");
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        require(queue != nil, "failed to create Matter identification queue");
+        id<MTLBuffer> statuses = [device
+            newBufferWithLength:2u * sizeof(MRMetalWorldStatusGPU)
+            options:MTLResourceStorageModeShared];
+        require(statuses != nil, "failed to allocate identification world statuses");
+        auto* worldStatuses = static_cast<MRMetalWorldStatusGPU*>(statuses.contents);
+        require(worldStatuses != nullptr, "identification world statuses are unavailable");
+        for (std::uint32_t environment = 0u; environment < 2u; ++environment) {
+            worldStatuses[environment] = {};
+            worldStatuses[environment].code = MR_STEP_SUCCESS;
+            worldStatuses[environment].environment = environment;
+        }
+
+        numi::matter::Runtime runtime;
+        const auto initialized = runtime.initialize(
+            world,
+            {
+                .metallib = NUMI_MATTER_METALLIB,
+                .environmentCount = 2u,
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = true,
+                .adaptiveTransfer = false,
+            }
+        );
+        require(initialized.encoded && runtime.valid(),
+            "identification runtime could not initialize: " + initialized.message);
+        const auto matterStatuses = (__bridge id<MTLBuffer>)runtime.statusBuffer();
+        const auto* matterStatusData = static_cast<const NMMatterStatusGPU*>(
+            matterStatuses.contents
+        );
+        require(matterStatusData != nullptr,
+            "identification Matter statuses are unavailable");
+
+        const auto runStep = [&](const std::uint32_t controlStep) {
+            id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+            require(commandBuffer != nil, "failed to allocate identification command buffer");
+            numi::matter::EncodeRequest request{};
+            request.commandBuffer = (__bridge void*)commandBuffer;
+            request.environmentStatuses = (__bridge void*)statuses;
+            request.phase = numi::matter::EncodePhase::preDynamics;
+            request.controlStep = controlStep;
+            request.physicsSubstep = 0u;
+            request.physicsSubsteps = 1u;
+            request.timestepSeconds = runtime.timestepSeconds();
+            request.runIdentification = true;
+            request.runAdaptiveTransfer = false;
+            auto encoded = runtime.encode(request);
+            require(encoded.encoded,
+                "identification pre-dynamics encoding failed: " + encoded.message);
+            request.phase = numi::matter::EncodePhase::postCommit;
+            request.runIdentification = false;
+            encoded = runtime.encode(request);
+            require(encoded.encoded,
+                "identification post-commit encoding failed: " + encoded.message);
+            [commandBuffer commit];
+            [commandBuffer waitUntilCompleted];
+            require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+                "identification command buffer did not complete");
+            for (std::uint32_t environment = 0u; environment < 2u; ++environment) {
+                require(matterStatusData[environment].code == NM_STATUS_SUCCESS,
+                    "identification continuum step failed in environment " +
+                        std::to_string(environment));
+            }
+        };
+
+        runStep(0u);
+        const auto sampled = runtime.snapshot();
+        require(sampled.available && !sampled.identification.empty() &&
+                    sampled.environmentParameters.size() ==
+                        2u * world.dispatch.parameterCount,
+            "identification sampling did not publish diagnostic state");
+        const float priorMean = sampled.identification[0].momentsAndBounds.x;
+        bool antitheticOverlay = false;
+        for (std::uint32_t parameter = 0u;
+             parameter < world.dispatch.parameterCount;
+             ++parameter) {
+            antitheticOverlay = antitheticOverlay ||
+                std::abs(sampled.environmentParameters[parameter] -
+                         sampled.environmentParameters[
+                             world.dispatch.parameterCount + parameter]) >
+                    1.0e-6f;
+        }
+        require(antitheticOverlay,
+            "identification candidates did not produce paired environment overlays");
+
+        const auto losses = (__bridge id<MTLBuffer>)runtime.identificationLossBuffer();
+        require(losses != nil && losses.contents != nullptr,
+            "identification loss boundary is unavailable");
+        auto* lossData = static_cast<float*>(losses.contents);
+        lossData[0] = 0.0f;
+        lossData[1] = 100.0f;
+        runStep(1u);
+        const auto updated = runtime.snapshot();
+        require(updated.available && updated.identification.size() ==
+                    sampled.identification.size(),
+            "identification update did not publish posterior state");
+        require(std::abs(updated.identification[0].momentsAndBounds.x -
+                         priorMean) > 1.0e-5f,
+            "identification posterior did not respond to asymmetric losses");
+        std::cout
+            << "{\"schema\":\"numi.matter.physics-probe.v1\""
+            << ",\"representation\":\"inverse_identification\""
+            << ",\"prior_mean\":" << priorMean
+            << ",\"posterior_mean\":"
+            << updated.identification[0].momentsAndBounds.x
+            << "}\n";
+    }
+}
+
+numi::matter::CompiledWorld compileAdaptiveCase() {
+    const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "reference silicone material did not parse");
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 480.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.femPCGIterations = 8u;
+    source.materials.push_back(parsed.material);
+
+    numi::matter::RigidProxySource fallback;
+    fallback.shape = NM_RIGID_SPHERE;
+    fallback.bodyIndex = 0u;
+    fallback.sceneBodyIndex = 0u;
+    fallback.radiusOrOffset = 0.01;
+    fallback.dynamic = true;
+    source.rigidProxies.push_back(fallback);
+
+    numi::matter::ObjectSource object;
+    object.name = "adaptive_mpm";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::mpm;
+    object.adaptive = true;
+    object.rigidBinding = 0u;
+    object.characteristicLength = 0.01;
+    object.mpmGridMinimum = {-0.02, -0.02, -0.02};
+    object.mpmGridMaximum = {0.02, 0.02, 0.02};
+    constexpr double spacing = 0.005;
+    constexpr double volume = spacing * spacing * spacing;
+    for (int z = 0; z < 2; ++z) {
+        for (int y = 0; y < 2; ++y) {
+            for (int x = 0; x < 2; ++x) {
+                object.particles.push_back({
+                    .position = {
+                        -0.005 + spacing * x,
+                        -0.005 + spacing * y,
+                        -0.005 + spacing * z,
+                    },
+                    .velocity = {0.0, 0.0, 0.0},
+                    .mass = 1100.0 * volume,
+                    .referenceVolume = volume,
+                });
+            }
+        }
+    }
+    source.objects.push_back(std::move(object));
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    const auto compiled = numi::matter::compileWorld(source, options);
+    require(compiled.succeeded(), "adaptive Matter world did not compile");
+    return compiled.world;
+}
+
+MRBodyStateGPU adaptiveBodyState() {
+    MRBodyStateGPU state{};
+    state.position = {10.0f, 0.0f, 0.0f, 1.0f};
+    state.orientation.w = 1.0f;
+    state.linearVelocityAndInverseMass.w = 1.0f;
+    state.inverseInertiaWorldRow0.x = 1.0f;
+    state.inverseInertiaWorldRow1.y = 1.0f;
+    state.inverseInertiaWorldRow2.z = 1.0f;
+    state.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+    state.flagsAndIndices[1] = MR_INVALID_INDEX;
+    state.flagsAndIndices[2] = 0u;
+    return state;
+}
+
+void runAdaptiveDemotion() {
+    @autoreleasepool {
+        const auto world = compileAdaptiveCase();
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        require(device != nil, "no Metal device is available");
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        require(queue != nil, "failed to create adaptive Matter queue");
+        id<MTLBuffer> statuses = [device
+            newBufferWithLength:sizeof(MRMetalWorldStatusGPU)
+            options:MTLResourceStorageModeShared];
+        id<MTLBuffer> currentBodies = [device
+            newBufferWithLength:sizeof(MRBodyStateGPU)
+            options:MTLResourceStorageModeShared];
+        id<MTLBuffer> sceneBodies = [device
+            newBufferWithLength:sizeof(MRBodyStateGPU)
+            options:MTLResourceStorageModeShared];
+        id<MTLBuffer> bodyWrenches = [device
+            newBufferWithLength:sizeof(MRABABodyWrenchGPU)
+            options:MTLResourceStorageModeShared];
+        require(statuses != nil && currentBodies != nil && sceneBodies != nil &&
+                    bodyWrenches != nil,
+            "failed to allocate adaptive bridge arenas");
+        auto* worldStatus = static_cast<MRMetalWorldStatusGPU*>(statuses.contents);
+        auto* current = static_cast<MRBodyStateGPU*>(currentBodies.contents);
+        auto* scene = static_cast<MRBodyStateGPU*>(sceneBodies.contents);
+        require(worldStatus != nullptr && current != nullptr && scene != nullptr,
+            "adaptive bridge arenas are unavailable");
+        *worldStatus = {};
+        worldStatus->code = MR_STEP_SUCCESS;
+        *current = adaptiveBodyState();
+        *scene = adaptiveBodyState();
+
+        numi::matter::Runtime runtime;
+        const auto initialized = runtime.initialize(
+            world,
+            {
+                .metallib = NUMI_MATTER_METALLIB,
+                .environmentCount = 1u,
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = false,
+                .adaptiveTransfer = true,
+            }
+        );
+        require(initialized.encoded && runtime.valid(),
+            "adaptive runtime could not initialize: " + initialized.message);
+        const auto matterStatuses = (__bridge id<MTLBuffer>)runtime.statusBuffer();
+        const auto* matterStatus = static_cast<const NMMatterStatusGPU*>(
+            matterStatuses.contents
+        );
+        require(matterStatus != nullptr, "adaptive Matter status is unavailable");
+
+        for (std::uint32_t step = 0u; step < 30u; ++step) {
+            id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+            require(commandBuffer != nil, "failed to allocate adaptive command buffer");
+            numi::matter::EncodeRequest request{};
+            request.commandBuffer = (__bridge void*)commandBuffer;
+            request.rigid.currentBodies = (__bridge void*)currentBodies;
+            request.rigid.bodyWrenches = (__bridge void*)bodyWrenches;
+            request.rigid.sceneBodies = (__bridge void*)sceneBodies;
+            request.rigid.currentBodyCount = 1u;
+            request.rigid.currentBodyStride = 1u;
+            request.rigid.bodyWrenchCount = 1u;
+            request.rigid.sceneBodyCount = 1u;
+            request.rigid.bodyWrenchStride = 1u;
+            request.rigid.sceneStride = 1u;
+            request.environmentStatuses = (__bridge void*)statuses;
+            request.controlStep = step;
+            request.physicsSubstep = 0u;
+            request.physicsSubsteps = 1u;
+            request.timestepSeconds = runtime.timestepSeconds();
+            request.phase = numi::matter::EncodePhase::preDynamics;
+            request.runAdaptiveTransfer = false;
+            auto encoded = runtime.encode(request);
+            require(encoded.encoded,
+                "adaptive pre-dynamics encoding failed: " + encoded.message);
+            request.phase = numi::matter::EncodePhase::postCommit;
+            request.runAdaptiveTransfer = true;
+            encoded = runtime.encode(request);
+            require(encoded.encoded,
+                "adaptive post-commit encoding failed: " + encoded.message);
+            [commandBuffer commit];
+            [commandBuffer waitUntilCompleted];
+            require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+                "adaptive command buffer did not complete");
+            require(matterStatus->code == NM_STATUS_SUCCESS,
+                "adaptive continuum step failed at frame " + std::to_string(step));
+        }
+
+        const auto snapshot = runtime.snapshot();
+        require(snapshot.available && snapshot.adaptive.size() == 1u,
+            "adaptive transfer did not publish diagnostic state");
+        const NMAdaptiveStateGPU& adaptive = snapshot.adaptive[0];
+        require(adaptive.activeRepresentation == NM_REPRESENTATION_RIGID &&
+                    adaptive.requestedRepresentation == NM_REPRESENTATION_RIGID,
+            "low-strain adaptive object did not demote to rigid ownership");
+        require(std::abs(scene->position.x - adaptive.centerAndRadius.x) < 1.0e-5f &&
+                    (scene->flagsAndIndices[3] &
+                     MR_BODY_STATE_COLLISION_DISABLED) == 0u,
+            "adaptive demotion did not publish its rigid scene authority");
+        std::cout
+            << "{\"schema\":\"numi.matter.physics-probe.v1\""
+            << ",\"representation\":\"adaptive_mpm_to_rigid\""
+            << ",\"stable_frames\":" << adaptive.stableFrames
+            << ",\"scene_x\":" << scene->position.x
+            << "}\n";
+    }
 }
 
 void runMetalWorldCoupling() {
@@ -541,17 +851,26 @@ int main(int argc, const char* argv[]) {
         const bool mpmGentle = argc == 2 && std::string_view(argv[1]) == "--mpm-gentle-contact";
         const bool mpmRollback = argc == 2 && std::string_view(argv[1]) == "--mpm-rollback";
         const bool metalWorldCoupling = argc == 2 && std::string_view(argv[1]) == "--metal-world-coupling";
+        const bool identification = argc == 2 && std::string_view(argv[1]) == "--identification";
+        const bool adaptiveDemotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-demotion";
         const bool femFree = argc == 2 && std::string_view(argv[1]) == "--fem-free";
         const bool femHighRate = argc == 2 && std::string_view(argv[1]) == "--fem-high-rate";
         const bool femHighDrop = argc == 2 && std::string_view(argv[1]) == "--fem-high-drop";
         require(
-            argc == 1 || femOnly || mpmOnly || mpmFree || mpmSingle || mpmSingleContact || mpmGentle || mpmRollback || metalWorldCoupling || femFree || femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            argc == 1 || femOnly || mpmOnly || mpmFree || mpmSingle || mpmSingleContact || mpmGentle || mpmRollback || metalWorldCoupling || identification || adaptiveDemotion || femFree || femHighRate || femHighDrop,
+            "usage: metalrobo_matter_physics_probe [--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
+        if (identification) {
+            runIdentification();
+        }
+        if (adaptiveDemotion) {
+            runAdaptiveDemotion();
+        }
         if (metalWorldCoupling) {
             runMetalWorldCoupling();
         }
-        if (!metalWorldCoupling && !femOnly && !femFree && !femHighRate && !femHighDrop) {
+        if (!identification && !adaptiveDemotion && !metalWorldCoupling &&
+            !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
             const auto mpm = runCase(
                 compileCase(
@@ -588,7 +907,8 @@ int main(int argc, const char* argv[]) {
                 << "}\n";
         }
         if (!mpmOnly && !mpmFree && !mpmSingle && !mpmSingleContact &&
-            !mpmGentle && !mpmRollback && !metalWorldCoupling) {
+            !mpmGentle && !mpmRollback && !metalWorldCoupling &&
+            !identification && !adaptiveDemotion) {
             const bool withPlane = !femFree;
             const auto fem = runCase(
                 compileCase(

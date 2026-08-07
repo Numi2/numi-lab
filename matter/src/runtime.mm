@@ -1888,10 +1888,16 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         };
         id<MTLBuffer> particles = copy(state_->particleAccepted);
         id<MTLBuffer> femNodes = copy(state_->femAccepted);
+        id<MTLBuffer> adaptive = copy(state_->adaptive);
         id<MTLBuffer> schedulers = copy(state_->schedulers);
         id<MTLBuffer> reactions = copy(state_->frameReactions);
-        if (particles == nil || femNodes == nil || schedulers == nil ||
-            reactions == nil) {
+        id<MTLBuffer> identification =
+            copy(state_->identificationDistributions);
+        id<MTLBuffer> environmentParameters =
+            copy(state_->environmentParameters);
+        if (particles == nil || femNodes == nil || adaptive == nil ||
+            schedulers == nil || reactions == nil ||
+            identification == nil || environmentParameters == nil) {
             snapshot.message = "failed to allocate Matter diagnostic readback";
             return snapshot;
         }
@@ -1910,8 +1916,11 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         };
         encodeCopy(state_->particleAccepted, particles);
         encodeCopy(state_->femAccepted, femNodes);
+        encodeCopy(state_->adaptive, adaptive);
         encodeCopy(state_->schedulers, schedulers);
         encodeCopy(state_->frameReactions, reactions);
+        encodeCopy(state_->identificationDistributions, identification);
+        encodeCopy(state_->environmentParameters, environmentParameters);
         [blit endEncoding];
         [commandBuffer commit];
         [commandBuffer waitUntilCompleted];
@@ -1933,8 +1942,11 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         };
         read(particles, snapshot.particles);
         read(femNodes, snapshot.femNodes);
+        read(adaptive, snapshot.adaptive);
         read(schedulers, snapshot.schedulers);
         read(reactions, snapshot.reactions);
+        read(identification, snapshot.identification);
+        read(environmentParameters, snapshot.environmentParameters);
         snapshot.available = true;
     }
     return snapshot;

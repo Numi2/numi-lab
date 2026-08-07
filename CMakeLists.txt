@@ -1520,6 +1520,14 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --metal-world-coupling
     )
     add_test(
+        NAME matter.runtime.inverse_identification
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --identification
+    )
+    add_test(
+        NAME matter.physics.adaptive_mpm_demotion
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --adaptive-demotion
+    )
+    add_test(
         NAME matter.physics.fem_plane_impact
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --fem-high-drop
     )
@@ -1532,6 +1540,8 @@ if(BUILD_TESTING)
         matter.physics.mpm_plane_impact
         matter.runtime.mpm_transaction_rollback
         matter.integration.articulated_rigid_reaction
+        matter.runtime.inverse_identification
+        matter.physics.adaptive_mpm_demotion
         matter.physics.fem_plane_impact
         matter.physics.fem_near_plane_cfl
         PROPERTIES

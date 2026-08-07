@@ -415,8 +415,13 @@ struct RuntimeStateSnapshot {
     std::string message;
     std::vector<NMParticleStateGPU> particles;
     std::vector<NMFEMNodeStateGPU> femNodes;
+    std::vector<NMAdaptiveStateGPU> adaptive;
     std::vector<NMSchedulerStateGPU> schedulers;
     std::vector<NMRigidReactionGPU> reactions;
+    // Diagnostic posterior state and environment-local parameter overlay.
+    // These are copied only at the explicit snapshot boundary.
+    std::vector<NMIdentificationDistributionGPU> identification;
+    std::vector<float> environmentParameters;
 };
 
 class Runtime {
