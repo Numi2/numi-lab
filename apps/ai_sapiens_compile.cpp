@@ -250,7 +250,7 @@ void requireOfficialAssets(const std::filesystem::path& source) {
     }
     for (const std::string_view joint : kPolicyJoints) {
         program.actorFrame.push_back(observation(
-            metalrobo::TaskObservationSource::previousAction,
+            metalrobo::TaskObservationSource::previousPolicyAction,
             joint, 0u));
     }
     program.critic = program.actorFrame;
@@ -295,7 +295,7 @@ void requireOfficialAssets(const std::filesystem::path& source) {
     }
     for (const std::string_view joint : kPolicyJoints) {
         program.actorFrame.push_back(observation(
-            metalrobo::TaskObservationSource::previousAction, joint, 0u));
+            metalrobo::TaskObservationSource::previousPolicyAction, joint, 0u));
     }
     program.critic = program.actorFrame;
     if (program.actorFrame.size() != 124u) {

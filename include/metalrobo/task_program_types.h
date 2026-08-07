@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 38u
+#define MR_TASK_PROGRAM_ABI_VERSION 39u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -146,6 +146,10 @@ enum MRTaskObservationOpcode : mr_u32 {
     // Six-dimensional (two-column) torso-orientation anchor built from the
     // selected root target, its waist target, and the live floating root.
     MR_TASK_OBSERVE_INTERACTION_ANCHOR_ORIENTATION = 30u,
+    // Raw PolicyPack output from the preceding accepted control transaction.
+    // This remains distinct from the post-transform actuator target stored in
+    // the ordinary action history.
+    MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION = 31u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {

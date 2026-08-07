@@ -60,6 +60,8 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET_VELOCITY,
     interactionAnchorOrientation =
         MR_TASK_OBSERVE_INTERACTION_ANCHOR_ORIENTATION,
+    previousPolicyAction =
+        MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION,
 };
 
 enum class TaskRewardOperator : std::uint32_t {

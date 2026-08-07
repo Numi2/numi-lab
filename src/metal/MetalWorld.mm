@@ -2914,7 +2914,8 @@ bool buildRequirements(
         ) ||
         !makeRequirement<float>(
             "native delayed action history",
-            taskActionHistoryElements,
+            taskActionHistoryElements +
+                taskEnvironments * taskLayout.actionCount,
             requirements.entries[kTaskActionHistory]
         ) ||
         !makeRequirement<float>(
@@ -9676,6 +9677,7 @@ bool encodeTaskApplyActions(
             {8u, kTaskState},
             {9u, kTaskActionHistory},
             {10u, kTaskTeacherActions},
+            {11u, kPolicyLatents},
         },
         &pass,
         4u,

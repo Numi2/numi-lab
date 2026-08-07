@@ -707,6 +707,7 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::jointVelocity:
             case TaskObservationSource::jointFiniteDifferenceVelocity:
             case TaskObservationSource::previousAction:
+            case TaskObservationSource::previousPolicyAction:
             case TaskObservationSource::delayedAction:
             case TaskObservationSource::contactMetric:
             case TaskObservationSource::bodyParameterMean:
@@ -2060,6 +2061,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 break;
             }
             case TaskObservationSource::previousAction:
+            case TaskObservationSource::previousPolicyAction:
             case TaskObservationSource::delayedAction: {
                 bool ambiguous = false;
                 sourceIndex = uniqueIndex(actionIds, spec.target, ambiguous);
