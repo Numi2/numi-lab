@@ -8,45 +8,46 @@ The compiler and numerical implementation remain self-contained under `matter/`,
 
 ### Matter Language
 
-`.nmatter` files define named parameters with SI units, admissible ranges, optional log scaling and identifiability, internal state, stored energy, validity margins, supported representations, interface properties and physical limits.
+`.nmatter` files define named parameters with SI units, admissible ranges, optional log scaling and identifiability, persistent internal state, stored energy, a rate-dependent dissipation potential, explicit next-state laws, validity margins, supported representations, interface properties and physical limits.
 
 ```text
-material silicone {
+material damageable_silicone {
     parameter density : kg/m^3 = 1100 in [900, 1300];
     parameter mu : kPa = 150 in [5, 1000] log identifiable;
     parameter lambda : MPa = 3 in [0.1, 30] log identifiable;
+    parameter eta : Pa*s = 1500 in [10, 10000] log identifiable;
+    parameter damage_rate : one/s = 20 in [0, 200];
 
-    model neo_hookean;
-    energy = neo_hookean(mu, lambda);
+    state damage : one = 0;
+    state accumulated_strain : one = 0;
+
+    energy = neo_hookean(mu * (1 - damage), lambda * (1 - damage));
+    dissipation = 0.5 * eta * (
+        pow(D(0, 0), 2) + pow(D(1, 1), 2) + pow(D(2, 2), 2)
+    );
+    update accumulated_strain = accumulated_strain + dt() * sqrt(
+        pow(D(0, 0), 2) + pow(D(1, 1), 2) + pow(D(2, 2), 2)
+    );
+    update damage = clamp(damage + dt() * damage_rate *
+        max(sqrt(I1() / 3) - 1.01, 0), 0, 0.95);
+
     valid = J() - 0.05;
-    supports mpm, fem;
-
-    interface {
-        static_friction = 0.8;
-        dynamic_friction = 0.65;
-        restitution = 0.0;
-        adhesion = 0.0;
-    }
+    supports mpm, fem, rigid;
 }
 ```
 
-The parser performs dimensional analysis before producing executable physics. Stored energy must have pressure/energy-density units. Logarithms require dimensionless arguments. Parameter ranges, determinant limits and expression-stack requirements are compile-time contracts.
+The parser performs dimensional analysis before producing executable physics. Stored energy must have pressure/energy-density units; dissipation must have power-density units. `F`, `D`/`Fdot`, `dt`, temperature, parameters and material state are separate typed inputs. Logarithms require dimensionless arguments. State updates must preserve the declared state dimension. Parameter ranges, determinant limits, fixed state capacity and expression-stack requirements are compile-time contracts.
 
 ### Physics IR and constitutive compiler
 
-The compiler lowers material expressions into a dimensioned scalar DAG. It symbolically derives all nine components of first Piola stress,
+The compiler lowers material expressions into a dimensioned scalar DAG. It symbolically derives the elastic and dissipative responses
 
 ```text
-P = dPsi / dF
+P_elastic = dPsi(F, z, theta) / dF
+P_viscous = dPhi(D, z, theta) / dD
 ```
 
-and all nine matrix-free tangent-vector outputs,
-
-```text
-dP = (dP / dF) : dF
-```
-
-then emits bounded stack bytecode shared by MPM and FEM. This removes handwritten stress/Jacobian duplication between backends. Known models may also emit scene-specialized Metal source, while the bytecode path remains authoritative and fingerprinted.
+and their matrix-free directional tangents. Every authored next-state expression is also compiled into the same bounded bytecode. MPM particles and FEM tetrahedra therefore execute one authoritative material program for stress, rate response, validity and state evolution rather than maintaining backend-specific constitutive implementations. Known models may additionally emit scene-specialized Metal source, while the bytecode path remains authoritative and fingerprinted.
 
 ### Matter compiler
 
@@ -55,9 +56,9 @@ then emits bounded stack bytecode shared by MPM and FEM. This removes handwritte
 - deterministic content fingerprinting;
 - fixed-capacity buffer sizing;
 - representation selection;
-- material parameter-table construction;
+- material parameter, initial-state and state-evolution program construction;
 - power-of-two timestep planning from material wave speed and object scale;
-- MPM stencil and node-incidence compilation;
+- sparse MPM grid/block domains, Morton lookup and active-work capacities;
 - FEM tetrahedron, rest-matrix, lumped-mass and node-incidence compilation;
 - continuum/rigid contact-pair and gather-incidence compilation;
 - adaptive-transfer and identification program construction;
@@ -67,15 +68,9 @@ then emits bounded stack bytecode shared by MPM and FEM. This removes handwritte
 
 ### MPM backend
 
-The MPM path is a total-Lagrangian solid backend using fixed quadratic B-spline support over 27 nodes per material point. The cooker builds an object-owned fixed background-grid table and deterministic node-owned incidence lists. Runtime kernels perform:
+The MPM path is an updated-Lagrangian sparse APIC/MLS-MPM solid backend with quadratic B-spline support over 27 nodes per material point. The cooker builds fixed-capacity 8×8×8 block domains and Morton-ordered lookup tables. Runtime kernels classify particles into active blocks, form deterministic per-block particle ranges, dispatch only active nodes, perform APIC particle-to-grid transfer, apply constitutive and contact forces, and reconstruct particle velocity, affine motion and deformation from the grid.
 
-1. particle-to-grid mass, PIC momentum and constitutive-force gathering;
-2. grid acceleration and integration;
-3. unified continuum contact projection;
-4. grid-to-particle velocity and deformation-gradient updates;
-5. transactional candidate publication.
-
-Node-owned gathers avoid floating-point scatter atomics and produce stable accumulation order across runs. The current path deliberately uses PIC rather than an APIC affine update, and its cooked full background-grid table is a fixed-capacity execution contract rather than a sparse-grid implementation. This backend is intended for elastic, viscoelastic and elastoplastic solids with large deformation. It is not presented as a general free-surface fluid implementation.
+The active-block pipeline avoids global floating-point scatter atomics, retains deterministic reduction order and prevents inactive authored grid regions from consuming transfer work. Persistent material state is stored per particle with accepted, candidate and control-step checkpoint arenas. Stress, validity and state evolution use the same live deformation and velocity-gradient values, and a rejected enclosing rigid transaction restores both mechanical and material state byte-for-byte. This backend targets large-deformation solids; it is not presented as a general free-surface fluid implementation.
 
 ### FEM backend
 
@@ -85,7 +80,7 @@ The FEM path uses linear tetrahedral kinematics with nonlinear constitutive stre
 A p = M p - dt^2 (df_internal / dx) p
 ```
 
-Element work is parallel. Node assembly uses cooked incidence. Per-object SIMD32 reductions produce deterministic `r.r` and `p.Ap` scalars without global floating-point atomics. The final state remains a candidate until environment status permits publication.
+Element work is parallel. Node assembly uses cooked incidence. Per-object SIMD32 reductions produce deterministic `r.r` and `p.Ap` scalars without global floating-point atomics. Each tetrahedron owns an independent persistent material-state record. Rate-dependent stress and tangent evaluation use the element velocity gradient; state updates publish only with an accepted nonlinear candidate, and both nodal and constitutive state roll back to the same control-step checkpoint.
 
 ### Unified continuum contact
 
@@ -109,7 +104,7 @@ Rigid reactions are reduced per proxy without floating-point atomics, then gathe
 - multiple contact proxies may contribute to one body without aliased writes;
 - static unbound proxies participate in contact but receive no state update.
 
-The runtime consumes borrowed body, wrench, scene-state and environment-status arenas. It never commits or waits on the borrowed command buffer. A Matter failure is translated into the enclosing `MetalWorld` status before rigid publication, and a later rigid failure restores MPM, FEM, scheduler state and event evidence to the same control-step checkpoint. Inverse-identification update and antithetic sampling execute at most once at the beginning of a fully encoded rollout command buffer; all later control steps in that submission consume the same candidate overlay.
+The runtime consumes borrowed body, wrench, scene-state and environment-status arenas. It never commits or waits on the borrowed command buffer. A Matter failure is translated into the enclosing `MetalWorld` status before rigid publication, and a later rigid failure restores MPM, FEM, persistent material state, scheduler state and event evidence to the same control-step checkpoint. Inverse-identification update and antithetic sampling execute at most once at the beginning of a fully encoded rollout command buffer; all later control steps in that submission consume the same candidate overlay.
 
 ### Adaptive representation
 
@@ -152,7 +147,7 @@ The runtime is designed around Apple GPU constraints rather than CUDA assumption
 
 - immutable cooked tables and persistent state use `MTLStorageModePrivate`;
 - unified/shared memory is used only for initialization, explicit status/event publication and identification losses;
-- one borrowed command buffer contains identification, parameter overlay, all microticks, contact, rigid coupling, adaptive transfer and event reduction;
+- one borrowed command buffer contains identification, parameter overlay, all microticks, constitutive-state evolution, contact, rigid coupling, adaptive transfer and event reduction;
 - no CPU counter read, command-buffer commit or wait occurs inside `Runtime::encode`;
 - fixed-capacity deterministic gathers replace floating-point append/scatter atomics;
 - SIMD32 object reductions map to Apple GPU execution width;
@@ -213,8 +208,9 @@ A body-backed rigid proxy requires the global current-body arena. Dynamic free-b
 
 The subsystem implements the complete architecture and executable kernels listed above, but it does not claim one numerical representation solves all matter:
 
-- the MPM path currently targets total-Lagrangian solids;
+- the MPM path currently targets updated-Lagrangian APIC/MLS-MPM solids on a fixed-capacity sparse block domain;
 - the FEM path uses tetrahedral solids and fixed-iteration matrix-free PCG;
+- internal state and rate-dependent dissipation are executable, but the current generic projection policy is explicit next-state bytecode rather than a material-specific implicit return-map solver;
 - contact supports continuum nodes against analytic rigid proxies; continuum-continuum/self-contact and arbitrary deforming triangle-triangle IPC are not yet implemented;
 - fracture/topology mutation, Eulerian fluids, thermal coupling and porous flow require additional operators in the same Physics IR;
 - learned residual constitutive terms can be represented as future expression/program kinds but are not silently enabled.
@@ -227,23 +223,20 @@ The portable compiler and package code is built with:
 -std=c++23 -Wall -Wextra -Wpedantic -Werror
 ```
 
-The included material compiles into a world containing both MPM and FEM
-objects, writes a package, emits specialized Metal and round-trips through
-`readPackage`. Source-level audits also check shared-ABI sizes, kernel names,
-buffer bindings and delimiter balance.
+The included elastic and damageable-viscoelastic materials compile into worlds containing both MPM and FEM objects, write versioned packages, emit specialized Metal and round-trip through `readPackage`. The portable stateful regression evaluates compiled elastic stress degradation, viscous stress/tangent, explicit state evolution and canonical fingerprint sensitivity. Source-level audits also check shared-ABI sizes, kernel names, buffer bindings and delimiter balance.
 
 On an Apple Silicon Metal 4 build host, run the physics qualification suite
 after building the probe target:
 
 ```bash
 cmake -S . -B build -G Ninja
-cmake --build build --target metalrobo_matter_physics_probe -j 3
+cmake --build build --target metalrobo_matter_physics_probe numi-matter-stateful-check -j 3
 ctest --test-dir build -L matter --output-on-failure -j 1
 ```
 
 The suite executes the actual `NumiMatter.metallib` through borrowed Metal
 command buffers. It checks MPM freefall, a coupled eight-particle MPM plane
-impact, an articulated-body continuum reaction consumed by MetalWorld ABA, a
+impact, stateful MPM and FEM evolution with exact rejected-transaction rollback, an articulated-body continuum reaction consumed by MetalWorld ABA, a
 full-height implicit FEM impact, a near-plane CFL-resolved FEM contact,
 byte-identical MPM/FEM/scheduler rollback after an enclosing rigid transaction
 rejects the tentative continuum update, byte-identical adaptive/scheduler

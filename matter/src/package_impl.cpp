@@ -21,13 +21,14 @@ inline constexpr std::array<char, 16> kMagic{
     'N', 'U', 'M', 'I', 'M', 'A', 'T', 'T',
     'E', 'R', 'P', 'K', 'G', '\0', '\0', '\0',
 };
-inline constexpr std::uint32_t kPackageVersion = 2u;
+inline constexpr std::uint32_t kPackageVersion = 3u;
 inline constexpr std::uint32_t kEndianMarker = 0x01020304u;
 
 enum class Section : std::uint32_t {
     dispatch = 1u,
     materials,
     parameters,
+    stateInitials,
     instructions,
     scalarPrograms,
     objects,
@@ -247,7 +248,7 @@ bool writePackage(
     header.version = kPackageVersion;
     header.endian = kEndianMarker;
     header.matterAbiVersion = NM_MATTER_ABI_VERSION;
-    header.sectionCount = 28u;
+    header.sectionCount = 29u;
     header.fingerprint = world.fingerprint;
     header.headerHash = headerHash(header);
     if (!writeRaw(stream, header)) {
@@ -264,6 +265,8 @@ bool writePackage(
             std::span<const NMMaterialGPU>(world.materials)) &&
         writeSection(stream, Section::parameters,
             std::span<const NMParameterRangeGPU>(world.parameters)) &&
+        writeSection(stream, Section::stateInitials,
+            std::span<const float>(world.stateInitials)) &&
         writeSection(stream, Section::instructions,
             std::span<const NMExpressionInstructionGPU>(world.instructions)) &&
         writeSection(stream, Section::scalarPrograms,
@@ -375,6 +378,8 @@ bool readPackage(
             decoded = decodeVector(stream, section, candidate.materials, error); break;
         case Section::parameters:
             decoded = decodeVector(stream, section, candidate.parameters, error); break;
+        case Section::stateInitials:
+            decoded = decodeVector(stream, section, candidate.stateInitials, error); break;
         case Section::instructions:
             decoded = decodeVector(stream, section, candidate.instructions, error); break;
         case Section::scalarPrograms:
@@ -464,6 +469,9 @@ bool readPackage(
     );
     if (candidate.dispatch.abiVersion != NM_MATTER_ABI_VERSION ||
         candidate.dispatch.materialCount != candidate.materials.size() ||
+        candidate.dispatch.parameterCount != candidate.parameters.size() ||
+        candidate.dispatch.stateInitialCount != candidate.stateInitials.size() ||
+        candidate.dispatch.materialStateStride > NM_MAX_MATERIAL_STATE ||
         candidate.dispatch.objectCount != candidate.objects.size() ||
         candidate.dispatch.particleCount != candidate.mpm.particles.size() ||
         candidate.dispatch.gridNodeCount != candidate.mpm.nodes.size() ||

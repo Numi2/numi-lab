@@ -56,6 +56,29 @@ add_executable(numi-matterc tools/matterc.cpp)
 target_link_libraries(numi-matterc PRIVATE numi_matter_compiler)
 target_compile_options(numi-matterc PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
+include(CTest)
+add_executable(numi-matter-stateful-check tools/stateful_check.cpp)
+target_link_libraries(numi-matter-stateful-check PRIVATE numi_matter_compiler)
+target_compile_definitions(
+    numi-matter-stateful-check
+    PRIVATE
+        NUMI_MATTER_STATEFUL_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/damageable_silicone.nmatter"
+)
+target_compile_options(
+    numi-matter-stateful-check
+    PRIVATE -Wall -Wextra -Wpedantic -Werror
+)
+if(BUILD_TESTING)
+    add_test(
+        NAME matter.compiler.stateful_roundtrip
+        COMMAND $<TARGET_FILE:numi-matter-stateful-check>
+    )
+    set_tests_properties(
+        matter.compiler.stateful_roundtrip
+        PROPERTIES LABELS "matter;compiler;stateful" TIMEOUT 60
+    )
+endif()
+
 if(APPLE)
     enable_language(OBJCXX)
     find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)

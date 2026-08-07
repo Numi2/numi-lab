@@ -1,14 +1,17 @@
 name: Matter Apple qualification
 
 on:
-  push:
-    branches: [codex/matter-compiler-foundation]
   pull_request:
     branches: [numisolver]
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: matter-apple-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   qualify:
@@ -19,6 +22,6 @@ jobs:
       - name: Configure
         run: cmake -S . -B build-matter-apple -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
       - name: Build
-        run: cmake --build build-matter-apple --target metalrobo_matter_physics_probe numi-matterc -j 3
+        run: cmake --build build-matter-apple --target metalrobo_matter_physics_probe numi-matterc numi-matter-stateful-check -j 3
       - name: Qualify
         run: ctest --test-dir build-matter-apple -L matter --output-on-failure -j 1

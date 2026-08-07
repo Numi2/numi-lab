@@ -165,11 +165,19 @@ kernel void nm_mpm_checkpoint(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMParticleStateGPU* accepted [[buffer(1)]],
     device NMParticleStateGPU* checkpoint [[buffer(2)]],
+    device const float* acceptedMaterialState [[buffer(3)]],
+    device float* checkpointMaterialState [[buffer(4)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint count = dispatch.environmentCount * dispatch.particleCount;
-    if (global < count) {
-        checkpoint[global] = accepted[global];
+    if (global >= count) {
+        return;
+    }
+    checkpoint[global] = accepted[global];
+    const uint stateBase = global * dispatch.materialStateStride;
+    for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+        checkpointMaterialState[stateBase + state] =
+            acceptedMaterialState[stateBase + state];
     }
 }
 
@@ -526,6 +534,7 @@ inline void evaluateSparseNode(
     device const NMExpressionInstructionGPU* instructions,
     device const float* environmentParameters,
     device const NMParticleStateGPU* particles,
+    device const float* particleMaterialState,
     device NMGridNodeStateGPU* nodes,
     device const NMMPMGridGPU* grids,
     device const NMMPMBlockGPU* blocks,
@@ -667,12 +676,24 @@ inline void evaluateSparseNode(
                     );
                     bool valid = true;
                     const NMMaterialGPU material = materials[particle.identity.y];
+                    device const float* internalState =
+                        material.stateCount == 0u
+                        ? nullptr
+                        : particleMaterialState +
+                            (particleBase + particleIndex) *
+                                dispatch.materialStateStride;
+                    const float temperature =
+                        particle.referenceAndTemperature.w;
                     const float3x3 stress = evaluateStress(
                         material,
                         programs,
                         instructions,
                         parameters,
+                        internalState,
                         deformation,
+                        affine,
+                        objectTimestep(dispatch, scheduler),
+                        temperature,
                         valid
                     );
                     if (!valid) {
@@ -729,18 +750,19 @@ kernel void nm_mpm_p2g(
     device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
     device const float* environmentParameters [[buffer(6)]],
     device const NMParticleStateGPU* particles [[buffer(7)]],
-    device NMGridNodeStateGPU* nodes [[buffer(8)]],
-    device const NMMPMGridGPU* grids [[buffer(9)]],
-    device const NMMPMBlockGPU* blocks [[buffer(10)]],
-    device const uint* blockLookup [[buffer(11)]],
-    device const NMActiveMPMBlockGPU* activeBlocks [[buffer(12)]],
-    device const atomic_uint* blockCounts [[buffer(13)]],
-    device const uint* blockOffsets [[buffer(14)]],
-    device const uint* sortedParticleIndices [[buffer(15)]],
-    device const NMSchedulerStateGPU* schedulers [[buffer(16)]],
-    device const NMAdaptiveStateGPU* adaptive [[buffer(17)]],
-    device uint* nodeGenerations [[buffer(18)]],
-    device NMMatterStatusGPU* statuses [[buffer(19)]],
+    device const float* particleMaterialState [[buffer(8)]],
+    device NMGridNodeStateGPU* nodes [[buffer(9)]],
+    device const NMMPMGridGPU* grids [[buffer(10)]],
+    device const NMMPMBlockGPU* blocks [[buffer(11)]],
+    device const uint* blockLookup [[buffer(12)]],
+    device const NMActiveMPMBlockGPU* activeBlocks [[buffer(13)]],
+    device const atomic_uint* blockCounts [[buffer(14)]],
+    device const uint* blockOffsets [[buffer(15)]],
+    device const uint* sortedParticleIndices [[buffer(16)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(17)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
+    device uint* nodeGenerations [[buffer(19)]],
+    device NMMatterStatusGPU* statuses [[buffer(20)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -761,6 +783,7 @@ kernel void nm_mpm_p2g(
         instructions,
         environmentParameters,
         particles,
+        particleMaterialState,
         nodes,
         grids,
         blocks,
@@ -785,6 +808,7 @@ kernel void nm_mpm_p2g(
         instructions,
         environmentParameters,
         particles,
+        particleMaterialState,
         nodes,
         grids,
         blocks,
@@ -809,12 +833,14 @@ kernel void nm_mpm_g2p(
     device const float* environmentParameters [[buffer(6)]],
     device const NMParticleStateGPU* accepted [[buffer(7)]],
     device NMParticleStateGPU* candidate [[buffer(8)]],
-    device const NMGridNodeStateGPU* nodes [[buffer(9)]],
-    device const NMMPMGridGPU* grids [[buffer(10)]],
-    device const uint* nodeGenerations [[buffer(11)]],
-    device const NMSchedulerStateGPU* schedulers [[buffer(12)]],
-    device const NMAdaptiveStateGPU* adaptive [[buffer(13)]],
-    device NMMatterStatusGPU* statuses [[buffer(14)]],
+    device const float* acceptedMaterialState [[buffer(9)]],
+    device float* candidateMaterialState [[buffer(10)]],
+    device const NMGridNodeStateGPU* nodes [[buffer(11)]],
+    device const NMMPMGridGPU* grids [[buffer(12)]],
+    device const uint* nodeGenerations [[buffer(13)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(14)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(15)]],
+    device NMMatterStatusGPU* statuses [[buffer(16)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.particleCount;
@@ -824,6 +850,11 @@ kernel void nm_mpm_g2p(
     const uint environment = global / dispatch.particleCount;
     const uint particleIndex = global - environment * dispatch.particleCount;
     const NMParticleStateGPU particle = accepted[global];
+    const uint materialStateBase = global * dispatch.materialStateStride;
+    for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+        candidateMaterialState[materialStateBase + state] =
+            acceptedMaterialState[materialStateBase + state];
+    }
     const uint objectIndex = particle.identity.x;
     if (objectIndex >= dispatch.objectCount) {
         candidate[global] = particle;
@@ -933,30 +964,24 @@ kernel void nm_mpm_g2p(
     bool valid = isfinite(determinantValue) &&
         determinantValue >= material.validity.x &&
         determinantValue <= material.validity.y;
-    if (valid && material.validityProgram != NM_INVALID_INDEX) {
-        float f[9];
-        float df[9] = {
-            0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.0f,
-        };
-        for (uint row = 0u; row < 3u; ++row) {
-            for (uint column = 0u; column < 3u; ++column) {
-                f[3u * row + column] = nextDeformation[column][row];
-            }
-        }
-        const float margin = evaluateScalarProgram(
-            material.validityProgram,
+    device const float* internalState = material.stateCount == 0u
+        ? nullptr
+        : acceptedMaterialState + materialStateBase;
+    float validityMargin = 1.0f;
+    if (valid) {
+        valid = evaluateMaterialValidity(
+            material,
             programs,
             instructions,
-            environmentParameters + environment * dispatch.parameterCount +
-                material.parameterOffset,
-            nullptr,
-            f,
-            df,
-            valid
-        );
-        valid = valid && margin > 0.0f;
+            environmentParameters +
+                environment * dispatch.parameterCount,
+            internalState,
+            nextDeformation,
+            velocityGradient,
+            dt,
+            particle.referenceAndTemperature.w,
+            validityMargin
+        ) && validityMargin > 0.0f;
     }
     if (!valid || !finite3(velocity)) {
         candidate[global] = particle;
@@ -1004,6 +1029,34 @@ kernel void nm_mpm_g2p(
         );
         return;
     }
+    for (uint state = 0u; state < material.stateCount; ++state) {
+        float nextState = 0.0f;
+        if (!evaluateStateUpdate(
+                material,
+                state,
+                programs,
+                instructions,
+                environmentParameters +
+                    environment * dispatch.parameterCount,
+                internalState,
+                nextDeformation,
+                velocityGradient,
+                dt,
+                particle.referenceAndTemperature.w,
+                nextState
+            )) {
+            candidate[global] = particle;
+            recordFailure(
+                statuses[environment],
+                NM_STATUS_NONFINITE_RESULT,
+                objectIndex,
+                particleIndex,
+                float4(float(state), validityMargin, determinantValue, 0.0f)
+            );
+            return;
+        }
+        candidateMaterialState[materialStateBase + state] = nextState;
+    }
     candidate[global] = next;
 }
 
@@ -1012,6 +1065,8 @@ kernel void nm_mpm_commit_microstep(
     device const NMMatterStatusGPU* statuses [[buffer(1)]],
     device NMParticleStateGPU* accepted [[buffer(2)]],
     device NMParticleStateGPU* candidate [[buffer(3)]],
+    device float* acceptedMaterialState [[buffer(4)]],
+    device float* candidateMaterialState [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.particleCount;
@@ -1019,10 +1074,19 @@ kernel void nm_mpm_commit_microstep(
         return;
     }
     const uint environment = global / dispatch.particleCount;
+    const uint stateBase = global * dispatch.materialStateStride;
     if (environmentHealthy(statuses, environment)) {
         accepted[global] = candidate[global];
+        for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+            acceptedMaterialState[stateBase + state] =
+                candidateMaterialState[stateBase + state];
+        }
     } else {
         candidate[global] = accepted[global];
+        for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+            candidateMaterialState[stateBase + state] =
+                acceptedMaterialState[stateBase + state];
+        }
     }
 }
 
@@ -1031,6 +1095,8 @@ kernel void nm_mpm_rollback_frame(
     device const NMMatterStatusGPU* statuses [[buffer(1)]],
     device NMParticleStateGPU* accepted [[buffer(2)]],
     device const NMParticleStateGPU* checkpoint [[buffer(3)]],
+    device float* acceptedMaterialState [[buffer(4)]],
+    device const float* checkpointMaterialState [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.particleCount;
@@ -1040,6 +1106,11 @@ kernel void nm_mpm_rollback_frame(
     const uint environment = global / dispatch.particleCount;
     if (!environmentHealthy(statuses, environment)) {
         accepted[global] = checkpoint[global];
+        const uint stateBase = global * dispatch.materialStateStride;
+        for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+            acceptedMaterialState[stateBase + state] =
+                checkpointMaterialState[stateBase + state];
+        }
     }
 }
 

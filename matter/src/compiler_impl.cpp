@@ -364,18 +364,80 @@ CompileResult compileWorld(
             continue;
         }
         ConstitutiveProgram program = std::move(compiled.program);
-        program.gpu.parameterOffset = static_cast<nm_u32>(world.parameters.size());
-        program.gpu.stressProgramOffset = static_cast<nm_u32>(world.scalarPrograms.size());
+        program.gpu.parameterOffset =
+            static_cast<nm_u32>(world.parameters.size());
+        program.gpu.stateInitialOffset =
+            static_cast<nm_u32>(world.stateInitials.size());
+        for (const InternalState& state : program.material.internalState) {
+            world.stateInitials.push_back(
+                static_cast<float>(state.initialValue)
+            );
+        }
+
+        program.gpu.stressProgramOffset =
+            static_cast<nm_u32>(world.scalarPrograms.size());
         for (const ScalarBytecode& component : program.stress) {
             appendProgram(component, world.instructions, world.scalarPrograms);
         }
-        program.gpu.tangentProgramOffset = static_cast<nm_u32>(world.scalarPrograms.size());
+        program.gpu.tangentProgramOffset =
+            static_cast<nm_u32>(world.scalarPrograms.size());
         for (const ScalarBytecode& component : program.tangentVector) {
             appendProgram(component, world.instructions, world.scalarPrograms);
         }
+
+        if (program.dissipation.has_value()) {
+            program.gpu.viscousStressProgramOffset =
+                static_cast<nm_u32>(world.scalarPrograms.size());
+            for (const ScalarBytecode& component : program.viscousStress) {
+                appendProgram(
+                    component,
+                    world.instructions,
+                    world.scalarPrograms
+                );
+            }
+            program.gpu.viscousTangentProgramOffset =
+                static_cast<nm_u32>(world.scalarPrograms.size());
+            for (const ScalarBytecode& component :
+                 program.viscousTangentVector) {
+                appendProgram(
+                    component,
+                    world.instructions,
+                    world.scalarPrograms
+                );
+            }
+        } else {
+            program.gpu.viscousStressProgramOffset = NM_INVALID_INDEX;
+            program.gpu.viscousTangentProgramOffset = NM_INVALID_INDEX;
+        }
+
+        if (!program.stateUpdates.empty()) {
+            program.gpu.stateUpdateProgramOffset =
+                static_cast<nm_u32>(world.scalarPrograms.size());
+            for (const ScalarBytecode& update : program.stateUpdates) {
+                appendProgram(update, world.instructions, world.scalarPrograms);
+            }
+        } else {
+            program.gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
+        }
+        if (program.dissipation.has_value()) {
+            program.gpu.dissipationProgram =
+                static_cast<nm_u32>(world.scalarPrograms.size());
+            appendProgram(
+                *program.dissipation,
+                world.instructions,
+                world.scalarPrograms
+            );
+        } else {
+            program.gpu.dissipationProgram = NM_INVALID_INDEX;
+        }
         if (program.validity.has_value()) {
-            program.gpu.validityProgram = static_cast<nm_u32>(world.scalarPrograms.size());
-            appendProgram(*program.validity, world.instructions, world.scalarPrograms);
+            program.gpu.validityProgram =
+                static_cast<nm_u32>(world.scalarPrograms.size());
+            appendProgram(
+                *program.validity,
+                world.instructions,
+                world.scalarPrograms
+            );
         } else {
             program.gpu.validityProgram = NM_INVALID_INDEX;
         }
@@ -1205,6 +1267,15 @@ CompileResult compileWorld(
         static_cast<nm_u32>(world.mpm.blockLookup.size());
     dispatch.maximumParticlesPerBlock =
         NM_MPM_MAX_PARTICLES_PER_BLOCK;
+    dispatch.materialStateStride = 0u;
+    for (const NMMaterialGPU& material : world.materials) {
+        dispatch.materialStateStride = std::max(
+            dispatch.materialStateStride,
+            material.stateCount
+        );
+    }
+    dispatch.stateInitialCount =
+        static_cast<nm_u32>(world.stateInitials.size());
     dispatch.gravityAndTimestep = f4(
         source.gravity[0], source.gravity[1], source.gravity[2], source.frameTimestep
     );

@@ -18,6 +18,28 @@ inline float3x3 tetrahedronDeformation(
     return ds * inverseRest;
 }
 
+inline float3x3 tetrahedronVelocityGradient(
+    const NMTetrahedronGPU tetrahedron,
+    device const NMFEMNodeStateGPU* nodes,
+    const uint nodeBase
+) {
+    const float3 v0 =
+        nodes[nodeBase + tetrahedron.nodes.x].velocityAndInverseMass.xyz;
+    const float3 v1 =
+        nodes[nodeBase + tetrahedron.nodes.y].velocityAndInverseMass.xyz;
+    const float3 v2 =
+        nodes[nodeBase + tetrahedron.nodes.z].velocityAndInverseMass.xyz;
+    const float3 v3 =
+        nodes[nodeBase + tetrahedron.nodes.w].velocityAndInverseMass.xyz;
+    const float3x3 dv = float3x3(v1 - v0, v2 - v0, v3 - v0);
+    const float3x3 inverseRest = matrixFromRows(
+        tetrahedron.inverseRestRow0,
+        tetrahedron.inverseRestRow1,
+        tetrahedron.inverseRestRow2
+    );
+    return dv * inverseRest;
+}
+
 inline NMFEMElementVectorGPU tetrahedronForce(
     const NMTetrahedronGPU tetrahedron,
     const float3x3 stress
@@ -53,11 +75,28 @@ kernel void nm_fem_checkpoint(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMFEMNodeStateGPU* accepted [[buffer(1)]],
     device NMFEMNodeStateGPU* checkpoint [[buffer(2)]],
+    device const float* acceptedMaterialState [[buffer(3)]],
+    device float* checkpointMaterialState [[buffer(4)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
-    if (global < total) {
-        checkpoint[global] = accepted[global];
+    const uint width = max(dispatch.femNodeCount, dispatch.tetrahedronCount);
+    const uint total = dispatch.environmentCount * width;
+    if (global >= total || width == 0u) {
+        return;
+    }
+    const uint environment = global / width;
+    const uint local = global - environment * width;
+    if (local < dispatch.femNodeCount) {
+        const uint node = environment * dispatch.femNodeCount + local;
+        checkpoint[node] = accepted[node];
+    }
+    if (local < dispatch.tetrahedronCount) {
+        const uint element = environment * dispatch.tetrahedronCount + local;
+        const uint stateBase = element * dispatch.materialStateStride;
+        for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+            checkpointMaterialState[stateBase + state] =
+                acceptedMaterialState[stateBase + state];
+        }
     }
 }
 
@@ -71,10 +110,11 @@ kernel void nm_fem_internal_forces(
     device const float* environmentParameters [[buffer(6)]],
     device const NMFEMNodeStateGPU* accepted [[buffer(7)]],
     device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
-    device const NMSchedulerStateGPU* schedulers [[buffer(9)]],
-    device const NMAdaptiveStateGPU* adaptive [[buffer(10)]],
-    device NMFEMElementVectorGPU* elementForces [[buffer(11)]],
-    device NMMatterStatusGPU* statuses [[buffer(12)]],
+    device const float* acceptedMaterialState [[buffer(9)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(10)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(11)]],
+    device NMFEMElementVectorGPU* elementForces [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
@@ -103,8 +143,14 @@ kernel void nm_fem_internal_forces(
     const float3x3 deformation = tetrahedronDeformation(
         tetrahedron, accepted, nodeBase
     );
+    const float3x3 deformationRate = tetrahedronVelocityGradient(
+        tetrahedron, accepted, nodeBase
+    );
     const float determinantValue = determinant(deformation);
     const NMMaterialGPU material = materials[tetrahedron.identity.x];
+    device const float* internalState = material.stateCount == 0u
+        ? nullptr
+        : acceptedMaterialState + global * dispatch.materialStateStride;
     bool valid = isfinite(determinantValue) &&
         determinantValue >= material.validity.x &&
         determinantValue <= material.validity.y;
@@ -113,7 +159,11 @@ kernel void nm_fem_internal_forces(
         programs,
         instructions,
         environmentParameters + environment * dispatch.parameterCount,
+        internalState,
         deformation,
+        deformationRate,
+        objectTimestep(dispatch, scheduler),
+        material.bulk.y,
         valid
     );
     if (!valid || maximumAbs(stress) > material.validity.z) {
@@ -209,11 +259,12 @@ kernel void nm_fem_apply_operator_elements(
     device const float* environmentParameters [[buffer(6)]],
     device const NMFEMNodeStateGPU* accepted [[buffer(7)]],
     device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
-    device const float4* direction [[buffer(9)]],
-    device const NMSchedulerStateGPU* schedulers [[buffer(10)]],
-    device const NMAdaptiveStateGPU* adaptive [[buffer(11)]],
-    device NMFEMElementVectorGPU* elementOperator [[buffer(12)]],
-    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    device const float* acceptedMaterialState [[buffer(9)]],
+    device const float4* direction [[buffer(10)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(11)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(12)]],
+    device NMFEMElementVectorGPU* elementOperator [[buffer(13)]],
+    device NMMatterStatusGPU* statuses [[buffer(14)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
@@ -253,14 +304,28 @@ kernel void nm_fem_apply_operator_elements(
     const float3x3 deformation = tetrahedronDeformation(
         tetrahedron, accepted, nodeBase
     );
+    const float3x3 deformationRate = tetrahedronVelocityGradient(
+        tetrahedron, accepted, nodeBase
+    );
+    const float dt = objectTimestep(dispatch, scheduler);
+    const float3x3 rateDirection = deformationDirection / max(dt, 1.0e-12f);
+    const NMMaterialGPU material = materials[tetrahedron.identity.x];
+    device const float* internalState = material.stateCount == 0u
+        ? nullptr
+        : acceptedMaterialState + global * dispatch.materialStateStride;
     bool valid = true;
     const float3x3 tangent = evaluateTangentVector(
-        materials[tetrahedron.identity.x],
+        material,
         programs,
         instructions,
         environmentParameters + environment * dispatch.parameterCount,
+        internalState,
         deformation,
         deformationDirection,
+        deformationRate,
+        rateDirection,
+        dt,
+        material.bulk.y,
         valid
     );
     if (!valid) {
@@ -598,10 +663,19 @@ kernel void nm_fem_integrate(
 
 kernel void nm_fem_validate(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMMaterialGPU* materials [[buffer(1)]],
-    device const NMFEMNodeStateGPU* candidate [[buffer(2)]],
-    device const NMTetrahedronGPU* tetrahedra [[buffer(3)]],
-    device NMMatterStatusGPU* statuses [[buffer(4)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(9)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(10)]],
+    device const float* acceptedMaterialState [[buffer(11)]],
+    device float* candidateMaterialState [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
@@ -610,27 +684,104 @@ kernel void nm_fem_validate(
     }
     const uint environment = global / dispatch.tetrahedronCount;
     const uint tetrahedronIndex = global - environment * dispatch.tetrahedronCount;
+    const uint materialStateBase = global * dispatch.materialStateStride;
+    for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+        candidateMaterialState[materialStateBase + state] =
+            acceptedMaterialState[materialStateBase + state];
+    }
     if (!environmentHealthy(statuses, environment)) {
         return;
     }
     const NMTetrahedronGPU tetrahedron = tetrahedra[tetrahedronIndex];
+    const uint objectIndex = tetrahedron.identity.y;
+    if (objectIndex >= dispatch.objectCount ||
+        tetrahedron.identity.x >= dispatch.materialCount) {
+        recordFailure(
+            statuses[environment],
+            NM_STATUS_INVALID_DISPATCH,
+            objectIndex,
+            tetrahedronIndex,
+            float4(0.0f)
+        );
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, scheduler, adaptiveState, microstep)) {
+        return;
+    }
+    const uint nodeBase = environment * dispatch.femNodeCount;
     const float3x3 deformation = tetrahedronDeformation(
         tetrahedron,
         candidate,
-        environment * dispatch.femNodeCount
+        nodeBase
+    );
+    const float3x3 deformationRate = tetrahedronVelocityGradient(
+        tetrahedron,
+        candidate,
+        nodeBase
     );
     const float determinantValue = determinant(deformation);
     const NMMaterialGPU material = materials[tetrahedron.identity.x];
-    if (!isfinite(determinantValue) ||
-        determinantValue < material.validity.x ||
-        determinantValue > material.validity.y) {
+    device const float* internalState = material.stateCount == 0u
+        ? nullptr
+        : acceptedMaterialState + materialStateBase;
+    const float dt = objectTimestep(dispatch, scheduler);
+    float validityMargin = 1.0f;
+    bool valid = isfinite(determinantValue) &&
+        determinantValue >= material.validity.x &&
+        determinantValue <= material.validity.y &&
+        evaluateMaterialValidity(
+            material,
+            programs,
+            instructions,
+            environmentParameters + environment * dispatch.parameterCount,
+            internalState,
+            deformation,
+            deformationRate,
+            dt,
+            material.bulk.y,
+            validityMargin
+        ) && validityMargin > 0.0f;
+    if (!valid) {
         recordFailure(
             statuses[environment],
             NM_STATUS_INVALID_DEFORMATION,
-            tetrahedron.identity.y,
+            objectIndex,
             tetrahedronIndex,
-            float4(determinantValue, 0.0f, 0.0f, 0.0f)
+            float4(determinantValue, validityMargin, 0.0f, 0.0f)
         );
+        return;
+    }
+    for (uint state = 0u; state < material.stateCount; ++state) {
+        float nextState = 0.0f;
+        if (!evaluateStateUpdate(
+                material,
+                state,
+                programs,
+                instructions,
+                environmentParameters + environment * dispatch.parameterCount,
+                internalState,
+                deformation,
+                deformationRate,
+                dt,
+                material.bulk.y,
+                nextState
+            )) {
+            recordFailure(
+                statuses[environment],
+                NM_STATUS_NONFINITE_RESULT,
+                objectIndex,
+                tetrahedronIndex,
+                float4(float(state), validityMargin, determinantValue, 0.0f)
+            );
+            return;
+        }
+        candidateMaterialState[materialStateBase + state] = nextState;
     }
 }
 
@@ -639,17 +790,38 @@ kernel void nm_fem_commit_microstep(
     device const NMMatterStatusGPU* statuses [[buffer(1)]],
     device NMFEMNodeStateGPU* accepted [[buffer(2)]],
     device NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device float* acceptedMaterialState [[buffer(4)]],
+    device float* candidateMaterialState [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
-    if (global >= total || dispatch.femNodeCount == 0u) {
+    const uint width = max(dispatch.femNodeCount, dispatch.tetrahedronCount);
+    const uint total = dispatch.environmentCount * width;
+    if (global >= total || width == 0u) {
         return;
     }
-    const uint environment = global / dispatch.femNodeCount;
-    if (environmentHealthy(statuses, environment)) {
-        accepted[global] = candidate[global];
-    } else {
-        candidate[global] = accepted[global];
+    const uint environment = global / width;
+    const uint local = global - environment * width;
+    const bool healthy = environmentHealthy(statuses, environment);
+    if (local < dispatch.femNodeCount) {
+        const uint node = environment * dispatch.femNodeCount + local;
+        if (healthy) {
+            accepted[node] = candidate[node];
+        } else {
+            candidate[node] = accepted[node];
+        }
+    }
+    if (local < dispatch.tetrahedronCount) {
+        const uint element = environment * dispatch.tetrahedronCount + local;
+        const uint stateBase = element * dispatch.materialStateStride;
+        for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+            if (healthy) {
+                acceptedMaterialState[stateBase + state] =
+                    candidateMaterialState[stateBase + state];
+            } else {
+                candidateMaterialState[stateBase + state] =
+                    acceptedMaterialState[stateBase + state];
+            }
+        }
     }
 }
 
@@ -658,16 +830,33 @@ kernel void nm_fem_rollback_frame(
     device const NMMatterStatusGPU* statuses [[buffer(1)]],
     device NMFEMNodeStateGPU* accepted [[buffer(2)]],
     device const NMFEMNodeStateGPU* checkpoint [[buffer(3)]],
+    device float* acceptedMaterialState [[buffer(4)]],
+    device const float* checkpointMaterialState [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
-    if (global >= total || dispatch.femNodeCount == 0u) {
+    const uint width = max(dispatch.femNodeCount, dispatch.tetrahedronCount);
+    const uint total = dispatch.environmentCount * width;
+    if (global >= total || width == 0u) {
         return;
     }
-    const uint environment = global / dispatch.femNodeCount;
-    if (!environmentHealthy(statuses, environment)) {
-        accepted[global] = checkpoint[global];
+    const uint environment = global / width;
+    if (environmentHealthy(statuses, environment)) {
+        return;
+    }
+    const uint local = global - environment * width;
+    if (local < dispatch.femNodeCount) {
+        const uint node = environment * dispatch.femNodeCount + local;
+        accepted[node] = checkpoint[node];
+    }
+    if (local < dispatch.tetrahedronCount) {
+        const uint element = environment * dispatch.tetrahedronCount + local;
+        const uint stateBase = element * dispatch.materialStateStride;
+        for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+            acceptedMaterialState[stateBase + state] =
+                checkpointMaterialState[stateBase + state];
+        }
     }
 }
+
 
 } // namespace numi_matter_metal

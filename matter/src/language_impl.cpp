@@ -259,7 +259,14 @@ public:
             } else if (matchIdentifier("energy")) {
                 parseRoot(material, material.energyRoot, kPressure, "energy");
             } else if (matchIdentifier("dissipation")) {
-                parseRoot(material, material.dissipationRoot, kPressure, "dissipation");
+                parseRoot(
+                    material,
+                    material.dissipationRoot,
+                    kPowerDensity,
+                    "dissipation"
+                );
+            } else if (matchIdentifier("update")) {
+                parseStateUpdate(material);
             } else if (matchIdentifier("valid")) {
                 parseRoot(material, material.validityRoot, kDimensionless, "validity");
             } else if (matchIdentifier("supports")) {
@@ -269,7 +276,7 @@ public:
             } else if (matchIdentifier("limits")) {
                 parseLimits(material);
             } else {
-                error(peek(), "expected parameter, state, model, energy, dissipation, valid, supports, interface or limits");
+                error(peek(), "expected parameter, state, model, energy, dissipation, update, valid, supports, interface or limits");
                 synchronize();
             }
         }
@@ -505,6 +512,50 @@ private:
             error(peek(), "duplicate state '" + state.name + "'");
         }
         material.internalState.push_back(std::move(state));
+        material.stateUpdateRoots.push_back(NM_INVALID_INDEX);
+        if (material.internalState.size() > NM_MAX_MATERIAL_STATE) {
+            error(
+                peek(),
+                "material state count exceeds NM_MAX_MATERIAL_STATE"
+            );
+        }
+    }
+
+    void parseStateUpdate(MaterialProgram& material) {
+        const Token nameToken = peek();
+        const std::string name = identifier("state name after update");
+        const auto state = stateIndex(material, name);
+        if (!state.has_value()) {
+            error(nameToken, "update references unknown state '" + name + "'");
+            synchronize();
+            return;
+        }
+        expect(TokenKind::equal, "'=' after update state name");
+        const std::uint32_t root = expression(material);
+        expect(TokenKind::semicolon, "';' after state update");
+        if (root == NM_INVALID_INDEX || root >= material.expressions.nodes.size()) {
+            return;
+        }
+        if (material.expressions.nodes[root].dimension !=
+            material.internalState[*state].dimension) {
+            error(
+                nameToken,
+                "state update for '" + name + "' has " +
+                    dimensionName(material.expressions.nodes[root].dimension) +
+                    " dimensions; expected " +
+                    dimensionName(material.internalState[*state].dimension)
+            );
+        }
+        if (material.stateUpdateRoots.size() < material.internalState.size()) {
+            material.stateUpdateRoots.resize(
+                material.internalState.size(),
+                NM_INVALID_INDEX
+            );
+        }
+        if (material.stateUpdateRoots[*state] != NM_INVALID_INDEX) {
+            error(nameToken, "duplicate update for state '" + name + "'");
+        }
+        material.stateUpdateRoots[*state] = root;
     }
 
     void parseModel(MaterialProgram& material) {
@@ -667,6 +718,20 @@ private:
             expect(TokenKind::rightParen, "')'");
             return determinant(material);
         }
+        if (token.text == "dt") {
+            expect(TokenKind::rightParen, "')'");
+            Expr result;
+            result.kind = ExprKind::timeStep;
+            result.dimension = kTime;
+            return material.expressions.append(result);
+        }
+        if (token.text == "temperature") {
+            expect(TokenKind::rightParen, "')'");
+            Expr result;
+            result.kind = ExprKind::temperature;
+            result.dimension = kTemperature;
+            return material.expressions.append(result);
+        }
         if (token.text == "F") {
             const int row = static_cast<int>(signedNumber("F row"));
             expect(TokenKind::comma, "',' in F(row,column)");
@@ -677,6 +742,21 @@ private:
                 return material.expressions.constant(0.0);
             }
             return fComponent(material, static_cast<std::uint32_t>(3 * row + column));
+        }
+        if (token.text == "D" || token.text == "Fdot") {
+            const int row = static_cast<int>(signedNumber("rate row"));
+            expect(TokenKind::comma, "',' in D(row,column)");
+            const int column = static_cast<int>(signedNumber("rate column"));
+            expect(TokenKind::rightParen, "')'");
+            if (row < 0 || row > 2 || column < 0 || column > 2) {
+                error(token, "D indices must lie in [0, 2]");
+                return material.expressions.constant(0.0, kRate);
+            }
+            Expr result;
+            result.kind = ExprKind::deformationRate;
+            result.dimension = kRate;
+            result.index = static_cast<std::uint32_t>(3 * row + column);
+            return material.expressions.append(result);
         }
         if (token.text == "neo_hookean") {
             const std::uint32_t mu = expression(material);

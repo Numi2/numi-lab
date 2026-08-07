@@ -1477,6 +1477,7 @@ target_compile_definitions(
     metalrobo_matter_physics_probe
     PRIVATE
         NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_STATEFUL_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/damageable_silicone.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
 )
 target_compile_options(
@@ -1506,6 +1507,14 @@ if(BUILD_TESTING)
     add_test(
         NAME matter.physics.mixed_mpm_fem
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mixed
+    )
+    add_test(
+        NAME matter.physics.stateful_mpm
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --stateful-mpm
+    )
+    add_test(
+        NAME matter.physics.stateful_fem
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --stateful-fem
     )
     add_test(
         NAME matter.physics.mpm_freefall
@@ -1549,6 +1558,8 @@ if(BUILD_TESTING)
     )
     set_tests_properties(
         matter.physics.mixed_mpm_fem
+        matter.physics.stateful_mpm
+        matter.physics.stateful_fem
         matter.physics.mpm_freefall
         matter.physics.mpm_plane_impact
         matter.runtime.mpm_transaction_rollback

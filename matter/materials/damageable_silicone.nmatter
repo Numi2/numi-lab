@@ -1,0 +1,68 @@
+material damageable_silicone {
+    parameter density : kg/m^3 = 1100 in [900, 1300];
+    parameter mu : kPa = 150 in [5, 1000] log identifiable;
+    parameter lambda : MPa = 3 in [0.1, 30] log identifiable;
+    parameter eta : Pa*s = 1500 in [10, 10000] log identifiable;
+    parameter damage_rate : one/s = 20 in [0, 200] identifiable;
+    parameter damage_threshold : one = 0.01 in [0, 0.5];
+    parameter maximum_damage : one = 0.95 in [0.5, 0.99];
+
+    state damage : one = 0;
+    state accumulated_strain : one = 0;
+
+    model visco_hyperelastic;
+
+    // Damage degrades both shear and volumetric stiffness while retaining a
+    // positive residual stiffness through maximum_damage < 1.
+    energy = neo_hookean(
+        mu * (1 - damage),
+        lambda * (1 - damage)
+    );
+
+    // Objective rate-dependent resistance is supplied by the symmetric
+    // velocity-gradient norm. Its derivative with respect to D is the
+    // viscous first-Piola contribution compiled for both MPM and FEM.
+    dissipation = 0.5 * eta * (
+        pow(D(0, 0), 2) +
+        pow(D(1, 1), 2) +
+        pow(D(2, 2), 2) +
+        0.5 * pow(D(0, 1) + D(1, 0), 2) +
+        0.5 * pow(D(0, 2) + D(2, 0), 2) +
+        0.5 * pow(D(1, 2) + D(2, 1), 2)
+    );
+
+    update accumulated_strain = accumulated_strain + dt() * sqrt(
+        pow(D(0, 0), 2) +
+        pow(D(1, 1), 2) +
+        pow(D(2, 2), 2) +
+        0.5 * pow(D(0, 1) + D(1, 0), 2) +
+        0.5 * pow(D(0, 2) + D(2, 0), 2) +
+        0.5 * pow(D(1, 2) + D(2, 1), 2)
+    );
+
+    update damage = clamp(
+        damage + dt() * damage_rate * max(
+            sqrt(I1() / 3) - 1 - damage_threshold,
+            0
+        ),
+        0,
+        maximum_damage
+    );
+
+    valid = min(J() - 0.05, maximum_damage - damage + 0.001);
+    supports mpm, fem, rigid;
+
+    interface {
+        static_friction = 0.80;
+        dynamic_friction = 0.65;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+
+    limits {
+        minimum_J = 0.05;
+        maximum_J = 20.0;
+        maximum_stress = 1e9;
+        maximum_energy_density = 1e9;
+    }
+}

@@ -34,6 +34,8 @@ inline constexpr Dimension kVelocity{1, 0, -1, 0};
 inline constexpr Dimension kDensity{-3, 1, 0, 0};
 inline constexpr Dimension kPressure{-1, 1, -2, 0};
 inline constexpr Dimension kViscosity{-1, 1, -1, 0};
+inline constexpr Dimension kRate{0, 0, -1, 0};
+inline constexpr Dimension kPowerDensity{-1, 1, -3, 0};
 
 [[nodiscard]] constexpr Dimension operator+(
     const Dimension left,
@@ -85,6 +87,9 @@ enum class ExprKind : std::uint8_t {
     internalState,
     deformation,
     deformationDirection,
+    deformationRate,
+    timeStep,
+    temperature,
     add,
     subtract,
     multiply,
@@ -162,6 +167,10 @@ struct MaterialProgram {
     std::uint32_t energyRoot = NM_INVALID_INDEX;
     std::uint32_t dissipationRoot = NM_INVALID_INDEX;
     std::uint32_t validityRoot = NM_INVALID_INDEX;
+    // One next-state expression per internal state. Missing entries are
+    // compiled as identity updates, so all state transitions remain explicit
+    // and transactionally reproducible on the GPU.
+    std::vector<std::uint32_t> stateUpdateRoots;
     std::vector<Representation> supportedRepresentations;
     ConstitutiveHint hint = ConstitutiveHint::generic;
     double staticFriction = 0.6;
@@ -184,6 +193,10 @@ struct ConstitutiveProgram {
     MaterialProgram material;
     std::array<ScalarBytecode, 9> stress;
     std::array<ScalarBytecode, 9> tangentVector;
+    std::array<ScalarBytecode, 9> viscousStress;
+    std::array<ScalarBytecode, 9> viscousTangentVector;
+    std::vector<ScalarBytecode> stateUpdates;
+    std::optional<ScalarBytecode> dissipation;
     std::optional<ScalarBytecode> validity;
     NMMaterialGPU gpu{};
     std::vector<NMParameterRangeGPU> parameters;
@@ -292,6 +305,7 @@ struct CompiledWorld {
     std::vector<ConstitutiveProgram> constitutive;
     std::vector<NMMaterialGPU> materials;
     std::vector<NMParameterRangeGPU> parameters;
+    std::vector<float> stateInitials;
     std::vector<NMExpressionInstructionGPU> instructions;
     std::vector<NMScalarProgramGPU> scalarPrograms;
     std::vector<NMContinuumObjectGPU> objects;
@@ -433,6 +447,9 @@ struct RuntimeStateSnapshot {
     std::vector<NMAdaptiveStateGPU> adaptive;
     std::vector<NMSchedulerStateGPU> schedulers;
     std::vector<NMRigidReactionGPU> reactions;
+    std::uint32_t materialStateStride = 0u;
+    std::vector<float> particleMaterialState;
+    std::vector<float> femMaterialState;
     // Diagnostic posterior state and environment-local parameter overlay.
     // These are copied only at the explicit snapshot boundary.
     std::vector<NMIdentificationDistributionGPU> identification;

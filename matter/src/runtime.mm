@@ -277,10 +277,49 @@ template <typename T>
                     world.mpm.nodes.size() - object.auxiliaryOffset);
         }
     );
+    const auto scalarRange = [&](
+        const std::uint32_t offset,
+        const std::uint32_t count
+    ) {
+        return offset != NM_INVALID_INDEX &&
+            offset <= world.scalarPrograms.size() &&
+            count <= world.scalarPrograms.size() - offset;
+    };
+    std::uint32_t maximumStateCount = 0u;
+    const bool materialStateValid = std::ranges::all_of(
+        world.materials,
+        [&](const NMMaterialGPU& material) {
+            maximumStateCount = std::max(maximumStateCount, material.stateCount);
+            const bool initialRange = material.stateCount == 0u ||
+                (material.stateInitialOffset <= world.stateInitials.size() &&
+                 material.stateCount <=
+                    world.stateInitials.size() - material.stateInitialOffset);
+            const bool statePrograms = material.stateCount == 0u ||
+                scalarRange(material.stateUpdateProgramOffset, material.stateCount);
+            const bool viscousPrograms =
+                material.viscousStressProgramOffset == NM_INVALID_INDEX &&
+                material.viscousTangentProgramOffset == NM_INVALID_INDEX
+                ? (material.flags & NM_MATERIAL_HAS_DISSIPATION) == 0u
+                : scalarRange(material.viscousStressProgramOffset, 9u) &&
+                  scalarRange(material.viscousTangentProgramOffset, 9u) &&
+                  material.dissipationProgram != NM_INVALID_INDEX &&
+                  material.dissipationProgram < world.scalarPrograms.size();
+            return material.stateCount <= NM_MAX_MATERIAL_STATE &&
+                scalarRange(material.stressProgramOffset, 9u) &&
+                scalarRange(material.tangentProgramOffset, 9u) &&
+                initialRange && statePrograms && viscousPrograms &&
+                (material.validityProgram == NM_INVALID_INDEX ||
+                 material.validityProgram < world.scalarPrograms.size());
+        }
+    );
     return
         dispatch.abiVersion == NM_MATTER_ABI_VERSION &&
         dispatch.materialCount == world.materials.size() &&
         dispatch.parameterCount == world.parameters.size() &&
+        dispatch.stateInitialCount == world.stateInitials.size() &&
+        dispatch.materialStateStride == maximumStateCount &&
+        dispatch.materialStateStride <= NM_MAX_MATERIAL_STATE &&
+        materialStateValid &&
         dispatch.objectCount == world.objects.size() &&
         dispatch.particleCount == world.mpm.particles.size() &&
         dispatch.gridNodeCount == world.mpm.nodes.size() &&
@@ -371,12 +410,17 @@ struct Runtime::State {
 
     id<MTLBuffer> environmentParameters = nil;
     id<MTLBuffer> particleDefaults = nil;
+    id<MTLBuffer> particleMaterialStateDefaults = nil;
     id<MTLBuffer> femDefaults = nil;
+    id<MTLBuffer> femMaterialStateDefaults = nil;
     id<MTLBuffer> adaptiveDefaults = nil;
     id<MTLBuffer> schedulerDefaults = nil;
     id<MTLBuffer> particleAccepted = nil;
     id<MTLBuffer> particleCandidate = nil;
     id<MTLBuffer> particleCheckpoint = nil;
+    id<MTLBuffer> particleMaterialStateAccepted = nil;
+    id<MTLBuffer> particleMaterialStateCandidate = nil;
+    id<MTLBuffer> particleMaterialStateCheckpoint = nil;
     id<MTLBuffer> gridNodes = nil;
     id<MTLBuffer> mpmNodeGenerations = nil;
     id<MTLBuffer> mpmParticleKeys = nil;
@@ -393,6 +437,9 @@ struct Runtime::State {
     id<MTLBuffer> femAccepted = nil;
     id<MTLBuffer> femCandidate = nil;
     id<MTLBuffer> femCheckpoint = nil;
+    id<MTLBuffer> femMaterialStateAccepted = nil;
+    id<MTLBuffer> femMaterialStateCandidate = nil;
+    id<MTLBuffer> femMaterialStateCheckpoint = nil;
     id<MTLBuffer> rigidStates = nil;
     id<MTLBuffer> contactSamples = nil;
     id<MTLBuffer> microstepReactions = nil;
@@ -701,14 +748,72 @@ RuntimeDiagnostics Runtime::initialize(
         for (const NMParameterRangeGPU parameter : world.parameters) {
             defaultParameters.push_back(parameter.valueAndBounds.x);
         }
+        const std::size_t materialStateStride =
+            world.dispatch.materialStateStride;
+        std::vector<float> particleMaterialStateDefaults(
+            world.mpm.particles.size() * materialStateStride,
+            0.0f
+        );
+        for (std::size_t particleIndex = 0u;
+             particleIndex < world.mpm.particles.size();
+             ++particleIndex) {
+            const std::uint32_t materialIndex =
+                world.mpm.particles[particleIndex].identity.y;
+            if (materialIndex >= world.materials.size()) {
+                diagnostics.message =
+                    "MPM particle references an invalid stateful material";
+                return diagnostics;
+            }
+            const NMMaterialGPU& material = world.materials[materialIndex];
+            for (std::uint32_t stateIndex = 0u;
+                 stateIndex < material.stateCount;
+                 ++stateIndex) {
+                particleMaterialStateDefaults[
+                    particleIndex * materialStateStride + stateIndex
+                ] = world.stateInitials[
+                    material.stateInitialOffset + stateIndex
+                ];
+            }
+        }
+        std::vector<float> femMaterialStateDefaults(
+            world.fem.tetrahedra.size() * materialStateStride,
+            0.0f
+        );
+        for (std::size_t tetrahedronIndex = 0u;
+             tetrahedronIndex < world.fem.tetrahedra.size();
+             ++tetrahedronIndex) {
+            const std::uint32_t materialIndex =
+                world.fem.tetrahedra[tetrahedronIndex].identity.x;
+            if (materialIndex >= world.materials.size()) {
+                diagnostics.message =
+                    "FEM element references an invalid stateful material";
+                return diagnostics;
+            }
+            const NMMaterialGPU& material = world.materials[materialIndex];
+            for (std::uint32_t stateIndex = 0u;
+                 stateIndex < material.stateCount;
+                 ++stateIndex) {
+                femMaterialStateDefaults[
+                    tetrahedronIndex * materialStateStride + stateIndex
+                ] = world.stateInitials[
+                    material.stateInitialOffset + stateIndex
+                ];
+            }
+        }
         candidate->environmentParameters = uploads.repeated(
             std::span<const float>(defaultParameters),
             environments, valid, candidate->residentBytes);
         candidate->particleDefaults = uploads.repeated(
             std::span<const NMParticleStateGPU>(world.mpm.particles),
             environments, valid, candidate->residentBytes);
+        candidate->particleMaterialStateDefaults = uploads.repeated(
+            std::span<const float>(particleMaterialStateDefaults),
+            environments, valid, candidate->residentBytes);
         candidate->femDefaults = uploads.repeated(
             std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
+            environments, valid, candidate->residentBytes);
+        candidate->femMaterialStateDefaults = uploads.repeated(
+            std::span<const float>(femMaterialStateDefaults),
             environments, valid, candidate->residentBytes);
         candidate->adaptiveDefaults = uploads.repeated(
             std::span<const NMAdaptiveStateGPU>(world.adaptive),
@@ -725,6 +830,15 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->particleCheckpoint = uploads.repeated(
             std::span<const NMParticleStateGPU>(world.mpm.particles),
             environments, valid, candidate->residentBytes);
+        candidate->particleMaterialStateAccepted = uploads.repeated(
+            std::span<const float>(particleMaterialStateDefaults),
+            environments, valid, candidate->residentBytes);
+        candidate->particleMaterialStateCandidate = uploads.repeated(
+            std::span<const float>(particleMaterialStateDefaults),
+            environments, valid, candidate->residentBytes);
+        candidate->particleMaterialStateCheckpoint = uploads.repeated(
+            std::span<const float>(particleMaterialStateDefaults),
+            environments, valid, candidate->residentBytes);
         candidate->gridNodes = uploads.repeated(
             std::span<const NMGridNodeStateGPU>(world.mpm.nodes),
             environments, valid, candidate->residentBytes);
@@ -736,6 +850,15 @@ RuntimeDiagnostics Runtime::initialize(
             environments, valid, candidate->residentBytes);
         candidate->femCheckpoint = uploads.repeated(
             std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
+            environments, valid, candidate->residentBytes);
+        candidate->femMaterialStateAccepted = uploads.repeated(
+            std::span<const float>(femMaterialStateDefaults),
+            environments, valid, candidate->residentBytes);
+        candidate->femMaterialStateCandidate = uploads.repeated(
+            std::span<const float>(femMaterialStateDefaults),
+            environments, valid, candidate->residentBytes);
+        candidate->femMaterialStateCheckpoint = uploads.repeated(
+            std::span<const float>(femMaterialStateDefaults),
             environments, valid, candidate->residentBytes);
         candidate->adaptive = uploads.repeated(
             std::span<const NMAdaptiveStateGPU>(world.adaptive),
@@ -1253,6 +1376,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             environments * state.dispatch.femNodeCount;
         const NSUInteger tetrahedronTotal =
             environments * state.dispatch.tetrahedronCount;
+        const NSUInteger femTransactionalTotal = environments * std::max(
+            state.dispatch.femNodeCount,
+            state.dispatch.tetrahedronCount
+        );
         const NSUInteger pairTotal =
             environments * state.dispatch.contactPairCount;
         const NSUInteger proxyTotal =
@@ -1276,12 +1403,16 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
                 [encoder setBuffer:state.particleAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.particleCheckpoint offset:0u atIndex:3u];
+                [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:4u];
+                [encoder setBuffer:state.particleMaterialStateCheckpoint offset:0u atIndex:5u];
             });
-            dispatchThreads("nm_fem_rollback_frame", femNodeTotal, [&] {
+            dispatchThreads("nm_fem_rollback_frame", femTransactionalTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.femCheckpoint offset:0u atIndex:3u];
+                [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:4u];
+                [encoder setBuffer:state.femMaterialStateCheckpoint offset:0u atIndex:5u];
             });
             dispatchThreads("nm_scheduler_reconcile", objectTotal, [&] {
                 setDispatch();
@@ -1442,6 +1573,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             const std::uint32_t stateWidth = std::max({
                 state.dispatch.particleCount,
                 state.dispatch.femNodeCount,
+                state.dispatch.tetrahedronCount,
                 state.dispatch.objectCount,
                 state.dispatch.parameterCount,
                 state.dispatch.rigidProxyCount,
@@ -1474,6 +1606,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.schedulerPrevious offset:0u atIndex:16u];
                     [encoder setBuffer:state.environmentParameters offset:0u atIndex:17u];
                     [encoder setBuffer:state.rigidStates offset:0u atIndex:18u];
+                    [encoder setBuffer:state.particleMaterialStateDefaults offset:0u atIndex:19u];
+                    [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:20u];
+                    [encoder setBuffer:state.particleMaterialStateCandidate offset:0u atIndex:21u];
+                    [encoder setBuffer:state.particleMaterialStateCheckpoint offset:0u atIndex:22u];
+                    [encoder setBuffer:state.femMaterialStateDefaults offset:0u atIndex:23u];
+                    [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:24u];
+                    [encoder setBuffer:state.femMaterialStateCandidate offset:0u atIndex:25u];
+                    [encoder setBuffer:state.femMaterialStateCheckpoint offset:0u atIndex:26u];
                 }
             );
         }
@@ -1597,11 +1737,15 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 setDispatch();
                 [encoder setBuffer:state.particleAccepted offset:0u atIndex:1u];
                 [encoder setBuffer:state.particleCheckpoint offset:0u atIndex:2u];
+                [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:3u];
+                [encoder setBuffer:state.particleMaterialStateCheckpoint offset:0u atIndex:4u];
             });
-            dispatchThreads("nm_fem_checkpoint", femNodeTotal, [&] {
+            dispatchThreads("nm_fem_checkpoint", femTransactionalTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:1u];
                 [encoder setBuffer:state.femCheckpoint offset:0u atIndex:2u];
+                [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:3u];
+                [encoder setBuffer:state.femMaterialStateCheckpoint offset:0u atIndex:4u];
             });
         }
         dispatchThreads("nm_project_rigid_states", proxyTotal, [&] {
@@ -1732,18 +1876,19 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.instructions offset:0u atIndex:5u];
                         [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
                         [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
-                        [encoder setBuffer:state.gridNodes offset:0u atIndex:8u];
-                        [encoder setBuffer:state.mpmGrids offset:0u atIndex:9u];
-                        [encoder setBuffer:state.mpmBlocks offset:0u atIndex:10u];
-                        [encoder setBuffer:state.mpmBlockLookup offset:0u atIndex:11u];
-                        [encoder setBuffer:state.mpmActiveBlocks offset:0u atIndex:12u];
-                        [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:13u];
-                        [encoder setBuffer:state.mpmBlockOffsets offset:0u atIndex:14u];
-                        [encoder setBuffer:state.mpmSortedParticleIndices offset:0u atIndex:15u];
-                        [encoder setBuffer:state.schedulers offset:0u atIndex:16u];
-                        [encoder setBuffer:state.adaptive offset:0u atIndex:17u];
-                        [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:18u];
-                        [encoder setBuffer:state.statuses offset:0u atIndex:19u];
+                        [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:8u];
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
+                        [encoder setBuffer:state.mpmGrids offset:0u atIndex:10u];
+                        [encoder setBuffer:state.mpmBlocks offset:0u atIndex:11u];
+                        [encoder setBuffer:state.mpmBlockLookup offset:0u atIndex:12u];
+                        [encoder setBuffer:state.mpmActiveBlocks offset:0u atIndex:13u];
+                        [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:14u];
+                        [encoder setBuffer:state.mpmBlockOffsets offset:0u atIndex:15u];
+                        [encoder setBuffer:state.mpmSortedParticleIndices offset:0u atIndex:16u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:17u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:18u];
+                        [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:19u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:20u];
                     }
                 )) {
                 [encoder endEncoding];
@@ -1762,10 +1907,11 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
                 [encoder setBuffer:state.femTetrahedra offset:0u atIndex:8u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
-                [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
-                [encoder setBuffer:state.elementForces offset:0u atIndex:11u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
+                [encoder setBuffer:state.adaptive offset:0u atIndex:11u];
+                [encoder setBuffer:state.elementForces offset:0u atIndex:12u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
             });
             dispatchThreads("nm_fem_pcg_initialize", femNodeTotal, [&] {
                 setDispatch();
@@ -1801,11 +1947,12 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
                     [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
                     [encoder setBuffer:state.femTetrahedra offset:0u atIndex:8u];
-                    [encoder setBuffer:state.femDirection offset:0u atIndex:9u];
-                    [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
-                    [encoder setBuffer:state.adaptive offset:0u atIndex:11u];
-                    [encoder setBuffer:state.elementOperator offset:0u atIndex:12u];
-                    [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+                    [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femDirection offset:0u atIndex:10u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                    [encoder setBuffer:state.elementOperator offset:0u atIndex:13u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:14u];
                 });
                 dispatchThreads("nm_fem_apply_operator_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -1930,12 +2077,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
                 [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                 [encoder setBuffer:state.particleCandidate offset:0u atIndex:8u];
-                [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
-                [encoder setBuffer:state.mpmGrids offset:0u atIndex:10u];
-                [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:11u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:12u];
-                [encoder setBuffer:state.adaptive offset:0u atIndex:13u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:14u];
+                [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:9u];
+                [encoder setBuffer:state.particleMaterialStateCandidate offset:0u atIndex:10u];
+                [encoder setBuffer:state.gridNodes offset:0u atIndex:11u];
+                [encoder setBuffer:state.mpmGrids offset:0u atIndex:12u];
+                [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:13u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:14u];
+                [encoder setBuffer:state.adaptive offset:0u atIndex:15u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:16u];
             });
             dispatchThreads("nm_fem_integrate", femNodeTotal, [&] {
                 setDispatch();
@@ -1948,22 +2097,35 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             });
             dispatchThreads("nm_fem_validate", tetrahedronTotal, [&] {
                 setDispatch();
-                [encoder setBuffer:state.materials offset:0u atIndex:1u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
-                [encoder setBuffer:state.femTetrahedra offset:0u atIndex:3u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                [encoder setBuffer:state.femTetrahedra offset:0u atIndex:8u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
+                [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
+                [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:11u];
+                [encoder setBuffer:state.femMaterialStateCandidate offset:0u atIndex:12u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
             });
             dispatchThreads("nm_mpm_commit_microstep", particleTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
                 [encoder setBuffer:state.particleAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.particleCandidate offset:0u atIndex:3u];
+                [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:4u];
+                [encoder setBuffer:state.particleMaterialStateCandidate offset:0u atIndex:5u];
             });
-            dispatchThreads("nm_fem_commit_microstep", femNodeTotal, [&] {
+            dispatchThreads("nm_fem_commit_microstep", femTransactionalTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:4u];
+                [encoder setBuffer:state.femMaterialStateCandidate offset:0u atIndex:5u];
             });
             dispatchGroups32("nm_scheduler_observe", objectTotal, [&] {
                 setDispatch();
@@ -1990,12 +2152,16 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             [encoder setBuffer:state.statuses offset:0u atIndex:1u];
             [encoder setBuffer:state.particleAccepted offset:0u atIndex:2u];
             [encoder setBuffer:state.particleCheckpoint offset:0u atIndex:3u];
+            [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:4u];
+            [encoder setBuffer:state.particleMaterialStateCheckpoint offset:0u atIndex:5u];
         });
-        dispatchThreads("nm_fem_rollback_frame", femNodeTotal, [&] {
+        dispatchThreads("nm_fem_rollback_frame", femTransactionalTotal, [&] {
             setDispatch();
             [encoder setBuffer:state.statuses offset:0u atIndex:1u];
             [encoder setBuffer:state.femAccepted offset:0u atIndex:2u];
             [encoder setBuffer:state.femCheckpoint offset:0u atIndex:3u];
+            [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:4u];
+            [encoder setBuffer:state.femMaterialStateCheckpoint offset:0u atIndex:5u];
         });
 
         dispatchThreads(
@@ -2125,6 +2291,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         };
         id<MTLBuffer> particles = copy(state_->particleAccepted);
         id<MTLBuffer> femNodes = copy(state_->femAccepted);
+        id<MTLBuffer> particleMaterialState =
+            copy(state_->particleMaterialStateAccepted);
+        id<MTLBuffer> femMaterialState =
+            copy(state_->femMaterialStateAccepted);
         id<MTLBuffer> adaptive = copy(state_->adaptive);
         id<MTLBuffer> schedulers = copy(state_->schedulers);
         id<MTLBuffer> reactions = copy(state_->frameReactions);
@@ -2132,8 +2302,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             copy(state_->identificationDistributions);
         id<MTLBuffer> environmentParameters =
             copy(state_->environmentParameters);
-        if (particles == nil || femNodes == nil || adaptive == nil ||
-            schedulers == nil || reactions == nil ||
+        if (particles == nil || femNodes == nil ||
+            particleMaterialState == nil || femMaterialState == nil ||
+            adaptive == nil || schedulers == nil || reactions == nil ||
             identification == nil || environmentParameters == nil) {
             snapshot.message = "failed to allocate Matter diagnostic readback";
             return snapshot;
@@ -2153,6 +2324,11 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         };
         encodeCopy(state_->particleAccepted, particles);
         encodeCopy(state_->femAccepted, femNodes);
+        encodeCopy(
+            state_->particleMaterialStateAccepted,
+            particleMaterialState
+        );
+        encodeCopy(state_->femMaterialStateAccepted, femMaterialState);
         encodeCopy(state_->adaptive, adaptive);
         encodeCopy(state_->schedulers, schedulers);
         encodeCopy(state_->frameReactions, reactions);
@@ -2179,6 +2355,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         };
         read(particles, snapshot.particles);
         read(femNodes, snapshot.femNodes);
+        snapshot.materialStateStride = state_->dispatch.materialStateStride;
+        read(particleMaterialState, snapshot.particleMaterialState);
+        read(femMaterialState, snapshot.femMaterialState);
         read(adaptive, snapshot.adaptive);
         read(schedulers, snapshot.schedulers);
         read(reactions, snapshot.reactions);

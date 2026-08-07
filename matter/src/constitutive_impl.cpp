@@ -133,21 +133,41 @@ public:
         return graph_.append(expression);
     }
 
+    enum class VariableDomain : std::uint8_t {
+        deformation = 0u,
+        rate = 1u,
+    };
+
+    [[nodiscard]] static Dimension variableDimension(
+        const VariableDomain domain
+    ) noexcept {
+        return domain == VariableDomain::deformation
+            ? kDimensionless
+            : kRate;
+    }
+
     [[nodiscard]] std::uint32_t derivative(
         const std::uint32_t node,
         const std::uint32_t variable,
+        const VariableDomain domain,
         std::vector<Diagnostic>& diagnostics
     ) {
-        const std::uint64_t key = (static_cast<std::uint64_t>(variable) << 32u) | node;
-        if (const auto iterator = derivatives_.find(key); iterator != derivatives_.end()) {
+        const std::uint64_t key =
+            (static_cast<std::uint64_t>(domain) << 63u) |
+            (static_cast<std::uint64_t>(variable) << 32u) |
+            node;
+        if (const auto iterator = derivatives_.find(key);
+            iterator != derivatives_.end()) {
             return iterator->second;
         }
         if (node >= graph_.nodes.size()) {
             return NM_INVALID_INDEX;
         }
         const Expr source = graph_.nodes[node];
+        const Dimension variableDim = variableDimension(domain);
+        const Dimension resultDimension = source.dimension - variableDim;
         const auto d = [&](const std::uint32_t argument) {
-            return derivative(argument, variable, diagnostics);
+            return derivative(argument, variable, domain, diagnostics);
         };
         std::uint32_t result = NM_INVALID_INDEX;
         switch (source.kind) {
@@ -155,67 +175,157 @@ public:
         case ExprKind::parameter:
         case ExprKind::internalState:
         case ExprKind::deformationDirection:
-            result = zero(source.dimension);
+        case ExprKind::timeStep:
+        case ExprKind::temperature:
+            result = zero(resultDimension);
             break;
         case ExprKind::deformation:
-            result = graph_.constant(source.index == variable ? 1.0 : 0.0);
+            result = graph_.constant(
+                domain == VariableDomain::deformation &&
+                    source.index == variable
+                    ? 1.0
+                    : 0.0,
+                resultDimension
+            );
+            break;
+        case ExprKind::deformationRate:
+            result = graph_.constant(
+                domain == VariableDomain::rate &&
+                    source.index == variable
+                    ? 1.0
+                    : 0.0,
+                resultDimension
+            );
             break;
         case ExprKind::add:
         case ExprKind::subtract:
-            result = binary(source.kind, d(source.arguments[0]), d(source.arguments[1]),
-                source.dimension);
+            result = binary(
+                source.kind,
+                d(source.arguments[0]),
+                d(source.arguments[1]),
+                resultDimension
+            );
             break;
         case ExprKind::multiply: {
-            const std::uint32_t left = binary(ExprKind::multiply,
-                d(source.arguments[0]), source.arguments[1], source.dimension);
-            const std::uint32_t right = binary(ExprKind::multiply,
-                source.arguments[0], d(source.arguments[1]), source.dimension);
-            result = binary(ExprKind::add, left, right, source.dimension);
+            const std::uint32_t left = binary(
+                ExprKind::multiply,
+                d(source.arguments[0]),
+                source.arguments[1],
+                resultDimension
+            );
+            const std::uint32_t right = binary(
+                ExprKind::multiply,
+                source.arguments[0],
+                d(source.arguments[1]),
+                resultDimension
+            );
+            result = binary(
+                ExprKind::add,
+                left,
+                right,
+                resultDimension
+            );
             break;
         }
         case ExprKind::divide: {
-            const Dimension numeratorDimension = source.dimension +
-                graph_.nodes[source.arguments[1]].dimension * 2;
-            const std::uint32_t first = binary(ExprKind::multiply,
-                d(source.arguments[0]), source.arguments[1], numeratorDimension);
-            const std::uint32_t second = binary(ExprKind::multiply,
-                source.arguments[0], d(source.arguments[1]), numeratorDimension);
-            const std::uint32_t numerator = binary(ExprKind::subtract,
-                first, second, numeratorDimension);
-            const std::uint32_t denominator = power(source.arguments[1], 2,
-                graph_.nodes[source.arguments[1]].dimension * 2);
-            result = binary(ExprKind::divide, numerator, denominator, source.dimension);
+            const Dimension numeratorDimension =
+                source.dimension +
+                graph_.nodes[source.arguments[1]].dimension * 2 -
+                variableDim;
+            const std::uint32_t first = binary(
+                ExprKind::multiply,
+                d(source.arguments[0]),
+                source.arguments[1],
+                numeratorDimension
+            );
+            const std::uint32_t second = binary(
+                ExprKind::multiply,
+                source.arguments[0],
+                d(source.arguments[1]),
+                numeratorDimension
+            );
+            const std::uint32_t numerator = binary(
+                ExprKind::subtract,
+                first,
+                second,
+                numeratorDimension
+            );
+            const std::uint32_t denominator = power(
+                source.arguments[1],
+                2,
+                graph_.nodes[source.arguments[1]].dimension * 2
+            );
+            result = binary(
+                ExprKind::divide,
+                numerator,
+                denominator,
+                resultDimension
+            );
             break;
         }
         case ExprKind::negate:
-            result = unary(ExprKind::negate, d(source.arguments[0]), source.dimension);
+            result = unary(
+                ExprKind::negate,
+                d(source.arguments[0]),
+                resultDimension
+            );
             break;
         case ExprKind::logarithm:
-            result = binary(ExprKind::divide, d(source.arguments[0]),
-                source.arguments[0], source.dimension);
+            result = binary(
+                ExprKind::divide,
+                d(source.arguments[0]),
+                source.arguments[0],
+                resultDimension
+            );
             break;
         case ExprKind::exponential:
-            result = binary(ExprKind::multiply, node, d(source.arguments[0]), source.dimension);
+            result = binary(
+                ExprKind::multiply,
+                node,
+                d(source.arguments[0]),
+                resultDimension
+            );
             break;
         case ExprKind::squareRoot: {
-            const std::uint32_t denominator = binary(ExprKind::multiply,
-                graph_.constant(2.0), node, graph_.nodes[source.arguments[0]].dimension);
-            result = binary(ExprKind::divide, d(source.arguments[0]), denominator,
-                source.dimension);
+            const std::uint32_t denominator = binary(
+                ExprKind::multiply,
+                graph_.constant(2.0),
+                node,
+                graph_.nodes[source.arguments[0]].dimension
+            );
+            result = binary(
+                ExprKind::divide,
+                d(source.arguments[0]),
+                denominator,
+                resultDimension
+            );
             break;
         }
         case ExprKind::integerPower: {
             if (source.integer == 0) {
-                result = zero(source.dimension);
+                result = zero(resultDimension);
             } else {
-                const Dimension baseDimension = graph_.nodes[source.arguments[0]].dimension;
-                const std::uint32_t factor = graph_.constant(static_cast<double>(source.integer));
-                const std::uint32_t reduced = power(source.arguments[0], source.integer - 1,
-                    baseDimension * (source.integer - 1));
-                result = binary(ExprKind::multiply,
-                    binary(ExprKind::multiply, factor, reduced,
-                        baseDimension * (source.integer - 1)),
-                    d(source.arguments[0]), source.dimension);
+                const Dimension baseDimension =
+                    graph_.nodes[source.arguments[0]].dimension;
+                const std::uint32_t factor = graph_.constant(
+                    static_cast<double>(source.integer)
+                );
+                const std::uint32_t reduced = power(
+                    source.arguments[0],
+                    source.integer - 1,
+                    baseDimension * (source.integer - 1)
+                );
+                result = binary(
+                    ExprKind::multiply,
+                    binary(
+                        ExprKind::multiply,
+                        factor,
+                        reduced,
+                        baseDimension * (source.integer - 1)
+                    ),
+                    d(source.arguments[0]),
+                    resultDimension
+                );
             }
             break;
         }
@@ -224,10 +334,14 @@ public:
         case ExprKind::maximum:
         case ExprKind::clamp:
             diagnostics.push_back({
-                Diagnostic::Severity::error, 0u, 0u,
-                "nonsmooth abs/min/max/clamp is not permitted in stored energy; use it in validity or state evolution",
+                Diagnostic::Severity::error,
+                0u,
+                0u,
+                domain == VariableDomain::deformation
+                    ? "nonsmooth abs/min/max/clamp is not permitted in stored energy; use it in validity or state evolution"
+                    : "nonsmooth abs/min/max/clamp is not permitted in the dissipation potential",
             });
-            result = zero(source.dimension);
+            result = zero(resultDimension);
             break;
         }
         derivatives_.emplace(key, result);
@@ -236,9 +350,13 @@ public:
 
     [[nodiscard]] std::uint32_t directional(
         const std::uint32_t node,
+        const VariableDomain domain,
         std::vector<Diagnostic>& diagnostics
     ) {
-        if (const auto iterator = directional_.find(node); iterator != directional_.end()) {
+        const std::uint64_t key =
+            (static_cast<std::uint64_t>(domain) << 32u) | node;
+        if (const auto iterator = directional_.find(key);
+            iterator != directional_.end()) {
             return iterator->second;
         }
         if (node >= graph_.nodes.size()) {
@@ -246,19 +364,31 @@ public:
         }
         const Expr source = graph_.nodes[node];
         const auto d = [&](const std::uint32_t argument) {
-            return directional(argument, diagnostics);
+            return directional(argument, domain, diagnostics);
         };
         std::uint32_t result = NM_INVALID_INDEX;
         switch (source.kind) {
         case ExprKind::constant:
         case ExprKind::parameter:
         case ExprKind::internalState:
+        case ExprKind::timeStep:
+        case ExprKind::temperature:
             result = zero(source.dimension);
             break;
-        case ExprKind::deformation: {
+        case ExprKind::deformation:
+        case ExprKind::deformationRate: {
+            const bool selected =
+                (source.kind == ExprKind::deformation &&
+                 domain == VariableDomain::deformation) ||
+                (source.kind == ExprKind::deformationRate &&
+                 domain == VariableDomain::rate);
+            if (!selected) {
+                result = zero(source.dimension);
+                break;
+            }
             Expr direction;
             direction.kind = ExprKind::deformationDirection;
-            direction.dimension = kDimensionless;
+            direction.dimension = source.dimension;
             direction.index = source.index;
             result = graph_.append(direction);
             break;
@@ -268,57 +398,128 @@ public:
             break;
         case ExprKind::add:
         case ExprKind::subtract:
-            result = binary(source.kind, d(source.arguments[0]), d(source.arguments[1]),
-                source.dimension);
+            result = binary(
+                source.kind,
+                d(source.arguments[0]),
+                d(source.arguments[1]),
+                source.dimension
+            );
             break;
         case ExprKind::multiply: {
-            const std::uint32_t left = binary(ExprKind::multiply,
-                d(source.arguments[0]), source.arguments[1], source.dimension);
-            const std::uint32_t right = binary(ExprKind::multiply,
-                source.arguments[0], d(source.arguments[1]), source.dimension);
-            result = binary(ExprKind::add, left, right, source.dimension);
+            const std::uint32_t left = binary(
+                ExprKind::multiply,
+                d(source.arguments[0]),
+                source.arguments[1],
+                source.dimension
+            );
+            const std::uint32_t right = binary(
+                ExprKind::multiply,
+                source.arguments[0],
+                d(source.arguments[1]),
+                source.dimension
+            );
+            result = binary(
+                ExprKind::add,
+                left,
+                right,
+                source.dimension
+            );
             break;
         }
         case ExprKind::divide: {
             const Dimension numeratorDimension = source.dimension +
                 graph_.nodes[source.arguments[1]].dimension * 2;
-            const std::uint32_t first = binary(ExprKind::multiply,
-                d(source.arguments[0]), source.arguments[1], numeratorDimension);
-            const std::uint32_t second = binary(ExprKind::multiply,
-                source.arguments[0], d(source.arguments[1]), numeratorDimension);
-            const std::uint32_t numerator = binary(ExprKind::subtract,
-                first, second, numeratorDimension);
-            const std::uint32_t denominator = power(source.arguments[1], 2,
-                graph_.nodes[source.arguments[1]].dimension * 2);
-            result = binary(ExprKind::divide, numerator, denominator, source.dimension);
+            const std::uint32_t first = binary(
+                ExprKind::multiply,
+                d(source.arguments[0]),
+                source.arguments[1],
+                numeratorDimension
+            );
+            const std::uint32_t second = binary(
+                ExprKind::multiply,
+                source.arguments[0],
+                d(source.arguments[1]),
+                numeratorDimension
+            );
+            const std::uint32_t numerator = binary(
+                ExprKind::subtract,
+                first,
+                second,
+                numeratorDimension
+            );
+            const std::uint32_t denominator = power(
+                source.arguments[1],
+                2,
+                graph_.nodes[source.arguments[1]].dimension * 2
+            );
+            result = binary(
+                ExprKind::divide,
+                numerator,
+                denominator,
+                source.dimension
+            );
             break;
         }
         case ExprKind::negate:
-            result = unary(ExprKind::negate, d(source.arguments[0]), source.dimension);
+            result = unary(
+                ExprKind::negate,
+                d(source.arguments[0]),
+                source.dimension
+            );
             break;
         case ExprKind::logarithm:
-            result = binary(ExprKind::divide, d(source.arguments[0]),
-                source.arguments[0], source.dimension);
+            result = binary(
+                ExprKind::divide,
+                d(source.arguments[0]),
+                source.arguments[0],
+                source.dimension
+            );
             break;
         case ExprKind::exponential:
-            result = binary(ExprKind::multiply, node, d(source.arguments[0]), source.dimension);
+            result = binary(
+                ExprKind::multiply,
+                node,
+                d(source.arguments[0]),
+                source.dimension
+            );
             break;
         case ExprKind::squareRoot: {
-            const std::uint32_t denominator = binary(ExprKind::multiply,
-                graph_.constant(2.0), node, graph_.nodes[source.arguments[0]].dimension);
-            result = binary(ExprKind::divide, d(source.arguments[0]), denominator,
-                source.dimension);
+            const std::uint32_t denominator = binary(
+                ExprKind::multiply,
+                graph_.constant(2.0),
+                node,
+                graph_.nodes[source.arguments[0]].dimension
+            );
+            result = binary(
+                ExprKind::divide,
+                d(source.arguments[0]),
+                denominator,
+                source.dimension
+            );
             break;
         }
         case ExprKind::integerPower: {
-            const Dimension baseDimension = graph_.nodes[source.arguments[0]].dimension;
-            const std::uint32_t factor = graph_.constant(static_cast<double>(source.integer));
-            const std::uint32_t reduced = power(source.arguments[0], source.integer - 1,
-                baseDimension * (source.integer - 1));
-            result = binary(ExprKind::multiply,
-                binary(ExprKind::multiply, factor, reduced,
-                    baseDimension * (source.integer - 1)),
-                d(source.arguments[0]), source.dimension);
+            const Dimension baseDimension =
+                graph_.nodes[source.arguments[0]].dimension;
+            const std::uint32_t factor = graph_.constant(
+                static_cast<double>(source.integer)
+            );
+            const std::uint32_t reduced = power(
+                source.arguments[0],
+                source.integer - 1,
+                baseDimension * (source.integer - 1)
+            );
+            result = binary(
+                ExprKind::multiply,
+                binary(
+                    ExprKind::multiply,
+                    factor,
+                    reduced,
+                    baseDimension * (source.integer - 1)
+                ),
+                d(source.arguments[0]),
+                source.dimension
+            );
             break;
         }
         case ExprKind::absolute:
@@ -326,20 +527,22 @@ public:
         case ExprKind::maximum:
         case ExprKind::clamp:
             diagnostics.push_back({
-                Diagnostic::Severity::error, 0u, 0u,
-                "nonsmooth expression reached constitutive tangent",
+                Diagnostic::Severity::error,
+                0u,
+                0u,
+                "nonsmooth expression reached a constitutive tangent",
             });
             result = zero(source.dimension);
             break;
         }
-        directional_.emplace(node, result);
+        directional_.emplace(key, result);
         return result;
     }
 
 private:
     ExpressionGraph& graph_;
     std::unordered_map<std::uint64_t, std::uint32_t> derivatives_;
-    std::unordered_map<std::uint32_t, std::uint32_t> directional_;
+    std::unordered_map<std::uint64_t, std::uint32_t> directional_;
 };
 
 class BytecodeCompiler {
@@ -422,6 +625,21 @@ private:
             break;
         case ExprKind::deformationDirection:
             instruction.opcode = NM_EXPR_DF;
+            output.push_back(instruction);
+            push();
+            break;
+        case ExprKind::deformationRate:
+            instruction.opcode = NM_EXPR_RATE;
+            output.push_back(instruction);
+            push();
+            break;
+        case ExprKind::timeStep:
+            instruction.opcode = NM_EXPR_DT;
+            output.push_back(instruction);
+            push();
+            break;
+        case ExprKind::temperature:
+            instruction.opcode = NM_EXPR_TEMPERATURE;
             output.push_back(instruction);
             push();
             break;
@@ -544,29 +762,113 @@ ConstitutiveCompileResult compileConstitutive(
         });
         return result;
     }
+    if (material.internalState.size() > NM_MAX_MATERIAL_STATE) {
+        result.diagnostics.push_back({
+            Diagnostic::Severity::error,
+            0u,
+            0u,
+            "material state count exceeds the fixed GPU state capacity",
+        });
+        return result;
+    }
+    if (material.stateUpdateRoots.size() > material.internalState.size()) {
+        result.diagnostics.push_back({
+            Diagnostic::Severity::error,
+            0u,
+            0u,
+            "material contains more state updates than declared states",
+        });
+        return result;
+    }
+
     Symbolic symbolic(result.program.material.expressions);
     std::array<std::uint32_t, 9> stressRoots{};
     std::array<std::uint32_t, 9> tangentRoots{};
+    std::array<std::uint32_t, 9> viscousStressRoots{};
+    std::array<std::uint32_t, 9> viscousTangentRoots{};
     for (std::uint32_t component = 0u; component < 9u; ++component) {
         stressRoots[component] = symbolic.derivative(
-            result.program.material.energyRoot, component, result.diagnostics
+            result.program.material.energyRoot,
+            component,
+            Symbolic::VariableDomain::deformation,
+            result.diagnostics
         );
         tangentRoots[component] = symbolic.directional(
-            stressRoots[component], result.diagnostics
+            stressRoots[component],
+            Symbolic::VariableDomain::deformation,
+            result.diagnostics
         );
+        if (result.program.material.dissipationRoot != NM_INVALID_INDEX) {
+            viscousStressRoots[component] = symbolic.derivative(
+                result.program.material.dissipationRoot,
+                component,
+                Symbolic::VariableDomain::rate,
+                result.diagnostics
+            );
+            viscousTangentRoots[component] = symbolic.directional(
+                viscousStressRoots[component],
+                Symbolic::VariableDomain::rate,
+                result.diagnostics
+            );
+        } else {
+            viscousStressRoots[component] = NM_INVALID_INDEX;
+            viscousTangentRoots[component] = NM_INVALID_INDEX;
+        }
     }
-    BytecodeCompiler compiler(result.program.material.expressions, maximumStack);
+
+    BytecodeCompiler compiler(
+        result.program.material.expressions,
+        maximumStack
+    );
     for (std::uint32_t component = 0u; component < 9u; ++component) {
         result.program.stress[component] = compiler.compile(
-            stressRoots[component], result.diagnostics
+            stressRoots[component],
+            result.diagnostics
         );
         result.program.tangentVector[component] = compiler.compile(
-            tangentRoots[component], result.diagnostics
+            tangentRoots[component],
+            result.diagnostics
+        );
+        if (viscousStressRoots[component] != NM_INVALID_INDEX) {
+            result.program.viscousStress[component] = compiler.compile(
+                viscousStressRoots[component],
+                result.diagnostics
+            );
+            result.program.viscousTangentVector[component] = compiler.compile(
+                viscousTangentRoots[component],
+                result.diagnostics
+            );
+        }
+    }
+
+    result.program.stateUpdates.reserve(material.internalState.size());
+    for (std::uint32_t state = 0u;
+         state < material.internalState.size();
+         ++state) {
+        std::uint32_t root = state < material.stateUpdateRoots.size()
+            ? material.stateUpdateRoots[state]
+            : NM_INVALID_INDEX;
+        if (root == NM_INVALID_INDEX) {
+            Expr identity;
+            identity.kind = ExprKind::internalState;
+            identity.dimension = material.internalState[state].dimension;
+            identity.index = state;
+            root = result.program.material.expressions.append(identity);
+        }
+        result.program.stateUpdates.push_back(
+            compiler.compile(root, result.diagnostics)
+        );
+    }
+    if (result.program.material.dissipationRoot != NM_INVALID_INDEX) {
+        result.program.dissipation = compiler.compile(
+            result.program.material.dissipationRoot,
+            result.diagnostics
         );
     }
     if (result.program.material.validityRoot != NM_INVALID_INDEX) {
         result.program.validity = compiler.compile(
-            result.program.material.validityRoot, result.diagnostics
+            result.program.material.validityRoot,
+            result.diagnostics
         );
     }
 
@@ -574,6 +876,17 @@ ConstitutiveCompileResult compileConstitutive(
     gpu.constitutiveKind = constitutiveKind(material.hint);
     gpu.parameterCount = static_cast<nm_u32>(material.parameters.size());
     gpu.stateCount = static_cast<nm_u32>(material.internalState.size());
+    gpu.flags =
+        (!material.internalState.empty() ? NM_MATERIAL_HAS_STATE : 0u) |
+        (material.dissipationRoot != NM_INVALID_INDEX
+             ? NM_MATERIAL_HAS_DISSIPATION
+             : 0u);
+    gpu.stateInitialOffset = NM_INVALID_INDEX;
+    gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
+    gpu.dissipationProgram = NM_INVALID_INDEX;
+    gpu.projectionKind = NM_MATERIAL_PROJECTION_GENERIC;
+    gpu.viscousStressProgramOffset = NM_INVALID_INDEX;
+    gpu.viscousTangentProgramOffset = NM_INVALID_INDEX;
     const auto density = parameterIndex(material, "density");
     gpu.bulk = float4(
         density.has_value() ? static_cast<float>(material.parameters[*density].defaultValue) : 0.0f,
@@ -615,6 +928,43 @@ ConstitutiveCompileResult compileConstitutive(
     for (const auto& bytecode : result.program.tangentVector) {
         fingerprint = hashBytes(bytecode.instructions.data(),
             bytecode.instructions.size() * sizeof(NMExpressionInstructionGPU), fingerprint);
+    }
+    for (const auto& bytecode : result.program.viscousStress) {
+        fingerprint = hashBytes(
+            bytecode.instructions.data(),
+            bytecode.instructions.size() * sizeof(NMExpressionInstructionGPU),
+            fingerprint
+        );
+    }
+    for (const auto& bytecode : result.program.viscousTangentVector) {
+        fingerprint = hashBytes(
+            bytecode.instructions.data(),
+            bytecode.instructions.size() * sizeof(NMExpressionInstructionGPU),
+            fingerprint
+        );
+    }
+    for (const auto& bytecode : result.program.stateUpdates) {
+        fingerprint = hashBytes(
+            bytecode.instructions.data(),
+            bytecode.instructions.size() * sizeof(NMExpressionInstructionGPU),
+            fingerprint
+        );
+    }
+    if (result.program.dissipation.has_value()) {
+        fingerprint = hashBytes(
+            result.program.dissipation->instructions.data(),
+            result.program.dissipation->instructions.size() *
+                sizeof(NMExpressionInstructionGPU),
+            fingerprint
+        );
+    }
+    if (result.program.validity.has_value()) {
+        fingerprint = hashBytes(
+            result.program.validity->instructions.data(),
+            result.program.validity->instructions.size() *
+                sizeof(NMExpressionInstructionGPU),
+            fingerprint
+        );
     }
     result.program.fingerprint = fingerprint;
     return result;

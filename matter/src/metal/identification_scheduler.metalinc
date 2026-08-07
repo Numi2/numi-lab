@@ -113,6 +113,14 @@ kernel void nm_apply_episode_resets(
     device NMSchedulerStateGPU* schedulerPrevious [[buffer(16)]],
     device float* environmentParameters [[buffer(17)]],
     device NMRigidStateGPU* rigidStates [[buffer(18)]],
+    device const float* particleMaterialStateDefaults [[buffer(19)]],
+    device float* particleMaterialStateAccepted [[buffer(20)]],
+    device float* particleMaterialStateCandidate [[buffer(21)]],
+    device float* particleMaterialStateCheckpoint [[buffer(22)]],
+    device const float* femMaterialStateDefaults [[buffer(23)]],
+    device float* femMaterialStateAccepted [[buffer(24)]],
+    device float* femMaterialStateCandidate [[buffer(25)]],
+    device float* femMaterialStateCheckpoint [[buffer(26)]],
     uint global [[thread_position_in_grid]]
 ) {
     if ((pass.flags & NM_RESET_ENABLED) == 0u ||
@@ -137,6 +145,14 @@ kernel void nm_apply_episode_resets(
         particleAccepted[index] = value;
         particleCandidate[index] = value;
         particleCheckpoint[index] = value;
+        const uint stateBase = index * dispatch.materialStateStride;
+        for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+            const float stateValue =
+                particleMaterialStateDefaults[stateBase + state];
+            particleMaterialStateAccepted[stateBase + state] = stateValue;
+            particleMaterialStateCandidate[stateBase + state] = stateValue;
+            particleMaterialStateCheckpoint[stateBase + state] = stateValue;
+        }
     }
     if (local < dispatch.femNodeCount) {
         const uint index = environment * dispatch.femNodeCount + local;
@@ -144,6 +160,16 @@ kernel void nm_apply_episode_resets(
         femAccepted[index] = value;
         femCandidate[index] = value;
         femCheckpoint[index] = value;
+    }
+    if (local < dispatch.tetrahedronCount) {
+        const uint index = environment * dispatch.tetrahedronCount + local;
+        const uint stateBase = index * dispatch.materialStateStride;
+        for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+            const float stateValue = femMaterialStateDefaults[stateBase + state];
+            femMaterialStateAccepted[stateBase + state] = stateValue;
+            femMaterialStateCandidate[stateBase + state] = stateValue;
+            femMaterialStateCheckpoint[stateBase + state] = stateValue;
+        }
     }
     if (local < dispatch.objectCount) {
         const uint index = environment * dispatch.objectCount + local;

@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 5u
+#define NM_MATTER_ABI_VERSION 6u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -48,6 +48,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 #define NM_MPM_BLOCK_EDGE 8u
 #define NM_MPM_BLOCK_NODE_COUNT 512u
 #define NM_MPM_MAX_PARTICLES_PER_BLOCK 256u
+#define NM_MAX_MATERIAL_STATE 16u
 
 enum NMRepresentationKind : nm_u32 {
     NM_REPRESENTATION_RIGID = 0u,
@@ -83,6 +84,9 @@ enum NMExpressionOpcode : nm_u32 {
     NM_EXPR_MAX = 15u,
     NM_EXPR_POW_INTEGER = 16u,
     NM_EXPR_CLAMP = 17u,
+    NM_EXPR_DT = 18u,
+    NM_EXPR_TEMPERATURE = 19u,
+    NM_EXPR_RATE = 20u,
 };
 
 enum NMStatusCode : nm_u32 {
@@ -96,6 +100,15 @@ enum NMStatusCode : nm_u32 {
     NM_STATUS_LINEAR_SOLVER_FAILURE = 7u,
     NM_STATUS_UNSUPPORTED = 8u,
     NM_STATUS_RIGID_WORLD_FAILURE = 9u,
+};
+
+enum NMMaterialFlags : nm_u32 {
+    NM_MATERIAL_HAS_STATE = 1u << 0u,
+    NM_MATERIAL_HAS_DISSIPATION = 1u << 1u,
+};
+
+enum NMMaterialProjectionKind : nm_u32 {
+    NM_MATERIAL_PROJECTION_GENERIC = 0u,
 };
 
 enum NMMatterFlags : nm_u32 {
@@ -171,6 +184,13 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
     nm_u32 mpmBlockCount;
     nm_u32 mpmBlockLookupCount;
     nm_u32 maximumParticlesPerBlock;
+
+    // Fixed scalar stride used by every particle/tetrahedron material-state
+    // record, total authored state-initializer count, reserved, reserved.
+    nm_u32 materialStateStride;
+    nm_u32 stateInitialCount;
+    nm_u32 reservedState0;
+    nm_u32 reservedState1;
 
     // xyz gravity, w frame timestep.
     nm_float4 gravityAndTimestep;
@@ -262,6 +282,20 @@ typedef struct NM_ALIGN16 NMMaterialGPU {
     nm_u32 tangentProgramOffset;
     nm_u32 validityProgram;
     nm_u32 flags;
+
+    // Material-local initial state, next-state update programs, dissipation
+    // scalar program, and projection policy.
+    nm_u32 stateInitialOffset;
+    nm_u32 stateUpdateProgramOffset;
+    nm_u32 dissipationProgram;
+    nm_u32 projectionKind;
+
+    // Viscous stress and rate-tangent program ranges. Invalid offsets mean
+    // that the material has no rate-dependent constitutive contribution.
+    nm_u32 viscousStressProgramOffset;
+    nm_u32 viscousTangentProgramOffset;
+    nm_u32 reservedState0;
+    nm_u32 reservedState1;
 
     // density, reference temperature, viscosity, yield stress.
     nm_float4 bulk;

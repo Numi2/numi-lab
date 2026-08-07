@@ -243,13 +243,18 @@ inline float evaluateScalarProgram(
     device const float* internalState,
     thread const float* deformation,
     thread const float* deformationDirection,
+    thread const float* deformationRate,
+    const float timestep,
+    const float temperature,
     thread bool& valid
 ) {
     if (programIndex == NM_INVALID_INDEX) {
         return 0.0f;
     }
     const NMScalarProgramGPU program = programs[programIndex];
-    if (program.maximumStack > NM_EXPRESSION_STACK_CAPACITY) {
+    if (program.maximumStack > NM_EXPRESSION_STACK_CAPACITY ||
+        !(timestep >= 0.0f) || !isfinite(timestep) ||
+        !isfinite(temperature)) {
         valid = false;
         return 0.0f;
     }
@@ -285,8 +290,22 @@ inline float evaluateScalarProgram(
         case NM_EXPR_DF:
             push(deformationDirection[instruction.index]);
             break;
+        case NM_EXPR_RATE:
+            push(deformationRate[instruction.index]);
+            break;
         case NM_EXPR_STATE:
-            push(internalState == nullptr ? 0.0f : internalState[instruction.index]);
+            if (internalState == nullptr ||
+                instruction.index >= NM_MAX_MATERIAL_STATE) {
+                valid = false;
+                break;
+            }
+            push(internalState[instruction.index]);
+            break;
+        case NM_EXPR_DT:
+            push(timestep);
+            break;
+        case NM_EXPR_TEMPERATURE:
+            push(temperature);
             break;
         case NM_EXPR_ADD: {
             const float right = pop();
@@ -355,13 +374,34 @@ inline float evaluateScalarProgram(
             push(max(left, right));
             break;
         }
-        case NM_EXPR_POW_INTEGER:
-            push(powr(pop(), float(instruction.integer)));
+        case NM_EXPR_POW_INTEGER: {
+            const float value = pop();
+            const int exponent = instruction.integer;
+            if (exponent < 0 && !(abs(value) > kGeometryFloor)) {
+                valid = false;
+                break;
+            }
+            float result = 1.0f;
+            float factor = value;
+            uint power = uint(exponent < 0 ? -exponent : exponent);
+            while (power != 0u) {
+                if ((power & 1u) != 0u) {
+                    result *= factor;
+                }
+                factor *= factor;
+                power >>= 1u;
+            }
+            push(exponent < 0 ? 1.0f / result : result);
             break;
+        }
         case NM_EXPR_CLAMP: {
             const float upper = pop();
             const float lower = pop();
             const float value = pop();
+            if (upper < lower) {
+                valid = false;
+                break;
+            }
             push(clamp(value, lower, upper));
             break;
         }
@@ -380,38 +420,18 @@ inline float evaluateScalarProgram(
     return stack[0];
 }
 
-inline float3x3 evaluateStress(
-    const NMMaterialGPU material,
-    device const NMScalarProgramGPU* programs,
-    device const NMExpressionInstructionGPU* instructions,
-    device const float* parameters,
-    const float3x3 deformation,
-    thread bool& valid
+inline void matrixComponents(
+    const float3x3 matrix,
+    thread float* output
 ) {
-    float f[9];
-    float df[9];
     for (uint row = 0u; row < 3u; ++row) {
         for (uint column = 0u; column < 3u; ++column) {
-            f[3u * row + column] = deformation[column][row];
-            df[3u * row + column] = 0.0f;
+            output[3u * row + column] = matrix[column][row];
         }
     }
-    float values[9];
-    for (uint component = 0u; component < 9u; ++component) {
-        values[component] = evaluateScalarProgram(
-            material.stressProgramOffset + component,
-            programs,
-            instructions,
-            parameters + material.parameterOffset,
-            nullptr,
-            f,
-            df,
-            valid
-        );
-        if (!valid) {
-            return float3x3(0.0f);
-        }
-    }
+}
+
+inline float3x3 componentsMatrix(thread const float* values) {
     return transpose(float3x3(
         float3(values[0], values[1], values[2]),
         float3(values[3], values[4], values[5]),
@@ -419,23 +439,91 @@ inline float3x3 evaluateStress(
     ));
 }
 
+inline float3x3 evaluateStress(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* internalState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid
+) {
+    float f[9];
+    float direction[9] = {
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+    };
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationRate, rate);
+    float values[9];
+    for (uint component = 0u; component < 9u; ++component) {
+        values[component] = evaluateScalarProgram(
+            material.stressProgramOffset + component,
+            programs,
+            instructions,
+            parameters + material.parameterOffset,
+            internalState,
+            f,
+            direction,
+            rate,
+            timestep,
+            temperature,
+            valid
+        );
+        if (!valid) {
+            return float3x3(0.0f);
+        }
+    }
+    float3x3 stress = componentsMatrix(values);
+    if (material.viscousStressProgramOffset != NM_INVALID_INDEX) {
+        for (uint component = 0u; component < 9u; ++component) {
+            values[component] = evaluateScalarProgram(
+                material.viscousStressProgramOffset + component,
+                programs,
+                instructions,
+                parameters + material.parameterOffset,
+                internalState,
+                f,
+                direction,
+                rate,
+                timestep,
+                temperature,
+                valid
+            );
+            if (!valid) {
+                return float3x3(0.0f);
+            }
+        }
+        stress += componentsMatrix(values);
+    }
+    return stress;
+}
+
 inline float3x3 evaluateTangentVector(
     const NMMaterialGPU material,
     device const NMScalarProgramGPU* programs,
     device const NMExpressionInstructionGPU* instructions,
     device const float* parameters,
+    device const float* internalState,
     const float3x3 deformation,
-    const float3x3 direction,
+    const float3x3 deformationDirection,
+    const float3x3 deformationRate,
+    const float3x3 rateDirection,
+    const float timestep,
+    const float temperature,
     thread bool& valid
 ) {
     float f[9];
-    float df[9];
-    for (uint row = 0u; row < 3u; ++row) {
-        for (uint column = 0u; column < 3u; ++column) {
-            f[3u * row + column] = deformation[column][row];
-            df[3u * row + column] = direction[column][row];
-        }
-    }
+    float direction[9];
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationDirection, direction);
+    matrixComponents(deformationRate, rate);
     float values[9];
     for (uint component = 0u; component < 9u; ++component) {
         values[component] = evaluateScalarProgram(
@@ -443,20 +531,128 @@ inline float3x3 evaluateTangentVector(
             programs,
             instructions,
             parameters + material.parameterOffset,
-            nullptr,
+            internalState,
             f,
-            df,
+            direction,
+            rate,
+            timestep,
+            temperature,
             valid
         );
         if (!valid) {
             return float3x3(0.0f);
         }
     }
-    return transpose(float3x3(
-        float3(values[0], values[1], values[2]),
-        float3(values[3], values[4], values[5]),
-        float3(values[6], values[7], values[8])
-    ));
+    float3x3 tangent = componentsMatrix(values);
+    if (material.viscousTangentProgramOffset != NM_INVALID_INDEX) {
+        matrixComponents(rateDirection, direction);
+        for (uint component = 0u; component < 9u; ++component) {
+            values[component] = evaluateScalarProgram(
+                material.viscousTangentProgramOffset + component,
+                programs,
+                instructions,
+                parameters + material.parameterOffset,
+                internalState,
+                f,
+                direction,
+                rate,
+                timestep,
+                temperature,
+                valid
+            );
+            if (!valid) {
+                return float3x3(0.0f);
+            }
+        }
+        tangent += componentsMatrix(values);
+    }
+    return tangent;
+}
+
+inline bool evaluateStateUpdate(
+    const NMMaterialGPU material,
+    const uint stateIndex,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* acceptedState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread float& nextState
+) {
+    if (stateIndex >= material.stateCount ||
+        material.stateUpdateProgramOffset == NM_INVALID_INDEX ||
+        acceptedState == nullptr) {
+        return false;
+    }
+    float f[9];
+    float direction[9] = {
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+    };
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationRate, rate);
+    bool valid = true;
+    nextState = evaluateScalarProgram(
+        material.stateUpdateProgramOffset + stateIndex,
+        programs,
+        instructions,
+        parameters + material.parameterOffset,
+        acceptedState,
+        f,
+        direction,
+        rate,
+        timestep,
+        temperature,
+        valid
+    );
+    return valid && isfinite(nextState);
+}
+
+inline bool evaluateMaterialValidity(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* internalState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread float& margin
+) {
+    if (material.validityProgram == NM_INVALID_INDEX) {
+        margin = 1.0f;
+        return true;
+    }
+    float f[9];
+    float direction[9] = {
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+    };
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationRate, rate);
+    bool valid = true;
+    margin = evaluateScalarProgram(
+        material.validityProgram,
+        programs,
+        instructions,
+        parameters + material.parameterOffset,
+        internalState,
+        f,
+        direction,
+        rate,
+        timestep,
+        temperature,
+        valid
+    );
+    return valid && isfinite(margin);
 }
 
 inline float maximumAbs(const float3x3 value) {

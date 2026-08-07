@@ -11,6 +11,7 @@ enum class FingerprintSection : std::uint32_t {
     dispatch = 1u,
     materials,
     parameters,
+    stateInitials,
     instructions,
     scalarPrograms,
     objects,
@@ -79,6 +80,8 @@ std::uint64_t compiledWorldFingerprint(
         std::span<const NMMaterialGPU>(world.materials));
     hashSection(fingerprint, FingerprintSection::parameters,
         std::span<const NMParameterRangeGPU>(world.parameters));
+    hashSection(fingerprint, FingerprintSection::stateInitials,
+        std::span<const float>(world.stateInitials));
     hashSection(fingerprint, FingerprintSection::instructions,
         std::span<const NMExpressionInstructionGPU>(world.instructions));
     hashSection(fingerprint, FingerprintSection::scalarPrograms,
