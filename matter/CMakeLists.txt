@@ -20,6 +20,7 @@ set(
     src/language_impl.cpp
     src/constitutive_impl.cpp
     src/compiler_impl.cpp
+    src/fingerprint_impl.cpp
     src/package_impl.cpp
 )
 

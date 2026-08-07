@@ -89,6 +89,34 @@ using Mat3 = std::array<double, 9>;
     });
 }
 
+[[nodiscard]] int floorDiv(const int value, const int divisor) noexcept {
+    const int quotient = value / divisor;
+    const int remainder = value % divisor;
+    return remainder < 0 ? quotient - 1 : quotient;
+}
+
+[[nodiscard]] std::uint64_t spreadMortonBits(
+    std::uint32_t value
+) noexcept {
+    std::uint64_t bits = value & 0x1fffffu;
+    bits = (bits | (bits << 32u)) & 0x1f00000000ffffull;
+    bits = (bits | (bits << 16u)) & 0x1f0000ff0000ffull;
+    bits = (bits | (bits << 8u)) & 0x100f00f00f00f00full;
+    bits = (bits | (bits << 4u)) & 0x10c30c30c30c30c3ull;
+    bits = (bits | (bits << 2u)) & 0x1249249249249249ull;
+    return bits;
+}
+
+[[nodiscard]] std::uint64_t morton3D(
+    const std::uint32_t x,
+    const std::uint32_t y,
+    const std::uint32_t z
+) noexcept {
+    return spreadMortonBits(x) |
+        (spreadMortonBits(y) << 1u) |
+        (spreadMortonBits(z) << 2u);
+}
+
 [[nodiscard]] std::optional<std::uint32_t> checkedU32(
     const std::size_t value,
     std::vector<Diagnostic>& diagnostics,
@@ -444,7 +472,6 @@ CompileResult compileWorld(
     std::vector<std::uint32_t> femNodeObjects;
     std::vector<IncidenceEntry> mpmIncidence;
     std::vector<IncidenceEntry> femIncidence;
-    std::map<GridKey, std::uint32_t> gridNodes;
     std::set<std::uint32_t> adaptiveBindings;
     std::set<std::uint32_t> adaptiveBodyBindings;
     std::set<std::uint32_t> adaptiveSceneBindings;
@@ -533,11 +560,9 @@ CompileResult compileWorld(
                 });
                 return result;
             }
-            descriptor.stateOffset = static_cast<nm_u32>(world.mpm.particles.size());
-            descriptor.stateCount = 0u;
-            descriptor.elementOffset = static_cast<nm_u32>(world.mpm.stencils.size());
             const double h = object.characteristicLength;
-            if (!finite(object.mpmGridMinimum) || !finite(object.mpmGridMaximum) ||
+            if (!finite(object.mpmGridMinimum) ||
+                !finite(object.mpmGridMaximum) ||
                 !(object.mpmGridMinimum[0] < object.mpmGridMaximum[0]) ||
                 !(object.mpmGridMinimum[1] < object.mpmGridMaximum[1]) ||
                 !(object.mpmGridMinimum[2] < object.mpmGridMaximum[2])) {
@@ -548,77 +573,282 @@ CompileResult compileWorld(
                 });
                 return result;
             }
-            const auto gridCoordinate = [&](const double value) -> std::optional<int> {
+            const auto gridCoordinate = [&](
+                const double value
+            ) -> std::optional<int> {
                 const double scaled = value / h;
                 if (!finite(scaled) ||
-                    scaled < static_cast<double>(std::numeric_limits<int>::min() + 2) ||
-                    scaled > static_cast<double>(std::numeric_limits<int>::max() - 3)) {
+                    scaled < static_cast<double>(
+                        std::numeric_limits<int>::min() + 4
+                    ) ||
+                    scaled > static_cast<double>(
+                        std::numeric_limits<int>::max() - 4
+                    )) {
                     return std::nullopt;
                 }
                 return static_cast<int>(std::floor(scaled));
             };
-            const auto minimumX = gridCoordinate(object.mpmGridMinimum[0]);
-            const auto minimumY = gridCoordinate(object.mpmGridMinimum[1]);
-            const auto minimumZ = gridCoordinate(object.mpmGridMinimum[2]);
-            const auto maximumX = gridCoordinate(object.mpmGridMaximum[0]);
-            const auto maximumY = gridCoordinate(object.mpmGridMaximum[1]);
-            const auto maximumZ = gridCoordinate(object.mpmGridMaximum[2]);
-            if (!minimumX.has_value() || !minimumY.has_value() ||
-                !minimumZ.has_value() || !maximumX.has_value() ||
-                !maximumY.has_value() || !maximumZ.has_value()) {
+            const auto authoredMinimumX =
+                gridCoordinate(object.mpmGridMinimum[0]);
+            const auto authoredMinimumY =
+                gridCoordinate(object.mpmGridMinimum[1]);
+            const auto authoredMinimumZ =
+                gridCoordinate(object.mpmGridMinimum[2]);
+            const auto authoredMaximumX =
+                gridCoordinate(object.mpmGridMaximum[0]);
+            const auto authoredMaximumY =
+                gridCoordinate(object.mpmGridMaximum[1]);
+            const auto authoredMaximumZ =
+                gridCoordinate(object.mpmGridMaximum[2]);
+            if (!authoredMinimumX.has_value() ||
+                !authoredMinimumY.has_value() ||
+                !authoredMinimumZ.has_value() ||
+                !authoredMaximumX.has_value() ||
+                !authoredMaximumY.has_value() ||
+                !authoredMaximumZ.has_value()) {
                 result.diagnostics.push_back({
                     Diagnostic::Severity::error, 0u, 0u,
                     "MPM fixed-grid bounds exceed the cooked integer grid domain",
                 });
                 return result;
             }
-            descriptor.auxiliaryOffset = static_cast<nm_u32>(world.mpm.nodes.size());
-            // Quadratic B-splines have 1.5-cell support.  Cook every node in
-            // the declared particle-centre domain plus that halo, then derive
-            // weights from live particle positions at execution time.
-            for (int z = *minimumZ - 1; z <= *maximumZ + 2; ++z) {
-                for (int y = *minimumY - 1; y <= *maximumY + 2; ++y) {
-                    for (int x = *minimumX - 1; x <= *maximumX + 2; ++x) {
-                        const GridKey key{objectIndex, x, y, z};
-                        const auto [iterator, inserted] = gridNodes.try_emplace(
-                            key,
-                            static_cast<std::uint32_t>(world.mpm.nodes.size())
+
+            const std::array<int, 3> nodeMinimum{
+                *authoredMinimumX - 1,
+                *authoredMinimumY - 1,
+                *authoredMinimumZ - 1,
+            };
+            const std::array<int, 3> nodeMaximum{
+                *authoredMaximumX + 2,
+                *authoredMaximumY + 2,
+                *authoredMaximumZ + 2,
+            };
+            const std::array<std::uint32_t, 3> nodeDimensions{
+                static_cast<std::uint32_t>(
+                    nodeMaximum[0] - nodeMinimum[0] + 1
+                ),
+                static_cast<std::uint32_t>(
+                    nodeMaximum[1] - nodeMinimum[1] + 1
+                ),
+                static_cast<std::uint32_t>(
+                    nodeMaximum[2] - nodeMinimum[2] + 1
+                ),
+            };
+            const std::uint64_t nodeCount64 =
+                static_cast<std::uint64_t>(nodeDimensions[0]) *
+                nodeDimensions[1] * nodeDimensions[2];
+            if (nodeCount64 == 0u ||
+                nodeCount64 > std::numeric_limits<std::uint32_t>::max() ||
+                world.mpm.nodes.size() >
+                    std::numeric_limits<std::uint32_t>::max() - nodeCount64) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "MPM grid node domain exceeds the 32-bit cooked ABI",
+                });
+                return result;
+            }
+
+            const std::array<int, 3> blockMinimum{
+                floorDiv(nodeMinimum[0], int(NM_MPM_BLOCK_EDGE)),
+                floorDiv(nodeMinimum[1], int(NM_MPM_BLOCK_EDGE)),
+                floorDiv(nodeMinimum[2], int(NM_MPM_BLOCK_EDGE)),
+            };
+            const std::array<int, 3> blockMaximum{
+                floorDiv(nodeMaximum[0], int(NM_MPM_BLOCK_EDGE)),
+                floorDiv(nodeMaximum[1], int(NM_MPM_BLOCK_EDGE)),
+                floorDiv(nodeMaximum[2], int(NM_MPM_BLOCK_EDGE)),
+            };
+            const std::array<std::uint32_t, 3> blockDimensions{
+                static_cast<std::uint32_t>(
+                    blockMaximum[0] - blockMinimum[0] + 1
+                ),
+                static_cast<std::uint32_t>(
+                    blockMaximum[1] - blockMinimum[1] + 1
+                ),
+                static_cast<std::uint32_t>(
+                    blockMaximum[2] - blockMinimum[2] + 1
+                ),
+            };
+            const std::uint64_t blockCount64 =
+                static_cast<std::uint64_t>(blockDimensions[0]) *
+                blockDimensions[1] * blockDimensions[2];
+            if (blockCount64 == 0u ||
+                blockCount64 > std::numeric_limits<std::uint32_t>::max() ||
+                world.mpm.blocks.size() >
+                    std::numeric_limits<std::uint32_t>::max() - blockCount64 ||
+                world.mpm.blockLookup.size() >
+                    std::numeric_limits<std::uint32_t>::max() - blockCount64) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "MPM sparse block domain exceeds the 32-bit cooked ABI",
+                });
+                return result;
+            }
+
+            descriptor.stateOffset =
+                static_cast<nm_u32>(world.mpm.particles.size());
+            descriptor.stateCount = 0u;
+            descriptor.elementOffset =
+                static_cast<nm_u32>(world.mpm.grids.size());
+            descriptor.elementCount = 1u;
+            descriptor.auxiliaryOffset =
+                static_cast<nm_u32>(world.mpm.nodes.size());
+            descriptor.auxiliaryCount = static_cast<nm_u32>(nodeCount64);
+
+            NMMPMGridGPU grid{};
+            grid.nodeMinimumAndObject = {
+                nodeMinimum[0],
+                nodeMinimum[1],
+                nodeMinimum[2],
+                static_cast<nm_i32>(objectIndex),
+            };
+            grid.nodeDimensionsAndOffset = {
+                nodeDimensions[0],
+                nodeDimensions[1],
+                nodeDimensions[2],
+                descriptor.auxiliaryOffset,
+            };
+            grid.blockMinimumAndOffset = {
+                blockMinimum[0],
+                blockMinimum[1],
+                blockMinimum[2],
+                static_cast<nm_i32>(world.mpm.blocks.size()),
+            };
+            grid.blockDimensionsAndLookup = {
+                blockDimensions[0],
+                blockDimensions[1],
+                blockDimensions[2],
+                static_cast<nm_u32>(world.mpm.blockLookup.size()),
+            };
+            grid.metrics = f4(h, 1.0 / h, 1.5, 0.0);
+            const std::uint32_t gridIndex =
+                static_cast<std::uint32_t>(world.mpm.grids.size());
+            world.mpm.grids.push_back(grid);
+
+            for (int z = nodeMinimum[2]; z <= nodeMaximum[2]; ++z) {
+                for (int y = nodeMinimum[1]; y <= nodeMaximum[1]; ++y) {
+                    for (int x = nodeMinimum[0]; x <= nodeMaximum[0]; ++x) {
+                        NMGridNodeStateGPU node{};
+                        node.positionAndMass = f4(
+                            static_cast<double>(x) * h,
+                            static_cast<double>(y) * h,
+                            static_cast<double>(z) * h,
+                            0.0
                         );
-                        if (inserted) {
-                            NMGridNodeStateGPU node{};
-                            node.positionAndMass = f4(
-                                static_cast<double>(key.x) * h,
-                                static_cast<double>(key.y) * h,
-                                static_cast<double>(key.z) * h,
-                                0.0
-                            );
-                            world.mpm.nodes.push_back(node);
-                            mpmNodeObjects.push_back(objectIndex);
-                        }
+                        world.mpm.nodes.push_back(node);
+                        mpmNodeObjects.push_back(objectIndex);
                     }
                 }
             }
-            descriptor.auxiliaryCount = static_cast<nm_u32>(world.mpm.nodes.size()) -
-                descriptor.auxiliaryOffset;
-            for (std::size_t localParticle = 0u;
-                 localParticle < object.particles.size();
-                 ++localParticle) {
-                const ParticleSource& sourceParticle = object.particles[localParticle];
+
+            struct PendingBlock {
+                std::uint64_t morton = 0u;
+                std::uint32_t localLookup = 0u;
+                std::array<int, 3> coordinate{};
+            };
+            std::vector<PendingBlock> pendingBlocks;
+            pendingBlocks.reserve(static_cast<std::size_t>(blockCount64));
+            for (std::uint32_t localZ = 0u;
+                 localZ < blockDimensions[2];
+                 ++localZ) {
+                for (std::uint32_t localY = 0u;
+                     localY < blockDimensions[1];
+                     ++localY) {
+                    for (std::uint32_t localX = 0u;
+                         localX < blockDimensions[0];
+                         ++localX) {
+                        const std::uint32_t localLookup =
+                            (localZ * blockDimensions[1] + localY) *
+                                blockDimensions[0] +
+                            localX;
+                        pendingBlocks.push_back({
+                            morton3D(localX, localY, localZ),
+                            localLookup,
+                            {
+                                blockMinimum[0] + int(localX),
+                                blockMinimum[1] + int(localY),
+                                blockMinimum[2] + int(localZ),
+                            },
+                        });
+                    }
+                }
+            }
+            std::ranges::sort(
+                pendingBlocks,
+                [](const PendingBlock& left, const PendingBlock& right) {
+                    return std::tie(left.morton, left.localLookup) <
+                        std::tie(right.morton, right.localLookup);
+                }
+            );
+            const std::size_t lookupOffset = world.mpm.blockLookup.size();
+            world.mpm.blockLookup.resize(
+                lookupOffset + static_cast<std::size_t>(blockCount64),
+                NM_INVALID_INDEX
+            );
+            for (const PendingBlock& pending : pendingBlocks) {
+                const std::uint32_t globalBlock =
+                    static_cast<std::uint32_t>(world.mpm.blocks.size());
+                NMMPMBlockGPU block{};
+                block.identity = {
+                    static_cast<nm_u32>(pending.morton),
+                    static_cast<nm_u32>(pending.morton >> 32u),
+                    gridIndex,
+                    objectIndex,
+                };
+                block.coordinateAndLookup = {
+                    pending.coordinate[0],
+                    pending.coordinate[1],
+                    pending.coordinate[2],
+                    static_cast<nm_i32>(pending.localLookup),
+                };
+                world.mpm.blocks.push_back(block);
+                world.mpm.blockLookup[
+                    lookupOffset + pending.localLookup
+                ] = globalBlock;
+            }
+
+            for (const ParticleSource& sourceParticle : object.particles) {
+                const std::array<int, 3> particleNode{
+                    static_cast<int>(std::floor(sourceParticle.position[0] / h)),
+                    static_cast<int>(std::floor(sourceParticle.position[1] / h)),
+                    static_cast<int>(std::floor(sourceParticle.position[2] / h)),
+                };
+                if (particleNode[0] < nodeMinimum[0] + 1 ||
+                    particleNode[0] > nodeMaximum[0] - 2 ||
+                    particleNode[1] < nodeMinimum[1] + 1 ||
+                    particleNode[1] > nodeMaximum[1] - 2 ||
+                    particleNode[2] < nodeMinimum[2] + 1 ||
+                    particleNode[2] > nodeMaximum[2] - 2) {
+                    result.diagnostics.push_back({
+                        Diagnostic::Severity::error, 0u, 0u,
+                        "MPM particle begins outside the cooked quadratic-support domain",
+                    });
+                    return result;
+                }
                 NMParticleStateGPU particle{};
                 particle.positionAndMass = f4(
-                    sourceParticle.position[0], sourceParticle.position[1],
-                    sourceParticle.position[2], sourceParticle.mass
+                    sourceParticle.position[0],
+                    sourceParticle.position[1],
+                    sourceParticle.position[2],
+                    sourceParticle.mass
                 );
                 particle.velocityAndReferenceVolume = f4(
-                    sourceParticle.velocity[0], sourceParticle.velocity[1],
-                    sourceParticle.velocity[2], sourceParticle.referenceVolume
+                    sourceParticle.velocity[0],
+                    sourceParticle.velocity[1],
+                    sourceParticle.velocity[2],
+                    sourceParticle.referenceVolume
                 );
                 particle.deformationRow0 = f4(1.0, 0.0, 0.0);
                 particle.deformationRow1 = f4(0.0, 1.0, 0.0);
                 particle.deformationRow2 = f4(0.0, 0.0, 1.0);
+                particle.affineRow0 = f4();
+                particle.affineRow1 = f4();
+                particle.affineRow2 = f4();
                 particle.referenceAndTemperature = f4(
-                    sourceParticle.position[0], sourceParticle.position[1],
-                    sourceParticle.position[2], 293.15
+                    sourceParticle.position[0],
+                    sourceParticle.position[1],
+                    sourceParticle.position[2],
+                    293.15
                 );
                 particle.identity = {
                     objectIndex,
@@ -626,88 +856,11 @@ CompileResult compileWorld(
                     1u,
                     NM_OBJECT_ACTIVE,
                 };
-                const std::uint32_t particleIndex =
-                    static_cast<nm_u32>(world.mpm.particles.size());
                 world.mpm.particles.push_back(particle);
-
-                const Vec3 cell{
-                    sourceParticle.position[0] / h,
-                    sourceParticle.position[1] / h,
-                    sourceParticle.position[2] / h,
-                };
-                const std::array<int, 3> base{
-                    static_cast<int>(std::floor(cell[0] - 0.5)),
-                    static_cast<int>(std::floor(cell[1] - 0.5)),
-                    static_cast<int>(std::floor(cell[2] - 0.5)),
-                };
-                const Vec3 fractional{
-                    cell[0] - static_cast<double>(base[0]),
-                    cell[1] - static_cast<double>(base[1]),
-                    cell[2] - static_cast<double>(base[2]),
-                };
-                const auto wx = quadraticWeights(fractional[0]);
-                const auto wy = quadraticWeights(fractional[1]);
-                const auto wz = quadraticWeights(fractional[2]);
-                const auto dx = quadraticDerivatives(fractional[0]);
-                const auto dy = quadraticDerivatives(fractional[1]);
-                const auto dz = quadraticDerivatives(fractional[2]);
-                for (int z = 0; z < 3; ++z) {
-                    for (int y = 0; y < 3; ++y) {
-                        for (int x = 0; x < 3; ++x) {
-                            const GridKey key{
-                                objectIndex,
-                                base[0] + x,
-                                base[1] + y,
-                                base[2] + z,
-                            };
-                            auto [iterator, inserted] = gridNodes.try_emplace(
-                                key,
-                                static_cast<std::uint32_t>(world.mpm.nodes.size())
-                            );
-                            if (inserted) {
-                                NMGridNodeStateGPU node{};
-                                node.positionAndMass = f4(
-                                    static_cast<double>(key.x) * h,
-                                    static_cast<double>(key.y) * h,
-                                    static_cast<double>(key.z) * h,
-                                    0.0
-                                );
-                                world.mpm.nodes.push_back(node);
-                                mpmNodeObjects.push_back(objectIndex);
-                            }
-                            const double weight = wx[static_cast<std::size_t>(x)] *
-                                wy[static_cast<std::size_t>(y)] *
-                                wz[static_cast<std::size_t>(z)];
-                            const Vec3 gradient{
-                                dx[static_cast<std::size_t>(x)] *
-                                    wy[static_cast<std::size_t>(y)] *
-                                    wz[static_cast<std::size_t>(z)] / h,
-                                wx[static_cast<std::size_t>(x)] *
-                                    dy[static_cast<std::size_t>(y)] *
-                                    wz[static_cast<std::size_t>(z)] / h,
-                                wx[static_cast<std::size_t>(x)] *
-                                    wy[static_cast<std::size_t>(y)] *
-                                    dz[static_cast<std::size_t>(z)] / h,
-                            };
-                            NMMPMStencilGPU stencil{};
-                            stencil.particleIndex = particleIndex;
-                            stencil.nodeIndex = iterator->second;
-                            stencil.localSlot = static_cast<nm_u32>(9 * z + 3 * y + x);
-                            stencil.gradientAndWeight = f4(
-                                gradient[0], gradient[1], gradient[2], weight
-                            );
-                            const std::uint32_t stencilIndex =
-                                static_cast<nm_u32>(world.mpm.stencils.size());
-                            world.mpm.stencils.push_back(stencil);
-                            mpmIncidence.push_back({iterator->second, stencilIndex});
-                        }
-                    }
-                }
             }
             descriptor.stateCount =
-                static_cast<nm_u32>(world.mpm.particles.size()) - descriptor.stateOffset;
-            descriptor.elementCount =
-                static_cast<nm_u32>(world.mpm.stencils.size()) - descriptor.elementOffset;
+                static_cast<nm_u32>(world.mpm.particles.size()) -
+                descriptor.stateOffset;
         } else if (representation == Representation::fem) {
             if (object.femNodes.empty() || object.tetrahedra.empty()) {
                 result.diagnostics.push_back({
@@ -1074,6 +1227,12 @@ CompileResult compileWorld(
     dispatch.femPCGIterations = source.femPCGIterations;
     dispatch.identificationCandidateCount = source.identificationCandidates;
     dispatch.eventStride = NM_EVENT_CLASS_COUNT * dispatch.objectCount;
+    dispatch.mpmGridCount = static_cast<nm_u32>(world.mpm.grids.size());
+    dispatch.mpmBlockCount = static_cast<nm_u32>(world.mpm.blocks.size());
+    dispatch.mpmBlockLookupCount =
+        static_cast<nm_u32>(world.mpm.blockLookup.size());
+    dispatch.maximumParticlesPerBlock =
+        NM_MPM_MAX_PARTICLES_PER_BLOCK;
     dispatch.gravityAndTimestep = f4(
         source.gravity[0], source.gravity[1], source.gravity[2], source.frameTimestep
     );
@@ -1089,27 +1248,7 @@ CompileResult compileWorld(
         return result;
     }
 
-    std::uint64_t fingerprint = detail::hashBytes(&dispatch, sizeof(dispatch));
-    const auto hashVector = [&](const auto& values) {
-        using Value = typename std::decay_t<decltype(values)>::value_type;
-        fingerprint = detail::hashBytes(
-            values.data(), values.size() * sizeof(Value), fingerprint
-        );
-    };
-    hashVector(world.materials);
-    hashVector(world.parameters);
-    hashVector(world.instructions);
-    hashVector(world.scalarPrograms);
-    hashVector(world.objects);
-    hashVector(world.mpm.particles);
-    hashVector(world.mpm.nodes);
-    hashVector(world.mpm.stencils);
-    hashVector(world.fem.nodes);
-    hashVector(world.fem.tetrahedra);
-    hashVector(world.contact.rigidProxies);
-    hashVector(world.contact.pairs);
-    hashVector(world.identification);
-    world.fingerprint = fingerprint == 0u ? 1u : fingerprint;
+    world.fingerprint = compiledWorldFingerprint(world);
     result.generatedMetal = options.emitSpecializedMetal
         ? emitSpecializedMetal(world.constitutive)
         : std::string{};

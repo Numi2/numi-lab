@@ -317,15 +317,17 @@ kernel void nm_publish_identification_means(
 
 kernel void nm_scheduler_observe(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMContinuumObjectGPU* objects [[buffer(1)]],
-    device const NMContactSampleGPU* samples [[buffer(2)]],
-    device const NMGridNodeStateGPU* mpmNodes [[buffer(3)]],
-    device const NMIncidenceRangeGPU* mpmNodeRanges [[buffer(4)]],
-    device const NMParticleStateGPU* particles [[buffer(5)]],
-    device const NMFEMNodeStateGPU* femNodes [[buffer(6)]],
-    device const NMTetrahedronGPU* tetrahedra [[buffer(7)]],
-    device const NMMatterStatusGPU* statuses [[buffer(8)]],
-    device NMSchedulerStateGPU* schedulers [[buffer(9)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMContactSampleGPU* samples [[buffer(3)]],
+    device const NMGridNodeStateGPU* mpmNodes [[buffer(4)]],
+    device const NMIncidenceRangeGPU* mpmNodeRanges [[buffer(5)]],
+    device const uint* mpmNodeGenerations [[buffer(6)]],
+    device const NMParticleStateGPU* particles [[buffer(7)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(8)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(9)]],
+    device const NMMatterStatusGPU* statuses [[buffer(10)]],
+    device NMSchedulerStateGPU* schedulers [[buffer(11)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -355,7 +357,8 @@ kernel void nm_scheduler_observe(
     float maximumStress = 0.0f;
     const uint mpmNodeBase = environment * dispatch.gridNodeCount;
     for (uint node = lane; node < dispatch.gridNodeCount; node += 32u) {
-        if (mpmNodeRanges[node].objectIndex == objectIndex) {
+        if (mpmNodeRanges[node].objectIndex == objectIndex &&
+            mpmNodeGenerations[mpmNodeBase + node] == microstep.reserved) {
             maximumStress = max(
                 maximumStress,
                 mpmNodes[mpmNodeBase + node].forceAndEnergy.w

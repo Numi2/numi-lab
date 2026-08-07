@@ -270,7 +270,8 @@ kernel void nm_contact_evaluate(
     device const NMSchedulerStateGPU* schedulers [[buffer(9)]],
     device const NMAdaptiveStateGPU* adaptive [[buffer(10)]],
     device NMContactSampleGPU* samples [[buffer(11)]],
-    device NMMatterStatusGPU* statuses [[buffer(12)]],
+    device const uint* mpmNodeGenerations [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.contactPairCount;
@@ -308,9 +309,12 @@ kernel void nm_contact_evaluate(
     float3 velocity;
     float inverseMass;
     if (pair.continuumNode < dispatch.gridNodeCount) {
-        const NMGridNodeStateGPU node = mpmNodes[
-            environment * dispatch.gridNodeCount + pair.continuumNode
-        ];
+        const uint nodeSlot =
+            environment * dispatch.gridNodeCount + pair.continuumNode;
+        if (mpmNodeGenerations[nodeSlot] != microstep.reserved) {
+            return;
+        }
+        const NMGridNodeStateGPU node = mpmNodes[nodeSlot];
         point = node.positionAndMass.xyz;
         velocity = node.candidateVelocity.xyz;
         inverseMass = node.velocityAndInverseMass.w;
@@ -423,6 +427,7 @@ kernel void nm_contact_evaluate(
     const float3 tangentVelocity =
         relativeVelocity - normalVelocity * normal;
     float3 tangentImpulseOnRigid = float3(0.0f);
+    uint contactFlags = NM_CONTACT_VALID;
     const float tangentSpeed = length(tangentVelocity);
     if (tangentSpeed > 1.0e-8f && normalImpulse > 0.0f) {
         const float3 tangent = tangentVelocity / tangentSpeed;
@@ -430,10 +435,15 @@ kernel void nm_contact_evaluate(
             rigidDirectionalResponse(rigid, lever, tangent);
         if (tangentResponse > 1.0e-12f) {
             const float desiredMagnitude = tangentSpeed / tangentResponse;
-            const float limit = desiredMagnitude <= staticFriction * normalImpulse
+            const bool staticBranch =
+                desiredMagnitude <= staticFriction * normalImpulse;
+            const float limit = staticBranch
                 ? desiredMagnitude
                 : dynamicFriction * normalImpulse;
             tangentImpulseOnRigid = limit * tangent;
+            if (staticBranch) {
+                contactFlags |= NM_CONTACT_STICKING;
+            }
         }
     }
     const float3 impulseOnRigid =
@@ -443,11 +453,7 @@ kernel void nm_contact_evaluate(
         pair.continuumNode,
         pair.rigidProxy,
         pair.objectIndex,
-        NM_CONTACT_VALID |
-            (length(tangentImpulseOnRigid) <=
-                staticFriction * normalImpulse
-                ? NM_CONTACT_STICKING
-                : 0u),
+        contactFlags,
     };
     sample.pointAndSeparation = float4(witness, separation);
     sample.normalAndVelocity = float4(normal, normalVelocity);

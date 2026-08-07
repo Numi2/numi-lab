@@ -1504,6 +1504,10 @@ set_target_properties(
 
 if(BUILD_TESTING)
     add_test(
+        NAME matter.physics.mixed_mpm_fem
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mixed
+    )
+    add_test(
         NAME matter.physics.mpm_freefall
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm-free
     )
@@ -1544,6 +1548,7 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --fem-high-rate
     )
     set_tests_properties(
+        matter.physics.mixed_mpm_fem
         matter.physics.mpm_freefall
         matter.physics.mpm_plane_impact
         matter.runtime.mpm_transaction_rollback

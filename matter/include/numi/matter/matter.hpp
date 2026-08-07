@@ -261,6 +261,11 @@ struct WorldSource {
 struct CookedMPM {
     std::vector<NMParticleStateGPU> particles;
     std::vector<NMGridNodeStateGPU> nodes;
+    std::vector<NMMPMGridGPU> grids;
+    std::vector<NMMPMBlockGPU> blocks;
+    std::vector<std::uint32_t> blockLookup;
+    // Retained for package compatibility; live transfers use sparse block
+    // classification and recompute quadratic support from current positions.
     std::vector<NMMPMStencilGPU> stencils;
     std::vector<std::uint32_t> nodeIncidence;
     std::vector<NMIncidenceRangeGPU> nodeRanges;
@@ -323,6 +328,9 @@ struct CompileResult {
 
 [[nodiscard]] ParseResult parseMatter(std::string_view source);
 [[nodiscard]] ParseResult parseMatterFile(const std::filesystem::path& path);
+[[nodiscard]] std::uint64_t compiledWorldFingerprint(
+    const CompiledWorld& world
+) noexcept;
 [[nodiscard]] CompileResult compileWorld(
     const WorldSource& source,
     const CompileOptions& options = {}

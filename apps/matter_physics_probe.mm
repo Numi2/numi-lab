@@ -145,6 +145,80 @@ numi::matter::CompiledWorld compileCase(
     return std::move(compiled.world);
 }
 
+numi::matter::CompiledWorld compileMixedCase() {
+    auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "reference silicone material did not parse");
+    for (auto& parameter : parsed.material.parameters) {
+        if (parameter.name == "mu") {
+            parameter.defaultValue = 1.0e3;
+            parameter.lower = 5.0e2;
+            parameter.upper = 2.0e3;
+        } else if (parameter.name == "lambda") {
+            parameter.defaultValue = 4.0e3;
+            parameter.lower = 1.0e3;
+            parameter.upper = 8.0e3;
+        }
+    }
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 240.0;
+    source.gravity = {0.0, 0.0, -9.81};
+    source.femPCGIterations = 6u;
+    source.materials.push_back(parsed.material);
+
+    numi::matter::ObjectSource mpm;
+    mpm.name = "mixed_mpm";
+    mpm.materialIndex = 0u;
+    mpm.representation = numi::matter::Representation::mpm;
+    mpm.characteristicLength = 0.01;
+    mpm.mpmGridMinimum = {-0.04, -0.02, -0.01};
+    mpm.mpmGridMaximum = {-0.01, 0.02, 0.06};
+    constexpr double particleSpacing = 0.005;
+    constexpr double particleVolume =
+        particleSpacing * particleSpacing * particleSpacing;
+    for (int index = 0; index < 2; ++index) {
+        numi::matter::ParticleSource particle;
+        particle.position = {
+            -0.03 + particleSpacing * index,
+            0.0,
+            0.03,
+        };
+        particle.velocity = {0.0, 0.0, -0.2};
+        particle.mass = 1100.0 * particleVolume;
+        particle.referenceVolume = particleVolume;
+        mpm.particles.push_back(particle);
+    }
+    source.objects.push_back(std::move(mpm));
+
+    numi::matter::ObjectSource fem;
+    fem.name = "mixed_fem";
+    fem.materialIndex = 0u;
+    fem.representation = numi::matter::Representation::fem;
+    fem.characteristicLength = 0.02;
+    fem.femInitialVelocity = {0.0, 0.0, -0.1};
+    fem.femNodes = {
+        {0.015, -0.01, 0.025},
+        {0.035, -0.01, 0.025},
+        {0.015,  0.01, 0.025},
+        {0.015, -0.01, 0.045},
+    };
+    fem.tetrahedra.push_back({{0u, 1u, 2u, 3u}});
+    source.objects.push_back(std::move(fem));
+
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 2u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    require(compiled.succeeded(), "mixed Matter world compilation failed");
+    require(
+        compiled.world.dispatch.particleCount != 0u &&
+            compiled.world.dispatch.femNodeCount != 0u &&
+            compiled.world.dispatch.tetrahedronCount != 0u,
+        "mixed Matter world did not retain both backends"
+    );
+    return std::move(compiled.world);
+}
+
 struct Outcome {
     std::uint32_t contactSamples = 0u;
     std::uint32_t completedMicrosteps = 0u;
@@ -978,6 +1052,7 @@ Outcome runCase(
 int main(int argc, const char* argv[]) {
     try {
         const bool femOnly = argc == 2 && std::string_view(argv[1]) == "--fem";
+        const bool mixedOnly = argc == 2 && std::string_view(argv[1]) == "--mixed";
         const bool mpmOnly = argc == 2 && std::string_view(argv[1]) == "--mpm";
         const bool mpmFree = argc == 2 && std::string_view(argv[1]) == "--mpm-free";
         const bool mpmSingle = argc == 2 && std::string_view(argv[1]) == "--mpm-single";
@@ -993,8 +1068,8 @@ int main(int argc, const char* argv[]) {
         const bool femHighRate = argc == 2 && std::string_view(argv[1]) == "--fem-high-rate";
         const bool femHighDrop = argc == 2 && std::string_view(argv[1]) == "--fem-high-drop";
         require(
-            argc == 1 || femOnly || mpmOnly || mpmFree || mpmSingle || mpmSingleContact || mpmGentle || mpmRollback || metalWorldCoupling || identification || adaptiveDemotion || adaptivePromotion || adaptivePromotionRollback || femFree || femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            argc == 1 || mixedOnly || femOnly || mpmOnly || mpmFree || mpmSingle || mpmSingleContact || mpmGentle || mpmRollback || metalWorldCoupling || identification || adaptiveDemotion || adaptivePromotion || adaptivePromotionRollback || femFree || femHighRate || femHighDrop,
+            "usage: metalrobo_matter_physics_probe [--mixed|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (identification) {
             runIdentification();
@@ -1011,9 +1086,30 @@ int main(int argc, const char* argv[]) {
         if (metalWorldCoupling) {
             runMetalWorldCoupling();
         }
+        if (mixedOnly) {
+            const auto mixed = runCase(
+                compileMixedCase(),
+                "mixed MPM/FEM",
+                false,
+                true,
+                3u
+            );
+            require(
+                mixed.pcgIterations > 0u,
+                "mixed MPM/FEM world did not execute FEM PCG"
+            );
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v2\""
+                << ",\"representation\":\"mixed_mpm_fem\""
+                << ",\"pcg_iterations\":" << mixed.pcgIterations
+                << ",\"completed_microsteps\":"
+                << mixed.completedMicrosteps
+                << ",\"minimum_J\":" << mixed.minimumDeterminant
+                << "}\n";
+        }
         if (!identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback && !metalWorldCoupling &&
-            !femOnly && !femFree && !femHighRate && !femHighDrop) {
+            !mixedOnly && !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
             const auto mpm = runCase(
                 compileCase(
@@ -1049,7 +1145,7 @@ int main(int argc, const char* argv[]) {
                 << ",\"transaction_rollback\":" << (mpmRollback ? "true" : "false")
                 << "}\n";
         }
-        if (!mpmOnly && !mpmFree && !mpmSingle && !mpmSingleContact &&
+        if (!mixedOnly && !mpmOnly && !mpmFree && !mpmSingle && !mpmSingleContact &&
             !mpmGentle && !mpmRollback && !metalWorldCoupling &&
             !identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback) {

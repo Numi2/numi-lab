@@ -439,10 +439,14 @@ kernel void nm_fem_precondition(
 
 kernel void nm_fem_reduce_new_rz(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMContinuumObjectGPU* objects [[buffer(1)]],
-    device const float4* residual [[buffer(2)]],
-    device const float4* preconditioned [[buffer(3)]],
-    device NMPCGScalarGPU* scalars [[buffer(4)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    device const float4* residual [[buffer(6)]],
+    device const float4* preconditioned [[buffer(7)]],
+    device NMPCGScalarGPU* scalars [[buffer(8)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -455,22 +459,44 @@ kernel void nm_fem_reduce_new_rz(
         return;
     }
     const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    const bool active =
+        object.representation == NM_REPRESENTATION_FEM &&
+        objectDue(object, scheduler, adaptiveState, microstep) &&
+        environmentHealthy(statuses, environment);
     float rz = 0.0f;
-    const uint base = environment * dispatch.femNodeCount + object.stateOffset;
-    for (uint local = lane; local < object.stateCount; local += 32u) {
-        rz += dot(residual[base + local].xyz, preconditioned[base + local].xyz);
+    if (active) {
+        const uint base =
+            environment * dispatch.femNodeCount + object.stateOffset;
+        for (uint local = lane; local < object.stateCount; local += 32u) {
+            rz += dot(
+                residual[base + local].xyz,
+                preconditioned[base + local].xyz
+            );
+        }
     }
     rz = simd_sum(rz);
     if (lane == 0u) {
         device NMPCGScalarGPU& scalar =
             scalars[environment * dispatch.objectCount + objectIndex];
+        if (!active) {
+            scalar.reduction.z = 0.0f;
+            scalar.reduction.w = 0.0f;
+            scalar.diagnostics.x = 0.0f;
+            scalar.diagnostics.z = 1.0f;
+            return;
+        }
         scalar.reduction.z = rz;
         scalar.reduction.w = scalar.reduction.x > 1.0e-20f
             ? rz / scalar.reduction.x
             : 0.0f;
         scalar.diagnostics.x = sqrt(max(rz, 0.0f));
         scalar.diagnostics.z =
-            scalar.diagnostics.x <= 1.0e-5f * max(scalar.diagnostics.y, 1.0f)
+            scalar.diagnostics.x <=
+                1.0e-5f * max(scalar.diagnostics.y, 1.0f)
             ? 1.0f
             : 0.0f;
     }

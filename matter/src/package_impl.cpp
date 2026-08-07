@@ -21,7 +21,7 @@ inline constexpr std::array<char, 16> kMagic{
     'N', 'U', 'M', 'I', 'M', 'A', 'T', 'T',
     'E', 'R', 'P', 'K', 'G', '\0', '\0', '\0',
 };
-inline constexpr std::uint32_t kPackageVersion = 1u;
+inline constexpr std::uint32_t kPackageVersion = 2u;
 inline constexpr std::uint32_t kEndianMarker = 0x01020304u;
 
 enum class Section : std::uint32_t {
@@ -33,6 +33,9 @@ enum class Section : std::uint32_t {
     objects,
     mpmParticles,
     mpmNodes,
+    mpmGrids,
+    mpmBlocks,
+    mpmBlockLookup,
     mpmStencils,
     mpmNodeIncidence,
     mpmNodeRanges,
@@ -221,8 +224,11 @@ bool writePackage(
         return false;
     }
     const CompiledWorld& world = compiled.world;
+    const std::uint64_t canonicalFingerprint =
+        compiledWorldFingerprint(world);
     if (world.dispatch.abiVersion != NM_MATTER_ABI_VERSION ||
-        world.fingerprint == 0u) {
+        world.fingerprint == 0u ||
+        world.fingerprint != canonicalFingerprint) {
         if (error != nullptr) {
             *error = "compiled matter world has an invalid ABI or fingerprint";
         }
@@ -241,7 +247,7 @@ bool writePackage(
     header.version = kPackageVersion;
     header.endian = kEndianMarker;
     header.matterAbiVersion = NM_MATTER_ABI_VERSION;
-    header.sectionCount = 25u;
+    header.sectionCount = 28u;
     header.fingerprint = world.fingerprint;
     header.headerHash = headerHash(header);
     if (!writeRaw(stream, header)) {
@@ -268,6 +274,12 @@ bool writePackage(
             std::span<const NMParticleStateGPU>(world.mpm.particles)) &&
         writeSection(stream, Section::mpmNodes,
             std::span<const NMGridNodeStateGPU>(world.mpm.nodes)) &&
+        writeSection(stream, Section::mpmGrids,
+            std::span<const NMMPMGridGPU>(world.mpm.grids)) &&
+        writeSection(stream, Section::mpmBlocks,
+            std::span<const NMMPMBlockGPU>(world.mpm.blocks)) &&
+        writeSection(stream, Section::mpmBlockLookup,
+            std::span<const std::uint32_t>(world.mpm.blockLookup)) &&
         writeSection(stream, Section::mpmStencils,
             std::span<const NMMPMStencilGPU>(world.mpm.stencils)) &&
         writeSection(stream, Section::mpmNodeIncidence,
@@ -373,6 +385,12 @@ bool readPackage(
             decoded = decodeVector(stream, section, candidate.mpm.particles, error); break;
         case Section::mpmNodes:
             decoded = decodeVector(stream, section, candidate.mpm.nodes, error); break;
+        case Section::mpmGrids:
+            decoded = decodeVector(stream, section, candidate.mpm.grids, error); break;
+        case Section::mpmBlocks:
+            decoded = decodeVector(stream, section, candidate.mpm.blocks, error); break;
+        case Section::mpmBlockLookup:
+            decoded = decodeVector(stream, section, candidate.mpm.blockLookup, error); break;
         case Section::mpmStencils:
             decoded = decodeVector(stream, section, candidate.mpm.stencils, error); break;
         case Section::mpmNodeIncidence:
@@ -449,6 +467,10 @@ bool readPackage(
         candidate.dispatch.objectCount != candidate.objects.size() ||
         candidate.dispatch.particleCount != candidate.mpm.particles.size() ||
         candidate.dispatch.gridNodeCount != candidate.mpm.nodes.size() ||
+        candidate.dispatch.mpmGridCount != candidate.mpm.grids.size() ||
+        candidate.dispatch.mpmBlockCount != candidate.mpm.blocks.size() ||
+        candidate.dispatch.mpmBlockLookupCount !=
+            candidate.mpm.blockLookup.size() ||
         candidate.dispatch.femNodeCount != candidate.fem.nodes.size() ||
         candidate.dispatch.tetrahedronCount != candidate.fem.tetrahedra.size() ||
         candidate.dispatch.rigidProxyCount != candidate.contact.rigidProxies.size() ||
@@ -459,7 +481,13 @@ bool readPackage(
         }
         return false;
     }
-    candidate.fingerprint = header.fingerprint;
+    candidate.fingerprint = compiledWorldFingerprint(candidate);
+    if (candidate.fingerprint != header.fingerprint) {
+        if (error != nullptr) {
+            *error = "matter package canonical execution fingerprint mismatch";
+        }
+        return false;
+    }
     world = std::move(candidate);
     if (generatedMetal != nullptr) {
         *generatedMetal = std::move(generatedCandidate);

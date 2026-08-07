@@ -12,6 +12,7 @@ typedef int nm_i32;
 typedef ulong nm_u64;
 typedef float4 nm_float4;
 typedef uint4 nm_uint4;
+typedef int4 nm_int4;
 #else
 #include <cstdint>
 #define NM_ALIGN16 alignas(16)
@@ -30,14 +31,23 @@ typedef struct NM_ALIGN16 nm_uint4 {
     nm_u32 z;
     nm_u32 w;
 } nm_uint4;
+typedef struct NM_ALIGN16 nm_int4 {
+    nm_i32 x;
+    nm_i32 y;
+    nm_i32 z;
+    nm_i32 w;
+} nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 4u
+#define NM_MATTER_ABI_VERSION 5u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
 #define NM_EVENT_CLASS_COUNT 8u
 #define NM_MAX_RATE_EXPONENT 8u
+#define NM_MPM_BLOCK_EDGE 8u
+#define NM_MPM_BLOCK_NODE_COUNT 512u
+#define NM_MPM_MAX_PARTICLES_PER_BLOCK 256u
 
 enum NMRepresentationKind : nm_u32 {
     NM_REPRESENTATION_RIGID = 0u,
@@ -156,6 +166,11 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
     nm_u32 femPCGIterations;
     nm_u32 identificationCandidateCount;
     nm_u32 eventStride;
+
+    nm_u32 mpmGridCount;
+    nm_u32 mpmBlockCount;
+    nm_u32 mpmBlockLookupCount;
+    nm_u32 maximumParticlesPerBlock;
 
     // xyz gravity, w frame timestep.
     nm_float4 gravityAndTimestep;
@@ -284,6 +299,46 @@ typedef struct NM_ALIGN16 NMContinuumObjectGPU {
     // characteristic length, rigid tolerance, promotion strain, demotion strain.
     nm_float4 fidelity;
 } NMContinuumObjectGPU;
+
+
+typedef struct NM_ALIGN16 NMMPMGridGPU {
+    // xyz inclusive minimum global node coordinate; w object index.
+    nm_int4 nodeMinimumAndObject;
+    // xyz node dimensions; w first node in the global node arena.
+    nm_uint4 nodeDimensionsAndOffset;
+    // xyz inclusive minimum block coordinate; w first block.
+    nm_int4 blockMinimumAndOffset;
+    // xyz block dimensions; w first dense block-lookup entry.
+    nm_uint4 blockDimensionsAndLookup;
+    // cell width, inverse cell width, support radius in cells, reserved.
+    nm_float4 metrics;
+} NMMPMGridGPU;
+
+typedef struct NM_ALIGN16 NMMPMBlockGPU {
+    // low/high Morton key, grid index, object index.
+    nm_uint4 identity;
+    // xyz block coordinate, w local dense lookup index.
+    nm_int4 coordinateAndLookup;
+} NMMPMBlockGPU;
+
+typedef struct NM_ALIGN16 NMMPMParticleKeyGPU {
+    // block index, low/high cell Morton key, flags.
+    nm_uint4 identity;
+} NMMPMParticleKeyGPU;
+
+typedef struct NM_ALIGN16 NMActiveMPMBlockGPU {
+    nm_u32 environment;
+    nm_u32 blockIndex;
+    nm_u32 firstParticle;
+    nm_u32 particleCount;
+} NMActiveMPMBlockGPU;
+
+typedef struct NM_ALIGN16 NMIndirectDispatchGPU {
+    nm_u32 threadgroupsX;
+    nm_u32 threadgroupsY;
+    nm_u32 threadgroupsZ;
+    nm_u32 reserved;
+} NMIndirectDispatchGPU;
 
 typedef struct NM_ALIGN16 NMParticleStateGPU {
     nm_float4 positionAndMass;
@@ -498,6 +553,7 @@ typedef struct NM_ALIGN16 NMMatterStatusGPU {
 #ifndef __METAL_VERSION__
 static_assert(sizeof(nm_float4) == 16);
 static_assert(sizeof(nm_uint4) == 16);
+static_assert(sizeof(nm_int4) == 16);
 static_assert(sizeof(NMMatterDispatchGPU) % 16 == 0);
 static_assert(sizeof(NMMicrostepGPU) % 16 == 0);
 static_assert(sizeof(NMResetPassGPU) == 16);
@@ -505,6 +561,8 @@ static_assert(sizeof(NMBridgeDispatchGPU) % 16 == 0);
 static_assert(sizeof(NMRigidProxyGPU) == 80);
 static_assert(sizeof(NMMaterialGPU) % 16 == 0);
 static_assert(sizeof(NMContinuumObjectGPU) % 16 == 0);
+static_assert(sizeof(NMMPMGridGPU) == 80);
+static_assert(sizeof(NMMPMBlockGPU) == 32);
 static_assert(sizeof(NMParticleStateGPU) % 16 == 0);
 static_assert(sizeof(NMFEMNodeStateGPU) % 16 == 0);
 static_assert(sizeof(NMAdaptiveStateGPU) == 160);

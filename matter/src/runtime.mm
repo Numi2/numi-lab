@@ -284,6 +284,11 @@ template <typename T>
         dispatch.objectCount == world.objects.size() &&
         dispatch.particleCount == world.mpm.particles.size() &&
         dispatch.gridNodeCount == world.mpm.nodes.size() &&
+        dispatch.mpmGridCount == world.mpm.grids.size() &&
+        dispatch.mpmBlockCount == world.mpm.blocks.size() &&
+        dispatch.mpmBlockLookupCount == world.mpm.blockLookup.size() &&
+        dispatch.maximumParticlesPerBlock ==
+            NM_MPM_MAX_PARTICLES_PER_BLOCK &&
         dispatch.femNodeCount == world.fem.nodes.size() &&
         dispatch.tetrahedronCount == world.fem.tetrahedra.size() &&
         dispatch.rigidProxyCount == world.contact.rigidProxies.size() &&
@@ -296,7 +301,8 @@ template <typename T>
         world.adaptive.size() == world.objects.size() &&
         world.schedulers.size() == world.objects.size() &&
         mpmRangesValid &&
-        world.fingerprint != 0u;
+        world.fingerprint != 0u &&
+        world.fingerprint == compiledWorldFingerprint(world);
 }
 
 } // namespace
@@ -343,6 +349,9 @@ struct Runtime::State {
     id<MTLBuffer> instructions = nil;
     id<MTLBuffer> scalarPrograms = nil;
     id<MTLBuffer> objects = nil;
+    id<MTLBuffer> mpmGrids = nil;
+    id<MTLBuffer> mpmBlocks = nil;
+    id<MTLBuffer> mpmBlockLookup = nil;
     id<MTLBuffer> mpmStencils = nil;
     id<MTLBuffer> mpmNodeIncidence = nil;
     id<MTLBuffer> mpmNodeRanges = nil;
@@ -369,6 +378,18 @@ struct Runtime::State {
     id<MTLBuffer> particleCandidate = nil;
     id<MTLBuffer> particleCheckpoint = nil;
     id<MTLBuffer> gridNodes = nil;
+    id<MTLBuffer> mpmNodeGenerations = nil;
+    id<MTLBuffer> mpmParticleKeys = nil;
+    id<MTLBuffer> mpmBlockCounts = nil;
+    id<MTLBuffer> mpmBlockOffsets = nil;
+    id<MTLBuffer> mpmBlockCursors = nil;
+    id<MTLBuffer> mpmBlockActiveFlags = nil;
+    id<MTLBuffer> mpmBlockActiveLocalOffsets = nil;
+    id<MTLBuffer> mpmEnvironmentActiveCounts = nil;
+    id<MTLBuffer> mpmEnvironmentActiveOffsets = nil;
+    id<MTLBuffer> mpmActiveBlocks = nil;
+    id<MTLBuffer> mpmSortedParticleIndices = nil;
+    id<MTLBuffer> mpmActiveDispatch = nil;
     id<MTLBuffer> femAccepted = nil;
     id<MTLBuffer> femCandidate = nil;
     id<MTLBuffer> femCheckpoint = nil;
@@ -477,7 +498,7 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
 
-        const std::array<const char*, 44> kernelNames{
+        const std::array<const char*, 51> kernelNames{
             "nm_prepare_status",
             "nm_prepare_events",
             "nm_prepare_reactions",
@@ -488,6 +509,13 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_publish_identification_means",
             "nm_identification_sample",
             "nm_mpm_checkpoint",
+            "nm_mpm_prepare_sparse",
+            "nm_mpm_classify_particles",
+            "nm_mpm_scan_environment_blocks",
+            "nm_mpm_scan_environment_counts",
+            "nm_mpm_scatter_active_blocks",
+            "nm_mpm_scatter_particles",
+            "nm_mpm_sort_block_particles",
             "nm_fem_checkpoint",
             "nm_project_rigid_states",
             "nm_publish_adaptive_rigid_ownership",
@@ -585,6 +613,8 @@ RuntimeDiagnostics Runtime::initialize(
         for (const char* name : {
                 "nm_fem_reduce_pap",
                 "nm_fem_reduce_new_rz",
+                "nm_mpm_scan_environment_blocks",
+                "nm_mpm_scan_environment_counts",
                 "nm_scheduler_observe",
                 "nm_adaptive_measure",
             }) {
@@ -615,6 +645,15 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         candidate->objects = uploads.one(
             std::span<const NMContinuumObjectGPU>(world.objects),
+            valid, candidate->residentBytes);
+        candidate->mpmGrids = uploads.one(
+            std::span<const NMMPMGridGPU>(world.mpm.grids),
+            valid, candidate->residentBytes);
+        candidate->mpmBlocks = uploads.one(
+            std::span<const NMMPMBlockGPU>(world.mpm.blocks),
+            valid, candidate->residentBytes);
+        candidate->mpmBlockLookup = uploads.one(
+            std::span<const std::uint32_t>(world.mpm.blockLookup),
             valid, candidate->residentBytes);
         candidate->mpmStencils = uploads.one(
             std::span<const NMMPMStencilGPU>(world.mpm.stencils),
@@ -726,6 +765,47 @@ RuntimeDiagnostics Runtime::initialize(
         const auto multiplied = [&](const std::size_t perEnvironment) {
             return environments * perEnvironment;
         };
+        candidate->mpmNodeGenerations = privateScratch<std::uint32_t>(
+            candidate->device, multiplied(world.dispatch.gridNodeCount),
+            valid, candidate->residentBytes);
+        candidate->mpmParticleKeys = privateScratch<NMMPMParticleKeyGPU>(
+            candidate->device, multiplied(world.dispatch.particleCount),
+            valid, candidate->residentBytes);
+        candidate->mpmBlockCounts = privateScratch<std::uint32_t>(
+            candidate->device, multiplied(world.dispatch.mpmBlockCount),
+            valid, candidate->residentBytes);
+        candidate->mpmBlockOffsets = privateScratch<std::uint32_t>(
+            candidate->device, multiplied(world.dispatch.mpmBlockCount),
+            valid, candidate->residentBytes);
+        candidate->mpmBlockCursors = privateScratch<std::uint32_t>(
+            candidate->device, multiplied(world.dispatch.mpmBlockCount),
+            valid, candidate->residentBytes);
+        candidate->mpmBlockActiveFlags = privateScratch<std::uint32_t>(
+            candidate->device, multiplied(world.dispatch.mpmBlockCount),
+            valid, candidate->residentBytes);
+        candidate->mpmBlockActiveLocalOffsets =
+            privateScratch<std::uint32_t>(
+                candidate->device,
+                multiplied(world.dispatch.mpmBlockCount),
+                valid,
+                candidate->residentBytes
+            );
+        candidate->mpmEnvironmentActiveCounts =
+            privateScratch<std::uint32_t>(
+                candidate->device, environments,
+                valid, candidate->residentBytes);
+        candidate->mpmEnvironmentActiveOffsets =
+            privateScratch<std::uint32_t>(
+                candidate->device, environments,
+                valid, candidate->residentBytes);
+        candidate->mpmActiveBlocks = privateScratch<NMActiveMPMBlockGPU>(
+            candidate->device, multiplied(world.dispatch.mpmBlockCount),
+            valid, candidate->residentBytes);
+        candidate->mpmSortedParticleIndices = privateScratch<std::uint32_t>(
+            candidate->device, multiplied(world.dispatch.particleCount),
+            valid, candidate->residentBytes);
+        candidate->mpmActiveDispatch = privateScratch<NMIndirectDispatchGPU>(
+            candidate->device, 1u, valid, candidate->residentBytes);
         candidate->contactSamples = privateScratch<NMContactSampleGPU>(
             candidate->device, multiplied(world.dispatch.contactPairCount),
             valid, candidate->residentBytes);
@@ -1136,6 +1216,26 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
         };
+        const auto dispatchIndirect = [&](
+            const char* name,
+            id<MTLBuffer> indirect,
+            const NSUInteger width,
+            const auto& bind
+        ) {
+            id<MTLComputePipelineState> pipeline = state.pipeline(name);
+            if (pipeline == nil || indirect == nil ||
+                width == 0u ||
+                width > pipeline.maxTotalThreadsPerThreadgroup) {
+                return false;
+            }
+            [encoder setComputePipelineState:pipeline];
+            bind();
+            [encoder
+                dispatchThreadgroupsWithIndirectBuffer:indirect
+                indirectBufferOffset:0u
+                threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+            return true;
+        };
         const auto setDispatch = [&]() {
             [encoder setBytes:&frameDispatch
                        length:sizeof(frameDispatch)
@@ -1522,7 +1622,16 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             micro.seedLo = static_cast<std::uint32_t>(request.seed);
             micro.seedHi = static_cast<std::uint32_t>(request.seed >> 32u);
             micro.flags = 0u;
-            micro.reserved = 0u;
+            const std::uint64_t generation64 =
+                (static_cast<std::uint64_t>(request.controlStep) *
+                     request.physicsSubsteps +
+                 request.physicsSubstep) *
+                    microtickCount +
+                microtick + 1u;
+            micro.reserved = static_cast<std::uint32_t>(generation64);
+            if (micro.reserved == 0u) {
+                micro.reserved = 1u;
+            }
             const float globalDt =
                 frameTimestep / float(microtickCount);
             micro.time = {
@@ -1533,23 +1642,114 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 0.0f,
             };
 
-            dispatchThreads("nm_mpm_p2g", gridTotal, [&] {
+            const NSUInteger sparsePrepareCount = std::max<NSUInteger>(
+                environments * state.dispatch.mpmBlockCount,
+                environments
+            );
+            dispatchThreads("nm_mpm_prepare_sparse", sparsePrepareCount, [&] {
+                setDispatch();
+                [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:1u];
+                [encoder setBuffer:state.mpmBlockOffsets offset:0u atIndex:2u];
+                [encoder setBuffer:state.mpmBlockCursors offset:0u atIndex:3u];
+                [encoder setBuffer:state.mpmBlockActiveFlags offset:0u atIndex:4u];
+                [encoder setBuffer:state.mpmBlockActiveLocalOffsets offset:0u atIndex:5u];
+                [encoder setBuffer:state.mpmEnvironmentActiveCounts offset:0u atIndex:6u];
+                [encoder setBuffer:state.mpmEnvironmentActiveOffsets offset:0u atIndex:7u];
+                [encoder setBuffer:state.mpmActiveDispatch offset:0u atIndex:8u];
+            });
+            dispatchThreads("nm_mpm_classify_particles", particleTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:state.materials offset:0u atIndex:3u];
-                [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
-                [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
-                [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
-                [encoder setBuffer:state.gridNodes offset:0u atIndex:8u];
-                [encoder setBuffer:state.mpmStencils offset:0u atIndex:9u];
-                [encoder setBuffer:state.mpmNodeIncidence offset:0u atIndex:10u];
-                [encoder setBuffer:state.mpmNodeRanges offset:0u atIndex:11u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:12u];
-                [encoder setBuffer:state.adaptive offset:0u atIndex:13u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:14u];
+                [encoder setBuffer:state.mpmGrids offset:0u atIndex:3u];
+                [encoder setBuffer:state.mpmBlockLookup offset:0u atIndex:4u];
+                [encoder setBuffer:state.particleAccepted offset:0u atIndex:5u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
+                [encoder setBuffer:state.adaptive offset:0u atIndex:7u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                [encoder setBuffer:state.mpmParticleKeys offset:0u atIndex:9u];
+                [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:10u];
+                [encoder setBuffer:state.mpmBlockActiveFlags offset:0u atIndex:11u];
             });
+            dispatchGroups32("nm_mpm_scan_environment_blocks", environments, [&] {
+                setDispatch();
+                [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:1u];
+                [encoder setBuffer:state.mpmBlockOffsets offset:0u atIndex:2u];
+                [encoder setBuffer:state.mpmBlockActiveFlags offset:0u atIndex:3u];
+                [encoder setBuffer:state.mpmBlockActiveLocalOffsets offset:0u atIndex:4u];
+                [encoder setBuffer:state.mpmEnvironmentActiveCounts offset:0u atIndex:5u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+            });
+            dispatchGroups32("nm_mpm_scan_environment_counts", 1u, [&] {
+                setDispatch();
+                [encoder setBuffer:state.mpmEnvironmentActiveCounts offset:0u atIndex:1u];
+                [encoder setBuffer:state.mpmEnvironmentActiveOffsets offset:0u atIndex:2u];
+                [encoder setBuffer:state.mpmActiveDispatch offset:0u atIndex:3u];
+            });
+            dispatchThreads(
+                "nm_mpm_scatter_active_blocks",
+                environments * state.dispatch.mpmBlockCount,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mpmBlockActiveFlags offset:0u atIndex:1u];
+                    [encoder setBuffer:state.mpmBlockActiveLocalOffsets offset:0u atIndex:2u];
+                    [encoder setBuffer:state.mpmEnvironmentActiveOffsets offset:0u atIndex:3u];
+                    [encoder setBuffer:state.mpmBlockOffsets offset:0u atIndex:4u];
+                    [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:5u];
+                    [encoder setBuffer:state.mpmActiveBlocks offset:0u atIndex:6u];
+                }
+            );
+            dispatchThreads("nm_mpm_scatter_particles", particleTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.mpmParticleKeys offset:0u atIndex:1u];
+                [encoder setBuffer:state.mpmBlockOffsets offset:0u atIndex:2u];
+                [encoder setBuffer:state.mpmBlockCursors offset:0u atIndex:3u];
+                [encoder setBuffer:state.mpmSortedParticleIndices offset:0u atIndex:4u];
+            });
+            if (!dispatchIndirect(
+                    "nm_mpm_sort_block_particles",
+                    state.mpmActiveDispatch,
+                    NM_MPM_MAX_PARTICLES_PER_BLOCK,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.mpmActiveBlocks offset:0u atIndex:1u];
+                        [encoder setBuffer:state.mpmParticleKeys offset:0u atIndex:2u];
+                        [encoder setBuffer:state.mpmSortedParticleIndices offset:0u atIndex:3u];
+                    }
+                ) ||
+                !dispatchIndirect(
+                    "nm_mpm_p2g",
+                    state.mpmActiveDispatch,
+                    256u,
+                    [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                        [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                        [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:8u];
+                        [encoder setBuffer:state.mpmGrids offset:0u atIndex:9u];
+                        [encoder setBuffer:state.mpmBlocks offset:0u atIndex:10u];
+                        [encoder setBuffer:state.mpmBlockLookup offset:0u atIndex:11u];
+                        [encoder setBuffer:state.mpmActiveBlocks offset:0u atIndex:12u];
+                        [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:13u];
+                        [encoder setBuffer:state.mpmBlockOffsets offset:0u atIndex:14u];
+                        [encoder setBuffer:state.mpmSortedParticleIndices offset:0u atIndex:15u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:16u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:17u];
+                        [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:18u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:19u];
+                    }
+                )) {
+                [encoder endEncoding];
+                ownership->preDynamicsOpen = false;
+                diagnostics.message =
+                    "failed to encode sparse MPM indirect work";
+                return diagnostics;
+            }
             dispatchThreads("nm_fem_internal_forces", tetrahedronTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -1649,10 +1849,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 });
                 dispatchGroups32("nm_fem_reduce_new_rz", objectTotal, [&] {
                     setDispatch();
-                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femResidual offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femPreconditioned offset:0u atIndex:3u];
-                    [encoder setBuffer:state.pcgScalars offset:0u atIndex:4u];
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:3u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femPreconditioned offset:0u atIndex:7u];
+                    [encoder setBuffer:state.pcgScalars offset:0u atIndex:8u];
                 });
                 dispatchThreads("nm_fem_pcg_update_direction", femNodeTotal, [&] {
                     setDispatch();
@@ -1687,7 +1891,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
                 [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:11u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:12u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
             });
             dispatchThreads(
                 "nm_contact_apply_nodes",
@@ -1724,10 +1929,11 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                 [encoder setBuffer:state.particleCandidate offset:0u atIndex:8u];
                 [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
-                [encoder setBuffer:state.mpmStencils offset:0u atIndex:10u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
-                [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+                [encoder setBuffer:state.mpmGrids offset:0u atIndex:10u];
+                [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:11u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:12u];
+                [encoder setBuffer:state.adaptive offset:0u atIndex:13u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:14u];
             });
             dispatchThreads("nm_fem_integrate", femNodeTotal, [&] {
                 setDispatch();
@@ -1759,15 +1965,17 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             });
             dispatchGroups32("nm_scheduler_observe", objectTotal, [&] {
                 setDispatch();
-                [encoder setBuffer:state.objects offset:0u atIndex:1u];
-                [encoder setBuffer:state.contactSamples offset:0u atIndex:2u];
-                [encoder setBuffer:state.gridNodes offset:0u atIndex:3u];
-                [encoder setBuffer:state.mpmNodeRanges offset:0u atIndex:4u];
-                [encoder setBuffer:state.particleAccepted offset:0u atIndex:5u];
-                [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
-                [encoder setBuffer:state.femTetrahedra offset:0u atIndex:7u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:8u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:state.contactSamples offset:0u atIndex:3u];
+                [encoder setBuffer:state.gridNodes offset:0u atIndex:4u];
+                [encoder setBuffer:state.mpmNodeRanges offset:0u atIndex:5u];
+                [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:6u];
+                [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
+                [encoder setBuffer:state.femAccepted offset:0u atIndex:8u];
+                [encoder setBuffer:state.femTetrahedra offset:0u atIndex:9u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
             });
             dispatchThreads("nm_complete_microstep", environments, [&] {
                 setDispatch();
