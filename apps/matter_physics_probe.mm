@@ -366,7 +366,10 @@ MRBodyStateGPU adaptiveBodyState() {
     return state;
 }
 
-void runAdaptiveTransfer(const bool requirePromotion) {
+void runAdaptiveTransfer(
+    const bool requirePromotion,
+    const bool rejectPromotion = false
+) {
     @autoreleasepool {
         const auto world = compileAdaptiveCase();
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
@@ -499,6 +502,9 @@ void runAdaptiveTransfer(const bool requirePromotion) {
             contact->bodyB = MR_INVALID_INDEX;
             contact->targetVelocityAndPreSolveNormal.w = -1.0f;
             contact->impulses.x = 0.1f;
+            const auto beforePromotion = runtime.snapshot();
+            require(beforePromotion.available,
+                "adaptive promotion rollback baseline is unavailable");
 
             id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
             require(commandBuffer != nil,
@@ -527,6 +533,9 @@ void runAdaptiveTransfer(const bool requirePromotion) {
             auto encoded = runtime.encode(request);
             require(encoded.encoded,
                 "adaptive promotion pre-dynamics encoding failed: " + encoded.message);
+            if (rejectPromotion) {
+                worldStatus->code = MR_STEP_DID_NOT_CONVERGE;
+            }
             request.phase = numi::matter::EncodePhase::postCommit;
             request.runAdaptiveTransfer = true;
             encoded = runtime.encode(request);
@@ -534,8 +543,37 @@ void runAdaptiveTransfer(const bool requirePromotion) {
                 "adaptive promotion post-commit encoding failed: " + encoded.message);
             [commandBuffer commit];
             [commandBuffer waitUntilCompleted];
-            require(commandBuffer.status == MTLCommandBufferStatusCompleted &&
-                        matterStatus->code == NM_STATUS_SUCCESS,
+            require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+                "adaptive promotion command buffer did not complete");
+
+            if (rejectPromotion) {
+                require(matterStatus->code == NM_STATUS_RIGID_WORLD_FAILURE,
+                    "rejected rigid contact did not latch Matter failure");
+                const auto restored = runtime.snapshot();
+                const auto equalBytes = [](const auto& left, const auto& right) {
+                    return left.size() == right.size() &&
+                        (left.empty() || std::memcmp(
+                            left.data(), right.data(),
+                            left.size() * sizeof(left.front())
+                        ) == 0);
+                };
+                require(restored.available &&
+                            restored.adaptive.size() == 1u &&
+                            restored.schedulers.size() == 1u &&
+                            equalBytes(restored.adaptive, beforePromotion.adaptive) &&
+                            equalBytes(restored.schedulers, beforePromotion.schedulers) &&
+                            restored.adaptive[0].activeRepresentation ==
+                                NM_REPRESENTATION_RIGID &&
+                            (scene->flagsAndIndices[3] &
+                             MR_BODY_STATE_COLLISION_DISABLED) == 0u,
+                    "rejected rigid contact did not restore adaptive rigid ownership");
+                std::cout
+                    << "{\"schema\":\"numi.matter.physics-probe.v1\""
+                    << ",\"representation\":\"adaptive_promotion_rollback\""
+                    << ",\"transaction_rollback\":true}\n";
+                return;
+            }
+            require(matterStatus->code == NM_STATUS_SUCCESS,
                 "adaptive promotion command buffer did not complete successfully");
 
             const auto promoted = runtime.snapshot();
@@ -950,12 +988,13 @@ int main(int argc, const char* argv[]) {
         const bool identification = argc == 2 && std::string_view(argv[1]) == "--identification";
         const bool adaptiveDemotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-demotion";
         const bool adaptivePromotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-promotion";
+        const bool adaptivePromotionRollback = argc == 2 && std::string_view(argv[1]) == "--adaptive-promotion-rollback";
         const bool femFree = argc == 2 && std::string_view(argv[1]) == "--fem-free";
         const bool femHighRate = argc == 2 && std::string_view(argv[1]) == "--fem-high-rate";
         const bool femHighDrop = argc == 2 && std::string_view(argv[1]) == "--fem-high-drop";
         require(
-            argc == 1 || femOnly || mpmOnly || mpmFree || mpmSingle || mpmSingleContact || mpmGentle || mpmRollback || metalWorldCoupling || identification || adaptiveDemotion || adaptivePromotion || femFree || femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            argc == 1 || femOnly || mpmOnly || mpmFree || mpmSingle || mpmSingleContact || mpmGentle || mpmRollback || metalWorldCoupling || identification || adaptiveDemotion || adaptivePromotion || adaptivePromotionRollback || femFree || femHighRate || femHighDrop,
+            "usage: metalrobo_matter_physics_probe [--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (identification) {
             runIdentification();
@@ -966,10 +1005,14 @@ int main(int argc, const char* argv[]) {
         if (adaptivePromotion) {
             runAdaptiveTransfer(true);
         }
+        if (adaptivePromotionRollback) {
+            runAdaptiveTransfer(true, true);
+        }
         if (metalWorldCoupling) {
             runMetalWorldCoupling();
         }
-        if (!identification && !adaptiveDemotion && !adaptivePromotion && !metalWorldCoupling &&
+        if (!identification && !adaptiveDemotion && !adaptivePromotion &&
+            !adaptivePromotionRollback && !metalWorldCoupling &&
             !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
             const auto mpm = runCase(
@@ -1008,7 +1051,8 @@ int main(int argc, const char* argv[]) {
         }
         if (!mpmOnly && !mpmFree && !mpmSingle && !mpmSingleContact &&
             !mpmGentle && !mpmRollback && !metalWorldCoupling &&
-            !identification && !adaptiveDemotion && !adaptivePromotion) {
+            !identification && !adaptiveDemotion && !adaptivePromotion &&
+            !adaptivePromotionRollback) {
             const bool withPlane = !femFree;
             const auto fem = runCase(
                 compileCase(

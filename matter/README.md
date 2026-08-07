@@ -243,7 +243,8 @@ command buffers. It checks MPM freefall, a coupled eight-particle MPM plane
 impact, an articulated-body continuum reaction consumed by MetalWorld ABA, a
 full-height implicit FEM impact, a near-plane CFL-resolved FEM contact,
 byte-identical MPM/FEM/scheduler rollback after an enclosing rigid transaction
-rejects the tentative continuum update, a 30-frame MPM-to-rigid ownership
+rejects the tentative continuum update, byte-identical adaptive/scheduler
+rollback after a rejected rigid-contact promotion, a 30-frame MPM-to-rigid ownership
 transfer with valid measured inverse inertia and scene authority publication,
 the inverse rigid-contact transfer back to MPM through the typed borrowed
 post-solve arena, and antithetic inverse-parameter sampling followed by a GPU
