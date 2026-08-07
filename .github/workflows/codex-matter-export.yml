@@ -1,43 +1,76 @@
-name: Codex Matter source export
+name: Materialize Matter coupling harness fix
 
 on:
   pull_request:
     types: [synchronize, reopened]
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: matter-coupling-harness-fix
+  cancel-in-progress: true
 
 jobs:
-  export:
-    runs-on: ubuntu-latest
+  materialize:
+    if: github.event.pull_request.head.ref == 'codex/matter-compiler-foundation'
+    runs-on: macos-26
+    timeout-minutes: 45
     steps:
-      - name: Check out exact PR head
+      - name: Check out exact branch history
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 1
-      - name: Package exact head source
+          ref: codex/matter-compiler-foundation
+          fetch-depth: 0
+
+      - name: Correct, qualify, and publish the coupling harness
         shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          tar \
-            --exclude=.git \
-            --exclude=build \
-            --exclude=build-* \
-            --exclude='*.nmatterpack' \
-            -czf /tmp/numi-matter-pr2-source.tar.gz \
-            CMakeLists.txt \
-            apps \
-            include \
-            matter \
-            src \
-            numi \
-            tools \
-            .github
-      - name: Upload exact head source
-        uses: actions/upload-artifact@v4
-        with:
-          name: numi-matter-pr2-source-${{ github.event.pull_request.head.sha }}
-          path: /tmp/numi-matter-pr2-source.tar.gz
-          retention-days: 1
-          if-no-files-found: error
+          test "$(git rev-parse HEAD)" = "${EXPECTED_HEAD}"
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("apps/matter_physics_probe.mm")
+          source = path.read_text()
+          scene = "        const std::array<MRBodyStateGPU, 1u> scene{staticSceneBody()};\n"
+          field = (
+              "            .efforts = efforts,\n"
+              "            .initialSceneBodies = scene,\n"
+          )
+          if scene not in source and field not in source:
+              print("Matter coupling harness is already corrected.")
+              raise SystemExit(20)
+          if source.count(scene) != 1 or source.count(field) != 1:
+              raise SystemExit("coupling harness source no longer matches the audited edit")
+          source = source.replace(scene, "", 1)
+          source = source.replace(field, "            .efforts = efforts,\n", 1)
+          path.write_text(source)
+          PY
+          status=$?
+          if [[ ${status} -eq 20 ]]; then
+            exit 0
+          fi
+
+          git diff --check
+          cmake -S . -B build-matter-coupling-fix \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=ON
+          cmake --build build-matter-coupling-fix \
+            --target metalrobo_matter_physics_probe \
+            -j 3
+          build-matter-coupling-fix/bin/metalrobo_matter_physics_probe \
+            --metal-world-coupling
+
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/matter_physics_probe.mm
+          git commit -m "Fix the articulated Matter coupling probe layout"
+          git push \
+            --force-with-lease=refs/heads/codex/matter-compiler-foundation:${EXPECTED_HEAD} \
+            origin HEAD:codex/matter-compiler-foundation
