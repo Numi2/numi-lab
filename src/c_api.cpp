@@ -3133,12 +3133,11 @@ static MRTaskRolloutHandle* createImportedURDFRun(
             task.id == "robotis_ai_sapiens_k1_velocity_v1" ||
             task.id == "robotis_ai_sapiens_k1_mimic_v1";
         if (aiSapiensK1) {
-            // The pinned K1 MuJoCo model gives every collision geom and its
-            // flat floor friction="0.8 0.02 0.001".  MuJoCo's tuple is
-            // sliding, torsional, rolling; MetalWorld stores static sliding,
-            // dynamic sliding, rolling, torsional.  Its Coulomb sliding term
-            // therefore maps to both MetalWorld sliding coefficients.
-            options.friction = {0.8F, 0.8F, 0.001F, 0.02F};
+            // The pinned K1 MuJoCo floor is condim=3 with sliding friction
+            // 0.8.  It has no torsional or rolling constraint rows, so map
+            // that Coulomb coefficient to both MetalWorld sliding modes and
+            // leave the unsupported rows at zero.
+            options.friction = {0.8F, 0.8F, 0.0F, 0.0F};
         }
         metalrobo::LocomotionWorld authored;
         const metalrobo::RobotDescriptionDiagnostics cooked =
