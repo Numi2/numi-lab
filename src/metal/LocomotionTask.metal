@@ -3331,6 +3331,12 @@ kernel void mr_locomotion_task_observe(
                 scheduled.linearVelocityAndInverseMass.xyz =
                     float3(0.0f);
                 scheduled.angularVelocity = float4(0.0f);
+            } else {
+                // A delayed projectile is parked at reset, so resetScene
+                // deliberately has zero velocity.  Restore the authored
+                // launch state on its exact episode tick rather than letting
+                // it fall vertically from its staging point.
+                scheduled = initialScene[sceneBase + localScene];
             }
             sourceScene[sceneBase + localScene] = scheduled;
         }
