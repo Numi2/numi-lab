@@ -2,10 +2,10 @@
 
 #include <algorithm>
 #include <cctype>
-#include <charconv>
 #include <cmath>
 #include <fstream>
 #include <limits>
+#include <locale>
 #include <ranges>
 #include <sstream>
 #include <stdexcept>
@@ -104,11 +104,11 @@ public:
                 }
                 const std::string text(source_.substr(begin, offset_ - begin));
                 double number = 0.0;
-                const auto [pointer, error] = std::from_chars(
-                    text.data(), text.data() + text.size(), number
-                );
-                if (error != std::errc{} || pointer != text.data() + text.size() ||
-                    !std::isfinite(number)) {
+                std::istringstream stream(text);
+                stream.imbue(std::locale::classic());
+                stream >> number;
+                stream >> std::ws;
+                if (!stream.eof() || !std::isfinite(number)) {
                     diagnostics.push_back({
                         Diagnostic::Severity::error,
                         line,

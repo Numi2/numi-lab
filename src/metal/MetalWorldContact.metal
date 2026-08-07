@@ -226,6 +226,27 @@ inline bool writeWorldInverseInertia(
     return true;
 }
 
+inline bool writeWorldInverseInertia(
+    device MRBodyStateGPU& state,
+    device const MRBodyPropertiesGPU& body,
+    const float4 orientation
+) {
+    const Mat3 rotation = rotationMatrix(orientation);
+    const Mat3 rotated = multiply(
+        multiply(rotation, bodyInverseInertia(body)),
+        transpose(rotation)
+    );
+    if (!finite3(rotated.row0) ||
+        !finite3(rotated.row1) ||
+        !finite3(rotated.row2)) {
+        return false;
+    }
+    state.inverseInertiaWorldRow0 = float4(rotated.row0, 0.0f);
+    state.inverseInertiaWorldRow1 = float4(rotated.row1, 0.0f);
+    state.inverseInertiaWorldRow2 = float4(rotated.row2, 0.0f);
+    return true;
+}
+
 inline Mat3 stateInverseInertia(
     device const MRBodyStateGPU& state
 ) {
@@ -238,6 +259,16 @@ inline Mat3 stateInverseInertia(
 
 inline Mat3 threadStateInverseInertia(
     thread const MRBodyStateGPU& state
+) {
+    Mat3 result;
+    result.row0 = state.inverseInertiaWorldRow0.xyz;
+    result.row1 = state.inverseInertiaWorldRow1.xyz;
+    result.row2 = state.inverseInertiaWorldRow2.xyz;
+    return result;
+}
+
+inline Mat3 deviceStateInverseInertia(
+    device const MRBodyStateGPU& state
 ) {
     Mat3 result;
     result.row0 = state.inverseInertiaWorldRow0.xyz;
@@ -309,12 +340,47 @@ inline void writeStateInverseInertia(
     state.inverseInertiaWorldRow2 = float4(matrix.row2, 0.0f);
 }
 
+inline void writeStateInverseInertia(
+    device MRBodyStateGPU& state,
+    const thread Mat3& matrix
+) {
+    state.inverseInertiaWorldRow0 = float4(matrix.row0, 0.0f);
+    state.inverseInertiaWorldRow1 = float4(matrix.row1, 0.0f);
+    state.inverseInertiaWorldRow2 = float4(matrix.row2, 0.0f);
+}
+
 inline bool rotateOverrideInverseInertia(
     thread MRBodyStateGPU& state,
     const float4 previousOrientation,
     const float4 nextOrientation
 ) {
     const Mat3 previousWorld = threadStateInverseInertia(state);
+    if (!validWorldInverseInertia(previousWorld)) {
+        return false;
+    }
+    const Mat3 previousRotation = rotationMatrix(previousOrientation);
+    const Mat3 nextRotation = rotationMatrix(nextOrientation);
+    const Mat3 bodyFrame = multiply(
+        multiply(transpose(previousRotation), previousWorld),
+        previousRotation
+    );
+    const Mat3 nextWorld = multiply(
+        multiply(nextRotation, bodyFrame),
+        transpose(nextRotation)
+    );
+    if (!validWorldInverseInertia(nextWorld)) {
+        return false;
+    }
+    writeStateInverseInertia(state, nextWorld);
+    return true;
+}
+
+inline bool rotateOverrideInverseInertia(
+    device MRBodyStateGPU& state,
+    const float4 previousOrientation,
+    const float4 nextOrientation
+) {
+    const Mat3 previousWorld = deviceStateInverseInertia(state);
     if (!validWorldInverseInertia(previousWorld)) {
         return false;
     }

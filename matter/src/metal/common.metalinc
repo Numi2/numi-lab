@@ -35,6 +35,18 @@ inline void matrixToRows(
     row2 = float4(transposed[2], 0.0f);
 }
 
+inline void matrixToRows(
+    const float3x3 value,
+    device float4& row0,
+    device float4& row1,
+    device float4& row2
+) {
+    const float3x3 transposed = transpose(value);
+    row0 = float4(transposed[0], 0.0f);
+    row1 = float4(transposed[1], 0.0f);
+    row2 = float4(transposed[2], 0.0f);
+}
+
 inline float3 multiplyRows(
     const float4 row0,
     const float4 row1,
@@ -66,7 +78,14 @@ inline bool invert3x3(
         !isfinite(determinantValue)) {
         return false;
     }
-    inverseValue = inverse(value);
+    const float3 row0 = float3(value[0].x, value[1].x, value[2].x);
+    const float3 row1 = float3(value[0].y, value[1].y, value[2].y);
+    const float3 row2 = float3(value[0].z, value[1].z, value[2].z);
+    inverseValue = transpose(float3x3(
+        cross(row1, row2),
+        cross(row2, row0),
+        cross(row0, row1)
+    )) / determinantValue;
     return all(isfinite(inverseValue[0])) &&
         all(isfinite(inverseValue[1])) &&
         all(isfinite(inverseValue[2]));
@@ -163,17 +182,20 @@ inline void recordFailure(
     device atomic_uint* atomicCode =
         reinterpret_cast<device atomic_uint*>(&status.code);
     uint expected = NM_STATUS_SUCCESS;
-    if (atomic_compare_exchange_strong_explicit(
-            atomicCode,
-            &expected,
-            code,
-            memory_order_relaxed,
-            memory_order_relaxed
-        )) {
-        status.objectIndex = objectIndex;
-        status.failingIndex = failingIndex;
-        status.diagnostics = diagnostics;
+    while (!atomic_compare_exchange_weak_explicit(
+        atomicCode,
+        &expected,
+        code,
+        memory_order_relaxed,
+        memory_order_relaxed
+    )) {
+        if (expected != NM_STATUS_SUCCESS) {
+            return;
+        }
     }
+    status.objectIndex = objectIndex;
+    status.failingIndex = failingIndex;
+    status.diagnostics = diagnostics;
 }
 
 inline bool environmentHealthy(
