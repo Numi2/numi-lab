@@ -1,169 +1,33 @@
-name: Materialize audited Matter improvements
+name: Export exact Matter audit staging
 
 on:
   pull_request:
     types: [synchronize, reopened]
 
 permissions:
-  contents: write
-
-concurrency:
-  group: matter-audit-materialize
-  cancel-in-progress: true
+  contents: read
 
 jobs:
-  materialize:
+  export:
     if: github.event.pull_request.head.ref == 'codex/matter-compiler-foundation'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     steps:
-      - name: Check out exact branch history
+      - name: Check out exact PR head
         uses: actions/checkout@v4
         with:
-          ref: codex/matter-compiler-foundation
-          fetch-depth: 0
-
-      - name: Reconstruct, audit, and publish
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - name: Package audit staging
         shell: bash
-        env:
-          BASE_SHA: 01d171fab09a4f693fd231fd44d0e2b4c278b418
-          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
-          PATCH_SHA256: 42c3ca28683a394e42a1857cd8f57f2c33551a1f19fc08e15080a6cb17b69c02
         run: |
           set -euo pipefail
-
-          if [[ ! -f .github/matter-audit-improve-payload-00.txt ]]; then
-            echo "Audited Matter payload is already materialized."
-            exit 0
-          fi
-
-          test "$(git rev-parse HEAD)" = "${EXPECTED_HEAD}"
-          cat > /tmp/matter-audit-payload-checksums <<'CHECKSUMS'
-          887d75597988142e6a2a4564e4471999c212be84d94df57392333a3f4d16bb9d  .github/matter-audit-improve-payload-00.txt
-          0b76fdf534d8eade36cedfe302941d727084488dfad5773c71cb3084a30fde27  .github/matter-audit-improve-payload-01.txt
-          002eb06db0042344bef0a65073e4c8aa14b671a5b73d07252a009d6d5422aace  .github/matter-audit-improve-payload-02.txt
-          b1e89eccef087ab4c832a746acb2d876e45ffa9ab49d8e5ea7f1c30e5ee33557  .github/matter-audit-improve-payload-03b.txt
-          CHECKSUMS
-          sha256sum --check /tmp/matter-audit-payload-checksums
-
-          python3 - <<'PY'
-          from pathlib import Path
-          import base64
-          import gzip
-          import hashlib
-          import os
-
-          expected = os.environ["PATCH_SHA256"]
-          root = Path(".github")
-          prefix = "".join(
-              (root / f"matter-audit-improve-payload-0{i}.txt").read_text()
-              for i in range(3)
-          )
-          old = (root / "matter-audit-improve-payload-03.txt").read_text()
-          a = (root / "matter-audit-improve-payload-03a.txt").read_text()
-          b = (root / "matter-audit-improve-payload-03b.txt").read_text()
-
-          def stitch(left: str, right: str) -> tuple[str, int]:
-              maximum = min(len(left), len(right))
-              for overlap in range(maximum, -1, -1):
-                  if left.endswith(right[:overlap]):
-                      return left + right[overlap:], overlap
-              raise AssertionError("unreachable")
-
-          candidates: list[tuple[str, str]] = [("a+b", a + b)]
-          old_b, overlap_old_b = stitch(old, b)
-          candidates.append((f"old+b overlap={overlap_old_b}", old_b))
-          a_old, overlap_a_old = stitch(a, old)
-          a_old_b, overlap_a_old_b = stitch(a_old, b)
-          candidates.append((
-              f"a+old+b overlaps={overlap_a_old},{overlap_a_old_b}",
-              a_old_b,
-          ))
-
-          seen: set[str] = set()
-          for label, tail in candidates:
-              if tail in seen:
-                  continue
-              seen.add(tail)
-              encoded = prefix + tail
-              try:
-                  compressed = base64.b64decode(encoded, validate=True)
-                  patch = gzip.decompress(compressed)
-              except Exception as error:
-                  print(label, "decode failed:", error)
-                  continue
-              digest = hashlib.sha256(patch).hexdigest()
-              print(label, "encoded", len(encoded), "patch", len(patch), digest)
-              if digest == expected:
-                  Path("/tmp/matter-audit-improve.patch").write_bytes(patch)
-                  break
-          else:
-              raise SystemExit("no staged overlap reconstruction matched the audited patch")
-          PY
-
-          echo "${PATCH_SHA256}  /tmp/matter-audit-improve.patch" \
-            | sha256sum --check -
-          git diff --quiet "${BASE_SHA}" -- \
-            CMakeLists.txt \
-            apps/matter_physics_probe.mm \
-            include/metalrobo/MetalWorld.hpp \
-            matter \
-            src/metal/MetalWorld.mm
-
-          git apply --check /tmp/matter-audit-improve.patch
-          git apply /tmp/matter-audit-improve.patch
-          rm -f \
-            .github/matter-audit-improve.patch.gz.b64 \
-            .github/matter-audit-improve-payload-00.txt \
-            .github/matter-audit-improve-payload-01.txt \
-            .github/matter-audit-improve-payload-02.txt \
-            .github/matter-audit-improve-payload-03.txt \
-            .github/matter-audit-improve-payload-03a.txt \
-            .github/matter-audit-improve-payload-03b.txt
-          git diff --check
-
-          cmake -S matter -B /tmp/numi-matter-audit-build \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_TESTING=ON \
-            -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -Werror"
-          cmake --build /tmp/numi-matter-audit-build -j 3
-          ctest \
-            --test-dir /tmp/numi-matter-audit-build \
-            --output-on-failure \
-            -j 1
-
-          c++ -std=c++23 -Wall -Wextra -Wpedantic -Werror \
-            -I matter/include -I include \
-            -fsyntax-only matter/src/metal_world.cpp
-
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          metal = "\n".join(
-              path.read_text()
-              for path in Path("matter/src/metal").glob("*.metalinc")
-          ) + "\n" + Path("matter/src/matter_kernels.metal").read_text()
-          runtime = Path("matter/src/runtime.mm").read_text()
-          definitions = set(re.findall(
-              r"\bkernel\s+void\s+(nm_[A-Za-z0-9_]+)\s*\(",
-              metal,
-          ))
-          references = set(re.findall(r'"(nm_[A-Za-z0-9_]+)"', runtime))
-          if definitions != references:
-              raise SystemExit(
-                  f"Matter kernel mismatch: missing={sorted(references-definitions)} "
-                  f"unused={sorted(definitions-references)}"
-              )
-          print(f"Matter kernels: {len(definitions)} definitions/references")
-          PY
-
-          git config user.name "github-actions[bot]"
-          git config user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "Audit and harden Matter execution"
-          git push \
-            --force-with-lease=refs/heads/codex/matter-compiler-foundation:${EXPECTED_HEAD} \
-            origin HEAD:codex/matter-compiler-foundation
+          tar -czf /tmp/numi-matter-audit-staging.tar.gz \
+            .github/matter-audit-improve* \
+            .github/workflows/codex-matter-export.yml
+      - name: Upload audit staging
+        uses: actions/upload-artifact@v4
+        with:
+          name: numi-matter-audit-staging-${{ github.event.pull_request.head.sha }}
+          path: /tmp/numi-matter-audit-staging.tar.gz
+          retention-days: 1
+          if-no-files-found: error
