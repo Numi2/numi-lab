@@ -596,6 +596,7 @@ inline float cleanObservation(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* previousPolicyAction,
     device const float* previousJointPosition,
     device const float* compactContact,
     device const float4* bodyParameters,
@@ -652,6 +653,9 @@ inline float cleanObservation(
     }
     case MR_TASK_OBSERVE_PREVIOUS_ACTION:
         value = previousAction[operation.source.y];
+        break;
+    case MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION:
+        value = previousPolicyAction[operation.source.y];
         break;
     case MR_TASK_OBSERVE_DELAYED_ACTION:
         value = previousAction[
@@ -1179,6 +1183,7 @@ inline void writeFrame(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* previousPolicyAction,
     device const float* previousJointPosition,
     device const float* sensorBias,
     device const float* compactContact,
@@ -1219,6 +1224,7 @@ inline void writeFrame(
             defaultQ,
             state,
             previousAction,
+            previousPolicyAction,
             previousJointPosition,
             compactContact,
             bodyParameters,
@@ -1268,6 +1274,7 @@ inline void writeFrame(
             defaultQ,
             state,
             previousAction,
+            previousPolicyAction,
             previousJointPosition,
             compactContact,
             bodyParameters,
@@ -1319,6 +1326,7 @@ inline void writeCurrentActor(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* previousPolicyAction,
     device const float* previousJointPosition,
     device const float* sensorBias,
     device const float* compactContact,
@@ -1346,6 +1354,7 @@ inline void writeCurrentActor(
             defaultQ,
             state,
             previousAction,
+            previousPolicyAction,
             previousJointPosition,
             compactContact,
             bodyParameters,
@@ -1384,6 +1393,7 @@ inline void writeCriticFrame(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* previousPolicyAction,
     device const float* previousJointPosition,
     device const float* compactContact,
     device const float4* bodyParameters,
@@ -1412,6 +1422,7 @@ inline void writeCriticFrame(
             defaultQ,
             state,
             previousAction,
+            previousPolicyAction,
             previousJointPosition,
             compactContact,
             bodyParameters,
@@ -2270,6 +2281,9 @@ kernel void mr_locomotion_task_observe(
         environment *
         program.layout.w *
         program.counts0.x;
+    device float* rawPolicyActions =
+        actionHistory +
+        dispatch.counts.x * program.layout.w * program.counts0.x;
     const uint historyElements =
         program.layout.x * program.layout.y;
     const uint historyBase =
@@ -2400,6 +2414,9 @@ kernel void mr_locomotion_task_observe(
                     action
                 ] = 0.0f;
             }
+            rawPolicyActions[
+                environment * program.counts0.x + action
+            ] = 0.0f;
         }
         for (uint index = 0u;
              index < program.layout.z;
@@ -3039,6 +3056,7 @@ kernel void mr_locomotion_task_observe(
             defaultQ,
             state,
             actionHistory + delayBase,
+            rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             sensorBias + biasBase,
             compactContact + contactBase,
@@ -3084,6 +3102,7 @@ kernel void mr_locomotion_task_observe(
             defaultQ,
             state,
             actionHistory + delayBase,
+            rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             compactContact + contactBase,
             bodyParameters + bodyParameterBase,
@@ -3335,6 +3354,7 @@ kernel void mr_locomotion_task_observe(
         defaultQ,
         state,
         actionHistory + delayBase,
+        rawPolicyActions + environment * program.counts0.x,
         previousJointVelocity + previousVelocityBase + program.counts0.x,
         sensorBias + biasBase,
         compactContact + contactBase,
@@ -3396,6 +3416,7 @@ kernel void mr_locomotion_task_apply_actions(
     device const MRTaskStateGPU* taskStates [[buffer(8)]],
     device float* actionHistory [[buffer(9)]],
     device float* teacherActions [[buffer(10)]],
+    device const float* rawPolicyLatents [[buffer(11)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -3432,6 +3453,9 @@ kernel void mr_locomotion_task_apply_actions(
         environment *
         program.layout.w *
         program.counts0.x;
+    device float* rawPolicyActions =
+        actionHistory +
+        dispatch.counts.x * program.layout.w * program.counts0.x;
     const MRTaskStateGPU state = taskStates[environment];
     const uint referenceFrame = interactionFrame(
         program,
@@ -3482,6 +3506,9 @@ kernel void mr_locomotion_task_apply_actions(
         // trained with residuals outside [-1, 1] retain their source action
         // semantics without weakening physical target safety.
         const float requested = actionStream[actionBase + action];
+        rawPolicyActions[
+            environment * program.counts0.x + action
+        ] = rawPolicyLatents[actionBase + action];
         const float previous = actionHistory[
             delayBase +
             filterSlot * program.counts0.x +
@@ -3985,6 +4012,9 @@ kernel void mr_locomotion_task_complete(
         environment *
         program.layout.w *
         program.counts0.x;
+    device const float* rawPolicyActions =
+        actionHistory +
+        dispatch.counts.x * program.layout.w * program.counts0.x;
     const uint historyElements =
         program.layout.x * program.layout.y;
     const uint historyBase =
@@ -6466,6 +6496,7 @@ kernel void mr_locomotion_task_complete(
             state,
             actionHistory + delayBase +
                 (program.layout.w - 2u) * program.counts0.x,
+            rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             sensorBias + biasBase,
             compactContact + compactBase,
@@ -6532,6 +6563,7 @@ kernel void mr_locomotion_task_complete(
             defaultQ,
             state,
             currentAction,
+            rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             compactContact + compactBase,
             bodyParameters + bodyParameterBase,
@@ -6592,6 +6624,7 @@ kernel void mr_locomotion_task_complete(
             state,
             actionHistory + delayBase +
                 (program.layout.w - 2u) * program.counts0.x,
+            rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             sensorBias + biasBase,
             compactContact + compactBase,
