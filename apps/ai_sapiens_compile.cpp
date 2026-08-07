@@ -416,14 +416,18 @@ void requireOfficialAssets(const std::filesystem::path& source) {
     result.program.id = "robotis_ai_sapiens_k1_nominal_world_v1";
     result.reset.operators.push_back({
         .operation = metalrobo::TaskRandomizationOperator::rootHeight,
-        .parameters = {0.78F, 0.78F, 0.0F, 0.0F},
+        // Upstream enters Velocity from ReadyPose: it switches controller
+        // defaults without teleporting the robot.  The pinned MuJoCo K1
+        // scene initializes its pelvis link at z=0.7955; with the source
+        // pelvis COM offset -0.050315356 this is COM z=0.745184644.
+        .parameters = {0.7451846F, 0.7451846F, 0.0F, 0.0F},
     });
     for (std::size_t index = 0u; index < kPolicyJoints.size(); ++index) {
         result.reset.operators.push_back({
             .operation = metalrobo::TaskRandomizationOperator::jointPosition,
             .target = std::string{kPolicyJoints[index]},
             .parameters = {
-                kVelocityOffsets[index], kVelocityOffsets[index], 0.0F, 0.0F,
+                kReadyPose[index], kReadyPose[index], 0.0F, 0.0F,
             },
         });
     }
@@ -486,7 +490,10 @@ void requireOfficialAssets(const std::filesystem::path& source) {
     result.program.id = "robotis_ai_sapiens_k1_mimic_world_v1";
     result.reset.operators.push_back({
         .operation = metalrobo::TaskRandomizationOperator::rootHeight,
-        .parameters = {0.25F, 0.25F, 0.0F, 0.0F},
+        // MetalWorld stores the floating pelvis COM.  Preserve the pinned
+        // MuJoCo K1 scene's authored pelvis-link z=0.7955 together with its
+        // local COM z=-0.050315356.
+        .parameters = {0.7451846F, 0.7451846F, 0.0F, 0.0F},
     });
     return result;
 }
@@ -587,6 +594,12 @@ int main(const int argc, const char* const* argv) {
         cookOptions.meshMode =
             metalrobo::RobotDescriptionMeshMode::requireConvexSurface;
         cookOptions.packageSearchRoots = {options.source};
+        // Keep the compiler's collision-model fingerprint on the same
+        // contact contract that createImportedURDFRun resolves for these
+        // source-owned K1 packs.  The source MuJoCo tuple is sliding,
+        // torsional, rolling; MetalWorld stores static/dynamic sliding,
+        // rolling, torsional.
+        cookOptions.friction = {0.8F, 0.8F, 0.001F, 0.02F};
         const auto cookedResult = metalrobo::cookRobotDescriptionFiles(
             collisionURDF, {}, cooked, cookOptions);
         if (!cookedResult.succeeded() || cookedResult.dofCount != 29u) {

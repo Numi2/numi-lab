@@ -47,6 +47,7 @@ done
 mkdir -p "$numi_output"
 "$numi_compiler" --source "$numi_source" --output "$numi_output"
 "$numi_rollout" --metallib "$numi_metallib" \
+    --scene ground \
     --urdf "$numi_output/k1-collision.urdf" \
     --task-pack "$numi_output/k1-velocity.taskpack" \
     --robot-actuator-pack "$numi_output/k1-velocity.actuatorpack" \
@@ -62,6 +63,7 @@ python3 "$numi_root/tools/import_ai_sapiens_k1_velocity_policy.py" \
     --library "$numi_library" \
     > "$numi_output/k1-velocity-policy.json"
 "$numi_rollout" --metallib "$numi_metallib" \
+    --scene ground \
     --urdf "$numi_output/k1-collision.urdf" \
     --task-pack "$numi_output/k1-velocity.taskpack" \
     --robot-actuator-pack "$numi_output/k1-velocity.actuatorpack" \
@@ -72,6 +74,7 @@ python3 "$numi_root/tools/import_ai_sapiens_k1_velocity_policy.py" \
     > "$numi_output/k1-velocity-rollout.json"
 for numi_mimic in squat dance1 dance2; do
     "$numi_rollout" --metallib "$numi_metallib" \
+        --scene ground \
         --urdf "$numi_output/k1-collision.urdf" \
         --task-pack "$numi_output/k1-mimic.taskpack" \
         --robot-actuator-pack "$numi_output/k1-mimic.actuatorpack" \
@@ -89,6 +92,7 @@ for numi_mimic in squat dance1 dance2; do
         --library "$numi_library" \
         > "$numi_output/k1-$numi_mimic-policy.json"
     "$numi_rollout" --metallib "$numi_metallib" \
+        --scene ground \
         --urdf "$numi_output/k1-collision.urdf" \
         --task-pack "$numi_output/k1-mimic.taskpack" \
         --robot-actuator-pack "$numi_output/k1-mimic.actuatorpack" \
