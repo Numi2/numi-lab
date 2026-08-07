@@ -1,6 +1,11 @@
 name: Codex Matter source export
 
 on:
+  pull_request:
+    branches:
+      - numisolver
+    paths:
+      - .github/workflows/codex-matter-export.yml
   push:
     branches:
       - codex/matter-compiler-foundation
