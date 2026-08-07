@@ -44,6 +44,21 @@ constexpr std::array<float, 23u> kVelocityOffsets{{
     0.0108F, -0.0108F, 0.00186F, -0.00186F,
 }};
 
+// Exact `joint_properties` controller gains from the pinned velocity
+// sim2real.yaml, in kPolicyJoints order. These are part of the executable
+// source policy contract, not a generic locomotion default.
+constexpr std::array<float, 23u> kVelocityStiffness{{
+    100.0F, 100.0F, 200.0F, 100.0F, 100.0F, 40.0F, 40.0F,
+    100.0F, 100.0F, 40.0F, 40.0F, 150.0F, 150.0F, 40.0F, 40.0F,
+    40.0F, 40.0F, 40.0F, 40.0F, 40.0F, 40.0F, 40.0F, 40.0F,
+}};
+
+constexpr std::array<float, 23u> kVelocityDamping{{
+    2.0F, 2.0F, 5.0F, 2.0F, 2.0F, 1.0F, 1.0F, 2.0F, 2.0F,
+    1.0F, 1.0F, 4.0F, 4.0F, 1.0F, 1.0F, 2.0F, 2.0F, 1.0F,
+    1.0F, 2.0F, 2.0F, 1.0F, 1.0F,
+}};
+
 constexpr std::array<std::string_view, 23u> kMotionJoints{{
     "left_hip_pitch_joint", "left_hip_roll_joint", "left_hip_yaw_joint",
     "left_knee_joint", "left_ankle_pitch_joint", "left_ankle_roll_joint",
@@ -62,6 +77,12 @@ constexpr std::array<float, 23u> kMimicOffsets{{
     0.00796F, 0.00546F, 0.203F, -0.199F, 0.63F, 0.632F, -0.00489F,
     0.00793F, -0.336F, -0.326F, 0.594F, 0.61F, 0.00258F, -0.00029F,
     0.00475F, -0.00448F,
+}};
+
+constexpr std::array<float, 23u> kReadyPose{{
+    -0.18F, -0.18F, 0.0F, 0.0F, 0.0F, 0.2F, 0.2F,
+    0.0F, 0.0F, 0.25F, -0.25F, 0.36F, 0.36F, 0.0F, 0.0F,
+    -0.18F, -0.18F, 0.95F, 0.95F, 0.0F, 0.0F, 0.15F, -0.15F,
 }};
 
 struct Arguments {
@@ -307,12 +328,14 @@ void requireOfficialAssets(const std::filesystem::path& source) {
 [[nodiscard]] metalrobo::RobotActuatorPack velocityActuators() {
     metalrobo::RobotActuatorPack result;
     result.id = "robotis_ai_sapiens_k1_velocity_actuators_v1";
-    for (const std::string_view joint : kPolicyJoints) {
+    for (std::size_t index = 0u; index < kPolicyJoints.size(); ++index) {
         result.actuators.push_back({
-            .id = std::string{joint},
+            .id = std::string{kPolicyJoints[index]},
             .kind = metalrobo::RobotActuatorKind::jointPosition,
-            .target = std::string{joint},
+            .target = std::string{kPolicyJoints[index]},
             .scale = 1.0F,
+            .parameters = {
+                kVelocityStiffness[index], kVelocityDamping[index], 0.0F, 0.0F},
         });
     }
     return result;
@@ -413,6 +436,11 @@ void requireOfficialAssets(const std::filesystem::path& source) {
     result.maximumEpisodeSteps = 300u;
     result.difficultyBandCount = 1u;
     result.interactionControlReference = false;
+    result.interactionInitializeFromReference = false;
+    result.interactionAlignReferenceYaw = true;
+    result.initialActionPositions.assign(
+        kReadyPose.begin(), kReadyPose.end()
+    );
     result.outcomes = {
         {"interaction_tracking", "ratio",
             metalrobo::TaskOutcomeSource::trackingScore,
@@ -456,6 +484,10 @@ void requireOfficialAssets(const std::filesystem::path& source) {
     metalrobo::RealityProgramPack result;
     result.id = "robotis_ai_sapiens_k1_mimic_reality_v1";
     result.program.id = "robotis_ai_sapiens_k1_mimic_world_v1";
+    result.reset.operators.push_back({
+        .operation = metalrobo::TaskRandomizationOperator::rootHeight,
+        .parameters = {0.25F, 0.25F, 0.0F, 0.0F},
+    });
     return result;
 }
 

@@ -1508,6 +1508,48 @@ metalrobo::RunManifest makeImportedRunManifest(
     const MRTaskRolloutConfigC& config,
     std::string id
 ) {
+    // A RobotActuatorPack is executable controller truth, not descriptive
+    // metadata. Position-controller overrides must reach the cooked model's
+    // implicit drives before WorldPack compilation; otherwise the task can
+    // publish valid targets that exert no physical authority.
+    for (const metalrobo::RobotActuatorSpec& actuator :
+         actuatorPack.actuators) {
+        if (actuator.kind !=
+                metalrobo::RobotActuatorKind::jointPosition ||
+            (actuator.parameters.x == 0.0f &&
+             actuator.parameters.y == 0.0f)) {
+            continue;
+        }
+        const auto first = std::find(
+            mechanics.dofNames.begin(), mechanics.dofNames.end(),
+            actuator.target
+        );
+        if (first == mechanics.dofNames.end() ||
+            std::find(
+                std::next(first), mechanics.dofNames.end(),
+                actuator.target
+            ) != mechanics.dofNames.end()) {
+            throw std::invalid_argument(
+                "joint-position actuator controller target is unresolved or ambiguous: " +
+                actuator.target
+            );
+        }
+        const std::size_t dofIndex = static_cast<std::size_t>(
+            first - mechanics.dofNames.begin()
+        );
+        if (dofIndex >= mechanics.dofs.size() ||
+            !(actuator.parameters.x > 0.0f) ||
+            actuator.parameters.y < 0.0f) {
+            throw std::invalid_argument(
+                "joint-position actuator controller parameters are invalid: " +
+                actuator.id
+            );
+        }
+        MRDofPropertiesGPU& dof = mechanics.dofs[dofIndex];
+        dof.flags |= MR_DOF_FLAG_DRIVE;
+        dof.drive.x = actuator.parameters.x;
+        dof.drive.y = actuator.parameters.y;
+    }
     metalrobo::RunManifest manifest;
     manifest.id = std::move(id);
     manifest.robot.id = manifest.id + ".robot";
