@@ -36,24 +36,29 @@ jobs:
 
           path = Path("apps/matter_physics_probe.mm")
           source = path.read_text()
+          helper = '''MRBodyStateGPU staticSceneBody() {
+              MRBodyStateGPU state{};
+              state.position.w = 1.0f;
+              state.orientation.w = 1.0f;
+              state.flagsAndIndices[0] = MR_MOTION_STATIC;
+              state.flagsAndIndices[1] = MR_INVALID_INDEX;
+              state.flagsAndIndices[2] = 0u;
+              return state;
+          }
+
+          '''
           scene = "        const std::array<MRBodyStateGPU, 1u> scene{staticSceneBody()};\n"
           field = (
               "            .efforts = efforts,\n"
               "            .initialSceneBodies = scene,\n"
           )
-          if scene not in source and field not in source:
-              print("Matter coupling harness is already corrected.")
-              raise SystemExit(20)
-          if source.count(scene) != 1 or source.count(field) != 1:
+          if source.count(helper) != 1 or source.count(scene) != 1 or source.count(field) != 1:
               raise SystemExit("coupling harness source no longer matches the audited edit")
+          source = source.replace(helper, "", 1)
           source = source.replace(scene, "", 1)
           source = source.replace(field, "            .efforts = efforts,\n", 1)
           path.write_text(source)
           PY
-          status=$?
-          if [[ ${status} -eq 20 ]]; then
-            exit 0
-          fi
 
           git diff --check
           cmake -S . -B build-matter-coupling-fix \
