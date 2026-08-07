@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 37u
+#define MR_TASK_PROGRAM_ABI_VERSION 38u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -135,6 +135,17 @@ enum MRTaskObservationOpcode : mr_u32 {
     // transaction.  This preserves policies trained from sampled encoders
     // rather than the simulator's instantaneous generalized velocity.
     MR_TASK_OBSERVE_JOINT_FINITE_DIFFERENCE_VELOCITY = 27u,
+    // Current joint target from the selected InteractionPack clip. This is
+    // distinct from the tracking error: imported motion-conditioned actors
+    // consume their published reference directly.
+    MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET = 28u,
+    // Forward finite difference of the selected InteractionPack joint target.
+    // This matches source motion runtimes that publish sampled reference
+    // velocity rather than simulator generalized velocity.
+    MR_TASK_OBSERVE_INTERACTION_JOINT_TARGET_VELOCITY = 29u,
+    // Six-dimensional (two-column) torso-orientation anchor built from the
+    // selected root target, its waist target, and the live floating root.
+    MR_TASK_OBSERVE_INTERACTION_ANCHOR_ORIENTATION = 30u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
