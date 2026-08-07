@@ -1,10 +1,8 @@
 name: Materialize audited Matter improvements
 
 on:
-  push:
-    branches: [codex/matter-compiler-foundation]
-    paths:
-      - .github/workflows/codex-matter-export.yml
+  pull_request:
+    types: [synchronize, reopened]
 
 permissions:
   contents: write
@@ -15,6 +13,7 @@ concurrency:
 
 jobs:
   materialize:
+    if: github.event.pull_request.head.ref == 'codex/matter-compiler-foundation'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -28,10 +27,17 @@ jobs:
         shell: bash
         env:
           BASE_SHA: 01d171fab09a4f693fd231fd44d0e2b4c278b418
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
           PATCH_SHA256: 42c3ca28683a394e42a1857cd8f57f2c33551a1f19fc08e15080a6cb17b69c02
         run: |
           set -euo pipefail
 
+          if [[ ! -f .github/matter-audit-improve.patch.gz.b64 ]]; then
+            echo "Audited Matter payload is already materialized."
+            exit 0
+          fi
+
+          test "$(git rev-parse HEAD)" = "${EXPECTED_HEAD}"
           base64 --decode .github/matter-audit-improve.patch.gz.b64 \
             | gzip -d > /tmp/matter-audit-improve.patch
           echo "${PATCH_SHA256}  /tmp/matter-audit-improve.patch" \
@@ -92,5 +98,5 @@ jobs:
           git add -A
           git commit -m "Audit and harden Matter execution"
           git push \
-            --force-with-lease=refs/heads/codex/matter-compiler-foundation:${GITHUB_SHA} \
+            --force-with-lease=refs/heads/codex/matter-compiler-foundation:${EXPECTED_HEAD} \
             origin HEAD:codex/matter-compiler-foundation
