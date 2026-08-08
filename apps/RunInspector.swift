@@ -37,6 +37,7 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     private var closed = false
     private var paused = false
     private var lastFrameSummary = "waiting for a frame"
+    private var lastChromeUpdateSeconds: TimeInterval = 0
     private weak var pauseItem: NSToolbarItem?
     private weak var latestPolicyItem: NSToolbarItem?
     private let canReloadLatestPolicy: Bool
@@ -66,7 +67,7 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         toolbar.allowsUserCustomization = false
         toolbar.autosavesConfiguration = false
         window.toolbar = toolbar
-        updateChrome()
+        updateChrome(force: true)
         window.makeKeyAndOrderFront(nil)
     }
 
@@ -96,6 +97,10 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             device: device
         )
         view.colorPixelFormat = .bgra8Unorm_srgb
+        // The inspector writes the drawable exactly once and never samples or
+        // copies it. Retain the render-target-only allocation path.
+        view.framebufferOnly = true
+        view.sampleCount = 1
         view.clearColor = MTLClearColor(red: 0.015, green: 0.017,
                                         blue: 0.024, alpha: 1)
         view.enableSetNeedsDisplay = true
@@ -132,14 +137,16 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             return
         }
         lastFrameSummary = summary
-        updateChrome()
+        updateChrome(force: true)
     }
 
     func draw(in view: MTKView) {
         guard let delivery = pending,
+              // Prepare all CPU-side work before taking a drawable. This
+              // keeps CAMetalLayer ownership as short as possible.
+              let command = queue.makeCommandBuffer(),
               let descriptor = view.currentRenderPassDescriptor,
               let drawable = view.currentDrawable,
-              let command = queue.makeCommandBuffer(),
               let encoder = command.makeRenderCommandEncoder(
                   descriptor: descriptor
               )
@@ -212,7 +219,7 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             pending = nil
         }
         onPauseChanged?(paused)
-        updateChrome()
+        updateChrome(force: true)
     }
 
     @objc private func requestLatestPolicy() {
@@ -220,7 +227,7 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             return
         }
         lastFrameSummary = "loading latest policy"
-        updateChrome()
+        updateChrome(force: true)
         onLatestPolicyRequested?()
     }
 
@@ -247,7 +254,15 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         item.isEnabled = canReloadLatestPolicy
     }
 
-    private func updateChrome() {
+    private func updateChrome(force: Bool = false) {
+        let now = ProcessInfo.processInfo.systemUptime
+        // Frame metadata can change much faster than a user can read it.
+        // Throttle AppKit title invalidation while preserving immediate button
+        // state and policy-result feedback below.
+        if !force, now - lastChromeUpdateSeconds < 0.25 {
+            return
+        }
+        lastChromeUpdateSeconds = now
         window.title = "Numi Lab Inspector — \(paused ? "paused" : "live") · \(lastFrameSummary)"
         if let item = pauseItem {
             configurePauseItem(item)
