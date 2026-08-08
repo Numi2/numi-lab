@@ -1322,13 +1322,11 @@ private func publishInspectionFrame(
         }
         do {
             let revision = try loadPolicy(url)
-            inspector.reportPolicyStatus(
-                "\(url.deletingPathExtension().lastPathComponent) · revision \(revision)"
-            )
+            inspector.reportPolicyInstalled(url, revision: revision)
         } catch {
             // A rejected replacement cannot change the compiled policy that
             // remains active for the current training submission.
-            inspector.reportPolicyStatus("policy rejected · unchanged")
+            inspector.reportPolicyRejected()
         }
     }
     let latestRequested = inspector.takeLatestPolicyReloadRequest()
@@ -1341,16 +1339,13 @@ private func publishInspectionFrame(
         }
         install(selected)
     }
-    guard !inspector.acceptsFrames else {
+    guard inspector.acceptsFrames else {
         if inspector.isClosed {
             throw MetalRoboRunInspectorError.closed
         }
-        // Pause gates only presentation encoding at this scheduler-owned
-        // boundary; training keeps its original submission cadence.
+        // Pause and window occlusion gate only presentation encoding at this
+        // scheduler-owned boundary; training keeps its original cadence.
         return
-    }
-    guard !inspector.isClosed else {
-        throw MetalRoboRunInspectorError.closed
     }
     guard let frame = try context.acquireInspectionFrame() else {
         return

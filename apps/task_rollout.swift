@@ -1002,13 +1002,11 @@ private func publishInspectionFrame(
         }
         do {
             let revision = try loadPolicy(url)
-            inspector.reportPolicyStatus(
-                "\(url.deletingPathExtension().lastPathComponent) · revision \(revision)"
-            )
+            inspector.reportPolicyInstalled(url, revision: revision)
         } catch {
             // Native policy installation is transactional: a failed load
             // leaves the currently rendered policy intact.
-            inspector.reportPolicyStatus("policy rejected · unchanged")
+            inspector.reportPolicyRejected()
         }
     }
     let latestRequested = inspector.takeLatestPolicyReloadRequest()
@@ -1021,16 +1019,14 @@ private func publishInspectionFrame(
         }
         install(selected)
     }
-    guard !inspector.acceptsFrames else {
+    guard inspector.acceptsFrames else {
         if inspector.isClosed {
             throw MetalRoboRunInspectorError.closed
         }
-        // Pause is applied to the sidecar at this scheduler-owned boundary.
-        // Physics and accepted-state submission keep their original cadence.
+        // Pause and window occlusion are applied to the sidecar at this
+        // scheduler-owned boundary. Physics and accepted-state submission keep
+        // their original cadence.
         return
-    }
-    guard !inspector.isClosed else {
-        throw MetalRoboRunInspectorError.closed
     }
     guard let frame = try context.acquireInspectionFrame() else {
         return
