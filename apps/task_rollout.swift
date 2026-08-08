@@ -987,7 +987,7 @@ private func masks(
 private func publishInspectionFrame(
     from context: MetalRoboTaskRolloutContext,
     to inspector: MetalRoboRunInspectorBridge?,
-    reloadLatestPolicy: (() throws -> UInt64)? = nil
+    loadPolicy: ((URL) throws -> UInt64)? = nil
 ) throws {
     guard let inspector else {
         return
@@ -995,19 +995,31 @@ private func publishInspectionFrame(
     if let enabled = inspector.takePendingNativeInspectionEnabled() {
         try context.setInspectionEnabled(enabled)
     }
-    if inspector.takeLatestPolicyReloadRequest() {
-        guard let reloadLatestPolicy else {
+    func install(_ url: URL) {
+        guard let loadPolicy else {
             inspector.reportPolicyStatus("policy reload unavailable")
             return
         }
         do {
-            let revision = try reloadLatestPolicy()
-            inspector.reportPolicyStatus("latest policy · revision \(revision)")
+            let revision = try loadPolicy(url)
+            inspector.reportPolicyStatus(
+                "\(url.deletingPathExtension().lastPathComponent) · revision \(revision)"
+            )
         } catch {
             // Native policy installation is transactional: a failed load
             // leaves the currently rendered policy intact.
-            inspector.reportPolicyStatus("latest policy rejected · unchanged")
+            inspector.reportPolicyStatus("policy rejected · unchanged")
         }
+    }
+    let latestRequested = inspector.takeLatestPolicyReloadRequest()
+    if let selected = inspector.takePolicySelection() {
+        install(selected)
+    } else if latestRequested {
+        guard let selected = inspector.selectedPolicy else {
+            inspector.reportPolicyStatus("select a policy first")
+            return
+        }
+        install(selected)
     }
     guard !inspector.acceptsFrames else {
         if inspector.isClosed {
@@ -1159,15 +1171,13 @@ private enum TaskRolloutMain {
                 try publishInspectionFrame(
                     from: context,
                     to: inspector,
-                    reloadLatestPolicy: options.policyPack.map { path in
-                        {
+                    loadPolicy: { url in
                             try context.loadPolicy(
-                                at: URL(fileURLWithPath: path)
+                                at: url
                             )
                             installedPolicyRevision =
                                 context.installedPolicyRevision
                             return installedPolicyRevision
-                        }
                     }
                 )
                 let revisions = try context.transitions(
@@ -1264,15 +1274,13 @@ private enum TaskRolloutMain {
                 try publishInspectionFrame(
                     from: context,
                     to: inspector,
-                    reloadLatestPolicy: options.policyPack.map { path in
-                        {
+                    loadPolicy: { url in
                             try context.loadPolicy(
-                                at: URL(fileURLWithPath: path)
+                                at: url
                             )
                             installedPolicyRevision =
                                 context.installedPolicyRevision
                             return installedPolicyRevision
-                        }
                     }
                 )
             }
@@ -1553,15 +1561,13 @@ private enum TaskRolloutMain {
                     try publishInspectionFrame(
                         from: context,
                         to: inspector,
-                        reloadLatestPolicy: options.policyPack.map { path in
-                            {
+                        loadPolicy: { url in
                                 try context.loadPolicy(
-                                    at: URL(fileURLWithPath: path)
+                                    at: url
                                 )
                                 installedPolicyRevision =
                                     context.installedPolicyRevision
                                 return installedPolicyRevision
-                            }
                         }
                     )
                     let statuses = try context.statusCodes(
@@ -2668,8 +2674,15 @@ private enum TaskRolloutMain {
                 try run(options: options, inspector: nil)
                 return
             }
+            let policyChoices = metalRoboInspectorPolicyCatalog()
+            let initialPolicyURL = options.policyPack.map {
+                URL(fileURLWithPath: $0)
+            }
             let inspector = try MetalRoboRunInspectorBridge.launch(
-                canReloadLatestPolicy: options.policyPack != nil
+                canReloadLatestPolicy:
+                    initialPolicyURL != nil || !policyChoices.isEmpty,
+                policyChoices: policyChoices,
+                initialPolicyURL: initialPolicyURL
             )
             DispatchQueue.global(qos: .userInitiated).async {
                 do {

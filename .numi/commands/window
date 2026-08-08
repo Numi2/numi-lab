@@ -46,10 +46,18 @@ The inspector's Latest Policy button reloads that selected path at a normal
 rollout boundary. It preserves the active policy if the replacement fails its
 contract check.
 
+Policy selector catalog:
+
+  .numi/policies/<robot-id>/*.policypack
+
+The selector groups choices by `<robot-id>`. A pack still must match the live
+world/task/observation/action contract before it can replace the active policy.
+
 Optional environment overrides:
 
   NUMI_WINDOW_SCENE       authored visual-observation file
   NUMI_WINDOW_POLICY      PolicyPack to load and refresh with Latest Policy
+  NUMI_WINDOW_POLICY_CATALOG  default .numi/policies, grouped by robot folder
   NUMI_WINDOW_BUILD_DIR   isolated CMake build directory
   NUMI_WINDOW_BUILD_TYPE  default Release
   NUMI_WINDOW_WIDTH       default 960
@@ -85,6 +93,7 @@ window_workspace=${NUMI_WORKSPACE_ROOT:?Run this capability through numi.}
 window_build=${NUMI_WINDOW_BUILD_DIR:-"$window_workspace/.numi/window-build"}
 window_scene=${NUMI_WINDOW_SCENE:-}
 window_policy=${NUMI_WINDOW_POLICY:-}
+export NUMI_WINDOW_POLICY_CATALOG=${NUMI_WINDOW_POLICY_CATALOG:-"$window_workspace/.numi/policies"}
 
 if [ -z "$window_scene" ]; then
     window_scene=$(window_option_value --inspect-scene "$@" || true)

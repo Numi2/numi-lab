@@ -2,6 +2,74 @@ import AppKit
 import Metal
 import MetalKit
 
+public struct MetalRoboInspectorPolicyChoice: Sendable {
+    public let robotID: String
+    public let displayName: String
+    public let policyURL: URL
+
+    public init(robotID: String, displayName: String, policyURL: URL) {
+        self.robotID = robotID
+        self.displayName = displayName
+        self.policyURL = policyURL
+    }
+}
+
+public func metalRoboInspectorPolicyChoices(
+    in directory: URL
+) -> [MetalRoboInspectorPolicyChoice] {
+    guard let entries = FileManager.default.enumerator(
+        at: directory,
+        includingPropertiesForKeys: [.isRegularFileKey],
+        options: [.skipsHiddenFiles, .skipsPackageDescendants]
+    ) else {
+        return []
+    }
+    var choices: [MetalRoboInspectorPolicyChoice] = []
+    for case let url as URL in entries {
+        let regularFile =
+            (try? url.resourceValues(forKeys: [.isRegularFileKey])
+                .isRegularFile) ?? false
+        guard url.pathExtension == "policypack", regularFile
+        else {
+            continue
+        }
+        let relative = url.path.replacingOccurrences(
+            of: directory.path + "/",
+            with: ""
+        )
+        let components = relative.split(separator: "/")
+        let robotID = components.count > 1
+            ? String(components[0])
+            : "Uncategorized"
+        choices.append(MetalRoboInspectorPolicyChoice(
+            robotID: robotID,
+            displayName: url.deletingPathExtension().lastPathComponent,
+            policyURL: url
+        ))
+    }
+    return choices.sorted {
+        ($0.robotID.localizedStandardCompare($1.robotID) == .orderedAscending) ||
+        ($0.robotID == $1.robotID &&
+         $0.displayName.localizedStandardCompare($1.displayName) ==
+            .orderedAscending)
+    }
+}
+
+public func metalRoboInspectorPolicyCatalog() -> [
+    MetalRoboInspectorPolicyChoice
+] {
+    let environment = ProcessInfo.processInfo.environment
+    let directory: URL
+    if let configured = environment["NUMI_WINDOW_POLICY_CATALOG"],
+       !configured.isEmpty {
+        directory = URL(fileURLWithPath: configured)
+    } else {
+        directory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+            .appendingPathComponent(".numi/policies", isDirectory: true)
+    }
+    return metalRoboInspectorPolicyChoices(in: directory)
+}
+
 private final class InspectionDelivery: @unchecked Sendable {
     let frame: MetalRoboTaskInspectionFrame
     let release: @Sendable () -> Void
@@ -29,6 +97,9 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     private static let latestPolicyToolbarItem = NSToolbarItem.Identifier(
         "numi.inspector.latest-policy"
     )
+    private static let policySelectorToolbarItem = NSToolbarItem.Identifier(
+        "numi.inspector.policy-selector"
+    )
     private let window: NSWindow
     private let view: MTKView
     private let queue: MTLCommandQueue
@@ -40,23 +111,28 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     private var lastChromeUpdateSeconds: TimeInterval = 0
     private weak var pauseItem: NSToolbarItem?
     private weak var latestPolicyItem: NSToolbarItem?
+    private weak var policySelector: NSPopUpButton?
     private let canReloadLatestPolicy: Bool
+    private let policyChoices: [MetalRoboInspectorPolicyChoice]
     var onClose: (() -> Void)?
     var onPauseChanged: ((Bool) -> Void)?
     var onLatestPolicyRequested: (() -> Void)?
+    var onPolicySelected: ((URL) -> Void)?
 
     private init(
         window: NSWindow,
         view: MTKView,
         queue: MTLCommandQueue,
         pipeline: MTLRenderPipelineState,
-        canReloadLatestPolicy: Bool
+        canReloadLatestPolicy: Bool,
+        policyChoices: [MetalRoboInspectorPolicyChoice]
     ) {
         self.window = window
         self.view = view
         self.queue = queue
         self.pipeline = pipeline
         self.canReloadLatestPolicy = canReloadLatestPolicy
+        self.policyChoices = policyChoices
         super.init()
         view.delegate = self
         window.contentView = view
@@ -72,7 +148,8 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     }
 
     static func make(
-        canReloadLatestPolicy: Bool
+        canReloadLatestPolicy: Bool,
+        policyChoices: [MetalRoboInspectorPolicyChoice]
     ) throws -> RunInspectorWindow {
         guard let device = MTLCreateSystemDefaultDevice(),
               let queue = device.makeCommandQueue()
@@ -116,7 +193,8 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             view: view,
             queue: queue,
             pipeline: pipeline,
-            canReloadLatestPolicy: canReloadLatestPolicy
+            canReloadLatestPolicy: canReloadLatestPolicy,
+            policyChoices: policyChoices
         )
     }
 
@@ -181,13 +259,21 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     func toolbarAllowedItemIdentifiers(
         _ toolbar: NSToolbar
     ) -> [NSToolbarItem.Identifier] {
-        [Self.pauseToolbarItem, Self.latestPolicyToolbarItem]
+        [
+            Self.pauseToolbarItem,
+            Self.policySelectorToolbarItem,
+            Self.latestPolicyToolbarItem,
+        ]
     }
 
     func toolbarDefaultItemIdentifiers(
         _ toolbar: NSToolbar
     ) -> [NSToolbarItem.Identifier] {
-        [Self.pauseToolbarItem, Self.latestPolicyToolbarItem]
+        [
+            Self.pauseToolbarItem,
+            Self.policySelectorToolbarItem,
+            Self.latestPolicyToolbarItem,
+        ]
     }
 
     func toolbar(
@@ -207,6 +293,18 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             item.action = #selector(requestLatestPolicy)
             configureLatestPolicyItem(item)
             latestPolicyItem = item
+            return item
+        }
+        if itemIdentifier == Self.policySelectorToolbarItem {
+            let selector = NSPopUpButton(
+                frame: NSRect(x: 0, y: 0, width: 220, height: 28),
+                pullsDown: false
+            )
+            selector.target = self
+            selector.action = #selector(selectPolicy)
+            configurePolicySelector(selector)
+            item.view = selector
+            policySelector = selector
             return item
         }
         return nil
@@ -231,6 +329,15 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         onLatestPolicyRequested?()
     }
 
+    @objc private func selectPolicy(_ sender: NSPopUpButton) {
+        guard let url = sender.selectedItem?.representedObject as? URL else {
+            return
+        }
+        lastFrameSummary = "loading \(url.deletingPathExtension().lastPathComponent)"
+        updateChrome(force: true)
+        onPolicySelected?(url)
+    }
+
     private func configurePauseItem(_ item: NSToolbarItem) {
         item.label = paused ? "Resume" : "Pause"
         item.toolTip = paused
@@ -252,6 +359,38 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             accessibilityDescription: item.label
         )
         item.isEnabled = canReloadLatestPolicy
+    }
+
+    private func configurePolicySelector(_ selector: NSPopUpButton) {
+        selector.removeAllItems()
+        guard !policyChoices.isEmpty else {
+            selector.addItem(withTitle: "No policy catalog")
+            selector.isEnabled = false
+            return
+        }
+        var activeRobot = ""
+        for choice in policyChoices {
+            if choice.robotID != activeRobot {
+                if !activeRobot.isEmpty {
+                    selector.menu?.addItem(.separator())
+                }
+                let heading = NSMenuItem(
+                    title: choice.robotID,
+                    action: nil,
+                    keyEquivalent: ""
+                )
+                heading.isEnabled = false
+                selector.menu?.addItem(heading)
+                activeRobot = choice.robotID
+            }
+            selector.addItem(withTitle: choice.displayName)
+            guard let item = selector.lastItem else {
+                continue
+            }
+            item.representedObject = choice.policyURL
+            item.indentationLevel = 1
+            item.toolTip = choice.policyURL.path
+        }
     }
 
     private func updateChrome(force: Bool = false) {
@@ -346,6 +485,8 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
     private var acceptingFrames = true
     private var pendingNativeInspectionEnabled: Bool?
     private var latestPolicyReloadRequested = false
+    private var pendingPolicySelection: URL?
+    private var selectedPolicyURL: URL?
 
     @MainActor
     private init(window: RunInspectorWindow) {
@@ -359,20 +500,27 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         window.onLatestPolicyRequested = { [weak self] in
             self?.requestLatestPolicyReload()
         }
+        window.onPolicySelected = { [weak self] url in
+            self?.requestPolicySelection(url)
+        }
     }
 
     @MainActor
     public static func launch(
-        canReloadLatestPolicy: Bool = false
+        canReloadLatestPolicy: Bool = false,
+        policyChoices: [MetalRoboInspectorPolicyChoice] = [],
+        initialPolicyURL: URL? = nil
     ) throws -> MetalRoboRunInspectorBridge {
         precondition(Thread.isMainThread)
         let application = NSApplication.shared
         application.setActivationPolicy(.regular)
         let bridge = MetalRoboRunInspectorBridge(
             window: try RunInspectorWindow.make(
-                canReloadLatestPolicy: canReloadLatestPolicy
+                canReloadLatestPolicy: canReloadLatestPolicy,
+                policyChoices: policyChoices
             )
         )
+        bridge.setInitialPolicy(initialPolicyURL)
         application.activate(ignoringOtherApps: true)
         return bridge
     }
@@ -415,6 +563,21 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         stateLock.unlock()
     }
 
+    private func requestPolicySelection(_ url: URL) {
+        stateLock.lock()
+        if !closed {
+            selectedPolicyURL = url
+            pendingPolicySelection = url
+        }
+        stateLock.unlock()
+    }
+
+    private func setInitialPolicy(_ url: URL?) {
+        stateLock.lock()
+        selectedPolicyURL = url
+        stateLock.unlock()
+    }
+
     // Consumed by the rollout scheduler at its normal publication boundary,
     // never from the AppKit action itself.
     func takePendingNativeInspectionEnabled() -> Bool? {
@@ -431,6 +594,20 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         let requested = latestPolicyReloadRequested
         latestPolicyReloadRequested = false
         return requested
+    }
+
+    func takePolicySelection() -> URL? {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        let selection = pendingPolicySelection
+        pendingPolicySelection = nil
+        return selection
+    }
+
+    var selectedPolicy: URL? {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        return selectedPolicyURL
     }
 
     func reportPolicyStatus(_ summary: String) {

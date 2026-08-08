@@ -243,14 +243,17 @@ shows representative environment zero. It is an inspection aid, not evidence
 of real-hardware behavior or a media-capture path. Use ordinary visual export
 or state-trace facilities when durable frames or artifacts are required.
 
-The inspector has two controls: **Pause/Resume** and **Latest Policy**. Pause
-does not pause physics or training: it gates the GPU presentation sidecar at
-the next normal rollout boundary, eliminating preview encoding and
-dropped-frame atomics until Resume. Latest Policy reloads the configured
-`--policy-pack` at that same boundary and only accepts a compatible immutable
-revision; a rejected replacement leaves the active policy unchanged. The image
-is aspect-fit automatically, so authored camera geometry is never stretched to
-the resizable window.
+The inspector has three controls: **Pause/Resume**, a robot-grouped **Policy
+Selector**, and **Latest Policy**. The selector reads
+`.numi/policies/<robot-id>/*.policypack` (or `NUMI_WINDOW_POLICY_CATALOG`) and
+groups choices by `<robot-id>` without hard-coding a robot catalog. Pause does
+not pause physics or training: it gates the GPU presentation sidecar at the
+next normal rollout boundary, eliminating preview encoding and dropped-frame
+atomics until Resume. Policy selection and Latest Policy reload at that same
+boundary and only accept a compatible immutable revision; a rejected
+replacement leaves the active policy unchanged. The image is aspect-fit
+automatically, so authored camera geometry is never stretched to the resizable
+window.
 
 Presentation remains event-driven rather than timer-driven. The `MTKView`
 keeps its drawable render-target-only with a single sample, creates the display
