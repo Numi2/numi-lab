@@ -559,16 +559,6 @@ struct Outcome {
     float maximumVerticalVelocity = -std::numeric_limits<float>::infinity();
 };
 
-MRBodyStateGPU staticSceneBody() {
-    MRBodyStateGPU state{};
-    state.position.w = 1.0f;
-    state.orientation.w = 1.0f;
-    state.flagsAndIndices[0] = MR_MOTION_STATIC;
-    state.flagsAndIndices[1] = MR_INVALID_INDEX;
-    state.flagsAndIndices[2] = 0u;
-    return state;
-}
-
 void runIdentification() {
     @autoreleasepool {
         const auto world = compileCase(
@@ -1058,14 +1048,12 @@ void runMetalWorldCoupling() {
             static_cast<std::size_t>(controlSteps) * rigidWorld.nv(),
             0.0f
         );
-        const std::array<MRBodyStateGPU, 1u> scene{staticSceneBody()};
         const metalrobo::MetalWorldBatch batch{
             .environmentCount = 1u,
             .controlStepCount = controlSteps,
             .initialQ = model.defaultQ,
             .initialV = model.defaultV,
             .efforts = efforts,
-            .initialSceneBodies = scene,
         };
         metalrobo::MetalWorldStepConfig config{};
         config.timestepSeconds = 1.0f / 480.0f;

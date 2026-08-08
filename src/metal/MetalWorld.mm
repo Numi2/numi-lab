@@ -4746,6 +4746,219 @@ MetalWorldDiagnostics ensureHybridCCDPipeline(
     return diagnostics;
 }
 
+MetalWorldDiagnostics ensureRodPipelines(
+    detail::MetalWorldContextState& context,
+    const bool hasRods,
+    MetalWorldDiagnostics diagnostics
+) {
+    if (!hasRods) {
+        return diagnostics;
+    }
+    const bool anyInitialized =
+        context.rodPreparePipeline != nil ||
+        context.rodContactPreparePipeline != nil ||
+        context.rodPackPipeline != nil ||
+        context.rodStepPipeline != nil ||
+        context.rodFactorPipeline != nil ||
+        context.rodUnpackPipeline != nil ||
+        context.rodLatchPipeline != nil ||
+        context.rodContactLatchPipeline != nil ||
+        context.rodToolNarrowphasePipeline != nil ||
+        context.rodContactScanPipeline != nil ||
+        context.rodContactScatterPipeline != nil ||
+        context.rodContactSolvePipeline != nil ||
+        context.rodCommitPipeline != nil ||
+        context.rodContactCommitPipeline != nil ||
+        context.rodEventInitializePipeline != nil ||
+        context.inactiveRodEventRestorePipeline != nil ||
+        context.rodEventSegmentPublishPipeline != nil ||
+        context.rodSweptProjectionPipeline != nil ||
+        context.rodCCDPipeline != nil ||
+        context.rodCCDWitnessTagPipeline != nil;
+    const bool allInitialized =
+        context.rodPreparePipeline != nil &&
+        context.rodContactPreparePipeline != nil &&
+        context.rodPackPipeline != nil &&
+        context.rodStepPipeline != nil &&
+        context.rodFactorPipeline != nil &&
+        context.rodUnpackPipeline != nil &&
+        context.rodLatchPipeline != nil &&
+        context.rodContactLatchPipeline != nil &&
+        context.rodToolNarrowphasePipeline != nil &&
+        context.rodContactScanPipeline != nil &&
+        context.rodContactScatterPipeline != nil &&
+        context.rodContactSolvePipeline != nil &&
+        context.rodCommitPipeline != nil &&
+        context.rodContactCommitPipeline != nil &&
+        context.rodEventInitializePipeline != nil &&
+        context.inactiveRodEventRestorePipeline != nil &&
+        context.rodEventSegmentPublishPipeline != nil &&
+        context.rodSweptProjectionPipeline != nil &&
+        context.rodCCDPipeline != nil &&
+        context.rodCCDWitnessTagPipeline != nil;
+    if (allInitialized) {
+        return diagnostics;
+    }
+    if (anyInitialized) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "rod pipeline family is only partially initialized"
+        );
+    }
+
+    __strong id<MTLComputePipelineState> rodPrepare = nil;
+    __strong id<MTLComputePipelineState> rodContactPrepare = nil;
+    __strong id<MTLComputePipelineState> rodPack = nil;
+    __strong id<MTLComputePipelineState> rodStep = nil;
+    __strong id<MTLComputePipelineState> rodFactor = nil;
+    __strong id<MTLComputePipelineState> rodUnpack = nil;
+    __strong id<MTLComputePipelineState> rodLatch = nil;
+    __strong id<MTLComputePipelineState> rodContactLatch = nil;
+    __strong id<MTLComputePipelineState> rodToolNarrowphase = nil;
+    __strong id<MTLComputePipelineState> rodContactScan = nil;
+    __strong id<MTLComputePipelineState> rodContactScatter = nil;
+    __strong id<MTLComputePipelineState> rodContactSolve = nil;
+    __strong id<MTLComputePipelineState> rodCommit = nil;
+    __strong id<MTLComputePipelineState> rodContactCommit = nil;
+    __strong id<MTLComputePipelineState> rodEventInitialize = nil;
+    __strong id<MTLComputePipelineState> inactiveRodEventRestore = nil;
+    __strong id<MTLComputePipelineState> rodEventSegmentPublish = nil;
+    __strong id<MTLComputePipelineState> rodSweptProjection = nil;
+    __strong id<MTLComputePipelineState> rodCCD = nil;
+    __strong id<MTLComputePipelineState> rodCCDWitnessTag = nil;
+
+    __strong NSString* failedName = nil;
+    __strong NSError* failedError = nil;
+    const auto create = [&](NSString* name) {
+        NSError* error = nil;
+        id<MTLComputePipelineState> pipeline = makePipeline(
+            context.device,
+            context.library,
+            name,
+            &error
+        );
+        if (pipeline == nil && failedName == nil) {
+            failedName = [name copy];
+            failedError = error;
+        }
+        return pipeline;
+    };
+
+    rodPrepare = create(@"mr_world_prepare_rod_state");
+    rodContactPrepare = create(@"mr_world_prepare_rod_contact_cache");
+    rodPack = create(@"mr_world_pack_rod_state");
+    rodStep = create(@"mr_discrete_elastic_rod_step");
+    rodFactor = create(@"mr_world_factor_rod_operator");
+    rodUnpack = create(@"mr_world_unpack_rod_state");
+    rodLatch = create(@"mr_world_latch_rod_status");
+    rodContactLatch = create(@"mr_world_latch_rod_contact_status");
+    rodToolNarrowphase = create(@"mr_rod_tool_narrowphase");
+    rodContactScan = create(@"mr_world_scan_rod_contact_ir");
+    rodContactScatter = create(@"mr_world_scatter_rod_contact_ir");
+    rodContactSolve = create(@"mr_world_solve_rod_contact_constraints");
+    rodCommit = create(@"mr_world_commit_rod_state");
+    rodContactCommit = create(@"mr_world_commit_rod_contact_cache");
+    rodEventInitialize = create(@"mr_world_initialize_rod_event_state");
+    inactiveRodEventRestore = create(
+        @"mr_world_restore_inactive_rod_event_candidate"
+    );
+    rodEventSegmentPublish = create(@"mr_world_publish_rod_event_segment");
+    rodSweptProjection = create(@"mr_world_project_swept_rod_colliders");
+    rodCCD = create(@"mr_world_resolve_rod_ccd");
+    rodCCDWitnessTag = create(@"mr_world_tag_rod_ccd_witnesses");
+
+    if (rodPrepare == nil ||
+        rodContactPrepare == nil ||
+        rodPack == nil ||
+        rodStep == nil ||
+        rodFactor == nil ||
+        rodUnpack == nil ||
+        rodLatch == nil ||
+        rodContactLatch == nil ||
+        rodToolNarrowphase == nil ||
+        rodContactScan == nil ||
+        rodContactScatter == nil ||
+        rodContactSolve == nil ||
+        rodCommit == nil ||
+        rodContactCommit == nil ||
+        rodEventInitialize == nil ||
+        inactiveRodEventRestore == nil ||
+        rodEventSegmentPublish == nil ||
+        rodSweptProjection == nil ||
+        rodCCD == nil ||
+        rodCCDWitnessTag == nil) {
+        const std::string functionName = failedName == nil
+            ? std::string{"unknown"}
+            : nsString(failedName);
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create optional rod pipeline '" +
+                functionName + "': " + describeError(failedError)
+        );
+    }
+
+    if (rodPrepare.maxTotalThreadsPerThreadgroup == 0u ||
+        rodContactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
+        rodPack.maxTotalThreadsPerThreadgroup == 0u ||
+        rodStep.maxTotalThreadsPerThreadgroup < MR_ROD_GPU_MAX_NODES ||
+        rodFactor.maxTotalThreadsPerThreadgroup == 0u ||
+        rodUnpack.maxTotalThreadsPerThreadgroup == 0u ||
+        rodLatch.maxTotalThreadsPerThreadgroup == 0u ||
+        rodContactLatch.maxTotalThreadsPerThreadgroup == 0u ||
+        rodToolNarrowphase.maxTotalThreadsPerThreadgroup == 0u ||
+        rodContactScan.maxTotalThreadsPerThreadgroup <
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        rodContactScatter.maxTotalThreadsPerThreadgroup == 0u ||
+        rodContactSolve.maxTotalThreadsPerThreadgroup == 0u ||
+        rodCommit.maxTotalThreadsPerThreadgroup == 0u ||
+        rodContactCommit.maxTotalThreadsPerThreadgroup == 0u ||
+        rodEventInitialize.maxTotalThreadsPerThreadgroup == 0u ||
+        inactiveRodEventRestore.maxTotalThreadsPerThreadgroup == 0u ||
+        rodEventSegmentPublish.maxTotalThreadsPerThreadgroup == 0u ||
+        rodSweptProjection.maxTotalThreadsPerThreadgroup == 0u ||
+        rodCCD.maxTotalThreadsPerThreadgroup == 0u ||
+        rodCCDWitnessTag.maxTotalThreadsPerThreadgroup == 0u ||
+        rodStep.staticThreadgroupMemoryLength >
+            context.device.maxThreadgroupMemoryLength ||
+        rodToolNarrowphase.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        rodContactScan.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        rodStep.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalDeviceUnsupported,
+            "device cannot execute the optional rod pipeline geometry"
+        );
+    }
+
+    context.rodPreparePipeline = rodPrepare;
+    context.rodContactPreparePipeline = rodContactPrepare;
+    context.rodPackPipeline = rodPack;
+    context.rodStepPipeline = rodStep;
+    context.rodFactorPipeline = rodFactor;
+    context.rodUnpackPipeline = rodUnpack;
+    context.rodLatchPipeline = rodLatch;
+    context.rodContactLatchPipeline = rodContactLatch;
+    context.rodToolNarrowphasePipeline = rodToolNarrowphase;
+    context.rodContactScanPipeline = rodContactScan;
+    context.rodContactScatterPipeline = rodContactScatter;
+    context.rodContactSolvePipeline = rodContactSolve;
+    context.rodCommitPipeline = rodCommit;
+    context.rodContactCommitPipeline = rodContactCommit;
+    context.rodEventInitializePipeline = rodEventInitialize;
+    context.inactiveRodEventRestorePipeline = inactiveRodEventRestore;
+    context.rodEventSegmentPublishPipeline = rodEventSegmentPublish;
+    context.rodSweptProjectionPipeline = rodSweptProjection;
+    context.rodCCDPipeline = rodCCD;
+    context.rodCCDWitnessTagPipeline = rodCCDWitnessTag;
+    context.stats.pipelineCreationCount += 20u;
+    return diagnostics;
+}
+
 MetalWorldDiagnostics ensureGeneralizedConstraintPipeline(
     detail::MetalWorldContextState& context,
     MetalWorldDiagnostics diagnostics
@@ -5074,26 +5287,6 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> qualitySolve = nil;
     __strong id<MTLComputePipelineState> qualityApply = nil;
     __strong id<MTLComputePipelineState> qualityQueueStatus = nil;
-    __strong id<MTLComputePipelineState> rodPrepare = nil;
-    __strong id<MTLComputePipelineState> rodContactPrepare = nil;
-    __strong id<MTLComputePipelineState> rodPack = nil;
-    __strong id<MTLComputePipelineState> rodStep = nil;
-    __strong id<MTLComputePipelineState> rodFactor = nil;
-    __strong id<MTLComputePipelineState> rodUnpack = nil;
-    __strong id<MTLComputePipelineState> rodLatch = nil;
-    __strong id<MTLComputePipelineState> rodContactLatch = nil;
-    __strong id<MTLComputePipelineState> rodToolNarrowphase = nil;
-    __strong id<MTLComputePipelineState> rodContactScan = nil;
-    __strong id<MTLComputePipelineState> rodContactScatter = nil;
-    __strong id<MTLComputePipelineState> rodContactSolve = nil;
-    __strong id<MTLComputePipelineState> rodCommit = nil;
-    __strong id<MTLComputePipelineState> rodContactCommit = nil;
-    __strong id<MTLComputePipelineState> rodEventInitialize = nil;
-    __strong id<MTLComputePipelineState> inactiveRodEventRestore = nil;
-    __strong id<MTLComputePipelineState> rodEventSegmentPublish = nil;
-    __strong id<MTLComputePipelineState> rodSweptProjection = nil;
-    __strong id<MTLComputePipelineState> rodCCD = nil;
-    __strong id<MTLComputePipelineState> rodCCDWitnessTag = nil;
     __strong id<MTLComputePipelineState> authoredIRSeed = nil;
     __strong NSString* failedContactPipelineName = nil;
     __strong NSError* failedContactPipelineError = nil;
@@ -5202,24 +5395,6 @@ MetalWorldDiagnostics initializeContext(
     );
     eventSegmentPublish = createContactPipeline(
         @"mr_world_publish_event_segment"
-    );
-    rodEventInitialize = createContactPipeline(
-        @"mr_world_initialize_rod_event_state"
-    );
-    inactiveRodEventRestore = createContactPipeline(
-        @"mr_world_restore_inactive_rod_event_candidate"
-    );
-    rodEventSegmentPublish = createContactPipeline(
-        @"mr_world_publish_rod_event_segment"
-    );
-    rodSweptProjection = createContactPipeline(
-        @"mr_world_project_swept_rod_colliders"
-    );
-    rodCCD = createContactPipeline(
-        @"mr_world_resolve_rod_ccd"
-    );
-    rodCCDWitnessTag = createContactPipeline(
-        @"mr_world_tag_rod_ccd_witnesses"
     );
     pairFlags =
         createContactPipeline(@"mr_world_flag_eligible_pairs");
@@ -5333,48 +5508,6 @@ MetalWorldDiagnostics initializeContext(
     qualityQueueStatus = createContactPipeline(
         @"mr_world_publish_unified_quality_queue_status"
     );
-    rodPrepare = createContactPipeline(
-        @"mr_world_prepare_rod_state"
-    );
-    rodContactPrepare = createContactPipeline(
-        @"mr_world_prepare_rod_contact_cache"
-    );
-    rodPack = createContactPipeline(
-        @"mr_world_pack_rod_state"
-    );
-    rodStep = createContactPipeline(
-        @"mr_discrete_elastic_rod_step"
-    );
-    rodFactor = createContactPipeline(
-        @"mr_world_factor_rod_operator"
-    );
-    rodUnpack = createContactPipeline(
-        @"mr_world_unpack_rod_state"
-    );
-    rodLatch = createContactPipeline(
-        @"mr_world_latch_rod_status"
-    );
-    rodContactLatch = createContactPipeline(
-        @"mr_world_latch_rod_contact_status"
-    );
-    rodToolNarrowphase = createContactPipeline(
-        @"mr_rod_tool_narrowphase"
-    );
-    rodContactScan = createContactPipeline(
-        @"mr_world_scan_rod_contact_ir"
-    );
-    rodContactScatter = createContactPipeline(
-        @"mr_world_scatter_rod_contact_ir"
-    );
-    rodContactSolve = createContactPipeline(
-        @"mr_world_solve_rod_contact_constraints"
-    );
-    rodCommit = createContactPipeline(
-        @"mr_world_commit_rod_state"
-    );
-    rodContactCommit = createContactPipeline(
-        @"mr_world_commit_rod_contact_cache"
-    );
     authoredIRSeed = createContactPipeline(
         @"mr_world_seed_authored_constraint_ir"
     );
@@ -5412,12 +5545,6 @@ MetalWorldDiagnostics initializeContext(
         eventColliderProjection == nil ||
         inactiveEventRestore == nil ||
         eventSegmentPublish == nil ||
-        rodEventInitialize == nil ||
-        inactiveRodEventRestore == nil ||
-        rodEventSegmentPublish == nil ||
-        rodSweptProjection == nil ||
-        rodCCD == nil ||
-        rodCCDWitnessTag == nil ||
         pairFlags == nil ||
         scanBlocks == nil ||
         scanAdd == nil ||
@@ -5463,19 +5590,6 @@ MetalWorldDiagnostics initializeContext(
         qualitySolve == nil ||
         qualityApply == nil ||
         qualityQueueStatus == nil ||
-        rodPrepare == nil ||
-        rodContactPrepare == nil ||
-        rodPack == nil ||
-        rodStep == nil ||
-        rodUnpack == nil ||
-        rodLatch == nil ||
-        rodContactLatch == nil ||
-        rodToolNarrowphase == nil ||
-        rodContactScan == nil ||
-        rodContactScatter == nil ||
-        rodContactSolve == nil ||
-        rodCommit == nil ||
-        rodContactCommit == nil ||
         authoredIRSeed == nil) {
         const std::string functionName = failedContactPipelineName == nil
             ? std::string{"unknown"}
@@ -5614,25 +5728,7 @@ MetalWorldDiagnostics initializeContext(
             MR_SIMD_WIDTH ||
         qualityApply.maxTotalThreadsPerThreadgroup == 0u ||
         qualityQueueStatus.maxTotalThreadsPerThreadgroup == 0u ||
-        rodPrepare.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
-        rodPack.maxTotalThreadsPerThreadgroup == 0u ||
-        rodStep.maxTotalThreadsPerThreadgroup <
-            MR_ROD_GPU_MAX_NODES ||
-        rodFactor.maxTotalThreadsPerThreadgroup == 0u ||
-        rodUnpack.maxTotalThreadsPerThreadgroup == 0u ||
-        rodLatch.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactLatch.maxTotalThreadsPerThreadgroup == 0u ||
-        rodToolNarrowphase.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactScan.maxTotalThreadsPerThreadgroup <
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        rodContactScatter.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactSolve.maxTotalThreadsPerThreadgroup == 0u ||
-        rodCommit.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactCommit.maxTotalThreadsPerThreadgroup == 0u ||
         authoredIRSeed.maxTotalThreadsPerThreadgroup == 0u ||
-        rodStep.staticThreadgroupMemoryLength >
-            device.maxThreadgroupMemoryLength ||
         qualityPrepare.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
         qualityWarmStart.staticThreadgroupMemoryLength >
@@ -5670,12 +5766,6 @@ MetalWorldDiagnostics initializeContext(
         qualitySolve.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE ||
         streamedInverse.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        rodToolNarrowphase.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        rodContactScan.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        rodStep.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE) {
         return reject(
             std::move(diagnostics),
@@ -5732,14 +5822,12 @@ MetalWorldDiagnostics initializeContext(
     context.eventColliderProjectionPipeline = eventColliderProjection;
     context.inactiveEventRestorePipeline = inactiveEventRestore;
     context.eventSegmentPublishPipeline = eventSegmentPublish;
-    context.rodEventInitializePipeline = rodEventInitialize;
-    context.inactiveRodEventRestorePipeline =
-        inactiveRodEventRestore;
-    context.rodEventSegmentPublishPipeline =
-        rodEventSegmentPublish;
-    context.rodSweptProjectionPipeline = rodSweptProjection;
-    context.rodCCDPipeline = rodCCD;
-    context.rodCCDWitnessTagPipeline = rodCCDWitnessTag;
+    context.rodEventInitializePipeline = nil;
+    context.inactiveRodEventRestorePipeline = nil;
+    context.rodEventSegmentPublishPipeline = nil;
+    context.rodSweptProjectionPipeline = nil;
+    context.rodCCDPipeline = nil;
+    context.rodCCDWitnessTagPipeline = nil;
     context.pairFlagPipeline = pairFlags;
     context.scanBlocksPipeline = scanBlocks;
     context.scanAddPipeline = scanAdd;
@@ -5795,20 +5883,20 @@ MetalWorldDiagnostics initializeContext(
     context.qualitySolvePipeline = qualitySolve;
     context.qualityApplyPipeline = qualityApply;
     context.qualityQueueStatusPipeline = qualityQueueStatus;
-    context.rodPreparePipeline = rodPrepare;
-    context.rodContactPreparePipeline = rodContactPrepare;
-    context.rodPackPipeline = rodPack;
-    context.rodStepPipeline = rodStep;
-    context.rodFactorPipeline = rodFactor;
-    context.rodUnpackPipeline = rodUnpack;
-    context.rodLatchPipeline = rodLatch;
-    context.rodContactLatchPipeline = rodContactLatch;
-    context.rodToolNarrowphasePipeline = rodToolNarrowphase;
-    context.rodContactScanPipeline = rodContactScan;
-    context.rodContactScatterPipeline = rodContactScatter;
-    context.rodContactSolvePipeline = rodContactSolve;
-    context.rodCommitPipeline = rodCommit;
-    context.rodContactCommitPipeline = rodContactCommit;
+    context.rodPreparePipeline = nil;
+    context.rodContactPreparePipeline = nil;
+    context.rodPackPipeline = nil;
+    context.rodStepPipeline = nil;
+    context.rodFactorPipeline = nil;
+    context.rodUnpackPipeline = nil;
+    context.rodLatchPipeline = nil;
+    context.rodContactLatchPipeline = nil;
+    context.rodToolNarrowphasePipeline = nil;
+    context.rodContactScanPipeline = nil;
+    context.rodContactScatterPipeline = nil;
+    context.rodContactSolvePipeline = nil;
+    context.rodCommitPipeline = nil;
+    context.rodContactCommitPipeline = nil;
     context.authoredIRSeedPipeline = authoredIRSeed;
     context.generalizedConstraintSolvePipeline = nil;
     context.stats.queriedThreadExecutionWidth =
@@ -5816,7 +5904,7 @@ MetalWorldDiagnostics initializeContext(
             pairNarrowphase.threadExecutionWidth
         );
     context.initialized = true;
-    context.stats.pipelineCreationCount += 83u;
+    context.stats.pipelineCreationCount += 63u;
     diagnostics = ensureHybridCCDPipeline(
         context,
         std::move(diagnostics)
@@ -17104,6 +17192,14 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
         @autoreleasepool {
             diagnostics = initializeContext(
                 *selectedState,
+                std::move(diagnostics)
+            );
+            if (!diagnostics.succeeded()) {
+                return diagnostics;
+            }
+            diagnostics = ensureRodPipelines(
+                *selectedState,
+                world.rodCount() != 0u,
                 std::move(diagnostics)
             );
             if (!diagnostics.succeeded()) {
