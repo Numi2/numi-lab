@@ -1313,13 +1313,28 @@ private func makeContext(
 
 private func publishInspectionFrame(
     from context: MetalRoboTaskRolloutContext,
-    to inspector: MetalRoboRunInspectorBridge?
+    to inspector: MetalRoboRunInspectorBridge?,
+    reloadLatestPolicy: (() throws -> UInt64)? = nil
 ) throws {
     guard let inspector else {
         return
     }
     if let enabled = inspector.takePendingNativeInspectionEnabled() {
         try context.setInspectionEnabled(enabled)
+    }
+    if inspector.takeLatestPolicyReloadRequest() {
+        guard let reloadLatestPolicy else {
+            inspector.reportPolicyStatus("policy reload unavailable")
+            return
+        }
+        do {
+            let revision = try reloadLatestPolicy()
+            inspector.reportPolicyStatus("latest policy · revision \(revision)")
+        } catch {
+            // A rejected replacement cannot change the compiled policy that
+            // remains active for the current training submission.
+            inspector.reportPolicyStatus("latest policy rejected · unchanged")
+        }
     }
     guard !inspector.acceptsFrames else {
         if inspector.isClosed {
@@ -1405,7 +1420,14 @@ private enum TaskTrainMain {
             )
             try publishInspectionFrame(
                 from: context,
-                to: inspector
+                to: inspector,
+                reloadLatestPolicy: {
+                    try context.loadPolicy(
+                        at: URL(fileURLWithPath: learner.policyPackPath)
+                    )
+                    installedRevision = context.installedPolicyRevision
+                    return installedRevision
+                }
             )
             guard warmup.failedEnvironmentSteps == 0,
                   try context.transitions(
@@ -1506,7 +1528,14 @@ private enum TaskTrainMain {
                     )
                     try publishInspectionFrame(
                         from: context,
-                        to: inspector
+                        to: inspector,
+                        reloadLatestPolicy: {
+                            try context.loadPolicy(
+                                at: URL(fileURLWithPath: learner.policyPackPath)
+                            )
+                            installedRevision = context.installedPolicyRevision
+                            return installedRevision
+                        }
                     )
                     guard advance.failedEnvironmentSteps == 0 else {
                         throw MetalRoboTaskRolloutError.native(
@@ -1819,7 +1848,11 @@ private enum TaskTrainMain {
                 try run(options: options, inspector: nil)
                 return
             }
-            let inspector = try MetalRoboRunInspectorBridge.launch()
+            let inspector = try MetalRoboRunInspectorBridge.launch(
+                canReloadLatestPolicy:
+                    options.policyPack != nil ||
+                    options.updatedPolicyPack != nil
+            )
             DispatchQueue.global(qos: .userInitiated).async {
                 do {
                     try run(options: options, inspector: inspector)

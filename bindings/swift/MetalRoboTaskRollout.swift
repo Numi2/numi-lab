@@ -1573,6 +1573,10 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         }
     }
 
+    public var installedPolicyRevision: UInt64 {
+        mr_task_rollout_policy_revision(handle)
+    }
+
     public func clearPolicy() throws {
         guard mr_task_rollout_clear_policy(handle) == 0 else {
             throw MetalRoboTaskRolloutError.native(

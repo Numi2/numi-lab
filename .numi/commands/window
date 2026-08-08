@@ -35,9 +35,21 @@ once and keep the one-command workflow, copy or link it to
 for example `numi window --task ball-dodge --policy-pack policy.policypack`
 opens that run instead of the default one-environment zero-action preview.
 
+Policy discovery, in order:
+
+  1. NUMI_WINDOW_POLICY
+  2. --policy-pack PATH
+  3. .numi/window.policypack
+  4. .numi/latest.policypack
+
+The inspector's Latest Policy button reloads that selected path at a normal
+rollout boundary. It preserves the active policy if the replacement fails its
+contract check.
+
 Optional environment overrides:
 
   NUMI_WINDOW_SCENE       authored visual-observation file
+  NUMI_WINDOW_POLICY      PolicyPack to load and refresh with Latest Policy
   NUMI_WINDOW_BUILD_DIR   isolated CMake build directory
   NUMI_WINDOW_BUILD_TYPE  default Release
   NUMI_WINDOW_WIDTH       default 960
@@ -72,6 +84,7 @@ window_option_value() {
 window_workspace=${NUMI_WORKSPACE_ROOT:?Run this capability through numi.}
 window_build=${NUMI_WINDOW_BUILD_DIR:-"$window_workspace/.numi/window-build"}
 window_scene=${NUMI_WINDOW_SCENE:-}
+window_policy=${NUMI_WINDOW_POLICY:-}
 
 if [ -z "$window_scene" ]; then
     window_scene=$(window_option_value --inspect-scene "$@" || true)
@@ -103,6 +116,24 @@ if [ -z "$window_scene" ] || [ ! -f "$window_scene" ]; then
     exit 2
 fi
 
+if [ -z "$window_policy" ] &&
+   ! window_has_option --policy-pack "$@" &&
+   ! window_has_option --native-policy "$@"; then
+    for window_candidate in \
+        "$window_workspace/.numi/window.policypack" \
+        "$window_workspace/.numi/latest.policypack"; do
+        if [ -f "$window_candidate" ]; then
+            window_policy=$window_candidate
+            break
+        fi
+    done
+fi
+if [ -n "$window_policy" ] && [ ! -f "$window_policy" ]; then
+    printf '%s\n' \
+        "numi window: policy pack does not exist: $window_policy" >&2
+    exit 2
+fi
+
 cmake -S "$window_workspace" -B "$window_build" \
     -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
 cmake --build "$window_build" --target metalrobo_task_rollout -j 4
@@ -121,6 +152,11 @@ window_has_option --inspect-width "$@" || \
 window_has_option --inspect-height "$@" || \
     set -- --inspect-height "${NUMI_WINDOW_HEIGHT:-540}" "$@"
 window_has_option --metallib "$@" || set -- --metallib "$window_metallib" "$@"
+if [ -n "$window_policy" ] &&
+   ! window_has_option --policy-pack "$@" &&
+   ! window_has_option --native-policy "$@"; then
+    set -- --policy-pack "$window_policy" "$@"
+fi
 window_has_option --envs "$@" || set -- --envs 1 "$@"
 window_has_option --steps "$@" || set -- --steps 1000000 "$@"
 window_has_option --repeats "$@" || set -- --repeats 1 "$@"
@@ -133,5 +169,7 @@ if ! window_has_option --policy-pack "$@" &&
 fi
 
 printf '%s\n' "numi window: scene $window_scene" >&2
+[ -n "$window_policy" ] &&
+    printf '%s\n' "numi window: policy $window_policy" >&2
 printf '%s\n' "numi window: close the window to end the preview run." >&2
 exec "$window_rollout" "$@"

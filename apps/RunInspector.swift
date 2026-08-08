@@ -26,6 +26,9 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     private static let pauseToolbarItem = NSToolbarItem.Identifier(
         "numi.inspector.pause"
     )
+    private static let latestPolicyToolbarItem = NSToolbarItem.Identifier(
+        "numi.inspector.latest-policy"
+    )
     private let window: NSWindow
     private let view: MTKView
     private let queue: MTLCommandQueue
@@ -35,19 +38,24 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     private var paused = false
     private var lastFrameSummary = "waiting for a frame"
     private weak var pauseItem: NSToolbarItem?
+    private weak var latestPolicyItem: NSToolbarItem?
+    private let canReloadLatestPolicy: Bool
     var onClose: (() -> Void)?
     var onPauseChanged: ((Bool) -> Void)?
+    var onLatestPolicyRequested: (() -> Void)?
 
     private init(
         window: NSWindow,
         view: MTKView,
         queue: MTLCommandQueue,
-        pipeline: MTLRenderPipelineState
+        pipeline: MTLRenderPipelineState,
+        canReloadLatestPolicy: Bool
     ) {
         self.window = window
         self.view = view
         self.queue = queue
         self.pipeline = pipeline
+        self.canReloadLatestPolicy = canReloadLatestPolicy
         super.init()
         view.delegate = self
         window.contentView = view
@@ -62,7 +70,9 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         window.makeKeyAndOrderFront(nil)
     }
 
-    static func make() throws -> RunInspectorWindow {
+    static func make(
+        canReloadLatestPolicy: Bool
+    ) throws -> RunInspectorWindow {
         guard let device = MTLCreateSystemDefaultDevice(),
               let queue = device.makeCommandQueue()
         else {
@@ -100,7 +110,8 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             window: window,
             view: view,
             queue: queue,
-            pipeline: pipeline
+            pipeline: pipeline,
+            canReloadLatestPolicy: canReloadLatestPolicy
         )
     }
 
@@ -114,6 +125,14 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         lastFrameSummary = "env \(delivery.frame.environmentIndex) · frame \(delivery.frame.frameIndex) · dropped \(delivery.frame.droppedFrames)"
         updateChrome()
         view.setNeedsDisplay(view.bounds)
+    }
+
+    func showPolicyStatus(_ summary: String) {
+        guard !closed else {
+            return
+        }
+        lastFrameSummary = summary
+        updateChrome()
     }
 
     func draw(in view: MTKView) {
@@ -155,13 +174,13 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     func toolbarAllowedItemIdentifiers(
         _ toolbar: NSToolbar
     ) -> [NSToolbarItem.Identifier] {
-        [Self.pauseToolbarItem]
+        [Self.pauseToolbarItem, Self.latestPolicyToolbarItem]
     }
 
     func toolbarDefaultItemIdentifiers(
         _ toolbar: NSToolbar
     ) -> [NSToolbarItem.Identifier] {
-        [Self.pauseToolbarItem]
+        [Self.pauseToolbarItem, Self.latestPolicyToolbarItem]
     }
 
     func toolbar(
@@ -169,15 +188,21 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
         willBeInsertedIntoToolbar flag: Bool
     ) -> NSToolbarItem? {
-        guard itemIdentifier == Self.pauseToolbarItem else {
-            return nil
-        }
         let item = NSToolbarItem(itemIdentifier: itemIdentifier)
         item.target = self
-        item.action = #selector(togglePause)
-        configurePauseItem(item)
-        pauseItem = item
-        return item
+        if itemIdentifier == Self.pauseToolbarItem {
+            item.action = #selector(togglePause)
+            configurePauseItem(item)
+            pauseItem = item
+            return item
+        }
+        if itemIdentifier == Self.latestPolicyToolbarItem {
+            item.action = #selector(requestLatestPolicy)
+            configureLatestPolicyItem(item)
+            latestPolicyItem = item
+            return item
+        }
+        return nil
     }
 
     @objc private func togglePause() {
@@ -188,6 +213,15 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         }
         onPauseChanged?(paused)
         updateChrome()
+    }
+
+    @objc private func requestLatestPolicy() {
+        guard canReloadLatestPolicy else {
+            return
+        }
+        lastFrameSummary = "loading latest policy"
+        updateChrome()
+        onLatestPolicyRequested?()
     }
 
     private func configurePauseItem(_ item: NSToolbarItem) {
@@ -201,10 +235,25 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         )
     }
 
+    private func configureLatestPolicyItem(_ item: NSToolbarItem) {
+        item.label = "Latest Policy"
+        item.toolTip = canReloadLatestPolicy
+            ? "Load the newest saved revision at the next rollout boundary"
+            : "Start this run with --policy-pack to reload its newest revision"
+        item.image = NSImage(
+            systemSymbolName: "arrow.clockwise",
+            accessibilityDescription: item.label
+        )
+        item.isEnabled = canReloadLatestPolicy
+    }
+
     private func updateChrome() {
         window.title = "Numi Lab Inspector — \(paused ? "paused" : "live") · \(lastFrameSummary)"
         if let item = pauseItem {
             configurePauseItem(item)
+        }
+        if let item = latestPolicyItem {
+            configureLatestPolicyItem(item)
         }
     }
 
@@ -281,6 +330,7 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
     private var closed = false
     private var acceptingFrames = true
     private var pendingNativeInspectionEnabled: Bool?
+    private var latestPolicyReloadRequested = false
 
     @MainActor
     private init(window: RunInspectorWindow) {
@@ -291,15 +341,22 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         window.onPauseChanged = { [weak self] paused in
             self?.setPresentationPaused(paused)
         }
+        window.onLatestPolicyRequested = { [weak self] in
+            self?.requestLatestPolicyReload()
+        }
     }
 
     @MainActor
-    public static func launch() throws -> MetalRoboRunInspectorBridge {
+    public static func launch(
+        canReloadLatestPolicy: Bool = false
+    ) throws -> MetalRoboRunInspectorBridge {
         precondition(Thread.isMainThread)
         let application = NSApplication.shared
         application.setActivationPolicy(.regular)
         let bridge = MetalRoboRunInspectorBridge(
-            window: try RunInspectorWindow.make()
+            window: try RunInspectorWindow.make(
+                canReloadLatestPolicy: canReloadLatestPolicy
+            )
         )
         application.activate(ignoringOtherApps: true)
         return bridge
@@ -335,6 +392,14 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         stateLock.unlock()
     }
 
+    private func requestLatestPolicyReload() {
+        stateLock.lock()
+        if !closed {
+            latestPolicyReloadRequested = true
+        }
+        stateLock.unlock()
+    }
+
     // Consumed by the rollout scheduler at its normal publication boundary,
     // never from the AppKit action itself.
     func takePendingNativeInspectionEnabled() -> Bool? {
@@ -343,6 +408,20 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         let value = pendingNativeInspectionEnabled
         pendingNativeInspectionEnabled = nil
         return value
+    }
+
+    func takeLatestPolicyReloadRequest() -> Bool {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        let requested = latestPolicyReloadRequested
+        latestPolicyReloadRequested = false
+        return requested
+    }
+
+    func reportPolicyStatus(_ summary: String) {
+        DispatchQueue.main.async { [window] in
+            window.showPolicyStatus(summary)
+        }
     }
 
     public func publish(

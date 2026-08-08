@@ -3524,6 +3524,16 @@ int mr_task_rollout_load_policy_pack(
     });
 }
 
+uint64_t mr_task_rollout_policy_revision(
+    const MRTaskRolloutHandle* handle
+) {
+    if (!requireTaskRolloutHandle(handle) ||
+        !handle->stepConfig.policyProgram.valid()) {
+        return 0u;
+    }
+    return handle->stepConfig.policyProgram.revision();
+}
+
 int mr_task_rollout_clear_policy(
     MRTaskRolloutHandle* handle
 ) {

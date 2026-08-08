@@ -993,13 +993,28 @@ private func masks(
 
 private func publishInspectionFrame(
     from context: MetalRoboTaskRolloutContext,
-    to inspector: MetalRoboRunInspectorBridge?
+    to inspector: MetalRoboRunInspectorBridge?,
+    reloadLatestPolicy: (() throws -> UInt64)? = nil
 ) throws {
     guard let inspector else {
         return
     }
     if let enabled = inspector.takePendingNativeInspectionEnabled() {
         try context.setInspectionEnabled(enabled)
+    }
+    if inspector.takeLatestPolicyReloadRequest() {
+        guard let reloadLatestPolicy else {
+            inspector.reportPolicyStatus("policy reload unavailable")
+            return
+        }
+        do {
+            let revision = try reloadLatestPolicy()
+            inspector.reportPolicyStatus("latest policy · revision \(revision)")
+        } catch {
+            // Native policy installation is transactional: a failed load
+            // leaves the currently rendered policy intact.
+            inspector.reportPolicyStatus("latest policy rejected · unchanged")
+        }
     }
     guard !inspector.acceptsFrames else {
         if inspector.isClosed {
@@ -1150,7 +1165,17 @@ private enum TaskRolloutMain {
                 )
                 try publishInspectionFrame(
                     from: context,
-                    to: inspector
+                    to: inspector,
+                    reloadLatestPolicy: options.policyPack.map { path in
+                        {
+                            try context.loadPolicy(
+                                at: URL(fileURLWithPath: path)
+                            )
+                            installedPolicyRevision =
+                                context.installedPolicyRevision
+                            return installedPolicyRevision
+                        }
+                    }
                 )
                 let revisions = try context.transitions(
                     controlStepCount: 1
@@ -1245,7 +1270,17 @@ private enum TaskRolloutMain {
                 )
                 try publishInspectionFrame(
                     from: context,
-                    to: inspector
+                    to: inspector,
+                    reloadLatestPolicy: options.policyPack.map { path in
+                        {
+                            try context.loadPolicy(
+                                at: URL(fileURLWithPath: path)
+                            )
+                            installedPolicyRevision =
+                                context.installedPolicyRevision
+                            return installedPolicyRevision
+                        }
+                    }
                 )
             }
             try context.reset(seed: options.seed)
@@ -1524,7 +1559,17 @@ private enum TaskRolloutMain {
                     }
                     try publishInspectionFrame(
                         from: context,
-                        to: inspector
+                        to: inspector,
+                        reloadLatestPolicy: options.policyPack.map { path in
+                            {
+                                try context.loadPolicy(
+                                    at: URL(fileURLWithPath: path)
+                                )
+                                installedPolicyRevision =
+                                    context.installedPolicyRevision
+                                return installedPolicyRevision
+                            }
+                        }
                     )
                     let statuses = try context.statusCodes(
                         controlStepCount: stepCount
@@ -2630,7 +2675,9 @@ private enum TaskRolloutMain {
                 try run(options: options, inspector: nil)
                 return
             }
-            let inspector = try MetalRoboRunInspectorBridge.launch()
+            let inspector = try MetalRoboRunInspectorBridge.launch(
+                canReloadLatestPolicy: options.policyPack != nil
+            )
             DispatchQueue.global(qos: .userInitiated).async {
                 do {
                     try run(options: options, inspector: inspector)
