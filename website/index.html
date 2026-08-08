@@ -3,68 +3,73 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Numi Lab — research in neural networks, physics simulation, biology, and artificial life." />
-    <meta name="theme-color" content="#f6f4ef" />
-    <title>Numi Lab</title>
+    <meta name="description" content="Numi Lab studies intelligence through physical simulation, biological organization, and artificial life." />
+    <meta name="theme-color" content="#101816" />
+    <title>Numi Lab — Worlds that answer back</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <header>
-      <a class="wordmark" href="#top" aria-label="Numi Lab home"><span aria-hidden="true">✦</span> Numi Lab</a>
-      <nav aria-label="Main navigation"><a href="#work">Work</a><a href="#research">Research</a><a href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer">GitHub ↗</a></nav>
+    <header class="topbar">
+      <a class="wordmark" href="#top" aria-label="Numi Lab home"><span aria-hidden="true">●</span> Numi Lab</a>
+      <nav aria-label="Main navigation"><a href="#work">Work</a><a href="#questions">Questions</a><a href="#archive">Archive</a></nav>
+      <a class="github" href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
     </header>
 
     <main id="main">
-      <section class="intro" id="top">
-        <p class="kicker">Independent research laboratory</p>
-        <h1>Research for minds<br />in physical worlds.</h1>
-        <p class="summary">Neural networks, physics simulation, biology, molecular systems, and emergent artificial life.</p>
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <p class="index">NUMI LAB / 01</p>
+        <div class="hero-title"><p class="hero-eyebrow">A research program in intelligence, matter, and life</p><h1 id="hero-title">The intelligence problem<br />is a <em>world</em>&nbsp;problem.</h1></div>
+        <div class="hero-bottom"><p>We make worlds where learning must meet mechanics, material, metabolism, and time.</p><a href="#work">Enter the work <span aria-hidden="true">↓</span></a></div>
+        <div class="field field-one" aria-hidden="true"></div><div class="field field-two" aria-hidden="true"></div><div class="field field-three" aria-hidden="true"></div>
       </section>
 
-      <section class="goals" aria-labelledby="goals-title">
-        <div class="section-heading"><p class="kicker">Long-term research goals</p><h2 id="goals-title">Aims</h2></div>
-        <div class="goal-list">
-          <article><span>Neural networks</span><p>Build learning systems that form useful world models through real consequence, not only static data.</p></article>
-          <article><span>Physics simulation</span><p>Make high-fidelity physical worlds fast and accessible enough to become a daily instrument of invention.</p></article>
-          <article><span>Biology</span><p>Understand how cells, bodies, and ecologies coordinate across scales by building testable living systems in silico.</p></article>
-          <article><span>Molecular systems</span><p>Connect molecular rules to development, behavior, and repair without losing the mechanisms in between.</p></article>
-          <article><span>Artificial life</span><p>Create open worlds where new forms of organization can persist, adapt, and surprise us.</p></article>
-        </div>
+      <section class="proposition" aria-labelledby="proposition-title">
+        <p class="index">LAB THESIS / 02</p>
+        <div><h2 id="proposition-title">A model cannot understand the world from the outside.</h2><p>It has to encounter consequences: force, uncertainty, repair, other agents, and the irreversible passage of time. Numi Lab is a place to build those encounters.</p></div>
       </section>
 
       <section class="work" id="work" aria-labelledby="work-title">
-        <div class="section-heading"><p class="kicker">Selected work</p><h2 id="work-title">Projects</h2></div>
-        <div class="projects">
-          <article class="project project-metalrobo">
-            <img src="/images/metalrobo-g1.webp" alt="Unitree G1 rendered in the MetalRobo physics environment" />
-            <div><p class="project-kind">Robotics · Simulation</p><h3>MetalRobo</h3><p>Apple-native robot physics, sensing, control, and learning.</p><a href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer">Project ↗</a></div>
-          </article>
-          <article class="project project-automata">
-            <img src="/images/numi-automata-overview.png" alt="Numi Automata artificial-life simulation" />
-            <div><p class="project-kind">Artificial life · Biology</p><h3>Numi Automata</h3><p>Fields, cells, organisms, inheritance, and ecology in one evolving world.</p><a href="#research">Research notes ↓</a></div>
-          </article>
-          <article class="project project-birdflow">
-            <div class="birdflow-art" role="img" aria-label="A simple abstract bird in a soft green flight field"><svg viewBox="0 0 560 320" aria-hidden="true"><path d="M74 190c74-14 103-109 185-89 43 11 44 72 79 72 47 0 56-79 141-102-35 40-51 95-95 132-52 43-110 50-163 26-39-18-79 10-147-39Z" /></svg></div>
-            <div><p class="project-kind">Flight · Fluid dynamics</p><h3>BirdFlowMetal</h3><p>Measured-bird data and GPU simulation for the study of natural flight.</p><a href="#research">Research notes ↓</a></div>
-          </article>
-        </div>
+        <div class="section-head"><p class="index">SELECTED SYSTEMS / 03</p><h2 id="work-title">The work</h2></div>
+        <article class="system metalrobo">
+          <div class="system-image"><img src="/images/metalrobo-g1.webp" alt="Unitree G1 in a MetalRobo physics rollout" /><span>Native physical rollout</span></div>
+          <div class="system-copy"><p class="system-number">01 / ROBOTICS</p><h3>MetalRobo</h3><p>One Apple-native physical path for articulated robots, contact, vision, touch, control, and learning.</p><a href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer">Explore MetalRobo <span aria-hidden="true">↗</span></a></div>
+        </article>
+        <article class="system automata">
+          <div class="system-copy"><p class="system-number">02 / ARTIFICIAL LIFE</p><h3>Numi<br />Automata</h3><p>Fields become cells. Cells become organisms. Organisms inherit, compete, repair, and change an ecology.</p><a href="#archive">Read the research notes <span aria-hidden="true">↓</span></a></div>
+          <div class="system-image"><img src="/images/numi-automata-overview.png" alt="Numi Automata's coupled artificial-life world" /><span>Persistent multi-scale world</span></div>
+        </article>
+        <article class="system birdflow">
+          <div class="bird-field" role="img" aria-label="Abstract dove in a simulated flow field"><span class="flow-label">D3Q19 / FIELD STUDY</span><svg viewBox="0 0 600 420" aria-hidden="true"><path d="M76 239c82-18 116-143 210-116 45 13 51 86 86 86 53 0 68-97 157-129-43 51-55 113-106 157-61 53-132 66-193 34-50-26-87 10-158-32Z" /></svg></div>
+          <div class="system-copy"><p class="system-number">03 / FLIGHT</p><h3>BirdFlowMetal</h3><p>Measured form, fluid mechanics, and control joined in the study of natural aerial movement.</p><a href="#archive">Open the flight record <span aria-hidden="true">↓</span></a></div>
+        </article>
       </section>
 
-      <section class="research" id="research" aria-labelledby="research-title">
-        <div class="section-heading"><p class="kicker">Research archive</p><h2 id="research-title">Papers & notes</h2></div>
-        <div class="research-list">
-          <a href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer"><span>01</span><strong>MetalRobo platform direction</strong><em>Systems</em><b>↗</b></a>
-          <a href="#work"><span>02</span><strong>Numi Automata</strong><em>Artificial life</em><b>↓</b></a>
-          <a href="#work"><span>03</span><strong>BirdFlowMetal</strong><em>Biological flight</em><b>↓</b></a>
+      <section class="questions" id="questions" aria-labelledby="questions-title">
+        <div class="section-head"><p class="index">RESEARCH QUESTIONS / 04</p><h2 id="questions-title">What changes the frontier?</h2></div>
+        <ol>
+          <li><span>01</span><p>Can a neural system learn a body by being one?</p><em>Neural networks</em></li>
+          <li><span>02</span><p>Can a physical world become as programmable as a neural network?</p><em>Simulation</em></li>
+          <li><span>03</span><p>Can biological organization be understood by making it grow?</p><em>Biology</em></li>
+          <li><span>04</span><p>Can molecular cause reach behavior without a hand-waved gap?</p><em>Molecular systems</em></li>
+          <li><span>05</span><p>Can artificial life stay open enough to invent?</p><em>Emergence</em></li>
+        </ol>
+      </section>
+
+      <section class="archive" id="archive" aria-labelledby="archive-title">
+        <div><p class="index">OPEN RECORD / 05</p><h2 id="archive-title">Research is a record<br />of what survives contact.</h2></div>
+        <div class="archive-links">
+          <a href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer"><span>01</span><strong>MetalRobo platform direction</strong><i>Systems</i><b>↗</b></a>
+          <a href="#work"><span>02</span><strong>Numi Automata: a coupled artificial life world</strong><i>Methods & observations</i><b>↓</b></a>
+          <a href="#work"><span>03</span><strong>BirdFlowMetal: measuring flight in a physical field</strong><i>Flight & fluid dynamics</i><b>↓</b></a>
         </div>
       </section>
     </main>
 
-    <footer><span>Numi Lab</span><span>Research in progress · 2026</span></footer>
+    <footer><a class="wordmark" href="#top"><span aria-hidden="true">●</span> Numi Lab</a><p>Physics, intelligence, and life.<br />Studied together.</p><span>2026 / RESEARCH IN PROGRESS</span></footer>
   </body>
 </html>
