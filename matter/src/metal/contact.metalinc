@@ -544,7 +544,7 @@ kernel void nm_contact_solve_coupled(
     device const NMIncidenceRangeGPU* rigidRanges [[buffer(9)]],
     device const NMSchedulerStateGPU* schedulers [[buffer(10)]],
     device NMContactSampleGPU* samples [[buffer(11)]],
-    device const NMMatterStatusGPU* statuses [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(12)]],
     device const uint* bodyProxyIncidence [[buffer(13)]],
     device const NMIncidenceRangeGPU* bodyProxyRanges [[buffer(14)]],
     constant uint& bodyProxyRangeCount [[buffer(15)]],
@@ -735,6 +735,26 @@ kernel void nm_contact_solve_coupled(
                 : tangent;
             const float3 impulseOnRigid =
                 -newNormal * normal + projectedTangent;
+            // This is the authoritative cone boundary: fail the enclosing
+            // transaction rather than publishing a non-finite impulse or a
+            // result outside the circular Coulomb disk after projection.
+            if (!isfinite(newNormal) || !finite3(impulseOnRigid) ||
+                !isfinite(tangentLength) ||
+                length(projectedTangent) > tangentLimit + 1.0e-5f) {
+                recordFailure(
+                    statuses[environment],
+                    NM_STATUS_CONTACT_FAILURE,
+                    pair.objectIndex,
+                    pairIndex,
+                    float4(
+                        newNormal,
+                        length(projectedTangent),
+                        tangentLimit,
+                        normalVelocity
+                    )
+                );
+                return;
+            }
             sample.impulseAndNormal = float4(impulseOnRigid, newNormal);
             sample.angularImpulseAndTangent = float4(
                 cross(lever, impulseOnRigid),
