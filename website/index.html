@@ -9,6 +9,7 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/style.css" />
     <style>
@@ -22,6 +23,15 @@
       .directory-links span { color:#506159; font:10px var(--mono); text-transform:uppercase; letter-spacing:.04em; }
       .directory-links b { font-size:16px; font-weight:400; }
       .directory-links .directory-all { margin-top:24px; border-top:1px solid var(--ink); background:rgba(244,241,233,.34); padding:18px; }
+      .metalrobo { background:#071417; color:#f4f8f7; }
+      .metalrobo .system-number, .metalrobo .system-copy a { color:#13dce6; border-color:#13dce6; }
+      .metalrobo .system-copy>p:not(.system-number) { color:#b7c7c8; }
+      .automata { background:#172a28; color:#f0f6f0; }
+      .automata .system-number, .automata .system-copy a { color:#a9dbc4; border-color:#a9dbc4; }
+      .automata .system-copy>p:not(.system-number) { color:#c8d7ce; }
+      .birdflow { background:#173d50; color:#eff8f7; }
+      .birdflow .system-number, .birdflow .system-copy a { color:#f2b28b; border-color:#f2b28b; }
+      .birdflow .system-copy>p:not(.system-number) { color:#c6dde1; }
       @media (max-width:760px) { .directory { grid-template-columns:1fr; gap:42px; padding:82px 20px; } .directory h2 { font-size:50px; } .directory-links a { grid-template-columns:1fr 15px; gap:6px; min-height:0; } .directory-links span { grid-column:1; grid-row:2; } .directory-links b { grid-column:2; grid-row:1; } }
     </style>
   </head>
@@ -49,15 +59,15 @@
       <section class="work" id="work" aria-labelledby="work-title">
         <div class="section-head"><p class="index">SELECTED SYSTEMS / 03</p><h2 id="work-title">The work</h2></div>
         <article class="system metalrobo">
-          <div class="system-image"><img src="/images/metalrobo-g1.webp" alt="Unitree G1 in a MetalRobo physics rollout" /><span>Native physical rollout</span></div>
+          <div class="system-image"><img src="https://raw.githubusercontent.com/Numi2/numi-lab/main/docs/media/ardy-g1-run-forward-kinematic.gif" alt="ARDY running in a Numi Lab physical world" /><span>Native physical rollout</span></div>
           <div class="system-copy"><p class="system-number">01 / PHYSICAL INTELLIGENCE</p><h3>Numi Lab</h3><p>An Apple-native laboratory for compiled physical worlds: robots, contact, sensing, inference, and learning.</p><a href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer">Explore Numi Lab <span aria-hidden="true">↗</span></a></div>
         </article>
         <article class="system automata">
           <div class="system-copy"><p class="system-number">02 / ARTIFICIAL LIFE</p><h3>Numi<br />Automata</h3><p>A bottom-up Metal world where coupled fields, cells, organisms, inheritance, and ecology evolve together.</p><a href="https://github.com/Numi2/numi-life-automata" target="_blank" rel="noreferrer">Explore Numi Automata <span aria-hidden="true">↗</span></a></div>
-          <div class="system-image"><img src="/images/numi-automata-overview.png" alt="Numi Automata's coupled artificial-life world" /><span>Persistent multi-scale world</span></div>
+          <div class="system-image"><img src="https://raw.githubusercontent.com/Numi2/numi-life-automata/main/Docs/Media/numi-automata-levels.gif" alt="Numi Automata's coupled artificial-life field world in motion" /><span>Persistent multi-scale world</span></div>
         </article>
         <article class="system birdflow">
-          <div class="system-image"><img src="https://raw.githubusercontent.com/Numi2/numi-gpu-physics-pigeon-sim/main/Docs/Media/deetjen-through-flight-observatory.png" alt="BirdFlowMetal's D3Q19 observatory for a reconstructed dove in flight" /><span>D3Q19 / field study</span></div>
+          <div class="system-image"><img src="https://raw.githubusercontent.com/Numi2/numi-gpu-physics-pigeon-sim/main/Docs/Media/Progress/2026-07-18-v7-cinematic-wake-bridge.gif" alt="BirdFlowMetal's simulated flock and wake field in motion" /><span>D3Q19 / wake study</span></div>
           <div class="system-copy"><p class="system-number">03 / AERIAL PHYSICS</p><h3>BirdFlowMetal</h3><p>A GPU-native fluid–body laboratory for articulated bird flight, measured-motion replay, and strict validation.</p><a href="https://github.com/Numi2/numi-gpu-physics-pigeon-sim" target="_blank" rel="noreferrer">Explore BirdFlowMetal <span aria-hidden="true">↗</span></a></div>
         </article>
       </section>
