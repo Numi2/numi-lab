@@ -1,0 +1,307 @@
+namespace numi_matter_metal {
+
+inline uint fgmresMatrixIndex(
+    const uint object,
+    const uint row,
+    const uint column
+) {
+    return (object * (NM_MIXED_FGMRES_RESTART + 1u) + row) *
+        NM_MIXED_FGMRES_RESTART + column;
+}
+
+inline uint fgmresVectorIndex(const uint object, const uint row) {
+    return object * (NM_MIXED_FGMRES_RESTART + 1u) + row;
+}
+
+kernel void nm_fgmres_begin(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const float4* residual [[buffer(3)]],
+    device float4* basis0 [[buffer(4)]],
+    device float* hessenberg [[buffer(5)]],
+    device float2* rotations [[buffer(6)]],
+    device float* leastSquares [[buffer(7)]],
+    device NMFGMRESStateGPU* states [[buffer(8)]],
+    device const NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || dispatch.objectCount == 0u) return;
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (environment >= dispatch.environmentCount) return;
+    const uint objectGlobal = group;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    float norm2 = 0.0f;
+    if (object.representation == NM_REPRESENTATION_FEM &&
+        environmentHealthy(statuses, environment)) {
+        const uint base = environment * dispatch.femNodeCount +
+            object.stateOffset;
+        for (uint local = lane; local < object.stateCount; local += 32u)
+            norm2 += dot(residual[base + local].xyz,
+                         residual[base + local].xyz);
+    }
+    norm2 = simd_sum(norm2);
+    const uint restart = min(
+        solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART
+    );
+    for (uint index = lane; index <
+         (NM_MIXED_FGMRES_RESTART + 1u) * NM_MIXED_FGMRES_RESTART;
+         index += 32u)
+        hessenberg[objectGlobal *
+            (NM_MIXED_FGMRES_RESTART + 1u) *
+            NM_MIXED_FGMRES_RESTART + index] = 0.0f;
+    for (uint index = lane; index < NM_MIXED_FGMRES_RESTART; index += 32u)
+        rotations[objectGlobal * NM_MIXED_FGMRES_RESTART + index] =
+            float2(1.0f, 0.0f);
+    for (uint index = lane; index < NM_MIXED_FGMRES_RESTART + 1u;
+         index += 32u)
+        leastSquares[fgmresVectorIndex(objectGlobal, index)] = 0.0f;
+    threadgroup_barrier(mem_flags::mem_device);
+    const float norm = sqrt(max(norm2, 0.0f));
+    if (lane == 0u) {
+        leastSquares[fgmresVectorIndex(objectGlobal, 0u)] = norm;
+        states[objectGlobal].diagnostics = float4(
+            norm, norm, norm <= solver.regularization.x, 0.0f
+        );
+    }
+    if (object.representation != NM_REPRESENTATION_FEM) return;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const float inverseNorm = norm > 1.0e-30f ? 1.0f / norm : 0.0f;
+    for (uint local = lane; local < object.stateCount; local += 32u) {
+        const uint node = nodeBase + object.stateOffset + local;
+        basis0[node] = float4(residual[node].xyz * inverseNorm, 0.0f);
+    }
+    (void)restart;
+}
+
+kernel void nm_fgmres_precondition(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(2)]],
+    device const float4* basis [[buffer(3)]],
+    device float4* preconditioned [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    preconditioned[global] = float4(0.0f);
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount)
+        return;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    if (states[objectGlobal].diagnostics.z > 0.5f) return;
+    const float inverseMass = max(nodes[global].velocityAndInverseMass.w, 0.0f);
+    preconditioned[global] = float4(
+        inverseMass * basis[global].xyz, 0.0f
+    );
+}
+
+kernel void nm_fgmres_project(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& row [[buffer(1)]],
+    constant uint& column [[buffer(2)]],
+    device const NMContinuumObjectGPU* objects [[buffer(3)]],
+    device const float4* basis [[buffer(4)]],
+    device const float4* work [[buffer(5)]],
+    device float* hessenberg [[buffer(6)]],
+    device const NMFGMRESStateGPU* states [[buffer(7)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || dispatch.objectCount == 0u) return;
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (environment >= dispatch.environmentCount ||
+        states[group].diagnostics.z > 0.5f) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    float value = 0.0f;
+    const uint base = environment * dispatch.femNodeCount + object.stateOffset;
+    for (uint local = lane; local < object.stateCount; local += 32u)
+        value += dot(basis[base + local].xyz, work[base + local].xyz);
+    value = simd_sum(value);
+    if (lane == 0u)
+        hessenberg[fgmresMatrixIndex(group, row, column)] = value;
+}
+
+kernel void nm_fgmres_orthogonalize(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& row [[buffer(1)]],
+    constant uint& column [[buffer(2)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
+    device const float4* basis [[buffer(4)]],
+    device float4* work [[buffer(5)]],
+    device const float* hessenberg [[buffer(6)]],
+    device const NMFGMRESStateGPU* states [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount)
+        return;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    if (states[objectGlobal].diagnostics.z > 0.5f) return;
+    const float h = hessenberg[
+        fgmresMatrixIndex(objectGlobal, row, column)
+    ];
+    work[global].xyz -= h * basis[global].xyz;
+}
+
+kernel void nm_fgmres_finish_column(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    constant uint& column [[buffer(2)]],
+    device const NMContinuumObjectGPU* objects [[buffer(3)]],
+    device const float4* work [[buffer(4)]],
+    device float4* nextBasis [[buffer(5)]],
+    device float* hessenberg [[buffer(6)]],
+    device float2* rotations [[buffer(7)]],
+    device float* leastSquares [[buffer(8)]],
+    device NMFGMRESStateGPU* states [[buffer(9)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || dispatch.objectCount == 0u) return;
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (environment >= dispatch.environmentCount ||
+        states[group].diagnostics.z > 0.5f) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const uint base = environment * dispatch.femNodeCount + object.stateOffset;
+    float norm2 = 0.0f;
+    for (uint local = lane; local < object.stateCount; local += 32u)
+        norm2 += dot(work[base + local].xyz, work[base + local].xyz);
+    norm2 = simd_sum(norm2);
+    const float norm = sqrt(max(norm2, 0.0f));
+    if (lane == 0u) {
+        hessenberg[fgmresMatrixIndex(group, column + 1u, column)] = norm;
+        for (uint previous = 0u; previous < column; ++previous) {
+            const float2 rotation = rotations[
+                group * NM_MIXED_FGMRES_RESTART + previous
+            ];
+            const uint upperIndex = fgmresMatrixIndex(
+                group, previous, column
+            );
+            const uint lowerIndex = fgmresMatrixIndex(
+                group, previous + 1u, column
+            );
+            const float upper = hessenberg[upperIndex];
+            const float lower = hessenberg[lowerIndex];
+            hessenberg[upperIndex] = rotation.x * upper + rotation.y * lower;
+            hessenberg[lowerIndex] = -rotation.y * upper + rotation.x * lower;
+        }
+        const uint diagonalIndex = fgmresMatrixIndex(group, column, column);
+        const uint subdiagonalIndex = fgmresMatrixIndex(
+            group, column + 1u, column
+        );
+        const float diagonal = hessenberg[diagonalIndex];
+        const float subdiagonal = hessenberg[subdiagonalIndex];
+        const float magnitude = sqrt(
+            diagonal * diagonal + subdiagonal * subdiagonal
+        );
+        const float2 rotation = magnitude > 1.0e-30f
+            ? float2(diagonal / magnitude, subdiagonal / magnitude)
+            : float2(1.0f, 0.0f);
+        rotations[group * NM_MIXED_FGMRES_RESTART + column] = rotation;
+        hessenberg[diagonalIndex] = magnitude;
+        hessenberg[subdiagonalIndex] = 0.0f;
+        const uint g0 = fgmresVectorIndex(group, column);
+        const uint g1 = fgmresVectorIndex(group, column + 1u);
+        const float upper = leastSquares[g0];
+        const float lower = leastSquares[g1];
+        leastSquares[g0] = rotation.x * upper + rotation.y * lower;
+        leastSquares[g1] = -rotation.y * upper + rotation.x * lower;
+        const float residual = abs(leastSquares[g1]);
+        device NMFGMRESStateGPU& state = states[group];
+        state.diagnostics.x = residual;
+        state.diagnostics.w = float(column + 1u);
+        state.diagnostics.z = residual <= max(
+            solver.regularization.x,
+            solver.nonlinearTolerances.x * state.diagnostics.y
+        ) ? 1.0f : 0.0f;
+    }
+    const float inverseNorm = norm > 1.0e-30f ? 1.0f / norm : 0.0f;
+    for (uint local = lane; local < object.stateCount; local += 32u)
+        nextBasis[base + local] = float4(
+            work[base + local].xyz * inverseNorm, 0.0f
+        );
+}
+
+kernel void nm_fgmres_backsolve(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device float* hessenberg [[buffer(2)]],
+    device float* leastSquares [[buffer(3)]],
+    device NMFGMRESStateGPU* states [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    device NMPCGScalarGPU* publishedIterations [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total || dispatch.objectCount == 0u) return;
+    const uint environment = global / dispatch.objectCount;
+    device NMFGMRESStateGPU& state = states[global];
+    const uint used = min(uint(state.diagnostics.w), min(
+        solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART
+    ));
+    atomic_fetch_max_explicit(
+        (device atomic_uint*)&statuses[environment].pcgIterations,
+        used,
+        memory_order_relaxed
+    );
+    publishedIterations[global].diagnostics.w = float(max(used, 1u));
+    for (int row = int(used) - 1; row >= 0; --row) {
+        float value = leastSquares[fgmresVectorIndex(global, uint(row))];
+        for (uint column = uint(row) + 1u; column < used; ++column)
+            value -= hessenberg[fgmresMatrixIndex(
+                global, uint(row), column
+            )] * leastSquares[fgmresVectorIndex(global, column)];
+        const float diagonal = hessenberg[
+            fgmresMatrixIndex(global, uint(row), uint(row))
+        ];
+        leastSquares[fgmresVectorIndex(global, uint(row))] =
+            abs(diagonal) > solver.regularization.x ? value / diagonal : 0.0f;
+    }
+    if (state.diagnostics.z <= 0.5f || !isfinite(state.diagnostics.x)) {
+        recordFailure(
+            statuses[environment], NM_STATUS_LINEAR_SOLVER_FAILURE,
+            global - environment * dispatch.objectCount, used,
+            state.diagnostics
+        );
+    }
+}
+
+kernel void nm_fgmres_accumulate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(2)]],
+    device const float4* preconditionedBasis [[buffer(3)]],
+    device const float* leastSquares [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device float4* solution [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount)
+        return;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const uint used = min(uint(states[objectGlobal].diagnostics.w), min(
+        solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART
+    ));
+    float3 value = float3(0.0f);
+    for (uint column = 0u; column < used; ++column)
+        value += preconditionedBasis[
+            column * total + global
+        ].xyz * leastSquares[fgmresVectorIndex(objectGlobal, column)];
+    solution[global] = float4(value, 0.0f);
+}
+
+} // namespace numi_matter_metal

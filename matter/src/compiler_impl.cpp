@@ -1381,6 +1381,50 @@ CompileResult compileWorld(
                 );
                 world.fem.fieldBoundaries.push_back(cooked);
             }
+            if (object.multiphysics.enabled &&
+                material.mixed.electricalConductivity > 0.0) {
+                std::vector<std::uint32_t> parent(object.femNodes.size());
+                std::iota(parent.begin(), parent.end(), 0u);
+                const auto root = [&](std::uint32_t node) {
+                    while (parent[node] != node) {
+                        parent[node] = parent[parent[node]];
+                        node = parent[node];
+                    }
+                    return node;
+                };
+                for (const TetrahedronSource& tetrahedron : object.tetrahedra) {
+                    if (std::ranges::any_of(
+                            tetrahedron.nodes,
+                            [&](const std::uint32_t node) {
+                                return node >= object.femNodes.size();
+                            })) continue;
+                    const std::uint32_t first = root(tetrahedron.nodes[0]);
+                    for (std::uint32_t slot = 1u; slot < 4u; ++slot) {
+                        const std::uint32_t other = root(tetrahedron.nodes[slot]);
+                        if (other != first) parent[other] = first;
+                    }
+                }
+                std::set<std::uint32_t> conductiveComponents;
+                for (const TetrahedronSource& tetrahedron : object.tetrahedra)
+                    if (tetrahedron.nodes[0] < object.femNodes.size())
+                        conductiveComponents.insert(root(tetrahedron.nodes[0]));
+                std::set<std::uint32_t> groundedComponents;
+                for (const FieldBoundarySource& boundary : object.fieldBoundaries)
+                    if ((boundary.flags &
+                         NM_FIELD_DIRICHLET_ELECTRIC_POTENTIAL) != 0u)
+                        groundedComponents.insert(root(boundary.node));
+                for (const std::uint32_t component : conductiveComponents) {
+                    if (!groundedComponents.contains(component)) {
+                        result.diagnostics.push_back({
+                            Diagnostic::Severity::error, 0u, 0u,
+                            "conductive FEM component in object '" +
+                                object.name +
+                                "' has no electric Dirichlet/ground boundary",
+                        });
+                        return result;
+                    }
+                }
+            }
             const double rho = density(material);
             std::vector<double> localMass(nodeCapacity, 0.0);
             for (const TetrahedronSource& sourceTet : object.tetrahedra) {
@@ -1605,6 +1649,10 @@ CompileResult compileWorld(
             world.fem.punctureChannels.resize(
                 firstChannel + object.femCapacity.punctureChannels
             );
+            for (std::size_t channel = firstChannel;
+                 channel < world.fem.punctureChannels.size(); ++channel) {
+                world.fem.punctureChannels[channel].identity.x = objectIndex;
+            }
             cookedFEMCapacity.topology = {
                 static_cast<nm_u32>(nodeCapacity),
                 static_cast<nm_u32>(tetrahedronCapacity),

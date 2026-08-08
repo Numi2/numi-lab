@@ -173,6 +173,7 @@ enum NMTopologyFlags : nm_u32 {
     NM_TOPOLOGY_SURFACE = 1u << 1u,
     NM_TOPOLOGY_COHESIVE = 1u << 2u,
     NM_TOPOLOGY_ERODED = 1u << 3u,
+    NM_TOPOLOGY_SEPARATED = 1u << 4u,
 };
 
 enum NMLearnedActivationKind : nm_u32 {
@@ -345,6 +346,8 @@ typedef struct NM_ALIGN16 NMCohesiveFaceGPU {
     nm_float4 state;
     // rest normal xyz and rest area.
     nm_float4 geometry;
+    // Separated-side node copies; w is reserved.
+    nm_uint4 separatedNodes;
 } NMCohesiveFaceGPU;
 
 typedef struct NM_ALIGN16 NMMutationCommandGPU {
@@ -385,6 +388,22 @@ typedef struct NM_ALIGN16 NMLearnedLayerGPU {
     nm_uint4 routing;
 } NMLearnedLayerGPU;
 
+typedef struct NM_ALIGN16 NMLearnedDifferentialGPU {
+    nm_float4 deformationRow0;
+    nm_float4 deformationRow1;
+    nm_float4 deformationRow2;
+    nm_float4 directionRow0;
+    nm_float4 directionRow1;
+    nm_float4 directionRow2;
+    nm_float4 firstPiolaRow0;
+    nm_float4 firstPiolaRow1;
+    nm_float4 firstPiolaRow2;
+    nm_float4 tangentRow0;
+    nm_float4 tangentRow1;
+    nm_float4 tangentRow2;
+    nm_float4 diagnostics;
+} NMLearnedDifferentialGPU;
+
 typedef struct NM_ALIGN16 NMSolverCertificateGPU {
     // nonlinear residual, relative correction, volume residual, pressure residual.
     nm_float4 nonlinear;
@@ -398,6 +417,7 @@ typedef struct NM_ALIGN16 NMSolverCertificateGPU {
 
 enum NMMicrostepFlags : nm_u32 {
     NM_MICROSTEP_CAPTURE_EVENTS = 1u << 0u,
+    NM_MICROSTEP_FGMRES_OPERATOR = 1u << 1u,
 };
 
 typedef struct NM_ALIGN16 NMMicrostepGPU {
@@ -639,6 +659,22 @@ typedef struct NM_ALIGN16 NMPCGScalarGPU {
     // residual, initial residual, converged, iteration.
     nm_float4 diagnostics;
 } NMPCGScalarGPU;
+
+typedef struct NM_ALIGN16 NMFGMRESStateGPU {
+    // Current residual, initial residual, convergence flag, Arnoldi columns.
+    nm_float4 diagnostics;
+} NMFGMRESStateGPU;
+
+typedef struct NM_ALIGN16 NMMixedPCGScalarGPU {
+    nm_float4 rz;
+    nm_float4 pap;
+    nm_float4 alpha;
+    nm_float4 beta;
+    nm_float4 residual;
+    nm_float4 initialResidual;
+    nm_uint4 converged;
+    nm_uint4 iterations;
+} NMMixedPCGScalarGPU;
 
 typedef struct NM_ALIGN16 NMRigidProxyGPU {
     nm_u32 shapeKind;

@@ -50,10 +50,18 @@ kernel void nm_topology_checkpoint(
     device const NMPunctureChannelGPU* acceptedChannels [[buffer(10)]],
     device NMPunctureChannelGPU* candidateChannels [[buffer(11)]],
     device NMPunctureChannelGPU* checkpointChannels [[buffer(12)]],
+    device const NMFEMTopologyStateGPU* acceptedStates [[buffer(13)]],
+    device NMFEMTopologyStateGPU* candidateStates [[buffer(14)]],
+    device NMFEMTopologyStateGPU* checkpointStates [[buffer(15)]],
+    device const uint* nodeIncidence [[buffer(16)]],
+    device uint* checkpointIncidence [[buffer(17)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(18)]],
+    device NMIncidenceRangeGPU* checkpointRanges [[buffer(19)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint width = max(max(dispatch.tetrahedronCount, dispatch.femNodeCount),
-        max(dispatch.cohesiveFaceCount, dispatch.punctureChannelCount));
+        max(max(dispatch.cohesiveFaceCount, dispatch.punctureChannelCount),
+            max(dispatch.objectCount, dispatch.tetrahedronCount * 4u)));
     if (width == 0u || global >= dispatch.environmentCount * width) return;
     const uint environment = global / width;
     const uint local = global - environment * width;
@@ -76,6 +84,19 @@ kernel void nm_topology_checkpoint(
         const uint index = environment * dispatch.punctureChannelCount + local;
         candidateChannels[index] = acceptedChannels[index];
         checkpointChannels[index] = acceptedChannels[index];
+    }
+    if (local < dispatch.objectCount) {
+        const uint index = environment * dispatch.objectCount + local;
+        candidateStates[index] = acceptedStates[index];
+        checkpointStates[index] = acceptedStates[index];
+    }
+    if (local < dispatch.tetrahedronCount * 4u) {
+        const uint index = environment * dispatch.tetrahedronCount * 4u + local;
+        checkpointIncidence[index] = nodeIncidence[index];
+    }
+    if (local < dispatch.femNodeCount) {
+        const uint index = environment * dispatch.femNodeCount + local;
+        checkpointRanges[index] = nodeRanges[index];
     }
 }
 
@@ -134,30 +155,489 @@ kernel void nm_topology_apply_mutations(
     }
 }
 
+inline NMMutationCommandGPU combinedMutationCommand(
+    device const NMMutationCommandGPU* cooked,
+    const uint cookedCount,
+    device const uchar* borrowed,
+    const uint borrowedStride,
+    const uint index
+) {
+    if (index < cookedCount) return cooked[index];
+    return *reinterpret_cast<device const NMMutationCommandGPU*>(
+        borrowed + (index - cookedCount) * borrowedStride
+    );
+}
+
+inline bool mutationKeyBefore(
+    const NMMutationCommandGPU left,
+    const uint leftSource,
+    const uint leftIndex,
+    const NMMutationCommandGPU right,
+    const uint rightSource,
+    const uint rightIndex
+) {
+    if (left.identity.y != right.identity.y)
+        return left.identity.y < right.identity.y;
+    if (left.schedule.z != right.schedule.z)
+        return left.schedule.z < right.schedule.z;
+    if (left.identity.z != right.identity.z)
+        return left.identity.z < right.identity.z;
+    if (left.schedule.y != right.schedule.y)
+        return left.schedule.y < right.schedule.y;
+    if (left.identity.x != right.identity.x)
+        return left.identity.x < right.identity.x;
+    if (leftSource != rightSource) return leftSource < rightSource;
+    return leftIndex < rightIndex;
+}
+
+inline float3 topologyTetCentroid(
+    const NMTetrahedronGPU tetrahedron,
+    device const NMFEMNodeStateGPU* nodes,
+    const uint nodeBase
+) {
+    float3 result = float3(0.0f);
+    for (uint slot = 0u; slot < 4u; ++slot)
+        result += nodes[nodeBase + tetrahedron.nodes[slot]].positionAndMass.xyz;
+    return 0.25f * result;
+}
+
+kernel void nm_topology_execute_transaction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMCapacityGPU* capacities [[buffer(3)]],
+    device const NMMaterialGPU* materials [[buffer(4)]],
+    device const NMMutationCommandGPU* cookedCommands [[buffer(5)]],
+    device const uchar* borrowedCommands [[buffer(6)]],
+    constant uint& borrowedCount [[buffer(7)]],
+    constant uint& borrowedStride [[buffer(8)]],
+    device NMFEMNodeStateGPU* nodes [[buffer(9)]],
+    device NMFEMFieldStateGPU* fields [[buffer(10)]],
+    device NMFEMTopologyNodeGPU* topologyNodes [[buffer(11)]],
+    device NMTetrahedronGPU* tetrahedra [[buffer(12)]],
+    device NMCohesiveFaceGPU* faces [[buffer(13)]],
+    device NMPunctureChannelGPU* channels [[buffer(14)]],
+    device uint* nodeIncidence [[buffer(15)]],
+    device NMIncidenceRangeGPU* nodeRanges [[buffer(16)]],
+    device NMFEMTopologyStateGPU* topologyStates [[buffer(17)]],
+    device NMMatterStatusGPU* statuses [[buffer(18)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        !environmentHealthy(statuses, environment)) return;
+    const uint totalCommands = dispatch.mutationCommandCount + borrowedCount;
+    if (borrowedCount != 0u && borrowedStride < sizeof(NMMutationCommandGPU)) {
+        recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+            NM_INVALID_INDEX, borrowedStride,
+            float4(float(sizeof(NMMutationCommandGPU)), 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint tetBase = environment * dispatch.tetrahedronCount;
+    const uint faceBase = environment * dispatch.cohesiveFaceCount;
+    const uint channelBase = environment * dispatch.punctureChannelCount;
+
+    // Validate and capacity-check the complete transaction before the first
+    // write. Duplicate cohesive commands consume capacity only once.
+    for (uint combined = 0u; combined < totalCommands; ++combined) {
+        const NMMutationCommandGPU command = combinedMutationCommand(
+            cookedCommands, dispatch.mutationCommandCount,
+            borrowedCommands, borrowedStride, combined
+        );
+        if ((command.identity.w & NM_MUTATION_ACTIVE) == 0u ||
+            command.schedule.x != microstep.controlStep) continue;
+        if (command.identity.x > NM_MUTATION_DEACTIVATE_TETRAHEDRON ||
+            command.identity.y >= dispatch.objectCount ||
+            objects[command.identity.y].representation != NM_REPRESENTATION_FEM ||
+            (objects[command.identity.y].flags &
+             NM_OBJECT_MUTABLE_TOPOLOGY) == 0u ||
+            !finite3(command.geometry0.xyz) ||
+            !isfinite(command.geometry0.w) ||
+            !finite3(command.geometry1.xyz) ||
+            !isfinite(command.geometry1.w)) {
+            recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                command.identity.y, combined, float4(command.identity.x));
+            return;
+        }
+        const NMContinuumObjectGPU object = objects[command.identity.y];
+        if (command.identity.x == NM_MUTATION_DEACTIVATE_TETRAHEDRON &&
+            command.schedule.y >= object.elementCount) {
+            recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                command.identity.y, command.schedule.y, float4(1.0f));
+            return;
+        }
+        if ((command.identity.x == NM_MUTATION_PLANE_EROSION ||
+             command.identity.x == NM_MUTATION_CYLINDER_PUNCTURE) &&
+            !(length(command.geometry0.xyz) > 1.0e-12f)) {
+            recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                command.identity.y, combined, float4(2.0f));
+            return;
+        }
+        if (command.identity.x == NM_MUTATION_COHESIVE_SEPARATION) {
+            uint faceOffset = 0u;
+            for (uint prior = 0u; prior < command.identity.y; ++prior)
+                faceOffset += capacities[prior].topology.z;
+            bool found = false;
+            for (uint local = 0u; local < capacities[command.identity.y].topology.z;
+                 ++local) {
+                const NMCohesiveFaceGPU face = faces[faceBase + faceOffset + local];
+                found = found || (face.adjacency.y == command.identity.y &&
+                    face.adjacency.z == command.schedule.y &&
+                    (face.adjacency.w & NM_TOPOLOGY_ACTIVE) != 0u);
+            }
+            if (!found) {
+                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                    command.identity.y, command.schedule.y, float4(3.0f));
+                return;
+            }
+            uint inactive = 0u;
+            for (uint local = 0u; local < object.stateCount; ++local)
+                inactive += (topologyNodes[nodeBase + object.stateOffset + local]
+                    .identity.w & NM_TOPOLOGY_ACTIVE) == 0u ? 1u : 0u;
+            uint required = 0u;
+            for (uint other = 0u; other < totalCommands; ++other) {
+                const NMMutationCommandGPU request = combinedMutationCommand(
+                    cookedCommands, dispatch.mutationCommandCount,
+                    borrowedCommands, borrowedStride, other
+                );
+                if ((request.identity.w & NM_MUTATION_ACTIVE) == 0u ||
+                    request.schedule.x != microstep.controlStep ||
+                    request.identity.x != NM_MUTATION_COHESIVE_SEPARATION ||
+                    request.identity.y != command.identity.y) continue;
+                bool earlierDuplicate = false;
+                for (uint earlier = 0u; earlier < other; ++earlier) {
+                    const NMMutationCommandGPU previous = combinedMutationCommand(
+                        cookedCommands, dispatch.mutationCommandCount,
+                        borrowedCommands, borrowedStride, earlier
+                    );
+                    earlierDuplicate = earlierDuplicate ||
+                        (previous.identity.w & NM_MUTATION_ACTIVE) != 0u &&
+                        previous.schedule.x == microstep.controlStep &&
+                        previous.identity.x == NM_MUTATION_COHESIVE_SEPARATION &&
+                        previous.identity.y == request.identity.y &&
+                        previous.schedule.y == request.schedule.y;
+                }
+                if (!earlierDuplicate) required += 3u;
+            }
+            if (required > inactive) {
+                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                    command.identity.y, required,
+                    float4(float(inactive), float(required), 0.0f, 0.0f));
+                return;
+            }
+        }
+    }
+
+    bool havePrevious = false;
+    NMMutationCommandGPU previous{};
+    uint previousSource = 0u;
+    uint previousIndex = 0u;
+    for (uint order = 0u; order < totalCommands; ++order) {
+        bool found = false;
+        NMMutationCommandGPU selected{};
+        uint selectedSource = 0u;
+        uint selectedIndex = 0u;
+        for (uint combined = 0u; combined < totalCommands; ++combined) {
+            const NMMutationCommandGPU command = combinedMutationCommand(
+                cookedCommands, dispatch.mutationCommandCount,
+                borrowedCommands, borrowedStride, combined
+            );
+            if ((command.identity.w & NM_MUTATION_ACTIVE) == 0u ||
+                command.schedule.x != microstep.controlStep) continue;
+            const uint source = combined < dispatch.mutationCommandCount ? 0u : 1u;
+            const uint sourceIndex = source == 0u
+                ? combined : combined - dispatch.mutationCommandCount;
+            if (havePrevious && !mutationKeyBefore(
+                    previous, previousSource, previousIndex,
+                    command, source, sourceIndex)) continue;
+            if (!found || mutationKeyBefore(
+                    command, source, sourceIndex,
+                    selected, selectedSource, selectedIndex)) {
+                selected = command;
+                selectedSource = source;
+                selectedIndex = sourceIndex;
+                found = true;
+            }
+        }
+        if (!found) break;
+        havePrevious = true;
+        previous = selected;
+        previousSource = selectedSource;
+        previousIndex = selectedIndex;
+        const uint objectIndex = selected.identity.y;
+        const NMContinuumObjectGPU object = objects[objectIndex];
+        device NMFEMTopologyStateGPU& topology = topologyStates[
+            environment * dispatch.objectCount + objectIndex
+        ];
+
+        if (selected.identity.x == NM_MUTATION_COHESIVE_SEPARATION) {
+            uint faceOffset = 0u;
+            for (uint prior = 0u; prior < objectIndex; ++prior)
+                faceOffset += capacities[prior].topology.z;
+            device NMCohesiveFaceGPU* target = nullptr;
+            for (uint local = 0u; local < capacities[objectIndex].topology.z;
+                 ++local) {
+                device NMCohesiveFaceGPU& face =
+                    faces[faceBase + faceOffset + local];
+                if (face.adjacency.y == objectIndex &&
+                    face.adjacency.z == selected.schedule.y &&
+                    (face.adjacency.w & NM_TOPOLOGY_ACTIVE) != 0u)
+                    target = &face;
+            }
+            if (target == nullptr ||
+                (target->adjacency.w & NM_TOPOLOGY_SEPARATED) != 0u) continue;
+            uint duplicate[3] = {NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX};
+            for (uint slot = 0u; slot < 3u; ++slot) {
+                for (uint local = 0u; local < object.stateCount; ++local) {
+                    const uint node = object.stateOffset + local;
+                    if ((topologyNodes[nodeBase + node].identity.w &
+                         NM_TOPOLOGY_ACTIVE) == 0u) {
+                        bool already = false;
+                        for (uint prior = 0u; prior < slot; ++prior)
+                            already = already || duplicate[prior] == node;
+                        if (!already) { duplicate[slot] = node; break; }
+                    }
+                }
+                const uint sourceNode = target->nodesAndFirst[slot];
+                const uint destination = duplicate[slot];
+                nodes[nodeBase + destination] = nodes[nodeBase + sourceNode];
+                fields[nodeBase + destination] = fields[nodeBase + sourceNode];
+                NMFEMTopologyNodeGPU copy = topologyNodes[nodeBase + sourceNode];
+                copy.identity.z += 1u;
+                copy.identity.w |= NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_SEPARATED;
+                topologyNodes[nodeBase + destination] = copy;
+            }
+            target->separatedNodes = {
+                duplicate[0], duplicate[1], duplicate[2], 0u
+            };
+            const float3 facePoint = (
+                nodes[nodeBase + target->nodesAndFirst.x].positionAndMass.xyz +
+                nodes[nodeBase + target->nodesAndFirst.y].positionAndMass.xyz +
+                nodes[nodeBase + target->nodesAndFirst.z].positionAndMass.xyz
+            ) / 3.0f;
+            const NMTetrahedronGPU second = tetrahedra[
+                tetBase + target->adjacency.x
+            ];
+            const float secondSide = dot(
+                topologyTetCentroid(second, nodes, nodeBase) - facePoint,
+                target->geometry.xyz
+            );
+            for (uint local = 0u; local < object.elementCount; ++local) {
+                device NMTetrahedronGPU& tetrahedron =
+                    tetrahedra[tetBase + object.elementOffset + local];
+                if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+                const float side = dot(
+                    topologyTetCentroid(tetrahedron, nodes, nodeBase) - facePoint,
+                    target->geometry.xyz
+                );
+                if (side * secondSide < -1.0e-12f) continue;
+                for (uint tetSlot = 0u; tetSlot < 4u; ++tetSlot)
+                    for (uint faceSlot = 0u; faceSlot < 3u; ++faceSlot)
+                        if (tetrahedron.nodes[tetSlot] ==
+                            target->nodesAndFirst[faceSlot])
+                            tetrahedron.nodes[tetSlot] = duplicate[faceSlot];
+                tetrahedron.identity.z += 1u;
+            }
+            target->state.x = 1.0f;
+            target->adjacency.w |= NM_TOPOLOGY_SEPARATED;
+            topology.counts.x += 3u;
+            topology.accounting.w += target->geometry.w;
+            topology.roles.w += 1u;
+            continue;
+        }
+
+        for (uint local = 0u; local < object.elementCount; ++local) {
+            const uint tetIndex = object.elementOffset + local;
+            device NMTetrahedronGPU& tetrahedron = tetrahedra[tetBase + tetIndex];
+            if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                !mutationDeactivates(selected, object, tetIndex, tetrahedron,
+                    nodes, nodeBase)) continue;
+            const float mass = materials[tetrahedron.identity.x].bulk.x *
+                tetrahedron.inverseRestRow0.w;
+            float kinetic = 0.0f;
+            for (uint slot = 0u; slot < 4u; ++slot)
+                kinetic += dot(
+                    nodes[nodeBase + tetrahedron.nodes[slot]]
+                        .velocityAndInverseMass.xyz,
+                    nodes[nodeBase + tetrahedron.nodes[slot]]
+                        .velocityAndInverseMass.xyz
+                );
+            topology.accounting.y += mass;
+            topology.accounting.z += 0.125f * mass * kinetic;
+            topology.counts.y -= topology.counts.y > 0u ? 1u : 0u;
+            tetrahedron.identity.w &= ~NM_OBJECT_ACTIVE;
+            tetrahedron.identity.w |= NM_TOPOLOGY_ERODED;
+            tetrahedron.identity.z += 1u;
+            topology.roles.w += 1u;
+        }
+        if (selected.identity.x == NM_MUTATION_CYLINDER_PUNCTURE) {
+            uint channelOffset = 0u;
+            for (uint prior = 0u; prior < objectIndex; ++prior)
+                channelOffset += capacities[prior].topology.w;
+            bool stored = false;
+            for (uint local = 0u; local < capacities[objectIndex].topology.w;
+                 ++local) {
+                device NMPunctureChannelGPU& channel =
+                    channels[channelBase + channelOffset + local];
+                if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u) continue;
+                const float3 axis = normalize(selected.geometry0.xyz);
+                channel.identity = {objectIndex, selected.identity.z,
+                    topology.roles.w, NM_TOPOLOGY_ACTIVE};
+                channel.originAndRadius = float4(
+                    selected.geometry1.xyz, selected.geometry0.w
+                );
+                channel.axisAndHalfLength = float4(
+                    axis, selected.geometry1.w
+                );
+                topology.counts.w += 1u;
+                stored = true;
+                break;
+            }
+            if (!stored) {
+                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                    objectIndex, selected.identity.z, float4(4.0f));
+                return;
+            }
+        }
+    }
+
+    // Reassemble nodal masses and the complete active incidence from the
+    // candidate topology. Total incidence cannot grow because this tranche
+    // separates nodes without creating tetrahedra.
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        nodes[nodeBase + node].positionAndMass.w = 0.0f;
+        nodes[nodeBase + node].velocityAndInverseMass.w = 0.0f;
+    }
+    for (uint local = 0u; local < dispatch.tetrahedronCount; ++local) {
+        const NMTetrahedronGPU tetrahedron = tetrahedra[tetBase + local];
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+        const float nodalMass = materials[tetrahedron.identity.x].bulk.x *
+            tetrahedron.inverseRestRow0.w * 0.25f;
+        for (uint slot = 0u; slot < 4u; ++slot)
+            nodes[nodeBase + tetrahedron.nodes[slot]].positionAndMass.w += nodalMass;
+    }
+    uint cursor = environment * dispatch.tetrahedronCount * 4u;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        NMIncidenceRangeGPU range{};
+        range.first = cursor;
+        range.objectIndex = topologyNodes[nodeBase + node].identity.y;
+        for (uint local = 0u; local < dispatch.tetrahedronCount; ++local) {
+            const NMTetrahedronGPU tetrahedron = tetrahedra[tetBase + local];
+            if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+            bool incident = false;
+            for (uint slot = 0u; slot < 4u; ++slot)
+                incident = incident || tetrahedron.nodes[slot] == node;
+            if (incident) {
+                nodeIncidence[cursor++] = local;
+                ++range.count;
+            }
+        }
+        nodeRanges[nodeBase + node] = range;
+        device NMFEMNodeStateGPU& state = nodes[nodeBase + node];
+        state.velocityAndInverseMass.w =
+            state.restAndFixed.w <= 0.5f && state.positionAndMass.w > 0.0f
+            ? 1.0f / state.positionAndMass.w : 0.0f;
+    }
+}
+
 kernel void nm_topology_commit(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMMatterStatusGPU* statuses [[buffer(1)]],
-    device NMTetrahedronGPU* accepted [[buffer(2)]],
-    device const NMTetrahedronGPU* candidate [[buffer(3)]],
+    device NMTetrahedronGPU* acceptedTetrahedra [[buffer(2)]],
+    device const NMTetrahedronGPU* candidateTetrahedra [[buffer(3)]],
+    device NMFEMTopologyNodeGPU* acceptedNodes [[buffer(4)]],
+    device const NMFEMTopologyNodeGPU* candidateNodes [[buffer(5)]],
+    device NMCohesiveFaceGPU* acceptedFaces [[buffer(6)]],
+    device const NMCohesiveFaceGPU* candidateFaces [[buffer(7)]],
+    device NMPunctureChannelGPU* acceptedChannels [[buffer(8)]],
+    device const NMPunctureChannelGPU* candidateChannels [[buffer(9)]],
+    device NMFEMTopologyStateGPU* acceptedStates [[buffer(10)]],
+    device const NMFEMTopologyStateGPU* candidateStates [[buffer(11)]],
     uint global [[thread_position_in_grid]]
 ) {
-    if (dispatch.tetrahedronCount == 0u ||
-        global >= dispatch.environmentCount * dispatch.tetrahedronCount) return;
-    const uint environment = global / dispatch.tetrahedronCount;
-    if (environmentHealthy(statuses, environment)) accepted[global] = candidate[global];
+    const uint width = max(max(dispatch.tetrahedronCount, dispatch.femNodeCount),
+        max(max(dispatch.cohesiveFaceCount, dispatch.punctureChannelCount),
+            dispatch.objectCount));
+    if (width == 0u || global >= dispatch.environmentCount * width) return;
+    const uint environment = global / width;
+    const uint local = global - environment * width;
+    if (!environmentHealthy(statuses, environment)) return;
+    if (local < dispatch.tetrahedronCount) {
+        const uint index = environment * dispatch.tetrahedronCount + local;
+        acceptedTetrahedra[index] = candidateTetrahedra[index];
+    }
+    if (local < dispatch.femNodeCount) {
+        const uint index = environment * dispatch.femNodeCount + local;
+        acceptedNodes[index] = candidateNodes[index];
+    }
+    if (local < dispatch.cohesiveFaceCount) {
+        const uint index = environment * dispatch.cohesiveFaceCount + local;
+        acceptedFaces[index] = candidateFaces[index];
+    }
+    if (local < dispatch.punctureChannelCount) {
+        const uint index = environment * dispatch.punctureChannelCount + local;
+        acceptedChannels[index] = candidateChannels[index];
+    }
+    if (local < dispatch.objectCount) {
+        const uint index = environment * dispatch.objectCount + local;
+        acceptedStates[index] = candidateStates[index];
+    }
 }
 
 kernel void nm_topology_rollback(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMMatterStatusGPU* statuses [[buffer(1)]],
-    device NMTetrahedronGPU* accepted [[buffer(2)]],
-    device const NMTetrahedronGPU* checkpoint [[buffer(3)]],
+    device NMTetrahedronGPU* acceptedTetrahedra [[buffer(2)]],
+    device const NMTetrahedronGPU* checkpointTetrahedra [[buffer(3)]],
+    device NMFEMTopologyNodeGPU* acceptedNodes [[buffer(4)]],
+    device const NMFEMTopologyNodeGPU* checkpointNodes [[buffer(5)]],
+    device NMCohesiveFaceGPU* acceptedFaces [[buffer(6)]],
+    device const NMCohesiveFaceGPU* checkpointFaces [[buffer(7)]],
+    device NMPunctureChannelGPU* acceptedChannels [[buffer(8)]],
+    device const NMPunctureChannelGPU* checkpointChannels [[buffer(9)]],
+    device NMFEMTopologyStateGPU* acceptedStates [[buffer(10)]],
+    device const NMFEMTopologyStateGPU* checkpointStates [[buffer(11)]],
+    device uint* nodeIncidence [[buffer(12)]],
+    device const uint* checkpointIncidence [[buffer(13)]],
+    device NMIncidenceRangeGPU* nodeRanges [[buffer(14)]],
+    device const NMIncidenceRangeGPU* checkpointRanges [[buffer(15)]],
     uint global [[thread_position_in_grid]]
 ) {
-    if (dispatch.tetrahedronCount == 0u ||
-        global >= dispatch.environmentCount * dispatch.tetrahedronCount) return;
-    const uint environment = global / dispatch.tetrahedronCount;
-    if (!environmentHealthy(statuses, environment)) accepted[global] = checkpoint[global];
+    const uint width = max(max(dispatch.tetrahedronCount, dispatch.femNodeCount),
+        max(max(dispatch.cohesiveFaceCount, dispatch.punctureChannelCount),
+            max(dispatch.objectCount, dispatch.tetrahedronCount * 4u)));
+    if (width == 0u || global >= dispatch.environmentCount * width) return;
+    const uint environment = global / width;
+    const uint local = global - environment * width;
+    if (environmentHealthy(statuses, environment)) return;
+    if (local < dispatch.tetrahedronCount) {
+        const uint index = environment * dispatch.tetrahedronCount + local;
+        acceptedTetrahedra[index] = checkpointTetrahedra[index];
+    }
+    if (local < dispatch.femNodeCount) {
+        const uint index = environment * dispatch.femNodeCount + local;
+        acceptedNodes[index] = checkpointNodes[index];
+    }
+    if (local < dispatch.cohesiveFaceCount) {
+        const uint index = environment * dispatch.cohesiveFaceCount + local;
+        acceptedFaces[index] = checkpointFaces[index];
+    }
+    if (local < dispatch.punctureChannelCount) {
+        const uint index = environment * dispatch.punctureChannelCount + local;
+        acceptedChannels[index] = checkpointChannels[index];
+    }
+    if (local < dispatch.objectCount) {
+        const uint index = environment * dispatch.objectCount + local;
+        acceptedStates[index] = checkpointStates[index];
+    }
+    if (local < dispatch.tetrahedronCount * 4u) {
+        const uint index = environment * dispatch.tetrahedronCount * 4u + local;
+        nodeIncidence[index] = checkpointIncidence[index];
+    }
+    if (local < dispatch.femNodeCount) {
+        const uint index = environment * dispatch.femNodeCount + local;
+        nodeRanges[index] = checkpointRanges[index];
+    }
 }
 
 } // namespace numi_matter_metal

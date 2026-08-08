@@ -1517,6 +1517,14 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --topology-mutation
     )
     add_test(
+        NAME matter.physics.cohesive_mutation
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --cohesive-mutation
+    )
+    add_test(
+        NAME matter.physics.puncture_mutation
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --puncture-mutation
+    )
+    add_test(
         NAME matter.runtime.topology_rollback
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --topology-rollback
     )
@@ -1584,6 +1592,8 @@ if(BUILD_TESTING)
         matter.physics.mixed_mpm_fem
         matter.physics.monolithic_multiphysics
         matter.physics.topology_mutation
+        matter.physics.cohesive_mutation
+        matter.physics.puncture_mutation
         matter.runtime.topology_rollback
         matter.physics.learned_polyconvex_icnn
         matter.runtime.production_transaction_rollback

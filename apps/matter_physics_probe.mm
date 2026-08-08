@@ -380,6 +380,82 @@ numi::matter::CompiledWorld compileMixedCase() {
     return std::move(compiled.world);
 }
 
+numi::matter::CompiledWorld compileCohesiveMutationCase() {
+    const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "cohesive oracle material did not parse");
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 240.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.mixedSolver.newtonIterations = 2u;
+    source.materials.push_back(parsed.material);
+    numi::matter::ObjectSource object;
+    object.name = "cohesive_two_tet";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::fem;
+    object.characteristicLength = 0.1;
+    object.femNodes = {
+        {0.0, 0.0, 0.0}, {1.0, 0.0, 0.0},
+        {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0},
+        {0.0, 0.0, -1.0},
+    };
+    object.tetrahedra = {
+        {{0u, 1u, 2u, 3u}},
+        {{0u, 2u, 1u, 4u}},
+    };
+    object.mutationPolicy.enabled = true;
+    object.mutationPolicy.cohesiveFracture = true;
+    object.femCapacity.nodes = 8u;
+    object.femCapacity.cohesiveFaces = 1u;
+    object.femCapacity.mutationCommands = 1u;
+    numi::matter::MutationCommandSource command;
+    command.kind = NM_MUTATION_COHESIVE_SEPARATION;
+    command.stableIdentifier = 41u;
+    command.controlStep = 0u;
+    command.target = 0u;
+    command.priority = 0u;
+    object.mutationCommands.push_back(command);
+    source.objects.push_back(std::move(object));
+    auto compiled = numi::matter::compileWorld(source);
+    require(compiled.succeeded(), "cohesive mutation world did not compile");
+    return std::move(compiled.world);
+}
+
+numi::matter::CompiledWorld compilePunctureMutationCase() {
+    const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "puncture oracle material did not parse");
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 240.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.mixedSolver.newtonIterations = 2u;
+    source.materials.push_back(parsed.material);
+    numi::matter::ObjectSource object;
+    object.name = "puncture_tet";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::fem;
+    object.characteristicLength = 0.1;
+    object.femNodes = {
+        {-0.1, -0.1, 0.0}, {0.1, -0.1, 0.0},
+        {-0.1, 0.1, 0.0}, {-0.1, -0.1, 0.2},
+    };
+    object.tetrahedra = {{{0u, 1u, 2u, 3u}}};
+    object.mutationPolicy.enabled = true;
+    object.femCapacity.punctureChannels = 1u;
+    object.femCapacity.mutationCommands = 1u;
+    numi::matter::MutationCommandSource command;
+    command.kind = NM_MUTATION_CYLINDER_PUNCTURE;
+    command.stableIdentifier = 73u;
+    command.controlStep = 0u;
+    command.geometry0 = {0.0, 0.0, 1.0, 0.25};
+    command.geometry1 = {0.0, 0.0, 0.1, 0.5};
+    object.mutationCommands.push_back(command);
+    source.objects.push_back(std::move(object));
+    auto compiled = numi::matter::compileWorld(source);
+    require(compiled.succeeded(), "puncture mutation world did not compile");
+    return std::move(compiled.world);
+}
+
 
 numi::matter::CompiledWorld compileStatefulCase(
     const numi::matter::Representation representation
@@ -679,7 +755,19 @@ struct Outcome {
     float maximumActivation = 0.0f;
     float maximumElectricPotential = -std::numeric_limits<float>::infinity();
     std::uint32_t activeTetrahedra = 0u;
+    std::uint32_t activeTopologyNodes = 0u;
+    std::uint32_t separatedFaces = 0u;
+    std::uint32_t activeChannels = 0u;
+    float removedMass = 0.0f;
     std::uint32_t learnedRevision = 0u;
+    float nonlinearResidual = 0.0f;
+    float relativeCorrection = 0.0f;
+    float volumeResidual = 0.0f;
+    float pressureResidual = 0.0f;
+    float naturalResidual = 0.0f;
+    float coneViolation = 0.0f;
+    float complementarity = 0.0f;
+    float transportResidual = 0.0f;
 };
 
 void runIdentification() {
@@ -1607,6 +1695,190 @@ void runCoupledContactOracle() {
     }
 }
 
+void runLearnedDifferentialOracle(
+    const numi::matter::CompiledWorld& world
+) {
+    require(world.learnedMaterials.size() == 1u &&
+            !world.learnedLayers.empty() && !world.learnedWeights.empty(),
+        "learned differential oracle has no compiled network");
+    using Matrix = std::array<double, 9u>;
+    const auto determinant = [](const Matrix& a) {
+        return a[0] * (a[4] * a[8] - a[5] * a[7]) -
+            a[1] * (a[3] * a[8] - a[5] * a[6]) +
+            a[2] * (a[3] * a[7] - a[4] * a[6]);
+    };
+    const auto energy = [&](const Matrix& deformation) {
+        const NMLearnedMaterialGPU& network = world.learnedMaterials[0];
+        const double j = determinant(deformation);
+        require(j > network.policy.y, "CPU learned oracle left determinant domain");
+        Matrix cofactor{
+            deformation[4] * deformation[8] - deformation[5] * deformation[7],
+            deformation[5] * deformation[6] - deformation[3] * deformation[8],
+            deformation[3] * deformation[7] - deformation[4] * deformation[6],
+            deformation[2] * deformation[7] - deformation[1] * deformation[8],
+            deformation[0] * deformation[8] - deformation[2] * deformation[6],
+            deformation[1] * deformation[6] - deformation[0] * deformation[7],
+            deformation[1] * deformation[5] - deformation[2] * deformation[4],
+            deformation[2] * deformation[3] - deformation[0] * deformation[5],
+            deformation[0] * deformation[4] - deformation[1] * deformation[3],
+        };
+        double i1 = 0.0, i2 = 0.0;
+        for (std::size_t index = 0u; index < 9u; ++index) {
+            i1 += deformation[index] * deformation[index];
+            i2 += cofactor[index] * cofactor[index];
+        }
+        std::array<double, NM_LEARNED_MAX_INVARIANTS> invariant{};
+        invariant[0] = i1 - 3.0;
+        invariant[1] = i2 - 3.0;
+        invariant[2] = j - 1.0;
+        invariant[3] = 1.0 / j - 1.0;
+        std::array<double, NM_LEARNED_MAX_WIDTH> previous{};
+        std::uint32_t previousWidth = 0u;
+        for (std::uint32_t local = 0u; local < network.layout.y; ++local) {
+            const NMLearnedLayerGPU& layer =
+                world.learnedLayers[network.layout.x + local];
+            std::array<double, NM_LEARNED_MAX_WIDTH> next{};
+            for (std::uint32_t output = 0u; output < layer.layout.y; ++output) {
+                double value = world.learnedWeights[layer.layout.w + output];
+                for (std::uint32_t input = 0u; input < layer.layout.x; ++input)
+                    value += world.learnedWeights[
+                        layer.layout.z + output * layer.layout.x + input
+                    ] * invariant[input];
+                for (std::uint32_t hidden = 0u; hidden < previousWidth; ++hidden)
+                    value += world.learnedWeights[
+                        layer.routing.x + output * previousWidth + hidden
+                    ] * previous[hidden];
+                const double beta = network.policy.x;
+                next[output] = std::max(value, 0.0) +
+                    std::log1p(std::exp(-std::abs(beta * value))) / beta;
+            }
+            previous = next;
+            previousWidth = layer.layout.y;
+        }
+        return previous[0] + network.policy.z * (j + 1.0 / j - 2.0);
+    };
+    const auto firstPiola = [&](const Matrix& deformation) {
+        Matrix result{};
+        constexpr double epsilon = 2.0e-6;
+        for (std::size_t entry = 0u; entry < result.size(); ++entry) {
+            Matrix plus = deformation, minus = deformation;
+            plus[entry] += epsilon;
+            minus[entry] -= epsilon;
+            result[entry] = (energy(plus) - energy(minus)) /
+                (2.0 * epsilon);
+        }
+        return result;
+    };
+    const Matrix deformation{
+        1.10, 0.05, 0.00,
+        0.02, 0.95, 0.03,
+        0.00, 0.01, 1.05,
+    };
+    const Matrix direction{
+        0.03, -0.02, 0.01,
+        0.01, 0.02, -0.01,
+        -0.02, 0.01, 0.04,
+    };
+    const Matrix cpuStress = firstPiola(deformation);
+    constexpr double tangentStep = 2.0e-4;
+    Matrix plus = deformation, minus = deformation;
+    for (std::size_t entry = 0u; entry < 9u; ++entry) {
+        plus[entry] += tangentStep * direction[entry];
+        minus[entry] -= tangentStep * direction[entry];
+    }
+    const Matrix plusStress = firstPiola(plus);
+    const Matrix minusStress = firstPiola(minus);
+    Matrix cpuTangent{};
+    for (std::size_t entry = 0u; entry < 9u; ++entry)
+        cpuTangent[entry] = (plusStress[entry] - minusStress[entry]) /
+            (2.0 * tangentStep);
+
+    @autoreleasepool {
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        require(device != nil, "no Metal device for learned differential oracle");
+        NSError* error = nil;
+        id<MTLLibrary> library = [device
+            newLibraryWithURL:[NSURL fileURLWithPath:@NUMI_MATTER_METALLIB]
+                       error:&error];
+        require(library != nil, "could not load learned differential metallib");
+        id<MTLFunction> function = [library newFunctionWithName:
+            @"numi_matter_metal::nm_learned_differential_oracle"];
+        require(function != nil, "learned differential kernel is missing");
+        id<MTLComputePipelineState> pipeline = [device
+            newComputePipelineStateWithFunction:function error:&error];
+        require(pipeline != nil, "could not compile learned differential pipeline");
+        NMLearnedDifferentialGPU sample{};
+        sample.deformationRow0 = {float(deformation[0]), float(deformation[1]), float(deformation[2]), 0.0f};
+        sample.deformationRow1 = {float(deformation[3]), float(deformation[4]), float(deformation[5]), 0.0f};
+        sample.deformationRow2 = {float(deformation[6]), float(deformation[7]), float(deformation[8]), 0.0f};
+        sample.directionRow0 = {float(direction[0]), float(direction[1]), float(direction[2]), 0.0f};
+        sample.directionRow1 = {float(direction[3]), float(direction[4]), float(direction[5]), 0.0f};
+        sample.directionRow2 = {float(direction[6]), float(direction[7]), float(direction[8]), 0.0f};
+        const nm_float4 fibre = world.mixedMaterials.empty()
+            ? nm_float4{1.0f, 0.0f, 0.0f, 0.0f}
+            : world.mixedMaterials[0].fibre;
+        const auto buffer = [&](const void* data, const NSUInteger bytes) {
+            id<MTLBuffer> result = [device newBufferWithBytes:data length:bytes
+                options:MTLResourceStorageModeShared];
+            require(result != nil, "learned differential buffer allocation failed");
+            return result;
+        };
+        id<MTLBuffer> networks = buffer(world.learnedMaterials.data(),
+            world.learnedMaterials.size() * sizeof(NMLearnedMaterialGPU));
+        id<MTLBuffer> layers = buffer(world.learnedLayers.data(),
+            world.learnedLayers.size() * sizeof(NMLearnedLayerGPU));
+        id<MTLBuffer> weights = buffer(world.learnedWeights.data(),
+            world.learnedWeights.size() * sizeof(float));
+        id<MTLBuffer> sampleBuffer = buffer(&sample, sizeof(sample));
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+        [encoder setComputePipelineState:pipeline];
+        [encoder setBuffer:networks offset:0u atIndex:0u];
+        [encoder setBuffer:layers offset:0u atIndex:1u];
+        [encoder setBuffer:weights offset:0u atIndex:2u];
+        [encoder setBytes:&fibre length:sizeof(fibre) atIndex:3u];
+        [encoder setBuffer:sampleBuffer offset:0u atIndex:4u];
+        [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
+          threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted,
+            "learned differential Metal command failed");
+        const auto& gpu = *static_cast<const NMLearnedDifferentialGPU*>(
+            sampleBuffer.contents
+        );
+        const Matrix gpuStress{
+            gpu.firstPiolaRow0.x, gpu.firstPiolaRow0.y, gpu.firstPiolaRow0.z,
+            gpu.firstPiolaRow1.x, gpu.firstPiolaRow1.y, gpu.firstPiolaRow1.z,
+            gpu.firstPiolaRow2.x, gpu.firstPiolaRow2.y, gpu.firstPiolaRow2.z,
+        };
+        const Matrix gpuTangent{
+            gpu.tangentRow0.x, gpu.tangentRow0.y, gpu.tangentRow0.z,
+            gpu.tangentRow1.x, gpu.tangentRow1.y, gpu.tangentRow1.z,
+            gpu.tangentRow2.x, gpu.tangentRow2.y, gpu.tangentRow2.z,
+        };
+        double stressError = 0.0, tangentError = 0.0;
+        for (std::size_t entry = 0u; entry < 9u; ++entry) {
+            stressError = std::max(stressError,
+                std::abs(gpuStress[entry] - cpuStress[entry]));
+            tangentError = std::max(tangentError,
+                std::abs(gpuTangent[entry] - cpuTangent[entry]));
+        }
+        require(gpu.diagnostics.w > 0.5f && stressError < 3.0e-3 &&
+                tangentError < 1.5e-2,
+            "learned Metal stress/tangent diverged from FP64 differentiation");
+        std::cout
+            << "{\"schema\":\"numi.matter.physics-probe.v3\""
+            << ",\"representation\":\"polyconvex_icnn_differential\""
+            << ",\"stress_fp64_error\":" << stressError
+            << ",\"tangent_fp64_error\":" << tangentError
+            << ",\"minimum_J\":" << gpu.diagnostics.x
+            << "}\n";
+    }
+}
+
 Outcome runCase(
     const numi::matter::CompiledWorld& world,
     const char* label,
@@ -1734,7 +2006,44 @@ Outcome runCase(
                 outcome.activeTetrahedra +=
                     (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
             }
+            outcome.activeTopologyNodes = 0u;
+            for (const NMFEMTopologyNodeGPU& node : snapshot.femTopologyNodes)
+                outcome.activeTopologyNodes +=
+                    (node.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+            outcome.separatedFaces = 0u;
+            for (const NMCohesiveFaceGPU& face : snapshot.cohesiveFaces)
+                outcome.separatedFaces +=
+                    (face.adjacency.w & NM_TOPOLOGY_SEPARATED) != 0u;
+            outcome.activeChannels = 0u;
+            for (const NMPunctureChannelGPU& channel : snapshot.punctureChannels)
+                outcome.activeChannels +=
+                    (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+            outcome.removedMass = 0.0f;
+            for (const NMFEMTopologyStateGPU& topology : snapshot.topologyStates)
+                outcome.removedMass += topology.accounting.y;
             outcome.learnedRevision = snapshot.learnedWeightRevision;
+            for (const NMSolverCertificateGPU& certificate :
+                 snapshot.solverCertificates) {
+                outcome.nonlinearResidual = std::max(
+                    outcome.nonlinearResidual, certificate.nonlinear.x);
+                outcome.relativeCorrection = std::max(
+                    outcome.relativeCorrection, certificate.nonlinear.y);
+                outcome.volumeResidual = std::max(
+                    outcome.volumeResidual, certificate.nonlinear.z);
+                outcome.pressureResidual = std::max(
+                    outcome.pressureResidual, certificate.nonlinear.w);
+                outcome.naturalResidual = std::max(
+                    outcome.naturalResidual, certificate.contact.x);
+                outcome.coneViolation = std::max(
+                    outcome.coneViolation, certificate.contact.y);
+                outcome.complementarity = std::max(
+                    outcome.complementarity, certificate.contact.z);
+                outcome.transportResidual = std::max({
+                    outcome.transportResidual,
+                    certificate.transport.x, certificate.transport.y,
+                    certificate.transport.z, certificate.transport.w
+                });
+            }
         };
         for (std::uint32_t step = 0u; step < controlSteps; ++step) {
             id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
@@ -1830,29 +2139,42 @@ Outcome runCase(
                         left.data(), right.data(), left.size() * sizeof(left.front())
                     ) == 0);
             };
-            require(
-                equalBytes(restored.particles, baseline.particles) &&
-                    equalBytes(restored.femNodes, baseline.femNodes) &&
-                    equalBytes(
-                        restored.particleMaterialState,
-                        baseline.particleMaterialState
-                    ) &&
-                    equalBytes(
-                        restored.femMaterialState,
-                        baseline.femMaterialState
-                    ) &&
-                    equalBytes(restored.femFields, baseline.femFields) &&
-                    equalBytes(restored.learnedWeights, baseline.learnedWeights) &&
-                    equalBytes(
-                        restored.femTopologyTetrahedra,
-                        baseline.femTopologyTetrahedra
-                    ) &&
-                    equalBytes(restored.femTopologyNodes, baseline.femTopologyNodes) &&
-                    equalBytes(restored.cohesiveFaces, baseline.cohesiveFaces) &&
-                    equalBytes(restored.punctureChannels, baseline.punctureChannels) &&
-                    equalBytes(restored.schedulers, baseline.schedulers),
-                label + std::string(" did not restore continuum state after rejection")
-            );
+            const auto requireEqual = [&](const auto& current, const auto& before,
+                                          const char* authority) {
+                require(equalBytes(current, before), label + std::string(
+                    " did not byte-restore ") + authority);
+            };
+            requireEqual(restored.particles, baseline.particles, "particles");
+            requireEqual(restored.femNodes, baseline.femNodes, "FEM nodes");
+            requireEqual(restored.particleMaterialState,
+                         baseline.particleMaterialState, "MPM material state");
+            requireEqual(restored.femMaterialState,
+                         baseline.femMaterialState, "FEM material state");
+            requireEqual(restored.femFields, baseline.femFields, "mixed fields");
+            requireEqual(restored.learnedWeights, baseline.learnedWeights,
+                         "learned weights");
+            require(restored.learnedWeightRevision == baseline.learnedWeightRevision,
+                    label + std::string(" did not restore learned revision"));
+            requireEqual(restored.femTopologyTetrahedra,
+                         baseline.femTopologyTetrahedra, "tetrahedra");
+            requireEqual(restored.femTopologyNodes,
+                         baseline.femTopologyNodes, "topology nodes");
+            requireEqual(restored.cohesiveFaces, baseline.cohesiveFaces,
+                         "cohesive state");
+            requireEqual(restored.punctureChannels, baseline.punctureChannels,
+                         "puncture channels");
+            requireEqual(restored.topologyStates, baseline.topologyStates,
+                         "topology accounting");
+            requireEqual(restored.contactWarmstarts, baseline.contactWarmstarts,
+                         "contact warm starts");
+            requireEqual(restored.schedulers, baseline.schedulers,
+                         "scheduler state");
+            requireEqual(restored.adaptive, baseline.adaptive,
+                         "adaptive ownership");
+            requireEqual(restored.reactions, baseline.reactions,
+                         "reaction state");
+            requireEqual(restored.identification, baseline.identification,
+                         "identification state");
         }
         if (!forceRollback) {
             require(outcome.completedMicrosteps > 0u, label + std::string(" executed no microsteps"));
@@ -1910,6 +2232,10 @@ int main(int argc, const char* argv[]) {
             std::string_view(argv[1]) == "--topology-mutation";
         const bool topologyRollback = argc == 2 &&
             std::string_view(argv[1]) == "--topology-rollback";
+        const bool cohesiveMutation = argc == 2 &&
+            std::string_view(argv[1]) == "--cohesive-mutation";
+        const bool punctureMutation = argc == 2 &&
+            std::string_view(argv[1]) == "--puncture-mutation";
         const bool learnedMaterial = argc == 2 &&
             std::string_view(argv[1]) == "--learned-material";
         const bool productionRollback = argc == 2 &&
@@ -1926,12 +2252,13 @@ int main(int argc, const char* argv[]) {
                 femOnly || mpmOnly || mpmFree || mpmSingle ||
                 mpmSingleContact || mpmGentle || mpmRollback ||
                 metalWorldCoupling || coupledContact || multiphysics ||
-                topologyMutation || topologyRollback || learnedMaterial ||
+                topologyMutation || topologyRollback || cohesiveMutation ||
+                punctureMutation || learnedMaterial ||
                 productionRollback ||
                 identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--mixed|--multiphysics|--topology-mutation|--topology-rollback|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--coupled-contact|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--coupled-contact|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (identification) {
             runIdentification();
@@ -1967,6 +2294,17 @@ int main(int argc, const char* argv[]) {
                 outcome.maximumActivation > 0.0f,
                 "multiphysics fields did not diffuse and activate on the Metal timeline"
             );
+            require(
+                outcome.nonlinearResidual <= 1.0e-4f &&
+                outcome.relativeCorrection <= 1.0e-4f &&
+                outcome.volumeResidual <= 1.0e-4f &&
+                outcome.pressureResidual <= 1.0e-4f &&
+                outcome.naturalResidual <= 1.0e-4f &&
+                outcome.coneViolation <= 1.0e-5f &&
+                outcome.complementarity <= 1.0e-4f &&
+                outcome.transportResidual <= 1.0e-4f,
+                "monolithic KKT or transport certificate exceeded its budget"
+            );
             std::cout
                 << "{\"schema\":\"numi.matter.physics-probe.v2\""
                 << ",\"representation\":\"monolithic_multiphysics\""
@@ -1974,6 +2312,14 @@ int main(int argc, const char* argv[]) {
                 << ",\"temperature_max\":" << outcome.maximumTemperature
                 << ",\"electric_max\":" << outcome.maximumElectricPotential
                 << ",\"activation_max\":" << outcome.maximumActivation
+                << ",\"kkt_residual\":" << outcome.nonlinearResidual
+                << ",\"relative_correction\":" << outcome.relativeCorrection
+                << ",\"volume_residual\":" << outcome.volumeResidual
+                << ",\"pressure_residual\":" << outcome.pressureResidual
+                << ",\"natural_residual\":" << outcome.naturalResidual
+                << ",\"cone_violation\":" << outcome.coneViolation
+                << ",\"complementarity\":" << outcome.complementarity
+                << ",\"transport_residual\":" << outcome.transportResidual
                 << "}\n";
         }
         if (topologyMutation || topologyRollback) {
@@ -1997,6 +2343,39 @@ int main(int argc, const char* argv[]) {
                 << ",\"active_tetrahedra\":" << outcome.activeTetrahedra
                 << "}\n";
         }
+        if (cohesiveMutation) {
+            const auto outcome = runCase(
+                compileCohesiveMutationCase(), "cohesive mutation",
+                false, false, 1u
+            );
+            require(outcome.activeTetrahedra == 2u &&
+                    outcome.activeTopologyNodes == 8u &&
+                    outcome.separatedFaces == 1u,
+                "cohesive separation did not duplicate and reconnect the node star");
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v3\""
+                << ",\"representation\":\"cohesive_separation\""
+                << ",\"active_nodes\":" << outcome.activeTopologyNodes
+                << ",\"active_tetrahedra\":" << outcome.activeTetrahedra
+                << ",\"separated_faces\":" << outcome.separatedFaces
+                << "}\n";
+        }
+        if (punctureMutation) {
+            const auto outcome = runCase(
+                compilePunctureMutationCase(), "puncture mutation",
+                false, false, 1u
+            );
+            require(outcome.activeTetrahedra == 0u &&
+                    outcome.activeChannels == 1u &&
+                    outcome.removedMass > 0.0f,
+                "puncture did not construct a channel with conservative removal accounting");
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v3\""
+                << ",\"representation\":\"cylindrical_puncture\""
+                << ",\"active_channels\":" << outcome.activeChannels
+                << ",\"removed_mass\":" << outcome.removedMass
+                << "}\n";
+        }
         if (learnedMaterial) {
             const auto world = compileCase(
                 numi::matter::Representation::fem,
@@ -2006,6 +2385,7 @@ int main(int argc, const char* argv[]) {
             require(world.dispatch.learnedMaterialCount == 1u &&
                     world.dispatch.learnedWeightCount == 5u,
                 "learned ICNN was not retained in the executable package");
+            runLearnedDifferentialOracle(world);
             const auto outcome = runCase(
                 world, "polyconvex ICNN", false, true, 2u, false, true
             );
@@ -2071,7 +2451,8 @@ int main(int argc, const char* argv[]) {
         if (!identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback && !metalWorldCoupling && !coupledContact &&
             !multiphysics &&
-            !topologyMutation && !topologyRollback &&
+            !topologyMutation && !topologyRollback && !cohesiveMutation &&
+            !punctureMutation &&
             !learnedMaterial &&
             !productionRollback &&
             !mixedOnly && !statefulMPM && !statefulFEM &&
@@ -2115,7 +2496,8 @@ int main(int argc, const char* argv[]) {
             !mpmOnly && !mpmFree && !mpmSingle && !mpmSingleContact &&
             !mpmGentle && !mpmRollback && !metalWorldCoupling && !coupledContact &&
             !multiphysics &&
-            !topologyMutation && !topologyRollback &&
+            !topologyMutation && !topologyRollback && !cohesiveMutation &&
+            !punctureMutation &&
             !learnedMaterial &&
             !productionRollback &&
             !identification && !adaptiveDemotion && !adaptivePromotion &&

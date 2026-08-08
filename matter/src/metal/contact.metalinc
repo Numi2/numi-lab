@@ -257,6 +257,15 @@ inline float rigidDirectionalResponse(
     );
 }
 
+kernel void nm_contact_clear_samples(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMContactSampleGPU* samples [[buffer(1)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global < total) samples[global] = {};
+}
+
 kernel void nm_contact_evaluate(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -272,6 +281,7 @@ kernel void nm_contact_evaluate(
     device NMContactSampleGPU* samples [[buffer(11)]],
     device const uint* mpmNodeGenerations [[buffer(12)]],
     device NMMatterStatusGPU* statuses [[buffer(13)]],
+    device const float4* warmstarts [[buffer(14)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.contactPairCount;
@@ -280,7 +290,6 @@ kernel void nm_contact_evaluate(
     }
     const uint environment = global / dispatch.contactPairCount;
     const uint pairIndex = global - environment * dispatch.contactPairCount;
-    samples[global] = {};
     if (!environmentHealthy(statuses, environment)) {
         return;
     }
@@ -446,8 +455,23 @@ kernel void nm_contact_evaluate(
             }
         }
     }
+    const float4 warm = warmstarts[global];
+    const bool validWarmstart = finite3(warm.xyz) && isfinite(warm.w) &&
+        warm.w >= 0.0f;
+    const float warmNormal = validWarmstart ? warm.w : 0.0f;
+    float3 warmTangent = validWarmstart
+        ? warm.xyz + warmNormal * normal
+        : tangentImpulseOnRigid;
+    warmTangent -= dot(warmTangent, normal) * normal;
+    const float warmLimit = dynamicFriction * warmNormal;
+    const float warmTangentLength = length(warmTangent);
+    if (warmTangentLength > warmLimit && warmTangentLength > 1.0e-12f)
+        warmTangent *= warmLimit / warmTangentLength;
+    const float seededNormal = validWarmstart ? warmNormal : normalImpulse;
+    const float3 seededTangent = validWarmstart
+        ? warmTangent : tangentImpulseOnRigid;
     const float3 impulseOnRigid =
-        -normalImpulse * normal + tangentImpulseOnRigid;
+        -seededNormal * normal + seededTangent;
     NMContactSampleGPU sample{};
     sample.identity = {
         pair.continuumNode,
@@ -457,12 +481,67 @@ kernel void nm_contact_evaluate(
     };
     sample.pointAndSeparation = float4(witness, separation);
     sample.normalAndVelocity = float4(normal, normalVelocity);
-    sample.impulseAndNormal = float4(impulseOnRigid, normalImpulse);
+    sample.impulseAndNormal = float4(impulseOnRigid, seededNormal);
     sample.angularImpulseAndTangent = float4(
         cross(lever, impulseOnRigid),
-        length(tangentImpulseOnRigid)
+        length(seededTangent)
     );
     samples[global] = sample;
+}
+
+kernel void nm_contact_checkpoint_warmstarts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* accepted [[buffer(1)]],
+    device float4* candidate [[buffer(2)]],
+    device float4* checkpoint [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total) return;
+    candidate[global] = accepted[global];
+    checkpoint[global] = accepted[global];
+}
+
+kernel void nm_contact_stage_warmstarts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContactSampleGPU* samples [[buffer(1)]],
+    device float4* candidate [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total) return;
+    const NMContactSampleGPU sample = samples[global];
+    candidate[global] = (sample.identity.w & NM_CONTACT_VALID) != 0u
+        ? sample.impulseAndNormal
+        : float4(0.0f);
+}
+
+kernel void nm_contact_commit_warmstarts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device float4* accepted [[buffer(2)]],
+    device const float4* candidate [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) return;
+    const uint environment = global / dispatch.contactPairCount;
+    if (environmentHealthy(statuses, environment))
+        accepted[global] = candidate[global];
+}
+
+kernel void nm_contact_rollback_warmstarts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device float4* accepted [[buffer(2)]],
+    device const float4* checkpoint [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) return;
+    const uint environment = global / dispatch.contactPairCount;
+    if (!environmentHealthy(statuses, environment))
+        accepted[global] = checkpoint[global];
 }
 
 // Runtime compilation fixes the contact-space CSR pattern from shared
@@ -812,7 +891,10 @@ kernel void nm_contact_solve_coupled(
         const float previousNormal = sample.impulseAndNormal.w;
         const float3 tangent = sample.impulseAndNormal.xyz +
             previousNormal * sample.normalAndVelocity.xyz;
-        sample.impulseAndNormal = float4(tangent, 0.0f);
+        sample.impulseAndNormal = float4(
+            -previousNormal * sample.normalAndVelocity.xyz + tangent,
+            previousNormal
+        );
         const float3 lever =
             sample.pointAndSeparation.xyz - rigid.bodyCenter.xyz;
         sample.angularImpulseAndTangent = float4(
@@ -1067,12 +1149,41 @@ kernel void nm_contact_apply_nodes(
         state.candidateVelocity.xyz +=
             state.velocityAndInverseMass.w * impulseOnContinuum;
     } else {
-        const uint femNode = node - dispatch.gridNodeCount;
-        device NMFEMNodeStateGPU& state =
-            femNodes[environment * dispatch.femNodeCount + femNode];
-        state.velocityAndInverseMass.xyz +=
-            state.velocityAndInverseMass.w * impulseOnContinuum;
+        // FEM contact is applied below through the full tangent operator as
+        // J^T lambda.  Applying lumped inverse mass here as well would count
+        // the deformable response twice.
+        (void)femNodes;
     }
+}
+
+kernel void nm_contact_accumulate_fem_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* nodeIncidence [[buffer(1)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(2)]],
+    device const NMContactSampleGPU* samples [[buffer(3)]],
+    device float4* residual [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint femNode = global - environment * dispatch.femNodeCount;
+    const uint unifiedNode = dispatch.gridNodeCount + femNode;
+    const NMIncidenceRangeGPU range = nodeRanges[unifiedNode];
+    float3 impulse = float3(0.0f);
+    const uint sampleBase = environment * dispatch.contactPairCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint pair = nodeIncidence[range.first + local];
+        if (pair >= dispatch.contactPairCount) continue;
+        const NMContactSampleGPU sample = samples[sampleBase + pair];
+        if ((sample.identity.w & NM_CONTACT_VALID) != 0u)
+            impulse -= sample.impulseAndNormal.xyz;
+    }
+    // Assemble the contact block into the already evaluated nonlinear
+    // mechanical/pressure residual. Replacing this value would discard
+    // internal force, pressure, field-coupling and learned-material terms and
+    // reduce the following solve to a staged contact-only correction.
+    residual[global] += float4(impulse, 0.0f);
 }
 
 kernel void nm_contact_reduce_rigid(

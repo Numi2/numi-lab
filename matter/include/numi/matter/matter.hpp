@@ -640,6 +640,7 @@ struct RuntimeStateSnapshot {
     std::vector<NMTetrahedronGPU> femTopologyTetrahedra;
     std::vector<NMCohesiveFaceGPU> cohesiveFaces;
     std::vector<NMPunctureChannelGPU> punctureChannels;
+    std::vector<NMFEMTopologyStateGPU> topologyStates;
     std::vector<NMSolverCertificateGPU> solverCertificates;
     std::vector<float> learnedWeights;
     std::uint32_t learnedWeightRevision = 0u;
@@ -651,6 +652,7 @@ struct RuntimeStateSnapshot {
     // are the exact full response consumed by the device solver after any
     // borrowed MetalWorld articulated-response encoding.
     std::vector<NMContactSampleGPU> contactSamples;
+    std::vector<nm_float4> contactWarmstarts;
     std::vector<std::uint32_t> contactResponseRows;
     std::vector<std::uint32_t> contactResponseColumns;
     std::vector<float> contactResponseValues;
