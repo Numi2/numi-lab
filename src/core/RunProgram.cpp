@@ -1752,6 +1752,7 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
     task.rewards = {
         {TaskRewardOperator::rootHeightProgress, {}, {}, 3.0f},
         {TaskRewardOperator::rootHeightNormalized, {}, {}, 1.0f},
+        {TaskRewardOperator::rootHeightErrorSquared, {}, {}, -0.35f},
         {TaskRewardOperator::linearVelocityTracking, {}, {}, 0.55f,
             {0.35f, 0.0f, 0.0f, 0.0f}},
         {TaskRewardOperator::uprightness, {}, {}, 0.15f},
