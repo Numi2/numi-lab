@@ -1669,7 +1669,7 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
     TaskResetProgram& reset
 ) {
     TaskPack task = makePX4X500HoverTaskPack(observations, reset);
-    task.id = "birdflow_deetjen_dove_flapping_forward_flight";
+    task.id = "birdflow_deetjen_dove_ground_takeoff_forward_flight";
     task.actions = {
         {"wing.left_flap"},
         {"wing.right_flap"},
@@ -1726,42 +1726,49 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
             TaskRewardOperator::linearVelocityTracking},
         {"tracking", "ratio", TaskOutcomeSource::trackingScore,
             TaskOutcomeDirection::higherIsBetter},
+        {"liftoff", "ratio",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::rootHeightNormalized},
         {"root_height", "m", TaskOutcomeSource::rootHeight,
             TaskOutcomeDirection::neutral},
     };
-    task.baseHeightTarget = 1.5f;
+    task.baseHeightTarget = 1.0f;
     task.gaitPeriodSeconds = 0.25f;
     task.maximumEpisodeSteps = 1'500u;
     task.successTrackingThreshold = 0.70f;
-    task.commands.lower = {1.20f, -0.15f, -0.25f, 0.0f};
-    task.commands.upper = {1.20f, 0.15f, 0.25f, 0.0f};
+    task.commands.lower = {0.90f, -0.10f, -0.20f, 0.0f};
+    task.commands.upper = {0.90f, 0.10f, 0.20f, 0.0f};
     task.commands.limitLower = task.commands.lower;
     task.commands.limitUpper = task.commands.upper;
     task.commands.difficultyStep = {};
     task.commands.standingProbability = 0.0f;
     task.commands.minimumDurationSeconds = 6.0f;
     task.commands.maximumDurationSeconds = 6.0f;
-    // Tracking forward velocity gives ascent, bank, and recovery their
-    // physical value.  We retain only light smoothness penalties: the policy
-    // is free to trade height and attitude while it discovers a viable stroke.
+    // Takeoff is a physical transition from terrain support to sustained
+    // height. Signed height progress gives direct credit to the transition,
+    // normalized height retains the result, and forward tracking turns the
+    // climb into flight instead of a vertical bounce.
     task.rewards = {
-        {TaskRewardOperator::linearVelocityTracking, {}, {}, 1.25f,
+        {TaskRewardOperator::rootHeightProgress, {}, {}, 3.0f},
+        {TaskRewardOperator::rootHeightNormalized, {}, {}, 1.0f},
+        {TaskRewardOperator::linearVelocityTracking, {}, {}, 0.55f,
             {0.35f, 0.0f, 0.0f, 0.0f}},
-        {TaskRewardOperator::constant, {}, {}, 0.05f},
-        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.015f},
-        {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.01f},
-        {TaskRewardOperator::actionRateSquared, {}, {}, -0.002f},
+        {TaskRewardOperator::uprightness, {}, {}, 0.15f},
+        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.005f},
+        {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.02f},
+        {TaskRewardOperator::actionRateSquared, {}, {}, -0.001f},
     };
     // A ground strike is an informative, recoverable episode end.  There is
     // no altitude ceiling or tilt gate: the learner can explore climbing,
     // banking, and recovery through the complete flight horizon.
     task.terminations = {
         {TaskTerminationOperator::minimumRootHeight, {},
-            MR_TASK_TERMINATION_HEIGHT, 10u, 0.15f, -1.0f},
+            MR_TASK_TERMINATION_HEIGHT, 10u, 0.025f, -1.0f},
     };
     for (auto& randomization : reset.operators) {
         if (randomization.operation == TaskRandomizationOperator::rootHeight) {
-            randomization.parameters = {1.45f, 1.55f, 0.0f, 0.0f};
+            randomization.parameters = {0.058f, 0.070f, 0.0f, 0.0f};
         }
     }
     return task;
