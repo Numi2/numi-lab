@@ -126,6 +126,8 @@ kernel void mr_step_compiled_flapping_wings(
         }
     }
     float wingStrokeSpeedSquared = 0.0f;
+    constexpr uint bladeElementCount = 8u;
+    constexpr float inverseEllipticAreaIntegral = 4.0f / M_PI_F;
     for (uint side = 0u; side < 2u; ++side) {
         const MRFlappingWingGPU wing = wings[side];
         if (wing.bodyIndex >= dispatch.bodyStride ||
@@ -149,20 +151,7 @@ kernel void mr_step_compiled_flapping_wings(
         const float4 wingOrientation = multiplyQuaternion(
             normalizeQuaternion(rootOrientation), hingeRotation
         );
-        const float3 rootToCenter = rotate(
-            rootOrientation,
-            rotate(hingeRotation, wing.rootToCenterAndArea.xyz)
-        );
         const float3 hingeAxisWorld = rotate(rootOrientation, hingeAxis);
-        const float3 wingVelocity = rootVelocity +
-            cross(rootAngularVelocity, rootToCenter) +
-            cross(hingeAxisWorld * angularRate, rootToCenter);
-        const float3 incomingAir = dispatch.windVelocityAndDensity.xyz - wingVelocity;
-        const float speedSquared = dot(incomingAir, incomingAir);
-        if (!(speedSquared > 1.0e-8f) || !isfinite(speedSquared)) {
-            continue;
-        }
-        const float3 flow = incomingAir * rsqrt(speedSquared);
         const float3 chord = rotate(wingOrientation, float3(1.0f, 0.0f, 0.0f));
         // The authored root-to-center vector carries the bilateral span sign;
         // a mirrored wing cannot share the left wing's positive-y span basis.
@@ -171,51 +160,82 @@ kernel void mr_step_compiled_flapping_wings(
             wingOrientation, float3(0.0f, spanSign, 0.0f)
         );
         const float3 normal = safeNormal(cross(chord, span));
-        const float angleOfAttack = atan2(dot(flow, normal), dot(flow, chord));
-        const float liftCoefficient = clamp(
-            wing.coefficients.x * angleOfAttack,
-            -wing.coefficients.w,
-            wing.coefficients.w
-        );
-        const float dragCoefficient = wing.coefficients.y +
-            wing.coefficients.z * liftCoefficient * liftCoefficient;
-        const float dynamicPressure = 0.5f *
-            dispatch.windVelocityAndDensity.w * speedSquared;
-        const float liftMagnitude = dynamicPressure *
-            wing.rootToCenterAndArea.w * liftCoefficient;
-        const float dragMagnitude = dynamicPressure *
-            wing.rootToCenterAndArea.w * dragCoefficient;
-        const float3 liftDirection = safeNormal(cross(span, flow));
-        // A single hinge cannot explicitly represent the rapid passive
-        // feathering of a bird wing.  This quasi-steady closure directs the
-        // stroke-dependent component through the airframe's local up axis;
-        // it is deliberately an authored hybrid assumption, not a measured
-        // Deetjen coefficient.  It vanishes without angular wing motion and
-        // remains responsive to the resolved body/wind relative flow.
-        const float3 strokeVelocity = cross(
-            hingeAxisWorld * angularRate, rootToCenter
-        );
-        const float strokeSpeedSquared = dot(strokeVelocity, strokeVelocity);
-        wingStrokeSpeedSquared += strokeSpeedSquared;
-        const float strokeFraction = clamp(
-            strokeSpeedSquared / max(speedSquared, 1.0e-8f), 0.0f, 1.0f
-        );
-        const float strokeLiftMagnitude = dynamicPressure *
-            wing.rootToCenterAndArea.w * wing.coefficients.w * strokeFraction;
         const float3 airframeUp = rotate(rootOrientation, float3(0.0f, 0.0f, 1.0f));
-        const float3 force = liftMagnitude * liftDirection +
-            dragMagnitude * flow + strokeLiftMagnitude * airframeUp;
-        if (!all(isfinite(force))) {
+        const float3 wingCenter = rotate(
+            rootOrientation,
+            rotate(hingeRotation, wing.rootToCenterAndArea.xyz)
+        );
+        float3 force = float3(0.0f);
+        float3 torque = float3(0.0f);
+        // Resolve the span instead of applying one point load at the wing
+        // COM.  The authored root-to-center vector is the half-span station;
+        // an elliptic midpoint quadrature distributes the same total area
+        // from shoulder to tip.  Every station sees its own rotational
+        // velocity, angle of attack, lift, drag, and moment arm.
+        for (uint element = 0u; element < bladeElementCount; ++element) {
+            const float eta = (float(element) + 0.5f) /
+                float(bladeElementCount);
+            const float ellipticWeight = sqrt(max(1.0f - eta * eta, 0.0f)) *
+                inverseEllipticAreaIntegral;
+            const float elementArea = wing.rootToCenterAndArea.w *
+                ellipticWeight / float(bladeElementCount);
+            const float3 neutralPoint = float3(
+                wing.rootToCenterAndArea.x,
+                2.0f * eta * wing.rootToCenterAndArea.y,
+                wing.rootToCenterAndArea.z
+            );
+            const float3 rootToPoint = rotate(
+                rootOrientation, rotate(hingeRotation, neutralPoint)
+            );
+            const float3 strokeVelocity = cross(
+                hingeAxisWorld * angularRate, rootToPoint
+            );
+            const float3 pointVelocity = rootVelocity +
+                cross(rootAngularVelocity, rootToPoint) + strokeVelocity;
+            const float3 incomingAir =
+                dispatch.windVelocityAndDensity.xyz - pointVelocity;
+            const float speedSquared = dot(incomingAir, incomingAir);
+            if (!(speedSquared > 1.0e-8f) || !isfinite(speedSquared)) {
+                continue;
+            }
+            const float3 flow = incomingAir * rsqrt(speedSquared);
+            const float angleOfAttack = atan2(
+                dot(flow, normal), dot(flow, chord)
+            );
+            const float liftCoefficient = clamp(
+                wing.coefficients.x * angleOfAttack,
+                -wing.coefficients.w,
+                wing.coefficients.w
+            );
+            const float dragCoefficient = wing.coefficients.y +
+                wing.coefficients.z * liftCoefficient * liftCoefficient;
+            const float dynamicPressure = 0.5f *
+                dispatch.windVelocityAndDensity.w * speedSquared;
+            const float3 liftDirection = safeNormal(cross(span, flow));
+            const float strokeSpeedSquared = dot(
+                strokeVelocity, strokeVelocity
+            );
+            wingStrokeSpeedSquared +=
+                ellipticWeight * strokeSpeedSquared /
+                float(bladeElementCount);
+            const float strokeFraction = clamp(
+                strokeSpeedSquared / speedSquared, 0.0f, 1.0f
+            );
+            const float3 elementForce = dynamicPressure * elementArea * (
+                liftCoefficient * liftDirection +
+                dragCoefficient * flow +
+                wing.coefficients.w * strokeFraction * airframeUp
+            );
+            force += elementForce;
+            torque += cross(rootToPoint - wingCenter, elementForce);
+        }
+        if (!all(isfinite(force)) || !all(isfinite(torque))) {
             continue;
         }
         const uint wrenchIndex = environment * dispatch.bodyStride + wing.bodyIndex;
         MRABABodyWrenchGPU wrench = wrenches[wrenchIndex];
         wrench.force.xyz += force;
-        // The articulated solver transfers this COM-applied external force
-        // through the resolved shoulder transform.  A separate quarter-chord
-        // torque would require measured pitch/feather state; adding one to
-        // this single-DOF hybrid double-counts an unmodelled moment and made
-        // symmetric wingbeats inject an uncontrolled pitch bias.
+        wrench.torque.xyz += torque;
         wrenches[wrenchIndex] = wrench;
     }
     // The tail is a separate, fixed surface in the compiled articulation. It

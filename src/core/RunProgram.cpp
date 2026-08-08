@@ -1463,6 +1463,8 @@ RunCompileDiagnostics compileRun(
             const MetalWorldFlappingWingProgram& wings =
                 *staged.flappingWingProgram_;
             runHash.bytes(wings.wings.data(), sizeof(wings.wings));
+            runHash.bytes(&wings.tail, sizeof(wings.tail));
+            runHash.bytes(&wings.fuselage, sizeof(wings.fuselage));
             runHash.scalar(wings.articulationIndex);
             runHash.scalar(wings.rootBodyIndex);
             runHash.scalar(wings.windVelocityAndDensity);
@@ -1847,7 +1849,10 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             joint.nq = 1u;
             joint.vOffset = 6u + index;
             joint.nv = 1u;
-            joint.axis0 = {1.0f, 0.0f, 0.0f, 0.0f};
+            // Bilateral shoulders are body-sagittal mirrors.  Mirroring the
+            // span without mirroring the hinge axis makes equal commands
+            // scissor the wings instead of producing one symmetric stroke.
+            joint.axis0 = {side, 0.0f, 0.0f, 0.0f};
             joint.parentAnchor = {0.02f, side * 0.06f, 0.0f, 0.0f};
             joint.childAnchor = {0.0f, -side * 0.18f, 0.0f, 0.0f};
             joint.parentRotation = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -1961,7 +1966,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         aerodynamic.wings[0].rootToCenterAndArea = {0.02f, 0.24f, 0.0f, 0.072f};
         aerodynamic.wings[0].hingeAxisAndChord = {1.0f, 0.0f, 0.0f, 0.15f};
         aerodynamic.wings[1].rootToCenterAndArea = {0.02f, -0.24f, 0.0f, 0.072f};
-        aerodynamic.wings[1].hingeAxisAndChord = {1.0f, 0.0f, 0.0f, 0.15f};
+        aerodynamic.wings[1].hingeAxisAndChord = {-1.0f, 0.0f, 0.0f, 0.15f};
         aerodynamic.tail.rootToCenterAndArea = {-0.18f, 0.0f, 0.0f, 0.0374f};
         aerodynamic.tail.chordAndCoefficients = {0.17f, 2.5f, 0.08f, 0.60f};
         aerodynamic.fuselage.referenceAreasAndDrag = {
