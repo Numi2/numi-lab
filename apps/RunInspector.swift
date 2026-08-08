@@ -171,10 +171,19 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
                            dimensions.x - 1u);
         const uint y = min(uint(clamp(1.0 - input.uv.y, 0.0, 0.999999) * dimensions.y),
                            dimensions.y - 1u);
-        const float3 linear = max(source[y * dimensions.x + x].xyz, 0.0);
+        const float4 sample = source[y * dimensions.x + x];
+        const float3 linear = max(sample.xyz, 0.0);
         // Bounded highlight rolloff keeps HDR scene lighting inspectable while
         // the sRGB drawable performs the final display conversion.
-        return float4(linear / (1.0 + linear), 1.0);
+        const float3 shaded = linear / (1.0 + linear);
+        // The sensor renderer marks background pixels transparent. Keep that
+        // useful distinction in the presentation window: a missing/empty
+        // camera image is a calm inspector backdrop, never an opaque black
+        // result that looks like a rendering failure. Shaded geometry keeps
+        // the renderer's own color unchanged.
+        const float vignette = 0.55 + 0.45 * input.uv.y;
+        const float3 backdrop = float3(0.018, 0.030, 0.055) * vignette;
+        return float4(mix(backdrop, shaded, clamp(sample.w, 0.0, 1.0)), 1.0);
     }
     """
 }

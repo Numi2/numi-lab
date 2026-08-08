@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.28)
 
+# CMake 3.29+ must opt into per-target Swift compilation modes before Swift is
+# enabled. Older CMake versions retain their supported default behavior.
+if(POLICY CMP0157)
+    cmake_policy(SET CMP0157 NEW)
+endif()
+
 project(
     MetalRobo
     VERSION 0.4.0
@@ -843,6 +849,10 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_task_rollout
         PROPERTIES
             Swift_LANGUAGE_VERSION 6
+            # Swift 6.3 intermittently fails to create the incremental
+            # module temporary path after a native-library relink. These two
+            # small command surfaces favor dependable interactive launches.
+            Swift_COMPILATION_MODE singlefile
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
             BUILD_RPATH "@loader_path/../lib"
             INSTALL_RPATH "@loader_path/../lib"
@@ -869,6 +879,7 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_task_train
         PROPERTIES
             Swift_LANGUAGE_VERSION 6
+            Swift_COMPILATION_MODE singlefile
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
             BUILD_RPATH "@loader_path/../lib"
             INSTALL_RPATH "@loader_path/../lib"

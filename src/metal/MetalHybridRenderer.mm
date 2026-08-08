@@ -6252,6 +6252,11 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeGraph(
         EncodePassOptions options;
         options.currentBodyOffset = liveState.currentBodyOffset;
         options.previousBodyOffset = liveState.previousBodyOffset;
+        // Graph consumers (the live inspector and device observation) need
+        // the same exposure setup as the owned-command-buffer render path.
+        // Without it, the presentation graph can bypass the scene's physical
+        // camera response even though it produces an RGB buffer.
+        options.physicalExposure = true;
         options.outputs = &outputs;
         return encodeLocked(
             *state_,
