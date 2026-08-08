@@ -1667,7 +1667,7 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
     TaskResetProgram& reset
 ) {
     TaskPack task = makePX4X500HoverTaskPack(observations, reset);
-    task.id = "birdflow_deetjen_dove_flapping_station_keep";
+    task.id = "birdflow_deetjen_dove_flapping_forward_flight";
     task.actions = {
         {"wing.left_flap"},
         {"wing.right_flap"},
@@ -1678,6 +1678,16 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
     // not distinguish a downstroke from an upstroke at the same airframe pose.
     // Rebuild the suffix against the compiled articulated-wing contract.
     observations.actorFrame.resize(10u);
+    // Flight is conditioned on a forward-airframe velocity, not a world-fixed
+    // hover point.  Keeping the sampled command in the actor frame makes
+    // changes of speed and lateral/yaw request observable rather than hidden
+    // task state.
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::command,
+            .component = component,
+        });
+    }
     for (const char* joint : {
              "dove_left_wing_flap", "dove_right_wing_flap"}) {
         observations.actorFrame.push_back({
@@ -1707,10 +1717,46 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
         });
     }
     observations.critic = observations.actorFrame;
+    task.outcomes = {
+        {"forward_flight_tracking", "ratio",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::linearVelocityTracking},
+        {"tracking", "ratio", TaskOutcomeSource::trackingScore,
+            TaskOutcomeDirection::higherIsBetter},
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::neutral},
+    };
     task.baseHeightTarget = 1.5f;
     task.gaitPeriodSeconds = 0.25f;
-    task.maximumEpisodeSteps = 750u;
-    task.successTrackingThreshold = 0.80f;
+    task.maximumEpisodeSteps = 1'500u;
+    task.successTrackingThreshold = 0.70f;
+    task.commands.lower = {1.20f, -0.15f, -0.25f, 0.0f};
+    task.commands.upper = {1.20f, 0.15f, 0.25f, 0.0f};
+    task.commands.limitLower = task.commands.lower;
+    task.commands.limitUpper = task.commands.upper;
+    task.commands.difficultyStep = {};
+    task.commands.standingProbability = 0.0f;
+    task.commands.minimumDurationSeconds = 6.0f;
+    task.commands.maximumDurationSeconds = 6.0f;
+    // Tracking forward velocity gives ascent, bank, and recovery their
+    // physical value.  We retain only light smoothness penalties: the policy
+    // is free to trade height and attitude while it discovers a viable stroke.
+    task.rewards = {
+        {TaskRewardOperator::linearVelocityTracking, {}, {}, 1.25f,
+            {0.35f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::constant, {}, {}, 0.05f},
+        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.015f},
+        {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.01f},
+        {TaskRewardOperator::actionRateSquared, {}, {}, -0.002f},
+    };
+    // A ground strike is an informative, recoverable episode end.  There is
+    // no altitude ceiling or tilt gate: the learner can explore climbing,
+    // banking, and recovery through the complete flight horizon.
+    task.terminations = {
+        {TaskTerminationOperator::minimumRootHeight, {},
+            MR_TASK_TERMINATION_HEIGHT, 10u, 0.15f, -1.0f},
+    };
     for (auto& randomization : reset.operators) {
         if (randomization.operation == TaskRandomizationOperator::rootHeight) {
             randomization.parameters = {1.45f, 1.55f, 0.0f, 0.0f};
@@ -1899,12 +1945,13 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             {.id = "wing.left_flap", .kind = RobotActuatorKind::flappingPosition,
              .target = "dove_left_wing_flap", .scale = 1.20f,
              .responseTimeSeconds = 0.012f,
-             // Zero-action trim amplitude and policy residual span.
-             .parameters = {0.88f, 0.04f, 0.0f, 0.0f}},
+             // A broad residual lets the policy discover stroke authority
+             // rather than merely fine-tuning a fixed hover carrier.
+             .parameters = {0.80f, 0.20f, 0.0f, 0.0f}},
             {.id = "wing.right_flap", .kind = RobotActuatorKind::flappingPosition,
              .target = "dove_right_wing_flap", .scale = 1.20f,
              .responseTimeSeconds = 0.012f,
-             .parameters = {0.88f, 0.04f, 0.0f, 0.0f}},
+             .parameters = {0.80f, 0.20f, 0.0f, 0.0f}},
         };
         FlappingWingActuatorPack aerodynamic{};
         aerodynamic.bodyRole = "airframe";

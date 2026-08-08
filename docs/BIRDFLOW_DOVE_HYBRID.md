@@ -20,11 +20,11 @@ inside the same Metal rollback transaction as contact, sensing, reward,
 termination, and reset: the next state changes with wing load rather than
 receiving a fixed action-to-force mapping.
 
-The zero policy action is an authored 0.88 normalized stroke trim, with a
-bounded ±0.04 bilateral residual. This puts initial MLX exploration in the
-measured viable-stroke band rather than at a no-lift half-stroke. The task also
-terminates at 0.15 m or 2.50 m root height, so exploratory excess lift becomes
-a normal reset event instead of an unbounded trajectory.
+The zero policy action is an authored 0.80 normalized stroke amplitude, with a
+±0.20 bilateral policy residual. This deliberately leaves enough authority to
+discover lift, bank, and recovery rather than only fine-tuning a hover trim.
+Ground impact below 0.15 m ends and resets an episode; climb and tilt do not
+have artificial task ceilings.
 
 The fixed tail is also a resolved aerodynamic surface: its force uses the
 root-relative airflow at its authored aerodynamic center, while its bounded
@@ -54,7 +54,10 @@ numi dove measured-flight --input assets/birdflow/numi-private-dove-d3q19-v1.jso
 
 `numi dove train` initializes the hybrid policy contract;
 `numi dove evaluate` uses the same compiled robot/task route. The task is
-station keeping at 1.5 m, with randomized initial height in [1.45, 1.55] m.
+forward flight: each episode requests 1.20 m/s local forward speed with small
+lateral and yaw variation. The command, resolved wing hinge state, body state,
+phase, and previous action are all actor-visible. Initial root height remains
+randomized in [1.45, 1.55] m, but is not rewarded toward a fixed altitude.
 
 ## Coupled D3Q19 calibration path
 
@@ -66,7 +69,7 @@ condition. The stages are deliberately separate: `measured-audit` rejects an
 invalid contract before Metal allocation; `measured-trim` is an optional
 force/moment diagnostic; `measured-flight` records a coupled D3Q19 six-DOF
 trajectory with momentum and per-part-load ledgers; and `measured-confirm`
-runs its independent forward-flight, 1/2/4 body-step, and closure gates.
+runs independent forward-flight, 1/2/4 body-step, and closure diagnostics.
 Forward progress is an observable for the controller and task, not a
 near-zero-force release condition.
 
