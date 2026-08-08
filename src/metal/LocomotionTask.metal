@@ -4276,6 +4276,80 @@ kernel void mr_locomotion_task_complete(
     yawBasis *= rsqrt(
         max(dot(yawBasis, yawBasis), 1.0e-12f)
     );
+    bool figureEightConfigured = false;
+    bool figureEightActive = false;
+    float figureEightPathErrorSquared = 0.0f;
+    for (uint rewardIndex = 0u;
+         rewardIndex < program.counts1.w;
+         ++rewardIndex) {
+        const MRTaskRewardOperatorGPU operation = rewards[rewardIndex];
+        if (operation.source.x !=
+                MR_TASK_REWARD_FIGURE_EIGHT_PATH_TRACKING) {
+            continue;
+        }
+        figureEightConfigured = true;
+        const float extentX = operation.parameters.y;
+        const float extentY = operation.parameters.z;
+        const float cycleSeconds = operation.parameters.w;
+        const float takeoffSeconds = operation.auxiliary.x;
+        const float episodeSeconds =
+            float(state.episode.x + 1u) * dispatch.timing.x;
+        if (episodeSeconds <= takeoffSeconds) {
+            state.commandExtension = float4(
+                rootWorldPosition(program, q).xy,
+                0.0f,
+                0.0f
+            );
+            state.commandAndPhase.xyz = float3(0.9f, 0.0f, 0.0f);
+            break;
+        }
+        figureEightActive = true;
+        const float omega = kTwoPi / max(cycleSeconds, 1.0e-4f);
+        const float theta = fmod(
+            state.commandExtension.z + omega * dispatch.timing.x,
+            kTwoPi
+        );
+        // Rotate the Gerono tangent so the first post-takeoff command is
+        // forward in world X instead of diagonally across the crossing.
+        const float initialAngle = atan2(2.0f * extentY, extentX);
+        const float c = cos(-initialAngle);
+        const float s = sin(-initialAngle);
+        const float2 rawVelocity = float2(
+            extentX * cos(theta) * omega,
+            2.0f * extentY * cos(2.0f * theta) * omega
+        );
+        const float2 rawAcceleration = float2(
+            -extentX * sin(theta) * omega * omega,
+            -4.0f * extentY * sin(2.0f * theta) * omega * omega
+        );
+        const float2 targetVelocity = float2(
+            c * rawVelocity.x - s * rawVelocity.y,
+            s * rawVelocity.x + c * rawVelocity.y
+        );
+        const float2 targetAcceleration = float2(
+            c * rawAcceleration.x - s * rawAcceleration.y,
+            s * rawAcceleration.x + c * rawAcceleration.y
+        );
+        state.commandExtension.xy += targetVelocity * dispatch.timing.x;
+        state.commandExtension.zw = float2(theta, 1.0f);
+        const float2 pathError =
+            state.commandExtension.xy - rootWorldPosition(program, q).xy;
+        const float2 correctedVelocity =
+            targetVelocity + clamp(pathError * 0.70f, -2.0f, 2.0f);
+        state.commandAndPhase.xy = float2(
+            yawBasis.x * correctedVelocity.x + yawBasis.y * correctedVelocity.y,
+            -yawBasis.y * correctedVelocity.x + yawBasis.x * correctedVelocity.y
+        );
+        state.commandAndPhase.z = clamp(
+            (targetVelocity.x * targetAcceleration.y -
+             targetVelocity.y * targetAcceleration.x) /
+                max(dot(targetVelocity, targetVelocity), 1.0e-4f),
+            -2.0f,
+            2.0f
+        );
+        figureEightPathErrorSquared = dot(pathError, pathError);
+        break;
+    }
     const float2 yawFrameLinear = float2(
         yawBasis.x *
             rootLinearVelocity.x +
@@ -4566,6 +4640,21 @@ kernel void mr_locomotion_task_complete(
         float interactionMetric = 0.0f;
         float interactionMetricWeight = 0.0f;
         switch (operation.source.x) {
+        case MR_TASK_REWARD_FIGURE_EIGHT_PATH_TRACKING:
+            value = figureEightActive
+                ? exp(
+                    -figureEightPathErrorSquared /
+                    max(
+                        0.0625f *
+                            min(operation.parameters.y,
+                                operation.parameters.z) *
+                            min(operation.parameters.y,
+                                operation.parameters.z),
+                        0.25f
+                    )
+                )
+                : 0.0f;
+            break;
         case MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING:
             value = exp(
                 -trackingError /
@@ -5843,6 +5932,7 @@ kernel void mr_locomotion_task_complete(
         }
         switch (operation.source.x) {
         case MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING:
+        case MR_TASK_REWARD_FIGURE_EIGHT_PATH_TRACKING:
         case MR_TASK_REWARD_YAW_VELOCITY_TRACKING:
         case MR_TASK_REWARD_CONSTANT:
         case MR_TASK_REWARD_GAIT_CONTACT_MATCH:
@@ -6247,7 +6337,7 @@ kernel void mr_locomotion_task_complete(
         curriculum
     );
 
-    if (!done && state.schedule.x <= 1u) {
+    if (!figureEightConfigured && !done && state.schedule.x <= 1u) {
         state.commandAndPhase.xyz = sampledCommand(
             dispatch,
             program,
@@ -6266,7 +6356,7 @@ kernel void mr_locomotion_task_complete(
             scheduleSeconds.x,
             scheduleSeconds.y
         );
-    } else if (!done) {
+    } else if (!figureEightConfigured && !done) {
         --state.schedule.x;
     }
     if (state.schedule.y == 0u || done) {

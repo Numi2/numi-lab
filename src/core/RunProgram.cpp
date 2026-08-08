@@ -1669,7 +1669,7 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
     TaskResetProgram& reset
 ) {
     TaskPack task = makePX4X500HoverTaskPack(observations, reset);
-    task.id = "birdflow_deetjen_dove_ground_takeoff_forward_flight";
+    task.id = "birdflow_deetjen_dove_takeoff_flight_figure_eight";
     task.actions = {
         {"wing.left_flap"},
         {"wing.right_flap"},
@@ -1730,6 +1730,10 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
             TaskOutcomeSource::rewardContribution,
             TaskOutcomeDirection::higherIsBetter,
             TaskRewardOperator::rootHeightNormalized},
+        {"figure_eight_tracking", "ratio",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::figureEightPathTracking},
         {"root_height", "m", TaskOutcomeSource::rootHeight,
             TaskOutcomeDirection::neutral},
     };
@@ -1755,6 +1759,10 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
         {TaskRewardOperator::rootHeightErrorSquared, {}, {}, -0.35f},
         {TaskRewardOperator::linearVelocityTracking, {}, {}, 0.55f,
             {0.35f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::yawVelocityTracking, {}, {}, 0.20f,
+            {0.30f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::figureEightPathTracking, {}, {}, 0.85f,
+            {8.0f, 4.0f, 12.0f, 2.5f}},
         {TaskRewardOperator::uprightness, {}, {}, 0.15f},
         {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.005f},
         {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.02f},

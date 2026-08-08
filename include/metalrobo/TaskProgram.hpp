@@ -127,6 +127,8 @@ enum class TaskRewardOperator : std::uint32_t {
     objectLift = MR_TASK_REWARD_OBJECT_LIFT,
     objectPosition = MR_TASK_REWARD_OBJECT_POSITION,
     objectPlacement = MR_TASK_REWARD_OBJECT_PLACEMENT,
+    figureEightPathTracking =
+        MR_TASK_REWARD_FIGURE_EIGHT_PATH_TRACKING,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {

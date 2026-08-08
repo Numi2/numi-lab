@@ -2799,6 +2799,7 @@ TaskCompileDiagnostics compileTaskProgram(
             }
             break;
         }
+        case TaskRewardOperator::figureEightPathTracking:
         case TaskRewardOperator::linearVelocityTracking:
         case TaskRewardOperator::yawVelocityTracking:
         case TaskRewardOperator::constant:
@@ -2842,6 +2843,18 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 reward.sourceGroup,
                 "tracking and clearance reward widths must be positive"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::figureEightPathTracking &&
+            (!(reward.parameters.x > 0.0f) ||
+             !(reward.parameters.y > 0.0f) ||
+             !(reward.parameters.z > 0.0f) ||
+             reward.parameters.w < 0.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "figure_eight_path",
+                "figure-eight tracking requires positive x/y extents and cycle duration plus a non-negative takeoff transition"
             );
         }
         if (reward.operation ==

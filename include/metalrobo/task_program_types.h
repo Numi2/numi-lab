@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 39u
+#define MR_TASK_PROGRAM_ABI_VERSION 40u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -250,6 +250,9 @@ enum MRTaskRewardOpcode : mr_u32 {
     // source.y selects the goal body; authored x/y/z are positive position,
     // linear-speed, and angular-speed squared-error widths.
     MR_TASK_REWARD_OBJECT_PLACEMENT = 48u,
+    // Closed Gerono-lemniscate flight target. Parameters are horizontal
+    // half-extents x/y, cycle seconds, and takeoff-transition seconds.
+    MR_TASK_REWARD_FIGURE_EIGHT_PATH_TRACKING = 49u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
