@@ -60,15 +60,29 @@ EOF
 fi
 
 workspace=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+# This workspace owns the Dove native source and its verified Swift executables.
+# The shared Numi dispatcher may otherwise select an older runtime-root build
+# that predates `--birdflow-dove`, even though the workspace command advertises
+# it. An explicit user override still wins.
+if [ -z "${NUMI_BUILD_DIR:-}" ] && \
+   [ -x "$workspace/build-dove-swift/bin/metalrobo_task_train" ] && \
+   [ -x "$workspace/build-dove-swift/bin/metalrobo_task_rollout" ]; then
+    export NUMI_BUILD_DIR="$workspace/build-dove-swift"
+fi
 mode=${1:-replay}
 case "$mode" in
     train)
         shift
+        # The recursive Numi capability must keep this workspace as its runtime
+        # root too: training selection loads its Python adapter from there, and
+        # that adapter projects the dove source flag into held-out rollouts.
+        export NUMI_LAB_ROOT="$workspace"
         exec numi train --birdflow-dove \
             --initialize-policy birdflow_deetjen_dove_hybrid_policy "$@"
         ;;
     evaluate)
         shift
+        export NUMI_LAB_ROOT="$workspace"
         exec numi evaluate --birdflow-dove "$@"
         ;;
     replay)
