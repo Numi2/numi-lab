@@ -1969,11 +1969,11 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
              // Differential amplitude is the bird's steering authority.
              // Preserve positive stroke amplitude at both extremes while
              // allowing decisive banking instead of a trim-only wiggle.
-             .parameters = {0.80f, 0.55f, 0.0f, 0.0f}},
+             .parameters = {0.65f, 0.35f, 0.0f, 0.0f}},
             {.id = "wing.right_flap", .kind = RobotActuatorKind::flappingPosition,
              .target = "dove_right_wing_flap", .scale = 1.20f,
              .responseTimeSeconds = 0.012f,
-             .parameters = {0.80f, 0.55f, 0.0f, 0.0f}},
+             .parameters = {0.65f, 0.35f, 0.0f, 0.0f}},
         };
         FlappingWingActuatorPack aerodynamic{};
         aerodynamic.bodyRole = "airframe";
