@@ -38,6 +38,10 @@ struct MetalRunInspectorState
               .metallibPath = config.metallibPath,
               .width = config.width,
               .height = config.height,
+              // An unavailable camera/environment must be visually distinct
+              // from a valid, unlit scene. This only affects the inspector's
+              // presentation fallback; it never feeds the rollout.
+              .clearColorAndDepth = {0.018f, 0.030f, 0.055f, 1.0e30f},
               .retainObservationBuffers = false,
               .geometricObservationsOnly = false,
               .maximumRetainedBytes = config.maximumRetainedBytes,

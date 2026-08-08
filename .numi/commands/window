@@ -14,7 +14,8 @@ Usage: numi window [rollout options...]
 Open a live native Metal preview of environment zero. The window owns a
 presentation-only renderer; closing it stops the preview run. The command
 builds its isolated runtime automatically and preserves physics, policy, and
-observation contracts.
+observation contracts. It renders the authored visual packs for the selected
+run; it never substitutes unrelated geometry when those packs are absent.
 
 Most users only need:
 
@@ -103,8 +104,8 @@ if [ -z "$window_scene" ] || [ ! -f "$window_scene" ]; then
 fi
 
 cmake -S "$window_workspace" -B "$window_build" \
-    -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}" >/dev/null
-cmake --build "$window_build" --target metalrobo_task_rollout -j 4 >/dev/null
+    -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
+cmake --build "$window_build" --target metalrobo_task_rollout -j 4
 
 window_rollout=$window_build/bin/metalrobo_task_rollout
 window_metallib=$window_build/shaders/MetalRobo.metallib
