@@ -243,6 +243,12 @@ shows representative environment zero. It is an inspection aid, not evidence
 of real-hardware behavior or a media-capture path. Use ordinary visual export
 or state-trace facilities when durable frames or artifacts are required.
 
+The inspector has one explicit presentation control, **Pause/Resume**. Pause
+does not pause physics or training: it gates the GPU presentation sidecar at
+the next normal rollout boundary, eliminating preview encoding and
+dropped-frame atomics until Resume. The image is aspect-fit automatically, so
+authored camera geometry is never stretched to the resizable window.
+
 Fixed and wrist cameras in `FrankaPickPlaceWorldFamily` are the reference
 integration. The fixed camera is calibrated toward the manipulation
 workspace; the wrist camera is bound to the final articulated link.

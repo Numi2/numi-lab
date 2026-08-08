@@ -59,6 +59,10 @@ public:
     [[nodiscard]] MetalWorldInspectionProgram
     inspectionProgram() noexcept;
 
+    // Gates presentation encoding without changing the rollout's physics or
+    // accepted-state submission. Existing display-owned slots remain valid.
+    void setEnabled(bool enabled) noexcept;
+
     // Returns false when no completed presentation frame is available. A
     // successful acquire transfers one ring slot to the caller.
     [[nodiscard]] bool acquireLatestFrame(

@@ -1654,6 +1654,15 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         )
     }
 
+    public func setInspectionEnabled(_ enabled: Bool) throws {
+        guard mr_task_rollout_set_inspection_enabled(
+            handle,
+            enabled ? 1 : 0
+        ) == 0 else {
+            throw MetalRoboTaskRolloutError.native(Self.lastError())
+        }
+    }
+
     public func releaseInspectionFrame(slotIndex: UInt32) {
         _ = mr_task_rollout_release_inspection_frame(handle, slotIndex)
     }

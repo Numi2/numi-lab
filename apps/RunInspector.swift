@@ -21,15 +21,22 @@ enum MetalRoboRunInspectorError: Error {
 
 @MainActor
 private final class RunInspectorWindow: NSObject, MTKViewDelegate,
-    NSWindowDelegate
+    NSWindowDelegate, NSToolbarDelegate
 {
+    private static let pauseToolbarItem = NSToolbarItem.Identifier(
+        "numi.inspector.pause"
+    )
     private let window: NSWindow
     private let view: MTKView
     private let queue: MTLCommandQueue
     private let pipeline: MTLRenderPipelineState
     private var pending: InspectionDelivery?
     private var closed = false
+    private var paused = false
+    private var lastFrameSummary = "waiting for a frame"
+    private weak var pauseItem: NSToolbarItem?
     var onClose: (() -> Void)?
+    var onPauseChanged: ((Bool) -> Void)?
 
     private init(
         window: NSWindow,
@@ -44,8 +51,14 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         super.init()
         view.delegate = self
         window.contentView = view
-        window.title = "Numi Lab Inspector — waiting for a frame"
         window.delegate = self
+        let toolbar = NSToolbar(identifier: "numi.inspector.toolbar")
+        toolbar.delegate = self
+        toolbar.displayMode = .iconAndLabel
+        toolbar.allowsUserCustomization = false
+        toolbar.autosavesConfiguration = false
+        window.toolbar = toolbar
+        updateChrome()
         window.makeKeyAndOrderFront(nil)
     }
 
@@ -92,13 +105,14 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     }
 
     func offer(_ delivery: InspectionDelivery) {
-        guard !closed else {
+        guard !closed, !paused else {
             delivery.release()
             return
         }
         pending?.release()
         pending = delivery
-        window.title = "Numi Lab Inspector — live · env \(delivery.frame.environmentIndex) · frame \(delivery.frame.frameIndex) · dropped \(delivery.frame.droppedFrames)"
+        lastFrameSummary = "env \(delivery.frame.environmentIndex) · frame \(delivery.frame.frameIndex) · dropped \(delivery.frame.droppedFrames)"
+        updateChrome()
         view.setNeedsDisplay(view.bounds)
     }
 
@@ -114,15 +128,17 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             return
         }
         pending = nil
-        var dimensions = SIMD2<UInt32>(
+        var dimensions = SIMD4<UInt32>(
             UInt32(delivery.frame.width),
-            UInt32(delivery.frame.height)
+            UInt32(delivery.frame.height),
+            UInt32(max(1, view.drawableSize.width.rounded(.down))),
+            UInt32(max(1, view.drawableSize.height.rounded(.down)))
         )
         encoder.setRenderPipelineState(pipeline)
         encoder.setFragmentBuffer(delivery.frame.rgbBuffer, offset: 0,
                                   index: 0)
         encoder.setFragmentBytes(&dimensions,
-                                 length: MemoryLayout<SIMD2<UInt32>>.stride,
+                                 length: MemoryLayout<SIMD4<UInt32>>.stride,
                                  index: 1)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0,
                                vertexCount: 3)
@@ -135,6 +151,62 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     }
 
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
+
+    func toolbarAllowedItemIdentifiers(
+        _ toolbar: NSToolbar
+    ) -> [NSToolbarItem.Identifier] {
+        [Self.pauseToolbarItem]
+    }
+
+    func toolbarDefaultItemIdentifiers(
+        _ toolbar: NSToolbar
+    ) -> [NSToolbarItem.Identifier] {
+        [Self.pauseToolbarItem]
+    }
+
+    func toolbar(
+        _ toolbar: NSToolbar,
+        itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
+        willBeInsertedIntoToolbar flag: Bool
+    ) -> NSToolbarItem? {
+        guard itemIdentifier == Self.pauseToolbarItem else {
+            return nil
+        }
+        let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+        item.target = self
+        item.action = #selector(togglePause)
+        configurePauseItem(item)
+        pauseItem = item
+        return item
+    }
+
+    @objc private func togglePause() {
+        paused.toggle()
+        if paused {
+            pending?.release()
+            pending = nil
+        }
+        onPauseChanged?(paused)
+        updateChrome()
+    }
+
+    private func configurePauseItem(_ item: NSToolbarItem) {
+        item.label = paused ? "Resume" : "Pause"
+        item.toolTip = paused
+            ? "Resume live preview"
+            : "Pause preview rendering; the run keeps going"
+        item.image = NSImage(
+            systemSymbolName: paused ? "play.fill" : "pause.fill",
+            accessibilityDescription: item.label
+        )
+    }
+
+    private func updateChrome() {
+        window.title = "Numi Lab Inspector — \(paused ? "paused" : "live") · \(lastFrameSummary)"
+        if let item = pauseItem {
+            configurePauseItem(item)
+        }
+    }
 
     func windowWillClose(_ notification: Notification) {
         closed = true
@@ -165,11 +237,26 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     fragment float4 inspectFragment(
         VertexOut input [[stage_in]],
         const device float4* source [[buffer(0)]],
-        constant uint2& dimensions [[buffer(1)]]
+        constant uint4& dimensions [[buffer(1)]]
     ) {
-        const uint x = min(uint(clamp(input.uv.x, 0.0, 0.999999) * dimensions.x),
+        const float sourceAspect = float(dimensions.x) / float(dimensions.y);
+        const float destinationAspect = float(dimensions.z) / float(dimensions.w);
+        float2 uv = input.uv;
+        if (sourceAspect > destinationAspect) {
+            const float height = destinationAspect / sourceAspect;
+            uv.y = (uv.y - 0.5 * (1.0 - height)) / height;
+        } else {
+            const float width = sourceAspect / destinationAspect;
+            uv.x = (uv.x - 0.5 * (1.0 - width)) / width;
+        }
+        const float vignette = 0.55 + 0.45 * input.uv.y;
+        const float3 backdrop = float3(0.018, 0.030, 0.055) * vignette;
+        if (any(uv < 0.0) || any(uv >= 1.0)) {
+            return float4(backdrop, 1.0);
+        }
+        const uint x = min(uint(uv.x * dimensions.x),
                            dimensions.x - 1u);
-        const uint y = min(uint(clamp(1.0 - input.uv.y, 0.0, 0.999999) * dimensions.y),
+        const uint y = min(uint((1.0 - uv.y) * dimensions.y),
                            dimensions.y - 1u);
         const float4 sample = source[y * dimensions.x + x];
         const float3 linear = max(sample.xyz, 0.0);
@@ -181,8 +268,6 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         // camera image is a calm inspector backdrop, never an opaque black
         // result that looks like a rendering failure. Shaded geometry keeps
         // the renderer's own color unchanged.
-        const float vignette = 0.55 + 0.45 * input.uv.y;
-        const float3 backdrop = float3(0.018, 0.030, 0.055) * vignette;
         return float4(mix(backdrop, shaded, clamp(sample.w, 0.0, 1.0)), 1.0);
     }
     """
@@ -194,12 +279,17 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
     private let window: RunInspectorWindow
     private let stateLock = NSLock()
     private var closed = false
+    private var acceptingFrames = true
+    private var pendingNativeInspectionEnabled: Bool?
 
     @MainActor
     private init(window: RunInspectorWindow) {
         self.window = window
         window.onClose = { [weak self] in
             self?.markClosed()
+        }
+        window.onPauseChanged = { [weak self] paused in
+            self?.setPresentationPaused(paused)
         }
     }
 
@@ -221,17 +311,45 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         return closed
     }
 
+    var acceptsFrames: Bool {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        return !closed && acceptingFrames
+    }
+
     private func markClosed() {
         stateLock.lock()
         closed = true
+        acceptingFrames = false
+        pendingNativeInspectionEnabled = false
         stateLock.unlock()
+    }
+
+    private func setPresentationPaused(_ paused: Bool) {
+        stateLock.lock()
+        let enabled = !paused && !closed
+        if acceptingFrames != enabled {
+            acceptingFrames = enabled
+            pendingNativeInspectionEnabled = enabled
+        }
+        stateLock.unlock()
+    }
+
+    // Consumed by the rollout scheduler at its normal publication boundary,
+    // never from the AppKit action itself.
+    func takePendingNativeInspectionEnabled() -> Bool? {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        let value = pendingNativeInspectionEnabled
+        pendingNativeInspectionEnabled = nil
+        return value
     }
 
     public func publish(
         frame: MetalRoboTaskInspectionFrame,
         context: MetalRoboTaskRolloutContext
     ) {
-        guard !isClosed else {
+        guard acceptsFrames else {
             context.releaseInspectionFrame(slotIndex: frame.slotIndex)
             return
         }
@@ -242,7 +360,7 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
             }
         )
         DispatchQueue.main.async { [weak self, window] in
-            guard self?.isClosed == false else {
+            guard self?.acceptsFrames == true else {
                 delivery.release()
                 return
             }
