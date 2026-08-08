@@ -1,69 +1,43 @@
-name: Publish validated lazy rod-family initialization
+name: Codex Matter source export
 
 on:
   pull_request:
     types: [synchronize, reopened]
 
 permissions:
-  contents: write
-
-concurrency:
-  group: matter-publish-lazy-rods
-  cancel-in-progress: true
+  contents: read
 
 jobs:
-  publish:
-    if: github.event.pull_request.head.ref == 'codex/matter-compiler-foundation'
-    runs-on: macos-26
-    timeout-minutes: 45
+  export:
+    runs-on: ubuntu-latest
     steps:
-      - name: Check out exact branch history
+      - name: Check out exact PR head
         uses: actions/checkout@v4
         with:
-          ref: codex/matter-compiler-foundation
-          fetch-depth: 0
-
-      - name: Apply, qualify, and publish
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - name: Package exact head source
         shell: bash
-        env:
-          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
-          PAYLOAD_SHA256: d1784e676308a305878951b6d2382b0e362e2ffe28f0f4d455120a17be7efafb
-          PATCH_SHA256: 84d26238e070558d1127a59d66112193b80bcbd2a353ce69537ab4235d4a9893
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "${EXPECTED_HEAD}"
-          echo "${PAYLOAD_SHA256}  .github/matter-full-lazy-rods.patch.gz.b64" \
-            | shasum -a 256 --check
-          base64 -D \
-            -i .github/matter-full-lazy-rods.patch.gz.b64 \
-            -o /tmp/matter-full-lazy-rods.patch.gz
-          gzip -dc /tmp/matter-full-lazy-rods.patch.gz \
-            > /tmp/matter-full-lazy-rods.patch
-          echo "${PATCH_SHA256}  /tmp/matter-full-lazy-rods.patch" \
-            | shasum -a 256 --check
-          git apply --check /tmp/matter-full-lazy-rods.patch
-          git apply /tmp/matter-full-lazy-rods.patch
-          git diff --check
-
-          cmake -S . -B build-matter-publish-lazy-rods \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_TESTING=ON
-          cmake --build build-matter-publish-lazy-rods \
-            --target metalrobo_matter_physics_probe \
-            -j 3
-          build-matter-publish-lazy-rods/bin/metalrobo_matter_physics_probe \
-            --metal-world-coupling
-
-          rm .github/matter-full-lazy-rods.patch.gz.b64
-          git config user.name "github-actions[bot]"
-          git config user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            src/metal/MetalWorld.mm \
-            apps/matter_physics_probe.mm \
-            .github/matter-full-lazy-rods.patch.gz.b64
-          git commit -m "Lazily initialize optional rod pipelines"
-          git push \
-            --force-with-lease=refs/heads/codex/matter-compiler-foundation:${EXPECTED_HEAD} \
-            origin HEAD:codex/matter-compiler-foundation
+          tar \
+            --exclude=.git \
+            --exclude=build \
+            --exclude=build-* \
+            --exclude='*.nmatterpack' \
+            -czf /tmp/numi-matter-pr2-source.tar.gz \
+            CMakeLists.txt \
+            apps \
+            include \
+            matter \
+            src \
+            numi \
+            tools \
+            .github
+      - name: Upload exact head source
+        uses: actions/upload-artifact@v4
+        with:
+          name: numi-matter-pr2-source-${{ github.event.pull_request.head.sha }}
+          path: /tmp/numi-matter-pr2-source.tar.gz
+          retention-days: 1
+          if-no-files-found: error
