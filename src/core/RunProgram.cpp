@@ -1645,21 +1645,21 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         };
         mechanics.articulations[0u].rootBody = 0u;
         mechanics.articulations[0u].firstBody = 0u;
-        mechanics.articulations[0u].bodyCount = 3u;
-        mechanics.articulations[0u].jointCount = 2u;
+        mechanics.articulations[0u].bodyCount = 4u;
+        mechanics.articulations[0u].jointCount = 3u;
         mechanics.articulations[0u].nq = 9u;
         mechanics.articulations[0u].nv = 8u;
-        mechanics.world.bodyCount = 3u;
-        mechanics.world.jointCount = 2u;
+        mechanics.world.bodyCount = 4u;
+        mechanics.world.jointCount = 3u;
         mechanics.world.nq = 9u;
         mechanics.world.nv = 8u;
-        mechanics.bodies.resize(3u);
+        mechanics.bodies.resize(4u);
         MRBodyPropertiesGPU& body = mechanics.bodies[0u];
         body.articulationIndex = 0u;
         body.parentBody = MR_INVALID_INDEX;
         body.inboundJoint = MR_INVALID_INDEX;
         body.motionType = MR_MOTION_DYNAMIC;
-        body.massAndInverseMass = {0.28f, 1.0f / 0.28f, 0.0f, 0.0f};
+        body.massAndInverseMass = {0.27f, 1.0f / 0.27f, 0.0f, 0.0f};
         body.inertiaRow0 = {0.0021f, 0.0f, 0.0f, 0.0f};
         body.inertiaRow1 = {0.0f, 0.0054f, 0.0f, 0.0f};
         body.inertiaRow2 = {0.0f, 0.0f, 0.0061f, 0.0f};
@@ -1689,7 +1689,20 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         };
         configureWing(1u, 0u);
         configureWing(2u, 1u);
-        mechanics.joints.resize(2u);
+        MRBodyPropertiesGPU& tail = mechanics.bodies[3u];
+        tail.articulationIndex = 0u;
+        tail.parentBody = 0u;
+        tail.inboundJoint = 2u;
+        tail.motionType = MR_MOTION_DYNAMIC;
+        tail.massAndInverseMass = {0.01f, 100.0f, 0.0f, 0.0f};
+        tail.inertiaRow0 = {0.00002f, 0.0f, 0.0f, 0.0f};
+        tail.inertiaRow1 = {0.0f, 0.00005f, 0.0f, 0.0f};
+        tail.inertiaRow2 = {0.0f, 0.0f, 0.00006f, 0.0f};
+        tail.inverseInertiaRow0 = {50000.0f, 0.0f, 0.0f, 0.0f};
+        tail.inverseInertiaRow1 = {0.0f, 20000.0f, 0.0f, 0.0f};
+        tail.inverseInertiaRow2 = {0.0f, 0.0f, 16666.666f, 0.0f};
+        tail.dampingAndSpeedLimits = {0.02f, 0.02f, 30.0f, 45.0f};
+        mechanics.joints.resize(3u);
         const auto configureJoint = [&](const std::uint32_t index,
                                         const float side) {
             MRJointDescriptorGPU& joint = mechanics.joints[index];
@@ -1708,6 +1721,18 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         };
         configureJoint(0u, 1.0f);
         configureJoint(1u, -1.0f);
+        MRJointDescriptorGPU& tailJoint = mechanics.joints[2u];
+        tailJoint.parentBody = 0u;
+        tailJoint.childBody = 3u;
+        tailJoint.jointType = MR_JOINT_FIXED;
+        tailJoint.qOffset = 9u;
+        tailJoint.nq = 0u;
+        tailJoint.vOffset = 8u;
+        tailJoint.nv = 0u;
+        tailJoint.parentAnchor = {-0.18f, 0.0f, 0.0f, 0.0f};
+        tailJoint.childAnchor = {0.0f, 0.0f, 0.0f, 0.0f};
+        tailJoint.parentRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+        tailJoint.childRotation = {0.0f, 0.0f, 0.0f, 1.0f};
         mechanics.dofs.resize(8u);
         const auto configureDof = [&](const std::uint32_t index) {
             MRDofPropertiesGPU& dof = mechanics.dofs[6u + index];
@@ -1724,8 +1749,10 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         };
         configureDof(0u);
         configureDof(1u);
-        mechanics.bodyNames = {"dove_body", "dove_left_wing", "dove_right_wing"};
-        mechanics.jointNames = {"dove_left_wing_flap", "dove_right_wing_flap"};
+        mechanics.bodyNames = {
+            "dove_body", "dove_left_wing", "dove_right_wing", "dove_tail"};
+        mechanics.jointNames = {
+            "dove_left_wing_flap", "dove_right_wing_flap", "dove_tail_fixed"};
         mechanics.dofNames = {
             "root_x", "root_y", "root_z", "root_rx", "root_ry", "root_rz",
             "dove_left_wing_flap", "dove_right_wing_flap",
@@ -1761,12 +1788,13 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         appendBox(0u, {0.0f, 0.0f, 0.0f, 1.0f}, {0.16f, 0.05f, 0.055f, 0.0f});
         appendBox(1u, {0.0f, 0.0f, 0.0f, 1.0f}, {0.10f, 0.18f, 0.012f, 0.0f});
         appendBox(2u, {0.0f, 0.0f, 0.0f, 1.0f}, {0.10f, 0.18f, 0.012f, 0.0f});
+        appendBox(3u, {0.0f, 0.0f, 0.0f, 1.0f}, {0.085f, 0.11f, 0.009f, 0.0f});
         mechanics.world.shapeCount = static_cast<std::uint32_t>(
             mechanics.shapes.size()
         );
         mechanics.shapeNames = {
             "dove_body/collision_body", "dove_left_wing/collision",
-            "dove_right_wing/collision",
+            "dove_right_wing/collision", "dove_tail/collision",
         };
         RobotPack pack = genericRobot(
             "birdflow_deetjen_dove_hybrid", std::move(mechanics),
@@ -1778,6 +1806,7 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         addBodyRole(pack, "airframe", {"dove_body"});
         addBodyRole(pack, "left_wing", {"dove_left_wing"});
         addBodyRole(pack, "right_wing", {"dove_right_wing"});
+        addBodyRole(pack, "tail", {"dove_tail"});
         pack.actuators = {
             {.id = "wing.left_flap", .kind = RobotActuatorKind::flappingPosition,
              .target = "dove_left_wing_flap", .scale = 1.20f,

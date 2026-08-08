@@ -7,8 +7,9 @@ replay`.
 
 ## Runtime contract
 
-The compiled RobotPack has a 0.28 kg free airframe and two 0.02 kg wing
-bodies, each connected by an actuated revolute hinge. Its two policy actions
+The compiled RobotPack has a 0.27 kg free airframe, two 0.02 kg wing bodies,
+and a 0.01 kg fixed tail body. The wings are each connected by an actuated
+revolute hinge. Its two policy actions
 modulate bilateral stroke amplitude; the robot-owned 4 Hz cyclic phase drives
 the hinge targets. The actor observes both wing position/rate and the sin/cos
 phase, so an MLX policy does not have to infer a hidden wingbeat from action
@@ -40,9 +41,11 @@ This is not a claim of measured Deetjen free flight or a coupled BirdFlow
 D3Q19 solve. The public Deetjen surface sequence provides a prescribed-motion
 CFD benchmark, but not the complete same-specimen inertia and bilateral
 wing-mass record needed to identify a calibrated free-flight model. The
-hybrid's mass, inertia, geometry, passive-feathering closure, and aerodynamic
-coefficients are explicit model choices. Its runtime loads are not replay
-forces, while its BirdFlow replay output remains evidence-only.
+hybrid's mass, inertia, tail/wing geometry, passive-feathering closure, and
+aerodynamic coefficients are explicit model choices. Its runtime loads are
+not replay forces. The tail is a fixed inertial/collision body in this hybrid,
+not yet a separately resolved aerodynamic surface; BirdFlow replay output
+remains evidence-only.
 
 The next fidelity step is a device-resident, multi-environment D3Q19 coupling
 to articulated wing state, qualified against held-out BirdFlow measurements

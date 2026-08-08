@@ -331,8 +331,8 @@ int main() {
             compiledDove.valid() &&
                 compiledDove.flappingWingProgram() != nullptr &&
                 compiledDove.multicopterProgram() == nullptr &&
-                compiledDove.model().bodies.size() == 4u &&
-                compiledDove.model().joints.size() == 2u &&
+                compiledDove.model().bodies.size() == 5u &&
+                compiledDove.model().joints.size() == 3u &&
                 compiledDove.task().actionBindings().size() == 2u &&
                 std::all_of(
                     compiledDove.task().actionBindings().begin(),
