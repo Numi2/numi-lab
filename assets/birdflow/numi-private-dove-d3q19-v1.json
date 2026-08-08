@@ -2,11 +2,11 @@
   "schemaVersion": 2,
   "datasetIdentifier": "numi-private-dove-d3q19-calibration-v1",
   "provenance": {
-    "specimenIdentifier": "numi-authored-dove-lightweight-calibration-v1-not-a-biological-specimen",
-    "geometryCitation": "Numi Lab BirdFlow dove articulated mechanics with an explicit lightweight virtual-airframe calibration",
-    "kinematicsCitation": "Numi Lab private rigid-wing calibration waveform v1, analytically sampled at exact phase knots",
+    "specimenIdentifier": "numi-authored-dove-ultralight-ornithopter-v1-not-a-biological-specimen",
+    "geometryCitation": "Numi Lab BirdFlow dove articulated mechanics with an explicit ultralight virtual-ornithopter calibration",
+    "kinematicsCitation": "Numi Lab private rigid-wing calibration waveform v9 selected from the D24 declared-hover-control sweep",
     "dataLicense": "private Numi Lab calibration model",
-    "processingDescription": "Private complete schema-2 calibration fixture. Bilateral wing mass, hinge-relative center of mass, and inertia are copied from the explicitly authored Numi dove mechanics at neutral pose. The 0.15 kg whole-body mass is an explicit lightweight virtual-airframe calibration, not a biological measurement; the periodic no-twist wing program is authored. Its 0.240 rad stroke amplitude, -0.35 rad chord pitch, and 1 m/s, Re=100 operating point place the first coupled trajectory in a low-Mach, viscosity-resolved D3Q19 regime. The pitch sign follows BirdFlow's registered chord/span/normal convention after the +0.35 rad candidate produced a 0.02...0.03 N downward mean load in a constrained D8 trim search. This is a numerical D3Q19 calibration model, not a measured Deetjen or biological specimen."
+    "processingDescription": "Private complete schema-2 virtual-robot fixture. Geometry and the registered bilateral articulation convention come from the authored Numi dove mechanics; the 0.001 kg whole-body mass, body inertia, and 0.00001 kg membrane-wing inertial entries are an internally consistent ultralight ornithopter design, not biological measurements. The v9 robot has 0.900 m semi-spans and 1.200 m chords, with stroke angles reduced fivefold to preserve the compact fixture's peak spanwise membrane velocity. The declared hover actuator sets -0.04 rad pitch at the power-stroke phase knots and 0 rad at recovery. On Apple M4, the D24 five-cycle fixed-body D3Q19 screen selected this exact candidate (SHA256 9a4f1c36877fa9b1e7b540468529d95d6502e0476cc295c9042ff24da37ba5ab): mean aerodynamic force [-0.000813, 0.000000, 0.009879] N, versus 0.009810 N robot weight. The initial +4.706 degree body-y attitude trim aligns that screened resultant vertically; it does not prove free-flight stability. A full five-cycle fixed-body pre-roll followed by coupled six-DOF release failed its runtime Mach bound at release step 1251 (Mach 7.567), so v9 is not a flight-capable result and must not be used for training promotion. The next required mechanics are a coupled attitude/load controller and stable release validation, followed by 1/2/4 body-step refinement. This is a numerical D3Q19 robot calibration model, not a measured Deetjen or biological specimen."
   },
   "units": {
     "length": "meter",
@@ -25,29 +25,29 @@
   "geometryRepresentation": "registeredAnalyticProxyV1",
   "geometry": {
     "bodyRadiiMeters": [0.16, 0.05, 0.055],
-    "massKilograms": 0.15,
-    "principalInertiaKilogramMetersSquared": [0.004544, 0.006186, 0.00924],
-    "wingSpanMeters": 0.18,
-    "wingRootChordMeters": 0.20,
-    "wingTipChordMeters": 0.20,
-    "wingThicknessMeters": 0.04,
+    "massKilograms": 0.001,
+    "principalInertiaKilogramMetersSquared": [0.000030293, 0.000041240, 0.000061600],
+    "wingSpanMeters": 0.90,
+    "wingRootChordMeters": 1.20,
+    "wingTipChordMeters": 1.20,
+    "wingThicknessMeters": 0.25,
     "wingSweepMeters": 0.0,
     "wingRootOffsetMeters": [0.023125, 0.06, 0.0],
     "tailLengthMeters": 0.17,
     "tailHalfWidthMeters": 0.11,
-    "tailThicknessMeters": 0.04
+    "tailThicknessMeters": 0.25
   },
   "kinematics": {
-    "frequencyHz": 4.0,
+    "frequencyHz": 2.0,
     "keyframes": [
       {
         "phase": 0.0,
         "left": {
           "strokeRadians": 0.0,
           "deviationRadians": 0.0,
-          "pitchRadians": -0.35,
+          "pitchRadians": 0.0,
           "tipTwistRadians": 0.0,
-          "strokeRateRadiansPerSecond": 6.031858,
+          "strokeRateRadiansPerSecond": 0.0,
           "deviationRateRadiansPerSecond": 0.0,
           "pitchRateRadiansPerSecond": 0.0,
           "tipTwistRateRadiansPerSecond": 0.0
@@ -55,9 +55,9 @@
         "right": {
           "strokeRadians": 0.0,
           "deviationRadians": 0.0,
-          "pitchRadians": -0.35,
+          "pitchRadians": 0.0,
           "tipTwistRadians": 0.0,
-          "strokeRateRadiansPerSecond": 6.031858,
+          "strokeRateRadiansPerSecond": 0.0,
           "deviationRateRadiansPerSecond": 0.0,
           "pitchRateRadiansPerSecond": 0.0,
           "tipTwistRateRadiansPerSecond": 0.0
@@ -66,9 +66,9 @@
       {
         "phase": 0.25,
         "left": {
-          "strokeRadians": 0.240,
+          "strokeRadians": -0.018,
           "deviationRadians": 0.0,
-          "pitchRadians": -0.35,
+          "pitchRadians": -0.04,
           "tipTwistRadians": 0.0,
           "strokeRateRadiansPerSecond": 0.0,
           "deviationRateRadiansPerSecond": 0.0,
@@ -76,9 +76,9 @@
           "tipTwistRateRadiansPerSecond": 0.0
         },
         "right": {
-          "strokeRadians": 0.240,
+          "strokeRadians": -0.018,
           "deviationRadians": 0.0,
-          "pitchRadians": -0.35,
+          "pitchRadians": -0.04,
           "tipTwistRadians": 0.0,
           "strokeRateRadiansPerSecond": 0.0,
           "deviationRateRadiansPerSecond": 0.0,
@@ -89,21 +89,21 @@
       {
         "phase": 0.5,
         "left": {
-          "strokeRadians": 0.0,
+          "strokeRadians": 0.018,
           "deviationRadians": 0.0,
-          "pitchRadians": -0.35,
+          "pitchRadians": -0.04,
           "tipTwistRadians": 0.0,
-          "strokeRateRadiansPerSecond": -6.031858,
+          "strokeRateRadiansPerSecond": 0.0,
           "deviationRateRadiansPerSecond": 0.0,
           "pitchRateRadiansPerSecond": 0.0,
           "tipTwistRateRadiansPerSecond": 0.0
         },
         "right": {
-          "strokeRadians": 0.0,
+          "strokeRadians": 0.018,
           "deviationRadians": 0.0,
-          "pitchRadians": -0.35,
+          "pitchRadians": -0.04,
           "tipTwistRadians": 0.0,
-          "strokeRateRadiansPerSecond": -6.031858,
+          "strokeRateRadiansPerSecond": 0.0,
           "deviationRateRadiansPerSecond": 0.0,
           "pitchRateRadiansPerSecond": 0.0,
           "tipTwistRateRadiansPerSecond": 0.0
@@ -112,9 +112,9 @@
       {
         "phase": 0.75,
         "left": {
-          "strokeRadians": -0.240,
+          "strokeRadians": 0.006,
           "deviationRadians": 0.0,
-          "pitchRadians": -0.35,
+          "pitchRadians": 0.0,
           "tipTwistRadians": 0.0,
           "strokeRateRadiansPerSecond": 0.0,
           "deviationRateRadiansPerSecond": 0.0,
@@ -122,9 +122,9 @@
           "tipTwistRateRadiansPerSecond": 0.0
         },
         "right": {
-          "strokeRadians": -0.240,
+          "strokeRadians": 0.006,
           "deviationRadians": 0.0,
-          "pitchRadians": -0.35,
+          "pitchRadians": 0.0,
           "tipTwistRadians": 0.0,
           "strokeRateRadiansPerSecond": 0.0,
           "deviationRateRadiansPerSecond": 0.0,
@@ -140,25 +140,25 @@
     "massDefinition": "wholeBirdIncludingWings",
     "inertiaDefinition": "wholeBirdAtRegisteredReferencePose",
     "left": {
-      "massKilograms": 0.02,
-      "centerOfMassFromHingeMeters": [0.0, 0.18, 0.0],
-      "principalInertiaKilogramMetersSquared": [0.00006, 0.0002, 0.00022]
+      "massKilograms": 0.00001,
+      "centerOfMassFromHingeMeters": [0.0, 0.45, 0.0],
+      "principalInertiaKilogramMetersSquared": [0.00000003, 0.00000010, 0.00000011]
     },
     "right": {
-      "massKilograms": 0.02,
-      "centerOfMassFromHingeMeters": [0.0, 0.18, 0.0],
-      "principalInertiaKilogramMetersSquared": [0.00006, 0.0002, 0.00022]
+      "massKilograms": 0.00001,
+      "centerOfMassFromHingeMeters": [0.0, 0.45, 0.0],
+      "principalInertiaKilogramMetersSquared": [0.00000003, 0.00000010, 0.00000011]
     }
   },
   "replay": {
     "domainOriginMeters": [0.0, 0.0, 0.0],
-    "domainSizeMeters": [2.4, 2.4, 2.4],
-    "bodyPositionMeters": [1.2, 1.2, 1.2],
+    "domainSizeMeters": [8.0, 8.0, 8.0],
+    "bodyPositionMeters": [4.0, 4.0, 4.0],
     "bodyOrientationBodyToWorld": {
-      "vector": [0.0, 0.0, 0.0],
-      "scalar": 1.0
+      "vector": [0.0, 0.041055, 0.0],
+      "scalar": 0.999157
     },
-    "farFieldVelocityMetersPerSecond": [-1.0, 0.0, 0.0],
+    "farFieldVelocityMetersPerSecond": [0.0, 0.0, 0.0],
     "gravityMetersPerSecondSquared": [0.0, 0.0, -9.81],
     "referenceSpeedMetersPerSecond": 1.0,
     "targetReynoldsNumber": 100.0,
