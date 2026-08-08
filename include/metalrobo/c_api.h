@@ -607,6 +607,11 @@ MR_API int mr_task_rollout_load_policy_pack(
     MRTaskRolloutHandle* handle,
     const char* policy_pack_path
 );
+// Returns the immutable revision of the currently installed compiled policy,
+// or zero when no policy is installed.
+MR_API uint64_t mr_task_rollout_policy_revision(
+    const MRTaskRolloutHandle* handle
+);
 MR_API int mr_task_rollout_clear_policy(
     MRTaskRolloutHandle* handle
 );
