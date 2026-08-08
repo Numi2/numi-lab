@@ -3,6 +3,7 @@
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MetalWorldCapacity.hpp"
+#include "metalrobo/flapping_wing_types.h"
 #include "metalrobo/multicopter_types.h"
 #include "metalrobo/PolicyProgram.hpp"
 #include "metalrobo/TaskProgram.hpp"
@@ -344,6 +345,25 @@ struct MetalWorldMulticopterProgram {
     }
 };
 
+// Immutable bilateral articulated-wing load program.  It is deliberately
+// separate from the generic multicopter controller: the policy actuates the
+// authored hinge drives, while this program computes air-relative loads from
+// the resulting live body/joint state each physics microstep.
+struct MetalWorldFlappingWingProgram {
+    std::array<MRFlappingWingGPU, 2u> wings{};
+    std::uint32_t articulationIndex = MR_INVALID_INDEX;
+    std::uint32_t rootBodyIndex = MR_INVALID_INDEX;
+    mr_float4 windVelocityAndDensity{};
+
+    [[nodiscard]] bool valid() const noexcept {
+        return articulationIndex != MR_INVALID_INDEX &&
+            rootBodyIndex != MR_INVALID_INDEX &&
+            windVelocityAndDensity.w > 0.0f &&
+            wings[0].bodyIndex != MR_INVALID_INDEX &&
+            wings[1].bodyIndex != MR_INVALID_INDEX;
+    }
+};
+
 struct MetalWorldStepConfig {
     // Control-period duration. The immutable model gravity is retained and
     // its authored integration timestep is replaced by
@@ -368,6 +388,7 @@ struct MetalWorldStepConfig {
     // not a constructor hint; its complete contents participate in the run
     // fingerprint before reaching MetalWorld.
     MetalWorldMulticopterProgram multicopterProgram{};
+    MetalWorldFlappingWingProgram flappingWingProgram{};
     // Optional renderer/perception pass. It receives only borrowed device
     // resources and executes inside the native rollout command buffer.
     MetalWorldDeviceObservationProgram deviceObservationProgram{};

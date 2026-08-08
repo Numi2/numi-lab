@@ -36,6 +36,13 @@ struct MulticopterActuatorPack {
     mr_float4 windVelocity{};
 };
 
+struct FlappingWingActuatorPack {
+    std::array<MRFlappingWingGPU, 2u> wings{};
+    std::string bodyRole;
+    std::array<std::string, 2u> wingRoles;
+    mr_float4 windVelocityAndDensity{};
+};
+
 // A robot is mechanics plus stable semantic roles and default sensor mounts.
 // Tasks and policies never own the mechanics. A pack may be copied and
 // configured without changing the bundled default.
@@ -52,6 +59,7 @@ struct RobotPack {
     std::vector<RobotSemanticRole> roles;
     std::vector<RobotActuatorSpec> actuators;
     std::optional<MulticopterActuatorPack> multicopter;
+    std::optional<FlappingWingActuatorPack> flappingWings;
 };
 
 struct SceneObject {
@@ -249,6 +257,8 @@ public:
     visualSensorProgram() const noexcept;
     [[nodiscard]] const MetalWorldMulticopterProgram*
     multicopterProgram() const noexcept;
+    [[nodiscard]] const MetalWorldFlappingWingProgram*
+    flappingWingProgram() const noexcept;
 
 private:
     std::uint64_t fingerprint_ = 0u;
@@ -267,6 +277,7 @@ private:
     TeacherPack teacher_;
     std::optional<VisualSensorProgram> visualSensorProgram_;
     std::optional<MetalWorldMulticopterProgram> multicopterProgram_;
+    std::optional<MetalWorldFlappingWingProgram> flappingWingProgram_;
 
     friend RunCompileDiagnostics compileRun(
         const RunManifest&,

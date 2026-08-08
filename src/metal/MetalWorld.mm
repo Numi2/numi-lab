@@ -35,7 +35,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 239u;
+constexpr std::size_t kRawBufferCount = 241u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -296,6 +296,8 @@ enum BufferIndex : std::size_t {
     kMulticopterStateB = 236u,
     kMulticopterCandidateState = 237u,
     kMulticopterDispatch = 238u,
+    kFlappingWingSpecs = 239u,
+    kFlappingWingDispatch = 240u,
 };
 
 struct BufferRequirement {
@@ -311,6 +313,24 @@ struct RequiredBuffers {
 
 std::uint64_t multicopterFingerprint(
     const MetalWorldMulticopterProgram& program
+) {
+    if (!program.valid()) {
+        return 0u;
+    }
+    std::uint64_t hash = kFNVOffset;
+    const auto append = [&](const void* bytes, const std::size_t count) {
+        const auto* values = static_cast<const std::byte*>(bytes);
+        for (std::size_t index = 0u; index < count; ++index) {
+            hash ^= std::to_integer<std::uint8_t>(values[index]);
+            hash *= kFNVPrime;
+        }
+    };
+    append(&program, sizeof(program));
+    return hash == 0u ? 1u : hash;
+}
+
+std::uint64_t flappingWingFingerprint(
+    const MetalWorldFlappingWingProgram& program
 ) {
     if (!program.valid()) {
         return 0u;
@@ -370,6 +390,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> taskEvidencePipeline = nil;
     __strong id<MTLComputePipelineState> multicopterPipeline = nil;
     __strong id<MTLComputePipelineState> multicopterCommitPipeline = nil;
+    __strong id<MTLComputePipelineState> flappingWingPipeline = nil;
     __strong id<MTLComputePipelineState> policyDensePipeline = nil;
     __strong id<MTLComputePipelineState> policySamplePipeline = nil;
     __strong id<MTLComputePipelineState> contactPreparePipeline = nil;
@@ -487,6 +508,7 @@ struct MetalWorldContextState {
     std::uint64_t boundTaskFingerprint = 0u;
     std::uint64_t boundPolicyFingerprint = 0u;
     std::uint64_t boundMulticopterFingerprint = 0u;
+    std::uint64_t boundFlappingWingFingerprint = 0u;
     std::uint64_t stateArenaGeneration = 0u;
     std::weak_ptr<MetalWorldResidentStateData> residentOwner;
     MetalWorldContextStats stats{};
@@ -1523,6 +1545,7 @@ bool buildRequirements(
     const CompiledTaskProgram& taskProgram,
     const CompiledPolicyProgram& policyProgram,
     const MetalWorldMulticopterProgram& multicopterProgram,
+    const MetalWorldFlappingWingProgram& flappingWingProgram,
     RequiredBuffers& requirements,
     std::size_t& totalRequiredBytes
 ) {
@@ -1708,6 +1731,16 @@ bool buildRequirements(
             "compiled multicopter dispatch",
             multicopterProgram.valid() ? 1u : 0u,
             requirements.entries[kMulticopterDispatch]
+        ) ||
+        !makeRequirement<MRFlappingWingGPU>(
+            "compiled flapping-wing geometry",
+            flappingWingProgram.valid() ? flappingWingProgram.wings.size() : 0u,
+            requirements.entries[kFlappingWingSpecs]
+        ) ||
+        !makeRequirement<MRCompiledFlappingWingDispatchGPU>(
+            "compiled flapping-wing dispatch",
+            flappingWingProgram.valid() ? 1u : 0u,
+            requirements.entries[kFlappingWingDispatch]
         ) ||
         !makeRequirement<float>(
             "candidate acceleration",
@@ -3094,6 +3127,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
     const bool hasBodyWrenches = config.multicopterProgram.valid() ||
+        config.flappingWingProgram.valid() ||
         (nativeTask && taskHasActuatorKind(
             config.taskProgram,
             MR_TASK_ACTUATOR_BODY_WRENCH));
@@ -3117,6 +3151,42 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 MetalWorldHostStatus::invalidDimensions,
                 "compiled multicopter program does not match the task, body, articulation, or physics cadence"
             );
+        }
+    }
+    if (config.flappingWingProgram.valid()) {
+        const auto& wings = config.flappingWingProgram;
+        const EngineModel& model = world.model();
+        if (wings.articulationIndex >= world.articulationCount() ||
+            wings.rootBodyIndex >= model.bodies.size() ||
+            model.bodies[wings.rootBodyIndex].articulationIndex !=
+                wings.articulationIndex ||
+            !std::isfinite(wings.windVelocityAndDensity.x) ||
+            !std::isfinite(wings.windVelocityAndDensity.y) ||
+            !std::isfinite(wings.windVelocityAndDensity.z) ||
+            !std::isfinite(wings.windVelocityAndDensity.w) ||
+            !(wings.windVelocityAndDensity.w > 0.0f)) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::invalidDimensions,
+                "compiled flapping-wing program does not match the selected articulation or atmosphere"
+            );
+        }
+        for (const MRFlappingWingGPU& wing : wings.wings) {
+            if (wing.bodyIndex >= model.bodies.size() ||
+                model.bodies[wing.bodyIndex].articulationIndex !=
+                    wings.articulationIndex ||
+                wing.qIndex >= model.world.nq || wing.vIndex >= model.world.nv ||
+                !(wing.rootToCenterAndArea.w > 0.0f) ||
+                !(wing.hingeAxisAndChord.w > 0.0f) ||
+                !(wing.coefficients.x > 0.0f) ||
+                wing.coefficients.y < 0.0f || wing.coefficients.z < 0.0f ||
+                !(wing.coefficients.w > 0.0f)) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::invalidDimensions,
+                    "compiled flapping-wing geometry is invalid"
+                );
+            }
         }
     }
     const bool contactMode =
@@ -4210,6 +4280,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             config.taskProgram,
             config.policyProgram,
             config.multicopterProgram,
+            config.flappingWingProgram,
             requirements,
             totalRequiredBytes
         )) {
@@ -4508,6 +4579,10 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld candidate multicopter motor state";
     case kMulticopterDispatch:
         return @"MetalWorld compiled multicopter dispatch";
+    case kFlappingWingSpecs:
+        return @"MetalWorld compiled flapping-wing geometry";
+    case kFlappingWingDispatch:
+        return @"MetalWorld compiled flapping-wing dispatch";
     case kCandidateAcceleration:
         return @"MetalWorld candidate acceleration";
     case kCandidateV:
@@ -4845,6 +4920,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> taskEvidence = nil;
     __strong id<MTLComputePipelineState> multicopter = nil;
     __strong id<MTLComputePipelineState> multicopterCommit = nil;
+    __strong id<MTLComputePipelineState> flappingWing = nil;
     __strong id<MTLComputePipelineState> policyDense = nil;
     __strong id<MTLComputePipelineState> policySample = nil;
     __strong id<MTLComputePipelineState> contactPrepare = nil;
@@ -4972,6 +5048,9 @@ MetalWorldDiagnostics initializeContext(
     );
     multicopterCommit = createContactPipeline(
         @"mr_commit_compiled_multicopters"
+    );
+    flappingWing = createContactPipeline(
+        @"mr_step_compiled_flapping_wings"
     );
     taskImpactContact = createContactPipeline(
         @"mr_locomotion_task_latch_impact_contact"
@@ -5224,6 +5303,7 @@ MetalWorldDiagnostics initializeContext(
         taskEvidence == nil ||
         multicopter == nil ||
         multicopterCommit == nil ||
+        flappingWing == nil ||
         policyDense == nil ||
         policySample == nil ||
         contactPrepare == nil ||
@@ -5538,6 +5618,7 @@ MetalWorldDiagnostics initializeContext(
     context.taskEvidencePipeline = taskEvidence;
     context.multicopterPipeline = multicopter;
     context.multicopterCommitPipeline = multicopterCommit;
+    context.flappingWingPipeline = flappingWing;
     context.policyDensePipeline = policyDense;
     context.policySamplePipeline = policySample;
     context.contactPreparePipeline = contactPrepare;
@@ -5873,6 +5954,8 @@ bool privateImmutableBuffer(const std::size_t index) {
         index == kMulticopterModel ||
         index == kMulticopterMixer ||
         index == kMulticopterDispatch ||
+        index == kFlappingWingSpecs ||
+        index == kFlappingWingDispatch ||
         index == kRodColliders ||
         index == kRodShapeSources ||
         index == kRodToolPairs ||
@@ -6311,6 +6394,7 @@ MetalWorldDiagnostics ensureBufferArena(
         context.boundTaskFingerprint = 0u;
         context.boundPolicyFingerprint = 0u;
         context.boundMulticopterFingerprint = 0u;
+        context.boundFlappingWingFingerprint = 0u;
     }
     if (persistentStateBufferReplaced) {
         ++context.stateArenaGeneration;
@@ -7185,6 +7269,46 @@ void uploadBatch(
             [actuatorUpload endEncoding];
         }
         context.boundMulticopterFingerprint = multicopterHash;
+    }
+    const std::uint64_t flappingWingHash =
+        flappingWingFingerprint(config.flappingWingProgram);
+    if (config.flappingWingProgram.valid() &&
+        context.boundFlappingWingFingerprint != flappingWingHash) {
+        id<MTLBlitCommandEncoder> actuatorUpload = nil;
+        if (context.config.preferPrivateHeaps) {
+            actuatorUpload = [commandBuffer blitCommandEncoder];
+            if (actuatorUpload == nil) {
+                throw std::runtime_error(
+                    "failed to create flapping-wing program upload encoder"
+                );
+            }
+            actuatorUpload.label =
+                @"MetalWorld immutable flapping-wing program upload";
+        }
+        const auto& wings = config.flappingWingProgram;
+        const MRArticulationGPU& articulation =
+            model.articulations[wings.articulationIndex];
+        MRCompiledFlappingWingDispatchGPU dispatch{};
+        dispatch.environmentCount = layout.dispatch.environmentCount;
+        dispatch.qStride = layout.dispatch.qStride;
+        dispatch.vStride = layout.dispatch.vStride;
+        dispatch.bodyStride = static_cast<mr_u32>(model.bodies.size());
+        dispatch.qOffset = articulation.qOffset;
+        dispatch.vOffset = articulation.vOffset;
+        dispatch.rootBodyIndex = wings.rootBodyIndex;
+        dispatch.windVelocityAndDensity = wings.windVelocityAndDensity;
+        stagePrivateBuffer(
+            context, kFlappingWingSpecs, wings.wings.data(),
+            requirements.entries[kFlappingWingSpecs], actuatorUpload
+        );
+        stagePrivateBuffer(
+            context, kFlappingWingDispatch, &dispatch,
+            requirements.entries[kFlappingWingDispatch], actuatorUpload
+        );
+        if (actuatorUpload != nil) {
+            [actuatorUpload endEncoding];
+        }
+        context.boundFlappingWingFingerprint = flappingWingHash;
     }
     if (nativePolicy &&
         context.boundPolicyFingerprint !=
@@ -9687,6 +9811,31 @@ bool encodeMulticopterActuation(
         },
         &pass,
         11u,
+        environmentCount
+    );
+}
+
+bool encodeFlappingWingActuation(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const std::size_t qState,
+    const std::size_t vState,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.flappingWingPipeline,
+        @"compiled articulated flapping-wing load program",
+        {
+            {0u, kFlappingWingSpecs},
+            {1u, kFlappingWingDispatch},
+            {2u, qState},
+            {3u, vState},
+            {4u, kBodyWrenchPlaceholder},
+        },
+        nullptr,
+        0u,
         environmentCount
     );
 }
@@ -17104,6 +17253,16 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 sourceQ,
                                 sourceV,
                                 sourceMotorState,
+                                batch.environmentCount
+                            )
+                        ) &&
+                        (
+                            !config.flappingWingProgram.valid() ||
+                            encodeFlappingWingActuation(
+                                *selectedState,
+                                commandBuffer,
+                                sourceQ,
+                                sourceV,
                                 batch.environmentCount
                             )
                         ) &&

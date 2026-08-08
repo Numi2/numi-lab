@@ -162,6 +162,7 @@ private struct Options {
     var nativePolicy = false
     var zeroActions = false
     var actionStream: String?
+    var birdFlowFlapScript = false
     var scheduledResets = true
     var policyPack: String?
     var rolloutPack: String?
@@ -451,6 +452,8 @@ private struct Options {
                 capturePolicyCamera = true
             case "--birdflow-dove":
                 birdFlowDove = true
+            case "--birdflow-flap-script":
+                birdFlowFlapScript = true
             default:
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "Unknown option \(option)."
@@ -495,6 +498,14 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--action-stream cannot be combined with another action source."
+            )
+        }
+        if birdFlowFlapScript &&
+            (!birdFlowDove || zeroActions || actionStream != nil ||
+                nativePolicy || policyPack != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-flap-script requires --birdflow-dove and cannot be combined with another action source."
             )
         }
         if rolloutPack != nil &&
@@ -925,6 +936,33 @@ private func actions(
                     actionCount + joint
                 result[index] = min(max(value, -1), 1)
             }
+        }
+    }
+    return result
+}
+
+// A deterministic open-loop qualification input, not a policy or a flight
+// result.  It demonstrates that the articulated hinge targets reach the
+// device-side aerodynamic coupling under the exact normal action contract.
+private func birdFlowFlapActions(
+    startStep: Int,
+    stepCount: Int,
+    environmentCount: Int,
+    actionCount: Int
+) -> [Float] {
+    precondition(actionCount == 2)
+    var result = [Float](
+        repeating: 0,
+        count: stepCount * environmentCount * actionCount
+    )
+    for step in 0..<stepCount {
+        let globalStep = startStep + step
+        let phase = 2.0 * Double.pi * 4.0 * Double(globalStep) / 60.0
+        let flap = 0.9 * Float(sin(phase))
+        for environment in 0..<environmentCount {
+            let base = (step * environmentCount + environment) * actionCount
+            result[base] = flap
+            result[base + 1] = flap
         }
     }
     return result
@@ -1436,6 +1474,13 @@ private enum TaskRolloutMain {
                                     stepCount *
                                     options.environments *
                                     context.layout.actionCount
+                            )
+                        } else if options.birdFlowFlapScript {
+                            actionBatch = birdFlowFlapActions(
+                                startStep: globalStep,
+                                stepCount: stepCount,
+                                environmentCount: options.environments,
+                                actionCount: context.layout.actionCount
                             )
                         } else {
                             actionBatch = actions(
@@ -2264,6 +2309,8 @@ private enum TaskRolloutMain {
                     ? "zero"
                     : options.actionStream != nil
                     ? "foundation_action_stream"
+                    : options.birdFlowFlapScript
+                    ? "birdflow_4hz_flap_qualification"
                     : "host_stream",
                 "action_stream": options.actionStream ?? "",
                 "device": context.deviceName,

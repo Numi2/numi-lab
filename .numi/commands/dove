@@ -20,18 +20,20 @@ usage: numi dove [replay] [--archive FILE] [--json]
 through-flight replay. With no --archive, it writes a timestamped report below
 .numi/runs/birdflow-deetjen-dove/ in this workspace.
 
-`train` and `evaluate` run Numi's state-responsive hybrid dove. Its four
-wing-load actions are applied through the device-resident aerial wrench path,
-so body velocity, attitude, and the action history alter the next physical
-state inside the regular rollback transaction.
+`train` and `evaluate` run Numi's state-responsive articulated-wing dove. Two
+policy actions target bilateral wing hinges; a device-resident blade-element
+load pass reads their resolved motion together with body state and wind before
+the articulated ABA solve. The next physical state therefore depends on wing
+load inside the regular rollback transaction.
 
 Environment:
   NUMI_BIRDFLOW_ROOT  BirdFlowMetal checkout (default: /Users/home/BirdFlowMetal)
 
 `replay` is prescribed-motion CFD: its aerodynamic load does not control the
 dove. The trainable robot is separately labelled hybrid because public Deetjen
-inputs lack complete same-specimen mass and bilateral wing inertia. Neither
-path is a quantitative free-flight or hardware claim.
+inputs lack complete same-specimen mass and bilateral wing inertia, and it
+uses authored aerodynamic closure coefficients. Neither path is a quantitative
+free-flight or hardware claim.
 EOF
     exit 0
 fi

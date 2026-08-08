@@ -81,6 +81,9 @@ set(METALROBO_FREE_BODY_SOURCE
 set(METALROBO_MULTICOPTER_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MulticopterDynamics.metal"
 )
+set(METALROBO_FLAPPING_WING_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/FlappingWingDynamics.metal"
+)
 set(METALROBO_COLLISION_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/Collision.metal"
 )
@@ -140,6 +143,9 @@ set(METALROBO_FREE_BODY_AIR
 )
 set(METALROBO_MULTICOPTER_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboMulticopterDynamics.air"
+)
+set(METALROBO_FLAPPING_WING_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboFlappingWingDynamics.air"
 )
 set(METALROBO_COLLISION_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboCollision.air"
@@ -262,6 +268,12 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_MULTICOPTER_SOURCE}"
             -o "${METALROBO_MULTICOPTER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_FLAPPING_WING_SOURCE}"
+            -o "${METALROBO_FLAPPING_WING_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -448,6 +460,7 @@ add_custom_command(
             "${METALROBO_UNIFIED_QUALITY_AIR}"
             "${METALROBO_FREE_BODY_AIR}"
             "${METALROBO_MULTICOPTER_AIR}"
+            "${METALROBO_FLAPPING_WING_AIR}"
             "${METALROBO_COLLISION_AIR}"
             "${METALROBO_BROADPHASE_AIR}"
             "${METALROBO_ARTICULATED_OPERATOR_AIR}"
@@ -480,6 +493,7 @@ add_custom_command(
         "${METALROBO_UNIFIED_QUALITY_SOURCE}"
         "${METALROBO_FREE_BODY_SOURCE}"
         "${METALROBO_MULTICOPTER_SOURCE}"
+        "${METALROBO_FLAPPING_WING_SOURCE}"
         "${METALROBO_COLLISION_SOURCE}"
         "${METALROBO_BROADPHASE_SOURCE}"
         "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
@@ -502,6 +516,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/multicopter_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/flapping_wing_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/task_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/policy_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"

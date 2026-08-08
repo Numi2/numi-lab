@@ -214,11 +214,17 @@ int main() {
 
         const auto ids = metalrobo::builtinRobotIds();
         const auto px4Robot = metalrobo::builtinRobotPack("px4_x500");
+        const auto doveRobot = metalrobo::builtinRobotPack(
+            "birdflow_deetjen_dove_hybrid"
+        );
         require(
-            ids.size() == 4u &&
+            ids.size() == 5u &&
                 metalrobo::builtinRobotPack("franka_panda").has_value() &&
                 metalrobo::builtinRobotPack("dvrk_psm").has_value() &&
                 px4Robot.has_value() &&
+                doveRobot.has_value() &&
+                contains(doveRobot->capabilities, "articulated_flight") &&
+                contains(doveRobot->capabilities, "load_responsive_aero") &&
                 !contains(px4Robot->capabilities, "aerial_manipulation"),
             "robot catalog is incomplete"
         );
@@ -296,6 +302,39 @@ int main() {
                             MR_TASK_ACTUATOR_ROTOR_MIXER;
                     }),
             "PX4 CompiledRun lost its rotor, scene, or action program"
+        );
+
+        metalrobo::RunManifest dove;
+        dove.id = "birdflow_deetjen_dove_compiled_run_check";
+        dove.robot = *doveRobot;
+        dove.scene = metalrobo::makeBirdFlowDoveFlightScenePack();
+        dove.sensors.id = "birdflow_deetjen_dove_state_sensors";
+        dove.task = metalrobo::makeBirdFlowDoveFlightTaskPack(
+            dove.sensors.observation, dove.reality.reset);
+        dove.reality.id = "birdflow_deetjen_dove_nominal_reality";
+        dove.teacher.id = "no_teacher";
+        dove.profile.id = "birdflow_deetjen_dove_check_profile";
+        dove.profile.environmentCount = 8u;
+        dove.profile.controlSteps = 64u;
+        dove.profile.physicsSubsteps = 4u;
+        dove.profile.controlTimestepSeconds = 1.0f / 60.0f;
+        metalrobo::CompiledRun compiledDove;
+        const auto doveStatus = metalrobo::compileRun(dove, compiledDove);
+        require(
+            doveStatus.succeeded(),
+            "BirdFlow dove CompiledRun failed [" +
+                std::string(metalrobo::runCompileStatusName(
+                    doveStatus.status)) + "] " + doveStatus.element + ": " +
+                doveStatus.message
+        );
+        require(
+            compiledDove.valid() &&
+                compiledDove.flappingWingProgram() != nullptr &&
+                compiledDove.multicopterProgram() == nullptr &&
+                compiledDove.model().bodies.size() == 4u &&
+                compiledDove.model().joints.size() == 2u &&
+                compiledDove.task().actionBindings().size() == 2u,
+            "BirdFlow dove CompiledRun lost its articulated wing or aerodynamic program"
         );
         std::cout
             << "run_program_check=ok"

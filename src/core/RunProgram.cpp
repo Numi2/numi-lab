@@ -282,6 +282,15 @@ std::uint64_t robotPackFingerprint(const RobotPack& robot) {
         hash.string(robot.multicopter->bodyRole);
         hash.scalar(robot.multicopter->windVelocity);
     }
+    if (robot.flappingWings) {
+        hash.bytes(robot.flappingWings->wings.data(),
+            sizeof(robot.flappingWings->wings));
+        hash.string(robot.flappingWings->bodyRole);
+        for (const std::string& wingRole : robot.flappingWings->wingRoles) {
+            hash.string(wingRole);
+        }
+        hash.scalar(robot.flappingWings->windVelocityAndDensity);
+    }
     return hash.finish();
 }
 
@@ -647,6 +656,10 @@ CompiledRun::visualSensorProgram() const noexcept {
 const MetalWorldMulticopterProgram*
 CompiledRun::multicopterProgram() const noexcept {
     return multicopterProgram_ ? &*multicopterProgram_ : nullptr;
+}
+const MetalWorldFlappingWingProgram*
+CompiledRun::flappingWingProgram() const noexcept {
+    return flappingWingProgram_ ? &*flappingWingProgram_ : nullptr;
 }
 
 RunCompileDiagnostics compileRun(
@@ -1167,6 +1180,106 @@ RunCompileDiagnostics compileRun(
                 manifest.profile.controlTimestepSeconds /
                 static_cast<float>(manifest.profile.physicsSubsteps);
         }
+        if (manifest.robot.flappingWings) {
+            if (manifest.robot.multicopter) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    manifest.robot.id + ".aerodynamics",
+                    "one robot cannot bind both multicopter and flapping-wing programs"
+                );
+            }
+            const FlappingWingActuatorPack& authored =
+                *manifest.robot.flappingWings;
+            const RobotSemanticRole* bodyRole = role(
+                manifest.robot, authored.bodyRole, RobotSemanticKind::body
+            );
+            if (bodyRole == nullptr || bodyRole->members.size() != 1u ||
+                !(authored.windVelocityAndDensity.w > 0.0f) ||
+                !std::isfinite(authored.windVelocityAndDensity.x) ||
+                !std::isfinite(authored.windVelocityAndDensity.y) ||
+                !std::isfinite(authored.windVelocityAndDensity.z) ||
+                !std::isfinite(authored.windVelocityAndDensity.w)) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    manifest.robot.id + ".flapping_wings",
+                    "flapping-wing program requires one airframe body and finite positive air density"
+                );
+            }
+            const auto root = std::ranges::find(
+                model.bodyNames, bodyRole->members.front()
+            );
+            if (root == model.bodyNames.end()) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    manifest.robot.id + ".flapping_wings",
+                    "flapping-wing airframe body is unresolved after composition"
+                );
+            }
+            MetalWorldFlappingWingProgram program{};
+            program.articulationIndex = manifest.robot.primaryArticulationIndex;
+            program.rootBodyIndex = static_cast<std::uint32_t>(
+                root - model.bodyNames.begin()
+            );
+            program.windVelocityAndDensity = authored.windVelocityAndDensity;
+            for (std::size_t side = 0u; side < program.wings.size(); ++side) {
+                const RobotSemanticRole* wingRole = role(
+                    manifest.robot, authored.wingRoles[side],
+                    RobotSemanticKind::body
+                );
+                if (wingRole == nullptr || wingRole->members.size() != 1u) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        manifest.robot.id + ".flapping_wings",
+                        "each flapping-wing side requires one resolved body role"
+                    );
+                }
+                const auto wing = std::ranges::find(
+                    model.bodyNames, wingRole->members.front()
+                );
+                if (wing == model.bodyNames.end()) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        manifest.robot.id + ".flapping_wings",
+                        "flapping-wing body is unresolved after composition"
+                    );
+                }
+                const std::uint32_t bodyIndex = static_cast<std::uint32_t>(
+                    wing - model.bodyNames.begin()
+                );
+                if (bodyIndex >= model.bodies.size() ||
+                    model.bodies[bodyIndex].parentBody !=
+                        program.rootBodyIndex ||
+                    model.bodies[bodyIndex].inboundJoint >=
+                        model.joints.size()) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        manifest.robot.id + ".flapping_wings",
+                        "each wing must be a direct articulated child of the airframe"
+                    );
+                }
+                const MRJointDescriptorGPU& joint = model.joints[
+                    model.bodies[bodyIndex].inboundJoint
+                ];
+                MRFlappingWingGPU resolved = authored.wings[side];
+                if (!(resolved.rootToCenterAndArea.w > 0.0f) ||
+                    !(resolved.hingeAxisAndChord.w > 0.0f) ||
+                    !(resolved.coefficients.x > 0.0f) ||
+                    resolved.coefficients.y < 0.0f ||
+                    resolved.coefficients.z < 0.0f ||
+                    !(resolved.coefficients.w > 0.0f)) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        manifest.robot.id + ".flapping_wings",
+                        "wing geometry and aerodynamic coefficients must be positive"
+                    );
+                }
+                resolved.bodyIndex = bodyIndex;
+                resolved.qIndex = joint.qOffset;
+                resolved.vIndex = joint.vOffset;
+                program.wings[side] = resolved;
+            }
+            staged.flappingWingProgram_ = program;
+        }
         if (manifest.policy) {
             const PolicyCompileDiagnostics policyStatus =
                 compilePolicyProgram(
@@ -1262,6 +1375,14 @@ RunCompileDiagnostics compileRun(
             runHash.scalar(multicopter.bodyIndex);
             runHash.scalar(multicopter.firstAction);
             runHash.scalar(multicopter.windVelocity);
+        }
+        if (staged.flappingWingProgram_) {
+            const MetalWorldFlappingWingProgram& wings =
+                *staged.flappingWingProgram_;
+            runHash.bytes(wings.wings.data(), sizeof(wings.wings));
+            runHash.scalar(wings.articulationIndex);
+            runHash.scalar(wings.rootBodyIndex);
+            runHash.scalar(wings.windVelocityAndDensity);
         }
         runHash.string(staged.profile_.id);
         runHash.scalar(staged.profile_.environmentCount);
@@ -1457,7 +1578,22 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
     TaskResetProgram& reset
 ) {
     TaskPack task = makePX4X500HoverTaskPack(observations, reset);
-    task.id = "birdflow_deetjen_dove_hybrid_station_keep";
+    task.id = "birdflow_deetjen_dove_flapping_station_keep";
+    task.actions = {
+        {"wing.left_flap"},
+        {"wing.right_flap"},
+    };
+    // PX4's reusable root-state prefix is meaningful here, but its action
+    // suffix names rotor controls. Rebuild the suffix against the compiled
+    // articulated-wing action contract.
+    observations.actorFrame.resize(10u);
+    for (const TaskActionBinding& action : task.actions) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::previousAction,
+            .target = action.actuator,
+        });
+    }
+    observations.critic = observations.actorFrame;
     task.baseHeightTarget = 1.5f;
     task.maximumEpisodeSteps = 750u;
     task.successTrackingThreshold = 0.80f;
@@ -1483,13 +1619,21 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         };
         mechanics.articulations[0u].rootBody = 0u;
         mechanics.articulations[0u].firstBody = 0u;
-        mechanics.bodies.resize(1u);
+        mechanics.articulations[0u].bodyCount = 3u;
+        mechanics.articulations[0u].jointCount = 2u;
+        mechanics.articulations[0u].nq = 9u;
+        mechanics.articulations[0u].nv = 8u;
+        mechanics.world.bodyCount = 3u;
+        mechanics.world.jointCount = 2u;
+        mechanics.world.nq = 9u;
+        mechanics.world.nv = 8u;
+        mechanics.bodies.resize(3u);
         MRBodyPropertiesGPU& body = mechanics.bodies[0u];
         body.articulationIndex = 0u;
         body.parentBody = MR_INVALID_INDEX;
         body.inboundJoint = MR_INVALID_INDEX;
         body.motionType = MR_MOTION_DYNAMIC;
-        body.massAndInverseMass = {0.32f, 3.125f, 0.0f, 0.0f};
+        body.massAndInverseMass = {0.28f, 1.0f / 0.28f, 0.0f, 0.0f};
         body.inertiaRow0 = {0.0021f, 0.0f, 0.0f, 0.0f};
         body.inertiaRow1 = {0.0f, 0.0054f, 0.0f, 0.0f};
         body.inertiaRow2 = {0.0f, 0.0f, 0.0061f, 0.0f};
@@ -1497,18 +1641,73 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         body.inverseInertiaRow1 = {0.0f, 1.0f / 0.0054f, 0.0f, 0.0f};
         body.inverseInertiaRow2 = {0.0f, 0.0f, 1.0f / 0.0061f, 0.0f};
         body.dampingAndSpeedLimits = {0.02f, 0.02f, 30.0f, 30.0f};
-        mechanics.bodyNames = {"dove_body"};
-        mechanics.world.bodyCount = 1u;
+        const auto configureWing = [&](const std::uint32_t bodyIndex,
+                                       const std::uint32_t jointIndex) {
+            MRBodyPropertiesGPU& wing = mechanics.bodies[bodyIndex];
+            wing.articulationIndex = 0u;
+            wing.parentBody = 0u;
+            wing.inboundJoint = jointIndex;
+            wing.motionType = MR_MOTION_DYNAMIC;
+            wing.massAndInverseMass = {0.02f, 50.0f, 0.0f, 0.0f};
+            wing.inertiaRow0 = {0.00006f, 0.0f, 0.0f, 0.0f};
+            wing.inertiaRow1 = {0.0f, 0.00020f, 0.0f, 0.0f};
+            wing.inertiaRow2 = {0.0f, 0.0f, 0.00022f, 0.0f};
+            wing.inverseInertiaRow0 = {1.0f / 0.00006f, 0.0f, 0.0f, 0.0f};
+            wing.inverseInertiaRow1 = {0.0f, 1.0f / 0.00020f, 0.0f, 0.0f};
+            wing.inverseInertiaRow2 = {0.0f, 0.0f, 1.0f / 0.00022f, 0.0f};
+            wing.dampingAndSpeedLimits = {0.02f, 0.02f, 30.0f, 45.0f};
+        };
+        configureWing(1u, 0u);
+        configureWing(2u, 1u);
+        mechanics.joints.resize(2u);
+        const auto configureJoint = [&](const std::uint32_t index,
+                                        const float side) {
+            MRJointDescriptorGPU& joint = mechanics.joints[index];
+            joint.parentBody = 0u;
+            joint.childBody = index + 1u;
+            joint.jointType = MR_JOINT_REVOLUTE;
+            joint.qOffset = 7u + index;
+            joint.nq = 1u;
+            joint.vOffset = 6u + index;
+            joint.nv = 1u;
+            joint.axis0 = {1.0f, 0.0f, 0.0f, 0.0f};
+            joint.parentAnchor = {0.02f, side * 0.06f, 0.0f, 0.0f};
+            joint.childAnchor = {0.0f, -side * 0.18f, 0.0f, 0.0f};
+            joint.parentRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+            joint.childRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+        };
+        configureJoint(0u, 1.0f);
+        configureJoint(1u, -1.0f);
+        mechanics.dofs.resize(8u);
+        const auto configureDof = [&](const std::uint32_t index) {
+            MRDofPropertiesGPU& dof = mechanics.dofs[6u + index];
+            dof.articulationIndex = 0u;
+            dof.jointIndex = index;
+            dof.qIndex = 7u + index;
+            dof.vIndex = 6u + index;
+            dof.localDof = 0u;
+            dof.flags = MR_DOF_FLAG_ACTUATED | MR_DOF_FLAG_POSITION_LIMIT |
+                MR_DOF_FLAG_VELOCITY_LIMIT | MR_DOF_FLAG_EFFORT_LIMIT |
+                MR_DOF_FLAG_DRIVE;
+            dof.limits = {-1.35f, 1.35f, 25.0f, 2.0f};
+            dof.drive = {18.0f, 0.28f, 0.00003f, 0.0f};
+        };
+        configureDof(0u);
+        configureDof(1u);
+        mechanics.bodyNames = {"dove_body", "dove_left_wing", "dove_right_wing"};
+        mechanics.jointNames = {"dove_left_wing_flap", "dove_right_wing_flap"};
         mechanics.dofNames = {
             "root_x", "root_y", "root_z", "root_rx", "root_ry", "root_rz",
+            "dove_left_wing_flap", "dove_right_wing_flap",
         };
-        mechanics.defaultQ = {0.0f, 0.0f, 1.5f, 0.0f, 0.0f, 0.0f, 1.0f};
-        mechanics.defaultV.assign(6u, 0.0f);
+        mechanics.defaultQ = {0.0f, 0.0f, 1.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f};
+        mechanics.defaultV.assign(8u, 0.0f);
         mechanics.shapes.clear();
-        const auto appendBox = [&](const mr_float4 position,
+        const auto appendBox = [&](const std::uint32_t bodyIndex,
+                                   const mr_float4 position,
                                    const mr_float4 halfExtents) {
             MRShapeGPU shape{};
-            shape.bodyIndex = 0u;
+            shape.bodyIndex = bodyIndex;
             shape.shapeType = MR_SHAPE_BOX;
             shape.materialIndex = 0u;
             shape.collisionGroup = 1u;
@@ -1529,58 +1728,48 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             };
             mechanics.shapes.push_back(shape);
         };
-        appendBox({0.0f, 0.0f, 0.0f, 1.0f}, {0.16f, 0.05f, 0.055f, 0.0f});
-        appendBox({0.01f, -0.22f, 0.0f, 1.0f}, {0.10f, 0.18f, 0.012f, 0.0f});
-        appendBox({0.01f, 0.22f, 0.0f, 1.0f}, {0.10f, 0.18f, 0.012f, 0.0f});
+        appendBox(0u, {0.0f, 0.0f, 0.0f, 1.0f}, {0.16f, 0.05f, 0.055f, 0.0f});
+        appendBox(1u, {0.0f, 0.0f, 0.0f, 1.0f}, {0.10f, 0.18f, 0.012f, 0.0f});
+        appendBox(2u, {0.0f, 0.0f, 0.0f, 1.0f}, {0.10f, 0.18f, 0.012f, 0.0f});
         mechanics.world.shapeCount = static_cast<std::uint32_t>(
             mechanics.shapes.size()
         );
         mechanics.shapeNames = {
-            "dove_body/collision_body", "dove_body/collision_left_wing",
-            "dove_body/collision_right_wing",
+            "dove_body/collision_body", "dove_left_wing/collision",
+            "dove_right_wing/collision",
         };
         RobotPack pack = genericRobot(
             "birdflow_deetjen_dove_hybrid", std::move(mechanics),
-            {"flight", "load_responsive_aero", "trainable_policy"}
+            {"articulated_flight", "load_responsive_aero", "trainable_policy"}
         );
         pack.sourceRepository = "BirdFlowMetal Deetjen surface benchmark";
         pack.sourceRevision = "deetjen-ob-2018-12-11-f03-complete-surface-v1";
         pack.license = "hybrid-modelled-properties";
         addBodyRole(pack, "airframe", {"dove_body"});
-        MRMulticopterModelGPU model{};
-        // Four wing load stations. The generic aerial-wrench primitive
-        // includes attitude and air-relative-velocity response in the same
-        // native transaction; these are not physical rotor declarations.
-        model.rotorCount = 4u;
-        model.coefficients = {8.5e-7f, 0.018f, 1.2e-4f, 2.0e-6f};
-        model.motorAndTimestep = {0.018f, 0.030f, 1500.0f, 1.0f / 240.0f};
-        std::array<MRMulticopterRotorGPU, MR_MULTICOPTER_MAX_ROTORS> stations{};
-        stations[0].positionAndReactionSign = {0.05f, -0.30f, 0.0f, -1.0f};
-        stations[1].positionAndReactionSign = {-0.05f, -0.15f, 0.0f, 1.0f};
-        stations[2].positionAndReactionSign = {0.05f, 0.30f, 0.0f, 1.0f};
-        stations[3].positionAndReactionSign = {-0.05f, 0.15f, 0.0f, -1.0f};
-        const float hover = std::sqrt(0.32f * 9.81f /
-            (4.0f * model.coefficients.x));
-        pack.actuators.clear();
-        constexpr std::array<std::string_view, 4u> lanes{
-            "collective", "roll", "pitch", "yaw",
+        addBodyRole(pack, "left_wing", {"dove_left_wing"});
+        addBodyRole(pack, "right_wing", {"dove_right_wing"});
+        pack.actuators = {
+            {.id = "wing.left_flap", .kind = RobotActuatorKind::jointPosition,
+             .target = "dove_left_wing_flap", .scale = 1.20f,
+             .responseTimeSeconds = 0.012f},
+            {.id = "wing.right_flap", .kind = RobotActuatorKind::jointPosition,
+             .target = "dove_right_wing_flap", .scale = 1.20f,
+             .responseTimeSeconds = 0.012f},
         };
-        for (std::uint32_t component = 0u; component < lanes.size(); ++component) {
-            pack.actuators.push_back({
-                .id = "rotor_mixer." + std::string{lanes[component]},
-                .kind = RobotActuatorKind::rotorMixer,
-                .target = "dove_body",
-                .scale = 1.0f,
-                .component = component,
-            });
+        FlappingWingActuatorPack aerodynamic{};
+        aerodynamic.bodyRole = "airframe";
+        aerodynamic.wingRoles = {"left_wing", "right_wing"};
+        aerodynamic.windVelocityAndDensity = {0.0f, 0.0f, 0.0f, 1.225f};
+        aerodynamic.wings[0].rootToCenterAndArea = {0.02f, 0.24f, 0.0f, 0.072f};
+        aerodynamic.wings[0].hingeAxisAndChord = {1.0f, 0.0f, 0.0f, 0.15f};
+        aerodynamic.wings[1].rootToCenterAndArea = {0.02f, -0.24f, 0.0f, 0.072f};
+        aerodynamic.wings[1].hingeAxisAndChord = {1.0f, 0.0f, 0.0f, 0.15f};
+        for (MRFlappingWingGPU& wing : aerodynamic.wings) {
+            // Explicitly authored hybrid closure: the cap includes the
+            // passive-feathering stroke term used by the device kernel.
+            wing.coefficients = {3.8f, 0.08f, 0.16f, 5.0f};
         }
-        pack.multicopter = MulticopterActuatorPack{
-            .model = model,
-            .rotors = stations,
-            .mixer = {{hover, 105.0f, 38.0f, 15.0f}},
-            .bodyRole = "airframe",
-            .windVelocity = {},
-        };
+        pack.flappingWings = aerodynamic;
         return pack;
     }
     if (id == "px4_x500") {

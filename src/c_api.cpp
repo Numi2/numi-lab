@@ -1118,6 +1118,10 @@ createTaskRolloutHandle(
             handle->run.multicopterProgram()) {
         handle->stepConfig.multicopterProgram = *multicopter;
     }
+    if (const metalrobo::MetalWorldFlappingWingProgram* flappingWings =
+            handle->run.flappingWingProgram()) {
+        handle->stepConfig.flappingWingProgram = *flappingWings;
+    }
     if (const metalrobo::VisualSensorProgram* visual =
             handle->run.visualSensorProgram()) {
         installTaskVisualRuntime(*handle, *visual);
