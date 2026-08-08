@@ -163,6 +163,7 @@ enum MRRunManifestSourceC {
     MR_RUN_SOURCE_IMPORTED_URDF = 2u,
     MR_RUN_SOURCE_WORLD_PACK = 3u,
     MR_RUN_SOURCE_PX4_X500 = 4u,
+    MR_RUN_SOURCE_BIRDFLOW_DOVE = 5u,
 };
 
 // Single native construction boundary for training, evaluation and

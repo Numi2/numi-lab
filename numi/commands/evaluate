@@ -19,6 +19,7 @@ is selected. Common options:
   --interaction-pack PATH --interaction-clip ID
   --world-pack PATH --task-pack PATH
   --urdf PATH [--srdf PATH] --task-pack PATH
+  --birdflow-dove                         Evaluate the load-responsive hybrid dove
   --visual-observation-config PATH
   --native-policy | --zero-actions | --action-stream actions.f32
   --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|adult-locomotion|g1-legs-locomotion|ball-recovery|ball-dodge

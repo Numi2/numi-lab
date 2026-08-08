@@ -41,6 +41,7 @@ _VALUE_OPTIONS = frozenset(
 )
 _FLAG_OPTIONS = frozenset(
     {
+        "--birdflow-dove",
         "--interaction-reset-only",
         "--materialize-articulated-contact-responses",
     }

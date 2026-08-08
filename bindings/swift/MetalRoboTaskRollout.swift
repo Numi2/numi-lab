@@ -1007,6 +1007,7 @@ public enum MetalRoboRunSource: Sendable {
     case unitreeG1
     case frankaPickPlace
     case px4X500
+    case birdFlowDove
     case importedURDF(
         urdf: URL, srdf: URL?, taskPack: URL, actuatorPack: URL,
         sensorPack: URL, realityPack: URL
@@ -1075,6 +1076,8 @@ public final class MetalRoboTaskRolloutContext {
             source = MR_RUN_SOURCE_FRANKA_PICK_PLACE.rawValue
         case .px4X500:
             source = MR_RUN_SOURCE_PX4_X500.rawValue
+        case .birdFlowDove:
+            source = MR_RUN_SOURCE_BIRDFLOW_DOVE.rawValue
         case let .importedURDF(
             urdf, srdf, taskPack, actuatorPack, sensorPack, realityPack
         ):

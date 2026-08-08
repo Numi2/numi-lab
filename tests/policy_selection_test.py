@@ -621,6 +621,17 @@ class PolicySelectionTest(unittest.TestCase):
             index = arguments.index(option)
             self.assertEqual(arguments[index + 1], value)
 
+    def test_birdflow_dove_source_is_preserved_for_evaluation(self) -> None:
+        arguments = evaluation_arguments(
+            ["--birdflow-dove", "--envs", "8", "--steps", "8"],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.state.tsv"),
+            maximum_environments=8,
+            held_out_seed=7,
+        )
+        self.assertIn("--birdflow-dove", arguments)
+
     def test_adult_selection_isolated_to_highest_training_band(self) -> None:
         arguments = evaluation_arguments(
             [

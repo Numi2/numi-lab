@@ -52,6 +52,7 @@ private struct Options {
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
     var visualObservationConfig: String?
+    var birdFlowDove = false
     var updateEpochs = 5
     // Zero derives the batch size from minibatchesPerEpoch so environment
     // scaling increases Apple-GPU matrix width instead of optimizer launches.
@@ -301,6 +302,8 @@ private struct Options {
             case "--visual-observation-config":
                 visualObservationConfig = try value()
                 index += 1
+            case "--birdflow-dove":
+                birdFlowDove = true
             case "--scene":
                 switch try value() {
                 case "ground":
@@ -1180,6 +1183,19 @@ private func makeContext(
             options.interactionResetMaximumPhase,
         unitreeG1Task: options.unitreeG1Task
     )
+    if options.birdFlowDove {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .birdFlowDove,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor
+                ),
+                metallibPath: options.metallib
+            ),
+            "birdflow_deetjen_dove_hybrid"
+        )
+    }
     if let interactionPack = options.interactionPack,
        let interactionClip = options.interactionClip
     {

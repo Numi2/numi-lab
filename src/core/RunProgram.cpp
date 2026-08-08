@@ -1290,7 +1290,8 @@ RunCompileDiagnostics compileRun(
 }
 
 std::vector<std::string> builtinRobotIds() {
-    return {"unitree_g1", "franka_panda", "dvrk_psm", "px4_x500"};
+    return {"unitree_g1", "franka_panda", "dvrk_psm", "px4_x500",
+            "birdflow_deetjen_dove_hybrid"};
 }
 
 ScenePack makePX4X500HoverScenePack() {
@@ -1304,6 +1305,30 @@ ScenePack makePX4X500HoverScenePack() {
     );
     ScenePack scene;
     scene.id = "px4_x500_hover_scene";
+    scene.objects.push_back({
+        .id = "flight_ground",
+        .semanticClass = "ground",
+        .role = MR_WORLD_ASSET_FIXTURE,
+        .render = MR_WORLD_RENDER_PROCEDURAL,
+        .collision = MR_WORLD_COLLISION_PRIMITIVES,
+        .dynamics = MR_WORLD_DYNAMICS_STATIC,
+        .mechanics = std::move(ground.mechanics),
+        .defaultBodyStates = std::move(ground.defaultBodyStates),
+    });
+    return scene;
+}
+
+ScenePack makeBirdFlowDoveFlightScenePack() {
+    const auto robot = builtinRobotPack("birdflow_deetjen_dove_hybrid");
+    if (!robot) {
+        throw std::logic_error("bundled BirdFlow dove RobotPack is unavailable");
+    }
+    LocomotionSceneComponent ground = makeLocomotionSurfaceComponent(
+        robot->mechanics,
+        LocomotionSurface::ground
+    );
+    ScenePack scene;
+    scene.id = "birdflow_deetjen_dove_hybrid_flight_scene";
     scene.objects.push_back({
         .id = "flight_ground",
         .semanticClass = "ground",
@@ -1427,7 +1452,137 @@ TaskPack makePX4X500HoverTaskPack(
     return task;
 }
 
+TaskPack makeBirdFlowDoveFlightTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makePX4X500HoverTaskPack(observations, reset);
+    task.id = "birdflow_deetjen_dove_hybrid_station_keep";
+    task.baseHeightTarget = 1.5f;
+    task.maximumEpisodeSteps = 750u;
+    task.successTrackingThreshold = 0.80f;
+    for (auto& randomization : reset.operators) {
+        if (randomization.operation == TaskRandomizationOperator::rootHeight) {
+            randomization.parameters = {1.45f, 1.55f, 0.0f, 0.0f};
+        }
+    }
+    return task;
+}
+
 std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
+    if (id == "birdflow_deetjen_dove_hybrid") {
+        // The Deetjen public surface sequence does not include the complete
+        // same-specimen inertial record required for measured free flight.
+        // These explicitly modelled body properties therefore define a
+        // trainable hybrid, while its runtime loads remain native and state
+        // responsive rather than prescribed replay forces.
+        EngineModel mechanics = makeFreeSphereEngineModel();
+        mechanics.name = "birdflow_deetjen_dove_hybrid";
+        mechanics.world.gravityAndTimestep = {
+            0.0f, 0.0f, -9.81f, 1.0f / 240.0f,
+        };
+        mechanics.articulations[0u].rootBody = 0u;
+        mechanics.articulations[0u].firstBody = 0u;
+        mechanics.bodies.resize(1u);
+        MRBodyPropertiesGPU& body = mechanics.bodies[0u];
+        body.articulationIndex = 0u;
+        body.parentBody = MR_INVALID_INDEX;
+        body.inboundJoint = MR_INVALID_INDEX;
+        body.motionType = MR_MOTION_DYNAMIC;
+        body.massAndInverseMass = {0.32f, 3.125f, 0.0f, 0.0f};
+        body.inertiaRow0 = {0.0021f, 0.0f, 0.0f, 0.0f};
+        body.inertiaRow1 = {0.0f, 0.0054f, 0.0f, 0.0f};
+        body.inertiaRow2 = {0.0f, 0.0f, 0.0061f, 0.0f};
+        body.inverseInertiaRow0 = {1.0f / 0.0021f, 0.0f, 0.0f, 0.0f};
+        body.inverseInertiaRow1 = {0.0f, 1.0f / 0.0054f, 0.0f, 0.0f};
+        body.inverseInertiaRow2 = {0.0f, 0.0f, 1.0f / 0.0061f, 0.0f};
+        body.dampingAndSpeedLimits = {0.02f, 0.02f, 30.0f, 30.0f};
+        mechanics.bodyNames = {"dove_body"};
+        mechanics.world.bodyCount = 1u;
+        mechanics.dofNames = {
+            "root_x", "root_y", "root_z", "root_rx", "root_ry", "root_rz",
+        };
+        mechanics.defaultQ = {0.0f, 0.0f, 1.5f, 0.0f, 0.0f, 0.0f, 1.0f};
+        mechanics.defaultV.assign(6u, 0.0f);
+        mechanics.shapes.clear();
+        const auto appendBox = [&](const mr_float4 position,
+                                   const mr_float4 halfExtents) {
+            MRShapeGPU shape{};
+            shape.bodyIndex = 0u;
+            shape.shapeType = MR_SHAPE_BOX;
+            shape.materialIndex = 0u;
+            shape.collisionGroup = 1u;
+            shape.collisionMask = ~0u;
+            shape.slotGeneration = static_cast<std::uint32_t>(
+                mechanics.shapes.size() + 1u
+            );
+            shape.localPosition = position;
+            shape.localPosition.w = 1.0f;
+            shape.localRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+            shape.dimensions = halfExtents;
+            shape.contactRestAndBoundingRadius = {
+                0.001f, 0.0f,
+                std::sqrt(halfExtents.x * halfExtents.x +
+                          halfExtents.y * halfExtents.y +
+                          halfExtents.z * halfExtents.z),
+                0.0f,
+            };
+            mechanics.shapes.push_back(shape);
+        };
+        appendBox({0.0f, 0.0f, 0.0f, 1.0f}, {0.16f, 0.05f, 0.055f, 0.0f});
+        appendBox({0.01f, -0.22f, 0.0f, 1.0f}, {0.10f, 0.18f, 0.012f, 0.0f});
+        appendBox({0.01f, 0.22f, 0.0f, 1.0f}, {0.10f, 0.18f, 0.012f, 0.0f});
+        mechanics.world.shapeCount = static_cast<std::uint32_t>(
+            mechanics.shapes.size()
+        );
+        mechanics.shapeNames = {
+            "dove_body/collision_body", "dove_body/collision_left_wing",
+            "dove_body/collision_right_wing",
+        };
+        RobotPack pack = genericRobot(
+            "birdflow_deetjen_dove_hybrid", std::move(mechanics),
+            {"flight", "load_responsive_aero", "trainable_policy"}
+        );
+        pack.sourceRepository = "BirdFlowMetal Deetjen surface benchmark";
+        pack.sourceRevision = "deetjen-ob-2018-12-11-f03-complete-surface-v1";
+        pack.license = "hybrid-modelled-properties";
+        addBodyRole(pack, "airframe", {"dove_body"});
+        MRMulticopterModelGPU model{};
+        // Four wing load stations. The generic aerial-wrench primitive
+        // includes attitude and air-relative-velocity response in the same
+        // native transaction; these are not physical rotor declarations.
+        model.rotorCount = 4u;
+        model.coefficients = {8.5e-7f, 0.018f, 1.2e-4f, 2.0e-6f};
+        model.motorAndTimestep = {0.018f, 0.030f, 1500.0f, 1.0f / 240.0f};
+        std::array<MRMulticopterRotorGPU, MR_MULTICOPTER_MAX_ROTORS> stations{};
+        stations[0].positionAndReactionSign = {0.05f, -0.30f, 0.0f, -1.0f};
+        stations[1].positionAndReactionSign = {-0.05f, -0.15f, 0.0f, 1.0f};
+        stations[2].positionAndReactionSign = {0.05f, 0.30f, 0.0f, 1.0f};
+        stations[3].positionAndReactionSign = {-0.05f, 0.15f, 0.0f, -1.0f};
+        const float hover = std::sqrt(0.32f * 9.81f /
+            (4.0f * model.coefficients.x));
+        pack.actuators.clear();
+        constexpr std::array<std::string_view, 4u> lanes{
+            "collective", "roll", "pitch", "yaw",
+        };
+        for (std::uint32_t component = 0u; component < lanes.size(); ++component) {
+            pack.actuators.push_back({
+                .id = "rotor_mixer." + std::string{lanes[component]},
+                .kind = RobotActuatorKind::rotorMixer,
+                .target = "dove_body",
+                .scale = 1.0f,
+                .component = component,
+            });
+        }
+        pack.multicopter = MulticopterActuatorPack{
+            .model = model,
+            .rotors = stations,
+            .mixer = {{hover, 105.0f, 38.0f, 15.0f}},
+            .bodyRole = "airframe",
+            .windVelocity = {},
+        };
+        return pack;
+    }
     if (id == "px4_x500") {
         EngineModel mechanics = makeFreeSphereEngineModel();
         mechanics.name = "px4_x500";

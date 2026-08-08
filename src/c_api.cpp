@@ -2813,6 +2813,39 @@ static MRTaskRolloutHandle* createPX4X500Run(
     return status == 0 ? result : nullptr;
 }
 
+static MRTaskRolloutHandle* createBirdFlowDoveRun(
+    const MRTaskRolloutConfigC* config,
+    const char* metallib_path
+) {
+    if (config == nullptr) {
+        gLastError = "BirdFlow dove rollout configuration is required.";
+        return nullptr;
+    }
+    MRTaskRolloutHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        validateTaskRolloutConfiguration(*config);
+        auto robot = metalrobo::builtinRobotPack("birdflow_deetjen_dove_hybrid");
+        if (!robot) {
+            throw std::logic_error("bundled BirdFlow dove RobotPack is unavailable");
+        }
+        metalrobo::RunManifest manifest;
+        manifest.id = "birdflow_deetjen_dove_hybrid_run";
+        manifest.robot = std::move(*robot);
+        manifest.scene = metalrobo::makeBirdFlowDoveFlightScenePack();
+        manifest.sensors.id = "birdflow_deetjen_dove_hybrid_state_sensors";
+        manifest.task = metalrobo::makeBirdFlowDoveFlightTaskPack(
+            manifest.sensors.observation, manifest.reality.reset);
+        manifest.reality.id = "birdflow_deetjen_dove_hybrid_nominal_reality";
+        manifest.teacher.id = "no_teacher";
+        applyRunProfile(manifest, *config);
+        manifest.profile.capacities = manifest.task.capacities;
+        auto handle = createCompiledRunTaskRollout(
+            std::move(manifest), metallib_path, "BirdFlow Deetjen dove hybrid", nullptr);
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
 static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
     const MRTaskRolloutConfigC* config,
     const uint32_t surface_value,
@@ -3194,6 +3227,9 @@ MRTaskRolloutHandle* mr_create_task_rollout(
             &manifest->profile,
             manifest->metallib_path
         );
+        break;
+    case MR_RUN_SOURCE_BIRDFLOW_DOVE:
+        result = createBirdFlowDoveRun(&manifest->profile, manifest->metallib_path);
         break;
     default:
         gLastError = "run manifest source is invalid.";

@@ -195,6 +195,7 @@ private struct Options {
     var captureHeight = 270
     var captureStride = 1
     var capturePolicyCamera = false
+    var birdFlowDove = false
 
     init(arguments: [String]) throws {
         var index = 1
@@ -448,6 +449,8 @@ private struct Options {
                 index += 1
             case "--capture-policy-camera":
                 capturePolicyCamera = true
+            case "--birdflow-dove":
+                birdFlowDove = true
             default:
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "Unknown option \(option)."
@@ -799,6 +802,19 @@ private func makeContext(
             options.interactionResetMaximumPhase,
         unitreeG1Task: options.unitreeG1Task
     )
+    if options.birdFlowDove {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .birdFlowDove,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor
+                ),
+                metallibPath: options.metallib
+            ),
+            "birdflow_deetjen_dove_hybrid"
+        )
+    }
     if let interactionPack = options.interactionPack,
        let interactionClip = options.interactionClip
     {

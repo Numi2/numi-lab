@@ -286,7 +286,12 @@ private:
 );
 [[nodiscard]] ScenePack makeFrankaPickPlaceScenePack();
 [[nodiscard]] ScenePack makePX4X500HoverScenePack();
+[[nodiscard]] ScenePack makeBirdFlowDoveFlightScenePack();
 [[nodiscard]] TaskPack makePX4X500HoverTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] TaskPack makeBirdFlowDoveFlightTaskPack(
     TaskObservationProgram& observations,
     TaskResetProgram& reset
 );

@@ -12,25 +12,54 @@ fi
 
 if [ "${1:-}" = "--help" ]; then
     cat <<'EOF'
-usage: numi dove [--archive FILE] [--json]
+usage: numi dove [replay] [--archive FILE] [--json]
+       numi dove train [numi train options]
+       numi dove evaluate [numi evaluate options]
 
-Builds and runs BirdFlowMetal's measured-surface Deetjen dove through-flight
-replay. With no --archive, writes a new timestamped report below
+`replay` builds and runs BirdFlowMetal's measured-surface Deetjen dove
+through-flight replay. With no --archive, it writes a timestamped report below
 .numi/runs/birdflow-deetjen-dove/ in this workspace.
+
+`train` and `evaluate` run Numi's state-responsive hybrid dove. Its four
+wing-load actions are applied through the device-resident aerial wrench path,
+so body velocity, attitude, and the action history alter the next physical
+state inside the regular rollback transaction.
 
 Environment:
   NUMI_BIRDFLOW_ROOT  BirdFlowMetal checkout (default: /Users/home/BirdFlowMetal)
 
-This capability is prescribed-motion CFD: the measured-derived body and wing
-trajectory drives the fluid, while aerodynamic load does not control the dove.
-It is not a trainable Numi robot, quantitative free-flight result, or hardware
-claim. See BirdFlowMetal Docs/DEETJEN_DOVE_THROUGH_FLIGHT.md for its current
-scientific boundary.
+`replay` is prescribed-motion CFD: its aerodynamic load does not control the
+dove. The trainable robot is separately labelled hybrid because public Deetjen
+inputs lack complete same-specimen mass and bilateral wing inertia. Neither
+path is a quantitative free-flight or hardware claim.
 EOF
     exit 0
 fi
 
 workspace=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+mode=${1:-replay}
+case "$mode" in
+    train)
+        shift
+        exec numi train --birdflow-dove \
+            --initialize-policy birdflow_deetjen_dove_hybrid_policy "$@"
+        ;;
+    evaluate)
+        shift
+        exec numi evaluate --birdflow-dove "$@"
+        ;;
+    replay)
+        if [ "$#" -gt 0 ]; then
+            shift
+        fi
+        ;;
+    --archive|--json)
+        ;;
+    *)
+        printf '%s\n' "numi dove: unknown mode '$mode'; use --help" >&2
+        exit 2
+        ;;
+esac
 birdflow_root=${NUMI_BIRDFLOW_ROOT:-/Users/home/BirdFlowMetal}
 manifest="$birdflow_root/ValidationInputs/deetjen-ob-f03-surface-v1/manifest.json"
 force_target="$birdflow_root/ValidationInputs/deetjen-ob-f03-force-v1.json"
