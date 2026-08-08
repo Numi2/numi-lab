@@ -33,11 +33,13 @@ body state, and wind before the articulated ABA solve. The next physical state
 therefore depends on wing load inside the regular rollback transaction.
 
 The `measured-*` modes pass an explicit schema-2 specimen to BirdFlowMetal's
-own D3Q19 implementation. `measured-trim` performs the prescribed force/moment
-balance search, `measured-flight` runs one coupled six-DOF trajectory with
-momentum and per-part-load ledgers, and `measured-confirm` runs the independent
-five-cycle bounded-flight, 1/2/4 body-step, and coupled-closure ladder. These
-modes reject schema 1 inputs; they do not manufacture missing specimen data.
+own D3Q19 implementation. `measured-trim` is an optional prescribed
+force/moment diagnostic, not a release gate. `measured-flight` runs one coupled
+six-DOF trajectory with momentum and per-part-load ledgers, and
+`measured-confirm` runs an independent five-cycle forward-flight, 1/2/4
+body-step, and coupled-closure ladder. Forward progress and speed are recorded
+for control analysis rather than forced toward zero. These modes reject schema
+1 inputs; they do not manufacture missing specimen data.
 
 `hover-control-sweep` is for the explicitly virtual robot only: it screens a
 declared power-stroke/recovery-stroke pitch actuator in still air with fixed
@@ -165,7 +167,7 @@ case "$mode" in
                 exec "$birdflow" replay measured-bird --audit-only "$@"
                 ;;
             measured-trim)
-                printf '%s\n' "Numi dove: BirdFlowMetal schema-2 prescribed trim search."
+                printf '%s\n' "Numi dove: BirdFlowMetal optional schema-2 force/moment diagnostic."
                 exec "$birdflow" replay measured-bird --trim-search "$@"
                 ;;
             hover-control-sweep)
@@ -178,7 +180,7 @@ case "$mode" in
                     --free-flight --momentum-ledger --part-loads "$@"
                 ;;
             measured-confirm)
-                printf '%s\n' "Numi dove: BirdFlowMetal schema-2 bounded D3Q19 free-flight confirmation."
+                printf '%s\n' "Numi dove: BirdFlowMetal schema-2 forward-flight numerical confirmation."
                 exec "$birdflow" replay measured-bird \
                     --free-flight-confirmation "$@"
                 ;;

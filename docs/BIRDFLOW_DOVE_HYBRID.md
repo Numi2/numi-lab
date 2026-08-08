@@ -41,7 +41,7 @@ these coefficients are hybrid model parameters, not measured Deetjen values.
 
 The runner also provides `--birdflow-flap-script` and
 `--birdflow-stroke-amplitude` as deterministic open-loop qualification inputs.
-They exercise the same trim-residual contract as the policy and are not
+They exercise the same load and trajectory path as the policy and are not
 controllers or evaluation claims.
 
 ```sh
@@ -63,11 +63,12 @@ not the Numi hybrid. It accepts only a fully declared complete-bird input:
 registered geometry, left/right periodic kinematics and rates, whole-bird
 mass/COM-frame inertia, bilateral wing mass/hinge-COM/inertia, and the fluid
 condition. The stages are deliberately separate: `measured-audit` rejects an
-invalid contract before Metal allocation; `measured-trim` finds a reproducible
-prescribed forward-flight balance; `measured-flight` records a coupled D3Q19
-six-DOF trajectory with momentum and per-part-load ledgers; and
-`measured-confirm` runs its independent bounded-flight, 1/2/4 body-step, and
-closure gates.
+invalid contract before Metal allocation; `measured-trim` is an optional
+force/moment diagnostic; `measured-flight` records a coupled D3Q19 six-DOF
+trajectory with momentum and per-part-load ledgers; and `measured-confirm`
+runs its independent forward-flight, 1/2/4 body-step, and closure gates.
+Forward progress is an observable for the controller and task, not a
+near-zero-force release condition.
 
 BirdFlow also supports the controlled `--pre-roll-cycles N` release protocol:
 it advances one or more prescribed wingbeats in the same resident D3Q19 volume

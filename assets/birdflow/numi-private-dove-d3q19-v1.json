@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "datasetIdentifier": "numi-private-dove-d3q19-virtual-robot-v21",
+  "datasetIdentifier": "numi-private-dove-d3q19-virtual-robot-v23",
   "provenance": {
-    "specimenIdentifier": "numi-authored-robotic-dove-v21-not-a-biological-specimen",
+    "specimenIdentifier": "numi-authored-robotic-dove-v23-not-a-biological-specimen",
     "geometryCitation": "Numi Lab BirdFlow articulated virtual robotic-dove mechanics; compact geometry, mass, and inertias are authored rather than measured",
-    "kinematicsCitation": "Numi Lab private 8 Hz bilateral rigid-wing virtual-robot waveform v21 with an explicit -2 m/s virtual forward-flight freestream, physical-viscosity-preserving Re 750 scaling, and low-Mach D3Q19 timestep; RR3 is selected explicitly at replay time",
+    "kinematicsCitation": "Numi Lab private 8 Hz bilateral rigid-wing virtual-robot waveform v23 with an explicit -2 m/s virtual forward-flight freestream, physical-viscosity-preserving Re 750 scaling, a swept-volume-qualified 1.3 m D3Q19 domain, and a 0.008 low-Mach lattice reference speed; RR3 is selected explicitly at replay time",
     "dataLicense": "private Numi Lab virtual-robot model",
-    "processingDescription": "Private complete schema-2 virtual-robot fixture. This supersedes the rejected V14 candidate: its 0.015 kg body was paired with 1.2 m-chord wings, yielding D24 fixed-body loads up to 5.52 N and 3.25 N m and an invalid free release. V15 restored a compact 0.56 m total span, 0.14-to-0.09 m tapered wing, 0.015 kg total-mass ledger, 0.002 kg per-wing rigid-plate properties, and body inertias sized for that packaged robot, but its D12 five-cycle pitch-offset map produced no lift capable of supporting the mass ledger (best 0.000177 N versus 0.147100 N weight). V16 raised the same robot to 8 Hz and 0.80 rad; it passed the static Mach estimate but became non-finite before its 512-step D12 moving-boundary gate under the former TRT path and is rejected there. V17 was the intermediate 5 Hz, 0.55 rad waveform; it produced 0.7608 N mean force over a 512-step D12 transient, but became non-finite before 1,600 steps at both D12 and D16 and is rejected under TRT. V18 preserved the V17 physical robot but halved lattice reference speed from 0.04 to 0.02; its RR3 five-cycle D12 fixed-body window completed yet final-cycle lift was only 0.001319 N, and its nine-action pitch screen peaked at 0.004814 N, so V18 is rejected for free-flight release. V19 restored the V16 8 Hz, 0.80 rad virtual actuator under RR3; it completed five D12 cycles but settled to 0.025476 N upward and 0.282251 N forward, rejecting hover/free release despite numerical stability. V20 declared an -8 m/s virtual forward-flight freestream; its RR3 bounded trim rejected the condition (best relative net-force residual 1.321420 and force stationarity 0.294612). V21 retains the V19 actuator but resets the forward-flight freestream/reference speed to -2/2 m/s and Re to 750, preserving the same physical kinematic viscosity while halving lattice reference speed to 0.01. Its RR3 extended trim reached near-weight-balanced force but failed the declared forward/stationarity gates (best relative net-force residual 0.177054, relative torque residual 0.052760, force stationarity 0.041072, torque stationarity 0.052873), so coupled release, refinement, momentum closure, and Numi policy promotion remain prohibited. This is not a measured Deetjen or biological specimen."
+    "processingDescription": "Private complete schema-2 virtual-robot fixture. This supersedes the rejected V14 candidate: its 0.015 kg body was paired with 1.2 m-chord wings, yielding D24 fixed-body loads up to 5.52 N and 3.25 N m and an invalid free release. V15 restored a compact 0.56 m total span, 0.14-to-0.09 m tapered wing, 0.015 kg total-mass ledger, 0.002 kg per-wing rigid-plate properties, and body inertias sized for that packaged robot, but its D12 five-cycle pitch-offset map produced no lift capable of supporting the mass ledger (best 0.000177 N versus 0.147100 N weight). V16 raised the same robot to 8 Hz and 0.80 rad; it passed the static Mach estimate but became non-finite before its 512-step D12 moving-boundary gate under the former TRT path and is rejected there. V17 was the intermediate 5 Hz, 0.55 rad waveform; it produced 0.7608 N mean force over a 512-step D12 transient, but became non-finite before 1,600 steps at both D12 and D16 and is rejected under TRT. V18 preserved the V17 physical robot but halved lattice reference speed from 0.04 to 0.02; its RR3 five-cycle D12 fixed-body window completed yet final-cycle lift was only 0.001319 N, and its nine-action pitch screen peaked at 0.004814 N, so V18 is rejected for free-flight release. V19 restored the V16 8 Hz, 0.80 rad virtual actuator under RR3; it completed five D12 cycles but settled to 0.025476 N upward and 0.282251 N forward, rejecting hover/free release despite numerical stability. V20 declared an -8 m/s virtual forward-flight freestream; its RR3 diagnostic reported relative net-force residual 1.321420 and force stationarity 0.294612. V21 retains the V19 actuator but resets the forward-flight freestream/reference speed to -2/2 m/s and Re to 750, preserving the same physical kinematic viscosity while halving lattice reference speed to 0.01. Its RR3 extended diagnostic reached near-weight-balanced force but reported relative net-force residual 0.177054, relative torque residual 0.052760, force stationarity 0.041072, and torque stationarity 0.052873. These prescribed fixed-body diagnostics inform control tuning only; they do not block coupled release, numerical refinement, momentum closure, or Numi policy training. V22 preserves that physical robot and forward-flow condition but expands the D3Q19 world from 0.80 m to 1.30 m per axis, re-centering the body so declared phase-feathering candidates remain outside the sponge margin. Its RR3 -0.30 rad recovery-feather diagnostic overcorrected the forward axis (five-cycle net force [-0.364804, 0.009458, -0.031944] N; relative net-force residual 1.585769), so it is retained only as a rejected controller probe. V23 retains the V22 physical condition and world but lowers the lattice reference speed from 0.010 to 0.008 after the direct six-DOF RR3 release exceeded the Mach guard at step 5 (0.156927); this is a numerical timestep change, not a change to the robot or target physical Reynolds condition. Its second direct release still hit the Mach guard at step 15 (0.159226) through uncontrolled angular acceleration, so a direct prescribed-wing release remains open and motivates state-feedback control rather than further fixed-body trim. This is not a measured Deetjen or biological specimen."
   },
   "units": {
     "length": "meter",
@@ -152,8 +152,8 @@
   },
   "replay": {
     "domainOriginMeters": [0.0, 0.0, 0.0],
-    "domainSizeMeters": [1.1, 1.1, 1.1],
-    "bodyPositionMeters": [0.55, 0.55, 0.55],
+    "domainSizeMeters": [1.3, 1.3, 1.3],
+    "bodyPositionMeters": [0.65, 0.65, 0.65],
     "bodyOrientationBodyToWorld": {
       "vector": [0.0, 0.0, 0.0],
       "scalar": 1.0
@@ -163,7 +163,7 @@
     "referenceSpeedMetersPerSecond": 2.0,
     "targetReynoldsNumber": 750.0,
     "physicalAirDensity": 1.225,
-    "latticeReferenceSpeed": 0.01,
+    "latticeReferenceSpeed": 0.008,
     "spongeStrength": 0.06
   }
 }
