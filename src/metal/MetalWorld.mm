@@ -56,6 +56,39 @@ constexpr std::uint64_t kFNVOffset =
 constexpr std::uint64_t kFNVPrime = 1099511628211ull;
 const char kMetalRoboWorldImageAnchor = 0;
 
+class DevicePhysicsAbortGuard {
+public:
+    DevicePhysicsAbortGuard(
+        const MetalWorldDevicePhysicsProgram& program,
+        void* commandBuffer
+    ) noexcept
+        : program_(&program),
+          commandBuffer_(commandBuffer),
+          armed_(program.valid() && commandBuffer != nullptr) {}
+
+    ~DevicePhysicsAbortGuard() noexcept {
+        if (!armed_) {
+            return;
+        }
+        try {
+            program_->abort(program_->context, commandBuffer_);
+        } catch (...) {
+        }
+    }
+
+    DevicePhysicsAbortGuard(const DevicePhysicsAbortGuard&) = delete;
+    DevicePhysicsAbortGuard& operator=(const DevicePhysicsAbortGuard&) = delete;
+
+    void handoff() noexcept {
+        armed_ = false;
+    }
+
+private:
+    const MetalWorldDevicePhysicsProgram* program_ = nullptr;
+    void* commandBuffer_ = nullptr;
+    bool armed_ = false;
+};
+
 enum BufferIndex : std::size_t {
     kWorld = 0u,
     kArticulations = 1u,
@@ -358,6 +391,8 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> operatorPipeline = nil;
     __strong id<MTLComputePipelineState>
         parameterizedOperatorPipeline = nil;
+    __strong id<MTLComputePipelineState>
+        bodyVelocityPipeline = nil;
     __strong id<MTLComputePipelineState> taskObservePipeline = nil;
     __strong id<MTLComputePipelineState> taskThreatSelectPipeline = nil;
     __strong id<MTLComputePipelineState> taskJointCbfPipeline = nil;
@@ -487,6 +522,7 @@ struct MetalWorldContextState {
     std::uint64_t boundTaskFingerprint = 0u;
     std::uint64_t boundPolicyFingerprint = 0u;
     std::uint64_t boundMulticopterFingerprint = 0u;
+    std::uint64_t boundDevicePhysicsFingerprint = 0u;
     std::uint64_t stateArenaGeneration = 0u;
     std::weak_ptr<MetalWorldResidentStateData> residentOwner;
     MetalWorldContextStats stats{};
@@ -530,6 +566,7 @@ struct MetalWorldResidentStateData {
     std::shared_ptr<MetalWorldContextState> context;
     std::uint64_t worldFingerprint = 0u;
     std::uint64_t taskFingerprint = 0u;
+    std::uint64_t devicePhysicsFingerprint = 0u;
     std::uint64_t taskSeed = 0u;
     std::uint64_t stateArenaGeneration = 0u;
     std::size_t environmentCount = 0u;
@@ -1550,6 +1587,18 @@ bool buildRequirements(
         (layout.dispatch.flags & MR_METAL_WORLD_CONTACTS) != 0u
         ? environments
         : 0u;
+    const std::size_t devicePhysicsEnvironments =
+        layout.devicePhysicsFingerprint != 0u
+        ? environments
+        : 0u;
+    // Device physics needs accepted articulated/scene body projections even
+    // when MetalWorld's own rigid contact solver is disabled. Keep this arena
+    // independent from contact work so continuum-only contact can drive ABA
+    // through external wrenches in free-motion worlds.
+    const std::size_t bodyProjectionEnvironments = std::max(
+        contactEnvironments,
+        devicePhysicsEnvironments
+    );
     const bool nativeTask = taskProgram.valid();
     const bool nativePolicy = policyProgram.valid();
     const std::size_t taskEnvironments =
@@ -1855,12 +1904,12 @@ bool buildRequirements(
             rodWitnessElements
         ) ||
         !checkedMultiply(
-            contactEnvironments,
+            bodyProjectionEnvironments,
             world.bodyCount(),
             bodyPoseElements
         ) ||
         !checkedMultiply(
-            contactEnvironments,
+            bodyProjectionEnvironments,
             model.bodies.size(),
             bodyStateElements
         ) ||
@@ -2156,7 +2205,7 @@ bool buildRequirements(
         ) ||
         !makeRequirement<MRArticulatedOperatorStatusGPU>(
             "articulated operator statuses",
-            contactEnvironments *
+            bodyProjectionEnvironments *
                 model.articulations.size(),
             requirements.entries[kOperatorStatuses]
         ) ||
@@ -2332,7 +2381,7 @@ bool buildRequirements(
         ) ||
         !makeRequirement<MRMetalWorldContactStatusGPU>(
             "contact statuses",
-            contactEnvironments,
+            bodyProjectionEnvironments,
             requirements.entries[kContactStatuses]
         ) ||
         !makeRequirement<MRMetalWorldContactStatusGPU>(
@@ -3093,7 +3142,17 @@ MetalWorldDiagnostics validateAndBuildLayout(
     }
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
-    const bool hasBodyWrenches = config.multicopterProgram.valid() ||
+    const bool devicePhysicsWritesBodyWrenches =
+        config.devicePhysicsProgram.valid() &&
+        (config.devicePhysicsProgram.flags &
+         MetalWorldDevicePhysicsWritesBodyWrenches) != 0u;
+    const bool devicePhysicsRequiresRigidContactEvidence =
+        config.devicePhysicsProgram.valid() &&
+        (config.devicePhysicsProgram.flags &
+         MetalWorldDevicePhysicsRequiresRigidContactEvidence) != 0u;
+    const bool hasBodyWrenches =
+        devicePhysicsWritesBodyWrenches ||
+        config.multicopterProgram.valid() ||
         (nativeTask && taskHasActuatorKind(
             config.taskProgram,
             MR_TASK_ACTUATOR_BODY_WRENCH));
@@ -3123,6 +3182,15 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.solverMode != MetalWorldSolverMode::freeMotionABA;
     const bool qualityMode =
         config.solverMode == MetalWorldSolverMode::qualityNewton;
+    if (config.devicePhysicsProgram.configured() &&
+        (!config.devicePhysicsProgram.valid() ||
+         (devicePhysicsRequiresRigidContactEvidence && !contactMode))) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "device physics program is incomplete, has unknown capabilities, or requires rigid contact evidence in a free-motion world"
+        );
+    }
     if (config.deviceObservationProgram.configured() &&
         (!config.deviceObservationProgram.valid() ||
          !nativeTask || !nativePolicy)) {
@@ -3314,6 +3382,10 @@ MetalWorldDiagnostics validateAndBuildLayout(
     }
 
     MetalWorldLayout layout{};
+    layout.devicePhysicsFingerprint =
+        config.devicePhysicsProgram.valid()
+        ? config.devicePhysicsProgram.fingerprint
+        : 0u;
     MRMetalWorldDispatchGPU& dispatch = layout.dispatch;
     dispatch.abiVersion = MR_METAL_WORLD_ABI_VERSION;
     dispatch.articulationIndex = world.articulationIndex();
@@ -3670,6 +3742,10 @@ MetalWorldDiagnostics validateAndBuildLayout(
     if (nativeTask) {
         contact.flags |=
             MR_METAL_WORLD_CONTACT_BODY_PARAMETERS;
+    }
+    if (hasBodyWrenches) {
+        contact.flags |=
+            MR_METAL_WORLD_CONTACT_BODY_WRENCHES;
     }
     if (config.ccdMode != MetalWorldCCDMode::disabled) {
         contact.flags |= MR_METAL_WORLD_CONTACT_CCD;
@@ -4633,11 +4709,312 @@ id<MTLComputePipelineState> makePipeline(
                                       error:error];
 }
 
+MetalWorldDiagnostics ensureHybridCCDPipeline(
+    detail::MetalWorldContextState& context,
+    MetalWorldDiagnostics diagnostics
+) {
+    if (diagnostics.layout.contactDispatch.ccdMode != MR_WORLD_CCD_HYBRID ||
+        context.ccdPipeline != nil) {
+        return diagnostics;
+    }
+    NSError* error = nil;
+    id<MTLComputePipelineState> pipeline = makePipeline(
+        context.device,
+        context.library,
+        @"mr_world_resolve_ccd",
+        &error
+    );
+    if (pipeline == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create optional hybrid-CCD pipeline: " +
+                describeError(error)
+        );
+    }
+    if (pipeline.maxTotalThreadsPerThreadgroup == 0u ||
+        pipeline.staticThreadgroupMemoryLength >
+            context.device.maxThreadgroupMemoryLength) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalDeviceUnsupported,
+            "device cannot execute the hybrid-CCD kernel geometry"
+        );
+    }
+    context.ccdPipeline = pipeline;
+    ++context.stats.pipelineCreationCount;
+    return diagnostics;
+}
+
+MetalWorldDiagnostics ensureRodPipelines(
+    detail::MetalWorldContextState& context,
+    const bool hasRods,
+    MetalWorldDiagnostics diagnostics
+) {
+    if (!hasRods) {
+        return diagnostics;
+    }
+    const bool anyInitialized =
+        context.rodPreparePipeline != nil ||
+        context.rodContactPreparePipeline != nil ||
+        context.rodPackPipeline != nil ||
+        context.rodStepPipeline != nil ||
+        context.rodFactorPipeline != nil ||
+        context.rodUnpackPipeline != nil ||
+        context.rodLatchPipeline != nil ||
+        context.rodContactLatchPipeline != nil ||
+        context.rodToolNarrowphasePipeline != nil ||
+        context.rodContactScanPipeline != nil ||
+        context.rodContactScatterPipeline != nil ||
+        context.rodContactSolvePipeline != nil ||
+        context.rodCommitPipeline != nil ||
+        context.rodContactCommitPipeline != nil ||
+        context.rodEventInitializePipeline != nil ||
+        context.inactiveRodEventRestorePipeline != nil ||
+        context.rodEventSegmentPublishPipeline != nil ||
+        context.rodSweptProjectionPipeline != nil ||
+        context.rodCCDPipeline != nil ||
+        context.rodCCDWitnessTagPipeline != nil;
+    const bool allInitialized =
+        context.rodPreparePipeline != nil &&
+        context.rodContactPreparePipeline != nil &&
+        context.rodPackPipeline != nil &&
+        context.rodStepPipeline != nil &&
+        context.rodFactorPipeline != nil &&
+        context.rodUnpackPipeline != nil &&
+        context.rodLatchPipeline != nil &&
+        context.rodContactLatchPipeline != nil &&
+        context.rodToolNarrowphasePipeline != nil &&
+        context.rodContactScanPipeline != nil &&
+        context.rodContactScatterPipeline != nil &&
+        context.rodContactSolvePipeline != nil &&
+        context.rodCommitPipeline != nil &&
+        context.rodContactCommitPipeline != nil &&
+        context.rodEventInitializePipeline != nil &&
+        context.inactiveRodEventRestorePipeline != nil &&
+        context.rodEventSegmentPublishPipeline != nil &&
+        context.rodSweptProjectionPipeline != nil &&
+        context.rodCCDPipeline != nil &&
+        context.rodCCDWitnessTagPipeline != nil;
+    if (allInitialized) {
+        return diagnostics;
+    }
+    if (anyInitialized) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "rod pipeline family is only partially initialized"
+        );
+    }
+
+    __strong id<MTLComputePipelineState> rodPrepare = nil;
+    __strong id<MTLComputePipelineState> rodContactPrepare = nil;
+    __strong id<MTLComputePipelineState> rodPack = nil;
+    __strong id<MTLComputePipelineState> rodStep = nil;
+    __strong id<MTLComputePipelineState> rodFactor = nil;
+    __strong id<MTLComputePipelineState> rodUnpack = nil;
+    __strong id<MTLComputePipelineState> rodLatch = nil;
+    __strong id<MTLComputePipelineState> rodContactLatch = nil;
+    __strong id<MTLComputePipelineState> rodToolNarrowphase = nil;
+    __strong id<MTLComputePipelineState> rodContactScan = nil;
+    __strong id<MTLComputePipelineState> rodContactScatter = nil;
+    __strong id<MTLComputePipelineState> rodContactSolve = nil;
+    __strong id<MTLComputePipelineState> rodCommit = nil;
+    __strong id<MTLComputePipelineState> rodContactCommit = nil;
+    __strong id<MTLComputePipelineState> rodEventInitialize = nil;
+    __strong id<MTLComputePipelineState> inactiveRodEventRestore = nil;
+    __strong id<MTLComputePipelineState> rodEventSegmentPublish = nil;
+    __strong id<MTLComputePipelineState> rodSweptProjection = nil;
+    __strong id<MTLComputePipelineState> rodCCD = nil;
+    __strong id<MTLComputePipelineState> rodCCDWitnessTag = nil;
+
+    __strong NSString* failedName = nil;
+    __strong NSError* failedError = nil;
+    const auto create = [&](NSString* name) {
+        NSError* error = nil;
+        id<MTLComputePipelineState> pipeline = makePipeline(
+            context.device,
+            context.library,
+            name,
+            &error
+        );
+        if (pipeline == nil && failedName == nil) {
+            failedName = [name copy];
+            failedError = error;
+        }
+        return pipeline;
+    };
+
+    rodPrepare = create(@"mr_world_prepare_rod_state");
+    rodContactPrepare = create(@"mr_world_prepare_rod_contact_cache");
+    rodPack = create(@"mr_world_pack_rod_state");
+    rodStep = create(@"mr_discrete_elastic_rod_step");
+    rodFactor = create(@"mr_world_factor_rod_operator");
+    rodUnpack = create(@"mr_world_unpack_rod_state");
+    rodLatch = create(@"mr_world_latch_rod_status");
+    rodContactLatch = create(@"mr_world_latch_rod_contact_status");
+    rodToolNarrowphase = create(@"mr_rod_tool_narrowphase");
+    rodContactScan = create(@"mr_world_scan_rod_contact_ir");
+    rodContactScatter = create(@"mr_world_scatter_rod_contact_ir");
+    rodContactSolve = create(@"mr_world_solve_rod_contact_constraints");
+    rodCommit = create(@"mr_world_commit_rod_state");
+    rodContactCommit = create(@"mr_world_commit_rod_contact_cache");
+    rodEventInitialize = create(@"mr_world_initialize_rod_event_state");
+    inactiveRodEventRestore = create(
+        @"mr_world_restore_inactive_rod_event_candidate"
+    );
+    rodEventSegmentPublish = create(@"mr_world_publish_rod_event_segment");
+    rodSweptProjection = create(@"mr_world_project_swept_rod_colliders");
+    rodCCD = create(@"mr_world_resolve_rod_ccd");
+    rodCCDWitnessTag = create(@"mr_world_tag_rod_ccd_witnesses");
+
+    if (rodPrepare == nil ||
+        rodContactPrepare == nil ||
+        rodPack == nil ||
+        rodStep == nil ||
+        rodFactor == nil ||
+        rodUnpack == nil ||
+        rodLatch == nil ||
+        rodContactLatch == nil ||
+        rodToolNarrowphase == nil ||
+        rodContactScan == nil ||
+        rodContactScatter == nil ||
+        rodContactSolve == nil ||
+        rodCommit == nil ||
+        rodContactCommit == nil ||
+        rodEventInitialize == nil ||
+        inactiveRodEventRestore == nil ||
+        rodEventSegmentPublish == nil ||
+        rodSweptProjection == nil ||
+        rodCCD == nil ||
+        rodCCDWitnessTag == nil) {
+        const std::string functionName = failedName == nil
+            ? std::string{"unknown"}
+            : nsString(failedName);
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create optional rod pipeline '" +
+                functionName + "': " + describeError(failedError)
+        );
+    }
+
+    if (rodPrepare.maxTotalThreadsPerThreadgroup == 0u ||
+        rodContactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
+        rodPack.maxTotalThreadsPerThreadgroup == 0u ||
+        rodStep.maxTotalThreadsPerThreadgroup < MR_ROD_GPU_MAX_NODES ||
+        rodFactor.maxTotalThreadsPerThreadgroup == 0u ||
+        rodUnpack.maxTotalThreadsPerThreadgroup == 0u ||
+        rodLatch.maxTotalThreadsPerThreadgroup == 0u ||
+        rodContactLatch.maxTotalThreadsPerThreadgroup == 0u ||
+        rodToolNarrowphase.maxTotalThreadsPerThreadgroup == 0u ||
+        rodContactScan.maxTotalThreadsPerThreadgroup <
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        rodContactScatter.maxTotalThreadsPerThreadgroup == 0u ||
+        rodContactSolve.maxTotalThreadsPerThreadgroup == 0u ||
+        rodCommit.maxTotalThreadsPerThreadgroup == 0u ||
+        rodContactCommit.maxTotalThreadsPerThreadgroup == 0u ||
+        rodEventInitialize.maxTotalThreadsPerThreadgroup == 0u ||
+        inactiveRodEventRestore.maxTotalThreadsPerThreadgroup == 0u ||
+        rodEventSegmentPublish.maxTotalThreadsPerThreadgroup == 0u ||
+        rodSweptProjection.maxTotalThreadsPerThreadgroup == 0u ||
+        rodCCD.maxTotalThreadsPerThreadgroup == 0u ||
+        rodCCDWitnessTag.maxTotalThreadsPerThreadgroup == 0u ||
+        rodStep.staticThreadgroupMemoryLength >
+            context.device.maxThreadgroupMemoryLength ||
+        rodToolNarrowphase.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        rodContactScan.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        rodStep.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalDeviceUnsupported,
+            "device cannot execute the optional rod pipeline geometry"
+        );
+    }
+
+    context.rodPreparePipeline = rodPrepare;
+    context.rodContactPreparePipeline = rodContactPrepare;
+    context.rodPackPipeline = rodPack;
+    context.rodStepPipeline = rodStep;
+    context.rodFactorPipeline = rodFactor;
+    context.rodUnpackPipeline = rodUnpack;
+    context.rodLatchPipeline = rodLatch;
+    context.rodContactLatchPipeline = rodContactLatch;
+    context.rodToolNarrowphasePipeline = rodToolNarrowphase;
+    context.rodContactScanPipeline = rodContactScan;
+    context.rodContactScatterPipeline = rodContactScatter;
+    context.rodContactSolvePipeline = rodContactSolve;
+    context.rodCommitPipeline = rodCommit;
+    context.rodContactCommitPipeline = rodContactCommit;
+    context.rodEventInitializePipeline = rodEventInitialize;
+    context.inactiveRodEventRestorePipeline = inactiveRodEventRestore;
+    context.rodEventSegmentPublishPipeline = rodEventSegmentPublish;
+    context.rodSweptProjectionPipeline = rodSweptProjection;
+    context.rodCCDPipeline = rodCCD;
+    context.rodCCDWitnessTagPipeline = rodCCDWitnessTag;
+    context.stats.pipelineCreationCount += 20u;
+    return diagnostics;
+}
+
+MetalWorldDiagnostics ensureGeneralizedConstraintPipeline(
+    detail::MetalWorldContextState& context,
+    MetalWorldDiagnostics diagnostics
+) {
+    if (diagnostics.layout.contactDispatch.authoredConstraintCount == 0u ||
+        context.generalizedConstraintSolvePipeline != nil) {
+        return diagnostics;
+    }
+    NSError* error = nil;
+    id<MTLComputePipelineState> pipeline = makePipeline(
+        context.device,
+        context.library,
+        @"mr_world_solve_generalized_constraints",
+        &error
+    );
+    if (pipeline == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create optional generalized-constraint pipeline: " +
+                describeError(error)
+        );
+    }
+    if (pipeline.maxTotalThreadsPerThreadgroup == 0u ||
+        pipeline.staticThreadgroupMemoryLength >
+            context.device.maxThreadgroupMemoryLength) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalDeviceUnsupported,
+            "device cannot execute the generalized-constraint kernel geometry"
+        );
+    }
+    context.generalizedConstraintSolvePipeline = pipeline;
+    ++context.stats.pipelineCreationCount;
+    return diagnostics;
+}
+
 MetalWorldDiagnostics initializeContext(
     detail::MetalWorldContextState& context,
     MetalWorldDiagnostics diagnostics
 ) {
     if (context.initialized) {
+        diagnostics = ensureHybridCCDPipeline(
+            context,
+            std::move(diagnostics)
+        );
+        if (!diagnostics.succeeded()) {
+            return diagnostics;
+        }
+        diagnostics = ensureGeneralizedConstraintPipeline(
+            context,
+            std::move(diagnostics)
+        );
+        if (!diagnostics.succeeded()) {
+            return diagnostics;
+        }
         diagnostics.deviceName = nsString(context.device.name);
         diagnostics.thermalState = thermalStateName(
             [NSProcessInfo processInfo].thermalState
@@ -4833,6 +5210,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> operatorPipeline = nil;
     __strong id<MTLComputePipelineState>
         parameterizedOperatorPipeline = nil;
+    __strong id<MTLComputePipelineState> bodyVelocityPipeline = nil;
     __strong id<MTLComputePipelineState> taskObserve = nil;
     __strong id<MTLComputePipelineState> taskThreatSelect = nil;
     __strong id<MTLComputePipelineState> taskJointCbf = nil;
@@ -4853,7 +5231,6 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> scenePrediction = nil;
     __strong id<MTLComputePipelineState> colliderProjection = nil;
     __strong id<MTLComputePipelineState> sweptProjection = nil;
-    __strong id<MTLComputePipelineState> ccd = nil;
     __strong id<MTLComputePipelineState> ccdEventInitialize = nil;
     __strong id<MTLComputePipelineState> ccdEventPrepare = nil;
     __strong id<MTLComputePipelineState> ccdEventSelect = nil;
@@ -4910,44 +5287,32 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> qualitySolve = nil;
     __strong id<MTLComputePipelineState> qualityApply = nil;
     __strong id<MTLComputePipelineState> qualityQueueStatus = nil;
-    __strong id<MTLComputePipelineState> rodPrepare = nil;
-    __strong id<MTLComputePipelineState> rodContactPrepare = nil;
-    __strong id<MTLComputePipelineState> rodPack = nil;
-    __strong id<MTLComputePipelineState> rodStep = nil;
-    __strong id<MTLComputePipelineState> rodFactor = nil;
-    __strong id<MTLComputePipelineState> rodUnpack = nil;
-    __strong id<MTLComputePipelineState> rodLatch = nil;
-    __strong id<MTLComputePipelineState> rodContactLatch = nil;
-    __strong id<MTLComputePipelineState> rodToolNarrowphase = nil;
-    __strong id<MTLComputePipelineState> rodContactScan = nil;
-    __strong id<MTLComputePipelineState> rodContactScatter = nil;
-    __strong id<MTLComputePipelineState> rodContactSolve = nil;
-    __strong id<MTLComputePipelineState> rodCommit = nil;
-    __strong id<MTLComputePipelineState> rodContactCommit = nil;
-    __strong id<MTLComputePipelineState> rodEventInitialize = nil;
-    __strong id<MTLComputePipelineState> inactiveRodEventRestore = nil;
-    __strong id<MTLComputePipelineState> rodEventSegmentPublish = nil;
-    __strong id<MTLComputePipelineState> rodSweptProjection = nil;
-    __strong id<MTLComputePipelineState> rodCCD = nil;
-    __strong id<MTLComputePipelineState> rodCCDWitnessTag = nil;
     __strong id<MTLComputePipelineState> authoredIRSeed = nil;
-    __strong id<MTLComputePipelineState>
-        generalizedConstraintSolve = nil;
+    __strong NSString* failedContactPipelineName = nil;
+    __strong NSError* failedContactPipelineError = nil;
     auto createContactPipeline = [&](
         NSString* functionName
     ) {
-        error = nil;
-        return makePipeline(
+        NSError* pipelineError = nil;
+        id<MTLComputePipelineState> pipeline = makePipeline(
             device,
             library,
             functionName,
-            &error
+            &pipelineError
         );
+        if (pipeline == nil && failedContactPipelineName == nil) {
+            failedContactPipelineName = [functionName copy];
+            failedContactPipelineError = pipelineError;
+        }
+        return pipeline;
     };
     operatorPipeline =
         createContactPipeline(@"mr_articulated_operator");
     parameterizedOperatorPipeline = createContactPipeline(
         @"mr_parameterized_articulated_operator"
+    );
+    bodyVelocityPipeline = createContactPipeline(
+        @"mr_articulated_materialize_body_velocities"
     );
     taskObserve =
         createContactPipeline(@"mr_locomotion_task_observe");
@@ -5000,7 +5365,6 @@ MetalWorldDiagnostics initializeContext(
     sweptProjection = createContactPipeline(
         @"mr_world_project_swept_colliders"
     );
-    ccd = createContactPipeline(@"mr_world_resolve_ccd");
     ccdEventInitialize = createContactPipeline(
         @"mr_world_initialize_ccd_event_state"
     );
@@ -5031,24 +5395,6 @@ MetalWorldDiagnostics initializeContext(
     );
     eventSegmentPublish = createContactPipeline(
         @"mr_world_publish_event_segment"
-    );
-    rodEventInitialize = createContactPipeline(
-        @"mr_world_initialize_rod_event_state"
-    );
-    inactiveRodEventRestore = createContactPipeline(
-        @"mr_world_restore_inactive_rod_event_candidate"
-    );
-    rodEventSegmentPublish = createContactPipeline(
-        @"mr_world_publish_rod_event_segment"
-    );
-    rodSweptProjection = createContactPipeline(
-        @"mr_world_project_swept_rod_colliders"
-    );
-    rodCCD = createContactPipeline(
-        @"mr_world_resolve_rod_ccd"
-    );
-    rodCCDWitnessTag = createContactPipeline(
-        @"mr_world_tag_rod_ccd_witnesses"
     );
     pairFlags =
         createContactPipeline(@"mr_world_flag_eligible_pairs");
@@ -5162,56 +5508,12 @@ MetalWorldDiagnostics initializeContext(
     qualityQueueStatus = createContactPipeline(
         @"mr_world_publish_unified_quality_queue_status"
     );
-    rodPrepare = createContactPipeline(
-        @"mr_world_prepare_rod_state"
-    );
-    rodContactPrepare = createContactPipeline(
-        @"mr_world_prepare_rod_contact_cache"
-    );
-    rodPack = createContactPipeline(
-        @"mr_world_pack_rod_state"
-    );
-    rodStep = createContactPipeline(
-        @"mr_discrete_elastic_rod_step"
-    );
-    rodFactor = createContactPipeline(
-        @"mr_world_factor_rod_operator"
-    );
-    rodUnpack = createContactPipeline(
-        @"mr_world_unpack_rod_state"
-    );
-    rodLatch = createContactPipeline(
-        @"mr_world_latch_rod_status"
-    );
-    rodContactLatch = createContactPipeline(
-        @"mr_world_latch_rod_contact_status"
-    );
-    rodToolNarrowphase = createContactPipeline(
-        @"mr_rod_tool_narrowphase"
-    );
-    rodContactScan = createContactPipeline(
-        @"mr_world_scan_rod_contact_ir"
-    );
-    rodContactScatter = createContactPipeline(
-        @"mr_world_scatter_rod_contact_ir"
-    );
-    rodContactSolve = createContactPipeline(
-        @"mr_world_solve_rod_contact_constraints"
-    );
-    rodCommit = createContactPipeline(
-        @"mr_world_commit_rod_state"
-    );
-    rodContactCommit = createContactPipeline(
-        @"mr_world_commit_rod_contact_cache"
-    );
     authoredIRSeed = createContactPipeline(
         @"mr_world_seed_authored_constraint_ir"
     );
-    generalizedConstraintSolve = createContactPipeline(
-        @"mr_world_solve_generalized_constraints"
-    );
     if (operatorPipeline == nil ||
         parameterizedOperatorPipeline == nil ||
+        bodyVelocityPipeline == nil ||
         taskObserve == nil ||
         taskThreatSelect == nil ||
         taskJointCbf == nil ||
@@ -5232,7 +5534,6 @@ MetalWorldDiagnostics initializeContext(
         scenePrediction == nil ||
         colliderProjection == nil ||
         sweptProjection == nil ||
-        ccd == nil ||
         ccdEventInitialize == nil ||
         ccdEventPrepare == nil ||
         ccdEventSelect == nil ||
@@ -5244,12 +5545,6 @@ MetalWorldDiagnostics initializeContext(
         eventColliderProjection == nil ||
         inactiveEventRestore == nil ||
         eventSegmentPublish == nil ||
-        rodEventInitialize == nil ||
-        inactiveRodEventRestore == nil ||
-        rodEventSegmentPublish == nil ||
-        rodSweptProjection == nil ||
-        rodCCD == nil ||
-        rodCCDWitnessTag == nil ||
         pairFlags == nil ||
         scanBlocks == nil ||
         scanAdd == nil ||
@@ -5295,26 +5590,16 @@ MetalWorldDiagnostics initializeContext(
         qualitySolve == nil ||
         qualityApply == nil ||
         qualityQueueStatus == nil ||
-        rodPrepare == nil ||
-        rodContactPrepare == nil ||
-        rodPack == nil ||
-        rodStep == nil ||
-        rodUnpack == nil ||
-        rodLatch == nil ||
-        rodContactLatch == nil ||
-        rodToolNarrowphase == nil ||
-        rodContactScan == nil ||
-        rodContactScatter == nil ||
-        rodContactSolve == nil ||
-        rodCommit == nil ||
-        rodContactCommit == nil ||
-        authoredIRSeed == nil ||
-        generalizedConstraintSolve == nil) {
+        authoredIRSeed == nil) {
+        const std::string functionName = failedContactPipelineName == nil
+            ? std::string{"unknown"}
+            : nsString(failedContactPipelineName);
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::metalPipelineFailure,
-            "failed to create device-resident contact pipeline: " +
-                describeError(error)
+            "failed to create device-resident contact pipeline '" +
+                functionName + "': " +
+                describeError(failedContactPipelineError)
         );
     }
 
@@ -5334,6 +5619,10 @@ MetalWorldDiagnostics initializeContext(
             kOperatorThreadsPerThreadgroup ||
         operatorPipeline.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
+        bodyVelocityPipeline.maxTotalThreadsPerThreadgroup <
+            kOperatorThreadsPerThreadgroup ||
+        bodyVelocityPipeline.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
         prepare.maxTotalThreadsPerThreadgroup == 0u ||
         commit.maxTotalThreadsPerThreadgroup == 0u ||
         capture.maxTotalThreadsPerThreadgroup == 0u ||
@@ -5351,7 +5640,6 @@ MetalWorldDiagnostics initializeContext(
         scenePrediction.maxTotalThreadsPerThreadgroup == 0u ||
         colliderProjection.maxTotalThreadsPerThreadgroup == 0u ||
         sweptProjection.maxTotalThreadsPerThreadgroup == 0u ||
-        ccd.maxTotalThreadsPerThreadgroup == 0u ||
         ccdEventInitialize.maxTotalThreadsPerThreadgroup == 0u ||
         ccdEventPrepare.maxTotalThreadsPerThreadgroup == 0u ||
         ccdEventSelect.maxTotalThreadsPerThreadgroup == 0u ||
@@ -5440,27 +5728,7 @@ MetalWorldDiagnostics initializeContext(
             MR_SIMD_WIDTH ||
         qualityApply.maxTotalThreadsPerThreadgroup == 0u ||
         qualityQueueStatus.maxTotalThreadsPerThreadgroup == 0u ||
-        rodPrepare.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
-        rodPack.maxTotalThreadsPerThreadgroup == 0u ||
-        rodStep.maxTotalThreadsPerThreadgroup <
-            MR_ROD_GPU_MAX_NODES ||
-        rodFactor.maxTotalThreadsPerThreadgroup == 0u ||
-        rodUnpack.maxTotalThreadsPerThreadgroup == 0u ||
-        rodLatch.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactLatch.maxTotalThreadsPerThreadgroup == 0u ||
-        rodToolNarrowphase.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactScan.maxTotalThreadsPerThreadgroup <
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        rodContactScatter.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactSolve.maxTotalThreadsPerThreadgroup == 0u ||
-        rodCommit.maxTotalThreadsPerThreadgroup == 0u ||
-        rodContactCommit.maxTotalThreadsPerThreadgroup == 0u ||
         authoredIRSeed.maxTotalThreadsPerThreadgroup == 0u ||
-        generalizedConstraintSolve
-                .maxTotalThreadsPerThreadgroup == 0u ||
-        rodStep.staticThreadgroupMemoryLength >
-            device.maxThreadgroupMemoryLength ||
         qualityPrepare.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
         qualityWarmStart.staticThreadgroupMemoryLength >
@@ -5498,12 +5766,6 @@ MetalWorldDiagnostics initializeContext(
         qualitySolve.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE ||
         streamedInverse.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        rodToolNarrowphase.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        rodContactScan.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        rodStep.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE) {
         return reject(
             std::move(diagnostics),
@@ -5526,6 +5788,7 @@ MetalWorldDiagnostics initializeContext(
     context.operatorPipeline = operatorPipeline;
     context.parameterizedOperatorPipeline =
         parameterizedOperatorPipeline;
+    context.bodyVelocityPipeline = bodyVelocityPipeline;
     context.taskObservePipeline = taskObserve;
     context.taskThreatSelectPipeline = taskThreatSelect;
     context.taskJointCbfPipeline = taskJointCbf;
@@ -5547,7 +5810,7 @@ MetalWorldDiagnostics initializeContext(
     context.scenePredictionPipeline = scenePrediction;
     context.colliderProjectionPipeline = colliderProjection;
     context.sweptProjectionPipeline = sweptProjection;
-    context.ccdPipeline = ccd;
+    context.ccdPipeline = nil;
     context.ccdEventInitializePipeline = ccdEventInitialize;
     context.ccdEventPreparePipeline = ccdEventPrepare;
     context.ccdEventSelectPipeline = ccdEventSelect;
@@ -5559,14 +5822,12 @@ MetalWorldDiagnostics initializeContext(
     context.eventColliderProjectionPipeline = eventColliderProjection;
     context.inactiveEventRestorePipeline = inactiveEventRestore;
     context.eventSegmentPublishPipeline = eventSegmentPublish;
-    context.rodEventInitializePipeline = rodEventInitialize;
-    context.inactiveRodEventRestorePipeline =
-        inactiveRodEventRestore;
-    context.rodEventSegmentPublishPipeline =
-        rodEventSegmentPublish;
-    context.rodSweptProjectionPipeline = rodSweptProjection;
-    context.rodCCDPipeline = rodCCD;
-    context.rodCCDWitnessTagPipeline = rodCCDWitnessTag;
+    context.rodEventInitializePipeline = nil;
+    context.inactiveRodEventRestorePipeline = nil;
+    context.rodEventSegmentPublishPipeline = nil;
+    context.rodSweptProjectionPipeline = nil;
+    context.rodCCDPipeline = nil;
+    context.rodCCDWitnessTagPipeline = nil;
     context.pairFlagPipeline = pairFlags;
     context.scanBlocksPipeline = scanBlocks;
     context.scanAddPipeline = scanAdd;
@@ -5622,30 +5883,39 @@ MetalWorldDiagnostics initializeContext(
     context.qualitySolvePipeline = qualitySolve;
     context.qualityApplyPipeline = qualityApply;
     context.qualityQueueStatusPipeline = qualityQueueStatus;
-    context.rodPreparePipeline = rodPrepare;
-    context.rodContactPreparePipeline = rodContactPrepare;
-    context.rodPackPipeline = rodPack;
-    context.rodStepPipeline = rodStep;
-    context.rodFactorPipeline = rodFactor;
-    context.rodUnpackPipeline = rodUnpack;
-    context.rodLatchPipeline = rodLatch;
-    context.rodContactLatchPipeline = rodContactLatch;
-    context.rodToolNarrowphasePipeline = rodToolNarrowphase;
-    context.rodContactScanPipeline = rodContactScan;
-    context.rodContactScatterPipeline = rodContactScatter;
-    context.rodContactSolvePipeline = rodContactSolve;
-    context.rodCommitPipeline = rodCommit;
-    context.rodContactCommitPipeline = rodContactCommit;
+    context.rodPreparePipeline = nil;
+    context.rodContactPreparePipeline = nil;
+    context.rodPackPipeline = nil;
+    context.rodStepPipeline = nil;
+    context.rodFactorPipeline = nil;
+    context.rodUnpackPipeline = nil;
+    context.rodLatchPipeline = nil;
+    context.rodContactLatchPipeline = nil;
+    context.rodToolNarrowphasePipeline = nil;
+    context.rodContactScanPipeline = nil;
+    context.rodContactScatterPipeline = nil;
+    context.rodContactSolvePipeline = nil;
+    context.rodCommitPipeline = nil;
+    context.rodContactCommitPipeline = nil;
     context.authoredIRSeedPipeline = authoredIRSeed;
-    context.generalizedConstraintSolvePipeline =
-        generalizedConstraintSolve;
+    context.generalizedConstraintSolvePipeline = nil;
     context.stats.queriedThreadExecutionWidth =
         static_cast<std::uint32_t>(
             pairNarrowphase.threadExecutionWidth
         );
     context.initialized = true;
-    context.stats.pipelineCreationCount += 85u;
-    return diagnostics;
+    context.stats.pipelineCreationCount += 63u;
+    diagnostics = ensureHybridCCDPipeline(
+        context,
+        std::move(diagnostics)
+    );
+    if (!diagnostics.succeeded()) {
+        return diagnostics;
+    }
+    return ensureGeneralizedConstraintPipeline(
+        context,
+        std::move(diagnostics)
+    );
 }
 
 std::size_t growthCapacity(
@@ -6311,6 +6581,7 @@ MetalWorldDiagnostics ensureBufferArena(
         context.boundTaskFingerprint = 0u;
         context.boundPolicyFingerprint = 0u;
         context.boundMulticopterFingerprint = 0u;
+        context.boundDevicePhysicsFingerprint = 0u;
     }
     if (persistentStateBufferReplaced) {
         ++context.stateArenaGeneration;
@@ -7091,6 +7362,10 @@ void uploadBatch(
 
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
+    context.boundDevicePhysicsFingerprint =
+        config.devicePhysicsProgram.valid()
+        ? config.devicePhysicsProgram.fingerprint
+        : 0u;
     if (nativeTask &&
         context.boundTaskFingerprint !=
             config.taskProgram.fingerprint()) {
@@ -9076,6 +9351,43 @@ bool encodePrepare(
     return true;
 }
 
+bool encodeClearBodyWrenches(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const std::size_t environmentCount,
+    const std::size_t bodyCount
+) {
+    if (environmentCount == 0u || bodyCount == 0u ||
+        environmentCount >
+            std::numeric_limits<std::size_t>::max() / bodyCount) {
+        return false;
+    }
+    const std::size_t elementCount = environmentCount * bodyCount;
+    if (elementCount >
+        std::numeric_limits<std::size_t>::max() /
+            sizeof(MRABABodyWrenchGPU)) {
+        return false;
+    }
+    const std::size_t byteCount =
+        elementCount * sizeof(MRABABodyWrenchGPU);
+    id<MTLBuffer> buffer = context.buffers[kBodyWrenchPlaceholder];
+    if (buffer == nil || buffer.length < byteCount) {
+        return false;
+    }
+    id<MTLBlitCommandEncoder> encoder =
+        [commandBuffer blitCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label = @"MetalWorld global body-wrench clear";
+    [encoder
+        fillBuffer:buffer
+             range:NSMakeRange(0u, byteCount)
+             value:0u];
+    [encoder endEncoding];
+    return true;
+}
+
 bool encodeDriveRefresh(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -9241,6 +9553,201 @@ bool encodeDeviceObservationBodies(
             0u,
             environmentCount
         );
+}
+
+bool encodeDevicePhysicsBodies(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const std::size_t sourceQ,
+    const std::size_t sourceScene,
+    const std::size_t environmentCount,
+    const bool initializeProjectionStatus
+) {
+    if (initializeProjectionStatus) {
+        if (environmentCount >
+            std::numeric_limits<std::size_t>::max() /
+                sizeof(MRMetalWorldContactStatusGPU)) {
+            return false;
+        }
+        const std::size_t byteCount =
+            environmentCount * sizeof(MRMetalWorldContactStatusGPU);
+        id<MTLBuffer> statusBuffer = context.buffers[kContactStatuses];
+        if (statusBuffer == nil || statusBuffer.length < byteCount) {
+            return false;
+        }
+        id<MTLBlitCommandEncoder> clear =
+            [commandBuffer blitCommandEncoder];
+        if (clear == nil) {
+            return false;
+        }
+        clear.label = @"MetalWorld device-physics projection status clear";
+        [clear
+            fillBuffer:statusBuffer
+                 range:NSMakeRange(0u, byteCount)
+                 value:0u];
+        [clear endEncoding];
+    }
+    return encodeArticulatedOperator(
+               context,
+               commandBuffer,
+               kOperatorKinematicsDispatch,
+               sourceQ,
+               kPointQueries,
+               kBodyPoses,
+               environmentCount,
+               @"MetalWorld device-physics articulation projection",
+               false
+           ) &&
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.bodyProjectionPipeline,
+            @"MetalWorld device-physics global body projection",
+            {
+                {0u, kContactDispatch},
+                {1u, kArticulations},
+                {2u, kBodies},
+                {3u, kSceneBodyIndices},
+                {4u, kBodyPoses},
+                {5u, kOperatorStatuses},
+                {6u, sourceScene},
+                {7u, kCurrentBodies},
+                {8u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount
+        );
+}
+
+bool encodeDevicePhysicsBodyVelocities(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MetalWorldLayout& layout,
+    const std::size_t sourceQ,
+    const std::size_t sourceV,
+    const std::size_t environmentCount
+) {
+    if (context.boundArticulations.empty() ||
+        context.boundArticulations.size() !=
+            layout.kinematicsDispatches.size()) {
+        return false;
+    }
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label =
+        @"MetalWorld device-physics articulated body velocities";
+    [encoder setComputePipelineState:context.bodyVelocityPipeline];
+    for (std::size_t owner = 0u;
+         owner < context.boundArticulations.size();
+         ++owner) {
+        const MRArticulationGPU& articulation =
+            context.boundArticulations[owner];
+        const MRArticulatedOperatorDispatchGPU& dispatch =
+            layout.kinematicsDispatches[owner];
+        [encoder setBuffer:context.buffers[kWorld]
+                     offset:0u
+                    atIndex:0u];
+        [encoder setBuffer:context.buffers[kArticulations]
+                     offset:0u
+                    atIndex:1u];
+        [encoder setBuffer:context.buffers[kJoints]
+                     offset:0u
+                    atIndex:2u];
+        [encoder setBuffer:context.buffers[kDofs]
+                     offset:0u
+                    atIndex:3u];
+        [encoder setBuffer:context.buffers[kBodies]
+                     offset:0u
+                    atIndex:4u];
+        [encoder setBytes:&dispatch
+                   length:sizeof(dispatch)
+                  atIndex:5u];
+        [encoder setBuffer:context.buffers[sourceQ]
+                     offset:articulation.qOffset * sizeof(float)
+                    atIndex:6u];
+        [encoder setBuffer:context.buffers[sourceV]
+                     offset:articulation.vOffset * sizeof(float)
+                    atIndex:7u];
+        [encoder setBuffer:context.buffers[kCurrentBodies]
+                     offset:articulation.firstBody *
+                         sizeof(MRBodyStateGPU)
+                    atIndex:8u];
+        [encoder setBuffer:context.buffers[kOperatorStatuses]
+                     offset:owner * environmentCount *
+                         sizeof(MRArticulatedOperatorStatusGPU)
+                    atIndex:9u];
+        [encoder
+            dispatchThreadgroups:MTLSizeMake(
+                static_cast<NSUInteger>(environmentCount),
+                1u,
+                1u
+            )
+            threadsPerThreadgroup:MTLSizeMake(
+                kOperatorThreadsPerThreadgroup,
+                1u,
+                1u
+            )];
+    }
+    [encoder endEncoding];
+    return true;
+}
+
+bool encodeDevicePhysicsProgram(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MetalWorldStepConfig& config,
+    const MetalWorldLayout& layout,
+    const CompiledWorld& world,
+    const MRMetalWorldPassGPU& pass,
+    const MetalWorldDevicePhysicsPhase phase,
+    const std::size_t sourceQ,
+    const std::size_t sourceV,
+    const std::size_t sourceScene,
+    const std::size_t environmentCount
+) {
+    if (!config.devicePhysicsProgram.valid()) {
+        return true;
+    }
+    const MetalWorldDevicePhysicsPass physics{
+        .commandBuffer = (__bridge void*)commandBuffer,
+        .q = (__bridge void*)context.buffers[sourceQ],
+        .v = (__bridge void*)context.buffers[sourceV],
+        .sceneBodies = (__bridge void*)context.buffers[sourceScene],
+        .currentBodies = (__bridge void*)context.buffers[kCurrentBodies],
+        .bodyWrenches =
+            (__bridge void*)context.buffers[kBodyWrenchPlaceholder],
+        .resetMasks = (__bridge void*)context.buffers[kResetMasks],
+        .environmentStatuses =
+            (__bridge void*)context.buffers[kEnvironmentStatuses],
+        .contactConstraints = (__bridge void*)context.buffers[kContacts],
+        .contactStatuses = (__bridge void*)context.buffers[kContactStatuses],
+        .seed = config.taskSeed,
+        .phase = phase,
+        .controlStep = pass.controlStep,
+        .physicsSubstep = pass.physicsSubstep,
+        .physicsSubsteps = layout.dispatch.physicsSubsteps,
+        .environmentCount =
+            static_cast<std::uint32_t>(environmentCount),
+        .articulationCount = world.articulationCount(),
+        .bodyCount = layout.contactDispatch.bodyCount,
+        .sceneBodyCount = layout.contactDispatch.sceneBodyCount,
+        .nq = layout.dispatch.nq,
+        .nv = layout.dispatch.nv,
+        .bodyStateStride = layout.contactDispatch.bodyStateStride,
+        .sceneBodyStride = layout.contactDispatch.sceneBodyStride,
+        .bodyWrenchStride = layout.contactDispatch.bodyStateStride,
+        .contactConstraintStride = layout.contactDispatch.constraintStride,
+        .resetMaskStepStride = layout.dispatch.resetMaskStepStride,
+        .timestepSeconds = layout.contactDispatch.timestepAndBias.x,
+    };
+    return config.devicePhysicsProgram.encode(
+        config.devicePhysicsProgram.context,
+        physics
+    );
 }
 
 bool encodeTaskThreatSelect(
@@ -10362,6 +10869,19 @@ bool encodeABA(
     }
     encoder.label = @"MetalWorld ABA";
     [encoder setComputePipelineState:pipeline];
+    // The single-articulation ABA variants consume an articulation-local
+    // wrench slice, while the shared arena is indexed by global body. The
+    // multi-articulation variant applies MRMultiABADispatchGPU::wrenchBase
+    // itself, so only rebase the single-articulation binding here.
+    NSUInteger bodyWrenchOffset = 0u;
+    if (articulationCount == 1u &&
+        (context.boundContactDispatch.flags &
+         MR_METAL_WORLD_CONTACT_BODY_WRENCHES) != 0u &&
+        !context.boundArticulations.empty()) {
+        bodyWrenchOffset =
+            context.boundArticulations.front().firstBody *
+            sizeof(MRABABodyWrenchGPU);
+    }
     [encoder setBuffer:context.buffers[kWorld]
                  offset:0u
                 atIndex:0u];
@@ -10390,7 +10910,7 @@ bool encodeABA(
                  offset:0u
                 atIndex:8u];
     [encoder setBuffer:context.buffers[kBodyWrenchPlaceholder]
-                 offset:0u
+                 offset:bodyWrenchOffset
                 atIndex:9u];
     [encoder setBuffer:context.buffers[kCandidateAcceleration]
                  offset:0u
@@ -11829,6 +12349,7 @@ bool encodeHybridContactSubstep(
                     {5u, eventStateIn},
                     {6u, kCandidateBodies},
                     {7u, kContactStatuses},
+                    {8u, kBodyWrenchPlaceholder},
                 },
                 nullptr,
                 0u,
@@ -11837,7 +12358,7 @@ bool encodeHybridContactSubstep(
                 0u,
 	                &remainingMode,
 	                sizeof(remainingMode),
-	                8u
+	                9u
 	            ) ||
 	            (
 	                world.rodCount() != 0u &&
@@ -12044,6 +12565,7 @@ bool encodeHybridContactSubstep(
                     {5u, eventStateOut},
                     {6u, kCandidateBodies},
                     {7u, kContactStatuses},
+                    {8u, kBodyWrenchPlaceholder},
                 },
                 nullptr,
                 0u,
@@ -12052,7 +12574,7 @@ bool encodeHybridContactSubstep(
                 0u,
                 &selectedMode,
                 sizeof(selectedMode),
-                8u
+                9u
             ) ||
             (
                 world.rodCount() != 0u &&
@@ -12780,6 +13302,7 @@ bool encodeContactSubstep(
                 {4u, kCurrentBodies},
                 {5u, kCandidateBodies},
                 {6u, kContactStatuses},
+                {7u, kBodyWrenchPlaceholder},
             },
             nullptr,
             0u,
@@ -13003,6 +13526,7 @@ bool encodeContactSubstep(
             sizeof(MRIndirectDispatchArgumentsGPU)
         ) ||
         (
+            context.boundContactDispatch.authoredConstraintCount != 0u &&
             !useQuality &&
             !encodeContactThreadKernel(
                 context,
@@ -13087,6 +13611,7 @@ bool encodeContactSubstep(
             )
         ) ||
         (
+            context.boundContactDispatch.authoredConstraintCount != 0u &&
             !useQuality &&
             !encodeContactThreadKernel(
                 context,
@@ -16525,14 +17050,17 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     world.fingerprint() ||
                 residentData->taskFingerprint !=
                     config.taskProgram.fingerprint() ||
+                residentData->devicePhysicsFingerprint !=
+                    (config.devicePhysicsProgram.valid()
+                         ? config.devicePhysicsProgram.fingerprint
+                         : 0u) ||
                 residentData->taskSeed != config.taskSeed ||
                 residentData->environmentCount !=
                     batch.environmentCount) {
                 return reject(
                     std::move(diagnostics),
                     MetalWorldHostStatus::invalidDimensions,
-                    "resident world, task, seed, or environment count "
-                    "changed"
+                    "resident world, task, device physics, seed, or environment count changed"
                 );
             }
             if (!batch.resetMasks.empty() &&
@@ -16627,6 +17155,10 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     world.fingerprint();
                 residentData->taskFingerprint =
                     config.taskProgram.fingerprint();
+                residentData->devicePhysicsFingerprint =
+                    config.devicePhysicsProgram.valid()
+                    ? config.devicePhysicsProgram.fingerprint
+                    : 0u;
                 residentData->taskSeed = config.taskSeed;
                 residentData->environmentCount =
                     batch.environmentCount;
@@ -16665,6 +17197,14 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             if (!diagnostics.succeeded()) {
                 return diagnostics;
             }
+            diagnostics = ensureRodPipelines(
+                *selectedState,
+                world.rodCount() != 0u,
+                std::move(diagnostics)
+            );
+            if (!diagnostics.succeeded()) {
+                return diagnostics;
+            }
             diagnostics = ensureBufferArena(
                 *selectedState,
                 requirements,
@@ -16692,6 +17232,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             const bool uploadInitialState =
                 !residentContinuation;
             const bool nativeTask = config.taskProgram.valid();
+            const bool hasBodyWrenches =
+                (diagnostics.layout.dispatch.flags &
+                 MR_METAL_WORLD_HAS_BODY_WRENCHES) != 0u;
             const bool taskTracksImpactContacts =
                 nativeTask &&
                 !config.taskProgram.impactEvents().empty();
@@ -16721,6 +17264,10 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             }
             commandBuffer.label =
                 @"MetalRobo persistent batched world graph";
+            DevicePhysicsAbortGuard devicePhysicsAbortGuard(
+                config.devicePhysicsProgram,
+                (__bridge void*)commandBuffer
+            );
             uploadBatch(
                 *selectedState,
                 commandBuffer,
@@ -17072,6 +17619,15 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             MetalWorldCCDMode::hybrid;
                     const bool encodedABA =
                         (
+                            !hasBodyWrenches ||
+                            encodeClearBodyWrenches(
+                                *selectedState,
+                                commandBuffer,
+                                batch.environmentCount,
+                                world.model().bodies.size()
+                            )
+                        ) &&
+                        (
                             config.actuationMode !=
                                 MetalWorldActuationMode::
                                     implicitPositionDrive ||
@@ -17105,6 +17661,40 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 sourceV,
                                 sourceMotorState,
                                 batch.environmentCount
+                            )
+                        ) &&
+                        (
+                            !config.devicePhysicsProgram.valid() ||
+                            (
+                                encodeDevicePhysicsBodies(
+                                    *selectedState,
+                                    commandBuffer,
+                                    sourceQ,
+                                    sourceScene,
+                                    batch.environmentCount,
+                                    !contactMode
+                                ) &&
+                                encodeDevicePhysicsBodyVelocities(
+                                    *selectedState,
+                                    commandBuffer,
+                                    diagnostics.layout,
+                                    sourceQ,
+                                    sourceV,
+                                    batch.environmentCount
+                                ) &&
+                                encodeDevicePhysicsProgram(
+                                    *selectedState,
+                                    commandBuffer,
+                                    config,
+                                    diagnostics.layout,
+                                    world,
+                                    pass,
+                                    MetalWorldDevicePhysicsPhase::preDynamics,
+                                    sourceQ,
+                                    sourceV,
+                                    sourceScene,
+                                    batch.environmentCount
+                                )
                             )
                         ) &&
                         (
@@ -17309,11 +17899,48 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 batch.environmentCount
                             )
                         );
+                    const bool encodedDevicePhysicsPostCommit =
+                        encodedTaskImpactContact &&
+                        (
+                            !config.devicePhysicsProgram.valid() ||
+                            (
+                                encodeDevicePhysicsBodies(
+                                    *selectedState,
+                                    commandBuffer,
+                                    destinationQ,
+                                    destinationScene,
+                                    batch.environmentCount,
+                                    !contactMode
+                                ) &&
+                                encodeDevicePhysicsBodyVelocities(
+                                    *selectedState,
+                                    commandBuffer,
+                                    diagnostics.layout,
+                                    destinationQ,
+                                    destinationV,
+                                    batch.environmentCount
+                                ) &&
+                                encodeDevicePhysicsProgram(
+                                    *selectedState,
+                                    commandBuffer,
+                                    config,
+                                    diagnostics.layout,
+                                    world,
+                                    pass,
+                                    MetalWorldDevicePhysicsPhase::postCommit,
+                                    destinationQ,
+                                    destinationV,
+                                    destinationScene,
+                                    batch.environmentCount
+                                )
+                            )
+                        );
                     if (!encodedABA ||
                         !encodedRod ||
                         !encodedPublication ||
                         !encodedRodPublication ||
-                        !encodedTaskImpactContact) {
+                        !encodedTaskImpactContact ||
+                        !encodedDevicePhysicsPostCommit) {
                         return reject(
                             std::move(diagnostics),
                             MetalWorldHostStatus::metalCommandFailure,
@@ -17561,6 +18188,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             if (residentReservation != nullptr) {
                 residentReservation->handoff();
             }
+            devicePhysicsAbortGuard.handoff();
         }
         return diagnostics;
     } catch (const std::bad_alloc&) {

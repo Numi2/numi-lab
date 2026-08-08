@@ -1,0 +1,33 @@
+name: Matter Apple qualification
+
+on:
+  pull_request:
+    branches: [numisolver]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: matter-apple-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualify:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build-matter-apple -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+      - name: Build
+        run: cmake --build build-matter-apple --target metalrobo_matter_physics_probe numi-matterc numi-matter-stateful-check -j 3
+      - name: Qualify standalone Matter physics
+        run: >-
+          ctest --test-dir build-matter-apple -L matter
+          -E '^matter\.integration\.articulated_rigid_reaction$'
+          --output-on-failure -j 1
+      - name: Qualify articulated inverse-ABA coupling
+        timeout-minutes: 15
+        run: build-matter-apple/bin/metalrobo_matter_physics_probe --metal-world-coupling

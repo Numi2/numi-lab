@@ -123,6 +123,17 @@ inline float3 multiply(
     );
 }
 
+inline float3 applyWorldInverseInertia(
+    const MRBodyStateGPU state,
+    const float3 value
+) {
+    return float3(
+        dot(state.inverseInertiaWorldRow0.xyz, value),
+        dot(state.inverseInertiaWorldRow1.xyz, value),
+        dot(state.inverseInertiaWorldRow2.xyz, value)
+    );
+}
+
 inline Mat3 rotationMatrix(const float4 quaternion) {
     const float x = quaternion.x;
     const float y = quaternion.y;
@@ -215,6 +226,27 @@ inline bool writeWorldInverseInertia(
     return true;
 }
 
+inline bool writeWorldInverseInertia(
+    device MRBodyStateGPU& state,
+    device const MRBodyPropertiesGPU& body,
+    const float4 orientation
+) {
+    const Mat3 rotation = rotationMatrix(orientation);
+    const Mat3 rotated = multiply(
+        multiply(rotation, bodyInverseInertia(body)),
+        transpose(rotation)
+    );
+    if (!finite3(rotated.row0) ||
+        !finite3(rotated.row1) ||
+        !finite3(rotated.row2)) {
+        return false;
+    }
+    state.inverseInertiaWorldRow0 = float4(rotated.row0, 0.0f);
+    state.inverseInertiaWorldRow1 = float4(rotated.row1, 0.0f);
+    state.inverseInertiaWorldRow2 = float4(rotated.row2, 0.0f);
+    return true;
+}
+
 inline Mat3 stateInverseInertia(
     device const MRBodyStateGPU& state
 ) {
@@ -223,6 +255,150 @@ inline Mat3 stateInverseInertia(
     result.row1 = state.inverseInertiaWorldRow1.xyz;
     result.row2 = state.inverseInertiaWorldRow2.xyz;
     return result;
+}
+
+inline Mat3 threadStateInverseInertia(
+    thread const MRBodyStateGPU& state
+) {
+    Mat3 result;
+    result.row0 = state.inverseInertiaWorldRow0.xyz;
+    result.row1 = state.inverseInertiaWorldRow1.xyz;
+    result.row2 = state.inverseInertiaWorldRow2.xyz;
+    return result;
+}
+
+inline Mat3 deviceStateInverseInertia(
+    device const MRBodyStateGPU& state
+) {
+    Mat3 result;
+    result.row0 = state.inverseInertiaWorldRow0.xyz;
+    result.row1 = state.inverseInertiaWorldRow1.xyz;
+    result.row2 = state.inverseInertiaWorldRow2.xyz;
+    return result;
+}
+
+inline float determinant(const thread Mat3& matrix) {
+    return dot(
+        matrix.row0,
+        cross(matrix.row1, matrix.row2)
+    );
+}
+
+inline float matrixMaximumAbsolute(
+    const thread Mat3& matrix
+) {
+    return max(
+        max(
+            max(abs(matrix.row0.x), abs(matrix.row0.y)),
+            max(abs(matrix.row0.z), abs(matrix.row1.x))
+        ),
+        max(
+            max(abs(matrix.row1.y), abs(matrix.row1.z)),
+            max(
+                abs(matrix.row2.x),
+                max(abs(matrix.row2.y), abs(matrix.row2.z))
+            )
+        )
+    );
+}
+
+inline bool validWorldInverseInertia(
+    const thread Mat3& matrix
+) {
+    if (!finite3(matrix.row0) ||
+        !finite3(matrix.row1) ||
+        !finite3(matrix.row2)) {
+        return false;
+    }
+    const float scale = max(matrixMaximumAbsolute(matrix), 1.0f);
+    const float symmetryTolerance = 128.0f * 1.1920928955078125e-7f * scale;
+    if (abs(matrix.row0.y - matrix.row1.x) > symmetryTolerance ||
+        abs(matrix.row0.z - matrix.row2.x) > symmetryTolerance ||
+        abs(matrix.row1.z - matrix.row2.y) > symmetryTolerance) {
+        return false;
+    }
+    const float firstMinor = matrix.row0.x;
+    const float secondMinor =
+        matrix.row0.x * matrix.row1.y -
+        matrix.row0.y * matrix.row1.x;
+    const float fullDeterminant = determinant(matrix);
+    return
+        firstMinor > kMatrixFloor * scale &&
+        secondMinor > kMatrixFloor * scale * scale &&
+        fullDeterminant >
+            kMatrixFloor * scale * scale * scale &&
+        isfinite(secondMinor) &&
+        isfinite(fullDeterminant);
+}
+
+inline void writeStateInverseInertia(
+    thread MRBodyStateGPU& state,
+    const thread Mat3& matrix
+) {
+    state.inverseInertiaWorldRow0 = float4(matrix.row0, 0.0f);
+    state.inverseInertiaWorldRow1 = float4(matrix.row1, 0.0f);
+    state.inverseInertiaWorldRow2 = float4(matrix.row2, 0.0f);
+}
+
+inline void writeStateInverseInertia(
+    device MRBodyStateGPU& state,
+    const thread Mat3& matrix
+) {
+    state.inverseInertiaWorldRow0 = float4(matrix.row0, 0.0f);
+    state.inverseInertiaWorldRow1 = float4(matrix.row1, 0.0f);
+    state.inverseInertiaWorldRow2 = float4(matrix.row2, 0.0f);
+}
+
+inline bool rotateOverrideInverseInertia(
+    thread MRBodyStateGPU& state,
+    const float4 previousOrientation,
+    const float4 nextOrientation
+) {
+    const Mat3 previousWorld = threadStateInverseInertia(state);
+    if (!validWorldInverseInertia(previousWorld)) {
+        return false;
+    }
+    const Mat3 previousRotation = rotationMatrix(previousOrientation);
+    const Mat3 nextRotation = rotationMatrix(nextOrientation);
+    const Mat3 bodyFrame = multiply(
+        multiply(transpose(previousRotation), previousWorld),
+        previousRotation
+    );
+    const Mat3 nextWorld = multiply(
+        multiply(nextRotation, bodyFrame),
+        transpose(nextRotation)
+    );
+    if (!validWorldInverseInertia(nextWorld)) {
+        return false;
+    }
+    writeStateInverseInertia(state, nextWorld);
+    return true;
+}
+
+inline bool rotateOverrideInverseInertia(
+    device MRBodyStateGPU& state,
+    const float4 previousOrientation,
+    const float4 nextOrientation
+) {
+    const Mat3 previousWorld = deviceStateInverseInertia(state);
+    if (!validWorldInverseInertia(previousWorld)) {
+        return false;
+    }
+    const Mat3 previousRotation = rotationMatrix(previousOrientation);
+    const Mat3 nextRotation = rotationMatrix(nextOrientation);
+    const Mat3 bodyFrame = multiply(
+        multiply(transpose(previousRotation), previousWorld),
+        previousRotation
+    );
+    const Mat3 nextWorld = multiply(
+        multiply(nextRotation, bodyFrame),
+        transpose(nextRotation)
+    );
+    if (!validWorldInverseInertia(nextWorld)) {
+        return false;
+    }
+    writeStateInverseInertia(state, nextWorld);
+    return true;
 }
 
 inline bool inverseMatrix(
@@ -271,6 +447,10 @@ inline bool validSceneState(
     const uint globalBody
 ) {
     float4 normalized;
+    const bool inertiaOverride =
+        (state.flagsAndIndices[3] &
+         MR_BODY_STATE_INERTIA_OVERRIDE) != 0u;
+    const Mat3 overrideInertia = stateInverseInertia(state);
     return
         finite4(state.position) &&
         normalizedQuaternion(state.orientation, normalized) &&
@@ -281,6 +461,14 @@ inline bool validSceneState(
         (
             state.flagsAndIndices[2] == globalBody ||
             state.flagsAndIndices[2] == MR_INVALID_INDEX
+        ) &&
+        (
+            !inertiaOverride ||
+            (
+                body.motionType == MR_MOTION_DYNAMIC &&
+                state.linearVelocityAndInverseMass.w > 0.0f &&
+                validWorldInverseInertia(overrideInertia)
+            )
         );
 }
 
@@ -2406,6 +2594,11 @@ kernel void mr_world_build_body_states(
             status.firstFailingStableKeyLow =
                 operatorStatus.code;
             status.firstFailingStableKeyHigh = owner;
+            // Preserve the originating operator failure in the ordinary
+            // contact diagnostic channel as well. Device-physics projection
+            // runs before contact generation, so otherwise a rejected
+            // articulation pose looks like an unexplained contact failure.
+            status.diagnostics = operatorStatus.diagnostics;
             statuses[environment] = status;
             return;
         }
@@ -2478,26 +2671,46 @@ kernel void mr_world_build_body_states(
         state.flagsAndIndices[0] = properties.motionType;
         state.flagsAndIndices[1] = MR_INVALID_INDEX;
         state.flagsAndIndices[2] = globalBody;
-        if (!writeWorldInverseInertia(
-                state,
-                properties,
-                orientation
-            )) {
-            status.code = MR_STEP_NONFINITE_RESULT;
-            status.firstFailingConstraint = globalBody;
-            statuses[environment] = status;
-            return;
-        }
-        if (hasMassOverride) {
-            const float inverseInertiaScale =
-                input.linearVelocityAndInverseMass.w /
-                authoredInverseMass;
-            state.inverseInertiaWorldRow0.xyz *=
-                inverseInertiaScale;
-            state.inverseInertiaWorldRow1.xyz *=
-                inverseInertiaScale;
-            state.inverseInertiaWorldRow2.xyz *=
-                inverseInertiaScale;
+        const bool hasInertiaOverride =
+            properties.motionType == MR_MOTION_DYNAMIC &&
+            (input.flagsAndIndices[3] &
+             MR_BODY_STATE_INERTIA_OVERRIDE) != 0u;
+        if (hasInertiaOverride) {
+            const Mat3 overrideInertia = stateInverseInertia(input);
+            if (!validWorldInverseInertia(overrideInertia)) {
+                status.code = MR_STEP_NONFINITE_INPUT;
+                status.firstFailingConstraint = globalBody;
+                statuses[environment] = status;
+                return;
+            }
+            state.inverseInertiaWorldRow0 =
+                input.inverseInertiaWorldRow0;
+            state.inverseInertiaWorldRow1 =
+                input.inverseInertiaWorldRow1;
+            state.inverseInertiaWorldRow2 =
+                input.inverseInertiaWorldRow2;
+        } else {
+            if (!writeWorldInverseInertia(
+                    state,
+                    properties,
+                    orientation
+                )) {
+                status.code = MR_STEP_NONFINITE_RESULT;
+                status.firstFailingConstraint = globalBody;
+                statuses[environment] = status;
+                return;
+            }
+            if (hasMassOverride) {
+                const float inverseInertiaScale =
+                    input.linearVelocityAndInverseMass.w /
+                    authoredInverseMass;
+                state.inverseInertiaWorldRow0.xyz *=
+                    inverseInertiaScale;
+                state.inverseInertiaWorldRow1.xyz *=
+                    inverseInertiaScale;
+                state.inverseInertiaWorldRow2.xyz *=
+                    inverseInertiaScale;
+            }
         }
         bodyStates[bodyBase + globalBody] = state;
     }
@@ -2514,6 +2727,7 @@ kernel void mr_world_predict_scene(
     device const MRBodyStateGPU* currentBodies [[buffer(4)]],
     device MRBodyStateGPU* candidateBodies [[buffer(5)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(6)]],
+    device const MRABABodyWrenchGPU* bodyWrenches [[buffer(7)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -2550,11 +2764,25 @@ kernel void mr_world_predict_scene(
             -timestep *
                 properties.dampingAndSpeedLimits.y
         );
+        float3 linearAcceleration = world.gravityAndTimestep.xyz;
+        float3 angularAcceleration = float3(0.0f);
+        if ((dispatch.flags &
+             MR_METAL_WORLD_CONTACT_BODY_WRENCHES) != 0u) {
+            const MRABABodyWrenchGPU wrench =
+                bodyWrenches[bodyBase + globalBody];
+            linearAcceleration +=
+                state.linearVelocityAndInverseMass.w * wrench.force.xyz;
+            angularAcceleration = applyWorldInverseInertia(
+                state,
+                wrench.torque.xyz
+            );
+        }
         state.linearVelocityAndInverseMass.xyz =
-            linearScale *
-                state.linearVelocityAndInverseMass.xyz +
-            timestep * world.gravityAndTimestep.xyz;
-        state.angularVelocity.xyz *= angularScale;
+            linearScale * state.linearVelocityAndInverseMass.xyz +
+            timestep * linearAcceleration;
+        state.angularVelocity.xyz =
+            angularScale * state.angularVelocity.xyz +
+            timestep * angularAcceleration;
         if (!finite4(state.linearVelocityAndInverseMass) ||
             !finite4(state.angularVelocity)) {
             MRMetalWorldContactStatusGPU status =
@@ -2713,7 +2941,8 @@ kernel void mr_world_predict_scene_event(
     device const MRCCDEventStateGPU* eventStates [[buffer(5)]],
     device MRBodyStateGPU* candidateBodies [[buffer(6)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(7)]],
-    constant uint& mode [[buffer(8)]],
+    device const MRABABodyWrenchGPU* bodyWrenches [[buffer(8)]],
+    constant uint& mode [[buffer(9)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
@@ -2750,11 +2979,25 @@ kernel void mr_world_predict_scene_event(
                 -timestep *
                     properties.dampingAndSpeedLimits.y
             );
+            float3 linearAcceleration = world.gravityAndTimestep.xyz;
+            float3 angularAcceleration = float3(0.0f);
+            if ((dispatch.flags &
+                 MR_METAL_WORLD_CONTACT_BODY_WRENCHES) != 0u) {
+                const MRABABodyWrenchGPU wrench =
+                    bodyWrenches[bodyBase + globalBody];
+                linearAcceleration +=
+                    state.linearVelocityAndInverseMass.w * wrench.force.xyz;
+                angularAcceleration = applyWorldInverseInertia(
+                    state,
+                    wrench.torque.xyz
+                );
+            }
             state.linearVelocityAndInverseMass.xyz =
-                linearScale *
-                    state.linearVelocityAndInverseMass.xyz +
-                timestep * world.gravityAndTimestep.xyz;
-            state.angularVelocity.xyz *= angularScale;
+                linearScale * state.linearVelocityAndInverseMass.xyz +
+                timestep * linearAcceleration;
+            state.angularVelocity.xyz =
+                angularScale * state.angularVelocity.xyz +
+                timestep * angularAcceleration;
         }
         if (mode == MR_CCD_SEGMENT_SELECTED) {
             state.position.xyz +=
@@ -2775,12 +3018,22 @@ kernel void mr_world_predict_scene_event(
                 statuses[environment] = status;
                 return;
             }
+            const float4 previousOrientation = state.orientation;
             state.orientation = orientation;
-            if (!writeWorldInverseInertia(
-                    state,
-                    properties,
-                    orientation
-                )) {
+            const bool inertiaValid =
+                (state.flagsAndIndices[3] &
+                 MR_BODY_STATE_INERTIA_OVERRIDE) != 0u
+                ? rotateOverrideInverseInertia(
+                      state,
+                      previousOrientation,
+                      orientation
+                  )
+                : writeWorldInverseInertia(
+                      state,
+                      properties,
+                      orientation
+                  );
+            if (!inertiaValid) {
                 MRMetalWorldContactStatusGPU status =
                     statuses[environment];
                 status.code = MR_STEP_NONFINITE_RESULT;
@@ -9028,19 +9281,27 @@ kernel void mr_world_integrate_contact_state(
             statuses[environment] = status;
             return;
         }
+        const float4 previousOrientation = state.orientation;
         state.orientation = orientation;
-        MRBodyStateGPU updatedState = state;
-        if (!writeWorldInverseInertia(
-                updatedState,
-                properties,
-                orientation
-            )) {
+        const bool inertiaValid =
+            (state.flagsAndIndices[3] &
+             MR_BODY_STATE_INERTIA_OVERRIDE) != 0u
+            ? rotateOverrideInverseInertia(
+                  state,
+                  previousOrientation,
+                  orientation
+              )
+            : writeWorldInverseInertia(
+                  state,
+                  properties,
+                  orientation
+              );
+        if (!inertiaValid) {
             status.code = MR_STEP_NONFINITE_RESULT;
             status.firstFailingConstraint = globalBody;
             statuses[environment] = status;
             return;
         }
-        state = updatedState;
     }
     status.eventTimes.x = timestep;
     status.eventTimes.y = 0.0f;

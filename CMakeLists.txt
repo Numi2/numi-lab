@@ -7,6 +7,8 @@ project(
     LANGUAGES C CXX OBJCXX
 )
 
+include(CTest)
+
 execute_process(
     COMMAND git -C "${CMAKE_CURRENT_SOURCE_DIR}" rev-parse HEAD
     OUTPUT_VARIABLE NUMI_SOURCE_REVISION
@@ -64,6 +66,11 @@ else()
     set(METALROBO_SQLITE_TARGET SQLite::SQLite3)
 endif()
 find_package(LibXml2 REQUIRED)
+
+# The Matter compiler/runtime is a first-class Numi Lab subsystem. It builds
+# its own Metal library and exposes a borrowed-command-buffer adapter consumed
+# by MetalWorld; no second simulation queue is created for normal stepping.
+add_subdirectory(matter)
 
 set(METALROBO_SHADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
 set(METALROBO_CONSTRAINT_SOURCE
@@ -629,16 +636,24 @@ add_library(
     src/metal/MetalTactile.mm
     src/c_api.cpp
 )
+target_sources(
+    metalrobo
+    PRIVATE
+        $<TARGET_OBJECTS:numi_matter_compiler_objects>
+        $<TARGET_OBJECTS:numi_matter_runtime_objects>
+)
 add_dependencies(
     metalrobo
     metalrobo_shaders
     metalrobo_visual_kernel_hashes
+    numi_matter_shaders
 )
 
 target_include_directories(
     metalrobo
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/matter/include>"
         "$<INSTALL_INTERFACE:include>"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
@@ -1456,6 +1471,111 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+add_executable(metalrobo_matter_physics_probe apps/matter_physics_probe.mm)
+add_dependencies(metalrobo_matter_physics_probe numi_matter_shaders)
+target_compile_definitions(
+    metalrobo_matter_physics_probe
+    PRIVATE
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_STATEFUL_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/damageable_silicone.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_compile_options(
+    metalrobo_matter_physics_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_matter_physics_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_matter_physics_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+if(BUILD_TESTING)
+    add_test(
+        NAME matter.physics.mixed_mpm_fem
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mixed
+    )
+    add_test(
+        NAME matter.physics.stateful_mpm
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --stateful-mpm
+    )
+    add_test(
+        NAME matter.physics.stateful_fem
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --stateful-fem
+    )
+    add_test(
+        NAME matter.physics.mpm_freefall
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm-free
+    )
+    add_test(
+        NAME matter.physics.mpm_plane_impact
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm
+    )
+    add_test(
+        NAME matter.runtime.mpm_transaction_rollback
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm-rollback
+    )
+    add_test(
+        NAME matter.runtime.inverse_identification
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --identification
+    )
+    add_test(
+        NAME matter.physics.adaptive_mpm_demotion
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --adaptive-demotion
+    )
+    add_test(
+        NAME matter.integration.adaptive_rigid_contact_promotion
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --adaptive-promotion
+    )
+    add_test(
+        NAME matter.runtime.adaptive_promotion_rollback
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --adaptive-promotion-rollback
+    )
+    add_test(
+        NAME matter.physics.fem_plane_impact
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --fem-high-drop
+    )
+    add_test(
+        NAME matter.physics.fem_near_plane_cfl
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --fem-high-rate
+    )
+    add_test(
+        NAME matter.integration.articulated_rigid_reaction
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --metal-world-coupling
+    )
+    set_tests_properties(
+        matter.physics.mixed_mpm_fem
+        matter.physics.stateful_mpm
+        matter.physics.stateful_fem
+        matter.physics.mpm_freefall
+        matter.physics.mpm_plane_impact
+        matter.runtime.mpm_transaction_rollback
+        matter.integration.articulated_rigid_reaction
+        matter.runtime.inverse_identification
+        matter.physics.adaptive_mpm_demotion
+        matter.integration.adaptive_rigid_contact_promotion
+        matter.runtime.adaptive_promotion_rollback
+        matter.physics.fem_plane_impact
+        matter.physics.fem_near_plane_cfl
+        PROPERTIES
+            LABELS "matter;physics;metal"
+            TIMEOUT 180
+    )
+endif()
+
 add_executable(metalrobo_collision_gpu_probe apps/collision_gpu_probe.mm)
 add_dependencies(metalrobo_collision_gpu_probe metalrobo_shaders)
 target_compile_definitions(
@@ -2175,6 +2295,7 @@ install(
         numi/commands/train
         numi/commands/evaluate
         numi/commands/foundation
+        numi/commands/matter
         numi/commands/motion
         numi/commands/robots
     DESTINATION libexec/numi

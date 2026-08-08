@@ -369,7 +369,9 @@ bool makeWorldShape(
     output.type = shape.shapeType;
     output.body = shape.bodyIndex;
     output.disabled =
-        (shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u;
+        (shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+        (body.flagsAndIndices[3] &
+         MR_BODY_STATE_COLLISION_DISABLED) != 0u;
     output.rotation =
         quaternionMultiply(bodyRotation, localRotation);
     output.center = body.position.xyz +
@@ -5586,7 +5588,8 @@ inline bool finiteContactDispatch(
         MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS |
         MR_METAL_WORLD_CONTACT_QUALITY |
         MR_METAL_WORLD_CONTACT_BODY_PARAMETERS |
-        MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES;
+        MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES |
+        MR_METAL_WORLD_CONTACT_BODY_WRENCHES;
     return
         dispatch.abiVersion ==
             MR_METAL_WORLD_CONTACT_ABI_VERSION &&

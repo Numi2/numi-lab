@@ -1,0 +1,33 @@
+name: Export rod narrowphase staging
+
+on:
+  pull_request:
+    types: [synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    if: github.event.pull_request.head.ref == 'codex/matter-compiler-foundation'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - name: Package staged payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar -czf /tmp/rod-narrowphase-staging.tar.gz \
+            .github/matter-rod-narrowphase-specialization.patch.gz.b64 \
+            .github/workflows/codex-matter-export.yml
+      - name: Upload staged payload
+        uses: actions/upload-artifact@v4
+        with:
+          name: rod-narrowphase-staging-${{ github.event.pull_request.head.sha }}
+          path: /tmp/rod-narrowphase-staging.tar.gz
+          retention-days: 1
+          if-no-files-found: error

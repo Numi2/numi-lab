@@ -1,0 +1,611 @@
+namespace numi_matter_metal {
+
+inline float4 quaternionConjugate(const float4 quaternion) {
+    return float4(-quaternion.xyz, quaternion.w);
+}
+
+inline void projectProxy(
+    const NMRigidProxyGPU proxy,
+    const MRBodyStateGPU body,
+    const bool bodyBacked,
+    thread NMRigidStateGPU& state
+) {
+    const float4 bodyOrientation = bodyBacked
+        ? quaternionNormalize(body.orientation)
+        : float4(0.0f, 0.0f, 0.0f, 1.0f);
+    const float3 bodyPosition = bodyBacked
+        ? body.position.xyz
+        : float3(0.0f);
+    state.orientation = quaternionMultiply(
+        bodyOrientation,
+        quaternionNormalize(proxy.localOrientation)
+    );
+    if (proxy.shapeKind == NM_RIGID_PLANE) {
+        const float3 normal = normalize(quaternionRotate(
+            bodyOrientation,
+            proxy.localCenterAndRadius.xyz
+        ));
+        const float offset = proxy.localCenterAndRadius.w +
+            dot(normal, bodyPosition);
+        state.centerAndRadius = float4(normal, offset);
+        state.extent = float4(0.0f);
+    } else {
+        const float3 center = bodyPosition + quaternionRotate(
+            bodyOrientation,
+            proxy.localCenterAndRadius.xyz
+        );
+        state.centerAndRadius = float4(
+            center,
+            proxy.localCenterAndRadius.w
+        );
+        if (proxy.shapeKind == NM_RIGID_CAPSULE) {
+            state.extent = float4(
+                bodyPosition + quaternionRotate(
+                    bodyOrientation,
+                    proxy.localExtent.xyz
+                ),
+                0.0f
+            );
+        } else {
+            state.extent = proxy.localExtent;
+        }
+    }
+    if (bodyBacked) {
+        const float3 lever = state.centerAndRadius.xyz - body.position.xyz;
+        state.linearVelocityAndInverseMass = float4(
+            body.linearVelocityAndInverseMass.xyz +
+                cross(body.angularVelocity.xyz, lever),
+            body.linearVelocityAndInverseMass.w
+        );
+        state.angularVelocity = body.angularVelocity;
+        state.bodyCenter = body.position;
+        state.inverseInertiaRow0 = body.inverseInertiaWorldRow0;
+        state.inverseInertiaRow1 = body.inverseInertiaWorldRow1;
+        state.inverseInertiaRow2 = body.inverseInertiaWorldRow2;
+    } else {
+        state.linearVelocityAndInverseMass = float4(0.0f);
+        state.angularVelocity = float4(0.0f);
+        state.bodyCenter = float4(state.centerAndRadius.xyz, 0.0f);
+        state.inverseInertiaRow0 = float4(0.0f);
+        state.inverseInertiaRow1 = float4(0.0f);
+        state.inverseInertiaRow2 = float4(0.0f);
+    }
+}
+
+kernel void nm_project_rigid_states(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    device const NMRigidProxyGPU* proxies [[buffer(2)]],
+    device const MRBodyStateGPU* currentBodies [[buffer(3)]],
+    device NMRigidStateGPU* states [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidProxyCount;
+    if (global >= total || dispatch.rigidProxyCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.rigidProxyCount;
+    const uint proxyIndex = global - environment * dispatch.rigidProxyCount;
+    const NMRigidProxyGPU proxy = proxies[proxyIndex];
+    const bool bodyBacked = proxy.bodyIndex != NM_INVALID_INDEX &&
+        proxy.bodyIndex < bridge.currentBodyCount &&
+        bridge.currentBodyStride >= bridge.currentBodyCount;
+    MRBodyStateGPU body{};
+    if (bodyBacked) {
+        body = currentBodies[
+            environment * bridge.currentBodyStride + proxy.bodyIndex
+        ];
+    } else {
+        body.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+        body.flagsAndIndices[0] = MR_MOTION_STATIC;
+    }
+    NMRigidStateGPU state{};
+    projectProxy(proxy, body, bodyBacked, state);
+
+    // MetalWorld materializes articulated body twists directly from q/v after
+    // projecting poses. Continuum contact therefore consumes exact accepted
+    // link velocity without finite-difference history or a second dynamics
+    // solve; articulated inverse mass remains zero and reactions return only
+    // through the shared ABA body-wrench arena.
+    if ((proxy.flags & NM_RIGID_ARTICULATED) != 0u) {
+        state.linearVelocityAndInverseMass.w = 0.0f;
+        state.inverseInertiaRow0 = float4(0.0f);
+        state.inverseInertiaRow1 = float4(0.0f);
+        state.inverseInertiaRow2 = float4(0.0f);
+    }
+    states[global] = state;
+}
+
+inline bool planeContact(
+    const NMRigidStateGPU rigid,
+    const float3 point,
+    thread float& separation,
+    thread float3& normal,
+    thread float3& witness
+) {
+    normal = rigid.centerAndRadius.xyz;
+    const float magnitude = length(normal);
+    if (!(magnitude > kGeometryFloor)) {
+        return false;
+    }
+    normal /= magnitude;
+    separation = dot(normal, point) - rigid.centerAndRadius.w;
+    witness = point - separation * normal;
+    return true;
+}
+
+inline bool sphereContact(
+    const NMRigidStateGPU rigid,
+    const float3 point,
+    thread float& separation,
+    thread float3& normal,
+    thread float3& witness
+) {
+    const float3 delta = point - rigid.centerAndRadius.xyz;
+    const float distance = length(delta);
+    if (!(distance > kGeometryFloor)) {
+        normal = float3(0.0f, 0.0f, 1.0f);
+    } else {
+        normal = delta / distance;
+    }
+    separation = distance - rigid.centerAndRadius.w;
+    witness = rigid.centerAndRadius.xyz + rigid.centerAndRadius.w * normal;
+    return isfinite(separation);
+}
+
+inline bool capsuleContact(
+    const NMRigidStateGPU rigid,
+    const float3 point,
+    thread float& separation,
+    thread float3& normal,
+    thread float3& witness
+) {
+    const float3 first = rigid.centerAndRadius.xyz;
+    const float3 second = rigid.extent.xyz;
+    const float3 edge = second - first;
+    const float edgeSquared = dot(edge, edge);
+    const float parameter = edgeSquared > kGeometryFloor
+        ? clamp(dot(point - first, edge) / edgeSquared, 0.0f, 1.0f)
+        : 0.0f;
+    const float3 center = first + parameter * edge;
+    const float3 delta = point - center;
+    const float distance = length(delta);
+    normal = distance > kGeometryFloor
+        ? delta / distance
+        : float3(0.0f, 0.0f, 1.0f);
+    separation = distance - rigid.centerAndRadius.w;
+    witness = center + rigid.centerAndRadius.w * normal;
+    return isfinite(separation);
+}
+
+inline bool boxContact(
+    const NMRigidStateGPU rigid,
+    const float3 point,
+    thread float& separation,
+    thread float3& normal,
+    thread float3& witness
+) {
+    const float4 inverseOrientation = quaternionConjugate(
+        quaternionNormalize(rigid.orientation)
+    );
+    const float3 local = quaternionRotate(
+        inverseOrientation,
+        point - rigid.centerAndRadius.xyz
+    );
+    const float3 extent = max(rigid.extent.xyz, float3(0.0f));
+    const float3 signedOutside = abs(local) - extent;
+    const float3 outside = max(signedOutside, float3(0.0f));
+    const float outsideDistance = length(outside);
+    float3 localNormal;
+    float3 localWitness = clamp(local, -extent, extent);
+    if (outsideDistance > kGeometryFloor) {
+        localNormal = normalize(local - localWitness);
+        separation = outsideDistance;
+    } else {
+        const float3 remaining = extent - abs(local);
+        uint axis = 0u;
+        if (remaining.y < remaining.x) axis = 1u;
+        if (remaining.z < remaining[axis]) axis = 2u;
+        localNormal = float3(0.0f);
+        localNormal[axis] = local[axis] >= 0.0f ? 1.0f : -1.0f;
+        localWitness = local;
+        localWitness[axis] = localNormal[axis] * extent[axis];
+        separation = -remaining[axis];
+    }
+    normal = quaternionRotate(rigid.orientation, localNormal);
+    witness = rigid.centerAndRadius.xyz +
+        quaternionRotate(rigid.orientation, localWitness);
+    return finite3(normal) && finite3(witness) && isfinite(separation);
+}
+
+inline bool rigidWitness(
+    const NMRigidProxyGPU proxy,
+    const NMRigidStateGPU rigid,
+    const float3 point,
+    thread float& separation,
+    thread float3& normal,
+    thread float3& witness
+) {
+    switch (proxy.shapeKind) {
+    case NM_RIGID_PLANE:
+        return planeContact(rigid, point, separation, normal, witness);
+    case NM_RIGID_SPHERE:
+        return sphereContact(rigid, point, separation, normal, witness);
+    case NM_RIGID_CAPSULE:
+        return capsuleContact(rigid, point, separation, normal, witness);
+    case NM_RIGID_BOX:
+        return boxContact(rigid, point, separation, normal, witness);
+    default:
+        return false;
+    }
+}
+
+inline float rigidDirectionalResponse(
+    const NMRigidStateGPU rigid,
+    const float3 lever,
+    const float3 direction
+) {
+    const float3 angular = cross(lever, direction);
+    return rigid.linearVelocityAndInverseMass.w + dot(
+        angular,
+        multiplyRows(
+            rigid.inverseInertiaRow0,
+            rigid.inverseInertiaRow1,
+            rigid.inverseInertiaRow2,
+            angular
+        )
+    );
+}
+
+kernel void nm_contact_evaluate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMGridNodeStateGPU* mpmNodes [[buffer(4)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(5)]],
+    device const NMRigidProxyGPU* rigidProxies [[buffer(6)]],
+    device const NMRigidStateGPU* rigidStates [[buffer(7)]],
+    device const NMContactPairGPU* pairs [[buffer(8)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(9)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(10)]],
+    device NMContactSampleGPU* samples [[buffer(11)]],
+    device const uint* mpmNodeGenerations [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.contactPairCount;
+    const uint pairIndex = global - environment * dispatch.contactPairCount;
+    samples[global] = {};
+    if (!environmentHealthy(statuses, environment)) {
+        return;
+    }
+    const NMContactPairGPU pair = pairs[pairIndex];
+    if (pair.objectIndex >= dispatch.objectCount ||
+        pair.rigidProxy >= dispatch.rigidProxyCount) {
+        recordFailure(
+            statuses[environment],
+            NM_STATUS_INVALID_DISPATCH,
+            pair.objectIndex,
+            pairIndex,
+            float4(0.0f)
+        );
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[pair.objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + pair.objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + pair.objectIndex];
+    if (!objectDue(object, scheduler, adaptiveState, microstep)) {
+        return;
+    }
+
+    float3 point;
+    float3 velocity;
+    float inverseMass;
+    if (pair.continuumNode < dispatch.gridNodeCount) {
+        const uint nodeSlot =
+            environment * dispatch.gridNodeCount + pair.continuumNode;
+        if (mpmNodeGenerations[nodeSlot] != microstep.reserved) {
+            return;
+        }
+        const NMGridNodeStateGPU node = mpmNodes[nodeSlot];
+        point = node.positionAndMass.xyz;
+        velocity = node.candidateVelocity.xyz;
+        inverseMass = node.velocityAndInverseMass.w;
+    } else {
+        const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
+        if (femNode >= dispatch.femNodeCount) {
+            recordFailure(
+                statuses[environment],
+                NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex,
+                pairIndex,
+                float4(0.0f)
+            );
+            return;
+        }
+        const NMFEMNodeStateGPU node = femNodes[
+            environment * dispatch.femNodeCount + femNode
+        ];
+        point = node.positionAndMass.xyz;
+        velocity = node.velocityAndInverseMass.xyz;
+        inverseMass = node.velocityAndInverseMass.w;
+    }
+    if (!(inverseMass > 0.0f)) {
+        return;
+    }
+
+    const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
+    if (proxy.adaptiveObjectIndex != NM_INVALID_INDEX) {
+        if (proxy.adaptiveObjectIndex >= dispatch.objectCount) {
+            recordFailure(
+                statuses[environment],
+                NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex,
+                pairIndex,
+                float4(float(proxy.adaptiveObjectIndex), 0.0f, 0.0f, 0.0f)
+            );
+            return;
+        }
+        const NMAdaptiveStateGPU rigidOwner = adaptive[
+            environment * dispatch.objectCount +
+            proxy.adaptiveObjectIndex
+        ];
+        if (rigidOwner.activeRepresentation !=
+            NM_REPRESENTATION_RIGID) {
+            return;
+        }
+    }
+    const NMRigidStateGPU rigid = rigidStates[
+        environment * dispatch.rigidProxyCount + pair.rigidProxy
+    ];
+    float separation;
+    float3 normal;
+    float3 witness;
+    if (!rigidWitness(proxy, rigid, point, separation, normal, witness)) {
+        recordFailure(
+            statuses[environment],
+            NM_STATUS_CONTACT_FAILURE,
+            pair.objectIndex,
+            pairIndex,
+            float4(point, 0.0f)
+        );
+        return;
+    }
+    const float slop = dispatch.numericalLimits.x;
+    const float3 lever = witness - rigid.bodyCenter.xyz;
+    const float3 rigidVelocity = rigid.linearVelocityAndInverseMass.xyz +
+        cross(rigid.angularVelocity.xyz, witness - rigid.centerAndRadius.xyz);
+    const float3 relativeVelocity = velocity - rigidVelocity;
+    const float normalVelocity = dot(relativeVelocity, normal);
+    const float dt = objectTimestep(dispatch, scheduler);
+    // A positive separation is not contact merely because the continuum is
+    // moving toward the proxy.  Admit a one-step speculative contact only
+    // when the current normal velocity can actually consume that gap; the old
+    // test constrained bodies arbitrarily far above a plane.
+    const float predictedSeparation = separation +
+        min(normalVelocity, 0.0f) * dt;
+    if (separation > slop && predictedSeparation > slop) {
+        return;
+    }
+    const float normalResponse = inverseMass +
+        rigidDirectionalResponse(rigid, lever, normal);
+    if (!(normalResponse > 1.0e-12f)) {
+        return;
+    }
+    const float bias = min(
+        max((slop - separation) / max(dt, 1.0e-12f), 0.0f),
+        dispatch.numericalLimits.y
+    );
+    const float restitution = max(
+        materials[object.materialIndex].interfaceResponse.z,
+        materials[pair.materialInterface].interfaceResponse.z
+    );
+    const float bounce = normalVelocity < -0.2f
+        ? -restitution * normalVelocity
+        : 0.0f;
+    const float normalImpulse = max(
+        (bias + bounce - normalVelocity) / normalResponse,
+        0.0f
+    );
+    const float staticFriction = sqrt(max(
+        materials[object.materialIndex].interfaceResponse.x *
+        materials[pair.materialInterface].interfaceResponse.x,
+        0.0f
+    ));
+    const float dynamicFriction = sqrt(max(
+        materials[object.materialIndex].interfaceResponse.y *
+        materials[pair.materialInterface].interfaceResponse.y,
+        0.0f
+    ));
+    const float3 tangentVelocity =
+        relativeVelocity - normalVelocity * normal;
+    float3 tangentImpulseOnRigid = float3(0.0f);
+    uint contactFlags = NM_CONTACT_VALID;
+    const float tangentSpeed = length(tangentVelocity);
+    if (tangentSpeed > 1.0e-8f && normalImpulse > 0.0f) {
+        const float3 tangent = tangentVelocity / tangentSpeed;
+        const float tangentResponse = inverseMass +
+            rigidDirectionalResponse(rigid, lever, tangent);
+        if (tangentResponse > 1.0e-12f) {
+            const float desiredMagnitude = tangentSpeed / tangentResponse;
+            const bool staticBranch =
+                desiredMagnitude <= staticFriction * normalImpulse;
+            const float limit = staticBranch
+                ? desiredMagnitude
+                : dynamicFriction * normalImpulse;
+            tangentImpulseOnRigid = limit * tangent;
+            if (staticBranch) {
+                contactFlags |= NM_CONTACT_STICKING;
+            }
+        }
+    }
+    const float3 impulseOnRigid =
+        -normalImpulse * normal + tangentImpulseOnRigid;
+    NMContactSampleGPU sample{};
+    sample.identity = {
+        pair.continuumNode,
+        pair.rigidProxy,
+        pair.objectIndex,
+        contactFlags,
+    };
+    sample.pointAndSeparation = float4(witness, separation);
+    sample.normalAndVelocity = float4(normal, normalVelocity);
+    sample.impulseAndNormal = float4(impulseOnRigid, normalImpulse);
+    sample.angularImpulseAndTangent = float4(
+        cross(lever, impulseOnRigid),
+        length(tangentImpulseOnRigid)
+    );
+    samples[global] = sample;
+}
+
+kernel void nm_contact_apply_nodes(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* nodeIncidence [[buffer(1)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(2)]],
+    device const NMContactSampleGPU* samples [[buffer(3)]],
+    device NMGridNodeStateGPU* mpmNodes [[buffer(4)]],
+    device NMFEMNodeStateGPU* femNodes [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint total = dispatch.environmentCount * unifiedCount;
+    if (global >= total || unifiedCount == 0u) {
+        return;
+    }
+    const uint environment = global / unifiedCount;
+    const uint node = global - environment * unifiedCount;
+    const NMIncidenceRangeGPU range = nodeRanges[node];
+    float3 impulseOnContinuum = float3(0.0f);
+    const uint sampleBase = environment * dispatch.contactPairCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const NMContactSampleGPU sample =
+            samples[sampleBase + nodeIncidence[range.first + local]];
+        if ((sample.identity.w & NM_CONTACT_VALID) != 0u) {
+            impulseOnContinuum -= sample.impulseAndNormal.xyz;
+        }
+    }
+    if (node < dispatch.gridNodeCount) {
+        device NMGridNodeStateGPU& state =
+            mpmNodes[environment * dispatch.gridNodeCount + node];
+        state.candidateVelocity.xyz +=
+            state.velocityAndInverseMass.w * impulseOnContinuum;
+    } else {
+        const uint femNode = node - dispatch.gridNodeCount;
+        device NMFEMNodeStateGPU& state =
+            femNodes[environment * dispatch.femNodeCount + femNode];
+        state.velocityAndInverseMass.xyz +=
+            state.velocityAndInverseMass.w * impulseOnContinuum;
+    }
+}
+
+kernel void nm_contact_reduce_rigid(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* rigidIncidence [[buffer(1)]],
+    device const NMIncidenceRangeGPU* rigidRanges [[buffer(2)]],
+    device const NMContactSampleGPU* samples [[buffer(3)]],
+    device NMRigidReactionGPU* reactions [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidProxyCount;
+    if (global >= total || dispatch.rigidProxyCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.rigidProxyCount;
+    const uint proxy = global - environment * dispatch.rigidProxyCount;
+    const NMIncidenceRangeGPU range = rigidRanges[proxy];
+    float3 impulse = float3(0.0f);
+    float3 angularImpulse = float3(0.0f);
+    float count = 0.0f;
+    const uint sampleBase = environment * dispatch.contactPairCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const NMContactSampleGPU sample =
+            samples[sampleBase + rigidIncidence[range.first + local]];
+        if ((sample.identity.w & NM_CONTACT_VALID) != 0u) {
+            impulse += sample.impulseAndNormal.xyz;
+            angularImpulse += sample.angularImpulseAndTangent.xyz;
+            count += 1.0f;
+        }
+    }
+    NMRigidReactionGPU reaction{};
+    reaction.impulseAndCount = float4(impulse, count);
+    reaction.angularImpulse = float4(angularImpulse, 0.0f);
+    reactions[global] = reaction;
+}
+
+kernel void nm_accumulate_rigid_reactions(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMRigidReactionGPU* microstepReactions [[buffer(1)]],
+    device NMRigidReactionGPU* frameReactions [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidProxyCount;
+    if (global >= total) {
+        return;
+    }
+    frameReactions[global].impulseAndCount +=
+        microstepReactions[global].impulseAndCount;
+    frameReactions[global].angularImpulse +=
+        microstepReactions[global].angularImpulse;
+}
+
+kernel void nm_bridge_rigid_reactions(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    device const NMRigidProxyGPU* proxies [[buffer(2)]],
+    device const NMRigidReactionGPU* reactions [[buffer(3)]],
+    device MRABABodyWrenchGPU* bodyWrenches [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    device const uint* bodyProxyIncidence [[buffer(6)]],
+    device const NMIncidenceRangeGPU* bodyProxyRanges [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint reactionBodyCount = bridge.reactionBodyCount;
+    const uint total = dispatch.environmentCount * reactionBodyCount;
+    if (global >= total || reactionBodyCount == 0u) {
+        return;
+    }
+    const uint environment = global / reactionBodyCount;
+    const uint bodyIndex = global - environment * reactionBodyCount;
+    if (!environmentHealthy(statuses, environment) ||
+        bodyIndex >= bridge.bodyWrenchCount) {
+        return;
+    }
+
+    const NMIncidenceRangeGPU range = bodyProxyRanges[bodyIndex];
+    float3 impulse = float3(0.0f);
+    float3 angularImpulse = float3(0.0f);
+    const uint reactionBase = environment * dispatch.rigidProxyCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint proxyIndex = bodyProxyIncidence[range.first + local];
+        if (proxyIndex >= dispatch.rigidProxyCount) {
+            continue;
+        }
+        const NMRigidProxyGPU proxy = proxies[proxyIndex];
+        if (proxy.bodyIndex != bodyIndex ||
+            (proxy.flags &
+             (NM_RIGID_ARTICULATED | NM_RIGID_DYNAMIC)) == 0u) {
+            continue;
+        }
+        const NMRigidReactionGPU reaction =
+            reactions[reactionBase + proxyIndex];
+        impulse += reaction.impulseAndCount.xyz;
+        angularImpulse += reaction.angularImpulse.xyz;
+    }
+    if (!finite3(impulse) || !finite3(angularImpulse)) {
+        return;
+    }
+    device MRABABodyWrenchGPU& wrench = bodyWrenches[
+        environment * bridge.bodyWrenchStride + bodyIndex
+    ];
+    wrench.force.xyz += bridge.time.x * impulse;
+    wrench.torque.xyz += bridge.time.x * angularImpulse;
+}
+
+} // namespace numi_matter_metal
