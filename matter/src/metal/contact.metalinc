@@ -465,18 +465,13 @@ kernel void nm_contact_evaluate(
     samples[global] = sample;
 }
 
-// The cooked rigid incidence is a fixed CSR graph: every contact row belongs
-// to exactly one rigid proxy and the rows of one proxy are contiguous through
-// NMIncidenceRangeGPU.  Solve that block as a contact-space system instead of
-// treating each continuum/rigid pair as an isolated collision.  This captures
-// off-diagonal response through a free rigid body and through repeated contact
-// of the same continuum node without atomics or a CPU-built contact matrix.
-//
-// Articulated proxies deliberately contribute their actual zero local inverse
-// inertia here: their finite response still belongs to MetalWorld inverse ABA.
-// The next bridge extension will stream those columns into this same operator;
-// keeping the operator construction here makes that addition an input-source
-// change rather than a second contact implementation.
+// Runtime compilation fixes the contact-space CSR pattern from shared
+// continuum nodes and shared rigid bodies. This kernel file gathers the live
+// values into that pattern every microstep, then solves each disconnected
+// component without cross-component atomics. Articulated proxies deliberately
+// contribute zero local inverse inertia until MetalWorld's inverse-ABA query
+// fills the same response-value arena; the solver itself has no articulated
+// special case.
 inline float continuumDirectionalResponse(
     const NMMatterDispatchGPU dispatch,
     device const NMGridNodeStateGPU* mpmNodes,
@@ -531,73 +526,143 @@ inline float rigidCoupledDirectionalResponse(
            );
 }
 
+kernel void nm_contact_gather_response(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMGridNodeStateGPU* mpmNodes [[buffer(1)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(2)]],
+    device const NMRigidProxyGPU* rigidProxies [[buffer(3)]],
+    device const NMRigidStateGPU* rigidStates [[buffer(4)]],
+    device const NMContactPairGPU* pairs [[buffer(5)]],
+    device const NMContactSampleGPU* samples [[buffer(6)]],
+    device const NMIncidenceRangeGPU* responseRanges [[buffer(7)]],
+    device const uint* responseColumns [[buffer(8)]],
+    device float* responseValues [[buffer(9)]],
+    device NMMatterStatusGPU* statuses [[buffer(10)]],
+    constant uint& responseEntryCount [[buffer(11)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.contactPairCount;
+    const uint row = global - environment * dispatch.contactPairCount;
+    if (!environmentHealthy(statuses, environment)) {
+        return;
+    }
+    const uint sampleBase = environment * dispatch.contactPairCount;
+    const NMContactPairGPU leftPair = pairs[row];
+    const NMContactSampleGPU left = samples[sampleBase + row];
+    const NMIncidenceRangeGPU range = responseRanges[row];
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint entry = range.first + local;
+        if (entry >= responseEntryCount) {
+            recordFailure(
+                statuses[environment],
+                NM_STATUS_CONTACT_FAILURE,
+                leftPair.objectIndex,
+                row,
+                float4(float(entry), float(responseEntryCount), 0.0f, 0.0f)
+            );
+            return;
+        }
+        const uint column = responseColumns[entry];
+        float response = 0.0f;
+        if (column < dispatch.contactPairCount &&
+            (left.identity.w & NM_CONTACT_VALID) != 0u) {
+            const NMContactSampleGPU right = samples[sampleBase + column];
+            if ((right.identity.w & NM_CONTACT_VALID) != 0u) {
+                const NMContactPairGPU rightPair = pairs[column];
+                const float3 leftDirection = left.normalAndVelocity.xyz;
+                const float3 rightDirection = right.normalAndVelocity.xyz;
+                response = continuumDirectionalResponse(
+                    dispatch,
+                    mpmNodes,
+                    femNodes,
+                    environment,
+                    leftPair,
+                    leftDirection,
+                    rightPair,
+                    rightDirection
+                );
+                if (leftPair.rigidProxy < dispatch.rigidProxyCount &&
+                    rightPair.rigidProxy < dispatch.rigidProxyCount) {
+                    const NMRigidProxyGPU leftProxy =
+                        rigidProxies[leftPair.rigidProxy];
+                    const NMRigidProxyGPU rightProxy =
+                        rigidProxies[rightPair.rigidProxy];
+                    if (leftProxy.bodyIndex != NM_INVALID_INDEX &&
+                        leftProxy.bodyIndex == rightProxy.bodyIndex) {
+                        const NMRigidStateGPU rigid = rigidStates[
+                            environment * dispatch.rigidProxyCount +
+                            leftPair.rigidProxy
+                        ];
+                        response += rigidCoupledDirectionalResponse(
+                            rigid,
+                            left.pointAndSeparation.xyz -
+                                rigid.bodyCenter.xyz,
+                            leftDirection,
+                            right.pointAndSeparation.xyz -
+                                rigid.bodyCenter.xyz,
+                            rightDirection
+                        );
+                    }
+                }
+            }
+        }
+        if (!isfinite(response)) {
+            recordFailure(
+                statuses[environment],
+                NM_STATUS_CONTACT_FAILURE,
+                leftPair.objectIndex,
+                row,
+                float4(float(column), response, 0.0f, 0.0f)
+            );
+            return;
+        }
+        responseValues[environment * responseEntryCount + entry] = response;
+    }
+}
+
 kernel void nm_contact_solve_coupled(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
     device const NMContinuumObjectGPU* objects [[buffer(2)]],
     device const NMMaterialGPU* materials [[buffer(3)]],
-    device const NMGridNodeStateGPU* mpmNodes [[buffer(4)]],
-    device const NMFEMNodeStateGPU* femNodes [[buffer(5)]],
-    device const NMRigidStateGPU* rigidStates [[buffer(6)]],
-    device const NMContactPairGPU* pairs [[buffer(7)]],
-    device const uint* rigidIncidence [[buffer(8)]],
-    device const NMIncidenceRangeGPU* rigidRanges [[buffer(9)]],
-    device const NMSchedulerStateGPU* schedulers [[buffer(10)]],
-    device NMContactSampleGPU* samples [[buffer(11)]],
-    device NMMatterStatusGPU* statuses [[buffer(12)]],
-    device const uint* bodyProxyIncidence [[buffer(13)]],
-    device const NMIncidenceRangeGPU* bodyProxyRanges [[buffer(14)]],
-    constant uint& bodyProxyRangeCount [[buffer(15)]],
+    device const NMRigidStateGPU* rigidStates [[buffer(4)]],
+    device const NMContactPairGPU* pairs [[buffer(5)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(6)]],
+    device NMContactSampleGPU* samples [[buffer(7)]],
+    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    device const uint* responseColumns [[buffer(9)]],
+    device const NMIncidenceRangeGPU* responseRanges [[buffer(10)]],
+    device const float* responseValues [[buffer(11)]],
+    device const uint* componentIncidence [[buffer(12)]],
+    device const NMIncidenceRangeGPU* componentRanges [[buffer(13)]],
+    constant uint& responseEntryCount [[buffer(14)]],
+    constant uint& componentCount [[buffer(15)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.rigidProxyCount;
-    if (global >= total || dispatch.rigidProxyCount == 0u) {
+    const uint total = dispatch.environmentCount * componentCount;
+    if (global >= total || componentCount == 0u) {
         return;
     }
-    const uint environment = global / dispatch.rigidProxyCount;
-    const uint proxy = global - environment * dispatch.rigidProxyCount;
+    const uint environment = global / componentCount;
+    const uint component = global - environment * componentCount;
     if (!environmentHealthy(statuses, environment)) {
         return;
     }
-    // Runtime-derived body incidence extends the cooked proxy CSR into a
-    // body-local contact graph.  Only the first proxy in a body group writes
-    // that group, avoiding races while including contacts on every collider
-    // attached to the same free body or articulation.
-    NMIncidenceRangeGPU bodyRange{};
-    bool ownsBodyRange = false;
-    for (uint body = 0u; body < bodyProxyRangeCount; ++body) {
-        const NMIncidenceRangeGPU candidate = bodyProxyRanges[body];
-        if (candidate.count != 0u &&
-            bodyProxyIncidence[candidate.first] == proxy) {
-            bodyRange = candidate;
-            ownsBodyRange = true;
-            break;
-        }
-        for (uint local = 1u; local < candidate.count; ++local) {
-            if (bodyProxyIncidence[candidate.first + local] == proxy) {
-                return;
-            }
-        }
-    }
-    if (!ownsBodyRange) {
-        bodyRange.first = proxy;
-        bodyRange.count = 1u;
-    }
+    const NMIncidenceRangeGPU componentRange = componentRanges[component];
     const uint sampleBase = environment * dispatch.contactPairCount;
+    const uint responseBase = environment * responseEntryCount;
 
-    // Preserve the one-pair tangential direction prepared by narrowphase,
-    // but reset its normal component. The bounded PGS pass below owns every
-    // normal impulse in this body-local sparse block.
-    for (uint bodyLocal = 0u; bodyLocal < bodyRange.count; ++bodyLocal) {
-        const uint contactProxy = ownsBodyRange
-            ? bodyProxyIncidence[bodyRange.first + bodyLocal]
-            : bodyRange.first;
-        const NMIncidenceRangeGPU range = rigidRanges[contactProxy];
-        const NMRigidStateGPU rigid = rigidStates[
-            environment * dispatch.rigidProxyCount + contactProxy
+    // Preserve the pair evaluator's circular tangential impulse, while the
+    // contact-space iteration below owns every normal component in this
+    // connected sparse block.
+    for (uint local = 0u; local < componentRange.count; ++local) {
+        const uint pairIndex = componentIncidence[
+            componentRange.first + local
         ];
-        for (uint local = 0u; local < range.count; ++local) {
-        const uint pairIndex = rigidIncidence[range.first + local];
         if (pairIndex >= dispatch.contactPairCount) {
             continue;
         }
@@ -605,6 +670,13 @@ kernel void nm_contact_solve_coupled(
         if ((sample.identity.w & NM_CONTACT_VALID) == 0u) {
             continue;
         }
+        const NMContactPairGPU pair = pairs[pairIndex];
+        if (pair.rigidProxy >= dispatch.rigidProxyCount) {
+            continue;
+        }
+        const NMRigidStateGPU rigid = rigidStates[
+            environment * dispatch.rigidProxyCount + pair.rigidProxy
+        ];
         const float previousNormal = sample.impulseAndNormal.w;
         const float3 tangent = sample.impulseAndNormal.xyz +
             previousNormal * sample.normalAndVelocity.xyz;
@@ -615,22 +687,15 @@ kernel void nm_contact_solve_coupled(
             cross(lever, tangent),
             length(tangent)
         );
-        }
     }
 
     for (uint iteration = 0u;
          iteration < dispatch.coupledContactIterations;
          ++iteration) {
-        for (uint bodyLocal = 0u; bodyLocal < bodyRange.count; ++bodyLocal) {
-            const uint contactProxy = ownsBodyRange
-                ? bodyProxyIncidence[bodyRange.first + bodyLocal]
-                : bodyRange.first;
-            const NMIncidenceRangeGPU range = rigidRanges[contactProxy];
-            const NMRigidStateGPU rigid = rigidStates[
-                environment * dispatch.rigidProxyCount + contactProxy
+        for (uint local = 0u; local < componentRange.count; ++local) {
+            const uint pairIndex = componentIncidence[
+                componentRange.first + local
             ];
-            for (uint local = 0u; local < range.count; ++local) {
-            const uint pairIndex = rigidIncidence[range.first + local];
             if (pairIndex >= dispatch.contactPairCount) {
                 continue;
             }
@@ -641,29 +706,28 @@ kernel void nm_contact_solve_coupled(
             }
             const NMContactPairGPU pair = pairs[pairIndex];
             if (pair.objectIndex >= dispatch.objectCount ||
-                pair.materialInterface >= dispatch.materialCount) {
+                pair.materialInterface >= dispatch.materialCount ||
+                pair.rigidProxy >= dispatch.rigidProxyCount) {
                 continue;
             }
+            const NMRigidStateGPU rigid = rigidStates[
+                environment * dispatch.rigidProxyCount + pair.rigidProxy
+            ];
             const float3 normal = sample.normalAndVelocity.xyz;
             const float3 lever =
                 sample.pointAndSeparation.xyz - rigid.bodyCenter.xyz;
             float normalVelocity = sample.normalAndVelocity.w;
             float diagonal = 0.0f;
-            for (uint coupledBodyLocal = 0u;
-                 coupledBodyLocal < bodyRange.count;
-                 ++coupledBodyLocal) {
-                const uint coupledProxy = ownsBodyRange
-                    ? bodyProxyIncidence[
-                        bodyRange.first + coupledBodyLocal
-                    ]
-                    : bodyRange.first;
-                const NMIncidenceRangeGPU coupledRange =
-                    rigidRanges[coupledProxy];
-                for (uint coupled = 0u;
-                     coupled < coupledRange.count;
-                     ++coupled) {
-                const uint coupledIndex =
-                    rigidIncidence[coupledRange.first + coupled];
+            const NMIncidenceRangeGPU responseRange =
+                responseRanges[pairIndex];
+            for (uint coupled = 0u;
+                 coupled < responseRange.count;
+                 ++coupled) {
+                const uint entry = responseRange.first + coupled;
+                if (entry >= responseEntryCount) {
+                    continue;
+                }
+                const uint coupledIndex = responseColumns[entry];
                 if (coupledIndex >= dispatch.contactPairCount) {
                     continue;
                 }
@@ -672,23 +736,11 @@ kernel void nm_contact_solve_coupled(
                 if ((other.identity.w & NM_CONTACT_VALID) == 0u) {
                     continue;
                 }
-                const NMContactPairGPU otherPair = pairs[coupledIndex];
-                const float3 otherNormal = other.normalAndVelocity.xyz;
-                const float3 otherLever =
-                    other.pointAndSeparation.xyz - rigid.bodyCenter.xyz;
-                const float response =
-                    continuumDirectionalResponse(
-                        dispatch, mpmNodes, femNodes, environment,
-                        pair, normal, otherPair, otherNormal
-                    ) +
-                    rigidCoupledDirectionalResponse(
-                        rigid, lever, normal, otherLever, otherNormal
-                    );
+                const float response = responseValues[responseBase + entry];
                 if (coupledIndex == pairIndex) {
                     diagonal = response;
                 }
                 normalVelocity += response * other.impulseAndNormal.w;
-            }
             }
             if (!(diagonal > 1.0e-12f)) {
                 continue;
@@ -762,7 +814,6 @@ kernel void nm_contact_solve_coupled(
             );
         }
     }
-}
 }
 
 kernel void nm_contact_apply_nodes(

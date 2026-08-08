@@ -1201,6 +1201,14 @@ void runCoupledContactOracle() {
             newLibraryWithURL:[NSURL fileURLWithPath:@NUMI_MATTER_METALLIB]
                        error:&error];
         require(library != nil, "could not load Matter Metal library");
+        id<MTLFunction> gatherFunction = [library newFunctionWithName:
+            @"numi_matter_metal::nm_contact_gather_response"];
+        require(gatherFunction != nil,
+            "Matter Metal library is missing contact response gather");
+        id<MTLComputePipelineState> gatherPipeline = [device
+            newComputePipelineStateWithFunction:gatherFunction error:&error];
+        require(gatherPipeline != nil,
+            "could not create contact-response gather pipeline");
         id<MTLFunction> function = [library newFunctionWithName:
             @"numi_matter_metal::nm_contact_solve_coupled"];
         require(function != nil, "Matter Metal library is missing coupled contact");
@@ -1235,20 +1243,26 @@ void runCoupledContactOracle() {
             state.linearVelocityAndInverseMass.w = 1.0f;
             state.bodyCenter.w = 1.0f;
         }
+        std::array<NMRigidProxyGPU, 2u> proxies{};
+        for (NMRigidProxyGPU& proxy : proxies) {
+            proxy.bodyIndex = 0u;
+        }
         const std::array<NMContactPairGPU, 2u> pairs{{
             {.continuumNode = 0u, .rigidProxy = 0u, .objectIndex = 0u,
              .materialInterface = 0u},
             {.continuumNode = 1u, .rigidProxy = 1u, .objectIndex = 0u,
              .materialInterface = 0u},
         }};
-        const std::array<std::uint32_t, 2u> incidence{{0u, 1u}};
-        const std::array<NMIncidenceRangeGPU, 2u> ranges{{
-            {0u, 1u, NM_INVALID_INDEX, 0u},
-            {1u, 1u, NM_INVALID_INDEX, 0u},
+        const std::array<std::uint32_t, 4u> responseColumns{{0u, 1u, 0u, 1u}};
+        const std::array<NMIncidenceRangeGPU, 2u> responseRanges{{
+            {0u, 2u, 0u, 0u},
+            {2u, 2u, 1u, 0u},
         }};
-        const std::array<std::uint32_t, 2u> bodyIncidence{{0u, 1u}};
-        const NMIncidenceRangeGPU bodyRange{0u, 2u, 0u, 0u};
-        constexpr std::uint32_t bodyRangeCount = 1u;
+        std::array<float, 4u> responseValues{};
+        const std::array<std::uint32_t, 2u> componentIncidence{{0u, 1u}};
+        const NMIncidenceRangeGPU componentRange{0u, 2u, 0u, 0u};
+        constexpr std::uint32_t responseEntryCount = 4u;
+        constexpr std::uint32_t componentCount = 1u;
         NMSchedulerStateGPU scheduler{};
         NMMatterStatusGPU status{};
         status.code = NM_STATUS_SUCCESS;
@@ -1271,12 +1285,14 @@ void runCoupledContactOracle() {
         id<MTLBuffer> materials = makeBuffer(&material, sizeof(material), @"oracle materials");
         id<MTLBuffer> mpmNodes = makeBuffer(nodes.data(), sizeof(nodes), @"oracle MPM nodes");
         id<MTLBuffer> femNodes = makeBuffer(&unusedFEM, sizeof(unusedFEM), @"oracle FEM nodes");
+        id<MTLBuffer> proxyBuffer = makeBuffer(proxies.data(), sizeof(proxies), @"oracle proxies");
         id<MTLBuffer> rigidStates = makeBuffer(rigid.data(), sizeof(rigid), @"oracle rigid states");
         id<MTLBuffer> pairBuffer = makeBuffer(pairs.data(), sizeof(pairs), @"oracle pairs");
-        id<MTLBuffer> incidenceBuffer = makeBuffer(incidence.data(), sizeof(incidence), @"oracle CSR incidence");
-        id<MTLBuffer> rangeBuffer = makeBuffer(ranges.data(), sizeof(ranges), @"oracle CSR ranges");
-        id<MTLBuffer> bodyIncidenceBuffer = makeBuffer(bodyIncidence.data(), sizeof(bodyIncidence), @"oracle body CSR incidence");
-        id<MTLBuffer> bodyRangeBuffer = makeBuffer(&bodyRange, sizeof(bodyRange), @"oracle body CSR range");
+        id<MTLBuffer> responseColumnBuffer = makeBuffer(responseColumns.data(), sizeof(responseColumns), @"oracle response columns");
+        id<MTLBuffer> responseRangeBuffer = makeBuffer(responseRanges.data(), sizeof(responseRanges), @"oracle response ranges");
+        id<MTLBuffer> responseValueBuffer = makeBuffer(responseValues.data(), sizeof(responseValues), @"oracle response values");
+        id<MTLBuffer> componentIncidenceBuffer = makeBuffer(componentIncidence.data(), sizeof(componentIncidence), @"oracle component incidence");
+        id<MTLBuffer> componentRangeBuffer = makeBuffer(&componentRange, sizeof(componentRange), @"oracle component range");
         id<MTLBuffer> schedulers = makeBuffer(&scheduler, sizeof(scheduler), @"oracle schedulers");
         id<MTLBuffer> sampleBuffer = makeBuffer(samples.data(), sizeof(samples), @"oracle samples");
         id<MTLBuffer> statuses = makeBuffer(&status, sizeof(status), @"oracle statuses");
@@ -1285,24 +1301,39 @@ void runCoupledContactOracle() {
         id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
         require(commandBuffer != nil && encoder != nil,
             "failed to encode coupled-contact oracle");
+        [encoder setComputePipelineState:gatherPipeline];
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBuffer:mpmNodes offset:0u atIndex:1u];
+        [encoder setBuffer:femNodes offset:0u atIndex:2u];
+        [encoder setBuffer:proxyBuffer offset:0u atIndex:3u];
+        [encoder setBuffer:rigidStates offset:0u atIndex:4u];
+        [encoder setBuffer:pairBuffer offset:0u atIndex:5u];
+        [encoder setBuffer:sampleBuffer offset:0u atIndex:6u];
+        [encoder setBuffer:responseRangeBuffer offset:0u atIndex:7u];
+        [encoder setBuffer:responseColumnBuffer offset:0u atIndex:8u];
+        [encoder setBuffer:responseValueBuffer offset:0u atIndex:9u];
+        [encoder setBuffer:statuses offset:0u atIndex:10u];
+        [encoder setBytes:&responseEntryCount length:sizeof(responseEntryCount) atIndex:11u];
+        [encoder dispatchThreads:MTLSizeMake(2u, 1u, 1u)
+          threadsPerThreadgroup:MTLSizeMake(gatherPipeline.threadExecutionWidth, 1u, 1u)];
         [encoder setComputePipelineState:pipeline];
         [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
         [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1u];
         [encoder setBuffer:objects offset:0u atIndex:2u];
         [encoder setBuffer:materials offset:0u atIndex:3u];
-        [encoder setBuffer:mpmNodes offset:0u atIndex:4u];
-        [encoder setBuffer:femNodes offset:0u atIndex:5u];
-        [encoder setBuffer:rigidStates offset:0u atIndex:6u];
-        [encoder setBuffer:pairBuffer offset:0u atIndex:7u];
-        [encoder setBuffer:incidenceBuffer offset:0u atIndex:8u];
-        [encoder setBuffer:rangeBuffer offset:0u atIndex:9u];
-        [encoder setBuffer:schedulers offset:0u atIndex:10u];
-        [encoder setBuffer:sampleBuffer offset:0u atIndex:11u];
-        [encoder setBuffer:statuses offset:0u atIndex:12u];
-        [encoder setBuffer:bodyIncidenceBuffer offset:0u atIndex:13u];
-        [encoder setBuffer:bodyRangeBuffer offset:0u atIndex:14u];
-        [encoder setBytes:&bodyRangeCount length:sizeof(bodyRangeCount) atIndex:15u];
-        [encoder dispatchThreads:MTLSizeMake(2u, 1u, 1u)
+        [encoder setBuffer:rigidStates offset:0u atIndex:4u];
+        [encoder setBuffer:pairBuffer offset:0u atIndex:5u];
+        [encoder setBuffer:schedulers offset:0u atIndex:6u];
+        [encoder setBuffer:sampleBuffer offset:0u atIndex:7u];
+        [encoder setBuffer:statuses offset:0u atIndex:8u];
+        [encoder setBuffer:responseColumnBuffer offset:0u atIndex:9u];
+        [encoder setBuffer:responseRangeBuffer offset:0u atIndex:10u];
+        [encoder setBuffer:responseValueBuffer offset:0u atIndex:11u];
+        [encoder setBuffer:componentIncidenceBuffer offset:0u atIndex:12u];
+        [encoder setBuffer:componentRangeBuffer offset:0u atIndex:13u];
+        [encoder setBytes:&responseEntryCount length:sizeof(responseEntryCount) atIndex:14u];
+        [encoder setBytes:&componentCount length:sizeof(componentCount) atIndex:15u];
+        [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
           threadsPerThreadgroup:MTLSizeMake(pipeline.threadExecutionWidth, 1u, 1u)];
         [encoder endEncoding];
         [commandBuffer commit];
@@ -1313,23 +1344,45 @@ void runCoupledContactOracle() {
         const auto* solved = static_cast<const NMContactSampleGPU*>(
             sampleBuffer.contents
         );
+        const auto* gathered = static_cast<const float*>(
+            responseValueBuffer.contents
+        );
         require(solved != nullptr, "coupled-contact results are unavailable");
+        require(gathered != nullptr &&
+                    std::abs(gathered[0] - 2.0f) < 1.0e-6f &&
+                    std::abs(gathered[1] - 1.0f) < 1.0e-6f &&
+                    std::abs(gathered[2] - 1.0f) < 1.0e-6f &&
+                    std::abs(gathered[3] - 2.0f) < 1.0e-6f,
+            "device response gather did not assemble the shared-body Delassus block");
         const float first = solved[0].impulseAndNormal.w;
         const float second = solved[1].impulseAndNormal.w;
+        const float symmetryError = std::abs(gathered[1] - gathered[2]);
+        const float trace = gathered[0] + gathered[3];
+        const float discriminant = std::sqrt(std::max(
+            (gathered[0] - gathered[3]) *
+                (gathered[0] - gathered[3]) +
+                4.0f * gathered[1] * gathered[2],
+            0.0f
+        ));
+        const float minimumEigenvalue = 0.5f * (trace - discriminant);
         const float residual = std::max(
             std::abs(2.0f * first + second - 1.0f),
             std::abs(first + 2.0f * second - 1.0f)
         );
         require(std::abs(first - 1.0f / 3.0f) < 2.0e-5f &&
                     std::abs(second - 1.0f / 3.0f) < 2.0e-5f &&
-                    residual < 4.0e-5f,
+                    residual < 4.0e-5f && symmetryError < 1.0e-6f &&
+                    minimumEigenvalue >= -1.0e-6f,
             "coupled-contact oracle did not solve the shared-rigid 1/3 impulse case");
         std::cout
             << "{\"schema\":\"numi.matter.physics-probe.v2\""
             << ",\"representation\":\"shared_rigid_coupled_contact\""
-            << ",\"delassus\":[[2,1],[1,2]]"
+            << ",\"delassus\":[[" << gathered[0] << ',' << gathered[1]
+            << "],[" << gathered[2] << ',' << gathered[3] << "]]"
             << ",\"impulses\":[" << first << ',' << second << ']'
             << ",\"residual\":" << residual
+            << ",\"symmetry_error\":" << symmetryError
+            << ",\"minimum_eigenvalue\":" << minimumEigenvalue
             << "}\n";
     }
 }

@@ -330,6 +330,15 @@ struct Runtime::State {
     // proxies per rigid body while retaining one deterministic wrench writer.
     id<MTLBuffer> bodyProxyIncidence = nil;
     id<MTLBuffer> bodyProxyRanges = nil;
+    // Fixed contact-space sparsity. Rows are contact pairs; columns include
+    // every pair sharing a continuum node or a rigid body. Connected
+    // components provide race-free device work ownership for the PGS solve.
+    id<MTLBuffer> contactResponseColumns = nil;
+    id<MTLBuffer> contactResponseRanges = nil;
+    id<MTLBuffer> contactComponentIncidence = nil;
+    id<MTLBuffer> contactComponentRanges = nil;
+    std::uint32_t contactResponseEntryCount = 0u;
+    std::uint32_t contactComponentCount = 0u;
 
     id<MTLBuffer> environmentParameters = nil;
     id<MTLBuffer> particleDefaults = nil;
@@ -365,6 +374,7 @@ struct Runtime::State {
     id<MTLBuffer> femMaterialStateCheckpoint = nil;
     id<MTLBuffer> rigidStates = nil;
     id<MTLBuffer> contactSamples = nil;
+    id<MTLBuffer> contactResponseValues = nil;
     id<MTLBuffer> microstepReactions = nil;
     id<MTLBuffer> frameReactions = nil;
     id<MTLBuffer> adaptive = nil;
@@ -475,7 +485,7 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
 
-        const std::array<const char*, 52> kernelNames{
+        const std::array<const char*, 53> kernelNames{
             "nm_prepare_status",
             "nm_prepare_events",
             "nm_prepare_reactions",
@@ -508,6 +518,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_pcg_update_direction",
             "nm_fem_apply_solution",
             "nm_contact_evaluate",
+            "nm_contact_gather_response",
             "nm_contact_solve_coupled",
             "nm_contact_apply_nodes",
             "nm_contact_reduce_rigid",
@@ -604,6 +615,104 @@ RuntimeDiagnostics Runtime::initialize(
         }
 
         bool valid = true;
+        const std::size_t contactPairCount = world.contact.pairs.size();
+        std::vector<std::uint32_t> responseColumns;
+        std::vector<NMIncidenceRangeGPU> responseRanges(contactPairCount);
+        std::vector<std::uint32_t> componentParents(contactPairCount);
+        for (std::uint32_t pair = 0u; pair < contactPairCount; ++pair) {
+            componentParents[pair] = pair;
+        }
+        const auto pairBody = [&](const std::size_t pair) {
+            const std::uint32_t proxy =
+                world.contact.pairs[pair].rigidProxy;
+            return proxy < world.contact.rigidProxies.size()
+                ? world.contact.rigidProxies[proxy].bodyIndex
+                : NM_INVALID_INDEX;
+        };
+        const auto coupled = [&](const std::size_t left,
+                                 const std::size_t right) {
+            if (world.contact.pairs[left].continuumNode ==
+                world.contact.pairs[right].continuumNode) {
+                return true;
+            }
+            const std::uint32_t leftBody = pairBody(left);
+            return leftBody != NM_INVALID_INDEX &&
+                leftBody == pairBody(right);
+        };
+        const auto findRoot = [&](std::uint32_t value) {
+            while (componentParents[value] != value) {
+                componentParents[value] =
+                    componentParents[componentParents[value]];
+                value = componentParents[value];
+            }
+            return value;
+        };
+        for (std::uint32_t row = 0u; row < contactPairCount; ++row) {
+            NMIncidenceRangeGPU range{};
+            range.first = static_cast<nm_u32>(responseColumns.size());
+            range.objectIndex = row;
+            for (std::uint32_t column = 0u;
+                 column < contactPairCount;
+                 ++column) {
+                if (!coupled(row, column)) {
+                    continue;
+                }
+                responseColumns.push_back(column);
+                ++range.count;
+                const std::uint32_t leftRoot = findRoot(row);
+                const std::uint32_t rightRoot = findRoot(column);
+                if (leftRoot != rightRoot) {
+                    componentParents[rightRoot] = leftRoot;
+                }
+            }
+            responseRanges[row] = range;
+        }
+        if (responseColumns.size() >
+            std::numeric_limits<std::uint32_t>::max()) {
+            diagnostics.message =
+                "Matter contact response CSR exceeds 32-bit capacity";
+            return diagnostics;
+        }
+        std::vector<std::uint32_t> componentRoots;
+        std::vector<std::vector<std::uint32_t>> componentRows;
+        for (std::uint32_t row = 0u; row < contactPairCount; ++row) {
+            const std::uint32_t root = findRoot(row);
+            auto found = std::find(
+                componentRoots.begin(), componentRoots.end(), root
+            );
+            if (found == componentRoots.end()) {
+                componentRoots.push_back(root);
+                componentRows.emplace_back();
+                found = componentRoots.end() - 1;
+            }
+            componentRows[
+                static_cast<std::size_t>(found - componentRoots.begin())
+            ].push_back(row);
+        }
+        std::vector<std::uint32_t> componentIncidence;
+        std::vector<NMIncidenceRangeGPU> componentRanges(
+            componentRows.size()
+        );
+        for (std::uint32_t component = 0u;
+             component < componentRows.size();
+             ++component) {
+            NMIncidenceRangeGPU range{};
+            range.first = static_cast<nm_u32>(componentIncidence.size());
+            range.count = static_cast<nm_u32>(
+                componentRows[component].size()
+            );
+            range.objectIndex = component;
+            componentIncidence.insert(
+                componentIncidence.end(),
+                componentRows[component].begin(),
+                componentRows[component].end()
+            );
+            componentRanges[component] = range;
+        }
+        candidate->contactResponseEntryCount =
+            static_cast<std::uint32_t>(responseColumns.size());
+        candidate->contactComponentCount =
+            static_cast<std::uint32_t>(componentRanges.size());
         UploadPlan uploads(candidate->device, candidate->queue);
         const std::size_t environments = world.dispatch.environmentCount;
         candidate->dispatchBuffer = uploads.one(
@@ -668,6 +777,18 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         candidate->rigidRanges = uploads.one(
             std::span<const NMIncidenceRangeGPU>(world.contact.rigidRanges),
+            valid, candidate->residentBytes);
+        candidate->contactResponseColumns = uploads.one(
+            std::span<const std::uint32_t>(responseColumns),
+            valid, candidate->residentBytes);
+        candidate->contactResponseRanges = uploads.one(
+            std::span<const NMIncidenceRangeGPU>(responseRanges),
+            valid, candidate->residentBytes);
+        candidate->contactComponentIncidence = uploads.one(
+            std::span<const std::uint32_t>(componentIncidence),
+            valid, candidate->residentBytes);
+        candidate->contactComponentRanges = uploads.one(
+            std::span<const NMIncidenceRangeGPU>(componentRanges),
             valid, candidate->residentBytes);
 
         std::vector<float> defaultParameters;
@@ -863,6 +984,12 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->contactSamples = privateScratch<NMContactSampleGPU>(
             candidate->device, multiplied(world.dispatch.contactPairCount),
             valid, candidate->residentBytes);
+        candidate->contactResponseValues = privateScratch<float>(
+            candidate->device,
+            multiplied(candidate->contactResponseEntryCount),
+            valid,
+            candidate->residentBytes
+        );
         candidate->microstepReactions = privateScratch<NMRigidReactionGPU>(
             candidate->device, multiplied(world.dispatch.rigidProxyCount),
             valid, candidate->residentBytes);
@@ -1975,27 +2102,48 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:12u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:13u];
             });
-            dispatchThreads("nm_contact_solve_coupled", proxyTotal, [&] {
+            dispatchThreads("nm_contact_gather_response", pairTotal, [&] {
                 setDispatch();
-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:state.materials offset:0u atIndex:3u];
-                [encoder setBuffer:state.gridNodes offset:0u atIndex:4u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
-                [encoder setBuffer:state.rigidStates offset:0u atIndex:6u];
-                [encoder setBuffer:state.contactPairs offset:0u atIndex:7u];
-                [encoder setBuffer:state.rigidIncidence offset:0u atIndex:8u];
-                [encoder setBuffer:state.rigidRanges offset:0u atIndex:9u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
-                [encoder setBuffer:state.contactSamples offset:0u atIndex:11u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:12u];
-                [encoder setBuffer:state.bodyProxyIncidence offset:0u atIndex:13u];
-                [encoder setBuffer:state.bodyProxyRanges offset:0u atIndex:14u];
-                const std::uint32_t bodyProxyRangeCount = state.reactionBodyCount;
-                [encoder setBytes:&bodyProxyRangeCount
-                           length:sizeof(bodyProxyRangeCount)
-                          atIndex:15u];
+                [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:3u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+                [encoder setBuffer:state.contactPairs offset:0u atIndex:5u];
+                [encoder setBuffer:state.contactSamples offset:0u atIndex:6u];
+                [encoder setBuffer:state.contactResponseRanges offset:0u atIndex:7u];
+                [encoder setBuffer:state.contactResponseColumns offset:0u atIndex:8u];
+                [encoder setBuffer:state.contactResponseValues offset:0u atIndex:9u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                [encoder setBytes:&state.contactResponseEntryCount
+                           length:sizeof(state.contactResponseEntryCount)
+                          atIndex:11u];
             });
+            dispatchThreads(
+                "nm_contact_solve_coupled",
+                environments * state.contactComponentCount,
+                [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+                    [encoder setBuffer:state.contactPairs offset:0u atIndex:5u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
+                    [encoder setBuffer:state.contactSamples offset:0u atIndex:7u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                    [encoder setBuffer:state.contactResponseColumns offset:0u atIndex:9u];
+                    [encoder setBuffer:state.contactResponseRanges offset:0u atIndex:10u];
+                    [encoder setBuffer:state.contactResponseValues offset:0u atIndex:11u];
+                    [encoder setBuffer:state.contactComponentIncidence offset:0u atIndex:12u];
+                    [encoder setBuffer:state.contactComponentRanges offset:0u atIndex:13u];
+                    [encoder setBytes:&state.contactResponseEntryCount
+                               length:sizeof(state.contactResponseEntryCount)
+                              atIndex:14u];
+                    [encoder setBytes:&state.contactComponentCount
+                               length:sizeof(state.contactComponentCount)
+                              atIndex:15u];
+                }
+            );
             dispatchThreads(
                 "nm_contact_apply_nodes",
                 environments * (state.dispatch.gridNodeCount + state.dispatch.femNodeCount),
