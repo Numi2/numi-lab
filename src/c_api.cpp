@@ -1100,7 +1100,15 @@ createTaskRolloutHandle(
     handle->stepConfig.velocityIterations = profile.velocityIterations;
     handle->stepConfig.finalVelocityIterations =
         profile.finalVelocityIterations;
-    handle->stepConfig.ccdMode = metalrobo::MetalWorldCCDMode::disabled;
+    handle->stepConfig.ccdMode = std::any_of(
+        handle->model.shapes.begin(),
+        handle->model.shapes.end(),
+        [](const MRShapeGPU& shape) {
+            return (shape.flags & MR_SHAPE_FLAG_ENABLE_CCD) != 0u;
+        }
+    )
+        ? metalrobo::MetalWorldCCDMode::hybrid
+        : metalrobo::MetalWorldCCDMode::disabled;
     handle->stepConfig.applyBodyDamping = true;
     handle->stepConfig.deterministic = true;
     handle->stepConfig.warmStart = true;
@@ -3012,6 +3020,10 @@ static MRTaskRolloutHandle* createImportedURDFRun(
             authored.sceneBodies,
             surface
         );
+        const auto spheres = locomotionDynamicSpheres(*config);
+        if (!spheres.empty()) {
+            metalrobo::appendLocomotionDynamicSpheres(authored, spheres);
+        }
         auto handle = createCompiledRunTaskRollout(
             makeImportedRunManifest(
                 std::move(authored.model),
@@ -3098,6 +3110,10 @@ static MRTaskRolloutHandle* createWorldPackRun(
         }
         metalrobo::LocomotionWorld materialized =
             metalrobo::makeWorldPackLocomotionWorld(worldPack);
+        const auto spheres = locomotionDynamicSpheres(*config);
+        if (!spheres.empty()) {
+            metalrobo::appendLocomotionDynamicSpheres(materialized, spheres);
+        }
         metalrobo::RunManifest run = makeImportedRunManifest(
             std::move(materialized.model),
             std::move(materialized.sceneBodies),
