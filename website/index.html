@@ -11,6 +11,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/style.css" />
+    <style>
+      .directory { display:grid; grid-template-columns:.84fr 1.16fr; gap:8vw; padding:110px 8vw; background:var(--sky); }
+      .directory h2 { margin:14px 0 24px; font:600 clamp(40px,4.8vw,69px)/.94 var(--serif); letter-spacing:-.065em; }
+      .directory > div > p:last-child { max-width:360px; margin:0; color:#53645b; font-size:14px; line-height:1.65; }
+      .directory-links { border-top:1px solid rgba(23,35,31,.28); }
+      .directory-links a { display:grid; grid-template-columns:1fr 1.5fr 16px; gap:20px; align-items:baseline; min-height:68px; padding:18px 0; border-bottom:1px solid rgba(23,35,31,.28); }
+      .directory-links a:hover { color:#416e5b; }
+      .directory-links strong { font-size:14px; letter-spacing:-.02em; }
+      .directory-links span { color:#506159; font:10px var(--mono); text-transform:uppercase; letter-spacing:.04em; }
+      .directory-links b { font-size:16px; font-weight:400; }
+      .directory-links .directory-all { margin-top:24px; border-top:1px solid var(--ink); background:rgba(244,241,233,.34); padding:18px; }
+      @media (max-width:760px) { .directory { grid-template-columns:1fr; gap:42px; padding:82px 20px; } .directory h2 { font-size:50px; } .directory-links a { grid-template-columns:1fr 15px; gap:6px; min-height:0; } .directory-links span { grid-column:1; grid-row:2; } .directory-links b { grid-column:2; grid-row:1; } }
+    </style>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -37,15 +50,15 @@
         <div class="section-head"><p class="index">SELECTED SYSTEMS / 03</p><h2 id="work-title">The work</h2></div>
         <article class="system metalrobo">
           <div class="system-image"><img src="/images/metalrobo-g1.webp" alt="Unitree G1 in a MetalRobo physics rollout" /><span>Native physical rollout</span></div>
-          <div class="system-copy"><p class="system-number">01 / ROBOTICS</p><h3>MetalRobo</h3><p>One Apple-native physical path for articulated robots, contact, vision, touch, control, and learning.</p><a href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer">Explore MetalRobo <span aria-hidden="true">↗</span></a></div>
+          <div class="system-copy"><p class="system-number">01 / PHYSICAL INTELLIGENCE</p><h3>Numi Lab</h3><p>An Apple-native laboratory for compiled physical worlds: robots, contact, sensing, inference, and learning.</p><a href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer">Explore Numi Lab <span aria-hidden="true">↗</span></a></div>
         </article>
         <article class="system automata">
-          <div class="system-copy"><p class="system-number">02 / ARTIFICIAL LIFE</p><h3>Numi<br />Automata</h3><p>Fields become cells. Cells become organisms. Organisms inherit, compete, repair, and change an ecology.</p><a href="#archive">Read the research notes <span aria-hidden="true">↓</span></a></div>
+          <div class="system-copy"><p class="system-number">02 / ARTIFICIAL LIFE</p><h3>Numi<br />Automata</h3><p>A bottom-up Metal world where coupled fields, cells, organisms, inheritance, and ecology evolve together.</p><a href="https://github.com/Numi2/numi-life-automata" target="_blank" rel="noreferrer">Explore Numi Automata <span aria-hidden="true">↗</span></a></div>
           <div class="system-image"><img src="/images/numi-automata-overview.png" alt="Numi Automata's coupled artificial-life world" /><span>Persistent multi-scale world</span></div>
         </article>
         <article class="system birdflow">
-          <div class="bird-field" role="img" aria-label="Abstract dove in a simulated flow field"><span class="flow-label">D3Q19 / FIELD STUDY</span><svg viewBox="0 0 600 420" aria-hidden="true"><path d="M76 239c82-18 116-143 210-116 45 13 51 86 86 86 53 0 68-97 157-129-43 51-55 113-106 157-61 53-132 66-193 34-50-26-87 10-158-32Z" /></svg></div>
-          <div class="system-copy"><p class="system-number">03 / FLIGHT</p><h3>BirdFlowMetal</h3><p>Measured form, fluid mechanics, and control joined in the study of natural aerial movement.</p><a href="#archive">Open the flight record <span aria-hidden="true">↓</span></a></div>
+          <div class="system-image"><img src="https://raw.githubusercontent.com/Numi2/numi-gpu-physics-pigeon-sim/main/Docs/Media/deetjen-through-flight-observatory.png" alt="BirdFlowMetal's D3Q19 observatory for a reconstructed dove in flight" /><span>D3Q19 / field study</span></div>
+          <div class="system-copy"><p class="system-number">03 / AERIAL PHYSICS</p><h3>BirdFlowMetal</h3><p>A GPU-native fluid–body laboratory for articulated bird flight, measured-motion replay, and strict validation.</p><a href="https://github.com/Numi2/numi-gpu-physics-pigeon-sim" target="_blank" rel="noreferrer">Explore BirdFlowMetal <span aria-hidden="true">↗</span></a></div>
         </article>
       </section>
 
@@ -60,12 +73,24 @@
         </ol>
       </section>
 
+      <section class="directory" aria-labelledby="directory-title">
+        <div><p class="index">NUMI2 RESEARCH DIRECTORY / 05</p><h2 id="directory-title">More worlds<br />under study.</h2><p>The public Numi2 research portfolio extends beyond the three systems above. Each project keeps its own methods, source, and evidence boundary.</p></div>
+        <div class="directory-links">
+          <a href="https://github.com/Numi2/drAnmar" target="_blank" rel="noreferrer"><strong>Dr.Anmar</strong><span>Contact-driven surgical robotics simulation</span><b>↗</b></a>
+          <a href="https://github.com/Numi2/dr-assets" target="_blank" rel="noreferrer"><strong>Dr.Anmar Assets</strong><span>Surgical assets and patient-effect substrate</span><b>↗</b></a>
+          <a href="https://github.com/Numi2/Robot-Apples" target="_blank" rel="noreferrer"><strong>Robot Scene Studio</strong><span>Capture, robot scenes, and spatial review</span><b>↗</b></a>
+          <a href="https://github.com/Numi2/isaac-fighter" target="_blank" rel="noreferrer"><strong>Isaac Fight</strong><span>Emergent humanoid self-play</span><b>↗</b></a>
+          <a href="https://github.com/Numi2/metal-terrain-diffusion" target="_blank" rel="noreferrer"><strong>MetalTerrainDiffusion</strong><span>Infinite terrain synthesis on Apple Metal</span><b>↗</b></a>
+          <a class="directory-all" href="https://github.com/Numi2?tab=repositories" target="_blank" rel="noreferrer"><strong>All public Numi2 projects</strong><span>Source archive</span><b>↗</b></a>
+        </div>
+      </section>
+
       <section class="archive" id="archive" aria-labelledby="archive-title">
         <div><p class="index">OPEN RECORD / 05</p><h2 id="archive-title">Research is a record<br />of what survives contact.</h2></div>
         <div class="archive-links">
-          <a href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer"><span>01</span><strong>MetalRobo platform direction</strong><i>Systems</i><b>↗</b></a>
-          <a href="#work"><span>02</span><strong>Numi Automata: a coupled artificial life world</strong><i>Methods & observations</i><b>↓</b></a>
-          <a href="#work"><span>03</span><strong>BirdFlowMetal: measuring flight in a physical field</strong><i>Flight & fluid dynamics</i><b>↓</b></a>
+          <a href="https://github.com/Numi2/numi-lab" target="_blank" rel="noreferrer"><span>01</span><strong>Numi Lab platform direction</strong><i>Physical intelligence</i><b>↗</b></a>
+          <a href="https://github.com/Numi2/numi-life-automata" target="_blank" rel="noreferrer"><span>02</span><strong>Numi Automata: a coupled artificial-life world</strong><i>Methods & observations</i><b>↗</b></a>
+          <a href="https://github.com/Numi2/numi-gpu-physics-pigeon-sim" target="_blank" rel="noreferrer"><span>03</span><strong>BirdFlowMetal: measuring flight in a physical field</strong><i>Flight & fluid dynamics</i><b>↗</b></a>
         </div>
       </section>
     </main>
