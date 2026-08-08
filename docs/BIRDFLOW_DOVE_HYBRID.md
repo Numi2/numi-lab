@@ -20,6 +20,12 @@ inside the same Metal rollback transaction as contact, sensing, reward,
 termination, and reset: the next state changes with wing load rather than
 receiving a fixed action-to-force mapping.
 
+The zero policy action is an authored 0.86 normalized stroke trim, with a
+bounded ±0.08 bilateral residual. This puts initial MLX exploration in the
+measured viable-stroke band rather than at a no-lift half-stroke. The task also
+terminates at 0.15 m or 2.50 m root height, so exploratory excess lift becomes
+a normal reset event instead of an unbounded trajectory.
+
 The fixed tail is also a resolved aerodynamic surface: its force uses the
 root-relative airflow at its authored aerodynamic center, while its bounded
 pitch-damping term uses the active wing-stroke dynamic pressure. Its external
@@ -29,7 +35,7 @@ it is not a separate controller and never supplies a replayed force trace.
 
 The runner also provides `--birdflow-flap-script` and
 `--birdflow-stroke-amplitude` as deterministic open-loop qualification inputs.
-They are wiring/physics probes for the normal two-action policy contract, not
+They exercise the same trim-residual contract as the policy and are not
 controllers or evaluation claims.
 
 ```sh

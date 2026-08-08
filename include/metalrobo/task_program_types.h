@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 38u
+#define MR_TASK_PROGRAM_ABI_VERSION 39u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -259,6 +259,9 @@ enum MRTaskTerminationOpcode : mr_u32 {
     // Contact-group termination scoped to the active projectile flight. This
     // avoids treating ordinary support contact as a dodge failure.
     MR_TASK_TERMINATE_PROJECTILE_CONTACT = 3u,
+    // Upper altitude boundary for aerial or free-floating tasks. The shared
+    // HEIGHT reason keeps outcome aggregation independent of which bound won.
+    MR_TASK_TERMINATE_MAXIMUM_ROOT_HEIGHT = 4u,
 };
 
 enum MRTaskTerminationReason : mr_u32 {
@@ -439,9 +442,11 @@ typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
     mr_uint4 indices;
     // normalized scale, lower target, upper target, response time seconds.
     mr_float4 parameters;
-    // Authored drive stiffness, damping, reserved, reserved. Interaction
-    // playback uses these values to preserve the reference joint velocity
-    // through the implicit position-drive target without bypassing physics.
+    // Authored drive stiffness, damping, speed, and effort limits. Interaction
+    // playback uses x/y to preserve reference joint velocity through the
+    // implicit position-drive target without bypassing physics. For
+    // flapping-position actuators z/w instead carry the immutable normalized
+    // trim amplitude and residual span.
     mr_float4 drive;
     // actuator kind, resolved body/component, component lane, reserved.
     // Joint actuators retain indices.y/z/w as DoF/q/v; non-joint actuators

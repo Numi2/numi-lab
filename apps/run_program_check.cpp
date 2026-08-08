@@ -339,9 +339,21 @@ int main() {
                     compiledDove.task().actionBindings().end(),
                     [](const MRTaskActionBindingGPU& binding) {
                         return binding.actuator.x ==
-                            MR_TASK_ACTUATOR_FLAPPING_POSITION;
+                            MR_TASK_ACTUATOR_FLAPPING_POSITION &&
+                            binding.drive.z == 0.86f &&
+                            binding.drive.w == 0.08f;
+                    }) &&
+                compiledDove.flappingWingProgram()->tail.bodyIndex !=
+                    MR_INVALID_INDEX &&
+                std::any_of(
+                    compiledDove.task().terminationOperators().begin(),
+                    compiledDove.task().terminationOperators().end(),
+                    [](const MRTaskTerminationOperatorGPU& termination) {
+                        return termination.source.x ==
+                                MR_TASK_TERMINATE_MAXIMUM_ROOT_HEIGHT &&
+                            termination.parameters.x == 2.50f;
                     }),
-            "BirdFlow dove CompiledRun lost its articulated wing or aerodynamic program"
+            "BirdFlow dove CompiledRun lost its trim, altitude boundary, or aerodynamic program"
         );
         std::cout
             << "run_program_check=ok"

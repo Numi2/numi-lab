@@ -131,6 +131,7 @@ enum class TaskRewardOperator : std::uint32_t {
 
 enum class TaskTerminationOperator : std::uint32_t {
     minimumRootHeight = MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT,
+    maximumRootHeight = MR_TASK_TERMINATE_MAXIMUM_ROOT_HEIGHT,
     maximumTilt = MR_TASK_TERMINATE_MAXIMUM_TILT,
     contactGroup = MR_TASK_TERMINATE_CONTACT_GROUP,
     projectileContact = MR_TASK_TERMINATE_PROJECTILE_CONTACT,

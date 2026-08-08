@@ -1395,6 +1395,25 @@ TaskCompileDiagnostics compileTaskProgram(
             dofFound->limits.w,
             dofFound->limits.z,
         };
+        if (actuator->kind == RobotActuatorKind::flappingPosition) {
+            if (!finite(actuator->parameters) ||
+                !(actuator->parameters.x > 0.0f) ||
+                actuator->parameters.x > 1.0f ||
+                !(actuator->parameters.y > 0.0f) ||
+                actuator->parameters.x - actuator->parameters.y < 0.0f ||
+                actuator->parameters.x + actuator->parameters.y > 1.0f) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    actuator->id,
+                    "flapping actuator requires a finite trim and residual span inside [0, 1]"
+                );
+            }
+            // Position-drive speed/effort lanes are unused by this actuator
+            // kind. Carry its immutable trim contract into the compiled
+            // action binding without expanding the task-program ABI.
+            drive.z = actuator->parameters.x;
+            drive.w = actuator->parameters.y;
+        }
         if (actuator->kind == RobotActuatorKind::jointVelocity) {
             const float speedLimit =
                 (dofFound->flags & MR_DOF_FLAG_VELOCITY_LIMIT) != 0u &&
@@ -3130,6 +3149,7 @@ TaskCompileDiagnostics compileTaskProgram(
             }
             break;
         case TaskTerminationOperator::minimumRootHeight:
+        case TaskTerminationOperator::maximumRootHeight:
         case TaskTerminationOperator::maximumTilt:
             break;
         default:

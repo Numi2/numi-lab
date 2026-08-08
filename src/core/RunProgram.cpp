@@ -1579,6 +1579,12 @@ TaskPack makePX4X500HoverTaskPack(
     task.terminations = {
         {TaskTerminationOperator::minimumRootHeight, {},
             MR_TASK_TERMINATION_HEIGHT, 10u, 0.15f, -1.0f},
+        // Flight tasks must not let an exploratory controller accumulate
+        // unbounded altitude before the next reset. This is an episode safety
+        // boundary, not an aerodynamic clamp; the Metal solver still evolves
+        // the same resolved wing/tail load up to the boundary.
+        {TaskTerminationOperator::maximumRootHeight, {},
+            MR_TASK_TERMINATION_HEIGHT, 11u, 2.50f, -1.0f},
         {TaskTerminationOperator::maximumTilt, {},
             MR_TASK_TERMINATION_TILT, 20u, 1.20f, -1.0f},
     };
@@ -1865,10 +1871,13 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         pack.actuators = {
             {.id = "wing.left_flap", .kind = RobotActuatorKind::flappingPosition,
              .target = "dove_left_wing_flap", .scale = 1.20f,
-             .responseTimeSeconds = 0.012f},
+             .responseTimeSeconds = 0.012f,
+             // Zero-action trim amplitude and policy residual span.
+             .parameters = {0.86f, 0.08f, 0.0f, 0.0f}},
             {.id = "wing.right_flap", .kind = RobotActuatorKind::flappingPosition,
              .target = "dove_right_wing_flap", .scale = 1.20f,
-             .responseTimeSeconds = 0.012f},
+             .responseTimeSeconds = 0.012f,
+             .parameters = {0.86f, 0.08f, 0.0f, 0.0f}},
         };
         FlappingWingActuatorPack aerodynamic{};
         aerodynamic.bodyRole = "airframe";

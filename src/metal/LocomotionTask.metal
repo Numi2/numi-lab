@@ -3456,7 +3456,14 @@ kernel void mr_locomotion_task_apply_actions(
                     // a bilateral stroke-amplitude residual. Resolved
                     // aerodynamic loads, not this kinematic carrier, decide
                     // the resulting height and attitude.
-                    (0.5f + 0.5f * filtered) *
+                    // The compiled flapping binding supplies its own
+                    // zero-action trim and bounded residual span, so initial
+                    // policy exploration begins in the viable wingbeat band.
+                    clamp(
+                        binding.drive.z + binding.drive.w * filtered,
+                        0.0f,
+                        1.0f
+                    ) *
                     sin(state.commandAndPhase.w)
             : defaultQ[binding.indices.z] +
                 binding.parameters.x * filtered;
@@ -5938,6 +5945,10 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT:
             triggered =
                 height < operation.parameters.x;
+            break;
+        case MR_TASK_TERMINATE_MAXIMUM_ROOT_HEIGHT:
+            triggered =
+                height > operation.parameters.x;
             break;
         case MR_TASK_TERMINATE_MAXIMUM_TILT:
             triggered =
