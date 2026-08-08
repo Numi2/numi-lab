@@ -34,6 +34,22 @@ typedef struct MR_ALIGN16 MRAeroTailGPU {
     mr_float4 chordAndCoefficients;
 } MRAeroTailGPU;
 
+// Root airframe drag and angular-rate damping.  The reference areas are
+// expressed in the airframe forward/span/up axes, so this stays valid under
+// arbitrary world orientation and wind.
+typedef struct MR_ALIGN16 MRAeroFuselageGPU {
+    mr_u32 bodyIndex;
+    mr_u32 rootBodyIndex;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+
+    // xyz = reference areas normal to forward/span/up axes [m^2],
+    // w = positive quadratic drag coefficient.
+    mr_float4 referenceAreasAndDrag;
+    // xyz = angular-rate damping about forward/span/up [N m s], w reserved.
+    mr_float4 angularDamping;
+} MRAeroFuselageGPU;
+
 // Resolved program for a bilateral articulated airframe.  The model is a
 // state-responsive blade-element load primitive, not a measured CFD claim:
 // it consumes live root/hinge state and writes its result to the universal
@@ -56,5 +72,6 @@ typedef struct MR_ALIGN16 MRCompiledFlappingWingDispatchGPU {
 #ifndef __METAL_VERSION__
 static_assert(sizeof(MRFlappingWingGPU) == 64);
 static_assert(sizeof(MRAeroTailGPU) == 48);
+static_assert(sizeof(MRAeroFuselageGPU) == 48);
 static_assert(sizeof(MRCompiledFlappingWingDispatchGPU) == 48);
 #endif

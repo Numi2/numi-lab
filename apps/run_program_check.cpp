@@ -340,11 +340,15 @@ int main() {
                     [](const MRTaskActionBindingGPU& binding) {
                         return binding.actuator.x ==
                             MR_TASK_ACTUATOR_FLAPPING_POSITION &&
-                            binding.drive.z == 0.86f &&
-                            binding.drive.w == 0.08f;
+                            binding.drive.z == 0.88f &&
+                            binding.drive.w == 0.04f;
                     }) &&
                 compiledDove.flappingWingProgram()->tail.bodyIndex !=
                     MR_INVALID_INDEX &&
+                compiledDove.flappingWingProgram()->fuselage.bodyIndex ==
+                    compiledDove.flappingWingProgram()->rootBodyIndex &&
+                compiledDove.flappingWingProgram()->fuselage
+                    .referenceAreasAndDrag.w > 0.0f &&
                 std::any_of(
                     compiledDove.task().terminationOperators().begin(),
                     compiledDove.task().terminationOperators().end(),

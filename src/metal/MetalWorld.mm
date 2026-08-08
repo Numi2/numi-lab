@@ -35,7 +35,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 242u;
+constexpr std::size_t kRawBufferCount = 243u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -299,6 +299,7 @@ enum BufferIndex : std::size_t {
     kFlappingWingSpecs = 239u,
     kFlappingWingDispatch = 240u,
     kFlappingTail = 241u,
+    kFlappingFuselage = 242u,
 };
 
 struct BufferRequirement {
@@ -1747,6 +1748,11 @@ bool buildRequirements(
             "compiled flapping-wing tail",
             flappingWingProgram.valid() ? 1u : 0u,
             requirements.entries[kFlappingTail]
+        ) ||
+        !makeRequirement<MRAeroFuselageGPU>(
+            "compiled flapping-wing fuselage",
+            flappingWingProgram.valid() ? 1u : 0u,
+            requirements.entries[kFlappingFuselage]
         ) ||
         !makeRequirement<float>(
             "candidate acceleration",
@@ -3216,6 +3222,24 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 "compiled flapping-wing tail geometry is invalid"
             );
         }
+        const MRAeroFuselageGPU& fuselage = wings.fuselage;
+        if (fuselage.bodyIndex != wings.rootBodyIndex ||
+            fuselage.rootBodyIndex != wings.rootBodyIndex ||
+            !finite(fuselage.referenceAreasAndDrag) ||
+            !finite(fuselage.angularDamping) ||
+            !(fuselage.referenceAreasAndDrag.x > 0.0f) ||
+            !(fuselage.referenceAreasAndDrag.y > 0.0f) ||
+            !(fuselage.referenceAreasAndDrag.z > 0.0f) ||
+            fuselage.referenceAreasAndDrag.w < 0.0f ||
+            fuselage.angularDamping.x < 0.0f ||
+            fuselage.angularDamping.y < 0.0f ||
+            fuselage.angularDamping.z < 0.0f) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::invalidDimensions,
+                "compiled flapping-wing fuselage geometry is invalid"
+            );
+        }
     }
     const bool contactMode =
         config.solverMode != MetalWorldSolverMode::freeMotionABA;
@@ -4613,6 +4637,8 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld compiled flapping-wing dispatch";
     case kFlappingTail:
         return @"MetalWorld compiled flapping-wing tail";
+    case kFlappingFuselage:
+        return @"MetalWorld compiled flapping-wing fuselage";
     case kCandidateAcceleration:
         return @"MetalWorld candidate acceleration";
     case kCandidateV:
@@ -5987,6 +6013,7 @@ bool privateImmutableBuffer(const std::size_t index) {
         index == kFlappingWingSpecs ||
         index == kFlappingWingDispatch ||
         index == kFlappingTail ||
+        index == kFlappingFuselage ||
         index == kRodColliders ||
         index == kRodShapeSources ||
         index == kRodToolPairs ||
@@ -7339,6 +7366,10 @@ void uploadBatch(
         stagePrivateBuffer(
             context, kFlappingTail, &wings.tail,
             requirements.entries[kFlappingTail], actuatorUpload
+        );
+        stagePrivateBuffer(
+            context, kFlappingFuselage, &wings.fuselage,
+            requirements.entries[kFlappingFuselage], actuatorUpload
         );
         if (actuatorUpload != nil) {
             [actuatorUpload endEncoding];
@@ -9869,6 +9900,7 @@ bool encodeFlappingWingActuation(
             {3u, vState},
             {4u, kBodyWrenchPlaceholder},
             {5u, kFlappingTail},
+            {6u, kFlappingFuselage},
         },
         nullptr,
         0u,

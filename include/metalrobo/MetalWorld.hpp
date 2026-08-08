@@ -352,6 +352,7 @@ struct MetalWorldMulticopterProgram {
 struct MetalWorldFlappingWingProgram {
     std::array<MRFlappingWingGPU, 2u> wings{};
     MRAeroTailGPU tail{};
+    MRAeroFuselageGPU fuselage{};
     std::uint32_t articulationIndex = MR_INVALID_INDEX;
     std::uint32_t rootBodyIndex = MR_INVALID_INDEX;
     mr_float4 windVelocityAndDensity{};
@@ -365,7 +366,13 @@ struct MetalWorldFlappingWingProgram {
             tail.bodyIndex != MR_INVALID_INDEX &&
             tail.rootBodyIndex == rootBodyIndex &&
             tail.rootToCenterAndArea.w > 0.0f &&
-            tail.chordAndCoefficients.x > 0.0f;
+            tail.chordAndCoefficients.x > 0.0f &&
+            fuselage.bodyIndex == rootBodyIndex &&
+            fuselage.rootBodyIndex == rootBodyIndex &&
+            fuselage.referenceAreasAndDrag.x > 0.0f &&
+            fuselage.referenceAreasAndDrag.y > 0.0f &&
+            fuselage.referenceAreasAndDrag.z > 0.0f &&
+            fuselage.referenceAreasAndDrag.w >= 0.0f;
     }
 };
 

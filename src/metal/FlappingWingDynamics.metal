@@ -52,6 +52,7 @@ kernel void mr_step_compiled_flapping_wings(
     device const float* vState [[buffer(3)]],
     device MRABABodyWrenchGPU* wrenches [[buffer(4)]],
     constant const MRAeroTailGPU& tail [[buffer(5)]],
+    constant const MRAeroFuselageGPU& fuselage [[buffer(6)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
@@ -74,6 +75,56 @@ kernel void mr_step_compiled_flapping_wings(
     const float3 rootAngularVelocity = float3(
         vState[vBase + 3u], vState[vBase + 4u], vState[vBase + 5u]
     );
+    // A free airframe cannot have mass/collision only: root-relative flow
+    // produces a body drag wrench even when the wing load is momentarily
+    // symmetric.  Axis-specific reference areas keep this generic primitive
+    // tied to the resolved airframe orientation rather than world axes.
+    if (fuselage.bodyIndex == dispatch.rootBodyIndex &&
+        fuselage.rootBodyIndex == dispatch.rootBodyIndex &&
+        fuselage.bodyIndex < dispatch.bodyStride &&
+        finite4(fuselage.referenceAreasAndDrag) &&
+        finite4(fuselage.angularDamping) &&
+        fuselage.referenceAreasAndDrag.x > 0.0f &&
+        fuselage.referenceAreasAndDrag.y > 0.0f &&
+        fuselage.referenceAreasAndDrag.z > 0.0f &&
+        fuselage.referenceAreasAndDrag.w >= 0.0f &&
+        all(fuselage.angularDamping.xyz >= 0.0f)) {
+        const float3 forward = safeNormal(
+            rotate(rootOrientation, float3(1.0f, 0.0f, 0.0f))
+        );
+        const float3 span = safeNormal(
+            rotate(rootOrientation, float3(0.0f, 1.0f, 0.0f))
+        );
+        const float3 up = safeNormal(cross(forward, span));
+        const float3 incomingAir =
+            dispatch.windVelocityAndDensity.xyz - rootVelocity;
+        const float3 localAir = float3(
+            dot(incomingAir, forward), dot(incomingAir, span),
+            dot(incomingAir, up)
+        );
+        const float dragScale = 0.5f * dispatch.windVelocityAndDensity.w *
+            fuselage.referenceAreasAndDrag.w;
+        const float3 localForce = dragScale *
+            fuselage.referenceAreasAndDrag.xyz * localAir * abs(localAir);
+        const float3 localAngularVelocity = float3(
+            dot(rootAngularVelocity, forward),
+            dot(rootAngularVelocity, span), dot(rootAngularVelocity, up)
+        );
+        const float3 localTorque = -fuselage.angularDamping.xyz *
+            localAngularVelocity;
+        const float3 force = forward * localForce.x + span * localForce.y +
+            up * localForce.z;
+        const float3 torque = forward * localTorque.x + span * localTorque.y +
+            up * localTorque.z;
+        if (all(isfinite(force)) && all(isfinite(torque))) {
+            const uint wrenchIndex =
+                environment * dispatch.bodyStride + fuselage.bodyIndex;
+            MRABABodyWrenchGPU wrench = wrenches[wrenchIndex];
+            wrench.force.xyz += force;
+            wrench.torque.xyz += torque;
+            wrenches[wrenchIndex] = wrench;
+        }
+    }
     float wingStrokeSpeedSquared = 0.0f;
     for (uint side = 0u; side < 2u; ++side) {
         const MRFlappingWingGPU wing = wings[side];

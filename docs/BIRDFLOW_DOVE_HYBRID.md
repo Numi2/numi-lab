@@ -20,8 +20,8 @@ inside the same Metal rollback transaction as contact, sensing, reward,
 termination, and reset: the next state changes with wing load rather than
 receiving a fixed action-to-force mapping.
 
-The zero policy action is an authored 0.86 normalized stroke trim, with a
-bounded ±0.08 bilateral residual. This puts initial MLX exploration in the
+The zero policy action is an authored 0.88 normalized stroke trim, with a
+bounded ±0.04 bilateral residual. This puts initial MLX exploration in the
 measured viable-stroke band rather than at a no-lift half-stroke. The task also
 terminates at 0.15 m or 2.50 m root height, so exploratory excess lift becomes
 a normal reset event instead of an unbounded trajectory.
@@ -32,6 +32,12 @@ pitch-damping term uses the active wing-stroke dynamic pressure. Its external
 wrench is written to the tail body and transferred through the fixed
 articulation by ABA. This gives the learner a load-responsive pitch channel;
 it is not a separate controller and never supplies a replayed force trace.
+
+The airframe itself receives a resolved quadratic drag wrench. Its authored
+forward/span/up reference areas are evaluated in the live body frame, and its
+angular-rate damping is applied as a root torque. Thus translation and
+rotation can dissipate aerodynamic energy even during a symmetric wingbeat;
+these coefficients are hybrid model parameters, not measured Deetjen values.
 
 The runner also provides `--birdflow-flap-script` and
 `--birdflow-stroke-amplitude` as deterministic open-loop qualification inputs.

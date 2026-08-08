@@ -288,6 +288,8 @@ std::uint64_t robotPackFingerprint(const RobotPack& robot) {
             sizeof(robot.flappingWings->wings));
         hash.bytes(&robot.flappingWings->tail,
             sizeof(robot.flappingWings->tail));
+        hash.bytes(&robot.flappingWings->fuselage,
+            sizeof(robot.flappingWings->fuselage));
         hash.string(robot.flappingWings->bodyRole);
         for (const std::string& wingRole : robot.flappingWings->wingRoles) {
             hash.string(wingRole);
@@ -1334,6 +1336,31 @@ RunCompileDiagnostics compileRun(
             resolvedTail.bodyIndex = tailBodyIndex;
             resolvedTail.rootBodyIndex = program.rootBodyIndex;
             program.tail = resolvedTail;
+            MRAeroFuselageGPU resolvedFuselage = authored.fuselage;
+            if (!std::isfinite(resolvedFuselage.referenceAreasAndDrag.x) ||
+                !std::isfinite(resolvedFuselage.referenceAreasAndDrag.y) ||
+                !std::isfinite(resolvedFuselage.referenceAreasAndDrag.z) ||
+                !std::isfinite(resolvedFuselage.referenceAreasAndDrag.w) ||
+                !std::isfinite(resolvedFuselage.angularDamping.x) ||
+                !std::isfinite(resolvedFuselage.angularDamping.y) ||
+                !std::isfinite(resolvedFuselage.angularDamping.z) ||
+                !std::isfinite(resolvedFuselage.angularDamping.w) ||
+                !(resolvedFuselage.referenceAreasAndDrag.x > 0.0f) ||
+                !(resolvedFuselage.referenceAreasAndDrag.y > 0.0f) ||
+                !(resolvedFuselage.referenceAreasAndDrag.z > 0.0f) ||
+                resolvedFuselage.referenceAreasAndDrag.w < 0.0f ||
+                resolvedFuselage.angularDamping.x < 0.0f ||
+                resolvedFuselage.angularDamping.y < 0.0f ||
+                resolvedFuselage.angularDamping.z < 0.0f) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    manifest.robot.id + ".flapping_wings",
+                    "fuselage reference areas, drag, and angular damping must be finite and non-negative"
+                );
+            }
+            resolvedFuselage.bodyIndex = program.rootBodyIndex;
+            resolvedFuselage.rootBodyIndex = program.rootBodyIndex;
+            program.fuselage = resolvedFuselage;
             staged.flappingWingProgram_ = program;
         }
         if (manifest.policy) {
@@ -1873,11 +1900,11 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
              .target = "dove_left_wing_flap", .scale = 1.20f,
              .responseTimeSeconds = 0.012f,
              // Zero-action trim amplitude and policy residual span.
-             .parameters = {0.86f, 0.08f, 0.0f, 0.0f}},
+             .parameters = {0.88f, 0.04f, 0.0f, 0.0f}},
             {.id = "wing.right_flap", .kind = RobotActuatorKind::flappingPosition,
              .target = "dove_right_wing_flap", .scale = 1.20f,
              .responseTimeSeconds = 0.012f,
-             .parameters = {0.86f, 0.08f, 0.0f, 0.0f}},
+             .parameters = {0.88f, 0.04f, 0.0f, 0.0f}},
         };
         FlappingWingActuatorPack aerodynamic{};
         aerodynamic.bodyRole = "airframe";
@@ -1890,6 +1917,10 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         aerodynamic.wings[1].hingeAxisAndChord = {1.0f, 0.0f, 0.0f, 0.15f};
         aerodynamic.tail.rootToCenterAndArea = {-0.18f, 0.0f, 0.0f, 0.0374f};
         aerodynamic.tail.chordAndCoefficients = {0.17f, 2.5f, 0.08f, 0.60f};
+        aerodynamic.fuselage.referenceAreasAndDrag = {
+            0.011f, 0.035f, 0.032f, 0.70f
+        };
+        aerodynamic.fuselage.angularDamping = {0.004f, 0.008f, 0.004f, 0.0f};
         for (MRFlappingWingGPU& wing : aerodynamic.wings) {
             // Explicitly authored hybrid closure: the cap includes the
             // passive-feathering stroke term used by the device kernel.
