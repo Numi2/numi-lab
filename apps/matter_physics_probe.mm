@@ -8,6 +8,7 @@
 #include "metalrobo/engine_types.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -1181,6 +1182,158 @@ void runMetalWorldCoupling() {
     }
 }
 
+void runCoupledContactOracle() {
+    @autoreleasepool {
+        // Two separate unit-inverse-mass continuum nodes impact two colliders
+        // attached to one unit-inverse-mass free body along the same normal.
+        // The body-owned sparse response is W = [[2, 1], [1, 2]], so the
+        // unique projected solution for unit closing speed is lambda =
+        // [1/3, 1/3]. An independent-pair solve instead produces [1/2, 1/2].
+        // This launches the production kernel directly on Metal with the
+        // exact nested CSR incidence it receives from the runtime; no CPU
+        // contact solve participates.
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        require(device != nil, "no Metal device is available");
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        require(queue != nil, "failed to create coupled-contact queue");
+        NSError* error = nil;
+        id<MTLLibrary> library = [device
+            newLibraryWithURL:[NSURL fileURLWithPath:@NUMI_MATTER_METALLIB]
+                       error:&error];
+        require(library != nil, "could not load Matter Metal library");
+        id<MTLFunction> function = [library newFunctionWithName:
+            @"numi_matter_metal::nm_contact_solve_coupled"];
+        require(function != nil, "Matter Metal library is missing coupled contact");
+        id<MTLComputePipelineState> pipeline = [device
+            newComputePipelineStateWithFunction:function error:&error];
+        require(pipeline != nil, "could not create coupled-contact pipeline");
+
+        NMMatterDispatchGPU dispatch{};
+        dispatch.abiVersion = NM_MATTER_ABI_VERSION;
+        dispatch.environmentCount = 1u;
+        dispatch.objectCount = 1u;
+        dispatch.materialCount = 1u;
+        dispatch.gridNodeCount = 2u;
+        dispatch.rigidProxyCount = 2u;
+        dispatch.contactPairCount = 2u;
+        dispatch.coupledContactIterations = NM_COUPLED_CONTACT_ITERATIONS;
+        dispatch.gravityAndTimestep.w = 1.0f;
+        dispatch.numericalLimits = {0.0f, 0.0f, 0.0f, 1.0e6f};
+        NMMicrostepGPU microstep{};
+
+        NMContinuumObjectGPU object{};
+        object.materialIndex = 0u;
+        NMMaterialGPU material{};
+        material.interfaceResponse.y = 1.0f;
+        std::array<NMGridNodeStateGPU, 2u> nodes{};
+        for (NMGridNodeStateGPU& node : nodes) {
+            node.velocityAndInverseMass.w = 1.0f;
+        }
+        NMFEMNodeStateGPU unusedFEM{};
+        std::array<NMRigidStateGPU, 2u> rigid{};
+        for (NMRigidStateGPU& state : rigid) {
+            state.linearVelocityAndInverseMass.w = 1.0f;
+            state.bodyCenter.w = 1.0f;
+        }
+        const std::array<NMContactPairGPU, 2u> pairs{{
+            {.continuumNode = 0u, .rigidProxy = 0u, .objectIndex = 0u,
+             .materialInterface = 0u},
+            {.continuumNode = 1u, .rigidProxy = 1u, .objectIndex = 0u,
+             .materialInterface = 0u},
+        }};
+        const std::array<std::uint32_t, 2u> incidence{{0u, 1u}};
+        const std::array<NMIncidenceRangeGPU, 2u> ranges{{
+            {0u, 1u, NM_INVALID_INDEX, 0u},
+            {1u, 1u, NM_INVALID_INDEX, 0u},
+        }};
+        const std::array<std::uint32_t, 2u> bodyIncidence{{0u, 1u}};
+        const NMIncidenceRangeGPU bodyRange{0u, 2u, 0u, 0u};
+        constexpr std::uint32_t bodyRangeCount = 1u;
+        NMSchedulerStateGPU scheduler{};
+        NMMatterStatusGPU status{};
+        status.code = NM_STATUS_SUCCESS;
+        std::array<NMContactSampleGPU, 2u> samples{};
+        for (std::uint32_t index = 0u; index < samples.size(); ++index) {
+            NMContactSampleGPU& sample = samples[index];
+            sample.identity = {index, 0u, 0u, NM_CONTACT_VALID};
+            sample.normalAndVelocity = {0.0f, 0.0f, 1.0f, -1.0f};
+        }
+
+        const auto makeBuffer = [&](const void* bytes, const NSUInteger length,
+                                    NSString* label) {
+            id<MTLBuffer> buffer = [device newBufferWithBytes:bytes
+                length:length options:MTLResourceStorageModeShared];
+            require(buffer != nil, "failed to allocate coupled-contact buffer");
+            buffer.label = label;
+            return buffer;
+        };
+        id<MTLBuffer> objects = makeBuffer(&object, sizeof(object), @"oracle objects");
+        id<MTLBuffer> materials = makeBuffer(&material, sizeof(material), @"oracle materials");
+        id<MTLBuffer> mpmNodes = makeBuffer(nodes.data(), sizeof(nodes), @"oracle MPM nodes");
+        id<MTLBuffer> femNodes = makeBuffer(&unusedFEM, sizeof(unusedFEM), @"oracle FEM nodes");
+        id<MTLBuffer> rigidStates = makeBuffer(rigid.data(), sizeof(rigid), @"oracle rigid states");
+        id<MTLBuffer> pairBuffer = makeBuffer(pairs.data(), sizeof(pairs), @"oracle pairs");
+        id<MTLBuffer> incidenceBuffer = makeBuffer(incidence.data(), sizeof(incidence), @"oracle CSR incidence");
+        id<MTLBuffer> rangeBuffer = makeBuffer(ranges.data(), sizeof(ranges), @"oracle CSR ranges");
+        id<MTLBuffer> bodyIncidenceBuffer = makeBuffer(bodyIncidence.data(), sizeof(bodyIncidence), @"oracle body CSR incidence");
+        id<MTLBuffer> bodyRangeBuffer = makeBuffer(&bodyRange, sizeof(bodyRange), @"oracle body CSR range");
+        id<MTLBuffer> schedulers = makeBuffer(&scheduler, sizeof(scheduler), @"oracle schedulers");
+        id<MTLBuffer> sampleBuffer = makeBuffer(samples.data(), sizeof(samples), @"oracle samples");
+        id<MTLBuffer> statuses = makeBuffer(&status, sizeof(status), @"oracle statuses");
+
+        id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+        require(commandBuffer != nil && encoder != nil,
+            "failed to encode coupled-contact oracle");
+        [encoder setComputePipelineState:pipeline];
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1u];
+        [encoder setBuffer:objects offset:0u atIndex:2u];
+        [encoder setBuffer:materials offset:0u atIndex:3u];
+        [encoder setBuffer:mpmNodes offset:0u atIndex:4u];
+        [encoder setBuffer:femNodes offset:0u atIndex:5u];
+        [encoder setBuffer:rigidStates offset:0u atIndex:6u];
+        [encoder setBuffer:pairBuffer offset:0u atIndex:7u];
+        [encoder setBuffer:incidenceBuffer offset:0u atIndex:8u];
+        [encoder setBuffer:rangeBuffer offset:0u atIndex:9u];
+        [encoder setBuffer:schedulers offset:0u atIndex:10u];
+        [encoder setBuffer:sampleBuffer offset:0u atIndex:11u];
+        [encoder setBuffer:statuses offset:0u atIndex:12u];
+        [encoder setBuffer:bodyIncidenceBuffer offset:0u atIndex:13u];
+        [encoder setBuffer:bodyRangeBuffer offset:0u atIndex:14u];
+        [encoder setBytes:&bodyRangeCount length:sizeof(bodyRangeCount) atIndex:15u];
+        [encoder dispatchThreads:MTLSizeMake(2u, 1u, 1u)
+          threadsPerThreadgroup:MTLSizeMake(pipeline.threadExecutionWidth, 1u, 1u)];
+        [encoder endEncoding];
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+        require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+            "coupled-contact Metal command did not complete");
+
+        const auto* solved = static_cast<const NMContactSampleGPU*>(
+            sampleBuffer.contents
+        );
+        require(solved != nullptr, "coupled-contact results are unavailable");
+        const float first = solved[0].impulseAndNormal.w;
+        const float second = solved[1].impulseAndNormal.w;
+        const float residual = std::max(
+            std::abs(2.0f * first + second - 1.0f),
+            std::abs(first + 2.0f * second - 1.0f)
+        );
+        require(std::abs(first - 1.0f / 3.0f) < 2.0e-5f &&
+                    std::abs(second - 1.0f / 3.0f) < 2.0e-5f &&
+                    residual < 4.0e-5f,
+            "coupled-contact oracle did not solve the shared-rigid 1/3 impulse case");
+        std::cout
+            << "{\"schema\":\"numi.matter.physics-probe.v2\""
+            << ",\"representation\":\"shared_rigid_coupled_contact\""
+            << ",\"delassus\":[[2,1],[1,2]]"
+            << ",\"impulses\":[" << first << ',' << second << ']'
+            << ",\"residual\":" << residual
+            << "}\n";
+    }
+}
+
 Outcome runCase(
     const numi::matter::CompiledWorld& world,
     const char* label,
@@ -1434,6 +1587,7 @@ int main(int argc, const char* argv[]) {
         const bool mpmGentle = argc == 2 && std::string_view(argv[1]) == "--mpm-gentle-contact";
         const bool mpmRollback = argc == 2 && std::string_view(argv[1]) == "--mpm-rollback";
         const bool metalWorldCoupling = argc == 2 && std::string_view(argv[1]) == "--metal-world-coupling";
+        const bool coupledContact = argc == 2 && std::string_view(argv[1]) == "--coupled-contact";
         const bool identification = argc == 2 && std::string_view(argv[1]) == "--identification";
         const bool adaptiveDemotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-demotion";
         const bool adaptivePromotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-promotion";
@@ -1445,10 +1599,10 @@ int main(int argc, const char* argv[]) {
             argc == 1 || mixedOnly || statefulMPM || statefulFEM ||
                 femOnly || mpmOnly || mpmFree || mpmSingle ||
                 mpmSingleContact || mpmGentle || mpmRollback ||
-                metalWorldCoupling || identification || adaptiveDemotion ||
+                metalWorldCoupling || coupledContact || identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--mixed|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--mixed|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--coupled-contact|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (identification) {
             runIdentification();
@@ -1464,6 +1618,9 @@ int main(int argc, const char* argv[]) {
         }
         if (metalWorldCoupling) {
             runMetalWorldCoupling();
+        }
+        if (coupledContact) {
+            runCoupledContactOracle();
         }
         if (statefulMPM) {
             runStatefulMaterial(numi::matter::Representation::mpm);
@@ -1493,7 +1650,7 @@ int main(int argc, const char* argv[]) {
                 << "}\n";
         }
         if (!identification && !adaptiveDemotion && !adaptivePromotion &&
-            !adaptivePromotionRollback && !metalWorldCoupling &&
+            !adaptivePromotionRollback && !metalWorldCoupling && !coupledContact &&
             !mixedOnly && !statefulMPM && !statefulFEM &&
             !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
@@ -1533,7 +1690,7 @@ int main(int argc, const char* argv[]) {
         }
         if (!mixedOnly && !statefulMPM && !statefulFEM &&
             !mpmOnly && !mpmFree && !mpmSingle && !mpmSingleContact &&
-            !mpmGentle && !mpmRollback && !metalWorldCoupling &&
+            !mpmGentle && !mpmRollback && !metalWorldCoupling && !coupledContact &&
             !identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback) {
             const bool withPlane = !femFree;

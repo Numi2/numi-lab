@@ -1556,6 +1556,10 @@ if(BUILD_TESTING)
         NAME matter.integration.articulated_rigid_reaction
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --metal-world-coupling
     )
+    add_test(
+        NAME matter.physics.shared_rigid_coupled_contact
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --coupled-contact
+    )
     set_tests_properties(
         matter.physics.mixed_mpm_fem
         matter.physics.stateful_mpm
@@ -1564,6 +1568,7 @@ if(BUILD_TESTING)
         matter.physics.mpm_plane_impact
         matter.runtime.mpm_transaction_rollback
         matter.integration.articulated_rigid_reaction
+        matter.physics.shared_rigid_coupled_contact
         matter.runtime.inverse_identification
         matter.physics.adaptive_mpm_demotion
         matter.integration.adaptive_rigid_contact_promotion

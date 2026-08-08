@@ -475,7 +475,7 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
 
-        const std::array<const char*, 51> kernelNames{
+        const std::array<const char*, 52> kernelNames{
             "nm_prepare_status",
             "nm_prepare_events",
             "nm_prepare_reactions",
@@ -508,6 +508,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_pcg_update_direction",
             "nm_fem_apply_solution",
             "nm_contact_evaluate",
+            "nm_contact_solve_coupled",
             "nm_contact_apply_nodes",
             "nm_contact_reduce_rigid",
             "nm_accumulate_rigid_reactions",
@@ -1973,6 +1974,27 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:11u];
                 [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:12u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+            });
+            dispatchThreads("nm_contact_solve_coupled", proxyTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                [encoder setBuffer:state.gridNodes offset:0u atIndex:4u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:6u];
+                [encoder setBuffer:state.contactPairs offset:0u atIndex:7u];
+                [encoder setBuffer:state.rigidIncidence offset:0u atIndex:8u];
+                [encoder setBuffer:state.rigidRanges offset:0u atIndex:9u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
+                [encoder setBuffer:state.contactSamples offset:0u atIndex:11u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                [encoder setBuffer:state.bodyProxyIncidence offset:0u atIndex:13u];
+                [encoder setBuffer:state.bodyProxyRanges offset:0u atIndex:14u];
+                const std::uint32_t bodyProxyRangeCount = state.reactionBodyCount;
+                [encoder setBytes:&bodyProxyRangeCount
+                           length:sizeof(bodyProxyRangeCount)
+                          atIndex:15u];
             });
             dispatchThreads(
                 "nm_contact_apply_nodes",
