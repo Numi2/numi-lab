@@ -864,6 +864,14 @@ def main() -> int:
     parser.add_argument("--maximum-environments", type=int, default=256)
     parser.add_argument("--held-out-seed", type=int, default=2_650_443_581)
     parser.add_argument("--evaluation-steps", type=int)
+    parser.add_argument(
+        "--advance-candidate",
+        action="store_true",
+        help=(
+            "deploy the latest candidate after recording held-out comparison "
+            "metrics instead of using the comparison as an advancement gate"
+        ),
+    )
     parser.add_argument("training_arguments", nargs=argparse.REMAINDER)
     options = parser.parse_args()
     if options.maximum_environments <= 0:
@@ -976,12 +984,24 @@ def main() -> int:
     reported_candidate = (
         champion if champion != "incumbent" else candidate_names[-1]
     )
+    deployment_candidate = (
+        candidate_names[-1] if options.advance_candidate else champion
+    )
     # Copy the selected comparison before attaching the complete comparison
     # table. Reusing the dictionary here would make checkpoint_comparisons
     # contain itself and fail JSON publication with a circular-reference
     # error after all expensive rollouts had already completed.
     decision = dict(comparisons[reported_candidate])
-    if champion == "incumbent":
+    if options.advance_candidate:
+        # Exploration is continuous for this route: held-out rollouts remain
+        # immutable diagnostics, but they do not veto the learner's next
+        # physical policy.  This preserves every regression signal without
+        # turning the selector into a training gate.
+        decision = dict(comparisons[deployment_candidate])
+        decision["selected"] = deployment_candidate
+        decision["candidate_advanced_deployment"] = True
+        decision["selection_method"] = "continuous_candidate"
+    elif champion == "incumbent":
         decision["selected"] = "incumbent"
         decision["candidate_advanced_deployment"] = False
     decision.update(
@@ -996,13 +1016,14 @@ def main() -> int:
             "evaluated_candidate_policy_packs": [
                 str(policies[name]) for name in candidate_names
             ],
-            "selected_candidate_label": champion
-            if champion != "incumbent" else None,
+            "selected_candidate_label": deployment_candidate
+            if deployment_candidate != "incumbent" else None,
+            "comparison_champion": champion,
             "checkpoint_comparisons": comparisons,
         }
     )
     if decision["candidate_advanced_deployment"]:
-        _atomic_copy(policies[champion], options.deployment)
+        _atomic_copy(policies[deployment_candidate], options.deployment)
     encoded = json.dumps(decision, indent=2, sort_keys=True) + "\n"
     (options.evidence_directory / "selection.json").write_text(
         encoded, encoding="utf-8"

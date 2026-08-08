@@ -79,6 +79,10 @@ case "$mode" in
         # root too: training selection loads its Python adapter from there, and
         # that adapter projects the dove source flag into held-out rollouts.
         export NUMI_LAB_ROOT="$workspace"
+        # The dove is an open-ended flight learner.  Retain matched rollouts
+        # as diagnostics, but advance its latest candidate rather than using
+        # them to block exploration.
+        export NUMI_ADVANCE_CANDIDATE=1
         exec numi train --birdflow-dove \
             --initialize-policy birdflow_deetjen_dove_hybrid_policy "$@"
         ;;

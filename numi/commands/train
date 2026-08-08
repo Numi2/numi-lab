@@ -39,7 +39,8 @@ Every run retains its post-update candidate. Numi evaluates that candidate and
 the immutable pre-training incumbent on the same held-out physical rollout.
 Bundled tasks use their physical outcome vectors; imported WorldPack and URDF
 tasks use their authored task outcome without humanoid height or tilt
-assumptions. Only the better policy advances deployment.policypack.
+assumptions. Set NUMI_ADVANCE_CANDIDATE=1 when comparison is diagnostic-only
+and the latest candidate should advance regardless of its measured ranking.
 
 Use NUMI_RUNS_DIR, NUMI_RUN_DIR, NUMI_BUILD_DIR, or NUMI_MLX_PYTHON to change
 the generated locations without changing the command. NUMI_SELECTION_ENVS
@@ -241,6 +242,10 @@ if [ "$numi_status" -eq 0 ]; then
     numi_checkpoint_directory=$(
         numi_option_value --checkpoint-directory "$@" || true
     )
+    numi_advance_candidate=
+    if [ "${NUMI_ADVANCE_CANDIDATE:-0}" = "1" ]; then
+        numi_advance_candidate=--advance-candidate
+    fi
     if "$numi_python" "$numi_python_root/metalrobo/policy_selection.py" \
         --evaluator "$numi_evaluator" \
         --metallib "$numi_metallib" \
@@ -253,6 +258,7 @@ if [ "$numi_status" -eq 0 ]; then
         --maximum-environments "${NUMI_SELECTION_ENVS:-256}" \
         --held-out-seed "${NUMI_SELECTION_SEED:-2650443581}" \
         --evaluation-steps "$numi_selection_steps" \
+        $numi_advance_candidate \
         -- "$@" > "$numi_run/selection.log" 2>&1; then
         numi_status=0
     else
