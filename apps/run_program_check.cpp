@@ -333,7 +333,14 @@ int main() {
                 compiledDove.multicopterProgram() == nullptr &&
                 compiledDove.model().bodies.size() == 4u &&
                 compiledDove.model().joints.size() == 2u &&
-                compiledDove.task().actionBindings().size() == 2u,
+                compiledDove.task().actionBindings().size() == 2u &&
+                std::all_of(
+                    compiledDove.task().actionBindings().begin(),
+                    compiledDove.task().actionBindings().end(),
+                    [](const MRTaskActionBindingGPU& binding) {
+                        return binding.actuator.x ==
+                            MR_TASK_ACTUATOR_FLAPPING_POSITION;
+                    }),
             "BirdFlow dove CompiledRun lost its articulated wing or aerodynamic program"
         );
         std::cout

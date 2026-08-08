@@ -715,6 +715,7 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::contactWrenchLocal:
             case TaskObservationSource::objectTrack:
             case TaskObservationSource::maskedDepth:
+            case TaskObservationSource::cyclicPhase:
                 return true;
             default:
                 return false;
@@ -1117,7 +1118,8 @@ TaskCompileDiagnostics compileTaskProgram(
         }
         if (interactionClip != nullptr &&
             actuator->kind != RobotActuatorKind::jointPosition &&
-            actuator->kind != RobotActuatorKind::gripperPosition) {
+            actuator->kind != RobotActuatorKind::gripperPosition &&
+            actuator->kind != RobotActuatorKind::flappingPosition) {
             return reject(
                 TaskCompileStatus::unsupportedOperator,
                 actuator->id,
@@ -1128,7 +1130,8 @@ TaskCompileDiagnostics compileTaskProgram(
             actuator->kind == RobotActuatorKind::jointPosition ||
             actuator->kind == RobotActuatorKind::jointVelocity ||
             actuator->kind == RobotActuatorKind::jointEffort ||
-            actuator->kind == RobotActuatorKind::gripperPosition;
+            actuator->kind == RobotActuatorKind::gripperPosition ||
+            actuator->kind == RobotActuatorKind::flappingPosition;
         if (!jointActuator &&
             actuator->kind != RobotActuatorKind::tendonPosition &&
             actuator->kind != RobotActuatorKind::rotorMixer &&
@@ -2181,6 +2184,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 break;
             }
             case TaskObservationSource::gaitPhase:
+            case TaskObservationSource::cyclicPhase:
                 componentLimit = 2u;
                 break;
             case TaskObservationSource::recoveryEvent:

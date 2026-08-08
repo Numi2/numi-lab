@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 37u
+#define MR_TASK_PROGRAM_ABI_VERSION 38u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -11,6 +11,10 @@
 #define MR_TASK_ACTUATOR_GRIPPER_POSITION 4u
 #define MR_TASK_ACTUATOR_ROTOR_MIXER 5u
 #define MR_TASK_ACTUATOR_BODY_WRENCH 6u
+// Position-drive a periodic articulated joint. The task program supplies the
+// shared phase; the policy modulates the stroke amplitude around the
+// robot-authored baseline instead of reconstructing a high-rate oscillator.
+#define MR_TASK_ACTUATOR_FLAPPING_POSITION 7u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
@@ -135,6 +139,10 @@ enum MRTaskObservationOpcode : mr_u32 {
     // transaction.  This preserves policies trained from sampled encoders
     // rather than the simulator's instantaneous generalized velocity.
     MR_TASK_OBSERVE_JOINT_FINITE_DIFFERENCE_VELOCITY = 27u,
+    // Unconditionally advancing task clock: sin/cos of the configured task
+    // phase. Unlike gait phase, it remains available to cyclic actuators
+    // during a zero-velocity or station-keeping command.
+    MR_TASK_OBSERVE_CYCLIC_PHASE = 28u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {

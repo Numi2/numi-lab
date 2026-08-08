@@ -138,6 +138,7 @@ bool validActuators(const RobotPack& robot, std::string& reason) {
         case RobotActuatorKind::jointVelocity:
         case RobotActuatorKind::jointEffort:
         case RobotActuatorKind::gripperPosition:
+        case RobotActuatorKind::flappingPosition:
             if (std::ranges::count(
                     robot.mechanics.jointNames,
                     actuator.target
@@ -1583,10 +1584,34 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
         {"wing.left_flap"},
         {"wing.right_flap"},
     };
-    // PX4's reusable root-state prefix is meaningful here, but its action
-    // suffix names rotor controls. Rebuild the suffix against the compiled
-    // articulated-wing action contract.
+    // PX4's reusable root-state prefix is meaningful here, but a Markov
+    // flapping policy also needs the resolved hinge state.  Previous action
+    // alone made the aerodynamic phase partially hidden, so the learner could
+    // not distinguish a downstroke from an upstroke at the same airframe pose.
+    // Rebuild the suffix against the compiled articulated-wing contract.
     observations.actorFrame.resize(10u);
+    for (const char* joint : {
+             "dove_left_wing_flap", "dove_right_wing_flap"}) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::jointPositionError,
+            .target = joint,
+            .scale = 1.0f / 1.35f,
+        });
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::jointVelocity,
+            .target = joint,
+            .scale = 1.0f / 25.0f,
+        });
+    }
+    // The hinge state closes the instantaneous Markov loop; this explicit
+    // clock lets a feed-forward policy modulate each phase of the robot-owned
+    // wingbeat instead of treating a high-rate oscillator as hidden state.
+    for (std::uint32_t component = 0u; component < 2u; ++component) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::cyclicPhase,
+            .component = component,
+        });
+    }
     for (const TaskActionBinding& action : task.actions) {
         observations.actorFrame.push_back({
             .source = TaskObservationSource::previousAction,
@@ -1595,6 +1620,7 @@ TaskPack makeBirdFlowDoveFlightTaskPack(
     }
     observations.critic = observations.actorFrame;
     task.baseHeightTarget = 1.5f;
+    task.gaitPeriodSeconds = 0.25f;
     task.maximumEpisodeSteps = 750u;
     task.successTrackingThreshold = 0.80f;
     for (auto& randomization : reset.operators) {
@@ -1640,7 +1666,11 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         body.inverseInertiaRow0 = {1.0f / 0.0021f, 0.0f, 0.0f, 0.0f};
         body.inverseInertiaRow1 = {0.0f, 1.0f / 0.0054f, 0.0f, 0.0f};
         body.inverseInertiaRow2 = {0.0f, 0.0f, 1.0f / 0.0061f, 0.0f};
-        body.dampingAndSpeedLimits = {0.02f, 0.02f, 30.0f, 30.0f};
+        // The public Deetjen sequence does not identify a free-flight tail
+        // damping derivative. This explicit airframe closure represents the
+        // resolved body's rotational aerodynamic damping; without it the
+        // two single-DOF wings inject pitch energy but provide no stabilizer.
+        body.dampingAndSpeedLimits = {0.04f, 0.50f, 30.0f, 30.0f};
         const auto configureWing = [&](const std::uint32_t bodyIndex,
                                        const std::uint32_t jointIndex) {
             MRBodyPropertiesGPU& wing = mechanics.bodies[bodyIndex];
@@ -1749,10 +1779,10 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         addBodyRole(pack, "left_wing", {"dove_left_wing"});
         addBodyRole(pack, "right_wing", {"dove_right_wing"});
         pack.actuators = {
-            {.id = "wing.left_flap", .kind = RobotActuatorKind::jointPosition,
+            {.id = "wing.left_flap", .kind = RobotActuatorKind::flappingPosition,
              .target = "dove_left_wing_flap", .scale = 1.20f,
              .responseTimeSeconds = 0.012f},
-            {.id = "wing.right_flap", .kind = RobotActuatorKind::jointPosition,
+            {.id = "wing.right_flap", .kind = RobotActuatorKind::flappingPosition,
              .target = "dove_right_wing_flap", .scale = 1.20f,
              .responseTimeSeconds = 0.012f},
         };

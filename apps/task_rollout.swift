@@ -163,6 +163,7 @@ private struct Options {
     var zeroActions = false
     var actionStream: String?
     var birdFlowFlapScript = false
+    var birdFlowStrokeAmplitude: Float?
     var scheduledResets = true
     var policyPack: String?
     var rolloutPack: String?
@@ -454,6 +455,16 @@ private struct Options {
                 birdFlowDove = true
             case "--birdflow-flap-script":
                 birdFlowFlapScript = true
+            case "--birdflow-stroke-amplitude":
+                guard let amplitude = Float(try value()), amplitude.isFinite,
+                      amplitude >= -1, amplitude <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--birdflow-stroke-amplitude requires a finite value in [-1, 1]."
+                    )
+                }
+                birdFlowStrokeAmplitude = amplitude
+                index += 1
             default:
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "Unknown option \(option)."
@@ -500,12 +511,17 @@ private struct Options {
                 "--action-stream cannot be combined with another action source."
             )
         }
-        if birdFlowFlapScript &&
+        if (birdFlowFlapScript || birdFlowStrokeAmplitude != nil) &&
             (!birdFlowDove || zeroActions || actionStream != nil ||
                 nativePolicy || policyPack != nil)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--birdflow-flap-script requires --birdflow-dove and cannot be combined with another action source."
+                "BirdFlow qualification actions require --birdflow-dove and cannot be combined with another action source."
+            )
+        }
+        if birdFlowFlapScript && birdFlowStrokeAmplitude != nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--birdflow-flap-script and --birdflow-stroke-amplitude are mutually exclusive."
             )
         }
         if rolloutPack != nil &&
@@ -941,9 +957,9 @@ private func actions(
     return result
 }
 
-// A deterministic open-loop qualification input, not a policy or a flight
-// result.  It demonstrates that the articulated hinge targets reach the
-// device-side aerodynamic coupling under the exact normal action contract.
+// A deterministic full-stroke qualification input, not a policy or a flight
+// result. It proves that the robot-owned 4 Hz wingbeat reaches the device-side
+// aerodynamic coupling through the same amplitude-modulation action contract.
 private func birdFlowFlapActions(
     startStep: Int,
     stepCount: Int,
@@ -956,16 +972,26 @@ private func birdFlowFlapActions(
         count: stepCount * environmentCount * actionCount
     )
     for step in 0..<stepCount {
-        let globalStep = startStep + step
-        let phase = 2.0 * Double.pi * 4.0 * Double(globalStep) / 60.0
-        let flap = 0.9 * Float(sin(phase))
         for environment in 0..<environmentCount {
             let base = (step * environmentCount + environment) * actionCount
-            result[base] = flap
-            result[base + 1] = flap
+            result[base] = 1.0
+            result[base + 1] = 1.0
         }
     }
     return result
+}
+
+private func birdFlowStrokeActions(
+    amplitude: Float,
+    stepCount: Int,
+    environmentCount: Int,
+    actionCount: Int
+) -> [Float] {
+    precondition(actionCount == 2)
+    return [Float](
+        repeating: amplitude,
+        count: stepCount * environmentCount * actionCount
+    )
 }
 
 private func masks(
@@ -1478,6 +1504,13 @@ private enum TaskRolloutMain {
                         } else if options.birdFlowFlapScript {
                             actionBatch = birdFlowFlapActions(
                                 startStep: globalStep,
+                                stepCount: stepCount,
+                                environmentCount: options.environments,
+                                actionCount: context.layout.actionCount
+                            )
+                        } else if let amplitude = options.birdFlowStrokeAmplitude {
+                            actionBatch = birdFlowStrokeActions(
+                                amplitude: amplitude,
                                 stepCount: stepCount,
                                 environmentCount: options.environments,
                                 actionCount: context.layout.actionCount
@@ -2311,6 +2344,8 @@ private enum TaskRolloutMain {
                     ? "foundation_action_stream"
                     : options.birdFlowFlapScript
                     ? "birdflow_4hz_flap_qualification"
+                    : options.birdFlowStrokeAmplitude != nil
+                    ? "birdflow_stroke_amplitude_qualification"
                     : "host_stream",
                 "action_stream": options.actionStream ?? "",
                 "device": context.deviceName,

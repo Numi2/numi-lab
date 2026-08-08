@@ -38,6 +38,7 @@ enum class TaskObservationSource : std::uint32_t {
     contactWrenchLocal =
         MR_TASK_OBSERVE_CONTACT_WRENCH_LOCAL,
     gaitPhase = MR_TASK_OBSERVE_GAIT_PHASE,
+    cyclicPhase = MR_TASK_OBSERVE_CYCLIC_PHASE,
     recoveryEvent = MR_TASK_OBSERVE_RECOVERY_EVENT,
     objectTrack = MR_TASK_OBSERVE_OBJECT_TRACK,
     maskedDepth = MR_TASK_OBSERVE_MASKED_DEPTH,
@@ -167,6 +168,7 @@ enum class RobotActuatorKind : std::uint32_t {
     gripperPosition = 4u,
     rotorMixer = 5u,
     bodyWrench = 6u,
+    flappingPosition = 7u,
 };
 
 // One sparse tendon Jacobian term. The coefficient maps generalized joint

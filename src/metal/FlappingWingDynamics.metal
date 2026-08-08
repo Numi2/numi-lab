@@ -157,10 +157,11 @@ kernel void mr_step_compiled_flapping_wings(
         const uint wrenchIndex = environment * dispatch.bodyStride + wing.bodyIndex;
         MRABABodyWrenchGPU wrench = wrenches[wrenchIndex];
         wrench.force.xyz += force;
-        // A quarter-chord aerodynamic center supplies a moment about the wing
-        // COM while the force itself remains a physical external wrench.
-        const float3 aerodynamicCenter = -0.25f * wing.hingeAxisAndChord.w * chord;
-        wrench.torque.xyz += cross(aerodynamicCenter, force);
+        // The articulated solver transfers this COM-applied external force
+        // through the resolved shoulder transform.  A separate quarter-chord
+        // torque would require measured pitch/feather state; adding one to
+        // this single-DOF hybrid double-counts an unmodelled moment and made
+        // symmetric wingbeats inject an uncontrolled pitch bias.
         wrenches[wrenchIndex] = wrench;
     }
 }

@@ -1004,6 +1004,11 @@ inline float cleanObservation(
         }
         break;
     }
+    case MR_TASK_OBSERVE_CYCLIC_PHASE:
+        value = operation.source.z == 0u
+            ? sin(state.commandAndPhase.w)
+            : cos(state.commandAndPhase.w);
+        break;
     case MR_TASK_OBSERVE_RECOVERY_EVENT:
         switch (operation.source.z) {
         case 0u:
@@ -3431,7 +3436,8 @@ kernel void mr_locomotion_task_apply_actions(
             action
         ];
         if (binding.actuator.x != MR_TASK_ACTUATOR_JOINT_POSITION &&
-            binding.actuator.x != MR_TASK_ACTUATOR_GRIPPER_POSITION) {
+            binding.actuator.x != MR_TASK_ACTUATOR_GRIPPER_POSITION &&
+            binding.actuator.x != MR_TASK_ACTUATOR_FLAPPING_POSITION) {
             // Velocity, effort, tendon, and body-wrench commands are
             // evaluated from live microstep state by the generic actuator
             // pass. Rotor mixers have their own compiled robot program. A
@@ -3443,8 +3449,17 @@ kernel void mr_locomotion_task_apply_actions(
             (program.schedule.w &
              MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u;
         const float studentTarget =
-            defaultQ[binding.indices.z] +
-            binding.parameters.x * filtered;
+            binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+            ? defaultQ[binding.indices.z] +
+                binding.parameters.x *
+                    // The clock is robot-owned, while each policy output is
+                    // a bilateral stroke-amplitude residual. Resolved
+                    // aerodynamic loads, not this kinematic carrier, decide
+                    // the resulting height and attitude.
+                    (0.5f + 0.5f * filtered) *
+                    sin(state.commandAndPhase.w)
+            : defaultQ[binding.indices.z] +
+                binding.parameters.x * filtered;
         float targetCandidate = studentTarget;
         if (interactionReference) {
             const float frameReference = interactionJointTargets[
@@ -3604,6 +3619,7 @@ kernel void mr_locomotion_task_apply_native_actuators(
         const uint kind = binding.actuator.x;
         if (kind == MR_TASK_ACTUATOR_JOINT_POSITION ||
             kind == MR_TASK_ACTUATOR_GRIPPER_POSITION ||
+            kind == MR_TASK_ACTUATOR_FLAPPING_POSITION ||
             kind == MR_TASK_ACTUATOR_ROTOR_MIXER) {
             continue;
         }

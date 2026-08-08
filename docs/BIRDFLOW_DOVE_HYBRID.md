@@ -9,16 +9,20 @@ replay`.
 
 The compiled RobotPack has a 0.28 kg free airframe and two 0.02 kg wing
 bodies, each connected by an actuated revolute hinge. Its two policy actions
-target those hinges. A device-resident blade-element pass reads the resolved
-root pose/velocity, hinge angle/rate, and configured wind, then writes
-per-wing world-frame wrenches before the generic articulated ABA pass. It is
-therefore inside the same Metal rollback transaction as contact, sensing,
-reward, termination, and reset: the next state changes with wing load rather
-than receiving a fixed action-to-force mapping.
+modulate bilateral stroke amplitude; the robot-owned 4 Hz cyclic phase drives
+the hinge targets. The actor observes both wing position/rate and the sin/cos
+phase, so an MLX policy does not have to infer a hidden wingbeat from action
+lag. A device-resident blade-element pass reads the resolved root
+pose/velocity, hinge angle/rate, and configured wind, then writes per-wing
+world-frame wrenches before the generic articulated ABA pass. It is therefore
+inside the same Metal rollback transaction as contact, sensing, reward,
+termination, and reset: the next state changes with wing load rather than
+receiving a fixed action-to-force mapping.
 
-The runner also provides `--birdflow-flap-script` as a deterministic 4 Hz
-open-loop qualification input. It is only a wiring/physics probe for the
-normal two-action policy contract, not a controller or an evaluation claim.
+The runner also provides `--birdflow-flap-script` and
+`--birdflow-stroke-amplitude` as deterministic open-loop qualification inputs.
+They are wiring/physics probes for the normal two-action policy contract, not
+controllers or evaluation claims.
 
 ```sh
 numi dove train --envs 1024 --updates 1000
