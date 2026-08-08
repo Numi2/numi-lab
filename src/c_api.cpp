@@ -7,6 +7,7 @@
 #include "metalrobo/LearningPacks.hpp"
 #include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
+#include "metalrobo/MetalRunInspector.hpp"
 #include "metalrobo/MetalTactile.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
@@ -78,6 +79,7 @@ struct MRTaskVisualRuntime {
     metalrobo::MetalHybridRenderer renderer;
     metalrobo::MetalHybridRenderer captureRenderer;
     metalrobo::MetalHybridObjectTracker tracker;
+    std::unique_ptr<metalrobo::MetalRunInspector> inspector;
     std::vector<MRBodyStateGPU> previousCaptureBodies;
     std::uint64_t captureFrameIndex = 0u;
     bool captureEnabled = false;
@@ -120,6 +122,7 @@ struct MRTaskRolloutHandle {
     std::vector<MRTaskOutcomeDescriptor> outcomes;
     std::vector<float> outcomeValues;
     std::unique_ptr<MRTaskVisualRuntime> visualRuntime;
+    std::unique_ptr<MRTaskVisualRuntime> inspectionVisualRuntime;
     std::string deviceName;
     std::string metallibPath;
     std::string taskId;
@@ -133,6 +136,10 @@ struct MRTaskRolloutHandle {
 
 namespace {
 void installTaskVisualRuntime(
+    MRTaskRolloutHandle& handle,
+    const metalrobo::VisualSensorProgram& program
+);
+void installTaskInspectionRuntime(
     MRTaskRolloutHandle& handle,
     const metalrobo::VisualSensorProgram& program
 );
@@ -1884,7 +1891,8 @@ metalrobo::WorldAsset makeRolloutVisualAsset(
 
 std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     MRTaskRolloutHandle& handle,
-    const metalrobo::VisualSensorProgram& program
+    const metalrobo::VisualSensorProgram& program,
+    const bool deviceObservation
 ) {
     if (program.assets.empty() || program.cameraParentBody.empty() ||
         program.width == 0u || program.height == 0u ||
@@ -1935,56 +1943,58 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     std::unordered_set<std::uint32_t> trackedSceneBodies;
     std::uint32_t maskedDepthOffset = MR_INVALID_INDEX;
     std::uint32_t maskedDepthCount = 0u;
-    const auto actorOperators = handle.taskProgram.actorOperators();
-    for (std::uint32_t offset = 0u;
-         offset < actorOperators.size();
-         ++offset) {
-        const MRTaskObservationOperatorGPU& operation =
-            actorOperators[offset];
-        if (operation.source.x == MR_TASK_OBSERVE_MASKED_DEPTH) {
-            if (maskedDepthOffset == MR_INVALID_INDEX) {
-                maskedDepthOffset = offset;
+    if (deviceObservation) {
+        const auto actorOperators = handle.taskProgram.actorOperators();
+        for (std::uint32_t offset = 0u;
+             offset < actorOperators.size();
+             ++offset) {
+            const MRTaskObservationOperatorGPU& operation =
+                actorOperators[offset];
+            if (operation.source.x == MR_TASK_OBSERVE_MASKED_DEPTH) {
+                if (maskedDepthOffset == MR_INVALID_INDEX) {
+                    maskedDepthOffset = offset;
+                }
+                if (offset != maskedDepthOffset + operation.source.z) {
+                    throw std::logic_error(
+                        "compiled masked-depth actor slots are not contiguous"
+                    );
+                }
+                ++maskedDepthCount;
+                continue;
             }
-            if (offset != maskedDepthOffset + operation.source.z) {
-                throw std::logic_error(
-                    "compiled masked-depth actor slots are not contiguous"
-                );
+            if (operation.source.x != MR_TASK_OBSERVE_OBJECT_TRACK) {
+                continue;
             }
-            ++maskedDepthCount;
-            continue;
-        }
-        if (operation.source.x != MR_TASK_OBSERVE_OBJECT_TRACK) {
-            continue;
-        }
-        if (operation.source.y >= sceneIndices.size()) {
-            throw std::logic_error(
-                "compiled object-track scene index is invalid"
-            );
-        }
-        if (operation.source.z == 0u) {
-            trackedOffsets.emplace(operation.source.y, offset);
-            trackedSceneBodies.insert(operation.source.y);
-        } else if (operation.source.z == 1u) {
-            positionScales.emplace(
-                operation.source.y,
-                operation.transform.x
-            );
-        } else if (operation.source.z == 4u) {
-            velocityScales.emplace(
-                operation.source.y,
-                operation.transform.x
-            );
-        }
-    }
-    for (const MRTaskObservationOperatorGPU& operation :
-         handle.taskProgram.criticOperators()) {
-        if (operation.source.x == MR_TASK_OBSERVE_OBJECT_TRACK) {
             if (operation.source.y >= sceneIndices.size()) {
                 throw std::logic_error(
-                    "compiled critic object-track scene index is invalid"
+                    "compiled object-track scene index is invalid"
                 );
             }
-            trackedSceneBodies.insert(operation.source.y);
+            if (operation.source.z == 0u) {
+                trackedOffsets.emplace(operation.source.y, offset);
+                trackedSceneBodies.insert(operation.source.y);
+            } else if (operation.source.z == 1u) {
+                positionScales.emplace(
+                    operation.source.y,
+                    operation.transform.x
+                );
+            } else if (operation.source.z == 4u) {
+                velocityScales.emplace(
+                    operation.source.y,
+                    operation.transform.x
+                );
+            }
+        }
+        for (const MRTaskObservationOperatorGPU& operation :
+             handle.taskProgram.criticOperators()) {
+            if (operation.source.x == MR_TASK_OBSERVE_OBJECT_TRACK) {
+                if (operation.source.y >= sceneIndices.size()) {
+                    throw std::logic_error(
+                        "compiled critic object-track scene index is invalid"
+                    );
+                }
+                trackedSceneBodies.insert(operation.source.y);
+            }
         }
     }
     const MRTaskProgramHeaderGPU& taskHeader =
@@ -1999,14 +2009,15 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         : 0u;
     const std::uint64_t expectedMaskedDepth =
         expectedMaskedDepthPixels + maskedDepthFeatureCount;
-    if ((maskedDepthCount != 0u || expectedMaskedDepth != 0u) &&
+    if (deviceObservation &&
+        (maskedDepthCount != 0u || expectedMaskedDepth != 0u) &&
         (maskedDepthCount != expectedMaskedDepth ||
          maskedDepthOffset == MR_INVALID_INDEX)) {
         throw std::invalid_argument(
             "SensorPack masked-depth actor layout is incomplete"
         );
     }
-    if (trackedOffsets.empty() && maskedDepthCount == 0u) {
+    if (deviceObservation && trackedOffsets.empty() && maskedDepthCount == 0u) {
         throw std::invalid_argument(
             "SensorPack has no device visual actor observations"
         );
@@ -2057,7 +2068,9 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             id,
             {body},
             role,
-            tracked ? MR_WORLD_RENDER_MESH_PBR : MR_WORLD_RENDER_NONE,
+            (tracked || !deviceObservation)
+                ? MR_WORLD_RENDER_MESH_PBR
+                : MR_WORLD_RENDER_NONE,
             dynamics
         );
         if (tracked) {
@@ -2100,7 +2113,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         }
         episode.assets.push_back(std::move(asset));
     }
-    if (manipulatedAsset.empty() || targetAsset.empty()) {
+    if ((manipulatedAsset.empty() || targetAsset.empty()) &&
+        deviceObservation) {
         throw std::invalid_argument(
             "visual object tracking requires a tracked rigid object and static scene asset"
         );
@@ -2200,15 +2214,25 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         presentation.maximumDepthMeters = 12.0f;
         episode.sensors.push_back(std::move(presentation));
     }
-    episode.task = {
-        "compiled_task_visual_observation",
-        "robot",
-        manipulatedAsset,
-        targetAsset,
-        "visual_rollout_target",
-        handle.stepConfig.timestepSeconds,
-        20.0,
-    };
+    episode.task = deviceObservation
+        ? metalrobo::TaskSpec{
+              "compiled_task_visual_observation",
+              "robot",
+              manipulatedAsset,
+              targetAsset,
+              "visual_rollout_target",
+              handle.stepConfig.timestepSeconds,
+              20.0,
+          }
+        : metalrobo::TaskSpec{
+              "inspection_presentation",
+              "robot",
+              {},
+              {},
+              {},
+              handle.stepConfig.timestepSeconds,
+              20.0,
+          };
 
     auto runtime = std::make_unique<MRTaskVisualRuntime>();
     const metalrobo::WorldCompileResult worldStatus =
@@ -2382,6 +2406,43 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         throw worldFamilyError("visual WorldFamily sample", sampled);
     }
 
+    if (!deviceObservation) {
+        metalrobo::MetalRunInspectorConfig inspectionConfig;
+        inspectionConfig.metallibPath = handle.metallibPath;
+        inspectionConfig.width = program.width;
+        inspectionConfig.height = program.height;
+        inspectionConfig.environmentIndex = 0u;
+        inspectionConfig.maximumFramesInFlight = 3u;
+        if (program.maximumRetainedBytes != 0u) {
+            if (program.maximumRetainedBytes >
+                std::numeric_limits<std::size_t>::max()) {
+                throw std::invalid_argument(
+                    "inspection retained-memory budget exceeds size_t"
+                );
+            }
+            inspectionConfig.maximumRetainedBytes =
+                static_cast<std::size_t>(program.maximumRetainedBytes);
+        }
+        runtime->inspector = std::make_unique<
+            metalrobo::MetalRunInspector
+        >(std::move(inspectionConfig));
+        const auto inspectionCompiled = runtime->inspector->compile(
+            std::move(manifest.renderScene),
+            metalrobo::VisualRendererProfileV1::sensorFast(),
+            runtime->worlds
+        );
+        if (!inspectionCompiled.succeeded()) {
+            throw std::runtime_error(
+                std::string{"inspection renderer compile failed ["} +
+                metalrobo::metalHybridRendererStatusName(
+                    inspectionCompiled.status
+                ) + "]: " + inspectionCompiled.message
+            );
+        }
+        runtime->sceneFingerprint = manifest.fingerprint;
+        return runtime;
+    }
+
     metalrobo::MetalHybridRendererConfig rendererConfig;
     rendererConfig.metallibPath = handle.metallibPath;
     rendererConfig.width = program.width;
@@ -2547,7 +2608,7 @@ void installTaskVisualRuntime(
         );
     }
     std::unique_ptr<MRTaskVisualRuntime> candidate =
-        compileTaskVisualRuntime(handle, program);
+        compileTaskVisualRuntime(handle, program, true);
     const metalrobo::MetalWorldDeviceObservationProgram observationProgram =
         candidate->tracker.observationProgram();
     if (!observationProgram.valid()) {
@@ -2557,6 +2618,29 @@ void installTaskVisualRuntime(
     }
     handle.visualRuntime = std::move(candidate);
     handle.stepConfig.deviceObservationProgram = observationProgram;
+}
+
+void installTaskInspectionRuntime(
+    MRTaskRolloutHandle& handle,
+    const metalrobo::VisualSensorProgram& program
+) {
+    if (handle.residentState.valid()) {
+        throw std::logic_error(
+            "inspection scene must compile before resident initialization"
+        );
+    }
+    std::unique_ptr<MRTaskVisualRuntime> candidate =
+        compileTaskVisualRuntime(handle, program, false);
+    if (candidate->inspector == nullptr) {
+        throw std::logic_error("inspection renderer did not compile");
+    }
+    const metalrobo::MetalWorldInspectionProgram inspectionProgram =
+        candidate->inspector->inspectionProgram();
+    if (!inspectionProgram.valid()) {
+        throw std::logic_error("inspection program is invalid");
+    }
+    handle.inspectionVisualRuntime = std::move(candidate);
+    handle.stepConfig.inspectionProgram = inspectionProgram;
 }
 
 std::runtime_error worldFamilyError(
@@ -3199,6 +3283,18 @@ MRTaskRolloutHandle* mr_create_task_rollout(
         gLastError = "run manifest source is invalid.";
         return nullptr;
     }
+    if (result != nullptr && manifest->inspection_visual_program != nullptr) {
+        const int inspectionStatus = translateErrors([&] {
+            installTaskInspectionRuntime(
+                *result,
+                visualSensorProgram(*manifest->inspection_visual_program)
+            );
+        });
+        if (inspectionStatus != 0) {
+            delete result;
+            return nullptr;
+        }
+    }
     return result;
 }
 
@@ -3808,10 +3904,57 @@ const char* mr_task_rollout_device_name(
 uint64_t mr_task_rollout_visual_scene_fingerprint(
     const MRTaskRolloutHandle* handle
 ) {
-    return requireTaskRolloutHandle(handle) &&
-        handle->visualRuntime
-        ? handle->visualRuntime->sceneFingerprint
-        : 0u;
+    if (!requireTaskRolloutHandle(handle)) {
+        return 0u;
+    }
+    return handle->visualRuntime == nullptr
+        ? 0u
+        : handle->visualRuntime->sceneFingerprint;
+}
+
+int mr_task_rollout_acquire_inspection_frame(
+    MRTaskRolloutHandle* handle,
+    MRTaskInspectionFrameC* frame
+) {
+    if (!requireTaskRolloutHandle(handle) || frame == nullptr) {
+        return -1;
+    }
+    if (handle->inspectionVisualRuntime == nullptr ||
+        handle->inspectionVisualRuntime->inspector == nullptr) {
+        gLastError = "task rollout has no presentation inspector.";
+        return -1;
+    }
+    metalrobo::MetalRunInspectorFrame native;
+    if (!handle->inspectionVisualRuntime->inspector->acquireLatestFrame(
+            native
+        )) {
+        gLastError.clear();
+        return 0;
+    }
+    frame->rgb_buffer = native.rgb;
+    frame->slot_index = native.slotIndex;
+    frame->width = native.width;
+    frame->height = native.height;
+    frame->frame_index = native.frameIndex;
+    frame->submission_index = native.submissionIndex;
+    frame->environment_index = native.environmentIndex;
+    frame->dropped_frames = native.droppedFrames;
+    gLastError.clear();
+    return 1;
+}
+
+int mr_task_rollout_release_inspection_frame(
+    MRTaskRolloutHandle* handle,
+    const uint32_t slot_index
+) {
+    if (!requireTaskRolloutHandle(handle) ||
+        handle->inspectionVisualRuntime == nullptr ||
+        handle->inspectionVisualRuntime->inspector == nullptr) {
+        return -1;
+    }
+    handle->inspectionVisualRuntime->inspector->releaseFrame(slot_index);
+    gLastError.clear();
+    return 0;
 }
 
 uint32_t mr_task_rollout_impact_event_count(
