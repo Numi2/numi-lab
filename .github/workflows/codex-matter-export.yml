@@ -1,73 +1,33 @@
-name: Materialize rod narrowphase specialization
+name: Export rod narrowphase staging
 
 on:
   pull_request:
     types: [synchronize, reopened]
 
 permissions:
-  contents: write
-
-concurrency:
-  group: rod-narrowphase-specialization
-  cancel-in-progress: true
+  contents: read
 
 jobs:
-  materialize:
+  export:
     if: github.event.pull_request.head.ref == 'codex/matter-compiler-foundation'
-    runs-on: macos-26
-    timeout-minutes: 60
+    runs-on: ubuntu-latest
     steps:
-      - name: Check out exact branch history
+      - name: Check out exact PR head
         uses: actions/checkout@v4
         with:
-          ref: codex/matter-compiler-foundation
-          fetch-depth: 0
-
-      - name: Apply, qualify, and publish
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - name: Package staged payload
         shell: bash
-        env:
-          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
-          PAYLOAD_SHA256: 0c83c45e66cb42281761f9f5ba94370e7db3d77ec269cfaec3755989225219a3
-          PATCH_SHA256: 243f9214277fdbad7a2dca17f942bc7420039034d72b024768a380f3408c53c8
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "${EXPECTED_HEAD}"
-          echo "${PAYLOAD_SHA256}  .github/matter-rod-narrowphase-specialization.patch.gz.b64" \
-            | shasum -a 256 --check
-          base64 -D \
-            -i .github/matter-rod-narrowphase-specialization.patch.gz.b64 \
-            -o /tmp/matter-rod-narrowphase-specialization.patch.gz
-          gzip -dc /tmp/matter-rod-narrowphase-specialization.patch.gz \
-            > /tmp/matter-rod-narrowphase-specialization.patch
-          echo "${PATCH_SHA256}  /tmp/matter-rod-narrowphase-specialization.patch" \
-            | shasum -a 256 --check
-          git apply --check /tmp/matter-rod-narrowphase-specialization.patch
-          git apply /tmp/matter-rod-narrowphase-specialization.patch
-          git diff --check
-
-          cmake -S . -B build-rod-narrowphase-specialization \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_TESTING=ON
-          cmake --build build-rod-narrowphase-specialization \
-            --target \
-              metalrobo_metal_discrete_elastic_rod_probe \
-              metalrobo_matter_physics_probe \
-            -j 3
-          build-rod-narrowphase-specialization/bin/metalrobo_metal_discrete_elastic_rod_probe
-          build-rod-narrowphase-specialization/bin/metalrobo_matter_physics_probe \
-            --metal-world-coupling
-
-          rm .github/matter-rod-narrowphase-specialization.patch.gz.b64
-          git config user.name "github-actions[bot]"
-          git config user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            src/metal/Collision.metal \
-            src/metal/MetalDiscreteElasticRod.mm \
-            src/metal/MetalWorld.mm \
-            .github/matter-rod-narrowphase-specialization.patch.gz.b64
-          git commit -m "Specialize rod tool narrowphase pipelines"
-          git push \
-            --force-with-lease=refs/heads/codex/matter-compiler-foundation:${EXPECTED_HEAD} \
-            origin HEAD:codex/matter-compiler-foundation
+          tar -czf /tmp/rod-narrowphase-staging.tar.gz \
+            .github/matter-rod-narrowphase-specialization.patch.gz.b64 \
+            .github/workflows/codex-matter-export.yml
+      - name: Upload staged payload
+        uses: actions/upload-artifact@v4
+        with:
+          name: rod-narrowphase-staging-${{ github.event.pull_request.head.sha }}
+          path: /tmp/rod-narrowphase-staging.tar.gz
+          retention-days: 1
+          if-no-files-found: error
