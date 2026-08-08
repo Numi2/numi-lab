@@ -36,12 +36,14 @@
       .archive-head { display:flex; justify-content:space-between; align-items:baseline; gap:32px; margin-bottom:31px; }
       .archive-head h2 { margin:0; font:600 clamp(33px,4vw,55px)/.92 var(--serif); letter-spacing:-.065em; }
       .paper { display:grid; grid-template-columns:minmax(250px,.68fr) minmax(0,1.32fr); border:1px solid var(--line); background:#fbfaf6; }
+      .paper + .paper { margin-top:24px; }
       .paper-cover { display:flex; align-items:center; justify-content:center; min-height:520px; padding:7%; background:#dbe7ec; }
       .paper-cover img { display:block; width:100%; max-width:350px; box-shadow:0 24px 38px rgba(24,55,84,.19); transition:transform .45s ease, box-shadow .45s ease; }
       .paper:hover .paper-cover img { transform:translateY(-5px); box-shadow:0 30px 42px rgba(24,55,84,.25); }
       .paper-copy { display:flex; flex-direction:column; justify-content:space-between; padding:62px clamp(30px,5vw,76px); }
       .paper-kind { margin:0 0 38px; color:var(--blue); font:10px var(--mono); letter-spacing:.08em; text-transform:uppercase; }
       .paper h3 { max-width:680px; margin:0; font:600 clamp(42px,5vw,76px)/.88 var(--serif); letter-spacing:-.075em; }
+      .paper-subtitle { max-width:620px; margin:16px 0 0; color:#537087; font:500 15px/1.45 var(--sans); }
       .abstract { max-width:630px; margin:28px 0 40px; font-size:16px; line-height:1.7; }
       .metadata { display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; margin:0 0 38px; padding:20px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
       .metadata div { display:grid; gap:4px; }
@@ -84,6 +86,25 @@
                 <div><dt>Format</dt><dd>13 pages · PDF</dd></div>
               </dl>
               <div class="actions"><a href="/papers/runtime-resident-knowledge-apple-silicon.pdf" target="_blank" rel="noreferrer">Read paper ↗</a><a href="/papers/runtime-resident-knowledge-apple-silicon.pdf" download>Download PDF ↓</a></div>
+            </div>
+          </div>
+        </article>
+        <article class="paper">
+          <a class="paper-cover" href="/papers/physically-qualified-imagination-paper-one.pdf" target="_blank" rel="noreferrer" aria-label="Read Physically Qualified Imagination as a PDF"><img src="/papers/physically-qualified-imagination-paper-one-cover.png" alt="Cover of Physically Qualified Imagination" /></a>
+          <div class="paper-copy">
+            <div>
+              <p class="paper-kind">Paper I / Generative motion</p>
+              <h3>Physically Qualified Imagination</h3>
+              <p class="paper-subtitle">Generative Motion Models as Training-Time Teachers for Robot Learning on Apple Silicon</p>
+              <p class="abstract">A position paper and research agenda for using generative motion as a training-time prior: physics qualifies each realized transition, and a deployable student learns only from behavior that survives that test.</p>
+            </div>
+            <div>
+              <dl class="metadata">
+                <div><dt>Author</dt><dd>Numan Thabit</dd></div>
+                <div><dt>Published</dt><dd>3 August 2026</dd></div>
+                <div><dt>Format</dt><dd>19 pages · PDF</dd></div>
+              </dl>
+              <div class="actions"><a href="/papers/physically-qualified-imagination-paper-one.pdf" target="_blank" rel="noreferrer">Read paper ↗</a><a href="/papers/physically-qualified-imagination-paper-one.pdf" download>Download PDF ↓</a></div>
             </div>
           </div>
         </article>
