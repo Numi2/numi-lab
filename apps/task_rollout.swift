@@ -988,9 +988,13 @@ private func publishInspectionFrame(
     from context: MetalRoboTaskRolloutContext,
     to inspector: MetalRoboRunInspectorBridge?
 ) throws {
-    guard let inspector,
-          let frame = try context.acquireInspectionFrame()
-    else {
+    guard let inspector else {
+        return
+    }
+    guard !inspector.isClosed else {
+        throw MetalRoboRunInspectorError.closed
+    }
+    guard let frame = try context.acquireInspectionFrame() else {
         return
     }
     inspector.publish(frame: frame, context: context)
@@ -2613,9 +2617,13 @@ private enum TaskRolloutMain {
                 do {
                     try run(options: options, inspector: inspector)
                 } catch {
-                    FileHandle.standardError.write(
-                        Data("task_rollout failed: \(error)\n".utf8)
-                    )
+                    if case MetalRoboRunInspectorError.closed = error {
+                        // Closing the window ends its preview run cleanly.
+                    } else {
+                        FileHandle.standardError.write(
+                            Data("task_rollout failed: \(error)\n".utf8)
+                        )
+                    }
                 }
                 DispatchQueue.main.async {
                     NSApplication.shared.terminate(nil)
