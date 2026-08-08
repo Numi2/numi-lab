@@ -107,6 +107,7 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     private var pending: InspectionDelivery?
     private var closed = false
     private var paused = false
+    private var presentationVisible = true
     private var lastFrameSummary = "waiting for a frame"
     private var lastChromeUpdateSeconds: TimeInterval = 0
     private weak var pauseItem: NSToolbarItem?
@@ -114,8 +115,9 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     private weak var policySelector: NSPopUpButton?
     private let canReloadLatestPolicy: Bool
     private let policyChoices: [MetalRoboInspectorPolicyChoice]
+    private let initialPolicyURL: URL?
     var onClose: (() -> Void)?
-    var onPauseChanged: ((Bool) -> Void)?
+    var onPresentationEnabledChanged: ((Bool) -> Void)?
     var onLatestPolicyRequested: (() -> Void)?
     var onPolicySelected: ((URL) -> Void)?
 
@@ -125,7 +127,8 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         queue: MTLCommandQueue,
         pipeline: MTLRenderPipelineState,
         canReloadLatestPolicy: Bool,
-        policyChoices: [MetalRoboInspectorPolicyChoice]
+        policyChoices: [MetalRoboInspectorPolicyChoice],
+        initialPolicyURL: URL?
     ) {
         self.window = window
         self.view = view
@@ -133,6 +136,7 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         self.pipeline = pipeline
         self.canReloadLatestPolicy = canReloadLatestPolicy
         self.policyChoices = policyChoices
+        self.initialPolicyURL = initialPolicyURL
         super.init()
         view.delegate = self
         window.contentView = view
@@ -143,13 +147,15 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         toolbar.allowsUserCustomization = false
         toolbar.autosavesConfiguration = false
         window.toolbar = toolbar
+        selectDisplayedPolicy(initialPolicyURL)
         updateChrome(force: true)
         window.makeKeyAndOrderFront(nil)
     }
 
     static func make(
         canReloadLatestPolicy: Bool,
-        policyChoices: [MetalRoboInspectorPolicyChoice]
+        policyChoices: [MetalRoboInspectorPolicyChoice],
+        initialPolicyURL: URL?
     ) throws -> RunInspectorWindow {
         guard let device = MTLCreateSystemDefaultDevice(),
               let queue = device.makeCommandQueue()
@@ -182,6 +188,9 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
                                         blue: 0.024, alpha: 1)
         view.enableSetNeedsDisplay = true
         view.isPaused = true
+        // The authored inspection frame is the useful resolution ceiling.
+        // Avoid silently expanding a 960px preview into a 2x Retina drawable.
+        view.autoResizeDrawable = false
         let window = NSWindow(
             contentRect: NSRect(x: 120, y: 120, width: 960, height: 600),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
@@ -194,17 +203,22 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             queue: queue,
             pipeline: pipeline,
             canReloadLatestPolicy: canReloadLatestPolicy,
-            policyChoices: policyChoices
+            policyChoices: policyChoices,
+            initialPolicyURL: initialPolicyURL
         )
     }
 
     func offer(_ delivery: InspectionDelivery) {
-        guard !closed, !paused else {
+        guard presentationEnabled else {
             delivery.release()
             return
         }
         pending?.release()
         pending = delivery
+        updateDrawableSize(
+            sourceWidth: delivery.frame.width,
+            sourceHeight: delivery.frame.height
+        )
         lastFrameSummary = "env \(delivery.frame.environmentIndex) · frame \(delivery.frame.frameIndex) · dropped \(delivery.frame.droppedFrames)"
         updateChrome()
         view.setNeedsDisplay(view.bounds)
@@ -215,6 +229,25 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             return
         }
         lastFrameSummary = summary
+        updateChrome(force: true)
+    }
+
+    func showInstalledPolicy(_ url: URL, revision: UInt64) {
+        guard !closed else {
+            return
+        }
+        selectDisplayedPolicy(url)
+        lastFrameSummary =
+            "\(url.deletingPathExtension().lastPathComponent) · revision \(revision)"
+        updateChrome(force: true)
+    }
+
+    func showRejectedPolicy(activePolicyURL: URL?) {
+        guard !closed else {
+            return
+        }
+        selectDisplayedPolicy(activePolicyURL)
+        lastFrameSummary = "policy rejected · unchanged"
         updateChrome(force: true)
     }
 
@@ -255,6 +288,28 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     }
 
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
+
+    private func updateDrawableSize(sourceWidth: Int, sourceHeight: Int) {
+        let points = view.bounds.size
+        guard points.width > 0, points.height > 0,
+              sourceWidth > 0, sourceHeight > 0 else {
+            return
+        }
+        let usefulScale = min(
+            1,
+            min(
+                CGFloat(sourceWidth) / points.width,
+                CGFloat(sourceHeight) / points.height
+            )
+        )
+        let size = CGSize(
+            width: max(1, (points.width * usefulScale).rounded(.down)),
+            height: max(1, (points.height * usefulScale).rounded(.down))
+        )
+        if view.drawableSize != size {
+            view.drawableSize = size
+        }
+    }
 
     func toolbarAllowedItemIdentifiers(
         _ toolbar: NSToolbar
@@ -303,8 +358,10 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             selector.target = self
             selector.action = #selector(selectPolicy)
             configurePolicySelector(selector)
+            selector.setAccessibilityLabel("Policy")
             item.view = selector
             policySelector = selector
+            selectDisplayedPolicy(initialPolicyURL)
             return item
         }
         return nil
@@ -312,11 +369,7 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
 
     @objc private func togglePause() {
         paused.toggle()
-        if paused {
-            pending?.release()
-            pending = nil
-        }
-        onPauseChanged?(paused)
+        updatePresentationState()
         updateChrome(force: true)
     }
 
@@ -363,7 +416,22 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
 
     private func configurePolicySelector(_ selector: NSPopUpButton) {
         selector.removeAllItems()
-        guard !policyChoices.isEmpty else {
+        if let initialPolicyURL,
+           !policyChoices.contains(where: {
+               $0.policyURL.standardizedFileURL ==
+                   initialPolicyURL.standardizedFileURL
+           }) {
+            selector.addItem(
+                withTitle: initialPolicyURL.deletingPathExtension()
+                    .lastPathComponent
+            )
+            selector.lastItem?.representedObject = initialPolicyURL
+            selector.lastItem?.toolTip = initialPolicyURL.path
+            if !policyChoices.isEmpty {
+                selector.menu?.addItem(.separator())
+            }
+        }
+        guard !policyChoices.isEmpty || initialPolicyURL != nil else {
             selector.addItem(withTitle: "No policy catalog")
             selector.isEnabled = false
             return
@@ -393,6 +461,31 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         }
     }
 
+    private var presentationEnabled: Bool {
+        !closed && !paused && presentationVisible
+    }
+
+    private func updatePresentationState() {
+        if !presentationEnabled {
+            pending?.release()
+            pending = nil
+        }
+        onPresentationEnabledChanged?(presentationEnabled)
+    }
+
+    private func selectDisplayedPolicy(_ url: URL?) {
+        guard let selector = policySelector, let url else {
+            return
+        }
+        let selectedURL = url.standardizedFileURL
+        guard let match = selector.itemArray.first(where: {
+            ($0.representedObject as? URL)?.standardizedFileURL == selectedURL
+        }) else {
+            return
+        }
+        selector.select(match)
+    }
+
     private func updateChrome(force: Bool = false) {
         let now = ProcessInfo.processInfo.systemUptime
         // Frame metadata can change much faster than a user can read it.
@@ -402,7 +495,8 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             return
         }
         lastChromeUpdateSeconds = now
-        window.title = "Numi Lab Inspector — \(paused ? "paused" : "live") · \(lastFrameSummary)"
+        let state = paused ? "paused" : (presentationVisible ? "live" : "hidden")
+        window.title = "Numi Lab Inspector — \(state) · \(lastFrameSummary)"
         if let item = pauseItem {
             configurePauseItem(item)
         }
@@ -416,6 +510,25 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         pending?.release()
         pending = nil
         onClose?()
+    }
+
+    func windowDidChangeOcclusionState(_ notification: Notification) {
+        let visible = window.occlusionState.contains(.visible) &&
+            !window.isMiniaturized
+        guard presentationVisible != visible else {
+            return
+        }
+        presentationVisible = visible
+        updatePresentationState()
+        updateChrome(force: true)
+    }
+
+    func windowDidMiniaturize(_ notification: Notification) {
+        windowDidChangeOcclusionState(notification)
+    }
+
+    func windowDidDeminiaturize(_ notification: Notification) {
+        windowDidChangeOcclusionState(notification)
     }
 
     private static let shaderSource = """
@@ -482,7 +595,7 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
     private let window: RunInspectorWindow
     private let stateLock = NSLock()
     private var closed = false
-    private var acceptingFrames = true
+    private var presentationEnabled = true
     private var pendingNativeInspectionEnabled: Bool?
     private var latestPolicyReloadRequested = false
     private var pendingPolicySelection: URL?
@@ -494,8 +607,8 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         window.onClose = { [weak self] in
             self?.markClosed()
         }
-        window.onPauseChanged = { [weak self] paused in
-            self?.setPresentationPaused(paused)
+        window.onPresentationEnabledChanged = { [weak self] enabled in
+            self?.setPresentationEnabled(enabled)
         }
         window.onLatestPolicyRequested = { [weak self] in
             self?.requestLatestPolicyReload()
@@ -517,7 +630,8 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         let bridge = MetalRoboRunInspectorBridge(
             window: try RunInspectorWindow.make(
                 canReloadLatestPolicy: canReloadLatestPolicy,
-                policyChoices: policyChoices
+                policyChoices: policyChoices,
+                initialPolicyURL: initialPolicyURL
             )
         )
         bridge.setInitialPolicy(initialPolicyURL)
@@ -534,23 +648,23 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
     var acceptsFrames: Bool {
         stateLock.lock()
         defer { stateLock.unlock() }
-        return !closed && acceptingFrames
+        return !closed && presentationEnabled
     }
 
     private func markClosed() {
         stateLock.lock()
         closed = true
-        acceptingFrames = false
+        presentationEnabled = false
         pendingNativeInspectionEnabled = false
         stateLock.unlock()
     }
 
-    private func setPresentationPaused(_ paused: Bool) {
+    private func setPresentationEnabled(_ enabled: Bool) {
         stateLock.lock()
-        let enabled = !paused && !closed
-        if acceptingFrames != enabled {
-            acceptingFrames = enabled
-            pendingNativeInspectionEnabled = enabled
+        let nextEnabled = enabled && !closed
+        if presentationEnabled != nextEnabled {
+            presentationEnabled = nextEnabled
+            pendingNativeInspectionEnabled = nextEnabled
         }
         stateLock.unlock()
     }
@@ -566,7 +680,6 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
     private func requestPolicySelection(_ url: URL) {
         stateLock.lock()
         if !closed {
-            selectedPolicyURL = url
             pendingPolicySelection = url
         }
         stateLock.unlock()
@@ -608,6 +721,22 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         stateLock.lock()
         defer { stateLock.unlock() }
         return selectedPolicyURL
+    }
+
+    func reportPolicyInstalled(_ url: URL, revision: UInt64) {
+        stateLock.lock()
+        selectedPolicyURL = url
+        stateLock.unlock()
+        DispatchQueue.main.async { [window] in
+            window.showInstalledPolicy(url, revision: revision)
+        }
+    }
+
+    func reportPolicyRejected() {
+        let activePolicyURL = selectedPolicy
+        DispatchQueue.main.async { [window] in
+            window.showRejectedPolicy(activePolicyURL: activePolicyURL)
+        }
     }
 
     func reportPolicyStatus(_ summary: String) {
