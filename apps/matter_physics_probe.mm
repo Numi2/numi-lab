@@ -38,6 +38,56 @@ void require(const bool condition, const std::string& message) {
     }
 }
 
+metalrobo::EngineModel makeTwoFreeSphereEngineModel() {
+    metalrobo::EngineModel model =
+        metalrobo::makeFreeSphereEngineModel();
+    model.name = "two_free_sphere_articulations";
+    const auto firstQ = model.defaultQ;
+
+    MRArticulationGPU second = model.articulations.front();
+    second.rootBody = 2u;
+    second.firstBody = 2u;
+    second.qOffset = 7u;
+    second.vOffset = 6u;
+    model.articulations.push_back(second);
+
+    MRBodyPropertiesGPU secondBody = model.bodies[1];
+    secondBody.articulationIndex = 1u;
+    model.bodies.push_back(secondBody);
+    for (std::uint32_t local = 0u; local < 6u; ++local) {
+        MRDofPropertiesGPU dof = model.dofs[local];
+        dof.articulationIndex = 1u;
+        dof.qIndex = local < 3u ? 7u + local : MR_INVALID_INDEX;
+        dof.vIndex = 6u + local;
+        model.dofs.push_back(dof);
+    }
+    MRShapeGPU secondShape = model.shapes[1];
+    secondShape.bodyIndex = 2u;
+    secondShape.slotGeneration = 2u;
+    model.shapes.push_back(secondShape);
+    model.defaultQ.insert(
+        model.defaultQ.end(),
+        firstQ.begin(),
+        firstQ.end()
+    );
+    model.defaultV.resize(12u, 0.0f);
+    model.world.bodyCount = static_cast<mr_u32>(model.bodies.size());
+    model.world.articulationCount =
+        static_cast<mr_u32>(model.articulations.size());
+    model.world.shapeCount = static_cast<mr_u32>(model.shapes.size());
+    model.world.nq = static_cast<mr_u32>(model.defaultQ.size());
+    model.world.nv = static_cast<mr_u32>(model.defaultV.size());
+    model.world.pairCapacity = std::max(model.world.pairCapacity, 3u);
+    model.world.contactCapacity =
+        std::max(model.world.contactCapacity, 8u);
+    model.world.constraintCapacity =
+        std::max(model.world.constraintCapacity, 24u);
+    std::string reason;
+    require(model.valid(&reason),
+        "two-free-sphere model is invalid: " + reason);
+    return model;
+}
+
 void encodeRigidWorldFailure(
     id<MTLDevice> device,
     id<MTLCommandBuffer> commandBuffer,
@@ -86,7 +136,8 @@ numi::matter::CompiledWorld compileCase(
     const double frameTimestep = 1.0 / 240.0,
     const std::uint32_t environmentCount = 1u,
     const std::uint32_t identificationCandidates = 0u,
-    const std::uint32_t maximumRateExponentOverride = NM_INVALID_INDEX
+    const std::uint32_t maximumRateExponentOverride = NM_INVALID_INDEX,
+    const bool secondBodyBackedPlane = false
 ) {
     const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
     require(parsed.succeeded(), "reference silicone material did not parse");
@@ -112,6 +163,10 @@ numi::matter::CompiledWorld compileCase(
             plane.articulated = true;
         }
         source.rigidProxies.push_back(plane);
+        if (bodyBackedPlane && secondBodyBackedPlane) {
+            plane.bodyIndex = 2u;
+            source.rigidProxies.push_back(plane);
+        }
     }
 
     numi::matter::ObjectSource object;
@@ -1008,10 +1063,13 @@ void runAdaptiveTransfer(
 void runMetalWorldCoupling() {
     @autoreleasepool {
         constexpr std::uint32_t controlSteps = 1u;
-        // This probe qualifies the borrowed-wrench transaction, not the
-        // material CFL planner. One particle and one continuum microtick are
-        // sufficient to produce a nonzero equal-and-opposite impulse while
-        // keeping inverse-ABA coupling latency bounded on shared CI GPUs.
+        // This probe qualifies both directions of the borrowed transaction:
+        // continuum reactions enter MetalWorld ABA, while real inverse-ABA
+        // point-response columns return to Matter's contact CSR. One particle
+        // activates several distinct grid-node contacts against each of two
+        // independently articulated planes. This gives both a nontrivial
+        // within-articulation off-diagonal oracle and a zero cross-articulation
+        // oracle without turning the material CFL planner into the benchmark.
         const auto matterWorld = compileCase(
             numi::matter::Representation::mpm,
             true,
@@ -1023,7 +1081,8 @@ void runMetalWorldCoupling() {
             1.0 / 480.0,
             1u,
             0u,
-            0u
+            0u,
+            true
         );
         numi::matter::Runtime matter;
         const auto initialized = matter.initialize(
@@ -1040,7 +1099,7 @@ void runMetalWorldCoupling() {
             "MetalWorld coupling could not initialize Matter: " + initialized.message);
 
         const metalrobo::EngineModel model =
-            metalrobo::makeFreeSphereEngineModel();
+            makeTwoFreeSphereEngineModel();
         metalrobo::CompiledWorld rigidWorld;
         const auto compiled = metalrobo::compileMetalWorld(model, 0u, rigidWorld);
         require(compiled.succeeded(),
@@ -1110,7 +1169,11 @@ void runMetalWorldCoupling() {
         const std::string operatorFailure =
             ran.layout.kinematicsDispatches.empty()
             ? " operator=(missing)"
-            : " operator=(articulation=" + std::to_string(
+            : " operator=(count=" + std::to_string(
+                ran.layout.kinematicsDispatches.size()
+            ) + ",factor_count=" + std::to_string(
+                ran.layout.factorDispatches.size()
+            ) + ",articulation=" + std::to_string(
                 ran.layout.kinematicsDispatches[0].articulationIndex
             ) + ",env=" + std::to_string(
                 ran.layout.kinematicsDispatches[0].environmentCount
@@ -1156,7 +1219,85 @@ void runMetalWorldCoupling() {
         const auto snapshot = matter.snapshot();
         require(snapshot.available && !snapshot.reactions.empty(),
             "MetalWorld/Matter coupling did not publish Matter reactions");
+        require(
+            snapshot.contactSamples.size() == matterWorld.contact.pairs.size() &&
+                snapshot.contactResponseRows.size() ==
+                    snapshot.contactResponseColumns.size() &&
+                snapshot.contactResponseRows.size() ==
+                    snapshot.contactResponseValues.size(),
+            "MetalWorld/Matter coupling did not publish complete contact CSR diagnostics"
+        );
+        float articulatedOffDiagonal = 0.0f;
+        float articulatedTranspose = 0.0f;
+        float independentArticulationResponse = 0.0f;
+        std::uint32_t articulatedRow = NM_INVALID_INDEX;
+        std::uint32_t articulatedColumn = NM_INVALID_INDEX;
+        for (std::size_t entry = 0u;
+             entry < snapshot.contactResponseValues.size();
+             ++entry) {
+            const std::uint32_t row = snapshot.contactResponseRows[entry];
+            const std::uint32_t column =
+                snapshot.contactResponseColumns[entry];
+            if (row >= matterWorld.contact.pairs.size() ||
+                column >= matterWorld.contact.pairs.size() || row == column ||
+                (snapshot.contactSamples[row].identity.w & NM_CONTACT_VALID) == 0u ||
+                (snapshot.contactSamples[column].identity.w & NM_CONTACT_VALID) == 0u ||
+                matterWorld.contact.pairs[row].continuumNode ==
+                    matterWorld.contact.pairs[column].continuumNode) {
+                continue;
+            }
+            const float response = snapshot.contactResponseValues[entry];
+            if (matterWorld.contact.pairs[row].rigidProxy !=
+                    matterWorld.contact.pairs[column].rigidProxy) {
+                independentArticulationResponse = std::max(
+                    independentArticulationResponse,
+                    std::abs(response)
+                );
+                continue;
+            }
+            if (std::abs(response) <= std::abs(articulatedOffDiagonal)) {
+                continue;
+            }
+            for (std::size_t transpose = 0u;
+                 transpose < snapshot.contactResponseValues.size();
+                 ++transpose) {
+                if (snapshot.contactResponseRows[transpose] == column &&
+                    snapshot.contactResponseColumns[transpose] == row) {
+                    articulatedOffDiagonal = response;
+                    articulatedTranspose =
+                        snapshot.contactResponseValues[transpose];
+                    articulatedRow = row;
+                    articulatedColumn = column;
+                    break;
+                }
+            }
+        }
+        const float articulatedSymmetryError =
+            std::abs(articulatedOffDiagonal - articulatedTranspose);
+        require(
+            articulatedRow != NM_INVALID_INDEX &&
+                std::isfinite(articulatedOffDiagonal) &&
+                std::abs(articulatedOffDiagonal) > 1.0e-6f,
+            "borrowed inverse ABA did not populate an off-diagonal CSR response"
+        );
+        require(
+            std::isfinite(articulatedTranspose) &&
+                articulatedSymmetryError <=
+                    2.0e-4f * std::max(1.0f, std::abs(articulatedOffDiagonal)),
+            "borrowed inverse-ABA CSR response is not symmetric: forward=" +
+                std::to_string(articulatedOffDiagonal) +
+                " transpose=" + std::to_string(articulatedTranspose)
+        );
+        require(
+            independentArticulationResponse <= 1.0e-6f,
+            "independent MetalWorld articulations leaked into one another: response=" +
+                std::to_string(independentArticulationResponse)
+        );
         const float reactionZ = snapshot.reactions[0].impulseAndCount.z;
+        require(snapshot.reactions.size() >= 2u,
+            "multi-articulation coupling did not publish both rigid reactions");
+        const float secondReactionZ =
+            snapshot.reactions[1].impulseAndCount.z;
         // Matter sees a downward particle impact, so the equal-and-opposite
         // impulse applied to the body-backed plane is downward as well.
         require(reactionZ < -1.0e-6f,
@@ -1166,7 +1307,10 @@ void runMetalWorldCoupling() {
                 std::to_string(result.finalV[2]));
         require(
             result.finalV[2] < -1.0e-6f &&
-                std::abs(result.finalV[2] - reactionZ) < 1.0e-5f,
+                result.finalV.size() >= 12u &&
+                result.finalV[8] < -1.0e-6f &&
+                std::abs(result.finalV[2] - reactionZ) < 1.0e-5f &&
+                std::abs(result.finalV[8] - secondReactionZ) < 1.0e-5f,
             "MetalWorld ABA did not consume the continuum rigid reaction: reaction_z=" +
                 std::to_string(reactionZ) +
                 " final_body_velocity_z=" +
@@ -1177,6 +1321,15 @@ void runMetalWorldCoupling() {
             << ",\"representation\":\"mpm_articulated_coupling\""
             << ",\"rigid_reaction_z\":" << reactionZ
             << ",\"accepted_body_velocity_z\":" << result.finalV[2]
+            << ",\"second_rigid_reaction_z\":" << secondReactionZ
+            << ",\"second_body_velocity_z\":" << result.finalV[8]
+            << ",\"articulated_response_row\":" << articulatedRow
+            << ",\"articulated_response_column\":" << articulatedColumn
+            << ",\"articulated_off_diagonal\":" << articulatedOffDiagonal
+            << ",\"articulated_transpose\":" << articulatedTranspose
+            << ",\"articulated_symmetry_error\":" << articulatedSymmetryError
+            << ",\"independent_articulation_response\":"
+            << independentArticulationResponse
             << ",\"gpu_milliseconds\":" << ran.gpuElapsedMilliseconds
             << "}\n";
     }

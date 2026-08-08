@@ -632,6 +632,145 @@ inline bool solveCholesky(
     return true;
 }
 
+} // namespace
+
+kernel void mr_world_build_external_articulated_rhs(
+    constant MRExternalArticulatedResponseDispatchGPU& dispatch
+        [[buffer(0)]],
+    device const MRArticulatedPointImpulseGPU* pointQueries [[buffer(1)]],
+    device const float* pointJacobians [[buffer(2)]],
+    device float* rightHandSides [[buffer(3)]],
+    device const MRArticulatedOperatorStatusGPU* operatorStatuses
+        [[buffer(4)]],
+    const uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.pointCount * dispatch.nv;
+    if (global >= total ||
+        dispatch.abiVersion !=
+            MR_EXTERNAL_ARTICULATED_RESPONSE_ABI_VERSION ||
+        dispatch.nv == 0u ||
+        dispatch.nv > MR_ARTICULATED_ABA_MAX_DOFS ||
+        dispatch.pointStride < dispatch.pointCount ||
+        dispatch.generalizedVectorStride < dispatch.nv) {
+        return;
+    }
+    const uint perEnvironment = dispatch.pointCount * dispatch.nv;
+    const uint environment = global / perEnvironment;
+    const uint local = global - environment * perEnvironment;
+    const uint point = local / dispatch.nv;
+    const uint dof = local - point * dispatch.nv;
+    const MRArticulatedPointImpulseGPU query = pointQueries[
+        environment * dispatch.pointStride + point
+    ];
+    float value = 0.0f;
+    if (operatorStatuses[environment].code ==
+            MR_ARTICULATED_OPERATOR_SUCCESS &&
+        (query.flags & MR_ARTICULATED_POINT_INACTIVE) == 0u) {
+        const uint jacobianBase = environment *
+            (dispatch.pointStride * 3u * dispatch.nv) +
+            point * 3u * dispatch.nv + dof;
+        value =
+            query.worldImpulse.x * pointJacobians[jacobianBase] +
+            query.worldImpulse.y * pointJacobians[
+                jacobianBase + dispatch.nv
+            ] +
+            query.worldImpulse.z * pointJacobians[
+                jacobianBase + 2u * dispatch.nv
+            ];
+    }
+    rightHandSides[
+        (environment * dispatch.pointStride + point) *
+            dispatch.generalizedVectorStride + dof
+    ] = value;
+}
+
+kernel void mr_world_accumulate_external_articulated_response(
+    constant MRExternalArticulatedResponseDispatchGPU& dispatch
+        [[buffer(0)]],
+    device const MRArticulatedPointImpulseGPU* pointQueries [[buffer(1)]],
+    device const float* pointJacobians [[buffer(2)]],
+    device const float* responseColumns [[buffer(3)]],
+    device const MRInverseMassStatusGPU* inverseStatuses [[buffer(4)]],
+    device const uint* csrRows [[buffer(5)]],
+    device const uint* csrColumns [[buffer(6)]],
+    device float* csrValues [[buffer(7)]],
+    device const MRArticulatedOperatorStatusGPU* operatorStatuses
+        [[buffer(8)]],
+    const uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.responseEntryCount;
+    if (global >= total ||
+        dispatch.abiVersion !=
+            MR_EXTERNAL_ARTICULATED_RESPONSE_ABI_VERSION ||
+        dispatch.nv == 0u ||
+        dispatch.nv > MR_ARTICULATED_ABA_MAX_DOFS ||
+        dispatch.pointStride < dispatch.pointCount ||
+        dispatch.generalizedVectorStride < dispatch.nv) {
+        return;
+    }
+    const uint environment = global / dispatch.responseEntryCount;
+    const uint entry = global - environment * dispatch.responseEntryCount;
+    const uint row = csrRows[entry];
+    const uint column = csrColumns[entry];
+    if (row >= dispatch.pointCount || column >= dispatch.pointCount) {
+        csrValues[global] = as_type<float>(0x7fc00001u);
+        return;
+    }
+    const uint batch = column / MR_ARTICULATED_INVERSE_MASS_MAX_RHS;
+    const MRInverseMassStatusGPU inverse = inverseStatuses[
+        batch * dispatch.environmentCount + environment
+    ];
+    const MRArticulatedPointImpulseGPU rowQuery = pointQueries[
+        environment * dispatch.pointStride + row
+    ];
+    const MRArticulatedPointImpulseGPU columnQuery = pointQueries[
+        environment * dispatch.pointStride + column
+    ];
+    if (operatorStatuses[environment].code !=
+            MR_ARTICULATED_OPERATOR_SUCCESS) {
+        csrValues[global] = as_type<float>(
+            0x7fc00000u |
+                (operatorStatuses[environment].code << 12u)
+        );
+        return;
+    }
+    if (inverse.code != MR_INVERSE_MASS_SUCCESS) {
+        csrValues[global] = as_type<float>(
+            0x7fe00000u | (inverse.code << 12u)
+        );
+        return;
+    }
+    if ((rowQuery.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u ||
+        (columnQuery.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u) {
+        return;
+    }
+    const uint jacobianBase = environment *
+        (dispatch.pointStride * 3u * dispatch.nv) +
+        row * 3u * dispatch.nv;
+    const uint responseBase =
+        (environment * dispatch.pointStride + column) *
+        dispatch.generalizedVectorStride;
+    float response = 0.0f;
+    for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+        const float rowJacobian =
+            rowQuery.worldImpulse.x * pointJacobians[
+                jacobianBase + dof
+            ] +
+            rowQuery.worldImpulse.y * pointJacobians[
+                jacobianBase + dispatch.nv + dof
+            ] +
+            rowQuery.worldImpulse.z * pointJacobians[
+                jacobianBase + 2u * dispatch.nv + dof
+            ];
+        response += rowJacobian * responseColumns[responseBase + dof];
+    }
+    csrValues[global] += response;
+}
+
+namespace {
+
 inline float3 scenePointResponse(
     device const MRBodyStateGPU& body,
     const float3 point,

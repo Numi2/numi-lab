@@ -526,6 +526,85 @@ inline float rigidCoupledDirectionalResponse(
            );
 }
 
+kernel void nm_contact_prepare_articulated_queries(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& articulationRootBody [[buffer(2)]],
+    device const NMRigidProxyGPU* rigidProxies [[buffer(3)]],
+    device const MRBodyStateGPU* currentBodies [[buffer(4)]],
+    device const NMContactPairGPU* pairs [[buffer(5)]],
+    device const NMContactSampleGPU* samples [[buffer(6)]],
+    device MRArticulatedPointImpulseGPU* pointQueries [[buffer(7)]],
+    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.contactPairCount;
+    const uint pairIndex = global - environment * dispatch.contactPairCount;
+    MRArticulatedPointImpulseGPU query = {};
+    query.bodyIndex = articulationRootBody;
+    query.flags = MR_ARTICULATED_POINT_INACTIVE;
+    if (!environmentHealthy(statuses, environment)) {
+        pointQueries[global] = query;
+        return;
+    }
+    const NMContactPairGPU pair = pairs[pairIndex];
+    const NMContactSampleGPU sample = samples[global];
+    if (pair.rigidProxy < dispatch.rigidProxyCount &&
+        (sample.identity.w & NM_CONTACT_VALID) != 0u) {
+        const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
+        if ((proxy.flags & NM_RIGID_ARTICULATED) != 0u) {
+            if (proxy.bodyIndex == NM_INVALID_INDEX ||
+                proxy.bodyIndex >= bridge.currentBodyCount) {
+                recordFailure(
+                    statuses[environment],
+                    NM_STATUS_CONTACT_FAILURE,
+                    pair.objectIndex,
+                    pairIndex,
+                    float4(
+                        float(proxy.bodyIndex),
+                        float(bridge.currentBodyCount),
+                        0.0f,
+                        0.0f
+                    )
+                );
+                pointQueries[global] = query;
+                return;
+            }
+            const MRBodyStateGPU body = currentBodies[
+                environment * bridge.currentBodyStride + proxy.bodyIndex
+            ];
+            const float4 orientation = quaternionNormalize(body.orientation);
+            const float3 localPoint = quaternionRotate(
+                quaternionConjugate(orientation),
+                sample.pointAndSeparation.xyz - body.position.xyz
+            );
+            if (!finite3(localPoint) ||
+                !finite3(sample.normalAndVelocity.xyz)) {
+                recordFailure(
+                    statuses[environment],
+                    NM_STATUS_CONTACT_FAILURE,
+                    pair.objectIndex,
+                    pairIndex,
+                    float4(localPoint, 0.0f)
+                );
+            } else {
+                query.bodyIndex = proxy.bodyIndex;
+                query.flags = 0u;
+                query.localPoint = float4(localPoint, 0.0f);
+                query.worldImpulse = float4(
+                    sample.normalAndVelocity.xyz,
+                    0.0f
+                );
+            }
+        }
+    }
+    pointQueries[global] = query;
+}
+
 kernel void nm_contact_gather_response(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMGridNodeStateGPU* mpmNodes [[buffer(1)]],
@@ -621,6 +700,59 @@ kernel void nm_contact_gather_response(
             return;
         }
         responseValues[environment * responseEntryCount + entry] = response;
+    }
+}
+
+kernel void nm_contact_validate_articulated_response(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* responseValues [[buffer(1)]],
+    device const MRInverseMassStatusGPU* inverseStatuses [[buffer(2)]],
+    constant uint& inverseStatusStride [[buffer(3)]],
+    constant uint& responseEntryCount [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        !environmentHealthy(statuses, environment)) {
+        return;
+    }
+    for (uint batch = 0u; batch < inverseStatusStride; ++batch) {
+        const MRInverseMassStatusGPU inverse = inverseStatuses[
+            batch * dispatch.environmentCount + environment
+        ];
+        if (inverse.code != MR_INVERSE_MASS_SUCCESS) {
+            recordFailure(
+                statuses[environment],
+                NM_STATUS_CONTACT_FAILURE,
+                NM_INVALID_INDEX,
+                inverse.failingIndex,
+                float4(
+                    float(inverse.code),
+                    inverse.diagnostics.x,
+                    inverse.diagnostics.y,
+                    inverse.diagnostics.z
+                )
+            );
+            return;
+        }
+    }
+    const uint base = environment * responseEntryCount;
+    for (uint entry = 0u; entry < responseEntryCount; ++entry) {
+        if (!isfinite(responseValues[base + entry])) {
+            recordFailure(
+                statuses[environment],
+                NM_STATUS_CONTACT_FAILURE,
+                NM_INVALID_INDEX,
+                entry,
+                float4(
+                    responseValues[base + entry],
+                    float(as_type<uint>(responseValues[base + entry])),
+                    0.0f,
+                    0.0f
+                )
+            );
+            return;
+        }
     }
 }
 

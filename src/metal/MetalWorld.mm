@@ -452,6 +452,10 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> factorDispatchPipeline = nil;
     __strong id<MTLComputePipelineState> pointQueryTailPipeline = nil;
     __strong id<MTLComputePipelineState> streamedInversePipeline = nil;
+    __strong id<MTLComputePipelineState> externalArticulatedInverseBasePipeline = nil;
+    __strong id<MTLComputePipelineState> externalArticulatedInversePipeline = nil;
+    __strong id<MTLComputePipelineState> externalArticulatedRhsPipeline = nil;
+    __strong id<MTLComputePipelineState> externalArticulatedAccumulatePipeline = nil;
     __strong id<MTLComputePipelineState> evaluateIRPipeline = nil;
     __strong id<MTLComputePipelineState> islandPipeline = nil;
     __strong id<MTLComputePipelineState> buildTilesPipeline = nil;
@@ -5261,6 +5265,10 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> factorDispatch = nil;
     __strong id<MTLComputePipelineState> pointQueryTail = nil;
     __strong id<MTLComputePipelineState> streamedInverse = nil;
+    __strong id<MTLComputePipelineState> externalArticulatedInverseBase = nil;
+    __strong id<MTLComputePipelineState> externalArticulatedInverse = nil;
+    __strong id<MTLComputePipelineState> externalArticulatedRhs = nil;
+    __strong id<MTLComputePipelineState> externalArticulatedAccumulate = nil;
     __strong id<MTLComputePipelineState> evaluateIR = nil;
     __strong id<MTLComputePipelineState> islands = nil;
     __strong id<MTLComputePipelineState> buildTiles = nil;
@@ -5443,6 +5451,18 @@ MetalWorldDiagnostics initializeContext(
     streamedInverse = createContactPipeline(
         @"mr_world_parallel_streaming_articulated_inverse_mass"
     );
+    externalArticulatedInverseBase = createContactPipeline(
+        @"mr_multi_articulated_inverse_mass"
+    );
+    externalArticulatedInverse = createContactPipeline(
+        @"mr_parameterized_multi_articulated_inverse_mass"
+    );
+    externalArticulatedRhs = createContactPipeline(
+        @"mr_world_build_external_articulated_rhs"
+    );
+    externalArticulatedAccumulate = createContactPipeline(
+        @"mr_world_accumulate_external_articulated_response"
+    );
     evaluateIR =
         createContactPipeline(@"mr_world_evaluate_constraint_ir");
     islands =
@@ -5564,6 +5584,10 @@ MetalWorldDiagnostics initializeContext(
         factorDispatch == nil ||
         pointQueryTail == nil ||
         streamedInverse == nil ||
+        externalArticulatedInverseBase == nil ||
+        externalArticulatedInverse == nil ||
+        externalArticulatedRhs == nil ||
+        externalArticulatedAccumulate == nil ||
         evaluateIR == nil ||
         islands == nil ||
         buildTiles == nil ||
@@ -5683,6 +5707,12 @@ MetalWorldDiagnostics initializeContext(
             kABAThreadsPerThreadgroup ||
         streamedInverse.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
+        externalArticulatedInverse.maxTotalThreadsPerThreadgroup <
+            kABAThreadsPerThreadgroup ||
+        externalArticulatedInverseBase.maxTotalThreadsPerThreadgroup <
+            kABAThreadsPerThreadgroup ||
+        externalArticulatedRhs.maxTotalThreadsPerThreadgroup == 0u ||
+        externalArticulatedAccumulate.maxTotalThreadsPerThreadgroup == 0u ||
         evaluateIR.maxTotalThreadsPerThreadgroup <
             kWorldThreadsPerThreadgroup ||
         islands.maxTotalThreadsPerThreadgroup <
@@ -5766,6 +5796,10 @@ MetalWorldDiagnostics initializeContext(
         qualitySolve.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE ||
         streamedInverse.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        externalArticulatedInverse.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        externalArticulatedInverseBase.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE) {
         return reject(
             std::move(diagnostics),
@@ -5850,6 +5884,12 @@ MetalWorldDiagnostics initializeContext(
     context.factorDispatchPipeline = factorDispatch;
     context.pointQueryTailPipeline = pointQueryTail;
     context.streamedInversePipeline = streamedInverse;
+    context.externalArticulatedInverseBasePipeline =
+        externalArticulatedInverseBase;
+    context.externalArticulatedInversePipeline = externalArticulatedInverse;
+    context.externalArticulatedRhsPipeline = externalArticulatedRhs;
+    context.externalArticulatedAccumulatePipeline =
+        externalArticulatedAccumulate;
     context.evaluateIRPipeline = evaluateIR;
     context.islandPipeline = islands;
     context.buildTilesPipeline = buildTiles;
@@ -9696,6 +9736,350 @@ bool encodeDevicePhysicsBodyVelocities(
     return true;
 }
 
+bool encodeBorrowedArticulatedResponses(
+    void *opaqueContext, const MetalWorldDevicePhysicsPass &pass,
+    const MetalWorldArticulatedResponseQuery &query) {
+  auto *context = static_cast<detail::MetalWorldContextState *>(opaqueContext);
+  if (context == nullptr || pass.commandBuffer == nullptr ||
+      pass.phase != MetalWorldDevicePhysicsPhase::preDynamics ||
+      pass.q == nullptr || query.pointQueries == nullptr ||
+      query.pointWorld == nullptr || query.pointJacobians == nullptr ||
+      query.rightHandSides == nullptr || query.responseColumns == nullptr ||
+      query.inverseMassStatuses == nullptr || query.csrRows == nullptr ||
+      query.csrColumns == nullptr || query.csrValues == nullptr ||
+      query.pointCount == 0u || query.responseEntryCount == 0u ||
+      pass.environmentCount == 0u ||
+      query.pointCount > MR_ARTICULATED_OPERATOR_MAX_POINTS ||
+      context->boundArticulations.empty() ||
+      context->boundArticulations.size() !=
+          context->boundFactorDispatches.size()) {
+    return false;
+  }
+  const std::uint32_t batchCount =
+      (query.pointCount + MR_ARTICULATED_INVERSE_MASS_MAX_RHS - 1u) /
+      MR_ARTICULATED_INVERSE_MASS_MAX_RHS;
+  if (query.inverseMassStatusStride != batchCount) {
+    return false;
+  }
+  id<MTLCommandBuffer> commandBuffer =
+      (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+  if (commandBuffer == nil || commandBuffer.commandQueue.device.registryID !=
+                                  context->device.registryID) {
+    return false;
+  }
+  std::uint32_t maximumNv = 0u;
+  for (const MRArticulationGPU &articulation : context->boundArticulations) {
+    if (articulation.nv == 0u ||
+        articulation.nv > MR_ARTICULATED_ABA_MAX_DOFS ||
+        articulation.qOffset > pass.qStride ||
+        articulation.nq > pass.qStride - articulation.qOffset) {
+      return false;
+    }
+    maximumNv = std::max(maximumNv, articulation.nv);
+  }
+  if (query.generalizedVectorStride < maximumNv) {
+    return false;
+  }
+  std::size_t pointElements = 0u;
+  std::size_t jacobianElements = 0u;
+  std::size_t columnElements = 0u;
+  std::size_t statusElements = 0u;
+  std::size_t responseElements = 0u;
+  std::size_t qElements = 0u;
+  if (!checkedMultiply(pass.environmentCount, query.pointCount,
+                       pointElements) ||
+      !checkedMultiply(pointElements, 3u * maximumNv, jacobianElements) ||
+      !checkedMultiply(pointElements, query.generalizedVectorStride,
+                       columnElements) ||
+      !checkedMultiply(pass.environmentCount, query.inverseMassStatusStride,
+                       statusElements) ||
+      !checkedMultiply(pass.environmentCount, query.responseEntryCount,
+                       responseElements) ||
+      !checkedMultiply(pass.environmentCount, pass.qStride, qElements) ||
+      pointElements > std::numeric_limits<std::uint32_t>::max() ||
+      jacobianElements > std::numeric_limits<std::uint32_t>::max() ||
+      responseElements > std::numeric_limits<std::uint32_t>::max()) {
+    return false;
+  }
+  const auto bytes = [](const std::size_t count, const std::size_t elementSize,
+                        std::size_t &result) {
+    return checkedMultiply(count, elementSize, result);
+  };
+  std::size_t pointQueryBytes = 0u;
+  std::size_t pointWorldBytes = 0u;
+  std::size_t jacobianBytes = 0u;
+  std::size_t columnBytes = 0u;
+  std::size_t statusBytes = 0u;
+  std::size_t csrIndexBytes = 0u;
+  std::size_t csrValueBytes = 0u;
+  std::size_t qBytes = 0u;
+  if (!bytes(pointElements, sizeof(MRArticulatedPointImpulseGPU),
+             pointQueryBytes) ||
+      !bytes(pointElements, sizeof(mr_float4), pointWorldBytes) ||
+      !bytes(jacobianElements, sizeof(float), jacobianBytes) ||
+      !bytes(columnElements, sizeof(float), columnBytes) ||
+      !bytes(statusElements, sizeof(MRInverseMassStatusGPU), statusBytes) ||
+      !bytes(query.responseEntryCount, sizeof(std::uint32_t), csrIndexBytes) ||
+      !bytes(responseElements, sizeof(float), csrValueBytes) ||
+      !bytes(qElements, sizeof(float), qBytes)) {
+    return false;
+  }
+  id<MTLBuffer> qBuffer = (__bridge id<MTLBuffer>)pass.q;
+  id<MTLBuffer> pointQueryBuffer = (__bridge id<MTLBuffer>)query.pointQueries;
+  id<MTLBuffer> pointWorldBuffer = (__bridge id<MTLBuffer>)query.pointWorld;
+  id<MTLBuffer> pointJacobianBuffer =
+      (__bridge id<MTLBuffer>)query.pointJacobians;
+  id<MTLBuffer> rhsBuffer = (__bridge id<MTLBuffer>)query.rightHandSides;
+  id<MTLBuffer> responseColumnBuffer =
+      (__bridge id<MTLBuffer>)query.responseColumns;
+  id<MTLBuffer> inverseStatusBuffer =
+      (__bridge id<MTLBuffer>)query.inverseMassStatuses;
+  id<MTLBuffer> csrRowBuffer = (__bridge id<MTLBuffer>)query.csrRows;
+  id<MTLBuffer> csrColumnBuffer = (__bridge id<MTLBuffer>)query.csrColumns;
+  id<MTLBuffer> csrValueBuffer = (__bridge id<MTLBuffer>)query.csrValues;
+  const std::array<std::pair<id<MTLBuffer>, std::size_t>, 10u> requiredBuffers{{
+      {qBuffer, qBytes},
+      {pointQueryBuffer, pointQueryBytes},
+      {pointWorldBuffer, pointWorldBytes},
+      {pointJacobianBuffer, jacobianBytes},
+      {rhsBuffer, columnBytes},
+      {responseColumnBuffer, columnBytes},
+      {inverseStatusBuffer, statusBytes},
+      {csrRowBuffer, csrIndexBytes},
+      {csrColumnBuffer, csrIndexBytes},
+      {csrValueBuffer, csrValueBytes},
+  }};
+  for (const auto &[buffer, requiredBytes] : requiredBuffers) {
+    if (buffer == nil || buffer.length < requiredBytes ||
+        buffer.device.registryID != context->device.registryID) {
+      return false;
+    }
+  }
+  for (std::size_t articulationIndex = 0u;
+       articulationIndex < context->boundArticulations.size();
+       ++articulationIndex) {
+    const MRArticulationGPU &articulation =
+        context->boundArticulations[articulationIndex];
+    MRArticulatedOperatorDispatchGPU operatorDispatch =
+        context->boundFactorDispatches[articulationIndex];
+    operatorDispatch.environmentCount = pass.environmentCount;
+    operatorDispatch.pointCount = query.pointCount;
+    operatorDispatch.pointStride = query.pointCount;
+    operatorDispatch.pointWorldStride = query.pointCount;
+    operatorDispatch.pointJacobianStride =
+        query.pointCount * 3u * articulation.nv;
+    operatorDispatch.generalizedStride = articulation.nv;
+    operatorDispatch.flags = MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
+                             MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS;
+
+    id<MTLComputeCommandEncoder> operatorEncoder =
+        [commandBuffer computeCommandEncoder];
+    if (operatorEncoder == nil) {
+      return false;
+    }
+    operatorEncoder.label = @"MetalWorld borrowed Matter point Jacobians";
+    id<MTLComputePipelineState> operatorPipeline =
+        context->useTaskBodyParameters ? context->parameterizedOperatorPipeline
+                                       : context->operatorPipeline;
+    [operatorEncoder setComputePipelineState:operatorPipeline];
+    const std::array<std::size_t, 15u> operatorBuffers{{
+        kWorld,
+        kArticulations,
+        kJoints,
+        kDofs,
+        kBodies,
+        kOperatorFactorDispatch,
+        kStateQA,
+        kPointQueries,
+        kBodyPoses,
+        kPointWorld,
+        kFactorMatrix,
+        kPointJacobians,
+        kGeneralizedImpulse,
+        kDeltaVelocity,
+        kOperatorStatuses,
+    }};
+    for (NSUInteger argument = 0u; argument < operatorBuffers.size();
+         ++argument) {
+      id<MTLBuffer> buffer = context->buffers[operatorBuffers[argument]];
+      NSUInteger offset = 0u;
+      if (argument == 5u) {
+        [operatorEncoder setBytes:&operatorDispatch
+                           length:sizeof(operatorDispatch)
+                          atIndex:argument];
+        continue;
+      }
+      if (argument == 6u) {
+        buffer = qBuffer;
+        offset = articulation.qOffset * sizeof(float);
+      } else if (argument == 7u) {
+        buffer = pointQueryBuffer;
+      } else if (argument == 8u) {
+        offset = articulation.firstBody * sizeof(MRArticulatedBodyPoseGPU);
+      } else if (argument == 9u) {
+        buffer = pointWorldBuffer;
+      } else if (argument == 11u) {
+        buffer = pointJacobianBuffer;
+      }
+      [operatorEncoder setBuffer:buffer offset:offset atIndex:argument];
+    }
+    if (context->useTaskBodyParameters) {
+      [operatorEncoder setBuffer:context->buffers[kTaskBodyParameters]
+                          offset:0u
+                         atIndex:15u];
+      [operatorEncoder setBuffer:context->buffers[kTaskControllerParameters]
+                          offset:0u
+                         atIndex:16u];
+    }
+    [operatorEncoder
+        setThreadgroupMemoryLength:detail::articulatedOperatorThreadgroupBytes(
+                                       articulation.bodyCount, articulation.nv)
+                           atIndex:0u];
+    [operatorEncoder
+         dispatchThreadgroups:MTLSizeMake(pass.environmentCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(kOperatorThreadsPerThreadgroup, 1u,
+                                          1u)];
+    [operatorEncoder endEncoding];
+
+    const MRExternalArticulatedResponseDispatchGPU responseDispatch{
+        .abiVersion = MR_EXTERNAL_ARTICULATED_RESPONSE_ABI_VERSION,
+        .environmentCount = pass.environmentCount,
+        .pointCount = query.pointCount,
+        .responseEntryCount = query.responseEntryCount,
+        .nv = articulation.nv,
+        .pointStride = query.pointCount,
+        .generalizedVectorStride = query.generalizedVectorStride,
+        .inverseMassStatusStride = query.inverseMassStatusStride,
+    };
+    id<MTLComputeCommandEncoder> rhsEncoder =
+        [commandBuffer computeCommandEncoder];
+    if (rhsEncoder == nil) {
+      return false;
+    }
+    rhsEncoder.label = @"MetalWorld borrowed Matter generalized RHS";
+    [rhsEncoder
+        setComputePipelineState:context->externalArticulatedRhsPipeline];
+    [rhsEncoder setBytes:&responseDispatch
+                  length:sizeof(responseDispatch)
+                 atIndex:0u];
+    [rhsEncoder setBuffer:(__bridge id<MTLBuffer>)query.pointQueries
+                   offset:0u
+                  atIndex:1u];
+    [rhsEncoder setBuffer:(__bridge id<MTLBuffer>)query.pointJacobians
+                   offset:0u
+                  atIndex:2u];
+    [rhsEncoder setBuffer:(__bridge id<MTLBuffer>)query.rightHandSides
+                   offset:0u
+                  atIndex:3u];
+    [rhsEncoder setBuffer:context->buffers[kOperatorStatuses]
+                   offset:0u
+                  atIndex:4u];
+    dispatchWorldThreads(rhsEncoder, context->externalArticulatedRhsPipeline,
+                         static_cast<std::size_t>(pass.environmentCount) *
+                             query.pointCount * articulation.nv);
+    [rhsEncoder endEncoding];
+
+    id<MTLComputeCommandEncoder> inverseEncoder =
+        [commandBuffer computeCommandEncoder];
+    if (inverseEncoder == nil) {
+      return false;
+    }
+    inverseEncoder.label = @"MetalWorld borrowed Matter inverse ABA";
+    id<MTLComputePipelineState> inversePipeline =
+        context->useTaskBodyParameters
+            ? context->externalArticulatedInversePipeline
+            : context->externalArticulatedInverseBasePipeline;
+    [inverseEncoder setComputePipelineState:inversePipeline];
+    [inverseEncoder setBuffer:context->buffers[kWorld] offset:0u atIndex:0u];
+    [inverseEncoder setBuffer:context->buffers[kArticulations]
+                       offset:0u
+                      atIndex:1u];
+    [inverseEncoder setBuffer:context->buffers[kJoints] offset:0u atIndex:2u];
+    [inverseEncoder setBuffer:context->buffers[kDofs] offset:0u atIndex:3u];
+    [inverseEncoder setBuffer:context->buffers[kBodies] offset:0u atIndex:4u];
+    [inverseEncoder setBuffer:qBuffer offset:0u atIndex:6u];
+    [inverseEncoder setBuffer:rhsBuffer offset:0u atIndex:7u];
+    [inverseEncoder setBuffer:responseColumnBuffer offset:0u atIndex:8u];
+    [inverseEncoder setBuffer:inverseStatusBuffer offset:0u atIndex:9u];
+    if (context->useTaskBodyParameters) {
+      [inverseEncoder setBuffer:context->buffers[kTaskBodyParameters]
+                         offset:0u
+                        atIndex:10u];
+      [inverseEncoder setBuffer:context->buffers[kTaskControllerParameters]
+                         offset:0u
+                        atIndex:11u];
+    }
+    for (std::uint32_t batch = 0u; batch < batchCount; ++batch) {
+      const std::uint32_t firstPoint =
+          batch * MR_ARTICULATED_INVERSE_MASS_MAX_RHS;
+      MRMultiInverseMassDispatchGPU work{};
+      work.dispatch.articulationIndex = operatorDispatch.articulationIndex;
+      work.dispatch.environmentCount = pass.environmentCount;
+      work.dispatch.rhsCount = std::min(MR_ARTICULATED_INVERSE_MASS_MAX_RHS,
+                                        query.pointCount - firstPoint);
+      work.dispatch.flags = pass.articulatedInverseMassFlags;
+      work.dispatch.qStride = pass.qStride;
+      work.dispatch.rhsEnvironmentStride =
+          query.pointCount * query.generalizedVectorStride;
+      work.dispatch.rhsVectorStride = query.generalizedVectorStride;
+      work.dispatch.outputEnvironmentStride =
+          work.dispatch.rhsEnvironmentStride;
+      work.dispatch.outputVectorStride = query.generalizedVectorStride;
+      work.qBase = articulation.qOffset;
+      work.rhsBase = firstPoint * query.generalizedVectorStride;
+      work.outputBase = work.rhsBase;
+      work.statusBase = batch * pass.environmentCount;
+      [inverseEncoder setBytes:&work length:sizeof(work) atIndex:5u];
+      [inverseEncoder
+           dispatchThreadgroups:MTLSizeMake(pass.environmentCount, 1u, 1u)
+          threadsPerThreadgroup:MTLSizeMake(kABAThreadsPerThreadgroup, 1u, 1u)];
+    }
+    [inverseEncoder endEncoding];
+
+    id<MTLComputeCommandEncoder> accumulate =
+        [commandBuffer computeCommandEncoder];
+    if (accumulate == nil) {
+      return false;
+    }
+    accumulate.label = @"MetalWorld accumulate Matter articulated response";
+    [accumulate
+        setComputePipelineState:context->externalArticulatedAccumulatePipeline];
+    [accumulate setBytes:&responseDispatch
+                  length:sizeof(responseDispatch)
+                 atIndex:0u];
+    [accumulate setBuffer:(__bridge id<MTLBuffer>)query.pointQueries
+                   offset:0u
+                  atIndex:1u];
+    [accumulate setBuffer:(__bridge id<MTLBuffer>)query.pointJacobians
+                   offset:0u
+                  atIndex:2u];
+    [accumulate setBuffer:(__bridge id<MTLBuffer>)query.responseColumns
+                   offset:0u
+                  atIndex:3u];
+    [accumulate setBuffer:(__bridge id<MTLBuffer>)query.inverseMassStatuses
+                   offset:0u
+                  atIndex:4u];
+    [accumulate setBuffer:(__bridge id<MTLBuffer>)query.csrRows
+                   offset:0u
+                  atIndex:5u];
+    [accumulate setBuffer:(__bridge id<MTLBuffer>)query.csrColumns
+                   offset:0u
+                  atIndex:6u];
+    [accumulate setBuffer:(__bridge id<MTLBuffer>)query.csrValues
+                   offset:0u
+                  atIndex:7u];
+    [accumulate setBuffer:context->buffers[kOperatorStatuses]
+                   offset:0u
+                  atIndex:8u];
+    dispatchWorldThreads(accumulate,
+                         context->externalArticulatedAccumulatePipeline,
+                         static_cast<std::size_t>(pass.environmentCount) *
+                             query.responseEntryCount);
+    [accumulate endEncoding];
+  }
+  return true;
+}
+
 bool encodeDevicePhysicsProgram(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -9725,6 +10109,8 @@ bool encodeDevicePhysicsProgram(
             (__bridge void*)context.buffers[kEnvironmentStatuses],
         .contactConstraints = (__bridge void*)context.buffers[kContacts],
         .contactStatuses = (__bridge void*)context.buffers[kContactStatuses],
+        .articulatedResponseContext = &context,
+        .encodeArticulatedResponses = &encodeBorrowedArticulatedResponses,
         .seed = config.taskSeed,
         .phase = phase,
         .controlStep = pass.controlStep,
@@ -9741,6 +10127,11 @@ bool encodeDevicePhysicsProgram(
         .sceneBodyStride = layout.contactDispatch.sceneBodyStride,
         .bodyWrenchStride = layout.contactDispatch.bodyStateStride,
         .contactConstraintStride = layout.contactDispatch.constraintStride,
+        .articulationRootBody = context.boundArticulations.empty()
+            ? 0u
+            : context.boundArticulations.front().rootBody,
+        .qStride = layout.inverseMassDispatch.qStride,
+        .articulatedInverseMassFlags = layout.inverseMassDispatch.flags,
         .resetMaskStepStride = layout.dispatch.resetMaskStepStride,
         .timestepSeconds = layout.contactDispatch.timestepAndBias.x,
     };

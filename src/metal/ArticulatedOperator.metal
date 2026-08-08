@@ -459,8 +459,13 @@ inline bool validDispatch(
              MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
              MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY |
              MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES |
-             MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY
+             MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
+             MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS
          )) != 0u ||
+        ((dispatch.flags &
+          MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u &&
+         (dispatch.flags &
+          MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) == 0u) ||
         ((dispatch.flags &
           MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u &&
          (dispatch.flags &
@@ -1108,9 +1113,14 @@ inline bool validatePoints(
     for (uint point = 0u; point < dispatch.pointCount; ++point) {
         device const MRArticulatedPointImpulseGPU& query =
             points[base + point];
-        if (query.bodyIndex < articulation.firstBody ||
+        const bool foreign =
+            query.bodyIndex < articulation.firstBody ||
             query.bodyIndex >=
-                articulation.firstBody + articulation.bodyCount ||
+                articulation.firstBody + articulation.bodyCount;
+        const bool allowForeign =
+            (dispatch.flags &
+             MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u;
+        if ((!allowForeign && foreign) ||
             (query.flags & ~MR_ARTICULATED_POINT_INACTIVE) != 0u ||
             query.reserved0 != 0u ||
             query.reserved1 != 0u ||
@@ -1357,10 +1367,18 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     point * articulation.nv;
                 device const MRArticulatedPointImpulseGPU& query =
                     points[pointBase + point];
+                const bool foreign =
+                    query.bodyIndex < articulation.firstBody ||
+                    query.bodyIndex - articulation.firstBody >=
+                        articulation.bodyCount;
                 const bool inactive =
-                    (query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u;
-                const uint localBody =
-                    query.bodyIndex - articulation.firstBody;
+                    (query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u ||
+                    (((dispatch.flags &
+                       MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u) &&
+                     foreign);
+                const uint localBody = inactive
+                    ? articulation.rootBody - articulation.firstBody
+                    : query.bodyIndex - articulation.firstBody;
                 const float3 pointOffset = quaternionRotate(
                     bodyRotation[localBody],
                     query.localPoint.xyz

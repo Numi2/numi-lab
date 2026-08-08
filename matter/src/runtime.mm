@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 
 #include "numi/matter/matter.hpp"
+#include "metalrobo/engine_types.h"
 
 #include <algorithm>
 #include <array>
@@ -296,10 +297,12 @@ struct Runtime::State {
     };
 
     bool captureEvents = true;
+    bool captureDiagnostics = true;
     bool automaticIdentification = false;
     bool adaptiveTransfer = true;
     bool requiresCurrentBodies = false;
     bool requiresBodyWrenches = false;
+    bool requiresArticulatedResponses = false;
     bool requiresSceneBodies = false;
     bool hasAdaptive = false;
     std::shared_ptr<CommandOwnership> commandOwnership =
@@ -331,9 +334,12 @@ struct Runtime::State {
     id<MTLBuffer> bodyProxyIncidence = nil;
     id<MTLBuffer> bodyProxyRanges = nil;
     // Fixed contact-space sparsity. Rows are contact pairs; columns include
-    // every pair sharing a continuum node or a rigid body. Connected
-    // components provide race-free device work ownership for the PGS solve.
+    // every pair sharing a continuum node, a rigid body, or conservative
+    // articulated ownership. The borrowed MetalWorld response leaves entries
+    // across independent articulations at exact zero. Connected components
+    // provide race-free device work ownership for the PGS solve.
     id<MTLBuffer> contactResponseColumns = nil;
+    id<MTLBuffer> contactResponseRows = nil;
     id<MTLBuffer> contactResponseRanges = nil;
     id<MTLBuffer> contactComponentIncidence = nil;
     id<MTLBuffer> contactComponentRanges = nil;
@@ -375,6 +381,13 @@ struct Runtime::State {
     id<MTLBuffer> rigidStates = nil;
     id<MTLBuffer> contactSamples = nil;
     id<MTLBuffer> contactResponseValues = nil;
+    id<MTLBuffer> articulatedPointQueries = nil;
+    id<MTLBuffer> articulatedPointWorld = nil;
+    id<MTLBuffer> articulatedPointJacobians = nil;
+    id<MTLBuffer> articulatedRightHandSides = nil;
+    id<MTLBuffer> articulatedResponseColumns = nil;
+    id<MTLBuffer> articulatedInverseStatuses = nil;
+    std::uint32_t articulatedInverseStatusStride = 0u;
     id<MTLBuffer> microstepReactions = nil;
     id<MTLBuffer> frameReactions = nil;
     id<MTLBuffer> adaptive = nil;
@@ -435,6 +448,7 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->dispatch = world.dispatch;
         candidate->worldFingerprint = world.fingerprint;
         candidate->captureEvents = configuration.captureEvents;
+        candidate->captureDiagnostics = configuration.captureDiagnostics;
         candidate->automaticIdentification =
             configuration.automaticIdentification;
         candidate->adaptiveTransfer = configuration.adaptiveTransfer;
@@ -485,7 +499,7 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
 
-        const std::array<const char*, 53> kernelNames{
+        const std::array<const char*, 55> kernelNames{
             "nm_prepare_status",
             "nm_prepare_events",
             "nm_prepare_reactions",
@@ -518,7 +532,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_pcg_update_direction",
             "nm_fem_apply_solution",
             "nm_contact_evaluate",
+            "nm_contact_prepare_articulated_queries",
             "nm_contact_gather_response",
+            "nm_contact_validate_articulated_response",
             "nm_contact_solve_coupled",
             "nm_contact_apply_nodes",
             "nm_contact_reduce_rigid",
@@ -616,6 +632,7 @@ RuntimeDiagnostics Runtime::initialize(
 
         bool valid = true;
         const std::size_t contactPairCount = world.contact.pairs.size();
+        std::vector<std::uint32_t> responseRows;
         std::vector<std::uint32_t> responseColumns;
         std::vector<NMIncidenceRangeGPU> responseRanges(contactPairCount);
         std::vector<std::uint32_t> componentParents(contactPairCount);
@@ -629,6 +646,13 @@ RuntimeDiagnostics Runtime::initialize(
                 ? world.contact.rigidProxies[proxy].bodyIndex
                 : NM_INVALID_INDEX;
         };
+        const auto articulatedPair = [&](const std::size_t pair) {
+            const std::uint32_t proxy =
+                world.contact.pairs[pair].rigidProxy;
+            return proxy < world.contact.rigidProxies.size() &&
+                (world.contact.rigidProxies[proxy].flags &
+                 NM_RIGID_ARTICULATED) != 0u;
+        };
         const auto coupled = [&](const std::size_t left,
                                  const std::size_t right) {
             if (world.contact.pairs[left].continuumNode ==
@@ -636,8 +660,9 @@ RuntimeDiagnostics Runtime::initialize(
                 return true;
             }
             const std::uint32_t leftBody = pairBody(left);
-            return leftBody != NM_INVALID_INDEX &&
-                leftBody == pairBody(right);
+            return (leftBody != NM_INVALID_INDEX &&
+                    leftBody == pairBody(right)) ||
+                (articulatedPair(left) && articulatedPair(right));
         };
         const auto findRoot = [&](std::uint32_t value) {
             while (componentParents[value] != value) {
@@ -657,6 +682,7 @@ RuntimeDiagnostics Runtime::initialize(
                 if (!coupled(row, column)) {
                     continue;
                 }
+                responseRows.push_back(row);
                 responseColumns.push_back(column);
                 ++range.count;
                 const std::uint32_t leftRoot = findRoot(row);
@@ -780,6 +806,9 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         candidate->contactResponseColumns = uploads.one(
             std::span<const std::uint32_t>(responseColumns),
+            valid, candidate->residentBytes);
+        candidate->contactResponseRows = uploads.one(
+            std::span<const std::uint32_t>(responseRows),
             valid, candidate->residentBytes);
         candidate->contactResponseRanges = uploads.one(
             std::span<const NMIncidenceRangeGPU>(responseRanges),
@@ -990,6 +1019,54 @@ RuntimeDiagnostics Runtime::initialize(
             valid,
             candidate->residentBytes
         );
+        candidate->articulatedInverseStatusStride =
+            static_cast<std::uint32_t>(
+                (world.dispatch.contactPairCount +
+                 MR_ARTICULATED_INVERSE_MASS_MAX_RHS - 1u) /
+                MR_ARTICULATED_INVERSE_MASS_MAX_RHS
+            );
+        candidate->articulatedPointQueries =
+            privateScratch<MRArticulatedPointImpulseGPU>(
+                candidate->device,
+                multiplied(world.dispatch.contactPairCount),
+                valid,
+                candidate->residentBytes
+            );
+        candidate->articulatedPointWorld = privateScratch<nm_float4>(
+            candidate->device,
+            multiplied(world.dispatch.contactPairCount),
+            valid,
+            candidate->residentBytes
+        );
+        candidate->articulatedPointJacobians = privateScratch<float>(
+            candidate->device,
+            multiplied(world.dispatch.contactPairCount) * 3u *
+                MR_ARTICULATED_ABA_MAX_DOFS,
+            valid,
+            candidate->residentBytes
+        );
+        const std::size_t articulatedColumnElements =
+            multiplied(world.dispatch.contactPairCount) *
+            MR_ARTICULATED_ABA_MAX_DOFS;
+        candidate->articulatedRightHandSides = privateScratch<float>(
+            candidate->device,
+            articulatedColumnElements,
+            valid,
+            candidate->residentBytes
+        );
+        candidate->articulatedResponseColumns = privateScratch<float>(
+            candidate->device,
+            articulatedColumnElements,
+            valid,
+            candidate->residentBytes
+        );
+        candidate->articulatedInverseStatuses =
+            privateScratch<MRInverseMassStatusGPU>(
+                candidate->device,
+                multiplied(candidate->articulatedInverseStatusStride),
+                valid,
+                candidate->residentBytes
+            );
         candidate->microstepReactions = privateScratch<NMRigidReactionGPU>(
             candidate->device, multiplied(world.dispatch.rigidProxyCount),
             valid, candidate->residentBytes);
@@ -1068,6 +1145,9 @@ RuntimeDiagnostics Runtime::initialize(
                     candidate->requiredBodyWrenchCount,
                     proxy.bodyIndex + 1u
                 );
+            }
+            if ((proxy.flags & NM_RIGID_ARTICULATED) != 0u) {
+                candidate->requiresArticulatedResponses = true;
             }
             if ((proxy.flags & NM_RIGID_DYNAMIC) != 0u) {
                 candidate->requiresSceneBodies = true;
@@ -1207,6 +1287,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             request.rigid.bodyWrenches == nullptr) {
             diagnostics.message =
                 "two-way matter coupling requires the global body-wrench arena";
+            return diagnostics;
+        }
+        if (request.phase == EncodePhase::preDynamics &&
+            state.requiresArticulatedResponses &&
+            (request.encodeArticulatedResponses == nullptr ||
+             request.articulatedResponseContext == nullptr)) {
+            diagnostics.message =
+                "articulated Matter contact requires a compatible borrowed inverse-ABA response service";
             return diagnostics;
         }
         if (state.requiresSceneBodies &&
@@ -2102,6 +2190,25 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:12u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:13u];
             });
+            if (state.requiresArticulatedResponses) {
+                dispatchThreads(
+                    "nm_contact_prepare_articulated_queries",
+                    pairTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                        [encoder setBytes:&request.articulationRootBody
+                                   length:sizeof(request.articulationRootBody)
+                                  atIndex:2u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:3u];
+                        [encoder setBuffer:currentBodies offset:0u atIndex:4u];
+                        [encoder setBuffer:state.contactPairs offset:0u atIndex:5u];
+                        [encoder setBuffer:state.contactSamples offset:0u atIndex:6u];
+                        [encoder setBuffer:state.articulatedPointQueries offset:0u atIndex:7u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                    }
+                );
+            }
             dispatchThreads("nm_contact_gather_response", pairTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
@@ -2118,6 +2225,55 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                            length:sizeof(state.contactResponseEntryCount)
                           atIndex:11u];
             });
+            if (state.requiresArticulatedResponses) {
+                [encoder endEncoding];
+                const ArticulatedResponseQuery articulatedQuery{
+                    .pointQueries = (__bridge void*)state.articulatedPointQueries,
+                    .pointWorld = (__bridge void*)state.articulatedPointWorld,
+                    .pointJacobians = (__bridge void*)state.articulatedPointJacobians,
+                    .rightHandSides = (__bridge void*)state.articulatedRightHandSides,
+                    .responseColumns = (__bridge void*)state.articulatedResponseColumns,
+                    .inverseMassStatuses = (__bridge void*)state.articulatedInverseStatuses,
+                    .csrRows = (__bridge void*)state.contactResponseRows,
+                    .csrColumns = (__bridge void*)state.contactResponseColumns,
+                    .csrValues = (__bridge void*)state.contactResponseValues,
+                    .pointCount = state.dispatch.contactPairCount,
+                    .responseEntryCount = state.contactResponseEntryCount,
+                    .generalizedVectorStride = MR_ARTICULATED_ABA_MAX_DOFS,
+                    .inverseMassStatusStride = state.articulatedInverseStatusStride,
+                };
+                if (!request.encodeArticulatedResponses(
+                        request.articulatedResponseContext,
+                        articulatedQuery
+                    )) {
+                    diagnostics.message =
+                        "MetalWorld failed to encode borrowed inverse-ABA contact responses";
+                    return diagnostics;
+                }
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message =
+                        "failed to resume Matter contact solve after inverse ABA";
+                    return diagnostics;
+                }
+                [encoder setLabel:@"Numi Matter post-response contact solve"];
+                dispatchThreads(
+                    "nm_contact_validate_articulated_response",
+                    environments,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.contactResponseValues offset:0u atIndex:1u];
+                        [encoder setBuffer:state.articulatedInverseStatuses offset:0u atIndex:2u];
+                        [encoder setBytes:&state.articulatedInverseStatusStride
+                                   length:sizeof(state.articulatedInverseStatusStride)
+                                  atIndex:3u];
+                        [encoder setBytes:&state.contactResponseEntryCount
+                                   length:sizeof(state.contactResponseEntryCount)
+                                  atIndex:4u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                    }
+                );
+            }
             dispatchThreads(
                 "nm_contact_solve_coupled",
                 environments * state.contactComponentCount,
@@ -2370,6 +2526,10 @@ bool Runtime::requiresBodyWrenches() const noexcept {
     return state_ != nullptr && state_->requiresBodyWrenches;
 }
 
+bool Runtime::requiresArticulatedResponses() const noexcept {
+    return state_ != nullptr && state_->requiresArticulatedResponses;
+}
+
 bool Runtime::requiresRigidContactEvidence() const noexcept {
     return state_ != nullptr && state_->adaptiveTransfer &&
         state_->hasAdaptive;
@@ -2408,6 +2568,18 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> adaptive = copy(state_->adaptive);
         id<MTLBuffer> schedulers = copy(state_->schedulers);
         id<MTLBuffer> reactions = copy(state_->frameReactions);
+        id<MTLBuffer> contactSamples = state_->captureDiagnostics
+            ? copy(state_->contactSamples)
+            : nil;
+        id<MTLBuffer> contactResponseRows = state_->captureDiagnostics
+            ? copy(state_->contactResponseRows)
+            : nil;
+        id<MTLBuffer> contactResponseColumns = state_->captureDiagnostics
+            ? copy(state_->contactResponseColumns)
+            : nil;
+        id<MTLBuffer> contactResponseValues = state_->captureDiagnostics
+            ? copy(state_->contactResponseValues)
+            : nil;
         id<MTLBuffer> identification =
             copy(state_->identificationDistributions);
         id<MTLBuffer> environmentParameters =
@@ -2415,6 +2587,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         if (particles == nil || femNodes == nil ||
             particleMaterialState == nil || femMaterialState == nil ||
             adaptive == nil || schedulers == nil || reactions == nil ||
+            (state_->captureDiagnostics &&
+             (contactSamples == nil || contactResponseRows == nil ||
+              contactResponseColumns == nil ||
+              contactResponseValues == nil)) ||
             identification == nil || environmentParameters == nil) {
             snapshot.message = "failed to allocate Matter diagnostic readback";
             return snapshot;
@@ -2442,6 +2618,12 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->adaptive, adaptive);
         encodeCopy(state_->schedulers, schedulers);
         encodeCopy(state_->frameReactions, reactions);
+        if (state_->captureDiagnostics) {
+            encodeCopy(state_->contactSamples, contactSamples);
+            encodeCopy(state_->contactResponseRows, contactResponseRows);
+            encodeCopy(state_->contactResponseColumns, contactResponseColumns);
+            encodeCopy(state_->contactResponseValues, contactResponseValues);
+        }
         encodeCopy(state_->identificationDistributions, identification);
         encodeCopy(state_->environmentParameters, environmentParameters);
         [blit endEncoding];
@@ -2471,6 +2653,12 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         read(adaptive, snapshot.adaptive);
         read(schedulers, snapshot.schedulers);
         read(reactions, snapshot.reactions);
+        if (state_->captureDiagnostics) {
+            read(contactSamples, snapshot.contactSamples);
+            read(contactResponseRows, snapshot.contactResponseRows);
+            read(contactResponseColumns, snapshot.contactResponseColumns);
+            read(contactResponseValues, snapshot.contactResponseValues);
+        }
         read(identification, snapshot.identification);
         read(environmentParameters, snapshot.environmentParameters);
         snapshot.available = true;

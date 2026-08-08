@@ -27,7 +27,7 @@
 // Retained as the legacy standalone operator's recommended allocation class.
 // It is not a runtime limit: checked GPU strides and caller-provided storage
 // now determine the point/contact capacity.
-#define MR_ARTICULATED_OPERATOR_MAX_POINTS 1024u
+#define MR_ARTICULATED_OPERATOR_MAX_POINTS 4096u
 // Versioned FP32 backward-error gate for M * deltaV = J^T * impulse.
 // A finite but inaccurate factor solve is a failure, never publishable state.
 #define MR_ARTICULATED_OPERATOR_MAX_RELATIVE_RESIDUAL 0.00003f
@@ -502,6 +502,10 @@ enum MRArticulatedOperatorFlags : mr_u32 {
     // spatial-row frontend for multi-articulation contact graphs whose shared
     // inverse-ABA stage owns mass response.
     MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY = 1u << 4u,
+    // In Jacobian-only mode, treats point queries owned by another
+    // articulation as inactive zero rows. This permits one fixed global point
+    // list to be streamed through several block-diagonal articulations.
+    MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS = 1u << 5u,
 };
 
 // One dispatch describes a batch of states for one immutable articulation.
@@ -1360,6 +1364,22 @@ typedef struct MR_ALIGN16 MRInverseMassStatusGPU {
     mr_float4 diagnostics;
 } MRInverseMassStatusGPU;
 
+#define MR_EXTERNAL_ARTICULATED_RESPONSE_ABI_VERSION 1u
+
+// Borrowed-command-buffer articulation response contraction. Point and
+// response strides are fixed per environment; CSR indices address point rows.
+typedef struct MR_ALIGN16 MRExternalArticulatedResponseDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 environmentCount;
+    mr_u32 pointCount;
+    mr_u32 responseEntryCount;
+
+    mr_u32 nv;
+    mr_u32 pointStride;
+    mr_u32 generalizedVectorStride;
+    mr_u32 inverseMassStatusStride;
+} MRExternalArticulatedResponseDispatchGPU;
+
 typedef struct MR_ALIGN16 MRMaterialGPU {
     // Static/dynamic coefficients; effective rolling/torsional lengths (m).
     mr_float4 friction;
@@ -1674,6 +1694,7 @@ static_assert(sizeof(MRArticulationFactorCacheGPU) == 48);
 static_assert(sizeof(MRMetalWorldContactStatusGPU) == 288);
 static_assert(sizeof(MRInverseMassDispatchGPU) == 48);
 static_assert(sizeof(MRInverseMassStatusGPU) == 48);
+static_assert(sizeof(MRExternalArticulatedResponseDispatchGPU) == 32);
 static_assert(sizeof(MRMaterialGPU) % 16 == 0);
 static_assert(sizeof(MRGeometryHeaderGPU) == 96);
 static_assert(sizeof(MRConvexFaceGPU) == 32);

@@ -302,6 +302,36 @@ inline constexpr std::uint32_t kMetalWorldDevicePhysicsKnownFlags =
     MetalWorldDevicePhysicsWritesBodyWrenches |
     MetalWorldDevicePhysicsRequiresRigidContactEvidence;
 
+struct MetalWorldDevicePhysicsPass;
+
+// Device-resident point-response request owned by a physics extension. Every
+// buffer is borrowed for the duration of the enclosing encode callback. Point
+// queries are environment-major MRArticulatedPointImpulseGPU records. RHS and
+// response columns are environment-major [point][generalizedVectorStride].
+// CSR rows/columns address point-query slots; response values are incremented
+// in place so continuum and free-body contributions remain additive.
+struct MetalWorldArticulatedResponseQuery {
+    void* pointQueries = nullptr;
+    void* pointWorld = nullptr;
+    void* pointJacobians = nullptr;
+    void* rightHandSides = nullptr;
+    void* responseColumns = nullptr;
+    void* inverseMassStatuses = nullptr;
+    void* csrRows = nullptr;
+    void* csrColumns = nullptr;
+    void* csrValues = nullptr;
+    std::uint32_t pointCount = 0u;
+    std::uint32_t responseEntryCount = 0u;
+    std::uint32_t generalizedVectorStride = 0u;
+    std::uint32_t inverseMassStatusStride = 0u;
+};
+
+using MetalWorldEncodeArticulatedResponses = bool (*)(
+    void* context,
+    const MetalWorldDevicePhysicsPass& pass,
+    const MetalWorldArticulatedResponseQuery& query
+);
+
 struct MetalWorldDevicePhysicsPass {
     void* commandBuffer = nullptr;
     void* q = nullptr;
@@ -317,6 +347,10 @@ struct MetalWorldDevicePhysicsPass {
     // buffer and is never retained by the extension.
     void* contactConstraints = nullptr;
     void* contactStatuses = nullptr;
+    // Same-command-buffer inverse-ABA service. The extension may invoke this
+    // only during preDynamics and must not retain the callback or its context.
+    void* articulatedResponseContext = nullptr;
+    MetalWorldEncodeArticulatedResponses encodeArticulatedResponses = nullptr;
     std::uint64_t seed = 0u;
     MetalWorldDevicePhysicsPhase phase =
         MetalWorldDevicePhysicsPhase::preDynamics;
@@ -333,6 +367,9 @@ struct MetalWorldDevicePhysicsPass {
     std::uint32_t sceneBodyStride = 0u;
     std::uint32_t bodyWrenchStride = 0u;
     std::uint32_t contactConstraintStride = 0u;
+    std::uint32_t articulationRootBody = 0u;
+    std::uint32_t qStride = 0u;
+    std::uint32_t articulatedInverseMassFlags = 0u;
     std::uint32_t resetMaskStepStride = 0u;
     float timestepSeconds = 0.0f;
 };
