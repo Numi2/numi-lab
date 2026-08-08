@@ -998,6 +998,17 @@ private func publishInspectionFrame(
     guard let inspector else {
         return
     }
+    if let enabled = inspector.takePendingNativeInspectionEnabled() {
+        try context.setInspectionEnabled(enabled)
+    }
+    guard !inspector.acceptsFrames else {
+        if inspector.isClosed {
+            throw MetalRoboRunInspectorError.closed
+        }
+        // Pause is applied to the sidecar at this scheduler-owned boundary.
+        // Physics and accepted-state submission keep their original cadence.
+        return
+    }
     guard !inspector.isClosed else {
         throw MetalRoboRunInspectorError.closed
     }

@@ -51,6 +51,7 @@ struct MetalRunInspectorState
     MetalHybridRenderer renderer;
     const MetalWorldFamilyContext* worlds = nullptr;
     std::array<InspectionSlot, kInspectionSlotCount> slots{};
+    std::atomic_bool enabled{true};
     std::atomic_uint32_t droppedFrames{0u};
     std::atomic_uint64_t nextFrameIndex{1u};
     std::mutex mutex;
@@ -257,6 +258,12 @@ MetalWorldInspectionProgram MetalRunInspector::inspectionProgram() noexcept {
         : MetalWorldInspectionProgram{};
 }
 
+void MetalRunInspector::setEnabled(const bool enabled) noexcept {
+    if (state_ != nullptr) {
+        state_->enabled.store(enabled, std::memory_order_release);
+    }
+}
+
 bool MetalRunInspector::encodeInspection(
     void* context,
     const MetalWorldInspectionPass& pass
@@ -267,6 +274,9 @@ bool MetalRunInspector::encodeInspection(
         pass.environmentCount == 0u || pass.bodyCount == 0u ||
         state->config.environmentIndex >= pass.environmentCount) {
         return false;
+    }
+    if (!state->enabled.load(std::memory_order_acquire)) {
+        return true;
     }
 
     std::uint32_t slotIndex = MR_INVALID_INDEX;

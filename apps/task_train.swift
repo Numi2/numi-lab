@@ -1318,6 +1318,17 @@ private func publishInspectionFrame(
     guard let inspector else {
         return
     }
+    if let enabled = inspector.takePendingNativeInspectionEnabled() {
+        try context.setInspectionEnabled(enabled)
+    }
+    guard !inspector.acceptsFrames else {
+        if inspector.isClosed {
+            throw MetalRoboRunInspectorError.closed
+        }
+        // Pause gates only presentation encoding at this scheduler-owned
+        // boundary; training keeps its original submission cadence.
+        return
+    }
     guard !inspector.isClosed else {
         throw MetalRoboRunInspectorError.closed
     }

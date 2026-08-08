@@ -659,6 +659,12 @@ MR_API int mr_task_rollout_acquire_inspection_frame(
     MRTaskRolloutHandle* handle,
     MRTaskInspectionFrameC* frame
 );
+// Enables or disables only the GPU presentation sidecar. The physics/control
+// submission continues unchanged while inspection is disabled.
+MR_API int mr_task_rollout_set_inspection_enabled(
+    MRTaskRolloutHandle* handle,
+    uint32_t enabled
+);
 MR_API int mr_task_rollout_release_inspection_frame(
     MRTaskRolloutHandle* handle,
     uint32_t slot_index

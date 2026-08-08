@@ -4069,6 +4069,20 @@ int mr_task_rollout_acquire_inspection_frame(
     return 1;
 }
 
+int mr_task_rollout_set_inspection_enabled(
+    MRTaskRolloutHandle* handle,
+    const uint32_t enabled
+) {
+    if (!requireTaskRolloutHandle(handle) || enabled > 1u ||
+        handle->inspectionVisualRuntime == nullptr ||
+        handle->inspectionVisualRuntime->inspector == nullptr) {
+        return -1;
+    }
+    handle->inspectionVisualRuntime->inspector->setEnabled(enabled != 0u);
+    gLastError.clear();
+    return 0;
+}
+
 int mr_task_rollout_release_inspection_frame(
     MRTaskRolloutHandle* handle,
     const uint32_t slot_index
