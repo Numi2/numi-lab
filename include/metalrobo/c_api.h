@@ -183,6 +183,9 @@ typedef struct MRRunManifestC {
     const char* teacher_pack_path;
     const char* teacher_clip_id;
     const MRTaskVisualObservationConfigC* visual_sensor_program;
+    // Optional presentation-only visual program. It is compiled separately
+    // from SensorPack observation execution and never changes policy inputs.
+    const MRTaskVisualObservationConfigC* inspection_visual_program;
     const char* metallib_path;
 } MRRunManifestC;
 
@@ -230,6 +233,18 @@ typedef struct MRTaskRolloutAdvanceC {
     double gpu_milliseconds;
     double submission_milliseconds;
 } MRTaskRolloutAdvanceC;
+
+typedef struct MRTaskInspectionFrameC {
+    // Borrowed id<MTLBuffer>; valid until release_inspection_frame(slot).
+    void* rgb_buffer;
+    uint32_t slot_index;
+    uint32_t width;
+    uint32_t height;
+    uint64_t frame_index;
+    uint64_t submission_index;
+    uint32_t environment_index;
+    uint32_t dropped_frames;
+} MRTaskInspectionFrameC;
 
 typedef struct MRTaskEvidenceTelemetryC {
     uint64_t control_steps;
@@ -592,6 +607,11 @@ MR_API int mr_task_rollout_load_policy_pack(
     MRTaskRolloutHandle* handle,
     const char* policy_pack_path
 );
+// Returns the immutable revision of the currently installed compiled policy,
+// or zero when no policy is installed.
+MR_API uint64_t mr_task_rollout_policy_revision(
+    const MRTaskRolloutHandle* handle
+);
 MR_API int mr_task_rollout_clear_policy(
     MRTaskRolloutHandle* handle
 );
@@ -635,6 +655,24 @@ MR_API const char* mr_task_rollout_device_name(
 // Returns zero when no Visual Presentation scene is attached.
 MR_API uint64_t mr_task_rollout_visual_scene_fingerprint(
     const MRTaskRolloutHandle* handle
+);
+// Acquires the newest completed GPU-resident inspector image. Returns 1 when
+// a frame was acquired, 0 when no completed frame is available, and -1 on an
+// invalid handle or output pointer. The caller must release the slot after
+// its own presentation command buffer has completed.
+MR_API int mr_task_rollout_acquire_inspection_frame(
+    MRTaskRolloutHandle* handle,
+    MRTaskInspectionFrameC* frame
+);
+// Enables or disables only the GPU presentation sidecar. The physics/control
+// submission continues unchanged while inspection is disabled.
+MR_API int mr_task_rollout_set_inspection_enabled(
+    MRTaskRolloutHandle* handle,
+    uint32_t enabled
+);
+MR_API int mr_task_rollout_release_inspection_frame(
+    MRTaskRolloutHandle* handle,
+    uint32_t slot_index
 );
 MR_API uint32_t mr_task_rollout_impact_event_count(
     const MRTaskRolloutHandle* handle

@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.28)
 
+# CMake 3.29+ must opt into per-target Swift compilation modes before Swift is
+# enabled. Older CMake versions retain their supported default behavior.
+if(POLICY CMP0157)
+    cmake_policy(SET CMP0157 NEW)
+endif()
+
 project(
     MetalRobo
     VERSION 0.4.0
@@ -48,6 +54,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
+find_library(APPKIT_FRAMEWORK AppKit REQUIRED)
 find_library(METAL_FRAMEWORK Metal REQUIRED)
 find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
 find_library(ACCELERATE_FRAMEWORK Accelerate REQUIRED)
@@ -626,6 +633,7 @@ add_library(
     src/metal/MetalWorld.mm
     src/metal/MetalWorldFamily.mm
     src/metal/MetalHybridRenderer.mm
+    src/metal/MetalRunInspector.mm
     src/metal/MetalTactile.mm
     src/c_api.cpp
 )
@@ -838,6 +846,7 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_task_rollout
         apps/task_rollout.swift
+        apps/RunInspector.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
     target_include_directories(
@@ -849,11 +858,16 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_task_rollout
         PRIVATE
             metalrobo
+            "${APPKIT_FRAMEWORK}"
     )
     set_target_properties(
         metalrobo_task_rollout
         PROPERTIES
             Swift_LANGUAGE_VERSION 6
+            # Swift 6.3 intermittently fails to create the incremental
+            # module temporary path after a native-library relink. These two
+            # small command surfaces favor dependable interactive launches.
+            Swift_COMPILATION_MODE singlefile
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
             BUILD_RPATH "@loader_path/../lib"
             INSTALL_RPATH "@loader_path/../lib"
@@ -862,6 +876,7 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_task_train
         apps/task_train.swift
+        apps/RunInspector.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
     target_include_directories(
@@ -873,11 +888,13 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_task_train
         PRIVATE
             metalrobo
+            "${APPKIT_FRAMEWORK}"
     )
     set_target_properties(
         metalrobo_task_train
         PROPERTIES
             Swift_LANGUAGE_VERSION 6
+            Swift_COMPILATION_MODE singlefile
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
             BUILD_RPATH "@loader_path/../lib"
             INSTALL_RPATH "@loader_path/../lib"

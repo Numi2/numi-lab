@@ -210,6 +210,64 @@ aligned shared buffer and reuses caller-owned host capacity. This avoids
 per-modality Metal allocations without retaining a resolution-sized staging
 buffer after the readback completes.
 
+### Live run inspector
+
+`metalrobo_task_rollout` and `metalrobo_task_train` can open a small native
+macOS `MTKView` beside a run. For ordinary use, save the authored visual
+observation file as `.numi/window.visual-observation.json` and run:
+
+```sh
+numi window
+```
+
+The workspace command builds its own isolated runtime, discovers that saved
+scene, starts a one-environment zero-action preview, and stops it when the
+window closes. The lower-level executable remains available for composed
+training/evaluation flows:
+
+```sh
+metalrobo_task_rollout ... \
+    --inspect-scene /path/to/visual-observation.json \
+    --inspect-width 960 --inspect-height 540
+```
+
+`--inspect-scene` takes the same portable `numi.visual-observation.v1`
+artifact used for authored cameras, but it compiles an independent
+presentation-only renderer. It neither changes `CompiledRun`, policy
+observations, policy fingerprints, nor the task SensorPack. The render is
+encoded after the final accepted control state of each existing rollout
+submission, into the submission's command buffer; it never introduces a
+command-buffer wait, a CPU state copy, or a pixel readback.
+
+The window consumes device-private linear RGB buffers through a three-slot
+ring. A slot is released only after its display command buffer completes; if
+the window or compositor falls behind, the producer drops the newest preview
+instead of blocking physics, control, or learning. The window currently
+shows representative environment zero. It is an inspection aid, not evidence
+of real-hardware behavior or a media-capture path. Use ordinary visual export
+or state-trace facilities when durable frames or artifacts are required.
+
+The inspector has three controls: **Pause/Resume**, a robot-grouped **Policy
+Selector**, and **Latest Policy**. The selector reads
+`.numi/policies/<robot-id>/*.policypack` (or `NUMI_WINDOW_POLICY_CATALOG`) and
+groups choices by `<robot-id>` without hard-coding a robot catalog. Pause does
+not pause physics or training: it gates the GPU presentation sidecar at the
+next normal rollout boundary, eliminating preview encoding and dropped-frame
+atomics until Resume. Minimizing or fully occluding the window applies the same
+automatic sidecar gate and resumes it when the window is visible again. Policy
+selection and Latest Policy reload at that same boundary and only accept a
+compatible immutable revision; the selector advances only after a successful
+transaction and returns to the active policy after rejection. The image is
+aspect-fit automatically, so authored camera geometry is never stretched to
+the resizable window.
+
+Presentation remains event-driven rather than timer-driven. The `MTKView`
+keeps its drawable render-target-only with a single sample, creates the display
+command buffer before requesting a drawable, and rate-limits title-bar metadata
+updates to four per second. Its drawable is capped to the authored frame's
+useful resolution instead of implicitly shading a 2x Retina surface. Those UI
+choices never add a wait, readback, or second simulation command buffer.
+
 Fixed and wrist cameras in `FrankaPickPlaceWorldFamily` are the reference
 integration. The fixed camera is calibrated toward the manipulation
 workspace; the wrist camera is bound to the final articulated link.
