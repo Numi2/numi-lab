@@ -252,6 +252,12 @@ revision; a rejected replacement leaves the active policy unchanged. The image
 is aspect-fit automatically, so authored camera geometry is never stretched to
 the resizable window.
 
+Presentation remains event-driven rather than timer-driven. The `MTKView`
+keeps its drawable render-target-only with a single sample, creates the display
+command buffer before requesting a drawable, and rate-limits title-bar metadata
+updates to four per second. Those UI choices never add a wait, readback, or
+second simulation command buffer.
+
 Fixed and wrist cameras in `FrankaPickPlaceWorldFamily` are the reference
 integration. The fixed camera is calibrated toward the manipulation
 workspace; the wrist camera is bound to the final articulated link.
