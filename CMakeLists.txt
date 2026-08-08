@@ -1509,6 +1509,26 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mixed
     )
     add_test(
+        NAME matter.physics.monolithic_multiphysics
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --multiphysics
+    )
+    add_test(
+        NAME matter.physics.topology_mutation
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --topology-mutation
+    )
+    add_test(
+        NAME matter.runtime.topology_rollback
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --topology-rollback
+    )
+    add_test(
+        NAME matter.physics.learned_polyconvex_icnn
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --learned-material
+    )
+    add_test(
+        NAME matter.runtime.production_transaction_rollback
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --production-rollback
+    )
+    add_test(
         NAME matter.physics.stateful_mpm
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --stateful-mpm
     )
@@ -1562,6 +1582,11 @@ if(BUILD_TESTING)
     )
     set_tests_properties(
         matter.physics.mixed_mpm_fem
+        matter.physics.monolithic_multiphysics
+        matter.physics.topology_mutation
+        matter.runtime.topology_rollback
+        matter.physics.learned_polyconvex_icnn
+        matter.runtime.production_transaction_rollback
         matter.physics.stateful_mpm
         matter.physics.stateful_fem
         matter.physics.mpm_freefall

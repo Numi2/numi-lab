@@ -137,7 +137,10 @@ numi::matter::CompiledWorld compileCase(
     const std::uint32_t environmentCount = 1u,
     const std::uint32_t identificationCandidates = 0u,
     const std::uint32_t maximumRateExponentOverride = NM_INVALID_INDEX,
-    const bool secondBodyBackedPlane = false
+    const bool secondBodyBackedPlane = false,
+    const bool enableMultiphysics = false,
+    const bool enableMutation = false,
+    const bool enableLearned = false
 ) {
     const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
     require(parsed.succeeded(), "reference silicone material did not parse");
@@ -149,6 +152,22 @@ numi::matter::CompiledWorld compileCase(
     source.gravity = {0.0, 0.0, -9.81};
     source.femPCGIterations = 8u;
     source.materials.push_back(parsed.material);
+    if (enableLearned) {
+        numi::matter::LearnedMaterialSource learned;
+        learned.invariantCount = 4u;
+        learned.softplusBeta = 2.0f;
+        learned.determinantFloor = 0.05f;
+        learned.growthCoefficient = 0.01f;
+        numi::matter::LearnedLayerSource layer;
+        layer.inputWidth = 4u;
+        layer.outputWidth = 1u;
+        layer.inputWeights = {0.04f, 0.03f, 0.02f, 0.01f};
+        layer.biases = {-0.1f};
+        learned.layers.push_back(std::move(layer));
+        source.materials[0].hint =
+            numi::matter::ConstitutiveHint::polyconvexICNN;
+        source.materials[0].learned = std::move(learned);
+    }
 
     if (includePlane) {
         numi::matter::RigidProxySource plane;
@@ -223,6 +242,48 @@ numi::matter::CompiledWorld compileCase(
             {-0.01, -0.01, baseHeight + 0.02},
         };
         object.tetrahedra.push_back({{0u, 1u, 2u, 3u}});
+        if (enableMultiphysics) {
+            object.multiphysics.enabled = true;
+            object.multiphysics.initialTemperature = 300.0;
+            object.multiphysics.initialPorePressure = 2.0;
+            object.multiphysics.initialElectricPotential = 0.25;
+            object.multiphysics.initialActivation = 0.0;
+            numi::matter::FieldBoundarySource hot;
+            hot.node = 0u;
+            hot.flags = NM_FIELD_DIRICHLET_TEMPERATURE |
+                NM_FIELD_DIRICHLET_ELECTRIC_POTENTIAL;
+            hot.value = {350.0, 0.0, 1.0, 0.0};
+            object.fieldBoundaries.push_back(hot);
+            numi::matter::FieldBoundarySource ground;
+            ground.node = 1u;
+            ground.flags = NM_FIELD_DIRICHLET_TEMPERATURE |
+                NM_FIELD_DIRICHLET_ELECTRIC_POTENTIAL;
+            ground.value = {300.0, 0.0, 0.0, 0.0};
+            object.fieldBoundaries.push_back(ground);
+            source.materials[0].mixed.heatCapacity = 1.0;
+            source.materials[0].mixed.thermalConductivity = 0.1;
+            source.materials[0].mixed.poreStorage = 1.0;
+            source.materials[0].mixed.poreMobility = 0.1;
+            source.materials[0].mixed.electricalConductivity = 1.0;
+            source.materials[0].mixed.activationDiffusivity = 0.1;
+            source.materials[0].mixed.activationOnRate = 8.0;
+            source.materials[0].mixed.activationOffRate = 1.0;
+            source.materials[0].mixed.activationThreshold = 0.2;
+            source.materials[0].mixed.activationSlope = 12.0;
+            source.materials[0].mixed.maximumActiveTension = 50.0;
+        }
+        if (enableMutation) {
+            object.mutationPolicy.enabled = true;
+            object.femCapacity.tetrahedra = 1u;
+            object.femCapacity.mutationCommands = 1u;
+            numi::matter::MutationCommandSource command;
+            command.kind = NM_MUTATION_DEACTIVATE_TETRAHEDRON;
+            command.controlStep = 0u;
+            command.target = 0u;
+            command.priority = 1u;
+            command.stableIdentifier = 17u;
+            object.mutationCommands.push_back(command);
+        }
     }
     source.objects.push_back(std::move(object));
 
@@ -613,6 +674,12 @@ struct Outcome {
     float maximumHeight = -std::numeric_limits<float>::infinity();
     float minimumVerticalVelocity = std::numeric_limits<float>::infinity();
     float maximumVerticalVelocity = -std::numeric_limits<float>::infinity();
+    float minimumTemperature = std::numeric_limits<float>::infinity();
+    float maximumTemperature = -std::numeric_limits<float>::infinity();
+    float maximumActivation = 0.0f;
+    float maximumElectricPotential = -std::numeric_limits<float>::infinity();
+    std::uint32_t activeTetrahedra = 0u;
+    std::uint32_t learnedRevision = 0u;
 };
 
 void runIdentification() {
@@ -1546,7 +1613,8 @@ Outcome runCase(
     const bool requireContact,
     const bool requireDescent,
     const std::uint32_t controlSteps,
-    const bool forceRollback = false
+    const bool forceRollback = false,
+    const bool updateLearned = false
 ) {
     @autoreleasepool {
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
@@ -1590,6 +1658,13 @@ Outcome runCase(
         if (forceRollback) {
             require(baseline.available, label + std::string(" baseline: ") + baseline.message);
         }
+        std::vector<float> learnedUpdateValues = world.learnedWeights;
+        for (float& value : learnedUpdateValues) value += 0.001f;
+        id<MTLBuffer> learnedUpdate = learnedUpdateValues.empty()
+            ? nil
+            : [device newBufferWithBytes:learnedUpdateValues.data()
+                length:learnedUpdateValues.size() * sizeof(float)
+                options:MTLResourceStorageModeShared];
 
         Outcome outcome;
         float initialMinimumHeight = std::numeric_limits<float>::infinity();
@@ -1639,6 +1714,27 @@ Outcome runCase(
                     );
                 }
             }
+            for (const NMFEMFieldStateGPU& field : snapshot.femFields) {
+                outcome.minimumTemperature = std::min(
+                    outcome.minimumTemperature, field.primary.y
+                );
+                outcome.maximumTemperature = std::max(
+                    outcome.maximumTemperature, field.primary.y
+                );
+                outcome.maximumElectricPotential = std::max(
+                    outcome.maximumElectricPotential, field.primary.w
+                );
+                outcome.maximumActivation = std::max(
+                    outcome.maximumActivation, field.secondary.x
+                );
+            }
+            outcome.activeTetrahedra = 0u;
+            for (const NMTetrahedronGPU& tetrahedron :
+                 snapshot.femTopologyTetrahedra) {
+                outcome.activeTetrahedra +=
+                    (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+            }
+            outcome.learnedRevision = snapshot.learnedWeightRevision;
         };
         for (std::uint32_t step = 0u; step < controlSteps; ++step) {
             id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
@@ -1652,6 +1748,12 @@ Outcome runCase(
             request.physicsSubsteps = 1u;
             request.timestepSeconds = runtime.timestepSeconds();
             request.runAdaptiveTransfer = false;
+            if (updateLearned && step == 0u) {
+                request.learnedWeightUpdate = (__bridge void*)learnedUpdate;
+                request.learnedWeightCount =
+                    static_cast<std::uint32_t>(learnedUpdateValues.size());
+                request.learnedWeightRevision = 1u;
+            }
             auto encoded = runtime.encode(request);
             require(encoded.encoded, label + std::string(" pre-dynamics: ") + encoded.message);
             if (forceRollback) {
@@ -1739,6 +1841,15 @@ Outcome runCase(
                         restored.femMaterialState,
                         baseline.femMaterialState
                     ) &&
+                    equalBytes(restored.femFields, baseline.femFields) &&
+                    equalBytes(restored.learnedWeights, baseline.learnedWeights) &&
+                    equalBytes(
+                        restored.femTopologyTetrahedra,
+                        baseline.femTopologyTetrahedra
+                    ) &&
+                    equalBytes(restored.femTopologyNodes, baseline.femTopologyNodes) &&
+                    equalBytes(restored.cohesiveFaces, baseline.cohesiveFaces) &&
+                    equalBytes(restored.punctureChannels, baseline.punctureChannels) &&
                     equalBytes(restored.schedulers, baseline.schedulers),
                 label + std::string(" did not restore continuum state after rejection")
             );
@@ -1794,6 +1905,15 @@ int main(int argc, const char* argv[]) {
         const bool mpmRollback = argc == 2 && std::string_view(argv[1]) == "--mpm-rollback";
         const bool metalWorldCoupling = argc == 2 && std::string_view(argv[1]) == "--metal-world-coupling";
         const bool coupledContact = argc == 2 && std::string_view(argv[1]) == "--coupled-contact";
+        const bool multiphysics = argc == 2 && std::string_view(argv[1]) == "--multiphysics";
+        const bool topologyMutation = argc == 2 &&
+            std::string_view(argv[1]) == "--topology-mutation";
+        const bool topologyRollback = argc == 2 &&
+            std::string_view(argv[1]) == "--topology-rollback";
+        const bool learnedMaterial = argc == 2 &&
+            std::string_view(argv[1]) == "--learned-material";
+        const bool productionRollback = argc == 2 &&
+            std::string_view(argv[1]) == "--production-rollback";
         const bool identification = argc == 2 && std::string_view(argv[1]) == "--identification";
         const bool adaptiveDemotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-demotion";
         const bool adaptivePromotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-promotion";
@@ -1805,10 +1925,13 @@ int main(int argc, const char* argv[]) {
             argc == 1 || mixedOnly || statefulMPM || statefulFEM ||
                 femOnly || mpmOnly || mpmFree || mpmSingle ||
                 mpmSingleContact || mpmGentle || mpmRollback ||
-                metalWorldCoupling || coupledContact || identification || adaptiveDemotion ||
+                metalWorldCoupling || coupledContact || multiphysics ||
+                topologyMutation || topologyRollback || learnedMaterial ||
+                productionRollback ||
+                identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--mixed|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--coupled-contact|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--mixed|--multiphysics|--topology-mutation|--topology-rollback|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--coupled-contact|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (identification) {
             runIdentification();
@@ -1827,6 +1950,96 @@ int main(int argc, const char* argv[]) {
         }
         if (coupledContact) {
             runCoupledContactOracle();
+        }
+        if (multiphysics) {
+            const auto outcome = runCase(
+                compileCase(
+                    numi::matter::Representation::fem,
+                    false, false, false, false, false, false,
+                    1.0 / 240.0, 1u, 0u, 0u, false, true
+                ),
+                "monolithic multiphysics", false, false, 2u
+            );
+            require(
+                outcome.minimumTemperature >= 299.9f &&
+                outcome.maximumTemperature >= 349.9f &&
+                outcome.maximumElectricPotential >= 0.99f &&
+                outcome.maximumActivation > 0.0f,
+                "multiphysics fields did not diffuse and activate on the Metal timeline"
+            );
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v2\""
+                << ",\"representation\":\"monolithic_multiphysics\""
+                << ",\"temperature_min\":" << outcome.minimumTemperature
+                << ",\"temperature_max\":" << outcome.maximumTemperature
+                << ",\"electric_max\":" << outcome.maximumElectricPotential
+                << ",\"activation_max\":" << outcome.maximumActivation
+                << "}\n";
+        }
+        if (topologyMutation || topologyRollback) {
+            const auto outcome = runCase(
+                compileCase(
+                    numi::matter::Representation::fem,
+                    false, false, false, false, false, false,
+                    1.0 / 240.0, 1u, 0u, 0u, false, false, true
+                ),
+                topologyRollback ? "topology rollback" : "topology mutation",
+                false, false, 1u, topologyRollback
+            );
+            if (!topologyRollback) {
+                require(outcome.activeTetrahedra == 0u,
+                    "device mutation did not deactivate the target tetrahedron");
+            }
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v2\""
+                << ",\"representation\":\"topology_mutation\""
+                << ",\"rollback\":" << (topologyRollback ? "true" : "false")
+                << ",\"active_tetrahedra\":" << outcome.activeTetrahedra
+                << "}\n";
+        }
+        if (learnedMaterial) {
+            const auto world = compileCase(
+                numi::matter::Representation::fem,
+                false, false, false, false, false, false,
+                1.0 / 240.0, 1u, 0u, 0u, false, false, false, true
+            );
+            require(world.dispatch.learnedMaterialCount == 1u &&
+                    world.dispatch.learnedWeightCount == 5u,
+                "learned ICNN was not retained in the executable package");
+            const auto outcome = runCase(
+                world, "polyconvex ICNN", false, true, 2u, false, true
+            );
+            require(outcome.minimumDeterminant > 0.0f &&
+                    outcome.learnedRevision == 1u,
+                "learned ICNN failed its transactional weight update");
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v2\""
+                << ",\"representation\":\"polyconvex_icnn\""
+                << ",\"weights\":" << world.dispatch.learnedWeightCount
+                << ",\"revision\":" << outcome.learnedRevision
+                << ",\"minimum_J\":" << outcome.minimumDeterminant
+                << "}\n";
+        }
+        if (productionRollback) {
+            const auto outcome = runCase(
+                compileCase(
+                    numi::matter::Representation::fem,
+                    false, false, false, false, false, false,
+                    1.0 / 240.0, 1u, 0u, 0u, false, true, true, true
+                ),
+                "production transaction rollback", false, false, 1u,
+                true, true
+            );
+            require(outcome.activeTetrahedra == 1u &&
+                    outcome.learnedRevision == 0u,
+                "production rollback published topology or learned revision");
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v2\""
+                << ",\"representation\":\"production_transaction\""
+                << ",\"rollback\":true"
+                << ",\"active_tetrahedra\":" << outcome.activeTetrahedra
+                << ",\"learned_revision\":" << outcome.learnedRevision
+                << "}\n";
         }
         if (statefulMPM) {
             runStatefulMaterial(numi::matter::Representation::mpm);
@@ -1857,6 +2070,10 @@ int main(int argc, const char* argv[]) {
         }
         if (!identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback && !metalWorldCoupling && !coupledContact &&
+            !multiphysics &&
+            !topologyMutation && !topologyRollback &&
+            !learnedMaterial &&
+            !productionRollback &&
             !mixedOnly && !statefulMPM && !statefulFEM &&
             !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
@@ -1897,6 +2114,10 @@ int main(int argc, const char* argv[]) {
         if (!mixedOnly && !statefulMPM && !statefulFEM &&
             !mpmOnly && !mpmFree && !mpmSingle && !mpmSingleContact &&
             !mpmGentle && !mpmRollback && !metalWorldCoupling && !coupledContact &&
+            !multiphysics &&
+            !topologyMutation && !topologyRollback &&
+            !learnedMaterial &&
+            !productionRollback &&
             !identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback) {
             const bool withPlane = !femFree;

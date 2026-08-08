@@ -209,12 +209,13 @@ A body-backed rigid proxy requires the global current-body arena. Dynamic free-b
 The subsystem implements the complete architecture and executable kernels listed above, but it does not claim one numerical representation solves all matter:
 
 - the MPM path currently targets updated-Lagrangian APIC/MLS-MPM solids on a fixed-capacity sparse block domain;
-- the FEM path uses tetrahedral solids and convergence-aware, deterministic-budget matrix-free PCG;
+- the FEM path uses stabilized mixed tetrahedral state, matrix-free velocity PCG, implicit nodal transport, and determinant/certificate-driven transaction rejection; its current executable nonlinear update is still staggered rather than the planned monolithic FGMRES semismooth Newton solve;
 - internal state and rate-dependent dissipation are executable, but the current generic projection policy is explicit next-state bytecode rather than a material-specific implicit return-map solver;
 - contact supports continuum nodes against analytic rigid proxies; continuum-continuum/self-contact and arbitrary deforming triangle-triangle IPC are not yet implemented;
-- articulated continuum contact currently transfers equal-and-opposite wrenches before ABA but does not yet solve the exact articulated Delassus response inside the contact impulse;
-- fracture/topology mutation, Eulerian fluids, thermal coupling and porous flow require additional operators in the same Physics IR;
-- learned residual constitutive terms can be represented as future expression/program kinds but are not silently enabled.
+- articulated continuum contact consumes same-command-buffer inverse-ABA response columns in the full sparse Delassus operator and certifies the circular cone and natural map;
+- fixed-capacity plane, cylinder and explicit tetrahedron deactivation are transactional, but cohesive node-star separation, incidence rebuilding and arbitrary crack remeshing remain future operators;
+- thermal, pore, electric and activation fields execute on Metal and feed FEM stress, while their current low-order graph transport still awaits geometry-weighted block-PCG parity;
+- polyconvex ICNN energy gradients execute as analytic first-Piola stress with transactional trained weights; exact analytic tangent-vector execution and the full objectivity/growth oracle ladder remain qualification work.
 
 ## Validation
 

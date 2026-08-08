@@ -214,7 +214,9 @@ kernel void nm_adaptive_measure(
         const uint nodeBase = environment * dispatch.femNodeCount;
         for (uint local = lane; local < object.elementCount; local += 32u) {
             const NMTetrahedronGPU tetrahedron =
-                tetrahedra[object.elementOffset + local];
+                environmentTetrahedron(dispatch, tetrahedra, environment,
+                    object.elementOffset + local);
+            if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
             const float3x3 deformation = tetrahedronDeformation(
                 tetrahedron,
                 femNodes,

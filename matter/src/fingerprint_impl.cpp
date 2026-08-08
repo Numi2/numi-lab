@@ -9,7 +9,9 @@ namespace {
 
 enum class FingerprintSection : std::uint32_t {
     dispatch = 1u,
+    mixedSolver,
     materials,
+    mixedMaterials,
     parameters,
     stateInitials,
     instructions,
@@ -27,6 +29,13 @@ enum class FingerprintSection : std::uint32_t {
     femTetrahedra,
     femNodeIncidence,
     femNodeRanges,
+    femCapacities,
+    femFields,
+    femFieldBoundaries,
+    femTopologyNodes,
+    femCohesiveFaces,
+    femMutationCommands,
+    femPunctureChannels,
     rigidProxies,
     contactPairs,
     contactNodeIncidence,
@@ -36,6 +45,9 @@ enum class FingerprintSection : std::uint32_t {
     adaptive,
     schedulers,
     identification,
+    learnedMaterials,
+    learnedLayers,
+    learnedWeights,
 };
 
 template <typename T>
@@ -76,8 +88,15 @@ std::uint64_t compiledWorldFingerprint(
         FingerprintSection::dispatch,
         std::span<const NMMatterDispatchGPU>(&world.dispatch, 1u)
     );
+    hashSection(
+        fingerprint,
+        FingerprintSection::mixedSolver,
+        std::span<const NMMixedSolverGPU>(&world.mixedSolver, 1u)
+    );
     hashSection(fingerprint, FingerprintSection::materials,
         std::span<const NMMaterialGPU>(world.materials));
+    hashSection(fingerprint, FingerprintSection::mixedMaterials,
+        std::span<const NMMixedMaterialGPU>(world.mixedMaterials));
     hashSection(fingerprint, FingerprintSection::parameters,
         std::span<const NMParameterRangeGPU>(world.parameters));
     hashSection(fingerprint, FingerprintSection::stateInitials,
@@ -112,6 +131,20 @@ std::uint64_t compiledWorldFingerprint(
         std::span<const std::uint32_t>(world.fem.nodeIncidence));
     hashSection(fingerprint, FingerprintSection::femNodeRanges,
         std::span<const NMIncidenceRangeGPU>(world.fem.nodeRanges));
+    hashSection(fingerprint, FingerprintSection::femCapacities,
+        std::span<const NMFEMCapacityGPU>(world.fem.capacities));
+    hashSection(fingerprint, FingerprintSection::femFields,
+        std::span<const NMFEMFieldStateGPU>(world.fem.fields));
+    hashSection(fingerprint, FingerprintSection::femFieldBoundaries,
+        std::span<const NMFieldBoundaryGPU>(world.fem.fieldBoundaries));
+    hashSection(fingerprint, FingerprintSection::femTopologyNodes,
+        std::span<const NMFEMTopologyNodeGPU>(world.fem.topologyNodes));
+    hashSection(fingerprint, FingerprintSection::femCohesiveFaces,
+        std::span<const NMCohesiveFaceGPU>(world.fem.cohesiveFaces));
+    hashSection(fingerprint, FingerprintSection::femMutationCommands,
+        std::span<const NMMutationCommandGPU>(world.fem.mutationCommands));
+    hashSection(fingerprint, FingerprintSection::femPunctureChannels,
+        std::span<const NMPunctureChannelGPU>(world.fem.punctureChannels));
     hashSection(fingerprint, FingerprintSection::rigidProxies,
         std::span<const NMRigidProxyGPU>(world.contact.rigidProxies));
     hashSection(fingerprint, FingerprintSection::contactPairs,
@@ -130,6 +163,12 @@ std::uint64_t compiledWorldFingerprint(
         std::span<const NMSchedulerStateGPU>(world.schedulers));
     hashSection(fingerprint, FingerprintSection::identification,
         std::span<const NMIdentificationDistributionGPU>(world.identification));
+    hashSection(fingerprint, FingerprintSection::learnedMaterials,
+        std::span<const NMLearnedMaterialGPU>(world.learnedMaterials));
+    hashSection(fingerprint, FingerprintSection::learnedLayers,
+        std::span<const NMLearnedLayerGPU>(world.learnedLayers));
+    hashSection(fingerprint, FingerprintSection::learnedWeights,
+        std::span<const float>(world.learnedWeights));
     return fingerprint == 0u ? 1u : fingerprint;
 }
 

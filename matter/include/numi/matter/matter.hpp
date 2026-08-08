@@ -157,6 +157,51 @@ enum class ConstitutiveHint : std::uint8_t {
     druckerPrager,
     vonMises,
     viscoHyperelastic,
+    polyconvexICNN,
+};
+
+struct MixedMaterialSource {
+    // Zero requests a compiler-derived hydrostatic tangent at identity.
+    double bulkModulus = 0.0;
+    double thermalExpansion = 0.0;
+    double biotCoefficient = 0.0;
+    double referenceTemperature = 293.15;
+    double heatCapacity = 0.0;
+    double thermalConductivity = 0.0;
+    double heatSource = 0.0;
+    double jouleHeatFraction = 1.0;
+    double poreStorage = 0.0;
+    double poreMobility = 0.0;
+    double poreSource = 0.0;
+    double electricalConductivity = 0.0;
+    double activationDiffusivity = 0.0;
+    double activationOnRate = 0.0;
+    double activationOffRate = 0.0;
+    std::array<double, 3> fibreDirection{1.0, 0.0, 0.0};
+    double maximumActiveTension = 0.0;
+    double activationThreshold = 0.0;
+    double activationSlope = 1.0;
+    double cohesiveStrength = 0.0;
+    double fractureEnergy = 0.0;
+};
+
+struct LearnedLayerSource {
+    std::uint32_t inputWidth = 0u;
+    std::uint32_t outputWidth = 0u;
+    // Row-major input and recurrent ICNN weights followed by one bias per
+    // output. Recurrent weights are constrained nonnegative.
+    std::vector<float> inputWeights;
+    std::vector<float> recurrentWeights;
+    std::vector<float> biases;
+};
+
+struct LearnedMaterialSource {
+    std::uint32_t invariantCount = 4u;
+    float softplusBeta = 4.0f;
+    float determinantFloor = 0.05f;
+    float growthCoefficient = 1.0e-6f;
+    std::vector<LearnedLayerSource> layers;
+    std::uint64_t fingerprint = 0u;
 };
 
 struct MaterialProgram {
@@ -173,6 +218,8 @@ struct MaterialProgram {
     std::vector<std::uint32_t> stateUpdateRoots;
     std::vector<Representation> supportedRepresentations;
     ConstitutiveHint hint = ConstitutiveHint::generic;
+    MixedMaterialSource mixed;
+    std::optional<LearnedMaterialSource> learned;
     double staticFriction = 0.6;
     double dynamicFriction = 0.5;
     double restitution = 0.0;
@@ -212,6 +259,75 @@ struct ParticleSource {
 
 struct TetrahedronSource {
     std::array<std::uint32_t, 4> nodes{};
+};
+
+struct MixedSolverSource {
+    std::uint32_t newtonIterations = NM_MIXED_NEWTON_ITERATIONS;
+    std::uint32_t fgmresRestart = NM_MIXED_FGMRES_RESTART;
+    std::uint32_t fgmresIterations = NM_MIXED_FGMRES_ITERATIONS;
+    std::uint32_t lineSearchSteps = NM_MIXED_LINE_SEARCH_STEPS;
+    std::uint32_t velocityPCGIterations = 32u;
+    std::uint32_t pressurePCGIterations = 32u;
+    std::uint32_t fieldPCGIterations = 32u;
+    std::uint32_t mutationRestarts = NM_MIXED_MUTATION_RESTARTS;
+    double relativeResidual = 1.0e-4;
+    double relativeCorrection = 1.0e-4;
+    double volumeTolerance = 1.0e-4;
+    double pressureTolerance = 1.0e-4;
+    double naturalResidualTolerance = 1.0e-4;
+    double coneTolerance = 1.0e-5;
+    double complementarityTolerance = 1.0e-5;
+    double energyTolerance = 5.0e-4;
+    double diagonalFloor = 1.0e-8;
+    double initialLMShift = 1.0e-6;
+    double maximumLMShift = 1.0e4;
+    double curvatureTolerance = 1.0e-7;
+    double armijo = 1.0e-4;
+    double minimumTemperature = 1.0;
+    double activationEpsilon = 1.0e-6;
+    double pressureStabilization = 0.1;
+};
+
+struct FEMCapacitySource {
+    // Zero selects the exact authored count. Nonzero values must not be lower
+    // than the authored topology and are fingerprinted without blanket growth.
+    std::uint32_t nodes = 0u;
+    std::uint32_t tetrahedra = 0u;
+    std::uint32_t cohesiveFaces = 0u;
+    std::uint32_t punctureChannels = 0u;
+    std::uint32_t mutationCommands = 0u;
+};
+
+struct MultiphysicsSource {
+    bool enabled = false;
+    double initialTemperature = 293.15;
+    double initialMechanicalPressure = 0.0;
+    double initialPorePressure = 0.0;
+    double initialElectricPotential = 0.0;
+    double initialActivation = 0.0;
+};
+
+struct FieldBoundarySource {
+    std::uint32_t node = 0u;
+    std::uint32_t flags = 0u;
+    std::uint32_t stableIdentifier = 0u;
+    std::array<double, 4> value{};
+    std::array<double, 3> flux{};
+};
+
+struct MutationPolicySource {
+    bool enabled = false;
+    bool cohesiveFracture = false;
+};
+
+struct MutationCommandSource {
+    NMMutationKind kind = NM_MUTATION_DEACTIVATE_TETRAHEDRON;
+    std::uint32_t stableIdentifier = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t target = NM_INVALID_INDEX;
+    std::uint32_t priority = 0u;
+    std::array<double, 4> geometry0{};
+    std::array<double, 4> geometry1{};
 };
 
 struct RigidProxySource {
@@ -257,6 +373,12 @@ struct ObjectSource {
     std::array<double, 3> femInitialVelocity{};
     std::vector<std::array<double, 3>> femNodes;
     std::vector<TetrahedronSource> tetrahedra;
+    bool mixedFEM = true;
+    FEMCapacitySource femCapacity;
+    MultiphysicsSource multiphysics;
+    std::vector<FieldBoundarySource> fieldBoundaries;
+    MutationPolicySource mutationPolicy;
+    std::vector<MutationCommandSource> mutationCommands;
 };
 
 struct WorldSource {
@@ -266,6 +388,7 @@ struct WorldSource {
     std::uint32_t femPCGIterations = 32u;
     std::uint32_t identificationCandidates = 0u;
     bool deterministic = true;
+    MixedSolverSource mixedSolver;
     std::vector<MaterialProgram> materials;
     std::vector<ObjectSource> objects;
     std::vector<RigidProxySource> rigidProxies;
@@ -289,6 +412,13 @@ struct CookedFEM {
     std::vector<NMTetrahedronGPU> tetrahedra;
     std::vector<std::uint32_t> nodeIncidence;
     std::vector<NMIncidenceRangeGPU> nodeRanges;
+    std::vector<NMFEMCapacityGPU> capacities;
+    std::vector<NMFEMFieldStateGPU> fields;
+    std::vector<NMFieldBoundaryGPU> fieldBoundaries;
+    std::vector<NMFEMTopologyNodeGPU> topologyNodes;
+    std::vector<NMCohesiveFaceGPU> cohesiveFaces;
+    std::vector<NMMutationCommandGPU> mutationCommands;
+    std::vector<NMPunctureChannelGPU> punctureChannels;
 };
 
 struct CookedContact {
@@ -302,8 +432,10 @@ struct CookedContact {
 
 struct CompiledWorld {
     NMMatterDispatchGPU dispatch{};
+    NMMixedSolverGPU mixedSolver{};
     std::vector<ConstitutiveProgram> constitutive;
     std::vector<NMMaterialGPU> materials;
+    std::vector<NMMixedMaterialGPU> mixedMaterials;
     std::vector<NMParameterRangeGPU> parameters;
     std::vector<float> stateInitials;
     std::vector<NMExpressionInstructionGPU> instructions;
@@ -315,6 +447,9 @@ struct CompiledWorld {
     std::vector<NMAdaptiveStateGPU> adaptive;
     std::vector<NMSchedulerStateGPU> schedulers;
     std::vector<NMIdentificationDistributionGPU> identification;
+    std::vector<NMLearnedMaterialGPU> learnedMaterials;
+    std::vector<NMLearnedLayerGPU> learnedLayers;
+    std::vector<float> learnedWeights;
     std::uint64_t fingerprint = 0u;
 };
 
@@ -370,6 +505,16 @@ struct CompileResult {
     const std::filesystem::path& path,
     CompiledWorld& world,
     std::string* generatedMetal = nullptr,
+    std::string* error = nullptr
+);
+[[nodiscard]] bool writeLearnedMaterial(
+    const LearnedMaterialSource& material,
+    const std::filesystem::path& path,
+    std::string* error = nullptr
+);
+[[nodiscard]] bool readLearnedMaterial(
+    const std::filesystem::path& path,
+    LearnedMaterialSource& material,
     std::string* error = nullptr
 );
 
@@ -450,6 +595,18 @@ struct EncodeRequest {
     // continuum/free-body response CSR have been encoded.
     void* articulatedResponseContext = nullptr;
     EncodeArticulatedResponses encodeArticulatedResponses = nullptr;
+    // Optional fixed-stride device command stream. The runtime validates and
+    // stages it into candidate topology; callers retain ownership.
+    void* mutationCommands = nullptr; // NMMutationCommandGPU
+    // Optional complete learned-weight candidate, validated on-device before
+    // it becomes part of the control-step transaction.
+    void* learnedWeightUpdate = nullptr; // float
+    std::uint32_t mutationCommandCount = 0u;
+    std::uint32_t mutationCommandStride = 0u;
+    std::uint32_t learnedWeightCount = 0u;
+    std::uint32_t learnedWeightRevision = 0u;
+    std::uint64_t expectedMutationFingerprint = 0u;
+    std::uint64_t expectedLearnedFingerprint = 0u;
     std::uint32_t resetMaskStepStride = 0u;
     std::uint32_t rigidContactConstraintStride = 0u;
     std::uint32_t articulationRootBody = 0u;
@@ -478,6 +635,14 @@ struct RuntimeStateSnapshot {
     std::string message;
     std::vector<NMParticleStateGPU> particles;
     std::vector<NMFEMNodeStateGPU> femNodes;
+    std::vector<NMFEMFieldStateGPU> femFields;
+    std::vector<NMFEMTopologyNodeGPU> femTopologyNodes;
+    std::vector<NMTetrahedronGPU> femTopologyTetrahedra;
+    std::vector<NMCohesiveFaceGPU> cohesiveFaces;
+    std::vector<NMPunctureChannelGPU> punctureChannels;
+    std::vector<NMSolverCertificateGPU> solverCertificates;
+    std::vector<float> learnedWeights;
+    std::uint32_t learnedWeightRevision = 0u;
     std::vector<NMAdaptiveStateGPU> adaptive;
     std::vector<NMSchedulerStateGPU> schedulers;
     std::vector<NMRigidReactionGPU> reactions;

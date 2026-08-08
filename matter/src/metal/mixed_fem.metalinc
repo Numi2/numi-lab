@@ -1,0 +1,427 @@
+namespace numi_matter_metal {
+
+inline NMFieldBoundaryGPU mixedBoundaryForNode(
+    const NMMatterDispatchGPU dispatch,
+    device const NMFieldBoundaryGPU* boundaries,
+    const uint node
+) {
+    NMFieldBoundaryGPU result{};
+    result.identity.x = NM_INVALID_INDEX;
+    for (uint index = 0u; index < dispatch.fieldBoundaryCount; ++index) {
+        if (boundaries[index].identity.x == node) {
+            return boundaries[index];
+        }
+    }
+    return result;
+}
+
+kernel void nm_mixed_checkpoint(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMFieldStateGPU* accepted [[buffer(1)]],
+    device NMFEMFieldStateGPU* candidate [[buffer(2)]],
+    device NMFEMFieldStateGPU* checkpoint [[buffer(3)]],
+    device NMSolverCertificateGPU* certificates [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global < total) {
+        const NMFEMFieldStateGPU value = accepted[global];
+        candidate[global] = value;
+        checkpoint[global] = value;
+    }
+    if (global < dispatch.environmentCount * dispatch.objectCount) {
+        certificates[global] = {};
+    }
+}
+
+kernel void nm_mixed_prepare_microstep(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMFieldStateGPU* accepted [[buffer(1)]],
+    device NMFEMFieldStateGPU* candidate [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global < total) {
+        candidate[global] = accepted[global];
+    }
+}
+
+kernel void nm_mixed_transport_iteration(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const uint* nodeIncidence [[buffer(5)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(6)]],
+    device const NMFieldBoundaryGPU* boundaries [[buffer(7)]],
+    device const NMFEMFieldStateGPU* accepted [[buffer(8)]],
+    device const NMFEMFieldStateGPU* source [[buffer(9)]],
+    device NMFEMFieldStateGPU* destination [[buffer(10)]],
+    device NMMatterStatusGPU* statuses [[buffer(11)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const NMIncidenceRangeGPU range = nodeRanges[node];
+    destination[global] = source[global];
+    if (!environmentHealthy(statuses, environment) ||
+        range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount) return;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    if ((object.flags & NM_OBJECT_MULTIPHYSICS) == 0u ||
+        object.materialIndex >= dispatch.mixedMaterialCount) return;
+    const NMMixedMaterialGPU material = mixedMaterials[object.materialIndex];
+    float4 neighbour = float4(0.0f);
+    float neighbourActivation = 0.0f;
+    uint degree = 0u;
+    const uint fieldBase = environment * dispatch.femNodeCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+        const NMTetrahedronGPU tet = environmentTetrahedron(
+            dispatch, tetrahedra, environment, tetrahedronIndex
+        );
+        if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+        const uint4 nodes = tet.nodes;
+        for (uint slot = 0u; slot < 4u; ++slot) {
+            const uint other = nodes[slot];
+            if (other == node || other >= dispatch.femNodeCount) continue;
+            neighbour += source[fieldBase + other].primary;
+            neighbourActivation += source[fieldBase + other].secondary.x;
+            ++degree;
+        }
+    }
+    const float dt = max(microstep.time.x, 1.0e-12f);
+    const NMFEMFieldStateGPU old = accepted[global];
+    NMFEMFieldStateGPU next = source[global];
+    if (material.thermal.x > 0.0f) {
+        const float diagonal = material.thermal.x +
+            dt * material.thermal.y * float(degree);
+        next.primary.y = (
+            material.thermal.x * old.primary.y +
+            dt * (material.thermal.y * neighbour.y + material.thermal.z)
+        ) / max(diagonal, 1.0e-12f);
+    }
+    if (material.porous.x > 0.0f) {
+        const float diagonal = material.porous.x +
+            dt * material.porous.y * float(degree);
+        next.primary.z = (
+            material.porous.x * old.primary.z +
+            dt * (material.porous.y * neighbour.z + material.porous.z)
+        ) / max(diagonal, 1.0e-12f);
+    }
+    if (material.electrical.x > 0.0f && degree != 0u) {
+        next.primary.w = neighbour.w / float(degree);
+    }
+    const float slope = max(material.coupling.y, 1.0e-6f);
+    const float drive = 1.0f / (1.0f + exp(clamp(
+        -(next.primary.w - material.coupling.x) * slope,
+        -80.0f, 80.0f
+    )));
+    const float activationDiagonal = 1.0f + dt * (
+        material.electrical.y * float(degree) +
+        material.electrical.z * drive + material.electrical.w
+    );
+    next.secondary.x = (
+        old.secondary.x + dt * (
+            material.electrical.y * neighbourActivation +
+            material.electrical.z * drive
+        )
+    ) / max(activationDiagonal, 1.0e-12f);
+    const NMFieldBoundaryGPU boundary = mixedBoundaryForNode(
+        dispatch, boundaries, node
+    );
+    if (boundary.identity.x != NM_INVALID_INDEX) {
+        const uint flags = boundary.identity.z;
+        if ((flags & NM_FIELD_DIRICHLET_TEMPERATURE) != 0u)
+            next.primary.y = boundary.value.x;
+        if ((flags & NM_FIELD_DIRICHLET_PORE_PRESSURE) != 0u)
+            next.primary.z = boundary.value.y;
+        if ((flags & NM_FIELD_DIRICHLET_ELECTRIC_POTENTIAL) != 0u)
+            next.primary.w = boundary.value.z;
+        if ((flags & NM_FIELD_DIRICHLET_ACTIVATION) != 0u)
+            next.secondary.x = boundary.value.w;
+        next.primary.y += dt * boundary.flux.x /
+            max(material.thermal.x, 1.0e-12f);
+        next.primary.z += dt * boundary.flux.y /
+            max(material.porous.x, 1.0e-12f);
+        if ((flags & NM_FIELD_NEUMANN_ELECTRIC_CURRENT) != 0u &&
+            material.electrical.x > 0.0f)
+            next.primary.w += boundary.flux.z / material.electrical.x;
+    }
+    next.secondary.x = clamp(next.secondary.x, 0.0f, 1.0f);
+    if (!isfinite(next.primary.x) || !isfinite(next.primary.y) ||
+        !isfinite(next.primary.z) || !isfinite(next.primary.w) ||
+        !isfinite(next.secondary.x) || next.primary.y <= 0.0f) {
+        recordFailure(
+            statuses[environment], NM_STATUS_MULTIPHYSICS_FAILURE,
+            range.objectIndex, node,
+            float4(next.primary.y, next.primary.z, next.primary.w,
+                   next.secondary.x)
+        );
+        return;
+    }
+    destination[global] = next;
+}
+
+kernel void nm_mixed_pressure_update(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(3)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(4)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(5)]],
+    device const uint* nodeIncidence [[buffer(6)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(7)]],
+    device NMFEMFieldStateGPU* fields [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const NMIncidenceRangeGPU range = nodeRanges[node];
+    if (!environmentHealthy(statuses, environment) || range.count == 0u ||
+        range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount) return;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    if ((object.flags & NM_OBJECT_MIXED_FEM) == 0u ||
+        object.materialIndex >= dispatch.mixedMaterialCount) return;
+    const NMMixedMaterialGPU material = mixedMaterials[object.materialIndex];
+    float constraint = 0.0f;
+    uint active = 0u;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint tetIndex = nodeIncidence[range.first + local];
+        if (tetIndex >= dispatch.tetrahedronCount) continue;
+        const NMTetrahedronGPU tet = environmentTetrahedron(
+            dispatch, tetrahedra, environment, tetIndex
+        );
+        if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+        const float3x3 deformation = tetrahedronDeformation(tet, nodes, nodeBase);
+        const float j = determinant(deformation);
+        if (!(j > dispatch.numericalLimits.z) || !isfinite(j)) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DEFORMATION,
+                range.objectIndex, tetIndex, float4(j, 0.0f, 0.0f, 0.0f));
+            return;
+        }
+        float temperature = 0.0f;
+        for (uint slot = 0u; slot < 4u; ++slot)
+            temperature += fields[nodeBase + tet.nodes[slot]].primary.y;
+        temperature *= 0.25f;
+        constraint += log(j) - 3.0f * material.mechanics.y *
+            (temperature - material.mechanics.w);
+        ++active;
+    }
+    if (active == 0u) return;
+    const float target = -material.mechanics.x * constraint / float(active);
+    const float stabilization = clamp(solver.globalization.w, 0.0f, 1.0f);
+    fields[global].primary.x = mix(target, fields[global].primary.x,
+        stabilization);
+}
+
+kernel void nm_mixed_certify(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(3)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(4)]],
+    device const NMFEMFieldStateGPU* acceptedFields [[buffer(5)]],
+    device const NMFEMFieldStateGPU* candidateFields [[buffer(6)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(7)]],
+    device NMSolverCertificateGPU* certificates [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || dispatch.objectCount == 0u) return;
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (environment >= dispatch.environmentCount) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        (object.flags & NM_OBJECT_MIXED_FEM) == 0u) return;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    float correction = 0.0f;
+    float transport = 0.0f;
+    for (uint local = lane; local < object.stateCount; local += 32u) {
+        const uint node = nodeBase + object.stateOffset + local;
+        correction = max(correction, length(
+            candidateNodes[node].velocityAndInverseMass.xyz -
+            acceptedNodes[node].velocityAndInverseMass.xyz
+        ));
+        const float4 fieldDelta =
+            candidateFields[node].primary - acceptedFields[node].primary;
+        transport = max(transport, max(max(abs(fieldDelta.x), abs(fieldDelta.y)),
+            max(abs(fieldDelta.z), abs(fieldDelta.w))));
+        transport = max(transport, abs(
+            candidateFields[node].secondary.x - acceptedFields[node].secondary.x
+        ));
+    }
+    correction = simd_max(correction);
+    transport = simd_max(transport);
+    float minimumJ = INFINITY;
+    float maximumVolume = 0.0f;
+    uint activeElements = 0u;
+    for (uint local = lane; local < object.elementCount; local += 32u) {
+        const uint tetIndex = object.elementOffset + local;
+        const NMTetrahedronGPU tet = environmentTetrahedron(
+            dispatch, tetrahedra, environment, tetIndex
+        );
+        if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+        ++activeElements;
+        const float j = determinant(tetrahedronDeformation(
+            tet, candidateNodes, nodeBase
+        ));
+        minimumJ = min(minimumJ, j);
+        maximumVolume = max(maximumVolume, abs(log(max(j, 1.0e-20f))));
+    }
+    minimumJ = simd_min(minimumJ);
+    maximumVolume = simd_max(maximumVolume);
+    activeElements = simd_sum(activeElements);
+    if (activeElements == 0u) minimumJ = 1.0f;
+    if (lane == 0u) {
+        NMSolverCertificateGPU certificate =
+            certificates[environment * dispatch.objectCount + objectIndex];
+        certificate.nonlinear = float4(
+            correction, correction, maximumVolume, 0.0f
+        );
+        certificate.transport = float4(transport);
+        certificate.validity = float4(
+            minimumJ, 0.0f, 0.0f, 1.0f
+        );
+        certificates[environment * dispatch.objectCount + objectIndex] =
+            certificate;
+        if (!isfinite(minimumJ) || minimumJ < dispatch.numericalLimits.z ||
+            !isfinite(correction) || !isfinite(transport)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                objectIndex, NM_INVALID_INDEX,
+                float4(minimumJ, correction, maximumVolume, transport));
+        }
+    }
+}
+
+kernel void nm_mixed_commit(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device NMFEMFieldStateGPU* accepted [[buffer(2)]],
+    device NMFEMFieldStateGPU* candidate [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (environmentHealthy(statuses, environment)) accepted[global] = candidate[global];
+    else candidate[global] = accepted[global];
+}
+
+kernel void nm_mixed_rollback(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device NMFEMFieldStateGPU* accepted [[buffer(2)]],
+    device const NMFEMFieldStateGPU* checkpoint [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) accepted[global] = checkpoint[global];
+}
+
+kernel void nm_learned_stage_weights(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* update [[buffer(1)]],
+    device float* candidate [[buffer(2)]],
+    device NMMatterStatusGPU* statuses [[buffer(3)]],
+    device const NMLearnedLayerGPU* layers [[buffer(4)]],
+    device const uint* acceptedRevision [[buffer(5)]],
+    device uint* candidateRevision [[buffer(6)]],
+    constant uint& updateCount [[buffer(7)]],
+    constant uint& requestedRevision [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.learnedWeightCount) return;
+    if (updateCount != dispatch.learnedWeightCount ||
+        requestedRevision <= acceptedRevision[0]) {
+        if (global == 0u) recordFailure(statuses[0],
+            NM_STATUS_LEARNED_MATERIAL_FAILURE, NM_INVALID_INDEX, updateCount,
+            float4(float(updateCount), float(dispatch.learnedWeightCount),
+                   float(requestedRevision), float(acceptedRevision[0])));
+        return;
+    }
+    const float value = update[global];
+    bool constrained = false;
+    for (uint layerIndex = 0u; layerIndex < dispatch.learnedLayerCount;
+         ++layerIndex) {
+        const NMLearnedLayerGPU layer = layers[layerIndex];
+        constrained = constrained ||
+            (global >= layer.layout.z && global < layer.layout.w);
+    }
+    if (!isfinite(value) || (constrained && value < 0.0f)) {
+        recordFailure(statuses[0], NM_STATUS_LEARNED_MATERIAL_FAILURE,
+            NM_INVALID_INDEX, global, float4(value, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    candidate[global] = value;
+    if (global == 0u) candidateRevision[0] = requestedRevision;
+}
+
+kernel void nm_learned_checkpoint(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* accepted [[buffer(1)]],
+    device float* candidate [[buffer(2)]],
+    device float* checkpoint [[buffer(3)]],
+    device const uint* acceptedRevision [[buffer(4)]],
+    device uint* candidateRevision [[buffer(5)]],
+    device uint* checkpointRevision [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global < dispatch.learnedWeightCount) {
+        candidate[global] = accepted[global];
+        checkpoint[global] = accepted[global];
+    }
+    if (global == 0u) {
+        candidateRevision[0] = acceptedRevision[0];
+        checkpointRevision[0] = acceptedRevision[0];
+    }
+}
+
+kernel void nm_learned_commit(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device float* accepted [[buffer(2)]],
+    device const float* candidate [[buffer(3)]],
+    device uint* acceptedRevision [[buffer(4)]],
+    device const uint* candidateRevision [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.learnedWeightCount) return;
+    bool healthy = true;
+    for (uint environment = 0u; environment < dispatch.environmentCount; ++environment)
+        healthy = healthy && environmentHealthy(statuses, environment);
+    if (healthy) accepted[global] = candidate[global];
+    if (global == 0u && healthy) acceptedRevision[0] = candidateRevision[0];
+}
+
+kernel void nm_learned_rollback(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device float* accepted [[buffer(2)]],
+    device const float* checkpoint [[buffer(3)]],
+    device uint* acceptedRevision [[buffer(4)]],
+    device const uint* checkpointRevision [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.learnedWeightCount) return;
+    bool healthy = true;
+    for (uint environment = 0u; environment < dispatch.environmentCount; ++environment)
+        healthy = healthy && environmentHealthy(statuses, environment);
+    if (!healthy) accepted[global] = checkpoint[global];
+    if (global == 0u && !healthy) acceptedRevision[0] = checkpointRevision[0];
+}
+
+} // namespace numi_matter_metal

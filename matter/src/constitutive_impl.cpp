@@ -712,6 +712,7 @@ private:
     case ConstitutiveHint::druckerPrager: return NM_CONSTITUTIVE_DRUCKER_PRAGER;
     case ConstitutiveHint::vonMises: return NM_CONSTITUTIVE_VON_MISES;
     case ConstitutiveHint::viscoHyperelastic: return NM_CONSTITUTIVE_VISCO_HYPERELASTIC;
+    case ConstitutiveHint::polyconvexICNN: return NM_CONSTITUTIVE_POLYCONVEX_ICNN;
     case ConstitutiveHint::generic: return NM_CONSTITUTIVE_BYTECODE;
     }
     return NM_CONSTITUTIVE_BYTECODE;

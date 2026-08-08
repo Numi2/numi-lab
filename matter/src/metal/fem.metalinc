@@ -1,5 +1,14 @@
 namespace numi_matter_metal {
 
+inline NMTetrahedronGPU environmentTetrahedron(
+    const NMMatterDispatchGPU dispatch,
+    device const NMTetrahedronGPU* tetrahedra,
+    const uint environment,
+    const uint local
+) {
+    return tetrahedra[environment * dispatch.tetrahedronCount + local];
+}
+
 inline float3x3 tetrahedronDeformation(
     const NMTetrahedronGPU tetrahedron,
     device const NMFEMNodeStateGPU* nodes,
@@ -56,6 +65,158 @@ inline NMFEMElementVectorGPU tetrahedronForce(
     result.node2 = float4(h[1], 0.0f);
     result.node3 = float4(h[2], 0.0f);
     result.node0 = float4(-(h[0] + h[1] + h[2]), 0.0f);
+    return result;
+}
+
+inline float3x3 mixedFirstPiola(
+    const float3x3 analytic,
+    const float3x3 deformation,
+    const NMMixedMaterialGPU mixed,
+    const float pressure,
+    const float porePressure,
+    const float activation
+) {
+    const float j = determinant(deformation);
+    const float3x3 cofactor = float3x3(
+        cross(deformation[1], deformation[2]),
+        cross(deformation[2], deformation[0]),
+        cross(deformation[0], deformation[1])
+    );
+    const float3x3 kirchhoff = analytic * transpose(deformation);
+    const float hydrostatic = (
+        kirchhoff[0].x + kirchhoff[1].y + kirchhoff[2].z
+    ) / 3.0f;
+    const float3x3 deviatoricKirchhoff = kirchhoff - float3x3(
+        float3(hydrostatic, 0.0f, 0.0f),
+        float3(0.0f, hydrostatic, 0.0f),
+        float3(0.0f, 0.0f, hydrostatic)
+    );
+    float3x3 result = deviatoricKirchhoff * cofactor / max(j, 1.0e-20f);
+    result -= (pressure + mixed.mechanics.z * porePressure) * cofactor;
+    const float3 referenceFibre = normalize(mixed.fibre.xyz);
+    const float3 deformedFibre = deformation * referenceFibre;
+    const float fibreLength = length(deformedFibre);
+    if (fibreLength > 1.0e-12f && mixed.fibre.w > 0.0f) {
+        const float3 direction = deformedFibre / fibreLength;
+        const float tension = mixed.fibre.w * clamp(activation, 0.0f, 1.0f);
+        const float3x3 cauchy = float3x3(
+            tension * direction.x * direction,
+            tension * direction.y * direction,
+            tension * direction.z * direction
+        );
+        result += cauchy * cofactor;
+    }
+    return result;
+}
+
+inline float learnedSoftplus(const float value, const float beta) {
+    const float scaled = clamp(beta * value, -80.0f, 80.0f);
+    return max(value, 0.0f) + log(1.0f + exp(-abs(scaled))) / beta;
+}
+
+inline float learnedSigmoid(const float value, const float beta) {
+    return 1.0f / (1.0f + exp(clamp(-beta * value, -80.0f, 80.0f)));
+}
+
+inline float3x3 learnedFirstPiola(
+    const NMLearnedMaterialGPU network,
+    device const NMLearnedLayerGPU* layers,
+    device const float* weights,
+    const float3x3 deformation,
+    const float3 referenceFibre,
+    thread bool& valid
+) {
+    const float j = determinant(deformation);
+    if (!(j > network.policy.y) || !isfinite(j)) {
+        valid = false;
+        return float3x3(0.0f);
+    }
+    const float3x3 cofactor = float3x3(
+        cross(deformation[1], deformation[2]),
+        cross(deformation[2], deformation[0]),
+        cross(deformation[0], deformation[1])
+    );
+    const float i1 = dot(deformation[0], deformation[0]) +
+        dot(deformation[1], deformation[1]) +
+        dot(deformation[2], deformation[2]);
+    const float i2 = dot(cofactor[0], cofactor[0]) +
+        dot(cofactor[1], cofactor[1]) + dot(cofactor[2], cofactor[2]);
+    const float3 fibre = normalize(referenceFibre);
+    const float3 deformedFibre = deformation * fibre;
+    thread float invariant[NM_LEARNED_MAX_INVARIANTS];
+    for (uint index = 0u; index < NM_LEARNED_MAX_INVARIANTS; ++index)
+        invariant[index] = 0.0f;
+    invariant[0] = i1 - 3.0f;
+    invariant[1] = i2 - 3.0f;
+    invariant[2] = j - 1.0f;
+    invariant[3] = 1.0f / j - 1.0f;
+    if (network.identity.x > 4u)
+        invariant[4] = dot(deformedFibre, deformedFibre) - 1.0f;
+
+    thread float previous[NM_LEARNED_MAX_WIDTH];
+    thread float next[NM_LEARNED_MAX_WIDTH];
+    thread float previousGradient[NM_LEARNED_MAX_WIDTH * NM_LEARNED_MAX_INVARIANTS];
+    thread float nextGradient[NM_LEARNED_MAX_WIDTH * NM_LEARNED_MAX_INVARIANTS];
+    for (uint index = 0u; index < NM_LEARNED_MAX_WIDTH; ++index) {
+        previous[index] = 0.0f;
+        for (uint input = 0u; input < NM_LEARNED_MAX_INVARIANTS; ++input)
+            previousGradient[index * NM_LEARNED_MAX_INVARIANTS + input] = 0.0f;
+    }
+    uint previousWidth = 0u;
+    for (uint localLayer = 0u; localLayer < network.layout.y; ++localLayer) {
+        const NMLearnedLayerGPU layer = layers[network.layout.x + localLayer];
+        for (uint output = 0u; output < layer.layout.y; ++output) {
+            float preactivation = weights[layer.layout.w + output];
+            for (uint input = 0u; input < layer.layout.x; ++input)
+                preactivation += weights[layer.layout.z + output * layer.layout.x + input] *
+                    invariant[input];
+            for (uint hidden = 0u; hidden < previousWidth; ++hidden)
+                preactivation += weights[layer.routing.x + output * previousWidth + hidden] *
+                    previous[hidden];
+            const float slope = learnedSigmoid(preactivation, network.policy.x);
+            next[output] = learnedSoftplus(preactivation, network.policy.x);
+            for (uint input = 0u; input < network.identity.x; ++input) {
+                float gradient = weights[
+                    layer.layout.z + output * layer.layout.x + input
+                ];
+                for (uint hidden = 0u; hidden < previousWidth; ++hidden)
+                    gradient += weights[
+                        layer.routing.x + output * previousWidth + hidden
+                    ] * previousGradient[
+                        hidden * NM_LEARNED_MAX_INVARIANTS + input
+                    ];
+                nextGradient[output * NM_LEARNED_MAX_INVARIANTS + input] =
+                    slope * gradient;
+            }
+        }
+        previousWidth = layer.layout.y;
+        for (uint output = 0u; output < previousWidth; ++output) {
+            previous[output] = next[output];
+            for (uint input = 0u; input < network.identity.x; ++input)
+                previousGradient[output * NM_LEARNED_MAX_INVARIANTS + input] =
+                    nextGradient[output * NM_LEARNED_MAX_INVARIANTS + input];
+        }
+    }
+    const float3x3 c = transpose(deformation) * deformation;
+    const float3x3 identity = float3x3(
+        float3(1.0f, 0.0f, 0.0f),
+        float3(0.0f, 1.0f, 0.0f),
+        float3(0.0f, 0.0f, 1.0f)
+    );
+    float3x3 result = 2.0f * previousGradient[0] * deformation;
+    result += 2.0f * previousGradient[1] * deformation * (i1 * identity - c);
+    result += previousGradient[2] * cofactor;
+    result -= previousGradient[3] * cofactor / (j * j);
+    if (network.identity.x > 4u) {
+        const float3 fibreGradient = 2.0f * previousGradient[4] * deformedFibre;
+        result += float3x3(
+            fibre.x * fibreGradient,
+            fibre.y * fibreGradient,
+            fibre.z * fibreGradient
+        );
+    }
+    result += network.policy.z * (1.0f - 1.0f / (j * j)) * cofactor;
+    valid = valid && isfinite(maximumAbs(result));
     return result;
 }
 
@@ -127,6 +288,11 @@ kernel void nm_fem_internal_forces(
     device const NMAdaptiveStateGPU* adaptive [[buffer(11)]],
     device NMFEMElementVectorGPU* elementForces [[buffer(12)]],
     device NMMatterStatusGPU* statuses [[buffer(13)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(14)]],
+    device const NMFEMFieldStateGPU* fields [[buffer(15)]],
+    device const NMLearnedMaterialGPU* learnedMaterials [[buffer(16)]],
+    device const NMLearnedLayerGPU* learnedLayers [[buffer(17)]],
+    device const float* learnedWeights [[buffer(18)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
@@ -135,10 +301,13 @@ kernel void nm_fem_internal_forces(
     }
     const uint environment = global / dispatch.tetrahedronCount;
     const uint tetrahedronIndex = global - environment * dispatch.tetrahedronCount;
-    const NMTetrahedronGPU tetrahedron = tetrahedra[tetrahedronIndex];
+    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+        dispatch, tetrahedra, environment, tetrahedronIndex
+    );
     const uint objectIndex = tetrahedron.identity.y;
     elementForces[global] = {};
-    if (objectIndex >= dispatch.objectCount ||
+    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+        objectIndex >= dispatch.objectCount ||
         !environmentHealthy(statuses, environment)) {
         return;
     }
@@ -166,7 +335,7 @@ kernel void nm_fem_internal_forces(
     bool valid = isfinite(determinantValue) &&
         determinantValue >= material.validity.x &&
         determinantValue <= material.validity.y;
-    const float3x3 stress = evaluateStress(
+    float3x3 stress = evaluateStress(
         material,
         programs,
         instructions,
@@ -178,6 +347,40 @@ kernel void nm_fem_internal_forces(
         material.bulk.y,
         valid
     );
+    if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+        object.materialIndex < dispatch.mixedMaterialCount) {
+        float4 fieldAverage = float4(0.0f);
+        float activation = 0.0f;
+        for (uint slot = 0u; slot < 4u; ++slot) {
+            const NMFEMFieldStateGPU field =
+                fields[nodeBase + tetrahedron.nodes[slot]];
+            fieldAverage += field.primary;
+            activation += field.secondary.x;
+        }
+        fieldAverage *= 0.25f;
+        activation *= 0.25f;
+        stress = mixedFirstPiola(
+            stress, deformation, mixedMaterials[object.materialIndex],
+            fieldAverage.x, fieldAverage.z, activation
+        );
+    }
+    if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
+        bool found = false;
+        for (uint networkIndex = 0u;
+             networkIndex < dispatch.learnedMaterialCount;
+             ++networkIndex) {
+            const NMLearnedMaterialGPU network = learnedMaterials[networkIndex];
+            if (network.identity.y == tetrahedron.identity.x) {
+                stress += learnedFirstPiola(
+                    network, learnedLayers, learnedWeights, deformation,
+                    mixedMaterials[object.materialIndex].fibre.xyz, valid
+                );
+                found = true;
+                break;
+            }
+        }
+        valid = valid && found;
+    }
     if (!valid || maximumAbs(stress) > material.validity.z) {
         recordFailure(
             statuses[environment],
@@ -246,7 +449,8 @@ kernel void nm_fem_pcg_initialize(
         const uint tetrahedronIndex = nodeIncidence[range.first + local];
         internalForce += elementNodeValue(
             elementForces[elementBase + tetrahedronIndex],
-            tetrahedra[tetrahedronIndex],
+            environmentTetrahedron(dispatch, tetrahedra, environment,
+                tetrahedronIndex),
             nodeIndex
         );
     }
@@ -286,10 +490,13 @@ kernel void nm_fem_apply_operator_elements(
     }
     const uint environment = global / dispatch.tetrahedronCount;
     const uint tetrahedronIndex = global - environment * dispatch.tetrahedronCount;
-    const NMTetrahedronGPU tetrahedron = tetrahedra[tetrahedronIndex];
+    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+        dispatch, tetrahedra, environment, tetrahedronIndex
+    );
     const uint objectIndex = tetrahedron.identity.y;
     elementOperator[global] = {};
-    if (objectIndex >= dispatch.objectCount ||
+    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+        objectIndex >= dispatch.objectCount ||
         !environmentHealthy(statuses, environment)) {
         return;
     }
@@ -412,7 +619,8 @@ kernel void nm_fem_apply_operator_nodes(
         const uint tetrahedronIndex = nodeIncidence[range.first + local];
         derivativeForce += elementNodeValue(
             elementOperator[elementBase + tetrahedronIndex],
-            tetrahedra[tetrahedronIndex],
+            environmentTetrahedron(dispatch, tetrahedra, environment,
+                tetrahedronIndex),
             nodeIndex
         );
     }
@@ -799,8 +1007,13 @@ kernel void nm_fem_validate(
     if (!environmentHealthy(statuses, environment)) {
         return;
     }
-    const NMTetrahedronGPU tetrahedron = tetrahedra[tetrahedronIndex];
+    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+        dispatch, tetrahedra, environment, tetrahedronIndex
+    );
     const uint objectIndex = tetrahedron.identity.y;
+    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) {
+        return;
+    }
     if (objectIndex >= dispatch.objectCount ||
         tetrahedron.identity.x >= dispatch.materialCount) {
         recordFailure(

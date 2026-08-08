@@ -19,7 +19,11 @@ constexpr std::uint32_t kKnownMatterFlags =
     NM_MATTER_DETERMINISTIC |
     NM_MATTER_CONTACT |
     NM_MATTER_ADAPTIVE |
-    NM_MATTER_IDENTIFICATION;
+    NM_MATTER_IDENTIFICATION |
+    NM_MATTER_MIXED_FEM |
+    NM_MATTER_MULTIPHYSICS |
+    NM_MATTER_MUTATION |
+    NM_MATTER_LEARNED_MATERIAL;
 constexpr std::uint32_t kKnownMaterialFlags =
     NM_MATERIAL_HAS_STATE |
     NM_MATERIAL_HAS_DISSIPATION;
@@ -27,7 +31,10 @@ constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_ACTIVE |
     NM_OBJECT_TWO_WAY_COUPLED |
     NM_OBJECT_ADAPTIVE |
-    NM_OBJECT_IDENTIFIABLE;
+    NM_OBJECT_IDENTIFIABLE |
+    NM_OBJECT_MIXED_FEM |
+    NM_OBJECT_MULTIPHYSICS |
+    NM_OBJECT_MUTABLE_TOPOLOGY;
 constexpr std::uint32_t kKnownRigidFlags =
     NM_RIGID_ARTICULATED |
     NM_RIGID_DYNAMIC;
@@ -84,6 +91,7 @@ public:
 
     [[nodiscard]] bool run() {
         return validateDispatch() &&
+            validateMixedAuthorities() &&
             validateProgramsAndMaterials() &&
             validateObjectsAndTopology() &&
             validateContact() &&
@@ -134,6 +142,16 @@ private:
             dispatch.mpmBlockLookupCount != world_.mpm.blockLookup.size() ||
             dispatch.femNodeCount != world_.fem.nodes.size() ||
             dispatch.tetrahedronCount != world_.fem.tetrahedra.size() ||
+            dispatch.mixedMaterialCount != world_.mixedMaterials.size() ||
+            dispatch.fieldBoundaryCount != world_.fem.fieldBoundaries.size() ||
+            dispatch.cohesiveFaceCount != world_.fem.cohesiveFaces.size() ||
+            dispatch.mutationCommandCount != world_.fem.mutationCommands.size() ||
+            dispatch.learnedMaterialCount != world_.learnedMaterials.size() ||
+            dispatch.learnedLayerCount != world_.learnedLayers.size() ||
+            dispatch.learnedWeightCount != world_.learnedWeights.size() ||
+            dispatch.topologyNodeCapacity != world_.fem.topologyNodes.size() ||
+            dispatch.punctureChannelCount != world_.fem.punctureChannels.size() ||
+            dispatch.femCapacityCount != world_.fem.capacities.size() ||
             dispatch.rigidProxyCount != world_.contact.rigidProxies.size() ||
             dispatch.contactPairCount != world_.contact.pairs.size()) {
             return fail("Matter dispatch counts disagree with cooked arenas");
@@ -179,6 +197,126 @@ private:
             ((dispatch.flags & NM_MATTER_IDENTIFICATION) != 0u) !=
                 !world_.identification.empty()) {
             return fail("Matter dispatch feature flags disagree with cooked programs");
+        }
+        return true;
+    }
+
+    [[nodiscard]] bool validateMixedAuthorities() {
+        const NMMixedSolverGPU& solver = world_.mixedSolver;
+        if (solver.nonlinearIterations.x == 0u ||
+            solver.nonlinearIterations.y == 0u ||
+            solver.nonlinearIterations.z < solver.nonlinearIterations.y ||
+            solver.nonlinearIterations.w == 0u ||
+            solver.blockIterations.x == 0u ||
+            solver.blockIterations.y == 0u ||
+            solver.blockIterations.z == 0u ||
+            solver.blockIterations.w == 0u ||
+            !finite4(solver.nonlinearTolerances) ||
+            !finite4(solver.contactTolerances) ||
+            !finite4(solver.regularization) ||
+            !finite4(solver.globalization) ||
+            !(solver.regularization.x > 0.0f) ||
+            !(solver.regularization.z >= solver.regularization.y) ||
+            !(solver.globalization.y > 0.0f) ||
+            !(solver.globalization.z > 0.0f && solver.globalization.z < 0.5f)) {
+            return fail("mixed solver policy is invalid");
+        }
+        if (world_.mixedMaterials.size() != world_.materials.size() ||
+            world_.fem.capacities.size() != world_.objects.size() ||
+            world_.fem.fields.size() != world_.fem.nodes.size() ||
+            world_.fem.topologyNodes.size() != world_.fem.nodes.size()) {
+            return fail("mixed FEM arenas do not match their owning topology");
+        }
+        std::uint64_t tetrahedronCapacity = 0u;
+        for (std::size_t index = 0u; index < world_.mixedMaterials.size(); ++index) {
+            const NMMixedMaterialGPU material = world_.mixedMaterials[index];
+            if (!finite4(material.mechanics) || !finite4(material.thermal) ||
+                !finite4(material.porous) || !finite4(material.electrical) ||
+                !finite4(material.fibre) || !finite4(material.coupling) ||
+                !(material.mechanics.x > 0.0f) ||
+                material.mechanics.y < 0.0f ||
+                material.mechanics.z < 0.0f || material.mechanics.z > 1.0f ||
+                material.thermal.x < 0.0f || material.thermal.y < 0.0f ||
+                material.porous.x < 0.0f || material.porous.y < 0.0f ||
+                material.electrical.x < 0.0f || material.electrical.y < 0.0f ||
+                material.electrical.z < 0.0f || material.electrical.w < 0.0f) {
+                return failIndexed("mixed material", index, "coefficients are invalid");
+            }
+        }
+        for (const NMFEMCapacityGPU capacity : world_.fem.capacities) {
+            tetrahedronCapacity += capacity.topology.y;
+        }
+        if (tetrahedronCapacity != world_.dispatch.topologyTetrahedronCapacity) {
+            return fail("topology tetrahedron capacity disagrees with dispatch");
+        }
+        for (std::size_t node = 0u; node < world_.fem.fields.size(); ++node) {
+            if (!finite4(world_.fem.fields[node].primary) ||
+                !finite4(world_.fem.fields[node].secondary) ||
+                !(world_.fem.fields[node].primary.y > 0.0f) ||
+                world_.fem.fields[node].secondary.x < 0.0f ||
+                world_.fem.fields[node].secondary.x > 1.0f) {
+                return failIndexed("FEM field", node, "initial state is invalid");
+            }
+        }
+        for (std::size_t learned = 0u;
+             learned < world_.learnedMaterials.size();
+             ++learned) {
+            const NMLearnedMaterialGPU descriptor = world_.learnedMaterials[learned];
+            if (!rangeWithin(descriptor.layout.x, descriptor.layout.y,
+                    world_.learnedLayers.size()) ||
+                !rangeWithin(descriptor.layout.z, descriptor.layout.w,
+                    world_.learnedWeights.size()) ||
+                descriptor.identity.y >= world_.materials.size() ||
+                descriptor.identity.z != NM_LEARNED_SOFTPLUS ||
+                descriptor.identity.x < 4u ||
+                descriptor.identity.x > NM_LEARNED_MAX_INVARIANTS ||
+                !finite4(descriptor.policy) || !(descriptor.policy.x > 0.0f) ||
+                !(descriptor.policy.y > 0.0f) || descriptor.policy.z < 0.0f) {
+                return failIndexed("learned material", learned, "layout is invalid");
+            }
+            std::uint32_t previousWidth = 0u;
+            for (std::uint32_t local = 0u; local < descriptor.layout.y; ++local) {
+                const NMLearnedLayerGPU layer =
+                    world_.learnedLayers[descriptor.layout.x + local];
+                const std::uint64_t inputCount =
+                    static_cast<std::uint64_t>(layer.layout.x) * layer.layout.y;
+                const std::uint64_t recurrentCount =
+                    static_cast<std::uint64_t>(previousWidth) * layer.layout.y;
+                if (layer.layout.x != descriptor.identity.x ||
+                    layer.layout.y == 0u ||
+                    layer.layout.y > NM_LEARNED_MAX_WIDTH ||
+                    layer.layout.z < descriptor.layout.z ||
+                    layer.routing.x != layer.layout.z + inputCount ||
+                    layer.layout.w != layer.routing.x + recurrentCount ||
+                    layer.layout.w + layer.layout.y >
+                        descriptor.layout.z + descriptor.layout.w) {
+                    return failIndexed("learned layer",
+                        descriptor.layout.x + local, "weight routing is invalid");
+                }
+                for (std::uint64_t offset = 0u;
+                     offset < inputCount + recurrentCount;
+                     ++offset) {
+                    const float value = world_.learnedWeights[
+                        layer.layout.z + offset
+                    ];
+                    if (!std::isfinite(value) || value < 0.0f) {
+                        return failIndexed("learned layer",
+                            descriptor.layout.x + local,
+                            "convex paths must be finite and nonnegative");
+                    }
+                }
+                for (std::uint32_t bias = 0u; bias < layer.layout.y; ++bias) {
+                    if (!std::isfinite(world_.learnedWeights[layer.layout.w + bias])) {
+                        return failIndexed("learned layer",
+                            descriptor.layout.x + local, "bias is not finite");
+                    }
+                }
+                previousWidth = layer.layout.y;
+            }
+            if (previousWidth != 1u) {
+                return failIndexed("learned material", learned,
+                    "network output is not scalar");
+            }
         }
         return true;
     }
@@ -404,7 +542,7 @@ private:
             const NMMaterialGPU& material = world_.materials[index];
             if ((material.flags & ~kKnownMaterialFlags) != 0u ||
                 material.constitutiveKind >
-                    NM_CONSTITUTIVE_VISCO_HYPERELASTIC ||
+                    NM_CONSTITUTIVE_POLYCONVEX_ICNN ||
                 material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
                 material.reservedState0 != 0u ||
                 material.reservedState1 != 0u) {

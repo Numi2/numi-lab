@@ -622,11 +622,52 @@ void verifyAdaptiveLayout() {
     return roundTrip;
 }
 
+void verifyLearnedMaterialRoundTrip() {
+    numi::matter::LearnedMaterialSource source;
+    source.invariantCount = 5u;
+    source.softplusBeta = 2.5f;
+    source.determinantFloor = 0.04f;
+    source.growthCoefficient = 0.02f;
+    numi::matter::LearnedLayerSource hidden;
+    hidden.inputWidth = 5u;
+    hidden.outputWidth = 2u;
+    hidden.inputWeights.assign(10u, 0.125f);
+    hidden.biases = {-0.25f, 0.5f};
+    source.layers.push_back(hidden);
+    numi::matter::LearnedLayerSource output;
+    output.inputWidth = 5u;
+    output.outputWidth = 1u;
+    output.inputWeights.assign(5u, 0.0625f);
+    output.recurrentWeights = {0.5f, 0.75f};
+    output.biases = {0.125f};
+    source.layers.push_back(output);
+    const std::filesystem::path path =
+        std::filesystem::temp_directory_path() /
+        "numi-matter-stateful-check.nmatnet";
+    std::string error;
+    require(
+        numi::matter::writeLearnedMaterial(source, path, &error), error
+    );
+    numi::matter::LearnedMaterialSource decoded;
+    require(
+        numi::matter::readLearnedMaterial(path, decoded, &error), error
+    );
+    require(
+        decoded.invariantCount == source.invariantCount &&
+        decoded.layers.size() == source.layers.size() &&
+        decoded.layers[0].inputWeights == source.layers[0].inputWeights &&
+        decoded.layers[1].recurrentWeights ==
+            source.layers[1].recurrentWeights,
+        "canonical learned-material roundtrip changed trained weights"
+    );
+}
+
 } // namespace
 
 int main() {
     try {
         verifyAdaptiveLayout();
+        verifyLearnedMaterialRoundTrip();
         const auto world = compileStatefulWorld();
         std::cout
             << "{\"schema\":\"numi.matter.stateful-compiler.v1\""

@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 
 #include "numi/matter/matter.hpp"
+#include "numi/matter/detail.hpp"
 #include "metalrobo/engine_types.h"
 
 #include <algorithm>
@@ -277,6 +278,7 @@ struct Runtime::State {
     std::unordered_map<std::string, id<MTLComputePipelineState>> pipelines;
 
     NMMatterDispatchGPU dispatch{};
+    NMMixedSolverGPU mixedSolverValue{};
     std::uint64_t worldFingerprint = 0u;
     std::uint64_t executionFingerprint = 0u;
     std::size_t residentBytes = 0u;
@@ -309,7 +311,11 @@ struct Runtime::State {
         std::make_shared<CommandOwnership>();
 
     id<MTLBuffer> dispatchBuffer = nil;
+    id<MTLBuffer> mixedSolver = nil;
     id<MTLBuffer> materials = nil;
+    id<MTLBuffer> mixedMaterials = nil;
+    id<MTLBuffer> learnedMaterials = nil;
+    id<MTLBuffer> learnedLayers = nil;
     id<MTLBuffer> parameterDefaults = nil;
     id<MTLBuffer> instructions = nil;
     id<MTLBuffer> scalarPrograms = nil;
@@ -321,8 +327,23 @@ struct Runtime::State {
     id<MTLBuffer> mpmNodeIncidence = nil;
     id<MTLBuffer> mpmNodeRanges = nil;
     id<MTLBuffer> femTetrahedra = nil;
+    id<MTLBuffer> femTetrahedraAccepted = nil;
+    id<MTLBuffer> femTetrahedraCandidate = nil;
+    id<MTLBuffer> femTetrahedraCheckpoint = nil;
+    id<MTLBuffer> femTopologyNodesAccepted = nil;
+    id<MTLBuffer> femTopologyNodesCandidate = nil;
+    id<MTLBuffer> femTopologyNodesCheckpoint = nil;
+    id<MTLBuffer> cohesiveFacesAccepted = nil;
+    id<MTLBuffer> cohesiveFacesCandidate = nil;
+    id<MTLBuffer> cohesiveFacesCheckpoint = nil;
+    id<MTLBuffer> punctureChannelsAccepted = nil;
+    id<MTLBuffer> punctureChannelsCandidate = nil;
+    id<MTLBuffer> punctureChannelsCheckpoint = nil;
+    id<MTLBuffer> femCapacities = nil;
+    id<MTLBuffer> cookedMutationCommands = nil;
     id<MTLBuffer> femNodeIncidence = nil;
     id<MTLBuffer> femNodeRanges = nil;
+    id<MTLBuffer> fieldBoundaries = nil;
     id<MTLBuffer> rigidProxies = nil;
     id<MTLBuffer> contactPairs = nil;
     id<MTLBuffer> contactNodeIncidence = nil;
@@ -378,6 +399,20 @@ struct Runtime::State {
     id<MTLBuffer> femMaterialStateAccepted = nil;
     id<MTLBuffer> femMaterialStateCandidate = nil;
     id<MTLBuffer> femMaterialStateCheckpoint = nil;
+    id<MTLBuffer> femFieldsAccepted = nil;
+    id<MTLBuffer> femFieldsCandidate = nil;
+    id<MTLBuffer> femFieldsCheckpoint = nil;
+    id<MTLBuffer> femFieldsWork = nil;
+    id<MTLBuffer> solverCertificates = nil;
+    id<MTLBuffer> learnedWeightDefaults = nil;
+    id<MTLBuffer> learnedWeightsAccepted = nil;
+    id<MTLBuffer> learnedWeightsCandidate = nil;
+    id<MTLBuffer> learnedWeightsCheckpoint = nil;
+    id<MTLBuffer> learnedRevisionAccepted = nil;
+    id<MTLBuffer> learnedRevisionCandidate = nil;
+    id<MTLBuffer> learnedRevisionCheckpoint = nil;
+    std::uint64_t mutationFingerprint = 0u;
+    std::uint64_t learnedFingerprint = 0u;
     id<MTLBuffer> rigidStates = nil;
     id<MTLBuffer> contactSamples = nil;
     id<MTLBuffer> contactResponseValues = nil;
@@ -446,6 +481,15 @@ RuntimeDiagnostics Runtime::initialize(
         }
         auto candidate = std::make_unique<State>();
         candidate->dispatch = world.dispatch;
+        candidate->mixedSolverValue = world.mixedSolver;
+        candidate->mutationFingerprint = detail::hashBytes(
+            world.fem.mutationCommands.data(),
+            world.fem.mutationCommands.size() * sizeof(NMMutationCommandGPU)
+        );
+        candidate->learnedFingerprint = detail::hashBytes(
+            world.learnedWeights.data(),
+            world.learnedWeights.size() * sizeof(float)
+        );
         candidate->worldFingerprint = world.fingerprint;
         candidate->captureEvents = configuration.captureEvents;
         candidate->captureDiagnostics = configuration.captureDiagnostics;
@@ -499,7 +543,7 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
 
-        const std::array<const char*, 55> kernelNames{
+        const std::array<const char*, 71> kernelNames{
             "nm_prepare_status",
             "nm_prepare_events",
             "nm_prepare_reactions",
@@ -518,6 +562,21 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_scatter_particles",
             "nm_mpm_sort_block_particles",
             "nm_fem_checkpoint",
+            "nm_topology_checkpoint",
+            "nm_topology_apply_mutations",
+            "nm_topology_commit",
+            "nm_topology_rollback",
+            "nm_mixed_checkpoint",
+            "nm_mixed_prepare_microstep",
+            "nm_mixed_transport_iteration",
+            "nm_mixed_pressure_update",
+            "nm_mixed_certify",
+            "nm_mixed_commit",
+            "nm_mixed_rollback",
+            "nm_learned_stage_weights",
+            "nm_learned_checkpoint",
+            "nm_learned_commit",
+            "nm_learned_rollback",
             "nm_project_rigid_states",
             "nm_publish_adaptive_rigid_ownership",
             "nm_mpm_p2g",
@@ -536,6 +595,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_gather_response",
             "nm_contact_validate_articulated_response",
             "nm_contact_solve_coupled",
+            "nm_contact_certify_natural_map",
             "nm_contact_apply_nodes",
             "nm_contact_reduce_rigid",
             "nm_accumulate_rigid_reactions",
@@ -744,8 +804,20 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->dispatchBuffer = uploads.one(
             std::span<const NMMatterDispatchGPU>(&world.dispatch, 1u),
             valid, candidate->residentBytes);
+        candidate->mixedSolver = uploads.one(
+            std::span<const NMMixedSolverGPU>(&world.mixedSolver, 1u),
+            valid, candidate->residentBytes);
         candidate->materials = uploads.one(
             std::span<const NMMaterialGPU>(world.materials),
+            valid, candidate->residentBytes);
+        candidate->mixedMaterials = uploads.one(
+            std::span<const NMMixedMaterialGPU>(world.mixedMaterials),
+            valid, candidate->residentBytes);
+        candidate->learnedMaterials = uploads.one(
+            std::span<const NMLearnedMaterialGPU>(world.learnedMaterials),
+            valid, candidate->residentBytes);
+        candidate->learnedLayers = uploads.one(
+            std::span<const NMLearnedLayerGPU>(world.learnedLayers),
             valid, candidate->residentBytes);
         candidate->parameterDefaults = uploads.one(
             std::span<const NMParameterRangeGPU>(world.parameters),
@@ -780,11 +852,20 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femTetrahedra = uploads.one(
             std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
             valid, candidate->residentBytes);
+        candidate->femCapacities = uploads.one(
+            std::span<const NMFEMCapacityGPU>(world.fem.capacities),
+            valid, candidate->residentBytes);
+        candidate->cookedMutationCommands = uploads.one(
+            std::span<const NMMutationCommandGPU>(world.fem.mutationCommands),
+            valid, candidate->residentBytes);
         candidate->femNodeIncidence = uploads.one(
             std::span<const std::uint32_t>(world.fem.nodeIncidence),
             valid, candidate->residentBytes);
         candidate->femNodeRanges = uploads.one(
             std::span<const NMIncidenceRangeGPU>(world.fem.nodeRanges),
+            valid, candidate->residentBytes);
+        candidate->fieldBoundaries = uploads.one(
+            std::span<const NMFieldBoundaryGPU>(world.fem.fieldBoundaries),
             valid, candidate->residentBytes);
         candidate->rigidProxies = uploads.one(
             std::span<const NMRigidProxyGPU>(world.contact.rigidProxies),
@@ -928,6 +1009,42 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femCheckpoint = uploads.repeated(
             std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
             environments, valid, candidate->residentBytes);
+        candidate->femTetrahedraAccepted = uploads.repeated(
+            std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
+            environments, valid, candidate->residentBytes);
+        candidate->femTetrahedraCandidate = uploads.repeated(
+            std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
+            environments, valid, candidate->residentBytes);
+        candidate->femTetrahedraCheckpoint = uploads.repeated(
+            std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
+            environments, valid, candidate->residentBytes);
+        candidate->femTopologyNodesAccepted = uploads.repeated(
+            std::span<const NMFEMTopologyNodeGPU>(world.fem.topologyNodes),
+            environments, valid, candidate->residentBytes);
+        candidate->femTopologyNodesCandidate = uploads.repeated(
+            std::span<const NMFEMTopologyNodeGPU>(world.fem.topologyNodes),
+            environments, valid, candidate->residentBytes);
+        candidate->femTopologyNodesCheckpoint = uploads.repeated(
+            std::span<const NMFEMTopologyNodeGPU>(world.fem.topologyNodes),
+            environments, valid, candidate->residentBytes);
+        candidate->cohesiveFacesAccepted = uploads.repeated(
+            std::span<const NMCohesiveFaceGPU>(world.fem.cohesiveFaces),
+            environments, valid, candidate->residentBytes);
+        candidate->cohesiveFacesCandidate = uploads.repeated(
+            std::span<const NMCohesiveFaceGPU>(world.fem.cohesiveFaces),
+            environments, valid, candidate->residentBytes);
+        candidate->cohesiveFacesCheckpoint = uploads.repeated(
+            std::span<const NMCohesiveFaceGPU>(world.fem.cohesiveFaces),
+            environments, valid, candidate->residentBytes);
+        candidate->punctureChannelsAccepted = uploads.repeated(
+            std::span<const NMPunctureChannelGPU>(world.fem.punctureChannels),
+            environments, valid, candidate->residentBytes);
+        candidate->punctureChannelsCandidate = uploads.repeated(
+            std::span<const NMPunctureChannelGPU>(world.fem.punctureChannels),
+            environments, valid, candidate->residentBytes);
+        candidate->punctureChannelsCheckpoint = uploads.repeated(
+            std::span<const NMPunctureChannelGPU>(world.fem.punctureChannels),
+            environments, valid, candidate->residentBytes);
         candidate->femMaterialStateAccepted = uploads.repeated(
             std::span<const float>(femMaterialStateDefaults),
             environments, valid, candidate->residentBytes);
@@ -937,6 +1054,40 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femMaterialStateCheckpoint = uploads.repeated(
             std::span<const float>(femMaterialStateDefaults),
             environments, valid, candidate->residentBytes);
+        candidate->femFieldsAccepted = uploads.repeated(
+            std::span<const NMFEMFieldStateGPU>(world.fem.fields),
+            environments, valid, candidate->residentBytes);
+        candidate->femFieldsCandidate = uploads.repeated(
+            std::span<const NMFEMFieldStateGPU>(world.fem.fields),
+            environments, valid, candidate->residentBytes);
+        candidate->femFieldsCheckpoint = uploads.repeated(
+            std::span<const NMFEMFieldStateGPU>(world.fem.fields),
+            environments, valid, candidate->residentBytes);
+        candidate->femFieldsWork = uploads.repeated(
+            std::span<const NMFEMFieldStateGPU>(world.fem.fields),
+            environments, valid, candidate->residentBytes);
+        candidate->learnedWeightDefaults = uploads.one(
+            std::span<const float>(world.learnedWeights),
+            valid, candidate->residentBytes);
+        candidate->learnedWeightsAccepted = uploads.one(
+            std::span<const float>(world.learnedWeights),
+            valid, candidate->residentBytes);
+        candidate->learnedWeightsCandidate = uploads.one(
+            std::span<const float>(world.learnedWeights),
+            valid, candidate->residentBytes);
+        candidate->learnedWeightsCheckpoint = uploads.one(
+            std::span<const float>(world.learnedWeights),
+            valid, candidate->residentBytes);
+        const std::uint32_t initialLearnedRevision = 0u;
+        candidate->learnedRevisionAccepted = uploads.one(
+            std::span<const std::uint32_t>(&initialLearnedRevision, 1u),
+            valid, candidate->residentBytes);
+        candidate->learnedRevisionCandidate = uploads.one(
+            std::span<const std::uint32_t>(&initialLearnedRevision, 1u),
+            valid, candidate->residentBytes);
+        candidate->learnedRevisionCheckpoint = uploads.one(
+            std::span<const std::uint32_t>(&initialLearnedRevision, 1u),
+            valid, candidate->residentBytes);
         candidate->adaptive = uploads.repeated(
             std::span<const NMAdaptiveStateGPU>(world.adaptive),
             environments, valid, candidate->residentBytes);
@@ -1095,6 +1246,9 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->device, multiplied(world.dispatch.femNodeCount),
             valid, candidate->residentBytes);
         candidate->pcgScalars = privateScratch<NMPCGScalarGPU>(
+            candidate->device, multiplied(world.dispatch.objectCount),
+            valid, candidate->residentBytes);
+        candidate->solverCertificates = privateScratch<NMSolverCertificateGPU>(
             candidate->device, multiplied(world.dispatch.objectCount),
             valid, candidate->residentBytes);
         candidate->identificationCandidates =
@@ -1355,6 +1509,37 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 "matter reset-mask stream is missing or undersized";
             return diagnostics;
         }
+        if (request.learnedWeightUpdate != nullptr &&
+            request.phase == EncodePhase::preDynamics &&
+            (request.physicsSubstep != 0u ||
+             request.learnedWeightCount != state.dispatch.learnedWeightCount ||
+             request.learnedWeightRevision == 0u ||
+             (request.expectedLearnedFingerprint != 0u &&
+              request.expectedLearnedFingerprint != state.learnedFingerprint))) {
+            diagnostics.message =
+                "learned weights require a complete, newer first-substep candidate";
+            return diagnostics;
+        }
+        if (request.learnedWeightUpdate == nullptr &&
+            request.learnedWeightCount != 0u) {
+            diagnostics.message = "learned weight count has no borrowed buffer";
+            return diagnostics;
+        }
+        if (request.mutationCommandCount != 0u &&
+            request.phase == EncodePhase::preDynamics &&
+            (request.mutationCommands == nullptr ||
+             request.physicsSubstep != 0u ||
+             request.mutationCommandStride < sizeof(NMMutationCommandGPU))) {
+            diagnostics.message =
+                "mutation commands require a fixed-stride first-substep device stream";
+            return diagnostics;
+        }
+        if (request.mutationCommandCount != 0u &&
+            request.expectedMutationFingerprint != 0u &&
+            request.expectedMutationFingerprint != state.mutationFingerprint) {
+            diagnostics.message = "borrowed mutation fingerprint is stale";
+            return diagnostics;
+        }
         const float cookedTimestep =
             state.dispatch.gravityAndTimestep.w;
         const float frameTimestep = request.timestepSeconds > 0.0f
@@ -1529,6 +1714,15 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
         const NSUInteger bodyWrenchTotal =
             environments * state.reactionBodyCount;
         const NSUInteger objectTotal = environments * objects;
+        const NSUInteger mixedTransactionalTotal = std::max(
+            femNodeTotal, objectTotal
+        );
+        const NSUInteger topologyTransactionalTotal = environments * std::max({
+            static_cast<NSUInteger>(state.dispatch.femNodeCount),
+            static_cast<NSUInteger>(state.dispatch.tetrahedronCount),
+            static_cast<NSUInteger>(state.dispatch.cohesiveFaceCount),
+            static_cast<NSUInteger>(state.dispatch.punctureChannelCount)
+        });
 
         if (request.phase == EncodePhase::postCommit) {
             dispatchThreads(
@@ -1556,6 +1750,26 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:4u];
                 [encoder setBuffer:state.femMaterialStateCheckpoint offset:0u atIndex:5u];
             });
+            dispatchThreads("nm_topology_rollback", tetrahedronTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                [encoder setBuffer:state.femTetrahedraAccepted offset:0u atIndex:2u];
+                [encoder setBuffer:state.femTetrahedraCheckpoint offset:0u atIndex:3u];
+            });
+            dispatchThreads("nm_mixed_rollback", femNodeTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:2u];
+                [encoder setBuffer:state.femFieldsCheckpoint offset:0u atIndex:3u];
+            });
+            dispatchThreads("nm_learned_rollback", state.dispatch.learnedWeightCount, [&] {
+                setDispatch();
+                [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                [encoder setBuffer:state.learnedWeightsAccepted offset:0u atIndex:2u];
+                [encoder setBuffer:state.learnedWeightsCheckpoint offset:0u atIndex:3u];
+                [encoder setBuffer:state.learnedRevisionAccepted offset:0u atIndex:4u];
+                [encoder setBuffer:state.learnedRevisionCheckpoint offset:0u atIndex:5u];
+            });
             dispatchThreads("nm_scheduler_reconcile", objectTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
@@ -1577,7 +1791,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.objects offset:0u atIndex:1u];
                     [encoder setBuffer:state.particleAccepted offset:0u atIndex:2u];
                     [encoder setBuffer:state.femAccepted offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femTetrahedra offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femTetrahedraAccepted offset:0u atIndex:4u];
                     [encoder setBuffer:state.adaptive offset:0u atIndex:5u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:6u];
                 });
@@ -1890,6 +2104,56 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:3u];
                 [encoder setBuffer:state.femMaterialStateCheckpoint offset:0u atIndex:4u];
             });
+            dispatchThreads("nm_topology_checkpoint", topologyTransactionalTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.femTetrahedraAccepted offset:0u atIndex:1u];
+                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:2u];
+                [encoder setBuffer:state.femTetrahedraCheckpoint offset:0u atIndex:3u];
+                [encoder setBuffer:state.femTopologyNodesAccepted offset:0u atIndex:4u];
+                [encoder setBuffer:state.femTopologyNodesCandidate offset:0u atIndex:5u];
+                [encoder setBuffer:state.femTopologyNodesCheckpoint offset:0u atIndex:6u];
+                [encoder setBuffer:state.cohesiveFacesAccepted offset:0u atIndex:7u];
+                [encoder setBuffer:state.cohesiveFacesCandidate offset:0u atIndex:8u];
+                [encoder setBuffer:state.cohesiveFacesCheckpoint offset:0u atIndex:9u];
+                [encoder setBuffer:state.punctureChannelsAccepted offset:0u atIndex:10u];
+                [encoder setBuffer:state.punctureChannelsCandidate offset:0u atIndex:11u];
+                [encoder setBuffer:state.punctureChannelsCheckpoint offset:0u atIndex:12u];
+            });
+            dispatchThreads("nm_mixed_checkpoint", mixedTransactionalTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:1u];
+                [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:2u];
+                [encoder setBuffer:state.femFieldsCheckpoint offset:0u atIndex:3u];
+                [encoder setBuffer:state.solverCertificates offset:0u atIndex:4u];
+            });
+            dispatchThreads("nm_learned_checkpoint", state.dispatch.learnedWeightCount, [&] {
+                setDispatch();
+                [encoder setBuffer:state.learnedWeightsAccepted offset:0u atIndex:1u];
+                [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:2u];
+                [encoder setBuffer:state.learnedWeightsCheckpoint offset:0u atIndex:3u];
+                [encoder setBuffer:state.learnedRevisionAccepted offset:0u atIndex:4u];
+                [encoder setBuffer:state.learnedRevisionCandidate offset:0u atIndex:5u];
+                [encoder setBuffer:state.learnedRevisionCheckpoint offset:0u atIndex:6u];
+            });
+            if (request.learnedWeightUpdate != nullptr) {
+                id<MTLBuffer> learnedUpdate =
+                    (__bridge id<MTLBuffer>)request.learnedWeightUpdate;
+                dispatchThreads("nm_learned_stage_weights", state.dispatch.learnedWeightCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:learnedUpdate offset:0u atIndex:1u];
+                    [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                    [encoder setBuffer:state.learnedLayers offset:0u atIndex:4u];
+                    [encoder setBuffer:state.learnedRevisionAccepted offset:0u atIndex:5u];
+                    [encoder setBuffer:state.learnedRevisionCandidate offset:0u atIndex:6u];
+                    [encoder setBytes:&request.learnedWeightCount
+                               length:sizeof(request.learnedWeightCount)
+                              atIndex:7u];
+                    [encoder setBytes:&request.learnedWeightRevision
+                               length:sizeof(request.learnedWeightRevision)
+                              atIndex:8u];
+                });
+            }
         }
         dispatchThreads("nm_project_rigid_states", proxyTotal, [&] {
             setDispatch();
@@ -1930,6 +2194,54 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 float(microtick) * globalDt,
                 0.0f,
             };
+
+            if (firstPrePass && microtick == 0u) {
+                id<MTLBuffer> borrowedMutations = request.mutationCommands == nullptr
+                    ? state.dummy
+                    : (__bridge id<MTLBuffer>)request.mutationCommands;
+                dispatchThreads("nm_topology_apply_mutations", tetrahedronTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.cookedMutationCommands offset:0u atIndex:3u];
+                    [encoder setBuffer:borrowedMutations offset:0u atIndex:4u];
+                    [encoder setBytes:&request.mutationCommandCount
+                               length:sizeof(request.mutationCommandCount) atIndex:5u];
+                    [encoder setBytes:&request.mutationCommandStride
+                               length:sizeof(request.mutationCommandStride) atIndex:6u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                });
+            }
+
+            dispatchThreads("nm_mixed_prepare_microstep", femNodeTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:1u];
+                [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:2u];
+            });
+            for (std::uint32_t iteration = 0u;
+                 iteration < state.mixedSolverValue.blockIterations.z;
+                 ++iteration) {
+                id<MTLBuffer> source = (iteration & 1u) == 0u
+                    ? state.femFieldsCandidate : state.femFieldsWork;
+                id<MTLBuffer> destination = (iteration & 1u) == 0u
+                    ? state.femFieldsWork : state.femFieldsCandidate;
+                dispatchThreads("nm_mixed_transport_iteration", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:6u];
+                    [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:8u];
+                    [encoder setBuffer:source offset:0u atIndex:9u];
+                    [encoder setBuffer:destination offset:0u atIndex:10u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:11u];
+                });
+            }
 
             const NSUInteger sparsePrepareCount = std::max<NSUInteger>(
                 environments * state.dispatch.mpmBlockCount,
@@ -2049,12 +2361,17 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.instructions offset:0u atIndex:5u];
                 [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
-                [encoder setBuffer:state.femTetrahedra offset:0u atIndex:8u];
+                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
                 [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
                 [encoder setBuffer:state.adaptive offset:0u atIndex:11u];
                 [encoder setBuffer:state.elementForces offset:0u atIndex:12u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+                [encoder setBuffer:state.mixedMaterials offset:0u atIndex:14u];
+                [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:15u];
+                [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
+                [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
+                [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
             });
             dispatchThreads("nm_fem_pcg_initialize", femNodeTotal, [&] {
                 setDispatch();
@@ -2062,7 +2379,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:3u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
-                [encoder setBuffer:state.femTetrahedra offset:0u atIndex:5u];
+                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:5u];
                 [encoder setBuffer:state.elementForces offset:0u atIndex:6u];
                 [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:7u];
                 [encoder setBuffer:state.femNodeRanges offset:0u atIndex:8u];
@@ -2089,7 +2406,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.instructions offset:0u atIndex:5u];
                     [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
                     [encoder setBuffer:state.femAccepted offset:0u atIndex:7u];
-                    [encoder setBuffer:state.femTetrahedra offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
                     [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
                     [encoder setBuffer:state.femDirection offset:0u atIndex:10u];
                     [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
@@ -2103,7 +2420,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                     [encoder setBuffer:state.objects offset:0u atIndex:2u];
                     [encoder setBuffer:state.femAccepted offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femTetrahedra offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
                     [encoder setBuffer:state.elementOperator offset:0u atIndex:5u];
                     [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:6u];
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
@@ -2300,6 +2617,23 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                               atIndex:15u];
                 }
             );
+            dispatchThreads("nm_contact_certify_natural_map", objectTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.mixedSolver offset:0u atIndex:2u];
+                [encoder setBuffer:state.objects offset:0u atIndex:3u];
+                [encoder setBuffer:state.materials offset:0u atIndex:4u];
+                [encoder setBuffer:state.contactPairs offset:0u atIndex:5u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
+                [encoder setBuffer:state.contactSamples offset:0u atIndex:7u];
+                [encoder setBuffer:state.contactResponseRanges offset:0u atIndex:8u];
+                [encoder setBuffer:state.contactResponseColumns offset:0u atIndex:9u];
+                [encoder setBuffer:state.contactResponseValues offset:0u atIndex:10u];
+                [encoder setBytes:&state.contactResponseEntryCount
+                           length:sizeof(state.contactResponseEntryCount) atIndex:11u];
+                [encoder setBuffer:state.solverCertificates offset:0u atIndex:12u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+            });
             dispatchThreads(
                 "nm_contact_apply_nodes",
                 environments * (state.dispatch.gridNodeCount + state.dispatch.femNodeCount),
@@ -2352,6 +2686,18 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.adaptive offset:0u atIndex:5u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
             });
+            dispatchThreads("nm_mixed_pressure_update", femNodeTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:5u];
+                [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:6u];
+                [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
+                [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:8u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+            });
             dispatchThreads("nm_fem_validate", tetrahedronTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -2361,12 +2707,24 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.instructions offset:0u atIndex:5u];
                 [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
-                [encoder setBuffer:state.femTetrahedra offset:0u atIndex:8u];
+                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
                 [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
                 [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:11u];
                 [encoder setBuffer:state.femMaterialStateCandidate offset:0u atIndex:12u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+            });
+            dispatchGroups32("nm_mixed_certify", objectTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:state.femAccepted offset:0u atIndex:3u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:5u];
+                [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:6u];
+                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:7u];
+                [encoder setBuffer:state.solverCertificates offset:0u atIndex:8u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:9u];
             });
             dispatchThreads("nm_mpm_commit_microstep", particleTotal, [&] {
                 setDispatch();
@@ -2384,6 +2742,20 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:4u];
                 [encoder setBuffer:state.femMaterialStateCandidate offset:0u atIndex:5u];
             });
+            dispatchThreads("nm_mixed_commit", femNodeTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:2u];
+                [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:3u];
+            });
+            dispatchThreads("nm_learned_commit", state.dispatch.learnedWeightCount, [&] {
+                setDispatch();
+                [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                [encoder setBuffer:state.learnedWeightsAccepted offset:0u atIndex:2u];
+                [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:3u];
+                [encoder setBuffer:state.learnedRevisionAccepted offset:0u atIndex:4u];
+                [encoder setBuffer:state.learnedRevisionCandidate offset:0u atIndex:5u];
+            });
             dispatchGroups32("nm_scheduler_observe", objectTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -2394,7 +2766,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:6u];
                 [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:8u];
-                [encoder setBuffer:state.femTetrahedra offset:0u atIndex:9u];
+                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:9u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:10u];
                 [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
             });
@@ -2403,6 +2775,13 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
             });
         }
+
+        dispatchThreads("nm_topology_commit", tetrahedronTotal, [&] {
+            setDispatch();
+            [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+            [encoder setBuffer:state.femTetrahedraAccepted offset:0u atIndex:2u];
+            [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+        });
 
         dispatchThreads("nm_mpm_rollback_frame", particleTotal, [&] {
             setDispatch();
@@ -2419,6 +2798,26 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             [encoder setBuffer:state.femCheckpoint offset:0u atIndex:3u];
             [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:4u];
             [encoder setBuffer:state.femMaterialStateCheckpoint offset:0u atIndex:5u];
+        });
+        dispatchThreads("nm_topology_rollback", tetrahedronTotal, [&] {
+            setDispatch();
+            [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+            [encoder setBuffer:state.femTetrahedraAccepted offset:0u atIndex:2u];
+            [encoder setBuffer:state.femTetrahedraCheckpoint offset:0u atIndex:3u];
+        });
+        dispatchThreads("nm_mixed_rollback", femNodeTotal, [&] {
+            setDispatch();
+            [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+            [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:2u];
+            [encoder setBuffer:state.femFieldsCheckpoint offset:0u atIndex:3u];
+        });
+        dispatchThreads("nm_learned_rollback", state.dispatch.learnedWeightCount, [&] {
+            setDispatch();
+            [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+            [encoder setBuffer:state.learnedWeightsAccepted offset:0u atIndex:2u];
+            [encoder setBuffer:state.learnedWeightsCheckpoint offset:0u atIndex:3u];
+            [encoder setBuffer:state.learnedRevisionAccepted offset:0u atIndex:4u];
+            [encoder setBuffer:state.learnedRevisionCheckpoint offset:0u atIndex:5u];
         });
 
         dispatchThreads(
@@ -2565,6 +2964,14 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             copy(state_->particleMaterialStateAccepted);
         id<MTLBuffer> femMaterialState =
             copy(state_->femMaterialStateAccepted);
+        id<MTLBuffer> femFields = copy(state_->femFieldsAccepted);
+        id<MTLBuffer> solverCertificates = copy(state_->solverCertificates);
+        id<MTLBuffer> learnedWeights = copy(state_->learnedWeightsAccepted);
+        id<MTLBuffer> learnedRevision = copy(state_->learnedRevisionAccepted);
+        id<MTLBuffer> topologyNodes = copy(state_->femTopologyNodesAccepted);
+        id<MTLBuffer> topologyTetrahedra = copy(state_->femTetrahedraAccepted);
+        id<MTLBuffer> cohesiveFaces = copy(state_->cohesiveFacesAccepted);
+        id<MTLBuffer> punctureChannels = copy(state_->punctureChannelsAccepted);
         id<MTLBuffer> adaptive = copy(state_->adaptive);
         id<MTLBuffer> schedulers = copy(state_->schedulers);
         id<MTLBuffer> reactions = copy(state_->frameReactions);
@@ -2586,6 +2993,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             copy(state_->environmentParameters);
         if (particles == nil || femNodes == nil ||
             particleMaterialState == nil || femMaterialState == nil ||
+            femFields == nil || solverCertificates == nil ||
+            learnedWeights == nil || learnedRevision == nil ||
+            topologyNodes == nil || topologyTetrahedra == nil ||
+            cohesiveFaces == nil || punctureChannels == nil ||
             adaptive == nil || schedulers == nil || reactions == nil ||
             (state_->captureDiagnostics &&
              (contactSamples == nil || contactResponseRows == nil ||
@@ -2615,6 +3026,14 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             particleMaterialState
         );
         encodeCopy(state_->femMaterialStateAccepted, femMaterialState);
+        encodeCopy(state_->femFieldsAccepted, femFields);
+        encodeCopy(state_->solverCertificates, solverCertificates);
+        encodeCopy(state_->learnedWeightsAccepted, learnedWeights);
+        encodeCopy(state_->learnedRevisionAccepted, learnedRevision);
+        encodeCopy(state_->femTopologyNodesAccepted, topologyNodes);
+        encodeCopy(state_->femTetrahedraAccepted, topologyTetrahedra);
+        encodeCopy(state_->cohesiveFacesAccepted, cohesiveFaces);
+        encodeCopy(state_->punctureChannelsAccepted, punctureChannels);
         encodeCopy(state_->adaptive, adaptive);
         encodeCopy(state_->schedulers, schedulers);
         encodeCopy(state_->frameReactions, reactions);
@@ -2650,6 +3069,15 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         snapshot.materialStateStride = state_->dispatch.materialStateStride;
         read(particleMaterialState, snapshot.particleMaterialState);
         read(femMaterialState, snapshot.femMaterialState);
+        read(femFields, snapshot.femFields);
+        read(solverCertificates, snapshot.solverCertificates);
+        read(learnedWeights, snapshot.learnedWeights);
+        snapshot.learnedWeightRevision =
+            *static_cast<const std::uint32_t*>(learnedRevision.contents);
+        read(topologyNodes, snapshot.femTopologyNodes);
+        read(topologyTetrahedra, snapshot.femTopologyTetrahedra);
+        read(cohesiveFaces, snapshot.cohesiveFaces);
+        read(punctureChannels, snapshot.punctureChannels);
         read(adaptive, snapshot.adaptive);
         read(schedulers, snapshot.schedulers);
         read(reactions, snapshot.reactions);

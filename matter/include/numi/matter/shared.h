@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 7u
+#define NM_MATTER_ABI_VERSION 8u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -50,6 +50,14 @@ typedef struct NM_ALIGN16 nm_int4 {
 #define NM_MPM_MAX_PARTICLES_PER_BLOCK 256u
 #define NM_MAX_MATERIAL_STATE 16u
 #define NM_COUPLED_CONTACT_ITERATIONS 12u
+#define NM_MIXED_NEWTON_ITERATIONS 10u
+#define NM_MIXED_FGMRES_RESTART 16u
+#define NM_MIXED_FGMRES_ITERATIONS 48u
+#define NM_MIXED_LINE_SEARCH_STEPS 8u
+#define NM_MIXED_MUTATION_RESTARTS 4u
+#define NM_LEARNED_MAX_LAYERS 8u
+#define NM_LEARNED_MAX_WIDTH 16u
+#define NM_LEARNED_MAX_INVARIANTS 8u
 
 enum NMRepresentationKind : nm_u32 {
     NM_REPRESENTATION_RIGID = 0u,
@@ -64,6 +72,7 @@ enum NMConstitutiveKind : nm_u32 {
     NM_CONSTITUTIVE_DRUCKER_PRAGER = 3u,
     NM_CONSTITUTIVE_VON_MISES = 4u,
     NM_CONSTITUTIVE_VISCO_HYPERELASTIC = 5u,
+    NM_CONSTITUTIVE_POLYCONVEX_ICNN = 6u,
 };
 
 enum NMExpressionOpcode : nm_u32 {
@@ -101,6 +110,10 @@ enum NMStatusCode : nm_u32 {
     NM_STATUS_LINEAR_SOLVER_FAILURE = 7u,
     NM_STATUS_UNSUPPORTED = 8u,
     NM_STATUS_RIGID_WORLD_FAILURE = 9u,
+    NM_STATUS_NONLINEAR_SOLVER_FAILURE = 10u,
+    NM_STATUS_MULTIPHYSICS_FAILURE = 11u,
+    NM_STATUS_TOPOLOGY_FAILURE = 12u,
+    NM_STATUS_LEARNED_MATERIAL_FAILURE = 13u,
 };
 
 enum NMMaterialFlags : nm_u32 {
@@ -117,6 +130,10 @@ enum NMMatterFlags : nm_u32 {
     NM_MATTER_CONTACT = 1u << 1u,
     NM_MATTER_ADAPTIVE = 1u << 2u,
     NM_MATTER_IDENTIFICATION = 1u << 3u,
+    NM_MATTER_MIXED_FEM = 1u << 4u,
+    NM_MATTER_MULTIPHYSICS = 1u << 5u,
+    NM_MATTER_MUTATION = 1u << 6u,
+    NM_MATTER_LEARNED_MATERIAL = 1u << 7u,
 };
 
 enum NMObjectFlags : nm_u32 {
@@ -124,6 +141,42 @@ enum NMObjectFlags : nm_u32 {
     NM_OBJECT_TWO_WAY_COUPLED = 1u << 1u,
     NM_OBJECT_ADAPTIVE = 1u << 2u,
     NM_OBJECT_IDENTIFIABLE = 1u << 3u,
+    NM_OBJECT_MIXED_FEM = 1u << 4u,
+    NM_OBJECT_MULTIPHYSICS = 1u << 5u,
+    NM_OBJECT_MUTABLE_TOPOLOGY = 1u << 6u,
+};
+
+enum NMFieldBoundaryFlags : nm_u32 {
+    NM_FIELD_DIRICHLET_TEMPERATURE = 1u << 0u,
+    NM_FIELD_DIRICHLET_PORE_PRESSURE = 1u << 1u,
+    NM_FIELD_DIRICHLET_ELECTRIC_POTENTIAL = 1u << 2u,
+    NM_FIELD_DIRICHLET_ACTIVATION = 1u << 3u,
+    NM_FIELD_NEUMANN_TEMPERATURE = 1u << 4u,
+    NM_FIELD_NEUMANN_PORE_PRESSURE = 1u << 5u,
+    NM_FIELD_NEUMANN_ELECTRIC_CURRENT = 1u << 6u,
+};
+
+enum NMMutationKind : nm_u32 {
+    NM_MUTATION_COHESIVE_SEPARATION = 0u,
+    NM_MUTATION_PLANE_EROSION = 1u,
+    NM_MUTATION_CYLINDER_PUNCTURE = 2u,
+    NM_MUTATION_DEACTIVATE_TETRAHEDRON = 3u,
+};
+
+enum NMMutationFlags : nm_u32 {
+    NM_MUTATION_ACTIVE = 1u << 0u,
+    NM_MUTATION_PHYSICS_TRIGGERED = 1u << 1u,
+};
+
+enum NMTopologyFlags : nm_u32 {
+    NM_TOPOLOGY_ACTIVE = 1u << 0u,
+    NM_TOPOLOGY_SURFACE = 1u << 1u,
+    NM_TOPOLOGY_COHESIVE = 1u << 2u,
+    NM_TOPOLOGY_ERODED = 1u << 3u,
+};
+
+enum NMLearnedActivationKind : nm_u32 {
+    NM_LEARNED_SOFTPLUS = 0u,
 };
 
 enum NMRigidShapeKind : nm_u32 {
@@ -192,13 +245,156 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
     nm_u32 materialStateStride;
     nm_u32 stateInitialCount;
     nm_u32 coupledContactIterations;
-    nm_u32 reservedState1;
+    nm_u32 mixedMaterialCount;
+
+    nm_u32 fieldBoundaryCount;
+    nm_u32 cohesiveFaceCount;
+    nm_u32 mutationCommandCount;
+    nm_u32 learnedMaterialCount;
+
+    nm_u32 learnedLayerCount;
+    nm_u32 learnedWeightCount;
+    nm_u32 topologyNodeCapacity;
+    nm_u32 topologyTetrahedronCapacity;
+
+    nm_u32 punctureChannelCount;
+    nm_u32 femCapacityCount;
+    nm_u32 reservedMixed0;
+    nm_u32 reservedMixed1;
 
     // xyz gravity, w frame timestep.
     nm_float4 gravityAndTimestep;
     // contact slop, maximum depenetration speed, determinant floor, finite limit.
     nm_float4 numericalLimits;
 } NMMatterDispatchGPU;
+
+typedef struct NM_ALIGN16 NMMixedSolverGPU {
+    // Newton, FGMRES restart, total FGMRES, determinant backtracking.
+    nm_uint4 nonlinearIterations;
+    // Velocity PCG, pressure Schur PCG, field PCG, mutation restarts.
+    nm_uint4 blockIterations;
+    // relative residual, relative correction, volume, pressure.
+    nm_float4 nonlinearTolerances;
+    // natural map, cone, complementarity, energy.
+    nm_float4 contactTolerances;
+    // diagonal floor, initial LM shift, maximum LM shift, curvature tolerance.
+    nm_float4 regularization;
+    // Armijo coefficient, minimum absolute temperature, activation epsilon,
+    // pressure-projection stabilization.
+    nm_float4 globalization;
+} NMMixedSolverGPU;
+
+typedef struct NM_ALIGN16 NMFEMCapacityGPU {
+    // node capacity, tetrahedron capacity, cohesive-face capacity, channel capacity.
+    nm_uint4 topology;
+    // mutation-command capacity, incidence capacity, contact capacity, reserved.
+    nm_uint4 work;
+} NMFEMCapacityGPU;
+
+typedef struct NM_ALIGN16 NMMixedMaterialGPU {
+    // bulk modulus, thermal expansion, Biot coefficient, reference temperature.
+    nm_float4 mechanics;
+    // heat capacity, conductivity, heat source, electrical Joule fraction.
+    nm_float4 thermal;
+    // pore storage, permeability/viscosity, pore source, reserved.
+    nm_float4 porous;
+    // electrical conductivity, activation diffusivity, activation on/off rate.
+    nm_float4 electrical;
+    // reference fibre xyz, maximum active Cauchy tension.
+    nm_float4 fibre;
+    // activation threshold, activation slope, cohesive strength, fracture energy.
+    nm_float4 coupling;
+} NMMixedMaterialGPU;
+
+typedef struct NM_ALIGN16 NMFEMFieldStateGPU {
+    // mechanical pressure, temperature, pore pressure, electric potential.
+    nm_float4 primary;
+    // activation, previous log(J), accumulated Joule heat, flags-as-float.
+    nm_float4 secondary;
+} NMFEMFieldStateGPU;
+
+typedef struct NM_ALIGN16 NMFieldBoundaryGPU {
+    // global FEM node, object, flags, stable identifier.
+    nm_uint4 identity;
+    // Dirichlet temperature, pore pressure, electric potential, activation.
+    nm_float4 value;
+    // thermal flux, pore flux, electric current, reserved.
+    nm_float4 flux;
+} NMFieldBoundaryGPU;
+
+typedef struct NM_ALIGN16 NMFEMTopologyNodeGPU {
+    // source node, object, topology generation, flags.
+    nm_uint4 identity;
+} NMFEMTopologyNodeGPU;
+
+typedef struct NM_ALIGN16 NMFEMTopologyStateGPU {
+    // active nodes, active tetrahedra, active cohesive faces, active channels.
+    nm_uint4 counts;
+    // accepted arena, candidate arena, checkpoint arena, generation.
+    nm_uint4 roles;
+    // conserved mass, removed mass, removed energy, cohesive energy.
+    nm_float4 accounting;
+} NMFEMTopologyStateGPU;
+
+typedef struct NM_ALIGN16 NMCohesiveFaceGPU {
+    // three nodes and first tetrahedron.
+    nm_uint4 nodesAndFirst;
+    // second tetrahedron, object, stable identifier, flags.
+    nm_uint4 adjacency;
+    // damage, maximum opening, traction, fracture work.
+    nm_float4 state;
+    // rest normal xyz and rest area.
+    nm_float4 geometry;
+} NMCohesiveFaceGPU;
+
+typedef struct NM_ALIGN16 NMMutationCommandGPU {
+    // kind, object, stable identifier, flags.
+    nm_uint4 identity;
+    // control step, target tetrahedron/face, priority, reserved.
+    nm_uint4 schedule;
+    // plane normal or cylinder axis, w plane offset/radius.
+    nm_float4 geometry0;
+    // cylinder origin, w finite half length.
+    nm_float4 geometry1;
+} NMMutationCommandGPU;
+
+typedef struct NM_ALIGN16 NMPunctureChannelGPU {
+    // object, stable identifier, topology generation, flags.
+    nm_uint4 identity;
+    // origin xyz and radius.
+    nm_float4 originAndRadius;
+    // axis xyz and finite half length.
+    nm_float4 axisAndHalfLength;
+} NMPunctureChannelGPU;
+
+typedef struct NM_ALIGN16 NMLearnedMaterialGPU {
+    // first layer, layer count, first weight, weight count.
+    nm_uint4 layout;
+    // invariant count, material index, activation kind, flags.
+    nm_uint4 identity;
+    // softplus beta, determinant floor, growth coefficient, reserved.
+    nm_float4 policy;
+    // canonical content fingerprint low/high, accepted revision low/high.
+    nm_uint4 fingerprint;
+} NMLearnedMaterialGPU;
+
+typedef struct NM_ALIGN16 NMLearnedLayerGPU {
+    // input width, output width, first weight, first bias.
+    nm_uint4 layout;
+    // input skip offset, hidden recurrence offset, flags, reserved.
+    nm_uint4 routing;
+} NMLearnedLayerGPU;
+
+typedef struct NM_ALIGN16 NMSolverCertificateGPU {
+    // nonlinear residual, relative correction, volume residual, pressure residual.
+    nm_float4 nonlinear;
+    // natural residual, cone violation, complementarity, contact energy.
+    nm_float4 contact;
+    // thermal, pore, electric, activation residual.
+    nm_float4 transport;
+    // minimum determinant, minimum curvature, energy error, accepted flag.
+    nm_float4 validity;
+} NMSolverCertificateGPU;
 
 enum NMMicrostepFlags : nm_u32 {
     NM_MICROSTEP_CAPTURE_EVENTS = 1u << 0u,

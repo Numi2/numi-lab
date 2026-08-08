@@ -948,6 +948,93 @@ kernel void nm_contact_solve_coupled(
     }
 }
 
+kernel void nm_contact_certify_natural_map(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    constant NMMixedSolverGPU& solver [[buffer(2)]],
+    device const NMContinuumObjectGPU* objects [[buffer(3)]],
+    device const NMMaterialGPU* materials [[buffer(4)]],
+    device const NMContactPairGPU* pairs [[buffer(5)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(6)]],
+    device const NMContactSampleGPU* samples [[buffer(7)]],
+    device const NMIncidenceRangeGPU* responseRanges [[buffer(8)]],
+    device const uint* responseColumns [[buffer(9)]],
+    device const float* responseValues [[buffer(10)]],
+    constant uint& responseEntryCount [[buffer(11)]],
+    device NMSolverCertificateGPU* certificates [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (dispatch.objectCount == 0u || global >= total) return;
+    const uint environment = global / dispatch.objectCount;
+    const uint objectIndex = global - environment * dispatch.objectCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    float naturalResidual = 0.0f;
+    float coneViolation = 0.0f;
+    float complementarity = 0.0f;
+    float contactEnergy = 0.0f;
+    const uint sampleBase = environment * dispatch.contactPairCount;
+    const uint responseBase = environment * responseEntryCount;
+    for (uint pairIndex = 0u; pairIndex < dispatch.contactPairCount; ++pairIndex) {
+        const NMContactPairGPU pair = pairs[pairIndex];
+        if (pair.objectIndex != objectIndex) continue;
+        const NMContactSampleGPU sample = samples[sampleBase + pairIndex];
+        if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        float gapVelocity = sample.normalAndVelocity.w;
+        float diagonal = 0.0f;
+        const NMIncidenceRangeGPU range = responseRanges[pairIndex];
+        for (uint local = 0u; local < range.count; ++local) {
+            const uint entry = range.first + local;
+            if (entry >= responseEntryCount) continue;
+            const uint column = responseColumns[entry];
+            if (column >= dispatch.contactPairCount) continue;
+            const float response = responseValues[responseBase + entry];
+            gapVelocity += response * samples[sampleBase + column].impulseAndNormal.w;
+            if (column == pairIndex) diagonal = response;
+        }
+        if (!(diagonal > solver.regularization.x)) continue;
+        const float dt = objectTimestep(dispatch,
+            schedulers[environment * dispatch.objectCount + objectIndex]);
+        const float bias = min(max(
+            (dispatch.numericalLimits.x - sample.pointAndSeparation.w) /
+                max(dt, 1.0e-12f), 0.0f), dispatch.numericalLimits.y);
+        const float restitution = max(
+            materials[objects[objectIndex].materialIndex].interfaceResponse.z,
+            materials[pair.materialInterface].interfaceResponse.z);
+        const float bounce = sample.normalAndVelocity.w < -0.2f
+            ? -restitution * sample.normalAndVelocity.w : 0.0f;
+        const float residualVelocity = gapVelocity - bias - bounce;
+        const float lambda = sample.impulseAndNormal.w;
+        const float projected = max(lambda - residualVelocity / diagonal, 0.0f);
+        naturalResidual = max(naturalResidual, abs(lambda - projected));
+        complementarity = max(complementarity,
+            abs(lambda * max(residualVelocity, 0.0f)) /
+                (1.0f + abs(lambda) + abs(residualVelocity)));
+        const float friction = sqrt(max(
+            materials[objects[objectIndex].materialIndex].interfaceResponse.y *
+            materials[pair.materialInterface].interfaceResponse.y, 0.0f));
+        const float tangent = sample.angularImpulseAndTangent.w;
+        coneViolation = max(coneViolation,
+            max(tangent - friction * lambda, 0.0f));
+        contactEnergy += lambda * residualVelocity;
+    }
+    NMSolverCertificateGPU certificate = certificates[global];
+    certificate.contact = float4(
+        naturalResidual, coneViolation, complementarity, contactEnergy
+    );
+    certificates[global] = certificate;
+    if (!isfinite(naturalResidual) || !isfinite(coneViolation) ||
+        !isfinite(complementarity) || !isfinite(contactEnergy) ||
+        naturalResidual > solver.contactTolerances.x ||
+        coneViolation > solver.contactTolerances.y ||
+        complementarity > solver.contactTolerances.z ||
+        contactEnergy > solver.contactTolerances.w) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            objectIndex, NM_INVALID_INDEX, certificate.contact);
+    }
+}
+
 kernel void nm_contact_apply_nodes(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const uint* nodeIncidence [[buffer(1)]],

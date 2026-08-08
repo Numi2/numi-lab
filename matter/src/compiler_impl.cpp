@@ -174,6 +174,143 @@ using Mat3 = std::array<double, 9>;
     return result;
 }
 
+[[nodiscard]] double mixedBulkModulus(const MaterialProgram& material) {
+    if (material.mixed.bulkModulus > 0.0 &&
+        finite(material.mixed.bulkModulus)) {
+        return material.mixed.bulkModulus;
+    }
+    const double mu = parameterValue(material, "mu", 0.0);
+    const double lambda = parameterValue(material, "lambda", 0.0);
+    const double inferred = lambda + (2.0 / 3.0) * mu;
+    if (inferred > 0.0 && finite(inferred)) {
+        return inferred;
+    }
+    double fallback = 0.0;
+    for (const Parameter& parameter : material.parameters) {
+        if (parameter.dimension == kPressure &&
+            parameter.defaultValue > 0.0 &&
+            finite(parameter.defaultValue)) {
+            fallback = std::max(fallback, parameter.defaultValue);
+        }
+    }
+    return fallback;
+}
+
+[[nodiscard]] bool finiteMixedMaterial(const MixedMaterialSource& value) {
+    const std::array<double, 20> scalars{
+        value.bulkModulus,
+        value.thermalExpansion,
+        value.biotCoefficient,
+        value.referenceTemperature,
+        value.heatCapacity,
+        value.thermalConductivity,
+        value.heatSource,
+        value.jouleHeatFraction,
+        value.poreStorage,
+        value.poreMobility,
+        value.poreSource,
+        value.electricalConductivity,
+        value.activationDiffusivity,
+        value.activationOnRate,
+        value.activationOffRate,
+        value.maximumActiveTension,
+        value.activationThreshold,
+        value.activationSlope,
+        value.cohesiveStrength,
+        value.fractureEnergy,
+    };
+    return std::ranges::all_of(scalars, [](const double scalar) {
+        return finite(scalar);
+    }) && finite(value.fibreDirection);
+}
+
+[[nodiscard]] NMMixedSolverGPU cookMixedSolver(
+    const MixedSolverSource& source
+) {
+    NMMixedSolverGPU result{};
+    result.nonlinearIterations = {
+        source.newtonIterations,
+        source.fgmresRestart,
+        source.fgmresIterations,
+        source.lineSearchSteps,
+    };
+    result.blockIterations = {
+        source.velocityPCGIterations,
+        source.pressurePCGIterations,
+        source.fieldPCGIterations,
+        source.mutationRestarts,
+    };
+    result.nonlinearTolerances = f4(
+        source.relativeResidual,
+        source.relativeCorrection,
+        source.volumeTolerance,
+        source.pressureTolerance
+    );
+    result.contactTolerances = f4(
+        source.naturalResidualTolerance,
+        source.coneTolerance,
+        source.complementarityTolerance,
+        source.energyTolerance
+    );
+    result.regularization = f4(
+        source.diagonalFloor,
+        source.initialLMShift,
+        source.maximumLMShift,
+        source.curvatureTolerance
+    );
+    result.globalization = f4(
+        source.armijo,
+        source.minimumTemperature,
+        source.activationEpsilon,
+        source.pressureStabilization
+    );
+    return result;
+}
+
+[[nodiscard]] NMMixedMaterialGPU cookMixedMaterial(
+    const MaterialProgram& material
+) {
+    const MixedMaterialSource& source = material.mixed;
+    NMMixedMaterialGPU result{};
+    result.mechanics = f4(
+        mixedBulkModulus(material),
+        source.thermalExpansion,
+        source.biotCoefficient,
+        source.referenceTemperature
+    );
+    result.thermal = f4(
+        source.heatCapacity,
+        source.thermalConductivity,
+        source.heatSource,
+        source.jouleHeatFraction
+    );
+    result.porous = f4(
+        source.poreStorage,
+        source.poreMobility,
+        source.poreSource,
+        0.0
+    );
+    result.electrical = f4(
+        source.electricalConductivity,
+        source.activationDiffusivity,
+        source.activationOnRate,
+        source.activationOffRate
+    );
+    result.fibre = f4(
+        source.fibreDirection[0],
+        source.fibreDirection[1],
+        source.fibreDirection[2],
+        source.maximumActiveTension
+    );
+    result.coupling = f4(
+        source.activationThreshold,
+        source.activationSlope,
+        source.cohesiveStrength,
+        source.fractureEnergy
+    );
+    return result;
+}
+
 [[nodiscard]] std::uint32_t rateExponent(
     const ObjectSource& object,
     const MaterialProgram& material,
@@ -334,6 +471,48 @@ void validateWorld(
             "identification candidate count must be even and no larger than environment count",
         });
     }
+    const MixedSolverSource& solver = source.mixedSolver;
+    const std::array<std::uint32_t, 8> budgets{
+        solver.newtonIterations,
+        solver.fgmresRestart,
+        solver.fgmresIterations,
+        solver.lineSearchSteps,
+        solver.velocityPCGIterations,
+        solver.pressurePCGIterations,
+        solver.fieldPCGIterations,
+        solver.mutationRestarts,
+    };
+    const std::array<double, 16> tolerances{
+        solver.relativeResidual,
+        solver.relativeCorrection,
+        solver.volumeTolerance,
+        solver.pressureTolerance,
+        solver.naturalResidualTolerance,
+        solver.coneTolerance,
+        solver.complementarityTolerance,
+        solver.energyTolerance,
+        solver.diagonalFloor,
+        solver.initialLMShift,
+        solver.maximumLMShift,
+        solver.curvatureTolerance,
+        solver.armijo,
+        solver.minimumTemperature,
+        solver.activationEpsilon,
+        solver.pressureStabilization,
+    };
+    if (std::ranges::any_of(budgets, [](const std::uint32_t value) {
+            return value == 0u;
+        }) || solver.fgmresRestart > solver.fgmresIterations ||
+        std::ranges::any_of(tolerances, [](const double value) {
+            return !finite(value) || value < 0.0;
+        }) || !(solver.maximumLMShift >= solver.initialLMShift) ||
+        !(solver.minimumTemperature > 0.0) ||
+        !(solver.activationEpsilon > 0.0 && solver.activationEpsilon < 0.5)) {
+        diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "mixed solver policy is finite, positive, and bounded",
+        });
+    }
 }
 
 } // namespace
@@ -345,6 +524,7 @@ CompileResult compileWorld(
     CompileResult result;
     validateWorld(source, options, result.diagnostics);
     CompiledWorld& world = result.world;
+    world.mixedSolver = cookMixedSolver(source.mixedSolver);
 
     if (!result.succeeded()) {
         return result;
@@ -352,7 +532,28 @@ CompileResult compileWorld(
 
     world.constitutive.reserve(source.materials.size());
     world.materials.reserve(source.materials.size());
+    world.mixedMaterials.reserve(source.materials.size());
     for (const MaterialProgram& material : source.materials) {
+        if (!finiteMixedMaterial(material.mixed) ||
+            !(mixedBulkModulus(material) > 0.0) ||
+            material.mixed.thermalExpansion < 0.0 ||
+            material.mixed.biotCoefficient < 0.0 ||
+            material.mixed.biotCoefficient > 1.0 ||
+            material.mixed.heatCapacity < 0.0 ||
+            material.mixed.thermalConductivity < 0.0 ||
+            material.mixed.poreStorage < 0.0 ||
+            material.mixed.poreMobility < 0.0 ||
+            material.mixed.electricalConductivity < 0.0 ||
+            material.mixed.activationDiffusivity < 0.0 ||
+            material.mixed.activationOnRate < 0.0 ||
+            material.mixed.activationOffRate < 0.0) {
+            result.diagnostics.push_back({
+                Diagnostic::Severity::error, 0u, 0u,
+                "material '" + material.name +
+                    "' has an invalid mixed or multiphysics contract",
+            });
+            continue;
+        }
         detail::ConstitutiveCompileResult compiled =
             detail::compileConstitutive(material, options.maximumExpressionStack);
         result.diagnostics.insert(
@@ -447,7 +648,136 @@ CompileResult compileWorld(
             program.parameters.end()
         );
         world.materials.push_back(program.gpu);
+        world.mixedMaterials.push_back(cookMixedMaterial(material));
         world.constitutive.push_back(std::move(program));
+        if (material.learned.has_value()) {
+            const LearnedMaterialSource& learned = *material.learned;
+            bool learnedValid =
+                learned.invariantCount >= 4u &&
+                learned.invariantCount <= NM_LEARNED_MAX_INVARIANTS &&
+                learned.softplusBeta > 0.0f &&
+                learned.determinantFloor > 0.0f &&
+                learned.growthCoefficient >= 0.0f &&
+                !learned.layers.empty() &&
+                learned.layers.size() <= NM_LEARNED_MAX_LAYERS;
+            const std::size_t firstLayer = world.learnedLayers.size();
+            const std::size_t firstWeight = world.learnedWeights.size();
+            std::uint32_t previousWidth = 0u;
+            for (std::size_t layerIndex = 0u;
+                 layerIndex < learned.layers.size();
+                 ++layerIndex) {
+                const LearnedLayerSource& layer = learned.layers[layerIndex];
+                const std::uint64_t inputCount =
+                    static_cast<std::uint64_t>(layer.inputWidth) *
+                    layer.outputWidth;
+                const std::uint64_t recurrentCount =
+                    static_cast<std::uint64_t>(previousWidth) *
+                    layer.outputWidth;
+                learnedValid = learnedValid &&
+                    layer.inputWidth == learned.invariantCount &&
+                    layer.outputWidth > 0u &&
+                    layer.outputWidth <= NM_LEARNED_MAX_WIDTH &&
+                    inputCount == layer.inputWeights.size() &&
+                    recurrentCount == layer.recurrentWeights.size() &&
+                    layer.biases.size() == layer.outputWidth &&
+                    std::ranges::all_of(
+                        layer.inputWeights,
+                        [](const float value) {
+                            return std::isfinite(value) && value >= 0.0f;
+                        }
+                    ) &&
+                    std::ranges::all_of(
+                        layer.recurrentWeights,
+                        [](const float value) {
+                            return std::isfinite(value) && value >= 0.0f;
+                        }
+                    ) &&
+                    std::ranges::all_of(
+                        layer.biases,
+                        [](const float value) { return std::isfinite(value); }
+                    );
+                NMLearnedLayerGPU cooked{};
+                cooked.layout = {
+                    layer.inputWidth,
+                    layer.outputWidth,
+                    static_cast<nm_u32>(world.learnedWeights.size()),
+                    0u,
+                };
+                world.learnedWeights.insert(
+                    world.learnedWeights.end(),
+                    layer.inputWeights.begin(),
+                    layer.inputWeights.end()
+                );
+                cooked.routing.x = static_cast<nm_u32>(
+                    world.learnedWeights.size()
+                );
+                world.learnedWeights.insert(
+                    world.learnedWeights.end(),
+                    layer.recurrentWeights.begin(),
+                    layer.recurrentWeights.end()
+                );
+                cooked.layout.w = static_cast<nm_u32>(
+                    world.learnedWeights.size()
+                );
+                world.learnedWeights.insert(
+                    world.learnedWeights.end(),
+                    layer.biases.begin(),
+                    layer.biases.end()
+                );
+                world.learnedLayers.push_back(cooked);
+                previousWidth = layer.outputWidth;
+            }
+            learnedValid = learnedValid && previousWidth == 1u &&
+                world.learnedLayers.size() <=
+                    std::numeric_limits<std::uint32_t>::max() &&
+                world.learnedWeights.size() <=
+                    std::numeric_limits<std::uint32_t>::max();
+            if (!learnedValid) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "learned material '" + material.name +
+                        "' violates the canonical polyconvex ICNN contract",
+                });
+                world.learnedLayers.resize(firstLayer);
+                world.learnedWeights.resize(firstWeight);
+                continue;
+            }
+            std::uint64_t fingerprint = learned.fingerprint;
+            if (fingerprint == 0u) {
+                fingerprint = detail::hashBytes(
+                    world.learnedWeights.data() + firstWeight,
+                    (world.learnedWeights.size() - firstWeight) * sizeof(float)
+                );
+            }
+            NMLearnedMaterialGPU descriptor{};
+            descriptor.layout = {
+                static_cast<nm_u32>(firstLayer),
+                static_cast<nm_u32>(learned.layers.size()),
+                static_cast<nm_u32>(firstWeight),
+                static_cast<nm_u32>(world.learnedWeights.size() - firstWeight),
+            };
+            descriptor.identity = {
+                learned.invariantCount,
+                static_cast<nm_u32>(world.materials.size() - 1u),
+                NM_LEARNED_SOFTPLUS,
+                0u,
+            };
+            descriptor.policy = f4(
+                learned.softplusBeta,
+                learned.determinantFloor,
+                learned.growthCoefficient,
+                0.0
+            );
+            descriptor.fingerprint = {
+                static_cast<nm_u32>(fingerprint),
+                static_cast<nm_u32>(fingerprint >> 32u),
+                0u,
+                0u,
+            };
+            world.learnedMaterials.push_back(descriptor);
+            world.materials.back().constitutiveKind =
+                NM_CONSTITUTIVE_POLYCONVEX_ICNN;
+        }
     }
 
     if (!result.succeeded() || world.materials.size() != source.materials.size()) {
@@ -559,7 +889,13 @@ CompileResult compileWorld(
         descriptor.flags = NM_OBJECT_ACTIVE |
             (object.twoWayCoupling ? NM_OBJECT_TWO_WAY_COUPLED : 0u) |
             (object.adaptive ? NM_OBJECT_ADAPTIVE : 0u) |
-            (object.identifiable ? NM_OBJECT_IDENTIFIABLE : 0u);
+            (object.identifiable ? NM_OBJECT_IDENTIFIABLE : 0u) |
+            (representation == Representation::fem && object.mixedFEM
+                ? NM_OBJECT_MIXED_FEM : 0u) |
+            (representation == Representation::fem && object.multiphysics.enabled
+                ? NM_OBJECT_MULTIPHYSICS : 0u) |
+            (representation == Representation::fem && object.mutationPolicy.enabled
+                ? NM_OBJECT_MUTABLE_TOPOLOGY : 0u);
         descriptor.schedulerIndex = objectIndex;
         descriptor.rigidBinding = object.rigidBinding;
         descriptor.topologyGeneration = 1u;
@@ -576,6 +912,7 @@ CompileResult compileWorld(
             object.demotionStrain
         );
 
+        NMFEMCapacityGPU cookedFEMCapacity{};
         if (representation == Representation::mpm) {
             if (object.particles.empty()) {
                 result.diagnostics.push_back({
@@ -931,9 +1268,28 @@ CompileResult compileWorld(
                 });
                 return result;
             }
+            const std::size_t nodeCapacity = object.femCapacity.nodes == 0u
+                ? object.femNodes.size()
+                : object.femCapacity.nodes;
+            const std::size_t tetrahedronCapacity =
+                object.femCapacity.tetrahedra == 0u
+                    ? object.tetrahedra.size()
+                    : object.femCapacity.tetrahedra;
+            if (nodeCapacity < object.femNodes.size() ||
+                tetrahedronCapacity < object.tetrahedra.size() ||
+                nodeCapacity > std::numeric_limits<std::uint32_t>::max() ||
+                tetrahedronCapacity > std::numeric_limits<std::uint32_t>::max()) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "FEM object '" + object.name +
+                        "' has topology capacity below authored topology",
+                });
+                return result;
+            }
             descriptor.stateOffset = static_cast<nm_u32>(world.fem.nodes.size());
-            descriptor.stateCount = static_cast<nm_u32>(object.femNodes.size());
+            descriptor.stateCount = static_cast<nm_u32>(nodeCapacity);
             descriptor.elementOffset = static_cast<nm_u32>(world.fem.tetrahedra.size());
+            std::uint32_t sourceNodeIndex = 0u;
             for (const Vec3& sourceNode : object.femNodes) {
                 NMFEMNodeStateGPU node{};
                 node.positionAndMass = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
@@ -946,9 +1302,87 @@ CompileResult compileWorld(
                 node.restAndFixed = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
                 world.fem.nodes.push_back(node);
                 femNodeObjects.push_back(objectIndex);
+                NMFEMTopologyNodeGPU topologyNode{};
+                topologyNode.identity = {
+                    sourceNodeIndex++,
+                    objectIndex,
+                    1u,
+                    NM_TOPOLOGY_ACTIVE,
+                };
+                world.fem.topologyNodes.push_back(topologyNode);
+                NMFEMFieldStateGPU field{};
+                field.primary = f4(
+                    object.multiphysics.initialMechanicalPressure,
+                    object.multiphysics.initialTemperature,
+                    object.multiphysics.initialPorePressure,
+                    object.multiphysics.initialElectricPotential
+                );
+                field.secondary = f4(
+                    object.multiphysics.initialActivation,
+                    0.0,
+                    0.0,
+                    object.multiphysics.enabled ? 1.0 : 0.0
+                );
+                world.fem.fields.push_back(field);
+            }
+            for (std::size_t local = object.femNodes.size();
+                 local < nodeCapacity;
+                 ++local) {
+                world.fem.nodes.push_back({});
+                femNodeObjects.push_back(objectIndex);
+                NMFEMTopologyNodeGPU topologyNode{};
+                topologyNode.identity = {
+                    static_cast<nm_u32>(local),
+                    objectIndex,
+                    1u,
+                    0u,
+                };
+                world.fem.topologyNodes.push_back(topologyNode);
+                NMFEMFieldStateGPU field{};
+                field.primary.y = static_cast<float>(
+                    object.multiphysics.initialTemperature
+                );
+                world.fem.fields.push_back(field);
+            }
+            for (const FieldBoundarySource& boundary : object.fieldBoundaries) {
+                if (boundary.node >= object.femNodes.size() ||
+                    (boundary.flags & ~(NM_FIELD_DIRICHLET_TEMPERATURE |
+                        NM_FIELD_DIRICHLET_PORE_PRESSURE |
+                        NM_FIELD_DIRICHLET_ELECTRIC_POTENTIAL |
+                        NM_FIELD_DIRICHLET_ACTIVATION |
+                        NM_FIELD_NEUMANN_TEMPERATURE |
+                        NM_FIELD_NEUMANN_PORE_PRESSURE |
+                        NM_FIELD_NEUMANN_ELECTRIC_CURRENT)) != 0u ||
+                    !std::ranges::all_of(
+                        boundary.value,
+                        [](const double value) { return finite(value); }
+                    ) ||
+                    !finite(boundary.flux)) {
+                    result.diagnostics.push_back({
+                        Diagnostic::Severity::error, 0u, 0u,
+                        "FEM object '" + object.name +
+                            "' contains an invalid field boundary",
+                    });
+                    return result;
+                }
+                NMFieldBoundaryGPU cooked{};
+                cooked.identity = {
+                    descriptor.stateOffset + boundary.node,
+                    objectIndex,
+                    boundary.flags,
+                    boundary.stableIdentifier,
+                };
+                cooked.value = f4(
+                    boundary.value[0], boundary.value[1],
+                    boundary.value[2], boundary.value[3]
+                );
+                cooked.flux = f4(
+                    boundary.flux[0], boundary.flux[1], boundary.flux[2], 0.0
+                );
+                world.fem.fieldBoundaries.push_back(cooked);
             }
             const double rho = density(material);
-            std::vector<double> localMass(object.femNodes.size(), 0.0);
+            std::vector<double> localMass(nodeCapacity, 0.0);
             for (const TetrahedronSource& sourceTet : object.tetrahedra) {
                 if (std::ranges::any_of(sourceTet.nodes, [&](const std::uint32_t node) {
                     return node >= object.femNodes.size();
@@ -1026,6 +1460,173 @@ CompileResult compileWorld(
             }
             descriptor.elementCount =
                 static_cast<nm_u32>(world.fem.tetrahedra.size()) - descriptor.elementOffset;
+
+            using FaceKey = std::array<std::uint32_t, 3>;
+            std::map<FaceKey, std::vector<std::uint32_t>> faceAdjacency;
+            constexpr std::array<std::array<std::uint32_t, 3>, 4> kFaces{{
+                {{1u, 2u, 3u}},
+                {{0u, 3u, 2u}},
+                {{0u, 1u, 3u}},
+                {{0u, 2u, 1u}},
+            }};
+            for (std::uint32_t localTet = 0u;
+                 localTet < object.tetrahedra.size();
+                 ++localTet) {
+                const TetrahedronSource& sourceTet = object.tetrahedra[localTet];
+                for (const auto& localFace : kFaces) {
+                    FaceKey key{
+                        sourceTet.nodes[localFace[0]],
+                        sourceTet.nodes[localFace[1]],
+                        sourceTet.nodes[localFace[2]],
+                    };
+                    std::ranges::sort(key);
+                    faceAdjacency[key].push_back(
+                        descriptor.elementOffset + localTet
+                    );
+                }
+            }
+            std::size_t internalFaceCount = 0u;
+            for (const auto& [key, adjacent] : faceAdjacency) {
+                (void)key;
+                if (adjacent.size() == 2u) {
+                    ++internalFaceCount;
+                }
+            }
+            const std::size_t cohesiveCapacity =
+                object.femCapacity.cohesiveFaces == 0u
+                    ? (object.mutationPolicy.cohesiveFracture
+                        ? internalFaceCount : 0u)
+                    : object.femCapacity.cohesiveFaces;
+            if (cohesiveCapacity < internalFaceCount &&
+                object.mutationPolicy.cohesiveFracture) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "FEM object '" + object.name +
+                        "' has insufficient cohesive-face capacity",
+                });
+                return result;
+            }
+            const std::size_t firstCohesive = world.fem.cohesiveFaces.size();
+            if (object.mutationPolicy.cohesiveFracture) {
+                std::uint32_t stableFace = 0u;
+                for (const auto& [key, adjacent] : faceAdjacency) {
+                    if (adjacent.size() != 2u) {
+                        continue;
+                    }
+                    const Vec3& x0 = object.femNodes[key[0]];
+                    const Vec3& x1 = object.femNodes[key[1]];
+                    const Vec3& x2 = object.femNodes[key[2]];
+                    const Vec3 e0 = subtract(x1, x0);
+                    const Vec3 e1 = subtract(x2, x0);
+                    const Vec3 cross{
+                        e0[1] * e1[2] - e0[2] * e1[1],
+                        e0[2] * e1[0] - e0[0] * e1[2],
+                        e0[0] * e1[1] - e0[1] * e1[0],
+                    };
+                    const double twiceArea = std::sqrt(
+                        cross[0] * cross[0] + cross[1] * cross[1] +
+                        cross[2] * cross[2]
+                    );
+                    NMCohesiveFaceGPU face{};
+                    face.nodesAndFirst = {
+                        descriptor.stateOffset + key[0],
+                        descriptor.stateOffset + key[1],
+                        descriptor.stateOffset + key[2],
+                        adjacent[0],
+                    };
+                    face.adjacency = {
+                        adjacent[1], objectIndex, stableFace++,
+                        NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_COHESIVE,
+                    };
+                    if (twiceArea > 0.0) {
+                        face.geometry = f4(
+                            cross[0] / twiceArea,
+                            cross[1] / twiceArea,
+                            cross[2] / twiceArea,
+                            0.5 * twiceArea
+                        );
+                    }
+                    world.fem.cohesiveFaces.push_back(face);
+                }
+            }
+            world.fem.cohesiveFaces.resize(
+                firstCohesive + cohesiveCapacity
+            );
+
+            const std::size_t firstMutation = world.fem.mutationCommands.size();
+            const std::size_t mutationCapacity =
+                object.femCapacity.mutationCommands == 0u
+                    ? object.mutationCommands.size()
+                    : object.femCapacity.mutationCommands;
+            if (mutationCapacity < object.mutationCommands.size()) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "FEM object '" + object.name +
+                        "' has insufficient mutation-command capacity",
+                });
+                return result;
+            }
+            for (const MutationCommandSource& command : object.mutationCommands) {
+                NMMutationCommandGPU cooked{};
+                cooked.identity = {
+                    static_cast<nm_u32>(command.kind), objectIndex,
+                    command.stableIdentifier, NM_MUTATION_ACTIVE,
+                };
+                cooked.schedule = {
+                    command.controlStep, command.target, command.priority, 0u,
+                };
+                cooked.geometry0 = f4(
+                    command.geometry0[0], command.geometry0[1],
+                    command.geometry0[2], command.geometry0[3]
+                );
+                cooked.geometry1 = f4(
+                    command.geometry1[0], command.geometry1[1],
+                    command.geometry1[2], command.geometry1[3]
+                );
+                world.fem.mutationCommands.push_back(cooked);
+            }
+            std::ranges::sort(
+                world.fem.mutationCommands.begin() + firstMutation,
+                world.fem.mutationCommands.end(),
+                [](const NMMutationCommandGPU& left,
+                   const NMMutationCommandGPU& right) {
+                    return std::tuple{
+                        left.schedule.x, left.schedule.z, left.identity.z,
+                        left.schedule.y
+                    } < std::tuple{
+                        right.schedule.x, right.schedule.z, right.identity.z,
+                        right.schedule.y
+                    };
+                }
+            );
+            world.fem.mutationCommands.resize(firstMutation + mutationCapacity);
+
+            const std::size_t firstChannel = world.fem.punctureChannels.size();
+            world.fem.punctureChannels.resize(
+                firstChannel + object.femCapacity.punctureChannels
+            );
+            cookedFEMCapacity.topology = {
+                static_cast<nm_u32>(nodeCapacity),
+                static_cast<nm_u32>(tetrahedronCapacity),
+                static_cast<nm_u32>(cohesiveCapacity),
+                object.femCapacity.punctureChannels,
+            };
+            const std::uint64_t contactCapacity =
+                static_cast<std::uint64_t>(nodeCapacity) *
+                world.contact.rigidProxies.size();
+            if (contactCapacity > std::numeric_limits<nm_u32>::max()) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "FEM contact capacity exceeds the 32-bit ABI",
+                });
+                return result;
+            }
+            cookedFEMCapacity.work = {
+                static_cast<nm_u32>(mutationCapacity),
+                static_cast<nm_u32>(nodeCapacity * 4u),
+                static_cast<nm_u32>(contactCapacity),
+                0u,
+            };
         }
 
         NMAdaptiveStateGPU adaptive{};
@@ -1120,6 +1721,7 @@ CompileResult compileWorld(
             1.0e-3
         );
         world.schedulers.push_back(scheduler);
+        world.fem.capacities.push_back(cookedFEMCapacity);
         world.objects.push_back(descriptor);
     }
 
@@ -1263,6 +1865,17 @@ CompileResult compileWorld(
             return object.adaptive;
         }) ? NM_MATTER_ADAPTIVE : 0u) |
         (!world.identification.empty() ? NM_MATTER_IDENTIFICATION : 0u);
+    dispatch.flags |=
+        (std::ranges::any_of(world.objects, [](const NMContinuumObjectGPU& object) {
+            return (object.flags & NM_OBJECT_MIXED_FEM) != 0u;
+        }) ? NM_MATTER_MIXED_FEM : 0u) |
+        (std::ranges::any_of(world.objects, [](const NMContinuumObjectGPU& object) {
+            return (object.flags & NM_OBJECT_MULTIPHYSICS) != 0u;
+        }) ? NM_MATTER_MULTIPHYSICS : 0u) |
+        (std::ranges::any_of(world.objects, [](const NMContinuumObjectGPU& object) {
+            return (object.flags & NM_OBJECT_MUTABLE_TOPOLOGY) != 0u;
+        }) ? NM_MATTER_MUTATION : 0u) |
+        (!world.learnedMaterials.empty() ? NM_MATTER_LEARNED_MATERIAL : 0u);
     dispatch.environmentCount = source.environmentCount;
     dispatch.objectCount = static_cast<nm_u32>(world.objects.size());
     dispatch.materialCount = static_cast<nm_u32>(world.materials.size());
@@ -1307,6 +1920,38 @@ CompileResult compileWorld(
     // contact-space PGS pass, so the iteration budget is part of the
     // executable ABI and package fingerprint rather than a host-side knob.
     dispatch.coupledContactIterations = NM_COUPLED_CONTACT_ITERATIONS;
+    dispatch.mixedMaterialCount = static_cast<nm_u32>(world.mixedMaterials.size());
+    dispatch.fieldBoundaryCount =
+        static_cast<nm_u32>(world.fem.fieldBoundaries.size());
+    dispatch.cohesiveFaceCount =
+        static_cast<nm_u32>(world.fem.cohesiveFaces.size());
+    dispatch.mutationCommandCount =
+        static_cast<nm_u32>(world.fem.mutationCommands.size());
+    dispatch.learnedMaterialCount =
+        static_cast<nm_u32>(world.learnedMaterials.size());
+    dispatch.learnedLayerCount =
+        static_cast<nm_u32>(world.learnedLayers.size());
+    dispatch.learnedWeightCount =
+        static_cast<nm_u32>(world.learnedWeights.size());
+    dispatch.topologyNodeCapacity =
+        static_cast<nm_u32>(world.fem.topologyNodes.size());
+    dispatch.punctureChannelCount =
+        static_cast<nm_u32>(world.fem.punctureChannels.size());
+    dispatch.femCapacityCount =
+        static_cast<nm_u32>(world.fem.capacities.size());
+    std::uint64_t topologyTetCapacity = 0u;
+    for (const NMFEMCapacityGPU capacity : world.fem.capacities) {
+        topologyTetCapacity += capacity.topology.y;
+    }
+    if (topologyTetCapacity > std::numeric_limits<std::uint32_t>::max()) {
+        result.diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "FEM topology tetrahedron capacity exceeds the 32-bit ABI",
+        });
+        return result;
+    }
+    dispatch.topologyTetrahedronCapacity =
+        static_cast<nm_u32>(topologyTetCapacity);
     dispatch.gravityAndTimestep = f4(
         source.gravity[0], source.gravity[1], source.gravity[2], source.frameTimestep
     );
