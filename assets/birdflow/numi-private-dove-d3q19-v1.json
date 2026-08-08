@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "datasetIdentifier": "numi-private-dove-d3q19-virtual-robot-v15",
+  "datasetIdentifier": "numi-private-dove-d3q19-virtual-robot-v17",
   "provenance": {
-    "specimenIdentifier": "numi-authored-robotic-dove-v15-not-a-biological-specimen",
+    "specimenIdentifier": "numi-authored-robotic-dove-v17-not-a-biological-specimen",
     "geometryCitation": "Numi Lab BirdFlow articulated virtual robotic-dove mechanics; compact geometry, mass, and inertias are authored rather than measured",
-    "kinematicsCitation": "Numi Lab private 3 Hz bilateral rigid-wing virtual-robot waveform v15",
+    "kinematicsCitation": "Numi Lab private 5 Hz bilateral rigid-wing virtual-robot waveform v17",
     "dataLicense": "private Numi Lab virtual-robot model",
-    "processingDescription": "Private complete schema-2 virtual-robot fixture. This supersedes the rejected V14 candidate: its 0.015 kg body was paired with 1.2 m-chord wings, yielding D24 fixed-body loads up to 5.52 N and 3.25 N m and an invalid free release. V15 restores a compact 0.56 m total span, 0.14-to-0.09 m tapered wing, 0.015 kg total-mass ledger, 0.002 kg per-wing rigid-plate properties, and body inertias sized for that packaged robot. The 3 Hz bilateral waveform is an authored control baseline, not a biological measurement. It is unqualified: D3Q19 fixed-body force balance, coupled release, refinement, momentum closure, and Numi policy training remain separate gates. This is not a measured Deetjen or biological specimen."
+    "processingDescription": "Private complete schema-2 virtual-robot fixture. This supersedes the rejected V14 candidate: its 0.015 kg body was paired with 1.2 m-chord wings, yielding D24 fixed-body loads up to 5.52 N and 3.25 N m and an invalid free release. V15 restored a compact 0.56 m total span, 0.14-to-0.09 m tapered wing, 0.015 kg total-mass ledger, 0.002 kg per-wing rigid-plate properties, and body inertias sized for that packaged robot, but its D12 five-cycle pitch-offset map produced no lift capable of supporting the mass ledger (best 0.000177 N versus 0.147100 N weight). V16 raised the same robot to 8 Hz and 0.80 rad; it passed the static Mach estimate but became non-finite before its 512-step D12 moving-boundary gate and is rejected. V17 is the intermediate 5 Hz, 0.55 rad velocity-authority experiment. It produced 0.7608 N mean force over a 512-step D12 transient, but became non-finite before 1,600 steps at both D12 and D16, so it is also rejected and must not be released or used for policy promotion. A future wing-mechanics change must demonstrate a stable five-cycle fixed-body force window before coupled release, refinement, momentum closure, or Numi policy promotion. This is not a measured Deetjen or biological specimen."
   },
   "units": {
     "length": "meter",
@@ -38,7 +38,7 @@
     "tailThicknessMeters": 0.02
   },
   "kinematics": {
-    "frequencyHz": 3.0,
+    "frequencyHz": 5.0,
     "keyframes": [
       {
         "phase": 0.0,
@@ -47,7 +47,7 @@
           "deviationRadians": 0.0,
           "pitchRadians": 0.0,
           "tipTwistRadians": 0.0,
-          "strokeRateRadiansPerSecond": -6.597345,
+          "strokeRateRadiansPerSecond": -17.27876,
           "deviationRateRadiansPerSecond": 0.0,
           "pitchRateRadiansPerSecond": 0.0,
           "tipTwistRateRadiansPerSecond": 0.0
@@ -57,7 +57,7 @@
           "deviationRadians": 0.0,
           "pitchRadians": 0.0,
           "tipTwistRadians": 0.0,
-          "strokeRateRadiansPerSecond": -6.597345,
+          "strokeRateRadiansPerSecond": -17.27876,
           "deviationRateRadiansPerSecond": 0.0,
           "pitchRateRadiansPerSecond": 0.0,
           "tipTwistRateRadiansPerSecond": 0.0
@@ -66,9 +66,9 @@
       {
         "phase": 0.25,
         "left": {
-          "strokeRadians": -0.35,
+          "strokeRadians": -0.55,
           "deviationRadians": 0.0,
-          "pitchRadians": -0.15,
+          "pitchRadians": -0.25,
           "tipTwistRadians": 0.0,
           "strokeRateRadiansPerSecond": 0.0,
           "deviationRateRadiansPerSecond": 0.0,
@@ -76,9 +76,9 @@
           "tipTwistRateRadiansPerSecond": 0.0
         },
         "right": {
-          "strokeRadians": -0.35,
+          "strokeRadians": -0.55,
           "deviationRadians": 0.0,
-          "pitchRadians": -0.15,
+          "pitchRadians": -0.25,
           "tipTwistRadians": 0.0,
           "strokeRateRadiansPerSecond": 0.0,
           "deviationRateRadiansPerSecond": 0.0,
@@ -91,9 +91,9 @@
         "left": {
           "strokeRadians": 0.0,
           "deviationRadians": 0.0,
-          "pitchRadians": -0.15,
+          "pitchRadians": -0.25,
           "tipTwistRadians": 0.0,
-          "strokeRateRadiansPerSecond": 6.597345,
+          "strokeRateRadiansPerSecond": 17.27876,
           "deviationRateRadiansPerSecond": 0.0,
           "pitchRateRadiansPerSecond": 0.0,
           "tipTwistRateRadiansPerSecond": 0.0
@@ -101,9 +101,9 @@
         "right": {
           "strokeRadians": 0.0,
           "deviationRadians": 0.0,
-          "pitchRadians": -0.15,
+          "pitchRadians": -0.25,
           "tipTwistRadians": 0.0,
-          "strokeRateRadiansPerSecond": 6.597345,
+          "strokeRateRadiansPerSecond": 17.27876,
           "deviationRateRadiansPerSecond": 0.0,
           "pitchRateRadiansPerSecond": 0.0,
           "tipTwistRateRadiansPerSecond": 0.0
@@ -112,9 +112,9 @@
       {
         "phase": 0.75,
         "left": {
-          "strokeRadians": 0.35,
+          "strokeRadians": 0.55,
           "deviationRadians": 0.0,
-          "pitchRadians": 0.15,
+          "pitchRadians": 0.25,
           "tipTwistRadians": 0.0,
           "strokeRateRadiansPerSecond": 0.0,
           "deviationRateRadiansPerSecond": 0.0,
@@ -122,9 +122,9 @@
           "tipTwistRateRadiansPerSecond": 0.0
         },
         "right": {
-          "strokeRadians": 0.35,
+          "strokeRadians": 0.55,
           "deviationRadians": 0.0,
-          "pitchRadians": 0.15,
+          "pitchRadians": 0.25,
           "tipTwistRadians": 0.0,
           "strokeRateRadiansPerSecond": 0.0,
           "deviationRateRadiansPerSecond": 0.0,
@@ -160,8 +160,8 @@
     },
     "farFieldVelocityMetersPerSecond": [0.0, 0.0, 0.0],
     "gravityMetersPerSecondSquared": [0.0, 0.0, -9.81],
-    "referenceSpeedMetersPerSecond": 4.0,
-    "targetReynoldsNumber": 1000.0,
+    "referenceSpeedMetersPerSecond": 8.0,
+    "targetReynoldsNumber": 3000.0,
     "physicalAirDensity": 1.225,
     "latticeReferenceSpeed": 0.04,
     "spongeStrength": 0.06
