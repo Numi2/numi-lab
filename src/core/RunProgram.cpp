@@ -286,10 +286,13 @@ std::uint64_t robotPackFingerprint(const RobotPack& robot) {
     if (robot.flappingWings) {
         hash.bytes(robot.flappingWings->wings.data(),
             sizeof(robot.flappingWings->wings));
+        hash.bytes(&robot.flappingWings->tail,
+            sizeof(robot.flappingWings->tail));
         hash.string(robot.flappingWings->bodyRole);
         for (const std::string& wingRole : robot.flappingWings->wingRoles) {
             hash.string(wingRole);
         }
+        hash.string(robot.flappingWings->tailRole);
         hash.scalar(robot.flappingWings->windVelocityAndDensity);
     }
     return hash.finish();
@@ -1279,6 +1282,58 @@ RunCompileDiagnostics compileRun(
                 resolved.vIndex = joint.vOffset;
                 program.wings[side] = resolved;
             }
+            const RobotSemanticRole* tailRole = role(
+                manifest.robot, authored.tailRole, RobotSemanticKind::body
+            );
+            if (tailRole == nullptr || tailRole->members.size() != 1u) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    manifest.robot.id + ".flapping_wings",
+                    "flapping-wing program requires one resolved tail body role"
+                );
+            }
+            const auto tail = std::ranges::find(
+                model.bodyNames, tailRole->members.front()
+            );
+            const std::uint32_t tailBodyIndex = tail == model.bodyNames.end()
+                ? MR_INVALID_INDEX
+                : static_cast<std::uint32_t>(tail - model.bodyNames.begin());
+            if (tailBodyIndex >= model.bodies.size() ||
+                model.bodies[tailBodyIndex].parentBody !=
+                    program.rootBodyIndex ||
+                model.bodies[tailBodyIndex].inboundJoint >=
+                    model.joints.size() ||
+                model.joints[model.bodies[tailBodyIndex].inboundJoint].jointType !=
+                    MR_JOINT_FIXED) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    manifest.robot.id + ".flapping_wings",
+                    "tail must be a direct fixed articulated child of the airframe"
+                );
+            }
+            MRAeroTailGPU resolvedTail = authored.tail;
+            if (!std::isfinite(resolvedTail.rootToCenterAndArea.x) ||
+                !std::isfinite(resolvedTail.rootToCenterAndArea.y) ||
+                !std::isfinite(resolvedTail.rootToCenterAndArea.z) ||
+                !std::isfinite(resolvedTail.rootToCenterAndArea.w) ||
+                !std::isfinite(resolvedTail.chordAndCoefficients.x) ||
+                !std::isfinite(resolvedTail.chordAndCoefficients.y) ||
+                !std::isfinite(resolvedTail.chordAndCoefficients.z) ||
+                !std::isfinite(resolvedTail.chordAndCoefficients.w) ||
+                !(resolvedTail.rootToCenterAndArea.w > 0.0f) ||
+                !(resolvedTail.chordAndCoefficients.x > 0.0f) ||
+                !(resolvedTail.chordAndCoefficients.y > 0.0f) ||
+                resolvedTail.chordAndCoefficients.z < 0.0f ||
+                resolvedTail.chordAndCoefficients.w < 0.0f) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    manifest.robot.id + ".flapping_wings",
+                    "tail geometry, lift, drag, and pitch damping must be finite and non-negative"
+                );
+            }
+            resolvedTail.bodyIndex = tailBodyIndex;
+            resolvedTail.rootBodyIndex = program.rootBodyIndex;
+            program.tail = resolvedTail;
             staged.flappingWingProgram_ = program;
         }
         if (manifest.policy) {
@@ -1818,15 +1873,18 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
         FlappingWingActuatorPack aerodynamic{};
         aerodynamic.bodyRole = "airframe";
         aerodynamic.wingRoles = {"left_wing", "right_wing"};
+        aerodynamic.tailRole = "tail";
         aerodynamic.windVelocityAndDensity = {0.0f, 0.0f, 0.0f, 1.225f};
         aerodynamic.wings[0].rootToCenterAndArea = {0.02f, 0.24f, 0.0f, 0.072f};
         aerodynamic.wings[0].hingeAxisAndChord = {1.0f, 0.0f, 0.0f, 0.15f};
         aerodynamic.wings[1].rootToCenterAndArea = {0.02f, -0.24f, 0.0f, 0.072f};
         aerodynamic.wings[1].hingeAxisAndChord = {1.0f, 0.0f, 0.0f, 0.15f};
+        aerodynamic.tail.rootToCenterAndArea = {-0.18f, 0.0f, 0.0f, 0.0374f};
+        aerodynamic.tail.chordAndCoefficients = {0.17f, 2.5f, 0.08f, 0.60f};
         for (MRFlappingWingGPU& wing : aerodynamic.wings) {
             // Explicitly authored hybrid closure: the cap includes the
             // passive-feathering stroke term used by the device kernel.
-            wing.coefficients = {3.8f, 0.08f, 0.16f, 5.0f};
+            wing.coefficients = {3.8f, 0.08f, 0.16f, 2.00f};
         }
         pack.flappingWings = aerodynamic;
         return pack;

@@ -19,6 +19,21 @@ typedef struct MR_ALIGN16 MRFlappingWingGPU {
     mr_float4 coefficients;
 } MRFlappingWingGPU;
 
+// Fixed tail surface associated with a flapping-wing program.
+// Its external wrench is evaluated from accepted root state and the local
+// wing-wash closure; it never replays an externally supplied force trace.
+typedef struct MR_ALIGN16 MRAeroTailGPU {
+    mr_u32 bodyIndex;
+    mr_u32 rootBodyIndex;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+
+    // xyz = neutral root-COM to aerodynamic center; w = area [m^2].
+    mr_float4 rootToCenterAndArea;
+    // x = chord [m], y = lift slope, z = profile drag, w = pitch damping.
+    mr_float4 chordAndCoefficients;
+} MRAeroTailGPU;
+
 // Resolved program for a bilateral articulated airframe.  The model is a
 // state-responsive blade-element load primitive, not a measured CFD claim:
 // it consumes live root/hinge state and writes its result to the universal
@@ -40,5 +55,6 @@ typedef struct MR_ALIGN16 MRCompiledFlappingWingDispatchGPU {
 
 #ifndef __METAL_VERSION__
 static_assert(sizeof(MRFlappingWingGPU) == 64);
+static_assert(sizeof(MRAeroTailGPU) == 48);
 static_assert(sizeof(MRCompiledFlappingWingDispatchGPU) == 48);
 #endif

@@ -35,7 +35,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 241u;
+constexpr std::size_t kRawBufferCount = 242u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -298,6 +298,7 @@ enum BufferIndex : std::size_t {
     kMulticopterDispatch = 238u,
     kFlappingWingSpecs = 239u,
     kFlappingWingDispatch = 240u,
+    kFlappingTail = 241u,
 };
 
 struct BufferRequirement {
@@ -1741,6 +1742,11 @@ bool buildRequirements(
             "compiled flapping-wing dispatch",
             flappingWingProgram.valid() ? 1u : 0u,
             requirements.entries[kFlappingWingDispatch]
+        ) ||
+        !makeRequirement<MRAeroTailGPU>(
+            "compiled flapping-wing tail",
+            flappingWingProgram.valid() ? 1u : 0u,
+            requirements.entries[kFlappingTail]
         ) ||
         !makeRequirement<float>(
             "candidate acceleration",
@@ -3188,6 +3194,28 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 );
             }
         }
+        const MRAeroTailGPU& tail = wings.tail;
+        if (tail.bodyIndex >= model.bodies.size() ||
+            tail.rootBodyIndex != wings.rootBodyIndex ||
+            model.bodies[tail.bodyIndex].articulationIndex !=
+                wings.articulationIndex ||
+            model.bodies[tail.bodyIndex].parentBody != wings.rootBodyIndex ||
+            model.bodies[tail.bodyIndex].inboundJoint >= model.joints.size() ||
+            model.joints[model.bodies[tail.bodyIndex].inboundJoint].jointType !=
+                MR_JOINT_FIXED ||
+            !finite(tail.rootToCenterAndArea) ||
+            !finite(tail.chordAndCoefficients) ||
+            !(tail.rootToCenterAndArea.w > 0.0f) ||
+            !(tail.chordAndCoefficients.x > 0.0f) ||
+            !(tail.chordAndCoefficients.y > 0.0f) ||
+            tail.chordAndCoefficients.z < 0.0f ||
+            tail.chordAndCoefficients.w < 0.0f) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::invalidDimensions,
+                "compiled flapping-wing tail geometry is invalid"
+            );
+        }
     }
     const bool contactMode =
         config.solverMode != MetalWorldSolverMode::freeMotionABA;
@@ -4583,6 +4611,8 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld compiled flapping-wing geometry";
     case kFlappingWingDispatch:
         return @"MetalWorld compiled flapping-wing dispatch";
+    case kFlappingTail:
+        return @"MetalWorld compiled flapping-wing tail";
     case kCandidateAcceleration:
         return @"MetalWorld candidate acceleration";
     case kCandidateV:
@@ -5956,6 +5986,7 @@ bool privateImmutableBuffer(const std::size_t index) {
         index == kMulticopterDispatch ||
         index == kFlappingWingSpecs ||
         index == kFlappingWingDispatch ||
+        index == kFlappingTail ||
         index == kRodColliders ||
         index == kRodShapeSources ||
         index == kRodToolPairs ||
@@ -7304,6 +7335,10 @@ void uploadBatch(
         stagePrivateBuffer(
             context, kFlappingWingDispatch, &dispatch,
             requirements.entries[kFlappingWingDispatch], actuatorUpload
+        );
+        stagePrivateBuffer(
+            context, kFlappingTail, &wings.tail,
+            requirements.entries[kFlappingTail], actuatorUpload
         );
         if (actuatorUpload != nil) {
             [actuatorUpload endEncoding];
@@ -9833,6 +9868,7 @@ bool encodeFlappingWingActuation(
             {2u, qState},
             {3u, vState},
             {4u, kBodyWrenchPlaceholder},
+            {5u, kFlappingTail},
         },
         nullptr,
         0u,

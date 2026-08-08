@@ -351,6 +351,7 @@ struct MetalWorldMulticopterProgram {
 // the resulting live body/joint state each physics microstep.
 struct MetalWorldFlappingWingProgram {
     std::array<MRFlappingWingGPU, 2u> wings{};
+    MRAeroTailGPU tail{};
     std::uint32_t articulationIndex = MR_INVALID_INDEX;
     std::uint32_t rootBodyIndex = MR_INVALID_INDEX;
     mr_float4 windVelocityAndDensity{};
@@ -360,7 +361,11 @@ struct MetalWorldFlappingWingProgram {
             rootBodyIndex != MR_INVALID_INDEX &&
             windVelocityAndDensity.w > 0.0f &&
             wings[0].bodyIndex != MR_INVALID_INDEX &&
-            wings[1].bodyIndex != MR_INVALID_INDEX;
+            wings[1].bodyIndex != MR_INVALID_INDEX &&
+            tail.bodyIndex != MR_INVALID_INDEX &&
+            tail.rootBodyIndex == rootBodyIndex &&
+            tail.rootToCenterAndArea.w > 0.0f &&
+            tail.chordAndCoefficients.x > 0.0f;
     }
 };
 

@@ -20,6 +20,13 @@ inside the same Metal rollback transaction as contact, sensing, reward,
 termination, and reset: the next state changes with wing load rather than
 receiving a fixed action-to-force mapping.
 
+The fixed tail is also a resolved aerodynamic surface: its force uses the
+root-relative airflow at its authored aerodynamic center, while its bounded
+pitch-damping term uses the active wing-stroke dynamic pressure. Its external
+wrench is written to the tail body and transferred through the fixed
+articulation by ABA. This gives the learner a load-responsive pitch channel;
+it is not a separate controller and never supplies a replayed force trace.
+
 The runner also provides `--birdflow-flap-script` and
 `--birdflow-stroke-amplitude` as deterministic open-loop qualification inputs.
 They are wiring/physics probes for the normal two-action policy contract, not
@@ -43,8 +50,10 @@ CFD benchmark, but not the complete same-specimen inertia and bilateral
 wing-mass record needed to identify a calibrated free-flight model. The
 hybrid's mass, inertia, tail/wing geometry, passive-feathering closure, and
 aerodynamic coefficients are explicit model choices. Its runtime loads are
-not replay forces. The tail is a fixed inertial/collision body in this hybrid,
-not yet a separately resolved aerodynamic surface; BirdFlow replay output
+not replay forces. The tail's relative-airflow and wing-wash damping closure
+is likewise authored rather than identified from Deetjen force data. The
+open-loop full-stroke input is a load-path qualification probe, not evidence
+of a trimmed, trained, or free-flight controller; BirdFlow replay output
 remains evidence-only.
 
 The next fidelity step is a device-resident, multi-environment D3Q19 coupling

@@ -38,8 +38,10 @@ struct MulticopterActuatorPack {
 
 struct FlappingWingActuatorPack {
     std::array<MRFlappingWingGPU, 2u> wings{};
+    MRAeroTailGPU tail{};
     std::string bodyRole;
     std::array<std::string, 2u> wingRoles;
+    std::string tailRole;
     mr_float4 windVelocityAndDensity{};
 };
 

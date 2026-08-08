@@ -51,6 +51,7 @@ kernel void mr_step_compiled_flapping_wings(
     device const float* qState [[buffer(2)]],
     device const float* vState [[buffer(3)]],
     device MRABABodyWrenchGPU* wrenches [[buffer(4)]],
+    constant const MRAeroTailGPU& tail [[buffer(5)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
@@ -73,6 +74,7 @@ kernel void mr_step_compiled_flapping_wings(
     const float3 rootAngularVelocity = float3(
         vState[vBase + 3u], vState[vBase + 4u], vState[vBase + 5u]
     );
+    float wingStrokeSpeedSquared = 0.0f;
     for (uint side = 0u; side < 2u; ++side) {
         const MRFlappingWingGPU wing = wings[side];
         if (wing.bodyIndex >= dispatch.bodyStride ||
@@ -143,6 +145,7 @@ kernel void mr_step_compiled_flapping_wings(
             hingeAxisWorld * angularRate, rootToCenter
         );
         const float strokeSpeedSquared = dot(strokeVelocity, strokeVelocity);
+        wingStrokeSpeedSquared += strokeSpeedSquared;
         const float strokeFraction = clamp(
             strokeSpeedSquared / max(speedSquared, 1.0e-8f), 0.0f, 1.0f
         );
@@ -162,6 +165,68 @@ kernel void mr_step_compiled_flapping_wings(
         // torque would require measured pitch/feather state; adding one to
         // this single-DOF hybrid double-counts an unmodelled moment and made
         // symmetric wingbeats inject an uncontrolled pitch bias.
+        wrenches[wrenchIndex] = wrench;
+    }
+    // The tail is a separate, fixed surface in the compiled articulation. It
+    // sees the root's resolved translational and angular velocity; the wing
+    // stroke only supplies dynamic pressure for its explicitly authored pitch
+    // damping closure.  This is not a substitute for a coupled D3Q19 wake.
+    if (tail.bodyIndex >= dispatch.bodyStride ||
+        tail.rootBodyIndex != dispatch.rootBodyIndex ||
+        !finite4(tail.rootToCenterAndArea) ||
+        !finite4(tail.chordAndCoefficients) ||
+        !(tail.rootToCenterAndArea.w > 0.0f) ||
+        !(tail.chordAndCoefficients.x > 0.0f)) {
+        return;
+    }
+    const float3 rootToTail = rotate(
+        rootOrientation, tail.rootToCenterAndArea.xyz
+    );
+    const float3 tailVelocity = rootVelocity +
+        cross(rootAngularVelocity, rootToTail);
+    const float3 tailAir = dispatch.windVelocityAndDensity.xyz - tailVelocity;
+    const float tailAirSpeedSquared = dot(tailAir, tailAir);
+    float3 tailForce = float3(0.0f);
+    if (tailAirSpeedSquared > 1.0e-8f && isfinite(tailAirSpeedSquared)) {
+        const float3 tailFlow = tailAir * rsqrt(tailAirSpeedSquared);
+        const float3 rootForward = safeNormal(
+            rotate(rootOrientation, float3(1.0f, 0.0f, 0.0f))
+        );
+        const float3 rootSpan = safeNormal(
+            rotate(rootOrientation, float3(0.0f, 1.0f, 0.0f))
+        );
+        const float3 rootUp = safeNormal(cross(rootForward, rootSpan));
+        const float angleOfAttack = atan2(
+            dot(tailFlow, rootUp), dot(tailFlow, rootForward)
+        );
+        const float liftCoefficient = clamp(
+            tail.chordAndCoefficients.y * angleOfAttack, -1.5f, 1.5f
+        );
+        const float dragCoefficient = tail.chordAndCoefficients.z +
+            0.16f * liftCoefficient * liftCoefficient;
+        const float dynamicPressure = 0.5f *
+            dispatch.windVelocityAndDensity.w * tailAirSpeedSquared;
+        tailForce += dynamicPressure * tail.rootToCenterAndArea.w * (
+            liftCoefficient * safeNormal(cross(rootSpan, tailFlow)) +
+            dragCoefficient * tailFlow
+        );
+    }
+    const float washDynamicPressure = 0.5f *
+        dispatch.windVelocityAndDensity.w *
+        (tailAirSpeedSquared + 0.35f * wingStrokeSpeedSquared);
+    const float3 rootSpan = safeNormal(
+        rotate(rootOrientation, float3(0.0f, 1.0f, 0.0f))
+    );
+    const float3 rootUp = safeNormal(cross(
+        safeNormal(rotate(rootOrientation, float3(1.0f, 0.0f, 0.0f))), rootSpan
+    ));
+    const float pitchRate = clamp(dot(rootAngularVelocity, rootSpan), -20.0f, 20.0f);
+    tailForce += rootUp * (-washDynamicPressure * tail.rootToCenterAndArea.w *
+        tail.chordAndCoefficients.w * pitchRate);
+    if (all(isfinite(tailForce))) {
+        const uint wrenchIndex = environment * dispatch.bodyStride + tail.bodyIndex;
+        MRABABodyWrenchGPU wrench = wrenches[wrenchIndex];
+        wrench.force.xyz += tailForce;
         wrenches[wrenchIndex] = wrench;
     }
 }
