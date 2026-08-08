@@ -18,6 +18,7 @@ usage: numi dove [replay] [--archive FILE] [--json]
        numi dove evaluate [numi evaluate options]
        numi dove measured-audit --input DATASET.json [--chord-cells N] [--json]
        numi dove measured-trim --input DATASET.json [BirdFlow trim options]
+       numi dove hover-control-sweep --input DATASET.json [BirdFlow hover options]
        numi dove measured-flight --input DATASET.json [BirdFlow flight options]
        numi dove measured-confirm --input DATASET.json [BirdFlow confirmation options]
 
@@ -37,6 +38,11 @@ balance search, `measured-flight` runs one coupled six-DOF trajectory with
 momentum and per-part-load ledgers, and `measured-confirm` runs the independent
 five-cycle bounded-flight, 1/2/4 body-step, and coupled-closure ladder. These
 modes reject schema 1 inputs; they do not manufacture missing specimen data.
+
+`hover-control-sweep` is for the explicitly virtual robot only: it screens a
+declared power-stroke/recovery-stroke pitch actuator in still air with fixed
+body D3Q19 runs. Its result is a kinematic feasibility map, not trim or free
+flight evidence.
 
 Environment:
   NUMI_BIRDFLOW_ROOT  BirdFlowMetal checkout (default: /Users/home/BirdFlowMetal)
@@ -70,7 +76,7 @@ case "$mode" in
             shift
         fi
         ;;
-    measured-audit|measured-trim|measured-flight|measured-confirm)
+    measured-audit|measured-trim|hover-control-sweep|measured-flight|measured-confirm)
         shift
         ;;
     --archive|--json)
@@ -134,7 +140,7 @@ case "$mode" in
             printf '%s\n' "numi dove $mode: input does not exist: $input_path" >&2
             exit 2
         fi
-        if [ "$archive_supplied" = false ] && [ "$mode" != measured-audit ]; then
+        if [ "$archive_supplied" = false ] && [ "$mode" != measured-audit ] && [ "$mode" != hover-control-sweep ]; then
             output_dir="$workspace/.numi/runs/birdflow-$mode"
             mkdir -p "$output_dir"
             set -- --archive "$output_dir/$(basename "$input_path" .json)-$(date -u +%Y%m%dT%H%M%SZ)-$$" "$@"
@@ -147,6 +153,10 @@ case "$mode" in
             measured-trim)
                 printf '%s\n' "Numi dove: BirdFlowMetal schema-2 prescribed trim search."
                 exec "$birdflow" replay measured-bird --trim-search "$@"
+                ;;
+            hover-control-sweep)
+                printf '%s\n' "Numi dove: BirdFlowMetal virtual hover-control D3Q19 screening."
+                exec "$birdflow" replay measured-bird --hover-control-sweep "$@"
                 ;;
             measured-flight)
                 printf '%s\n' "Numi dove: BirdFlowMetal schema-2 coupled D3Q19 free-flight trajectory."
