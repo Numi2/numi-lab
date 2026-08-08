@@ -116,7 +116,7 @@ case "$mode" in
             --force-target "$force_target" \
             "$@"
         ;;
-    measured-audit|measured-trim|measured-flight|measured-confirm)
+    measured-audit|measured-trim|hover-control-sweep|measured-flight|measured-confirm)
         input_path=''
         archive_supplied=false
         expect_input=false
