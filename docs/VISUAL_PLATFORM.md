@@ -213,7 +213,17 @@ buffer after the readback completes.
 ### Live run inspector
 
 `metalrobo_task_rollout` and `metalrobo_task_train` can open a small native
-macOS `MTKView` beside a run with:
+macOS `MTKView` beside a run. For ordinary use, save the authored visual
+observation file as `.numi/window.visual-observation.json` and run:
+
+```sh
+numi window
+```
+
+The workspace command builds its own isolated runtime, discovers that saved
+scene, starts a one-environment zero-action preview, and stops it when the
+window closes. The lower-level executable remains available for composed
+training/evaluation flows:
 
 ```sh
 metalrobo_task_rollout ... \

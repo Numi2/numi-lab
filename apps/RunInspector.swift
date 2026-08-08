@@ -15,6 +15,10 @@ private final class InspectionDelivery: @unchecked Sendable {
     }
 }
 
+enum MetalRoboRunInspectorError: Error {
+    case closed
+}
+
 @MainActor
 private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     NSWindowDelegate
@@ -24,6 +28,8 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     private let queue: MTLCommandQueue
     private let pipeline: MTLRenderPipelineState
     private var pending: InspectionDelivery?
+    private var closed = false
+    var onClose: (() -> Void)?
 
     private init(
         window: NSWindow,
@@ -86,9 +92,13 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     }
 
     func offer(_ delivery: InspectionDelivery) {
+        guard !closed else {
+            delivery.release()
+            return
+        }
         pending?.release()
         pending = delivery
-        window.title = "Numi Lab Inspector — env \(delivery.frame.environmentIndex) · frame \(delivery.frame.frameIndex) · dropped \(delivery.frame.droppedFrames)"
+        window.title = "Numi Lab Inspector — live · env \(delivery.frame.environmentIndex) · frame \(delivery.frame.frameIndex) · dropped \(delivery.frame.droppedFrames)"
         view.setNeedsDisplay(view.bounds)
     }
 
@@ -127,8 +137,10 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
 
     func windowWillClose(_ notification: Notification) {
+        closed = true
         pending?.release()
         pending = nil
+        onClose?()
     }
 
     private static let shaderSource = """
@@ -171,9 +183,15 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
 // by the delivery until the MTKView command-buffer completion releases it.
 public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
     private let window: RunInspectorWindow
+    private let stateLock = NSLock()
+    private var closed = false
 
+    @MainActor
     private init(window: RunInspectorWindow) {
         self.window = window
+        window.onClose = { [weak self] in
+            self?.markClosed()
+        }
     }
 
     @MainActor
@@ -188,17 +206,37 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         return bridge
     }
 
+    var isClosed: Bool {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        return closed
+    }
+
+    private func markClosed() {
+        stateLock.lock()
+        closed = true
+        stateLock.unlock()
+    }
+
     public func publish(
         frame: MetalRoboTaskInspectionFrame,
         context: MetalRoboTaskRolloutContext
     ) {
+        guard !isClosed else {
+            context.releaseInspectionFrame(slotIndex: frame.slotIndex)
+            return
+        }
         let delivery = InspectionDelivery(
             frame: frame,
             release: {
                 context.releaseInspectionFrame(slotIndex: frame.slotIndex)
             }
         )
-        DispatchQueue.main.async { [window] in
+        DispatchQueue.main.async { [weak self, window] in
+            guard self?.isClosed == false else {
+                delivery.release()
+                return
+            }
             window.offer(delivery)
         }
     }
