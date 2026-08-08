@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "datasetIdentifier": "numi-private-dove-d3q19-virtual-robot-v18",
+  "datasetIdentifier": "numi-private-dove-d3q19-virtual-robot-v21",
   "provenance": {
-    "specimenIdentifier": "numi-authored-robotic-dove-v18-not-a-biological-specimen",
+    "specimenIdentifier": "numi-authored-robotic-dove-v21-not-a-biological-specimen",
     "geometryCitation": "Numi Lab BirdFlow articulated virtual robotic-dove mechanics; compact geometry, mass, and inertias are authored rather than measured",
-    "kinematicsCitation": "Numi Lab private 5 Hz bilateral rigid-wing virtual-robot waveform v18 with low-Mach D3Q19 timestep",
+    "kinematicsCitation": "Numi Lab private 8 Hz bilateral rigid-wing virtual-robot waveform v21 with an explicit -2 m/s virtual forward-flight freestream, physical-viscosity-preserving Re 750 scaling, and low-Mach D3Q19 timestep; RR3 is selected explicitly at replay time",
     "dataLicense": "private Numi Lab virtual-robot model",
-    "processingDescription": "Private complete schema-2 virtual-robot fixture. This supersedes the rejected V14 candidate: its 0.015 kg body was paired with 1.2 m-chord wings, yielding D24 fixed-body loads up to 5.52 N and 3.25 N m and an invalid free release. V15 restored a compact 0.56 m total span, 0.14-to-0.09 m tapered wing, 0.015 kg total-mass ledger, 0.002 kg per-wing rigid-plate properties, and body inertias sized for that packaged robot, but its D12 five-cycle pitch-offset map produced no lift capable of supporting the mass ledger (best 0.000177 N versus 0.147100 N weight). V16 raised the same robot to 8 Hz and 0.80 rad; it passed the static Mach estimate but became non-finite before its 512-step D12 moving-boundary gate and is rejected. V17 was the intermediate 5 Hz, 0.55 rad waveform; it produced 0.7608 N mean force over a 512-step D12 transient, but became non-finite before 1,600 steps at both D12 and D16 and is rejected. V18 preserved the V17 physical robot but halved lattice reference speed from 0.04 to 0.02, reducing only D3Q19 lattice velocity and timestep. Its 4,000-step D12 moving-boundary run still became non-finite, so the high-authority rigid-wing coupling is rejected rather than attributed to Mach or timestep alone. A future wing-structure/coupling change must demonstrate a stable five-cycle fixed-body force window before coupled release, refinement, momentum closure, or Numi policy promotion. This is not a measured Deetjen or biological specimen."
+    "processingDescription": "Private complete schema-2 virtual-robot fixture. This supersedes the rejected V14 candidate: its 0.015 kg body was paired with 1.2 m-chord wings, yielding D24 fixed-body loads up to 5.52 N and 3.25 N m and an invalid free release. V15 restored a compact 0.56 m total span, 0.14-to-0.09 m tapered wing, 0.015 kg total-mass ledger, 0.002 kg per-wing rigid-plate properties, and body inertias sized for that packaged robot, but its D12 five-cycle pitch-offset map produced no lift capable of supporting the mass ledger (best 0.000177 N versus 0.147100 N weight). V16 raised the same robot to 8 Hz and 0.80 rad; it passed the static Mach estimate but became non-finite before its 512-step D12 moving-boundary gate under the former TRT path and is rejected there. V17 was the intermediate 5 Hz, 0.55 rad waveform; it produced 0.7608 N mean force over a 512-step D12 transient, but became non-finite before 1,600 steps at both D12 and D16 and is rejected under TRT. V18 preserved the V17 physical robot but halved lattice reference speed from 0.04 to 0.02; its RR3 five-cycle D12 fixed-body window completed yet final-cycle lift was only 0.001319 N, and its nine-action pitch screen peaked at 0.004814 N, so V18 is rejected for free-flight release. V19 restored the V16 8 Hz, 0.80 rad virtual actuator under RR3; it completed five D12 cycles but settled to 0.025476 N upward and 0.282251 N forward, rejecting hover/free release despite numerical stability. V20 declared an -8 m/s virtual forward-flight freestream; its RR3 bounded trim rejected the condition (best relative net-force residual 1.321420 and force stationarity 0.294612). V21 retains the V19 actuator but resets the forward-flight freestream/reference speed to -2/2 m/s and Re to 750, preserving the same physical kinematic viscosity while halving lattice reference speed to 0.01. Its RR3 extended trim reached near-weight-balanced force but failed the declared forward/stationarity gates (best relative net-force residual 0.177054, relative torque residual 0.052760, force stationarity 0.041072, torque stationarity 0.052873), so coupled release, refinement, momentum closure, and Numi policy promotion remain prohibited. This is not a measured Deetjen or biological specimen."
   },
   "units": {
     "length": "meter",
@@ -38,7 +38,7 @@
     "tailThicknessMeters": 0.02
   },
   "kinematics": {
-    "frequencyHz": 5.0,
+    "frequencyHz": 8.0,
     "keyframes": [
       {
         "phase": 0.0,
@@ -47,7 +47,7 @@
           "deviationRadians": 0.0,
           "pitchRadians": 0.0,
           "tipTwistRadians": 0.0,
-          "strokeRateRadiansPerSecond": -17.27876,
+          "strokeRateRadiansPerSecond": -40.212387,
           "deviationRateRadiansPerSecond": 0.0,
           "pitchRateRadiansPerSecond": 0.0,
           "tipTwistRateRadiansPerSecond": 0.0
@@ -57,7 +57,7 @@
           "deviationRadians": 0.0,
           "pitchRadians": 0.0,
           "tipTwistRadians": 0.0,
-          "strokeRateRadiansPerSecond": -17.27876,
+          "strokeRateRadiansPerSecond": -40.212387,
           "deviationRateRadiansPerSecond": 0.0,
           "pitchRateRadiansPerSecond": 0.0,
           "tipTwistRateRadiansPerSecond": 0.0
@@ -66,7 +66,7 @@
       {
         "phase": 0.25,
         "left": {
-          "strokeRadians": -0.55,
+          "strokeRadians": -0.8,
           "deviationRadians": 0.0,
           "pitchRadians": -0.25,
           "tipTwistRadians": 0.0,
@@ -76,7 +76,7 @@
           "tipTwistRateRadiansPerSecond": 0.0
         },
         "right": {
-          "strokeRadians": -0.55,
+          "strokeRadians": -0.8,
           "deviationRadians": 0.0,
           "pitchRadians": -0.25,
           "tipTwistRadians": 0.0,
@@ -93,7 +93,7 @@
           "deviationRadians": 0.0,
           "pitchRadians": -0.25,
           "tipTwistRadians": 0.0,
-          "strokeRateRadiansPerSecond": 17.27876,
+          "strokeRateRadiansPerSecond": 40.212387,
           "deviationRateRadiansPerSecond": 0.0,
           "pitchRateRadiansPerSecond": 0.0,
           "tipTwistRateRadiansPerSecond": 0.0
@@ -103,7 +103,7 @@
           "deviationRadians": 0.0,
           "pitchRadians": -0.25,
           "tipTwistRadians": 0.0,
-          "strokeRateRadiansPerSecond": 17.27876,
+          "strokeRateRadiansPerSecond": 40.212387,
           "deviationRateRadiansPerSecond": 0.0,
           "pitchRateRadiansPerSecond": 0.0,
           "tipTwistRateRadiansPerSecond": 0.0
@@ -112,7 +112,7 @@
       {
         "phase": 0.75,
         "left": {
-          "strokeRadians": 0.55,
+          "strokeRadians": 0.8,
           "deviationRadians": 0.0,
           "pitchRadians": 0.25,
           "tipTwistRadians": 0.0,
@@ -122,7 +122,7 @@
           "tipTwistRateRadiansPerSecond": 0.0
         },
         "right": {
-          "strokeRadians": 0.55,
+          "strokeRadians": 0.8,
           "deviationRadians": 0.0,
           "pitchRadians": 0.25,
           "tipTwistRadians": 0.0,
@@ -158,12 +158,12 @@
       "vector": [0.0, 0.0, 0.0],
       "scalar": 1.0
     },
-    "farFieldVelocityMetersPerSecond": [0.0, 0.0, 0.0],
+    "farFieldVelocityMetersPerSecond": [-2.0, 0.0, 0.0],
     "gravityMetersPerSecondSquared": [0.0, 0.0, -9.81],
-    "referenceSpeedMetersPerSecond": 8.0,
-    "targetReynoldsNumber": 3000.0,
+    "referenceSpeedMetersPerSecond": 2.0,
+    "targetReynoldsNumber": 750.0,
     "physicalAirDensity": 1.225,
-    "latticeReferenceSpeed": 0.02,
+    "latticeReferenceSpeed": 0.01,
     "spongeStrength": 0.06
   }
 }
