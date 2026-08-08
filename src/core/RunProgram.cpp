@@ -1966,13 +1966,14 @@ std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
             {.id = "wing.left_flap", .kind = RobotActuatorKind::flappingPosition,
              .target = "dove_left_wing_flap", .scale = 1.20f,
              .responseTimeSeconds = 0.012f,
-             // A broad residual lets the policy discover stroke authority
-             // rather than merely fine-tuning a fixed hover carrier.
-             .parameters = {0.80f, 0.20f, 0.0f, 0.0f}},
+             // Differential amplitude is the bird's steering authority.
+             // Preserve positive stroke amplitude at both extremes while
+             // allowing decisive banking instead of a trim-only wiggle.
+             .parameters = {0.80f, 0.55f, 0.0f, 0.0f}},
             {.id = "wing.right_flap", .kind = RobotActuatorKind::flappingPosition,
              .target = "dove_right_wing_flap", .scale = 1.20f,
              .responseTimeSeconds = 0.012f,
-             .parameters = {0.80f, 0.20f, 0.0f, 0.0f}},
+             .parameters = {0.80f, 0.55f, 0.0f, 0.0f}},
         };
         FlappingWingActuatorPack aerodynamic{};
         aerodynamic.bodyRole = "airframe";
