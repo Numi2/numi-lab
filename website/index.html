@@ -32,6 +32,15 @@
       .birdflow { background:#173d50; color:#eff8f7; }
       .birdflow .system-number, .birdflow .system-copy a { color:#f2b28b; border-color:#f2b28b; }
       .birdflow .system-copy>p:not(.system-number) { color:#c6dde1; }
+      .hero { background:radial-gradient(ellipse 58% 76% at 92% 54%, rgba(137,180,163,.22), transparent 72%), #101816; }
+      .hero::before { opacity:.24; mask-image:linear-gradient(90deg, #000 0 68%, transparent 100%); }
+      .hero-title { max-width:none; margin:auto 0 54px; }
+      .hero-title h1 { display:grid; margin:0; font:600 clamp(104px,18vw,286px)/.67 var(--serif); letter-spacing:-.105em; }
+      .hero-title h1 span { display:block; }
+      .hero-title h1 em { display:block; padding-left:17vw; color:#b9d8c8; font-style:normal; }
+      .hero-bottom p { max-width:330px; color:#b8c9c0; font:10px/1.6 var(--mono); letter-spacing:.06em; text-transform:uppercase; }
+      .hero .field { display:none; }
+      @media (max-width:760px) { .hero-title { margin:auto 0 45px; } .hero-title h1 { font-size:clamp(94px,27vw,150px); line-height:.7; } .hero-title h1 em { padding-left:15vw; } .hero-bottom p { max-width:240px; font-size:9px; } }
       @media (max-width:760px) { .directory { grid-template-columns:1fr; gap:42px; padding:82px 20px; } .directory h2 { font-size:50px; } .directory-links a { grid-template-columns:1fr 15px; gap:6px; min-height:0; } .directory-links span { grid-column:1; grid-row:2; } .directory-links b { grid-column:2; grid-row:1; } }
     </style>
   </head>
@@ -46,9 +55,8 @@
     <main id="main">
       <section class="hero" id="top" aria-labelledby="hero-title">
         <p class="index">NUMI LAB / 01</p>
-        <div class="hero-title"><p class="hero-eyebrow" id="hero-title">A research program in intelligence, matter, and life</p></div>
-        <div class="hero-bottom"><p>We make worlds where learning must meet mechanics, material, metabolism, and time.</p><a href="#work">Enter the work <span aria-hidden="true">↓</span></a></div>
-        <div class="field field-one" aria-hidden="true"></div><div class="field field-two" aria-hidden="true"></div><div class="field field-three" aria-hidden="true"></div>
+        <div class="hero-title"><h1 id="hero-title"><span>Numi</span><em>Lab</em></h1></div>
+        <div class="hero-bottom"><p>Physical intelligence · Artificial life · Biological systems</p><a href="#work">Selected systems <span aria-hidden="true">↓</span></a></div>
       </section>
 
       <section class="proposition" aria-labelledby="proposition-title">
