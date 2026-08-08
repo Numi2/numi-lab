@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 2,
+  "datasetIdentifier": "numi-private-dove-d3q19-calibration-v1",
+  "provenance": {
+    "specimenIdentifier": "numi-authored-dove-lightweight-calibration-v1-not-a-biological-specimen",
+    "geometryCitation": "Numi Lab BirdFlow dove articulated mechanics with an explicit lightweight virtual-airframe calibration",
+    "kinematicsCitation": "Numi Lab private rigid-wing calibration waveform v1, analytically sampled at exact phase knots",
+    "dataLicense": "private Numi Lab calibration model",
+    "processingDescription": "Private complete schema-2 calibration fixture. Bilateral wing mass, hinge-relative center of mass, and inertia are copied from the explicitly authored Numi dove mechanics at neutral pose. The 0.15 kg whole-body mass is an explicit lightweight virtual-airframe calibration, not a biological measurement; the periodic no-twist wing program is authored. Its 0.240 rad stroke amplitude, -0.35 rad chord pitch, and 1 m/s, Re=100 operating point place the first coupled trajectory in a low-Mach, viscosity-resolved D3Q19 regime. The pitch sign follows BirdFlow's registered chord/span/normal convention after the +0.35 rad candidate produced a 0.02...0.03 N downward mean load in a constrained D8 trim search. This is a numerical D3Q19 calibration model, not a measured Deetjen or biological specimen."
+  },
+  "units": {
+    "length": "meter",
+    "mass": "kilogram",
+    "time": "second",
+    "angle": "radian",
+    "angularRate": "radianPerSecond"
+  },
+  "coordinateFrame": {
+    "handedness": "rightHanded",
+    "origin": "centerOfMass",
+    "xAxis": "forward",
+    "yAxis": "left",
+    "zAxis": "up"
+  },
+  "geometryRepresentation": "registeredAnalyticProxyV1",
+  "geometry": {
+    "bodyRadiiMeters": [0.16, 0.05, 0.055],
+    "massKilograms": 0.15,
+    "principalInertiaKilogramMetersSquared": [0.004544, 0.006186, 0.00924],
+    "wingSpanMeters": 0.18,
+    "wingRootChordMeters": 0.20,
+    "wingTipChordMeters": 0.20,
+    "wingThicknessMeters": 0.04,
+    "wingSweepMeters": 0.0,
+    "wingRootOffsetMeters": [0.023125, 0.06, 0.0],
+    "tailLengthMeters": 0.17,
+    "tailHalfWidthMeters": 0.11,
+    "tailThicknessMeters": 0.04
+  },
+  "kinematics": {
+    "frequencyHz": 4.0,
+    "keyframes": [
+      {
+        "phase": 0.0,
+        "left": {
+          "strokeRadians": 0.0,
+          "deviationRadians": 0.0,
+          "pitchRadians": -0.35,
+          "tipTwistRadians": 0.0,
+          "strokeRateRadiansPerSecond": 6.031858,
+          "deviationRateRadiansPerSecond": 0.0,
+          "pitchRateRadiansPerSecond": 0.0,
+          "tipTwistRateRadiansPerSecond": 0.0
+        },
+        "right": {
+          "strokeRadians": 0.0,
+          "deviationRadians": 0.0,
+          "pitchRadians": -0.35,
+          "tipTwistRadians": 0.0,
+          "strokeRateRadiansPerSecond": 6.031858,
+          "deviationRateRadiansPerSecond": 0.0,
+          "pitchRateRadiansPerSecond": 0.0,
+          "tipTwistRateRadiansPerSecond": 0.0
+        }
+      },
+      {
+        "phase": 0.25,
+        "left": {
+          "strokeRadians": 0.240,
+          "deviationRadians": 0.0,
+          "pitchRadians": -0.35,
+          "tipTwistRadians": 0.0,
+          "strokeRateRadiansPerSecond": 0.0,
+          "deviationRateRadiansPerSecond": 0.0,
+          "pitchRateRadiansPerSecond": 0.0,
+          "tipTwistRateRadiansPerSecond": 0.0
+        },
+        "right": {
+          "strokeRadians": 0.240,
+          "deviationRadians": 0.0,
+          "pitchRadians": -0.35,
+          "tipTwistRadians": 0.0,
+          "strokeRateRadiansPerSecond": 0.0,
+          "deviationRateRadiansPerSecond": 0.0,
+          "pitchRateRadiansPerSecond": 0.0,
+          "tipTwistRateRadiansPerSecond": 0.0
+        }
+      },
+      {
+        "phase": 0.5,
+        "left": {
+          "strokeRadians": 0.0,
+          "deviationRadians": 0.0,
+          "pitchRadians": -0.35,
+          "tipTwistRadians": 0.0,
+          "strokeRateRadiansPerSecond": -6.031858,
+          "deviationRateRadiansPerSecond": 0.0,
+          "pitchRateRadiansPerSecond": 0.0,
+          "tipTwistRateRadiansPerSecond": 0.0
+        },
+        "right": {
+          "strokeRadians": 0.0,
+          "deviationRadians": 0.0,
+          "pitchRadians": -0.35,
+          "tipTwistRadians": 0.0,
+          "strokeRateRadiansPerSecond": -6.031858,
+          "deviationRateRadiansPerSecond": 0.0,
+          "pitchRateRadiansPerSecond": 0.0,
+          "tipTwistRateRadiansPerSecond": 0.0
+        }
+      },
+      {
+        "phase": 0.75,
+        "left": {
+          "strokeRadians": -0.240,
+          "deviationRadians": 0.0,
+          "pitchRadians": -0.35,
+          "tipTwistRadians": 0.0,
+          "strokeRateRadiansPerSecond": 0.0,
+          "deviationRateRadiansPerSecond": 0.0,
+          "pitchRateRadiansPerSecond": 0.0,
+          "tipTwistRateRadiansPerSecond": 0.0
+        },
+        "right": {
+          "strokeRadians": -0.240,
+          "deviationRadians": 0.0,
+          "pitchRadians": -0.35,
+          "tipTwistRadians": 0.0,
+          "strokeRateRadiansPerSecond": 0.0,
+          "deviationRateRadiansPerSecond": 0.0,
+          "pitchRateRadiansPerSecond": 0.0,
+          "tipTwistRateRadiansPerSecond": 0.0
+        }
+      }
+    ]
+  },
+  "prescribedWingDynamics": {
+    "model": "prescribedRigidWingMomentumV1",
+    "sourceCitation": "Numi Lab RunProgram.cpp authored wing body mass, hinge-relative center of mass, and principal inertia at neutral pose",
+    "massDefinition": "wholeBirdIncludingWings",
+    "inertiaDefinition": "wholeBirdAtRegisteredReferencePose",
+    "left": {
+      "massKilograms": 0.02,
+      "centerOfMassFromHingeMeters": [0.0, 0.18, 0.0],
+      "principalInertiaKilogramMetersSquared": [0.00006, 0.0002, 0.00022]
+    },
+    "right": {
+      "massKilograms": 0.02,
+      "centerOfMassFromHingeMeters": [0.0, 0.18, 0.0],
+      "principalInertiaKilogramMetersSquared": [0.00006, 0.0002, 0.00022]
+    }
+  },
+  "replay": {
+    "domainOriginMeters": [0.0, 0.0, 0.0],
+    "domainSizeMeters": [2.4, 2.4, 2.4],
+    "bodyPositionMeters": [1.2, 1.2, 1.2],
+    "bodyOrientationBodyToWorld": {
+      "vector": [0.0, 0.0, 0.0],
+      "scalar": 1.0
+    },
+    "farFieldVelocityMetersPerSecond": [-1.0, 0.0, 0.0],
+    "gravityMetersPerSecondSquared": [0.0, 0.0, -9.81],
+    "referenceSpeedMetersPerSecond": 1.0,
+    "targetReynoldsNumber": 100.0,
+    "physicalAirDensity": 1.225,
+    "latticeReferenceSpeed": 0.04,
+    "spongeStrength": 0.06
+  }
+}

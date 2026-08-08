@@ -2,11 +2,12 @@
 set -eu
 
 # BirdFlowMetal owns the fluid and moving-surface solve.  This Numi capability
-# deliberately exposes the prescribed Deetjen replay as evidence, rather than
-# misrepresenting it as a Numi trainable/free-flight robot.
+# exposes both the prescribed Deetjen evidence path and BirdFlow's separate,
+# provenance-gated schema-2 D3Q19 flight ladder.  The latter never borrows
+# mass properties from Deetjen or from the Numi hybrid.
 
 if [ "${1:-}" = "--numi-describe" ]; then
-    printf '%s\n' "Run BirdFlowMetal's provenance-locked prescribed Deetjen dove through-flight replay."
+    printf '%s\n' "Run BirdFlowMetal prescribed Deetjen replay or provenance-gated schema-2 D3Q19 dove flight."
     exit 0
 fi
 
@@ -15,6 +16,10 @@ if [ "${1:-}" = "--help" ]; then
 usage: numi dove [replay] [--archive FILE] [--json]
        numi dove train [numi train options]
        numi dove evaluate [numi evaluate options]
+       numi dove measured-audit --input DATASET.json [--chord-cells N] [--json]
+       numi dove measured-trim --input DATASET.json [BirdFlow trim options]
+       numi dove measured-flight --input DATASET.json [BirdFlow flight options]
+       numi dove measured-confirm --input DATASET.json [BirdFlow confirmation options]
 
 `replay` builds and runs BirdFlowMetal's measured-surface Deetjen dove
 through-flight replay. With no --archive, it writes a timestamped report below
@@ -26,14 +31,24 @@ hinge phase; a device-resident blade-element load pass reads resolved motion,
 body state, and wind before the articulated ABA solve. The next physical state
 therefore depends on wing load inside the regular rollback transaction.
 
+The `measured-*` modes pass an explicit schema-2 specimen to BirdFlowMetal's
+own D3Q19 implementation. `measured-trim` performs the prescribed force/moment
+balance search, `measured-flight` runs one coupled six-DOF trajectory with
+momentum and per-part-load ledgers, and `measured-confirm` runs the independent
+five-cycle bounded-flight, 1/2/4 body-step, and coupled-closure ladder. These
+modes reject schema 1 inputs; they do not manufacture missing specimen data.
+
 Environment:
   NUMI_BIRDFLOW_ROOT  BirdFlowMetal checkout (default: /Users/home/BirdFlowMetal)
 
 `replay` is prescribed-motion CFD: its aerodynamic load does not control the
 dove. The trainable robot is separately labelled hybrid because public Deetjen
 inputs lack complete same-specimen mass and bilateral wing inertia, and it
-uses authored aerodynamic closure coefficients. Neither path is a quantitative
-free-flight or hardware claim.
+uses authored aerodynamic closure coefficients. A schema-2 archive can be a
+quantitative D3Q19 *numerical* flight result only within the provenance of its
+input; it is a real-bird result only when its geometry, kinematics, and inertial
+properties were actually measured from that same specimen. No mode is a
+hardware claim.
 EOF
     exit 0
 fi
@@ -55,6 +70,9 @@ case "$mode" in
             shift
         fi
         ;;
+    measured-audit|measured-trim|measured-flight|measured-confirm)
+        shift
+        ;;
     --archive|--json)
         ;;
     *)
@@ -63,34 +81,83 @@ case "$mode" in
         ;;
 esac
 birdflow_root=${NUMI_BIRDFLOW_ROOT:-/Users/home/BirdFlowMetal}
-manifest="$birdflow_root/ValidationInputs/deetjen-ob-f03-surface-v1/manifest.json"
-force_target="$birdflow_root/ValidationInputs/deetjen-ob-f03-force-v1.json"
-
-if [ ! -f "$manifest" ] || [ ! -f "$force_target" ]; then
-    printf '%s\n' "BirdFlowMetal Deetjen inputs are unavailable under: $birdflow_root" >&2
-    printf '%s\n' "Set NUMI_BIRDFLOW_ROOT to a checkout containing ValidationInputs/." >&2
-    exit 1
-fi
-
-archive_supplied=false
-for argument in "$@"; do
-    if [ "$argument" = "--archive" ]; then
-        archive_supplied=true
-        break
-    fi
-done
-
-if [ "$archive_supplied" = false ]; then
-    output_dir="$workspace/.numi/runs/birdflow-deetjen-dove"
-    mkdir -p "$output_dir"
-    set -- --archive "$output_dir/deetjen-dove-through-flight-$(date -u +%Y%m%dT%H%M%SZ)-$$.json" "$@"
-fi
-
 swift build -c release --product birdflow --package-path "$birdflow_root" >/dev/null
 birdflow="$birdflow_root/.build/release/birdflow"
 
-printf '%s\n' "Numi dove: BirdFlowMetal prescribed Deetjen through-flight (not free flight)."
-exec "$birdflow" simulate deetjen-dove \
-    --input "$manifest" \
-    --force-target "$force_target" \
-    "$@"
+case "$mode" in
+    replay|--archive|--json)
+        manifest="$birdflow_root/ValidationInputs/deetjen-ob-f03-surface-v1/manifest.json"
+        force_target="$birdflow_root/ValidationInputs/deetjen-ob-f03-force-v1.json"
+        if [ ! -f "$manifest" ] || [ ! -f "$force_target" ]; then
+            printf '%s\n' "BirdFlowMetal Deetjen inputs are unavailable under: $birdflow_root" >&2
+            printf '%s\n' "Set NUMI_BIRDFLOW_ROOT to a checkout containing ValidationInputs/." >&2
+            exit 1
+        fi
+        archive_supplied=false
+        for argument in "$@"; do
+            case "$argument" in
+                --archive|--archive=*) archive_supplied=true ;;
+            esac
+        done
+        if [ "$archive_supplied" = false ]; then
+            output_dir="$workspace/.numi/runs/birdflow-deetjen-dove"
+            mkdir -p "$output_dir"
+            set -- --archive "$output_dir/deetjen-dove-through-flight-$(date -u +%Y%m%dT%H%M%SZ)-$$.json" "$@"
+        fi
+        printf '%s\n' "Numi dove: BirdFlowMetal prescribed Deetjen through-flight (not free flight)."
+        exec "$birdflow" simulate deetjen-dove \
+            --input "$manifest" \
+            --force-target "$force_target" \
+            "$@"
+        ;;
+    measured-audit|measured-trim|measured-flight|measured-confirm)
+        input_path=''
+        archive_supplied=false
+        expect_input=false
+        for argument in "$@"; do
+            if [ "$expect_input" = true ]; then
+                input_path=$argument
+                expect_input=false
+                continue
+            fi
+            case "$argument" in
+                --input) expect_input=true ;;
+                --input=*) input_path=${argument#--input=} ;;
+                --archive|--archive=*) archive_supplied=true ;;
+            esac
+        done
+        if [ "$expect_input" = true ] || [ -z "$input_path" ]; then
+            printf '%s\n' "numi dove $mode: --input DATASET.json is required" >&2
+            exit 2
+        fi
+        if [ ! -f "$input_path" ]; then
+            printf '%s\n' "numi dove $mode: input does not exist: $input_path" >&2
+            exit 2
+        fi
+        if [ "$archive_supplied" = false ] && [ "$mode" != measured-audit ]; then
+            output_dir="$workspace/.numi/runs/birdflow-$mode"
+            mkdir -p "$output_dir"
+            set -- --archive "$output_dir/$(basename "$input_path" .json)-$(date -u +%Y%m%dT%H%M%SZ)-$$" "$@"
+        fi
+        case "$mode" in
+            measured-audit)
+                printf '%s\n' "Numi dove: BirdFlowMetal schema audit (no Metal allocation)."
+                exec "$birdflow" replay measured-bird --audit-only "$@"
+                ;;
+            measured-trim)
+                printf '%s\n' "Numi dove: BirdFlowMetal schema-2 prescribed trim search."
+                exec "$birdflow" replay measured-bird --trim-search "$@"
+                ;;
+            measured-flight)
+                printf '%s\n' "Numi dove: BirdFlowMetal schema-2 coupled D3Q19 free-flight trajectory."
+                exec "$birdflow" replay measured-bird \
+                    --free-flight --momentum-ledger --part-loads "$@"
+                ;;
+            measured-confirm)
+                printf '%s\n' "Numi dove: BirdFlowMetal schema-2 bounded D3Q19 free-flight confirmation."
+                exec "$birdflow" replay measured-bird \
+                    --free-flight-confirmation "$@"
+                ;;
+        esac
+        ;;
+esac
