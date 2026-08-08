@@ -452,6 +452,39 @@ struct MetalWorldDeviceObservationProgram {
     }
 };
 
+// Presentation-only extension encoded after the final accepted state of a
+// submitted rollout. Like device observations, it borrows every resource and
+// must neither commit nor wait. Unlike device observations, it has no actor
+// observation or policy dependency: it is deliberately outside the physics
+// and policy contracts.
+struct MetalWorldInspectionPass {
+    void* commandBuffer = nullptr;
+    void* currentBodies = nullptr;
+    std::uint64_t seed = 0u;
+    std::uint64_t submissionIndex = 0u;
+    std::uint32_t controlStepCount = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t bodyCount = 0u;
+};
+
+using MetalWorldInspectionEncode = bool (*) (
+    void* context,
+    const MetalWorldInspectionPass& pass
+);
+
+struct MetalWorldInspectionProgram {
+    void* context = nullptr;
+    MetalWorldInspectionEncode encode = nullptr;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return context != nullptr && encode != nullptr;
+    }
+
+    [[nodiscard]] bool configured() const noexcept {
+        return context != nullptr || encode != nullptr;
+    }
+};
+
 // Immutable robot-authored multicopter actuator program. MetalWorld executes
 // it immediately before every ABA microstep and writes the resulting
 // world-frame wrench into the same external-wrench arena used by articulated
@@ -507,6 +540,9 @@ struct MetalWorldStepConfig {
     // Optional renderer/perception pass. It receives only borrowed device
     // resources and executes inside the native rollout command buffer.
     MetalWorldDeviceObservationProgram deviceObservationProgram{};
+    // Optional non-authoritative presentation pass. It runs once after a
+    // completed rollout chunk has produced its final accepted body state.
+    MetalWorldInspectionProgram inspectionProgram{};
     // Publish V(s_T) from the accepted post-rollout state in the same command
     // buffer. This does not apply the sampled action or advance physics.
     bool evaluateFinalPolicy = false;

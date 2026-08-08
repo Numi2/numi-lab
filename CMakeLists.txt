@@ -50,6 +50,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
+find_library(APPKIT_FRAMEWORK AppKit REQUIRED)
 find_library(METAL_FRAMEWORK Metal REQUIRED)
 find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
 find_library(ACCELERATE_FRAMEWORK Accelerate REQUIRED)
@@ -633,6 +634,7 @@ add_library(
     src/metal/MetalWorld.mm
     src/metal/MetalWorldFamily.mm
     src/metal/MetalHybridRenderer.mm
+    src/metal/MetalRunInspector.mm
     src/metal/MetalTactile.mm
     src/c_api.cpp
 )
@@ -903,6 +905,7 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_task_rollout
         apps/task_rollout.swift
+        apps/RunInspector.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
     target_include_directories(
@@ -914,6 +917,7 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_task_rollout
         PRIVATE
             metalrobo
+            "${APPKIT_FRAMEWORK}"
     )
     set_target_properties(
         metalrobo_task_rollout
@@ -927,6 +931,7 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_task_train
         apps/task_train.swift
+        apps/RunInspector.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
     target_include_directories(
@@ -938,6 +943,7 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_task_train
         PRIVATE
             metalrobo
+            "${APPKIT_FRAMEWORK}"
     )
     set_target_properties(
         metalrobo_task_train

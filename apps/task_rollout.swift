@@ -1,5 +1,6 @@
 import Foundation
 import Darwin
+import AppKit
 
 private struct SplitMix64 {
     private var state: UInt64
@@ -190,6 +191,9 @@ private struct Options {
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
     var visualObservationConfig: String?
+    var inspectionScene: String?
+    var inspectionWidth = 640
+    var inspectionHeight = 360
     var captureDirectory: String?
     var captureWidth = 480
     var captureHeight = 270
@@ -434,6 +438,15 @@ private struct Options {
             case "--visual-observation-config":
                 visualObservationConfig = try value()
                 index += 1
+            case "--inspect-scene":
+                inspectionScene = try value()
+                index += 1
+            case "--inspect-width":
+                inspectionWidth = try Self.integer(value(), option)
+                index += 1
+            case "--inspect-height":
+                inspectionHeight = try Self.integer(value(), option)
+                index += 1
             case "--capture-dir":
                 captureDirectory = try value()
                 index += 1
@@ -633,6 +646,12 @@ private struct Options {
                 "--capture-policy-camera requires --capture-dir."
             )
         }
+        if inspectionScene != nil &&
+            (inspectionWidth <= 0 || inspectionHeight <= 0) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--inspect-width and --inspect-height must be positive."
+            )
+        }
     }
 
     private static func integer(
@@ -690,6 +709,24 @@ private func makeVisualObservation(
         observation.capturePolicyCamera = options.capturePolicyCamera
     }
     return observation
+}
+
+private func makeInspectionVisual(
+    options: Options
+) throws -> MetalRoboTaskVisualObservationConfiguration? {
+    guard let path = options.inspectionScene else {
+        return nil
+    }
+    var inspection = try MetalRoboTaskVisualObservationConfiguration.loadArtifact(
+        at: URL(fileURLWithPath: path)
+    )
+    inspection.width = UInt32(options.inspectionWidth)
+    inspection.height = UInt32(options.inspectionHeight)
+    // Inspection is a presentation path, never a media-export configuration.
+    inspection.captureWidth = 0
+    inspection.captureHeight = 0
+    inspection.capturePolicyCamera = false
+    return inspection
 }
 
 private func writeCaptureFrame(
@@ -761,6 +798,7 @@ private func makeContext(
     options: Options
 ) throws -> (MetalRoboTaskRolloutContext, String) {
     let visualSensor = try makeVisualObservation(options: options)
+    let inspectionVisual = try makeInspectionVisual(options: options)
     let dynamicSpheres = options.dynamicSpheres.isEmpty &&
         options.unitreeG1Task == .ballDodge
         ? MetalRoboDynamicSphere.g1BallDodgeDefaults
@@ -807,6 +845,7 @@ private func makeContext(
                     source: .unitreeG1,
                     sensorsAndPhysics: configuration,
                     visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual,
                     teacher: MetalRoboTeacherSource(
                         pack: URL(fileURLWithPath: interactionPack),
                         clipID: interactionClip
@@ -834,7 +873,8 @@ private func makeContext(
                         realityPack: URL(fileURLWithPath: realityPack)
                     ),
                     sensorsAndPhysics: configuration,
-                    visualSensor: visualSensor
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual
                 ),
                 metallibPath: options.metallib
             ),
@@ -862,6 +902,7 @@ private func makeContext(
                     ),
                     sensorsAndPhysics: configuration,
                     visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual,
                     teacher: options.interactionPack.flatMap { pack in
                         options.interactionClip.map {
                             MetalRoboTeacherSource(
@@ -881,7 +922,8 @@ private func makeContext(
             manifest: MetalRoboRunManifest(
                 source: .unitreeG1,
                 sensorsAndPhysics: configuration,
-                visualSensor: visualSensor
+                visualSensor: visualSensor,
+                inspectionVisual: inspectionVisual
             ),
             metallibPath: options.metallib
         ),
@@ -949,13 +991,24 @@ private func masks(
     return result
 }
 
+private func publishInspectionFrame(
+    from context: MetalRoboTaskRolloutContext,
+    to inspector: MetalRoboRunInspectorBridge?
+) throws {
+    guard let inspector,
+          let frame = try context.acquireInspectionFrame()
+    else {
+        return
+    }
+    inspector.publish(frame: frame, context: context)
+}
+
 @main
 private enum TaskRolloutMain {
-    static func main() {
-        do {
-            let options = try Options(
-                arguments: CommandLine.arguments
-            )
+    private static func run(
+        options: Options,
+        inspector: MetalRoboRunInspectorBridge?
+    ) throws {
             let (context, worldSource) =
                 try makeContext(options: options)
             let visualObservationEnabled =
@@ -1080,6 +1133,10 @@ private enum TaskRolloutMain {
                     ),
                     controlStepCount: 1
                 )
+                try publishInspectionFrame(
+                    from: context,
+                    to: inspector
+                )
                 let revisions = try context.transitions(
                     controlStepCount: 1
                 ).map(\.policyRevision)
@@ -1170,6 +1227,10 @@ private enum TaskRolloutMain {
                         count: options.environments
                     ),
                     controlStepCount: 1
+                )
+                try publishInspectionFrame(
+                    from: context,
+                    to: inspector
                 )
             }
             try context.reset(seed: options.seed)
@@ -1446,6 +1507,10 @@ private enum TaskRolloutMain {
                             policyRevision: 1
                         )
                     }
+                    try publishInspectionFrame(
+                        from: context,
+                        to: inspector
+                    )
                     let statuses = try context.statusCodes(
                         controlStepCount: stepCount
                     )
@@ -2541,6 +2606,29 @@ private enum TaskRolloutMain {
                 options: [.prettyPrinted, .sortedKeys]
             )
             print(String(decoding: data, as: UTF8.self))
+    }
+
+    static func main() {
+        do {
+            let options = try Options(arguments: CommandLine.arguments)
+            guard options.inspectionScene != nil else {
+                try run(options: options, inspector: nil)
+                return
+            }
+            let inspector = try MetalRoboRunInspectorBridge.launch()
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    try run(options: options, inspector: inspector)
+                } catch {
+                    FileHandle.standardError.write(
+                        Data("task_rollout failed: \(error)\n".utf8)
+                    )
+                }
+                DispatchQueue.main.async {
+                    NSApplication.shared.terminate(nil)
+                }
+            }
+            NSApplication.shared.run()
         } catch {
             FileHandle.standardError.write(
                 Data("task_rollout failed: \(error)\n".utf8)

@@ -210,6 +210,33 @@ aligned shared buffer and reuses caller-owned host capacity. This avoids
 per-modality Metal allocations without retaining a resolution-sized staging
 buffer after the readback completes.
 
+### Live run inspector
+
+`metalrobo_task_rollout` and `metalrobo_task_train` can open a small native
+macOS `MTKView` beside a run with:
+
+```sh
+metalrobo_task_rollout ... \
+    --inspect-scene /path/to/visual-observation.json \
+    --inspect-width 960 --inspect-height 540
+```
+
+`--inspect-scene` takes the same portable `numi.visual-observation.v1`
+artifact used for authored cameras, but it compiles an independent
+presentation-only renderer. It neither changes `CompiledRun`, policy
+observations, policy fingerprints, nor the task SensorPack. The render is
+encoded after the final accepted control state of each existing rollout
+submission, into the submission's command buffer; it never introduces a
+command-buffer wait, a CPU state copy, or a pixel readback.
+
+The window consumes device-private linear RGB buffers through a three-slot
+ring. A slot is released only after its display command buffer completes; if
+the window or compositor falls behind, the producer drops the newest preview
+instead of blocking physics, control, or learning. The window currently
+shows representative environment zero. It is an inspection aid, not evidence
+of real-hardware behavior or a media-capture path. Use ordinary visual export
+or state-trace facilities when durable frames or artifacts are required.
+
 Fixed and wrist cameras in `FrankaPickPlaceWorldFamily` are the reference
 integration. The fixed camera is calibrated toward the manipulation
 workspace; the wrist camera is bound to the final articulated link.
