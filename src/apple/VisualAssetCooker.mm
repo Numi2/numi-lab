@@ -4626,6 +4626,21 @@ VisualAssetCookDiagnostics cookUrdfVisualDescription(
                     "URDF visual origin or mesh scale is invalid"
                 );
             }
+            if (const auto fixedTransform =
+                    options.linkOriginTransforms.find(linkName);
+                fixedTransform != options.linkOriginTransforms.end()) {
+                Matrix4 bodyOriginFromLinkOrigin{};
+                for (std::size_t row = 0u; row < 4u; ++row) {
+                    for (std::size_t column = 0u; column < 4u; ++column) {
+                        bodyOriginFromLinkOrigin.value[row][column] =
+                            fixedTransform->second[row * 4u + column];
+                    }
+                }
+                authoredTransform = multiply(
+                    bodyOriginFromLinkOrigin,
+                    authoredTransform
+                );
+            }
             if (const auto centerOfMass =
                     options.linkCenterOfMassOffsets.find(linkName);
                 centerOfMass != options.linkCenterOfMassOffsets.end()) {

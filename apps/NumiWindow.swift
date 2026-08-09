@@ -147,34 +147,10 @@ public func numiWindowSceneCatalog() -> [NumiWindowSceneChoice] {
         FileManager.default.currentDirectoryPath + "/.numi/runs",
         isDirectory: true
     )
-    let robotPresets = numiWindowSceneChoices(in: directory)
-    let preferredPresetIDs = [
-        "franka-pick-place",
-        "px4-x500-hover",
-        "robotis-k1-squat",
-        "unitree-g1-velocity",
-    ]
-    var selectedPresets: [NumiWindowSceneChoice] = []
-    for robotID in Set(robotPresets.map(\.robotID)).sorted() {
-        let presets = robotPresets.filter { $0.robotID == robotID }
-        let selected = preferredPresetIDs.compactMap { preferred in
-            presets.first(where: { $0.id == preferred })
-        }.first ?? presets.first
-        if let selected {
-            selectedPresets.append(selected)
-        }
-    }
-    return selectedPresets.map { choice in
-        NumiWindowSceneChoice(
-            id: choice.id + ".studio",
-            robotID: choice.robotID,
-            robotName: choice.robotName,
-            sceneID: "studio",
-            sceneName: "Studio",
-            visualObservationURL: choice.visualObservationURL,
-            launchArguments: choice.launchArguments
-        )
-    }
+    // Keep every authored robot/scene contract. The selectors already group
+    // these by robot, and collapsing them to one synthetic "Studio" choice
+    // hid the distinct locomotion, recovery, manipulation, and flight scenes.
+    return numiWindowSceneChoices(in: directory)
 }
 
 public func numiWindowPolicyChoices(

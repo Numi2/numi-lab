@@ -9,7 +9,9 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -72,33 +74,104 @@ void resolveMeshes(
     }
 }
 
-std::filesystem::path filteredURDF(
+std::optional<std::string> xmlProperty(
+    xmlNodePtr node,
+    const char* name
+) {
+    xmlChar* raw = xmlGetProp(node, BAD_CAST name);
+    if (raw == nullptr) {
+        return std::nullopt;
+    }
+    std::string value{reinterpret_cast<const char*>(raw)};
+    xmlFree(raw);
+    return value;
+}
+
+xmlNodePtr xmlChild(xmlNodePtr node, const char* name) {
+    for (xmlNodePtr child = node == nullptr ? nullptr : node->children;
+         child != nullptr; child = child->next) {
+        if (child->type == XML_ELEMENT_NODE &&
+            xmlStrcmp(child->name, BAD_CAST name) == 0) {
+            return child;
+        }
+    }
+    return nullptr;
+}
+
+using Matrix = std::array<double, 16u>;
+
+Matrix identityMatrix() {
+    return {{1.0, 0.0, 0.0, 0.0,
+             0.0, 1.0, 0.0, 0.0,
+             0.0, 0.0, 1.0, 0.0,
+             0.0, 0.0, 0.0, 1.0}};
+}
+
+Matrix multiply(const Matrix& left, const Matrix& right) {
+    Matrix result{};
+    for (std::size_t row = 0u; row < 4u; ++row) {
+        for (std::size_t column = 0u; column < 4u; ++column) {
+            for (std::size_t inner = 0u; inner < 4u; ++inner) {
+                result[row * 4u + column] +=
+                    left[row * 4u + inner] * right[inner * 4u + column];
+            }
+        }
+    }
+    return result;
+}
+
+std::array<double, 3u> vector3(
+    const std::optional<std::string>& text
+) {
+    std::array<double, 3u> result{};
+    if (!text.has_value()) {
+        return result;
+    }
+    std::istringstream stream{*text};
+    if (!(stream >> result[0] >> result[1] >> result[2]) ||
+        !(stream >> std::ws).eof()) {
+        throw std::runtime_error("invalid fixed-joint origin in visual URDF");
+    }
+    return result;
+}
+
+Matrix jointOrigin(xmlNodePtr joint) {
+    const xmlNodePtr origin = xmlChild(joint, "origin");
+    const auto xyz = vector3(origin == nullptr
+        ? std::nullopt : xmlProperty(origin, "xyz"));
+    const auto rpy = vector3(origin == nullptr
+        ? std::nullopt : xmlProperty(origin, "rpy"));
+    const double cr = std::cos(rpy[0]);
+    const double sr = std::sin(rpy[0]);
+    const double cp = std::cos(rpy[1]);
+    const double sp = std::sin(rpy[1]);
+    const double cy = std::cos(rpy[2]);
+    const double sy = std::sin(rpy[2]);
+    Matrix result = identityMatrix();
+    result[0] = cy * cp;
+    result[1] = cy * sp * sr - sy * cr;
+    result[2] = cy * sp * cr + sy * sr;
+    result[4] = sy * cp;
+    result[5] = sy * sp * sr + cy * cr;
+    result[6] = sy * sp * cr - cy * sr;
+    result[8] = -sp;
+    result[9] = cp * sr;
+    result[10] = cp * cr;
+    result[3] = xyz[0];
+    result[7] = xyz[1];
+    result[11] = xyz[2];
+    return result;
+}
+
+std::filesystem::path resolvedURDF(
     const std::filesystem::path& source,
-    const EngineModel& model,
     const std::filesystem::path& target
 ) {
     xmlDocPtr document = xmlReadFile(source.c_str(), nullptr, XML_PARSE_NONET);
     if (document == nullptr) {
         throw std::runtime_error("could not read authored robot visual URDF");
     }
-    const std::set<std::string> bodies{
-        model.bodyNames.begin(), model.bodyNames.end()};
     xmlNodePtr root = xmlDocGetRootElement(document);
-    for (xmlNodePtr node = root->children; node != nullptr;) {
-        xmlNodePtr next = node->next;
-        if (node->type == XML_ELEMENT_NODE &&
-            xmlStrcmp(node->name, BAD_CAST "link") == 0) {
-            xmlChar* raw = xmlGetProp(node, BAD_CAST "name");
-            const std::string name = raw == nullptr ? std::string{} :
-                reinterpret_cast<const char*>(raw);
-            xmlFree(raw);
-            if (!bodies.contains(name)) {
-                xmlUnlinkNode(node);
-                xmlFreeNode(node);
-            }
-        }
-        node = next;
-    }
     resolveMeshes(root, source.parent_path());
     const int saved = xmlSaveFormatFileEnc(
         target.c_str(), document, "UTF-8", 1);
@@ -107,6 +180,83 @@ std::filesystem::path filteredURDF(
         throw std::runtime_error("could not write filtered visual URDF");
     }
     return target;
+}
+
+void bindFixedVisualLinks(
+    const std::filesystem::path& urdf,
+    const EngineModel& model,
+    metalrobo::VisualAssetCookOptions& options
+) {
+    xmlDocPtr document = xmlReadFile(urdf.c_str(), nullptr, XML_PARSE_NONET);
+    if (document == nullptr) {
+        throw std::runtime_error("could not read resolved visual URDF");
+    }
+    struct FixedParent {
+        std::string parent;
+        Matrix parentFromChild;
+    };
+    std::map<std::string, FixedParent> fixedParents;
+    xmlNodePtr root = xmlDocGetRootElement(document);
+    for (xmlNodePtr node = root->children; node != nullptr;
+         node = node->next) {
+        if (node->type != XML_ELEMENT_NODE ||
+            xmlStrcmp(node->name, BAD_CAST "joint") != 0 ||
+            xmlProperty(node, "type").value_or("") != "fixed") {
+            continue;
+        }
+        const xmlNodePtr parent = xmlChild(node, "parent");
+        const xmlNodePtr child = xmlChild(node, "child");
+        if (parent == nullptr || child == nullptr) {
+            continue;
+        }
+        fixedParents.emplace(
+            xmlProperty(child, "link").value_or(""),
+            FixedParent{
+                xmlProperty(parent, "link").value_or(""),
+                jointOrigin(node),
+            }
+        );
+    }
+    std::map<std::string, std::uint32_t> bodies;
+    for (std::uint32_t body = 0u; body < model.bodyNames.size(); ++body) {
+        bodies.emplace(model.bodyNames[body], body);
+    }
+    for (const auto& [link, ignored] : fixedParents) {
+        (void)ignored;
+        std::string current = link;
+        Matrix bodyOriginFromLinkOrigin = identityMatrix();
+        std::set<std::string> visited;
+        while (!bodies.contains(current)) {
+            if (!visited.insert(current).second) {
+                xmlFreeDoc(document);
+                throw std::runtime_error("fixed visual-link cycle in URDF");
+            }
+            const auto parent = fixedParents.find(current);
+            if (parent == fixedParents.end()) {
+                break;
+            }
+            bodyOriginFromLinkOrigin = multiply(
+                parent->second.parentFromChild,
+                bodyOriginFromLinkOrigin
+            );
+            current = parent->second.parent;
+        }
+        const auto body = bodies.find(current);
+        if (body == bodies.end()) {
+            continue;
+        }
+        options.linkBodyIndices.emplace(link, body->second);
+        options.linkCenterOfMassOffsets.emplace(
+            link, model.bodies[body->second].centerOfMass);
+        std::array<float, 16u> encoded{};
+        std::ranges::transform(
+            bodyOriginFromLinkOrigin,
+            encoded.begin(),
+            [](const double value) { return static_cast<float>(value); }
+        );
+        options.linkOriginTransforms.emplace(link, encoded);
+    }
+    xmlFreeDoc(document);
 }
 
 void syntheticURDF(
@@ -170,6 +320,7 @@ void cookPresentation(
         options.linkCenterOfMassOffsets.emplace(
             model.bodyNames[body], model.bodies[body].centerOfMass);
     }
+    bindFixedVisualLinks(urdf, model, options);
     std::vector<metalrobo::VisualAssetPackV2> packs;
     const auto diagnostics = metalrobo::cookUrdfVisualDescription(
         urdf, packs, options);
@@ -244,8 +395,8 @@ int main(const int argc, const char* const* argv) {
         const EngineModel g1 = metalrobo::makeUnitreeG1EngineModel();
         const auto g1Source = options.workspace /
             "build/unitree_ros/robots/g1_description/g1_29dof.urdf";
-        const auto g1URDF = filteredURDF(
-            g1Source, g1, options.output / "unitree-g1-visual.urdf");
+        const auto g1URDF = resolvedURDF(
+            g1Source, options.output / "unitree-g1-visual.urdf");
         cookPresentation(g1URDF, g1, "unitree-g1", "pelvis",
             options.output, {1.05f, -1.30f, 0.32f}, cameraQ);
         const std::vector<std::pair<std::string, std::string>> g1Scenes{{
@@ -306,6 +457,13 @@ int main(const int argc, const char* const* argv) {
             "px4-x500-visual-observation.json",
             {"--robot-source", "px4-x500", "--scene", "ground"});
 
+        {
+            std::ofstream version{options.output / "catalog.version"};
+            version << "2\n";
+            if (!version) {
+                throw std::runtime_error("could not publish catalog version");
+            }
+        }
         std::cout << "wrote Numi Window built-in catalog "
                   << options.output << '\n';
     } catch (const std::exception& error) {
