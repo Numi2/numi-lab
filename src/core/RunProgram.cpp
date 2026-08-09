@@ -1804,11 +1804,22 @@ TaskPack makeMeasuredSurfaceDropRecoveryTaskPack(
         {"uprightness", "ratio", TaskOutcomeSource::rewardContribution,
             TaskOutcomeDirection::higherIsBetter,
             TaskRewardOperator::uprightness},
+        {"forward_speed_tracking", "ratio",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::linearVelocityTracking},
         {"vertical_speed_cost", "m2/s2",
             TaskOutcomeSource::rewardContribution,
             TaskOutcomeDirection::lowerIsBetter,
             TaskRewardOperator::rootVerticalVelocitySquared},
     };
+    constexpr float measuredForwardSpeed = 1.3081407f;
+    task.commands.lower = {measuredForwardSpeed, 0.0f, 0.0f, 0.0f};
+    task.commands.upper = task.commands.lower;
+    task.commands.limitLower = task.commands.lower;
+    task.commands.limitUpper = task.commands.lower;
+    task.commands.difficultyStep = {};
+    task.commands.standingProbability = 0.0f;
     const std::string rootBody = robot.mechanics.bodyNames.front();
     task.contactGroups = {{
         .id = "fatal_impact",
@@ -1817,11 +1828,13 @@ TaskPack makeMeasuredSurfaceDropRecoveryTaskPack(
         .referenceBody = rootBody,
     }};
     task.rewards = {
-        {TaskRewardOperator::constant, {}, {}, 0.35f},
-        {TaskRewardOperator::rootHeightProgress, {}, {}, 2.0f},
+        {TaskRewardOperator::constant, {}, {}, 0.25f},
+        {TaskRewardOperator::rootHeightProgress, {}, {}, 2.75f},
+        {TaskRewardOperator::linearVelocityTracking, {}, {}, 1.0f,
+            {0.65f, 0.0f, 0.0f, 0.0f}},
         {TaskRewardOperator::uprightness, {}, {}, 1.25f},
-        {TaskRewardOperator::tiltSquared, {}, {}, -0.45f},
-        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.035f},
+        {TaskRewardOperator::tiltSquared, {}, {}, -0.40f},
+        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.012f},
         {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.015f},
         {TaskRewardOperator::actionSquared, {}, {}, -0.012f},
         {TaskRewardOperator::actionRateSquared, {}, {}, -0.003f},

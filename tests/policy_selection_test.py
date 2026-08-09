@@ -82,6 +82,65 @@ class PolicySelectionTest(unittest.TestCase):
             0.25,
         )
 
+    def test_dove_reason_count_timeouts_are_not_physical_failures(self) -> None:
+        incumbent = {
+            "task": "deetjen_f03_robot.fatal_drop_recovery",
+            "world_source": "measured_dove",
+            "termination_count_by_environment": [1, 0, 0, 0],
+            "termination_count": 1,
+            "termination_reason_counts": {"4": 1},
+            "clean_horizon_environment_rate": 0.75,
+            "failed_environment_steps": 0,
+            "mean_reward": -0.1,
+            "mean_root_height": 5.0,
+            "mean_tilt": 0.5,
+        }
+        candidate = {
+            **incumbent,
+            "mean_reward": -0.09,
+            "mean_root_height": 5.1,
+            "mean_tilt": 0.49,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(
+            decision["metrics"]["candidate_physical_failure_rate"],
+            0.0,
+        )
+        self.assertEqual(decision["selected"], "candidate")
+
+    def test_dove_authored_forward_tracking_guides_selection(self) -> None:
+        incumbent = {
+            "task": "deetjen_f03_robot.fatal_drop_recovery",
+            "world_source": "measured_dove",
+            "termination_count_by_environment": [0] * 16,
+            "termination_count": 0,
+            "clean_horizon_environment_rate": 1.0,
+            "failed_environment_steps": 0,
+            "mean_reward": 0.1,
+            "mean_root_height": 22.0,
+            "mean_tilt": 0.5,
+            "outcomes": {
+                "forward_speed_tracking": {
+                    "mean": 0.20,
+                    "direction": 1,
+                }
+            },
+        }
+        candidate = {
+            **incumbent,
+            "outcomes": {
+                "forward_speed_tracking": {
+                    "mean": 0.30,
+                    "direction": 1,
+                }
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertIn(
+            "forward-speed tracking increased", decision["improvements"]
+        )
+
     def test_catastrophic_get_up_candidate_never_advances(self) -> None:
         incumbent = {
             "task": "supine-get-up",

@@ -302,6 +302,18 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
     environments = max(
         len(record.get("termination_count_by_environment", [])), 1
     )
+    timeout_count = record.get("timeout_count")
+    if timeout_count is None:
+        reason_counts = record.get("termination_reason_counts", {})
+        if isinstance(reason_counts, dict):
+            # Native rollout evidence uses the ABI termination opcode as a
+            # JSON object key. Opcode 4 is the ordinary episode timeout.
+            timeout_count = reason_counts.get(
+                "4", reason_counts.get(4, 0)
+            )
+        else:
+            timeout_count = 0
+    timeout_count = int(timeout_count)
     world_source = str(record.get("world_source", ""))
     if world_source == "measured_dove":
         # For aerial recovery, both minimum-height and forbidden-ground
@@ -309,7 +321,7 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
         # counts height/tilt reasons and would otherwise hide a lethal impact.
         failures = max(
             int(record.get("termination_count", 0))
-            - int(record.get("timeout_count", 0)),
+            - timeout_count,
             0,
         )
     elif (
@@ -320,7 +332,7 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
     else:
         failures = max(
             int(record.get("termination_count", 0))
-            - int(record.get("timeout_count", 0)),
+            - timeout_count,
             0,
         )
     return failures / environments
@@ -481,15 +493,28 @@ def compare_evidence(
             elif delta > 1.0e-12:
                 improvements.append(f"{label} improved")
     elif task == "dove-drop-recovery":
-        # A free-flying bird has no commanded planar progress. Lateral drift
-        # is neither success nor failure; qualification is survival, retained
-        # altitude, upright recovery, and the authored flight reward.
+        # Survival remains the hard gate. Newer dove tasks also author a
+        # measured forward-speed objective; older recovery evidence has no
+        # such outcome and retains its drift-neutral comparison contract.
         old_reward = float(incumbent.get("mean_reward", 0))
         new_reward = float(candidate.get("mean_reward", 0))
         if new_reward < old_reward - 1.0e-12:
             regressions.append("flight reward decreased")
         elif new_reward > old_reward + 1.0e-12:
             improvements.append("flight reward increased")
+        old_forward_outcome = _authored_outcomes(incumbent).get(
+            "forward_speed_tracking"
+        )
+        new_forward_outcome = _authored_outcomes(candidate).get(
+            "forward_speed_tracking"
+        )
+        if old_forward_outcome and new_forward_outcome:
+            old_forward_tracking = old_forward_outcome[0]
+            new_forward_tracking = new_forward_outcome[0]
+            if new_forward_tracking < old_forward_tracking - 0.001:
+                regressions.append("forward-speed tracking decreased")
+            elif new_forward_tracking > old_forward_tracking + 0.001:
+                improvements.append("forward-speed tracking increased")
     elif task in {"supine-get-up", "developmental-recovery"}:
         old_completed = _rate(
             incumbent,
@@ -648,12 +673,24 @@ def compare_evidence(
         height_progress = _relative_progress(old_height, new_height, 1.0)
         tilt_progress = _relative_progress(new_tilt, old_tilt, 0.25)
         reward_progress = _relative_progress(old_reward, new_reward, 0.05)
+        old_forward_outcome = _authored_outcomes(incumbent).get(
+            "forward_speed_tracking"
+        )
+        new_forward_outcome = _authored_outcomes(candidate).get(
+            "forward_speed_tracking"
+        )
+        forward_progress = 0.0
+        if old_forward_outcome and new_forward_outcome:
+            forward_progress = _relative_progress(
+                old_forward_outcome[0], new_forward_outcome[0], 0.05
+            )
         selection_score = (
             0.35 * failure_progress
             + 0.25 * clean_progress
-            + 0.15 * tilt_progress
+            + 0.10 * tilt_progress
             + 0.10 * height_progress
-            + 0.15 * reward_progress
+            + 0.10 * reward_progress
+            + 0.10 * forward_progress
         )
         selected = (
             int(candidate.get("failed_environment_steps", 0)) == 0
