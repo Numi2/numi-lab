@@ -11,6 +11,7 @@
 #include <limits>
 #include <memory>
 #include <numbers>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -27,10 +28,20 @@ metalrobo::MeasuredSurfaceRobotPack loadMeasuredDove(
     return metalrobo::loadDeetjenMeasuredDoveRobotPack(manifestPath);
 }
 
+struct FlightInitialCondition {
+    std::array<float, 3u> position{0.0f, 0.0f, 2.0f};
+    std::array<float, 4u> orientation{0.0f, 0.0f, 0.0f, 1.0f};
+    std::array<float, 3u> linearVelocity{};
+    std::array<float, 3u> angularVelocity{};
+};
+
 metalrobo::CompiledRun compileFlightRun(
     metalrobo::MeasuredSurfaceRobotPack surface,
     std::uint32_t environments,
-    std::uint32_t steps
+    std::uint32_t steps,
+    float controlTimestepSeconds = 1.0f / 60.0f,
+    std::uint32_t physicsSubsteps = 4u,
+    const FlightInitialCondition* authoredReset = nullptr
 ) {
     using namespace metalrobo;
     RunManifest manifest;
@@ -41,15 +52,42 @@ metalrobo::CompiledRun compileFlightRun(
     manifest.sensors.id = "surface_flight_state";
     manifest.task = makeMeasuredSurfaceFlightTaskPack(
         manifest.robot, manifest.sensors.observation, manifest.reality.reset);
+    if (authoredReset != nullptr) {
+        const FlightInitialCondition& initial = *authoredReset;
+        manifest.reality.reset.operators.clear();
+        manifest.reality.reset.operators.push_back({
+            .operation = TaskRandomizationOperator::rootHeight,
+            .parameters = {initial.position[2u], initial.position[2u], 0.0f, 0.0f},
+        });
+        manifest.reality.reset.operators.push_back({
+            .operation = TaskRandomizationOperator::rootOrientation,
+            .parameters = {initial.orientation[0u], initial.orientation[1u],
+                           initial.orientation[2u], initial.orientation[3u]},
+        });
+        for (std::uint32_t component = 0u; component < 3u; ++component) {
+            manifest.reality.reset.operators.push_back({
+                .operation = TaskRandomizationOperator::rootLinearVelocity,
+                .component = component,
+                .parameters = {initial.linearVelocity[component],
+                               initial.linearVelocity[component], 0.0f, 0.0f},
+            });
+            manifest.reality.reset.operators.push_back({
+                .operation = TaskRandomizationOperator::rootAngularVelocity,
+                .component = component,
+                .parameters = {initial.angularVelocity[component],
+                               initial.angularVelocity[component], 0.0f, 0.0f},
+            });
+        }
+    }
     manifest.reality.id = "nominal_air";
     manifest.teacher.id = "no_teacher";
     manifest.profile.id = "surface_gpu_probe_profile";
     manifest.profile.environmentCount = environments;
     manifest.profile.controlSteps = steps;
-    manifest.profile.physicsSubsteps = 4u;
+    manifest.profile.physicsSubsteps = physicsSubsteps;
     manifest.profile.velocityIterations = 2u;
     manifest.profile.finalVelocityIterations = 1u;
-    manifest.profile.controlTimestepSeconds = 1.0f / 60.0f;
+    manifest.profile.controlTimestepSeconds = controlTimestepSeconds;
     CompiledRun compiled;
     const RunCompileDiagnostics diagnostics = compileRun(manifest, compiled);
     require(diagnostics.succeeded(),
@@ -110,7 +148,9 @@ FlightExecution runFlight(
     std::vector<float> actions,
     bool inspectSurface = false,
     float initialHeightMeters = 2.0f,
-    float initialVerticalSpeedMetersPerSecond = 0.0f
+    float initialVerticalSpeedMetersPerSecond = 0.0f,
+    std::span<const FlightInitialCondition> initialConditions = {},
+    std::array<float, 3u> windVelocity = {}
 ) {
     using namespace metalrobo;
     const std::size_t environments = run.profile().environmentCount;
@@ -120,11 +160,25 @@ FlightExecution runFlight(
     std::vector<float> q(environments * nq);
     std::vector<float> v(environments * nv, 0.0f);
     std::vector<std::uint32_t> resetMasks(environments * steps, 0u);
+    require(initialConditions.empty() || initialConditions.size() == environments,
+        "initial-condition count must match the environment count");
     for (std::size_t environment = 0u; environment < environments; ++environment) {
         std::copy(run.model().defaultQ.begin(), run.model().defaultQ.end(),
             q.begin() + environment * nq);
-        q[environment * nq + 2u] = initialHeightMeters;
-        v[environment * nv + 2u] = initialVerticalSpeedMetersPerSecond;
+        if (initialConditions.empty()) {
+            q[environment * nq + 2u] = initialHeightMeters;
+            v[environment * nv + 2u] = initialVerticalSpeedMetersPerSecond;
+        } else {
+            const FlightInitialCondition& initial = initialConditions[environment];
+            std::copy(initial.position.begin(), initial.position.end(),
+                q.begin() + environment * nq);
+            std::copy(initial.orientation.begin(), initial.orientation.end(),
+                q.begin() + environment * nq + 3u);
+            std::copy(initial.linearVelocity.begin(), initial.linearVelocity.end(),
+                v.begin() + environment * nv);
+            std::copy(initial.angularVelocity.begin(), initial.angularVelocity.end(),
+                v.begin() + environment * nv + 3u);
+        }
     }
     require(actions.size() == steps * environments *
         run.task().layout().actionCount, "action stream has the wrong shape");
@@ -143,6 +197,8 @@ FlightExecution runFlight(
         .solverMode = MetalWorldSolverMode::temporalCone,
         .actuationMode = MetalWorldActuationMode::implicitPositionDrive,
         .taskProgram = run.task(),
+        .deviceMechanicsWindVelocity = {
+            windVelocity[0u], windVelocity[1u], windVelocity[2u], 0.0f},
         .taskSeed = run.profile().seed,
         .velocityIterations = run.profile().velocityIterations,
         .finalVelocityIterations = run.profile().finalVelocityIterations,
@@ -651,6 +707,360 @@ void runTrimSweep(
     std::cout << '\n';
 }
 
+struct AeroAuditBatch {
+    std::vector<AuthorityLoad> loads;
+    std::vector<AuthorityLoad> instantaneousLoads;
+    std::vector<float> finalQ;
+    std::vector<float> finalV;
+    double gpuMilliseconds = 0.0;
+    std::uint64_t failedSteps = 0u;
+};
+
+metalrobo::MeasuredSurfaceRobotPack frozenSurface(
+    metalrobo::MeasuredSurfaceRobotPack pack
+) {
+    const std::size_t frameElements =
+        static_cast<std::size_t>(pack.vertexCount) * 3u;
+    require(pack.frameMajorPositions.size() ==
+            frameElements * pack.frameCount,
+        "measured surface payload has the wrong frame shape");
+    for (std::uint32_t frame = 1u; frame < pack.frameCount; ++frame) {
+        std::copy_n(pack.frameMajorPositions.begin(), frameElements,
+            pack.frameMajorPositions.begin() + frame * frameElements);
+    }
+    pack.normalizedActionBias.fill(0.0f);
+    return pack;
+}
+
+float norm3(const std::array<float, 3u>& value) {
+    return std::sqrt(value[0u] * value[0u] + value[1u] * value[1u] +
+        value[2u] * value[2u]);
+}
+
+float relativeVectorError(
+    const std::array<float, 3u>& first,
+    const std::array<float, 3u>& second
+) {
+    const std::array<float, 3u> difference{
+        first[0u] - second[0u], first[1u] - second[1u],
+        first[2u] - second[2u]};
+    return norm3(difference) /
+        std::max(1.0e-6f, 0.5f * (norm3(first) + norm3(second)));
+}
+
+AeroAuditBatch runAeroAuditBatch(
+    const metalrobo::MeasuredSurfaceRobotPack& pack,
+    const std::vector<FlightInitialCondition>& initialConditions,
+    std::array<float, 3u> windVelocity = {},
+    std::uint32_t steps = 1u,
+    float timestepSeconds = 1.0e-4f,
+    std::uint32_t physicsSubsteps = 1u
+) {
+    using namespace metalrobo;
+    require(!initialConditions.empty(), "aero audit requires environments");
+    const CompiledRun run = compileFlightRun(
+        pack, static_cast<std::uint32_t>(initialConditions.size()), steps,
+        timestepSeconds, physicsSubsteps, &initialConditions.front());
+    const std::vector<float> actions(
+        static_cast<std::size_t>(steps) * initialConditions.size() *
+            run.task().layout().actionCount,
+        0.0f);
+    const FlightExecution execution = runFlight(
+        run, true, actions, true, 2.0f, 0.0f, initialConditions,
+        windVelocity);
+    AeroAuditBatch result;
+    result.finalQ = execution.result.finalQ;
+    result.finalV = execution.result.finalV;
+    result.gpuMilliseconds = execution.diagnostics.gpuElapsedMilliseconds;
+    result.failedSteps = execution.diagnostics.failedStepCount;
+    require(execution.diagnostics.succeeded() && result.failedSteps == 0u &&
+            execution.surfaceInspection.acceptedEvidence.size() ==
+                initialConditions.size(),
+        "aero audit Metal execution failed: " + execution.diagnostics.message);
+    result.loads.reserve(initialConditions.size());
+    result.instantaneousLoads.reserve(initialConditions.size());
+    for (const MRMeasuredSurfaceEvidenceGPU& evidence :
+         execution.surfaceInspection.acceptedEvidence) {
+        require(evidence.deformationActuationStatus.z == 0.0f,
+            "aero audit received invalid measured-surface evidence");
+        result.loads.push_back(meanAcceptedLoad(evidence));
+        result.instantaneousLoads.push_back({
+            .force = {evidence.worldForceAndMagnitude.x,
+                      evidence.worldForceAndMagnitude.y,
+                      evidence.worldForceAndMagnitude.z},
+            .torque = {evidence.worldTorqueAndMagnitude.x,
+                       evidence.worldTorqueAndMagnitude.y,
+                       evidence.worldTorqueAndMagnitude.z},
+        });
+    }
+    return result;
+}
+
+struct AeroAuditCheck {
+    std::string name;
+    bool passed = false;
+    float observed = 0.0f;
+    float limit = 0.0f;
+    std::string units;
+};
+
+bool runAerodynamicAudit(
+    const std::filesystem::path& manifestPath,
+    std::uint32_t polarSamples
+) {
+    require(polarSamples >= 7u && polarSamples <= 37u &&
+            (polarSamples & 1u) != 0u,
+        "polar sample count must be an odd value in [7, 37]");
+    using namespace metalrobo;
+    const MeasuredSurfaceRobotPack measured = loadMeasuredDove(manifestPath);
+    const MeasuredSurfaceRobotPack frozen = frozenSurface(measured);
+    std::vector<AeroAuditCheck> checks;
+    const auto record = [&](std::string name, bool passed, float observed,
+                            float limit, std::string units = {}) {
+        checks.push_back({std::move(name), passed, observed, limit,
+                          std::move(units)});
+    };
+
+    const auto speedCondition = [](float value) {
+        FlightInitialCondition result;
+        result.linearVelocity[0u] = value;
+        return result;
+    };
+    const AeroAuditBatch speed0 = runAeroAuditBatch(frozen, {speedCondition(0.0f)});
+    const AeroAuditBatch speed2 = runAeroAuditBatch(frozen, {speedCondition(2.0f)});
+    const AeroAuditBatch speed4 = runAeroAuditBatch(frozen, {speedCondition(4.0f)});
+    const AeroAuditBatch speed8 = runAeroAuditBatch(frozen, {speedCondition(8.0f)});
+    const AeroAuditBatch speedNegative4 = runAeroAuditBatch(
+        frozen, {speedCondition(-4.0f)});
+    FlightInitialCondition positiveSpin;
+    positiveSpin.angularVelocity[2u] = 4.0f;
+    FlightInitialCondition negativeSpin;
+    negativeSpin.angularVelocity[2u] = -4.0f;
+    const AeroAuditBatch spinPositive = runAeroAuditBatch(frozen, {positiveSpin});
+    const AeroAuditBatch spinNegative = runAeroAuditBatch(frozen, {negativeSpin});
+    const float restForce = norm3(speed0.loads[0u].force);
+    record("zero-relative-airspeed force", restForce <= 1.0e-7f,
+        restForce, 1.0e-7f, "N");
+    const float f2 = norm3(speed2.loads[0u].force);
+    const float f4 = norm3(speed4.loads[0u].force);
+    const float f8 = norm3(speed8.loads[0u].force);
+    const float squareLawError = std::max(
+        std::abs(f4 / std::max(f2, 1.0e-8f) - 4.0f) / 4.0f,
+        std::abs(f8 / std::max(f4, 1.0e-8f) - 4.0f) / 4.0f);
+    record("airspeed-squared force scaling", squareLawError <= 0.08f,
+        squareLawError, 0.08f, "relative error");
+    const std::array<float, 3u> reversedForce{
+        -speedNegative4.loads[0u].force[0u],
+        -speedNegative4.loads[0u].force[1u],
+        -speedNegative4.loads[0u].force[2u]};
+    const float reversalError = relativeVectorError(
+        speed4.loads[0u].force, reversedForce);
+    record("velocity-reversal force symmetry", reversalError <= 0.02f,
+        reversalError, 0.02f, "relative error");
+    const float angularDissipationPositive =
+        spinPositive.loads[0u].torque[2u] * 4.0f;
+    const float angularDissipationNegative =
+        spinNegative.loads[0u].torque[2u] * -4.0f;
+    const float worstAngularPower = std::max(
+        angularDissipationPositive, angularDissipationNegative);
+    record("aerodynamic angular dissipation", worstAngularPower <= 1.0e-5f,
+        worstAngularPower, 1.0e-5f, "W");
+
+    FlightInitialCondition translating;
+    translating.linearVelocity = {6.0f, -1.5f, 0.75f};
+    const AeroAuditBatch bodyMotion = runAeroAuditBatch(frozen, {translating});
+    FlightInitialCondition still;
+    const AeroAuditBatch movingAir = runAeroAuditBatch(
+        frozen, {still}, {-6.0f, 1.5f, -0.75f});
+    const float windForceError = relativeVectorError(
+        bodyMotion.loads[0u].force, movingAir.loads[0u].force);
+    const float windTorqueError = relativeVectorError(
+        bodyMotion.loads[0u].torque, movingAir.loads[0u].torque);
+    record("wind/body-motion force equivalence", windForceError <= 0.02f,
+        windForceError, 0.02f, "relative error");
+    record("wind/body-motion torque equivalence", windTorqueError <= 0.02f,
+        windTorqueError, 0.02f, "relative error");
+
+    MeasuredSurfaceRobotPack thinAir = frozen;
+    thinAir.airDensityKilogramsPerCubicMeter = 0.8f;
+    MeasuredSurfaceRobotPack denseAir = frozen;
+    denseAir.airDensityKilogramsPerCubicMeter = 1.6f;
+    FlightInitialCondition densityCondition;
+    densityCondition.linearVelocity[0u] = 5.0f;
+    const float thinForce = norm3(
+        runAeroAuditBatch(thinAir, {densityCondition}).loads[0u].force);
+    const float denseForce = norm3(
+        runAeroAuditBatch(denseAir, {densityCondition}).loads[0u].force);
+    const float densityError = std::abs(
+        denseForce / std::max(thinForce, 1.0e-8f) - 2.0f) / 2.0f;
+    record("air-density force scaling", densityError <= 0.02f,
+        densityError, 0.02f, "relative error");
+
+    MeasuredSurfaceRobotPack zeroAero = frozen;
+    zeroAero.normalDragCoefficient = 0.0f;
+    zeroAero.tangentialDragCoefficient = 0.0f;
+    const float disabledForce = norm3(
+        runAeroAuditBatch(zeroAero, {densityCondition}).loads[0u].force);
+    record("zero-coefficient force isolation", disabledForce <= 1.0e-6f,
+        disabledForce, 1.0e-6f, "N");
+
+    MeasuredSurfaceRobotPack reversedWinding = frozen;
+    for (std::size_t index = 0u;
+         index + 2u < reversedWinding.triangleIndices.size(); index += 3u) {
+        std::swap(reversedWinding.triangleIndices[index + 1u],
+                  reversedWinding.triangleIndices[index + 2u]);
+    }
+    const AuthorityLoad windingLoad =
+        runAeroAuditBatch(reversedWinding, {densityCondition}).loads[0u];
+    const AuthorityLoad referenceLoad =
+        runAeroAuditBatch(frozen, {densityCondition}).loads[0u];
+    const float windingError = std::max(
+        relativeVectorError(referenceLoad.force, windingLoad.force),
+        relativeVectorError(referenceLoad.torque, windingLoad.torque));
+    record("triangle-winding invariance", windingError <= 0.01f,
+        windingError, 0.01f, "relative error");
+
+    std::vector<float> lift(polarSamples), drag(polarSamples);
+    for (std::uint32_t sample = 0u; sample < polarSamples; ++sample) {
+        const float angle = -0.5f * std::numbers::pi_v<float> +
+            std::numbers::pi_v<float> * static_cast<float>(sample) /
+                static_cast<float>(polarSamples - 1u);
+        FlightInitialCondition polarCondition;
+        polarCondition.orientation = {
+            0.0f, std::sin(0.5f * angle), 0.0f, std::cos(0.5f * angle)};
+        polarCondition.linearVelocity[0u] = 8.0f;
+        const AuthorityLoad load =
+            runAeroAuditBatch(frozen, {polarCondition}).loads[0u];
+        lift[sample] = load.force[2u];
+        drag[sample] = -load.force[0u];
+    }
+    float maximumLift = 0.0f;
+    std::uint32_t maximumLiftSample = 0u;
+    bool nonnegativeDrag = true;
+    for (std::uint32_t sample = 0u; sample < polarSamples; ++sample) {
+        nonnegativeDrag = nonnegativeDrag && drag[sample] >= -1.0e-4f;
+        if (std::abs(lift[sample]) > maximumLift) {
+            maximumLift = std::abs(lift[sample]);
+            maximumLiftSample = sample;
+        }
+    }
+    const float maximumLiftAngle = -90.0f + 180.0f *
+        static_cast<float>(maximumLiftSample) /
+            static_cast<float>(polarSamples - 1u);
+    record("polar drag opposes forward motion", nonnegativeDrag,
+        *std::min_element(drag.begin(), drag.end()), -1.0e-4f, "N minimum");
+    const bool liftTurnover = maximumLiftSample > 0u &&
+        maximumLiftSample + 1u < polarSamples &&
+        maximumLift > std::max(
+            std::abs(lift.front()), std::abs(lift.back())) + 1.0e-3f;
+    record("angle-of-attack lift turnover", liftTurnover,
+        maximumLiftAngle, 89.0f, "degrees at peak");
+    record("lift peak outside edge-on band",
+        std::abs(maximumLiftAngle) <= 70.0f,
+        std::abs(maximumLiftAngle), 70.0f, "absolute degrees");
+
+    std::vector<float> wingbeatForces;
+    wingbeatForces.reserve(18u);
+    double wingbeatGPU = 0.0;
+    for (std::uint32_t stepCount = 1u; stepCount <= 18u; ++stepCount) {
+        const AeroAuditBatch prefix = runAeroAuditBatch(
+            measured, {FlightInitialCondition{}}, {}, stepCount,
+            1.0f / 60.0f, 4u);
+        wingbeatForces.push_back(norm3(prefix.instantaneousLoads[0u].force));
+        wingbeatGPU += prefix.gpuMilliseconds;
+    }
+    std::vector<float> sortedWingbeatForces = wingbeatForces;
+    std::sort(sortedWingbeatForces.begin(), sortedWingbeatForces.end());
+    const float medianWingbeatForce = sortedWingbeatForces[
+        sortedWingbeatForces.size() / 2u];
+    const float wingbeatSpikeRatio = *std::max_element(
+        wingbeatForces.begin(), wingbeatForces.end()) /
+        std::max(1.0e-6f, medianWingbeatForce);
+    record("reflected-wingbeat force spike", wingbeatSpikeRatio <= 6.0f,
+        wingbeatSpikeRatio, 6.0f, "max/median");
+
+    FlightInitialCondition highAltitude = densityCondition;
+    highAltitude.position[2u] = 10.0f;
+    FlightInitialCondition nearGround = densityCondition;
+    nearGround.position[2u] = 0.10f;
+    const AeroAuditBatch altitudeHigh = runAeroAuditBatch(
+        frozen, {highAltitude});
+    const AeroAuditBatch altitudeLow = runAeroAuditBatch(
+        frozen, {nearGround});
+    const float altitudeResponse = relativeVectorError(
+        altitudeHigh.loads[0u].force, altitudeLow.loads[0u].force);
+    record("near-ground aerodynamic response", altitudeResponse >= 0.02f,
+        altitudeResponse, 0.02f, "minimum relative change");
+
+    const AeroAuditBatch coarse = runAeroAuditBatch(
+        measured, {FlightInitialCondition{}}, {}, 6u, 1.0f / 60.0f, 4u);
+    const AeroAuditBatch fine = runAeroAuditBatch(
+        measured, {FlightInitialCondition{}}, {}, 12u, 1.0f / 120.0f, 4u);
+    require(coarse.finalQ.size() == fine.finalQ.size() &&
+            coarse.finalV.size() == fine.finalV.size(),
+        "aero cadence comparison returned incompatible state shapes");
+    float cadenceNumerator = 0.0f, cadenceDenominator = 0.0f;
+    for (std::size_t index = 0u; index < coarse.finalV.size(); ++index) {
+        const float delta = coarse.finalV[index] - fine.finalV[index];
+        cadenceNumerator += delta * delta;
+        cadenceDenominator += 0.5f * (
+            coarse.finalV[index] * coarse.finalV[index] +
+            fine.finalV[index] * fine.finalV[index]);
+    }
+    const float cadenceError = std::sqrt(cadenceNumerator /
+        std::max(cadenceDenominator, 1.0e-8f));
+    record("control-cadence convergence", cadenceError <= 0.20f,
+        cadenceError, 0.20f, "relative state error");
+
+    const std::size_t passedCount = static_cast<std::size_t>(std::count_if(
+        checks.begin(), checks.end(), [](const AeroAuditCheck& check) {
+            return check.passed;
+        }));
+    const double gpuMilliseconds = speed0.gpuMilliseconds +
+        speed2.gpuMilliseconds + speed4.gpuMilliseconds +
+        speed8.gpuMilliseconds + speedNegative4.gpuMilliseconds +
+        spinPositive.gpuMilliseconds + spinNegative.gpuMilliseconds +
+        bodyMotion.gpuMilliseconds + movingAir.gpuMilliseconds +
+        altitudeHigh.gpuMilliseconds + altitudeLow.gpuMilliseconds +
+        coarse.gpuMilliseconds + fine.gpuMilliseconds + wingbeatGPU;
+    std::cout << "MeasuredSurface headless aerodynamic audit\n"
+              << "  device path: native Metal measured-surface mechanics\n"
+              << "  polar samples: " << polarSamples << '\n'
+              << "  checks passed: " << passedCount << "/" << checks.size()
+              << '\n'
+              << "  speed-force norms 0/2/4/8 m/s: " << restForce << "/"
+              << f2 << "/" << f4 << "/" << f8 << " N\n"
+              << "  body-motion/wind force xyz: "
+              << bodyMotion.loads[0u].force[0u] << ","
+              << bodyMotion.loads[0u].force[1u] << ","
+              << bodyMotion.loads[0u].force[2u] << " / "
+              << movingAir.loads[0u].force[0u] << ","
+              << movingAir.loads[0u].force[1u] << ","
+              << movingAir.loads[0u].force[2u] << " N\n";
+    for (const AeroAuditCheck& check : checks) {
+        std::cout << "  [" << (check.passed ? "pass" : "gap ") << "] "
+                  << check.name << ": " << check.observed;
+        if (!check.units.empty()) std::cout << " " << check.units;
+        std::cout << " (gate " << check.limit << ")\n";
+    }
+    std::cout << "  peak positive lift angle / force: "
+              << maximumLiftAngle << " deg / " << maximumLift << " N\n"
+              << "  failed environment steps: "
+              << speed0.failedSteps + speed2.failedSteps +
+                    speed4.failedSteps + speed8.failedSteps +
+                    speedNegative4.failedSteps + spinPositive.failedSteps +
+                    spinNegative.failedSteps + bodyMotion.failedSteps +
+                    movingAir.failedSteps + altitudeHigh.failedSteps +
+                    altitudeLow.failedSteps + coarse.failedSteps +
+                    fine.failedSteps
+              << '\n'
+              << "  sampled GPU time: " << gpuMilliseconds << " ms\n"
+              << "  verdict: "
+              << (passedCount == checks.size() ? "passed" : "gaps detected")
+              << '\n';
+    return passedCount == checks.size();
+}
+
 bool proveStatefulSingleFlight(
     const metalrobo::CompiledRun& run,
     const std::vector<float>& actions
@@ -731,6 +1141,11 @@ int main(int argc, char** argv) {
                 static_cast<std::uint32_t>(std::stoul(argv[4])));
             return 0;
         }
+        if (argc == 4 && std::string_view(argv[1]) == "--aero-audit") {
+            return runAerodynamicAudit(
+                argv[2], static_cast<std::uint32_t>(std::stoul(argv[3])))
+                ? 0 : 1;
+        }
         if (argc != 2 && argc != 4) {
             std::cerr << "usage: metalrobo_measured_surface_robot_probe "
                          "MANIFEST [ENVIRONMENTS STEPS]\n"
@@ -738,6 +1153,8 @@ int main(int argc, char** argv) {
                          "--authority MANIFEST CANDIDATES STEPS\n";
             std::cerr << "       metalrobo_measured_surface_robot_probe "
                          "--fatal-drop MANIFEST HEIGHT DOWNWARD_SPEED STEPS\n";
+            std::cerr << "       metalrobo_measured_surface_robot_probe "
+                         "--aero-audit MANIFEST POLAR_SAMPLES\n";
             return 2;
         }
         const std::uint32_t environments = argc == 4

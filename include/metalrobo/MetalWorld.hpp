@@ -405,6 +405,7 @@ struct MetalWorldDeviceMechanicsPass {
     std::uint32_t actionHistoryStride = 0u;
     std::uint32_t actionFilterSlot = 0u;
     float timestepSeconds = 0.0f;
+    mr_float4 windVelocity{};
 };
 
 using MetalWorldDeviceMechanicsEncode = bool (*)(
@@ -456,6 +457,8 @@ struct MetalWorldStepConfig {
     // Optional compiled non-q/v mechanics program. It executes on the same
     // borrowed command-buffer timeline and participates in transactionality.
     MetalWorldDeviceMechanicsProgram deviceMechanicsProgram{};
+    // Invocation-scoped world-frame air velocity for aerodynamic mechanics.
+    mr_float4 deviceMechanicsWindVelocity{};
     // Optional renderer/perception pass. It receives only borrowed device
     // resources and executes inside the native rollout command buffer.
     MetalWorldDeviceObservationProgram deviceObservationProgram{};

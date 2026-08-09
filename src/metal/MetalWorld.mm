@@ -3113,6 +3113,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "device mechanics program requires complete prepare/commit callbacks, a semantic fingerprint, and a native task"
         );
     }
+    if (!std::isfinite(config.deviceMechanicsWindVelocity.x) ||
+        !std::isfinite(config.deviceMechanicsWindVelocity.y) ||
+        !std::isfinite(config.deviceMechanicsWindVelocity.z) ||
+        !std::isfinite(config.deviceMechanicsWindVelocity.w)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "device-mechanics wind velocity must be finite"
+        );
+    }
     if (config.multicopterProgram.valid()) {
         const auto& multicopter = config.multicopterProgram;
         if (!nativeTask ||
@@ -9727,6 +9737,7 @@ bool encodeDeviceMechanics(
     const std::size_t qState,
     const std::size_t vState,
     const float timestepSeconds,
+    const mr_float4 windVelocity,
     const std::uint64_t seed,
     const std::size_t environmentCount
 ) {
@@ -9755,6 +9766,7 @@ bool encodeDeviceMechanics(
         .actionHistoryStride = layout.delayStateCount * layout.actionCount,
         .actionFilterSlot = layout.delayStateCount - 1u,
         .timestepSeconds = timestepSeconds,
+        .windVelocity = windVelocity,
     };
     const MetalWorldDeviceMechanicsEncode callback =
         commit ? program.commit : program.prepare;
@@ -17209,6 +17221,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             sourceV,
                             config.timestepSeconds /
                                 static_cast<float>(config.physicsSubsteps),
+                            config.deviceMechanicsWindVelocity,
                             config.taskSeed,
                             batch.environmentCount
                         ) &&
@@ -17416,6 +17429,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             destinationV,
                             config.timestepSeconds /
                                 static_cast<float>(config.physicsSubsteps),
+                            config.deviceMechanicsWindVelocity,
                             config.taskSeed,
                             batch.environmentCount
                         ) &&

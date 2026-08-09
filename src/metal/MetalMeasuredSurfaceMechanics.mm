@@ -202,7 +202,12 @@ MRCompiledMeasuredSurfaceDispatchGPU dispatchFor(
     dispatch.firstAction = state.binding.firstAction;
     dispatch.threadsPerThreadgroup = 256u;
     dispatch.reserved0 = state.binding.robot.gpuModel.frameCount;
-    dispatch.timestepAndWindX = {pass.timestepSeconds, 0.0f, 0.0f, 0.0f};
+    dispatch.timestepAndWindX = {
+        pass.timestepSeconds,
+        pass.windVelocity.x,
+        pass.windVelocity.y,
+        pass.windVelocity.z,
+    };
     return dispatch;
 }
 
