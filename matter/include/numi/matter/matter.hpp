@@ -296,6 +296,9 @@ struct FEMCapacitySource {
     std::uint32_t cohesiveFaces = 0u;
     std::uint32_t punctureChannels = 0u;
     std::uint32_t mutationCommands = 0u;
+    // Maximum simultaneously active continuum/rigid contact rows. Zero keeps
+    // the compatibility behavior of reserving every cooked eligible pair.
+    std::uint32_t activeContacts = 0u;
 };
 
 struct MultiphysicsSource {
@@ -318,6 +321,9 @@ struct FieldBoundarySource {
 struct MutationPolicySource {
     bool enabled = false;
     bool cohesiveFracture = false;
+    // Minimum accepted normal impulse required before device contact may
+    // trigger puncture. Zero keeps automatic puncture disabled.
+    double punctureImpulseThreshold = 0.0;
 };
 
 struct MutationCommandSource {
@@ -376,6 +382,11 @@ struct ObjectSource {
     // rest position. Fixed nodes retain their assembled mass for accounting,
     // but have zero velocity and inverse mass in the executable state.
     std::vector<std::uint32_t> femFixedNodes;
+    // Optional authored collision surface. Empty preserves source-world
+    // compatibility by cooking every FEM node; otherwise only these local
+    // nodes receive continuum/rigid contact rows. Topology mutation may use
+    // reserved capacity for newly exposed nodes in a later active-list pass.
+    std::vector<std::uint32_t> femContactNodes;
     std::vector<TetrahedronSource> tetrahedra;
     bool mixedFEM = true;
     FEMCapacitySource femCapacity;
@@ -656,7 +667,9 @@ struct RuntimeStateSnapshot {
     // Completion-boundary contact diagnostics, populated only when
     // RuntimeConfiguration::captureDiagnostics is enabled. The CSR values
     // are the exact full response consumed by the device solver after any
-    // borrowed MetalWorld articulated-response encoding.
+    // borrowed MetalWorld articulated-response encoding. CSR row/column
+    // indices are expanded to original contact-pair IDs per environment at
+    // this explicit readback boundary; inactive reserved slots are UINT32_MAX.
     std::vector<NMContactSampleGPU> contactSamples;
     std::vector<nm_float4> contactWarmstarts;
     std::vector<std::uint32_t> contactResponseRows;

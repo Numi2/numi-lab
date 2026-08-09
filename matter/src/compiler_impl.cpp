@@ -843,6 +843,7 @@ CompileResult compileWorld(
 
     std::vector<std::uint32_t> mpmNodeObjects;
     std::vector<std::uint32_t> femNodeObjects;
+    std::vector<bool> femNodeContactEligible;
     std::vector<IncidenceEntry> mpmIncidence;
     std::vector<IncidenceEntry> femIncidence;
     std::set<std::uint32_t> adaptiveBindings;
@@ -877,7 +878,11 @@ CompileResult compileWorld(
         if (object.materialIndex >= source.materials.size() ||
             object.name.empty() ||
             !(object.characteristicLength > 0.0) ||
-            !finite(object.characteristicLength)) {
+            !finite(object.characteristicLength) ||
+            !std::isfinite(object.mutationPolicy.punctureImpulseThreshold) ||
+            object.mutationPolicy.punctureImpulseThreshold < 0.0 ||
+            object.mutationPolicy.punctureImpulseThreshold >
+                std::numeric_limits<float>::max()) {
             result.diagnostics.push_back({
                 Diagnostic::Severity::error, 0u, 0u,
                 "continuum object has invalid name, material, or characteristic length",
@@ -1307,6 +1312,22 @@ CompileResult compileWorld(
                 });
                 return result;
             }
+            std::vector<bool> contactEligible(nodeCapacity,
+                object.femContactNodes.empty());
+            if (!object.femContactNodes.empty()) {
+                for (const std::uint32_t localNode : object.femContactNodes) {
+                    if (localNode >= object.femNodes.size() ||
+                        contactEligible[localNode]) {
+                        result.diagnostics.push_back({
+                            Diagnostic::Severity::error, 0u, 0u,
+                            "FEM object '" + object.name +
+                                "' contains an invalid or duplicate contact node",
+                        });
+                        return result;
+                    }
+                    contactEligible[localNode] = true;
+                }
+            }
             descriptor.stateOffset = static_cast<nm_u32>(world.fem.nodes.size());
             descriptor.stateCount = static_cast<nm_u32>(nodeCapacity);
             descriptor.elementOffset = static_cast<nm_u32>(world.fem.tetrahedra.size());
@@ -1327,6 +1348,9 @@ CompileResult compileWorld(
                 );
                 world.fem.nodes.push_back(node);
                 femNodeObjects.push_back(objectIndex);
+                femNodeContactEligible.push_back(
+                    contactEligible[sourceNodeIndex]
+                );
                 NMFEMTopologyNodeGPU topologyNode{};
                 topologyNode.identity = {
                     sourceNodeIndex++,
@@ -1355,6 +1379,7 @@ CompileResult compileWorld(
                  ++local) {
                 world.fem.nodes.push_back({});
                 femNodeObjects.push_back(objectIndex);
+                femNodeContactEligible.push_back(false);
                 NMFEMTopologyNodeGPU topologyNode{};
                 topologyNode.identity = {
                     static_cast<nm_u32>(local),
@@ -1694,11 +1719,25 @@ CompileResult compileWorld(
                 });
                 return result;
             }
+            const std::uint64_t activeContactCapacity =
+                object.femCapacity.activeContacts == 0u
+                ? contactCapacity
+                : object.femCapacity.activeContacts;
+            if (activeContactCapacity > contactCapacity) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "FEM object '" + object.name +
+                        "' active contact capacity exceeds eligible contact rows",
+                });
+                return result;
+            }
             cookedFEMCapacity.work = {
                 static_cast<nm_u32>(mutationCapacity),
                 static_cast<nm_u32>(nodeCapacity * 4u),
-                static_cast<nm_u32>(contactCapacity),
-                0u,
+                static_cast<nm_u32>(activeContactCapacity),
+                std::bit_cast<nm_u32>(static_cast<float>(
+                    object.mutationPolicy.punctureImpulseThreshold
+                )),
             };
         }
 
@@ -1825,6 +1864,7 @@ CompileResult compileWorld(
     );
 
     std::vector<std::uint32_t> unifiedNodeObjects;
+    std::vector<bool> unifiedNodeContactEligible;
     unifiedNodeObjects.reserve(mpmNodeObjects.size() + femNodeObjects.size());
     unifiedNodeObjects.insert(
         unifiedNodeObjects.end(), mpmNodeObjects.begin(), mpmNodeObjects.end()
@@ -1832,12 +1872,20 @@ CompileResult compileWorld(
     unifiedNodeObjects.insert(
         unifiedNodeObjects.end(), femNodeObjects.begin(), femNodeObjects.end()
     );
+    unifiedNodeContactEligible.insert(
+        unifiedNodeContactEligible.end(), mpmNodeObjects.size(), true
+    );
+    unifiedNodeContactEligible.insert(
+        unifiedNodeContactEligible.end(),
+        femNodeContactEligible.begin(), femNodeContactEligible.end()
+    );
     std::vector<IncidenceEntry> contactNodeIncidence;
     std::vector<IncidenceEntry> rigidIncidence;
     const std::size_t mpmNodeCount = world.mpm.nodes.size();
     for (std::size_t nodeSize = 0u;
          nodeSize < unifiedNodeObjects.size();
          ++nodeSize) {
+        if (!unifiedNodeContactEligible[nodeSize]) continue;
         const std::uint32_t node = static_cast<std::uint32_t>(nodeSize);
         for (std::size_t proxySize = 0u;
              proxySize < world.contact.rigidProxies.size();
@@ -1959,6 +2007,14 @@ CompileResult compileWorld(
     dispatch.tetrahedronCount = static_cast<nm_u32>(world.fem.tetrahedra.size());
     dispatch.rigidProxyCount = static_cast<nm_u32>(world.contact.rigidProxies.size());
     dispatch.contactPairCount = static_cast<nm_u32>(world.contact.pairs.size());
+    std::uint64_t activeContactCapacity = 0u;
+    for (const NMFEMCapacityGPU& capacity : world.fem.capacities)
+        activeContactCapacity += capacity.work.z;
+    dispatch.reservedMixed1 = static_cast<nm_u32>(std::min<std::uint64_t>(
+        activeContactCapacity == 0u
+            ? dispatch.contactPairCount : activeContactCapacity,
+        dispatch.contactPairCount
+    ));
     dispatch.maximumRateExponent = options.maximumRateExponent;
     dispatch.femPCGIterations = source.femPCGIterations;
     dispatch.identificationCandidateCount = source.identificationCandidates;

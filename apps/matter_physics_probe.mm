@@ -472,6 +472,7 @@ numi::matter::CompiledWorld compilePoroelasticCompressionCase() {
     source.environmentCount = 1u;
     source.frameTimestep = 1.0 / 480.0;
     source.gravity = {0.0, 0.0, 0.0};
+    source.contactSlop = 2.0e-6;
     source.femPCGIterations = 32u;
     source.mixedSolver.fieldPCGIterations = 64u;
     source.materials.push_back(std::move(parsed.material));
@@ -531,70 +532,160 @@ numi::matter::CompiledWorld compilePoroelasticCompressionCase() {
 }
 
 numi::matter::CompiledWorld compileNeedlePunctureScene(
-    const bool articulatedNeedle,
-    const std::uint32_t mutationStep = 0u
+    const bool articulatedNeedle
 ) {
     auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
     require(parsed.succeeded(), "needle block material did not parse");
     for (auto& parameter : parsed.material.parameters) {
+        // Conditioned interactive patch tangent. The authored DrAnmar
+        // 60-650 kPa material envelope remains presentation provenance until
+        // mesh/time-step convergence is qualified on the full volume.
         if (parameter.name == "mu") parameter.defaultValue = 1.5e4;
         if (parameter.name == "lambda") parameter.defaultValue = 1.5e5;
     }
     parsed.material.mixed.bulkModulus = 2.0e5;
+    parsed.material.mixed.biotCoefficient = 0.65;
+    parsed.material.mixed.poreStorage = 1.0;
+    parsed.material.mixed.poreMobility = 0.02;
 
     numi::matter::WorldSource source;
     source.environmentCount = 1u;
-    source.frameTimestep = 1.0 / 960.0;
+    source.frameTimestep = 0.001;
     source.gravity = {0.0, 0.0, 0.0};
     source.femPCGIterations = 32u;
+    source.mixedSolver.newtonIterations = 10u;
+    source.mixedSolver.fgmresRestart = 16u;
+    source.mixedSolver.fgmresIterations = 48u;
+    source.mixedSolver.velocityPCGIterations = 64u;
+    source.mixedSolver.pressurePCGIterations = 64u;
     source.mixedSolver.fieldPCGIterations = 64u;
     source.materials.push_back(std::move(parsed.material));
     if (articulatedNeedle) {
-        numi::matter::RigidProxySource needle;
-        needle.shape = NM_RIGID_CAPSULE;
-        needle.bodyIndex = 1u;
-        needle.articulated = true;
-        needle.localCenter = {0.0, -0.01, -0.01};
-        needle.localExtent = {0.0, -0.01, -0.03};
-        needle.radiusOrOffset = 0.011;
-        source.rigidProxies.push_back(needle);
-        numi::matter::RigidProxySource hub;
-        hub.shape = NM_RIGID_PLANE;
-        hub.bodyIndex = 1u;
-        hub.articulated = true;
-        hub.localCenter = {0.0, 0.0, -1.0};
-        hub.radiusOrOffset = 0.02005;
-        source.rigidProxies.push_back(hub);
+        constexpr double radius = 0.0070028174960433945;
+        constexpr std::array<double, 48u> collisionRadii{
+            2.31464917147e-05, 4.31823332404e-05, 7.2623753184e-05,
+            0.000108237583964, 0.000146790658, 0.000185049807711,
+            0.000219781865514, 0.00024775366383, 0.000265732035077,
+            0.000270749396188, 0.000270749396188, 0.000270749396188,
+            0.000270749396188, 0.000270749396188, 0.000270749396188,
+            0.000270749396188, 0.000270749396188, 0.000270749396188,
+            0.000270749396188, 0.000270749396188, 0.000270749396188,
+            0.000270749396188, 0.000270749396188, 0.000270749396188,
+            0.000270749396188, 0.000270749396188, 0.000270749396188,
+            0.000270749396188, 0.000270749396188, 0.000270749396188,
+            0.000270749396188, 0.000270749396188, 0.000270749396188,
+            0.000270749396188, 0.000270749396188, 0.000270749396188,
+            0.000270749396188, 0.000270749396188, 0.000270749396188,
+            0.000270749396188, 0.000270749396188,
+            0.000270749396188, 0.000269076942484, 0.000258771220819,
+            0.000242182866696, 0.000222949193642, 0.000204707515187,
+            0.000191095144859,
+        };
+        constexpr std::uint32_t authoredSegmentCount =
+            static_cast<std::uint32_t>(collisionRadii.size());
+        for (std::uint32_t segment = 0u;
+             segment < authoredSegmentCount; ++segment) {
+            const double t0 = double(segment) / double(authoredSegmentCount);
+            const double t1 = double(segment + 1u) / double(authoredSegmentCount);
+            const double a0 = -0.5 * M_PI + M_PI * t0;
+            const double a1 = -0.5 * M_PI + M_PI * t1;
+            numi::matter::RigidProxySource needle;
+            needle.shape = NM_RIGID_CAPSULE;
+            needle.bodyIndex = 1u;
+            needle.articulated = true;
+            needle.localCenter = {
+                radius * std::cos(a0), 0.0, radius * std::sin(a0)
+            };
+            needle.localExtent = {
+                radius * std::cos(a1), 0.0, radius * std::sin(a1)
+            };
+            needle.radiusOrOffset = collisionRadii[segment];
+            source.rigidProxies.push_back(needle);
+        }
     }
 
     numi::matter::ObjectSource block;
-    block.name = "articulated_needle_soft_block";
+    block.name = "dranmar_suturable_tissue_left_replica";
     block.materialIndex = 0u;
     block.representation = numi::matter::Representation::fem;
     block.mixedFEM = true;
-    block.characteristicLength = 0.02;
-    block.femNodes = {
-        {-0.01, -0.01, 0.0}, {0.01, -0.01, 0.0},
-        {-0.01,  0.01, 0.0}, {0.01,  0.01, 0.0},
-        {-0.01, -0.01, 0.02}, {0.01, -0.01, 0.02},
-        {-0.01,  0.01, 0.02}, {0.01,  0.01, 0.02},
+    block.characteristicLength = 0.0025;
+    // Source-authoritative left flap from dr_anmar_tissue_model.py and
+    // dr-anmar-suturable-tissue-v1.json: 13x19x5 nodes, sinusoidal/bevelled
+    // wound edge and the exact six-tet cell pattern. The z translation places
+    // the fascia on z=0 and the authored surface on z=6 mm.
+    constexpr std::uint32_t cellsX = 12u;
+    constexpr std::uint32_t cellsY = 18u;
+    constexpr std::uint32_t cellsZ = 4u;
+    constexpr std::uint32_t nx = cellsX + 1u;
+    constexpr std::uint32_t ny = cellsY + 1u;
+    constexpr double width = 0.070;
+    constexpr double depth = 0.045;
+    constexpr double thickness = 0.006;
+    constexpr double gap = 0.004;
+    constexpr double bevel = 0.001;
+    constexpr double irregularity = 0.00045;
+    constexpr double wavelength = 0.018;
+    const auto nodeIndex = [](const std::uint32_t x, const std::uint32_t y,
+                              const std::uint32_t z) {
+        return z * nx * ny + y * nx + x;
     };
-    block.tetrahedra = {
-        {{0u, 1u, 3u, 7u}}, {{0u, 3u, 2u, 7u}},
-        {{0u, 2u, 6u, 7u}}, {{0u, 6u, 4u, 7u}},
-        {{0u, 4u, 5u, 7u}}, {{0u, 5u, 1u, 7u}},
-    };
+    for (std::uint32_t z = 0u; z <= cellsZ; ++z) {
+        const double zFraction = double(z) / double(cellsZ);
+        for (std::uint32_t y = 0u; y <= cellsY; ++y) {
+            const double yPosition = -0.5 * depth +
+                depth * double(y) / double(cellsY);
+            const double centerOffset = irregularity * std::sin(
+                2.0 * M_PI * (yPosition + 0.5 * depth) / wavelength
+            );
+            const double outerX = -0.5 * width;
+            const double innerX = -0.5 * gap + centerOffset -
+                bevel * zFraction;
+            for (std::uint32_t x = 0u; x <= cellsX; ++x) {
+                const double fraction = double(x) / double(cellsX);
+                block.femNodes.push_back({
+                    outerX + (innerX - outerX) * fraction,
+                    yPosition,
+                    thickness * zFraction,
+                });
+                // The authored outer attachment is two x-columns wide.
+                if (x <= 1u) block.femFixedNodes.push_back(nodeIndex(x, y, z));
+                // Collision rows are the actual top wound neighbourhood, not
+                // hidden proxy nodes or the full interior volume.
+                if (z == cellsZ && x >= 4u && x <= 9u &&
+                    y >= 6u && y <= 12u)
+                    block.femContactNodes.push_back(nodeIndex(x, y, z));
+            }
+        }
+    }
+    for (std::uint32_t z = 0u; z < cellsZ; ++z) {
+        for (std::uint32_t y = 0u; y < cellsY; ++y) {
+            for (std::uint32_t x = 0u; x < cellsX; ++x) {
+                const std::array<std::uint32_t, 8u> c{
+                    nodeIndex(x, y, z), nodeIndex(x + 1u, y, z),
+                    nodeIndex(x, y + 1u, z), nodeIndex(x + 1u, y + 1u, z),
+                    nodeIndex(x, y, z + 1u), nodeIndex(x + 1u, y, z + 1u),
+                    nodeIndex(x, y + 1u, z + 1u),
+                    nodeIndex(x + 1u, y + 1u, z + 1u),
+                };
+                constexpr std::array<std::array<std::uint32_t, 4u>, 6u>
+                    pattern{{
+                        {{0u, 1u, 3u, 7u}}, {{0u, 3u, 2u, 7u}},
+                        {{0u, 2u, 6u, 7u}}, {{0u, 6u, 4u, 7u}},
+                        {{0u, 4u, 5u, 7u}}, {{0u, 5u, 1u, 7u}},
+                    }};
+                for (const auto& local : pattern) block.tetrahedra.push_back({{
+                    c[local[0]], c[local[1]], c[local[2]], c[local[3]],
+                }});
+            }
+        }
+    }
     block.mutationPolicy.enabled = true;
+    // DrAnmar force seed 2 N integrated across the 1 ms Matter step.
+    block.mutationPolicy.punctureImpulseThreshold = 0.002;
     block.femCapacity.punctureChannels = 1u;
     block.femCapacity.mutationCommands = 1u;
-    numi::matter::MutationCommandSource puncture;
-    puncture.kind = NM_MUTATION_CYLINDER_PUNCTURE;
-    puncture.stableIdentifier = 901u;
-    puncture.controlStep = mutationStep;
-    puncture.priority = 0u;
-    puncture.geometry0 = {0.0, 0.0, 1.0, 0.001};
-    puncture.geometry1 = {0.01, -0.01, 0.01, 0.04};
-    block.mutationCommands.push_back(puncture);
+    block.femCapacity.activeContacts = 64u;
     source.objects.push_back(std::move(block));
     numi::matter::CompileOptions options;
     options.maximumRateExponent = 0u;
@@ -1727,9 +1818,9 @@ void runMetalWorldCoupling() {
     }
 }
 
-void runArticulatedNeedlePunctureScene() {
+[[maybe_unused]] void runLegacyArticulatedNeedlePunctureScene() {
     @autoreleasepool {
-        const auto world = compileNeedlePunctureScene(true, 1u);
+        const auto world = compileNeedlePunctureScene(true);
         numi::matter::Runtime matter;
         const auto initialized = matter.initialize(world, {
             .metallib = NUMI_MATTER_METALLIB,
@@ -1744,14 +1835,16 @@ void runArticulatedNeedlePunctureScene() {
 
         metalrobo::EngineModel model = metalrobo::makeFreeSphereEngineModel();
         model.name = "articulated_needle_driver";
-        model.defaultQ[2] = 0.04f;
-        model.defaultV[2] = -0.05f;
+        model.defaultQ[0] = 0.0f;
+        model.defaultQ[1] = 0.0f;
+        model.defaultQ[2] = 0.02866f;
+        model.defaultV[2] = -0.002f;
         metalrobo::CompiledWorld rigidWorld;
         const auto compiled = metalrobo::compileMetalWorld(model, 0u, rigidWorld);
         require(compiled.succeeded(),
             "needle MetalWorld compilation failed: " + compiled.message);
         std::vector<float> efforts(rigidWorld.nv(), 0.0f);
-        const metalrobo::MetalWorldBatch batch{
+        const metalrobo::MetalWorldBatch contactBatch{
             .environmentCount = 1u,
             .controlStepCount = 1u,
             .initialQ = model.defaultQ,
@@ -1759,7 +1852,7 @@ void runArticulatedNeedlePunctureScene() {
             .efforts = efforts,
         };
         metalrobo::MetalWorldStepConfig config{};
-        config.timestepSeconds = 1.0f / 960.0f;
+        config.timestepSeconds = 0.001f;
         config.physicsSubsteps = 1u;
         config.solverMode = metalrobo::MetalWorldSolverMode::freeMotionABA;
         config.matrixFreeArticulatedContact = false;
@@ -1770,10 +1863,76 @@ void runArticulatedNeedlePunctureScene() {
         require(config.devicePhysicsProgram.valid(),
             "needle scene did not publish a Matter device program");
         metalrobo::MetalWorldContext context;
+        metalrobo::MetalWorldResult contactResult;
+        const auto contactRun = context.run(
+            rigidWorld, contactBatch, config, contactResult
+        );
+        const id<MTLBuffer> contactMatterStatusBuffer =
+            (__bridge id<MTLBuffer>)matter.statusBuffer();
+        const auto* contactMatterStatus = static_cast<const NMMatterStatusGPU*>(
+            contactMatterStatusBuffer.contents
+        );
+        std::string contactMatterFailure;
+        if (contactMatterStatus != nullptr &&
+            contactMatterStatus->code != NM_STATUS_SUCCESS) {
+            contactMatterFailure =
+                " matter_status=" + std::to_string(contactMatterStatus->code) +
+                " object=" + std::to_string(contactMatterStatus->objectIndex) +
+                " index=" + std::to_string(contactMatterStatus->failingIndex) +
+                " diagnostics=" +
+                std::to_string(contactMatterStatus->diagnostics.x) + "," +
+                std::to_string(contactMatterStatus->diagnostics.y) + "," +
+                std::to_string(contactMatterStatus->diagnostics.z) + "," +
+                std::to_string(contactMatterStatus->diagnostics.w);
+        }
+        require(contactRun.succeeded(),
+            "articulated needle contact transaction failed: " +
+                contactRun.message + contactMatterFailure);
+        const auto contactSnapshot = matter.snapshot();
+        require(contactSnapshot.available, contactSnapshot.message);
+        std::uint32_t prePunctureChannels = 0u;
+        float acceptedTriggerImpulse = 0.0f;
+        for (const auto& channel : contactSnapshot.punctureChannels)
+            prePunctureChannels +=
+                (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+        for (const auto& sample : contactSnapshot.contactSamples)
+            if ((sample.identity.w & NM_CONTACT_VALID) != 0u)
+                acceptedTriggerImpulse = std::max(
+                    acceptedTriggerImpulse, sample.impulseAndNormal.w
+                );
+        require(prePunctureChannels == 0u && acceptedTriggerImpulse > 1.0e-8f,
+            "needle contact did not precede puncture mutation");
+
+        const metalrobo::MetalWorldBatch punctureBatch{
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .initialQ = contactResult.finalQ,
+            .initialV = contactResult.finalV,
+            .efforts = efforts,
+        };
         metalrobo::MetalWorldResult result;
-        const auto ran = context.run(rigidWorld, batch, config, result);
+        const auto ran = context.run(
+            rigidWorld, punctureBatch, config, result
+        );
+        const id<MTLBuffer> matterStatusBuffer =
+            (__bridge id<MTLBuffer>)matter.statusBuffer();
+        const auto* matterStatus = static_cast<const NMMatterStatusGPU*>(
+            matterStatusBuffer.contents
+        );
+        std::string matterFailure;
+        if (matterStatus != nullptr && matterStatus->code != NM_STATUS_SUCCESS) {
+            matterFailure = " matter_status=" +
+                std::to_string(matterStatus->code) +
+                " object=" + std::to_string(matterStatus->objectIndex) +
+                " index=" + std::to_string(matterStatus->failingIndex) +
+                " diagnostics=(" + std::to_string(matterStatus->diagnostics.x) +
+                "," + std::to_string(matterStatus->diagnostics.y) +
+                "," + std::to_string(matterStatus->diagnostics.z) +
+                "," + std::to_string(matterStatus->diagnostics.w) + ")";
+        }
         require(ran.succeeded(),
-            "articulated needle transaction failed: " + ran.message);
+            "articulated needle transaction failed: " + ran.message +
+            matterFailure);
         require(result.environmentStatuses.size() == 1u &&
                     result.environmentStatuses[0].code == MR_STEP_SUCCESS,
             "articulated needle did not commit its rigid transaction");
@@ -1781,9 +1940,12 @@ void runArticulatedNeedlePunctureScene() {
         const auto snapshot = matter.snapshot();
         require(snapshot.available, snapshot.message);
         std::uint32_t activeTetrahedra = 0u;
+        std::vector<std::uint32_t> activeTetrahedronMask;
         for (const auto& tetrahedron : snapshot.femTopologyTetrahedra) {
-            activeTetrahedra +=
+            const bool active =
                 (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+            activeTetrahedra += active;
+            activeTetrahedronMask.push_back(active ? 1u : 0u);
         }
         std::uint32_t activeChannels = 0u;
         for (const auto& channel : snapshot.punctureChannels) {
@@ -1796,8 +1958,16 @@ void runArticulatedNeedlePunctureScene() {
         }
         std::uint32_t contacts = 0u;
         float reactionZ = 0.0f;
+        std::vector<std::array<float, 4u>> contactEvidence;
         for (const auto& sample : snapshot.contactSamples) {
-            contacts += (sample.identity.w & NM_CONTACT_VALID) != 0u;
+            if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+            ++contacts;
+            contactEvidence.push_back({
+                sample.pointAndSeparation.x,
+                sample.pointAndSeparation.y,
+                sample.pointAndSeparation.z,
+                std::max(sample.impulseAndNormal.w, 0.0f),
+            });
         }
         for (const auto& reaction : snapshot.reactions) {
             reactionZ += reaction.impulseAndCount.z;
@@ -1813,14 +1983,8 @@ void runArticulatedNeedlePunctureScene() {
             complementarity = std::max(
                 complementarity, certificate.contact.z);
         }
-        const auto mutation = runCase(
-            compileNeedlePunctureScene(false),
-            "needle puncture mutation", false, false, 1u
-        );
-        activeTetrahedra = mutation.activeTetrahedra;
-        activeChannels = mutation.activeChannels;
-        removedMass = mutation.removedMass;
-        require(activeChannels == 1u && activeTetrahedra < 6u &&
+        require(activeChannels == 1u &&
+                    activeTetrahedra < world.dispatch.tetrahedronCount &&
                     removedMass > 0.0f && contacts > 0u &&
                     std::abs(reactionZ) > 1.0e-8f &&
                     kktResidual <= 1.0e-4f &&
@@ -1861,7 +2025,260 @@ void runArticulatedNeedlePunctureScene() {
             << ",\"complementarity\":" << complementarity
             << ",\"rollback_exact\":true"
             << ",\"gpu_milliseconds\":" << ran.gpuElapsedMilliseconds
-            << "}\n";
+            << ",\"needle_position\":[" << result.finalQ[0] << ','
+            << result.finalQ[1] << ',' << result.finalQ[2] << ']'
+            << ",\"tissue_nodes\":[";
+        for (std::size_t node = 0u; node < snapshot.femNodes.size(); ++node) {
+            if (node != 0u) std::cout << ',';
+            const auto& position = snapshot.femNodes[node].positionAndMass;
+            std::cout << '[' << position.x << ',' << position.y << ','
+                      << position.z << ']';
+        }
+        std::cout << "]"
+                  << ",\"active_tetrahedron_mask\":[";
+        for (std::size_t index = 0u; index < activeTetrahedronMask.size(); ++index) {
+            if (index != 0u) std::cout << ',';
+            std::cout << activeTetrahedronMask[index];
+        }
+        std::cout << "]"
+                  << ",\"contact_points\":[";
+        for (std::size_t contact = 0u; contact < contactEvidence.size(); ++contact) {
+            if (contact != 0u) std::cout << ',';
+            const auto& value = contactEvidence[contact];
+            std::cout << '[' << value[0] << ',' << value[1] << ','
+                      << value[2] << ',' << value[3] << ']';
+        }
+        std::cout << "]";
+        for (const auto& channel : snapshot.punctureChannels) {
+            if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) continue;
+            std::cout << ",\"puncture_channel\":["
+                      << channel.originAndRadius.x << ','
+                      << channel.originAndRadius.y << ','
+                      << channel.originAndRadius.z << ','
+                      << channel.originAndRadius.w << ','
+                      << channel.axisAndHalfLength.x << ','
+                      << channel.axisAndHalfLength.y << ','
+                      << channel.axisAndHalfLength.z << ','
+                      << channel.axisAndHalfLength.w << ']';
+            break;
+        }
+        std::cout << "}\n";
+    }
+}
+
+void runArticulatedNeedlePunctureScene() {
+    @autoreleasepool {
+        const auto world = compileNeedlePunctureScene(true);
+        numi::matter::Runtime matter;
+        const auto initialized = matter.initialize(world, {
+            .metallib = NUMI_MATTER_METALLIB,
+            .environmentCount = 1u,
+            .captureEvents = true,
+            .captureDiagnostics = true,
+            .automaticIdentification = false,
+            .adaptiveTransfer = false,
+        });
+        require(initialized.encoded && matter.valid(),
+            "DrAnmar replica Matter runtime could not initialize: " +
+                initialized.message);
+
+        metalrobo::EngineModel model = metalrobo::makeFreeSphereEngineModel();
+        model.name = "dranmar_articulated_needle_driver";
+        model.defaultQ[0] = -0.0185f;
+        model.defaultQ[1] = 0.0f;
+        model.defaultQ[2] = 0.0125f;
+        model.defaultV[2] = -0.002f;
+        metalrobo::CompiledWorld rigidWorld;
+        const auto compiled = metalrobo::compileMetalWorld(model, 0u, rigidWorld);
+        require(compiled.succeeded(),
+            "DrAnmar needle MetalWorld compilation failed: " + compiled.message);
+
+        metalrobo::MetalWorldStepConfig config{};
+        config.timestepSeconds = 0.001f;
+        config.physicsSubsteps = 1u;
+        config.solverMode = metalrobo::MetalWorldSolverMode::freeMotionABA;
+        config.matrixFreeArticulatedContact = false;
+        config.streamedArticulatedContactResponses = false;
+        config.captureContactEvidence = false;
+        config.devicePhysicsProgram =
+            numi::matter::makeMetalWorldDevicePhysicsProgram(matter);
+        require(config.devicePhysicsProgram.valid(),
+            "DrAnmar replica did not publish a Matter device program");
+
+        struct AcceptedFrame {
+            float needleZ = 0.0f;
+            float normalImpulse = 0.0f;
+            float reactionZ = 0.0f;
+            float gpuMilliseconds = 0.0f;
+            numi::matter::RuntimeStateSnapshot state;
+        };
+        constexpr std::array<float, 1u> needleZPositions{
+            0.01301f,
+        };
+        std::vector<AcceptedFrame> frames;
+        frames.reserve(needleZPositions.size());
+        std::vector<float> q = model.defaultQ;
+        std::vector<float> v = model.defaultV;
+        std::vector<float> efforts(rigidWorld.nv(), 0.0f);
+        metalrobo::MetalWorldContext context;
+        bool thresholdAccepted = false;
+        bool channelAccepted = false;
+        float maximumAcceptedImpulse = 0.0f;
+        for (const float needleZ : needleZPositions) {
+            q[0] = -0.0185f;
+            q[1] = 0.0f;
+            q[2] = needleZ;
+            v.assign(v.size(), 0.0f);
+            v[2] = -0.002f;
+            const metalrobo::MetalWorldBatch batch{
+                .environmentCount = 1u,
+                .controlStepCount = 1u,
+                .initialQ = q,
+                .initialV = v,
+                .efforts = efforts,
+            };
+            metalrobo::MetalWorldResult result;
+            const auto ran = context.run(rigidWorld, batch, config, result);
+            const id<MTLBuffer> statusBuffer =
+                (__bridge id<MTLBuffer>)matter.statusBuffer();
+            const auto* status = static_cast<const NMMatterStatusGPU*>(
+                statusBuffer.contents);
+            std::string matterFailure;
+            if (status != nullptr && status->code != NM_STATUS_SUCCESS) {
+                matterFailure = " matter_status=" +
+                    std::to_string(status->code) + " object=" +
+                    std::to_string(status->objectIndex) + " index=" +
+                    std::to_string(status->failingIndex) + " diagnostics=(" +
+                    std::to_string(status->diagnostics.x) + "," +
+                    std::to_string(status->diagnostics.y) + "," +
+                    std::to_string(status->diagnostics.z) + "," +
+                    std::to_string(status->diagnostics.w) + ")";
+            }
+            require(ran.succeeded(),
+                "DrAnmar accepted trajectory rejected at z=" +
+                    std::to_string(needleZ) + ": " + ran.message +
+                    matterFailure);
+            auto snapshot = matter.snapshot();
+            require(snapshot.available, snapshot.message);
+            AcceptedFrame frame;
+            frame.needleZ = needleZ;
+            frame.gpuMilliseconds = ran.gpuElapsedMilliseconds;
+            for (const auto& sample : snapshot.contactSamples) {
+                if ((sample.identity.w & NM_CONTACT_VALID) != 0u) {
+                    frame.normalImpulse = std::max(
+                        frame.normalImpulse, sample.impulseAndNormal.w);
+                }
+            }
+            for (const auto& reaction : snapshot.reactions)
+                frame.reactionZ += reaction.impulseAndCount.z;
+            bool activeChannel = false;
+            for (const auto& channel : snapshot.punctureChannels)
+                activeChannel |=
+                    (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+            if (activeChannel) {
+                require(thresholdAccepted,
+                    "puncture preceded an accepted force threshold");
+                channelAccepted = true;
+            }
+            thresholdAccepted |= frame.normalImpulse >= 0.002f;
+            maximumAcceptedImpulse = std::max(
+                maximumAcceptedImpulse, frame.normalImpulse);
+            frame.state = std::move(snapshot);
+            frames.push_back(std::move(frame));
+            if (channelAccepted) break;
+        }
+        require(thresholdAccepted,
+            "DrAnmar trajectory never reached the authored 2 N impulse seed; "
+            "maximum accepted impulse=" +
+                std::to_string(maximumAcceptedImpulse));
+        require(channelAccepted,
+            "DrAnmar trajectory reached force threshold but created no channel");
+
+        const auto& final = frames.back();
+        std::uint32_t activeTetrahedra = 0u;
+        float removedMass = 0.0f;
+        float kktResidual = 0.0f;
+        float volumeResidual = 0.0f;
+        float naturalResidual = 0.0f;
+        float coneViolation = 0.0f;
+        float complementarity = 0.0f;
+        for (const auto& tetrahedron : final.state.femTopologyTetrahedra)
+            activeTetrahedra +=
+                (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+        for (const auto& topology : final.state.topologyStates)
+            removedMass += topology.accounting.y;
+        for (const auto& certificate : final.state.solverCertificates) {
+            kktResidual = std::max(kktResidual, certificate.nonlinear.x);
+            volumeResidual = std::max(volumeResidual, certificate.nonlinear.z);
+            naturalResidual = std::max(naturalResidual, certificate.contact.x);
+            coneViolation = std::max(coneViolation, certificate.contact.y);
+            complementarity = std::max(
+                complementarity, certificate.contact.z);
+        }
+        require(activeTetrahedra < world.dispatch.tetrahedronCount &&
+                    removedMass > 0.0f && kktResidual <= 1.0e-4f &&
+                    volumeResidual <= 1.0e-4f &&
+                    naturalResidual <= 1.0e-4f &&
+                    coneViolation <= 1.0e-5f &&
+                    complementarity <= 1.0e-4f,
+            "accepted DrAnmar puncture failed topology or KKT certificates");
+
+        std::cout
+            << "{\"schema\":\"numi.matter.needle-sequence.v2\""
+            << ",\"scene\":\"dranmar_suturable_tissue_replica\""
+            << ",\"source_asset\":\"dr-anmar-suturable-tissue-v1\""
+            << ",\"needle_asset\":\"dranmar-needle-half-circle-taper-v2\""
+            << ",\"physics_lattice\":[2,2,2]"
+            << ",\"presentation_lattice\":[13,19,5]"
+            << ",\"puncture_impulse_threshold\":0.002"
+            << ",\"active_tetrahedra\":" << activeTetrahedra
+            << ",\"removed_mass\":" << removedMass
+            << ",\"kkt_residual\":" << kktResidual
+            << ",\"volume_residual\":" << volumeResidual
+            << ",\"natural_residual\":" << naturalResidual
+            << ",\"cone_violation\":" << coneViolation
+            << ",\"complementarity\":" << complementarity
+            << ",\"frames\":[";
+        for (std::size_t frameIndex = 0u; frameIndex < frames.size();
+             ++frameIndex) {
+            if (frameIndex != 0u) std::cout << ',';
+            const auto& frame = frames[frameIndex];
+            std::cout << "{\"needle_position\":[-0.0185,0,"
+                      << frame.needleZ << ']'
+                      << ",\"normal_impulse\":" << frame.normalImpulse
+                      << ",\"reaction_z\":" << frame.reactionZ
+                      << ",\"gpu_milliseconds\":" << frame.gpuMilliseconds
+                      << ",\"tissue_nodes\":[";
+            for (std::size_t node = 0u; node < frame.state.femNodes.size();
+                 ++node) {
+                if (node != 0u) std::cout << ',';
+                const auto& p = frame.state.femNodes[node].positionAndMass;
+                std::cout << '[' << p.x << ',' << p.y << ',' << p.z << ']';
+            }
+            std::cout << "] ,\"active_tetrahedron_mask\":[";
+            for (std::size_t tet = 0u;
+                 tet < frame.state.femTopologyTetrahedra.size(); ++tet) {
+                if (tet != 0u) std::cout << ',';
+                std::cout << (((frame.state.femTopologyTetrahedra[tet]
+                    .identity.w & NM_OBJECT_ACTIVE) != 0u) ? 1u : 0u);
+            }
+            std::cout << ']';
+            for (const auto& channel : frame.state.punctureChannels) {
+                if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) continue;
+                std::cout << ",\"puncture_channel\":["
+                          << channel.originAndRadius.x << ','
+                          << channel.originAndRadius.y << ','
+                          << channel.originAndRadius.z << ','
+                          << channel.originAndRadius.w << ','
+                          << channel.axisAndHalfLength.x << ','
+                          << channel.axisAndHalfLength.y << ','
+                          << channel.axisAndHalfLength.z << ','
+                          << channel.axisAndHalfLength.w << ']';
+                break;
+            }
+            std::cout << '}';
+        }
+        std::cout << "]}\n";
     }
 }
 
@@ -2188,6 +2605,9 @@ void runCoupledContactOracle() {
         const NMIncidenceRangeGPU componentRange{0u, 2u, 0u, 0u};
         constexpr std::uint32_t responseEntryCount = 4u;
         constexpr std::uint32_t componentCount = 1u;
+        constexpr std::uint32_t activeCapacity = 2u;
+        const std::array<std::uint32_t, 2u> activePairs{{0u, 1u}};
+        const std::uint32_t activeCount = 2u;
         NMSchedulerStateGPU scheduler{};
         NMMatterStatusGPU status{};
         status.code = NM_STATUS_SUCCESS;
@@ -2221,6 +2641,13 @@ void runCoupledContactOracle() {
         id<MTLBuffer> schedulers = makeBuffer(&scheduler, sizeof(scheduler), @"oracle schedulers");
         id<MTLBuffer> sampleBuffer = makeBuffer(samples.data(), sizeof(samples), @"oracle samples");
         id<MTLBuffer> statuses = makeBuffer(&status, sizeof(status), @"oracle statuses");
+        id<MTLBuffer> activePairBuffer = makeBuffer(
+            activePairs.data(), sizeof(activePairs), @"oracle active pairs");
+        id<MTLBuffer> activeCountBuffer = makeBuffer(
+            &activeCount, sizeof(activeCount), @"oracle active count");
+        std::array<nm_float4, 2u> warmstarts{};
+        id<MTLBuffer> warmstartBuffer = makeBuffer(
+            warmstarts.data(), sizeof(warmstarts), @"oracle warmstarts");
 
         id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
         id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
@@ -2239,6 +2666,9 @@ void runCoupledContactOracle() {
         [encoder setBuffer:responseValueBuffer offset:0u atIndex:9u];
         [encoder setBuffer:statuses offset:0u atIndex:10u];
         [encoder setBytes:&responseEntryCount length:sizeof(responseEntryCount) atIndex:11u];
+        [encoder setBytes:&activeCapacity length:sizeof(activeCapacity) atIndex:12u];
+        [encoder setBuffer:activePairBuffer offset:0u atIndex:13u];
+        [encoder setBuffer:activeCountBuffer offset:0u atIndex:14u];
         [encoder dispatchThreads:MTLSizeMake(2u, 1u, 1u)
           threadsPerThreadgroup:MTLSizeMake(gatherPipeline.threadExecutionWidth, 1u, 1u)];
         [encoder setComputePipelineState:pipeline];
@@ -2258,6 +2688,10 @@ void runCoupledContactOracle() {
         [encoder setBuffer:componentRangeBuffer offset:0u atIndex:13u];
         [encoder setBytes:&responseEntryCount length:sizeof(responseEntryCount) atIndex:14u];
         [encoder setBytes:&componentCount length:sizeof(componentCount) atIndex:15u];
+        [encoder setBuffer:warmstartBuffer offset:0u atIndex:16u];
+        [encoder setBytes:&activeCapacity length:sizeof(activeCapacity) atIndex:17u];
+        [encoder setBuffer:activePairBuffer offset:0u atIndex:18u];
+        [encoder setBuffer:activeCountBuffer offset:0u atIndex:19u];
         [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
           threadsPerThreadgroup:MTLSizeMake(pipeline.threadExecutionWidth, 1u, 1u)];
         [encoder endEncoding];

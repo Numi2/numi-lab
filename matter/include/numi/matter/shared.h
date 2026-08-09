@@ -288,7 +288,8 @@ typedef struct NM_ALIGN16 NMMixedSolverGPU {
 typedef struct NM_ALIGN16 NMFEMCapacityGPU {
     // node capacity, tetrahedron capacity, cohesive-face capacity, channel capacity.
     nm_uint4 topology;
-    // mutation-command capacity, incidence capacity, contact capacity, reserved.
+    // mutation-command capacity, incidence capacity, contact capacity,
+    // puncture impulse threshold encoded as IEEE-754 float bits.
     nm_uint4 work;
 } NMFEMCapacityGPU;
 
@@ -418,6 +419,7 @@ typedef struct NM_ALIGN16 NMSolverCertificateGPU {
 enum NMMicrostepFlags : nm_u32 {
     NM_MICROSTEP_CAPTURE_EVENTS = 1u << 0u,
     NM_MICROSTEP_FGMRES_OPERATOR = 1u << 1u,
+    NM_MICROSTEP_FIELD_PRECONDITIONER = 1u << 2u,
 };
 
 typedef struct NM_ALIGN16 NMMicrostepGPU {

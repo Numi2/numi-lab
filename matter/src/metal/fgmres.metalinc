@@ -24,6 +24,10 @@ kernel void nm_fgmres_begin(
     device float* leastSquares [[buffer(7)]],
     device NMFGMRESStateGPU* states [[buffer(8)]],
     device const NMMatterStatusGPU* statuses [[buffer(9)]],
+    constant NMMicrostepGPU& microstep [[buffer(10)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(11)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(12)]],
+    constant NMKKTContactArguments& contact [[buffer(13)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -34,13 +38,33 @@ kernel void nm_fgmres_begin(
     const uint objectGlobal = group;
     const NMContinuumObjectGPU object = objects[objectIndex];
     float norm2 = 0.0f;
-    if (object.representation == NM_REPRESENTATION_FEM &&
-        environmentHealthy(statuses, environment)) {
+    const bool active = object.representation == NM_REPRESENTATION_FEM &&
+        objectDue(object, schedulers[group], adaptive[group], microstep) &&
+        environmentHealthy(statuses, environment);
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint fieldBase = totalNodes;
+    const uint sampleBase = environment * dispatch.contactPairCount;
+    const uint contactBase = 2u * totalNodes + sampleBase;
+    if (active) {
         const uint base = environment * dispatch.femNodeCount +
             object.stateOffset;
-        for (uint local = lane; local < object.stateCount; local += 32u)
-            norm2 += dot(residual[base + local].xyz,
-                         residual[base + local].xyz);
+        for (uint local = lane; local < object.stateCount; local += 32u) {
+            norm2 += dot(residual[base + local], residual[base + local]);
+            if ((object.flags & NM_OBJECT_MULTIPHYSICS) != 0u)
+                norm2 += dot(residual[fieldBase + base + local],
+                             residual[fieldBase + base + local]);
+        }
+        const uint activeCount = min(
+            contact.activeCounts[environment], dispatch.reservedMixed1);
+        for (uint slot = lane; slot < activeCount; slot += 32u) {
+            const uint pairIndex = contact.activePairs[
+                environment * dispatch.reservedMixed1 + slot];
+            if (pairIndex < dispatch.contactPairCount &&
+                contact.pairs[pairIndex].objectIndex == objectIndex) {
+                const float value = residual[contactBase + pairIndex].x;
+                norm2 += value * value;
+            }
+        }
     }
     norm2 = simd_sum(norm2);
     const uint restart = min(
@@ -66,12 +90,26 @@ kernel void nm_fgmres_begin(
             norm, norm, norm <= solver.regularization.x, 0.0f
         );
     }
-    if (object.representation != NM_REPRESENTATION_FEM) return;
+    if (!active) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
     const float inverseNorm = norm > 1.0e-30f ? 1.0f / norm : 0.0f;
     for (uint local = lane; local < object.stateCount; local += 32u) {
         const uint node = nodeBase + object.stateOffset + local;
-        basis0[node] = float4(residual[node].xyz * inverseNorm, 0.0f);
+        basis0[node] = residual[node] * inverseNorm;
+        if ((object.flags & NM_OBJECT_MULTIPHYSICS) != 0u)
+            basis0[fieldBase + node] =
+                residual[fieldBase + node] * inverseNorm;
+    }
+    const uint activeCount = min(
+        contact.activeCounts[environment], dispatch.reservedMixed1);
+    for (uint slot = lane; slot < activeCount; slot += 32u) {
+        const uint pairIndex = contact.activePairs[
+            environment * dispatch.reservedMixed1 + slot];
+        if (pairIndex < dispatch.contactPairCount &&
+            contact.pairs[pairIndex].objectIndex == objectIndex)
+            basis0[contactBase + pairIndex] = float4(
+                residual[contactBase + pairIndex].x * inverseNorm,
+                0.0f, 0.0f, 0.0f);
     }
     (void)restart;
 }
@@ -79,10 +117,12 @@ kernel void nm_fgmres_begin(
 kernel void nm_fgmres_precondition(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
-    device const NMFEMNodeStateGPU* nodes [[buffer(2)]],
+    device const float4* inverseDiagonal [[buffer(2)]],
     device const float4* basis [[buffer(3)]],
     device float4* preconditioned [[buffer(4)]],
     device const NMFGMRESStateGPU* states [[buffer(5)]],
+    constant NMMixedSolverGPU& solver [[buffer(6)]],
+    device const NMContinuumObjectGPU* objects [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -94,10 +134,500 @@ kernel void nm_fgmres_precondition(
         return;
     const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
     if (states[objectGlobal].diagnostics.z > 0.5f) return;
-    const float inverseMass = max(nodes[global].velocityAndInverseMass.w, 0.0f);
     preconditioned[global] = float4(
-        inverseMass * basis[global].xyz, 0.0f
+        inverseDiagonal[global].xyz * basis[global].xyz,
+        inverseDiagonal[global].w * basis[global].w
     );
+    (void)solver;
+    (void)objects;
+}
+
+kernel void nm_fgmres_build_preconditioner(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const uint* nodeIncidence [[buffer(5)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(6)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(7)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(8)]],
+    device float4* inverseDiagonal [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    inverseDiagonal[global] = float4(0.0f);
+    const uint environment = global / dispatch.femNodeCount;
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount) return;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    const float dt = objectTimestep(
+        dispatch, schedulers[environment * dispatch.objectCount +
+                             range.objectIndex]);
+    const float bulk = object.materialIndex < dispatch.mixedMaterialCount
+        ? max(mixedMaterials[object.materialIndex].mechanics.x, 0.0f)
+        : 0.0f;
+    float stiffness = 0.0f;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+            dispatch, tetrahedra, environment, tetrahedronIndex);
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+        const float3x3 inverseRest = matrixFromRows(
+            tetrahedron.inverseRestRow0, tetrahedron.inverseRestRow1,
+            tetrahedron.inverseRestRow2);
+        const float gradientScale = 0.25f * (
+            dot(inverseRest[0], inverseRest[0]) +
+            dot(inverseRest[1], inverseRest[1]) +
+            dot(inverseRest[2], inverseRest[2]));
+        stiffness += dt * dt * tetrahedron.inverseRestRow0.w * bulk *
+            gradientScale;
+    }
+    const float mass = max(candidate[global].positionAndMass.w, 0.0f);
+    const bool fixedVelocity = candidate[global].restAndFixed.w > 0.5f;
+    const float velocityInverse = fixedVelocity ? 0.0f : 1.0f / max(
+        mass + max(stiffness, 0.0f), solver.regularization.x);
+    const float pressureProjection =
+        0.25f + 0.75f * solver.globalization.w;
+    // Local pressure Schur approximation:
+    //   S ~= C_p + B diag(A_vv)^-1 B^T.
+    // `stiffness` is the assembled dt^2*kappa*V*|grad N|^2 scale and
+    // velocityInverse is diag(A_vv)^-1, so their product is dimensionless in
+    // the normalized q = pi/kappa pressure variable.
+    const float pressureSchur = pressureProjection +
+        max(stiffness, 0.0f) * velocityInverse;
+    const float pressureInverse = (object.flags & NM_OBJECT_MIXED_FEM) != 0u
+        ? 1.0f / max(pressureSchur, solver.regularization.x)
+        : 0.0f;
+    inverseDiagonal[global] = float4(
+        velocityInverse, velocityInverse, velocityInverse, pressureInverse);
+}
+
+kernel void nm_fgmres_precondition_contacts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const float4* basis [[buffer(2)]],
+    device float4* preconditioned [[buffer(3)]],
+    device const NMFGMRESStateGPU* states [[buffer(4)]],
+    constant NMKKTContactArguments& contact [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (dispatch.reservedMixed1 == 0u) return;
+    const uint environment = global / dispatch.reservedMixed1;
+    const uint slot = global - environment * dispatch.reservedMixed1;
+    if (environment >= dispatch.environmentCount ||
+        slot >= contact.activeCounts[environment]) return;
+    const uint pairIndex = contact.activePairs[global];
+    if (pairIndex >= dispatch.contactPairCount) return;
+    const uint objectIndex = contact.pairs[pairIndex].objectIndex;
+    if (objectIndex >= dispatch.objectCount ||
+        objects[objectIndex].representation != NM_REPRESENTATION_FEM) return;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    if (states[objectGlobal].diagnostics.z > 0.5f) return;
+    const uint contactIndex = 2u * dispatch.environmentCount *
+        dispatch.femNodeCount + environment * dispatch.contactPairCount +
+        pairIndex;
+    preconditioned[contactIndex] = float4(
+        basis[contactIndex].x, 0.0f, 0.0f, 0.0f);
+}
+
+kernel void nm_fgmres_import_field_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* fieldResidual [[buffer(1)]],
+    device float4* kktResidual [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global < totalNodes)
+        kktResidual[totalNodes + global] = fieldResidual[global];
+}
+
+kernel void nm_fgmres_field_pcg_initialize(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device const float4* basis [[buffer(2)]],
+    device const float4* inverseDiagonal [[buffer(3)]],
+    device float4* solution [[buffer(4)]],
+    device float4* residual [[buffer(5)]],
+    device float4* preconditioned [[buffer(6)]],
+    device float4* direction [[buffer(7)]],
+    device const NMFGMRESStateGPU* states [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes) return;
+    solution[global] = residual[global] = preconditioned[global] =
+        direction[global] = float4(0.0f);
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount ||
+        states[environment * dispatch.objectCount + objectIndex]
+            .diagnostics.z > 0.5f) return;
+    const float4 r = basis[totalNodes + global];
+    const float4 z = inverseDiagonal[global] * r;
+    residual[global] = r;
+    preconditioned[global] = z;
+    direction[global] = z;
+}
+
+kernel void nm_fgmres_field_pcg_export(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device const float4* solution [[buffer(2)]],
+    device float4* preconditionedBasis [[buffer(3)]],
+    device const NMFGMRESStateGPU* states [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount ||
+        states[environment * dispatch.objectCount + objectIndex]
+            .diagnostics.z > 0.5f) return;
+    preconditionedBasis[totalNodes + global] = solution[global];
+}
+
+kernel void nm_fgmres_precondition_fields(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device const float4* inverseDiagonal [[buffer(2)]],
+    device const float4* basis [[buffer(3)]],
+    device float4* preconditioned [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount)
+        return;
+    if (states[environment * dispatch.objectCount + objectIndex]
+            .diagnostics.z > 0.5f) return;
+    const uint fieldIndex = totalNodes + global;
+    // The field equations are left-equilibrated by D^-1. Their right
+    // preconditioner is therefore identity at this level.
+    preconditioned[fieldIndex] = basis[fieldIndex];
+    (void)inverseDiagonal;
+}
+
+kernel void nm_fgmres_scale_field_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* inverseDiagonal [[buffer(1)]],
+    device float4* work [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global < totalNodes)
+        work[totalNodes + global] *= inverseDiagonal[global];
+}
+
+kernel void nm_fgmres_smooth_fields(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device const float4* inverseDiagonal [[buffer(2)]],
+    device const float4* basis [[buffer(3)]],
+    device const float4* operatorValue [[buffer(4)]],
+    device float4* preconditioned [[buffer(5)]],
+    device const NMFGMRESStateGPU* states [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount)
+        return;
+    if (states[environment * dispatch.objectCount + objectIndex]
+            .diagnostics.z > 0.5f) return;
+    const uint fieldIndex = totalNodes + global;
+    const float4 defect = basis[fieldIndex] -
+        inverseDiagonal[global] * operatorValue[global];
+    // Damped block Jacobi is deliberately fixed-count: it is a bounded,
+    // matrix-free right preconditioner, not a second convergence authority.
+    preconditioned[fieldIndex] += 0.72f * defect;
+}
+
+kernel void nm_fgmres_precondition_cross(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(3)]],
+    device const float4* inverseMechanicalDiagonal [[buffer(4)]],
+    device float4* preconditioned [[buffer(5)]],
+    device const NMFGMRESStateGPU* states [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount)
+        return;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    if (states[objectGlobal].diagnostics.z > 0.5f) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if ((object.flags & NM_OBJECT_MULTIPHYSICS) == 0u ||
+        object.materialIndex >= dispatch.mixedMaterialCount) return;
+    // Lower block-triangular elimination for
+    // C_pT = -3 alpha_T. This keeps temperature-scaled directions from
+    // poisoning the pressure Schur solve without materializing a global
+    // matrix or synchronizing the device.
+    const float temperatureCorrection = preconditioned[
+        totalNodes + global].x;
+    preconditioned[global].w += inverseMechanicalDiagonal[global].w *
+        3.0f * mixedMaterials[object.materialIndex].mechanics.y *
+        temperatureCorrection;
+}
+
+// Distributed generalized-Jacobian application. Constitutive work is one
+// thread per FEM node; no object is serialized through one long-lived group.
+kernel void nm_fgmres_apply_nodes(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    constant NMMixedSolverGPU& solver [[buffer(2)]],
+    device const NMContinuumObjectGPU* objects [[buffer(3)]],
+    device const NMMaterialGPU* materials [[buffer(4)]],
+    device const NMScalarProgramGPU* programs [[buffer(5)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(6)]],
+    device const float* environmentParameters [[buffer(7)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(8)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(9)]],
+    device const float* materialState [[buffer(10)]],
+    device const uint* nodeIncidence [[buffer(11)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(12)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(13)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(14)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(15)]],
+    device const NMFEMFieldStateGPU* fields [[buffer(16)]],
+    device const NMLearnedMaterialGPU* learnedMaterials [[buffer(17)]],
+    device const NMLearnedLayerGPU* learnedLayers [[buffer(18)]],
+    device const float* learnedWeights [[buffer(19)]],
+    device const float4* direction [[buffer(20)]],
+    device float4* work [[buffer(21)]],
+    constant NMKKTContactArguments& contact [[buffer(22)]],
+    device const NMFGMRESStateGPU* states [[buffer(23)]],
+    device NMMatterStatusGPU* statuses [[buffer(24)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    work[global] = float4(0.0f);
+    const uint environment = global / dispatch.femNodeCount;
+    const uint localNode = global - environment * dispatch.femNodeCount;
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount) return;
+    const uint objectIndex = range.objectIndex;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if (states[objectGlobal].diagnostics.z > 0.5f ||
+        object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, schedulers[objectGlobal], adaptive[objectGlobal],
+                   microstep) || !environmentHealthy(statuses, environment))
+        return;
+    bool valid = true;
+    work[global] = fusedFEMOperatorAtNode(
+        dispatch, microstep, solver, environment, objectIndex, localNode,
+        objects, materials, programs, instructions, environmentParameters,
+        candidate, tetrahedra, materialState, nodeIncidence, nodeRanges,
+        schedulers, mixedMaterials, fields, learnedMaterials, learnedLayers,
+        learnedWeights, direction, valid);
+    const uint unifiedNode = dispatch.gridNodeCount + localNode;
+    const NMIncidenceRangeGPU contactRange = contact.nodeRanges[unifiedNode];
+    const uint sampleBase = environment * dispatch.contactPairCount;
+    const uint contactBase = 2u * total + sampleBase;
+    for (uint incidence = 0u; incidence < contactRange.count; ++incidence) {
+        const uint pairIndex = contact.nodeIncidence[
+            contactRange.first + incidence];
+        if (pairIndex >= dispatch.contactPairCount ||
+            contact.pairs[pairIndex].objectIndex != objectIndex) continue;
+        const NMContactSampleGPU sample =
+            contact.samples[sampleBase + pairIndex];
+        if ((sample.identity.w & NM_CONTACT_VALID) != 0u)
+            work[global].xyz -= sample.normalAndVelocity.xyz *
+                direction[contactBase + pairIndex].x;
+    }
+    if (!valid) recordFailure(
+        statuses[environment], NM_STATUS_LINEAR_SOLVER_FAILURE,
+        objectIndex, localNode, float4(0.0f));
+}
+
+kernel void nm_fgmres_gather_nodes(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const NMFEMElementVectorGPU* elementOperator [[buffer(5)]],
+    device const uint* nodeIncidence [[buffer(6)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(7)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(8)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(9)]],
+    device const float4* direction [[buffer(10)]],
+    device float4* work [[buffer(11)]],
+    constant NMKKTContactArguments& contact [[buffer(12)]],
+    device const NMFGMRESStateGPU* states [[buffer(13)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    work[global] = float4(0.0f);
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount) return;
+    const uint objectIndex = range.objectIndex;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if (states[objectGlobal].diagnostics.z > 0.5f ||
+        object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, schedulers[objectGlobal], adaptive[objectGlobal],
+                   microstep))
+        return;
+    float3 derivativeForce = float3(0.0f);
+    float pressureOperator = 0.0f;
+    uint activeElements = 0u;
+    const uint elementBase = environment * dispatch.tetrahedronCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+            dispatch, tetrahedra, environment, tetrahedronIndex);
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+        const float4 value = elementNodeVector(
+            elementOperator[elementBase + tetrahedronIndex], tetrahedron, node);
+        derivativeForce += value.xyz;
+        pressureOperator += value.w;
+        ++activeElements;
+    }
+    const float dt = objectTimestep(dispatch, schedulers[objectGlobal]);
+    const bool fixedVelocity = candidate[global].restAndFixed.w > 0.5f;
+    work[global] = float4(
+        fixedVelocity ? float3(0.0f) :
+            candidate[global].positionAndMass.w * direction[global].xyz -
+                dt * dt * derivativeForce,
+        activeElements > 0u
+            ? pressureOperator / float(activeElements) : 0.0f);
+    const uint unifiedNode = dispatch.gridNodeCount + node;
+    const NMIncidenceRangeGPU contactRange = contact.nodeRanges[unifiedNode];
+    const uint sampleBase = environment * dispatch.contactPairCount;
+    const uint contactBase = 2u * total + sampleBase;
+    for (uint incidence = 0u; incidence < contactRange.count; ++incidence) {
+        const uint pairIndex = contact.nodeIncidence[
+            contactRange.first + incidence];
+        if (pairIndex >= dispatch.contactPairCount ||
+            contact.pairs[pairIndex].objectIndex != objectIndex) continue;
+        const NMContactSampleGPU sample =
+            contact.samples[sampleBase + pairIndex];
+        if ((sample.identity.w & NM_CONTACT_VALID) != 0u)
+            work[global].xyz -= sample.normalAndVelocity.xyz *
+                direction[contactBase + pairIndex].x;
+    }
+}
+
+kernel void nm_fgmres_apply_contacts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(5)]],
+    device const float4* direction [[buffer(6)]],
+    device float4* work [[buffer(7)]],
+    constant NMKKTContactArguments& contact [[buffer(8)]],
+    device const NMFGMRESStateGPU* states [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (dispatch.reservedMixed1 == 0u) return;
+    const uint environment = global / dispatch.reservedMixed1;
+    const uint slot = global - environment * dispatch.reservedMixed1;
+    if (environment >= dispatch.environmentCount ||
+        slot >= contact.activeCounts[environment]) return;
+    const uint pairIndex = contact.activePairs[global];
+    if (pairIndex >= dispatch.contactPairCount) return;
+    const NMContactPairGPU pair = contact.pairs[pairIndex];
+    const uint objectIndex = pair.objectIndex;
+    if (objectIndex >= dispatch.objectCount) return;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint sampleBase = environment * dispatch.contactPairCount;
+    const uint contactIndex = 2u * totalNodes + sampleBase + pairIndex;
+    work[contactIndex] = float4(0.0f);
+    if (states[objectGlobal].diagnostics.z > 0.5f) return;
+    const NMContactSampleGPU sample = contact.samples[sampleBase + pairIndex];
+    if ((sample.identity.w & NM_CONTACT_VALID) == 0u) return;
+    const NMIncidenceRangeGPU responseRange = contact.responseRanges[slot];
+    float diagonal = 0.0f;
+    float gapVelocity = sample.normalAndVelocity.w;
+    float directionGap = 0.0f;
+    float femDirectionGap = 0.0f;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    if (pair.continuumNode >= dispatch.gridNodeCount) {
+        const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
+        if (femNode < dispatch.femNodeCount)
+            femDirectionGap = dot(sample.normalAndVelocity.xyz,
+                                  direction[nodeBase + femNode].xyz);
+    }
+    const uint activeCount = min(
+        contact.activeCounts[environment], dispatch.reservedMixed1);
+    for (uint local = 0u; local < responseRange.count; ++local) {
+        const uint entry = responseRange.first + local;
+        if (entry >= dispatch.reservedMixed0) continue;
+        const uint columnSlot = contact.responseColumns[entry];
+        if (columnSlot >= activeCount) continue;
+        const uint columnPair = contact.activePairs[
+            environment * dispatch.reservedMixed1 + columnSlot];
+        if (columnPair >= dispatch.contactPairCount) continue;
+        const NMContactSampleGPU other =
+            contact.samples[sampleBase + columnPair];
+        if ((other.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        const float full = contact.responseValues[
+            environment * dispatch.reservedMixed0 + entry];
+        if (columnSlot == slot) diagonal = full;
+        float primary = 0.0f;
+        const NMContactPairGPU otherPair = contact.pairs[columnPair];
+        if (pair.continuumNode >= dispatch.gridNodeCount &&
+            otherPair.continuumNode == pair.continuumNode) {
+            const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
+            if (femNode < dispatch.femNodeCount)
+                primary = candidate[nodeBase + femNode]
+                    .velocityAndInverseMass.w * dot(
+                        sample.normalAndVelocity.xyz,
+                        other.normalAndVelocity.xyz);
+        }
+        const float reduced = full - primary;
+        gapVelocity += reduced * other.impulseAndNormal.w;
+        directionGap += reduced *
+            direction[2u * totalNodes + sampleBase + columnPair].x;
+    }
+    const float metric = max(diagonal, solver.regularization.x);
+    const NMMaterialGPU objectMaterial = materials[objects[objectIndex].materialIndex];
+    const NMMaterialGPU interfaceMaterial = materials[pair.materialInterface];
+    const float dt = objectTimestep(dispatch, schedulers[objectGlobal]);
+    const float rawBias = (dispatch.numericalLimits.x -
+        sample.pointAndSeparation.w) / max(dt, 1.0e-12f);
+    const float bias = min(max(rawBias, 0.0f), dispatch.numericalLimits.y);
+    const bool differentiableBias = rawBias > 0.0f &&
+        rawBias < dispatch.numericalLimits.y;
+    // x_candidate = x_n + dt*v, so d[(slop-separation)/dt]/dv = -J
+    // on the active, unclamped bias branch. d(v_n-bias) therefore carries
+    // two FEM J*dv terms. Eliminated rigid/articulated response remains in W.
+    directionGap += (differentiableBias ? 2.0f : 1.0f) * femDirectionGap;
+    const float restitution = max(objectMaterial.interfaceResponse.z,
+                                  interfaceMaterial.interfaceResponse.z);
+    const float bounce = sample.normalAndVelocity.w < -0.2f
+        ? -restitution * sample.normalAndVelocity.w : 0.0f;
+    const float lambda = sample.impulseAndNormal.w;
+    const float projected = max(
+        lambda - (gapVelocity - bias - bounce) / metric, 0.0f);
+    work[contactIndex].x = (projected > 0.0f || lambda > 0.0f)
+        ? directionGap / metric : direction[contactIndex].x;
 }
 
 kernel void nm_fgmres_project(
@@ -109,6 +639,7 @@ kernel void nm_fgmres_project(
     device const float4* work [[buffer(5)]],
     device float* hessenberg [[buffer(6)]],
     device const NMFGMRESStateGPU* states [[buffer(7)]],
+    constant NMKKTContactArguments& contact [[buffer(8)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -121,7 +652,20 @@ kernel void nm_fgmres_project(
     float value = 0.0f;
     const uint base = environment * dispatch.femNodeCount + object.stateOffset;
     for (uint local = lane; local < object.stateCount; local += 32u)
-        value += dot(basis[base + local].xyz, work[base + local].xyz);
+        value += dot(basis[base + local], work[base + local]);
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint contactBase = 2u * totalNodes +
+        environment * dispatch.contactPairCount;
+    const uint activeCount = min(
+        contact.activeCounts[environment], dispatch.reservedMixed1);
+    for (uint slot = lane; slot < activeCount; slot += 32u) {
+        const uint pairIndex = contact.activePairs[
+            environment * dispatch.reservedMixed1 + slot];
+        if (pairIndex < dispatch.contactPairCount &&
+            contact.pairs[pairIndex].objectIndex == objectIndex)
+            value += basis[contactBase + pairIndex].x *
+                work[contactBase + pairIndex].x;
+    }
     value = simd_sum(value);
     if (lane == 0u)
         hessenberg[fgmresMatrixIndex(group, row, column)] = value;
@@ -149,7 +693,106 @@ kernel void nm_fgmres_orthogonalize(
     const float h = hessenberg[
         fgmresMatrixIndex(objectGlobal, row, column)
     ];
-    work[global].xyz -= h * basis[global].xyz;
+    work[global] -= h * basis[global];
+}
+
+kernel void nm_fgmres_orthogonalize_contacts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& row [[buffer(1)]],
+    constant uint& column [[buffer(2)]],
+    device const float4* basis [[buffer(3)]],
+    device float4* work [[buffer(4)]],
+    device const float* hessenberg [[buffer(5)]],
+    device const NMFGMRESStateGPU* states [[buffer(6)]],
+    constant NMKKTContactArguments& contact [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (dispatch.reservedMixed1 == 0u) return;
+    const uint environment = global / dispatch.reservedMixed1;
+    const uint slot = global - environment * dispatch.reservedMixed1;
+    if (environment >= dispatch.environmentCount ||
+        slot >= contact.activeCounts[environment]) return;
+    const uint pairIndex = contact.activePairs[global];
+    if (pairIndex >= dispatch.contactPairCount) return;
+    const uint objectIndex = contact.pairs[pairIndex].objectIndex;
+    if (objectIndex >= dispatch.objectCount) return;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    if (states[objectGlobal].diagnostics.z > 0.5f) return;
+    const uint contactIndex = 2u * dispatch.environmentCount *
+        dispatch.femNodeCount + environment * dispatch.contactPairCount +
+        pairIndex;
+    work[contactIndex].x -= hessenberg[
+        fgmresMatrixIndex(objectGlobal, row, column)] *
+        basis[contactIndex].x;
+}
+
+kernel void nm_fgmres_orthogonalize_column(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& column [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const float4* basis [[buffer(3)]],
+    device float4* work [[buffer(4)]],
+    device float* hessenberg [[buffer(5)]],
+    device const NMFGMRESStateGPU* states [[buffer(6)]],
+    constant NMKKTContactArguments& contact [[buffer(7)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || dispatch.objectCount == 0u) return;
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (environment >= dispatch.environmentCount ||
+        states[group].diagnostics.z > 0.5f) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint fieldBase = totalNodes;
+    const uint totalUnknowns = 2u * totalNodes +
+        dispatch.environmentCount * dispatch.contactPairCount;
+    const uint nodeBase = environment * dispatch.femNodeCount +
+        object.stateOffset;
+    const uint contactBase = 2u * totalNodes +
+        environment * dispatch.contactPairCount;
+    const uint activeCount = min(
+        contact.activeCounts[environment], dispatch.reservedMixed1);
+    for (uint row = 0u; row <= column; ++row) {
+        device const float4* rowBasis = basis + row * totalUnknowns;
+        float projection = 0.0f;
+        for (uint local = lane; local < object.stateCount; local += 32u)
+            projection += dot(rowBasis[nodeBase + local],
+                              work[nodeBase + local]);
+        if ((object.flags & NM_OBJECT_MULTIPHYSICS) != 0u)
+            for (uint local = lane; local < object.stateCount; local += 32u)
+                projection += dot(rowBasis[fieldBase + nodeBase + local],
+                                  work[fieldBase + nodeBase + local]);
+        for (uint slot = lane; slot < activeCount; slot += 32u) {
+            const uint pairIndex = contact.activePairs[
+                environment * dispatch.reservedMixed1 + slot];
+            if (pairIndex < dispatch.contactPairCount &&
+                contact.pairs[pairIndex].objectIndex == objectIndex)
+                projection += rowBasis[contactBase + pairIndex].x *
+                    work[contactBase + pairIndex].x;
+        }
+        projection = simd_sum(projection);
+        if (lane == 0u)
+            hessenberg[fgmresMatrixIndex(group, row, column)] = projection;
+        simdgroup_barrier(mem_flags::mem_device);
+        for (uint local = lane; local < object.stateCount; local += 32u)
+            work[nodeBase + local] -=
+                projection * rowBasis[nodeBase + local];
+        if ((object.flags & NM_OBJECT_MULTIPHYSICS) != 0u)
+            for (uint local = lane; local < object.stateCount; local += 32u)
+                work[fieldBase + nodeBase + local] -= projection *
+                    rowBasis[fieldBase + nodeBase + local];
+        for (uint slot = lane; slot < activeCount; slot += 32u) {
+            const uint pairIndex = contact.activePairs[
+                environment * dispatch.reservedMixed1 + slot];
+            if (pairIndex < dispatch.contactPairCount &&
+                contact.pairs[pairIndex].objectIndex == objectIndex)
+                work[contactBase + pairIndex].x -= projection *
+                    rowBasis[contactBase + pairIndex].x;
+        }
+        simdgroup_barrier(mem_flags::mem_device);
+    }
 }
 
 kernel void nm_fgmres_finish_column(
@@ -163,6 +806,7 @@ kernel void nm_fgmres_finish_column(
     device float2* rotations [[buffer(7)]],
     device float* leastSquares [[buffer(8)]],
     device NMFGMRESStateGPU* states [[buffer(9)]],
+    constant NMKKTContactArguments& contact [[buffer(10)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -175,7 +819,25 @@ kernel void nm_fgmres_finish_column(
     const uint base = environment * dispatch.femNodeCount + object.stateOffset;
     float norm2 = 0.0f;
     for (uint local = lane; local < object.stateCount; local += 32u)
-        norm2 += dot(work[base + local].xyz, work[base + local].xyz);
+        norm2 += dot(work[base + local], work[base + local]);
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if ((object.flags & NM_OBJECT_MULTIPHYSICS) != 0u)
+        for (uint local = lane; local < object.stateCount; local += 32u)
+            norm2 += dot(work[totalNodes + base + local],
+                         work[totalNodes + base + local]);
+    const uint contactBase = 2u * totalNodes +
+        environment * dispatch.contactPairCount;
+    const uint activeCount = min(
+        contact.activeCounts[environment], dispatch.reservedMixed1);
+    for (uint slot = lane; slot < activeCount; slot += 32u) {
+        const uint pairIndex = contact.activePairs[
+            environment * dispatch.reservedMixed1 + slot];
+        if (pairIndex < dispatch.contactPairCount &&
+            contact.pairs[pairIndex].objectIndex == objectIndex) {
+            const float value = work[contactBase + pairIndex].x;
+            norm2 += value * value;
+        }
+    }
     norm2 = simd_sum(norm2);
     const float norm = sqrt(max(norm2, 0.0f));
     if (lane == 0u) {
@@ -227,9 +889,20 @@ kernel void nm_fgmres_finish_column(
     }
     const float inverseNorm = norm > 1.0e-30f ? 1.0f / norm : 0.0f;
     for (uint local = lane; local < object.stateCount; local += 32u)
-        nextBasis[base + local] = float4(
-            work[base + local].xyz * inverseNorm, 0.0f
-        );
+        nextBasis[base + local] = work[base + local] * inverseNorm;
+    if ((object.flags & NM_OBJECT_MULTIPHYSICS) != 0u)
+        for (uint local = lane; local < object.stateCount; local += 32u)
+            nextBasis[totalNodes + base + local] =
+                work[totalNodes + base + local] * inverseNorm;
+    for (uint slot = lane; slot < activeCount; slot += 32u) {
+        const uint pairIndex = contact.activePairs[
+            environment * dispatch.reservedMixed1 + slot];
+        if (pairIndex < dispatch.contactPairCount &&
+            contact.pairs[pairIndex].objectIndex == objectIndex)
+            nextBasis[contactBase + pairIndex] = float4(
+                work[contactBase + pairIndex].x * inverseNorm,
+                0.0f, 0.0f, 0.0f);
+    }
 }
 
 kernel void nm_fgmres_backsolve(
@@ -240,6 +913,8 @@ kernel void nm_fgmres_backsolve(
     device NMFGMRESStateGPU* states [[buffer(4)]],
     device NMMatterStatusGPU* statuses [[buffer(5)]],
     device NMPCGScalarGPU* publishedIterations [[buffer(6)]],
+    constant uint& iterationOffset [[buffer(7)]],
+    constant uint& finalRestartCycle [[buffer(8)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.objectCount;
@@ -249,12 +924,13 @@ kernel void nm_fgmres_backsolve(
     const uint used = min(uint(state.diagnostics.w), min(
         solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART
     ));
+    const uint totalUsed = iterationOffset + used;
     atomic_fetch_max_explicit(
         (device atomic_uint*)&statuses[environment].pcgIterations,
-        used,
+        totalUsed,
         memory_order_relaxed
     );
-    publishedIterations[global].diagnostics.w = float(max(used, 1u));
+    publishedIterations[global].diagnostics.w = float(max(totalUsed, 1u));
     for (int row = int(used) - 1; row >= 0; --row) {
         float value = leastSquares[fgmresVectorIndex(global, uint(row))];
         for (uint column = uint(row) + 1u; column < used; ++column)
@@ -267,13 +943,118 @@ kernel void nm_fgmres_backsolve(
         leastSquares[fgmresVectorIndex(global, uint(row))] =
             abs(diagonal) > solver.regularization.x ? value / diagonal : 0.0f;
     }
-    if (state.diagnostics.z <= 0.5f || !isfinite(state.diagnostics.x)) {
+    const float relativeResidual = state.diagnostics.y > solver.regularization.x
+        ? state.diagnostics.x / state.diagnostics.y : state.diagnostics.x;
+    const bool inexactAccepted = finalRestartCycle == 0u ||
+        state.diagnostics.z > 0.5f ||
+        (used > 0u && relativeResidual <= 0.5f);
+    state.diagnostics.z = inexactAccepted ? 1.0f : 0.0f;
+    if (!inexactAccepted || !isfinite(state.diagnostics.x)) {
         recordFailure(
             statuses[environment], NM_STATUS_LINEAR_SOLVER_FAILURE,
             global - environment * dispatch.objectCount, used,
             state.diagnostics
         );
     }
+}
+
+kernel void nm_fgmres_form_restart_coefficients(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const float2* rotations [[buffer(2)]],
+    device const float* leastSquares [[buffer(3)]],
+    device const NMFGMRESStateGPU* states [[buffer(4)]],
+    device float* coefficients [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total) return;
+    const uint used = min(uint(states[global].diagnostics.w), min(
+        solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART));
+    const uint base = global * (NM_MIXED_FGMRES_RESTART + 1u);
+    for (uint row = 0u; row < NM_MIXED_FGMRES_RESTART + 1u; ++row)
+        coefficients[base + row] = 0.0f;
+    coefficients[base + used] =
+        leastSquares[fgmresVectorIndex(global, used)];
+    for (int row = int(used) - 1; row >= 0; --row) {
+        const float2 rotation = rotations[
+            global * NM_MIXED_FGMRES_RESTART + uint(row)];
+        const float upper = coefficients[base + uint(row)];
+        const float lower = coefficients[base + uint(row) + 1u];
+        coefficients[base + uint(row)] =
+            rotation.x * upper - rotation.y * lower;
+        coefficients[base + uint(row) + 1u] =
+            rotation.y * upper + rotation.x * lower;
+    }
+}
+
+kernel void nm_fgmres_restart_residual_nodes(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device const float4* basis [[buffer(2)]],
+    device const float* coefficients [[buffer(3)]],
+    device const NMFGMRESStateGPU* states [[buffer(4)]],
+    device float4* residual [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount)
+        return;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const uint used = min(uint(states[objectGlobal].diagnostics.w),
+                          NM_MIXED_FGMRES_RESTART);
+    const uint totalUnknowns = 2u * totalNodes +
+        dispatch.environmentCount * dispatch.contactPairCount;
+    const uint coefficientBase = objectGlobal *
+        (NM_MIXED_FGMRES_RESTART + 1u);
+    float4 mechanical = float4(0.0f);
+    float4 field = float4(0.0f);
+    for (uint row = 0u; row <= used; ++row) {
+        const float coefficient = coefficients[coefficientBase + row];
+        mechanical += coefficient * basis[row * totalUnknowns + global];
+        field += coefficient * basis[
+            row * totalUnknowns + totalNodes + global];
+    }
+    residual[global] = mechanical;
+    residual[totalNodes + global] = field;
+}
+
+kernel void nm_fgmres_restart_residual_contacts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* basis [[buffer(1)]],
+    device const float* coefficients [[buffer(2)]],
+    device const NMFGMRESStateGPU* states [[buffer(3)]],
+    device float4* residual [[buffer(4)]],
+    constant NMKKTContactArguments& contact [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (dispatch.reservedMixed1 == 0u) return;
+    const uint environment = global / dispatch.reservedMixed1;
+    const uint slot = global - environment * dispatch.reservedMixed1;
+    if (environment >= dispatch.environmentCount ||
+        slot >= contact.activeCounts[environment]) return;
+    const uint pairIndex = contact.activePairs[global];
+    if (pairIndex >= dispatch.contactPairCount) return;
+    const uint objectIndex = contact.pairs[pairIndex].objectIndex;
+    if (objectIndex >= dispatch.objectCount) return;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const uint used = min(uint(states[objectGlobal].diagnostics.w),
+                          NM_MIXED_FGMRES_RESTART);
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint totalUnknowns = 2u * totalNodes +
+        dispatch.environmentCount * dispatch.contactPairCount;
+    const uint contactIndex = 2u * totalNodes +
+        environment * dispatch.contactPairCount + pairIndex;
+    const uint coefficientBase = objectGlobal *
+        (NM_MIXED_FGMRES_RESTART + 1u);
+    float value = 0.0f;
+    for (uint row = 0u; row <= used; ++row)
+        value += coefficients[coefficientBase + row] *
+            basis[row * totalUnknowns + contactIndex].x;
+    residual[contactIndex] = float4(value, 0.0f, 0.0f, 0.0f);
 }
 
 kernel void nm_fgmres_accumulate(
@@ -284,6 +1065,7 @@ kernel void nm_fgmres_accumulate(
     device const float* leastSquares [[buffer(4)]],
     device const NMFGMRESStateGPU* states [[buffer(5)]],
     device float4* solution [[buffer(6)]],
+    constant uint& restartCycle [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -296,12 +1078,84 @@ kernel void nm_fgmres_accumulate(
     const uint used = min(uint(states[objectGlobal].diagnostics.w), min(
         solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART
     ));
-    float3 value = float3(0.0f);
+    float4 value = float4(0.0f);
+    const uint totalUnknowns = dispatch.environmentCount *
+        (2u * dispatch.femNodeCount + dispatch.contactPairCount);
     for (uint column = 0u; column < used; ++column)
         value += preconditionedBasis[
-            column * total + global
-        ].xyz * leastSquares[fgmresVectorIndex(objectGlobal, column)];
-    solution[global] = float4(value, 0.0f);
+            column * totalUnknowns + global
+        ] * leastSquares[fgmresVectorIndex(objectGlobal, column)];
+    if (restartCycle == 0u) solution[global] = value;
+    else solution[global] += value;
+}
+
+kernel void nm_fgmres_accumulate_fields(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(2)]],
+    device const float4* preconditionedBasis [[buffer(3)]],
+    device const float* leastSquares [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device float4* solution [[buffer(6)]],
+    constant uint& restartCycle [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount)
+        return;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const uint used = min(uint(states[objectGlobal].diagnostics.w), min(
+        solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART));
+    const uint totalUnknowns = 2u * totalNodes +
+        dispatch.environmentCount * dispatch.contactPairCount;
+    const uint fieldIndex = totalNodes + global;
+    float4 value = float4(0.0f);
+    for (uint column = 0u; column < used; ++column)
+        value += preconditionedBasis[column * totalUnknowns + fieldIndex] *
+            leastSquares[fgmresVectorIndex(objectGlobal, column)];
+    if (restartCycle == 0u) solution[fieldIndex] = value;
+    else solution[fieldIndex] += value;
+}
+
+kernel void nm_fgmres_accumulate_contacts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const float4* preconditionedBasis [[buffer(2)]],
+    device const float* leastSquares [[buffer(3)]],
+    device const NMFGMRESStateGPU* states [[buffer(4)]],
+    device float4* solution [[buffer(5)]],
+    constant NMKKTContactArguments& contact [[buffer(6)]],
+    constant uint& restartCycle [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (dispatch.reservedMixed1 == 0u) return;
+    const uint environment = global / dispatch.reservedMixed1;
+    const uint slot = global - environment * dispatch.reservedMixed1;
+    if (environment >= dispatch.environmentCount ||
+        slot >= contact.activeCounts[environment]) return;
+    const uint pairIndex = contact.activePairs[global];
+    if (pairIndex >= dispatch.contactPairCount) return;
+    const uint objectIndex = contact.pairs[pairIndex].objectIndex;
+    if (objectIndex >= dispatch.objectCount) return;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const uint used = min(uint(states[objectGlobal].diagnostics.w), min(
+        solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART));
+    const uint totalUnknowns = dispatch.environmentCount *
+        (2u * dispatch.femNodeCount + dispatch.contactPairCount);
+    const uint contactIndex = 2u * dispatch.environmentCount *
+        dispatch.femNodeCount + environment * dispatch.contactPairCount +
+        pairIndex;
+    float value = 0.0f;
+    for (uint column = 0u; column < used; ++column)
+        value += preconditionedBasis[column * totalUnknowns + contactIndex].x *
+            leastSquares[fgmresVectorIndex(objectGlobal, column)];
+    if (restartCycle == 0u)
+        solution[contactIndex] = float4(value, 0.0f, 0.0f, 0.0f);
+    else
+        solution[contactIndex].x += value;
 }
 
 } // namespace numi_matter_metal

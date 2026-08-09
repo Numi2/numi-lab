@@ -493,6 +493,55 @@ kernel void nm_contact_evaluate(
     samples[global] = sample;
 }
 
+kernel void nm_contact_compact_active(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& activeCapacity [[buffer(1)]],
+    device const NMContactSampleGPU* samples [[buffer(2)]],
+    device uint* activePairs [[buffer(3)]],
+    device uint* activeSlotsByPair [[buffer(4)]],
+    device uint* activeCounts [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    const uint pairBase = environment * dispatch.contactPairCount;
+    const uint activeBaseOffset = environment * activeCapacity;
+    for (uint pair = lane; pair < dispatch.contactPairCount; pair += 32u)
+        activeSlotsByPair[pairBase + pair] = NM_INVALID_INDEX;
+    threadgroup uint activeBase;
+    if (lane == 0u) activeBase = 0u;
+    simdgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    for (uint first = 0u; first < dispatch.contactPairCount; first += 32u) {
+        const uint pair = first + lane;
+        const uint selected = pair < dispatch.contactPairCount &&
+            (samples[pairBase + pair].identity.w & NM_CONTACT_VALID) != 0u
+            ? 1u : 0u;
+        const uint prefix = simd_prefix_exclusive_sum(selected);
+        const uint chunkCount = simd_sum(selected);
+        const uint base = activeBase;
+        if (selected != 0u && base + prefix < activeCapacity) {
+            const uint slot = base + prefix;
+            activePairs[activeBaseOffset + slot] = pair;
+            activeSlotsByPair[pairBase + pair] = slot;
+        }
+        simdgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (lane == 0u) activeBase += chunkCount;
+        simdgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        activeCounts[environment] = min(activeBase, activeCapacity);
+        if (activeBase > activeCapacity) {
+            recordFailure(
+                statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+                NM_INVALID_INDEX, activeBase,
+                float4(float(activeBase), float(activeCapacity),
+                       float(dispatch.contactPairCount), 0.0f)
+            );
+        }
+    }
+}
+
 kernel void nm_contact_checkpoint_warmstarts(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const float4* accepted [[buffer(1)]],
@@ -599,29 +648,40 @@ kernel void nm_contact_prepare_articulated_queries(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
     constant uint& articulationRootBody [[buffer(2)]],
-    device const NMRigidProxyGPU* rigidProxies [[buffer(3)]],
-    device const MRBodyStateGPU* currentBodies [[buffer(4)]],
-    device const NMContactPairGPU* pairs [[buffer(5)]],
-    device const NMContactSampleGPU* samples [[buffer(6)]],
-    device MRArticulatedPointImpulseGPU* pointQueries [[buffer(7)]],
-    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    constant uint& activeCapacity [[buffer(3)]],
+    device const uint* activePairs [[buffer(4)]],
+    device const uint* activeCounts [[buffer(5)]],
+    device const NMRigidProxyGPU* rigidProxies [[buffer(6)]],
+    device const MRBodyStateGPU* currentBodies [[buffer(7)]],
+    device const NMContactPairGPU* pairs [[buffer(8)]],
+    device const NMContactSampleGPU* samples [[buffer(9)]],
+    device MRArticulatedPointImpulseGPU* pointQueries [[buffer(10)]],
+    device NMMatterStatusGPU* statuses [[buffer(11)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
-    if (global >= total || dispatch.contactPairCount == 0u) {
+    const uint total = dispatch.environmentCount * activeCapacity;
+    if (global >= total || activeCapacity == 0u) {
         return;
     }
-    const uint environment = global / dispatch.contactPairCount;
-    const uint pairIndex = global - environment * dispatch.contactPairCount;
+    const uint environment = global / activeCapacity;
+    const uint slot = global - environment * activeCapacity;
     MRArticulatedPointImpulseGPU query = {};
     query.bodyIndex = articulationRootBody;
     query.flags = MR_ARTICULATED_POINT_INACTIVE;
-    if (!environmentHealthy(statuses, environment)) {
+    if (!environmentHealthy(statuses, environment) ||
+        slot >= activeCounts[environment]) {
+        pointQueries[global] = query;
+        return;
+    }
+    const uint pairIndex = activePairs[environment * activeCapacity + slot];
+    if (pairIndex >= dispatch.contactPairCount) {
         pointQueries[global] = query;
         return;
     }
     const NMContactPairGPU pair = pairs[pairIndex];
-    const NMContactSampleGPU sample = samples[global];
+    const NMContactSampleGPU sample = samples[
+        environment * dispatch.contactPairCount + pairIndex
+    ];
     if (pair.rigidProxy < dispatch.rigidProxyCount &&
         (sample.identity.w & NM_CONTACT_VALID) != 0u) {
         const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
@@ -687,21 +747,33 @@ kernel void nm_contact_gather_response(
     device float* responseValues [[buffer(9)]],
     device NMMatterStatusGPU* statuses [[buffer(10)]],
     constant uint& responseEntryCount [[buffer(11)]],
+    constant uint& activeCapacity [[buffer(12)]],
+    device const uint* activePairs [[buffer(13)]],
+    device const uint* activeCounts [[buffer(14)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
-    if (global >= total || dispatch.contactPairCount == 0u) {
+    const uint total = dispatch.environmentCount * activeCapacity;
+    if (global >= total || activeCapacity == 0u) {
         return;
     }
-    const uint environment = global / dispatch.contactPairCount;
-    const uint row = global - environment * dispatch.contactPairCount;
+    const uint environment = global / activeCapacity;
+    const uint row = global - environment * activeCapacity;
     if (!environmentHealthy(statuses, environment)) {
         return;
     }
     const uint sampleBase = environment * dispatch.contactPairCount;
-    const NMContactPairGPU leftPair = pairs[row];
-    const NMContactSampleGPU left = samples[sampleBase + row];
     const NMIncidenceRangeGPU range = responseRanges[row];
+    if (row >= activeCounts[environment]) {
+        for (uint local = 0u; local < range.count; ++local)
+            responseValues[environment * responseEntryCount +
+                range.first + local] = 0.0f;
+        return;
+    }
+    const uint leftPairIndex =
+        activePairs[environment * activeCapacity + row];
+    if (leftPairIndex >= dispatch.contactPairCount) return;
+    const NMContactPairGPU leftPair = pairs[leftPairIndex];
+    const NMContactSampleGPU left = samples[sampleBase + leftPairIndex];
     for (uint local = 0u; local < range.count; ++local) {
         const uint entry = range.first + local;
         if (entry >= responseEntryCount) {
@@ -716,11 +788,16 @@ kernel void nm_contact_gather_response(
         }
         const uint column = responseColumns[entry];
         float response = 0.0f;
-        if (column < dispatch.contactPairCount &&
+        if (column < activeCounts[environment] &&
             (left.identity.w & NM_CONTACT_VALID) != 0u) {
-            const NMContactSampleGPU right = samples[sampleBase + column];
+            const uint rightPairIndex = activePairs[
+                environment * activeCapacity + column
+            ];
+            if (rightPairIndex >= dispatch.contactPairCount) continue;
+            const NMContactSampleGPU right =
+                samples[sampleBase + rightPairIndex];
             if ((right.identity.w & NM_CONTACT_VALID) != 0u) {
-                const NMContactPairGPU rightPair = pairs[column];
+                const NMContactPairGPU rightPair = pairs[rightPairIndex];
                 const float3 leftDirection = left.normalAndVelocity.xyz;
                 const float3 rightDirection = right.normalAndVelocity.xyz;
                 response = continuumDirectionalResponse(
@@ -843,6 +920,9 @@ kernel void nm_contact_solve_coupled(
     constant uint& responseEntryCount [[buffer(14)]],
     constant uint& componentCount [[buffer(15)]],
     device float4* candidateWarmstarts [[buffer(16)]],
+    constant uint& activeCapacity [[buffer(17)]],
+    device const uint* activePairs [[buffer(18)]],
+    device const uint* activeCounts [[buffer(19)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * componentCount;
@@ -857,17 +937,21 @@ kernel void nm_contact_solve_coupled(
     const NMIncidenceRangeGPU componentRange = componentRanges[component];
     const uint sampleBase = environment * dispatch.contactPairCount;
     const uint responseBase = environment * responseEntryCount;
+    const uint activeCount = min(activeCounts[environment], activeCapacity);
+    const uint activeBase = environment * activeCapacity;
 
     // Preserve the pair evaluator's circular tangential impulse, while the
     // contact-space iteration below owns every normal component in this
     // connected sparse block.
     for (uint local = 0u; local < componentRange.count; ++local) {
-        const uint pairIndex = componentIncidence[
+        const uint slot = componentIncidence[
             componentRange.first + local
         ];
-        if (pairIndex >= dispatch.contactPairCount) {
+        if (slot >= activeCount) {
             continue;
         }
+        const uint pairIndex = activePairs[activeBase + slot];
+        if (pairIndex >= dispatch.contactPairCount) continue;
         device NMContactSampleGPU& sample = samples[sampleBase + pairIndex];
         if ((sample.identity.w & NM_CONTACT_VALID) == 0u) {
             continue;
@@ -898,12 +982,14 @@ kernel void nm_contact_solve_coupled(
          iteration < dispatch.coupledContactIterations;
          ++iteration) {
         for (uint local = 0u; local < componentRange.count; ++local) {
-            const uint pairIndex = componentIncidence[
+            const uint slot = componentIncidence[
                 componentRange.first + local
             ];
-            if (pairIndex >= dispatch.contactPairCount) {
+            if (slot >= activeCount) {
                 continue;
             }
+            const uint pairIndex = activePairs[activeBase + slot];
+            if (pairIndex >= dispatch.contactPairCount) continue;
             device NMContactSampleGPU& sample =
                 samples[sampleBase + pairIndex];
             if ((sample.identity.w & NM_CONTACT_VALID) == 0u) {
@@ -924,7 +1010,7 @@ kernel void nm_contact_solve_coupled(
             float normalVelocity = sample.normalAndVelocity.w;
             float diagonal = 0.0f;
             const NMIncidenceRangeGPU responseRange =
-                responseRanges[pairIndex];
+                responseRanges[slot];
             for (uint coupled = 0u;
                  coupled < responseRange.count;
                  ++coupled) {
@@ -932,17 +1018,21 @@ kernel void nm_contact_solve_coupled(
                 if (entry >= responseEntryCount) {
                     continue;
                 }
-                const uint coupledIndex = responseColumns[entry];
-                if (coupledIndex >= dispatch.contactPairCount) {
+                const uint coupledSlot = responseColumns[entry];
+                if (coupledSlot >= activeCount) {
                     continue;
                 }
+                const uint coupledIndex = activePairs[
+                    activeBase + coupledSlot
+                ];
+                if (coupledIndex >= dispatch.contactPairCount) continue;
                 const NMContactSampleGPU other =
                     samples[sampleBase + coupledIndex];
                 if ((other.identity.w & NM_CONTACT_VALID) == 0u) {
                     continue;
                 }
                 const float response = responseValues[responseBase + entry];
-                if (coupledIndex == pairIndex) {
+                if (coupledSlot == slot) {
                     diagonal = response;
                 }
                 normalVelocity += response * other.impulseAndNormal.w;
@@ -1023,7 +1113,9 @@ kernel void nm_contact_solve_coupled(
     // warm start while the solved sample is already hot, avoiding a second
     // full contact-pair pass without atomics or a change in solve order.
     for (uint local = 0u; local < componentRange.count; ++local) {
-        const uint pairIndex = componentIncidence[componentRange.first + local];
+        const uint slot = componentIncidence[componentRange.first + local];
+        if (slot >= activeCount) continue;
+        const uint pairIndex = activePairs[activeBase + slot];
         if (pairIndex >= dispatch.contactPairCount) continue;
         const NMContactSampleGPU sample = samples[sampleBase + pairIndex];
         candidateWarmstarts[sampleBase + pairIndex] =
@@ -1031,6 +1123,196 @@ kernel void nm_contact_solve_coupled(
             ? sample.impulseAndNormal
             : float4(0.0f);
     }
+}
+
+inline float femPrimaryContactResponse(
+    const NMMatterDispatchGPU dispatch,
+    device const NMFEMNodeStateGPU* femNodes,
+    const uint environment,
+    const NMContactPairGPU rowPair,
+    const NMContactSampleGPU rowSample,
+    const NMContactPairGPU columnPair,
+    const NMContactSampleGPU columnSample
+) {
+    if (rowPair.continuumNode < dispatch.gridNodeCount ||
+        columnPair.continuumNode != rowPair.continuumNode) {
+        return 0.0f;
+    }
+    const uint femNode = rowPair.continuumNode - dispatch.gridNodeCount;
+    if (femNode >= dispatch.femNodeCount) return 0.0f;
+    const float inverseMass = femNodes[
+        environment * dispatch.femNodeCount + femNode
+    ].velocityAndInverseMass.w;
+    return inverseMass * dot(
+        rowSample.normalAndVelocity.xyz,
+        columnSample.normalAndVelocity.xyz
+    );
+}
+
+inline float contactBiasVelocity(
+    const NMMatterDispatchGPU dispatch,
+    const NMContinuumObjectGPU object,
+    const NMSchedulerStateGPU scheduler,
+    const NMMaterialGPU objectMaterial,
+    const NMMaterialGPU interfaceMaterial,
+    const NMContactSampleGPU sample
+) {
+    const float dt = objectTimestep(dispatch, scheduler);
+    const float bias = min(max(
+        (dispatch.numericalLimits.x - sample.pointAndSeparation.w) /
+            max(dt, 1.0e-12f),
+        0.0f
+    ), dispatch.numericalLimits.y);
+    const float restitution = max(
+        objectMaterial.interfaceResponse.z,
+        interfaceMaterial.interfaceResponse.z
+    );
+    const float bounce = sample.normalAndVelocity.w < -0.2f
+        ? -restitution * sample.normalAndVelocity.w
+        : 0.0f;
+    return bias + bounce;
+}
+
+// Assemble the Alart-Curnier normal-map row into the same Krylov right-hand
+// side as velocity and mixed pressure.  W is split deliberately: the FEM
+// lumped response is primary in A(v,pi), while rigid/articulated/MPM response
+// remains eliminated in the reduced contact block.  The full diagonal is
+// retained only as the natural-map metric and block preconditioner.
+kernel void nm_contact_build_kkt_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMixedSolverGPU* solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMContactPairGPU* pairs [[buffer(4)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(6)]],
+    device const NMContactSampleGPU* samples [[buffer(7)]],
+    device const NMIncidenceRangeGPU* responseRanges [[buffer(8)]],
+    device const uint* responseColumns [[buffer(9)]],
+    device const float* responseValues [[buffer(10)]],
+    constant uint& responseEntryCount [[buffer(11)]],
+    device float4* residual [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    constant uint& activeCapacity [[buffer(14)]],
+    device const uint* activePairs [[buffer(15)]],
+    device const uint* activeCounts [[buffer(16)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * activeCapacity;
+    if (global >= total || activeCapacity == 0u) return;
+    const uint environment = global / activeCapacity;
+    const uint slot = global - environment * activeCapacity;
+    if (slot >= activeCounts[environment]) return;
+    const uint pairIndex = activePairs[
+        environment * activeCapacity + slot
+    ];
+    if (pairIndex >= dispatch.contactPairCount) return;
+    const uint output = 2u * dispatch.environmentCount * dispatch.femNodeCount +
+        environment * dispatch.contactPairCount + pairIndex;
+    residual[output] = float4(0.0f);
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMContactPairGPU pair = pairs[pairIndex];
+    const uint sampleBase = environment * dispatch.contactPairCount;
+    const NMContactSampleGPU sample = samples[sampleBase + pairIndex];
+    if ((sample.identity.w & NM_CONTACT_VALID) == 0u ||
+        pair.objectIndex >= dispatch.objectCount ||
+        pair.materialInterface >= dispatch.materialCount) return;
+
+    const uint responseBase = environment * responseEntryCount;
+    float gapVelocity = sample.normalAndVelocity.w;
+    float diagonal = 0.0f;
+    const NMIncidenceRangeGPU range = responseRanges[slot];
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint entry = range.first + local;
+        if (entry >= responseEntryCount) continue;
+        const uint columnSlot = responseColumns[entry];
+        if (columnSlot >= activeCounts[environment]) continue;
+        const uint column = activePairs[
+            environment * activeCapacity + columnSlot
+        ];
+        if (column >= dispatch.contactPairCount) continue;
+        const NMContactSampleGPU other = samples[sampleBase + column];
+        if ((other.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        const float full = responseValues[responseBase + entry];
+        if (columnSlot == slot) diagonal = full;
+        const float reduced = full - femPrimaryContactResponse(
+            dispatch, femNodes, environment, pair, sample,
+            pairs[column], other
+        );
+        gapVelocity += reduced * other.impulseAndNormal.w;
+    }
+    const float metric = max(diagonal, solver[0].regularization.x);
+    const NMContinuumObjectGPU object = objects[pair.objectIndex];
+    const float target = contactBiasVelocity(
+        dispatch, object,
+        schedulers[environment * dispatch.objectCount + pair.objectIndex],
+        materials[object.materialIndex], materials[pair.materialInterface],
+        sample
+    );
+    const float lambda = sample.impulseAndNormal.w;
+    const float projected = max(
+        lambda - (gapVelocity - target) / metric, 0.0f
+    );
+    const float natural = lambda - projected;
+    if (!isfinite(natural)) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            pair.objectIndex, pairIndex,
+            float4(natural, gapVelocity, metric, lambda));
+        return;
+    }
+    // Newton solves J delta = -R. Existing FEM residual storage already uses
+    // that right-hand-side convention, hence the negated natural-map row.
+    residual[output] = float4(-natural, 0.0f, 0.0f, 0.0f);
+}
+
+kernel void nm_contact_apply_kkt_solution(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMMaterialGPU* materials [[buffer(2)]],
+    device const NMContactPairGPU* pairs [[buffer(3)]],
+    device NMContactSampleGPU* samples [[buffer(4)]],
+    device const float4* correction [[buffer(5)]],
+    device const float4* lineSearch [[buffer(6)]],
+    device float4* candidateWarmstarts [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) return;
+    const uint environment = global / dispatch.contactPairCount;
+    const uint pairIndex = global - environment * dispatch.contactPairCount;
+    device NMContactSampleGPU& sample = samples[global];
+    const NMContactPairGPU pair = pairs[pairIndex];
+    if ((sample.identity.w & NM_CONTACT_VALID) == 0u ||
+        pair.objectIndex >= dispatch.objectCount ||
+        pair.materialInterface >= dispatch.materialCount) {
+        candidateWarmstarts[global] = float4(0.0f);
+        return;
+    }
+    const uint correctionIndex = 2u * dispatch.environmentCount *
+        dispatch.femNodeCount + global;
+    const float alpha = lineSearch[
+        environment * dispatch.objectCount + pair.objectIndex
+    ].x;
+    const float oldNormal = sample.impulseAndNormal.w;
+    const float newNormal = max(
+        oldNormal + alpha * correction[correctionIndex].x, 0.0f
+    );
+    const float3 normal = sample.normalAndVelocity.xyz;
+    float3 tangent = sample.impulseAndNormal.xyz + oldNormal * normal;
+    tangent -= dot(tangent, normal) * normal;
+    const float friction = sqrt(max(
+        materials[objects[pair.objectIndex].materialIndex].interfaceResponse.y *
+        materials[pair.materialInterface].interfaceResponse.y,
+        0.0f
+    ));
+    const float limit = friction * newNormal;
+    const float tangentLength = length(tangent);
+    if (tangentLength > limit && tangentLength > 1.0e-12f)
+        tangent *= limit / tangentLength;
+    const float3 impulseOnRigid = -newNormal * normal + tangent;
+    sample.impulseAndNormal = float4(impulseOnRigid, newNormal);
+    sample.angularImpulseAndTangent.w = length(tangent);
+    candidateWarmstarts[global] = sample.impulseAndNormal;
 }
 
 kernel void nm_contact_certify_natural_map(
@@ -1045,9 +1327,13 @@ kernel void nm_contact_certify_natural_map(
     device const NMIncidenceRangeGPU* responseRanges [[buffer(8)]],
     device const uint* responseColumns [[buffer(9)]],
     device const float* responseValues [[buffer(10)]],
-    constant uint& responseEntryCount [[buffer(11)]],
-    device NMSolverCertificateGPU* certificates [[buffer(12)]],
-    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(11)]],
+    constant uint& responseEntryCount [[buffer(12)]],
+    device NMSolverCertificateGPU* certificates [[buffer(13)]],
+    device NMMatterStatusGPU* statuses [[buffer(14)]],
+    constant uint& activeCapacity [[buffer(15)]],
+    device const uint* activePairs [[buffer(16)]],
+    device const uint* activeCounts [[buffer(17)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.objectCount;
@@ -1061,22 +1347,33 @@ kernel void nm_contact_certify_natural_map(
     float contactEnergy = 0.0f;
     const uint sampleBase = environment * dispatch.contactPairCount;
     const uint responseBase = environment * responseEntryCount;
-    for (uint pairIndex = 0u; pairIndex < dispatch.contactPairCount; ++pairIndex) {
+    const uint activeCount = min(activeCounts[environment], activeCapacity);
+    const uint activeBase = environment * activeCapacity;
+    for (uint slot = 0u; slot < activeCount; ++slot) {
+        const uint pairIndex = activePairs[activeBase + slot];
+        if (pairIndex >= dispatch.contactPairCount) continue;
         const NMContactPairGPU pair = pairs[pairIndex];
         if (pair.objectIndex != objectIndex) continue;
         const NMContactSampleGPU sample = samples[sampleBase + pairIndex];
         if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
         float gapVelocity = sample.normalAndVelocity.w;
         float diagonal = 0.0f;
-        const NMIncidenceRangeGPU range = responseRanges[pairIndex];
+        const NMIncidenceRangeGPU range = responseRanges[slot];
         for (uint local = 0u; local < range.count; ++local) {
             const uint entry = range.first + local;
             if (entry >= responseEntryCount) continue;
-            const uint column = responseColumns[entry];
+            const uint columnSlot = responseColumns[entry];
+            if (columnSlot >= activeCount) continue;
+            const uint column = activePairs[activeBase + columnSlot];
             if (column >= dispatch.contactPairCount) continue;
             const float response = responseValues[responseBase + entry];
-            gapVelocity += response * samples[sampleBase + column].impulseAndNormal.w;
-            if (column == pairIndex) diagonal = response;
+            const NMContactSampleGPU other = samples[sampleBase + column];
+            const float reduced = response - femPrimaryContactResponse(
+                dispatch, femNodes, environment, pair, sample,
+                pairs[column], other
+            );
+            gapVelocity += reduced * other.impulseAndNormal.w;
+            if (columnSlot == slot) diagonal = response;
         }
         if (!(diagonal > solver.regularization.x)) continue;
         const float dt = objectTimestep(dispatch,

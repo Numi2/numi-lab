@@ -256,21 +256,13 @@ kernel void nm_mixed_pcg_prepare(
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
     if (global >= total || dispatch.femNodeCount == 0u) return;
-    const uint environment = global / dispatch.femNodeCount;
-    const uint node = global - environment * dispatch.femNodeCount;
-    float4 value = mixedFieldVector(accepted[global]);
-    const NMIncidenceRangeGPU range = nodeRanges[global];
-    if (range.objectIndex < dispatch.objectCount &&
-        (objects[range.objectIndex].flags & NM_OBJECT_MULTIPHYSICS) != 0u) {
-        const NMFieldBoundaryGPU boundary = mixedBoundaryForNode(
-            dispatch, boundaries, node
-        );
-        if (boundary.identity.x != NM_INVALID_INDEX) {
-            const bool4 mask = mixedDirichletMask(boundary.identity.z);
-            value = select(value, mixedBoundaryValues(boundary), mask);
-        }
-    }
-    solution[global] = value;
+    // Preserve the actual Newton candidate. Dirichlet values belong in the
+    // residual row below; replacing the candidate here would certify the
+    // boundary target while allowing a different state to commit.
+    solution[global] = mixedFieldVector(accepted[global]);
+    (void)objects;
+    (void)nodeRanges;
+    (void)boundaries;
 }
 
 kernel void nm_mixed_apply_operator_elements(
@@ -282,6 +274,8 @@ kernel void nm_mixed_apply_operator_elements(
     device const NMFEMFieldStateGPU* accepted [[buffer(5)]],
     device const float4* direction [[buffer(6)]],
     device NMFEMElementVectorGPU* elementOperator [[buffer(7)]],
+    device const float4* mechanicalDirection [[buffer(8)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(9)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
@@ -308,6 +302,30 @@ kernel void nm_mixed_apply_operator_elements(
         electric, mass, diffusion, source
     );
     const float volume = tetrahedron.inverseRestRow0.w;
+    const float4 candidateAverage = 0.25f * (
+        mixedFieldVector(accepted[nodeBase + tetrahedron.nodes.x]) +
+        mixedFieldVector(accepted[nodeBase + tetrahedron.nodes.y]) +
+        mixedFieldVector(accepted[nodeBase + tetrahedron.nodes.z]) +
+        mixedFieldVector(accepted[nodeBase + tetrahedron.nodes.w]));
+    const float4 fieldDirectionAverage = 0.25f * (
+        direction[nodeBase + tetrahedron.nodes.x] +
+        direction[nodeBase + tetrahedron.nodes.y] +
+        direction[nodeBase + tetrahedron.nodes.z] +
+        direction[nodeBase + tetrahedron.nodes.w]);
+    float3 electricGradient = float3(0.0f);
+    float3 electricDirectionGradient = float3(0.0f);
+    for (uint slot = 0u; slot < 4u; ++slot) {
+        const uint index = nodeBase + tetrahedron.nodes[slot];
+        const float3 gradient = mixedShapeGradient(tetrahedron, slot);
+        electricGradient += accepted[index].primary.w * gradient;
+        electricDirectionGradient += direction[index].z * gradient;
+    }
+    const NMMixedMaterialGPU material = materials[object.materialIndex];
+    const float slope = max(material.coupling.y, 1.0e-6f);
+    const float drive = 1.0f / (1.0f + exp(clamp(
+        -(electric - material.coupling.x) * slope, -80.0f, 80.0f)));
+    const float driveDirection = slope * drive * (1.0f - drive) *
+        fieldDirectionAverage.z;
     float4 value[4];
     for (uint row = 0u; row < 4u; ++row) {
         value[row] = 0.25f * volume * mass *
@@ -317,6 +335,51 @@ kernel void nm_mixed_apply_operator_elements(
             value[row] += volume * dot(
                 gradientRow, mixedShapeGradient(tetrahedron, column)
             ) * diffusion * direction[nodeBase + tetrahedron.nodes[column]];
+        // The outer FGMRES sees the complete nonsymmetric couplings. The
+        // inner PCG right-preconditioner sees only the four SPD diagonal
+        // transport blocks.
+        if ((microstep.flags & NM_MICROSTEP_FIELD_PRECONDITIONER) == 0u) {
+            const float lump = 0.25f * volume;
+            value[row].x -= lump * 2.0f * material.thermal.w *
+                material.electrical.x *
+                dot(electricGradient, electricDirectionGradient);
+            value[row].w += lump * driveDirection * (
+                (material.electrical.z - material.electrical.w) *
+                    candidateAverage.w - material.electrical.z);
+        }
+    }
+    if ((microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) != 0u) {
+        const float3 m0 = mechanicalDirection[
+            nodeBase + tetrahedron.nodes.x].xyz;
+        const float3 m1 = mechanicalDirection[
+            nodeBase + tetrahedron.nodes.y].xyz;
+        const float3 m2 = mechanicalDirection[
+            nodeBase + tetrahedron.nodes.z].xyz;
+        const float3 m3 = mechanicalDirection[
+            nodeBase + tetrahedron.nodes.w].xyz;
+        const float3x3 inverseRest = matrixFromRows(
+            tetrahedron.inverseRestRow0, tetrahedron.inverseRestRow1,
+            tetrahedron.inverseRestRow2);
+        const float3x3 deformationDirection =
+            float3x3(m1 - m0, m2 - m0, m3 - m0) * inverseRest;
+        // The backward-Euler Biot source contains alpha_B log(J)/dt.
+        // dF = dt grad(dv), so dt cancels and the field row receives the
+        // exact deformation-to-pore off-diagonal action.
+        const float3x3 deformation = tetrahedronDeformation(
+            tetrahedron, nodes, nodeBase);
+        const float determinantValue = determinant(deformation);
+        const float3x3 cofactor = cofactorMatrix(deformation);
+        const float dlogJ = (
+            dot(cofactor[0], deformationDirection[0]) +
+            dot(cofactor[1], deformationDirection[1]) +
+            dot(cofactor[2], deformationDirection[2])) /
+            max(determinantValue, 1.0e-20f);
+        const float poreCoupling = material.mechanics.z * dlogJ;
+        const float lump = 0.25f * volume;
+        value[0].y -= lump * poreCoupling;
+        value[1].y -= lump * poreCoupling;
+        value[2].y -= lump * poreCoupling;
+        value[3].y -= lump * poreCoupling;
     }
     elementOperator[global].node0 = value[0];
     elementOperator[global].node1 = value[1];
@@ -448,8 +511,47 @@ kernel void nm_mixed_pcg_initialize(
     const float4 z = r / max(diagonal, float4(1.0e-12f));
     residual[global] = r;
     preconditioned[global] = z;
-    direction[global] = z;
+    // The standalone field PCG no longer owns a solution. Preserve its exact
+    // block diagonal as the field part of the monolithic FGMRES
+    // preconditioner instead.
+    direction[global] = 1.0f / max(diagonal, float4(1.0e-12f));
     (void)solution;
+}
+
+kernel void nm_mixed_apply_kkt_solution(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device const float4* solution [[buffer(2)]],
+    device const float4* lineSearch [[buffer(3)]],
+    constant NMMixedSolverGPU& solver [[buffer(4)]],
+    device NMFEMFieldStateGPU* candidate [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount ||
+        !environmentHealthy(statuses, environment)) return;
+    const float alpha = lineSearch[
+        environment * dispatch.objectCount + objectIndex].x;
+    const float4 correction = alpha * solution[totalNodes + global];
+    NMFEMFieldStateGPU next = candidate[global];
+    next.primary.y += correction.x;
+    next.primary.z += correction.y;
+    next.primary.w += correction.z;
+    next.secondary.x += correction.w;
+    const float4 value = mixedFieldVector(next);
+    if (!all(isfinite(value)) || value.x < solver.globalization.y ||
+        value.w < -solver.globalization.z ||
+        value.w > 1.0f + solver.globalization.z) {
+        recordFailure(statuses[environment], NM_STATUS_MULTIPHYSICS_FAILURE,
+            objectIndex, global, value);
+        return;
+    }
+    next.secondary.x = clamp(next.secondary.x, 0.0f, 1.0f);
+    candidate[global] = next;
 }
 
 kernel void nm_mixed_reduce_pap(
@@ -490,10 +592,11 @@ kernel void nm_mixed_reduce_pap(
         }
         scalar.rz = rz;
         scalar.pap = pap;
-        scalar.alpha = select(
-            rz / max(pap, float4(1.0e-30f)), float4(0.0f),
-            scalar.converged != uint4(0u)
-        );
+        const bool4 positiveCurvature = isfinite(pap) &&
+            pap > float4(1.0e-30f);
+        scalar.alpha = select(float4(0.0f),
+            rz / max(pap, float4(1.0e-30f)),
+            positiveCurvature && scalar.converged == uint4(0u));
     }
 }
 
@@ -740,6 +843,7 @@ inline float mixedPressureOperatorAtNode(
     ) * compliance;
     float value = 0.0f;
     diagonal = 0.0f;
+    float controlVolume = 0.0f;
     for (uint local = 0u; local < range.count; ++local) {
         const uint tetIndex = nodeIncidence[range.first + local];
         if (tetIndex >= dispatch.tetrahedronCount) continue;
@@ -757,6 +861,7 @@ inline float mixedPressureOperatorAtNode(
         }
         if (slot == 4u) continue;
         const float volume = tet.inverseRestRow0.w;
+        controlVolume += volume;
         const float average = 0.25f * sum;
         const float localValue = direction[global].x;
         value += volume * (
@@ -767,7 +872,13 @@ inline float mixedPressureOperatorAtNode(
             0.0625f * compliance + 0.75f * stabilization
         );
     }
-    return value;
+    // Normalize the Schur row before any finite diagonal floor is applied.
+    // Raw P1 rows scale with tetrahedron volume and otherwise disappear
+    // beneath an absolute solver floor for millimetre-scale tissue.
+    const float rowScale = material.mechanics.x /
+        max(controlVolume, 1.0e-30f);
+    diagonal *= rowScale;
+    return value * rowScale;
 }
 
 inline float mixedPressureResidualAtNode(
@@ -794,6 +905,7 @@ inline float mixedPressureResidualAtNode(
     ) * compliance;
     float residual = 0.0f;
     diagonal = 0.0f;
+    float controlVolume = 0.0f;
     for (uint local = 0u; local < range.count; ++local) {
         const uint tetIndex = nodeIncidence[range.first + local];
         if (tetIndex >= dispatch.tetrahedronCount) continue;
@@ -828,6 +940,7 @@ inline float mixedPressureResidualAtNode(
                 (temperature - material.mechanics.w) +
             compliance * pressure;
         const float volume = tet.inverseRestRow0.w;
+        controlVolume += volume;
         residual -= volume * (
             0.25f * constraint + stabilization *
                 (fields[global].primary.x - pressure)
@@ -836,7 +949,9 @@ inline float mixedPressureResidualAtNode(
             0.0625f * compliance + 0.75f * stabilization
         );
     }
-    return residual;
+    const float rowScale = bulk / max(controlVolume, 1.0e-30f);
+    diagonal *= rowScale;
+    return residual * rowScale;
 }
 
 kernel void nm_mixed_pressure_solve_fused(
@@ -993,7 +1108,7 @@ kernel void nm_mixed_certify(
     device NMMatterStatusGPU* statuses [[buffer(9)]],
     device const float4* generalizedResidual [[buffer(10)]],
     device const NMFGMRESStateGPU* fgmresStates [[buffer(11)]],
-    device const NMMixedPCGScalarGPU* fieldScalars [[buffer(12)]],
+    device const float4* physicalFieldResidual [[buffer(12)]],
     device const NMMixedMaterialGPU* mixedMaterials [[buffer(13)]],
     device const float4* nonlinearCorrection [[buffer(14)]],
     uint lane [[thread_index_in_threadgroup]],
@@ -1011,6 +1126,8 @@ kernel void nm_mixed_certify(
     float candidateScale = 0.0f;
     float residualNorm2 = 0.0f;
     float pressureNorm2 = 0.0f;
+    float4 transportNorm2 = float4(0.0f);
+    float4 transportScaleNorm2 = float4(0.0f);
     for (uint local = lane; local < object.stateCount; local += 32u) {
         const uint node = nodeBase + object.stateOffset + local;
         correction = max(correction, length(nonlinearCorrection[node].xyz));
@@ -1020,11 +1137,25 @@ kernel void nm_mixed_certify(
         const float4 residual = generalizedResidual[node];
         residualNorm2 += dot(residual, residual);
         pressureNorm2 += residual.w * residual.w;
+        if ((object.flags & NM_OBJECT_MULTIPHYSICS) != 0u) {
+            const float4 fieldResidual = physicalFieldResidual[node];
+            const float4 candidateField = mixedFieldVector(candidateFields[node]);
+            const float4 acceptedField = mixedFieldVector(acceptedFields[node]);
+            const float4 fieldScale = max(abs(candidateField), abs(acceptedField));
+            transportNorm2 += fieldResidual * fieldResidual;
+            transportScaleNorm2 += fieldScale * fieldScale;
+        }
     }
     correction = simd_max(correction);
     candidateScale = simd_max(candidateScale);
     residualNorm2 = simd_sum(residualNorm2);
     pressureNorm2 = simd_sum(pressureNorm2);
+    transportNorm2 = float4(
+        simd_sum(transportNorm2.x), simd_sum(transportNorm2.y),
+        simd_sum(transportNorm2.z), simd_sum(transportNorm2.w));
+    transportScaleNorm2 = float4(
+        simd_sum(transportScaleNorm2.x), simd_sum(transportScaleNorm2.y),
+        simd_sum(transportScaleNorm2.z), simd_sum(transportScaleNorm2.w));
     const float initialNorm = max(
         fgmresStates[environment * dispatch.objectCount + objectIndex]
             .diagnostics.y,
@@ -1035,7 +1166,7 @@ kernel void nm_mixed_certify(
     const float relativeCorrection = correction /
         max(candidateScale, 1.0f);
     float minimumJ = INFINITY;
-    float maximumVolume = 0.0f;
+    float volumeNorm2 = 0.0f;
     uint activeElements = 0u;
     for (uint local = lane; local < object.elementCount; local += 32u) {
         const uint tetIndex = object.elementOffset + local;
@@ -1070,24 +1201,24 @@ kernel void nm_mixed_certify(
             ) - 3.0f * material.mechanics.y *
                 (temperature - material.mechanics.w);
         }
-        maximumVolume = max(maximumVolume, abs(constraint));
+        volumeNorm2 += constraint * constraint;
     }
     minimumJ = simd_min(minimumJ);
-    maximumVolume = simd_max(maximumVolume);
+    volumeNorm2 = simd_sum(volumeNorm2);
     activeElements = simd_sum(activeElements);
     if (activeElements == 0u) minimumJ = 1.0f;
     if (lane == 0u) {
+        const float volumeResidual = activeElements > 0u
+            ? sqrt(max(volumeNorm2 / float(activeElements), 0.0f)) : 0.0f;
         NMSolverCertificateGPU certificate =
             certificates[environment * dispatch.objectCount + objectIndex];
-        const NMMixedPCGScalarGPU field =
-            fieldScalars[environment * dispatch.objectCount + objectIndex];
-        const float4 transport = abs(field.residual) /
-            max(abs(field.initialResidual), float4(1.0f));
+        const float4 transport = sqrt(max(transportNorm2, float4(0.0f))) /
+            max(sqrt(max(transportScaleNorm2, float4(0.0f))), float4(1.0f));
         const float pressureResidual = sqrt(max(pressureNorm2, 0.0f)) /
             initialNorm;
         certificate.nonlinear = float4(
             relativeResidual, relativeCorrection,
-            maximumVolume, pressureResidual
+            volumeResidual, pressureResidual
         );
         certificate.transport = transport;
         certificate.validity = float4(
@@ -1100,8 +1231,8 @@ kernel void nm_mixed_certify(
             relativeResidual <= solver.nonlinearTolerances.x &&
             isfinite(relativeCorrection) &&
             relativeCorrection <= solver.nonlinearTolerances.y &&
-            isfinite(maximumVolume) &&
-            maximumVolume <= solver.nonlinearTolerances.z &&
+            isfinite(volumeResidual) &&
+            volumeResidual <= solver.nonlinearTolerances.z &&
             isfinite(pressureResidual) &&
             pressureResidual <= solver.nonlinearTolerances.w;
         const bool transportValid = all(isfinite(transport)) &&
@@ -1113,7 +1244,7 @@ kernel void nm_mixed_certify(
                 nonlinearValid
                     ? transport
                     : float4(relativeResidual, relativeCorrection,
-                             maximumVolume, pressureResidual));
+                             volumeResidual, pressureResidual));
         }
     }
 }

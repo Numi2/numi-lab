@@ -108,6 +108,7 @@ if(APPLE)
             src/metal/common.metalinc
             src/metal/mpm.metalinc
             src/metal/fem.metalinc
+            src/metal/fgmres.metalinc
             src/metal/mixed_fem.metalinc
             src/metal/topology_mutation.metalinc
             src/metal/contact.metalinc
