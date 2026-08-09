@@ -12,10 +12,11 @@ if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
 Usage: numi window [rollout options...]
        numi window add booster-k1 --source BOOSTER_ASSETS [--output DIR]
 
-Open the single native Numi UX for robots, environments, and policies. Robot
-chooses the machine, Scene chooses only an authored environment, and Policy
-shows compatible saved behavior for the selected robot. The live run is
-rebuilt at a rollout boundary. Closing the window stops the preview run.
+Open the single native Numi UX for learning robotics. Robot chooses the
+machine, Environment chooses the visible physical world, Task chooses what
+the robot practices, and Policy chooses learned behavior. Environment or Task
+changes never choose a policy. The live run is rebuilt at a rollout boundary.
+Closing the window stops the preview run.
 
 Most users only need:
 
@@ -29,7 +30,7 @@ Robot and scene discovery, in order:
   4. legacy .numi/window.visual-observation.json
 
 Each imported robot publishes `*.numi-window.json` entries containing its
-mechanics, owner packs, authored camera, and available scene/policy contract.
+mechanics, owner packs, authored camera, environment, and task contract.
 Native rollout options remain available for composed and diagnostic runs.
 
 Policy discovery, in order:
@@ -98,8 +99,8 @@ window_catalog_default=0
 
 window_builtin_catalog="$window_workspace/.numi/runs/numi-window-builtins"
 window_builtin_catalog_version=$(cat "$window_builtin_catalog/catalog.version" 2>/dev/null || true)
-if [ "$window_builtin_catalog_version" != "2" ] ||
-   [ ! -f "$window_builtin_catalog/unitree-g1-velocity.numi-window.json" ] ||
+if [ "$window_builtin_catalog_version" != "3" ] ||
+   [ ! -f "$window_builtin_catalog/unitree-g1-ground-velocity.numi-window.json" ] ||
    [ ! -f "$window_builtin_catalog/franka-pick-place.numi-window.json" ] ||
    [ ! -f "$window_builtin_catalog/px4-x500-hover.numi-window.json" ]; then
     cmake -S "$window_workspace" -B "$window_build" \

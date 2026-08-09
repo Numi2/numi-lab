@@ -247,11 +247,13 @@ shows representative environment zero. It is a live presentation, not evidence
 of real-hardware behavior or a media-capture path. Use ordinary visual export
 or state-trace facilities when durable frames or artifacts are required.
 
-The window has five controls: **Robot**, **Scene**, **Pause/Resume**, a
-robot-grouped **Policy Selector**, and **Latest Policy**. Robot and Scene read
-the imported catalog and rebuild the selected live run at a normal rollout
-boundary; every entry carries its own camera, mechanics, owner packs, and
-action contract. The Policy selector reads
+The window separates four novice-facing concepts: **Robot** chooses the
+machine, **Environment** chooses the visible physical world, **Task** chooses
+what the robot practices, and **Policy** chooses learned behavior. Pause and
+camera reset remain independent presentation controls. Environment and Task
+read the imported catalog and rebuild the selected live run at a normal
+rollout boundary; neither control implicitly selects a policy. The Policy
+selector reads
 `.numi/policies/<robot-id>/*.policypack` (or `NUMI_WINDOW_POLICY_CATALOG`) and
 groups choices by `<robot-id>` without hard-coding a robot catalog. Pause does
 not pause physics or training: it gates the GPU presentation sidecar at the

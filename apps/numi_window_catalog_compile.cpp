@@ -1,11 +1,14 @@
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/G1.hpp"
+#include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/RunProgram.hpp"
 #include "metalrobo/VisualPresentation.hpp"
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#include <array>
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -259,6 +262,270 @@ void bindFixedVisualLinks(
     xmlFreeDoc(document);
 }
 
+metalrobo::VisualAssetPackV2 surfacePresentation(
+    const bool terrain
+) {
+    constexpr std::uint32_t side = 161u;
+    constexpr float spacing = 0.05f;
+    constexpr float halfWidth = 4.0f;
+    metalrobo::VisualAssetPackV2 pack;
+    pack.id = terrain ? "numi_uneven_terrain" : "numi_flat_ground";
+    pack.sourceUri = terrain
+        ? "builtin://locomotion-terrain" : "builtin://locomotion-ground";
+    pack.sourceContentHash = terrain
+        ? "builtin:locomotion-terrain-v1" : "builtin:locomotion-ground-v1";
+    pack.license = "NOASSERTION";
+    pack.preprocessingProvenance =
+        "Numi Window physical locomotion surface presentation v1";
+    float minimumHeight = 0.0f;
+    float maximumHeight = 0.0f;
+    for (std::uint32_t y = 0u; y < side; ++y) {
+        for (std::uint32_t x = 0u; x < side; ++x) {
+            const float px = -halfWidth + spacing * static_cast<float>(x);
+            const float py = -halfWidth + spacing * static_cast<float>(y);
+            const auto height = [&](const float sx, const float sy) {
+                return terrain
+                    ? metalrobo::locomotionTerrainHeight(sx, sy) : 0.0f;
+            };
+            const float pz = height(px, py);
+            minimumHeight = std::min(minimumHeight, pz);
+            maximumHeight = std::max(maximumHeight, pz);
+            const float dx =
+                (height(px + spacing, py) - height(px - spacing, py)) /
+                (2.0f * spacing);
+            const float dy =
+                (height(px, py + spacing) - height(px, py - spacing)) /
+                (2.0f * spacing);
+            const float inverseLength = 1.0f /
+                std::sqrt(dx * dx + dy * dy + 1.0f);
+            const mr_float4 normal{
+                -dx * inverseLength, -dy * inverseLength,
+                inverseLength, 1.0f};
+            const float tangentLength = std::sqrt(
+                normal.z * normal.z + normal.x * normal.x);
+            pack.vertices.push_back({
+                {px, py, pz, 1.0f},
+                normal,
+                {normal.z / tangentLength, 0.0f,
+                 -normal.x / tangentLength, 0.0f},
+                {static_cast<float>(x) / static_cast<float>(side - 1u),
+                 static_cast<float>(y) / static_cast<float>(side - 1u),
+                 0.0f, 0.0f},
+                {1.0f, 1.0f, 1.0f, 1.0f},
+            });
+        }
+    }
+    for (std::uint32_t y = 0u; y + 1u < side; ++y) {
+        for (std::uint32_t x = 0u; x + 1u < side; ++x) {
+            const std::uint32_t a = y * side + x;
+            const std::uint32_t b = a + 1u;
+            const std::uint32_t c = a + side;
+            const std::uint32_t d = c + 1u;
+            pack.indices.insert(pack.indices.end(), {a, b, c, b, d, c});
+        }
+    }
+    MRVisualMaterialGPUV2 material{};
+    material.baseColorAndOpacity = terrain
+        ? mr_float4{0.20f, 0.31f, 0.18f, 1.0f}
+        : mr_float4{0.32f, 0.35f, 0.40f, 1.0f};
+    material.surface = {0.82f, 0.02f, 1.0f, 1.0f};
+    material.coatingAndAlphaCutoff = {0.0f, 0.0f, 1.0f, 0.5f};
+    material.textureIndices0 = {MR_INVALID_INDEX, MR_INVALID_INDEX,
+                                MR_INVALID_INDEX, MR_INVALID_INDEX};
+    material.textureIndices1 = material.textureIndices0;
+    material.reserved = material.textureIndices0;
+    material.flags = {MR_VISUAL_ALPHA_OPAQUE,
+        MR_VISUAL_MATERIAL_DOUBLE_SIDED, 0u, 1u};
+    pack.materials = {material};
+    MRVisualPrimitiveGPUV2 primitive{};
+    primitive.geometry = {0u, static_cast<std::uint32_t>(pack.indices.size()),
+                          0u, 0u};
+    primitive.identity = {2u, 2u, 0u, 1u};
+    primitive.boundsMinimum = {-halfWidth, -halfWidth, minimumHeight, 1.0f};
+    primitive.boundsMaximum = {halfWidth, halfWidth, maximumHeight, 1.0f};
+    pack.primitives = {primitive};
+    MRVisualInstanceGPUV2 instance{};
+    instance.translationAndScale = {0.0f, 0.0f, 0.0f, 1.0f};
+    instance.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+    instance.binding = {0u, MR_INVALID_INDEX, MR_VISUAL_BINDING_ASSET,
+        MR_VISUAL_INSTANCE_CASTS_SHADOW |
+        MR_VISUAL_INSTANCE_RECEIVES_SHADOW |
+        MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR};
+    instance.identity = {2u, 2u, 0u, 1u};
+    instance.geometry = {0u, 1u, 0u, 0u};
+    pack.instances = {instance};
+    pack.symbolicBindings = {{"surface", "", 0u, MR_INVALID_INDEX,
+                              MR_VISUAL_BINDING_ASSET}};
+    pack.contentHash = metalrobo::computeVisualAssetPackContentHash(pack);
+    return pack;
+}
+
+metalrobo::VisualAssetPackV2 projectilePresentation(
+    const float radius
+) {
+    metalrobo::VisualAssetPackV2 pack;
+    const auto radiusMillimetres = static_cast<std::uint32_t>(
+        std::lround(radius * 1000.0f));
+    pack.id = "numi_projectile_ball_" +
+        std::to_string(radiusMillimetres) + "mm";
+    pack.sourceUri = "builtin://locomotion-projectile-ball";
+    pack.sourceContentHash = "builtin:locomotion-projectile-ball-v1-" +
+        std::to_string(radiusMillimetres) + "mm";
+    pack.license = "NOASSERTION";
+    pack.preprocessingProvenance =
+        "Numi Window physics-bound projectile presentation v1";
+    constexpr std::uint32_t latitudeSegments = 16u;
+    constexpr std::uint32_t longitudeSegments = 32u;
+    constexpr float pi = 3.14159265358979323846f;
+    for (std::uint32_t latitude = 0u;
+         latitude <= latitudeSegments; ++latitude) {
+        const float v = static_cast<float>(latitude) /
+            static_cast<float>(latitudeSegments);
+        const float polar = v * pi;
+        const float ring = std::sin(polar);
+        const float z = std::cos(polar);
+        for (std::uint32_t longitude = 0u;
+             longitude <= longitudeSegments; ++longitude) {
+            const float u = static_cast<float>(longitude) /
+                static_cast<float>(longitudeSegments);
+            const float azimuth = u * 2.0f * pi;
+            const float x = ring * std::cos(azimuth);
+            const float y = ring * std::sin(azimuth);
+            pack.vertices.push_back({
+                {radius * x, radius * y, radius * z, 1.0f},
+                {x, y, z, 1.0f},
+                {-std::sin(azimuth), std::cos(azimuth), 0.0f, 0.0f},
+                {u, v, 0.0f, 0.0f},
+                {1.0f, 1.0f, 1.0f, 1.0f}});
+        }
+    }
+    constexpr std::uint32_t ringStride = longitudeSegments + 1u;
+    for (std::uint32_t latitude = 0u;
+         latitude < latitudeSegments; ++latitude) {
+        for (std::uint32_t longitude = 0u;
+             longitude < longitudeSegments; ++longitude) {
+            const std::uint32_t a = latitude * ringStride + longitude;
+            const std::uint32_t b = a + ringStride;
+            const std::uint32_t c = b + 1u;
+            const std::uint32_t d = a + 1u;
+            if (latitude != 0u) {
+                pack.indices.insert(pack.indices.end(), {a, b, d});
+            }
+            if (latitude + 1u != latitudeSegments) {
+                pack.indices.insert(pack.indices.end(), {d, b, c});
+            }
+        }
+    }
+    MRVisualMaterialGPUV2 material{};
+    material.baseColorAndOpacity = {0.92f, 0.20f, 0.06f, 1.0f};
+    material.surface = {0.28f, 0.04f, 1.0f, 1.0f};
+    material.coatingAndAlphaCutoff = {0.18f, 0.12f, 1.0f, 0.5f};
+    material.textureIndices0 = {MR_INVALID_INDEX, MR_INVALID_INDEX,
+                                MR_INVALID_INDEX, MR_INVALID_INDEX};
+    material.textureIndices1 = material.textureIndices0;
+    material.reserved = material.textureIndices0;
+    material.flags = {MR_VISUAL_ALPHA_OPAQUE,
+        MR_VISUAL_MATERIAL_DOUBLE_SIDED, 0u, 1u};
+    pack.materials = {material};
+    MRVisualPrimitiveGPUV2 primitive{};
+    primitive.geometry = {0u, static_cast<std::uint32_t>(pack.indices.size()),
+                          0u, 0u};
+    primitive.identity = {3u, 3u, 0u, 1u};
+    primitive.boundsMinimum = {-radius, -radius, -radius, 1.0f};
+    primitive.boundsMaximum = { radius,  radius,  radius, 1.0f};
+    pack.primitives = {primitive};
+    MRVisualInstanceGPUV2 instance{};
+    instance.translationAndScale = {0.0f, 0.0f, 0.0f, 1.0f};
+    instance.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+    instance.binding = {0u, MR_INVALID_INDEX, MR_VISUAL_BINDING_ASSET,
+        MR_VISUAL_INSTANCE_CASTS_SHADOW |
+        MR_VISUAL_INSTANCE_RECEIVES_SHADOW |
+        MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR};
+    instance.identity = {3u, 3u, 0u, 1u};
+    instance.geometry = {0u, 1u, 0u, 0u};
+    pack.instances = {instance};
+    pack.symbolicBindings = {{"projectile", "", 0u, MR_INVALID_INDEX,
+                              MR_VISUAL_BINDING_ASSET}};
+    pack.contentHash = metalrobo::computeVisualAssetPackContentHash(pack);
+    return pack;
+}
+
+void writeSurfacePresentation(
+    const std::filesystem::path& output,
+    const std::string& robotConfig,
+    const std::string& surface,
+    const std::string& assetID,
+    const metalrobo::VisualAssetPackV2& pack
+) {
+    const auto visualDirectory = output / "visual";
+    const auto packPath = visualDirectory / (pack.id + ".mrvpack");
+    std::string reason;
+    if (!metalrobo::writeVisualAssetPack(pack, packPath, &reason)) {
+        throw std::runtime_error("surface visual pack write failed: " + reason);
+    }
+    std::ifstream source{output / robotConfig};
+    std::string contents{
+        std::istreambuf_iterator<char>(source),
+        std::istreambuf_iterator<char>()};
+    const std::string marker = "  \"packs\": [\n";
+    const auto position = contents.find(marker);
+    if (position == std::string::npos) {
+        throw std::runtime_error("robot visual config has no pack table");
+    }
+    contents.insert(position + marker.size(),
+        "    {\"path\": \"visual/" + packPath.filename().string() +
+        "\", \"asset_id\": \"" + assetID +
+        "\", \"semantic_id\": 2, \"instance_id\": 2},\n");
+    std::ofstream target{
+        output / ("unitree-g1-" + surface + "-visual-observation.json")};
+    target << contents;
+    if (!target) {
+        throw std::runtime_error("surface visual config write failed");
+    }
+}
+
+void writeBallPresentation(
+    const std::filesystem::path& output,
+    const std::string& surface,
+    const std::string& task,
+    const std::array<float, 6u>& radii
+) {
+    std::ifstream source{
+        output / ("unitree-g1-" + surface + "-visual-observation.json")};
+    std::string contents{
+        std::istreambuf_iterator<char>(source),
+        std::istreambuf_iterator<char>()};
+    const std::string marker = "  \"packs\": [\n";
+    const auto position = contents.find(marker);
+    if (position == std::string::npos) {
+        throw std::runtime_error("surface visual config has no pack table");
+    }
+    std::string entries;
+    for (std::uint32_t index = 0u; index < radii.size(); ++index) {
+        const auto pack = projectilePresentation(radii[index]);
+        const auto packPath = output / "visual" / (pack.id + ".mrvpack");
+        std::string reason;
+        if (!metalrobo::writeVisualAssetPack(pack, packPath, &reason)) {
+            throw std::runtime_error(
+                "projectile visual pack write failed: " + reason);
+        }
+        entries += "    {\"path\": \"visual/" +
+            packPath.filename().string() +
+            "\", \"asset_id\": \"locomotion_dynamic_sphere_" +
+            std::to_string(index) +
+            "\", \"semantic_id\": 3, \"instance_id\": " +
+            std::to_string(30u + index) + "},\n";
+    }
+    contents.insert(position + marker.size(), entries);
+    std::ofstream target{output /
+        ("unitree-g1-" + surface + "-" + task +
+         "-visual-observation.json")};
+    target << contents;
+    if (!target) {
+        throw std::runtime_error("ball visual config write failed");
+    }
+}
+
 void syntheticURDF(
     const std::filesystem::path& target,
     const std::vector<std::pair<std::string, std::filesystem::path>>& links
@@ -363,7 +630,10 @@ void scene(
     const std::string& id,
     const std::string& robotID,
     const std::string& robotName,
+    const std::string& sceneID,
     const std::string& sceneName,
+    const std::string& taskID,
+    const std::string& taskName,
     const std::string& visual,
     const std::vector<std::string>& arguments
 ) {
@@ -372,8 +642,10 @@ void scene(
            << "  \"id\": \"" << id << "\",\n"
            << "  \"robot_id\": \"" << robotID << "\",\n"
            << "  \"robot_name\": \"" << robotName << "\",\n"
-           << "  \"scene_id\": \"" << id << "\",\n"
+           << "  \"scene_id\": \"" << sceneID << "\",\n"
            << "  \"scene_name\": \"" << sceneName << "\",\n"
+           << "  \"task_id\": \"" << taskID << "\",\n"
+           << "  \"task_name\": \"" << taskName << "\",\n"
            << "  \"visual_observation\": \"" << visual << "\",\n"
            << "  \"arguments\": [";
     for (std::size_t index = 0u; index < arguments.size(); ++index) {
@@ -389,6 +661,14 @@ int main(const int argc, const char* const* argv) {
     try {
         const Arguments options = arguments(argc, argv);
         std::filesystem::create_directories(options.output);
+        for (const auto& entry :
+             std::filesystem::directory_iterator(options.output)) {
+            if (entry.is_regular_file() &&
+                entry.path().filename().string().ends_with(
+                    ".numi-window.json")) {
+                std::filesystem::remove(entry.path());
+            }
+        }
         constexpr std::array<float, 4u> cameraQ{{
             -0.73858354f, -0.26102070f, 0.20711737f, 0.58605883f}};
 
@@ -399,19 +679,56 @@ int main(const int argc, const char* const* argv) {
             g1Source, options.output / "unitree-g1-visual.urdf");
         cookPresentation(g1URDF, g1, "unitree-g1", "pelvis",
             options.output, {1.05f, -1.30f, 0.32f}, cameraQ);
+        writeSurfacePresentation(
+            options.output,
+            "unitree-g1-visual-observation.json",
+            "ground",
+            "locomotion_ground",
+            surfacePresentation(false)
+        );
+        writeSurfacePresentation(
+            options.output,
+            "unitree-g1-visual-observation.json",
+            "terrain",
+            "locomotion_terrain",
+            surfacePresentation(true)
+        );
+        constexpr std::array<float, 6u> dodgeRadii{
+            0.10f, 0.10f, 0.10f, 0.10f, 0.10f, 0.10f};
+        constexpr std::array<float, 6u> recoveryRadii{
+            0.10f, 0.12f, 0.14f, 0.16f, 0.18f, 0.20f};
+        for (const auto& surface : {"ground", "terrain"}) {
+            writeBallPresentation(
+                options.output, surface, "ball-dodge", dodgeRadii);
+            writeBallPresentation(
+                options.output, surface, "ball-recovery", recoveryRadii);
+        }
         const std::vector<std::pair<std::string, std::string>> g1Scenes{{
-            "velocity", "Velocity"}, {"adult-locomotion", "Adult Locomotion"},
-            {"g1-legs-locomotion", "Legs Locomotion"},
-            {"disturbance-recovery", "Disturbance Recovery"},
-            {"supine-get-up", "Supine Get Up"},
-            {"developmental-recovery", "Developmental Recovery"},
-            {"ball-recovery", "Ball Recovery"}, {"ball-dodge", "Ball Dodge"},
+            "velocity", "Stand & Follow Velocity Commands"},
+            {"adult-locomotion", "Walk with Disturbances"},
+            {"g1-legs-locomotion", "12-Joint Legs Locomotion"},
+            {"disturbance-recovery", "Recover from Pushes"},
+            {"supine-get-up", "Learn to Get Up from the Floor"},
+            {"developmental-recovery", "Tuck, Brace & Recover"},
+            {"ball-recovery", "Recover from Ball Impacts"},
+            {"ball-dodge", "See and Dodge Balls"},
         };
-        for (const auto& [task, name] : g1Scenes) {
-            scene(options.output, "unitree-g1-" + task, "unitree-g1",
-                "Unitree G1", name, "unitree-g1-visual-observation.json",
-                {"--robot-source", "unitree-g1", "--scene", "ground",
-                 "--task", task, "--native-policy"});
+        for (const auto& [surface, surfaceName] :
+             std::vector<std::pair<std::string, std::string>>{{
+                 "ground", "Flat Ground"}, {"terrain", "Uneven Terrain"}}) {
+            for (const auto& [task, name] : g1Scenes) {
+                const bool hasProjectiles =
+                    task == "ball-recovery" || task == "ball-dodge";
+                scene(options.output,
+                    "unitree-g1-" + surface + "-" + task,
+                    "unitree-g1", "Unitree G1",
+                    surface, surfaceName, task, name,
+                    "unitree-g1-" + surface +
+                        (hasProjectiles ? "-" + task : "") +
+                        "-visual-observation.json",
+                    {"--robot-source", "unitree-g1", "--scene", surface,
+                     "--task", task, "--zero-actions"});
+            }
         }
 
         const EngineModel franka = metalrobo::makeFrankaPickPlaceEngineModel();
@@ -428,14 +745,17 @@ int main(const int argc, const char* const* argv) {
         cookPresentation(frankaURDF, franka, "franka-panda", "panda_link0",
             options.output, {1.1f, -1.35f, 0.7f}, cameraQ);
         scene(options.output, "franka-pick-place", "franka-panda",
-            "Franka Panda + Hand", "Pick & Place",
+            "Franka Panda + Hand", "workcell", "Manipulation Workcell",
+            "pick-place", "Pick & Place",
             "franka-panda-visual-observation.json",
             {"--robot-source", "franka-panda", "--scene", "ground",
              "--zero-actions"});
         scene(options.output, "franka-hand-motion", "franka-panda",
-            "Franka Panda + Hand", "Hand Motion",
+            "Franka Panda + Hand", "workcell", "Manipulation Workcell",
+            "hand-motion", "Hand Motion",
             "franka-panda-visual-observation.json",
-            {"--robot-source", "franka-panda", "--scene", "ground"});
+            {"--robot-source", "franka-panda", "--scene", "ground",
+             "--zero-actions"});
 
         const auto px4Pack = metalrobo::builtinRobotPack("px4_x500");
         if (!px4Pack.has_value()) {
@@ -449,17 +769,20 @@ int main(const int argc, const char* const* argv) {
         cookPresentation(px4URDF, px4Pack->mechanics, "px4-x500", "x500_base",
             options.output, {0.35f, -0.46f, 0.16f}, cameraQ);
         scene(options.output, "px4-x500-hover", "px4-x500", "PX4 X500 Drone",
-            "Hover Task", "px4-x500-visual-observation.json",
-            {"--robot-source", "px4-x500", "--scene", "ground",
-             "--native-policy"});
-        scene(options.output, "px4-x500-motor-sweep", "px4-x500",
-            "PX4 X500 Drone", "Motor Sweep",
+            "flight-area", "Flight Test Area", "hover", "Hover Task",
             "px4-x500-visual-observation.json",
-            {"--robot-source", "px4-x500", "--scene", "ground"});
+            {"--robot-source", "px4-x500", "--scene", "ground",
+             "--zero-actions"});
+        scene(options.output, "px4-x500-motor-sweep", "px4-x500",
+            "PX4 X500 Drone", "flight-area", "Flight Test Area",
+            "motor-sweep", "Motor Sweep",
+            "px4-x500-visual-observation.json",
+            {"--robot-source", "px4-x500", "--scene", "ground",
+             "--zero-actions"});
 
         {
             std::ofstream version{options.output / "catalog.version"};
-            version << "2\n";
+            version << "3\n";
             if (!version) {
                 throw std::runtime_error("could not publish catalog version");
             }

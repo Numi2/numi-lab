@@ -21,6 +21,8 @@ public struct NumiWindowSceneChoice: Sendable {
     public let robotName: String
     public let sceneID: String
     public let sceneName: String
+    public let taskID: String
+    public let taskName: String
     public let visualObservationURL: URL
     public let launchArguments: [String]
 
@@ -41,6 +43,8 @@ public struct NumiWindowSceneChoice: Sendable {
         let robotName: String
         let sceneID: String
         let sceneName: String
+        let taskID: String?
+        let taskName: String?
         let visualObservation: String
         let arguments: [String]
         let available: Bool?
@@ -51,6 +55,8 @@ public struct NumiWindowSceneChoice: Sendable {
             case robotName = "robot_name"
             case sceneID = "scene_id"
             case sceneName = "scene_name"
+            case taskID = "task_id"
+            case taskName = "task_name"
             case visualObservation = "visual_observation"
         }
     }
@@ -81,6 +87,15 @@ private func numiWindowResolvedArguments(
         index += 1
     }
     return result
+}
+
+private func numiWindowArgumentValue(
+    _ option: String,
+    in arguments: [String]
+) -> String? {
+    guard let index = arguments.firstIndex(of: option),
+          index + 1 < arguments.count else { return nil }
+    return arguments[index + 1]
 }
 
 public func numiWindowSceneChoices(in directory: URL) -> [NumiWindowSceneChoice] {
@@ -115,6 +130,19 @@ public func numiWindowSceneChoices(in directory: URL) -> [NumiWindowSceneChoice]
             continue
         }
         let base = url.deletingLastPathComponent()
+        let resolvedArguments = numiWindowResolvedArguments(
+            record.arguments,
+            relativeTo: base
+        )
+        let legacyEnvironment =
+            numiWindowArgumentValue("--scene", in: resolvedArguments) ??
+            "studio"
+        let environmentID = record.taskID == nil
+            ? legacyEnvironment : record.sceneID
+        let environmentName = record.taskID == nil
+            ? legacyEnvironment.replacingOccurrences(of: "-", with: " ")
+                .capitalized
+            : record.sceneName
         let visualURL = URL(fileURLWithPath: record.visualObservation,
                             relativeTo: base).standardizedFileURL
         guard FileManager.default.fileExists(atPath: visualURL.path) else {
@@ -124,13 +152,12 @@ public func numiWindowSceneChoices(in directory: URL) -> [NumiWindowSceneChoice]
             id: record.id,
             robotID: record.robotID,
             robotName: record.robotName,
-            sceneID: record.sceneID,
-            sceneName: record.sceneName,
+            sceneID: environmentID,
+            sceneName: environmentName,
+            taskID: record.taskID ?? record.sceneID,
+            taskName: record.taskName ?? record.sceneName,
             visualObservationURL: visualURL,
-            launchArguments: numiWindowResolvedArguments(
-                record.arguments,
-                relativeTo: base
-            )
+            launchArguments: resolvedArguments
         ))
     }
     return choices.sorted {
@@ -343,6 +370,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private static let sceneSelectorToolbarItem = NSToolbarItem.Identifier(
         "numi.window.scene-selector"
     )
+    private static let taskSelectorToolbarItem = NSToolbarItem.Identifier(
+        "numi.window.task-selector"
+    )
     private static let resetCameraToolbarItem = NSToolbarItem.Identifier(
         "numi.window.reset-camera"
     )
@@ -363,6 +393,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private weak var policySelector: NSPopUpButton?
     private weak var robotSelector: NSPopUpButton?
     private weak var sceneSelector: NSPopUpButton?
+    private weak var taskSelector: NSPopUpButton?
     private let canReloadLatestPolicy: Bool
     private let policyChoices: [NumiWindowPolicyChoice]
     private let initialPolicyURL: URL?
@@ -373,6 +404,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private var cameraPan = SIMD2<Float>(repeating: 0)
     private var cameraDolly: Float = 0
     private var activeRobotID: String
+    private var activeSceneID: String
     var onClose: (() -> Void)?
     var onPresentationEnabledChanged: ((Bool) -> Void)?
     var onLatestPolicyRequested: (() -> Void)?
@@ -403,6 +435,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         self.activeRobotID = sceneChoices.first(where: {
             $0.id == initialSceneID
         })?.robotID ?? sceneChoices.first?.robotID ?? ""
+        self.activeSceneID = sceneChoices.first(where: {
+            $0.id == initialSceneID
+        })?.sceneID ?? sceneChoices.first?.sceneID ?? ""
         super.init()
         view.delegate = self
         window.contentView = view
@@ -454,7 +489,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         descriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
         let pipeline = try device.makeRenderPipelineState(descriptor: descriptor)
         let view = NumiWindowMetalView(
-            frame: NSRect(x: 0, y: 0, width: 960, height: 600),
+            frame: NSRect(x: 0, y: 0, width: 1180, height: 700),
             device: device
         )
         view.colorPixelFormat = .bgra8Unorm_srgb
@@ -470,7 +505,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         // Avoid silently expanding a 960px preview into a 2x Retina drawable.
         view.autoResizeDrawable = false
         let window = NSWindow(
-            contentRect: NSRect(x: 120, y: 120, width: 960, height: 600),
+            contentRect: NSRect(x: 120, y: 120, width: 1180, height: 700),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
@@ -607,6 +642,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             Self.pauseToolbarItem,
             Self.robotSelectorToolbarItem,
             Self.sceneSelectorToolbarItem,
+            Self.taskSelectorToolbarItem,
             Self.policySelectorToolbarItem,
             Self.resetCameraToolbarItem,
         ]
@@ -619,6 +655,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             Self.pauseToolbarItem,
             Self.robotSelectorToolbarItem,
             Self.sceneSelectorToolbarItem,
+            Self.taskSelectorToolbarItem,
             Self.policySelectorToolbarItem,
             Self.resetCameraToolbarItem,
         ]
@@ -658,14 +695,13 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
                 frame: NSRect(x: 0, y: 0, width: 220, height: 28),
                 pullsDown: false
             )
+            selector.widthAnchor.constraint(equalToConstant: 180).isActive = true
             selector.target = self
             selector.action = #selector(selectPolicy)
             configurePolicySelector(
                 selector,
                 for: activeRobotID,
-                preferred: sceneChoices.first(where: {
-                    $0.id == initialSceneID
-                })?.policyURL ?? initialPolicyURL
+                preferred: initialPolicyURL
             )
             selector.setAccessibilityLabel("Policy")
             item.label = "Policy"
@@ -680,6 +716,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
                 frame: NSRect(x: 0, y: 0, width: 170, height: 28),
                 pullsDown: false
             )
+            selector.widthAnchor.constraint(equalToConstant: 150).isActive = true
             selector.target = self
             selector.action = #selector(selectRobot)
             selector.setAccessibilityLabel("Robot")
@@ -694,12 +731,30 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
                 frame: NSRect(x: 0, y: 0, width: 170, height: 28),
                 pullsDown: false
             )
+            selector.widthAnchor.constraint(equalToConstant: 150).isActive = true
             selector.target = self
-            selector.action = #selector(selectScene)
-            selector.setAccessibilityLabel("Scene")
-            item.label = "Scene"
+            selector.action = #selector(selectEnvironment)
+            selector.setAccessibilityLabel("Environment")
+            item.label = "Environment"
+            item.toolTip = "Choose the visible physical world"
             item.view = selector
             sceneSelector = selector
+            selectDisplayedScene(initialSceneID)
+            return item
+        }
+        if itemIdentifier == Self.taskSelectorToolbarItem {
+            let selector = NSPopUpButton(
+                frame: NSRect(x: 0, y: 0, width: 190, height: 28),
+                pullsDown: false
+            )
+            selector.widthAnchor.constraint(equalToConstant: 240).isActive = true
+            selector.target = self
+            selector.action = #selector(selectTask)
+            selector.setAccessibilityLabel("Task")
+            item.label = "Task"
+            item.toolTip = "Choose what the robot should practice"
+            item.view = selector
+            taskSelector = selector
             selectDisplayedScene(initialSceneID)
             return item
         }
@@ -712,8 +767,14 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         else {
             return
         }
-        configureSceneSelector(for: robotID, selecting: choice.id)
+        configureEnvironmentSelector(for: robotID, selecting: choice.sceneID)
+        configureTaskSelector(
+            for: robotID,
+            environmentID: choice.sceneID,
+            selecting: choice.id
+        )
         activeRobotID = robotID
+        activeSceneID = choice.sceneID
         if let policySelector {
             configurePolicySelector(
                 policySelector,
@@ -724,12 +785,35 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         requestScene(choice)
     }
 
-    @objc private func selectScene(_ sender: NSPopUpButton) {
-        guard let id = sender.selectedItem?.representedObject as? String,
-              let choice = sceneChoices.first(where: { $0.id == id })
+    @objc private func selectEnvironment(_ sender: NSPopUpButton) {
+        let currentTaskID = (taskSelector?.selectedItem?.representedObject
+            as? String).flatMap { selectedID in
+                sceneChoices.first(where: { $0.id == selectedID })?.taskID
+            }
+        guard let environmentID = sender.selectedItem?.representedObject as? String,
+              let choice = sceneChoices.first(where: {
+                  $0.robotID == activeRobotID &&
+                  $0.sceneID == environmentID &&
+                  $0.taskID == currentTaskID
+              }) ?? sceneChoices.first(where: {
+                  $0.robotID == activeRobotID && $0.sceneID == environmentID
+              })
         else {
             return
         }
+        activeSceneID = environmentID
+        configureTaskSelector(
+            for: activeRobotID,
+            environmentID: environmentID,
+            selecting: choice.id
+        )
+        requestScene(choice)
+    }
+
+    @objc private func selectTask(_ sender: NSPopUpButton) {
+        guard let id = sender.selectedItem?.representedObject as? String,
+              let choice = sceneChoices.first(where: { $0.id == id })
+        else { return }
         requestScene(choice)
     }
 
@@ -738,21 +822,25 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             return
         }
         reconfiguring = true
+        let robotChanged = activeRobotID != choice.robotID
         robotSelector?.isEnabled = false
         sceneSelector?.isEnabled = false
+        taskSelector?.isEnabled = false
         policySelector?.isEnabled = false
         // Camera offsets are relative to each robot's authored camera. Never
         // carry an orbit from one robot into another robot's frame.
         resetCamera()
         activeRobotID = choice.robotID
-        if let policySelector {
+        activeSceneID = choice.sceneID
+        if robotChanged, let policySelector {
             configurePolicySelector(
                 policySelector,
                 for: choice.robotID,
-                preferred: choice.policyURL
+                preferred: nil
             )
         }
-        lastFrameSummary = "loading \(choice.robotName) · \(choice.sceneName)"
+        lastFrameSummary =
+            "loading \(choice.sceneName) · \(choice.taskName)"
         updateChrome(force: true)
         onSceneSelected?(choice.id)
     }
@@ -775,6 +863,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             self.robotSelector?.isEnabled = !self.sceneChoices.isEmpty
             self.sceneSelector?.isEnabled =
                 (self.sceneSelector?.numberOfItems ?? 0) > 0
+            self.taskSelector?.isEnabled =
+                (self.taskSelector?.numberOfItems ?? 0) > 0
             self.policySelector?.isEnabled =
                 self.policySelector?.itemArray.contains {
                     $0.representedObject is URL
@@ -792,30 +882,65 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         guard !sceneChoices.isEmpty else {
             selector.addItem(withTitle: "No robot catalog")
             selector.isEnabled = false
-            configureSceneSelector(for: "", selecting: nil)
+            configureEnvironmentSelector(for: "", selecting: nil)
+            configureTaskSelector(
+                for: "", environmentID: "", selecting: nil
+            )
             return
         }
         let initial = sceneChoices.first(where: { $0.id == initialSceneID }) ??
             sceneChoices[0]
         selector.selectItem(withTitle: initial.robotName)
-        configureSceneSelector(for: initial.robotID, selecting: initial.id)
+        configureEnvironmentSelector(
+            for: initial.robotID,
+            selecting: initial.sceneID
+        )
+        configureTaskSelector(
+            for: initial.robotID,
+            environmentID: initial.sceneID,
+            selecting: initial.id
+        )
     }
 
-    private func configureSceneSelector(
+    private func configureEnvironmentSelector(
         for robotID: String,
-        selecting selectedID: String?
+        selecting selectedEnvironmentID: String?
     ) {
         guard let selector = sceneSelector else {
             return
         }
         selector.removeAllItems()
-        for choice in sceneChoices where choice.robotID == robotID {
+        var seen: Set<String> = []
+        for choice in sceneChoices where
+            choice.robotID == robotID && seen.insert(choice.sceneID).inserted {
             selector.addItem(withTitle: choice.sceneName)
+            selector.lastItem?.representedObject = choice.sceneID
+        }
+        selector.isEnabled = selector.numberOfItems > 0
+        if let selectedEnvironmentID {
+            selector.itemArray.first(where: {
+                ($0.representedObject as? String) == selectedEnvironmentID
+            }).map { selector.select($0) }
+        }
+    }
+
+    private func configureTaskSelector(
+        for robotID: String,
+        environmentID: String,
+        selecting selectedID: String?
+    ) {
+        guard let selector = taskSelector else { return }
+        selector.removeAllItems()
+        for choice in sceneChoices where
+            choice.robotID == robotID && choice.sceneID == environmentID {
+            selector.addItem(withTitle: choice.taskName)
             selector.lastItem?.representedObject = choice.id
         }
         selector.isEnabled = selector.numberOfItems > 0
         if let selectedID {
-            selectDisplayedScene(selectedID)
+            selector.itemArray.first(where: {
+                ($0.representedObject as? String) == selectedID
+            }).map { selector.select($0) }
         }
     }
 
@@ -828,17 +953,27 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         robotSelector?.itemArray.first(where: {
             ($0.representedObject as? String) == choice.robotID
         }).map { robotSelector?.select($0) }
+        let robotChanged = activeRobotID != choice.robotID
         activeRobotID = choice.robotID
-        if let policySelector {
+        activeSceneID = choice.sceneID
+        if robotChanged, let policySelector {
             configurePolicySelector(
                 policySelector,
                 for: choice.robotID,
-                preferred: choice.policyURL
+                preferred: nil
             )
         }
-        configureSceneSelector(for: choice.robotID, selecting: nil)
+        configureEnvironmentSelector(
+            for: choice.robotID,
+            selecting: choice.sceneID
+        )
+        configureTaskSelector(
+            for: choice.robotID,
+            environmentID: choice.sceneID,
+            selecting: choice.id
+        )
         sceneSelector?.itemArray.first(where: {
-            ($0.representedObject as? String) == id
+            ($0.representedObject as? String) == choice.sceneID
         }).map { sceneSelector?.select($0) }
     }
 
@@ -969,7 +1104,10 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             selector.lastItem?.toolTip = choice.policyURL.path
         }
         guard selector.numberOfItems > 0 else {
-            selector.addItem(withTitle: "No saved policy")
+            selector.addItem(withTitle: "No policy · zero actions")
+            selector.setAccessibilityHelp(
+                "No learned controller is loaded; the task receives zero policy actions"
+            )
             selector.isEnabled = false
             return
         }

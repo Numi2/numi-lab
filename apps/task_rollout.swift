@@ -201,6 +201,8 @@ private struct Options {
     var inspectionScene: String?
     var inspectionWidth = 640
     var inspectionHeight = 360
+    var windowRobotID: String?
+    var windowChoiceID: String?
     var captureDirectory: String?
     var captureWidth = 480
     var captureHeight = 270
@@ -471,6 +473,12 @@ private struct Options {
                 index += 1
             case "--window-height":
                 inspectionHeight = try Self.integer(value(), option)
+                index += 1
+            case "--window-robot-id":
+                windowRobotID = try value()
+                index += 1
+            case "--window-choice-id":
+                windowChoiceID = try value()
                 index += 1
             case "--capture-dir":
                 captureDirectory = try value()
@@ -1131,9 +1139,34 @@ private enum TaskRolloutMain {
         preserving baseline: Options
     ) throws -> Options {
         var arguments = [CommandLine.arguments[0]]
-        arguments.append(contentsOf: choice.launchArguments)
+        var index = 0
+        while index < choice.launchArguments.count {
+            let option = choice.launchArguments[index]
+            if option == "--policy-pack" || option == "--action-stream" {
+                index += 2
+                continue
+            }
+            if option == "--native-policy" || option == "--zero-actions" {
+                index += 1
+                continue
+            }
+            arguments.append(option)
+            index += 1
+        }
+        let sameRobot = baseline.windowRobotID == choice.robotID
+        if sameRobot, let policyPack = baseline.policyPack {
+            arguments.append(contentsOf: ["--policy-pack", policyPack])
+        } else if sameRobot && baseline.nativePolicy {
+            arguments.append("--native-policy")
+        } else if sameRobot, let actionStream = baseline.actionStream {
+            arguments.append(contentsOf: ["--action-stream", actionStream])
+        } else {
+            arguments.append("--zero-actions")
+        }
         arguments.append(contentsOf: [
             "--window-scene", choice.visualObservationURL.path,
+            "--window-robot-id", choice.robotID,
+            "--window-choice-id", choice.id,
             "--window-width", String(baseline.inspectionWidth),
             "--window-height", String(baseline.inspectionHeight),
             "--metallib", baseline.metallib,
@@ -2805,6 +2838,8 @@ private enum TaskRolloutMain {
                 rawArguments.append(contentsOf: choice.launchArguments)
                 rawArguments.append(contentsOf: [
                     "--window-scene", choice.visualObservationURL.path,
+                    "--window-robot-id", choice.robotID,
+                    "--window-choice-id", choice.id,
                 ])
                 initialSceneID = choice.id
             }
@@ -2812,6 +2847,9 @@ private enum TaskRolloutMain {
             guard options.inspectionScene != nil else {
                 try run(options: options, window: nil)
                 return
+            }
+            if initialSceneID == nil, let choiceID = options.windowChoiceID {
+                initialSceneID = choiceID
             }
             if initialSceneID == nil, let scene = options.inspectionScene {
                 let selected = URL(fileURLWithPath: scene).standardizedFileURL
@@ -2836,11 +2874,13 @@ private enum TaskRolloutMain {
             let recoverySceneID = initialSceneID
             DispatchQueue.global(qos: .userInitiated).async {
                 var activeOptions = options
+                var recoveringBaseline = false
                 while !window.isClosed {
                     do {
                         try run(options: activeOptions, window: window)
                         break
                     } catch NumiWindowError.reconfigure(let id) {
+                        recoveringBaseline = false
                         guard let choice = sceneChoices.first(where: {
                             $0.id == id
                         }) else {
@@ -2858,7 +2898,7 @@ private enum TaskRolloutMain {
                             if let recoverySceneID {
                                 window.reportSceneRestored(
                                     recoverySceneID,
-                                    summary: "scene rejected · restored working scene"
+                                summary: "selection rejected · restored working setup"
                                 )
                             }
                         }
@@ -2869,17 +2909,24 @@ private enum TaskRolloutMain {
                             Data("numi window failed: \(error)\n".utf8)
                         )
                         window.reportPolicyStatus(
-                            "scene failed · returning to last working scene"
+                            "setup failed · returning to last working setup"
                         )
+                        if recoveringBaseline {
+                            window.reportPolicyStatus(
+                                "preview unavailable · check the selected robot setup"
+                            )
+                            break
+                        }
                         // A catalog entry must never kill the UX. The launch
                         // options that created the window are already live-
                         // qualified, so recover to them and keep accepting
                         // robot/scene and camera input.
                         activeOptions = options
+                        recoveringBaseline = true
                         if let recoverySceneID {
                             window.reportSceneRestored(
                                 recoverySceneID,
-                                summary: "scene unavailable · restored working scene"
+                                summary: "setup unavailable · restored working setup"
                             )
                         }
                         continue
