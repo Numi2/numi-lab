@@ -4596,11 +4596,18 @@ VisualAssetCookDiagnostics cookUrdfVisualDescription(
                 }
             }
             if (authoredColor.has_value()) {
+                const mr_float4 linearAuthoredColor{
+                    srgbToLinear(authoredColor->x),
+                    srgbToLinear(authoredColor->y),
+                    srgbToLinear(authoredColor->z),
+                    authoredColor->w,
+                };
                 for (MRVisualMaterialGPUV2& material : pack.materials) {
                     // STL has no material payload. URDF color is authored
-                    // presentation truth; normals and the window's studio
-                    // light provide depth without inventing link colors.
-                    material.baseColorAndOpacity = *authoredColor;
+                    // display-space presentation truth. Convert RGB to linear
+                    // light before PBR shading; treating 0.2 sRGB as 0.2
+                    // linear washes dark robot panels into middle gray.
+                    material.baseColorAndOpacity = linearAuthoredColor;
                     material.emissionAndStrength = {
                         0.0f,
                         0.0f,
