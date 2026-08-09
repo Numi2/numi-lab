@@ -1829,9 +1829,12 @@ TaskPack makeMeasuredSurfaceDropRecoveryTaskPack(
     }};
     task.rewards = {
         {TaskRewardOperator::constant, {}, {}, 0.25f},
-        {TaskRewardOperator::rootHeightProgress, {}, {}, 2.75f},
-        {TaskRewardOperator::linearVelocityTracking, {}, {}, 1.0f,
-            {0.65f, 0.0f, 0.0f, 0.0f}},
+        // Preserve recovery lift, but make matching the measured cruise speed
+        // the dominant post-recovery objective.  The narrower kernel stops a
+        // nearly stationary hover from collecting meaningful flight credit.
+        {TaskRewardOperator::rootHeightProgress, {}, {}, 2.50f},
+        {TaskRewardOperator::linearVelocityTracking, {}, {}, 3.0f,
+            {0.45f, 0.0f, 0.0f, 0.0f}},
         {TaskRewardOperator::uprightness, {}, {}, 1.25f},
         {TaskRewardOperator::tiltSquared, {}, {}, -0.40f},
         {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.012f},

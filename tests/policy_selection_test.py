@@ -140,6 +140,43 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertIn(
             "forward-speed tracking increased", decision["improvements"]
         )
+        self.assertEqual(
+            decision["metrics"]["adult_authored_outcomes"]
+            ["candidate_forward_speed_tracking"]["mean"],
+            0.30,
+        )
+
+    def test_dove_lift_gain_cannot_buy_lost_forward_tracking(self) -> None:
+        incumbent = {
+            "task": "deetjen_f03_robot.fatal_drop_recovery",
+            "world_source": "measured_dove",
+            "termination_count_by_environment": [0] * 16,
+            "termination_count": 0,
+            "clean_horizon_environment_rate": 1.0,
+            "failed_environment_steps": 0,
+            "mean_reward": 0.1,
+            "mean_root_height": 22.0,
+            "mean_tilt": 0.5,
+            "outcomes": {
+                "forward_speed_tracking": {
+                    "mean": 0.00110,
+                    "direction": 1,
+                }
+            },
+        }
+        candidate = {
+            **incumbent,
+            "mean_reward": 0.2,
+            "mean_root_height": 23.0,
+            "outcomes": {
+                "forward_speed_tracking": {
+                    "mean": 0.00100,
+                    "direction": 1,
+                }
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
 
     def test_catastrophic_get_up_candidate_never_advances(self) -> None:
         incumbent = {

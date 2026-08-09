@@ -598,6 +598,19 @@ def compare_evidence(
         )
         regressions.extend(authored_regressions)
         improvements.extend(authored_improvements)
+    elif task == "dove-drop-recovery":
+        for identifier in ("altitude_progress", "forward_speed_tracking"):
+            old_outcome = _authored_outcomes(incumbent).get(identifier)
+            new_outcome = _authored_outcomes(candidate).get(identifier)
+            if old_outcome and new_outcome:
+                authored_outcome_metrics[f"incumbent_{identifier}"] = {
+                    "mean": old_outcome[0],
+                    "direction": old_outcome[1],
+                }
+                authored_outcome_metrics[f"candidate_{identifier}"] = {
+                    "mean": new_outcome[0],
+                    "direction": new_outcome[1],
+                }
 
     old_tilt = float(incumbent.get("mean_tilt", 0))
     new_tilt = float(candidate.get("mean_tilt", 0))
@@ -682,15 +695,20 @@ def compare_evidence(
         forward_progress = 0.0
         if old_forward_outcome and new_forward_outcome:
             forward_progress = _relative_progress(
-                old_forward_outcome[0], new_forward_outcome[0], 0.05
+                old_forward_outcome[0], new_forward_outcome[0], 0.001
             )
         selection_score = (
-            0.35 * failure_progress
-            + 0.25 * clean_progress
+            0.25 * failure_progress
+            + 0.15 * clean_progress
             + 0.10 * tilt_progress
-            + 0.10 * height_progress
-            + 0.10 * reward_progress
-            + 0.10 * forward_progress
+            + 0.15 * height_progress
+            + 0.05 * reward_progress
+            + 0.30 * forward_progress
+        )
+        forward_retained = (
+            old_forward_outcome is None
+            or new_forward_outcome is None
+            or new_forward_outcome[0] >= old_forward_outcome[0] - 2.0e-5
         )
         selected = (
             int(candidate.get("failed_environment_steps", 0)) == 0
@@ -699,6 +717,8 @@ def compare_evidence(
             # terminations at the current isolated curriculum band.
             and candidate_termination <= 1.0e-12
             and candidate_clean_horizon >= incumbent_clean_horizon - 1.0e-12
+            and new_height >= old_height - 0.01
+            and forward_retained
             and selection_score > 1.0e-12
         )
         selection_method = "dove_flight_recovery_comparison"
