@@ -378,6 +378,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private var closed = false
     private var paused = false
     private var presentationVisible = true
+    private var reconfiguring = false
+    private var reconfigurationReenableScheduled = false
     private var lastFrameSummary = "waiting for a frame"
     private var lastChromeUpdateSeconds: TimeInterval = 0
     private weak var pauseItem: NSToolbarItem?
@@ -515,6 +517,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             delivery.release()
             return
         }
+        finishReconfiguration()
         pending?.release()
         pending = delivery
         updateDrawableSize(
@@ -555,6 +558,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
 
     func showRestoredScene(_ id: String, summary: String) {
         guard !closed else { return }
+        finishReconfiguration()
         selectDisplayedScene(id)
         lastFrameSummary = summary
         updateChrome(force: true)
@@ -754,6 +758,13 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     }
 
     private func requestScene(_ choice: NumiWindowSceneChoice) {
+        guard !reconfiguring else {
+            return
+        }
+        reconfiguring = true
+        robotSelector?.isEnabled = false
+        sceneSelector?.isEnabled = false
+        policySelector?.isEnabled = false
         // Camera offsets are relative to each robot's authored camera. Never
         // carry an orbit from one robot into another robot's frame.
         resetCamera()
@@ -768,6 +779,31 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         lastFrameSummary = "loading \(choice.robotName) · \(choice.sceneName)"
         updateChrome(force: true)
         onSceneSelected?(choice.id)
+    }
+
+    private func finishReconfiguration() {
+        guard reconfiguring, !reconfigurationReenableScheduled else {
+            return
+        }
+        reconfigurationReenableScheduled = true
+        // A newly displayed frame proves the replacement runtime is live,
+        // but its predecessor can still have one presentation command in
+        // flight. Keep selection serialized through a short retirement
+        // window so rapid clicks cannot stack complete Metal worlds.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) { [weak self] in
+            guard let self, !self.closed else {
+                return
+            }
+            self.reconfigurationReenableScheduled = false
+            self.reconfiguring = false
+            self.robotSelector?.isEnabled = !self.sceneChoices.isEmpty
+            self.sceneSelector?.isEnabled =
+                (self.sceneSelector?.numberOfItems ?? 0) > 0
+            self.policySelector?.isEnabled =
+                self.policySelector?.itemArray.contains {
+                    $0.representedObject is URL
+                } ?? false
+        }
     }
 
     private func configureRobotSelector(_ selector: NSPopUpButton) {

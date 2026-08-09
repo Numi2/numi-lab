@@ -1070,6 +1070,9 @@ private func publishInspectionFrame(
     guard let window else {
         return
     }
+    guard !window.isClosed else {
+        throw NumiWindowError.closed
+    }
     if let sceneID = window.takeSceneSelection() {
         throw NumiWindowError.reconfigure(sceneID)
     }
@@ -1151,8 +1154,14 @@ private enum TaskRolloutMain {
         options: Options,
         window: NumiWindowBridge?
     ) throws {
+            guard window?.isClosed != true else {
+                throw NumiWindowError.closed
+            }
             let (context, worldSource) =
                 try makeContext(options: options)
+            guard window?.isClosed != true else {
+                throw NumiWindowError.closed
+            }
             let visualObservationEnabled =
                 context.visualSceneFingerprint != 0
             if options.stateTrace != nil || options.captureDirectory != nil {
@@ -1604,6 +1613,11 @@ private enum TaskRolloutMain {
                 let repeatStart = clock.now
                 var completed = 0
                 while completed < options.steps {
+                    // The window rollout occupies one long-lived GCD block.
+                    // Drain Objective-C and Metal autoreleased temporaries at
+                    // every explicit submission/publication boundary instead
+                    // of retaining them for the million-step preview.
+                    try autoreleasepool {
                     let stepCount = min(
                         options.chunk,
                         options.steps - completed
@@ -2152,6 +2166,7 @@ private enum TaskRolloutMain {
                     }
                     completed += stepCount
                     globalStep += stepCount
+                    }
                 }
                 if options.verbose {
                     let elapsed =
@@ -2840,9 +2855,12 @@ private enum TaskRolloutMain {
                                 preserving: activeOptions
                             )
                         } catch {
-                            window.reportPolicyStatus(
-                                "robot/scene rejected · \(error)"
-                            )
+                            if let recoverySceneID {
+                                window.reportSceneRestored(
+                                    recoverySceneID,
+                                    summary: "scene rejected · restored working scene"
+                                )
+                            }
                         }
                     } catch NumiWindowError.closed {
                         break
@@ -2868,7 +2886,21 @@ private enum TaskRolloutMain {
                     }
                 }
                 DispatchQueue.main.async {
-                    NSApplication.shared.terminate(nil)
+                    let application = NSApplication.shared
+                    application.stop(nil)
+                    if let wake = NSEvent.otherEvent(
+                        with: .applicationDefined,
+                        location: .zero,
+                        modifierFlags: [],
+                        timestamp: ProcessInfo.processInfo.systemUptime,
+                        windowNumber: 0,
+                        context: nil,
+                        subtype: 0,
+                        data1: 0,
+                        data2: 0
+                    ) {
+                        application.postEvent(wake, atStart: false)
+                    }
                 }
             }
             NSApplication.shared.run()
