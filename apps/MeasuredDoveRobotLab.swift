@@ -14,6 +14,8 @@ private struct Component: Decodable {
         let kind: String
         let radialCount: Int?
         let angularCount: Int?
+        let firstCount: Int?
+        let secondCount: Int?
     }
     let name: String
     let partIdentifier: UInt8
@@ -149,6 +151,15 @@ private struct Dataset {
                 "tail presentation requires the provenance-locked 7x17 polar topology"
             )
         }
+        for wing in value.topology.components[1...2] {
+            guard wing.topology?.kind == "structured-grid",
+                  wing.topology?.firstCount == 9,
+                  wing.topology?.secondCount == 33,
+                  wing.vertexCount == 9 * 33 else {
+                throw RobotError.invalid(
+                    "unified wing skin requires the provenance-locked 9x33 topology")
+            }
+        }
         var minimum = SIMD3<Float>(repeating: .infinity)
         var maximum = SIMD3<Float>(repeating: -.infinity)
         try positions.withUnsafeBytes { raw in
@@ -188,6 +199,41 @@ private struct Dataset {
     private static func allFinite(_ p: SIMD3<Float>) -> Bool { p.x.isFinite && p.y.isFinite && p.z.isFinite }
 }
 
+private func closestTriangleBarycentric(
+    point: SIMD3<Float>,
+    a: SIMD3<Float>,
+    b: SIMD3<Float>,
+    c: SIMD3<Float>
+) -> SIMD3<Float> {
+    let ab = b - a, ac = c - a, ap = point - a
+    let d1 = simd_dot(ab, ap), d2 = simd_dot(ac, ap)
+    if d1 <= 0, d2 <= 0 { return SIMD3<Float>(1, 0, 0) }
+    let bp = point - b
+    let d3 = simd_dot(ab, bp), d4 = simd_dot(ac, bp)
+    if d3 >= 0, d4 <= d3 { return SIMD3<Float>(0, 1, 0) }
+    let vc = d1 * d4 - d3 * d2
+    if vc <= 0, d1 >= 0, d3 <= 0 {
+        let v = d1 / max(1e-12, d1 - d3)
+        return SIMD3<Float>(1 - v, v, 0)
+    }
+    let cp = point - c
+    let d5 = simd_dot(ab, cp), d6 = simd_dot(ac, cp)
+    if d6 >= 0, d5 <= d6 { return SIMD3<Float>(0, 0, 1) }
+    let vb = d5 * d2 - d1 * d6
+    if vb <= 0, d2 >= 0, d6 <= 0 {
+        let w = d2 / max(1e-12, d2 - d6)
+        return SIMD3<Float>(1 - w, 0, w)
+    }
+    let va = d3 * d6 - d5 * d4
+    if va <= 0, d4 - d3 >= 0, d5 - d6 >= 0 {
+        let w = (d4 - d3) / max(1e-12, (d4 - d3) + (d5 - d6))
+        return SIMD3<Float>(0, 1 - w, w)
+    }
+    let denominator = max(1e-12, va + vb + vc)
+    let v = vb / denominator, w = vc / denominator
+    return SIMD3<Float>(1 - v - w, v, w)
+}
+
 private struct Uniforms {
     var viewProjection = matrix_identity_float4x4
     var eye = SIMD4<Float>(0, 0, 0, 1)
@@ -208,17 +254,27 @@ private final class RobotEngine {
     private let deformPipeline: MTLComputePipelineState
     private let rootPipeline: MTLComputePipelineState
     private let copyPipeline: MTLComputePipelineState
+    private let smoothPipeline: MTLComputePipelineState
+    private let normalPipeline: MTLComputePipelineState
     private let renderPipeline: MTLRenderPipelineState
     private let tailRenderPipeline: MTLRenderPipelineState
     private let groundRenderPipeline: MTLRenderPipelineState
+    private let depthStencilState: MTLDepthStencilState
     private let positions: MTLBuffer
     private let triangles: MTLBuffer
     private let vertexParts: MTLBuffer
     private let triangleParts: MTLBuffer
+    private let triangleAdjacency: MTLBuffer
+    private let adjacencyCounts: MTLBuffer
+    private let surfaceNormals: MTLBuffer
+    private let attachmentIndices: MTLBuffer
+    private let attachmentWeights: MTLBuffer
     private let actuatorTargets: MTLBuffer
     private let actuatorState: MTLBuffer
     private let localSurface: MTLBuffer
     private let previousSurface: MTLBuffer
+    private let visualSurfaceA: MTLBuffer
+    private let visualSurfaceB: MTLBuffer
     private let rootState: MTLBuffer
     private let metrics: MTLBuffer
     private var initialized = false
@@ -291,6 +347,8 @@ private final class RobotEngine {
         deformPipeline = try compute("deformSurface")
         rootPipeline = try compute("integrateRoot")
         copyPipeline = try compute("copySurface")
+        smoothPipeline = try compute("smoothVisualSurface")
+        normalPipeline = try compute("computeSurfaceNormals")
         let descriptor = MTLRenderPipelineDescriptor()
         descriptor.vertexFunction = library.makeFunction(name: "robotVertex")
         descriptor.fragmentFunction = library.makeFunction(name: "robotFragment")
@@ -311,6 +369,14 @@ private final class RobotEngine {
         groundDescriptor.depthAttachmentPixelFormat = .depth32Float
         groundRenderPipeline = try device.makeRenderPipelineState(
             descriptor: groundDescriptor)
+        let depthDescriptor = MTLDepthStencilDescriptor()
+        depthDescriptor.depthCompareFunction = .less
+        depthDescriptor.isDepthWriteEnabled = true
+        guard let depthState = device.makeDepthStencilState(
+            descriptor: depthDescriptor) else {
+            throw RobotError.invalid("could not create opaque depth state")
+        }
+        depthStencilState = depthState
         func buffer(_ data: Data, _ label: String) throws -> MTLBuffer {
             guard let result = data.withUnsafeBytes({ device.makeBuffer(bytes: $0.baseAddress!, length: $0.count, options: .storageModeShared) }) else {
                 throw RobotError.invalid("could not allocate \(label)")
@@ -319,18 +385,127 @@ private final class RobotEngine {
         }
         positions = try buffer(dataset.positions, "provenance-locked positions")
         triangles = try buffer(dataset.triangles, "provenance-locked triangles")
+        let meshIndices = dataset.triangles.withUnsafeBytes { raw in
+            stride(from: 0, to: raw.count, by: 2).map {
+                UInt16(littleEndian: raw.loadUnaligned(
+                    fromByteOffset: $0, as: UInt16.self))
+            }
+        }
+        let body = dataset.manifest.topology.components[0]
+        let leftWing = dataset.manifest.topology.components[1]
+        let rightWing = dataset.manifest.topology.components[2]
+        let tail = dataset.manifest.topology.components[3]
+        var attachmentIndexRecords: [SIMD4<UInt32>] = []
+        var attachmentWeightRecords: [SIMD4<Float>] = []
+        var maximumAttachmentGap: Float = 0
+        func appendBodyAttachment(for point: SIMD3<Float>) {
+            var bestIndices = SIMD4<UInt32>(0, 0, 0, 0)
+            var bestWeights = SIMD4<Float>(1, 0, 0, 0)
+            var bestDistance = Float.infinity
+            for triangle in body.triangleOffset..<(body.triangleOffset + body.triangleCount) {
+                let base = triangle * 3
+                let ia = Int(meshIndices[base])
+                let ib = Int(meshIndices[base + 1])
+                let ic = Int(meshIndices[base + 2])
+                let a = dataset.point(frame: 0, vertex: ia)
+                let b = dataset.point(frame: 0, vertex: ib)
+                let c = dataset.point(frame: 0, vertex: ic)
+                let weights = closestTriangleBarycentric(
+                    point: point, a: a, b: b, c: c)
+                let closest = weights.x * a + weights.y * b + weights.z * c
+                let distance = simd_length_squared(
+                    closest - point)
+                if distance < bestDistance {
+                    bestDistance = distance
+                    bestIndices = SIMD4<UInt32>(
+                        UInt32(ia), UInt32(ib), UInt32(ic), 0)
+                    bestWeights = SIMD4<Float>(weights, 0)
+                }
+            }
+            maximumAttachmentGap = max(
+                maximumAttachmentGap, sqrt(bestDistance))
+            attachmentIndexRecords.append(bestIndices)
+            attachmentWeightRecords.append(bestWeights)
+        }
+        for wing in [leftWing, rightWing] {
+            for chord in 0..<33 {
+                appendBodyAttachment(for: dataset.point(
+                    frame: 0, vertex: wing.vertexOffset + chord))
+            }
+        }
+        let tailRoot = dataset.point(frame: 0, vertex: tail.vertexOffset)
+        let outerRing = tail.vertexOffset + 1 + 6 * 17
+        let edgeA = dataset.point(frame: 0, vertex: outerRing)
+        let edgeB = dataset.point(frame: 0, vertex: outerRing + 16)
+        let distal = dataset.point(frame: 0, vertex: outerRing + 8)
+        let lateralAxis = simd_normalize(edgeB - edgeA)
+        let tailAxis = simd_normalize(distal - tailRoot)
+        for feather in 0..<33 {
+            let layerClass = feather < 12 ? 0 : (feather < 23 ? 1 : 2)
+            let localFeather = layerClass == 0
+                ? feather : (layerClass == 1 ? feather - 12 : feather - 23)
+            let count = layerClass == 0 ? 12 : (layerClass == 1 ? 11 : 10)
+            let lateral = -1 + 2 * Float(localFeather) / Float(max(1, count - 1))
+            let socketSpan: Float = layerClass == 0 ? 0.028 :
+                (layerClass == 1 ? 0.024 : 0.020)
+            let socketSetback: Float = layerClass == 0 ? 0.003 :
+                (layerClass == 1 ? 0.010 : 0.016)
+            appendBodyAttachment(for: tailRoot + lateralAxis *
+                (lateral * socketSpan) + tailAxis * socketSetback)
+        }
+        guard attachmentIndexRecords.count == 99,
+              attachmentWeightRecords.count == 99,
+              maximumAttachmentGap <= 0.04 else {
+            throw RobotError.invalid(
+                "unified surface attachment map is incomplete or discontinuous")
+        }
+        let adjacencyCapacity = 16
+        var incident = [[UInt16]](
+            repeating: [], count: dataset.manifest.topology.vertexCount)
+        for triangle in 0..<dataset.manifest.topology.triangleCount {
+            for corner in 0..<3 {
+                incident[Int(meshIndices[triangle * 3 + corner])].append(
+                    UInt16(triangle))
+            }
+        }
+        guard incident.allSatisfy({ !$0.isEmpty && $0.count <= adjacencyCapacity }) else {
+            throw RobotError.invalid(
+                "surface adjacency exceeds the bounded smooth-normal contract")
+        }
+        var flattenedAdjacency = [UInt16](
+            repeating: 0,
+            count: dataset.manifest.topology.vertexCount * adjacencyCapacity)
+        var incidentCounts = [UInt8](repeating: 0, count: incident.count)
+        for vertex in incident.indices {
+            incidentCounts[vertex] = UInt8(incident[vertex].count)
+            flattenedAdjacency.replaceSubrange(
+                vertex * adjacencyCapacity..<(vertex * adjacencyCapacity + incident[vertex].count),
+                with: incident[vertex])
+        }
         guard let vp = device.makeBuffer(bytes: dataset.vertexParts, length: dataset.vertexParts.count, options: .storageModeShared),
               let tp = device.makeBuffer(bytes: dataset.triangleParts, length: dataset.triangleParts.count, options: .storageModeShared),
+              let adjacency = device.makeBuffer(bytes: flattenedAdjacency, length: flattenedAdjacency.count * MemoryLayout<UInt16>.stride, options: .storageModeShared),
+              let counts = device.makeBuffer(bytes: incidentCounts, length: incidentCounts.count, options: .storageModeShared),
+              let normals = device.makeBuffer(length: dataset.manifest.topology.vertexCount * MemoryLayout<SIMD4<Float>>.stride, options: .storageModePrivate),
+              let attachments = device.makeBuffer(bytes: attachmentIndexRecords, length: attachmentIndexRecords.count * MemoryLayout<SIMD4<UInt32>>.stride, options: .storageModeShared),
+              let weights = device.makeBuffer(bytes: attachmentWeightRecords, length: attachmentWeightRecords.count * MemoryLayout<SIMD4<Float>>.stride, options: .storageModeShared),
               let targets = device.makeBuffer(length: 24 * MemoryLayout<Float>.stride, options: .storageModeShared),
               let state = device.makeBuffer(length: 24 * MemoryLayout<SIMD2<Float>>.stride, options: .storageModeShared),
               let local = device.makeBuffer(length: dataset.manifest.topology.vertexCount * MemoryLayout<SIMD4<Float>>.stride, options: .storageModeShared),
               let previous = device.makeBuffer(length: dataset.manifest.topology.vertexCount * MemoryLayout<SIMD4<Float>>.stride, options: .storageModeShared),
+              let visualA = device.makeBuffer(length: dataset.manifest.topology.vertexCount * MemoryLayout<SIMD4<Float>>.stride, options: .storageModePrivate),
+              let visualB = device.makeBuffer(length: dataset.manifest.topology.vertexCount * MemoryLayout<SIMD4<Float>>.stride, options: .storageModePrivate),
               let root = device.makeBuffer(length: 8 * MemoryLayout<SIMD4<Float>>.stride, options: .storageModeShared),
               let metricBuffer = device.makeBuffer(length: 2 * MemoryLayout<SIMD4<Float>>.stride, options: .storageModeShared) else {
             throw RobotError.invalid("could not allocate robot state")
         }
-        vertexParts = vp; triangleParts = tp; actuatorTargets = targets; actuatorState = state
-        localSurface = local; previousSurface = previous; rootState = root; metrics = metricBuffer
+        vertexParts = vp; triangleParts = tp
+        triangleAdjacency = adjacency; adjacencyCounts = counts; surfaceNormals = normals
+        attachmentIndices = attachments; attachmentWeights = weights
+        actuatorTargets = targets; actuatorState = state
+        localSurface = local; previousSurface = previous
+        visualSurfaceA = visualA; visualSurfaceB = visualB
+        rootState = root; metrics = metricBuffer
         try reset()
     }
 
@@ -519,26 +694,84 @@ private final class RobotEngine {
         var uniforms = baseUniforms(time: sourceTime, dt: Self.physicsTimestep)
         uniforms.eye = SIMD4<Float>(eye, 1)
         uniforms.viewProjection = perspective(0.72, Float(max(1, size.width) / max(1, size.height)), dataset.radius * 0.01, dataset.radius * 20) * lookAt(eye, target, SIMD3<Float>(0, 0, 1))
-        guard let command = queue.makeCommandBuffer(), let encoder = command.makeRenderCommandEncoder(descriptor: pass) else {
+        guard let command = queue.makeCommandBuffer() else {
+            throw RobotError.invalid("render command allocation failed")
+        }
+        func dispatchPresentation(
+            _ pipeline: MTLComputePipelineState,
+            buffers: [(MTLBuffer, Int)],
+            strength: Float? = nil
+        ) throws {
+            guard let computeEncoder = command.makeComputeCommandEncoder() else {
+                throw RobotError.invalid("presentation compute encoder failed")
+            }
+            computeEncoder.setComputePipelineState(pipeline)
+            for (buffer, index) in buffers {
+                computeEncoder.setBuffer(buffer, offset: 0, index: index)
+            }
+            if var strength {
+                computeEncoder.setBytes(
+                    &strength, length: MemoryLayout<Float>.stride, index: 7)
+            }
+            computeEncoder.setBytes(
+                &uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
+            let width = min(
+                pipeline.maxTotalThreadsPerThreadgroup,
+                max(1, pipeline.threadExecutionWidth * 2))
+            computeEncoder.dispatchThreads(
+                MTLSize(width: dataset.manifest.topology.vertexCount,
+                        height: 1, depth: 1),
+                threadsPerThreadgroup: MTLSize(
+                    width: width, height: 1, depth: 1))
+            computeEncoder.endEncoding()
+        }
+        try dispatchPresentation(copyPipeline, buffers: [
+            (localSurface, 0), (visualSurfaceA, 1)
+        ])
+        for _ in 0..<4 {
+            try dispatchPresentation(smoothPipeline, buffers: [
+                (visualSurfaceA, 0), (visualSurfaceB, 1),
+                (triangles, 2), (triangleAdjacency, 3),
+                (adjacencyCounts, 4), (vertexParts, 5)
+            ], strength: 0.45)
+            try dispatchPresentation(smoothPipeline, buffers: [
+                (visualSurfaceB, 0), (visualSurfaceA, 1),
+                (triangles, 2), (triangleAdjacency, 3),
+                (adjacencyCounts, 4), (vertexParts, 5)
+            ], strength: -0.47)
+        }
+        try dispatchPresentation(normalPipeline, buffers: [
+            (visualSurfaceA, 0), (triangles, 1),
+            (triangleAdjacency, 2), (adjacencyCounts, 3),
+            (surfaceNormals, 4)
+        ])
+        guard let encoder = command.makeRenderCommandEncoder(descriptor: pass) else {
             throw RobotError.invalid("render encoder failed")
         }
+        encoder.setDepthStencilState(depthStencilState)
         encoder.setRenderPipelineState(renderPipeline); encoder.setCullMode(.none)
-        encoder.setVertexBuffer(localSurface, offset: 0, index: 0)
+        encoder.setVertexBuffer(visualSurfaceA, offset: 0, index: 0)
         encoder.setVertexBuffer(triangles, offset: 0, index: 1)
         encoder.setVertexBuffer(triangleParts, offset: 0, index: 2)
         encoder.setVertexBuffer(rootState, offset: 0, index: 3)
+        encoder.setVertexBuffer(surfaceNormals, offset: 0, index: 4)
+        encoder.setVertexBuffer(attachmentIndices, offset: 0, index: 5)
+        encoder.setVertexBuffer(attachmentWeights, offset: 0, index: 6)
         encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
         encoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: dataset.manifest.topology.triangleCount * 3)
         encoder.setRenderPipelineState(tailRenderPipeline)
-        encoder.setVertexBuffer(localSurface, offset: 0, index: 0)
+        encoder.setVertexBuffer(visualSurfaceA, offset: 0, index: 0)
         encoder.setVertexBuffer(rootState, offset: 0, index: 3)
+        encoder.setVertexBuffer(surfaceNormals, offset: 0, index: 4)
+        encoder.setVertexBuffer(attachmentIndices, offset: 0, index: 5)
+        encoder.setVertexBuffer(attachmentWeights, offset: 0, index: 6)
         encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
         encoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
         encoder.drawPrimitives(
             type: .triangle,
             vertexStart: 0,
-            vertexCount: (12 + 10) * 7 * 4 * 6
+            vertexCount: (12 + 11 + 10) * 14 * 8 * 6
         )
         encoder.setRenderPipelineState(groundRenderPipeline)
         encoder.setVertexBuffer(rootState, offset: 0, index: 3)
@@ -638,10 +871,25 @@ private final class RobotEngine {
         bool ok=all(isfinite(position))&&all(isfinite(velocity))&&all(isfinite(q))&&all(isfinite(omega)); if(ok){root[0]=float4(position,mass);root[1]=float4(velocity,0);root[2]=q;root[3]=float4(omega,0);metrics[0]=float4(length(force),length(torque),areaSum,1);} else {metrics[1].x+=1;}
     }
     kernel void copySurface(device const float4* source [[buffer(0)]], device float4* target [[buffer(1)]], uint id [[thread_position_in_grid]]) { target[id]=source[id]; }
+    kernel void smoothVisualSurface(device const float4* source [[buffer(0)]],device float4* target [[buffer(1)]],device const ushort* indices [[buffer(2)]],device const ushort* adjacency [[buffer(3)]],device const uchar* counts [[buffer(4)]],device const uchar* parts [[buffer(5)]],constant float& strength [[buffer(7)]],constant Uniforms& u [[buffer(8)]],uint id [[thread_position_in_grid]]) {
+        if(id>=u.frame.z)return;if(parts[id]!=1u){target[id]=source[id];return;}float3 point=source[id].xyz,weighted=float3(0);float weightSum=0;uint incidentCount=uint(counts[id]);
+        for(uint lane=0;lane<incidentCount;lane++){uint triangle=uint(adjacency[id*16u+lane]);for(uint corner=0;corner<3u;corner++){uint neighbor=uint(indices[triangle*3u+corner]);if(neighbor==id)continue;float3 sample=source[neighbor].xyz;float distanceSquared=dot(sample-point,sample-point);float weight=1.0f/(1.0f+distanceSquared/1.2e-4f);weighted+=weight*sample;weightSum+=weight;}}
+        if(incidentCount<5u){target[id]=source[id];return;}float3 candidate=weightSum>1.0e-8f?point+strength*(weighted/weightSum-point):point;target[id]=float4(all(isfinite(candidate))?candidate:point,source[id].w);
+    }
+    kernel void computeSurfaceNormals(device const float4* surface [[buffer(0)]], device const ushort* indices [[buffer(1)]], device const ushort* adjacency [[buffer(2)]], device const uchar* counts [[buffer(3)]], device float4* normals [[buffer(4)]], constant Uniforms& u [[buffer(8)]], uint id [[thread_position_in_grid]]) {
+        if(id>=u.frame.z) return; float3 accumulated=float3(0); uint count=uint(counts[id]);
+        for(uint lane=0;lane<count;lane++){uint triangle=uint(adjacency[id*16u+lane]);ushort3 ix=ushort3(indices[triangle*3u],indices[triangle*3u+1u],indices[triangle*3u+2u]);float3 a=surface[ix.x].xyz,b=surface[ix.y].xyz,c=surface[ix.z].xyz;accumulated+=cross(b-a,c-a);}
+        float magnitude=length(accumulated); normals[id]=float4(magnitude>1.0e-10f?accumulated/magnitude:float3(0,0,1),0);
+    }
     struct Raster { float4 position [[position]]; float3 world; float3 normal; float4 color; float4 detail; };
     float3 quatRotate(float4 q,float3 p){return p+2*cross(q.xyz,cross(q.xyz,p)+q.w*p);}
-    vertex Raster robotVertex(device const float4* surface [[buffer(0)]], device const ushort* indices [[buffer(1)]], device const uchar* parts [[buffer(2)]], device const float4* root [[buffer(3)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
-        uint tri=vid/3,corner=vid%3; ushort3 ix=ushort3(indices[tri*3],indices[tri*3+1],indices[tri*3+2]); float3 a=surface[ix.x].xyz,b=surface[ix.y].xyz,c=surface[ix.z].xyz; float3 local=corner==0?a:(corner==1?b:c); float3 world=quatRotate(root[2],local-u.centerRadius.xyz)+u.centerRadius.xyz+root[0].xyz; float3 n=normalize(quatRotate(root[2],cross(b-a,c-a))); uint part=parts[tri]; float3 base=part==1?float3(.50f,.58f,.68f):(part==2?float3(.03f,.58f,1.0f):float3(1.0f,.25f,.06f)); float act=surface[corner==0?ix.x:(corner==1?ix.y:ix.z)].w; Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=n;o.color=float4(mix(base,float3(.2f,1.0f,.65f),clamp(act/.012f,0.0f,1.0f)*.7f),part==4?0.0f:1.0f);o.detail=float4(0);return o;
+    float3 attachedValue(device const float4* values,device const uint4* attachmentIndices,device const float4* attachmentWeights,uint attachment){uint4 ix=attachmentIndices[attachment];float4 w=attachmentWeights[attachment];return w.x*values[ix.x].xyz+w.y*values[ix.y].xyz+w.z*values[ix.z].xyz;}
+    vertex Raster robotVertex(device const float4* surface [[buffer(0)]], device const ushort* indices [[buffer(1)]], device const uchar* parts [[buffer(2)]], device const float4* root [[buffer(3)]], device const float4* normals [[buffer(4)]],device const uint4* attachmentIndices [[buffer(5)]],device const float4* attachmentWeights [[buffer(6)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
+        uint tri=vid/3,corner=vid%3; ushort3 ix=ushort3(indices[tri*3],indices[tri*3+1],indices[tri*3+2]); ushort vertexIndex=corner==0?ix.x:(corner==1?ix.y:ix.z);uint part=parts[tri];float3 local=surface[vertexIndex].xyz,localNormal=normals[vertexIndex].xyz;float rootBlend=1.0f,colorBlend=1.0f;
+        if(part==2u||part==3u){uint wingOffset=part==2u?u.tail.x-594u:u.tail.x-297u,wingLocal=uint(vertexIndex)-wingOffset,row=wingLocal/33u,column=wingLocal%33u,attachment=(part==2u?0u:33u)+column;rootBlend=smoothstep(0.0f,3.25f,float(row));colorBlend=smoothstep(2.0f,5.25f,float(row));float3 bodyPoint=attachedValue(surface,attachmentIndices,attachmentWeights,attachment),bodyNormal=normalize(attachedValue(normals,attachmentIndices,attachmentWeights,attachment));local=mix(bodyPoint,local,rootBlend);localNormal=normalize(mix(bodyNormal,localNormal,rootBlend));}
+        float3 world=quatRotate(root[2],local-u.centerRadius.xyz)+u.centerRadius.xyz+root[0].xyz; float3 n=normalize(quatRotate(root[2],localNormal));
+        float bodyBack=smoothstep(-.045f,.012f,local.z),bodyLength=clamp((local.x-u.bmin.x)/max(1.0e-6f,u.bmax.x-u.bmin.x),0.0f,1.0f);float3 bodyBase=mix(float3(.48f,.46f,.43f),float3(.30f,.32f,.35f),bodyBack);bodyBase=mix(bodyBase,float3(.27f,.29f,.32f),smoothstep(.64f,.90f,bodyLength)*bodyBack*.40f);
+        float3 base=bodyBase;if(part==2u||part==3u){float3 wingColor=part==2u?float3(.03f,.58f,1.0f):float3(1.0f,.25f,.06f);base=mix(bodyBase,wingColor,colorBlend);} float act=surface[vertexIndex].w; Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=n;o.color=float4(mix(base,float3(.2f,1.0f,.65f),clamp(act/.012f,0.0f,1.0f)*.7f),part==4?0.0f:1.0f);o.detail=float4(local,float(part));return o;
     }
     float3 tailPolarPoint(device const float4* surface, constant Uniforms& u, float angular, uint radial) {
         if(radial==0u) return surface[u.tail.x].xyz;
@@ -652,32 +900,33 @@ private final class RobotEngine {
     float3 tailSurfacePoint(device const float4* surface, constant Uniforms& u, float angular, float radialUnit) {
         float r=clamp(radialUnit,0.0f,1.0f)*float(u.tail.y); uint r0=uint(floor(r)),r1=min(r0+1u,u.tail.y); return mix(tailPolarPoint(surface,u,angular,r0),tailPolarPoint(surface,u,angular,r1),r-float(r0));
     }
-    vertex Raster tailFeatherVertex(device const float4* surface [[buffer(0)]], device const float4* root [[buffer(3)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
-        constexpr uint longitudinalSegments=7u,widthSegments=4u,verticesPerQuad=6u;
+    float3 tailFeatherCurve(float3 socket,float3 endpoint,float3 normal,float arch,float t) {
+        float3 control=mix(socket,endpoint,.46f)+normal*arch;float s=1.0f-t;return s*s*socket+2.0f*s*t*control+t*t*endpoint;
+    }
+    vertex Raster tailFeatherVertex(device const float4* surface [[buffer(0)]], device const float4* root [[buffer(3)]],device const float4* normals [[buffer(4)]],device const uint4* attachmentIndices [[buffer(5)]],device const float4* attachmentWeights [[buffer(6)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
+        constexpr uint longitudinalSegments=14u,widthSegments=8u,verticesPerQuad=6u;
         const uint verticesPerFeather=longitudinalSegments*widthSegments*verticesPerQuad;
         uint feather=vid/verticesPerFeather,localVertex=vid%verticesPerFeather,quad=localVertex/verticesPerQuad,corner=localVertex%verticesPerQuad;
         uint longitudinal=quad/widthSegments,widthCell=quad%widthSegments;
         const float2 corners[6]={float2(0,0),float2(1,0),float2(0,1),float2(0,1),float2(1,0),float2(1,1)};
         float2 q=corners[corner]; float t=(float(longitudinal)+q.y)/float(longitudinalSegments); float across=-1.0f+2.0f*(float(widthCell)+q.x)/float(widthSegments);
-        bool covert=feather>=u.tail.w; uint localFeather=covert?feather-u.tail.w:feather; uint count=covert?10u:u.tail.w;
+        uint layerClass=feather<u.tail.w?0u:(feather<u.tail.w+11u?1u:2u);uint localFeather=layerClass==0u?feather:(layerClass==1u?feather-u.tail.w:feather-u.tail.w-11u);uint count=layerClass==0u?u.tail.w:(layerClass==1u?11u:10u);
         float lateral=-1.0f+2.0f*float(localFeather)/float(max(1u,count-1u));
-        float angular=covert?(float(localFeather)+0.5f)*float(u.tail.z-1u)/float(count):float(localFeather)*float(u.tail.z-1u)/float(max(1u,count-1u));
-        float angularHalfStep=(covert?0.92f:0.72f)*float(u.tail.z-1u)/float(max(1u,count-1u));
-        float baseT=covert?(0.025f+0.018f*(1.0f-abs(lateral))):(0.065f+0.025f*(1.0f-abs(lateral)));
-        float endT=covert?(0.50f-0.09f*pow(abs(lateral),1.25f)):(1.0f-0.13f*pow(abs(lateral),1.35f));
-        float roundedRetreat=(covert?0.022f:0.040f)*across*across*smoothstep(0.76f,1.0f,t);
-        float pathT=clamp(mix(baseT,endT,t)-roundedRetreat,baseT,endT);
-        float pathStep=0.018f; float3 center=tailSurfacePoint(surface,u,angular,pathT),previous=tailSurfacePoint(surface,u,angular,max(baseT,pathT-pathStep)),next=tailSurfacePoint(surface,u,angular,min(endT,pathT+pathStep));
-        float3 left=tailSurfacePoint(surface,u,angular-angularHalfStep,pathT),right=tailSurfacePoint(surface,u,angular+angularHalfStep,pathT);
-        float3 radialDirection=normalize(next-previous+float3(1.0e-8f,0,0)),spanDirection=normalize(right-left+float3(0,1.0e-8f,0));
-        float3 localNormal=normalize(cross(radialDirection,spanDirection));
-        float rootShape=mix(0.42f,1.0f,smoothstep(0.0f,0.16f,t)),tipShape=mix(1.0f,0.24f,smoothstep(0.78f,1.0f,t)); float halfWidth=(covert?0.68f:0.58f)*length(right-left)*rootShape*tipShape;
-        float camber=(covert?0.00125f:0.0018f)*(1.0f-across*across)*sin(3.14159265f*t); float layer=(covert?0.00105f:0.00030f)+0.00018f*float(localFeather&1u);
+        float angular=.40f+(float(u.tail.z-1u)-.80f)*(float(localFeather)+(layerClass==1u?.5f:0.0f))/float(max(1u,count-(layerClass==1u?0u:1u)));float angularHalfStep=.62f*float(u.tail.z-1u)/float(max(1u,count-1u));
+        float3 tailRoot=surface[u.tail.x].xyz,distalCenter=tailPolarPoint(surface,u,.5f*float(u.tail.z-1u),u.tail.y),edgeA=tailPolarPoint(surface,u,0.0f,u.tail.y),edgeB=tailPolarPoint(surface,u,float(u.tail.z-1u),u.tail.y);
+        float3 tailAxis=normalize(distalCenter-tailRoot+float3(-1.0e-8f,0,0)),lateralAxis=normalize(edgeB-edgeA+float3(0,1.0e-8f,0)),localNormal=normalize(cross(tailAxis,lateralAxis));
+        float3 socket=attachedValue(surface,attachmentIndices,attachmentWeights,66u+feather);float3 socketNormal=normalize(attachedValue(normals,attachmentIndices,attachmentWeights,66u+feather));socket+=socketNormal*.00035f;
+        float endT=layerClass==0u?(1.0f-.10f*pow(abs(lateral),1.35f)):(layerClass==1u?(.60f-.07f*abs(lateral)):(.39f-.045f*abs(lateral)));float3 endpoint=tailSurfacePoint(surface,u,angular,endT);
+        float roundedT=clamp(t-(layerClass==0u?.070f:.050f)*across*across*smoothstep(.74f,1.0f,t),0.0f,1.0f),curveStep=.012f;float arch=layerClass==0u?.0015f:(layerClass==1u?.0024f:.0032f);
+        float3 center=tailFeatherCurve(socket,endpoint,localNormal,arch,roundedT),previous=tailFeatherCurve(socket,endpoint,localNormal,arch,max(0.0f,roundedT-curveStep)),next=tailFeatherCurve(socket,endpoint,localNormal,arch,min(1.0f,roundedT+curveStep));
+        float widthRadial=mix(.18f,endT,roundedT);float3 left=tailSurfacePoint(surface,u,angular-angularHalfStep,widthRadial),right=tailSurfacePoint(surface,u,angular+angularHalfStep,widthRadial);float3 surfaceSpan=normalize(right-left+float3(0,1.0e-8f,0)),spanDirection=normalize(mix(lateralAxis,surfaceSpan,smoothstep(.06f,.42f,t)));float3 radialDirection=normalize(next-previous+float3(1.0e-8f,0,0));localNormal=normalize(cross(radialDirection,spanDirection));
+        float rootWidth=layerClass==0u?.0055f:(layerClass==1u?.0062f:.0056f),surfaceWidth=(layerClass==0u?.54f:(layerClass==1u?.66f:.72f))*.5f*length(right-left);float halfWidth=mix(rootWidth,surfaceWidth,smoothstep(0.0f,.28f,t))*mix(1.0f,.10f,smoothstep(.80f,1.0f,t));
+        float camber=(layerClass==0u?.0017f:.0012f)*(1.0f-across*across)*sin(3.14159265f*t);float layer=.00035f+.00085f*float(layerClass)+.00012f*float(localFeather&1u);
         float3 local=center+spanDirection*(across*halfWidth)+localNormal*(camber+layer);
         float3 world=quatRotate(root[2],local-u.centerRadius.xyz)+u.centerRadius.xyz+root[0].xyz;
         float3 normal=normalize(quatRotate(root[2],localNormal)); float alternating=(localFeather&1u)?0.028f:-0.014f;
-        float3 base=(covert?float3(.45f,.49f,.57f):float3(.38f,.43f,.52f))+alternating; base=mix(base,float3(.25f,.29f,.37f),smoothstep(.68f,1.0f,t)*(covert ? .25f : .42f));
-        Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=normal;o.color=float4(base,1);o.detail=float4(across,t,float(feather),covert?0.0f:1.0f);return o;
+        float3 base=(layerClass==0u?float3(.38f,.43f,.52f):(layerClass==1u?float3(.46f,.50f,.58f):float3(.52f,.56f,.63f)))+alternating;base=mix(base,float3(.25f,.29f,.37f),smoothstep(.68f,1.0f,t)*(layerClass==0u?.42f:.22f));
+        Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=normal;o.color=float4(base,1);o.detail=float4(across,t,float(feather),float(layerClass));return o;
     }
     vertex Raster groundVertex(device const float4* root [[buffer(3)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
         const float2 corners[6] = {float2(-2,-2),float2(2,-2),float2(-2,2),float2(-2,2),float2(2,-2),float2(2,2)};
@@ -685,7 +934,13 @@ private final class RobotEngine {
         float grid=max(step(.94f,fract(abs(world.x)*5)),step(.94f,fract(abs(world.y)*5)));
         o.color=float4(mix(float3(.035f,.055f,.075f),float3(.12f,.22f,.25f),grid),1);o.detail=float4(0);return o;
     }
-    fragment float4 robotFragment(Raster in [[stage_in]], constant Uniforms& u [[buffer(8)]]) { if(in.color.a<.5f) discard_fragment();float3 n=normalize(in.normal),v=normalize(u.eye.xyz-in.world),l=normalize(float3(.4,-.5,.8));float d=.2+.75*abs(dot(n,l)),rim=pow(1-abs(dot(n,v)),2.2);return float4(1-exp(-1.15*(in.color.rgb*d+rim*.18*in.color.rgb)),1); }
+    fragment float4 robotFragment(Raster in [[stage_in]],bool frontFacing [[front_facing]],constant Uniforms& u [[buffer(8)]]) {
+        if(in.color.a<.5f) discard_fragment();float3 n=normalize(frontFacing?in.normal:-in.normal),v=normalize(u.eye.xyz-in.world),l=normalize(float3(.4,-.5,.8)),albedo=in.color.rgb;bool body=abs(in.detail.w-1.0f)<.25f;
+        if(body){float dorsal=smoothstep(-.038f,.010f,in.detail.z),belly=smoothstep(-.018f,.070f,-in.detail.z),forward=smoothstep(-.105f,-.028f,in.detail.x);float3 slate=float3(.34f,.35f,.36f),back=float3(.235f,.255f,.285f),breast=float3(.57f,.535f,.485f);albedo=mix(slate,back,.72f*dorsal);albedo=mix(albedo,breast,.58f*belly);albedo=mix(albedo,float3(.285f,.30f,.325f),.26f*forward);
+            float row=.5f+.5f*sin(285.0f*in.detail.x+132.0f*in.detail.z+24.0f*abs(in.detail.y));float barb=.5f+.5f*sin(690.0f*in.detail.x-94.0f*in.detail.z);albedo*=.925f+.055f*row+.020f*barb;
+            float neck=forward*smoothstep(.004f,.032f,abs(in.detail.y))*(1.0f-smoothstep(.034f,.050f,abs(in.detail.y)));float grazing=pow(1.0f-clamp(abs(dot(n,v)),0.0f,1.0f),1.35f);float iridescentPhase=.5f+.5f*sin(19.0f*dot(n,float3(.3f,.7f,.2f))+7.0f*dot(v,float3(.6f,-.2f,.7f)));float3 iridescence=mix(float3(.10f,.31f,.235f),float3(.285f,.12f,.31f),iridescentPhase);albedo=mix(albedo,iridescence,.24f*neck*(.35f+.65f*grazing));}
+        float ndotl=max(0.0f,dot(n,l)),wrap=.28f+.72f*ndotl,rim=pow(1.0f-max(0.0f,dot(n,v)),2.4f);float3 halfVector=normalize(l+v);float specular=pow(max(0.0f,dot(n,halfVector)),body?18.0f:30.0f)*(body?.055f:.10f);float3 lit=albedo*wrap+rim*(body?.10f:.16f)*albedo+specular*float3(.82f,.86f,.90f);return float4(1.0f-exp(-1.18f*lit),1.0f);
+    }
     fragment float4 tailFeatherFragment(Raster in [[stage_in]], constant Uniforms& u [[buffer(8)]]) {
         float edge=smoothstep(.72f,1.0f,abs(in.detail.x)),shaft=1.0f-smoothstep(.025f,.095f,abs(in.detail.x));
         float barb=.5f+.5f*sin(115.0f*in.detail.y+18.0f*abs(in.detail.x)); float3 albedo=mix(in.color.rgb,float3(.17f,.20f,.27f),.42f*edge); albedo+=float3(.13f,.12f,.10f)*shaft*(.35f+.65f*in.detail.y); albedo*=.94f+.06f*barb*(1.0f-edge);
@@ -708,7 +963,8 @@ private final class RobotView: MTKView, MTKViewDelegate {
         self.engine = engine
         super.init(frame: frame, device: engine.device)
         colorPixelFormat = .bgra8Unorm_srgb; depthStencilPixelFormat = .depth32Float
-        clearColor = MTLClearColorMake(0.006, 0.012, 0.025, 1); preferredFramesPerSecond = 60
+        clearColor = MTLClearColorMake(0.006, 0.012, 0.025, 1); clearDepth = 1
+        preferredFramesPerSecond = 60
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         statusLabel.textColor = .white
         statusLabel.font = .monospacedSystemFont(ofSize: 11, weight: .medium)
