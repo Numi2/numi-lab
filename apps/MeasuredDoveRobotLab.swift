@@ -50,6 +50,7 @@ private struct Manifest: Decodable {
 }
 
 private struct Dataset {
+    let manifestURL: URL
     let manifest: Manifest
     let manifestHash: String
     let positions: Data
@@ -141,7 +142,7 @@ private struct Dataset {
                 minimum = simd_min(minimum, point); maximum = simd_max(maximum, point)
             }
         }
-        return Dataset(manifest: value, manifestHash: hash(manifestData), positions: positions,
+        return Dataset(manifestURL: url, manifest: value, manifestHash: hash(manifestData), positions: positions,
                        triangles: triangles, vertexParts: vertexParts, triangleParts: triangleParts,
                        minimum: minimum, maximum: maximum)
     }
@@ -209,14 +210,56 @@ private final class RobotEngine {
     private(set) var terminated = false
     private var terminationHold: Float = 0
     private var groundTerminationEnabled = true
+    private let policyContext: MetalRoboTaskRolloutContext?
+    private let policyName: String?
+    private var policyRevision: UInt64 = 0
+    private var policyAccumulator: Float = 0
+    private var policySeed: UInt64
+    private var latestTransition: MetalRoboTaskTransition?
     var controllerEnabled = true
+    var policyDriven: Bool { policyContext != nil }
 
     static let physicsTimestep: Float = 0.005
     private static let episodeDuration: Float = 4.8
 
-    init(dataset: Dataset, environmentIndex: Int = 0) throws {
+    init(
+        dataset: Dataset,
+        environmentIndex: Int = 0,
+        policyURL: URL? = nil,
+        metallibPath: String? = nil
+    ) throws {
         self.dataset = dataset
         self.environmentIndex = environmentIndex
+        policySeed = UInt64(0xD0_0E_0000 + environmentIndex)
+        if let policyURL {
+            let configuration = MetalRoboTaskRolloutConfiguration(
+                environmentCount: 1,
+                controlTimestepSeconds: 0.02,
+                seed: policySeed,
+                difficultyBandRange: 4...4
+            )
+            let context = try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .measuredDove(
+                        manifest: dataset.manifestURL,
+                        task: .fatalDropRecovery
+                    ),
+                    sensorsAndPhysics: configuration
+                ),
+                metallibPath: metallibPath
+            )
+            try context.setStateReadback(true)
+            try context.loadPolicy(at: policyURL)
+            guard context.installedPolicyRevision != 0 else {
+                throw RobotError.invalid("PolicyPack installed without a revision")
+            }
+            policyContext = context
+            policyName = policyURL.deletingLastPathComponent().lastPathComponent
+            policyRevision = context.installedPolicyRevision
+        } else {
+            policyContext = nil
+            policyName = nil
+        }
         guard let device = MTLCreateSystemDefaultDevice(), let queue = device.makeCommandQueue() else {
             throw RobotError.invalid("Metal device unavailable")
         }
@@ -263,10 +306,10 @@ private final class RobotEngine {
         }
         vertexParts = vp; triangleParts = tp; actuatorTargets = targets; actuatorState = state
         localSurface = local; previousSurface = previous; rootState = root; metrics = metricBuffer
-        reset()
+        try reset()
     }
 
-    func reset(dropEpisode: Bool = true) {
+    func reset(dropEpisode: Bool = true) throws {
         actuatorTargets.contents().initializeMemory(as: UInt8.self, repeating: 0, count: actuatorTargets.length)
         actuatorState.contents().initializeMemory(as: UInt8.self, repeating: 0, count: actuatorState.length)
         rootState.contents().initializeMemory(as: UInt8.self, repeating: 0, count: rootState.length)
@@ -292,11 +335,53 @@ private final class RobotEngine {
         terminated = false; terminationHold = 0
         groundTerminationEnabled = dropEpisode
         initialized = false
+        policyAccumulator = 0
+        latestTransition = nil
+        if let policyContext {
+            try policyContext.reset(seed: policySeed)
+            policySeed &+= 1
+        }
     }
 
-    func selectEnvironment(_ index: Int) {
+    func selectEnvironment(_ index: Int) throws {
         environmentIndex = max(0, index)
-        reset()
+        try reset()
+    }
+
+    private func synchronizePolicyRoot() throws {
+        guard let policyContext else { return }
+        let q = try policyContext.finalConfiguration()
+        guard q.count >= 7 else {
+            throw RobotError.invalid("native policy configuration has \(q.count) values, expected at least 7")
+        }
+        let root = rootState.contents().bindMemory(to: SIMD4<Float>.self, capacity: 8)
+        root[0] = SIMD4<Float>(q[0], q[1], q[2], 0.35)
+        root[2] = SIMD4<Float>(q[3], q[4], q[5], q[6])
+    }
+
+    private func advancePolicy() throws {
+        guard let policyContext else { return }
+        let result = try policyContext.advanceWithPolicy(
+            controlStepCount: 1,
+            policyRevision: policyRevision
+        )
+        guard result.failedEnvironmentSteps == 0 else {
+            throw RobotError.invalid(
+                "native policy rollout failed with GPU status \(result.firstGPUStatusCode)"
+            )
+        }
+        let latents = try policyContext.policyLatents(controlStepCount: 1)
+        guard latents.count >= 24 else {
+            throw RobotError.invalid("PolicyPack emitted \(latents.count) actions, expected 24")
+        }
+        let target = actuatorTargets.contents().bindMemory(to: Float.self, capacity: 24)
+        for index in 0..<24 { target[index] = tanh(latents[index]) }
+        latestTransition = try policyContext.transitions(controlStepCount: 1).last
+        try synchronizePolicyRoot()
+        if latestTransition?.done == true {
+            terminated = true
+            terminationHold = 0.35
+        }
     }
 
     private func frame(at time: Float) -> (Int, Int, Float, Float) {
@@ -319,6 +404,7 @@ private final class RobotEngine {
     }
 
     private func setControllerTargets(time: Float) {
+        guard policyContext == nil else { return }
         let target = actuatorTargets.contents().bindMemory(to: Float.self, capacity: 24)
         for i in 0..<24 { target[i] = 0 }
         guard controllerEnabled else { return }
@@ -336,10 +422,19 @@ private final class RobotEngine {
         for _ in 0..<count {
             if terminated {
                 terminationHold -= dt
-                if terminationHold <= 0 { reset() }
+                if terminationHold <= 0 { try reset() }
                 continue
             }
-            if simulationTime + dt > Self.episodeDuration { reset() }
+            if policyContext == nil && simulationTime + dt > Self.episodeDuration {
+                try reset()
+            }
+            if policyContext != nil {
+                policyAccumulator += dt
+                if policyAccumulator + 1e-6 >= 0.02 {
+                    policyAccumulator -= 0.02
+                    try advancePolicy()
+                }
+            }
             setControllerTargets(time: simulationTime)
             var uniforms = baseUniforms(time: sourceTime, dt: dt)
             guard let command = queue.makeCommandBuffer() else { throw RobotError.invalid("command allocation failed") }
@@ -355,7 +450,7 @@ private final class RobotEngine {
             try dispatch(integratePipeline, count: 24, buffers: [(actuatorTargets, 0), (actuatorState, 1)])
             try dispatch(deformPipeline, count: dataset.manifest.topology.vertexCount,
                          buffers: [(positions, 0), (vertexParts, 1), (actuatorState, 2), (localSurface, 3)])
-            if initialized {
+            if initialized && policyContext == nil {
                 try dispatch(rootPipeline, count: 1,
                              buffers: [(localSurface, 0), (previousSurface, 1), (triangles, 2), (rootState, 3), (metrics, 4)])
             }
@@ -381,7 +476,7 @@ private final class RobotEngine {
             initialized = true; simulationTime += dt
             let root = rootState.contents().bindMemory(
                 to: SIMD4<Float>.self, capacity: 8)
-            if groundTerminationEnabled && root[0].z <= 0.04 {
+            if policyContext == nil && groundTerminationEnabled && root[0].z <= 0.04 {
                 terminated = true
                 terminationHold = 0.35
             }
@@ -416,7 +511,7 @@ private final class RobotEngine {
     }
 
     func probe() throws -> (Float, Float, Float, SIMD4<Float>) {
-        controllerEnabled = false; reset(dropEpisode: false); try step()
+        controllerEnabled = false; try reset(dropEpisode: false); try step()
         let gpu = localSurface.contents().bindMemory(to: SIMD4<Float>.self, capacity: dataset.manifest.topology.vertexCount)
         var exactError: Float = 0
         let f = frame(at: 0)
@@ -446,6 +541,21 @@ private final class RobotEngine {
     var status: String {
         let root = rootState.contents().bindMemory(to: SIMD4<Float>.self, capacity: 8)[0]
         let metric = metrics.contents().bindMemory(to: SIMD4<Float>.self, capacity: 2)[0]
+        if let transition = latestTransition {
+            return String(
+                format: "BEST POLICY  %@  native Metal r%llu  %.2f s  altitude %.2f m  tracking %.3f  tilt %.2f°%@",
+                policyName ?? "PolicyPack", policyRevision, simulationTime,
+                root.z, transition.trackingScore,
+                transition.tilt * 180 / .pi,
+                terminated ? "  EPISODE END" : ""
+            )
+        }
+        if policyContext != nil {
+            return String(
+                format: "BEST POLICY  %@  native Metal r%llu  initializing  altitude %.2f m",
+                policyName ?? "PolicyPack", policyRevision, root.z
+            )
+        }
         return String(
             format: "ENV %02d  %.2f / %.2f s  source %.3f s %@  demo %@  altitude %.2f m  aero %.3f N",
             environmentIndex + 1, simulationTime, Self.episodeDuration, sourceTime,
@@ -569,7 +679,8 @@ private final class RobotView: MTKView, MTKViewDelegate {
         switch event.charactersIgnoringModifiers?.lowercased() {
         case " ": setPaused(!simulationPaused)
         case "r": stopAndReset()
-        case "p": engine.controllerEnabled.toggle()
+        case "p":
+            if !engine.policyDriven { engine.controllerEnabled.toggle() }
         case "[": setPlaybackRate(playbackRate * 0.5)
         case "]": setPlaybackRate(playbackRate * 2)
         default: super.keyDown(with: event)
@@ -585,12 +696,21 @@ private final class RobotView: MTKView, MTKViewDelegate {
     }
     func stopAndReset() {
         simulationPaused = true
-        engine.reset()
+        do {
+            try engine.reset()
+        } catch {
+            statusLabel.stringValue = "ENV \(engine.environmentIndex + 1) — \(error)"
+        }
         simulationAccumulator = 0
         lastDrawTime = CACurrentMediaTime()
     }
     func selectEnvironment(_ index: Int) {
-        engine.selectEnvironment(index)
+        do {
+            try engine.selectEnvironment(index)
+        } catch {
+            statusLabel.stringValue = "ENV \(engine.environmentIndex + 1) — \(error)"
+            simulationPaused = true
+        }
         simulationAccumulator = 0
         lastDrawTime = CACurrentMediaTime()
     }
@@ -600,6 +720,7 @@ private final class RobotView: MTKView, MTKViewDelegate {
     override func scrollWheel(with event: NSEvent) { distanceScale=min(8,max(1.4,distanceScale*exp(Float(event.scrollingDeltaY)*0.015))) }
 }
 
+@MainActor
 private final class AppDelegate: NSObject, NSApplicationDelegate {
     private let views: [RobotView]
     private let gridContainer = NSView()
@@ -609,11 +730,14 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
     private var firstEnvironment = 0
     private var paused = false
     private var playbackRate: Float = 1
-    private let availableEnvironmentCount = 16
+    private let availableEnvironmentCount: Int
+    private let supportsGrid: Bool
     var window: NSWindow?
 
     init(engines: [RobotEngine]) {
         views = engines.map { RobotView(engine: $0, frame: .zero) }
+        supportsGrid = engines.count > 1
+        availableEnvironmentCount = supportsGrid ? 16 : 1
         super.init()
     }
 
@@ -622,7 +746,9 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
             contentRect: NSRect(x: 0, y: 0, width: 1280, height: 820),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered, defer: false)
-        window.title = "Numi Dove Recovery Viewer"
+        window.title = views.first?.engine.policyDriven == true
+            ? "Numi Dove — Best Policy"
+            : "Numi Dove Recovery Viewer"
 
         let root = NSStackView()
         root.orientation = .vertical
@@ -671,14 +797,15 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
         bar.addArrangedSubview(runButton)
         bar.addArrangedSubview(button("Slower", #selector(slower)))
         bar.addArrangedSubview(button("Faster", #selector(faster)))
-        bar.addArrangedSubview(button("Previous", #selector(previousPage)))
-        bar.addArrangedSubview(button("Next", #selector(nextPage)))
-
-        let gridSelector = NSSegmentedControl(
-            labels: ["1 env", "4 envs", "9 envs"],
-            trackingMode: .selectOne, target: self, action: #selector(changeGrid(_:)))
-        gridSelector.selectedSegment = 0
-        bar.addArrangedSubview(gridSelector)
+        if supportsGrid {
+            bar.addArrangedSubview(button("Previous", #selector(previousPage)))
+            bar.addArrangedSubview(button("Next", #selector(nextPage)))
+            let gridSelector = NSSegmentedControl(
+                labels: ["1 env", "4 envs", "9 envs"],
+                trackingMode: .selectOne, target: self, action: #selector(changeGrid(_:)))
+            gridSelector.selectedSegment = 0
+            bar.addArrangedSubview(gridSelector)
+        }
         pageLabel.font = .monospacedSystemFont(ofSize: 12, weight: .medium)
         pageLabel.alignment = .right
         pageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -702,7 +829,7 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
             line.distribution = .fillEqually
             for column in 0..<columns {
                 let slot = row * columns + column
-                if slot < gridCount {
+                if slot < min(gridCount, views.count) {
                     let view = views[slot]
                     view.selectEnvironment((firstEnvironment + slot) % availableEnvironmentCount)
                     view.setPlaybackRate(playbackRate)
@@ -766,7 +893,7 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
         rebuildGrid()
     }
     private var visibleViews: ArraySlice<RobotView> {
-        views.prefix(gridCount)
+        views.prefix(min(gridCount, views.count))
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 }
@@ -777,13 +904,47 @@ private func lookAt(_ eye: SIMD3<Float>, _ center: SIMD3<Float>, _ up: SIMD3<Flo
 }
 private func perspective(_ fovy: Float,_ aspect: Float,_ near: Float,_ far: Float)->simd_float4x4 { let y=1/tan(fovy/2),x=y/aspect,z=far/(near-far); return simd_float4x4(SIMD4<Float>(x,0,0,0),SIMD4<Float>(0,y,0,0),SIMD4<Float>(0,0,z,-1),SIMD4<Float>(0,0,z*near,0)) }
 
+@MainActor
 @main private enum Main {
     static func main() throws {
-        let arguments = CommandLine.arguments
+        let arguments = Array(CommandLine.arguments.dropFirst())
         let fallback = URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("ValidationInputs/deetjen-ob-f03-surface-v1/manifest.json")
-        let path = arguments.dropFirst().first(where: { !$0.hasPrefix("--") }).map { URL(fileURLWithPath: $0) } ?? fallback
-        let dataset = try Dataset.load(path); let engine = try RobotEngine(dataset: dataset)
-        if arguments.contains("--probe") {
+        var manifestURL = fallback
+        var policyURL: URL?
+        var metallibPath: String?
+        var probe = false
+        var index = 0
+        while index < arguments.count {
+            switch arguments[index] {
+            case "--probe":
+                probe = true
+            case "--policy-pack":
+                index += 1
+                guard index < arguments.count else {
+                    throw RobotError.invalid("--policy-pack requires a path")
+                }
+                policyURL = URL(fileURLWithPath: arguments[index])
+            case "--metallib":
+                index += 1
+                guard index < arguments.count else {
+                    throw RobotError.invalid("--metallib requires a path")
+                }
+                metallibPath = arguments[index]
+            default:
+                guard !arguments[index].hasPrefix("--") else {
+                    throw RobotError.invalid("unknown option \(arguments[index])")
+                }
+                manifestURL = URL(fileURLWithPath: arguments[index])
+            }
+            index += 1
+        }
+        let dataset = try Dataset.load(manifestURL)
+        let engine = try RobotEngine(
+            dataset: dataset,
+            policyURL: policyURL,
+            metallibPath: metallibPath
+        )
+        if probe {
             let result = try engine.probe()
             print("Measured surface robot GPU probe passed")
             print("  device: \(engine.device.name)")
@@ -803,8 +964,10 @@ private func perspective(_ fovy: Float,_ aspect: Float,_ near: Float,_ far: Floa
             return
         }
         var engines = [engine]
-        for index in 1..<9 {
-            engines.append(try RobotEngine(dataset: dataset, environmentIndex: index))
+        if policyURL == nil {
+            for index in 1..<9 {
+                engines.append(try RobotEngine(dataset: dataset, environmentIndex: index))
+            }
         }
         let app=NSApplication.shared; let delegate=AppDelegate(engines: engines); app.delegate=delegate; app.setActivationPolicy(.regular); app.run()
         withExtendedLifetime(delegate) {}

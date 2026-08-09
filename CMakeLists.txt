@@ -903,10 +903,17 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_measured_dove_robot_lab
         apps/MeasuredDoveRobotLab.swift
+        bindings/swift/MetalRoboTaskRollout.swift
+    )
+    target_include_directories(
+        metalrobo_measured_dove_robot_lab
+        PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo"
     )
     target_link_libraries(
         metalrobo_measured_dove_robot_lab
         PRIVATE
+            metalrobo
             "${APPKIT_FRAMEWORK}"
             "${METAL_FRAMEWORK}"
             "${METALKIT_FRAMEWORK}"
@@ -919,9 +926,11 @@ if(METALROBO_HAS_SWIFT)
     set_target_properties(
         metalrobo_measured_dove_robot_lab
         PROPERTIES
-            Swift_LANGUAGE_VERSION 5
+            Swift_LANGUAGE_VERSION 6
             Swift_COMPILATION_MODE singlefile
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "@loader_path/../lib"
+            INSTALL_RPATH "@loader_path/../lib"
     )
 
     add_executable(
