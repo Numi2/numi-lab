@@ -8,6 +8,7 @@
 #include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
 #include "metalrobo/MetalRunInspector.hpp"
+#include "metalrobo/MetalMeasuredSurfaceMechanics.hpp"
 #include "metalrobo/MetalTactile.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
@@ -124,6 +125,8 @@ struct MRTaskRolloutHandle {
     std::vector<float> outcomeValues;
     std::unique_ptr<MRTaskVisualRuntime> visualRuntime;
     std::unique_ptr<MRTaskVisualRuntime> inspectionVisualRuntime;
+    std::unique_ptr<metalrobo::MetalMeasuredSurfaceMechanics>
+        measuredSurfaceRuntime;
     std::string deviceName;
     std::string metallibPath;
     std::string taskId;
@@ -1135,6 +1138,14 @@ createTaskRolloutHandle(
     if (const metalrobo::MetalWorldMulticopterProgram* multicopter =
             handle->run.multicopterProgram()) {
         handle->stepConfig.multicopterProgram = *multicopter;
+    }
+    if (const metalrobo::CompiledMeasuredSurfaceBinding* surface =
+            handle->run.measuredSurfaceBinding()) {
+        handle->measuredSurfaceRuntime =
+            std::make_unique<metalrobo::MetalMeasuredSurfaceMechanics>(
+                *surface);
+        handle->stepConfig.deviceMechanicsProgram =
+            handle->measuredSurfaceRuntime->program();
     }
     if (const metalrobo::VisualSensorProgram* visual =
             handle->run.visualSensorProgram()) {

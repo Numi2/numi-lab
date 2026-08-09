@@ -175,6 +175,7 @@ enum class RobotActuatorKind : std::uint32_t {
     gripperPosition = 4u,
     rotorMixer = 5u,
     bodyWrench = 6u,
+    measuredSurface = 7u,
 };
 
 // One sparse tendon Jacobian term. The coefficient maps generalized joint
@@ -190,7 +191,8 @@ struct RobotActuatorTermSpec {
 struct RobotActuatorSpec {
     std::string id;
     RobotActuatorKind kind = RobotActuatorKind::jointPosition;
-    // Joint, tendon, gripper, rotor set, or body identity according to kind.
+    // Joint, tendon, gripper, rotor set, body, or measured surface identity
+    // according to kind.
     std::string target;
     float scale = 0.25f;
     // First-order target-filter time constant in seconds. Zero disables

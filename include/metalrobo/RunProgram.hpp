@@ -5,6 +5,7 @@
 #include "metalrobo/LearningPacks.hpp"
 #include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/MeasuredSurfaceRobot.hpp"
 #include "metalrobo/WorldCompiler.hpp"
 
 #include <cstdint>
@@ -36,6 +37,11 @@ struct MulticopterActuatorPack {
     mr_float4 windVelocity{};
 };
 
+struct MeasuredSurfaceActuatorPack {
+    MeasuredSurfaceRobotPack surface;
+    std::string bodyRole;
+};
+
 // A robot is mechanics plus stable semantic roles and default sensor mounts.
 // Tasks and policies never own the mechanics. A pack may be copied and
 // configured without changing the bundled default.
@@ -52,6 +58,7 @@ struct RobotPack {
     std::vector<RobotSemanticRole> roles;
     std::vector<RobotActuatorSpec> actuators;
     std::optional<MulticopterActuatorPack> multicopter;
+    std::optional<MeasuredSurfaceActuatorPack> measuredSurface;
 };
 
 struct SceneObject {
@@ -249,6 +256,8 @@ public:
     visualSensorProgram() const noexcept;
     [[nodiscard]] const MetalWorldMulticopterProgram*
     multicopterProgram() const noexcept;
+    [[nodiscard]] const CompiledMeasuredSurfaceBinding*
+    measuredSurfaceBinding() const noexcept;
 
 private:
     std::uint64_t fingerprint_ = 0u;
@@ -267,6 +276,7 @@ private:
     TeacherPack teacher_;
     std::optional<VisualSensorProgram> visualSensorProgram_;
     std::optional<MetalWorldMulticopterProgram> multicopterProgram_;
+    std::optional<CompiledMeasuredSurfaceBinding> measuredSurfaceBinding_;
 
     friend RunCompileDiagnostics compileRun(
         const RunManifest&,
@@ -287,6 +297,15 @@ private:
 [[nodiscard]] ScenePack makeFrankaPickPlaceScenePack();
 [[nodiscard]] ScenePack makePX4X500HoverScenePack();
 [[nodiscard]] TaskPack makePX4X500HoverTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] RobotPack makeMeasuredSurfaceRobotPack(
+    MeasuredSurfaceRobotPack surface,
+    std::string robotId = "measured_surface_robot"
+);
+[[nodiscard]] TaskPack makeMeasuredSurfaceFlightTaskPack(
+    const RobotPack& robot,
     TaskObservationProgram& observations,
     TaskResetProgram& reset
 );

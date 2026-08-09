@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <bit>
 #include <cmath>
+#include <limits>
+#include <ranges>
 #include <stdexcept>
 #include <string_view>
 
@@ -78,6 +80,48 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
         pack.airDensityKilogramsPerCubicMeter <= 0.0f) {
         throw std::invalid_argument("measured-surface physical contract is invalid");
     }
+    const std::size_t positionCount = static_cast<std::size_t>(pack.frameCount) *
+        pack.vertexCount * 3u;
+    const std::size_t indexCount = static_cast<std::size_t>(pack.triangleCount) * 3u;
+    if (pack.frameMajorPositions.size() != positionCount ||
+        pack.triangleIndices.size() != indexCount ||
+        pack.frameTimesSeconds.size() != pack.frameCount) {
+        throw std::invalid_argument("measured-surface payload dimensions are incomplete");
+    }
+    if (!std::ranges::all_of(pack.frameMajorPositions, [](const float value) {
+            return std::isfinite(value);
+        }) ||
+        !std::ranges::all_of(pack.triangleIndices, [&](const std::uint16_t value) {
+            return value < pack.vertexCount;
+        }) ||
+        !std::ranges::all_of(pack.frameTimesSeconds, [](const float value) {
+            return std::isfinite(value);
+        })) {
+        throw std::invalid_argument("measured-surface payload contains invalid values");
+    }
+    for (std::size_t frame = 1u; frame < pack.frameTimesSeconds.size(); ++frame) {
+        if (!(pack.frameTimesSeconds[frame] > pack.frameTimesSeconds[frame - 1u])) {
+            throw std::invalid_argument("measured-surface frame times must increase strictly");
+        }
+        const float authoredStep = pack.frameTimesSeconds[frame] -
+            pack.frameTimesSeconds[frame - 1u];
+        const float expectedStep = 1.0f / pack.sampleRateHertz;
+        if (std::abs(authoredStep - expectedStep) >
+            std::max(1.0e-7f, expectedStep * 1.0e-4f)) {
+            throw std::invalid_argument(
+                "measured-surface GPU interpolation currently requires uniform frame times");
+        }
+    }
+    if (pack.phaseBoundary == MeasuredSurfacePhaseBoundary::wrap &&
+        !pack.sourcePeriodic) {
+        throw std::invalid_argument("nonperiodic measured surfaces cannot use wrap phase semantics");
+    }
+    if (!std::isfinite(pack.normalDragCoefficient) ||
+        pack.normalDragCoefficient < 0.0f ||
+        !std::isfinite(pack.tangentialDragCoefficient) ||
+        pack.tangentialDragCoefficient < 0.0f) {
+        throw std::invalid_argument("measured-surface aerodynamic coefficients are invalid");
+    }
     for (const float inertia : pack.principalInertiaKilogramMetersSquared) {
         if (!std::isfinite(inertia) || inertia <= 0.0f) {
             throw std::invalid_argument("principal inertia must be finite and positive");
@@ -107,6 +151,14 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
                     component.triangleCount, static_cast<std::uint8_t>(i + 1u));
         nextVertex += component.vertexCount;
         nextTriangle += component.triangleCount;
+        result.gpuComponents.push_back({
+            static_cast<std::uint32_t>(component.component),
+            component.vertexOffset,
+            component.vertexCount,
+            component.triangleOffset,
+            component.triangleCount,
+            0u, 0u, 0u,
+        });
     }
     if (nextVertex != pack.vertexCount || nextTriangle != pack.triangleCount) {
         throw std::invalid_argument("component ranges must cover the complete measured surface");
@@ -122,11 +174,21 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
     hashValue(hash, pack.triangleCount);
     hashValue(hash, pack.sampleRateHertz);
     hashValue(hash, pack.sourcePeriodic);
+    hashValue(hash, pack.phaseBoundary);
     hashValue(hash, pack.bodyMassKilograms);
     hashValue(hash, pack.principalInertiaKilogramMetersSquared);
     hashValue(hash, pack.airDensityKilogramsPerCubicMeter);
+    hashValue(hash, pack.normalDragCoefficient);
+    hashValue(hash, pack.tangentialDragCoefficient);
+    hashBytes(hash, pack.frameMajorPositions.data(),
+              pack.frameMajorPositions.size() * sizeof(float));
+    hashBytes(hash, pack.triangleIndices.data(),
+              pack.triangleIndices.size() * sizeof(std::uint16_t));
+    hashBytes(hash, pack.frameTimesSeconds.data(),
+              pack.frameTimesSeconds.size() * sizeof(float));
     for (const auto& component : pack.components) hashValue(hash, component);
-    for (const auto& action : pack.actions) {
+    for (std::size_t i = 0u; i < pack.actions.size(); ++i) {
+        const auto& action = pack.actions[i];
         if (action.name.empty() || !std::isfinite(action.lowerBound) ||
             !std::isfinite(action.upperBound) || action.lowerBound >= action.upperBound ||
             !std::isfinite(action.naturalFrequencyHertz) ||
@@ -139,7 +201,58 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
         hashValue(hash, action.upperBound);
         hashValue(hash, action.naturalFrequencyHertz);
         hashValue(hash, action.dampingRatio);
+        result.gpuActions[i].boundsFrequencyDamping = {
+            action.lowerBound,
+            action.upperBound,
+            action.naturalFrequencyHertz,
+            action.dampingRatio,
+        };
     }
+    mr_float4 minimum{
+        std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(), 0.0f,
+    };
+    mr_float4 maximum{
+        -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(), 0.0f,
+    };
+    for (std::size_t offset = 0u;
+         offset < pack.frameMajorPositions.size(); offset += 3u) {
+        minimum.x = std::min(minimum.x, pack.frameMajorPositions[offset]);
+        minimum.y = std::min(minimum.y, pack.frameMajorPositions[offset + 1u]);
+        minimum.z = std::min(minimum.z, pack.frameMajorPositions[offset + 2u]);
+        maximum.x = std::max(maximum.x, pack.frameMajorPositions[offset]);
+        maximum.y = std::max(maximum.y, pack.frameMajorPositions[offset + 1u]);
+        maximum.z = std::max(maximum.z, pack.frameMajorPositions[offset + 2u]);
+    }
+    const mr_float4 center{
+        0.5f * (minimum.x + maximum.x),
+        0.5f * (minimum.y + maximum.y),
+        0.5f * (minimum.z + maximum.z), 0.0f,
+    };
+    const float dx = maximum.x - minimum.x;
+    const float dy = maximum.y - minimum.y;
+    const float dz = maximum.z - minimum.z;
+    result.gpuModel = {
+        MR_MEASURED_SURFACE_ABI_VERSION,
+        pack.frameCount,
+        pack.vertexCount,
+        pack.triangleCount,
+        static_cast<std::uint32_t>(pack.components.size()),
+        kMeasuredSurfaceActionCount,
+        static_cast<std::uint32_t>(pack.phaseBoundary),
+        pack.sourcePeriodic ? 1u : 0u,
+        {pack.sampleRateHertz,
+         pack.airDensityKilogramsPerCubicMeter,
+         pack.normalDragCoefficient,
+         pack.tangentialDragCoefficient},
+        {center.x, center.y, center.z,
+         0.5f * std::sqrt(dx * dx + dy * dy + dz * dz)},
+        minimum,
+        maximum,
+    };
     result.fingerprint = hash == 0u ? 1u : hash;
     return result;
 }

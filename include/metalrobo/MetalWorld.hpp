@@ -377,6 +377,57 @@ struct MetalWorldMulticopterProgram {
     }
 };
 
+// Borrowed device resources for a compiled mechanics extension. This is the
+// first-class boundary for physics primitives whose persistent state does not
+// fit q/v (for example a measured deformable surface). The prepare callback
+// runs after typed task actuators and before ABA. The commit callback runs
+// after the universal solver has accepted or rejected the environment, so the
+// extension publishes or rolls back its candidate state in the same command
+// buffer. Neither callback may commit, wait, or retain borrowed resources.
+struct MetalWorldDeviceMechanicsPass {
+    void* commandBuffer = nullptr;
+    void* metalLibrary = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* actionHistory = nullptr;
+    void* resetMasks = nullptr;
+    void* bodyWrenches = nullptr;
+    void* environmentStatuses = nullptr;
+    std::uint64_t seed = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t bodyCount = 0u;
+    std::uint32_t nq = 0u;
+    std::uint32_t nv = 0u;
+    std::uint32_t actionCount = 0u;
+    std::uint32_t actionHistoryStride = 0u;
+    std::uint32_t actionFilterSlot = 0u;
+    float timestepSeconds = 0.0f;
+};
+
+using MetalWorldDeviceMechanicsEncode = bool (*)(
+    void* context,
+    const MetalWorldDeviceMechanicsPass& pass
+);
+
+struct MetalWorldDeviceMechanicsProgram {
+    void* context = nullptr;
+    MetalWorldDeviceMechanicsEncode prepare = nullptr;
+    MetalWorldDeviceMechanicsEncode commit = nullptr;
+    std::uint64_t fingerprint = 0u;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return context != nullptr && prepare != nullptr && commit != nullptr &&
+            fingerprint != 0u;
+    }
+
+    [[nodiscard]] bool configured() const noexcept {
+        return context != nullptr || prepare != nullptr || commit != nullptr ||
+            fingerprint != 0u;
+    }
+};
+
 struct MetalWorldStepConfig {
     // Control-period duration. The immutable model gravity is retained and
     // its authored integration timestep is replaced by
@@ -401,6 +452,9 @@ struct MetalWorldStepConfig {
     // not a constructor hint; its complete contents participate in the run
     // fingerprint before reaching MetalWorld.
     MetalWorldMulticopterProgram multicopterProgram{};
+    // Optional compiled non-q/v mechanics program. It executes on the same
+    // borrowed command-buffer timeline and participates in transactionality.
+    MetalWorldDeviceMechanicsProgram deviceMechanicsProgram{};
     // Optional renderer/perception pass. It receives only borrowed device
     // resources and executes inside the native rollout command buffer.
     MetalWorldDeviceObservationProgram deviceObservationProgram{};

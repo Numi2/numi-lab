@@ -187,6 +187,7 @@ bool validActuators(const RobotPack& robot, std::string& reason) {
             break;
         case RobotActuatorKind::rotorMixer:
         case RobotActuatorKind::bodyWrench:
+        case RobotActuatorKind::measuredSurface:
             // These target robot-authored named controller groups or bodies;
             // their specialized compiler validates the concrete program.
             break;
@@ -281,6 +282,11 @@ std::uint64_t robotPackFingerprint(const RobotPack& robot) {
         hash.bytes(&robot.multicopter->mixer, sizeof(robot.multicopter->mixer));
         hash.string(robot.multicopter->bodyRole);
         hash.scalar(robot.multicopter->windVelocity);
+    }
+    if (robot.measuredSurface) {
+        hash.scalar(compileMeasuredSurfaceRobot(
+            robot.measuredSurface->surface).fingerprint);
+        hash.string(robot.measuredSurface->bodyRole);
     }
     return hash.finish();
 }
@@ -647,6 +653,10 @@ CompiledRun::visualSensorProgram() const noexcept {
 const MetalWorldMulticopterProgram*
 CompiledRun::multicopterProgram() const noexcept {
     return multicopterProgram_ ? &*multicopterProgram_ : nullptr;
+}
+const CompiledMeasuredSurfaceBinding*
+CompiledRun::measuredSurfaceBinding() const noexcept {
+    return measuredSurfaceBinding_ ? &*measuredSurfaceBinding_ : nullptr;
 }
 
 RunCompileDiagnostics compileRun(
@@ -1167,6 +1177,100 @@ RunCompileDiagnostics compileRun(
                 manifest.profile.controlTimestepSeconds /
                 static_cast<float>(manifest.profile.physicsSubsteps);
         }
+        if (manifest.robot.measuredSurface) {
+            const MeasuredSurfaceActuatorPack& authored =
+                *manifest.robot.measuredSurface;
+            const RobotSemanticRole* bodyRole = role(
+                manifest.robot,
+                authored.bodyRole,
+                RobotSemanticKind::body
+            );
+            if (bodyRole == nullptr || bodyRole->members.size() != 1u) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    manifest.robot.id + ".measuredSurface",
+                    "measured-surface mechanics requires exactly one dynamic root body role"
+                );
+            }
+            const auto composedBody = std::ranges::find(
+                model.bodyNames, bodyRole->members.front());
+            if (composedBody == model.bodyNames.end() ||
+                manifest.robot.primaryArticulationIndex >=
+                    model.articulations.size()) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    authored.bodyRole,
+                    "measured-surface root body is unresolved after world composition"
+                );
+            }
+            const std::uint32_t bodyIndex = static_cast<std::uint32_t>(
+                composedBody - model.bodyNames.begin());
+            const MRArticulationGPU& articulation =
+                model.articulations[manifest.robot.primaryArticulationIndex];
+            if (articulation.rootBody != bodyIndex ||
+                articulation.nq < 7u || articulation.nv < 6u ||
+                model.bodies[bodyIndex].motionType != MR_MOTION_DYNAMIC) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    bodyRole->members.front(),
+                    "measured-surface mechanics currently requires a six-DoF floating root"
+                );
+            }
+            std::array<std::uint32_t, kMeasuredSurfaceActionCount>
+                actionByComponent;
+            actionByComponent.fill(MR_INVALID_INDEX);
+            for (std::uint32_t action = 0u;
+                 action < manifest.task.actions.size(); ++action) {
+                const auto actuator = std::ranges::find_if(
+                    manifest.robot.actuators,
+                    [&](const RobotActuatorSpec& value) {
+                        return value.id ==
+                            manifest.task.actions[action].actuator;
+                    });
+                if (actuator == manifest.robot.actuators.end() ||
+                    actuator->kind != RobotActuatorKind::measuredSurface) {
+                    continue;
+                }
+                if (actuator->target != bodyRole->members.front() ||
+                    actuator->component >= actionByComponent.size() ||
+                    actionByComponent[actuator->component] != MR_INVALID_INDEX) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        actuator->id,
+                        "measured-surface action components must uniquely bind the root body"
+                    );
+                }
+                actionByComponent[actuator->component] = action;
+            }
+            const std::uint32_t firstAction = actionByComponent.front();
+            for (std::uint32_t component = 0u;
+                 component < actionByComponent.size(); ++component) {
+                if (firstAction == MR_INVALID_INDEX ||
+                    actionByComponent[component] != firstAction + component) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        manifest.robot.id + ".measuredSurface",
+                        "all measured-surface action lanes must form one contiguous canonical block"
+                    );
+                }
+            }
+            CompiledMeasuredSurfaceBinding binding;
+            binding.robot = compileMeasuredSurfaceRobot(authored.surface);
+            binding.articulationIndex = manifest.robot.primaryArticulationIndex;
+            binding.bodyIndex = bodyIndex;
+            binding.qOffset = articulation.qOffset;
+            binding.vOffset = articulation.vOffset;
+            binding.firstAction = firstAction;
+            Hash bindingHash;
+            bindingHash.scalar(binding.robot.fingerprint);
+            bindingHash.scalar(binding.articulationIndex);
+            bindingHash.scalar(binding.bodyIndex);
+            bindingHash.scalar(binding.qOffset);
+            bindingHash.scalar(binding.vOffset);
+            bindingHash.scalar(binding.firstAction);
+            binding.fingerprint = bindingHash.finish();
+            staged.measuredSurfaceBinding_ = std::move(binding);
+        }
         if (manifest.policy) {
             const PolicyCompileDiagnostics policyStatus =
                 compilePolicyProgram(
@@ -1262,6 +1366,9 @@ RunCompileDiagnostics compileRun(
             runHash.scalar(multicopter.bodyIndex);
             runHash.scalar(multicopter.firstAction);
             runHash.scalar(multicopter.windVelocity);
+        }
+        if (staged.measuredSurfaceBinding_) {
+            runHash.scalar(staged.measuredSurfaceBinding_->fingerprint);
         }
         runHash.string(staged.profile_.id);
         runHash.scalar(staged.profile_.environmentCount);
@@ -1423,6 +1530,204 @@ TaskPack makePX4X500HoverTaskPack(
             .parameters = {1.95f, 2.05f, 0.0f, 0.0f}},
         {.operation = TaskRandomizationOperator::velocity,
             .parameters = {-0.02f, 0.02f, 0.0f, 0.0f}},
+    };
+    return task;
+}
+
+RobotPack makeMeasuredSurfaceRobotPack(
+    MeasuredSurfaceRobotPack surface,
+    std::string robotId
+) {
+    if (robotId.empty()) {
+        throw std::invalid_argument("measured-surface robot identity is empty");
+    }
+    const CompiledMeasuredSurfaceRobot compiled =
+        compileMeasuredSurfaceRobot(surface);
+    EngineModel mechanics = makeFreeSphereEngineModel();
+    mechanics.name = robotId;
+    mechanics.world.gravityAndTimestep = {
+        0.0f, 0.0f, -9.81f, 1.0f / 240.0f};
+    mechanics.articulations[0u].rootBody = 0u;
+    mechanics.articulations[0u].firstBody = 0u;
+    // makeFreeSphereEngineModel owns a static fixture at body 0 and the
+    // floating dynamic reference at body 1. The measured-surface RobotPack
+    // retains only that dynamic body; scene fixtures remain ScenePack-owned.
+    MRBodyPropertiesGPU body = mechanics.bodies[1u];
+    body.articulationIndex = 0u;
+    body.massAndInverseMass = {
+        surface.bodyMassKilograms,
+        1.0f / surface.bodyMassKilograms, 0.0f, 0.0f};
+    const auto inertia = surface.principalInertiaKilogramMetersSquared;
+    body.inertiaRow0 = {inertia[0], 0.0f, 0.0f, 0.0f};
+    body.inertiaRow1 = {0.0f, inertia[1], 0.0f, 0.0f};
+    body.inertiaRow2 = {0.0f, 0.0f, inertia[2], 0.0f};
+    body.inverseInertiaRow0 = {1.0f / inertia[0], 0.0f, 0.0f, 0.0f};
+    body.inverseInertiaRow1 = {0.0f, 1.0f / inertia[1], 0.0f, 0.0f};
+    body.inverseInertiaRow2 = {0.0f, 0.0f, 1.0f / inertia[2], 0.0f};
+    body.dampingAndSpeedLimits = {0.0f, 0.0f, 150.0f, 150.0f};
+    mechanics.bodies = {body};
+    mechanics.bodyNames = {robotId + ".root"};
+    mechanics.world.bodyCount = 1u;
+    mechanics.dofNames = {
+        "root_x", "root_y", "root_z",
+        "root_rx", "root_ry", "root_rz"};
+    mechanics.defaultQ = {
+        0.0f, 0.0f, 2.0f,
+        0.0f, 0.0f, 0.0f, 1.0f};
+    // Ground-impact contact is intentionally body-only until deformable mesh
+    // contact is coupled. Aerodynamic geometry remains the exact complete
+    // surface. This proxy never replaces presentation or force geometry.
+    const auto& bodyRange = surface.components.front();
+    mr_float4 bodyMinimum{
+        std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(), 0.0f};
+    mr_float4 bodyMaximum{
+        -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(), 0.0f};
+    for (std::uint32_t vertex = bodyRange.vertexOffset;
+         vertex < bodyRange.vertexOffset + bodyRange.vertexCount; ++vertex) {
+        const std::size_t offset = static_cast<std::size_t>(vertex) * 3u;
+        bodyMinimum.x = std::min(bodyMinimum.x, surface.frameMajorPositions[offset]);
+        bodyMinimum.y = std::min(bodyMinimum.y, surface.frameMajorPositions[offset + 1u]);
+        bodyMinimum.z = std::min(bodyMinimum.z, surface.frameMajorPositions[offset + 2u]);
+        bodyMaximum.x = std::max(bodyMaximum.x, surface.frameMajorPositions[offset]);
+        bodyMaximum.y = std::max(bodyMaximum.y, surface.frameMajorPositions[offset + 1u]);
+        bodyMaximum.z = std::max(bodyMaximum.z, surface.frameMajorPositions[offset + 2u]);
+    }
+    MRShapeGPU collision{};
+    collision.bodyIndex = 0u;
+    collision.shapeType = MR_SHAPE_BOX;
+    collision.materialIndex = 0u;
+    collision.collisionGroup = 1u;
+    collision.collisionMask = ~0u;
+    collision.slotGeneration = 1u;
+    collision.localPosition = {
+        0.5f * (bodyMinimum.x + bodyMaximum.x),
+        0.5f * (bodyMinimum.y + bodyMaximum.y),
+        0.5f * (bodyMinimum.z + bodyMaximum.z), 1.0f};
+    collision.localRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+    collision.dimensions = {
+        std::max(0.005f, 0.5f * (bodyMaximum.x - bodyMinimum.x)),
+        std::max(0.005f, 0.5f * (bodyMaximum.y - bodyMinimum.y)),
+        std::max(0.005f, 0.5f * (bodyMaximum.z - bodyMinimum.z)), 0.0f};
+    collision.contactRestAndBoundingRadius = {
+        0.001f, 0.0f,
+        std::sqrt(collision.dimensions.x * collision.dimensions.x +
+                  collision.dimensions.y * collision.dimensions.y +
+                  collision.dimensions.z * collision.dimensions.z), 0.0f};
+    mechanics.shapes = {collision};
+    mechanics.shapeNames = {robotId + ".body_collision_proxy"};
+    mechanics.world.shapeCount = 1u;
+    RobotPack pack = genericRobot(
+        robotId, std::move(mechanics),
+        {"flight", "deformable_surface", "drop_recovery"});
+    pack.sourceRepository = surface.datasetIdentifier;
+    pack.sourceRevision = surface.manifestSHA256;
+    pack.license = "source-dataset-license";
+    addBodyRole(pack, "surface_root", {robotId + ".root"});
+    pack.actuators.clear();
+    for (std::uint32_t component = 0u;
+         component < kMeasuredSurfaceActionCount; ++component) {
+        pack.actuators.push_back({
+            .id = "surface." + surface.actions[component].name,
+            .kind = RobotActuatorKind::measuredSurface,
+            .target = robotId + ".root",
+            .scale = 1.0f,
+            .responseTimeSeconds = 0.0f,
+            .component = component,
+        });
+    }
+    pack.measuredSurface = MeasuredSurfaceActuatorPack{
+        .surface = std::move(surface),
+        .bodyRole = "surface_root",
+    };
+    (void)compiled;
+    return pack;
+}
+
+TaskPack makeMeasuredSurfaceFlightTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    if (!robot.measuredSurface || robot.actuators.size() !=
+            kMeasuredSurfaceActionCount) {
+        throw std::invalid_argument(
+            "measured-surface flight task requires the canonical robot pack");
+    }
+    TaskPack task;
+    task.id = robot.id + ".flight";
+    for (const RobotActuatorSpec& actuator : robot.actuators) {
+        task.actions.push_back({actuator.id});
+    }
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::higherIsBetter},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"tracking", "ratio", TaskOutcomeSource::trackingScore,
+            TaskOutcomeDirection::higherIsBetter},
+    };
+    task.maximumEpisodeSteps = 500u;
+    task.difficultyBandCount = 1u;
+    task.baseHeightTarget = 2.0f;
+    task.gaitPeriodSeconds = 0.286f;
+    task.successTrackingThreshold = 0.80f;
+    task.supportForceThreshold = 0.0f;
+    task.commands.standingProbability = 1.0f;
+    task.commands.minimumDurationSeconds = 10.0f;
+    task.commands.maximumDurationSeconds = 10.0f;
+    task.pushes.minimumIntervalSeconds = 10.0f;
+    task.pushes.maximumIntervalSeconds = 10.0f;
+    task.rewards = {
+        {TaskRewardOperator::constant, {}, {}, 0.25f},
+        {TaskRewardOperator::rootHeightErrorSquared, {}, {}, -1.0f},
+        {TaskRewardOperator::tiltSquared, {}, {}, -0.5f},
+        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.10f},
+        {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.05f},
+        {TaskRewardOperator::actionRateSquared, {}, {}, -0.002f},
+    };
+    task.terminations = {
+        {TaskTerminationOperator::minimumRootHeight, {},
+            MR_TASK_TERMINATION_HEIGHT, 10u, 0.08f, -5.0f},
+        {TaskTerminationOperator::maximumTilt, {},
+            MR_TASK_TERMINATION_TILT, 20u, 1.45f, -2.0f},
+    };
+    observations.actorHistoryLength = 2u;
+    observations.criticHistoryLength = 2u;
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::rootLinearVelocityLocal,
+            .component = component, .scale = 0.5f});
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::rootAngularVelocityLocal,
+            .component = component, .scale = 0.25f});
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::projectedGravity,
+            .component = component, .normalizeVector3 = true});
+    }
+    observations.actorFrame.push_back({
+        .source = TaskObservationSource::rootHeight,
+        .scale = 0.5f, .offset = -1.0f});
+    for (const TaskActionBinding& action : task.actions) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::previousAction,
+            .target = action.actuator});
+    }
+    observations.critic = observations.actorFrame;
+    reset.maximumActionDelaySteps = 1u;
+    reset.maximumObservationDelaySteps = 1u;
+    reset.operators = {
+        {.operation = TaskRandomizationOperator::rootPosition,
+            .parameters = {0.05f, 0.05f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::rootYaw,
+            .parameters = {-0.20f, 0.20f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::rootHeight,
+            .parameters = {1.8f, 2.2f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::velocity,
+            .parameters = {-0.05f, 0.05f, 0.0f, 0.0f}},
     };
     return task;
 }

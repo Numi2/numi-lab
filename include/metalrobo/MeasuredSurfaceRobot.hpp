@@ -1,5 +1,7 @@
 #pragma once
 
+#include "metalrobo/measured_surface_types.h"
+
 #include <array>
 #include <cstdint>
 #include <span>
@@ -15,6 +17,12 @@ enum class MeasuredSurfaceComponent : std::uint32_t {
     leftWing = 2u,
     rightWing = 3u,
     tail = 4u,
+};
+
+enum class MeasuredSurfacePhaseBoundary : std::uint32_t {
+    clamp = MR_MEASURED_SURFACE_PHASE_CLAMP,
+    reflect = MR_MEASURED_SURFACE_PHASE_REFLECT,
+    wrap = MR_MEASURED_SURFACE_PHASE_WRAP,
 };
 
 struct MeasuredSurfaceComponentRange {
@@ -47,6 +55,8 @@ struct MeasuredSurfaceRobotPack {
     std::uint32_t triangleCount = 0u;
     float sampleRateHertz = 0.0f;
     bool sourcePeriodic = false;
+    MeasuredSurfacePhaseBoundary phaseBoundary =
+        MeasuredSurfacePhaseBoundary::clamp;
     std::vector<MeasuredSurfaceComponentRange> components;
     std::array<MeasuredSurfaceAction, kMeasuredSurfaceActionCount> actions;
     float bodyMassKilograms = 0.35f;
@@ -54,6 +64,13 @@ struct MeasuredSurfaceRobotPack {
         0.0018f, 0.0024f, 0.0031f
     };
     float airDensityKilogramsPerCubicMeter = 1.225f;
+    float normalDragCoefficient = 1.15f;
+    float tangentialDragCoefficient = 0.08f;
+    // Immutable frame-major xyz payload and fixed triangle topology. These
+    // are the robot morphology; compilation never remeshes or substitutes it.
+    std::vector<float> frameMajorPositions;
+    std::vector<std::uint16_t> triangleIndices;
+    std::vector<float> frameTimesSeconds;
 };
 
 struct CompiledMeasuredSurfaceRobot {
@@ -61,6 +78,29 @@ struct CompiledMeasuredSurfaceRobot {
     std::uint64_t fingerprint = 0u;
     std::vector<std::uint8_t> vertexComponents;
     std::vector<std::uint8_t> triangleComponents;
+    MRMeasuredSurfaceModelGPU gpuModel{};
+    std::array<MRMeasuredSurfaceActionGPU,
+               kMeasuredSurfaceActionCount> gpuActions{};
+    std::vector<MRMeasuredSurfaceComponentGPU> gpuComponents;
+};
+
+struct CompiledMeasuredSurfaceBinding {
+    CompiledMeasuredSurfaceRobot robot;
+    std::uint32_t articulationIndex = MR_INVALID_INDEX;
+    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    std::uint32_t qOffset = MR_INVALID_INDEX;
+    std::uint32_t vOffset = MR_INVALID_INDEX;
+    std::uint32_t firstAction = MR_INVALID_INDEX;
+    std::uint64_t fingerprint = 0u;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return robot.fingerprint != 0u &&
+            articulationIndex != MR_INVALID_INDEX &&
+            bodyIndex != MR_INVALID_INDEX &&
+            qOffset != MR_INVALID_INDEX &&
+            vOffset != MR_INVALID_INDEX &&
+            firstAction != MR_INVALID_INDEX && fingerprint != 0u;
+    }
 };
 
 struct MeasuredSurfaceActuatorState {

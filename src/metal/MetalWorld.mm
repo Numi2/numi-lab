@@ -3095,9 +3095,18 @@ MetalWorldDiagnostics validateAndBuildLayout(
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
     const bool hasBodyWrenches = config.multicopterProgram.valid() ||
+        config.deviceMechanicsProgram.valid() ||
         (nativeTask && taskHasActuatorKind(
             config.taskProgram,
             MR_TASK_ACTUATOR_BODY_WRENCH));
+    if (config.deviceMechanicsProgram.configured() &&
+        (!config.deviceMechanicsProgram.valid() || !nativeTask)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "device mechanics program requires complete prepare/commit callbacks, a semantic fingerprint, and a native task"
+        );
+    }
     if (config.multicopterProgram.valid()) {
         const auto& multicopter = config.multicopterProgram;
         if (!nativeTask ||
@@ -9699,6 +9708,50 @@ bool encodeMulticopterActuation(
         11u,
         environmentCount
     );
+}
+
+bool encodeDeviceMechanics(
+    const MetalWorldDeviceMechanicsProgram& program,
+    const bool commit,
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const CompiledWorld& world,
+    const CompiledTaskProgram& task,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t qState,
+    const std::size_t vState,
+    const float timestepSeconds,
+    const std::uint64_t seed,
+    const std::size_t environmentCount
+) {
+    if (!program.valid()) {
+        return true;
+    }
+    const TaskProgramLayout& layout = task.layout();
+    const MetalWorldDeviceMechanicsPass mechanicsPass{
+        .commandBuffer = (__bridge void*)commandBuffer,
+        .metalLibrary = (__bridge void*)context.library,
+        .q = (__bridge void*)context.buffers[qState],
+        .v = (__bridge void*)context.buffers[vState],
+        .actionHistory = (__bridge void*)context.buffers[kTaskActionHistory],
+        .resetMasks = (__bridge void*)context.buffers[kResetMasks],
+        .bodyWrenches = (__bridge void*)context.buffers[kBodyWrenchPlaceholder],
+        .environmentStatuses = (__bridge void*)context.buffers[kEnvironmentStatuses],
+        .seed = seed,
+        .controlStep = pass.controlStep,
+        .physicsSubstep = pass.physicsSubstep,
+        .environmentCount = static_cast<std::uint32_t>(environmentCount),
+        .bodyCount = static_cast<std::uint32_t>(world.model().bodies.size()),
+        .nq = world.nq(),
+        .nv = world.nv(),
+        .actionCount = layout.actionCount,
+        .actionHistoryStride = layout.delayStateCount * layout.actionCount,
+        .actionFilterSlot = layout.delayStateCount - 1u,
+        .timestepSeconds = timestepSeconds,
+    };
+    const MetalWorldDeviceMechanicsEncode callback =
+        commit ? program.commit : program.prepare;
+    return callback(program.context, mechanicsPass);
 }
 
 bool encodeTaskNativeActuators(
@@ -17117,6 +17170,21 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 batch.environmentCount
                             )
                         ) &&
+                        encodeDeviceMechanics(
+                            config.deviceMechanicsProgram,
+                            false,
+                            *selectedState,
+                            commandBuffer,
+                            world,
+                            config.taskProgram,
+                            pass,
+                            sourceQ,
+                            sourceV,
+                            config.timestepSeconds /
+                                static_cast<float>(config.physicsSubsteps),
+                            config.taskSeed,
+                            batch.environmentCount
+                        ) &&
                         (
                             useHybridContact ||
                             encodeABA(
@@ -17308,6 +17376,21 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 destinationMotorState,
                                 batch.environmentCount
                             )
+                        ) &&
+                        encodeDeviceMechanics(
+                            config.deviceMechanicsProgram,
+                            true,
+                            *selectedState,
+                            commandBuffer,
+                            world,
+                            config.taskProgram,
+                            pass,
+                            destinationQ,
+                            destinationV,
+                            config.timestepSeconds /
+                                static_cast<float>(config.physicsSubsteps),
+                            config.taskSeed,
+                            batch.environmentCount
                         ) &&
                         (
                             !taskTracksImpactContacts ||

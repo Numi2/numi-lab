@@ -2,6 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 #include "metalrobo/task_program_types.h"
+#include "metalrobo/measured_surface_types.h"
 
 using namespace metal;
 
@@ -3765,7 +3766,8 @@ kernel void mr_locomotion_task_apply_native_actuators(
         const uint kind = binding.actuator.x;
         if (kind == MR_TASK_ACTUATOR_JOINT_POSITION ||
             kind == MR_TASK_ACTUATOR_GRIPPER_POSITION ||
-            kind == MR_TASK_ACTUATOR_ROTOR_MIXER) {
+            kind == MR_TASK_ACTUATOR_ROTOR_MIXER ||
+            kind == MR_TASK_ACTUATOR_MEASURED_SURFACE) {
             continue;
         }
         const float filtered = actionHistory[historyBase + action];

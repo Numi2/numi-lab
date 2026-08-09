@@ -88,6 +88,9 @@ set(METALROBO_FREE_BODY_SOURCE
 set(METALROBO_MULTICOPTER_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MulticopterDynamics.metal"
 )
+set(METALROBO_MEASURED_SURFACE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MeasuredSurfaceDynamics.metal"
+)
 set(METALROBO_COLLISION_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/Collision.metal"
 )
@@ -150,6 +153,9 @@ set(METALROBO_FREE_BODY_AIR
 )
 set(METALROBO_MULTICOPTER_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboMulticopterDynamics.air"
+)
+set(METALROBO_MEASURED_SURFACE_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMeasuredSurfaceDynamics.air"
 )
 set(METALROBO_COLLISION_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboCollision.air"
@@ -275,6 +281,12 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_MULTICOPTER_SOURCE}"
             -o "${METALROBO_MULTICOPTER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_MEASURED_SURFACE_SOURCE}"
+            -o "${METALROBO_MEASURED_SURFACE_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -467,6 +479,7 @@ add_custom_command(
             "${METALROBO_UNIFIED_QUALITY_AIR}"
             "${METALROBO_FREE_BODY_AIR}"
             "${METALROBO_MULTICOPTER_AIR}"
+            "${METALROBO_MEASURED_SURFACE_AIR}"
             "${METALROBO_COLLISION_AIR}"
             "${METALROBO_BROADPHASE_AIR}"
             "${METALROBO_ARTICULATED_OPERATOR_AIR}"
@@ -500,6 +513,7 @@ add_custom_command(
         "${METALROBO_UNIFIED_QUALITY_SOURCE}"
         "${METALROBO_FREE_BODY_SOURCE}"
         "${METALROBO_MULTICOPTER_SOURCE}"
+        "${METALROBO_MEASURED_SURFACE_SOURCE}"
         "${METALROBO_COLLISION_SOURCE}"
         "${METALROBO_BROADPHASE_SOURCE}"
         "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
@@ -523,6 +537,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/multicopter_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/measured_surface_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/task_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/policy_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
@@ -651,6 +666,7 @@ add_library(
     src/metal/MetalRunInspector.mm
     src/metal/MetalTactile.mm
     src/metal/MetalPointWorld.mm
+    src/metal/MetalMeasuredSurfaceMechanics.mm
     src/c_api.cpp
 )
 add_dependencies(

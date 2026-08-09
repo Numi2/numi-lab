@@ -1,6 +1,7 @@
 #include "metalrobo/TaskProgram.hpp"
 
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/measured_surface_types.h"
 
 #include <algorithm>
 #include <array>
@@ -1147,7 +1148,8 @@ TaskCompileDiagnostics compileTaskProgram(
         if (!jointActuator &&
             actuator->kind != RobotActuatorKind::tendonPosition &&
             actuator->kind != RobotActuatorKind::rotorMixer &&
-            actuator->kind != RobotActuatorKind::bodyWrench) {
+            actuator->kind != RobotActuatorKind::bodyWrench &&
+            actuator->kind != RobotActuatorKind::measuredSurface) {
             return reject(
                 TaskCompileStatus::unsupportedOperator,
                 actuator->id,
@@ -1276,7 +1278,9 @@ TaskCompileDiagnostics compileTaskProgram(
                 (actuator->kind == RobotActuatorKind::rotorMixer &&
                  actuator->component >= 4u) ||
                 (actuator->kind == RobotActuatorKind::bodyWrench &&
-                 actuator->component >= 6u)) {
+                 actuator->component >= 6u) ||
+                (actuator->kind == RobotActuatorKind::measuredSurface &&
+                 actuator->component >= MR_MEASURED_SURFACE_ACTION_CAPACITY)) {
                 return reject(
                     bodyAmbiguous
                         ? TaskCompileStatus::ambiguousSemantic
