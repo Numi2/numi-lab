@@ -600,6 +600,7 @@ add_library(
     src/core/LocomotionWorld.cpp
     src/core/TaskProgram.cpp
     src/core/PolicyProgram.cpp
+    src/core/MeasuredSurfaceRobot.cpp
     src/core/LearningPacks.cpp
     src/core/MotionCompiler.cpp
     src/core/SurgicalPSM.cpp
@@ -884,6 +885,30 @@ if(METALROBO_HAS_SWIFT)
     )
 
     add_executable(
+        metalrobo_measured_dove_robot_lab
+        apps/MeasuredDoveRobotLab.swift
+    )
+    target_link_libraries(
+        metalrobo_measured_dove_robot_lab
+        PRIVATE
+            "${APPKIT_FRAMEWORK}"
+            "${METAL_FRAMEWORK}"
+            "${METALKIT_FRAMEWORK}"
+            "${QUARTZCORE_FRAMEWORK}"
+    )
+    target_compile_options(
+        metalrobo_measured_dove_robot_lab
+        PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-parse-as-library>"
+    )
+    set_target_properties(
+        metalrobo_measured_dove_robot_lab
+        PROPERTIES
+            Swift_LANGUAGE_VERSION 5
+            Swift_COMPILATION_MODE singlefile
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+
+    add_executable(
         metalrobo_task_rollout
         apps/task_rollout.swift
         apps/RunInspector.swift
@@ -940,6 +965,26 @@ if(METALROBO_HAS_SWIFT)
             INSTALL_RPATH "@loader_path/../lib"
     )
 endif()
+
+add_executable(
+    metalrobo_measured_surface_robot_probe
+    apps/measured_surface_robot_probe.cpp
+)
+target_link_libraries(
+    metalrobo_measured_surface_robot_probe
+    PRIVATE metalrobo
+)
+target_compile_options(
+    metalrobo_measured_surface_robot_probe
+    PRIVATE -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_measured_surface_robot_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
 
 add_executable(
     metalrobo_franka_engine_model_probe
