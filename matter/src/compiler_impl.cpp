@@ -448,6 +448,15 @@ void validateWorld(
             "world gravity must be finite and environment count nonzero",
         });
     }
+    if (!(source.contactSlop >= 0.0) || !finite(source.contactSlop) ||
+        !(source.maximumDepenetrationSpeed > 0.0) ||
+        !finite(source.maximumDepenetrationSpeed)) {
+        diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "world contact slop must be finite and nonnegative and maximum "
+            "depenetration speed must be finite and positive",
+        });
+    }
     if (!(options.cfl > 0.0) || !(options.cfl <= 1.0) ||
         options.maximumRateExponent > NM_MAX_RATE_EXPONENT ||
         options.maximumExpressionStack == 0u ||
@@ -1268,6 +1277,18 @@ CompileResult compileWorld(
                 });
                 return result;
             }
+            std::vector<bool> fixedNodes(object.femNodes.size(), false);
+            for (const std::uint32_t localNode : object.femFixedNodes) {
+                if (localNode >= object.femNodes.size() || fixedNodes[localNode]) {
+                    result.diagnostics.push_back({
+                        Diagnostic::Severity::error, 0u, 0u,
+                        "FEM object '" + object.name +
+                            "' contains an invalid or duplicate fixed node",
+                    });
+                    return result;
+                }
+                fixedNodes[localNode] = true;
+            }
             const std::size_t nodeCapacity = object.femCapacity.nodes == 0u
                 ? object.femNodes.size()
                 : object.femCapacity.nodes;
@@ -1291,15 +1312,19 @@ CompileResult compileWorld(
             descriptor.elementOffset = static_cast<nm_u32>(world.fem.tetrahedra.size());
             std::uint32_t sourceNodeIndex = 0u;
             for (const Vec3& sourceNode : object.femNodes) {
+                const bool fixed = fixedNodes[sourceNodeIndex];
                 NMFEMNodeStateGPU node{};
                 node.positionAndMass = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
                 node.velocityAndInverseMass = f4(
-                    object.femInitialVelocity[0],
-                    object.femInitialVelocity[1],
-                    object.femInitialVelocity[2],
+                    fixed ? 0.0 : object.femInitialVelocity[0],
+                    fixed ? 0.0 : object.femInitialVelocity[1],
+                    fixed ? 0.0 : object.femInitialVelocity[2],
                     0.0
                 );
-                node.restAndFixed = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
+                node.restAndFixed = f4(
+                    sourceNode[0], sourceNode[1], sourceNode[2],
+                    fixed ? 1.0 : 0.0
+                );
                 world.fem.nodes.push_back(node);
                 femNodeObjects.push_back(objectIndex);
                 NMFEMTopologyNodeGPU topologyNode{};
@@ -1498,7 +1523,7 @@ CompileResult compileWorld(
                 world.fem.nodes[globalNode].positionAndMass.w =
                     static_cast<float>(localMass[localNode]);
                 world.fem.nodes[globalNode].velocityAndInverseMass.w =
-                    localMass[localNode] > 0.0
+                    localMass[localNode] > 0.0 && !fixedNodes[localNode]
                         ? static_cast<float>(1.0 / localMass[localNode])
                         : 0.0f;
             }
@@ -2004,8 +2029,8 @@ CompileResult compileWorld(
         source.gravity[0], source.gravity[1], source.gravity[2], source.frameTimestep
     );
     dispatch.numericalLimits = f4(
-        1.0e-5,
-        5.0,
+        source.contactSlop,
+        source.maximumDepenetrationSpeed,
         1.0e-4,
         1.0e20
     );

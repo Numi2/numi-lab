@@ -372,6 +372,10 @@ struct ObjectSource {
     // copied to every unconstrained node at initialization.
     std::array<double, 3> femInitialVelocity{};
     std::vector<std::array<double, 3>> femNodes;
+    // Local FEM node indices whose position is prescribed at the authored
+    // rest position. Fixed nodes retain their assembled mass for accounting,
+    // but have zero velocity and inverse mass in the executable state.
+    std::vector<std::uint32_t> femFixedNodes;
     std::vector<TetrahedronSource> tetrahedra;
     bool mixedFEM = true;
     FEMCapacitySource femCapacity;
@@ -384,6 +388,8 @@ struct ObjectSource {
 struct WorldSource {
     double frameTimestep = 1.0 / 60.0;
     std::array<double, 3> gravity{0.0, 0.0, -9.81};
+    double contactSlop = 1.0e-5;
+    double maximumDepenetrationSpeed = 5.0;
     std::uint32_t environmentCount = 1u;
     std::uint32_t femPCGIterations = 32u;
     std::uint32_t identificationCandidates = 0u;

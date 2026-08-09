@@ -1660,6 +1660,10 @@ inline float4 fusedFEMOperatorAtNode(
 ) {
     const uint nodeBase = environment * dispatch.femNodeCount;
     const uint globalNode = nodeBase + node;
+    if (candidate[globalNode].restAndFixed.w > 0.5f ||
+        candidate[globalNode].positionAndMass.w <= 0.0f) {
+        return float4(0.0f);
+    }
     const NMContinuumObjectGPU object = objects[objectIndex];
     const NMSchedulerStateGPU scheduler =
         schedulers[environment * dispatch.objectCount + objectIndex];

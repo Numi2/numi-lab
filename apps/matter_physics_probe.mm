@@ -623,20 +623,17 @@ numi::matter::CompiledWorld compileArticulatedFootPadScene() {
     source.environmentCount = 1u;
     source.frameTimestep = 1.0 / 480.0;
     source.gravity = {0.0, 0.0, 0.0};
+    source.contactSlop = 1.0e-7;
     source.femPCGIterations = 32u;
     source.mixedSolver.fieldPCGIterations = 64u;
     source.materials.push_back(std::move(parsed.material));
-    numi::matter::RigidProxySource floor;
-    floor.shape = NM_RIGID_PLANE;
-    floor.localCenter = {0.0, 0.0, 1.0};
-    floor.radiusOrOffset = 0.0;
-    source.rigidProxies.push_back(floor);
     numi::matter::RigidProxySource foot;
-    foot.shape = NM_RIGID_PLANE;
+    foot.shape = NM_RIGID_BOX;
     foot.bodyIndex = 1u;
     foot.articulated = true;
-    foot.localCenter = {0.0, 0.0, -1.0};
-    foot.radiusOrOffset = 0.00891;
+    foot.localCenter = {0.0, 0.0, -0.0079};
+    foot.localExtent = {0.011, 0.009, 0.002};
+    foot.radiusOrOffset = 1.0;
     source.rigidProxies.push_back(foot);
 
     numi::matter::ObjectSource pad;
@@ -646,11 +643,12 @@ numi::matter::CompiledWorld compileArticulatedFootPadScene() {
     pad.mixedFEM = true;
     pad.characteristicLength = 0.02;
     pad.femNodes = {
-        {-0.01, -0.008, 0.001}, {0.01, -0.008, 0.001},
-        {-0.01,  0.008, 0.001}, {0.01,  0.008, 0.001},
-        {-0.01, -0.008, 0.015}, {0.01, -0.008, 0.015},
-        {-0.01,  0.008, 0.015}, {0.01,  0.008, 0.015},
+        {-0.01, -0.008, 0.0}, {0.01, -0.008, 0.0},
+        {-0.01,  0.008, 0.0}, {0.01,  0.008, 0.0},
+        {-0.01, -0.008, 0.014}, {0.01, -0.008, 0.014},
+        {-0.01,  0.008, 0.014}, {0.01,  0.008, 0.014},
     };
+    pad.femFixedNodes = {0u, 1u, 2u, 3u};
     pad.tetrahedra = {
         {{0u, 1u, 3u, 7u}}, {{0u, 3u, 2u, 7u}},
         {{0u, 2u, 6u, 7u}}, {{0u, 6u, 4u, 7u}},
@@ -676,8 +674,8 @@ numi::matter::CompiledWorld compileArticulatedFootPadScene() {
         failure += "; " + diagnostic.message;
     }
     require(compiled.succeeded(), failure);
-    require(compiled.world.dispatch.contactPairCount == 16u,
-        "foot-pad scene did not cook floor and articulated-foot contacts");
+    require(compiled.world.dispatch.contactPairCount == 8u,
+        "foot-pad scene did not cook the articulated-foot contact capacity");
     return std::move(compiled.world);
 }
 
@@ -1867,7 +1865,7 @@ void runArticulatedNeedlePunctureScene() {
     }
 }
 
-void runArticulatedFootPadScene() {
+void runArticulatedFootPadScene(const bool sequence = false) {
     @autoreleasepool {
         const auto world = compileArticulatedFootPadScene();
         numi::matter::Runtime matter;
@@ -1883,20 +1881,14 @@ void runArticulatedFootPadScene() {
             "foot-pad Matter runtime could not initialize: " + initialized.message);
         metalrobo::EngineModel model = metalrobo::makeFreeSphereEngineModel();
         model.name = "articulated_foot_driver";
+        model.defaultQ[1] = 0.0f;
         model.defaultQ[2] = 0.0239f;
-        model.defaultV[2] = -0.02f;
+        model.defaultV[2] = -0.004f;
         metalrobo::CompiledWorld rigidWorld;
         const auto compiled = metalrobo::compileMetalWorld(model, 0u, rigidWorld);
         require(compiled.succeeded(),
             "foot-pad MetalWorld compilation failed: " + compiled.message);
         std::vector<float> efforts(rigidWorld.nv(), 0.0f);
-        const metalrobo::MetalWorldBatch batch{
-            .environmentCount = 1u,
-            .controlStepCount = 1u,
-            .initialQ = model.defaultQ,
-            .initialV = model.defaultV,
-            .efforts = efforts,
-        };
         metalrobo::MetalWorldStepConfig config{};
         config.timestepSeconds = 1.0f / 480.0f;
         config.physicsSubsteps = 1u;
@@ -1909,27 +1901,65 @@ void runArticulatedFootPadScene() {
         require(config.devicePhysicsProgram.valid(),
             "foot-pad scene did not publish a Matter device program");
         metalrobo::MetalWorldContext context;
+        std::vector<float> currentQ = model.defaultQ;
+        std::vector<float> currentV = model.defaultV;
+        if (sequence) currentV[2] = -0.001f;
+        const std::uint32_t frameCount = sequence ? 6u : 1u;
+        for (std::uint32_t frame = 0u; frame < frameCount; ++frame) {
+        const metalrobo::MetalWorldBatch batch{
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .initialQ = currentQ,
+            .initialV = currentV,
+            .efforts = efforts,
+        };
         metalrobo::MetalWorldResult result;
         const auto ran = context.run(rigidWorld, batch, config, result);
+        const id<MTLBuffer> matterStatusBuffer =
+            (__bridge id<MTLBuffer>)matter.statusBuffer();
+        const auto* matterStatus = static_cast<const NMMatterStatusGPU*>(
+            matterStatusBuffer.contents
+        );
+        std::string matterFailure;
+        if (matterStatus != nullptr && matterStatus->code != NM_STATUS_SUCCESS) {
+            matterFailure = " matter_status=" +
+                std::to_string(matterStatus->code) +
+                " object=" + std::to_string(matterStatus->objectIndex) +
+                " index=" + std::to_string(matterStatus->failingIndex) +
+                " diagnostics=(" + std::to_string(matterStatus->diagnostics.x) +
+                "," + std::to_string(matterStatus->diagnostics.y) +
+                "," + std::to_string(matterStatus->diagnostics.z) +
+                "," + std::to_string(matterStatus->diagnostics.w) + ")";
+        }
         require(ran.succeeded(),
-            "articulated foot-pad transaction failed: " + ran.message);
+            "articulated foot-pad transaction failed: " + ran.message +
+            matterFailure);
         const auto snapshot = matter.snapshot();
-        require(snapshot.available && snapshot.reactions.size() >= 2u,
+        require(snapshot.available && snapshot.reactions.size() >= 1u,
             "foot-pad scene did not publish accepted diagnostics");
 
         std::uint32_t contacts = 0u;
+        std::uint32_t allContacts = 0u;
         float normalImpulse = 0.0f;
         float weightedX = 0.0f, weightedY = 0.0f;
+        std::vector<std::array<float, 4u>> contactEvidence;
         for (std::size_t index = 0u; index < snapshot.contactSamples.size(); ++index) {
             const auto& sample = snapshot.contactSamples[index];
+            allContacts += (sample.identity.w & NM_CONTACT_VALID) != 0u;
             if ((sample.identity.w & NM_CONTACT_VALID) == 0u ||
                 index >= world.contact.pairs.size() ||
-                world.contact.pairs[index].rigidProxy != 1u) continue;
+                world.contact.pairs[index].rigidProxy != 0u) continue;
             ++contacts;
             const float load = std::max(sample.impulseAndNormal.w, 0.0f);
             normalImpulse += load;
             weightedX += load * sample.pointAndSeparation.x;
             weightedY += load * sample.pointAndSeparation.y;
+            contactEvidence.push_back({
+                sample.pointAndSeparation.x,
+                sample.pointAndSeparation.y,
+                sample.pointAndSeparation.z,
+                load,
+            });
         }
         const float centerX = normalImpulse > 0.0f
             ? weightedX / normalImpulse : 0.0f;
@@ -1940,7 +1970,7 @@ void runArticulatedFootPadScene() {
             topHeight += snapshot.femNodes[node].positionAndMass.z;
         }
         topHeight *= 0.25f;
-        const float compression = 0.015f - topHeight;
+        const float compression = 0.014f - topHeight;
         float porePressure = 0.0f;
         for (const auto& field : snapshot.femFields) {
             porePressure = std::max(porePressure, field.primary.z);
@@ -1968,16 +1998,33 @@ void runArticulatedFootPadScene() {
             const std::uint32_t column = snapshot.contactResponseColumns[entry];
             if (row != column && row < world.contact.pairs.size() &&
                 column < world.contact.pairs.size() &&
-                world.contact.pairs[row].rigidProxy == 1u &&
-                world.contact.pairs[column].rigidProxy == 1u) {
+                world.contact.pairs[row].rigidProxy == 0u &&
+                world.contact.pairs[column].rigidProxy == 0u) {
                 maximumOffDiagonal = std::max(maximumOffDiagonal,
                     std::abs(snapshot.contactResponseValues[entry]));
             }
         }
-        const float reactionZ = snapshot.reactions[1].impulseAndCount.z;
+        const float reactionZ = snapshot.reactions[0].impulseAndCount.z;
+        float maximumFixedBaseError = 0.0f;
+        for (std::uint32_t node = 0u; node < 4u; ++node) {
+            const auto& accepted = snapshot.femNodes[node];
+            maximumFixedBaseError = std::max(maximumFixedBaseError,
+                std::abs(accepted.positionAndMass.x - accepted.restAndFixed.x));
+            maximumFixedBaseError = std::max(maximumFixedBaseError,
+                std::abs(accepted.positionAndMass.y - accepted.restAndFixed.y));
+            maximumFixedBaseError = std::max(maximumFixedBaseError,
+                std::abs(accepted.positionAndMass.z - accepted.restAndFixed.z));
+            maximumFixedBaseError = std::max(maximumFixedBaseError,
+                std::abs(accepted.velocityAndInverseMass.x));
+            maximumFixedBaseError = std::max(maximumFixedBaseError,
+                std::abs(accepted.velocityAndInverseMass.y));
+            maximumFixedBaseError = std::max(maximumFixedBaseError,
+                std::abs(accepted.velocityAndInverseMass.z));
+        }
         require(contacts >= 2u && normalImpulse > 0.0f &&
-                    reactionZ > 0.0f && result.finalV[2] > model.defaultV[2] &&
+                    reactionZ > 0.0f && result.finalV[2] > currentV[2] &&
                     maximumOffDiagonal > 0.0f &&
+                    maximumFixedBaseError <= 1.0e-8f &&
                     compression > 0.0f && porePressure > 0.0f &&
                     kktResidual <= 1.0e-4f &&
                     volumeResidual <= 1.0e-4f &&
@@ -1987,11 +2034,13 @@ void runArticulatedFootPadScene() {
                     transportResidual <= 1.0e-4f,
             "articulated foot-pad scene failed physical or certificate acceptance: "
             "contacts=" + std::to_string(contacts) +
+            " all_contacts=" + std::to_string(allContacts) +
             " impulse=" + std::to_string(normalImpulse) +
             " reaction=" + std::to_string(reactionZ) +
-            " initial_v=" + std::to_string(model.defaultV[2]) +
+            " initial_v=" + std::to_string(currentV[2]) +
             " final_v=" + std::to_string(result.finalV[2]) +
             " offdiag=" + std::to_string(maximumOffDiagonal) +
+            " fixed_base_error=" + std::to_string(maximumFixedBaseError) +
             " compression=" + std::to_string(compression) +
             " pore=" + std::to_string(porePressure) +
             " kkt=" + std::to_string(kktResidual) +
@@ -2003,6 +2052,8 @@ void runArticulatedFootPadScene() {
         std::cout
             << "{\"schema\":\"numi.matter.scene.v1\""
             << ",\"scene\":\"articulated_foot_poroelastic_pad\""
+            << ",\"frame\":" << frame
+            << ",\"frame_count\":" << frameCount
             << ",\"contacts\":" << contacts
             << ",\"normal_impulse\":" << normalImpulse
             << ",\"center_of_pressure\":[" << centerX << ',' << centerY << ']'
@@ -2011,6 +2062,7 @@ void runArticulatedFootPadScene() {
             << ",\"rigid_reaction_z\":" << reactionZ
             << ",\"accepted_foot_velocity_z\":" << result.finalV[2]
             << ",\"maximum_off_diagonal_response\":" << maximumOffDiagonal
+            << ",\"fixed_base_error\":" << maximumFixedBaseError
             << ",\"policy_observation\":[" << normalImpulse << ','
             << centerX << ',' << centerY << ',' << compression << ','
             << porePressure << ']'
@@ -2021,7 +2073,37 @@ void runArticulatedFootPadScene() {
             << ",\"complementarity\":" << complementarity
             << ",\"transport_residual\":" << transportResidual
             << ",\"gpu_milliseconds\":" << ran.gpuElapsedMilliseconds
-            << "}\n";
+            << ",\"foot_position\":[" << result.finalQ[0] << ','
+            << result.finalQ[1] << ',' << result.finalQ[2] << ']'
+            << ",\"pad_nodes\":[";
+        for (std::size_t node = 0u; node < snapshot.femNodes.size(); ++node) {
+            if (node != 0u) std::cout << ',';
+            const auto& position = snapshot.femNodes[node].positionAndMass;
+            std::cout << '[' << position.x << ',' << position.y << ','
+                      << position.z << ']';
+        }
+        std::cout << "]"
+                  << ",\"contact_points\":[";
+        for (std::size_t contact = 0u; contact < contactEvidence.size(); ++contact) {
+            if (contact != 0u) std::cout << ',';
+            const auto& value = contactEvidence[contact];
+            std::cout << '[' << value[0] << ',' << value[1] << ','
+                      << value[2] << ',' << value[3] << ']';
+        }
+        std::cout << "]}\n";
+        currentQ = result.finalQ;
+        currentV = result.finalV;
+        if (sequence) {
+            // A displacement-controlled vertical guide isolates compression
+            // from lateral free-body drift while each Matter state continues
+            // from the preceding accepted transaction.
+            currentQ[0] = model.defaultQ[0];
+            currentQ[1] = model.defaultQ[1];
+            currentV[0] = 0.0f;
+            currentV[1] = 0.0f;
+            currentV[2] = -0.001f;
+        }
+        }
     }
 }
 
@@ -2793,6 +2875,8 @@ int main(int argc, const char* argv[]) {
             std::string_view(argv[1]) == "--needle-puncture-scene";
         const bool articulatedFootPad = argc == 2 &&
             std::string_view(argv[1]) == "--articulated-foot-pad";
+        const bool articulatedFootPadSequence = argc == 2 &&
+            std::string_view(argv[1]) == "--articulated-foot-pad-sequence";
         const bool identification = argc == 2 && std::string_view(argv[1]) == "--identification";
         const bool adaptiveDemotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-demotion";
         const bool adaptivePromotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-promotion";
@@ -2809,13 +2893,17 @@ int main(int argc, const char* argv[]) {
                 punctureMutation || learnedMaterial ||
                 productionRollback || poroelasticCompression ||
                 needlePunctureScene || articulatedFootPad ||
+                articulatedFootPadSequence ||
                 identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--needle-puncture-scene|--articulated-foot-pad|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--coupled-contact|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--needle-puncture-scene|--articulated-foot-pad|--articulated-foot-pad-sequence|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--coupled-contact|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (articulatedFootPad) {
             runArticulatedFootPadScene();
+        }
+        if (articulatedFootPadSequence) {
+            runArticulatedFootPadScene(true);
         }
         if (needlePunctureScene) {
             runArticulatedNeedlePunctureScene();
@@ -3053,7 +3141,7 @@ int main(int argc, const char* argv[]) {
             !learnedMaterial &&
             !productionRollback &&
             !poroelasticCompression && !needlePunctureScene &&
-            !articulatedFootPad &&
+            !articulatedFootPad && !articulatedFootPadSequence &&
             !mixedOnly && !statefulMPM && !statefulFEM &&
             !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
@@ -3100,7 +3188,7 @@ int main(int argc, const char* argv[]) {
             !learnedMaterial &&
             !productionRollback &&
             !poroelasticCompression && !needlePunctureScene &&
-            !articulatedFootPad &&
+            !articulatedFootPad && !articulatedFootPadSequence &&
             !identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback) {
             const bool withPlane = !femFree;

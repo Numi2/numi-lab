@@ -851,6 +851,31 @@ set_target_properties(
 
 if(METALROBO_HAS_SWIFT)
     add_executable(
+        metalrobo_matter_foot_lab
+        apps/MatterFootLab.swift
+    )
+    target_link_libraries(
+        metalrobo_matter_foot_lab
+        PRIVATE
+            "${APPKIT_FRAMEWORK}"
+            "${METAL_FRAMEWORK}"
+            "${METALKIT_FRAMEWORK}"
+            "${QUARTZCORE_FRAMEWORK}"
+    )
+    target_compile_options(
+        metalrobo_matter_foot_lab
+        PRIVATE
+            "$<$<COMPILE_LANGUAGE:Swift>:-parse-as-library>"
+    )
+    set_target_properties(
+        metalrobo_matter_foot_lab
+        PROPERTIES
+            Swift_LANGUAGE_VERSION 6
+            Swift_COMPILATION_MODE singlefile
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+
+    add_executable(
         metalrobo_measured_dove_lab
         apps/MeasuredDoveLab.swift
     )
