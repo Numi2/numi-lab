@@ -24,6 +24,16 @@ public struct NumiWindowSceneChoice: Sendable {
     public let visualObservationURL: URL
     public let launchArguments: [String]
 
+    public var policyURL: URL? {
+        guard let option = launchArguments.firstIndex(of: "--policy-pack"),
+              option + 1 < launchArguments.count
+        else {
+            return nil
+        }
+        return URL(fileURLWithPath: launchArguments[option + 1])
+            .standardizedFileURL
+    }
+
     fileprivate struct Record: Decodable {
         let format: String
         let id: String
@@ -137,7 +147,34 @@ public func numiWindowSceneCatalog() -> [NumiWindowSceneChoice] {
         FileManager.default.currentDirectoryPath + "/.numi/runs",
         isDirectory: true
     )
-    return numiWindowSceneChoices(in: directory)
+    let robotPresets = numiWindowSceneChoices(in: directory)
+    let preferredPresetIDs = [
+        "franka-pick-place",
+        "px4-x500-hover",
+        "robotis-k1-squat",
+        "unitree-g1-velocity",
+    ]
+    var selectedPresets: [NumiWindowSceneChoice] = []
+    for robotID in Set(robotPresets.map(\.robotID)).sorted() {
+        let presets = robotPresets.filter { $0.robotID == robotID }
+        let selected = preferredPresetIDs.compactMap { preferred in
+            presets.first(where: { $0.id == preferred })
+        }.first ?? presets.first
+        if let selected {
+            selectedPresets.append(selected)
+        }
+    }
+    return selectedPresets.map { choice in
+        NumiWindowSceneChoice(
+            id: choice.id + ".studio",
+            robotID: choice.robotID,
+            robotName: choice.robotName,
+            sceneID: "studio",
+            sceneName: "Studio",
+            visualObservationURL: choice.visualObservationURL,
+            launchArguments: choice.launchArguments
+        )
+    }
 }
 
 public func numiWindowPolicyChoices(
@@ -181,7 +218,9 @@ public func numiWindowPolicyChoices(
     }
 }
 
-public func numiWindowPolicyCatalog() -> [
+public func numiWindowPolicyCatalog(
+    sceneChoices: [NumiWindowSceneChoice] = []
+) -> [
     NumiWindowPolicyChoice
 ] {
     let environment = ProcessInfo.processInfo.environment
@@ -193,7 +232,39 @@ public func numiWindowPolicyCatalog() -> [
         directory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
             .appendingPathComponent(".numi/policies", isDirectory: true)
     }
-    return numiWindowPolicyChoices(in: directory)
+    var choices = numiWindowPolicyChoices(in: directory)
+    var seen = Set(choices.map { $0.policyURL.standardizedFileURL })
+    let sceneDirectory = URL(fileURLWithPath:
+        environment["NUMI_WINDOW_SCENE_CATALOG"] ??
+        FileManager.default.currentDirectoryPath + "/.numi/runs",
+        isDirectory: true
+    )
+    let policyPresets = numiWindowSceneChoices(in: sceneDirectory)
+    for scene in sceneChoices + policyPresets {
+        guard let option = scene.launchArguments.firstIndex(of: "--policy-pack"),
+              option + 1 < scene.launchArguments.count
+        else {
+            continue
+        }
+        let url = URL(fileURLWithPath: scene.launchArguments[option + 1])
+            .standardizedFileURL
+        guard FileManager.default.fileExists(atPath: url.path),
+              seen.insert(url).inserted
+        else {
+            continue
+        }
+        choices.append(NumiWindowPolicyChoice(
+            robotID: scene.robotID,
+            displayName: url.deletingPathExtension().lastPathComponent,
+            policyURL: url
+        ))
+    }
+    return choices.sorted {
+        ($0.robotID.localizedStandardCompare($1.robotID) == .orderedAscending) ||
+        ($0.robotID == $1.robotID &&
+         $0.displayName.localizedStandardCompare($1.displayName) ==
+            .orderedAscending)
+    }
 }
 
 private final class WindowFrameDelivery: @unchecked Sendable {
@@ -323,6 +394,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private var cameraPitch: Float = 0
     private var cameraPan = SIMD2<Float>(repeating: 0)
     private var cameraDolly: Float = 0
+    private var activeRobotID: String
     var onClose: (() -> Void)?
     var onPresentationEnabledChanged: ((Bool) -> Void)?
     var onLatestPolicyRequested: (() -> Void)?
@@ -350,6 +422,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         self.initialPolicyURL = initialPolicyURL
         self.sceneChoices = sceneChoices
         self.initialSceneID = initialSceneID
+        self.activeRobotID = sceneChoices.first(where: {
+            $0.id == initialSceneID
+        })?.robotID ?? sceneChoices.first?.robotID ?? ""
         super.init()
         view.delegate = self
         window.contentView = view
@@ -552,6 +627,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             Self.pauseToolbarItem,
             Self.robotSelectorToolbarItem,
             Self.sceneSelectorToolbarItem,
+            Self.policySelectorToolbarItem,
             Self.resetCameraToolbarItem,
         ]
     }
@@ -563,6 +639,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             Self.pauseToolbarItem,
             Self.robotSelectorToolbarItem,
             Self.sceneSelectorToolbarItem,
+            Self.policySelectorToolbarItem,
             Self.resetCameraToolbarItem,
         ]
     }
@@ -603,8 +680,16 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             )
             selector.target = self
             selector.action = #selector(selectPolicy)
-            configurePolicySelector(selector)
+            configurePolicySelector(
+                selector,
+                for: activeRobotID,
+                preferred: sceneChoices.first(where: {
+                    $0.id == initialSceneID
+                })?.policyURL ?? initialPolicyURL
+            )
             selector.setAccessibilityLabel("Policy")
+            item.label = "Policy"
+            item.toolTip = "Select a compatible saved PolicyPack"
             item.view = selector
             policySelector = selector
             selectDisplayedPolicy(initialPolicyURL)
@@ -648,6 +733,14 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             return
         }
         configureSceneSelector(for: robotID, selecting: choice.id)
+        activeRobotID = robotID
+        if let policySelector {
+            configurePolicySelector(
+                policySelector,
+                for: robotID,
+                preferred: choice.policyURL
+            )
+        }
         requestScene(choice)
     }
 
@@ -664,6 +757,14 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         // Camera offsets are relative to each robot's authored camera. Never
         // carry an orbit from one robot into another robot's frame.
         resetCamera()
+        activeRobotID = choice.robotID
+        if let policySelector {
+            configurePolicySelector(
+                policySelector,
+                for: choice.robotID,
+                preferred: choice.policyURL
+            )
+        }
         lastFrameSummary = "loading \(choice.robotName) · \(choice.sceneName)"
         updateChrome(force: true)
         onSceneSelected?(choice.id)
@@ -715,6 +816,14 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         robotSelector?.itemArray.first(where: {
             ($0.representedObject as? String) == choice.robotID
         }).map { robotSelector?.select($0) }
+        activeRobotID = choice.robotID
+        if let policySelector {
+            configurePolicySelector(
+                policySelector,
+                for: choice.robotID,
+                preferred: choice.policyURL
+            )
+        }
         configureSceneSelector(for: choice.robotID, selecting: nil)
         sceneSelector?.itemArray.first(where: {
             ($0.representedObject as? String) == id
@@ -822,10 +931,16 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         item.isEnabled = canReloadLatestPolicy
     }
 
-    private func configurePolicySelector(_ selector: NSPopUpButton) {
+    private func configurePolicySelector(
+        _ selector: NSPopUpButton,
+        for robotID: String,
+        preferred: URL?
+    ) {
         selector.removeAllItems()
+        let robotPolicies = policyChoices.filter { $0.robotID == robotID }
         if let initialPolicyURL,
-           !policyChoices.contains(where: {
+           robotID == activeRobotID,
+           !robotPolicies.contains(where: {
                $0.policyURL.standardizedFileURL ==
                    initialPolicyURL.standardizedFileURL
            }) {
@@ -835,38 +950,28 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             )
             selector.lastItem?.representedObject = initialPolicyURL
             selector.lastItem?.toolTip = initialPolicyURL.path
-            if !policyChoices.isEmpty {
-                selector.menu?.addItem(.separator())
-            }
         }
-        guard !policyChoices.isEmpty || initialPolicyURL != nil else {
-            selector.addItem(withTitle: "No policy catalog")
+        for choice in robotPolicies {
+            selector.addItem(withTitle: choice.displayName)
+            selector.lastItem?.representedObject = choice.policyURL
+            selector.lastItem?.toolTip = choice.policyURL.path
+        }
+        guard selector.numberOfItems > 0 else {
+            selector.addItem(withTitle: "No saved policy")
             selector.isEnabled = false
             return
         }
-        var activeRobot = ""
-        for choice in policyChoices {
-            if choice.robotID != activeRobot {
-                if !activeRobot.isEmpty {
-                    selector.menu?.addItem(.separator())
-                }
-                let heading = NSMenuItem(
-                    title: choice.robotID,
-                    action: nil,
-                    keyEquivalent: ""
-                )
-                heading.isEnabled = false
-                selector.menu?.addItem(heading)
-                activeRobot = choice.robotID
+        selector.isEnabled = true
+        if let preferred {
+            let selected = preferred.standardizedFileURL
+            if let item = selector.itemArray.first(where: {
+                ($0.representedObject as? URL)?.standardizedFileURL == selected
+            }) {
+                selector.select(item)
+                return
             }
-            selector.addItem(withTitle: choice.displayName)
-            guard let item = selector.lastItem else {
-                continue
-            }
-            item.representedObject = choice.policyURL
-            item.indentationLevel = 1
-            item.toolTip = choice.policyURL.path
         }
+        selector.selectItem(at: 0)
     }
 
     private var presentationEnabled: Bool {

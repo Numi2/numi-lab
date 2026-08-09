@@ -12,10 +12,10 @@ if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
 Usage: numi window [rollout options...]
        numi window add booster-k1 --source BOOSTER_ASSETS [--output DIR]
 
-Open the single native Numi UX for robots, scenes, and policies. Choose a
-robot and an available scene from the window toolbar; the live run is rebuilt
-at a rollout boundary. Closing the window stops the preview run. Authored
-robot visuals and per-scene cameras remain source-specific.
+Open the single native Numi UX for robots, environments, and policies. Robot
+chooses the machine, Scene chooses only an authored environment, and Policy
+shows compatible saved behavior for the selected robot. The live run is
+rebuilt at a rollout boundary. Closing the window stops the preview run.
 
 Most users only need:
 
@@ -47,8 +47,9 @@ Policy selector catalog:
 
   .numi/policies/<robot-id>/*.policypack
 
-The selector groups choices by `<robot-id>`. A pack still must match the live
-world/task/observation/action contract before it can replace the active policy.
+The Policy selector filters choices to the selected robot. A pack still must
+match the live world/task/observation/action contract before it can replace
+the active policy.
 
 Optional environment overrides:
 

@@ -2804,7 +2804,9 @@ private enum TaskRolloutMain {
                     $0.visualObservationURL.standardizedFileURL == selected
                 })?.id
             }
-            let policyChoices = numiWindowPolicyCatalog()
+            let policyChoices = numiWindowPolicyCatalog(
+                sceneChoices: sceneChoices
+            )
             let initialPolicyURL = options.policyPack.map {
                 URL(fileURLWithPath: $0)
             }
