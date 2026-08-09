@@ -1874,7 +1874,10 @@ TaskPack makeMeasuredSurfaceDropRecoveryTaskPack(
     addBand(1u, 8.0f, 10.0f, -3.0f, -1.0f, 0.50f, 0.75f);
     addBand(2u, 12.0f, 16.0f, -7.0f, -3.0f, 1.00f, 1.50f);
     addBand(3u, 18.0f, 22.0f, -12.0f, -6.0f, 1.57f, 2.50f);
-    addBand(4u, 22.0f, 28.0f, -18.0f, -10.0f, 3.14159265f, 4.0f);
+    // The qualified 1.34x-weight lift envelope leaves about 3.33 m/s2 of net
+    // upward acceleration. Keep the expert band fatal without control but
+    // leave recovery margin for a fully inverted, rotating release.
+    addBand(4u, 22.0f, 28.0f, -10.0f, -6.0f, 3.14159265f, 4.0f);
     reset.operators.push_back({
         .operation = TaskRandomizationOperator::actionDelay,
         .parameters = {0.0f, 2.0f, 0.0f, 0.0f},

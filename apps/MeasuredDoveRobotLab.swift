@@ -184,12 +184,14 @@ private struct Uniforms {
 private final class RobotEngine {
     let dataset: Dataset
     let device: MTLDevice
+    private(set) var environmentIndex: Int
     private let queue: MTLCommandQueue
     private let integratePipeline: MTLComputePipelineState
     private let deformPipeline: MTLComputePipelineState
     private let rootPipeline: MTLComputePipelineState
     private let copyPipeline: MTLComputePipelineState
     private let renderPipeline: MTLRenderPipelineState
+    private let groundRenderPipeline: MTLRenderPipelineState
     private let positions: MTLBuffer
     private let triangles: MTLBuffer
     private let vertexParts: MTLBuffer
@@ -202,10 +204,19 @@ private final class RobotEngine {
     private let metrics: MTLBuffer
     private var initialized = false
     private(set) var simulationTime: Float = 0
+    private(set) var sourceTime: Float = 0
+    private var sourceDirection: Float = 1
+    private(set) var terminated = false
+    private var terminationHold: Float = 0
+    private var groundTerminationEnabled = true
     var controllerEnabled = true
 
-    init(dataset: Dataset) throws {
+    static let physicsTimestep: Float = 0.005
+    private static let episodeDuration: Float = 4.8
+
+    init(dataset: Dataset, environmentIndex: Int = 0) throws {
         self.dataset = dataset
+        self.environmentIndex = environmentIndex
         guard let device = MTLCreateSystemDefaultDevice(), let queue = device.makeCommandQueue() else {
             throw RobotError.invalid("Metal device unavailable")
         }
@@ -225,6 +236,13 @@ private final class RobotEngine {
         descriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
         descriptor.depthAttachmentPixelFormat = .depth32Float
         renderPipeline = try device.makeRenderPipelineState(descriptor: descriptor)
+        let groundDescriptor = MTLRenderPipelineDescriptor()
+        groundDescriptor.vertexFunction = library.makeFunction(name: "groundVertex")
+        groundDescriptor.fragmentFunction = library.makeFunction(name: "robotFragment")
+        groundDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
+        groundDescriptor.depthAttachmentPixelFormat = .depth32Float
+        groundRenderPipeline = try device.makeRenderPipelineState(
+            descriptor: groundDescriptor)
         func buffer(_ data: Data, _ label: String) throws -> MTLBuffer {
             guard let result = data.withUnsafeBytes({ device.makeBuffer(bytes: $0.baseAddress!, length: $0.count, options: .storageModeShared) }) else {
                 throw RobotError.invalid("could not allocate \(label)")
@@ -248,13 +266,37 @@ private final class RobotEngine {
         reset()
     }
 
-    func reset() {
+    func reset(dropEpisode: Bool = true) {
         actuatorTargets.contents().initializeMemory(as: UInt8.self, repeating: 0, count: actuatorTargets.length)
         actuatorState.contents().initializeMemory(as: UInt8.self, repeating: 0, count: actuatorState.length)
         rootState.contents().initializeMemory(as: UInt8.self, repeating: 0, count: rootState.length)
         metrics.contents().initializeMemory(as: UInt8.self, repeating: 0, count: metrics.length)
-        rootState.contents().bindMemory(to: SIMD4<Float>.self, capacity: 8)[2] = SIMD4<Float>(0, 0, 0, 1)
-        simulationTime = 0; initialized = false
+        let root = rootState.contents().bindMemory(to: SIMD4<Float>.self, capacity: 8)
+        let lane = Float(environmentIndex % 4)
+        let row = Float((environmentIndex / 4) % 4)
+        root[0] = SIMD4<Float>(0, 0, dropEpisode ? 22 + 2 * lane : 0, 0.35)
+        root[1] = SIMD4<Float>(
+            dropEpisode ? (row - 1.5) * 0.4 : 0,
+            dropEpisode ? (lane - 1.5) * 0.25 : 0,
+            dropEpisode ? -6 - (4 / 3) * lane : 0, 0)
+        if dropEpisode {
+            let tilt = 0.18 + 0.28 * lane
+            let yaw = -0.75 + 0.5 * row
+            let orientation = simd_quatf(angle: yaw, axis: SIMD3<Float>(0, 0, 1)) *
+                simd_quatf(angle: tilt, axis: simd_normalize(SIMD3<Float>(1, 0.35, 0)))
+            root[2] = orientation.vector
+        } else {
+            root[2] = SIMD4<Float>(0, 0, 0, 1)
+        }
+        simulationTime = 0; sourceTime = 0; sourceDirection = 1
+        terminated = false; terminationHold = 0
+        groundTerminationEnabled = dropEpisode
+        initialized = false
+    }
+
+    func selectEnvironment(_ index: Int) {
+        environmentIndex = max(0, index)
+        reset()
     }
 
     private func frame(at time: Float) -> (Int, Int, Float, Float) {
@@ -290,12 +332,16 @@ private final class RobotEngine {
     }
 
     func step(count: Int = 1) throws {
-        let dt: Float = 0.001
+        let dt = Self.physicsTimestep
         for _ in 0..<count {
-            let end = dataset.manifest.frames.timesSeconds.last!
-            if simulationTime + dt > end { reset() }
+            if terminated {
+                terminationHold -= dt
+                if terminationHold <= 0 { reset() }
+                continue
+            }
+            if simulationTime + dt > Self.episodeDuration { reset() }
             setControllerTargets(time: simulationTime)
-            var uniforms = baseUniforms(time: simulationTime, dt: dt)
+            var uniforms = baseUniforms(time: sourceTime, dt: dt)
             guard let command = queue.makeCommandBuffer() else { throw RobotError.invalid("command allocation failed") }
             func dispatch(_ pipeline: MTLComputePipelineState, count: Int, buffers: [(MTLBuffer, Int)]) throws {
                 guard let encoder = command.makeComputeCommandEncoder() else { throw RobotError.invalid("compute encoder failed") }
@@ -317,15 +363,38 @@ private final class RobotEngine {
                          buffers: [(localSurface, 0), (previousSurface, 1)])
             command.commit(); command.waitUntilCompleted()
             guard command.status == .completed else { throw RobotError.invalid("Metal mechanics failed: \(command.error?.localizedDescription ?? "unknown")") }
+            let actuator = actuatorState.contents().bindMemory(
+                to: SIMD2<Float>.self, capacity: 24)
+            let phaseRate = min(2.0, max(0.25, 1.0 + actuator[0].x))
+            sourceTime += sourceDirection * phaseRate * dt
+            let sourceEnd = dataset.manifest.frames.timesSeconds.last!
+            while sourceTime > sourceEnd || sourceTime < 0 {
+                if sourceTime > sourceEnd {
+                    sourceTime = 2 * sourceEnd - sourceTime
+                    sourceDirection = -1
+                }
+                if sourceTime < 0 {
+                    sourceTime = -sourceTime
+                    sourceDirection = 1
+                }
+            }
             initialized = true; simulationTime += dt
+            let root = rootState.contents().bindMemory(
+                to: SIMD4<Float>.self, capacity: 8)
+            if groundTerminationEnabled && root[0].z <= 0.04 {
+                terminated = true
+                terminationHold = 0.35
+            }
         }
     }
 
     func render(pass: MTLRenderPassDescriptor, drawable: MTLDrawable, size: CGSize,
                 yaw: Float, pitch: Float, distanceScale: Float) throws {
-        let target = dataset.center
+        let root = rootState.contents().bindMemory(
+            to: SIMD4<Float>.self, capacity: 8)
+        let target = dataset.center + SIMD3<Float>(root[0].x, root[0].y, root[0].z)
         let eye = target + dataset.radius * distanceScale * SIMD3<Float>(cos(pitch) * cos(yaw), cos(pitch) * sin(yaw), sin(pitch))
-        var uniforms = baseUniforms(time: simulationTime, dt: 0.001)
+        var uniforms = baseUniforms(time: sourceTime, dt: Self.physicsTimestep)
         uniforms.eye = SIMD4<Float>(eye, 1)
         uniforms.viewProjection = perspective(0.72, Float(max(1, size.width) / max(1, size.height)), dataset.radius * 0.01, dataset.radius * 20) * lookAt(eye, target, SIMD3<Float>(0, 0, 1))
         guard let command = queue.makeCommandBuffer(), let encoder = command.makeRenderCommandEncoder(descriptor: pass) else {
@@ -339,11 +408,15 @@ private final class RobotEngine {
         encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
         encoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: dataset.manifest.topology.triangleCount * 3)
+        encoder.setRenderPipelineState(groundRenderPipeline)
+        encoder.setVertexBuffer(rootState, offset: 0, index: 3)
+        encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
+        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
         encoder.endEncoding(); command.present(drawable); command.commit()
     }
 
     func probe() throws -> (Float, Float, Float, SIMD4<Float>) {
-        controllerEnabled = false; reset(); try step()
+        controllerEnabled = false; reset(dropEpisode: false); try step()
         let gpu = localSurface.contents().bindMemory(to: SIMD4<Float>.self, capacity: dataset.manifest.topology.vertexCount)
         var exactError: Float = 0
         let f = frame(at: 0)
@@ -355,7 +428,7 @@ private final class RobotEngine {
         controllerEnabled = true
         for _ in 0..<70 { try step() }
         var response: Float = 0
-        let responseFrame = frame(at: max(0, simulationTime - 0.001))
+        let responseFrame = frame(at: sourceTime)
         for vertex in 0..<dataset.manifest.topology.vertexCount where dataset.vertexParts[vertex] != 1 {
             let reference = simd_mix(dataset.point(frame: responseFrame.0, vertex: vertex),
                                      dataset.point(frame: responseFrame.1, vertex: vertex),
@@ -373,8 +446,12 @@ private final class RobotEngine {
     var status: String {
         let root = rootState.contents().bindMemory(to: SIMD4<Float>.self, capacity: 8)[0]
         let metric = metrics.contents().bindMemory(to: SIMD4<Float>.self, capacity: 2)[0]
-        return String(format: "t %.3f s  controller %@  root %.3f m  aero %.3f N", simulationTime,
-                      controllerEnabled ? "ON" : "OFF", simd_length(SIMD3<Float>(root.x, root.y, root.z)), metric.x)
+        return String(
+            format: "ENV %02d  %.2f / %.2f s  source %.3f s %@  demo %@  altitude %.2f m  aero %.3f N",
+            environmentIndex + 1, simulationTime, Self.episodeDuration, sourceTime,
+            sourceDirection > 0 ? "→" : "←",
+            controllerEnabled ? "ON" : "OFF", root.z, metric.x) +
+            (terminated ? "  IMPACT" : "")
     }
 
     private static func allFinite(_ p: SIMD4<Float>) -> Bool { p.x.isFinite && p.y.isFinite && p.z.isFinite && p.w.isFinite }
@@ -418,6 +495,12 @@ private final class RobotEngine {
     vertex Raster robotVertex(device const float4* surface [[buffer(0)]], device const ushort* indices [[buffer(1)]], device const uchar* parts [[buffer(2)]], device const float4* root [[buffer(3)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
         uint tri=vid/3,corner=vid%3; ushort3 ix=ushort3(indices[tri*3],indices[tri*3+1],indices[tri*3+2]); float3 a=surface[ix.x].xyz,b=surface[ix.y].xyz,c=surface[ix.z].xyz; float3 local=corner==0?a:(corner==1?b:c); float3 world=quatRotate(root[2],local-u.centerRadius.xyz)+u.centerRadius.xyz+root[0].xyz; float3 n=normalize(quatRotate(root[2],cross(b-a,c-a))); uint part=parts[tri]; float3 base=part==1?float3(.50f,.58f,.68f):(part==2?float3(.03f,.58f,1.0f):(part==3?float3(1.0f,.25f,.06f):float3(.72f,.22f,.92f))); float act=surface[corner==0?ix.x:(corner==1?ix.y:ix.z)].w; Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=n;o.color=float4(mix(base,float3(.2f,1.0f,.65f),clamp(act/.012f,0.0f,1.0f)*.7f),1);return o;
     }
+    vertex Raster groundVertex(device const float4* root [[buffer(3)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
+        const float2 corners[6] = {float2(-2,-2),float2(2,-2),float2(-2,2),float2(-2,2),float2(2,-2),float2(2,2)};
+        float3 world=float3(root[0].xy+corners[vid],0); Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=float3(0,0,1);
+        float grid=max(step(.94f,fract(abs(world.x)*5)),step(.94f,fract(abs(world.y)*5)));
+        o.color=float4(mix(float3(.035f,.055f,.075f),float3(.12f,.22f,.25f),grid),1);return o;
+    }
     fragment float4 robotFragment(Raster in [[stage_in]], constant Uniforms& u [[buffer(8)]]) { float3 n=normalize(in.normal),v=normalize(u.eye.xyz-in.world),l=normalize(float3(.4,-.5,.8));float d=.2+.75*abs(dot(n,l)),rim=pow(1-abs(dot(n,v)),2.2);return float4(1-exp(-1.15*(in.color.rgb*d+rim*.18*in.color.rgb)),1); }
     """#
 }
@@ -426,32 +509,90 @@ private final class RobotView: MTKView, MTKViewDelegate {
     let engine: RobotEngine
     private var yaw: Float = -0.78, pitch: Float = 0.28, distanceScale: Float = 2.5
     private var lastPoint: CGPoint?
-    private var simulationPaused = false
+    private(set) var simulationPaused = false
+    private(set) var playbackRate: Float = 1
+    private var simulationAccumulator: Float = 0
+    private var lastDrawTime = CACurrentMediaTime()
+    private let statusLabel = NSTextField(labelWithString: "")
     init(engine: RobotEngine, frame: CGRect) {
         self.engine = engine
         super.init(frame: frame, device: engine.device)
         colorPixelFormat = .bgra8Unorm_srgb; depthStencilPixelFormat = .depth32Float
         clearColor = MTLClearColorMake(0.006, 0.012, 0.025, 1); preferredFramesPerSecond = 60
+        statusLabel.translatesAutoresizingMaskIntoConstraints = false
+        statusLabel.textColor = .white
+        statusLabel.font = .monospacedSystemFont(ofSize: 11, weight: .medium)
+        statusLabel.backgroundColor = NSColor.black.withAlphaComponent(0.55)
+        statusLabel.drawsBackground = true
+        statusLabel.maximumNumberOfLines = 2
+        statusLabel.lineBreakMode = .byTruncatingTail
+        statusLabel.setContentCompressionResistancePriority(
+            .defaultLow, for: .horizontal)
+        statusLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        addSubview(statusLabel)
+        NSLayoutConstraint.activate([
+            statusLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            statusLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -8),
+            statusLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+        ])
         delegate = self
     }
     required init(coder: NSCoder) { fatalError() }
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
     func draw(in view: MTKView) {
         do {
-            if !simulationPaused { try engine.step(count: 2) }
+            let now = CACurrentMediaTime()
+            let wallDelta = min(0.1, max(0, now - lastDrawTime))
+            lastDrawTime = now
+            if !simulationPaused {
+                simulationAccumulator += Float(wallDelta) * playbackRate
+                let steps = min(
+                    20,
+                    Int(simulationAccumulator / RobotEngine.physicsTimestep))
+                if steps > 0 {
+                    try engine.step(count: steps)
+                    simulationAccumulator -=
+                        Float(steps) * RobotEngine.physicsTimestep
+                }
+            }
             guard let pass = currentRenderPassDescriptor, let drawable = currentDrawable else { return }
             try engine.render(pass: pass, drawable: drawable, size: drawableSize, yaw: yaw, pitch: pitch, distanceScale: distanceScale)
-            window?.title = "Numi Surface Robot — \(engine.status)"
-        } catch { window?.title = "Numi Surface Robot — \(error)"; simulationPaused = true }
+            statusLabel.stringValue = String(
+                format: "%.2fx  %@", playbackRate, engine.status)
+        } catch {
+            statusLabel.stringValue = "ENV \(engine.environmentIndex + 1) — \(error)"
+            simulationPaused = true
+        }
     }
     override var acceptsFirstResponder: Bool { true }
     override func keyDown(with event: NSEvent) {
         switch event.charactersIgnoringModifiers?.lowercased() {
-        case " ": simulationPaused.toggle()
-        case "r": engine.reset()
+        case " ": setPaused(!simulationPaused)
+        case "r": stopAndReset()
         case "p": engine.controllerEnabled.toggle()
+        case "[": setPlaybackRate(playbackRate * 0.5)
+        case "]": setPlaybackRate(playbackRate * 2)
         default: super.keyDown(with: event)
         }
+    }
+    func setPaused(_ paused: Bool) {
+        simulationPaused = paused
+        lastDrawTime = CACurrentMediaTime()
+    }
+    func setPlaybackRate(_ rate: Float) {
+        playbackRate = min(4, max(0.25, rate))
+        lastDrawTime = CACurrentMediaTime()
+    }
+    func stopAndReset() {
+        simulationPaused = true
+        engine.reset()
+        simulationAccumulator = 0
+        lastDrawTime = CACurrentMediaTime()
+    }
+    func selectEnvironment(_ index: Int) {
+        engine.selectEnvironment(index)
+        simulationAccumulator = 0
+        lastDrawTime = CACurrentMediaTime()
     }
     override func mouseDown(with event: NSEvent) { lastPoint = convert(event.locationInWindow, from: nil) }
     override func mouseDragged(with event: NSEvent) { let p=convert(event.locationInWindow,from:nil); if let q=lastPoint { yaw += Float(p.x-q.x)*0.008; pitch = min(1.3,max(-1.3,pitch+Float(p.y-q.y)*0.008)) }; lastPoint=p }
@@ -460,13 +601,172 @@ private final class RobotView: MTKView, MTKViewDelegate {
 }
 
 private final class AppDelegate: NSObject, NSApplicationDelegate {
-    let engine: RobotEngine; var window: NSWindow?
-    init(engine: RobotEngine) { self.engine = engine }
+    private let views: [RobotView]
+    private let gridContainer = NSView()
+    private let pageLabel = NSTextField(labelWithString: "")
+    private let runButton = NSButton(title: "Pause", target: nil, action: nil)
+    private var gridCount = 1
+    private var firstEnvironment = 0
+    private var paused = false
+    private var playbackRate: Float = 1
+    private let availableEnvironmentCount = 16
+    var window: NSWindow?
+
+    init(engines: [RobotEngine]) {
+        views = engines.map { RobotView(engine: $0, frame: .zero) }
+        super.init()
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1180, height: 760), styleMask: [.titled,.closable,.miniaturizable,.resizable], backing: .buffered, defer: false)
-        let view = RobotView(engine: engine, frame: window.contentView!.bounds); view.autoresizingMask=[.width,.height]
-        window.contentView = view; window.center(); window.makeKeyAndOrderFront(nil); window.makeFirstResponder(view)
-        self.window=window; NSApp.activate(ignoringOtherApps: true)
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 1280, height: 820),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered, defer: false)
+        window.title = "Numi Dove Recovery Viewer"
+
+        let root = NSStackView()
+        root.orientation = .vertical
+        root.spacing = 0
+        root.translatesAutoresizingMaskIntoConstraints = false
+        let toolbar = makeToolbar()
+        toolbar.setContentHuggingPriority(.required, for: .vertical)
+        root.addArrangedSubview(toolbar)
+        root.addArrangedSubview(gridContainer)
+        let content = NSView()
+        window.contentView = content
+        content.addSubview(root)
+        NSLayoutConstraint.activate([
+            root.leadingAnchor.constraint(equalTo: content.leadingAnchor),
+            root.trailingAnchor.constraint(equalTo: content.trailingAnchor),
+            root.topAnchor.constraint(equalTo: content.topAnchor),
+            root.bottomAnchor.constraint(equalTo: content.bottomAnchor),
+            toolbar.heightAnchor.constraint(equalToConstant: 52),
+        ])
+        rebuildGrid()
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        window.makeFirstResponder(views[0])
+        self.window = window
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    private func makeToolbar() -> NSView {
+        let bar = NSStackView()
+        bar.orientation = .horizontal
+        bar.alignment = .centerY
+        bar.spacing = 8
+        bar.edgeInsets = NSEdgeInsets(top: 8, left: 10, bottom: 8, right: 10)
+        bar.wantsLayer = true
+        bar.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+
+        func button(_ title: String, _ action: Selector) -> NSButton {
+            let value = NSButton(title: title, target: self, action: action)
+            value.bezelStyle = .rounded
+            return value
+        }
+        bar.addArrangedSubview(button("Stop", #selector(stop)))
+        runButton.target = self
+        runButton.action = #selector(toggleRun)
+        runButton.bezelStyle = .rounded
+        bar.addArrangedSubview(runButton)
+        bar.addArrangedSubview(button("Slower", #selector(slower)))
+        bar.addArrangedSubview(button("Faster", #selector(faster)))
+        bar.addArrangedSubview(button("Previous", #selector(previousPage)))
+        bar.addArrangedSubview(button("Next", #selector(nextPage)))
+
+        let gridSelector = NSSegmentedControl(
+            labels: ["1 env", "4 envs", "9 envs"],
+            trackingMode: .selectOne, target: self, action: #selector(changeGrid(_:)))
+        gridSelector.selectedSegment = 0
+        bar.addArrangedSubview(gridSelector)
+        pageLabel.font = .monospacedSystemFont(ofSize: 12, weight: .medium)
+        pageLabel.alignment = .right
+        pageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        bar.addArrangedSubview(pageLabel)
+        return bar
+    }
+
+    private func rebuildGrid() {
+        gridContainer.subviews.forEach { $0.removeFromSuperview() }
+        let columns = gridCount == 1 ? 1 : (gridCount == 4 ? 2 : 3)
+        let rows = Int(ceil(Double(gridCount) / Double(columns)))
+        let outer = NSStackView()
+        outer.orientation = .vertical
+        outer.spacing = 2
+        outer.distribution = .fillEqually
+        outer.translatesAutoresizingMaskIntoConstraints = false
+        for row in 0..<rows {
+            let line = NSStackView()
+            line.orientation = .horizontal
+            line.spacing = 2
+            line.distribution = .fillEqually
+            for column in 0..<columns {
+                let slot = row * columns + column
+                if slot < gridCount {
+                    let view = views[slot]
+                    view.selectEnvironment((firstEnvironment + slot) % availableEnvironmentCount)
+                    view.setPlaybackRate(playbackRate)
+                    view.setPaused(paused)
+                    line.addArrangedSubview(view)
+                } else {
+                    line.addArrangedSubview(NSView())
+                }
+            }
+            outer.addArrangedSubview(line)
+        }
+        gridContainer.addSubview(outer)
+        NSLayoutConstraint.activate([
+            outer.leadingAnchor.constraint(equalTo: gridContainer.leadingAnchor),
+            outer.trailingAnchor.constraint(equalTo: gridContainer.trailingAnchor),
+            outer.topAnchor.constraint(equalTo: gridContainer.topAnchor),
+            outer.bottomAnchor.constraint(equalTo: gridContainer.bottomAnchor),
+        ])
+        updateToolbar()
+    }
+
+    private func updateToolbar() {
+        let last = min(availableEnvironmentCount, firstEnvironment + gridCount)
+        pageLabel.stringValue = String(
+            format: "ENV %02d–%02d of %02d   %.2fx",
+            firstEnvironment + 1, last, availableEnvironmentCount, playbackRate)
+        runButton.title = paused ? "Run" : "Pause"
+    }
+
+    @objc private func stop() {
+        paused = true
+        visibleViews.forEach { $0.stopAndReset() }
+        updateToolbar()
+    }
+    @objc private func toggleRun() {
+        paused.toggle()
+        visibleViews.forEach { $0.setPaused(paused) }
+        updateToolbar()
+    }
+    @objc private func slower() {
+        playbackRate = max(0.25, playbackRate * 0.5)
+        visibleViews.forEach { $0.setPlaybackRate(playbackRate) }
+        updateToolbar()
+    }
+    @objc private func faster() {
+        playbackRate = min(4, playbackRate * 2)
+        visibleViews.forEach { $0.setPlaybackRate(playbackRate) }
+        updateToolbar()
+    }
+    @objc private func previousPage() {
+        firstEnvironment = max(0, firstEnvironment - gridCount)
+        rebuildGrid()
+    }
+    @objc private func nextPage() {
+        firstEnvironment = (firstEnvironment + gridCount) % availableEnvironmentCount
+        rebuildGrid()
+    }
+    @objc private func changeGrid(_ sender: NSSegmentedControl) {
+        gridCount = [1, 4, 9][max(0, sender.selectedSegment)]
+        firstEnvironment = min(firstEnvironment, availableEnvironmentCount - 1)
+        rebuildGrid()
+    }
+    private var visibleViews: ArraySlice<RobotView> {
+        views.prefix(gridCount)
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 }
@@ -502,7 +802,11 @@ private func perspective(_ fovy: Float,_ aspect: Float,_ near: Float,_ far: Floa
             print("  quantitative force acceptance: \(dataset.manifest.readiness.quantitativeForceAcceptanceReady)")
             return
         }
-        let app=NSApplication.shared; let delegate=AppDelegate(engine: engine); app.delegate=delegate; app.setActivationPolicy(.regular); app.run()
+        var engines = [engine]
+        for index in 1..<9 {
+            engines.append(try RobotEngine(dataset: dataset, environmentIndex: index))
+        }
+        let app=NSApplication.shared; let delegate=AppDelegate(engines: engines); app.delegate=delegate; app.setActivationPolicy(.regular); app.run()
         withExtendedLifetime(delegate) {}
     }
 }
