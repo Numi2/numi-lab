@@ -54,12 +54,17 @@ makeMeasuredSurfaceFlightActions() {
         actions[i].naturalFrequencyHertz = i < 4u ? 8.0f : 14.0f;
         actions[i].dampingRatio = i < 4u ? 1.0f : 0.82f;
     }
+    // The reflected 143 ms measurement is a 3.50 Hz wingbeat. The robotic
+    // rhythm lane spans 2.27--7.00 Hz while preserving that exact measured
+    // cadence at zero command.
     actions[0].lowerBound = -0.35f;
-    actions[0].upperBound = 0.35f;
+    actions[0].upperBound = 1.0f;
     actions[1].lowerBound = -0.25f;
     actions[1].upperBound = 0.25f;
-    actions[2].lowerBound = -0.45f;
-    actions[2].upperBound = 0.45f;
+    // Zero is the unmodified measurement. Positive command reaches 2.25x the
+    // measured excursion for the robot's bounded recovery envelope.
+    actions[2].lowerBound = -0.50f;
+    actions[2].upperBound = 1.25f;
     actions[3].lowerBound = 0.0f;
     actions[3].upperBound = 1.0f;
     return actions;

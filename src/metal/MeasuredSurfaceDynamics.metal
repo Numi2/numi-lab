@@ -75,6 +75,13 @@ float3 surfacePoint(
             : 0.0f);
     float3 point = measuredPoint(
         model, positions, state.phaseRateImpulseStep.x + phaseShift, vertexIndex);
+    if (part == 2u || part == 3u || part == 4u) {
+        const float3 reference = measuredPoint(
+            model, positions, 0.0f, vertexIndex);
+        const float measuredAmplitude = clamp(
+            1.0f + groupStateLane(state, 2u), 0.5f, 2.25f);
+        point = reference + measuredAmplitude * (point - reference);
+    }
     const float3 span = model.boundsMaximum.xyz - model.boundsMinimum.xyz;
     const float normalizedX =
         (point.x - model.boundsMinimum.x) / max(span.x, 1.0e-6f);
@@ -373,7 +380,21 @@ kernel void mr_step_measured_surface_mechanics(
             scalarScratch[0].x, candidate.phaseRateImpulseStep.x);
         candidateEvidence[environment].deformationActuationStatus = float4(
             scalarScratch[0].y, sqrt(actuatorNormSquared), valid ? 0.0f : 1.0f, 0.0f);
+        candidateEvidence[environment].worldForceAndMagnitude = float4(
+            forceScratch[0].xyz, length(forceScratch[0].xyz));
+        candidateEvidence[environment].worldTorqueAndMagnitude = float4(
+            torqueScratch[0].xyz, length(torqueScratch[0].xyz));
+        candidateEvidence[environment].worldForceImpulseAndTime =
+            acceptedEvidence[environment].worldForceImpulseAndTime;
+        candidateEvidence[environment].worldTorqueImpulse =
+            acceptedEvidence[environment].worldTorqueImpulse;
         if (valid) {
+            candidateEvidence[environment].worldForceImpulseAndTime.xyz +=
+                dispatch.timestepAndWindX.x * forceScratch[0].xyz;
+            candidateEvidence[environment].worldForceImpulseAndTime.w +=
+                dispatch.timestepAndWindX.x;
+            candidateEvidence[environment].worldTorqueImpulse.xyz +=
+                dispatch.timestepAndWindX.x * torqueScratch[0].xyz;
             MRMeasuredSurfaceStateGPU accumulated =
                 candidateStates[environment];
             accumulated.phaseRateImpulseStep.z +=

@@ -42,6 +42,11 @@ the ordinary asynchronous arena ring.
 
 Accepted state records filtered actuator position/velocity, source phase and
 direction, accumulated aerodynamic impulse, and accepted physics-substep count.
+Accepted evidence retains the signed instantaneous world force and torque plus
+their transactionally accumulated impulses and integration time. This permits
+control-authority qualification without inferring direction from body motion;
+late-substep rollback restores these accumulators with the rest of the control
+step.
 `inspectAccepted()` is an explicit post-submission diagnostic boundary that
 blits these private records once; rollout and training never call it.
 
@@ -60,6 +65,13 @@ joint actuator kernel deliberately skips this kind; the compiled mechanics
 program is its sole execution owner. `CompiledRun` fingerprints and retains the
 resolved surface binding, and the ordinary task-rollout C API constructs the
 device mechanics program automatically.
+
+The neutral rhythm command preserves the measured 3.50 Hz reflected wingbeat
+and its exact surface positions. The bounded robot envelope can drive cadence
+from 2.27 to 7.00 Hz and scales wing/tail displacement from the first measured
+frame between 0.5x and 2.25x. These are authored actuator capabilities, not
+additional measured claims; the source geometry and provenance remain
+unchanged at neutral command.
 
 ## Current physical boundary
 
@@ -90,3 +102,13 @@ deterministic replay, whole-control-step rollback at a deliberately induced
 late substep failure, overlapping-runtime rejection, topology admission, and
 accepted impulse/substep accounting. These are simulator measurements, not
 hardware-flight or aerodynamic-calibration evidence.
+
+`numi dove authority-sweep 2048 36` batches a neutral profile, both signs of
+every action lane, explicit bilateral recovery modes, and deterministic
+harmonic candidates. The diagnostic reads signed accepted force/torque
+impulses after two reflected wingbeats and requires mean vertical force to
+exceed 1.05 times modeled weight. Roll, pitch, and yaw must each provide both
+torque signs at a modeled angular acceleration of at least 12 rad/s2. The
+repeated sweep must be bit-identical and publish zero failed environment
+steps. This qualifies the simulator's authored control envelope; it does not
+calibrate aerodynamic coefficients or prove hardware flight.

@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <numbers>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -124,7 +125,8 @@ FlightExecution runFlight(
     const metalrobo::CompiledRun& run,
     bool enableSurface,
     std::vector<float> actions,
-    bool inspectSurface = false
+    bool inspectSurface = false,
+    float initialHeightMeters = 2.0f
 ) {
     using namespace metalrobo;
     const std::size_t environments = run.profile().environmentCount;
@@ -137,6 +139,7 @@ FlightExecution runFlight(
     for (std::size_t environment = 0u; environment < environments; ++environment) {
         std::copy(run.model().defaultQ.begin(), run.model().defaultQ.end(),
             q.begin() + environment * nq);
+        q[environment * nq + 2u] = initialHeightMeters;
     }
     require(actions.size() == steps * environments *
         run.task().layout().actionCount, "action stream has the wrong shape");
@@ -180,6 +183,225 @@ FlightExecution runFlight(
         }
     }
     return execution;
+}
+
+float deterministicSignedUnit(std::uint64_t value) {
+    value += 0x9e3779b97f4a7c15ull;
+    value = (value ^ (value >> 30u)) * 0xbf58476d1ce4e5b9ull;
+    value = (value ^ (value >> 27u)) * 0x94d049bb133111ebull;
+    value ^= value >> 31u;
+    const double unit = static_cast<double>(value >> 11u) *
+        (1.0 / 9007199254740992.0);
+    return static_cast<float>(2.0 * unit - 1.0);
+}
+
+struct AuthorityLoad {
+    std::array<float, 3u> force{};
+    std::array<float, 3u> torque{};
+};
+
+AuthorityLoad meanAcceptedLoad(const MRMeasuredSurfaceEvidenceGPU& evidence) {
+    require(evidence.worldForceImpulseAndTime.w > 0.0f,
+        "authority evidence did not accumulate integration time");
+    const float inverseTime = 1.0f / evidence.worldForceImpulseAndTime.w;
+    return {
+        .force = {
+            evidence.worldForceImpulseAndTime.x * inverseTime,
+            evidence.worldForceImpulseAndTime.y * inverseTime,
+            evidence.worldForceImpulseAndTime.z * inverseTime,
+        },
+        .torque = {
+            evidence.worldTorqueImpulse.x * inverseTime,
+            evidence.worldTorqueImpulse.y * inverseTime,
+            evidence.worldTorqueImpulse.z * inverseTime,
+        },
+    };
+}
+
+void runAuthoritySweep(
+    const std::filesystem::path& manifestPath,
+    std::uint32_t candidateCount,
+    std::uint32_t steps
+) {
+    using namespace metalrobo;
+    require(candidateCount >= 49u && candidateCount <= 4096u,
+        "authority candidate count must be in [49, 4096]");
+    require(steps >= 18u && steps <= 120u,
+        "authority sweep must span at least one reflected wingbeat");
+    MeasuredSurfaceRobotPack pack = loadMeasuredDove(manifestPath);
+    const CompiledMeasuredSurfaceRobot robot =
+        compileMeasuredSurfaceRobot(pack);
+    const CompiledRun run = compileFlightRun(pack, candidateCount, steps);
+    const std::uint32_t actionCount = run.task().layout().actionCount;
+    require(actionCount == kMeasuredSurfaceActionCount,
+        "authority sweep requires the complete 24-action contract");
+    std::vector<float> actions(
+        static_cast<std::size_t>(steps) * candidateCount * actionCount, 0.0f);
+    for (std::uint32_t step = 0u; step < steps; ++step) {
+        const float wingbeatPhase = 2.0f * std::numbers::pi_v<float> *
+            static_cast<float>(step) / 18.0f;
+        for (std::uint32_t candidate = 1u; candidate < candidateCount;
+             ++candidate) {
+            const std::size_t base =
+                (static_cast<std::size_t>(step) * candidateCount + candidate) *
+                actionCount;
+            if (candidate <= 48u) {
+                const std::uint32_t action = (candidate - 1u) / 2u;
+                actions[base + action] = (candidate & 1u) != 0u ? 1.0f : -1.0f;
+                continue;
+            }
+            if (candidate < 113u) {
+                // Full-cadence/full-amplitude recovery envelope plus one
+                // bilateral wing mode. The four sign/symmetry combinations
+                // expose collective and differential authority explicitly.
+                actions[base] = 1.0f;
+                actions[base + 2u] = 1.0f;
+                const std::uint32_t combination = candidate - 49u;
+                const std::uint32_t wingLane = combination / 8u;
+                const std::uint32_t pattern = combination % 4u;
+                const float left = pattern < 2u ? 1.0f : -1.0f;
+                const float right = (pattern & 1u) == 0u ? left : -left;
+                actions[base + 4u + wingLane] = left;
+                actions[base + 12u + wingLane] = right;
+                continue;
+            }
+            for (std::uint32_t action = 0u; action < actionCount; ++action) {
+                const std::uint64_t key =
+                    static_cast<std::uint64_t>(candidate) * 1315423911ull +
+                    static_cast<std::uint64_t>(action) * 2654435761ull;
+                const float center = 0.78f * deterministicSignedUnit(key);
+                const float amplitude = 0.22f * deterministicSignedUnit(
+                    key ^ 0xd1b54a32d192ed03ull);
+                const float phase = std::numbers::pi_v<float> *
+                    deterministicSignedUnit(key ^ 0x94d049bb133111ebull);
+                actions[base + action] = std::clamp(
+                    center + amplitude * std::sin(wingbeatPhase + phase),
+                    -1.0f, 1.0f);
+            }
+        }
+    }
+    const FlightExecution first =
+        runFlight(run, true, actions, true, 20.0f);
+    const FlightExecution replay =
+        runFlight(run, true, actions, true, 20.0f);
+    for (const FlightExecution* execution : {&first, &replay}) {
+        require(execution->diagnostics.succeeded() &&
+                execution->diagnostics.failedStepCount == 0u &&
+                execution->surfaceInspection.acceptedEvidence.size() ==
+                    candidateCount,
+            "authority sweep Metal execution failed: " +
+                execution->diagnostics.message);
+    }
+    require(first.result.finalQ == replay.result.finalQ &&
+            first.result.finalV == replay.result.finalV &&
+            std::memcmp(first.surfaceInspection.acceptedEvidence.data(),
+                replay.surfaceInspection.acceptedEvidence.data(),
+                candidateCount * sizeof(MRMeasuredSurfaceEvidenceGPU)) == 0,
+        "authority sweep was not bit-identical on replay");
+    std::vector<AuthorityLoad> loads(candidateCount);
+    for (std::uint32_t candidate = 0u; candidate < candidateCount; ++candidate) {
+        const MRMeasuredSurfaceEvidenceGPU& evidence =
+            first.surfaceInspection.acceptedEvidence[candidate];
+        require(evidence.deformationActuationStatus.z == 0.0f,
+            "authority candidate published invalid surface evidence");
+        loads[candidate] = meanAcceptedLoad(evidence);
+    }
+    const AuthorityLoad neutral = loads.front();
+    std::uint32_t liftCandidate = 0u;
+    std::array<std::uint32_t, 3u> positiveCandidates{};
+    std::array<std::uint32_t, 3u> negativeCandidates{};
+    for (std::uint32_t candidate = 1u; candidate < candidateCount; ++candidate) {
+        if (loads[candidate].force[2u] > loads[liftCandidate].force[2u]) {
+            liftCandidate = candidate;
+        }
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+            const float delta = loads[candidate].torque[axis] - neutral.torque[axis];
+            const float positive = loads[positiveCandidates[axis]].torque[axis] -
+                neutral.torque[axis];
+            const float negative = loads[negativeCandidates[axis]].torque[axis] -
+                neutral.torque[axis];
+            if (delta > positive) positiveCandidates[axis] = candidate;
+            if (delta < negative) negativeCandidates[axis] = candidate;
+        }
+    }
+    const float weightNewtons = pack.bodyMassKilograms * 9.81f;
+    constexpr float liftReserve = 1.05f;
+    constexpr float requiredAngularAcceleration = 12.0f;
+    const bool liftPass = loads[liftCandidate].force[2u] >=
+        liftReserve * weightNewtons;
+    std::array<bool, 3u> positivePass{};
+    std::array<bool, 3u> negativePass{};
+    const std::array<const char*, 3u> axisNames{"roll", "pitch", "yaw"};
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+        const float positiveTorque =
+            loads[positiveCandidates[axis]].torque[axis] - neutral.torque[axis];
+        const float negativeTorque =
+            neutral.torque[axis] - loads[negativeCandidates[axis]].torque[axis];
+        const float threshold = pack.principalInertiaKilogramMetersSquared[axis] *
+            requiredAngularAcceleration;
+        positivePass[axis] = positiveTorque >= threshold;
+        negativePass[axis] = negativeTorque >= threshold;
+    }
+    const bool authorityPass = liftPass &&
+        std::ranges::all_of(positivePass, [](bool value) { return value; }) &&
+        std::ranges::all_of(negativePass, [](bool value) { return value; });
+    const double environmentStepsPerSecond =
+        first.diagnostics.gpuElapsedMilliseconds > 0.0
+        ? static_cast<double>(candidateCount) * steps * 1000.0 /
+            first.diagnostics.gpuElapsedMilliseconds
+        : 0.0;
+    std::cout << "MeasuredSurface control-authority sweep "
+              << (authorityPass ? "PASSED" : "FAILED") << '\n'
+              << "  run fingerprint: " << run.fingerprint() << '\n'
+              << "  surface fingerprint: " << robot.fingerprint << '\n'
+              << "  candidates x steps x substeps: " << candidateCount
+              << " x " << steps << " x 4\n"
+              << "  actuator contract: 24/24 lanes exercised; neutral + signed basis + bilateral recovery modes + deterministic harmonic candidates\n"
+              << "  mass / weight: " << pack.bodyMassKilograms << " kg / "
+              << weightNewtons << " N\n"
+              << "  lift gate: mean Fz >= " << liftReserve << " x weight\n"
+              << "  best lift candidate / mean Fz / weight ratio: "
+              << liftCandidate << " / " << loads[liftCandidate].force[2u]
+              << " N / " << loads[liftCandidate].force[2u] / weightNewtons
+              << " [" << (liftPass ? "pass" : "fail") << "]\n"
+              << "  best lift mean torque xyz N m: "
+              << loads[liftCandidate].torque[0u] << " "
+              << loads[liftCandidate].torque[1u] << " "
+              << loads[liftCandidate].torque[2u] << '\n'
+              << "  neutral mean force xyz N: " << neutral.force[0u] << " "
+              << neutral.force[1u] << " " << neutral.force[2u] << '\n'
+              << "  attitude gate: bidirectional delta torque / inertia >= "
+              << requiredAngularAcceleration << " rad/s^2\n";
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+        const float positiveTorque =
+            loads[positiveCandidates[axis]].torque[axis] - neutral.torque[axis];
+        const float negativeTorque =
+            neutral.torque[axis] - loads[negativeCandidates[axis]].torque[axis];
+        const float inertia = pack.principalInertiaKilogramMetersSquared[axis];
+        std::cout << "  " << axisNames[axis]
+                  << " +/- candidate: " << positiveCandidates[axis] << "/"
+                  << negativeCandidates[axis]
+                  << ", delta torque: +" << positiveTorque << "/-"
+                  << negativeTorque << " N m, angular accel: +"
+                  << positiveTorque / inertia << "/-" << negativeTorque / inertia
+                  << " rad/s^2 ["
+                  << ((positivePass[axis] && negativePass[axis]) ? "pass" : "fail")
+                  << "]\n";
+    }
+    std::cout << "  deterministic signed-load replay: true\n"
+              << "  failed environment steps: "
+              << first.diagnostics.failedStepCount << '\n'
+              << "  immutable/persistent bytes: "
+              << first.surfaceStats.immutableBytes << "/"
+              << first.surfaceStats.persistentBytes << '\n'
+              << "  checkpoint/threadgroup bytes: "
+              << first.surfaceStats.controlStepCheckpointBytes << "/"
+              << first.surfaceStats.threadgroupBytes << '\n'
+              << "  GPU ms / environment steps per second: "
+              << first.diagnostics.gpuElapsedMilliseconds << " / "
+              << environmentStepsPerSecond << '\n';
+    require(authorityPass,
+        "24-actuator contract did not satisfy every physical authority gate");
 }
 
 bool proveStatefulSingleFlight(
@@ -243,9 +465,17 @@ bool proveStatefulSingleFlight(
 int main(int argc, char** argv) {
     try {
         using namespace metalrobo;
+        if (argc == 5 && std::string_view(argv[1]) == "--authority") {
+            runAuthoritySweep(argv[2],
+                static_cast<std::uint32_t>(std::stoul(argv[3])),
+                static_cast<std::uint32_t>(std::stoul(argv[4])));
+            return 0;
+        }
         if (argc != 2 && argc != 4) {
             std::cerr << "usage: metalrobo_measured_surface_robot_probe "
-                         "MANIFEST [ENVIRONMENTS STEPS]\n";
+                         "MANIFEST [ENVIRONMENTS STEPS]\n"
+                         "       metalrobo_measured_surface_robot_probe "
+                         "--authority MANIFEST CANDIDATES STEPS\n";
             return 2;
         }
         const std::uint32_t environments = argc == 4

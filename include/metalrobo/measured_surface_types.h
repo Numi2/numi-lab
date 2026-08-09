@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_MEASURED_SURFACE_ABI_VERSION 1u
+#define MR_MEASURED_SURFACE_ABI_VERSION 2u
 #define MR_MEASURED_SURFACE_ACTION_CAPACITY 32u
 #define MR_MEASURED_SURFACE_COMPONENT_CAPACITY 16u
 #define MR_MEASURED_SURFACE_PHASE_CLAMP 0u
@@ -90,6 +90,14 @@ typedef struct MR_ALIGN16 MRMeasuredSurfaceEvidenceGPU {
     mr_float4 loadsAreaPhase;
     // maximum deformation m, actuator norm, status, reserved.
     mr_float4 deformationActuationStatus;
+    // Signed instantaneous world-frame force xyz and magnitude N.
+    mr_float4 worldForceAndMagnitude;
+    // Signed instantaneous world-frame torque xyz and magnitude N m.
+    mr_float4 worldTorqueAndMagnitude;
+    // Accepted signed force impulse xyz N s and elapsed integration time s.
+    mr_float4 worldForceImpulseAndTime;
+    // Accepted signed torque impulse xyz N m s; w is reserved.
+    mr_float4 worldTorqueImpulse;
 } MRMeasuredSurfaceEvidenceGPU;
 
 #ifndef __METAL_VERSION__
@@ -98,5 +106,5 @@ static_assert(sizeof(MRMeasuredSurfaceActionGPU) == 16);
 static_assert(sizeof(MRMeasuredSurfaceModelGPU) == 96);
 static_assert(sizeof(MRCompiledMeasuredSurfaceDispatchGPU) == 96);
 static_assert(sizeof(MRMeasuredSurfaceStateGPU) == 272);
-static_assert(sizeof(MRMeasuredSurfaceEvidenceGPU) == 32);
+static_assert(sizeof(MRMeasuredSurfaceEvidenceGPU) == 96);
 #endif
