@@ -236,6 +236,18 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
         pack.tangentialDragCoefficient < 0.0f) {
         throw std::invalid_argument("measured-surface aerodynamic coefficients are invalid");
     }
+    if (!std::ranges::all_of(pack.aerodynamicCorrections,
+            [](const float value) { return std::isfinite(value); }) ||
+        pack.aerodynamicCorrections[0u] <= 0.0f ||
+        pack.aerodynamicCorrections[0u] >= 1.0f ||
+        pack.aerodynamicCorrections[1u] < 0.0f ||
+        pack.aerodynamicCorrections[1u] > 1.0f ||
+        pack.aerodynamicCorrections[2u] < 0.0f ||
+        pack.aerodynamicCorrections[2u] > 1.0f ||
+        pack.aerodynamicCorrections[3u] <= 0.0f) {
+        throw std::invalid_argument(
+            "measured-surface aerodynamic corrections are invalid");
+    }
     for (const float inertia : pack.principalInertiaKilogramMetersSquared) {
         if (!std::isfinite(inertia) || inertia <= 0.0f) {
             throw std::invalid_argument("principal inertia must be finite and positive");
@@ -314,6 +326,7 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
     hashValue(hash, pack.airDensityKilogramsPerCubicMeter);
     hashValue(hash, pack.normalDragCoefficient);
     hashValue(hash, pack.tangentialDragCoefficient);
+    hashValue(hash, pack.aerodynamicCorrections);
     hashValue(hash, pack.normalizedActionBias);
     hashBytes(hash, pack.frameMajorPositions.data(),
               pack.frameMajorPositions.size() * sizeof(float));
@@ -390,6 +403,10 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
          pack.airDensityKilogramsPerCubicMeter,
          pack.normalDragCoefficient,
          pack.tangentialDragCoefficient},
+        {pack.aerodynamicCorrections[0u],
+         pack.aerodynamicCorrections[1u],
+         pack.aerodynamicCorrections[2u],
+         pack.aerodynamicCorrections[3u]},
         {center.x, center.y, center.z,
          0.5f * std::sqrt(dx * dx + dy * dy + dz * dz)},
         minimum,

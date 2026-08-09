@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_MEASURED_SURFACE_ABI_VERSION 3u
+#define MR_MEASURED_SURFACE_ABI_VERSION 4u
 #define MR_MEASURED_SURFACE_ACTION_CAPACITY 32u
 #define MR_MEASURED_SURFACE_COMPONENT_CAPACITY 16u
 #define MR_MEASURED_SURFACE_PHASE_CLAMP 0u
@@ -45,6 +45,9 @@ typedef struct MR_ALIGN16 MRMeasuredSurfaceModelGPU {
 
     // sample rate Hz, air density kg/m3, normal drag, tangential drag.
     mr_float4 samplingAndAerodynamics;
+    // Separation onset normal ratio, full-incidence normal retention,
+    // maximum ground-effect lift increment, height scale in wing spans.
+    mr_float4 aerodynamicCorrections;
     // Local measured-surface center xyz and bounding radius.
     mr_float4 centerAndRadius;
     mr_float4 boundsMinimum;
@@ -106,7 +109,7 @@ typedef struct MR_ALIGN16 MRMeasuredSurfaceEvidenceGPU {
 #ifndef __METAL_VERSION__
 static_assert(sizeof(MRMeasuredSurfaceComponentGPU) == 32);
 static_assert(sizeof(MRMeasuredSurfaceActionGPU) == 32);
-static_assert(sizeof(MRMeasuredSurfaceModelGPU) == 96);
+static_assert(sizeof(MRMeasuredSurfaceModelGPU) == 112);
 static_assert(sizeof(MRCompiledMeasuredSurfaceDispatchGPU) == 96);
 static_assert(sizeof(MRMeasuredSurfaceStateGPU) == 272);
 static_assert(sizeof(MRMeasuredSurfaceEvidenceGPU) == 96);

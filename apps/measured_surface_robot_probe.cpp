@@ -11,9 +11,13 @@
 #include <limits>
 #include <memory>
 #include <numbers>
+#include <numeric>
+#include <queue>
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace {
@@ -796,6 +800,162 @@ AeroAuditBatch runAeroAuditBatch(
     return result;
 }
 
+struct SurfaceTopologyAudit {
+    std::uint32_t boundaryEdges = 0u;
+    std::uint32_t boundaryLoops = 0u;
+    std::uint32_t boundaryBranchVertices = 0u;
+    std::uint32_t nonManifoldEdges = 0u;
+    std::uint32_t degenerateTriangles = 0u;
+    std::uint32_t disconnectedComponentIslands = 0u;
+    std::uint32_t inferredHandles = 0u;
+    float minimumTwiceArea = std::numeric_limits<float>::infinity();
+    std::array<std::uint32_t, 4u> componentBoundaryLoops{};
+};
+
+SurfaceTopologyAudit auditSurfaceTopology(
+    const metalrobo::MeasuredSurfaceRobotPack& pack
+) {
+    struct EdgeUse {
+        std::uint32_t count = 0u;
+        std::uint32_t component = 0u;
+    };
+    const auto edgeKey = [](std::uint32_t first, std::uint32_t second) {
+        const std::uint32_t lower = std::min(first, second);
+        const std::uint32_t upper = std::max(first, second);
+        return (static_cast<std::uint64_t>(lower) << 32u) | upper;
+    };
+    std::unordered_map<std::uint64_t, EdgeUse> edges;
+    edges.reserve(static_cast<std::size_t>(pack.triangleCount) * 3u);
+    std::vector<std::uint32_t> parent(pack.vertexCount);
+    std::iota(parent.begin(), parent.end(), 0u);
+    const auto findRoot = [&parent](std::uint32_t vertex) {
+        while (parent[vertex] != vertex) {
+            parent[vertex] = parent[parent[vertex]];
+            vertex = parent[vertex];
+        }
+        return vertex;
+    };
+    const auto unite = [&parent, &findRoot](std::uint32_t first,
+                                            std::uint32_t second) {
+        first = findRoot(first);
+        second = findRoot(second);
+        if (first != second) parent[second] = first;
+    };
+    SurfaceTopologyAudit audit;
+    std::vector<std::uint32_t> triangleComponent(pack.triangleCount, 0u);
+    for (std::uint32_t component = 0u;
+         component < pack.components.size(); ++component) {
+        const auto& range = pack.components[component];
+        std::fill_n(triangleComponent.begin() + range.triangleOffset,
+            range.triangleCount, component);
+    }
+    for (std::uint32_t triangle = 0u; triangle < pack.triangleCount;
+         ++triangle) {
+        const std::uint32_t i0 = pack.triangleIndices[3u * triangle];
+        const std::uint32_t i1 = pack.triangleIndices[3u * triangle + 1u];
+        const std::uint32_t i2 = pack.triangleIndices[3u * triangle + 2u];
+        if (i0 == i1 || i1 == i2 || i2 == i0) {
+            ++audit.degenerateTriangles;
+            continue;
+        }
+        unite(i0, i1);
+        unite(i1, i2);
+        for (const auto [first, second] :
+             {std::pair{i0, i1}, std::pair{i1, i2}, std::pair{i2, i0}}) {
+            EdgeUse& use = edges[edgeKey(first, second)];
+            ++use.count;
+            use.component = triangleComponent[triangle];
+        }
+    }
+    for (std::uint32_t frame = 0u; frame < pack.frameCount; ++frame) {
+        const std::size_t frameBase =
+            static_cast<std::size_t>(frame) * pack.vertexCount * 3u;
+        for (std::uint32_t triangle = 0u; triangle < pack.triangleCount;
+             ++triangle) {
+            const auto point = [&](std::uint32_t corner) {
+                const std::size_t base = frameBase +
+                    static_cast<std::size_t>(
+                        pack.triangleIndices[3u * triangle + corner]) * 3u;
+                return std::array<float, 3u>{
+                    pack.frameMajorPositions[base],
+                    pack.frameMajorPositions[base + 1u],
+                    pack.frameMajorPositions[base + 2u]};
+            };
+            const auto a = point(0u), b = point(1u), c = point(2u);
+            const std::array<float, 3u> ab{
+                b[0u] - a[0u], b[1u] - a[1u], b[2u] - a[2u]};
+            const std::array<float, 3u> ac{
+                c[0u] - a[0u], c[1u] - a[1u], c[2u] - a[2u]};
+            const std::array<float, 3u> cross{
+                ab[1u] * ac[2u] - ab[2u] * ac[1u],
+                ab[2u] * ac[0u] - ab[0u] * ac[2u],
+                ab[0u] * ac[1u] - ab[1u] * ac[0u]};
+            const float twiceArea = norm3(cross);
+            audit.minimumTwiceArea = std::min(
+                audit.minimumTwiceArea, twiceArea);
+            if (!(twiceArea > 1.0e-12f)) ++audit.degenerateTriangles;
+        }
+    }
+    std::array<std::unordered_map<std::uint32_t,
+        std::vector<std::uint32_t>>, 4u> boundaryGraphs;
+    for (const auto& [key, use] : edges) {
+        if (use.count > 2u) {
+            ++audit.nonManifoldEdges;
+        } else if (use.count == 1u) {
+            ++audit.boundaryEdges;
+            const std::uint32_t first = static_cast<std::uint32_t>(key >> 32u);
+            const std::uint32_t second = static_cast<std::uint32_t>(key);
+            boundaryGraphs[use.component][first].push_back(second);
+            boundaryGraphs[use.component][second].push_back(first);
+        }
+    }
+    for (std::uint32_t component = 0u; component < pack.components.size();
+         ++component) {
+        std::unordered_set<std::uint32_t> roots;
+        const auto& range = pack.components[component];
+        for (std::uint32_t vertex = range.vertexOffset;
+             vertex < range.vertexOffset + range.vertexCount; ++vertex) {
+            roots.insert(findRoot(vertex));
+        }
+        audit.disconnectedComponentIslands +=
+            static_cast<std::uint32_t>(roots.size() > 0u ? roots.size() - 1u : 0u);
+        auto& graph = boundaryGraphs[component];
+        std::unordered_set<std::uint32_t> visited;
+        for (const auto& [vertex, neighbours] : graph) {
+            if (neighbours.size() != 2u) ++audit.boundaryBranchVertices;
+            if (visited.contains(vertex)) continue;
+            ++audit.boundaryLoops;
+            ++audit.componentBoundaryLoops[component];
+            std::queue<std::uint32_t> pending;
+            pending.push(vertex);
+            visited.insert(vertex);
+            while (!pending.empty()) {
+                const std::uint32_t current = pending.front();
+                pending.pop();
+                for (const std::uint32_t neighbour : graph[current]) {
+                    if (visited.insert(neighbour).second) pending.push(neighbour);
+                }
+            }
+        }
+        const std::int64_t vertices = range.vertexCount;
+        const std::int64_t faces = range.triangleCount;
+        std::int64_t componentEdges = 0;
+        for (const auto& [key, use] : edges) {
+            (void)key;
+            if (use.component == component) ++componentEdges;
+        }
+        const std::int64_t euler = vertices - componentEdges + faces;
+        const std::int64_t handleNumerator =
+            2 - static_cast<std::int64_t>(
+                audit.componentBoundaryLoops[component]) - euler;
+        if (handleNumerator > 0 && (handleNumerator & 1) == 0) {
+            audit.inferredHandles +=
+                static_cast<std::uint32_t>(handleNumerator / 2);
+        }
+    }
+    return audit;
+}
+
 struct AeroAuditCheck {
     std::string name;
     bool passed = false;
@@ -820,6 +980,27 @@ bool runAerodynamicAudit(
         checks.push_back({std::move(name), passed, observed, limit,
                           std::move(units)});
     };
+    const SurfaceTopologyAudit topology = auditSurfaceTopology(measured);
+    record("mesh has no degenerate faces", topology.degenerateTriangles == 0u,
+        static_cast<float>(topology.degenerateTriangles), 0.0f, "faces");
+    record("mesh has no non-manifold edges", topology.nonManifoldEdges == 0u,
+        static_cast<float>(topology.nonManifoldEdges), 0.0f, "edges");
+    record("authored components have no disconnected islands",
+        topology.disconnectedComponentIslands == 0u,
+        static_cast<float>(topology.disconnectedComponentIslands), 0.0f,
+        "extra islands");
+    record("boundary contours have no cracks or branches",
+        topology.boundaryBranchVertices == 0u,
+        static_cast<float>(topology.boundaryBranchVertices), 0.0f,
+        "vertices");
+    record("surface has no topological handles", topology.inferredHandles == 0u,
+        static_cast<float>(topology.inferredHandles), 0.0f, "handles");
+    const bool authoredPerimetersIntact = std::ranges::all_of(
+        topology.componentBoundaryLoops,
+        [](const std::uint32_t loops) { return loops == 1u; });
+    record("mesh has no unintended boundary holes", authoredPerimetersIntact,
+        static_cast<float>(topology.boundaryLoops), 4.0f,
+        "total authored perimeters");
 
     const auto speedCondition = [](float value) {
         FlightInitialCondition result;
@@ -1028,6 +1209,15 @@ bool runAerodynamicAudit(
               << "  polar samples: " << polarSamples << '\n'
               << "  checks passed: " << passedCount << "/" << checks.size()
               << '\n'
+              << "  topology boundary edges/loops: "
+              << topology.boundaryEdges << "/" << topology.boundaryLoops
+              << " (body/left/right/tail loops "
+              << topology.componentBoundaryLoops[0u] << "/"
+              << topology.componentBoundaryLoops[1u] << "/"
+              << topology.componentBoundaryLoops[2u] << "/"
+              << topology.componentBoundaryLoops[3u] << ")\n"
+              << "  topology minimum twice-area across all frames: "
+              << topology.minimumTwiceArea << " m2\n"
               << "  speed-force norms 0/2/4/8 m/s: " << restForce << "/"
               << f2 << "/" << f4 << "/" << f8 << " N\n"
               << "  body-motion/wind force xyz: "

@@ -70,6 +70,12 @@ struct MeasuredSurfaceRobotPack {
     float airDensityKilogramsPerCubicMeter = 1.225f;
     float normalDragCoefficient = 1.15f;
     float tangentialDragCoefficient = 0.08f;
+    // Local incidence ratio where separated-flow attenuation begins, retained
+    // normal loading at full incidence, maximum near-ground lift increment,
+    // and ground-effect height scale in spans.
+    std::array<float, 4> aerodynamicCorrections {
+        0.65f, 0.40f, 0.16f, 1.0f
+    };
     // Immutable frame-major xyz payload and fixed triangle topology. These
     // are the robot morphology; compilation never remeshes or substitutes it.
     std::vector<float> frameMajorPositions;

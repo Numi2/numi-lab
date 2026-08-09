@@ -322,9 +322,30 @@ kernel void mr_step_measured_surface_mechanics(
         const float normalSpeed = dot(relative, normalWorld);
         const float3 tangential = relative - normalSpeed * normalWorld;
         const float density = model.samplingAndAerodynamics.y;
-        const float3 triangleForce = -0.5f * density * area *
-            (model.samplingAndAerodynamics.z * abs(normalSpeed) * normalSpeed * normalWorld +
-             model.samplingAndAerodynamics.w * length(tangential) * tangential);
+        const float relativeSpeed = length(relative);
+        const float normalRatio = abs(normalSpeed) /
+            max(relativeSpeed, 1.0e-6f);
+        const float separated = smoothstep(
+            model.aerodynamicCorrections.x, 1.0f, normalRatio);
+        const float normalRetention = mix(
+            1.0f, model.aerodynamicCorrections.y, separated);
+        const float dynamicScale = -0.5f * density * area;
+        float3 normalForce = dynamicScale *
+            model.samplingAndAerodynamics.z * normalRetention *
+            abs(normalSpeed) * normalSpeed * normalWorld;
+        const float wingSpan = max(
+            model.boundsMaximum.y - model.boundsMinimum.y, 1.0e-3f);
+        const float groundScale = max(
+            model.aerodynamicCorrections.w * wingSpan, 1.0e-3f);
+        const float rootHeight = max(qState[qBase + 2u], 0.0f);
+        const float groundRatio = rootHeight / groundScale;
+        const float groundLiftMultiplier = 1.0f +
+            model.aerodynamicCorrections.z /
+                (1.0f + groundRatio * groundRatio);
+        if (normalForce.z > 0.0f) normalForce *= groundLiftMultiplier;
+        const float3 tangentialForce = dynamicScale *
+            model.samplingAndAerodynamics.w * length(tangential) * tangential;
+        const float3 triangleForce = normalForce + tangentialForce;
         if (!finite4(float4(triangleForce, 0.0f))) { invalid = 1u; continue; }
         force += triangleForce;
         torque += cross(armWorld, triangleForce);
