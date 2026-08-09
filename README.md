@@ -61,7 +61,10 @@ The durable platform direction is described in
   GR00T N1.7 G1 execution path through Core ML on Apple Silicon.
 - Fingerprinted motion-provider proposals, including native ARDY G1 and generic
   ARDY Core prompt-to-motion inference on arm64 Apple Silicon.
-- Bundled Unitree G1, Franka, and research PSM models.
+- Provenance-locked measured-surface robots with bounded actuation,
+  transactional deformable-surface mechanics, and accepted aerodynamic-load
+  telemetry.
+- Bundled Unitree G1, Franka, measured dove, and research PSM models.
 
 ## NumiSolver: the production physics path
 
@@ -90,9 +93,49 @@ throughput rollout path.
 
 ## Selected qualification workloads
 
-The following G1 runs exercise standing, disturbance response, perception,
-generated motion, destructive contact, and get-up learning. They are evidence
-for shared simulator capabilities, not the product boundary.
+The following runs exercise measured-surface flight and recovery alongside G1
+standing, disturbance response, perception, generated motion, destructive
+contact, and get-up learning. They are evidence for shared simulator
+capabilities, not the product boundary.
+
+### Measured dove flight and recovery
+
+The `numisolver` branch includes a surface-native robotic form of the
+provenance-locked Deetjen OB-F03 dove: 2,157 surface vertices, 3,968 triangles,
+four surface components, and 24 bounded actuator channels. The immutable
+source surface remains the morphology. Numi adds component actuation, a
+floating root, aerodynamic loading, flight and fatal-drop tasks, transactional
+state publication, and accepted force/torque telemetry through the same native
+Metal world used for policy rollouts.
+
+![Nine measured-dove recovery environments in the native Numi viewer](docs/media/numi-dove-recovery-viewer.png)
+
+The native viewer renders the live articulated surface with unified body,
+wing, and tail attachments; layered tail feathers; smoothed body normals; and
+opaque, depth-correct two-sided materials. It presents one environment at
+wall-clock speed by default and can switch among 1, 4, or 9 environments for
+inspection. Stop, run/pause, playback speed, page navigation, orbit, and zoom
+controls remain independent of the fast batched training path.
+
+From a BirdFlow workspace with the dove capability installed:
+
+```sh
+numi dove robot
+numi dove robot-probe
+numi dove runtime-probe
+numi dove runtime-benchmark 64 32
+numi dove authority-sweep 2048 36
+numi dove aero-audit 19
+numi dove fatal-drop 22 0 180
+```
+
+The probes cover provenance and topology admission, deterministic replay,
+whole-control-step rollback, actuator response, accepted loads, batched device
+execution, aerodynamic invariants, and drop/recovery comparisons. The measured
+source is nonperiodic; sustained reflected traversal, the mirrored right wing,
+and all robot parameters outside that source are explicit simulator
+assumptions. See [Measured-surface mechanics](docs/MEASURED_SURFACE_MECHANICS.md)
+for the execution contract and current physical boundary.
 
 ### Prompt-to-G1 motion imagination
 
@@ -362,6 +405,7 @@ Only current subsystem contracts remain under `docs`:
 - [Visual presentation](docs/VISUAL_PLATFORM.md)
 - [Foundation policies on Apple Silicon](docs/FOUNDATION_POLICIES.md)
 - [Tactile geometry](docs/TACTILE_GEOMETRY_BRIDGE.md)
+- [Measured-surface mechanics](docs/MEASURED_SURFACE_MECHANICS.md)
 
 ## Roadmap
 
@@ -380,6 +424,9 @@ Only current subsystem contracts remain under `docs`:
 - Franka imagery uses official FR3v2 visual assets.
 - The retained G1 and Franka images and animations are native numi-lab
   renderer outputs captured on Apple M4. They are not generated concept art.
+- The measured-dove image is a native `MeasuredDoveRobotLab` viewer capture on
+  Apple M4. Its blue left-wing outline follows the source component; the
+  orange right wing is the robot's explicitly mirrored counterpart.
 - The dVRK PSM showcase below is an authored offline presentation render
   preserving Numi Lab's robot identity and scene
   conventions; it is not evidence of native-renderer or hardware execution.
