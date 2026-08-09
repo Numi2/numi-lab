@@ -14,7 +14,8 @@ Usage: numi train [metalrobo_task_train arguments...]
 Numi supplies fresh artifact paths and local runtime paths when they are not
 provided. Every native trainer option passes through unchanged. Common options:
 
-  --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|adult-locomotion|g1-legs-locomotion|ball-recovery|ball-dodge
+  --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|adult-locomotion|g1-legs-locomotion|ball-recovery|ball-dodge|dove-trim|dove-drop-recovery
+  --dove-manifest PATH              Measured Deetjen dove surface manifest
   --minimum-difficulty-band N --maximum-difficulty-band N
   --interaction-pack PATH --interaction-clip ID
   --motion-pack PATH [--motion-activation impact|always]

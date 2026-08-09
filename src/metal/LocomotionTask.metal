@@ -2542,6 +2542,47 @@ kernel void mr_locomotion_task_observe(
                         operation.parameters[component];
                 }
                 break;
+            case MR_TASK_RANDOMIZE_ROOT_LINEAR_VELOCITY:
+                resetV[vBase + program.root.w + operation.target.z] =
+                    randomRange(
+                        dispatch, environment, episode, 0u, channel,
+                        operation.parameters.x, operation.parameters.y);
+                break;
+            case MR_TASK_RANDOMIZE_ROOT_ANGULAR_VELOCITY:
+                resetV[vBase + program.root.w + 3u + operation.target.z] =
+                    randomRange(
+                        dispatch, environment, episode, 0u, channel,
+                        operation.parameters.x, operation.parameters.y);
+                break;
+            case MR_TASK_RANDOMIZE_ROOT_ORIENTATION_CONE: {
+                const float tilt = operation.parameters.x * randomUnit(
+                    dispatch, environment, episode, 0u, channel);
+                const float azimuth = 2.0f * M_PI_F * randomUnit(
+                    dispatch, environment, episode, 0u, channel + 1u);
+                const float yaw = operation.parameters.y * randomSigned(
+                    dispatch, environment, episode, 0u, channel + 2u);
+                const float halfTilt = 0.5f * tilt;
+                const float4 tiltRotation = float4(
+                    cos(azimuth) * sin(halfTilt),
+                    sin(azimuth) * sin(halfTilt),
+                    0.0f,
+                    cos(halfTilt));
+                const float halfYaw = 0.5f * yaw;
+                const float4 yawRotation = float4(
+                    0.0f, 0.0f, sin(halfYaw), cos(halfYaw));
+                const float4 authored = float4(
+                    defaultQ[program.root.z + 3u],
+                    defaultQ[program.root.z + 4u],
+                    defaultQ[program.root.z + 5u],
+                    defaultQ[program.root.z + 6u]);
+                const float4 randomized = quaternionProduct(
+                    yawRotation, quaternionProduct(tiltRotation, authored));
+                for (uint component = 0u; component < 4u; ++component) {
+                    resetQ[qBase + program.root.z + 3u + component] =
+                        randomized[component];
+                }
+                break;
+            }
             case MR_TASK_RANDOMIZE_JOINT_POSITION:
                 resetQ[qBase + operation.target.y] = randomRange(
                     dispatch,
@@ -4444,6 +4485,7 @@ kernel void mr_locomotion_task_complete(
     float velocitySquared = 0.0f;
     float accelerationSquared = 0.0f;
     float actionRateSquared = 0.0f;
+    float actionSquared = 0.0f;
     float limitViolationSquared = 0.0f;
     const float mechanicalPower =
         state.airReturnTracking.x;
@@ -4466,6 +4508,7 @@ kernel void mr_locomotion_task_complete(
         ];
         const float actionDelta = currentAction - previousAction;
         actionRateSquared += actionDelta * actionDelta;
+        actionSquared += currentAction * currentAction;
         if (binding.indices.y == MR_INVALID_INDEX ||
             binding.indices.z == MR_INVALID_INDEX ||
             binding.indices.w == MR_INVALID_INDEX) {
@@ -5332,6 +5375,9 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_ACTION_RATE_SQUARED:
             value = actionRateSquared;
             break;
+        case MR_TASK_REWARD_ACTION_SQUARED:
+            value = actionSquared;
+            break;
         case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED:
             value = limitViolationSquared;
             break;
@@ -6034,6 +6080,7 @@ kernel void mr_locomotion_task_complete(
             rewardBreakdown0.w += contribution;
             break;
         case MR_TASK_REWARD_ACTION_RATE_SQUARED:
+        case MR_TASK_REWARD_ACTION_SQUARED:
         case MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE:
         case MR_TASK_REWARD_JOINT_CBF_CORRECTION:
         case MR_TASK_REWARD_JOINT_CBF_BUFFER:

@@ -1,10 +1,15 @@
 #include "metalrobo/MeasuredSurfaceRobot.hpp"
 
+#include <CommonCrypto/CommonDigest.h>
+
 #include <algorithm>
 #include <bit>
 #include <cmath>
+#include <iomanip>
 #include <limits>
+#include <fstream>
 #include <ranges>
+#include <sstream>
 #include <stdexcept>
 #include <string_view>
 
@@ -36,7 +41,96 @@ bool validSHA256(const std::string& value) {
     });
 }
 
+template <typename T>
+std::vector<T> readBinary(const std::filesystem::path& path) {
+    std::ifstream stream(path, std::ios::binary | std::ios::ate);
+    if (!stream) throw std::runtime_error("cannot open " + path.string());
+    const std::streamsize bytes = stream.tellg();
+    if (bytes < 0 || bytes % static_cast<std::streamsize>(sizeof(T)) != 0) {
+        throw std::runtime_error("invalid binary size for " + path.string());
+    }
+    std::vector<T> values(static_cast<std::size_t>(bytes) / sizeof(T));
+    stream.seekg(0);
+    if (!values.empty() &&
+        !stream.read(reinterpret_cast<char*>(values.data()), bytes)) {
+        throw std::runtime_error("cannot read " + path.string());
+    }
+    return values;
+}
+
+std::string sha256File(const std::filesystem::path& path) {
+    std::ifstream stream(path, std::ios::binary);
+    if (!stream) throw std::runtime_error("cannot open " + path.string());
+    CC_SHA256_CTX context{};
+    CC_SHA256_Init(&context);
+    std::array<char, 1024 * 1024> buffer{};
+    while (stream) {
+        stream.read(buffer.data(), static_cast<std::streamsize>(buffer.size()));
+        const std::streamsize count = stream.gcount();
+        if (count > 0) {
+            CC_SHA256_Update(&context, buffer.data(),
+                static_cast<CC_LONG>(count));
+        }
+    }
+    if (!stream.eof()) {
+        throw std::runtime_error("cannot hash " + path.string());
+    }
+    std::array<unsigned char, CC_SHA256_DIGEST_LENGTH> digest{};
+    CC_SHA256_Final(digest.data(), &context);
+    std::ostringstream encoded;
+    encoded << std::hex << std::setfill('0');
+    for (const unsigned char byte : digest) {
+        encoded << std::setw(2) << static_cast<unsigned int>(byte);
+    }
+    return encoded.str();
+}
+
 } // namespace
+
+MeasuredSurfaceRobotPack loadDeetjenMeasuredDoveRobotPack(
+    const std::filesystem::path& manifestPath
+) {
+    const std::filesystem::path directory = manifestPath.parent_path();
+    MeasuredSurfaceRobotPack pack;
+    pack.id = "deetjen-f03-surface-robot-v1";
+    pack.datasetIdentifier =
+        "deetjen-ob-2018-12-11-f03-complete-surface-v1";
+    pack.manifestSHA256 =
+        "ad42148aa9ee72d994d668ba16f8b6572cb8b192b77539fe66d97586ed9e1a13";
+    pack.positionsSHA256 =
+        "690b6dd2a24d593a512d799b7fe5f3f756ca7ae3ce1cd1cdc4bb12b2531567a6";
+    pack.trianglesSHA256 =
+        "9d832ff22ecedc15e47c454378146a1006ae7f6974512ce222994e2f12f43d61";
+    const std::filesystem::path positionsPath = directory / "positions.f32le";
+    const std::filesystem::path trianglesPath = directory / "triangles.u16le";
+    if (sha256File(manifestPath) != pack.manifestSHA256 ||
+        sha256File(positionsPath) != pack.positionsSHA256 ||
+        sha256File(trianglesPath) != pack.trianglesSHA256) {
+        throw std::runtime_error(
+            "measured Deetjen dove artifact failed SHA-256 qualification");
+    }
+    pack.frameCount = 144u;
+    pack.vertexCount = 2157u;
+    pack.triangleCount = 3968u;
+    pack.sampleRateHertz = 1000.0f;
+    pack.sourcePeriodic = false;
+    pack.phaseBoundary = MeasuredSurfacePhaseBoundary::reflect;
+    pack.actions = makeMeasuredSurfaceFlightActions();
+    pack.components = {
+        {MeasuredSurfaceComponent::body, 0u, 1443u, 0u, 2736u},
+        {MeasuredSurfaceComponent::leftWing, 1443u, 297u, 2736u, 512u},
+        {MeasuredSurfaceComponent::rightWing, 1740u, 297u, 3248u, 512u},
+        {MeasuredSurfaceComponent::tail, 2037u, 120u, 3760u, 208u},
+    };
+    pack.frameMajorPositions = readBinary<float>(positionsPath);
+    pack.triangleIndices = readBinary<std::uint16_t>(trianglesPath);
+    pack.frameTimesSeconds.resize(pack.frameCount);
+    for (std::uint32_t frame = 0u; frame < pack.frameCount; ++frame) {
+        pack.frameTimesSeconds[frame] =
+            static_cast<float>(frame) / pack.sampleRateHertz;
+    }
+    return pack;
+}
 
 std::array<MeasuredSurfaceAction, kMeasuredSurfaceActionCount>
 makeMeasuredSurfaceFlightActions() {
@@ -68,6 +162,18 @@ makeMeasuredSurfaceFlightActions() {
     actions[3].lowerBound = 0.0f;
     actions[3].upperBound = 1.0f;
     return actions;
+}
+
+std::array<float, kMeasuredSurfaceActionCount>
+measuredSurfaceRecoveryTrimActions() {
+    return {
+        1.0f, 0.149022f, 0.971734f, 0.0f,
+        -0.244330f, -0.958796f, -0.164683f, 0.737151f,
+        0.484145f, 0.0105697f, -0.111965f, -0.164570f,
+        -0.756487f, -0.860807f, -0.752742f, 0.469568f,
+        0.785600f, -0.247472f, 0.123905f, -0.303837f,
+        0.194382f, 0.0452973f, -0.366264f, -0.506249f,
+    };
 }
 
 CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
@@ -208,6 +314,7 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
     hashValue(hash, pack.airDensityKilogramsPerCubicMeter);
     hashValue(hash, pack.normalDragCoefficient);
     hashValue(hash, pack.tangentialDragCoefficient);
+    hashValue(hash, pack.normalizedActionBias);
     hashBytes(hash, pack.frameMajorPositions.data(),
               pack.frameMajorPositions.size() * sizeof(float));
     hashBytes(hash, pack.triangleIndices.data(),
@@ -229,12 +336,19 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
         hashValue(hash, action.upperBound);
         hashValue(hash, action.naturalFrequencyHertz);
         hashValue(hash, action.dampingRatio);
+        if (!std::isfinite(pack.normalizedActionBias[i]) ||
+            pack.normalizedActionBias[i] < -1.0f ||
+            pack.normalizedActionBias[i] > 1.0f) {
+            throw std::invalid_argument("normalized action bias is outside [-1, 1]");
+        }
         result.gpuActions[i].boundsFrequencyDamping = {
             action.lowerBound,
             action.upperBound,
             action.naturalFrequencyHertz,
             action.dampingRatio,
         };
+        result.gpuActions[i].normalizedBiasReserved = {
+            pack.normalizedActionBias[i], 0.0f, 0.0f, 0.0f};
     }
     mr_float4 minimum{
         std::numeric_limits<float>::infinity(),

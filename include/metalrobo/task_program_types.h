@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 42u
+#define MR_TASK_PROGRAM_ABI_VERSION 43u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -262,6 +262,9 @@ enum MRTaskRewardOpcode : mr_u32 {
     // source.y selects the goal body; authored x/y/z are positive position,
     // linear-speed, and angular-speed squared-error widths.
     MR_TASK_REWARD_OBJECT_PLACEMENT = 48u,
+    // Squared normalized policy residual. Unlike action-rate cost, this
+    // anchors residual controllers around their authored actuator bias.
+    MR_TASK_REWARD_ACTION_SQUARED = 49u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -306,6 +309,11 @@ enum MRTaskRandomizationOpcode : mr_u32 {
     // Compiled RealityProgram target. This addresses one resolved world body
     // directly, so physics variation does not depend on a task contact group.
     MR_TASK_RANDOMIZE_WORLD_BODY_PARAMETER = 17u,
+    // Component-addressed floating-root release conditions.
+    MR_TASK_RANDOMIZE_ROOT_LINEAR_VELOCITY = 18u,
+    MR_TASK_RANDOMIZE_ROOT_ANGULAR_VELOCITY = 19u,
+    // parameters.x/y are maximum tilt/yaw magnitudes in radians.
+    MR_TASK_RANDOMIZE_ROOT_ORIENTATION_CONE = 20u,
 };
 
 enum MRTaskImpactTransitionFlags : mr_u32 {

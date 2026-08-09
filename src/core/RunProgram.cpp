@@ -1748,6 +1748,144 @@ TaskPack makeMeasuredSurfaceFlightTaskPack(
     return task;
 }
 
+ScenePack makeMeasuredSurfaceDropRecoveryScenePack(const RobotPack& robot) {
+    LocomotionSceneComponent ground = makeLocomotionSurfaceComponent(
+        robot.mechanics, LocomotionSurface::ground);
+    ScenePack scene;
+    scene.id = robot.id + ".drop_recovery_scene";
+    scene.objects.push_back({
+        .id = "fatal_impact_ground",
+        .semanticClass = "ground",
+        .role = MR_WORLD_ASSET_FIXTURE,
+        .render = MR_WORLD_RENDER_PROCEDURAL,
+        .collision = MR_WORLD_COLLISION_PRIMITIVES,
+        .dynamics = MR_WORLD_DYNAMICS_STATIC,
+        .mechanics = std::move(ground.mechanics),
+        .defaultBodyStates = std::move(ground.defaultBodyStates),
+    });
+    return scene;
+}
+
+TaskPack makeMeasuredSurfaceDropRecoveryTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeMeasuredSurfaceFlightTaskPack(
+        robot, observations, reset);
+    observations.actorHistoryLength = 3u;
+    observations.criticHistoryLength = 3u;
+    task.id = robot.id + ".fatal_drop_recovery";
+    task.capacities = {
+        .candidatePairs = 16u,
+        .rawContacts = 32u,
+        .manifolds = 8u,
+        .constraintBlocks = 16u,
+        .constraintRows = 48u,
+        .hardConvexPairs = 16u,
+        .ccdCandidates = 8u,
+        .ccdEvents = 4u,
+        .endpointRuntimeRecords = 32u,
+        .qualityRows = 48u,
+        .islandConstraintReferences = 16u,
+    };
+    task.maximumEpisodeSteps = 240u;
+    task.difficultyBandCount = 5u;
+    task.baseHeightTarget = 20.0f;
+    task.commands.difficultySamplingExponent = 1.6f;
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::higherIsBetter},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"altitude_progress", "m/s", TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::rootHeightProgress},
+        {"uprightness", "ratio", TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::uprightness},
+        {"vertical_speed_cost", "m2/s2",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::lowerIsBetter,
+            TaskRewardOperator::rootVerticalVelocitySquared},
+    };
+    const std::string rootBody = robot.mechanics.bodyNames.front();
+    task.contactGroups = {{
+        .id = "fatal_impact",
+        .bodies = {rootBody},
+        .forbidden = true,
+        .referenceBody = rootBody,
+    }};
+    task.rewards = {
+        {TaskRewardOperator::constant, {}, {}, 0.35f},
+        {TaskRewardOperator::rootHeightProgress, {}, {}, 2.0f},
+        {TaskRewardOperator::uprightness, {}, {}, 1.25f},
+        {TaskRewardOperator::tiltSquared, {}, {}, -0.45f},
+        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.035f},
+        {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.015f},
+        {TaskRewardOperator::actionSquared, {}, {}, -0.012f},
+        {TaskRewardOperator::actionRateSquared, {}, {}, -0.003f},
+    };
+    task.terminations = {
+        {TaskTerminationOperator::contactGroup, "fatal_impact",
+            MR_TASK_TERMINATION_CONTACT, 100u, 1.0f, -50.0f},
+        {TaskTerminationOperator::minimumRootHeight, {},
+            MR_TASK_TERMINATION_HEIGHT, 90u, 0.04f, -50.0f},
+    };
+    reset.maximumActionDelaySteps = 2u;
+    reset.maximumObservationDelaySteps = 2u;
+    reset.operators.clear();
+    const auto addBand = [&reset](
+        const std::uint32_t band,
+        const float heightLower,
+        const float heightUpper,
+        const float verticalLower,
+        const float verticalUpper,
+        const float maximumTilt,
+        const float maximumAngularSpeed
+    ) {
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::rootHeight,
+            .minimumDifficultyBand = band,
+            .parameters = {heightLower, heightUpper, 0.0f, 0.0f},
+        });
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::rootOrientationCone,
+            .minimumDifficultyBand = band,
+            .parameters = {maximumTilt, 3.14159265f, 0.0f, 0.0f},
+        });
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::rootLinearVelocity,
+            .component = 2u,
+            .minimumDifficultyBand = band,
+            .parameters = {verticalLower, verticalUpper, 0.0f, 0.0f},
+        });
+        for (std::uint32_t component = 0u; component < 3u; ++component) {
+            reset.operators.push_back({
+                .operation = TaskRandomizationOperator::rootAngularVelocity,
+                .component = component,
+                .minimumDifficultyBand = band,
+                .parameters = {-maximumAngularSpeed,
+                    maximumAngularSpeed, 0.0f, 0.0f},
+            });
+        }
+    };
+    addBand(0u, 4.0f, 6.0f, -0.5f, 0.0f, 0.15f, 0.25f);
+    addBand(1u, 8.0f, 10.0f, -3.0f, -1.0f, 0.50f, 0.75f);
+    addBand(2u, 12.0f, 16.0f, -7.0f, -3.0f, 1.00f, 1.50f);
+    addBand(3u, 18.0f, 22.0f, -12.0f, -6.0f, 1.57f, 2.50f);
+    addBand(4u, 22.0f, 28.0f, -18.0f, -10.0f, 3.14159265f, 4.0f);
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::actionDelay,
+        .parameters = {0.0f, 2.0f, 0.0f, 0.0f},
+    });
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::observationDelay,
+        .parameters = {0.0f, 2.0f, 0.0f, 0.0f},
+    });
+    return task;
+}
+
 std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
     if (id == "px4_x500") {
         EngineModel mechanics = makeFreeSphereEngineModel();

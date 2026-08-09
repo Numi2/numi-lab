@@ -11,6 +11,7 @@
 #include <cstring>
 #include <limits>
 #include <memory>
+#include <numbers>
 #include <span>
 #include <string>
 #include <string_view>
@@ -738,6 +739,7 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskRewardOperator::jointVelocitySquared:
             case TaskRewardOperator::jointAccelerationSquared:
             case TaskRewardOperator::actionRateSquared:
+            case TaskRewardOperator::actionSquared:
             case TaskRewardOperator::jointLimitViolationSquared:
             case TaskRewardOperator::jointLimitViolationAbsolute:
             case TaskRewardOperator::mechanicalPower:
@@ -2837,6 +2839,7 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::jointVelocitySquared:
         case TaskRewardOperator::jointAccelerationSquared:
         case TaskRewardOperator::actionRateSquared:
+        case TaskRewardOperator::actionSquared:
         case TaskRewardOperator::jointLimitViolationSquared:
         case TaskRewardOperator::jointLimitViolationAbsolute:
         case TaskRewardOperator::mechanicalPower:
@@ -3376,6 +3379,30 @@ TaskCompileDiagnostics compileTaskProgram(
                     TaskCompileStatus::invalidPack,
                     random.target,
                     "randomization lower bound exceeds its upper bound"
+                );
+            }
+            break;
+        case TaskRandomizationOperator::rootLinearVelocity:
+        case TaskRandomizationOperator::rootAngularVelocity:
+            if (random.component >= 3u || !orderedRange(random.parameters)) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    "root_velocity",
+                    "root velocity component or range is invalid"
+                );
+            }
+            break;
+        case TaskRandomizationOperator::rootOrientationCone:
+            if (random.parameters.x < 0.0f ||
+                random.parameters.x > std::numbers::pi_v<float> ||
+                random.parameters.y < 0.0f ||
+                random.parameters.y > std::numbers::pi_v<float> ||
+                random.parameters.z != 0.0f ||
+                random.parameters.w != 0.0f) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    "root_orientation_cone",
+                    "orientation cone requires bounded tilt/yaw and zero reserved parameters"
                 );
             }
             break;

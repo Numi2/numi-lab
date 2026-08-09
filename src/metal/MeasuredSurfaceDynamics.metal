@@ -195,6 +195,17 @@ kernel void mr_step_measured_surface_mechanics(
     if (lane == 0u && pass.physicsSubstep == 0u) {
         if (resetMasks[resetIndex] != 0u) {
             acceptedStates[environment] = {};
+            for (uint action = 0u; action < model.actionCount; ++action) {
+                const float normalized =
+                    actions[action].normalizedBiasReserved.x;
+                const float4 contract =
+                    actions[action].boundsFrequencyDamping;
+                const float target = normalized >= 0.0f
+                    ? normalized * contract.y
+                    : -normalized * contract.x;
+                acceptedStates[environment].position[action >> 2u]
+                    [action & 3u] = target;
+            }
             acceptedStates[environment].phaseRateImpulseStep.y = 1.0f;
             acceptedEvidence[environment] = {};
         }
@@ -207,7 +218,10 @@ kernel void mr_step_measured_surface_mechanics(
         const uint historyBase = environment * dispatch.actionHistoryStride +
             dispatch.filterSlot * dispatch.actionCount + dispatch.firstAction;
         for (uint action = 0u; action < model.actionCount; ++action) {
-            const float normalized = clamp(actionHistory[historyBase + action], -1.0f, 1.0f);
+            const float normalized = clamp(
+                actions[action].normalizedBiasReserved.x +
+                    actionHistory[historyBase + action],
+                -1.0f, 1.0f);
             const float4 contract = actions[action].boundsFrequencyDamping;
             const float target = normalized >= 0.0f
                 ? normalized * contract.y

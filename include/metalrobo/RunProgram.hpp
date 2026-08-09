@@ -309,6 +309,14 @@ private:
     TaskObservationProgram& observations,
     TaskResetProgram& reset
 );
+[[nodiscard]] ScenePack makeMeasuredSurfaceDropRecoveryScenePack(
+    const RobotPack& robot
+);
+[[nodiscard]] TaskPack makeMeasuredSurfaceDropRecoveryTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
 [[nodiscard]] const char* runCompileStatusName(
     RunCompileStatus status
 ) noexcept;

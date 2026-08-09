@@ -29,6 +29,7 @@ _VALUE_OPTIONS = frozenset(
         "--interaction-student-authority",
         "--interaction-pack",
         "--interaction-clip",
+        "--dove-manifest",
         "--world-pack",
         "--task-pack",
         "--robot-actuator-pack",
@@ -79,7 +80,7 @@ def _evaluation_contract(evaluator: Path, arguments: Sequence[str]) -> str:
     """Fingerprint the exact native rollout contract for resumable evidence."""
 
     file_fingerprints: dict[str, str] = {}
-    for option in ("--metallib", "--policy-pack"):
+    for option in ("--metallib", "--policy-pack", "--dove-manifest"):
         value = _option_value(arguments, option)
         if value is None:
             continue
@@ -100,6 +101,12 @@ def _task_kind(task_id: str) -> str:
     """Map authored task IDs onto the stable promotion-policy vocabulary."""
 
     normalized = task_id.strip().lower().replace("_", "-")
+    if (
+        ("dove" in normalized or "fatal" in normalized)
+        and "drop" in normalized
+        and "recovery" in normalized
+    ):
+        return "dove-drop-recovery"
     if "adult" in normalized and "locomotion" in normalized:
         return "adult-locomotion"
     if "developmental" in normalized and "recovery" in normalized:
@@ -201,16 +208,18 @@ def evaluation_arguments(
             "0",
         ]
 
-    # Adult training deliberately mixes the previous and current bands so
-    # the learner retains the earlier balance skill. Promotion evidence must
-    # answer a stricter question: did the candidate survive the newest band
-    # itself? Appending the maximum band makes the native evaluator's last
-    # value authoritative without changing the training rollout contract.
+    # Curriculum training deliberately mixes previous and current bands so
+    # the learner retains earlier skills. Promotion evidence must answer a
+    # stricter question: did the candidate survive the newest band itself?
+    # Appending the maximum band makes the native evaluator's last value
+    # authoritative without changing the training rollout contract.
     task = _task_kind(_option_value(training_arguments, "--task") or "")
     maximum_band = _option_value(
         training_arguments, "--maximum-difficulty-band"
     )
-    if task == "adult-locomotion" and maximum_band is not None:
+    if task in {"adult-locomotion", "dove-drop-recovery"} and (
+        maximum_band is not None
+    ):
         selected_minimum_band = (
             str(evaluation_minimum_band)
             if evaluation_minimum_band is not None
@@ -293,10 +302,19 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
     environments = max(
         len(record.get("termination_count_by_environment", [])), 1
     )
-    if (
+    world_source = str(record.get("world_source", ""))
+    if world_source == "measured_dove":
+        # For aerial recovery, both minimum-height and forbidden-ground
+        # contact are physical failures. The humanoid convenience field only
+        # counts height/tilt reasons and would otherwise hide a lethal impact.
+        failures = max(
+            int(record.get("termination_count", 0))
+            - int(record.get("timeout_count", 0)),
+            0,
+        )
+    elif (
         "height_or_tilt_termination_count" in record
-        and str(record.get("world_source", ""))
-        not in _GENERIC_WORLD_SOURCES
+        and world_source not in _GENERIC_WORLD_SOURCES
     ):
         failures = int(record["height_or_tilt_termination_count"])
     else:
@@ -462,6 +480,16 @@ def compare_evidence(
                 regressions.append(f"{label} regressed")
             elif delta > 1.0e-12:
                 improvements.append(f"{label} improved")
+    elif task == "dove-drop-recovery":
+        # A free-flying bird has no commanded planar progress. Lateral drift
+        # is neither success nor failure; qualification is survival, retained
+        # altitude, upright recovery, and the authored flight reward.
+        old_reward = float(incumbent.get("mean_reward", 0))
+        new_reward = float(candidate.get("mean_reward", 0))
+        if new_reward < old_reward - 1.0e-12:
+            regressions.append("flight reward decreased")
+        elif new_reward > old_reward + 1.0e-12:
+            improvements.append("flight reward increased")
     elif task in {"supine-get-up", "developmental-recovery"}:
         old_completed = _rate(
             incumbent,
@@ -566,6 +594,7 @@ def compare_evidence(
         "velocity",
         "adult-locomotion",
         "disturbance-recovery",
+        "dove-drop-recovery",
         "ball-recovery",
         "ball-dodge",
     }
@@ -609,6 +638,33 @@ def compare_evidence(
             and selection_score > 1.0e-12
         )
         selection_method = "continuous_authored_task_outcome"
+    elif task == "dove-drop-recovery":
+        old_reward = float(incumbent.get("mean_reward", 0))
+        new_reward = float(candidate.get("mean_reward", 0))
+        failure_progress = _relative_progress(
+            candidate_termination, incumbent_termination, 1.0
+        )
+        clean_progress = candidate_clean_horizon - incumbent_clean_horizon
+        height_progress = _relative_progress(old_height, new_height, 1.0)
+        tilt_progress = _relative_progress(new_tilt, old_tilt, 0.25)
+        reward_progress = _relative_progress(old_reward, new_reward, 0.05)
+        selection_score = (
+            0.35 * failure_progress
+            + 0.25 * clean_progress
+            + 0.15 * tilt_progress
+            + 0.10 * height_progress
+            + 0.15 * reward_progress
+        )
+        selected = (
+            int(candidate.get("failed_environment_steps", 0)) == 0
+            # A statistically improved crash rate is still a crash rate.
+            # Flight recovery promotion requires zero held-out non-timeout
+            # terminations at the current isolated curriculum band.
+            and candidate_termination <= 1.0e-12
+            and candidate_clean_horizon >= incumbent_clean_horizon - 1.0e-12
+            and selection_score > 1.0e-12
+        )
+        selection_method = "dove_flight_recovery_comparison"
     elif (
         task in {"velocity", "adult-locomotion"}
         and bool(incumbent.get("forward_progress_available"))

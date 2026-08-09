@@ -163,6 +163,12 @@ enum MRRunManifestSourceC {
     MR_RUN_SOURCE_IMPORTED_URDF = 2u,
     MR_RUN_SOURCE_WORLD_PACK = 3u,
     MR_RUN_SOURCE_PX4_X500 = 4u,
+    MR_RUN_SOURCE_MEASURED_DOVE = 5u,
+};
+
+enum MRMeasuredSurfaceTaskC {
+    MR_MEASURED_SURFACE_TASK_FLIGHT_TRIM = 0u,
+    MR_MEASURED_SURFACE_TASK_FATAL_DROP_RECOVERY = 1u,
 };
 
 // Single native construction boundary for training, evaluation and
@@ -180,6 +186,7 @@ typedef struct MRRunManifestC {
     const char* robot_actuator_pack_path;
     const char* sensor_program_pack_path;
     const char* reality_program_pack_path;
+    const char* measured_surface_manifest_path;
     const char* teacher_pack_path;
     const char* teacher_clip_id;
     const MRTaskVisualObservationConfigC* visual_sensor_program;

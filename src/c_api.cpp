@@ -2972,6 +2972,60 @@ static MRTaskRolloutHandle* createPX4X500Run(
     return status == 0 ? result : nullptr;
 }
 
+static MRTaskRolloutHandle* createMeasuredDoveRun(
+    const MRTaskRolloutConfigC* config,
+    const char* measured_surface_manifest_path,
+    const uint32_t task_value,
+    const char* metallib_path
+) {
+    if (config == nullptr || measured_surface_manifest_path == nullptr ||
+        measured_surface_manifest_path[0] == '\0') {
+        gLastError = "measured-dove manifest and rollout config are required.";
+        return nullptr;
+    }
+    MRTaskRolloutHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        validateTaskRolloutConfiguration(*config);
+        if (task_value > MR_MEASURED_SURFACE_TASK_FATAL_DROP_RECOVERY) {
+            throw std::invalid_argument("measured-dove task is invalid");
+        }
+        metalrobo::MeasuredSurfaceRobotPack surface =
+            metalrobo::loadDeetjenMeasuredDoveRobotPack(
+                measured_surface_manifest_path);
+        const bool dropRecovery = task_value ==
+            MR_MEASURED_SURFACE_TASK_FATAL_DROP_RECOVERY;
+        surface.normalizedActionBias =
+            metalrobo::measuredSurfaceRecoveryTrimActions();
+        metalrobo::RunManifest manifest;
+        manifest.id = dropRecovery
+            ? "deetjen_f03_fatal_drop_recovery_run"
+            : "deetjen_f03_flight_trim_run";
+        manifest.robot = metalrobo::makeMeasuredSurfaceRobotPack(
+            std::move(surface), "deetjen_f03_robot");
+        manifest.scene = dropRecovery
+            ? metalrobo::makeMeasuredSurfaceDropRecoveryScenePack(
+                manifest.robot)
+            : metalrobo::ScenePack{.id = "unbounded_air"};
+        manifest.sensors.id = "measured_surface_flight_state";
+        manifest.reality.id = "measured_surface_nominal_reality";
+        manifest.teacher.id = "no_teacher";
+        manifest.task = dropRecovery
+            ? metalrobo::makeMeasuredSurfaceDropRecoveryTaskPack(
+                manifest.robot, manifest.sensors.observation,
+                manifest.reality.reset)
+            : metalrobo::makeMeasuredSurfaceFlightTaskPack(
+                manifest.robot, manifest.sensors.observation,
+                manifest.reality.reset);
+        applyRunProfile(manifest, *config);
+        manifest.profile.capacities = manifest.task.capacities;
+        auto handle = createCompiledRunTaskRollout(
+            std::move(manifest), metallib_path, "measured Deetjen dove",
+            nullptr);
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
 static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
     const MRTaskRolloutConfigC* config,
     const uint32_t surface_value,
@@ -3447,6 +3501,14 @@ MRTaskRolloutHandle* mr_create_task_rollout(
     case MR_RUN_SOURCE_PX4_X500:
         result = createPX4X500Run(
             &manifest->profile,
+            manifest->metallib_path
+        );
+        break;
+    case MR_RUN_SOURCE_MEASURED_DOVE:
+        result = createMeasuredDoveRun(
+            &manifest->profile,
+            manifest->measured_surface_manifest_path,
+            manifest->task,
             manifest->metallib_path
         );
         break;

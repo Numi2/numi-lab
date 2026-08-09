@@ -1004,10 +1004,18 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
 /// Swift owns rollout chunking and policy revisions. Native code owns the
 /// compiled world and task program, persistent private Metal state, reset
 /// transaction, and compact learning publication.
+public enum MetalRoboMeasuredSurfaceTask: UInt32, Sendable {
+    case flightTrim = 0
+    case fatalDropRecovery = 1
+}
+
 public enum MetalRoboRunSource: Sendable {
     case unitreeG1
     case frankaPickPlace
     case px4X500
+    case measuredDove(
+        manifest: URL, task: MetalRoboMeasuredSurfaceTask
+    )
     case importedURDF(
         urdf: URL, srdf: URL?, taskPack: URL, actuatorPack: URL,
         sensorPack: URL, realityPack: URL
@@ -1086,6 +1094,9 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         var actuatorPackPath: String?
         var sensorPackPath: String?
         var realityPackPath: String?
+        var measuredSurfaceManifestPath: String?
+        var measuredSurfaceTask =
+            MetalRoboMeasuredSurfaceTask.flightTrim.rawValue
         switch authored.source {
         case .unitreeG1:
             source = MR_RUN_SOURCE_UNITREE_G1.rawValue
@@ -1093,6 +1104,10 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             source = MR_RUN_SOURCE_FRANKA_PICK_PLACE.rawValue
         case .px4X500:
             source = MR_RUN_SOURCE_PX4_X500.rawValue
+        case let .measuredDove(manifest, task):
+            source = MR_RUN_SOURCE_MEASURED_DOVE.rawValue
+            measuredSurfaceManifestPath = manifest.path
+            measuredSurfaceTask = task.rawValue
         case let .importedURDF(
             urdf, srdf, taskPack, actuatorPack, sensorPack, realityPack
         ):
@@ -1131,6 +1146,9 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                 withOptionalCString(realityPackPath) {
                                     realityPack in
                                 withOptionalCString(
+                                    measuredSurfaceManifestPath
+                                ) { measuredSurfaceManifest in
+                                withOptionalCString(
                                     authored.teacher?.pack.path
                                 ) { teacherPack in
                                     withOptionalCString(
@@ -1145,6 +1163,12 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                                 configuration.surface.rawValue
                                             manifest.task = configuration
                                                 .unitreeG1Task.rawValue
+                                            if source ==
+                                                MR_RUN_SOURCE_MEASURED_DOVE.rawValue
+                                            {
+                                                manifest.task =
+                                                    measuredSurfaceTask
+                                            }
                                             manifest.urdf_path = urdf
                                             manifest.srdf_path = srdf
                                             manifest.world_pack_path = world
@@ -1155,6 +1179,8 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                                 sensorPack
                                             manifest.reality_program_pack_path =
                                                 realityPack
+                                            manifest.measured_surface_manifest_path =
+                                                measuredSurfaceManifest
                                             manifest.teacher_pack_path =
                                                 teacherPack
                                             manifest.teacher_clip_id =
@@ -1169,6 +1195,7 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                             )
                                         }
                                     }
+                                }
                                 }
                                 }
                                 }

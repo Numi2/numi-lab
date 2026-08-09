@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_MEASURED_SURFACE_ABI_VERSION 2u
+#define MR_MEASURED_SURFACE_ABI_VERSION 3u
 #define MR_MEASURED_SURFACE_ACTION_CAPACITY 32u
 #define MR_MEASURED_SURFACE_COMPONENT_CAPACITY 16u
 #define MR_MEASURED_SURFACE_PHASE_CLAMP 0u
@@ -25,6 +25,9 @@ typedef struct MR_ALIGN16 MRMeasuredSurfaceComponentGPU {
 typedef struct MR_ALIGN16 MRMeasuredSurfaceActionGPU {
     // lower bound, upper bound, natural frequency Hz, damping ratio.
     mr_float4 boundsFrequencyDamping;
+    // Normalized action bias followed by reserved values. Policy actions are
+    // residuals around this fingerprinted robot trim.
+    mr_float4 normalizedBiasReserved;
 } MRMeasuredSurfaceActionGPU;
 
 // Compiled, pointer-free description. Source arrays remain separate immutable
@@ -102,7 +105,7 @@ typedef struct MR_ALIGN16 MRMeasuredSurfaceEvidenceGPU {
 
 #ifndef __METAL_VERSION__
 static_assert(sizeof(MRMeasuredSurfaceComponentGPU) == 32);
-static_assert(sizeof(MRMeasuredSurfaceActionGPU) == 16);
+static_assert(sizeof(MRMeasuredSurfaceActionGPU) == 32);
 static_assert(sizeof(MRMeasuredSurfaceModelGPU) == 96);
 static_assert(sizeof(MRCompiledMeasuredSurfaceDispatchGPU) == 96);
 static_assert(sizeof(MRMeasuredSurfaceStateGPU) == 272);

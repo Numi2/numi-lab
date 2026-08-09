@@ -157,6 +157,8 @@ private struct Options {
     var finalVelocityIterations = 2
     var surface = MetalRoboLocomotionSurface.terrain
     var unitreeG1Task = MetalRoboUnitreeG1Task.velocity
+    var measuredDoveTask: MetalRoboMeasuredSurfaceTask?
+    var measuredDoveManifest: String?
     var seed: UInt64 = 20_260_731
     var metallib = "build/shaders/MetalRobo.metallib"
     var verbose = false
@@ -275,9 +277,13 @@ private struct Options {
                     unitreeG1Task = .ballDisturbanceRecovery
                 case "ball-dodge":
                     unitreeG1Task = .ballDodge
+                case "dove-trim":
+                    measuredDoveTask = .flightTrim
+                case "dove-drop-recovery":
+                    measuredDoveTask = .fatalDropRecovery
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be velocity, disturbance-recovery, supine-get-up, developmental-recovery, adult-locomotion, g1-legs-locomotion, ball-recovery, or ball-dodge."
+                        "--task must be a bundled G1 task, dove-trim, or dove-drop-recovery."
                     )
                 }
                 index += 1
@@ -366,6 +372,9 @@ private struct Options {
                 index += 1
             case "--world-pack":
                 worldPack = try value()
+                index += 1
+            case "--dove-manifest":
+                measuredDoveManifest = try value()
                 index += 1
             case "--task-pack":
                 taskPack = try value()
@@ -517,6 +526,14 @@ private struct Options {
         if worldPack != nil && urdf != nil {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--world-pack and --urdf are mutually exclusive."
+            )
+        }
+        if (measuredDoveTask == nil) != (measuredDoveManifest == nil) ||
+            (measuredDoveTask != nil &&
+             (worldPack != nil || urdf != nil || interactionPack != nil))
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Dove tasks require --dove-manifest and cannot be combined with imported or interaction mechanics."
             )
         }
         if (interactionPack == nil) != (interactionClip == nil) {
@@ -834,6 +851,24 @@ private func makeContext(
             options.interactionResetMaximumPhase,
         unitreeG1Task: options.unitreeG1Task
     )
+    if let doveManifest = options.measuredDoveManifest,
+       let doveTask = options.measuredDoveTask
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .measuredDove(
+                        manifest: URL(fileURLWithPath: doveManifest),
+                        task: doveTask
+                    ),
+                    sensorsAndPhysics: configuration,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            "measured_dove"
+        )
+    }
     if let interactionPack = options.interactionPack,
        let interactionClip = options.interactionClip,
        options.urdf == nil

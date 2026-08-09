@@ -4,6 +4,7 @@
 
 #include <array>
 #include <cstdint>
+#include <filesystem>
 #include <span>
 #include <string>
 #include <vector>
@@ -59,6 +60,9 @@ struct MeasuredSurfaceRobotPack {
         MeasuredSurfacePhaseBoundary::clamp;
     std::vector<MeasuredSurfaceComponentRange> components;
     std::array<MeasuredSurfaceAction, kMeasuredSurfaceActionCount> actions;
+    // Normalized residual center. All zeros preserve the exact measured
+    // replay; recovery variants may author a qualified aerodynamic trim.
+    std::array<float, kMeasuredSurfaceActionCount> normalizedActionBias {};
     float bodyMassKilograms = 0.35f;
     std::array<float, 3> principalInertiaKilogramMetersSquared {
         0.0018f, 0.0024f, 0.0031f
@@ -110,6 +114,12 @@ struct MeasuredSurfaceActuatorState {
 
 [[nodiscard]] std::array<MeasuredSurfaceAction, kMeasuredSurfaceActionCount>
 makeMeasuredSurfaceFlightActions();
+
+[[nodiscard]] std::array<float, kMeasuredSurfaceActionCount>
+measuredSurfaceRecoveryTrimActions();
+
+[[nodiscard]] MeasuredSurfaceRobotPack loadDeetjenMeasuredDoveRobotPack(
+    const std::filesystem::path& manifestPath);
 
 [[nodiscard]] CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
     const MeasuredSurfaceRobotPack& pack);

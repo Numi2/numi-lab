@@ -81,6 +81,7 @@ enum class TaskRewardOperator : std::uint32_t {
     jointAccelerationSquared =
         MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED,
     actionRateSquared = MR_TASK_REWARD_ACTION_RATE_SQUARED,
+    actionSquared = MR_TASK_REWARD_ACTION_SQUARED,
     jointLimitViolationSquared =
         MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED,
     mechanicalPower = MR_TASK_REWARD_MECHANICAL_POWER,
@@ -166,6 +167,12 @@ enum class TaskRandomizationOperator : std::uint32_t {
         MR_TASK_RANDOMIZE_SCENE_BODY_EVENT_IMPACT,
     worldBodyParameter =
         MR_TASK_RANDOMIZE_WORLD_BODY_PARAMETER,
+    rootLinearVelocity =
+        MR_TASK_RANDOMIZE_ROOT_LINEAR_VELOCITY,
+    rootAngularVelocity =
+        MR_TASK_RANDOMIZE_ROOT_ANGULAR_VELOCITY,
+    rootOrientationCone =
+        MR_TASK_RANDOMIZE_ROOT_ORIENTATION_CONE,
 };
 
 enum class RobotActuatorKind : std::uint32_t {
