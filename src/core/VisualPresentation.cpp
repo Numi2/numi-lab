@@ -2493,7 +2493,30 @@ VisualEnvironmentReferenceV2 makeNeutralStudioEnvironmentV2() {
 
 VisualLightRigV1 makeStudioKeyLightRigV1() {
     VisualLightRigV1 result;
-    result.lights = {defaultLight()};
+    result.contentHash = "builtin:studio-three-point-v2";
+
+    // A single directional key leaves imported assets black whenever their
+    // authored normals face away from that one light.  The presentation rig
+    // is deliberately camera-independent so robot-specific camera presets
+    // remain authoritative while every side of an articulated asset retains
+    // readable form.
+    MRVisualLightGPUV1 key = defaultLight();
+    key.colorAndIntensity = {1.0f, 0.95f, 0.88f, 1350.0f};
+    key.identity.z = 100u;
+
+    MRVisualLightGPUV1 fill = defaultLight();
+    fill.directionAndSpot = {0.72f, -0.42f, -0.55f, -1.0f};
+    fill.colorAndIntensity = {0.72f, 0.84f, 1.0f, 720.0f};
+    fill.identity.z = 101u;
+    fill.shadow.x = 0u;
+
+    MRVisualLightGPUV1 rim = defaultLight();
+    rim.directionAndSpot = {-0.08f, -0.76f, -0.64f, -1.0f};
+    rim.colorAndIntensity = {0.78f, 0.88f, 1.0f, 520.0f};
+    rim.identity.z = 102u;
+    rim.shadow.x = 0u;
+
+    result.lights = {key, fill, rim};
     HashBuilder hash;
     hash.string(result.id);
     hash.string(result.contentHash);

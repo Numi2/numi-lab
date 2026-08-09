@@ -1,8 +1,9 @@
 import AppKit
 import Metal
 import MetalKit
+import simd
 
-public struct MetalRoboInspectorPolicyChoice: Sendable {
+public struct NumiWindowPolicyChoice: Sendable {
     public let robotID: String
     public let displayName: String
     public let policyURL: URL
@@ -14,17 +15,142 @@ public struct MetalRoboInspectorPolicyChoice: Sendable {
     }
 }
 
-public func metalRoboInspectorPolicyChoices(
-    in directory: URL
-) -> [MetalRoboInspectorPolicyChoice] {
+public struct NumiWindowSceneChoice: Sendable {
+    public let id: String
+    public let robotID: String
+    public let robotName: String
+    public let sceneID: String
+    public let sceneName: String
+    public let visualObservationURL: URL
+    public let launchArguments: [String]
+
+    fileprivate struct Record: Decodable {
+        let format: String
+        let id: String
+        let robotID: String
+        let robotName: String
+        let sceneID: String
+        let sceneName: String
+        let visualObservation: String
+        let arguments: [String]
+        let available: Bool?
+
+        enum CodingKeys: String, CodingKey {
+            case format, id, arguments, available
+            case robotID = "robot_id"
+            case robotName = "robot_name"
+            case sceneID = "scene_id"
+            case sceneName = "scene_name"
+            case visualObservation = "visual_observation"
+        }
+    }
+}
+
+private let numiWindowPathOptions: Set<String> = [
+    "--urdf", "--srdf", "--world-pack", "--task-pack",
+    "--robot-actuator-pack", "--sensor-program-pack",
+    "--reality-program-pack", "--interaction-pack", "--policy-pack",
+    "--action-stream", "--dove-manifest",
+]
+
+private func numiWindowResolvedArguments(
+    _ arguments: [String],
+    relativeTo directory: URL
+) -> [String] {
+    var result = arguments
+    var index = 0
+    while index + 1 < result.count {
+        let option = result[index]
+        if numiWindowPathOptions.contains(option),
+           !result[index + 1].hasPrefix("/") {
+            result[index + 1] = directory
+                .appendingPathComponent(result[index + 1])
+                .standardizedFileURL.path
+            index += 1
+        }
+        index += 1
+    }
+    return result
+}
+
+public func numiWindowSceneChoices(in directory: URL) -> [NumiWindowSceneChoice] {
     guard let entries = FileManager.default.enumerator(
         at: directory,
         includingPropertiesForKeys: [.isRegularFileKey],
-        options: [.skipsHiddenFiles, .skipsPackageDescendants]
+        // The production catalog normally lives under the workspace's
+        // hidden `.numi` directory. Skipping hidden descendants here makes
+        // every valid catalog appear empty.
+        options: [.skipsPackageDescendants]
     ) else {
         return []
     }
-    var choices: [MetalRoboInspectorPolicyChoice] = []
+    let decoder = JSONDecoder()
+    var choices: [NumiWindowSceneChoice] = []
+    var seen: Set<String> = []
+    for case let url as URL in entries where url.lastPathComponent.hasSuffix(
+        ".numi-window.json"
+    ) {
+        guard let data = try? Data(contentsOf: url),
+              let record = try? decoder.decode(
+                  NumiWindowSceneChoice.Record.self,
+                  from: data
+              ),
+              record.format == "numi.window.scene.v1",
+              !record.id.isEmpty,
+              !record.robotID.isEmpty,
+              !record.sceneID.isEmpty,
+              record.available != false,
+              seen.insert(record.id).inserted
+        else {
+            continue
+        }
+        let base = url.deletingLastPathComponent()
+        let visualURL = URL(fileURLWithPath: record.visualObservation,
+                            relativeTo: base).standardizedFileURL
+        guard FileManager.default.fileExists(atPath: visualURL.path) else {
+            continue
+        }
+        choices.append(NumiWindowSceneChoice(
+            id: record.id,
+            robotID: record.robotID,
+            robotName: record.robotName,
+            sceneID: record.sceneID,
+            sceneName: record.sceneName,
+            visualObservationURL: visualURL,
+            launchArguments: numiWindowResolvedArguments(
+                record.arguments,
+                relativeTo: base
+            )
+        ))
+    }
+    return choices.sorted {
+        ($0.robotName.localizedStandardCompare($1.robotName) == .orderedAscending) ||
+        ($0.robotName == $1.robotName &&
+         $0.sceneName.localizedStandardCompare($1.sceneName) == .orderedAscending)
+    }
+}
+
+public func numiWindowSceneCatalog() -> [NumiWindowSceneChoice] {
+    let environment = ProcessInfo.processInfo.environment
+    let directory = URL(fileURLWithPath:
+        environment["NUMI_WINDOW_SCENE_CATALOG"] ??
+        FileManager.default.currentDirectoryPath + "/.numi/runs",
+        isDirectory: true
+    )
+    return numiWindowSceneChoices(in: directory)
+}
+
+public func numiWindowPolicyChoices(
+    in directory: URL
+) -> [NumiWindowPolicyChoice] {
+    guard let entries = FileManager.default.enumerator(
+        at: directory,
+        includingPropertiesForKeys: [.isRegularFileKey],
+        options: [.skipsPackageDescendants]
+    ) else {
+        return []
+    }
+    var choices: [NumiWindowPolicyChoice] = []
     for case let url as URL in entries {
         let regularFile =
             (try? url.resourceValues(forKeys: [.isRegularFileKey])
@@ -41,7 +167,7 @@ public func metalRoboInspectorPolicyChoices(
         let robotID = components.count > 1
             ? String(components[0])
             : "Uncategorized"
-        choices.append(MetalRoboInspectorPolicyChoice(
+        choices.append(NumiWindowPolicyChoice(
             robotID: robotID,
             displayName: url.deletingPathExtension().lastPathComponent,
             policyURL: url
@@ -55,8 +181,8 @@ public func metalRoboInspectorPolicyChoices(
     }
 }
 
-public func metalRoboInspectorPolicyCatalog() -> [
-    MetalRoboInspectorPolicyChoice
+public func numiWindowPolicyCatalog() -> [
+    NumiWindowPolicyChoice
 ] {
     let environment = ProcessInfo.processInfo.environment
     let directory: URL
@@ -67,10 +193,10 @@ public func metalRoboInspectorPolicyCatalog() -> [
         directory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
             .appendingPathComponent(".numi/policies", isDirectory: true)
     }
-    return metalRoboInspectorPolicyChoices(in: directory)
+    return numiWindowPolicyChoices(in: directory)
 }
 
-private final class InspectionDelivery: @unchecked Sendable {
+private final class WindowFrameDelivery: @unchecked Sendable {
     let frame: MetalRoboTaskInspectionFrame
     let release: @Sendable () -> Void
 
@@ -83,28 +209,101 @@ private final class InspectionDelivery: @unchecked Sendable {
     }
 }
 
-enum MetalRoboRunInspectorError: Error {
-    case closed
+struct NumiWindowCameraControl: Sendable {
+    let translation: SIMD3<Float>
+    let orientation: SIMD4<Float>
 }
 
 @MainActor
-private final class RunInspectorWindow: NSObject, MTKViewDelegate,
+private final class NumiWindowMetalView: MTKView {
+    var onOrbit: ((CGFloat, CGFloat) -> Void)?
+    var onPan: ((CGFloat, CGFloat) -> Void)?
+    var onDolly: ((CGFloat) -> Void)?
+    var onReset: (() -> Void)?
+    private var lastDragLocation: NSPoint?
+
+    override var acceptsFirstResponder: Bool { true }
+
+    override func mouseDown(with event: NSEvent) {
+        window?.makeFirstResponder(self)
+        lastDragLocation = convert(event.locationInWindow, from: nil)
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        let location = convert(event.locationInWindow, from: nil)
+        if let previous = lastDragLocation {
+            let dx = location.x - previous.x
+            let dy = location.y - previous.y
+            if event.modifierFlags.contains(.shift) {
+                onPan?(dx, dy)
+            } else {
+                onOrbit?(dx, dy)
+            }
+        }
+        lastDragLocation = location
+    }
+
+    override func rightMouseDown(with event: NSEvent) {
+        window?.makeFirstResponder(self)
+        lastDragLocation = convert(event.locationInWindow, from: nil)
+    }
+
+    override func rightMouseDragged(with event: NSEvent) {
+        let location = convert(event.locationInWindow, from: nil)
+        if let previous = lastDragLocation {
+            onPan?(location.x - previous.x, location.y - previous.y)
+        }
+        lastDragLocation = location
+    }
+
+    override func rightMouseUp(with event: NSEvent) {
+        lastDragLocation = nil
+    }
+
+    override func scrollWheel(with event: NSEvent) {
+        onDolly?(event.scrollingDeltaY)
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        if event.clickCount == 2 {
+            onReset?()
+        }
+        lastDragLocation = nil
+    }
+}
+
+enum NumiWindowError: Error {
+    case closed
+    case reconfigure(String)
+}
+
+@MainActor
+private final class NumiWindowController: NSObject, MTKViewDelegate,
     NSWindowDelegate, NSToolbarDelegate
 {
     private static let pauseToolbarItem = NSToolbarItem.Identifier(
-        "numi.inspector.pause"
+        "numi.window.pause"
     )
     private static let latestPolicyToolbarItem = NSToolbarItem.Identifier(
-        "numi.inspector.latest-policy"
+        "numi.window.latest-policy"
     )
     private static let policySelectorToolbarItem = NSToolbarItem.Identifier(
-        "numi.inspector.policy-selector"
+        "numi.window.policy-selector"
+    )
+    private static let robotSelectorToolbarItem = NSToolbarItem.Identifier(
+        "numi.window.robot-selector"
+    )
+    private static let sceneSelectorToolbarItem = NSToolbarItem.Identifier(
+        "numi.window.scene-selector"
+    )
+    private static let resetCameraToolbarItem = NSToolbarItem.Identifier(
+        "numi.window.reset-camera"
     )
     private let window: NSWindow
-    private let view: MTKView
+    private let view: NumiWindowMetalView
     private let queue: MTLCommandQueue
     private let pipeline: MTLRenderPipelineState
-    private var pending: InspectionDelivery?
+    private var pending: WindowFrameDelivery?
     private var closed = false
     private var paused = false
     private var presentationVisible = true
@@ -113,22 +312,34 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     private weak var pauseItem: NSToolbarItem?
     private weak var latestPolicyItem: NSToolbarItem?
     private weak var policySelector: NSPopUpButton?
+    private weak var robotSelector: NSPopUpButton?
+    private weak var sceneSelector: NSPopUpButton?
     private let canReloadLatestPolicy: Bool
-    private let policyChoices: [MetalRoboInspectorPolicyChoice]
+    private let policyChoices: [NumiWindowPolicyChoice]
     private let initialPolicyURL: URL?
+    private let sceneChoices: [NumiWindowSceneChoice]
+    private let initialSceneID: String?
+    private var cameraYaw: Float = 0
+    private var cameraPitch: Float = 0
+    private var cameraPan = SIMD2<Float>(repeating: 0)
+    private var cameraDolly: Float = 0
     var onClose: (() -> Void)?
     var onPresentationEnabledChanged: ((Bool) -> Void)?
     var onLatestPolicyRequested: (() -> Void)?
     var onPolicySelected: ((URL) -> Void)?
+    var onSceneSelected: ((String) -> Void)?
+    var onCameraChanged: ((NumiWindowCameraControl) -> Void)?
 
     private init(
         window: NSWindow,
-        view: MTKView,
+        view: NumiWindowMetalView,
         queue: MTLCommandQueue,
         pipeline: MTLRenderPipelineState,
         canReloadLatestPolicy: Bool,
-        policyChoices: [MetalRoboInspectorPolicyChoice],
-        initialPolicyURL: URL?
+        policyChoices: [NumiWindowPolicyChoice],
+        initialPolicyURL: URL?,
+        sceneChoices: [NumiWindowSceneChoice],
+        initialSceneID: String?
     ) {
         self.window = window
         self.view = view
@@ -137,16 +348,28 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         self.canReloadLatestPolicy = canReloadLatestPolicy
         self.policyChoices = policyChoices
         self.initialPolicyURL = initialPolicyURL
+        self.sceneChoices = sceneChoices
+        self.initialSceneID = initialSceneID
         super.init()
         view.delegate = self
         window.contentView = view
         window.delegate = self
-        let toolbar = NSToolbar(identifier: "numi.inspector.toolbar")
+        let toolbar = NSToolbar(identifier: "numi.window.toolbar")
         toolbar.delegate = self
         toolbar.displayMode = .iconAndLabel
         toolbar.allowsUserCustomization = false
         toolbar.autosavesConfiguration = false
         window.toolbar = toolbar
+        view.onOrbit = { [weak self] dx, dy in
+            self?.orbitCamera(dx: dx, dy: dy)
+        }
+        view.onPan = { [weak self] dx, dy in
+            self?.panCamera(dx: dx, dy: dy)
+        }
+        view.onDolly = { [weak self] delta in
+            self?.dollyCamera(delta: delta)
+        }
+        view.onReset = { [weak self] in self?.resetCamera() }
         selectDisplayedPolicy(initialPolicyURL)
         updateChrome(force: true)
         window.makeKeyAndOrderFront(nil)
@@ -154,14 +377,16 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
 
     static func make(
         canReloadLatestPolicy: Bool,
-        policyChoices: [MetalRoboInspectorPolicyChoice],
-        initialPolicyURL: URL?
-    ) throws -> RunInspectorWindow {
+        policyChoices: [NumiWindowPolicyChoice],
+        initialPolicyURL: URL?,
+        sceneChoices: [NumiWindowSceneChoice] = [],
+        initialSceneID: String? = nil
+    ) throws -> NumiWindowController {
         guard let device = MTLCreateSystemDefaultDevice(),
               let queue = device.makeCommandQueue()
         else {
             throw MetalRoboTaskRolloutError.native(
-                "Metal inspector could not create a display device."
+                "Metal window could not create a display device."
             )
         }
         let library = try device.makeLibrary(
@@ -175,12 +400,12 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         )
         descriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
         let pipeline = try device.makeRenderPipelineState(descriptor: descriptor)
-        let view = MTKView(
+        let view = NumiWindowMetalView(
             frame: NSRect(x: 0, y: 0, width: 960, height: 600),
             device: device
         )
         view.colorPixelFormat = .bgra8Unorm_srgb
-        // The inspector writes the drawable exactly once and never samples or
+        // The window writes the drawable exactly once and never samples or
         // copies it. Retain the render-target-only allocation path.
         view.framebufferOnly = true
         view.sampleCount = 1
@@ -197,18 +422,20 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             backing: .buffered,
             defer: false
         )
-        return RunInspectorWindow(
+        return NumiWindowController(
             window: window,
             view: view,
             queue: queue,
             pipeline: pipeline,
             canReloadLatestPolicy: canReloadLatestPolicy,
             policyChoices: policyChoices,
-            initialPolicyURL: initialPolicyURL
+            initialPolicyURL: initialPolicyURL,
+            sceneChoices: sceneChoices,
+            initialSceneID: initialSceneID
         )
     }
 
-    func offer(_ delivery: InspectionDelivery) {
+    func offer(_ delivery: WindowFrameDelivery) {
         guard presentationEnabled else {
             delivery.release()
             return
@@ -248,6 +475,13 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         }
         selectDisplayedPolicy(activePolicyURL)
         lastFrameSummary = "policy rejected · unchanged"
+        updateChrome(force: true)
+    }
+
+    func showRestoredScene(_ id: String, summary: String) {
+        guard !closed else { return }
+        selectDisplayedScene(id)
+        lastFrameSummary = summary
         updateChrome(force: true)
     }
 
@@ -316,8 +550,9 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     ) -> [NSToolbarItem.Identifier] {
         [
             Self.pauseToolbarItem,
-            Self.policySelectorToolbarItem,
-            Self.latestPolicyToolbarItem,
+            Self.robotSelectorToolbarItem,
+            Self.sceneSelectorToolbarItem,
+            Self.resetCameraToolbarItem,
         ]
     }
 
@@ -326,8 +561,9 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
     ) -> [NSToolbarItem.Identifier] {
         [
             Self.pauseToolbarItem,
-            Self.policySelectorToolbarItem,
-            Self.latestPolicyToolbarItem,
+            Self.robotSelectorToolbarItem,
+            Self.sceneSelectorToolbarItem,
+            Self.resetCameraToolbarItem,
         ]
     }
 
@@ -350,6 +586,16 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             latestPolicyItem = item
             return item
         }
+        if itemIdentifier == Self.resetCameraToolbarItem {
+            item.label = "Reset View"
+            item.toolTip = "Drag to orbit · Shift-drag or right-drag to pan · scroll to zoom · double-click to reset"
+            item.image = NSImage(
+                systemSymbolName: "view.3d",
+                accessibilityDescription: item.label
+            )
+            item.action = #selector(resetCameraAction)
+            return item
+        }
         if itemIdentifier == Self.policySelectorToolbarItem {
             let selector = NSPopUpButton(
                 frame: NSRect(x: 0, y: 0, width: 220, height: 28),
@@ -364,13 +610,175 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
             selectDisplayedPolicy(initialPolicyURL)
             return item
         }
+        if itemIdentifier == Self.robotSelectorToolbarItem {
+            let selector = NSPopUpButton(
+                frame: NSRect(x: 0, y: 0, width: 170, height: 28),
+                pullsDown: false
+            )
+            selector.target = self
+            selector.action = #selector(selectRobot)
+            selector.setAccessibilityLabel("Robot")
+            item.label = "Robot"
+            item.view = selector
+            robotSelector = selector
+            configureRobotSelector(selector)
+            return item
+        }
+        if itemIdentifier == Self.sceneSelectorToolbarItem {
+            let selector = NSPopUpButton(
+                frame: NSRect(x: 0, y: 0, width: 170, height: 28),
+                pullsDown: false
+            )
+            selector.target = self
+            selector.action = #selector(selectScene)
+            selector.setAccessibilityLabel("Scene")
+            item.label = "Scene"
+            item.view = selector
+            sceneSelector = selector
+            selectDisplayedScene(initialSceneID)
+            return item
+        }
         return nil
+    }
+
+    @objc private func selectRobot(_ sender: NSPopUpButton) {
+        guard let robotID = sender.selectedItem?.representedObject as? String,
+              let choice = sceneChoices.first(where: { $0.robotID == robotID })
+        else {
+            return
+        }
+        configureSceneSelector(for: robotID, selecting: choice.id)
+        requestScene(choice)
+    }
+
+    @objc private func selectScene(_ sender: NSPopUpButton) {
+        guard let id = sender.selectedItem?.representedObject as? String,
+              let choice = sceneChoices.first(where: { $0.id == id })
+        else {
+            return
+        }
+        requestScene(choice)
+    }
+
+    private func requestScene(_ choice: NumiWindowSceneChoice) {
+        // Camera offsets are relative to each robot's authored camera. Never
+        // carry an orbit from one robot into another robot's frame.
+        resetCamera()
+        lastFrameSummary = "loading \(choice.robotName) · \(choice.sceneName)"
+        updateChrome(force: true)
+        onSceneSelected?(choice.id)
+    }
+
+    private func configureRobotSelector(_ selector: NSPopUpButton) {
+        selector.removeAllItems()
+        var seen: Set<String> = []
+        for choice in sceneChoices where seen.insert(choice.robotID).inserted {
+            selector.addItem(withTitle: choice.robotName)
+            selector.lastItem?.representedObject = choice.robotID
+        }
+        guard !sceneChoices.isEmpty else {
+            selector.addItem(withTitle: "No robot catalog")
+            selector.isEnabled = false
+            configureSceneSelector(for: "", selecting: nil)
+            return
+        }
+        let initial = sceneChoices.first(where: { $0.id == initialSceneID }) ??
+            sceneChoices[0]
+        selector.selectItem(withTitle: initial.robotName)
+        configureSceneSelector(for: initial.robotID, selecting: initial.id)
+    }
+
+    private func configureSceneSelector(
+        for robotID: String,
+        selecting selectedID: String?
+    ) {
+        guard let selector = sceneSelector else {
+            return
+        }
+        selector.removeAllItems()
+        for choice in sceneChoices where choice.robotID == robotID {
+            selector.addItem(withTitle: choice.sceneName)
+            selector.lastItem?.representedObject = choice.id
+        }
+        selector.isEnabled = selector.numberOfItems > 0
+        if let selectedID {
+            selectDisplayedScene(selectedID)
+        }
+    }
+
+    private func selectDisplayedScene(_ id: String?) {
+        guard let id,
+              let choice = sceneChoices.first(where: { $0.id == id })
+        else {
+            return
+        }
+        robotSelector?.itemArray.first(where: {
+            ($0.representedObject as? String) == choice.robotID
+        }).map { robotSelector?.select($0) }
+        configureSceneSelector(for: choice.robotID, selecting: nil)
+        sceneSelector?.itemArray.first(where: {
+            ($0.representedObject as? String) == id
+        }).map { sceneSelector?.select($0) }
     }
 
     @objc private func togglePause() {
         paused.toggle()
         updatePresentationState()
         updateChrome(force: true)
+    }
+
+    @objc private func resetCameraAction() {
+        resetCamera()
+    }
+
+    private func orbitCamera(dx: CGFloat, dy: CGFloat) {
+        cameraYaw += Float(dx) * 0.006
+        cameraPitch = min(1.2, max(-1.2,
+            cameraPitch + Float(dy) * 0.006))
+        publishCameraControl()
+    }
+
+    private func panCamera(dx: CGFloat, dy: CGFloat) {
+        cameraPan.x -= Float(dx) * 0.0025
+        cameraPan.y -= Float(dy) * 0.0025
+        publishCameraControl()
+    }
+
+    private func dollyCamera(delta: CGFloat) {
+        cameraDolly = min(1.2, max(-1.2,
+            cameraDolly + Float(delta) * 0.012))
+        publishCameraControl()
+    }
+
+    private func resetCamera() {
+        cameraYaw = 0
+        cameraPitch = 0
+        cameraPan = .zero
+        cameraDolly = 0
+        publishCameraControl()
+    }
+
+    private func publishCameraControl() {
+        let halfYaw = cameraYaw * 0.5
+        let halfPitch = cameraPitch * 0.5
+        let sy = sin(halfYaw)
+        let cy = cos(halfYaw)
+        let sx = sin(halfPitch)
+        let cx = cos(halfPitch)
+        let orientation = SIMD4<Float>(cy * sx, sy * cx, -sy * sx, cy * cx)
+        let axis = SIMD3<Float>(
+            orientation.x, orientation.y, orientation.z
+        )
+        let focus = SIMD3<Float>(0, 0, 1.55)
+        let tangent = 2 * cross(axis, focus)
+        let rotatedFocus = focus + orientation.w * tangent + cross(axis, tangent)
+        let translation = focus - rotatedFocus + SIMD3<Float>(
+            cameraPan.x, cameraPan.y, cameraDolly
+        )
+        onCameraChanged?(NumiWindowCameraControl(
+            translation: translation,
+            orientation: orientation
+        ))
     }
 
     @objc private func requestLatestPolicy() {
@@ -496,7 +904,7 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         }
         lastChromeUpdateSeconds = now
         let state = paused ? "paused" : (presentationVisible ? "live" : "hidden")
-        window.title = "Numi Lab Inspector — \(state) · \(lastFrameSummary)"
+        window.title = "Numi Window — \(state) · \(lastFrameSummary)"
         if let item = pauseItem {
             configurePauseItem(item)
         }
@@ -581,7 +989,7 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
         const float3 shaded = linear / (1.0 + linear);
         // The sensor renderer marks background pixels transparent. Keep that
         // useful distinction in the presentation window: a missing/empty
-        // camera image is a calm inspector backdrop, never an opaque black
+        // camera image is a calm window backdrop, never an opaque black
         // result that looks like a rendering failure. Shaded geometry keeps
         // the renderer's own color unchanged.
         return float4(mix(backdrop, shaded, clamp(sample.w, 0.0, 1.0)), 1.0);
@@ -591,18 +999,20 @@ private final class RunInspectorWindow: NSObject, MTKViewDelegate,
 
 // This bridge is intentionally sendable: the frame slot is exclusively owned
 // by the delivery until the MTKView command-buffer completion releases it.
-public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
-    private let window: RunInspectorWindow
+public final class NumiWindowBridge: @unchecked Sendable {
+    private let window: NumiWindowController
     private let stateLock = NSLock()
     private var closed = false
     private var presentationEnabled = true
     private var pendingNativeInspectionEnabled: Bool?
     private var latestPolicyReloadRequested = false
     private var pendingPolicySelection: URL?
+    private var pendingSceneSelection: String?
+    private var pendingCameraControl: NumiWindowCameraControl?
     private var selectedPolicyURL: URL?
 
     @MainActor
-    private init(window: RunInspectorWindow) {
+    private init(window: NumiWindowController) {
         self.window = window
         window.onClose = { [weak self] in
             self?.markClosed()
@@ -616,22 +1026,32 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         window.onPolicySelected = { [weak self] url in
             self?.requestPolicySelection(url)
         }
+        window.onSceneSelected = { [weak self] id in
+            self?.requestSceneSelection(id)
+        }
+        window.onCameraChanged = { [weak self] control in
+            self?.requestCameraControl(control)
+        }
     }
 
     @MainActor
     public static func launch(
         canReloadLatestPolicy: Bool = false,
-        policyChoices: [MetalRoboInspectorPolicyChoice] = [],
-        initialPolicyURL: URL? = nil
-    ) throws -> MetalRoboRunInspectorBridge {
+        policyChoices: [NumiWindowPolicyChoice] = [],
+        initialPolicyURL: URL? = nil,
+        sceneChoices: [NumiWindowSceneChoice] = [],
+        initialSceneID: String? = nil
+    ) throws -> NumiWindowBridge {
         precondition(Thread.isMainThread)
         let application = NSApplication.shared
         application.setActivationPolicy(.regular)
-        let bridge = MetalRoboRunInspectorBridge(
-            window: try RunInspectorWindow.make(
+        let bridge = NumiWindowBridge(
+            window: try NumiWindowController.make(
                 canReloadLatestPolicy: canReloadLatestPolicy,
                 policyChoices: policyChoices,
-                initialPolicyURL: initialPolicyURL
+                initialPolicyURL: initialPolicyURL,
+                sceneChoices: sceneChoices,
+                initialSceneID: initialSceneID
             )
         )
         bridge.setInitialPolicy(initialPolicyURL)
@@ -685,6 +1105,22 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         stateLock.unlock()
     }
 
+    private func requestSceneSelection(_ id: String) {
+        stateLock.lock()
+        if !closed {
+            pendingSceneSelection = id
+        }
+        stateLock.unlock()
+    }
+
+    private func requestCameraControl(_ control: NumiWindowCameraControl) {
+        stateLock.lock()
+        if !closed {
+            pendingCameraControl = control
+        }
+        stateLock.unlock()
+    }
+
     private func setInitialPolicy(_ url: URL?) {
         stateLock.lock()
         selectedPolicyURL = url
@@ -701,6 +1137,14 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         return value
     }
 
+    func takeCameraControl() -> NumiWindowCameraControl? {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        let control = pendingCameraControl
+        pendingCameraControl = nil
+        return control
+    }
+
     func takeLatestPolicyReloadRequest() -> Bool {
         stateLock.lock()
         defer { stateLock.unlock() }
@@ -714,6 +1158,14 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         defer { stateLock.unlock() }
         let selection = pendingPolicySelection
         pendingPolicySelection = nil
+        return selection
+    }
+
+    func takeSceneSelection() -> String? {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        let selection = pendingSceneSelection
+        pendingSceneSelection = nil
         return selection
     }
 
@@ -745,6 +1197,12 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
         }
     }
 
+    func reportSceneRestored(_ id: String, summary: String) {
+        DispatchQueue.main.async { [window] in
+            window.showRestoredScene(id, summary: summary)
+        }
+    }
+
     public func publish(
         frame: MetalRoboTaskInspectionFrame,
         context: MetalRoboTaskRolloutContext
@@ -753,7 +1211,7 @@ public final class MetalRoboRunInspectorBridge: @unchecked Sendable {
             context.releaseInspectionFrame(slotIndex: frame.slotIndex)
             return
         }
-        let delivery = InspectionDelivery(
+        let delivery = WindowFrameDelivery(
             frame: frame,
             release: {
                 context.releaseInspectionFrame(slotIndex: frame.slotIndex)

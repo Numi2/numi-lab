@@ -2535,6 +2535,32 @@ bool parseUrdfVector3(
         });
 }
 
+bool parseUrdfColor(xmlNode* material, mr_float4& output) {
+    xmlNode* color = xmlChild(material, "color");
+    const auto text = color == nullptr
+        ? std::nullopt
+        : xmlProperty(color, "rgba");
+    if (!text.has_value()) {
+        return false;
+    }
+    std::istringstream stream{*text};
+    std::array<double, 4u> values{};
+    if (!(stream >> values[0] >> values[1] >> values[2] >> values[3]) ||
+        !(stream >> std::ws).eof() ||
+        !std::ranges::all_of(values, [](const double value) {
+            return std::isfinite(value) && value >= 0.0 && value <= 1.0;
+        })) {
+        return false;
+    }
+    output = {
+        static_cast<float>(values[0]),
+        static_cast<float>(values[1]),
+        static_cast<float>(values[2]),
+        static_cast<float>(values[3]),
+    };
+    return true;
+}
+
 bool urdfVisualTransform(
     xmlNode* visual,
     xmlNode* mesh,
@@ -3145,7 +3171,9 @@ std::uint32_t importModelMaterial(
             : mr_float4{1.0f, 1.0f, 1.0f, 1.0f}
     );
     if (forceNeutralMaterial) {
-        result.emissionAndStrength = {0.58f, 0.61f, 0.66f, 1.0f};
+        // STL has normals but no material. Keep it on the studio-lit PBR
+        // path so link curvature and joint depth remain visible.
+        result.emissionAndStrength = {0.0f, 0.0f, 0.0f, 1.0f};
     }
     result.surface = {
         std::clamp(
@@ -3177,6 +3205,9 @@ std::uint32_t importModelMaterial(
             1.0f
         ),
     };
+    if (forceNeutralMaterial) {
+        result.surface = {0.52f, 0.06f, 1.0f, 1.0f};
+    }
     const float clearcoat = std::clamp(
         materialScalar(
             material,
@@ -3275,7 +3306,7 @@ std::uint32_t importModelMaterial(
         result.coatingAndAlphaCutoff.w =
             std::clamp(cutoff.floatValue, 0.0f, 1.0f);
     }
-    const bool unlit = forceNeutralMaterial ||
+    const bool unlit =
         materialPropertyContaining(material, "unlit") != nil;
     result.flags = {
         alphaMode,
@@ -3828,12 +3859,18 @@ bool appendModelMesh(
                 vertex,
                 firstUv
             );
-        const std::array<float, 4u> color =
-            readModelAttribute<4u>(
-                colors,
-                vertex,
-                {1.0f, 1.0f, 1.0f, 1.0f}
-            );
+        // Model I/O exposes a zero-filled color stream for formats such as
+        // binary STL even though the source carries no vertex-color
+        // semantics. Treating that stream as authored multiplies every PBR
+        // material by black. Neutral imports use the material as their color
+        // authority and therefore require a white vertex multiplier.
+        const std::array<float, 4u> color = forceNeutralMaterial
+            ? std::array<float, 4u>{1.0f, 1.0f, 1.0f, 1.0f}
+            : readModelAttribute<4u>(
+                  colors,
+                  vertex,
+                  {1.0f, 1.0f, 1.0f, 1.0f}
+              );
         MRVisualVertexGPUV2 result{};
         result.position = {
             position[0], position[1], position[2], 1.0f,
@@ -4481,6 +4518,14 @@ VisualAssetCookDiagnostics cookUrdfVisualDescription(
     }
     std::vector<VisualAssetPackV2> candidate;
     xmlNode* robot = xmlDocGetRootElement(document);
+    std::unordered_map<std::string, mr_float4> namedMaterials;
+    for (xmlNode* material : xmlChildren(robot, "material")) {
+        const std::string name = xmlProperty(material, "name").value_or("");
+        mr_float4 color{};
+        if (!name.empty() && parseUrdfColor(material, color)) {
+            namedMaterials.insert_or_assign(name, color);
+        }
+    }
     for (xmlNode* link : xmlChildren(robot, "link")) {
         const std::string linkName =
             xmlProperty(link, "name").value_or("");
@@ -4534,6 +4579,37 @@ VisualAssetCookDiagnostics cookUrdfVisualDescription(
             if (!result.succeeded()) {
                 xmlFreeDoc(document);
                 return result;
+            }
+            std::optional<mr_float4> authoredColor;
+            if (xmlNode* material = xmlChild(visual, "material");
+                material != nullptr) {
+                mr_float4 inlineColor{};
+                if (parseUrdfColor(material, inlineColor)) {
+                    authoredColor = inlineColor;
+                } else if (const std::string name =
+                               xmlProperty(material, "name").value_or("");
+                           !name.empty()) {
+                    const auto found = namedMaterials.find(name);
+                    if (found != namedMaterials.end()) {
+                        authoredColor = found->second;
+                    }
+                }
+            }
+            if (authoredColor.has_value()) {
+                for (MRVisualMaterialGPUV2& material : pack.materials) {
+                    // STL has no material payload. URDF color is authored
+                    // presentation truth; normals and the window's studio
+                    // light provide depth without inventing link colors.
+                    material.baseColorAndOpacity = *authoredColor;
+                    material.emissionAndStrength = {
+                        0.0f,
+                        0.0f,
+                        0.0f,
+                        1.0f,
+                    };
+                    material.surface = {0.48f, 0.08f, 1.0f, 1.0f};
+                    material.flags.y &= ~MR_VISUAL_MATERIAL_UNLIT;
+                }
             }
             const auto body =
                 options.linkBodyIndices.find(linkName);

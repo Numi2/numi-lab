@@ -4200,6 +4200,40 @@ int mr_task_rollout_set_inspection_enabled(
     return 0;
 }
 
+int mr_task_rollout_set_inspection_camera(
+    MRTaskRolloutHandle* handle,
+    const float translation_x,
+    const float translation_y,
+    const float translation_z,
+    const float quaternion_x,
+    const float quaternion_y,
+    const float quaternion_z,
+    const float quaternion_w
+) {
+    if (!requireTaskRolloutHandle(handle) ||
+        handle->inspectionVisualRuntime == nullptr ||
+        handle->inspectionVisualRuntime->inspector == nullptr) {
+        return -1;
+    }
+    const float norm = std::sqrt(
+        quaternion_x * quaternion_x + quaternion_y * quaternion_y +
+        quaternion_z * quaternion_z + quaternion_w * quaternion_w
+    );
+    if (!std::isfinite(translation_x) || !std::isfinite(translation_y) ||
+        !std::isfinite(translation_z) || !std::isfinite(norm) ||
+        norm < 1.0e-6f) {
+        gLastError = "inspection camera transform is not finite";
+        return -1;
+    }
+    handle->inspectionVisualRuntime->inspector->setCameraOverride(
+        {translation_x, translation_y, translation_z, 1.0f},
+        {quaternion_x / norm, quaternion_y / norm,
+         quaternion_z / norm, quaternion_w / norm}
+    );
+    gLastError.clear();
+    return 0;
+}
+
 int mr_task_rollout_release_inspection_frame(
     MRTaskRolloutHandle* handle,
     const uint32_t slot_index

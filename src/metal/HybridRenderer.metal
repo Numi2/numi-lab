@@ -1708,6 +1708,86 @@ float3 sampleEnvironmentBackground(
     );
 }
 
+float3 sampleNeutralStudioBackground(
+    const float3 cameraPosition,
+    const float3 worldDirection,
+    const float screenV
+) {
+    // Presentation-only cyclorama used by the built-in neutral studio.  It
+    // gives scale and ground contact without inserting fake collision
+    // geometry into the simulator or its geometric observation planes.
+    const float skyBlend = saturate(worldDirection.z * 0.7f + 0.55f);
+    const float3 backdrop = mix(
+        float3(0.055f, 0.065f, 0.082f),
+        float3(0.24f, 0.27f, 0.31f),
+        skyBlend
+    );
+    // The Metal observation texture is presented vertically flipped in the
+    // native window, so presentation V grows toward the visible bottom.
+    const float presentationV = 1.0f - screenV;
+    const float floorMask = smoothstep(0.58f, 0.74f, presentationV);
+    const float3 screenFloor = mix(
+        float3(0.18f, 0.195f, 0.22f),
+        float3(0.27f, 0.285f, 0.31f),
+        saturate((presentationV - 0.58f) * 1.8f)
+    );
+    if (worldDirection.z >= -1.0e-4f || cameraPosition.z <= 0.0f) {
+        return mix(backdrop, screenFloor, floorMask);
+    }
+    const float distanceToFloor =
+        -cameraPosition.z / worldDirection.z;
+    if (distanceToFloor <= 0.0f) {
+        return mix(backdrop, screenFloor, floorMask);
+    }
+    const float2 floorPosition =
+        cameraPosition.xy + worldDirection.xy * distanceToFloor;
+    const float2 tile = abs(fract(floorPosition * 2.0f) - 0.5f);
+    const float grid = 1.0f - smoothstep(
+        0.455f,
+        0.49f,
+        max(tile.x, tile.y)
+    );
+    const float checker = fmod(
+        floor(floorPosition.x * 2.0f) +
+        floor(floorPosition.y * 2.0f),
+        2.0f
+    );
+    float3 floorColor = mix(
+        float3(0.19f, 0.205f, 0.23f),
+        float3(0.235f, 0.25f, 0.275f),
+        checker
+    );
+    floorColor = mix(floorColor, float3(0.42f), grid * 0.22f);
+    const float contactPool = exp(-2.2f * dot(floorPosition, floorPosition));
+    floorColor *= 1.0f - 0.28f * contactPool;
+    const float horizonFade = smoothstep(9.0f, 22.0f, distanceToFloor);
+    const float3 projectedFloor = mix(floorColor, backdrop, horizonFade);
+    return mix(projectedFloor, screenFloor, floorMask * 0.35f);
+}
+
+float3 samplePresentationBackground(
+    constant VisualResourceTableV3& resources,
+    constant MRVisualEnvironmentGPUV2& environment,
+    const float3 cameraPosition,
+    const float3 worldDirection,
+    const float screenV,
+    const float3 clearColor
+) {
+    if (environment.parameters.w > 0.5f) {
+        return sampleNeutralStudioBackground(
+            cameraPosition,
+            worldDirection,
+            screenV
+        );
+    }
+    return sampleEnvironmentBackground(
+        resources,
+        environment,
+        worldDirection,
+        clearColor
+    );
+}
+
 float3 resolveEnvironmentBackground(
     const float3 compositedBackground,
     const float compositedOpacity,
@@ -1791,6 +1871,17 @@ float3 evaluateEnvironmentIBL(
             environment.parameters.x * ao,
         0.0f
     );
+}
+
+float3 neutralStudioAmbient(
+    const float3 baseColor,
+    const float3 normal,
+    const float metallic,
+    const float ao
+) {
+    const float hemisphere = 0.10f +
+        0.08f * saturate(normal.z * 0.5f + 0.5f);
+    return baseColor * (1.0f - metallic) * hemisphere * ao;
 }
 
 struct ShadowProjection {
@@ -2189,6 +2280,8 @@ kernel void mr_hybrid_prepare_cameras(
         [[buffer(8)]],
     device atomic_uint* nearClippedCounts [[buffer(9)]],
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(10)]],
+    constant float4& cameraTranslationAndEnabled [[buffer(11)]],
+    constant float4& cameraOrientation [[buffer(12)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= uniforms.counts.x) {
@@ -2198,7 +2291,7 @@ kernel void mr_hybrid_prepare_cameras(
         instances[environment];
     const MRWorldSensorInstanceGPU sensor =
         sensors[instance.ranges.z + uniforms.render.x];
-    const BoundPose current = cameraPose(
+    BoundPose current = cameraPose(
         environment,
         instance,
         sensor,
@@ -2211,7 +2304,7 @@ kernel void mr_hybrid_prepare_cameras(
     );
     const bool hasPrevious =
         (uniforms.live.y & kLivePrevious) != 0u;
-    const BoundPose previous = hasPrevious
+    BoundPose previous = hasPrevious
         ? cameraPose(
               environment,
               instance,
@@ -2224,6 +2317,27 @@ kernel void mr_hybrid_prepare_cameras(
               true
           )
         : current;
+    if (cameraTranslationAndEnabled.w > 0.5f &&
+        all(isfinite(cameraTranslationAndEnabled.xyz)) &&
+        all(isfinite(cameraOrientation))) {
+        const float4 controlOrientation = normalize(cameraOrientation);
+        current.position += rotateVector(
+            current.orientation,
+            cameraTranslationAndEnabled.xyz
+        );
+        current.orientation = normalize(quaternionProduct(
+            current.orientation,
+            controlOrientation
+        ));
+        previous.position += rotateVector(
+            previous.orientation,
+            cameraTranslationAndEnabled.xyz
+        );
+        previous.orientation = normalize(quaternionProduct(
+            previous.orientation,
+            controlOrientation
+        ));
+    }
     MRHybridCameraStateGPU result;
     result.currentPositionAndValidity =
         float4(current.position, current.valid ? 1.0f : 0.0f);
@@ -2398,14 +2512,16 @@ kernel void mr_hybrid_clear_observations(
         float(localPixel / uniforms.image.x) + 0.5f
     ) + fastSubpixelOffset(pixel, uniforms);
     const float3 background = camera.valid
-        ? sampleEnvironmentBackground(
+        ? samplePresentationBackground(
               resources,
               environmentLighting,
+              camera.position,
               cameraSampleDirection(
                   rasterSample,
                   sensor,
                   camera
               ),
+              rasterSample.y / float(uniforms.image.y),
               uniforms.clearColorAndDepth.xyz
           )
         : uniforms.clearColorAndDepth.xyz;
@@ -3233,14 +3349,16 @@ kernel void mr_hybrid_render_tiles(
         float2(float(pixelX), float(pixelY)) + 0.5f +
         fastSubpixelOffset(pixel, uniforms);
     const float3 background = camera.valid
-        ? sampleEnvironmentBackground(
+        ? samplePresentationBackground(
               resources,
               environmentLighting,
+              camera.position,
               cameraSampleDirection(
                   pixelCenter,
                   sensor,
                   camera
               ),
+              pixelCenter.y / float(uniforms.image.y),
               uniforms.clearColorAndDepth.xyz
           )
         : uniforms.clearColorAndDepth.xyz;
@@ -4554,8 +4672,12 @@ kernel void mr_hybrid_composite_mesh(
     );
     const float3 viewDirection =
         normalize(camera.position - worldPosition);
+    const float3 shadingNormal =
+        dot(worldNormal, viewDirection) >= 0.0f
+        ? worldNormal
+        : -worldNormal;
     const float noV =
-        max(dot(worldNormal, viewDirection), 1.0e-4f);
+        max(dot(shadingNormal, viewDirection), 1.0e-4f);
     const float3 f0 = mix(
         float3(0.04f * material.coatingAndAlphaCutoff.z),
         base.xyz,
@@ -4618,14 +4740,14 @@ kernel void mr_hybrid_composite_mesh(
                 }
             }
             const float noL =
-                max(dot(worldNormal, lightDirection), 0.0f);
+                max(dot(shadingNormal, lightDirection), 0.0f);
             if (noL <= 0.0f || attenuation <= 0.0f) {
                 continue;
             }
             const float3 halfVector =
                 normalize(viewDirection + lightDirection);
             const float noH =
-                max(dot(worldNormal, halfVector), 0.0f);
+                max(dot(shadingNormal, halfVector), 0.0f);
             const float voH =
                 max(dot(viewDirection, halfVector), 0.0f);
             const float3 fresnel = metalrobo_pbr::fresnelSchlick(voH, f0);
@@ -4644,7 +4766,7 @@ kernel void mr_hybrid_composite_mesh(
             const float shadow = shadowVisibility(
                 shadowAtlas,
                 worldPosition,
-                worldNormal,
+                shadingNormal,
                 lightDirection,
                 light,
                 lightIndex,
@@ -4658,12 +4780,18 @@ kernel void mr_hybrid_composite_mesh(
         color += evaluateEnvironmentIBL(
             resources,
             environmentLighting,
-            worldNormal,
+            shadingNormal,
             viewDirection,
             base.xyz,
             metallic,
             roughness,
             f0,
+            ao
+        );
+        color += neutralStudioAmbient(
+            base.xyz,
+            shadingNormal,
+            metallic,
             ao
         );
         const float clearcoat =
@@ -4697,7 +4825,7 @@ kernel void mr_hybrid_composite_mesh(
             color += clearcoat * evaluateEnvironmentIBL(
                 resources,
                 environmentLighting,
-                worldNormal,
+                shadingNormal,
                 viewDirection,
                 float3(0.0f),
                 1.0f,
@@ -5582,8 +5710,12 @@ float3 referenceShade(
         0.0f,
         1.0f
     );
+    const float3 shadingNormal =
+        dot(surface.worldNormal, viewDirection) >= 0.0f
+        ? surface.worldNormal
+        : -surface.worldNormal;
     const float noV = max(
-        dot(surface.worldNormal, viewDirection),
+        dot(shadingNormal, viewDirection),
         1.0e-4f
     );
     const float3 f0 = mix(
@@ -5719,7 +5851,7 @@ float3 referenceShade(
                     }
                 }
                 const float noL = max(
-                    dot(surface.worldNormal, lightDirection),
+                    dot(shadingNormal, lightDirection),
                     0.0f
                 );
                 if (noL <= 0.0f || attenuation <= 0.0f) {
@@ -5728,7 +5860,7 @@ float3 referenceShade(
                 const float3 halfVector =
                     normalize(viewDirection + lightDirection);
                 const float noH = max(
-                    dot(surface.worldNormal, halfVector),
+                    dot(shadingNormal, halfVector),
                     0.0f
                 );
                 const float voH = max(
@@ -5782,12 +5914,18 @@ float3 referenceShade(
         color += evaluateEnvironmentIBL(
             resources,
             environmentLighting,
-            surface.worldNormal,
+            shadingNormal,
             viewDirection,
             surface.base.xyz,
             metallic,
             roughness,
             f0,
+            ao
+        );
+        color += neutralStudioAmbient(
+            surface.base.xyz,
+            shadingNormal,
+            metallic,
             ao
         );
         const float clearcoat =
@@ -5821,7 +5959,7 @@ float3 referenceShade(
             color += clearcoat * evaluateEnvironmentIBL(
                 resources,
                 environmentLighting,
-                surface.worldNormal,
+                shadingNormal,
                 viewDirection,
                 float3(0.0f),
                 1.0f,

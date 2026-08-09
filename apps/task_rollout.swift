@@ -148,6 +148,10 @@ private func fingerprint(
 }
 
 private struct Options {
+    enum BundledRobotSource {
+        case unitreeG1, frankaPickPlace, px4X500
+    }
+
     var environments = 32
     var steps = 48
     var repeats = 20
@@ -157,6 +161,7 @@ private struct Options {
     var finalVelocityIterations = 2
     var surface = MetalRoboLocomotionSurface.terrain
     var unitreeG1Task = MetalRoboUnitreeG1Task.velocity
+    var bundledRobotSource = BundledRobotSource.unitreeG1
     var measuredDoveTask: MetalRoboMeasuredSurfaceTask?
     var measuredDoveManifest: String?
     var seed: UInt64 = 20_260_731
@@ -284,6 +289,17 @@ private struct Options {
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
                         "--task must be a bundled G1 task, dove-trim, or dove-drop-recovery."
+                    )
+                }
+                index += 1
+            case "--robot-source":
+                switch try value() {
+                case "unitree-g1": bundledRobotSource = .unitreeG1
+                case "franka-panda": bundledRobotSource = .frankaPickPlace
+                case "px4-x500": bundledRobotSource = .px4X500
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--robot-source must be unitree-g1, franka-panda, or px4-x500."
                     )
                 }
                 index += 1
@@ -447,13 +463,13 @@ private struct Options {
             case "--visual-observation-config":
                 visualObservationConfig = try value()
                 index += 1
-            case "--inspect-scene":
+            case "--window-scene":
                 inspectionScene = try value()
                 index += 1
-            case "--inspect-width":
+            case "--window-width":
                 inspectionWidth = try Self.integer(value(), option)
                 index += 1
-            case "--inspect-height":
+            case "--window-height":
                 inspectionHeight = try Self.integer(value(), option)
                 index += 1
             case "--capture-dir":
@@ -665,7 +681,7 @@ private struct Options {
         if inspectionScene != nil &&
             (inspectionWidth <= 0 || inspectionHeight <= 0) {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--inspect-width and --inspect-height must be positive."
+                "--window-width and --window-height must be positive."
             )
         }
     }
@@ -869,6 +885,27 @@ private func makeContext(
             "measured_dove"
         )
     }
+    if options.urdf == nil && options.worldPack == nil &&
+       options.interactionPack == nil &&
+       options.bundledRobotSource != .unitreeG1 {
+        let source: MetalRoboRunSource =
+            options.bundledRobotSource == .frankaPickPlace
+            ? .frankaPickPlace
+            : .px4X500
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: source,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            options.bundledRobotSource == .frankaPickPlace
+                ? "franka_pick_place" : "px4_x500"
+        )
+    }
     if let interactionPack = options.interactionPack,
        let interactionClip = options.interactionClip,
        options.urdf == nil
@@ -1027,42 +1064,51 @@ private func masks(
 
 private func publishInspectionFrame(
     from context: MetalRoboTaskRolloutContext,
-    to inspector: MetalRoboRunInspectorBridge?,
+    to window: NumiWindowBridge?,
     loadPolicy: ((URL) throws -> UInt64)? = nil
 ) throws {
-    guard let inspector else {
+    guard let window else {
         return
     }
-    if let enabled = inspector.takePendingNativeInspectionEnabled() {
+    if let sceneID = window.takeSceneSelection() {
+        throw NumiWindowError.reconfigure(sceneID)
+    }
+    if let enabled = window.takePendingNativeInspectionEnabled() {
         try context.setInspectionEnabled(enabled)
+    }
+    if let camera = window.takeCameraControl() {
+        try context.setInspectionCamera(
+            translation: camera.translation,
+            orientation: camera.orientation
+        )
     }
     func install(_ url: URL) {
         guard let loadPolicy else {
-            inspector.reportPolicyStatus("policy reload unavailable")
+            window.reportPolicyStatus("policy reload unavailable")
             return
         }
         do {
             let revision = try loadPolicy(url)
-            inspector.reportPolicyInstalled(url, revision: revision)
+            window.reportPolicyInstalled(url, revision: revision)
         } catch {
             // Native policy installation is transactional: a failed load
             // leaves the currently rendered policy intact.
-            inspector.reportPolicyRejected()
+            window.reportPolicyRejected()
         }
     }
-    let latestRequested = inspector.takeLatestPolicyReloadRequest()
-    if let selected = inspector.takePolicySelection() {
+    let latestRequested = window.takeLatestPolicyReloadRequest()
+    if let selected = window.takePolicySelection() {
         install(selected)
     } else if latestRequested {
-        guard let selected = inspector.selectedPolicy else {
-            inspector.reportPolicyStatus("select a policy first")
+        guard let selected = window.selectedPolicy else {
+            window.reportPolicyStatus("select a policy first")
             return
         }
         install(selected)
     }
-    guard inspector.acceptsFrames else {
-        if inspector.isClosed {
-            throw MetalRoboRunInspectorError.closed
+    guard window.acceptsFrames else {
+        if window.isClosed {
+            throw NumiWindowError.closed
         }
         // Pause and window occlusion are applied to the sidecar at this
         // scheduler-owned boundary. Physics and accepted-state submission keep
@@ -1072,14 +1118,38 @@ private func publishInspectionFrame(
     guard let frame = try context.acquireInspectionFrame() else {
         return
     }
-    inspector.publish(frame: frame, context: context)
+    window.publish(frame: frame, context: context)
 }
 
 @main
 private enum TaskRolloutMain {
+    private static func windowOptions(
+        for choice: NumiWindowSceneChoice,
+        preserving baseline: Options
+    ) throws -> Options {
+        var arguments = [CommandLine.arguments[0]]
+        arguments.append(contentsOf: choice.launchArguments)
+        arguments.append(contentsOf: [
+            "--window-scene", choice.visualObservationURL.path,
+            "--window-width", String(baseline.inspectionWidth),
+            "--window-height", String(baseline.inspectionHeight),
+            "--metallib", baseline.metallib,
+            "--envs", String(baseline.environments),
+            "--steps", String(baseline.steps),
+            "--repeats", String(baseline.repeats),
+            "--chunk", String(baseline.chunk),
+            "--physics-substeps", String(baseline.physicsSubsteps),
+            "--velocity-iterations", String(baseline.velocityIterations),
+            "--final-velocity-iterations",
+            String(baseline.finalVelocityIterations),
+            "--seed", String(baseline.seed),
+        ])
+        return try Options(arguments: arguments)
+    }
+
     private static func run(
         options: Options,
-        inspector: MetalRoboRunInspectorBridge?
+        window: NumiWindowBridge?
     ) throws {
             let (context, worldSource) =
                 try makeContext(options: options)
@@ -1207,7 +1277,7 @@ private enum TaskRolloutMain {
                 )
                 try publishInspectionFrame(
                     from: context,
-                    to: inspector,
+                    to: window,
                     loadPolicy: { url in
                             try context.loadPolicy(
                                 at: url
@@ -1310,7 +1380,7 @@ private enum TaskRolloutMain {
                 )
                 try publishInspectionFrame(
                     from: context,
-                    to: inspector,
+                    to: window,
                     loadPolicy: { url in
                             try context.loadPolicy(
                                 at: url
@@ -1597,7 +1667,7 @@ private enum TaskRolloutMain {
                     }
                     try publishInspectionFrame(
                         from: context,
-                        to: inspector,
+                        to: window,
                         loadPolicy: { url in
                                 try context.loadPolicy(
                                     at: url
@@ -2706,31 +2776,93 @@ private enum TaskRolloutMain {
 
     static func main() {
         do {
-            let options = try Options(arguments: CommandLine.arguments)
+            let sceneChoices = numiWindowSceneCatalog()
+            var rawArguments = CommandLine.arguments
+            let useCatalogDefault = rawArguments.contains("--window-default")
+            rawArguments.removeAll(where: { $0 == "--window-default" })
+            var initialSceneID: String?
+            if useCatalogDefault {
+                guard let choice = sceneChoices.first else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "numi window has no robot/scene catalog. Import a robot or pass a visual scene."
+                    )
+                }
+                rawArguments.append(contentsOf: choice.launchArguments)
+                rawArguments.append(contentsOf: [
+                    "--window-scene", choice.visualObservationURL.path,
+                ])
+                initialSceneID = choice.id
+            }
+            let options = try Options(arguments: rawArguments)
             guard options.inspectionScene != nil else {
-                try run(options: options, inspector: nil)
+                try run(options: options, window: nil)
                 return
             }
-            let policyChoices = metalRoboInspectorPolicyCatalog()
+            if initialSceneID == nil, let scene = options.inspectionScene {
+                let selected = URL(fileURLWithPath: scene).standardizedFileURL
+                initialSceneID = sceneChoices.first(where: {
+                    $0.visualObservationURL.standardizedFileURL == selected
+                })?.id
+            }
+            let policyChoices = numiWindowPolicyCatalog()
             let initialPolicyURL = options.policyPack.map {
                 URL(fileURLWithPath: $0)
             }
-            let inspector = try MetalRoboRunInspectorBridge.launch(
+            let window = try NumiWindowBridge.launch(
                 canReloadLatestPolicy:
                     initialPolicyURL != nil || !policyChoices.isEmpty,
                 policyChoices: policyChoices,
-                initialPolicyURL: initialPolicyURL
+                initialPolicyURL: initialPolicyURL,
+                sceneChoices: sceneChoices,
+                initialSceneID: initialSceneID
             )
+            let recoverySceneID = initialSceneID
             DispatchQueue.global(qos: .userInitiated).async {
-                do {
-                    try run(options: options, inspector: inspector)
-                } catch {
-                    if case MetalRoboRunInspectorError.closed = error {
-                        // Closing the window ends its preview run cleanly.
-                    } else {
+                var activeOptions = options
+                while !window.isClosed {
+                    do {
+                        try run(options: activeOptions, window: window)
+                        break
+                    } catch NumiWindowError.reconfigure(let id) {
+                        guard let choice = sceneChoices.first(where: {
+                            $0.id == id
+                        }) else {
+                            window.reportPolicyStatus(
+                                "robot/scene selection is unavailable"
+                            )
+                            continue
+                        }
+                        do {
+                            activeOptions = try windowOptions(
+                                for: choice,
+                                preserving: activeOptions
+                            )
+                        } catch {
+                            window.reportPolicyStatus(
+                                "robot/scene rejected · \(error)"
+                            )
+                        }
+                    } catch NumiWindowError.closed {
+                        break
+                    } catch {
                         FileHandle.standardError.write(
-                            Data("task_rollout failed: \(error)\n".utf8)
+                            Data("numi window failed: \(error)\n".utf8)
                         )
+                        window.reportPolicyStatus(
+                            "scene failed · returning to last working scene"
+                        )
+                        // A catalog entry must never kill the UX. The launch
+                        // options that created the window are already live-
+                        // qualified, so recover to them and keep accepting
+                        // robot/scene and camera input.
+                        activeOptions = options
+                        if let recoverySceneID {
+                            window.reportSceneRestored(
+                                recoverySceneID,
+                                summary: "scene unavailable · restored working scene"
+                            )
+                        }
+                        continue
                     }
                 }
                 DispatchQueue.main.async {

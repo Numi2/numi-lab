@@ -210,28 +210,28 @@ aligned shared buffer and reuses caller-owned host capacity. This avoids
 per-modality Metal allocations without retaining a resolution-sized staging
 buffer after the readback completes.
 
-### Live run inspector
+### Numi Window
 
-`metalrobo_task_rollout` and `metalrobo_task_train` can open a small native
-macOS `MTKView` beside a run. For ordinary use, save the authored visual
-observation file as `.numi/window.visual-observation.json` and run:
+`numi window` is the single native robot, scene, policy, and live-presentation
+UX. Imported robots publish `*.numi-window.json` catalog entries with their
+mechanics, owner packs, authored camera, and compatible action source. Run:
 
 ```sh
 numi window
 ```
 
-The workspace command builds its own isolated runtime, discovers that saved
-scene, starts a one-environment zero-action preview, and stops it when the
-window closes. The lower-level executable remains available for composed
-training/evaluation flows:
+The workspace command builds its own isolated runtime, discovers the catalog,
+starts the selected one-environment run, and stops it when the window closes.
+The lower-level executable remains available as a composition surface for
+training/evaluation tooling:
 
 ```sh
 metalrobo_task_rollout ... \
-    --inspect-scene /path/to/visual-observation.json \
-    --inspect-width 960 --inspect-height 540
+    --window-scene /path/to/visual-observation.json \
+    --window-width 960 --window-height 540
 ```
 
-`--inspect-scene` takes the same portable `numi.visual-observation.v1`
+`--window-scene` takes the same portable `numi.visual-observation.v1`
 artifact used for authored cameras, but it compiles an independent
 presentation-only renderer. It neither changes `CompiledRun`, policy
 observations, policy fingerprints, nor the task SensorPack. The render is
@@ -243,12 +243,15 @@ The window consumes device-private linear RGB buffers through a three-slot
 ring. A slot is released only after its display command buffer completes; if
 the window or compositor falls behind, the producer drops the newest preview
 instead of blocking physics, control, or learning. The window currently
-shows representative environment zero. It is an inspection aid, not evidence
+shows representative environment zero. It is a live presentation, not evidence
 of real-hardware behavior or a media-capture path. Use ordinary visual export
 or state-trace facilities when durable frames or artifacts are required.
 
-The inspector has three controls: **Pause/Resume**, a robot-grouped **Policy
-Selector**, and **Latest Policy**. The selector reads
+The window has five controls: **Robot**, **Scene**, **Pause/Resume**, a
+robot-grouped **Policy Selector**, and **Latest Policy**. Robot and Scene read
+the imported catalog and rebuild the selected live run at a normal rollout
+boundary; every entry carries its own camera, mechanics, owner packs, and
+action contract. The Policy selector reads
 `.numi/policies/<robot-id>/*.policypack` (or `NUMI_WINDOW_POLICY_CATALOG`) and
 groups choices by `<robot-id>` without hard-coding a robot catalog. Pause does
 not pause physics or training: it gates the GPU presentation sidecar at the

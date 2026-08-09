@@ -832,9 +832,25 @@ add_executable(
     metalrobo_ai_sapiens_compile
     apps/ai_sapiens_compile.cpp
 )
+add_executable(
+    metalrobo_booster_k1_compile
+    apps/booster_k1_compile.cpp
+)
+add_executable(
+    metalrobo_numi_window_catalog_compile
+    apps/numi_window_catalog_compile.cpp
+)
 target_link_libraries(metalrobo_robot_catalog PRIVATE metalrobo)
 target_link_libraries(
     metalrobo_ai_sapiens_compile
+    PRIVATE metalrobo LibXml2::LibXml2
+)
+target_link_libraries(
+    metalrobo_booster_k1_compile
+    PRIVATE metalrobo LibXml2::LibXml2
+)
+target_link_libraries(
+    metalrobo_numi_window_catalog_compile
     PRIVATE metalrobo LibXml2::LibXml2
 )
 set_target_properties(
@@ -846,6 +862,20 @@ set_target_properties(
 )
 set_target_properties(
     metalrobo_ai_sapiens_compile
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+set_target_properties(
+    metalrobo_booster_k1_compile
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+set_target_properties(
+    metalrobo_numi_window_catalog_compile
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
@@ -936,7 +966,7 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_task_rollout
         apps/task_rollout.swift
-        apps/RunInspector.swift
+        apps/NumiWindow.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
     target_include_directories(
@@ -966,7 +996,7 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_task_train
         apps/task_train.swift
-        apps/RunInspector.swift
+        apps/NumiWindow.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
     target_include_directories(

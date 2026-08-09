@@ -3,37 +3,34 @@
 set -eu
 
 if [ "${1:-}" = "--numi-describe" ]; then
-    printf '%s\n' "Open a live, GPU-native Numi run inspector window."
+    printf '%s\n' "Open the unified native Numi robot and scene window."
     exit 0
 fi
 
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
     cat <<'EOF'
 Usage: numi window [rollout options...]
+       numi window add booster-k1 --source BOOSTER_ASSETS [--output DIR]
 
-Open a live native Metal preview of environment zero. The window owns a
-presentation-only renderer; closing it stops the preview run. The command
-builds its isolated runtime automatically and preserves physics, policy, and
-observation contracts. It renders the authored visual packs for the selected
-run; it never substitutes unrelated geometry when those packs are absent.
+Open the single native Numi UX for robots, scenes, and policies. Choose a
+robot and an available scene from the window toolbar; the live run is rebuilt
+at a rollout boundary. Closing the window stops the preview run. Authored
+robot visuals and per-scene cameras remain source-specific.
 
 Most users only need:
 
   numi window
 
-Scene discovery, in order:
+Robot and scene discovery, in order:
 
-  1. NUMI_WINDOW_SCENE
-  2. --inspect-scene PATH or --visual-observation-config PATH
-  3. .numi/window.visual-observation.json
-  4. .numi/visual-observation.json
-  5. the first *.visual-observation.json in the workspace
+  1. NUMI_WINDOW_SCENE_CATALOG (default .numi/runs)
+  2. NUMI_WINDOW_SCENE
+  3. --window-scene PATH or --visual-observation-config PATH
+  4. legacy .numi/window.visual-observation.json
 
-The scene is an authored numi.visual-observation.v1 file. To choose a scene
-once and keep the one-command workflow, copy or link it to
-.numi/window.visual-observation.json. Native rollout options pass through, so
-for example `numi window --task ball-dodge --policy-pack policy.policypack`
-opens that run instead of the default one-environment zero-action preview.
+Each imported robot publishes `*.numi-window.json` entries containing its
+mechanics, owner packs, authored camera, and available scene/policy contract.
+Native rollout options remain available for composed and diagnostic runs.
 
 Policy discovery, in order:
 
@@ -42,7 +39,7 @@ Policy discovery, in order:
   3. .numi/window.policypack
   4. .numi/latest.policypack
 
-The inspector's Latest Policy button reloads that selected path at a normal
+The Latest Policy button reloads that selected path at a normal
 rollout boundary. It preserves the active policy if the replacement fails its
 contract check.
 
@@ -56,6 +53,7 @@ world/task/observation/action contract before it can replace the active policy.
 Optional environment overrides:
 
   NUMI_WINDOW_SCENE       authored visual-observation file
+  NUMI_WINDOW_SCENE_CATALOG robot/scene catalog root, default .numi/runs
   NUMI_WINDOW_POLICY      PolicyPack to load and refresh with Latest Policy
   NUMI_WINDOW_POLICY_CATALOG  default .numi/policies, grouped by robot folder
   NUMI_WINDOW_BUILD_DIR   isolated CMake build directory
@@ -94,14 +92,60 @@ window_build=${NUMI_WINDOW_BUILD_DIR:-"$window_workspace/.numi/window-build"}
 window_scene=${NUMI_WINDOW_SCENE:-}
 window_policy=${NUMI_WINDOW_POLICY:-}
 export NUMI_WINDOW_POLICY_CATALOG=${NUMI_WINDOW_POLICY_CATALOG:-"$window_workspace/.numi/policies"}
+export NUMI_WINDOW_SCENE_CATALOG=${NUMI_WINDOW_SCENE_CATALOG:-"$window_workspace/.numi/runs"}
+window_catalog_default=0
 
-if [ -z "$window_scene" ]; then
-    window_scene=$(window_option_value --inspect-scene "$@" || true)
+window_builtin_catalog="$window_workspace/.numi/runs/numi-window-builtins"
+if [ ! -f "$window_builtin_catalog/unitree-g1-velocity.numi-window.json" ] ||
+   [ ! -f "$window_builtin_catalog/franka-pick-place.numi-window.json" ] ||
+   [ ! -f "$window_builtin_catalog/px4-x500-hover.numi-window.json" ]; then
+    cmake -S "$window_workspace" -B "$window_build" \
+        -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
+    cmake --build "$window_build" \
+        --target metalrobo_numi_window_catalog_compile -j 4
+    "$window_build/bin/metalrobo_numi_window_catalog_compile" \
+        --workspace "$window_workspace" --output "$window_builtin_catalog"
+fi
+
+if [ "${1:-}" = "add" ]; then
+    shift
+    [ "${1:-}" = "booster-k1" ] || {
+        printf '%s\n' "numi window: supported add target is booster-k1" >&2
+        exit 2
+    }
+    shift
+    window_add_source=
+    window_add_output="$window_workspace/.numi/runs/booster-k1"
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            --source) window_add_source=${2:?--source requires a value}; shift 2 ;;
+            --output) window_add_output=${2:?--output requires a value}; shift 2 ;;
+            *) printf '%s\n' "numi window: unknown add option $1" >&2; exit 2 ;;
+        esac
+    done
+    [ -n "$window_add_source" ] || {
+        printf '%s\n' "numi window: add booster-k1 requires --source" >&2
+        exit 2
+    }
+    cmake -S "$window_workspace" -B "$window_build" \
+        -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
+    cmake --build "$window_build" --target metalrobo_booster_k1_compile -j 4
+    exec "$window_build/bin/metalrobo_booster_k1_compile" \
+        --source "$window_add_source" --output "$window_add_output"
+fi
+
+if [ -z "$window_scene" ] && [ "$window_catalog_default" -eq 0 ]; then
+    window_scene=$(window_option_value --window-scene "$@" || true)
 fi
 if [ -z "$window_scene" ]; then
     window_scene=$(window_option_value --visual-observation-config "$@" || true)
 fi
-if [ -z "$window_scene" ]; then
+if [ -z "$window_scene" ] &&
+   find "$NUMI_WINDOW_SCENE_CATALOG" -type f -name '*.numi-window.json' \
+       -print -quit 2>/dev/null | grep -q .; then
+    window_catalog_default=1
+fi
+if [ -z "$window_scene" ] && [ "$window_catalog_default" -eq 0 ]; then
     for window_candidate in \
         "$window_workspace/.numi/window.visual-observation.json" \
         "$window_workspace/.numi/visual-observation.json"; do
@@ -119,7 +163,8 @@ if [ -z "$window_scene" ]; then
         | LC_ALL=C sort | sed -n '1p')
 fi
 
-if [ -z "$window_scene" ] || [ ! -f "$window_scene" ]; then
+if [ "$window_catalog_default" -eq 0 ] &&
+   { [ -z "$window_scene" ] || [ ! -f "$window_scene" ]; }; then
     printf '%s\n' \
         "numi window: no authored visual scene found. Set NUMI_WINDOW_SCENE once or add .numi/window.visual-observation.json." >&2
     exit 2
@@ -150,16 +195,20 @@ cmake --build "$window_build" --target metalrobo_task_rollout -j 4
 window_rollout=$window_build/bin/metalrobo_task_rollout
 window_metallib=$window_build/shaders/MetalRobo.metallib
 [ -x "$window_rollout" ] && [ -f "$window_metallib" ] || {
-    printf '%s\n' "numi window: native inspector build is incomplete." >&2
+    printf '%s\n' "numi window: native window build is incomplete." >&2
     exit 1
 }
 
-window_has_option --inspect-scene "$@" || \
-    set -- --inspect-scene "$window_scene" "$@"
-window_has_option --inspect-width "$@" || \
-    set -- --inspect-width "${NUMI_WINDOW_WIDTH:-960}" "$@"
-window_has_option --inspect-height "$@" || \
-    set -- --inspect-height "${NUMI_WINDOW_HEIGHT:-540}" "$@"
+if [ "$window_catalog_default" -eq 1 ]; then
+    set -- --window-default "$@"
+else
+    window_has_option --window-scene "$@" || \
+        set -- --window-scene "$window_scene" "$@"
+fi
+window_has_option --window-width "$@" || \
+    set -- --window-width "${NUMI_WINDOW_WIDTH:-960}" "$@"
+window_has_option --window-height "$@" || \
+    set -- --window-height "${NUMI_WINDOW_HEIGHT:-540}" "$@"
 window_has_option --metallib "$@" || set -- --metallib "$window_metallib" "$@"
 if [ -n "$window_policy" ] &&
    ! window_has_option --policy-pack "$@" &&
@@ -170,14 +219,19 @@ window_has_option --envs "$@" || set -- --envs 1 "$@"
 window_has_option --steps "$@" || set -- --steps 1000000 "$@"
 window_has_option --repeats "$@" || set -- --repeats 1 "$@"
 window_has_option --chunk "$@" || set -- --chunk 4 "$@"
-if ! window_has_option --policy-pack "$@" &&
+if [ "$window_catalog_default" -eq 0 ] &&
+   ! window_has_option --policy-pack "$@" &&
    ! window_has_option --native-policy "$@" &&
    ! window_has_option --zero-actions "$@" &&
    ! window_has_option --action-stream "$@"; then
     set -- --zero-actions "$@"
 fi
 
-printf '%s\n' "numi window: scene $window_scene" >&2
+if [ "$window_catalog_default" -eq 1 ]; then
+    printf '%s\n' "numi window: robot/scene catalog $NUMI_WINDOW_SCENE_CATALOG" >&2
+else
+    printf '%s\n' "numi window: scene $window_scene" >&2
+fi
 [ -n "$window_policy" ] &&
     printf '%s\n' "numi window: policy $window_policy" >&2
 printf '%s\n' "numi window: close the window to end the preview run." >&2

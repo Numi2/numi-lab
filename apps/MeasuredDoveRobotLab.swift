@@ -364,7 +364,7 @@ private final class RobotEngine {
             descriptor: tailDescriptor)
         let groundDescriptor = MTLRenderPipelineDescriptor()
         groundDescriptor.vertexFunction = library.makeFunction(name: "groundVertex")
-        groundDescriptor.fragmentFunction = library.makeFunction(name: "robotFragment")
+        groundDescriptor.fragmentFunction = library.makeFunction(name: "groundFragment")
         groundDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
         groundDescriptor.depthAttachmentPixelFormat = .depth32Float
         groundRenderPipeline = try device.makeRenderPipelineState(
@@ -776,7 +776,7 @@ private final class RobotEngine {
         encoder.setRenderPipelineState(groundRenderPipeline)
         encoder.setVertexBuffer(rootState, offset: 0, index: 3)
         encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
-        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
+        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 36)
         encoder.endEncoding(); command.present(drawable); command.commit()
     }
 
@@ -929,10 +929,92 @@ private final class RobotEngine {
         Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=normal;o.color=float4(base,1);o.detail=float4(across,t,float(feather),float(layerClass));return o;
     }
     vertex Raster groundVertex(device const float4* root [[buffer(3)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
-        const float2 corners[6] = {float2(-2,-2),float2(2,-2),float2(-2,2),float2(-2,2),float2(2,-2),float2(2,2)};
-        float3 world=float3(root[0].xy+corners[vid],0); Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=float3(0,0,1);
-        float grid=max(step(.94f,fract(abs(world.x)*5)),step(.94f,fract(abs(world.y)*5)));
-        o.color=float4(mix(float3(.035f,.055f,.075f),float3(.12f,.22f,.25f),grid),1);o.detail=float4(0);return o;
+        // Six very cheap presentation faces keep a spatial reference visible
+        // around a tightly tracked flying dove. The faces follow the camera
+        // target, while their coordinates remain world-locked so motion is
+        // still visible in the procedural pattern.
+        const float2 corners[6] = {
+            float2(-1,-1),float2(1,-1),float2(-1,1),
+            float2(-1,1),float2(1,-1),float2(1,1)
+        };
+        const float3 faceNormal[6] = {
+            float3(0,0,-1),float3(0,0,1),float3(1,0,0),
+            float3(-1,0,0),float3(0,1,0),float3(0,-1,0)
+        };
+        const float3 faceU[6] = {
+            float3(1,0,0),float3(1,0,0),float3(0,1,0),
+            float3(0,-1,0),float3(-1,0,0),float3(1,0,0)
+        };
+        const float3 faceV[6] = {
+            float3(0,1,0),float3(0,-1,0),float3(0,0,1),
+            float3(0,0,1),float3(0,0,1),float3(0,0,1)
+        };
+        uint face=vid/6u;
+        float scale=max(u.centerRadius.w,1.0e-4f);
+        float halfExtent=8.0f*scale;
+        float3 target=u.centerRadius.xyz+root[0].xyz;
+        float3 world=target+faceNormal[face]*halfExtent+
+            faceU[face]*(corners[vid%6u].x*halfExtent)+
+            faceV[face]*(corners[vid%6u].y*halfExtent);
+        Raster o;o.position=u.vp*float4(world,1);o.world=world;
+        o.normal=-faceNormal[face];o.color=float4(1);
+        o.detail=float4(dot(world,faceU[face])/scale,
+                        dot(world,faceV[face])/scale,float(face),0);return o;
+    }
+    uint numiGlyphRow(uint glyph, uint row) {
+        // Five-by-seven uppercase glyphs: N U M I L A B.
+        constexpr uint rows[49] = {
+            17u,25u,21u,19u,17u,17u,17u,
+            17u,17u,17u,17u,17u,17u,14u,
+            17u,27u,21u,21u,17u,17u,17u,
+            31u, 4u, 4u, 4u, 4u, 4u,31u,
+            16u,16u,16u,16u,16u,16u,31u,
+            14u,17u,17u,31u,17u,17u,17u,
+            30u,17u,17u,30u,17u,17u,30u
+        };
+        return rows[min(glyph,6u)*7u+min(row,6u)];
+    }
+    uint numiPhraseGlyph(uint character) {
+        // NUMI LAB; 7 is the blank separating the words.
+        constexpr uint phrase[8] = {0u,1u,2u,3u,7u,4u,5u,6u};
+        return phrase[min(character,7u)];
+    }
+    float groundLine(float coordinate, float spacing, float halfWidth) {
+        float distanceToLine=abs(fract(coordinate/spacing+.5f)-.5f)*spacing;
+        float antialias=max(fwidth(coordinate)*.85f,halfWidth*.35f);
+        return 1.0f-smoothstep(halfWidth,halfWidth+antialias,distanceToLine);
+    }
+    fragment float4 groundFragment(Raster in [[stage_in]]) {
+        const float2 tileSize=float2(6.0f,3.0f);
+        float2 coordinate=in.detail.xy;
+        float2 tile=floor(coordinate/tileSize);
+        float checker=fmod(abs(tile.x+tile.y),2.0f);
+        float3 base=mix(float3(.018f,.030f,.045f),float3(.022f,.037f,.053f),checker);
+
+        float minor=max(groundLine(coordinate.x,.5f,.006f),groundLine(coordinate.y,.5f,.006f));
+        float major=max(groundLine(coordinate.x,2.0f,.014f),groundLine(coordinate.y,2.0f,.014f));
+        float3 color=mix(base,float3(.055f,.105f,.125f),minor*.58f);
+        color=mix(color,float3(.075f,.205f,.235f),major*.78f);
+
+        // The logo is a procedural bitmap repeated once per tile. It costs no
+        // texture, buffer, draw call, or additional triangle.
+        float2 local=fract(coordinate/tileSize)*tileSize;
+        float2 pixel=(local-float2(.60f,1.15f))/.10f;
+        if(all(pixel>=0.0f)&&pixel.x<48.0f&&pixel.y<7.0f) {
+            uint character=min(uint(pixel.x)/6u,7u);
+            uint column=uint(pixel.x)%6u;
+            uint row=6u-min(uint(pixel.y),6u);
+            uint glyph=numiPhraseGlyph(character);
+            if(glyph<7u&&column<5u) {
+                uint bits=numiGlyphRow(glyph,row);
+                float ink=float((bits>>(4u-column))&1u);
+                float2 cell=fract(pixel);
+                float edge=min(min(cell.x,1.0f-cell.x),min(cell.y,1.0f-cell.y));
+                float coverage=smoothstep(0.0f,max(fwidth(pixel.x),fwidth(pixel.y))*.7f,edge);
+                color=mix(color,float3(.16f,.72f,.78f),ink*(.42f+.58f*coverage));
+            }
+        }
+        return float4(1.0f-exp(-1.10f*color),1.0f);
     }
     fragment float4 robotFragment(Raster in [[stage_in]],bool frontFacing [[front_facing]],constant Uniforms& u [[buffer(8)]]) {
         if(in.color.a<.5f) discard_fragment();float3 n=normalize(frontFacing?in.normal:-in.normal),v=normalize(u.eye.xyz-in.world),l=normalize(float3(.4,-.5,.8)),albedo=in.color.rgb;bool body=abs(in.detail.w-1.0f)<.25f;

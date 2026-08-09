@@ -149,6 +149,11 @@ struct HybridDeviceStateBatch {
     MRVisualFrameSource source = MR_VISUAL_SOURCE_SIMULATION;
     double captureTimestampSeconds = 0.0;
     double frameAgeSeconds = 0.0;
+    // Presentation-only camera transform relative to the authored sensor.
+    // xyz is an authored-camera-local translation; w enables the override.
+    mr_float4 cameraTranslationAndEnabled{0.0f, 0.0f, 0.0f, 0.0f};
+    // Normalized xyzw rotation applied after the authored orientation.
+    mr_float4 cameraOrientation{0.0f, 0.0f, 0.0f, 1.0f};
 };
 
 struct HybridDeviceObservationBuffers {

@@ -310,13 +310,13 @@ private struct Options {
             case "--visual-observation-config":
                 visualObservationConfig = try value()
                 index += 1
-            case "--inspect-scene":
+            case "--window-scene":
                 inspectionScene = try value()
                 index += 1
-            case "--inspect-width":
+            case "--window-width":
                 inspectionWidth = try Self.integer(value(), option)
                 index += 1
-            case "--inspect-height":
+            case "--window-height":
                 inspectionHeight = try Self.integer(value(), option)
                 index += 1
             case "--scene":
@@ -578,7 +578,7 @@ private struct Options {
         if inspectionScene != nil &&
             (inspectionWidth <= 0 || inspectionHeight <= 0) {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--inspect-width and --inspect-height must be positive."
+                "--window-width and --window-height must be positive."
             )
         }
         let ppoValues = [
@@ -1348,42 +1348,42 @@ private func makeContext(
 
 private func publishInspectionFrame(
     from context: MetalRoboTaskRolloutContext,
-    to inspector: MetalRoboRunInspectorBridge?,
+    to window: NumiWindowBridge?,
     loadPolicy: ((URL) throws -> UInt64)? = nil
 ) throws {
-    guard let inspector else {
+    guard let window else {
         return
     }
-    if let enabled = inspector.takePendingNativeInspectionEnabled() {
+    if let enabled = window.takePendingNativeInspectionEnabled() {
         try context.setInspectionEnabled(enabled)
     }
     func install(_ url: URL) {
         guard let loadPolicy else {
-            inspector.reportPolicyStatus("policy reload unavailable")
+            window.reportPolicyStatus("policy reload unavailable")
             return
         }
         do {
             let revision = try loadPolicy(url)
-            inspector.reportPolicyInstalled(url, revision: revision)
+            window.reportPolicyInstalled(url, revision: revision)
         } catch {
             // A rejected replacement cannot change the compiled policy that
             // remains active for the current training submission.
-            inspector.reportPolicyRejected()
+            window.reportPolicyRejected()
         }
     }
-    let latestRequested = inspector.takeLatestPolicyReloadRequest()
-    if let selected = inspector.takePolicySelection() {
+    let latestRequested = window.takeLatestPolicyReloadRequest()
+    if let selected = window.takePolicySelection() {
         install(selected)
     } else if latestRequested {
-        guard let selected = inspector.selectedPolicy else {
-            inspector.reportPolicyStatus("select a policy first")
+        guard let selected = window.selectedPolicy else {
+            window.reportPolicyStatus("select a policy first")
             return
         }
         install(selected)
     }
-    guard inspector.acceptsFrames else {
-        if inspector.isClosed {
-            throw MetalRoboRunInspectorError.closed
+    guard window.acceptsFrames else {
+        if window.isClosed {
+            throw NumiWindowError.closed
         }
         // Pause and window occlusion gate only presentation encoding at this
         // scheduler-owned boundary; training keeps its original cadence.
@@ -1392,14 +1392,14 @@ private func publishInspectionFrame(
     guard let frame = try context.acquireInspectionFrame() else {
         return
     }
-    inspector.publish(frame: frame, context: context)
+    window.publish(frame: frame, context: context)
 }
 
 @main
 private enum TaskTrainMain {
     private static func run(
         options: Options,
-        inspector: MetalRoboRunInspectorBridge?
+        window: NumiWindowBridge?
     ) throws {
             let (context, worldSource) =
                 try makeContext(options: options)
@@ -1462,7 +1462,7 @@ private enum TaskTrainMain {
             )
             try publishInspectionFrame(
                 from: context,
-                to: inspector,
+                to: window,
                 loadPolicy: { url in
                     try context.loadPolicy(
                         at: url
@@ -1570,7 +1570,7 @@ private enum TaskTrainMain {
                     )
                     try publishInspectionFrame(
                         from: context,
-                        to: inspector,
+                        to: window,
                         loadPolicy: { url in
                             try context.loadPolicy(
                                 at: url
@@ -1887,15 +1887,15 @@ private enum TaskTrainMain {
         do {
             let options = try Options(arguments: CommandLine.arguments)
             guard options.inspectionScene != nil else {
-                try run(options: options, inspector: nil)
+                try run(options: options, window: nil)
                 return
             }
-            let policyChoices = metalRoboInspectorPolicyCatalog()
+            let policyChoices = numiWindowPolicyCatalog()
             let initialPolicyURL = (options.updatedPolicyPack ??
                 options.policyPack).map {
                     URL(fileURLWithPath: $0)
                 }
-            let inspector = try MetalRoboRunInspectorBridge.launch(
+            let window = try NumiWindowBridge.launch(
                 canReloadLatestPolicy:
                     initialPolicyURL != nil || !policyChoices.isEmpty,
                 policyChoices: policyChoices,
@@ -1903,9 +1903,9 @@ private enum TaskTrainMain {
             )
             DispatchQueue.global(qos: .userInitiated).async {
                 do {
-                    try run(options: options, inspector: inspector)
+                    try run(options: options, window: window)
                 } catch {
-                    if case MetalRoboRunInspectorError.closed = error {
+                    if case NumiWindowError.closed = error {
                         // Closing the window ends its preview run cleanly.
                     } else {
                         FileHandle.standardError.write(

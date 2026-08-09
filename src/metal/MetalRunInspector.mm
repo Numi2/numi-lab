@@ -54,6 +54,8 @@ struct MetalRunInspectorState
     std::atomic_bool enabled{true};
     std::atomic_uint32_t droppedFrames{0u};
     std::atomic_uint64_t nextFrameIndex{1u};
+    std::array<std::atomic<float>, 4u> cameraTranslation{{0, 0, 0, 0}};
+    std::array<std::atomic<float>, 4u> cameraOrientation{{0, 0, 0, 1}};
     std::mutex mutex;
     bool compiled = false;
     std::uint32_t usableSlotCount = 0u;
@@ -264,6 +266,28 @@ void MetalRunInspector::setEnabled(const bool enabled) noexcept {
     }
 }
 
+void MetalRunInspector::setCameraOverride(
+    const mr_float4& translationAndEnabled,
+    const mr_float4& orientation
+) noexcept {
+    if (state_ == nullptr) {
+        return;
+    }
+    const float translation[] = {
+        translationAndEnabled.x, translationAndEnabled.y,
+        translationAndEnabled.z, translationAndEnabled.w,
+    };
+    const float rotation[] = {
+        orientation.x, orientation.y, orientation.z, orientation.w,
+    };
+    for (std::size_t index = 0u; index < 4u; ++index) {
+        state_->cameraTranslation[index].store(
+            translation[index], std::memory_order_release);
+        state_->cameraOrientation[index].store(
+            rotation[index], std::memory_order_release);
+    }
+}
+
 bool MetalRunInspector::encodeInspection(
     void* context,
     const MetalWorldInspectionPass& pass
@@ -340,6 +364,18 @@ bool MetalRunInspector::encodeInspection(
         liveState.frameIndex
     );
     liveState.source = MR_VISUAL_SOURCE_SIMULATION;
+    liveState.cameraTranslationAndEnabled = {
+        state->cameraTranslation[0].load(std::memory_order_acquire),
+        state->cameraTranslation[1].load(std::memory_order_acquire),
+        state->cameraTranslation[2].load(std::memory_order_acquire),
+        state->cameraTranslation[3].load(std::memory_order_acquire),
+    };
+    liveState.cameraOrientation = {
+        state->cameraOrientation[0].load(std::memory_order_acquire),
+        state->cameraOrientation[1].load(std::memory_order_acquire),
+        state->cameraOrientation[2].load(std::memory_order_acquire),
+        state->cameraOrientation[3].load(std::memory_order_acquire),
+    };
     HybridDeviceObservationBuffers outputs;
     outputs.rgb = (__bridge void*)state->slots[slotIndex].rgb;
     outputs.depth = (__bridge void*)state->slots[slotIndex].depth;

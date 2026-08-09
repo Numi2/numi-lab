@@ -668,6 +668,54 @@ void writeOrThrow(
     }
 }
 
+void writeWindowScene(
+    const std::filesystem::path& output,
+    const std::string_view id,
+    const std::string_view name,
+    const std::string_view policy,
+    const std::string_view interaction = {}
+) {
+    const std::filesystem::path path = output /
+        ("robotis-k1-" + std::string{id} + ".numi-window.json");
+    std::ofstream stream{path};
+    stream << "{\n"
+           << "  \"format\": \"numi.window.scene.v1\",\n"
+           << "  \"id\": \"robotis-k1-" << id << "\",\n"
+           << "  \"robot_id\": \"robotis-k1\",\n"
+           << "  \"robot_name\": \"ROBOTIS K1\",\n"
+           << "  \"scene_id\": \"" << id << "\",\n"
+           << "  \"scene_name\": \"" << name << "\",\n"
+           << "  \"visual_observation\": \"k1-visual-observation.json\",\n"
+           << "  \"arguments\": [\n"
+           << "    \"--scene\", \"ground\",\n"
+           << "    \"--urdf\", \"k1-collision.urdf\",\n"
+           << "    \"--task-pack\", \"k1-"
+           << (interaction.empty() ? "velocity" : "mimic")
+           << ".taskpack\",\n"
+           << "    \"--robot-actuator-pack\", \"k1-"
+           << (interaction.empty() ? "velocity" : "mimic")
+           << ".actuatorpack\",\n"
+           << "    \"--sensor-program-pack\", \"k1-"
+           << (interaction.empty() ? "velocity" : "mimic")
+           << ".sensorpack\",\n"
+           << "    \"--reality-program-pack\", \"k1-"
+           << (interaction.empty() ? "velocity" : "mimic")
+           << ".realitypack\",\n";
+    if (!interaction.empty()) {
+        stream << "    \"--interaction-pack\", \"k1-" << interaction
+               << ".interactionpack\",\n"
+               << "    \"--interaction-clip\", \"" << interaction
+               << "\",\n";
+    }
+    stream << "    \"--policy-pack\", \"" << policy << "\"\n"
+           << "  ]\n"
+           << "}\n";
+    if (!stream) {
+        throw std::runtime_error("could not write Numi Window scene " +
+            path.string());
+    }
+}
+
 void writeVisualPresentation(
     const std::filesystem::path& visualURDF,
     const metalrobo::EngineModel& cooked,
@@ -735,8 +783,9 @@ void writeVisualPresentation(
     config << "  ],\n"
            << "  \"camera\": {\n"
            << "    \"parent_body\": \"pelvis\",\n"
-           << "    \"position\": [0.0, 0.0, 0.0],\n"
-           << "    \"orientation\": [0.0, 0.0, 0.0, 1.0],\n"
+           << "    \"position\": [1.05, -1.30, 0.3048154],\n"
+           << "    \"orientation\": [-0.73858354, -0.26102070, "
+              "0.20711737, 0.58605883],\n"
            << "    \"width\": 16,\n"
            << "    \"height\": 9,\n"
            << "    \"minimum_visible_pixels\": 1,\n"
@@ -823,6 +872,14 @@ int main(const int argc, const char* const* argv) {
             writeOrThrow(metalrobo::writeInteractionPack(
                 mimicInteraction(options.source, id), interaction), interaction);
         }
+        writeWindowScene(options.output, "velocity", "Velocity",
+            "k1-velocity.policypack");
+        writeWindowScene(options.output, "squat", "Squat",
+            "k1-squat.policypack", "squat");
+        writeWindowScene(options.output, "dance1", "Dance 1",
+            "k1-dance1.policypack", "dance1");
+        writeWindowScene(options.output, "dance2", "Dance 2",
+            "k1-dance2.policypack", "dance2");
 
         std::ofstream manifest{options.output / "source.json"};
         manifest << "{\n"

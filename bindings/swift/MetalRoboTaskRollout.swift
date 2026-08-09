@@ -1694,6 +1694,19 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         }
     }
 
+    public func setInspectionCamera(
+        translation: SIMD3<Float>,
+        orientation: SIMD4<Float>
+    ) throws {
+        guard mr_task_rollout_set_inspection_camera(
+            handle,
+            translation.x, translation.y, translation.z,
+            orientation.x, orientation.y, orientation.z, orientation.w
+        ) == 0 else {
+            throw MetalRoboTaskRolloutError.native(Self.lastError())
+        }
+    }
+
     public func releaseInspectionFrame(slotIndex: UInt32) {
         _ = mr_task_rollout_release_inspection_frame(handle, slotIndex)
     }

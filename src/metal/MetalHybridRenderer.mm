@@ -748,7 +748,7 @@ bool flattenScene(
         scene.environment.intensity,
         scene.environment.rotationRadians,
         scene.environment.packPath.empty() ? 0.0f : 1.0f,
-        0.0f,
+        scene.environment.packPath.empty() ? 1.0f : 0.0f,
     };
 
     if (!output.primitives.empty() && output.materials.empty()) {
@@ -2701,6 +2701,8 @@ acquireExposureWorkspace(
 struct EncodePassOptions {
     NSUInteger currentBodyOffset = 0u;
     NSUInteger previousBodyOffset = 0u;
+    mr_float4 cameraTranslationAndEnabled{0.0f, 0.0f, 0.0f, 0.0f};
+    mr_float4 cameraOrientation{0.0f, 0.0f, 0.0f, 1.0f};
     std::uint32_t temporalSample = 0u;
     std::uint32_t temporalSampleCount = 1u;
     bool physicalExposure = false;
@@ -3382,6 +3384,16 @@ MetalHybridRendererDiagnostics encodeLocked(
     };
     encoder.setBuffers(prepareBuffers, prepareOffsets, 0u);
     encoder.setBytes(&uniforms, sizeof(uniforms), 10u);
+    encoder.setBytes(
+        &options.cameraTranslationAndEnabled,
+        sizeof(options.cameraTranslationAndEnabled),
+        11u
+    );
+    encoder.setBytes(
+        &options.cameraOrientation,
+        sizeof(options.cameraOrientation),
+        12u
+    );
     constexpr NSUInteger cameraThreads = kCameraThreads;
     encoder.dispatchThreads(environmentCount, cameraThreads);
 
@@ -6098,6 +6110,9 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encode(
         EncodePassOptions options;
         options.currentBodyOffset = liveState.currentBodyOffset;
         options.previousBodyOffset = liveState.previousBodyOffset;
+        options.cameraTranslationAndEnabled =
+            liveState.cameraTranslationAndEnabled;
+        options.cameraOrientation = liveState.cameraOrientation;
         options.truthOnly = state_->config.geometricObservationsOnly;
         return encodeLocked(
             *state_,
@@ -6252,6 +6267,9 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeGraph(
         EncodePassOptions options;
         options.currentBodyOffset = liveState.currentBodyOffset;
         options.previousBodyOffset = liveState.previousBodyOffset;
+        options.cameraTranslationAndEnabled =
+            liveState.cameraTranslationAndEnabled;
+        options.cameraOrientation = liveState.cameraOrientation;
         // Graph consumers (the live inspector and device observation) need
         // the same exposure setup as the owned-command-buffer render path.
         // Without it, the presentation graph can bypass the scene's physical
