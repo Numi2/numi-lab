@@ -635,7 +635,8 @@ void scene(
     const std::string& taskID,
     const std::string& taskName,
     const std::string& visual,
-    const std::vector<std::string>& arguments
+    const std::vector<std::string>& arguments,
+    const std::vector<std::string>& trainingArguments = {}
 ) {
     std::ofstream stream{output / (id + ".numi-window.json")};
     stream << "{\n  \"format\": \"numi.window.scene.v1\",\n"
@@ -652,7 +653,17 @@ void scene(
         stream << (index == 0u ? "\n    " : ",\n    ")
                << "\"" << arguments[index] << "\"";
     }
-    stream << "\n  ]\n}\n";
+    stream << "\n  ]";
+    if (!trainingArguments.empty()) {
+        stream << ",\n  \"training_arguments\": [";
+        for (std::size_t index = 0u;
+             index < trainingArguments.size(); ++index) {
+            stream << (index == 0u ? "\n    " : ",\n    ")
+                   << "\"" << trainingArguments[index] << "\"";
+        }
+        stream << "\n  ]";
+    }
+    stream << "\n}\n";
 }
 
 } // namespace
@@ -727,7 +738,8 @@ int main(const int argc, const char* const* argv) {
                         (hasProjectiles ? "-" + task : "") +
                         "-visual-observation.json",
                     {"--robot-source", "unitree-g1", "--scene", surface,
-                     "--task", task, "--zero-actions"});
+                     "--task", task, "--zero-actions"},
+                    {"--scene", surface, "--task", task});
             }
         }
 
@@ -782,7 +794,7 @@ int main(const int argc, const char* const* argv) {
 
         {
             std::ofstream version{options.output / "catalog.version"};
-            version << "3\n";
+            version << "4\n";
             if (!version) {
                 throw std::runtime_error("could not publish catalog version");
             }

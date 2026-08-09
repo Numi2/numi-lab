@@ -266,6 +266,25 @@ transaction and returns to the active policy after rejection. The image is
 aspect-fit automatically, so authored camera geometry is never stretched to
 the resizable window.
 
+The **Train** control is enabled only when the selected catalog entry publishes
+an owning task training contract. It opens a guided sheet that keeps the Robot,
+Environment, and Task visible, offers an explicitly non-qualifying pipeline
+check plus staged standing and movement curricula, explains the transition
+budget and difficulty band, and separates starting a new policy from continuing
+the selected compatible policy. Advanced controls expose environment count,
+rollout horizon, updates, submission chunk, seed, and checkpoint cadence
+without requiring command-line knowledge. Starting a run releases the preview
+world before `numi train` acquires Metal, publishes progress into the window,
+and retains the complete run directory even on failure. The trainer then uses
+its ordinary held-out incumbent/candidate selection followed by a window
+balance qualification requiring zero failed steps, zero height/tilt
+terminations, a clean held-out horizon, bounded tilt, and retained root height.
+Only a passing deployment pack is added to the Policy menu and reloaded into a
+fresh preview; falling experiments remain labeled as experiments with their
+evidence available through **Show Results**. A training click therefore never
+makes Environment or Task choose a policy implicitly, and neither a regressing
+candidate nor a less-bad but still falling incumbent is presented as success.
+
 Presentation remains event-driven rather than timer-driven. The `MTKView`
 keeps its drawable render-target-only with a single sample, creates the display
 command buffer before requesting a drawable, and rate-limits title-bar metadata

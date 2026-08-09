@@ -25,6 +25,9 @@ public struct NumiWindowSceneChoice: Sendable {
     public let taskName: String
     public let visualObservationURL: URL
     public let launchArguments: [String]
+    public let trainingArguments: [String]
+
+    public var isTrainable: Bool { !trainingArguments.isEmpty }
 
     public var policyURL: URL? {
         guard let option = launchArguments.firstIndex(of: "--policy-pack"),
@@ -47,6 +50,7 @@ public struct NumiWindowSceneChoice: Sendable {
         let taskName: String?
         let visualObservation: String
         let arguments: [String]
+        let trainingArguments: [String]?
         let available: Bool?
 
         enum CodingKeys: String, CodingKey {
@@ -58,8 +62,21 @@ public struct NumiWindowSceneChoice: Sendable {
             case taskID = "task_id"
             case taskName = "task_name"
             case visualObservation = "visual_observation"
+            case trainingArguments = "training_arguments"
         }
     }
+}
+
+public func numiWindowPreferredSceneChoice(
+    _ choices: [NumiWindowSceneChoice],
+    robotID: String? = nil
+) -> NumiWindowSceneChoice? {
+    let candidates = choices.filter { choice in
+        robotID == nil || choice.robotID == robotID
+    }
+    return candidates.first(where: {
+        $0.isTrainable && $0.sceneID == "ground" && $0.taskID == "velocity"
+    }) ?? candidates.first(where: { $0.isTrainable }) ?? candidates.first
 }
 
 private let numiWindowPathOptions: Set<String> = [
@@ -134,6 +151,10 @@ public func numiWindowSceneChoices(in directory: URL) -> [NumiWindowSceneChoice]
             record.arguments,
             relativeTo: base
         )
+        let resolvedTrainingArguments = numiWindowResolvedArguments(
+            record.trainingArguments ?? [],
+            relativeTo: base
+        )
         let legacyEnvironment =
             numiWindowArgumentValue("--scene", in: resolvedArguments) ??
             "studio"
@@ -157,7 +178,8 @@ public func numiWindowSceneChoices(in directory: URL) -> [NumiWindowSceneChoice]
             taskID: record.taskID ?? record.sceneID,
             taskName: record.taskName ?? record.sceneName,
             visualObservationURL: visualURL,
-            launchArguments: resolvedArguments
+            launchArguments: resolvedArguments,
+            trainingArguments: resolvedTrainingArguments
         ))
     }
     return choices.sorted {
@@ -349,6 +371,7 @@ private final class NumiWindowMetalView: MTKView {
 enum NumiWindowError: Error {
     case closed
     case reconfigure(String)
+    case train(NumiWindowTrainingRequest)
 }
 
 @MainActor
@@ -376,6 +399,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private static let resetCameraToolbarItem = NSToolbarItem.Identifier(
         "numi.window.reset-camera"
     )
+    private static let trainToolbarItem = NSToolbarItem.Identifier(
+        "numi.window.train"
+    )
     private let window: NSWindow
     private let view: NumiWindowMetalView
     private let queue: MTLCommandQueue
@@ -394,6 +420,13 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private weak var robotSelector: NSPopUpButton?
     private weak var sceneSelector: NSPopUpButton?
     private weak var taskSelector: NSPopUpButton?
+    private weak var trainItem: NSToolbarItem?
+    private var trainingSetupController: NumiTrainingSetupController?
+    private var trainingActive = false
+    private let trainingBanner = NSVisualEffectView()
+    private let trainingSpinner = NSProgressIndicator()
+    private let trainingLabel = NSTextField(wrappingLabelWithString: "")
+    private var trainingArtifactsURL: URL?
     private let canReloadLatestPolicy: Bool
     private let policyChoices: [NumiWindowPolicyChoice]
     private let initialPolicyURL: URL?
@@ -410,6 +443,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     var onLatestPolicyRequested: (() -> Void)?
     var onPolicySelected: ((URL) -> Void)?
     var onSceneSelected: ((String) -> Void)?
+    var onTrainingRequested: ((NumiWindowTrainingRequest) -> Void)?
     var onCameraChanged: ((NumiWindowCameraControl) -> Void)?
 
     private init(
@@ -448,6 +482,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         toolbar.allowsUserCustomization = false
         toolbar.autosavesConfiguration = false
         window.toolbar = toolbar
+        configureTrainingBanner()
         view.onOrbit = { [weak self] dx, dy in
             self?.orbitCamera(dx: dx, dy: dy)
         }
@@ -575,6 +610,99 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         updateChrome(force: true)
     }
 
+    func showTrainingStatus(
+        _ summary: String,
+        active: Bool,
+        policyURL: URL? = nil,
+        artifactsURL: URL? = nil
+    ) {
+        guard !closed else { return }
+        trainingActive = active
+        if let artifactsURL {
+            trainingArtifactsURL = artifactsURL
+        }
+        trainingBanner.isHidden = false
+        trainingLabel.stringValue = summary
+        if active {
+            trainingSpinner.isHidden = false
+            trainingSpinner.startAnimation(nil)
+        } else {
+            trainingSpinner.stopAnimation(nil)
+            trainingSpinner.isHidden = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+                [weak self] in
+                guard let self, !self.trainingActive else { return }
+                self.trainingBanner.isHidden = true
+            }
+        }
+        if let policyURL, let policySelector {
+            let standardized = policyURL.standardizedFileURL
+            if !policySelector.itemArray.contains(where: {
+                ($0.representedObject as? URL)?.standardizedFileURL ==
+                    standardized
+            }) {
+                policySelector.addItem(
+                    withTitle: policyURL.deletingPathExtension()
+                        .lastPathComponent
+                )
+                policySelector.lastItem?.representedObject = policyURL
+                policySelector.lastItem?.toolTip = policyURL.path
+            }
+            selectDisplayedPolicy(policyURL)
+        }
+        lastFrameSummary = summary
+        setConfigurationControlsEnabled(!active && !reconfiguring)
+        updateChrome(force: true)
+    }
+
+    private func configureTrainingBanner() {
+        trainingBanner.material = .hudWindow
+        trainingBanner.blendingMode = .withinWindow
+        trainingBanner.state = .active
+        trainingBanner.wantsLayer = true
+        trainingBanner.layer?.cornerRadius = 12
+        trainingBanner.translatesAutoresizingMaskIntoConstraints = false
+        trainingBanner.isHidden = true
+        trainingSpinner.style = .spinning
+        trainingSpinner.controlSize = .small
+        trainingLabel.font = .systemFont(ofSize: 13, weight: .semibold)
+        trainingLabel.textColor = .labelColor
+        let reveal = NSButton(
+            title: "Show Results",
+            target: self,
+            action: #selector(revealTrainingArtifacts)
+        )
+        reveal.bezelStyle = .rounded
+        let stack = NSStackView(views: [
+            trainingSpinner,
+            trainingLabel,
+            reveal,
+        ])
+        stack.orientation = .horizontal
+        stack.alignment = .centerY
+        stack.spacing = 12
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        trainingBanner.addSubview(stack)
+        view.addSubview(trainingBanner)
+        NSLayoutConstraint.activate([
+            trainingBanner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            trainingBanner.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -22),
+            trainingBanner.widthAnchor.constraint(lessThanOrEqualToConstant: 760),
+            trainingBanner.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 24),
+            trainingBanner.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -24),
+            stack.leadingAnchor.constraint(equalTo: trainingBanner.leadingAnchor, constant: 16),
+            stack.trailingAnchor.constraint(equalTo: trainingBanner.trailingAnchor, constant: -16),
+            stack.topAnchor.constraint(equalTo: trainingBanner.topAnchor, constant: 10),
+            stack.bottomAnchor.constraint(equalTo: trainingBanner.bottomAnchor, constant: -10),
+            trainingLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 360),
+        ])
+    }
+
+    @objc private func revealTrainingArtifacts() {
+        guard let trainingArtifactsURL else { return }
+        NSWorkspace.shared.activateFileViewerSelecting([trainingArtifactsURL])
+    }
+
     func draw(in view: MTKView) {
         guard let delivery = pending,
               // Prepare all CPU-side work before taking a drawable. This
@@ -644,6 +772,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             Self.sceneSelectorToolbarItem,
             Self.taskSelectorToolbarItem,
             Self.policySelectorToolbarItem,
+            Self.trainToolbarItem,
             Self.resetCameraToolbarItem,
         ]
     }
@@ -657,6 +786,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             Self.sceneSelectorToolbarItem,
             Self.taskSelectorToolbarItem,
             Self.policySelectorToolbarItem,
+            Self.trainToolbarItem,
             Self.resetCameraToolbarItem,
         ]
     }
@@ -688,6 +818,12 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
                 accessibilityDescription: item.label
             )
             item.action = #selector(resetCameraAction)
+            return item
+        }
+        if itemIdentifier == Self.trainToolbarItem {
+            item.action = #selector(configureTraining)
+            configureTrainItem(item)
+            trainItem = item
             return item
         }
         if itemIdentifier == Self.policySelectorToolbarItem {
@@ -763,7 +899,10 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
 
     @objc private func selectRobot(_ sender: NSPopUpButton) {
         guard let robotID = sender.selectedItem?.representedObject as? String,
-              let choice = sceneChoices.first(where: { $0.robotID == robotID })
+              let choice = numiWindowPreferredSceneChoice(
+                  sceneChoices,
+                  robotID: robotID
+              )
         else {
             return
         }
@@ -817,6 +956,49 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         requestScene(choice)
     }
 
+    private var activeChoice: NumiWindowSceneChoice? {
+        if let id = taskSelector?.selectedItem?.representedObject as? String,
+           let choice = sceneChoices.first(where: { $0.id == id }) {
+            return choice
+        }
+        if let initialSceneID,
+           let choice = sceneChoices.first(where: {
+               $0.id == initialSceneID
+           }) {
+            return choice
+        }
+        return sceneChoices.first(where: {
+            $0.robotID == activeRobotID && $0.sceneID == activeSceneID
+        })
+    }
+
+    @objc private func configureTraining() {
+        guard !trainingActive,
+              trainingSetupController == nil,
+              let choice = activeChoice,
+              choice.isTrainable
+        else { return }
+        let selectedPolicy = policySelector?.selectedItem?
+            .representedObject as? URL
+        let setup = NumiTrainingSetupController(
+            choice: choice,
+            selectedPolicyURL: selectedPolicy
+        ) { [weak self] request in
+            guard let self else { return }
+            self.trainingActive = true
+            self.lastFrameSummary =
+                "preparing training · \(request.taskName)"
+            self.setConfigurationControlsEnabled(false)
+            self.updateChrome(force: true)
+            self.onTrainingRequested?(request)
+        }
+        setup.onDismiss = { [weak self] in
+            self?.trainingSetupController = nil
+        }
+        trainingSetupController = setup
+        setup.present(over: window)
+    }
+
     private func requestScene(_ choice: NumiWindowSceneChoice) {
         guard !reconfiguring else {
             return
@@ -827,6 +1009,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         sceneSelector?.isEnabled = false
         taskSelector?.isEnabled = false
         policySelector?.isEnabled = false
+        trainItem?.isEnabled = false
         // Camera offsets are relative to each robot's authored camera. Never
         // carry an orbit from one robot into another robot's frame.
         resetCamera()
@@ -860,15 +1043,22 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             }
             self.reconfigurationReenableScheduled = false
             self.reconfiguring = false
-            self.robotSelector?.isEnabled = !self.sceneChoices.isEmpty
-            self.sceneSelector?.isEnabled =
-                (self.sceneSelector?.numberOfItems ?? 0) > 0
-            self.taskSelector?.isEnabled =
-                (self.taskSelector?.numberOfItems ?? 0) > 0
-            self.policySelector?.isEnabled =
-                self.policySelector?.itemArray.contains {
-                    $0.representedObject is URL
-                } ?? false
+            self.setConfigurationControlsEnabled(!self.trainingActive)
+        }
+    }
+
+    private func setConfigurationControlsEnabled(_ enabled: Bool) {
+        robotSelector?.isEnabled = enabled && !sceneChoices.isEmpty
+        sceneSelector?.isEnabled = enabled &&
+            (sceneSelector?.numberOfItems ?? 0) > 0
+        taskSelector?.isEnabled = enabled &&
+            (taskSelector?.numberOfItems ?? 0) > 0
+        policySelector?.isEnabled = enabled &&
+            (policySelector?.itemArray.contains {
+                $0.representedObject is URL
+            } ?? false)
+        if let trainItem {
+            configureTrainItem(trainItem)
         }
     }
 
@@ -889,7 +1079,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             return
         }
         let initial = sceneChoices.first(where: { $0.id == initialSceneID }) ??
-            sceneChoices[0]
+            numiWindowPreferredSceneChoice(sceneChoices) ?? sceneChoices[0]
         selector.selectItem(withTitle: initial.robotName)
         configureEnvironmentSelector(
             for: initial.robotID,
@@ -1078,6 +1268,23 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         item.isEnabled = canReloadLatestPolicy
     }
 
+    private func configureTrainItem(_ item: NSToolbarItem) {
+        let trainable = activeChoice?.isTrainable == true
+        item.label = trainingActive ? "Training…" : "Train"
+        item.paletteLabel = "Train Policy"
+        item.toolTip = trainingActive
+            ? "Training owns the Metal runtime; progress appears in the window title"
+            : trainable
+                ? "Configure and start policy training for this task"
+                : "This task does not publish a training contract yet"
+        item.image = NSImage(
+            systemSymbolName: trainingActive
+                ? "brain.head.profile" : "play.circle.fill",
+            accessibilityDescription: item.label
+        )
+        item.isEnabled = trainable && !trainingActive && !reconfiguring
+    }
+
     private func configurePolicySelector(
         _ selector: NSPopUpButton,
         for robotID: String,
@@ -1104,9 +1311,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             selector.lastItem?.toolTip = choice.policyURL.path
         }
         guard selector.numberOfItems > 0 else {
-            selector.addItem(withTitle: "No policy · zero actions")
+            selector.addItem(withTitle: "Untrained · no controller")
             selector.setAccessibilityHelp(
-                "No learned controller is loaded; the task receives zero policy actions"
+                "No qualified learned controller is loaded; a humanoid may fall until training succeeds"
             )
             selector.isEnabled = false
             return
@@ -1165,6 +1372,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         }
         if let item = latestPolicyItem {
             configureLatestPolicyItem(item)
+        }
+        if let item = trainItem {
+            configureTrainItem(item)
         }
     }
 
@@ -1263,6 +1473,7 @@ public final class NumiWindowBridge: @unchecked Sendable {
     private var latestPolicyReloadRequested = false
     private var pendingPolicySelection: URL?
     private var pendingSceneSelection: String?
+    private var pendingTrainingRequest: NumiWindowTrainingRequest?
     private var pendingCameraControl: NumiWindowCameraControl?
     private var selectedPolicyURL: URL?
 
@@ -1283,6 +1494,9 @@ public final class NumiWindowBridge: @unchecked Sendable {
         }
         window.onSceneSelected = { [weak self] id in
             self?.requestSceneSelection(id)
+        }
+        window.onTrainingRequested = { [weak self] request in
+            self?.requestTraining(request)
         }
         window.onCameraChanged = { [weak self] control in
             self?.requestCameraControl(control)
@@ -1368,6 +1582,14 @@ public final class NumiWindowBridge: @unchecked Sendable {
         stateLock.unlock()
     }
 
+    private func requestTraining(_ request: NumiWindowTrainingRequest) {
+        stateLock.lock()
+        if !closed {
+            pendingTrainingRequest = request
+        }
+        stateLock.unlock()
+    }
+
     private func requestCameraControl(_ control: NumiWindowCameraControl) {
         stateLock.lock()
         if !closed {
@@ -1424,6 +1646,14 @@ public final class NumiWindowBridge: @unchecked Sendable {
         return selection
     }
 
+    func takeTrainingRequest() -> NumiWindowTrainingRequest? {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        let request = pendingTrainingRequest
+        pendingTrainingRequest = nil
+        return request
+    }
+
     var selectedPolicy: URL? {
         stateLock.lock()
         defer { stateLock.unlock() }
@@ -1455,6 +1685,27 @@ public final class NumiWindowBridge: @unchecked Sendable {
     func reportSceneRestored(_ id: String, summary: String) {
         DispatchQueue.main.async { [window] in
             window.showRestoredScene(id, summary: summary)
+        }
+    }
+
+    func reportTrainingStatus(
+        _ summary: String,
+        active: Bool,
+        policyURL: URL? = nil,
+        artifactsURL: URL? = nil
+    ) {
+        if let policyURL {
+            stateLock.lock()
+            selectedPolicyURL = policyURL
+            stateLock.unlock()
+        }
+        DispatchQueue.main.async { [window] in
+            window.showTrainingStatus(
+                summary,
+                active: active,
+                policyURL: policyURL,
+                artifactsURL: artifactsURL
+            )
         }
     }
 

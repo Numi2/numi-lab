@@ -98,7 +98,25 @@ if ! mkdir "$numi_train_lock" 2>/dev/null; then
     printf 'numi train: run already active or locked: %s\n' "$numi_run" >&2
     exit 3
 fi
-trap 'rmdir "$numi_train_lock" 2>/dev/null || true' EXIT HUP INT TERM
+numi_active_pid=
+numi_terminate_tree() {
+    numi_parent_pid=$1
+    for numi_child_pid in $(pgrep -P "$numi_parent_pid" 2>/dev/null || true); do
+        numi_terminate_tree "$numi_child_pid"
+    done
+    kill -TERM "$numi_parent_pid" 2>/dev/null || true
+}
+numi_cancel() {
+    trap - HUP INT TERM
+    if [ -n "$numi_active_pid" ]; then
+        numi_terminate_tree "$numi_active_pid"
+        wait "$numi_active_pid" 2>/dev/null || true
+        numi_active_pid=
+    fi
+    exit 143
+}
+trap 'rmdir "$numi_train_lock" 2>/dev/null || true' EXIT
+trap numi_cancel HUP INT TERM
 
 if [ -f "$numi_root/python/metalrobo/mlx_policy_worker.py" ]; then
     numi_python_root=$numi_root/python
@@ -211,8 +229,11 @@ printf 'numi train: artifacts %s\n' "$numi_run" >&2
 # the native process has exited. Completion must reach evidence/selection so
 # the next curriculum band can start; live monitoring can read these durable
 # logs without owning a pipe in the trainer's process tree.
-"$numi_trainer" "$@" > "$numi_run/stdout.log" 2> "$numi_run/stderr.log"
+"$numi_trainer" "$@" > "$numi_run/stdout.log" 2> "$numi_run/stderr.log" &
+numi_active_pid=$!
+wait "$numi_active_pid"
 numi_status=$?
+numi_active_pid=
 cat "$numi_run/stderr.log" >&2
 cat "$numi_run/stdout.log"
 if [ "$numi_status" -eq 0 ] && [ -s "$numi_run/stdout.log" ]; then
@@ -241,7 +262,7 @@ if [ "$numi_status" -eq 0 ]; then
     numi_checkpoint_directory=$(
         numi_option_value --checkpoint-directory "$@" || true
     )
-    if "$numi_python" "$numi_python_root/metalrobo/policy_selection.py" \
+    "$numi_python" "$numi_python_root/metalrobo/policy_selection.py" \
         --evaluator "$numi_evaluator" \
         --metallib "$numi_metallib" \
         --incumbent "$numi_incumbent_deployment" \
@@ -253,7 +274,9 @@ if [ "$numi_status" -eq 0 ]; then
         --maximum-environments "${NUMI_SELECTION_ENVS:-256}" \
         --held-out-seed "${NUMI_SELECTION_SEED:-2650443581}" \
         --evaluation-steps "$numi_selection_steps" \
-        -- "$@" > "$numi_run/selection.log" 2>&1; then
+        -- "$@" > "$numi_run/selection.log" 2>&1 &
+    numi_active_pid=$!
+    if wait "$numi_active_pid"; then
         numi_status=0
     else
         numi_status=$?
@@ -262,9 +285,10 @@ if [ "$numi_status" -eq 0 ]; then
         # deployment and make the failure explicit for retry/inspection.
         if [ ! -s "$numi_run/selection/selection.json" ]; then
             printf '{\n  "schema": "numi.policy-selection.v1",\n  "selected": "incumbent",\n  "candidate_advanced_deployment": false,\n  "candidate_retained": true,\n  "selection_error": "selector exited with status %s"\n}\n' \
-                "$numi_status" > "$numi_run/selection/selection.json"
+            "$numi_status" > "$numi_run/selection/selection.json"
         fi
     fi
+    numi_active_pid=
     cat "$numi_run/selection.log"
 fi
 if command -v shasum >/dev/null 2>&1; then

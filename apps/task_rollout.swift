@@ -1084,6 +1084,9 @@ private func publishInspectionFrame(
     if let sceneID = window.takeSceneSelection() {
         throw NumiWindowError.reconfigure(sceneID)
     }
+    if let training = window.takeTrainingRequest() {
+        throw NumiWindowError.train(training)
+    }
     if let enabled = window.takePendingNativeInspectionEnabled() {
         try context.setInspectionEnabled(enabled)
     }
@@ -1136,7 +1139,8 @@ private func publishInspectionFrame(
 private enum TaskRolloutMain {
     private static func windowOptions(
         for choice: NumiWindowSceneChoice,
-        preserving baseline: Options
+        preserving baseline: Options,
+        policyOverride: URL? = nil
     ) throws -> Options {
         var arguments = [CommandLine.arguments[0]]
         var index = 0
@@ -1154,7 +1158,11 @@ private enum TaskRolloutMain {
             index += 1
         }
         let sameRobot = baseline.windowRobotID == choice.robotID
-        if sameRobot, let policyPack = baseline.policyPack {
+        if let policyOverride {
+            arguments.append(contentsOf: [
+                "--policy-pack", policyOverride.path,
+            ])
+        } else if sameRobot, let policyPack = baseline.policyPack {
             arguments.append(contentsOf: ["--policy-pack", policyPack])
         } else if sameRobot && baseline.nativePolicy {
             arguments.append("--native-policy")
@@ -1181,6 +1189,187 @@ private enum TaskRolloutMain {
             "--seed", String(baseline.seed),
         ])
         return try Options(arguments: arguments)
+    }
+
+    private struct WindowTrainingResult {
+        let runDirectory: URL
+        let deploymentPolicy: URL?
+        let selection: String
+    }
+
+    private static func trainingProgressSummary(
+        in runDirectory: URL,
+        updates: Int
+    ) -> String? {
+        let log = runDirectory.appendingPathComponent("stderr.log")
+        guard let contents = try? String(contentsOf: log, encoding: .utf8),
+              let line = contents.split(separator: "\n").last(where: {
+                  $0.hasPrefix("update=")
+              })
+        else { return nil }
+        var fields: [String: String] = [:]
+        for token in line.split(separator: " ") {
+            let pair = token.split(separator: "=", maxSplits: 1)
+            if pair.count == 2 {
+                fields[String(pair[0])] = String(pair[1])
+            }
+        }
+        let update = fields["update"] ?? "?"
+        let reward = fields["reward"].map { " · reward \($0)" } ?? ""
+        return "training update \(update)/\(updates)\(reward)"
+    }
+
+    private static func runTraining(
+        _ request: NumiWindowTrainingRequest,
+        window: NumiWindowBridge
+    ) throws -> WindowTrainingResult {
+        let fileManager = FileManager.default
+        let workspace = URL(
+            fileURLWithPath: fileManager.currentDirectoryPath,
+            isDirectory: true
+        )
+        let stamp = ISO8601DateFormatter().string(from: Date())
+            .replacingOccurrences(of: ":", with: "")
+            .replacingOccurrences(of: "-", with: "")
+        let safeTask = request.taskID.map {
+            $0.isLetter || $0.isNumber || $0 == "-" ? $0 : "-"
+        }
+        let runDirectory = workspace
+            .appendingPathComponent(".numi/runs", isDirectory: true)
+            .appendingPathComponent(
+                "window-train-\(stamp)-\(String(safeTask))-\(ProcessInfo.processInfo.processIdentifier)-\(UUID().uuidString.prefix(8))",
+                isDirectory: true
+            )
+        try fileManager.createDirectory(
+            at: runDirectory,
+            withIntermediateDirectories: true
+        )
+
+        var arguments = ["numi", "train"] + request.trainingArguments
+        arguments += [
+            "--envs", String(request.environments),
+            "--steps", String(request.stepsPerUpdate),
+            "--updates", String(request.updates),
+            "--chunk", String(request.chunk),
+            "--seed", String(request.seed),
+            "--minimum-difficulty-band",
+            String(request.minimumDifficultyBand),
+            "--maximum-difficulty-band",
+            String(request.maximumDifficultyBand),
+            "--checkpoint-directory",
+            runDirectory.appendingPathComponent("checkpoints").path,
+            "--checkpoint-interval", String(request.checkpointInterval),
+        ]
+        if let startingPolicyURL = request.startingPolicyURL {
+            arguments += ["--policy-pack", startingPolicyURL.path]
+        } else {
+            let identifier = "numi_window_\(request.robotID)_\(request.taskID)"
+                .replacingOccurrences(of: "-", with: "_")
+            arguments += ["--initialize-policy", identifier]
+        }
+
+        var environment = ProcessInfo.processInfo.environment
+        environment["NUMI_RUN_DIR"] = runDirectory.path
+        environment["NUMI_BUILD_DIR"] = workspace
+            .appendingPathComponent(".numi/window-build", isDirectory: true)
+            .path
+        environment["NUMI_SELECTION_ENVS"] = String(
+            min(32, request.environments)
+        )
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+        process.arguments = arguments
+        process.environment = environment
+        process.currentDirectoryURL = workspace
+        process.standardOutput = FileHandle.standardOutput
+        process.standardError = FileHandle.standardError
+        window.reportTrainingStatus(
+            "training started · \(request.taskName) · artifacts \(runDirectory.lastPathComponent)",
+            active: true,
+            artifactsURL: runDirectory
+        )
+        try process.run()
+        var lastSummary: String?
+        while process.isRunning {
+            if window.isClosed {
+                process.terminate()
+                break
+            }
+            if let summary = trainingProgressSummary(
+                in: runDirectory,
+                updates: request.updates
+            ), summary != lastSummary {
+                lastSummary = summary
+                window.reportTrainingStatus(summary, active: true)
+            }
+            Thread.sleep(forTimeInterval: 0.5)
+        }
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else {
+            throw MetalRoboTaskRolloutError.native(
+                "training exited with status \(process.terminationStatus); artifacts: \(runDirectory.path)"
+            )
+        }
+        let deployment = runDirectory.appendingPathComponent(
+            "deployment.policypack"
+        )
+        var deploymentPolicy: URL?
+        var selection = "experiment complete · review physical results"
+        let selectionURL = runDirectory.appendingPathComponent(
+            "selection/selection.json"
+        )
+        if let data = try? Data(contentsOf: selectionURL),
+           let object = try? JSONSerialization.jsonObject(with: data)
+                as? [String: Any],
+           let selected = object["selected"] as? String {
+            let evidenceName: String
+            if selected == "candidate",
+               let label = object["selected_candidate_label"] as? String {
+                evidenceName = label
+            } else {
+                evidenceName = "incumbent"
+            }
+            let evidenceURL = runDirectory
+                .appendingPathComponent("selection", isDirectory: true)
+                .appendingPathComponent("\(evidenceName).evidence.json")
+            var physicallyQualified = false
+            if let evidenceData = try? Data(contentsOf: evidenceURL),
+               let evidence = try? JSONSerialization.jsonObject(
+                    with: evidenceData
+               ) as? [String: Any] {
+                let failedSteps = (evidence["failed_environment_steps"]
+                    as? NSNumber)?.intValue ?? Int.max
+                let balanceFailures =
+                    (evidence["height_or_tilt_termination_count"]
+                        as? NSNumber)?.intValue ?? Int.max
+                let meanTilt = (evidence["mean_tilt"]
+                    as? NSNumber)?.doubleValue ?? .infinity
+                let cleanHorizon =
+                    (evidence["clean_horizon_environment_rate"]
+                        as? NSNumber)?.doubleValue ?? 0
+                let minimumHeight = (evidence[
+                    "minimum_root_height_by_environment"
+                ] as? [NSNumber])?.map(\.doubleValue).min() ?? 0
+                physicallyQualified = failedSteps == 0 &&
+                    balanceFailures == 0 && meanTilt <= 0.35 &&
+                    cleanHorizon >= 0.5 && minimumHeight >= 0.55
+            }
+            if physicallyQualified,
+               fileManager.fileExists(atPath: deployment.path) {
+                deploymentPolicy = deployment
+                selection = selected == "candidate"
+                    ? "new policy passed balance qualification"
+                    : "starting policy passed balance qualification"
+            } else {
+                selection =
+                    "experiment complete · policy still falls · not loaded"
+            }
+        }
+        return WindowTrainingResult(
+            runDirectory: runDirectory,
+            deploymentPolicy: deploymentPolicy,
+            selection: selection
+        )
     }
 
     private static func run(
@@ -2830,7 +3019,9 @@ private enum TaskRolloutMain {
             rawArguments.removeAll(where: { $0 == "--window-default" })
             var initialSceneID: String?
             if useCatalogDefault {
-                guard let choice = sceneChoices.first else {
+                guard let choice = numiWindowPreferredSceneChoice(
+                    sceneChoices
+                ) else {
                     throw MetalRoboTaskRolloutError.invalidShape(
                         "numi window has no robot/scene catalog. Import a robot or pass a visual scene."
                     )
@@ -2879,6 +3070,39 @@ private enum TaskRolloutMain {
                     do {
                         try run(options: activeOptions, window: window)
                         break
+                    } catch NumiWindowError.train(let request) {
+                        recoveringBaseline = false
+                        do {
+                            let result = try runTraining(
+                                request,
+                                window: window
+                            )
+                            if let policy = result.deploymentPolicy,
+                               let choice = sceneChoices.first(where: {
+                                   $0.id == request.choiceID
+                               }) {
+                                activeOptions = try windowOptions(
+                                    for: choice,
+                                    preserving: activeOptions,
+                                    policyOverride: policy
+                                )
+                            }
+                            window.reportTrainingStatus(
+                                "training complete · \(result.selection) · \(result.runDirectory.lastPathComponent)",
+                                active: false,
+                                policyURL: result.deploymentPolicy,
+                                artifactsURL: result.runDirectory
+                            )
+                        } catch {
+                            FileHandle.standardError.write(
+                                Data("numi training failed: \(error)\n".utf8)
+                            )
+                            window.reportTrainingStatus(
+                                "training stopped · artifacts and logs were retained",
+                                active: false
+                            )
+                        }
+                        continue
                     } catch NumiWindowError.reconfigure(let id) {
                         recoveringBaseline = false
                         guard let choice = sceneChoices.first(where: {

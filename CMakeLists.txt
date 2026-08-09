@@ -967,6 +967,7 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_task_rollout
         apps/task_rollout.swift
         apps/NumiWindow.swift
+        apps/NumiTraining.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
     target_include_directories(
@@ -997,6 +998,7 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_task_train
         apps/task_train.swift
         apps/NumiWindow.swift
+        apps/NumiTraining.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
     target_include_directories(

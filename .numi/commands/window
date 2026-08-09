@@ -18,6 +18,14 @@ the robot practices, and Policy chooses learned behavior. Environment or Task
 changes never choose a policy. The live run is rebuilt at a rollout boundary.
 Closing the window stops the preview run.
 
+Train opens a guided setup for the selected Robot, Environment, and Task.
+Choose a staged curriculum and whether to start fresh or continue the selected policy;
+Customize exposes environments, horizon, updates, chunk, seed, and checkpoint
+cadence with inline explanations. The window pauses its preview while training
+owns Metal, shows live progress, and evaluates balance before offering a result
+as learned behavior. Falling experiments remain inspectable but are not loaded.
+Every run keeps its logs, evidence, and policy artifacts.
+
 Most users only need:
 
   numi window
@@ -99,7 +107,7 @@ window_catalog_default=0
 
 window_builtin_catalog="$window_workspace/.numi/runs/numi-window-builtins"
 window_builtin_catalog_version=$(cat "$window_builtin_catalog/catalog.version" 2>/dev/null || true)
-if [ "$window_builtin_catalog_version" != "3" ] ||
+if [ "$window_builtin_catalog_version" != "4" ] ||
    [ ! -f "$window_builtin_catalog/unitree-g1-ground-velocity.numi-window.json" ] ||
    [ ! -f "$window_builtin_catalog/franka-pick-place.numi-window.json" ] ||
    [ ! -f "$window_builtin_catalog/px4-x500-hover.numi-window.json" ]; then
@@ -194,7 +202,8 @@ fi
 
 cmake -S "$window_workspace" -B "$window_build" \
     -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
-cmake --build "$window_build" --target metalrobo_task_rollout -j 4
+cmake --build "$window_build" \
+    --target metalrobo_task_rollout metalrobo_task_train -j 4
 
 window_rollout=$window_build/bin/metalrobo_task_rollout
 window_metallib=$window_build/shaders/MetalRobo.metallib
