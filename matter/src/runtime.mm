@@ -3455,6 +3455,19 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                 );
             }
         };
+        const auto readCount = [](id<MTLBuffer> buffer, auto& values,
+                                  const std::size_t count) {
+            using Value = typename std::decay_t<decltype(values)>::value_type;
+            values.resize(count);
+            if (count != 0u) {
+                const std::size_t bytes = count * sizeof(Value);
+                if (bytes > buffer.length) {
+                    values.clear();
+                    return;
+                }
+                std::memcpy(values.data(), buffer.contents, bytes);
+            }
+        };
         read(particles, snapshot.particles);
         read(femNodes, snapshot.femNodes);
         snapshot.materialStateStride = state_->dispatch.materialStateStride;
@@ -3470,15 +3483,26 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         read(cohesiveFaces, snapshot.cohesiveFaces);
         read(punctureChannels, snapshot.punctureChannels);
         read(topologyStates, snapshot.topologyStates);
-        read(contactWarmstarts, snapshot.contactWarmstarts);
+        const std::size_t logicalContactCount =
+            static_cast<std::size_t>(state_->dispatch.environmentCount) *
+            state_->dispatch.contactPairCount;
+        readCount(contactWarmstarts, snapshot.contactWarmstarts,
+                  logicalContactCount);
         read(adaptive, snapshot.adaptive);
         read(schedulers, snapshot.schedulers);
         read(reactions, snapshot.reactions);
         if (state_->captureDiagnostics) {
-            read(contactSamples, snapshot.contactSamples);
-            read(contactResponseRows, snapshot.contactResponseRows);
-            read(contactResponseColumns, snapshot.contactResponseColumns);
-            read(contactResponseValues, snapshot.contactResponseValues);
+            readCount(contactSamples, snapshot.contactSamples,
+                      logicalContactCount);
+            const std::size_t logicalResponseCount =
+                static_cast<std::size_t>(state_->dispatch.environmentCount) *
+                state_->contactResponseEntryCount;
+            readCount(contactResponseRows, snapshot.contactResponseRows,
+                      state_->contactResponseEntryCount);
+            readCount(contactResponseColumns, snapshot.contactResponseColumns,
+                      state_->contactResponseEntryCount);
+            readCount(contactResponseValues, snapshot.contactResponseValues,
+                      logicalResponseCount);
         }
         read(identification, snapshot.identification);
         read(environmentParameters, snapshot.environmentParameters);

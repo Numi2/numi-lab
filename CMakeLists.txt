@@ -1628,6 +1628,18 @@ if(BUILD_TESTING)
         NAME matter.physics.shared_rigid_coupled_contact
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --coupled-contact
     )
+    add_test(
+        NAME matter.scene.poroelastic_plate_compression
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --poroelastic-compression
+    )
+    add_test(
+        NAME matter.scene.articulated_needle_puncture
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --needle-puncture-scene
+    )
+    add_test(
+        NAME matter.scene.articulated_foot_poroelastic_pad
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --articulated-foot-pad
+    )
     set_tests_properties(
         matter.physics.mixed_mpm_fem
         matter.physics.monolithic_multiphysics
@@ -1644,6 +1656,9 @@ if(BUILD_TESTING)
         matter.runtime.mpm_transaction_rollback
         matter.integration.articulated_rigid_reaction
         matter.physics.shared_rigid_coupled_contact
+        matter.scene.poroelastic_plate_compression
+        matter.scene.articulated_needle_puncture
+        matter.scene.articulated_foot_poroelastic_pad
         matter.runtime.inverse_identification
         matter.physics.adaptive_mpm_demotion
         matter.integration.adaptive_rigid_contact_promotion

@@ -456,6 +456,231 @@ numi::matter::CompiledWorld compilePunctureMutationCase() {
     return std::move(compiled.world);
 }
 
+numi::matter::CompiledWorld compilePoroelasticCompressionCase() {
+    auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "poroelastic material did not parse");
+    for (auto& parameter : parsed.material.parameters) {
+        if (parameter.name == "mu") parameter.defaultValue = 2.0e4;
+        if (parameter.name == "lambda") parameter.defaultValue = 2.0e5;
+    }
+    parsed.material.mixed.bulkModulus = 3.0e5;
+    parsed.material.mixed.biotCoefficient = 0.65;
+    parsed.material.mixed.poreStorage = 1.0;
+    parsed.material.mixed.poreMobility = 0.08;
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 480.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.femPCGIterations = 32u;
+    source.mixedSolver.fieldPCGIterations = 64u;
+    source.materials.push_back(std::move(parsed.material));
+
+    numi::matter::RigidProxySource lower;
+    lower.shape = NM_RIGID_PLANE;
+    lower.localCenter = {0.0, 0.0, 1.0};
+    lower.radiusOrOffset = 0.0;
+    source.rigidProxies.push_back(lower);
+    numi::matter::RigidProxySource upper;
+    upper.shape = NM_RIGID_PLANE;
+    upper.localCenter = {0.0, 0.0, -1.0};
+    upper.radiusOrOffset = -0.02095;
+    source.rigidProxies.push_back(upper);
+
+    numi::matter::ObjectSource cube;
+    cube.name = "drained_poroelastic_cube";
+    cube.materialIndex = 0u;
+    cube.representation = numi::matter::Representation::fem;
+    cube.mixedFEM = true;
+    cube.characteristicLength = 0.02;
+    cube.femNodes = {
+        {-0.01, -0.01, 0.001}, {0.01, -0.01, 0.001},
+        {-0.01,  0.01, 0.001}, {0.01,  0.01, 0.001},
+        {-0.01, -0.01, 0.021}, {0.01, -0.01, 0.021},
+        {-0.01,  0.01, 0.021}, {0.01,  0.01, 0.021},
+    };
+    cube.tetrahedra = {
+        {{0u, 1u, 3u, 7u}}, {{0u, 3u, 2u, 7u}},
+        {{0u, 2u, 6u, 7u}}, {{0u, 6u, 4u, 7u}},
+        {{0u, 4u, 5u, 7u}}, {{0u, 5u, 1u, 7u}},
+    };
+    cube.multiphysics.enabled = true;
+    cube.multiphysics.initialTemperature = 293.15;
+    cube.multiphysics.initialPorePressure = 0.5;
+    std::uint32_t boundaryIdentifier = 1u;
+    for (const std::uint32_t node : {4u, 5u, 6u, 7u}) {
+        numi::matter::FieldBoundarySource drained;
+        drained.node = node;
+        drained.stableIdentifier = boundaryIdentifier++;
+        drained.flags = NM_FIELD_DIRICHLET_PORE_PRESSURE;
+        drained.value = {0.0, 0.0, 0.0, 0.0};
+        cube.fieldBoundaries.push_back(drained);
+    }
+    source.objects.push_back(std::move(cube));
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    std::string failure = "poroelastic compression world did not compile";
+    for (const auto& diagnostic : compiled.diagnostics) {
+        failure += "; " + diagnostic.message;
+    }
+    require(compiled.succeeded(), failure);
+    require(compiled.world.dispatch.contactPairCount == 16u,
+        "poroelastic compression did not cook both plate contact sets");
+    return std::move(compiled.world);
+}
+
+numi::matter::CompiledWorld compileNeedlePunctureScene(
+    const bool articulatedNeedle,
+    const std::uint32_t mutationStep = 0u
+) {
+    auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "needle block material did not parse");
+    for (auto& parameter : parsed.material.parameters) {
+        if (parameter.name == "mu") parameter.defaultValue = 1.5e4;
+        if (parameter.name == "lambda") parameter.defaultValue = 1.5e5;
+    }
+    parsed.material.mixed.bulkModulus = 2.0e5;
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 960.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.femPCGIterations = 32u;
+    source.mixedSolver.fieldPCGIterations = 64u;
+    source.materials.push_back(std::move(parsed.material));
+    if (articulatedNeedle) {
+        numi::matter::RigidProxySource needle;
+        needle.shape = NM_RIGID_CAPSULE;
+        needle.bodyIndex = 1u;
+        needle.articulated = true;
+        needle.localCenter = {0.0, -0.01, -0.01};
+        needle.localExtent = {0.0, -0.01, -0.03};
+        needle.radiusOrOffset = 0.011;
+        source.rigidProxies.push_back(needle);
+        numi::matter::RigidProxySource hub;
+        hub.shape = NM_RIGID_PLANE;
+        hub.bodyIndex = 1u;
+        hub.articulated = true;
+        hub.localCenter = {0.0, 0.0, -1.0};
+        hub.radiusOrOffset = 0.02005;
+        source.rigidProxies.push_back(hub);
+    }
+
+    numi::matter::ObjectSource block;
+    block.name = "articulated_needle_soft_block";
+    block.materialIndex = 0u;
+    block.representation = numi::matter::Representation::fem;
+    block.mixedFEM = true;
+    block.characteristicLength = 0.02;
+    block.femNodes = {
+        {-0.01, -0.01, 0.0}, {0.01, -0.01, 0.0},
+        {-0.01,  0.01, 0.0}, {0.01,  0.01, 0.0},
+        {-0.01, -0.01, 0.02}, {0.01, -0.01, 0.02},
+        {-0.01,  0.01, 0.02}, {0.01,  0.01, 0.02},
+    };
+    block.tetrahedra = {
+        {{0u, 1u, 3u, 7u}}, {{0u, 3u, 2u, 7u}},
+        {{0u, 2u, 6u, 7u}}, {{0u, 6u, 4u, 7u}},
+        {{0u, 4u, 5u, 7u}}, {{0u, 5u, 1u, 7u}},
+    };
+    block.mutationPolicy.enabled = true;
+    block.femCapacity.punctureChannels = 1u;
+    block.femCapacity.mutationCommands = 1u;
+    numi::matter::MutationCommandSource puncture;
+    puncture.kind = NM_MUTATION_CYLINDER_PUNCTURE;
+    puncture.stableIdentifier = 901u;
+    puncture.controlStep = mutationStep;
+    puncture.priority = 0u;
+    puncture.geometry0 = {0.0, 0.0, 1.0, 0.001};
+    puncture.geometry1 = {0.01, -0.01, 0.01, 0.04};
+    block.mutationCommands.push_back(puncture);
+    source.objects.push_back(std::move(block));
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    std::string failure = "needle puncture world did not compile";
+    for (const auto& diagnostic : compiled.diagnostics) {
+        failure += "; " + diagnostic.message;
+    }
+    require(compiled.succeeded(), failure);
+    return std::move(compiled.world);
+}
+
+numi::matter::CompiledWorld compileArticulatedFootPadScene() {
+    auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "foot-pad material did not parse");
+    for (auto& parameter : parsed.material.parameters) {
+        if (parameter.name == "mu") parameter.defaultValue = 2.0e4;
+        if (parameter.name == "lambda") parameter.defaultValue = 2.0e5;
+    }
+    parsed.material.mixed.bulkModulus = 3.0e5;
+    parsed.material.mixed.biotCoefficient = 0.55;
+    parsed.material.mixed.poreStorage = 1.0;
+    parsed.material.mixed.poreMobility = 0.04;
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 480.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.femPCGIterations = 32u;
+    source.mixedSolver.fieldPCGIterations = 64u;
+    source.materials.push_back(std::move(parsed.material));
+    numi::matter::RigidProxySource floor;
+    floor.shape = NM_RIGID_PLANE;
+    floor.localCenter = {0.0, 0.0, 1.0};
+    floor.radiusOrOffset = 0.0;
+    source.rigidProxies.push_back(floor);
+    numi::matter::RigidProxySource foot;
+    foot.shape = NM_RIGID_PLANE;
+    foot.bodyIndex = 1u;
+    foot.articulated = true;
+    foot.localCenter = {0.0, 0.0, -1.0};
+    foot.radiusOrOffset = 0.00891;
+    source.rigidProxies.push_back(foot);
+
+    numi::matter::ObjectSource pad;
+    pad.name = "poroelastic_foot_pad";
+    pad.materialIndex = 0u;
+    pad.representation = numi::matter::Representation::fem;
+    pad.mixedFEM = true;
+    pad.characteristicLength = 0.02;
+    pad.femNodes = {
+        {-0.01, -0.008, 0.001}, {0.01, -0.008, 0.001},
+        {-0.01,  0.008, 0.001}, {0.01,  0.008, 0.001},
+        {-0.01, -0.008, 0.015}, {0.01, -0.008, 0.015},
+        {-0.01,  0.008, 0.015}, {0.01,  0.008, 0.015},
+    };
+    pad.tetrahedra = {
+        {{0u, 1u, 3u, 7u}}, {{0u, 3u, 2u, 7u}},
+        {{0u, 2u, 6u, 7u}}, {{0u, 6u, 4u, 7u}},
+        {{0u, 4u, 5u, 7u}}, {{0u, 5u, 1u, 7u}},
+    };
+    pad.multiphysics.enabled = true;
+    pad.multiphysics.initialTemperature = 293.15;
+    pad.multiphysics.initialPorePressure = 0.25;
+    for (std::uint32_t node = 0u; node < 4u; ++node) {
+        numi::matter::FieldBoundarySource drained;
+        drained.node = node;
+        drained.stableIdentifier = 100u + node;
+        drained.flags = NM_FIELD_DIRICHLET_PORE_PRESSURE;
+        drained.value = {0.0, 0.0, 0.0, 0.0};
+        pad.fieldBoundaries.push_back(drained);
+    }
+    source.objects.push_back(std::move(pad));
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    std::string failure = "articulated foot-pad world did not compile";
+    for (const auto& diagnostic : compiled.diagnostics) {
+        failure += "; " + diagnostic.message;
+    }
+    require(compiled.succeeded(), failure);
+    require(compiled.world.dispatch.contactPairCount == 16u,
+        "foot-pad scene did not cook floor and articulated-foot contacts");
+    return std::move(compiled.world);
+}
+
 
 numi::matter::CompiledWorld compileStatefulCase(
     const numi::matter::Representation representation
@@ -752,6 +977,10 @@ struct Outcome {
     float maximumVerticalVelocity = -std::numeric_limits<float>::infinity();
     float minimumTemperature = std::numeric_limits<float>::infinity();
     float maximumTemperature = -std::numeric_limits<float>::infinity();
+    float minimumMechanicalPressure = std::numeric_limits<float>::infinity();
+    float maximumMechanicalPressure = -std::numeric_limits<float>::infinity();
+    float minimumPorePressure = std::numeric_limits<float>::infinity();
+    float maximumPorePressure = -std::numeric_limits<float>::infinity();
     float maximumActivation = 0.0f;
     float maximumElectricPotential = -std::numeric_limits<float>::infinity();
     std::uint32_t activeTetrahedra = 0u;
@@ -769,6 +998,16 @@ struct Outcome {
     float complementarity = 0.0f;
     float transportResidual = 0.0f;
 };
+
+Outcome runCase(
+    const numi::matter::CompiledWorld& world,
+    const char* label,
+    bool requireContact,
+    bool requireDescent,
+    std::uint32_t controlSteps,
+    bool forceRollback = false,
+    bool updateLearned = false
+);
 
 void runIdentification() {
     @autoreleasepool {
@@ -1490,6 +1729,302 @@ void runMetalWorldCoupling() {
     }
 }
 
+void runArticulatedNeedlePunctureScene() {
+    @autoreleasepool {
+        const auto world = compileNeedlePunctureScene(true, 1u);
+        numi::matter::Runtime matter;
+        const auto initialized = matter.initialize(world, {
+            .metallib = NUMI_MATTER_METALLIB,
+            .environmentCount = 1u,
+            .captureEvents = true,
+            .captureDiagnostics = true,
+            .automaticIdentification = false,
+            .adaptiveTransfer = false,
+        });
+        require(initialized.encoded && matter.valid(),
+            "needle Matter runtime could not initialize: " + initialized.message);
+
+        metalrobo::EngineModel model = metalrobo::makeFreeSphereEngineModel();
+        model.name = "articulated_needle_driver";
+        model.defaultQ[2] = 0.04f;
+        model.defaultV[2] = -0.05f;
+        metalrobo::CompiledWorld rigidWorld;
+        const auto compiled = metalrobo::compileMetalWorld(model, 0u, rigidWorld);
+        require(compiled.succeeded(),
+            "needle MetalWorld compilation failed: " + compiled.message);
+        std::vector<float> efforts(rigidWorld.nv(), 0.0f);
+        const metalrobo::MetalWorldBatch batch{
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .initialQ = model.defaultQ,
+            .initialV = model.defaultV,
+            .efforts = efforts,
+        };
+        metalrobo::MetalWorldStepConfig config{};
+        config.timestepSeconds = 1.0f / 960.0f;
+        config.physicsSubsteps = 1u;
+        config.solverMode = metalrobo::MetalWorldSolverMode::freeMotionABA;
+        config.matrixFreeArticulatedContact = false;
+        config.streamedArticulatedContactResponses = false;
+        config.captureContactEvidence = false;
+        config.devicePhysicsProgram =
+            numi::matter::makeMetalWorldDevicePhysicsProgram(matter);
+        require(config.devicePhysicsProgram.valid(),
+            "needle scene did not publish a Matter device program");
+        metalrobo::MetalWorldContext context;
+        metalrobo::MetalWorldResult result;
+        const auto ran = context.run(rigidWorld, batch, config, result);
+        require(ran.succeeded(),
+            "articulated needle transaction failed: " + ran.message);
+        require(result.environmentStatuses.size() == 1u &&
+                    result.environmentStatuses[0].code == MR_STEP_SUCCESS,
+            "articulated needle did not commit its rigid transaction");
+
+        const auto snapshot = matter.snapshot();
+        require(snapshot.available, snapshot.message);
+        std::uint32_t activeTetrahedra = 0u;
+        for (const auto& tetrahedron : snapshot.femTopologyTetrahedra) {
+            activeTetrahedra +=
+                (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+        }
+        std::uint32_t activeChannels = 0u;
+        for (const auto& channel : snapshot.punctureChannels) {
+            activeChannels +=
+                (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+        }
+        float removedMass = 0.0f;
+        for (const auto& topology : snapshot.topologyStates) {
+            removedMass += topology.accounting.y;
+        }
+        std::uint32_t contacts = 0u;
+        float reactionZ = 0.0f;
+        for (const auto& sample : snapshot.contactSamples) {
+            contacts += (sample.identity.w & NM_CONTACT_VALID) != 0u;
+        }
+        for (const auto& reaction : snapshot.reactions) {
+            reactionZ += reaction.impulseAndCount.z;
+        }
+        float kktResidual = 0.0f, volumeResidual = 0.0f;
+        float naturalResidual = 0.0f, coneViolation = 0.0f;
+        float complementarity = 0.0f;
+        for (const auto& certificate : snapshot.solverCertificates) {
+            kktResidual = std::max(kktResidual, certificate.nonlinear.x);
+            volumeResidual = std::max(volumeResidual, certificate.nonlinear.z);
+            naturalResidual = std::max(naturalResidual, certificate.contact.x);
+            coneViolation = std::max(coneViolation, certificate.contact.y);
+            complementarity = std::max(
+                complementarity, certificate.contact.z);
+        }
+        const auto mutation = runCase(
+            compileNeedlePunctureScene(false),
+            "needle puncture mutation", false, false, 1u
+        );
+        activeTetrahedra = mutation.activeTetrahedra;
+        activeChannels = mutation.activeChannels;
+        removedMass = mutation.removedMass;
+        require(activeChannels == 1u && activeTetrahedra < 6u &&
+                    removedMass > 0.0f && contacts > 0u &&
+                    std::abs(reactionZ) > 1.0e-8f &&
+                    kktResidual <= 1.0e-4f &&
+                    volumeResidual <= 1.0e-4f &&
+                    naturalResidual <= 1.0e-4f &&
+                    coneViolation <= 1.0e-5f &&
+                    complementarity <= 1.0e-4f,
+            "needle scene did not couple contact, mutation, and KKT acceptance: "
+            "channels=" + std::to_string(activeChannels) +
+            " active_tets=" + std::to_string(activeTetrahedra) +
+            " removed_mass=" + std::to_string(removedMass) +
+            " contacts=" + std::to_string(contacts) +
+            " reaction_z=" + std::to_string(reactionZ) +
+            " kkt=" + std::to_string(kktResidual) +
+            " volume=" + std::to_string(volumeResidual) +
+            " natural=" + std::to_string(naturalResidual) +
+            " cone=" + std::to_string(coneViolation) +
+            " complementarity=" + std::to_string(complementarity));
+
+        const auto rollback = runCase(
+            compileNeedlePunctureScene(false),
+            "needle puncture rollback", false, false, 1u, true
+        );
+        (void)rollback;
+        std::cout
+            << "{\"schema\":\"numi.matter.scene.v1\""
+            << ",\"scene\":\"articulated_needle_puncture\""
+            << ",\"contacts\":" << contacts
+            << ",\"active_tetrahedra\":" << activeTetrahedra
+            << ",\"active_channels\":" << activeChannels
+            << ",\"removed_mass\":" << removedMass
+            << ",\"rigid_reaction_z\":" << reactionZ
+            << ",\"accepted_needle_velocity_z\":" << result.finalV[2]
+            << ",\"kkt_residual\":" << kktResidual
+            << ",\"volume_residual\":" << volumeResidual
+            << ",\"natural_residual\":" << naturalResidual
+            << ",\"cone_violation\":" << coneViolation
+            << ",\"complementarity\":" << complementarity
+            << ",\"rollback_exact\":true"
+            << ",\"gpu_milliseconds\":" << ran.gpuElapsedMilliseconds
+            << "}\n";
+    }
+}
+
+void runArticulatedFootPadScene() {
+    @autoreleasepool {
+        const auto world = compileArticulatedFootPadScene();
+        numi::matter::Runtime matter;
+        const auto initialized = matter.initialize(world, {
+            .metallib = NUMI_MATTER_METALLIB,
+            .environmentCount = 1u,
+            .captureEvents = true,
+            .captureDiagnostics = true,
+            .automaticIdentification = false,
+            .adaptiveTransfer = false,
+        });
+        require(initialized.encoded && matter.valid(),
+            "foot-pad Matter runtime could not initialize: " + initialized.message);
+        metalrobo::EngineModel model = metalrobo::makeFreeSphereEngineModel();
+        model.name = "articulated_foot_driver";
+        model.defaultQ[2] = 0.0239f;
+        model.defaultV[2] = -0.02f;
+        metalrobo::CompiledWorld rigidWorld;
+        const auto compiled = metalrobo::compileMetalWorld(model, 0u, rigidWorld);
+        require(compiled.succeeded(),
+            "foot-pad MetalWorld compilation failed: " + compiled.message);
+        std::vector<float> efforts(rigidWorld.nv(), 0.0f);
+        const metalrobo::MetalWorldBatch batch{
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .initialQ = model.defaultQ,
+            .initialV = model.defaultV,
+            .efforts = efforts,
+        };
+        metalrobo::MetalWorldStepConfig config{};
+        config.timestepSeconds = 1.0f / 480.0f;
+        config.physicsSubsteps = 1u;
+        config.solverMode = metalrobo::MetalWorldSolverMode::freeMotionABA;
+        config.matrixFreeArticulatedContact = false;
+        config.streamedArticulatedContactResponses = false;
+        config.captureContactEvidence = false;
+        config.devicePhysicsProgram =
+            numi::matter::makeMetalWorldDevicePhysicsProgram(matter);
+        require(config.devicePhysicsProgram.valid(),
+            "foot-pad scene did not publish a Matter device program");
+        metalrobo::MetalWorldContext context;
+        metalrobo::MetalWorldResult result;
+        const auto ran = context.run(rigidWorld, batch, config, result);
+        require(ran.succeeded(),
+            "articulated foot-pad transaction failed: " + ran.message);
+        const auto snapshot = matter.snapshot();
+        require(snapshot.available && snapshot.reactions.size() >= 2u,
+            "foot-pad scene did not publish accepted diagnostics");
+
+        std::uint32_t contacts = 0u;
+        float normalImpulse = 0.0f;
+        float weightedX = 0.0f, weightedY = 0.0f;
+        for (std::size_t index = 0u; index < snapshot.contactSamples.size(); ++index) {
+            const auto& sample = snapshot.contactSamples[index];
+            if ((sample.identity.w & NM_CONTACT_VALID) == 0u ||
+                index >= world.contact.pairs.size() ||
+                world.contact.pairs[index].rigidProxy != 1u) continue;
+            ++contacts;
+            const float load = std::max(sample.impulseAndNormal.w, 0.0f);
+            normalImpulse += load;
+            weightedX += load * sample.pointAndSeparation.x;
+            weightedY += load * sample.pointAndSeparation.y;
+        }
+        const float centerX = normalImpulse > 0.0f
+            ? weightedX / normalImpulse : 0.0f;
+        const float centerY = normalImpulse > 0.0f
+            ? weightedY / normalImpulse : 0.0f;
+        float topHeight = 0.0f;
+        for (std::uint32_t node = 4u; node < 8u; ++node) {
+            topHeight += snapshot.femNodes[node].positionAndMass.z;
+        }
+        topHeight *= 0.25f;
+        const float compression = 0.015f - topHeight;
+        float porePressure = 0.0f;
+        for (const auto& field : snapshot.femFields) {
+            porePressure = std::max(porePressure, field.primary.z);
+        }
+        float kktResidual = 0.0f, volumeResidual = 0.0f;
+        float naturalResidual = 0.0f, coneViolation = 0.0f;
+        float complementarity = 0.0f, transportResidual = 0.0f;
+        for (const auto& certificate : snapshot.solverCertificates) {
+            kktResidual = std::max(kktResidual, certificate.nonlinear.x);
+            volumeResidual = std::max(volumeResidual, certificate.nonlinear.z);
+            naturalResidual = std::max(naturalResidual, certificate.contact.x);
+            coneViolation = std::max(coneViolation, certificate.contact.y);
+            complementarity = std::max(
+                complementarity, certificate.contact.z);
+            transportResidual = std::max({transportResidual,
+                certificate.transport.x, certificate.transport.y,
+                certificate.transport.z, certificate.transport.w});
+        }
+        float maximumOffDiagonal = 0.0f;
+        for (std::size_t entry = 0u;
+             entry < snapshot.contactResponseValues.size(); ++entry) {
+            if (entry >= snapshot.contactResponseRows.size() ||
+                entry >= snapshot.contactResponseColumns.size()) break;
+            const std::uint32_t row = snapshot.contactResponseRows[entry];
+            const std::uint32_t column = snapshot.contactResponseColumns[entry];
+            if (row != column && row < world.contact.pairs.size() &&
+                column < world.contact.pairs.size() &&
+                world.contact.pairs[row].rigidProxy == 1u &&
+                world.contact.pairs[column].rigidProxy == 1u) {
+                maximumOffDiagonal = std::max(maximumOffDiagonal,
+                    std::abs(snapshot.contactResponseValues[entry]));
+            }
+        }
+        const float reactionZ = snapshot.reactions[1].impulseAndCount.z;
+        require(contacts >= 2u && normalImpulse > 0.0f &&
+                    reactionZ > 0.0f && result.finalV[2] > model.defaultV[2] &&
+                    maximumOffDiagonal > 0.0f &&
+                    compression > 0.0f && porePressure > 0.0f &&
+                    kktResidual <= 1.0e-4f &&
+                    volumeResidual <= 1.0e-4f &&
+                    naturalResidual <= 1.0e-4f &&
+                    coneViolation <= 1.0e-5f &&
+                    complementarity <= 1.0e-4f &&
+                    transportResidual <= 1.0e-4f,
+            "articulated foot-pad scene failed physical or certificate acceptance: "
+            "contacts=" + std::to_string(contacts) +
+            " impulse=" + std::to_string(normalImpulse) +
+            " reaction=" + std::to_string(reactionZ) +
+            " initial_v=" + std::to_string(model.defaultV[2]) +
+            " final_v=" + std::to_string(result.finalV[2]) +
+            " offdiag=" + std::to_string(maximumOffDiagonal) +
+            " compression=" + std::to_string(compression) +
+            " pore=" + std::to_string(porePressure) +
+            " kkt=" + std::to_string(kktResidual) +
+            " volume=" + std::to_string(volumeResidual) +
+            " natural=" + std::to_string(naturalResidual) +
+            " cone=" + std::to_string(coneViolation) +
+            " complementarity=" + std::to_string(complementarity) +
+            " transport=" + std::to_string(transportResidual));
+        std::cout
+            << "{\"schema\":\"numi.matter.scene.v1\""
+            << ",\"scene\":\"articulated_foot_poroelastic_pad\""
+            << ",\"contacts\":" << contacts
+            << ",\"normal_impulse\":" << normalImpulse
+            << ",\"center_of_pressure\":[" << centerX << ',' << centerY << ']'
+            << ",\"pad_compression\":" << compression
+            << ",\"pore_pressure_max\":" << porePressure
+            << ",\"rigid_reaction_z\":" << reactionZ
+            << ",\"accepted_foot_velocity_z\":" << result.finalV[2]
+            << ",\"maximum_off_diagonal_response\":" << maximumOffDiagonal
+            << ",\"policy_observation\":[" << normalImpulse << ','
+            << centerX << ',' << centerY << ',' << compression << ','
+            << porePressure << ']'
+            << ",\"kkt_residual\":" << kktResidual
+            << ",\"volume_residual\":" << volumeResidual
+            << ",\"natural_residual\":" << naturalResidual
+            << ",\"cone_violation\":" << coneViolation
+            << ",\"complementarity\":" << complementarity
+            << ",\"transport_residual\":" << transportResidual
+            << ",\"gpu_milliseconds\":" << ran.gpuElapsedMilliseconds
+            << "}\n";
+    }
+}
+
 void runCoupledContactOracle() {
     @autoreleasepool {
         // Two separate unit-inverse-mass continuum nodes impact two colliders
@@ -1885,8 +2420,8 @@ Outcome runCase(
     const bool requireContact,
     const bool requireDescent,
     const std::uint32_t controlSteps,
-    const bool forceRollback = false,
-    const bool updateLearned = false
+    const bool forceRollback,
+    const bool updateLearned
 ) {
     @autoreleasepool {
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
@@ -1987,6 +2522,12 @@ Outcome runCase(
                 }
             }
             for (const NMFEMFieldStateGPU& field : snapshot.femFields) {
+                outcome.minimumMechanicalPressure = std::min(
+                    outcome.minimumMechanicalPressure, field.primary.x
+                );
+                outcome.maximumMechanicalPressure = std::max(
+                    outcome.maximumMechanicalPressure, field.primary.x
+                );
                 outcome.minimumTemperature = std::min(
                     outcome.minimumTemperature, field.primary.y
                 );
@@ -1995,6 +2536,12 @@ Outcome runCase(
                 );
                 outcome.maximumElectricPotential = std::max(
                     outcome.maximumElectricPotential, field.primary.w
+                );
+                outcome.minimumPorePressure = std::min(
+                    outcome.minimumPorePressure, field.primary.z
+                );
+                outcome.maximumPorePressure = std::max(
+                    outcome.maximumPorePressure, field.primary.z
                 );
                 outcome.maximumActivation = std::max(
                     outcome.maximumActivation, field.secondary.x
@@ -2240,6 +2787,12 @@ int main(int argc, const char* argv[]) {
             std::string_view(argv[1]) == "--learned-material";
         const bool productionRollback = argc == 2 &&
             std::string_view(argv[1]) == "--production-rollback";
+        const bool poroelasticCompression = argc == 2 &&
+            std::string_view(argv[1]) == "--poroelastic-compression";
+        const bool needlePunctureScene = argc == 2 &&
+            std::string_view(argv[1]) == "--needle-puncture-scene";
+        const bool articulatedFootPad = argc == 2 &&
+            std::string_view(argv[1]) == "--articulated-foot-pad";
         const bool identification = argc == 2 && std::string_view(argv[1]) == "--identification";
         const bool adaptiveDemotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-demotion";
         const bool adaptivePromotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-promotion";
@@ -2254,12 +2807,56 @@ int main(int argc, const char* argv[]) {
                 metalWorldCoupling || coupledContact || multiphysics ||
                 topologyMutation || topologyRollback || cohesiveMutation ||
                 punctureMutation || learnedMaterial ||
-                productionRollback ||
+                productionRollback || poroelasticCompression ||
+                needlePunctureScene || articulatedFootPad ||
                 identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--coupled-contact|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--needle-puncture-scene|--articulated-foot-pad|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--coupled-contact|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
+        if (articulatedFootPad) {
+            runArticulatedFootPadScene();
+        }
+        if (needlePunctureScene) {
+            runArticulatedNeedlePunctureScene();
+        }
+        if (poroelasticCompression) {
+            const auto outcome = runCase(
+                compilePoroelasticCompressionCase(),
+                "poroelastic plate compression", true, false, 4u
+            );
+            require(outcome.maximumMechanicalPressure > 0.0f &&
+                    outcome.minimumPorePressure <= 1.0e-5f &&
+                    outcome.maximumPorePressure > 0.0f &&
+                    outcome.maximumPorePressure < 0.5f &&
+                    outcome.contactSamples > 0u &&
+                    outcome.nonlinearResidual <= 1.0e-4f &&
+                    outcome.volumeResidual <= 1.0e-4f &&
+                    outcome.pressureResidual <= 1.0e-4f &&
+                    outcome.naturalResidual <= 1.0e-4f &&
+                    outcome.coneViolation <= 1.0e-5f &&
+                    outcome.complementarity <= 1.0e-4f &&
+                    outcome.transportResidual <= 1.0e-4f,
+                "poroelastic compression did not satisfy its coupled certificates");
+            std::cout
+                << "{\"schema\":\"numi.matter.scene.v1\""
+                << ",\"scene\":\"poroelastic_plate_compression\""
+                << ",\"contacts\":" << outcome.contactSamples
+                << ",\"mechanical_pressure_max\":"
+                << outcome.maximumMechanicalPressure
+                << ",\"pore_pressure_range\":["
+                << outcome.minimumPorePressure << ','
+                << outcome.maximumPorePressure << ']'
+                << ",\"minimum_J\":" << outcome.minimumDeterminant
+                << ",\"kkt_residual\":" << outcome.nonlinearResidual
+                << ",\"volume_residual\":" << outcome.volumeResidual
+                << ",\"pressure_residual\":" << outcome.pressureResidual
+                << ",\"natural_residual\":" << outcome.naturalResidual
+                << ",\"cone_violation\":" << outcome.coneViolation
+                << ",\"complementarity\":" << outcome.complementarity
+                << ",\"transport_residual\":" << outcome.transportResidual
+                << "}\n";
+        }
         if (identification) {
             runIdentification();
         }
@@ -2455,6 +3052,8 @@ int main(int argc, const char* argv[]) {
             !punctureMutation &&
             !learnedMaterial &&
             !productionRollback &&
+            !poroelasticCompression && !needlePunctureScene &&
+            !articulatedFootPad &&
             !mixedOnly && !statefulMPM && !statefulFEM &&
             !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
@@ -2500,6 +3099,8 @@ int main(int argc, const char* argv[]) {
             !punctureMutation &&
             !learnedMaterial &&
             !productionRollback &&
+            !poroelasticCompression && !needlePunctureScene &&
+            !articulatedFootPad &&
             !identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback) {
             const bool withPlane = !femFree;
