@@ -310,6 +310,7 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
         }
     }
     std::uint64_t hash = 1469598103934665603ull;
+    hashValue(hash, MR_MEASURED_SURFACE_ABI_VERSION);
     hashString(hash, pack.id);
     hashString(hash, pack.datasetIdentifier);
     hashString(hash, pack.manifestSHA256);
@@ -399,6 +400,10 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
         kMeasuredSurfaceActionCount,
         static_cast<std::uint32_t>(pack.phaseBoundary),
         pack.sourcePeriodic ? 1u : 0u,
+        {pack.components[0u].vertexOffset,
+         pack.components[1u].vertexOffset,
+         pack.components[2u].vertexOffset,
+         pack.components[3u].vertexOffset},
         {pack.sampleRateHertz,
          pack.airDensityKilogramsPerCubicMeter,
          pack.normalDragCoefficient,

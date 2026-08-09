@@ -1361,6 +1361,16 @@ int main(int argc, char** argv) {
             robot.triangleComponents.size() == pack.triangleCount &&
             robot.fingerprint != 0u,
             "compiled measured-surface tables are incomplete");
+        require(robot.gpuModel.abiVersion == MR_MEASURED_SURFACE_ABI_VERSION &&
+                robot.gpuModel.componentAnchorVertexIndices.x ==
+                    pack.components[0u].vertexOffset &&
+                robot.gpuModel.componentAnchorVertexIndices.y ==
+                    pack.components[1u].vertexOffset &&
+                robot.gpuModel.componentAnchorVertexIndices.z ==
+                    pack.components[2u].vertexOffset &&
+                robot.gpuModel.componentAnchorVertexIndices.w ==
+                    pack.components[3u].vertexOffset,
+            "measured component hinge anchors are not ABI-bound");
         MeasuredSurfaceRobotPack invalidBoundary = pack;
         invalidBoundary.phaseBoundary = MeasuredSurfacePhaseBoundary::wrap;
         bool rejectedBoundary = false;

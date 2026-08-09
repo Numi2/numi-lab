@@ -2,6 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 #include "metalrobo/generalized_constraint_shared.h"
+#include "metalrobo/measured_surface_types.h"
 #include "metalrobo/multi_contact_shared.h"
 #include "metalrobo/parallel_aba_shared.h"
 #include "metalrobo/policy_program_types.h"
@@ -119,6 +120,10 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
         hash,
         MR_POLICY_PROGRAM_ABI_VERSION
     );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_MEASURED_SURFACE_ABI_VERSION
+    );
 
     hash = detail::appendRuntimeAbiType<MRWorldGPU>(hash);
     hash = detail::appendRuntimeAbiType<MRArticulationGPU>(hash);
@@ -175,6 +180,9 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     hash = detail::appendRuntimeAbiType<MRTaskTransitionGPU>(hash);
     hash = detail::appendRuntimeAbiType<
         MRPolicyProgramHeaderGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRMeasuredSurfaceModelGPU
     >(hash);
     return hash;
 }

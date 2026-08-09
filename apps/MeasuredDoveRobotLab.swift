@@ -538,7 +538,7 @@ private final class RobotEngine {
         encoder.drawPrimitives(
             type: .triangle,
             vertexStart: 0,
-            vertexCount: 12 * 7 * 4 * 6
+            vertexCount: (12 + 10) * 7 * 4 * 6
         )
         encoder.setRenderPipelineState(groundRenderPipeline)
         encoder.setVertexBuffer(rootState, offset: 0, index: 3)
@@ -625,7 +625,8 @@ private final class RobotEngine {
             r=rotateAxis(r,float3(0,0,1),-side*(0.22f*q[a+5].x+0.18f*q[a+2].x)*s); r=rotateAxis(r,normalize(float3(0,side,0.08f)),side*(0.34f*q[a+3].x+0.25f*q[a+4].x*s)*s);
             p=float3(u.centerRadius.x,hingeY,u.centerRadius.z)+r; p.x+=0.030f*q[a+5].x*s; p.z+=0.012f*q[a+7].x*sin(3.14159265f*nx)*s;
         } else if(part==4) {
-            float3 r=p-float3(u.bmin.x,u.centerRadius.y,u.centerRadius.z); r=rotateAxis(r,float3(0,1,0),-0.30f*q[20].x); r=rotateAxis(r,float3(0,0,1),0.25f*q[21].x); r=rotateAxis(r,float3(1,0,0),0.28f*q[22].x); r.y*=1.0f+0.22f*q[23].x; p=float3(u.bmin.x,u.centerRadius.y,u.centerRadius.z)+r;
+            float3 pivot=mix(measured(source,u.frame.x,u.tail.x,u.frame.z),measured(source,u.frame.y,u.tail.x,u.frame.z),blend); pivot.z+=0.004f*q[1].x;
+            float3 r=p-pivot; r=rotateAxis(r,float3(0,1,0),-0.30f*q[20].x); r=rotateAxis(r,float3(0,0,1),0.25f*q[21].x); r=rotateAxis(r,float3(1,0,0),0.28f*q[22].x); r.y*=1.0f+0.22f*q[23].x; p=pivot+r;
         }
         output[id]=float4(p, length(p-base));
     }
@@ -658,18 +659,25 @@ private final class RobotEngine {
         uint longitudinal=quad/widthSegments,widthCell=quad%widthSegments;
         const float2 corners[6]={float2(0,0),float2(1,0),float2(0,1),float2(0,1),float2(1,0),float2(1,1)};
         float2 q=corners[corner]; float t=(float(longitudinal)+q.y)/float(longitudinalSegments); float across=-1.0f+2.0f*(float(widthCell)+q.x)/float(widthSegments);
-        float angular=float(feather)*float(u.tail.z-1u)/float(max(1u,u.tail.w-1u)); float angularHalfStep=0.72f*float(u.tail.z-1u)/float(max(1u,u.tail.w-1u));
-        float3 center=tailSurfacePoint(surface,u,angular,t),previous=tailSurfacePoint(surface,u,angular,max(0.0f,t-0.025f)),next=tailSurfacePoint(surface,u,angular,min(1.0f,t+0.025f));
-        float3 left=tailSurfacePoint(surface,u,angular-angularHalfStep,t),right=tailSurfacePoint(surface,u,angular+angularHalfStep,t);
+        bool covert=feather>=u.tail.w; uint localFeather=covert?feather-u.tail.w:feather; uint count=covert?10u:u.tail.w;
+        float lateral=-1.0f+2.0f*float(localFeather)/float(max(1u,count-1u));
+        float angular=covert?(float(localFeather)+0.5f)*float(u.tail.z-1u)/float(count):float(localFeather)*float(u.tail.z-1u)/float(max(1u,count-1u));
+        float angularHalfStep=(covert?0.92f:0.72f)*float(u.tail.z-1u)/float(max(1u,count-1u));
+        float baseT=covert?(0.025f+0.018f*(1.0f-abs(lateral))):(0.065f+0.025f*(1.0f-abs(lateral)));
+        float endT=covert?(0.50f-0.09f*pow(abs(lateral),1.25f)):(1.0f-0.13f*pow(abs(lateral),1.35f));
+        float roundedRetreat=(covert?0.022f:0.040f)*across*across*smoothstep(0.76f,1.0f,t);
+        float pathT=clamp(mix(baseT,endT,t)-roundedRetreat,baseT,endT);
+        float pathStep=0.018f; float3 center=tailSurfacePoint(surface,u,angular,pathT),previous=tailSurfacePoint(surface,u,angular,max(baseT,pathT-pathStep)),next=tailSurfacePoint(surface,u,angular,min(endT,pathT+pathStep));
+        float3 left=tailSurfacePoint(surface,u,angular-angularHalfStep,pathT),right=tailSurfacePoint(surface,u,angular+angularHalfStep,pathT);
         float3 radialDirection=normalize(next-previous+float3(1.0e-8f,0,0)),spanDirection=normalize(right-left+float3(0,1.0e-8f,0));
         float3 localNormal=normalize(cross(radialDirection,spanDirection));
-        float rootShape=smoothstep(0.0f,0.14f,t),tipShape=mix(1.0f,0.08f,smoothstep(0.78f,1.0f,t)); float halfWidth=0.58f*length(right-left)*rootShape*tipShape;
-        float camber=0.0018f*(1.0f-across*across)*sin(3.14159265f*t); float layer=0.00028f*(1.0f+float(feather&1u));
+        float rootShape=mix(0.42f,1.0f,smoothstep(0.0f,0.16f,t)),tipShape=mix(1.0f,0.24f,smoothstep(0.78f,1.0f,t)); float halfWidth=(covert?0.68f:0.58f)*length(right-left)*rootShape*tipShape;
+        float camber=(covert?0.00125f:0.0018f)*(1.0f-across*across)*sin(3.14159265f*t); float layer=(covert?0.00105f:0.00030f)+0.00018f*float(localFeather&1u);
         float3 local=center+spanDirection*(across*halfWidth)+localNormal*(camber+layer);
         float3 world=quatRotate(root[2],local-u.centerRadius.xyz)+u.centerRadius.xyz+root[0].xyz;
-        float3 normal=normalize(quatRotate(root[2],localNormal)); float alternating=(feather&1u)?0.035f:-0.018f;
-        float3 base=float3(.38f,.43f,.52f)+alternating; base=mix(base,float3(.25f,.29f,.37f),smoothstep(.68f,1.0f,t)*.42f);
-        Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=normal;o.color=float4(base,1);o.detail=float4(across,t,float(feather),1);return o;
+        float3 normal=normalize(quatRotate(root[2],localNormal)); float alternating=(localFeather&1u)?0.028f:-0.014f;
+        float3 base=(covert?float3(.45f,.49f,.57f):float3(.38f,.43f,.52f))+alternating; base=mix(base,float3(.25f,.29f,.37f),smoothstep(.68f,1.0f,t)*(covert ? .25f : .42f));
+        Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=normal;o.color=float4(base,1);o.detail=float4(across,t,float(feather),covert?0.0f:1.0f);return o;
     }
     vertex Raster groundVertex(device const float4* root [[buffer(3)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
         const float2 corners[6] = {float2(-2,-2),float2(2,-2),float2(-2,2),float2(-2,2),float2(2,-2),float2(2,2)};

@@ -73,12 +73,13 @@ float3 surfacePoint(
         ((part == 2u || part == 3u)
             ? 0.08f * groupStateLane(state, actionBase)
             : 0.0f);
-    float3 point = measuredPoint(
-        model, positions, state.phaseRateImpulseStep.x + phaseShift, vertexIndex);
+    const float phase = state.phaseRateImpulseStep.x + phaseShift;
+    float3 point = measuredPoint(model, positions, phase, vertexIndex);
+    float measuredAmplitude = 1.0f;
     if (part == 2u || part == 3u || part == 4u) {
         const float3 reference = measuredPoint(
             model, positions, 0.0f, vertexIndex);
-        const float measuredAmplitude = clamp(
+        measuredAmplitude = clamp(
             1.0f + groupStateLane(state, 2u), 0.5f, 2.25f);
         point = reference + measuredAmplitude * (point - reference);
     }
@@ -116,10 +117,13 @@ float3 surfacePoint(
         point.z += 0.012f * groupStateLane(state, action + 7u) *
             sin(M_PI_F * normalizedX) * normalizedSpan;
     } else if (part == 4u) {
-        const float3 pivot = float3(
-            model.boundsMinimum.x,
-            model.centerAndRadius.y,
-            model.centerAndRadius.z);
+        const uint anchor = model.componentAnchorVertexIndices.w;
+        const float3 pivotReference = measuredPoint(
+            model, positions, 0.0f, anchor);
+        float3 pivot = measuredPoint(model, positions, phase, anchor);
+        pivot = pivotReference + measuredAmplitude *
+            (pivot - pivotReference);
+        pivot.z += 0.004f * groupStateLane(state, 1u);
         float3 relative = point - pivot;
         relative = rotateAxis(relative, float3(0.0f, 1.0f, 0.0f),
             -0.30f * groupStateLane(state, 20u));

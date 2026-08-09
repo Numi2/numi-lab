@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_MEASURED_SURFACE_ABI_VERSION 4u
+#define MR_MEASURED_SURFACE_ABI_VERSION 5u
 #define MR_MEASURED_SURFACE_ACTION_CAPACITY 32u
 #define MR_MEASURED_SURFACE_COMPONENT_CAPACITY 16u
 #define MR_MEASURED_SURFACE_PHASE_CLAMP 0u
@@ -42,6 +42,11 @@ typedef struct MR_ALIGN16 MRMeasuredSurfaceModelGPU {
     mr_u32 actionCount;
     mr_u32 phaseBoundaryMode;
     mr_u32 sourcePeriodic;
+
+    // Stable measured vertex anchors for body, left wing, right wing, and
+    // tail. Dynamic hinges must follow the measured source instead of being
+    // reconstructed from global bounds.
+    mr_uint4 componentAnchorVertexIndices;
 
     // sample rate Hz, air density kg/m3, normal drag, tangential drag.
     mr_float4 samplingAndAerodynamics;
@@ -109,7 +114,7 @@ typedef struct MR_ALIGN16 MRMeasuredSurfaceEvidenceGPU {
 #ifndef __METAL_VERSION__
 static_assert(sizeof(MRMeasuredSurfaceComponentGPU) == 32);
 static_assert(sizeof(MRMeasuredSurfaceActionGPU) == 32);
-static_assert(sizeof(MRMeasuredSurfaceModelGPU) == 112);
+static_assert(sizeof(MRMeasuredSurfaceModelGPU) == 128);
 static_assert(sizeof(MRCompiledMeasuredSurfaceDispatchGPU) == 96);
 static_assert(sizeof(MRMeasuredSurfaceStateGPU) == 272);
 static_assert(sizeof(MRMeasuredSurfaceEvidenceGPU) == 96);
