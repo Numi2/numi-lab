@@ -21,12 +21,38 @@ measured frames, deforms each authored component, reduces triangle-level
 aerodynamic force and torque, and adds that wrench to the selected floating
 root before ABA.
 
+Immutable geometry is uploaded once from shared staging storage into private
+Metal buffers. Triangle loads reduce first within eight SIMD32 groups and then
+across their eight leaders. Dynamic threadgroup storage is 896 bytes: 352 bytes
+of reduction partials plus two 272-byte staged surface states. This avoids each
+triangle lane repeatedly loading the full accepted/candidate actuator state.
+
 The runtime uses `MetalWorldDeviceMechanicsProgram`, a generic borrowed-resource
 callback boundary. `prepare` executes after TaskPack actuator lowering and
 before ABA. `commit` executes only after universal physics acceptance. Invalid
 surface state marks the ordinary per-environment MetalWorld status, causing q,
 v, contact, task, and surface candidate state to roll back together. The
 extension never owns or commits a command buffer and never waits for the GPU.
+The runtime checkpoints accepted surface state and evidence at physics substep
+zero. A failure at any later substep restores that control-step checkpoint,
+matching MetalWorld's q/v/contact transaction rather than retaining a partial
+phase or actuator advance. The same stateful mechanics instance is rejected if
+submitted on overlapping command buffers; independent instances may still use
+the ordinary asynchronous arena ring.
+
+Accepted state records filtered actuator position/velocity, source phase and
+direction, accumulated aerodynamic impulse, and accepted physics-substep count.
+`inspectAccepted()` is an explicit post-submission diagnostic boundary that
+blits these private records once; rollout and training never call it.
+
+The flight SensorPack appends four non-temporal actor/critic lanes from the
+accepted mechanics transaction: normalized measured-frame phase, phase
+direction, scaled aerodynamic-force magnitude, and normalized actuator-state
+norm. `MR_TASK_OBSERVE_DEVICE_MECHANICS` is generic extension telemetry rather
+than a dove-only observation opcode. The task kernel observes zeros when no
+device mechanics program is attached. The probe executes a one-step-shorter
+prefix and compares its private accepted state against the next policy
+observation, proving the pre-action observation cadence explicitly.
 
 `RobotActuatorKind::measuredSurface` / `MR_TASK_ACTUATOR_MEASURED_SURFACE`
 binds each normalized TaskPack action to a stable surface component. The native
@@ -52,3 +78,15 @@ directory contains `positions.f32le` and `triangles.u16le`. The probe compiles a
 normal RobotPack + SensorPack + TaskPack + RunProfile, runs the surface through
 the unified MetalWorld path, compares it with a gravity-only execution, and
 requires bit-identical replay plus complete prepare/commit accounting.
+
+`numi dove runtime-benchmark 64 32` runs the bounded scale profile. On the
+2026-08-09 Apple GPU host, five repeated executions of the original `bd1c567`
+kernel had a median 52.1508 GPU ms / 39,270.8 environment steps/s. The private
+immutable buffers, staged surface state, SIMD32 reduction, and accepted
+mechanics observation publication measured 49.1230 GPU ms / 41,691.3
+environment steps/s: 1.0616x throughput. Dynamic threadgroup
+storage fell from 11,808 to 896 bytes (92.4 percent). The benchmark also runs
+deterministic replay, whole-control-step rollback at a deliberately induced
+late substep failure, overlapping-runtime rejection, topology admission, and
+accepted impulse/substep accounting. These are simulator measurements, not
+hardware-flight or aerodynamic-calibration evidence.

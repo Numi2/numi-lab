@@ -710,6 +710,7 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::jointFiniteDifferenceVelocity:
             case TaskObservationSource::previousAction:
             case TaskObservationSource::previousPolicyAction:
+            case TaskObservationSource::deviceMechanics:
             case TaskObservationSource::delayedAction:
             case TaskObservationSource::contactMetric:
             case TaskObservationSource::bodyParameterMean:
@@ -2227,6 +2228,9 @@ TaskCompileDiagnostics compileTaskProgram(
             }
             case TaskObservationSource::gaitPhase:
                 componentLimit = 2u;
+                break;
+            case TaskObservationSource::deviceMechanics:
+                componentLimit = 4u;
                 break;
             case TaskObservationSource::recoveryEvent:
                 componentLimit = 4u;

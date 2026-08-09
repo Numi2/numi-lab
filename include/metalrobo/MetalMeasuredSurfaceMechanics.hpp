@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 namespace metalrobo {
 
@@ -16,8 +17,15 @@ struct MetalMeasuredSurfaceStats {
     std::size_t immutableBytes = 0u;
     std::size_t persistentBytes = 0u;
     std::size_t transientBytes = 0u;
+    std::size_t controlStepCheckpointBytes = 0u;
+    std::size_t threadgroupBytes = 0u;
     std::uint32_t environmentCapacity = 0u;
     std::uint32_t threadgroupWidth = 0u;
+};
+
+struct MetalMeasuredSurfaceInspection {
+    std::vector<MRMeasuredSurfaceStateGPU> acceptedStates;
+    std::vector<MRMeasuredSurfaceEvidenceGPU> acceptedEvidence;
 };
 
 // Materializes one compiled measured-surface binding on the Metal device used
@@ -45,6 +53,9 @@ public:
     [[nodiscard]] const CompiledMeasuredSurfaceBinding& binding()
         const noexcept;
     [[nodiscard]] MetalMeasuredSurfaceStats stats() const noexcept;
+    // Explicit post-submission inspection boundary. This performs one private
+    // to shared blit and wait; it is never used by rollout or training.
+    [[nodiscard]] MetalMeasuredSurfaceInspection inspectAccepted() const;
 
 private:
     std::unique_ptr<State> state_;

@@ -666,6 +666,9 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION:
         value = previousPolicyAction[operation.source.y];
         break;
+    case MR_TASK_OBSERVE_DEVICE_MECHANICS:
+        value = state.deviceMechanics[operation.source.z];
+        break;
     case MR_TASK_OBSERVE_DELAYED_ACTION:
         value = previousAction[
             operation.source.y -
@@ -1752,6 +1755,7 @@ kernel void mr_locomotion_task_select_threat_query(
             0u,
             MR_INVALID_INDEX
         );
+        state.deviceMechanics = float4(0.0f);
         taskStates[environment] = state;
         return;
     }

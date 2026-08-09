@@ -2,6 +2,7 @@
 using namespace metal;
 
 #include "metalrobo/measured_surface_types.h"
+#include "metalrobo/task_program_types.h"
 
 namespace {
 #define MR_MEASURED_SURFACE_THREADS 256u
@@ -11,6 +12,16 @@ float stateLane(const thread MRMeasuredSurfaceStateGPU& state, uint index) {
     return state.position[index >> 2u][index & 3u];
 }
 float velocityLane(const thread MRMeasuredSurfaceStateGPU& state, uint index) {
+    return state.velocity[index >> 2u][index & 3u];
+}
+float groupStateLane(
+    const threadgroup MRMeasuredSurfaceStateGPU& state, uint index
+) {
+    return state.position[index >> 2u][index & 3u];
+}
+float groupVelocityLane(
+    const threadgroup MRMeasuredSurfaceStateGPU& state, uint index
+) {
     return state.velocity[index >> 2u][index & 3u];
 }
 void setStateLane(thread MRMeasuredSurfaceStateGPU& state, uint index, float value) {
@@ -53,21 +64,21 @@ float3 surfacePoint(
     constant const MRMeasuredSurfaceModelGPU& model,
     device const float* positions,
     device const uchar* parts,
-    const thread MRMeasuredSurfaceStateGPU& state,
+    const threadgroup MRMeasuredSurfaceStateGPU& state,
     uint vertexIndex
 ) {
     const uint part = uint(parts[vertexIndex]);
     const uint actionBase = part == 2u ? 4u : (part == 3u ? 12u : 4u);
-    const float phaseShift = 0.10f * stateLane(state, 0u) +
+    const float phaseShift = 0.10f * groupStateLane(state, 0u) +
         ((part == 2u || part == 3u)
-            ? 0.08f * stateLane(state, actionBase)
+            ? 0.08f * groupStateLane(state, actionBase)
             : 0.0f);
     float3 point = measuredPoint(
         model, positions, state.phaseRateImpulseStep.x + phaseShift, vertexIndex);
     const float3 span = model.boundsMaximum.xyz - model.boundsMinimum.xyz;
     const float normalizedX =
         (point.x - model.boundsMinimum.x) / max(span.x, 1.0e-6f);
-    point.z += 0.004f * stateLane(state, 1u) *
+    point.z += 0.004f * groupStateLane(state, 1u) *
         (part == 1u ? 0.25f : 1.0f);
     if (part == 2u || part == 3u) {
         const uint action = part == 2u ? 4u : 12u;
@@ -79,23 +90,23 @@ float3 surfacePoint(
         float3 relative = point - float3(
             model.centerAndRadius.x, hingeY, model.centerAndRadius.z);
         relative.y *= 1.0f + 0.18f *
-            stateLane(state, action + 6u) * normalizedSpan;
+            groupStateLane(state, action + 6u) * normalizedSpan;
         relative = rotateAxis(relative, float3(1.0f, 0.0f, 0.0f),
-            side * (0.28f * stateLane(state, action + 1u) +
-                    0.18f * stateLane(state, action + 2u) +
-                    0.10f * stateLane(state, 2u) +
-                    0.08f * stateLane(state, 3u)) * normalizedSpan);
+            side * (0.28f * groupStateLane(state, action + 1u) +
+                    0.18f * groupStateLane(state, action + 2u) +
+                    0.10f * groupStateLane(state, 2u) +
+                    0.08f * groupStateLane(state, 3u)) * normalizedSpan);
         relative = rotateAxis(relative, float3(0.0f, 0.0f, 1.0f),
-            -side * 0.22f * stateLane(state, action + 5u) * normalizedSpan);
+            -side * 0.22f * groupStateLane(state, action + 5u) * normalizedSpan);
         relative = rotateAxis(relative,
             normalize(float3(0.0f, side, 0.08f)),
-            side * (0.34f * stateLane(state, action + 3u) +
-                    0.25f * stateLane(state, action + 4u) * normalizedSpan) *
+            side * (0.34f * groupStateLane(state, action + 3u) +
+                    0.25f * groupStateLane(state, action + 4u) * normalizedSpan) *
                 normalizedSpan);
         point = float3(model.centerAndRadius.x, hingeY,
                        model.centerAndRadius.z) + relative;
-        point.x += 0.030f * stateLane(state, action + 5u) * normalizedSpan;
-        point.z += 0.012f * stateLane(state, action + 7u) *
+        point.x += 0.030f * groupStateLane(state, action + 5u) * normalizedSpan;
+        point.z += 0.012f * groupStateLane(state, action + 7u) *
             sin(M_PI_F * normalizedX) * normalizedSpan;
     } else if (part == 4u) {
         const float3 pivot = float3(
@@ -104,12 +115,12 @@ float3 surfacePoint(
             model.centerAndRadius.z);
         float3 relative = point - pivot;
         relative = rotateAxis(relative, float3(0.0f, 1.0f, 0.0f),
-            -0.30f * stateLane(state, 20u));
+            -0.30f * groupStateLane(state, 20u));
         relative = rotateAxis(relative, float3(0.0f, 0.0f, 1.0f),
-            0.25f * stateLane(state, 21u));
+            0.25f * groupStateLane(state, 21u));
         relative = rotateAxis(relative, float3(1.0f, 0.0f, 0.0f),
-            0.28f * stateLane(state, 22u));
-        relative.y *= 1.0f + 0.22f * stateLane(state, 23u);
+            0.28f * groupStateLane(state, 22u));
+        relative.y *= 1.0f + 0.22f * groupStateLane(state, 23u);
         point = pivot + relative;
     }
     return point;
@@ -155,22 +166,33 @@ kernel void mr_step_measured_surface_mechanics(
     device const float* vState [[buffer(9)]],
     device MRMeasuredSurfaceStateGPU* acceptedStates [[buffer(10)]],
     device MRMeasuredSurfaceStateGPU* candidateStates [[buffer(11)]],
-    device MRMeasuredSurfaceEvidenceGPU* candidateEvidence [[buffer(12)]],
-    device MRABABodyWrenchGPU* bodyWrenches [[buffer(13)]],
-    device MRMetalWorldStatusGPU* statuses [[buffer(14)]],
-    constant const MRMetalWorldPassGPU& pass [[buffer(15)]],
+    device MRMeasuredSurfaceStateGPU* checkpointStates [[buffer(12)]],
+    device MRMeasuredSurfaceEvidenceGPU* acceptedEvidence [[buffer(13)]],
+    device MRMeasuredSurfaceEvidenceGPU* candidateEvidence [[buffer(14)]],
+    device MRMeasuredSurfaceEvidenceGPU* checkpointEvidence [[buffer(15)]],
+    device MRABABodyWrenchGPU* bodyWrenches [[buffer(16)]],
+    device MRMetalWorldStatusGPU* statuses [[buffer(17)]],
+    constant const MRMetalWorldPassGPU& pass [[buffer(18)]],
     threadgroup float4* forceScratch [[threadgroup(0)]],
     threadgroup float4* torqueScratch [[threadgroup(1)]],
     threadgroup float2* scalarScratch [[threadgroup(2)]],
     threadgroup uint* invalidScratch [[threadgroup(3)]],
+    threadgroup MRMeasuredSurfaceStateGPU* stateScratch [[threadgroup(4)]],
     uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount || lane >= MR_MEASURED_SURFACE_THREADS) return;
     const uint resetIndex = pass.controlStep * dispatch.environmentCount + environment;
-    if (lane == 0u && pass.physicsSubstep == 0u && resetMasks[resetIndex] != 0u) {
-        acceptedStates[environment] = {};
-        acceptedStates[environment].phaseRateImpulseStep.y = 1.0f;
+    if (lane == 0u && pass.physicsSubstep == 0u) {
+        if (resetMasks[resetIndex] != 0u) {
+            acceptedStates[environment] = {};
+            acceptedStates[environment].phaseRateImpulseStep.y = 1.0f;
+            acceptedEvidence[environment] = {};
+        }
+        checkpointStates[environment] = acceptedStates[environment];
+        checkpointEvidence[environment] = acceptedEvidence[environment];
     }
     threadgroup_barrier(mem_flags::mem_device);
     if (lane == 0u) {
@@ -198,8 +220,25 @@ kernel void mr_step_measured_surface_mechanics(
         candidateStates[environment] = candidate;
     }
     threadgroup_barrier(mem_flags::mem_device);
-    const MRMeasuredSurfaceStateGPU source = acceptedStates[environment];
-    const MRMeasuredSurfaceStateGPU candidate = candidateStates[environment];
+    if (lane < MR_MEASURED_SURFACE_ACTION_CAPACITY / 4u) {
+        stateScratch[0].position[lane] =
+            acceptedStates[environment].position[lane];
+        stateScratch[0].velocity[lane] =
+            acceptedStates[environment].velocity[lane];
+        stateScratch[1].position[lane] =
+            candidateStates[environment].position[lane];
+        stateScratch[1].velocity[lane] =
+            candidateStates[environment].velocity[lane];
+    }
+    if (lane == 0u) {
+        stateScratch[0].phaseRateImpulseStep =
+            acceptedStates[environment].phaseRateImpulseStep;
+        stateScratch[1].phaseRateImpulseStep =
+            candidateStates[environment].phaseRateImpulseStep;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    const threadgroup MRMeasuredSurfaceStateGPU& source = stateScratch[0];
+    const threadgroup MRMeasuredSurfaceStateGPU& candidate = stateScratch[1];
     const uint qBase = environment * dispatch.qStride + dispatch.qOffset;
     const uint vBase = environment * dispatch.vStride + dispatch.vOffset;
     const float4 orientation = float4(
@@ -218,10 +257,10 @@ kernel void mr_step_measured_surface_mechanics(
     for (uint action = lane; action < model.actionCount;
          action += MR_MEASURED_SURFACE_THREADS) {
         baseValid = baseValid &&
-            isfinite(stateLane(source, action)) &&
-            isfinite(velocityLane(source, action)) &&
-            isfinite(stateLane(candidate, action)) &&
-            isfinite(velocityLane(candidate, action));
+            isfinite(groupStateLane(source, action)) &&
+            isfinite(groupVelocityLane(source, action)) &&
+            isfinite(groupStateLane(candidate, action)) &&
+            isfinite(groupVelocityLane(candidate, action));
     }
     if (lane == 0u) {
         baseValid = baseValid && finite4(source.phaseRateImpulseStep) &&
@@ -274,25 +313,55 @@ kernel void mr_step_measured_surface_mechanics(
                 max(length(b - measuredPoint(model, positions, candidate.phaseRateImpulseStep.x, indices.y)),
                     length(c - measuredPoint(model, positions, candidate.phaseRateImpulseStep.x, indices.z)))));
     }
-    forceScratch[lane] = float4(force, 0.0f);
-    torqueScratch[lane] = float4(torque, 0.0f);
-    scalarScratch[lane] = float2(areaSum, maximumDeformation);
-    invalidScratch[lane] = invalid;
-    threadgroup_barrier(mem_flags::mem_threadgroup);
-    for (uint width = MR_MEASURED_SURFACE_THREADS / 2u; width != 0u; width >>= 1u) {
-        if (lane < width) {
-            forceScratch[lane] += forceScratch[lane + width];
-            torqueScratch[lane] += torqueScratch[lane + width];
-            scalarScratch[lane].x += scalarScratch[lane + width].x;
-            scalarScratch[lane].y = max(scalarScratch[lane].y, scalarScratch[lane + width].y);
-            invalidScratch[lane] |= invalidScratch[lane + width];
-        }
-        threadgroup_barrier(mem_flags::mem_threadgroup);
+    const float4 simdForce = float4(
+        simd_sum(force.x), simd_sum(force.y), simd_sum(force.z), 0.0f);
+    const float4 simdTorque = float4(
+        simd_sum(torque.x), simd_sum(torque.y), simd_sum(torque.z), 0.0f);
+    const float2 simdScalars = float2(
+        simd_sum(areaSum), simd_max(maximumDeformation));
+    const uint simdInvalid = simd_sum(invalid);
+    if (simdLane == 0u) {
+        forceScratch[simdGroup] = simdForce;
+        torqueScratch[simdGroup] = simdTorque;
+        scalarScratch[simdGroup] = simdScalars;
+        invalidScratch[simdGroup] = simdInvalid;
     }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (simdGroup == 0u) {
+        const bool livePartial = simdLane <
+            MR_MEASURED_SURFACE_THREADS / 32u;
+        const float4 partialForce = livePartial
+            ? forceScratch[simdLane] : float4(0.0f);
+        const float4 partialTorque = livePartial
+            ? torqueScratch[simdLane] : float4(0.0f);
+        const float2 partialScalars = livePartial
+            ? scalarScratch[simdLane] : float2(0.0f);
+        const uint partialInvalid = livePartial
+            ? invalidScratch[simdLane] : 0u;
+        const float4 finalForce = float4(
+            simd_sum(partialForce.x),
+            simd_sum(partialForce.y),
+            simd_sum(partialForce.z), 0.0f);
+        const float4 finalTorque = float4(
+            simd_sum(partialTorque.x),
+            simd_sum(partialTorque.y),
+            simd_sum(partialTorque.z), 0.0f);
+        const float2 finalScalars = float2(
+            simd_sum(partialScalars.x),
+            simd_max(partialScalars.y));
+        const uint finalInvalid = simd_sum(partialInvalid);
+        if (simdLane == 0u) {
+            forceScratch[0] = finalForce;
+            torqueScratch[0] = finalTorque;
+            scalarScratch[0] = finalScalars;
+            invalidScratch[0] = finalInvalid;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
     if (lane == 0u) {
         float actuatorNormSquared = 0.0f;
         for (uint action = 0u; action < model.actionCount; ++action) {
-            const float value = stateLane(candidate, action);
+            const float value = groupStateLane(candidate, action);
             actuatorNormSquared += value * value;
         }
         const bool valid = invalidScratch[0] == 0u &&
@@ -305,6 +374,11 @@ kernel void mr_step_measured_surface_mechanics(
         candidateEvidence[environment].deformationActuationStatus = float4(
             scalarScratch[0].y, sqrt(actuatorNormSquared), valid ? 0.0f : 1.0f, 0.0f);
         if (valid) {
+            MRMeasuredSurfaceStateGPU accumulated =
+                candidateStates[environment];
+            accumulated.phaseRateImpulseStep.z +=
+                dispatch.timestepAndWindX.x * length(forceScratch[0].xyz);
+            candidateStates[environment] = accumulated;
             const uint wrenchIndex = environment * dispatch.bodyStride + dispatch.bodyIndex;
             MRABABodyWrenchGPU wrench = bodyWrenches[wrenchIndex];
             wrench.force.xyz += forceScratch[0].xyz;
@@ -321,10 +395,13 @@ kernel void mr_step_measured_surface_mechanics(
 kernel void mr_commit_measured_surface_mechanics(
     device MRMeasuredSurfaceStateGPU* acceptedStates [[buffer(0)]],
     device const MRMeasuredSurfaceStateGPU* candidateStates [[buffer(1)]],
-    device MRMeasuredSurfaceEvidenceGPU* acceptedEvidence [[buffer(2)]],
-    device const MRMeasuredSurfaceEvidenceGPU* candidateEvidence [[buffer(3)]],
-    device const MRMetalWorldStatusGPU* statuses [[buffer(4)]],
-    constant const MRCompiledMeasuredSurfaceDispatchGPU& dispatch [[buffer(5)]],
+    device const MRMeasuredSurfaceStateGPU* checkpointStates [[buffer(2)]],
+    device MRMeasuredSurfaceEvidenceGPU* acceptedEvidence [[buffer(3)]],
+    device const MRMeasuredSurfaceEvidenceGPU* candidateEvidence [[buffer(4)]],
+    device const MRMeasuredSurfaceEvidenceGPU* checkpointEvidence [[buffer(5)]],
+    device const MRMetalWorldStatusGPU* statuses [[buffer(6)]],
+    constant const MRCompiledMeasuredSurfaceDispatchGPU& dispatch [[buffer(7)]],
+    device MRTaskStateGPU* taskStates [[buffer(8)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) return;
@@ -332,5 +409,19 @@ kernel void mr_commit_measured_surface_mechanics(
         candidateEvidence[environment].deformationActuationStatus.z == 0.0f) {
         acceptedStates[environment] = candidateStates[environment];
         acceptedEvidence[environment] = candidateEvidence[environment];
+    } else {
+        // MetalWorld rolls q/v and contact back to the control-step checkpoint,
+        // not merely the preceding physics substep. Surface phase, filters,
+        // and evidence must restore to the same transaction boundary.
+        acceptedStates[environment] = checkpointStates[environment];
+        acceptedEvidence[environment] = checkpointEvidence[environment];
     }
+    const MRMeasuredSurfaceStateGPU accepted = acceptedStates[environment];
+    const MRMeasuredSurfaceEvidenceGPU evidence = acceptedEvidence[environment];
+    const float maximumPhase = max(float(dispatch.reserved0 - 1u), 1.0f);
+    taskStates[environment].deviceMechanics = float4(
+        accepted.phaseRateImpulseStep.x / maximumPhase,
+        accepted.phaseRateImpulseStep.y,
+        evidence.loadsAreaPhase.x,
+        evidence.deformationActuationStatus.y);
 }

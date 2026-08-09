@@ -113,11 +113,18 @@ metalrobo::CompiledRun compileFlightRun(
     return compiled;
 }
 
-metalrobo::MetalWorldResult runFlight(
+struct FlightExecution {
+    metalrobo::MetalWorldResult result;
+    metalrobo::MetalWorldDiagnostics diagnostics;
+    metalrobo::MetalMeasuredSurfaceStats surfaceStats;
+    metalrobo::MetalMeasuredSurfaceInspection surfaceInspection;
+};
+
+FlightExecution runFlight(
     const metalrobo::CompiledRun& run,
     bool enableSurface,
     std::vector<float> actions,
-    metalrobo::MetalMeasuredSurfaceStats* surfaceStats
+    bool inspectSurface = false
 ) {
     using namespace metalrobo;
     const std::size_t environments = run.profile().environmentCount;
@@ -163,14 +170,72 @@ metalrobo::MetalWorldResult runFlight(
         config.deviceMechanicsProgram = mechanics->program();
     }
     MetalWorldContext context({.maximumInFlightSubmissions = 1u});
+    FlightExecution execution;
+    execution.diagnostics =
+        context.run(run.world(), batch, config, execution.result);
+    if (mechanics) {
+        execution.surfaceStats = mechanics->stats();
+        if (inspectSurface) {
+            execution.surfaceInspection = mechanics->inspectAccepted();
+        }
+    }
+    return execution;
+}
+
+bool proveStatefulSingleFlight(
+    const metalrobo::CompiledRun& run,
+    const std::vector<float>& actions
+) {
+    using namespace metalrobo;
+    const std::size_t environments = run.profile().environmentCount;
+    const std::size_t steps = run.profile().controlSteps;
+    const std::size_t nq = run.world().nq();
+    const std::size_t nv = run.world().nv();
+    std::vector<float> q(environments * nq);
+    std::vector<float> v(environments * nv, 0.0f);
+    std::vector<std::uint32_t> resetMasks(environments * steps, 0u);
+    for (std::size_t environment = 0u; environment < environments; ++environment) {
+        std::copy(run.model().defaultQ.begin(), run.model().defaultQ.end(),
+            q.begin() + environment * nq);
+    }
+    const MetalWorldBatch batch{
+        .environmentCount = environments,
+        .controlStepCount = steps,
+        .initialQ = q,
+        .initialV = v,
+        .actions = actions,
+        .resetMasks = resetMasks,
+        .initialSceneBodies = run.defaultSceneBodies(),
+    };
+    MetalMeasuredSurfaceMechanics mechanics(*run.measuredSurfaceBinding());
+    const MetalWorldStepConfig config{
+        .timestepSeconds = run.profile().controlTimestepSeconds,
+        .physicsSubsteps = run.profile().physicsSubsteps,
+        .solverMode = MetalWorldSolverMode::temporalCone,
+        .actuationMode = MetalWorldActuationMode::implicitPositionDrive,
+        .taskProgram = run.task(),
+        .deviceMechanicsProgram = mechanics.program(),
+        .taskSeed = run.profile().seed,
+        .velocityIterations = run.profile().velocityIterations,
+        .finalVelocityIterations = run.profile().finalVelocityIterations,
+        .ccdMode = MetalWorldCCDMode::disabled,
+        .applyBodyDamping = false,
+        .deterministic = true,
+        .warmStart = false,
+    };
+    MetalWorldContext context({.maximumInFlightSubmissions = 2u});
+    MetalWorldSubmission first;
+    const MetalWorldDiagnostics submitted =
+        context.submit(run.world(), batch, config, first);
+    if (!submitted.succeeded() || !first.valid()) return false;
+    MetalWorldSubmission conflicting;
+    const MetalWorldDiagnostics rejected =
+        context.submit(run.world(), batch, config, conflicting);
     MetalWorldResult result;
-    const MetalWorldDiagnostics diagnostics =
-        context.run(run.world(), batch, config, result);
-    require(diagnostics.succeeded() && diagnostics.failedStepCount == 0u &&
-        diagnostics.successfulStepCount == environments * steps,
-        "MetalWorld measured-surface rollout failed: " + diagnostics.message);
-    if (mechanics && surfaceStats) *surfaceStats = mechanics->stats();
-    return result;
+    const MetalWorldDiagnostics completed = first.wait(result);
+    return rejected.status == MetalWorldHostStatus::contextBusy &&
+        !conflicting.valid() && completed.succeeded() &&
+        completed.failedStepCount == 0u;
 }
 
 } // namespace
@@ -178,10 +243,18 @@ metalrobo::MetalWorldResult runFlight(
 int main(int argc, char** argv) {
     try {
         using namespace metalrobo;
-        if (argc != 2) {
-            std::cerr << "usage: metalrobo_measured_surface_robot_probe MANIFEST\n";
+        if (argc != 2 && argc != 4) {
+            std::cerr << "usage: metalrobo_measured_surface_robot_probe "
+                         "MANIFEST [ENVIRONMENTS STEPS]\n";
             return 2;
         }
+        const std::uint32_t environments = argc == 4
+            ? static_cast<std::uint32_t>(std::stoul(argv[2])) : 4u;
+        const std::uint32_t steps = argc == 4
+            ? static_cast<std::uint32_t>(std::stoul(argv[3])) : 24u;
+        require(environments > 0u && environments <= 4096u &&
+                steps >= 2u && steps <= 1024u,
+            "benchmark dimensions exceed the bounded probe contract");
         MeasuredSurfaceRobotPack pack = loadMeasuredDove(argv[1]);
         const CompiledMeasuredSurfaceRobot robot =
             compileMeasuredSurfaceRobot(pack);
@@ -199,6 +272,18 @@ int main(int argc, char** argv) {
         }
         require(rejectedBoundary,
             "nonperiodic measured source accepted periodic wrapping");
+        MeasuredSurfaceRobotPack invalidTopology = pack;
+        const std::size_t leftTriangle = static_cast<std::size_t>(
+            invalidTopology.components[1u].triangleOffset) * 3u;
+        invalidTopology.triangleIndices[leftTriangle] = 0u;
+        bool rejectedTopology = false;
+        try {
+            (void)compileMeasuredSurfaceRobot(invalidTopology);
+        } catch (const std::invalid_argument&) {
+            rejectedTopology = true;
+        }
+        require(rejectedTopology,
+            "cross-component measured-surface topology was accepted");
 
         MeasuredSurfaceActuatorState cpuState;
         const std::array<float, kMeasuredSurfaceActionCount> zeroTargets{};
@@ -221,8 +306,6 @@ int main(int argc, char** argv) {
             cpuState.velocity == checkpoint.velocity,
             "transactional CPU actuator rollback failed");
 
-        constexpr std::uint32_t environments = 4u;
-        constexpr std::uint32_t steps = 24u;
         const CompiledRun run = compileFlightRun(pack, environments, steps);
         const std::size_t actionCount = run.task().layout().actionCount;
         std::vector<float> actions(
@@ -238,32 +321,166 @@ int main(int argc, char** argv) {
                 actions[base + 20u] = 0.20f;
             }
         }
-        const MetalWorldResult gravityOnly =
-            runFlight(run, false, actions, nullptr);
-        MetalMeasuredSurfaceStats firstStats;
-        const MetalWorldResult first =
-            runFlight(run, true, actions, &firstStats);
-        MetalMeasuredSurfaceStats replayStats;
-        const MetalWorldResult replay =
-            runFlight(run, true, actions, &replayStats);
-        require(first.finalQ == replay.finalQ && first.finalV == replay.finalV,
+        const FlightExecution gravityOnly =
+            runFlight(run, false, actions);
+        const FlightExecution first =
+            runFlight(run, true, actions, true);
+        const FlightExecution replay =
+            runFlight(run, true, actions);
+        const CompiledRun observationPrefixRun =
+            compileFlightRun(pack, environments, steps - 1u);
+        const std::size_t prefixActionElements =
+            static_cast<std::size_t>(steps - 1u) * environments * actionCount;
+        const FlightExecution observationPrefix = runFlight(
+            observationPrefixRun, true,
+            std::vector<float>(actions.begin(),
+                actions.begin() + prefixActionElements), true);
+        for (const FlightExecution* execution :
+             {&gravityOnly, &first, &replay}) {
+            require(execution->diagnostics.succeeded() &&
+                    execution->diagnostics.failedStepCount == 0u &&
+                    execution->diagnostics.successfulStepCount ==
+                        environments * steps,
+                "MetalWorld measured-surface rollout failed: " +
+                    execution->diagnostics.message);
+        }
+        require(observationPrefix.diagnostics.succeeded() &&
+                observationPrefix.diagnostics.failedStepCount == 0u &&
+                observationPrefix.diagnostics.successfulStepCount ==
+                    environments * (steps - 1u),
+            "prefix rollout for mechanics observation evidence failed");
+        require(first.result.finalQ == replay.result.finalQ &&
+                first.result.finalV == replay.result.finalV,
             "device measured-surface rollout was not bit-identical on replay");
-        require(first.finalV != gravityOnly.finalV,
+        require(first.result.finalV != gravityOnly.result.finalV,
             "device surface mechanics produced no generalized-body response");
         float maximumVelocityDelta = 0.0f;
-        for (std::size_t i = 0u; i < first.finalV.size(); ++i) {
+        for (std::size_t i = 0u; i < first.result.finalV.size(); ++i) {
             maximumVelocityDelta = std::max(maximumVelocityDelta,
-                std::abs(first.finalV[i] - gravityOnly.finalV[i]));
+                std::abs(first.result.finalV[i] -
+                    gravityOnly.result.finalV[i]));
         }
         require(maximumVelocityDelta > 1.0e-5f,
             "surface mechanics response was below the executable threshold");
-        require(firstStats.encodedPrepareCount == steps * 4u &&
-                firstStats.encodedCommitCount == steps * 4u &&
+        const MetalMeasuredSurfaceStats& firstStats = first.surfaceStats;
+        require(firstStats.encodedPrepareCount ==
+                    static_cast<std::uint64_t>(steps) * 4u &&
+                firstStats.encodedCommitCount ==
+                    static_cast<std::uint64_t>(steps) * 4u &&
                 firstStats.environmentCapacity == environments &&
                 firstStats.threadgroupWidth == 256u &&
+                firstStats.threadgroupBytes > 0u &&
+                firstStats.controlStepCheckpointBytes > 0u &&
                 firstStats.immutableBytes > 0u &&
-                firstStats.persistentBytes > 0u,
+                firstStats.persistentBytes > 0u &&
+                first.surfaceInspection.acceptedStates.size() == environments,
             "measured-surface device runtime did not report complete execution");
+        for (const MRMeasuredSurfaceStateGPU& state :
+             first.surfaceInspection.acceptedStates) {
+            require(state.phaseRateImpulseStep.z > 0.0f &&
+                    state.phaseRateImpulseStep.w ==
+                        static_cast<float>(steps * 4u),
+                "accepted surface state lost impulse or substep accounting");
+        }
+        const std::size_t actorSize = run.task().layout().actorObservationSize;
+        require(actorSize >= 4u && first.result.actorObservations.size() ==
+                static_cast<std::size_t>(steps) * environments * actorSize,
+            "device mechanics telemetry is missing from actor observations");
+        for (std::uint32_t environment = 0u;
+             environment < environments; ++environment) {
+            const std::size_t firstActor =
+                static_cast<std::size_t>(environment) * actorSize +
+                actorSize - 4u;
+            for (std::size_t component = 0u; component < 4u; ++component) {
+                require(first.result.actorObservations[
+                            firstActor + component] == 0.0f,
+                    "reset did not clear device mechanics observation state");
+            }
+        }
+        for (std::uint32_t environment = 0u;
+             environment < environments; ++environment) {
+            const std::size_t actorBase =
+                ((static_cast<std::size_t>(steps) - 1u) * environments +
+                 environment) * actorSize + actorSize - 4u;
+            const MRMeasuredSurfaceStateGPU& state =
+                observationPrefix.surfaceInspection.acceptedStates[environment];
+            const MRMeasuredSurfaceEvidenceGPU& evidence =
+                observationPrefix.surfaceInspection.acceptedEvidence[environment];
+            const std::array<float, 4u> expected{
+                state.phaseRateImpulseStep.x /
+                    static_cast<float>(pack.frameCount - 1u),
+                state.phaseRateImpulseStep.y,
+                0.25f * evidence.loadsAreaPhase.x,
+                evidence.deformationActuationStatus.y /
+                    std::sqrt(static_cast<float>(kMeasuredSurfaceActionCount)),
+            };
+            for (std::size_t component = 0u; component < expected.size();
+                 ++component) {
+                require(std::abs(first.result.actorObservations[
+                            actorBase + component] - expected[component]) <
+                            1.0e-5f,
+                    "actor observation does not match accepted mechanics state: component " +
+                    std::to_string(component) + " actual=" +
+                    std::to_string(first.result.actorObservations[
+                        actorBase + component]) + " expected=" +
+                    std::to_string(expected[component]));
+            }
+        }
+
+        bool provedLateSubstepRollback = false;
+        std::uint32_t rollbackSubstep = MR_INVALID_INDEX;
+        float rollbackCoefficient = 0.0f;
+        for (const float coefficient :
+             {1.0e3f, 1.0e4f, 1.0e5f, 1.0e6f, 1.0e8f,
+              1.0e10f, 1.0e12f, 1.0e16f, 1.0e20f}) {
+            MeasuredSurfaceRobotPack stressedPack = pack;
+            stressedPack.normalDragCoefficient = coefficient;
+            stressedPack.tangentialDragCoefficient = coefficient * 0.1f;
+            const CompiledRun stressed =
+                compileFlightRun(std::move(stressedPack), 1u, 1u);
+            std::vector<float> stressedActions(actionCount, 0.0f);
+            stressedActions[5u] = 1.0f;
+            stressedActions[13u] = -1.0f;
+            const FlightExecution failure =
+                runFlight(stressed, true, std::move(stressedActions), true);
+            if (failure.diagnostics.failedStepCount == 0u ||
+                failure.result.statuses.empty() ||
+                failure.result.statuses.front().failingSubstep == 0u ||
+                failure.result.statuses.front().failingSubstep ==
+                    MR_INVALID_INDEX) {
+                continue;
+            }
+            const MRMeasuredSurfaceStateGPU& restored =
+                failure.surfaceInspection.acceptedStates.front();
+            bool zero = restored.phaseRateImpulseStep.x == 0.0f &&
+                (restored.phaseRateImpulseStep.y == 0.0f ||
+                 restored.phaseRateImpulseStep.y == 1.0f) &&
+                restored.phaseRateImpulseStep.w == 0.0f;
+            for (const mr_float4 lane : restored.position) {
+                zero = zero && lane.x == 0.0f && lane.y == 0.0f &&
+                    lane.z == 0.0f && lane.w == 0.0f;
+            }
+            for (const mr_float4 lane : restored.velocity) {
+                zero = zero && lane.x == 0.0f && lane.y == 0.0f &&
+                    lane.z == 0.0f && lane.w == 0.0f;
+            }
+            require(zero,
+                "late physics failure did not restore the surface control-step checkpoint");
+            rollbackSubstep =
+                failure.result.statuses.front().failingSubstep;
+            rollbackCoefficient = coefficient;
+            provedLateSubstepRollback = true;
+            break;
+        }
+        require(provedLateSubstepRollback,
+            "probe could not produce a post-substep surface failure for rollback proof");
+        require(proveStatefulSingleFlight(run, actions),
+            "stateful surface runtime admitted overlapping command buffers");
+        const double environmentStepsPerSecond =
+            first.diagnostics.gpuElapsedMilliseconds > 0.0
+            ? static_cast<double>(environments * steps) * 1000.0 /
+                first.diagnostics.gpuElapsedMilliseconds
+            : 0.0;
 
         std::cout << "MeasuredSurface device mechanics probe passed\n"
                   << "  run fingerprint: " << run.fingerprint() << '\n'
@@ -276,11 +493,24 @@ int main(int argc, char** argv) {
                   << "  max root-velocity delta vs gravity-only: "
                   << maximumVelocityDelta << " generalized-velocity units\n"
                   << "  deterministic device replay: true\n"
+                  << "  overlapping stateful submission rejected: true\n"
+                  << "  late-substep checkpoint rollback: substep "
+                  << rollbackSubstep << " at C="
+                  << rollbackCoefficient << '\n'
                   << "  nonperiodic wrap rejected: true\n"
+                  << "  cross-component topology rejected: true\n"
                   << "  nonfinite actuator rollback: true\n"
+                  << "  accepted impulse/substep accounting: true\n"
+                  << "  accepted mechanics actor telemetry: true\n"
                   << "  immutable/persistent bytes: "
                   << firstStats.immutableBytes << "/"
-                  << firstStats.persistentBytes << '\n';
+                  << firstStats.persistentBytes << '\n'
+                  << "  checkpoint/threadgroup bytes: "
+                  << firstStats.controlStepCheckpointBytes << "/"
+                  << firstStats.threadgroupBytes << '\n'
+                  << "  GPU ms / environment steps per second: "
+                  << first.diagnostics.gpuElapsedMilliseconds << " / "
+                  << environmentStepsPerSecond << '\n';
     } catch (const std::exception& error) {
         std::cerr << "MeasuredSurface probe failed: " << error.what() << '\n';
         return 1;

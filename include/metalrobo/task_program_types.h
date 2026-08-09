@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 41u
+#define MR_TASK_PROGRAM_ABI_VERSION 42u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -152,6 +152,9 @@ enum MRTaskObservationOpcode : mr_u32 {
     // This remains distinct from the post-transform actuator target stored in
     // the ordinary action history.
     MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION = 31u,
+    // Four device-mechanics telemetry lanes populated by an attached native
+    // mechanics primitive. Packs without such a program observe zeros.
+    MR_TASK_OBSERVE_DEVICE_MECHANICS = 32u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -579,6 +582,10 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     // Threatened global body, class, latched escape direction encoded as
     // {-1,+1} shifted to {0,2}, and active impact event index.
     mr_uint4 threatMetadata;
+    // Extension-owned accepted mechanics telemetry. MetalWorld initializes
+    // and resets this with ordinary task state; only the attached device
+    // mechanics program may populate it before observation construction.
+    mr_float4 deviceMechanics;
 } MRTaskStateGPU;
 
 // Compact task-wide physical evidence accumulated on device. It does not own
@@ -653,7 +660,7 @@ static_assert(sizeof(MRTaskImpactEventGPU) == 48u);
 static_assert(sizeof(MRTaskInteractionContactGPU) == 16u);
 static_assert(sizeof(MRTaskInteractionSampleGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
-static_assert(sizeof(MRTaskStateGPU) == 176u);
+static_assert(sizeof(MRTaskStateGPU) == 192u);
 static_assert(sizeof(MRTaskEvidenceStateGPU) == 64u);
 static_assert(sizeof(MRTaskTransitionGPU) == 128u);
 static_assert(sizeof(MRLearningTransitionGPU) == 64u);

@@ -62,6 +62,7 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_INTERACTION_ANCHOR_ORIENTATION,
     previousPolicyAction =
         MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION,
+    deviceMechanics = MR_TASK_OBSERVE_DEVICE_MECHANICS,
 };
 
 enum class TaskRewardOperator : std::uint32_t {

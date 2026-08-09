@@ -1717,6 +1717,22 @@ TaskPack makeMeasuredSurfaceFlightTaskPack(
             .target = action.actuator});
     }
     observations.critic = observations.actorFrame;
+    const std::array<TaskObservationOperatorSpec, 4u> mechanicsObservations{{
+        {.source = TaskObservationSource::deviceMechanics,
+            .component = 0u},
+        {.source = TaskObservationSource::deviceMechanics,
+            .component = 1u},
+        {.source = TaskObservationSource::deviceMechanics,
+            .component = 2u, .scale = 0.25f},
+        {.source = TaskObservationSource::deviceMechanics,
+            .component = 3u,
+            .scale = 1.0f / std::sqrt(
+                static_cast<float>(kMeasuredSurfaceActionCount))},
+    }};
+    observations.actorCurrent.insert(observations.actorCurrent.end(),
+        mechanicsObservations.begin(), mechanicsObservations.end());
+    observations.critic.insert(observations.critic.end(),
+        mechanicsObservations.begin(), mechanicsObservations.end());
     reset.maximumActionDelaySteps = 1u;
     reset.maximumObservationDelaySteps = 1u;
     reset.operators = {

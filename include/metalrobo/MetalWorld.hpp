@@ -393,6 +393,7 @@ struct MetalWorldDeviceMechanicsPass {
     void* resetMasks = nullptr;
     void* bodyWrenches = nullptr;
     void* environmentStatuses = nullptr;
+    void* taskStates = nullptr;
     std::uint64_t seed = 0u;
     std::uint32_t controlStep = 0u;
     std::uint32_t physicsSubstep = 0u;

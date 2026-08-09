@@ -74,7 +74,10 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
     }
     if (pack.frameCount < 2u || pack.vertexCount == 0u || pack.triangleCount == 0u ||
         !std::isfinite(pack.sampleRateHertz) || pack.sampleRateHertz <= 0.0f ||
-        pack.sourcePeriodic || !std::isfinite(pack.bodyMassKilograms) ||
+        pack.vertexCount >
+            static_cast<std::uint32_t>(
+                std::numeric_limits<std::uint16_t>::max()) + 1u ||
+        !std::isfinite(pack.bodyMassKilograms) ||
         pack.bodyMassKilograms <= 0.0f ||
         !std::isfinite(pack.airDensityKilogramsPerCubicMeter) ||
         pack.airDensityKilogramsPerCubicMeter <= 0.0f) {
@@ -162,6 +165,26 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
     }
     if (nextVertex != pack.vertexCount || nextTriangle != pack.triangleCount) {
         throw std::invalid_argument("component ranges must cover the complete measured surface");
+    }
+    for (const MeasuredSurfaceComponentRange& component : pack.components) {
+        const std::uint32_t vertexEnd =
+            component.vertexOffset + component.vertexCount;
+        const std::uint32_t triangleEnd =
+            component.triangleOffset + component.triangleCount;
+        for (std::uint32_t triangle = component.triangleOffset;
+             triangle < triangleEnd; ++triangle) {
+            const std::size_t first = static_cast<std::size_t>(triangle) * 3u;
+            const std::uint32_t a = pack.triangleIndices[first];
+            const std::uint32_t b = pack.triangleIndices[first + 1u];
+            const std::uint32_t c = pack.triangleIndices[first + 2u];
+            if (a < component.vertexOffset || a >= vertexEnd ||
+                b < component.vertexOffset || b >= vertexEnd ||
+                c < component.vertexOffset || c >= vertexEnd ||
+                a == b || b == c || a == c) {
+                throw std::invalid_argument(
+                    "component triangle topology crosses a component boundary or is degenerate");
+            }
+        }
     }
     std::uint64_t hash = 1469598103934665603ull;
     hashString(hash, pack.id);

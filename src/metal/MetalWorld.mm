@@ -344,6 +344,10 @@ struct MetalWorldContextState {
     mutable std::mutex mutex;
     bool initialized = false;
     bool inFlight = false;
+    // Stateful mechanics programs own accepted/candidate data outside this
+    // arena. The same program instance cannot safely encode into two command
+    // buffers concurrently even when ordinary MetalWorld slots are free.
+    void* inFlightDeviceMechanicsContext = nullptr;
     __strong id<MTLDevice> device = nil;
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
@@ -511,6 +515,7 @@ struct MetalWorldSlotReservation {
         try {
             const std::lock_guard lock(state->mutex);
             state->inFlight = false;
+            state->inFlightDeviceMechanicsContext = nullptr;
             state->stats.hasInFlightSubmission = false;
         } catch (...) {
         }
@@ -619,6 +624,7 @@ struct MetalWorldSubmissionState {
         try {
             const std::lock_guard lock(context->mutex);
             context->inFlight = false;
+            context->inFlightDeviceMechanicsContext = nullptr;
             context->stats.hasInFlightSubmission = false;
             ++context->stats.completedSubmissionCount;
         } catch (...) {
@@ -9737,6 +9743,7 @@ bool encodeDeviceMechanics(
         .resetMasks = (__bridge void*)context.buffers[kResetMasks],
         .bodyWrenches = (__bridge void*)context.buffers[kBodyWrenchPlaceholder],
         .environmentStatuses = (__bridge void*)context.buffers[kEnvironmentStatuses],
+        .taskStates = (__bridge void*)context.buffers[kTaskState],
         .seed = seed,
         .controlStep = pass.controlStep,
         .physicsSubstep = pass.physicsSubstep,
@@ -16653,10 +16660,27 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 );
             }
             selectedState->inFlight = true;
+            selectedState->inFlightDeviceMechanicsContext =
+                config.deviceMechanicsProgram.valid()
+                ? config.deviceMechanicsProgram.context : nullptr;
             selectedState->stats.hasInFlightSubmission = true;
         } else {
             const std::lock_guard poolLock(pool_->mutex);
             const std::size_t slotCount = pool_->slots.size();
+            if (config.deviceMechanicsProgram.valid()) {
+                for (const auto& slot : pool_->slots) {
+                    const std::lock_guard slotLock(slot->mutex);
+                    if (slot->inFlight &&
+                        slot->inFlightDeviceMechanicsContext ==
+                            config.deviceMechanicsProgram.context) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalWorldHostStatus::contextBusy,
+                            "stateful device mechanics program is already in flight"
+                        );
+                    }
+                }
+            }
             for (std::size_t offset = 0u;
                  offset < slotCount;
                  ++offset) {
@@ -16671,6 +16695,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     continue;
                 }
                 candidate->inFlight = true;
+                candidate->inFlightDeviceMechanicsContext =
+                    config.deviceMechanicsProgram.valid()
+                    ? config.deviceMechanicsProgram.context : nullptr;
                 candidate->stats.hasInFlightSubmission = true;
                 selectedState = candidate;
                 // Reuse the warm slot for sequential runs. If it is still
