@@ -10,12 +10,18 @@ private enum RobotError: Error, CustomStringConvertible {
 }
 
 private struct Component: Decodable {
+    struct Topology: Decodable {
+        let kind: String
+        let radialCount: Int?
+        let angularCount: Int?
+    }
     let name: String
     let partIdentifier: UInt8
     let vertexOffset: Int
     let vertexCount: Int
     let triangleOffset: Int
     let triangleCount: Int
+    let topology: Topology?
 }
 
 private struct Manifest: Decodable {
@@ -133,6 +139,16 @@ private struct Dataset {
               !vertexParts.contains(0), !triangleParts.contains(0) else {
             throw RobotError.invalid("component ranges do not cover the surface")
         }
+        guard let tail = value.topology.components.last,
+              tail.name == "tail",
+              tail.topology?.kind == "polar-grid",
+              tail.topology?.radialCount == 7,
+              tail.topology?.angularCount == 17,
+              tail.vertexCount == 1 + 7 * 17 else {
+            throw RobotError.invalid(
+                "tail presentation requires the provenance-locked 7x17 polar topology"
+            )
+        }
         var minimum = SIMD3<Float>(repeating: .infinity)
         var maximum = SIMD3<Float>(repeating: -.infinity)
         try positions.withUnsafeBytes { raw in
@@ -179,6 +195,7 @@ private struct Uniforms {
     var boundsMinimum = SIMD4<Float>(0, 0, 0, 0)
     var boundsMaximum = SIMD4<Float>(0, 0, 0, 0)
     var frameInfo = SIMD4<UInt32>(0, 1, 0, 0)
+    var tailInfo = SIMD4<UInt32>(0, 0, 0, 0)
     var timing = SIMD4<Float>(0, 0.001, 0, 0)
 }
 
@@ -192,6 +209,7 @@ private final class RobotEngine {
     private let rootPipeline: MTLComputePipelineState
     private let copyPipeline: MTLComputePipelineState
     private let renderPipeline: MTLRenderPipelineState
+    private let tailRenderPipeline: MTLRenderPipelineState
     private let groundRenderPipeline: MTLRenderPipelineState
     private let positions: MTLBuffer
     private let triangles: MTLBuffer
@@ -279,6 +297,13 @@ private final class RobotEngine {
         descriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
         descriptor.depthAttachmentPixelFormat = .depth32Float
         renderPipeline = try device.makeRenderPipelineState(descriptor: descriptor)
+        let tailDescriptor = MTLRenderPipelineDescriptor()
+        tailDescriptor.vertexFunction = library.makeFunction(name: "tailFeatherVertex")
+        tailDescriptor.fragmentFunction = library.makeFunction(name: "tailFeatherFragment")
+        tailDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
+        tailDescriptor.depthAttachmentPixelFormat = .depth32Float
+        tailRenderPipeline = try device.makeRenderPipelineState(
+            descriptor: tailDescriptor)
         let groundDescriptor = MTLRenderPipelineDescriptor()
         groundDescriptor.vertexFunction = library.makeFunction(name: "groundVertex")
         groundDescriptor.fragmentFunction = library.makeFunction(name: "robotFragment")
@@ -396,10 +421,12 @@ private final class RobotEngine {
 
     private func baseUniforms(time: Float, dt: Float) -> Uniforms {
         let f = frame(at: time)
+        let tail = dataset.manifest.topology.components[3]
         return Uniforms(centerRadius: SIMD4<Float>(dataset.center, dataset.radius),
                         boundsMinimum: SIMD4<Float>(dataset.minimum, 0),
                         boundsMaximum: SIMD4<Float>(dataset.maximum, 0),
                         frameInfo: SIMD4<UInt32>(UInt32(f.0), UInt32(f.1), UInt32(dataset.manifest.topology.vertexCount), UInt32(dataset.manifest.topology.triangleCount)),
+                        tailInfo: SIMD4<UInt32>(UInt32(tail.vertexOffset), 7, 17, 12),
                         timing: SIMD4<Float>(f.2, dt, time, f.3))
     }
 
@@ -503,6 +530,16 @@ private final class RobotEngine {
         encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
         encoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: dataset.manifest.topology.triangleCount * 3)
+        encoder.setRenderPipelineState(tailRenderPipeline)
+        encoder.setVertexBuffer(localSurface, offset: 0, index: 0)
+        encoder.setVertexBuffer(rootState, offset: 0, index: 3)
+        encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
+        encoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
+        encoder.drawPrimitives(
+            type: .triangle,
+            vertexStart: 0,
+            vertexCount: 12 * 7 * 4 * 6
+        )
         encoder.setRenderPipelineState(groundRenderPipeline)
         encoder.setVertexBuffer(rootState, offset: 0, index: 3)
         encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
@@ -569,7 +606,7 @@ private final class RobotEngine {
     private static let metalSource = #"""
     #include <metal_stdlib>
     using namespace metal;
-    struct Uniforms { float4x4 vp; float4 eye; float4 centerRadius; float4 bmin; float4 bmax; uint4 frame; float4 timing; };
+    struct Uniforms { float4x4 vp; float4 eye; float4 centerRadius; float4 bmin; float4 bmax; uint4 frame; uint4 tail; float4 timing; };
     float3 measured(device const packed_float3* p, uint frameIndex, uint vertexIndex, uint count) { return float3(p[frameIndex * count + vertexIndex]); }
     float3 rotateAxis(float3 p, float3 axis, float angle) { float s=sin(angle), c=cos(angle); return p*c + cross(axis,p)*s + axis*dot(axis,p)*(1-c); }
     kernel void integrateActuators(device const float* target [[buffer(0)]], device float2* state [[buffer(1)]], constant Uniforms& u [[buffer(8)]], uint id [[thread_position_in_grid]]) {
@@ -600,18 +637,53 @@ private final class RobotEngine {
         bool ok=all(isfinite(position))&&all(isfinite(velocity))&&all(isfinite(q))&&all(isfinite(omega)); if(ok){root[0]=float4(position,mass);root[1]=float4(velocity,0);root[2]=q;root[3]=float4(omega,0);metrics[0]=float4(length(force),length(torque),areaSum,1);} else {metrics[1].x+=1;}
     }
     kernel void copySurface(device const float4* source [[buffer(0)]], device float4* target [[buffer(1)]], uint id [[thread_position_in_grid]]) { target[id]=source[id]; }
-    struct Raster { float4 position [[position]]; float3 world; float3 normal; float4 color; };
+    struct Raster { float4 position [[position]]; float3 world; float3 normal; float4 color; float4 detail; };
     float3 quatRotate(float4 q,float3 p){return p+2*cross(q.xyz,cross(q.xyz,p)+q.w*p);}
     vertex Raster robotVertex(device const float4* surface [[buffer(0)]], device const ushort* indices [[buffer(1)]], device const uchar* parts [[buffer(2)]], device const float4* root [[buffer(3)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
-        uint tri=vid/3,corner=vid%3; ushort3 ix=ushort3(indices[tri*3],indices[tri*3+1],indices[tri*3+2]); float3 a=surface[ix.x].xyz,b=surface[ix.y].xyz,c=surface[ix.z].xyz; float3 local=corner==0?a:(corner==1?b:c); float3 world=quatRotate(root[2],local-u.centerRadius.xyz)+u.centerRadius.xyz+root[0].xyz; float3 n=normalize(quatRotate(root[2],cross(b-a,c-a))); uint part=parts[tri]; float3 base=part==1?float3(.50f,.58f,.68f):(part==2?float3(.03f,.58f,1.0f):(part==3?float3(1.0f,.25f,.06f):float3(.72f,.22f,.92f))); float act=surface[corner==0?ix.x:(corner==1?ix.y:ix.z)].w; Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=n;o.color=float4(mix(base,float3(.2f,1.0f,.65f),clamp(act/.012f,0.0f,1.0f)*.7f),1);return o;
+        uint tri=vid/3,corner=vid%3; ushort3 ix=ushort3(indices[tri*3],indices[tri*3+1],indices[tri*3+2]); float3 a=surface[ix.x].xyz,b=surface[ix.y].xyz,c=surface[ix.z].xyz; float3 local=corner==0?a:(corner==1?b:c); float3 world=quatRotate(root[2],local-u.centerRadius.xyz)+u.centerRadius.xyz+root[0].xyz; float3 n=normalize(quatRotate(root[2],cross(b-a,c-a))); uint part=parts[tri]; float3 base=part==1?float3(.50f,.58f,.68f):(part==2?float3(.03f,.58f,1.0f):float3(1.0f,.25f,.06f)); float act=surface[corner==0?ix.x:(corner==1?ix.y:ix.z)].w; Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=n;o.color=float4(mix(base,float3(.2f,1.0f,.65f),clamp(act/.012f,0.0f,1.0f)*.7f),part==4?0.0f:1.0f);o.detail=float4(0);return o;
+    }
+    float3 tailPolarPoint(device const float4* surface, constant Uniforms& u, float angular, uint radial) {
+        if(radial==0u) return surface[u.tail.x].xyz;
+        float a=clamp(angular,0.0f,float(u.tail.z-1u)); uint a0=uint(floor(a)),a1=min(a0+1u,u.tail.z-1u); float f=a-float(a0);
+        uint ring=min(radial,u.tail.y)-1u,base=u.tail.x+1u+ring*u.tail.z;
+        return mix(surface[base+a0].xyz,surface[base+a1].xyz,f);
+    }
+    float3 tailSurfacePoint(device const float4* surface, constant Uniforms& u, float angular, float radialUnit) {
+        float r=clamp(radialUnit,0.0f,1.0f)*float(u.tail.y); uint r0=uint(floor(r)),r1=min(r0+1u,u.tail.y); return mix(tailPolarPoint(surface,u,angular,r0),tailPolarPoint(surface,u,angular,r1),r-float(r0));
+    }
+    vertex Raster tailFeatherVertex(device const float4* surface [[buffer(0)]], device const float4* root [[buffer(3)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
+        constexpr uint longitudinalSegments=7u,widthSegments=4u,verticesPerQuad=6u;
+        const uint verticesPerFeather=longitudinalSegments*widthSegments*verticesPerQuad;
+        uint feather=vid/verticesPerFeather,localVertex=vid%verticesPerFeather,quad=localVertex/verticesPerQuad,corner=localVertex%verticesPerQuad;
+        uint longitudinal=quad/widthSegments,widthCell=quad%widthSegments;
+        const float2 corners[6]={float2(0,0),float2(1,0),float2(0,1),float2(0,1),float2(1,0),float2(1,1)};
+        float2 q=corners[corner]; float t=(float(longitudinal)+q.y)/float(longitudinalSegments); float across=-1.0f+2.0f*(float(widthCell)+q.x)/float(widthSegments);
+        float angular=float(feather)*float(u.tail.z-1u)/float(max(1u,u.tail.w-1u)); float angularHalfStep=0.72f*float(u.tail.z-1u)/float(max(1u,u.tail.w-1u));
+        float3 center=tailSurfacePoint(surface,u,angular,t),previous=tailSurfacePoint(surface,u,angular,max(0.0f,t-0.025f)),next=tailSurfacePoint(surface,u,angular,min(1.0f,t+0.025f));
+        float3 left=tailSurfacePoint(surface,u,angular-angularHalfStep,t),right=tailSurfacePoint(surface,u,angular+angularHalfStep,t);
+        float3 radialDirection=normalize(next-previous+float3(1.0e-8f,0,0)),spanDirection=normalize(right-left+float3(0,1.0e-8f,0));
+        float3 localNormal=normalize(cross(radialDirection,spanDirection));
+        float rootShape=smoothstep(0.0f,0.14f,t),tipShape=mix(1.0f,0.08f,smoothstep(0.78f,1.0f,t)); float halfWidth=0.58f*length(right-left)*rootShape*tipShape;
+        float camber=0.0018f*(1.0f-across*across)*sin(3.14159265f*t); float layer=0.00028f*(1.0f+float(feather&1u));
+        float3 local=center+spanDirection*(across*halfWidth)+localNormal*(camber+layer);
+        float3 world=quatRotate(root[2],local-u.centerRadius.xyz)+u.centerRadius.xyz+root[0].xyz;
+        float3 normal=normalize(quatRotate(root[2],localNormal)); float alternating=(feather&1u)?0.035f:-0.018f;
+        float3 base=float3(.38f,.43f,.52f)+alternating; base=mix(base,float3(.25f,.29f,.37f),smoothstep(.68f,1.0f,t)*.42f);
+        Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=normal;o.color=float4(base,1);o.detail=float4(across,t,float(feather),1);return o;
     }
     vertex Raster groundVertex(device const float4* root [[buffer(3)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
         const float2 corners[6] = {float2(-2,-2),float2(2,-2),float2(-2,2),float2(-2,2),float2(2,-2),float2(2,2)};
         float3 world=float3(root[0].xy+corners[vid],0); Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=float3(0,0,1);
         float grid=max(step(.94f,fract(abs(world.x)*5)),step(.94f,fract(abs(world.y)*5)));
-        o.color=float4(mix(float3(.035f,.055f,.075f),float3(.12f,.22f,.25f),grid),1);return o;
+        o.color=float4(mix(float3(.035f,.055f,.075f),float3(.12f,.22f,.25f),grid),1);o.detail=float4(0);return o;
     }
-    fragment float4 robotFragment(Raster in [[stage_in]], constant Uniforms& u [[buffer(8)]]) { float3 n=normalize(in.normal),v=normalize(u.eye.xyz-in.world),l=normalize(float3(.4,-.5,.8));float d=.2+.75*abs(dot(n,l)),rim=pow(1-abs(dot(n,v)),2.2);return float4(1-exp(-1.15*(in.color.rgb*d+rim*.18*in.color.rgb)),1); }
+    fragment float4 robotFragment(Raster in [[stage_in]], constant Uniforms& u [[buffer(8)]]) { if(in.color.a<.5f) discard_fragment();float3 n=normalize(in.normal),v=normalize(u.eye.xyz-in.world),l=normalize(float3(.4,-.5,.8));float d=.2+.75*abs(dot(n,l)),rim=pow(1-abs(dot(n,v)),2.2);return float4(1-exp(-1.15*(in.color.rgb*d+rim*.18*in.color.rgb)),1); }
+    fragment float4 tailFeatherFragment(Raster in [[stage_in]], constant Uniforms& u [[buffer(8)]]) {
+        float edge=smoothstep(.72f,1.0f,abs(in.detail.x)),shaft=1.0f-smoothstep(.025f,.095f,abs(in.detail.x));
+        float barb=.5f+.5f*sin(115.0f*in.detail.y+18.0f*abs(in.detail.x)); float3 albedo=mix(in.color.rgb,float3(.17f,.20f,.27f),.42f*edge); albedo+=float3(.13f,.12f,.10f)*shaft*(.35f+.65f*in.detail.y); albedo*=.94f+.06f*barb*(1.0f-edge);
+        float3 n=normalize(in.normal),v=normalize(u.eye.xyz-in.world),l=normalize(float3(.4,-.5,.8)); float d=.25f+.72f*abs(dot(n,l)),rim=pow(1.0f-abs(dot(n,v)),2.0f);
+        return float4(1.0f-exp(-1.22f*(albedo*d+rim*.20f*albedo)),1);
+    }
     """#
 }
 
