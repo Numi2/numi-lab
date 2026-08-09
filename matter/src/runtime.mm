@@ -564,7 +564,7 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
 
-        const std::array<const char*, 98> kernelNames{
+        const std::array<const char*, 82> kernelNames{
             "nm_prepare_status",
             "nm_prepare_events",
             "nm_prepare_reactions",
@@ -585,13 +585,11 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_checkpoint",
             "nm_fem_prepare_candidate",
             "nm_topology_checkpoint",
-            "nm_topology_apply_mutations",
             "nm_topology_execute_transaction",
             "nm_topology_commit",
             "nm_topology_rollback",
             "nm_mixed_checkpoint",
             "nm_mixed_prepare_microstep",
-            "nm_mixed_transport_iteration",
             "nm_mixed_pcg_prepare",
             "nm_mixed_apply_operator_elements",
             "nm_mixed_apply_operator_nodes",
@@ -602,7 +600,6 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mixed_reduce_new_rz",
             "nm_mixed_pcg_update_direction",
             "nm_mixed_pcg_publish",
-            "nm_mixed_pressure_solve_fused",
             "nm_mixed_certify",
             "nm_mixed_commit",
             "nm_mixed_rollback",
@@ -615,27 +612,14 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_p2g",
             "nm_fem_internal_forces",
             "nm_fem_pcg_initialize",
-            "nm_fem_apply_operator_elements",
-            "nm_fem_apply_operator_nodes",
             "nm_fem_reduce_pap",
-            "nm_fem_pcg_step_xr",
-            "nm_fem_precondition",
             "nm_fem_reduce_new_rz",
-            "nm_fem_pcg_update_direction",
             "nm_fem_apply_solution",
             "nm_fem_select_backtracking",
-            "nm_fgmres_begin",
-            "nm_fgmres_precondition",
-            "nm_fgmres_project",
-            "nm_fgmres_orthogonalize",
-            "nm_fgmres_finish_column",
-            "nm_fgmres_backsolve",
-            "nm_fgmres_accumulate",
             "nm_fem_fgmres_solve_fused",
             "nm_contact_clear_samples",
             "nm_contact_evaluate",
             "nm_contact_checkpoint_warmstarts",
-            "nm_contact_stage_warmstarts",
             "nm_contact_commit_warmstarts",
             "nm_contact_rollback_warmstarts",
             "nm_contact_prepare_articulated_queries",
@@ -2674,6 +2658,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             dispatchThreads("nm_contact_clear_samples", pairTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
+                [encoder setBuffer:state.contactWarmstartsCandidate offset:0u atIndex:2u];
             });
             // Contact is a block of the nonlinear KKT residual, not a
             // post-FEM correction. Re-evaluate candidate geometry and stream
@@ -2807,13 +2792,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBytes:&state.contactComponentCount
                                    length:sizeof(state.contactComponentCount)
                                   atIndex:15u];
+                        [encoder setBuffer:state.contactWarmstartsCandidate
+                                    offset:0u atIndex:16u];
                     }
                 );
-                dispatchThreads("nm_contact_stage_warmstarts", pairTotal, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
-                    [encoder setBuffer:state.contactWarmstartsCandidate offset:0u atIndex:2u];
-                });
                 if (certify) {
                     dispatchThreads("nm_contact_certify_natural_map", objectTotal, [&] {
                         setDispatch();

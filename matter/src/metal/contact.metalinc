@@ -260,10 +260,14 @@ inline float rigidDirectionalResponse(
 kernel void nm_contact_clear_samples(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device NMContactSampleGPU* samples [[buffer(1)]],
+    device float4* candidateWarmstarts [[buffer(2)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.contactPairCount;
-    if (global < total) samples[global] = {};
+    if (global < total) {
+        samples[global] = {};
+        candidateWarmstarts[global] = float4(0.0f);
+    }
 }
 
 kernel void nm_contact_evaluate(
@@ -500,20 +504,6 @@ kernel void nm_contact_checkpoint_warmstarts(
     if (global >= total) return;
     candidate[global] = accepted[global];
     checkpoint[global] = accepted[global];
-}
-
-kernel void nm_contact_stage_warmstarts(
-    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMContactSampleGPU* samples [[buffer(1)]],
-    device float4* candidate [[buffer(2)]],
-    uint global [[thread_position_in_grid]]
-) {
-    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
-    if (global >= total) return;
-    const NMContactSampleGPU sample = samples[global];
-    candidate[global] = (sample.identity.w & NM_CONTACT_VALID) != 0u
-        ? sample.impulseAndNormal
-        : float4(0.0f);
 }
 
 kernel void nm_contact_commit_warmstarts(
@@ -852,6 +842,7 @@ kernel void nm_contact_solve_coupled(
     device const NMIncidenceRangeGPU* componentRanges [[buffer(13)]],
     constant uint& responseEntryCount [[buffer(14)]],
     constant uint& componentCount [[buffer(15)]],
+    device float4* candidateWarmstarts [[buffer(16)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * componentCount;
@@ -1027,6 +1018,18 @@ kernel void nm_contact_solve_coupled(
                 length(projectedTangent)
             );
         }
+    }
+    // Each pair belongs to exactly one compiled component. Publish its final
+    // warm start while the solved sample is already hot, avoiding a second
+    // full contact-pair pass without atomics or a change in solve order.
+    for (uint local = 0u; local < componentRange.count; ++local) {
+        const uint pairIndex = componentIncidence[componentRange.first + local];
+        if (pairIndex >= dispatch.contactPairCount) continue;
+        const NMContactSampleGPU sample = samples[sampleBase + pairIndex];
+        candidateWarmstarts[sampleBase + pairIndex] =
+            (sample.identity.w & NM_CONTACT_VALID) != 0u
+            ? sample.impulseAndNormal
+            : float4(0.0f);
     }
 }
 
