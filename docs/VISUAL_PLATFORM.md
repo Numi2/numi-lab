@@ -272,6 +272,11 @@ Fixed and wrist cameras in `FrankaPickPlaceWorldFamily` are the reference
 integration. The fixed camera is calibrated toward the manipulation
 workspace; the wrist camera is bound to the final articulated link.
 
+PointWorld consumes this same visual-provider boundary as an advisory
+action-conditioned scene-flow model. Its Apple-native ownership, artifact
+contracts, parity definition, and current qualification frontier are documented
+in `docs/POINTWORLD.md`.
+
 ### Deployable observations and supervisory truth
 
 `VisualFrameBatchV1` is accepted for simulation, physical capture, and replay.

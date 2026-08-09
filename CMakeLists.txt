@@ -133,6 +133,9 @@ set(METALROBO_TACTILE_SOURCE
 set(METALROBO_SCENE_QUERY_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/SceneQuery.metal"
 )
+set(METALROBO_POINTWORLD_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/PointWorld.metal"
+)
 set(METALROBO_CONSTRAINT_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboConstraintSolver.air"
 )
@@ -231,6 +234,9 @@ set(METALROBO_TACTILE_AIR
 )
 set(METALROBO_SCENE_QUERY_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboSceneQuery.air"
+)
+set(METALROBO_POINTWORLD_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboPointWorld.air"
 )
 set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
 
@@ -449,6 +455,12 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_SCENE_QUERY_SOURCE}"
             -o "${METALROBO_SCENE_QUERY_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -c "${METALROBO_POINTWORLD_SOURCE}"
+            -o "${METALROBO_POINTWORLD_AIR}"
     COMMAND xcrun -sdk macosx metallib
             "${METALROBO_CONSTRAINT_AIR}"
             "${METALROBO_QUALITY_CONTACT_AIR}"
@@ -480,6 +492,7 @@ add_custom_command(
             "${METALROBO_VISUAL_ASSET_COOK_AIR}"
             "${METALROBO_TACTILE_AIR}"
             "${METALROBO_SCENE_QUERY_AIR}"
+            "${METALROBO_POINTWORLD_AIR}"
             -o "${METALROBO_METALLIB}"
     DEPENDS
         "${METALROBO_CONSTRAINT_SOURCE}"
@@ -506,6 +519,7 @@ add_custom_command(
         "${METALROBO_VISUAL_ASSET_COOK_SOURCE}"
         "${METALROBO_TACTILE_SOURCE}"
         "${METALROBO_SCENE_QUERY_SOURCE}"
+        "${METALROBO_POINTWORLD_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/multicopter_types.h"
@@ -635,6 +649,7 @@ add_library(
     src/metal/MetalHybridRenderer.mm
     src/metal/MetalRunInspector.mm
     src/metal/MetalTactile.mm
+    src/metal/MetalPointWorld.mm
     src/c_api.cpp
 )
 add_dependencies(
@@ -2054,6 +2069,24 @@ add_executable(
     metalrobo_visual_reference_probe
     apps/visual_reference_probe.mm
 )
+add_executable(
+    metalrobo_pointworld_probe
+    apps/metal_pointworld_probe.mm
+)
+target_link_libraries(
+    metalrobo_pointworld_probe
+    PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}"
+)
+target_compile_options(
+    metalrobo_pointworld_probe
+    PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_pointworld_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
 target_link_libraries(
     metalrobo_visual_reference_probe
     PRIVATE
@@ -2209,6 +2242,7 @@ install(
         numi/commands/foundation
         numi/commands/motion
         numi/commands/robots
+        numi/commands/world-model
     DESTINATION libexec/numi
 )
 install(
@@ -2247,6 +2281,10 @@ install(
         schemas/visual_episode_stream.schema.json
         schemas/visual_frame_batch.schema.json
         schemas/visual_scene_manifest_v3.schema.json
+        schemas/pointworld_model_pack.schema.json
+        schemas/pointworld_observation.schema.json
+        schemas/pointworld_robot_flow_candidates.schema.json
+        schemas/pointworld_forecast.schema.json
     DESTINATION share/metalrobo/schemas
 )
 install(
