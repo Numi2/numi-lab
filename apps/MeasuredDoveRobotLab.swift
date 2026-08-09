@@ -686,14 +686,37 @@ private final class RobotEngine {
     }
 
     func render(pass: MTLRenderPassDescriptor, drawable: MTLDrawable, size: CGSize,
-                yaw: Float, pitch: Float, distanceScale: Float) throws {
+                yaw: Float, pitch: Float, distanceScale: Float,
+                groundAwareCamera: Bool) throws {
         let root = rootState.contents().bindMemory(
             to: SIMD4<Float>.self, capacity: 8)
-        let target = dataset.center + SIMD3<Float>(root[0].x, root[0].y, root[0].z)
-        let eye = target + dataset.radius * distanceScale * SIMD3<Float>(cos(pitch) * cos(yaw), cos(pitch) * sin(yaw), sin(pitch))
+        let birdTarget = dataset.center +
+            SIMD3<Float>(root[0].x, root[0].y, root[0].z)
+        let altitude = max(0, root[0].z)
+        let groundAware = policyContext != nil && groundAwareCamera
+        let target = groundAware
+            ? SIMD3<Float>(birdTarget.x, birdTarget.y,
+                           max(dataset.radius, 0.5 * altitude))
+            : birdTarget
+        let closeDistance = dataset.radius * distanceScale
+        let groundDistance = (0.92 * altitude + 4 * dataset.radius) *
+            (distanceScale / 2.5)
+        let cameraDistance = groundAware
+            ? max(closeDistance, groundDistance)
+            : closeDistance
+        let eye = target + cameraDistance * SIMD3<Float>(
+            cos(pitch) * cos(yaw), cos(pitch) * sin(yaw), sin(pitch))
+        let fieldOfView: Float = groundAware ? 0.92 : 0.72
+        let farDistance = max(dataset.radius * 20,
+                              max(cameraDistance * 4 + altitude * 2,
+                                  altitude * 3 + dataset.radius * 20))
         var uniforms = baseUniforms(time: sourceTime, dt: Self.physicsTimestep)
         uniforms.eye = SIMD4<Float>(eye, 1)
-        uniforms.viewProjection = perspective(0.72, Float(max(1, size.width) / max(1, size.height)), dataset.radius * 0.01, dataset.radius * 20) * lookAt(eye, target, SIMD3<Float>(0, 0, 1))
+        uniforms.viewProjection = perspective(
+            fieldOfView,
+            Float(max(1, size.width) / max(1, size.height)),
+            dataset.radius * 0.01,
+            farDistance) * lookAt(eye, target, SIMD3<Float>(0, 0, 1))
         guard let command = queue.makeCommandBuffer() else {
             throw RobotError.invalid("render command allocation failed")
         }
@@ -776,7 +799,7 @@ private final class RobotEngine {
         encoder.setRenderPipelineState(groundRenderPipeline)
         encoder.setVertexBuffer(rootState, offset: 0, index: 3)
         encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
-        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 36)
+        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
         encoder.endEncoding(); command.present(drawable); command.commit()
     }
 
@@ -809,13 +832,18 @@ private final class RobotEngine {
     }
 
     var status: String {
-        let root = rootState.contents().bindMemory(to: SIMD4<Float>.self, capacity: 8)[0]
+        let rootStates = rootState.contents().bindMemory(
+            to: SIMD4<Float>.self, capacity: 8)
+        let root = rootStates[0]
+        let velocity = rootStates[1]
+        let groundSpeed = hypot(velocity.x, velocity.y)
+        let heading = atan2(velocity.y, velocity.x) * 180 / Float.pi
         let metric = metrics.contents().bindMemory(to: SIMD4<Float>.self, capacity: 2)[0]
         if let transition = latestTransition {
             return String(
-                format: "BEST POLICY  %@  native Metal r%llu  %.2f s  altitude %.2f m  tracking %.3f  tilt %.2f°%@",
+                format: "BEST POLICY  %@  native Metal r%llu  %.2f s  altitude %.2f m  speed %.2f m/s  heading %+.0f°  tracking %.3f  tilt %.2f°%@",
                 policyName ?? "PolicyPack", policyRevision, simulationTime,
-                root.z, transition.trackingScore,
+                root.z, groundSpeed, heading, transition.trackingScore,
                 transition.tilt * 180 / .pi,
                 terminated ? "  EPISODE END" : ""
             )
@@ -929,37 +957,19 @@ private final class RobotEngine {
         Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=normal;o.color=float4(base,1);o.detail=float4(across,t,float(feather),float(layerClass));return o;
     }
     vertex Raster groundVertex(device const float4* root [[buffer(3)]], constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
-        // Six very cheap presentation faces keep a spatial reference visible
-        // around a tightly tracked flying dove. The faces follow the camera
-        // target, while their coordinates remain world-locked so motion is
-        // still visible in the procedural pattern.
+        // The visible floor is the actual z=0 simulation ground. It follows
+        // the dove only in XY to keep two triangles under the active view;
+        // fragment coordinates stay world-locked and expose translation.
         const float2 corners[6] = {
             float2(-1,-1),float2(1,-1),float2(-1,1),
             float2(-1,1),float2(1,-1),float2(1,1)
         };
-        const float3 faceNormal[6] = {
-            float3(0,0,-1),float3(0,0,1),float3(1,0,0),
-            float3(-1,0,0),float3(0,1,0),float3(0,-1,0)
-        };
-        const float3 faceU[6] = {
-            float3(1,0,0),float3(1,0,0),float3(0,1,0),
-            float3(0,-1,0),float3(-1,0,0),float3(1,0,0)
-        };
-        const float3 faceV[6] = {
-            float3(0,1,0),float3(0,-1,0),float3(0,0,1),
-            float3(0,0,1),float3(0,0,1),float3(0,0,1)
-        };
-        uint face=vid/6u;
         float scale=max(u.centerRadius.w,1.0e-4f);
-        float halfExtent=8.0f*scale;
-        float3 target=u.centerRadius.xyz+root[0].xyz;
-        float3 world=target+faceNormal[face]*halfExtent+
-            faceU[face]*(corners[vid%6u].x*halfExtent)+
-            faceV[face]*(corners[vid%6u].y*halfExtent);
+        float halfExtent=max(60.0f*scale,4.0f*max(root[0].z,scale));
+        float3 world=float3(root[0].xy+corners[vid]*halfExtent,0.0f);
         Raster o;o.position=u.vp*float4(world,1);o.world=world;
-        o.normal=-faceNormal[face];o.color=float4(1);
-        o.detail=float4(dot(world,faceU[face])/scale,
-                        dot(world,faceV[face])/scale,float(face),0);return o;
+        o.normal=float3(0,0,1);o.color=float4(1);
+        o.detail=float4(world.xy/scale,0,0);return o;
     }
     uint numiGlyphRow(uint glyph, uint row) {
         // Five-by-seven uppercase glyphs: N U M I L A B.
@@ -1014,6 +1024,14 @@ private final class RobotEngine {
                 color=mix(color,float3(.16f,.72f,.78f),ink*(.42f+.58f*coverage));
             }
         }
+        // Every tile carries a +X travel cue below the wordmark.
+        float shaft=step(.60f,local.x)*step(local.x,4.55f)*
+            step(.30f,local.y)*step(local.y,.48f);
+        float arrowX=clamp((local.x-4.25f)/1.05f,0.0f,1.0f);
+        float arrowHalfHeight=mix(.48f,0.0f,arrowX);
+        float head=step(4.20f,local.x)*step(local.x,5.30f)*
+            step(abs(local.y-.39f),arrowHalfHeight);
+        color=mix(color,float3(.95f,.43f,.13f),max(shaft,head)*.78f);
         return float4(1.0f-exp(-1.10f*color),1.0f);
     }
     fragment float4 robotFragment(Raster in [[stage_in]],bool frontFacing [[front_facing]],constant Uniforms& u [[buffer(8)]]) {
@@ -1038,6 +1056,7 @@ private final class RobotView: MTKView, MTKViewDelegate {
     private var lastPoint: CGPoint?
     private(set) var simulationPaused = false
     private(set) var playbackRate: Float = 1
+    private(set) var cameraFollowsBird = true
     private var simulationAccumulator: Float = 0
     private var lastDrawTime = CACurrentMediaTime()
     private let statusLabel = NSTextField(labelWithString: "")
@@ -1084,7 +1103,10 @@ private final class RobotView: MTKView, MTKViewDelegate {
                 }
             }
             guard let pass = currentRenderPassDescriptor, let drawable = currentDrawable else { return }
-            try engine.render(pass: pass, drawable: drawable, size: drawableSize, yaw: yaw, pitch: pitch, distanceScale: distanceScale)
+            try engine.render(
+                pass: pass, drawable: drawable, size: drawableSize,
+                yaw: yaw, pitch: pitch, distanceScale: distanceScale,
+                groundAwareCamera: !cameraFollowsBird)
             statusLabel.stringValue = String(
                 format: "%.2fx  %@", playbackRate, engine.status)
         } catch {
@@ -1101,6 +1123,7 @@ private final class RobotView: MTKView, MTKViewDelegate {
             if !engine.policyDriven { engine.controllerEnabled.toggle() }
         case "[": setPlaybackRate(playbackRate * 0.5)
         case "]": setPlaybackRate(playbackRate * 2)
+        case "c": setCameraFollowsBird(!cameraFollowsBird)
         default: super.keyDown(with: event)
         }
     }
@@ -1110,6 +1133,12 @@ private final class RobotView: MTKView, MTKViewDelegate {
     }
     func setPlaybackRate(_ rate: Float) {
         playbackRate = min(4, max(0.25, rate))
+        lastDrawTime = CACurrentMediaTime()
+    }
+    func setCameraFollowsBird(_ follows: Bool) {
+        cameraFollowsBird = follows
+        pitch = follows ? 0.28 : 0.52
+        distanceScale = 2.5
         lastDrawTime = CACurrentMediaTime()
     }
     func stopAndReset() {
@@ -1144,6 +1173,8 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
     private let gridContainer = NSView()
     private let pageLabel = NSTextField(labelWithString: "")
     private let runButton = NSButton(title: "Pause", target: nil, action: nil)
+    private let cameraButton = NSButton(
+        title: "Ground View", target: nil, action: nil)
     private var gridCount = 1
     private var firstEnvironment = 0
     private var paused = false
@@ -1215,6 +1246,10 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
         bar.addArrangedSubview(runButton)
         bar.addArrangedSubview(button("Slower", #selector(slower)))
         bar.addArrangedSubview(button("Faster", #selector(faster)))
+        cameraButton.target = self
+        cameraButton.action = #selector(toggleCamera)
+        cameraButton.bezelStyle = .rounded
+        bar.addArrangedSubview(cameraButton)
         if supportsGrid {
             bar.addArrangedSubview(button("Previous", #selector(previousPage)))
             bar.addArrangedSubview(button("Next", #selector(nextPage)))
@@ -1275,6 +1310,8 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
             format: "ENV %02d–%02d of %02d   %.2fx",
             firstEnvironment + 1, last, availableEnvironmentCount, playbackRate)
         runButton.title = paused ? "Run" : "Pause"
+        cameraButton.title = views.first?.cameraFollowsBird == true
+            ? "Ground View" : "Follow Bird"
     }
 
     @objc private func stop() {
@@ -1295,6 +1332,11 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func faster() {
         playbackRate = min(4, playbackRate * 2)
         visibleViews.forEach { $0.setPlaybackRate(playbackRate) }
+        updateToolbar()
+    }
+    @objc private func toggleCamera() {
+        let follows = !(views.first?.cameraFollowsBird ?? true)
+        views.forEach { $0.setCameraFollowsBird(follows) }
         updateToolbar()
     }
     @objc private func previousPage() {
