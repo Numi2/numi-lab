@@ -58,6 +58,29 @@ training graph and optimizer state but never the simulator or rollout schedule.
 - Live M4 Metal preprocessing probe with an output fingerprint and retained
   memory receipt.
 
+## Frozen CUDA oracle workflow
+
+The oracle is an evidence producer, not a deployable provider. Keep it in an
+isolated environment on the RTX host and leave the pinned NVIDIA checkout
+unchanged. After the released checkpoint, DINOv3 weights, and evaluation data
+have passed their receipt checks, export a canonical batch with:
+
+```sh
+python tools/pointworld_cuda_oracle.py \
+  --source-root /home/numi/pointworld-oracle-05484826/source \
+  --checkpoint /home/numi/pointworld-oracle-05484826/assets/large-droid+behavior/model-best.pt \
+  --output /home/numi/pointworld-oracle-05484826/golden/droid-test-000 \
+  --split test --repeats 3 -- \
+  --domains droid --data_dirs /path/to/released/droid
+```
+
+The exporter refuses a changed PointWorld or DINOv3 revision, records the
+checkpoint SHA-256, captures canonical input and named stage arrays, measures
+repeated CUDA output variation, and atomically writes a compressed NPZ plus a
+JSON receipt. Metal tolerances are derived from these arrays; an absent array
+or non-finite stage is a qualification failure, not permission to widen the
+tolerance.
+
 ## Non-qualifying frontier
 
 `numi world-model infer` and `train` remain fail-closed. Full completion still
