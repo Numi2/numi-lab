@@ -1808,6 +1808,10 @@ TaskPack makeMeasuredSurfaceDropRecoveryTaskPack(
             TaskOutcomeSource::rewardContribution,
             TaskOutcomeDirection::higherIsBetter,
             TaskRewardOperator::linearVelocityTracking},
+        {"heading_rate_tracking", "ratio",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::yawVelocityTracking},
         {"vertical_speed_cost", "m2/s2",
             TaskOutcomeSource::rewardContribution,
             TaskOutcomeDirection::lowerIsBetter,
@@ -1832,9 +1836,11 @@ TaskPack makeMeasuredSurfaceDropRecoveryTaskPack(
         // Preserve recovery lift, but make matching the measured cruise speed
         // the dominant post-recovery objective.  The narrower kernel stops a
         // nearly stationary hover from collecting meaningful flight credit.
-        {TaskRewardOperator::rootHeightProgress, {}, {}, 2.50f},
+        {TaskRewardOperator::rootHeightProgress, {}, {}, 2.75f},
         {TaskRewardOperator::linearVelocityTracking, {}, {}, 3.0f,
             {0.45f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::yawVelocityTracking, {}, {}, 0.75f,
+            {0.12f, 0.0f, 0.0f, 0.0f}},
         {TaskRewardOperator::uprightness, {}, {}, 1.25f},
         {TaskRewardOperator::tiltSquared, {}, {}, -0.40f},
         {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.012f},

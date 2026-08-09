@@ -178,6 +178,32 @@ class PolicySelectionTest(unittest.TestCase):
         decision = compare_evidence(incumbent, candidate)
         self.assertEqual(decision["selected"], "incumbent")
 
+    def test_dove_forward_gain_cannot_buy_lost_heading_tracking(self) -> None:
+        incumbent = {
+            "task": "deetjen_f03_robot.fatal_drop_recovery",
+            "world_source": "measured_dove",
+            "termination_count_by_environment": [0] * 16,
+            "termination_count": 0,
+            "clean_horizon_environment_rate": 1.0,
+            "failed_environment_steps": 0,
+            "mean_reward": 0.1,
+            "mean_root_height": 22.0,
+            "mean_tilt": 0.5,
+            "outcomes": {
+                "forward_speed_tracking": {"mean": 0.0010, "direction": 1},
+                "heading_rate_tracking": {"mean": 0.0011, "direction": 1},
+            },
+        }
+        candidate = {
+            **incumbent,
+            "outcomes": {
+                "forward_speed_tracking": {"mean": 0.0012, "direction": 1},
+                "heading_rate_tracking": {"mean": 0.0010, "direction": 1},
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+
     def test_catastrophic_get_up_candidate_never_advances(self) -> None:
         incumbent = {
             "task": "supine-get-up",

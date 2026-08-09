@@ -515,6 +515,19 @@ def compare_evidence(
                 regressions.append("forward-speed tracking decreased")
             elif new_forward_tracking > old_forward_tracking + 0.001:
                 improvements.append("forward-speed tracking increased")
+        old_heading_outcome = _authored_outcomes(incumbent).get(
+            "heading_rate_tracking"
+        )
+        new_heading_outcome = _authored_outcomes(candidate).get(
+            "heading_rate_tracking"
+        )
+        if old_heading_outcome and new_heading_outcome:
+            old_heading_tracking = old_heading_outcome[0]
+            new_heading_tracking = new_heading_outcome[0]
+            if new_heading_tracking < old_heading_tracking - 0.001:
+                regressions.append("heading-rate tracking decreased")
+            elif new_heading_tracking > old_heading_tracking + 0.001:
+                improvements.append("heading-rate tracking increased")
     elif task in {"supine-get-up", "developmental-recovery"}:
         old_completed = _rate(
             incumbent,
@@ -599,7 +612,11 @@ def compare_evidence(
         regressions.extend(authored_regressions)
         improvements.extend(authored_improvements)
     elif task == "dove-drop-recovery":
-        for identifier in ("altitude_progress", "forward_speed_tracking"):
+        for identifier in (
+            "altitude_progress",
+            "forward_speed_tracking",
+            "heading_rate_tracking",
+        ):
             old_outcome = _authored_outcomes(incumbent).get(identifier)
             new_outcome = _authored_outcomes(candidate).get(identifier)
             if old_outcome and new_outcome:
@@ -697,18 +714,35 @@ def compare_evidence(
             forward_progress = _relative_progress(
                 old_forward_outcome[0], new_forward_outcome[0], 0.001
             )
+        old_heading_outcome = _authored_outcomes(incumbent).get(
+            "heading_rate_tracking"
+        )
+        new_heading_outcome = _authored_outcomes(candidate).get(
+            "heading_rate_tracking"
+        )
+        heading_progress = 0.0
+        if old_heading_outcome and new_heading_outcome:
+            heading_progress = _relative_progress(
+                old_heading_outcome[0], new_heading_outcome[0], 0.001
+            )
         selection_score = (
             0.25 * failure_progress
             + 0.15 * clean_progress
             + 0.10 * tilt_progress
             + 0.15 * height_progress
             + 0.05 * reward_progress
-            + 0.30 * forward_progress
+            + 0.20 * forward_progress
+            + 0.10 * heading_progress
         )
         forward_retained = (
             old_forward_outcome is None
             or new_forward_outcome is None
             or new_forward_outcome[0] >= old_forward_outcome[0] - 2.0e-5
+        )
+        heading_retained = (
+            old_heading_outcome is None
+            or new_heading_outcome is None
+            or new_heading_outcome[0] >= old_heading_outcome[0] - 2.0e-5
         )
         selected = (
             int(candidate.get("failed_environment_steps", 0)) == 0
@@ -719,6 +753,7 @@ def compare_evidence(
             and candidate_clean_horizon >= incumbent_clean_horizon - 1.0e-12
             and new_height >= old_height - 0.01
             and forward_retained
+            and heading_retained
             and selection_score > 1.0e-12
         )
         selection_method = "dove_flight_recovery_comparison"
