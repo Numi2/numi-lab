@@ -6,7 +6,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <map>
 #include <numeric>
+#include <set>
 #include <span>
 #include <string>
 #include <string_view>
@@ -1285,12 +1287,16 @@ private:
             world_.contact.rigidProxies.size(),
             NM_INVALID_INDEX
         );
+        std::map<std::uint32_t, std::uint32_t> freeBodyIndices;
+        std::set<std::uint32_t> claimedFreeBodyIndices;
+        std::uint64_t articulatedProxyCount = 0u;
         for (std::size_t index = 0u;
              index < world_.contact.rigidProxies.size();
              ++index) {
             const NMRigidProxyGPU& proxy = world_.contact.rigidProxies[index];
             const bool articulated =
                 (proxy.flags & NM_RIGID_ARTICULATED) != 0u;
+            articulatedProxyCount += articulated ? 1u : 0u;
             const bool dynamic = (proxy.flags & NM_RIGID_DYNAMIC) != 0u;
             const float orientationNorm =
                 proxy.localOrientation.x * proxy.localOrientation.x +
@@ -1309,12 +1315,30 @@ private:
                 !finite4(proxy.localExtent) ||
                 !finite4(proxy.localOrientation) ||
                 !(orientationNorm > 1.0e-12f) ||
-                proxy.reserved1 != 0u || proxy.reserved2 != 0u) {
+                (dynamic &&
+                    proxy.generalizedFreeBodyIndex == NM_INVALID_INDEX) ||
+                (!dynamic &&
+                    proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX) ||
+                proxy.reserved2 != 0u) {
                 return failIndexed(
                     "rigid proxy",
                     index,
                     "shape, binding, material, or geometry is invalid"
                 );
+            }
+            if (dynamic) {
+                const auto [owner, inserted] = freeBodyIndices.emplace(
+                    proxy.bodyIndex, proxy.generalizedFreeBodyIndex);
+                if ((!inserted && owner->second !=
+                        proxy.generalizedFreeBodyIndex) ||
+                    (inserted && !claimedFreeBodyIndices.insert(
+                        proxy.generalizedFreeBodyIndex).second)) {
+                    return failIndexed(
+                        "rigid proxy",
+                        index,
+                        "free-body generalized ownership is not canonical"
+                    );
+                }
             }
             if (proxy.shapeKind == NM_RIGID_PLANE) {
                 const float normalNorm =
@@ -1359,6 +1383,20 @@ private:
                     );
                 }
             }
+        }
+        for (std::uint32_t index = 0u;
+             index < claimedFreeBodyIndices.size(); ++index) {
+            if (!claimedFreeBodyIndices.contains(index))
+                return fail("free-body generalized indices are not compact");
+        }
+        const std::uint64_t expectedRigidCapacity =
+            articulatedProxyCount * NM_MATTER_MAX_ARTICULATED_DOFS +
+            static_cast<std::uint64_t>(freeBodyIndices.size()) * 6u;
+        const std::uint64_t expectedQCapacity =
+            articulatedProxyCount * NM_MATTER_MAX_ARTICULATED_Q;
+        if (expectedRigidCapacity != world_.dispatch.rigidGeneralizedCapacity ||
+            expectedQCapacity != world_.dispatch.rigidQCapacity) {
+            return fail("rigid generalized capacities disagree with proxy ownership");
         }
 
         std::vector<std::uint32_t> pairNodeCounts(

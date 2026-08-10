@@ -458,6 +458,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> externalArticulatedAccumulatePipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidateIntegratePipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidateMassPipeline = nil;
+    __strong id<MTLComputePipelineState> coupledCandidateJacobianPipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidatePublishPipeline = nil;
     __strong id<MTLComputePipelineState> evaluateIRPipeline = nil;
     __strong id<MTLComputePipelineState> islandPipeline = nil;
@@ -5283,6 +5284,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> externalArticulatedAccumulate = nil;
     __strong id<MTLComputePipelineState> coupledCandidateIntegrate = nil;
     __strong id<MTLComputePipelineState> coupledCandidateMass = nil;
+    __strong id<MTLComputePipelineState> coupledCandidateJacobian = nil;
     __strong id<MTLComputePipelineState> coupledCandidatePublish = nil;
     __strong id<MTLComputePipelineState> evaluateIR = nil;
     __strong id<MTLComputePipelineState> islands = nil;
@@ -5484,6 +5486,9 @@ MetalWorldDiagnostics initializeContext(
     coupledCandidateMass = createContactPipeline(
         @"mr_world_apply_coupled_candidate_mass"
     );
+    coupledCandidateJacobian = createContactPipeline(
+        @"mr_world_scatter_coupled_candidate_jacobians"
+    );
     coupledCandidatePublish = createContactPipeline(
         @"mr_world_publish_coupled_candidate"
     );
@@ -5614,6 +5619,7 @@ MetalWorldDiagnostics initializeContext(
         externalArticulatedAccumulate == nil ||
         coupledCandidateIntegrate == nil ||
         coupledCandidateMass == nil ||
+        coupledCandidateJacobian == nil ||
         coupledCandidatePublish == nil ||
         evaluateIR == nil ||
         islands == nil ||
@@ -5919,6 +5925,7 @@ MetalWorldDiagnostics initializeContext(
         externalArticulatedAccumulate;
     context.coupledCandidateIntegratePipeline = coupledCandidateIntegrate;
     context.coupledCandidateMassPipeline = coupledCandidateMass;
+    context.coupledCandidateJacobianPipeline = coupledCandidateJacobian;
     context.coupledCandidatePublishPipeline = coupledCandidatePublish;
     context.evaluateIRPipeline = evaluateIR;
     context.islandPipeline = islands;
@@ -10158,6 +10165,10 @@ bool encodeBorrowedCoupledCandidate(
     id<MTLBuffer> candidateQ = (__bridge id<MTLBuffer>)query.candidateQ;
     id<MTLBuffer> candidateBodies =
         (__bridge id<MTLBuffer>)query.candidateBodies;
+    id<MTLBuffer> pointQueries =
+        (__bridge id<MTLBuffer>)query.pointQueries;
+    id<MTLBuffer> pointJacobians =
+        (__bridge id<MTLBuffer>)query.pointJacobians;
     id<MTLBuffer> q = (__bridge id<MTLBuffer>)pass.q;
     id<MTLBuffer> v = (__bridge id<MTLBuffer>)pass.v;
     if (!validBuffer(pass.q,
@@ -10175,7 +10186,34 @@ bool encodeBorrowedCoupledCandidate(
             !validBuffer(query.candidateQ, qElements * sizeof(float)) ||
             !validBuffer(query.candidateBodies,
                 bodyElements * sizeof(MRBodyStateGPU)) ||
-            pass.sceneBodies == nullptr) return false;
+            pass.sceneBodies == nullptr ||
+            query.pointCount > MR_ARTICULATED_OPERATOR_MAX_POINTS ||
+            (query.pointCount != 0u &&
+             (query.pointStride < query.pointCount ||
+              query.pointJacobianStride <
+                  query.pointCount * 3u *
+                      query.generalizedVectorStride ||
+              !validBuffer(query.pointQueries,
+                  static_cast<std::size_t>(pass.environmentCount) *
+                      query.pointStride *
+                      sizeof(MRArticulatedPointImpulseGPU)) ||
+              !validBuffer(query.pointJacobians,
+                  static_cast<std::size_t>(pass.environmentCount) *
+                      query.pointJacobianStride * sizeof(float)))))
+            return false;
+        if (query.pointCount != 0u) {
+            id<MTLBlitCommandEncoder> clear =
+                [commandBuffer blitCommandEncoder];
+            if (clear == nil) return false;
+            clear.label = @"MetalWorld coupled candidate Jacobian clear";
+            [clear fillBuffer:pointJacobians
+                        range:NSMakeRange(
+                            0u,
+                            static_cast<NSUInteger>(pass.environmentCount) *
+                                query.pointJacobianStride * sizeof(float))
+                        value:0u];
+            [clear endEncoding];
+        }
         for (std::size_t owner = 0u;
              owner < context->boundArticulations.size(); ++owner) {
             const MRArticulationGPU& articulation =
@@ -10195,6 +10233,10 @@ bool encodeBorrowedCoupledCandidate(
                 .bodyCount = articulation.bodyCount,
                 .nq = articulation.nq,
                 .nv = articulation.nv,
+                .pointCount = query.pointCount,
+                .pointStride = query.pointStride,
+                .pointJacobianStride = query.pointJacobianStride,
+                .reserved0 = 0u,
                 .timestepAndInverse = {
                     pass.timestepSeconds,
                     1.0f / pass.timestepSeconds,
@@ -10230,13 +10272,17 @@ bool encodeBorrowedCoupledCandidate(
             MRArticulatedOperatorDispatchGPU kinematics =
                 context->boundFactorDispatches[owner];
             kinematics.environmentCount = pass.environmentCount;
-            kinematics.pointCount = 0u;
-            kinematics.flags = MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY;
+            kinematics.pointCount = query.pointCount;
+            kinematics.flags = query.pointCount == 0u
+                ? MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY
+                : MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
+                    MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS;
             kinematics.qStride = pass.qStride;
             kinematics.bodyPoseStride = pass.bodyStateStride;
-            kinematics.pointStride = 0u;
-            kinematics.pointWorldStride = 0u;
-            kinematics.pointJacobianStride = 0u;
+            kinematics.pointStride = query.pointStride;
+            kinematics.pointWorldStride = query.pointStride;
+            kinematics.pointJacobianStride =
+                query.pointCount * 3u * articulation.nv;
             kinematics.generalizedStride = pass.nv;
             id<MTLComputeCommandEncoder> pose =
                 [commandBuffer computeCommandEncoder];
@@ -10273,6 +10319,8 @@ bool encodeBorrowedCoupledCandidate(
                     offset = owner * pass.environmentCount *
                         sizeof(MRArticulatedOperatorStatusGPU);
                 }
+                if (argument == 7u && query.pointCount != 0u)
+                    buffer = pointQueries;
                 [pose setBuffer:buffer offset:offset atIndex:argument];
             }
             if (context->useTaskBodyParameters) {
@@ -10289,6 +10337,28 @@ bool encodeBorrowedCoupledCandidate(
                 threadsPerThreadgroup:MTLSizeMake(
                     kOperatorThreadsPerThreadgroup, 1u, 1u)];
             [pose endEncoding];
+            if (query.pointCount != 0u) {
+                id<MTLComputeCommandEncoder> scatter =
+                    [commandBuffer computeCommandEncoder];
+                if (scatter == nil) return false;
+                scatter.label = @"MetalWorld coupled candidate Jacobian scatter";
+                [scatter setComputePipelineState:
+                    context->coupledCandidateJacobianPipeline];
+                [scatter setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+                [scatter setBuffer:context->buffers[kPointJacobians]
+                            offset:0u atIndex:1u];
+                [scatter setBuffer:pointJacobians offset:0u atIndex:2u];
+                [scatter setBuffer:context->buffers[kOperatorStatuses]
+                            offset:owner * pass.environmentCount *
+                                sizeof(MRArticulatedOperatorStatusGPU)
+                           atIndex:3u];
+                dispatchWorldThreads(
+                    scatter,
+                    context->coupledCandidateJacobianPipeline,
+                    static_cast<std::size_t>(pass.environmentCount) *
+                        query.pointCount * 3u * articulation.nv);
+                [scatter endEncoding];
+            }
         }
         id<MTLComputeCommandEncoder> project =
             [commandBuffer computeCommandEncoder];
@@ -10391,6 +10461,15 @@ bool encodeBorrowedCoupledCandidate(
     if (operation != MetalWorldCoupledCandidateOperation::massAction &&
         operation != MetalWorldCoupledCandidateOperation::publishCandidate)
         return false;
+    id<MTLBuffer> massQ = q;
+    if (query.candidateQ != nullptr) {
+        if (query.candidateQStride != pass.qStride ||
+            !validBuffer(
+                query.candidateQ,
+                static_cast<std::size_t>(pass.environmentCount) *
+                    pass.qStride * sizeof(float))) return false;
+        massQ = candidateQ;
+    }
     for (std::size_t owner = 0u;
          owner < context->boundArticulations.size(); ++owner) {
         const MRArticulationGPU& articulation =
@@ -10429,7 +10508,7 @@ bool encodeBorrowedCoupledCandidate(
             id<MTLBuffer> buffer = context->buffers[buffers[argument]];
             NSUInteger offset = 0u;
             if (argument == 6u) {
-                buffer = q;
+                buffer = massQ;
                 offset = articulation.qOffset * sizeof(float);
             } else if (argument == 8u) {
                 offset = articulation.firstBody *
@@ -10473,6 +10552,10 @@ bool encodeBorrowedCoupledCandidate(
             .bodyCount = articulation.bodyCount,
             .nq = articulation.nq,
             .nv = articulation.nv,
+            .pointCount = 0u,
+            .pointStride = 0u,
+            .pointJacobianStride = 0u,
+            .reserved0 = 0u,
             .timestepAndInverse = {
                 pass.timestepSeconds,
                 1.0f / pass.timestepSeconds,

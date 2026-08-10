@@ -823,6 +823,7 @@ CompileResult compileWorld(
     }
 
     world.contact.rigidProxies.reserve(source.rigidProxies.size());
+    std::map<std::uint32_t, std::uint32_t> freeBodyIndices;
     for (const RigidProxySource& proxy : source.rigidProxies) {
         if (!finite(proxy.localCenter) || !finite(proxy.localExtent) ||
             !std::ranges::all_of(proxy.localOrientation, [](const double value) {
@@ -850,6 +851,14 @@ CompileResult compileWorld(
             (proxy.articulated ? NM_RIGID_ARTICULATED : 0u) |
             (proxy.dynamic ? NM_RIGID_DYNAMIC : 0u);
         cooked.adaptiveObjectIndex = NM_INVALID_INDEX;
+        cooked.generalizedFreeBodyIndex = NM_INVALID_INDEX;
+        if (proxy.dynamic) {
+            const std::uint32_t nextIndex =
+                static_cast<std::uint32_t>(freeBodyIndices.size());
+            cooked.generalizedFreeBodyIndex =
+                freeBodyIndices.try_emplace(proxy.bodyIndex, nextIndex)
+                    .first->second;
+        }
         cooked.localCenterAndRadius = f4(
             proxy.localCenter[0],
             proxy.localCenter[1],
@@ -2071,6 +2080,27 @@ CompileResult compileWorld(
     dispatch.tetrahedronCount = static_cast<nm_u32>(world.fem.tetrahedra.size());
     dispatch.rigidProxyCount = static_cast<nm_u32>(world.contact.rigidProxies.size());
     dispatch.contactPairCount = static_cast<nm_u32>(world.contact.pairs.size());
+    std::uint64_t articulatedProxyCount = 0u;
+    for (const NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
+        articulatedProxyCount +=
+            (proxy.flags & NM_RIGID_ARTICULATED) != 0u ? 1u : 0u;
+    }
+    const std::uint64_t rigidGeneralizedCapacity =
+        articulatedProxyCount * NM_MATTER_MAX_ARTICULATED_DOFS +
+        static_cast<std::uint64_t>(freeBodyIndices.size()) * 6u;
+    const std::uint64_t rigidQCapacity =
+        articulatedProxyCount * NM_MATTER_MAX_ARTICULATED_Q;
+    if (rigidGeneralizedCapacity > std::numeric_limits<nm_u32>::max() ||
+        rigidQCapacity > std::numeric_limits<nm_u32>::max()) {
+        result.diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "rigid generalized candidate capacity exceeds 32-bit ABI"
+        });
+        return result;
+    }
+    dispatch.rigidGeneralizedCapacity =
+        static_cast<nm_u32>(rigidGeneralizedCapacity);
+    dispatch.rigidQCapacity = static_cast<nm_u32>(rigidQCapacity);
     std::uint64_t activeContactCapacity = 0u;
     for (const NMFEMCapacityGPU& capacity : world.fem.capacities)
         activeContactCapacity += capacity.work.z;

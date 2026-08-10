@@ -1394,6 +1394,11 @@ typedef struct MR_ALIGN16 MRCoupledCandidateDispatchGPU {
 
     mr_u32 nq;
     mr_u32 nv;
+    mr_u32 pointCount;
+    mr_u32 pointStride;
+
+    mr_u32 pointJacobianStride;
+    mr_u32 reserved0;
     mr_float4 timestepAndInverse;
 } MRCoupledCandidateDispatchGPU;
 
@@ -1726,7 +1731,7 @@ static_assert(sizeof(MRMetalWorldContactStatusGPU) == 288);
 static_assert(sizeof(MRInverseMassDispatchGPU) == 48);
 static_assert(sizeof(MRInverseMassStatusGPU) == 48);
 static_assert(sizeof(MRExternalArticulatedResponseDispatchGPU) == 32);
-static_assert(sizeof(MRCoupledCandidateDispatchGPU) == 80);
+static_assert(sizeof(MRCoupledCandidateDispatchGPU) == 96);
 static_assert(sizeof(MRMaterialGPU) % 16 == 0);
 static_assert(sizeof(MRGeometryHeaderGPU) == 96);
 static_assert(sizeof(MRConvexFaceGPU) == 32);

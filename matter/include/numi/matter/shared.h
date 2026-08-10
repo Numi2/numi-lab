@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 15u
+#define NM_MATTER_ABI_VERSION 16u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -58,6 +58,11 @@ typedef struct NM_ALIGN16 nm_int4 {
 #define NM_LEARNED_MAX_LAYERS 8u
 #define NM_LEARNED_MAX_WIDTH 16u
 #define NM_LEARNED_MAX_INVARIANTS 8u
+// Coupled-candidate storage is part of Matter's compiled ABI. Keep these
+// capacities synchronized with the borrowed MetalWorld articulated operator;
+// the bridge asserts equality at compile time.
+#define NM_MATTER_MAX_ARTICULATED_DOFS 40u
+#define NM_MATTER_MAX_ARTICULATED_Q 41u
 
 enum NMRepresentationKind : nm_u32 {
     NM_REPRESENTATION_RIGID = 0u,
@@ -286,11 +291,12 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
     nm_u32 reservedMixed1;
 
     // Immutable tetrahedral face-adjacency graph, dynamic deformable-contact
-    // row capacity, reserved, reserved.
+    // capacity, conservative articulated/free-body v capacity, and
+    // conservative articulated q capacity.
     nm_u32 surfaceFaceCount;
     nm_u32 deformableContactCapacity;
-    nm_u32 reservedSurface0;
-    nm_u32 reservedSurface1;
+    nm_u32 rigidGeneralizedCapacity;
+    nm_u32 rigidQCapacity;
 
     // xyz gravity, w frame timestep.
     nm_float4 gravityAndTimestep;
@@ -794,7 +800,10 @@ typedef struct NM_ALIGN16 NMRigidProxyGPU {
     nm_u32 flags;
     // Adaptive continuum object that owns this rigid fallback, or invalid.
     nm_u32 adaptiveObjectIndex;
-    nm_u32 reserved1;
+    // Stable compact free-body generalized coordinate owner. Every proxy on
+    // the same dynamic non-articulated body shares one index; all other
+    // proxies carry NM_INVALID_INDEX.
+    nm_u32 generalizedFreeBodyIndex;
     nm_u32 reserved2;
 
     // body-local center or plane normal; w radius or plane offset.

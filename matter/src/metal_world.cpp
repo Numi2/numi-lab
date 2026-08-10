@@ -2,6 +2,15 @@
 
 #include <cmath>
 
+static_assert(
+    NM_MATTER_MAX_ARTICULATED_DOFS == MR_ARTICULATED_ABA_MAX_DOFS,
+    "Matter and MetalWorld coupled velocity capacities must match"
+);
+static_assert(
+    NM_MATTER_MAX_ARTICULATED_Q == MR_ARTICULATED_ABA_MAX_Q,
+    "Matter and MetalWorld coupled position capacities must match"
+);
+
 namespace numi::matter {
 namespace {
 
@@ -57,12 +66,17 @@ bool encodeCoupledCandidateBridge(
         .candidateQ = query.candidateQ,
         .candidateBodies = query.candidateBodies,
         .statuses = query.statuses,
+        .pointQueries = query.pointQueries,
+        .pointJacobians = query.pointJacobians,
         .operation = static_cast<
             metalrobo::MetalWorldCoupledCandidateOperation>(query.operation),
         .generalizedVectorStride = query.generalizedVectorStride,
         .candidateQStride = query.candidateQStride,
         .candidateBodyStride = query.candidateBodyStride,
         .statusStride = query.statusStride,
+        .pointCount = query.pointCount,
+        .pointStride = query.pointStride,
+        .pointJacobianStride = query.pointJacobianStride,
     };
     return bridge->pass->encodeCoupledCandidate(
         bridge->pass->coupledCandidateContext,

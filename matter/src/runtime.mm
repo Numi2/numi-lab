@@ -476,6 +476,15 @@ struct Runtime::State {
     id<MTLBuffer> articulatedResponseColumns = nil;
     id<MTLBuffer> articulatedInverseStatuses = nil;
     std::uint32_t articulatedInverseStatusStride = 0u;
+    id<MTLBuffer> coupledGeneralizedInput = nil;
+    id<MTLBuffer> coupledGeneralizedOutput = nil;
+    id<MTLBuffer> coupledGeneralizedCandidate = nil;
+    id<MTLBuffer> coupledPointJacobians = nil;
+    id<MTLBuffer> coupledInverseStatuses = nil;
+    id<MTLBuffer> coupledCandidateQ = nil;
+    id<MTLBuffer> coupledCandidateBodies = nil;
+    std::uint32_t coupledQStride = 0u;
+    std::uint32_t coupledBodyStride = 0u;
     id<MTLBuffer> microstepReactions = nil;
     id<MTLBuffer> frameReactions = nil;
     id<MTLBuffer> adaptive = nil;
@@ -653,6 +662,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_learned_commit",
             "nm_learned_rollback",
             "nm_project_rigid_states",
+            "nm_project_primal_free_rigid_candidate",
+            "nm_mask_primal_rigid_candidate",
+            "nm_publish_primal_free_rigid_candidate",
             "nm_publish_adaptive_rigid_ownership",
             "nm_mpm_p2g",
             "nm_mpm_compact_active_nodes",
@@ -668,12 +680,22 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_precondition_patches",
             "nm_fgmres_precondition_coarse",
             "nm_fgmres_import_field_residual",
+            "nm_fgmres_clear_rigid_residual",
+            "nm_rigid_clear_candidate",
+            "nm_rigid_apply_candidate_solution",
             "nm_fgmres_field_smoother_initialize",
             "nm_fgmres_field_smoother_export",
             "nm_fgmres_field_smooth",
             "nm_fgmres_precondition_cross",
             "nm_fgmres_precondition_contacts",
             "nm_fgmres_precondition_deformable_contacts",
+            "nm_fgmres_export_rigid",
+            "nm_fgmres_import_rigid",
+            "nm_fgmres_precondition_free_rigid",
+            "nm_fgmres_apply_free_rigid",
+            "nm_fgmres_apply_primal_rigid_contacts",
+            "nm_contact_accumulate_rigid_residual",
+            "nm_contact_subtract_rigid_inertia_residual",
             "nm_fgmres_precondition_contact_cross",
             "nm_mpm_build_implicit_residual",
             "nm_mpm_build_constitutive_residual",
@@ -695,9 +717,11 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_accumulate_fields",
             "nm_fgmres_accumulate_contacts",
             "nm_fgmres_accumulate_deformable_contacts",
+            "nm_fgmres_accumulate_rigid",
             "nm_fgmres_restart_residual_nodes",
             "nm_fgmres_restart_residual_contacts",
             "nm_fgmres_restart_residual_deformable_contacts",
+            "nm_fgmres_restart_residual_rigid",
             "nm_contact_clear_samples",
             "nm_contact_build_surface_primitives",
             "nm_contact_sort_surface_primitives",
@@ -1543,6 +1567,44 @@ RuntimeDiagnostics Runtime::initialize(
                 valid,
                 candidate->residentBytes
             );
+        candidate->coupledGeneralizedInput = privateScratch<float>(
+            candidate->device,
+            std::max<std::size_t>(
+                multiplied(world.dispatch.rigidGeneralizedCapacity), 1u),
+            valid,
+            candidate->residentBytes
+        );
+        candidate->coupledGeneralizedOutput = privateScratch<float>(
+            candidate->device,
+            std::max<std::size_t>(
+                multiplied(world.dispatch.rigidGeneralizedCapacity), 1u),
+            valid,
+            candidate->residentBytes
+        );
+        candidate->coupledGeneralizedCandidate = privateScratch<float>(
+            candidate->device,
+            std::max<std::size_t>(
+                multiplied(world.dispatch.rigidGeneralizedCapacity), 1u),
+            valid,
+            candidate->residentBytes
+        );
+        candidate->coupledPointJacobians = privateScratch<float>(
+            candidate->device,
+            std::max<std::size_t>(
+                multiplied(candidate->contactActiveCapacity) * 3u *
+                    world.dispatch.rigidGeneralizedCapacity,
+                1u),
+            valid,
+            candidate->residentBytes
+        );
+        candidate->coupledInverseStatuses =
+            privateScratch<MRInverseMassStatusGPU>(
+                candidate->device,
+                multiplied(std::max<std::size_t>(
+                    world.contact.rigidProxies.size(), 1u)),
+                valid,
+                candidate->residentBytes
+            );
         candidate->microstepReactions = privateScratch<NMRigidReactionGPU>(
             candidate->device, multiplied(world.dispatch.rigidProxyCount),
             valid, candidate->residentBytes);
@@ -1559,7 +1621,8 @@ RuntimeDiagnostics Runtime::initialize(
             2u * static_cast<std::size_t>(world.dispatch.femNodeCount) +
             world.dispatch.gridNodeCount +
             world.dispatch.contactPairCount +
-            world.dispatch.deformableContactCapacity;
+            world.dispatch.deformableContactCapacity +
+            world.dispatch.rigidGeneralizedCapacity;
         const std::size_t mixedUnknownTotal = multiplied(mixedUnknownWidth);
         candidate->femSolution = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
@@ -1706,6 +1769,12 @@ RuntimeDiagnostics Runtime::initialize(
                                  offset:0u atIndex:17u];
         [fgmresContactEncoder setBuffer:candidate->mpmActiveNodeCounts
                                  offset:0u atIndex:18u];
+        [fgmresContactEncoder setBuffer:candidate->rigidProxies
+                                 offset:0u atIndex:19u];
+        [fgmresContactEncoder setBuffer:candidate->coupledPointJacobians
+                                 offset:0u atIndex:20u];
+        [fgmresContactEncoder setBuffer:candidate->rigidStates
+                                 offset:0u atIndex:21u];
         candidate->residentBytes += fgmresContactEncoder.encodedLength;
 
         for (const NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
@@ -1875,6 +1944,19 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 "articulated Matter contact requires a compatible borrowed inverse-ABA response service";
             return diagnostics;
         }
+        if (request.phase == EncodePhase::preDynamics &&
+            state.requiresArticulatedResponses &&
+            (request.encodeCoupledCandidate == nullptr ||
+             request.coupledCandidateContext == nullptr ||
+             request.rigid.q == nullptr || request.rigid.v == nullptr ||
+             request.rigid.qStride == 0u || request.rigid.vStride == 0u ||
+             request.rigid.qStride > state.dispatch.rigidQCapacity ||
+             request.rigid.vStride >
+                 state.dispatch.rigidGeneralizedCapacity)) {
+            diagnostics.message =
+                "articulated Matter IPC requires a compatible primal coupled-candidate service and cooked q/v capacity";
+            return diagnostics;
+        }
         if (state.requiresSceneBodies &&
             request.rigid.sceneBodies == nullptr) {
             diagnostics.message =
@@ -2021,6 +2103,56 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
         const bool firstEncodeForCommandBuffer =
             ownership->activeCommandBuffer == nullptr;
 
+        if (request.phase == EncodePhase::preDynamics &&
+            state.requiresArticulatedResponses) {
+            const std::uint32_t requiredQStride = request.rigid.qStride;
+            const std::uint32_t requiredBodyStride =
+                request.rigid.currentBodyStride;
+            if ((state.coupledQStride != 0u &&
+                 state.coupledQStride != requiredQStride) ||
+                (state.coupledBodyStride != 0u &&
+                 state.coupledBodyStride != requiredBodyStride)) {
+                diagnostics.message =
+                    "MetalWorld coupled candidate strides changed after runtime allocation";
+                return diagnostics;
+            }
+            if (state.coupledCandidateQ == nil) {
+                bool allocationValid = true;
+                const NSUInteger qBytes = checkedBytes(
+                    static_cast<std::size_t>(state.dispatch.environmentCount) *
+                        requiredQStride,
+                    sizeof(float),
+                    allocationValid);
+                const NSUInteger bodyBytes = checkedBytes(
+                    static_cast<std::size_t>(state.dispatch.environmentCount) *
+                        requiredBodyStride,
+                    sizeof(MRBodyStateGPU),
+                    allocationValid);
+                if (!allocationValid) {
+                    diagnostics.message =
+                        "coupled candidate allocation exceeds host address space";
+                    return diagnostics;
+                }
+                state.coupledCandidateQ = [state.device
+                    newBufferWithLength:qBytes
+                                options:MTLResourceStorageModePrivate];
+                state.coupledCandidateBodies = [state.device
+                    newBufferWithLength:bodyBytes
+                                options:MTLResourceStorageModePrivate];
+                if (state.coupledCandidateQ == nil ||
+                    state.coupledCandidateBodies == nil) {
+                    state.coupledCandidateQ = nil;
+                    state.coupledCandidateBodies = nil;
+                    diagnostics.message =
+                        "failed to allocate private coupled candidate kinematics";
+                    return diagnostics;
+                }
+                state.coupledQStride = requiredQStride;
+                state.coupledBodyStride = requiredBodyStride;
+                state.residentBytes += qBytes + bodyBytes;
+            }
+        }
+
         id<MTLComputeCommandEncoder> encoder =
             [commandBuffer computeCommandEncoder];
         if (encoder == nil) {
@@ -2062,6 +2194,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             0.0f,
             0.0f,
         };
+        const std::uint32_t coupledArticulatedNv =
+            state.requiresArticulatedResponses ? request.rigid.vStride : 0u;
 
         const auto dispatchThreads = [&](
             const char* name,
@@ -2910,6 +3044,13 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
             });
+            const NSUInteger rigidCandidateTotal = environments *
+                state.dispatch.rigidGeneralizedCapacity;
+            dispatchThreads("nm_rigid_clear_candidate", rigidCandidateTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.coupledGeneralizedCandidate
+                             offset:0u atIndex:1u];
+            });
             dispatchThreads("nm_contact_clear_samples", pairTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
@@ -2926,6 +3067,63 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 id<MTLBuffer> warmstarts,
                 id<MTLBuffer> deformableWarmstarts
             ) -> bool {
+                if (state.requiresArticulatedResponses) {
+                    [encoder endEncoding];
+                    const CoupledCandidateQuery kinematicsQuery{
+                        .input = (__bridge void*)
+                            state.coupledGeneralizedCandidate,
+                        .candidateQ = (__bridge void*)state.coupledCandidateQ,
+                        .candidateBodies = (__bridge void*)
+                            state.coupledCandidateBodies,
+                        .operation =
+                            CoupledCandidateOperation::candidateKinematics,
+                        .generalizedVectorStride =
+                            state.dispatch.rigidGeneralizedCapacity,
+                        .candidateQStride = state.coupledQStride,
+                        .candidateBodyStride = state.coupledBodyStride,
+                    };
+                    if (!request.encodeCoupledCandidate(
+                            request.coupledCandidateContext,
+                            kinematicsQuery)) {
+                        diagnostics.message =
+                            "MetalWorld failed to materialize Matter's articulated Newton candidate";
+                        return false;
+                    }
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        diagnostics.message =
+                            "failed to resume Matter after candidate kinematics";
+                        return false;
+                    }
+                    [encoder setLabel:@"Numi Matter candidate-contact continuation"];
+                    dispatchThreads("nm_project_rigid_states", proxyTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
+                        [encoder setBuffer:state.coupledCandidateBodies
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+                    });
+                }
+                dispatchThreads(
+                    "nm_project_primal_free_rigid_candidate",
+                    proxyTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                        [encoder setBytes:&coupledArticulatedNv
+                                   length:sizeof(coupledArticulatedNv)
+                                  atIndex:2u];
+                        [encoder setBuffer:state.rigidProxies
+                                   offset:0u atIndex:3u];
+                        [encoder setBuffer:currentBodies offset:0u atIndex:4u];
+                        [encoder setBuffer:state.coupledGeneralizedCandidate
+                                   offset:0u atIndex:5u];
+                        [encoder setBuffer:state.rigidStates
+                                   offset:0u atIndex:6u];
+                        [encoder setBuffer:state.statuses
+                                   offset:0u atIndex:7u];
+                    });
                 dispatchThreads(
                     "nm_contact_build_surface_primitives",
                     2u * environments * state.dispatch.surfaceFaceCount,
@@ -3106,7 +3304,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                             [encoder setBuffer:state.contactActivePairs offset:0u atIndex:4u];
                             [encoder setBuffer:state.contactActiveCounts offset:0u atIndex:5u];
                             [encoder setBuffer:state.rigidProxies offset:0u atIndex:6u];
-                            [encoder setBuffer:currentBodies offset:0u atIndex:7u];
+                            [encoder setBuffer:state.coupledCandidateBodies
+                                         offset:0u atIndex:7u];
                             [encoder setBuffer:state.contactPairs offset:0u atIndex:8u];
                             [encoder setBuffer:state.contactSamples offset:0u atIndex:9u];
                             [encoder setBuffer:state.articulatedPointQueries offset:0u atIndex:10u];
@@ -3138,6 +3337,69 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 });
                 if (state.requiresArticulatedResponses) {
                     [encoder endEncoding];
+                    const CoupledCandidateQuery candidateJacobianQuery{
+                        .input = (__bridge void*)
+                            state.coupledGeneralizedCandidate,
+                        .candidateQ = (__bridge void*)state.coupledCandidateQ,
+                        .candidateBodies = (__bridge void*)
+                            state.coupledCandidateBodies,
+                        .pointQueries = (__bridge void*)
+                            state.articulatedPointQueries,
+                        .pointJacobians = (__bridge void*)
+                            state.coupledPointJacobians,
+                        .operation =
+                            CoupledCandidateOperation::candidateKinematics,
+                        .generalizedVectorStride =
+                            state.dispatch.rigidGeneralizedCapacity,
+                        .candidateQStride = state.coupledQStride,
+                        .candidateBodyStride = state.coupledBodyStride,
+                        .pointCount = state.contactActiveCapacity,
+                        .pointStride = state.contactActiveCapacity,
+                        .pointJacobianStride =
+                            state.contactActiveCapacity * 3u *
+                                state.dispatch.rigidGeneralizedCapacity,
+                    };
+                    if (!request.encodeCoupledCandidate(
+                            request.coupledCandidateContext,
+                            candidateJacobianQuery)) {
+                        diagnostics.message =
+                            "MetalWorld failed to encode candidate point Jacobians";
+                        return false;
+                    }
+                    id<MTLBlitCommandEncoder> clearCoupledMass =
+                        [commandBuffer blitCommandEncoder];
+                    if (clearCoupledMass == nil) {
+                        diagnostics.message =
+                            "failed to clear coupled candidate mass residual";
+                        return false;
+                    }
+                    const NSUInteger coupledScalarBytes =
+                        static_cast<NSUInteger>(environments) *
+                        state.dispatch.rigidGeneralizedCapacity *
+                        sizeof(float);
+                    [clearCoupledMass
+                        fillBuffer:state.coupledGeneralizedOutput
+                             range:NSMakeRange(0u, coupledScalarBytes)
+                             value:0u];
+                    [clearCoupledMass endEncoding];
+                    const CoupledCandidateQuery candidateMassQuery{
+                        .input = (__bridge void*)
+                            state.coupledGeneralizedCandidate,
+                        .output = (__bridge void*)
+                            state.coupledGeneralizedOutput,
+                        .candidateQ = (__bridge void*)state.coupledCandidateQ,
+                        .operation = CoupledCandidateOperation::massAction,
+                        .generalizedVectorStride =
+                            state.dispatch.rigidGeneralizedCapacity,
+                        .candidateQStride = state.coupledQStride,
+                    };
+                    if (!request.encodeCoupledCandidate(
+                            request.coupledCandidateContext,
+                            candidateMassQuery)) {
+                        diagnostics.message =
+                            "MetalWorld failed to encode candidate mass residual";
+                        return false;
+                    }
                     const ArticulatedResponseQuery articulatedQuery{
                         .pointQueries = (__bridge void*)state.articulatedPointQueries,
                         .pointWorld = (__bridge void*)state.articulatedPointWorld,
@@ -3371,6 +3633,13 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBytes:&preserveSolution
                            length:sizeof(preserveSolution) atIndex:20u];
             });
+            const NSUInteger rigidGeneralizedTotalForResidual = environments *
+                state.dispatch.rigidGeneralizedCapacity;
+            dispatchThreads("nm_fgmres_clear_rigid_residual",
+                rigidGeneralizedTotalForResidual, [&] {
+                setDispatch();
+                [encoder setBuffer:state.femResidual offset:0u atIndex:1u];
+            });
 
             id<MTLBuffer> nonlinearWarmstarts = nonlinearIteration == 0u
                 ? state.contactWarmstartsAccepted
@@ -3387,6 +3656,28 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
+            dispatchThreads("nm_contact_subtract_rigid_inertia_residual",
+                rigidGeneralizedTotalForResidual, [&] {
+                setDispatch();
+                [encoder setBytes:&coupledArticulatedNv
+                           length:sizeof(coupledArticulatedNv) atIndex:1u];
+                [encoder setBuffer:state.coupledGeneralizedOutput
+                             offset:0u atIndex:2u];
+                [encoder setBuffer:state.coupledGeneralizedCandidate
+                             offset:0u atIndex:3u];
+                [encoder setBuffer:state.fgmresContactArguments
+                             offset:0u atIndex:4u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
+            });
+            dispatchThreads("nm_contact_accumulate_rigid_residual",
+                rigidGeneralizedTotalForResidual, [&] {
+                setDispatch();
+                [encoder setBytes:&coupledArticulatedNv
+                           length:sizeof(coupledArticulatedNv) atIndex:1u];
+                [encoder setBuffer:state.fgmresContactArguments
+                             offset:0u atIndex:2u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
+            });
 
             dispatchThreads("nm_contact_build_kkt_residual",
                 environments * state.contactActiveCapacity, [&] {
@@ -3491,7 +3782,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             const NSUInteger kktUnknownTotal =
                 2u * femNodeTotal +
                 environments * state.dispatch.gridNodeCount +
-                pairTotal + deformableContactTotal;
+                pairTotal + deformableContactTotal +
+                environments * state.dispatch.rigidGeneralizedCapacity;
+            const NSUInteger rigidGeneralizedTotal = environments *
+                state.dispatch.rigidGeneralizedCapacity;
             const NSUInteger activeContactTotal =
                 environments * state.contactActiveCapacity;
             const NSUInteger vectorBytes =
@@ -3756,6 +4050,81 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:5u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
                 });
+                if (state.requiresArticulatedResponses) {
+                    dispatchThreads("nm_fgmres_export_rigid", rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.fgmresBasis
+                                     offset:columnOffset atIndex:1u];
+                        [encoder setBuffer:state.coupledGeneralizedInput
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:3u];
+                    });
+                    [encoder endEncoding];
+                    id<MTLBlitCommandEncoder> clear =
+                        [commandBuffer blitCommandEncoder];
+                    if (clear == nil) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message =
+                            "failed to clear coupled inverse-mass output";
+                        return diagnostics;
+                    }
+                    [clear fillBuffer:state.coupledGeneralizedOutput
+                                range:NSMakeRange(
+                                    0u,
+                                    rigidGeneralizedTotal * sizeof(float))
+                                value:0u];
+                    [clear endEncoding];
+                    const CoupledCandidateQuery inverseQuery{
+                        .input = (__bridge void*)state.coupledGeneralizedInput,
+                        .output = (__bridge void*)state.coupledGeneralizedOutput,
+                        .statuses = (__bridge void*)state.coupledInverseStatuses,
+                        .operation =
+                            CoupledCandidateOperation::inverseMassPreconditioner,
+                        .generalizedVectorStride =
+                            state.dispatch.rigidGeneralizedCapacity,
+                        .statusStride =
+                            static_cast<std::uint32_t>(environments),
+                    };
+                    if (!request.encodeCoupledCandidate(
+                            request.coupledCandidateContext,
+                            inverseQuery)) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message =
+                            "MetalWorld failed to encode coupled inverse-mass preconditioning";
+                        return diagnostics;
+                    }
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message =
+                            "failed to resume Matter after coupled inverse mass";
+                        return diagnostics;
+                    }
+                    [encoder setLabel:@"Numi Matter coupled FGMRES continuation"];
+                    dispatchThreads("nm_fgmres_import_rigid", rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.coupledGeneralizedOutput
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                                     offset:columnOffset atIndex:2u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:3u];
+                    });
+                }
+                dispatchThreads("nm_fgmres_precondition_free_rigid",
+                    rigidGeneralizedTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv) atIndex:1u];
+                    [encoder setBuffer:state.fgmresBasis
+                                 offset:columnOffset atIndex:2u];
+                    [encoder setBuffer:state.fgmresPreconditionedBasis
+                                 offset:columnOffset atIndex:3u];
+                    [encoder setBuffer:state.fgmresContactArguments
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                });
                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
@@ -3796,6 +4165,9 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femOperatorValue offset:0u atIndex:11u];
                     [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:12u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:13u];
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv)
+                              atIndex:14u];
                 });
                 const NSUInteger fieldVectorOffset =
                     columnOffset + femNodeTotal * sizeof(nm_float4);
@@ -3841,6 +4213,11 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
                     [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:10u];
                     [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:11u];
+                    [encoder setBuffer:state.fgmresContactArguments
+                                 offset:0u atIndex:12u];
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv)
+                              atIndex:13u];
                 });
                 if (!dispatchIndirect(
                         "nm_fgmres_apply_mpm_constitutive",
@@ -3908,6 +4285,90 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:6u];
                     });
+                if (state.requiresArticulatedResponses) {
+                    dispatchThreads("nm_fgmres_export_rigid", rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                                     offset:columnOffset atIndex:1u];
+                        [encoder setBuffer:state.coupledGeneralizedInput
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:3u];
+                    });
+                    [encoder endEncoding];
+                    id<MTLBlitCommandEncoder> clear =
+                        [commandBuffer blitCommandEncoder];
+                    if (clear == nil) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message =
+                            "failed to clear coupled mass-action output";
+                        return diagnostics;
+                    }
+                    [clear fillBuffer:state.coupledGeneralizedOutput
+                                range:NSMakeRange(
+                                    0u,
+                                    rigidGeneralizedTotal * sizeof(float))
+                                value:0u];
+                    [clear endEncoding];
+                    const CoupledCandidateQuery massQuery{
+                        .input = (__bridge void*)state.coupledGeneralizedInput,
+                        .output = (__bridge void*)state.coupledGeneralizedOutput,
+                        .operation = CoupledCandidateOperation::massAction,
+                        .generalizedVectorStride =
+                            state.dispatch.rigidGeneralizedCapacity,
+                    };
+                    if (!request.encodeCoupledCandidate(
+                            request.coupledCandidateContext,
+                            massQuery)) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message =
+                            "MetalWorld failed to encode coupled articulated mass action";
+                        return diagnostics;
+                    }
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message =
+                            "failed to resume Matter after coupled mass action";
+                        return diagnostics;
+                    }
+                    [encoder setLabel:@"Numi Matter coupled FGMRES continuation"];
+                    dispatchThreads("nm_fgmres_import_rigid", rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.coupledGeneralizedOutput
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femOperatorValue
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:3u];
+                    });
+                }
+                dispatchThreads("nm_fgmres_apply_free_rigid",
+                    rigidGeneralizedTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv) atIndex:1u];
+                    [encoder setBuffer:state.fgmresPreconditionedBasis
+                                 offset:columnOffset atIndex:2u];
+                    [encoder setBuffer:state.femOperatorValue
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.fgmresContactArguments
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                });
+                dispatchThreads("nm_fgmres_apply_primal_rigid_contacts",
+                    rigidGeneralizedTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv) atIndex:1u];
+                    [encoder setBuffer:state.fgmresPreconditionedBasis
+                                 offset:columnOffset atIndex:2u];
+                    [encoder setBuffer:state.femOperatorValue
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.fgmresContactArguments
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                });
                 dispatchGroups32("nm_fgmres_orthogonalize_column", environments, [&] {
                     setDispatch();
                     [encoder setBytes:&column length:sizeof(column) atIndex:1u];
@@ -4017,6 +4478,18 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBytes:&restartCycle
                                length:sizeof(restartCycle) atIndex:7u];
                 });
+            dispatchThreads("nm_fgmres_accumulate_rigid", rigidGeneralizedTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                [encoder setBuffer:state.fgmresPreconditionedBasis
+                             offset:0u atIndex:2u];
+                [encoder setBuffer:state.fgmresLeastSquares
+                             offset:0u atIndex:3u];
+                [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
+                [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
+                [encoder setBytes:&restartCycle
+                           length:sizeof(restartCycle) atIndex:6u];
+            });
             if (finalRestartCycle == 0u) {
                 dispatchThreads("nm_fgmres_restart_residual_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -4059,6 +4532,15 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.fgmresContactArguments
                                      offset:0u atIndex:5u];
                     });
+                dispatchThreads("nm_fgmres_restart_residual_rigid",
+                    rigidGeneralizedTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresBasis offset:0u atIndex:1u];
+                    [encoder setBuffer:state.fgmresRestartCoefficients
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
+                });
             }
             }
 
@@ -4114,6 +4596,22 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femLineSearch offset:0u atIndex:9u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:10u];
                 });
+            dispatchGroups32(
+                "nm_fem_synchronize_environment_line_search",
+                environments,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femLineSearch
+                                 offset:0u atIndex:1u];
+                });
+            dispatchThreads("nm_rigid_apply_candidate_solution",
+                rigidCandidateTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.femSolution offset:0u atIndex:1u];
+                [encoder setBuffer:state.femLineSearch offset:0u atIndex:2u];
+                [encoder setBuffer:state.coupledGeneralizedCandidate
+                             offset:0u atIndex:3u];
+            });
             dispatchThreads("nm_fem_apply_solution", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -4416,6 +4914,64 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:13u];
                 [encoder setBuffer:state.femSolution offset:0u atIndex:14u];
             });
+            dispatchThreads(
+                "nm_mask_primal_rigid_candidate",
+                rigidCandidateTotal,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate
+                                 offset:0u atIndex:2u];
+                });
+            if (state.requiresArticulatedResponses) {
+                [encoder endEncoding];
+                const CoupledCandidateQuery publishQuery{
+                    .input = (__bridge void*)
+                        state.coupledGeneralizedCandidate,
+                    .output = (__bridge void*)state.coupledGeneralizedOutput,
+                    .candidateQ = (__bridge void*)state.coupledCandidateQ,
+                    .operation = CoupledCandidateOperation::publishCandidate,
+                    .generalizedVectorStride =
+                        state.dispatch.rigidGeneralizedCapacity,
+                    .candidateQStride = state.coupledQStride,
+                };
+                if (!request.encodeCoupledCandidate(
+                        request.coupledCandidateContext, publishQuery)) {
+                    ownership->preDynamicsOpen = false;
+                    diagnostics.message =
+                        "MetalWorld failed to publish Matter's accepted articulated candidate";
+                    return diagnostics;
+                }
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    ownership->preDynamicsOpen = false;
+                    diagnostics.message =
+                        "failed to resume Matter after articulated candidate publication";
+                    return diagnostics;
+                }
+                [encoder setLabel:@"Numi Matter primal publication continuation"];
+            }
+            dispatchThreads(
+                "nm_publish_primal_free_rigid_candidate",
+                bodyWrenchTotal,
+                [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv)
+                              atIndex:2u];
+                    [encoder setBuffer:state.rigidProxies
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:currentBodies offset:0u atIndex:4u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:bodyWrenches offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                    [encoder setBuffer:state.bodyProxyIncidence
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.bodyProxyRanges
+                                 offset:0u atIndex:9u];
+                });
             dispatchThreads("nm_mpm_commit_microstep", particleTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
@@ -4578,17 +5134,6 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                           atIndex:3u];
             }
         );
-
-        dispatchThreads("nm_bridge_rigid_reactions", bodyWrenchTotal, [&] {
-            setDispatch();
-            [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
-            [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
-            [encoder setBuffer:state.frameReactions offset:0u atIndex:3u];
-            [encoder setBuffer:bodyWrenches offset:0u atIndex:4u];
-            [encoder setBuffer:state.statuses offset:0u atIndex:5u];
-            [encoder setBuffer:state.bodyProxyIncidence offset:0u atIndex:6u];
-            [encoder setBuffer:state.bodyProxyRanges offset:0u atIndex:7u];
-        });
 
         dispatchThreads("nm_topology_publish_growth_request", 1u, [&] {
             setDispatch();

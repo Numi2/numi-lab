@@ -828,6 +828,38 @@ kernel void mr_world_apply_coupled_candidate_mass(
     }
 }
 
+kernel void mr_world_scatter_coupled_candidate_jacobians(
+    constant MRCoupledCandidateDispatchGPU& dispatch [[buffer(0)]],
+    device const float* localJacobians [[buffer(1)]],
+    device float* globalJacobians [[buffer(2)]],
+    device const MRArticulatedOperatorStatusGPU* operatorStatuses
+        [[buffer(3)]],
+    const uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.pointCount *
+        3u * dispatch.nv;
+    if (global >= total ||
+        dispatch.abiVersion != MR_COUPLED_CANDIDATE_ABI_VERSION ||
+        dispatch.pointStride < dispatch.pointCount ||
+        dispatch.pointJacobianStride <
+            dispatch.pointCount * 3u * dispatch.vStride ||
+        dispatch.vStride < dispatch.vOffset + dispatch.nv) return;
+    const uint localPerEnvironment = dispatch.pointCount * 3u * dispatch.nv;
+    const uint environment = global / localPerEnvironment;
+    if (operatorStatuses[environment].code !=
+        MR_ARTICULATED_OPERATOR_SUCCESS) return;
+    const uint local = global - environment * localPerEnvironment;
+    const uint row = local / dispatch.nv;
+    const uint dof = local - row * dispatch.nv;
+    globalJacobians[
+        environment * dispatch.pointJacobianStride +
+        row * dispatch.vStride + dispatch.vOffset + dof
+    ] = localJacobians[
+        environment * (dispatch.pointCount * 3u * dispatch.nv) +
+        row * dispatch.nv + dof
+    ];
+}
+
 kernel void mr_world_publish_coupled_candidate(
     constant MRCoupledCandidateDispatchGPU& dispatch [[buffer(0)]],
     device const float* generalizedImpulse [[buffer(1)]],

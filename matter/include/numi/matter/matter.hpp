@@ -620,12 +620,17 @@ struct CoupledCandidateQuery {
     void* candidateQ = nullptr;
     void* candidateBodies = nullptr;
     void* statuses = nullptr;
+    void* pointQueries = nullptr;
+    void* pointJacobians = nullptr;
     CoupledCandidateOperation operation =
         CoupledCandidateOperation::candidateKinematics;
     std::uint32_t generalizedVectorStride = 0u;
     std::uint32_t candidateQStride = 0u;
     std::uint32_t candidateBodyStride = 0u;
     std::uint32_t statusStride = 0u;
+    std::uint32_t pointCount = 0u;
+    std::uint32_t pointStride = 0u;
+    std::uint32_t pointJacobianStride = 0u;
 };
 
 using EncodeCoupledCandidate = bool (*)(

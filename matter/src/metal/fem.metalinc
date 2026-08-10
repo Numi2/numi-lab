@@ -20,6 +20,9 @@ struct NMKKTContactArguments {
     device const NMIndirectDispatchGPU* deformableActiveDispatch [[id(16)]];
     device const uint* mpmNodeToActive [[id(17)]];
     device const uint* mpmActiveNodeCounts [[id(18)]];
+    device const NMRigidProxyGPU* rigidProxies [[id(19)]];
+    device const float* coupledPointJacobians [[id(20)]];
+    device const NMRigidStateGPU* rigidStates [[id(21)]];
 };
 
 inline void deformableContactFrame(

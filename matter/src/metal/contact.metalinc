@@ -1149,6 +1149,115 @@ kernel void nm_project_rigid_states(
     states[global] = state;
 }
 
+inline float4 integrateWorldQuaternion(
+    const float4 source,
+    const float3 angularVelocity,
+    const float timestep
+) {
+    const float angle = length(angularVelocity) * timestep;
+    float4 delta;
+    if (angle > 1.0e-6f) {
+        const float halfAngle = 0.5f * angle;
+        delta = float4(
+            angularVelocity * (sin(halfAngle) / length(angularVelocity)),
+            cos(halfAngle));
+    } else {
+        delta = quaternionNormalize(float4(
+            0.5f * timestep * angularVelocity, 1.0f));
+    }
+    return quaternionNormalize(quaternionMultiply(
+        delta, quaternionNormalize(source)));
+}
+
+// Materializes free-body geometry at the same primal Newton candidate used by
+// FEM, MPM, and articulated bodies. Multiple proxies on one body read the
+// same compact six-coordinate block and independently project their authored
+// local geometry, so collision-shape multiplicity cannot split body motion.
+kernel void nm_project_primal_free_rigid_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& articulatedNv [[buffer(2)]],
+    device const NMRigidProxyGPU* proxies [[buffer(3)]],
+    device const MRBodyStateGPU* currentBodies [[buffer(4)]],
+    device const float* generalizedCandidate [[buffer(5)]],
+    device NMRigidStateGPU* states [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidProxyCount;
+    if (global >= total || dispatch.rigidProxyCount == 0u) return;
+    const uint environment = global / dispatch.rigidProxyCount;
+    const uint proxyIndex = global - environment * dispatch.rigidProxyCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMRigidProxyGPU proxy = proxies[proxyIndex];
+    if ((proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
+        (proxy.flags & NM_RIGID_ARTICULATED) != 0u) return;
+    const uint freeIndex = proxy.generalizedFreeBodyIndex;
+    const uint candidateBase = environment *
+        dispatch.rigidGeneralizedCapacity + articulatedNv + 6u * freeIndex;
+    if (freeIndex == NM_INVALID_INDEX ||
+        articulatedNv + 6u * freeIndex + 6u >
+            dispatch.rigidGeneralizedCapacity ||
+        proxy.bodyIndex >= bridge.currentBodyCount ||
+        bridge.currentBodyStride < bridge.currentBodyCount) {
+        recordFailure(
+            statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, proxyIndex,
+            float4(float(freeIndex), float(articulatedNv),
+                float(dispatch.rigidGeneralizedCapacity), 0.0f));
+        return;
+    }
+    const MRBodyStateGPU source = currentBodies[
+        environment * bridge.currentBodyStride + proxy.bodyIndex];
+    const float3 linearVelocity = source.linearVelocityAndInverseMass.xyz +
+        float3(generalizedCandidate[candidateBase + 0u],
+               generalizedCandidate[candidateBase + 1u],
+               generalizedCandidate[candidateBase + 2u]);
+    const float3 angularVelocity = source.angularVelocity.xyz +
+        float3(generalizedCandidate[candidateBase + 3u],
+               generalizedCandidate[candidateBase + 4u],
+               generalizedCandidate[candidateBase + 5u]);
+    MRBodyStateGPU candidate = source;
+    candidate.position.xyz = source.position.xyz +
+        bridge.time.y * linearVelocity;
+    candidate.orientation = integrateWorldQuaternion(
+        source.orientation, angularVelocity, bridge.time.y);
+    candidate.linearVelocityAndInverseMass.xyz = linearVelocity;
+    candidate.angularVelocity.xyz = angularVelocity;
+
+    const float4 deltaOrientation = quaternionMultiply(
+        candidate.orientation,
+        float4(-quaternionNormalize(source.orientation).xyz,
+            quaternionNormalize(source.orientation).w));
+    const float3x3 rotation = float3x3(
+        quaternionRotate(deltaOrientation, float3(1.0f, 0.0f, 0.0f)),
+        quaternionRotate(deltaOrientation, float3(0.0f, 1.0f, 0.0f)),
+        quaternionRotate(deltaOrientation, float3(0.0f, 0.0f, 1.0f)));
+    const float3x3 sourceInverseInertia = matrixFromRows(
+        source.inverseInertiaWorldRow0,
+        source.inverseInertiaWorldRow1,
+        source.inverseInertiaWorldRow2);
+    const float3x3 candidateInverseInertia = rotation *
+        sourceInverseInertia * transpose(rotation);
+    matrixToRows(
+        candidateInverseInertia,
+        candidate.inverseInertiaWorldRow0,
+        candidate.inverseInertiaWorldRow1,
+        candidate.inverseInertiaWorldRow2);
+    NMRigidStateGPU projected{};
+    projectProxy(proxy, candidate, true, projected);
+    if (!finite3(projected.centerAndRadius.xyz) ||
+        !finite3(projected.linearVelocityAndInverseMass.xyz) ||
+        !finite3(projected.angularVelocity.xyz)) {
+        recordFailure(
+            statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, proxyIndex,
+            float4(projected.centerAndRadius.xyz, 0.0f));
+        return;
+    }
+    states[global] = projected;
+}
+
 inline bool planeContact(
     const NMRigidStateGPU rigid,
     const float3 point,
@@ -2913,6 +3022,109 @@ kernel void nm_bridge_rigid_reactions(
     ];
     wrench.force.xyz += bridge.time.x * impulse;
     wrench.torque.xyz += bridge.time.x * angularImpulse;
+}
+
+kernel void nm_mask_primal_rigid_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device float* candidate [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    if (!environmentHealthy(statuses, environment)) candidate[global] = 0.0f;
+}
+
+// Publishes the accepted free-body block as the unique world-frame wrench
+// consumed by MetalWorld. Articulated blocks are published by the borrowed
+// owning mass operator; this kernel owns only compact free-body indices.
+kernel void nm_publish_primal_free_rigid_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& articulatedNv [[buffer(2)]],
+    device const NMRigidProxyGPU* proxies [[buffer(3)]],
+    device const MRBodyStateGPU* currentBodies [[buffer(4)]],
+    device const float* candidate [[buffer(5)]],
+    device MRABABodyWrenchGPU* bodyWrenches [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    device const uint* bodyProxyIncidence [[buffer(8)]],
+    device const NMIncidenceRangeGPU* bodyProxyRanges [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * bridge.reactionBodyCount;
+    if (global >= total || bridge.reactionBodyCount == 0u) return;
+    const uint environment = global / bridge.reactionBodyCount;
+    const uint bodyIndex = global - environment * bridge.reactionBodyCount;
+    if (!environmentHealthy(statuses, environment) ||
+        bodyIndex >= bridge.currentBodyCount ||
+        bodyIndex >= bridge.bodyWrenchCount ||
+        bridge.currentBodyStride < bridge.currentBodyCount) return;
+    const NMIncidenceRangeGPU range = bodyProxyRanges[bodyIndex];
+    uint freeIndex = NM_INVALID_INDEX;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint proxyIndex = bodyProxyIncidence[range.first + local];
+        if (proxyIndex >= dispatch.rigidProxyCount) continue;
+        const NMRigidProxyGPU proxy = proxies[proxyIndex];
+        if (proxy.bodyIndex != bodyIndex ||
+            (proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
+            (proxy.flags & NM_RIGID_ARTICULATED) != 0u) continue;
+        if (freeIndex == NM_INVALID_INDEX)
+            freeIndex = proxy.generalizedFreeBodyIndex;
+        else if (freeIndex != proxy.generalizedFreeBodyIndex) {
+            recordFailure(
+                statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, proxyIndex,
+                float4(float(bodyIndex), float(freeIndex),
+                    float(proxy.generalizedFreeBodyIndex), 0.0f));
+            return;
+        }
+    }
+    if (freeIndex == NM_INVALID_INDEX) return;
+    const uint base = environment * dispatch.rigidGeneralizedCapacity +
+        articulatedNv + 6u * freeIndex;
+    if (articulatedNv + 6u * freeIndex + 6u >
+        dispatch.rigidGeneralizedCapacity) {
+        recordFailure(
+            statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+            NM_INVALID_INDEX, bodyIndex,
+            float4(float(articulatedNv), float(freeIndex),
+                float(dispatch.rigidGeneralizedCapacity), 0.0f));
+        return;
+    }
+    const MRBodyStateGPU source = currentBodies[
+        environment * bridge.currentBodyStride + bodyIndex];
+    const float inverseMass = source.linearVelocityAndInverseMass.w;
+    float3x3 inertia;
+    if (!(inverseMass > 0.0f) ||
+        !invert3x3(matrixFromRows(
+            source.inverseInertiaWorldRow0,
+            source.inverseInertiaWorldRow1,
+            source.inverseInertiaWorldRow2), inertia)) {
+        recordFailure(
+            statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, bodyIndex,
+            float4(inverseMass, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    const float3 deltaLinear = float3(
+        candidate[base + 0u], candidate[base + 1u], candidate[base + 2u]);
+    const float3 deltaAngular = float3(
+        candidate[base + 3u], candidate[base + 4u], candidate[base + 5u]);
+    const float3 force = bridge.time.x * deltaLinear / inverseMass;
+    const float3 torque = bridge.time.x * (inertia * deltaAngular);
+    if (!finite3(force) || !finite3(torque)) {
+        recordFailure(
+            statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, bodyIndex,
+            float4(max(max(abs(force), abs(torque)), float3(0.0f)), 0.0f));
+        return;
+    }
+    device MRABABodyWrenchGPU& wrench = bodyWrenches[
+        environment * bridge.bodyWrenchStride + bodyIndex];
+    wrench.force.xyz += force;
+    wrench.torque.xyz += torque;
 }
 
 } // namespace numi_matter_metal
