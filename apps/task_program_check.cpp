@@ -1302,6 +1302,9 @@ int main(const int argc, const char* const* argv) {
              MR_TASK_PROGRAM_INTERACTION_RESET) == 0u ||
             interactionProgram.interactionRootTargets().size() != 21u ||
             interactionProgram.interactionJointTargets().size() != 87u ||
+            interactionProgram.actionBindings()[0].drive.z != 0.0f ||
+            interactionProgram.actionBindings()[1].drive.z != 1.0f ||
+            interactionProgram.actionBindings()[9].drive.z != 1.0f ||
             interactionProgram.interactionContacts().size() != 2u ||
             interactionProgram.interactionSamples().size() != 6u ||
             interactionProgram.interactionContactTargets().size() != 78u ||

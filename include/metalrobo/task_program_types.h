@@ -463,9 +463,9 @@ typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
     mr_uint4 indices;
     // normalized scale, lower target, upper target, response time seconds.
     mr_float4 parameters;
-    // Authored drive stiffness, damping, reserved, reserved. Interaction
-    // playback uses these values to preserve the reference joint velocity
-    // through the implicit position-drive target without bypassing physics.
+    // Authored drive stiffness, damping, interaction-motion flag, reserved.
+    // Interaction playback uses these values to preserve the reference joint
+    // velocity and distinguish generated motion from an invariant base.
     mr_float4 drive;
     // actuator kind, resolved body/component, component lane, reserved.
     // Joint actuators retain indices.y/z/w as DoF/q/v; non-joint actuators

@@ -1834,6 +1834,28 @@ TaskCompileDiagnostics compileTaskProgram(
                 );
             }
         }
+        // Mark trajectory-varying action channels. Metal uses this compiled
+        // flag to keep bounded residual authority on generated motion while
+        // giving the policy full closed-loop authority over the invariant
+        // base. This is inferred from data, not robot or task identities.
+        constexpr float interactionMotionTolerance = 1.0e-6f;
+        for (std::uint32_t action = 0u;
+             action < pack.actions.size();
+             ++action) {
+            const float first = staged->interactionJointTargets[action];
+            bool moves = false;
+            for (std::uint32_t frame = 1u;
+                 frame < interactionClip->frameCount;
+                 ++frame) {
+                const std::size_t targetIndex =
+                    static_cast<std::size_t>(frame) * pack.actions.size() +
+                    action;
+                moves = moves || std::abs(
+                    staged->interactionJointTargets[targetIndex] - first
+                ) > interactionMotionTolerance;
+            }
+            staged->actionBindings[action].drive.z = moves ? 1.0f : 0.0f;
+        }
         for (std::uint32_t frame = 0u;
              frame < interactionClip->frameCount;
              ++frame) {
