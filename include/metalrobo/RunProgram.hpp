@@ -327,6 +327,12 @@ private:
     TaskObservationProgram& observations,
     TaskResetProgram& reset
 );
+[[nodiscard]] TaskPack makeNumiflyForwardFlightTaskPack(
+    const RobotPack& robot,
+    LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
 [[nodiscard]] TaskPack makeNumiflyNoLegsFlightTaskPack(
     const RobotPack& robot,
     TaskObservationProgram& observations,

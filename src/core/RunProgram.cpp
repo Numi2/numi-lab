@@ -2203,6 +2203,79 @@ TaskPack makeNumiflyFlightTaskPack(
     return task;
 }
 
+TaskPack makeNumiflyForwardFlightTaskPack(
+    const RobotPack& robot,
+    const LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeNumiflyFlightTaskPack(
+        robot, surface, observations, reset);
+    task.id = "numifly.forward_flight.v1";
+    // Keep the learned objective agnostic to the support strategy.  The
+    // contact solver remains authoritative for feet, hands, torso, and wing
+    // interactions; this task supplies only the forward-progress objective.
+    task.difficultyBandCount = 3u;
+    task.baseHeightTarget = 0.20f;
+    task.successTrackingThreshold = 0.75f;
+    task.supportForceThreshold = 0.0f;
+    task.commands.lower = {0.10f, -0.025f, -0.10f, 0.0f};
+    task.commands.upper = {0.16f, 0.025f, 0.10f, 0.0f};
+    task.commands.limitLower = task.commands.lower;
+    task.commands.limitUpper = {0.34f, 0.075f, 0.30f, 0.0f};
+    task.commands.difficultyStep = {0.09f, 0.025f, 0.10f, 0.0f};
+    task.commands.standingProbability = 0.0f;
+    task.commands.minimumDurationSeconds = 4.0f;
+    task.commands.maximumDurationSeconds = 8.0f;
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::higherIsBetter},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"forward_speed_tracking", "ratio",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::linearVelocityTracking},
+    };
+    task.rewards = {
+        {.operation = TaskRewardOperator::constant, .weight = 0.20f},
+        {.operation = TaskRewardOperator::linearVelocityTracking,
+            .weight = 6.0f, .parameters = {0.12f, 0.0f, 0.0f, 0.0f}},
+        {.operation = TaskRewardOperator::rootHeightErrorSquared,
+            .weight = -3.0f},
+        {.operation = TaskRewardOperator::uprightness, .weight = 0.40f},
+        {.operation = TaskRewardOperator::tiltSquared, .weight = -0.25f},
+        {.operation = TaskRewardOperator::rootVerticalVelocitySquared,
+            .weight = -0.05f},
+        {.operation = TaskRewardOperator::rootRollPitchVelocitySquared,
+            .weight = -0.025f},
+        {.operation = TaskRewardOperator::jointVelocitySquared,
+            .weight = -0.0005f},
+        {.operation = TaskRewardOperator::actionSquared, .weight = -0.005f},
+        {.operation = TaskRewardOperator::actionRateSquared,
+            .weight = -0.002f},
+    };
+    task.terminations = {
+        {.operation = TaskTerminationOperator::minimumRootHeight,
+            .reason = MR_TASK_TERMINATION_HEIGHT, .priority = 10u,
+            .threshold = 0.025f, .failurePenalty = -5.0f},
+        {.operation = TaskTerminationOperator::maximumTilt,
+            .reason = MR_TASK_TERMINATION_TILT, .priority = 20u,
+            .threshold = 2.70f, .failurePenalty = -2.0f},
+    };
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::command,
+            .component = component,
+        });
+    }
+    observations.critic = observations.actorFrame;
+    observations.critic.insert(
+        observations.critic.end(), observations.actorCurrent.begin(),
+        observations.actorCurrent.end());
+    return task;
+}
+
 TaskPack makeNumiflyNoLegsFlightTaskPack(
     const RobotPack& robot,
     TaskObservationProgram& observations,

@@ -16,6 +16,18 @@ The distinct legless morphology is documented in
 owner but has its own pruned mechanics, task/action contract, fingerprints,
 Swift/C source, and Numi Window scene.
 
+`numifly-forward-flight` is a separate policy task for the original legged
+Numifly robot. It tracks a progressive forward command without prescribing a
+gait or support set, so the learned policy may use feet, hands, or wing-assisted
+locomotion subject to the authoritative contact and flight dynamics.
+
+```sh
+numi train --task numifly-forward-flight --scene ground \
+  --numifly-wing-manifest assets/numifly/maeda-wing-pack-v1/manifest.json \
+  --initialize-policy numifly_forward_flight_v1 \
+  --minimum-difficulty-band 0 --maximum-difficulty-band 0
+```
+
 ## Data selection and provenance
 
 The wing input is Maeda et al., *Quantifying the dynamic wing morphing of

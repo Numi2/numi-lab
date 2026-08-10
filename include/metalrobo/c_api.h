@@ -171,6 +171,7 @@ enum MRRunManifestSourceC {
     MR_RUN_SOURCE_MEASURED_DOVE = 5u,
     MR_RUN_SOURCE_NUMIFLY = 6u,
     MR_RUN_SOURCE_NUMIFLY_NO_LEGS = 7u,
+    MR_RUN_SOURCE_NUMIFLY_FORWARD_FLIGHT = 8u,
 };
 
 enum MRMeasuredSurfaceTaskC {

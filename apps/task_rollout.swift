@@ -149,7 +149,7 @@ private func fingerprint(
 
 private struct Options {
     enum BundledRobotSource {
-        case unitreeG1, numifly, numiflyNoLegs, frankaPickPlace, px4X500
+        case unitreeG1, numifly, numiflyForwardFlight, numiflyNoLegs, frankaPickPlace, px4X500
     }
 
     var environments = 32
@@ -165,6 +165,7 @@ private struct Options {
     var measuredDoveTask: MetalRoboMeasuredSurfaceTask?
     var measuredDoveManifest: String?
     var numiflyFlight = false
+    var numiflyForwardFlight = false
     var numiflyNoLegsFlight = false
     var numiflyWingManifest =
         "assets/numifly/maeda-wing-pack-v1/manifest.json"
@@ -303,12 +304,15 @@ private struct Options {
                 case "numifly-flight":
                     numiflyFlight = true
                     bundledRobotSource = .numifly
+                case "numifly-forward-flight":
+                    numiflyForwardFlight = true
+                    bundledRobotSource = .numiflyForwardFlight
                 case "numifly-no-legs-flight":
                     numiflyNoLegsFlight = true
                     bundledRobotSource = .numiflyNoLegs
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be a bundled G1 task, numifly-flight, numifly-no-legs-flight, dove-trim, dove-drop-recovery, dove-cruise, or dove-food-navigation."
+                        "--task must be a bundled G1 task, numifly-flight, numifly-forward-flight, numifly-no-legs-flight, dove-trim, dove-drop-recovery, dove-cruise, or dove-food-navigation."
                     )
                 }
                 index += 1
@@ -316,13 +320,15 @@ private struct Options {
                 switch try value() {
                 case "unitree-g1": bundledRobotSource = .unitreeG1
                 case "numifly": bundledRobotSource = .numifly
+                case "numifly-forward-flight":
+                    bundledRobotSource = .numiflyForwardFlight
                 case "numifly-no-legs":
                     bundledRobotSource = .numiflyNoLegs
                 case "franka-panda": bundledRobotSource = .frankaPickPlace
                 case "px4-x500": bundledRobotSource = .px4X500
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--robot-source must be unitree-g1, numifly, numifly-no-legs, franka-panda, or px4-x500."
+                        "--robot-source must be unitree-g1, numifly, numifly-forward-flight, numifly-no-legs, franka-panda, or px4-x500."
                     )
                 }
                 index += 1
@@ -613,12 +619,15 @@ private struct Options {
             )
         }
         let anyNumifly = bundledRobotSource == .numifly ||
+            bundledRobotSource == .numiflyForwardFlight ||
             bundledRobotSource == .numiflyNoLegs
         let matchingNumiflyTask =
             (bundledRobotSource == .numifly && numiflyFlight &&
-             !numiflyNoLegsFlight) ||
+             !numiflyForwardFlight && !numiflyNoLegsFlight) ||
+            (bundledRobotSource == .numiflyForwardFlight &&
+             numiflyForwardFlight && !numiflyFlight && !numiflyNoLegsFlight) ||
             (bundledRobotSource == .numiflyNoLegs &&
-             numiflyNoLegsFlight && !numiflyFlight)
+             numiflyNoLegsFlight && !numiflyFlight && !numiflyForwardFlight)
         if anyNumifly != matchingNumiflyTask ||
             (anyNumifly &&
              (measuredDoveTask != nil || measuredDoveManifest != nil ||
@@ -996,8 +1005,11 @@ private func makeContext(
         )
     }
     if options.bundledRobotSource == .numifly ||
+       options.bundledRobotSource == .numiflyForwardFlight ||
        options.bundledRobotSource == .numiflyNoLegs {
         let noLegs = options.bundledRobotSource == .numiflyNoLegs
+        let forwardFlight =
+            options.bundledRobotSource == .numiflyForwardFlight
         return (
             try MetalRoboTaskRolloutContext(
                 manifest: MetalRoboRunManifest(
@@ -1007,18 +1019,25 @@ private func makeContext(
                                 fileURLWithPath: options.numiflyWingManifest
                             )
                         )
-                        : .numifly(
+                        : (forwardFlight
+                            ? .numiflyForwardFlight(
+                                wingManifest: URL(
+                                    fileURLWithPath: options.numiflyWingManifest
+                                )
+                            )
+                            : .numifly(
                             wingManifest: URL(
                                 fileURLWithPath: options.numiflyWingManifest
                             )
-                        ),
+                        )),
                     sensorsAndPhysics: configuration,
                     visualSensor: visualSensor,
                     inspectionVisual: inspectionVisual
                 ),
                 metallibPath: options.metallib
             ),
-            noLegs ? "numifly_no_legs" : "numifly"
+            noLegs ? "numifly_no_legs"
+                : (forwardFlight ? "numifly_forward_flight" : "numifly")
         )
     }
     if options.urdf == nil && options.worldPack == nil &&

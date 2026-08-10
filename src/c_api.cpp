@@ -3162,13 +3162,19 @@ static MRTaskRolloutHandle* createMeasuredDoveRun(
     return status == 0 ? result : nullptr;
 }
 
+enum class NumiflyRunMode {
+    hover,
+    forwardFlight,
+    noLegs,
+};
+
 static MRTaskRolloutHandle* createNumiflyRun(
     const MRTaskRolloutConfigC* config,
     const char* measured_surface_manifest_path,
     const uint32_t surface_value,
     const MRTaskVisualObservationConfigC* visual_sensor,
     const char* metallib_path,
-    const bool noLegs
+    const NumiflyRunMode mode
 ) {
     if (config == nullptr || measured_surface_manifest_path == nullptr ||
         measured_surface_manifest_path[0] == '\0') {
@@ -3183,32 +3189,40 @@ static MRTaskRolloutHandle* createNumiflyRun(
         metalrobo::MeasuredSurfaceRobotPack wings =
             metalrobo::loadNumiflyMaedaWingPack(
                 measured_surface_manifest_path);
+        const bool noLegs = mode == NumiflyRunMode::noLegs;
+        const bool forwardFlight = mode == NumiflyRunMode::forwardFlight;
         metalrobo::RunManifest manifest;
-        manifest.id = noLegs
-            ? "numifly_no_legs_flight_run"
-            : "numifly_flight_run";
+        manifest.id = noLegs ? "numifly_no_legs_flight_run"
+            : (forwardFlight ? "numifly_forward_flight_run"
+                             : "numifly_flight_run");
         manifest.robot = noLegs
             ? metalrobo::makeNumiflyNoLegsRobotPack(std::move(wings))
             : metalrobo::makeNumiflyRobotPack(std::move(wings));
         manifest.scene.id = surface == metalrobo::LocomotionSurface::ground
             ? (noLegs ? "numifly_no_legs_ground_scene"
-                      : "numifly_ground_scene")
+                      : (forwardFlight ? "numifly_forward_ground_scene"
+                                       : "numifly_ground_scene"))
             : (noLegs ? "numifly_no_legs_terrain_scene"
-                      : "numifly_terrain_scene");
-        manifest.sensors.id = noLegs
-            ? "numifly_no_legs_flight_state"
-            : "numifly_flight_state";
-        manifest.reality.id = noLegs
-            ? "numifly_no_legs_nominal_reality"
-            : "numifly_nominal_reality";
+                      : (forwardFlight ? "numifly_forward_terrain_scene"
+                                       : "numifly_terrain_scene"));
+        manifest.sensors.id = noLegs ? "numifly_no_legs_flight_state"
+            : (forwardFlight ? "numifly_forward_flight_state"
+                             : "numifly_flight_state");
+        manifest.reality.id = noLegs ? "numifly_no_legs_nominal_reality"
+            : (forwardFlight ? "numifly_forward_nominal_reality"
+                             : "numifly_nominal_reality");
         manifest.teacher.id = "no_teacher";
         manifest.task = noLegs
             ? metalrobo::makeNumiflyNoLegsFlightTaskPack(
                 manifest.robot, manifest.sensors.observation,
                 manifest.reality.reset)
-            : metalrobo::makeNumiflyFlightTaskPack(
-                manifest.robot, surface, manifest.sensors.observation,
-                manifest.reality.reset);
+            : (forwardFlight
+                ? metalrobo::makeNumiflyForwardFlightTaskPack(
+                    manifest.robot, surface, manifest.sensors.observation,
+                    manifest.reality.reset)
+                : metalrobo::makeNumiflyFlightTaskPack(
+                    manifest.robot, surface, manifest.sensors.observation,
+                    manifest.reality.reset));
         applyRunProfile(manifest, *config);
         manifest.profile.capacities = manifest.task.capacities;
         if (config->disable_task_terminations != 0u) {
@@ -3219,8 +3233,12 @@ static MRTaskRolloutHandle* createNumiflyRun(
                 manifest.robot.mechanics, surface);
         manifest.scene.objects.push_back({
             .id = surface == metalrobo::LocomotionSurface::ground
-                ? (noLegs ? "numifly_no_legs_ground" : "numifly_ground")
-                : (noLegs ? "numifly_no_legs_terrain" : "numifly_terrain"),
+                ? (noLegs ? "numifly_no_legs_ground"
+                          : (forwardFlight ? "numifly_forward_ground"
+                                           : "numifly_ground"))
+                : (noLegs ? "numifly_no_legs_terrain"
+                          : (forwardFlight ? "numifly_forward_terrain"
+                                           : "numifly_terrain")),
             .semanticClass = "support_surface",
             .role = MR_WORLD_ASSET_FIXTURE,
             .render = MR_WORLD_RENDER_NONE,
@@ -3233,7 +3251,9 @@ static MRTaskRolloutHandle* createNumiflyRun(
         });
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest), metallib_path,
-            noLegs ? "Numifly No Legs" : "Numifly", visual_sensor);
+            noLegs ? "Numifly No Legs"
+                   : (forwardFlight ? "Numifly Forward Flight" : "Numifly"),
+            visual_sensor);
         result = handle.release();
     });
     return status == 0 ? result : nullptr;
@@ -3732,7 +3752,7 @@ MRTaskRolloutHandle* mr_create_task_rollout(
             manifest->surface,
             manifest->visual_sensor_program,
             manifest->metallib_path,
-            false
+            NumiflyRunMode::hover
         );
         break;
     case MR_RUN_SOURCE_NUMIFLY_NO_LEGS:
@@ -3742,7 +3762,17 @@ MRTaskRolloutHandle* mr_create_task_rollout(
             manifest->surface,
             manifest->visual_sensor_program,
             manifest->metallib_path,
-            true
+            NumiflyRunMode::noLegs
+        );
+        break;
+    case MR_RUN_SOURCE_NUMIFLY_FORWARD_FLIGHT:
+        result = createNumiflyRun(
+            &manifest->profile,
+            manifest->measured_surface_manifest_path,
+            manifest->surface,
+            manifest->visual_sensor_program,
+            manifest->metallib_path,
+            NumiflyRunMode::forwardFlight
         );
         break;
     default:
