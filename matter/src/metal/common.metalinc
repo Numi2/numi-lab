@@ -794,6 +794,163 @@ inline bool evaluateImplicitMaterialSystem(
     return true;
 }
 
+inline float matrixTrace(const float3x3 value) {
+    return value[0].x + value[1].y + value[2].z;
+}
+
+inline float matrixInner(const float3x3 left, const float3x3 right) {
+    return dot(left[0], right[0]) + dot(left[1], right[1]) +
+        dot(left[2], right[2]);
+}
+
+inline float3x3 matrixDeviator(const float3x3 value) {
+    return value - (matrixTrace(value) / 3.0f) * float3x3(1.0f);
+}
+
+inline float3x3 plasticStateMatrix(device const float* state) {
+    return transpose(float3x3(
+        float3(state[0], state[1], state[2]),
+        float3(state[3], state[4], state[5]),
+        float3(state[6], state[7], state[8])));
+}
+
+inline void storePlasticStateMatrix(
+    const float3x3 value,
+    thread float* state
+) {
+    const float3x3 rows = transpose(value);
+    state[0] = rows[0].x; state[1] = rows[0].y; state[2] = rows[0].z;
+    state[3] = rows[1].x; state[4] = rows[1].y; state[5] = rows[1].z;
+    state[6] = rows[2].x; state[7] = rows[2].y; state[8] = rows[2].z;
+}
+
+// Multiplicative finite-strain elastic predictor / plastic corrector. The
+// accepted state is [Fp(3x3 row-major), accumulated plastic strain]. The
+// returned tangent is the exact directional derivative of the radial
+// algorithmic stress on the current active branch; the plastic-state update
+// uses a second-order exponential map and remains transactional.
+inline bool evaluateSpecializedPlasticity(
+    const NMMaterialGPU material,
+    device const float* acceptedState,
+    const float3x3 deformation,
+    const float3x3 deformationDirection,
+    const bool evaluateDirection,
+    thread float3x3& stress,
+    thread float3x3& tangent,
+    thread float* projectedState
+) {
+    if (acceptedState == nullptr || material.stateCount != 10u ||
+        (material.projectionKind != NM_MATERIAL_PROJECTION_VON_MISES &&
+         material.projectionKind != NM_MATERIAL_PROJECTION_DRUCKER_PRAGER))
+        return false;
+    const float mu = material.bulk.z;
+    const float lambda = material.bulk.w;
+    const float yieldStress = material.inelastic.x;
+    const float hardening = material.inelastic.y;
+    const float druckerAlpha = material.projectionKind ==
+            NM_MATERIAL_PROJECTION_DRUCKER_PRAGER
+        ? material.inelastic.z : 0.0f;
+    const float cohesion = material.projectionKind ==
+            NM_MATERIAL_PROJECTION_DRUCKER_PRAGER
+        ? material.inelastic.w : yieldStress;
+    if (!(mu > 0.0f) || !(lambda + 2.0f * mu / 3.0f > 0.0f) ||
+        !(yieldStress >= 0.0f) || !(hardening >= 0.0f)) return false;
+    const float3x3 plastic = plasticStateMatrix(acceptedState);
+    float3x3 inversePlastic, inverseDeformation;
+    if (!invert3x3(plastic, inversePlastic) ||
+        !invert3x3(deformation, inverseDeformation)) return false;
+    const float3x3 elastic = deformation * inversePlastic;
+    const float elasticJ = determinant(elastic);
+    if (!(elasticJ > kGeometryFloor) || !isfinite(elasticJ)) return false;
+    const float3x3 identity = float3x3(1.0f);
+    const float3x3 leftCauchy = elastic * transpose(elastic);
+    const float bulkModulus = lambda + 2.0f * mu / 3.0f;
+    const float3x3 trialKirchhoff =
+        mu * (leftCauchy - identity) + lambda * log(elasticJ) * identity;
+    const float trialPressure = matrixTrace(trialKirchhoff) / 3.0f;
+    const float3x3 trialDeviator = matrixDeviator(trialKirchhoff);
+    const float deviatorNorm2 = max(matrixInner(
+        trialDeviator, trialDeviator), 0.0f);
+    const float equivalentStress = sqrt(1.5f * deviatorNorm2);
+    const float accumulated = max(acceptedState[9], 0.0f);
+    const float strength =
+        (material.projectionKind == NM_MATERIAL_PROJECTION_DRUCKER_PRAGER
+            ? cohesion : yieldStress) + hardening * accumulated;
+    const float yieldValue = equivalentStress +
+        druckerAlpha * trialPressure - strength;
+    const float denominator = 3.0f * mu + hardening +
+        bulkModulus * druckerAlpha * druckerAlpha;
+    const bool plasticStep = yieldValue > 0.0f &&
+        equivalentStress > 1.0e-10f && denominator > 0.0f;
+    const float increment = plasticStep ? yieldValue / denominator : 0.0f;
+    const float scale = plasticStep
+        ? max(1.0f - 3.0f * mu * increment / equivalentStress, 0.0f)
+        : 1.0f;
+    const float returnedPressure = trialPressure -
+        bulkModulus * druckerAlpha * increment;
+    const float3x3 returnedKirchhoff =
+        scale * trialDeviator + returnedPressure * identity;
+    const float3x3 inverseTranspose = transpose(inverseDeformation);
+    stress = returnedKirchhoff * inverseTranspose;
+    tangent = float3x3(0.0f);
+
+    if (evaluateDirection) {
+        const float3x3 elasticDirection =
+            deformationDirection * inversePlastic;
+        const float3x3 leftCauchyDirection =
+            elasticDirection * transpose(elastic) +
+            elastic * transpose(elasticDirection);
+        const float logJDirection = matrixTrace(
+            inverseDeformation * deformationDirection);
+        const float3x3 trialDirection = mu * leftCauchyDirection +
+            lambda * logJDirection * identity;
+        const float pressureDirection = matrixTrace(trialDirection) / 3.0f;
+        const float3x3 deviatorDirection = matrixDeviator(trialDirection);
+        const float equivalentDirection = equivalentStress > 1.0e-10f
+            ? 1.5f * matrixInner(trialDeviator, deviatorDirection) /
+                equivalentStress : 0.0f;
+        const float yieldDirection = equivalentDirection +
+            druckerAlpha * pressureDirection;
+        const float incrementDirection = plasticStep
+            ? yieldDirection / denominator : 0.0f;
+        const float scaleDirection = plasticStep
+            ? -3.0f * mu * (
+                incrementDirection / equivalentStress -
+                increment * equivalentDirection /
+                    (equivalentStress * equivalentStress))
+            : 0.0f;
+        const float returnedPressureDirection = pressureDirection -
+            bulkModulus * druckerAlpha * incrementDirection;
+        const float3x3 kirchhoffDirection =
+            scale * deviatorDirection + scaleDirection * trialDeviator +
+            returnedPressureDirection * identity;
+        const float3x3 inverseTransposeDirection = -1.0f *
+            inverseTranspose * transpose(deformationDirection) *
+            inverseTranspose;
+        tangent = kirchhoffDirection * inverseTranspose +
+            returnedKirchhoff * inverseTransposeDirection;
+    }
+
+    if (projectedState != nullptr) {
+        const float3x3 flow = equivalentStress > 1.0e-10f
+            ? 1.5f * trialDeviator / equivalentStress +
+                (druckerAlpha / 3.0f) * identity
+            : float3x3(0.0f);
+        const float3x3 plasticIncrement = increment * flow;
+        const float3x3 exponential = identity + plasticIncrement +
+            0.5f * plasticIncrement * plasticIncrement;
+        const float3x3 nextPlastic = exponential * plastic;
+        const float nextPlasticJ = determinant(nextPlastic);
+        if (!(nextPlasticJ > kGeometryFloor) || !isfinite(nextPlasticJ))
+            return false;
+        storePlasticStateMatrix(nextPlastic, projectedState);
+        projectedState[9] = accumulated + increment;
+    }
+    return all(isfinite(stress[0])) && all(isfinite(stress[1])) &&
+        all(isfinite(stress[2])) && all(isfinite(tangent[0])) &&
+        all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
+}
+
 inline bool projectMaterialState(
     const NMMaterialGPU material,
     device const NMScalarProgramGPU* programs,
@@ -812,6 +969,12 @@ inline bool projectMaterialState(
     if (acceptedState == nullptr ||
         material.stateCount > NM_MAX_MATERIAL_STATE) {
         return false;
+    }
+    if (material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC) {
+        float3x3 stress, tangent;
+        return evaluateSpecializedPlasticity(
+            material, acceptedState, deformation, float3x3(0.0f), false,
+            stress, tangent, projectedState);
     }
     for (uint state = 0u; state < material.stateCount; ++state) {
         if (!evaluateStateUpdate(
@@ -911,6 +1074,14 @@ inline float3x3 evaluateAlgorithmicStress(
     const float temperature,
     thread bool& valid
 ) {
+    if (material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC) {
+        float projectedState[NM_MAX_MATERIAL_STATE];
+        float3x3 stress, tangent;
+        valid = valid && evaluateSpecializedPlasticity(
+            material, acceptedState, deformation, float3x3(0.0f), false,
+            stress, tangent, projectedState);
+        return valid ? stress : float3x3(0.0f);
+    }
     if (material.stateCount == 0u) {
         return evaluateStress(
             material, programs, instructions, parameters, acceptedState,
@@ -948,6 +1119,21 @@ inline void evaluateAlgorithmicStressTangent(
     thread float3x3& tangent,
     thread bool& valid
 ) {
+    if (material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC) {
+        float projectedState[NM_MAX_MATERIAL_STATE];
+        valid = valid && evaluateSpecializedPlasticity(
+            material, acceptedState, deformation, deformationDirection,
+            true, stress, tangent, projectedState);
+        if (!valid) {
+            stress = float3x3(0.0f);
+            tangent = float3x3(0.0f);
+        }
+        (void)deformationRate;
+        (void)rateDirection;
+        (void)timestep;
+        (void)temperature;
+        return;
+    }
     if (material.stateCount == 0u) {
         stress = evaluateStress(
             material, programs, instructions, parameters, acceptedState,

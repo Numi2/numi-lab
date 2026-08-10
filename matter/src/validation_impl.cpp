@@ -700,6 +700,17 @@ private:
                     "physical limits are nonfinite or nonphysical"
                 );
             }
+            if (material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC &&
+                (material.stateCount != 10u || !(material.bulk.z > 0.0f) ||
+                 !(material.bulk.w + 2.0f * material.bulk.z / 3.0f > 0.0f) ||
+                 material.inelastic.x < 0.0f ||
+                 material.inelastic.y < 0.0f ||
+                 material.inelastic.z < 0.0f)) {
+                return failIndexed(
+                    "material", index,
+                    "specialized plastic projection state or parameters are invalid"
+                );
+            }
         }
         if (parameterCursor != world_.parameters.size() ||
             stateCursor != world_.stateInitials.size() ||

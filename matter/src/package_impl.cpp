@@ -380,10 +380,19 @@ bool readPackage(
         return false;
     }
     PackageHeader header{};
-    if (!readRaw(stream, header) || header.magic != kMagic ||
-        header.version != kPackageVersion ||
+    if (!readRaw(stream, header)) {
+        if (error != nullptr) *error = "invalid matter package header";
+        return false;
+    }
+    if (header.magic == kMagic &&
+        (header.version != kPackageVersion ||
+         header.matterAbiVersion != NM_MATTER_ABI_VERSION)) {
+        if (error != nullptr)
+            *error = "matter package ABI mismatch: recook required";
+        return false;
+    }
+    if (header.magic != kMagic ||
         header.endian != kEndianMarker ||
-        header.matterAbiVersion != NM_MATTER_ABI_VERSION ||
         header.headerHash != headerHash(header) ||
         header.sectionCount != kSectionCount) {
         if (error != nullptr) {

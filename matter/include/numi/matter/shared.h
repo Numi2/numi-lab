@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 14u
+#define NM_MATTER_ABI_VERSION 15u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -617,11 +617,11 @@ typedef struct NM_ALIGN16 NMMaterialGPU {
     nm_u32 stateTransferMask;
     nm_u32 localNewtonIterations;
 
-    // density, reference temperature, viscosity, yield stress.
+    // density, reference temperature, specialized shear modulus, lambda.
     nm_float4 bulk;
     // static friction, dynamic friction, restitution, adhesion.
     nm_float4 interfaceResponse;
-    // hardening, damage rate, reserved, reserved.
+    // yield/cohesion strength, isotropic hardening, DP alpha, DP cohesion.
     nm_float4 inelastic;
     // minimum J, maximum J, maximum stress, maximum energy density.
     nm_float4 validity;

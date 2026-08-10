@@ -237,9 +237,15 @@ Matter Language distinguishes accepted `state` from `next(state)`. An authored
 Jacobian, deformation-action, and stress-state derivative bytecode. Each
 particle/tetrahedron executes damped bounded local Newton and the global operator uses
 the consistent action `P_F - P_z R_z^-1 R_F`. Explicit `update` remains a
-supported compatibility path. Constitutive hints do not imply a return map:
-inelastic evolution is present only when the material authors one of those
-state laws.
+supported compatibility path. `model von_mises` and
+`model drucker_prager` select multiplicative finite-strain elastic-predictor /
+plastic-corrector policies. They require row-major `plastic_f00` through
+`plastic_f22` state initialized to identity plus
+`equivalent_plastic_strain transfer max`; the compiler rejects an incomplete
+layout. Their radial return applies isotropic hardening, a transactional
+second-order exponential update of `Fp`, and the directional derivative of
+the active algorithmic stress branch. Drucker-Prager additionally compiles
+friction angle and cohesion into its pressure-sensitive corrector.
 
 Topology capacity is immutable during a borrowed submission. Existing
 cohesive insertion, erosion, and crack/channel exposure execute in stable

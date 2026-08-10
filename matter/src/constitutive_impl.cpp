@@ -809,6 +809,44 @@ ConstitutiveCompileResult compileConstitutive(
         });
         return result;
     }
+    const bool specializedPlasticity =
+        material.hint == ConstitutiveHint::vonMises ||
+        material.hint == ConstitutiveHint::druckerPrager;
+    if (specializedPlasticity) {
+        constexpr std::array<std::string_view, 10u> requiredState{{
+            "plastic_f00", "plastic_f01", "plastic_f02",
+            "plastic_f10", "plastic_f11", "plastic_f12",
+            "plastic_f20", "plastic_f21", "plastic_f22",
+            "equivalent_plastic_strain",
+        }};
+        bool validLayout = material.internalState.size() ==
+            requiredState.size();
+        for (std::size_t state = 0u;
+             validLayout && state < requiredState.size(); ++state) {
+            const double expected = state < 9u && state % 4u == 0u
+                ? 1.0 : 0.0;
+            validLayout = material.internalState[state].name ==
+                    requiredState[state] &&
+                material.internalState[state].initialValue == expected &&
+                (state != 9u || material.internalState[state].transfer ==
+                    InternalState::Transfer::maximum);
+        }
+        const bool validParameters = parameterIndex(material, "mu").has_value() &&
+            parameterIndex(material, "lambda").has_value() &&
+            parameterIndex(material, "hardening").has_value() &&
+            ((material.hint == ConstitutiveHint::vonMises &&
+              parameterIndex(material, "yield_stress").has_value()) ||
+             (material.hint == ConstitutiveHint::druckerPrager &&
+              parameterIndex(material, "friction_angle").has_value() &&
+              parameterIndex(material, "cohesion").has_value()));
+        if (!validLayout || !validParameters) {
+            result.diagnostics.push_back({
+                Diagnostic::Severity::error, 0u, 0u,
+                "specialized plasticity requires row-major plastic_f00..plastic_f22 identity state, equivalent_plastic_strain transfer max, and mu/lambda/hardening parameters; von Mises requires yield_stress and Drucker-Prager requires friction_angle and cohesion",
+            });
+            return result;
+        }
+    }
 
     Symbolic symbolic(result.program.material.expressions);
     std::array<std::uint32_t, 9> stressRoots{};
@@ -990,11 +1028,11 @@ ConstitutiveCompileResult compileConstitutive(
     gpu.stateInitialOffset = NM_INVALID_INDEX;
     gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
     gpu.dissipationProgram = NM_INVALID_INDEX;
-    // The constitutive hint selects authored stress bytecode only. Plastic
-    // return mapping is owned by an explicit update or implicit residual; do
-    // not advertise a specialized projection policy that the device does not
-    // execute.
-    gpu.projectionKind = NM_MATERIAL_PROJECTION_GENERIC;
+    gpu.projectionKind = material.hint == ConstitutiveHint::vonMises
+        ? NM_MATERIAL_PROJECTION_VON_MISES
+        : material.hint == ConstitutiveHint::druckerPrager
+            ? NM_MATERIAL_PROJECTION_DRUCKER_PRAGER
+            : NM_MATERIAL_PROJECTION_GENERIC;
     gpu.viscousStressProgramOffset = NM_INVALID_INDEX;
     gpu.viscousTangentProgramOffset = NM_INVALID_INDEX;
     gpu.implicitResidualProgramOffset = NM_INVALID_INDEX;
@@ -1013,11 +1051,36 @@ ConstitutiveCompileResult compileConstitutive(
         gpu.stateTransferMask |= encoded << (2u * state);
     }
     const auto density = parameterIndex(material, "density");
+    const auto mu = parameterIndex(material, "mu");
+    const auto lambda = parameterIndex(material, "lambda");
+    const auto yieldStress = parameterIndex(material, "yield_stress");
+    const auto hardening = parameterIndex(material, "hardening");
+    const auto frictionAngle = parameterIndex(material, "friction_angle");
+    const auto cohesion = parameterIndex(material, "cohesion");
+    const auto parameterDefault = [&](
+        const std::optional<std::uint32_t> index,
+        const double fallback = 0.0
+    ) {
+        return index.has_value()
+            ? material.parameters[*index].defaultValue : fallback;
+    };
     gpu.bulk = float4(
         density.has_value() ? static_cast<float>(material.parameters[*density].defaultValue) : 0.0f,
         293.15f,
-        0.0f,
-        0.0f
+        static_cast<float>(parameterDefault(mu)),
+        static_cast<float>(parameterDefault(lambda))
+    );
+    const double angle = parameterDefault(frictionAngle);
+    const double sinAngle = std::sin(angle);
+    const double denominator = std::max(3.0 - sinAngle, 1.0e-12);
+    const double druckerAlpha = 2.0 * sinAngle / denominator;
+    const double druckerCohesion =
+        6.0 * parameterDefault(cohesion) * std::cos(angle) / denominator;
+    gpu.inelastic = float4(
+        static_cast<float>(parameterDefault(yieldStress)),
+        static_cast<float>(parameterDefault(hardening)),
+        static_cast<float>(druckerAlpha),
+        static_cast<float>(druckerCohesion)
     );
     gpu.interfaceResponse = float4(
         static_cast<float>(material.staticFriction),
