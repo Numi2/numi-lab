@@ -2954,6 +2954,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:8u];
                         [encoder setBuffer:deformableWarmstarts offset:0u atIndex:9u];
                         [encoder setBuffer:state.deformableContacts offset:0u atIndex:10u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:11u];
                     }
                 );
                 dispatchGroups32(

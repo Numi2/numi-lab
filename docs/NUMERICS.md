@@ -232,6 +232,14 @@ starts store only stable source/frame and lagged-friction state and participate 
 the same checkpoint/commit/rollback transaction as nodes, fields, topology,
 materials, schedulers, and rigid contact warm starts.
 
+Conservative advancement distinguishes a certified miss from iteration
+exhaustion or a nonfinite witness. Only the former may disappear from the
+candidate set; an uncertified VT/EE query fails that environment closed.
+Barrier stiffness is raised from its inertial floor when closing speed demands
+a stronger feasible-step response. Lagged friction transports the prior world
+tangent into the new contact frame and blends static to dynamic friction over
+a thickness/timestep-scaled smooth transition.
+
 Matter Language distinguishes accepted `state` from `next(state)`. An authored
 `implicit state = residual;` declaration compiles local residual, pivoted
 Jacobian, deformation-action, and stress-state derivative bytecode. Each

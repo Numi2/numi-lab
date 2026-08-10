@@ -7,7 +7,8 @@ inline float4 ipcBarrierResponse(
     const float separation,
     const float thickness,
     const float inverseResponse,
-    const float timestep
+    const float timestep,
+    const float closingSpeed
 ) {
     if (!(thickness > 0.0f) || separation >= thickness ||
         !(inverseResponse > 0.0f) || !(timestep > 0.0f)) {
@@ -16,8 +17,13 @@ inline float4 ipcBarrierResponse(
     const float distance = max(separation, 1.0e-4f * thickness);
     const float offset = distance - thickness;
     const float logarithm = log(distance / thickness);
-    const float stiffness = 10.0f /
+    const float inertialStiffness = 10.0f /
         max(inverseResponse * timestep * timestep, 1.0e-20f);
+    const float remaining = max(thickness - distance,
+        1.0e-3f * thickness);
+    const float impactStiffness = max(closingSpeed, 0.0f) /
+        max(inverseResponse * timestep * remaining, 1.0e-20f);
+    const float stiffness = max(inertialStiffness, impactStiffness);
     const float force = stiffness *
         (2.0f * offset * logarithm + offset * offset / distance);
     const float hessian = max(-stiffness *
@@ -502,8 +508,10 @@ inline bool vertexTriangleCCD(
     thread float3& normal,
     thread float3& barycentric,
     thread float3& point,
-    thread float& separation
+    thread float& separation,
+    thread bool& certified
 ) {
+    certified = false;
     const float speedBound = length(vertex1 - vertex0) + max(
         length(a1 - a0), max(length(b1 - b0), length(c1 - c0)));
     float time = 0.0f;
@@ -529,13 +537,20 @@ inline bool vertexTriangleCCD(
             barycentric = bary;
             point = trianglePoint;
             separation = distance;
+            certified = true;
             return finite3(normal);
         }
-        if (!(speedBound > kGeometryFloor)) return false;
+        if (!(speedBound > kGeometryFloor)) {
+            certified = true;
+            return false;
+        }
         const float step = max(
             (distance - thickness) / speedBound, 1.0e-6f);
         time += step;
-        if (time > 1.0f + 8.0f * kEpsilon) return false;
+        if (time > 1.0f + 8.0f * kEpsilon) {
+            certified = true;
+            return false;
+        }
         time = min(time, 1.0f);
     }
     return false;
@@ -555,8 +570,10 @@ inline bool edgeEdgeCCD(
     thread float3& normal,
     thread float2& parameters,
     thread float3& point,
-    thread float& separation
+    thread float& separation,
+    thread bool& certified
 ) {
+    certified = false;
     const float speedBound = max(length(p01 - p00), length(p11 - p10)) +
         max(length(q01 - q00), length(q11 - q10));
     float time = 0.0f;
@@ -581,13 +598,20 @@ inline bool edgeEdgeCCD(
             parameters = float2(s, t);
             point = 0.5f * (pointP + pointQ);
             separation = distance;
+            certified = true;
             return finite3(normal);
         }
-        if (!(speedBound > kGeometryFloor)) return false;
+        if (!(speedBound > kGeometryFloor)) {
+            certified = true;
+            return false;
+        }
         const float step = max(
             (distance - thickness) / speedBound, 1.0e-6f);
         time += step;
-        if (time > 1.0f + 8.0f * kEpsilon) return false;
+        if (time > 1.0f + 8.0f * kEpsilon) {
+            certified = true;
+            return false;
+        }
         time = min(time, 1.0f);
     }
     return false;
@@ -605,6 +629,7 @@ kernel void nm_contact_narrowphase_deformable(
     device const uint* candidateCounts [[buffer(8)]],
     device const NMDeformableWarmstartGPU* warmstarts [[buffer(9)]],
     device NMDeformableContactGPU* contacts [[buffer(10)]],
+    device NMMatterStatusGPU* statuses [[buffer(11)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
@@ -664,14 +689,24 @@ kernel void nm_contact_narrowphase_deformable(
         for (uint vertexIndex = 0u; vertexIndex < 3u; ++vertexIndex) {
             float toi, separation;
             float3 normal, barycentric, point;
-            if (vertexTriangleCCD(
+            bool certified = false;
+            const bool hit = vertexTriangleCCD(
                     start[vertexBase + vertexIndex],
                     finish[vertexBase + vertexIndex],
                     start[triangleBase], finish[triangleBase],
                     start[triangleBase + 1u], finish[triangleBase + 1u],
                     start[triangleBase + 2u], finish[triangleBase + 2u],
-                    thickness, toi, normal, barycentric, point, separation) &&
-                toi < bestTOI) {
+                    thickness, toi, normal, barycentric, point, separation,
+                    certified);
+            if (!certified) {
+                recordFailure(statuses[environment],
+                    NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                    float4(float(candidate.identity.x),
+                           float(candidate.identity.y),
+                           float(vertexIndex), 0.0f));
+                return;
+            }
+            if (hit && toi < bestTOI) {
                 bestTOI = toi;
                 bestNormal = normal;
                 bestPoint = point;
@@ -702,12 +737,22 @@ kernel void nm_contact_narrowphase_deformable(
             float toi, separation;
             float3 normal, point;
             float2 parameters;
-            if (edgeEdgeCCD(
+            bool certified = false;
+            const bool hit = edgeEdgeCCD(
                     start[a.x], finish[a.x], start[a.y], finish[a.y],
                     start[3u + b.x], finish[3u + b.x],
                     start[3u + b.y], finish[3u + b.y],
-                    thickness, toi, normal, parameters, point, separation) &&
-                toi < bestTOI) {
+                    thickness, toi, normal, parameters, point, separation,
+                    certified);
+            if (!certified) {
+                recordFailure(statuses[environment],
+                    NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                    float4(float(candidate.identity.x),
+                           float(candidate.identity.y),
+                           float(edgeA), float(edgeB)));
+                return;
+            }
+            if (hit && toi < bestTOI) {
                 bestTOI = toi;
                 bestNormal = normal;
                 bestPoint = point;
@@ -769,12 +814,16 @@ kernel void nm_contact_narrowphase_deformable(
         dispatch, schedulers[environment * dispatch.objectCount +
                              bestPositiveObject]);
     const float4 barrier = ipcBarrierResponse(
-        bestSeparation, thickness, inverseResponse, contactTimestep);
+        bestSeparation, thickness, inverseResponse, contactTimestep,
+        max(-dot(bestNormal, relativeVelocity), 0.0f));
     const uint positiveMaterial = objects[bestPositiveObject].materialIndex;
     const uint negativeMaterial = objects[bestNegativeObject].materialIndex;
     if (positiveMaterial >= dispatch.materialCount ||
         negativeMaterial >= dispatch.materialCount) return;
-    const float friction = sqrt(max(
+    const float staticFriction = sqrt(max(
+        materials[positiveMaterial].interfaceResponse.x *
+        materials[negativeMaterial].interfaceResponse.x, 0.0f));
+    const float dynamicFriction = sqrt(max(
         materials[positiveMaterial].interfaceResponse.y *
         materials[negativeMaterial].interfaceResponse.y, 0.0f));
     float2 transportedTangent = float2(0.0f);
@@ -792,7 +841,7 @@ kernel void nm_contact_narrowphase_deformable(
         transportedTangent = float2(
             dot(nextTangent0, previousWorldTangent),
             dot(nextTangent1, previousWorldTangent));
-        const float tangentLimit = friction *
+        const float tangentLimit = staticFriction *
             max(previous.normalAndLambda.w, 0.0f);
         const float tangentLength = length(transportedTangent);
         if (tangentLength > tangentLimit && tangentLength > 1.0e-20f)
@@ -802,13 +851,20 @@ kernel void nm_contact_narrowphase_deformable(
     deformableContactFrame(bestNormal, tangent0, tangent1);
     const float2 tangentVelocity = float2(
         dot(tangent0, relativeVelocity), dot(tangent1, relativeVelocity));
-    float2 laggedFriction = -tangentVelocity /
-        max(inverseResponse, 1.0e-20f);
+    const float tangentSpeed = length(tangentVelocity);
+    const float transitionSpeed = max(
+        0.05f * thickness / max(contactTimestep, 1.0e-12f), 1.0e-6f);
+    const float transition = smoothstep(
+        0.25f * transitionSpeed, transitionSpeed, tangentSpeed);
+    const float friction = mix(staticFriction, dynamicFriction, transition);
     const float frictionLimit = friction * barrier.x;
-    const float frictionLength = length(laggedFriction);
-    if (frictionLength > frictionLimit && frictionLength > 1.0e-20f)
-        laggedFriction *= frictionLimit / frictionLength;
-    if (sameSource && length(tangentVelocity) < 1.0e-6f)
+    const float regularizedSpeed = sqrt(
+        tangentSpeed * tangentSpeed +
+        transitionSpeed * transitionSpeed);
+    float2 laggedFriction = tangentSpeed > 0.0f
+        ? -frictionLimit * tangentVelocity / regularizedSpeed
+        : float2(0.0f);
+    if (sameSource && tangentSpeed < 0.25f * transitionSpeed)
         laggedFriction = transportedTangent;
     contact.impulseAndFriction = float4(
         barrier.x,
@@ -1390,7 +1446,8 @@ kernel void nm_contact_evaluate(
         return;
     }
     const float4 barrier = ipcBarrierResponse(
-        separation, slop, normalResponse, dt);
+        separation, slop, normalResponse, dt,
+        max(-normalVelocity, 0.0f));
     const float normalImpulse = barrier.x;
     const float staticFriction = sqrt(max(
         materials[object.materialIndex].interfaceResponse.x *
