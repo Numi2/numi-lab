@@ -1,0 +1,32 @@
+{
+  "schema": "numi.pqi2-disturbance-protocol.v1",
+  "id": "pqi2-learned-invariant-base-disturbance-validation-20-seed",
+  "status": "preregistered",
+  "branch": "numisolver",
+  "research_question": "Does learned invariant-base hand raising retain complete physical qualification across 20 unseen impulse directions per task?",
+  "pilot_seed": 2650443671,
+  "training_seed": 2650443681,
+  "confirmatory_seeds": [
+    2650443701, 2650443702, 2650443703, 2650443704, 2650443705,
+    2650443706, 2650443707, 2650443708, 2650443709, 2650443710,
+    2650443711, 2650443712, 2650443713, 2650443714, 2650443715,
+    2650443716, 2650443717, 2650443718, 2650443719, 2650443720
+  ],
+  "controller_calibration_band": [1, 1],
+  "push_interval_seconds": 0.40,
+  "tasks": {
+    "raise-right-hand": {"steps": 40, "push_maximum_velocity_mps": 0.20, "requested_wrists": ["right"]},
+    "raise-left-hand": {"steps": 40, "push_maximum_velocity_mps": 0.20, "requested_wrists": ["left"]},
+    "raise-both-hands": {"steps": 32, "push_maximum_velocity_mps": 0.80, "requested_wrists": ["left", "right"]}
+  },
+  "methods": ["fixed-base", "learned-invariant-base"],
+  "primary_endpoint": "Qualified success requires every requested wrist COM to reach 0.88 m and rise 0.20 m, zero terminations and failed environment steps, minimum root height above 0.64 m, and maximum tilt below 0.50 rad.",
+  "claim_gates": [
+    "all 120 task-method-seed cells complete from one clean revision",
+    "the fixed base fails at least one validation run for every task",
+    "the learned invariant base qualifies all 60 validation runs",
+    "zero failed environment steps",
+    "simulator evidence is not hardware evidence"
+  ],
+  "pilot_note": "This validation extension was frozen only after the separate five-seed confirmatory study passed. No policy training or severity selection uses these 20 validation seeds."
+}

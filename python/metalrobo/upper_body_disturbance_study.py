@@ -119,8 +119,13 @@ def run(
                 })
     learned = [record for record in records if record["method"] == "learned-invariant-base"]
     fixed = [record for record in records if record["method"] == "fixed-base"]
+    planned_runs = (
+        len(protocol["tasks"])
+        * len(protocol["methods"])
+        * len(protocol["confirmatory_seeds"])
+    )
     claims_unlocked = (
-        len(records) == 30
+        len(records) == planned_runs
         and all(record["failed_environment_steps"] == 0 for record in records)
         and all(record["qualified_success"] for record in learned)
         and all(any(
@@ -132,7 +137,7 @@ def run(
         "schema": "numi.pqi2-disturbance-summary.v1",
         "revision": revision, "worktree_status": status,
         "protocol_sha256": _sha256(protocol_path),
-        "planned_runs": 30, "completed_runs": len(records),
+        "planned_runs": planned_runs, "completed_runs": len(records),
         "claims_unlocked": claims_unlocked, "records": records,
     }
     (output / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
