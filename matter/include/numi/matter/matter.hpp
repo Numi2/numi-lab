@@ -586,27 +586,6 @@ enum class EncodePhase : std::uint32_t {
     postCommit = 1u,
 };
 
-struct ArticulatedResponseQuery {
-    void* pointQueries = nullptr;
-    void* pointWorld = nullptr;
-    void* pointJacobians = nullptr;
-    void* rightHandSides = nullptr;
-    void* responseColumns = nullptr;
-    void* inverseMassStatuses = nullptr;
-    void* csrRows = nullptr;
-    void* csrColumns = nullptr;
-    void* csrValues = nullptr;
-    std::uint32_t pointCount = 0u;
-    std::uint32_t responseEntryCount = 0u;
-    std::uint32_t generalizedVectorStride = 0u;
-    std::uint32_t inverseMassStatusStride = 0u;
-};
-
-using EncodeArticulatedResponses = bool (*)(
-    void* context,
-    const ArticulatedResponseQuery& query
-);
-
 enum class CoupledCandidateOperation : std::uint32_t {
     candidateKinematics = 0u,
     massAction = 1u,
@@ -657,11 +636,6 @@ struct EncodeRequest {
     // adaptive fallback body that contacted the rigid world.
     void* rigidContactConstraints = nullptr; // id<MTLBuffer>, MRContactConstraintGPU
     void* rigidContactStatuses = nullptr; // id<MTLBuffer>, MRMetalWorldContactStatusGPU
-    // Optional same-command-buffer inverse-ABA service supplied by
-    // MetalWorld. Matter invokes it only after point queries and the
-    // continuum/free-body response CSR have been encoded.
-    void* articulatedResponseContext = nullptr;
-    EncodeArticulatedResponses encodeArticulatedResponses = nullptr;
     void* coupledCandidateContext = nullptr;
     EncodeCoupledCandidate encodeCoupledCandidate = nullptr;
     // Optional fixed-stride device command stream. The runtime validates and
@@ -731,18 +705,11 @@ struct RuntimeStateSnapshot {
     std::vector<NMAdaptiveStateGPU> adaptive;
     std::vector<NMSchedulerStateGPU> schedulers;
     std::vector<NMRigidReactionGPU> reactions;
-    // Completion-boundary contact diagnostics, populated only when
-    // RuntimeConfiguration::captureDiagnostics is enabled. The CSR values
-    // are the exact full response consumed by the device solver after any
-    // borrowed MetalWorld articulated-response encoding. CSR row/column
-    // indices are expanded to original contact-pair IDs per environment at
-    // this explicit readback boundary; inactive reserved slots are UINT32_MAX.
+    // Completion-boundary primal-contact diagnostics, populated only when
+    // RuntimeConfiguration::captureDiagnostics is enabled.
     std::vector<NMContactSampleGPU> contactSamples;
     std::vector<nm_float4> contactWarmstarts;
     std::vector<NMDeformableWarmstartGPU> deformableContactWarmstarts;
-    std::vector<std::uint32_t> contactResponseRows;
-    std::vector<std::uint32_t> contactResponseColumns;
-    std::vector<float> contactResponseValues;
     std::uint32_t materialStateStride = 0u;
     std::vector<float> particleMaterialState;
     std::vector<float> femMaterialState;
@@ -786,7 +753,7 @@ public:
     [[nodiscard]] bool automaticIdentificationEnabled() const noexcept;
     [[nodiscard]] bool adaptiveTransferEnabled() const noexcept;
     [[nodiscard]] bool requiresBodyWrenches() const noexcept;
-    [[nodiscard]] bool requiresArticulatedResponses() const noexcept;
+    [[nodiscard]] bool requiresCoupledCandidate() const noexcept;
     [[nodiscard]] bool requiresRigidContactEvidence() const noexcept;
     [[nodiscard]] float timestepSeconds() const noexcept;
     [[nodiscard]] RuntimeStateSnapshot snapshot() const;

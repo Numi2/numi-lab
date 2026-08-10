@@ -310,34 +310,6 @@ inline constexpr std::uint32_t kMetalWorldDevicePhysicsKnownFlags =
 
 struct MetalWorldDevicePhysicsPass;
 
-// Device-resident point-response request owned by a physics extension. Every
-// buffer is borrowed for the duration of the enclosing encode callback. Point
-// queries are environment-major MRArticulatedPointImpulseGPU records. RHS and
-// response columns are environment-major [point][generalizedVectorStride].
-// CSR rows/columns address point-query slots; response values are incremented
-// in place so continuum and free-body contributions remain additive.
-struct MetalWorldArticulatedResponseQuery {
-    void* pointQueries = nullptr;
-    void* pointWorld = nullptr;
-    void* pointJacobians = nullptr;
-    void* rightHandSides = nullptr;
-    void* responseColumns = nullptr;
-    void* inverseMassStatuses = nullptr;
-    void* csrRows = nullptr;
-    void* csrColumns = nullptr;
-    void* csrValues = nullptr;
-    std::uint32_t pointCount = 0u;
-    std::uint32_t responseEntryCount = 0u;
-    std::uint32_t generalizedVectorStride = 0u;
-    std::uint32_t inverseMassStatusStride = 0u;
-};
-
-using MetalWorldEncodeArticulatedResponses = bool (*)(
-    void* context,
-    const MetalWorldDevicePhysicsPass& pass,
-    const MetalWorldArticulatedResponseQuery& query
-);
-
 enum class MetalWorldCoupledCandidateOperation : std::uint32_t {
     // Integrate q(q0, v0 + dv) over the borrowed substep and materialize the
     // corresponding articulated body states without publishing them.
@@ -399,10 +371,6 @@ struct MetalWorldDevicePhysicsPass {
     // buffer and is never retained by the extension.
     void* contactConstraints = nullptr;
     void* contactStatuses = nullptr;
-    // Same-command-buffer inverse-ABA service. The extension may invoke this
-    // only during preDynamics and must not retain the callback or its context.
-    void* articulatedResponseContext = nullptr;
-    MetalWorldEncodeArticulatedResponses encodeArticulatedResponses = nullptr;
     void* coupledCandidateContext = nullptr;
     MetalWorldEncodeCoupledCandidate encodeCoupledCandidate = nullptr;
     std::uint64_t seed = 0u;

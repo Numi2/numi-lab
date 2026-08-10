@@ -310,7 +310,7 @@ struct Runtime::State {
     bool adaptiveTransfer = true;
     bool requiresCurrentBodies = false;
     bool requiresBodyWrenches = false;
-    bool requiresArticulatedResponses = false;
+    bool requiresCoupledCandidate = false;
     bool requiresSceneBodies = false;
     bool hasAdaptive = false;
     std::shared_ptr<CommandOwnership> commandOwnership =
@@ -391,21 +391,9 @@ struct Runtime::State {
     // proxies per rigid body while retaining one deterministic wrench writer.
     id<MTLBuffer> bodyProxyIncidence = nil;
     id<MTLBuffer> bodyProxyRanges = nil;
-    // Fixed contact-space sparsity. Rows are contact pairs; columns include
-    // every pair sharing a continuum node, a rigid body, or conservative
-    // articulated ownership. The borrowed MetalWorld response leaves entries
-    // across independent articulations at exact zero. Connected components
-    // provide race-free device work ownership for the PGS solve.
-    id<MTLBuffer> contactResponseColumns = nil;
-    id<MTLBuffer> contactResponseRows = nil;
-    id<MTLBuffer> contactResponseRanges = nil;
-    id<MTLBuffer> contactComponentIncidence = nil;
-    id<MTLBuffer> contactComponentRanges = nil;
     id<MTLBuffer> contactActivePairs = nil;
     id<MTLBuffer> contactActiveSlotsByPair = nil;
     id<MTLBuffer> contactActiveCounts = nil;
-    std::uint32_t contactResponseEntryCount = 0u;
-    std::uint32_t contactComponentCount = 0u;
     std::uint32_t contactActiveCapacity = 0u;
 
     id<MTLBuffer> environmentParameters = nil;
@@ -468,14 +456,7 @@ struct Runtime::State {
     id<MTLBuffer> contactWarmstartsAccepted = nil;
     id<MTLBuffer> contactWarmstartsCandidate = nil;
     id<MTLBuffer> contactWarmstartsCheckpoint = nil;
-    id<MTLBuffer> contactResponseValues = nil;
     id<MTLBuffer> articulatedPointQueries = nil;
-    id<MTLBuffer> articulatedPointWorld = nil;
-    id<MTLBuffer> articulatedPointJacobians = nil;
-    id<MTLBuffer> articulatedRightHandSides = nil;
-    id<MTLBuffer> articulatedResponseColumns = nil;
-    id<MTLBuffer> articulatedInverseStatuses = nil;
-    std::uint32_t articulatedInverseStatusStride = 0u;
     id<MTLBuffer> coupledGeneralizedInput = nil;
     id<MTLBuffer> coupledGeneralizedOutput = nil;
     id<MTLBuffer> coupledGeneralizedCandidate = nil;
@@ -687,8 +668,6 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_field_smoother_export",
             "nm_fgmres_field_smooth",
             "nm_fgmres_precondition_cross",
-            "nm_fgmres_precondition_contacts",
-            "nm_fgmres_precondition_deformable_contacts",
             "nm_fgmres_export_rigid",
             "nm_fgmres_import_rigid",
             "nm_fgmres_precondition_free_rigid",
@@ -696,7 +675,6 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_apply_primal_rigid_contacts",
             "nm_contact_accumulate_rigid_residual",
             "nm_contact_subtract_rigid_inertia_residual",
-            "nm_fgmres_precondition_contact_cross",
             "nm_mpm_build_implicit_residual",
             "nm_mpm_build_constitutive_residual",
             "nm_fgmres_precondition_mpm",
@@ -707,20 +685,14 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_apply_implicit_solution",
             "nm_fem_apply_operator_elements",
             "nm_fgmres_gather_nodes",
-            "nm_fgmres_apply_contacts",
-            "nm_fgmres_apply_deformable_contacts",
             "nm_fgmres_orthogonalize_column",
             "nm_fgmres_finish_column",
             "nm_fgmres_form_restart_coefficients",
             "nm_fgmres_backsolve",
             "nm_fgmres_accumulate",
             "nm_fgmres_accumulate_fields",
-            "nm_fgmres_accumulate_contacts",
-            "nm_fgmres_accumulate_deformable_contacts",
             "nm_fgmres_accumulate_rigid",
             "nm_fgmres_restart_residual_nodes",
-            "nm_fgmres_restart_residual_contacts",
-            "nm_fgmres_restart_residual_deformable_contacts",
             "nm_fgmres_restart_residual_rigid",
             "nm_contact_clear_samples",
             "nm_contact_build_surface_primitives",
@@ -742,18 +714,11 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_commit_deformable_warmstarts",
             "nm_contact_rollback_deformable_warmstarts",
             "nm_contact_prepare_articulated_queries",
-            "nm_contact_gather_response",
-            "nm_contact_validate_articulated_response",
-            "nm_contact_solve_coupled",
-            "nm_contact_certify_natural_map",
             "nm_contact_accumulate_fem_residual",
             "nm_contact_accumulate_deformable_fem_residual",
-            "nm_contact_build_kkt_residual",
-            "nm_contact_build_deformable_kkt_residual",
             "nm_contact_apply_kkt_solution",
             "nm_contact_limit_deformable_line_search",
             "nm_contact_apply_deformable_kkt_solution",
-            "nm_contact_apply_nodes",
             "nm_contact_reduce_rigid",
             "nm_accumulate_rigid_reactions",
             "nm_mpm_g2p",
@@ -817,21 +782,6 @@ RuntimeDiagnostics Runtime::initialize(
             }
             candidate->pipelines.emplace(name, pipeline);
         }
-        {
-            const char* name = "nm_bridge_rigid_reactions";
-            id<MTLFunction> function = kernel(name);
-            NSError* pipelineError = nil;
-            id<MTLComputePipelineState> pipeline = function == nil
-                ? nil
-                : [candidate->device newComputePipelineStateWithFunction:function
-                                                                   error:&pipelineError];
-            if (pipeline == nil) {
-                diagnostics.message = "failed to compile rigid bridge pipeline: " +
-                    errorString(pipelineError);
-                return diagnostics;
-            }
-            candidate->pipelines.emplace(name, pipeline);
-        }
         for (const char* name : {
                 "nm_mpm_scan_environment_blocks",
                 "nm_mpm_scan_environment_counts",
@@ -871,52 +821,6 @@ RuntimeDiagnostics Runtime::initialize(
                 "Matter active contact capacity is zero for a contact world";
             return diagnostics;
         }
-        std::vector<std::uint32_t> responseRows;
-        std::vector<std::uint32_t> responseColumns;
-        std::vector<NMIncidenceRangeGPU> responseRanges(
-            candidate->contactActiveCapacity
-        );
-        responseRows.reserve(
-            static_cast<std::size_t>(candidate->contactActiveCapacity) *
-            candidate->contactActiveCapacity
-        );
-        responseColumns.reserve(responseRows.capacity());
-        for (std::uint32_t row = 0u;
-             row < candidate->contactActiveCapacity; ++row) {
-            NMIncidenceRangeGPU range{};
-            range.first = static_cast<nm_u32>(responseColumns.size());
-            range.objectIndex = row;
-            for (std::uint32_t column = 0u;
-                 column < candidate->contactActiveCapacity;
-                 ++column) {
-                responseRows.push_back(row);
-                responseColumns.push_back(column);
-                ++range.count;
-            }
-            responseRanges[row] = range;
-        }
-        if (responseColumns.size() >
-            std::numeric_limits<std::uint32_t>::max()) {
-            diagnostics.message =
-                "Matter contact response CSR exceeds 32-bit capacity";
-            return diagnostics;
-        }
-        std::vector<std::uint32_t> componentIncidence(
-            candidate->contactActiveCapacity
-        );
-        std::iota(componentIncidence.begin(), componentIncidence.end(), 0u);
-        std::vector<NMIncidenceRangeGPU> componentRanges;
-        if (candidate->contactActiveCapacity != 0u) {
-            componentRanges.push_back({
-                0u, candidate->contactActiveCapacity, 0u, 0u
-            });
-        }
-        candidate->contactResponseEntryCount =
-            static_cast<std::uint32_t>(responseColumns.size());
-        candidate->dispatch.reservedMixed0 =
-            candidate->contactResponseEntryCount;
-        candidate->contactComponentCount =
-            static_cast<std::uint32_t>(componentRanges.size());
         UploadPlan uploads(candidate->device, candidate->queue);
         const std::size_t environments = world.dispatch.environmentCount;
         candidate->dispatchBuffer = uploads.one(
@@ -1077,22 +981,6 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->rigidRanges = uploads.one(
             std::span<const NMIncidenceRangeGPU>(world.contact.rigidRanges),
             valid, candidate->residentBytes);
-        candidate->contactResponseColumns = uploads.one(
-            std::span<const std::uint32_t>(responseColumns),
-            valid, candidate->residentBytes);
-        candidate->contactResponseRows = uploads.one(
-            std::span<const std::uint32_t>(responseRows),
-            valid, candidate->residentBytes);
-        candidate->contactResponseRanges = uploads.one(
-            std::span<const NMIncidenceRangeGPU>(responseRanges),
-            valid, candidate->residentBytes);
-        candidate->contactComponentIncidence = uploads.one(
-            std::span<const std::uint32_t>(componentIncidence),
-            valid, candidate->residentBytes);
-        candidate->contactComponentRanges = uploads.one(
-            std::span<const NMIncidenceRangeGPU>(componentRanges),
-            valid, candidate->residentBytes);
-
         std::vector<float> defaultParameters;
         defaultParameters.reserve(world.parameters.size());
         for (const NMParameterRangeGPU parameter : world.parameters) {
@@ -1513,57 +1401,10 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->contactWarmstartsCheckpoint = privateScratch<nm_float4>(
             candidate->device, multiplied(world.dispatch.contactPairCount),
             valid, candidate->residentBytes);
-        candidate->contactResponseValues = privateScratch<float>(
-            candidate->device,
-            multiplied(candidate->contactResponseEntryCount),
-            valid,
-            candidate->residentBytes
-        );
-        candidate->articulatedInverseStatusStride =
-            static_cast<std::uint32_t>(
-                (candidate->contactActiveCapacity +
-                 MR_ARTICULATED_INVERSE_MASS_MAX_RHS - 1u) /
-                MR_ARTICULATED_INVERSE_MASS_MAX_RHS
-            );
         candidate->articulatedPointQueries =
             privateScratch<MRArticulatedPointImpulseGPU>(
                 candidate->device,
                 multiplied(candidate->contactActiveCapacity),
-                valid,
-                candidate->residentBytes
-            );
-        candidate->articulatedPointWorld = privateScratch<nm_float4>(
-            candidate->device,
-            multiplied(candidate->contactActiveCapacity),
-            valid,
-            candidate->residentBytes
-        );
-        candidate->articulatedPointJacobians = privateScratch<float>(
-            candidate->device,
-            multiplied(candidate->contactActiveCapacity) * 3u *
-                MR_ARTICULATED_ABA_MAX_DOFS,
-            valid,
-            candidate->residentBytes
-        );
-        const std::size_t articulatedColumnElements =
-            multiplied(candidate->contactActiveCapacity) *
-            MR_ARTICULATED_ABA_MAX_DOFS;
-        candidate->articulatedRightHandSides = privateScratch<float>(
-            candidate->device,
-            articulatedColumnElements,
-            valid,
-            candidate->residentBytes
-        );
-        candidate->articulatedResponseColumns = privateScratch<float>(
-            candidate->device,
-            articulatedColumnElements,
-            valid,
-            candidate->residentBytes
-        );
-        candidate->articulatedInverseStatuses =
-            privateScratch<MRInverseMassStatusGPU>(
-                candidate->device,
-                multiplied(candidate->articulatedInverseStatusStride),
                 valid,
                 candidate->residentBytes
             );
@@ -1620,8 +1461,6 @@ RuntimeDiagnostics Runtime::initialize(
         const std::size_t mixedUnknownWidth =
             2u * static_cast<std::size_t>(world.dispatch.femNodeCount) +
             world.dispatch.gridNodeCount +
-            world.dispatch.contactPairCount +
-            world.dispatch.deformableContactCapacity +
             world.dispatch.rigidGeneralizedCapacity;
         const std::size_t mixedUnknownTotal = multiplied(mixedUnknownWidth);
         candidate->femSolution = privateScratch<nm_float4>(
@@ -1729,52 +1568,34 @@ RuntimeDiagnostics Runtime::initialize(
                                  offset:0u atIndex:0u];
         [fgmresContactEncoder setBuffer:candidate->contactSamples
                                  offset:0u atIndex:1u];
-        [fgmresContactEncoder setBuffer:candidate->contactResponseRanges
-                                 offset:0u atIndex:2u];
-        [fgmresContactEncoder setBuffer:candidate->contactResponseColumns
-                                 offset:0u atIndex:3u];
-        [fgmresContactEncoder setBuffer:candidate->contactResponseValues
-                                 offset:0u atIndex:4u];
         [fgmresContactEncoder setBuffer:candidate->contactNodeIncidence
-                                 offset:0u atIndex:5u];
+                                 offset:0u atIndex:2u];
         [fgmresContactEncoder setBuffer:candidate->contactNodeRanges
-                                 offset:0u atIndex:6u];
+                                 offset:0u atIndex:3u];
         [fgmresContactEncoder setBuffer:candidate->contactActivePairs
-                                 offset:0u atIndex:7u];
+                                 offset:0u atIndex:4u];
         [fgmresContactEncoder setBuffer:candidate->contactActiveSlotsByPair
-                                 offset:0u atIndex:8u];
+                                 offset:0u atIndex:5u];
         [fgmresContactEncoder setBuffer:candidate->contactActiveCounts
-                                 offset:0u atIndex:9u];
+                                 offset:0u atIndex:6u];
         [fgmresContactEncoder setBuffer:candidate->deformableContacts
-                                 offset:0u atIndex:10u];
-        [fgmresContactEncoder
-            setBuffer:candidate->deformableContactActiveIndices
-               offset:0u atIndex:11u];
-        [fgmresContactEncoder
-            setBuffer:candidate->deformableContactActiveCounts
-               offset:0u atIndex:12u];
+                                 offset:0u atIndex:7u];
         [fgmresContactEncoder
             setBuffer:candidate->deformableContactNodeIncidence
-               offset:0u atIndex:13u];
+               offset:0u atIndex:8u];
         [fgmresContactEncoder
             setBuffer:candidate->deformableContactNodeRanges
-               offset:0u atIndex:14u];
-        [fgmresContactEncoder
-            setBuffer:candidate->deformableContactGlobalActiveIndices
-               offset:0u atIndex:15u];
-        [fgmresContactEncoder
-            setBuffer:candidate->deformableContactActiveDispatch
-               offset:0u atIndex:16u];
+               offset:0u atIndex:9u];
         [fgmresContactEncoder setBuffer:candidate->mpmNodeToActive
-                                 offset:0u atIndex:17u];
+                                 offset:0u atIndex:10u];
         [fgmresContactEncoder setBuffer:candidate->mpmActiveNodeCounts
-                                 offset:0u atIndex:18u];
+                                 offset:0u atIndex:11u];
         [fgmresContactEncoder setBuffer:candidate->rigidProxies
-                                 offset:0u atIndex:19u];
+                                 offset:0u atIndex:12u];
         [fgmresContactEncoder setBuffer:candidate->coupledPointJacobians
-                                 offset:0u atIndex:20u];
+                                 offset:0u atIndex:13u];
         [fgmresContactEncoder setBuffer:candidate->rigidStates
-                                 offset:0u atIndex:21u];
+                                 offset:0u atIndex:14u];
         candidate->residentBytes += fgmresContactEncoder.encodedLength;
 
         for (const NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
@@ -1794,7 +1615,7 @@ RuntimeDiagnostics Runtime::initialize(
                 );
             }
             if ((proxy.flags & NM_RIGID_ARTICULATED) != 0u) {
-                candidate->requiresArticulatedResponses = true;
+                candidate->requiresCoupledCandidate = true;
             }
             if ((proxy.flags & NM_RIGID_DYNAMIC) != 0u) {
                 candidate->requiresSceneBodies = true;
@@ -1937,15 +1758,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             return diagnostics;
         }
         if (request.phase == EncodePhase::preDynamics &&
-            state.requiresArticulatedResponses &&
-            (request.encodeArticulatedResponses == nullptr ||
-             request.articulatedResponseContext == nullptr)) {
-            diagnostics.message =
-                "articulated Matter contact requires a compatible borrowed inverse-ABA response service";
-            return diagnostics;
-        }
-        if (request.phase == EncodePhase::preDynamics &&
-            state.requiresArticulatedResponses &&
+            state.requiresCoupledCandidate &&
             (request.encodeCoupledCandidate == nullptr ||
              request.coupledCandidateContext == nullptr ||
              request.rigid.q == nullptr || request.rigid.v == nullptr ||
@@ -2104,7 +1917,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             ownership->activeCommandBuffer == nullptr;
 
         if (request.phase == EncodePhase::preDynamics &&
-            state.requiresArticulatedResponses) {
+            state.requiresCoupledCandidate) {
             const std::uint32_t requiredQStride = request.rigid.qStride;
             const std::uint32_t requiredBodyStride =
                 request.rigid.currentBodyStride;
@@ -2195,7 +2008,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             0.0f,
         };
         const std::uint32_t coupledArticulatedNv =
-            state.requiresArticulatedResponses ? request.rigid.vStride : 0u;
+            state.requiresCoupledCandidate ? request.rigid.vStride : 0u;
 
         const auto dispatchThreads = [&](
             const char* name,
@@ -3067,7 +2880,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 id<MTLBuffer> warmstarts,
                 id<MTLBuffer> deformableWarmstarts
             ) -> bool {
-                if (state.requiresArticulatedResponses) {
+                if (state.requiresCoupledCandidate) {
                     [encoder endEncoding];
                     const CoupledCandidateQuery kinematicsQuery{
                         .input = (__bridge void*)
@@ -3288,7 +3101,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.contactActiveCounts offset:0u atIndex:5u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:6u];
                 });
-                if (state.requiresArticulatedResponses) {
+                if (state.requiresCoupledCandidate) {
                     dispatchThreads(
                         "nm_contact_prepare_articulated_queries",
                         environments * state.contactActiveCapacity,
@@ -3313,29 +3126,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         }
                     );
                 }
-                dispatchThreads("nm_contact_gather_response",
-                    environments * state.contactActiveCapacity, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
-                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:3u];
-                    [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
-                    [encoder setBuffer:state.contactPairs offset:0u atIndex:5u];
-                    [encoder setBuffer:state.contactSamples offset:0u atIndex:6u];
-                    [encoder setBuffer:state.contactResponseRanges offset:0u atIndex:7u];
-                    [encoder setBuffer:state.contactResponseColumns offset:0u atIndex:8u];
-                    [encoder setBuffer:state.contactResponseValues offset:0u atIndex:9u];
-                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
-                    [encoder setBytes:&state.contactResponseEntryCount
-                               length:sizeof(state.contactResponseEntryCount)
-                              atIndex:11u];
-                    [encoder setBytes:&state.contactActiveCapacity
-                               length:sizeof(state.contactActiveCapacity)
-                              atIndex:12u];
-                    [encoder setBuffer:state.contactActivePairs offset:0u atIndex:13u];
-                    [encoder setBuffer:state.contactActiveCounts offset:0u atIndex:14u];
-                });
-                if (state.requiresArticulatedResponses) {
+                if (state.requiresCoupledCandidate) {
                     [encoder endEncoding];
                     const CoupledCandidateQuery candidateJacobianQuery{
                         .input = (__bridge void*)
@@ -3400,110 +3191,13 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                             "MetalWorld failed to encode candidate mass residual";
                         return false;
                     }
-                    const ArticulatedResponseQuery articulatedQuery{
-                        .pointQueries = (__bridge void*)state.articulatedPointQueries,
-                        .pointWorld = (__bridge void*)state.articulatedPointWorld,
-                        .pointJacobians = (__bridge void*)state.articulatedPointJacobians,
-                        .rightHandSides = (__bridge void*)state.articulatedRightHandSides,
-                        .responseColumns = (__bridge void*)state.articulatedResponseColumns,
-                        .inverseMassStatuses = (__bridge void*)state.articulatedInverseStatuses,
-                        .csrRows = (__bridge void*)state.contactResponseRows,
-                        .csrColumns = (__bridge void*)state.contactResponseColumns,
-                        .csrValues = (__bridge void*)state.contactResponseValues,
-                        .pointCount = state.contactActiveCapacity,
-                        .responseEntryCount = state.contactResponseEntryCount,
-                        .generalizedVectorStride = MR_ARTICULATED_ABA_MAX_DOFS,
-                        .inverseMassStatusStride = state.articulatedInverseStatusStride,
-                    };
-                    if (!request.encodeArticulatedResponses(
-                            request.articulatedResponseContext,
-                            articulatedQuery
-                        )) {
-                        diagnostics.message =
-                            "MetalWorld failed to encode borrowed inverse-ABA contact responses";
-                        return false;
-                    }
                     encoder = [commandBuffer computeCommandEncoder];
                     if (encoder == nil) {
                         diagnostics.message =
-                            "failed to resume Matter KKT solve after inverse ABA";
+                            "failed to resume Matter KKT solve after candidate mass action";
                         return false;
                     }
                     [encoder setLabel:@"Numi Matter monolithic KKT continuation"];
-                    dispatchThreads(
-                        "nm_contact_validate_articulated_response",
-                        environments,
-                        [&] {
-                            setDispatch();
-                            [encoder setBuffer:state.contactResponseValues offset:0u atIndex:1u];
-                            [encoder setBuffer:state.articulatedInverseStatuses offset:0u atIndex:2u];
-                            [encoder setBytes:&state.articulatedInverseStatusStride
-                                       length:sizeof(state.articulatedInverseStatusStride)
-                                      atIndex:3u];
-                            [encoder setBytes:&state.contactResponseEntryCount
-                                       length:sizeof(state.contactResponseEntryCount)
-                                      atIndex:4u];
-                            [encoder setBuffer:state.statuses offset:0u atIndex:5u];
-                        }
-                    );
-                }
-                dispatchThreads(
-                    "nm_contact_solve_coupled",
-                    environments * state.contactComponentCount,
-                    [&] {
-                        setDispatch();
-                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
-                        [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
-                        [encoder setBuffer:state.contactPairs offset:0u atIndex:5u];
-                        [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
-                        [encoder setBuffer:state.contactSamples offset:0u atIndex:7u];
-                        [encoder setBuffer:state.statuses offset:0u atIndex:8u];
-                        [encoder setBuffer:state.contactResponseColumns offset:0u atIndex:9u];
-                        [encoder setBuffer:state.contactResponseRanges offset:0u atIndex:10u];
-                        [encoder setBuffer:state.contactResponseValues offset:0u atIndex:11u];
-                        [encoder setBuffer:state.contactComponentIncidence offset:0u atIndex:12u];
-                        [encoder setBuffer:state.contactComponentRanges offset:0u atIndex:13u];
-                        [encoder setBytes:&state.contactResponseEntryCount
-                                   length:sizeof(state.contactResponseEntryCount)
-                                  atIndex:14u];
-                        [encoder setBytes:&state.contactComponentCount
-                                   length:sizeof(state.contactComponentCount)
-                                  atIndex:15u];
-                        [encoder setBuffer:state.contactWarmstartsCandidate
-                                    offset:0u atIndex:16u];
-                        [encoder setBytes:&state.contactActiveCapacity
-                                   length:sizeof(state.contactActiveCapacity)
-                                  atIndex:17u];
-                        [encoder setBuffer:state.contactActivePairs offset:0u atIndex:18u];
-                        [encoder setBuffer:state.contactActiveCounts offset:0u atIndex:19u];
-                    }
-                );
-                if (certify) {
-                    dispatchThreads("nm_contact_certify_natural_map", objectTotal, [&] {
-                        setDispatch();
-                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:2u];
-                        [encoder setBuffer:state.objects offset:0u atIndex:3u];
-                        [encoder setBuffer:state.materials offset:0u atIndex:4u];
-                        [encoder setBuffer:state.contactPairs offset:0u atIndex:5u];
-                        [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
-                        [encoder setBuffer:state.contactSamples offset:0u atIndex:7u];
-                        [encoder setBuffer:state.contactResponseRanges offset:0u atIndex:8u];
-                        [encoder setBuffer:state.contactResponseColumns offset:0u atIndex:9u];
-                        [encoder setBuffer:state.contactResponseValues offset:0u atIndex:10u];
-                        [encoder setBuffer:state.femCandidate offset:0u atIndex:11u];
-                        [encoder setBytes:&state.contactResponseEntryCount
-                                   length:sizeof(state.contactResponseEntryCount) atIndex:12u];
-                        [encoder setBuffer:state.solverCertificates offset:0u atIndex:13u];
-                        [encoder setBuffer:state.statuses offset:0u atIndex:14u];
-                        [encoder setBytes:&state.contactActiveCapacity
-                                   length:sizeof(state.contactActiveCapacity)
-                                  atIndex:15u];
-                        [encoder setBuffer:state.contactActivePairs offset:0u atIndex:16u];
-                        [encoder setBuffer:state.contactActiveCounts offset:0u atIndex:17u];
-                    });
                 }
                 dispatchThreads("nm_contact_accumulate_fem_residual", femNodeTotal, [&] {
                     setDispatch();
@@ -3526,6 +3220,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.femResidual
                                    offset:0u atIndex:4u];
                     });
+                (void)certify;
                 return true;
             };
             for (std::uint32_t nonlinearIteration = 0u;
@@ -3679,45 +3374,6 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
             });
 
-            dispatchThreads("nm_contact_build_kkt_residual",
-                environments * state.contactActiveCapacity, [&] {
-                setDispatch();
-                [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:state.materials offset:0u atIndex:3u];
-                [encoder setBuffer:state.contactPairs offset:0u atIndex:4u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
-                [encoder setBuffer:state.contactSamples offset:0u atIndex:7u];
-                [encoder setBuffer:state.contactResponseRanges offset:0u atIndex:8u];
-                [encoder setBuffer:state.contactResponseColumns offset:0u atIndex:9u];
-                [encoder setBuffer:state.contactResponseValues offset:0u atIndex:10u];
-                [encoder setBytes:&state.contactResponseEntryCount
-                           length:sizeof(state.contactResponseEntryCount)
-                          atIndex:11u];
-                [encoder setBuffer:state.femResidual offset:0u atIndex:12u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
-                [encoder setBytes:&state.contactActiveCapacity
-                           length:sizeof(state.contactActiveCapacity)
-                          atIndex:14u];
-                [encoder setBuffer:state.contactActivePairs offset:0u atIndex:15u];
-                [encoder setBuffer:state.contactActiveCounts offset:0u atIndex:16u];
-            });
-            (void)dispatchIndirect(
-                "nm_contact_build_deformable_kkt_residual",
-                state.deformableContactActiveDispatch,
-                256u,
-                [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                    [encoder setBuffer:state.schedulers offset:0u atIndex:3u];
-                    [encoder setBuffer:state.deformableContacts offset:0u atIndex:4u];
-                    [encoder setBuffer:state.deformableContactGlobalActiveIndices offset:0u atIndex:5u];
-                    [encoder setBuffer:state.deformableContactActiveDispatch offset:0u atIndex:6u];
-                    [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
-                    [encoder setBuffer:state.statuses offset:0u atIndex:8u];
-                });
             dispatchThreads("nm_mpm_build_implicit_residual", mpmNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -3777,24 +3433,16 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             // operator work is distributed over nodes/active contacts. The
             // SIMD32 object kernels only perform bounded reductions and the
             // tiny Hessenberg solve.
-            const NSUInteger deformableContactTotal = environments *
-                state.dispatch.deformableContactCapacity;
             const NSUInteger kktUnknownTotal =
                 2u * femNodeTotal +
                 environments * state.dispatch.gridNodeCount +
-                pairTotal + deformableContactTotal +
                 environments * state.dispatch.rigidGeneralizedCapacity;
             const NSUInteger rigidGeneralizedTotal = environments *
                 state.dispatch.rigidGeneralizedCapacity;
-            const NSUInteger activeContactTotal =
-                environments * state.contactActiveCapacity;
             const NSUInteger vectorBytes =
                 kktUnknownTotal * sizeof(nm_float4);
             [encoder useResource:state.contactPairs usage:MTLResourceUsageRead];
             [encoder useResource:state.contactSamples usage:MTLResourceUsageRead];
-            [encoder useResource:state.contactResponseRanges usage:MTLResourceUsageRead];
-            [encoder useResource:state.contactResponseColumns usage:MTLResourceUsageRead];
-            [encoder useResource:state.contactResponseValues usage:MTLResourceUsageRead];
             [encoder useResource:state.contactNodeIncidence usage:MTLResourceUsageRead];
             [encoder useResource:state.contactNodeRanges usage:MTLResourceUsageRead];
             [encoder useResource:state.contactActivePairs usage:MTLResourceUsageRead];
@@ -4004,43 +3652,6 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:7u];
                     [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:8u];
                 });
-                dispatchThreads("nm_fgmres_precondition_contacts", activeContactTotal, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
-                    [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:2u];
-                    [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:3u];
-                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
-                    [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:5u];
-                });
-                (void)dispatchIndirect(
-                    "nm_fgmres_precondition_deformable_contacts",
-                    state.deformableContactActiveDispatch,
-                    256u,
-                    [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.fgmresBasis
-                                     offset:columnOffset atIndex:1u];
-                        [encoder setBuffer:state.fgmresPreconditionedBasis
-                                     offset:columnOffset atIndex:2u];
-                        [encoder setBuffer:state.fgmresStates
-                                     offset:0u atIndex:3u];
-                        [encoder setBuffer:state.fgmresContactArguments
-                                     offset:0u atIndex:4u];
-                    });
-                dispatchThreads(
-                    "nm_fgmres_precondition_contact_cross",
-                    femNodeTotal,
-                    [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.femPreconditioned
-                                     offset:0u atIndex:1u];
-                        [encoder setBuffer:state.fgmresPreconditionedBasis
-                                     offset:columnOffset atIndex:2u];
-                        [encoder setBuffer:state.fgmresContactArguments
-                                     offset:0u atIndex:3u];
-                        [encoder setBuffer:state.fgmresStates
-                                     offset:0u atIndex:4u];
-                    });
                 dispatchThreads("nm_fgmres_precondition_mpm", mpmNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
@@ -4050,7 +3661,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:5u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
                 });
-                if (state.requiresArticulatedResponses) {
+                if (state.requiresCoupledCandidate) {
                     dispatchThreads("nm_fgmres_export_rigid", rigidGeneralizedTotal, [&] {
                         setDispatch();
                         [encoder setBuffer:state.fgmresBasis
@@ -4256,36 +3867,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         "failed to encode implicit MPM constitutive action";
                     return diagnostics;
                 }
-                dispatchThreads("nm_fgmres_apply_contacts", activeContactTotal, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
-                    [encoder setBuffer:state.schedulers offset:0u atIndex:4u];
-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
-                    [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:6u];
-                    [encoder setBuffer:state.femOperatorValue offset:0u atIndex:7u];
-                    [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:8u];
-                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
-                });
-                (void)dispatchIndirect(
-                    "nm_fgmres_apply_deformable_contacts",
-                    state.deformableContactActiveDispatch,
-                    256u,
-                    [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
-                        [encoder setBuffer:state.schedulers offset:0u atIndex:2u];
-                        [encoder setBuffer:state.fgmresPreconditionedBasis
-                                     offset:columnOffset atIndex:3u];
-                        [encoder setBuffer:state.femOperatorValue
-                                     offset:0u atIndex:4u];
-                        [encoder setBuffer:state.fgmresContactArguments
-                                     offset:0u atIndex:5u];
-                        [encoder setBuffer:state.fgmresStates
-                                     offset:0u atIndex:6u];
-                    });
-                if (state.requiresArticulatedResponses) {
+                if (state.requiresCoupledCandidate) {
                     dispatchThreads("nm_fgmres_export_rigid", rigidGeneralizedTotal, [&] {
                         setDispatch();
                         [encoder setBuffer:state.fgmresPreconditionedBasis
@@ -4452,32 +4034,6 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
                 [encoder setBytes:&restartCycle length:sizeof(restartCycle) atIndex:6u];
             });
-            dispatchThreads("nm_fgmres_accumulate_contacts", activeContactTotal, [&] {
-                setDispatch();
-                [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
-                [encoder setBuffer:state.fgmresPreconditionedBasis offset:0u atIndex:2u];
-                [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:3u];
-                [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
-                [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
-                [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:6u];
-                [encoder setBytes:&restartCycle
-                           length:sizeof(restartCycle) atIndex:7u];
-            });
-            (void)dispatchIndirect(
-                "nm_fgmres_accumulate_deformable_contacts",
-                state.deformableContactActiveDispatch,
-                256u,
-                [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
-                    [encoder setBuffer:state.fgmresPreconditionedBasis offset:0u atIndex:2u];
-                    [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:3u];
-                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
-                    [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
-                    [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:6u];
-                    [encoder setBytes:&restartCycle
-                               length:sizeof(restartCycle) atIndex:7u];
-                });
             dispatchThreads("nm_fgmres_accumulate_rigid", rigidGeneralizedTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
@@ -4507,31 +4063,6 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
                 });
-                dispatchThreads("nm_fgmres_restart_residual_contacts",
-                    activeContactTotal, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.fgmresBasis offset:0u atIndex:1u];
-                    [encoder setBuffer:state.fgmresRestartCoefficients
-                                 offset:0u atIndex:2u];
-                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
-                    [encoder setBuffer:state.fgmresContactArguments
-                                 offset:0u atIndex:5u];
-                });
-                (void)dispatchIndirect(
-                    "nm_fgmres_restart_residual_deformable_contacts",
-                    state.deformableContactActiveDispatch,
-                    256u,
-                    [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.fgmresBasis offset:0u atIndex:1u];
-                        [encoder setBuffer:state.fgmresRestartCoefficients
-                                     offset:0u atIndex:2u];
-                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
-                        [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
-                        [encoder setBuffer:state.fgmresContactArguments
-                                     offset:0u atIndex:5u];
-                    });
                 dispatchThreads("nm_fgmres_restart_residual_rigid",
                     rigidGeneralizedTotal, [&] {
                     setDispatch();
@@ -4646,14 +4177,9 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             });
             dispatchThreads("nm_contact_apply_kkt_solution", pairTotal, [&] {
                 setDispatch();
-                [encoder setBuffer:state.objects offset:0u atIndex:1u];
-                [encoder setBuffer:state.materials offset:0u atIndex:2u];
-                [encoder setBuffer:state.contactPairs offset:0u atIndex:3u];
-                [encoder setBuffer:state.contactSamples offset:0u atIndex:4u];
-                [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
-                [encoder setBuffer:state.femLineSearch offset:0u atIndex:6u];
+                [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
                 [encoder setBuffer:state.contactWarmstartsCandidate
-                             offset:0u atIndex:7u];
+                             offset:0u atIndex:2u];
             });
             (void)dispatchIndirect(
                 "nm_contact_apply_deformable_kkt_solution",
@@ -4664,10 +4190,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.deformableContacts offset:0u atIndex:1u];
                     [encoder setBuffer:state.deformableContactGlobalActiveIndices offset:0u atIndex:2u];
                     [encoder setBuffer:state.deformableContactActiveDispatch offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femSolution offset:0u atIndex:4u];
-                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:5u];
                     [encoder setBuffer:state.deformableWarmstartsCandidate
-                                 offset:0u atIndex:6u];
+                                 offset:0u atIndex:4u];
                 });
             // Physics-triggered puncture is an active-set change of this same
             // nonlinear transaction. Apply it to candidate topology/state,
@@ -4829,18 +4353,6 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
-            dispatchThreads(
-                "nm_contact_apply_nodes",
-                environments * (state.dispatch.gridNodeCount + state.dispatch.femNodeCount),
-                [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.contactNodeIncidence offset:0u atIndex:1u];
-                    [encoder setBuffer:state.contactNodeRanges offset:0u atIndex:2u];
-                    [encoder setBuffer:state.contactSamples offset:0u atIndex:3u];
-                    [encoder setBuffer:state.gridNodes offset:0u atIndex:4u];
-                    [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
-                }
-            );
             dispatchThreads("nm_contact_reduce_rigid", proxyTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.rigidIncidence offset:0u atIndex:1u];
@@ -4923,7 +4435,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.coupledGeneralizedCandidate
                                  offset:0u atIndex:2u];
                 });
-            if (state.requiresArticulatedResponses) {
+            if (state.requiresCoupledCandidate) {
                 [encoder endEncoding];
                 const CoupledCandidateQuery publishQuery{
                     .input = (__bridge void*)
@@ -5520,8 +5032,8 @@ bool Runtime::requiresBodyWrenches() const noexcept {
     return state_ != nullptr && state_->requiresBodyWrenches;
 }
 
-bool Runtime::requiresArticulatedResponses() const noexcept {
-    return state_ != nullptr && state_->requiresArticulatedResponses;
+bool Runtime::requiresCoupledCandidate() const noexcept {
+    return state_ != nullptr && state_->requiresCoupledCandidate;
 }
 
 bool Runtime::requiresRigidContactEvidence() const noexcept {
@@ -5578,21 +5090,6 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> contactSamples = state_->captureDiagnostics
             ? copy(state_->contactSamples)
             : nil;
-        id<MTLBuffer> contactResponseRows = state_->captureDiagnostics
-            ? copy(state_->contactResponseRows)
-            : nil;
-        id<MTLBuffer> contactResponseColumns = state_->captureDiagnostics
-            ? copy(state_->contactResponseColumns)
-            : nil;
-        id<MTLBuffer> contactResponseValues = state_->captureDiagnostics
-            ? copy(state_->contactResponseValues)
-            : nil;
-        id<MTLBuffer> contactActivePairs = state_->captureDiagnostics
-            ? copy(state_->contactActivePairs)
-            : nil;
-        id<MTLBuffer> contactActiveCounts = state_->captureDiagnostics
-            ? copy(state_->contactActiveCounts)
-            : nil;
         id<MTLBuffer> identification =
             copy(state_->identificationDistributions);
         id<MTLBuffer> environmentParameters =
@@ -5606,11 +5103,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             topologyStates == nil || contactWarmstarts == nil ||
             deformableContactWarmstarts == nil ||
             adaptive == nil || schedulers == nil || reactions == nil ||
-            (state_->captureDiagnostics &&
-             (contactSamples == nil || contactResponseRows == nil ||
-              contactResponseColumns == nil ||
-              contactResponseValues == nil || contactActivePairs == nil ||
-              contactActiveCounts == nil)) ||
+            (state_->captureDiagnostics && contactSamples == nil) ||
             identification == nil || environmentParameters == nil) {
             snapshot.message = "failed to allocate Matter diagnostic readback";
             return snapshot;
@@ -5653,11 +5146,6 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->frameReactions, reactions);
         if (state_->captureDiagnostics) {
             encodeCopy(state_->contactSamples, contactSamples);
-            encodeCopy(state_->contactResponseRows, contactResponseRows);
-            encodeCopy(state_->contactResponseColumns, contactResponseColumns);
-            encodeCopy(state_->contactResponseValues, contactResponseValues);
-            encodeCopy(state_->contactActivePairs, contactActivePairs);
-            encodeCopy(state_->contactActiveCounts, contactActiveCounts);
         }
         encodeCopy(state_->identificationDistributions, identification);
         encodeCopy(state_->environmentParameters, environmentParameters);
@@ -5726,50 +5214,6 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         if (state_->captureDiagnostics) {
             readCount(contactSamples, snapshot.contactSamples,
                       logicalContactCount);
-            const std::size_t logicalResponseCount =
-                static_cast<std::size_t>(state_->dispatch.environmentCount) *
-                state_->contactResponseEntryCount;
-            readCount(contactResponseValues, snapshot.contactResponseValues,
-                      logicalResponseCount);
-            std::vector<std::uint32_t> responseSlotRows;
-            std::vector<std::uint32_t> responseSlotColumns;
-            std::vector<std::uint32_t> activePairs;
-            std::vector<std::uint32_t> activeCounts;
-            readCount(contactResponseRows, responseSlotRows,
-                      state_->contactResponseEntryCount);
-            readCount(contactResponseColumns, responseSlotColumns,
-                      state_->contactResponseEntryCount);
-            readCount(contactActivePairs, activePairs,
-                      static_cast<std::size_t>(state_->dispatch.environmentCount) *
-                          state_->contactActiveCapacity);
-            readCount(contactActiveCounts, activeCounts,
-                      state_->dispatch.environmentCount);
-            snapshot.contactResponseRows.resize(
-                logicalResponseCount, std::numeric_limits<std::uint32_t>::max());
-            snapshot.contactResponseColumns.resize(
-                logicalResponseCount, std::numeric_limits<std::uint32_t>::max());
-            for (std::uint32_t environment = 0u;
-                 environment < state_->dispatch.environmentCount; ++environment) {
-                const std::uint32_t activeCount = std::min(
-                    activeCounts[environment], state_->contactActiveCapacity);
-                const std::size_t activeBase =
-                    static_cast<std::size_t>(environment) *
-                    state_->contactActiveCapacity;
-                const std::size_t responseBase =
-                    static_cast<std::size_t>(environment) *
-                    state_->contactResponseEntryCount;
-                for (std::size_t entry = 0u;
-                     entry < state_->contactResponseEntryCount; ++entry) {
-                    const std::uint32_t rowSlot = responseSlotRows[entry];
-                    const std::uint32_t columnSlot = responseSlotColumns[entry];
-                    if (rowSlot < activeCount && columnSlot < activeCount) {
-                        snapshot.contactResponseRows[responseBase + entry] =
-                            activePairs[activeBase + rowSlot];
-                        snapshot.contactResponseColumns[responseBase + entry] =
-                            activePairs[activeBase + columnSlot];
-                    }
-                }
-            }
         }
         read(identification, snapshot.identification);
         read(environmentParameters, snapshot.environmentParameters);

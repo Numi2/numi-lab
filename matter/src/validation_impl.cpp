@@ -167,9 +167,6 @@ private:
         if (dispatch.maximumRateExponent > NM_MAX_RATE_EXPONENT ||
             dispatch.maximumParticlesPerBlock !=
                 NM_MPM_MAX_PARTICLES_PER_BLOCK ||
-            dispatch.coupledContactIterations == 0u ||
-            dispatch.coupledContactIterations >
-                NM_COUPLED_CONTACT_ITERATIONS ||
             dispatch.materialStateStride > NM_MAX_MATERIAL_STATE ||
             expectedEventStride >
                 std::numeric_limits<std::uint32_t>::max() ||

@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 16u
+#define NM_MATTER_ABI_VERSION 17u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -49,7 +49,6 @@ typedef struct NM_ALIGN16 nm_int4 {
 #define NM_MPM_BLOCK_NODE_COUNT 512u
 #define NM_MPM_MAX_PARTICLES_PER_BLOCK 256u
 #define NM_MAX_MATERIAL_STATE 16u
-#define NM_COUPLED_CONTACT_ITERATIONS 12u
 #define NM_MIXED_NEWTON_ITERATIONS 10u
 #define NM_MIXED_FGMRES_RESTART 16u
 #define NM_MIXED_FGMRES_ITERATIONS 48u
@@ -268,11 +267,9 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
     nm_u32 maximumParticlesPerBlock;
 
     // Fixed scalar stride used by every particle/tetrahedron material-state
-    // record, total authored state-initializer count, fixed coupled-contact
-    // iterations, reserved.
+    // record and total authored state-initializer count.
     nm_u32 materialStateStride;
     nm_u32 stateInitialCount;
-    nm_u32 coupledContactIterations;
     nm_u32 mixedMaterialCount;
 
     nm_u32 fieldBoundaryCount;
@@ -287,7 +284,7 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
 
     nm_u32 punctureChannelCount;
     nm_u32 femCapacityCount;
-    nm_u32 reservedMixed0;
+    nm_u32 reservedPrimal0;
     nm_u32 reservedMixed1;
 
     // Immutable tetrahedral face-adjacency graph, dynamic deformable-contact

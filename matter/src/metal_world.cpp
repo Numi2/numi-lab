@@ -14,47 +14,15 @@ static_assert(
 namespace numi::matter {
 namespace {
 
-struct ArticulatedResponseBridge {
+struct CoupledCandidateBridge {
     const metalrobo::MetalWorldDevicePhysicsPass* pass = nullptr;
 };
-
-bool encodeArticulatedResponseBridge(
-    void* context,
-    const ArticulatedResponseQuery& query
-) {
-    const auto* bridge = static_cast<ArticulatedResponseBridge*>(context);
-    if (bridge == nullptr || bridge->pass == nullptr ||
-        bridge->pass->encodeArticulatedResponses == nullptr ||
-        bridge->pass->articulatedResponseContext == nullptr) {
-        return false;
-    }
-    const metalrobo::MetalWorldArticulatedResponseQuery request{
-        .pointQueries = query.pointQueries,
-        .pointWorld = query.pointWorld,
-        .pointJacobians = query.pointJacobians,
-        .rightHandSides = query.rightHandSides,
-        .responseColumns = query.responseColumns,
-        .inverseMassStatuses = query.inverseMassStatuses,
-        .csrRows = query.csrRows,
-        .csrColumns = query.csrColumns,
-        .csrValues = query.csrValues,
-        .pointCount = query.pointCount,
-        .responseEntryCount = query.responseEntryCount,
-        .generalizedVectorStride = query.generalizedVectorStride,
-        .inverseMassStatusStride = query.inverseMassStatusStride,
-    };
-    return bridge->pass->encodeArticulatedResponses(
-        bridge->pass->articulatedResponseContext,
-        *bridge->pass,
-        request
-    );
-}
 
 bool encodeCoupledCandidateBridge(
     void* context,
     const CoupledCandidateQuery& query
 ) {
-    const auto* bridge = static_cast<ArticulatedResponseBridge*>(context);
+    const auto* bridge = static_cast<CoupledCandidateBridge*>(context);
     if (bridge == nullptr || bridge->pass == nullptr ||
         bridge->pass->encodeCoupledCandidate == nullptr ||
         bridge->pass->coupledCandidateContext == nullptr) {
@@ -126,16 +94,10 @@ bool encodeMetalWorldMatter(
     request.rigidContactConstraints = pass.contactConstraints;
     request.rigidContactStatuses = pass.contactStatuses;
     request.rigidContactConstraintStride = pass.contactConstraintStride;
-    ArticulatedResponseBridge articulatedBridge{&pass};
-    if (pass.encodeArticulatedResponses != nullptr &&
-        pass.articulatedResponseContext != nullptr) {
-        request.articulatedResponseContext = &articulatedBridge;
-        request.encodeArticulatedResponses =
-            &encodeArticulatedResponseBridge;
-    }
+    CoupledCandidateBridge coupledBridge{&pass};
     if (pass.encodeCoupledCandidate != nullptr &&
         pass.coupledCandidateContext != nullptr) {
-        request.coupledCandidateContext = &articulatedBridge;
+        request.coupledCandidateContext = &coupledBridge;
         request.encodeCoupledCandidate = &encodeCoupledCandidateBridge;
     }
     request.articulationRootBody = pass.articulationRootBody;
@@ -205,7 +167,7 @@ makeMetalWorldDevicePhysicsProgram(Runtime& runtime) noexcept {
              ? metalrobo::
                    MetalWorldDevicePhysicsRequiresRigidContactEvidence
              : 0u) |
-        (runtime.requiresArticulatedResponses()
+        (runtime.requiresCoupledCandidate()
              ? metalrobo::MetalWorldDevicePhysicsOwnsCoupledCandidate
              : 0u);
     program.fingerprint = programFingerprint(

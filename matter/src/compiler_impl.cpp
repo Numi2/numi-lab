@@ -2138,11 +2138,6 @@ CompileResult compileWorld(
     }
     dispatch.stateInitialCount =
         static_cast<nm_u32>(world.stateInitials.size());
-    // Contact pairs are cooked into deterministic proxy-owned incidence
-    // ranges.  The runtime consumes that fixed CSR structure with a bounded
-    // contact-space PGS pass, so the iteration budget is part of the
-    // executable ABI and package fingerprint rather than a host-side knob.
-    dispatch.coupledContactIterations = NM_COUPLED_CONTACT_ITERATIONS;
     dispatch.mixedMaterialCount = static_cast<nm_u32>(world.mixedMaterials.size());
     dispatch.fieldBoundaryCount =
         static_cast<nm_u32>(world.fem.fieldBoundaries.size());

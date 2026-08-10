@@ -1537,78 +1537,8 @@ void runMetalWorldCoupling() {
         require(snapshot.available && !snapshot.reactions.empty(),
             "MetalWorld/Matter coupling did not publish Matter reactions");
         require(
-            snapshot.contactSamples.size() == matterWorld.contact.pairs.size() &&
-                snapshot.contactResponseRows.size() ==
-                    snapshot.contactResponseColumns.size() &&
-                snapshot.contactResponseRows.size() ==
-                    snapshot.contactResponseValues.size(),
-            "MetalWorld/Matter coupling did not publish complete contact CSR diagnostics"
-        );
-        float articulatedOffDiagonal = 0.0f;
-        float articulatedTranspose = 0.0f;
-        float independentArticulationResponse = 0.0f;
-        std::uint32_t articulatedRow = NM_INVALID_INDEX;
-        std::uint32_t articulatedColumn = NM_INVALID_INDEX;
-        for (std::size_t entry = 0u;
-             entry < snapshot.contactResponseValues.size();
-             ++entry) {
-            const std::uint32_t row = snapshot.contactResponseRows[entry];
-            const std::uint32_t column =
-                snapshot.contactResponseColumns[entry];
-            if (row >= matterWorld.contact.pairs.size() ||
-                column >= matterWorld.contact.pairs.size() || row == column ||
-                (snapshot.contactSamples[row].identity.w & NM_CONTACT_VALID) == 0u ||
-                (snapshot.contactSamples[column].identity.w & NM_CONTACT_VALID) == 0u ||
-                matterWorld.contact.pairs[row].continuumNode ==
-                    matterWorld.contact.pairs[column].continuumNode) {
-                continue;
-            }
-            const float response = snapshot.contactResponseValues[entry];
-            if (matterWorld.contact.pairs[row].rigidProxy !=
-                    matterWorld.contact.pairs[column].rigidProxy) {
-                independentArticulationResponse = std::max(
-                    independentArticulationResponse,
-                    std::abs(response)
-                );
-                continue;
-            }
-            if (std::abs(response) <= std::abs(articulatedOffDiagonal)) {
-                continue;
-            }
-            for (std::size_t transpose = 0u;
-                 transpose < snapshot.contactResponseValues.size();
-                 ++transpose) {
-                if (snapshot.contactResponseRows[transpose] == column &&
-                    snapshot.contactResponseColumns[transpose] == row) {
-                    articulatedOffDiagonal = response;
-                    articulatedTranspose =
-                        snapshot.contactResponseValues[transpose];
-                    articulatedRow = row;
-                    articulatedColumn = column;
-                    break;
-                }
-            }
-        }
-        const float articulatedSymmetryError =
-            std::abs(articulatedOffDiagonal - articulatedTranspose);
-        require(
-            articulatedRow != NM_INVALID_INDEX &&
-                std::isfinite(articulatedOffDiagonal) &&
-                std::abs(articulatedOffDiagonal) > 1.0e-6f,
-            "borrowed inverse ABA did not populate an off-diagonal CSR response"
-        );
-        require(
-            std::isfinite(articulatedTranspose) &&
-                articulatedSymmetryError <=
-                    2.0e-4f * std::max(1.0f, std::abs(articulatedOffDiagonal)),
-            "borrowed inverse-ABA CSR response is not symmetric: forward=" +
-                std::to_string(articulatedOffDiagonal) +
-                " transpose=" + std::to_string(articulatedTranspose)
-        );
-        require(
-            independentArticulationResponse <= 1.0e-6f,
-            "independent MetalWorld articulations leaked into one another: response=" +
-                std::to_string(independentArticulationResponse)
+            snapshot.contactSamples.size() == matterWorld.contact.pairs.size(),
+            "MetalWorld/Matter coupling did not publish primal contact diagnostics"
         );
         const float reactionZ = snapshot.reactions[0].impulseAndCount.z;
         require(snapshot.reactions.size() >= 2u,
@@ -1640,13 +1570,6 @@ void runMetalWorldCoupling() {
             << ",\"accepted_body_velocity_z\":" << result.finalV[2]
             << ",\"second_rigid_reaction_z\":" << secondReactionZ
             << ",\"second_body_velocity_z\":" << result.finalV[8]
-            << ",\"articulated_response_row\":" << articulatedRow
-            << ",\"articulated_response_column\":" << articulatedColumn
-            << ",\"articulated_off_diagonal\":" << articulatedOffDiagonal
-            << ",\"articulated_transpose\":" << articulatedTranspose
-            << ",\"articulated_symmetry_error\":" << articulatedSymmetryError
-            << ",\"independent_articulation_response\":"
-            << independentArticulationResponse
             << ",\"gpu_milliseconds\":" << ran.gpuElapsedMilliseconds
             << "}\n";
     }
@@ -1779,21 +1702,6 @@ void runArticulatedFootPadScene(const bool sequence = false) {
                 certificate.transport.x, certificate.transport.y,
                 certificate.transport.z, certificate.transport.w});
         }
-        float maximumOffDiagonal = 0.0f;
-        for (std::size_t entry = 0u;
-             entry < snapshot.contactResponseValues.size(); ++entry) {
-            if (entry >= snapshot.contactResponseRows.size() ||
-                entry >= snapshot.contactResponseColumns.size()) break;
-            const std::uint32_t row = snapshot.contactResponseRows[entry];
-            const std::uint32_t column = snapshot.contactResponseColumns[entry];
-            if (row != column && row < world.contact.pairs.size() &&
-                column < world.contact.pairs.size() &&
-                world.contact.pairs[row].rigidProxy == 0u &&
-                world.contact.pairs[column].rigidProxy == 0u) {
-                maximumOffDiagonal = std::max(maximumOffDiagonal,
-                    std::abs(snapshot.contactResponseValues[entry]));
-            }
-        }
         const float reactionZ = snapshot.reactions[0].impulseAndCount.z;
         float maximumFixedBaseError = 0.0f;
         for (std::uint32_t node = 0u; node < 4u; ++node) {
@@ -1813,7 +1721,6 @@ void runArticulatedFootPadScene(const bool sequence = false) {
         }
         require(contacts >= 2u && normalImpulse > 0.0f &&
                     reactionZ > 0.0f && result.finalV[2] > currentV[2] &&
-                    maximumOffDiagonal > 0.0f &&
                     maximumFixedBaseError <= 1.0e-8f &&
                     compression > 0.0f && porePressure > 0.0f &&
                     kktResidual <= 1.0e-4f &&
@@ -1829,7 +1736,6 @@ void runArticulatedFootPadScene(const bool sequence = false) {
             " reaction=" + std::to_string(reactionZ) +
             " initial_v=" + std::to_string(currentV[2]) +
             " final_v=" + std::to_string(result.finalV[2]) +
-            " offdiag=" + std::to_string(maximumOffDiagonal) +
             " fixed_base_error=" + std::to_string(maximumFixedBaseError) +
             " compression=" + std::to_string(compression) +
             " pore=" + std::to_string(porePressure) +
@@ -1852,7 +1758,6 @@ void runArticulatedFootPadScene(const bool sequence = false) {
             << ",\"pore_pressure_max\":" << porePressure
             << ",\"rigid_reaction_z\":" << reactionZ
             << ",\"accepted_foot_velocity_z\":" << result.finalV[2]
-            << ",\"maximum_off_diagonal_response\":" << maximumOffDiagonal
             << ",\"fixed_base_error\":" << maximumFixedBaseError
             << ",\"policy_observation\":[" << normalImpulse << ','
             << centerX << ',' << centerY << ',' << compression << ','
@@ -1896,228 +1801,6 @@ void runArticulatedFootPadScene(const bool sequence = false) {
             currentV[2] = -0.001f;
         }
         }
-    }
-}
-
-void runCoupledContactOracle() {
-    @autoreleasepool {
-        // Two separate unit-inverse-mass continuum nodes impact two colliders
-        // attached to one unit-inverse-mass free body along the same normal.
-        // The body-owned sparse response is W = [[2, 1], [1, 2]], so the
-        // unique projected solution for unit closing speed is lambda =
-        // [1/3, 1/3]. An independent-pair solve instead produces [1/2, 1/2].
-        // This launches the production kernel directly on Metal with the
-        // exact nested CSR incidence it receives from the runtime; no CPU
-        // contact solve participates.
-        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
-        require(device != nil, "no Metal device is available");
-        id<MTLCommandQueue> queue = [device newCommandQueue];
-        require(queue != nil, "failed to create coupled-contact queue");
-        NSError* error = nil;
-        id<MTLLibrary> library = [device
-            newLibraryWithURL:[NSURL fileURLWithPath:@NUMI_MATTER_METALLIB]
-                       error:&error];
-        require(library != nil, "could not load Matter Metal library");
-        id<MTLFunction> gatherFunction = [library newFunctionWithName:
-            @"numi_matter_metal::nm_contact_gather_response"];
-        require(gatherFunction != nil,
-            "Matter Metal library is missing contact response gather");
-        id<MTLComputePipelineState> gatherPipeline = [device
-            newComputePipelineStateWithFunction:gatherFunction error:&error];
-        require(gatherPipeline != nil,
-            "could not create contact-response gather pipeline");
-        id<MTLFunction> function = [library newFunctionWithName:
-            @"numi_matter_metal::nm_contact_solve_coupled"];
-        require(function != nil, "Matter Metal library is missing coupled contact");
-        id<MTLComputePipelineState> pipeline = [device
-            newComputePipelineStateWithFunction:function error:&error];
-        require(pipeline != nil, "could not create coupled-contact pipeline");
-
-        NMMatterDispatchGPU dispatch{};
-        dispatch.abiVersion = NM_MATTER_ABI_VERSION;
-        dispatch.environmentCount = 1u;
-        dispatch.objectCount = 1u;
-        dispatch.materialCount = 1u;
-        dispatch.gridNodeCount = 2u;
-        dispatch.rigidProxyCount = 2u;
-        dispatch.contactPairCount = 2u;
-        dispatch.coupledContactIterations = NM_COUPLED_CONTACT_ITERATIONS;
-        dispatch.gravityAndTimestep.w = 1.0f;
-        dispatch.numericalLimits = {0.0f, 0.0f, 0.0f, 1.0e6f};
-        NMMicrostepGPU microstep{};
-
-        NMContinuumObjectGPU object{};
-        object.materialIndex = 0u;
-        NMMaterialGPU material{};
-        material.interfaceResponse.y = 1.0f;
-        std::array<NMGridNodeStateGPU, 2u> nodes{};
-        for (NMGridNodeStateGPU& node : nodes) {
-            node.velocityAndInverseMass.w = 1.0f;
-        }
-        NMFEMNodeStateGPU unusedFEM{};
-        std::array<NMRigidStateGPU, 2u> rigid{};
-        for (NMRigidStateGPU& state : rigid) {
-            state.linearVelocityAndInverseMass.w = 1.0f;
-            state.bodyCenter.w = 1.0f;
-        }
-        std::array<NMRigidProxyGPU, 2u> proxies{};
-        for (NMRigidProxyGPU& proxy : proxies) {
-            proxy.bodyIndex = 0u;
-        }
-        const std::array<NMContactPairGPU, 2u> pairs{{
-            {.continuumNode = 0u, .rigidProxy = 0u, .objectIndex = 0u,
-             .materialInterface = 0u},
-            {.continuumNode = 1u, .rigidProxy = 1u, .objectIndex = 0u,
-             .materialInterface = 0u},
-        }};
-        const std::array<std::uint32_t, 4u> responseColumns{{0u, 1u, 0u, 1u}};
-        const std::array<NMIncidenceRangeGPU, 2u> responseRanges{{
-            {0u, 2u, 0u, 0u},
-            {2u, 2u, 1u, 0u},
-        }};
-        std::array<float, 4u> responseValues{};
-        const std::array<std::uint32_t, 2u> componentIncidence{{0u, 1u}};
-        const NMIncidenceRangeGPU componentRange{0u, 2u, 0u, 0u};
-        constexpr std::uint32_t responseEntryCount = 4u;
-        constexpr std::uint32_t componentCount = 1u;
-        constexpr std::uint32_t activeCapacity = 2u;
-        const std::array<std::uint32_t, 2u> activePairs{{0u, 1u}};
-        const std::uint32_t activeCount = 2u;
-        NMSchedulerStateGPU scheduler{};
-        NMMatterStatusGPU status{};
-        status.code = NM_STATUS_SUCCESS;
-        std::array<NMContactSampleGPU, 2u> samples{};
-        for (std::uint32_t index = 0u; index < samples.size(); ++index) {
-            NMContactSampleGPU& sample = samples[index];
-            sample.identity = {index, 0u, 0u, NM_CONTACT_VALID};
-            sample.normalAndVelocity = {0.0f, 0.0f, 1.0f, -1.0f};
-        }
-
-        const auto makeBuffer = [&](const void* bytes, const NSUInteger length,
-                                    NSString* label) {
-            id<MTLBuffer> buffer = [device newBufferWithBytes:bytes
-                length:length options:MTLResourceStorageModeShared];
-            require(buffer != nil, "failed to allocate coupled-contact buffer");
-            buffer.label = label;
-            return buffer;
-        };
-        id<MTLBuffer> objects = makeBuffer(&object, sizeof(object), @"oracle objects");
-        id<MTLBuffer> materials = makeBuffer(&material, sizeof(material), @"oracle materials");
-        id<MTLBuffer> mpmNodes = makeBuffer(nodes.data(), sizeof(nodes), @"oracle MPM nodes");
-        id<MTLBuffer> femNodes = makeBuffer(&unusedFEM, sizeof(unusedFEM), @"oracle FEM nodes");
-        id<MTLBuffer> proxyBuffer = makeBuffer(proxies.data(), sizeof(proxies), @"oracle proxies");
-        id<MTLBuffer> rigidStates = makeBuffer(rigid.data(), sizeof(rigid), @"oracle rigid states");
-        id<MTLBuffer> pairBuffer = makeBuffer(pairs.data(), sizeof(pairs), @"oracle pairs");
-        id<MTLBuffer> responseColumnBuffer = makeBuffer(responseColumns.data(), sizeof(responseColumns), @"oracle response columns");
-        id<MTLBuffer> responseRangeBuffer = makeBuffer(responseRanges.data(), sizeof(responseRanges), @"oracle response ranges");
-        id<MTLBuffer> responseValueBuffer = makeBuffer(responseValues.data(), sizeof(responseValues), @"oracle response values");
-        id<MTLBuffer> componentIncidenceBuffer = makeBuffer(componentIncidence.data(), sizeof(componentIncidence), @"oracle component incidence");
-        id<MTLBuffer> componentRangeBuffer = makeBuffer(&componentRange, sizeof(componentRange), @"oracle component range");
-        id<MTLBuffer> schedulers = makeBuffer(&scheduler, sizeof(scheduler), @"oracle schedulers");
-        id<MTLBuffer> sampleBuffer = makeBuffer(samples.data(), sizeof(samples), @"oracle samples");
-        id<MTLBuffer> statuses = makeBuffer(&status, sizeof(status), @"oracle statuses");
-        id<MTLBuffer> activePairBuffer = makeBuffer(
-            activePairs.data(), sizeof(activePairs), @"oracle active pairs");
-        id<MTLBuffer> activeCountBuffer = makeBuffer(
-            &activeCount, sizeof(activeCount), @"oracle active count");
-        std::array<nm_float4, 2u> warmstarts{};
-        id<MTLBuffer> warmstartBuffer = makeBuffer(
-            warmstarts.data(), sizeof(warmstarts), @"oracle warmstarts");
-
-        id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
-        id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
-        require(commandBuffer != nil && encoder != nil,
-            "failed to encode coupled-contact oracle");
-        [encoder setComputePipelineState:gatherPipeline];
-        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
-        [encoder setBuffer:mpmNodes offset:0u atIndex:1u];
-        [encoder setBuffer:femNodes offset:0u atIndex:2u];
-        [encoder setBuffer:proxyBuffer offset:0u atIndex:3u];
-        [encoder setBuffer:rigidStates offset:0u atIndex:4u];
-        [encoder setBuffer:pairBuffer offset:0u atIndex:5u];
-        [encoder setBuffer:sampleBuffer offset:0u atIndex:6u];
-        [encoder setBuffer:responseRangeBuffer offset:0u atIndex:7u];
-        [encoder setBuffer:responseColumnBuffer offset:0u atIndex:8u];
-        [encoder setBuffer:responseValueBuffer offset:0u atIndex:9u];
-        [encoder setBuffer:statuses offset:0u atIndex:10u];
-        [encoder setBytes:&responseEntryCount length:sizeof(responseEntryCount) atIndex:11u];
-        [encoder setBytes:&activeCapacity length:sizeof(activeCapacity) atIndex:12u];
-        [encoder setBuffer:activePairBuffer offset:0u atIndex:13u];
-        [encoder setBuffer:activeCountBuffer offset:0u atIndex:14u];
-        [encoder dispatchThreads:MTLSizeMake(2u, 1u, 1u)
-          threadsPerThreadgroup:MTLSizeMake(gatherPipeline.threadExecutionWidth, 1u, 1u)];
-        [encoder setComputePipelineState:pipeline];
-        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
-        [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1u];
-        [encoder setBuffer:objects offset:0u atIndex:2u];
-        [encoder setBuffer:materials offset:0u atIndex:3u];
-        [encoder setBuffer:rigidStates offset:0u atIndex:4u];
-        [encoder setBuffer:pairBuffer offset:0u atIndex:5u];
-        [encoder setBuffer:schedulers offset:0u atIndex:6u];
-        [encoder setBuffer:sampleBuffer offset:0u atIndex:7u];
-        [encoder setBuffer:statuses offset:0u atIndex:8u];
-        [encoder setBuffer:responseColumnBuffer offset:0u atIndex:9u];
-        [encoder setBuffer:responseRangeBuffer offset:0u atIndex:10u];
-        [encoder setBuffer:responseValueBuffer offset:0u atIndex:11u];
-        [encoder setBuffer:componentIncidenceBuffer offset:0u atIndex:12u];
-        [encoder setBuffer:componentRangeBuffer offset:0u atIndex:13u];
-        [encoder setBytes:&responseEntryCount length:sizeof(responseEntryCount) atIndex:14u];
-        [encoder setBytes:&componentCount length:sizeof(componentCount) atIndex:15u];
-        [encoder setBuffer:warmstartBuffer offset:0u atIndex:16u];
-        [encoder setBytes:&activeCapacity length:sizeof(activeCapacity) atIndex:17u];
-        [encoder setBuffer:activePairBuffer offset:0u atIndex:18u];
-        [encoder setBuffer:activeCountBuffer offset:0u atIndex:19u];
-        [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
-          threadsPerThreadgroup:MTLSizeMake(pipeline.threadExecutionWidth, 1u, 1u)];
-        [encoder endEncoding];
-        [commandBuffer commit];
-        [commandBuffer waitUntilCompleted];
-        require(commandBuffer.status == MTLCommandBufferStatusCompleted,
-            "coupled-contact Metal command did not complete");
-
-        const auto* solved = static_cast<const NMContactSampleGPU*>(
-            sampleBuffer.contents
-        );
-        const auto* gathered = static_cast<const float*>(
-            responseValueBuffer.contents
-        );
-        require(solved != nullptr, "coupled-contact results are unavailable");
-        require(gathered != nullptr &&
-                    std::abs(gathered[0] - 2.0f) < 1.0e-6f &&
-                    std::abs(gathered[1] - 1.0f) < 1.0e-6f &&
-                    std::abs(gathered[2] - 1.0f) < 1.0e-6f &&
-                    std::abs(gathered[3] - 2.0f) < 1.0e-6f,
-            "device response gather did not assemble the shared-body Delassus block");
-        const float first = solved[0].impulseAndNormal.w;
-        const float second = solved[1].impulseAndNormal.w;
-        const float symmetryError = std::abs(gathered[1] - gathered[2]);
-        const float trace = gathered[0] + gathered[3];
-        const float discriminant = std::sqrt(std::max(
-            (gathered[0] - gathered[3]) *
-                (gathered[0] - gathered[3]) +
-                4.0f * gathered[1] * gathered[2],
-            0.0f
-        ));
-        const float minimumEigenvalue = 0.5f * (trace - discriminant);
-        const float residual = std::max(
-            std::abs(2.0f * first + second - 1.0f),
-            std::abs(first + 2.0f * second - 1.0f)
-        );
-        require(std::abs(first - 1.0f / 3.0f) < 2.0e-5f &&
-                    std::abs(second - 1.0f / 3.0f) < 2.0e-5f &&
-                    residual < 4.0e-5f && symmetryError < 1.0e-6f &&
-                    minimumEigenvalue >= -1.0e-6f,
-            "coupled-contact oracle did not solve the shared-rigid 1/3 impulse case");
-        std::cout
-            << "{\"schema\":\"numi.matter.physics-probe.v2\""
-            << ",\"representation\":\"shared_rigid_coupled_contact\""
-            << ",\"delassus\":[[" << gathered[0] << ',' << gathered[1]
-            << "],[" << gathered[2] << ',' << gathered[3] << "]]"
-            << ",\"impulses\":[" << first << ',' << second << ']'
-            << ",\"residual\":" << residual
-            << ",\"symmetry_error\":" << symmetryError
-            << ",\"minimum_eigenvalue\":" << minimumEigenvalue
-            << "}\n";
     }
 }
 
@@ -2664,7 +2347,6 @@ int main(int argc, const char* argv[]) {
         const bool mpmGentle = argc == 2 && std::string_view(argv[1]) == "--mpm-gentle-contact";
         const bool mpmRollback = argc == 2 && std::string_view(argv[1]) == "--mpm-rollback";
         const bool metalWorldCoupling = argc == 2 && std::string_view(argv[1]) == "--metal-world-coupling";
-        const bool coupledContact = argc == 2 && std::string_view(argv[1]) == "--coupled-contact";
         const bool multiphysics = argc == 2 && std::string_view(argv[1]) == "--multiphysics";
         const bool topologyMutation = argc == 2 &&
             std::string_view(argv[1]) == "--topology-mutation";
@@ -2695,7 +2377,7 @@ int main(int argc, const char* argv[]) {
             argc == 1 || mixedOnly || statefulMPM || statefulFEM ||
                 femOnly || mpmOnly || mpmFree || mpmSingle ||
                 mpmSingleContact || mpmGentle || mpmRollback ||
-                metalWorldCoupling || coupledContact || multiphysics ||
+                metalWorldCoupling || multiphysics ||
                 topologyMutation || topologyRollback || cohesiveMutation ||
                 punctureMutation || learnedMaterial ||
                 productionRollback || poroelasticCompression ||
@@ -2704,7 +2386,7 @@ int main(int argc, const char* argv[]) {
                 identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--coupled-contact|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (articulatedFootPad) {
             runArticulatedFootPadScene();
@@ -2763,9 +2445,6 @@ int main(int argc, const char* argv[]) {
         }
         if (metalWorldCoupling) {
             runMetalWorldCoupling();
-        }
-        if (coupledContact) {
-            runCoupledContactOracle();
         }
         if (multiphysics) {
             const auto outcome = runCase(
@@ -2938,7 +2617,7 @@ int main(int argc, const char* argv[]) {
                 << "}\n";
         }
         if (!identification && !adaptiveDemotion && !adaptivePromotion &&
-            !adaptivePromotionRollback && !metalWorldCoupling && !coupledContact &&
+            !adaptivePromotionRollback && !metalWorldCoupling &&
             !multiphysics &&
             !topologyMutation && !topologyRollback && !cohesiveMutation &&
             !punctureMutation &&
@@ -2985,7 +2664,7 @@ int main(int argc, const char* argv[]) {
         }
         if (!mixedOnly && !statefulMPM && !statefulFEM &&
             !mpmOnly && !mpmFree && !mpmSingle && !mpmSingleContact &&
-            !mpmGentle && !mpmRollback && !metalWorldCoupling && !coupledContact &&
+            !mpmGentle && !mpmRollback && !metalWorldCoupling &&
             !multiphysics &&
             !topologyMutation && !topologyRollback && !cohesiveMutation &&
             !punctureMutation &&
