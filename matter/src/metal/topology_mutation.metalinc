@@ -59,7 +59,7 @@ inline bool mutationDeactivates(
             command.geometry1.w * axis;
         // A finite centerline crossing is the conservative erosion authority.
         // Sampling includes both endpoints and avoids eroding every element
-        // that merely shares a surface vertex with the needle tip.
+        // that merely shares a surface vertex with the active proxy endpoint.
         for (uint sample = 0u; sample <= 16u; ++sample) {
             const float t = float(sample) * (1.0f / 16.0f);
             if (pointInsideTetrahedron(
@@ -247,7 +247,7 @@ kernel void nm_topology_detect_puncture(
     device const NMTetrahedronGPU* tetrahedra [[buffer(7)]],
     device const NMPunctureChannelGPU* channels [[buffer(8)]],
     device const NMContactPairGPU* contactPairs [[buffer(9)]],
-    device const float4* acceptedWarmstarts [[buffer(10)]],
+    device const float4* acceptedHistories [[buffer(10)]],
     device NMMutationCommandGPU* commands [[buffer(11)]],
     uint global [[thread_position_in_grid]]
 ) {
@@ -290,7 +290,7 @@ kernel void nm_topology_detect_puncture(
                 proxies[pair.rigidProxy];
             if (pair.objectIndex == objectIndex &&
                 contactProxy.bodyIndex == proxies[proxyIndex].bodyIndex &&
-                acceptedWarmstarts[pairBase + pairIndex].w >=
+                acceptedHistories[pairBase + pairIndex].w >=
                     punctureImpulseThreshold) {
                 acceptedContact = true;
                 break;
@@ -380,6 +380,265 @@ inline float3 topologyTetCentroid(
     return 0.25f * result;
 }
 
+inline bool topologyRefreshRestOverride(
+    thread NMTetrahedronGPU& tetrahedron,
+    device const NMFEMNodeStateGPU* nodes,
+    const uint nodeBase,
+    const uint overrideNode,
+    const float3 overrideRest
+) {
+    for (uint a = 0u; a < 4u; ++a)
+        for (uint b = a + 1u; b < 4u; ++b)
+            if (tetrahedron.nodes[a] == tetrahedron.nodes[b]) return false;
+    const float3 x0 = tetrahedron.nodes.x == overrideNode ? overrideRest
+        : nodes[nodeBase + tetrahedron.nodes.x].restAndFixed.xyz;
+    const float3 x1 = tetrahedron.nodes.y == overrideNode ? overrideRest
+        : nodes[nodeBase + tetrahedron.nodes.y].restAndFixed.xyz;
+    const float3 x2 = tetrahedron.nodes.z == overrideNode ? overrideRest
+        : nodes[nodeBase + tetrahedron.nodes.z].restAndFixed.xyz;
+    const float3 x3 = tetrahedron.nodes.w == overrideNode ? overrideRest
+        : nodes[nodeBase + tetrahedron.nodes.w].restAndFixed.xyz;
+    const float3x3 rest = float3x3(x1 - x0, x2 - x0, x3 - x0);
+    const float determinantValue = determinant(rest);
+    float3x3 inverseRest;
+    if (!isfinite(determinantValue) || determinantValue <= 0.0f ||
+        !invert3x3(rest, inverseRest)) return false;
+    matrixToRows(
+        inverseRest,
+        tetrahedron.inverseRestRow0,
+        tetrahedron.inverseRestRow1,
+        tetrahedron.inverseRestRow2);
+    tetrahedron.inverseRestRow0.w = abs(determinantValue) / 6.0f;
+    return tetrahedron.inverseRestRow0.w > kGeometryFloor;
+}
+
+inline bool topologyRefreshRest(
+    thread NMTetrahedronGPU& tetrahedron,
+    device const NMFEMNodeStateGPU* nodes,
+    const uint nodeBase
+) {
+    return topologyRefreshRestOverride(
+        tetrahedron, nodes, nodeBase, NM_INVALID_INDEX, float3(0.0f));
+}
+
+inline bool topologyOrientAndRefreshRest(
+    thread NMTetrahedronGPU& tetrahedron,
+    device const NMFEMNodeStateGPU* nodes,
+    const uint nodeBase
+) {
+    if (topologyRefreshRest(tetrahedron, nodes, nodeBase)) return true;
+    const uint swap = tetrahedron.nodes.z;
+    tetrahedron.nodes.z = tetrahedron.nodes.w;
+    tetrahedron.nodes.w = swap;
+    return topologyRefreshRest(tetrahedron, nodes, nodeBase);
+}
+
+inline bool topologyOrientAndRefreshRestOverride(
+    thread NMTetrahedronGPU& tetrahedron,
+    device const NMFEMNodeStateGPU* nodes,
+    const uint nodeBase,
+    const uint overrideNode,
+    const float3 overrideRest
+) {
+    if (topologyRefreshRestOverride(
+            tetrahedron, nodes, nodeBase, overrideNode, overrideRest))
+        return true;
+    const uint swap = tetrahedron.nodes.z;
+    tetrahedron.nodes.z = tetrahedron.nodes.w;
+    tetrahedron.nodes.w = swap;
+    return topologyRefreshRestOverride(
+        tetrahedron, nodes, nodeBase, overrideNode, overrideRest);
+}
+
+inline bool topologyTetContains(
+    const NMTetrahedronGPU tetrahedron,
+    const uint node
+) {
+    return tetrahedron.nodes.x == node || tetrahedron.nodes.y == node ||
+        tetrahedron.nodes.z == node || tetrahedron.nodes.w == node;
+}
+
+inline uint topologySharedNodes(
+    const NMTetrahedronGPU first,
+    const NMTetrahedronGPU second,
+    thread uint shared[3],
+    thread uint& firstOpposite,
+    thread uint& secondOpposite
+) {
+    uint count = 0u;
+    firstOpposite = NM_INVALID_INDEX;
+    secondOpposite = NM_INVALID_INDEX;
+    for (uint slot = 0u; slot < 4u; ++slot) {
+        const uint node = first.nodes[slot];
+        if (topologyTetContains(second, node)) {
+            if (count < 3u) shared[count] = node;
+            ++count;
+        } else {
+            firstOpposite = node;
+        }
+    }
+    for (uint slot = 0u; slot < 4u; ++slot)
+        if (!topologyTetContains(first, second.nodes[slot]))
+            secondOpposite = second.nodes[slot];
+    if (count == 3u) {
+        if (shared[1] < shared[0]) {
+            const uint value = shared[0]; shared[0] = shared[1]; shared[1] = value;
+        }
+        if (shared[2] < shared[1]) {
+            const uint value = shared[1]; shared[1] = shared[2]; shared[2] = value;
+        }
+        if (shared[1] < shared[0]) {
+            const uint value = shared[0]; shared[0] = shared[1]; shared[1] = value;
+        }
+    }
+    return count;
+}
+
+inline uint2 topologyExtremeEdge(
+    const NMTetrahedronGPU tetrahedron,
+    device const NMFEMNodeStateGPU* nodes,
+    const uint nodeBase,
+    const bool longest
+) {
+    constexpr uint2 edges[6] = {
+        uint2(0u, 1u), uint2(0u, 2u), uint2(0u, 3u),
+        uint2(1u, 2u), uint2(1u, 3u), uint2(2u, 3u)
+    };
+    uint2 selected = edges[0];
+    float selectedLength = longest ? -INFINITY : INFINITY;
+    for (uint edge = 0u; edge < 6u; ++edge) {
+        const float3 a = nodes[
+            nodeBase + tetrahedron.nodes[edges[edge].x]].restAndFixed.xyz;
+        const float3 b = nodes[
+            nodeBase + tetrahedron.nodes[edges[edge].y]].restAndFixed.xyz;
+        const float length2 = dot(a - b, a - b);
+        if ((longest && length2 > selectedLength) ||
+            (!longest && length2 < selectedLength)) {
+            selected = edges[edge];
+            selectedLength = length2;
+        }
+    }
+    return selected;
+}
+
+inline uint topologyInactiveNode(
+    const NMContinuumObjectGPU object,
+    device const NMFEMTopologyNodeGPU* topologyNodes,
+    const uint nodeBase
+) {
+    for (uint local = 0u; local < object.stateCount; ++local) {
+        const uint node = object.stateOffset + local;
+        if ((topologyNodes[nodeBase + node].identity.w &
+             NM_TOPOLOGY_ACTIVE) == 0u) return node;
+    }
+    return NM_INVALID_INDEX;
+}
+
+inline uint topologyInactiveTetrahedron(
+    const NMContinuumObjectGPU object,
+    device const NMTetrahedronGPU* tetrahedra,
+    const uint tetBase,
+    const uint excluded
+) {
+    for (uint local = 0u; local < object.elementCount; ++local) {
+        const uint tetrahedron = object.elementOffset + local;
+        if (tetrahedron != excluded &&
+            (tetrahedra[tetBase + tetrahedron].identity.w &
+             NM_OBJECT_ACTIVE) == 0u) return tetrahedron;
+    }
+    return NM_INVALID_INDEX;
+}
+
+inline void topologyCopyMaterialState(
+    const NMMatterDispatchGPU dispatch,
+    device float* materialState,
+    const uint source,
+    const uint destination
+) {
+    for (uint state = 0u; state < dispatch.materialStateStride; ++state)
+        materialState[destination * dispatch.materialStateStride + state] =
+            materialState[source * dispatch.materialStateStride + state];
+}
+
+inline uint topologyTransferPolicy(
+    const NMMaterialGPU material,
+    const uint state
+) {
+    return (material.stateTransferMask >> (2u * state)) & 3u;
+}
+
+inline void topologyPartitionMaterialState(
+    const NMMatterDispatchGPU dispatch,
+    const NMMaterialGPU material,
+    device float* materialState,
+    const uint source,
+    const uint destination,
+    const float sourceFraction,
+    const float destinationFraction
+) {
+    for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+        const uint sourceIndex = source * dispatch.materialStateStride + state;
+        const uint destinationIndex =
+            destination * dispatch.materialStateStride + state;
+        const float value = materialState[sourceIndex];
+        if (state < material.stateCount &&
+            topologyTransferPolicy(material, state) == NM_MATERIAL_TRANSFER_SUM) {
+            materialState[sourceIndex] = value * sourceFraction;
+            materialState[destinationIndex] = value * destinationFraction;
+        } else {
+            materialState[destinationIndex] = value;
+        }
+    }
+}
+
+inline void topologyAggregateMaterialState(
+    const NMMatterDispatchGPU dispatch,
+    const NMMaterialGPU material,
+    device float* materialState,
+    thread const uint* sources,
+    thread const float* sourceVolumes,
+    const uint sourceCount,
+    thread const uint* destinations,
+    thread const float* destinationVolumes,
+    const uint destinationCount
+) {
+    float totalSourceVolume = 0.0f;
+    float totalDestinationVolume = 0.0f;
+    for (uint source = 0u; source < sourceCount; ++source)
+        totalSourceVolume += sourceVolumes[source];
+    for (uint destination = 0u; destination < destinationCount; ++destination)
+        totalDestinationVolume += destinationVolumes[destination];
+    for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+        const uint policy = state < material.stateCount
+            ? topologyTransferPolicy(material, state)
+            : NM_MATERIAL_TRANSFER_AVERAGE;
+        float aggregate = policy == NM_MATERIAL_TRANSFER_MAXIMUM
+            ? -INFINITY : 0.0f;
+        for (uint source = 0u; source < sourceCount; ++source) {
+            const float value = materialState[
+                sources[source] * dispatch.materialStateStride + state];
+            if (policy == NM_MATERIAL_TRANSFER_MAXIMUM)
+                aggregate = max(aggregate, value);
+            else if (policy == NM_MATERIAL_TRANSFER_SUM)
+                aggregate += value;
+            else
+                aggregate += sourceVolumes[source] * value;
+        }
+        if (policy == NM_MATERIAL_TRANSFER_AVERAGE)
+            aggregate /= max(totalSourceVolume, kGeometryFloor);
+        for (uint destination = 0u; destination < destinationCount;
+             ++destination) {
+            float value = aggregate;
+            if (policy == NM_MATERIAL_TRANSFER_SUM)
+                value *= destinationVolumes[destination] /
+                    max(totalDestinationVolume, kGeometryFloor);
+            materialState[
+                destinations[destination] * dispatch.materialStateStride + state
+            ] = value;
+        }
+    }
+}
+
 kernel void nm_topology_execute_transaction(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -403,6 +662,8 @@ kernel void nm_topology_execute_transaction(
     device const NMMutationCommandGPU* triggeredCommands [[buffer(19)]],
     constant uint& triggeredCount [[buffer(20)]],
     constant uint& cookedCount [[buffer(21)]],
+    device float* materialState [[buffer(22)]],
+    device const NMFEMTopologyStateGPU* checkpointTopology [[buffer(23)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
@@ -432,7 +693,7 @@ kernel void nm_topology_execute_transaction(
         if ((command.identity.w & NM_MUTATION_ACTIVE) == 0u ||
             command.schedule.x != microstep.controlStep) continue;
         hasActiveCommand = true;
-        if (command.identity.x > NM_MUTATION_DEACTIVATE_TETRAHEDRON ||
+        if (command.identity.x > NM_MUTATION_VERTEX_SMOOTH ||
             command.identity.y >= dispatch.objectCount ||
             objects[command.identity.y].representation != NM_REPRESENTATION_FEM ||
             (objects[command.identity.y].flags &
@@ -446,11 +707,41 @@ kernel void nm_topology_execute_transaction(
             return;
         }
         const NMContinuumObjectGPU object = objects[command.identity.y];
-        if (command.identity.x == NM_MUTATION_DEACTIVATE_TETRAHEDRON &&
-            command.schedule.y >= object.elementCount) {
+        const bool targetsTetrahedron =
+            command.identity.x == NM_MUTATION_DEACTIVATE_TETRAHEDRON ||
+            command.identity.x == NM_MUTATION_EDGE_SPLIT ||
+            command.identity.x == NM_MUTATION_EDGE_COLLAPSE ||
+            command.identity.x == NM_MUTATION_FACE_FLIP_23 ||
+            command.identity.x == NM_MUTATION_FACE_FLIP_32;
+        const bool unresolvedProposal = command.schedule.y == NM_INVALID_INDEX &&
+            command.identity.x >= NM_MUTATION_EDGE_SPLIT;
+        if ((!unresolvedProposal && targetsTetrahedron &&
+             command.schedule.y >= object.elementCount) ||
+            (command.identity.x == NM_MUTATION_VERTEX_SMOOTH &&
+             !unresolvedProposal && command.schedule.y >= object.stateCount)) {
             recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
                 command.identity.y, command.schedule.y, float4(1.0f));
             return;
+        }
+        if (targetsTetrahedron && !unresolvedProposal) {
+            const NMTetrahedronGPU target = tetrahedra[
+                tetBase + object.elementOffset + command.schedule.y];
+            if ((target.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                target.identity.y != command.identity.y) {
+                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                    command.identity.y, command.schedule.y, float4(1.5f));
+                return;
+            }
+        }
+        if (command.identity.x == NM_MUTATION_VERTEX_SMOOTH &&
+            !unresolvedProposal) {
+            const uint node = object.stateOffset + command.schedule.y;
+            if ((topologyNodes[nodeBase + node].identity.w &
+                 NM_TOPOLOGY_ACTIVE) == 0u) {
+                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                    command.identity.y, command.schedule.y, float4(1.75f));
+                return;
+            }
         }
         if ((command.identity.x == NM_MUTATION_PLANE_EROSION ||
              command.identity.x == NM_MUTATION_CYLINDER_PUNCTURE) &&
@@ -476,44 +767,76 @@ kernel void nm_topology_execute_transaction(
                     command.identity.y, command.schedule.y, float4(3.0f));
                 return;
             }
-            uint inactive = 0u;
-            for (uint local = 0u; local < object.stateCount; ++local)
-                inactive += (topologyNodes[nodeBase + object.stateOffset + local]
-                    .identity.w & NM_TOPOLOGY_ACTIVE) == 0u ? 1u : 0u;
-            uint required = 0u;
-            for (uint other = 0u; other < totalCommands; ++other) {
-                const NMMutationCommandGPU request = combinedMutationCommand(
+        }
+
+        uint inactiveNodes = 0u;
+        uint inactiveTetrahedra = 0u;
+        uint inactiveChannels = 0u;
+        for (uint local = 0u; local < object.stateCount; ++local)
+            inactiveNodes += (topologyNodes[
+                nodeBase + object.stateOffset + local].identity.w &
+                NM_TOPOLOGY_ACTIVE) == 0u ? 1u : 0u;
+        for (uint local = 0u; local < object.elementCount; ++local)
+            inactiveTetrahedra += (tetrahedra[
+                tetBase + object.elementOffset + local].identity.w &
+                NM_OBJECT_ACTIVE) == 0u ? 1u : 0u;
+        uint channelOffset = 0u;
+        for (uint prior = 0u; prior < command.identity.y; ++prior)
+            channelOffset += capacities[prior].topology.w;
+        for (uint local = 0u; local < capacities[command.identity.y].topology.w;
+             ++local)
+            inactiveChannels += (channels[
+                channelBase + channelOffset + local].identity.w &
+                NM_TOPOLOGY_ACTIVE) == 0u ? 1u : 0u;
+
+        uint requiredNodes = 0u;
+        uint requiredTetrahedra = 0u;
+        uint requiredChannels = 0u;
+        for (uint other = 0u; other < totalCommands; ++other) {
+            const NMMutationCommandGPU request = combinedMutationCommand(
+                cookedCommands, cookedCount,
+                borrowedCommands, borrowedStride, borrowedCount,
+                triggeredCommands, triggeredCount, environment, other);
+            if ((request.identity.w & NM_MUTATION_ACTIVE) == 0u ||
+                request.schedule.x != microstep.controlStep ||
+                request.identity.y != command.identity.y) continue;
+            bool earlierDuplicate = false;
+            for (uint earlier = 0u; earlier < other; ++earlier) {
+                const NMMutationCommandGPU previous = combinedMutationCommand(
                     cookedCommands, cookedCount,
                     borrowedCommands, borrowedStride, borrowedCount,
-                    triggeredCommands, triggeredCount, environment, other
-                );
-                if ((request.identity.w & NM_MUTATION_ACTIVE) == 0u ||
-                    request.schedule.x != microstep.controlStep ||
-                    request.identity.x != NM_MUTATION_COHESIVE_SEPARATION ||
-                    request.identity.y != command.identity.y) continue;
-                bool earlierDuplicate = false;
-                for (uint earlier = 0u; earlier < other; ++earlier) {
-                    const NMMutationCommandGPU previous = combinedMutationCommand(
-                        cookedCommands, cookedCount,
-                        borrowedCommands, borrowedStride, borrowedCount,
-                        triggeredCommands, triggeredCount, environment, earlier
-                    );
-                    earlierDuplicate = earlierDuplicate ||
-                        (previous.identity.w & NM_MUTATION_ACTIVE) != 0u &&
-                        previous.schedule.x == microstep.controlStep &&
-                        previous.identity.x == NM_MUTATION_COHESIVE_SEPARATION &&
-                        previous.identity.y == request.identity.y &&
-                        previous.schedule.y == request.schedule.y;
-                }
-                if (!earlierDuplicate) required += 3u;
+                    triggeredCommands, triggeredCount, environment, earlier);
+                earlierDuplicate = earlierDuplicate ||
+                    ((previous.identity.w & NM_MUTATION_ACTIVE) != 0u &&
+                     previous.schedule.x == microstep.controlStep &&
+                     previous.identity.x == request.identity.x &&
+                     previous.identity.y == request.identity.y &&
+                     previous.identity.z == request.identity.z &&
+                     previous.schedule.y == request.schedule.y);
             }
-            if (required > inactive) {
-                recordFailure(statuses[environment],
-                    NM_STATUS_TOPOLOGY_GROWTH_REQUIRED,
-                    command.identity.y, required,
-                    float4(float(inactive), float(required), 0.0f, 0.0f));
-                return;
+            if (earlierDuplicate) continue;
+            if (request.identity.x == NM_MUTATION_COHESIVE_SEPARATION)
+                requiredNodes += 3u;
+            else if (request.identity.x == NM_MUTATION_EDGE_SPLIT) {
+                requiredNodes += 1u;
+                requiredTetrahedra += 1u;
+            } else if (request.identity.x == NM_MUTATION_FACE_FLIP_23) {
+                requiredTetrahedra += 1u;
+            } else if (request.identity.x == NM_MUTATION_CYLINDER_PUNCTURE) {
+                requiredChannels += 1u;
             }
+        }
+        if (requiredNodes > inactiveNodes ||
+            requiredTetrahedra > inactiveTetrahedra ||
+            requiredChannels > inactiveChannels) {
+            const uint required = max(requiredNodes,
+                max(requiredTetrahedra, requiredChannels));
+            recordFailure(statuses[environment],
+                NM_STATUS_TOPOLOGY_GROWTH_REQUIRED,
+                command.identity.y, required,
+                float4(float(requiredNodes), float(requiredTetrahedra),
+                    float(requiredChannels), 0.0f));
+            return;
         }
     }
     if (!hasActiveCommand) return;
@@ -566,6 +889,855 @@ kernel void nm_topology_execute_transaction(
         device NMFEMTopologyStateGPU& topology = topologyStates[
             environment * dispatch.objectCount + objectIndex
         ];
+        const uint transactionGeneration = checkpointTopology[
+            environment * dispatch.objectCount + objectIndex].roles.w;
+
+        // An invalid target denotes an on-device proposal. Selection is a
+        // deterministic quality reduction (stable local index breaks ties),
+        // after which the ordinary priority-ordered transaction owns conflict
+        // resolution and application.
+        if (selected.schedule.y == NM_INVALID_INDEX &&
+            selected.identity.x >= NM_MUTATION_EDGE_SPLIT) {
+            uint proposal = NM_INVALID_INDEX;
+            if (selected.identity.x == NM_MUTATION_EDGE_SPLIT ||
+                selected.identity.x == NM_MUTATION_EDGE_COLLAPSE) {
+                const bool longest =
+                    selected.identity.x == NM_MUTATION_EDGE_SPLIT;
+                float best = longest ? -INFINITY : INFINITY;
+                for (uint local = 0u; local < object.elementCount; ++local) {
+                    const NMTetrahedronGPU tetrahedron = tetrahedra[
+                        tetBase + object.elementOffset + local];
+                    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                        tetrahedron.identity.z > transactionGeneration)
+                        continue;
+                    const uint2 edge = topologyExtremeEdge(
+                        tetrahedron, nodes, nodeBase, longest);
+                    const float3 a = nodes[
+                        nodeBase + tetrahedron.nodes[edge.x]].restAndFixed.xyz;
+                    const float3 b = nodes[
+                        nodeBase + tetrahedron.nodes[edge.y]].restAndFixed.xyz;
+                    const float score = dot(a - b, a - b);
+                    if ((longest && score > best) ||
+                        (!longest && score < best)) {
+                        best = score;
+                        proposal = local;
+                    }
+                }
+                const float threshold = max(selected.geometry0.x, 0.0f);
+                if (proposal != NM_INVALID_INDEX && threshold > 0.0f &&
+                    ((longest && best <= threshold * threshold) ||
+                     (!longest && best >= threshold * threshold)))
+                    proposal = NM_INVALID_INDEX;
+            } else if (selected.identity.x == NM_MUTATION_FACE_FLIP_23) {
+                for (uint local = 0u;
+                     local < object.elementCount && proposal == NM_INVALID_INDEX;
+                     ++local) {
+                    const NMTetrahedronGPU first = tetrahedra[
+                        tetBase + object.elementOffset + local];
+                    if ((first.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                        first.identity.z > transactionGeneration) continue;
+                    for (uint other = local + 1u; other < object.elementCount;
+                         ++other) {
+                        const NMTetrahedronGPU second = tetrahedra[
+                            tetBase + object.elementOffset + other];
+                        if ((second.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                            second.identity.z > transactionGeneration ||
+                            second.identity.x != first.identity.x) continue;
+                        uint shared[3];
+                        uint firstOpposite, secondOpposite;
+                        if (topologySharedNodes(
+                                first, second, shared,
+                                firstOpposite, secondOpposite) == 3u) {
+                            proposal = local;
+                            break;
+                        }
+                    }
+                }
+            } else if (selected.identity.x == NM_MUTATION_FACE_FLIP_32) {
+                for (uint local = 0u;
+                     local < object.elementCount && proposal == NM_INVALID_INDEX;
+                     ++local) {
+                    const NMTetrahedronGPU first = tetrahedra[
+                        tetBase + object.elementOffset + local];
+                    if ((first.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                        first.identity.z > transactionGeneration) continue;
+                    const uint2 edge = topologyExtremeEdge(
+                        first, nodes, nodeBase, false);
+                    const uint edge0 = first.nodes[edge.x];
+                    const uint edge1 = first.nodes[edge.y];
+                    uint ring = 0u;
+                    uint opposite[3] = {
+                        NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX};
+                    uint oppositeCount = 0u;
+                    bool invalid = false;
+                    for (uint other = 0u; other < object.elementCount; ++other) {
+                        const NMTetrahedronGPU candidate = tetrahedra[
+                            tetBase + object.elementOffset + other];
+                        if ((candidate.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                            candidate.identity.z > transactionGeneration ||
+                            !topologyTetContains(candidate, edge0) ||
+                            !topologyTetContains(candidate, edge1)) continue;
+                        invalid = invalid || candidate.identity.x != first.identity.x;
+                        ++ring;
+                        for (uint slot = 0u; slot < 4u; ++slot) {
+                            const uint node = candidate.nodes[slot];
+                            if (node == edge0 || node == edge1) continue;
+                            bool known = false;
+                            for (uint knownIndex = 0u;
+                                 knownIndex < oppositeCount; ++knownIndex)
+                                known = known || opposite[knownIndex] == node;
+                            if (!known && oppositeCount < 3u)
+                                opposite[oppositeCount++] = node;
+                            else if (!known)
+                                invalid = true;
+                        }
+                    }
+                    if (!invalid && ring == 3u && oppositeCount == 3u)
+                        proposal = local;
+                }
+            } else if (selected.identity.x == NM_MUTATION_VERTEX_SMOOTH) {
+                uint bestValence = 0u;
+                for (uint local = 0u; local < object.stateCount; ++local) {
+                    const uint node = object.stateOffset + local;
+                    if ((topologyNodes[nodeBase + node].identity.w &
+                         NM_TOPOLOGY_ACTIVE) == 0u ||
+                        topologyNodes[nodeBase + node].identity.z >
+                            transactionGeneration ||
+                        nodes[nodeBase + node].restAndFixed.w > 0.5f) continue;
+                    const uint valence = nodeRanges[nodeBase + node].count;
+                    if (valence > bestValence) {
+                        bestValence = valence;
+                        proposal = local;
+                    }
+                }
+            }
+            if (proposal == NM_INVALID_INDEX) continue;
+            selected.schedule.y = proposal;
+        }
+
+        if (selected.identity.x == NM_MUTATION_EDGE_SPLIT) {
+            const uint sourceIndex = object.elementOffset + selected.schedule.y;
+            const NMTetrahedronGPU source = tetrahedra[tetBase + sourceIndex];
+            if ((source.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                source.identity.z > transactionGeneration) continue;
+            const uint midpoint = topologyInactiveNode(
+                object, topologyNodes, nodeBase);
+            const uint2 edge = topologyExtremeEdge(
+                source, nodes, nodeBase, true);
+            const uint firstNode = source.nodes[edge.x];
+            const uint secondNode = source.nodes[edge.y];
+            uint incidentCount = 0u;
+            uint inactiveCount = 0u;
+            for (uint local = 0u; local < object.elementCount; ++local) {
+                const NMTetrahedronGPU tetrahedron = tetrahedra[
+                    tetBase + object.elementOffset + local];
+                if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) {
+                    ++inactiveCount;
+                    continue;
+                }
+                if (tetrahedron.identity.z <= transactionGeneration &&
+                    topologyTetContains(tetrahedron, firstNode) &&
+                    topologyTetContains(tetrahedron, secondNode))
+                    ++incidentCount;
+            }
+            // A tetrahedral edge split owns its complete incident cavity.
+            // Splitting only the selected tetrahedron leaves hanging faces
+            // and is not a conforming remesh.
+            if (midpoint == NM_INVALID_INDEX || incidentCount == 0u ||
+                inactiveCount < incidentCount) {
+                recordFailure(statuses[environment],
+                    NM_STATUS_TOPOLOGY_GROWTH_REQUIRED, objectIndex,
+                    selected.identity.z,
+                    float4(1.0f, float(incidentCount), 0.0f, 0.0f));
+                return;
+            }
+            const NMFEMNodeStateGPU first = nodes[nodeBase + firstNode];
+            const NMFEMNodeStateGPU second = nodes[nodeBase + secondNode];
+            NMFEMNodeStateGPU midpointState{};
+            midpointState.positionAndMass = float4(
+                0.5f * (first.positionAndMass.xyz +
+                        second.positionAndMass.xyz), 0.0f);
+            midpointState.velocityAndInverseMass = float4(
+                0.5f * (first.velocityAndInverseMass.xyz +
+                        second.velocityAndInverseMass.xyz), 0.0f);
+            midpointState.restAndFixed = float4(
+                0.5f * (first.restAndFixed.xyz + second.restAndFixed.xyz),
+                min(first.restAndFixed.w, second.restAndFixed.w));
+            midpointState.deltaVelocity = 0.5f *
+                (first.deltaVelocity + second.deltaVelocity);
+            const float3 midpointRest = midpointState.restAndFixed.xyz;
+            const uint generation = topology.roles.w + 1u;
+            // Validate every cavity split before making the midpoint visible.
+            for (uint local = 0u; local < object.elementCount; ++local) {
+                const uint incidentIndex = object.elementOffset + local;
+                const NMTetrahedronGPU incident = tetrahedra[
+                    tetBase + incidentIndex];
+                if ((incident.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                    incident.identity.z > transactionGeneration ||
+                    !topologyTetContains(incident, firstNode) ||
+                    !topologyTetContains(incident, secondNode)) continue;
+                NMTetrahedronGPU firstHalf = incident;
+                NMTetrahedronGPU secondHalf = incident;
+                for (uint slot = 0u; slot < 4u; ++slot) {
+                    if (firstHalf.nodes[slot] == secondNode)
+                        firstHalf.nodes[slot] = midpoint;
+                    if (secondHalf.nodes[slot] == firstNode)
+                        secondHalf.nodes[slot] = midpoint;
+                }
+                if (!topologyOrientAndRefreshRestOverride(
+                        firstHalf, nodes, nodeBase, midpoint, midpointRest) ||
+                    !topologyOrientAndRefreshRestOverride(
+                        secondHalf, nodes, nodeBase, midpoint, midpointRest)) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_TOPOLOGY_FAILURE, objectIndex,
+                        incidentIndex, float4(5.0f));
+                    return;
+                }
+                const float sourceVolume = max(
+                    incident.inverseRestRow0.w, kGeometryFloor);
+                const float volumeError = abs(
+                    firstHalf.inverseRestRow0.w +
+                    secondHalf.inverseRestRow0.w - sourceVolume);
+                if (volumeError > 8.0e-6f * max(sourceVolume, 1.0f)) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_TOPOLOGY_FAILURE, objectIndex,
+                        incidentIndex,
+                        float4(volumeError, sourceVolume, 0.0f, 0.0f));
+                    return;
+                }
+            }
+            nodes[nodeBase + midpoint] = midpointState;
+            NMFEMFieldStateGPU midpointField{};
+            midpointField.primary = 0.5f *
+                (fields[nodeBase + firstNode].primary +
+                 fields[nodeBase + secondNode].primary);
+            midpointField.secondary = 0.5f *
+                (fields[nodeBase + firstNode].secondary +
+                 fields[nodeBase + secondNode].secondary);
+            fields[nodeBase + midpoint] = midpointField;
+            NMFEMTopologyNodeGPU midpointTopology =
+                topologyNodes[nodeBase + midpoint];
+            midpointTopology.identity.y = objectIndex;
+            midpointTopology.identity.z = generation;
+            midpointTopology.identity.w = NM_TOPOLOGY_ACTIVE |
+                (topologyNodes[nodeBase + firstNode].identity.w &
+                 topologyNodes[nodeBase + secondNode].identity.w &
+                 NM_TOPOLOGY_SURFACE);
+            topologyNodes[nodeBase + midpoint] = midpointTopology;
+            for (uint local = 0u; local < object.elementCount; ++local) {
+                const uint incidentIndex = object.elementOffset + local;
+                const NMTetrahedronGPU incident = tetrahedra[
+                    tetBase + incidentIndex];
+                if ((incident.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                    incident.identity.z > transactionGeneration ||
+                    !topologyTetContains(incident, firstNode) ||
+                    !topologyTetContains(incident, secondNode)) continue;
+                const uint addedIndex = topologyInactiveTetrahedron(
+                    object, tetrahedra, tetBase, incidentIndex);
+                if (addedIndex == NM_INVALID_INDEX) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_TOPOLOGY_GROWTH_REQUIRED, objectIndex,
+                        selected.identity.z,
+                        float4(0.0f, float(incidentCount), 0.0f, 0.0f));
+                    return;
+                }
+                NMTetrahedronGPU firstHalf = incident;
+                NMTetrahedronGPU secondHalf = incident;
+                for (uint slot = 0u; slot < 4u; ++slot) {
+                    if (firstHalf.nodes[slot] == secondNode)
+                        firstHalf.nodes[slot] = midpoint;
+                    if (secondHalf.nodes[slot] == firstNode)
+                        secondHalf.nodes[slot] = midpoint;
+                }
+                (void)topologyOrientAndRefreshRest(
+                    firstHalf, nodes, nodeBase);
+                (void)topologyOrientAndRefreshRest(
+                    secondHalf, nodes, nodeBase);
+                firstHalf.identity.z = generation;
+                secondHalf.identity = {
+                    incident.identity.x, objectIndex, generation,
+                    NM_OBJECT_ACTIVE};
+                const float sourceVolume = max(
+                    incident.inverseRestRow0.w, kGeometryFloor);
+                tetrahedra[tetBase + incidentIndex] = firstHalf;
+                tetrahedra[tetBase + addedIndex] = secondHalf;
+                topologyPartitionMaterialState(
+                    dispatch, materials[incident.identity.x], materialState,
+                    tetBase + incidentIndex, tetBase + addedIndex,
+                    firstHalf.inverseRestRow0.w / sourceVolume,
+                    secondHalf.inverseRestRow0.w / sourceVolume);
+            }
+            topology.counts.x += 1u;
+            topology.counts.y += incidentCount;
+            topology.roles.w = generation;
+            continue;
+        }
+
+        if (selected.identity.x == NM_MUTATION_EDGE_COLLAPSE) {
+            const uint targetIndex = object.elementOffset + selected.schedule.y;
+            const NMTetrahedronGPU target = tetrahedra[tetBase + targetIndex];
+            if ((target.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                target.identity.z > transactionGeneration) continue;
+            const uint2 edge = topologyExtremeEdge(
+                target, nodes, nodeBase, false);
+            const uint edgeA = target.nodes[edge.x];
+            const uint edgeB = target.nodes[edge.y];
+            const uint survivor = min(edgeA, edgeB);
+            const uint removed = max(edgeA, edgeB);
+            const NMFEMNodeStateGPU survivorBefore = nodes[nodeBase + survivor];
+            const NMFEMNodeStateGPU removedBefore = nodes[nodeBase + removed];
+            const float survivorMass = max(survivorBefore.positionAndMass.w, 0.0f);
+            const float removedMass = max(removedBefore.positionAndMass.w, 0.0f);
+            const float combinedMass = survivorMass + removedMass;
+            const float survivorWeight = combinedMass > kGeometryFloor
+                ? survivorMass / combinedMass : 0.5f;
+            const float removedWeight = 1.0f - survivorWeight;
+            NMFEMNodeStateGPU merged = survivorBefore;
+            merged.positionAndMass.xyz =
+                survivorWeight * survivorBefore.positionAndMass.xyz +
+                removedWeight * removedBefore.positionAndMass.xyz;
+            merged.velocityAndInverseMass.xyz =
+                survivorWeight * survivorBefore.velocityAndInverseMass.xyz +
+                removedWeight * removedBefore.velocityAndInverseMass.xyz;
+            merged.restAndFixed.xyz =
+                survivorWeight * survivorBefore.restAndFixed.xyz +
+                removedWeight * removedBefore.restAndFixed.xyz;
+            merged.restAndFixed.w = max(
+                survivorBefore.restAndFixed.w, removedBefore.restAndFixed.w);
+            merged.deltaVelocity =
+                survivorWeight * survivorBefore.deltaVelocity +
+                removedWeight * removedBefore.deltaVelocity;
+            merged.positionAndMass.w = 0.0f;
+            merged.velocityAndInverseMass.w = 0.0f;
+            NMFEMFieldStateGPU mergedField{};
+            mergedField.primary =
+                survivorWeight * fields[nodeBase + survivor].primary +
+                removedWeight * fields[nodeBase + removed].primary;
+            mergedField.secondary =
+                survivorWeight * fields[nodeBase + survivor].secondary +
+                removedWeight * fields[nodeBase + removed].secondary;
+
+            const NMMaterialGPU material = materials[target.identity.x];
+            float aggregateState[NM_MAX_MATERIAL_STATE];
+            for (uint state = 0u; state < dispatch.materialStateStride;
+                 ++state) {
+                const uint policy = state < material.stateCount
+                    ? topologyTransferPolicy(material, state)
+                    : NM_MATERIAL_TRANSFER_AVERAGE;
+                aggregateState[state] = policy ==
+                    NM_MATERIAL_TRANSFER_MAXIMUM ? -INFINITY : 0.0f;
+            }
+            float sourceVolumeTotal = 0.0f;
+            float destinationVolumeTotal = 0.0f;
+            uint destinationCount = 0u;
+            uint deactivatedCount = 0u;
+            for (uint local = 0u; local < object.elementCount; ++local) {
+                const uint tetIndex = object.elementOffset + local;
+                const NMTetrahedronGPU original = tetrahedra[tetBase + tetIndex];
+                const bool touchesSurvivor =
+                    topologyTetContains(original, survivor);
+                const bool touchesRemoved =
+                    topologyTetContains(original, removed);
+                if ((original.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                    (!touchesSurvivor && !touchesRemoved)) continue;
+                if (original.identity.x != target.identity.x) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_TOPOLOGY_FAILURE, objectIndex, tetIndex,
+                        float4(5.75f));
+                    return;
+                }
+                const float sourceVolume = original.inverseRestRow0.w;
+                sourceVolumeTotal += sourceVolume;
+                for (uint state = 0u; state < dispatch.materialStateStride;
+                     ++state) {
+                    const uint policy = state < material.stateCount
+                        ? topologyTransferPolicy(material, state)
+                        : NM_MATERIAL_TRANSFER_AVERAGE;
+                    const float sourceValue = materialState[
+                        (tetBase + tetIndex) *
+                            dispatch.materialStateStride + state];
+                    if (policy == NM_MATERIAL_TRANSFER_MAXIMUM)
+                        aggregateState[state] = max(
+                            aggregateState[state], sourceValue);
+                    else if (policy == NM_MATERIAL_TRANSFER_SUM)
+                        aggregateState[state] += sourceValue;
+                    else
+                        aggregateState[state] += sourceVolume * sourceValue;
+                }
+                NMTetrahedronGPU changed = original;
+                if (touchesRemoved)
+                    for (uint slot = 0u; slot < 4u; ++slot)
+                        if (changed.nodes[slot] == removed)
+                            changed.nodes[slot] = survivor;
+                bool degenerate = false;
+                for (uint a = 0u; a < 4u; ++a)
+                    for (uint b = a + 1u; b < 4u; ++b)
+                        degenerate = degenerate ||
+                            changed.nodes[a] == changed.nodes[b];
+                if (degenerate) {
+                    ++deactivatedCount;
+                    continue;
+                }
+                if (!topologyOrientAndRefreshRestOverride(
+                        changed, nodes, nodeBase, survivor,
+                        merged.restAndFixed.xyz)) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_TOPOLOGY_FAILURE, objectIndex, tetIndex,
+                        float4(6.0f));
+                    return;
+                }
+                destinationVolumeTotal += changed.inverseRestRow0.w;
+                ++destinationCount;
+            }
+            if (deactivatedCount == 0u || destinationCount == 0u ||
+                !(sourceVolumeTotal > kGeometryFloor) ||
+                !(destinationVolumeTotal > kGeometryFloor)) {
+                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                    objectIndex, targetIndex, float4(6.5f));
+                return;
+            }
+            for (uint state = 0u; state < dispatch.materialStateStride;
+                 ++state)
+                if ((state >= material.stateCount ||
+                     topologyTransferPolicy(material, state) ==
+                        NM_MATERIAL_TRANSFER_AVERAGE))
+                    aggregateState[state] /= sourceVolumeTotal;
+
+            const uint generation = topology.roles.w + 1u;
+            nodes[nodeBase + survivor] = merged;
+            fields[nodeBase + survivor] = mergedField;
+            topologyNodes[nodeBase + survivor].identity.z = generation;
+            topologyNodes[nodeBase + survivor].identity.w |= NM_TOPOLOGY_ACTIVE;
+            topologyNodes[nodeBase + removed].identity.z = generation;
+            topologyNodes[nodeBase + removed].identity.w &= ~NM_TOPOLOGY_ACTIVE;
+            for (uint local = 0u; local < object.elementCount; ++local) {
+                const uint tetIndex = object.elementOffset + local;
+                NMTetrahedronGPU changed = tetrahedra[tetBase + tetIndex];
+                const bool touchesSurvivor =
+                    topologyTetContains(changed, survivor);
+                const bool touchesRemoved =
+                    topologyTetContains(changed, removed);
+                if ((changed.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                    (!touchesSurvivor && !touchesRemoved)) continue;
+                if (touchesRemoved)
+                    for (uint slot = 0u; slot < 4u; ++slot)
+                        if (changed.nodes[slot] == removed)
+                            changed.nodes[slot] = survivor;
+                bool degenerate = false;
+                for (uint a = 0u; a < 4u; ++a)
+                    for (uint b = a + 1u; b < 4u; ++b)
+                        degenerate = degenerate ||
+                            changed.nodes[a] == changed.nodes[b];
+                changed.identity.z = generation;
+                if (degenerate) {
+                    changed.identity.w &= ~NM_OBJECT_ACTIVE;
+                } else {
+                    (void)topologyOrientAndRefreshRest(
+                        changed, nodes, nodeBase);
+                    for (uint state = 0u;
+                         state < dispatch.materialStateStride; ++state) {
+                        const uint policy = state < material.stateCount
+                            ? topologyTransferPolicy(material, state)
+                            : NM_MATERIAL_TRANSFER_AVERAGE;
+                        const float value = policy ==
+                                NM_MATERIAL_TRANSFER_SUM
+                            ? aggregateState[state] *
+                                changed.inverseRestRow0.w /
+                                destinationVolumeTotal
+                            : aggregateState[state];
+                        materialState[(tetBase + tetIndex) *
+                            dispatch.materialStateStride + state] = value;
+                    }
+                }
+                tetrahedra[tetBase + tetIndex] = changed;
+            }
+            topology.counts.x -= topology.counts.x > 0u ? 1u : 0u;
+            topology.counts.y -= min(topology.counts.y, deactivatedCount);
+            topology.roles.w = generation;
+            continue;
+        }
+
+        if (selected.identity.x == NM_MUTATION_FACE_FLIP_23) {
+            const uint firstIndex = object.elementOffset + selected.schedule.y;
+            const NMTetrahedronGPU first = tetrahedra[tetBase + firstIndex];
+            if ((first.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                first.identity.z > transactionGeneration) continue;
+            uint secondIndex = NM_INVALID_INDEX;
+            uint shared[3] = {0u, 0u, 0u};
+            uint firstOpposite = NM_INVALID_INDEX;
+            uint secondOpposite = NM_INVALID_INDEX;
+            for (uint local = 0u; local < object.elementCount; ++local) {
+                const uint candidateIndex = object.elementOffset + local;
+                if (candidateIndex == firstIndex) continue;
+                const NMTetrahedronGPU candidate =
+                    tetrahedra[tetBase + candidateIndex];
+                if ((candidate.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                    candidate.identity.z > transactionGeneration ||
+                    candidate.identity.x != first.identity.x) continue;
+                uint candidateShared[3] = {0u, 0u, 0u};
+                uint candidateFirstOpposite = NM_INVALID_INDEX;
+                uint candidateSecondOpposite = NM_INVALID_INDEX;
+                if (topologySharedNodes(
+                        first, candidate, candidateShared,
+                        candidateFirstOpposite,
+                        candidateSecondOpposite) != 3u) continue;
+                secondIndex = candidateIndex;
+                for (uint slot = 0u; slot < 3u; ++slot)
+                    shared[slot] = candidateShared[slot];
+                firstOpposite = candidateFirstOpposite;
+                secondOpposite = candidateSecondOpposite;
+                break;
+            }
+            const uint thirdIndex = topologyInactiveTetrahedron(
+                object, tetrahedra, tetBase, firstIndex);
+            if (secondIndex == NM_INVALID_INDEX ||
+                thirdIndex == NM_INVALID_INDEX ||
+                firstOpposite == NM_INVALID_INDEX ||
+                secondOpposite == NM_INVALID_INDEX) {
+                recordFailure(statuses[environment],
+                    secondIndex == NM_INVALID_INDEX
+                        ? NM_STATUS_TOPOLOGY_FAILURE
+                        : NM_STATUS_TOPOLOGY_GROWTH_REQUIRED,
+                    objectIndex, firstIndex,
+                    secondIndex == NM_INVALID_INDEX
+                        ? float4(7.0f)
+                        : float4(0.0f, 1.0f, 0.0f, 0.0f));
+                return;
+            }
+            const NMTetrahedronGPU second = tetrahedra[tetBase + secondIndex];
+            const uint generation = topology.roles.w + 1u;
+            NMTetrahedronGPU replacements[3] = {first, second, first};
+            replacements[0].nodes = {
+                firstOpposite, secondOpposite, shared[0], shared[1]};
+            replacements[1].nodes = {
+                firstOpposite, secondOpposite, shared[1], shared[2]};
+            replacements[2].nodes = {
+                firstOpposite, secondOpposite, shared[2], shared[0]};
+            float replacementVolumes[3];
+            for (uint replacement = 0u; replacement < 3u; ++replacement) {
+                replacements[replacement].identity = {
+                    first.identity.x, objectIndex, generation, NM_OBJECT_ACTIVE};
+                if (!topologyOrientAndRefreshRest(
+                        replacements[replacement], nodes, nodeBase)) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_TOPOLOGY_FAILURE, objectIndex, firstIndex,
+                        float4(7.5f, float(replacement), 0.0f, 0.0f));
+                    return;
+                }
+                replacementVolumes[replacement] =
+                    replacements[replacement].inverseRestRow0.w;
+            }
+            const float sourceVolume = first.inverseRestRow0.w +
+                second.inverseRestRow0.w;
+            const float destinationVolume = replacementVolumes[0] +
+                replacementVolumes[1] + replacementVolumes[2];
+            if (abs(sourceVolume - destinationVolume) >
+                8.0e-6f * max(sourceVolume, 1.0f)) {
+                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                    objectIndex, firstIndex,
+                    float4(sourceVolume, destinationVolume, 0.0f, 0.0f));
+                return;
+            }
+            uint sources[2] = {tetBase + firstIndex, tetBase + secondIndex};
+            float sourceVolumes[2] = {
+                first.inverseRestRow0.w, second.inverseRestRow0.w};
+            uint destinations[3] = {
+                tetBase + firstIndex, tetBase + secondIndex,
+                tetBase + thirdIndex};
+            topologyAggregateMaterialState(
+                dispatch, materials[first.identity.x], materialState,
+                sources, sourceVolumes, 2u,
+                destinations, replacementVolumes, 3u);
+            tetrahedra[tetBase + firstIndex] = replacements[0];
+            tetrahedra[tetBase + secondIndex] = replacements[1];
+            tetrahedra[tetBase + thirdIndex] = replacements[2];
+            topology.counts.y += 1u;
+            topology.roles.w = generation;
+            continue;
+        }
+
+        if (selected.identity.x == NM_MUTATION_FACE_FLIP_32) {
+            const uint targetIndex = object.elementOffset + selected.schedule.y;
+            const NMTetrahedronGPU target = tetrahedra[tetBase + targetIndex];
+            if ((target.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                target.identity.z > transactionGeneration) continue;
+            const uint2 edgeSlots = topologyExtremeEdge(
+                target, nodes, nodeBase, false);
+            const uint edge0 = min(
+                target.nodes[edgeSlots.x], target.nodes[edgeSlots.y]);
+            const uint edge1 = max(
+                target.nodes[edgeSlots.x], target.nodes[edgeSlots.y]);
+            uint sourceIndices[3] = {
+                NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX};
+            uint sourceCount = 0u;
+            uint opposite[3] = {
+                NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX};
+            uint oppositeCount = 0u;
+            bool invalidRing = false;
+            for (uint local = 0u; local < object.elementCount; ++local) {
+                const uint candidateIndex = object.elementOffset + local;
+                const NMTetrahedronGPU candidate =
+                    tetrahedra[tetBase + candidateIndex];
+                if ((candidate.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                    candidate.identity.z > transactionGeneration ||
+                    !topologyTetContains(candidate, edge0) ||
+                    !topologyTetContains(candidate, edge1)) continue;
+                invalidRing = invalidRing || sourceCount >= 3u ||
+                    candidate.identity.x != target.identity.x;
+                if (sourceCount < 3u) sourceIndices[sourceCount] = candidateIndex;
+                ++sourceCount;
+                for (uint slot = 0u; slot < 4u; ++slot) {
+                    const uint node = candidate.nodes[slot];
+                    if (node == edge0 || node == edge1) continue;
+                    bool known = false;
+                    for (uint existing = 0u; existing < oppositeCount; ++existing)
+                        known = known || opposite[existing] == node;
+                    if (!known) {
+                        invalidRing = invalidRing || oppositeCount >= 3u;
+                        if (oppositeCount < 3u) opposite[oppositeCount] = node;
+                        ++oppositeCount;
+                    }
+                }
+            }
+            if (invalidRing || sourceCount != 3u || oppositeCount != 3u) {
+                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                    objectIndex, targetIndex,
+                    float4(8.0f, float(sourceCount), float(oppositeCount), 0.0f));
+                return;
+            }
+            for (uint a = 0u; a < 3u; ++a) {
+                for (uint b = a + 1u; b < 3u; ++b) {
+                    if (sourceIndices[b] < sourceIndices[a]) {
+                        const uint value = sourceIndices[a];
+                        sourceIndices[a] = sourceIndices[b];
+                        sourceIndices[b] = value;
+                    }
+                    if (opposite[b] < opposite[a]) {
+                        const uint value = opposite[a];
+                        opposite[a] = opposite[b];
+                        opposite[b] = value;
+                    }
+                }
+            }
+            const uint generation = topology.roles.w + 1u;
+            NMTetrahedronGPU replacements[2] = {target, target};
+            replacements[0].nodes = {
+                edge0, opposite[0], opposite[1], opposite[2]};
+            replacements[1].nodes = {
+                edge1, opposite[0], opposite[2], opposite[1]};
+            float replacementVolumes[2];
+            for (uint replacement = 0u; replacement < 2u; ++replacement) {
+                replacements[replacement].identity = {
+                    target.identity.x, objectIndex, generation, NM_OBJECT_ACTIVE};
+                if (!topologyOrientAndRefreshRest(
+                        replacements[replacement], nodes, nodeBase)) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_TOPOLOGY_FAILURE, objectIndex, targetIndex,
+                        float4(8.5f, float(replacement), 0.0f, 0.0f));
+                    return;
+                }
+                replacementVolumes[replacement] =
+                    replacements[replacement].inverseRestRow0.w;
+            }
+            float sourceVolumes[3];
+            uint sourceGlobals[3];
+            float sourceVolume = 0.0f;
+            for (uint source = 0u; source < 3u; ++source) {
+                sourceGlobals[source] = tetBase + sourceIndices[source];
+                sourceVolumes[source] = tetrahedra[sourceGlobals[source]]
+                    .inverseRestRow0.w;
+                sourceVolume += sourceVolumes[source];
+            }
+            const float destinationVolume =
+                replacementVolumes[0] + replacementVolumes[1];
+            if (abs(sourceVolume - destinationVolume) >
+                8.0e-6f * max(sourceVolume, 1.0f)) {
+                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                    objectIndex, targetIndex,
+                    float4(sourceVolume, destinationVolume, 0.0f, 0.0f));
+                return;
+            }
+            uint destinations[2] = {
+                tetBase + sourceIndices[0], tetBase + sourceIndices[1]};
+            topologyAggregateMaterialState(
+                dispatch, materials[target.identity.x], materialState,
+                sourceGlobals, sourceVolumes, 3u,
+                destinations, replacementVolumes, 2u);
+            tetrahedra[tetBase + sourceIndices[0]] = replacements[0];
+            tetrahedra[tetBase + sourceIndices[1]] = replacements[1];
+            NMTetrahedronGPU removedTet =
+                tetrahedra[tetBase + sourceIndices[2]];
+            removedTet.identity.z = generation;
+            removedTet.identity.w &= ~NM_OBJECT_ACTIVE;
+            tetrahedra[tetBase + sourceIndices[2]] = removedTet;
+            topology.counts.y -= topology.counts.y > 0u ? 1u : 0u;
+            topology.roles.w = generation;
+            continue;
+        }
+
+        if (selected.identity.x == NM_MUTATION_VERTEX_SMOOTH) {
+            const uint targetNode = object.stateOffset + selected.schedule.y;
+            const NMFEMNodeStateGPU originalNode = nodes[nodeBase + targetNode];
+            if ((topologyNodes[nodeBase + targetNode].identity.w &
+                 NM_TOPOLOGY_ACTIVE) == 0u ||
+                topologyNodes[nodeBase + targetNode].identity.z >
+                    transactionGeneration) continue;
+            if (originalNode.restAndFixed.w > 0.5f) {
+                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                    objectIndex, targetNode, float4(9.0f));
+                return;
+            }
+            float weight = 0.0f;
+            float3 positionTarget = float3(0.0f);
+            float3 restTarget = float3(0.0f);
+            float3 velocityTarget = float3(0.0f);
+            float4 primaryTarget = float4(0.0f);
+            float4 secondaryTarget = float4(0.0f);
+            for (uint local = 0u; local < object.elementCount; ++local) {
+                const NMTetrahedronGPU tetrahedron = tetrahedra[
+                    tetBase + object.elementOffset + local];
+                if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                    !topologyTetContains(tetrahedron, targetNode)) continue;
+                const float elementWeight =
+                    tetrahedron.inverseRestRow0.w / 3.0f;
+                for (uint slot = 0u; slot < 4u; ++slot) {
+                    const uint neighbor = tetrahedron.nodes[slot];
+                    if (neighbor == targetNode) continue;
+                    positionTarget += elementWeight *
+                        nodes[nodeBase + neighbor].positionAndMass.xyz;
+                    restTarget += elementWeight *
+                        nodes[nodeBase + neighbor].restAndFixed.xyz;
+                    velocityTarget += elementWeight *
+                        nodes[nodeBase + neighbor].velocityAndInverseMass.xyz;
+                    primaryTarget += elementWeight *
+                        fields[nodeBase + neighbor].primary;
+                    secondaryTarget += elementWeight *
+                        fields[nodeBase + neighbor].secondary;
+                    weight += elementWeight;
+                }
+            }
+            if (!(weight > kGeometryFloor)) {
+                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                    objectIndex, targetNode, float4(9.25f));
+                return;
+            }
+            const float alpha = selected.geometry0.w > 0.0f
+                ? clamp(selected.geometry0.w, 0.0f, 1.0f) : 0.5f;
+            NMFEMNodeStateGPU smoothed = originalNode;
+            smoothed.positionAndMass.xyz = mix(
+                originalNode.positionAndMass.xyz, positionTarget / weight, alpha);
+            smoothed.restAndFixed.xyz = mix(
+                originalNode.restAndFixed.xyz, restTarget / weight, alpha);
+            smoothed.velocityAndInverseMass.xyz = mix(
+                originalNode.velocityAndInverseMass.xyz,
+                velocityTarget / weight, alpha);
+            smoothed.positionAndMass.w = 0.0f;
+            smoothed.velocityAndInverseMass.w = 0.0f;
+            NMFEMFieldStateGPU smoothedField = fields[nodeBase + targetNode];
+            smoothedField.primary = mix(
+                smoothedField.primary, primaryTarget / weight, alpha);
+            smoothedField.secondary = mix(
+                smoothedField.secondary, secondaryTarget / weight, alpha);
+
+            const NMMaterialGPU material = materials[object.materialIndex];
+            float aggregateState[NM_MAX_MATERIAL_STATE];
+            for (uint state = 0u; state < dispatch.materialStateStride;
+                 ++state) {
+                const uint policy = state < material.stateCount
+                    ? topologyTransferPolicy(material, state)
+                    : NM_MATERIAL_TRANSFER_AVERAGE;
+                aggregateState[state] = policy ==
+                    NM_MATERIAL_TRANSFER_MAXIMUM ? -INFINITY : 0.0f;
+            }
+            float sourceMass = 0.0f;
+            float destinationMass = 0.0f;
+            float sourceVolume = 0.0f;
+            float destinationVolume = 0.0f;
+            for (uint local = 0u; local < object.elementCount; ++local) {
+                const uint tetIndex = object.elementOffset + local;
+                const NMTetrahedronGPU original = tetrahedra[tetBase + tetIndex];
+                if ((original.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                    !topologyTetContains(original, targetNode)) continue;
+                if (original.identity.x != object.materialIndex) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_TOPOLOGY_FAILURE, objectIndex, tetIndex,
+                        float4(9.4f));
+                    return;
+                }
+                const float oldVolume = original.inverseRestRow0.w;
+                sourceVolume += oldVolume;
+                for (uint state = 0u; state < dispatch.materialStateStride;
+                     ++state) {
+                    const uint policy = state < material.stateCount
+                        ? topologyTransferPolicy(material, state)
+                        : NM_MATERIAL_TRANSFER_AVERAGE;
+                    const float value = materialState[(tetBase + tetIndex) *
+                        dispatch.materialStateStride + state];
+                    if (policy == NM_MATERIAL_TRANSFER_MAXIMUM)
+                        aggregateState[state] = max(
+                            aggregateState[state], value);
+                    else if (policy == NM_MATERIAL_TRANSFER_SUM)
+                        aggregateState[state] += value;
+                    else
+                        aggregateState[state] += oldVolume * value;
+                }
+                NMTetrahedronGPU changed = original;
+                if (!topologyOrientAndRefreshRestOverride(
+                        changed, nodes, nodeBase, targetNode,
+                        smoothed.restAndFixed.xyz)) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_TOPOLOGY_FAILURE, objectIndex, tetIndex,
+                        float4(9.5f));
+                    return;
+                }
+                const float density = materials[original.identity.x].bulk.x;
+                sourceMass += density * oldVolume;
+                destinationMass += density * changed.inverseRestRow0.w;
+                destinationVolume += changed.inverseRestRow0.w;
+            }
+            if (!(sourceVolume > kGeometryFloor) ||
+                !(destinationVolume > kGeometryFloor) ||
+                abs(sourceMass - destinationMass) >
+                8.0e-6f * max(sourceMass, 1.0f)) {
+                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                    objectIndex, targetNode,
+                    float4(sourceMass, destinationMass, alpha, 0.0f));
+                return;
+            }
+            for (uint state = 0u; state < dispatch.materialStateStride;
+                 ++state)
+                if (state >= material.stateCount ||
+                    topologyTransferPolicy(material, state) ==
+                        NM_MATERIAL_TRANSFER_AVERAGE)
+                    aggregateState[state] /= sourceVolume;
+            const uint generation = topology.roles.w + 1u;
+            nodes[nodeBase + targetNode] = smoothed;
+            fields[nodeBase + targetNode] = smoothedField;
+            topologyNodes[nodeBase + targetNode].identity.z = generation;
+            for (uint local = 0u; local < object.elementCount; ++local) {
+                const uint tetIndex = object.elementOffset + local;
+                NMTetrahedronGPU changed = tetrahedra[tetBase + tetIndex];
+                if ((changed.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                    !topologyTetContains(changed, targetNode)) continue;
+                changed.identity.z = generation;
+                (void)topologyOrientAndRefreshRest(changed, nodes, nodeBase);
+                for (uint state = 0u;
+                     state < dispatch.materialStateStride; ++state) {
+                    const uint policy = state < material.stateCount
+                        ? topologyTransferPolicy(material, state)
+                        : NM_MATERIAL_TRANSFER_AVERAGE;
+                    const float value = policy == NM_MATERIAL_TRANSFER_SUM
+                        ? aggregateState[state] *
+                            changed.inverseRestRow0.w / destinationVolume
+                        : aggregateState[state];
+                    materialState[(tetBase + tetIndex) *
+                        dispatch.materialStateStride + state] = value;
+                }
+                tetrahedra[tetBase + tetIndex] = changed;
+            }
+            topology.roles.w = generation;
+            continue;
+        }
 
         if (selected.identity.x == NM_MUTATION_COHESIVE_SEPARATION) {
             uint faceOffset = 0u;
@@ -583,6 +1755,12 @@ kernel void nm_topology_execute_transaction(
             }
             if (target == nullptr ||
                 (target->adjacency.w & NM_TOPOLOGY_SEPARATED) != 0u) continue;
+            const NMTetrahedronGPU firstSide = tetrahedra[
+                tetBase + target->nodesAndFirst.w];
+            const NMTetrahedronGPU secondSideTet = tetrahedra[
+                tetBase + target->adjacency.x];
+            if (firstSide.identity.z > transactionGeneration ||
+                secondSideTet.identity.z > transactionGeneration) continue;
             uint duplicate[3] = {NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX};
             for (uint slot = 0u; slot < 3u; ++slot) {
                 for (uint local = 0u; local < object.stateCount; ++local) {
@@ -622,7 +1800,8 @@ kernel void nm_topology_execute_transaction(
             for (uint local = 0u; local < object.elementCount; ++local) {
                 device NMTetrahedronGPU& tetrahedron =
                     tetrahedra[tetBase + object.elementOffset + local];
-                if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+                if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                    tetrahedron.identity.z > transactionGeneration) continue;
                 const float side = dot(
                     topologyTetCentroid(tetrahedron, nodes, nodeBase) - facePoint,
                     target->geometry.xyz
@@ -647,6 +1826,7 @@ kernel void nm_topology_execute_transaction(
             const uint tetIndex = object.elementOffset + local;
             device NMTetrahedronGPU& tetrahedron = tetrahedra[tetBase + tetIndex];
             if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                tetrahedron.identity.z > transactionGeneration ||
                 !mutationDeactivates(selected, object, tetIndex, tetrahedron,
                     nodes, nodeBase)) continue;
             const float mass = materials[tetrahedron.identity.x].bulk.x *
@@ -693,7 +1873,8 @@ kernel void nm_topology_execute_transaction(
             if (!stored) {
                 recordFailure(statuses[environment],
                     NM_STATUS_TOPOLOGY_GROWTH_REQUIRED,
-                    objectIndex, selected.identity.z, float4(4.0f));
+                    objectIndex, selected.identity.z,
+                    float4(0.0f, 0.0f, 1.0f, 0.0f));
                 return;
             }
         }
@@ -773,7 +1954,7 @@ kernel void nm_topology_rebuild_prefix(
     }
     if (lane == 0u && running > dispatch.tetrahedronCount * 4u)
         recordFailure(statuses[environment],
-            NM_STATUS_TOPOLOGY_GROWTH_REQUIRED,
+            NM_STATUS_CAPACITY_OVERFLOW,
             NM_INVALID_INDEX, running,
             float4(float(dispatch.tetrahedronCount * 4u), 0.0f, 0.0f, 0.0f));
 }
@@ -811,7 +1992,8 @@ kernel void nm_topology_publish_growth_request(
                 environment * dispatch.objectCount + object];
             generation = max(generation, topology.roles.w);
             const NMMatterStatusGPU status = statuses[environment];
-            if (status.code == NM_STATUS_TOPOLOGY_GROWTH_REQUIRED &&
+            if ((status.code == NM_STATUS_TOPOLOGY_GROWTH_REQUIRED ||
+                 status.code == NM_STATUS_CAPACITY_OVERFLOW) &&
                 (status.objectIndex == object ||
                  status.objectIndex == NM_INVALID_INDEX)) {
                 output.identity.x = 1u;
@@ -819,12 +2001,22 @@ kernel void nm_topology_publish_growth_request(
                     output.identity.z = object;
                     output.identity.w = status.code;
                 }
+                const uint requestedNodes =
+                    status.code == NM_STATUS_TOPOLOGY_GROWTH_REQUIRED
+                    ? uint(max(status.diagnostics.x, 0.0f)) : 0u;
+                const uint requestedTetrahedra =
+                    status.code == NM_STATUS_TOPOLOGY_GROWTH_REQUIRED
+                    ? uint(max(status.diagnostics.y, 0.0f)) : 0u;
+                const uint requestedChannels =
+                    status.code == NM_STATUS_TOPOLOGY_GROWTH_REQUIRED
+                    ? uint(max(status.diagnostics.z, 0.0f)) : 0u;
                 neededNodes = max(neededNodes,
-                    topology.counts.x + max(uint(status.diagnostics.y), 1u));
+                    topology.counts.x + requestedNodes);
                 neededTetrahedra = max(neededTetrahedra,
-                    topology.counts.y + 1u);
+                    topology.counts.y + requestedTetrahedra);
                 neededFaces = max(neededFaces, topology.counts.z + 1u);
-                neededChannels = max(neededChannels, topology.counts.w + 1u);
+                neededChannels = max(neededChannels,
+                    topology.counts.w + requestedChannels);
             }
         }
         if (output.identity.x != 0u) {
@@ -922,6 +2114,260 @@ kernel void nm_topology_rebuild_finalize(
     state.velocityAndInverseMass.w =
         state.restAndFixed.w <= 0.5f && state.positionAndMass.w > 0.0f
         ? 1.0f / state.positionAndMass.w : 0.0f;
+}
+
+// Conservative remapping can accumulate FP32 drift when a cavity changes its
+// lumped nodal masses. Apply the minimum object-wide constant correction on
+// free active nodes, preserving relative velocity/field variation while
+// closing total momentum and volume-integrated field moments exactly enough
+// for the transaction certificate. Erosion is excluded because it owns an
+// explicit removed-mass/energy ledger instead of a conservation constraint.
+kernel void nm_topology_conserve_transaction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMFEMNodeStateGPU* checkpointNodes [[buffer(2)]],
+    device NMFEMNodeStateGPU* candidateNodes [[buffer(3)]],
+    device const NMFEMFieldStateGPU* checkpointFields [[buffer(4)]],
+    device NMFEMFieldStateGPU* candidateFields [[buffer(5)]],
+    device const NMFEMTopologyStateGPU* checkpointTopology [[buffer(6)]],
+    device const NMFEMTopologyStateGPU* candidateTopology [[buffer(7)]],
+    device const NMMatterStatusGPU* statuses [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total || dispatch.objectCount == 0u) return;
+    const uint environment = global / dispatch.objectCount;
+    const uint objectIndex = global - environment * dispatch.objectCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM) return;
+    const NMFEMTopologyStateGPU before = checkpointTopology[global];
+    const NMFEMTopologyStateGPU after = candidateTopology[global];
+    if (before.roles.w == after.roles.w) return;
+    const float removalScale = max(
+        max(abs(before.accounting.y), abs(after.accounting.y)), 1.0f);
+    if (abs(after.accounting.y - before.accounting.y) >
+        8.0e-6f * removalScale) return;
+
+    const uint nodeBase = environment * dispatch.femNodeCount +
+        object.stateOffset;
+    float checkpointMass = 0.0f;
+    float candidateMass = 0.0f;
+    float adjustableMass = 0.0f;
+    float3 checkpointMomentum = float3(0.0f);
+    float3 candidateMomentum = float3(0.0f);
+    float4 checkpointPrimary = float4(0.0f);
+    float4 candidatePrimary = float4(0.0f);
+    float4 checkpointSecondary = float4(0.0f);
+    float4 candidateSecondary = float4(0.0f);
+    for (uint local = 0u; local < object.stateCount; ++local) {
+        const uint index = nodeBase + local;
+        const float oldMass = max(
+            checkpointNodes[index].positionAndMass.w, 0.0f);
+        const float newMass = max(
+            candidateNodes[index].positionAndMass.w, 0.0f);
+        checkpointMass += oldMass;
+        candidateMass += newMass;
+        checkpointMomentum += oldMass *
+            checkpointNodes[index].velocityAndInverseMass.xyz;
+        candidateMomentum += newMass *
+            candidateNodes[index].velocityAndInverseMass.xyz;
+        checkpointPrimary += oldMass * checkpointFields[index].primary;
+        candidatePrimary += newMass * candidateFields[index].primary;
+        checkpointSecondary += oldMass * checkpointFields[index].secondary;
+        candidateSecondary += newMass * candidateFields[index].secondary;
+        if (newMass > 0.0f &&
+            candidateNodes[index].restAndFixed.w <= 0.5f)
+            adjustableMass += newMass;
+    }
+    const float massTolerance = 2.0e-4f * max(checkpointMass, 1.0f);
+    if (!(adjustableMass > kGeometryFloor) ||
+        !isfinite(checkpointMass) || !isfinite(candidateMass) ||
+        abs(candidateMass - checkpointMass) > massTolerance) return;
+    const float3 velocityCorrection =
+        (checkpointMomentum - candidateMomentum) / adjustableMass;
+    const float4 primaryCorrection =
+        (checkpointPrimary - candidatePrimary) / adjustableMass;
+    const float4 secondaryCorrection =
+        (checkpointSecondary - candidateSecondary) / adjustableMass;
+    if (!finite3(velocityCorrection) ||
+        !all(isfinite(primaryCorrection)) ||
+        !all(isfinite(secondaryCorrection))) return;
+    for (uint local = 0u; local < object.stateCount; ++local) {
+        const uint index = nodeBase + local;
+        if (!(candidateNodes[index].positionAndMass.w > 0.0f) ||
+            candidateNodes[index].restAndFixed.w > 0.5f) continue;
+        candidateNodes[index].velocityAndInverseMass.xyz +=
+            velocityCorrection;
+        candidateFields[index].primary += primaryCorrection;
+        candidateFields[index].secondary += secondaryCorrection;
+    }
+}
+
+inline float topologyTetRestQuality(
+    const NMTetrahedronGPU tetrahedron,
+    device const NMFEMNodeStateGPU* nodes,
+    const uint nodeBase
+) {
+    float3 rest[4];
+    for (uint slot = 0u; slot < 4u; ++slot)
+        rest[slot] = nodes[
+            nodeBase + tetrahedron.nodes[slot]].restAndFixed.xyz;
+    float maximumEdge2 = 0.0f;
+    for (uint first = 0u; first < 4u; ++first)
+        for (uint second = first + 1u; second < 4u; ++second)
+            maximumEdge2 = max(
+                maximumEdge2,
+                dot(rest[first] - rest[second],
+                    rest[first] - rest[second]));
+    const float maximumEdge3 = maximumEdge2 *
+        sqrt(max(maximumEdge2, kGeometryFloor));
+    // Regular tetrahedron -> 1. This scale-invariant lower bound rejects
+    // slivers even when their signed volume remains positive.
+    return 6.0f * 1.4142135623730951f *
+        tetrahedron.inverseRestRow0.w /
+        max(maximumEdge3, kGeometryFloor);
+}
+
+kernel void nm_topology_certify_transaction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMFEMNodeStateGPU* checkpointNodes [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(3)]],
+    device const NMFEMFieldStateGPU* checkpointFields [[buffer(4)]],
+    device const NMFEMFieldStateGPU* candidateFields [[buffer(5)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(6)]],
+    device const NMFEMTopologyStateGPU* checkpointTopology [[buffer(7)]],
+    device const NMFEMTopologyStateGPU* candidateTopology [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total || dispatch.objectCount == 0u) return;
+    const uint environment = global / dispatch.objectCount;
+    const uint objectIndex = global - environment * dispatch.objectCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM) return;
+    const NMFEMTopologyStateGPU before = checkpointTopology[global];
+    const NMFEMTopologyStateGPU after = candidateTopology[global];
+    if (before.roles.w == after.roles.w) return;
+
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint tetBase = environment * dispatch.tetrahedronCount;
+    float checkpointMass = 0.0f;
+    float candidateMass = 0.0f;
+    float3 checkpointMomentum = float3(0.0f);
+    float3 candidateMomentum = float3(0.0f);
+    float4 checkpointPrimary = float4(0.0f);
+    float4 candidatePrimary = float4(0.0f);
+    float4 checkpointSecondary = float4(0.0f);
+    float4 candidateSecondary = float4(0.0f);
+    for (uint local = 0u; local < object.stateCount; ++local) {
+        const uint index = nodeBase + object.stateOffset + local;
+        const float oldMass = max(checkpointNodes[index].positionAndMass.w, 0.0f);
+        const float newMass = max(candidateNodes[index].positionAndMass.w, 0.0f);
+        checkpointMass += oldMass;
+        candidateMass += newMass;
+        checkpointMomentum += oldMass *
+            checkpointNodes[index].velocityAndInverseMass.xyz;
+        candidateMomentum += newMass *
+            candidateNodes[index].velocityAndInverseMass.xyz;
+        checkpointPrimary += oldMass * checkpointFields[index].primary;
+        candidatePrimary += newMass * candidateFields[index].primary;
+        checkpointSecondary += oldMass * checkpointFields[index].secondary;
+        candidateSecondary += newMass * candidateFields[index].secondary;
+    }
+    for (uint local = 0u; local < object.elementCount; ++local) {
+        const NMTetrahedronGPU tetrahedron = tetrahedra[
+            tetBase + object.elementOffset + local];
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+        if (tetrahedron.identity.y != objectIndex ||
+            !(tetrahedron.inverseRestRow0.w > kGeometryFloor) ||
+            !all(isfinite(tetrahedron.inverseRestRow0)) ||
+            !all(isfinite(tetrahedron.inverseRestRow1)) ||
+            !all(isfinite(tetrahedron.inverseRestRow2))) {
+            recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                objectIndex, object.elementOffset + local, float4(10.0f));
+            return;
+        }
+        const float quality = topologyTetRestQuality(
+            tetrahedron, candidateNodes, nodeBase);
+        const float currentJ = determinant(tetrahedronDeformation(
+            tetrahedron, candidateNodes, nodeBase));
+        if (!isfinite(quality) || quality < 1.0e-4f ||
+            !isfinite(currentJ) ||
+            currentJ < dispatch.numericalLimits.z) {
+            recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                objectIndex, object.elementOffset + local,
+                float4(quality, currentJ,
+                       dispatch.numericalLimits.z, 10.25f));
+            return;
+        }
+    }
+    const float expectedMass = max(after.accounting.x - after.accounting.y, 0.0f);
+    const float massTolerance = 2.0e-4f * max(expectedMass, 1.0f);
+    if (!isfinite(candidateMass) ||
+        abs(candidateMass - expectedMass) > massTolerance) {
+        recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+            objectIndex, after.roles.w,
+            float4(candidateMass, expectedMass, massTolerance, 10.5f));
+        return;
+    }
+    // Erosion/puncture deliberately removes material. Pure remeshing and
+    // cohesive insertion must preserve nodal momentum and volume-integrated
+    // fields to the same FP32 accounting boundary.
+    if (abs(after.accounting.y - before.accounting.y) <= massTolerance) {
+        const float momentumScale = max(
+            max(length(checkpointMomentum), length(candidateMomentum)), 1.0f);
+        const float momentumError = length(
+            candidateMomentum - checkpointMomentum);
+        const float fieldScale = max(max(
+            max(length(checkpointPrimary), length(candidatePrimary)),
+            max(length(checkpointSecondary), length(candidateSecondary))), 1.0f);
+        const float fieldError = max(
+            length(candidatePrimary - checkpointPrimary),
+            length(candidateSecondary - checkpointSecondary));
+        if (!isfinite(momentumError) || !isfinite(fieldError) ||
+            momentumError > 2.0e-4f * momentumScale ||
+            fieldError > 2.0e-4f * fieldScale) {
+            recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                objectIndex, after.roles.w,
+                float4(momentumError, momentumScale, fieldError, fieldScale));
+        }
+    }
+}
+
+kernel void nm_topology_mark_growth_generation(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& allocationGeneration [[buffer(1)]],
+    device NMFEMTopologyNodeGPU* nodes [[buffer(2)]],
+    device NMTetrahedronGPU* tetrahedra [[buffer(3)]],
+    device NMFEMTopologyStateGPU* topologyStates [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint width = max(max(dispatch.femNodeCount,
+        dispatch.tetrahedronCount), dispatch.objectCount);
+    if (width == 0u || global >= dispatch.environmentCount * width) return;
+    const uint environment = global / width;
+    const uint local = global - environment * width;
+    if (local < dispatch.femNodeCount) {
+        const uint index = environment * dispatch.femNodeCount + local;
+        if ((nodes[index].identity.w & NM_TOPOLOGY_ACTIVE) != 0u)
+            nodes[index].identity.z = max(
+                nodes[index].identity.z, allocationGeneration);
+    }
+    if (local < dispatch.tetrahedronCount) {
+        const uint index = environment * dispatch.tetrahedronCount + local;
+        if ((tetrahedra[index].identity.w & NM_OBJECT_ACTIVE) != 0u)
+            tetrahedra[index].identity.z = max(
+                tetrahedra[index].identity.z, allocationGeneration);
+    }
+    if (local < dispatch.objectCount) {
+        const uint index = environment * dispatch.objectCount + local;
+        topologyStates[index].roles.w = max(
+            topologyStates[index].roles.w, allocationGeneration);
+    }
 }
 
 kernel void nm_topology_commit(

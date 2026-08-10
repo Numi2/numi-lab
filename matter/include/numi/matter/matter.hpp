@@ -310,8 +310,8 @@ struct FEMCapacitySource {
     // Maximum simultaneously active continuum/rigid contact rows. Zero keeps
     // the compatibility behavior of reserving every cooked eligible pair.
     std::uint32_t activeContacts = 0u;
-    // Maximum swept deformable face pairs per environment. Zero derives a
-    // linear manifold budget from the cooked surface graph.
+    // Maximum swept continuum primitive pairs per environment. Zero derives
+    // a linear manifold budget from FEM faces or MPM material points.
     std::uint32_t deformableContacts = 0u;
 };
 
@@ -482,6 +482,10 @@ struct CompiledWorld {
     std::vector<NMLearnedMaterialGPU> learnedMaterials;
     std::vector<NMLearnedLayerGPU> learnedLayers;
     std::vector<float> learnedWeights;
+    // Canonical authored-physics identity with allocation-only FEM capacities
+    // removed. This remains stable across compatible topology growth recooks.
+    std::uint64_t physicsFingerprint = 0u;
+    // Exact cooked-package identity, including all arena capacities.
     std::uint64_t fingerprint = 0u;
 };
 
@@ -691,6 +695,8 @@ struct TopologyGrowthRequest {
 struct RuntimeStateSnapshot {
     bool available = false;
     std::string message;
+    // Stable authored-physics identity, independent of allocation growth.
+    std::uint64_t sourcePhysicsFingerprint = 0u;
     std::vector<NMParticleStateGPU> particles;
     std::vector<NMFEMNodeStateGPU> femNodes;
     std::vector<NMFEMFieldStateGPU> femFields;
@@ -699,7 +705,16 @@ struct RuntimeStateSnapshot {
     std::vector<NMCohesiveFaceGPU> cohesiveFaces;
     std::vector<NMPunctureChannelGPU> punctureChannels;
     std::vector<NMFEMTopologyStateGPU> topologyStates;
+    // Maximum accepted topology/allocation generation across environments.
+    // Exact replay records this beside completed TopologyGrowthRequest values.
+    std::uint32_t allocationGeneration = 0u;
     std::vector<NMSolverCertificateGPU> solverCertificates;
+    // Deterministic active MPM map from the last completed microstep.
+    std::vector<std::uint32_t> mpmActiveNodeIndices;
+    std::vector<std::uint32_t> mpmNodeToActive;
+    std::vector<std::uint32_t> mpmActiveNodeCounts;
+    // Last accepted/published generalized rigid increment block.
+    std::vector<float> rigidGeneralizedCandidate;
     std::vector<float> learnedWeights;
     std::uint32_t learnedWeightRevision = 0u;
     std::vector<NMAdaptiveStateGPU> adaptive;
@@ -708,8 +723,8 @@ struct RuntimeStateSnapshot {
     // Completion-boundary primal-contact diagnostics, populated only when
     // RuntimeConfiguration::captureDiagnostics is enabled.
     std::vector<NMContactSampleGPU> contactSamples;
-    std::vector<nm_float4> contactWarmstarts;
-    std::vector<NMDeformableWarmstartGPU> deformableContactWarmstarts;
+    std::vector<nm_float4> contactHistories;
+    std::vector<NMDeformableContactHistoryGPU> deformableContactHistories;
     std::uint32_t materialStateStride = 0u;
     std::vector<float> particleMaterialState;
     std::vector<float> femMaterialState;
@@ -741,12 +756,22 @@ public:
         void* commandBuffer,
         const Runtime& source
     );
+    // Allocation-owning growth entry point. This destination must be empty;
+    // the expanded world is validated and allocated before migration is
+    // encoded. The caller still owns submission of the borrowed buffer.
+    [[nodiscard]] RuntimeDiagnostics encodeTopologyGrowth(
+        void* commandBuffer,
+        const Runtime& source,
+        const CompiledWorld& expandedWorld,
+        const RuntimeConfiguration& configuration = {}
+    );
     // Releases a pre/post transaction when the enclosing MetalWorld command
     // buffer is abandoned before commit. Safe to call for an unrelated or
     // already-completed command buffer.
     void cancel(void* commandBuffer) noexcept;
     [[nodiscard]] bool valid() const noexcept;
     [[nodiscard]] std::uint64_t fingerprint() const noexcept;
+    [[nodiscard]] std::uint64_t sourcePhysicsFingerprint() const noexcept;
     // Fingerprint of world semantics, runtime execution policy, ABI and the
     // exact loaded Matter metallib, used by MetalWorld run identity.
     [[nodiscard]] std::uint64_t deviceProgramFingerprint() const noexcept;

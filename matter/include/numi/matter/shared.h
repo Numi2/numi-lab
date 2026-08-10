@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 17u
+#define NM_MATTER_ABI_VERSION 18u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -178,6 +178,11 @@ enum NMMutationKind : nm_u32 {
     NM_MUTATION_PLANE_EROSION = 1u,
     NM_MUTATION_CYLINDER_PUNCTURE = 2u,
     NM_MUTATION_DEACTIVATE_TETRAHEDRON = 3u,
+    NM_MUTATION_EDGE_SPLIT = 4u,
+    NM_MUTATION_EDGE_COLLAPSE = 5u,
+    NM_MUTATION_FACE_FLIP_23 = 6u,
+    NM_MUTATION_FACE_FLIP_32 = 7u,
+    NM_MUTATION_VERTEX_SMOOTH = 8u,
 };
 
 typedef struct NM_ALIGN16 NMTopologyGrowthRequestGPU {
@@ -287,9 +292,10 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
     nm_u32 reservedPrimal0;
     nm_u32 reservedMixed1;
 
-    // Immutable tetrahedral face-adjacency graph, dynamic deformable-contact
-    // capacity, conservative articulated/free-body v capacity, and
-    // conservative articulated q capacity.
+    // Cooked source-face count (package/source audit), dynamic
+    // deformable-contact capacity, conservative articulated/free-body v
+    // capacity, and conservative articulated q capacity. Runtime surface
+    // primitives are derived from all four faces of each active tetrahedron.
     nm_u32 surfaceFaceCount;
     nm_u32 deformableContactCapacity;
     nm_u32 rigidGeneralizedCapacity;
@@ -368,16 +374,22 @@ typedef struct NM_ALIGN16 NMFEMSurfaceFaceGPU {
     nm_uint4 sides;
 } NMFEMSurfaceFaceGPU;
 
-typedef struct NM_ALIGN16 NMFEMSurfacePrimitiveGPU {
-    // Three current global FEM nodes and owning object.
+enum NMContinuumSurfaceKind : nm_u32 {
+    NM_CONTINUUM_SURFACE_TRIANGLE = 0u,
+    NM_CONTINUUM_SURFACE_POINT = 1u,
+};
+
+typedef struct NM_ALIGN16 NMContinuumSurfacePrimitiveGPU {
+    // Up to three unified continuum nodes and owning object. MPM nodes use
+    // [0, gridNodeCount); FEM nodes use gridNodeCount + local FEM node.
     nm_uint4 nodesAndObject;
-    // Cooked face, side, topology generation, flags.
+    // Stable source, NMContinuumSurfaceKind, topology generation, flags.
     nm_uint4 identity;
-    // Swept AABB minimum xyz and current triangle area.
+    // Swept AABB minimum xyz and current measure (one for a point).
     nm_float4 boundsMinimum;
     // Swept AABB maximum xyz and maximum vertex travel.
     nm_float4 boundsMaximum;
-} NMFEMSurfacePrimitiveGPU;
+} NMContinuumSurfacePrimitiveGPU;
 
 typedef struct NM_ALIGN16 NMDeformableContactCandidateGPU {
     // First/second environment-local surface primitive, stable candidate id,
@@ -388,15 +400,20 @@ typedef struct NM_ALIGN16 NMDeformableContactCandidateGPU {
 enum NMDeformableContactKind : nm_u32 {
     NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE = 0u,
     NM_DEFORMABLE_CONTACT_EDGE_EDGE = 1u,
+    NM_DEFORMABLE_CONTACT_POINT_POINT = 2u,
 };
 
 typedef struct NM_ALIGN16 NMDeformableContactGPU {
-    // Four global FEM nodes carrying the contact Jacobian.
+    // Four unified continuum nodes carrying the contact Jacobian. Unused
+    // entries are NM_INVALID_INDEX.
     nm_uint4 nodes;
     // Positive-side object, negative-side object, feature kind, flags.
     nm_uint4 identity;
     // Signed nodal weights; sum is zero for translational invariance.
     nm_float4 weights;
+    // Per-node timestep divided by the positive-side reference timestep.
+    // These scales make cross-rate IPC the gradient/Hessian of one action.
+    nm_float4 timeScales;
     // Contact normal xyz and normalized time of impact in [0, 1].
     nm_float4 normalAndTOI;
     // Contact point xyz and unsigned feature separation at impact.
@@ -405,24 +422,38 @@ typedef struct NM_ALIGN16 NMDeformableContactGPU {
     nm_float4 velocityAndResponse;
     // Source primitive pair, stable candidate id, topology generation.
     nm_uint4 source;
-    // Normal multiplier, two tangent coordinates, effective friction.
+    // Primal barrier impulse, two lagged-friction coordinates, friction.
     nm_float4 impulseAndFriction;
     // IPC normal impulse, velocity-space PSD curvature, thickness, barrier k.
     nm_float4 barrier;
+    // Rows of the PSD-projected spatial barrier/friction Hessian. Signed
+    // feature weights map this 3x3 metric into the complete nodal block.
+    nm_float4 barrierHessianRow0;
+    nm_float4 barrierHessianRow1;
+    nm_float4 barrierHessianRow2;
+    // Analytic gradient of the IPC feature mollifier with respect to each
+    // nodal position. Point-point rows are zero.
+    nm_float4 mollifierGradientRow0;
+    nm_float4 mollifierGradientRow1;
+    nm_float4 mollifierGradientRow2;
+    nm_float4 mollifierGradientRow3;
+    // mollifier value, dt * unmollified barrier energy,
+    // dt^2 * PSD Gauss-Newton curvature, unmollified barrier stiffness.
+    nm_float4 mollifier;
 } NMDeformableContactGPU;
 
-// Compact transaction-owned state for deformable-contact warm starts. The
+// Compact transaction-owned deformable-contact history. The
 // geometric contact record is rebuilt from current surface primitives on each
-// Newton candidate; only the stable source, transported frame, and multiplier
-// cross iteration/microstep boundaries.
-typedef struct NM_ALIGN16 NMDeformableWarmstartGPU {
+// Newton candidate; only the stable source, transported frame, and lagged
+// primal-potential history cross iteration/microstep boundaries.
+typedef struct NM_ALIGN16 NMDeformableContactHistoryGPU {
     // Source primitive pair, stable candidate id, topology generation.
     nm_uint4 source;
-    // Previous contact normal xyz and normal multiplier.
-    nm_float4 normalAndLambda;
-    // Tangent multipliers xy, effective friction, valid marker.
-    nm_float4 tangentAndFriction;
-} NMDeformableWarmstartGPU;
+    // Previous contact normal xyz and primal barrier impulse.
+    nm_float4 normalAndBarrier;
+    // Lagged tangent-potential coordinates, effective friction, valid marker.
+    nm_float4 laggedTangentAndFriction;
+} NMDeformableContactHistoryGPU;
 
 typedef struct NM_ALIGN16 NMFEMTopologyStateGPU {
     // active nodes, active tetrahedra, active cohesive faces, active channels.
@@ -449,7 +480,9 @@ typedef struct NM_ALIGN16 NMCohesiveFaceGPU {
 typedef struct NM_ALIGN16 NMMutationCommandGPU {
     // kind, object, stable identifier, flags.
     nm_uint4 identity;
-    // control step, target tetrahedron/face, priority, reserved.
+    // Control step, deterministic target, priority, reserved. Remeshing
+    // targets are object-local tetrahedra except vertex smoothing, whose
+    // target is an object-local node.
     nm_uint4 schedule;
     // plane normal or cylinder axis, w plane offset/radius.
     nm_float4 geometry0;
@@ -503,7 +536,8 @@ typedef struct NM_ALIGN16 NMLearnedDifferentialGPU {
 typedef struct NM_ALIGN16 NMSolverCertificateGPU {
     // nonlinear residual, relative correction, volume residual, pressure residual.
     nm_float4 nonlinear;
-    // natural residual, cone violation, complementarity, contact energy.
+    // maximum barrier impulse, minimum separation, tangential impulse,
+    // barrier energy.
     nm_float4 contact;
     // thermal, pore, electric, activation residual.
     nm_float4 transport;
@@ -841,6 +875,10 @@ typedef struct NM_ALIGN16 NMContactSampleGPU {
     nm_float4 angularImpulseAndTangent;
     // IPC normal impulse, velocity-space PSD curvature, thickness, barrier k.
     nm_float4 barrier;
+    // Rows of the primal velocity-space PSD barrier/friction Hessian.
+    nm_float4 barrierHessianRow0;
+    nm_float4 barrierHessianRow1;
+    nm_float4 barrierHessianRow2;
 } NMContactSampleGPU;
 
 typedef struct NM_ALIGN16 NMRigidReactionGPU {

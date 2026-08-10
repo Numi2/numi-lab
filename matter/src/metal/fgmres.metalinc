@@ -53,7 +53,7 @@ inline uint fgmresRigidIndex(
 
 inline uint coupledFreeProxyIndex(
     const NMMatterDispatchGPU dispatch,
-    constant NMKKTContactArguments& contact,
+    constant NMPrimalContactArguments& contact,
     const uint freeBodyIndex
 ) {
     for (uint proxyIndex = 0u; proxyIndex < dispatch.rigidProxyCount;
@@ -69,7 +69,7 @@ inline uint coupledFreeProxyIndex(
 
 inline float3 coupledRigidPointDirection(
     const NMMatterDispatchGPU dispatch,
-    constant NMKKTContactArguments& contact,
+    constant NMPrimalContactArguments& contact,
     const uint environment,
     const uint pairIndex,
     const uint articulatedNv,
@@ -129,45 +129,22 @@ inline float3 coupledBarrierDirectionalForce(
     const NMContactSampleGPU sample,
     const float3 relativeDirection
 ) {
-    const float3 normal = sample.normalAndVelocity.xyz;
-    float3 force = max(sample.barrier.y, 0.0f) *
-        dot(normal, relativeDirection) * normal;
-    const float3 tangentImpulse = sample.impulseAndNormal.xyz +
-        sample.impulseAndNormal.w * normal;
-    const float tangentLength = length(tangentImpulse);
-    if (tangentLength > 1.0e-12f) {
-        const float3 tangent = tangentImpulse / tangentLength;
-        const float tangentScale = clamp(
-            tangentLength / max(sample.impulseAndNormal.w, 1.0e-12f),
-            0.0f, 1.0f);
-        force += max(sample.barrier.y, 0.0f) * tangentScale *
-            dot(tangent, relativeDirection) * tangent;
-    }
-    return force;
+    return multiplyRows(
+        sample.barrierHessianRow0,
+        sample.barrierHessianRow1,
+        sample.barrierHessianRow2,
+        relativeDirection);
 }
 
 inline float3 deformableBarrierDirectionalForce(
     const NMDeformableContactGPU contact,
     const float3 relativeDirection
 ) {
-    const float3 normal = contact.normalAndTOI.xyz;
-    float3 force = max(contact.barrier.y, 0.0f) *
-        dot(normal, relativeDirection) * normal;
-    float3 tangent0, tangent1;
-    deformableContactFrame(normal, tangent0, tangent1);
-    const float3 laggedTangent =
-        contact.impulseAndFriction.y * tangent0 +
-        contact.impulseAndFriction.z * tangent1;
-    const float tangentLength = length(laggedTangent);
-    if (tangentLength > 1.0e-12f) {
-        const float3 tangent = laggedTangent / tangentLength;
-        const float tangentScale = clamp(
-            tangentLength / max(contact.impulseAndFriction.x, 1.0e-12f),
-            0.0f, 1.0f);
-        force += max(contact.barrier.y, 0.0f) * tangentScale *
-            dot(tangent, relativeDirection) * tangent;
-    }
-    return force;
+    return multiplyRows(
+        contact.barrierHessianRow0,
+        contact.barrierHessianRow1,
+        contact.barrierHessianRow2,
+        relativeDirection);
 }
 
 inline uint fgmresUnknownCount(const NMMatterDispatchGPU dispatch) {
@@ -190,7 +167,7 @@ kernel void nm_fgmres_begin(
     constant NMMicrostepGPU& microstep [[buffer(10)]],
     device const NMSchedulerStateGPU* schedulers [[buffer(11)]],
     device const NMAdaptiveStateGPU* adaptive [[buffer(12)]],
-    constant NMKKTContactArguments& contact [[buffer(13)]],
+    constant NMPrimalContactArguments& contact [[buffer(13)]],
     constant uint& restartCycle [[buffer(14)]],
     constant float& forcing [[buffer(15)]],
     constant uint& nonlinearIteration [[buffer(16)]],
@@ -315,7 +292,12 @@ kernel void nm_fgmres_measure_correction(
     device const float4* solution [[buffer(3)]],
     device NMFGMRESStateGPU* states [[buffer(4)]],
     device const NMFEMFieldStateGPU* fields [[buffer(5)]],
-    constant NMKKTContactArguments& contact [[buffer(6)]],
+    constant NMPrimalContactArguments& contact [[buffer(6)]],
+    device const NMGridNodeStateGPU* mpmNodes [[buffer(7)]],
+    device const uint* mpmActiveIndices [[buffer(8)]],
+    device const uint* mpmActiveCounts [[buffer(9)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(10)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(11)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -328,6 +310,19 @@ kernel void nm_fgmres_measure_correction(
         correctionRatio = max(correctionRatio,
             length(solution[node].xyz) / max(
                 length(candidate[node].velocityAndInverseMass.xyz), 1.0f));
+        const uint objectIndex = nodeRanges[node].objectIndex;
+        if (objectIndex < dispatch.objectCount) {
+            const NMContinuumObjectGPU object = objects[objectIndex];
+            if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+                object.materialIndex < dispatch.mixedMaterialCount) {
+                const float pressureCorrection =
+                    mixedMaterials[object.materialIndex].mechanics.x *
+                    solution[node].w;
+                correctionRatio = max(correctionRatio,
+                    abs(pressureCorrection) /
+                        max(abs(fields[node].primary.x), 1.0f));
+            }
+        }
         const float4 field = float4(
             fields[node].primary.yzw, fields[node].secondary.x);
         correctionRatio = max(correctionRatio,
@@ -340,10 +335,26 @@ kernel void nm_fgmres_measure_correction(
          dof += 32u)
         correctionRatio = max(
             correctionRatio, abs(solution[rigidBase + dof].x));
+    const uint activeMPM = min(
+        mpmActiveCounts[environment], dispatch.gridNodeCount);
+    for (uint slot = lane; slot < activeMPM; slot += 32u) {
+        const uint nodeIndex = mpmActiveIndices[
+            environment * dispatch.gridNodeCount + slot];
+        if (nodeIndex >= dispatch.gridNodeCount) {
+            correctionRatio = INFINITY;
+            continue;
+        }
+        const NMGridNodeStateGPU node = mpmNodes[
+            environment * dispatch.gridNodeCount + nodeIndex];
+        correctionRatio = max(
+            correctionRatio,
+            length(solution[fgmresMPMIndex(
+                dispatch, environment, slot)].xyz) /
+                max(length(node.candidateVelocity.xyz), 1.0f));
+    }
     correctionRatio = simd_max(correctionRatio);
     if (lane == 0u)
         states[environment].nonlinear.z = correctionRatio;
-    (void)objects;
     (void)contact;
 }
 
@@ -611,7 +622,7 @@ kernel void nm_fgmres_precondition_free_rigid(
     constant uint& articulatedNv [[buffer(1)]],
     device const float4* basis [[buffer(2)]],
     device float4* preconditioned [[buffer(3)]],
-    constant NMKKTContactArguments& contact [[buffer(4)]],
+    constant NMPrimalContactArguments& contact [[buffer(4)]],
     device const NMFGMRESStateGPU* states [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
@@ -657,7 +668,7 @@ kernel void nm_fgmres_apply_free_rigid(
     constant uint& articulatedNv [[buffer(1)]],
     device const float4* direction [[buffer(2)]],
     device float4* work [[buffer(3)]],
-    constant NMKKTContactArguments& contact [[buffer(4)]],
+    constant NMPrimalContactArguments& contact [[buffer(4)]],
     device const NMFGMRESStateGPU* states [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
@@ -710,7 +721,7 @@ kernel void nm_fgmres_apply_free_rigid(
 kernel void nm_contact_accumulate_rigid_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant uint& articulatedNv [[buffer(1)]],
-    constant NMKKTContactArguments& contact [[buffer(2)]],
+    constant NMPrimalContactArguments& contact [[buffer(2)]],
     device float4* residual [[buffer(3)]],
     uint global [[thread_position_in_grid]]
 ) {
@@ -763,7 +774,7 @@ kernel void nm_contact_subtract_rigid_inertia_residual(
     constant uint& articulatedNv [[buffer(1)]],
     device const float* articulatedMassAction [[buffer(2)]],
     device const float* candidate [[buffer(3)]],
-    constant NMKKTContactArguments& contact [[buffer(4)]],
+    constant NMPrimalContactArguments& contact [[buffer(4)]],
     device float4* residual [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
@@ -820,7 +831,7 @@ kernel void nm_fgmres_apply_primal_rigid_contacts(
     constant uint& articulatedNv [[buffer(1)]],
     device const float4* direction [[buffer(2)]],
     device float4* work [[buffer(3)]],
-    constant NMKKTContactArguments& contact [[buffer(4)]],
+    constant NMPrimalContactArguments& contact [[buffer(4)]],
     device const NMFGMRESStateGPU* states [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
@@ -1117,7 +1128,7 @@ kernel void nm_fgmres_gather_nodes(
     device const NMAdaptiveStateGPU* adaptive [[buffer(9)]],
     device const float4* direction [[buffer(10)]],
     device float4* work [[buffer(11)]],
-    constant NMKKTContactArguments& contact [[buffer(12)]],
+    constant NMPrimalContactArguments& contact [[buffer(12)]],
     device const NMFGMRESStateGPU* states [[buffer(13)]],
     constant uint& articulatedNv [[buffer(14)]],
     uint global [[thread_position_in_grid]]
@@ -1182,8 +1193,10 @@ kernel void nm_fgmres_gather_nodes(
     }
     const uint deformableCapacity = dispatch.deformableContactCapacity;
     const uint deformableBase = environment * deformableCapacity;
+    const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
     const NMIncidenceRangeGPU deformableRange =
-        contact.deformableNodeRanges[global];
+        contact.deformableNodeRanges[
+            environment * unifiedCount + unifiedNode];
     for (uint incidence = 0u; incidence < deformableRange.count;
          ++incidence) {
         const uint encoded = contact.deformableNodeIncidence[
@@ -1194,18 +1207,39 @@ kernel void nm_fgmres_gather_nodes(
         const NMDeformableContactGPU deformable =
             contact.deformableContacts[deformableBase + slot];
         if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
-            deformable.nodes[local] != node) continue;
+            deformable.nodes[local] != unifiedNode) continue;
         float3 relativeDirection = float3(0.0f);
+        float mollifierDirection = 0.0f;
         for (uint other = 0u; other < 4u; ++other) {
             const uint otherNode = deformable.nodes[other];
-            if (otherNode < dispatch.femNodeCount)
+            float3 otherDirection = float3(0.0f);
+            if (otherNode >= dispatch.gridNodeCount &&
+                otherNode - dispatch.gridNodeCount < dispatch.femNodeCount) {
+                otherDirection = direction[
+                    environment * dispatch.femNodeCount +
+                    otherNode - dispatch.gridNodeCount].xyz;
                 relativeDirection += deformable.weights[other] *
-                    direction[environment * dispatch.femNodeCount +
-                              otherNode].xyz;
+                    deformable.timeScales[other] * otherDirection;
+            } else if (otherNode < dispatch.gridNodeCount) {
+                const uint activeSlot = contact.mpmNodeToActive[
+                    environment * dispatch.gridNodeCount + otherNode];
+                if (activeSlot < contact.mpmActiveNodeCounts[environment]) {
+                    otherDirection = direction[fgmresMPMIndex(
+                        dispatch, environment, activeSlot)].xyz;
+                    relativeDirection += deformable.weights[other] *
+                        deformable.timeScales[other] * otherDirection;
+                }
+            }
+            mollifierDirection += dot(
+                deformableMollifierGradient(deformable, other),
+                deformable.timeScales[other] * otherDirection);
         }
-        work[global].xyz += deformable.weights[local] *
-            deformableBarrierDirectionalForce(
-                deformable, relativeDirection);
+        work[global].xyz += deformable.timeScales[local] * (
+            deformable.weights[local] *
+                deformableBarrierDirectionalForce(
+                    deformable, relativeDirection) +
+            deformableMollifierGradient(deformable, local) *
+                (deformable.mollifier.z * mollifierDirection));
     }
 }
 
@@ -1217,7 +1251,7 @@ kernel void nm_fgmres_orthogonalize_column(
     device float4* work [[buffer(4)]],
     device float* hessenberg [[buffer(5)]],
     device const NMFGMRESStateGPU* states [[buffer(6)]],
-    constant NMKKTContactArguments& contact [[buffer(7)]],
+    constant NMPrimalContactArguments& contact [[buffer(7)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -1392,7 +1426,7 @@ kernel void nm_fgmres_finish_column(
     device float2* rotations [[buffer(7)]],
     device float* leastSquares [[buffer(8)]],
     device NMFGMRESStateGPU* states [[buffer(9)]],
-    constant NMKKTContactArguments& contact [[buffer(10)]],
+    constant NMPrimalContactArguments& contact [[buffer(10)]],
     constant float& forcing [[buffer(11)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
@@ -1742,6 +1776,7 @@ kernel void nm_mpm_build_implicit_residual(
     device float4* residual [[buffer(7)]],
     device const uint* activeIndices [[buffer(8)]],
     device const uint* activeCounts [[buffer(9)]],
+    constant NMPrimalContactArguments& contact [[buffer(10)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
@@ -1767,6 +1802,37 @@ kernel void nm_mpm_build_implicit_residual(
         const NMContactSampleGPU sample = samples[sampleBase + pair];
         if ((sample.identity.w & NM_CONTACT_VALID) != 0u)
             rightHandSide -= sample.impulseAndNormal.xyz;
+    }
+    const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const NMIncidenceRangeGPU deformableRange =
+        contact.deformableNodeRanges[
+            environment * unifiedCount + nodeIndex];
+    const uint deformableBase =
+        environment * dispatch.deformableContactCapacity;
+    for (uint incidence = 0u; incidence < deformableRange.count;
+         ++incidence) {
+        const uint encoded = contact.deformableNodeIncidence[
+            deformableRange.first + incidence];
+        const uint contactSlot = encoded >> 2u;
+        const uint contactLocal = encoded & 3u;
+        if (contactSlot >= dispatch.deformableContactCapacity ||
+            contactLocal >= 4u) continue;
+        const NMDeformableContactGPU deformable =
+            contact.deformableContacts[deformableBase + contactSlot];
+        if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
+            deformable.nodes[contactLocal] != nodeIndex) continue;
+        float3 tangent0, tangent1;
+        deformableContactFrame(
+            deformable.normalAndTOI.xyz, tangent0, tangent1);
+        const float3 impulse =
+            deformable.impulseAndFriction.x *
+                deformable.normalAndTOI.xyz +
+            deformable.impulseAndFriction.y * tangent0 +
+            deformable.impulseAndFriction.z * tangent1;
+        rightHandSide += deformable.timeScales[contactLocal] * (
+            deformable.weights[contactLocal] * impulse -
+            deformable.mollifier.y *
+                deformableMollifierGradient(deformable, contactLocal));
     }
     residual[output] = float4(rightHandSide, 0.0f);
 }
@@ -1800,6 +1866,142 @@ kernel void nm_fgmres_precondition_mpm(
         nodes[nodeGlobal].velocityAndInverseMass.w * basis[row].xyz, 0.0f);
 }
 
+inline uint mpmGridForNode(
+    const NMMatterDispatchGPU dispatch,
+    device const NMMPMGridGPU* grids,
+    const uint nodeIndex
+) {
+    for (uint gridIndex = 0u; gridIndex < dispatch.mpmGridCount;
+         ++gridIndex) {
+        const NMMPMGridGPU grid = grids[gridIndex];
+        const uint count = grid.nodeDimensionsAndOffset.x *
+            grid.nodeDimensionsAndOffset.y *
+            grid.nodeDimensionsAndOffset.z;
+        const uint first = grid.nodeDimensionsAndOffset.w;
+        if (nodeIndex >= first && nodeIndex - first < count)
+            return gridIndex;
+    }
+    return NM_INVALID_INDEX;
+}
+
+kernel void nm_fgmres_precondition_mpm_patches(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMGridNodeStateGPU* nodes [[buffer(2)]],
+    device const uint* generations [[buffer(3)]],
+    device const NMMPMGridGPU* grids [[buffer(4)]],
+    device const uint* nodeToActive [[buffer(5)]],
+    device const uint* activeIndices [[buffer(6)]],
+    device const uint* activeCounts [[buffer(7)]],
+    device const float4* basis [[buffer(8)]],
+    device float4* preconditioned [[buffer(9)]],
+    device const NMFGMRESStateGPU* states [[buffer(10)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
+    if (global >= total || dispatch.gridNodeCount == 0u) return;
+    const uint environment = global / dispatch.gridNodeCount;
+    const uint slot = global - environment * dispatch.gridNodeCount;
+    if (states[environment].diagnostics.z > 0.5f ||
+        slot >= activeCounts[environment]) return;
+    const uint nodeIndex =
+        activeIndices[environment * dispatch.gridNodeCount + slot];
+    const uint gridIndex = mpmGridForNode(dispatch, grids, nodeIndex);
+    if (gridIndex >= dispatch.mpmGridCount) return;
+    const NMMPMGridGPU grid = grids[gridIndex];
+    const uint first = grid.nodeDimensionsAndOffset.w;
+    const uint local = nodeIndex - first;
+    const uint nx = grid.nodeDimensionsAndOffset.x;
+    const uint ny = grid.nodeDimensionsAndOffset.y;
+    const uint nz = grid.nodeDimensionsAndOffset.z;
+    if (nx == 0u || ny == 0u || nz == 0u) return;
+    const uint plane = nx * ny;
+    const int3 coordinate = int3(
+        int(local % nx),
+        int((local / nx) % ny),
+        int(local / plane));
+    float3 rhs = float3(0.0f);
+    float mass = 0.0f;
+    for (int z = -1; z <= 1; ++z) {
+        for (int y = -1; y <= 1; ++y) {
+            for (int x = -1; x <= 1; ++x) {
+                const int3 other = coordinate + int3(x, y, z);
+                if (any(other < int3(0)) ||
+                    other.x >= int(nx) || other.y >= int(ny) ||
+                    other.z >= int(nz)) continue;
+                const uint otherNode = first + uint(other.x) +
+                    nx * (uint(other.y) + ny * uint(other.z));
+                const uint otherGlobal =
+                    environment * dispatch.gridNodeCount + otherNode;
+                const uint otherSlot = nodeToActive[otherGlobal];
+                if (otherSlot >= activeCounts[environment] ||
+                    generations[otherGlobal] != microstep.reserved) continue;
+                rhs += basis[fgmresMPMIndex(
+                    dispatch, environment, otherSlot)].xyz;
+                mass += max(nodes[otherGlobal].positionAndMass.w, 0.0f);
+            }
+        }
+    }
+    if (!(mass > 0.0f)) return;
+    const uint row = fgmresMPMIndex(dispatch, environment, slot);
+    const float3 translation = rhs / mass;
+    preconditioned[row].xyz =
+        0.75f * preconditioned[row].xyz + 0.25f * translation;
+}
+
+kernel void nm_fgmres_precondition_mpm_objects(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMMPMGridGPU* grids [[buffer(2)]],
+    device const NMGridNodeStateGPU* nodes [[buffer(3)]],
+    device const uint* activeIndices [[buffer(4)]],
+    device const uint* activeCounts [[buffer(5)]],
+    device const float4* basis [[buffer(6)]],
+    device float4* preconditioned [[buffer(7)]],
+    device const NMFGMRESStateGPU* states [[buffer(8)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || dispatch.objectCount == 0u) return;
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (environment >= dispatch.environmentCount ||
+        objects[objectIndex].representation != NM_REPRESENTATION_MPM ||
+        states[environment].diagnostics.z > 0.5f) return;
+    float3 localRhs = float3(0.0f);
+    float localMass = 0.0f;
+    const uint activeCount = activeCounts[environment];
+    for (uint slot = lane; slot < activeCount; slot += 32u) {
+        const uint nodeIndex =
+            activeIndices[environment * dispatch.gridNodeCount + slot];
+        const uint gridIndex = mpmGridForNode(dispatch, grids, nodeIndex);
+        if (gridIndex >= dispatch.mpmGridCount ||
+            uint(grids[gridIndex].nodeMinimumAndObject.w) != objectIndex)
+            continue;
+        const uint nodeGlobal =
+            environment * dispatch.gridNodeCount + nodeIndex;
+        localRhs += basis[fgmresMPMIndex(
+            dispatch, environment, slot)].xyz;
+        localMass += max(nodes[nodeGlobal].positionAndMass.w, 0.0f);
+    }
+    const float3 rhs = float3(
+        simd_sum(localRhs.x), simd_sum(localRhs.y), simd_sum(localRhs.z));
+    const float mass = simd_sum(localMass);
+    if (!(mass > 0.0f)) return;
+    const float3 translation = rhs / mass;
+    for (uint slot = lane; slot < activeCount; slot += 32u) {
+        const uint nodeIndex =
+            activeIndices[environment * dispatch.gridNodeCount + slot];
+        const uint gridIndex = mpmGridForNode(dispatch, grids, nodeIndex);
+        if (gridIndex >= dispatch.mpmGridCount ||
+            uint(grids[gridIndex].nodeMinimumAndObject.w) != objectIndex)
+            continue;
+        const uint row = fgmresMPMIndex(dispatch, environment, slot);
+        preconditioned[row].xyz =
+            0.5f * preconditioned[row].xyz + 0.5f * translation;
+    }
+}
+
 kernel void nm_fgmres_apply_mpm(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMGridNodeStateGPU* nodes [[buffer(1)]],
@@ -1813,7 +2015,7 @@ kernel void nm_fgmres_apply_mpm(
     device const NMFGMRESStateGPU* states [[buffer(9)]],
     device const uint* activeIndices [[buffer(10)]],
     device const uint* activeCounts [[buffer(11)]],
-    constant NMKKTContactArguments& contact [[buffer(12)]],
+    constant NMPrimalContactArguments& contact [[buffer(12)]],
     constant uint& articulatedNv [[buffer(13)]],
     uint global [[thread_position_in_grid]]
 ) {
@@ -1844,6 +2046,57 @@ kernel void nm_fgmres_apply_mpm(
             articulatedNv, direction);
         value += coupledBarrierDirectionalForce(
             sample, nodeDirection - rigidDirection);
+    }
+    const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const NMIncidenceRangeGPU deformableRange =
+        contact.deformableNodeRanges[
+            environment * unifiedCount + nodeIndex];
+    const uint deformableBase =
+        environment * dispatch.deformableContactCapacity;
+    for (uint incidence = 0u; incidence < deformableRange.count;
+         ++incidence) {
+        const uint encoded = contact.deformableNodeIncidence[
+            deformableRange.first + incidence];
+        const uint contactSlot = encoded >> 2u;
+        const uint contactLocal = encoded & 3u;
+        if (contactSlot >= dispatch.deformableContactCapacity ||
+            contactLocal >= 4u) continue;
+        const NMDeformableContactGPU deformable =
+            contact.deformableContacts[deformableBase + contactSlot];
+        if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
+            deformable.nodes[contactLocal] != nodeIndex) continue;
+        float3 relativeDirection = float3(0.0f);
+        float mollifierDirection = 0.0f;
+        for (uint other = 0u; other < 4u; ++other) {
+            const uint otherNode = deformable.nodes[other];
+            float3 otherDirection = float3(0.0f);
+            if (otherNode < dispatch.gridNodeCount) {
+                const uint otherSlot = contact.mpmNodeToActive[
+                    environment * dispatch.gridNodeCount + otherNode];
+                if (otherSlot < contact.mpmActiveNodeCounts[environment]) {
+                    otherDirection = direction[fgmresMPMIndex(
+                        dispatch, environment, otherSlot)].xyz;
+                    relativeDirection += deformable.weights[other] *
+                        deformable.timeScales[other] * otherDirection;
+                }
+            } else if (otherNode - dispatch.gridNodeCount <
+                       dispatch.femNodeCount) {
+                otherDirection = direction[
+                    environment * dispatch.femNodeCount +
+                    otherNode - dispatch.gridNodeCount].xyz;
+                relativeDirection += deformable.weights[other] *
+                    deformable.timeScales[other] * otherDirection;
+            }
+            mollifierDirection += dot(
+                deformableMollifierGradient(deformable, other),
+                deformable.timeScales[other] * otherDirection);
+        }
+        value += deformable.timeScales[contactLocal] * (
+            deformable.weights[contactLocal] *
+                deformableBarrierDirectionalForce(
+                    deformable, relativeDirection) +
+            deformableMollifierGradient(deformable, contactLocal) *
+                (deformable.mollifier.z * mollifierDirection));
     }
     work[row] = float4(value, 0.0f);
 }
@@ -1902,6 +2155,148 @@ inline bool mpmImplicitVelocityGradients(
         }
     }
     return true;
+}
+
+// Extend the shared Newton globalization to the active MPM block. Each
+// SIMD32 group certifies all particles of one environment/object for the same
+// candidate alpha used by FEM, fields, and rigid generalized increments.
+kernel void nm_mpm_limit_implicit_line_search(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    constant NMMixedSolverGPU& solver [[buffer(2)]],
+    device const NMContinuumObjectGPU* objects [[buffer(3)]],
+    device const NMMaterialGPU* materials [[buffer(4)]],
+    device const NMScalarProgramGPU* programs [[buffer(5)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(6)]],
+    device const float* environmentParameters [[buffer(7)]],
+    device const NMParticleStateGPU* particles [[buffer(8)]],
+    device const float* particleMaterialState [[buffer(9)]],
+    device const NMGridNodeStateGPU* nodes [[buffer(10)]],
+    device const NMMPMGridGPU* grids [[buffer(11)]],
+    device const uint* generations [[buffer(12)]],
+    device const uint* nodeToActive [[buffer(13)]],
+    device const float4* correction [[buffer(14)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(15)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(16)]],
+    device float4* lineSearch [[buffer(17)]],
+    device NMMatterStatusGPU* statuses [[buffer(18)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || dispatch.objectCount == 0u) return;
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (environment >= dispatch.environmentCount ||
+        !environmentHealthy(statuses, environment)) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const uint objectGlobal =
+        environment * dispatch.objectCount + objectIndex;
+    const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
+    if (object.representation != NM_REPRESENTATION_MPM ||
+        !objectDue(object, scheduler, adaptive[objectGlobal], microstep))
+        return;
+    if (object.elementOffset >= dispatch.mpmGridCount) {
+        if (lane == 0u)
+            recordFailure(
+                statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                objectIndex, object.elementOffset, float4(0.0f));
+        return;
+    }
+    const NMMPMGridGPU grid = grids[object.elementOffset];
+    const float dt = objectTimestep(dispatch, scheduler);
+    const uint candidateCount = min(solver.nonlinearIterations.w, 8u);
+    float chosen = 0.0f;
+    float chosenMinimum = -INFINITY;
+    for (uint trial = 0u; trial < candidateCount; ++trial) {
+        const float alpha = exp2(-float(trial));
+        bool localValid = true;
+        float localMinimum = INFINITY;
+        for (uint local = lane; local < object.stateCount; local += 32u) {
+            const uint particleIndex = object.stateOffset + local;
+            const uint particleGlobal =
+                environment * dispatch.particleCount + particleIndex;
+            if (particleIndex >= dispatch.particleCount) {
+                localValid = false;
+                continue;
+            }
+            const NMParticleStateGPU particle = particles[particleGlobal];
+            if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+            if (particle.identity.x != objectIndex ||
+                particle.identity.y >= dispatch.materialCount) {
+                localValid = false;
+                continue;
+            }
+            float3x3 velocityGradient, directionGradient;
+            if (!mpmImplicitVelocityGradients(
+                    dispatch, microstep, environment, particle, grid,
+                    nodes, generations, nodeToActive, correction, true,
+                    velocityGradient, directionGradient)) {
+                localValid = false;
+                continue;
+            }
+            const float3x3 acceptedDeformation = matrixFromRows(
+                particle.deformationRow0,
+                particle.deformationRow1,
+                particle.deformationRow2);
+            const float3x3 trialGradient =
+                velocityGradient + alpha * directionGradient;
+            const float3x3 trialDeformation =
+                (float3x3(1.0f) + dt * trialGradient) *
+                acceptedDeformation;
+            const float3x3 trialRate =
+                trialGradient * trialDeformation;
+            const float determinantValue = determinant(trialDeformation);
+            localMinimum = min(localMinimum, determinantValue);
+            const NMMaterialGPU material = materials[particle.identity.y];
+            device const float* internalState = material.stateCount == 0u
+                ? nullptr
+                : particleMaterialState +
+                    particleGlobal * dispatch.materialStateStride;
+            float validityMargin = 1.0f;
+            bool materialValid = isfinite(determinantValue) &&
+                determinantValue >= max(
+                    dispatch.numericalLimits.z, material.validity.x) &&
+                determinantValue <= material.validity.y &&
+                evaluateMaterialValidity(
+                    material, programs, instructions,
+                    environmentParameters +
+                        environment * dispatch.parameterCount,
+                    internalState, trialDeformation, trialRate, dt,
+                    particle.referenceAndTemperature.w,
+                    validityMargin) && validityMargin > 0.0f;
+            float projectedState[NM_MAX_MATERIAL_STATE];
+            if (materialValid)
+                materialValid = projectMaterialState(
+                    material, programs, instructions,
+                    environmentParameters +
+                        environment * dispatch.parameterCount,
+                    internalState, trialDeformation, trialRate, dt,
+                    particle.referenceAndTemperature.w,
+                    projectedState);
+            localValid = localValid && materialValid;
+        }
+        const bool valid = simd_all(localValid) != 0u;
+        const float minimum = simd_min(localMinimum);
+        if (valid) {
+            chosen = alpha;
+            chosenMinimum = minimum;
+            break;
+        }
+    }
+    if (chosen == 0.0f) {
+        if (lane == 0u)
+            recordFailure(
+                statuses[environment], NM_STATUS_LOCAL_MATERIAL_FAILURE,
+                objectIndex, microstep.pcgIteration,
+                float4(chosenMinimum, float(candidateCount), dt, 0.0f));
+        return;
+    }
+    if (lane == 0u) {
+        float4 state = lineSearch[objectGlobal];
+        state.x = min(state.x, chosen);
+        state.y = min(state.y, chosenMinimum);
+        lineSearch[objectGlobal] = state;
+    }
 }
 
 inline void evaluateSparseMPMImplicitNode(
@@ -2244,6 +2639,7 @@ kernel void nm_mpm_apply_implicit_solution(
     device NMGridNodeStateGPU* nodes [[buffer(4)]],
     device const uint* activeIndices [[buffer(5)]],
     device const uint* activeCounts [[buffer(6)]],
+    device const float4* lineSearch [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
@@ -2256,7 +2652,9 @@ kernel void nm_mpm_apply_implicit_solution(
     const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
     if (nodeIndex >= dispatch.gridNodeCount ||
         generations[nodeGlobal] != microstep.reserved) return;
-    nodes[nodeGlobal].candidateVelocity.xyz +=
+    const float alpha = dispatch.objectCount > 0u
+        ? lineSearch[environment * dispatch.objectCount].x : 0.0f;
+    nodes[nodeGlobal].candidateVelocity.xyz += alpha *
         solution[fgmresMPMIndex(dispatch, environment, slot)].xyz;
 }
 

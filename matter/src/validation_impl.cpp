@@ -1129,15 +1129,40 @@ private:
                     if (tetrahedron.identity.x != object.materialIndex ||
                         tetrahedron.identity.y != index ||
                         tetrahedron.identity.z != object.topologyGeneration ||
-                        (tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
                         !finite4(tetrahedron.inverseRestRow0) ||
                         !finite4(tetrahedron.inverseRestRow1) ||
-                        !finite4(tetrahedron.inverseRestRow2) ||
-                        !(tetrahedron.inverseRestRow0.w > 0.0f)) {
+                        !finite4(tetrahedron.inverseRestRow2)) {
                         return failIndexed(
                             "FEM tetrahedron",
                             tetrahedronIndex,
                             "identity or rest operator is invalid"
+                        );
+                    }
+                    const bool active =
+                        (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                    if (!active) {
+                        // Mutable FEM objects cook canonical dormant arena
+                        // slots. They acquire nodes/rest operators only inside
+                        // an accepted topology transaction, so treating them
+                        // as authored elements makes every growable world
+                        // impossible to validate or package.
+                        if (tetrahedron.identity.w != 0u ||
+                            tetrahedron.inverseRestRow0.w != 0.0f ||
+                            tetrahedron.inverseRestRow1.w != 0.0f ||
+                            tetrahedron.inverseRestRow2.w != 0.0f) {
+                            return failIndexed(
+                                "FEM tetrahedron",
+                                tetrahedronIndex,
+                                "dormant arena slot is not canonical"
+                            );
+                        }
+                        continue;
+                    }
+                    if (!(tetrahedron.inverseRestRow0.w > 0.0f)) {
+                        return failIndexed(
+                            "FEM tetrahedron",
+                            tetrahedronIndex,
+                            "active rest operator has nonpositive volume"
                         );
                     }
                     const std::uint64_t nodeEnd =
@@ -1617,6 +1642,9 @@ private:
     }
 
     [[nodiscard]] bool validateFingerprint() {
+        if (world_.physicsFingerprint == 0u) {
+            return fail("Matter source-physics fingerprint is missing");
+        }
         if (world_.fingerprint == 0u ||
             world_.fingerprint != compiledWorldFingerprint(world_)) {
             return fail("Matter world fingerprint does not match canonical sections");

@@ -2286,8 +2286,8 @@ Outcome runCase(
                          "puncture channels");
             requireEqual(restored.topologyStates, baseline.topologyStates,
                          "topology accounting");
-            requireEqual(restored.contactWarmstarts, baseline.contactWarmstarts,
-                         "contact warm starts");
+            requireEqual(restored.contactHistories, baseline.contactHistories,
+                         "primal contact history");
             requireEqual(restored.schedulers, baseline.schedulers,
                          "scheduler state");
             requireEqual(restored.adaptive, baseline.adaptive,

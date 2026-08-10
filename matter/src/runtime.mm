@@ -280,6 +280,7 @@ struct Runtime::State {
 
     NMMatterDispatchGPU dispatch{};
     NMMixedSolverGPU mixedSolverValue{};
+    std::uint64_t sourcePhysicsFingerprint = 0u;
     std::uint64_t worldFingerprint = 0u;
     std::uint64_t executionFingerprint = 0u;
     std::size_t residentBytes = 0u;
@@ -340,8 +341,7 @@ struct Runtime::State {
     id<MTLBuffer> femTetrahedraAccepted = nil;
     id<MTLBuffer> femTetrahedraCandidate = nil;
     id<MTLBuffer> femTetrahedraCheckpoint = nil;
-    id<MTLBuffer> femSurfaceFaces = nil;
-    id<MTLBuffer> femSurfacePrimitives = nil;
+    id<MTLBuffer> continuumSurfacePrimitives = nil;
     id<MTLBuffer> femSurfaceSortKeysA = nil;
     id<MTLBuffer> femSurfaceSortKeysB = nil;
     id<MTLBuffer> femSurfaceSortIndicesA = nil;
@@ -350,9 +350,9 @@ struct Runtime::State {
     id<MTLBuffer> deformableContactCandidates = nil;
     id<MTLBuffer> deformableContactCandidateCounts = nil;
     id<MTLBuffer> deformableContacts = nil;
-    id<MTLBuffer> deformableWarmstartsAccepted = nil;
-    id<MTLBuffer> deformableWarmstartsCandidate = nil;
-    id<MTLBuffer> deformableWarmstartsCheckpoint = nil;
+    id<MTLBuffer> deformableContactHistoriesAccepted = nil;
+    id<MTLBuffer> deformableContactHistoriesCandidate = nil;
+    id<MTLBuffer> deformableContactHistoriesCheckpoint = nil;
     id<MTLBuffer> deformableContactActiveIndices = nil;
     id<MTLBuffer> deformableContactActiveCounts = nil;
     id<MTLBuffer> deformableContactNodeIncidence = nil;
@@ -453,9 +453,9 @@ struct Runtime::State {
     std::uint64_t learnedFingerprint = 0u;
     id<MTLBuffer> rigidStates = nil;
     id<MTLBuffer> contactSamples = nil;
-    id<MTLBuffer> contactWarmstartsAccepted = nil;
-    id<MTLBuffer> contactWarmstartsCandidate = nil;
-    id<MTLBuffer> contactWarmstartsCheckpoint = nil;
+    id<MTLBuffer> contactHistoriesAccepted = nil;
+    id<MTLBuffer> contactHistoriesCandidate = nil;
+    id<MTLBuffer> contactHistoriesCheckpoint = nil;
     id<MTLBuffer> articulatedPointQueries = nil;
     id<MTLBuffer> coupledGeneralizedInput = nil;
     id<MTLBuffer> coupledGeneralizedOutput = nil;
@@ -493,7 +493,7 @@ struct Runtime::State {
     id<MTLBuffer> fgmresLeastSquares = nil;
     id<MTLBuffer> fgmresRestartCoefficients = nil;
     id<MTLBuffer> fgmresStates = nil;
-    id<MTLBuffer> fgmresContactArguments = nil;
+    id<MTLBuffer> primalContactArguments = nil;
 
     id<MTLBuffer> identificationDistributions = nil;
     id<MTLBuffer> identificationCandidates = nil;
@@ -544,6 +544,7 @@ RuntimeDiagnostics Runtime::initialize(
             world.learnedWeights.data(),
             world.learnedWeights.size() * sizeof(float)
         );
+        candidate->sourcePhysicsFingerprint = world.physicsFingerprint;
         candidate->worldFingerprint = world.fingerprint;
         candidate->captureEvents = configuration.captureEvents;
         candidate->captureDiagnostics = configuration.captureDiagnostics;
@@ -625,6 +626,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_topology_rebuild_prefix",
             "nm_topology_rebuild_scatter",
             "nm_topology_rebuild_finalize",
+            "nm_topology_conserve_transaction",
+            "nm_topology_certify_transaction",
+            "nm_topology_mark_growth_generation",
             "nm_topology_publish_growth_request",
             "nm_topology_commit",
             "nm_topology_rollback",
@@ -678,10 +682,13 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_build_implicit_residual",
             "nm_mpm_build_constitutive_residual",
             "nm_fgmres_precondition_mpm",
+            "nm_fgmres_precondition_mpm_patches",
+            "nm_fgmres_precondition_mpm_objects",
             "nm_fgmres_apply_mpm",
             "nm_fgmres_apply_mpm_constitutive",
             "nm_fgmres_accumulate_mpm",
             "nm_fgmres_restart_residual_mpm",
+            "nm_mpm_limit_implicit_line_search",
             "nm_mpm_apply_implicit_solution",
             "nm_fem_apply_operator_elements",
             "nm_fgmres_gather_nodes",
@@ -707,18 +714,19 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_scatter_deformable_node_incidence",
             "nm_contact_evaluate",
             "nm_contact_compact_active",
-            "nm_contact_checkpoint_warmstarts",
-            "nm_contact_commit_warmstarts",
-            "nm_contact_rollback_warmstarts",
-            "nm_contact_checkpoint_deformable_warmstarts",
-            "nm_contact_commit_deformable_warmstarts",
-            "nm_contact_rollback_deformable_warmstarts",
+            "nm_contact_checkpoint_histories",
+            "nm_contact_commit_histories",
+            "nm_contact_rollback_histories",
+            "nm_contact_checkpoint_deformable_contact_histories",
+            "nm_contact_commit_deformable_contact_histories",
+            "nm_contact_rollback_deformable_contact_histories",
             "nm_contact_prepare_articulated_queries",
             "nm_contact_accumulate_fem_residual",
             "nm_contact_accumulate_deformable_fem_residual",
-            "nm_contact_apply_kkt_solution",
+            "nm_contact_publish_primal_history",
             "nm_contact_limit_deformable_line_search",
-            "nm_contact_apply_deformable_kkt_solution",
+            "nm_contact_limit_rigid_line_search",
+            "nm_contact_publish_deformable_history",
             "nm_contact_reduce_rigid",
             "nm_accumulate_rigid_reactions",
             "nm_mpm_g2p",
@@ -798,12 +806,12 @@ RuntimeDiagnostics Runtime::initialize(
         id<MTLFunction> fgmresFunction = [candidate->library
             newFunctionWithName:
                 @"numi_matter_metal::nm_fgmres_begin"];
-        id<MTLArgumentEncoder> fgmresContactEncoder = fgmresFunction == nil
+        id<MTLArgumentEncoder> primalContactEncoder = fgmresFunction == nil
             ? nil
             : [fgmresFunction newArgumentEncoderWithBufferIndex:13u];
-        if (fgmresContactEncoder == nil) {
+        if (primalContactEncoder == nil) {
             diagnostics.message =
-                "failed to create monolithic KKT contact argument encoder";
+                "failed to create monolithic primal-contact argument encoder";
             return diagnostics;
         }
 
@@ -1098,9 +1106,6 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femTetrahedraCheckpoint = uploads.repeated(
             std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
             environments, valid, candidate->residentBytes);
-        candidate->femSurfaceFaces = uploads.one(
-            std::span<const NMFEMSurfaceFaceGPU>(world.fem.surfaceFaces),
-            valid, candidate->residentBytes);
         candidate->femTopologyNodesAccepted = uploads.repeated(
             std::span<const NMFEMTopologyNodeGPU>(world.fem.topologyNodes),
             environments, valid, candidate->residentBytes);
@@ -1212,18 +1217,18 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->rigidStates = uploads.repeated(
             std::span<const NMRigidStateGPU>(initialRigidStates),
             environments, valid, candidate->residentBytes);
-        const std::vector<nm_float4> initialContactWarmstarts(
+        const std::vector<nm_float4> initialContactHistories(
             world.dispatch.contactPairCount
         );
-        candidate->contactWarmstartsAccepted = uploads.repeated(
-            std::span<const nm_float4>(initialContactWarmstarts),
+        candidate->contactHistoriesAccepted = uploads.repeated(
+            std::span<const nm_float4>(initialContactHistories),
             environments, valid, candidate->residentBytes);
-        const std::vector<NMDeformableWarmstartGPU>
-            initialDeformableWarmstarts(
+        const std::vector<NMDeformableContactHistoryGPU>
+            initialDeformableContactHistories(
                 world.dispatch.deformableContactCapacity);
-        candidate->deformableWarmstartsAccepted = uploads.repeated(
-            std::span<const NMDeformableWarmstartGPU>(
-                initialDeformableWarmstarts),
+        candidate->deformableContactHistoriesAccepted = uploads.repeated(
+            std::span<const NMDeformableContactHistoryGPU>(
+                initialDeformableContactHistories),
             environments, valid, candidate->residentBytes);
         std::string uploadError;
         if (!valid || !uploads.finish(uploadError)) {
@@ -1236,14 +1241,16 @@ RuntimeDiagnostics Runtime::initialize(
         const auto multiplied = [&](const std::size_t perEnvironment) {
             return environments * perEnvironment;
         };
-        candidate->femSurfacePrimitives =
-            privateScratch<NMFEMSurfacePrimitiveGPU>(
+        candidate->continuumSurfacePrimitives =
+            privateScratch<NMContinuumSurfacePrimitiveGPU>(
                 candidate->device,
-                multiplied(2u * world.dispatch.surfaceFaceCount),
+                multiplied(4u * world.dispatch.tetrahedronCount +
+                           world.dispatch.gridNodeCount),
                 valid,
                 candidate->residentBytes);
         const std::size_t surfacePrimitiveTotal =
-            multiplied(2u * world.dispatch.surfaceFaceCount);
+            multiplied(4u * world.dispatch.tetrahedronCount +
+                       world.dispatch.gridNodeCount);
         candidate->femSurfaceSortKeysA = privateScratch<std::uint32_t>(
             candidate->device, surfacePrimitiveTotal,
             valid, candidate->residentBytes);
@@ -1274,14 +1281,14 @@ RuntimeDiagnostics Runtime::initialize(
             multiplied(world.dispatch.deformableContactCapacity),
             valid,
             candidate->residentBytes);
-        candidate->deformableWarmstartsCandidate =
-            privateScratch<NMDeformableWarmstartGPU>(
+        candidate->deformableContactHistoriesCandidate =
+            privateScratch<NMDeformableContactHistoryGPU>(
                 candidate->device,
                 multiplied(world.dispatch.deformableContactCapacity),
                 valid,
                 candidate->residentBytes);
-        candidate->deformableWarmstartsCheckpoint =
-            privateScratch<NMDeformableWarmstartGPU>(
+        candidate->deformableContactHistoriesCheckpoint =
+            privateScratch<NMDeformableContactHistoryGPU>(
                 candidate->device,
                 multiplied(world.dispatch.deformableContactCapacity),
                 valid,
@@ -1305,7 +1312,8 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->deformableContactNodeRanges =
             privateScratch<NMIncidenceRangeGPU>(
                 candidate->device,
-                multiplied(world.dispatch.femNodeCount),
+                multiplied(world.dispatch.gridNodeCount +
+                           world.dispatch.femNodeCount),
                 valid,
                 candidate->residentBytes);
         candidate->deformableContactActiveOffsets =
@@ -1395,10 +1403,10 @@ RuntimeDiagnostics Runtime::initialize(
                 valid,
                 candidate->residentBytes
             );
-        candidate->contactWarmstartsCandidate = privateScratch<nm_float4>(
+        candidate->contactHistoriesCandidate = privateScratch<nm_float4>(
             candidate->device, multiplied(world.dispatch.contactPairCount),
             valid, candidate->residentBytes);
-        candidate->contactWarmstartsCheckpoint = privateScratch<nm_float4>(
+        candidate->contactHistoriesCheckpoint = privateScratch<nm_float4>(
             candidate->device, multiplied(world.dispatch.contactPairCount),
             valid, candidate->residentBytes);
         candidate->articulatedPointQueries =
@@ -1554,49 +1562,49 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
 
-        candidate->fgmresContactArguments = [candidate->device
-            newBufferWithLength:fgmresContactEncoder.encodedLength
+        candidate->primalContactArguments = [candidate->device
+            newBufferWithLength:primalContactEncoder.encodedLength
                          options:MTLResourceStorageModeShared];
-        if (candidate->fgmresContactArguments == nil) {
+        if (candidate->primalContactArguments == nil) {
             diagnostics.message =
-                "failed to allocate monolithic KKT contact argument table";
+                "failed to allocate monolithic primal-contact argument table";
             return diagnostics;
         }
-        [fgmresContactEncoder
-            setArgumentBuffer:candidate->fgmresContactArguments offset:0u];
-        [fgmresContactEncoder setBuffer:candidate->contactPairs
+        [primalContactEncoder
+            setArgumentBuffer:candidate->primalContactArguments offset:0u];
+        [primalContactEncoder setBuffer:candidate->contactPairs
                                  offset:0u atIndex:0u];
-        [fgmresContactEncoder setBuffer:candidate->contactSamples
+        [primalContactEncoder setBuffer:candidate->contactSamples
                                  offset:0u atIndex:1u];
-        [fgmresContactEncoder setBuffer:candidate->contactNodeIncidence
+        [primalContactEncoder setBuffer:candidate->contactNodeIncidence
                                  offset:0u atIndex:2u];
-        [fgmresContactEncoder setBuffer:candidate->contactNodeRanges
+        [primalContactEncoder setBuffer:candidate->contactNodeRanges
                                  offset:0u atIndex:3u];
-        [fgmresContactEncoder setBuffer:candidate->contactActivePairs
+        [primalContactEncoder setBuffer:candidate->contactActivePairs
                                  offset:0u atIndex:4u];
-        [fgmresContactEncoder setBuffer:candidate->contactActiveSlotsByPair
+        [primalContactEncoder setBuffer:candidate->contactActiveSlotsByPair
                                  offset:0u atIndex:5u];
-        [fgmresContactEncoder setBuffer:candidate->contactActiveCounts
+        [primalContactEncoder setBuffer:candidate->contactActiveCounts
                                  offset:0u atIndex:6u];
-        [fgmresContactEncoder setBuffer:candidate->deformableContacts
+        [primalContactEncoder setBuffer:candidate->deformableContacts
                                  offset:0u atIndex:7u];
-        [fgmresContactEncoder
+        [primalContactEncoder
             setBuffer:candidate->deformableContactNodeIncidence
                offset:0u atIndex:8u];
-        [fgmresContactEncoder
+        [primalContactEncoder
             setBuffer:candidate->deformableContactNodeRanges
                offset:0u atIndex:9u];
-        [fgmresContactEncoder setBuffer:candidate->mpmNodeToActive
+        [primalContactEncoder setBuffer:candidate->mpmNodeToActive
                                  offset:0u atIndex:10u];
-        [fgmresContactEncoder setBuffer:candidate->mpmActiveNodeCounts
+        [primalContactEncoder setBuffer:candidate->mpmActiveNodeCounts
                                  offset:0u atIndex:11u];
-        [fgmresContactEncoder setBuffer:candidate->rigidProxies
+        [primalContactEncoder setBuffer:candidate->rigidProxies
                                  offset:0u atIndex:12u];
-        [fgmresContactEncoder setBuffer:candidate->coupledPointJacobians
+        [primalContactEncoder setBuffer:candidate->coupledPointJacobians
                                  offset:0u atIndex:13u];
-        [fgmresContactEncoder setBuffer:candidate->rigidStates
+        [primalContactEncoder setBuffer:candidate->rigidStates
                                  offset:0u atIndex:14u];
-        candidate->residentBytes += fgmresContactEncoder.encodedLength;
+        candidate->residentBytes += primalContactEncoder.encodedLength;
 
         for (const NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
             if (proxy.bodyIndex != NM_INVALID_INDEX) {
@@ -2074,6 +2082,11 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             environments * state.dispatch.gridNodeCount;
         const NSUInteger femNodeTotal =
             environments * state.dispatch.femNodeCount;
+        const NSUInteger continuumNodeTotal = environments *
+            (state.dispatch.gridNodeCount + state.dispatch.femNodeCount);
+        const NSUInteger surfacePrimitiveTotal = environments *
+            (4u * state.dispatch.tetrahedronCount +
+             state.dispatch.gridNodeCount);
         const NSUInteger tetrahedronTotal =
             environments * state.dispatch.tetrahedronCount;
         const NSUInteger femTransactionalTotal = environments * std::max(
@@ -2082,7 +2095,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
         );
         const NSUInteger pairTotal =
             environments * state.dispatch.contactPairCount;
-        const NSUInteger deformableWarmstartTotal =
+        const NSUInteger deformableContactHistoryTotal =
             environments * state.dispatch.deformableContactCapacity;
         const NSUInteger proxyTotal =
             environments * state.dispatch.rigidProxyCount;
@@ -2159,23 +2172,23 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.learnedRevisionAccepted offset:0u atIndex:4u];
                 [encoder setBuffer:state.learnedRevisionCheckpoint offset:0u atIndex:5u];
             });
-            dispatchThreads("nm_contact_rollback_warmstarts", pairTotal, [&] {
+            dispatchThreads("nm_contact_rollback_histories", pairTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
-                [encoder setBuffer:state.contactWarmstartsAccepted offset:0u atIndex:2u];
-                [encoder setBuffer:state.contactWarmstartsCheckpoint offset:0u atIndex:3u];
+                [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
+                [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
             });
             dispatchThreads(
-                "nm_contact_rollback_deformable_warmstarts",
-                deformableWarmstartTotal,
+                "nm_contact_rollback_deformable_contact_histories",
+                deformableContactHistoryTotal,
                 [&] {
                     setDispatch();
                     [encoder setBuffer:state.statuses offset:0u atIndex:1u];
-                    [encoder setBuffer:state.deformableWarmstartsAccepted
+                    [encoder setBuffer:state.deformableContactHistoriesAccepted
                                  offset:0u atIndex:2u];
-                    [encoder setBuffer:state.deformableWarmstartsCandidate
+                    [encoder setBuffer:state.deformableContactHistoriesCandidate
                                  offset:0u atIndex:3u];
-                    [encoder setBuffer:state.deformableWarmstartsCheckpoint
+                    [encoder setBuffer:state.deformableContactHistoriesCheckpoint
                                  offset:0u atIndex:4u];
                 });
             dispatchThreads("nm_scheduler_reconcile", objectTotal, [&] {
@@ -2550,22 +2563,22 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.learnedRevisionCandidate offset:0u atIndex:5u];
                 [encoder setBuffer:state.learnedRevisionCheckpoint offset:0u atIndex:6u];
             });
-            dispatchThreads("nm_contact_checkpoint_warmstarts", pairTotal, [&] {
+            dispatchThreads("nm_contact_checkpoint_histories", pairTotal, [&] {
                 setDispatch();
-                [encoder setBuffer:state.contactWarmstartsAccepted offset:0u atIndex:1u];
-                [encoder setBuffer:state.contactWarmstartsCandidate offset:0u atIndex:2u];
-                [encoder setBuffer:state.contactWarmstartsCheckpoint offset:0u atIndex:3u];
+                [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:1u];
+                [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:2u];
+                [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
             });
             dispatchThreads(
-                "nm_contact_checkpoint_deformable_warmstarts",
-                deformableWarmstartTotal,
+                "nm_contact_checkpoint_deformable_contact_histories",
+                deformableContactHistoryTotal,
                 [&] {
                     setDispatch();
-                    [encoder setBuffer:state.deformableWarmstartsAccepted
+                    [encoder setBuffer:state.deformableContactHistoriesAccepted
                                  offset:0u atIndex:1u];
-                    [encoder setBuffer:state.deformableWarmstartsCandidate
+                    [encoder setBuffer:state.deformableContactHistoriesCandidate
                                  offset:0u atIndex:2u];
-                    [encoder setBuffer:state.deformableWarmstartsCheckpoint
+                    [encoder setBuffer:state.deformableContactHistoriesCheckpoint
                                  offset:0u atIndex:3u];
                 });
             if (request.learnedWeightUpdate != nullptr) {
@@ -2666,6 +2679,39 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.topologyStatesCandidate offset:0u atIndex:4u];
                 });
             };
+            const auto encodeTopologyCertificate = [&](
+                id<MTLBuffer> candidateNodes,
+                id<MTLBuffer> candidateFields
+            ) {
+                dispatchThreads(
+                    "nm_topology_conserve_transaction", objectTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femCheckpoint
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:candidateNodes offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femFieldsCheckpoint
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:candidateFields offset:0u atIndex:5u];
+                        [encoder setBuffer:state.topologyStatesCheckpoint
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.topologyStatesCandidate
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                    });
+                dispatchThreads("nm_topology_certify_transaction", objectTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femCheckpoint offset:0u atIndex:2u];
+                    [encoder setBuffer:candidateNodes offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femFieldsCheckpoint offset:0u atIndex:4u];
+                    [encoder setBuffer:candidateFields offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:6u];
+                    [encoder setBuffer:state.topologyStatesCheckpoint offset:0u atIndex:7u];
+                    [encoder setBuffer:state.topologyStatesCandidate offset:0u atIndex:8u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                });
+            };
 
             if (firstPrePass && microtick == 0u) {
                 dispatchThreads("nm_topology_detect_puncture", objectTotal, [&] {
@@ -2682,7 +2728,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.punctureChannelsAccepted offset:0u
                                atIndex:8u];
                     [encoder setBuffer:state.contactPairs offset:0u atIndex:9u];
-                    [encoder setBuffer:state.contactWarmstartsAccepted offset:0u
+                    [encoder setBuffer:state.contactHistoriesAccepted offset:0u
                                atIndex:10u];
                     [encoder setBuffer:state.triggeredMutationCommands offset:0u
                                atIndex:11u];
@@ -2719,8 +2765,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                                length:sizeof(triggeredMutationCount) atIndex:20u];
                     [encoder setBytes:&cookedMutationCount
                                length:sizeof(cookedMutationCount) atIndex:21u];
+                    [encoder setBuffer:state.femMaterialStateAccepted
+                                 offset:0u atIndex:22u];
+                    [encoder setBuffer:state.topologyStatesCheckpoint
+                                 offset:0u atIndex:23u];
                 });
                 encodeTopologyRebuild(state.femAccepted);
+                encodeTopologyCertificate(
+                    state.femAccepted, state.femFieldsAccepted);
             }
 
             dispatchThreads("nm_mixed_prepare_microstep", femNodeTotal, [&] {
@@ -2867,7 +2919,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             dispatchThreads("nm_contact_clear_samples", pairTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
-                [encoder setBuffer:state.contactWarmstartsCandidate offset:0u atIndex:2u];
+                [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:2u];
             });
             // Contact is a block of the nonlinear KKT residual, not a
             // post-FEM correction. Re-evaluate candidate geometry and stream
@@ -2875,10 +2927,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             // J^T lambda before the single fused FGMRES solve below. The
             // callback only encodes into the borrowed command buffer; it
             // never commits, waits, or opens another queue.
-            const auto encodeCoupledKKTContact = [&] (
+            const auto encodeCoupledPrimalContact = [&] (
                 const bool certify,
-                id<MTLBuffer> warmstarts,
-                id<MTLBuffer> deformableWarmstarts
+                id<MTLBuffer> histories,
+                id<MTLBuffer> deformableContactHistories
             ) -> bool {
                 if (state.requiresCoupledCandidate) {
                     [encoder endEncoding];
@@ -2939,16 +2991,21 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     });
                 dispatchThreads(
                     "nm_contact_build_surface_primitives",
-                    2u * environments * state.dispatch.surfaceFaceCount,
+                    surfacePrimitiveTotal,
                     [&] {
                         setDispatch();
                         [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                         [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                        [encoder setBuffer:state.femSurfaceFaces offset:0u atIndex:3u];
-                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
-                        [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
-                        [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
-                        [encoder setBuffer:state.femSurfacePrimitives offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:6u];
+                        [encoder setBuffer:state.mpmGrids offset:0u atIndex:7u];
+                        [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:8u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
+                        [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:11u];
+                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:12u];
                     }
                 );
                 dispatchGroups32(
@@ -2956,7 +3013,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     environments,
                     [&] {
                         setDispatch();
-                        [encoder setBuffer:state.femSurfacePrimitives offset:0u atIndex:1u];
+                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:1u];
                         [encoder setBuffer:state.femSurfaceSortKeysA offset:0u atIndex:2u];
                         [encoder setBuffer:state.femSurfaceSortKeysB offset:0u atIndex:3u];
                         [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:4u];
@@ -2969,11 +3026,12 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     environments,
                     [&] {
                         setDispatch();
-                        [encoder setBuffer:state.femSurfacePrimitives offset:0u atIndex:1u];
+                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:1u];
                         [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:2u];
                         [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:3u];
                         [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:4u];
                         [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:5u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:6u];
                     }
                 );
                 dispatchThreads(
@@ -2986,12 +3044,13 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.materials offset:0u atIndex:3u];
                         [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
                         [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
-                        [encoder setBuffer:state.femSurfacePrimitives offset:0u atIndex:6u];
-                        [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:7u];
-                        [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:8u];
-                        [encoder setBuffer:deformableWarmstarts offset:0u atIndex:9u];
-                        [encoder setBuffer:state.deformableContacts offset:0u atIndex:10u];
-                        [encoder setBuffer:state.statuses offset:0u atIndex:11u];
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:6u];
+                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:7u];
+                        [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:8u];
+                        [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:9u];
+                        [encoder setBuffer:deformableContactHistories offset:0u atIndex:10u];
+                        [encoder setBuffer:state.deformableContacts offset:0u atIndex:11u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:12u];
                     }
                 );
                 dispatchGroups32(
@@ -3035,7 +3094,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     });
                 dispatchThreads(
                     "nm_contact_count_deformable_node_incidence",
-                    femNodeTotal,
+                    continuumNodeTotal,
                     [&] {
                         setDispatch();
                         [encoder setBuffer:state.deformableContacts
@@ -3059,7 +3118,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     });
                 dispatchThreads(
                     "nm_contact_scatter_deformable_node_incidence",
-                    femNodeTotal,
+                    continuumNodeTotal,
                     [&] {
                         setDispatch();
                         [encoder setBuffer:state.deformableContacts
@@ -3088,7 +3147,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.contactSamples offset:0u atIndex:11u];
                     [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:12u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:13u];
-                    [encoder setBuffer:warmstarts offset:0u atIndex:14u];
+                    [encoder setBuffer:histories offset:0u atIndex:14u];
                 });
                 dispatchGroups32("nm_contact_compact_active", environments, [&] {
                     setDispatch();
@@ -3223,6 +3282,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 (void)certify;
                 return true;
             };
+            const NSUInteger rigidGeneralizedTotalForResidual = environments *
+                state.dispatch.rigidGeneralizedCapacity;
             for (std::uint32_t nonlinearIteration = 0u;
                  nonlinearIteration <
                     state.mixedSolverValue.nonlinearIterations.x;
@@ -3328,25 +3389,23 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBytes:&preserveSolution
                            length:sizeof(preserveSolution) atIndex:20u];
             });
-            const NSUInteger rigidGeneralizedTotalForResidual = environments *
-                state.dispatch.rigidGeneralizedCapacity;
             dispatchThreads("nm_fgmres_clear_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
                 [encoder setBuffer:state.femResidual offset:0u atIndex:1u];
             });
 
-            id<MTLBuffer> nonlinearWarmstarts = nonlinearIteration == 0u
-                ? state.contactWarmstartsAccepted
-                : state.contactWarmstartsCandidate;
-            id<MTLBuffer> nonlinearDeformableWarmstarts =
+            id<MTLBuffer> nonlinearHistories = nonlinearIteration == 0u
+                ? state.contactHistoriesAccepted
+                : state.contactHistoriesCandidate;
+            id<MTLBuffer> nonlinearDeformableContactHistories =
                 nonlinearIteration == 0u
-                ? state.deformableWarmstartsAccepted
-                : state.deformableWarmstartsCandidate;
-            if (!encodeCoupledKKTContact(
+                ? state.deformableContactHistoriesAccepted
+                : state.deformableContactHistoriesCandidate;
+            if (!encodeCoupledPrimalContact(
                     false,
-                    nonlinearWarmstarts,
-                    nonlinearDeformableWarmstarts)) {
+                    nonlinearHistories,
+                    nonlinearDeformableContactHistories)) {
                 [encoder endEncoding];
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
@@ -3360,7 +3419,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                              offset:0u atIndex:2u];
                 [encoder setBuffer:state.coupledGeneralizedCandidate
                              offset:0u atIndex:3u];
-                [encoder setBuffer:state.fgmresContactArguments
+                [encoder setBuffer:state.primalContactArguments
                              offset:0u atIndex:4u];
                 [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
             });
@@ -3369,7 +3428,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 setDispatch();
                 [encoder setBytes:&coupledArticulatedNv
                            length:sizeof(coupledArticulatedNv) atIndex:1u];
-                [encoder setBuffer:state.fgmresContactArguments
+                [encoder setBuffer:state.primalContactArguments
                              offset:0u atIndex:2u];
                 [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
             });
@@ -3385,6 +3444,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
                 [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:8u];
                 [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:9u];
+                [encoder setBuffer:state.primalContactArguments offset:0u atIndex:10u];
             });
             if (!dispatchIndirect(
                     "nm_mpm_build_constitutive_residual",
@@ -3501,7 +3561,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:10u];
                 [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
                 [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
-                [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:13u];
+                [encoder setBuffer:state.primalContactArguments offset:0u atIndex:13u];
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:14u];
                 [encoder setBytes:&linearForcing
@@ -3660,7 +3720,40 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:4u];
                     [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:5u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
+                    [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:7u];
+                    [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:8u];
                 });
+                dispatchThreads(
+                    "nm_fgmres_precondition_mpm_patches",
+                    mpmNodeTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBytes:&operatorMicro
+                                   length:sizeof(operatorMicro) atIndex:1u];
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:2u];
+                        [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:3u];
+                        [encoder setBuffer:state.mpmGrids offset:0u atIndex:4u];
+                        [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:5u];
+                        [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:6u];
+                        [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:7u];
+                        [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:8u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:9u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
+                    });
+                dispatchGroups32(
+                    "nm_fgmres_precondition_mpm_objects",
+                    objectTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                        [encoder setBuffer:state.mpmGrids offset:0u atIndex:2u];
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:3u];
+                        [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:4u];
+                        [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:5u];
+                        [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:6u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:7u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
+                    });
                 if (state.requiresCoupledCandidate) {
                     dispatchThreads("nm_fgmres_export_rigid", rigidGeneralizedTotal, [&] {
                         setDispatch();
@@ -3732,7 +3825,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                                  offset:columnOffset atIndex:2u];
                     [encoder setBuffer:state.fgmresPreconditionedBasis
                                  offset:columnOffset atIndex:3u];
-                    [encoder setBuffer:state.fgmresContactArguments
+                    [encoder setBuffer:state.primalContactArguments
                                  offset:0u atIndex:4u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                 });
@@ -3774,7 +3867,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
                     [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:10u];
                     [encoder setBuffer:state.femOperatorValue offset:0u atIndex:11u];
-                    [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:12u];
+                    [encoder setBuffer:state.primalContactArguments offset:0u atIndex:12u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:13u];
                     [encoder setBytes:&coupledArticulatedNv
                                length:sizeof(coupledArticulatedNv)
@@ -3824,7 +3917,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
                     [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:10u];
                     [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:11u];
-                    [encoder setBuffer:state.fgmresContactArguments
+                    [encoder setBuffer:state.primalContactArguments
                                  offset:0u atIndex:12u];
                     [encoder setBytes:&coupledArticulatedNv
                                length:sizeof(coupledArticulatedNv)
@@ -3934,7 +4027,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                                  offset:columnOffset atIndex:2u];
                     [encoder setBuffer:state.femOperatorValue
                                  offset:0u atIndex:3u];
-                    [encoder setBuffer:state.fgmresContactArguments
+                    [encoder setBuffer:state.primalContactArguments
                                  offset:0u atIndex:4u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                 });
@@ -3947,7 +4040,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                                  offset:columnOffset atIndex:2u];
                     [encoder setBuffer:state.femOperatorValue
                                  offset:0u atIndex:3u];
-                    [encoder setBuffer:state.fgmresContactArguments
+                    [encoder setBuffer:state.primalContactArguments
                                  offset:0u atIndex:4u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                 });
@@ -3959,7 +4052,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femOperatorValue offset:0u atIndex:4u];
                     [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:5u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
-                    [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:7u];
+                    [encoder setBuffer:state.primalContactArguments offset:0u atIndex:7u];
                 });
                 dispatchGroups32("nm_fgmres_finish_column", environments, [&] {
                     setDispatch();
@@ -3972,7 +4065,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresRotations offset:0u atIndex:7u];
                     [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:8u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
-                    [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:10u];
+                    [encoder setBuffer:state.primalContactArguments offset:0u atIndex:10u];
                     [encoder setBytes:&linearForcing
                                length:sizeof(linearForcing) atIndex:11u];
                 });
@@ -4082,7 +4175,12 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femSolution offset:0u atIndex:3u];
                 [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
-                [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:6u];
+                [encoder setBuffer:state.primalContactArguments offset:0u atIndex:6u];
+                [encoder setBuffer:state.gridNodes offset:0u atIndex:7u];
+                [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:8u];
+                [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:9u];
+                [encoder setBuffer:state.femNodeRanges offset:0u atIndex:10u];
+                [encoder setBuffer:state.mixedMaterials offset:0u atIndex:11u];
             });
 
             micro.pcgIteration = nonlinearIteration;
@@ -4103,6 +4201,30 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:13u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:14u];
             });
+            dispatchGroups32(
+                "nm_mpm_limit_implicit_line_search",
+                objectTotal,
+                [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:2u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:3u];
+                    [encoder setBuffer:state.materials offset:0u atIndex:4u];
+                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:5u];
+                    [encoder setBuffer:state.instructions offset:0u atIndex:6u];
+                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:7u];
+                    [encoder setBuffer:state.particleAccepted offset:0u atIndex:8u];
+                    [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:9u];
+                    [encoder setBuffer:state.gridNodes offset:0u atIndex:10u];
+                    [encoder setBuffer:state.mpmGrids offset:0u atIndex:11u];
+                    [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:12u];
+                    [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:13u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:14u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:15u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:16u];
+                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:17u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:18u];
+                });
             dispatchGroups32(
                 "nm_fem_synchronize_environment_line_search",
                 environments,
@@ -4126,6 +4248,27 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femSolution offset:0u atIndex:8u];
                     [encoder setBuffer:state.femLineSearch offset:0u atIndex:9u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                    [encoder setBuffer:state.gridNodes offset:0u atIndex:11u];
+                    [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:12u];
+                    [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:13u];
+                });
+            dispatchGroups32(
+                "nm_contact_limit_rigid_line_search",
+                environments,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                    [encoder setBuffer:state.gridNodes offset:0u atIndex:8u];
+                    [encoder setBuffer:state.primalContactArguments offset:0u atIndex:9u];
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv)
+                              atIndex:10u];
                 });
             dispatchGroups32(
                 "nm_fem_synchronize_environment_line_search",
@@ -4165,6 +4308,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.gridNodes offset:0u atIndex:4u];
                 [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:5u];
                 [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:6u];
+                [encoder setBuffer:state.femLineSearch offset:0u atIndex:7u];
             });
             dispatchThreads("nm_mixed_apply_kkt_solution", femNodeTotal, [&] {
                 setDispatch();
@@ -4175,14 +4319,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:6u];
             });
-            dispatchThreads("nm_contact_apply_kkt_solution", pairTotal, [&] {
+            dispatchThreads("nm_contact_publish_primal_history", pairTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
-                [encoder setBuffer:state.contactWarmstartsCandidate
+                [encoder setBuffer:state.contactHistoriesCandidate
                              offset:0u atIndex:2u];
             });
             (void)dispatchIndirect(
-                "nm_contact_apply_deformable_kkt_solution",
+                "nm_contact_publish_deformable_history",
                 state.deformableContactActiveDispatch,
                 256u,
                 [&] {
@@ -4190,7 +4334,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.deformableContacts offset:0u atIndex:1u];
                     [encoder setBuffer:state.deformableContactGlobalActiveIndices offset:0u atIndex:2u];
                     [encoder setBuffer:state.deformableContactActiveDispatch offset:0u atIndex:3u];
-                    [encoder setBuffer:state.deformableWarmstartsCandidate
+                    [encoder setBuffer:state.deformableContactHistoriesCandidate
                                  offset:0u atIndex:4u];
                 });
             // Physics-triggered puncture is an active-set change of this same
@@ -4211,7 +4355,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:7u];
                     [encoder setBuffer:state.punctureChannelsCandidate offset:0u atIndex:8u];
                     [encoder setBuffer:state.contactPairs offset:0u atIndex:9u];
-                    [encoder setBuffer:state.contactWarmstartsCandidate offset:0u atIndex:10u];
+                    [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:10u];
                     [encoder setBuffer:state.triggeredMutationCommands offset:0u atIndex:11u];
                 });
                 const std::uint32_t triggeredMutationCount =
@@ -4244,8 +4388,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                                length:sizeof(triggeredMutationCount) atIndex:20u];
                     [encoder setBytes:&zeroMutationCount
                                length:sizeof(zeroMutationCount) atIndex:21u];
+                    [encoder setBuffer:state.femMaterialStateCandidate
+                                 offset:0u atIndex:22u];
+                    [encoder setBuffer:state.topologyStatesCheckpoint
+                                 offset:0u atIndex:23u];
                 });
                 encodeTopologyRebuild(state.femCandidate);
+                encodeTopologyCertificate(
+                    state.femCandidate, state.femFieldsCandidate);
             }
             }
             // Reassemble the accepted Newton candidate once, then certify the
@@ -4344,13 +4494,99 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBytes:&preserveSolution
                            length:sizeof(preserveSolution) atIndex:20u];
             });
-            if (!encodeCoupledKKTContact(
+            if (!encodeCoupledPrimalContact(
                     true,
-                    state.contactWarmstartsCandidate,
-                    state.deformableWarmstartsCandidate
+                    state.contactHistoriesCandidate,
+                    state.deformableContactHistoriesCandidate
                 )) {
                 [encoder endEncoding];
                 ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
+            // Candidate contact materialization also refreshes articulated
+            // mass action. Rebuild the shared rigid rows after that final
+            // contact pass so certification observes the accepted rigid,
+            // FEM, and MPM equilibrium rather than the preceding Newton row.
+            dispatchThreads("nm_fgmres_clear_rigid_residual",
+                rigidGeneralizedTotalForResidual, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:1u];
+                });
+            dispatchThreads("nm_contact_subtract_rigid_inertia_residual",
+                rigidGeneralizedTotalForResidual, [&] {
+                    setDispatch();
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv) atIndex:1u];
+                    [encoder setBuffer:state.coupledGeneralizedOutput
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.primalContactArguments
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
+                });
+            dispatchThreads("nm_contact_accumulate_rigid_residual",
+                rigidGeneralizedTotalForResidual, [&] {
+                    setDispatch();
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv) atIndex:1u];
+                    [encoder setBuffer:state.primalContactArguments
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
+                });
+            // The accepted Newton correction changes MPM grid velocities and
+            // the final primal-contact rebuild changes their barrier forces.
+            // Reassemble the MPM block once at that accepted candidate so the
+            // certificate reports the actual nonlinear residual rather than
+            // the residual from the preceding Newton iterate.
+            dispatchThreads("nm_mpm_build_implicit_residual", mpmNodeTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.gridNodes offset:0u atIndex:2u];
+                [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:3u];
+                [encoder setBuffer:state.contactNodeIncidence offset:0u atIndex:4u];
+                [encoder setBuffer:state.contactNodeRanges offset:0u atIndex:5u];
+                [encoder setBuffer:state.contactSamples offset:0u atIndex:6u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
+                [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:8u];
+                [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:9u];
+                [encoder setBuffer:state.primalContactArguments offset:0u atIndex:10u];
+            });
+            if (!dispatchIndirect(
+                    "nm_mpm_build_constitutive_residual",
+                    state.mpmActiveDispatch,
+                    256u,
+                    [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                        [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                        [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
+                        [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:8u];
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
+                        [encoder setBuffer:state.mpmGrids offset:0u atIndex:10u];
+                        [encoder setBuffer:state.mpmBlocks offset:0u atIndex:11u];
+                        [encoder setBuffer:state.mpmBlockLookup offset:0u atIndex:12u];
+                        [encoder setBuffer:state.mpmActiveBlocks offset:0u atIndex:13u];
+                        [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:14u];
+                        [encoder setBuffer:state.mpmBlockOffsets offset:0u atIndex:15u];
+                        [encoder setBuffer:state.mpmSortedParticleIndices offset:0u atIndex:16u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:17u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:18u];
+                        [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:19u];
+                        [encoder setBuffer:state.femDirection offset:0u atIndex:20u];
+                        [encoder setBuffer:state.femResidual offset:0u atIndex:21u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:23u];
+                        [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:24u];
+                    })) {
+                [encoder endEncoding];
+                ownership->preDynamicsOpen = false;
+                diagnostics.message =
+                    "failed to encode final implicit MPM certificate residual";
                 return diagnostics;
             }
             dispatchThreads("nm_contact_reduce_rigid", proxyTotal, [&] {
@@ -4425,6 +4661,13 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:12u];
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:13u];
                 [encoder setBuffer:state.femSolution offset:0u atIndex:14u];
+                [encoder setBuffer:state.gridNodes offset:0u atIndex:15u];
+                [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:16u];
+                [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:17u];
+                [encoder setBuffer:state.femLineSearch offset:0u atIndex:18u];
+                [encoder setBuffer:state.primalContactArguments offset:0u atIndex:19u];
+                [encoder setBuffer:state.coupledGeneralizedCandidate
+                             offset:0u atIndex:20u];
             });
             dispatchThreads(
                 "nm_mask_primal_rigid_candidate",
@@ -4514,21 +4757,21 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.learnedRevisionAccepted offset:0u atIndex:4u];
                 [encoder setBuffer:state.learnedRevisionCandidate offset:0u atIndex:5u];
             });
-            dispatchThreads("nm_contact_commit_warmstarts", pairTotal, [&] {
+            dispatchThreads("nm_contact_commit_histories", pairTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
-                [encoder setBuffer:state.contactWarmstartsAccepted offset:0u atIndex:2u];
-                [encoder setBuffer:state.contactWarmstartsCandidate offset:0u atIndex:3u];
+                [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
+                [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:3u];
             });
             dispatchThreads(
-                "nm_contact_commit_deformable_warmstarts",
-                deformableWarmstartTotal,
+                "nm_contact_commit_deformable_contact_histories",
+                deformableContactHistoryTotal,
                 [&] {
                     setDispatch();
                     [encoder setBuffer:state.statuses offset:0u atIndex:1u];
-                    [encoder setBuffer:state.deformableWarmstartsAccepted
+                    [encoder setBuffer:state.deformableContactHistoriesAccepted
                                  offset:0u atIndex:2u];
-                    [encoder setBuffer:state.deformableWarmstartsCandidate
+                    [encoder setBuffer:state.deformableContactHistoriesCandidate
                                  offset:0u atIndex:3u];
                 });
             dispatchGroups32("nm_scheduler_observe", objectTotal, [&] {
@@ -4614,23 +4857,23 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             [encoder setBuffer:state.learnedRevisionAccepted offset:0u atIndex:4u];
             [encoder setBuffer:state.learnedRevisionCheckpoint offset:0u atIndex:5u];
         });
-        dispatchThreads("nm_contact_rollback_warmstarts", pairTotal, [&] {
+        dispatchThreads("nm_contact_rollback_histories", pairTotal, [&] {
             setDispatch();
             [encoder setBuffer:state.statuses offset:0u atIndex:1u];
-            [encoder setBuffer:state.contactWarmstartsAccepted offset:0u atIndex:2u];
-            [encoder setBuffer:state.contactWarmstartsCheckpoint offset:0u atIndex:3u];
+            [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
+            [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
         });
         dispatchThreads(
-            "nm_contact_rollback_deformable_warmstarts",
-            deformableWarmstartTotal,
+            "nm_contact_rollback_deformable_contact_histories",
+            deformableContactHistoryTotal,
             [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
-                [encoder setBuffer:state.deformableWarmstartsAccepted
+                [encoder setBuffer:state.deformableContactHistoriesAccepted
                              offset:0u atIndex:2u];
-                [encoder setBuffer:state.deformableWarmstartsCandidate
+                [encoder setBuffer:state.deformableContactHistoriesCandidate
                              offset:0u atIndex:3u];
-                [encoder setBuffer:state.deformableWarmstartsCheckpoint
+                [encoder setBuffer:state.deformableContactHistoriesCheckpoint
                              offset:0u atIndex:4u];
             });
 
@@ -4763,6 +5006,23 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
         }
         State& destination = *state_;
         const State& previous = *source.state_;
+        TopologyGrowthRequest growthRequest;
+        {
+            const std::lock_guard lock(previous.growthOwnership->mutex);
+            growthRequest = previous.growthOwnership->pending;
+        }
+        if (!growthRequest.required) {
+            diagnostics.message =
+                "topology growth migration requires a completed source growth request";
+            return diagnostics;
+        }
+        if (destination.sourcePhysicsFingerprint == 0u ||
+            destination.sourcePhysicsFingerprint !=
+                previous.sourcePhysicsFingerprint) {
+            diagnostics.message =
+                "topology growth destination does not match source authored physics";
+            return diagnostics;
+        }
         if (destination.device.registryID != previous.device.registryID ||
             destination.dispatch.environmentCount !=
                 previous.dispatch.environmentCount ||
@@ -4790,6 +5050,20 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
                 return diagnostics;
             }
         }
+        if (destination.dispatch.femNodeCount < growthRequest.nodes ||
+            destination.dispatch.tetrahedronCount < growthRequest.tetrahedra ||
+            destination.dispatch.cohesiveFaceCount < growthRequest.cohesiveFaces ||
+            destination.dispatch.punctureChannelCount < growthRequest.punctureChannels ||
+            destination.dispatch.mutationCommandCount < growthRequest.mutationCommands ||
+            destination.dispatch.contactPairCount < growthRequest.rigidContacts ||
+            destination.dispatch.deformableContactCapacity <
+                growthRequest.deformableContacts) {
+            diagnostics.message =
+                "topology growth destination does not satisfy the completed growth request";
+            return diagnostics;
+        }
+        std::uint32_t previousIdentificationGeneration = 0u;
+        std::uint32_t previousIdentificationCheckpoint = 0u;
         {
             std::scoped_lock lock(
                 destination.commandOwnership->mutex,
@@ -4800,6 +5074,10 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
                     "topology growth migration must be encoded between completed submissions";
                 return diagnostics;
             }
+            previousIdentificationGeneration =
+                previous.commandOwnership->identificationGeneration;
+            previousIdentificationCheckpoint =
+                previous.commandOwnership->identificationCheckpoint;
             destination.commandOwnership->activeCommandBuffer =
                 commandBufferPointer;
             previous.commandOwnership->activeCommandBuffer =
@@ -4856,10 +5134,22 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
         copyBytes(previous.schedulers, 0u, destination.schedulers, 0u,
             std::min(previous.schedulers.length,
                      destination.schedulers.length));
+        copyBytes(previous.environmentParameters, 0u,
+            destination.environmentParameters, 0u,
+            std::min(previous.environmentParameters.length,
+                     destination.environmentParameters.length));
+        copyBytes(previous.identificationDistributions, 0u,
+            destination.identificationDistributions, 0u,
+            std::min(previous.identificationDistributions.length,
+                     destination.identificationDistributions.length));
         copyWholeAccepted(previous.learnedWeightsAccepted,
             destination.learnedWeightsAccepted,
             destination.learnedWeightsCandidate,
             destination.learnedWeightsCheckpoint);
+        copyWholeAccepted(previous.learnedRevisionAccepted,
+            destination.learnedRevisionAccepted,
+            destination.learnedRevisionCandidate,
+            destination.learnedRevisionCheckpoint);
 
         const NSUInteger environments = previous.dispatch.environmentCount;
         const NSUInteger stateStride = previous.dispatch.materialStateStride;
@@ -4982,21 +5272,236 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
             destination.topologyStatesCandidate,
             destination.topologyStatesCheckpoint);
         [blit endEncoding];
+
+        id<MTLComputeCommandEncoder> growthEncoder =
+            [commandBuffer computeCommandEncoder];
+        if (growthEncoder == nil) {
+            std::scoped_lock lock(
+                destination.commandOwnership->mutex,
+                previous.commandOwnership->mutex);
+            destination.commandOwnership->activeCommandBuffer = nullptr;
+            previous.commandOwnership->activeCommandBuffer = nullptr;
+            diagnostics.message =
+                "failed to create topology growth rebuild encoder";
+            return diagnostics;
+        }
+        [growthEncoder setLabel:@"Numi Matter topology growth rebuild"];
+        bool growthEncodingValid = true;
+        const auto growthDispatch = &destination.dispatch;
+        const auto dispatchGrowthThreads = [&](
+            const char* name,
+            const NSUInteger count,
+            const auto& bind
+        ) {
+            if (count == 0u || !growthEncodingValid) return;
+            id<MTLComputePipelineState> pipeline = destination.pipeline(name);
+            if (pipeline == nil) {
+                growthEncodingValid = false;
+                return;
+            }
+            [growthEncoder setComputePipelineState:pipeline];
+            bind();
+            const NSUInteger width = std::min<NSUInteger>(
+                256u, pipeline.maxTotalThreadsPerThreadgroup);
+            [growthEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                     threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+        };
+        const auto setGrowthDispatch = [&]() {
+            [growthEncoder setBytes:growthDispatch
+                             length:sizeof(*growthDispatch)
+                            atIndex:0u];
+        };
+        const NSUInteger destinationEnvironments =
+            destination.dispatch.environmentCount;
+        const NSUInteger destinationNodes = destinationEnvironments *
+            destination.dispatch.femNodeCount;
+        const NSUInteger topologyWidth = destinationEnvironments * std::max({
+            static_cast<NSUInteger>(destination.dispatch.femNodeCount),
+            static_cast<NSUInteger>(destination.dispatch.tetrahedronCount),
+            static_cast<NSUInteger>(destination.dispatch.objectCount)});
+        const std::uint32_t allocationGeneration =
+            growthRequest.allocationGeneration;
+        dispatchGrowthThreads(
+            "nm_topology_mark_growth_generation", topologyWidth, [&] {
+                setGrowthDispatch();
+                [growthEncoder setBytes:&allocationGeneration
+                                 length:sizeof(allocationGeneration)
+                                atIndex:1u];
+                [growthEncoder setBuffer:destination.femTopologyNodesAccepted
+                                  offset:0u atIndex:2u];
+                [growthEncoder setBuffer:destination.femTetrahedraAccepted
+                                  offset:0u atIndex:3u];
+                [growthEncoder setBuffer:destination.topologyStatesAccepted
+                                  offset:0u atIndex:4u];
+            });
+        dispatchGrowthThreads("nm_topology_rebuild_clear", destinationNodes, [&] {
+            setGrowthDispatch();
+            [growthEncoder setBuffer:destination.femAccepted offset:0u atIndex:1u];
+            [growthEncoder setBuffer:destination.femNodeRanges offset:0u atIndex:2u];
+            [growthEncoder setBuffer:destination.topologyIncidenceCursors
+                              offset:0u atIndex:3u];
+        });
+        dispatchGrowthThreads(
+            "nm_topology_rebuild_count_mass", destinationNodes, [&] {
+                setGrowthDispatch();
+                [growthEncoder setBuffer:destination.materials offset:0u atIndex:1u];
+                [growthEncoder setBuffer:destination.femTetrahedraAccepted
+                                  offset:0u atIndex:2u];
+                [growthEncoder setBuffer:destination.femAccepted offset:0u atIndex:3u];
+                [growthEncoder setBuffer:destination.femNodeRanges offset:0u atIndex:4u];
+            });
+        if (destinationEnvironments != 0u && growthEncodingValid) {
+            id<MTLComputePipelineState> prefix =
+                destination.pipeline("nm_topology_rebuild_prefix");
+            if (prefix == nil) {
+                growthEncodingValid = false;
+            } else {
+                [growthEncoder setComputePipelineState:prefix];
+                setGrowthDispatch();
+                [growthEncoder setBuffer:destination.femNodeRanges
+                                  offset:0u atIndex:1u];
+                [growthEncoder setBuffer:destination.topologyIncidenceCursors
+                                  offset:0u atIndex:2u];
+                [growthEncoder setBuffer:destination.statuses
+                                  offset:0u atIndex:3u];
+                [growthEncoder dispatchThreadgroups:
+                    MTLSizeMake(destinationEnvironments, 1u, 1u)
+                    threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+            }
+        }
+        dispatchGrowthThreads(
+            "nm_topology_rebuild_scatter", destinationNodes, [&] {
+                setGrowthDispatch();
+                [growthEncoder setBuffer:destination.femTetrahedraAccepted
+                                  offset:0u atIndex:1u];
+                [growthEncoder setBuffer:destination.femNodeRanges
+                                  offset:0u atIndex:2u];
+                [growthEncoder setBuffer:destination.topologyIncidenceCursors
+                                  offset:0u atIndex:3u];
+                [growthEncoder setBuffer:destination.femNodeIncidence
+                                  offset:0u atIndex:4u];
+            });
+        dispatchGrowthThreads(
+            "nm_topology_rebuild_finalize", destinationNodes, [&] {
+                setGrowthDispatch();
+                [growthEncoder setBuffer:destination.femAccepted offset:0u atIndex:1u];
+                [growthEncoder setBuffer:destination.femTopologyNodesAccepted
+                                  offset:0u atIndex:2u];
+                [growthEncoder setBuffer:destination.femNodeRanges
+                                  offset:0u atIndex:3u];
+                [growthEncoder setBuffer:destination.topologyStatesAccepted
+                                  offset:0u atIndex:4u];
+            });
+        [growthEncoder endEncoding];
+        if (!growthEncodingValid) {
+            std::scoped_lock lock(
+                destination.commandOwnership->mutex,
+                previous.commandOwnership->mutex);
+            destination.commandOwnership->activeCommandBuffer = nullptr;
+            previous.commandOwnership->activeCommandBuffer = nullptr;
+            diagnostics.message =
+                "topology growth rebuild pipeline is unavailable";
+            return diagnostics;
+        }
+
+        id<MTLBlitCommandEncoder> finalizeBlit =
+            [commandBuffer blitCommandEncoder];
+        if (finalizeBlit == nil) {
+            std::scoped_lock lock(
+                destination.commandOwnership->mutex,
+                previous.commandOwnership->mutex);
+            destination.commandOwnership->activeCommandBuffer = nullptr;
+            previous.commandOwnership->activeCommandBuffer = nullptr;
+            diagnostics.message =
+                "failed to create topology growth finalization encoder";
+            return diagnostics;
+        }
+        [finalizeBlit setLabel:@"Numi Matter topology growth finalize"];
+        const auto mirrorAccepted = ^(
+            id<MTLBuffer> accepted,
+            id<MTLBuffer> candidate,
+            id<MTLBuffer> checkpoint
+        ) {
+            const NSUInteger candidateBytes = std::min(
+                accepted.length, candidate.length);
+            const NSUInteger checkpointBytes = std::min(
+                accepted.length, checkpoint.length);
+            if (candidateBytes != 0u)
+                [finalizeBlit copyFromBuffer:accepted sourceOffset:0u
+                                    toBuffer:candidate destinationOffset:0u
+                                        size:candidateBytes];
+            if (checkpointBytes != 0u)
+                [finalizeBlit copyFromBuffer:accepted sourceOffset:0u
+                                    toBuffer:checkpoint destinationOffset:0u
+                                        size:checkpointBytes];
+        };
+        mirrorAccepted(destination.femAccepted,
+            destination.femCandidate, destination.femCheckpoint);
+        mirrorAccepted(destination.femTopologyNodesAccepted,
+            destination.femTopologyNodesCandidate,
+            destination.femTopologyNodesCheckpoint);
+        mirrorAccepted(destination.femTetrahedraAccepted,
+            destination.femTetrahedraCandidate,
+            destination.femTetrahedraCheckpoint);
+        mirrorAccepted(destination.topologyStatesAccepted,
+            destination.topologyStatesCandidate,
+            destination.topologyStatesCheckpoint);
+        const NSUInteger incidenceBytes = std::min(
+            destination.femNodeIncidence.length,
+            destination.femNodeIncidenceCheckpoint.length);
+        if (incidenceBytes != 0u)
+            [finalizeBlit copyFromBuffer:destination.femNodeIncidence
+                            sourceOffset:0u
+                                toBuffer:destination.femNodeIncidenceCheckpoint
+                       destinationOffset:0u size:incidenceBytes];
+        const NSUInteger rangeBytes = std::min(
+            destination.femNodeRanges.length,
+            destination.femNodeRangesCheckpoint.length);
+        if (rangeBytes != 0u)
+            [finalizeBlit copyFromBuffer:destination.femNodeRanges
+                            sourceOffset:0u
+                                toBuffer:destination.femNodeRangesCheckpoint
+                       destinationOffset:0u size:rangeBytes];
+        [finalizeBlit endEncoding];
         const std::weak_ptr<State::CommandOwnership> weakDestination =
             destination.commandOwnership;
         const std::weak_ptr<State::CommandOwnership> weakSource =
             previous.commandOwnership;
+        const std::weak_ptr<State::GrowthOwnership> weakDestinationGrowth =
+            destination.growthOwnership;
+        const std::weak_ptr<State::GrowthOwnership> weakSourceGrowth =
+            previous.growthOwnership;
         void* const borrowedIdentity = commandBufferPointer;
-        [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer>) {
+        [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
             if (const auto owner = weakDestination.lock()) {
                 const std::lock_guard lock(owner->mutex);
-                if (owner->activeCommandBuffer == borrowedIdentity)
+                if (owner->activeCommandBuffer == borrowedIdentity) {
+                    if (completed.status == MTLCommandBufferStatusCompleted) {
+                        owner->identificationGeneration =
+                            previousIdentificationGeneration;
+                        owner->identificationCheckpoint =
+                            previousIdentificationCheckpoint;
+                        owner->identificationAdvanced = false;
+                    }
                     owner->activeCommandBuffer = nullptr;
+                }
             }
             if (const auto owner = weakSource.lock()) {
                 const std::lock_guard lock(owner->mutex);
                 if (owner->activeCommandBuffer == borrowedIdentity)
                     owner->activeCommandBuffer = nullptr;
+            }
+            if (completed.status == MTLCommandBufferStatusCompleted) {
+                if (const auto growth = weakDestinationGrowth.lock()) {
+                    const std::lock_guard lock(growth->mutex);
+                    growth->pending = {};
+                }
+                if (const auto growth = weakSourceGrowth.lock()) {
+                    const std::lock_guard lock(growth->mutex);
+                    if (growth->pending.allocationGeneration ==
+                        allocationGeneration)
+                        growth->pending = {};
+                }
             }
         }];
         diagnostics.encoded = true;
@@ -5008,12 +5513,43 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
     }
 }
 
+RuntimeDiagnostics Runtime::encodeTopologyGrowth(
+    void* commandBufferPointer,
+    const Runtime& source,
+    const CompiledWorld& expandedWorld,
+    const RuntimeConfiguration& configuration
+) {
+    RuntimeDiagnostics diagnostics;
+    if (state_ != nullptr) {
+        diagnostics.message =
+            "allocation-owning topology growth requires an empty destination runtime";
+        return diagnostics;
+    }
+    if (source.state_ == nullptr || commandBufferPointer == nullptr) {
+        diagnostics.message =
+            "topology growth allocation requires an initialized source and borrowed command buffer";
+        return diagnostics;
+    }
+    RuntimeDiagnostics allocation = initialize(expandedWorld, configuration);
+    if (!allocation.encoded) return allocation;
+    diagnostics = encodeTopologyGrowth(commandBufferPointer, source);
+    if (!diagnostics.encoded && diagnostics.device.empty()) {
+        diagnostics.device = allocation.device;
+        diagnostics.residentBytes = allocation.residentBytes;
+    }
+    return diagnostics;
+}
+
 bool Runtime::valid() const noexcept {
     return state_ != nullptr;
 }
 
 std::uint64_t Runtime::fingerprint() const noexcept {
     return state_ ? state_->worldFingerprint : 0u;
+}
+
+std::uint64_t Runtime::sourcePhysicsFingerprint() const noexcept {
+    return state_ ? state_->sourcePhysicsFingerprint : 0u;
 }
 
 std::uint64_t Runtime::deviceProgramFingerprint() const noexcept {
@@ -5051,6 +5587,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         snapshot.message = "Matter runtime is not initialized";
         return snapshot;
     }
+    snapshot.sourcePhysicsFingerprint = state_->sourcePhysicsFingerprint;
     const auto ownership = state_->commandOwnership;
     {
         const std::lock_guard lock(ownership->mutex);
@@ -5073,6 +5610,13 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             copy(state_->femMaterialStateAccepted);
         id<MTLBuffer> femFields = copy(state_->femFieldsAccepted);
         id<MTLBuffer> solverCertificates = copy(state_->solverCertificates);
+        id<MTLBuffer> mpmActiveNodeIndices =
+            copy(state_->mpmActiveNodeIndices);
+        id<MTLBuffer> mpmNodeToActive = copy(state_->mpmNodeToActive);
+        id<MTLBuffer> mpmActiveNodeCounts =
+            copy(state_->mpmActiveNodeCounts);
+        id<MTLBuffer> rigidGeneralizedCandidate =
+            copy(state_->coupledGeneralizedCandidate);
         id<MTLBuffer> learnedWeights = copy(state_->learnedWeightsAccepted);
         id<MTLBuffer> learnedRevision = copy(state_->learnedRevisionAccepted);
         id<MTLBuffer> topologyNodes = copy(state_->femTopologyNodesAccepted);
@@ -5080,10 +5624,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> cohesiveFaces = copy(state_->cohesiveFacesAccepted);
         id<MTLBuffer> punctureChannels = copy(state_->punctureChannelsAccepted);
         id<MTLBuffer> topologyStates = copy(state_->topologyStatesAccepted);
-        id<MTLBuffer> contactWarmstarts =
-            copy(state_->contactWarmstartsAccepted);
-        id<MTLBuffer> deformableContactWarmstarts =
-            copy(state_->deformableWarmstartsAccepted);
+        id<MTLBuffer> contactHistories =
+            copy(state_->contactHistoriesAccepted);
+        id<MTLBuffer> deformableContactHistories =
+            copy(state_->deformableContactHistoriesAccepted);
         id<MTLBuffer> adaptive = copy(state_->adaptive);
         id<MTLBuffer> schedulers = copy(state_->schedulers);
         id<MTLBuffer> reactions = copy(state_->frameReactions);
@@ -5097,11 +5641,14 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         if (particles == nil || femNodes == nil ||
             particleMaterialState == nil || femMaterialState == nil ||
             femFields == nil || solverCertificates == nil ||
+            mpmActiveNodeIndices == nil || mpmNodeToActive == nil ||
+            mpmActiveNodeCounts == nil ||
+            rigidGeneralizedCandidate == nil ||
             learnedWeights == nil || learnedRevision == nil ||
             topologyNodes == nil || topologyTetrahedra == nil ||
             cohesiveFaces == nil || punctureChannels == nil ||
-            topologyStates == nil || contactWarmstarts == nil ||
-            deformableContactWarmstarts == nil ||
+            topologyStates == nil || contactHistories == nil ||
+            deformableContactHistories == nil ||
             adaptive == nil || schedulers == nil || reactions == nil ||
             (state_->captureDiagnostics && contactSamples == nil) ||
             identification == nil || environmentParameters == nil) {
@@ -5130,6 +5677,12 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->femMaterialStateAccepted, femMaterialState);
         encodeCopy(state_->femFieldsAccepted, femFields);
         encodeCopy(state_->solverCertificates, solverCertificates);
+        encodeCopy(state_->mpmActiveNodeIndices, mpmActiveNodeIndices);
+        encodeCopy(state_->mpmNodeToActive, mpmNodeToActive);
+        encodeCopy(state_->mpmActiveNodeCounts, mpmActiveNodeCounts);
+        encodeCopy(
+            state_->coupledGeneralizedCandidate,
+            rigidGeneralizedCandidate);
         encodeCopy(state_->learnedWeightsAccepted, learnedWeights);
         encodeCopy(state_->learnedRevisionAccepted, learnedRevision);
         encodeCopy(state_->femTopologyNodesAccepted, topologyNodes);
@@ -5137,10 +5690,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->cohesiveFacesAccepted, cohesiveFaces);
         encodeCopy(state_->punctureChannelsAccepted, punctureChannels);
         encodeCopy(state_->topologyStatesAccepted, topologyStates);
-        encodeCopy(state_->contactWarmstartsAccepted, contactWarmstarts);
+        encodeCopy(state_->contactHistoriesAccepted, contactHistories);
         encodeCopy(
-            state_->deformableWarmstartsAccepted,
-            deformableContactWarmstarts);
+            state_->deformableContactHistoriesAccepted,
+            deformableContactHistories);
         encodeCopy(state_->adaptive, adaptive);
         encodeCopy(state_->schedulers, schedulers);
         encodeCopy(state_->frameReactions, reactions);
@@ -5188,6 +5741,12 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         read(femMaterialState, snapshot.femMaterialState);
         read(femFields, snapshot.femFields);
         read(solverCertificates, snapshot.solverCertificates);
+        read(mpmActiveNodeIndices, snapshot.mpmActiveNodeIndices);
+        read(mpmNodeToActive, snapshot.mpmNodeToActive);
+        read(mpmActiveNodeCounts, snapshot.mpmActiveNodeCounts);
+        read(
+            rigidGeneralizedCandidate,
+            snapshot.rigidGeneralizedCandidate);
         read(learnedWeights, snapshot.learnedWeights);
         snapshot.learnedWeightRevision =
             *static_cast<const std::uint32_t*>(learnedRevision.contents);
@@ -5196,17 +5755,20 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         read(cohesiveFaces, snapshot.cohesiveFaces);
         read(punctureChannels, snapshot.punctureChannels);
         read(topologyStates, snapshot.topologyStates);
+        for (const NMFEMTopologyStateGPU& topology : snapshot.topologyStates)
+            snapshot.allocationGeneration = std::max(
+                snapshot.allocationGeneration, topology.roles.w);
         const std::size_t logicalContactCount =
             static_cast<std::size_t>(state_->dispatch.environmentCount) *
             state_->dispatch.contactPairCount;
-        readCount(contactWarmstarts, snapshot.contactWarmstarts,
+        readCount(contactHistories, snapshot.contactHistories,
                   logicalContactCount);
         const std::size_t logicalDeformableContactCount =
             static_cast<std::size_t>(state_->dispatch.environmentCount) *
             state_->dispatch.deformableContactCapacity;
         readCount(
-            deformableContactWarmstarts,
-            snapshot.deformableContactWarmstarts,
+            deformableContactHistories,
+            snapshot.deformableContactHistories,
             logicalDeformableContactCount);
         read(adaptive, snapshot.adaptive);
         read(schedulers, snapshot.schedulers);

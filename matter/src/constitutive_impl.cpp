@@ -1050,6 +1050,17 @@ ConstitutiveCompileResult compileConstitutive(
                 : NM_MATERIAL_TRANSFER_AVERAGE;
         gpu.stateTransferMask |= encoded << (2u * state);
     }
+    if ((gpu.projectionKind == NM_MATERIAL_PROJECTION_VON_MISES ||
+         gpu.projectionKind == NM_MATERIAL_PROJECTION_DRUCKER_PRAGER) &&
+        gpu.stateCount == 10u) {
+        // The specialized layout is Fp[0..8], accumulated plastic strain[9].
+        // Fp is projected by the authored/default average policy, while the
+        // irreversible scalar must never decrease during coarsening.
+        constexpr std::uint32_t accumulatedShift = 2u * 9u;
+        gpu.stateTransferMask &= ~(3u << accumulatedShift);
+        gpu.stateTransferMask |=
+            NM_MATERIAL_TRANSFER_MAXIMUM << accumulatedShift;
+    }
     const auto density = parameterIndex(material, "density");
     const auto mu = parameterIndex(material, "mu");
     const auto lambda = parameterIndex(material, "lambda");

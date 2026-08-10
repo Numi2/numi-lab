@@ -206,35 +206,45 @@ geometry safely.
 
 Matter's continuum solve is one environment-wide Newton system. Its
 matrix-free generalized unknown packs FEM velocity and mixed pressure,
-thermal/pore/electric/activation fields, and active sparse MPM grid velocity.
-Contact uses a primal logarithmic distance barrier and contributes gradients
-and PSD-projected rank-one normal curvature directly to those mechanical
-blocks. Restarted flexible GMRES
+thermal/pore/electric/activation fields, active sparse MPM grid velocity, and
+articulated/free-body generalized velocity increments. Contact uses the IPC
+squared-distance potential `-k(s-shat)^2 log(s/shat)`, where `s` is squared
+feature distance, and contributes analytic gradients plus a PSD-projected
+spatial barrier/friction Hessian directly to those mechanical blocks. Signed
+feature weights map the compact 3x3 metric into the complete VT/EE/point nodal
+block. Per-node timestep ratios apply the action chain rule on both residual
+and Hessian sides, so different power-of-two object rates still share one
+variational contact block. Restarted flexible GMRES
 uses compensated SIMD32 reductions, selective reorthogonalization, device
 Givens rotations, and an inexact-Newton forcing schedule. The right
 preconditioner combines fine node-star mechanics blocks, overlapping
 connectivity-aware tetrahedron-patch corrections, an object-scale Galerkin
 translation/mean-pressure correction, a fixed-pass field polynomial smoother,
-MPM lumped-mass blocks, and barrier curvature. FGMRES is the only linear
+MPM lumped-mass, particle-patch and object-translation blocks, rigid
+inverse-mass action, and barrier curvature. FGMRES is the only linear
 iteration owner; the patch and field smoothers
 have no independent convergence or publication contract.
 
 All coupled objects in one environment use the minimum admissible determinant
-mixed-volume backtracking, conservative CCD, and a barrier
-fraction-to-boundary cap. FEM surface
-adjacency is cooked, while current and cohesive surface primitives, swept
+mixed-volume backtracking, conservative CCD, a barrier
+fraction-to-boundary cap, and per-feature barrier Armijo backtracking. FEM surface
+topology starts cooked, while current exposed/cohesive FEM faces and compact
+active MPM point primitives, swept
 bounds, stable Morton ordering, non-adjacent self-contact candidates, CCD
 witnesses, and active barrier pairs are rebuilt on Metal. Stable compacted pairs
-also produce deterministic contact-node CSR and a cross-environment indirect
+also produce deterministic contact-node incidence and a cross-environment indirect
 work list; node gathers visit only incident rows and downstream contact kernels
-dispatch only active work without a CPU synchronization. Deformable warm
-starts store only stable source/frame and lagged-friction state and participate in
+dispatch only active work without a CPU synchronization. Deformable contact
+history stores only stable source/frame and lagged primal-friction state and participates in
 the same checkpoint/commit/rollback transaction as nodes, fields, topology,
-materials, schedulers, and rigid contact warm starts.
+materials, schedulers, and rigid primal-contact history.
 
 Conservative advancement distinguishes a certified miss from iteration
 exhaustion or a nonfinite witness. Only the former may disappear from the
-candidate set; an uncertified VT/EE query fails that environment closed.
+candidate set; an uncertified VT/EE/point query fails that environment closed.
+Near-degenerate VT and EE features use a C1 IPC mollifier with its analytic
+product-rule gradient and a PSD Gauss-Newton mollifier block, while endpoint
+and vertex candidates own the limiting configuration.
 Barrier stiffness is raised from its inertial floor when closing speed demands
 a stronger feasible-step response. Lagged friction transports the prior world
 tangent into the new contact frame and blends static to dynamic friction over
@@ -255,12 +265,27 @@ second-order exponential update of `Fp`, and the directional derivative of
 the active algorithmic stress branch. Drucker-Prager additionally compiles
 friction angle and cohesion into its pressure-sensitive corrector.
 
-Topology capacity is immutable during a borrowed submission. Existing
-cohesive insertion, erosion, and crack/channel exposure execute in stable
-command order and rebuild incidence on device. Exhaustion reports
+Topology capacity is immutable during a borrowed submission. Cohesive
+insertion, erosion, edge split/collapse, 2-3 and 3-2 flips, vertex smoothing,
+and crack/channel exposure execute in stable priority/identifier/target/source
+order. An invalid target requests a deterministic on-device quality proposal.
+Accepted generations rebuild nodal mass/incidence, dynamically exposed contact
+faces, compact contact work and connectivity-derived preconditioner data.
+Material state follows its compiled average/max/sum transfer policy across the
+complete affected cavity. After mass rebuild, the minimum object-wide constant
+correction on free active nodes restores pre-remesh momentum and
+volume-integrated fields without erasing relative variation; a post-rebuild
+certificate rejects inverted/low-volume tetrahedra or remaining FP32 mass,
+momentum, and field drift. Exhaustion reports
 `NM_STATUS_TOPOLOGY_GROWTH_REQUIRED`; after completion the runtime publishes a
-geometric `TopologyGrowthRequest`. A larger initialized runtime imports the
-accepted state through `encodeTopologyGrowth` on a borrowed command buffer.
+geometric `TopologyGrowthRequest`. `encodeTopologyGrowth` can initialize an
+empty destination from a larger recook or use an already initialized larger
+runtime, then imports accepted state on a borrowed command buffer,
+advances allocation generation, rebuilds incidence/mass, and mirrors rebuilt
+accepted state into its candidate/checkpoint arenas. Migration requires the
+same allocation-independent source-physics fingerprint; the capacity-dependent
+package fingerprint and accepted allocation generation remain distinct replay
+evidence.
 The logical mesh can therefore grow across submissions until 32-bit indices or
 the device working set is exhausted, without allocation inside a transaction.
 
@@ -273,21 +298,23 @@ gradients into particles, evaluate the same implicit material projection and
 consistent tangent used by FEM, and gather particle force directions back to
 grid rows without floating-point scatter atomics. APIC particle state is
 published only after the enclosing Newton candidate succeeds. Analytic rigid
-barriers retain auxiliary force rows so the
-same matrix-free action includes free-body and articulated sparse Delassus
-response without placing articulated coordinates in Matter's primal vector.
-FEM/MPM barrier pairs are not yet generated. The contact Hessian is not the full
-mollified vertex-triangle/edge-edge IPC Hessian. Those are active solver
-boundaries, not completed claims.
+barriers write equal-and-opposite terms into continuum and rigid generalized
+rows, while MetalWorld supplies ABA/free-body mass action on the same borrowed
+timeline. MPM/FEM, MPM/rigid, FEM/rigid,
+FEM/FEM and FEM self-contact all enter through the same primal barrier
+gradient/Hessian action; there is no staggered contact correction.
+The accepted-candidate certificate reduces FEM, field, active MPM, and rigid
+generalized residual rows together, so articulated reaction imbalance cannot
+be hidden behind a converged continuum block.
 
-The borrowed MetalWorld device-physics ABI now also exposes a primal coupled
-candidate service. Matter can request candidate articulated kinematics, a
+The borrowed MetalWorld device-physics ABI exposes a primal coupled-candidate
+service. Matter requests candidate articulated kinematics, a
 mass action, inverse-mass preconditioning, and accepted-candidate publication
 without writing `q` or `v`. Publication maps an accepted generalized velocity
 increment through MetalWorld's Cholesky mass action and adds the equivalent
-substep effort to the owning ABA stream. The older point-response service
-remains live only until the generalized block and equal-and-opposite barrier
-terms replace its CSR rows.
+substep effort to the owning ABA stream. The retired point-response/Delassus
+CSR path is absent; equal-and-opposite continuum/rigid terms are applied by the
+same generalized operator.
 
 The implementation uses FP32 barrier arithmetic and conservative CCD. It does
 not claim exact-real arithmetic or a mathematical proof of non-intersection;

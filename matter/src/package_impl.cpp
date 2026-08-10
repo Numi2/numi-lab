@@ -22,7 +22,7 @@ inline constexpr std::array<char, 16> kMagic{
     'N', 'U', 'M', 'I', 'M', 'A', 'T', 'T',
     'E', 'R', 'P', 'K', 'G', '\0', '\0', '\0',
 };
-inline constexpr std::uint32_t kPackageVersion = 7u;
+inline constexpr std::uint32_t kPackageVersion = 8u;
 inline constexpr std::uint32_t kEndianMarker = 0x01020304u;
 
 enum class Section : std::uint32_t {
@@ -79,6 +79,7 @@ struct PackageHeader {
     std::uint32_t endian = 0u;
     std::uint32_t matterAbiVersion = 0u;
     std::uint32_t sectionCount = 0u;
+    std::uint64_t physicsFingerprint = 0u;
     std::uint64_t fingerprint = 0u;
     std::uint64_t headerHash = 0u;
 };
@@ -263,6 +264,7 @@ bool writePackage(
     header.endian = kEndianMarker;
     header.matterAbiVersion = NM_MATTER_ABI_VERSION;
     header.sectionCount = kSectionCount;
+    header.physicsFingerprint = world.physicsFingerprint;
     header.fingerprint = world.fingerprint;
     header.headerHash = headerHash(header);
     if (!writeRaw(stream, header)) {
@@ -547,6 +549,7 @@ bool readPackage(
         }
     }
 
+    candidate.physicsFingerprint = header.physicsFingerprint;
     candidate.fingerprint = header.fingerprint;
     std::string layoutError;
     if (!validateCompiledWorldLayout(candidate, &layoutError)) {

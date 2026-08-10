@@ -7,8 +7,8 @@ material damageable_silicone {
     parameter damage_threshold : one = 0.01 in [0, 0.5];
     parameter maximum_damage : one = 0.95 in [0.5, 0.99];
 
-    state damage : one = 0;
-    state accumulated_strain : one = 0;
+    state damage : one = 0 transfer max;
+    state accumulated_strain : one = 0 transfer max;
 
     model visco_hyperelastic;
 

@@ -18,8 +18,8 @@ material damageable_silicone {
     parameter eta : Pa*s = 1500 in [10, 10000] log identifiable;
     parameter damage_rate : one/s = 20 in [0, 200];
 
-    state damage : one = 0;
-    state accumulated_strain : one = 0;
+    state damage : one = 0 transfer max;
+    state accumulated_strain : one = 0 transfer max;
 
     energy = neo_hookean(mu * (1 - damage), lambda * (1 - damage));
     dissipation = 0.5 * eta * (
@@ -37,6 +37,8 @@ material damageable_silicone {
 ```
 
 The parser performs dimensional analysis before producing executable physics. Stored energy must have pressure/energy-density units; dissipation must have power-density units. `F`, `D`/`Fdot`, `dt`, temperature, parameters and material state are separate typed inputs. `D` and `Fdot` are aliases for the material deformation-gradient rate `Fdot = dF/dt`: FEM evaluates it directly from rest-coordinate velocity gradients, while MPM reconstructs it as `L F` from the APIC spatial velocity gradient `L`. Logarithms require dimensionless arguments. State updates must preserve the declared state dimension. Parameter ranges, determinant limits, fixed state capacity and expression-stack requirements are compile-time contracts.
+
+State declarations accept `transfer average|max|sum` (volume-weighted average by default). A state may define either `update name = expression;` or `implicit name = residual;`; `name` reads accepted state and `next(name)` reads the local candidate. Implicit programs compile residual/Jacobian/deformation/stress-state derivative bytecode, run bounded pivoted local Newton per particle or tetrahedron, and contribute `P_F - P_z R_z^-1 R_F` to the matrix-free operator. Von Mises and Drucker-Prager hints select specialized multiplicative finite-strain return maps with isotropic hardening and consistent active-branch tangents. Local nonconvergence records `NM_STATUS_LOCAL_MATERIAL_FAILURE` and rolls back only that environment.
 
 ### Physics IR and constitutive compiler
 
@@ -70,48 +72,59 @@ and their matrix-free directional tangents. Every authored next-state expression
 
 The MPM path is an updated-Lagrangian sparse APIC/MLS-MPM solid backend with quadratic B-spline support over 27 nodes per material point. The cooker builds fixed-capacity 8×8×8 block domains and Morton-ordered lookup tables. Runtime kernels classify particles into active blocks, form deterministic per-block particle ranges, dispatch only active nodes, perform APIC particle-to-grid transfer, apply constitutive and contact forces, and reconstruct particle velocity, affine motion and deformation from the grid.
 
-The active-block pipeline avoids global floating-point scatter atomics, retains deterministic reduction order and prevents inactive authored grid regions from consuming transfer work. Persistent material state is stored per particle with accepted, candidate and control-step checkpoint arenas. Stress, validity and state evolution use the same live deformation and material deformation-rate values, and a rejected enclosing rigid transaction restores both mechanical and material state byte-for-byte. This backend targets large-deformation solids; it is not presented as a general free-surface fluid implementation.
+The active-block pipeline avoids global floating-point scatter atomics, retains deterministic reduction order and prevents inactive authored grid regions from consuming transfer work. A SIMD32 prefix pass compacts positive-mass grid nodes into the shared generalized vector. Backward-Euler residuals and matrix-free material actions transfer directions grid-to-particle and gather forces particle-to-grid in stable sparse-block order. Lumped grid diagonals, particle-patch smoothing, and object translation modes participate in the same right preconditioner as FEM and rigid blocks.
+
+Persistent particle, APIC affine, deformation, and implicit material state have accepted, candidate, and control-step checkpoint arenas. G2P reconstruction publishes them only after the global Newton candidate passes material, field, barrier, and correction acceptance. This backend targets large-deformation solids; it is not presented as a general free-surface fluid implementation.
 
 ### FEM backend
 
-The FEM path uses linear tetrahedral kinematics with nonlinear constitutive stress. Its authoritative implicit update is an environment-wide semismooth Newton solve. Each Newton system is applied matrix-free and solved by restarted, right-preconditioned FGMRES over one generalized unknown containing nodal velocity/pressure, thermal-pore-electric-activation fields, analytic-proxy contact multipliers and dynamic deformable-contact multipliers:
+The FEM path uses linear tetrahedral kinematics with nonlinear constitutive stress. Its authoritative implicit update is an environment-wide Newton solve. Each Newton system is applied matrix-free and solved by restarted, right-preconditioned FGMRES over one generalized unknown containing FEM velocity and pressure, thermal/pore/electric/activation fields, active MPM grid velocity, and articulated/free-body generalized velocity increments:
 
 ```text
-[ mechanics  mechanics-field  J_rigid^T  J_deform^T ] [dv, dp]
-[ field-mechanics   transport       0           0   ] [dfields]
-[ J_rigid              0       natural-map          ] [dlambda_rigid]
-[ J_deform             0            friction-map    ] [dlambda_deform]
+[ FEM/MPM mechanics   mechanics-field   continuum-rigid ] [dv_fem, dv_mpm]
+[ field-mechanics         transport             0       ] [dfields]
+[ rigid-continuum              0           rigid mass   ] [dv_rigid]
 ```
 
-Element work is parallel and node assembly uses cooked incidence. Dynamic contact additionally builds a deterministic contact-corner-to-node CSR from stable compacted row order, so node residual and Jacobian gathers scale with actual incident rows rather than scanning contact capacity. FGMRES uses compensated SIMD32 reductions, modified Gram-Schmidt with selective reorthogonalization, device Givens rotations, restart cycles and an inexact-Newton forcing schedule. Its three-level right preconditioner combines fine node-star mechanics diagonals, overlapping connectivity-aware tetrahedron-patch corrections, an object-scale Galerkin correction for rigid translation and mean pressure, a bounded matrix-free polynomial field smoother, contact-space response diagonals, and an approximate contact-to-mechanics cross lift. FGMRES remains the sole convergence owner. One environment-wide line search combines constitutive determinant and mixed-volume bounds with a contact fraction-to-boundary cap, keeping every cross-object block on the same feasible Newton candidate.
+IPC's squared-distance logarithmic potential contributes primal gradients and PSD Hessian actions; per-node timestep ratios apply the action chain rule to cross-rate FEM/MPM rows. There are no contact multiplier unknowns, response CSR, Delassus rows, or post-contact correction solves. Element work is parallel and node assembly uses rebuilt incidence. FGMRES uses compensated SIMD32 reductions, modified Gram-Schmidt with selective reorthogonalization, device Givens rotations, restart cycles and an inexact-Newton forcing schedule. Its right preconditioner combines FEM node-star diagonals, overlapping tetrahedron patches, MPM lumped/particle-patch/object modes, field smoothing, and rigid inverse-mass action. FGMRES remains the sole convergence owner. One environment-wide line search combines constitutive determinant and mixed-volume bounds with conservative CCD, barrier fraction-to-boundary caps, and barrier Armijo backtracking.
 
-Each tetrahedron owns an independent persistent material-state record. Rate-dependent stress and exact tangent-vector evaluation use the element velocity gradient. For stateful FEM materials, every Newton residual evaluates the authored next-state map at the current candidate, and the matrix-free tangent adds the local state-chain directional contribution. State updates still publish only with an accepted nonlinear candidate, and nodal, field, constitutive, topology and contact-warm-start state roll back to the same control-step checkpoint.
+Each tetrahedron owns an independent persistent material-state record. Rate-dependent stress and exact tangent-vector evaluation use the element velocity gradient. For stateful FEM materials, every Newton residual evaluates the authored next-state map at the current candidate, and the matrix-free tangent adds the local state-chain directional contribution. State updates still publish only with an accepted nonlinear candidate, and nodal, field, constitutive, topology and primal-contact history roll back to the same control-step checkpoint.
 
 ### Unified continuum contact
 
-MPM grid nodes and FEM nodes use one contact-pair ABI. The current implementation supports plane, sphere, capsule and oriented-box rigid proxies. Each contact computes:
+MPM grid nodes and dynamically exposed FEM faces use one continuum-surface ABI. Plane, sphere, capsule, and oriented-box proxies use the same primal contact energy. Each candidate computes:
 
 - signed separation and witness point;
 - normal and tangential relative velocity;
-- compliant normal impulse;
-- Coulomb stick/slip projection;
+- adaptive IPC barrier impulse and analytic gradient;
+- a product-rule mollified gradient and PSD-projected spatial/Gauss-Newton
+  Hessian action mapped into complete nodal blocks;
+- transported lagged friction with a smooth static/dynamic transition;
 - equal and opposite continuum and rigid reactions;
 - fixed-slot contact evidence for events and diagnostics.
 
-Contact records are cleared on every microtick before evaluation, preventing inactive-rate domains from replaying stale impulses. Analytic-proxy rows use the full cooked sparse Delassus response, including same-command-buffer inverse-ABA columns for articulated bodies.
+Contact records are cleared on every microtick before evaluation, preventing inactive-rate domains from replaying stale history. Conservative swept bounds and fail-closed CCD cover FEM/FEM, FEM self-contact, MPM/FEM, and MPM/MPM point/face or point/point candidates. Near-degenerate vertex-triangle and edge-edge features use a smooth IPC feature mollifier; candidate overflow and uncertified/nonfinite CCD invalidate only that environment.
 
-FEM surfaces additionally compile immutable exposed-face ownership and adjacency. Each nonlinear candidate rebuilds current/cohesive surface primitives, swept AABBs and a deterministic GPU Morton ordering, then emits fixed-capacity cross-object and non-adjacent self-contact candidates. Conservative-advancement vertex-triangle and edge-edge CCD produce dynamic KKT rows. Their normal and two tangent multipliers use a semismooth projection natural map with a Coulomb disk; tangent warm starts are transported between contact frames and participate in checkpoint, commit and rollback. Stable active slots are flattened across environments into one GPU-authored work list and indirect dispatch record, eliminating capacity-wide downstream contact launches without a CPU count readback.
+Each nonlinear candidate derives exposed FEM faces from the current tetrahedron graph, adds compact active MPM grid points, builds swept AABBs and a deterministic GPU Morton order, and emits non-adjacent self/cross-object candidates. Stable source and transported tangent-potential history participate in checkpoint, commit, and rollback; no normal/tangent multiplier state remains. Stable active slots are flattened into a GPU-authored indirect work list without a CPU count readback.
 
 ### Rigid-to-continuum coupling
 
-Rigid reactions are reduced per proxy without floating-point atomics, then gathered by global rigid-body index through one deterministic writer per body. Matter streams point-impulse columns through MetalWorld's inverse ABA on the borrowed command-buffer timeline and gathers the resulting articulated Delassus response `J M^-1 J^T` into the same generalized contact operator:
+Rigid generalized increments are part of Matter's primal Krylov vector. MetalWorld remains the sole owner of ABA, generalized coordinates, body kinematics, and rigid publication; its borrowed coupled-candidate service supplies candidate kinematics, mass action, inverse-mass preconditioning, and accepted-candidate publication on the same command-buffer timeline:
 
-- articulated targets receive `MRABABodyWrenchGPU` force and torque before inverse ABA; their exact link twists are materialized from the same accepted `q/v` consumed by ABA rather than estimated from frame differences;
-- free scene bodies receive the same global body-wrench representation, which the scene predictor consumes during the rigid candidate step;
+- articulated targets use exact candidate link kinematics and ABA-owned generalized mass action;
+- free scene bodies use six-coordinate velocity increments in the same block;
 - multiple contact proxies may contribute to one body without aliased writes;
 - static unbound proxies participate in contact but receive no state update.
 
 The runtime consumes borrowed body, wrench, scene-state and environment-status arenas. It never commits or waits on the borrowed command buffer. Device-physics capabilities distinguish programs that write external body wrenches from programs that require accepted rigid-contact evidence. Continuum-only contact can therefore drive free-motion ABA or free scene bodies without constructing an unused rigid contact graph, while adaptive promotion still requires the post-solve contact arena. A Matter failure is translated into the enclosing `MetalWorld` status before rigid publication, and a later rigid failure restores MPM, FEM, persistent material state, scheduler state and event evidence to the same control-step checkpoint. Inverse-identification update and antithetic sampling execute at most once at the beginning of a fully encoded rollout command buffer; all later control steps in that submission consume the same candidate overlay.
+
+### Transactional topology and arena growth
+
+Mutable FEM objects cook dormant node/tetrahedron slots into private arenas. GPU commands support cohesive separation, plane/cylinder erosion, explicit deactivation, edge split/collapse, 2–3 and 3–2 flips, and vertex smoothing. `target = NM_INVALID_INDEX` requests a deterministic on-device quality proposal; stable priority, identifier, target, and source order resolve competing commands. Every accepted generation rebuilds mass, node/tetrahedron incidence, exposed contact faces, active contact work, and preconditioner connectivity.
+
+Split, collapse, flip, and smoothing transfer the complete affected cavity according to each material state's `transfer average|max|sum` policy. Split interpolation and cavity projection preserve mechanical and mixed-field state. After rebuilt lumped mass, an object-wide constant correction on free active nodes closes momentum and volume-integrated-field drift while retaining relative variation; the FP32 certificate then rejects low-volume/inverted elements or any remaining conservation error before publication. Failed environments restore the common mechanical/material/topology checkpoint.
+
+No shader allocates. Capacity exhaustion records `NM_STATUS_TOPOLOGY_GROWTH_REQUIRED` (or a contact-work capacity overflow), and completion publishes a geometric `TopologyGrowthRequest`. `encodeTopologyGrowth` either migrates into an already initialized compatible runtime or validates and allocates an empty destination from a larger recook before encoding migration in the borrowed command buffer. It advances allocation generation, rebuilds derived incidence/mass, and mirrors the rebuilt accepted state into candidate/checkpoint arenas. A canonical source-physics fingerprint excludes allocation-only capacities and must match across migration; each recook retains a distinct full package fingerprint, while snapshots record the accepted allocation generation for exact replay. Growth repeats across completed submissions until a 32-bit ABI or device working-set limit is reached.
 
 ### Adaptive representation
 
@@ -158,7 +171,7 @@ The runtime is designed around Apple GPU constraints rather than CUDA assumption
 - no CPU counter read, command-buffer commit or wait occurs inside `Runtime::encode`;
 - fixed-capacity deterministic gathers replace floating-point append/scatter atomics;
 - SIMD32 object reductions map to Apple GPU execution width;
-- deformable surfaces and contact rows are compacted into stable active lists, deterministic node-incidence CSR, and GPU-authored indirect dispatches before downstream KKT work;
+- continuum surfaces and primal barrier candidates are compacted into stable active lists, deterministic node incidence, and GPU-authored indirect dispatches before Krylov work;
 - Krylov vector arenas are private and sized to the authored restart depth rather than the compile-time maximum;
 - environment and object parallelism remain independent;
 - all runtime identities are content-fingerprinted, including the exact loaded Matter metallib;
@@ -215,17 +228,17 @@ A body-backed rigid proxy requires the global current-body arena. Dynamic free-b
 
 ## Current fidelity boundary
 
-The subsystem implements the architecture and executable kernels listed above, but it does not claim one numerical representation solves all matter:
+The subsystem implements the owning paths listed above, with these explicit boundaries:
 
-- the MPM path currently targets updated-Lagrangian APIC/MLS-MPM solids on a fixed-capacity sparse block domain;
-- the generalized Krylov vector includes FEM mechanics, mixed fields, and a stable compact map of positive-mass MPM grid velocity; MPM evaluates a backward-Euler particle/grid residual and matrix-free algorithmic material tangent in deterministic sparse-block order, while FEM/MPM contact generation remains outside the current pair builder;
+- the MPM path targets updated-Lagrangian APIC/MLS-MPM solids on a sparse block domain; it is not a free-surface fluid solver;
+- the generalized Krylov vector contains FEM mechanics, mixed fields, compact active MPM grid velocity, and articulated/free-body generalized increments; MPM/FEM and continuum/rigid coupling enter through the same primal barrier action;
 - internal state and rate-dependent dissipation are executable; authored implicit residuals use a damped local Newton solve and consistent condensed tangent, while specialized multiplicative von Mises/Drucker-Prager predictors update `Fp` and accumulated plastic strain transactionally with an active-branch algorithmic tangent;
-- deformable contact has swept broadphase, non-adjacent self-contact, vertex-triangle/edge-edge CCD and a primal logarithmic barrier, but its PSD rank-one normal curvature is not the full mollified IPC Hessian and it does not claim an unconditional non-intersection theorem;
-- articulated continuum contact consumes same-command-buffer inverse-ABA response columns; barrier-force auxiliary rows carry that eliminated rigid response through the generalized operator without making articulated coordinates Matter-owned;
-- cut/puncture, cohesive separation, erosion and node-incidence rebuild are transactional; capacity exhaustion publishes a geometric replacement-runtime request after completion, while conservative split/collapse/flip remeshing and material-state transfer remain outside the current operator;
+- contact uses the IPC squared-distance logarithmic potential with mollified VT/EE and point features, a PSD-projected spatial Hessian, smooth lagged friction, multirate action scaling, and fail-closed FP32 conservative CCD; this is an executable FP32 contract, not an exact-real nonintersection theorem;
+- MetalWorld retains sole ownership of ABA and `q/v`; Matter owns Newton sequencing and generalized increments through the typed candidate callback;
+- split/collapse/flip/smooth/cohesive/erosion mutations are transactional, conservation-certified, and geometrically growable only between completed submissions;
 - thermal, pore, electric and activation fields execute in the outer KKT operator with Joule, activation and Biot off-diagonal actions; their right preconditioner is intentionally an approximate fixed-pass transport smoother;
 - polyconvex ICNN energy gradients and directional tangents execute with transactional trained weights; broad objectivity, growth and adversarial material-oracle qualification remains later evidence work;
-- the new monolithic/deformable-contact path has received only compile-level verification in this development pass; long GPU probes, matched performance profiling and qualification gates are intentionally deferred.
+- this development pass has compile/link evidence only; GPU probes, repeated remesh qualification, deterministic replay runs, matched performance profiling, and hardware evidence are intentionally deferred.
 
 ## Validation
 

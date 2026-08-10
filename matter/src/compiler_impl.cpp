@@ -1417,7 +1417,12 @@ CompileResult compileWorld(
                  ++local) {
                 world.fem.nodes.push_back({});
                 femNodeObjects.push_back(objectIndex);
-                femNodeContactEligible.push_back(false);
+                // Dormant mutable-topology slots must already own analytic
+                // rigid-proxy pairs. A split can activate the slot inside a
+                // fixed-capacity command buffer, where host-side pair cooking
+                // is intentionally unavailable.
+                femNodeContactEligible.push_back(
+                    object.mutationPolicy.enabled);
                 NMFEMTopologyNodeGPU topologyNode{};
                 topologyNode.identity = {
                     static_cast<nm_u32>(local),
@@ -1590,8 +1595,24 @@ CompileResult compileWorld(
                         ? static_cast<float>(1.0 / localMass[localNode])
                         : 0.0f;
             }
-            descriptor.elementCount =
-                static_cast<nm_u32>(world.fem.tetrahedra.size()) - descriptor.elementOffset;
+            const std::size_t authoredTetrahedronCount =
+                world.fem.tetrahedra.size() - descriptor.elementOffset;
+            for (std::size_t local = authoredTetrahedronCount;
+                 local < tetrahedronCapacity; ++local) {
+                NMTetrahedronGPU inactive{};
+                inactive.identity = {
+                    object.materialIndex,
+                    objectIndex,
+                    1u,
+                    0u,
+                };
+                world.fem.tetrahedra.push_back(inactive);
+            }
+            // The object descriptor owns the complete private arena. Active
+            // topology is carried exclusively by identity.w/counts, so later
+            // GPU transactions can claim dormant slots without changing the
+            // command-buffer resource layout.
+            descriptor.elementCount = static_cast<nm_u32>(tetrahedronCapacity);
 
             using FaceKey = std::array<std::uint32_t, 3>;
             struct FaceSide {
@@ -2161,15 +2182,19 @@ CompileResult compileWorld(
         static_cast<nm_u32>(world.fem.surfaceFaces.size());
     std::uint64_t deformableContactCapacity = 0u;
     for (const ObjectSource& object : source.objects) {
-        if (object.representation != Representation::fem) continue;
         if (object.femCapacity.deformableContacts != 0u) {
             deformableContactCapacity +=
                 object.femCapacity.deformableContacts;
-        } else {
+        } else if (object.representation == Representation::fem) {
             // A closed tetrahedral surface has O(elements) boundary faces;
             // reserve a linear active manifold by default rather than the
             // quadratic broadphase cross product.
             deformableContactCapacity += 8u * object.tetrahedra.size();
+        } else if (object.representation == Representation::mpm) {
+            // Compact active-grid points form the MPM contact surface. Their
+            // active manifold remains linear in material-point count even
+            // though the background grid is fixed capacity.
+            deformableContactCapacity += 8u * object.particles.size();
         }
     }
     dispatch.deformableContactCapacity = static_cast<nm_u32>(
@@ -2205,6 +2230,40 @@ CompileResult compileWorld(
     }
 
     world.fingerprint = compiledWorldFingerprint(world);
+    const bool hasAllocationOverrides = std::ranges::any_of(
+        source.objects,
+        [](const ObjectSource& object) {
+            const FEMCapacitySource& capacity = object.femCapacity;
+            return capacity.nodes != 0u ||
+                capacity.tetrahedra != 0u ||
+                capacity.cohesiveFaces != 0u ||
+                capacity.punctureChannels != 0u ||
+                capacity.mutationCommands != 0u ||
+                capacity.activeContacts != 0u ||
+                capacity.deformableContacts != 0u;
+        }
+    );
+    if (hasAllocationOverrides) {
+        WorldSource canonicalSource = source;
+        for (ObjectSource& object : canonicalSource.objects) {
+            object.femCapacity = {};
+        }
+        CompileOptions canonicalOptions = options;
+        canonicalOptions.emitSpecializedMetal = false;
+        CompileResult canonical = compileWorld(canonicalSource, canonicalOptions);
+        if (!canonical.succeeded()) {
+            result.diagnostics.push_back({
+                Diagnostic::Severity::error,
+                0u,
+                0u,
+                "failed to derive allocation-independent Matter physics fingerprint",
+            });
+            return result;
+        }
+        world.physicsFingerprint = canonical.world.fingerprint;
+    } else {
+        world.physicsFingerprint = world.fingerprint;
+    }
     std::string layoutError;
     if (!validateCompiledWorldLayout(world, &layoutError)) {
         result.diagnostics.push_back({

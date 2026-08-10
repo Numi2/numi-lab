@@ -1,6 +1,6 @@
 namespace numi_matter_metal {
 
-struct NMKKTContactArguments {
+struct NMPrimalContactArguments {
     device const NMContactPairGPU* pairs [[id(0)]];
     device const NMContactSampleGPU* samples [[id(1)]];
     device const uint* nodeIncidence [[id(2)]];
@@ -30,6 +30,16 @@ inline void deformableContactFrame(
             : float3(0.0f, 0.0f, 1.0f));
     tangent0 = normalize(cross(normal, axis));
     tangent1 = cross(normal, tangent0);
+}
+
+inline float3 deformableMollifierGradient(
+    const NMDeformableContactGPU contact,
+    const uint local
+) {
+    if (local == 0u) return contact.mollifierGradientRow0.xyz;
+    if (local == 1u) return contact.mollifierGradientRow1.xyz;
+    if (local == 2u) return contact.mollifierGradientRow2.xyz;
+    return contact.mollifierGradientRow3.xyz;
 }
 
 inline float3x3 cofactorMatrix(const float3x3 value);

@@ -1,49 +1,47 @@
 # Matter
 
-Matter is Numi Lab's Apple-native solver for coupled rigid, articulated, and
-continuum physics. The `coupled` branch develops one GPU-resident nonlinear
-authority rather than sequencing independent deformable, pressure, transport,
-and contact solvers.
+Matter is Numi Lab's Apple-native variational solver for coupled FEM, MPM,
+mixed fields, internal material variables, and every contact involving a Matter
+continuum. The `coupled` branch has one GPU-resident nonlinear authority rather
+than sequenced deformable, pressure, transport, contact, and rigid-response
+solvers.
 
-For mixed FEM, one Newton step solves over
-
-\[
-x=(v,\pi,T,p_f,\phi,a,\lambda),
-\]
-
-where `v` is nodal velocity, `π` is mechanical pressure, `T` is temperature,
-`p_f` is pore pressure, `φ` is electric potential, `a` is activation, and `λ`
-is contact impulse. Matrix-free FGMRES applies the generalized KKT operator;
-specialized PCG and sparse contact kernels act only as block
-preconditioners. Contact uses the full sparse Delassus response
+The environment-wide Newton unknown is
 
 \[
-W=JM^{-1}J^\mathsf{T},
+x=(v_{FEM},\pi,T,p_f,\phi,a,v_{MPM},\Delta v_{rigid}),
 \]
 
-including off-diagonal coupling between contacts that share a rigid body or
-articulation. FEM contact remains in the primal KKT blocks so its inverse mass
-is not counted twice.
+and restarted matrix-free FGMRES is the sole linear convergence owner. IPC's
+squared-distance logarithmic barrier contributes primal gradients and PSD
+Hessian actions directly; per-node timestep ratios keep cross-rate contact the
+gradient and Hessian of one environment action. No contact multipliers,
+Delassus rows, or post-contact correction solve remain.
+MetalWorld keeps sole ownership of ABA and generalized coordinates while its
+borrowed coupled-candidate callback supplies kinematics, mass action,
+inverse-mass preconditioning, and accepted publication.
 
-All work is encoded on MetalWorld's borrowed command buffer. The hot path does
-not create a second queue, commit internally, wait, or read solver state back
-to the CPU. A fixed 16-vector Krylov basis is restarted to honor the larger
-linear-iteration budget without retaining a 48-vector arena.
+Matter Language supports explicit state updates, authored implicit residuals,
+specialized multiplicative von Mises and Drucker-Prager return maps, and
+`average|max|sum` remesh-transfer policies. Active sparse MPM grid velocity is
+part of the same Krylov vector as FEM and rigid increments; APIC, deformation,
+and material state publish only after global candidate acceptance.
 
-Topology mutation is a deterministic active-set change inside the same
-transaction. Fracture, cutting, puncture, or deactivation updates candidate
-topology and restarts Newton. Mechanical state, pressure, transported fields,
-contact warm starts, topology, constitutive history, scheduler state, and
-learned weights commit together or roll back together.
+Topology mutation is transactional. Cohesive separation, erosion, edge
+split/collapse, 2–3/3–2 flips, and vertex smoothing rebuild derived incidence,
+surface contact, and preconditioner structures on Metal. Cavity-wide material
+transfer follows each state's average/max/sum policy, and the rebuilt nodal
+state is corrected to its pre-remesh momentum and volume-integrated fields
+before certification. Conservation and element-quality failures reject the
+environment. Private arenas grow
+geometrically only between completed submissions through a borrowed
+command-buffer migration; shaders never allocate.
 
-This branch is active solver development. Bounded live-Metal probes are the
-qualification workloads; unsupported application replicas are not retained as
-solver evidence.
+The hot path uses one borrowed MetalWorld command buffer, private authoritative
+state, deterministic sparse ordering, SIMD32 reductions, and no internal
+commit, wait, or CPU counter read.
 
-Build and run the owning probe:
-
-```sh
-cmake --build build-coupled-dev --target metalrobo_matter_physics_probe
-./build-coupled-dev/bin/metalrobo_matter_physics_probe --multiphysics
-./build-coupled-dev/bin/metalrobo_matter_physics_probe --coupled-contact
-```
+This MacBook is limited to shader/library compilation and target linking for
+this development pass. GPU probes, benchmarks, profiler captures, repeated
+growth/replay qualification, and performance claims are deferred to a
+dedicated Apple Silicon machine.

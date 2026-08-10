@@ -1114,6 +1114,12 @@ kernel void nm_mixed_certify(
     device const float4* physicalFieldResidual [[buffer(12)]],
     device const NMMixedMaterialGPU* mixedMaterials [[buffer(13)]],
     device const float4* nonlinearCorrection [[buffer(14)]],
+    device const NMGridNodeStateGPU* mpmNodes [[buffer(15)]],
+    device const uint* mpmActiveIndices [[buffer(16)]],
+    device const uint* mpmActiveCounts [[buffer(17)]],
+    device const float4* lineSearch [[buffer(18)]],
+    constant NMPrimalContactArguments& contact [[buffer(19)]],
+    device const float* rigidCandidate [[buffer(20)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -1122,35 +1128,92 @@ kernel void nm_mixed_certify(
     const uint objectIndex = group - environment * dispatch.objectCount;
     if (environment >= dispatch.environmentCount) return;
     const NMContinuumObjectGPU object = objects[objectIndex];
-    if (object.representation != NM_REPRESENTATION_FEM ||
-        (object.flags & NM_OBJECT_MIXED_FEM) == 0u) return;
+    if (object.representation != NM_REPRESENTATION_FEM &&
+        object.representation != NM_REPRESENTATION_MPM) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
     float correction = 0.0f;
-    float candidateScale = 0.0f;
     float residualNorm2 = 0.0f;
     float pressureNorm2 = 0.0f;
     float4 transportNorm2 = float4(0.0f);
     float4 transportScaleNorm2 = float4(0.0f);
-    for (uint local = lane; local < object.stateCount; local += 32u) {
-        const uint node = nodeBase + object.stateOffset + local;
-        correction = max(correction, length(nonlinearCorrection[node].xyz));
-        candidateScale = max(candidateScale, length(
-            candidateNodes[node].velocityAndInverseMass.xyz
-        ));
-        const float4 residual = generalizedResidual[node];
-        residualNorm2 += dot(residual, residual);
-        pressureNorm2 += residual.w * residual.w;
-        if ((object.flags & NM_OBJECT_MULTIPHYSICS) != 0u) {
-            const float4 fieldResidual = physicalFieldResidual[node];
-            const float4 candidateField = mixedFieldVector(candidateFields[node]);
-            const float4 acceptedField = mixedFieldVector(acceptedFields[node]);
-            const float4 fieldScale = max(abs(candidateField), abs(acceptedField));
-            transportNorm2 += fieldResidual * fieldResidual;
-            transportScaleNorm2 += fieldScale * fieldScale;
+    // Certification is environment-wide, just like the Newton unknown and the
+    // FGMRES convergence norm. Repeat that same coupled norm in every object
+    // certificate; object-local norms can otherwise each pass while their
+    // combined post-contact residual still exceeds the global tolerance.
+    for (uint continuumObject = 0u;
+         continuumObject < dispatch.objectCount; ++continuumObject) {
+        const NMContinuumObjectGPU continuum = objects[continuumObject];
+        if (continuum.representation == NM_REPRESENTATION_FEM) {
+            for (uint local = lane; local < continuum.stateCount; local += 32u) {
+                const uint node = nodeBase + continuum.stateOffset + local;
+                correction = max(
+                    correction,
+                    length(nonlinearCorrection[node].xyz) / max(length(
+                        candidateNodes[node].velocityAndInverseMass.xyz), 1.0f));
+                const float4 residual = generalizedResidual[node];
+                residualNorm2 += dot(residual, residual);
+                pressureNorm2 += residual.w * residual.w;
+                if ((continuum.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+                    continuum.materialIndex < dispatch.mixedMaterialCount) {
+                    const float pressureCorrection =
+                        mixedMaterials[continuum.materialIndex].mechanics.x *
+                        nonlinearCorrection[node].w;
+                    correction = max(correction,
+                        abs(pressureCorrection) / max(
+                            abs(candidateFields[node].primary.x), 1.0f));
+                }
+                if ((continuum.flags & NM_OBJECT_MULTIPHYSICS) != 0u) {
+                    const float4 fieldResidual = physicalFieldResidual[node];
+                    const float4 candidateField =
+                        mixedFieldVector(candidateFields[node]);
+                    const float4 acceptedField =
+                        mixedFieldVector(acceptedFields[node]);
+                    const float4 fieldScale = max(
+                        abs(candidateField), abs(acceptedField));
+                    correction = max(correction,
+                        length(nonlinearCorrection[totalNodes + node]) /
+                            max(length(candidateField), 1.0f));
+                    residualNorm2 += dot(fieldResidual, fieldResidual);
+                    transportNorm2 += fieldResidual * fieldResidual;
+                    transportScaleNorm2 += fieldScale * fieldScale;
+                }
+            }
+        } else if (continuum.representation == NM_REPRESENTATION_MPM) {
+            const uint activeCount = min(
+                mpmActiveCounts[environment], dispatch.gridNodeCount);
+            for (uint slot = lane; slot < activeCount; slot += 32u) {
+                const uint nodeIndex = mpmActiveIndices[
+                    environment * dispatch.gridNodeCount + slot];
+                if (nodeIndex < continuum.auxiliaryOffset ||
+                    nodeIndex - continuum.auxiliaryOffset >=
+                        continuum.auxiliaryCount)
+                    continue;
+                const uint row = fgmresMPMIndex(
+                    dispatch, environment, slot);
+                correction = max(
+                    correction,
+                    length(nonlinearCorrection[row].xyz) / max(length(mpmNodes[
+                        environment * dispatch.gridNodeCount + nodeIndex]
+                            .candidateVelocity.xyz), 1.0f));
+                const float3 residual = generalizedResidual[row].xyz;
+                residualNorm2 += dot(residual, residual);
+            }
         }
     }
+    // The rigid block completes that same environment-wide norm, preventing a
+    // continuum transaction from committing with unresolved articulated or
+    // free-body equilibrium.
+    for (uint dof = lane; dof < dispatch.rigidGeneralizedCapacity;
+         dof += 32u) {
+        const uint row = fgmresRigidIndex(dispatch, environment, dof);
+        const float rigidResidual = generalizedResidual[row].x;
+        residualNorm2 += rigidResidual * rigidResidual;
+        correction = max(correction,
+            abs(nonlinearCorrection[row].x) / max(abs(rigidCandidate[
+                environment * dispatch.rigidGeneralizedCapacity + dof]), 1.0f));
+    }
     correction = simd_max(correction);
-    candidateScale = simd_max(candidateScale);
     residualNorm2 = simd_sum(residualNorm2);
     pressureNorm2 = simd_sum(pressureNorm2);
     transportNorm2 = float4(
@@ -1166,12 +1229,73 @@ kernel void nm_mixed_certify(
     );
     const float relativeResidual = sqrt(max(residualNorm2, 0.0f)) /
         initialNorm;
-    const float relativeCorrection = correction /
-        max(candidateScale, 1.0f);
+    const float relativeCorrection = correction;
+    float maximumBarrierImpulse = 0.0f;
+    float minimumSeparation = INFINITY;
+    float maximumTangentialImpulse = 0.0f;
+    float contactEnergy = 0.0f;
+    uint activeContactCount = 0u;
+    const uint analyticCapacity = dispatch.reservedMixed1;
+    const uint analyticCount = min(
+        contact.activeCounts[environment], analyticCapacity);
+    const uint analyticBase = environment * analyticCapacity;
+    for (uint activeSlot = lane; activeSlot < analyticCount;
+         activeSlot += 32u) {
+        const uint pairIndex = contact.activePairs[
+            analyticBase + activeSlot];
+        if (pairIndex >= dispatch.contactPairCount) continue;
+        const NMContactPairGPU pair = contact.pairs[pairIndex];
+        const NMContactSampleGPU sample = contact.samples[
+            environment * dispatch.contactPairCount + pairIndex];
+        if (pair.objectIndex != objectIndex ||
+            (sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        ++activeContactCount;
+        maximumBarrierImpulse = max(
+            maximumBarrierImpulse, max(sample.barrier.x, 0.0f));
+        minimumSeparation = min(
+            minimumSeparation, sample.pointAndSeparation.w);
+        maximumTangentialImpulse = max(
+            maximumTangentialImpulse,
+            abs(sample.angularImpulseAndTangent.w));
+        contactEnergy += ipcBarrierEnergy(
+            sample.pointAndSeparation.w,
+            sample.barrier.z,
+            sample.barrier.w);
+    }
+    const uint deformableCapacity = dispatch.deformableContactCapacity;
+    const uint deformableBase = environment * deformableCapacity;
+    for (uint slot = lane; slot < deformableCapacity; slot += 32u) {
+        const NMDeformableContactGPU deformable =
+            contact.deformableContacts[deformableBase + slot];
+        if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
+            (deformable.identity.x != objectIndex &&
+             deformable.identity.y != objectIndex)) continue;
+        ++activeContactCount;
+        maximumBarrierImpulse = max(
+            maximumBarrierImpulse, max(deformable.barrier.x, 0.0f));
+        minimumSeparation = min(
+            minimumSeparation, deformable.pointAndSeparation.w);
+        maximumTangentialImpulse = max(
+            maximumTangentialImpulse,
+            length(deformable.impulseAndFriction.yz));
+        contactEnergy += ipcBarrierEnergy(
+            deformable.pointAndSeparation.w,
+            deformable.barrier.z,
+            deformable.barrier.w);
+    }
+    maximumBarrierImpulse = simd_max(maximumBarrierImpulse);
+    minimumSeparation = simd_min(minimumSeparation);
+    maximumTangentialImpulse = simd_max(maximumTangentialImpulse);
+    contactEnergy = simd_sum(contactEnergy);
+    activeContactCount = simd_sum(activeContactCount);
+    if (activeContactCount == 0u) minimumSeparation = 0.0f;
     float minimumJ = INFINITY;
     float volumeNorm2 = 0.0f;
     uint activeElements = 0u;
-    for (uint local = lane; local < object.elementCount; local += 32u) {
+    for (uint local = lane;
+         object.representation == NM_REPRESENTATION_FEM &&
+             local < object.elementCount;
+         local += 32u) {
         const uint tetIndex = object.elementOffset + local;
         const NMTetrahedronGPU tet = environmentTetrahedron(
             dispatch, tetrahedra, environment, tetIndex
@@ -1182,8 +1306,10 @@ kernel void nm_mixed_certify(
             tet, candidateNodes, nodeBase
         ));
         minimumJ = min(minimumJ, j);
-        float constraint = log(max(j, 1.0e-20f));
-        if (object.materialIndex < dispatch.mixedMaterialCount) {
+        float constraint = 0.0f;
+        if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+            object.materialIndex < dispatch.mixedMaterialCount) {
+            constraint = log(max(j, 1.0e-20f));
             const NMMixedMaterialGPU material =
                 mixedMaterials[object.materialIndex];
             const uint4 nodes = tet.nodes;
@@ -1204,14 +1330,25 @@ kernel void nm_mixed_certify(
             ) - 3.0f * material.mechanics.y *
                 (temperature - material.mechanics.w);
         }
-        volumeNorm2 += constraint * constraint;
+        if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u)
+            volumeNorm2 += constraint * constraint;
     }
     minimumJ = simd_min(minimumJ);
     volumeNorm2 = simd_sum(volumeNorm2);
     activeElements = simd_sum(activeElements);
-    if (activeElements == 0u) minimumJ = 1.0f;
+    if (object.representation == NM_REPRESENTATION_MPM) {
+        const float lineSearchMinimum = lineSearch[
+            environment * dispatch.objectCount + objectIndex].y;
+        minimumJ = isfinite(lineSearchMinimum)
+            ? lineSearchMinimum : 1.0f;
+        activeElements = object.stateCount > 0u ? 1u : 0u;
+    } else if (activeElements == 0u) {
+        minimumJ = 1.0f;
+    }
     if (lane == 0u) {
-        const float volumeResidual = activeElements > 0u
+        const float volumeResidual =
+            (object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+            activeElements > 0u
             ? sqrt(max(volumeNorm2 / float(activeElements), 0.0f)) : 0.0f;
         NMSolverCertificateGPU certificate =
             certificates[environment * dispatch.objectCount + objectIndex];
@@ -1222,6 +1359,10 @@ kernel void nm_mixed_certify(
         certificate.nonlinear = float4(
             relativeResidual, relativeCorrection,
             volumeResidual, pressureResidual
+        );
+        certificate.contact = float4(
+            maximumBarrierImpulse, minimumSeparation,
+            maximumTangentialImpulse, contactEnergy
         );
         certificate.transport = transport;
         certificate.validity = float4(
@@ -1242,13 +1383,24 @@ kernel void nm_mixed_certify(
         // guess; it cannot invalidate a candidate that already satisfies the
         // KKT, incompressibility, pressure, and transport residual gates.
         const bool correctionFinite = isfinite(relativeCorrection);
+        const float collisionThickness = max(
+            1.0e-4f * dispatch.numericalLimits.x,
+            16.0f * kEpsilon);
+        const bool contactValid =
+            isfinite(maximumBarrierImpulse) &&
+            isfinite(minimumSeparation) &&
+            isfinite(maximumTangentialImpulse) &&
+            isfinite(contactEnergy) &&
+            (activeContactCount == 0u ||
+             minimumSeparation > collisionThickness);
         const bool transportValid = all(isfinite(transport)) &&
             all(transport <= float4(solver.nonlinearTolerances.x));
         if (!isfinite(minimumJ) || minimumJ < dispatch.numericalLimits.z ||
-            !residualValid || !correctionFinite || !transportValid) {
+            !residualValid || !correctionFinite || !contactValid ||
+            !transportValid) {
             recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
                 objectIndex, NM_INVALID_INDEX,
-                residualValid && correctionFinite
+                residualValid && correctionFinite && contactValid
                     ? transport
                     : float4(relativeResidual, relativeCorrection,
                              volumeResidual, pressureResidual));

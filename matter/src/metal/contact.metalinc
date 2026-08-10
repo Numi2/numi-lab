@@ -1,8 +1,10 @@
 namespace numi_matter_metal {
 
-// IPC barrier b(d) = -k(d-hat)^2 log(d/hat). The returned curvature is
-// projected onto the nonnegative cone (the rank-one GIPC normal block) and
-// expressed in velocity space for x_{n+1}=x_n+dt*v.
+// IPC barrier b(s) = -k(s-shat)^2 log(s/shat), with s the squared feature
+// distance. Its exact radial derivative and curvature are evaluated in the
+// physical distance coordinate; radial curvature is then projected onto the
+// nonnegative cone and combined below with the PSD lagged-friction metric.
+// Signed feature weights map the spatial metric into full nodal blocks.
 inline float4 ipcBarrierResponse(
     const float separation,
     const float thickness,
@@ -15,26 +17,171 @@ inline float4 ipcBarrierResponse(
         return float4(0.0f, 0.0f, thickness, 0.0f);
     }
     const float distance = max(separation, 1.0e-4f * thickness);
-    const float offset = distance - thickness;
-    const float logarithm = log(distance / thickness);
+    const float squaredDistance = distance * distance;
+    const float squaredThickness = thickness * thickness;
+    const float offset = squaredDistance - squaredThickness;
+    const float logarithm = log(squaredDistance / squaredThickness);
     const float inertialStiffness = 10.0f /
-        max(inverseResponse * timestep * timestep, 1.0e-20f);
+        max(inverseResponse * timestep * timestep * squaredThickness,
+            1.0e-20f);
     const float remaining = max(thickness - distance,
         1.0e-3f * thickness);
     const float impactStiffness = max(closingSpeed, 0.0f) /
-        max(inverseResponse * timestep * remaining, 1.0e-20f);
+        max(inverseResponse * timestep * remaining * squaredThickness,
+            1.0e-20f);
     const float stiffness = max(inertialStiffness, impactStiffness);
-    const float force = stiffness *
-        (2.0f * offset * logarithm + offset * offset / distance);
-    const float hessian = max(-stiffness *
-        (2.0f * logarithm + 4.0f * offset / distance -
-         offset * offset / (distance * distance)), 0.0f);
+    const float firstSquared = -stiffness *
+        (2.0f * offset * logarithm + offset * offset / squaredDistance);
+    const float secondSquared = -stiffness *
+        (2.0f * logarithm + 4.0f * offset / squaredDistance -
+         offset * offset / (squaredDistance * squaredDistance));
+    const float force = -2.0f * distance * firstSquared;
+    const float hessian = max(
+        4.0f * squaredDistance * secondSquared + 2.0f * firstSquared,
+        0.0f);
     return float4(
         max(force, 0.0f) * timestep,
         hessian * timestep * timestep,
         thickness,
         stiffness
     );
+}
+
+inline float ipcFeatureMollifierDifferential(
+    const float3 first,
+    const float3 second,
+    thread float3& firstGradient,
+    thread float3& secondGradient
+) {
+    firstGradient = float3(0.0f);
+    secondGradient = float3(0.0f);
+    const float firstNorm2 = dot(first, first);
+    const float secondNorm2 = dot(second, second);
+    const float scale = firstNorm2 * secondNorm2;
+    if (!(scale > kGeometryFloor)) return 0.0f;
+    constexpr float relativeThreshold = 1.0e-3f;
+    const float threshold = max(relativeThreshold * scale, kGeometryFloor);
+    const float inner = dot(first, second);
+    const float measure = max(scale - inner * inner, 0.0f);
+    const float ratio = clamp(measure / threshold, 0.0f, 1.0f);
+    // C1 IPC mollifier: zero for a degenerate feature and unit value with zero
+    // slope at the activation boundary. Endpoint/vertex candidates own the limiting
+    // geometry while this pair fades out.
+    const float value = ratio * (2.0f - ratio);
+    if (!(ratio > 0.0f && ratio < 1.0f)) return value;
+    const float3 measureFirst = 2.0f *
+        (secondNorm2 * first - inner * second);
+    const float3 measureSecond = 2.0f *
+        (firstNorm2 * second - inner * first);
+    float3 ratioFirst;
+    float3 ratioSecond;
+    if (relativeThreshold * scale >= kGeometryFloor) {
+        const float3 scaleFirst = 2.0f * secondNorm2 * first;
+        const float3 scaleSecond = 2.0f * firstNorm2 * second;
+        const float inverseThreshold2 = 1.0f /
+            max(threshold * threshold, kGeometryFloor * kGeometryFloor);
+        ratioFirst = relativeThreshold *
+            (measureFirst * scale - measure * scaleFirst) *
+            inverseThreshold2;
+        ratioSecond = relativeThreshold *
+            (measureSecond * scale - measure * scaleSecond) *
+            inverseThreshold2;
+    } else {
+        ratioFirst = measureFirst / threshold;
+        ratioSecond = measureSecond / threshold;
+    }
+    const float derivative = 2.0f * (1.0f - ratio);
+    firstGradient = derivative * ratioFirst;
+    secondGradient = derivative * ratioSecond;
+    return value;
+}
+
+inline float3x3 ipcProjectedSpatialHessian(
+    const float3 normal,
+    const float normalCurvature,
+    const float3 tangentVelocity,
+    const float frictionLimit,
+    const float regularizationSpeed
+) {
+    const float3x3 identity = float3x3(1.0f);
+    const float3x3 normalProjector = outerProduct(normal, normal);
+    float3x3 hessian = max(normalCurvature, 0.0f) * normalProjector;
+    const float3 tangent = tangentVelocity -
+        dot(tangentVelocity, normal) * normal;
+    const float speed2 = dot(tangent, tangent) +
+        regularizationSpeed * regularizationSpeed;
+    if (frictionLimit > 0.0f && speed2 > kGeometryFloor) {
+        const float speed = sqrt(speed2);
+        const float3x3 tangentProjector = identity - normalProjector;
+        // Hessian of the regularized lagged friction potential. Both
+        // eigenvalues are nonnegative; mapping it with feature weights gives
+        // the complete symmetric nodal block without storing a dense matrix.
+        hessian += (frictionLimit / speed) *
+            (tangentProjector - outerProduct(tangent, tangent) / speed2);
+    }
+    return hessian;
+}
+
+inline float3 closestPointOnTriangle(
+    const float3 point,
+    const float3 a,
+    const float3 b,
+    const float3 c,
+    thread float3& barycentric
+);
+
+inline void closestPointsOnSegments(
+    const float3 p0,
+    const float3 p1,
+    const float3 q0,
+    const float3 q1,
+    thread float& firstParameter,
+    thread float& secondParameter,
+    thread float3& firstPoint,
+    thread float3& secondPoint
+);
+
+inline bool deformableBarrierEnergyAt(
+    const NMDeformableContactGPU contact,
+    thread const float3* position,
+    thread float& energy,
+    thread float& separation
+) {
+    float featureMollifier = 1.0f;
+    if (contact.identity.z == NM_DEFORMABLE_CONTACT_POINT_POINT) {
+        separation = length(position[0] - position[1]);
+    } else if (contact.identity.z ==
+               NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+        float3 barycentric;
+        const float3 closest = closestPointOnTriangle(
+            position[0], position[1], position[2], position[3],
+            barycentric);
+        separation = length(position[0] - closest);
+        float3 firstGradient, secondGradient;
+        featureMollifier = ipcFeatureMollifierDifferential(
+            position[2] - position[1],
+            position[3] - position[1],
+            firstGradient, secondGradient);
+    } else if (contact.identity.z == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+        float firstParameter, secondParameter;
+        float3 firstPoint, secondPoint;
+        closestPointsOnSegments(
+            position[0], position[1], position[2], position[3],
+            firstParameter, secondParameter, firstPoint, secondPoint);
+        separation = length(firstPoint - secondPoint);
+        float3 firstGradient, secondGradient;
+        featureMollifier = ipcFeatureMollifierDifferential(
+            position[1] - position[0],
+            position[3] - position[2],
+            firstGradient, secondGradient);
+    } else {
+        energy = INFINITY;
+        separation = -INFINITY;
+        return false;
+    }
+    energy = featureMollifier * ipcBarrierEnergy(
+        separation, contact.barrier.z, contact.mollifier.w);
+    return isfinite(separation) && isfinite(energy);
 }
 
 inline uint3 sortedSurfaceNodes(uint3 nodes) {
@@ -69,53 +216,118 @@ inline uint3 surfaceNodes(
     return nodes;
 }
 
+inline uint continuumSurfacePrimitiveCount(
+    const NMMatterDispatchGPU dispatch
+) {
+    return 4u * dispatch.tetrahedronCount + dispatch.gridNodeCount;
+}
+
 kernel void nm_contact_build_surface_primitives(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
     device const NMContinuumObjectGPU* objects [[buffer(2)]],
-    device const NMFEMSurfaceFaceGPU* faces [[buffer(3)]],
-    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
-    device const NMFEMNodeStateGPU* nodes [[buffer(5)]],
-    device const NMSchedulerStateGPU* schedulers [[buffer(6)]],
-    device NMFEMSurfacePrimitiveGPU* primitives [[buffer(7)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(3)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(4)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
+    device const NMGridNodeStateGPU* gridNodes [[buffer(6)]],
+    device const NMMPMGridGPU* grids [[buffer(7)]],
+    device const uint* gridGenerations [[buffer(8)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(9)]],
+    device const uint* nodeIncidence [[buffer(10)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(11)]],
+    device NMContinuumSurfacePrimitiveGPU* primitives [[buffer(12)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint primitiveCount = 2u * dispatch.surfaceFaceCount;
+    const uint femPrimitiveCount = 4u * dispatch.tetrahedronCount;
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     const uint total = dispatch.environmentCount * primitiveCount;
     if (global >= total || primitiveCount == 0u) return;
     primitives[global] = {};
     const uint environment = global / primitiveCount;
     const uint localPrimitive = global - environment * primitiveCount;
-    const uint faceIndex = localPrimitive >> 1u;
-    const uint side = localPrimitive & 1u;
-    const NMFEMSurfaceFaceGPU face = faces[faceIndex];
-    if ((face.adjacency.w & NM_TOPOLOGY_ACTIVE) == 0u ||
-        face.adjacency.z >= dispatch.objectCount) return;
-    const uint tetrahedronIndex = side == 0u
-        ? face.adjacency.x : face.adjacency.y;
-    const uint opposite = side == 0u ? face.sides.x : face.sides.y;
-    if (tetrahedronIndex == NM_INVALID_INDEX ||
-        tetrahedronIndex >= dispatch.tetrahedronCount || opposite >= 4u)
+    const float thickness = dispatch.numericalLimits.x;
+
+    if (localPrimitive >= femPrimitiveCount) {
+        const uint nodeIndex = localPrimitive - femPrimitiveCount;
+        const uint nodeGlobal =
+            environment * dispatch.gridNodeCount + nodeIndex;
+        if (nodeIndex >= dispatch.gridNodeCount ||
+            gridGenerations[nodeGlobal] != microstep.reserved) return;
+        const NMGridNodeStateGPU node = gridNodes[nodeGlobal];
+        if (!(node.positionAndMass.w > 0.0f) ||
+            !finite3(node.candidateVelocity.xyz)) return;
+        uint objectIndex = NM_INVALID_INDEX;
+        for (uint gridIndex = 0u; gridIndex < dispatch.mpmGridCount;
+             ++gridIndex) {
+            const NMMPMGridGPU grid = grids[gridIndex];
+            const uint nodeCount = grid.nodeDimensionsAndOffset.x *
+                grid.nodeDimensionsAndOffset.y *
+                grid.nodeDimensionsAndOffset.z;
+            const uint first = grid.nodeDimensionsAndOffset.w;
+            if (nodeIndex >= first && nodeIndex - first < nodeCount) {
+                objectIndex = uint(grid.nodeMinimumAndObject.w);
+                break;
+            }
+        }
+        if (objectIndex >= dispatch.objectCount) return;
+        const NMContinuumObjectGPU object = objects[objectIndex];
+        const uint objectGlobal =
+            environment * dispatch.objectCount + objectIndex;
+        const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
+        if (object.representation != NM_REPRESENTATION_MPM ||
+            !objectDue(object, scheduler, adaptive[objectGlobal], microstep))
+            return;
+        const float dt = objectTimestep(dispatch, scheduler);
+        const float3 start = node.positionAndMass.xyz;
+        const float3 finish = start + dt * node.candidateVelocity.xyz;
+        NMContinuumSurfacePrimitiveGPU primitive{};
+        primitive.nodesAndObject = {
+            nodeIndex, NM_INVALID_INDEX, NM_INVALID_INDEX, objectIndex
+        };
+        primitive.identity = {
+            nodeIndex, NM_CONTINUUM_SURFACE_POINT,
+            microstep.reserved, NM_TOPOLOGY_ACTIVE
+        };
+        primitive.boundsMinimum = float4(
+            min(start, finish) - thickness, 1.0f);
+        primitive.boundsMaximum = float4(
+            max(start, finish) + thickness, length(finish - start));
+        primitives[global] = primitive;
         return;
+    }
+
+    const uint tetrahedronIndex = localPrimitive >> 2u;
+    const uint opposite = localPrimitive & 3u;
     const uint tetrahedronBase = environment * dispatch.tetrahedronCount;
     const NMTetrahedronGPU tetrahedron =
         tetrahedra[tetrahedronBase + tetrahedronIndex];
     if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
-        tetrahedron.identity.y != face.adjacency.z) return;
-    const uint otherIndex = side == 0u
-        ? face.adjacency.y : face.adjacency.x;
-    const uint otherOpposite = side == 0u ? face.sides.y : face.sides.x;
+        tetrahedron.identity.y >= dispatch.objectCount) return;
     const uint3 currentNodes = surfaceNodes(tetrahedron, opposite);
-    if (otherIndex != NM_INVALID_INDEX &&
-        otherIndex < dispatch.tetrahedronCount && otherOpposite < 4u) {
+    if (any(currentNodes >= uint3(dispatch.femNodeCount))) return;
+
+    // Dynamic face ownership is derived from the rebuilt node incidence, so
+    // split/collapse/flip/cohesive mutations never retain a stale cooked
+    // surface graph. Any matching active neighbor makes this face internal.
+    const NMIncidenceRangeGPU adjacency = nodeRanges[
+        environment * dispatch.femNodeCount + currentNodes.x];
+    const uint3 sortedCurrent = sortedSurfaceNodes(currentNodes);
+    for (uint incidence = 0u; incidence < adjacency.count; ++incidence) {
+        const uint otherIndex = nodeIncidence[adjacency.first + incidence];
+        if (otherIndex == tetrahedronIndex ||
+            otherIndex >= dispatch.tetrahedronCount) continue;
         const NMTetrahedronGPU other =
             tetrahedra[tetrahedronBase + otherIndex];
-        if ((other.identity.w & NM_OBJECT_ACTIVE) != 0u &&
-            all(sortedSurfaceNodes(currentNodes) ==
-                sortedSurfaceNodes(surfaceNodes(other, otherOpposite))))
-            return;
+        if ((other.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+            other.identity.y != tetrahedron.identity.y) continue;
+        for (uint otherOpposite = 0u; otherOpposite < 4u;
+             ++otherOpposite)
+            if (all(sortedSurfaceNodes(surfaceNodes(
+                    other, otherOpposite)) == sortedCurrent))
+                return;
     }
-    const uint objectIndex = face.adjacency.z;
+
+    const uint objectIndex = tetrahedron.identity.y;
     const NMContinuumObjectGPU object = objects[objectIndex];
     if (object.representation != NM_REPRESENTATION_FEM) return;
     const float dt = objectTimestep(
@@ -127,12 +339,8 @@ kernel void nm_contact_build_surface_primitives(
     float3 position[3];
     float maximumTravel = 0.0f;
     for (uint corner = 0u; corner < 3u; ++corner) {
-        if (currentNodes[corner] >= dispatch.femNodeCount) return;
-        const NMFEMNodeStateGPU node = nodes[nodeBase + currentNodes[corner]];
-        // FEM candidate position is the end of the implicit microstep.
-        // Reconstruct the accepted-time endpoint rather than sweeping the
-        // candidate through a second dt, which would detect contacts one
-        // microstep late and over-expand broadphase bounds.
+        const NMFEMNodeStateGPU node =
+            femNodes[nodeBase + currentNodes[corner]];
         position[corner] = node.positionAndMass.xyz;
         const float3 previous = position[corner] -
             dt * node.velocityAndInverseMass.xyz;
@@ -141,23 +349,25 @@ kernel void nm_contact_build_surface_primitives(
         maximumTravel = max(
             maximumTravel, length(position[corner] - previous));
     }
-    const float slop = dispatch.numericalLimits.x;
     const float area = 0.5f * length(cross(
         position[1] - position[0], position[2] - position[0]));
     if (!(area > kGeometryFloor) || !isfinite(area)) return;
-    NMFEMSurfacePrimitiveGPU primitive{};
+    NMContinuumSurfacePrimitiveGPU primitive{};
     primitive.nodesAndObject = {
-        currentNodes.x, currentNodes.y, currentNodes.z, objectIndex
+        dispatch.gridNodeCount + currentNodes.x,
+        dispatch.gridNodeCount + currentNodes.y,
+        dispatch.gridNodeCount + currentNodes.z,
+        objectIndex
     };
     primitive.identity = {
-        faceIndex, side, tetrahedron.identity.z, NM_TOPOLOGY_ACTIVE
+        localPrimitive, NM_CONTINUUM_SURFACE_TRIANGLE,
+        tetrahedron.identity.z, NM_TOPOLOGY_ACTIVE
     };
-    primitive.boundsMinimum = float4(minimumPoint - slop, area);
-    primitive.boundsMaximum = float4(maximumPoint + slop, maximumTravel);
+    primitive.boundsMinimum = float4(minimumPoint - thickness, area);
+    primitive.boundsMaximum = float4(
+        maximumPoint + thickness, maximumTravel);
     primitives[global] = primitive;
-    (void)microstep;
 }
-
 inline uint surfaceMortonSpread(uint value) {
     value &= 0x000003ffu;
     value = (value | (value << 16u)) & 0x030000ffu;
@@ -177,7 +387,7 @@ inline uint surfaceMortonKey(const float3 normalized) {
 
 kernel void nm_contact_sort_surface_primitives(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMFEMSurfacePrimitiveGPU* primitives [[buffer(1)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],
     device uint* keysA [[buffer(2)]],
     device uint* keysB [[buffer(3)]],
     device uint* indicesA [[buffer(4)]],
@@ -187,7 +397,7 @@ kernel void nm_contact_sort_surface_primitives(
     uint environment [[threadgroup_position_in_grid]]
 ) {
     if (lane >= 32u || environment >= dispatch.environmentCount) return;
-    const uint primitiveCount = 2u * dispatch.surfaceFaceCount;
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     if (primitiveCount == 0u) {
         if (lane == 0u) activeCounts[environment] = 0u;
         return;
@@ -196,7 +406,7 @@ kernel void nm_contact_sort_surface_primitives(
     float3 localMinimum = float3(INFINITY);
     float3 localMaximum = float3(-INFINITY);
     for (uint local = lane; local < primitiveCount; local += 32u) {
-        const NMFEMSurfacePrimitiveGPU primitive =
+        const NMContinuumSurfacePrimitiveGPU primitive =
             primitives[primitiveBase + local];
         if ((primitive.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) continue;
         const float3 centroid = 0.5f * (
@@ -225,7 +435,7 @@ kernel void nm_contact_sort_surface_primitives(
         const uint count = simd_sum(selected ? 1u : 0u);
         const uint output = compactedCount + prefix;
         if (selected) {
-            const NMFEMSurfacePrimitiveGPU primitive =
+            const NMContinuumSurfacePrimitiveGPU primitive =
                 primitives[primitiveBase + local];
             const float3 centroid = 0.5f * (
                 primitive.boundsMinimum.xyz + primitive.boundsMaximum.xyz);
@@ -303,36 +513,48 @@ kernel void nm_contact_sort_surface_primitives(
 }
 
 inline bool surfaceAABBOverlap(
-    const NMFEMSurfacePrimitiveGPU left,
-    const NMFEMSurfacePrimitiveGPU right
+    const NMContinuumSurfacePrimitiveGPU left,
+    const NMContinuumSurfacePrimitiveGPU right
 ) {
     return all(left.boundsMinimum.xyz <= right.boundsMaximum.xyz) &&
         all(right.boundsMinimum.xyz <= left.boundsMaximum.xyz);
 }
 
-inline bool surfaceTrianglesShareNode(
-    const NMFEMSurfacePrimitiveGPU left,
-    const NMFEMSurfacePrimitiveGPU right
+inline bool surfacePrimitivesShareNode(
+    const NMContinuumSurfacePrimitiveGPU left,
+    const NMContinuumSurfacePrimitiveGPU right
 ) {
     for (uint a = 0u; a < 3u; ++a)
         for (uint b = 0u; b < 3u; ++b)
-            if (left.nodesAndObject[a] == right.nodesAndObject[b])
+            if (left.nodesAndObject[a] != NM_INVALID_INDEX &&
+                left.nodesAndObject[a] == right.nodesAndObject[b])
                 return true;
     return false;
 }
 
+inline bool surfacePairEligible(
+    const NMContinuumSurfacePrimitiveGPU left,
+    const NMContinuumSurfacePrimitiveGPU right
+) {
+    if (left.nodesAndObject.w != right.nodesAndObject.w) return true;
+    if (left.identity.y == NM_CONTINUUM_SURFACE_POINT &&
+        right.identity.y == NM_CONTINUUM_SURFACE_POINT) return false;
+    return !surfacePrimitivesShareNode(left, right);
+}
+
 kernel void nm_contact_build_deformable_candidates(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMFEMSurfacePrimitiveGPU* primitives [[buffer(1)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],
     device const uint* sortedIndices [[buffer(2)]],
     device const uint* activeCounts [[buffer(3)]],
     device NMDeformableContactCandidateGPU* candidates [[buffer(4)]],
     device uint* candidateCounts [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
     if (lane >= 32u || environment >= dispatch.environmentCount) return;
-    const uint primitiveCount = 2u * dispatch.surfaceFaceCount;
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     const uint activeCount = activeCounts[environment];
     const uint capacity = dispatch.deformableContactCapacity;
     if (primitiveCount == 0u || activeCount < 2u || capacity == 0u) {
@@ -342,13 +564,17 @@ kernel void nm_contact_build_deformable_candidates(
     const uint primitiveBase = environment * primitiveCount;
     const uint candidateBase = environment * capacity;
     threadgroup uint outputCount;
-    if (lane == 0u) outputCount = 0u;
+    threadgroup uint overflow;
+    if (lane == 0u) {
+        outputCount = 0u;
+        overflow = 0u;
+    }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     for (uint leftOrder = 0u; leftOrder + 1u < activeCount;
          ++leftOrder) {
         const uint leftIndex = sortedIndices[primitiveBase + leftOrder];
         if (leftIndex >= primitiveCount) continue;
-        const NMFEMSurfacePrimitiveGPU left =
+        const NMContinuumSurfacePrimitiveGPU left =
             primitives[primitiveBase + leftIndex];
         for (uint firstRight = leftOrder + 1u;
              firstRight < activeCount; firstRight += 32u) {
@@ -356,7 +582,7 @@ kernel void nm_contact_build_deformable_candidates(
             const uint rightOrder = firstRight + lane;
             bool selected = rightOrder < activeCount;
             uint rightIndex = NM_INVALID_INDEX;
-            NMFEMSurfacePrimitiveGPU right{};
+            NMContinuumSurfacePrimitiveGPU right{};
             if (selected) {
                 rightIndex = sortedIndices[primitiveBase + rightOrder];
                 selected = rightIndex < primitiveCount;
@@ -366,8 +592,7 @@ kernel void nm_contact_build_deformable_candidates(
                 selected =
                     (right.identity.w & NM_TOPOLOGY_ACTIVE) != 0u &&
                     surfaceAABBOverlap(left, right) &&
-                    (left.nodesAndObject.w != right.nodesAndObject.w ||
-                     !surfaceTrianglesShareNode(left, right));
+                    surfacePairEligible(left, right);
             }
             const uint prefix = simd_prefix_exclusive_sum(
                 selected ? 1u : 0u);
@@ -382,14 +607,24 @@ kernel void nm_contact_build_deformable_candidates(
             }
             threadgroup_barrier(
                 mem_flags::mem_device | mem_flags::mem_threadgroup);
-            if (lane == 0u)
+            if (lane == 0u) {
+                if (count > capacity - outputCount) overflow = 1u;
                 outputCount = min(outputCount + count, capacity);
+            }
             threadgroup_barrier(
                 mem_flags::mem_device | mem_flags::mem_threadgroup);
         }
         if (outputCount >= capacity) break;
     }
-    if (lane == 0u) candidateCounts[environment] = outputCount;
+    if (lane == 0u) {
+        candidateCounts[environment] = outputCount;
+        if (overflow != 0u)
+            recordFailure(
+                statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+                NM_INVALID_INDEX, outputCount,
+                float4(float(outputCount), float(capacity),
+                       float(activeCount), 0.0f));
+    }
 }
 
 inline float3 closestPointOnTriangle(
@@ -617,61 +852,146 @@ inline bool edgeEdgeCCD(
     return false;
 }
 
+inline bool pointPointCCD(
+    const float3 a0,
+    const float3 a1,
+    const float3 b0,
+    const float3 b1,
+    const float thickness,
+    thread float& toi,
+    thread float3& normal,
+    thread float3& point,
+    thread float& separation,
+    thread bool& certified
+) {
+    certified = false;
+    const float3 relative0 = a0 - b0;
+    const float3 relativeVelocity = (a1 - a0) - (b1 - b0);
+    const float radius2 = thickness * thickness;
+    const float c = dot(relative0, relative0) - radius2;
+    float time = 0.0f;
+    if (c > 0.0f) {
+        const float a = dot(relativeVelocity, relativeVelocity);
+        const float b = 2.0f * dot(relative0, relativeVelocity);
+        if (!(a > kGeometryFloor)) {
+            certified = true;
+            return false;
+        }
+        const float discriminant = b * b - 4.0f * a * c;
+        if (discriminant < 0.0f) {
+            certified = true;
+            return false;
+        }
+        time = (-b - sqrt(max(discriminant, 0.0f))) / (2.0f * a);
+        if (time < 0.0f || time > 1.0f) {
+            certified = true;
+            return false;
+        }
+    }
+    const float3 a = mix(a0, a1, time);
+    const float3 b = mix(b0, b1, time);
+    const float3 delta = a - b;
+    const float distance = length(delta);
+    const float3 fallback = relativeVelocity +
+        float3(kGeometryFloor, 2.0f * kGeometryFloor, 3.0f * kGeometryFloor);
+    normal = distance > kGeometryFloor
+        ? delta / distance : normalize(fallback);
+    toi = time;
+    point = 0.5f * (a + b);
+    separation = distance;
+    certified = finite3(normal) && isfinite(distance);
+    return certified && distance <= thickness + 8.0f * kEpsilon;
+}
+
 kernel void nm_contact_narrowphase_deformable(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
     device const NMContinuumObjectGPU* objects [[buffer(2)]],
     device const NMMaterialGPU* materials [[buffer(3)]],
-    device const NMFEMNodeStateGPU* nodes [[buffer(4)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(4)]],
     device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
-    device const NMFEMSurfacePrimitiveGPU* primitives [[buffer(6)]],
-    device const NMDeformableContactCandidateGPU* candidates [[buffer(7)]],
-    device const uint* candidateCounts [[buffer(8)]],
-    device const NMDeformableWarmstartGPU* warmstarts [[buffer(9)]],
-    device NMDeformableContactGPU* contacts [[buffer(10)]],
-    device NMMatterStatusGPU* statuses [[buffer(11)]],
+    device const NMGridNodeStateGPU* gridNodes [[buffer(6)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(7)]],
+    device const NMDeformableContactCandidateGPU* candidates [[buffer(8)]],
+    device const uint* candidateCounts [[buffer(9)]],
+    device const NMDeformableContactHistoryGPU* histories [[buffer(10)]],
+    device NMDeformableContactGPU* contacts [[buffer(11)]],
+    device NMMatterStatusGPU* statuses [[buffer(12)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
     const uint total = dispatch.environmentCount * capacity;
     if (global >= total || capacity == 0u) return;
-    const NMDeformableWarmstartGPU previous = warmstarts[global];
+    const NMDeformableContactHistoryGPU previous = histories[global];
     contacts[global] = {};
     const uint environment = global / capacity;
     const uint slot = global - environment * capacity;
     if (slot >= candidateCounts[environment]) return;
     const NMDeformableContactCandidateGPU candidate = candidates[global];
     if ((candidate.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) return;
-    const uint primitiveCount = 2u * dispatch.surfaceFaceCount;
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     if (candidate.identity.x >= primitiveCount ||
         candidate.identity.y >= primitiveCount) return;
     const uint primitiveBase = environment * primitiveCount;
-    const NMFEMSurfacePrimitiveGPU left =
+    const NMContinuumSurfacePrimitiveGPU left =
         primitives[primitiveBase + candidate.identity.x];
-    const NMFEMSurfacePrimitiveGPU right =
+    const NMContinuumSurfacePrimitiveGPU right =
         primitives[primitiveBase + candidate.identity.y];
-    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint leftKind = left.identity.y;
+    const uint rightKind = right.identity.y;
+    if (left.nodesAndObject.w >= dispatch.objectCount ||
+        right.nodesAndObject.w >= dispatch.objectCount ||
+        leftKind > NM_CONTINUUM_SURFACE_POINT ||
+        rightKind > NM_CONTINUUM_SURFACE_POINT) return;
+
     float3 start[6];
     float3 finish[6];
     float3 velocity[6];
     float inverseMass[6];
+    bool nodeValid[6];
     for (uint local = 0u; local < 6u; ++local) {
-        const uint node = local < 3u
-            ? left.nodesAndObject[local]
-            : right.nodesAndObject[local - 3u];
-        if (node >= dispatch.femNodeCount) return;
-        const NMFEMNodeStateGPU state = nodes[nodeBase + node];
-        const uint objectIndex = local < 3u
-            ? left.nodesAndObject.w : right.nodesAndObject.w;
-        if (objectIndex >= dispatch.objectCount) return;
-        const float dt = objectTimestep(
-            dispatch,
-            schedulers[environment * dispatch.objectCount + objectIndex]);
-        finish[local] = state.positionAndMass.xyz;
-        velocity[local] = state.velocityAndInverseMass.xyz;
-        start[local] = finish[local] - dt * velocity[local];
-        inverseMass[local] = state.velocityAndInverseMass.w;
+        start[local] = finish[local] = velocity[local] = float3(0.0f);
+        inverseMass[local] = 0.0f;
+        const bool leftSide = local < 3u;
+        const NMContinuumSurfacePrimitiveGPU primitive =
+            leftSide ? left : right;
+        const uint corner = leftSide ? local : local - 3u;
+        const uint node = primitive.nodesAndObject[corner];
+        const uint objectIndex = primitive.nodesAndObject.w;
+        nodeValid[local] = node != NM_INVALID_INDEX;
+        if (!nodeValid[local]) continue;
+        const NMSchedulerStateGPU scheduler =
+            schedulers[environment * dispatch.objectCount + objectIndex];
+        const float dt = objectTimestep(dispatch, scheduler);
+        if (node < dispatch.gridNodeCount) {
+            const NMMatterDispatchGPU localDispatch = dispatch;
+            const NMGridNodeStateGPU state =
+                gridNodes[environment * localDispatch.gridNodeCount + node];
+            if (!(state.positionAndMass.w > 0.0f)) return;
+            start[local] = state.positionAndMass.xyz;
+            velocity[local] = state.candidateVelocity.xyz;
+            finish[local] = start[local] + dt * velocity[local];
+            inverseMass[local] = state.velocityAndInverseMass.w;
+        } else {
+            const uint femNode = node - dispatch.gridNodeCount;
+            if (femNode >= dispatch.femNodeCount) return;
+            const NMFEMNodeStateGPU state =
+                femNodes[environment * dispatch.femNodeCount + femNode];
+            finish[local] = state.positionAndMass.xyz;
+            velocity[local] = state.velocityAndInverseMass.xyz;
+            start[local] = finish[local] - dt * velocity[local];
+            inverseMass[local] = state.velocityAndInverseMass.w;
+        }
+        if (!finite3(start[local]) || !finite3(finish[local]) ||
+            !finite3(velocity[local]) || !isfinite(inverseMass[local]))
+            return;
     }
+    if (!nodeValid[0] || !nodeValid[3] ||
+        (leftKind == NM_CONTINUUM_SURFACE_TRIANGLE &&
+         (!nodeValid[1] || !nodeValid[2])) ||
+        (rightKind == NM_CONTINUUM_SURFACE_TRIANGLE &&
+         (!nodeValid[4] || !nodeValid[5]))) return;
+
     const float thickness = dispatch.numericalLimits.x;
     float bestTOI = INFINITY;
     float3 bestNormal = float3(0.0f);
@@ -683,14 +1003,86 @@ kernel void nm_contact_narrowphase_deformable(
     uint bestPositiveObject = NM_INVALID_INDEX;
     uint bestNegativeObject = NM_INVALID_INDEX;
 
-    for (uint direction = 0u; direction < 2u; ++direction) {
-        const uint vertexBase = direction == 0u ? 0u : 3u;
-        const uint triangleBase = direction == 0u ? 3u : 0u;
-        for (uint vertexIndex = 0u; vertexIndex < 3u; ++vertexIndex) {
-            float toi, separation;
-            float3 normal, barycentric, point;
-            bool certified = false;
-            const bool hit = vertexTriangleCCD(
+    if (leftKind == NM_CONTINUUM_SURFACE_POINT &&
+        rightKind == NM_CONTINUUM_SURFACE_POINT) {
+        float toi, separation;
+        float3 normal, point;
+        bool certified = false;
+        const bool hit = pointPointCCD(
+            start[0], finish[0], start[3], finish[3],
+            thickness, toi, normal, point, separation, certified);
+        if (!certified) {
+            recordFailure(statuses[environment],
+                NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                float4(float(candidate.identity.x),
+                       float(candidate.identity.y), 0.0f, 0.0f));
+            return;
+        }
+        if (hit) {
+            bestTOI = toi;
+            bestNormal = normal;
+            bestPoint = point;
+            bestSeparation = separation;
+            bestNodes = {
+                left.nodesAndObject.x, right.nodesAndObject.x,
+                NM_INVALID_INDEX, NM_INVALID_INDEX
+            };
+            bestWeights = float4(1.0f, -1.0f, 0.0f, 0.0f);
+            bestKind = NM_DEFORMABLE_CONTACT_POINT_POINT;
+            bestPositiveObject = left.nodesAndObject.w;
+            bestNegativeObject = right.nodesAndObject.w;
+        }
+    } else if (leftKind == NM_CONTINUUM_SURFACE_POINT ||
+               rightKind == NM_CONTINUUM_SURFACE_POINT) {
+        const uint pointBase =
+            leftKind == NM_CONTINUUM_SURFACE_POINT ? 0u : 3u;
+        const uint triangleBase = pointBase == 0u ? 3u : 0u;
+        float toi, separation;
+        float3 normal, barycentric, point;
+        bool certified = false;
+        const bool hit = vertexTriangleCCD(
+            start[pointBase], finish[pointBase],
+            start[triangleBase], finish[triangleBase],
+            start[triangleBase + 1u], finish[triangleBase + 1u],
+            start[triangleBase + 2u], finish[triangleBase + 2u],
+            thickness, toi, normal, barycentric, point, separation,
+            certified);
+        if (!certified) {
+            recordFailure(statuses[environment],
+                NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                float4(float(candidate.identity.x),
+                       float(candidate.identity.y), 1.0f, 0.0f));
+            return;
+        }
+        if (hit) {
+            const NMContinuumSurfacePrimitiveGPU pointPrimitive =
+                pointBase == 0u ? left : right;
+            const NMContinuumSurfacePrimitiveGPU trianglePrimitive =
+                triangleBase == 0u ? left : right;
+            bestTOI = toi;
+            bestNormal = normal;
+            bestPoint = point;
+            bestSeparation = separation;
+            bestNodes = {
+                pointPrimitive.nodesAndObject.x,
+                trianglePrimitive.nodesAndObject.x,
+                trianglePrimitive.nodesAndObject.y,
+                trianglePrimitive.nodesAndObject.z
+            };
+            bestWeights = float4(1.0f, -barycentric);
+            bestKind = NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
+            bestPositiveObject = pointPrimitive.nodesAndObject.w;
+            bestNegativeObject = trianglePrimitive.nodesAndObject.w;
+        }
+    } else {
+        for (uint direction = 0u; direction < 2u; ++direction) {
+            const uint vertexBase = direction == 0u ? 0u : 3u;
+            const uint triangleBase = direction == 0u ? 3u : 0u;
+            for (uint vertexIndex = 0u; vertexIndex < 3u; ++vertexIndex) {
+                float toi, separation;
+                float3 normal, barycentric, point;
+                bool certified = false;
+                const bool hit = vertexTriangleCCD(
                     start[vertexBase + vertexIndex],
                     finish[vertexBase + vertexIndex],
                     start[triangleBase], finish[triangleBase],
@@ -698,92 +1090,160 @@ kernel void nm_contact_narrowphase_deformable(
                     start[triangleBase + 2u], finish[triangleBase + 2u],
                     thickness, toi, normal, barycentric, point, separation,
                     certified);
-            if (!certified) {
-                recordFailure(statuses[environment],
-                    NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
-                    float4(float(candidate.identity.x),
-                           float(candidate.identity.y),
-                           float(vertexIndex), 0.0f));
-                return;
-            }
-            if (hit && toi < bestTOI) {
-                bestTOI = toi;
-                bestNormal = normal;
-                bestPoint = point;
-                bestSeparation = separation;
-                bestNodes = {
-                    (vertexBase == 0u ? left : right)
-                        .nodesAndObject[vertexIndex],
-                    (triangleBase == 0u ? left : right).nodesAndObject.x,
-                    (triangleBase == 0u ? left : right).nodesAndObject.y,
-                    (triangleBase == 0u ? left : right).nodesAndObject.z,
-                };
-                bestWeights = float4(1.0f, -barycentric);
-                bestKind = NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
-                bestPositiveObject = direction == 0u
-                    ? left.nodesAndObject.w : right.nodesAndObject.w;
-                bestNegativeObject = direction == 0u
-                    ? right.nodesAndObject.w : left.nodesAndObject.w;
+                if (!certified) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                        float4(float(candidate.identity.x),
+                               float(candidate.identity.y),
+                               float(vertexIndex), 0.0f));
+                    return;
+                }
+                if (hit && toi < bestTOI) {
+                    bestTOI = toi;
+                    bestNormal = normal;
+                    bestPoint = point;
+                    bestSeparation = separation;
+                    bestNodes = {
+                        (vertexBase == 0u ? left : right)
+                            .nodesAndObject[vertexIndex],
+                        (triangleBase == 0u ? left : right).nodesAndObject.x,
+                        (triangleBase == 0u ? left : right).nodesAndObject.y,
+                        (triangleBase == 0u ? left : right).nodesAndObject.z,
+                    };
+                    bestWeights = float4(1.0f, -barycentric);
+                    bestKind = NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
+                    bestPositiveObject = direction == 0u
+                        ? left.nodesAndObject.w : right.nodesAndObject.w;
+                    bestNegativeObject = direction == 0u
+                        ? right.nodesAndObject.w : left.nodesAndObject.w;
+                }
             }
         }
-    }
-    constexpr uint2 edges[3] = {
-        uint2(0u, 1u), uint2(1u, 2u), uint2(2u, 0u)
-    };
-    for (uint edgeA = 0u; edgeA < 3u; ++edgeA) {
-        for (uint edgeB = 0u; edgeB < 3u; ++edgeB) {
-            const uint2 a = edges[edgeA];
-            const uint2 b = edges[edgeB];
-            float toi, separation;
-            float3 normal, point;
-            float2 parameters;
-            bool certified = false;
-            const bool hit = edgeEdgeCCD(
+        constexpr uint2 edges[3] = {
+            uint2(0u, 1u), uint2(1u, 2u), uint2(2u, 0u)
+        };
+        for (uint edgeA = 0u; edgeA < 3u; ++edgeA) {
+            for (uint edgeB = 0u; edgeB < 3u; ++edgeB) {
+                const uint2 a = edges[edgeA];
+                const uint2 b = edges[edgeB];
+                float toi, separation;
+                float3 normal, point;
+                float2 parameters;
+                bool certified = false;
+                const bool hit = edgeEdgeCCD(
                     start[a.x], finish[a.x], start[a.y], finish[a.y],
                     start[3u + b.x], finish[3u + b.x],
                     start[3u + b.y], finish[3u + b.y],
                     thickness, toi, normal, parameters, point, separation,
                     certified);
-            if (!certified) {
-                recordFailure(statuses[environment],
-                    NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
-                    float4(float(candidate.identity.x),
-                           float(candidate.identity.y),
-                           float(edgeA), float(edgeB)));
-                return;
-            }
-            if (hit && toi < bestTOI) {
-                bestTOI = toi;
-                bestNormal = normal;
-                bestPoint = point;
-                bestSeparation = separation;
-                bestNodes = {
-                    left.nodesAndObject[a.x], left.nodesAndObject[a.y],
-                    right.nodesAndObject[b.x], right.nodesAndObject[b.y],
-                };
-                bestWeights = float4(
-                    1.0f - parameters.x, parameters.x,
-                    -(1.0f - parameters.y), -parameters.y);
-                bestKind = NM_DEFORMABLE_CONTACT_EDGE_EDGE;
-                bestPositiveObject = left.nodesAndObject.w;
-                bestNegativeObject = right.nodesAndObject.w;
+                if (!certified) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_CONTACT_FAILURE, left.nodesAndObject.w, slot,
+                        float4(float(candidate.identity.x),
+                               float(candidate.identity.y),
+                               float(edgeA), float(edgeB)));
+                    return;
+                }
+                if (hit && toi < bestTOI) {
+                    bestTOI = toi;
+                    bestNormal = normal;
+                    bestPoint = point;
+                    bestSeparation = separation;
+                    bestNodes = {
+                        left.nodesAndObject[a.x], left.nodesAndObject[a.y],
+                        right.nodesAndObject[b.x], right.nodesAndObject[b.y],
+                    };
+                    bestWeights = float4(
+                        1.0f - parameters.x, parameters.x,
+                        -(1.0f - parameters.y), -parameters.y);
+                    bestKind = NM_DEFORMABLE_CONTACT_EDGE_EDGE;
+                    bestPositiveObject = left.nodesAndObject.w;
+                    bestNegativeObject = right.nodesAndObject.w;
+                }
             }
         }
     }
     if (!isfinite(bestTOI) || bestTOI > 1.0f) return;
-    float3 relativeVelocity = float3(0.0f);
-    float inverseResponse = 0.0f;
+    uint bestSources[4] = {
+        NM_INVALID_INDEX, NM_INVALID_INDEX,
+        NM_INVALID_INDEX, NM_INVALID_INDEX
+    };
     for (uint local = 0u; local < 4u; ++local) {
-        uint source = NM_INVALID_INDEX;
+        if (bestNodes[local] == NM_INVALID_INDEX) continue;
         for (uint node = 0u; node < 6u; ++node) {
+            if (!nodeValid[node]) continue;
             const uint globalNode = node < 3u
                 ? left.nodesAndObject[node]
                 : right.nodesAndObject[node - 3u];
             if (globalNode == bestNodes[local]) {
-                source = node;
+                bestSources[local] = node;
                 break;
             }
         }
+        if (bestSources[local] == NM_INVALID_INDEX) return;
+    }
+
+    // CCD selects the swept feature and a conservative feasible-time bound.
+    // The primal IPC potential itself must be evaluated at the current Newton
+    // candidate (the finish configuration), not at first impact where the
+    // barrier value and gradient approach zero.
+    if (bestKind == NM_DEFORMABLE_CONTACT_POINT_POINT) {
+        const float3 positive = finish[bestSources[0]];
+        const float3 negative = finish[bestSources[1]];
+        const float3 delta = positive - negative;
+        const float distance = length(delta);
+        bestNormal = distance > kGeometryFloor
+            ? delta / distance : bestNormal;
+        bestPoint = 0.5f * (positive + negative);
+        bestSeparation = distance;
+        bestWeights = float4(1.0f, -1.0f, 0.0f, 0.0f);
+    } else if (bestKind == NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+        float3 barycentric;
+        const float3 positive = finish[bestSources[0]];
+        const float3 negative = closestPointOnTriangle(
+            positive,
+            finish[bestSources[1]],
+            finish[bestSources[2]],
+            finish[bestSources[3]],
+            barycentric);
+        const float3 delta = positive - negative;
+        const float distance = length(delta);
+        bestNormal = distance > kGeometryFloor
+            ? delta / distance : bestNormal;
+        bestPoint = negative;
+        bestSeparation = distance;
+        bestWeights = float4(1.0f, -barycentric);
+    } else {
+        float firstParameter, secondParameter;
+        float3 firstPoint, secondPoint;
+        closestPointsOnSegments(
+            finish[bestSources[0]], finish[bestSources[1]],
+            finish[bestSources[2]], finish[bestSources[3]],
+            firstParameter, secondParameter, firstPoint, secondPoint);
+        const float3 delta = firstPoint - secondPoint;
+        const float distance = length(delta);
+        bestNormal = distance > kGeometryFloor
+            ? delta / distance : bestNormal;
+        bestPoint = 0.5f * (firstPoint + secondPoint);
+        bestSeparation = distance;
+        bestWeights = float4(
+            1.0f - firstParameter, firstParameter,
+            -(1.0f - secondParameter), -secondParameter);
+    }
+    if (!finite3(bestNormal) || !finite3(bestPoint) ||
+        !isfinite(bestSeparation) || !all(isfinite(bestWeights))) {
+        recordFailure(statuses[environment],
+            NM_STATUS_CONTACT_FAILURE, bestPositiveObject, slot,
+            float4(bestSeparation, bestTOI, 0.0f, 0.0f));
+        return;
+    }
+
+    float3 relativeVelocity = float3(0.0f);
+    float inverseResponse = 0.0f;
+    for (uint local = 0u; local < 4u; ++local) {
+        if (bestNodes[local] == NM_INVALID_INDEX ||
+            abs(bestWeights[local]) <= kGeometryFloor) continue;
+        const uint source = bestSources[local];
         if (source == NM_INVALID_INDEX) return;
         relativeVelocity += bestWeights[local] * velocity[source];
         inverseResponse += bestWeights[local] * bestWeights[local] *
@@ -805,7 +1265,7 @@ kernel void nm_contact_narrowphase_deformable(
         max(left.identity.z, right.identity.z)
     };
     const bool sameSource =
-        previous.tangentAndFriction.w > 0.5f &&
+        previous.laggedTangentAndFriction.w > 0.5f &&
         all(previous.source.xy == contact.source.xy) &&
         previous.source.w == contact.source.w;
     if (bestPositiveObject >= dispatch.objectCount ||
@@ -813,9 +1273,78 @@ kernel void nm_contact_narrowphase_deformable(
     const float contactTimestep = objectTimestep(
         dispatch, schedulers[environment * dispatch.objectCount +
                              bestPositiveObject]);
-    const float4 barrier = ipcBarrierResponse(
+    if (!(contactTimestep > 0.0f) || !isfinite(contactTimestep)) return;
+    float4 timeScales = float4(0.0f);
+    for (uint local = 0u; local < 4u; ++local) {
+        if (bestNodes[local] == NM_INVALID_INDEX) continue;
+        const uint source = bestSources[local];
+        if (source == NM_INVALID_INDEX) return;
+        const uint sourceObject = source < 3u
+            ? left.nodesAndObject.w : right.nodesAndObject.w;
+        if (sourceObject >= dispatch.objectCount) return;
+        const float sourceTimestep = objectTimestep(
+            dispatch,
+            schedulers[environment * dispatch.objectCount + sourceObject]);
+        if (!(sourceTimestep > 0.0f) || !isfinite(sourceTimestep)) return;
+        timeScales[local] = sourceTimestep / contactTimestep;
+    }
+    if (!all(isfinite(timeScales))) return;
+    contact.timeScales = timeScales;
+    float featureMollifier = 1.0f;
+    float3 mollifierGradient[4] = {
+        float3(0.0f), float3(0.0f),
+        float3(0.0f), float3(0.0f)};
+    if (bestKind != NM_DEFORMABLE_CONTACT_POINT_POINT) {
+        float3 featurePosition[4] = {
+            float3(0.0f), float3(0.0f), float3(0.0f), float3(0.0f)};
+        bool completeFeature = true;
+        for (uint local = 0u; local < 4u; ++local) {
+            if (bestNodes[local] == NM_INVALID_INDEX) continue;
+            bool foundNode = false;
+            for (uint node = 0u; node < 6u; ++node) {
+                if (!nodeValid[node]) continue;
+                const uint globalNode = node < 3u
+                    ? left.nodesAndObject[node]
+                    : right.nodesAndObject[node - 3u];
+                if (globalNode == bestNodes[local]) {
+                    featurePosition[local] = finish[node];
+                    foundNode = true;
+                    break;
+                }
+            }
+            completeFeature = completeFeature && foundNode;
+        }
+        if (!completeFeature) return;
+        float3 firstGradient;
+        float3 secondGradient;
+        if (bestKind == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+            featureMollifier = ipcFeatureMollifierDifferential(
+                featurePosition[1] - featurePosition[0],
+                featurePosition[3] - featurePosition[2],
+                firstGradient, secondGradient);
+            mollifierGradient[0] = -firstGradient;
+            mollifierGradient[1] = firstGradient;
+            mollifierGradient[2] = -secondGradient;
+            mollifierGradient[3] = secondGradient;
+        } else {
+            featureMollifier = ipcFeatureMollifierDifferential(
+                featurePosition[2] - featurePosition[1],
+                featurePosition[3] - featurePosition[1],
+                firstGradient, secondGradient);
+            mollifierGradient[1] = -firstGradient - secondGradient;
+            mollifierGradient[2] = firstGradient;
+            mollifierGradient[3] = secondGradient;
+        }
+    }
+    const float4 baseBarrier = ipcBarrierResponse(
         bestSeparation, thickness, inverseResponse, contactTimestep,
         max(-dot(bestNormal, relativeVelocity), 0.0f));
+    const float baseBarrierEnergy = ipcBarrierEnergy(
+        bestSeparation, thickness, baseBarrier.w);
+    float4 barrier = baseBarrier;
+    barrier.x *= featureMollifier;
+    barrier.y *= featureMollifier;
+    barrier.w *= featureMollifier;
     const uint positiveMaterial = objects[bestPositiveObject].materialIndex;
     const uint negativeMaterial = objects[bestNegativeObject].materialIndex;
     if (positiveMaterial >= dispatch.materialCount ||
@@ -831,18 +1360,18 @@ kernel void nm_contact_narrowphase_deformable(
         float3 previousTangent0, previousTangent1;
         float3 nextTangent0, nextTangent1;
         deformableContactFrame(
-            previous.normalAndLambda.xyz,
+            previous.normalAndBarrier.xyz,
             previousTangent0, previousTangent1);
         deformableContactFrame(
             bestNormal, nextTangent0, nextTangent1);
         const float3 previousWorldTangent =
-            previous.tangentAndFriction.x * previousTangent0 +
-            previous.tangentAndFriction.y * previousTangent1;
+            previous.laggedTangentAndFriction.x * previousTangent0 +
+            previous.laggedTangentAndFriction.y * previousTangent1;
         transportedTangent = float2(
             dot(nextTangent0, previousWorldTangent),
             dot(nextTangent1, previousWorldTangent));
         const float tangentLimit = staticFriction *
-            max(previous.normalAndLambda.w, 0.0f);
+            max(previous.normalAndBarrier.w, 0.0f);
         const float tangentLength = length(transportedTangent);
         if (tangentLength > tangentLimit && tangentLength > 1.0e-20f)
             transportedTangent *= tangentLimit / tangentLength;
@@ -871,13 +1400,31 @@ kernel void nm_contact_narrowphase_deformable(
         laggedFriction,
         friction);
     contact.barrier = barrier;
+    const float3x3 projectedHessian = ipcProjectedSpatialHessian(
+        bestNormal, barrier.y, relativeVelocity,
+        frictionLimit, transitionSpeed);
+    matrixToRows(
+        projectedHessian,
+        contact.barrierHessianRow0,
+        contact.barrierHessianRow1,
+        contact.barrierHessianRow2);
+    contact.mollifierGradientRow0 = float4(mollifierGradient[0], 0.0f);
+    contact.mollifierGradientRow1 = float4(mollifierGradient[1], 0.0f);
+    contact.mollifierGradientRow2 = float4(mollifierGradient[2], 0.0f);
+    contact.mollifierGradientRow3 = float4(mollifierGradient[3], 0.0f);
+    contact.mollifier = float4(
+        featureMollifier,
+        contactTimestep * baseBarrierEnergy,
+        contactTimestep * contactTimestep * baseBarrierEnergy /
+            max(featureMollifier, 1.0e-3f),
+        baseBarrier.w);
     contacts[global] = contact;
     (void)microstep;
 }
 
 // Stable device compaction keeps the dynamic rows dense for every downstream
-// KKT phase while preserving candidate order and therefore deterministic
-// warm-start ownership.
+// primal solve while preserving candidate order and therefore deterministic
+// history ownership.
 kernel void nm_contact_compact_deformable(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMDeformableContactGPU* contacts [[buffer(1)]],
@@ -946,7 +1493,8 @@ kernel void nm_contact_scatter_deformable_active_work(
             environment * capacity + slot;
 }
 
-// Build a deterministic dynamic CSR from FEM nodes to active deformable
+// Build a deterministic dynamic CSR from unified MPM/FEM nodes to active
+// deformable
 // contact corners. Counting and scattering both traverse the stable compacted
 // contact order, so the later J^T gathers preserve a fixed summation order
 // without floating-point atomics.
@@ -958,10 +1506,11 @@ kernel void nm_contact_count_deformable_node_incidence(
     device NMIncidenceRangeGPU* nodeRanges [[buffer(4)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
-    if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
-    const uint environment = global / dispatch.femNodeCount;
-    const uint node = global - environment * dispatch.femNodeCount;
+    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint totalNodes = dispatch.environmentCount * nodeCount;
+    if (global >= totalNodes || nodeCount == 0u) return;
+    const uint environment = global / nodeCount;
+    const uint node = global - environment * nodeCount;
     const uint capacity = dispatch.deformableContactCapacity;
     const uint base = environment * capacity;
     const uint activeCount = min(activeCounts[environment], capacity);
@@ -985,11 +1534,12 @@ kernel void nm_contact_scan_deformable_node_incidence(
     uint environment [[threadgroup_position_in_grid]]
 ) {
     if (lane != 0u || environment >= dispatch.environmentCount) return;
-    const uint rangeBase = environment * dispatch.femNodeCount;
+    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint rangeBase = environment * nodeCount;
     const uint incidenceBase =
         4u * environment * dispatch.deformableContactCapacity;
     uint cursor = incidenceBase;
-    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+    for (uint node = 0u; node < nodeCount; ++node) {
         device NMIncidenceRangeGPU& range = nodeRanges[rangeBase + node];
         range.first = cursor;
         cursor += range.count;
@@ -1012,10 +1562,11 @@ kernel void nm_contact_scatter_deformable_node_incidence(
     device uint* nodeIncidence [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
-    if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
-    const uint environment = global / dispatch.femNodeCount;
-    const uint node = global - environment * dispatch.femNodeCount;
+    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint totalNodes = dispatch.environmentCount * nodeCount;
+    if (global >= totalNodes || nodeCount == 0u) return;
+    const uint environment = global / nodeCount;
+    const uint node = global - environment * nodeCount;
     const uint capacity = dispatch.deformableContactCapacity;
     const uint base = environment * capacity;
     const uint activeCount = min(activeCounts[environment], capacity);
@@ -1402,13 +1953,13 @@ inline float rigidDirectionalResponse(
 kernel void nm_contact_clear_samples(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device NMContactSampleGPU* samples [[buffer(1)]],
-    device float4* candidateWarmstarts [[buffer(2)]],
+    device float4* candidateHistories [[buffer(2)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.contactPairCount;
     if (global < total) {
         samples[global] = {};
-        candidateWarmstarts[global] = float4(0.0f);
+        candidateHistories[global] = float4(0.0f);
     }
 }
 
@@ -1427,7 +1978,7 @@ kernel void nm_contact_evaluate(
     device NMContactSampleGPU* samples [[buffer(11)]],
     device const uint* mpmNodeGenerations [[buffer(12)]],
     device NMMatterStatusGPU* statuses [[buffer(13)]],
-    device const float4* warmstarts [[buffer(14)]],
+    device const float4* histories [[buffer(14)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.contactPairCount;
@@ -1463,6 +2014,7 @@ kernel void nm_contact_evaluate(
     float3 point;
     float3 velocity;
     float inverseMass;
+    const float dt = objectTimestep(dispatch, scheduler);
     if (pair.continuumNode < dispatch.gridNodeCount) {
         const uint nodeSlot =
             environment * dispatch.gridNodeCount + pair.continuumNode;
@@ -1470,7 +2022,8 @@ kernel void nm_contact_evaluate(
             return;
         }
         const NMGridNodeStateGPU node = mpmNodes[nodeSlot];
-        point = node.positionAndMass.xyz;
+        point = node.positionAndMass.xyz +
+            dt * node.candidateVelocity.xyz;
         velocity = node.candidateVelocity.xyz;
         inverseMass = node.velocityAndInverseMass.w;
     } else {
@@ -1539,7 +2092,6 @@ kernel void nm_contact_evaluate(
         cross(rigid.angularVelocity.xyz, witness - rigid.centerAndRadius.xyz);
     const float3 relativeVelocity = velocity - rigidVelocity;
     const float normalVelocity = dot(relativeVelocity, normal);
-    const float dt = objectTimestep(dispatch, scheduler);
     // A positive separation is not contact merely because the continuum is
     // moving toward the proxy.  Admit a one-step speculative contact only
     // when the current normal velocity can actually consume that gap; the old
@@ -1570,41 +2122,39 @@ kernel void nm_contact_evaluate(
     ));
     const float3 tangentVelocity =
         relativeVelocity - normalVelocity * normal;
-    float3 tangentImpulseOnRigid = float3(0.0f);
     uint contactFlags = NM_CONTACT_VALID;
     const float tangentSpeed = length(tangentVelocity);
-    if (tangentSpeed > 1.0e-8f && normalImpulse > 0.0f) {
-        const float3 tangent = tangentVelocity / tangentSpeed;
-        const float tangentResponse = inverseMass +
-            rigidDirectionalResponse(rigid, lever, tangent);
-        if (tangentResponse > 1.0e-12f) {
-            const float desiredMagnitude = tangentSpeed / tangentResponse;
-            const bool staticBranch =
-                desiredMagnitude <= staticFriction * normalImpulse;
-            const float limit = staticBranch
-                ? desiredMagnitude
-                : dynamicFriction * normalImpulse;
-            tangentImpulseOnRigid = limit * tangent;
-            if (staticBranch) {
-                contactFlags |= NM_CONTACT_STICKING;
-            }
-        }
-    }
-    const float4 warm = warmstarts[global];
-    const bool validWarmstart = finite3(warm.xyz) && isfinite(warm.w) &&
-        warm.w >= 0.0f;
-    const float warmNormal = normalImpulse;
-    float3 warmTangent = validWarmstart
-        ? warm.xyz + warmNormal * normal
-        : tangentImpulseOnRigid;
-    warmTangent -= dot(warmTangent, normal) * normal;
-    const float warmLimit = dynamicFriction * warmNormal;
-    const float warmTangentLength = length(warmTangent);
-    if (warmTangentLength > warmLimit && warmTangentLength > 1.0e-12f)
-        warmTangent *= warmLimit / warmTangentLength;
+    const float transitionSpeed = max(
+        0.05f * slop / max(dt, 1.0e-12f), 1.0e-6f);
+    const float transition = smoothstep(
+        0.25f * transitionSpeed, transitionSpeed, tangentSpeed);
+    const float effectiveFriction = mix(
+        staticFriction, dynamicFriction, transition);
+    const float frictionLimit = effectiveFriction * normalImpulse;
+    const float regularizedSpeed = sqrt(
+        tangentSpeed * tangentSpeed + transitionSpeed * transitionSpeed);
+    const float3 laggedFriction = tangentSpeed > 0.0f
+        ? frictionLimit * tangentVelocity / regularizedSpeed
+        : float3(0.0f);
+    const float4 previousHistory = histories[global];
+    const bool validHistory = finite3(previousHistory.xyz) &&
+        isfinite(previousHistory.w) && previousHistory.w >= 0.0f;
+    const float historyNormal = normalImpulse;
+    float3 historyTangent = validHistory
+        ? previousHistory.xyz + historyNormal * normal
+        : laggedFriction;
+    historyTangent -= dot(historyTangent, normal) * normal;
+    const float historyLimit = effectiveFriction * historyNormal;
+    const float historyTangentLength = length(historyTangent);
+    if (historyTangentLength > historyLimit &&
+        historyTangentLength > 1.0e-12f)
+        historyTangent *= historyLimit / historyTangentLength;
     const float seededNormal = normalImpulse;
-    const float3 seededTangent = validWarmstart
-        ? warmTangent : tangentImpulseOnRigid;
+    const bool staticBranch = validHistory &&
+        tangentSpeed < 0.25f * transitionSpeed;
+    const float3 seededTangent = staticBranch
+        ? historyTangent : laggedFriction;
+    if (staticBranch) contactFlags |= NM_CONTACT_STICKING;
     const float3 impulseOnRigid =
         -seededNormal * normal + seededTangent;
     NMContactSampleGPU sample{};
@@ -1622,6 +2172,14 @@ kernel void nm_contact_evaluate(
         length(seededTangent)
     );
     sample.barrier = barrier;
+    const float3x3 projectedHessian = ipcProjectedSpatialHessian(
+        normal, barrier.y, tangentVelocity,
+        frictionLimit, transitionSpeed);
+    matrixToRows(
+        projectedHessian,
+        sample.barrierHessianRow0,
+        sample.barrierHessianRow1,
+        sample.barrierHessianRow2);
     samples[global] = sample;
 }
 
@@ -1674,7 +2232,7 @@ kernel void nm_contact_compact_active(
     }
 }
 
-kernel void nm_contact_checkpoint_warmstarts(
+kernel void nm_contact_checkpoint_histories(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const float4* accepted [[buffer(1)]],
     device float4* candidate [[buffer(2)]],
@@ -1687,7 +2245,7 @@ kernel void nm_contact_checkpoint_warmstarts(
     checkpoint[global] = accepted[global];
 }
 
-kernel void nm_contact_commit_warmstarts(
+kernel void nm_contact_commit_histories(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMMatterStatusGPU* statuses [[buffer(1)]],
     device float4* accepted [[buffer(2)]],
@@ -1701,7 +2259,7 @@ kernel void nm_contact_commit_warmstarts(
         accepted[global] = candidate[global];
 }
 
-kernel void nm_contact_rollback_warmstarts(
+kernel void nm_contact_rollback_histories(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMMatterStatusGPU* statuses [[buffer(1)]],
     device float4* accepted [[buffer(2)]],
@@ -1715,11 +2273,11 @@ kernel void nm_contact_rollback_warmstarts(
         accepted[global] = checkpoint[global];
 }
 
-kernel void nm_contact_checkpoint_deformable_warmstarts(
+kernel void nm_contact_checkpoint_deformable_contact_histories(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMDeformableWarmstartGPU* accepted [[buffer(1)]],
-    device NMDeformableWarmstartGPU* candidate [[buffer(2)]],
-    device NMDeformableWarmstartGPU* checkpoint [[buffer(3)]],
+    device const NMDeformableContactHistoryGPU* accepted [[buffer(1)]],
+    device NMDeformableContactHistoryGPU* candidate [[buffer(2)]],
+    device NMDeformableContactHistoryGPU* checkpoint [[buffer(3)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount *
@@ -1729,11 +2287,11 @@ kernel void nm_contact_checkpoint_deformable_warmstarts(
     checkpoint[global] = accepted[global];
 }
 
-kernel void nm_contact_commit_deformable_warmstarts(
+kernel void nm_contact_commit_deformable_contact_histories(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMMatterStatusGPU* statuses [[buffer(1)]],
-    device NMDeformableWarmstartGPU* accepted [[buffer(2)]],
-    device const NMDeformableWarmstartGPU* candidate [[buffer(3)]],
+    device NMDeformableContactHistoryGPU* accepted [[buffer(2)]],
+    device const NMDeformableContactHistoryGPU* candidate [[buffer(3)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
@@ -1744,12 +2302,12 @@ kernel void nm_contact_commit_deformable_warmstarts(
         accepted[global] = candidate[global];
 }
 
-kernel void nm_contact_rollback_deformable_warmstarts(
+kernel void nm_contact_rollback_deformable_contact_histories(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMMatterStatusGPU* statuses [[buffer(1)]],
-    device NMDeformableWarmstartGPU* accepted [[buffer(2)]],
-    device NMDeformableWarmstartGPU* candidate [[buffer(3)]],
-    device const NMDeformableWarmstartGPU* checkpoint [[buffer(4)]],
+    device NMDeformableContactHistoryGPU* accepted [[buffer(2)]],
+    device NMDeformableContactHistoryGPU* candidate [[buffer(3)]],
+    device const NMDeformableContactHistoryGPU* checkpoint [[buffer(4)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
@@ -1864,9 +2422,12 @@ kernel void nm_contact_accumulate_deformable_fem_residual(
     if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
     const uint environment = global / dispatch.femNodeCount;
     const uint node = global - environment * dispatch.femNodeCount;
+    const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint unifiedNode = dispatch.gridNodeCount + node;
     const uint capacity = dispatch.deformableContactCapacity;
     const uint base = environment * capacity;
-    const NMIncidenceRangeGPU range = nodeRanges[global];
+    const NMIncidenceRangeGPU range = nodeRanges[
+        environment * unifiedCount + unifiedNode];
     float3 impulse = float3(0.0f);
     for (uint incidence = 0u; incidence < range.count; ++incidence) {
         const uint encoded = nodeIncidence[range.first + incidence];
@@ -1875,7 +2436,7 @@ kernel void nm_contact_accumulate_deformable_fem_residual(
         if (slot >= capacity || local >= 4u) continue;
         const NMDeformableContactGPU contact = contacts[base + slot];
         if ((contact.identity.w & NM_CONTACT_VALID) == 0u ||
-            contact.nodes[local] != node) continue;
+            contact.nodes[local] != unifiedNode) continue;
         float3 tangent0, tangent1;
         deformableContactFrame(
             contact.normalAndTOI.xyz, tangent0, tangent1);
@@ -1883,20 +2444,23 @@ kernel void nm_contact_accumulate_deformable_fem_residual(
             contact.impulseAndFriction.x * contact.normalAndTOI.xyz +
             contact.impulseAndFriction.y * tangent0 +
             contact.impulseAndFriction.z * tangent1;
-        impulse += contact.weights[local] * contactImpulse;
+        impulse += contact.timeScales[local] * (
+            contact.weights[local] * contactImpulse -
+            contact.mollifier.y *
+                deformableMollifierGradient(contact, local));
     }
     residual[global] += float4(impulse, 0.0f);
 }
 
-kernel void nm_contact_apply_kkt_solution(
+kernel void nm_contact_publish_primal_history(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContactSampleGPU* samples [[buffer(1)]],
-    device float4* candidateWarmstarts [[buffer(2)]],
+    device float4* candidateHistories [[buffer(2)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.contactPairCount;
     if (global >= total || dispatch.contactPairCount == 0u) return;
-    candidateWarmstarts[global] = samples[global].impulseAndNormal;
+    candidateHistories[global] = samples[global].impulseAndNormal;
 }
 kernel void nm_contact_limit_deformable_line_search(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
@@ -1909,7 +2473,10 @@ kernel void nm_contact_limit_deformable_line_search(
     device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
     device const float4* correction [[buffer(8)]],
     device float4* lineSearch [[buffer(9)]],
-    device const NMMatterStatusGPU* statuses [[buffer(10)]],
+    device NMMatterStatusGPU* statuses [[buffer(10)]],
+    device const NMGridNodeStateGPU* gridNodes [[buffer(11)]],
+    device const uint* mpmNodeToActive [[buffer(12)]],
+    device const uint* mpmActiveCounts [[buffer(13)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -1919,6 +2486,9 @@ kernel void nm_contact_limit_deformable_line_search(
     const uint contactBase = environment * capacity;
     const uint nodeBase = environment * dispatch.femNodeCount;
     const uint activeCount = min(activeCounts[environment], capacity);
+    const uint objectBase = environment * dispatch.objectCount;
+    const float existing = dispatch.objectCount > 0u
+        ? lineSearch[objectBase].x : 1.0f;
     float bound = 1.0f;
     for (uint activeSlot = lane; activeSlot < activeCount;
          activeSlot += 32u) {
@@ -1928,22 +2498,125 @@ kernel void nm_contact_limit_deformable_line_search(
         if ((contact.identity.w & NM_CONTACT_VALID) == 0u) continue;
         float3 weightedPosition = float3(0.0f);
         float3 weightedDirection = float3(0.0f);
+        float3 position[4] = {
+            float3(0.0f), float3(0.0f),
+            float3(0.0f), float3(0.0f)
+        };
+        float3 displacement[4] = {
+            float3(0.0f), float3(0.0f),
+            float3(0.0f), float3(0.0f)
+        };
+        bool geometryValid = true;
         for (uint local = 0u; local < 4u; ++local) {
             const uint node = contact.nodes[local];
-            if (node >= dispatch.femNodeCount) continue;
-            const uint nodeGlobal = nodeBase + node;
+            if (node == NM_INVALID_INDEX) continue;
+            if (node < dispatch.gridNodeCount) {
+                const uint objectIndex = contact.weights[local] >= 0.0f
+                    ? contact.identity.x : contact.identity.y;
+                if (objectIndex >= dispatch.objectCount ||
+                    objects[objectIndex].representation !=
+                        NM_REPRESENTATION_MPM) {
+                    bound = 0.0f;
+                    geometryValid = false;
+                    continue;
+                }
+                const float dt = objectTimestep(
+                    dispatch,
+                    schedulers[environment * dispatch.objectCount +
+                               objectIndex]);
+                const uint gridGlobal =
+                    environment * dispatch.gridNodeCount + node;
+                const uint activeSlot = mpmNodeToActive[gridGlobal];
+                if (activeSlot >= mpmActiveCounts[environment]) {
+                    bound = 0.0f;
+                    geometryValid = false;
+                    continue;
+                }
+                position[local] =
+                    gridNodes[gridGlobal].positionAndMass.xyz +
+                    dt * gridNodes[gridGlobal].candidateVelocity.xyz;
+                displacement[local] = dt * correction[fgmresMPMIndex(
+                    dispatch, environment, activeSlot)].xyz;
+                weightedPosition += contact.weights[local] * position[local];
+                weightedDirection +=
+                    contact.weights[local] * displacement[local];
+                continue;
+            }
+            const uint femNode = node - dispatch.gridNodeCount;
+            if (femNode >= dispatch.femNodeCount) {
+                bound = 0.0f;
+                geometryValid = false;
+                continue;
+            }
+            const uint nodeGlobal = nodeBase + femNode;
             const uint objectIndex = femNodeRanges[nodeGlobal].objectIndex;
             if (objectIndex >= dispatch.objectCount ||
-                objects[objectIndex].representation != NM_REPRESENTATION_FEM)
+                objects[objectIndex].representation != NM_REPRESENTATION_FEM) {
+                bound = 0.0f;
+                geometryValid = false;
                 continue;
+            }
             const float dt = objectTimestep(
                 dispatch,
                 schedulers[environment * dispatch.objectCount + objectIndex]);
-            weightedPosition += contact.weights[local] *
-                candidate[nodeGlobal].positionAndMass.xyz;
-            weightedDirection += contact.weights[local] * dt *
-                correction[nodeGlobal].xyz;
+            position[local] = candidate[nodeGlobal].positionAndMass.xyz;
+            displacement[local] = dt * correction[nodeGlobal].xyz;
+            weightedPosition += contact.weights[local] * position[local];
+            weightedDirection +=
+                contact.weights[local] * displacement[local];
         }
+        if (!geometryValid) continue;
+
+        // Certify the complete Newton correction against actual feature
+        // geometry. Candidates may live inside the activation thickness; the
+        // conservative CCD boundary is a small positive distance from true
+        // intersection, not the barrier activation distance itself.
+        const float collisionThickness = max(
+            1.0e-4f * dispatch.numericalLimits.x,
+            16.0f * kEpsilon);
+        float toi = 1.0f;
+        float3 ccdNormal, ccdPoint;
+        float ccdSeparation = INFINITY;
+        bool certified = false;
+        bool hit = false;
+        if (contact.identity.z == NM_DEFORMABLE_CONTACT_POINT_POINT) {
+            hit = pointPointCCD(
+                position[0], position[0] + displacement[0],
+                position[1], position[1] + displacement[1],
+                collisionThickness, toi, ccdNormal, ccdPoint,
+                ccdSeparation, certified);
+        } else if (contact.identity.z ==
+                   NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+            float3 barycentric;
+            hit = vertexTriangleCCD(
+                position[0], position[0] + displacement[0],
+                position[1], position[1] + displacement[1],
+                position[2], position[2] + displacement[2],
+                position[3], position[3] + displacement[3],
+                collisionThickness, toi, ccdNormal, barycentric,
+                ccdPoint, ccdSeparation, certified);
+        } else if (contact.identity.z ==
+                   NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+            float2 parameters;
+            hit = edgeEdgeCCD(
+                position[0], position[0] + displacement[0],
+                position[1], position[1] + displacement[1],
+                position[2], position[2] + displacement[2],
+                position[3], position[3] + displacement[3],
+                collisionThickness, toi, ccdNormal, parameters,
+                ccdPoint, ccdSeparation, certified);
+        }
+        if (!certified || !isfinite(toi)) {
+            recordFailure(
+                statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                contact.identity.x, slot,
+                float4(float(contact.identity.z), toi,
+                       ccdSeparation, 0.0f));
+            bound = 0.0f;
+            continue;
+        }
+        if (hit) bound = min(bound, clamp(0.9f * toi, 0.0f, 1.0f));
+
         const float gap = dot(
             contact.normalAndTOI.xyz, weightedPosition) -
             dispatch.numericalLimits.x;
@@ -1953,11 +2626,71 @@ kernel void nm_contact_limit_deformable_line_search(
             bound = min(bound, clamp(
                 0.9f * gap / max(-directionalGap, 1.0e-30f),
                 0.0f, 1.0f));
+
+        float currentEnergy;
+        float currentSeparation;
+        if (!deformableBarrierEnergyAt(
+                contact, position, currentEnergy, currentSeparation)) {
+            recordFailure(
+                statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                contact.identity.x, slot,
+                float4(currentSeparation, currentEnergy, 0.0f, 0.0f));
+            bound = 0.0f;
+            continue;
+        }
+        // Barrier Armijo uses the full analytic product-rule gradient. The
+        // collision-free bound above is applied first; the accepted alpha is
+        // therefore both feasible and a descent step for every active
+        // positive barrier potential.
+        if (currentEnergy > 0.0f && bound > 0.0f) {
+            const float dt = objectTimestep(
+                dispatch,
+                schedulers[environment * dispatch.objectCount +
+                           contact.identity.x]);
+            float impulseDotDisplacement = 0.0f;
+            for (uint local = 0u; local < 4u; ++local) {
+                const float3 barrierImpulse =
+                    contact.weights[local] * contact.barrier.x *
+                        contact.normalAndTOI.xyz -
+                    contact.mollifier.y *
+                        deformableMollifierGradient(contact, local);
+                impulseDotDisplacement += dot(
+                    barrierImpulse, displacement[local]);
+            }
+            const float directionalDerivative =
+                -impulseDotDisplacement / max(dt, 1.0e-20f);
+            const float startAlpha = min(existing, bound);
+            float armijoAlpha = 0.0f;
+            for (uint trial = 0u; trial < 8u; ++trial) {
+                const float alpha = startAlpha * exp2(-float(trial));
+                float3 trialPosition[4];
+                for (uint local = 0u; local < 4u; ++local)
+                    trialPosition[local] =
+                        position[local] + alpha * displacement[local];
+                float trialEnergy;
+                float trialSeparation;
+                const bool finiteTrial = deformableBarrierEnergyAt(
+                    contact, trialPosition, trialEnergy, trialSeparation);
+                const float armijoRight = currentEnergy +
+                    1.0e-4f * alpha * directionalDerivative;
+                if (finiteTrial && trialEnergy <= armijoRight) {
+                    armijoAlpha = alpha;
+                    break;
+                }
+            }
+            if (!(armijoAlpha > 0.0f)) {
+                recordFailure(
+                    statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                    contact.identity.x, slot,
+                    float4(currentEnergy, directionalDerivative,
+                           startAlpha, 0.0f));
+                bound = 0.0f;
+            } else {
+                bound = min(bound, armijoAlpha);
+            }
+        }
     }
     bound = simd_min(bound);
-    const uint objectBase = environment * dispatch.objectCount;
-    const float existing = dispatch.objectCount > 0u
-        ? lineSearch[objectBase].x : 1.0f;
     const float alpha = min(existing, bound);
     for (uint objectIndex = lane; objectIndex < dispatch.objectCount;
          objectIndex += 32u) {
@@ -1967,12 +2700,163 @@ kernel void nm_contact_limit_deformable_line_search(
     }
 }
 
-kernel void nm_contact_apply_deformable_kkt_solution(
+// Conservative fraction-to-boundary for Matter/analytic-proxy contact. The
+// rigid displacement is evaluated through the same generalized point
+// Jacobian used by the monolithic operator, so continuum and articulated/free
+// rigid corrections are bounded together before candidate publication.
+kernel void nm_contact_limit_rigid_line_search(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMIncidenceRangeGPU* femNodeRanges [[buffer(2)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(4)]],
+    device const float4* correction [[buffer(5)]],
+    device float4* lineSearch [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    device const NMGridNodeStateGPU* gridNodes [[buffer(8)]],
+    constant NMPrimalContactArguments& contact [[buffer(9)]],
+    constant uint& articulatedNv [[buffer(10)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount ||
+        !environmentHealthy(statuses, environment)) return;
+    const uint activeCapacity = dispatch.reservedMixed1;
+    const uint activeCount = min(
+        contact.activeCounts[environment], activeCapacity);
+    const uint activeBase = environment * activeCapacity;
+    const uint objectBase = environment * dispatch.objectCount;
+    const float existing = dispatch.objectCount > 0u
+        ? lineSearch[objectBase].x : 1.0f;
+    float bound = 1.0f;
+    for (uint activeSlot = lane; activeSlot < activeCount;
+         activeSlot += 32u) {
+        const uint pairIndex = contact.activePairs[activeBase + activeSlot];
+        if (pairIndex >= dispatch.contactPairCount) {
+            bound = 0.0f;
+            continue;
+        }
+        const NMContactPairGPU pair = contact.pairs[pairIndex];
+        const NMContactSampleGPU sample = contact.samples[
+            environment * dispatch.contactPairCount + pairIndex];
+        if ((sample.identity.w & NM_CONTACT_VALID) == 0u ||
+            pair.objectIndex >= dispatch.objectCount) continue;
+        const NMContinuumObjectGPU object = objects[pair.objectIndex];
+        const float dt = objectTimestep(
+            dispatch,
+            schedulers[environment * dispatch.objectCount +
+                       pair.objectIndex]);
+        float3 continuumDisplacement = float3(0.0f);
+        if (pair.continuumNode < dispatch.gridNodeCount) {
+            const uint nodeGlobal =
+                environment * dispatch.gridNodeCount + pair.continuumNode;
+            const uint slot = contact.mpmNodeToActive[nodeGlobal];
+            if (object.representation != NM_REPRESENTATION_MPM ||
+                slot >= contact.mpmActiveNodeCounts[environment] ||
+                !(gridNodes[nodeGlobal].positionAndMass.w > 0.0f)) {
+                bound = 0.0f;
+                continue;
+            }
+            continuumDisplacement = dt * correction[fgmresMPMIndex(
+                dispatch, environment, slot)].xyz;
+        } else {
+            const uint node = pair.continuumNode - dispatch.gridNodeCount;
+            const uint nodeGlobal =
+                environment * dispatch.femNodeCount + node;
+            if (node >= dispatch.femNodeCount ||
+                object.representation != NM_REPRESENTATION_FEM ||
+                femNodeRanges[nodeGlobal].objectIndex != pair.objectIndex ||
+                !(candidate[nodeGlobal].positionAndMass.w > 0.0f)) {
+                bound = 0.0f;
+                continue;
+            }
+            continuumDisplacement = dt * correction[nodeGlobal].xyz;
+        }
+        const float3 rigidDisplacement = dt * coupledRigidPointDirection(
+            dispatch, contact, environment, pairIndex,
+            articulatedNv, correction);
+        const float3 relativeDisplacement =
+            continuumDisplacement - rigidDisplacement;
+        const float travel = length(relativeDisplacement);
+        const float separation = sample.pointAndSeparation.w;
+        const float collisionThickness = max(
+            1.0e-4f * dispatch.numericalLimits.x,
+            16.0f * kEpsilon);
+        if (!isfinite(separation) || !isfinite(travel) ||
+            separation <= collisionThickness) {
+            recordFailure(
+                statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex,
+                float4(separation, travel, collisionThickness, 0.0f));
+            bound = 0.0f;
+            continue;
+        }
+        if (travel > kGeometryFloor) {
+            bound = min(bound, clamp(
+                0.9f * (separation - collisionThickness) / travel,
+                0.0f, 1.0f));
+        }
+        const float currentEnergy = ipcBarrierEnergy(
+            separation, sample.barrier.z, sample.barrier.w);
+        if (!isfinite(currentEnergy)) {
+            recordFailure(
+                statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex,
+                float4(separation, currentEnergy, 0.0f, 0.0f));
+            bound = 0.0f;
+            continue;
+        }
+        if (currentEnergy > 0.0f && bound > 0.0f) {
+            const float directionalSeparation = dot(
+                sample.normalAndVelocity.xyz, relativeDisplacement);
+            const float directionalDerivative =
+                -sample.barrier.x * directionalSeparation /
+                    max(dt, 1.0e-20f);
+            const float startAlpha = min(existing, bound);
+            float armijoAlpha = 0.0f;
+            for (uint trial = 0u; trial < 8u; ++trial) {
+                const float alpha = startAlpha * exp2(-float(trial));
+                const float trialSeparation =
+                    separation + alpha * directionalSeparation;
+                const float trialEnergy = ipcBarrierEnergy(
+                    trialSeparation, sample.barrier.z, sample.barrier.w);
+                const float armijoRight = currentEnergy +
+                    1.0e-4f * alpha * directionalDerivative;
+                if (isfinite(trialEnergy) &&
+                    trialSeparation > collisionThickness &&
+                    trialEnergy <= armijoRight) {
+                    armijoAlpha = alpha;
+                    break;
+                }
+            }
+            if (!(armijoAlpha > 0.0f)) {
+                recordFailure(
+                    statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                    pair.objectIndex, pairIndex,
+                    float4(currentEnergy, directionalDerivative,
+                           startAlpha, 0.0f));
+                bound = 0.0f;
+            } else {
+                bound = min(bound, armijoAlpha);
+            }
+        }
+    }
+    bound = simd_min(bound);
+    const float alpha = min(existing, bound);
+    for (uint objectIndex = lane; objectIndex < dispatch.objectCount;
+         objectIndex += 32u) {
+        float4 state = lineSearch[objectBase + objectIndex];
+        state.x = alpha;
+        lineSearch[objectBase + objectIndex] = state;
+    }
+}
+
+kernel void nm_contact_publish_deformable_history(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMDeformableContactGPU* contacts [[buffer(1)]],
     device const uint* globalActiveIndices [[buffer(2)]],
     device const NMIndirectDispatchGPU* activeDispatch [[buffer(3)]],
-    device NMDeformableWarmstartGPU* warmstarts [[buffer(4)]],
+    device NMDeformableContactHistoryGPU* histories [[buffer(4)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
@@ -1984,14 +2868,14 @@ kernel void nm_contact_apply_deformable_kkt_solution(
     if (environment >= dispatch.environmentCount || slot >= capacity) return;
     const NMDeformableContactGPU contact =
         contacts[environment * capacity + slot];
-    NMDeformableWarmstartGPU warmstart{};
-    warmstart.source = contact.source;
-    warmstart.normalAndLambda = float4(
+    NMDeformableContactHistoryGPU history{};
+    history.source = contact.source;
+    history.normalAndBarrier = float4(
         contact.normalAndTOI.xyz, contact.barrier.x);
-    warmstart.tangentAndFriction = float4(
+    history.laggedTangentAndFriction = float4(
         contact.impulseAndFriction.yz,
         contact.impulseAndFriction.w, 1.0f);
-    warmstarts[environment * capacity + slot] = warmstart;
+    histories[environment * capacity + slot] = history;
 }
 kernel void nm_contact_accumulate_fem_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
