@@ -1040,34 +1040,22 @@ kernel void nm_mpm_g2p(
         );
         return;
     }
-    for (uint state = 0u; state < material.stateCount; ++state) {
-        float nextState = 0.0f;
-        if (!evaluateStateUpdate(
-                material,
-                state,
-                programs,
-                instructions,
-                environmentParameters +
-                    environment * dispatch.parameterCount,
-                internalState,
-                nextDeformation,
-                nextDeformationRate,
-                dt,
-                particle.referenceAndTemperature.w,
-                nextState
-            )) {
-            candidate[global] = particle;
-            recordFailure(
-                statuses[environment],
-                NM_STATUS_NONFINITE_RESULT,
-                objectIndex,
-                particleIndex,
-                float4(float(state), validityMargin, determinantValue, 0.0f)
-            );
-            return;
-        }
-        candidateMaterialState[materialStateBase + state] = nextState;
+    float projectedState[NM_MAX_MATERIAL_STATE];
+    if (!projectMaterialState(
+            material, programs, instructions,
+            environmentParameters + environment * dispatch.parameterCount,
+            internalState, nextDeformation, nextDeformationRate, dt,
+            particle.referenceAndTemperature.w, projectedState)) {
+        candidate[global] = particle;
+        recordFailure(statuses[environment],
+            NM_STATUS_LOCAL_MATERIAL_FAILURE, objectIndex, particleIndex,
+            float4(validityMargin, determinantValue,
+                   float(material.localNewtonIterations), 0.0f));
+        return;
     }
+    for (uint state = 0u; state < material.stateCount; ++state)
+        candidateMaterialState[materialStateBase + state] =
+            projectedState[state];
     candidate[global] = next;
 }
 

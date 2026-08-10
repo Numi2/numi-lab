@@ -218,7 +218,7 @@ A body-backed rigid proxy requires the global current-body arena. Dynamic free-b
 The subsystem implements the architecture and executable kernels listed above, but it does not claim one numerical representation solves all matter:
 
 - the MPM path currently targets updated-Lagrangian APIC/MLS-MPM solids on a fixed-capacity sparse block domain;
-- the generalized Krylov vector includes FEM mechanics, mixed fields, and active MPM grid velocity, but the MPM block currently contains lumped inertia and analytic-rigid barrier curvature rather than the particle constitutive tangent or FEM/MPM contact;
+- the generalized Krylov vector includes FEM mechanics, mixed fields, and active MPM grid velocity; MPM evaluates a backward-Euler particle/grid residual and matrix-free algorithmic material tangent in deterministic sparse-block order, while FEM/MPM contact generation remains outside the current pair builder;
 - internal state and rate-dependent dissipation are executable; authored implicit residuals use a damped local Newton solve and consistent condensed tangent while explicit next-state bytecode remains a compatibility path;
 - deformable contact has swept broadphase, non-adjacent self-contact, vertex-triangle/edge-edge CCD and a primal logarithmic barrier, but its PSD rank-one normal curvature is not the full mollified IPC Hessian and it does not claim an unconditional non-intersection theorem;
 - articulated continuum contact consumes same-command-buffer inverse-ABA response columns; barrier-force auxiliary rows carry that eliminated rigid response through the generalized operator without making articulated coordinates Matter-owned;

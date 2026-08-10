@@ -672,8 +672,10 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_precondition_deformable_contacts",
             "nm_fgmres_precondition_contact_cross",
             "nm_mpm_build_implicit_residual",
+            "nm_mpm_build_constitutive_residual",
             "nm_fgmres_precondition_mpm",
             "nm_fgmres_apply_mpm",
+            "nm_fgmres_apply_mpm_constitutive",
             "nm_fgmres_accumulate_mpm",
             "nm_fgmres_restart_residual_mpm",
             "nm_mpm_apply_implicit_solution",
@@ -3408,6 +3410,42 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:6u];
                 [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
             });
+            if (!dispatchIndirect(
+                    "nm_mpm_build_constitutive_residual",
+                    state.mpmActiveDispatch,
+                    256u,
+                    [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                        [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                        [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
+                        [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:8u];
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
+                        [encoder setBuffer:state.mpmGrids offset:0u atIndex:10u];
+                        [encoder setBuffer:state.mpmBlocks offset:0u atIndex:11u];
+                        [encoder setBuffer:state.mpmBlockLookup offset:0u atIndex:12u];
+                        [encoder setBuffer:state.mpmActiveBlocks offset:0u atIndex:13u];
+                        [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:14u];
+                        [encoder setBuffer:state.mpmBlockOffsets offset:0u atIndex:15u];
+                        [encoder setBuffer:state.mpmSortedParticleIndices offset:0u atIndex:16u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:17u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:18u];
+                        [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:19u];
+                        [encoder setBuffer:state.femDirection offset:0u atIndex:20u];
+                        [encoder setBuffer:state.femResidual offset:0u atIndex:21u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:23u];
+                    })) {
+                [encoder endEncoding];
+                ownership->preDynamicsOpen = false;
+                diagnostics.message =
+                    "failed to encode implicit MPM residual work";
+                return diagnostics;
+            }
             dispatchThreads("nm_fgmres_import_field_residual", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:1u];
@@ -3770,6 +3808,42 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femOperatorValue offset:0u atIndex:8u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
                 });
+                if (!dispatchIndirect(
+                        "nm_fgmres_apply_mpm_constitutive",
+                        state.mpmActiveDispatch,
+                        256u,
+                        [&] {
+                            setDispatch();
+                            [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
+                            [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                            [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                            [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                            [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                            [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                            [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
+                            [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:8u];
+                            [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
+                            [encoder setBuffer:state.mpmGrids offset:0u atIndex:10u];
+                            [encoder setBuffer:state.mpmBlocks offset:0u atIndex:11u];
+                            [encoder setBuffer:state.mpmBlockLookup offset:0u atIndex:12u];
+                            [encoder setBuffer:state.mpmActiveBlocks offset:0u atIndex:13u];
+                            [encoder setBuffer:state.mpmBlockCounts offset:0u atIndex:14u];
+                            [encoder setBuffer:state.mpmBlockOffsets offset:0u atIndex:15u];
+                            [encoder setBuffer:state.mpmSortedParticleIndices offset:0u atIndex:16u];
+                            [encoder setBuffer:state.schedulers offset:0u atIndex:17u];
+                            [encoder setBuffer:state.adaptive offset:0u atIndex:18u];
+                            [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:19u];
+                            [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:20u];
+                            [encoder setBuffer:state.femOperatorValue offset:0u atIndex:21u];
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:23u];
+                        })) {
+                    [encoder endEncoding];
+                    ownership->preDynamicsOpen = false;
+                    diagnostics.message =
+                        "failed to encode implicit MPM constitutive action";
+                    return diagnostics;
+                }
                 dispatchThreads("nm_fgmres_apply_contacts", activeContactTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];

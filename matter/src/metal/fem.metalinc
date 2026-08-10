@@ -1778,32 +1778,21 @@ kernel void nm_fem_validate(
         );
         return;
     }
-    for (uint state = 0u; state < material.stateCount; ++state) {
-        float nextState = 0.0f;
-        if (!evaluateStateUpdate(
-                material,
-                state,
-                programs,
-                instructions,
-                environmentParameters + environment * dispatch.parameterCount,
-                internalState,
-                deformation,
-                deformationRate,
-                dt,
-                material.bulk.y,
-                nextState
-            )) {
-            recordFailure(
-                statuses[environment],
-                NM_STATUS_NONFINITE_RESULT,
-                objectIndex,
-                tetrahedronIndex,
-                float4(float(state), validityMargin, determinantValue, 0.0f)
-            );
-            return;
-        }
-        candidateMaterialState[materialStateBase + state] = nextState;
+    float projectedState[NM_MAX_MATERIAL_STATE];
+    if (!projectMaterialState(
+            material, programs, instructions,
+            environmentParameters + environment * dispatch.parameterCount,
+            internalState, deformation, deformationRate, dt,
+            material.bulk.y, projectedState)) {
+        recordFailure(statuses[environment],
+            NM_STATUS_LOCAL_MATERIAL_FAILURE, objectIndex, tetrahedronIndex,
+            float4(validityMargin, determinantValue,
+                   float(material.localNewtonIterations), 0.0f));
+        return;
     }
+    for (uint state = 0u; state < material.stateCount; ++state)
+        candidateMaterialState[materialStateBase + state] =
+            projectedState[state];
 }
 
 kernel void nm_learned_differential_oracle(

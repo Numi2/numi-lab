@@ -2124,6 +2124,335 @@ kernel void nm_fgmres_apply_mpm(
     work[row] = float4(value, 0.0f);
 }
 
+inline bool mpmImplicitVelocityGradients(
+    const NMMatterDispatchGPU dispatch,
+    const NMMicrostepGPU microstep,
+    const uint environment,
+    const NMParticleStateGPU particle,
+    const NMMPMGridGPU grid,
+    device const NMGridNodeStateGPU* nodes,
+    device const uint* generations,
+    device const float4* direction,
+    const bool applyDirection,
+    thread float3x3& velocityGradient,
+    thread float3x3& directionGradient
+) {
+    velocityGradient = float3x3(0.0f);
+    directionGradient = float3x3(0.0f);
+    const float3 cell = particle.positionAndMass.xyz * grid.metrics.y;
+    const int3 base = int3(floor(cell - 0.5f));
+    for (int z = 0; z < 3; ++z) {
+        for (int y = 0; y < 3; ++y) {
+            for (int x = 0; x < 3; ++x) {
+                const int3 coordinate = base + int3(x, y, z);
+                const uint nodeIndex = gridNodeIndex(grid, coordinate);
+                const uint nodeGlobal = environment *
+                    dispatch.gridNodeCount + nodeIndex;
+                if (nodeIndex == NM_INVALID_INDEX ||
+                    nodeIndex >= dispatch.gridNodeCount ||
+                    generations[nodeGlobal] != microstep.reserved) return false;
+                float wx, wy, wz, dx, dy, dz;
+                const float3 nodePosition =
+                    float3(coordinate) * grid.metrics.x;
+                const float3 deltaCells =
+                    (nodePosition - particle.positionAndMass.xyz) *
+                    grid.metrics.y;
+                if (!quadraticKernel(deltaCells.x, grid.metrics.y, wx, dx) ||
+                    !quadraticKernel(deltaCells.y, grid.metrics.y, wy, dy) ||
+                    !quadraticKernel(deltaCells.z, grid.metrics.y, wz, dz))
+                    continue;
+                const float3 gradient = float3(
+                    dx * wy * wz, wx * dy * wz, wx * wy * dz);
+                velocityGradient += outerProduct(
+                    nodes[nodeGlobal].candidateVelocity.xyz, gradient);
+                if (applyDirection)
+                    directionGradient += outerProduct(
+                        direction[fgmresMPMIndex(
+                            dispatch, environment, nodeIndex)].xyz,
+                        gradient);
+            }
+        }
+    }
+    return true;
+}
+
+inline void evaluateSparseMPMImplicitNode(
+    const NMMatterDispatchGPU dispatch,
+    const NMMicrostepGPU microstep,
+    const uint environment,
+    const uint activeBlockIndex,
+    const uint localNode,
+    const bool applyOperator,
+    device const NMContinuumObjectGPU* objects,
+    device const NMMaterialGPU* materials,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* environmentParameters,
+    device const NMParticleStateGPU* particles,
+    device const float* particleMaterialState,
+    device const NMGridNodeStateGPU* nodes,
+    device const NMMPMGridGPU* grids,
+    device const NMMPMBlockGPU* blocks,
+    device const uint* blockLookup,
+    device const atomic_uint* blockCounts,
+    device const uint* blockOffsets,
+    device const uint* sortedParticleIndices,
+    device const NMSchedulerStateGPU* schedulers,
+    device const NMAdaptiveStateGPU* adaptive,
+    device const uint* generations,
+    device const float4* direction,
+    device float4* vector,
+    device const NMFGMRESStateGPU* states,
+    device NMMatterStatusGPU* statuses
+) {
+    if (activeBlockIndex >= dispatch.mpmBlockCount ||
+        localNode >= NM_MPM_BLOCK_NODE_COUNT ||
+        !environmentHealthy(statuses, environment) ||
+        (applyOperator && states[environment].diagnostics.z > 0.5f)) return;
+    const NMMPMBlockGPU block = blocks[activeBlockIndex];
+    if (block.identity.z >= dispatch.mpmGridCount ||
+        block.identity.w >= dispatch.objectCount) return;
+    const uint objectIndex = block.identity.w;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
+    if (object.representation != NM_REPRESENTATION_MPM ||
+        !objectDue(object, scheduler, adaptive[objectGlobal], microstep)) return;
+    const NMMPMGridGPU grid = grids[block.identity.z];
+    const int3 localCoordinate = int3(
+        int(localNode & 7u), int((localNode >> 3u) & 7u),
+        int((localNode >> 6u) & 7u));
+    const int3 nodeCoordinate = int3(
+        block.coordinateAndLookup.x, block.coordinateAndLookup.y,
+        block.coordinateAndLookup.z) * int(NM_MPM_BLOCK_EDGE) +
+        localCoordinate;
+    const uint nodeIndex = gridNodeIndex(grid, nodeCoordinate);
+    if (nodeIndex == NM_INVALID_INDEX || nodeIndex >= dispatch.gridNodeCount)
+        return;
+    const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
+    if (generations[nodeGlobal] != microstep.reserved ||
+        !(nodes[nodeGlobal].positionAndMass.w > 0.0f)) return;
+    const uint row = fgmresMPMIndex(dispatch, environment, nodeIndex);
+    const float3 nodePosition = float3(nodeCoordinate) * grid.metrics.x;
+    const float dt = objectTimestep(dispatch, scheduler);
+    float3 force = float3(0.0f);
+    device const float* parameters = environmentParameters +
+        environment * dispatch.parameterCount;
+    const int3 blockCoordinate = int3(
+        block.coordinateAndLookup.x, block.coordinateAndLookup.y,
+        block.coordinateAndLookup.z);
+    const uint particleBase = environment * dispatch.particleCount;
+    const uint blockBase = environment * dispatch.mpmBlockCount;
+    for (int neighborZ = -1; neighborZ <= 1; ++neighborZ) {
+        for (int neighborY = -1; neighborY <= 1; ++neighborY) {
+            for (int neighborX = -1; neighborX <= 1; ++neighborX) {
+                const uint neighborBlock = gridBlockIndex(
+                    grid, blockCoordinate + int3(
+                        neighborX, neighborY, neighborZ),
+                    blockLookup, dispatch.mpmBlockLookupCount);
+                if (neighborBlock == NM_INVALID_INDEX ||
+                    neighborBlock >= dispatch.mpmBlockCount) continue;
+                const uint blockSlot = blockBase + neighborBlock;
+                const uint count = min(atomic_load_explicit(
+                    blockCounts + blockSlot, memory_order_relaxed),
+                    dispatch.maximumParticlesPerBlock);
+                const uint first = blockOffsets[blockSlot];
+                for (uint local = 0u; local < count; ++local) {
+                    const uint particleIndex = sortedParticleIndices[
+                        particleBase + first + local];
+                    if (particleIndex >= dispatch.particleCount) continue;
+                    const NMParticleStateGPU particle =
+                        particles[particleBase + particleIndex];
+                    if (particle.identity.x != objectIndex ||
+                        (particle.identity.w & NM_OBJECT_ACTIVE) == 0u)
+                        continue;
+                    float wx, wy, wz, dx, dy, dz;
+                    const float3 deltaCells =
+                        (nodePosition - particle.positionAndMass.xyz) *
+                        grid.metrics.y;
+                    if (!quadraticKernel(
+                            deltaCells.x, grid.metrics.y, wx, dx) ||
+                        !quadraticKernel(
+                            deltaCells.y, grid.metrics.y, wy, dy) ||
+                        !quadraticKernel(
+                            deltaCells.z, grid.metrics.y, wz, dz)) continue;
+                    const float3 particleGradient = -float3(
+                        dx * wy * wz, wx * dy * wz, wx * wy * dz);
+                    float3x3 velocityGradient, directionGradient;
+                    if (!mpmImplicitVelocityGradients(
+                            dispatch, microstep, environment, particle, grid,
+                            nodes, generations, direction, applyOperator,
+                            velocityGradient, directionGradient)) {
+                        recordFailure(statuses[environment],
+                            NM_STATUS_CAPACITY_OVERFLOW, objectIndex,
+                            particleIndex, float4(float3(nodeCoordinate), 0.0f));
+                        return;
+                    }
+                    const float3x3 acceptedDeformation = matrixFromRows(
+                        particle.deformationRow0, particle.deformationRow1,
+                        particle.deformationRow2);
+                    const float3x3 candidateDeformation =
+                        (float3x3(1.0f) + dt * velocityGradient) *
+                        acceptedDeformation;
+                    const float3x3 candidateRate =
+                        velocityGradient * candidateDeformation;
+                    const NMMaterialGPU material =
+                        materials[particle.identity.y];
+                    device const float* internalState =
+                        material.stateCount == 0u ? nullptr :
+                        particleMaterialState +
+                            (particleBase + particleIndex) *
+                                dispatch.materialStateStride;
+                    bool valid = true;
+                    if (applyOperator) {
+                        const float3x3 deformationDirection =
+                            dt * directionGradient * acceptedDeformation;
+                        const float3x3 rateDirection =
+                            directionGradient * candidateDeformation +
+                            velocityGradient * deformationDirection;
+                        float3x3 stress, tangent;
+                        evaluateAlgorithmicStressTangent(
+                            material, programs, instructions, parameters,
+                            internalState, candidateDeformation,
+                            deformationDirection, candidateRate,
+                            rateDirection, dt,
+                            particle.referenceAndTemperature.w,
+                            stress, tangent, valid);
+                        if (valid) {
+                            const float3x3 forceDirection =
+                                tangent * transpose(candidateDeformation) +
+                                stress * transpose(deformationDirection);
+                            force += particle.velocityAndReferenceVolume.w *
+                                (forceDirection * particleGradient);
+                        }
+                    } else {
+                        const float3x3 stress = evaluateAlgorithmicStress(
+                            material, programs, instructions, parameters,
+                            internalState, candidateDeformation, candidateRate,
+                            dt, particle.referenceAndTemperature.w, valid);
+                        if (valid)
+                            force += particle.velocityAndReferenceVolume.w *
+                                ((stress * transpose(candidateDeformation)) *
+                                 particleGradient);
+                    }
+                    if (!valid) {
+                        recordFailure(statuses[environment],
+                            NM_STATUS_LOCAL_MATERIAL_FAILURE, objectIndex,
+                            particleIndex,
+                            float4(determinant(candidateDeformation), dt,
+                                   maximumAbs(velocityGradient), 0.0f));
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    if (applyOperator) {
+        vector[row].xyz -= dt * force;
+    } else {
+        const NMGridNodeStateGPU node = nodes[nodeGlobal];
+        const float inverseMass = node.velocityAndInverseMass.w;
+        const float3 predictor = node.velocityAndInverseMass.xyz + dt *
+            (node.forceAndEnergy.xyz * inverseMass +
+             dispatch.gravityAndTimestep.xyz);
+        vector[row].xyz += node.positionAndMass.w *
+            (predictor - node.candidateVelocity.xyz) +
+            dt * (force - node.forceAndEnergy.xyz);
+    }
+}
+
+kernel void nm_mpm_build_constitutive_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMParticleStateGPU* particles [[buffer(7)]],
+    device const float* particleMaterialState [[buffer(8)]],
+    device const NMGridNodeStateGPU* nodes [[buffer(9)]],
+    device const NMMPMGridGPU* grids [[buffer(10)]],
+    device const NMMPMBlockGPU* blocks [[buffer(11)]],
+    device const uint* blockLookup [[buffer(12)]],
+    device const NMActiveMPMBlockGPU* activeBlocks [[buffer(13)]],
+    device const atomic_uint* blockCounts [[buffer(14)]],
+    device const uint* blockOffsets [[buffer(15)]],
+    device const uint* sortedParticleIndices [[buffer(16)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(17)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
+    device const uint* generations [[buffer(19)]],
+    device const float4* direction [[buffer(20)]],
+    device float4* residual [[buffer(21)]],
+    device const NMFGMRESStateGPU* states [[buffer(22)]],
+    device NMMatterStatusGPU* statuses [[buffer(23)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const NMActiveMPMBlockGPU active = activeBlocks[group];
+    if (active.environment >= dispatch.environmentCount) return;
+    evaluateSparseMPMImplicitNode(
+        dispatch, microstep, active.environment, active.blockIndex, lane,
+        false, objects, materials, programs, instructions,
+        environmentParameters, particles, particleMaterialState, nodes,
+        grids, blocks, blockLookup, blockCounts, blockOffsets,
+        sortedParticleIndices, schedulers, adaptive, generations, direction,
+        residual, states, statuses);
+    evaluateSparseMPMImplicitNode(
+        dispatch, microstep, active.environment, active.blockIndex, lane + 256u,
+        false, objects, materials, programs, instructions,
+        environmentParameters, particles, particleMaterialState, nodes,
+        grids, blocks, blockLookup, blockCounts, blockOffsets,
+        sortedParticleIndices, schedulers, adaptive, generations, direction,
+        residual, states, statuses);
+}
+
+kernel void nm_fgmres_apply_mpm_constitutive(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMParticleStateGPU* particles [[buffer(7)]],
+    device const float* particleMaterialState [[buffer(8)]],
+    device const NMGridNodeStateGPU* nodes [[buffer(9)]],
+    device const NMMPMGridGPU* grids [[buffer(10)]],
+    device const NMMPMBlockGPU* blocks [[buffer(11)]],
+    device const uint* blockLookup [[buffer(12)]],
+    device const NMActiveMPMBlockGPU* activeBlocks [[buffer(13)]],
+    device const atomic_uint* blockCounts [[buffer(14)]],
+    device const uint* blockOffsets [[buffer(15)]],
+    device const uint* sortedParticleIndices [[buffer(16)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(17)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
+    device const uint* generations [[buffer(19)]],
+    device const float4* direction [[buffer(20)]],
+    device float4* work [[buffer(21)]],
+    device const NMFGMRESStateGPU* states [[buffer(22)]],
+    device NMMatterStatusGPU* statuses [[buffer(23)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const NMActiveMPMBlockGPU active = activeBlocks[group];
+    if (active.environment >= dispatch.environmentCount) return;
+    evaluateSparseMPMImplicitNode(
+        dispatch, microstep, active.environment, active.blockIndex, lane,
+        true, objects, materials, programs, instructions,
+        environmentParameters, particles, particleMaterialState, nodes,
+        grids, blocks, blockLookup, blockCounts, blockOffsets,
+        sortedParticleIndices, schedulers, adaptive, generations, direction,
+        work, states, statuses);
+    evaluateSparseMPMImplicitNode(
+        dispatch, microstep, active.environment, active.blockIndex, lane + 256u,
+        true, objects, materials, programs, instructions,
+        environmentParameters, particles, particleMaterialState, nodes,
+        grids, blocks, blockLookup, blockCounts, blockOffsets,
+        sortedParticleIndices, schedulers, adaptive, generations, direction,
+        work, states, statuses);
+}
+
 kernel void nm_fgmres_accumulate_mpm(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
