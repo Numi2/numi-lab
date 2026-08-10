@@ -6347,8 +6347,11 @@ kernel void mr_locomotion_task_complete(
             reason == MR_TASK_TERMINATION_CONTACT;
         fallLatched = fallLatched || physicalFall;
 
-        // Bootstrap only after 0.30 s of actual quiet bilateral support. The
-        // spare training-only lane is unused by this non-threat task.
+        // Retain quiet-support time as evidence, but do not use stillness as
+        // a prerequisite for advancing a physically supported reference.
+        // A previously learned balance policy may make small corrective
+        // motions forever; requiring literal quietness deadlocks otherwise
+        // safe upper-body skills at frame zero.
         const bool bootstrapFrame = gatedFramePosition <= 0.50f;
         float quietSupportSeconds = bootstrapFrame
             ? state.threatTeacher.w
@@ -6366,9 +6369,6 @@ kernel void mr_locomotion_task_complete(
                 : 0.0f;
         }
         state.threatTeacher.w = quietSupportSeconds;
-        const bool bootstrapped =
-            !bootstrapFrame || quietSupportSeconds >= 0.30f;
-
         uint nextRateCode = 0u;
         const bool atEnd =
             (program.interaction.w & MR_TASK_INTERACTION_LOOP) == 0u &&
@@ -6384,7 +6384,7 @@ kernel void mr_locomotion_task_complete(
             height > 0.64f &&
             tilt < 0.25f;
 
-        if (!fallLatched && !done && !atEnd && bootstrapped && contactsReady) {
+        if (!fallLatched && !done && !atEnd && contactsReady) {
             if (transitionMode) {
                 // RELEASE must move far enough to unload; APPROACH must move
                 // far enough to make contact. Requiring equality here would

@@ -1,0 +1,27 @@
+{
+  "schema": "numi.pqi2-upper-body-protocol.v1",
+  "id": "physically-qualified-imagination-ii-upper-body",
+  "status": "preregistered",
+  "branch": "numisolver",
+  "title": "Physically Qualified Imagination II: Stable-Base Composition",
+  "research_question": "Can invariant-base composition turn generated unilateral and bilateral hand-raising intent into solver-accepted G1 behavior without retraining or weakening the physical safety gate?",
+  "methods": [
+    "raw-generated",
+    "stable-base-composition"
+  ],
+  "tasks": {
+    "raise-right-hand": {"steps": 40, "target_joint_indices": [22]},
+    "raise-left-hand": {"steps": 40, "target_joint_indices": [15]},
+    "raise-both-hands": {"steps": 36, "target_joint_indices": [15, 22]}
+  },
+  "seeds": [2650443581, 2650443582, 2650443583, 2650443584, 2650443585],
+  "robustness_condition": "Seeded 0.95 to 1.05 multiplicative stiffness and damping calibration at difficulty band 1.",
+  "primary_endpoint": "Qualified success requires every requested shoulder to cross -0.15 rad, zero terminations, zero failed environment steps, minimum root height above 0.64 m, and maximum tilt below 0.50 rad.",
+  "composition": "Root, legs, waist, and unrequested arm remain at the fixed standing reference. Requested arms preserve the normalized ARDY within-arm trajectory, use unilateral proposals for bilateral composition, and are uniformly scaled only to satisfy compiled position and velocity limits.",
+  "claim_gates": [
+    "all 30 task-method-seed cells complete from a clean numisolver revision",
+    "zero failed environment steps",
+    "raw state traces and exact commands retained",
+    "simulator evidence is not hardware evidence"
+  ]
+}

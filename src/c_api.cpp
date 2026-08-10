@@ -693,6 +693,27 @@ void authorG1InteractionTrackingTask(
     task.interactionPhysicsGated = physicsGated;
     if (physicsGated) {
         task.id += "/physics-gated-v4";
+        // Band zero is the exact nominal replay. Band one is a bounded,
+        // seed-replayable robustness condition for generated upper-body
+        // skills: the same reference must tolerate modest stiffness and
+        // damping calibration error without changing its kinematic intent.
+        task.difficultyBandCount = 2u;
+        reset.operators = {
+            {
+                .operation = metalrobo::TaskRandomizationOperator::
+                    controllerParameter,
+                .component = 0u,
+                .minimumDifficultyBand = 1u,
+                .parameters = {0.95f, 1.05f, 0.0f, 0.0f},
+            },
+            {
+                .operation = metalrobo::TaskRandomizationOperator::
+                    controllerParameter,
+                .component = 1u,
+                .minimumDifficultyBand = 1u,
+                .parameters = {0.95f, 1.05f, 0.0f, 0.0f},
+            },
+        };
     }
     task.terminations.clear();
     if (physicsGated && config.disable_task_terminations == 0u) {

@@ -847,6 +847,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     imagine_parser.add_argument("--width", type=int, default=960)
     imagine_parser.add_argument("--height", type=int, default=1200)
     imagine_parser.add_argument("--samples", type=int, default=64)
+    imagine_parser.add_argument(
+        "--no-render",
+        action="store_true",
+        help="retain inference and physical evidence without presentation media",
+    )
     arguments = parser.parse_args(argv)
     if arguments.command == "inspect":
         print(json.dumps(inspect_model(
@@ -1051,6 +1056,62 @@ def main(argv: Sequence[str] | None = None) -> int:
         write_retarget(
             solver_motion_directory, solver_arrays, solver_evidence
         )
+
+        if arguments.no_render:
+            pipeline_evidence = {
+                "format": "numi.imagine-g1.v2",
+                "prompt": arguments.prompt.strip(),
+                "seed": arguments.seed,
+                "model_family": arguments.model_family,
+                "motion_to_mechanism": (
+                    "native-g1-joint-frames"
+                    if actual_skeleton == "g1skel34"
+                    else "core-endpoint-ik-retarget"
+                ),
+                "source_motion": str(motion_directory / "evidence.json"),
+                "g1_retarget": str(retarget_directory / "evidence.json"),
+                "interaction_pack": {
+                    "path": interaction_pack.name,
+                    "sha256": _sha256(interaction_pack),
+                    "content_fingerprint": interaction_fingerprint,
+                    "contact_fields": "unknown; no force or pressure synthesized",
+                },
+                "physical_run": {
+                    "path": str(physical_run_directory),
+                    "state_trace": str(state_trace),
+                    "device": physical_report["device"],
+                    "solver": physical_report["solver_mode"],
+                    "gravity": "compiled world gravity; integrated every substep",
+                    "physics_substeps": physical_report["physics_substeps"],
+                    "control_steps": physical_steps,
+                    "failed_environment_steps": physical_report[
+                        "failed_environment_steps"
+                    ],
+                    "maximum_root_height": physical_report["maximum_root_height"],
+                    "maximum_tilt": physical_report["maximum_tilt"],
+                    "termination_count": physical_report["termination_count"],
+                    "mean_tracking_score": physical_report["mean_tracking_score"],
+                    "clean_horizon_semantics": (
+                        "solver transactions completed without an authored "
+                        "termination; this is not motion-success evidence"
+                    ),
+                    "reference_tracking_outcome": physical_tracking,
+                },
+                "solver_motion": str(solver_motion_directory / "evidence.json"),
+                "render": None,
+                "gif": None,
+                "video": None,
+                "authority": (
+                    "ARDY joint intent executed by native G1 drives; retained "
+                    "physical states come only from accepted NumiSolver transactions"
+                ),
+            }
+            (output / "evidence.json").write_text(
+                json.dumps(pipeline_evidence, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            print(json.dumps(pipeline_evidence, indent=2, sort_keys=True))
+            return 0
 
         blender = shutil.which("blender")
         ffmpeg = shutil.which("ffmpeg")
