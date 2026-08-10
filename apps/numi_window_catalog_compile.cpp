@@ -914,6 +914,20 @@ int main(const int argc, const char* const* argv) {
             {"--scene", "ground", "--task", "numifly-flight",
              "--numifly-wing-manifest",
              "assets/numifly/maeda-wing-pack-v1/manifest.json"});
+        scene(
+            options.output,
+            "numifly-ground-forward-flight",
+            "numifly", "Numifly",
+            "ground", "Flight Test Ground",
+            "numifly-forward-flight", "Learn Forward Flight and Locomotion",
+            "numifly-ground-visual-observation.json",
+            {"--robot-source", "numifly-forward-flight", "--scene", "ground",
+             "--task", "numifly-forward-flight", "--numifly-wing-manifest",
+             "assets/numifly/maeda-wing-pack-v1/manifest.json",
+             "--zero-actions"},
+            {"--scene", "ground", "--task", "numifly-forward-flight",
+             "--numifly-wing-manifest",
+             "assets/numifly/maeda-wing-pack-v1/manifest.json"});
 
         const auto numiflyNoLegsPack =
             metalrobo::makeNumiflyNoLegsRobotPack(
@@ -1005,7 +1019,7 @@ int main(const int argc, const char* const* argv) {
 
         {
             std::ofstream version{options.output / "catalog.version"};
-            version << "6\n";
+            version << "7\n";
             if (!version) {
                 throw std::runtime_error("could not publish catalog version");
             }
