@@ -629,6 +629,35 @@ CompileResult compileWorld(
         } else {
             program.gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
         }
+        if (!program.implicitResiduals.empty()) {
+            program.gpu.implicitResidualProgramOffset =
+                static_cast<nm_u32>(world.scalarPrograms.size());
+            for (const ScalarBytecode& residual : program.implicitResiduals) {
+                appendProgram(residual, world.instructions, world.scalarPrograms);
+            }
+            program.gpu.implicitJacobianProgramOffset =
+                static_cast<nm_u32>(world.scalarPrograms.size());
+            for (const ScalarBytecode& jacobian : program.implicitJacobians) {
+                appendProgram(jacobian, world.instructions, world.scalarPrograms);
+            }
+            program.gpu.implicitDeformationProgramOffset =
+                static_cast<nm_u32>(world.scalarPrograms.size());
+            for (const ScalarBytecode& direction :
+                 program.implicitDeformationDirections) {
+                appendProgram(direction, world.instructions, world.scalarPrograms);
+            }
+            program.gpu.stressStateDerivativeProgramOffset =
+                static_cast<nm_u32>(world.scalarPrograms.size());
+            for (const ScalarBytecode& derivative :
+                 program.stressStateDerivatives) {
+                appendProgram(derivative, world.instructions, world.scalarPrograms);
+            }
+        } else {
+            program.gpu.implicitResidualProgramOffset = NM_INVALID_INDEX;
+            program.gpu.implicitJacobianProgramOffset = NM_INVALID_INDEX;
+            program.gpu.implicitDeformationProgramOffset = NM_INVALID_INDEX;
+            program.gpu.stressStateDerivativeProgramOffset = NM_INVALID_INDEX;
+        }
         if (program.dissipation.has_value()) {
             program.gpu.dissipationProgram =
                 static_cast<nm_u32>(world.scalarPrograms.size());

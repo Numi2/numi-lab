@@ -267,6 +267,8 @@ public:
                 );
             } else if (matchIdentifier("update")) {
                 parseStateUpdate(material);
+            } else if (matchIdentifier("implicit")) {
+                parseStateImplicit(material);
             } else if (matchIdentifier("valid")) {
                 parseRoot(material, material.validityRoot, kDimensionless, "validity");
             } else if (matchIdentifier("supports")) {
@@ -276,7 +278,7 @@ public:
             } else if (matchIdentifier("limits")) {
                 parseLimits(material);
             } else {
-                error(peek(), "expected parameter, state, model, energy, dissipation, update, valid, supports, interface or limits");
+                error(peek(), "expected parameter, state, model, energy, dissipation, update, implicit, valid, supports, interface or limits");
                 synchronize();
             }
         }
@@ -507,12 +509,25 @@ private:
         state.dimension = unit.dimension;
         expect(TokenKind::equal, "'=' after state unit");
         state.initialValue = signedNumber("state value") * unit.scale;
+        if (matchIdentifier("transfer")) {
+            const std::string policy = identifier("state transfer policy");
+            if (policy == "average") {
+                state.transfer = InternalState::Transfer::average;
+            } else if (policy == "max") {
+                state.transfer = InternalState::Transfer::maximum;
+            } else if (policy == "sum") {
+                state.transfer = InternalState::Transfer::sum;
+            } else {
+                error(peek(), "state transfer must be average, max, or sum");
+            }
+        }
         expect(TokenKind::semicolon, "';' after state declaration");
         if (stateIndex(material, state.name).has_value()) {
             error(peek(), "duplicate state '" + state.name + "'");
         }
         material.internalState.push_back(std::move(state));
         material.stateUpdateRoots.push_back(NM_INVALID_INDEX);
+        material.stateImplicitRoots.push_back(NM_INVALID_INDEX);
         if (material.internalState.size() > NM_MAX_MATERIAL_STATE) {
             error(
                 peek(),
@@ -555,7 +570,43 @@ private:
         if (material.stateUpdateRoots[*state] != NM_INVALID_INDEX) {
             error(nameToken, "duplicate update for state '" + name + "'");
         }
+        if (*state < material.stateImplicitRoots.size() &&
+            material.stateImplicitRoots[*state] != NM_INVALID_INDEX) {
+            error(nameToken, "state '" + name + "' cannot have both update and implicit evolution");
+        }
         material.stateUpdateRoots[*state] = root;
+    }
+
+    void parseStateImplicit(MaterialProgram& material) {
+        const Token nameToken = peek();
+        const std::string name = identifier("state name after implicit");
+        const auto state = stateIndex(material, name);
+        if (!state.has_value()) {
+            error(nameToken, "implicit residual references unknown state '" + name + "'");
+            synchronize();
+            return;
+        }
+        expect(TokenKind::equal, "'=' after implicit state name");
+        const std::uint32_t root = expression(material);
+        expect(TokenKind::semicolon, "';' after implicit residual");
+        if (root == NM_INVALID_INDEX || root >= material.expressions.nodes.size()) {
+            return;
+        }
+        if (material.expressions.nodes[root].dimension !=
+            material.internalState[*state].dimension) {
+            error(nameToken, "implicit residual for '" + name +
+                "' must have the state's dimensions");
+        }
+        material.stateImplicitRoots.resize(
+            material.internalState.size(), NM_INVALID_INDEX);
+        if (material.stateImplicitRoots[*state] != NM_INVALID_INDEX) {
+            error(nameToken, "duplicate implicit residual for state '" + name + "'");
+        }
+        if (*state < material.stateUpdateRoots.size() &&
+            material.stateUpdateRoots[*state] != NM_INVALID_INDEX) {
+            error(nameToken, "state '" + name + "' cannot have both update and implicit evolution");
+        }
+        material.stateImplicitRoots[*state] = root;
     }
 
     void parseModel(MaterialProgram& material) {
@@ -710,6 +761,21 @@ private:
             return material.expressions.constant(0.0);
         }
         expect(TokenKind::leftParen, "'('");
+        if (token.text == "next") {
+            const Token stateToken = peek();
+            const std::string name = identifier("state name in next(state)");
+            expect(TokenKind::rightParen, "')' after next(state)");
+            const auto state = stateIndex(material, name);
+            if (!state.has_value()) {
+                error(stateToken, "next() references unknown state '" + name + "'");
+                return material.expressions.constant(0.0);
+            }
+            Expr result;
+            result.kind = ExprKind::candidateState;
+            result.dimension = material.internalState[*state].dimension;
+            result.index = *state;
+            return material.expressions.append(result);
+        }
         if (token.text == "I1" || token.text == "traceC") {
             expect(TokenKind::rightParen, "')'");
             return invariantI1(material);

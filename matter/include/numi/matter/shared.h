@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 11u
+#define NM_MATTER_ABI_VERSION 12u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -97,6 +97,7 @@ enum NMExpressionOpcode : nm_u32 {
     NM_EXPR_DT = 18u,
     NM_EXPR_TEMPERATURE = 19u,
     NM_EXPR_RATE = 20u,
+    NM_EXPR_NEXT_STATE = 21u,
 };
 
 enum NMStatusCode : nm_u32 {
@@ -114,15 +115,26 @@ enum NMStatusCode : nm_u32 {
     NM_STATUS_MULTIPHYSICS_FAILURE = 11u,
     NM_STATUS_TOPOLOGY_FAILURE = 12u,
     NM_STATUS_LEARNED_MATERIAL_FAILURE = 13u,
+    NM_STATUS_LOCAL_MATERIAL_FAILURE = 14u,
+    NM_STATUS_TOPOLOGY_GROWTH_REQUIRED = 15u,
 };
 
 enum NMMaterialFlags : nm_u32 {
     NM_MATERIAL_HAS_STATE = 1u << 0u,
     NM_MATERIAL_HAS_DISSIPATION = 1u << 1u,
+    NM_MATERIAL_HAS_IMPLICIT_STATE = 1u << 2u,
 };
 
 enum NMMaterialProjectionKind : nm_u32 {
     NM_MATERIAL_PROJECTION_GENERIC = 0u,
+    NM_MATERIAL_PROJECTION_VON_MISES = 1u,
+    NM_MATERIAL_PROJECTION_DRUCKER_PRAGER = 2u,
+};
+
+enum NMMaterialStateTransfer : nm_u32 {
+    NM_MATERIAL_TRANSFER_AVERAGE = 0u,
+    NM_MATERIAL_TRANSFER_MAXIMUM = 1u,
+    NM_MATERIAL_TRANSFER_SUM = 2u,
 };
 
 enum NMMatterFlags : nm_u32 {
@@ -582,8 +594,16 @@ typedef struct NM_ALIGN16 NMMaterialGPU {
     // that the material has no rate-dependent constitutive contribution.
     nm_u32 viscousStressProgramOffset;
     nm_u32 viscousTangentProgramOffset;
-    nm_u32 reservedState0;
-    nm_u32 reservedState1;
+    nm_u32 implicitResidualProgramOffset;
+    nm_u32 implicitJacobianProgramOffset;
+
+    // R_F dF programs, P_z programs, packed 2-bit transfer policies, and the
+    // fixed local Newton budget. These programs produce the consistent
+    // algorithmic tangent P_F - P_z R_z^-1 R_F.
+    nm_u32 implicitDeformationProgramOffset;
+    nm_u32 stressStateDerivativeProgramOffset;
+    nm_u32 stateTransferMask;
+    nm_u32 localNewtonIterations;
 
     // density, reference temperature, viscosity, yield stress.
     nm_float4 bulk;

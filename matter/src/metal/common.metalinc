@@ -235,13 +235,14 @@ inline float objectTimestep(
     return dispatch.gravityAndTimestep.w / float(1u << exponent);
 }
 
-template <typename StatePointer>
-inline float evaluateScalarProgram(
+template <typename StatePointer, typename CandidatePointer>
+inline float evaluateScalarProgramWithCandidate(
     const uint programIndex,
     device const NMScalarProgramGPU* programs,
     device const NMExpressionInstructionGPU* instructions,
     device const float* parameters,
     StatePointer internalState,
+    CandidatePointer candidateState,
     thread const float* deformation,
     thread const float* deformationDirection,
     thread const float* deformationRate,
@@ -301,6 +302,14 @@ inline float evaluateScalarProgram(
                 break;
             }
             push(internalState[instruction.index]);
+            break;
+        case NM_EXPR_NEXT_STATE:
+            if (candidateState == nullptr ||
+                instruction.index >= NM_MAX_MATERIAL_STATE) {
+                valid = false;
+                break;
+            }
+            push(candidateState[instruction.index]);
             break;
         case NM_EXPR_DT:
             push(timestep);
@@ -419,6 +428,27 @@ inline float evaluateScalarProgram(
         return 0.0f;
     }
     return stack[0];
+}
+
+template <typename StatePointer>
+inline float evaluateScalarProgram(
+    const uint programIndex,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    thread const float* deformation,
+    thread const float* deformationDirection,
+    thread const float* deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid
+) {
+    return evaluateScalarProgramWithCandidate(
+        programIndex, programs, instructions, parameters,
+        internalState, internalState, deformation, deformationDirection,
+        deformationRate, timestep, temperature, valid
+    );
 }
 
 inline void matrixComponents(
@@ -616,6 +646,106 @@ inline bool evaluateStateUpdate(
     return valid && isfinite(nextState);
 }
 
+inline bool solveLocalMaterialSystem(
+    thread float* matrix,
+    thread float* rightHandSide,
+    const uint count
+) {
+    for (uint column = 0u; column < count; ++column) {
+        uint pivot = column;
+        float pivotMagnitude = abs(matrix[column * count + column]);
+        for (uint row = column + 1u; row < count; ++row) {
+            const float magnitude = abs(matrix[row * count + column]);
+            if (magnitude > pivotMagnitude) {
+                pivot = row;
+                pivotMagnitude = magnitude;
+            }
+        }
+        if (!(pivotMagnitude > 1.0e-8f) || !isfinite(pivotMagnitude)) {
+            return false;
+        }
+        if (pivot != column) {
+            for (uint entry = column; entry < count; ++entry) {
+                const float value = matrix[column * count + entry];
+                matrix[column * count + entry] = matrix[pivot * count + entry];
+                matrix[pivot * count + entry] = value;
+            }
+            const float value = rightHandSide[column];
+            rightHandSide[column] = rightHandSide[pivot];
+            rightHandSide[pivot] = value;
+        }
+        const float diagonal = matrix[column * count + column];
+        for (uint row = column + 1u; row < count; ++row) {
+            const float factor = matrix[row * count + column] / diagonal;
+            matrix[row * count + column] = 0.0f;
+            for (uint entry = column + 1u; entry < count; ++entry) {
+                matrix[row * count + entry] -=
+                    factor * matrix[column * count + entry];
+            }
+            rightHandSide[row] -= factor * rightHandSide[column];
+        }
+    }
+    for (int row = int(count) - 1; row >= 0; --row) {
+        float value = rightHandSide[uint(row)];
+        for (uint column = uint(row) + 1u; column < count; ++column) {
+            value -= matrix[uint(row) * count + column] *
+                rightHandSide[column];
+        }
+        rightHandSide[uint(row)] =
+            value / matrix[uint(row) * count + uint(row)];
+        if (!isfinite(rightHandSide[uint(row)])) return false;
+    }
+    return true;
+}
+
+inline bool evaluateImplicitMaterialSystem(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* acceptedState,
+    thread const float* candidateState,
+    const float3x3 deformation,
+    const float3x3 deformationDirection,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread float* residual,
+    thread float* jacobian,
+    const bool evaluateJacobian
+) {
+    float f[9];
+    float direction[9];
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationDirection, direction);
+    matrixComponents(deformationRate, rate);
+    bool valid = true;
+    for (uint row = 0u; row < material.stateCount; ++row) {
+        residual[row] = evaluateScalarProgramWithCandidate(
+            material.implicitResidualProgramOffset + row,
+            programs, instructions, parameters + material.parameterOffset,
+            acceptedState, candidateState, f, direction, rate, timestep,
+            temperature, valid
+        );
+        if (!valid) return false;
+        if (!evaluateJacobian) continue;
+        for (uint column = 0u; column < material.stateCount; ++column) {
+            jacobian[row * material.stateCount + column] =
+                evaluateScalarProgramWithCandidate(
+                    material.implicitJacobianProgramOffset +
+                        row * material.stateCount + column,
+                    programs, instructions,
+                    parameters + material.parameterOffset,
+                    acceptedState, candidateState, f, direction, rate,
+                    timestep, temperature, valid
+                );
+            if (!valid) return false;
+        }
+    }
+    return true;
+}
+
 inline bool projectMaterialState(
     const NMMaterialGPU material,
     device const NMScalarProgramGPU* programs,
@@ -652,7 +782,49 @@ inline bool projectMaterialState(
             return false;
         }
     }
-    return true;
+    if ((material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE) == 0u) {
+        return true;
+    }
+    float residual[NM_MAX_MATERIAL_STATE];
+    float jacobian[NM_MAX_MATERIAL_STATE * NM_MAX_MATERIAL_STATE];
+    for (uint iteration = 0u; iteration < material.localNewtonIterations;
+         ++iteration) {
+        if (!evaluateImplicitMaterialSystem(
+                material, programs, instructions, parameters, acceptedState,
+                projectedState, deformation, float3x3(0.0f), deformationRate,
+                timestep, temperature, residual, jacobian, true)) {
+            return false;
+        }
+        float residualNorm = 0.0f;
+        float stateNorm = 0.0f;
+        for (uint state = 0u; state < material.stateCount; ++state) {
+            residualNorm = max(residualNorm, abs(residual[state]));
+            stateNorm = max(stateNorm, abs(projectedState[state]));
+            residual[state] = -residual[state];
+        }
+        if (residualNorm <= 2.0e-5f * (1.0f + stateNorm)) return true;
+        if (!solveLocalMaterialSystem(
+                jacobian, residual, material.stateCount)) {
+            return false;
+        }
+        float step = 1.0f;
+        for (uint state = 0u; state < material.stateCount; ++state) {
+            projectedState[state] += step * residual[state];
+        }
+    }
+    if (!evaluateImplicitMaterialSystem(
+            material, programs, instructions, parameters, acceptedState,
+            projectedState, deformation, float3x3(0.0f), deformationRate,
+            timestep, temperature, residual, jacobian, false)) {
+        return false;
+    }
+    float residualNorm = 0.0f;
+    float stateNorm = 0.0f;
+    for (uint state = 0u; state < material.stateCount; ++state) {
+        residualNorm = max(residualNorm, abs(residual[state]));
+        stateNorm = max(stateNorm, abs(projectedState[state]));
+    }
+    return residualNorm <= 2.0e-5f * (1.0f + stateNorm);
 }
 
 inline float3x3 evaluateAlgorithmicStress(
@@ -736,6 +908,53 @@ inline void evaluateAlgorithmicStressTangent(
         timestep, temperature, valid
     );
     if (!valid) {
+        return;
+    }
+
+    if ((material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE) != 0u) {
+        float residual[NM_MAX_MATERIAL_STATE];
+        float jacobian[NM_MAX_MATERIAL_STATE * NM_MAX_MATERIAL_STATE];
+        valid = evaluateImplicitMaterialSystem(
+            material, programs, instructions, parameters, acceptedState,
+            projectedState, deformation, deformationDirection,
+            deformationRate, timestep, temperature, residual, jacobian, true
+        );
+        if (!valid) return;
+        float f[9];
+        float direction[9];
+        float rate[9];
+        matrixComponents(deformation, f);
+        matrixComponents(deformationDirection, direction);
+        matrixComponents(deformationRate, rate);
+        for (uint state = 0u; state < material.stateCount; ++state) {
+            residual[state] = -evaluateScalarProgramWithCandidate(
+                material.implicitDeformationProgramOffset + state,
+                programs, instructions, parameters + material.parameterOffset,
+                acceptedState, projectedState, f, direction, rate, timestep,
+                temperature, valid
+            );
+            if (!valid) return;
+        }
+        valid = solveLocalMaterialSystem(
+            jacobian, residual, material.stateCount);
+        if (!valid) return;
+        float stateContribution[9];
+        for (uint component = 0u; component < 9u; ++component) {
+            stateContribution[component] = 0.0f;
+            for (uint state = 0u; state < material.stateCount; ++state) {
+                const float derivative = evaluateScalarProgramWithCandidate(
+                    material.stressStateDerivativeProgramOffset +
+                        component * material.stateCount + state,
+                    programs, instructions,
+                    parameters + material.parameterOffset,
+                    acceptedState, projectedState, f, direction, rate,
+                    timestep, temperature, valid
+                );
+                if (!valid) return;
+                stateContribution[component] += derivative * residual[state];
+            }
+        }
+        tangent += componentsMatrix(stateContribution);
         return;
     }
 

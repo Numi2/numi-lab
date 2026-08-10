@@ -26,7 +26,8 @@ constexpr std::uint32_t kKnownMatterFlags =
     NM_MATTER_LEARNED_MATERIAL;
 constexpr std::uint32_t kKnownMaterialFlags =
     NM_MATERIAL_HAS_STATE |
-    NM_MATERIAL_HAS_DISSIPATION;
+    NM_MATERIAL_HAS_DISSIPATION |
+    NM_MATERIAL_HAS_IMPLICIT_STATE;
 constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_ACTIVE |
     NM_OBJECT_TWO_WAY_COUPLED |
@@ -385,6 +386,7 @@ private:
                 ++stackDepth;
                 break;
             case NM_EXPR_STATE:
+            case NM_EXPR_NEXT_STATE:
                 if (instruction.index >= material.stateCount) {
                     return failIndexed(
                         "expression instruction",
@@ -544,9 +546,9 @@ private:
             if ((material.flags & ~kKnownMaterialFlags) != 0u ||
                 material.constitutiveKind >
                     NM_CONSTITUTIVE_POLYCONVEX_ICNN ||
-                material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
-                material.reservedState0 != 0u ||
-                material.reservedState1 != 0u) {
+                material.projectionKind >
+                    NM_MATERIAL_PROJECTION_DRUCKER_PRAGER ||
+                material.localNewtonIterations > 16u) {
                 return failIndexed(
                     "material",
                     index,
@@ -587,6 +589,14 @@ private:
             const bool hasState = material.stateCount != 0u;
             const bool hasDissipation =
                 (material.flags & NM_MATERIAL_HAS_DISSIPATION) != 0u;
+            const bool hasImplicit =
+                (material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE) != 0u;
+            for (std::uint32_t state = 0u; state < material.stateCount; ++state) {
+                if (((material.stateTransferMask >> (2u * state)) & 3u) == 3u) {
+                    return failIndexed("material", index,
+                        "state transfer policy is invalid");
+                }
+            }
             if (((material.flags & NM_MATERIAL_HAS_STATE) != 0u) != hasState ||
                 (hasState && material.stateUpdateProgramOffset ==
                     NM_INVALID_INDEX) ||
@@ -634,6 +644,27 @@ private:
                     "state update"
                 )) {
                 return false;
+            }
+            if (hasImplicit) {
+                const std::uint32_t square =
+                    material.stateCount * material.stateCount;
+                if (!hasState || material.localNewtonIterations == 0u ||
+                    !claim(index, material.implicitResidualProgramOffset,
+                        material.stateCount, "implicit residual") ||
+                    !claim(index, material.implicitJacobianProgramOffset,
+                        square, "implicit Jacobian") ||
+                    !claim(index, material.implicitDeformationProgramOffset,
+                        material.stateCount, "implicit deformation action") ||
+                    !claim(index, material.stressStateDerivativeProgramOffset,
+                        9u * material.stateCount, "stress-state derivative")) {
+                    return false;
+                }
+            } else if (material.implicitResidualProgramOffset != NM_INVALID_INDEX ||
+                material.implicitJacobianProgramOffset != NM_INVALID_INDEX ||
+                material.implicitDeformationProgramOffset != NM_INVALID_INDEX ||
+                material.stressStateDerivativeProgramOffset != NM_INVALID_INDEX) {
+                return failIndexed("material", index,
+                    "implicit program ranges exist without an implicit-state flag");
             }
             if (hasDissipation) {
                 if (!claim(

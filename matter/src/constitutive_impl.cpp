@@ -136,14 +136,22 @@ public:
     enum class VariableDomain : std::uint8_t {
         deformation = 0u,
         rate = 1u,
+        candidateState = 2u,
     };
 
-    [[nodiscard]] static Dimension variableDimension(
-        const VariableDomain domain
-    ) noexcept {
-        return domain == VariableDomain::deformation
-            ? kDimensionless
-            : kRate;
+    [[nodiscard]] Dimension variableDimension(
+        const VariableDomain domain,
+        const std::uint32_t variable
+    ) const noexcept {
+        if (domain == VariableDomain::deformation) return kDimensionless;
+        if (domain == VariableDomain::rate) return kRate;
+        for (const Expr& expression : graph_.nodes) {
+            if (expression.kind == ExprKind::candidateState &&
+                expression.index == variable) {
+                return expression.dimension;
+            }
+        }
+        return {};
     }
 
     [[nodiscard]] std::uint32_t derivative(
@@ -153,7 +161,7 @@ public:
         std::vector<Diagnostic>& diagnostics
     ) {
         const std::uint64_t key =
-            (static_cast<std::uint64_t>(domain) << 63u) |
+            (static_cast<std::uint64_t>(domain) << 60u) |
             (static_cast<std::uint64_t>(variable) << 32u) |
             node;
         if (const auto iterator = derivatives_.find(key);
@@ -164,7 +172,7 @@ public:
             return NM_INVALID_INDEX;
         }
         const Expr source = graph_.nodes[node];
-        const Dimension variableDim = variableDimension(domain);
+        const Dimension variableDim = variableDimension(domain, variable);
         const Dimension resultDimension = source.dimension - variableDim;
         const auto d = [&](const std::uint32_t argument) {
             return derivative(argument, variable, domain, diagnostics);
@@ -178,6 +186,13 @@ public:
         case ExprKind::timeStep:
         case ExprKind::temperature:
             result = zero(resultDimension);
+            break;
+        case ExprKind::candidateState:
+            result = graph_.constant(
+                domain == VariableDomain::candidateState &&
+                    source.index == variable ? 1.0 : 0.0,
+                resultDimension
+            );
             break;
         case ExprKind::deformation:
             result = graph_.constant(
@@ -371,6 +386,7 @@ public:
         case ExprKind::constant:
         case ExprKind::parameter:
         case ExprKind::internalState:
+        case ExprKind::candidateState:
         case ExprKind::timeStep:
         case ExprKind::temperature:
             result = zero(source.dimension);
@@ -648,6 +664,11 @@ private:
             output.push_back(instruction);
             push();
             break;
+        case ExprKind::candidateState:
+            instruction.opcode = NM_EXPR_NEXT_STATE;
+            output.push_back(instruction);
+            push();
+            break;
         case ExprKind::add:
         case ExprKind::subtract:
         case ExprKind::multiply:
@@ -781,6 +802,13 @@ ConstitutiveCompileResult compileConstitutive(
         });
         return result;
     }
+    if (material.stateImplicitRoots.size() > material.internalState.size()) {
+        result.diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "material contains more implicit residuals than declared states",
+        });
+        return result;
+    }
 
     Symbolic symbolic(result.program.material.expressions);
     std::array<std::uint32_t, 9> stressRoots{};
@@ -817,6 +845,74 @@ ConstitutiveCompileResult compileConstitutive(
         }
     }
 
+    const std::uint32_t stateCount =
+        static_cast<std::uint32_t>(material.internalState.size());
+    const bool hasImplicit = std::ranges::any_of(
+        material.stateImplicitRoots,
+        [](const std::uint32_t root) { return root != NM_INVALID_INDEX; }
+    );
+    std::vector<std::uint32_t> updateRoots(stateCount, NM_INVALID_INDEX);
+    std::vector<std::uint32_t> residualRoots;
+    std::vector<std::uint32_t> jacobianRoots;
+    std::vector<std::uint32_t> residualDirectionRoots;
+    std::vector<std::uint32_t> stressStateRoots;
+    residualRoots.reserve(stateCount);
+    jacobianRoots.reserve(static_cast<std::size_t>(stateCount) * stateCount);
+    residualDirectionRoots.reserve(stateCount);
+    stressStateRoots.reserve(static_cast<std::size_t>(9u) * stateCount);
+    for (std::uint32_t state = 0u; state < stateCount; ++state) {
+        std::uint32_t update = state < material.stateUpdateRoots.size()
+            ? material.stateUpdateRoots[state] : NM_INVALID_INDEX;
+        if (update == NM_INVALID_INDEX) {
+            Expr identity;
+            identity.kind = ExprKind::internalState;
+            identity.dimension = material.internalState[state].dimension;
+            identity.index = state;
+            update = result.program.material.expressions.append(identity);
+        }
+        updateRoots[state] = update;
+
+        if (!hasImplicit) continue;
+        std::uint32_t residual = state < material.stateImplicitRoots.size()
+            ? material.stateImplicitRoots[state] : NM_INVALID_INDEX;
+        if (residual == NM_INVALID_INDEX) {
+            Expr candidate;
+            candidate.kind = ExprKind::candidateState;
+            candidate.dimension = material.internalState[state].dimension;
+            candidate.index = state;
+            const std::uint32_t candidateRoot =
+                result.program.material.expressions.append(candidate);
+            residual = symbolic.binary(
+                ExprKind::subtract,
+                candidateRoot,
+                update,
+                material.internalState[state].dimension
+            );
+        }
+        residualRoots.push_back(residual);
+        residualDirectionRoots.push_back(symbolic.directional(
+            residual, Symbolic::VariableDomain::deformation,
+            result.diagnostics
+        ));
+        for (std::uint32_t candidate = 0u; candidate < stateCount; ++candidate) {
+            jacobianRoots.push_back(symbolic.derivative(
+                residual, candidate, Symbolic::VariableDomain::candidateState,
+                result.diagnostics
+            ));
+        }
+    }
+    if (hasImplicit) {
+        for (std::uint32_t component = 0u; component < 9u; ++component) {
+            for (std::uint32_t state = 0u; state < stateCount; ++state) {
+                stressStateRoots.push_back(symbolic.derivative(
+                    stressRoots[component], state,
+                    Symbolic::VariableDomain::candidateState,
+                    result.diagnostics
+                ));
+            }
+        }
+    }
+
     BytecodeCompiler compiler(
         result.program.material.expressions,
         maximumStack
@@ -846,19 +942,27 @@ ConstitutiveCompileResult compileConstitutive(
     for (std::uint32_t state = 0u;
          state < material.internalState.size();
          ++state) {
-        std::uint32_t root = state < material.stateUpdateRoots.size()
-            ? material.stateUpdateRoots[state]
-            : NM_INVALID_INDEX;
-        if (root == NM_INVALID_INDEX) {
-            Expr identity;
-            identity.kind = ExprKind::internalState;
-            identity.dimension = material.internalState[state].dimension;
-            identity.index = state;
-            root = result.program.material.expressions.append(identity);
-        }
         result.program.stateUpdates.push_back(
-            compiler.compile(root, result.diagnostics)
+            compiler.compile(updateRoots[state], result.diagnostics)
         );
+    }
+    if (hasImplicit) {
+        for (const std::uint32_t root : residualRoots) {
+            result.program.implicitResiduals.push_back(
+                compiler.compile(root, result.diagnostics));
+        }
+        for (const std::uint32_t root : jacobianRoots) {
+            result.program.implicitJacobians.push_back(
+                compiler.compile(root, result.diagnostics));
+        }
+        for (const std::uint32_t root : residualDirectionRoots) {
+            result.program.implicitDeformationDirections.push_back(
+                compiler.compile(root, result.diagnostics));
+        }
+        for (const std::uint32_t root : stressStateRoots) {
+            result.program.stressStateDerivatives.push_back(
+                compiler.compile(root, result.diagnostics));
+        }
     }
     if (result.program.material.dissipationRoot != NM_INVALID_INDEX) {
         result.program.dissipation = compiler.compile(
@@ -881,13 +985,33 @@ ConstitutiveCompileResult compileConstitutive(
         (!material.internalState.empty() ? NM_MATERIAL_HAS_STATE : 0u) |
         (material.dissipationRoot != NM_INVALID_INDEX
              ? NM_MATERIAL_HAS_DISSIPATION
-             : 0u);
+             : 0u) |
+        (hasImplicit ? NM_MATERIAL_HAS_IMPLICIT_STATE : 0u);
     gpu.stateInitialOffset = NM_INVALID_INDEX;
     gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
     gpu.dissipationProgram = NM_INVALID_INDEX;
-    gpu.projectionKind = NM_MATERIAL_PROJECTION_GENERIC;
+    gpu.projectionKind = material.hint == ConstitutiveHint::vonMises
+        ? NM_MATERIAL_PROJECTION_VON_MISES
+        : material.hint == ConstitutiveHint::druckerPrager
+            ? NM_MATERIAL_PROJECTION_DRUCKER_PRAGER
+            : NM_MATERIAL_PROJECTION_GENERIC;
     gpu.viscousStressProgramOffset = NM_INVALID_INDEX;
     gpu.viscousTangentProgramOffset = NM_INVALID_INDEX;
+    gpu.implicitResidualProgramOffset = NM_INVALID_INDEX;
+    gpu.implicitJacobianProgramOffset = NM_INVALID_INDEX;
+    gpu.implicitDeformationProgramOffset = NM_INVALID_INDEX;
+    gpu.stressStateDerivativeProgramOffset = NM_INVALID_INDEX;
+    gpu.localNewtonIterations = 8u;
+    gpu.stateTransferMask = 0u;
+    for (std::uint32_t state = 0u; state < material.internalState.size(); ++state) {
+        const auto transfer = material.internalState[state].transfer;
+        const std::uint32_t encoded = transfer == InternalState::Transfer::maximum
+            ? NM_MATERIAL_TRANSFER_MAXIMUM
+            : transfer == InternalState::Transfer::sum
+                ? NM_MATERIAL_TRANSFER_SUM
+                : NM_MATERIAL_TRANSFER_AVERAGE;
+        gpu.stateTransferMask |= encoded << (2u * state);
+    }
     const auto density = parameterIndex(material, "density");
     gpu.bulk = float4(
         density.has_value() ? static_cast<float>(material.parameters[*density].defaultValue) : 0.0f,
@@ -951,6 +1075,24 @@ ConstitutiveCompileResult compileConstitutive(
             fingerprint
         );
     }
+    const auto hashPrograms = [&](const std::vector<ScalarBytecode>& programs) {
+        for (const auto& bytecode : programs) {
+            fingerprint = hashBytes(
+                bytecode.instructions.data(),
+                bytecode.instructions.size() * sizeof(NMExpressionInstructionGPU),
+                fingerprint
+            );
+        }
+    };
+    hashPrograms(result.program.implicitResiduals);
+    hashPrograms(result.program.implicitJacobians);
+    hashPrograms(result.program.implicitDeformationDirections);
+    hashPrograms(result.program.stressStateDerivatives);
+    fingerprint = hashBytes(
+        &result.program.gpu.stateTransferMask,
+        sizeof(result.program.gpu.stateTransferMask),
+        fingerprint
+    );
     if (result.program.dissipation.has_value()) {
         fingerprint = hashBytes(
             result.program.dissipation->instructions.data(),

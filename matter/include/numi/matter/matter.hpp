@@ -85,6 +85,7 @@ enum class ExprKind : std::uint8_t {
     constant,
     parameter,
     internalState,
+    candidateState,
     deformation,
     deformationDirection,
     deformationRate,
@@ -139,9 +140,11 @@ struct Parameter {
 };
 
 struct InternalState {
+    enum class Transfer : std::uint8_t { average, maximum, sum };
     std::string name;
     Dimension dimension{};
     double initialValue = 0.0;
+    Transfer transfer = Transfer::average;
 };
 
 enum class Representation : std::uint8_t {
@@ -216,6 +219,10 @@ struct MaterialProgram {
     // compiled as identity updates, so all state transitions remain explicit
     // and transactionally reproducible on the GPU.
     std::vector<std::uint32_t> stateUpdateRoots;
+    // A residual R(next(state), state, F, Fdot, dt, T) = 0 for each
+    // implicitly integrated state. A state may own an update or a residual,
+    // never both.
+    std::vector<std::uint32_t> stateImplicitRoots;
     std::vector<Representation> supportedRepresentations;
     ConstitutiveHint hint = ConstitutiveHint::generic;
     MixedMaterialSource mixed;
@@ -243,6 +250,10 @@ struct ConstitutiveProgram {
     std::array<ScalarBytecode, 9> viscousStress;
     std::array<ScalarBytecode, 9> viscousTangentVector;
     std::vector<ScalarBytecode> stateUpdates;
+    std::vector<ScalarBytecode> implicitResiduals;
+    std::vector<ScalarBytecode> implicitJacobians;
+    std::vector<ScalarBytecode> implicitDeformationDirections;
+    std::vector<ScalarBytecode> stressStateDerivatives;
     std::optional<ScalarBytecode> dissipation;
     std::optional<ScalarBytecode> validity;
     NMMaterialGPU gpu{};
