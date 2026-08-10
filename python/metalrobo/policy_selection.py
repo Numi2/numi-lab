@@ -27,6 +27,11 @@ _VALUE_OPTIONS = frozenset(
         "--minimum-difficulty-band",
         "--maximum-difficulty-band",
         "--interaction-student-authority",
+        "--interaction-reset-phase-fraction",
+        "--interaction-reset-phase-probability",
+        "--interaction-reset-maximum-phase",
+        "--interaction-push-maximum-velocity",
+        "--interaction-push-interval-seconds",
         "--interaction-pack",
         "--interaction-clip",
         "--dove-manifest",
@@ -189,11 +194,17 @@ def evaluation_arguments(
         # a different task fingerprint.
         filtered: list[str] = []
         skip = False
+        teacher_only_values = {
+            "--interaction-student-authority",
+            "--interaction-reset-phase-fraction",
+            "--interaction-reset-phase-probability",
+            "--interaction-reset-maximum-phase",
+        }
         for value in projected:
             if skip:
                 skip = False
                 continue
-            if value == "--interaction-student-authority":
+            if value in teacher_only_values:
                 skip = True
                 continue
             if value == "--interaction-reset-only":

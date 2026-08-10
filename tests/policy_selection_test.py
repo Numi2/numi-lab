@@ -802,6 +802,28 @@ class PolicySelectionTest(unittest.TestCase):
         steps_index = len(arguments) - 1 - arguments[::-1].index("--steps")
         self.assertEqual(arguments[steps_index + 1], "103")
 
+    def test_interaction_push_contract_is_preserved_for_evaluation(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--task", "velocity",
+                "--interaction-pack", "teacher.interactionpack",
+                "--interaction-clip", "raise-right-hand",
+                "--interaction-student-authority", "0.1",
+                "--interaction-push-maximum-velocity", "0.2",
+                "--interaction-push-interval-seconds", "0.4",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=16,
+            held_out_seed=42,
+            evaluation_steps=40,
+        )
+        velocity = arguments.index("--interaction-push-maximum-velocity")
+        interval = arguments.index("--interaction-push-interval-seconds")
+        self.assertEqual(arguments[velocity + 1], "0.2")
+        self.assertEqual(arguments[interval + 1], "0.4")
+
     def test_generic_sensor_contract_is_preserved_for_evaluation(self) -> None:
         arguments = evaluation_arguments(
             [
