@@ -202,7 +202,7 @@ flags after an arithmetic failure. Static/kinematic endpoints are never
 written during solve or rollback, allowing independent islands to share static
 geometry safely.
 
-## Matter generalized continuum KKT
+## Matter monolithic variational system
 
 Matter's continuum solve is one environment-wide Newton system. Its
 matrix-free generalized unknown packs FEM velocity and mixed pressure,
@@ -282,7 +282,10 @@ geometric `TopologyGrowthRequest`. `encodeTopologyGrowth` can initialize an
 empty destination from a larger recook or use an already initialized larger
 runtime, then imports accepted state on a borrowed command buffer,
 advances allocation generation, rebuilds incidence/mass, and mirrors rebuilt
-accepted state into its candidate/checkpoint arenas. Migration requires the
+accepted state into its candidate/checkpoint arenas. Active tetrahedron and
+cohesive-face node/element references are first rebased from each source
+object arena to its expanded destination arena; an invalid reference rejects
+the growth transaction. Migration requires the
 same allocation-independent source-physics fingerprint; the capacity-dependent
 package fingerprint and accepted allocation generation remain distinct replay
 evidence.
@@ -292,7 +295,9 @@ the device working set is exhausted, without allocation inside a transaction.
 The MPM block evaluates a backward-Euler residual at the current grid
 candidate. After P2G, a stable SIMD32 prefix pass compacts positive-mass nodes
 into environment-major Krylov slots and publishes the inverse node-to-slot map;
-inactive authored grid capacity never becomes a mechanical unknown. Sparse
+the cooked slot capacity is bounded per object by
+`min(grid nodes, 27 * particles)`, so inactive authored grid capacity consumes
+neither mechanical unknowns nor private Krylov-basis storage. Sparse
 active blocks deterministically gather candidate velocity
 gradients into particles, evaluate the same implicit material projection and
 consistent tangent used by FEM, and gather particle force directions back to
@@ -315,6 +320,9 @@ increment through MetalWorld's Cholesky mass action and adds the equivalent
 substep effort to the owning ABA stream. The retired point-response/Delassus
 CSR path is absent; equal-and-opposite continuum/rigid terms are applied by the
 same generalized operator.
+The v1 MetalWorld contract owns one articulation per environment; all of its
+collision proxies therefore share one articulated generalized/q reserve, while
+each distinct free body contributes exactly six additional coordinates.
 
 The implementation uses FP32 barrier arithmetic and conservative CCD. It does
 not claim exact-real arithmetic or a mathematical proof of non-intersection;

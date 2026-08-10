@@ -1181,10 +1181,11 @@ kernel void nm_mixed_certify(
             }
         } else if (continuum.representation == NM_REPRESENTATION_MPM) {
             const uint activeCount = min(
-                mpmActiveCounts[environment], dispatch.gridNodeCount);
+                mpmActiveCounts[environment],
+                dispatch.mpmActiveNodeCapacity);
             for (uint slot = lane; slot < activeCount; slot += 32u) {
                 const uint nodeIndex = mpmActiveIndices[
-                    environment * dispatch.gridNodeCount + slot];
+                    environment * dispatch.mpmActiveNodeCapacity + slot];
                 if (nodeIndex < continuum.auxiliaryOffset ||
                     nodeIndex - continuum.auxiliaryOffset >=
                         continuum.auxiliaryCount)

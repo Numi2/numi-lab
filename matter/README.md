@@ -74,6 +74,8 @@ The MPM path is an updated-Lagrangian sparse APIC/MLS-MPM solid backend with qua
 
 The active-block pipeline avoids global floating-point scatter atomics, retains deterministic reduction order and prevents inactive authored grid regions from consuming transfer work. A SIMD32 prefix pass compacts positive-mass grid nodes into the shared generalized vector. Backward-Euler residuals and matrix-free material actions transfer directions grid-to-particle and gather forces particle-to-grid in stable sparse-block order. Lumped grid diagonals, particle-patch smoothing, and object translation modes participate in the same right preconditioner as FEM and rigid blocks.
 
+The cooker proves a per-environment compact-slot bound of `min(grid nodes, 27 * particles)` for each quadratic-support MPM object. Active-index storage, every Krylov vector, and every retained basis column use that compact capacity; only physical grid state and the inverse node-to-slot map retain the authored dense-grid stride.
+
 Persistent particle, APIC affine, deformation, and implicit material state have accepted, candidate, and control-step checkpoint arenas. G2P reconstruction publishes them only after the global Newton candidate passes material, field, barrier, and correction acceptance. This backend targets large-deformation solids; it is not presented as a general free-surface fluid implementation.
 
 ### FEM backend
@@ -112,6 +114,7 @@ Each nonlinear candidate derives exposed FEM faces from the current tetrahedron 
 Rigid generalized increments are part of Matter's primal Krylov vector. MetalWorld remains the sole owner of ABA, generalized coordinates, body kinematics, and rigid publication; its borrowed coupled-candidate service supplies candidate kinematics, mass action, inverse-mass preconditioning, and accepted-candidate publication on the same command-buffer timeline:
 
 - articulated targets use exact candidate link kinematics and ABA-owned generalized mass action;
+- every articulated collision proxy shares the one v1 articulation reserve instead of multiplying generalized storage by proxy count;
 - free scene bodies use six-coordinate velocity increments in the same block;
 - multiple contact proxies may contribute to one body without aliased writes;
 - static unbound proxies participate in contact but receive no state update.
@@ -125,6 +128,8 @@ Mutable FEM objects cook dormant node/tetrahedron slots into private arenas. GPU
 Split, collapse, flip, and smoothing transfer the complete affected cavity according to each material state's `transfer average|max|sum` policy. Split interpolation and cavity projection preserve mechanical and mixed-field state. After rebuilt lumped mass, an object-wide constant correction on free active nodes closes momentum and volume-integrated-field drift while retaining relative variation; the FP32 certificate then rejects low-volume/inverted elements or any remaining conservation error before publication. Failed environments restore the common mechanical/material/topology checkpoint.
 
 No shader allocates. Capacity exhaustion records `NM_STATUS_TOPOLOGY_GROWTH_REQUIRED` (or a contact-work capacity overflow), and completion publishes a geometric `TopologyGrowthRequest`. `encodeTopologyGrowth` either migrates into an already initialized compatible runtime or validates and allocates an empty destination from a larger recook before encoding migration in the borrowed command buffer. It advances allocation generation, rebuilds derived incidence/mass, and mirrors the rebuilt accepted state into candidate/checkpoint arenas. A canonical source-physics fingerprint excludes allocation-only capacities and must match across migration; each recook retains a distinct full package fingerprint, while snapshots record the accepted allocation generation for exact replay. Growth repeats across completed submissions until a 32-bit ABI or device working-set limit is reached.
+
+Before derived-data rebuild, migration rebases every active tetrahedron and cohesive face from its source object's node/element offsets to the expanded destination offsets. Invalid global references fail closed, and the rebased cohesive state is mirrored with the other accepted topology arenas.
 
 ### Adaptive representation
 

@@ -837,28 +837,39 @@ kernel void nm_mpm_compact_active_nodes(
     device uint* activeIndices [[buffer(4)]],
     device uint* nodeToActive [[buffer(5)]],
     device uint* activeCounts [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
     if (lane >= 32u || environment >= dispatch.environmentCount) return;
-    const uint base = environment * dispatch.gridNodeCount;
+    const uint nodeBase = environment * dispatch.gridNodeCount;
+    const uint activeBase = environment * dispatch.mpmActiveNodeCapacity;
     uint running = 0u;
     for (uint chunk = 0u; chunk < dispatch.gridNodeCount; chunk += 32u) {
         const uint node = chunk + lane;
         const bool active = node < dispatch.gridNodeCount &&
-            generations[base + node] == microstep.reserved &&
-            nodes[base + node].positionAndMass.w > 0.0f;
+            generations[nodeBase + node] == microstep.reserved &&
+            nodes[nodeBase + node].positionAndMass.w > 0.0f;
         if (node < dispatch.gridNodeCount)
-            nodeToActive[base + node] = NM_INVALID_INDEX;
+            nodeToActive[nodeBase + node] = NM_INVALID_INDEX;
         const uint flag = active ? 1u : 0u;
         const uint offset = simd_prefix_exclusive_sum(flag);
-        if (active) {
-            activeIndices[base + running + offset] = node;
-            nodeToActive[base + node] = running + offset;
+        const uint chunkCount = simd_sum(flag);
+        if (running + chunkCount > dispatch.mpmActiveNodeCapacity) {
+            recordFailure(
+                statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+                NM_INVALID_INDEX, node,
+                float4(float(running + chunkCount),
+                       float(dispatch.mpmActiveNodeCapacity),
+                       float(dispatch.gridNodeCount), 0.0f));
+        } else if (active) {
+            activeIndices[activeBase + running + offset] = node;
+            nodeToActive[nodeBase + node] = running + offset;
         }
-        running += simd_sum(flag);
+        running += chunkCount;
     }
-    if (lane == 0u) activeCounts[environment] = running;
+    if (lane == 0u) activeCounts[environment] = min(
+        running, dispatch.mpmActiveNodeCapacity);
 }
 
 kernel void nm_mpm_g2p(

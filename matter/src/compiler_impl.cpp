@@ -2101,16 +2101,35 @@ CompileResult compileWorld(
     dispatch.tetrahedronCount = static_cast<nm_u32>(world.fem.tetrahedra.size());
     dispatch.rigidProxyCount = static_cast<nm_u32>(world.contact.rigidProxies.size());
     dispatch.contactPairCount = static_cast<nm_u32>(world.contact.pairs.size());
-    std::uint64_t articulatedProxyCount = 0u;
+    std::uint64_t activeMPMNodeCapacity = 0u;
+    for (const NMContinuumObjectGPU& object : world.objects) {
+        if (object.representation != NM_REPRESENTATION_MPM) continue;
+        const std::uint64_t supportBound =
+            static_cast<std::uint64_t>(object.stateCount) *
+            NM_MPM_STENCIL_WIDTH;
+        activeMPMNodeCapacity += std::min<std::uint64_t>(
+            object.auxiliaryCount, supportBound);
+    }
+    if (activeMPMNodeCapacity > dispatch.gridNodeCount ||
+        activeMPMNodeCapacity > std::numeric_limits<nm_u32>::max()) {
+        result.diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "active MPM node capacity exceeds the cooked grid arena"
+        });
+        return result;
+    }
+    dispatch.mpmActiveNodeCapacity =
+        static_cast<nm_u32>(activeMPMNodeCapacity);
+    bool hasArticulatedProxy = false;
     for (const NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
-        articulatedProxyCount +=
-            (proxy.flags & NM_RIGID_ARTICULATED) != 0u ? 1u : 0u;
+        hasArticulatedProxy = hasArticulatedProxy ||
+            (proxy.flags & NM_RIGID_ARTICULATED) != 0u;
     }
     const std::uint64_t rigidGeneralizedCapacity =
-        articulatedProxyCount * NM_MATTER_MAX_ARTICULATED_DOFS +
+        (hasArticulatedProxy ? NM_MATTER_MAX_ARTICULATED_DOFS : 0u) +
         static_cast<std::uint64_t>(freeBodyIndices.size()) * 6u;
     const std::uint64_t rigidQCapacity =
-        articulatedProxyCount * NM_MATTER_MAX_ARTICULATED_Q;
+        hasArticulatedProxy ? NM_MATTER_MAX_ARTICULATED_Q : 0u;
     if (rigidGeneralizedCapacity > std::numeric_limits<nm_u32>::max() ||
         rigidQCapacity > std::numeric_limits<nm_u32>::max()) {
         result.diagnostics.push_back({

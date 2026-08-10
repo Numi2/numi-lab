@@ -34,12 +34,12 @@ inline uint fgmresMPMIndex(
     const uint node
 ) {
     return fgmresMPMBase(dispatch) +
-        environment * dispatch.gridNodeCount + node;
+        environment * dispatch.mpmActiveNodeCapacity + node;
 }
 
 inline uint fgmresRigidBase(const NMMatterDispatchGPU dispatch) {
     return 2u * dispatch.environmentCount * dispatch.femNodeCount +
-        dispatch.environmentCount * dispatch.gridNodeCount;
+        dispatch.environmentCount * dispatch.mpmActiveNodeCapacity;
 }
 
 inline uint fgmresRigidIndex(
@@ -149,7 +149,7 @@ inline float3 deformableBarrierDirectionalForce(
 
 inline uint fgmresUnknownCount(const NMMatterDispatchGPU dispatch) {
     return 2u * dispatch.environmentCount * dispatch.femNodeCount +
-        dispatch.environmentCount * dispatch.gridNodeCount +
+        dispatch.environmentCount * dispatch.mpmActiveNodeCapacity +
         dispatch.environmentCount * dispatch.rigidGeneralizedCapacity;
 }
 
@@ -199,7 +199,8 @@ kernel void nm_fgmres_begin(
                 dot(residual[fieldBase + base + local],
                     residual[fieldBase + base + local]));
         }
-        for (uint local = lane; local < dispatch.gridNodeCount; local += 32u)
+        for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
+             local += 32u)
             fgmresCompensatedAdd(
                 norm2, normCorrection,
                 dot(residual[mpmBase + local], residual[mpmBase + local]));
@@ -271,7 +272,8 @@ kernel void nm_fgmres_begin(
         basis0[fieldBase + node] =
             residual[fieldBase + node] * inverseNorm;
     }
-    for (uint local = lane; local < dispatch.gridNodeCount; local += 32u)
+    for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
+         local += 32u)
         basis0[mpmBase + local] =
             residual[mpmBase + local] * inverseNorm;
     for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
@@ -336,10 +338,10 @@ kernel void nm_fgmres_measure_correction(
         correctionRatio = max(
             correctionRatio, abs(solution[rigidBase + dof].x));
     const uint activeMPM = min(
-        mpmActiveCounts[environment], dispatch.gridNodeCount);
+        mpmActiveCounts[environment], dispatch.mpmActiveNodeCapacity);
     for (uint slot = lane; slot < activeMPM; slot += 32u) {
         const uint nodeIndex = mpmActiveIndices[
-            environment * dispatch.gridNodeCount + slot];
+            environment * dispatch.mpmActiveNodeCapacity + slot];
         if (nodeIndex >= dispatch.gridNodeCount) {
             correctionRatio = INFINITY;
             continue;
@@ -1275,7 +1277,8 @@ kernel void nm_fgmres_orthogonalize_column(
             originalNorm2, originalCorrection,
             dot(work[fieldBase + nodeBase + local],
                 work[fieldBase + nodeBase + local]));
-    for (uint local = lane; local < dispatch.gridNodeCount; local += 32u)
+    for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
+         local += 32u)
         fgmresCompensatedAdd(
             originalNorm2, originalCorrection,
             dot(work[mpmBase + local], work[mpmBase + local]));
@@ -1300,7 +1303,8 @@ kernel void nm_fgmres_orthogonalize_column(
                 projection, projectionCorrection,
                 dot(rowBasis[fieldBase + nodeBase + local],
                     work[fieldBase + nodeBase + local]));
-        for (uint local = lane; local < dispatch.gridNodeCount; local += 32u)
+        for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
+             local += 32u)
             fgmresCompensatedAdd(
                 projection, projectionCorrection,
                 dot(rowBasis[mpmBase + local], work[mpmBase + local]));
@@ -1321,7 +1325,8 @@ kernel void nm_fgmres_orthogonalize_column(
         for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
             work[fieldBase + nodeBase + local] -= projection *
                 rowBasis[fieldBase + nodeBase + local];
-        for (uint local = lane; local < dispatch.gridNodeCount; local += 32u)
+        for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
+             local += 32u)
             work[mpmBase + local] -= projection * rowBasis[mpmBase + local];
         for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
              local += 32u)
@@ -1345,7 +1350,8 @@ kernel void nm_fgmres_orthogonalize_column(
             remainingNorm2, remainingCorrection,
             dot(work[fieldBase + nodeBase + local],
                 work[fieldBase + nodeBase + local]));
-    for (uint local = lane; local < dispatch.gridNodeCount; local += 32u)
+    for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
+         local += 32u)
         fgmresCompensatedAdd(
             remainingNorm2, remainingCorrection,
             dot(work[mpmBase + local], work[mpmBase + local]));
@@ -1374,7 +1380,7 @@ kernel void nm_fgmres_orthogonalize_column(
                     projection, projectionCorrection,
                     dot(rowBasis[fieldBase + nodeBase + local],
                         work[fieldBase + nodeBase + local]));
-            for (uint local = lane; local < dispatch.gridNodeCount;
+            for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
                  local += 32u)
                 fgmresCompensatedAdd(
                     projection, projectionCorrection,
@@ -1399,7 +1405,7 @@ kernel void nm_fgmres_orthogonalize_column(
                  local += 32u)
                 work[fieldBase + nodeBase + local] -= projection *
                     rowBasis[fieldBase + nodeBase + local];
-            for (uint local = lane; local < dispatch.gridNodeCount;
+            for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
                  local += 32u)
                 work[mpmBase + local] -=
                     projection * rowBasis[mpmBase + local];
@@ -1449,7 +1455,8 @@ kernel void nm_fgmres_finish_column(
             norm2, normCorrection,
             dot(work[totalNodes + base + local],
                 work[totalNodes + base + local]));
-    for (uint local = lane; local < dispatch.gridNodeCount; local += 32u)
+    for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
+         local += 32u)
         fgmresCompensatedAdd(
             norm2, normCorrection,
             dot(work[mpmBase + local], work[mpmBase + local]));
@@ -1515,7 +1522,8 @@ kernel void nm_fgmres_finish_column(
     for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
         nextBasis[totalNodes + base + local] =
             work[totalNodes + base + local] * inverseNorm;
-    for (uint local = lane; local < dispatch.gridNodeCount; local += 32u)
+    for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
+         local += 32u)
         nextBasis[mpmBase + local] =
             work[mpmBase + local] * inverseNorm;
     for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
@@ -1779,15 +1787,16 @@ kernel void nm_mpm_build_implicit_residual(
     constant NMPrimalContactArguments& contact [[buffer(10)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
-    if (global >= total || dispatch.gridNodeCount == 0u) return;
-    const uint environment = global / dispatch.gridNodeCount;
-    const uint slot = global - environment * dispatch.gridNodeCount;
+    const uint total = dispatch.environmentCount *
+        dispatch.mpmActiveNodeCapacity;
+    if (global >= total || dispatch.mpmActiveNodeCapacity == 0u) return;
+    const uint environment = global / dispatch.mpmActiveNodeCapacity;
+    const uint slot = global - environment * dispatch.mpmActiveNodeCapacity;
     const uint output = fgmresMPMIndex(dispatch, environment, slot);
     residual[output] = float4(0.0f);
     if (slot >= activeCounts[environment]) return;
     const uint nodeIndex = activeIndices[
-        environment * dispatch.gridNodeCount + slot];
+        environment * dispatch.mpmActiveNodeCapacity + slot];
     const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
     if (nodeIndex >= dispatch.gridNodeCount ||
         generations[nodeGlobal] != microstep.reserved) return;
@@ -1849,16 +1858,17 @@ kernel void nm_fgmres_precondition_mpm(
     device const uint* activeCounts [[buffer(8)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
+    const uint total = dispatch.environmentCount *
+        dispatch.mpmActiveNodeCapacity;
     if (global >= total) return;
-    const uint environment = global / dispatch.gridNodeCount;
-    const uint slot = global - environment * dispatch.gridNodeCount;
+    const uint environment = global / dispatch.mpmActiveNodeCapacity;
+    const uint slot = global - environment * dispatch.mpmActiveNodeCapacity;
     const uint row = fgmresMPMIndex(dispatch, environment, slot);
     preconditioned[row] = float4(0.0f);
     if (states[environment].diagnostics.z > 0.5f ||
         slot >= activeCounts[environment]) return;
     const uint nodeIndex = activeIndices[
-        environment * dispatch.gridNodeCount + slot];
+        environment * dispatch.mpmActiveNodeCapacity + slot];
     const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
     if (nodeIndex >= dispatch.gridNodeCount ||
         generations[nodeGlobal] != microstep.reserved) return;
@@ -1898,14 +1908,15 @@ kernel void nm_fgmres_precondition_mpm_patches(
     device const NMFGMRESStateGPU* states [[buffer(10)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
-    if (global >= total || dispatch.gridNodeCount == 0u) return;
-    const uint environment = global / dispatch.gridNodeCount;
-    const uint slot = global - environment * dispatch.gridNodeCount;
+    const uint total = dispatch.environmentCount *
+        dispatch.mpmActiveNodeCapacity;
+    if (global >= total || dispatch.mpmActiveNodeCapacity == 0u) return;
+    const uint environment = global / dispatch.mpmActiveNodeCapacity;
+    const uint slot = global - environment * dispatch.mpmActiveNodeCapacity;
     if (states[environment].diagnostics.z > 0.5f ||
         slot >= activeCounts[environment]) return;
     const uint nodeIndex =
-        activeIndices[environment * dispatch.gridNodeCount + slot];
+        activeIndices[environment * dispatch.mpmActiveNodeCapacity + slot];
     const uint gridIndex = mpmGridForNode(dispatch, grids, nodeIndex);
     if (gridIndex >= dispatch.mpmGridCount) return;
     const NMMPMGridGPU grid = grids[gridIndex];
@@ -1973,7 +1984,8 @@ kernel void nm_fgmres_precondition_mpm_objects(
     const uint activeCount = activeCounts[environment];
     for (uint slot = lane; slot < activeCount; slot += 32u) {
         const uint nodeIndex =
-            activeIndices[environment * dispatch.gridNodeCount + slot];
+            activeIndices[
+                environment * dispatch.mpmActiveNodeCapacity + slot];
         const uint gridIndex = mpmGridForNode(dispatch, grids, nodeIndex);
         if (gridIndex >= dispatch.mpmGridCount ||
             uint(grids[gridIndex].nodeMinimumAndObject.w) != objectIndex)
@@ -1991,7 +2003,8 @@ kernel void nm_fgmres_precondition_mpm_objects(
     const float3 translation = rhs / mass;
     for (uint slot = lane; slot < activeCount; slot += 32u) {
         const uint nodeIndex =
-            activeIndices[environment * dispatch.gridNodeCount + slot];
+            activeIndices[
+                environment * dispatch.mpmActiveNodeCapacity + slot];
         const uint gridIndex = mpmGridForNode(dispatch, grids, nodeIndex);
         if (gridIndex >= dispatch.mpmGridCount ||
             uint(grids[gridIndex].nodeMinimumAndObject.w) != objectIndex)
@@ -2019,16 +2032,17 @@ kernel void nm_fgmres_apply_mpm(
     constant uint& articulatedNv [[buffer(13)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
+    const uint total = dispatch.environmentCount *
+        dispatch.mpmActiveNodeCapacity;
     if (global >= total) return;
-    const uint environment = global / dispatch.gridNodeCount;
-    const uint slot = global - environment * dispatch.gridNodeCount;
+    const uint environment = global / dispatch.mpmActiveNodeCapacity;
+    const uint slot = global - environment * dispatch.mpmActiveNodeCapacity;
     const uint row = fgmresMPMIndex(dispatch, environment, slot);
     work[row] = float4(0.0f);
     if (states[environment].diagnostics.z > 0.5f ||
         slot >= activeCounts[environment]) return;
     const uint nodeIndex = activeIndices[
-        environment * dispatch.gridNodeCount + slot];
+        environment * dispatch.mpmActiveNodeCapacity + slot];
     const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
     if (nodeIndex >= dispatch.gridNodeCount ||
         generations[nodeGlobal] != microstep.reserved) return;
@@ -2592,9 +2606,10 @@ kernel void nm_fgmres_accumulate_mpm(
     constant uint& restartCycle [[buffer(6)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
+    const uint total = dispatch.environmentCount *
+        dispatch.mpmActiveNodeCapacity;
     if (global >= total) return;
-    const uint environment = global / dispatch.gridNodeCount;
+    const uint environment = global / dispatch.mpmActiveNodeCapacity;
     const uint row = fgmresMPMBase(dispatch) + global;
     const uint used = min(uint(states[environment].diagnostics.w), min(
         solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART));
@@ -2615,9 +2630,10 @@ kernel void nm_fgmres_restart_residual_mpm(
     device float4* residual [[buffer(4)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
+    const uint total = dispatch.environmentCount *
+        dispatch.mpmActiveNodeCapacity;
     if (global >= total) return;
-    const uint environment = global / dispatch.gridNodeCount;
+    const uint environment = global / dispatch.mpmActiveNodeCapacity;
     const uint row = fgmresMPMBase(dispatch) + global;
     const uint used = min(uint(states[environment].diagnostics.w),
                           NM_MIXED_FGMRES_RESTART);
@@ -2642,13 +2658,14 @@ kernel void nm_mpm_apply_implicit_solution(
     device const float4* lineSearch [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
+    const uint total = dispatch.environmentCount *
+        dispatch.mpmActiveNodeCapacity;
     if (global >= total) return;
-    const uint environment = global / dispatch.gridNodeCount;
-    const uint slot = global - environment * dispatch.gridNodeCount;
+    const uint environment = global / dispatch.mpmActiveNodeCapacity;
+    const uint slot = global - environment * dispatch.mpmActiveNodeCapacity;
     if (slot >= activeCounts[environment]) return;
     const uint nodeIndex = activeIndices[
-        environment * dispatch.gridNodeCount + slot];
+        environment * dispatch.mpmActiveNodeCapacity + slot];
     const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
     if (nodeIndex >= dispatch.gridNodeCount ||
         generations[nodeGlobal] != microstep.reserved) return;

@@ -173,6 +173,21 @@ private:
             dispatch.eventStride != expectedEventStride) {
             return fail("Matter dispatch exceeds a fixed GPU capacity");
         }
+        std::uint64_t expectedActiveMPMNodeCapacity = 0u;
+        for (const NMContinuumObjectGPU& object : world_.objects) {
+            if (object.representation != NM_REPRESENTATION_MPM) continue;
+            expectedActiveMPMNodeCapacity += std::min<std::uint64_t>(
+                object.auxiliaryCount,
+                static_cast<std::uint64_t>(object.stateCount) *
+                    NM_MPM_STENCIL_WIDTH);
+        }
+        if (expectedActiveMPMNodeCapacity > dispatch.gridNodeCount ||
+            dispatch.mpmActiveNodeCapacity !=
+                expectedActiveMPMNodeCapacity) {
+            return fail(
+                "active MPM Krylov capacity disagrees with particle support"
+            );
+        }
         if ((dispatch.identificationCandidateCount & 1u) != 0u ||
             dispatch.identificationCandidateCount >
                 dispatch.environmentCount) {
@@ -1411,11 +1426,12 @@ private:
             if (!claimedFreeBodyIndices.contains(index))
                 return fail("free-body generalized indices are not compact");
         }
+        const bool hasArticulatedProxy = articulatedProxyCount != 0u;
         const std::uint64_t expectedRigidCapacity =
-            articulatedProxyCount * NM_MATTER_MAX_ARTICULATED_DOFS +
+            (hasArticulatedProxy ? NM_MATTER_MAX_ARTICULATED_DOFS : 0u) +
             static_cast<std::uint64_t>(freeBodyIndices.size()) * 6u;
         const std::uint64_t expectedQCapacity =
-            articulatedProxyCount * NM_MATTER_MAX_ARTICULATED_Q;
+            hasArticulatedProxy ? NM_MATTER_MAX_ARTICULATED_Q : 0u;
         if (expectedRigidCapacity != world_.dispatch.rigidGeneralizedCapacity ||
             expectedQCapacity != world_.dispatch.rigidQCapacity) {
             return fail("rigid generalized capacities disagree with proxy ownership");

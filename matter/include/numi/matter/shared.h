@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 18u
+#define NM_MATTER_ABI_VERSION 19u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -289,7 +289,9 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
 
     nm_u32 punctureChannelCount;
     nm_u32 femCapacityCount;
-    nm_u32 reservedPrimal0;
+    // Per-environment capacity of the compact active-MPM Krylov arena. The
+    // physical grid and node-to-active map retain gridNodeCount stride.
+    nm_u32 mpmActiveNodeCapacity;
     nm_u32 reservedMixed1;
 
     // Cooked source-face count (package/source audit), dynamic

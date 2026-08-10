@@ -24,8 +24,10 @@ inverse-mass preconditioning, and accepted publication.
 Matter Language supports explicit state updates, authored implicit residuals,
 specialized multiplicative von Mises and Drucker-Prager return maps, and
 `average|max|sum` remesh-transfer policies. Active sparse MPM grid velocity is
-part of the same Krylov vector as FEM and rigid increments; APIC, deformation,
-and material state publish only after global candidate acceptance.
+part of the same Krylov vector as FEM and rigid increments. Its private Krylov
+and basis arenas reserve only the cooked quadratic-support bound rather than
+the full authored grid; APIC, deformation, and material state publish only
+after global candidate acceptance.
 
 Topology mutation is transactional. Cohesive separation, erosion, edge
 split/collapse, 2–3/3–2 flips, and vertex smoothing rebuild derived incidence,
@@ -35,7 +37,9 @@ state is corrected to its pre-remesh momentum and volume-integrated fields
 before certification. Conservation and element-quality failures reject the
 environment. Private arenas grow
 geometrically only between completed submissions through a borrowed
-command-buffer migration; shaders never allocate.
+command-buffer migration. Migration rebases every active tetrahedron and
+cohesive-face reference into the expanded global arenas before rebuilding
+incidence; shaders never allocate.
 
 The hot path uses one borrowed MetalWorld command buffer, private authoritative
 state, deterministic sparse ordering, SIMD32 reductions, and no internal

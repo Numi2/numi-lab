@@ -628,6 +628,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_topology_rebuild_finalize",
             "nm_topology_conserve_transaction",
             "nm_topology_certify_transaction",
+            "nm_topology_validate_growth_references",
             "nm_topology_mark_growth_generation",
             "nm_topology_publish_growth_request",
             "nm_topology_commit",
@@ -1376,7 +1377,8 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->mpmActiveDispatch = privateScratch<NMIndirectDispatchGPU>(
             candidate->device, 1u, valid, candidate->residentBytes);
         candidate->mpmActiveNodeIndices = privateScratch<std::uint32_t>(
-            candidate->device, multiplied(world.dispatch.gridNodeCount),
+            candidate->device,
+            multiplied(world.dispatch.mpmActiveNodeCapacity),
             valid, candidate->residentBytes);
         candidate->mpmNodeToActive = privateScratch<std::uint32_t>(
             candidate->device, multiplied(world.dispatch.gridNodeCount),
@@ -1468,7 +1470,7 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         const std::size_t mixedUnknownWidth =
             2u * static_cast<std::size_t>(world.dispatch.femNodeCount) +
-            world.dispatch.gridNodeCount +
+            world.dispatch.mpmActiveNodeCapacity +
             world.dispatch.rigidGeneralizedCapacity;
         const std::size_t mixedUnknownTotal = multiplied(mixedUnknownWidth);
         candidate->femSolution = privateScratch<nm_float4>(
@@ -2078,8 +2080,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
         const NSUInteger objects = state.dispatch.objectCount;
         const NSUInteger particleTotal =
             environments * state.dispatch.particleCount;
-        const NSUInteger mpmNodeTotal =
-            environments * state.dispatch.gridNodeCount;
+        const NSUInteger mpmActiveNodeTotal =
+            environments * state.dispatch.mpmActiveNodeCapacity;
         const NSUInteger femNodeTotal =
             environments * state.dispatch.femNodeCount;
         const NSUInteger continuumNodeTotal = environments *
@@ -2650,6 +2652,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:nodes offset:0u atIndex:1u];
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
                     [encoder setBuffer:state.topologyIncidenceCursors offset:0u atIndex:3u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:4u];
                 });
                 dispatchThreads("nm_topology_rebuild_count_mass", femNodeTotal, [&] {
                     setDispatch();
@@ -2657,6 +2660,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:2u];
                     [encoder setBuffer:nodes offset:0u atIndex:3u];
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
                 });
                 dispatchGroups32("nm_topology_rebuild_prefix", environments, [&] {
                     setDispatch();
@@ -2670,6 +2674,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
                     [encoder setBuffer:state.topologyIncidenceCursors offset:0u atIndex:3u];
                     [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
                 });
                 dispatchThreads("nm_topology_rebuild_finalize", femNodeTotal, [&] {
                     setDispatch();
@@ -2677,6 +2682,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femTopologyNodesCandidate offset:0u atIndex:2u];
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:3u];
                     [encoder setBuffer:state.topologyStatesCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
                 });
             };
             const auto encodeTopologyCertificate = [&](
@@ -2898,6 +2904,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:4u];
                 [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:5u];
                 [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:6u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:7u];
             });
             dispatchThreads("nm_fem_prepare_candidate", femNodeTotal, [&] {
                 setDispatch();
@@ -2921,10 +2928,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
                 [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:2u];
             });
-            // Contact is a block of the nonlinear KKT residual, not a
+            // Contact is a block of the nonlinear variational residual, not a
             // post-FEM correction. Re-evaluate candidate geometry and stream
             // inverse-ABA columns on every Newton candidate, then accumulate
-            // J^T lambda before the single fused FGMRES solve below. The
+            // the primal barrier gradient before the fused FGMRES solve. The
             // callback only encodes into the borrowed command buffer; it
             // never commits, waits, or opens another queue.
             const auto encodeCoupledPrimalContact = [&] (
@@ -3433,7 +3440,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
             });
 
-            dispatchThreads("nm_mpm_build_implicit_residual", mpmNodeTotal, [&] {
+            dispatchThreads(
+                "nm_mpm_build_implicit_residual", mpmActiveNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.gridNodes offset:0u atIndex:2u];
@@ -3493,14 +3501,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             // operator work is distributed over nodes/active contacts. The
             // SIMD32 object kernels only perform bounded reductions and the
             // tiny Hessenberg solve.
-            const NSUInteger kktUnknownTotal =
+            const NSUInteger monolithicUnknownTotal =
                 2u * femNodeTotal +
-                environments * state.dispatch.gridNodeCount +
+                mpmActiveNodeTotal +
                 environments * state.dispatch.rigidGeneralizedCapacity;
             const NSUInteger rigidGeneralizedTotal = environments *
                 state.dispatch.rigidGeneralizedCapacity;
             const NSUInteger vectorBytes =
-                kktUnknownTotal * sizeof(nm_float4);
+                monolithicUnknownTotal * sizeof(nm_float4);
             [encoder useResource:state.contactPairs usage:MTLResourceUsageRead];
             [encoder useResource:state.contactSamples usage:MTLResourceUsageRead];
             [encoder useResource:state.contactNodeIncidence usage:MTLResourceUsageRead];
@@ -3712,7 +3720,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:7u];
                     [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:8u];
                 });
-                dispatchThreads("nm_fgmres_precondition_mpm", mpmNodeTotal, [&] {
+                dispatchThreads(
+                    "nm_fgmres_precondition_mpm", mpmActiveNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
                     [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:2u];
@@ -3725,7 +3734,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 });
                 dispatchThreads(
                     "nm_fgmres_precondition_mpm_patches",
-                    mpmNodeTotal,
+                    mpmActiveNodeTotal,
                     [&] {
                         setDispatch();
                         [encoder setBytes:&operatorMicro
@@ -3904,7 +3913,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femOperatorValue
                                  offset:fieldWorkOffset atIndex:7u];
                 });
-                dispatchThreads("nm_fgmres_apply_mpm", mpmNodeTotal, [&] {
+                dispatchThreads(
+                    "nm_fgmres_apply_mpm", mpmActiveNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
                     [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:2u];
@@ -4118,7 +4128,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:7u];
             });
-            dispatchThreads("nm_fgmres_accumulate_mpm", mpmNodeTotal, [&] {
+            dispatchThreads(
+                "nm_fgmres_accumulate_mpm", mpmActiveNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.fgmresPreconditionedBasis offset:0u atIndex:2u];
@@ -4149,7 +4160,9 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
                 });
-                dispatchThreads("nm_fgmres_restart_residual_mpm", mpmNodeTotal, [&] {
+                dispatchThreads(
+                    "nm_fgmres_restart_residual_mpm",
+                    mpmActiveNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.fgmresBasis offset:0u atIndex:1u];
                     [encoder setBuffer:state.fgmresRestartCoefficients offset:0u atIndex:2u];
@@ -4300,7 +4313,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:10u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:11u];
             });
-            dispatchThreads("nm_mpm_apply_implicit_solution", mpmNodeTotal, [&] {
+            dispatchThreads(
+                "nm_mpm_apply_implicit_solution", mpmActiveNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:2u];
@@ -4539,7 +4553,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             // Reassemble the MPM block once at that accepted candidate so the
             // certificate reports the actual nonlinear residual rather than
             // the residual from the preceding Newton iterate.
-            dispatchThreads("nm_mpm_build_implicit_residual", mpmNodeTotal, [&] {
+            dispatchThreads(
+                "nm_mpm_build_implicit_residual", mpmActiveNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.gridNodes offset:0u atIndex:2u];
@@ -5318,9 +5333,29 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
         const NSUInteger topologyWidth = destinationEnvironments * std::max({
             static_cast<NSUInteger>(destination.dispatch.femNodeCount),
             static_cast<NSUInteger>(destination.dispatch.tetrahedronCount),
+            static_cast<NSUInteger>(destination.dispatch.cohesiveFaceCount),
             static_cast<NSUInteger>(destination.dispatch.objectCount)});
+        const NSUInteger topologyReferenceWidth =
+            destinationEnvironments * std::max(
+                static_cast<NSUInteger>(
+                    destination.dispatch.tetrahedronCount),
+                static_cast<NSUInteger>(
+                    destination.dispatch.cohesiveFaceCount));
         const std::uint32_t allocationGeneration =
             growthRequest.allocationGeneration;
+        dispatchGrowthThreads(
+            "nm_topology_validate_growth_references",
+            topologyReferenceWidth, [&] {
+                setGrowthDispatch();
+                [growthEncoder setBuffer:previous.objects
+                                  offset:0u atIndex:1u];
+                [growthEncoder setBuffer:destination.femTetrahedraAccepted
+                                  offset:0u atIndex:2u];
+                [growthEncoder setBuffer:destination.cohesiveFacesAccepted
+                                  offset:0u atIndex:3u];
+                [growthEncoder setBuffer:destination.statuses
+                                  offset:0u atIndex:4u];
+            });
         dispatchGrowthThreads(
             "nm_topology_mark_growth_generation", topologyWidth, [&] {
                 setGrowthDispatch();
@@ -5333,6 +5368,14 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
                                   offset:0u atIndex:3u];
                 [growthEncoder setBuffer:destination.topologyStatesAccepted
                                   offset:0u atIndex:4u];
+                [growthEncoder setBuffer:previous.objects
+                                  offset:0u atIndex:5u];
+                [growthEncoder setBuffer:destination.objects
+                                  offset:0u atIndex:6u];
+                [growthEncoder setBuffer:destination.cohesiveFacesAccepted
+                                  offset:0u atIndex:7u];
+                [growthEncoder setBuffer:destination.statuses
+                                  offset:0u atIndex:8u];
             });
         dispatchGrowthThreads("nm_topology_rebuild_clear", destinationNodes, [&] {
             setGrowthDispatch();
@@ -5340,6 +5383,8 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
             [growthEncoder setBuffer:destination.femNodeRanges offset:0u atIndex:2u];
             [growthEncoder setBuffer:destination.topologyIncidenceCursors
                               offset:0u atIndex:3u];
+            [growthEncoder setBuffer:destination.statuses
+                              offset:0u atIndex:4u];
         });
         dispatchGrowthThreads(
             "nm_topology_rebuild_count_mass", destinationNodes, [&] {
@@ -5349,6 +5394,8 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
                                   offset:0u atIndex:2u];
                 [growthEncoder setBuffer:destination.femAccepted offset:0u atIndex:3u];
                 [growthEncoder setBuffer:destination.femNodeRanges offset:0u atIndex:4u];
+                [growthEncoder setBuffer:destination.statuses
+                                  offset:0u atIndex:5u];
             });
         if (destinationEnvironments != 0u && growthEncodingValid) {
             id<MTLComputePipelineState> prefix =
@@ -5380,6 +5427,8 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
                                   offset:0u atIndex:3u];
                 [growthEncoder setBuffer:destination.femNodeIncidence
                                   offset:0u atIndex:4u];
+                [growthEncoder setBuffer:destination.statuses
+                                  offset:0u atIndex:5u];
             });
         dispatchGrowthThreads(
             "nm_topology_rebuild_finalize", destinationNodes, [&] {
@@ -5391,6 +5440,8 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
                                   offset:0u atIndex:3u];
                 [growthEncoder setBuffer:destination.topologyStatesAccepted
                                   offset:0u atIndex:4u];
+                [growthEncoder setBuffer:destination.statuses
+                                  offset:0u atIndex:5u];
             });
         [growthEncoder endEncoding];
         if (!growthEncodingValid) {
@@ -5443,6 +5494,9 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
         mirrorAccepted(destination.femTetrahedraAccepted,
             destination.femTetrahedraCandidate,
             destination.femTetrahedraCheckpoint);
+        mirrorAccepted(destination.cohesiveFacesAccepted,
+            destination.cohesiveFacesCandidate,
+            destination.cohesiveFacesCheckpoint);
         mirrorAccepted(destination.topologyStatesAccepted,
             destination.topologyStatesCandidate,
             destination.topologyStatesCheckpoint);
@@ -5741,12 +5795,22 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         read(femMaterialState, snapshot.femMaterialState);
         read(femFields, snapshot.femFields);
         read(solverCertificates, snapshot.solverCertificates);
-        read(mpmActiveNodeIndices, snapshot.mpmActiveNodeIndices);
-        read(mpmNodeToActive, snapshot.mpmNodeToActive);
-        read(mpmActiveNodeCounts, snapshot.mpmActiveNodeCounts);
-        read(
+        readCount(
+            mpmActiveNodeIndices, snapshot.mpmActiveNodeIndices,
+            static_cast<std::size_t>(state_->dispatch.environmentCount) *
+                state_->dispatch.mpmActiveNodeCapacity);
+        readCount(
+            mpmNodeToActive, snapshot.mpmNodeToActive,
+            static_cast<std::size_t>(state_->dispatch.environmentCount) *
+                state_->dispatch.gridNodeCount);
+        readCount(
+            mpmActiveNodeCounts, snapshot.mpmActiveNodeCounts,
+            state_->dispatch.environmentCount);
+        readCount(
             rigidGeneralizedCandidate,
-            snapshot.rigidGeneralizedCandidate);
+            snapshot.rigidGeneralizedCandidate,
+            static_cast<std::size_t>(state_->dispatch.environmentCount) *
+                state_->dispatch.rigidGeneralizedCapacity);
         read(learnedWeights, snapshot.learnedWeights);
         snapshot.learnedWeightRevision =
             *static_cast<const std::uint32_t*>(learnedRevision.contents);
