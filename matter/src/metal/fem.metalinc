@@ -11,6 +11,9 @@ struct NMKKTContactArguments {
     device const uint* activePairs [[id(7)]];
     device const uint* activeSlotsByPair [[id(8)]];
     device const uint* activeCounts [[id(9)]];
+    device NMDeformableContactGPU* deformableContacts [[id(10)]];
+    device const uint* deformableActiveIndices [[id(11)]];
+    device const uint* deformableActiveCounts [[id(12)]];
 };
 
 inline float3x3 cofactorMatrix(const float3x3 value);
@@ -845,6 +848,7 @@ kernel void nm_fem_apply_operator_elements(
     device const NMLearnedLayerGPU* learnedLayers [[buffer(19)]],
     device const float* learnedWeights [[buffer(20)]],
     constant NMMixedSolverGPU& solver [[buffer(21)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(22)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
@@ -870,6 +874,9 @@ kernel void nm_fem_apply_operator_elements(
         adaptive[environment * dispatch.objectCount + objectIndex];
     if (object.representation != NM_REPRESENTATION_FEM ||
         !objectDue(object, scheduler, adaptiveState, microstep) ||
+        ((microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) != 0u &&
+         fgmresStates[environment]
+             .diagnostics.z > 0.5f) ||
         ((microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) == 0u &&
         femPCGConverged(
             dispatch,

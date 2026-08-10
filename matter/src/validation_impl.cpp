@@ -142,6 +142,7 @@ private:
             dispatch.mpmBlockLookupCount != world_.mpm.blockLookup.size() ||
             dispatch.femNodeCount != world_.fem.nodes.size() ||
             dispatch.tetrahedronCount != world_.fem.tetrahedra.size() ||
+            dispatch.surfaceFaceCount != world_.fem.surfaceFaces.size() ||
             dispatch.mixedMaterialCount != world_.mixedMaterials.size() ||
             dispatch.fieldBoundaryCount != world_.fem.fieldBoundaries.size() ||
             dispatch.cohesiveFaceCount != world_.fem.cohesiveFaces.size() ||
@@ -1173,6 +1174,32 @@ private:
                         "tetrahedron does not contain its owner node"
                     );
                 }
+            }
+        }
+        for (std::size_t faceIndex = 0u;
+             faceIndex < world_.fem.surfaceFaces.size(); ++faceIndex) {
+            const NMFEMSurfaceFaceGPU& face =
+                world_.fem.surfaceFaces[faceIndex];
+            if (face.adjacency.x >= world_.fem.tetrahedra.size() ||
+                face.adjacency.z >= world_.objects.size() ||
+                face.sides.x >= 4u || face.sides.w != 0u ||
+                (face.adjacency.w & NM_TOPOLOGY_ACTIVE) == 0u ||
+                (face.adjacency.y != NM_INVALID_INDEX &&
+                 (face.adjacency.y >= world_.fem.tetrahedra.size() ||
+                  face.sides.y >= 4u))) {
+                return failIndexed(
+                    "FEM surface face", faceIndex,
+                    "adjacency or side descriptor is invalid");
+            }
+            const NMTetrahedronGPU& first =
+                world_.fem.tetrahedra[face.adjacency.x];
+            if (first.identity.y != face.adjacency.z ||
+                (face.adjacency.y != NM_INVALID_INDEX &&
+                 world_.fem.tetrahedra[face.adjacency.y].identity.y !=
+                    face.adjacency.z)) {
+                return failIndexed(
+                    "FEM surface face", faceIndex,
+                    "adjacent tetrahedron belongs to another object");
             }
         }
         for (std::size_t stencil = 0u;

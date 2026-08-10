@@ -1,5 +1,768 @@
 namespace numi_matter_metal {
 
+inline uint3 sortedSurfaceNodes(uint3 nodes) {
+    if (nodes.x > nodes.y) {
+        const uint value = nodes.x;
+        nodes.x = nodes.y;
+        nodes.y = value;
+    }
+    if (nodes.y > nodes.z) {
+        const uint value = nodes.y;
+        nodes.y = nodes.z;
+        nodes.z = value;
+    }
+    if (nodes.x > nodes.y) {
+        const uint value = nodes.x;
+        nodes.x = nodes.y;
+        nodes.y = value;
+    }
+    return nodes;
+}
+
+inline uint3 surfaceNodes(
+    const NMTetrahedronGPU tetrahedron,
+    const uint opposite
+) {
+    uint3 nodes = uint3(NM_INVALID_INDEX);
+    uint output = 0u;
+    for (uint corner = 0u; corner < 4u; ++corner) {
+        if (corner == opposite) continue;
+        nodes[output++] = tetrahedron.nodes[corner];
+    }
+    return nodes;
+}
+
+kernel void nm_contact_build_surface_primitives(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMSurfaceFaceGPU* faces [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(5)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(6)]],
+    device NMFEMSurfacePrimitiveGPU* primitives [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint primitiveCount = 2u * dispatch.surfaceFaceCount;
+    const uint total = dispatch.environmentCount * primitiveCount;
+    if (global >= total || primitiveCount == 0u) return;
+    primitives[global] = {};
+    const uint environment = global / primitiveCount;
+    const uint localPrimitive = global - environment * primitiveCount;
+    const uint faceIndex = localPrimitive >> 1u;
+    const uint side = localPrimitive & 1u;
+    const NMFEMSurfaceFaceGPU face = faces[faceIndex];
+    if ((face.adjacency.w & NM_TOPOLOGY_ACTIVE) == 0u ||
+        face.adjacency.z >= dispatch.objectCount) return;
+    const uint tetrahedronIndex = side == 0u
+        ? face.adjacency.x : face.adjacency.y;
+    const uint opposite = side == 0u ? face.sides.x : face.sides.y;
+    if (tetrahedronIndex == NM_INVALID_INDEX ||
+        tetrahedronIndex >= dispatch.tetrahedronCount || opposite >= 4u)
+        return;
+    const uint tetrahedronBase = environment * dispatch.tetrahedronCount;
+    const NMTetrahedronGPU tetrahedron =
+        tetrahedra[tetrahedronBase + tetrahedronIndex];
+    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+        tetrahedron.identity.y != face.adjacency.z) return;
+    const uint otherIndex = side == 0u
+        ? face.adjacency.y : face.adjacency.x;
+    const uint otherOpposite = side == 0u ? face.sides.y : face.sides.x;
+    const uint3 currentNodes = surfaceNodes(tetrahedron, opposite);
+    if (otherIndex != NM_INVALID_INDEX &&
+        otherIndex < dispatch.tetrahedronCount && otherOpposite < 4u) {
+        const NMTetrahedronGPU other =
+            tetrahedra[tetrahedronBase + otherIndex];
+        if ((other.identity.w & NM_OBJECT_ACTIVE) != 0u &&
+            all(sortedSurfaceNodes(currentNodes) ==
+                sortedSurfaceNodes(surfaceNodes(other, otherOpposite))))
+            return;
+    }
+    const uint objectIndex = face.adjacency.z;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM) return;
+    const float dt = objectTimestep(
+        dispatch,
+        schedulers[environment * dispatch.objectCount + objectIndex]);
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    float3 minimumPoint = float3(INFINITY);
+    float3 maximumPoint = float3(-INFINITY);
+    float3 position[3];
+    float maximumTravel = 0.0f;
+    for (uint corner = 0u; corner < 3u; ++corner) {
+        if (currentNodes[corner] >= dispatch.femNodeCount) return;
+        const NMFEMNodeStateGPU node = nodes[nodeBase + currentNodes[corner]];
+        position[corner] = node.positionAndMass.xyz;
+        const float3 future = position[corner] +
+            dt * node.velocityAndInverseMass.xyz;
+        minimumPoint = min(minimumPoint, min(position[corner], future));
+        maximumPoint = max(maximumPoint, max(position[corner], future));
+        maximumTravel = max(maximumTravel, length(future - position[corner]));
+    }
+    const float slop = dispatch.numericalLimits.x;
+    const float area = 0.5f * length(cross(
+        position[1] - position[0], position[2] - position[0]));
+    if (!(area > kGeometryFloor) || !isfinite(area)) return;
+    NMFEMSurfacePrimitiveGPU primitive{};
+    primitive.nodesAndObject = {
+        currentNodes.x, currentNodes.y, currentNodes.z, objectIndex
+    };
+    primitive.identity = {
+        faceIndex, side, tetrahedron.identity.z, NM_TOPOLOGY_ACTIVE
+    };
+    primitive.boundsMinimum = float4(minimumPoint - slop, area);
+    primitive.boundsMaximum = float4(maximumPoint + slop, maximumTravel);
+    primitives[global] = primitive;
+    (void)microstep;
+}
+
+inline uint surfaceMortonSpread(uint value) {
+    value &= 0x000003ffu;
+    value = (value | (value << 16u)) & 0x030000ffu;
+    value = (value | (value << 8u)) & 0x0300f00fu;
+    value = (value | (value << 4u)) & 0x030c30c3u;
+    value = (value | (value << 2u)) & 0x09249249u;
+    return value;
+}
+
+inline uint surfaceMortonKey(const float3 normalized) {
+    const uint3 quantized = uint3(clamp(
+        normalized * 1023.0f, float3(0.0f), float3(1023.0f)));
+    return surfaceMortonSpread(quantized.x) |
+        (surfaceMortonSpread(quantized.y) << 1u) |
+        (surfaceMortonSpread(quantized.z) << 2u);
+}
+
+kernel void nm_contact_sort_surface_primitives(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMSurfacePrimitiveGPU* primitives [[buffer(1)]],
+    device uint* keysA [[buffer(2)]],
+    device uint* keysB [[buffer(3)]],
+    device uint* indicesA [[buffer(4)]],
+    device uint* indicesB [[buffer(5)]],
+    device uint* activeCounts [[buffer(6)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    const uint primitiveCount = 2u * dispatch.surfaceFaceCount;
+    if (primitiveCount == 0u) {
+        if (lane == 0u) activeCounts[environment] = 0u;
+        return;
+    }
+    const uint primitiveBase = environment * primitiveCount;
+    float3 localMinimum = float3(INFINITY);
+    float3 localMaximum = float3(-INFINITY);
+    for (uint local = lane; local < primitiveCount; local += 32u) {
+        const NMFEMSurfacePrimitiveGPU primitive =
+            primitives[primitiveBase + local];
+        if ((primitive.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) continue;
+        const float3 centroid = 0.5f * (
+            primitive.boundsMinimum.xyz + primitive.boundsMaximum.xyz);
+        localMinimum = min(localMinimum, centroid);
+        localMaximum = max(localMaximum, centroid);
+    }
+    const float3 boundsMinimum = float3(
+        simd_min(localMinimum.x), simd_min(localMinimum.y),
+        simd_min(localMinimum.z));
+    const float3 boundsMaximum = float3(
+        simd_max(localMaximum.x), simd_max(localMaximum.y),
+        simd_max(localMaximum.z));
+    const float3 inverseExtent = 1.0f /
+        max(boundsMaximum - boundsMinimum, float3(1.0e-12f));
+
+    threadgroup uint compactedCount;
+    if (lane == 0u) compactedCount = 0u;
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    for (uint first = 0u; first < primitiveCount; first += 32u) {
+        const uint local = first + lane;
+        const bool selected = local < primitiveCount &&
+            (primitives[primitiveBase + local].identity.w &
+             NM_TOPOLOGY_ACTIVE) != 0u;
+        const uint prefix = simd_prefix_exclusive_sum(selected ? 1u : 0u);
+        const uint count = simd_sum(selected ? 1u : 0u);
+        const uint output = compactedCount + prefix;
+        if (selected) {
+            const NMFEMSurfacePrimitiveGPU primitive =
+                primitives[primitiveBase + local];
+            const float3 centroid = 0.5f * (
+                primitive.boundsMinimum.xyz + primitive.boundsMaximum.xyz);
+            keysA[primitiveBase + output] = surfaceMortonKey(
+                (centroid - boundsMinimum) * inverseExtent);
+            indicesA[primitiveBase + output] = local;
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (lane == 0u) compactedCount += count;
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    }
+    const uint activeCount = compactedCount;
+    if (lane == 0u) activeCounts[environment] = activeCount;
+    if (activeCount == 0u) return;
+
+    threadgroup uint bucketCounts[16];
+    threadgroup uint bucketStarts[16];
+    threadgroup uint bucketCursors[16];
+    for (uint pass = 0u; pass < 8u; ++pass) {
+        device uint* sourceKeys = (pass & 1u) == 0u
+            ? keysA + primitiveBase : keysB + primitiveBase;
+        device uint* sourceIndices = (pass & 1u) == 0u
+            ? indicesA + primitiveBase : indicesB + primitiveBase;
+        device uint* destinationKeys = (pass & 1u) == 0u
+            ? keysB + primitiveBase : keysA + primitiveBase;
+        device uint* destinationIndices = (pass & 1u) == 0u
+            ? indicesB + primitiveBase : indicesA + primitiveBase;
+        if (lane < 16u) bucketCounts[lane] = 0u;
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        for (uint first = 0u; first < activeCount; first += 32u) {
+            const uint local = first + lane;
+            const bool valid = local < activeCount;
+            const uint bucket = valid
+                ? (sourceKeys[local] >> (4u * pass)) & 15u : 0u;
+            for (uint candidate = 0u; candidate < 16u; ++candidate) {
+                const uint count = simd_sum(
+                    valid && bucket == candidate ? 1u : 0u);
+                if (lane == candidate) bucketCounts[candidate] += count;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (lane == 0u) {
+            uint offset = 0u;
+            for (uint bucket = 0u; bucket < 16u; ++bucket) {
+                bucketStarts[bucket] = offset;
+                bucketCursors[bucket] = offset;
+                offset += bucketCounts[bucket];
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        for (uint first = 0u; first < activeCount; first += 32u) {
+            const uint local = first + lane;
+            const bool valid = local < activeCount;
+            const uint key = valid ? sourceKeys[local] : 0u;
+            const uint bucket = (key >> (4u * pass)) & 15u;
+            for (uint candidate = 0u; candidate < 16u; ++candidate) {
+                const bool selected = valid && bucket == candidate;
+                const uint prefix = simd_prefix_exclusive_sum(
+                    selected ? 1u : 0u);
+                const uint count = simd_sum(selected ? 1u : 0u);
+                if (selected) {
+                    const uint output = bucketCursors[candidate] + prefix;
+                    destinationKeys[output] = key;
+                    destinationIndices[output] = sourceIndices[local];
+                }
+                threadgroup_barrier(
+                    mem_flags::mem_device | mem_flags::mem_threadgroup);
+                if (lane == 0u) bucketCursors[candidate] += count;
+                threadgroup_barrier(
+                    mem_flags::mem_device | mem_flags::mem_threadgroup);
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    }
+}
+
+inline bool surfaceAABBOverlap(
+    const NMFEMSurfacePrimitiveGPU left,
+    const NMFEMSurfacePrimitiveGPU right
+) {
+    return all(left.boundsMinimum.xyz <= right.boundsMaximum.xyz) &&
+        all(right.boundsMinimum.xyz <= left.boundsMaximum.xyz);
+}
+
+inline bool surfaceTrianglesShareNode(
+    const NMFEMSurfacePrimitiveGPU left,
+    const NMFEMSurfacePrimitiveGPU right
+) {
+    for (uint a = 0u; a < 3u; ++a)
+        for (uint b = 0u; b < 3u; ++b)
+            if (left.nodesAndObject[a] == right.nodesAndObject[b])
+                return true;
+    return false;
+}
+
+kernel void nm_contact_build_deformable_candidates(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMSurfacePrimitiveGPU* primitives [[buffer(1)]],
+    device const uint* sortedIndices [[buffer(2)]],
+    device const uint* activeCounts [[buffer(3)]],
+    device NMDeformableContactCandidateGPU* candidates [[buffer(4)]],
+    device uint* candidateCounts [[buffer(5)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    const uint primitiveCount = 2u * dispatch.surfaceFaceCount;
+    const uint activeCount = activeCounts[environment];
+    const uint capacity = dispatch.deformableContactCapacity;
+    if (primitiveCount == 0u || activeCount < 2u || capacity == 0u) {
+        if (lane == 0u) candidateCounts[environment] = 0u;
+        return;
+    }
+    const uint primitiveBase = environment * primitiveCount;
+    const uint candidateBase = environment * capacity;
+    threadgroup uint outputCount;
+    if (lane == 0u) outputCount = 0u;
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    for (uint leftOrder = 0u; leftOrder + 1u < activeCount;
+         ++leftOrder) {
+        const uint leftIndex = sortedIndices[primitiveBase + leftOrder];
+        if (leftIndex >= primitiveCount) continue;
+        const NMFEMSurfacePrimitiveGPU left =
+            primitives[primitiveBase + leftIndex];
+        for (uint firstRight = leftOrder + 1u;
+             firstRight < activeCount; firstRight += 32u) {
+            if (outputCount >= capacity) break;
+            const uint rightOrder = firstRight + lane;
+            bool selected = rightOrder < activeCount;
+            uint rightIndex = NM_INVALID_INDEX;
+            NMFEMSurfacePrimitiveGPU right{};
+            if (selected) {
+                rightIndex = sortedIndices[primitiveBase + rightOrder];
+                selected = rightIndex < primitiveCount;
+            }
+            if (selected) {
+                right = primitives[primitiveBase + rightIndex];
+                selected =
+                    (right.identity.w & NM_TOPOLOGY_ACTIVE) != 0u &&
+                    surfaceAABBOverlap(left, right) &&
+                    (left.nodesAndObject.w != right.nodesAndObject.w ||
+                     !surfaceTrianglesShareNode(left, right));
+            }
+            const uint prefix = simd_prefix_exclusive_sum(
+                selected ? 1u : 0u);
+            const uint count = simd_sum(selected ? 1u : 0u);
+            if (selected && outputCount + prefix < capacity) {
+                NMDeformableContactCandidateGPU candidate{};
+                candidate.identity = {
+                    leftIndex, rightIndex, outputCount + prefix,
+                    NM_TOPOLOGY_ACTIVE,
+                };
+                candidates[candidateBase + outputCount + prefix] = candidate;
+            }
+            threadgroup_barrier(
+                mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (lane == 0u)
+                outputCount = min(outputCount + count, capacity);
+            threadgroup_barrier(
+                mem_flags::mem_device | mem_flags::mem_threadgroup);
+        }
+        if (outputCount >= capacity) break;
+    }
+    if (lane == 0u) candidateCounts[environment] = outputCount;
+}
+
+inline float3 closestPointOnTriangle(
+    const float3 point,
+    const float3 a,
+    const float3 b,
+    const float3 c,
+    thread float3& barycentric
+) {
+    const float3 ab = b - a;
+    const float3 ac = c - a;
+    const float3 ap = point - a;
+    const float d1 = dot(ab, ap);
+    const float d2 = dot(ac, ap);
+    if (d1 <= 0.0f && d2 <= 0.0f) {
+        barycentric = float3(1.0f, 0.0f, 0.0f);
+        return a;
+    }
+    const float3 bp = point - b;
+    const float d3 = dot(ab, bp);
+    const float d4 = dot(ac, bp);
+    if (d3 >= 0.0f && d4 <= d3) {
+        barycentric = float3(0.0f, 1.0f, 0.0f);
+        return b;
+    }
+    const float vc = d1 * d4 - d3 * d2;
+    if (vc <= 0.0f && d1 >= 0.0f && d3 <= 0.0f) {
+        const float v = d1 / max(d1 - d3, kGeometryFloor);
+        barycentric = float3(1.0f - v, v, 0.0f);
+        return a + v * ab;
+    }
+    const float3 cp = point - c;
+    const float d5 = dot(ab, cp);
+    const float d6 = dot(ac, cp);
+    if (d6 >= 0.0f && d5 <= d6) {
+        barycentric = float3(0.0f, 0.0f, 1.0f);
+        return c;
+    }
+    const float vb = d5 * d2 - d1 * d6;
+    if (vb <= 0.0f && d2 >= 0.0f && d6 <= 0.0f) {
+        const float w = d2 / max(d2 - d6, kGeometryFloor);
+        barycentric = float3(1.0f - w, 0.0f, w);
+        return a + w * ac;
+    }
+    const float va = d3 * d6 - d5 * d4;
+    if (va <= 0.0f && d4 - d3 >= 0.0f && d5 - d6 >= 0.0f) {
+        const float w = (d4 - d3) /
+            max((d4 - d3) + (d5 - d6), kGeometryFloor);
+        barycentric = float3(0.0f, 1.0f - w, w);
+        return b + w * (c - b);
+    }
+    const float denominator = max(va + vb + vc, kGeometryFloor);
+    const float v = vb / denominator;
+    const float w = vc / denominator;
+    barycentric = float3(1.0f - v - w, v, w);
+    return a + v * ab + w * ac;
+}
+
+inline void closestPointsOnSegments(
+    const float3 p0,
+    const float3 p1,
+    const float3 q0,
+    const float3 q1,
+    thread float& s,
+    thread float& t,
+    thread float3& pointP,
+    thread float3& pointQ
+) {
+    const float3 dP = p1 - p0;
+    const float3 dQ = q1 - q0;
+    const float3 r = p0 - q0;
+    const float a = dot(dP, dP);
+    const float e = dot(dQ, dQ);
+    const float f = dot(dQ, r);
+    if (a <= kGeometryFloor && e <= kGeometryFloor) {
+        s = t = 0.0f;
+    } else if (a <= kGeometryFloor) {
+        s = 0.0f;
+        t = clamp(f / max(e, kGeometryFloor), 0.0f, 1.0f);
+    } else {
+        const float c = dot(dP, r);
+        if (e <= kGeometryFloor) {
+            t = 0.0f;
+            s = clamp(-c / max(a, kGeometryFloor), 0.0f, 1.0f);
+        } else {
+            const float b = dot(dP, dQ);
+            const float denominator = a * e - b * b;
+            s = denominator > kGeometryFloor
+                ? clamp((b * f - c * e) / denominator, 0.0f, 1.0f)
+                : 0.0f;
+            t = (b * s + f) / e;
+            if (t < 0.0f) {
+                t = 0.0f;
+                s = clamp(-c / a, 0.0f, 1.0f);
+            } else if (t > 1.0f) {
+                t = 1.0f;
+                s = clamp((b - c) / a, 0.0f, 1.0f);
+            }
+        }
+    }
+    pointP = mix(p0, p1, s);
+    pointQ = mix(q0, q1, t);
+}
+
+inline bool vertexTriangleCCD(
+    const float3 vertex0,
+    const float3 vertex1,
+    const float3 a0,
+    const float3 a1,
+    const float3 b0,
+    const float3 b1,
+    const float3 c0,
+    const float3 c1,
+    const float thickness,
+    thread float& toi,
+    thread float3& normal,
+    thread float3& barycentric,
+    thread float3& point,
+    thread float& separation
+) {
+    const float speedBound = length(vertex1 - vertex0) + max(
+        length(a1 - a0), max(length(b1 - b0), length(c1 - c0)));
+    float time = 0.0f;
+    for (uint iteration = 0u; iteration < 16u; ++iteration) {
+        const float3 vertexPoint = mix(vertex0, vertex1, time);
+        const float3 a = mix(a0, a1, time);
+        const float3 b = mix(b0, b1, time);
+        const float3 c = mix(c0, c1, time);
+        float3 bary;
+        const float3 trianglePoint =
+            closestPointOnTriangle(vertexPoint, a, b, c, bary);
+        const float3 delta = vertexPoint - trianglePoint;
+        const float distance = length(delta);
+        if (distance <= thickness + 8.0f * kEpsilon) {
+            float3 fallback = cross(b - a, c - a);
+            if (length(fallback) <= kGeometryFloor)
+                fallback = (vertex1 - vertex0) -
+                    ((a1 + b1 + c1) - (a0 + b0 + c0)) / 3.0f;
+            normal = distance > kGeometryFloor
+                ? delta / distance
+                : normalize(fallback + float3(kGeometryFloor));
+            toi = time;
+            barycentric = bary;
+            point = trianglePoint;
+            separation = distance;
+            return finite3(normal);
+        }
+        if (!(speedBound > kGeometryFloor)) return false;
+        const float step = max(
+            (distance - thickness) / speedBound, 1.0e-6f);
+        time += step;
+        if (time > 1.0f + 8.0f * kEpsilon) return false;
+        time = min(time, 1.0f);
+    }
+    return false;
+}
+
+inline bool edgeEdgeCCD(
+    const float3 p00,
+    const float3 p01,
+    const float3 p10,
+    const float3 p11,
+    const float3 q00,
+    const float3 q01,
+    const float3 q10,
+    const float3 q11,
+    const float thickness,
+    thread float& toi,
+    thread float3& normal,
+    thread float2& parameters,
+    thread float3& point,
+    thread float& separation
+) {
+    const float speedBound = max(length(p01 - p00), length(p11 - p10)) +
+        max(length(q01 - q00), length(q11 - q10));
+    float time = 0.0f;
+    for (uint iteration = 0u; iteration < 16u; ++iteration) {
+        const float3 p0 = mix(p00, p01, time);
+        const float3 p1 = mix(p10, p11, time);
+        const float3 q0 = mix(q00, q01, time);
+        const float3 q1 = mix(q10, q11, time);
+        float s, t;
+        float3 pointP, pointQ;
+        closestPointsOnSegments(p0, p1, q0, q1, s, t, pointP, pointQ);
+        const float3 delta = pointP - pointQ;
+        const float distance = length(delta);
+        if (distance <= thickness + 8.0f * kEpsilon) {
+            float3 fallback = cross(p1 - p0, q1 - q0);
+            if (length(fallback) <= kGeometryFloor)
+                fallback = (p01 - p00) - (q01 - q00);
+            normal = distance > kGeometryFloor
+                ? delta / distance
+                : normalize(fallback + float3(kGeometryFloor));
+            toi = time;
+            parameters = float2(s, t);
+            point = 0.5f * (pointP + pointQ);
+            separation = distance;
+            return finite3(normal);
+        }
+        if (!(speedBound > kGeometryFloor)) return false;
+        const float step = max(
+            (distance - thickness) / speedBound, 1.0e-6f);
+        time += step;
+        if (time > 1.0f + 8.0f * kEpsilon) return false;
+        time = min(time, 1.0f);
+    }
+    return false;
+}
+
+kernel void nm_contact_narrowphase_deformable(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(3)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
+    device const NMFEMSurfacePrimitiveGPU* primitives [[buffer(5)]],
+    device const NMDeformableContactCandidateGPU* candidates [[buffer(6)]],
+    device const uint* candidateCounts [[buffer(7)]],
+    device NMDeformableContactGPU* contacts [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint total = dispatch.environmentCount * capacity;
+    if (global >= total || capacity == 0u) return;
+    const NMDeformableContactGPU previous = contacts[global];
+    contacts[global] = {};
+    const uint environment = global / capacity;
+    const uint slot = global - environment * capacity;
+    if (slot >= candidateCounts[environment]) return;
+    const NMDeformableContactCandidateGPU candidate = candidates[global];
+    if ((candidate.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) return;
+    const uint primitiveCount = 2u * dispatch.surfaceFaceCount;
+    if (candidate.identity.x >= primitiveCount ||
+        candidate.identity.y >= primitiveCount) return;
+    const uint primitiveBase = environment * primitiveCount;
+    const NMFEMSurfacePrimitiveGPU left =
+        primitives[primitiveBase + candidate.identity.x];
+    const NMFEMSurfacePrimitiveGPU right =
+        primitives[primitiveBase + candidate.identity.y];
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    float3 start[6];
+    float3 finish[6];
+    float3 velocity[6];
+    float inverseMass[6];
+    for (uint local = 0u; local < 6u; ++local) {
+        const uint node = local < 3u
+            ? left.nodesAndObject[local]
+            : right.nodesAndObject[local - 3u];
+        if (node >= dispatch.femNodeCount) return;
+        const NMFEMNodeStateGPU state = nodes[nodeBase + node];
+        const uint objectIndex = local < 3u
+            ? left.nodesAndObject.w : right.nodesAndObject.w;
+        if (objectIndex >= dispatch.objectCount) return;
+        const float dt = objectTimestep(
+            dispatch,
+            schedulers[environment * dispatch.objectCount + objectIndex]);
+        start[local] = state.positionAndMass.xyz;
+        velocity[local] = state.velocityAndInverseMass.xyz;
+        finish[local] = start[local] + dt * velocity[local];
+        inverseMass[local] = state.velocityAndInverseMass.w;
+    }
+    const float thickness = dispatch.numericalLimits.x;
+    float bestTOI = INFINITY;
+    float3 bestNormal = float3(0.0f);
+    float3 bestPoint = float3(0.0f);
+    float bestSeparation = INFINITY;
+    uint4 bestNodes = uint4(NM_INVALID_INDEX);
+    float4 bestWeights = float4(0.0f);
+    uint bestKind = NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
+    uint bestPositiveObject = NM_INVALID_INDEX;
+    uint bestNegativeObject = NM_INVALID_INDEX;
+
+    for (uint direction = 0u; direction < 2u; ++direction) {
+        const uint vertexBase = direction == 0u ? 0u : 3u;
+        const uint triangleBase = direction == 0u ? 3u : 0u;
+        for (uint vertexIndex = 0u; vertexIndex < 3u; ++vertexIndex) {
+            float toi, separation;
+            float3 normal, barycentric, point;
+            if (vertexTriangleCCD(
+                    start[vertexBase + vertexIndex],
+                    finish[vertexBase + vertexIndex],
+                    start[triangleBase], finish[triangleBase],
+                    start[triangleBase + 1u], finish[triangleBase + 1u],
+                    start[triangleBase + 2u], finish[triangleBase + 2u],
+                    thickness, toi, normal, barycentric, point, separation) &&
+                toi < bestTOI) {
+                bestTOI = toi;
+                bestNormal = normal;
+                bestPoint = point;
+                bestSeparation = separation;
+                bestNodes = {
+                    (vertexBase == 0u ? left : right)
+                        .nodesAndObject[vertexIndex],
+                    (triangleBase == 0u ? left : right).nodesAndObject.x,
+                    (triangleBase == 0u ? left : right).nodesAndObject.y,
+                    (triangleBase == 0u ? left : right).nodesAndObject.z,
+                };
+                bestWeights = float4(1.0f, -barycentric);
+                bestKind = NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
+                bestPositiveObject = direction == 0u
+                    ? left.nodesAndObject.w : right.nodesAndObject.w;
+                bestNegativeObject = direction == 0u
+                    ? right.nodesAndObject.w : left.nodesAndObject.w;
+            }
+        }
+    }
+    constexpr uint2 edges[3] = {
+        uint2(0u, 1u), uint2(1u, 2u), uint2(2u, 0u)
+    };
+    for (uint edgeA = 0u; edgeA < 3u; ++edgeA) {
+        for (uint edgeB = 0u; edgeB < 3u; ++edgeB) {
+            const uint2 a = edges[edgeA];
+            const uint2 b = edges[edgeB];
+            float toi, separation;
+            float3 normal, point;
+            float2 parameters;
+            if (edgeEdgeCCD(
+                    start[a.x], finish[a.x], start[a.y], finish[a.y],
+                    start[3u + b.x], finish[3u + b.x],
+                    start[3u + b.y], finish[3u + b.y],
+                    thickness, toi, normal, parameters, point, separation) &&
+                toi < bestTOI) {
+                bestTOI = toi;
+                bestNormal = normal;
+                bestPoint = point;
+                bestSeparation = separation;
+                bestNodes = {
+                    left.nodesAndObject[a.x], left.nodesAndObject[a.y],
+                    right.nodesAndObject[b.x], right.nodesAndObject[b.y],
+                };
+                bestWeights = float4(
+                    1.0f - parameters.x, parameters.x,
+                    -(1.0f - parameters.y), -parameters.y);
+                bestKind = NM_DEFORMABLE_CONTACT_EDGE_EDGE;
+                bestPositiveObject = left.nodesAndObject.w;
+                bestNegativeObject = right.nodesAndObject.w;
+            }
+        }
+    }
+    if (!isfinite(bestTOI) || bestTOI > 1.0f) return;
+    float3 relativeVelocity = float3(0.0f);
+    float inverseResponse = 0.0f;
+    for (uint local = 0u; local < 4u; ++local) {
+        uint source = NM_INVALID_INDEX;
+        for (uint node = 0u; node < 6u; ++node) {
+            const uint globalNode = node < 3u
+                ? left.nodesAndObject[node]
+                : right.nodesAndObject[node - 3u];
+            if (globalNode == bestNodes[local]) {
+                source = node;
+                break;
+            }
+        }
+        if (source == NM_INVALID_INDEX) return;
+        relativeVelocity += bestWeights[local] * velocity[source];
+        inverseResponse += bestWeights[local] * bestWeights[local] *
+            inverseMass[source];
+    }
+    if (!(inverseResponse > kGeometryFloor) ||
+        !finite3(relativeVelocity)) return;
+    NMDeformableContactGPU contact{};
+    contact.nodes = bestNodes;
+    contact.identity = {
+        bestPositiveObject, bestNegativeObject, bestKind, NM_CONTACT_VALID
+    };
+    contact.weights = bestWeights;
+    contact.normalAndTOI = float4(bestNormal, bestTOI);
+    contact.pointAndSeparation = float4(bestPoint, bestSeparation);
+    contact.velocityAndResponse = float4(relativeVelocity, inverseResponse);
+    contact.source = {
+        candidate.identity.x, candidate.identity.y, candidate.identity.z,
+        max(left.identity.z, right.identity.z)
+    };
+    const bool sameSource =
+        (previous.identity.w & NM_CONTACT_VALID) != 0u &&
+        all(previous.source.xy == contact.source.xy) &&
+        previous.source.w == contact.source.w;
+    const float seededNormal = max(
+        -dot(bestNormal, relativeVelocity) / inverseResponse, 0.0f);
+    contact.impulseAndFriction = float4(
+        sameSource ? max(previous.impulseAndFriction.x, 0.0f)
+                   : seededNormal,
+        0.0f, 0.0f, 0.0f);
+    contacts[global] = contact;
+    (void)objects;
+    (void)microstep;
+}
+
+// Stable device compaction keeps the dynamic rows dense for every downstream
+// KKT phase while preserving candidate order and therefore deterministic
+// warm-start ownership.
+kernel void nm_contact_compact_deformable(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMDeformableContactGPU* contacts [[buffer(1)]],
+    device uint* activeIndices [[buffer(2)]],
+    device uint* activeCounts [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint base = environment * capacity;
+    uint outputCount = 0u;
+    for (uint first = 0u; first < capacity; first += 32u) {
+        const uint local = first + lane;
+        const bool selected = local < capacity &&
+            (contacts[base + local].identity.w & NM_CONTACT_VALID) != 0u;
+        const uint prefix = simd_prefix_exclusive_sum(selected ? 1u : 0u);
+        const uint count = simd_sum(selected ? 1u : 0u);
+        if (selected) activeIndices[base + outputCount + prefix] = local;
+        outputCount += count;
+    }
+    if (lane == 0u) activeCounts[environment] = outputCount;
+}
+
 inline float4 quaternionConjugate(const float4 quaternion) {
     return float4(-quaternion.xyz, quaternion.w);
 }

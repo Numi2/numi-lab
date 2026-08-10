@@ -22,7 +22,7 @@ inline constexpr std::array<char, 16> kMagic{
     'N', 'U', 'M', 'I', 'M', 'A', 'T', 'T',
     'E', 'R', 'P', 'K', 'G', '\0', '\0', '\0',
 };
-inline constexpr std::uint32_t kPackageVersion = 4u;
+inline constexpr std::uint32_t kPackageVersion = 6u;
 inline constexpr std::uint32_t kEndianMarker = 0x01020304u;
 
 enum class Section : std::uint32_t {
@@ -45,6 +45,7 @@ enum class Section : std::uint32_t {
     mpmNodeRanges,
     femNodes,
     femTetrahedra,
+    femSurfaceFaces,
     femNodeIncidence,
     femNodeRanges,
     femCapacities,
@@ -310,6 +311,8 @@ bool writePackage(
             std::span<const NMFEMNodeStateGPU>(world.fem.nodes)) &&
         writeSection(stream, Section::femTetrahedra,
             std::span<const NMTetrahedronGPU>(world.fem.tetrahedra)) &&
+        writeSection(stream, Section::femSurfaceFaces,
+            std::span<const NMFEMSurfaceFaceGPU>(world.fem.surfaceFaces)) &&
         writeSection(stream, Section::femNodeIncidence,
             std::span<const std::uint32_t>(world.fem.nodeIncidence)) &&
         writeSection(stream, Section::femNodeRanges,
@@ -451,6 +454,8 @@ bool readPackage(
             decoded = decodeVector(stream, section, candidate.fem.nodes, error); break;
         case Section::femTetrahedra:
             decoded = decodeVector(stream, section, candidate.fem.tetrahedra, error); break;
+        case Section::femSurfaceFaces:
+            decoded = decodeVector(stream, section, candidate.fem.surfaceFaces, error); break;
         case Section::femNodeIncidence:
             decoded = decodeVector(stream, section, candidate.fem.nodeIncidence, error); break;
         case Section::femNodeRanges:

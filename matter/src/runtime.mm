@@ -331,6 +331,18 @@ struct Runtime::State {
     id<MTLBuffer> femTetrahedraAccepted = nil;
     id<MTLBuffer> femTetrahedraCandidate = nil;
     id<MTLBuffer> femTetrahedraCheckpoint = nil;
+    id<MTLBuffer> femSurfaceFaces = nil;
+    id<MTLBuffer> femSurfacePrimitives = nil;
+    id<MTLBuffer> femSurfaceSortKeysA = nil;
+    id<MTLBuffer> femSurfaceSortKeysB = nil;
+    id<MTLBuffer> femSurfaceSortIndicesA = nil;
+    id<MTLBuffer> femSurfaceSortIndicesB = nil;
+    id<MTLBuffer> femSurfaceActiveCounts = nil;
+    id<MTLBuffer> deformableContactCandidates = nil;
+    id<MTLBuffer> deformableContactCandidateCounts = nil;
+    id<MTLBuffer> deformableContacts = nil;
+    id<MTLBuffer> deformableContactActiveIndices = nil;
+    id<MTLBuffer> deformableContactActiveCounts = nil;
     id<MTLBuffer> femTopologyNodesAccepted = nil;
     id<MTLBuffer> femTopologyNodesCandidate = nil;
     id<MTLBuffer> femTopologyNodesCheckpoint = nil;
@@ -574,7 +586,7 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
 
-        const std::array<const char*, 110> kernelNames{
+        const std::array<const char*, 117> kernelNames{
             "nm_prepare_status",
             "nm_prepare_events",
             "nm_prepare_reactions",
@@ -633,11 +645,14 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_apply_solution",
             "nm_fem_select_backtracking",
             "nm_fgmres_begin",
+            "nm_fgmres_measure_correction",
             "nm_fgmres_build_preconditioner",
             "nm_fgmres_precondition",
+            "nm_fgmres_precondition_coarse",
             "nm_fgmres_import_field_residual",
             "nm_fgmres_field_pcg_initialize",
             "nm_fgmres_field_pcg_export",
+            "nm_fgmres_field_smooth",
             "nm_fgmres_precondition_cross",
             "nm_fgmres_precondition_contacts",
             "nm_fem_apply_operator_elements",
@@ -653,6 +668,11 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_restart_residual_nodes",
             "nm_fgmres_restart_residual_contacts",
             "nm_contact_clear_samples",
+            "nm_contact_build_surface_primitives",
+            "nm_contact_sort_surface_primitives",
+            "nm_contact_build_deformable_candidates",
+            "nm_contact_narrowphase_deformable",
+            "nm_contact_compact_deformable",
             "nm_contact_evaluate",
             "nm_contact_compact_active",
             "nm_contact_checkpoint_warmstarts",
@@ -1122,6 +1142,9 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femTetrahedraCheckpoint = uploads.repeated(
             std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
             environments, valid, candidate->residentBytes);
+        candidate->femSurfaceFaces = uploads.one(
+            std::span<const NMFEMSurfaceFaceGPU>(world.fem.surfaceFaces),
+            valid, candidate->residentBytes);
         candidate->femTopologyNodesAccepted = uploads.repeated(
             std::span<const NMFEMTopologyNodeGPU>(world.fem.topologyNodes),
             environments, valid, candidate->residentBytes);
@@ -1253,6 +1276,54 @@ RuntimeDiagnostics Runtime::initialize(
         const auto multiplied = [&](const std::size_t perEnvironment) {
             return environments * perEnvironment;
         };
+        candidate->femSurfacePrimitives =
+            privateScratch<NMFEMSurfacePrimitiveGPU>(
+                candidate->device,
+                multiplied(2u * world.dispatch.surfaceFaceCount),
+                valid,
+                candidate->residentBytes);
+        const std::size_t surfacePrimitiveTotal =
+            multiplied(2u * world.dispatch.surfaceFaceCount);
+        candidate->femSurfaceSortKeysA = privateScratch<std::uint32_t>(
+            candidate->device, surfacePrimitiveTotal,
+            valid, candidate->residentBytes);
+        candidate->femSurfaceSortKeysB = privateScratch<std::uint32_t>(
+            candidate->device, surfacePrimitiveTotal,
+            valid, candidate->residentBytes);
+        candidate->femSurfaceSortIndicesA = privateScratch<std::uint32_t>(
+            candidate->device, surfacePrimitiveTotal,
+            valid, candidate->residentBytes);
+        candidate->femSurfaceSortIndicesB = privateScratch<std::uint32_t>(
+            candidate->device, surfacePrimitiveTotal,
+            valid, candidate->residentBytes);
+        candidate->femSurfaceActiveCounts = privateScratch<std::uint32_t>(
+            candidate->device, environments,
+            valid, candidate->residentBytes);
+        candidate->deformableContactCandidates =
+            privateScratch<NMDeformableContactCandidateGPU>(
+                candidate->device,
+                multiplied(world.dispatch.deformableContactCapacity),
+                valid,
+                candidate->residentBytes);
+        candidate->deformableContactCandidateCounts =
+            privateScratch<std::uint32_t>(
+                candidate->device, environments,
+                valid, candidate->residentBytes);
+        candidate->deformableContacts = privateScratch<NMDeformableContactGPU>(
+            candidate->device,
+            multiplied(world.dispatch.deformableContactCapacity),
+            valid,
+            candidate->residentBytes);
+        candidate->deformableContactActiveIndices =
+            privateScratch<std::uint32_t>(
+                candidate->device,
+                multiplied(world.dispatch.deformableContactCapacity),
+                valid,
+                candidate->residentBytes);
+        candidate->deformableContactActiveCounts =
+            privateScratch<std::uint32_t>(
+                candidate->device, environments,
+                valid, candidate->residentBytes);
         candidate->mpmNodeGenerations = privateScratch<std::uint32_t>(
             candidate->device, multiplied(world.dispatch.gridNodeCount),
             valid, candidate->residentBytes);
@@ -1411,8 +1482,7 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->device, multiplied(world.dispatch.objectCount),
             valid, candidate->residentBytes);
         const std::size_t fgmresUnknownTotal = mixedUnknownTotal;
-        const std::size_t fgmresObjectTotal =
-            multiplied(world.dispatch.objectCount);
+        const std::size_t fgmresSystemTotal = multiplied(1u);
         candidate->fgmresBasis = privateScratch<nm_float4>(
             candidate->device,
             fgmresUnknownTotal * (NM_MIXED_FGMRES_RESTART + 1u),
@@ -1423,23 +1493,23 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         candidate->fgmresHessenberg = privateScratch<float>(
             candidate->device,
-            fgmresObjectTotal * (NM_MIXED_FGMRES_RESTART + 1u) *
+            fgmresSystemTotal * (NM_MIXED_FGMRES_RESTART + 1u) *
                 NM_MIXED_FGMRES_RESTART,
             valid, candidate->residentBytes);
         candidate->fgmresRotations = privateScratch<float>(
             candidate->device,
-            fgmresObjectTotal * NM_MIXED_FGMRES_RESTART * 2u,
+            fgmresSystemTotal * NM_MIXED_FGMRES_RESTART * 2u,
             valid, candidate->residentBytes);
         candidate->fgmresLeastSquares = privateScratch<float>(
             candidate->device,
-            fgmresObjectTotal * (NM_MIXED_FGMRES_RESTART + 1u),
+            fgmresSystemTotal * (NM_MIXED_FGMRES_RESTART + 1u),
             valid, candidate->residentBytes);
         candidate->fgmresRestartCoefficients = privateScratch<float>(
             candidate->device,
-            fgmresObjectTotal * (NM_MIXED_FGMRES_RESTART + 1u),
+            fgmresSystemTotal * (NM_MIXED_FGMRES_RESTART + 1u),
             valid, candidate->residentBytes);
         candidate->fgmresStates = privateScratch<NMFGMRESStateGPU>(
-            candidate->device, fgmresObjectTotal,
+            candidate->device, fgmresSystemTotal,
             valid, candidate->residentBytes);
         candidate->solverCertificates = privateScratch<NMSolverCertificateGPU>(
             candidate->device, multiplied(world.dispatch.objectCount),
@@ -1507,6 +1577,14 @@ RuntimeDiagnostics Runtime::initialize(
                                  offset:0u atIndex:8u];
         [fgmresContactEncoder setBuffer:candidate->contactActiveCounts
                                  offset:0u atIndex:9u];
+        [fgmresContactEncoder setBuffer:candidate->deformableContacts
+                                 offset:0u atIndex:10u];
+        [fgmresContactEncoder
+            setBuffer:candidate->deformableContactActiveIndices
+               offset:0u atIndex:11u];
+        [fgmresContactEncoder
+            setBuffer:candidate->deformableContactActiveCounts
+               offset:0u atIndex:12u];
         candidate->residentBytes += fgmresContactEncoder.encodedLength;
 
         for (const NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
@@ -2688,6 +2766,73 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 const bool certify,
                 id<MTLBuffer> warmstarts
             ) -> bool {
+                dispatchThreads(
+                    "nm_contact_build_surface_primitives",
+                    2u * environments * state.dispatch.surfaceFaceCount,
+                    [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femSurfaceFaces offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femSurfacePrimitives offset:0u atIndex:7u];
+                    }
+                );
+                dispatchGroups32(
+                    "nm_contact_sort_surface_primitives",
+                    environments,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femSurfacePrimitives offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femSurfaceSortKeysA offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femSurfaceSortKeysB offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femSurfaceSortIndicesB offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:6u];
+                    }
+                );
+                dispatchGroups32(
+                    "nm_contact_build_deformable_candidates",
+                    environments,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femSurfacePrimitives offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:3u];
+                        [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:4u];
+                        [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:5u];
+                    }
+                );
+                dispatchThreads(
+                    "nm_contact_narrowphase_deformable",
+                    environments * state.dispatch.deformableContactCapacity,
+                    [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femSurfacePrimitives offset:0u atIndex:5u];
+                        [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:6u];
+                        [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:7u];
+                        [encoder setBuffer:state.deformableContacts offset:0u atIndex:8u];
+                    }
+                );
+                dispatchGroups32(
+                    "nm_contact_compact_deformable",
+                    environments,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.deformableContacts
+                                   offset:0u atIndex:1u];
+                        [encoder setBuffer:state.deformableContactActiveIndices
+                                   offset:0u atIndex:2u];
+                        [encoder setBuffer:state.deformableContactActiveCounts
+                                   offset:0u atIndex:3u];
+                    }
+                );
                 dispatchThreads("nm_contact_evaluate", pairTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -2882,6 +3027,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                  nonlinearIteration <
                     state.mixedSolverValue.nonlinearIterations.x;
                  ++nonlinearIteration) {
+            micro.pcgIteration = nonlinearIteration;
             // Reassemble the backward-Euler field residual at this Newton
             // candidate. These kernels no longer iterate or publish a field
             // solution; they provide the field residual and block diagonal to
@@ -3048,6 +3194,16 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 restart, state.mixedSolverValue.nonlinearIterations.z);
             const std::uint32_t restartCycleCount =
                 (linearIterationBudget + restart - 1u) / restart;
+            const float nonlinearTolerance = std::max(
+                state.mixedSolverValue.nonlinearTolerances.x, 0.0f);
+            const float forcingFloor = std::sqrt(nonlinearTolerance);
+            const float scheduledForcing = std::ldexp(
+                0.25f,
+                -static_cast<int>(std::min(nonlinearIteration, 4u)));
+            const float linearForcing = std::clamp(
+                std::max(forcingFloor, scheduledForcing),
+                nonlinearTolerance,
+                0.25f);
             NMMicrostepGPU operatorMicro = micro;
             operatorMicro.flags |= NM_MICROSTEP_FGMRES_OPERATOR;
             for (std::uint32_t restartCycle = 0u;
@@ -3056,7 +3212,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             const std::uint32_t iterationOffset = restartCycle * restart;
             const std::uint32_t columnsThisCycle = std::min(
                 restart, linearIterationBudget - iterationOffset);
-            dispatchGroups32("nm_fgmres_begin", objectTotal, [&] {
+            dispatchGroups32("nm_fgmres_begin", environments, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -3071,6 +3227,12 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
                 [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
                 [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:13u];
+                [encoder setBytes:&restartCycle
+                           length:sizeof(restartCycle) atIndex:14u];
+                [encoder setBytes:&linearForcing
+                           length:sizeof(linearForcing) atIndex:15u];
+                [encoder setBytes:&nonlinearIteration
+                           length:sizeof(nonlinearIteration) atIndex:16u];
             });
             dispatchThreads("nm_fgmres_build_preconditioner", femNodeTotal, [&] {
                 setDispatch();
@@ -3096,6 +3258,18 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:6u];
                     [encoder setBuffer:state.objects offset:0u atIndex:7u];
                 });
+                dispatchGroups32("nm_fgmres_precondition_coarse", objectTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                    [encoder setBuffer:state.fgmresBasis
+                                 offset:columnOffset atIndex:2u];
+                    [encoder setBuffer:state.femPreconditioned
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.fgmresPreconditionedBasis
+                                 offset:columnOffset atIndex:4u];
+                    [encoder setBuffer:state.fgmresStates
+                                 offset:0u atIndex:5u];
+                });
                 dispatchThreads("nm_fgmres_field_pcg_initialize", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
@@ -3107,19 +3281,24 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.mixedFieldDirection offset:0u atIndex:7u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
                 });
-                // Solve the four packed transport blocks only as a bounded
-                // right-preconditioner action for this Arnoldi vector. This
-                // scratch solve cannot publish fields or accept/reject an
-                // environment; the outer generalized KKT remains authoritative.
+                // Apply a fixed matrix-free polynomial smoother to the four
+                // packed transport blocks. The former nested PCG launched up
+                // to seven kernels per inner iteration for every Arnoldi
+                // column. This bounded right preconditioner keeps the outer
+                // FGMRES authoritative while removing reductions, scalar
+                // dependencies and most command traffic from the hot loop.
                 NMMicrostepGPU fieldPreconditionerMicro = micro;
                 fieldPreconditionerMicro.flags |=
                     NM_MICROSTEP_FIELD_PRECONDITIONER;
-                const std::uint32_t fieldPreconditionerIterations = std::min(
-                    state.mixedSolverValue.blockIterations.z, 16u);
-                for (std::uint32_t fieldIteration = 0u;
-                     fieldIteration < fieldPreconditionerIterations;
-                     ++fieldIteration) {
-                    fieldPreconditionerMicro.pcgIteration = fieldIteration;
+                constexpr std::array<float, 3> fieldSmootherDamping{
+                    0.72f, 0.86f, 0.72f
+                };
+                const std::uint32_t fieldSmoothingPasses = std::min(
+                    state.mixedSolverValue.blockIterations.z,
+                    static_cast<std::uint32_t>(fieldSmootherDamping.size()));
+                for (std::uint32_t fieldPass = 0u;
+                     fieldPass < fieldSmoothingPasses; ++fieldPass) {
+                    fieldPreconditionerMicro.pcgIteration = fieldPass;
                     dispatchThreads("nm_mixed_apply_operator_elements", tetrahedronTotal, [&] {
                         setDispatch();
                         [encoder setBytes:&fieldPreconditionerMicro
@@ -3128,7 +3307,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
                         [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
                         [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
-                        [encoder setBuffer:state.mixedFieldDirection offset:0u atIndex:6u];
+                        [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
                         [encoder setBuffer:state.elementOperator offset:0u atIndex:7u];
                         [encoder setBuffer:state.femDirection offset:0u atIndex:8u];
                         [encoder setBuffer:state.femCandidate offset:0u atIndex:9u];
@@ -3140,60 +3319,25 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
                         [encoder setBuffer:state.elementOperator offset:0u atIndex:4u];
                         [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:5u];
-                        [encoder setBuffer:state.mixedFieldDirection offset:0u atIndex:6u];
+                        [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
                         [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:7u];
                     });
-                    dispatchGroups32("nm_mixed_reduce_pap", objectTotal, [&] {
-                        setDispatch();
-                        [encoder setBytes:&fieldPreconditionerMicro
-                                   length:sizeof(fieldPreconditionerMicro) atIndex:1u];
-                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                        [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:3u];
-                        [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:4u];
-                        [encoder setBuffer:state.mixedFieldDirection offset:0u atIndex:5u];
-                        [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:6u];
-                        [encoder setBuffer:state.mixedFieldScalars offset:0u atIndex:7u];
-                    });
-                    dispatchThreads("nm_mixed_pcg_step", femNodeTotal, [&] {
+                    dispatchThreads("nm_fgmres_field_smooth", femNodeTotal, [&] {
                         setDispatch();
                         [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
-                        [encoder setBuffer:state.mixedFieldScalars offset:0u atIndex:2u];
-                        [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:3u];
-                        [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:4u];
-                        [encoder setBuffer:state.mixedFieldDirection offset:0u atIndex:5u];
-                        [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:6u];
-                    });
-                    dispatchThreads("nm_mixed_pcg_precondition", femNodeTotal, [&] {
-                        setDispatch();
-                        [encoder setBytes:&fieldPreconditionerMicro
-                                   length:sizeof(fieldPreconditionerMicro) atIndex:1u];
-                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                        [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
-                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
-                        [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:5u];
-                        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:6u];
-                        [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:7u];
-                        [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:8u];
-                        [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:9u];
-                        [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:10u];
-                    });
-                    dispatchGroups32("nm_mixed_reduce_new_rz", objectTotal, [&] {
-                        setDispatch();
-                        [encoder setBytes:&fieldPreconditionerMicro
-                                   length:sizeof(fieldPreconditionerMicro) atIndex:1u];
-                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:2u];
-                        [encoder setBuffer:state.objects offset:0u atIndex:3u];
-                        [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:4u];
-                        [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:5u];
-                        [encoder setBuffer:state.mixedFieldScalars offset:0u atIndex:6u];
-                        [encoder setBuffer:state.statuses offset:0u atIndex:7u];
-                    });
-                    dispatchThreads("nm_mixed_pcg_update_direction", femNodeTotal, [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
-                        [encoder setBuffer:state.mixedFieldScalars offset:0u atIndex:2u];
-                        [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:3u];
-                        [encoder setBuffer:state.mixedFieldDirection offset:0u atIndex:4u];
+                        [encoder setBuffer:state.fgmresBasis
+                                     offset:columnOffset atIndex:2u];
+                        [encoder setBuffer:state.mixedFieldInverseDiagonal
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.mixedFieldOperator
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.mixedFieldSolution
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:6u];
+                        const float damping = fieldSmootherDamping[fieldPass];
+                        [encoder setBytes:&damping length:sizeof(damping)
+                                   atIndex:7u];
                     });
                 }
                 dispatchThreads("nm_fgmres_field_pcg_export", femNodeTotal, [&] {
@@ -3245,6 +3389,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.learnedLayers offset:0u atIndex:19u];
                     [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:20u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
                 });
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -3279,6 +3424,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresPreconditionedBasis
                                  offset:columnOffset atIndex:8u];
                     [encoder setBuffer:state.femCandidate offset:0u atIndex:9u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
                 });
                 dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -3304,7 +3450,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:8u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
                 });
-                dispatchGroups32("nm_fgmres_orthogonalize_column", objectTotal, [&] {
+                dispatchGroups32("nm_fgmres_orthogonalize_column", environments, [&] {
                     setDispatch();
                     [encoder setBytes:&column length:sizeof(column) atIndex:1u];
                     [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -3314,7 +3460,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
                     [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:7u];
                 });
-                dispatchGroups32("nm_fgmres_finish_column", objectTotal, [&] {
+                dispatchGroups32("nm_fgmres_finish_column", environments, [&] {
                     setDispatch();
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                     [encoder setBytes:&column length:sizeof(column) atIndex:2u];
@@ -3326,9 +3472,11 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:8u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
                     [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:10u];
+                    [encoder setBytes:&linearForcing
+                               length:sizeof(linearForcing) atIndex:11u];
                 });
             }
-            dispatchThreads("nm_fgmres_form_restart_coefficients", objectTotal, [&] {
+            dispatchThreads("nm_fgmres_form_restart_coefficients", environments, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.fgmresRotations offset:0u atIndex:2u];
@@ -3339,7 +3487,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             });
             const std::uint32_t finalRestartCycle =
                 restartCycle + 1u == restartCycleCount ? 1u : 0u;
-            dispatchThreads("nm_fgmres_backsolve", objectTotal, [&] {
+            dispatchThreads("nm_fgmres_backsolve", environments, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:2u];
@@ -3351,6 +3499,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                            length:sizeof(iterationOffset) atIndex:7u];
                 [encoder setBytes:&finalRestartCycle
                            length:sizeof(finalRestartCycle) atIndex:8u];
+                [encoder setBytes:&linearForcing
+                           length:sizeof(linearForcing) atIndex:9u];
             });
             dispatchThreads("nm_fgmres_accumulate", femNodeTotal, [&] {
                 setDispatch();
@@ -3408,6 +3558,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 });
             }
             }
+
+            dispatchGroups32("nm_fgmres_measure_correction", environments, [&] {
+                setDispatch();
+                [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
+                [encoder setBuffer:state.femSolution offset:0u atIndex:3u];
+                [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
+            });
 
             micro.pcgIteration = nonlinearIteration;
             dispatchThreads("nm_fem_select_backtracking", objectTotal, [&] {

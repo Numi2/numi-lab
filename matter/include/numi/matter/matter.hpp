@@ -299,6 +299,9 @@ struct FEMCapacitySource {
     // Maximum simultaneously active continuum/rigid contact rows. Zero keeps
     // the compatibility behavior of reserving every cooked eligible pair.
     std::uint32_t activeContacts = 0u;
+    // Maximum swept deformable face pairs per environment. Zero derives a
+    // linear manifold budget from the cooked surface graph.
+    std::uint32_t deformableContacts = 0u;
 };
 
 struct MultiphysicsSource {
@@ -427,6 +430,7 @@ struct CookedMPM {
 struct CookedFEM {
     std::vector<NMFEMNodeStateGPU> nodes;
     std::vector<NMTetrahedronGPU> tetrahedra;
+    std::vector<NMFEMSurfaceFaceGPU> surfaceFaces;
     std::vector<std::uint32_t> nodeIncidence;
     std::vector<NMIncidenceRangeGPU> nodeRanges;
     std::vector<NMFEMCapacityGPU> capacities;

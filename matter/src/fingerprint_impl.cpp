@@ -27,6 +27,7 @@ enum class FingerprintSection : std::uint32_t {
     mpmNodeRanges,
     femNodes,
     femTetrahedra,
+    femSurfaceFaces,
     femNodeIncidence,
     femNodeRanges,
     femCapacities,
@@ -127,6 +128,8 @@ std::uint64_t compiledWorldFingerprint(
         std::span<const NMFEMNodeStateGPU>(world.fem.nodes));
     hashSection(fingerprint, FingerprintSection::femTetrahedra,
         std::span<const NMTetrahedronGPU>(world.fem.tetrahedra));
+    hashSection(fingerprint, FingerprintSection::femSurfaceFaces,
+        std::span<const NMFEMSurfaceFaceGPU>(world.fem.surfaceFaces));
     hashSection(fingerprint, FingerprintSection::femNodeIncidence,
         std::span<const std::uint32_t>(world.fem.nodeIncidence));
     hashSection(fingerprint, FingerprintSection::femNodeRanges,

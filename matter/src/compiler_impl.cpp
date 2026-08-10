@@ -1556,7 +1556,11 @@ CompileResult compileWorld(
                 static_cast<nm_u32>(world.fem.tetrahedra.size()) - descriptor.elementOffset;
 
             using FaceKey = std::array<std::uint32_t, 3>;
-            std::map<FaceKey, std::vector<std::uint32_t>> faceAdjacency;
+            struct FaceSide {
+                std::uint32_t tetrahedron = NM_INVALID_INDEX;
+                std::uint32_t oppositeCorner = NM_INVALID_INDEX;
+            };
+            std::map<FaceKey, std::vector<FaceSide>> faceAdjacency;
             constexpr std::array<std::array<std::uint32_t, 3>, 4> kFaces{{
                 {{1u, 2u, 3u}},
                 {{0u, 3u, 2u}},
@@ -1567,24 +1571,54 @@ CompileResult compileWorld(
                  localTet < object.tetrahedra.size();
                  ++localTet) {
                 const TetrahedronSource& sourceTet = object.tetrahedra[localTet];
-                for (const auto& localFace : kFaces) {
+                for (std::uint32_t opposite = 0u; opposite < kFaces.size();
+                     ++opposite) {
+                    const auto& localFace = kFaces[opposite];
                     FaceKey key{
                         sourceTet.nodes[localFace[0]],
                         sourceTet.nodes[localFace[1]],
                         sourceTet.nodes[localFace[2]],
                     };
                     std::ranges::sort(key);
-                    faceAdjacency[key].push_back(
-                        descriptor.elementOffset + localTet
-                    );
+                    faceAdjacency[key].push_back({
+                        descriptor.elementOffset + localTet, opposite
+                    });
                 }
             }
             std::size_t internalFaceCount = 0u;
             for (const auto& [key, adjacent] : faceAdjacency) {
                 (void)key;
+                if (adjacent.empty() || adjacent.size() > 2u) {
+                    result.diagnostics.push_back({
+                        Diagnostic::Severity::error, 0u, 0u,
+                        "FEM object '" + object.name +
+                            "' has a non-manifold tetrahedral face",
+                    });
+                    return result;
+                }
                 if (adjacent.size() == 2u) {
                     ++internalFaceCount;
                 }
+            }
+            std::uint32_t stableSurfaceFace = 0u;
+            for (const auto& [key, adjacent] : faceAdjacency) {
+                (void)key;
+                NMFEMSurfaceFaceGPU surface{};
+                surface.adjacency = {
+                    adjacent[0].tetrahedron,
+                    adjacent.size() == 2u
+                        ? adjacent[1].tetrahedron : NM_INVALID_INDEX,
+                    objectIndex,
+                    NM_TOPOLOGY_ACTIVE,
+                };
+                surface.sides = {
+                    adjacent[0].oppositeCorner,
+                    adjacent.size() == 2u
+                        ? adjacent[1].oppositeCorner : NM_INVALID_INDEX,
+                    stableSurfaceFace++,
+                    0u,
+                };
+                world.fem.surfaceFaces.push_back(surface);
             }
             const std::size_t cohesiveCapacity =
                 object.femCapacity.cohesiveFaces == 0u
@@ -1626,10 +1660,10 @@ CompileResult compileWorld(
                         descriptor.stateOffset + key[0],
                         descriptor.stateOffset + key[1],
                         descriptor.stateOffset + key[2],
-                        adjacent[0],
+                        adjacent[0].tetrahedron,
                     };
                     face.adjacency = {
-                        adjacent[1], objectIndex, stableFace++,
+                        adjacent[1].tetrahedron, objectIndex, stableFace++,
                         NM_TOPOLOGY_ACTIVE | NM_TOPOLOGY_COHESIVE,
                     };
                     if (twiceArea > 0.0) {
@@ -2068,6 +2102,25 @@ CompileResult compileWorld(
         static_cast<nm_u32>(world.fem.punctureChannels.size());
     dispatch.femCapacityCount =
         static_cast<nm_u32>(world.fem.capacities.size());
+    dispatch.surfaceFaceCount =
+        static_cast<nm_u32>(world.fem.surfaceFaces.size());
+    std::uint64_t deformableContactCapacity = 0u;
+    for (const ObjectSource& object : source.objects) {
+        if (object.representation != Representation::fem) continue;
+        if (object.femCapacity.deformableContacts != 0u) {
+            deformableContactCapacity +=
+                object.femCapacity.deformableContacts;
+        } else {
+            // A closed tetrahedral surface has O(elements) boundary faces;
+            // reserve a linear active manifold by default rather than the
+            // quadratic broadphase cross product.
+            deformableContactCapacity += 8u * object.tetrahedra.size();
+        }
+    }
+    dispatch.deformableContactCapacity = static_cast<nm_u32>(
+        std::min<std::uint64_t>(
+            deformableContactCapacity,
+            std::numeric_limits<std::uint32_t>::max()));
     std::uint64_t topologyTetCapacity = 0u;
     for (const NMFEMCapacityGPU capacity : world.fem.capacities) {
         topologyTetCapacity += capacity.topology.y;

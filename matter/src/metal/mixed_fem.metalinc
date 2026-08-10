@@ -276,6 +276,7 @@ kernel void nm_mixed_apply_operator_elements(
     device NMFEMElementVectorGPU* elementOperator [[buffer(7)]],
     device const float4* mechanicalDirection [[buffer(8)]],
     device const NMFEMNodeStateGPU* nodes [[buffer(9)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(10)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
@@ -290,7 +291,9 @@ kernel void nm_mixed_apply_operator_elements(
         tetrahedron.identity.y >= dispatch.objectCount) return;
     const NMContinuumObjectGPU object = objects[tetrahedron.identity.y];
     if ((object.flags & NM_OBJECT_MULTIPHYSICS) == 0u ||
-        object.materialIndex >= dispatch.mixedMaterialCount) return;
+        object.materialIndex >= dispatch.mixedMaterialCount ||
+        ((microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) != 0u &&
+         fgmresStates[environment].diagnostics.z > 0.5f)) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
     float electric = 0.0f;
     for (uint slot = 0u; slot < 4u; ++slot)
@@ -1157,7 +1160,7 @@ kernel void nm_mixed_certify(
         simd_sum(transportScaleNorm2.x), simd_sum(transportScaleNorm2.y),
         simd_sum(transportScaleNorm2.z), simd_sum(transportScaleNorm2.w));
     const float initialNorm = max(
-        fgmresStates[environment * dispatch.objectCount + objectIndex]
+        fgmresStates[environment]
             .diagnostics.y,
         1.0f
     );

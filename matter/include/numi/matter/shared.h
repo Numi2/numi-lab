@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 8u
+#define NM_MATTER_ABI_VERSION 10u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -263,6 +263,13 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
     nm_u32 reservedMixed0;
     nm_u32 reservedMixed1;
 
+    // Immutable tetrahedral face-adjacency graph, dynamic deformable-contact
+    // row capacity, reserved, reserved.
+    nm_u32 surfaceFaceCount;
+    nm_u32 deformableContactCapacity;
+    nm_u32 reservedSurface0;
+    nm_u32 reservedSurface1;
+
     // xyz gravity, w frame timestep.
     nm_float4 gravityAndTimestep;
     // contact slop, maximum depenetration speed, determinant floor, finite limit.
@@ -328,6 +335,54 @@ typedef struct NM_ALIGN16 NMFEMTopologyNodeGPU {
     // source node, object, topology generation, flags.
     nm_uint4 identity;
 } NMFEMTopologyNodeGPU;
+
+typedef struct NM_ALIGN16 NMFEMSurfaceFaceGPU {
+    // First tetrahedron, second tetrahedron or invalid, object, flags.
+    nm_uint4 adjacency;
+    // Opposite corner in first/second tetrahedron, stable face id, reserved.
+    nm_uint4 sides;
+} NMFEMSurfaceFaceGPU;
+
+typedef struct NM_ALIGN16 NMFEMSurfacePrimitiveGPU {
+    // Three current global FEM nodes and owning object.
+    nm_uint4 nodesAndObject;
+    // Cooked face, side, topology generation, flags.
+    nm_uint4 identity;
+    // Swept AABB minimum xyz and current triangle area.
+    nm_float4 boundsMinimum;
+    // Swept AABB maximum xyz and maximum vertex travel.
+    nm_float4 boundsMaximum;
+} NMFEMSurfacePrimitiveGPU;
+
+typedef struct NM_ALIGN16 NMDeformableContactCandidateGPU {
+    // First/second environment-local surface primitive, stable candidate id,
+    // flags.
+    nm_uint4 identity;
+} NMDeformableContactCandidateGPU;
+
+enum NMDeformableContactKind : nm_u32 {
+    NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE = 0u,
+    NM_DEFORMABLE_CONTACT_EDGE_EDGE = 1u,
+};
+
+typedef struct NM_ALIGN16 NMDeformableContactGPU {
+    // Four global FEM nodes carrying the contact Jacobian.
+    nm_uint4 nodes;
+    // Positive-side object, negative-side object, feature kind, flags.
+    nm_uint4 identity;
+    // Signed nodal weights; sum is zero for translational invariance.
+    nm_float4 weights;
+    // Contact normal xyz and normalized time of impact in [0, 1].
+    nm_float4 normalAndTOI;
+    // Contact point xyz and unsigned feature separation at impact.
+    nm_float4 pointAndSeparation;
+    // Relative velocity xyz and lumped normal inverse response.
+    nm_float4 velocityAndResponse;
+    // Source primitive pair, stable candidate id, topology generation.
+    nm_uint4 source;
+    // Normal multiplier, two tangent coordinates, effective friction.
+    nm_float4 impulseAndFriction;
+} NMDeformableContactGPU;
 
 typedef struct NM_ALIGN16 NMFEMTopologyStateGPU {
     // active nodes, active tetrahedra, active cohesive faces, active channels.
@@ -665,6 +720,9 @@ typedef struct NM_ALIGN16 NMPCGScalarGPU {
 typedef struct NM_ALIGN16 NMFGMRESStateGPU {
     // Current residual, initial residual, convergence flag, Arnoldi columns.
     nm_float4 diagnostics;
+    // First Newton residual, current Newton residual, last correction ratio,
+    // nonlinear convergence flag. Private runtime state; never serialized.
+    nm_float4 nonlinear;
 } NMFGMRESStateGPU;
 
 typedef struct NM_ALIGN16 NMMixedPCGScalarGPU {
