@@ -3682,9 +3682,7 @@ kernel void mr_locomotion_task_apply_actions(
             targetCandidate =
                 reference +
                 velocityLeadSeconds * referenceVelocity +
-                (interactionPhysicsGated(program)
-                    ? 1.0f
-                    : program.interactionTiming.z) *
+                program.interactionTiming.z *
                     (studentTarget - defaultQ[binding.indices.z]);
         }
         const float target = clamp(
