@@ -85,6 +85,9 @@ typedef struct MRTaskRolloutConfigC {
     uint32_t override_interaction_reset_phase_probability;
     float interaction_reset_maximum_phase;
     uint32_t override_interaction_reset_maximum_phase;
+    float interaction_push_maximum_velocity;
+    float interaction_push_interval_seconds;
+    uint32_t override_interaction_push;
 } MRTaskRolloutConfigC;
 
 typedef struct MRTaskVisualPackC {

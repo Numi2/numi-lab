@@ -587,6 +587,16 @@ void validateTaskRolloutConfiguration(
             "task-rollout difficulty-band range is invalid"
         );
     }
+    if (config.override_interaction_push > 1u ||
+        (config.override_interaction_push != 0u &&
+         (!std::isfinite(config.interaction_push_maximum_velocity) ||
+          config.interaction_push_maximum_velocity < 0.0f ||
+          !std::isfinite(config.interaction_push_interval_seconds) ||
+          !(config.interaction_push_interval_seconds > 0.0f)))) {
+        throw std::invalid_argument(
+            "task-rollout interaction push requires a nonnegative finite velocity and positive finite interval"
+        );
+    }
 }
 
 metalrobo::LocomotionSurface locomotionSurface(
@@ -683,6 +693,14 @@ void authorG1InteractionTrackingTask(
     task.pushes.maximumVelocity = 0.0f;
     task.pushes.minimumIntervalSeconds = 5.0f;
     task.pushes.maximumIntervalSeconds = 5.0f;
+    if (config.override_interaction_push != 0u) {
+        task.pushes.maximumVelocity =
+            config.interaction_push_maximum_velocity;
+        task.pushes.minimumIntervalSeconds =
+            config.interaction_push_interval_seconds;
+        task.pushes.maximumIntervalSeconds =
+            config.interaction_push_interval_seconds;
+    }
     reset.operators.clear();
     // The standing profile's 32-manifold envelope is too small for generated
     // whole-body motions. The first physically coherent ARDY residual batch

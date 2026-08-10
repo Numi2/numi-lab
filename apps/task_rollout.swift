@@ -192,6 +192,8 @@ private struct Options {
     var interactionResetPhaseFraction: Float?
     var interactionResetPhaseProbability: Float?
     var interactionResetMaximumPhase: Float?
+    var interactionPushMaximumVelocity: Float?
+    var interactionPushIntervalSeconds: Float?
     var stateTrace: String?
     var stateTraceEnvironment = 0
     var motionFeatureTrace: String?
@@ -381,6 +383,26 @@ private struct Options {
                     )
                 }
                 interactionResetMaximumPhase = parsed
+                index += 1
+            case "--interaction-push-maximum-velocity":
+                guard let parsed = Float(try value()), parsed.isFinite,
+                      parsed >= 0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-push-maximum-velocity must be finite and nonnegative."
+                    )
+                }
+                interactionPushMaximumVelocity = parsed
+                index += 1
+            case "--interaction-push-interval-seconds":
+                guard let parsed = Float(try value()), parsed.isFinite,
+                      parsed > 0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-push-interval-seconds must be finite and positive."
+                    )
+                }
+                interactionPushIntervalSeconds = parsed
                 index += 1
             case "--policy-pack":
                 policyPack = try value()
@@ -606,6 +628,18 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "Interaction reset curriculum options require an InteractionPack."
+            )
+        }
+        if (interactionPushMaximumVelocity == nil) !=
+            (interactionPushIntervalSeconds == nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Interaction push requires both velocity and interval options."
+            )
+        }
+        if interactionPushMaximumVelocity != nil && interactionPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Interaction push requires an InteractionPack."
             )
         }
         if interactionPack != nil &&
@@ -905,6 +939,10 @@ private func makeContext(
             options.interactionResetPhaseProbability,
         interactionResetMaximumPhase:
             options.interactionResetMaximumPhase,
+        interactionPush: options.interactionPushMaximumVelocity.map {
+            (maximumVelocity: $0,
+             intervalSeconds: options.interactionPushIntervalSeconds!)
+        },
         unitreeG1Task: options.unitreeG1Task
     )
     if let doveManifest = options.measuredDoveManifest,
