@@ -3,6 +3,8 @@ using namespace metal;
 
 #include "metalrobo/measured_surface_types.h"
 #include "metalrobo/task_program_types.h"
+#include "metalrobo/hybrid_renderer_types.h"
+#include "metalrobo/world_compiler_types.h"
 
 namespace {
 #define MR_MEASURED_SURFACE_THREADS 256u
@@ -484,4 +486,534 @@ kernel void mr_commit_measured_surface_mechanics(
         accepted.phaseRateImpulseStep.y,
         evidence.loadsAreaPhase.x,
         evidence.deformationActuationStatus.y);
+}
+
+namespace {
+
+float deviceStateLane(
+    device const MRMeasuredSurfaceStateGPU& state,
+    const uint index
+) {
+    return state.position[index >> 2u][index & 3u];
+}
+
+// Device-address-space form of surfacePoint. It intentionally mirrors the
+// aerodynamic solver's equation above and reads the accepted state directly;
+// presentation never reconstructs phase or actuator state on the host.
+float3 acceptedSurfacePoint(
+    constant const MRMeasuredSurfaceModelGPU& model,
+    device const float* positions,
+    device const uchar* parts,
+    device const MRMeasuredSurfaceStateGPU& state,
+    const uint vertexIndex
+) {
+    const uint part = uint(parts[vertexIndex]);
+    const uint actionBase = part == 2u ? 4u : (part == 3u ? 12u : 4u);
+    const float phaseShift = 0.10f * deviceStateLane(state, 0u) +
+        ((part == 2u || part == 3u)
+            ? 0.08f * deviceStateLane(state, actionBase)
+            : 0.0f);
+    const float phase = state.phaseRateImpulseStep.x + phaseShift;
+    float3 point = measuredPoint(model, positions, phase, vertexIndex);
+    float measuredAmplitude = 1.0f;
+    if (part == 2u || part == 3u || part == 4u) {
+        const float3 reference = measuredPoint(
+            model, positions, 0.0f, vertexIndex);
+        measuredAmplitude = clamp(
+            1.0f + deviceStateLane(state, 2u), 0.5f, 2.25f);
+        point = reference + measuredAmplitude * (point - reference);
+    }
+    const float3 span = model.boundsMaximum.xyz - model.boundsMinimum.xyz;
+    const float normalizedX =
+        (point.x - model.boundsMinimum.x) / max(span.x, 1.0e-6f);
+    point.z += 0.004f * deviceStateLane(state, 1u) *
+        (part == 1u ? 0.25f : 1.0f);
+    if (part == 2u || part == 3u) {
+        const uint action = part == 2u ? 4u : 12u;
+        const float side = part == 2u ? 1.0f : -1.0f;
+        const float hingeY = side * 0.020f;
+        const float normalizedSpan = clamp(
+            abs(point.y - hingeY) / max(0.001f, 0.5f * span.y),
+            0.0f, 1.0f);
+        float3 relative = point - float3(
+            model.centerAndRadius.x, hingeY, model.centerAndRadius.z);
+        relative.y *= 1.0f + 0.18f *
+            deviceStateLane(state, action + 6u) * normalizedSpan;
+        relative = rotateAxis(relative, float3(1.0f, 0.0f, 0.0f),
+            side * (0.28f * deviceStateLane(state, action + 1u) +
+                    0.18f * deviceStateLane(state, action + 2u) +
+                    0.10f * deviceStateLane(state, 2u) +
+                    0.08f * deviceStateLane(state, 3u)) * normalizedSpan);
+        relative = rotateAxis(relative, float3(0.0f, 0.0f, 1.0f),
+            -side * 0.22f * deviceStateLane(state, action + 5u) *
+                normalizedSpan);
+        relative = rotateAxis(relative,
+            normalize(float3(0.0f, side, 0.08f)),
+            side * (0.34f * deviceStateLane(state, action + 3u) +
+                    0.25f * deviceStateLane(state, action + 4u) *
+                        normalizedSpan) * normalizedSpan);
+        point = float3(model.centerAndRadius.x, hingeY,
+                       model.centerAndRadius.z) + relative;
+        point.x += 0.030f * deviceStateLane(state, action + 5u) *
+            normalizedSpan;
+        point.z += 0.012f * deviceStateLane(state, action + 7u) *
+            sin(M_PI_F * normalizedX) * normalizedSpan;
+    } else if (part == 4u) {
+        const uint anchor = model.componentAnchorVertexIndices.w;
+        const float3 pivotReference = measuredPoint(
+            model, positions, 0.0f, anchor);
+        float3 pivot = measuredPoint(model, positions, phase, anchor);
+        pivot = pivotReference + measuredAmplitude *
+            (pivot - pivotReference);
+        pivot.z += 0.004f * deviceStateLane(state, 1u);
+        float3 relative = point - pivot;
+        relative = rotateAxis(relative, float3(0.0f, 1.0f, 0.0f),
+            -0.30f * deviceStateLane(state, 20u));
+        relative = rotateAxis(relative, float3(0.0f, 0.0f, 1.0f),
+            0.25f * deviceStateLane(state, 21u));
+        relative = rotateAxis(relative, float3(1.0f, 0.0f, 0.0f),
+            0.28f * deviceStateLane(state, 22u));
+        relative.y *= 1.0f + 0.22f * deviceStateLane(state, 23u);
+        point = pivot + relative;
+    }
+    return point;
+}
+
+float4 presentationQuaternion(const float4 value) {
+    const float squared = dot(value, value);
+    return squared > 1.0e-12f
+        ? value * rsqrt(squared)
+        : float4(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+float3 presentationRotate(const float4 raw, const float3 value) {
+    const float4 q = presentationQuaternion(raw);
+    return value + 2.0f * cross(q.xyz, cross(q.xyz, value) + q.w * value);
+}
+
+float3 presentationInverseRotate(const float4 raw, const float3 value) {
+    const float4 q = presentationQuaternion(raw);
+    return presentationRotate(float4(-q.xyz, q.w), value);
+}
+
+struct PresentationProjection {
+    float2 pixel;
+    float depth;
+    bool valid;
+};
+
+PresentationProjection presentationProject(
+    const float3 world,
+    const MRHybridCameraStateGPU camera,
+    const MRWorldSensorInstanceGPU sensor
+) {
+    PresentationProjection result;
+    const float3 cameraPoint = presentationInverseRotate(
+        camera.currentOrientation,
+        world - camera.currentPositionAndValidity.xyz);
+    result.depth = cameraPoint.z;
+    result.valid = camera.currentPositionAndValidity.w > 0.0f &&
+        cameraPoint.z > 1.0e-4f && all(isfinite(cameraPoint));
+    if (!result.valid) {
+        result.pixel = 0.0f;
+        return result;
+    }
+    const float2 focal = sensor.intrinsics.xy *
+        sensor.positionAndFocalScale.w;
+    float2 normalized = cameraPoint.xy / cameraPoint.z;
+    const float radiusSquared = dot(normalized, normalized);
+    const float radial = 1.0f + sensor.distortion.x * radiusSquared +
+        sensor.distortion.y * radiusSquared * radiusSquared;
+    normalized = normalized * radial + float2(
+        2.0f * sensor.distortion.z * normalized.x * normalized.y +
+            sensor.distortion.w *
+                (radiusSquared + 2.0f * normalized.x * normalized.x),
+        sensor.distortion.z *
+                (radiusSquared + 2.0f * normalized.y * normalized.y) +
+            2.0f * sensor.distortion.w * normalized.x * normalized.y);
+    result.pixel = normalized * focal + sensor.intrinsics.zw;
+    return result;
+}
+
+float presentationEdge(
+    const float2 a,
+    const float2 b,
+    const float2 point
+) {
+    return (point.x - a.x) * (b.y - a.y) -
+        (point.y - a.y) * (b.x - a.x);
+}
+
+bool presentationPixelInBand(
+    const uint x,
+    const uint y,
+    constant const MRHybridRenderUniformsGPU& uniforms
+) {
+    const uint coordinate = uniforms.band.z == 0u ? y : x;
+    return coordinate >= uniforms.band.x &&
+        coordinate < uniforms.band.x + uniforms.band.y;
+}
+
+uint presentationBandPixels(
+    constant const MRHybridRenderUniformsGPU& uniforms
+) {
+    return uniforms.band.z == 0u
+        ? uniforms.image.x * uniforms.band.y
+        : uniforms.image.y * uniforms.band.y;
+}
+
+uint presentationGlobalPixel(
+    const uint compact,
+    constant const MRHybridRenderUniformsGPU& uniforms
+) {
+    const uint perEnvironment = presentationBandPixels(uniforms);
+    const uint environment = compact / perEnvironment;
+    const uint local = compact - environment * perEnvironment;
+    uint x;
+    uint y;
+    if (uniforms.band.z == 0u) {
+        x = local % uniforms.image.x;
+        y = uniforms.band.x + local / uniforms.image.x;
+    } else {
+        x = uniforms.band.x + local % uniforms.band.y;
+        y = local / uniforms.band.y;
+    }
+    return environment * uniforms.image.x * uniforms.image.y +
+        y * uniforms.image.x + x;
+}
+
+bool presentationRayTriangle(
+    const float3 origin,
+    const float3 direction,
+    const float3 a,
+    const float3 b,
+    const float3 c,
+    thread float3& weights,
+    thread float& distance
+) {
+    const float3 edge1 = b - a;
+    const float3 edge2 = c - a;
+    const float3 p = cross(direction, edge2);
+    const float determinant = dot(edge1, p);
+    if (abs(determinant) <= 1.0e-10f) return false;
+    const float inverse = 1.0f / determinant;
+    const float3 offset = origin - a;
+    const float u = dot(offset, p) * inverse;
+    const float3 q = cross(offset, edge1);
+    const float v = dot(direction, q) * inverse;
+    distance = dot(edge2, q) * inverse;
+    const float w = 1.0f - u - v;
+    if (min(w, min(u, v)) < -1.0e-4f ||
+        !(distance > 0.0f) || !isfinite(distance)) return false;
+    weights = float3(w, u, v);
+    return true;
+}
+
+float3 presentationCameraDirection(
+    const float2 raster,
+    const MRHybridCameraStateGPU camera,
+    const MRWorldSensorInstanceGPU sensor
+) {
+    const float2 focal = max(
+        sensor.intrinsics.xy * sensor.positionAndFocalScale.w,
+        1.0e-6f);
+    const float2 distorted = (raster - sensor.intrinsics.zw) / focal;
+    float2 normalized = distorted;
+    if (any(abs(sensor.distortion) > 1.0e-8f)) {
+        for (uint iteration = 0u; iteration < 5u; ++iteration) {
+            const float radiusSquared = dot(normalized, normalized);
+            const float radial = 1.0f +
+                sensor.distortion.x * radiusSquared +
+                sensor.distortion.y * radiusSquared * radiusSquared;
+            const float2 tangential = float2(
+                2.0f * sensor.distortion.z * normalized.x * normalized.y +
+                    sensor.distortion.w *
+                        (radiusSquared + 2.0f * normalized.x * normalized.x),
+                sensor.distortion.z *
+                        (radiusSquared + 2.0f * normalized.y * normalized.y) +
+                    2.0f * sensor.distortion.w *
+                        normalized.x * normalized.y);
+            normalized += distorted -
+                (normalized * radial + tangential);
+        }
+    }
+    return normalize(presentationRotate(
+        camera.currentOrientation,
+        normalize(float3(normalized, 1.0f))));
+}
+
+} // namespace
+
+kernel void mr_prepare_measured_surface_presentation(
+    constant const MRMeasuredSurfaceModelGPU& model [[buffer(0)]],
+    device const float* positions [[buffer(1)]],
+    device const uchar* vertexParts [[buffer(2)]],
+    device const MRMeasuredSurfaceStateGPU* acceptedStates [[buffer(3)]],
+    device const MRMeasuredSurfaceStateGPU* previousStates [[buffer(4)]],
+    device const MRBodyStateGPU* currentBodies [[buffer(5)]],
+    device const MRBodyStateGPU* previousBodies [[buffer(6)]],
+    device MRMeasuredSurfaceVisualVertexGPU* vertices [[buffer(7)]],
+    constant const MRMeasuredSurfacePresentationGPU& presentation
+        [[buffer(8)]],
+    const uint index [[thread_position_in_grid]]
+) {
+    const uint total = presentation.counts.x * model.vertexCount;
+    if (index >= total) return;
+    const uint environment = index / model.vertexCount;
+    const uint vertexIndex = index - environment * model.vertexCount;
+    const uint stateIndex = presentation.counts.z + environment;
+    const float3 currentLocal = acceptedSurfacePoint(
+        model, positions, vertexParts, acceptedStates[stateIndex], vertexIndex) +
+        presentation.localTranslationAndScale.xyz;
+    const float3 previousLocal = acceptedSurfacePoint(
+        model, positions, vertexParts, previousStates[stateIndex], vertexIndex) +
+        presentation.localTranslationAndScale.xyz;
+    const uint bodyIndex = environment * presentation.counts.y +
+        presentation.counts.w;
+    const MRBodyStateGPU current = currentBodies[bodyIndex];
+    const MRBodyStateGPU previous = previousBodies[bodyIndex];
+    MRMeasuredSurfaceVisualVertexGPU output;
+    output.currentWorldPosition = float4(
+        current.position.xyz +
+            presentationRotate(current.orientation, currentLocal),
+        1.0f);
+    output.previousWorldPosition = float4(
+        previous.position.xyz +
+            presentationRotate(previous.orientation, previousLocal),
+        1.0f);
+    vertices[index] = output;
+}
+
+kernel void mr_clear_measured_surface_presentation_winners(
+    device ulong* winners [[buffer(0)]],
+    constant const MRHybridRenderUniformsGPU& uniforms [[buffer(1)]],
+    const uint compact [[thread_position_in_grid]]
+) {
+    const uint count = uniforms.counts.x * presentationBandPixels(uniforms);
+    if (compact >= count) return;
+    const uint pixel = presentationGlobalPixel(compact, uniforms);
+    winners[pixel] = (ulong(0x7f800000u) << 32u) | 0xfffffffful;
+}
+
+kernel void mr_raster_measured_surface_presentation(
+    device const MRMeasuredSurfaceVisualVertexGPU* vertices [[buffer(0)]],
+    device const ushort* triangles [[buffer(1)]],
+    device const MRWorldInstanceHeaderGPU* instances [[buffer(2)]],
+    device const MRWorldSensorInstanceGPU* sensors [[buffer(3)]],
+    device const MRHybridCameraStateGPU* cameras [[buffer(4)]],
+    device atomic_ulong* winners [[buffer(5)]],
+    constant const MRMeasuredSurfacePresentationGPU& presentation
+        [[buffer(6)]],
+    constant const MRHybridRenderUniformsGPU& uniforms [[buffer(7)]],
+    const uint index [[thread_position_in_grid]]
+) {
+    const uint surfaceTriangles = presentation.topology.y;
+    const uint total = presentation.counts.x * surfaceTriangles;
+    if (index >= total || surfaceTriangles == 0u) return;
+    const uint environment = index / surfaceTriangles;
+    const uint triangle = index - environment * surfaceTriangles;
+    const uint firstVertex = environment * presentation.topology.x;
+    const ushort3 source = ushort3(
+        triangles[3u * triangle],
+        triangles[3u * triangle + 1u],
+        triangles[3u * triangle + 2u]);
+    const float3 a = vertices[firstVertex + source.x]
+        .currentWorldPosition.xyz;
+    const float3 b = vertices[firstVertex + source.y]
+        .currentWorldPosition.xyz;
+    const float3 c = vertices[firstVertex + source.z]
+        .currentWorldPosition.xyz;
+    const MRWorldInstanceHeaderGPU instance = instances[environment];
+    const MRWorldSensorInstanceGPU sensor = sensors[
+        instance.ranges.z + uniforms.render.x];
+    const MRHybridCameraStateGPU camera = cameras[environment];
+    const PresentationProjection p0 = presentationProject(a, camera, sensor);
+    const PresentationProjection p1 = presentationProject(b, camera, sensor);
+    const PresentationProjection p2 = presentationProject(c, camera, sensor);
+    if (!p0.valid || !p1.valid || !p2.valid) return;
+    const float area = presentationEdge(p0.pixel, p1.pixel, p2.pixel);
+    if (abs(area) <= 1.0e-8f || !isfinite(area)) return;
+    const int minimumX = max(0, int(floor(min(
+        p0.pixel.x, min(p1.pixel.x, p2.pixel.x)))));
+    const int maximumX = min(int(uniforms.image.x) - 1, int(ceil(max(
+        p0.pixel.x, max(p1.pixel.x, p2.pixel.x)))));
+    const int minimumY = max(0, int(floor(min(
+        p0.pixel.y, min(p1.pixel.y, p2.pixel.y)))));
+    const int maximumY = min(int(uniforms.image.y) - 1, int(ceil(max(
+        p0.pixel.y, max(p1.pixel.y, p2.pixel.y)))));
+    const float inverse0 = 1.0f / p0.depth;
+    const float inverse1 = 1.0f / p1.depth;
+    const float inverse2 = 1.0f / p2.depth;
+    for (int y = minimumY; y <= maximumY; ++y) {
+        for (int x = minimumX; x <= maximumX; ++x) {
+            if (!presentationPixelInBand(uint(x), uint(y), uniforms)) continue;
+            const float2 pixel = float2(float(x), float(y)) + 0.5f;
+            const float w0 = presentationEdge(p1.pixel, p2.pixel, pixel) / area;
+            const float w1 = presentationEdge(p2.pixel, p0.pixel, pixel) / area;
+            const float w2 = 1.0f - w0 - w1;
+            if (min(w0, min(w1, w2)) < -1.0e-5f) continue;
+            const float inverseDepth =
+                w0 * inverse0 + w1 * inverse1 + w2 * inverse2;
+            if (!(inverseDepth > 0.0f) || !isfinite(inverseDepth)) continue;
+            const uint flat = environment * uniforms.image.x *
+                uniforms.image.y + uint(y) * uniforms.image.x + uint(x);
+            const ulong winner =
+                (ulong(as_type<uint>(1.0f / inverseDepth)) << 32u) |
+                ulong(triangle);
+            atomic_min_explicit(winners + flat, winner, memory_order_relaxed);
+        }
+    }
+}
+
+kernel void mr_composite_measured_surface_presentation(
+    device const MRMeasuredSurfaceVisualVertexGPU* vertices [[buffer(0)]],
+    device const ushort* triangles [[buffer(1)]],
+    device const MRWorldInstanceHeaderGPU* instances [[buffer(2)]],
+    device const MRWorldSensorInstanceGPU* sensors [[buffer(3)]],
+    device const MRHybridCameraStateGPU* cameras [[buffer(4)]],
+    device const ulong* winners [[buffer(5)]],
+    device float4* rgb [[buffer(6)]],
+    device float* depth [[buffer(7)]],
+    device uint* segmentation [[buffer(8)]],
+    device uint4* identities [[buffer(9)]],
+    device float4* normals [[buffer(10)]],
+    device float4* motion [[buffer(11)]],
+    device uint* validity [[buffer(12)]],
+    device const MRVisualLightGPUV1* lights [[buffer(13)]],
+    constant const MRMeasuredSurfacePresentationGPU& presentation
+        [[buffer(14)]],
+    constant const MRHybridRenderUniformsGPU& uniforms [[buffer(15)]],
+    const uint compact [[thread_position_in_grid]]
+) {
+    const uint count = uniforms.counts.x * presentationBandPixels(uniforms);
+    if (compact >= count) return;
+    const uint pixel = presentationGlobalPixel(compact, uniforms);
+    const ulong winner = winners[pixel];
+    const uint triangle = uint(winner);
+    const float surfaceDepth = as_type<float>(uint(winner >> 32u));
+    const uint surfaceTriangles = presentation.topology.y;
+    if (triangle == 0xffffffffu || triangle >= surfaceTriangles ||
+        !(surfaceDepth < depth[pixel])) return;
+    const uint pixels = uniforms.image.x * uniforms.image.y;
+    const uint environment = pixel / pixels;
+    const uint localPixel = pixel - environment * pixels;
+    const uint x = localPixel % uniforms.image.x;
+    const uint y = localPixel / uniforms.image.x;
+    const uint firstVertex = environment * presentation.topology.x;
+    const ushort3 source = ushort3(
+        triangles[3u * triangle],
+        triangles[3u * triangle + 1u],
+        triangles[3u * triangle + 2u]);
+    const MRMeasuredSurfaceVisualVertexGPU va = vertices[firstVertex + source.x];
+    const MRMeasuredSurfaceVisualVertexGPU vb = vertices[firstVertex + source.y];
+    const MRMeasuredSurfaceVisualVertexGPU vc = vertices[firstVertex + source.z];
+    const float3 a = va.currentWorldPosition.xyz;
+    const float3 b = vb.currentWorldPosition.xyz;
+    const float3 c = vc.currentWorldPosition.xyz;
+    const MRWorldInstanceHeaderGPU instance = instances[environment];
+    const MRWorldSensorInstanceGPU sensor = sensors[
+        instance.ranges.z + uniforms.render.x];
+    const MRHybridCameraStateGPU camera = cameras[environment];
+    const float2 raster = float2(float(x), float(y)) + 0.5f;
+    const float3 ray = presentationCameraDirection(raster, camera, sensor);
+    float3 weights;
+    float distance;
+    if (!presentationRayTriangle(
+            camera.currentPositionAndValidity.xyz,
+            ray, a, b, c, weights, distance)) return;
+    const float3 worldPosition =
+        weights.x * a + weights.y * b + weights.z * c;
+    float3 worldNormal = normalize(cross(b - a, c - a));
+    const float3 view = normalize(
+        camera.currentPositionAndValidity.xyz - worldPosition);
+    if (dot(worldNormal, view) < 0.0f) worldNormal = -worldNormal;
+    const float roughness = clamp(presentation.material.x, 0.045f, 1.0f);
+    const float metallic = clamp(presentation.material.y, 0.0f, 1.0f);
+    const float3 base = presentation.baseColorAndOpacity.xyz;
+    const float3 f0 = mix(float3(0.04f), base, metallic);
+    const float noV = max(dot(worldNormal, view), 1.0e-4f);
+    float3 color = base * (0.12f + 0.22f * uniforms.exposure.z);
+    for (uint lightIndex = 0u;
+         lightIndex < uniforms.presentation.y;
+         ++lightIndex) {
+        const MRVisualLightGPUV1 light = lights[lightIndex];
+        float3 lightDirection;
+        float attenuation;
+        if (light.identity.x == MR_VISUAL_LIGHT_DIRECTIONAL) {
+            lightDirection = normalize(-light.directionAndSpot.xyz);
+            attenuation = light.colorAndIntensity.w * 0.001f;
+        } else {
+            const float3 toLight = light.positionAndRange.xyz - worldPosition;
+            const float distanceSquared = max(dot(toLight, toLight), 1.0e-4f);
+            const float lightDistance = sqrt(distanceSquared);
+            lightDirection = toLight / lightDistance;
+            const float fade = saturate(1.0f - pow(
+                lightDistance / max(light.positionAndRange.w, 1.0e-3f), 4.0f));
+            attenuation = light.colorAndIntensity.w * 0.01f *
+                fade * fade / distanceSquared;
+        }
+        const float noL = max(dot(worldNormal, lightDirection), 0.0f);
+        if (noL <= 0.0f || attenuation <= 0.0f) continue;
+        const float3 halfVector = normalize(lightDirection + view);
+        const float noH = max(dot(worldNormal, halfVector), 0.0f);
+        const float voH = max(dot(view, halfVector), 0.0f);
+        const float alpha = roughness * roughness;
+        const float alphaSquared = alpha * alpha;
+        const float denominator = noH * noH *
+            (alphaSquared - 1.0f) + 1.0f;
+        const float distribution = alphaSquared /
+            max(M_PI_F * denominator * denominator, 1.0e-5f);
+        const float k = (roughness + 1.0f) *
+            (roughness + 1.0f) * 0.125f;
+        const float geometryV = noV / (noV * (1.0f - k) + k);
+        const float geometryL = noL / (noL * (1.0f - k) + k);
+        const float3 fresnel = f0 + (1.0f - f0) *
+            pow(1.0f - voH, 5.0f);
+        const float3 specular = distribution * geometryV * geometryL *
+            fresnel / max(4.0f * noV * noL, 1.0e-5f);
+        const float3 diffuse = (1.0f - metallic) *
+            (1.0f - fresnel) * base * (1.0f / M_PI_F);
+        color += (diffuse + specular) * light.colorAndIntensity.xyz *
+            attenuation * noL;
+    }
+    const float rim = pow(1.0f - noV, 3.0f);
+    color += rim * 0.08f * mix(base, float3(0.65f, 0.82f, 1.0f), 0.45f);
+    depth[pixel] = surfaceDepth;
+    if (uniforms.band.w == 0u) {
+        rgb[pixel] = float4(max(color, 0.0f), 1.0f);
+    }
+    if ((uniforms.meshTiling.w & MR_HYBRID_OUTPUT_SEGMENTATION) != 0u) {
+        segmentation[pixel] = presentation.identity.x;
+    }
+    if ((uniforms.meshTiling.w & MR_HYBRID_OUTPUT_IDENTITIES) != 0u) {
+        identities[pixel] = uint4(
+            presentation.identity.x,
+            presentation.identity.y,
+            presentation.identity.z,
+            triangle);
+    }
+    const float3 cameraNormal = normalize(presentationInverseRotate(
+        camera.currentOrientation, worldNormal));
+    if ((uniforms.meshTiling.w & MR_HYBRID_OUTPUT_NORMALS) != 0u) {
+        normals[pixel] = float4(cameraNormal, 1.0f);
+    }
+    if ((uniforms.meshTiling.w & MR_HYBRID_OUTPUT_MOTION) != 0u) {
+        const float3 previousWorld =
+            weights.x * va.previousWorldPosition.xyz +
+            weights.y * vb.previousWorldPosition.xyz +
+            weights.z * vc.previousWorldPosition.xyz;
+        MRHybridCameraStateGPU previousCamera = camera;
+        previousCamera.currentPositionAndValidity =
+            camera.previousPositionAndValidity;
+        previousCamera.currentOrientation = camera.previousOrientation;
+        const PresentationProjection previous = presentationProject(
+            previousWorld, previousCamera, sensor);
+        const float2 pixelMotion = previous.valid
+            ? raster - previous.pixel
+            : float2(0.0f);
+        motion[pixel] = float4(pixelMotion, 1.0f, 0.0f);
+    }
+    validity[pixel] =
+        MR_VISUAL_VALIDITY_FRAME |
+        MR_VISUAL_VALIDITY_GEOMETRY;
 }

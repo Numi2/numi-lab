@@ -35,7 +35,8 @@ design transforms are:
 - map the 17 measured phases uniformly onto one periodic 28.8 Hz cycle,
   explicitly time-reparameterizing the larger source wrap interval;
 - export frame-major positions, fixed bilateral topology, a phase-zero visual
-  mesh, source/design metadata, and SHA-256 identities.
+  mesh used as the authored material/binding reference, source/design
+  metadata, and SHA-256 identities.
 
 The right wing is measured. The left wing, robot scale, wing scale, torso
 mount, aerodynamic coefficients, and residual controls are derived design
@@ -136,8 +137,29 @@ small articulation.
 ## Presentation boundary
 
 The Numi Window catalog contains `numifly-ground-flight` and a separate
-9%-scale visual pack. The phase-zero bilateral wing mesh is visibly attached
-to the torso. The presentation wing is currently static; live wing deformation
-and aerodynamic forces are in the Metal physics path, not yet streamed into
-the visual instance. The aerodynamic sheet also has no authored wing collision
-thickness. Neither limitation is relabelled as visual or contact completion.
+9%-scale visual pack. Its Maeda entry explicitly declares
+`"deformation": "measured_surface"`; this is a compiled ownership contract,
+not a filename convention. The pack still owns source provenance, material,
+semantic/instance identity, and the articulated `torso_link` binding, but its
+phase-zero triangles are omitted from the immutable render scene.
+
+After accepted physics, the measured-surface owner prepares all 1,722 live
+vertices from the private accepted phase and actuator state, transforms the
+torso-link coordinates through the same link-origin-to-COM correction as the
+visual cooker, and poses them with the current articulated body state. A
+borrowed-encoder Metal raster/composite pass then writes the bilateral 3,200
+triangle surface into the renderer's ordinary depth winner, color, identity,
+normal, motion, and validity planes before the camera response is applied.
+There is no CPU surface reconstruction, readback, command-buffer commit, or
+phase-pack swap in the rollout or Numi Window path. Static phase-zero geometry
+therefore cannot z-fight with the live surface.
+
+The live sheet is depth-occluding, double-sided, studio-lit, and shaded with
+the source pack's linear base color, roughness, and metallic parameters.
+Presentation capture selects the fast dynamic renderer when this binding is
+present because the reference ray profile assumes immutable acceleration
+structures. The dynamic surface does not currently refit a ray-tracing BLAS or
+cast into the static shadow atlas. It also has no invented wing thickness or
+collision volume: it remains the aerodynamic sheet described by the measured
+topology. These are rendering/contact limits, not limits on the live visual
+deformation or aerodynamic mechanics.

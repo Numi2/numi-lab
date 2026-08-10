@@ -105,6 +105,11 @@ struct CompiledMeasuredSurfaceBinding {
     std::uint32_t qOffset = MR_INVALID_INDEX;
     std::uint32_t vOffset = MR_INVALID_INDEX;
     std::uint32_t firstAction = MR_INVALID_INDEX;
+    // Measured surfaces are authored in the bound link's origin frame while
+    // MRBodyStateGPU is COM-centred. This derived presentation transform is
+    // deliberately outside the mechanics fingerprint: the owning EngineModel
+    // already fingerprints the body properties from which it is derived.
+    mr_float4 visualOriginFromBodyCenterOfMass{};
     std::uint64_t fingerprint = 0u;
 
     [[nodiscard]] bool valid() const noexcept {

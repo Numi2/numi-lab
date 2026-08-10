@@ -85,6 +85,7 @@ struct MRTaskVisualRuntime {
     std::uint64_t captureFrameIndex = 0u;
     bool captureEnabled = false;
     bool capturePolicyCamera = false;
+    bool captureUsesLiveDeformation = false;
     bool deviceObservationEnabled = false;
     std::uint64_t sceneFingerprint = 0u;
 };
@@ -1706,6 +1707,7 @@ metalrobo::VisualSensorProgram visualSensorProgram(
             pack.contentHash,
             reference.semantic_id,
             reference.instance_id,
+            reference.deformation_source,
         });
     }
     if (config.environment_pack_path != nullptr &&
@@ -2386,6 +2388,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     std::vector<metalrobo::VisualAssetReferenceV3> references;
     references.reserve(program.assets.size());
     std::unordered_map<std::string, std::uint32_t> trackedInstances;
+    metalrobo::MetalHybridDevicePresentationProgram presentationProgram;
+    std::uint32_t deformableAssetCount = 0u;
     for (std::size_t index = 0u;
          index < program.assets.size();
          ++index) {
@@ -2415,6 +2419,53 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 "visual pack content changed after run compilation: " +
                 source.path
             );
+        }
+        if (source.deformationSource != static_cast<std::uint32_t>(
+                metalrobo::VisualDeformationSource::none
+            )) {
+            if (source.deformationSource != static_cast<std::uint32_t>(
+                    metalrobo::VisualDeformationSource::measuredSurface
+                ) ||
+                ++deformableAssetCount != 1u ||
+                handle.measuredSurfaceRuntime == nullptr ||
+                source.assetId != "robot" || pack.materials.empty()) {
+                throw std::invalid_argument(
+                    "measured-surface visual deformation requires exactly one robot pack and an owning mechanics runtime"
+                );
+            }
+            const auto* measuredBinding =
+                handle.run.measuredSurfaceBinding();
+            if (measuredBinding == nullptr ||
+                !std::ranges::any_of(
+                    pack.symbolicBindings,
+                    [&](const metalrobo::VisualSymbolicBindingV2& binding) {
+                        return binding.bodyIndex == measuredBinding->bodyIndex &&
+                            binding.binding ==
+                                MR_VISUAL_BINDING_ARTICULATED_LINK;
+                    }
+                )) {
+                throw std::invalid_argument(
+                    "measured-surface visual pack is not bound to its owning articulated link"
+                );
+            }
+            const MRVisualMaterialGPUV2& material = pack.materials.front();
+            presentationProgram =
+                handle.measuredSurfaceRuntime->presentationProgram({
+                    .semanticId = source.semanticId,
+                    .instanceId = source.instanceId,
+                    .baseColorAndOpacity = material.baseColorAndOpacity,
+                    .perceptualRoughness = material.surface.x,
+                    .metallic = material.surface.y,
+                });
+            if (!presentationProgram.valid()) {
+                throw std::runtime_error(
+                    "measured-surface visual presentation program is invalid"
+                );
+            }
+            // The indexed pack remains the authored material, identity,
+            // binding, and provenance contract. Its frozen phase-zero
+            // triangles must not be compiled beside the live surface.
+            continue;
         }
         const bool robotPresentationPack =
             program.captureWidth != 0u &&
@@ -2560,7 +2611,13 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 ) + "]: " + inspectionCompiled.message
             );
         }
-        runtime->sceneFingerprint = manifest.fingerprint;
+        if (presentationProgram.valid()) {
+            runtime->inspector->setDevicePresentationProgram(
+                presentationProgram
+            );
+        }
+        runtime->sceneFingerprint = manifest.fingerprint ^
+            (presentationProgram.valid() ? program.fingerprint : 0u);
         return runtime;
     }
 
@@ -2599,6 +2656,11 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             "]: " + rendered.message
         );
     }
+    if (presentationProgram.valid()) {
+        runtime->renderer.setDevicePresentationProgram(
+            presentationProgram
+        );
+    }
     if (program.captureWidth != 0u) {
         metalrobo::MetalHybridRendererConfig captureConfig;
         captureConfig.metallibPath = handle.metallibPath;
@@ -2610,7 +2672,9 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         };
         const auto captureCompiled = runtime->captureRenderer.compile(
             std::move(captureScene),
-            metalrobo::VisualRendererProfileV1::sensorReference(),
+            presentationProgram.valid()
+                ? metalrobo::VisualRendererProfileV1::sensorFast()
+                : metalrobo::VisualRendererProfileV1::sensorReference(),
             handle.environmentCount
         );
         if (!captureCompiled.succeeded()) {
@@ -2621,8 +2685,14 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 ) + "]: " + captureCompiled.message
             );
         }
+        if (presentationProgram.valid()) {
+            runtime->captureRenderer.setDevicePresentationProgram(
+                presentationProgram
+            );
+        }
         runtime->captureEnabled = true;
         runtime->capturePolicyCamera = program.capturePolicyCamera;
+        runtime->captureUsesLiveDeformation = presentationProgram.valid();
     }
 
     metalrobo::MetalHybridObjectTrackerConfig trackerConfig;
@@ -2718,7 +2788,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         }
     }
     runtime->deviceObservationEnabled = deviceObservationEnabled;
-    runtime->sceneFingerprint = manifest.fingerprint;
+    runtime->sceneFingerprint = manifest.fingerprint ^
+        (presentationProgram.valid() ? program.fingerprint : 0u);
     return runtime;
 }
 
@@ -3878,11 +3949,28 @@ size_t mr_task_rollout_copy_visual_rgba(
     motion.sensorSequence =
         static_cast<std::uint32_t>(runtime.captureFrameIndex);
     motion.source = MR_VISUAL_SOURCE_SIMULATION;
-    const auto render = runtime.captureRenderer.renderFrame(
-        runtime.worlds,
-        motion,
-        1u
-    );
+    metalrobo::MetalHybridRendererDiagnostics render;
+    if (runtime.captureUsesLiveDeformation) {
+        metalrobo::HybridLiveStateBatch live;
+        live.environmentCount = environments;
+        live.bodyCount = static_cast<std::uint32_t>(bodyCount);
+        live.currentBodies = bodies;
+        live.previousBodies = previous;
+        live.frameIndex = motion.frameIndex;
+        live.sensorSequence = motion.sensorSequence;
+        live.source = motion.source;
+        render = runtime.captureRenderer.renderLive(
+            runtime.worlds,
+            live,
+            1u
+        );
+    } else {
+        render = runtime.captureRenderer.renderFrame(
+            runtime.worlds,
+            motion,
+            1u
+        );
+    }
     if (!render.succeeded()) {
         gLastError = std::string{"task visual capture render failed: "} +
             render.message;

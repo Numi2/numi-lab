@@ -203,22 +203,43 @@ public struct MetalRoboDynamicSphere: Sendable {
     ]
 }
 
+public enum MetalRoboTaskVisualDeformation: UInt32, Sendable, Decodable {
+    case none = 0
+    case measuredSurface = 1
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        switch try container.decode(String.self) {
+        case "none": self = .none
+        case "measured_surface": self = .measuredSurface
+        default:
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Unsupported visual deformation source."
+            )
+        }
+    }
+}
+
 public struct MetalRoboTaskVisualPack: Sendable {
     public var url: URL
     public var assetID: String
     public var semanticID: UInt32
     public var instanceID: UInt32
+    public var deformation: MetalRoboTaskVisualDeformation
 
     public init(
         url: URL,
         assetID: String,
         semanticID: UInt32,
-        instanceID: UInt32
+        instanceID: UInt32,
+        deformation: MetalRoboTaskVisualDeformation = .none
     ) {
         self.url = url
         self.assetID = assetID
         self.semanticID = semanticID
         self.instanceID = instanceID
+        self.deformation = deformation
     }
 }
 
@@ -231,12 +252,14 @@ public struct MetalRoboTaskVisualObservationConfiguration:
             let assetID: String
             let semanticID: UInt32
             let instanceID: UInt32
+            let deformation: MetalRoboTaskVisualDeformation?
 
             private enum CodingKeys: String, CodingKey {
                 case path
                 case assetID = "asset_id"
                 case semanticID = "semantic_id"
                 case instanceID = "instance_id"
+                case deformation
             }
         }
 
@@ -358,7 +381,8 @@ public struct MetalRoboTaskVisualObservationConfiguration:
                     url: resolve(pack.path),
                     assetID: pack.assetID,
                     semanticID: pack.semanticID,
-                    instanceID: pack.instanceID
+                    instanceID: pack.instanceID,
+                    deformation: pack.deformation ?? .none
                 )
             },
             environmentPackURL: artifact.environmentPack.map(resolve),
@@ -1338,6 +1362,8 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                 pack.asset_id = pointers[2 * index + 1]
                 pack.semantic_id = configuration.packs[index].semanticID
                 pack.instance_id = configuration.packs[index].instanceID
+                pack.deformation_source =
+                    configuration.packs[index].deformation.rawValue
                 nativePacks.append(pack)
             }
             return try nativePacks.withUnsafeBufferPointer { packs in

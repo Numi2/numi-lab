@@ -655,7 +655,8 @@ void cookPresentation(
     const std::string& parentBody,
     const std::filesystem::path& output,
     const std::array<float, 3u>& position,
-    const std::array<float, 4u>& orientation
+    const std::array<float, 4u>& orientation,
+    const std::string_view deformableSourceFilename = {}
 ) {
     metalrobo::VisualAssetCookOptions options;
     options.id = id;
@@ -681,6 +682,7 @@ void cookPresentation(
     config << "{\n  \"format\": \"numi.visual-observation.v1\",\n"
            << "  \"id\": \"" << id << "_presentation_v1\",\n"
            << "  \"packs\": [\n";
+    std::uint32_t deformablePackCount = 0u;
     for (std::size_t index = 0u; index < packs.size(); ++index) {
         const auto path = visualDirectory /
             (packs[index].id + "_" + std::to_string(index) + ".mrvpack");
@@ -688,10 +690,23 @@ void cookPresentation(
         if (!metalrobo::writeVisualAssetPack(packs[index], path, &reason)) {
             throw std::runtime_error("could not write visual pack: " + reason);
         }
+        const bool deformable = !deformableSourceFilename.empty() &&
+            std::filesystem::path{packs[index].sourceUri}.filename().string() ==
+                deformableSourceFilename;
+        deformablePackCount += deformable ? 1u : 0u;
         config << "    {\"path\": \"visual/" << path.filename().string()
-               << "\", \"asset_id\": \"robot\", \"semantic_id\": 1, "
-                  "\"instance_id\": 1}"
+               << "\", \"asset_id\": \"robot\", \"semantic_id\": "
+               << (deformable ? 2 : 1) << ", \"instance_id\": "
+               << (deformable ? 2 : 1)
+               << (deformable
+                    ? ", \"deformation\": \"measured_surface\"}"
+                    : "}")
                << (index + 1u == packs.size() ? "\n" : ",\n");
+    }
+    if (!deformableSourceFilename.empty() && deformablePackCount != 1u) {
+        throw std::runtime_error(
+            "visual cook did not resolve exactly one authored deformable surface"
+        );
     }
     config << "  ],\n  \"camera\": {\n    \"parent_body\": \""
            << parentBody << "\",\n    \"position\": ["
@@ -838,7 +853,8 @@ int main(const int argc, const char* const* argv) {
             {1.05f * metalrobo::kNumiflyLinearScale,
              -1.30f * metalrobo::kNumiflyLinearScale,
              0.32f * metalrobo::kNumiflyLinearScale},
-            cameraQ);
+            cameraQ,
+            "numifly-maeda-wings-phase0.stl");
         writeSurfacePresentation(
             options.output,
             "numifly-visual-observation.json",

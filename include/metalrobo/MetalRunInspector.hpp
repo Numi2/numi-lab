@@ -59,6 +59,10 @@ public:
     [[nodiscard]] MetalWorldInspectionProgram
     inspectionProgram() noexcept;
 
+    void setDevicePresentationProgram(
+        MetalHybridDevicePresentationProgram program
+    ) noexcept;
+
     // Gates presentation encoding without changing the rollout's physics or
     // accepted-state submission. Existing display-owned slots remain valid.
     void setEnabled(bool enabled) noexcept;

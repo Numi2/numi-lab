@@ -939,6 +939,7 @@ struct MetalHybridRendererState {
     std::uint32_t assetCount = 0u;
     std::uint32_t textureBindingCount = 0u;
     std::uint32_t activeEnvironmentCount = 0u;
+    MetalHybridDevicePresentationProgram devicePresentationProgram{};
 };
 
 } // namespace detail
@@ -2905,6 +2906,84 @@ public:
         return true;
     }
 
+    [[nodiscard]] MetalHybridComputeEncoderCallbacks callbacks() {
+        return {
+            .context = this,
+            .setLabel = [](void* context, const char* label) {
+                static_cast<HybridComputeEncoder*>(context)->setLabel(label);
+            },
+            .useHeap = [](void* context, void* heap) {
+                static_cast<HybridComputeEncoder*>(context)->useResources(
+                    (__bridge id<MTLHeap>)heap,
+                    nil
+                );
+            },
+            .useResidencySet = nullptr,
+            .setPipeline = [](void* context, void* pipeline) {
+                static_cast<HybridComputeEncoder*>(context)->setPipeline(
+                    (__bridge id<MTLComputePipelineState>)pipeline
+                );
+            },
+            .setBuffer = [](
+                void* context,
+                void* buffer,
+                const std::size_t offset,
+                const std::uint32_t index
+            ) {
+                static_cast<HybridComputeEncoder*>(context)->setBuffer(
+                    (__bridge id<MTLBuffer>)buffer,
+                    offset,
+                    index
+                );
+            },
+            .setBytes = [](
+                void* context,
+                const void* bytes,
+                const std::size_t length,
+                const std::uint32_t index
+            ) {
+                static_cast<HybridComputeEncoder*>(context)->setBytes(
+                    bytes,
+                    length,
+                    index
+                );
+            },
+            .dispatchThreads = [](
+                void* context,
+                const std::size_t count,
+                const std::size_t width
+            ) {
+                static_cast<HybridComputeEncoder*>(context)->dispatchThreads(
+                    count,
+                    width
+                );
+            },
+            .dispatchThreadgroups = [](
+                void* context,
+                const std::size_t count,
+                const std::size_t width
+            ) {
+                static_cast<HybridComputeEncoder*>(context)->dispatchThreadgroups(
+                    count,
+                    width
+                );
+            },
+            .dispatchThreadgroupsIndirect = [](
+                void* context,
+                void* arguments,
+                const std::size_t offset,
+                const std::size_t width
+            ) {
+                (void)static_cast<HybridComputeEncoder*>(context)
+                    ->dispatchThreadgroupsIndirect(
+                        (__bridge id<MTLBuffer>)arguments,
+                        offset,
+                        width
+                    );
+            },
+        };
+    }
+
 private:
     __unsafe_unretained id<MTLComputeCommandEncoder> native_ = nil;
     const MetalHybridComputeEncoderCallbacks* callbacks_ = nullptr;
@@ -3303,6 +3382,7 @@ MetalHybridRendererDiagnostics encodeLocked(
         state.layout.meshClusterCount;
     const bool geometricWinnersOnly =
         options.geometricWinnersOnly &&
+        !state.devicePresentationProgram.valid() &&
         state.geometricCompositeEligible &&
         projectedCount == 0u &&
         options.renderMeshes &&
@@ -3310,6 +3390,7 @@ MetalHybridRendererDiagnostics encodeLocked(
     const bool sensorFusedIntoComposite =
         options.applySensor &&
         !options.resolveAccumulation &&
+        !state.devicePresentationProgram.valid() &&
         options.renderMeshes &&
         triangleCount != 0u;
     const HybridDeviceObservationBuffers* graphOutputs =
@@ -3833,6 +3914,48 @@ MetalHybridRendererDiagnostics encodeLocked(
                 static_cast<NSUInteger>(batchCount) *
                     bandPixelsPerEnvironment,
                 compositeThreads
+            );
+        }
+    }
+
+    if (state.devicePresentationProgram.valid() &&
+        !geometricWinnersOnly) {
+        HybridDeviceObservationBuffers presentationOutputs{
+            .rgb = (__bridge void*)rgbOutput,
+            .depth = (__bridge void*)depthOutput,
+            .segmentation = (__bridge void*)segmentationOutput,
+            .identities = (__bridge void*)identitiesOutput,
+            .normals = (__bridge void*)normalsOutput,
+            .motion = (__bridge void*)motionOutput,
+            .validity = (__bridge void*)validityOutput,
+            .outputMask = uniforms.meshTiling.w,
+        };
+        HybridDeviceStateBatch presentationState = liveState;
+        presentationState.currentBodyStates = (__bridge void*)currentBodies;
+        presentationState.previousBodyStates = (__bridge void*)previousBodies;
+        presentationState.currentBodyOffset = options.currentBodyOffset;
+        presentationState.previousBodyOffset = options.previousBodyOffset;
+        MetalHybridDevicePresentationPass presentationPass{
+            .encoder = encoder.callbacks(),
+            .liveState = presentationState,
+            .outputs = presentationOutputs,
+            .instanceHeaders = (__bridge void*)instances,
+            .sensorInstances = (__bridge void*)sensors,
+            .appearanceInstances = (__bridge void*)appearances,
+            .cameraStates = (__bridge void*)state.buffers.cameraStates,
+            .meshWinners = (__bridge void*)state.buffers.meshWinners,
+            .lights = (__bridge void*)state.buffers.lights,
+            .environmentData = (__bridge void*)state.buffers.environmentData,
+            .uniforms = uniforms,
+        };
+        if (!state.devicePresentationProgram.encode(
+                state.devicePresentationProgram.context,
+                presentationPass
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalCommandFailure,
+                "device-resident deformable presentation encoding failed"
             );
         }
     }
@@ -6995,6 +7118,21 @@ MetalHybridRendererLayout MetalHybridRenderer::layout() const noexcept {
         return state_->layout;
     } catch (...) {
         return {};
+    }
+}
+
+void MetalHybridRenderer::setDevicePresentationProgram(
+    MetalHybridDevicePresentationProgram program
+) noexcept {
+    if (state_ == nullptr) {
+        return;
+    }
+    try {
+        const std::lock_guard lock(state_->mutex);
+        state_->devicePresentationProgram = program.valid()
+            ? program
+            : MetalHybridDevicePresentationProgram{};
+    } catch (...) {
     }
 }
 

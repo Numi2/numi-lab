@@ -722,7 +722,10 @@ Numifly's torso-mounted measured-wing path is covered by:
 The probe integrates signed force/torque evidence on Metal, compares lift with
 the production scaled robot's weight, and requires bit-identical replay and
 zero failed steps. `docs/NUMIFLY.md` records the force-instrument boundary and
-the distinct production gravity/contact rollout.
+the distinct production gravity/contact rollout. Numifly visual observations
+also use the accepted measured-surface state directly: the phase-zero pack is
+the material/binding contract, while a borrowed-encoder presentation pass owns
+the live wing vertices, depth occlusion, and visual truth without readback.
 
 ```sh
 ./build/bin/metalrobo_task_program_check

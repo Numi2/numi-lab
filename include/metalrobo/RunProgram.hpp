@@ -93,12 +93,21 @@ struct MountedSensor {
     std::string mountRole;
 };
 
+enum class VisualDeformationSource : std::uint32_t {
+    none = 0u,
+    measuredSurface = 1u,
+};
+
 struct VisualSensorAssetProgram {
     std::string path;
     std::string assetId;
     std::string contentHash;
     std::uint32_t semanticId = 0u;
     std::uint32_t instanceId = 0u;
+    // An explicitly authored device-resident geometry owner. The indexed
+    // pack remains the material, identity, binding, and provenance contract,
+    // but its phase-zero triangles are not compiled into the static scene.
+    std::uint32_t deformationSource = 0u;
 };
 
 // Immutable resource and camera program for the device-resident visual

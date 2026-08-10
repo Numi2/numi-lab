@@ -260,6 +260,14 @@ MetalWorldInspectionProgram MetalRunInspector::inspectionProgram() noexcept {
         : MetalWorldInspectionProgram{};
 }
 
+void MetalRunInspector::setDevicePresentationProgram(
+    MetalHybridDevicePresentationProgram program
+) noexcept {
+    if (state_ != nullptr) {
+        state_->renderer.setDevicePresentationProgram(program);
+    }
+}
+
 void MetalRunInspector::setEnabled(const bool enabled) noexcept {
     if (state_ != nullptr) {
         state_->enabled.store(enabled, std::memory_order_release);
@@ -354,6 +362,7 @@ bool MetalRunInspector::encodeInspection(
     HybridDeviceStateBatch liveState;
     liveState.currentBodyStates = pass.currentBodies;
     liveState.currentBodyOffset = bodyOffset;
+    liveState.previousBodyOffset = bodyOffset;
     liveState.environmentCount = 1u;
     liveState.bodyCount = pass.bodyCount;
     liveState.frameIndex = state->nextFrameIndex.fetch_add(

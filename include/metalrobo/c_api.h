@@ -97,6 +97,8 @@ typedef struct MRTaskVisualPackC {
     const char* asset_id;
     uint32_t semantic_id;
     uint32_t instance_id;
+    // 0 = immutable pack geometry, 1 = accepted measured-surface geometry.
+    uint32_t deformation_source;
 } MRTaskVisualPackC;
 
 typedef struct MRTaskVisualObservationConfigC {

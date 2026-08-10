@@ -672,6 +672,7 @@ std::uint64_t visualSensorProgramFingerprint(
         hash.string(asset.assetId);
         hash.scalar(asset.semanticId);
         hash.scalar(asset.instanceId);
+        hash.scalar(asset.deformationSource);
     }
     hash.string(program.environmentContentHash);
     hash.string(program.rendererProfile);
@@ -799,10 +800,36 @@ RunCompileDiagnostics compileRun(
                             asset.semanticId != 0u &&
                             asset.semanticId != MR_INVALID_INDEX &&
                             asset.instanceId != 0u &&
-                            asset.instanceId != MR_INVALID_INDEX;
+                            asset.instanceId != MR_INVALID_INDEX &&
+                            asset.deformationSource <=
+                                static_cast<std::uint32_t>(
+                                    VisualDeformationSource::measuredSurface
+                                );
                     }
                 );
-            if (!validAssets || visual.fingerprint == 0u ||
+            const std::uint32_t measuredSurfaceVisuals =
+                static_cast<std::uint32_t>(std::ranges::count_if(
+                    visual.assets,
+                    [](const VisualSensorAssetProgram& asset) {
+                        return asset.deformationSource ==
+                            static_cast<std::uint32_t>(
+                                VisualDeformationSource::measuredSurface
+                            );
+                    }
+                ));
+            const bool validDeformationOwner =
+                measuredSurfaceVisuals == 0u ||
+                (measuredSurfaceVisuals == 1u &&
+                 manifest.robot.measuredSurface.has_value() &&
+                 std::ranges::all_of(
+                     visual.assets,
+                     [](const VisualSensorAssetProgram& asset) {
+                         return asset.deformationSource == 0u ||
+                             asset.assetId == "robot";
+                     }
+                 ));
+            if (!validAssets || !validDeformationOwner ||
+                visual.fingerprint == 0u ||
                 visual.fingerprint !=
                     visualSensorProgramFingerprint(visual) ||
                 (!visual.environmentPath.empty() !=
@@ -1354,6 +1381,13 @@ RunCompileDiagnostics compileRun(
             binding.qOffset = articulation.qOffset;
             binding.vOffset = articulation.vOffset;
             binding.firstAction = firstAction;
+            const mr_float4 centerOfMass = model.bodies[bodyIndex].centerOfMass;
+            binding.visualOriginFromBodyCenterOfMass = {
+                -centerOfMass.x,
+                -centerOfMass.y,
+                -centerOfMass.z,
+                1.0f,
+            };
             Hash bindingHash;
             bindingHash.scalar(binding.robot.fingerprint);
             bindingHash.scalar(binding.articulationIndex);

@@ -111,6 +111,29 @@ typedef struct MR_ALIGN16 MRMeasuredSurfaceEvidenceGPU {
     mr_float4 worldTorqueImpulse;
 } MRMeasuredSurfaceEvidenceGPU;
 
+// Renderer-facing vertex cache. Positions are prepared from the same
+// accepted measured-surface state and exact deformation equation used by the
+// aerodynamic solver, then consumed by the dynamic raster/composite passes.
+typedef struct MR_ALIGN16 MRMeasuredSurfaceVisualVertexGPU {
+    mr_float4 currentWorldPosition;
+    mr_float4 previousWorldPosition;
+} MRMeasuredSurfaceVisualVertexGPU;
+
+typedef struct MR_ALIGN16 MRMeasuredSurfacePresentationGPU {
+    // environments, body stride, source accepted-state offset, body index.
+    mr_uint4 counts;
+    // vertex count, triangle count, selected camera, reserved.
+    mr_uint4 topology;
+    // semantic id, instance id, link/body id, optional-output mask.
+    mr_uint4 identity;
+    // Link-origin position expressed in the COM-centred body frame.
+    mr_float4 localTranslationAndScale;
+    // Linear base color and opacity.
+    mr_float4 baseColorAndOpacity;
+    // perceptual roughness, metallic, environment intensity, reserved.
+    mr_float4 material;
+} MRMeasuredSurfacePresentationGPU;
+
 #ifndef __METAL_VERSION__
 static_assert(sizeof(MRMeasuredSurfaceComponentGPU) == 32);
 static_assert(sizeof(MRMeasuredSurfaceActionGPU) == 32);
@@ -118,4 +141,6 @@ static_assert(sizeof(MRMeasuredSurfaceModelGPU) == 128);
 static_assert(sizeof(MRCompiledMeasuredSurfaceDispatchGPU) == 96);
 static_assert(sizeof(MRMeasuredSurfaceStateGPU) == 272);
 static_assert(sizeof(MRMeasuredSurfaceEvidenceGPU) == 96);
+static_assert(sizeof(MRMeasuredSurfaceVisualVertexGPU) == 32);
+static_assert(sizeof(MRMeasuredSurfacePresentationGPU) == 96);
 #endif

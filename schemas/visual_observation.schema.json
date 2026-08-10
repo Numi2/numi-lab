@@ -20,7 +20,11 @@
           "path": { "type": "string", "minLength": 1 },
           "asset_id": { "type": "string", "minLength": 1 },
           "semantic_id": { "type": "integer", "minimum": 1, "maximum": 4294967294 },
-          "instance_id": { "type": "integer", "minimum": 1, "maximum": 4294967294 }
+          "instance_id": { "type": "integer", "minimum": 1, "maximum": 4294967294 },
+          "deformation": {
+            "type": "string",
+            "enum": ["none", "measured_surface"]
+          }
         }
       }
     },
