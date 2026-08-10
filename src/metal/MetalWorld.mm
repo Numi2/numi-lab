@@ -456,6 +456,9 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> externalArticulatedInversePipeline = nil;
     __strong id<MTLComputePipelineState> externalArticulatedRhsPipeline = nil;
     __strong id<MTLComputePipelineState> externalArticulatedAccumulatePipeline = nil;
+    __strong id<MTLComputePipelineState> coupledCandidateIntegratePipeline = nil;
+    __strong id<MTLComputePipelineState> coupledCandidateMassPipeline = nil;
+    __strong id<MTLComputePipelineState> coupledCandidatePublishPipeline = nil;
     __strong id<MTLComputePipelineState> evaluateIRPipeline = nil;
     __strong id<MTLComputePipelineState> islandPipeline = nil;
     __strong id<MTLComputePipelineState> buildTilesPipeline = nil;
@@ -5278,6 +5281,9 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> externalArticulatedInverse = nil;
     __strong id<MTLComputePipelineState> externalArticulatedRhs = nil;
     __strong id<MTLComputePipelineState> externalArticulatedAccumulate = nil;
+    __strong id<MTLComputePipelineState> coupledCandidateIntegrate = nil;
+    __strong id<MTLComputePipelineState> coupledCandidateMass = nil;
+    __strong id<MTLComputePipelineState> coupledCandidatePublish = nil;
     __strong id<MTLComputePipelineState> evaluateIR = nil;
     __strong id<MTLComputePipelineState> islands = nil;
     __strong id<MTLComputePipelineState> buildTiles = nil;
@@ -5472,6 +5478,15 @@ MetalWorldDiagnostics initializeContext(
     externalArticulatedAccumulate = createContactPipeline(
         @"mr_world_accumulate_external_articulated_response"
     );
+    coupledCandidateIntegrate = createContactPipeline(
+        @"mr_world_integrate_coupled_candidate"
+    );
+    coupledCandidateMass = createContactPipeline(
+        @"mr_world_apply_coupled_candidate_mass"
+    );
+    coupledCandidatePublish = createContactPipeline(
+        @"mr_world_publish_coupled_candidate"
+    );
     evaluateIR =
         createContactPipeline(@"mr_world_evaluate_constraint_ir");
     islands =
@@ -5597,6 +5612,9 @@ MetalWorldDiagnostics initializeContext(
         externalArticulatedInverse == nil ||
         externalArticulatedRhs == nil ||
         externalArticulatedAccumulate == nil ||
+        coupledCandidateIntegrate == nil ||
+        coupledCandidateMass == nil ||
+        coupledCandidatePublish == nil ||
         evaluateIR == nil ||
         islands == nil ||
         buildTiles == nil ||
@@ -5899,6 +5917,9 @@ MetalWorldDiagnostics initializeContext(
     context.externalArticulatedRhsPipeline = externalArticulatedRhs;
     context.externalArticulatedAccumulatePipeline =
         externalArticulatedAccumulate;
+    context.coupledCandidateIntegratePipeline = coupledCandidateIntegrate;
+    context.coupledCandidateMassPipeline = coupledCandidateMass;
+    context.coupledCandidatePublishPipeline = coupledCandidatePublish;
     context.evaluateIRPipeline = evaluateIR;
     context.islandPipeline = islands;
     context.buildTilesPipeline = buildTiles;
@@ -10089,6 +10110,415 @@ bool encodeBorrowedArticulatedResponses(
   return true;
 }
 
+bool encodeBorrowedCoupledCandidate(
+    void* opaqueContext,
+    const MetalWorldDevicePhysicsPass& pass,
+    const MetalWorldCoupledCandidateQuery& query
+) {
+    auto* context = static_cast<detail::MetalWorldContextState*>(opaqueContext);
+    if (context == nullptr || pass.commandBuffer == nullptr ||
+        pass.phase != MetalWorldDevicePhysicsPhase::preDynamics ||
+        pass.q == nullptr || pass.v == nullptr ||
+        pass.environmentCount == 0u || pass.qStride == 0u || pass.nv == 0u ||
+        query.generalizedVectorStride < pass.nv ||
+        context->boundArticulations.empty() ||
+        context->boundArticulations.size() !=
+            context->boundFactorDispatches.size()) {
+        return false;
+    }
+    id<MTLCommandBuffer> commandBuffer =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    if (commandBuffer == nil ||
+        commandBuffer.commandQueue.device.registryID !=
+            context->device.registryID) return false;
+
+    std::size_t vectorElements = 0u;
+    std::size_t qElements = 0u;
+    std::size_t bodyElements = 0u;
+    if (!checkedMultiply(
+            pass.environmentCount,
+            query.generalizedVectorStride,
+            vectorElements) ||
+        !checkedMultiply(
+            pass.environmentCount,
+            query.candidateQStride,
+            qElements) ||
+        !checkedMultiply(
+            pass.environmentCount,
+            query.candidateBodyStride,
+            bodyElements)) return false;
+    const auto validBuffer = [&](void* opaque, const std::size_t bytes) {
+        id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)opaque;
+        return buffer != nil && buffer.length >= bytes &&
+            buffer.device.registryID == context->device.registryID;
+    };
+    const std::size_t vectorBytes = vectorElements * sizeof(float);
+    id<MTLBuffer> input = (__bridge id<MTLBuffer>)query.input;
+    id<MTLBuffer> output = (__bridge id<MTLBuffer>)query.output;
+    id<MTLBuffer> candidateQ = (__bridge id<MTLBuffer>)query.candidateQ;
+    id<MTLBuffer> candidateBodies =
+        (__bridge id<MTLBuffer>)query.candidateBodies;
+    id<MTLBuffer> q = (__bridge id<MTLBuffer>)pass.q;
+    id<MTLBuffer> v = (__bridge id<MTLBuffer>)pass.v;
+    if (!validBuffer(pass.q,
+            static_cast<std::size_t>(pass.environmentCount) *
+                pass.qStride * sizeof(float)) ||
+        !validBuffer(pass.v,
+            static_cast<std::size_t>(pass.environmentCount) *
+                pass.nv * sizeof(float)) ||
+        !validBuffer(query.input, vectorBytes)) return false;
+
+    const auto operation = query.operation;
+    if (operation == MetalWorldCoupledCandidateOperation::candidateKinematics) {
+        if (query.candidateQStride != pass.qStride ||
+            query.candidateBodyStride < pass.bodyStateStride ||
+            !validBuffer(query.candidateQ, qElements * sizeof(float)) ||
+            !validBuffer(query.candidateBodies,
+                bodyElements * sizeof(MRBodyStateGPU)) ||
+            pass.sceneBodies == nullptr) return false;
+        for (std::size_t owner = 0u;
+             owner < context->boundArticulations.size(); ++owner) {
+            const MRArticulationGPU& articulation =
+                context->boundArticulations[owner];
+            const MRCoupledCandidateDispatchGPU dispatch{
+                .abiVersion = MR_COUPLED_CANDIDATE_ABI_VERSION,
+                .operation = MR_COUPLED_CANDIDATE_KINEMATICS,
+                .environmentCount = pass.environmentCount,
+                .articulationIndex = static_cast<std::uint32_t>(owner),
+                .qStride = pass.qStride,
+                .vStride = query.generalizedVectorStride,
+                .bodyStride = query.candidateBodyStride,
+                .statusStride = pass.environmentCount,
+                .qOffset = articulation.qOffset,
+                .vOffset = articulation.vOffset,
+                .firstBody = articulation.firstBody,
+                .bodyCount = articulation.bodyCount,
+                .nq = articulation.nq,
+                .nv = articulation.nv,
+                .timestepAndInverse = {
+                    pass.timestepSeconds,
+                    1.0f / pass.timestepSeconds,
+                    0.0f,
+                    0.0f,
+                },
+            };
+            id<MTLComputeCommandEncoder> integrate =
+                [commandBuffer computeCommandEncoder];
+            if (integrate == nil) return false;
+            integrate.label = @"MetalWorld coupled candidate integration";
+            [integrate setComputePipelineState:
+                context->coupledCandidateIntegratePipeline];
+            [integrate setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            [integrate setBuffer:context->buffers[kArticulations]
+                         offset:0u atIndex:1u];
+            [integrate setBuffer:context->buffers[kJoints]
+                         offset:0u atIndex:2u];
+            [integrate setBuffer:context->buffers[kDofs]
+                         offset:0u atIndex:3u];
+            [integrate setBuffer:q offset:0u atIndex:4u];
+            [integrate setBuffer:v offset:0u atIndex:5u];
+            [integrate setBuffer:input offset:0u atIndex:6u];
+            [integrate setBuffer:candidateQ offset:0u atIndex:7u];
+            [integrate setBuffer:context->buffers[kContactStatuses]
+                         offset:0u atIndex:8u];
+            dispatchWorldThreads(
+                integrate,
+                context->coupledCandidateIntegratePipeline,
+                pass.environmentCount);
+            [integrate endEncoding];
+
+            MRArticulatedOperatorDispatchGPU kinematics =
+                context->boundFactorDispatches[owner];
+            kinematics.environmentCount = pass.environmentCount;
+            kinematics.pointCount = 0u;
+            kinematics.flags = MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY;
+            kinematics.qStride = pass.qStride;
+            kinematics.bodyPoseStride = pass.bodyStateStride;
+            kinematics.pointStride = 0u;
+            kinematics.pointWorldStride = 0u;
+            kinematics.pointJacobianStride = 0u;
+            kinematics.generalizedStride = pass.nv;
+            id<MTLComputeCommandEncoder> pose =
+                [commandBuffer computeCommandEncoder];
+            if (pose == nil) return false;
+            pose.label = @"MetalWorld coupled candidate body poses";
+            id<MTLComputePipelineState> operatorPipeline =
+                context->useTaskBodyParameters
+                    ? context->parameterizedOperatorPipeline
+                    : context->operatorPipeline;
+            [pose setComputePipelineState:operatorPipeline];
+            const std::array<std::size_t, 15u> operatorBuffers{{
+                kWorld, kArticulations, kJoints, kDofs, kBodies,
+                kOperatorFactorDispatch, kStateQA, kPointQueries, kBodyPoses,
+                kPointWorld, kFactorMatrix, kPointJacobians,
+                kGeneralizedImpulse, kDeltaVelocity, kOperatorStatuses,
+            }};
+            for (NSUInteger argument = 0u;
+                 argument < operatorBuffers.size(); ++argument) {
+                if (argument == 5u) {
+                    [pose setBytes:&kinematics length:sizeof(kinematics)
+                           atIndex:argument];
+                    continue;
+                }
+                id<MTLBuffer> buffer = context->buffers[
+                    operatorBuffers[argument]];
+                NSUInteger offset = 0u;
+                if (argument == 6u) {
+                    buffer = candidateQ;
+                    offset = articulation.qOffset * sizeof(float);
+                } else if (argument == 8u) {
+                    offset = articulation.firstBody *
+                        sizeof(MRArticulatedBodyPoseGPU);
+                } else if (argument == 14u) {
+                    offset = owner * pass.environmentCount *
+                        sizeof(MRArticulatedOperatorStatusGPU);
+                }
+                [pose setBuffer:buffer offset:offset atIndex:argument];
+            }
+            if (context->useTaskBodyParameters) {
+                [pose setBuffer:context->buffers[kTaskBodyParameters]
+                         offset:0u atIndex:15u];
+                [pose setBuffer:context->buffers[kTaskControllerParameters]
+                         offset:0u atIndex:16u];
+            }
+            [pose setThreadgroupMemoryLength:
+                detail::articulatedOperatorThreadgroupBytes(
+                    articulation.bodyCount, articulation.nv) atIndex:0u];
+            [pose dispatchThreadgroups:MTLSizeMake(
+                    pass.environmentCount, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    kOperatorThreadsPerThreadgroup, 1u, 1u)];
+            [pose endEncoding];
+        }
+        id<MTLComputeCommandEncoder> project =
+            [commandBuffer computeCommandEncoder];
+        if (project == nil) return false;
+        project.label = @"MetalWorld coupled candidate body projection";
+        [project setComputePipelineState:context->bodyProjectionPipeline];
+        [project setBuffer:context->buffers[kContactDispatch]
+                    offset:0u atIndex:0u];
+        [project setBuffer:context->buffers[kArticulations]
+                    offset:0u atIndex:1u];
+        [project setBuffer:context->buffers[kBodies]
+                    offset:0u atIndex:2u];
+        [project setBuffer:context->buffers[kSceneBodyIndices]
+                    offset:0u atIndex:3u];
+        [project setBuffer:context->buffers[kBodyPoses]
+                    offset:0u atIndex:4u];
+        [project setBuffer:context->buffers[kOperatorStatuses]
+                    offset:0u atIndex:5u];
+        [project setBuffer:(__bridge id<MTLBuffer>)pass.sceneBodies
+                    offset:0u atIndex:6u];
+        [project setBuffer:candidateBodies offset:0u atIndex:7u];
+        [project setBuffer:context->buffers[kContactStatuses]
+                    offset:0u atIndex:8u];
+        dispatchWorldThreads(
+            project, context->bodyProjectionPipeline, pass.environmentCount);
+        [project endEncoding];
+        return true;
+    }
+
+    if (!validBuffer(query.output, vectorBytes)) return false;
+    if (operation ==
+        MetalWorldCoupledCandidateOperation::inverseMassPreconditioner) {
+        if (query.statusStride < pass.environmentCount ||
+            query.statuses == nullptr) return false;
+        std::size_t statusElements = 0u;
+        if (!checkedMultiply(
+                context->boundArticulations.size(),
+                query.statusStride,
+                statusElements) ||
+            !validBuffer(query.statuses,
+                statusElements * sizeof(MRInverseMassStatusGPU))) return false;
+        id<MTLComputeCommandEncoder> inverse =
+            [commandBuffer computeCommandEncoder];
+        if (inverse == nil) return false;
+        inverse.label = @"MetalWorld coupled inverse-mass preconditioner";
+        id<MTLComputePipelineState> inversePipeline =
+            context->useTaskBodyParameters
+                ? context->externalArticulatedInversePipeline
+                : context->externalArticulatedInverseBasePipeline;
+        [inverse setComputePipelineState:inversePipeline];
+        [inverse setBuffer:context->buffers[kWorld] offset:0u atIndex:0u];
+        [inverse setBuffer:context->buffers[kArticulations] offset:0u atIndex:1u];
+        [inverse setBuffer:context->buffers[kJoints] offset:0u atIndex:2u];
+        [inverse setBuffer:context->buffers[kDofs] offset:0u atIndex:3u];
+        [inverse setBuffer:context->buffers[kBodies] offset:0u atIndex:4u];
+        [inverse setBuffer:q offset:0u atIndex:6u];
+        [inverse setBuffer:input offset:0u atIndex:7u];
+        [inverse setBuffer:output offset:0u atIndex:8u];
+        [inverse setBuffer:(__bridge id<MTLBuffer>)query.statuses
+                    offset:0u atIndex:9u];
+        if (context->useTaskBodyParameters) {
+            [inverse setBuffer:context->buffers[kTaskBodyParameters]
+                        offset:0u atIndex:10u];
+            [inverse setBuffer:context->buffers[kTaskControllerParameters]
+                        offset:0u atIndex:11u];
+        }
+        for (std::size_t owner = 0u;
+             owner < context->boundArticulations.size(); ++owner) {
+            const MRArticulationGPU& articulation =
+                context->boundArticulations[owner];
+            MRMultiInverseMassDispatchGPU work{};
+            work.dispatch.articulationIndex = static_cast<std::uint32_t>(owner);
+            work.dispatch.environmentCount = pass.environmentCount;
+            work.dispatch.rhsCount = 1u;
+            work.dispatch.flags = pass.articulatedInverseMassFlags;
+            work.dispatch.qStride = pass.qStride;
+            work.dispatch.rhsEnvironmentStride =
+                query.generalizedVectorStride;
+            work.dispatch.rhsVectorStride =
+                query.generalizedVectorStride;
+            work.dispatch.outputEnvironmentStride =
+                query.generalizedVectorStride;
+            work.dispatch.outputVectorStride =
+                query.generalizedVectorStride;
+            work.qBase = articulation.qOffset;
+            work.rhsBase = articulation.vOffset;
+            work.outputBase = articulation.vOffset;
+            work.statusBase = static_cast<std::uint32_t>(owner) *
+                query.statusStride;
+            [inverse setBytes:&work length:sizeof(work) atIndex:5u];
+            [inverse dispatchThreadgroups:MTLSizeMake(
+                    pass.environmentCount, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    kABAThreadsPerThreadgroup, 1u, 1u)];
+        }
+        [inverse endEncoding];
+        return true;
+    }
+
+    if (operation != MetalWorldCoupledCandidateOperation::massAction &&
+        operation != MetalWorldCoupledCandidateOperation::publishCandidate)
+        return false;
+    for (std::size_t owner = 0u;
+         owner < context->boundArticulations.size(); ++owner) {
+        const MRArticulationGPU& articulation =
+            context->boundArticulations[owner];
+        MRArticulatedOperatorDispatchGPU factor =
+            context->boundFactorDispatches[owner];
+        factor.environmentCount = pass.environmentCount;
+        factor.pointCount = 0u;
+        factor.flags = MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR;
+        factor.qStride = pass.qStride;
+        factor.pointStride = 0u;
+        factor.pointWorldStride = 0u;
+        factor.pointJacobianStride = 0u;
+        factor.generalizedStride = pass.nv;
+        id<MTLComputeCommandEncoder> factorEncoder =
+            [commandBuffer computeCommandEncoder];
+        if (factorEncoder == nil) return false;
+        factorEncoder.label = @"MetalWorld coupled candidate mass factor";
+        id<MTLComputePipelineState> operatorPipeline =
+            context->useTaskBodyParameters
+                ? context->parameterizedOperatorPipeline
+                : context->operatorPipeline;
+        [factorEncoder setComputePipelineState:operatorPipeline];
+        const std::array<std::size_t, 15u> buffers{{
+            kWorld, kArticulations, kJoints, kDofs, kBodies,
+            kOperatorFactorDispatch, kStateQA, kPointQueries, kBodyPoses,
+            kPointWorld, kFactorMatrix, kPointJacobians,
+            kGeneralizedImpulse, kDeltaVelocity, kOperatorStatuses,
+        }};
+        for (NSUInteger argument = 0u; argument < buffers.size(); ++argument) {
+            if (argument == 5u) {
+                [factorEncoder setBytes:&factor length:sizeof(factor)
+                                 atIndex:argument];
+                continue;
+            }
+            id<MTLBuffer> buffer = context->buffers[buffers[argument]];
+            NSUInteger offset = 0u;
+            if (argument == 6u) {
+                buffer = q;
+                offset = articulation.qOffset * sizeof(float);
+            } else if (argument == 8u) {
+                offset = articulation.firstBody *
+                    sizeof(MRArticulatedBodyPoseGPU);
+            } else if (argument == 14u) {
+                offset = owner * pass.environmentCount *
+                    sizeof(MRArticulatedOperatorStatusGPU);
+            }
+            [factorEncoder setBuffer:buffer offset:offset atIndex:argument];
+        }
+        if (context->useTaskBodyParameters) {
+            [factorEncoder setBuffer:context->buffers[kTaskBodyParameters]
+                              offset:0u atIndex:15u];
+            [factorEncoder setBuffer:context->buffers[kTaskControllerParameters]
+                              offset:0u atIndex:16u];
+        }
+        [factorEncoder setThreadgroupMemoryLength:
+            detail::articulatedOperatorThreadgroupBytes(
+                articulation.bodyCount, articulation.nv) atIndex:0u];
+        [factorEncoder dispatchThreadgroups:MTLSizeMake(
+                pass.environmentCount, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                kOperatorThreadsPerThreadgroup, 1u, 1u)];
+        [factorEncoder endEncoding];
+
+        const MRCoupledCandidateDispatchGPU dispatch{
+            .abiVersion = MR_COUPLED_CANDIDATE_ABI_VERSION,
+            .operation = operation ==
+                    MetalWorldCoupledCandidateOperation::publishCandidate
+                ? MR_COUPLED_CANDIDATE_PUBLISH
+                : MR_COUPLED_CANDIDATE_MASS_ACTION,
+            .environmentCount = pass.environmentCount,
+            .articulationIndex = static_cast<std::uint32_t>(owner),
+            .qStride = pass.qStride,
+            .vStride = query.generalizedVectorStride,
+            .bodyStride = pass.bodyStateStride,
+            .statusStride = pass.environmentCount,
+            .qOffset = articulation.qOffset,
+            .vOffset = articulation.vOffset,
+            .firstBody = articulation.firstBody,
+            .bodyCount = articulation.bodyCount,
+            .nq = articulation.nq,
+            .nv = articulation.nv,
+            .timestepAndInverse = {
+                pass.timestepSeconds,
+                1.0f / pass.timestepSeconds,
+                0.0f,
+                0.0f,
+            },
+        };
+        id<MTLComputeCommandEncoder> action =
+            [commandBuffer computeCommandEncoder];
+        if (action == nil) return false;
+        action.label = @"MetalWorld coupled candidate mass action";
+        [action setComputePipelineState:context->coupledCandidateMassPipeline];
+        [action setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [action setBuffer:context->buffers[kFactorMatrix] offset:0u atIndex:1u];
+        [action setBuffer:input offset:0u atIndex:2u];
+        [action setBuffer:output offset:0u atIndex:3u];
+        [action setBuffer:context->buffers[kContactStatuses]
+                    offset:0u atIndex:4u];
+        dispatchWorldThreads(
+            action, context->coupledCandidateMassPipeline,
+            pass.environmentCount);
+        [action endEncoding];
+        if (operation ==
+            MetalWorldCoupledCandidateOperation::publishCandidate) {
+            id<MTLComputeCommandEncoder> publish =
+                [commandBuffer computeCommandEncoder];
+            if (publish == nil) return false;
+            publish.label = @"MetalWorld publish coupled candidate effort";
+            [publish setComputePipelineState:
+                context->coupledCandidatePublishPipeline];
+            [publish setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            [publish setBuffer:output offset:0u atIndex:1u];
+            [publish setBuffer:context->buffers[kWorkingEffort]
+                         offset:0u atIndex:2u];
+            [publish setBuffer:context->buffers[kContactStatuses]
+                         offset:0u atIndex:3u];
+            dispatchWorldThreads(
+                publish, context->coupledCandidatePublishPipeline,
+                static_cast<std::size_t>(pass.environmentCount) *
+                    articulation.nv);
+            [publish endEncoding];
+        }
+    }
+    return true;
+}
+
 bool encodeDevicePhysicsProgram(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -10120,6 +10550,8 @@ bool encodeDevicePhysicsProgram(
         .contactStatuses = (__bridge void*)context.buffers[kContactStatuses],
         .articulatedResponseContext = &context,
         .encodeArticulatedResponses = &encodeBorrowedArticulatedResponses,
+        .coupledCandidateContext = &context,
+        .encodeCoupledCandidate = &encodeBorrowedCoupledCandidate,
         .seed = config.taskSeed,
         .phase = phase,
         .controlStep = pass.controlStep,

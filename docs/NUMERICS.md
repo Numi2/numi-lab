@@ -280,6 +280,15 @@ FEM/MPM barrier pairs are not yet generated. The contact Hessian is not the full
 mollified vertex-triangle/edge-edge IPC Hessian. Those are active solver
 boundaries, not completed claims.
 
+The borrowed MetalWorld device-physics ABI now also exposes a primal coupled
+candidate service. Matter can request candidate articulated kinematics, a
+mass action, inverse-mass preconditioning, and accepted-candidate publication
+without writing `q` or `v`. Publication maps an accepted generalized velocity
+increment through MetalWorld's Cholesky mass action and adds the equivalent
+substep effort to the owning ABA stream. The older point-response service
+remains live only until the generalized block and equal-and-opposite barrier
+terms replace its CSR rows.
+
 The implementation uses FP32 barrier arithmetic and conservative CCD. It does
 not claim exact-real arithmetic or a mathematical proof of non-intersection;
 those remain distinct from executable nonpenetration evidence.

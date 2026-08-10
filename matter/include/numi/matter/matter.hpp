@@ -563,6 +563,8 @@ struct RuntimeConfiguration {
 };
 
 struct BorrowedRigidWorldBuffers {
+    void* q = nullptr;                   // id<MTLBuffer>, float
+    void* v = nullptr;                   // id<MTLBuffer>, float
     void* currentBodies = nullptr;       // id<MTLBuffer>, MRBodyStateGPU
     // Environment-major global body wrench arena. Articulated ABA consumes
     // its owned body range; MetalWorld scene prediction consumes free-body
@@ -575,6 +577,8 @@ struct BorrowedRigidWorldBuffers {
     std::uint32_t sceneBodyCount = 0u;
     std::uint32_t bodyWrenchStride = 0u;
     std::uint32_t sceneStride = 0u;
+    std::uint32_t qStride = 0u;
+    std::uint32_t vStride = 0u;
 };
 
 enum class EncodePhase : std::uint32_t {
@@ -603,6 +607,32 @@ using EncodeArticulatedResponses = bool (*)(
     const ArticulatedResponseQuery& query
 );
 
+enum class CoupledCandidateOperation : std::uint32_t {
+    candidateKinematics = 0u,
+    massAction = 1u,
+    inverseMassPreconditioner = 2u,
+    publishCandidate = 3u,
+};
+
+struct CoupledCandidateQuery {
+    void* input = nullptr;
+    void* output = nullptr;
+    void* candidateQ = nullptr;
+    void* candidateBodies = nullptr;
+    void* statuses = nullptr;
+    CoupledCandidateOperation operation =
+        CoupledCandidateOperation::candidateKinematics;
+    std::uint32_t generalizedVectorStride = 0u;
+    std::uint32_t candidateQStride = 0u;
+    std::uint32_t candidateBodyStride = 0u;
+    std::uint32_t statusStride = 0u;
+};
+
+using EncodeCoupledCandidate = bool (*)(
+    void* context,
+    const CoupledCandidateQuery& query
+);
+
 struct EncodeRequest {
     void* commandBuffer = nullptr; // borrowed id<MTLCommandBuffer>
     BorrowedRigidWorldBuffers rigid{};
@@ -627,6 +657,8 @@ struct EncodeRequest {
     // continuum/free-body response CSR have been encoded.
     void* articulatedResponseContext = nullptr;
     EncodeArticulatedResponses encodeArticulatedResponses = nullptr;
+    void* coupledCandidateContext = nullptr;
+    EncodeCoupledCandidate encodeCoupledCandidate = nullptr;
     // Optional fixed-stride device command stream. The runtime validates and
     // stages it into candidate topology; callers retain ownership.
     void* mutationCommands = nullptr; // NMMutationCommandGPU

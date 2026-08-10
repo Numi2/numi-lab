@@ -41,6 +41,36 @@ bool encodeArticulatedResponseBridge(
     );
 }
 
+bool encodeCoupledCandidateBridge(
+    void* context,
+    const CoupledCandidateQuery& query
+) {
+    const auto* bridge = static_cast<ArticulatedResponseBridge*>(context);
+    if (bridge == nullptr || bridge->pass == nullptr ||
+        bridge->pass->encodeCoupledCandidate == nullptr ||
+        bridge->pass->coupledCandidateContext == nullptr) {
+        return false;
+    }
+    const metalrobo::MetalWorldCoupledCandidateQuery request{
+        .input = query.input,
+        .output = query.output,
+        .candidateQ = query.candidateQ,
+        .candidateBodies = query.candidateBodies,
+        .statuses = query.statuses,
+        .operation = static_cast<
+            metalrobo::MetalWorldCoupledCandidateOperation>(query.operation),
+        .generalizedVectorStride = query.generalizedVectorStride,
+        .candidateQStride = query.candidateQStride,
+        .candidateBodyStride = query.candidateBodyStride,
+        .statusStride = query.statusStride,
+    };
+    return bridge->pass->encodeCoupledCandidate(
+        bridge->pass->coupledCandidateContext,
+        *bridge->pass,
+        request
+    );
+}
+
 std::uint64_t programFingerprint(
     const std::uint64_t runtimeFingerprint,
     const std::uint32_t flags
@@ -65,6 +95,8 @@ bool encodeMetalWorldMatter(
     auto& runtime = *static_cast<Runtime*>(context);
     EncodeRequest request{};
     request.commandBuffer = pass.commandBuffer;
+    request.rigid.q = pass.q;
+    request.rigid.v = pass.v;
     request.rigid.currentBodies = pass.currentBodies;
     request.rigid.bodyWrenches = pass.bodyWrenches;
     request.rigid.sceneBodies = pass.sceneBodies;
@@ -74,6 +106,8 @@ bool encodeMetalWorldMatter(
     request.rigid.sceneBodyCount = pass.sceneBodyCount;
     request.rigid.bodyWrenchStride = pass.bodyWrenchStride;
     request.rigid.sceneStride = pass.sceneBodyStride;
+    request.rigid.qStride = pass.qStride;
+    request.rigid.vStride = pass.nv;
     request.environmentStatuses = pass.environmentStatuses;
     request.rigidContactConstraints = pass.contactConstraints;
     request.rigidContactStatuses = pass.contactStatuses;
@@ -84,6 +118,11 @@ bool encodeMetalWorldMatter(
         request.articulatedResponseContext = &articulatedBridge;
         request.encodeArticulatedResponses =
             &encodeArticulatedResponseBridge;
+    }
+    if (pass.encodeCoupledCandidate != nullptr &&
+        pass.coupledCandidateContext != nullptr) {
+        request.coupledCandidateContext = &articulatedBridge;
+        request.encodeCoupledCandidate = &encodeCoupledCandidateBridge;
     }
     request.articulationRootBody = pass.articulationRootBody;
     request.phase = pass.phase ==
@@ -151,6 +190,9 @@ makeMetalWorldDevicePhysicsProgram(Runtime& runtime) noexcept {
         (runtime.requiresRigidContactEvidence()
              ? metalrobo::
                    MetalWorldDevicePhysicsRequiresRigidContactEvidence
+             : 0u) |
+        (runtime.requiresArticulatedResponses()
+             ? metalrobo::MetalWorldDevicePhysicsOwnsCoupledCandidate
              : 0u);
     program.fingerprint = programFingerprint(
         runtime.deviceProgramFingerprint(),

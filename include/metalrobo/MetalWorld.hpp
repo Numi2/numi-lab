@@ -296,11 +296,17 @@ enum MetalWorldDevicePhysicsFlags : std::uint32_t {
     // is required for adaptive rigid->continuum promotion, but should not
     // force every device-physics program through the rigid contact pipeline.
     MetalWorldDevicePhysicsRequiresRigidContactEvidence = 1u << 1u,
+    // The extension owns a primal rigid/articulated candidate inside its
+    // nonlinear solve. MetalWorld still owns generalized coordinates, mass
+    // operators, ABA, and integration; the extension may only use the
+    // borrowed coupled-candidate service below.
+    MetalWorldDevicePhysicsOwnsCoupledCandidate = 1u << 2u,
 };
 
 inline constexpr std::uint32_t kMetalWorldDevicePhysicsKnownFlags =
     MetalWorldDevicePhysicsWritesBodyWrenches |
-    MetalWorldDevicePhysicsRequiresRigidContactEvidence;
+    MetalWorldDevicePhysicsRequiresRigidContactEvidence |
+    MetalWorldDevicePhysicsOwnsCoupledCandidate;
 
 struct MetalWorldDevicePhysicsPass;
 
@@ -332,6 +338,47 @@ using MetalWorldEncodeArticulatedResponses = bool (*)(
     const MetalWorldArticulatedResponseQuery& query
 );
 
+enum class MetalWorldCoupledCandidateOperation : std::uint32_t {
+    // Integrate q(q0, v0 + dv) over the borrowed substep and materialize the
+    // corresponding articulated body states without publishing them.
+    candidateKinematics = 0u,
+    // output = M(q0) input. The block-diagonal articulated mass action is
+    // evaluated by MetalWorld at its current generalized coordinates.
+    massAction = 1u,
+    // output = M(q0)^-1 input using MetalWorld's same-timeline ABA operator.
+    inverseMassPreconditioner = 2u,
+    // Publish an accepted dv as M(q0) dv / dt into MetalWorld's generalized
+    // effort stream. ABA and generalized-coordinate integration remain owned
+    // by MetalWorld and source q/v are never modified by the extension.
+    publishCandidate = 3u,
+};
+
+// Borrowed primal articulated operator. Buffers are environment-major and
+// use the global q/v/body strides supplied by the enclosing pass. `input` and
+// `output` hold float generalized vectors; candidateQ holds float generalized
+// coordinates; candidateBodies holds MRBodyStateGPU. `statuses` is one
+// MRInverseMassStatusGPU per [articulation][environment] for inverse mass and
+// may be null for the other operations. Output buffers are overwritten.
+struct MetalWorldCoupledCandidateQuery {
+    void* input = nullptr;
+    void* output = nullptr;
+    void* candidateQ = nullptr;
+    void* candidateBodies = nullptr;
+    void* statuses = nullptr;
+    MetalWorldCoupledCandidateOperation operation =
+        MetalWorldCoupledCandidateOperation::candidateKinematics;
+    std::uint32_t generalizedVectorStride = 0u;
+    std::uint32_t candidateQStride = 0u;
+    std::uint32_t candidateBodyStride = 0u;
+    std::uint32_t statusStride = 0u;
+};
+
+using MetalWorldEncodeCoupledCandidate = bool (*)(
+    void* context,
+    const MetalWorldDevicePhysicsPass& pass,
+    const MetalWorldCoupledCandidateQuery& query
+);
+
 struct MetalWorldDevicePhysicsPass {
     void* commandBuffer = nullptr;
     void* q = nullptr;
@@ -351,6 +398,8 @@ struct MetalWorldDevicePhysicsPass {
     // only during preDynamics and must not retain the callback or its context.
     void* articulatedResponseContext = nullptr;
     MetalWorldEncodeArticulatedResponses encodeArticulatedResponses = nullptr;
+    void* coupledCandidateContext = nullptr;
+    MetalWorldEncodeCoupledCandidate encodeCoupledCandidate = nullptr;
     std::uint64_t seed = 0u;
     MetalWorldDevicePhysicsPhase phase =
         MetalWorldDevicePhysicsPhase::preDynamics;

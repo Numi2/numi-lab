@@ -1365,6 +1365,37 @@ typedef struct MR_ALIGN16 MRInverseMassStatusGPU {
 } MRInverseMassStatusGPU;
 
 #define MR_EXTERNAL_ARTICULATED_RESPONSE_ABI_VERSION 1u
+#define MR_COUPLED_CANDIDATE_ABI_VERSION 1u
+
+enum MRCoupledCandidateOperation : mr_u32 {
+    MR_COUPLED_CANDIDATE_KINEMATICS = 0u,
+    MR_COUPLED_CANDIDATE_MASS_ACTION = 1u,
+    MR_COUPLED_CANDIDATE_INVERSE_MASS = 2u,
+    MR_COUPLED_CANDIDATE_PUBLISH = 3u,
+};
+
+// Dispatch for MetalWorld-owned primal articulated operations borrowed by a
+// device-physics extension. All strides are scalar element counts.
+typedef struct MR_ALIGN16 MRCoupledCandidateDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 operation;
+    mr_u32 environmentCount;
+    mr_u32 articulationIndex;
+
+    mr_u32 qStride;
+    mr_u32 vStride;
+    mr_u32 bodyStride;
+    mr_u32 statusStride;
+
+    mr_u32 qOffset;
+    mr_u32 vOffset;
+    mr_u32 firstBody;
+    mr_u32 bodyCount;
+
+    mr_u32 nq;
+    mr_u32 nv;
+    mr_float4 timestepAndInverse;
+} MRCoupledCandidateDispatchGPU;
 
 // Borrowed-command-buffer articulation response contraction. Point and
 // response strides are fixed per environment; CSR indices address point rows.
@@ -1695,6 +1726,7 @@ static_assert(sizeof(MRMetalWorldContactStatusGPU) == 288);
 static_assert(sizeof(MRInverseMassDispatchGPU) == 48);
 static_assert(sizeof(MRInverseMassStatusGPU) == 48);
 static_assert(sizeof(MRExternalArticulatedResponseDispatchGPU) == 32);
+static_assert(sizeof(MRCoupledCandidateDispatchGPU) == 80);
 static_assert(sizeof(MRMaterialGPU) % 16 == 0);
 static_assert(sizeof(MRGeometryHeaderGPU) == 96);
 static_assert(sizeof(MRConvexFaceGPU) == 32);

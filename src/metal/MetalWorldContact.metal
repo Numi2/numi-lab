@@ -685,6 +685,177 @@ kernel void mr_world_build_external_articulated_rhs(
     ] = value;
 }
 
+// Integrates a Matter-owned generalized velocity increment into a private
+// candidate q allocation. This is kinematics only: generalized coordinates
+// owned by MetalWorld are never modified here.
+kernel void mr_world_integrate_coupled_candidate(
+    constant MRCoupledCandidateDispatchGPU& dispatch [[buffer(0)]],
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const MRJointDescriptorGPU* joints [[buffer(2)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(3)]],
+    device const float* sourceQ [[buffer(4)]],
+    device const float* sourceV [[buffer(5)]],
+    device const float* increment [[buffer(6)]],
+    device float* candidateQ [[buffer(7)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(8)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.abiVersion != MR_COUPLED_CANDIDATE_ABI_VERSION ||
+        dispatch.operation != MR_COUPLED_CANDIDATE_KINEMATICS ||
+        dispatch.articulationIndex == MR_INVALID_INDEX ||
+        !(dispatch.timestepAndInverse.x > 0.0f) ||
+        !isfinite(dispatch.timestepAndInverse.x)) return;
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    if (status.code != MR_STEP_SUCCESS) return;
+    const MRArticulationGPU articulation =
+        articulations[dispatch.articulationIndex];
+    if (articulation.qOffset != dispatch.qOffset ||
+        articulation.vOffset != dispatch.vOffset ||
+        articulation.nq != dispatch.nq || articulation.nv != dispatch.nv ||
+        dispatch.qStride < dispatch.qOffset + dispatch.nq ||
+        dispatch.vStride < dispatch.vOffset + dispatch.nv) {
+        status.code = MR_STEP_UNSUPPORTED;
+        status.firstFailingConstraint = dispatch.articulationIndex;
+        statuses[environment] = status;
+        return;
+    }
+    const uint qBase = environment * dispatch.qStride;
+    const uint vBase = environment * dispatch.vStride;
+    for (uint localQ = 0u; localQ < articulation.nq; ++localQ)
+        candidateQ[qBase + articulation.qOffset + localQ] =
+            sourceQ[qBase + articulation.qOffset + localQ];
+    const float timestep = dispatch.timestepAndInverse.x;
+    if (articulation.rootType == MR_ROOT_FLOATING) {
+        const float3 linear = float3(
+            sourceV[vBase + articulation.vOffset + 0u] +
+                increment[vBase + articulation.vOffset + 0u],
+            sourceV[vBase + articulation.vOffset + 1u] +
+                increment[vBase + articulation.vOffset + 1u],
+            sourceV[vBase + articulation.vOffset + 2u] +
+                increment[vBase + articulation.vOffset + 2u]);
+        const float3 angular = float3(
+            sourceV[vBase + articulation.vOffset + 3u] +
+                increment[vBase + articulation.vOffset + 3u],
+            sourceV[vBase + articulation.vOffset + 4u] +
+                increment[vBase + articulation.vOffset + 4u],
+            sourceV[vBase + articulation.vOffset + 5u] +
+                increment[vBase + articulation.vOffset + 5u]);
+        const uint rootQ = qBase + articulation.qOffset;
+        const float4 sourceOrientation = float4(
+            sourceQ[rootQ + 3u], sourceQ[rootQ + 4u],
+            sourceQ[rootQ + 5u], sourceQ[rootQ + 6u]);
+        float4 orientation;
+        if (!finite3(linear) || !finite3(angular) ||
+            !integrateQuaternion(
+                sourceOrientation, angular, timestep, orientation)) {
+            status.code = MR_STEP_NONFINITE_RESULT;
+            status.firstFailingConstraint = articulation.vOffset;
+            statuses[environment] = status;
+            return;
+        }
+        candidateQ[rootQ + 0u] = sourceQ[rootQ + 0u] + timestep * linear.x;
+        candidateQ[rootQ + 1u] = sourceQ[rootQ + 1u] + timestep * linear.y;
+        candidateQ[rootQ + 2u] = sourceQ[rootQ + 2u] + timestep * linear.z;
+        candidateQ[rootQ + 3u] = orientation.x;
+        candidateQ[rootQ + 4u] = orientation.y;
+        candidateQ[rootQ + 5u] = orientation.z;
+        candidateQ[rootQ + 6u] = orientation.w;
+    }
+    for (uint localJoint = 0u; localJoint < articulation.jointCount;
+         ++localJoint) {
+        const MRJointDescriptorGPU joint =
+            joints[articulation.firstJoint + localJoint];
+        if (joint.nv != 1u) continue;
+        const uint globalV = joint.vOffset;
+        float velocity = sourceV[vBase + globalV] + increment[vBase + globalV];
+        const MRDofPropertiesGPU dof = dofs[globalV];
+        if ((dof.flags & MR_DOF_FLAG_VELOCITY_LIMIT) != 0u)
+            velocity = clamp(velocity, -dof.limits.z, dof.limits.z);
+        const uint globalQ = joint.qOffset;
+        float position = sourceQ[qBase + globalQ] + timestep * velocity;
+        if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u)
+            position = clamp(position, dof.limits.x, dof.limits.y);
+        if (!isfinite(position)) {
+            status.code = MR_STEP_NONFINITE_RESULT;
+            status.firstFailingConstraint = globalV;
+            statuses[environment] = status;
+            return;
+        }
+        candidateQ[qBase + globalQ] = position;
+    }
+}
+
+// Applies the dense Cholesky factor emitted by the owning articulated
+// operator. One thread owns one environment, avoiding float atomics and
+// retaining deterministic row order for the small (<=40 dof) block.
+kernel void mr_world_apply_coupled_candidate_mass(
+    constant MRCoupledCandidateDispatchGPU& dispatch [[buffer(0)]],
+    device const float* factor [[buffer(1)]],
+    device const float* input [[buffer(2)]],
+    device float* output [[buffer(3)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(4)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.abiVersion != MR_COUPLED_CANDIDATE_ABI_VERSION ||
+        dispatch.nv == 0u || dispatch.nv > MR_ARTICULATED_ABA_MAX_DOFS ||
+        dispatch.vStride < dispatch.vOffset + dispatch.nv) return;
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    if (status.code != MR_STEP_SUCCESS) return;
+    const uint vectorBase = environment * dispatch.vStride + dispatch.vOffset;
+    const uint factorBase = environment * dispatch.nv * dispatch.nv;
+    float transposeProduct[MR_ARTICULATED_ABA_MAX_DOFS];
+    for (uint column = 0u; column < dispatch.nv; ++column) {
+        float value = 0.0f;
+        for (uint row = column; row < dispatch.nv; ++row)
+            value += factor[factorBase + row * dispatch.nv + column] *
+                input[vectorBase + row];
+        transposeProduct[column] = value;
+    }
+    for (uint row = 0u; row < dispatch.nv; ++row) {
+        float value = 0.0f;
+        for (uint column = 0u; column <= row; ++column)
+            value += factor[factorBase + row * dispatch.nv + column] *
+                transposeProduct[column];
+        if (!isfinite(value)) {
+            status.code = MR_STEP_NONFINITE_RESULT;
+            status.firstFailingConstraint = dispatch.vOffset + row;
+            statuses[environment] = status;
+            return;
+        }
+        output[vectorBase + row] = value;
+    }
+}
+
+kernel void mr_world_publish_coupled_candidate(
+    constant MRCoupledCandidateDispatchGPU& dispatch [[buffer(0)]],
+    device const float* generalizedImpulse [[buffer(1)]],
+    device float* efforts [[buffer(2)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(3)]],
+    const uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.nv;
+    if (global >= total ||
+        dispatch.abiVersion != MR_COUPLED_CANDIDATE_ABI_VERSION ||
+        dispatch.operation != MR_COUPLED_CANDIDATE_PUBLISH ||
+        !(dispatch.timestepAndInverse.y > 0.0f) ||
+        dispatch.vStride < dispatch.vOffset + dispatch.nv) return;
+    const uint environment = global / dispatch.nv;
+    const uint local = global - environment * dispatch.nv;
+    if (statuses[environment].code != MR_STEP_SUCCESS) return;
+    const uint index = environment * dispatch.vStride + dispatch.vOffset + local;
+    const float force = generalizedImpulse[index] * dispatch.timestepAndInverse.y;
+    if (!isfinite(force)) {
+        MRMetalWorldContactStatusGPU status = statuses[environment];
+        status.code = MR_STEP_NONFINITE_RESULT;
+        status.firstFailingConstraint = dispatch.vOffset + local;
+        statuses[environment] = status;
+        return;
+    }
+    efforts[index] += force;
+}
+
 kernel void mr_world_accumulate_external_articulated_response(
     constant MRExternalArticulatedResponseDispatchGPU& dispatch
         [[buffer(0)]],
