@@ -194,6 +194,8 @@ private struct Options {
     var interactionResetMaximumPhase: Float?
     var stateTrace: String?
     var stateTraceEnvironment = 0
+    var motionFeatureTrace: String?
+    var motionFeatureTraceEnvironment = 0
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
@@ -457,6 +459,14 @@ private struct Options {
             case "--state-trace-environment":
                 stateTraceEnvironment = try Self.integer(value(), option)
                 index += 1
+            case "--motion-feature-trace":
+                motionFeatureTrace = try value()
+                index += 1
+            case "--motion-feature-trace-environment":
+                motionFeatureTraceEnvironment = try Self.integer(
+                    value(), option
+                )
+                index += 1
             case "--g1-visual-pack-dir":
                 g1VisualPackDirectory = try value()
                 index += 1
@@ -638,6 +648,24 @@ private struct Options {
             stateTraceEnvironment >= environments {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--state-trace-environment must select an active environment."
+            )
+        }
+        if motionFeatureTrace != nil &&
+            (repeats != 1 || chunk != 1) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--motion-feature-trace requires --repeats 1 --chunk 1."
+            )
+        }
+        if motionFeatureTrace == nil &&
+            motionFeatureTraceEnvironment != 0 {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--motion-feature-trace-environment requires --motion-feature-trace."
+            )
+        }
+        if motionFeatureTraceEnvironment < 0 ||
+            motionFeatureTraceEnvironment >= environments {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--motion-feature-trace-environment must select an active environment."
             )
         }
         if g1VisualPackDirectory == nil && ballVisualPackDirectory != nil {
@@ -1390,6 +1418,12 @@ private enum TaskRolloutMain {
             }
             let visualObservationEnabled =
                 context.visualSceneFingerprint != 0
+            if options.motionFeatureTrace != nil &&
+                context.layout.motionFeatureCount == 0 {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "--motion-feature-trace requires a compiled task motion program."
+                )
+            }
             if options.stateTrace != nil || options.captureDirectory != nil {
                 try context.setStateReadback(true)
             }
@@ -1823,6 +1857,15 @@ private enum TaskRolloutMain {
                     "environment=\(options.stateTraceEnvironment)"
                 )
             }
+            var motionFeatureTraceLines: [String] = []
+            if options.motionFeatureTrace != nil {
+                let traceLayout = context.layout
+                motionFeatureTraceLines.append(
+                    "# step feature_count=\(traceLayout.motionFeatureCount) " +
+                    "contract=anchor_relative_body_com_position_xyz_plus_rotation6d " +
+                    "environment=\(options.motionFeatureTraceEnvironment)"
+                )
+            }
             let captureDirectory = options.captureDirectory.map {
                 URL(fileURLWithPath: $0, isDirectory: true)
             }
@@ -1988,6 +2031,27 @@ private enum TaskRolloutMain {
                         }
                     }
                     outcomeSampleCount += observedTransitions.count
+                    if options.motionFeatureTrace != nil {
+                        let featureCount = context.layout.motionFeatureCount
+                        let features = try context.motionFeatures(
+                            controlStepCount: stepCount
+                        )
+                        let environment =
+                            options.motionFeatureTraceEnvironment
+                        for localStep in 0..<stepCount {
+                            let base =
+                                (localStep * options.environments + environment) *
+                                featureCount
+                            let payload = features[
+                                base..<(base + featureCount)
+                            ].map {
+                                String(format: "%.9g", $0)
+                            }.joined(separator: "\t")
+                            motionFeatureTraceLines.append(
+                                "\(globalStep + localStep + 1)\t\(payload)"
+                            )
+                        }
+                    }
                     for (transitionIndex, transition) in
                         observedTransitions.enumerated()
                     {
@@ -2418,6 +2482,14 @@ private enum TaskRolloutMain {
                         encoding: .utf8
                     )
             }
+            if let motionFeatureTrace = options.motionFeatureTrace {
+                try (motionFeatureTraceLines.joined(separator: "\n") + "\n")
+                    .write(
+                        to: URL(fileURLWithPath: motionFeatureTrace),
+                        atomically: true,
+                        encoding: .utf8
+                    )
+            }
             var rolloutPackBytes = 0
             if let rolloutPack = options.rolloutPack {
                 let batch =
@@ -2759,6 +2831,8 @@ private enum TaskRolloutMain {
                 "visual_observation_config":
                     options.visualObservationConfig ?? "",
                 "state_trace": options.stateTrace ?? "",
+                "motion_feature_trace":
+                    options.motionFeatureTrace ?? "",
                 "environments": options.environments,
                 "steps_per_repeat": options.steps,
                 "maximum_episode_steps":

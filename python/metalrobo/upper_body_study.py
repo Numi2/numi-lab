@@ -13,11 +13,13 @@ from typing import Any, Sequence
 import numpy as np
 
 
-SEEDS = (2650443586, 2650443587, 2650443588, 2650443589, 2650443590)
+SEEDS = (2650443591, 2650443592, 2650443593, 2650443594, 2650443595)
 TASKS = {
-    "raise-right-hand": {"steps": 40, "joints": (22,)},
-    "raise-left-hand": {"steps": 40, "joints": (15,)},
-    "raise-both-hands": {"steps": 36, "joints": (15, 22)},
+    "raise-right-hand": {"steps": 40, "joints": (22,), "wrists": ("right",)},
+    "raise-left-hand": {"steps": 40, "joints": (15,), "wrists": ("left",)},
+    "raise-both-hands": {
+        "steps": 32, "joints": (15, 22), "wrists": ("left", "right"),
+    },
 }
 METHODS = {
     "raw-generated": {
@@ -43,7 +45,10 @@ def _git(*arguments: str) -> str:
     ).stdout.strip()
 
 
-def _metrics(result: dict[str, Any], trace: np.ndarray, joints: tuple[int, ...]) -> dict[str, Any]:
+def _metrics(
+    result: dict[str, Any], trace: np.ndarray, motion_trace: np.ndarray,
+    joints: tuple[int, ...], requested_wrists: tuple[str, ...],
+) -> dict[str, Any]:
     shoulders = []
     for joint in joints:
         values = trace[:, 1 + 7 + joint]
@@ -60,9 +65,21 @@ def _metrics(result: dict[str, Any], trace: np.ndarray, joints: tuple[int, ...])
         and result["maximum_tilt"] < 0.50
         and min(result["minimum_root_height_by_environment"]) > 0.64
     )
+    wrist_columns = {"left": 3, "right": 12}
+    wrists = []
+    for wrist in requested_wrists:
+        values = motion_trace[:, wrist_columns[wrist]]
+        wrists.append({
+            "side": wrist,
+            "initial_height_m": float(values[0]),
+            "final_height_m": float(values[-1]),
+            "peak_height_m": float(np.max(values)),
+            "upward_excursion_m": float(np.max(values) - values[0]),
+        })
     raised = all(
-        item["minimum_rad"] <= -0.15 and item["excursion_rad"] >= 0.25
-        for item in shoulders
+        item["peak_height_m"] >= 0.88 and
+        item["upward_excursion_m"] >= 0.20
+        for item in wrists
     )
     return {
         "failed_environment_steps": result["failed_environment_steps"],
@@ -71,10 +88,11 @@ def _metrics(result: dict[str, Any], trace: np.ndarray, joints: tuple[int, ...])
         "maximum_tilt_rad": result["maximum_tilt"],
         "mean_tracking_score": result["mean_tracking_score"],
         "shoulders": shoulders,
+        "wrists": wrists,
         "stable": stable,
         "raised": raised,
         "qualified_success": stable and raised,
-        "policy": "negative shoulder pitch raises the corresponding G1 hand forward",
+        "endpoint": "accepted Metal wrist-COM world height relative to the static support surface",
     }
 
 
@@ -82,9 +100,16 @@ def run(
     output: Path, inputs: Path, protocol_path: Path, *, allow_dirty: bool = False,
 ) -> dict[str, Any]:
     protocol = json.loads(protocol_path.read_text())
-    if protocol.get("schema") != "numi.pqi2-upper-body-protocol.v2" or protocol.get("status") != "preregistered":
-        raise ValueError("upper-body protocol must be preregistered v2")
-    if tuple(protocol.get("seeds", ())) != SEEDS or set(protocol.get("tasks", {})) != set(TASKS):
+    if protocol.get("schema") != "numi.pqi2-upper-body-protocol.v3" or protocol.get("status") != "preregistered":
+        raise ValueError("upper-body protocol must be preregistered v3")
+    expected_tasks = {
+        task: {
+            "steps": spec["steps"],
+            "requested_wrists": list(spec["wrists"]),
+        }
+        for task, spec in TASKS.items()
+    }
+    if tuple(protocol.get("seeds", ())) != SEEDS or protocol.get("tasks") != expected_tasks:
         raise ValueError("upper-body protocol does not match the executable study contract")
     protocol_sha256 = _sha256(protocol_path)
     if _git("branch", "--show-current") != "numisolver":
@@ -107,6 +132,7 @@ def run(
                 run_directory = output / run_id
                 run_directory.mkdir(parents=True, exist_ok=True)
                 trace_path = run_directory / "state.tsv"
+                motion_trace_path = run_directory / "wrist-motion.tsv"
                 evidence_path = run_directory / "evidence.json"
                 command = [
                     "build/bin/metalrobo_task_rollout",
@@ -120,6 +146,7 @@ def run(
                     "--interaction-clip", clip,
                     "--interaction-student-authority", "0",
                     "--state-trace", str(trace_path),
+                    "--motion-feature-trace", str(motion_trace_path),
                 ]
                 completed = subprocess.run(command, text=True, capture_output=True)
                 (run_directory / "stderr.log").write_text(completed.stderr)
@@ -127,8 +154,9 @@ def run(
                     raise RuntimeError(f"{run_id} failed: {completed.stderr.strip()}")
                 native = json.loads(completed.stdout)
                 trace = np.loadtxt(trace_path, comments="#")
+                motion_trace = np.loadtxt(motion_trace_path, comments="#")
                 record = {
-                    "schema": "numi.pqi2-upper-body-run.v1",
+                    "schema": "numi.pqi2-upper-body-run.v2",
                     "protocol_sha256": protocol_sha256,
                     "run_id": run_id,
                     "revision": revision,
@@ -140,13 +168,18 @@ def run(
                     "interaction_pack": str(pack),
                     "interaction_pack_sha256": _sha256(pack),
                     "command": command,
-                    **_metrics(native, trace, task_spec["joints"]),
+                    "motion_feature_trace": str(motion_trace_path),
+                    "motion_feature_trace_sha256": _sha256(motion_trace_path),
+                    **_metrics(
+                        native, trace, motion_trace, task_spec["joints"],
+                        task_spec["wrists"],
+                    ),
                 }
                 evidence_path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
                 records.append(record)
     qualified = [record["qualified_success"] for record in records]
     summary = {
-        "schema": "numi.pqi2-upper-body-summary.v1",
+        "schema": "numi.pqi2-upper-body-summary.v2",
         "protocol_sha256": protocol_sha256,
         "revision": revision,
         "worktree_status": status,
@@ -175,12 +208,16 @@ def run(
     with (output / "study-summary.csv").open("w", newline="") as stream:
         writer = csv.writer(stream)
         writer.writerow(("task", "method", "seed", "stable", "raised", "qualified_success",
-                         "terminations", "max_tilt_rad", "min_root_height_m"))
+                         "terminations", "max_tilt_rad", "min_root_height_m",
+                         "minimum_requested_wrist_peak_m",
+                         "minimum_requested_wrist_excursion_m"))
         for record in records:
             writer.writerow((record["task"], record["method"], record["seed"],
                              record["stable"], record["raised"], record["qualified_success"],
                              record["termination_count"], record["maximum_tilt_rad"],
-                             record["minimum_root_height_m"]))
+                             record["minimum_root_height_m"],
+                             min(wrist["peak_height_m"] for wrist in record["wrists"]),
+                             min(wrist["upward_excursion_m"] for wrist in record["wrists"])))
     return summary
 
 

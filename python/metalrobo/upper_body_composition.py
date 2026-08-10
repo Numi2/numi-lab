@@ -1,4 +1,4 @@
-"""Compose generated G1 upper-body intent with a qualified standing base."""
+"""Compose generated G1 upper-body intent with a qualified stable base."""
 
 from __future__ import annotations
 
@@ -32,6 +32,15 @@ STANDING_JOINTS = np.asarray(
 UPPER_BODY_START = 15
 COMPOSED_FRAME_COUNT = 16
 FRAMES_PER_SECOND = 50.0
+SHOULDER_TARGETS = {
+    "raise-left-hand": -0.65,
+    "raise-right-hand": -0.65,
+    "raise-both-hands": -0.55,
+}
+RIGHT_TO_LEFT_ARM_SIGNS = np.asarray(
+    (1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0),
+    dtype=np.float32,
+)
 
 
 def _sha256(path: Path) -> str:
@@ -62,9 +71,17 @@ def compose_upper_body(
         raise ValueError("active_arms must contain left and/or right")
     if not np.isfinite(shoulder_target) or not np.isfinite(frames_per_second) or frames_per_second <= 0:
         raise ValueError("shoulder_target and frames_per_second must be finite")
+    # Use one generated right-arm skill as the canonical intent. The G1 arms
+    # are sagittal mirrors: rotations about x/z change sign while rotations
+    # about y retain sign. This prevents unrelated unilateral generations
+    # from being mistaken for symmetric versions of the same skill.
+    canonical = source[:, arm_slices["right"]]
+    canonical_delta = canonical - canonical[0]
     for arm in active_arms:
         joint_slice = arm_slices[arm]
-        delta = source[:, joint_slice] - source[0, joint_slice]
+        delta = canonical_delta * (
+            RIGHT_TO_LEFT_ARM_SIGNS if arm == "left" else 1.0
+        )
         shoulder_delta = float(delta[-1, 0])
         if shoulder_delta >= -1.0e-3:
             raise ValueError(f"{arm} ARDY proposal does not raise its shoulder")
@@ -124,8 +141,6 @@ def compose_pack(
     secondary_source_retarget: Path | None = None,
 ) -> dict[str, Any]:
     output_directory.mkdir(parents=True, exist_ok=True)
-    with np.load(source_retarget, allow_pickle=False) as archive:
-        source = np.asarray(archive["joint_positions"], dtype=np.float32)
     active_arms = {
         "raise-left-hand": ("left",),
         "raise-right-hand": ("right",),
@@ -133,21 +148,19 @@ def compose_pack(
     }.get(task_id)
     if active_arms is None:
         raise ValueError("task-id must be raise-left-hand, raise-right-hand, or raise-both-hands")
-    source = _resample(source, COMPOSED_FRAME_COUNT)
     source_paths = [source_retarget]
-    if task_id == "raise-both-hands" and secondary_source_retarget is not None:
-        with np.load(secondary_source_retarget, allow_pickle=False) as archive:
-            secondary = _resample(
-                np.asarray(archive["joint_positions"], dtype=np.float32),
-                COMPOSED_FRAME_COUNT,
-            )
-        # Bilateral behavior is a literal composition of the two already
-        # qualified unilateral ARDY proposals, not a third unrelated motion.
-        source[:, 22:29] = secondary[:, 22:29]
+    canonical_source = secondary_source_retarget or source_retarget
+    if secondary_source_retarget is not None:
         source_paths.append(secondary_source_retarget)
+    with np.load(canonical_source, allow_pickle=False) as archive:
+        source = _resample(
+            np.asarray(archive["joint_positions"], dtype=np.float32),
+            COMPOSED_FRAME_COUNT,
+        )
     composed = compose_upper_body(
         source,
         active_arms=active_arms,
+        shoulder_target=SHOULDER_TARGETS[task_id],
         frames_per_second=FRAMES_PER_SECOND,
     )
     frame_count = composed.shape[0]
@@ -186,6 +199,9 @@ def compose_pack(
             {"path": str(path), "sha256": _sha256(path)}
             for path in source_paths
         ],
+        "canonical_generated_arm": "right",
+        "canonical_source_retarget": str(canonical_source),
+        "canonical_source_retarget_sha256": _sha256(canonical_source),
         "interaction_pack": str(pack_path),
         "interaction_pack_sha256": _sha256(pack_path),
         "frame_count": frame_count,
@@ -197,13 +213,14 @@ def compose_pack(
             index for index in range(29)
             if not any(index in ({"left": range(15, 22), "right": range(22, 29)}[arm]) for arm in active_arms)
         ],
-        "root_base": "fixed qualified standing reset",
-        "lower_body_base": "fixed qualified standing reset",
+        "root_base": "fixed qualified stable reset",
+        "lower_body_base": "fixed qualified stable reset",
         "shoulder_endpoints_rad": {
             arm: float(composed[-1, {"left": 15, "right": 22}[arm]])
             for arm in active_arms
         },
-        "upper_body_semantics": "ARDY within-arm trajectory rebased at frame zero and uniformly scaled per arm to the closest position-and-velocity-qualified shoulder endpoint",
+        "shoulder_target_rad": SHOULDER_TARGETS[task_id],
+        "upper_body_semantics": "one ARDY right-arm trajectory rebased at frame zero, mirrored across the G1 sagittal plane when requested on the left, and uniformly scaled per arm within position and velocity limits",
         "frames_per_second": FRAMES_PER_SECOND,
         "contact_semantics": "predicted bilateral support only; no force or pressure authored",
     }

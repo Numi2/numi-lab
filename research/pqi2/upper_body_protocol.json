@@ -1,5 +1,5 @@
 {
-  "schema": "numi.pqi2-upper-body-protocol.v2",
+  "schema": "numi.pqi2-upper-body-protocol.v3",
   "id": "physically-qualified-imagination-ii-upper-body",
   "status": "preregistered",
   "branch": "numisolver",
@@ -10,19 +10,19 @@
     "stable-base-composition"
   ],
   "tasks": {
-    "raise-right-hand": {"steps": 40, "target_joint_indices": [22]},
-    "raise-left-hand": {"steps": 40, "target_joint_indices": [15]},
-    "raise-both-hands": {"steps": 36, "target_joint_indices": [15, 22]}
+    "raise-right-hand": {"steps": 40, "requested_wrists": ["right"]},
+    "raise-left-hand": {"steps": 40, "requested_wrists": ["left"]},
+    "raise-both-hands": {"steps": 32, "requested_wrists": ["left", "right"]}
   },
-  "seeds": [2650443586, 2650443587, 2650443588, 2650443589, 2650443590],
+  "seeds": [2650443591, 2650443592, 2650443593, 2650443594, 2650443595],
   "robustness_condition": "Seeded 0.95 to 1.05 multiplicative stiffness and damping calibration at difficulty band 1.",
-  "primary_endpoint": "Qualified success requires every requested shoulder to cross -0.15 rad and realize at least 0.25 rad of negative-pitch excursion from its accepted initial state, zero terminations, zero failed environment steps, minimum root height above 0.64 m, and maximum tilt below 0.50 rad.",
-  "amendment": "Version 2 was frozen after a dry endpoint audit found that an absolute angle alone can count a clip that begins raised. The final study uses five untouched seeds and requires realized excursion; version 1 is not used for paper claims.",
-  "composition": "Root, legs, waist, and unrequested arm remain at the fixed standing reference. Requested arms preserve the normalized ARDY within-arm trajectory, use unilateral proposals for bilateral composition, and are uniformly scaled only to satisfy compiled position and velocity limits.",
+  "primary_endpoint": "Qualified success requires every requested wrist COM to reach at least 0.88 m above the static support surface and realize at least 0.20 m of upward excursion from its first accepted step, zero terminations, zero failed environment steps, minimum root height above 0.64 m, and maximum tilt below 0.50 rad.",
+  "amendment": "Version 3 was frozen after solver-resident wrist diagnostics falsified the version-2 shoulder proxy: the former left and bilateral compositions changed shoulder pitch without raising the left wrist. Version 3 mirrors one generated right-arm skill across the G1 sagittal plane, shortens only the bilateral horizon to 32 steps after a previously used diagnostic seed showed 16 post-command steps below the unchanged tilt boundary, and moves to five untouched robustness seeds. Versions 1 and 2 are not used for the strengthened paper claim.",
+  "composition": "Root, legs, waist, and unrequested arm remain at the fixed stable reference. One generated right-arm trajectory is used directly on the right and mirrored across the G1 sagittal plane on the left. Requested arms are uniformly scaled only to satisfy compiled position and velocity limits; the bilateral target is reduced to -0.55 rad while unilateral targets remain -0.65 rad.",
   "claim_gates": [
     "all 30 task-method-seed cells complete from a clean numisolver revision",
     "zero failed environment steps",
-    "raw state traces and exact commands retained",
+    "raw state traces, solver-resident wrist traces, and exact commands retained",
     "simulator evidence is not hardware evidence"
   ]
 }

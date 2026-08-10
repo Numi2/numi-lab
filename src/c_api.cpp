@@ -665,6 +665,18 @@ void authorG1InteractionTrackingTask(
             metalrobo::TaskOutcomeSource::contactReward,
             metalrobo::TaskOutcomeDirection::higherIsBetter},
     };
+    // Publish solver-resident world-frame wrist poses through the existing
+    // compact motion-feature stream. The static authored terrain is the
+    // anchor, so the position triplet for each tracked wrist is a world-space
+    // COM position produced from the accepted Metal body state. This is an
+    // inspection/qualification boundary, not an actor observation or reward.
+    task.motion = {
+        .anchorBody = task.terrain.body,
+        .trackedBodies = {
+            "left_wrist_yaw_link",
+            "right_wrist_yaw_link",
+        },
+    };
     task.difficultyBandCount = 1u;
     task.commands = {};
     task.commands.standingProbability = 1.0f;
