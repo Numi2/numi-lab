@@ -659,6 +659,12 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_precondition_contacts",
             "nm_fgmres_precondition_deformable_contacts",
             "nm_fgmres_precondition_contact_cross",
+            "nm_mpm_build_implicit_residual",
+            "nm_fgmres_precondition_mpm",
+            "nm_fgmres_apply_mpm",
+            "nm_fgmres_accumulate_mpm",
+            "nm_fgmres_restart_residual_mpm",
+            "nm_mpm_apply_implicit_solution",
             "nm_fem_apply_operator_elements",
             "nm_fgmres_gather_nodes",
             "nm_fgmres_apply_contacts",
@@ -1521,6 +1527,7 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         const std::size_t mixedUnknownWidth =
             2u * static_cast<std::size_t>(world.dispatch.femNodeCount) +
+            world.dispatch.gridNodeCount +
             world.dispatch.contactPairCount +
             world.dispatch.deformableContactCapacity;
         const std::size_t mixedUnknownTotal = multiplied(mixedUnknownWidth);
@@ -2082,6 +2089,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
         const NSUInteger objects = state.dispatch.objectCount;
         const NSUInteger particleTotal =
             environments * state.dispatch.particleCount;
+        const NSUInteger mpmNodeTotal =
+            environments * state.dispatch.gridNodeCount;
         const NSUInteger femNodeTotal =
             environments * state.dispatch.femNodeCount;
         const NSUInteger tetrahedronTotal =
@@ -3374,6 +3383,16 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:8u];
                 });
+            dispatchThreads("nm_mpm_build_implicit_residual", mpmNodeTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.gridNodes offset:0u atIndex:2u];
+                [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:3u];
+                [encoder setBuffer:state.contactNodeIncidence offset:0u atIndex:4u];
+                [encoder setBuffer:state.contactNodeRanges offset:0u atIndex:5u];
+                [encoder setBuffer:state.contactSamples offset:0u atIndex:6u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
+            });
             dispatchThreads("nm_fgmres_import_field_residual", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:1u];
@@ -3387,7 +3406,9 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             const NSUInteger deformableContactTotal = environments *
                 state.dispatch.deformableContactCapacity;
             const NSUInteger kktUnknownTotal =
-                2u * femNodeTotal + pairTotal + deformableContactTotal;
+                2u * femNodeTotal +
+                environments * state.dispatch.gridNodeCount +
+                pairTotal + deformableContactTotal;
             const NSUInteger activeContactTotal =
                 environments * state.contactActiveCapacity;
             const NSUInteger vectorBytes =
@@ -3641,6 +3662,15 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:4u];
                     });
+                dispatchThreads("nm_fgmres_precondition_mpm", mpmNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
+                    [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:2u];
+                    [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:3u];
+                    [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:4u];
+                    [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:5u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
+                });
                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
@@ -3712,6 +3742,18 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                                  offset:fieldVectorOffset atIndex:6u];
                     [encoder setBuffer:state.femOperatorValue
                                  offset:fieldWorkOffset atIndex:7u];
+                });
+                dispatchThreads("nm_fgmres_apply_mpm", mpmNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
+                    [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:2u];
+                    [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:3u];
+                    [encoder setBuffer:state.contactNodeIncidence offset:0u atIndex:4u];
+                    [encoder setBuffer:state.contactNodeRanges offset:0u atIndex:5u];
+                    [encoder setBuffer:state.contactSamples offset:0u atIndex:6u];
+                    [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:7u];
+                    [encoder setBuffer:state.femOperatorValue offset:0u atIndex:8u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
                 });
                 dispatchThreads("nm_fgmres_apply_contacts", activeContactTotal, [&] {
                     setDispatch();
@@ -3816,6 +3858,15 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:7u];
             });
+            dispatchThreads("nm_fgmres_accumulate_mpm", mpmNodeTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                [encoder setBuffer:state.fgmresPreconditionedBasis offset:0u atIndex:2u];
+                [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:3u];
+                [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
+                [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
+                [encoder setBytes:&restartCycle length:sizeof(restartCycle) atIndex:6u];
+            });
             dispatchThreads("nm_fgmres_accumulate_contacts", activeContactTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
@@ -3851,6 +3902,13 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                                  offset:0u atIndex:3u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
+                });
+                dispatchThreads("nm_fgmres_restart_residual_mpm", mpmNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresBasis offset:0u atIndex:1u];
+                    [encoder setBuffer:state.fgmresRestartCoefficients offset:0u atIndex:2u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
                 });
                 dispatchThreads("nm_fgmres_restart_residual_contacts",
                     activeContactTotal, [&] {
@@ -3945,6 +4003,13 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femLineSearch offset:0u atIndex:9u];
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:10u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:11u];
+            });
+            dispatchThreads("nm_mpm_apply_implicit_solution", mpmNodeTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:2u];
+                [encoder setBuffer:state.femSolution offset:0u atIndex:3u];
+                [encoder setBuffer:state.gridNodes offset:0u atIndex:4u];
             });
             dispatchThreads("nm_mixed_apply_kkt_solution", femNodeTotal, [&] {
                 setDispatch();

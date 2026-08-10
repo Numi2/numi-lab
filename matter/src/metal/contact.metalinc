@@ -2221,9 +2221,7 @@ kernel void nm_contact_build_kkt_residual(
         environment * activeCapacity + slot
     ];
     if (pairIndex >= dispatch.contactPairCount) return;
-    const uint output = 2u * dispatch.environmentCount * dispatch.femNodeCount +
-        environment * (dispatch.contactPairCount +
-                       dispatch.deformableContactCapacity) + pairIndex;
+    const uint output = fgmresContactBase(dispatch, environment) + pairIndex;
     residual[output] = float4(0.0f);
     if ((dispatch.flags & NM_MATTER_IPC) != 0u) return;
     if (!environmentHealthy(statuses, environment)) return;
@@ -2314,9 +2312,7 @@ kernel void nm_contact_build_deformable_kkt_residual(
     if (!deformableActiveWork(
             dispatch, globalActiveIndices, activeDispatch,
             global, environment, slot)) return;
-    const uint rowCount = dispatch.contactPairCount + capacity;
-    const uint output = 2u * dispatch.environmentCount *
-        dispatch.femNodeCount + environment * rowCount +
+    const uint output = fgmresContactBase(dispatch, environment) +
         dispatch.contactPairCount + slot;
     residual[output] = float4(0.0f);
     if ((dispatch.flags & NM_MATTER_IPC) != 0u) return;
@@ -2430,10 +2426,8 @@ kernel void nm_contact_apply_kkt_solution(
         candidateWarmstarts[global] = float4(0.0f);
         return;
     }
-    const uint correctionIndex = 2u * dispatch.environmentCount *
-        dispatch.femNodeCount + environment *
-        (dispatch.contactPairCount + dispatch.deformableContactCapacity) +
-        pairIndex;
+    const uint correctionIndex =
+        fgmresContactBase(dispatch, environment) + pairIndex;
     const float alpha = lineSearch[
         environment * dispatch.objectCount + pair.objectIndex
     ].x;
@@ -2566,9 +2560,7 @@ kernel void nm_contact_apply_deformable_kkt_solution(
     if ((contact.identity.w & NM_CONTACT_VALID) == 0u ||
         contact.identity.x >= dispatch.objectCount ||
         contact.identity.y >= dispatch.objectCount) return;
-    const uint rowCount = dispatch.contactPairCount + capacity;
-    const uint correctionIndex = 2u * dispatch.environmentCount *
-        dispatch.femNodeCount + environment * rowCount +
+    const uint correctionIndex = fgmresContactBase(dispatch, environment) +
         dispatch.contactPairCount + slot;
     const float alpha = min(
         lineSearch[environment * dispatch.objectCount + contact.identity.x].x,
