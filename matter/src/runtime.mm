@@ -423,6 +423,9 @@ struct Runtime::State {
     id<MTLBuffer> particleMaterialStateCheckpoint = nil;
     id<MTLBuffer> gridNodes = nil;
     id<MTLBuffer> mpmNodeGenerations = nil;
+    id<MTLBuffer> mpmActiveNodeIndices = nil;
+    id<MTLBuffer> mpmNodeToActive = nil;
+    id<MTLBuffer> mpmActiveNodeCounts = nil;
     id<MTLBuffer> mpmParticleKeys = nil;
     id<MTLBuffer> mpmBlockCounts = nil;
     id<MTLBuffer> mpmBlockOffsets = nil;
@@ -652,6 +655,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_project_rigid_states",
             "nm_publish_adaptive_rigid_ownership",
             "nm_mpm_p2g",
+            "nm_mpm_compact_active_nodes",
             "nm_fem_internal_forces",
             "nm_fem_build_mechanical_residual",
             "nm_fem_apply_solution",
@@ -1451,6 +1455,15 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         candidate->mpmActiveDispatch = privateScratch<NMIndirectDispatchGPU>(
             candidate->device, 1u, valid, candidate->residentBytes);
+        candidate->mpmActiveNodeIndices = privateScratch<std::uint32_t>(
+            candidate->device, multiplied(world.dispatch.gridNodeCount),
+            valid, candidate->residentBytes);
+        candidate->mpmNodeToActive = privateScratch<std::uint32_t>(
+            candidate->device, multiplied(world.dispatch.gridNodeCount),
+            valid, candidate->residentBytes);
+        candidate->mpmActiveNodeCounts = privateScratch<std::uint32_t>(
+            candidate->device, environments,
+            valid, candidate->residentBytes);
         candidate->contactSamples = privateScratch<NMContactSampleGPU>(
             candidate->device, multiplied(world.dispatch.contactPairCount),
             valid, candidate->residentBytes);
@@ -1689,6 +1702,10 @@ RuntimeDiagnostics Runtime::initialize(
         [fgmresContactEncoder
             setBuffer:candidate->deformableContactActiveDispatch
                offset:0u atIndex:16u];
+        [fgmresContactEncoder setBuffer:candidate->mpmNodeToActive
+                                 offset:0u atIndex:17u];
+        [fgmresContactEncoder setBuffer:candidate->mpmActiveNodeCounts
+                                 offset:0u atIndex:18u];
         candidate->residentBytes += fgmresContactEncoder.encodedLength;
 
         for (const NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
@@ -2874,6 +2891,15 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     "failed to encode sparse MPM indirect work";
                 return diagnostics;
             }
+            dispatchGroups32("nm_mpm_compact_active_nodes", environments, [&] {
+                setDispatch();
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.gridNodes offset:0u atIndex:2u];
+                [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:3u];
+                [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:4u];
+                [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:5u];
+                [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:6u];
+            });
             dispatchThreads("nm_fem_prepare_candidate", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -3410,6 +3436,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.contactNodeRanges offset:0u atIndex:5u];
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:6u];
                 [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
+                [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:8u];
+                [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:9u];
             });
             if (!dispatchIndirect(
                     "nm_mpm_build_constitutive_residual",
@@ -3440,6 +3468,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.femResidual offset:0u atIndex:21u];
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
                         [encoder setBuffer:state.statuses offset:0u atIndex:23u];
+                        [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:24u];
                     })) {
                 [encoder endEncoding];
                 ownership->preDynamicsOpen = false;
@@ -3678,6 +3707,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresPreconditionedBasis
                                  offset:columnOffset atIndex:5u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
+                    [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:7u];
+                    [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:8u];
                 });
                 dispatchThreads("nm_fgmres_precondition_contacts", activeContactTotal, [&] {
                     setDispatch();
@@ -3808,6 +3839,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:7u];
                     [encoder setBuffer:state.femOperatorValue offset:0u atIndex:8u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
+                    [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:10u];
+                    [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:11u];
                 });
                 if (!dispatchIndirect(
                         "nm_fgmres_apply_mpm_constitutive",
@@ -3838,6 +3871,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                             [encoder setBuffer:state.femOperatorValue offset:0u atIndex:21u];
                             [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
                             [encoder setBuffer:state.statuses offset:0u atIndex:23u];
+                            [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:24u];
                         })) {
                     [encoder endEncoding];
                     ownership->preDynamicsOpen = false;
@@ -4100,6 +4134,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:2u];
                 [encoder setBuffer:state.femSolution offset:0u atIndex:3u];
                 [encoder setBuffer:state.gridNodes offset:0u atIndex:4u];
+                [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:5u];
+                [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:6u];
             });
             dispatchThreads("nm_mixed_apply_kkt_solution", femNodeTotal, [&] {
                 setDispatch();

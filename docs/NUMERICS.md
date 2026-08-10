@@ -265,7 +265,10 @@ The logical mesh can therefore grow across submissions until 32-bit indices or
 the device working set is exhausted, without allocation inside a transaction.
 
 The MPM block evaluates a backward-Euler residual at the current grid
-candidate. Sparse active blocks deterministically gather candidate velocity
+candidate. After P2G, a stable SIMD32 prefix pass compacts positive-mass nodes
+into environment-major Krylov slots and publishes the inverse node-to-slot map;
+inactive authored grid capacity never becomes a mechanical unknown. Sparse
+active blocks deterministically gather candidate velocity
 gradients into particles, evaluate the same implicit material projection and
 consistent tangent used by FEM, and gather particle force directions back to
 grid rows without floating-point scatter atomics. APIC particle state is

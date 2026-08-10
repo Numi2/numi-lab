@@ -829,6 +829,38 @@ kernel void nm_mpm_p2g(
     );
 }
 
+kernel void nm_mpm_compact_active_nodes(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMGridNodeStateGPU* nodes [[buffer(2)]],
+    device const uint* generations [[buffer(3)]],
+    device uint* activeIndices [[buffer(4)]],
+    device uint* nodeToActive [[buffer(5)]],
+    device uint* activeCounts [[buffer(6)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    const uint base = environment * dispatch.gridNodeCount;
+    uint running = 0u;
+    for (uint chunk = 0u; chunk < dispatch.gridNodeCount; chunk += 32u) {
+        const uint node = chunk + lane;
+        const bool active = node < dispatch.gridNodeCount &&
+            generations[base + node] == microstep.reserved &&
+            nodes[base + node].positionAndMass.w > 0.0f;
+        if (node < dispatch.gridNodeCount)
+            nodeToActive[base + node] = NM_INVALID_INDEX;
+        const uint flag = active ? 1u : 0u;
+        const uint offset = simd_prefix_exclusive_sum(flag);
+        if (active) {
+            activeIndices[base + running + offset] = node;
+            nodeToActive[base + node] = running + offset;
+        }
+        running += simd_sum(flag);
+    }
+    if (lane == 0u) activeCounts[environment] = running;
+}
+
 kernel void nm_mpm_g2p(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],

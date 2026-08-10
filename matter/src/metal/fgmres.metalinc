@@ -1052,10 +1052,13 @@ kernel void nm_fgmres_apply_contacts(
     float continuumDirectionGap = 0.0f;
     const uint nodeBase = environment * dispatch.femNodeCount;
     if (pair.continuumNode < dispatch.gridNodeCount) {
-        continuumDirectionGap = dot(
-            sample.normalAndVelocity.xyz,
-            direction[fgmresMPMIndex(
-                dispatch, environment, pair.continuumNode)].xyz);
+        const uint activeSlot = contact.mpmNodeToActive[
+            environment * dispatch.gridNodeCount + pair.continuumNode];
+        if (activeSlot < contact.mpmActiveNodeCounts[environment])
+            continuumDirectionGap = dot(
+                sample.normalAndVelocity.xyz,
+                direction[fgmresMPMIndex(
+                    dispatch, environment, activeSlot)].xyz);
     } else {
         const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
         if (femNode < dispatch.femNodeCount)
@@ -2041,16 +2044,23 @@ kernel void nm_mpm_build_implicit_residual(
     device const NMIncidenceRangeGPU* contactRanges [[buffer(5)]],
     device const NMContactSampleGPU* samples [[buffer(6)]],
     device float4* residual [[buffer(7)]],
+    device const uint* activeIndices [[buffer(8)]],
+    device const uint* activeCounts [[buffer(9)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
     if (global >= total || dispatch.gridNodeCount == 0u) return;
     const uint environment = global / dispatch.gridNodeCount;
-    const uint nodeIndex = global - environment * dispatch.gridNodeCount;
-    const uint output = fgmresMPMIndex(dispatch, environment, nodeIndex);
+    const uint slot = global - environment * dispatch.gridNodeCount;
+    const uint output = fgmresMPMIndex(dispatch, environment, slot);
     residual[output] = float4(0.0f);
-    if (generations[global] != microstep.reserved) return;
-    const NMGridNodeStateGPU node = nodes[global];
+    if (slot >= activeCounts[environment]) return;
+    const uint nodeIndex = activeIndices[
+        environment * dispatch.gridNodeCount + slot];
+    const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
+    if (nodeIndex >= dispatch.gridNodeCount ||
+        generations[nodeGlobal] != microstep.reserved) return;
+    const NMGridNodeStateGPU node = nodes[nodeGlobal];
     if (!(node.positionAndMass.w > 0.0f)) return;
     float3 rightHandSide = float3(0.0f);
     const NMIncidenceRangeGPU range = contactRanges[nodeIndex];
@@ -2073,18 +2083,25 @@ kernel void nm_fgmres_precondition_mpm(
     device const float4* basis [[buffer(4)]],
     device float4* preconditioned [[buffer(5)]],
     device const NMFGMRESStateGPU* states [[buffer(6)]],
+    device const uint* activeIndices [[buffer(7)]],
+    device const uint* activeCounts [[buffer(8)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
     if (global >= total) return;
     const uint environment = global / dispatch.gridNodeCount;
-    const uint nodeIndex = global - environment * dispatch.gridNodeCount;
-    const uint row = fgmresMPMIndex(dispatch, environment, nodeIndex);
+    const uint slot = global - environment * dispatch.gridNodeCount;
+    const uint row = fgmresMPMIndex(dispatch, environment, slot);
     preconditioned[row] = float4(0.0f);
     if (states[environment].diagnostics.z > 0.5f ||
-        generations[global] != microstep.reserved) return;
+        slot >= activeCounts[environment]) return;
+    const uint nodeIndex = activeIndices[
+        environment * dispatch.gridNodeCount + slot];
+    const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
+    if (nodeIndex >= dispatch.gridNodeCount ||
+        generations[nodeGlobal] != microstep.reserved) return;
     preconditioned[row] = float4(
-        nodes[global].velocityAndInverseMass.w * basis[row].xyz, 0.0f);
+        nodes[nodeGlobal].velocityAndInverseMass.w * basis[row].xyz, 0.0f);
 }
 
 kernel void nm_fgmres_apply_mpm(
@@ -2098,18 +2115,25 @@ kernel void nm_fgmres_apply_mpm(
     device const float4* direction [[buffer(7)]],
     device float4* work [[buffer(8)]],
     device const NMFGMRESStateGPU* states [[buffer(9)]],
+    device const uint* activeIndices [[buffer(10)]],
+    device const uint* activeCounts [[buffer(11)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
     if (global >= total) return;
     const uint environment = global / dispatch.gridNodeCount;
-    const uint nodeIndex = global - environment * dispatch.gridNodeCount;
-    const uint row = fgmresMPMIndex(dispatch, environment, nodeIndex);
+    const uint slot = global - environment * dispatch.gridNodeCount;
+    const uint row = fgmresMPMIndex(dispatch, environment, slot);
     work[row] = float4(0.0f);
     if (states[environment].diagnostics.z > 0.5f ||
-        generations[global] != microstep.reserved) return;
+        slot >= activeCounts[environment]) return;
+    const uint nodeIndex = activeIndices[
+        environment * dispatch.gridNodeCount + slot];
+    const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
+    if (nodeIndex >= dispatch.gridNodeCount ||
+        generations[nodeGlobal] != microstep.reserved) return;
     const float3 nodeDirection = direction[row].xyz;
-    float3 value = nodes[global].positionAndMass.w * nodeDirection;
+    float3 value = nodes[nodeGlobal].positionAndMass.w * nodeDirection;
     const NMIncidenceRangeGPU range = contactRanges[nodeIndex];
     const uint sampleBase = environment * dispatch.contactPairCount;
     const uint contactBase = fgmresContactBase(dispatch, environment);
@@ -2132,6 +2156,7 @@ inline bool mpmImplicitVelocityGradients(
     const NMMPMGridGPU grid,
     device const NMGridNodeStateGPU* nodes,
     device const uint* generations,
+    device const uint* nodeToActive,
     device const float4* direction,
     const bool applyDirection,
     thread float3x3& velocityGradient,
@@ -2165,10 +2190,13 @@ inline bool mpmImplicitVelocityGradients(
                     dx * wy * wz, wx * dy * wz, wx * wy * dz);
                 velocityGradient += outerProduct(
                     nodes[nodeGlobal].candidateVelocity.xyz, gradient);
+                const uint activeSlot = nodeToActive[nodeGlobal];
+                if (applyDirection && activeSlot == NM_INVALID_INDEX)
+                    return false;
                 if (applyDirection)
                     directionGradient += outerProduct(
                         direction[fgmresMPMIndex(
-                            dispatch, environment, nodeIndex)].xyz,
+                            dispatch, environment, activeSlot)].xyz,
                         gradient);
             }
         }
@@ -2200,6 +2228,7 @@ inline void evaluateSparseMPMImplicitNode(
     device const NMSchedulerStateGPU* schedulers,
     device const NMAdaptiveStateGPU* adaptive,
     device const uint* generations,
+    device const uint* nodeToActive,
     device const float4* direction,
     device float4* vector,
     device const NMFGMRESStateGPU* states,
@@ -2232,7 +2261,9 @@ inline void evaluateSparseMPMImplicitNode(
     const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
     if (generations[nodeGlobal] != microstep.reserved ||
         !(nodes[nodeGlobal].positionAndMass.w > 0.0f)) return;
-    const uint row = fgmresMPMIndex(dispatch, environment, nodeIndex);
+    const uint activeSlot = nodeToActive[nodeGlobal];
+    if (activeSlot == NM_INVALID_INDEX) return;
+    const uint row = fgmresMPMIndex(dispatch, environment, activeSlot);
     const float3 nodePosition = float3(nodeCoordinate) * grid.metrics.x;
     const float dt = objectTimestep(dispatch, scheduler);
     float3 force = float3(0.0f);
@@ -2281,7 +2312,8 @@ inline void evaluateSparseMPMImplicitNode(
                     float3x3 velocityGradient, directionGradient;
                     if (!mpmImplicitVelocityGradients(
                             dispatch, microstep, environment, particle, grid,
-                            nodes, generations, direction, applyOperator,
+                            nodes, generations, nodeToActive, direction,
+                            applyOperator,
                             velocityGradient, directionGradient)) {
                         recordFailure(statuses[environment],
                             NM_STATUS_CAPACITY_OVERFLOW, objectIndex,
@@ -2386,6 +2418,7 @@ kernel void nm_mpm_build_constitutive_residual(
     device float4* residual [[buffer(21)]],
     device const NMFGMRESStateGPU* states [[buffer(22)]],
     device NMMatterStatusGPU* statuses [[buffer(23)]],
+    device const uint* nodeToActive [[buffer(24)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -2396,15 +2429,15 @@ kernel void nm_mpm_build_constitutive_residual(
         false, objects, materials, programs, instructions,
         environmentParameters, particles, particleMaterialState, nodes,
         grids, blocks, blockLookup, blockCounts, blockOffsets,
-        sortedParticleIndices, schedulers, adaptive, generations, direction,
-        residual, states, statuses);
+        sortedParticleIndices, schedulers, adaptive, generations,
+        nodeToActive, direction, residual, states, statuses);
     evaluateSparseMPMImplicitNode(
         dispatch, microstep, active.environment, active.blockIndex, lane + 256u,
         false, objects, materials, programs, instructions,
         environmentParameters, particles, particleMaterialState, nodes,
         grids, blocks, blockLookup, blockCounts, blockOffsets,
-        sortedParticleIndices, schedulers, adaptive, generations, direction,
-        residual, states, statuses);
+        sortedParticleIndices, schedulers, adaptive, generations,
+        nodeToActive, direction, residual, states, statuses);
 }
 
 kernel void nm_fgmres_apply_mpm_constitutive(
@@ -2432,6 +2465,7 @@ kernel void nm_fgmres_apply_mpm_constitutive(
     device float4* work [[buffer(21)]],
     device const NMFGMRESStateGPU* states [[buffer(22)]],
     device NMMatterStatusGPU* statuses [[buffer(23)]],
+    device const uint* nodeToActive [[buffer(24)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -2442,15 +2476,15 @@ kernel void nm_fgmres_apply_mpm_constitutive(
         true, objects, materials, programs, instructions,
         environmentParameters, particles, particleMaterialState, nodes,
         grids, blocks, blockLookup, blockCounts, blockOffsets,
-        sortedParticleIndices, schedulers, adaptive, generations, direction,
-        work, states, statuses);
+        sortedParticleIndices, schedulers, adaptive, generations,
+        nodeToActive, direction, work, states, statuses);
     evaluateSparseMPMImplicitNode(
         dispatch, microstep, active.environment, active.blockIndex, lane + 256u,
         true, objects, materials, programs, instructions,
         environmentParameters, particles, particleMaterialState, nodes,
         grids, blocks, blockLookup, blockCounts, blockOffsets,
-        sortedParticleIndices, schedulers, adaptive, generations, direction,
-        work, states, statuses);
+        sortedParticleIndices, schedulers, adaptive, generations,
+        nodeToActive, direction, work, states, statuses);
 }
 
 kernel void nm_fgmres_accumulate_mpm(
@@ -2508,14 +2542,22 @@ kernel void nm_mpm_apply_implicit_solution(
     device const uint* generations [[buffer(2)]],
     device const float4* solution [[buffer(3)]],
     device NMGridNodeStateGPU* nodes [[buffer(4)]],
+    device const uint* activeIndices [[buffer(5)]],
+    device const uint* activeCounts [[buffer(6)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.gridNodeCount;
-    if (global >= total || generations[global] != microstep.reserved) return;
+    if (global >= total) return;
     const uint environment = global / dispatch.gridNodeCount;
-    const uint nodeIndex = global - environment * dispatch.gridNodeCount;
-    nodes[global].candidateVelocity.xyz +=
-        solution[fgmresMPMIndex(dispatch, environment, nodeIndex)].xyz;
+    const uint slot = global - environment * dispatch.gridNodeCount;
+    if (slot >= activeCounts[environment]) return;
+    const uint nodeIndex = activeIndices[
+        environment * dispatch.gridNodeCount + slot];
+    const uint nodeGlobal = environment * dispatch.gridNodeCount + nodeIndex;
+    if (nodeIndex >= dispatch.gridNodeCount ||
+        generations[nodeGlobal] != microstep.reserved) return;
+    nodes[nodeGlobal].candidateVelocity.xyz +=
+        solution[fgmresMPMIndex(dispatch, environment, slot)].xyz;
 }
 
 } // namespace numi_matter_metal
