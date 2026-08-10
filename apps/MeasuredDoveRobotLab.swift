@@ -300,7 +300,8 @@ private final class RobotEngine {
         dataset: Dataset,
         environmentIndex: Int = 0,
         policyURL: URL? = nil,
-        metallibPath: String? = nil
+        metallibPath: String? = nil,
+        measuredSurfaceTask: MetalRoboMeasuredSurfaceTask = .fatalDropRecovery
     ) throws {
         self.dataset = dataset
         self.environmentIndex = environmentIndex
@@ -310,13 +311,13 @@ private final class RobotEngine {
                 environmentCount: 1,
                 controlTimestepSeconds: 0.02,
                 seed: policySeed,
-                difficultyBandRange: 4...4
+                difficultyBandRange: measuredSurfaceTask == .cruise ? 0...0 : 4...4
             )
             let context = try MetalRoboTaskRolloutContext(
                 manifest: MetalRoboRunManifest(
                     source: .measuredDove(
                         manifest: dataset.manifestURL,
-                        task: .fatalDropRecovery
+                        task: measuredSurfaceTask
                     ),
                     sensorsAndPhysics: configuration
                 ),
@@ -1024,14 +1025,6 @@ private final class RobotEngine {
                 color=mix(color,float3(.16f,.72f,.78f),ink*(.42f+.58f*coverage));
             }
         }
-        // Every tile carries a +X travel cue below the wordmark.
-        float shaft=step(.60f,local.x)*step(local.x,4.55f)*
-            step(.30f,local.y)*step(local.y,.48f);
-        float arrowX=clamp((local.x-4.25f)/1.05f,0.0f,1.0f);
-        float arrowHalfHeight=mix(.48f,0.0f,arrowX);
-        float head=step(4.20f,local.x)*step(local.x,5.30f)*
-            step(abs(local.y-.39f),arrowHalfHeight);
-        color=mix(color,float3(.95f,.43f,.13f),max(shaft,head)*.78f);
         return float4(1.0f-exp(-1.10f*color),1.0f);
     }
     fragment float4 robotFragment(Raster in [[stage_in]],bool frontFacing [[front_facing]],constant Uniforms& u [[buffer(8)]]) {
@@ -1372,6 +1365,7 @@ private func perspective(_ fovy: Float,_ aspect: Float,_ near: Float,_ far: Floa
         var manifestURL = fallback
         var policyURL: URL?
         var metallibPath: String?
+        var measuredSurfaceTask: MetalRoboMeasuredSurfaceTask = .fatalDropRecovery
         var probe = false
         var index = 0
         while index < arguments.count {
@@ -1390,6 +1384,20 @@ private func perspective(_ fovy: Float,_ aspect: Float,_ near: Float,_ far: Floa
                     throw RobotError.invalid("--metallib requires a path")
                 }
                 metallibPath = arguments[index]
+            case "--task":
+                index += 1
+                guard index < arguments.count else {
+                    throw RobotError.invalid("--task requires a value")
+                }
+                switch arguments[index] {
+                case "dove-drop-recovery":
+                    measuredSurfaceTask = .fatalDropRecovery
+                case "dove-cruise":
+                    measuredSurfaceTask = .cruise
+                default:
+                    throw RobotError.invalid(
+                        "--task must be dove-drop-recovery or dove-cruise")
+                }
             default:
                 guard !arguments[index].hasPrefix("--") else {
                     throw RobotError.invalid("unknown option \(arguments[index])")
@@ -1402,7 +1410,8 @@ private func perspective(_ fovy: Float,_ aspect: Float,_ near: Float,_ far: Floa
         let engine = try RobotEngine(
             dataset: dataset,
             policyURL: policyURL,
-            metallibPath: metallibPath
+            metallibPath: metallibPath,
+            measuredSurfaceTask: measuredSurfaceTask
         )
         if probe {
             let result = try engine.probe()

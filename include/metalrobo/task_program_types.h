@@ -265,6 +265,8 @@ enum MRTaskRewardOpcode : mr_u32 {
     // Squared normalized policy residual. Unlike action-rate cost, this
     // anchors residual controllers around their authored actuator bias.
     MR_TASK_REWARD_ACTION_SQUARED = 49u,
+    MR_TASK_REWARD_ROOT_OBJECT_PROGRESS = 50u,
+    MR_TASK_REWARD_ROOT_OBJECT_PROXIMITY = 51u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -274,6 +276,7 @@ enum MRTaskTerminationOpcode : mr_u32 {
     // Contact-group termination scoped to the active projectile flight. This
     // avoids treating ordinary support contact as a dodge failure.
     MR_TASK_TERMINATE_PROJECTILE_CONTACT = 3u,
+    MR_TASK_TERMINATE_ROOT_OBJECT_PROXIMITY = 4u,
 };
 
 enum MRTaskTerminationReason : mr_u32 {
@@ -284,6 +287,7 @@ enum MRTaskTerminationReason : mr_u32 {
     MR_TASK_TERMINATION_TIMEOUT = 4u,
     MR_TASK_TERMINATION_PHYSICS_ERROR = 5u,
     MR_TASK_TERMINATION_PROJECTILE_CONTACT = 6u,
+    MR_TASK_TERMINATION_FOOD_CONSUMED = 7u,
 };
 
 enum MRTaskRandomizationOpcode : mr_u32 {

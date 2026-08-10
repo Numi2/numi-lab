@@ -136,6 +136,8 @@ enum class TaskRewardOperator : std::uint32_t {
     objectLift = MR_TASK_REWARD_OBJECT_LIFT,
     objectPosition = MR_TASK_REWARD_OBJECT_POSITION,
     objectPlacement = MR_TASK_REWARD_OBJECT_PLACEMENT,
+    rootObjectProgress = MR_TASK_REWARD_ROOT_OBJECT_PROGRESS,
+    rootObjectProximity = MR_TASK_REWARD_ROOT_OBJECT_PROXIMITY,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -143,6 +145,7 @@ enum class TaskTerminationOperator : std::uint32_t {
     maximumTilt = MR_TASK_TERMINATE_MAXIMUM_TILT,
     contactGroup = MR_TASK_TERMINATE_CONTACT_GROUP,
     projectileContact = MR_TASK_TERMINATE_PROJECTILE_CONTACT,
+    rootObjectProximity = MR_TASK_TERMINATE_ROOT_OBJECT_PROXIMITY,
 };
 
 enum class TaskRandomizationOperator : std::uint32_t {

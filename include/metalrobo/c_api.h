@@ -169,6 +169,8 @@ enum MRRunManifestSourceC {
 enum MRMeasuredSurfaceTaskC {
     MR_MEASURED_SURFACE_TASK_FLIGHT_TRIM = 0u,
     MR_MEASURED_SURFACE_TASK_FATAL_DROP_RECOVERY = 1u,
+    MR_MEASURED_SURFACE_TASK_CRUISE = 2u,
+    MR_MEASURED_SURFACE_TASK_FOOD_NAVIGATION = 3u,
 };
 
 // Single native construction boundary for training, evaluation and

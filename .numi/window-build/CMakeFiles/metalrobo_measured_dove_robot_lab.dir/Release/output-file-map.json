@@ -1,0 +1,20 @@
+{
+	"" : 
+	{
+		"swift-dependencies" : "CMakeFiles/metalrobo_measured_dove_robot_lab.dir/Release/metalrobo_measured_dove_robot_lab.swiftdeps"
+	},
+	"/Users/home/Documents/emergentnumilife/MetalRobo/apps/MeasuredDoveRobotLab.swift" : 
+	{
+		"dependencies" : "CMakeFiles/metalrobo_measured_dove_robot_lab.dir/apps/MeasuredDoveRobotLab.swift.o.d",
+		"diagnostics" : "CMakeFiles/metalrobo_measured_dove_robot_lab.dir/apps/MeasuredDoveRobotLab.swift.o.dia",
+		"object" : "CMakeFiles/metalrobo_measured_dove_robot_lab.dir/apps/MeasuredDoveRobotLab.swift.o",
+		"swift-dependencies" : "CMakeFiles/metalrobo_measured_dove_robot_lab.dir/apps/MeasuredDoveRobotLab.swift.o.swiftdeps"
+	},
+	"/Users/home/Documents/emergentnumilife/MetalRobo/bindings/swift/MetalRoboTaskRollout.swift" : 
+	{
+		"dependencies" : "CMakeFiles/metalrobo_measured_dove_robot_lab.dir/bindings/swift/MetalRoboTaskRollout.swift.o.d",
+		"diagnostics" : "CMakeFiles/metalrobo_measured_dove_robot_lab.dir/bindings/swift/MetalRoboTaskRollout.swift.o.dia",
+		"object" : "CMakeFiles/metalrobo_measured_dove_robot_lab.dir/bindings/swift/MetalRoboTaskRollout.swift.o",
+		"swift-dependencies" : "CMakeFiles/metalrobo_measured_dove_robot_lab.dir/bindings/swift/MetalRoboTaskRollout.swift.o.swiftdeps"
+	}
+}

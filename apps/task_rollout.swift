@@ -288,9 +288,13 @@ private struct Options {
                     measuredDoveTask = .flightTrim
                 case "dove-drop-recovery":
                     measuredDoveTask = .fatalDropRecovery
+                case "dove-cruise":
+                    measuredDoveTask = .cruise
+                case "dove-food-navigation":
+                    measuredDoveTask = .foodNavigation
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be a bundled G1 task, dove-trim, or dove-drop-recovery."
+                        "--task must be a bundled G1 task, dove-trim, dove-drop-recovery, dove-cruise, or dove-food-navigation."
                     )
                 }
                 index += 1

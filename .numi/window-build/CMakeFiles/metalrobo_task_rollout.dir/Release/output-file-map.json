@@ -1,0 +1,34 @@
+{
+	"" : 
+	{
+		"swift-dependencies" : "CMakeFiles/metalrobo_task_rollout.dir/Release/metalrobo_task_rollout.swiftdeps"
+	},
+	"/Users/home/Documents/emergentnumilife/MetalRobo/apps/NumiTraining.swift" : 
+	{
+		"dependencies" : "CMakeFiles/metalrobo_task_rollout.dir/apps/NumiTraining.swift.o.d",
+		"diagnostics" : "CMakeFiles/metalrobo_task_rollout.dir/apps/NumiTraining.swift.o.dia",
+		"object" : "CMakeFiles/metalrobo_task_rollout.dir/apps/NumiTraining.swift.o",
+		"swift-dependencies" : "CMakeFiles/metalrobo_task_rollout.dir/apps/NumiTraining.swift.o.swiftdeps"
+	},
+	"/Users/home/Documents/emergentnumilife/MetalRobo/apps/NumiWindow.swift" : 
+	{
+		"dependencies" : "CMakeFiles/metalrobo_task_rollout.dir/apps/NumiWindow.swift.o.d",
+		"diagnostics" : "CMakeFiles/metalrobo_task_rollout.dir/apps/NumiWindow.swift.o.dia",
+		"object" : "CMakeFiles/metalrobo_task_rollout.dir/apps/NumiWindow.swift.o",
+		"swift-dependencies" : "CMakeFiles/metalrobo_task_rollout.dir/apps/NumiWindow.swift.o.swiftdeps"
+	},
+	"/Users/home/Documents/emergentnumilife/MetalRobo/apps/task_rollout.swift" : 
+	{
+		"dependencies" : "CMakeFiles/metalrobo_task_rollout.dir/apps/task_rollout.swift.o.d",
+		"diagnostics" : "CMakeFiles/metalrobo_task_rollout.dir/apps/task_rollout.swift.o.dia",
+		"object" : "CMakeFiles/metalrobo_task_rollout.dir/apps/task_rollout.swift.o",
+		"swift-dependencies" : "CMakeFiles/metalrobo_task_rollout.dir/apps/task_rollout.swift.o.swiftdeps"
+	},
+	"/Users/home/Documents/emergentnumilife/MetalRobo/bindings/swift/MetalRoboTaskRollout.swift" : 
+	{
+		"dependencies" : "CMakeFiles/metalrobo_task_rollout.dir/bindings/swift/MetalRoboTaskRollout.swift.o.d",
+		"diagnostics" : "CMakeFiles/metalrobo_task_rollout.dir/bindings/swift/MetalRoboTaskRollout.swift.o.dia",
+		"object" : "CMakeFiles/metalrobo_task_rollout.dir/bindings/swift/MetalRoboTaskRollout.swift.o",
+		"swift-dependencies" : "CMakeFiles/metalrobo_task_rollout.dir/bindings/swift/MetalRoboTaskRollout.swift.o.swiftdeps"
+	}
+}

@@ -317,6 +317,19 @@ private:
     TaskObservationProgram& observations,
     TaskResetProgram& reset
 );
+[[nodiscard]] TaskPack makeMeasuredSurfaceCruiseTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] ScenePack makeMeasuredSurfaceFoodNavigationScenePack(
+    const RobotPack& robot
+);
+[[nodiscard]] TaskPack makeMeasuredSurfaceFoodNavigationTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
 [[nodiscard]] const char* runCompileStatusName(
     RunCompileStatus status
 ) noexcept;

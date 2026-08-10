@@ -750,6 +750,8 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskRewardOperator::objectLift:
             case TaskRewardOperator::objectPosition:
             case TaskRewardOperator::objectPlacement:
+            case TaskRewardOperator::rootObjectProgress:
+            case TaskRewardOperator::rootObjectProximity:
                 return true;
             default:
                 return false;
@@ -2427,15 +2429,13 @@ TaskCompileDiagnostics compileTaskProgram(
             [](const TaskObservationOperatorSpec& observation) {
                 return observation.source ==
                         TaskObservationSource::maskedDepth ||
-                    observation.source ==
-                        TaskObservationSource::objectTrack ||
                     observation.normalizeVector3;
             }
         )) {
         return reject(
             TaskCompileStatus::invalidPack,
             "actor_current",
-            "actorCurrent cannot contain renderer-owned sources or history-vector normalization"
+            "actorCurrent cannot contain renderer-owned visual sources or history-vector normalization"
         );
     }
     const std::size_t visualSuffixCount =
@@ -2827,6 +2827,33 @@ TaskCompileDiagnostics compileTaskProgram(
             }
             break;
         }
+        case TaskRewardOperator::rootObjectProgress:
+        case TaskRewardOperator::rootObjectProximity: {
+            bool ambiguous = false;
+            const std::uint32_t body = uniqueIndex(
+                model.bodyNames, reward.target, ambiguous);
+            const auto sceneBody = body == MR_INVALID_INDEX
+                ? world.sceneBodyIndices().end()
+                : std::find(world.sceneBodyIndices().begin(),
+                    world.sceneBodyIndices().end(), body);
+            if (reward.target.empty() || ambiguous ||
+                sceneBody == world.sceneBodyIndices().end()) {
+                return reject(
+                    ambiguous ? TaskCompileStatus::ambiguousSemantic
+                              : TaskCompileStatus::unresolvedSemantic,
+                    reward.target,
+                    "root-object navigation reward requires one scene-body target"
+                );
+            }
+            if (reward.operation == TaskRewardOperator::rootObjectProximity &&
+                !(reward.parameters.x > 0.0f)) {
+                return reject(TaskCompileStatus::invalidPack, reward.target,
+                    "root-object proximity requires a positive squared-distance width");
+            }
+            targetIndex = static_cast<std::uint32_t>(
+                sceneBody - world.sceneBodyIndices().begin());
+            break;
+        }
         case TaskRewardOperator::linearVelocityTracking:
         case TaskRewardOperator::yawVelocityTracking:
         case TaskRewardOperator::constant:
@@ -3144,8 +3171,7 @@ TaskCompileDiagnostics compileTaskProgram(
                   termination.minimumDifficultyBand)) ||
             termination.reason ==
                 MR_TASK_TERMINATION_CONTINUING ||
-            termination.reason >
-                MR_TASK_TERMINATION_PROJECTILE_CONTACT) {
+            termination.reason > MR_TASK_TERMINATION_FOOD_CONSUMED) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 termination.sourceGroup,
@@ -3180,6 +3206,27 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskTerminationOperator::minimumRootHeight:
         case TaskTerminationOperator::maximumTilt:
             break;
+        case TaskTerminationOperator::rootObjectProximity: {
+            bool ambiguous = false;
+            const std::uint32_t body = uniqueIndex(
+                model.bodyNames, termination.sourceGroup, ambiguous);
+            const auto sceneBody = body == MR_INVALID_INDEX
+                ? world.sceneBodyIndices().end()
+                : std::find(world.sceneBodyIndices().begin(),
+                    world.sceneBodyIndices().end(), body);
+            if (termination.sourceGroup.empty() || ambiguous ||
+                sceneBody == world.sceneBodyIndices().end() ||
+                !(termination.threshold > 0.0f)) {
+                return reject(
+                    ambiguous ? TaskCompileStatus::ambiguousSemantic
+                              : TaskCompileStatus::unresolvedSemantic,
+                    termination.sourceGroup,
+                    "root-object termination requires a scene target and positive radius");
+            }
+            sourceIndex = static_cast<std::uint32_t>(
+                sceneBody - world.sceneBodyIndices().begin());
+            break;
+        }
         default:
             return reject(
                 TaskCompileStatus::unsupportedOperator,

@@ -2986,7 +2986,7 @@ static MRTaskRolloutHandle* createMeasuredDoveRun(
     MRTaskRolloutHandle* result = nullptr;
     const int status = translateErrors([&] {
         validateTaskRolloutConfiguration(*config);
-        if (task_value > MR_MEASURED_SURFACE_TASK_FATAL_DROP_RECOVERY) {
+        if (task_value > MR_MEASURED_SURFACE_TASK_FOOD_NAVIGATION) {
             throw std::invalid_argument("measured-dove task is invalid");
         }
         metalrobo::MeasuredSurfaceRobotPack surface =
@@ -2994,28 +2994,42 @@ static MRTaskRolloutHandle* createMeasuredDoveRun(
                 measured_surface_manifest_path);
         const bool dropRecovery = task_value ==
             MR_MEASURED_SURFACE_TASK_FATAL_DROP_RECOVERY;
+        const bool cruise = task_value == MR_MEASURED_SURFACE_TASK_CRUISE;
+        const bool foodNavigation = task_value ==
+            MR_MEASURED_SURFACE_TASK_FOOD_NAVIGATION;
         surface.normalizedActionBias =
             metalrobo::measuredSurfaceRecoveryTrimActions();
         metalrobo::RunManifest manifest;
-        manifest.id = dropRecovery
-            ? "deetjen_f03_fatal_drop_recovery_run"
-            : "deetjen_f03_flight_trim_run";
+        manifest.id = foodNavigation ? "deetjen_f03_food_navigation_run"
+            : (cruise ? "deetjen_f03_forward_agility_run"
+            : (dropRecovery ? "deetjen_f03_fatal_drop_recovery_run"
+                            : "deetjen_f03_flight_trim_run"));
         manifest.robot = metalrobo::makeMeasuredSurfaceRobotPack(
             std::move(surface), "deetjen_f03_robot");
-        manifest.scene = dropRecovery
+        manifest.scene = foodNavigation
+            ? metalrobo::makeMeasuredSurfaceFoodNavigationScenePack(
+                manifest.robot)
+            : ((dropRecovery || cruise)
             ? metalrobo::makeMeasuredSurfaceDropRecoveryScenePack(
                 manifest.robot)
-            : metalrobo::ScenePack{.id = "unbounded_air"};
+            : metalrobo::ScenePack{.id = "unbounded_air"});
         manifest.sensors.id = "measured_surface_flight_state";
         manifest.reality.id = "measured_surface_nominal_reality";
         manifest.teacher.id = "no_teacher";
-        manifest.task = dropRecovery
-            ? metalrobo::makeMeasuredSurfaceDropRecoveryTaskPack(
+        manifest.task = foodNavigation
+            ? metalrobo::makeMeasuredSurfaceFoodNavigationTaskPack(
+                manifest.robot, manifest.sensors.observation,
+                manifest.reality.reset)
+            : (cruise
+            ? metalrobo::makeMeasuredSurfaceCruiseTaskPack(
+                manifest.robot, manifest.sensors.observation,
+                manifest.reality.reset)
+            : (dropRecovery ? metalrobo::makeMeasuredSurfaceDropRecoveryTaskPack(
                 manifest.robot, manifest.sensors.observation,
                 manifest.reality.reset)
             : metalrobo::makeMeasuredSurfaceFlightTaskPack(
                 manifest.robot, manifest.sensors.observation,
-                manifest.reality.reset);
+                manifest.reality.reset)));
         applyRunProfile(manifest, *config);
         manifest.profile.capacities = manifest.task.capacities;
         auto handle = createCompiledRunTaskRollout(

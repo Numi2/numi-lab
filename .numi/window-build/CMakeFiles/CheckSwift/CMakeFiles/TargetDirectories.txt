@@ -1,0 +1,2 @@
+/Users/home/Documents/emergentnumilife/MetalRobo/.numi/window-build/CMakeFiles/CheckSwift/CMakeFiles/edit_cache.dir
+/Users/home/Documents/emergentnumilife/MetalRobo/.numi/window-build/CMakeFiles/CheckSwift/CMakeFiles/rebuild_cache.dir

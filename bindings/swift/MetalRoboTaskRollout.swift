@@ -1007,6 +1007,8 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
 public enum MetalRoboMeasuredSurfaceTask: UInt32, Sendable {
     case flightTrim = 0
     case fatalDropRecovery = 1
+    case cruise = 2
+    case foodNavigation = 3
 }
 
 public enum MetalRoboRunSource: Sendable {

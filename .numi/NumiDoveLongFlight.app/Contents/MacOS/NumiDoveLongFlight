@@ -1,0 +1,5 @@
+#!/bin/zsh
+exec /Users/home/Documents/emergentnumilife/MetalRobo/.numi/window-build/bin/metalrobo_measured_dove_robot_lab \
+  /Users/home/BirdFlowMetal/ValidationInputs/deetjen-ob-f03-surface-v1/manifest.json \
+  --policy-pack /Users/home/Documents/emergentnumilife/MetalRobo/.numi/imported-policies/dove-v12-revision-00000090.candidate.policypack \
+  --metallib /Users/home/Documents/emergentnumilife/MetalRobo/.numi/window-build/shaders/MetalRobo.metallib

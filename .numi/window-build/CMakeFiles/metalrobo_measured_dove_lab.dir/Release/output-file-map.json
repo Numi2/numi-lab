@@ -1,0 +1,13 @@
+{
+	"" : 
+	{
+		"swift-dependencies" : "CMakeFiles/metalrobo_measured_dove_lab.dir/Release/metalrobo_measured_dove_lab.swiftdeps"
+	},
+	"/Users/home/Documents/emergentnumilife/MetalRobo/apps/MeasuredDoveLab.swift" : 
+	{
+		"dependencies" : "CMakeFiles/metalrobo_measured_dove_lab.dir/apps/MeasuredDoveLab.swift.o.d",
+		"diagnostics" : "CMakeFiles/metalrobo_measured_dove_lab.dir/apps/MeasuredDoveLab.swift.o.dia",
+		"object" : "CMakeFiles/metalrobo_measured_dove_lab.dir/apps/MeasuredDoveLab.swift.o",
+		"swift-dependencies" : "CMakeFiles/metalrobo_measured_dove_lab.dir/apps/MeasuredDoveLab.swift.o.swiftdeps"
+	}
+}

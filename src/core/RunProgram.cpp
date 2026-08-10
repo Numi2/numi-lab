@@ -1911,6 +1911,192 @@ TaskPack makeMeasuredSurfaceDropRecoveryTaskPack(
     return task;
 }
 
+TaskPack makeMeasuredSurfaceCruiseTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeMeasuredSurfaceDropRecoveryTaskPack(
+        robot, observations, reset);
+    task.id = robot.id + ".forward_agility";
+    task.maximumEpisodeSteps = 1500u;
+    task.baseHeightTarget = 5.0f;
+    task.difficultyBandCount = 1u;
+    task.commands.difficultySamplingExponent = 1.0f;
+    task.commands.lower = {1.60f, 0.0f, 0.0f, 0.0f};
+    task.commands.upper = task.commands.lower;
+    task.commands.limitLower = task.commands.lower;
+    task.commands.limitUpper = task.commands.lower;
+    task.rewards = {
+        {TaskRewardOperator::constant, {}, {}, 0.35f},
+        {TaskRewardOperator::rootHeightErrorSquared, {}, {}, -0.80f},
+        {TaskRewardOperator::rootHeightProgress, {}, {}, 1.50f},
+        {TaskRewardOperator::linearVelocityTracking, {}, {}, 8.0f,
+            {0.36f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::yawVelocityTracking, {}, {}, 0.75f,
+            {0.12f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::uprightness, {}, {}, 2.0f},
+        {TaskRewardOperator::tiltSquared, {}, {}, -0.60f},
+        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.12f},
+        {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.02f},
+        {TaskRewardOperator::actionSquared, {}, {}, -0.01f},
+        {TaskRewardOperator::actionRateSquared, {}, {}, -0.003f},
+    };
+    std::erase_if(reset.operators,
+        [](const TaskRandomizationOperatorSpec& operation) {
+            return operation.minimumDifficultyBand != 0u;
+        });
+    for (TaskRandomizationOperatorSpec& operation : reset.operators) {
+        if (operation.operation == TaskRandomizationOperator::rootHeight) {
+            operation.parameters = {4.9f, 5.1f, 0.0f, 0.0f};
+        } else if (operation.operation ==
+                   TaskRandomizationOperator::rootOrientationCone) {
+            operation.parameters = {0.45f, 3.14159265f, 0.0f, 0.0f};
+        } else if (operation.operation ==
+                   TaskRandomizationOperator::rootLinearVelocity &&
+                   operation.component == 2u) {
+            operation.parameters = {-0.25f, 0.25f, 0.0f, 0.0f};
+        } else if (operation.operation ==
+                   TaskRandomizationOperator::rootAngularVelocity) {
+            operation.parameters = {-1.0f, 1.0f, 0.0f, 0.0f};
+        }
+    }
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::rootLinearVelocity,
+        .component = 0u,
+        .parameters = {0.80f, 1.20f, 0.0f, 0.0f},
+    });
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::rootLinearVelocity,
+        .component = 1u,
+        .parameters = {-0.35f, 0.35f, 0.0f, 0.0f},
+    });
+    return task;
+}
+
+ScenePack makeMeasuredSurfaceFoodNavigationScenePack(
+    const RobotPack& robot
+) {
+    ScenePack scene = makeMeasuredSurfaceDropRecoveryScenePack(robot);
+    const std::array<LocomotionDynamicSphere, 1u> authoredFood{{{
+        .position = {8.0f, 0.0f, 5.0f, 1.0f},
+        .linearVelocity = {},
+        .radius = 0.14f,
+        .mass = 0.02f,
+    }}};
+    LocomotionSceneComponent food =
+        makeLocomotionDynamicSphereComponent(robot.mechanics, authoredFood);
+    food.mechanics.name = "dove_food_target";
+    food.mechanics.bodyNames[0] = "food_target";
+    food.mechanics.shapeNames[0] = "food_target/collision";
+    food.mechanics.bodies[0].motionType = MR_MOTION_STATIC;
+    food.mechanics.bodies[0].massAndInverseMass = {};
+    food.mechanics.shapes[0].collisionMask = 0u;
+    food.mechanics.shapes[0].flags &= ~MR_SHAPE_FLAG_ENABLE_CCD;
+    food.defaultBodyStates[0].linearVelocityAndInverseMass = {};
+    food.defaultBodyStates[0].flagsAndIndices[0] = MR_MOTION_STATIC;
+    scene.objects.push_back({
+        .id = "dove_food",
+        .semanticClass = "food_target",
+        .role = MR_WORLD_ASSET_BACKGROUND,
+        .render = MR_WORLD_RENDER_PROCEDURAL,
+        .collision = MR_WORLD_COLLISION_NONE,
+        .dynamics = MR_WORLD_DYNAMICS_STATIC,
+        .mechanics = std::move(food.mechanics),
+        .defaultBodyStates = std::move(food.defaultBodyStates),
+    });
+    return scene;
+}
+
+TaskPack makeMeasuredSurfaceFoodNavigationTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeMeasuredSurfaceCruiseTaskPack(
+        robot, observations, reset);
+    task.id = robot.id + ".food_navigation";
+    const auto retargetObservation = [](TaskObservationOperatorSpec& spec) {
+        if (spec.source != TaskObservationSource::deviceMechanics ||
+            spec.component > 3u) {
+            return;
+        }
+        const std::uint32_t component = spec.component;
+        spec.source = TaskObservationSource::objectTrack;
+        spec.target = "food_target";
+        spec.component = component;
+        spec.scale = component == 0u ? 1.0f : 0.15f;
+        spec.offset = 0.0f;
+    };
+    for (TaskObservationOperatorSpec& spec : observations.actorCurrent) {
+        retargetObservation(spec);
+    }
+    for (TaskObservationOperatorSpec& spec : observations.critic) {
+        retargetObservation(spec);
+    }
+    // Keep this below the fixed native outcome-channel budget and make the
+    // navigation signals first-class rather than hiding them after the cruise
+    // diagnostics inherited above.
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::higherIsBetter},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"food_progress", "m/s", TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::rootObjectProgress},
+        {"food_proximity", "ratio", TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::rootObjectProximity},
+        {"forward_speed_tracking", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::linearVelocityTracking},
+        {"uprightness", "ratio", TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::uprightness},
+    };
+    task.rewards = {
+        {TaskRewardOperator::constant, {}, {}, -0.05f},
+        {TaskRewardOperator::rootHeightErrorSquared, {}, {}, -0.80f},
+        {TaskRewardOperator::rootObjectProgress, {}, "food_target", 4.0f},
+        {TaskRewardOperator::rootObjectProximity, {}, "food_target", 1.0f,
+            {4.0f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::linearVelocityTracking, {}, {}, 2.0f,
+            {0.40f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::uprightness, {}, {}, 1.5f},
+        {TaskRewardOperator::tiltSquared, {}, {}, -0.55f},
+        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.12f},
+        {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.02f},
+        {TaskRewardOperator::actionSquared, {}, {}, -0.01f},
+        {TaskRewardOperator::actionRateSquared, {}, {}, -0.003f},
+    };
+    task.terminations.push_back({
+        .operation = TaskTerminationOperator::rootObjectProximity,
+        .sourceGroup = "food_target",
+        .reason = MR_TASK_TERMINATION_FOOD_CONSUMED,
+        .priority = 120u,
+        .threshold = 0.22f,
+        .failurePenalty = 0.0f,
+    });
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::sceneBodyPosition,
+        .target = "food_target", .component = 0u,
+        .parameters = {4.0f, 12.0f, 0.0f, 0.0f},
+    });
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::sceneBodyPosition,
+        .target = "food_target", .component = 1u,
+        .parameters = {-6.0f, 6.0f, 0.0f, 0.0f},
+    });
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::sceneBodyPosition,
+        .target = "food_target", .component = 2u,
+        .parameters = {3.5f, 6.5f, 0.0f, 0.0f},
+    });
+    return task;
+}
+
 std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
     if (id == "px4_x500") {
         EngineModel mechanics = makeFreeSphereEngineModel();

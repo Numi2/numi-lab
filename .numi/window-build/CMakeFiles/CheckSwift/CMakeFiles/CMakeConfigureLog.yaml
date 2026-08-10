@@ -1,0 +1,106 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      The system is: Darwin - 25.6.0 - arm64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineSwiftCompiler.cmake:67 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the Swift compiler identification source file "CompilerId/main.swift" succeeded.
+      Compiler: /usr/bin/swiftc 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the Swift compiler identification source "CompilerId/main.swift" produced "main"
+      
+      The Swift compiler identification could not be found in:
+        /Users/home/Documents/emergentnumilife/MetalRobo/.numi/window-build/CMakeFiles/CheckSwift/CMakeFiles/4.0.1/CompilerIdSwift/main
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineSwiftCompiler.cmake:67 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the Swift compiler identification source file "CompilerId/main.swift" succeeded.
+      Compiler: /usr/bin/swiftc 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the Swift compiler identification source "CompilerId/main.swift" produced "main"
+      
+      The Swift compiler identification could not be found in:
+        /Users/home/Documents/emergentnumilife/MetalRobo/.numi/window-build/CMakeFiles/CheckSwift/CMakeFiles/4.0.1/CompilerIdSwift/main
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineCompilerId.cmake:122 (message)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineSwiftCompiler.cmake:67 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Running the Swift compiler: "/usr/bin/swiftc" -version
+      swift-driver version: 1.148.6 Apple Swift version 6.3 (swiftlang-6.3.0.123.5 clang-2100.0.123.102)
+      Target: arm64-apple-macosx26.0
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeDetermineSwiftCompiler.cmake:118 (message)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Detected CMAKE_Swift_COMPILER_USE_OLD_DRIVER="FALSE" from:
+        "/usr/bin/swiftc" "-wmo" "main.swift" "lib.in" "-###"
+      with output:
+        /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c main.swift -target arm64-apple-macosx26.0 -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk -no-color-diagnostics -Xcc -fno-color-diagnostics -new-driver-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-driver -empty-abi-descriptor -no-auto-bridging-header-chaining -module-name main -disable-clang-spi -target-sdk-version 26.4 -target-sdk-name macosx26.4 -external-plugin-path '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' -external-plugin-path '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/local/lib/swift/host/plugins#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server' -in-process-plugin-server-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/lib/swift/host/plugins -o /var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/TemporaryDirectory.9umgen/main-1.o
+        /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang /var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T/TemporaryDirectory.9umgen/main-1.o lib.in --sysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk --target=arm64-apple-macosx26.0 -L /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx -L /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk/usr/lib/swift -o main
+        
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/CMakeTestSwiftCompiler.cmake:31 (try_compile)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Check for working Swift compiler: /usr/bin/swiftc"
+    directories:
+      source: "/Users/home/Documents/emergentnumilife/MetalRobo/.numi/window-build/CMakeFiles/CheckSwift/CMakeFiles/CMakeScratch/TryCompile-QctdnV"
+      binary: "/Users/home/Documents/emergentnumilife/MetalRobo/.numi/window-build/CMakeFiles/CheckSwift/CMakeFiles/CMakeScratch/TryCompile-QctdnV"
+    cmakeVariables:
+      CMAKE_MODULE_PATH: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+      CMAKE_Swift_FLAGS: ""
+      CMAKE_Swift_FLAGS_DEBUG: "-Onone -g"
+    buildResult:
+      variable: "CMAKE_Swift_COMPILER_WORKS"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/home/Documents/emergentnumilife/MetalRobo/.numi/window-build/CMakeFiles/CheckSwift/CMakeFiles/CMakeScratch/TryCompile-QctdnV'
+        
+        Run Build Command(s): /opt/homebrew/bin/ninja -v cmTC_4b0ef
+        [1/2] /usr/bin/swiftc -j 10 -num-threads 10 -c  -module-name cmTC_4b0ef -incremental -output-file-map CMakeFiles/cmTC_4b0ef.dir//output-file-map.json  /Users/home/Documents/emergentnumilife/MetalRobo/.numi/window-build/CMakeFiles/CheckSwift/CMakeFiles/CMakeScratch/TryCompile-QctdnV/main.swift
+        [2/2] : && /usr/bin/swiftc -j 10 -num-threads 10 -emit-executable -o cmTC_4b0ef  CMakeFiles/cmTC_4b0ef.dir/main.swift.o    && :
+        
+      exitCode: 0
+...

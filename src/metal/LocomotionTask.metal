@@ -5920,6 +5920,27 @@ kernel void mr_locomotion_task_complete(
             value = positionScore * quietScore;
             break;
         }
+        case MR_TASK_REWARD_ROOT_OBJECT_PROGRESS:
+        case MR_TASK_REWARD_ROOT_OBJECT_PROXIMITY: {
+            const MRBodyStateGPU object =
+                sceneState[sceneBase + operation.source.z];
+            const float3 delta = object.position.xyz -
+                rootWorldPosition(program, q);
+            const float distance = length(delta);
+            if (operation.source.x ==
+                    MR_TASK_REWARD_ROOT_OBJECT_PROGRESS) {
+                const float3 direction = delta /
+                    max(distance, 1.0e-6f);
+                const float3 objectVelocity =
+                    object.linearVelocityAndInverseMass.xyz;
+                value = clamp(dot(direction,
+                    rootLinearVelocity - objectVelocity), -3.0f, 3.0f);
+            } else {
+                value = exp(-distance * distance /
+                    max(operation.parameters.y, 1.0e-8f));
+            }
+            break;
+        }
         case MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING: {
             const uint trackIndex = operation.source.z;
             const MRTaskInteractionContactGPU track =
@@ -6064,6 +6085,8 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_OBJECT_LIFT:
         case MR_TASK_REWARD_OBJECT_POSITION:
         case MR_TASK_REWARD_OBJECT_PLACEMENT:
+        case MR_TASK_REWARD_ROOT_OBJECT_PROGRESS:
+        case MR_TASK_REWARD_ROOT_OBJECT_PROXIMITY:
         case MR_TASK_REWARD_RECOVERY_TILT_PROGRESS:
         case MR_TASK_REWARD_RECOVERY_COMPLETION:
         case MR_TASK_REWARD_WHOLE_BODY_RECOVERY:
@@ -6185,6 +6208,13 @@ kernel void mr_locomotion_task_complete(
                 ) && abs(constraint.impulses.x) /
                     dispatch.timing.y > operation.parameters.x;
             }
+            break;
+        }
+        case MR_TASK_TERMINATE_ROOT_OBJECT_PROXIMITY: {
+            const MRBodyStateGPU object =
+                sceneState[sceneBase + operation.source.y];
+            triggered = distance(object.position.xyz,
+                rootWorldPosition(program, q)) <= operation.parameters.x;
             break;
         }
         default:
