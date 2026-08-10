@@ -266,6 +266,14 @@ transaction and returns to the active policy after rejection. The image is
 aspect-fit automatically, so authored camera geometry is never stretched to
 the resizable window.
 
+When a trainable task has no compatible policy, a compact learning guide
+explains the Robot -> Environment -> Task -> Train journey directly over the
+preview and opens the same guided training sheet as the toolbar. It disappears
+after dismissal, while training owns the runtime, or when a qualified policy is
+available. Keyboard controls preserve the mouse-free path: Space gates
+presentation, `T` opens training, `R` resets the camera, and `?` restores the
+guide. None of these controls add a simulator-side input or change task state.
+
 The **Train** control is enabled only when the selected catalog entry publishes
 an owning task training contract. It opens a guided sheet that keeps the Robot,
 Environment, and Task visible, offers an explicitly non-qualifying pipeline
@@ -291,6 +299,11 @@ command buffer before requesting a drawable, and rate-limits title-bar metadata
 updates to four per second. Its drawable is capped to the authored frame's
 useful resolution instead of implicitly shading a 2x Retina surface. Those UI
 choices never add a wait, readback, or second simulation command buffer.
+The delivery hot path stores numeric frame metadata without formatting a Swift
+string per frame; readable title text is assembled only after the four-hertz
+gate. Toolbar SF Symbols are refreshed only for explicit state changes, and
+drawable sizing is recomputed only when the source resolution or view bounds
+changes.
 
 Fixed and wrist cameras in `FrankaPickPlaceWorldFamily` are the reference
 integration. The fixed camera is calibrated toward the manipulation

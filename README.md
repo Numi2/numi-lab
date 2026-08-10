@@ -1,451 +1,306 @@
 <div align="center">
 
-# numi-lab
+# Numi Lab
 
-**An Apple-native physics and robotics laboratory.**
+<strong>Teach robots to perceive, move, adapt, and recover—entirely on Apple Silicon.</strong>
 
-`C++23` · `Metal` · `Objective-C++` · `Swift` · `MLX`
+`C++23` · `Metal` · `Swift` · `MLX` · `Physics-first robotics`
 
-<img src="docs/media/numi-lab-franka-exploration.gif" alt="Franka exploring forward, right, and left in numi-lab" width="100%" />
+<img src="docs/media/numi-lab-g1-native-rollout.gif" alt="Unitree G1 executing a native Numi Lab rollout on Apple Silicon" width="100%" />
+
+**One Mac. One native runtime. A laboratory full of robots.**
+
+[Start in five minutes](#start-in-five-minutes) ·
+[See the laboratory](#one-laboratory-many-robots) ·
+[Understand the stack](#one-apple-native-loop) ·
+[Read the evidence](#evidence-not-vibes)
 
 </div>
 
-numi-lab keeps robot physics, contact, task execution, policy inference, and
-sensor generation in native Apple GPU memory. Swift schedules rollouts. MLX
-updates policies. Python is an optional learning and data boundary; it does
-not step the production simulator.
-
-This is a pre-release research engine. It is not a finished robot product and
-does not yet establish real-robot transfer.
-
-Numi Lab is not a G1, locomotion, recovery, or dodge product. Those are useful
-qualification workloads over one shared simulator. The platform goal is a
-general robotics laboratory for Apple Silicon: many robots, scenes, tasks,
-materials, sensors, controllers, and learning systems executing through the
-same compiled native physics path.
-
-## Platform scope
-
-- **Physics:** rigid bodies, floating and fixed articulations, coupled contact,
-  terrain, rods, deformables, tactile fields, and stable cross-domain coupling.
-- **Robotics:** locomotion, manipulation, recovery, mobile manipulation,
-  multi-robot interaction, and research surgical mechanisms.
-- **Sensing:** proprioception, contact, plantar pressure, RGB-D, identities,
-  motion, tactile observations, and future task-authored sensor combinations.
-- **Intelligence:** native policies, generated motion, demonstrations,
-  foundation-model proposals, imitation, reinforcement learning, and recovery.
-- **Scale:** persistent batched Metal execution, deterministic replay,
-  transactional failure isolation, unified-memory accounting, and profiling.
-- **Extensibility:** robot mechanics plus `WorldPack`, `TaskPack`,
-  `InteractionPack`, and `PolicyPack` artifacts—not new robot-specific shader
-  modes or a fixed catalog of tasks.
-
-The durable platform direction is described in
-[Numi Lab platform direction](docs/PLATFORM_DIRECTION.md).
-
-## What runs today
-
-- Fixed- and floating-base articulated dynamics with authored inertias,
-  actuators, joint limits, collision geometry, and free rigid bodies.
-- Deterministic broadphase, analytic narrowphase, persistent manifolds,
-  coupled Coulomb friction, terrain, and transactional state publication.
-- Resident batched Metal worlds with native reset, randomization,
-  observations, rewards, termination, policy inference, and rollout capture.
-- Robot-independent `TaskPack` tables, generated motion/contact
-  `InteractionPack` references, and fingerprinted `PolicyPack` actors.
-- Native RGB, metric depth, normals, identities, motion, and tactile outputs
-  from authored presentation and sensor geometry.
-- Swift rollout and PPO scheduling with MLX restricted to the learning
-  backend.
-- Provider-neutral foundation-policy action chunks, including a qualified
-  GR00T N1.7 G1 execution path through Core ML on Apple Silicon.
-- Fingerprinted motion-provider proposals, including native ARDY G1 and generic
-  ARDY Core prompt-to-motion inference on arm64 Apple Silicon.
-- Provenance-locked measured-surface robots with bounded actuation,
-  transactional deformable-surface mechanics, and accepted aerodynamic-load
-  telemetry.
-- Bundled Unitree G1, Franka, measured dove, and research PSM models.
-
-## NumiSolver: the production physics path
-
-The production contact solver is named `temporalCone`. `numisolver` is the
-development branch carrying the current G1 recovery work.
-
-Each 20 ms G1 control interval is normally divided into four physics
-microsteps. On every microstep numi-lab:
-
-1. refreshes implicit drive effort from the current joint state;
-2. predicts articulated motion with ABA;
-3. rebuilds transforms, collision, manifolds, Jacobians, and response terms;
-4. solves normal and two-axis friction together as a circular or elliptical
-   Coulomb cone;
-5. integrates immediately and repeats from the accepted state.
-
-The complete horizon is encoded into native Metal command buffers. Normal
-stepping has no CPU contact-count readback, solver fallback, or Python
-scheduling boundary. Work is parallel across environments and independent
-islands. Failed environments roll back without publishing partial state.
-
-This has the temporal refresh behavior that makes TGS useful, but it is our
-own exact-cone Metal implementation—not PhysX TGS and not a renamed PGS loop.
-A slower `qualityNewton` mode exists for numerical comparison; it is not the
-throughput rollout path.
-
-## Selected qualification workloads
-
-The following runs exercise measured-surface flight and recovery alongside G1
-standing, disturbance response, perception, generated motion, destructive
-contact, and get-up learning. They are evidence for shared simulator
-capabilities, not the product boundary.
-
-### Measured dove flight and recovery
-
-The `numisolver` branch includes a surface-native robotic form of the
-provenance-locked Deetjen OB-F03 dove: 2,157 surface vertices, 3,968 triangles,
-four surface components, and 24 bounded actuator channels. The immutable
-source surface remains the morphology. Numi adds component actuation, a
-floating root, aerodynamic loading, flight and fatal-drop tasks, transactional
-state publication, and accepted force/torque telemetry through the same native
-Metal world used for policy rollouts.
-
-![Nine measured-dove recovery environments in the native Numi viewer](docs/media/numi-dove-recovery-viewer.png)
-
-The native viewer renders the live articulated surface with unified body,
-wing, and tail attachments; layered tail feathers; smoothed body normals; and
-opaque, depth-correct two-sided materials. It presents one environment at
-wall-clock speed by default and can switch among 1, 4, or 9 environments for
-inspection. Stop, run/pause, playback speed, page navigation, orbit, and zoom
-controls remain independent of the fast batched training path.
-
-From a BirdFlow workspace with the dove capability installed:
-
-```sh
-numi dove robot
-numi dove robot-probe
-numi dove runtime-probe
-numi dove runtime-benchmark 64 32
-numi dove authority-sweep 2048 36
-numi dove aero-audit 19
-numi dove fatal-drop 22 0 180
-```
-
-The probes cover provenance and topology admission, deterministic replay,
-whole-control-step rollback, actuator response, accepted loads, batched device
-execution, aerodynamic invariants, and drop/recovery comparisons. The measured
-source is nonperiodic; sustained reflected traversal, the mirrored right wing,
-and all robot parameters outside that source are explicit simulator
-assumptions. See [Measured-surface mechanics](docs/MEASURED_SURFACE_MECHANICS.md)
-for the execution contract and current physical boundary.
-
-### Prompt-to-G1 motion imagination
-
-Numi runs the
-INT4 ARDY Llama 3 text encoder and native ARDY G1 Horizon52 ONNX model on arm64
-Apple Silicon. Its 34-joint G1 skeleton is converted through NVIDIA's authored
-joint frames directly to the official 29-DoF mechanism—without human-skeleton
-IK. Raw model joints remain in the evidence while the executable reference is
-the closest sequence satisfying Unitree position and velocity limits. The
-generic ARDY Core model remains available through `--model-family core`.
-Rendered physical evidence is published only after actuation, gravity,
-collision, and contact in NumiSolver. The workflow begins with:
-
-![ARDY-G1 run-forward kinematic proposal on the Unitree G1 mechanism](docs/media/ardy-g1-run-forward-kinematic.gif)
-
-The run-forward clip above is the Apple-Silicon ARDY model's kinematic
-proposal after exact G1 joint-frame conversion and authored mechanism-limit
-projection. It demonstrates prompt-to-G1 motion intent; it is deliberately not
-presented as a dynamically realized run. NumiSolver execution remains the
-authority for momentum, support, gravity, slip, impact, and whether the robot
-stays upright.
-
-```sh
-numi motion imagine-g1 \
-  --prompt 'do backflip' \
-  --seed 4
-```
-
-The provider bridge preserves the complete temporal proposal—52 native G1
-frames or 40 Core frames—and never invents flight, touchdown, foot locks, or a
-settling pose. InteractionPack may use the joint-space proposal as controller
-intent, while the root remains a simulated outcome. NumiSolver applies the
-compiled world's gravity every physics substep and resolves whether the robot
-takes off, lands, slips, falls, or recovers. `imagine-g1` performs that physical
-realization by default; its GIF and MP4 are forward-kinematic renders of
-accepted solver states, not of the provider root trajectory. A failed physical
-realization stays visible as a failed result; presentation code must not repair
-it.
-
-![G1 forward locomotion retained from native training](artifacts/g1-legs-locomotion-60min-20260805/retained-policy/retained-good-locomotion-episode.gif)
-
-This is a render of a real locomotion-policy run executed inside the Numi Lab
-simulator and scene, using accepted solver states rather than synthesized
-motion.
-
-### Native G1 standing
-
-The actor was converted once to `PolicyPack` and runs through numi-lab's
-native Metal inference engine with a zero velocity command. On Apple M4, the
-retained 20-second run completed all 1,000 control steps with:
-
-- mean pelvis height: `0.785 m`;
-- mean tilt: `0.009 rad`;
-- tracking score: `0.9998`;
-- failed physics steps: `0`;
-- termination: the expected 20-second timeout only.
-
-![Twenty-second native G1 standing rollout](docs/media/g1-standing-native-20s.gif)
-
-[Full H.264 capture](docs/media/g1-standing-native-20s.mp4)
-
-The animation is rendered by numi-lab's native `sensor_reference` path from
-the accepted state trace. No external simulator supplies pixels or
-intermediate motion.
-
-### Physical disturbance and recovery workload
-
-The balls below are ordinary dynamic scene bodies in the same broadphase,
-manifold, island, and temporal-cone solve as G1.
-
-![Native G1 struck by four dynamic balls](docs/media/g1-standing-ball-disturbance-20s.gif)
-
-[Full H.264 disturbance capture](docs/media/g1-standing-ball-disturbance-20s.mp4)
-
-The current randomized physical-ball training task launches four spheres from
-independent directions with per-episode variation in position, height,
-velocity, and launch time. In an identical 8-environment, 500-step evaluation:
-
-| Policy | Peak tilt | Mean tilt | Standing steps | Physics failures |
-| --- | ---: | ---: | ---: | ---: |
-| Recovery initializer | `0.771 rad` | `0.0146 rad` | `3,992 / 4,000` | `0` |
-| After 153,600 physical training steps | `0.087 rad` | `0.00557 rad` | `4,000 / 4,000` | `0` |
-
-These are simulator results. The trained experimental policy artifact is not
-currently bundled in the repository.
-
-### Perceptive dodge workload
-
-The G1 dodge TaskPack now exposes only deployable proprioception plus four
-ball-only 16x9 masked-depth frames at sparse offsets `0, 3, 8, 18`. Authored
-Visual Presentation instance IDs perform the mask on Metal; depth history,
-normalization, reset, physics, reward, and inference stay device-resident.
-Exact ball tracks are critic-only. Link-CBF shaping uses compiled collision
-envelopes for every collidable robot link and each authored projectile radius.
-
-The native task and visual kernels are qualified on Apple M4. No trained dodge
-policy or G1/ball visual packs are bundled yet, so this is an implemented
-training path—not a claimed dodge result.
-
-### Generated intent, physically accepted
-
-The minimal `raise left hand` InteractionPack example demonstrates the
-generated-intent boundary without a projectile or learned policy. On Apple M4
-it completed all 50 native control steps standing, with zero physics failures
-or terminations; accepted-state kinematics measured a `0.190 m` left-wrist
-rise relative to the pelvis. The reproducible example and stricter claim
-boundary are documented in
-[World engine: InteractionPack](docs/WORLD_ENGINE.md#interactionpack-generated-intent-solved-outcome).
-
-Across tasks, generated actions become distillation targets only in proportion
-to solver-measured physical outcomes. Stable partial progress is retained;
-failed or terminated transitions cannot be attributed to the teacher as
-successful behavior. Dodge supplies one set of outcome signals, while
-manipulation, recovery, locomotion, and contact-rich tasks supply their own.
-
-### Deliberately destructive test
-
-![G1 struck by light balls followed by 1 through 8 kg spheres](docs/media/g1-twelve-ball-escalation.gif)
-
-[Full H.264 escalation capture](docs/media/g1-twelve-ball-escalation.mp4)
-
-This continuous 8.5-second inspection run does not reset after falling. The
-`6 kg` impact knocks G1 down; the `7 kg` and `8 kg` impacts and three seconds
-of aftermath remain visible. All 425 control steps completed with zero physics
-failures. This demonstrates continuous native dynamics under a destructive
-load, not successful recovery.
-
-### Get-up workload status: not solved yet
-
-The Stage-I supine task now has ten frames of proprioceptive history, a
-privileged critic, full-body contact, and generic height, support, body-up,
-and standing-completion operators.
-
-A 300-update run completed 460,800 physical environment steps with zero
-physics failures. Relative to its untouched initializer:
-
-| Metric | Initial | Trained |
-| --- | ---: | ---: |
-| Mean pelvis height | `0.0623 m` | `0.0848 m` |
-| Maximum pelvis height | `0.126 m` | `0.137 m` |
-| Mean tilt | `1.533 rad` | `1.445 rad` |
-| Standing steps | `0` | `0` |
-
-The policy learned a better rolling and bracing behavior, not a get-up.
-Trajectory refinement remains gated until discovery produces a real standing
-transition.
-
-## Native sensors and presentation
-
-![RGB, depth, normals, and authored identities from one numi-lab frame](docs/media/metalrobo-sensor-gallery.webp)
-
-The panels above share one camera, timestamp, physics state, and authored
-scene. RGB is tone-mapped only for presentation; policy RGB remains
-scene-linear. Depth is metric and identity outputs remain integer typed.
-
-Presentation comes from cooked USD, USDZ, GLB, or glTF assets. numi-lab does
-not synthesize a visible robot from collision geometry. The G1 and Franka
-images use their official upstream visual meshes.
-
-### Authored surgical workcell
-
-![Dual Franka arms in the numi-lab surgical workcell](docs/media/numi-lab-franka-surgery-room.gif)
-
-The scene combines two official-mesh Franka arms facing an operating table
-with a sterile drape, instrument tray, suturable tissue phantom, unsutured
-incision, curved needle, and coiled suture presentation. Both arms start from
-one accepted Numi Lab pose, with a rigid station transform applied to the
-second arm. The second robot and surgical props are authored presentation, not
-yet a compiled dual-robot physics task; this media does not claim coordinated
-motion, needle contact, tissue deformation, suturing, task completion,
-clinical validity, or hardware execution.
-
-## Architecture
-
-```text
-URDF / authored world
-        +
-TaskPack
-        +
-InteractionPack (optional generated joint/contact intent)
-        +
-PolicyPack
-        |
-        v
-compiled indices, capacities, tables and fingerprints
-        |
-        v
-persistent Metal world
-  physics + contact + tasks + inference + sensors
-        |
-        v
-compact rollout batches
-        |
-        v
-Swift scheduler -> MLX learner -> next PolicyPack
-```
-
-| Layer | Responsibility |
-| --- | --- |
-| C++23 | Robot/world compilation, packs, topology, capacities, public contracts |
-| Metal Shading Language | Dynamics, collision, contact solving, tasks, inference, rendering, tactile sensing |
-| Objective-C++ | Pipeline creation, heaps, buffers, command encoding, submission tickets |
-| Swift | Rollout length, chunking, reset requests, completion, policy revisions |
-| MLX | Actor/critic optimization and PolicyPack publication |
-
-## Build
+Numi Lab is an Apple-native physics and learning system for robotics. Bring a
+robot, a world, sensors, a task, and an optional policy. Numi compiles them into
+one persistent Metal program where physics, contact, sensing, policy inference,
+reward, termination, and reset stay on the GPU.
+
+Swift schedules bounded asynchronous rollouts. MLX learns from compact batches.
+Python is an optional data and learning boundary—it does not step the production
+simulator.
+
+The ambition is simple to say and difficult to build: make serious robotics
+feel approachable enough for a first experiment, yet rigorous and extensible
+enough for new physics, new robots, and frontier learning systems.
+
+## Start in five minutes
 
 Requirements: Apple Silicon, the current Xcode/Metal toolchain, CMake 3.28 or
 newer, Ninja, SQLite3, and LibXml2.
 
 ```sh
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
+git clone https://github.com/Numi2/numi-lab.git
+cd numi-lab
+
+./tools/numi doctor
+./tools/numi context
+./tools/numi window
 ```
 
-Run focused checks rather than every executable:
+That opens the native **Numi Window**. The controls follow the mental model a
+new roboticist actually needs:
+
+1. **Robot** — choose the machine.
+2. **Environment** — choose the physical world.
+3. **Task** — choose what the robot should learn.
+4. **Policy** — inspect a compatible, qualified controller.
+5. **Train** — configure and start a native Metal/MLX learning run.
+
+No controller is presented as intelligence by default. An untrained humanoid
+is labeled **Untrained · no controller**. Training artifacts are always kept,
+but a falling candidate does not enter the Policy menu unless its current
+held-out physical gate passes.
+
+Keyboard controls keep exploration fluid:
+
+| Key | Action |
+| --- | --- |
+| `Space` | Pause or resume presentation; simulation ownership stays explicit |
+| `T` | Open guided training configuration |
+| `R` | Reset the camera |
+| `?` | Reopen the learning guide |
+
+## From curiosity to a qualified policy
+
+The training sheet starts with human concepts, not a wall of RL flags:
+
+- **Pipeline check** confirms that simulation, MLX, checkpoints, and selection
+  are wired correctly. It is explicitly too short to claim useful behavior.
+- **Learn standing** begins at the easiest curriculum band and gives balance
+  time to emerge.
+- **Build robust movement** expands a working controller into harder physical
+  variation.
+- **Advanced settings** expose environments, rollout horizon, updates, GPU
+  submission cadence, seed, and checkpoint interval when the user is ready.
+
+Every run follows the same visible journey:
+
+```text
+configure → simulate on Metal → learn with MLX → checkpoint
+          → compare on held-out physics → keep only qualified behavior
+```
+
+Numi releases the preview world before training acquires Metal, retains the
+complete run directory, bounds held-out evaluation, and cancels the full child
+process tree when a run is stopped. A result is not promoted merely because its
+reward improved.
+
+## One laboratory, many robots
+
+Numi Lab is not a G1 demo or a fixed task catalog. G1 locomotion, Franka
+manipulation, measured-surface flight, surgical mechanisms, perception, contact,
+recovery, rods, and deformables are workloads over one compiled runtime.
+
+### Articulated locomotion
+
+<img src="docs/media/metalrobo-unitree-g1.webp" alt="Official Unitree G1 geometry rendered by Numi Lab" width="100%" />
+
+Official G1 mechanics and presentation assets run through floating-base ABA,
+joint drives, full-body collision, coupled frictional contact, task programs,
+native policy inference, and physical outcome measurement.
+
+### Vision that shares the physics clock
+
+<img src="docs/media/metalrobo-sensor-gallery.webp" alt="Synchronized RGB, depth, normal, and identity outputs from Numi Lab" width="100%" />
+
+RGB, metric depth, normals, identities, motion, and validity share the same
+camera, accepted physics state, timestamp, reset semantics, and fingerprint.
+Presentation images can leave the GPU; production observations do not need to.
+
+### Manipulation
+
+<img src="docs/media/metalrobo-franka-fr3v2.webp" alt="Official Franka geometry in a Numi Lab scene" width="100%" />
+
+Franka uses the same authored-world, articulated-contact, sensor, task, policy,
+and renderer boundaries as the humanoid workloads. Adding a robot does not add
+a robot-specific simulation mode.
+
+### Measured-surface robotics
+
+<img src="docs/media/numi-dove-recovery-viewer.png" alt="Nine measured-dove recovery environments in the native Numi viewer" width="100%" />
+
+The Deetjen OB-F03 robotic dove preserves a provenance-locked measured surface
+of 2,157 vertices and 3,968 triangles, then adds explicit simulator assumptions:
+a floating root, mirrored right wing, bounded component actuation, aerodynamic
+loading, transactional state, and accepted load telemetry.
+
+### Research surgical mechanisms
+
+<img src="docs/media/numi-lab-franka-surgery-room.png" alt="Authored dual-Franka research surgical workcell in Numi Lab" width="100%" />
+
+Numi includes Franka workcells and a JHU dVRK PSM research mechanism with an
+executable jaw transmission. Authored presentation is not silently promoted to
+physical task completion, deformable-tissue validity, or clinical evidence.
+
+## One Apple-native loop
+
+```text
+RobotPack + WorldPack + SensorPack + TaskPack + RealityPack
+                    +
+       InteractionPack or PolicyPack (optional)
+                    │
+                    ▼
+     stable indices, capacities, tables, fingerprints
+                    │
+                    ▼
+        persistent device-private Metal world
+  physics · contact · terrain · sensing · inference · task
+                    │
+                    ▼
+         accepted state + compact rollout batches
+                    │
+                    ▼
+       Swift scheduler → MLX learner → next PolicyPack
+```
+
+| Layer | Owns |
+| --- | --- |
+| **C++23** | Robot/world compilation, packs, topology, capacities, fingerprints |
+| **Metal** | Dynamics, collision, coupled contact, tasks, inference, rendering, sensing |
+| **Objective-C++** | Pipelines, heaps, buffers, command encoding, submission tickets |
+| **Swift** | Rollout cadence, asynchronous completion, timeout, reset, revision, native UX |
+| **MLX** | Batch actor/critic learning and PolicyPack publication |
+
+One environment control step is a transaction. Accepted state publishes.
+Failed state rolls back with typed evidence while healthy environments continue.
+Chunk size and scheduling must not change randomness or replay.
+
+## What runs today
+
+- Fixed- and floating-base articulated dynamics with authored inertias,
+  actuators, limits, collision geometry, and free rigid bodies.
+- Deterministic broadphase, analytic narrowphase, persistent manifolds, terrain,
+  CCD, and coupled circular/elliptical Coulomb friction.
+- Persistent batched Metal worlds with native reset, randomization, sensing,
+  observations, rewards, termination, policy inference, and rollout capture.
+- Rigid, articulated, rod, deformable, tactile, plantar, proprioceptive, and
+  visual program families with explicit coupling boundaries.
+- `WorldPack`, `TaskPack`, `SensorPack`, `RealityPack`, `InteractionPack`, and
+  fingerprinted `PolicyPack` artifacts.
+- Provider-neutral action chunks, native ARDY motion proposals, and a qualified
+  GR00T N1.7 execution path through Core ML on Apple Silicon.
+- Unitree G1, Franka, measured dove, PX4 X500, ROBOTIS K1, and research PSM
+  integrations at different, explicitly documented qualification levels.
+
+## Evidence, not vibes
+
+Numi reports implementation only at the boundary the live runtime proves.
+These are simulator measurements—not hardware claims:
+
+| Workload | Recorded result | What it establishes |
+| --- | ---: | --- |
+| Batched G1 learning | `12,288` environments, `19,070,976` transitions, `6,430` transitions/s, `0` failed steps | Persistent Apple-GPU learning scale at the recorded revision |
+| Streamed inverse ABA | `5,708` transitions/s vs `4,104` dense, identical `4,194,304` transitions, `0` failed steps | `1.39×` matched throughput improvement |
+| Native G1 standing capture | `1,000` control steps, `0.785 m` mean pelvis height, `0.009 rad` mean tilt, `0` physics failures | A recorded 20-second simulator rollout |
+| Disturbance training | peak tilt `0.771 → 0.087 rad`, `4,000 / 4,000` standing steps after training, `0` physics failures | Matched recorded simulator improvement |
+| Measured dove | deterministic replay, whole-step rollback, accepted force/torque telemetry | Executable measured-surface simulation boundary |
+
+Recorded media and PolicyPacks belong to their exact world, task, observation,
+action, and runtime fingerprints. A beautiful historical rollout is not assumed
+compatible with today’s checkout. Current contracts are re-evaluated instead of
+being bypassed.
+
+![Twenty-second native G1 standing rollout](docs/media/g1-standing-native-20s.gif)
+
+The get-up frontier is still unsolved. A recorded 300-update Stage-I run improved
+mean pelvis height from `0.0623 m` to `0.0848 m` and mean tilt from `1.533 rad`
+to `1.445 rad`, but produced zero standing steps. Numi calls that better rolling
+and bracing—not a get-up.
+
+## Build and verify
 
 ```sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+
 ./build/bin/metalrobo_task_program_check
 ./build/bin/metalrobo_tactile_check
 ./build/bin/metalrobo_visual_platform_probe
 ```
 
-Codex can operate the same native runtime through the deliberately small,
-self-describing Numi CLI:
+Operate the same native runtime through the small, self-describing Numi CLI:
 
 ```sh
 ./tools/numi doctor
 ./tools/numi context
-./tools/numi codex install
 ./tools/numi train --help
 ./tools/numi evaluate --help
+./tools/numi window --help
 ```
 
-Capabilities are executable overlays rather than a fixed robotics schema, so a
-user or Codex can add `.numi/commands/<name>` without changing the CLI. See
-[the Numi CLI contract](docs/NUMI_CLI.md).
+Capabilities are executable overlays, not a closed robotics schema. A workspace
+can add `.numi/commands/<name>` without turning the core CLI into a second
+planner. See the [Numi CLI contract](docs/NUMI_CLI.md).
 
-Native rollout example:
+## Extend the laboratory
 
-```sh
-./build/bin/metalrobo_task_rollout \
-  --metallib build/shaders/MetalRobo.metallib \
-  --envs 32 --steps 48 --chunk 8 \
-  --scene terrain --native-policy
+A new robot belongs at the mechanics and artifact boundary:
+
+```text
+mechanics + authored packs + policy contract
 ```
 
-MLX is pinned by the Python package to `mlx>=0.32,<0.33` on Apple Silicon.
+It should not require a robot branch in a shader, a host-side per-environment
+loop, or a parallel simulator. Start with:
 
-## Repository map
+- [Platform direction](docs/PLATFORM_DIRECTION.md)
+- [World authoring and packs](docs/WORLD_ENGINE.md)
+- [Metal execution and TemporalCone](docs/METAL_WORLD.md)
+- [Numerical and replay rules](docs/NUMERICS.md)
+- [Visual presentation and sensing](docs/VISUAL_PLATFORM.md)
+- [Tactile geometry](docs/TACTILE_GEOMETRY_BRIDGE.md)
+- [Measured-surface mechanics](docs/MEASURED_SURFACE_MECHANICS.md)
+- [Foundation policies](docs/FOUNDATION_POLICIES.md)
 
-| Path | Current owner |
+| Path | Owner |
 | --- | --- |
 | `include/metalrobo` | Public C++, C, and shared CPU/Metal contracts |
 | `src/core` | Models, pack compilers, world construction, CPU references |
-| `src/metal` | Native physics, solvers, tasks, inference, rendering, sensors |
+| `src/metal` | Physics, solvers, tasks, inference, rendering, sensors |
 | `src/apple` | Apple-native asset and environment cooking |
 | `bindings/swift` | Swift rollout and policy interfaces |
-| `python` | MLX learning, datasets, export, and independent oracle tools |
-| `apps` | Focused checks, examples, cookers, and benchmarks |
+| `apps` | Native applications, probes, cookers, and benchmarks |
+| `python` | MLX learning, datasets, exporters, and independent oracles |
 
-Only current subsystem contracts remain under `docs`:
+## North star
 
-- [World authoring and packs](docs/WORLD_ENGINE.md)
-- [Metal execution and TemporalCone](docs/METAL_WORLD.md)
-- [Numerical rules](docs/NUMERICS.md)
-- [Visual presentation](docs/VISUAL_PLATFORM.md)
-- [Foundation policies on Apple Silicon](docs/FOUNDATION_POLICIES.md)
-- [Tactile geometry](docs/TACTILE_GEOMETRY_BRIDGE.md)
-- [Measured-surface mechanics](docs/MEASURED_SURFACE_MECHANICS.md)
+- Make the first robotics experiment understandable without hiding the real
+  physics or learning system.
+- Solve balance, locomotion, recovery, manipulation, dexterity, and perception
+  through one compiled native path.
+- Scale exact contact, sensing, inference, and learning across the Apple GPU
+  memory and execution envelope.
+- Train synchronized vision-tactile policies from native RGB-D, contact,
+  pressure, deformation, and robot state.
+- Close the loop from authored worlds to deterministic qualification and,
+  eventually, carefully gated real hardware.
 
-## Roadmap
+## Provenance and honest boundaries
 
-- Solve G1 get-up, recovery, locomotion, and dexterity in one native stack.
-- Scale persistent Metal worlds, exact contact, inference, and sensors to the
-  full Apple GPU memory and execution envelope.
-- Train vision-tactile policies directly from synchronized native RGB-D,
-  force, deformation, and robot state.
-- Close the loop from authored worlds to sim2sim qualification and deployed
-  Apple-native robot control.
-
-## Provenance and boundaries
-
-- G1 mechanics and visual assets are pinned to official Unitree sources; the
-  retained standing actor is a fingerprinted third-party artifact.
-- Franka imagery uses official FR3v2 visual assets.
-- The retained G1 and Franka images and animations are native numi-lab
-  renderer outputs captured on Apple M4. They are not generated concept art.
-- The measured-dove image is a native `MeasuredDoveRobotLab` viewer capture on
-  Apple M4. Its blue left-wing outline follows the source component; the
-  orange right wing is the robot's explicitly mirrored counterpart.
-- The dVRK PSM showcase below is an authored offline presentation render
-  preserving Numi Lab's robot identity and scene
-  conventions; it is not evidence of native-renderer or hardware execution.
-- Internal agreement, stable simulation, and simulator policy performance are
-  not proof of real-world fidelity, safety, or transfer.
-- The PSM uses the pinned JHU Classic arm and Large Needle Driver kinematic,
-  limit, effort, and actuator-coupling records. Its jaw transmission is an
-  executable generalized gear constraint. Body masses/reset/drives come from
-  pinned ORBIT-Surgical records; collision shapes and inertias remain explicit
-  research approximations because the public sources do not provide identified
-  hardware tensors. It is robotics research infrastructure, not a clinical or
-  biomechanical simulator.
+- G1 mechanics and visual assets are pinned to official Unitree sources.
+- Franka presentation uses official FR3v2 visual assets.
+- G1, Franka, sensor, and measured-dove media are native Numi Lab outputs
+  captured on Apple Silicon unless a caption explicitly states otherwise.
+- The surgical workcell is authored presentation. It does not establish
+  coordinated manipulation, tissue deformation, suturing, clinical validity,
+  or hardware execution.
+- Stable simulation, internal parity, reward improvement, and rendered media do
+  not prove real-world fidelity, safety, transfer, or material calibration.
+- Real hardware execution requires the owner’s arming, limits, emergency stop,
+  and approval policy. Nothing in this README arms hardware.
 
 Third-party sources and required notices are recorded in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
+Numi Lab is pre-release robotics research infrastructure, not a finished robot
+product or a clinical system.
+
 Copyright © 2026 Numan Thabit. All rights reserved. Third-party components
 remain subject to their respective copyrights and licenses.
-
-## dVRK PSM in Numi Lab
-
-![dVRK PSM in a Numi Lab surgical scene](docs/media/numi-lab-dvrk-psm-high-quality.png)

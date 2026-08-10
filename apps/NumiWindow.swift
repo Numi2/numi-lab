@@ -316,6 +316,9 @@ private final class NumiWindowMetalView: MTKView {
     var onPan: ((CGFloat, CGFloat) -> Void)?
     var onDolly: ((CGFloat) -> Void)?
     var onReset: (() -> Void)?
+    var onPause: (() -> Void)?
+    var onTrain: (() -> Void)?
+    var onHelp: (() -> Void)?
     private var lastDragLocation: NSPoint?
 
     override var acceptsFirstResponder: Bool { true }
@@ -366,6 +369,16 @@ private final class NumiWindowMetalView: MTKView {
         }
         lastDragLocation = nil
     }
+
+    override func keyDown(with event: NSEvent) {
+        switch event.charactersIgnoringModifiers?.lowercased() {
+        case " ": onPause?()
+        case "t": onTrain?()
+        case "r": onReset?()
+        case "?": onHelp?()
+        default: super.keyDown(with: event)
+        }
+    }
 }
 
 enum NumiWindowError: Error {
@@ -412,8 +425,14 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private var presentationVisible = true
     private var reconfiguring = false
     private var reconfigurationReenableScheduled = false
-    private var lastFrameSummary = "waiting for a frame"
+    private var statusSummary: String? = "waiting for a frame"
+    private var latestEnvironmentIndex: UInt32 = 0
+    private var latestFrameIndex: UInt64 = 0
+    private var latestDroppedFrames: UInt32 = 0
+    private var hasPresentedFrame = false
     private var lastChromeUpdateSeconds: TimeInterval = 0
+    private var lastDrawableSource = SIMD2<Int32>(repeating: 0)
+    private var lastDrawableBounds = CGSize.zero
     private weak var pauseItem: NSToolbarItem?
     private weak var latestPolicyItem: NSToolbarItem?
     private weak var policySelector: NSPopUpButton?
@@ -427,6 +446,10 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private let trainingSpinner = NSProgressIndicator()
     private let trainingLabel = NSTextField(wrappingLabelWithString: "")
     private var trainingArtifactsURL: URL?
+    private let coachCard = NSVisualEffectView()
+    private let coachTitle = NSTextField(labelWithString: "Your first robot policy")
+    private let coachDetail = NSTextField(wrappingLabelWithString: "")
+    private var coachDismissed = false
     private let canReloadLatestPolicy: Bool
     private let policyChoices: [NumiWindowPolicyChoice]
     private let initialPolicyURL: URL?
@@ -483,6 +506,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         toolbar.autosavesConfiguration = false
         window.toolbar = toolbar
         configureTrainingBanner()
+        configureCoachCard()
         view.onOrbit = { [weak self] dx, dy in
             self?.orbitCamera(dx: dx, dy: dy)
         }
@@ -493,9 +517,14 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             self?.dollyCamera(delta: delta)
         }
         view.onReset = { [weak self] in self?.resetCamera() }
+        view.onPause = { [weak self] in self?.togglePause() }
+        view.onTrain = { [weak self] in self?.configureTraining() }
+        view.onHelp = { [weak self] in self?.showCoach() }
         selectDisplayedPolicy(initialPolicyURL)
         updateChrome(force: true)
+        updateCoachCard()
         window.makeKeyAndOrderFront(nil)
+        window.makeFirstResponder(view)
     }
 
     static func make(
@@ -570,7 +599,11 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             sourceWidth: delivery.frame.width,
             sourceHeight: delivery.frame.height
         )
-        lastFrameSummary = "env \(delivery.frame.environmentIndex) · frame \(delivery.frame.frameIndex) · dropped \(delivery.frame.droppedFrames)"
+        latestEnvironmentIndex = delivery.frame.environmentIndex
+        latestFrameIndex = delivery.frame.frameIndex
+        latestDroppedFrames = delivery.frame.droppedFrames
+        hasPresentedFrame = true
+        statusSummary = nil
         updateChrome()
         view.setNeedsDisplay(view.bounds)
     }
@@ -579,7 +612,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         guard !closed else {
             return
         }
-        lastFrameSummary = summary
+        statusSummary = summary
         updateChrome(force: true)
     }
 
@@ -588,8 +621,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             return
         }
         selectDisplayedPolicy(url)
-        lastFrameSummary =
+        statusSummary =
             "\(url.deletingPathExtension().lastPathComponent) · revision \(revision)"
+        updateCoachCard()
         updateChrome(force: true)
     }
 
@@ -598,7 +632,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             return
         }
         selectDisplayedPolicy(activePolicyURL)
-        lastFrameSummary = "policy rejected · unchanged"
+        statusSummary = "policy rejected · unchanged"
         updateChrome(force: true)
     }
 
@@ -606,7 +640,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         guard !closed else { return }
         finishReconfiguration()
         selectDisplayedScene(id)
-        lastFrameSummary = summary
+        statusSummary = summary
+        updateCoachCard()
         updateChrome(force: true)
     }
 
@@ -650,8 +685,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             }
             selectDisplayedPolicy(policyURL)
         }
-        lastFrameSummary = summary
+        statusSummary = summary
         setConfigurationControlsEnabled(!active && !reconfiguring)
+        updateCoachCard()
         updateChrome(force: true)
     }
 
@@ -696,6 +732,102 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             stack.bottomAnchor.constraint(equalTo: trainingBanner.bottomAnchor, constant: -10),
             trainingLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 360),
         ])
+    }
+
+    private func configureCoachCard() {
+        coachCard.material = .hudWindow
+        coachCard.blendingMode = .withinWindow
+        coachCard.state = .active
+        coachCard.wantsLayer = true
+        coachCard.layer?.cornerRadius = 14
+        coachCard.translatesAutoresizingMaskIntoConstraints = false
+        coachTitle.font = .systemFont(ofSize: 15, weight: .semibold)
+        coachDetail.font = .systemFont(ofSize: 12)
+        coachDetail.textColor = .secondaryLabelColor
+        coachDetail.maximumNumberOfLines = 3
+        coachDetail.stringValue =
+            "Choose a robot, environment, and task above. Then train on native Metal; only policies that stay upright enter the Policy menu."
+        let start = NSButton(
+            title: "Configure Training",
+            target: self,
+            action: #selector(configureTraining)
+        )
+        start.bezelStyle = .rounded
+        start.bezelColor = .systemGreen
+        start.image = NSImage(
+            systemSymbolName: "graduationcap.fill",
+            accessibilityDescription: "Configure Training"
+        )
+        start.imagePosition = .imageLeading
+        let dismiss = NSButton(
+            image: NSImage(
+                systemSymbolName: "xmark",
+                accessibilityDescription: "Dismiss learning guide"
+            ) ?? NSImage(),
+            target: self,
+            action: #selector(dismissCoach)
+        )
+        dismiss.bezelStyle = .inline
+        dismiss.isBordered = false
+        let header = NSStackView(views: [coachTitle, NSView(), dismiss])
+        header.orientation = .horizontal
+        header.alignment = .centerY
+        header.spacing = 8
+        let stack = NSStackView(views: [header, coachDetail, start])
+        stack.orientation = .vertical
+        stack.alignment = .leading
+        stack.spacing = 9
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        coachCard.addSubview(stack)
+        view.addSubview(coachCard)
+        NSLayoutConstraint.activate([
+            coachCard.leadingAnchor.constraint(
+                equalTo: view.leadingAnchor,
+                constant: 22
+            ),
+            coachCard.bottomAnchor.constraint(
+                equalTo: view.bottomAnchor,
+                constant: -22
+            ),
+            coachCard.widthAnchor.constraint(equalToConstant: 390),
+            stack.leadingAnchor.constraint(
+                equalTo: coachCard.leadingAnchor,
+                constant: 16
+            ),
+            stack.trailingAnchor.constraint(
+                equalTo: coachCard.trailingAnchor,
+                constant: -12
+            ),
+            stack.topAnchor.constraint(
+                equalTo: coachCard.topAnchor,
+                constant: 12
+            ),
+            stack.bottomAnchor.constraint(
+                equalTo: coachCard.bottomAnchor,
+                constant: -12
+            ),
+            header.widthAnchor.constraint(equalTo: stack.widthAnchor),
+            coachDetail.widthAnchor.constraint(equalToConstant: 350),
+        ])
+        coachCard.setAccessibilityLabel("Learn robotics guide")
+    }
+
+    private func updateCoachCard() {
+        let hasPolicy = policySelector?.itemArray.contains(where: {
+            $0.representedObject is URL
+        }) ?? false
+        coachCard.isHidden = coachDismissed || trainingActive || hasPolicy ||
+            activeChoice?.isTrainable != true
+    }
+
+    @objc private func dismissCoach() {
+        coachDismissed = true
+        updateCoachCard()
+    }
+
+    private func showCoach() {
+        coachDismissed = false
+        updateCoachCard()
     }
 
     @objc private func revealTrainingArtifacts() {
@@ -747,6 +879,12 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
               sourceWidth > 0, sourceHeight > 0 else {
             return
         }
+        let source = SIMD2(Int32(sourceWidth), Int32(sourceHeight))
+        guard source != lastDrawableSource || points != lastDrawableBounds else {
+            return
+        }
+        lastDrawableSource = source
+        lastDrawableBounds = points
         let usefulScale = min(
             1,
             min(
@@ -812,7 +950,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         }
         if itemIdentifier == Self.resetCameraToolbarItem {
             item.label = "Reset View"
-            item.toolTip = "Drag to orbit · Shift-drag or right-drag to pan · scroll to zoom · double-click to reset"
+            item.toolTip =
+                "R or double-click resets · drag orbits · Shift-drag pans · scroll zooms"
             item.image = NSImage(
                 systemSymbolName: "view.3d",
                 accessibilityDescription: item.label
@@ -986,7 +1125,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         ) { [weak self] request in
             guard let self else { return }
             self.trainingActive = true
-            self.lastFrameSummary =
+            self.statusSummary =
                 "preparing training · \(request.taskName)"
             self.setConfigurationControlsEnabled(false)
             self.updateChrome(force: true)
@@ -1022,8 +1161,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
                 preferred: nil
             )
         }
-        lastFrameSummary =
+        statusSummary =
             "loading \(choice.sceneName) · \(choice.taskName)"
+        updateCoachCard()
         updateChrome(force: true)
         onSceneSelected?(choice.id)
     }
@@ -1231,7 +1371,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         guard canReloadLatestPolicy else {
             return
         }
-        lastFrameSummary = "loading latest policy"
+        statusSummary = "loading latest policy"
         updateChrome(force: true)
         onLatestPolicyRequested?()
     }
@@ -1240,7 +1380,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         guard let url = sender.selectedItem?.representedObject as? URL else {
             return
         }
-        lastFrameSummary = "loading \(url.deletingPathExtension().lastPathComponent)"
+        statusSummary = "loading \(url.deletingPathExtension().lastPathComponent)"
         updateChrome(force: true)
         onPolicySelected?(url)
     }
@@ -1248,8 +1388,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private func configurePauseItem(_ item: NSToolbarItem) {
         item.label = paused ? "Resume" : "Pause"
         item.toolTip = paused
-            ? "Resume live preview"
-            : "Pause preview rendering; the run keeps going"
+            ? "Resume live preview (Space)"
+            : "Pause preview rendering; simulation keeps running (Space)"
         item.image = NSImage(
             systemSymbolName: paused ? "play.fill" : "pause.fill",
             accessibilityDescription: item.label
@@ -1275,7 +1415,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         item.toolTip = trainingActive
             ? "Training owns the Metal runtime; progress appears in the window title"
             : trainable
-                ? "Configure and start policy training for this task"
+                ? "Configure and start policy training for this task (T)"
                 : "This task does not publish a training contract yet"
         item.image = NSImage(
             systemSymbolName: trainingActive
@@ -1366,15 +1506,21 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         }
         lastChromeUpdateSeconds = now
         let state = paused ? "paused" : (presentationVisible ? "live" : "hidden")
-        window.title = "Numi Window — \(state) · \(lastFrameSummary)"
-        if let item = pauseItem {
-            configurePauseItem(item)
-        }
-        if let item = latestPolicyItem {
-            configureLatestPolicyItem(item)
-        }
-        if let item = trainItem {
-            configureTrainItem(item)
+        let frameSummary = hasPresentedFrame
+            ? "env \(latestEnvironmentIndex) · frame \(latestFrameIndex) · dropped \(latestDroppedFrames)"
+            : "waiting for a frame"
+        window.title =
+            "Numi Window — \(state) · \(statusSummary ?? frameSummary)"
+        if force {
+            if let item = pauseItem {
+                configurePauseItem(item)
+            }
+            if let item = latestPolicyItem {
+                configureLatestPolicyItem(item)
+            }
+            if let item = trainItem {
+                configureTrainItem(item)
+            }
         }
     }
 
