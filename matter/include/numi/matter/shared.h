@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 12u
+#define NM_MATTER_ABI_VERSION 13u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -146,6 +146,7 @@ enum NMMatterFlags : nm_u32 {
     NM_MATTER_MULTIPHYSICS = 1u << 5u,
     NM_MATTER_MUTATION = 1u << 6u,
     NM_MATTER_LEARNED_MATERIAL = 1u << 7u,
+    NM_MATTER_IPC = 1u << 8u,
 };
 
 enum NMObjectFlags : nm_u32 {
@@ -394,6 +395,8 @@ typedef struct NM_ALIGN16 NMDeformableContactGPU {
     nm_uint4 source;
     // Normal multiplier, two tangent coordinates, effective friction.
     nm_float4 impulseAndFriction;
+    // IPC normal impulse, velocity-space PSD curvature, thickness, barrier k.
+    nm_float4 barrier;
 } NMDeformableContactGPU;
 
 // Compact transaction-owned state for deformable-contact warm starts. The
@@ -821,6 +824,8 @@ typedef struct NM_ALIGN16 NMContactSampleGPU {
     nm_float4 impulseAndNormal;
     // xyz angular impulse on rigid, w tangential impulse.
     nm_float4 angularImpulseAndTangent;
+    // IPC normal impulse, velocity-space PSD curvature, thickness, barrier k.
+    nm_float4 barrier;
 } NMContactSampleGPU;
 
 typedef struct NM_ALIGN16 NMRigidReactionGPU {

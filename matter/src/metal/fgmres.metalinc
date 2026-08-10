@@ -843,9 +843,17 @@ kernel void nm_fgmres_apply_nodes(
             contact.pairs[pairIndex].objectIndex != objectIndex) continue;
         const NMContactSampleGPU sample =
             contact.samples[sampleBase + pairIndex];
-        if ((sample.identity.w & NM_CONTACT_VALID) != 0u)
-            work[global].xyz -= sample.normalAndVelocity.xyz *
-                direction[contactBase + pairIndex].x;
+        if ((sample.identity.w & NM_CONTACT_VALID) != 0u) {
+            if ((dispatch.flags & NM_MATTER_IPC) != 0u) {
+                const float normalDirection = dot(
+                    sample.normalAndVelocity.xyz, direction[global].xyz);
+                work[global].xyz += sample.barrier.y * normalDirection *
+                    sample.normalAndVelocity.xyz;
+            } else {
+                work[global].xyz -= sample.normalAndVelocity.xyz *
+                    direction[contactBase + pairIndex].x;
+            }
+        }
     }
     const uint deformableCapacity = dispatch.deformableContactCapacity;
     const uint deformableBase = environment * deformableCapacity;
@@ -862,14 +870,30 @@ kernel void nm_fgmres_apply_nodes(
             contact.deformableContacts[deformableBase + slot];
         if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
             deformable.nodes[local] != localNode) continue;
-        const uint row = contactBase + dispatch.contactPairCount + slot;
-        float3 tangent0, tangent1;
-        deformableContactFrame(
-            deformable.normalAndTOI.xyz, tangent0, tangent1);
-        const float3 contactDirection =
-            deformable.normalAndTOI.xyz * direction[row].x +
-            tangent0 * direction[row].y + tangent1 * direction[row].z;
-        work[global].xyz -= deformable.weights[local] * contactDirection;
+        if ((dispatch.flags & NM_MATTER_IPC) != 0u) {
+            float3 relativeDirection = float3(0.0f);
+            for (uint other = 0u; other < 4u; ++other) {
+                if (deformable.nodes[other] < dispatch.femNodeCount) {
+                    relativeDirection += deformable.weights[other] *
+                        direction[environment * dispatch.femNodeCount +
+                                  deformable.nodes[other]].xyz;
+                }
+            }
+            const float normalDirection = dot(
+                deformable.normalAndTOI.xyz, relativeDirection);
+            work[global].xyz += deformable.weights[local] *
+                deformable.barrier.y * normalDirection *
+                deformable.normalAndTOI.xyz;
+        } else {
+            const uint row = contactBase + dispatch.contactPairCount + slot;
+            float3 tangent0, tangent1;
+            deformableContactFrame(
+                deformable.normalAndTOI.xyz, tangent0, tangent1);
+            const float3 contactDirection =
+                deformable.normalAndTOI.xyz * direction[row].x +
+                tangent0 * direction[row].y + tangent1 * direction[row].z;
+            work[global].xyz -= deformable.weights[local] * contactDirection;
+        }
     }
     if (!valid) recordFailure(
         statuses[environment], NM_STATUS_LINEAR_SOLVER_FAILURE,
@@ -1003,6 +1027,10 @@ kernel void nm_fgmres_apply_contacts(
         fgmresContactBase(dispatch, environment) + pairIndex;
     work[contactIndex] = float4(0.0f);
     if (states[environment].diagnostics.z > 0.5f) return;
+    if ((dispatch.flags & NM_MATTER_IPC) != 0u) {
+        work[contactIndex] = direction[contactIndex];
+        return;
+    }
     const NMContactSampleGPU sample = contact.samples[sampleBase + pairIndex];
     if ((sample.identity.w & NM_CONTACT_VALID) == 0u) return;
     const NMIncidenceRangeGPU responseRange = contact.responseRanges[slot];
@@ -1091,6 +1119,10 @@ kernel void nm_fgmres_apply_deformable_contacts(
         dispatch.contactPairCount + slot;
     work[row] = float4(0.0f);
     if (states[environment].diagnostics.z > 0.5f) return;
+    if ((dispatch.flags & NM_MATTER_IPC) != 0u) {
+        work[row] = direction[row];
+        return;
+    }
     const NMDeformableContactGPU deformable =
         contact.deformableContacts[environment * capacity + slot];
     if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||

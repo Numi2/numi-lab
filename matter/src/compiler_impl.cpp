@@ -2044,6 +2044,7 @@ CompileResult compileWorld(
     dispatch.abiVersion = NM_MATTER_ABI_VERSION;
     dispatch.flags =
         (source.deterministic ? NM_MATTER_DETERMINISTIC : 0u) |
+        NM_MATTER_IPC |
         (!world.contact.pairs.empty() ? NM_MATTER_CONTACT : 0u) |
         (std::ranges::any_of(source.objects, [](const ObjectSource& object) {
             return object.adaptive;

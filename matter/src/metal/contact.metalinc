@@ -1,5 +1,36 @@
 namespace numi_matter_metal {
 
+// IPC barrier b(d) = -k(d-hat)^2 log(d/hat). The returned curvature is
+// projected onto the nonnegative cone (the rank-one GIPC normal block) and
+// expressed in velocity space for x_{n+1}=x_n+dt*v.
+inline float4 ipcBarrierResponse(
+    const float separation,
+    const float thickness,
+    const float inverseResponse,
+    const float timestep
+) {
+    if (!(thickness > 0.0f) || separation >= thickness ||
+        !(inverseResponse > 0.0f) || !(timestep > 0.0f)) {
+        return float4(0.0f, 0.0f, thickness, 0.0f);
+    }
+    const float distance = max(separation, 1.0e-4f * thickness);
+    const float offset = distance - thickness;
+    const float logarithm = log(distance / thickness);
+    const float stiffness = 10.0f /
+        max(inverseResponse * timestep * timestep, 1.0e-20f);
+    const float force = stiffness *
+        (2.0f * offset * logarithm + offset * offset / distance);
+    const float hessian = max(-stiffness *
+        (2.0f * logarithm + 4.0f * offset / distance -
+         offset * offset / (distance * distance)), 0.0f);
+    return float4(
+        max(force, 0.0f) * timestep,
+        hessian * timestep * timestep,
+        thickness,
+        stiffness
+    );
+}
+
 inline uint3 sortedSurfaceNodes(uint3 nodes) {
     if (nodes.x > nodes.y) {
         const uint value = nodes.x;
@@ -732,8 +763,13 @@ kernel void nm_contact_narrowphase_deformable(
         previous.tangentAndFriction.w > 0.5f &&
         all(previous.source.xy == contact.source.xy) &&
         previous.source.w == contact.source.w;
-    const float seededNormal = max(
-        -dot(bestNormal, relativeVelocity) / inverseResponse, 0.0f);
+    if (bestPositiveObject >= dispatch.objectCount ||
+        bestNegativeObject >= dispatch.objectCount) return;
+    const float contactTimestep = objectTimestep(
+        dispatch, schedulers[environment * dispatch.objectCount +
+                             bestPositiveObject]);
+    const float4 barrier = ipcBarrierResponse(
+        bestSeparation, thickness, inverseResponse, contactTimestep);
     const uint positiveMaterial = objects[bestPositiveObject].materialIndex;
     const uint negativeMaterial = objects[bestNegativeObject].materialIndex;
     if (positiveMaterial >= dispatch.materialCount ||
@@ -762,11 +798,23 @@ kernel void nm_contact_narrowphase_deformable(
         if (tangentLength > tangentLimit && tangentLength > 1.0e-20f)
             transportedTangent *= tangentLimit / tangentLength;
     }
+    float3 tangent0, tangent1;
+    deformableContactFrame(bestNormal, tangent0, tangent1);
+    const float2 tangentVelocity = float2(
+        dot(tangent0, relativeVelocity), dot(tangent1, relativeVelocity));
+    float2 laggedFriction = -tangentVelocity /
+        max(inverseResponse, 1.0e-20f);
+    const float frictionLimit = friction * barrier.x;
+    const float frictionLength = length(laggedFriction);
+    if (frictionLength > frictionLimit && frictionLength > 1.0e-20f)
+        laggedFriction *= frictionLimit / frictionLength;
+    if (sameSource && length(tangentVelocity) < 1.0e-6f)
+        laggedFriction = transportedTangent;
     contact.impulseAndFriction = float4(
-        sameSource ? max(previous.normalAndLambda.w, 0.0f)
-                   : seededNormal,
-        transportedTangent,
+        barrier.x,
+        laggedFriction,
         friction);
+    contact.barrier = barrier;
     contacts[global] = contact;
     (void)microstep;
 }
@@ -1341,21 +1389,9 @@ kernel void nm_contact_evaluate(
     if (!(normalResponse > 1.0e-12f)) {
         return;
     }
-    const float bias = min(
-        max((slop - separation) / max(dt, 1.0e-12f), 0.0f),
-        dispatch.numericalLimits.y
-    );
-    const float restitution = max(
-        materials[object.materialIndex].interfaceResponse.z,
-        materials[pair.materialInterface].interfaceResponse.z
-    );
-    const float bounce = normalVelocity < -0.2f
-        ? -restitution * normalVelocity
-        : 0.0f;
-    const float normalImpulse = max(
-        (bias + bounce - normalVelocity) / normalResponse,
-        0.0f
-    );
+    const float4 barrier = ipcBarrierResponse(
+        separation, slop, normalResponse, dt);
+    const float normalImpulse = barrier.x;
     const float staticFriction = sqrt(max(
         materials[object.materialIndex].interfaceResponse.x *
         materials[pair.materialInterface].interfaceResponse.x,
@@ -1391,7 +1427,7 @@ kernel void nm_contact_evaluate(
     const float4 warm = warmstarts[global];
     const bool validWarmstart = finite3(warm.xyz) && isfinite(warm.w) &&
         warm.w >= 0.0f;
-    const float warmNormal = validWarmstart ? warm.w : 0.0f;
+    const float warmNormal = normalImpulse;
     float3 warmTangent = validWarmstart
         ? warm.xyz + warmNormal * normal
         : tangentImpulseOnRigid;
@@ -1400,7 +1436,7 @@ kernel void nm_contact_evaluate(
     const float warmTangentLength = length(warmTangent);
     if (warmTangentLength > warmLimit && warmTangentLength > 1.0e-12f)
         warmTangent *= warmLimit / warmTangentLength;
-    const float seededNormal = validWarmstart ? warmNormal : normalImpulse;
+    const float seededNormal = normalImpulse;
     const float3 seededTangent = validWarmstart
         ? warmTangent : tangentImpulseOnRigid;
     const float3 impulseOnRigid =
@@ -1419,6 +1455,7 @@ kernel void nm_contact_evaluate(
         cross(lever, impulseOnRigid),
         length(seededTangent)
     );
+    sample.barrier = barrier;
     samples[global] = sample;
 }
 
@@ -1901,6 +1938,7 @@ kernel void nm_contact_solve_coupled(
     device const uint* activeCounts [[buffer(19)]],
     uint global [[thread_position_in_grid]]
 ) {
+    if ((dispatch.flags & NM_MATTER_IPC) != 0u) return;
     const uint total = dispatch.environmentCount * componentCount;
     if (global >= total || componentCount == 0u) {
         return;
@@ -2187,6 +2225,7 @@ kernel void nm_contact_build_kkt_residual(
         environment * (dispatch.contactPairCount +
                        dispatch.deformableContactCapacity) + pairIndex;
     residual[output] = float4(0.0f);
+    if ((dispatch.flags & NM_MATTER_IPC) != 0u) return;
     if (!environmentHealthy(statuses, environment)) return;
     const NMContactPairGPU pair = pairs[pairIndex];
     const uint sampleBase = environment * dispatch.contactPairCount;
@@ -2280,6 +2319,7 @@ kernel void nm_contact_build_deformable_kkt_residual(
         dispatch.femNodeCount + environment * rowCount +
         dispatch.contactPairCount + slot;
     residual[output] = float4(0.0f);
+    if ((dispatch.flags & NM_MATTER_IPC) != 0u) return;
     const NMDeformableContactGPU contact =
         contacts[environment * capacity + slot];
     if ((contact.identity.w & NM_CONTACT_VALID) == 0u ||
@@ -2376,6 +2416,10 @@ kernel void nm_contact_apply_kkt_solution(
 ) {
     const uint total = dispatch.environmentCount * dispatch.contactPairCount;
     if (global >= total || dispatch.contactPairCount == 0u) return;
+    if ((dispatch.flags & NM_MATTER_IPC) != 0u) {
+        candidateWarmstarts[global] = samples[global].impulseAndNormal;
+        return;
+    }
     const uint environment = global / dispatch.contactPairCount;
     const uint pairIndex = global - environment * dispatch.contactPairCount;
     device NMContactSampleGPU& sample = samples[global];
@@ -2504,6 +2548,19 @@ kernel void nm_contact_apply_deformable_kkt_solution(
     if (!deformableActiveWork(
             dispatch, globalActiveIndices, activeDispatch,
             global, environment, slot)) return;
+    if ((dispatch.flags & NM_MATTER_IPC) != 0u) {
+        const NMDeformableContactGPU contact =
+            contacts[environment * capacity + slot];
+        NMDeformableWarmstartGPU warmstart{};
+        warmstart.source = contact.source;
+        warmstart.normalAndLambda = float4(
+            contact.normalAndTOI.xyz, contact.barrier.x);
+        warmstart.tangentAndFriction = float4(
+            contact.impulseAndFriction.yz,
+            contact.impulseAndFriction.w, 1.0f);
+        warmstarts[environment * capacity + slot] = warmstart;
+        return;
+    }
     device NMDeformableContactGPU& contact =
         contacts[environment * capacity + slot];
     if ((contact.identity.w & NM_CONTACT_VALID) == 0u ||
@@ -2555,6 +2612,7 @@ kernel void nm_contact_certify_natural_map(
     device const uint* activeCounts [[buffer(17)]],
     uint global [[thread_position_in_grid]]
 ) {
+    if ((dispatch.flags & NM_MATTER_IPC) != 0u) return;
     const uint total = dispatch.environmentCount * dispatch.objectCount;
     if (dispatch.objectCount == 0u || global >= total) return;
     const uint environment = global / dispatch.objectCount;
