@@ -2958,6 +2958,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
             });
             dispatchThreads("nm_fem_pcg_initialize", femNodeTotal, [&] {
+                const std::uint32_t preserveSolution = 0u;
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -2978,6 +2979,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:17u];
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:18u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:19u];
+                [encoder setBytes:&preserveSolution
+                           length:sizeof(preserveSolution) atIndex:20u];
             });
 
             id<MTLBuffer> nonlinearWarmstarts = nonlinearIteration == 0u
@@ -3585,6 +3588,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
             });
             dispatchThreads("nm_fem_pcg_initialize", femNodeTotal, [&] {
+                const std::uint32_t preserveSolution = 1u;
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -3605,6 +3609,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:17u];
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:18u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:19u];
+                [encoder setBytes:&preserveSolution
+                           length:sizeof(preserveSolution) atIndex:20u];
             });
             if (!encodeCoupledKKTContact(
                     true, state.contactWarmstartsCandidate

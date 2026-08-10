@@ -714,6 +714,7 @@ kernel void nm_fem_pcg_initialize(
     constant NMMixedSolverGPU& solver [[buffer(17)]],
     device const NMMixedMaterialGPU* mixedMaterials [[buffer(18)]],
     device const NMFEMFieldStateGPU* fields [[buffer(19)]],
+    constant uint& preserveSolution [[buffer(20)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -724,7 +725,9 @@ kernel void nm_fem_pcg_initialize(
     const uint nodeIndex = global - environment * dispatch.femNodeCount;
     const NMFEMNodeStateGPU node = accepted[global];
     const NMFEMNodeStateGPU current = candidate[global];
-    solution[global] = float4(0.0f);
+    if (preserveSolution == 0u) {
+        solution[global] = float4(0.0f);
+    }
     residual[global] = float4(0.0f);
     preconditioned[global] = float4(0.0f);
     direction[global] = float4(0.0f);
@@ -1407,7 +1410,7 @@ kernel void nm_fem_apply_solution(
     device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
     device const NMAdaptiveStateGPU* adaptive [[buffer(5)]],
     device const NMFEMNodeStateGPU* accepted [[buffer(6)]],
-    device const float4* solution [[buffer(7)]],
+    device float4* solution [[buffer(7)]],
     device NMFEMNodeStateGPU* candidate [[buffer(8)]],
     device const float4* lineSearch [[buffer(9)]],
     device const NMMixedMaterialGPU* mixedMaterials [[buffer(10)]],
@@ -1448,6 +1451,9 @@ kernel void nm_fem_apply_solution(
                     mixedMaterials[object.materialIndex].mechanics.x *
                     solution[global].w;
             }
+            // Certification consumes the correction that actually reached
+            // the candidate, not the unscaled Newton proposal.
+            solution[global].xyz *= alpha;
         }
     }
     candidate[global] = next;

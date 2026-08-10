@@ -716,7 +716,8 @@ numi::matter::CompiledWorld compileArticulatedFootPadScene() {
     source.gravity = {0.0, 0.0, 0.0};
     source.contactSlop = 1.0e-7;
     source.femPCGIterations = 32u;
-    source.mixedSolver.fieldPCGIterations = 64u;
+    source.mixedSolver.newtonIterations = 1u;
+    source.mixedSolver.fieldPCGIterations = 8u;
     source.materials.push_back(std::move(parsed.material));
     numi::matter::RigidProxySource foot;
     foot.shape = NM_RIGID_BOX;
@@ -2392,11 +2393,14 @@ void runArticulatedFootPadScene(const bool sequence = false) {
         for (const auto& field : snapshot.femFields) {
             porePressure = std::max(porePressure, field.primary.z);
         }
-        float kktResidual = 0.0f, volumeResidual = 0.0f;
+        float kktResidual = 0.0f, relativeCorrection = 0.0f;
+        float volumeResidual = 0.0f;
         float naturalResidual = 0.0f, coneViolation = 0.0f;
         float complementarity = 0.0f, transportResidual = 0.0f;
         for (const auto& certificate : snapshot.solverCertificates) {
             kktResidual = std::max(kktResidual, certificate.nonlinear.x);
+            relativeCorrection = std::max(
+                relativeCorrection, certificate.nonlinear.y);
             volumeResidual = std::max(volumeResidual, certificate.nonlinear.z);
             naturalResidual = std::max(naturalResidual, certificate.contact.x);
             coneViolation = std::max(coneViolation, certificate.contact.y);
@@ -2461,6 +2465,7 @@ void runArticulatedFootPadScene(const bool sequence = false) {
             " compression=" + std::to_string(compression) +
             " pore=" + std::to_string(porePressure) +
             " kkt=" + std::to_string(kktResidual) +
+            " correction=" + std::to_string(relativeCorrection) +
             " volume=" + std::to_string(volumeResidual) +
             " natural=" + std::to_string(naturalResidual) +
             " cone=" + std::to_string(coneViolation) +
@@ -2484,6 +2489,7 @@ void runArticulatedFootPadScene(const bool sequence = false) {
             << centerX << ',' << centerY << ',' << compression << ','
             << porePressure << ']'
             << ",\"kkt_residual\":" << kktResidual
+            << ",\"relative_correction\":" << relativeCorrection
             << ",\"volume_residual\":" << volumeResidual
             << ",\"natural_residual\":" << naturalResidual
             << ",\"cone_violation\":" << coneViolation

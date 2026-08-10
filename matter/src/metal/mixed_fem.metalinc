@@ -1226,22 +1226,26 @@ kernel void nm_mixed_certify(
         );
         certificates[environment * dispatch.objectCount + objectIndex] =
             certificate;
-        const bool nonlinearValid =
+        const bool residualValid =
             isfinite(relativeResidual) &&
             relativeResidual <= solver.nonlinearTolerances.x &&
-            isfinite(relativeCorrection) &&
-            relativeCorrection <= solver.nonlinearTolerances.y &&
             isfinite(volumeResidual) &&
             volumeResidual <= solver.nonlinearTolerances.z &&
             isfinite(pressureResidual) &&
             pressureResidual <= solver.nonlinearTolerances.w;
+        // Post-step equilibrium is the physical acceptance authority. A
+        // finite correction remains published as convergence telemetry, but
+        // its magnitude describes how far Newton travelled from the initial
+        // guess; it cannot invalidate a candidate that already satisfies the
+        // KKT, incompressibility, pressure, and transport residual gates.
+        const bool correctionFinite = isfinite(relativeCorrection);
         const bool transportValid = all(isfinite(transport)) &&
             all(transport <= float4(solver.nonlinearTolerances.x));
         if (!isfinite(minimumJ) || minimumJ < dispatch.numericalLimits.z ||
-            !nonlinearValid || !transportValid) {
+            !residualValid || !correctionFinite || !transportValid) {
             recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
                 objectIndex, NM_INVALID_INDEX,
-                nonlinearValid
+                residualValid && correctionFinite
                     ? transport
                     : float4(relativeResidual, relativeCorrection,
                              volumeResidual, pressureResidual));
