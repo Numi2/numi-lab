@@ -54,6 +54,10 @@ struct MeasuredSurfaceRobotPack {
     std::uint32_t frameCount = 0u;
     std::uint32_t vertexCount = 0u;
     std::uint32_t triangleCount = 0u;
+    // Live prefix of the fixed-capacity action ABI. Complete measured birds
+    // use all 24 lanes; bilateral wing-only morphologies omit the four tail
+    // lanes without inventing an unmeasured tail surface.
+    std::uint32_t actionCount = kMeasuredSurfaceActionCount;
     float sampleRateHertz = 0.0f;
     bool sourcePeriodic = false;
     MeasuredSurfacePhaseBoundary phaseBoundary =
@@ -125,6 +129,13 @@ makeMeasuredSurfaceFlightActions();
 measuredSurfaceRecoveryTrimActions();
 
 [[nodiscard]] MeasuredSurfaceRobotPack loadDeetjenMeasuredDoveRobotPack(
+    const std::filesystem::path& manifestPath);
+
+// Loads Numifly's immutable bilateral artifact: Maeda's measured right wing,
+// a fingerprinted sagittal reflection for the left wing, and explicit robot
+// scale/mount adaptations. The manifest remains measured-wing-only evidence;
+// it is not a complete biological bird reconstruction.
+[[nodiscard]] MeasuredSurfaceRobotPack loadNumiflyMaedaWingPack(
     const std::filesystem::path& manifestPath);
 
 [[nodiscard]] CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(

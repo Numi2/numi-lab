@@ -12,6 +12,9 @@ private struct Options {
     var unitreeG1Task = MetalRoboUnitreeG1Task.velocity
     var measuredDoveTask: MetalRoboMeasuredSurfaceTask?
     var measuredDoveManifest: String?
+    var numifly = false
+    var numiflyWingManifest =
+        "assets/numifly/maeda-wing-pack-v1/manifest.json"
     var seed: UInt64 = 20_260_731
     var metallib = "build/shaders/MetalRobo.metallib"
     var nativeLibrary = "build/lib/libmetalrobo.dylib"
@@ -83,6 +86,7 @@ private struct Options {
     // of target exploration, rather than a new order-one target every 20 ms.
     var entropyCoefficient = 0.001
     var initialLogStandardDeviation = -1.6094379124341003
+    var initialLogStandardDeviationWasSpecified = false
     var maximumGradientNorm = 1.0
     var targetKL = 0.01
     var discount = 0.99
@@ -302,6 +306,9 @@ private struct Options {
             case "--dove-manifest":
                 measuredDoveManifest = try value()
                 index += 1
+            case "--numifly-wing-manifest":
+                numiflyWingManifest = try value()
+                index += 1
             case "--task-pack":
                 taskPack = try value()
                 index += 1
@@ -379,9 +386,11 @@ private struct Options {
                     measuredDoveTask = .cruise
                 case "dove-food-navigation":
                     measuredDoveTask = .foodNavigation
+                case "numifly-flight":
+                    numifly = true
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be a bundled G1 task, dove-trim, dove-drop-recovery, dove-cruise, or dove-food-navigation."
+                        "--task must be a bundled G1 task, numifly-flight, dove-trim, dove-drop-recovery, dove-cruise, or dove-food-navigation."
                     )
                 }
                 index += 1
@@ -443,6 +452,7 @@ private struct Options {
             case "--initial-log-standard-deviation":
                 initialLogStandardDeviation =
                     try Self.double(value(), option)
+                initialLogStandardDeviationWasSpecified = true
                 index += 1
             case "--maximum-gradient-norm":
                 maximumGradientNorm =
@@ -477,6 +487,13 @@ private struct Options {
             // 256 x 20 ms = 5.12 s: long enough for launch, interception,
             // avoidance, and settling instead of truncating the event.
             steps = 256
+        }
+        if numifly && !initialLogStandardDeviationWasSpecified {
+            // Numifly is 9% linear scale and its exact measured wingbeat is
+            // already near weight support. Begin with local residual
+            // exploration; the full-size G1 default can over-rotate the
+            // small articulation before PPO receives its first transition.
+            initialLogStandardDeviation = -4.0
         }
         if (minimumDifficultyBand == nil) !=
             (maximumDifficultyBand == nil) ||
@@ -657,6 +674,13 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "Dove tasks require --dove-manifest and cannot be combined with imported or interaction mechanics."
+            )
+        }
+        if numifly && (measuredDoveTask != nil || measuredDoveManifest != nil ||
+            worldPack != nil || urdf != nil || interactionPack != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Numifly flight cannot be combined with dove, imported, world-pack, or interaction mechanics."
             )
         }
         if (interactionPack == nil) != (interactionClip == nil) {
@@ -1290,6 +1314,23 @@ private func makeContext(
                 metallibPath: options.metallib
             ),
             "measured_dove"
+        )
+    }
+    if options.numifly {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .numifly(
+                        wingManifest: URL(
+                            fileURLWithPath: options.numiflyWingManifest
+                        )
+                    ),
+                    sensorsAndPhysics: configuration,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            "numifly"
         )
     }
     if let interactionPack = options.interactionPack,

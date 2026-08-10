@@ -132,6 +132,51 @@ MeasuredSurfaceRobotPack loadDeetjenMeasuredDoveRobotPack(
     return pack;
 }
 
+MeasuredSurfaceRobotPack loadNumiflyMaedaWingPack(
+    const std::filesystem::path& manifestPath
+) {
+    const std::filesystem::path directory = manifestPath.parent_path();
+    MeasuredSurfaceRobotPack pack;
+    pack.id = "numifly-maeda-bilateral-wing-v1";
+    pack.datasetIdentifier =
+        "maeda-2017-hovering-right-wing-surface-v1";
+    pack.manifestSHA256 =
+        "83768feeff4fc5c6a360ad5ec7564d300f023d476f4fee312a7de126e278c8f4";
+    pack.positionsSHA256 =
+        "b9bb126120972241047bc33f34c3ad91f6ada543f5440859968fc832c0997ed0";
+    pack.trianglesSHA256 =
+        "790a8749ab0eb93c744ad96b34e51c2d48f2cc2693d317d24d9e2eb942db187c";
+    const std::filesystem::path positionsPath = directory / "positions.f32le";
+    const std::filesystem::path trianglesPath = directory / "triangles.u16le";
+    if (sha256File(manifestPath) != pack.manifestSHA256 ||
+        sha256File(positionsPath) != pack.positionsSHA256 ||
+        sha256File(trianglesPath) != pack.trianglesSHA256) {
+        throw std::runtime_error(
+            "Numifly Maeda wing artifact failed SHA-256 qualification");
+    }
+    pack.frameCount = 17u;
+    pack.vertexCount = 1722u;
+    pack.triangleCount = 3200u;
+    pack.actionCount = 20u;
+    // Sixteen phase intervals at 28.8 measured cycles per second.
+    pack.sampleRateHertz = 460.8f;
+    pack.sourcePeriodic = true;
+    pack.phaseBoundary = MeasuredSurfacePhaseBoundary::wrap;
+    pack.actions = makeMeasuredSurfaceFlightActions();
+    pack.components = {
+        {MeasuredSurfaceComponent::leftWing, 0u, 861u, 0u, 1600u},
+        {MeasuredSurfaceComponent::rightWing, 861u, 861u, 1600u, 1600u},
+    };
+    pack.frameMajorPositions = readBinary<float>(positionsPath);
+    pack.triangleIndices = readBinary<std::uint16_t>(trianglesPath);
+    pack.frameTimesSeconds.resize(pack.frameCount);
+    for (std::uint32_t frame = 0u; frame < pack.frameCount; ++frame) {
+        pack.frameTimesSeconds[frame] =
+            static_cast<float>(frame) / pack.sampleRateHertz;
+    }
+    return pack;
+}
+
 std::array<MeasuredSurfaceAction, kMeasuredSurfaceActionCount>
 makeMeasuredSurfaceFlightActions() {
     const std::array<const char*, kMeasuredSurfaceActionCount> names {
@@ -184,6 +229,8 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
         throw std::invalid_argument("measured-surface provenance contract is incomplete");
     }
     if (pack.frameCount < 2u || pack.vertexCount == 0u || pack.triangleCount == 0u ||
+        pack.actionCount == 0u ||
+        pack.actionCount > kMeasuredSurfaceActionCount ||
         !std::isfinite(pack.sampleRateHertz) || pack.sampleRateHertz <= 0.0f ||
         pack.vertexCount >
             static_cast<std::uint32_t>(
@@ -253,8 +300,9 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
             throw std::invalid_argument("principal inertia must be finite and positive");
         }
     }
-    if (pack.components.size() != 4u) {
-        throw std::invalid_argument("body, bilateral wings, and tail are required");
+    if (pack.components.empty() || pack.components.size() > 4u) {
+        throw std::invalid_argument(
+            "measured-surface components exceed the canonical morphology contract");
     }
     CompiledMeasuredSurfaceRobot result;
     result.pack = pack;
@@ -262,19 +310,39 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
     result.triangleComponents.assign(pack.triangleCount, 0u);
     std::uint32_t nextVertex = 0u;
     std::uint32_t nextTriangle = 0u;
-    for (std::uint32_t i = 0u; i < 4u; ++i) {
+    std::array<bool, 5u> presentComponents{};
+    mr_uint4 componentAnchors{};
+    for (std::uint32_t i = 0u; i < pack.components.size(); ++i) {
         const auto& component = pack.components[i];
-        if (static_cast<std::uint32_t>(component.component) != i + 1u ||
+        const std::uint32_t identifier =
+            static_cast<std::uint32_t>(component.component);
+        if (identifier == 0u || identifier >= presentComponents.size() ||
+            presentComponents[identifier] ||
             component.vertexOffset != nextVertex || component.triangleOffset != nextTriangle ||
             component.vertexCount == 0u || component.triangleCount == 0u ||
             component.vertexCount > pack.vertexCount - nextVertex ||
             component.triangleCount > pack.triangleCount - nextTriangle) {
             throw std::invalid_argument("component ranges must be ordered, positive, and contiguous");
         }
+        presentComponents[identifier] = true;
         std::fill_n(result.vertexComponents.begin() + nextVertex,
-                    component.vertexCount, static_cast<std::uint8_t>(i + 1u));
+                    component.vertexCount, static_cast<std::uint8_t>(identifier));
         std::fill_n(result.triangleComponents.begin() + nextTriangle,
-                    component.triangleCount, static_cast<std::uint8_t>(i + 1u));
+                    component.triangleCount, static_cast<std::uint8_t>(identifier));
+        switch (component.component) {
+        case MeasuredSurfaceComponent::body:
+            componentAnchors.x = component.vertexOffset;
+            break;
+        case MeasuredSurfaceComponent::leftWing:
+            componentAnchors.y = component.vertexOffset;
+            break;
+        case MeasuredSurfaceComponent::rightWing:
+            componentAnchors.z = component.vertexOffset;
+            break;
+        case MeasuredSurfaceComponent::tail:
+            componentAnchors.w = component.vertexOffset;
+            break;
+        }
         nextVertex += component.vertexCount;
         nextTriangle += component.triangleCount;
         result.gpuComponents.push_back({
@@ -288,6 +356,13 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
     }
     if (nextVertex != pack.vertexCount || nextTriangle != pack.triangleCount) {
         throw std::invalid_argument("component ranges must cover the complete measured surface");
+    }
+    if (!presentComponents[static_cast<std::uint32_t>(
+            MeasuredSurfaceComponent::leftWing)] ||
+        !presentComponents[static_cast<std::uint32_t>(
+            MeasuredSurfaceComponent::rightWing)]) {
+        throw std::invalid_argument(
+            "measured-surface morphology requires bilateral wings");
     }
     for (const MeasuredSurfaceComponentRange& component : pack.components) {
         const std::uint32_t vertexEnd =
@@ -319,6 +394,12 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
     hashValue(hash, pack.frameCount);
     hashValue(hash, pack.vertexCount);
     hashValue(hash, pack.triangleCount);
+    // Preserve qualified complete-bird identities; the legacy 24-lane
+    // contract was implicit in every prior fingerprint. Shorter live prefixes
+    // are new morphology and must bind their explicit action count.
+    if (pack.actionCount != kMeasuredSurfaceActionCount) {
+        hashValue(hash, pack.actionCount);
+    }
     hashValue(hash, pack.sampleRateHertz);
     hashValue(hash, pack.sourcePeriodic);
     hashValue(hash, pack.phaseBoundary);
@@ -336,7 +417,7 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
     hashBytes(hash, pack.frameTimesSeconds.data(),
               pack.frameTimesSeconds.size() * sizeof(float));
     for (const auto& component : pack.components) hashValue(hash, component);
-    for (std::size_t i = 0u; i < pack.actions.size(); ++i) {
+    for (std::size_t i = 0u; i < pack.actionCount; ++i) {
         const auto& action = pack.actions[i];
         if (action.name.empty() || !std::isfinite(action.lowerBound) ||
             !std::isfinite(action.upperBound) || action.lowerBound >= action.upperBound ||
@@ -397,13 +478,10 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
         pack.vertexCount,
         pack.triangleCount,
         static_cast<std::uint32_t>(pack.components.size()),
-        kMeasuredSurfaceActionCount,
+        pack.actionCount,
         static_cast<std::uint32_t>(pack.phaseBoundary),
         pack.sourcePeriodic ? 1u : 0u,
-        {pack.components[0u].vertexOffset,
-         pack.components[1u].vertexOffset,
-         pack.components[2u].vertexOffset,
-         pack.components[3u].vertexOffset},
+        componentAnchors,
         {pack.sampleRateHertz,
          pack.airDensityKilogramsPerCubicMeter,
          pack.normalDragCoefficient,
@@ -431,7 +509,7 @@ void stepMeasuredSurfaceActuators(
         throw std::invalid_argument("actuator time step is outside (0, 0.02] seconds");
     }
     auto candidate = state;
-    for (std::uint32_t i = 0u; i < kMeasuredSurfaceActionCount; ++i) {
+    for (std::uint32_t i = 0u; i < robot.pack.actionCount; ++i) {
         const auto& action = robot.pack.actions[i];
         if (!std::isfinite(targets[i]) || !std::isfinite(state.position[i]) ||
             !std::isfinite(state.velocity[i])) {

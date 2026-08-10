@@ -185,6 +185,79 @@ std::filesystem::path resolvedURDF(
     return target;
 }
 
+void scaleURDFOriginsAndMeshes(xmlNodePtr node, const double scale) {
+    for (xmlNodePtr current = node; current != nullptr;
+         current = current->next) {
+        if (current->type == XML_ELEMENT_NODE &&
+            xmlStrcmp(current->name, BAD_CAST "origin") == 0) {
+            const auto xyz = vector3(xmlProperty(current, "xyz"));
+            std::ostringstream encoded;
+            encoded << xyz[0] * scale << ' ' << xyz[1] * scale << ' '
+                    << xyz[2] * scale;
+            const std::string value = encoded.str();
+            xmlSetProp(current, BAD_CAST "xyz", BAD_CAST value.c_str());
+        } else if (current->type == XML_ELEMENT_NODE &&
+                   xmlStrcmp(current->name, BAD_CAST "mesh") == 0) {
+            std::ostringstream encoded;
+            encoded << scale << ' ' << scale << ' ' << scale;
+            const std::string value = encoded.str();
+            xmlSetProp(current, BAD_CAST "scale", BAD_CAST value.c_str());
+        }
+        scaleURDFOriginsAndMeshes(current->children, scale);
+    }
+}
+
+std::filesystem::path numiflyVisualURDF(
+    const std::filesystem::path& resolvedG1,
+    const std::filesystem::path& wingSurface,
+    const std::filesystem::path& target
+) {
+    xmlDocPtr document = xmlReadFile(
+        resolvedG1.c_str(), nullptr, XML_PARSE_NONET);
+    if (document == nullptr) {
+        throw std::runtime_error("could not read resolved G1 visual URDF");
+    }
+    xmlNodePtr root = xmlDocGetRootElement(document);
+    scaleURDFOriginsAndMeshes(root, metalrobo::kNumiflyLinearScale);
+    xmlNodePtr torso = nullptr;
+    for (xmlNodePtr node = root->children; node != nullptr;
+         node = node->next) {
+        if (node->type == XML_ELEMENT_NODE &&
+            xmlStrcmp(node->name, BAD_CAST "link") == 0 &&
+            xmlProperty(node, "name").value_or("") == "torso_link") {
+            torso = node;
+            break;
+        }
+    }
+    if (torso == nullptr) {
+        xmlFreeDoc(document);
+        throw std::runtime_error("G1 visual URDF has no torso_link");
+    }
+    xmlNodePtr visual = xmlNewChild(torso, nullptr, BAD_CAST "visual", nullptr);
+    xmlSetProp(visual, BAD_CAST "name", BAD_CAST "numifly_maeda_wings");
+    xmlNodePtr geometry = xmlNewChild(
+        visual, nullptr, BAD_CAST "geometry", nullptr);
+    xmlNodePtr mesh = xmlNewChild(
+        geometry, nullptr, BAD_CAST "mesh", nullptr);
+    const std::string wingPath =
+        std::filesystem::weakly_canonical(wingSurface).string();
+    xmlSetProp(mesh, BAD_CAST "filename", BAD_CAST wingPath.c_str());
+    xmlSetProp(mesh, BAD_CAST "scale", BAD_CAST "1 1 1");
+    xmlNodePtr material = xmlNewChild(
+        visual, nullptr, BAD_CAST "material", nullptr);
+    xmlSetProp(material, BAD_CAST "name", BAD_CAST "numifly_wing");
+    xmlNodePtr color = xmlNewChild(
+        material, nullptr, BAD_CAST "color", nullptr);
+    xmlSetProp(color, BAD_CAST "rgba", BAD_CAST "0.18 0.42 0.85 0.82");
+    const int saved = xmlSaveFormatFileEnc(
+        target.c_str(), document, "UTF-8", 1);
+    xmlFreeDoc(document);
+    if (saved < 0) {
+        throw std::runtime_error("could not write Numifly visual URDF");
+    }
+    return target;
+}
+
 void bindFixedVisualLinks(
     const std::filesystem::path& urdf,
     const EngineModel& model,
@@ -476,8 +549,15 @@ void writeSurfacePresentation(
         "    {\"path\": \"visual/" + packPath.filename().string() +
         "\", \"asset_id\": \"" + assetID +
         "\", \"semantic_id\": 2, \"instance_id\": 2},\n");
-    std::ofstream target{
-        output / ("unitree-g1-" + surface + "-visual-observation.json")};
+    constexpr std::string_view suffix = "-visual-observation.json";
+    if (!robotConfig.ends_with(suffix)) {
+        throw std::runtime_error(
+            "robot visual config does not use the catalog naming contract");
+    }
+    const std::string robotPrefix = robotConfig.substr(
+        0u, robotConfig.size() - suffix.size());
+    std::ofstream target{output /
+        (robotPrefix + "-" + surface + "-visual-observation.json")};
     target << contents;
     if (!target) {
         throw std::runtime_error("surface visual config write failed");
@@ -743,6 +823,43 @@ int main(const int argc, const char* const* argv) {
             }
         }
 
+        const auto numiflyWingDirectory = options.workspace /
+            "assets/numifly/maeda-wing-pack-v1";
+        const auto numiflyPack = metalrobo::makeNumiflyRobotPack(
+            metalrobo::loadNumiflyMaedaWingPack(
+                numiflyWingDirectory / "manifest.json"));
+        const auto numiflyURDF = numiflyVisualURDF(
+            g1URDF,
+            numiflyWingDirectory / "numifly-maeda-wings-phase0.stl",
+            options.output / "numifly-visual.urdf");
+        cookPresentation(
+            numiflyURDF, numiflyPack.mechanics, "numifly", "pelvis",
+            options.output,
+            {1.05f * metalrobo::kNumiflyLinearScale,
+             -1.30f * metalrobo::kNumiflyLinearScale,
+             0.32f * metalrobo::kNumiflyLinearScale},
+            cameraQ);
+        writeSurfacePresentation(
+            options.output,
+            "numifly-visual-observation.json",
+            "ground",
+            "locomotion_ground",
+            surfacePresentation(false));
+        scene(
+            options.output,
+            "numifly-ground-flight",
+            "numifly", "Numifly",
+            "ground", "Flight Test Ground",
+            "numifly-flight", "Learn Bilateral Wing Flight",
+            "numifly-ground-visual-observation.json",
+            {"--robot-source", "numifly", "--scene", "ground",
+             "--task", "numifly-flight", "--numifly-wing-manifest",
+             "assets/numifly/maeda-wing-pack-v1/manifest.json",
+             "--zero-actions"},
+            {"--scene", "ground", "--task", "numifly-flight",
+             "--numifly-wing-manifest",
+             "assets/numifly/maeda-wing-pack-v1/manifest.json"});
+
         const EngineModel franka = metalrobo::makeFrankaPickPlaceEngineModel();
         const auto frankaMeshes = options.workspace /
             "build/franka_description/meshes/robots/fer/collision";
@@ -794,7 +911,7 @@ int main(const int argc, const char* const* argv) {
 
         {
             std::ofstream version{options.output / "catalog.version"};
-            version << "4\n";
+            version << "5\n";
             if (!version) {
                 throw std::runtime_error("could not publish catalog version");
             }

@@ -464,6 +464,12 @@ multi-camera RGB, validity-masked metric depth, state, and actions.
 
 ## Public surfaces
 
+Numi Window's generated built-in catalog also contains the separate
+`numifly-ground-flight` scene. Its 9%-scale G1 body and phase-zero bilateral
+Maeda mesh are authored presentation assets bound to the torso. The wing mesh
+is currently static presentation; the live deforming aerodynamic sheet remains
+Metal mechanics. See `docs/NUMIFLY.md`.
+
 - C++ contracts: `include/metalrobo/VisualPlatform.hpp`
 - Shared Metal ABI: `include/metalrobo/visual_platform_types.h`
 - Metal runtime: `include/metalrobo/MetalHybridRenderer.hpp`

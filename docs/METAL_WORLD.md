@@ -712,6 +712,18 @@ high-throughput complementary workload.
 
 ## Decisive probes
 
+Numifly's torso-mounted measured-wing path is covered by:
+
+```sh
+./build/bin/metalrobo_measured_surface_robot_probe \
+  --numifly assets/numifly/maeda-wing-pack-v1/manifest.json 256 18
+```
+
+The probe integrates signed force/torque evidence on Metal, compares lift with
+the production scaled robot's weight, and requires bit-identical replay and
+zero failed steps. `docs/NUMIFLY.md` records the force-instrument boundary and
+the distinct production gravity/contact rollout.
+
 ```sh
 ./build/bin/metalrobo_task_program_check
 ./build/bin/metalrobo_task_rollout \

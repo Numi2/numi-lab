@@ -3091,6 +3091,65 @@ static MRTaskRolloutHandle* createMeasuredDoveRun(
     return status == 0 ? result : nullptr;
 }
 
+static MRTaskRolloutHandle* createNumiflyRun(
+    const MRTaskRolloutConfigC* config,
+    const char* measured_surface_manifest_path,
+    const uint32_t surface_value,
+    const MRTaskVisualObservationConfigC* visual_sensor,
+    const char* metallib_path
+) {
+    if (config == nullptr || measured_surface_manifest_path == nullptr ||
+        measured_surface_manifest_path[0] == '\0') {
+        gLastError = "Numifly wing manifest and rollout config are required.";
+        return nullptr;
+    }
+    MRTaskRolloutHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        validateTaskRolloutConfiguration(*config);
+        const metalrobo::LocomotionSurface surface =
+            locomotionSurface(surface_value);
+        metalrobo::MeasuredSurfaceRobotPack wings =
+            metalrobo::loadNumiflyMaedaWingPack(
+                measured_surface_manifest_path);
+        metalrobo::RunManifest manifest;
+        manifest.id = "numifly_flight_run";
+        manifest.robot = metalrobo::makeNumiflyRobotPack(std::move(wings));
+        manifest.scene.id = surface == metalrobo::LocomotionSurface::ground
+            ? "numifly_ground_scene" : "numifly_terrain_scene";
+        manifest.sensors.id = "numifly_flight_state";
+        manifest.reality.id = "numifly_nominal_reality";
+        manifest.teacher.id = "no_teacher";
+        manifest.task = metalrobo::makeNumiflyFlightTaskPack(
+            manifest.robot, surface, manifest.sensors.observation,
+            manifest.reality.reset);
+        applyRunProfile(manifest, *config);
+        manifest.profile.capacities = manifest.task.capacities;
+        if (config->disable_task_terminations != 0u) {
+            manifest.task.terminations.clear();
+        }
+        const metalrobo::LocomotionSceneComponent surfaceComponent =
+            metalrobo::makeLocomotionSurfaceComponent(
+                manifest.robot.mechanics, surface);
+        manifest.scene.objects.push_back({
+            .id = surface == metalrobo::LocomotionSurface::ground
+                ? "numifly_ground" : "numifly_terrain",
+            .semanticClass = "support_surface",
+            .role = MR_WORLD_ASSET_FIXTURE,
+            .render = MR_WORLD_RENDER_NONE,
+            .collision = surface == metalrobo::LocomotionSurface::ground
+                ? MR_WORLD_COLLISION_PRIMITIVES
+                : MR_WORLD_COLLISION_TRIANGLE_MESH,
+            .dynamics = MR_WORLD_DYNAMICS_STATIC,
+            .mechanics = surfaceComponent.mechanics,
+            .defaultBodyStates = surfaceComponent.defaultBodyStates,
+        });
+        auto handle = createCompiledRunTaskRollout(
+            std::move(manifest), metallib_path, "Numifly", visual_sensor);
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
 static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
     const MRTaskRolloutConfigC* config,
     const uint32_t surface_value,
@@ -3574,6 +3633,15 @@ MRTaskRolloutHandle* mr_create_task_rollout(
             &manifest->profile,
             manifest->measured_surface_manifest_path,
             manifest->task,
+            manifest->metallib_path
+        );
+        break;
+    case MR_RUN_SOURCE_NUMIFLY:
+        result = createNumiflyRun(
+            &manifest->profile,
+            manifest->measured_surface_manifest_path,
+            manifest->surface,
+            manifest->visual_sensor_program,
             manifest->metallib_path
         );
         break;

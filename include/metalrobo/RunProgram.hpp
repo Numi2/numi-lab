@@ -17,6 +17,8 @@
 
 namespace metalrobo {
 
+constexpr float kNumiflyLinearScale = 0.09f;
+
 enum class RobotSemanticKind : std::uint32_t {
     body = 0u,
     joint = 1u,
@@ -303,6 +305,15 @@ private:
 [[nodiscard]] RobotPack makeMeasuredSurfaceRobotPack(
     MeasuredSurfaceRobotPack surface,
     std::string robotId = "measured_surface_robot"
+);
+[[nodiscard]] RobotPack makeNumiflyRobotPack(
+    MeasuredSurfaceRobotPack bilateralWings
+);
+[[nodiscard]] TaskPack makeNumiflyFlightTaskPack(
+    const RobotPack& robot,
+    LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
 );
 [[nodiscard]] TaskPack makeMeasuredSurfaceFlightTaskPack(
     const RobotPack& robot,

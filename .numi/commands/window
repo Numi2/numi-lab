@@ -107,8 +107,9 @@ window_catalog_default=0
 
 window_builtin_catalog="$window_workspace/.numi/runs/numi-window-builtins"
 window_builtin_catalog_version=$(cat "$window_builtin_catalog/catalog.version" 2>/dev/null || true)
-if [ "$window_builtin_catalog_version" != "4" ] ||
+if [ "$window_builtin_catalog_version" != "5" ] ||
    [ ! -f "$window_builtin_catalog/unitree-g1-ground-velocity.numi-window.json" ] ||
+   [ ! -f "$window_builtin_catalog/numifly-ground-flight.numi-window.json" ] ||
    [ ! -f "$window_builtin_catalog/franka-pick-place.numi-window.json" ] ||
    [ ! -f "$window_builtin_catalog/px4-x500-hover.numi-window.json" ]; then
     cmake -S "$window_workspace" -B "$window_build" \

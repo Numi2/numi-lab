@@ -149,7 +149,7 @@ private func fingerprint(
 
 private struct Options {
     enum BundledRobotSource {
-        case unitreeG1, frankaPickPlace, px4X500
+        case unitreeG1, numifly, frankaPickPlace, px4X500
     }
 
     var environments = 32
@@ -164,6 +164,9 @@ private struct Options {
     var bundledRobotSource = BundledRobotSource.unitreeG1
     var measuredDoveTask: MetalRoboMeasuredSurfaceTask?
     var measuredDoveManifest: String?
+    var numiflyFlight = false
+    var numiflyWingManifest =
+        "assets/numifly/maeda-wing-pack-v1/manifest.json"
     var seed: UInt64 = 20_260_731
     var metallib = "build/shaders/MetalRobo.metallib"
     var verbose = false
@@ -296,20 +299,24 @@ private struct Options {
                     measuredDoveTask = .cruise
                 case "dove-food-navigation":
                     measuredDoveTask = .foodNavigation
+                case "numifly-flight":
+                    numiflyFlight = true
+                    bundledRobotSource = .numifly
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be a bundled G1 task, dove-trim, dove-drop-recovery, dove-cruise, or dove-food-navigation."
+                        "--task must be a bundled G1 task, numifly-flight, dove-trim, dove-drop-recovery, dove-cruise, or dove-food-navigation."
                     )
                 }
                 index += 1
             case "--robot-source":
                 switch try value() {
                 case "unitree-g1": bundledRobotSource = .unitreeG1
+                case "numifly": bundledRobotSource = .numifly
                 case "franka-panda": bundledRobotSource = .frankaPickPlace
                 case "px4-x500": bundledRobotSource = .px4X500
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--robot-source must be unitree-g1, franka-panda, or px4-x500."
+                        "--robot-source must be unitree-g1, numifly, franka-panda, or px4-x500."
                     )
                 }
                 index += 1
@@ -421,6 +428,9 @@ private struct Options {
                 index += 1
             case "--dove-manifest":
                 measuredDoveManifest = try value()
+                index += 1
+            case "--numifly-wing-manifest":
+                numiflyWingManifest = try value()
                 index += 1
             case "--task-pack":
                 taskPack = try value()
@@ -594,6 +604,15 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "Dove tasks require --dove-manifest and cannot be combined with imported or interaction mechanics."
+            )
+        }
+        if (bundledRobotSource == .numifly) != numiflyFlight ||
+            (bundledRobotSource == .numifly &&
+             (measuredDoveTask != nil || measuredDoveManifest != nil ||
+              worldPack != nil || urdf != nil || interactionPack != nil))
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Numifly requires --task numifly-flight and cannot be combined with dove, imported, world-pack, or interaction mechanics."
             )
         }
         if (interactionPack == nil) != (interactionClip == nil) {
@@ -961,6 +980,24 @@ private func makeContext(
                 metallibPath: options.metallib
             ),
             "measured_dove"
+        )
+    }
+    if options.bundledRobotSource == .numifly {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .numifly(
+                        wingManifest: URL(
+                            fileURLWithPath: options.numiflyWingManifest
+                        )
+                    ),
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            "numifly"
         )
     }
     if options.urdf == nil && options.worldPack == nil &&

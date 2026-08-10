@@ -22,6 +22,8 @@
 
 namespace {
 
+constexpr float kNumiflyAuthorityInertialScale = 1.0e4f;
+
 void require(bool condition, const std::string& message) {
     if (!condition) throw std::runtime_error(message);
 }
@@ -100,6 +102,89 @@ metalrobo::CompiledRun compileFlightRun(
         diagnostics.element + ": " + diagnostics.message);
     require(compiled.valid() && compiled.measuredSurfaceBinding() != nullptr,
         "CompiledRun lost the measured-surface mechanics binding");
+    return compiled;
+}
+
+metalrobo::CompiledRun compileNumiflyFlightRun(
+    metalrobo::MeasuredSurfaceRobotPack wings,
+    std::uint32_t environments,
+    std::uint32_t steps
+) {
+    using namespace metalrobo;
+    RunManifest manifest;
+    manifest.id = "numifly_measured_wing_probe";
+    manifest.robot = makeNumiflyRobotPack(std::move(wings));
+    // Keep the articulated mount effectively stationary while integrating a
+    // full measured wingbeat. This is a force-balance instrument only: the
+    // production robot mass is recovered before comparing lift with weight.
+    manifest.robot.mechanics.world.gravityAndTimestep.z = 0.0f;
+    for (MRBodyPropertiesGPU& body : manifest.robot.mechanics.bodies) {
+        if (body.massAndInverseMass.y <= 0.0f) continue;
+        body.massAndInverseMass.x *= kNumiflyAuthorityInertialScale;
+        body.massAndInverseMass.y /= kNumiflyAuthorityInertialScale;
+        body.inertiaRow0.x *= kNumiflyAuthorityInertialScale;
+        body.inertiaRow0.y *= kNumiflyAuthorityInertialScale;
+        body.inertiaRow0.z *= kNumiflyAuthorityInertialScale;
+        body.inertiaRow1.x *= kNumiflyAuthorityInertialScale;
+        body.inertiaRow1.y *= kNumiflyAuthorityInertialScale;
+        body.inertiaRow1.z *= kNumiflyAuthorityInertialScale;
+        body.inertiaRow2.x *= kNumiflyAuthorityInertialScale;
+        body.inertiaRow2.y *= kNumiflyAuthorityInertialScale;
+        body.inertiaRow2.z *= kNumiflyAuthorityInertialScale;
+        body.inverseInertiaRow0.x /= kNumiflyAuthorityInertialScale;
+        body.inverseInertiaRow0.y /= kNumiflyAuthorityInertialScale;
+        body.inverseInertiaRow0.z /= kNumiflyAuthorityInertialScale;
+        body.inverseInertiaRow1.x /= kNumiflyAuthorityInertialScale;
+        body.inverseInertiaRow1.y /= kNumiflyAuthorityInertialScale;
+        body.inverseInertiaRow1.z /= kNumiflyAuthorityInertialScale;
+        body.inverseInertiaRow2.x /= kNumiflyAuthorityInertialScale;
+        body.inverseInertiaRow2.y /= kNumiflyAuthorityInertialScale;
+        body.inverseInertiaRow2.z /= kNumiflyAuthorityInertialScale;
+    }
+    manifest.scene.id = "unbounded_air";
+    manifest.sensors.id = "numifly_flight_state";
+    manifest.task.id = "numifly.authority.v1";
+    for (const RobotActuatorSpec& actuator : manifest.robot.actuators) {
+        manifest.task.actions.push_back({actuator.id});
+        manifest.sensors.observation.actorFrame.push_back({
+            .source = TaskObservationSource::previousAction,
+            .target = actuator.id,
+        });
+    }
+    manifest.task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::higherIsBetter},
+    };
+    manifest.task.rewards = {
+        {.operation = TaskRewardOperator::constant, .weight = 1.0f},
+    };
+    manifest.task.maximumEpisodeSteps = 1000u;
+    manifest.task.difficultyBandCount = 1u;
+    manifest.task.baseHeightTarget = 20.0f;
+    manifest.task.commands.standingProbability = 1.0f;
+    manifest.task.commands.minimumDurationSeconds = 20.0f;
+    manifest.task.commands.maximumDurationSeconds = 20.0f;
+    manifest.task.pushes.minimumIntervalSeconds = 20.0f;
+    manifest.task.pushes.maximumIntervalSeconds = 20.0f;
+    manifest.sensors.observation.critic =
+        manifest.sensors.observation.actorFrame;
+    manifest.reality.id = "numifly_nominal_air";
+    manifest.teacher.id = "no_teacher";
+    manifest.profile.id = "numifly_measured_wing_probe_profile";
+    manifest.profile.environmentCount = environments;
+    manifest.profile.controlSteps = steps;
+    manifest.profile.physicsSubsteps = 4u;
+    manifest.profile.velocityIterations = 2u;
+    manifest.profile.finalVelocityIterations = 1u;
+    manifest.profile.controlTimestepSeconds = 1.0f / 50.0f;
+    CompiledRun compiled;
+    const RunCompileDiagnostics diagnostics = compileRun(manifest, compiled);
+    require(diagnostics.succeeded(),
+        "Numifly CompiledRun failed [" +
+        std::string(runCompileStatusName(diagnostics.status)) + "] " +
+        diagnostics.element + ": " + diagnostics.message);
+    require(compiled.valid() && compiled.measuredSurfaceBinding() != nullptr,
+        "Numifly lost the measured-wing mechanics binding");
     return compiled;
 }
 
@@ -351,6 +436,154 @@ AuthorityLoad meanAcceptedLoad(const MRMeasuredSurfaceEvidenceGPU& evidence) {
             evidence.worldTorqueImpulse.z * inverseTime,
         },
     };
+}
+
+void runNumiflyAuthorityProbe(
+    const std::filesystem::path& manifestPath,
+    std::uint32_t candidateCount,
+    std::uint32_t steps
+) {
+    using namespace metalrobo;
+    require(candidateCount >= 41u && candidateCount <= 4096u &&
+            steps >= 4u && steps <= 120u,
+        "Numifly authority dimensions exceed the bounded probe contract");
+    MeasuredSurfaceRobotPack wings = loadNumiflyMaedaWingPack(manifestPath);
+    const CompiledMeasuredSurfaceRobot surface =
+        compileMeasuredSurfaceRobot(wings);
+    const CompiledRun run = compileNumiflyFlightRun(
+        wings, candidateCount, steps);
+    const CompiledMeasuredSurfaceBinding& binding =
+        *run.measuredSurfaceBinding();
+    const std::uint32_t actionCount = run.task().layout().actionCount;
+    require(actionCount == 49u && binding.firstAction == 29u &&
+            binding.robot.pack.actionCount == 20u,
+        "Numifly authority probe lost its 29+20 action contract");
+    std::vector<float> actions(
+        static_cast<std::size_t>(steps) * candidateCount * actionCount, 0.0f);
+    for (std::uint32_t step = 0u; step < steps; ++step) {
+        for (std::uint32_t candidate = 1u; candidate < candidateCount;
+             ++candidate) {
+            const std::size_t base =
+                (static_cast<std::size_t>(step) * candidateCount + candidate) *
+                actionCount + binding.firstAction;
+            if (candidate <= 40u) {
+                const std::uint32_t action = (candidate - 1u) / 2u;
+                actions[base + action] = (candidate & 1u) != 0u ? 1.0f : -1.0f;
+                continue;
+            }
+            for (std::uint32_t action = 0u; action < 20u; ++action) {
+                const std::uint64_t key =
+                    static_cast<std::uint64_t>(candidate) * 1315423911ull +
+                    static_cast<std::uint64_t>(action) * 2654435761ull;
+                actions[base + action] = 0.85f * deterministicSignedUnit(key);
+            }
+        }
+    }
+    const FlightExecution first = runFlight(
+        run, true, actions, true, 20.0f);
+    const FlightExecution replay = runFlight(
+        run, true, actions, true, 20.0f);
+    const FlightExecution disabled = runFlight(
+        run, false, actions, false, 20.0f);
+    for (const FlightExecution* execution : {&first, &replay, &disabled}) {
+        require(execution->diagnostics.succeeded() &&
+                execution->diagnostics.failedStepCount == 0u,
+            "Numifly Metal authority rollout failed: " +
+                execution->diagnostics.message);
+    }
+    require(first.result.finalQ == replay.result.finalQ &&
+            first.result.finalV == replay.result.finalV &&
+            std::memcmp(first.surfaceInspection.acceptedEvidence.data(),
+                replay.surfaceInspection.acceptedEvidence.data(),
+                candidateCount * sizeof(MRMeasuredSurfaceEvidenceGPU)) == 0,
+        "Numifly measured-wing replay was not bit-identical");
+    float totalMass = 0.0f;
+    for (const MRBodyPropertiesGPU& body : run.model().bodies) {
+        if (body.massAndInverseMass.y > 0.0f) {
+            totalMass += body.massAndInverseMass.x;
+        }
+    }
+    totalMass /= kNumiflyAuthorityInertialScale;
+    const float weight = totalMass * 9.81f;
+    std::vector<AuthorityLoad> loads(candidateCount);
+    std::uint32_t bestLiftCandidate = 0u;
+    std::uint32_t bestTrimCandidate = 0u;
+    float bestTrimCost = std::numeric_limits<float>::infinity();
+    for (std::uint32_t candidate = 0u; candidate < candidateCount;
+         ++candidate) {
+        const MRMeasuredSurfaceEvidenceGPU& evidence =
+            first.surfaceInspection.acceptedEvidence[candidate];
+        require(evidence.deformationActuationStatus.z == 0.0f,
+            "Numifly candidate published invalid measured-wing evidence");
+        loads[candidate] = meanAcceptedLoad(evidence);
+        if (loads[candidate].force[2u] >
+            loads[bestLiftCandidate].force[2u]) {
+            bestLiftCandidate = candidate;
+        }
+        const float liftError = (loads[candidate].force[2u] - weight) /
+            std::max(weight, 1.0e-8f);
+        const float lateral = (
+            loads[candidate].force[0u] * loads[candidate].force[0u] +
+            loads[candidate].force[1u] * loads[candidate].force[1u]) /
+            std::max(weight * weight, 1.0e-8f);
+        const float torque =
+            loads[candidate].torque[0u] * loads[candidate].torque[0u] +
+            loads[candidate].torque[1u] * loads[candidate].torque[1u] +
+            loads[candidate].torque[2u] * loads[candidate].torque[2u];
+        const float cost = liftError * liftError + 0.1f * lateral + torque;
+        if (cost < bestTrimCost) {
+            bestTrimCost = cost;
+            bestTrimCandidate = candidate;
+        }
+    }
+    float maximumVelocityDelta = 0.0f;
+    for (std::size_t index = 0u; index < first.result.finalV.size(); ++index) {
+        maximumVelocityDelta = std::max(maximumVelocityDelta,
+            std::abs(first.result.finalV[index] - disabled.result.finalV[index]));
+    }
+    require(maximumVelocityDelta > 1.0e-5f,
+        "Numifly measured wings produced no articulated-body response");
+    const bool liftAuthority =
+        loads[bestLiftCandidate].force[2u] > weight;
+    const double environmentStepsPerSecond =
+        first.diagnostics.gpuElapsedMilliseconds > 0.0
+        ? static_cast<double>(candidateCount) * steps * 1000.0 /
+            first.diagnostics.gpuElapsedMilliseconds
+        : 0.0;
+    std::cout << "Numifly measured-wing authority probe "
+              << (liftAuthority ? "PASSED" : "INSUFFICIENT_LIFT") << '\n'
+              << "  robot scale: " << kNumiflyLinearScale << "x linear\n"
+              << "  run / robot / surface fingerprints: "
+              << run.fingerprint() << " / " << run.robotFingerprint()
+              << " / " << surface.fingerprint << '\n'
+              << "  candidates x steps x substeps: " << candidateCount
+              << " x " << steps << " x 4\n"
+              << "  force instrument inertial scale: "
+              << kNumiflyAuthorityInertialScale << "x, gravity disabled\n"
+              << "  action contract: 29 articulated + 20 measured wing\n"
+              << "  mass / weight: " << totalMass << " kg / " << weight
+              << " N\n"
+              << "  neutral mean force xyz N: " << loads[0u].force[0u]
+              << " " << loads[0u].force[1u] << " "
+              << loads[0u].force[2u] << '\n'
+              << "  best lift candidate / mean Fz / weight ratio: "
+              << bestLiftCandidate << " / "
+              << loads[bestLiftCandidate].force[2u] << " N / "
+              << loads[bestLiftCandidate].force[2u] / weight << '\n'
+              << "  best trim candidate / cost / mean force xyz N: "
+              << bestTrimCandidate << " / " << bestTrimCost << " / "
+              << loads[bestTrimCandidate].force[0u] << " "
+              << loads[bestTrimCandidate].force[1u] << " "
+              << loads[bestTrimCandidate].force[2u] << '\n'
+              << "  maximum generalized-velocity delta vs disabled wings: "
+              << maximumVelocityDelta << '\n'
+              << "  deterministic signed-load replay: true\n"
+              << "  failed environment steps: 0\n"
+              << "  GPU ms / environment steps per second: "
+              << first.diagnostics.gpuElapsedMilliseconds << " / "
+              << environmentStepsPerSecond << '\n';
+    require(liftAuthority,
+        "Numifly measured wings did not exceed scaled robot weight");
 }
 
 void runAuthoritySweep(
@@ -1331,6 +1564,12 @@ int main(int argc, char** argv) {
                 static_cast<std::uint32_t>(std::stoul(argv[4])));
             return 0;
         }
+        if (argc == 5 && std::string_view(argv[1]) == "--numifly") {
+            runNumiflyAuthorityProbe(argv[2],
+                static_cast<std::uint32_t>(std::stoul(argv[3])),
+                static_cast<std::uint32_t>(std::stoul(argv[4])));
+            return 0;
+        }
         if (argc == 4 && std::string_view(argv[1]) == "--aero-audit") {
             return runAerodynamicAudit(
                 argv[2], static_cast<std::uint32_t>(std::stoul(argv[3])))
@@ -1341,6 +1580,8 @@ int main(int argc, char** argv) {
                          "MANIFEST [ENVIRONMENTS STEPS]\n"
                          "       metalrobo_measured_surface_robot_probe "
                          "--authority MANIFEST CANDIDATES STEPS\n";
+            std::cerr << "       metalrobo_measured_surface_robot_probe "
+                         "--numifly MANIFEST CANDIDATES STEPS\n";
             std::cerr << "       metalrobo_measured_surface_robot_probe "
                          "--fatal-drop MANIFEST HEIGHT DOWNWARD_SPEED STEPS\n";
             std::cerr << "       metalrobo_measured_surface_robot_probe "

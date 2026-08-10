@@ -715,6 +715,14 @@ or ensemble from compact records. Physical replay itself must execute through
 the native world and publish a compact evidence artifact; a learner-side array
 graph is not a second simulator.
 
+## Numifly composition
+
+The separate `numifly` RobotPack composes a 9%-scale Unitree G1 articulation
+with the provenance-locked bilateral Maeda measured-wing actuator. It retains
+ordinary RobotPack, TaskPack, reset, contact, and PolicyPack compilation; no
+robot-specific runtime mode is introduced. See `docs/NUMIFLY.md` for the data,
+derived symmetry, scale rejection, action contract, and evidence boundary.
+
 ## Focused validation
 
 Use the smallest owner for a change:
