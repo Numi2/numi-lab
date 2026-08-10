@@ -83,9 +83,9 @@ The FEM path uses linear tetrahedral kinematics with nonlinear constitutive stre
 [ J_deform             0            friction-map    ] [dlambda_deform]
 ```
 
-Element work is parallel and node assembly uses cooked incidence. FGMRES uses compensated SIMD32 reductions, modified Gram-Schmidt with selective reorthogonalization, device Givens rotations, restart cycles and an inexact-Newton forcing schedule. The right preconditioner combines node-star mechanics diagonals, an object-scale Galerkin correction for rigid translation and mean pressure, a bounded matrix-free polynomial field smoother, and contact-space response diagonals. A single environment-wide backtracking step keeps every cross-object block on the same Newton candidate.
+Element work is parallel and node assembly uses cooked incidence. Dynamic contact additionally builds a deterministic contact-corner-to-node CSR from stable compacted row order, so node residual and Jacobian gathers scale with actual incident rows rather than scanning contact capacity. FGMRES uses compensated SIMD32 reductions, modified Gram-Schmidt with selective reorthogonalization, device Givens rotations, restart cycles and an inexact-Newton forcing schedule. Its three-level right preconditioner combines fine node-star mechanics diagonals, overlapping connectivity-aware tetrahedron-patch corrections, an object-scale Galerkin correction for rigid translation and mean pressure, a bounded matrix-free polynomial field smoother, contact-space response diagonals, and an approximate contact-to-mechanics cross lift. FGMRES remains the sole convergence owner. One environment-wide line search combines constitutive determinant and mixed-volume bounds with a contact fraction-to-boundary cap, keeping every cross-object block on the same feasible Newton candidate.
 
-Each tetrahedron owns an independent persistent material-state record. Rate-dependent stress and exact tangent-vector evaluation use the element velocity gradient; state updates publish only with an accepted nonlinear candidate, and nodal, field, constitutive, topology and contact-warm-start state roll back to the same control-step checkpoint.
+Each tetrahedron owns an independent persistent material-state record. Rate-dependent stress and exact tangent-vector evaluation use the element velocity gradient. For stateful FEM materials, every Newton residual evaluates the authored next-state map at the current candidate, and the matrix-free tangent adds the local state-chain directional contribution. State updates still publish only with an accepted nonlinear candidate, and nodal, field, constitutive, topology and contact-warm-start state roll back to the same control-step checkpoint.
 
 ### Unified continuum contact
 
@@ -100,7 +100,7 @@ MPM grid nodes and FEM nodes use one contact-pair ABI. The current implementatio
 
 Contact records are cleared on every microtick before evaluation, preventing inactive-rate domains from replaying stale impulses. Analytic-proxy rows use the full cooked sparse Delassus response, including same-command-buffer inverse-ABA columns for articulated bodies.
 
-FEM surfaces additionally compile immutable exposed-face ownership and adjacency. Each nonlinear candidate rebuilds current/cohesive surface primitives, swept AABBs and a deterministic GPU Morton ordering, then emits fixed-capacity cross-object and non-adjacent self-contact candidates. Conservative-advancement vertex-triangle and edge-edge CCD produce dynamic KKT rows. Their normal and two tangent multipliers use a semismooth projection natural map with a Coulomb disk; tangent warm starts are transported between contact frames and participate in checkpoint, commit and rollback.
+FEM surfaces additionally compile immutable exposed-face ownership and adjacency. Each nonlinear candidate rebuilds current/cohesive surface primitives, swept AABBs and a deterministic GPU Morton ordering, then emits fixed-capacity cross-object and non-adjacent self-contact candidates. Conservative-advancement vertex-triangle and edge-edge CCD produce dynamic KKT rows. Their normal and two tangent multipliers use a semismooth projection natural map with a Coulomb disk; tangent warm starts are transported between contact frames and participate in checkpoint, commit and rollback. Stable active slots are flattened across environments into one GPU-authored work list and indirect dispatch record, eliminating capacity-wide downstream contact launches without a CPU count readback.
 
 ### Rigid-to-continuum coupling
 
@@ -158,7 +158,7 @@ The runtime is designed around Apple GPU constraints rather than CUDA assumption
 - no CPU counter read, command-buffer commit or wait occurs inside `Runtime::encode`;
 - fixed-capacity deterministic gathers replace floating-point append/scatter atomics;
 - SIMD32 object reductions map to Apple GPU execution width;
-- deformable surfaces and contact rows are compacted into stable active lists before downstream KKT work;
+- deformable surfaces and contact rows are compacted into stable active lists, deterministic node-incidence CSR, and GPU-authored indirect dispatches before downstream KKT work;
 - Krylov vector arenas are private and sized to the authored restart depth rather than the compile-time maximum;
 - environment and object parallelism remain independent;
 - all runtime identities are content-fingerprinted, including the exact loaded Matter metallib;
@@ -219,7 +219,7 @@ The subsystem implements the architecture and executable kernels listed above, b
 
 - the MPM path currently targets updated-Lagrangian APIC/MLS-MPM solids on a fixed-capacity sparse block domain;
 - the monolithic generalized KKT scope is FEM mechanics, mixed fields, analytic-proxy contact and deformable surface contact; MPM retains its sparse APIC update and couples through the shared contact/reaction transaction rather than entering the FEM Krylov vector;
-- internal state and rate-dependent dissipation are executable, but the current generic projection policy is explicit next-state bytecode rather than a material-specific implicit return-map solver;
+- internal state and rate-dependent dissipation are executable; FEM Newton candidates evaluate authored state projection and its algorithmic directional tangent, but the generic local law remains explicit next-state bytecode rather than a material-specific implicit return-map solver;
 - deformable contact has swept broadphase, non-adjacent self-contact, vertex-triangle/edge-edge CCD and frictional semismooth KKT rows, but it is not an exact IPC barrier-energy implementation and does not claim an unconditional non-intersection theorem;
 - articulated continuum contact consumes same-command-buffer inverse-ABA response columns in the full sparse Delassus operator and certifies the circular cone and natural map;
 - fixed-capacity cut/puncture, cohesive separation, erosion and node-incidence rebuild are transactional; arbitrary unbounded crack remeshing is outside the fixed-capacity topology model;

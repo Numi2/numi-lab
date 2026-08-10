@@ -36,6 +36,22 @@ inline uint fgmresContactBase(
         environment * fgmresContactRowCount(dispatch);
 }
 
+inline bool fgmresDeformableActiveWork(
+    const NMMatterDispatchGPU dispatch,
+    constant NMKKTContactArguments& contact,
+    const uint global,
+    thread uint& environment,
+    thread uint& slot
+) {
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint activeTotal = contact.deformableActiveDispatch[0].reserved;
+    if (capacity == 0u || global >= activeTotal) return false;
+    const uint encoded = contact.deformableGlobalActiveIndices[global];
+    environment = encoded / capacity;
+    slot = encoded - environment * capacity;
+    return environment < dispatch.environmentCount && slot < capacity;
+}
+
 inline uint fgmresUnknownCount(const NMMatterDispatchGPU dispatch) {
     return 2u * dispatch.environmentCount * dispatch.femNodeCount +
         dispatch.environmentCount * fgmresContactRowCount(dispatch);
@@ -293,6 +309,66 @@ kernel void nm_fgmres_precondition(
     (void)objects;
 }
 
+// Connectivity-enhanced additive Schwarz level. Each node gathers the small
+// tetrahedral patches in its cooked star, solves their componentwise lumped
+// blocks, and averages the overlapping corrections. This adds an intermediate
+// topology-aware level between the fine diagonal and object-wide Galerkin
+// modes without assembling a global sparse matrix.
+kernel void nm_fgmres_precondition_patches(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(1)]],
+    device const uint* nodeIncidence [[buffer(2)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
+    device const float4* basis [[buffer(4)]],
+    device const float4* inverseDiagonal [[buffer(5)]],
+    device float4* preconditioned [[buffer(6)]],
+    device const NMFGMRESStateGPU* states [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (states[environment].diagnostics.z > 0.5f) return;
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    if (range.objectIndex == NM_INVALID_INDEX) return;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint elementBase = environment * dispatch.tetrahedronCount;
+    float4 correctionSum = float4(0.0f);
+    uint patchCount = 0u;
+    for (uint incidence = 0u; incidence < range.count; ++incidence) {
+        const uint tetrahedronIndex = nodeIncidence[range.first + incidence];
+        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+        const NMTetrahedronGPU tetrahedron =
+            tetrahedra[elementBase + tetrahedronIndex];
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+        float4 residualSum = float4(0.0f);
+        float4 diagonalSum = float4(0.0f);
+        for (uint local = 0u; local < 4u; ++local) {
+            const uint node = tetrahedron.nodes[local];
+            if (node >= dispatch.femNodeCount) continue;
+            const uint index = nodeBase + node;
+            const float4 inverse = inverseDiagonal[index];
+            const bool4 active = inverse > float4(0.0f);
+            residualSum += select(float4(0.0f), basis[index], active);
+            diagonalSum += select(
+                float4(0.0f),
+                1.0f / max(inverse, float4(1.0e-30f)),
+                active);
+        }
+        correctionSum += residualSum /
+            max(diagonalSum, float4(1.0e-30f));
+        ++patchCount;
+    }
+    if (patchCount == 0u) return;
+    constexpr float patchWeight = 0.35f;
+    const float4 inverse = inverseDiagonal[global];
+    const float4 patch = correctionSum / float(patchCount);
+    preconditioned[global] = select(
+        float4(0.0f),
+        mix(preconditioned[global], patch, patchWeight),
+        inverse > float4(0.0f));
+}
+
 // Object-scale Galerkin correction over the four low-frequency modes carried
 // by the packed mechanics block (three translations plus mean pressure).
 // The fine level is the node-star diagonal assembled above; this bounded
@@ -466,19 +542,74 @@ kernel void nm_fgmres_precondition_deformable_contacts(
     constant NMKKTContactArguments& contact [[buffer(4)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint capacity = dispatch.deformableContactCapacity;
-    if (capacity == 0u) return;
-    const uint environment = global / capacity;
-    const uint activeSlot = global - environment * capacity;
-    if (environment >= dispatch.environmentCount ||
-        activeSlot >= contact.deformableActiveCounts[environment] ||
+    uint environment = 0u, slot = 0u;
+    if (!fgmresDeformableActiveWork(
+            dispatch, contact, global, environment, slot) ||
         states[environment].diagnostics.z > 0.5f) return;
-    const uint slot = contact.deformableActiveIndices[
-        environment * capacity + activeSlot];
-    if (slot >= capacity) return;
     const uint row = fgmresContactBase(dispatch, environment) +
         dispatch.contactPairCount + slot;
     preconditioned[row] = float4(basis[row].xyz, 0.0f);
+}
+
+// Approximate block-triangular contact elimination. Contact-space rows are
+// preconditioned first; this pass applies D_mechanics^-1 J^T to the actual
+// rigid and deformable incidences, coupling separated surface patches inside
+// the right preconditioner without atomics or a materialized Schur matrix.
+kernel void nm_fgmres_precondition_contact_cross(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* inverseDiagonal [[buffer(1)]],
+    device float4* preconditioned [[buffer(2)]],
+    constant NMKKTContactArguments& contact [[buffer(3)]],
+    device const NMFGMRESStateGPU* states [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    if (states[environment].diagnostics.z > 0.5f) return;
+    const uint contactBase = fgmresContactBase(dispatch, environment);
+    float3 lifted = float3(0.0f);
+    const uint unifiedNode = dispatch.gridNodeCount + node;
+    const NMIncidenceRangeGPU rigidRange = contact.nodeRanges[unifiedNode];
+    for (uint incidence = 0u; incidence < rigidRange.count; ++incidence) {
+        const uint pairIndex = contact.nodeIncidence[
+            rigidRange.first + incidence];
+        if (pairIndex >= dispatch.contactPairCount) continue;
+        const NMContactSampleGPU sample = contact.samples[
+            environment * dispatch.contactPairCount + pairIndex];
+        if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        lifted += sample.normalAndVelocity.xyz *
+            preconditioned[contactBase + pairIndex].x;
+    }
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint deformableBase = environment * capacity;
+    const NMIncidenceRangeGPU deformableRange =
+        contact.deformableNodeRanges[global];
+    for (uint incidence = 0u; incidence < deformableRange.count;
+         ++incidence) {
+        const uint encoded = contact.deformableNodeIncidence[
+            deformableRange.first + incidence];
+        const uint slot = encoded >> 2u;
+        const uint local = encoded & 3u;
+        if (slot >= capacity || local >= 4u) continue;
+        const NMDeformableContactGPU deformable =
+            contact.deformableContacts[deformableBase + slot];
+        if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
+            deformable.nodes[local] != node) continue;
+        float3 tangent0, tangent1;
+        deformableContactFrame(
+            deformable.normalAndTOI.xyz, tangent0, tangent1);
+        const float3 lambda = preconditioned[
+            contactBase + dispatch.contactPairCount + slot].xyz;
+        const float3 contactDirection =
+            deformable.normalAndTOI.xyz * lambda.x +
+            tangent0 * lambda.y + tangent1 * lambda.z;
+        lifted += deformable.weights[local] * contactDirection;
+    }
+    constexpr float couplingWeight = 0.75f;
+    preconditioned[global].xyz += couplingWeight *
+        inverseDiagonal[global].xyz * lifted;
 }
 
 kernel void nm_fgmres_import_field_residual(
@@ -717,16 +848,20 @@ kernel void nm_fgmres_apply_nodes(
                 direction[contactBase + pairIndex].x;
     }
     const uint deformableCapacity = dispatch.deformableContactCapacity;
-    const uint deformableCount = min(
-        contact.deformableActiveCounts[environment], deformableCapacity);
     const uint deformableBase = environment * deformableCapacity;
-    for (uint activeSlot = 0u; activeSlot < deformableCount; ++activeSlot) {
-        const uint slot = contact.deformableActiveIndices[
-            deformableBase + activeSlot];
-        if (slot >= deformableCapacity) continue;
+    const NMIncidenceRangeGPU deformableRange =
+        contact.deformableNodeRanges[global];
+    for (uint incidence = 0u; incidence < deformableRange.count;
+         ++incidence) {
+        const uint encoded = contact.deformableNodeIncidence[
+            deformableRange.first + incidence];
+        const uint slot = encoded >> 2u;
+        const uint local = encoded & 3u;
+        if (slot >= deformableCapacity || local >= 4u) continue;
         const NMDeformableContactGPU deformable =
             contact.deformableContacts[deformableBase + slot];
-        if ((deformable.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
+            deformable.nodes[local] != localNode) continue;
         const uint row = contactBase + dispatch.contactPairCount + slot;
         float3 tangent0, tangent1;
         deformableContactFrame(
@@ -734,10 +869,7 @@ kernel void nm_fgmres_apply_nodes(
         const float3 contactDirection =
             deformable.normalAndTOI.xyz * direction[row].x +
             tangent0 * direction[row].y + tangent1 * direction[row].z;
-        for (uint local = 0u; local < 4u; ++local)
-            if (deformable.nodes[local] == localNode)
-                work[global].xyz -= deformable.weights[local] *
-                    contactDirection;
+        work[global].xyz -= deformable.weights[local] * contactDirection;
     }
     if (!valid) recordFailure(
         statuses[environment], NM_STATUS_LINEAR_SOLVER_FAILURE,
@@ -817,16 +949,20 @@ kernel void nm_fgmres_gather_nodes(
                 direction[contactBase + pairIndex].x;
     }
     const uint deformableCapacity = dispatch.deformableContactCapacity;
-    const uint deformableCount = min(
-        contact.deformableActiveCounts[environment], deformableCapacity);
     const uint deformableBase = environment * deformableCapacity;
-    for (uint activeSlot = 0u; activeSlot < deformableCount; ++activeSlot) {
-        const uint slot = contact.deformableActiveIndices[
-            deformableBase + activeSlot];
-        if (slot >= deformableCapacity) continue;
+    const NMIncidenceRangeGPU deformableRange =
+        contact.deformableNodeRanges[global];
+    for (uint incidence = 0u; incidence < deformableRange.count;
+         ++incidence) {
+        const uint encoded = contact.deformableNodeIncidence[
+            deformableRange.first + incidence];
+        const uint slot = encoded >> 2u;
+        const uint local = encoded & 3u;
+        if (slot >= deformableCapacity || local >= 4u) continue;
         const NMDeformableContactGPU deformable =
             contact.deformableContacts[deformableBase + slot];
-        if ((deformable.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
+            deformable.nodes[local] != node) continue;
         const uint row = contactBase + dispatch.contactPairCount + slot;
         float3 tangent0, tangent1;
         deformableContactFrame(
@@ -834,10 +970,7 @@ kernel void nm_fgmres_gather_nodes(
         const float3 contactDirection =
             deformable.normalAndTOI.xyz * direction[row].x +
             tangent0 * direction[row].y + tangent1 * direction[row].z;
-        for (uint local = 0u; local < 4u; ++local)
-            if (deformable.nodes[local] == node)
-                work[global].xyz -= deformable.weights[local] *
-                    contactDirection;
+        work[global].xyz -= deformable.weights[local] * contactDirection;
     }
 }
 
@@ -951,14 +1084,9 @@ kernel void nm_fgmres_apply_deformable_contacts(
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
-    if (capacity == 0u) return;
-    const uint environment = global / capacity;
-    const uint activeSlot = global - environment * capacity;
-    if (environment >= dispatch.environmentCount ||
-        activeSlot >= contact.deformableActiveCounts[environment]) return;
-    const uint slot = contact.deformableActiveIndices[
-        environment * capacity + activeSlot];
-    if (slot >= capacity) return;
+    uint environment = 0u, slot = 0u;
+    if (!fgmresDeformableActiveWork(
+            dispatch, contact, global, environment, slot)) return;
     const uint row = fgmresContactBase(dispatch, environment) +
         dispatch.contactPairCount + slot;
     work[row] = float4(0.0f);
@@ -1662,15 +1790,9 @@ kernel void nm_fgmres_restart_residual_deformable_contacts(
     constant NMKKTContactArguments& contact [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint capacity = dispatch.deformableContactCapacity;
-    if (capacity == 0u) return;
-    const uint environment = global / capacity;
-    const uint activeSlot = global - environment * capacity;
-    if (environment >= dispatch.environmentCount ||
-        activeSlot >= contact.deformableActiveCounts[environment]) return;
-    const uint slot = contact.deformableActiveIndices[
-        environment * capacity + activeSlot];
-    if (slot >= capacity) return;
+    uint environment = 0u, slot = 0u;
+    if (!fgmresDeformableActiveWork(
+            dispatch, contact, global, environment, slot)) return;
     const uint used = min(
         uint(states[environment].diagnostics.w),
         NM_MIXED_FGMRES_RESTART);
@@ -1791,15 +1913,9 @@ kernel void nm_fgmres_accumulate_deformable_contacts(
     constant uint& restartCycle [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint capacity = dispatch.deformableContactCapacity;
-    if (capacity == 0u) return;
-    const uint environment = global / capacity;
-    const uint activeSlot = global - environment * capacity;
-    if (environment >= dispatch.environmentCount ||
-        activeSlot >= contact.deformableActiveCounts[environment]) return;
-    const uint slot = contact.deformableActiveIndices[
-        environment * capacity + activeSlot];
-    if (slot >= capacity) return;
+    uint environment = 0u, slot = 0u;
+    if (!fgmresDeformableActiveWork(
+            dispatch, contact, global, environment, slot)) return;
     const uint used = min(uint(states[environment].diagnostics.w), min(
         solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART));
     const uint totalUnknowns = fgmresUnknownCount(dispatch);

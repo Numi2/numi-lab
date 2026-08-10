@@ -235,12 +235,13 @@ inline float objectTimestep(
     return dispatch.gravityAndTimestep.w / float(1u << exponent);
 }
 
+template <typename StatePointer>
 inline float evaluateScalarProgram(
     const uint programIndex,
     device const NMScalarProgramGPU* programs,
     device const NMExpressionInstructionGPU* instructions,
     device const float* parameters,
-    device const float* internalState,
+    StatePointer internalState,
     thread const float* deformation,
     thread const float* deformationDirection,
     thread const float* deformationRate,
@@ -439,12 +440,13 @@ inline float3x3 componentsMatrix(thread const float* values) {
     ));
 }
 
+template <typename StatePointer>
 inline float3x3 evaluateStress(
     const NMMaterialGPU material,
     device const NMScalarProgramGPU* programs,
     device const NMExpressionInstructionGPU* instructions,
     device const float* parameters,
-    device const float* internalState,
+    StatePointer internalState,
     const float3x3 deformation,
     const float3x3 deformationRate,
     const float timestep,
@@ -504,12 +506,13 @@ inline float3x3 evaluateStress(
     return stress;
 }
 
+template <typename StatePointer>
 inline float3x3 evaluateTangentVector(
     const NMMaterialGPU material,
     device const NMScalarProgramGPU* programs,
     device const NMExpressionInstructionGPU* instructions,
     device const float* parameters,
-    device const float* internalState,
+    StatePointer internalState,
     const float3x3 deformation,
     const float3x3 deformationDirection,
     const float3x3 deformationRate,
@@ -611,6 +614,192 @@ inline bool evaluateStateUpdate(
         valid
     );
     return valid && isfinite(nextState);
+}
+
+inline bool projectMaterialState(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* acceptedState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread float* projectedState
+) {
+    if (material.stateCount == 0u) {
+        return true;
+    }
+    if (acceptedState == nullptr ||
+        material.stateCount > NM_MAX_MATERIAL_STATE) {
+        return false;
+    }
+    for (uint state = 0u; state < material.stateCount; ++state) {
+        if (!evaluateStateUpdate(
+                material,
+                state,
+                programs,
+                instructions,
+                parameters,
+                acceptedState,
+                deformation,
+                deformationRate,
+                timestep,
+                temperature,
+                projectedState[state]
+            )) {
+            return false;
+        }
+    }
+    return true;
+}
+
+inline float3x3 evaluateAlgorithmicStress(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* acceptedState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid
+) {
+    if (material.stateCount == 0u) {
+        return evaluateStress(
+            material, programs, instructions, parameters, acceptedState,
+            deformation, deformationRate, timestep, temperature, valid
+        );
+    }
+    float projectedState[NM_MAX_MATERIAL_STATE];
+    valid = valid && projectMaterialState(
+        material, programs, instructions, parameters, acceptedState,
+        deformation, deformationRate, timestep, temperature, projectedState
+    );
+    if (!valid) {
+        return float3x3(0.0f);
+    }
+    return evaluateStress(
+        material, programs, instructions, parameters, projectedState,
+        deformation, deformationRate, timestep, temperature, valid
+    );
+}
+
+inline void evaluateAlgorithmicStressTangent(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    device const float* acceptedState,
+    const float3x3 deformation,
+    const float3x3 deformationDirection,
+    const float3x3 deformationRate,
+    const float3x3 rateDirection,
+    const float timestep,
+    const float temperature,
+    thread float3x3& stress,
+    thread float3x3& tangent,
+    thread bool& valid
+) {
+    if (material.stateCount == 0u) {
+        stress = evaluateStress(
+            material, programs, instructions, parameters, acceptedState,
+            deformation, deformationRate, timestep, temperature, valid
+        );
+        tangent = evaluateTangentVector(
+            material, programs, instructions, parameters, acceptedState,
+            deformation, deformationDirection, deformationRate, rateDirection,
+            timestep, temperature, valid
+        );
+        return;
+    }
+
+    float projectedState[NM_MAX_MATERIAL_STATE];
+    valid = valid && projectMaterialState(
+        material, programs, instructions, parameters, acceptedState,
+        deformation, deformationRate, timestep, temperature, projectedState
+    );
+    if (!valid) {
+        stress = float3x3(0.0f);
+        tangent = float3x3(0.0f);
+        return;
+    }
+    stress = evaluateStress(
+        material, programs, instructions, parameters, projectedState,
+        deformation, deformationRate, timestep, temperature, valid
+    );
+    tangent = evaluateTangentVector(
+        material, programs, instructions, parameters, projectedState,
+        deformation, deformationDirection, deformationRate, rateDirection,
+        timestep, temperature, valid
+    );
+    if (!valid) {
+        return;
+    }
+
+    float deformationScale = 1.0f;
+    float directionScale = 0.0f;
+    for (uint column = 0u; column < 3u; ++column) {
+        deformationScale = max(
+            deformationScale,
+            max(max(abs(deformation[column].x), abs(deformation[column].y)),
+                abs(deformation[column].z))
+        );
+        directionScale = max(
+            directionScale,
+            max(max(abs(deformationDirection[column].x),
+                    abs(deformationDirection[column].y)),
+                abs(deformationDirection[column].z))
+        );
+    }
+    if (!(directionScale > kGeometryFloor)) {
+        return;
+    }
+    const float epsilon = clamp(
+        3.4526698e-4f * deformationScale / directionScale,
+        1.0e-6f,
+        1.0e-2f
+    );
+    float perturbedState[NM_MAX_MATERIAL_STATE];
+    bool perturbedValid = projectMaterialState(
+        material, programs, instructions, parameters, acceptedState,
+        deformation + epsilon * deformationDirection,
+        deformationRate + epsilon * rateDirection,
+        timestep, temperature, perturbedState
+    );
+    float3x3 perturbedStateStress = float3x3(0.0f);
+    if (perturbedValid) {
+        perturbedStateStress = evaluateStress(
+            material, programs, instructions, parameters, perturbedState,
+            deformation, deformationRate, timestep, temperature,
+            perturbedValid
+        );
+    }
+    if (perturbedValid) {
+        tangent += (perturbedStateStress - stress) / epsilon;
+        return;
+    }
+
+    perturbedValid = projectMaterialState(
+        material, programs, instructions, parameters, acceptedState,
+        deformation - epsilon * deformationDirection,
+        deformationRate - epsilon * rateDirection,
+        timestep, temperature, perturbedState
+    );
+    if (perturbedValid) {
+        perturbedStateStress = evaluateStress(
+            material, programs, instructions, parameters, perturbedState,
+            deformation, deformationRate, timestep, temperature,
+            perturbedValid
+        );
+    }
+    if (!perturbedValid) {
+        valid = false;
+        return;
+    }
+    tangent += (stress - perturbedStateStress) / epsilon;
 }
 
 inline bool evaluateMaterialValidity(

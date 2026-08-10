@@ -346,6 +346,11 @@ struct Runtime::State {
     id<MTLBuffer> deformableWarmstartsCheckpoint = nil;
     id<MTLBuffer> deformableContactActiveIndices = nil;
     id<MTLBuffer> deformableContactActiveCounts = nil;
+    id<MTLBuffer> deformableContactNodeIncidence = nil;
+    id<MTLBuffer> deformableContactNodeRanges = nil;
+    id<MTLBuffer> deformableContactActiveOffsets = nil;
+    id<MTLBuffer> deformableContactGlobalActiveIndices = nil;
+    id<MTLBuffer> deformableContactActiveDispatch = nil;
     id<MTLBuffer> femTopologyNodesAccepted = nil;
     id<MTLBuffer> femTopologyNodesCandidate = nil;
     id<MTLBuffer> femTopologyNodesCheckpoint = nil;
@@ -644,6 +649,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_measure_correction",
             "nm_fgmres_build_preconditioner",
             "nm_fgmres_precondition",
+            "nm_fgmres_precondition_patches",
             "nm_fgmres_precondition_coarse",
             "nm_fgmres_import_field_residual",
             "nm_fgmres_field_smoother_initialize",
@@ -652,6 +658,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_precondition_cross",
             "nm_fgmres_precondition_contacts",
             "nm_fgmres_precondition_deformable_contacts",
+            "nm_fgmres_precondition_contact_cross",
             "nm_fem_apply_operator_elements",
             "nm_fgmres_gather_nodes",
             "nm_fgmres_apply_contacts",
@@ -673,6 +680,11 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_build_deformable_candidates",
             "nm_contact_narrowphase_deformable",
             "nm_contact_compact_deformable",
+            "nm_contact_scan_deformable_active_counts",
+            "nm_contact_scatter_deformable_active_work",
+            "nm_contact_count_deformable_node_incidence",
+            "nm_contact_scan_deformable_node_incidence",
+            "nm_contact_scatter_deformable_node_incidence",
             "nm_contact_evaluate",
             "nm_contact_compact_active",
             "nm_contact_checkpoint_warmstarts",
@@ -691,6 +703,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_build_kkt_residual",
             "nm_contact_build_deformable_kkt_residual",
             "nm_contact_apply_kkt_solution",
+            "nm_contact_limit_deformable_line_search",
             "nm_contact_apply_deformable_kkt_solution",
             "nm_contact_apply_nodes",
             "nm_contact_reduce_rigid",
@@ -1344,6 +1357,36 @@ RuntimeDiagnostics Runtime::initialize(
             privateScratch<std::uint32_t>(
                 candidate->device, environments,
                 valid, candidate->residentBytes);
+        candidate->deformableContactNodeIncidence =
+            privateScratch<std::uint32_t>(
+                candidate->device,
+                4u * multiplied(world.dispatch.deformableContactCapacity),
+                valid,
+                candidate->residentBytes);
+        candidate->deformableContactNodeRanges =
+            privateScratch<NMIncidenceRangeGPU>(
+                candidate->device,
+                multiplied(world.dispatch.femNodeCount),
+                valid,
+                candidate->residentBytes);
+        candidate->deformableContactActiveOffsets =
+            privateScratch<std::uint32_t>(
+                candidate->device,
+                environments,
+                valid,
+                candidate->residentBytes);
+        candidate->deformableContactGlobalActiveIndices =
+            privateScratch<std::uint32_t>(
+                candidate->device,
+                multiplied(world.dispatch.deformableContactCapacity),
+                valid,
+                candidate->residentBytes);
+        candidate->deformableContactActiveDispatch =
+            privateScratch<NMIndirectDispatchGPU>(
+                candidate->device,
+                1u,
+                valid,
+                candidate->residentBytes);
         candidate->mpmNodeGenerations = privateScratch<std::uint32_t>(
             candidate->device, multiplied(world.dispatch.gridNodeCount),
             valid, candidate->residentBytes);
@@ -1610,6 +1653,18 @@ RuntimeDiagnostics Runtime::initialize(
         [fgmresContactEncoder
             setBuffer:candidate->deformableContactActiveCounts
                offset:0u atIndex:12u];
+        [fgmresContactEncoder
+            setBuffer:candidate->deformableContactNodeIncidence
+               offset:0u atIndex:13u];
+        [fgmresContactEncoder
+            setBuffer:candidate->deformableContactNodeRanges
+               offset:0u atIndex:14u];
+        [fgmresContactEncoder
+            setBuffer:candidate->deformableContactGlobalActiveIndices
+               offset:0u atIndex:15u];
+        [fgmresContactEncoder
+            setBuffer:candidate->deformableContactActiveDispatch
+               offset:0u atIndex:16u];
         candidate->residentBytes += fgmresContactEncoder.encodedLength;
 
         for (const NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
@@ -2888,6 +2943,72 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                                    offset:0u atIndex:3u];
                     }
                 );
+                dispatchGroups32(
+                    "nm_contact_scan_deformable_active_counts",
+                    1u,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.deformableContactActiveCounts
+                                   offset:0u atIndex:1u];
+                        [encoder setBuffer:state.deformableContactActiveOffsets
+                                   offset:0u atIndex:2u];
+                        [encoder setBuffer:state.deformableContactActiveDispatch
+                                   offset:0u atIndex:3u];
+                    });
+                dispatchThreads(
+                    "nm_contact_scatter_deformable_active_work",
+                    environments * state.dispatch.deformableContactCapacity,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.deformableContactActiveIndices
+                                   offset:0u atIndex:1u];
+                        [encoder setBuffer:state.deformableContactActiveCounts
+                                   offset:0u atIndex:2u];
+                        [encoder setBuffer:state.deformableContactActiveOffsets
+                                   offset:0u atIndex:3u];
+                        [encoder setBuffer:state.deformableContactGlobalActiveIndices
+                                   offset:0u atIndex:4u];
+                    });
+                dispatchThreads(
+                    "nm_contact_count_deformable_node_incidence",
+                    femNodeTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.deformableContacts
+                                   offset:0u atIndex:1u];
+                        [encoder setBuffer:state.deformableContactActiveIndices
+                                   offset:0u atIndex:2u];
+                        [encoder setBuffer:state.deformableContactActiveCounts
+                                   offset:0u atIndex:3u];
+                        [encoder setBuffer:state.deformableContactNodeRanges
+                                   offset:0u atIndex:4u];
+                    });
+                dispatchGroups32(
+                    "nm_contact_scan_deformable_node_incidence",
+                    environments,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.deformableContactNodeRanges
+                                   offset:0u atIndex:1u];
+                        [encoder setBuffer:state.statuses
+                                   offset:0u atIndex:2u];
+                    });
+                dispatchThreads(
+                    "nm_contact_scatter_deformable_node_incidence",
+                    femNodeTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.deformableContacts
+                                   offset:0u atIndex:1u];
+                        [encoder setBuffer:state.deformableContactActiveIndices
+                                   offset:0u atIndex:2u];
+                        [encoder setBuffer:state.deformableContactActiveCounts
+                                   offset:0u atIndex:3u];
+                        [encoder setBuffer:state.deformableContactNodeRanges
+                                   offset:0u atIndex:4u];
+                        [encoder setBuffer:state.deformableContactNodeIncidence
+                                   offset:0u atIndex:5u];
+                    });
                 dispatchThreads("nm_contact_evaluate", pairTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -3083,9 +3204,9 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         setDispatch();
                         [encoder setBuffer:state.deformableContacts
                                    offset:0u atIndex:1u];
-                        [encoder setBuffer:state.deformableContactActiveIndices
+                        [encoder setBuffer:state.deformableContactNodeIncidence
                                    offset:0u atIndex:2u];
-                        [encoder setBuffer:state.deformableContactActiveCounts
+                        [encoder setBuffer:state.deformableContactNodeRanges
                                    offset:0u atIndex:3u];
                         [encoder setBuffer:state.femResidual
                                    offset:0u atIndex:4u];
@@ -3238,17 +3359,18 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.contactActivePairs offset:0u atIndex:15u];
                 [encoder setBuffer:state.contactActiveCounts offset:0u atIndex:16u];
             });
-            dispatchThreads(
+            (void)dispatchIndirect(
                 "nm_contact_build_deformable_kkt_residual",
-                environments * state.dispatch.deformableContactCapacity,
+                state.deformableContactActiveDispatch,
+                256u,
                 [&] {
                     setDispatch();
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                     [encoder setBuffer:state.objects offset:0u atIndex:2u];
                     [encoder setBuffer:state.schedulers offset:0u atIndex:3u];
                     [encoder setBuffer:state.deformableContacts offset:0u atIndex:4u];
-                    [encoder setBuffer:state.deformableContactActiveIndices offset:0u atIndex:5u];
-                    [encoder setBuffer:state.deformableContactActiveCounts offset:0u atIndex:6u];
+                    [encoder setBuffer:state.deformableContactGlobalActiveIndices offset:0u atIndex:5u];
+                    [encoder setBuffer:state.deformableContactActiveDispatch offset:0u atIndex:6u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:8u];
                 });
@@ -3285,6 +3407,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             [encoder useResource:state.deformableContactActiveIndices
                          usage:MTLResourceUsageRead];
             [encoder useResource:state.deformableContactActiveCounts
+                         usage:MTLResourceUsageRead];
+            [encoder useResource:state.deformableContactNodeIncidence
+                         usage:MTLResourceUsageRead];
+            [encoder useResource:state.deformableContactNodeRanges
+                         usage:MTLResourceUsageRead];
+            [encoder useResource:state.deformableContactGlobalActiveIndices
+                         usage:MTLResourceUsageRead];
+            [encoder useResource:state.deformableContactActiveDispatch
                          usage:MTLResourceUsageRead];
             const std::uint32_t restart = std::min(
                 state.mixedSolverValue.nonlinearIterations.y,
@@ -3356,6 +3486,23 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:6u];
                     [encoder setBuffer:state.objects offset:0u atIndex:7u];
+                });
+                dispatchThreads("nm_fgmres_precondition_patches", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femTetrahedraCandidate
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femNodeIncidence
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femNodeRanges
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.fgmresBasis
+                                 offset:columnOffset atIndex:4u];
+                    [encoder setBuffer:state.femPreconditioned
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.fgmresPreconditionedBasis
+                                 offset:columnOffset atIndex:6u];
+                    [encoder setBuffer:state.fgmresStates
+                                 offset:0u atIndex:7u];
                 });
                 dispatchGroups32("nm_fgmres_precondition_coarse", objectTotal, [&] {
                     setDispatch();
@@ -3465,9 +3612,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
                     [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:5u];
                 });
-                dispatchThreads(
+                (void)dispatchIndirect(
                     "nm_fgmres_precondition_deformable_contacts",
-                    deformableContactTotal,
+                    state.deformableContactActiveDispatch,
+                    256u,
                     [&] {
                         setDispatch();
                         [encoder setBuffer:state.fgmresBasis
@@ -3477,6 +3625,20 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:3u];
                         [encoder setBuffer:state.fgmresContactArguments
+                                     offset:0u atIndex:4u];
+                    });
+                dispatchThreads(
+                    "nm_fgmres_precondition_contact_cross",
+                    femNodeTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femPreconditioned
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                                     offset:columnOffset atIndex:2u];
+                        [encoder setBuffer:state.fgmresContactArguments
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:4u];
                     });
                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
@@ -3563,9 +3725,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:8u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
                 });
-                dispatchThreads(
+                (void)dispatchIndirect(
                     "nm_fgmres_apply_deformable_contacts",
-                    deformableContactTotal,
+                    state.deformableContactActiveDispatch,
+                    256u,
                     [&] {
                         setDispatch();
                         [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
@@ -3664,9 +3827,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:7u];
             });
-            dispatchThreads(
+            (void)dispatchIndirect(
                 "nm_fgmres_accumulate_deformable_contacts",
-                deformableContactTotal,
+                state.deformableContactActiveDispatch,
+                256u,
                 [&] {
                     setDispatch();
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
@@ -3699,9 +3863,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresContactArguments
                                  offset:0u atIndex:5u];
                 });
-                dispatchThreads(
+                (void)dispatchIndirect(
                     "nm_fgmres_restart_residual_deformable_contacts",
-                    deformableContactTotal,
+                    state.deformableContactActiveDispatch,
+                    256u,
                     [&] {
                         setDispatch();
                         [encoder setBuffer:state.fgmresBasis offset:0u atIndex:1u];
@@ -3751,6 +3916,22 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.femLineSearch
                                  offset:0u atIndex:1u];
                 });
+            dispatchGroups32(
+                "nm_contact_limit_deformable_line_search",
+                environments,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:3u];
+                    [encoder setBuffer:state.deformableContacts offset:0u atIndex:4u];
+                    [encoder setBuffer:state.deformableContactActiveIndices offset:0u atIndex:5u];
+                    [encoder setBuffer:state.deformableContactActiveCounts offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                });
             dispatchThreads("nm_fem_apply_solution", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -3785,14 +3966,15 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.contactWarmstartsCandidate
                              offset:0u atIndex:7u];
             });
-            dispatchThreads(
+            (void)dispatchIndirect(
                 "nm_contact_apply_deformable_kkt_solution",
-                deformableContactTotal,
+                state.deformableContactActiveDispatch,
+                256u,
                 [&] {
                     setDispatch();
                     [encoder setBuffer:state.deformableContacts offset:0u atIndex:1u];
-                    [encoder setBuffer:state.deformableContactActiveIndices offset:0u atIndex:2u];
-                    [encoder setBuffer:state.deformableContactActiveCounts offset:0u atIndex:3u];
+                    [encoder setBuffer:state.deformableContactGlobalActiveIndices offset:0u atIndex:2u];
+                    [encoder setBuffer:state.deformableContactActiveDispatch offset:0u atIndex:3u];
                     [encoder setBuffer:state.femSolution offset:0u atIndex:4u];
                     [encoder setBuffer:state.femLineSearch offset:0u atIndex:5u];
                     [encoder setBuffer:state.deformableWarmstartsCandidate

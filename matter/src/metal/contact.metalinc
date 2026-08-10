@@ -798,6 +798,137 @@ kernel void nm_contact_compact_deformable(
     if (lane == 0u) activeCounts[environment] = outputCount;
 }
 
+kernel void nm_contact_scan_deformable_active_counts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* activeCounts [[buffer(1)]],
+    device uint* activeOffsets [[buffer(2)]],
+    device NMIndirectDispatchGPU* activeDispatch [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    if (lane != 0u) return;
+    uint cursor = 0u;
+    for (uint environment = 0u; environment < dispatch.environmentCount;
+         ++environment) {
+        activeOffsets[environment] = cursor;
+        cursor += min(
+            activeCounts[environment], dispatch.deformableContactCapacity);
+    }
+    constexpr uint threadsPerGroup = 256u;
+    activeDispatch[0] = {
+        (cursor + threadsPerGroup - 1u) / threadsPerGroup,
+        1u,
+        1u,
+        cursor
+    };
+}
+
+kernel void nm_contact_scatter_deformable_active_work(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* activeIndices [[buffer(1)]],
+    device const uint* activeCounts [[buffer(2)]],
+    device const uint* activeOffsets [[buffer(3)]],
+    device uint* globalActiveIndices [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint total = dispatch.environmentCount * capacity;
+    if (global >= total || capacity == 0u) return;
+    const uint environment = global / capacity;
+    const uint activeSlot = global - environment * capacity;
+    if (activeSlot >= min(activeCounts[environment], capacity)) return;
+    const uint slot = activeIndices[environment * capacity + activeSlot];
+    if (slot < capacity)
+        globalActiveIndices[activeOffsets[environment] + activeSlot] =
+            environment * capacity + slot;
+}
+
+// Build a deterministic dynamic CSR from FEM nodes to active deformable
+// contact corners. Counting and scattering both traverse the stable compacted
+// contact order, so the later J^T gathers preserve a fixed summation order
+// without floating-point atomics.
+kernel void nm_contact_count_deformable_node_incidence(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMDeformableContactGPU* contacts [[buffer(1)]],
+    device const uint* activeIndices [[buffer(2)]],
+    device const uint* activeCounts [[buffer(3)]],
+    device NMIncidenceRangeGPU* nodeRanges [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint base = environment * capacity;
+    const uint activeCount = min(activeCounts[environment], capacity);
+    uint count = 0u;
+    for (uint activeSlot = 0u; activeSlot < activeCount; ++activeSlot) {
+        const uint slot = activeIndices[base + activeSlot];
+        if (slot >= capacity) continue;
+        const NMDeformableContactGPU contact = contacts[base + slot];
+        if ((contact.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        for (uint local = 0u; local < 4u; ++local)
+            count += contact.nodes[local] == node ? 1u : 0u;
+    }
+    nodeRanges[global] = {0u, count, NM_INVALID_INDEX, 0u};
+}
+
+kernel void nm_contact_scan_deformable_node_incidence(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device NMMatterStatusGPU* statuses [[buffer(2)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane != 0u || environment >= dispatch.environmentCount) return;
+    const uint rangeBase = environment * dispatch.femNodeCount;
+    const uint incidenceBase =
+        4u * environment * dispatch.deformableContactCapacity;
+    uint cursor = incidenceBase;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        device NMIncidenceRangeGPU& range = nodeRanges[rangeBase + node];
+        range.first = cursor;
+        cursor += range.count;
+    }
+    const uint required = cursor - incidenceBase;
+    const uint capacity = 4u * dispatch.deformableContactCapacity;
+    if (required > capacity)
+        recordFailure(
+            statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+            NM_INVALID_INDEX, required,
+            float4(float(required), float(capacity), 0.0f, 0.0f));
+}
+
+kernel void nm_contact_scatter_deformable_node_incidence(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMDeformableContactGPU* contacts [[buffer(1)]],
+    device const uint* activeIndices [[buffer(2)]],
+    device const uint* activeCounts [[buffer(3)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(4)]],
+    device uint* nodeIncidence [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint base = environment * capacity;
+    const uint activeCount = min(activeCounts[environment], capacity);
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    uint cursor = range.first;
+    for (uint activeSlot = 0u; activeSlot < activeCount; ++activeSlot) {
+        const uint slot = activeIndices[base + activeSlot];
+        if (slot >= capacity) continue;
+        const NMDeformableContactGPU contact = contacts[base + slot];
+        if ((contact.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        for (uint local = 0u; local < 4u; ++local)
+            if (contact.nodes[local] == node &&
+                cursor < range.first + range.count)
+                nodeIncidence[cursor++] = 4u * slot + local;
+    }
+}
+
 inline float4 quaternionConjugate(const float4 quaternion) {
     return float4(-quaternion.xyz, quaternion.w);
 }
@@ -2111,26 +2242,39 @@ kernel void nm_contact_build_kkt_residual(
     residual[output] = float4(-natural, 0.0f, 0.0f, 0.0f);
 }
 
+inline bool deformableActiveWork(
+    const NMMatterDispatchGPU dispatch,
+    device const uint* globalActiveIndices,
+    device const NMIndirectDispatchGPU* activeDispatch,
+    const uint global,
+    thread uint& environment,
+    thread uint& slot
+) {
+    const uint capacity = dispatch.deformableContactCapacity;
+    if (capacity == 0u || global >= activeDispatch[0].reserved) return false;
+    const uint encoded = globalActiveIndices[global];
+    environment = encoded / capacity;
+    slot = encoded - environment * capacity;
+    return environment < dispatch.environmentCount && slot < capacity;
+}
+
 kernel void nm_contact_build_deformable_kkt_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
     device const NMContinuumObjectGPU* objects [[buffer(2)]],
     device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
     device const NMDeformableContactGPU* contacts [[buffer(4)]],
-    device const uint* activeIndices [[buffer(5)]],
-    device const uint* activeCounts [[buffer(6)]],
+    device const uint* globalActiveIndices [[buffer(5)]],
+    device const NMIndirectDispatchGPU* activeDispatch [[buffer(6)]],
     device float4* residual [[buffer(7)]],
     device NMMatterStatusGPU* statuses [[buffer(8)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
-    if (capacity == 0u) return;
-    const uint environment = global / capacity;
-    const uint activeSlot = global - environment * capacity;
-    if (environment >= dispatch.environmentCount ||
-        activeSlot >= activeCounts[environment]) return;
-    const uint slot = activeIndices[environment * capacity + activeSlot];
-    if (slot >= capacity) return;
+    uint environment = 0u, slot = 0u;
+    if (!deformableActiveWork(
+            dispatch, globalActiveIndices, activeDispatch,
+            global, environment, slot)) return;
     const uint rowCount = dispatch.contactPairCount + capacity;
     const uint output = 2u * dispatch.environmentCount *
         dispatch.femNodeCount + environment * rowCount +
@@ -2186,8 +2330,8 @@ kernel void nm_contact_build_deformable_kkt_residual(
 kernel void nm_contact_accumulate_deformable_fem_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMDeformableContactGPU* contacts [[buffer(1)]],
-    device const uint* activeIndices [[buffer(2)]],
-    device const uint* activeCounts [[buffer(3)]],
+    device const uint* nodeIncidence [[buffer(2)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
     device float4* residual [[buffer(4)]],
     uint global [[thread_position_in_grid]]
 ) {
@@ -2196,27 +2340,25 @@ kernel void nm_contact_accumulate_deformable_fem_residual(
     const uint environment = global / dispatch.femNodeCount;
     const uint node = global - environment * dispatch.femNodeCount;
     const uint capacity = dispatch.deformableContactCapacity;
-    const uint activeCount = min(activeCounts[environment], capacity);
     const uint base = environment * capacity;
+    const NMIncidenceRangeGPU range = nodeRanges[global];
     float3 impulse = float3(0.0f);
-    for (uint activeSlot = 0u; activeSlot < activeCount; ++activeSlot) {
-        const uint slot = activeIndices[base + activeSlot];
-        if (slot >= capacity) continue;
+    for (uint incidence = 0u; incidence < range.count; ++incidence) {
+        const uint encoded = nodeIncidence[range.first + incidence];
+        const uint slot = encoded >> 2u;
+        const uint local = encoded & 3u;
+        if (slot >= capacity || local >= 4u) continue;
         const NMDeformableContactGPU contact = contacts[base + slot];
-        if ((contact.identity.w & NM_CONTACT_VALID) == 0u) continue;
-        for (uint local = 0u; local < 4u; ++local)
-            if (contact.nodes[local] == node)
-                {
-                    float3 tangent0, tangent1;
-                    deformableContactFrame(
-                        contact.normalAndTOI.xyz, tangent0, tangent1);
-                    const float3 contactImpulse =
-                        contact.impulseAndFriction.x *
-                            contact.normalAndTOI.xyz +
-                        contact.impulseAndFriction.y * tangent0 +
-                        contact.impulseAndFriction.z * tangent1;
-                    impulse += contact.weights[local] * contactImpulse;
-                }
+        if ((contact.identity.w & NM_CONTACT_VALID) == 0u ||
+            contact.nodes[local] != node) continue;
+        float3 tangent0, tangent1;
+        deformableContactFrame(
+            contact.normalAndTOI.xyz, tangent0, tangent1);
+        const float3 contactImpulse =
+            contact.impulseAndFriction.x * contact.normalAndTOI.xyz +
+            contact.impulseAndFriction.y * tangent0 +
+            contact.impulseAndFriction.z * tangent1;
+        impulse += contact.weights[local] * contactImpulse;
     }
     residual[global] += float4(impulse, 0.0f);
 }
@@ -2273,24 +2415,95 @@ kernel void nm_contact_apply_kkt_solution(
     candidateWarmstarts[global] = sample.impulseAndNormal;
 }
 
+// Contact fraction-to-boundary globalization. Determinant/field merit chooses
+// the environment Newton step first; this pass only lowers it when a currently
+// feasible deformable pair would cross the authored activation thickness.
+// The positional direction uses each node's actual multirate dt, matching the
+// candidate update rather than assuming one object cadence.
+kernel void nm_contact_limit_deformable_line_search(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMIncidenceRangeGPU* femNodeRanges [[buffer(2)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
+    device const NMDeformableContactGPU* contacts [[buffer(4)]],
+    device const uint* activeIndices [[buffer(5)]],
+    device const uint* activeCounts [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const float4* correction [[buffer(8)]],
+    device float4* lineSearch [[buffer(9)]],
+    device const NMMatterStatusGPU* statuses [[buffer(10)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount ||
+        !environmentHealthy(statuses, environment)) return;
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint contactBase = environment * capacity;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint activeCount = min(activeCounts[environment], capacity);
+    float bound = 1.0f;
+    for (uint activeSlot = lane; activeSlot < activeCount;
+         activeSlot += 32u) {
+        const uint slot = activeIndices[contactBase + activeSlot];
+        if (slot >= capacity) continue;
+        const NMDeformableContactGPU contact = contacts[contactBase + slot];
+        if ((contact.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        float3 weightedPosition = float3(0.0f);
+        float3 weightedDirection = float3(0.0f);
+        for (uint local = 0u; local < 4u; ++local) {
+            const uint node = contact.nodes[local];
+            if (node >= dispatch.femNodeCount) continue;
+            const uint nodeGlobal = nodeBase + node;
+            const uint objectIndex = femNodeRanges[nodeGlobal].objectIndex;
+            if (objectIndex >= dispatch.objectCount ||
+                objects[objectIndex].representation != NM_REPRESENTATION_FEM)
+                continue;
+            const float dt = objectTimestep(
+                dispatch,
+                schedulers[environment * dispatch.objectCount + objectIndex]);
+            weightedPosition += contact.weights[local] *
+                candidate[nodeGlobal].positionAndMass.xyz;
+            weightedDirection += contact.weights[local] * dt *
+                correction[nodeGlobal].xyz;
+        }
+        const float gap = dot(
+            contact.normalAndTOI.xyz, weightedPosition) -
+            dispatch.numericalLimits.x;
+        const float directionalGap = dot(
+            contact.normalAndTOI.xyz, weightedDirection);
+        if (gap > 0.0f && directionalGap < 0.0f)
+            bound = min(bound, clamp(
+                0.9f * gap / max(-directionalGap, 1.0e-30f),
+                0.0f, 1.0f));
+    }
+    bound = simd_min(bound);
+    const uint objectBase = environment * dispatch.objectCount;
+    const float existing = dispatch.objectCount > 0u
+        ? lineSearch[objectBase].x : 1.0f;
+    const float alpha = min(existing, bound);
+    for (uint objectIndex = lane; objectIndex < dispatch.objectCount;
+         objectIndex += 32u) {
+        float4 state = lineSearch[objectBase + objectIndex];
+        state.x = alpha;
+        lineSearch[objectBase + objectIndex] = state;
+    }
+}
+
 kernel void nm_contact_apply_deformable_kkt_solution(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device NMDeformableContactGPU* contacts [[buffer(1)]],
-    device const uint* activeIndices [[buffer(2)]],
-    device const uint* activeCounts [[buffer(3)]],
+    device const uint* globalActiveIndices [[buffer(2)]],
+    device const NMIndirectDispatchGPU* activeDispatch [[buffer(3)]],
     device const float4* correction [[buffer(4)]],
     device const float4* lineSearch [[buffer(5)]],
     device NMDeformableWarmstartGPU* warmstarts [[buffer(6)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
-    if (capacity == 0u) return;
-    const uint environment = global / capacity;
-    const uint activeSlot = global - environment * capacity;
-    if (environment >= dispatch.environmentCount ||
-        activeSlot >= activeCounts[environment]) return;
-    const uint slot = activeIndices[environment * capacity + activeSlot];
-    if (slot >= capacity) return;
+    uint environment = 0u, slot = 0u;
+    if (!deformableActiveWork(
+            dispatch, globalActiveIndices, activeDispatch,
+            global, environment, slot)) return;
     device NMDeformableContactGPU& contact =
         contacts[environment * capacity + slot];
     if ((contact.identity.w & NM_CONTACT_VALID) == 0u ||

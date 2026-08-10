@@ -210,23 +210,38 @@ thermal/pore/electric/activation fields, analytic-proxy multipliers, and
 dynamic deformable-contact normal/tangent multipliers. Restarted flexible GMRES
 uses compensated SIMD32 reductions, selective reorthogonalization, device
 Givens rotations, and an inexact-Newton forcing schedule. The right
-preconditioner combines node-star mechanics blocks, an object-scale Galerkin
+preconditioner combines fine node-star mechanics blocks, overlapping
+connectivity-aware tetrahedron-patch corrections, an object-scale Galerkin
 translation/mean-pressure correction, a fixed-pass field polynomial smoother,
-and contact response diagonals. FGMRES is the only linear iteration owner;
-the field smoother has no independent convergence or publication contract.
+contact response diagonals, and an approximate contact-to-mechanics cross
+lift. FGMRES is the only linear iteration owner; the patch and field smoothers
+have no independent convergence or publication contract.
 
 All coupled objects in one environment use the minimum admissible determinant
-and mixed-volume backtracking step, so cross-object contact rows never publish
-inconsistent Newton fractions. FEM surface adjacency is cooked, while current
-and cohesive surface primitives, swept bounds, stable Morton ordering,
-non-adjacent self-contact candidates, CCD witnesses, and active KKT rows are
-rebuilt on Metal. Deformable warm starts store only stable source/frame and
-multiplier state and participate in the same checkpoint/commit/rollback
-transaction as nodes, fields, topology, materials, schedulers, and rigid
-contact warm starts.
+and mixed-volume backtracking step plus a deformable-contact
+fraction-to-boundary cap, so cross-object contact rows never publish
+inconsistent or currently feasible crossing Newton fractions. FEM surface
+adjacency is cooked, while current and cohesive surface primitives, swept
+bounds, stable Morton ordering, non-adjacent self-contact candidates, CCD
+witnesses, and active KKT rows are rebuilt on Metal. Stable compacted rows
+also produce deterministic contact-node CSR and a cross-environment indirect
+work list; node gathers visit only incident rows and downstream contact kernels
+dispatch only active work without a CPU synchronization. Deformable warm
+starts store only stable source/frame and multiplier state and participate in
+the same checkpoint/commit/rollback transaction as nodes, fields, topology,
+materials, schedulers, and rigid contact warm starts.
+
+Stateful FEM constitutive evaluation projects the authored next-state bytecode
+at each Newton candidate. The matrix-free Jacobian uses the exact direct
+stress tangent at that projected state plus a local directional difference for
+the state-chain contribution. Publication remains transactional at nonlinear
+acceptance; the projection is candidate-consistent but is not a generic
+implicit return-map construction.
 
 This is a finite-capacity conservative-advancement contact method, not an exact
-IPC barrier-energy method. Material state projection remains authored explicit
+IPC barrier-energy method. The fraction-to-boundary step protects currently
+feasible active witnesses; it does not prove global non-intersection or replace
+barrier curvature. Material state projection remains authored explicit
 bytecode unless a material provides a specialized update. Arbitrary unbounded
 crack remeshing and a proof of non-intersection are outside the current
 contract.

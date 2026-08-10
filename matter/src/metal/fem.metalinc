@@ -14,6 +14,10 @@ struct NMKKTContactArguments {
     device NMDeformableContactGPU* deformableContacts [[id(10)]];
     device const uint* deformableActiveIndices [[id(11)]];
     device const uint* deformableActiveCounts [[id(12)]];
+    device const uint* deformableNodeIncidence [[id(13)]];
+    device const NMIncidenceRangeGPU* deformableNodeRanges [[id(14)]];
+    device const uint* deformableGlobalActiveIndices [[id(15)]];
+    device const NMIndirectDispatchGPU* deformableActiveDispatch [[id(16)]];
 };
 
 inline void deformableContactFrame(
@@ -651,7 +655,7 @@ kernel void nm_fem_internal_forces(
     bool valid = isfinite(determinantValue) &&
         determinantValue >= material.validity.x &&
         determinantValue <= material.validity.y;
-    float3x3 stress = evaluateStress(
+    float3x3 stress = evaluateAlgorithmicStress(
         material,
         programs,
         instructions,
@@ -926,19 +930,9 @@ kernel void nm_fem_apply_operator_elements(
         ? nullptr
         : acceptedMaterialState + global * dispatch.materialStateStride;
     bool valid = true;
-    float3x3 analytic = evaluateStress(
-        material,
-        programs,
-        instructions,
-        environmentParameters + environment * dispatch.parameterCount,
-        internalState,
-        deformation,
-        deformationRate,
-        dt,
-        material.bulk.y,
-        valid
-    );
-    float3x3 tangent = evaluateTangentVector(
+    float3x3 analytic;
+    float3x3 tangent;
+    evaluateAlgorithmicStressTangent(
         material,
         programs,
         instructions,
@@ -950,6 +944,8 @@ kernel void nm_fem_apply_operator_elements(
         rateDirection,
         dt,
         material.bulk.y,
+        analytic,
+        tangent,
         valid
     );
     if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
@@ -1920,19 +1916,15 @@ inline float4 fusedFEMOperatorAtNode(
             ? nullptr
             : materialState + globalTet * dispatch.materialStateStride;
         bool elementValid = true;
-        float3x3 analytic = evaluateStress(
-            material, programs, instructions,
-            environmentParameters + environment * dispatch.parameterCount,
-            internalState, deformation, deformationRate, dt,
-            material.bulk.y, elementValid
-        );
-        float3x3 tangent = evaluateTangentVector(
+        float3x3 analytic;
+        float3x3 tangent;
+        evaluateAlgorithmicStressTangent(
             material, programs, instructions,
             environmentParameters + environment * dispatch.parameterCount,
             internalState, deformation, deformationDirection,
             deformationRate,
             deformationDirection / max(dt, 1.0e-12f),
-            dt, material.bulk.y, elementValid
+            dt, material.bulk.y, analytic, tangent, elementValid
         );
         if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
             bool found = false;
