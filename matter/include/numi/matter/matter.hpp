@@ -659,6 +659,21 @@ struct RuntimeDiagnostics {
     std::string message;
 };
 
+struct TopologyGrowthRequest {
+    bool required = false;
+    std::uint32_t allocationGeneration = 0u;
+    std::uint32_t firstObject = NM_INVALID_INDEX;
+    std::uint32_t reason = NM_STATUS_SUCCESS;
+    std::uint32_t nodes = 0u;
+    std::uint32_t tetrahedra = 0u;
+    std::uint32_t cohesiveFaces = 0u;
+    std::uint32_t punctureChannels = 0u;
+    std::uint32_t incidence = 0u;
+    std::uint32_t mutationCommands = 0u;
+    std::uint32_t rigidContacts = 0u;
+    std::uint32_t deformableContacts = 0u;
+};
+
 // Explicit completion-time diagnostic readback.  This is intentionally a
 // snapshot rather than a live mapped view: authoritative simulation buffers
 // remain private to Metal and callers cannot observe partially encoded work.
@@ -714,6 +729,14 @@ public:
         const RuntimeConfiguration& configuration = {}
     );
     [[nodiscard]] RuntimeDiagnostics encode(const EncodeRequest& request);
+    [[nodiscard]] TopologyGrowthRequest pendingTopologyGrowth() const noexcept;
+    // Encode accepted-state migration from an older runtime into this already
+    // initialized, geometrically larger runtime. The caller owns submission;
+    // neither runtime commits or waits for the borrowed command buffer.
+    [[nodiscard]] RuntimeDiagnostics encodeTopologyGrowth(
+        void* commandBuffer,
+        const Runtime& source
+    );
     // Releases a pre/post transaction when the enclosing MetalWorld command
     // buffer is abandoned before commit. Safe to call for an unrelated or
     // already-completed command buffer.

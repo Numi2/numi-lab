@@ -990,11 +990,11 @@ ConstitutiveCompileResult compileConstitutive(
     gpu.stateInitialOffset = NM_INVALID_INDEX;
     gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
     gpu.dissipationProgram = NM_INVALID_INDEX;
-    gpu.projectionKind = material.hint == ConstitutiveHint::vonMises
-        ? NM_MATERIAL_PROJECTION_VON_MISES
-        : material.hint == ConstitutiveHint::druckerPrager
-            ? NM_MATERIAL_PROJECTION_DRUCKER_PRAGER
-            : NM_MATERIAL_PROJECTION_GENERIC;
+    // The constitutive hint selects authored stress bytecode only. Plastic
+    // return mapping is owned by an explicit update or implicit residual; do
+    // not advertise a specialized projection policy that the device does not
+    // execute.
+    gpu.projectionKind = NM_MATERIAL_PROJECTION_GENERIC;
     gpu.viscousStressProgramOffset = NM_INVALID_INDEX;
     gpu.viscousTangentProgramOffset = NM_INVALID_INDEX;
     gpu.implicitResidualProgramOffset = NM_INVALID_INDEX;

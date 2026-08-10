@@ -470,13 +470,14 @@ inline float3x3 componentsMatrix(thread const float* values) {
     ));
 }
 
-template <typename StatePointer>
-inline float3x3 evaluateStress(
+template <typename StatePointer, typename CandidatePointer>
+inline float3x3 evaluateStressWithCandidate(
     const NMMaterialGPU material,
     device const NMScalarProgramGPU* programs,
     device const NMExpressionInstructionGPU* instructions,
     device const float* parameters,
     StatePointer internalState,
+    CandidatePointer candidateState,
     const float3x3 deformation,
     const float3x3 deformationRate,
     const float timestep,
@@ -494,12 +495,13 @@ inline float3x3 evaluateStress(
     matrixComponents(deformationRate, rate);
     float values[9];
     for (uint component = 0u; component < 9u; ++component) {
-        values[component] = evaluateScalarProgram(
+        values[component] = evaluateScalarProgramWithCandidate(
             material.stressProgramOffset + component,
             programs,
             instructions,
             parameters + material.parameterOffset,
             internalState,
+            candidateState,
             f,
             direction,
             rate,
@@ -514,12 +516,13 @@ inline float3x3 evaluateStress(
     float3x3 stress = componentsMatrix(values);
     if (material.viscousStressProgramOffset != NM_INVALID_INDEX) {
         for (uint component = 0u; component < 9u; ++component) {
-            values[component] = evaluateScalarProgram(
+            values[component] = evaluateScalarProgramWithCandidate(
                 material.viscousStressProgramOffset + component,
                 programs,
                 instructions,
                 parameters + material.parameterOffset,
                 internalState,
+                candidateState,
                 f,
                 direction,
                 rate,
@@ -537,12 +540,33 @@ inline float3x3 evaluateStress(
 }
 
 template <typename StatePointer>
-inline float3x3 evaluateTangentVector(
+inline float3x3 evaluateStress(
     const NMMaterialGPU material,
     device const NMScalarProgramGPU* programs,
     device const NMExpressionInstructionGPU* instructions,
     device const float* parameters,
     StatePointer internalState,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid
+) {
+    return evaluateStressWithCandidate(
+        material, programs, instructions, parameters,
+        internalState, internalState, deformation, deformationRate,
+        timestep, temperature, valid
+    );
+}
+
+template <typename StatePointer, typename CandidatePointer>
+inline float3x3 evaluateTangentVectorWithCandidate(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    CandidatePointer candidateState,
     const float3x3 deformation,
     const float3x3 deformationDirection,
     const float3x3 deformationRate,
@@ -559,12 +583,13 @@ inline float3x3 evaluateTangentVector(
     matrixComponents(deformationRate, rate);
     float values[9];
     for (uint component = 0u; component < 9u; ++component) {
-        values[component] = evaluateScalarProgram(
+        values[component] = evaluateScalarProgramWithCandidate(
             material.tangentProgramOffset + component,
             programs,
             instructions,
             parameters + material.parameterOffset,
             internalState,
+            candidateState,
             f,
             direction,
             rate,
@@ -580,12 +605,13 @@ inline float3x3 evaluateTangentVector(
     if (material.viscousTangentProgramOffset != NM_INVALID_INDEX) {
         matrixComponents(rateDirection, direction);
         for (uint component = 0u; component < 9u; ++component) {
-            values[component] = evaluateScalarProgram(
+            values[component] = evaluateScalarProgramWithCandidate(
                 material.viscousTangentProgramOffset + component,
                 programs,
                 instructions,
                 parameters + material.parameterOffset,
                 internalState,
+                candidateState,
                 f,
                 direction,
                 rate,
@@ -600,6 +626,28 @@ inline float3x3 evaluateTangentVector(
         tangent += componentsMatrix(values);
     }
     return tangent;
+}
+
+template <typename StatePointer>
+inline float3x3 evaluateTangentVector(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    const float3x3 deformation,
+    const float3x3 deformationDirection,
+    const float3x3 deformationRate,
+    const float3x3 rateDirection,
+    const float timestep,
+    const float temperature,
+    thread bool& valid
+) {
+    return evaluateTangentVectorWithCandidate(
+        material, programs, instructions, parameters,
+        internalState, internalState, deformation, deformationDirection,
+        deformationRate, rateDirection, timestep, temperature, valid
+    );
 }
 
 inline bool evaluateStateUpdate(
@@ -807,10 +855,34 @@ inline bool projectMaterialState(
                 jacobian, residual, material.stateCount)) {
             return false;
         }
+        float trialState[NM_MAX_MATERIAL_STATE];
+        float trialResidual[NM_MAX_MATERIAL_STATE];
         float step = 1.0f;
-        for (uint state = 0u; state < material.stateCount; ++state) {
-            projectedState[state] += step * residual[state];
+        bool acceptedStep = false;
+        for (uint backtrack = 0u; backtrack < 8u; ++backtrack) {
+            for (uint state = 0u; state < material.stateCount; ++state)
+                trialState[state] = projectedState[state] +
+                    step * residual[state];
+            if (!evaluateImplicitMaterialSystem(
+                    material, programs, instructions, parameters,
+                    acceptedState, trialState, deformation,
+                    float3x3(0.0f), deformationRate, timestep, temperature,
+                    trialResidual, jacobian, false)) {
+                step *= 0.5f;
+                continue;
+            }
+            float trialNorm = 0.0f;
+            for (uint state = 0u; state < material.stateCount; ++state)
+                trialNorm = max(trialNorm, abs(trialResidual[state]));
+            if (trialNorm <= (1.0f - 1.0e-4f * step) * residualNorm) {
+                for (uint state = 0u; state < material.stateCount; ++state)
+                    projectedState[state] = trialState[state];
+                acceptedStep = true;
+                break;
+            }
+            step *= 0.5f;
         }
+        if (!acceptedStep) return false;
     }
     if (!evaluateImplicitMaterialSystem(
             material, programs, instructions, parameters, acceptedState,
@@ -853,8 +925,9 @@ inline float3x3 evaluateAlgorithmicStress(
     if (!valid) {
         return float3x3(0.0f);
     }
-    return evaluateStress(
-        material, programs, instructions, parameters, projectedState,
+    return evaluateStressWithCandidate(
+        material, programs, instructions, parameters,
+        acceptedState, projectedState,
         deformation, deformationRate, timestep, temperature, valid
     );
 }
@@ -898,12 +971,14 @@ inline void evaluateAlgorithmicStressTangent(
         tangent = float3x3(0.0f);
         return;
     }
-    stress = evaluateStress(
-        material, programs, instructions, parameters, projectedState,
+    stress = evaluateStressWithCandidate(
+        material, programs, instructions, parameters,
+        acceptedState, projectedState,
         deformation, deformationRate, timestep, temperature, valid
     );
-    tangent = evaluateTangentVector(
-        material, programs, instructions, parameters, projectedState,
+    tangent = evaluateTangentVectorWithCandidate(
+        material, programs, instructions, parameters,
+        acceptedState, projectedState,
         deformation, deformationDirection, deformationRate, rateDirection,
         timestep, temperature, valid
     );
@@ -990,8 +1065,9 @@ inline void evaluateAlgorithmicStressTangent(
     );
     float3x3 perturbedStateStress = float3x3(0.0f);
     if (perturbedValid) {
-        perturbedStateStress = evaluateStress(
-            material, programs, instructions, parameters, perturbedState,
+        perturbedStateStress = evaluateStressWithCandidate(
+            material, programs, instructions, parameters,
+            acceptedState, perturbedState,
             deformation, deformationRate, timestep, temperature,
             perturbedValid
         );
@@ -1008,8 +1084,9 @@ inline void evaluateAlgorithmicStressTangent(
         timestep, temperature, perturbedState
     );
     if (perturbedValid) {
-        perturbedStateStress = evaluateStress(
-            material, programs, instructions, parameters, perturbedState,
+        perturbedStateStress = evaluateStressWithCandidate(
+            material, programs, instructions, parameters,
+            acceptedState, perturbedState,
             deformation, deformationRate, timestep, temperature,
             perturbedValid
         );

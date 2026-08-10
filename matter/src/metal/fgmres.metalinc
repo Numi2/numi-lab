@@ -2019,8 +2019,9 @@ kernel void nm_fgmres_accumulate_deformable_contacts(
 }
 
 // Active MPM grid velocities occupy a first-class block of the monolithic
-// Newton-FGMRES vector. P2G supplies the backward-Euler force predictor; this
-// block adds inertia and IPC coupling without a host-visible grid map.
+// Newton-FGMRES vector. P2G supplies the force predictor using the owning
+// object's scheduled timestep; this block solves corrections around that
+// predictor and must not reconstruct it with the frame timestep.
 kernel void nm_mpm_build_implicit_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -2041,12 +2042,7 @@ kernel void nm_mpm_build_implicit_residual(
     if (generations[global] != microstep.reserved) return;
     const NMGridNodeStateGPU node = nodes[global];
     if (!(node.positionAndMass.w > 0.0f)) return;
-    const float3 predicted = node.velocityAndInverseMass.xyz +
-        dispatch.gravityAndTimestep.w *
-        (node.forceAndEnergy.xyz * node.velocityAndInverseMass.w +
-         dispatch.gravityAndTimestep.xyz);
-    float3 rightHandSide = node.positionAndMass.w *
-        (predicted - node.candidateVelocity.xyz);
+    float3 rightHandSide = float3(0.0f);
     const NMIncidenceRangeGPU range = contactRanges[nodeIndex];
     const uint sampleBase = environment * dispatch.contactPairCount;
     for (uint local = 0u; local < range.count; ++local) {

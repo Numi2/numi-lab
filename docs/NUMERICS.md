@@ -204,47 +204,63 @@ geometry safely.
 
 ## Matter generalized continuum KKT
 
-Matter's implicit FEM authority is one environment-wide semismooth Newton
-system. Its matrix-free generalized unknown packs velocity and mixed pressure,
-thermal/pore/electric/activation fields, analytic-proxy multipliers, and
-dynamic deformable-contact normal/tangent multipliers. Restarted flexible GMRES
+Matter's continuum solve is one environment-wide Newton system. Its
+matrix-free generalized unknown packs FEM velocity and mixed pressure,
+thermal/pore/electric/activation fields, and active sparse MPM grid velocity.
+Contact uses a primal logarithmic distance barrier and contributes gradients
+and PSD-projected rank-one normal curvature directly to those mechanical
+blocks. Restarted flexible GMRES
 uses compensated SIMD32 reductions, selective reorthogonalization, device
 Givens rotations, and an inexact-Newton forcing schedule. The right
 preconditioner combines fine node-star mechanics blocks, overlapping
 connectivity-aware tetrahedron-patch corrections, an object-scale Galerkin
 translation/mean-pressure correction, a fixed-pass field polynomial smoother,
-contact response diagonals, and an approximate contact-to-mechanics cross
-lift. FGMRES is the only linear iteration owner; the patch and field smoothers
+MPM lumped-mass blocks, and barrier curvature. FGMRES is the only linear
+iteration owner; the patch and field smoothers
 have no independent convergence or publication contract.
 
 All coupled objects in one environment use the minimum admissible determinant
-and mixed-volume backtracking step plus a deformable-contact
-fraction-to-boundary cap, so cross-object contact rows never publish
-inconsistent or currently feasible crossing Newton fractions. FEM surface
+mixed-volume backtracking, conservative CCD, and a barrier
+fraction-to-boundary cap. FEM surface
 adjacency is cooked, while current and cohesive surface primitives, swept
 bounds, stable Morton ordering, non-adjacent self-contact candidates, CCD
-witnesses, and active KKT rows are rebuilt on Metal. Stable compacted rows
+witnesses, and active barrier pairs are rebuilt on Metal. Stable compacted pairs
 also produce deterministic contact-node CSR and a cross-environment indirect
 work list; node gathers visit only incident rows and downstream contact kernels
 dispatch only active work without a CPU synchronization. Deformable warm
-starts store only stable source/frame and multiplier state and participate in
+starts store only stable source/frame and lagged-friction state and participate in
 the same checkpoint/commit/rollback transaction as nodes, fields, topology,
 materials, schedulers, and rigid contact warm starts.
 
-Stateful FEM constitutive evaluation projects the authored next-state bytecode
-at each Newton candidate. The matrix-free Jacobian uses the exact direct
-stress tangent at that projected state plus a local directional difference for
-the state-chain contribution. Publication remains transactional at nonlinear
-acceptance; the projection is candidate-consistent but is not a generic
-implicit return-map construction.
+Matter Language distinguishes accepted `state` from `next(state)`. An authored
+`implicit state = residual;` declaration compiles local residual, pivoted
+Jacobian, deformation-action, and stress-state derivative bytecode. Each
+particle/tetrahedron executes damped bounded local Newton and the global operator uses
+the consistent action `P_F - P_z R_z^-1 R_F`. Explicit `update` remains a
+supported compatibility path. Constitutive hints do not imply a return map:
+inelastic evolution is present only when the material authors one of those
+state laws.
 
-This is a finite-capacity conservative-advancement contact method, not an exact
-IPC barrier-energy method. The fraction-to-boundary step protects currently
-feasible active witnesses; it does not prove global non-intersection or replace
-barrier curvature. Material state projection remains authored explicit
-bytecode unless a material provides a specialized update. Arbitrary unbounded
-crack remeshing and a proof of non-intersection are outside the current
-contract.
+Topology capacity is immutable during a borrowed submission. Existing
+cohesive insertion, erosion, and crack/channel exposure execute in stable
+command order and rebuild incidence on device. Exhaustion reports
+`NM_STATUS_TOPOLOGY_GROWTH_REQUIRED`; after completion the runtime publishes a
+geometric `TopologyGrowthRequest`. A larger initialized runtime imports the
+accepted state through `encodeTopologyGrowth` on a borrowed command buffer.
+The logical mesh can therefore grow across submissions until 32-bit indices or
+the device working set is exhausted, without allocation inside a transaction.
+
+The MPM vector block currently linearizes lumped grid inertia and analytic
+rigid-barrier curvature around the P2G force predictor. It does not yet contain
+the particle constitutive tangent or FEM/MPM barrier pairs, so it is not a
+universal implicit MPM-FEM operator. The contact Hessian is not the full
+mollified vertex-triangle/edge-edge IPC Hessian, and articulated rigid motion
+remains an eliminated Delassus response rather than a primal Krylov block.
+Those are active solver boundaries, not completed claims.
+
+The implementation uses FP32 barrier arithmetic and conservative CCD. It does
+not claim exact-real arithmetic or a mathematical proof of non-intersection;
+those remain distinct from executable nonpenetration evidence.
 
 ## Current accuracy boundary
 

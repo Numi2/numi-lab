@@ -298,6 +298,11 @@ struct Runtime::State {
         std::uint32_t identificationCheckpoint = 0u;
         bool identificationAdvanced = false;
     };
+    struct GrowthOwnership {
+        std::mutex mutex;
+        TopologyGrowthRequest pending;
+        id<MTLBuffer> readback = nil;
+    };
 
     bool captureEvents = true;
     bool captureDiagnostics = true;
@@ -310,6 +315,10 @@ struct Runtime::State {
     bool hasAdaptive = false;
     std::shared_ptr<CommandOwnership> commandOwnership =
         std::make_shared<CommandOwnership>();
+    std::shared_ptr<GrowthOwnership> growthOwnership =
+        std::make_shared<GrowthOwnership>();
+    std::vector<NMContinuumObjectGPU> objectLayout;
+    std::vector<NMFEMCapacityGPU> capacityLayout;
 
     id<MTLBuffer> dispatchBuffer = nil;
     id<MTLBuffer> mixedSolver = nil;
@@ -531,6 +540,8 @@ RuntimeDiagnostics Runtime::initialize(
         }
         auto candidate = std::make_unique<State>();
         candidate->dispatch = world.dispatch;
+        candidate->objectLayout = world.objects;
+        candidate->capacityLayout = world.fem.capacities;
         candidate->mixedSolverValue = world.mixedSolver;
         candidate->mutationFingerprint = detail::hashBytes(
             world.fem.mutationCommands.data(),
@@ -621,6 +632,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_topology_rebuild_prefix",
             "nm_topology_rebuild_scatter",
             "nm_topology_rebuild_finalize",
+            "nm_topology_publish_growth_request",
             "nm_topology_commit",
             "nm_topology_rollback",
             "nm_mixed_checkpoint",
@@ -816,6 +828,9 @@ RuntimeDiagnostics Runtime::initialize(
         }
 
         bool valid = true;
+        candidate->growthOwnership->readback =
+            sharedScratch<NMTopologyGrowthRequestGPU>(
+                candidate->device, 1u, valid, candidate->residentBytes);
         const std::size_t contactPairCount = world.contact.pairs.size();
         candidate->contactActiveCapacity = std::min<std::uint32_t>(
             candidate->dispatch.reservedMixed1,
@@ -4464,13 +4479,47 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             [encoder setBuffer:state.bodyProxyRanges offset:0u atIndex:7u];
         });
 
+        dispatchThreads("nm_topology_publish_growth_request", 1u, [&] {
+            setDispatch();
+            [encoder setBuffer:state.femCapacities offset:0u atIndex:1u];
+            [encoder setBuffer:state.topologyStatesAccepted offset:0u atIndex:2u];
+            [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+            [encoder setBuffer:state.growthOwnership->readback offset:0u atIndex:4u];
+        });
+
         [encoder endEncoding];
         if (firstEncodeForCommandBuffer) {
             ownership->activeCommandBuffer = request.commandBuffer;
             const std::weak_ptr<State::CommandOwnership> weakOwnership =
                 ownership;
+            const std::weak_ptr<State::GrowthOwnership> weakGrowth =
+                state.growthOwnership;
             void* const borrowedIdentity = request.commandBuffer;
             [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                if (completed.status == MTLCommandBufferStatusCompleted) {
+                    if (const auto growth = weakGrowth.lock()) {
+                        const auto* gpu = static_cast<
+                            const NMTopologyGrowthRequestGPU*>(
+                                growth->readback.contents);
+                        if (gpu != nullptr) {
+                            TopologyGrowthRequest pending;
+                            pending.required = gpu->identity.x != 0u;
+                            pending.allocationGeneration = gpu->identity.y;
+                            pending.firstObject = gpu->identity.z;
+                            pending.reason = gpu->identity.w;
+                            pending.nodes = gpu->topology.x;
+                            pending.tetrahedra = gpu->topology.y;
+                            pending.cohesiveFaces = gpu->topology.z;
+                            pending.punctureChannels = gpu->topology.w;
+                            pending.incidence = gpu->work.x;
+                            pending.mutationCommands = gpu->work.y;
+                            pending.rigidContacts = gpu->work.z;
+                            pending.deformableContacts = gpu->work.w;
+                            const std::lock_guard growthLock(growth->mutex);
+                            growth->pending = pending;
+                        }
+                    }
+                }
                 if (const auto locked = weakOwnership.lock()) {
                     const std::lock_guard lock(locked->mutex);
                     if (locked->activeCommandBuffer == borrowedIdentity) {
@@ -4518,6 +4567,276 @@ void Runtime::cancel(void* commandBuffer) noexcept {
             ownership->physicsSubstep = 0u;
         }
     } catch (...) {
+    }
+}
+
+TopologyGrowthRequest Runtime::pendingTopologyGrowth() const noexcept {
+    if (state_ == nullptr) return {};
+    try {
+        const auto growth = state_->growthOwnership;
+        const std::lock_guard lock(growth->mutex);
+        return growth->pending;
+    } catch (...) {
+        return {};
+    }
+}
+
+RuntimeDiagnostics Runtime::encodeTopologyGrowth(
+    void* commandBufferPointer,
+    const Runtime& source
+) {
+    @autoreleasepool {
+        RuntimeDiagnostics diagnostics;
+        if (state_ == nullptr || source.state_ == nullptr ||
+            commandBufferPointer == nullptr) {
+            diagnostics.message =
+                "topology growth migration requires two initialized runtimes and a borrowed command buffer";
+            return diagnostics;
+        }
+        State& destination = *state_;
+        const State& previous = *source.state_;
+        if (destination.device.registryID != previous.device.registryID ||
+            destination.dispatch.environmentCount !=
+                previous.dispatch.environmentCount ||
+            destination.objectLayout.size() != previous.objectLayout.size() ||
+            destination.dispatch.materialStateStride !=
+                previous.dispatch.materialStateStride) {
+            diagnostics.message =
+                "topology growth destination is not layout-compatible with the source runtime";
+            return diagnostics;
+        }
+        for (std::size_t object = 0u;
+             object < previous.objectLayout.size(); ++object) {
+            if (destination.objectLayout[object].representation !=
+                    previous.objectLayout[object].representation ||
+                destination.objectLayout[object].stateCount <
+                    previous.objectLayout[object].stateCount ||
+                destination.objectLayout[object].elementCount <
+                    previous.objectLayout[object].elementCount ||
+                destination.capacityLayout[object].topology.z <
+                    previous.capacityLayout[object].topology.z ||
+                destination.capacityLayout[object].topology.w <
+                    previous.capacityLayout[object].topology.w) {
+                diagnostics.message =
+                    "topology growth destination did not geometrically contain every source arena";
+                return diagnostics;
+            }
+        }
+        {
+            std::scoped_lock lock(
+                destination.commandOwnership->mutex,
+                previous.commandOwnership->mutex);
+            if (destination.commandOwnership->activeCommandBuffer != nullptr ||
+                previous.commandOwnership->activeCommandBuffer != nullptr) {
+                diagnostics.message =
+                    "topology growth migration must be encoded between completed submissions";
+                return diagnostics;
+            }
+            destination.commandOwnership->activeCommandBuffer =
+                commandBufferPointer;
+            previous.commandOwnership->activeCommandBuffer =
+                commandBufferPointer;
+        }
+        id<MTLCommandBuffer> commandBuffer =
+            (__bridge id<MTLCommandBuffer>)commandBufferPointer;
+        id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
+        if (blit == nil) {
+            std::scoped_lock lock(
+                destination.commandOwnership->mutex,
+                previous.commandOwnership->mutex);
+            destination.commandOwnership->activeCommandBuffer = nullptr;
+            previous.commandOwnership->activeCommandBuffer = nullptr;
+            diagnostics.message =
+                "failed to create topology growth migration encoder";
+            return diagnostics;
+        }
+        [blit setLabel:@"Numi Matter topology growth migration"];
+        const auto copyBytes = ^(
+            id<MTLBuffer> input,
+            const NSUInteger inputOffset,
+            id<MTLBuffer> output,
+            const NSUInteger outputOffset,
+            const NSUInteger bytes
+        ) {
+            if (bytes != 0u)
+                [blit copyFromBuffer:input sourceOffset:inputOffset
+                            toBuffer:output destinationOffset:outputOffset
+                                size:bytes];
+        };
+        const auto copyWholeAccepted = ^(
+            id<MTLBuffer> input,
+            id<MTLBuffer> accepted,
+            id<MTLBuffer> candidate,
+            id<MTLBuffer> checkpoint
+        ) {
+            const NSUInteger bytes = std::min(input.length, accepted.length);
+            copyBytes(input, 0u, accepted, 0u, bytes);
+            copyBytes(input, 0u, candidate, 0u,
+                std::min(input.length, candidate.length));
+            copyBytes(input, 0u, checkpoint, 0u,
+                std::min(input.length, checkpoint.length));
+        };
+        copyWholeAccepted(previous.particleAccepted,
+            destination.particleAccepted, destination.particleCandidate,
+            destination.particleCheckpoint);
+        copyWholeAccepted(previous.particleMaterialStateAccepted,
+            destination.particleMaterialStateAccepted,
+            destination.particleMaterialStateCandidate,
+            destination.particleMaterialStateCheckpoint);
+        copyBytes(previous.adaptive, 0u, destination.adaptive, 0u,
+            std::min(previous.adaptive.length, destination.adaptive.length));
+        copyBytes(previous.schedulers, 0u, destination.schedulers, 0u,
+            std::min(previous.schedulers.length,
+                     destination.schedulers.length));
+        copyWholeAccepted(previous.learnedWeightsAccepted,
+            destination.learnedWeightsAccepted,
+            destination.learnedWeightsCandidate,
+            destination.learnedWeightsCheckpoint);
+
+        const NSUInteger environments = previous.dispatch.environmentCount;
+        const NSUInteger stateStride = previous.dispatch.materialStateStride;
+        for (NSUInteger environment = 0u; environment < environments;
+             ++environment) {
+            NSUInteger sourceFaceOffset = 0u;
+            NSUInteger destinationFaceOffset = 0u;
+            NSUInteger sourceChannelOffset = 0u;
+            NSUInteger destinationChannelOffset = 0u;
+            for (std::size_t objectIndex = 0u;
+                 objectIndex < previous.objectLayout.size(); ++objectIndex) {
+                const NMContinuumObjectGPU sourceObject =
+                    previous.objectLayout[objectIndex];
+                const NMContinuumObjectGPU destinationObject =
+                    destination.objectLayout[objectIndex];
+                const NSUInteger sourceNode =
+                    environment * previous.dispatch.femNodeCount +
+                    sourceObject.stateOffset;
+                const NSUInteger destinationNode =
+                    environment * destination.dispatch.femNodeCount +
+                    destinationObject.stateOffset;
+                const NSUInteger nodeCount = sourceObject.stateCount;
+                const NSUInteger sourceTet =
+                    environment * previous.dispatch.tetrahedronCount +
+                    sourceObject.elementOffset;
+                const NSUInteger destinationTet =
+                    environment * destination.dispatch.tetrahedronCount +
+                    destinationObject.elementOffset;
+                const NSUInteger tetCount = sourceObject.elementCount;
+                const auto copyNodeArena = [&](id<MTLBuffer> input,
+                                               id<MTLBuffer> output,
+                                               const NSUInteger elementSize) {
+                    copyBytes(input, sourceNode * elementSize, output,
+                        destinationNode * elementSize, nodeCount * elementSize);
+                };
+                for (id<MTLBuffer> output : @[
+                         destination.femAccepted,
+                         destination.femCandidate,
+                         destination.femCheckpoint])
+                    copyNodeArena(previous.femAccepted, output,
+                        sizeof(NMFEMNodeStateGPU));
+                for (id<MTLBuffer> output : @[
+                         destination.femFieldsAccepted,
+                         destination.femFieldsCandidate,
+                         destination.femFieldsCheckpoint])
+                    copyNodeArena(previous.femFieldsAccepted, output,
+                        sizeof(NMFEMFieldStateGPU));
+                for (id<MTLBuffer> output : @[
+                         destination.femTopologyNodesAccepted,
+                         destination.femTopologyNodesCandidate,
+                         destination.femTopologyNodesCheckpoint])
+                    copyNodeArena(previous.femTopologyNodesAccepted, output,
+                        sizeof(NMFEMTopologyNodeGPU));
+                const auto copyTetArena = [&](id<MTLBuffer> input,
+                                              id<MTLBuffer> output,
+                                              const NSUInteger elementSize) {
+                    copyBytes(input, sourceTet * elementSize, output,
+                        destinationTet * elementSize, tetCount * elementSize);
+                };
+                for (id<MTLBuffer> output : @[
+                         destination.femTetrahedraAccepted,
+                         destination.femTetrahedraCandidate,
+                         destination.femTetrahedraCheckpoint])
+                    copyTetArena(previous.femTetrahedraAccepted, output,
+                        sizeof(NMTetrahedronGPU));
+                if (stateStride != 0u) {
+                    const NSUInteger scalar = sizeof(float);
+                    for (id<MTLBuffer> output : @[
+                             destination.femMaterialStateAccepted,
+                             destination.femMaterialStateCandidate,
+                             destination.femMaterialStateCheckpoint])
+                        copyBytes(previous.femMaterialStateAccepted,
+                            sourceTet * stateStride * scalar, output,
+                            destinationTet * stateStride * scalar,
+                            tetCount * stateStride * scalar);
+                }
+                const NSUInteger oldFaces =
+                    previous.capacityLayout[objectIndex].topology.z;
+                const NSUInteger newFaces =
+                    destination.capacityLayout[objectIndex].topology.z;
+                const NSUInteger oldChannels =
+                    previous.capacityLayout[objectIndex].topology.w;
+                const NSUInteger newChannels =
+                    destination.capacityLayout[objectIndex].topology.w;
+                const NSUInteger sourceFace = environment *
+                    previous.dispatch.cohesiveFaceCount + sourceFaceOffset;
+                const NSUInteger destinationFace = environment *
+                    destination.dispatch.cohesiveFaceCount +
+                    destinationFaceOffset;
+                for (id<MTLBuffer> output : @[
+                         destination.cohesiveFacesAccepted,
+                         destination.cohesiveFacesCandidate,
+                         destination.cohesiveFacesCheckpoint])
+                    copyBytes(previous.cohesiveFacesAccepted,
+                        sourceFace * sizeof(NMCohesiveFaceGPU), output,
+                        destinationFace * sizeof(NMCohesiveFaceGPU),
+                        oldFaces * sizeof(NMCohesiveFaceGPU));
+                const NSUInteger sourceChannel = environment *
+                    previous.dispatch.punctureChannelCount +
+                    sourceChannelOffset;
+                const NSUInteger destinationChannel = environment *
+                    destination.dispatch.punctureChannelCount +
+                    destinationChannelOffset;
+                for (id<MTLBuffer> output : @[
+                         destination.punctureChannelsAccepted,
+                         destination.punctureChannelsCandidate,
+                         destination.punctureChannelsCheckpoint])
+                    copyBytes(previous.punctureChannelsAccepted,
+                        sourceChannel * sizeof(NMPunctureChannelGPU), output,
+                        destinationChannel * sizeof(NMPunctureChannelGPU),
+                        oldChannels * sizeof(NMPunctureChannelGPU));
+                sourceFaceOffset += oldFaces;
+                destinationFaceOffset += newFaces;
+                sourceChannelOffset += oldChannels;
+                destinationChannelOffset += newChannels;
+            }
+        }
+        copyWholeAccepted(previous.topologyStatesAccepted,
+            destination.topologyStatesAccepted,
+            destination.topologyStatesCandidate,
+            destination.topologyStatesCheckpoint);
+        [blit endEncoding];
+        const std::weak_ptr<State::CommandOwnership> weakDestination =
+            destination.commandOwnership;
+        const std::weak_ptr<State::CommandOwnership> weakSource =
+            previous.commandOwnership;
+        void* const borrowedIdentity = commandBufferPointer;
+        [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer>) {
+            if (const auto owner = weakDestination.lock()) {
+                const std::lock_guard lock(owner->mutex);
+                if (owner->activeCommandBuffer == borrowedIdentity)
+                    owner->activeCommandBuffer = nullptr;
+            }
+            if (const auto owner = weakSource.lock()) {
+                const std::lock_guard lock(owner->mutex);
+                if (owner->activeCommandBuffer == borrowedIdentity)
+                    owner->activeCommandBuffer = nullptr;
+            }
+        }];
+        diagnostics.encoded = true;
+        diagnostics.residentBytes = destination.residentBytes;
+        diagnostics.device = nsString(destination.device.name);
+        diagnostics.message =
+            "Numi Matter topology growth migration encoded into borrowed command buffer";
+        return diagnostics;
     }
 }
 

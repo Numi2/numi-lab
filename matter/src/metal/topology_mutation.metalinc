@@ -508,7 +508,8 @@ kernel void nm_topology_execute_transaction(
                 if (!earlierDuplicate) required += 3u;
             }
             if (required > inactive) {
-                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                recordFailure(statuses[environment],
+                    NM_STATUS_TOPOLOGY_GROWTH_REQUIRED,
                     command.identity.y, required,
                     float4(float(inactive), float(required), 0.0f, 0.0f));
                 return;
@@ -690,7 +691,8 @@ kernel void nm_topology_execute_transaction(
                 break;
             }
             if (!stored) {
-                recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+                recordFailure(statuses[environment],
+                    NM_STATUS_TOPOLOGY_GROWTH_REQUIRED,
                     objectIndex, selected.identity.z, float4(4.0f));
                 return;
             }
@@ -770,9 +772,92 @@ kernel void nm_topology_rebuild_prefix(
         running += simd_sum(count);
     }
     if (lane == 0u && running > dispatch.tetrahedronCount * 4u)
-        recordFailure(statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+        recordFailure(statuses[environment],
+            NM_STATUS_TOPOLOGY_GROWTH_REQUIRED,
             NM_INVALID_INDEX, running,
             float4(float(dispatch.tetrahedronCount * 4u), 0.0f, 0.0f, 0.0f));
+}
+
+inline uint topologyGeometricCapacity(const uint current, const uint needed) {
+    uint capacity = max(current, 1u);
+    while (capacity < needed && capacity <= 0x7fffffffu)
+        capacity = min(capacity << 1u, 0xffffffffu);
+    return capacity;
+}
+
+kernel void nm_topology_publish_growth_request(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMCapacityGPU* capacities [[buffer(1)]],
+    device const NMFEMTopologyStateGPU* topologyStates [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device NMTopologyGrowthRequestGPU* request [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global != 0u) return;
+    NMTopologyGrowthRequestGPU output{};
+    output.identity.z = NM_INVALID_INDEX;
+    uint nodes = 0u, tetrahedra = 0u, faces = 0u, channels = 0u;
+    uint mutations = 0u, contacts = 0u;
+    uint generation = 0u;
+    for (uint object = 0u; object < dispatch.objectCount; ++object) {
+        const NMFEMCapacityGPU capacity = capacities[object];
+        uint neededNodes = capacity.topology.x;
+        uint neededTetrahedra = capacity.topology.y;
+        uint neededFaces = capacity.topology.z;
+        uint neededChannels = capacity.topology.w;
+        for (uint environment = 0u; environment < dispatch.environmentCount;
+             ++environment) {
+            const NMFEMTopologyStateGPU topology = topologyStates[
+                environment * dispatch.objectCount + object];
+            generation = max(generation, topology.roles.w);
+            const NMMatterStatusGPU status = statuses[environment];
+            if (status.code == NM_STATUS_TOPOLOGY_GROWTH_REQUIRED &&
+                (status.objectIndex == object ||
+                 status.objectIndex == NM_INVALID_INDEX)) {
+                output.identity.x = 1u;
+                if (output.identity.z == NM_INVALID_INDEX) {
+                    output.identity.z = object;
+                    output.identity.w = status.code;
+                }
+                neededNodes = max(neededNodes,
+                    topology.counts.x + max(uint(status.diagnostics.y), 1u));
+                neededTetrahedra = max(neededTetrahedra,
+                    topology.counts.y + 1u);
+                neededFaces = max(neededFaces, topology.counts.z + 1u);
+                neededChannels = max(neededChannels, topology.counts.w + 1u);
+            }
+        }
+        if (output.identity.x != 0u) {
+            neededNodes = topologyGeometricCapacity(
+                capacity.topology.x, neededNodes);
+            neededTetrahedra = topologyGeometricCapacity(
+                capacity.topology.y, neededTetrahedra);
+            neededFaces = topologyGeometricCapacity(
+                capacity.topology.z, neededFaces);
+            neededChannels = topologyGeometricCapacity(
+                capacity.topology.w, neededChannels);
+        }
+        nodes += neededNodes;
+        tetrahedra += neededTetrahedra;
+        faces += neededFaces;
+        channels += neededChannels;
+        mutations += capacity.work.x;
+        contacts += capacity.work.z;
+    }
+    output.identity.y = generation + (output.identity.x != 0u ? 1u : 0u);
+    output.topology = {nodes, tetrahedra, faces, channels};
+    output.work = {
+        4u * tetrahedra,
+        output.identity.x != 0u ? topologyGeometricCapacity(
+            max(mutations, 1u), mutations + 1u) : mutations,
+        output.identity.x != 0u ? topologyGeometricCapacity(
+            max(contacts, 1u), contacts + 1u) : contacts,
+        output.identity.x != 0u ? topologyGeometricCapacity(
+            max(dispatch.deformableContactCapacity, 1u),
+            dispatch.deformableContactCapacity + 1u)
+            : dispatch.deformableContactCapacity,
+    };
+    request[0] = output;
 }
 
 kernel void nm_topology_rebuild_scatter(

@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 13u
+#define NM_MATTER_ABI_VERSION 14u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -175,6 +175,15 @@ enum NMMutationKind : nm_u32 {
     NM_MUTATION_CYLINDER_PUNCTURE = 2u,
     NM_MUTATION_DEACTIVATE_TETRAHEDRON = 3u,
 };
+
+typedef struct NM_ALIGN16 NMTopologyGrowthRequestGPU {
+    // Required marker, allocation generation, first requesting object, reason.
+    nm_uint4 identity;
+    // Requested global node, tetrahedron, cohesive-face, channel capacities.
+    nm_uint4 topology;
+    // Requested incidence, mutation, rigid-contact, deformable-contact arenas.
+    nm_uint4 work;
+} NMTopologyGrowthRequestGPU;
 
 enum NMMutationFlags : nm_u32 {
     NM_MUTATION_ACTIVE = 1u << 0u,
