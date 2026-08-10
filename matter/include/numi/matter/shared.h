@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 10u
+#define NM_MATTER_ABI_VERSION 11u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -383,6 +383,19 @@ typedef struct NM_ALIGN16 NMDeformableContactGPU {
     // Normal multiplier, two tangent coordinates, effective friction.
     nm_float4 impulseAndFriction;
 } NMDeformableContactGPU;
+
+// Compact transaction-owned state for deformable-contact warm starts. The
+// geometric contact record is rebuilt from current surface primitives on each
+// Newton candidate; only the stable source, transported frame, and multiplier
+// cross iteration/microstep boundaries.
+typedef struct NM_ALIGN16 NMDeformableWarmstartGPU {
+    // Source primitive pair, stable candidate id, topology generation.
+    nm_uint4 source;
+    // Previous contact normal xyz and normal multiplier.
+    nm_float4 normalAndLambda;
+    // Tangent multipliers xy, effective friction, valid marker.
+    nm_float4 tangentAndFriction;
+} NMDeformableWarmstartGPU;
 
 typedef struct NM_ALIGN16 NMFEMTopologyStateGPU {
     // active nodes, active tetrahedra, active cohesive faces, active channels.

@@ -74,13 +74,18 @@ The active-block pipeline avoids global floating-point scatter atomics, retains 
 
 ### FEM backend
 
-The FEM path uses linear tetrahedral kinematics with nonlinear constitutive stress. It computes element forces and a matrix-free tangent-vector operator, then solves the implicit velocity increment with a deterministic-budget PCG solve entirely on the GPU:
+The FEM path uses linear tetrahedral kinematics with nonlinear constitutive stress. Its authoritative implicit update is an environment-wide semismooth Newton solve. Each Newton system is applied matrix-free and solved by restarted, right-preconditioned FGMRES over one generalized unknown containing nodal velocity/pressure, thermal-pore-electric-activation fields, analytic-proxy contact multipliers and dynamic deformable-contact multipliers:
 
 ```text
-A p = M p - dt^2 (df_internal / dx) p
+[ mechanics  mechanics-field  J_rigid^T  J_deform^T ] [dv, dp]
+[ field-mechanics   transport       0           0   ] [dfields]
+[ J_rigid              0       natural-map          ] [dlambda_rigid]
+[ J_deform             0            friction-map    ] [dlambda_deform]
 ```
 
-Element work is parallel. Node assembly uses cooked incidence. Per-object SIMD32 reductions produce deterministic `r.r` and `p.Ap` scalars without global floating-point atomics. Each tetrahedron owns an independent persistent material-state record. Rate-dependent stress and tangent evaluation use the element velocity gradient; state updates publish only with an accepted nonlinear candidate, and both nodal and constitutive state roll back to the same control-step checkpoint.
+Element work is parallel and node assembly uses cooked incidence. FGMRES uses compensated SIMD32 reductions, modified Gram-Schmidt with selective reorthogonalization, device Givens rotations, restart cycles and an inexact-Newton forcing schedule. The right preconditioner combines node-star mechanics diagonals, an object-scale Galerkin correction for rigid translation and mean pressure, a bounded matrix-free polynomial field smoother, and contact-space response diagonals. A single environment-wide backtracking step keeps every cross-object block on the same Newton candidate.
+
+Each tetrahedron owns an independent persistent material-state record. Rate-dependent stress and exact tangent-vector evaluation use the element velocity gradient; state updates publish only with an accepted nonlinear candidate, and nodal, field, constitutive, topology and contact-warm-start state roll back to the same control-step checkpoint.
 
 ### Unified continuum contact
 
@@ -93,11 +98,13 @@ MPM grid nodes and FEM nodes use one contact-pair ABI. The current implementatio
 - equal and opposite continuum and rigid reactions;
 - fixed-slot contact evidence for events and diagnostics.
 
-Contact records are cleared on every microtick before evaluation, preventing inactive-rate domains from replaying stale impulses.
+Contact records are cleared on every microtick before evaluation, preventing inactive-rate domains from replaying stale impulses. Analytic-proxy rows use the full cooked sparse Delassus response, including same-command-buffer inverse-ABA columns for articulated bodies.
+
+FEM surfaces additionally compile immutable exposed-face ownership and adjacency. Each nonlinear candidate rebuilds current/cohesive surface primitives, swept AABBs and a deterministic GPU Morton ordering, then emits fixed-capacity cross-object and non-adjacent self-contact candidates. Conservative-advancement vertex-triangle and edge-edge CCD produce dynamic KKT rows. Their normal and two tangent multipliers use a semismooth projection natural map with a Coulomb disk; tangent warm starts are transported between contact frames and participate in checkpoint, commit and rollback.
 
 ### Rigid-to-continuum coupling
 
-Rigid reactions are reduced per proxy without floating-point atomics, then gathered by global rigid-body index through one deterministic writer per body. This is a pre-ABA two-way wrench handoff; the current contact impulse frontend does not yet include the articulated Delassus response `J M^-1 J^T`, so exact finite-effective-mass articulated contact remains a declared fidelity boundary:
+Rigid reactions are reduced per proxy without floating-point atomics, then gathered by global rigid-body index through one deterministic writer per body. Matter streams point-impulse columns through MetalWorld's inverse ABA on the borrowed command-buffer timeline and gathers the resulting articulated Delassus response `J M^-1 J^T` into the same generalized contact operator:
 
 - articulated targets receive `MRABABodyWrenchGPU` force and torque before inverse ABA; their exact link twists are materialized from the same accepted `q/v` consumed by ABA rather than estimated from frame differences;
 - free scene bodies receive the same global body-wrench representation, which the scene predictor consumes during the rigid candidate step;
@@ -151,6 +158,8 @@ The runtime is designed around Apple GPU constraints rather than CUDA assumption
 - no CPU counter read, command-buffer commit or wait occurs inside `Runtime::encode`;
 - fixed-capacity deterministic gathers replace floating-point append/scatter atomics;
 - SIMD32 object reductions map to Apple GPU execution width;
+- deformable surfaces and contact rows are compacted into stable active lists before downstream KKT work;
+- Krylov vector arenas are private and sized to the authored restart depth rather than the compile-time maximum;
 - environment and object parallelism remain independent;
 - all runtime identities are content-fingerprinted, including the exact loaded Matter metallib;
 - the rigid microstep duration must exactly match the cooked Matter duration, preventing a caller from silently changing constitutive or multirate semantics after fingerprinting.
@@ -206,16 +215,17 @@ A body-backed rigid proxy requires the global current-body arena. Dynamic free-b
 
 ## Current fidelity boundary
 
-The subsystem implements the complete architecture and executable kernels listed above, but it does not claim one numerical representation solves all matter:
+The subsystem implements the architecture and executable kernels listed above, but it does not claim one numerical representation solves all matter:
 
 - the MPM path currently targets updated-Lagrangian APIC/MLS-MPM solids on a fixed-capacity sparse block domain;
-- the FEM path uses stabilized mixed tetrahedral state, matrix-free velocity PCG, implicit nodal transport, and determinant/certificate-driven transaction rejection; its current executable nonlinear update is still staggered rather than the planned monolithic FGMRES semismooth Newton solve;
+- the monolithic generalized KKT scope is FEM mechanics, mixed fields, analytic-proxy contact and deformable surface contact; MPM retains its sparse APIC update and couples through the shared contact/reaction transaction rather than entering the FEM Krylov vector;
 - internal state and rate-dependent dissipation are executable, but the current generic projection policy is explicit next-state bytecode rather than a material-specific implicit return-map solver;
-- contact supports continuum nodes against analytic rigid proxies; continuum-continuum/self-contact and arbitrary deforming triangle-triangle IPC are not yet implemented;
+- deformable contact has swept broadphase, non-adjacent self-contact, vertex-triangle/edge-edge CCD and frictional semismooth KKT rows, but it is not an exact IPC barrier-energy implementation and does not claim an unconditional non-intersection theorem;
 - articulated continuum contact consumes same-command-buffer inverse-ABA response columns in the full sparse Delassus operator and certifies the circular cone and natural map;
-- fixed-capacity plane, cylinder and explicit tetrahedron deactivation are transactional, but cohesive node-star separation, incidence rebuilding and arbitrary crack remeshing remain future operators;
-- thermal, pore, electric and activation fields execute on Metal and feed FEM stress, while their current low-order graph transport still awaits geometry-weighted block-PCG parity;
-- polyconvex ICNN energy gradients execute as analytic first-Piola stress with transactional trained weights; exact analytic tangent-vector execution and the full objectivity/growth oracle ladder remain qualification work.
+- fixed-capacity cut/puncture, cohesive separation, erosion and node-incidence rebuild are transactional; arbitrary unbounded crack remeshing is outside the fixed-capacity topology model;
+- thermal, pore, electric and activation fields execute in the outer KKT operator with Joule, activation and Biot off-diagonal actions; their right preconditioner is intentionally an approximate fixed-pass transport smoother;
+- polyconvex ICNN energy gradients and directional tangents execute with transactional trained weights; broad objectivity, growth and adversarial material-oracle qualification remains later evidence work;
+- the new monolithic/deformable-contact path has received only compile-level verification in this development pass; long GPU probes, matched performance profiling and qualification gates are intentionally deferred.
 
 ## Validation
 

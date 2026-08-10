@@ -92,12 +92,17 @@ kernel void nm_contact_build_surface_primitives(
     for (uint corner = 0u; corner < 3u; ++corner) {
         if (currentNodes[corner] >= dispatch.femNodeCount) return;
         const NMFEMNodeStateGPU node = nodes[nodeBase + currentNodes[corner]];
+        // FEM candidate position is the end of the implicit microstep.
+        // Reconstruct the accepted-time endpoint rather than sweeping the
+        // candidate through a second dt, which would detect contacts one
+        // microstep late and over-expand broadphase bounds.
         position[corner] = node.positionAndMass.xyz;
-        const float3 future = position[corner] +
+        const float3 previous = position[corner] -
             dt * node.velocityAndInverseMass.xyz;
-        minimumPoint = min(minimumPoint, min(position[corner], future));
-        maximumPoint = max(maximumPoint, max(position[corner], future));
-        maximumTravel = max(maximumTravel, length(future - position[corner]));
+        minimumPoint = min(minimumPoint, min(previous, position[corner]));
+        maximumPoint = max(maximumPoint, max(previous, position[corner]));
+        maximumTravel = max(
+            maximumTravel, length(position[corner] - previous));
     }
     const float slop = dispatch.numericalLimits.x;
     const float area = 0.5f * length(cross(
@@ -561,18 +566,20 @@ kernel void nm_contact_narrowphase_deformable(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
     device const NMContinuumObjectGPU* objects [[buffer(2)]],
-    device const NMFEMNodeStateGPU* nodes [[buffer(3)]],
-    device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
-    device const NMFEMSurfacePrimitiveGPU* primitives [[buffer(5)]],
-    device const NMDeformableContactCandidateGPU* candidates [[buffer(6)]],
-    device const uint* candidateCounts [[buffer(7)]],
-    device NMDeformableContactGPU* contacts [[buffer(8)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(4)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
+    device const NMFEMSurfacePrimitiveGPU* primitives [[buffer(6)]],
+    device const NMDeformableContactCandidateGPU* candidates [[buffer(7)]],
+    device const uint* candidateCounts [[buffer(8)]],
+    device const NMDeformableWarmstartGPU* warmstarts [[buffer(9)]],
+    device NMDeformableContactGPU* contacts [[buffer(10)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
     const uint total = dispatch.environmentCount * capacity;
     if (global >= total || capacity == 0u) return;
-    const NMDeformableContactGPU previous = contacts[global];
+    const NMDeformableWarmstartGPU previous = warmstarts[global];
     contacts[global] = {};
     const uint environment = global / capacity;
     const uint slot = global - environment * capacity;
@@ -604,9 +611,9 @@ kernel void nm_contact_narrowphase_deformable(
         const float dt = objectTimestep(
             dispatch,
             schedulers[environment * dispatch.objectCount + objectIndex]);
-        start[local] = state.positionAndMass.xyz;
+        finish[local] = state.positionAndMass.xyz;
         velocity[local] = state.velocityAndInverseMass.xyz;
-        finish[local] = start[local] + dt * velocity[local];
+        start[local] = finish[local] - dt * velocity[local];
         inverseMass[local] = state.velocityAndInverseMass.w;
     }
     const float thickness = dispatch.numericalLimits.x;
@@ -722,17 +729,45 @@ kernel void nm_contact_narrowphase_deformable(
         max(left.identity.z, right.identity.z)
     };
     const bool sameSource =
-        (previous.identity.w & NM_CONTACT_VALID) != 0u &&
+        previous.tangentAndFriction.w > 0.5f &&
         all(previous.source.xy == contact.source.xy) &&
         previous.source.w == contact.source.w;
     const float seededNormal = max(
         -dot(bestNormal, relativeVelocity) / inverseResponse, 0.0f);
+    const uint positiveMaterial = objects[bestPositiveObject].materialIndex;
+    const uint negativeMaterial = objects[bestNegativeObject].materialIndex;
+    if (positiveMaterial >= dispatch.materialCount ||
+        negativeMaterial >= dispatch.materialCount) return;
+    const float friction = sqrt(max(
+        materials[positiveMaterial].interfaceResponse.y *
+        materials[negativeMaterial].interfaceResponse.y, 0.0f));
+    float2 transportedTangent = float2(0.0f);
+    if (sameSource) {
+        float3 previousTangent0, previousTangent1;
+        float3 nextTangent0, nextTangent1;
+        deformableContactFrame(
+            previous.normalAndLambda.xyz,
+            previousTangent0, previousTangent1);
+        deformableContactFrame(
+            bestNormal, nextTangent0, nextTangent1);
+        const float3 previousWorldTangent =
+            previous.tangentAndFriction.x * previousTangent0 +
+            previous.tangentAndFriction.y * previousTangent1;
+        transportedTangent = float2(
+            dot(nextTangent0, previousWorldTangent),
+            dot(nextTangent1, previousWorldTangent));
+        const float tangentLimit = friction *
+            max(previous.normalAndLambda.w, 0.0f);
+        const float tangentLength = length(transportedTangent);
+        if (tangentLength > tangentLimit && tangentLength > 1.0e-20f)
+            transportedTangent *= tangentLimit / tangentLength;
+    }
     contact.impulseAndFriction = float4(
-        sameSource ? max(previous.impulseAndFriction.x, 0.0f)
+        sameSource ? max(previous.normalAndLambda.w, 0.0f)
                    : seededNormal,
-        0.0f, 0.0f, 0.0f);
+        transportedTangent,
+        friction);
     contacts[global] = contact;
-    (void)objects;
     (void)microstep;
 }
 
@@ -1344,6 +1379,53 @@ kernel void nm_contact_rollback_warmstarts(
     const uint environment = global / dispatch.contactPairCount;
     if (!environmentHealthy(statuses, environment))
         accepted[global] = checkpoint[global];
+}
+
+kernel void nm_contact_checkpoint_deformable_warmstarts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMDeformableWarmstartGPU* accepted [[buffer(1)]],
+    device NMDeformableWarmstartGPU* candidate [[buffer(2)]],
+    device NMDeformableWarmstartGPU* checkpoint [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.deformableContactCapacity;
+    if (global >= total || dispatch.deformableContactCapacity == 0u) return;
+    candidate[global] = accepted[global];
+    checkpoint[global] = accepted[global];
+}
+
+kernel void nm_contact_commit_deformable_warmstarts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device NMDeformableWarmstartGPU* accepted [[buffer(2)]],
+    device const NMDeformableWarmstartGPU* candidate [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint total = dispatch.environmentCount * capacity;
+    if (global >= total || capacity == 0u) return;
+    const uint environment = global / capacity;
+    if (environmentHealthy(statuses, environment))
+        accepted[global] = candidate[global];
+}
+
+kernel void nm_contact_rollback_deformable_warmstarts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device NMDeformableWarmstartGPU* accepted [[buffer(2)]],
+    device NMDeformableWarmstartGPU* candidate [[buffer(3)]],
+    device const NMDeformableWarmstartGPU* checkpoint [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint total = dispatch.environmentCount * capacity;
+    if (global >= total || capacity == 0u) return;
+    const uint environment = global / capacity;
+    if (!environmentHealthy(statuses, environment)) {
+        accepted[global] = checkpoint[global];
+        candidate[global] = checkpoint[global];
+    }
 }
 
 // Runtime compilation fixes the contact-space CSR pattern from shared
@@ -1971,7 +2053,8 @@ kernel void nm_contact_build_kkt_residual(
     ];
     if (pairIndex >= dispatch.contactPairCount) return;
     const uint output = 2u * dispatch.environmentCount * dispatch.femNodeCount +
-        environment * dispatch.contactPairCount + pairIndex;
+        environment * (dispatch.contactPairCount +
+                       dispatch.deformableContactCapacity) + pairIndex;
     residual[output] = float4(0.0f);
     if (!environmentHealthy(statuses, environment)) return;
     const NMContactPairGPU pair = pairs[pairIndex];
@@ -2028,6 +2111,116 @@ kernel void nm_contact_build_kkt_residual(
     residual[output] = float4(-natural, 0.0f, 0.0f, 0.0f);
 }
 
+kernel void nm_contact_build_deformable_kkt_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
+    device const NMDeformableContactGPU* contacts [[buffer(4)]],
+    device const uint* activeIndices [[buffer(5)]],
+    device const uint* activeCounts [[buffer(6)]],
+    device float4* residual [[buffer(7)]],
+    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint capacity = dispatch.deformableContactCapacity;
+    if (capacity == 0u) return;
+    const uint environment = global / capacity;
+    const uint activeSlot = global - environment * capacity;
+    if (environment >= dispatch.environmentCount ||
+        activeSlot >= activeCounts[environment]) return;
+    const uint slot = activeIndices[environment * capacity + activeSlot];
+    if (slot >= capacity) return;
+    const uint rowCount = dispatch.contactPairCount + capacity;
+    const uint output = 2u * dispatch.environmentCount *
+        dispatch.femNodeCount + environment * rowCount +
+        dispatch.contactPairCount + slot;
+    residual[output] = float4(0.0f);
+    const NMDeformableContactGPU contact =
+        contacts[environment * capacity + slot];
+    if ((contact.identity.w & NM_CONTACT_VALID) == 0u ||
+        contact.identity.x >= dispatch.objectCount ||
+        !environmentHealthy(statuses, environment)) return;
+    const float metric = max(
+        contact.velocityAndResponse.w, solver.regularization.x);
+    const float normalVelocity = dot(
+        contact.normalAndTOI.xyz, contact.velocityAndResponse.xyz);
+    float3 tangent0, tangent1;
+    deformableContactFrame(
+        contact.normalAndTOI.xyz, tangent0, tangent1);
+    const float2 tangentVelocity = float2(
+        dot(tangent0, contact.velocityAndResponse.xyz),
+        dot(tangent1, contact.velocityAndResponse.xyz));
+    const float dt = objectTimestep(
+        dispatch, schedulers[environment * dispatch.objectCount +
+                             contact.identity.x]);
+    const float rawBias = (dispatch.numericalLimits.x -
+        contact.pointAndSeparation.w) / max(dt, 1.0e-12f);
+    const float target = clamp(
+        rawBias, 0.0f, dispatch.numericalLimits.y);
+    const float3 lambda = float3(
+        max(contact.impulseAndFriction.x, 0.0f),
+        contact.impulseAndFriction.yz);
+    const float projectedNormal = max(
+        lambda.x - (normalVelocity - target) / metric, 0.0f);
+    const float2 trialTangent = lambda.yz - tangentVelocity / metric;
+    const float tangentLimit = contact.impulseAndFriction.w * projectedNormal;
+    const float trialLength = length(trialTangent);
+    const float2 projectedTangent = trialLength > tangentLimit &&
+        trialLength > 1.0e-20f
+        ? tangentLimit * trialTangent / trialLength
+        : trialTangent;
+    const float3 natural = lambda - float3(
+        projectedNormal, projectedTangent);
+    if (!all(isfinite(natural))) {
+        recordFailure(
+            statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            contact.identity.x, slot,
+            float4(natural, normalVelocity));
+        return;
+    }
+    residual[output] = float4(-natural, 0.0f);
+    (void)objects;
+}
+
+kernel void nm_contact_accumulate_deformable_fem_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMDeformableContactGPU* contacts [[buffer(1)]],
+    device const uint* activeIndices [[buffer(2)]],
+    device const uint* activeCounts [[buffer(3)]],
+    device float4* residual [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= totalNodes || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const uint capacity = dispatch.deformableContactCapacity;
+    const uint activeCount = min(activeCounts[environment], capacity);
+    const uint base = environment * capacity;
+    float3 impulse = float3(0.0f);
+    for (uint activeSlot = 0u; activeSlot < activeCount; ++activeSlot) {
+        const uint slot = activeIndices[base + activeSlot];
+        if (slot >= capacity) continue;
+        const NMDeformableContactGPU contact = contacts[base + slot];
+        if ((contact.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        for (uint local = 0u; local < 4u; ++local)
+            if (contact.nodes[local] == node)
+                {
+                    float3 tangent0, tangent1;
+                    deformableContactFrame(
+                        contact.normalAndTOI.xyz, tangent0, tangent1);
+                    const float3 contactImpulse =
+                        contact.impulseAndFriction.x *
+                            contact.normalAndTOI.xyz +
+                        contact.impulseAndFriction.y * tangent0 +
+                        contact.impulseAndFriction.z * tangent1;
+                    impulse += contact.weights[local] * contactImpulse;
+                }
+    }
+    residual[global] += float4(impulse, 0.0f);
+}
+
 kernel void nm_contact_apply_kkt_solution(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumObjectGPU* objects [[buffer(1)]],
@@ -2052,7 +2245,9 @@ kernel void nm_contact_apply_kkt_solution(
         return;
     }
     const uint correctionIndex = 2u * dispatch.environmentCount *
-        dispatch.femNodeCount + global;
+        dispatch.femNodeCount + environment *
+        (dispatch.contactPairCount + dispatch.deformableContactCapacity) +
+        pairIndex;
     const float alpha = lineSearch[
         environment * dispatch.objectCount + pair.objectIndex
     ].x;
@@ -2076,6 +2271,54 @@ kernel void nm_contact_apply_kkt_solution(
     sample.impulseAndNormal = float4(impulseOnRigid, newNormal);
     sample.angularImpulseAndTangent.w = length(tangent);
     candidateWarmstarts[global] = sample.impulseAndNormal;
+}
+
+kernel void nm_contact_apply_deformable_kkt_solution(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMDeformableContactGPU* contacts [[buffer(1)]],
+    device const uint* activeIndices [[buffer(2)]],
+    device const uint* activeCounts [[buffer(3)]],
+    device const float4* correction [[buffer(4)]],
+    device const float4* lineSearch [[buffer(5)]],
+    device NMDeformableWarmstartGPU* warmstarts [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint capacity = dispatch.deformableContactCapacity;
+    if (capacity == 0u) return;
+    const uint environment = global / capacity;
+    const uint activeSlot = global - environment * capacity;
+    if (environment >= dispatch.environmentCount ||
+        activeSlot >= activeCounts[environment]) return;
+    const uint slot = activeIndices[environment * capacity + activeSlot];
+    if (slot >= capacity) return;
+    device NMDeformableContactGPU& contact =
+        contacts[environment * capacity + slot];
+    if ((contact.identity.w & NM_CONTACT_VALID) == 0u ||
+        contact.identity.x >= dispatch.objectCount ||
+        contact.identity.y >= dispatch.objectCount) return;
+    const uint rowCount = dispatch.contactPairCount + capacity;
+    const uint correctionIndex = 2u * dispatch.environmentCount *
+        dispatch.femNodeCount + environment * rowCount +
+        dispatch.contactPairCount + slot;
+    const float alpha = min(
+        lineSearch[environment * dispatch.objectCount + contact.identity.x].x,
+        lineSearch[environment * dispatch.objectCount + contact.identity.y].x);
+    const float3 update = contact.impulseAndFriction.xyz +
+        alpha * correction[correctionIndex].xyz;
+    const float normal = max(update.x, 0.0f);
+    float2 tangent = update.yz;
+    const float limit = contact.impulseAndFriction.w * normal;
+    const float tangentLength = length(tangent);
+    if (tangentLength > limit && tangentLength > 1.0e-20f)
+        tangent *= limit / tangentLength;
+    contact.impulseAndFriction.xyz = float3(normal, tangent);
+    NMDeformableWarmstartGPU warmstart{};
+    warmstart.source = contact.source;
+    warmstart.normalAndLambda = float4(
+        contact.normalAndTOI.xyz, normal);
+    warmstart.tangentAndFriction = float4(
+        tangent, contact.impulseAndFriction.w, 1.0f);
+    warmstarts[environment * capacity + slot] = warmstart;
 }
 
 kernel void nm_contact_certify_natural_map(

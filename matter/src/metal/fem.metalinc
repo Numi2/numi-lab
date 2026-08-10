@@ -16,6 +16,20 @@ struct NMKKTContactArguments {
     device const uint* deformableActiveCounts [[id(12)]];
 };
 
+inline void deformableContactFrame(
+    const float3 normal,
+    thread float3& tangent0,
+    thread float3& tangent1
+) {
+    const float3 axis = abs(normal.x) < 0.57735026919f
+        ? float3(1.0f, 0.0f, 0.0f)
+        : (abs(normal.y) < 0.57735026919f
+            ? float3(0.0f, 1.0f, 0.0f)
+            : float3(0.0f, 0.0f, 1.0f));
+    tangent0 = normalize(cross(normal, axis));
+    tangent1 = cross(normal, tangent0);
+}
+
 inline float3x3 cofactorMatrix(const float3x3 value);
 inline float3x3 cofactorDirectional(
     const float3x3 value,
@@ -696,7 +710,7 @@ kernel void nm_fem_internal_forces(
     elementForces[global] = tetrahedronForce(tetrahedron, stress);
 }
 
-kernel void nm_fem_pcg_initialize(
+kernel void nm_fem_build_mechanical_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
     device const NMContinuumObjectGPU* objects [[buffer(2)]],
@@ -1604,6 +1618,31 @@ kernel void nm_fem_select_backtracking(
             objectIndex, microstep.pcgIteration,
             float4(chosenMinimum, float(candidateCount), 0.0f, 0.0f)
         );
+    }
+}
+
+// The Newton/KKT unknown is environment-wide: cross-object contact rows and
+// mixed fields cannot apply independently selected object steps. Reduce the
+// admissible object trials to one deterministic SIMD32 step per environment
+// and publish that value back to every participating block.
+kernel void nm_fem_synchronize_environment_line_search(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* lineSearch [[buffer(1)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    float alpha = 1.0f;
+    const uint base = environment * dispatch.objectCount;
+    for (uint objectIndex = lane; objectIndex < dispatch.objectCount;
+         objectIndex += 32u)
+        alpha = min(alpha, lineSearch[base + objectIndex].x);
+    alpha = simd_min(alpha);
+    for (uint objectIndex = lane; objectIndex < dispatch.objectCount;
+         objectIndex += 32u) {
+        float4 state = lineSearch[base + objectIndex];
+        state.x = alpha;
+        lineSearch[base + objectIndex] = state;
     }
 }
 

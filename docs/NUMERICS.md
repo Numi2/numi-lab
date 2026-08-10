@@ -150,9 +150,12 @@ FP32/FP64 threshold. Contacts outside that band must agree within witness
 tolerances; inside it, bounded speculative contacts are permitted but missing
 an oracle contact is not.
 
-No CCD algorithm is implemented. Fast bodies can therefore tunnel; substeps
-are not a semantic substitute for conservative advancement, speculative CCD,
-or time-of-impact island stepping.
+The core rigid collision path does not implement CCD. Fast rigid bodies can
+therefore tunnel; substeps are not a semantic substitute for conservative
+advancement, speculative CCD, or time-of-impact island stepping. Matter's
+deformable surface path is a separate owner: it rebuilds swept FEM triangles
+and applies conservative-advancement vertex-triangle and edge-edge CCD inside
+its nonlinear transaction.
 
 The contact portfolio has three distinct numerical contracts:
 
@@ -198,6 +201,35 @@ solve and rolls back touched dynamic velocities, impulses, and warm-start
 flags after an arithmetic failure. Static/kinematic endpoints are never
 written during solve or rollback, allowing independent islands to share static
 geometry safely.
+
+## Matter generalized continuum KKT
+
+Matter's implicit FEM authority is one environment-wide semismooth Newton
+system. Its matrix-free generalized unknown packs velocity and mixed pressure,
+thermal/pore/electric/activation fields, analytic-proxy multipliers, and
+dynamic deformable-contact normal/tangent multipliers. Restarted flexible GMRES
+uses compensated SIMD32 reductions, selective reorthogonalization, device
+Givens rotations, and an inexact-Newton forcing schedule. The right
+preconditioner combines node-star mechanics blocks, an object-scale Galerkin
+translation/mean-pressure correction, a fixed-pass field polynomial smoother,
+and contact response diagonals. FGMRES is the only linear iteration owner;
+the field smoother has no independent convergence or publication contract.
+
+All coupled objects in one environment use the minimum admissible determinant
+and mixed-volume backtracking step, so cross-object contact rows never publish
+inconsistent Newton fractions. FEM surface adjacency is cooked, while current
+and cohesive surface primitives, swept bounds, stable Morton ordering,
+non-adjacent self-contact candidates, CCD witnesses, and active KKT rows are
+rebuilt on Metal. Deformable warm starts store only stable source/frame and
+multiplier state and participate in the same checkpoint/commit/rollback
+transaction as nodes, fields, topology, materials, schedulers, and rigid
+contact warm starts.
+
+This is a finite-capacity conservative-advancement contact method, not an exact
+IPC barrier-energy method. Material state projection remains authored explicit
+bytecode unless a material provides a specialized update. Arbitrary unbounded
+crack remeshing and a proof of non-intersection are outside the current
+contract.
 
 ## Current accuracy boundary
 

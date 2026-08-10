@@ -676,6 +676,7 @@ struct RuntimeStateSnapshot {
     // this explicit readback boundary; inactive reserved slots are UINT32_MAX.
     std::vector<NMContactSampleGPU> contactSamples;
     std::vector<nm_float4> contactWarmstarts;
+    std::vector<NMDeformableWarmstartGPU> deformableContactWarmstarts;
     std::vector<std::uint32_t> contactResponseRows;
     std::vector<std::uint32_t> contactResponseColumns;
     std::vector<float> contactResponseValues;

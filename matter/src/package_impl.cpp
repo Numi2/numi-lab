@@ -22,7 +22,7 @@ inline constexpr std::array<char, 16> kMagic{
     'N', 'U', 'M', 'I', 'M', 'A', 'T', 'T',
     'E', 'R', 'P', 'K', 'G', '\0', '\0', '\0',
 };
-inline constexpr std::uint32_t kPackageVersion = 6u;
+inline constexpr std::uint32_t kPackageVersion = 7u;
 inline constexpr std::uint32_t kEndianMarker = 0x01020304u;
 
 enum class Section : std::uint32_t {

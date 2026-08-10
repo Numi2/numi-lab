@@ -245,7 +245,7 @@ inline float4 mixedElementNodeValue(
     return float4(0.0f);
 }
 
-kernel void nm_mixed_pcg_prepare(
+kernel void nm_mixed_prepare_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumObjectGPU* objects [[buffer(1)]],
     device const NMIncidenceRangeGPU* nodeRanges [[buffer(2)]],
@@ -339,8 +339,8 @@ kernel void nm_mixed_apply_operator_elements(
                 gradientRow, mixedShapeGradient(tetrahedron, column)
             ) * diffusion * direction[nodeBase + tetrahedron.nodes[column]];
         // The outer FGMRES sees the complete nonsymmetric couplings. The
-        // inner PCG right-preconditioner sees only the four SPD diagonal
-        // transport blocks.
+        // fixed polynomial right-preconditioner sees only the four SPD
+        // diagonal transport blocks.
         if ((microstep.flags & NM_MICROSTEP_FIELD_PRECONDITIONER) == 0u) {
             const float lump = 0.25f * volume;
             value[row].x -= lump * 2.0f * material.thermal.w *
@@ -427,7 +427,7 @@ kernel void nm_mixed_apply_operator_nodes(
     operatorValue[global] = value;
 }
 
-kernel void nm_mixed_pcg_initialize(
+kernel void nm_mixed_build_residual_diagonal(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
     device const NMContinuumObjectGPU* objects [[buffer(2)]],

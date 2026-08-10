@@ -341,6 +341,9 @@ struct Runtime::State {
     id<MTLBuffer> deformableContactCandidates = nil;
     id<MTLBuffer> deformableContactCandidateCounts = nil;
     id<MTLBuffer> deformableContacts = nil;
+    id<MTLBuffer> deformableWarmstartsAccepted = nil;
+    id<MTLBuffer> deformableWarmstartsCandidate = nil;
+    id<MTLBuffer> deformableWarmstartsCheckpoint = nil;
     id<MTLBuffer> deformableContactActiveIndices = nil;
     id<MTLBuffer> deformableContactActiveCounts = nil;
     id<MTLBuffer> femTopologyNodesAccepted = nil;
@@ -433,7 +436,6 @@ struct Runtime::State {
     id<MTLBuffer> mixedFieldDirection = nil;
     id<MTLBuffer> mixedFieldInverseDiagonal = nil;
     id<MTLBuffer> mixedFieldOperator = nil;
-    id<MTLBuffer> mixedFieldScalars = nil;
     id<MTLBuffer> solverCertificates = nil;
     id<MTLBuffer> learnedWeightDefaults = nil;
     id<MTLBuffer> learnedWeightsAccepted = nil;
@@ -586,7 +588,7 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
 
-        const std::array<const char*, 117> kernelNames{
+        const char* kernelNames[]{
             "nm_prepare_status",
             "nm_prepare_events",
             "nm_prepare_reactions",
@@ -618,15 +620,10 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_topology_rollback",
             "nm_mixed_checkpoint",
             "nm_mixed_prepare_microstep",
-            "nm_mixed_pcg_prepare",
+            "nm_mixed_prepare_residual",
             "nm_mixed_apply_operator_elements",
             "nm_mixed_apply_operator_nodes",
-            "nm_mixed_pcg_initialize",
-            "nm_mixed_reduce_pap",
-            "nm_mixed_pcg_step",
-            "nm_mixed_pcg_precondition",
-            "nm_mixed_reduce_new_rz",
-            "nm_mixed_pcg_update_direction",
+            "nm_mixed_build_residual_diagonal",
             "nm_mixed_apply_kkt_solution",
             "nm_mixed_certify",
             "nm_mixed_commit",
@@ -639,25 +636,26 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_publish_adaptive_rigid_ownership",
             "nm_mpm_p2g",
             "nm_fem_internal_forces",
-            "nm_fem_pcg_initialize",
-            "nm_fem_reduce_pap",
-            "nm_fem_reduce_new_rz",
+            "nm_fem_build_mechanical_residual",
             "nm_fem_apply_solution",
             "nm_fem_select_backtracking",
+            "nm_fem_synchronize_environment_line_search",
             "nm_fgmres_begin",
             "nm_fgmres_measure_correction",
             "nm_fgmres_build_preconditioner",
             "nm_fgmres_precondition",
             "nm_fgmres_precondition_coarse",
             "nm_fgmres_import_field_residual",
-            "nm_fgmres_field_pcg_initialize",
-            "nm_fgmres_field_pcg_export",
+            "nm_fgmres_field_smoother_initialize",
+            "nm_fgmres_field_smoother_export",
             "nm_fgmres_field_smooth",
             "nm_fgmres_precondition_cross",
             "nm_fgmres_precondition_contacts",
+            "nm_fgmres_precondition_deformable_contacts",
             "nm_fem_apply_operator_elements",
             "nm_fgmres_gather_nodes",
             "nm_fgmres_apply_contacts",
+            "nm_fgmres_apply_deformable_contacts",
             "nm_fgmres_orthogonalize_column",
             "nm_fgmres_finish_column",
             "nm_fgmres_form_restart_coefficients",
@@ -665,8 +663,10 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_accumulate",
             "nm_fgmres_accumulate_fields",
             "nm_fgmres_accumulate_contacts",
+            "nm_fgmres_accumulate_deformable_contacts",
             "nm_fgmres_restart_residual_nodes",
             "nm_fgmres_restart_residual_contacts",
+            "nm_fgmres_restart_residual_deformable_contacts",
             "nm_contact_clear_samples",
             "nm_contact_build_surface_primitives",
             "nm_contact_sort_surface_primitives",
@@ -678,14 +678,20 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_checkpoint_warmstarts",
             "nm_contact_commit_warmstarts",
             "nm_contact_rollback_warmstarts",
+            "nm_contact_checkpoint_deformable_warmstarts",
+            "nm_contact_commit_deformable_warmstarts",
+            "nm_contact_rollback_deformable_warmstarts",
             "nm_contact_prepare_articulated_queries",
             "nm_contact_gather_response",
             "nm_contact_validate_articulated_response",
             "nm_contact_solve_coupled",
             "nm_contact_certify_natural_map",
             "nm_contact_accumulate_fem_residual",
+            "nm_contact_accumulate_deformable_fem_residual",
             "nm_contact_build_kkt_residual",
+            "nm_contact_build_deformable_kkt_residual",
             "nm_contact_apply_kkt_solution",
+            "nm_contact_apply_deformable_kkt_solution",
             "nm_contact_apply_nodes",
             "nm_contact_reduce_rigid",
             "nm_accumulate_rigid_reactions",
@@ -766,8 +772,6 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->pipelines.emplace(name, pipeline);
         }
         for (const char* name : {
-                "nm_fem_reduce_pap",
-                "nm_fem_reduce_new_rz",
                 "nm_mpm_scan_environment_blocks",
                 "nm_mpm_scan_environment_counts",
                 "nm_scheduler_observe",
@@ -1213,9 +1217,6 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->mixedFieldOperator = privateScratch<nm_float4>(
             candidate->device, mixedNodeTotal,
             valid, candidate->residentBytes);
-        candidate->mixedFieldScalars = privateScratch<NMMixedPCGScalarGPU>(
-            candidate->device, environments * world.dispatch.objectCount,
-            valid, candidate->residentBytes);
         candidate->learnedWeightDefaults = uploads.one(
             std::span<const float>(world.learnedWeights),
             valid, candidate->residentBytes);
@@ -1264,6 +1265,13 @@ RuntimeDiagnostics Runtime::initialize(
         );
         candidate->contactWarmstartsAccepted = uploads.repeated(
             std::span<const nm_float4>(initialContactWarmstarts),
+            environments, valid, candidate->residentBytes);
+        const std::vector<NMDeformableWarmstartGPU>
+            initialDeformableWarmstarts(
+                world.dispatch.deformableContactCapacity);
+        candidate->deformableWarmstartsAccepted = uploads.repeated(
+            std::span<const NMDeformableWarmstartGPU>(
+                initialDeformableWarmstarts),
             environments, valid, candidate->residentBytes);
         std::string uploadError;
         if (!valid || !uploads.finish(uploadError)) {
@@ -1314,6 +1322,18 @@ RuntimeDiagnostics Runtime::initialize(
             multiplied(world.dispatch.deformableContactCapacity),
             valid,
             candidate->residentBytes);
+        candidate->deformableWarmstartsCandidate =
+            privateScratch<NMDeformableWarmstartGPU>(
+                candidate->device,
+                multiplied(world.dispatch.deformableContactCapacity),
+                valid,
+                candidate->residentBytes);
+        candidate->deformableWarmstartsCheckpoint =
+            privateScratch<NMDeformableWarmstartGPU>(
+                candidate->device,
+                multiplied(world.dispatch.deformableContactCapacity),
+                valid,
+                candidate->residentBytes);
         candidate->deformableContactActiveIndices =
             privateScratch<std::uint32_t>(
                 candidate->device,
@@ -1458,7 +1478,8 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         const std::size_t mixedUnknownWidth =
             2u * static_cast<std::size_t>(world.dispatch.femNodeCount) +
-            world.dispatch.contactPairCount;
+            world.dispatch.contactPairCount +
+            world.dispatch.deformableContactCapacity;
         const std::size_t mixedUnknownTotal = multiplied(mixedUnknownWidth);
         candidate->femSolution = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
@@ -1483,13 +1504,17 @@ RuntimeDiagnostics Runtime::initialize(
             valid, candidate->residentBytes);
         const std::size_t fgmresUnknownTotal = mixedUnknownTotal;
         const std::size_t fgmresSystemTotal = multiplied(1u);
+        const std::size_t configuredRestart = std::clamp<std::size_t>(
+            world.mixedSolver.nonlinearIterations.y,
+            1u,
+            NM_MIXED_FGMRES_RESTART);
         candidate->fgmresBasis = privateScratch<nm_float4>(
             candidate->device,
-            fgmresUnknownTotal * (NM_MIXED_FGMRES_RESTART + 1u),
+            fgmresUnknownTotal * (configuredRestart + 1u),
             valid, candidate->residentBytes);
         candidate->fgmresPreconditionedBasis = privateScratch<nm_float4>(
             candidate->device,
-            fgmresUnknownTotal * NM_MIXED_FGMRES_RESTART,
+            fgmresUnknownTotal * configuredRestart,
             valid, candidate->residentBytes);
         candidate->fgmresHessenberg = privateScratch<float>(
             candidate->device,
@@ -2012,6 +2037,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
         );
         const NSUInteger pairTotal =
             environments * state.dispatch.contactPairCount;
+        const NSUInteger deformableWarmstartTotal =
+            environments * state.dispatch.deformableContactCapacity;
         const NSUInteger proxyTotal =
             environments * state.dispatch.rigidProxyCount;
         const NSUInteger bodyWrenchTotal =
@@ -2093,6 +2120,19 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.contactWarmstartsAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactWarmstartsCheckpoint offset:0u atIndex:3u];
             });
+            dispatchThreads(
+                "nm_contact_rollback_deformable_warmstarts",
+                deformableWarmstartTotal,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                    [encoder setBuffer:state.deformableWarmstartsAccepted
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.deformableWarmstartsCandidate
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.deformableWarmstartsCheckpoint
+                                 offset:0u atIndex:4u];
+                });
             dispatchThreads("nm_scheduler_reconcile", objectTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
@@ -2471,6 +2511,18 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.contactWarmstartsCandidate offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactWarmstartsCheckpoint offset:0u atIndex:3u];
             });
+            dispatchThreads(
+                "nm_contact_checkpoint_deformable_warmstarts",
+                deformableWarmstartTotal,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.deformableWarmstartsAccepted
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.deformableWarmstartsCandidate
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.deformableWarmstartsCheckpoint
+                                 offset:0u atIndex:3u];
+                });
             if (request.learnedWeightUpdate != nullptr) {
                 id<MTLBuffer> learnedUpdate =
                     (__bridge id<MTLBuffer>)request.learnedWeightUpdate;
@@ -2764,7 +2816,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             // never commits, waits, or opens another queue.
             const auto encodeCoupledKKTContact = [&] (
                 const bool certify,
-                id<MTLBuffer> warmstarts
+                id<MTLBuffer> warmstarts,
+                id<MTLBuffer> deformableWarmstarts
             ) -> bool {
                 dispatchThreads(
                     "nm_contact_build_surface_primitives",
@@ -2812,12 +2865,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         setDispatch();
                         [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                         [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                        [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
-                        [encoder setBuffer:state.schedulers offset:0u atIndex:4u];
-                        [encoder setBuffer:state.femSurfacePrimitives offset:0u atIndex:5u];
-                        [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:6u];
-                        [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:7u];
-                        [encoder setBuffer:state.deformableContacts offset:0u atIndex:8u];
+                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femSurfacePrimitives offset:0u atIndex:6u];
+                        [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:7u];
+                        [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:8u];
+                        [encoder setBuffer:deformableWarmstarts offset:0u atIndex:9u];
+                        [encoder setBuffer:state.deformableContacts offset:0u atIndex:10u];
                     }
                 );
                 dispatchGroups32(
@@ -3021,6 +3076,20 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.contactSamples offset:0u atIndex:3u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
                 });
+                dispatchThreads(
+                    "nm_contact_accumulate_deformable_fem_residual",
+                    femNodeTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.deformableContacts
+                                   offset:0u atIndex:1u];
+                        [encoder setBuffer:state.deformableContactActiveIndices
+                                   offset:0u atIndex:2u];
+                        [encoder setBuffer:state.deformableContactActiveCounts
+                                   offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femResidual
+                                   offset:0u atIndex:4u];
+                    });
                 return true;
             };
             for (std::uint32_t nonlinearIteration = 0u;
@@ -3032,7 +3101,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             // candidate. These kernels no longer iterate or publish a field
             // solution; they provide the field residual and block diagonal to
             // the single generalized KKT solve below.
-            dispatchThreads("nm_mixed_pcg_prepare", femNodeTotal, [&] {
+            dispatchThreads("nm_mixed_prepare_residual", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.objects offset:0u atIndex:1u];
                 [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
@@ -3062,7 +3131,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
                 [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:7u];
             });
-            dispatchThreads("nm_mixed_pcg_initialize", femNodeTotal, [&] {
+            dispatchThreads("nm_mixed_build_residual_diagonal", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -3103,7 +3172,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
             });
-            dispatchThreads("nm_fem_pcg_initialize", femNodeTotal, [&] {
+            dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
                 const std::uint32_t preserveSolution = 0u;
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -3132,7 +3201,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             id<MTLBuffer> nonlinearWarmstarts = nonlinearIteration == 0u
                 ? state.contactWarmstartsAccepted
                 : state.contactWarmstartsCandidate;
-            if (!encodeCoupledKKTContact(false, nonlinearWarmstarts)) {
+            id<MTLBuffer> nonlinearDeformableWarmstarts =
+                nonlinearIteration == 0u
+                ? state.deformableWarmstartsAccepted
+                : state.deformableWarmstartsCandidate;
+            if (!encodeCoupledKKTContact(
+                    false,
+                    nonlinearWarmstarts,
+                    nonlinearDeformableWarmstarts)) {
                 [encoder endEncoding];
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
@@ -3162,6 +3238,20 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.contactActivePairs offset:0u atIndex:15u];
                 [encoder setBuffer:state.contactActiveCounts offset:0u atIndex:16u];
             });
+            dispatchThreads(
+                "nm_contact_build_deformable_kkt_residual",
+                environments * state.dispatch.deformableContactCapacity,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:3u];
+                    [encoder setBuffer:state.deformableContacts offset:0u atIndex:4u];
+                    [encoder setBuffer:state.deformableContactActiveIndices offset:0u atIndex:5u];
+                    [encoder setBuffer:state.deformableContactActiveCounts offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                });
             dispatchThreads("nm_fgmres_import_field_residual", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:1u];
@@ -3172,7 +3262,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             // operator work is distributed over nodes/active contacts. The
             // SIMD32 object kernels only perform bounded reductions and the
             // tiny Hessenberg solve.
-            const NSUInteger kktUnknownTotal = 2u * femNodeTotal + pairTotal;
+            const NSUInteger deformableContactTotal = environments *
+                state.dispatch.deformableContactCapacity;
+            const NSUInteger kktUnknownTotal =
+                2u * femNodeTotal + pairTotal + deformableContactTotal;
             const NSUInteger activeContactTotal =
                 environments * state.contactActiveCapacity;
             const NSUInteger vectorBytes =
@@ -3187,6 +3280,12 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             [encoder useResource:state.contactActivePairs usage:MTLResourceUsageRead];
             [encoder useResource:state.contactActiveSlotsByPair usage:MTLResourceUsageRead];
             [encoder useResource:state.contactActiveCounts usage:MTLResourceUsageRead];
+            [encoder useResource:state.deformableContacts
+                         usage:MTLResourceUsageRead | MTLResourceUsageWrite];
+            [encoder useResource:state.deformableContactActiveIndices
+                         usage:MTLResourceUsageRead];
+            [encoder useResource:state.deformableContactActiveCounts
+                         usage:MTLResourceUsageRead];
             const std::uint32_t restart = std::min(
                 state.mixedSolverValue.nonlinearIterations.y,
                 static_cast<std::uint32_t>(NM_MIXED_FGMRES_RESTART));
@@ -3270,7 +3369,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresStates
                                  offset:0u atIndex:5u];
                 });
-                dispatchThreads("nm_fgmres_field_pcg_initialize", femNodeTotal, [&] {
+                dispatchThreads("nm_fgmres_field_smoother_initialize", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
                     [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:2u];
@@ -3340,7 +3439,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                                    atIndex:7u];
                     });
                 }
-                dispatchThreads("nm_fgmres_field_pcg_export", femNodeTotal, [&] {
+                dispatchThreads("nm_fgmres_field_smoother_export", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
                     [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:2u];
@@ -3366,6 +3465,20 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
                     [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:5u];
                 });
+                dispatchThreads(
+                    "nm_fgmres_precondition_deformable_contacts",
+                    deformableContactTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.fgmresBasis
+                                     offset:columnOffset atIndex:1u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                                     offset:columnOffset atIndex:2u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.fgmresContactArguments
+                                     offset:0u atIndex:4u];
+                    });
                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
@@ -3450,6 +3563,22 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:8u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
                 });
+                dispatchThreads(
+                    "nm_fgmres_apply_deformable_contacts",
+                    deformableContactTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:2u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                                     offset:columnOffset atIndex:3u];
+                        [encoder setBuffer:state.femOperatorValue
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.fgmresContactArguments
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:6u];
+                    });
                 dispatchGroups32("nm_fgmres_orthogonalize_column", environments, [&] {
                     setDispatch();
                     [encoder setBytes:&column length:sizeof(column) atIndex:1u];
@@ -3535,6 +3664,20 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:7u];
             });
+            dispatchThreads(
+                "nm_fgmres_accumulate_deformable_contacts",
+                deformableContactTotal,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.fgmresPreconditionedBasis offset:0u atIndex:2u];
+                    [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:3u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
+                    [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:6u];
+                    [encoder setBytes:&restartCycle
+                               length:sizeof(restartCycle) atIndex:7u];
+                });
             if (finalRestartCycle == 0u) {
                 dispatchThreads("nm_fgmres_restart_residual_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -3556,6 +3699,19 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresContactArguments
                                  offset:0u atIndex:5u];
                 });
+                dispatchThreads(
+                    "nm_fgmres_restart_residual_deformable_contacts",
+                    deformableContactTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.fgmresBasis offset:0u atIndex:1u];
+                        [encoder setBuffer:state.fgmresRestartCoefficients
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
+                        [encoder setBuffer:state.fgmresContactArguments
+                                     offset:0u atIndex:5u];
+                    });
             }
             }
 
@@ -3565,6 +3721,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
                 [encoder setBuffer:state.femSolution offset:0u atIndex:3u];
                 [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
+                [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
+                [encoder setBuffer:state.fgmresContactArguments offset:0u atIndex:6u];
             });
 
             micro.pcgIteration = nonlinearIteration;
@@ -3585,6 +3743,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:13u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:14u];
             });
+            dispatchGroups32(
+                "nm_fem_synchronize_environment_line_search",
+                environments,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femLineSearch
+                                 offset:0u atIndex:1u];
+                });
             dispatchThreads("nm_fem_apply_solution", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -3619,6 +3785,19 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.contactWarmstartsCandidate
                              offset:0u atIndex:7u];
             });
+            dispatchThreads(
+                "nm_contact_apply_deformable_kkt_solution",
+                deformableContactTotal,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.deformableContacts offset:0u atIndex:1u];
+                    [encoder setBuffer:state.deformableContactActiveIndices offset:0u atIndex:2u];
+                    [encoder setBuffer:state.deformableContactActiveCounts offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:5u];
+                    [encoder setBuffer:state.deformableWarmstartsCandidate
+                                 offset:0u atIndex:6u];
+                });
             // Physics-triggered puncture is an active-set change of this same
             // nonlinear transaction. Apply it to candidate topology/state,
             // then let the following Newton iteration rebuild contact and the
@@ -3677,7 +3856,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             // Reassemble the accepted Newton candidate once, then certify the
             // same generalized residual. This is a certificate pass only: no
             // post-contact FEM correction or second linear solve is encoded.
-            dispatchThreads("nm_mixed_pcg_prepare", femNodeTotal, [&] {
+            dispatchThreads("nm_mixed_prepare_residual", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.objects offset:0u atIndex:1u];
                 [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
@@ -3707,7 +3886,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
                 [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:7u];
             });
-            dispatchThreads("nm_mixed_pcg_initialize", femNodeTotal, [&] {
+            dispatchThreads("nm_mixed_build_residual_diagonal", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -3745,7 +3924,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
             });
-            dispatchThreads("nm_fem_pcg_initialize", femNodeTotal, [&] {
+            dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
                 const std::uint32_t preserveSolution = 1u;
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -3771,7 +3950,9 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                            length:sizeof(preserveSolution) atIndex:20u];
             });
             if (!encodeCoupledKKTContact(
-                    true, state.contactWarmstartsCandidate
+                    true,
+                    state.contactWarmstartsCandidate,
+                    state.deformableWarmstartsCandidate
                 )) {
                 [encoder endEncoding];
                 ownership->preDynamicsOpen = false;
@@ -3898,6 +4079,17 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.contactWarmstartsAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactWarmstartsCandidate offset:0u atIndex:3u];
             });
+            dispatchThreads(
+                "nm_contact_commit_deformable_warmstarts",
+                deformableWarmstartTotal,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                    [encoder setBuffer:state.deformableWarmstartsAccepted
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.deformableWarmstartsCandidate
+                                 offset:0u atIndex:3u];
+                });
             dispatchGroups32("nm_scheduler_observe", objectTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -3987,6 +4179,19 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             [encoder setBuffer:state.contactWarmstartsAccepted offset:0u atIndex:2u];
             [encoder setBuffer:state.contactWarmstartsCheckpoint offset:0u atIndex:3u];
         });
+        dispatchThreads(
+            "nm_contact_rollback_deformable_warmstarts",
+            deformableWarmstartTotal,
+            [&] {
+                setDispatch();
+                [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                [encoder setBuffer:state.deformableWarmstartsAccepted
+                             offset:0u atIndex:2u];
+                [encoder setBuffer:state.deformableWarmstartsCandidate
+                             offset:0u atIndex:3u];
+                [encoder setBuffer:state.deformableWarmstartsCheckpoint
+                             offset:0u atIndex:4u];
+            });
 
         dispatchThreads(
             "nm_latch_matter_status_into_rigid_world",
@@ -4143,6 +4348,8 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> topologyStates = copy(state_->topologyStatesAccepted);
         id<MTLBuffer> contactWarmstarts =
             copy(state_->contactWarmstartsAccepted);
+        id<MTLBuffer> deformableContactWarmstarts =
+            copy(state_->deformableWarmstartsAccepted);
         id<MTLBuffer> adaptive = copy(state_->adaptive);
         id<MTLBuffer> schedulers = copy(state_->schedulers);
         id<MTLBuffer> reactions = copy(state_->frameReactions);
@@ -4175,6 +4382,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             topologyNodes == nil || topologyTetrahedra == nil ||
             cohesiveFaces == nil || punctureChannels == nil ||
             topologyStates == nil || contactWarmstarts == nil ||
+            deformableContactWarmstarts == nil ||
             adaptive == nil || schedulers == nil || reactions == nil ||
             (state_->captureDiagnostics &&
              (contactSamples == nil || contactResponseRows == nil ||
@@ -4215,6 +4423,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->punctureChannelsAccepted, punctureChannels);
         encodeCopy(state_->topologyStatesAccepted, topologyStates);
         encodeCopy(state_->contactWarmstartsAccepted, contactWarmstarts);
+        encodeCopy(
+            state_->deformableWarmstartsAccepted,
+            deformableContactWarmstarts);
         encodeCopy(state_->adaptive, adaptive);
         encodeCopy(state_->schedulers, schedulers);
         encodeCopy(state_->frameReactions, reactions);
@@ -4280,6 +4491,13 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             state_->dispatch.contactPairCount;
         readCount(contactWarmstarts, snapshot.contactWarmstarts,
                   logicalContactCount);
+        const std::size_t logicalDeformableContactCount =
+            static_cast<std::size_t>(state_->dispatch.environmentCount) *
+            state_->dispatch.deformableContactCapacity;
+        readCount(
+            deformableContactWarmstarts,
+            snapshot.deformableContactWarmstarts,
+            logicalDeformableContactCount);
         read(adaptive, snapshot.adaptive);
         read(schedulers, snapshot.schedulers);
         read(reactions, snapshot.reactions);
