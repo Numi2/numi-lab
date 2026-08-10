@@ -37,8 +37,8 @@ contact warm starts, topology, constitutive history, scheduler state, and
 learned weights commit together or roll back together.
 
 This branch is active solver development. Bounded live-Metal probes are the
-qualification workloads; a full DrAnmar tissue volume is a later scale and
-fidelity workload, not the mechanism used to tune the solver.
+qualification workloads; unsupported application replicas are not retained as
+solver evidence.
 
 Build and run the owning probe:
 

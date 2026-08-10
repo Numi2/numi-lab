@@ -1675,10 +1675,6 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --poroelastic-compression
     )
     add_test(
-        NAME matter.scene.articulated_needle_puncture
-        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --needle-puncture-scene
-    )
-    add_test(
         NAME matter.scene.articulated_foot_poroelastic_pad
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --articulated-foot-pad
     )
@@ -1699,7 +1695,6 @@ if(BUILD_TESTING)
         matter.integration.articulated_rigid_reaction
         matter.physics.shared_rigid_coupled_contact
         matter.scene.poroelastic_plate_compression
-        matter.scene.articulated_needle_puncture
         matter.scene.articulated_foot_poroelastic_pad
         matter.runtime.inverse_identification
         matter.physics.adaptive_mpm_demotion
