@@ -34,6 +34,18 @@ class UpperBodyStudyTest(unittest.TestCase):
         self.assertTrue(measured["raised"])
         self.assertFalse(measured["qualified_success"])
 
+    def test_already_raised_static_pose_is_not_motion_success(self):
+        trace = np.zeros((2, 50), dtype=np.float64)
+        trace[:, 1 + 7 + 15] = (-0.4, -0.41)
+        result = {
+            "failed_environment_steps": 0,
+            "termination_count": 0,
+            "maximum_tilt": 0.2,
+            "minimum_root_height_by_environment": [0.7],
+            "mean_tracking_score": 0.8,
+        }
+        self.assertFalse(_metrics(result, trace, (15,))["raised"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,7 +13,7 @@ from typing import Any, Sequence
 import numpy as np
 
 
-SEEDS = (2650443581, 2650443582, 2650443583, 2650443584, 2650443585)
+SEEDS = (2650443586, 2650443587, 2650443588, 2650443589, 2650443590)
 TASKS = {
     "raise-right-hand": {"steps": 40, "joints": (22,)},
     "raise-left-hand": {"steps": 40, "joints": (15,)},
@@ -60,7 +60,10 @@ def _metrics(result: dict[str, Any], trace: np.ndarray, joints: tuple[int, ...])
         and result["maximum_tilt"] < 0.50
         and min(result["minimum_root_height_by_environment"]) > 0.64
     )
-    raised = all(item["minimum_rad"] <= -0.15 for item in shoulders)
+    raised = all(
+        item["minimum_rad"] <= -0.15 and item["excursion_rad"] >= 0.25
+        for item in shoulders
+    )
     return {
         "failed_environment_steps": result["failed_environment_steps"],
         "termination_count": result["termination_count"],
@@ -79,8 +82,8 @@ def run(
     output: Path, inputs: Path, protocol_path: Path, *, allow_dirty: bool = False,
 ) -> dict[str, Any]:
     protocol = json.loads(protocol_path.read_text())
-    if protocol.get("schema") != "numi.pqi2-upper-body-protocol.v1" or protocol.get("status") != "preregistered":
-        raise ValueError("upper-body protocol must be preregistered v1")
+    if protocol.get("schema") != "numi.pqi2-upper-body-protocol.v2" or protocol.get("status") != "preregistered":
+        raise ValueError("upper-body protocol must be preregistered v2")
     if tuple(protocol.get("seeds", ())) != SEEDS or set(protocol.get("tasks", {})) != set(TASKS):
         raise ValueError("upper-body protocol does not match the executable study contract")
     protocol_sha256 = _sha256(protocol_path)
