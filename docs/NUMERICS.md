@@ -250,13 +250,15 @@ accepted state through `encodeTopologyGrowth` on a borrowed command buffer.
 The logical mesh can therefore grow across submissions until 32-bit indices or
 the device working set is exhausted, without allocation inside a transaction.
 
-The MPM vector block currently linearizes lumped grid inertia and analytic
-rigid-barrier curvature around the P2G force predictor. It does not yet contain
+The MPM vector block currently linearizes lumped grid inertia around the P2G
+force predictor. Analytic rigid barriers retain auxiliary force rows so the
+same matrix-free action includes free-body and articulated sparse Delassus
+response without placing articulated coordinates in Matter's primal vector.
+The MPM block does not yet contain
 the particle constitutive tangent or FEM/MPM barrier pairs, so it is not a
 universal implicit MPM-FEM operator. The contact Hessian is not the full
-mollified vertex-triangle/edge-edge IPC Hessian, and articulated rigid motion
-remains an eliminated Delassus response rather than a primal Krylov block.
-Those are active solver boundaries, not completed claims.
+mollified vertex-triangle/edge-edge IPC Hessian. Those are active solver
+boundaries, not completed claims.
 
 The implementation uses FP32 barrier arithmetic and conservative CCD. It does
 not claim exact-real arithmetic or a mathematical proof of non-intersection;

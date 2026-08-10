@@ -105,8 +105,8 @@ kernel void nm_fgmres_begin(
         !completed;
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
     const uint fieldBase = totalNodes;
-    const uint contactBase = fgmresContactBase(dispatch, environment);
     const uint mpmBase = fgmresMPMIndex(dispatch, environment, 0u);
+    const uint contactBase = fgmresContactBase(dispatch, environment);
     if (active) {
         const uint base = environment * dispatch.femNodeCount;
         for (uint local = lane; local < dispatch.femNodeCount; local += 32u) {
@@ -868,10 +868,13 @@ kernel void nm_fgmres_apply_nodes(
             contact.samples[sampleBase + pairIndex];
         if ((sample.identity.w & NM_CONTACT_VALID) != 0u) {
             if ((dispatch.flags & NM_MATTER_IPC) != 0u) {
-                const float normalDirection = dot(
-                    sample.normalAndVelocity.xyz, direction[global].xyz);
-                work[global].xyz += sample.barrier.y * normalDirection *
-                    sample.normalAndVelocity.xyz;
+                // The contact row is an auxiliary barrier-force increment.
+                // Keeping it in the generalized vector lets the eliminated
+                // rigid/articulated Delassus response participate in the
+                // same linearization instead of treating the rigid side as
+                // fixed.
+                work[global].xyz -= sample.normalAndVelocity.xyz *
+                    direction[contactBase + pairIndex].x;
             } else {
                 work[global].xyz -= sample.normalAndVelocity.xyz *
                     direction[contactBase + pairIndex].x;
@@ -894,19 +897,9 @@ kernel void nm_fgmres_apply_nodes(
         if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
             deformable.nodes[local] != localNode) continue;
         if ((dispatch.flags & NM_MATTER_IPC) != 0u) {
-            float3 relativeDirection = float3(0.0f);
-            for (uint other = 0u; other < 4u; ++other) {
-                if (deformable.nodes[other] < dispatch.femNodeCount) {
-                    relativeDirection += deformable.weights[other] *
-                        direction[environment * dispatch.femNodeCount +
-                                  deformable.nodes[other]].xyz;
-                }
-            }
-            const float normalDirection = dot(
-                deformable.normalAndTOI.xyz, relativeDirection);
-            work[global].xyz += deformable.weights[local] *
-                deformable.barrier.y * normalDirection *
-                deformable.normalAndTOI.xyz;
+            const uint row = contactBase + dispatch.contactPairCount + slot;
+            work[global].xyz -= deformable.weights[local] *
+                deformable.normalAndTOI.xyz * direction[row].x;
         } else {
             const uint row = contactBase + dispatch.contactPairCount + slot;
             float3 tangent0, tangent1;
@@ -1050,23 +1043,25 @@ kernel void nm_fgmres_apply_contacts(
         fgmresContactBase(dispatch, environment) + pairIndex;
     work[contactIndex] = float4(0.0f);
     if (states[environment].diagnostics.z > 0.5f) return;
-    if ((dispatch.flags & NM_MATTER_IPC) != 0u) {
-        work[contactIndex] = direction[contactIndex];
-        return;
-    }
     const NMContactSampleGPU sample = contact.samples[sampleBase + pairIndex];
     if ((sample.identity.w & NM_CONTACT_VALID) == 0u) return;
     const NMIncidenceRangeGPU responseRange = contact.responseRanges[slot];
     float diagonal = 0.0f;
     float gapVelocity = sample.normalAndVelocity.w;
     float directionGap = 0.0f;
-    float femDirectionGap = 0.0f;
+    float continuumDirectionGap = 0.0f;
     const uint nodeBase = environment * dispatch.femNodeCount;
-    if (pair.continuumNode >= dispatch.gridNodeCount) {
+    if (pair.continuumNode < dispatch.gridNodeCount) {
+        continuumDirectionGap = dot(
+            sample.normalAndVelocity.xyz,
+            direction[fgmresMPMIndex(
+                dispatch, environment, pair.continuumNode)].xyz);
+    } else {
         const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
         if (femNode < dispatch.femNodeCount)
-            femDirectionGap = dot(sample.normalAndVelocity.xyz,
-                                  direction[nodeBase + femNode].xyz);
+            continuumDirectionGap = dot(
+                sample.normalAndVelocity.xyz,
+                direction[nodeBase + femNode].xyz);
     }
     const uint activeCount = min(
         contact.activeCounts[environment], dispatch.reservedMixed1);
@@ -1100,6 +1095,16 @@ kernel void nm_fgmres_apply_contacts(
         directionGap += reduced * direction[
             fgmresContactBase(dispatch, environment) + columnPair].x;
     }
+    if ((dispatch.flags & NM_MATTER_IPC) != 0u) {
+        // Algebraic barrier linearization with an auxiliary force row:
+        //   dLambda - b''(d) (Jc dV + Wr dLambda) = 0.
+        // Wr is the rigid/articulated part of the sparse Delassus response;
+        // the continuum contribution is represented explicitly by its primal
+        // FEM/MPM direction above.
+        work[contactIndex].x = direction[contactIndex].x -
+            sample.barrier.y * (continuumDirectionGap + directionGap);
+        return;
+    }
     const float metric = max(diagonal, solver.regularization.x);
     const NMMaterialGPU objectMaterial = materials[objects[objectIndex].materialIndex];
     const NMMaterialGPU interfaceMaterial = materials[pair.materialInterface];
@@ -1112,7 +1117,8 @@ kernel void nm_fgmres_apply_contacts(
     // x_candidate = x_n + dt*v, so d[(slop-separation)/dt]/dv = -J
     // on the active, unclamped bias branch. d(v_n-bias) therefore carries
     // two FEM J*dv terms. Eliminated rigid/articulated response remains in W.
-    directionGap += (differentiableBias ? 2.0f : 1.0f) * femDirectionGap;
+    directionGap += (differentiableBias ? 2.0f : 1.0f) *
+        continuumDirectionGap;
     const float restitution = max(objectMaterial.interfaceResponse.z,
                                   interfaceMaterial.interfaceResponse.z);
     const float bounce = sample.normalAndVelocity.w < -0.2f
@@ -1142,10 +1148,6 @@ kernel void nm_fgmres_apply_deformable_contacts(
         dispatch.contactPairCount + slot;
     work[row] = float4(0.0f);
     if (states[environment].diagnostics.z > 0.5f) return;
-    if ((dispatch.flags & NM_MATTER_IPC) != 0u) {
-        work[row] = direction[row];
-        return;
-    }
     const NMDeformableContactGPU deformable =
         contact.deformableContacts[environment * capacity + slot];
     if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
@@ -1161,6 +1163,14 @@ kernel void nm_fgmres_apply_deformable_contacts(
         deformable.normalAndTOI.xyz, tangent0, tangent1);
     const float normalDirection = dot(
         deformable.normalAndTOI.xyz, relativeDirection);
+    if ((dispatch.flags & NM_MATTER_IPC) != 0u) {
+        work[row] = float4(
+            direction[row].x - deformable.barrier.y * normalDirection,
+            direction[row].y,
+            direction[row].z,
+            0.0f);
+        return;
+    }
     const float2 tangentDirection = float2(
         dot(tangent0, relativeDirection),
         dot(tangent1, relativeDirection));
@@ -2102,13 +2112,14 @@ kernel void nm_fgmres_apply_mpm(
     float3 value = nodes[global].positionAndMass.w * nodeDirection;
     const NMIncidenceRangeGPU range = contactRanges[nodeIndex];
     const uint sampleBase = environment * dispatch.contactPairCount;
+    const uint contactBase = fgmresContactBase(dispatch, environment);
     for (uint local = 0u; local < range.count; ++local) {
         const uint pair = contactIncidence[range.first + local];
         if (pair >= dispatch.contactPairCount) continue;
         const NMContactSampleGPU sample = samples[sampleBase + pair];
         if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
-        const float3 normal = sample.normalAndVelocity.xyz;
-        value += sample.barrier.y * dot(normal, nodeDirection) * normal;
+        value -= sample.normalAndVelocity.xyz *
+            direction[contactBase + pair].x;
     }
     work[row] = float4(value, 0.0f);
 }
