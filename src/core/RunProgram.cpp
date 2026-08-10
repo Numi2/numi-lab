@@ -660,6 +660,205 @@ void scaleNumiflyMechanics(EngineModel& model) {
     model.name = "numifly";
 }
 
+void removeNumiflyLegs(EngineModel& model) {
+    constexpr std::array<std::string_view, 12u> removedBodyNames{
+        "left_hip_pitch_link",
+        "left_hip_roll_link",
+        "left_hip_yaw_link",
+        "left_knee_link",
+        "left_ankle_pitch_link",
+        "left_ankle_roll_link",
+        "right_hip_pitch_link",
+        "right_hip_roll_link",
+        "right_hip_yaw_link",
+        "right_knee_link",
+        "right_ankle_pitch_link",
+        "right_ankle_roll_link",
+    };
+    if (model.articulations.size() != 1u ||
+        model.articulations.front().rootType != MR_ROOT_FLOATING ||
+        model.articulations.front().rootBody != 0u ||
+        model.constraintProgram.blocks.size() != 0u ||
+        model.bodyNames.size() != model.bodies.size() ||
+        model.jointNames.size() != model.joints.size() ||
+        model.dofNames.size() != model.dofs.size() ||
+        model.defaultQ.size() < 7u || model.defaultV.size() < 6u) {
+        throw std::logic_error(
+            "Numifly no-legs requires the canonical unconstrained floating G1 tree"
+        );
+    }
+    std::unordered_set<std::string_view> removedBodies;
+    for (const std::string_view name : removedBodyNames) {
+        if (std::ranges::count(model.bodyNames, name) != 1u) {
+            throw std::logic_error(
+                "Numifly no-legs could not resolve the canonical leg body " +
+                std::string{name}
+            );
+        }
+        removedBodies.insert(name);
+    }
+
+    EngineModel source = std::move(model);
+    EngineModel result;
+    result.name = "numifly_no_legs";
+    result.world = source.world;
+    result.materials = std::move(source.materials);
+    result.geometryHeaders = std::move(source.geometryHeaders);
+    result.geometryVertices = std::move(source.geometryVertices);
+    result.geometryIndices = std::move(source.geometryIndices);
+    result.convexFaces = std::move(source.convexFaces);
+    result.convexHalfEdges = std::move(source.convexHalfEdges);
+    result.meshBvhNodes = std::move(source.meshBvhNodes);
+    result.meshTriangles = std::move(source.meshTriangles);
+    result.constraintProgram = std::move(source.constraintProgram);
+
+    std::vector<std::uint32_t> bodyMap(
+        source.bodies.size(), MR_INVALID_INDEX);
+    for (std::uint32_t oldBody = 0u;
+         oldBody < source.bodies.size();
+         ++oldBody) {
+        if (!removedBodies.contains(source.bodyNames[oldBody])) {
+            bodyMap[oldBody] = static_cast<std::uint32_t>(
+                result.bodyNames.size());
+            result.bodyNames.push_back(source.bodyNames[oldBody]);
+        }
+    }
+    if (result.bodyNames.size() != 18u || bodyMap[0u] != 0u) {
+        throw std::logic_error(
+            "Numifly no-legs did not retain the expected 18-body upper tree"
+        );
+    }
+
+    std::vector<std::uint32_t> jointMap(
+        source.joints.size(), MR_INVALID_INDEX);
+    result.defaultQ.assign(source.defaultQ.begin(), source.defaultQ.begin() + 7u);
+    result.defaultV.assign(source.defaultV.begin(), source.defaultV.begin() + 6u);
+    result.dofs.assign(source.dofs.begin(), source.dofs.begin() + 6u);
+    result.dofNames.assign(
+        source.dofNames.begin(), source.dofNames.begin() + 6u);
+    if (!source.actuatorProfiles.empty()) {
+        result.actuatorProfiles.assign(
+            source.actuatorProfiles.begin(),
+            source.actuatorProfiles.begin() + 6u);
+    }
+    for (std::uint32_t oldJoint = 0u;
+         oldJoint < source.joints.size();
+         ++oldJoint) {
+        const MRJointDescriptorGPU& authored = source.joints[oldJoint];
+        if (bodyMap[authored.parentBody] == MR_INVALID_INDEX ||
+            bodyMap[authored.childBody] == MR_INVALID_INDEX) {
+            continue;
+        }
+        if (authored.nq != 1u || authored.nv != 1u) {
+            throw std::logic_error(
+                "Numifly no-legs requires scalar retained G1 joints"
+            );
+        }
+        const std::uint32_t newJoint = static_cast<std::uint32_t>(
+            result.joints.size());
+        jointMap[oldJoint] = newJoint;
+        MRJointDescriptorGPU joint = authored;
+        joint.parentBody = bodyMap[authored.parentBody];
+        joint.childBody = bodyMap[authored.childBody];
+        joint.qOffset = static_cast<std::uint32_t>(result.defaultQ.size());
+        joint.vOffset = static_cast<std::uint32_t>(result.defaultV.size());
+        result.joints.push_back(joint);
+        result.jointNames.push_back(source.jointNames[oldJoint]);
+        for (std::uint32_t localQ = 0u; localQ < authored.nq; ++localQ) {
+            result.defaultQ.push_back(
+                source.defaultQ[authored.qOffset + localQ]);
+        }
+        for (std::uint32_t localV = 0u; localV < authored.nv; ++localV) {
+            const std::uint32_t oldV = authored.vOffset + localV;
+            MRDofPropertiesGPU dof = source.dofs[oldV];
+            dof.jointIndex = newJoint;
+            dof.qIndex = joint.qOffset + localV;
+            dof.vIndex = joint.vOffset + localV;
+            result.dofs.push_back(dof);
+            result.dofNames.push_back(source.dofNames[oldV]);
+            result.defaultV.push_back(source.defaultV[oldV]);
+            if (!source.actuatorProfiles.empty()) {
+                MRActuatorProfileGPU profile = source.actuatorProfiles[oldV];
+                profile.identity.x = dof.vIndex;
+                result.actuatorProfiles.push_back(profile);
+            }
+        }
+    }
+    if (result.joints.size() != 17u || result.defaultQ.size() != 24u ||
+        result.defaultV.size() != 23u) {
+        throw std::logic_error(
+            "Numifly no-legs did not retain the expected 17-joint upper tree"
+        );
+    }
+
+    result.bodies.reserve(result.bodyNames.size());
+    for (std::uint32_t oldBody = 0u;
+         oldBody < source.bodies.size();
+         ++oldBody) {
+        if (bodyMap[oldBody] == MR_INVALID_INDEX) continue;
+        MRBodyPropertiesGPU body = source.bodies[oldBody];
+        if (body.parentBody != MR_INVALID_INDEX) {
+            body.parentBody = bodyMap[body.parentBody];
+        }
+        if (body.inboundJoint != MR_INVALID_INDEX) {
+            body.inboundJoint = jointMap[body.inboundJoint];
+        }
+        result.bodies.push_back(body);
+    }
+
+    std::vector<std::uint32_t> shapeMap(
+        source.shapes.size(), MR_INVALID_INDEX);
+    for (std::uint32_t oldShape = 0u;
+         oldShape < source.shapes.size();
+         ++oldShape) {
+        const MRShapeGPU& authored = source.shapes[oldShape];
+        if (bodyMap[authored.bodyIndex] == MR_INVALID_INDEX) continue;
+        MRShapeGPU shape = authored;
+        shape.bodyIndex = bodyMap[authored.bodyIndex];
+        const std::uint32_t newShape = static_cast<std::uint32_t>(
+            result.shapes.size());
+        shapeMap[oldShape] = newShape;
+        result.shapes.push_back(shape);
+        result.shapeNames.push_back(
+            result.bodyNames[shape.bodyIndex] + "/collision_" +
+            std::to_string(newShape));
+    }
+    for (const CollisionPairExclusion& exclusion :
+         source.collisionExclusions) {
+        if (shapeMap[exclusion.colliderA] != MR_INVALID_INDEX &&
+            shapeMap[exclusion.colliderB] != MR_INVALID_INDEX) {
+            result.collisionExclusions.push_back({
+                shapeMap[exclusion.colliderA],
+                shapeMap[exclusion.colliderB],
+            });
+        }
+    }
+
+    MRArticulationGPU articulation = source.articulations.front();
+    articulation.rootBody = bodyMap[articulation.rootBody];
+    articulation.firstBody = 0u;
+    articulation.bodyCount = static_cast<std::uint32_t>(result.bodies.size());
+    articulation.firstJoint = 0u;
+    articulation.jointCount = static_cast<std::uint32_t>(result.joints.size());
+    articulation.qOffset = 0u;
+    articulation.nq = static_cast<std::uint32_t>(result.defaultQ.size());
+    articulation.vOffset = 0u;
+    articulation.nv = static_cast<std::uint32_t>(result.defaultV.size());
+    result.articulations = {articulation};
+    result.world.bodyCount = articulation.bodyCount;
+    result.world.jointCount = articulation.jointCount;
+    result.world.nq = articulation.nq;
+    result.world.nv = articulation.nv;
+    result.world.shapeCount = static_cast<std::uint32_t>(result.shapes.size());
+
+    std::string reason;
+    if (!result.valid(&reason)) {
+        throw std::logic_error(
+            "Numifly no-legs mechanics are invalid: " + reason);
+    }
+    model = std::move(result);
+}
+
 } // namespace
 
 std::uint64_t visualSensorProgramFingerprint(
@@ -1822,6 +2021,59 @@ RobotPack makeNumiflyRobotPack(MeasuredSurfaceRobotPack bilateralWings) {
     return pack;
 }
 
+RobotPack makeNumiflyNoLegsRobotPack(
+    MeasuredSurfaceRobotPack bilateralWings
+) {
+    RobotPack pack = makeNumiflyRobotPack(std::move(bilateralWings));
+    removeNumiflyLegs(pack.mechanics);
+    pack.id = "numifly-no-legs";
+    pack.revision = 1u;
+    pack.sourceRevision += "; morphology:numifly-no-legs-v1";
+    pack.capabilities = {
+        "flight", "bilateral_measured_surface", "upper_body_motion",
+        "legless_morphology",
+    };
+    const auto semanticExists = [&](const RobotSemanticRole& role,
+                                    const std::string& member) {
+        const std::vector<std::string>* names = nullptr;
+        switch (role.kind) {
+        case RobotSemanticKind::body: names = &pack.mechanics.bodyNames; break;
+        case RobotSemanticKind::joint: names = &pack.mechanics.jointNames; break;
+        case RobotSemanticKind::dof: names = &pack.mechanics.dofNames; break;
+        }
+        return names != nullptr && std::ranges::find(*names, member) !=
+            names->end();
+    };
+    for (RobotSemanticRole& role : pack.roles) {
+        std::erase_if(role.members, [&](const std::string& member) {
+            return !semanticExists(role, member);
+        });
+    }
+    std::erase_if(pack.roles, [](const RobotSemanticRole& role) {
+        return role.members.empty();
+    });
+    std::erase_if(pack.actuators, [&](const RobotActuatorSpec& actuator) {
+        return actuator.kind == RobotActuatorKind::jointPosition &&
+            std::ranges::find(pack.mechanics.jointNames, actuator.target) ==
+                pack.mechanics.jointNames.end();
+    });
+    const std::size_t articulatedActions = std::ranges::count_if(
+        pack.actuators, [](const RobotActuatorSpec& actuator) {
+            return actuator.kind == RobotActuatorKind::jointPosition;
+        });
+    const std::size_t wingActions = std::ranges::count_if(
+        pack.actuators, [](const RobotActuatorSpec& actuator) {
+            return actuator.kind == RobotActuatorKind::measuredSurface;
+        });
+    if (articulatedActions != 17u || wingActions != 20u ||
+        pack.actuators.size() != 37u) {
+        throw std::logic_error(
+            "Numifly no-legs actuator contract is not 17 upper-body + 20 wing lanes"
+        );
+    }
+    return pack;
+}
+
 TaskPack makeNumiflyFlightTaskPack(
     const RobotPack& robot,
     const LocomotionSurface surface,
@@ -1936,6 +2188,143 @@ TaskPack makeNumiflyFlightTaskPack(
     task.commands.minimumDurationSeconds = 10.0f;
     task.commands.maximumDurationSeconds = 10.0f;
     task.pushes = {};
+    reset.maximumActionDelaySteps = 1u;
+    reset.maximumObservationDelaySteps = 1u;
+    reset.operators = {
+        {.operation = TaskRandomizationOperator::rootPosition,
+            .parameters = {0.01f, 0.01f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::rootYaw,
+            .parameters = {-0.15f, 0.15f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::rootHeight,
+            .parameters = {0.14f, 0.16f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::velocity,
+            .parameters = {-0.02f, 0.02f, 0.0f, 0.0f}},
+    };
+    return task;
+}
+
+TaskPack makeNumiflyNoLegsFlightTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    if (robot.id != "numifly-no-legs" || !robot.measuredSurface ||
+        robot.measuredSurface->surface.actionCount != 20u ||
+        robot.actuators.size() != 37u) {
+        throw std::invalid_argument(
+            "Numifly no-legs flight requires its canonical 37-action RobotPack"
+        );
+    }
+    TaskPack task;
+    task.id = "numifly.no_legs.flight.v1";
+    task.capacities = {
+        .candidatePairs = 256u,
+        .rawContacts = 512u,
+        .manifolds = 128u,
+        .constraintBlocks = 256u,
+        .constraintRows = 768u,
+        .hardConvexPairs = 256u,
+        .ccdCandidates = 128u,
+        .ccdEvents = 16u,
+        .endpointRuntimeRecords = 512u,
+        .articulationPointQueries = 512u,
+        .qualityRows = 768u,
+        .islandConstraintReferences = 256u,
+    };
+    for (const RobotActuatorSpec& actuator : robot.actuators) {
+        task.actions.push_back({actuator.id});
+    }
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::higherIsBetter},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"flight_tracking", "ratio", TaskOutcomeSource::trackingScore,
+            TaskOutcomeDirection::higherIsBetter},
+    };
+    task.rewards = {
+        {.operation = TaskRewardOperator::constant, .weight = 0.25f},
+        {.operation = TaskRewardOperator::rootHeightErrorSquared,
+            .weight = -8.0f},
+        {.operation = TaskRewardOperator::tiltSquared, .weight = -1.0f},
+        {.operation = TaskRewardOperator::rootVerticalVelocitySquared,
+            .weight = -0.15f},
+        {.operation = TaskRewardOperator::rootRollPitchVelocitySquared,
+            .weight = -0.05f},
+        {.operation = TaskRewardOperator::jointVelocitySquared,
+            .weight = -0.001f},
+        {.operation = TaskRewardOperator::actionRateSquared,
+            .weight = -0.002f},
+    };
+    task.terminations = {
+        {.operation = TaskTerminationOperator::minimumRootHeight,
+            .reason = MR_TASK_TERMINATION_HEIGHT, .priority = 10u,
+            .threshold = 0.025f, .failurePenalty = -5.0f},
+        {.operation = TaskTerminationOperator::maximumTilt,
+            .reason = MR_TASK_TERMINATION_TILT, .priority = 20u,
+            .threshold = 1.45f, .failurePenalty = -2.0f},
+    };
+    task.maximumEpisodeSteps = 1000u;
+    task.difficultyBandCount = 1u;
+    task.baseHeightTarget = 0.45f;
+    task.gaitPeriodSeconds = 1.0f / 28.8f;
+    task.clearanceTarget = 0.02f;
+    task.successTrackingThreshold = 0.8f;
+    task.supportForceThreshold = 0.0f;
+    task.commands.standingProbability = 1.0f;
+    task.commands.minimumDurationSeconds = 10.0f;
+    task.commands.maximumDurationSeconds = 10.0f;
+
+    observations.actorHistoryLength = 2u;
+    observations.criticHistoryLength = 2u;
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::rootLinearVelocityLocal,
+            .component = component,
+        });
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::rootAngularVelocityLocal,
+            .component = component, .scale = 0.2f,
+        });
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::projectedGravity,
+            .component = component, .normalizeVector3 = true,
+        });
+    }
+    observations.actorFrame.push_back({
+        .source = TaskObservationSource::rootHeight,
+        .scale = 2.0f,
+    });
+    for (const RobotActuatorSpec& actuator : robot.actuators) {
+        if (actuator.kind != RobotActuatorKind::jointPosition) continue;
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::jointPositionError,
+            .target = actuator.target,
+        });
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::jointVelocity,
+            .target = actuator.target, .scale = 0.05f,
+        });
+    }
+    for (const TaskActionBinding& action : task.actions) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::previousAction,
+            .target = action.actuator,
+        });
+    }
+    const std::array<TaskObservationOperatorSpec, 4u> mechanics{{
+        {.source = TaskObservationSource::deviceMechanics, .component = 0u},
+        {.source = TaskObservationSource::deviceMechanics, .component = 1u},
+        {.source = TaskObservationSource::deviceMechanics, .component = 2u,
+            .scale = 0.05f},
+        {.source = TaskObservationSource::deviceMechanics, .component = 3u,
+            .scale = 1.0f / std::sqrt(20.0f)},
+    }};
+    observations.actorCurrent.insert(
+        observations.actorCurrent.end(), mechanics.begin(), mechanics.end());
+    observations.critic = observations.actorFrame;
+    observations.critic.insert(
+        observations.critic.end(), mechanics.begin(), mechanics.end());
     reset.maximumActionDelaySteps = 1u;
     reset.maximumObservationDelaySteps = 1u;
     reset.operators = {

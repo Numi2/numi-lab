@@ -108,12 +108,17 @@ metalrobo::CompiledRun compileFlightRun(
 metalrobo::CompiledRun compileNumiflyFlightRun(
     metalrobo::MeasuredSurfaceRobotPack wings,
     std::uint32_t environments,
-    std::uint32_t steps
+    std::uint32_t steps,
+    const bool noLegs = false
 ) {
     using namespace metalrobo;
     RunManifest manifest;
-    manifest.id = "numifly_measured_wing_probe";
-    manifest.robot = makeNumiflyRobotPack(std::move(wings));
+    manifest.id = noLegs
+        ? "numifly_no_legs_measured_wing_probe"
+        : "numifly_measured_wing_probe";
+    manifest.robot = noLegs
+        ? makeNumiflyNoLegsRobotPack(std::move(wings))
+        : makeNumiflyRobotPack(std::move(wings));
     // Keep the articulated mount effectively stationary while integrating a
     // full measured wingbeat. This is a force-balance instrument only: the
     // production robot mass is recovered before comparing lift with weight.
@@ -441,7 +446,8 @@ AuthorityLoad meanAcceptedLoad(const MRMeasuredSurfaceEvidenceGPU& evidence) {
 void runNumiflyAuthorityProbe(
     const std::filesystem::path& manifestPath,
     std::uint32_t candidateCount,
-    std::uint32_t steps
+    std::uint32_t steps,
+    const bool noLegs = false
 ) {
     using namespace metalrobo;
     require(candidateCount >= 41u && candidateCount <= 4096u &&
@@ -451,13 +457,22 @@ void runNumiflyAuthorityProbe(
     const CompiledMeasuredSurfaceRobot surface =
         compileMeasuredSurfaceRobot(wings);
     const CompiledRun run = compileNumiflyFlightRun(
-        wings, candidateCount, steps);
+        wings, candidateCount, steps, noLegs);
     const CompiledMeasuredSurfaceBinding& binding =
         *run.measuredSurfaceBinding();
     const std::uint32_t actionCount = run.task().layout().actionCount;
-    require(actionCount == 49u && binding.firstAction == 29u &&
+    const std::uint32_t articulatedActions = noLegs ? 17u : 29u;
+    if (noLegs) {
+        require(run.model().bodies.size() == 18u &&
+                run.model().joints.size() == 17u &&
+                run.model().world.nq == 24u &&
+                run.model().world.nv == 23u,
+            "Numifly No Legs authority probe retained leg topology");
+    }
+    require(actionCount == articulatedActions + 20u &&
+            binding.firstAction == articulatedActions &&
             binding.robot.pack.actionCount == 20u,
-        "Numifly authority probe lost its 29+20 action contract");
+        "Numifly authority probe lost its articulated + wing action contract");
     std::vector<float> actions(
         static_cast<std::size_t>(steps) * candidateCount * actionCount, 0.0f);
     for (std::uint32_t step = 0u; step < steps; ++step) {
@@ -550,7 +565,8 @@ void runNumiflyAuthorityProbe(
         ? static_cast<double>(candidateCount) * steps * 1000.0 /
             first.diagnostics.gpuElapsedMilliseconds
         : 0.0;
-    std::cout << "Numifly measured-wing authority probe "
+    std::cout << (noLegs ? "Numifly No Legs" : "Numifly")
+              << " measured-wing authority probe "
               << (liftAuthority ? "PASSED" : "INSUFFICIENT_LIFT") << '\n'
               << "  robot scale: " << kNumiflyLinearScale << "x linear\n"
               << "  run / robot / surface fingerprints: "
@@ -560,7 +576,13 @@ void runNumiflyAuthorityProbe(
               << " x " << steps << " x 4\n"
               << "  force instrument inertial scale: "
               << kNumiflyAuthorityInertialScale << "x, gravity disabled\n"
-              << "  action contract: 29 articulated + 20 measured wing\n"
+              << "  action contract: " << articulatedActions
+              << " articulated + 20 measured wing\n"
+              << "  mechanics bodies / joints / nq / nv: "
+              << run.model().bodies.size() << " / "
+              << run.model().joints.size() << " / "
+              << run.model().world.nq << " / " << run.model().world.nv
+              << '\n'
               << "  mass / weight: " << totalMass << " kg / " << weight
               << " N\n"
               << "  neutral mean force xyz N: " << loads[0u].force[0u]
@@ -1570,6 +1592,13 @@ int main(int argc, char** argv) {
                 static_cast<std::uint32_t>(std::stoul(argv[4])));
             return 0;
         }
+        if (argc == 5 &&
+            std::string_view(argv[1]) == "--numifly-no-legs") {
+            runNumiflyAuthorityProbe(argv[2],
+                static_cast<std::uint32_t>(std::stoul(argv[3])),
+                static_cast<std::uint32_t>(std::stoul(argv[4])), true);
+            return 0;
+        }
         if (argc == 4 && std::string_view(argv[1]) == "--aero-audit") {
             return runAerodynamicAudit(
                 argv[2], static_cast<std::uint32_t>(std::stoul(argv[3])))
@@ -1582,6 +1611,8 @@ int main(int argc, char** argv) {
                          "--authority MANIFEST CANDIDATES STEPS\n";
             std::cerr << "       metalrobo_measured_surface_robot_probe "
                          "--numifly MANIFEST CANDIDATES STEPS\n";
+            std::cerr << "       metalrobo_measured_surface_robot_probe "
+                         "--numifly-no-legs MANIFEST CANDIDATES STEPS\n";
             std::cerr << "       metalrobo_measured_surface_robot_probe "
                          "--fatal-drop MANIFEST HEIGHT DOWNWARD_SPEED STEPS\n";
             std::cerr << "       metalrobo_measured_surface_robot_probe "

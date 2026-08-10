@@ -207,10 +207,45 @@ void scaleURDFOriginsAndMeshes(xmlNodePtr node, const double scale) {
     }
 }
 
+bool numiflyLegName(const std::string_view name) {
+    return name.starts_with("left_hip_") ||
+        name.starts_with("left_knee_") ||
+        name.starts_with("left_ankle_") ||
+        name.starts_with("right_hip_") ||
+        name.starts_with("right_knee_") ||
+        name.starts_with("right_ankle_");
+}
+
+void removeNumiflyLegVisuals(xmlNodePtr root) {
+    std::uint32_t removedLinks = 0u;
+    std::uint32_t removedJoints = 0u;
+    for (xmlNodePtr node = root->children; node != nullptr;) {
+        xmlNodePtr next = node->next;
+        if (node->type == XML_ELEMENT_NODE) {
+            const std::string name = xmlProperty(node, "name").value_or("");
+            const bool link = xmlStrcmp(node->name, BAD_CAST "link") == 0;
+            const bool joint = xmlStrcmp(node->name, BAD_CAST "joint") == 0;
+            if ((link || joint) && numiflyLegName(name)) {
+                xmlUnlinkNode(node);
+                xmlFreeNode(node);
+                removedLinks += link ? 1u : 0u;
+                removedJoints += joint ? 1u : 0u;
+            }
+        }
+        node = next;
+    }
+    if (removedLinks != 12u || removedJoints != 12u) {
+        throw std::runtime_error(
+            "Numifly no-legs visual filter did not remove exactly 12 leg links and joints"
+        );
+    }
+}
+
 std::filesystem::path numiflyVisualURDF(
     const std::filesystem::path& resolvedG1,
     const std::filesystem::path& wingSurface,
-    const std::filesystem::path& target
+    const std::filesystem::path& target,
+    const bool noLegs = false
 ) {
     xmlDocPtr document = xmlReadFile(
         resolvedG1.c_str(), nullptr, XML_PARSE_NONET);
@@ -219,6 +254,10 @@ std::filesystem::path numiflyVisualURDF(
     }
     xmlNodePtr root = xmlDocGetRootElement(document);
     scaleURDFOriginsAndMeshes(root, metalrobo::kNumiflyLinearScale);
+    if (noLegs) {
+        removeNumiflyLegVisuals(root);
+        xmlSetProp(root, BAD_CAST "name", BAD_CAST "numifly_no_legs");
+    }
     xmlNodePtr torso = nullptr;
     for (xmlNodePtr node = root->children; node != nullptr;
          node = node->next) {
@@ -876,6 +915,45 @@ int main(const int argc, const char* const* argv) {
              "--numifly-wing-manifest",
              "assets/numifly/maeda-wing-pack-v1/manifest.json"});
 
+        const auto numiflyNoLegsPack =
+            metalrobo::makeNumiflyNoLegsRobotPack(
+                metalrobo::loadNumiflyMaedaWingPack(
+                    numiflyWingDirectory / "manifest.json"));
+        const auto numiflyNoLegsURDF = numiflyVisualURDF(
+            g1URDF,
+            numiflyWingDirectory / "numifly-maeda-wings-phase0.stl",
+            options.output / "numifly-no-legs-visual.urdf",
+            true);
+        cookPresentation(
+            numiflyNoLegsURDF, numiflyNoLegsPack.mechanics,
+            "numifly-no-legs", "pelvis", options.output,
+            {1.05f * metalrobo::kNumiflyLinearScale,
+             -1.30f * metalrobo::kNumiflyLinearScale,
+             0.32f * metalrobo::kNumiflyLinearScale},
+            cameraQ,
+            "numifly-maeda-wings-phase0.stl");
+        writeSurfacePresentation(
+            options.output,
+            "numifly-no-legs-visual-observation.json",
+            "ground",
+            "locomotion_ground",
+            surfacePresentation(false));
+        scene(
+            options.output,
+            "numifly-no-legs-ground-flight",
+            "numifly-no-legs", "Numifly No Legs",
+            "ground", "Flight Test Ground",
+            "numifly-no-legs-flight", "Learn Legless Wing Flight",
+            "numifly-no-legs-ground-visual-observation.json",
+            {"--robot-source", "numifly-no-legs", "--scene", "ground",
+             "--task", "numifly-no-legs-flight",
+             "--numifly-wing-manifest",
+             "assets/numifly/maeda-wing-pack-v1/manifest.json",
+             "--zero-actions"},
+            {"--scene", "ground", "--task",
+             "numifly-no-legs-flight", "--numifly-wing-manifest",
+             "assets/numifly/maeda-wing-pack-v1/manifest.json"});
+
         const EngineModel franka = metalrobo::makeFrankaPickPlaceEngineModel();
         const auto frankaMeshes = options.workspace /
             "build/franka_description/meshes/robots/fer/collision";
@@ -927,7 +1005,7 @@ int main(const int argc, const char* const* argv) {
 
         {
             std::ofstream version{options.output / "catalog.version"};
-            version << "5\n";
+            version << "6\n";
             if (!version) {
                 throw std::runtime_error("could not publish catalog version");
             }

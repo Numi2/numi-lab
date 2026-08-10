@@ -318,9 +318,17 @@ private:
 [[nodiscard]] RobotPack makeNumiflyRobotPack(
     MeasuredSurfaceRobotPack bilateralWings
 );
+[[nodiscard]] RobotPack makeNumiflyNoLegsRobotPack(
+    MeasuredSurfaceRobotPack bilateralWings
+);
 [[nodiscard]] TaskPack makeNumiflyFlightTaskPack(
     const RobotPack& robot,
     LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] TaskPack makeNumiflyNoLegsFlightTaskPack(
+    const RobotPack& robot,
     TaskObservationProgram& observations,
     TaskResetProgram& reset
 );

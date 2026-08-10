@@ -11,6 +11,11 @@ measured-surface wing actuator mounted on `torso_link`:
 - a distinct RobotPack, task, C/Swift source, fingerprints, and Numi Window
   catalog scene.
 
+The distinct legless morphology is documented in
+[`NUMIFLY_NO_LEGS.md`](NUMIFLY_NO_LEGS.md). It reuses the qualified Maeda wing
+owner but has its own pruned mechanics, task/action contract, fingerprints,
+Swift/C source, and Numi Window scene.
+
 ## Data selection and provenance
 
 The wing input is Maeda et al., *Quantifying the dynamic wing morphing of

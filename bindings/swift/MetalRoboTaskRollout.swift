@@ -1041,6 +1041,7 @@ public enum MetalRoboMeasuredSurfaceTask: UInt32, Sendable {
 public enum MetalRoboRunSource: Sendable {
     case unitreeG1
     case numifly(wingManifest: URL)
+    case numiflyNoLegs(wingManifest: URL)
     case frankaPickPlace
     case px4X500
     case measuredDove(
@@ -1132,6 +1133,9 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             source = MR_RUN_SOURCE_UNITREE_G1.rawValue
         case let .numifly(wingManifest):
             source = MR_RUN_SOURCE_NUMIFLY.rawValue
+            measuredSurfaceManifestPath = wingManifest.path
+        case let .numiflyNoLegs(wingManifest):
+            source = MR_RUN_SOURCE_NUMIFLY_NO_LEGS.rawValue
             measuredSurfaceManifestPath = wingManifest.path
         case .frankaPickPlace:
             source = MR_RUN_SOURCE_FRANKA_PICK_PLACE.rawValue

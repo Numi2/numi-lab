@@ -3167,7 +3167,8 @@ static MRTaskRolloutHandle* createNumiflyRun(
     const char* measured_surface_manifest_path,
     const uint32_t surface_value,
     const MRTaskVisualObservationConfigC* visual_sensor,
-    const char* metallib_path
+    const char* metallib_path,
+    const bool noLegs
 ) {
     if (config == nullptr || measured_surface_manifest_path == nullptr ||
         measured_surface_manifest_path[0] == '\0') {
@@ -3183,16 +3184,31 @@ static MRTaskRolloutHandle* createNumiflyRun(
             metalrobo::loadNumiflyMaedaWingPack(
                 measured_surface_manifest_path);
         metalrobo::RunManifest manifest;
-        manifest.id = "numifly_flight_run";
-        manifest.robot = metalrobo::makeNumiflyRobotPack(std::move(wings));
+        manifest.id = noLegs
+            ? "numifly_no_legs_flight_run"
+            : "numifly_flight_run";
+        manifest.robot = noLegs
+            ? metalrobo::makeNumiflyNoLegsRobotPack(std::move(wings))
+            : metalrobo::makeNumiflyRobotPack(std::move(wings));
         manifest.scene.id = surface == metalrobo::LocomotionSurface::ground
-            ? "numifly_ground_scene" : "numifly_terrain_scene";
-        manifest.sensors.id = "numifly_flight_state";
-        manifest.reality.id = "numifly_nominal_reality";
+            ? (noLegs ? "numifly_no_legs_ground_scene"
+                      : "numifly_ground_scene")
+            : (noLegs ? "numifly_no_legs_terrain_scene"
+                      : "numifly_terrain_scene");
+        manifest.sensors.id = noLegs
+            ? "numifly_no_legs_flight_state"
+            : "numifly_flight_state";
+        manifest.reality.id = noLegs
+            ? "numifly_no_legs_nominal_reality"
+            : "numifly_nominal_reality";
         manifest.teacher.id = "no_teacher";
-        manifest.task = metalrobo::makeNumiflyFlightTaskPack(
-            manifest.robot, surface, manifest.sensors.observation,
-            manifest.reality.reset);
+        manifest.task = noLegs
+            ? metalrobo::makeNumiflyNoLegsFlightTaskPack(
+                manifest.robot, manifest.sensors.observation,
+                manifest.reality.reset)
+            : metalrobo::makeNumiflyFlightTaskPack(
+                manifest.robot, surface, manifest.sensors.observation,
+                manifest.reality.reset);
         applyRunProfile(manifest, *config);
         manifest.profile.capacities = manifest.task.capacities;
         if (config->disable_task_terminations != 0u) {
@@ -3203,7 +3219,8 @@ static MRTaskRolloutHandle* createNumiflyRun(
                 manifest.robot.mechanics, surface);
         manifest.scene.objects.push_back({
             .id = surface == metalrobo::LocomotionSurface::ground
-                ? "numifly_ground" : "numifly_terrain",
+                ? (noLegs ? "numifly_no_legs_ground" : "numifly_ground")
+                : (noLegs ? "numifly_no_legs_terrain" : "numifly_terrain"),
             .semanticClass = "support_surface",
             .role = MR_WORLD_ASSET_FIXTURE,
             .render = MR_WORLD_RENDER_NONE,
@@ -3215,7 +3232,8 @@ static MRTaskRolloutHandle* createNumiflyRun(
             .defaultBodyStates = surfaceComponent.defaultBodyStates,
         });
         auto handle = createCompiledRunTaskRollout(
-            std::move(manifest), metallib_path, "Numifly", visual_sensor);
+            std::move(manifest), metallib_path,
+            noLegs ? "Numifly No Legs" : "Numifly", visual_sensor);
         result = handle.release();
     });
     return status == 0 ? result : nullptr;
@@ -3713,7 +3731,18 @@ MRTaskRolloutHandle* mr_create_task_rollout(
             manifest->measured_surface_manifest_path,
             manifest->surface,
             manifest->visual_sensor_program,
-            manifest->metallib_path
+            manifest->metallib_path,
+            false
+        );
+        break;
+    case MR_RUN_SOURCE_NUMIFLY_NO_LEGS:
+        result = createNumiflyRun(
+            &manifest->profile,
+            manifest->measured_surface_manifest_path,
+            manifest->surface,
+            manifest->visual_sensor_program,
+            manifest->metallib_path,
+            true
         );
         break;
     default:

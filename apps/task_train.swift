@@ -13,6 +13,7 @@ private struct Options {
     var measuredDoveTask: MetalRoboMeasuredSurfaceTask?
     var measuredDoveManifest: String?
     var numifly = false
+    var numiflyNoLegs = false
     var numiflyWingManifest =
         "assets/numifly/maeda-wing-pack-v1/manifest.json"
     var seed: UInt64 = 20_260_731
@@ -388,9 +389,11 @@ private struct Options {
                     measuredDoveTask = .foodNavigation
                 case "numifly-flight":
                     numifly = true
+                case "numifly-no-legs-flight":
+                    numiflyNoLegs = true
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be a bundled G1 task, numifly-flight, dove-trim, dove-drop-recovery, dove-cruise, or dove-food-navigation."
+                        "--task must be a bundled G1 task, numifly-flight, numifly-no-legs-flight, dove-trim, dove-drop-recovery, dove-cruise, or dove-food-navigation."
                     )
                 }
                 index += 1
@@ -488,7 +491,8 @@ private struct Options {
             // avoidance, and settling instead of truncating the event.
             steps = 256
         }
-        if numifly && !initialLogStandardDeviationWasSpecified {
+        if (numifly || numiflyNoLegs) &&
+            !initialLogStandardDeviationWasSpecified {
             // Numifly is 9% linear scale and its exact measured wingbeat is
             // already near weight support. Begin with local residual
             // exploration; the full-size G1 default can over-rotate the
@@ -676,7 +680,13 @@ private struct Options {
                 "Dove tasks require --dove-manifest and cannot be combined with imported or interaction mechanics."
             )
         }
-        if numifly && (measuredDoveTask != nil || measuredDoveManifest != nil ||
+        if numifly && numiflyNoLegs {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Select exactly one Numifly flight task."
+            )
+        }
+        if (numifly || numiflyNoLegs) &&
+            (measuredDoveTask != nil || measuredDoveManifest != nil ||
             worldPack != nil || urdf != nil || interactionPack != nil)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
@@ -1316,21 +1326,28 @@ private func makeContext(
             "measured_dove"
         )
     }
-    if options.numifly {
+    if options.numifly || options.numiflyNoLegs {
+        let noLegs = options.numiflyNoLegs
         return (
             try MetalRoboTaskRolloutContext(
                 manifest: MetalRoboRunManifest(
-                    source: .numifly(
-                        wingManifest: URL(
-                            fileURLWithPath: options.numiflyWingManifest
+                    source: noLegs
+                        ? .numiflyNoLegs(
+                            wingManifest: URL(
+                                fileURLWithPath: options.numiflyWingManifest
+                            )
                         )
-                    ),
+                        : .numifly(
+                            wingManifest: URL(
+                                fileURLWithPath: options.numiflyWingManifest
+                            )
+                        ),
                     sensorsAndPhysics: configuration,
                     inspectionVisual: inspectionVisual
                 ),
                 metallibPath: options.metallib
             ),
-            "numifly"
+            noLegs ? "numifly_no_legs" : "numifly"
         )
     }
     if let interactionPack = options.interactionPack,
