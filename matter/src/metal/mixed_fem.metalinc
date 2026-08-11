@@ -1387,11 +1387,12 @@ kernel void nm_mixed_certify(
             volumeResidual <= solver.nonlinearTolerances.z &&
             isfinite(pressureResidual) &&
             pressureResidual <= solver.nonlinearTolerances.w;
-        // Post-step equilibrium is the physical acceptance authority. A
-        // finite correction remains published as convergence telemetry, but
-        // its magnitude describes how far Newton travelled from the initial
-        // guess; it cannot invalidate a candidate that already satisfies the
-        // KKT, incompressibility, pressure, and transport residual gates.
+        // Post-step equilibrium is the physical acceptance authority. The
+        // final assembled correction remains convergence telemetry only; a
+        // residual-authoritative early exit publishes zero because it forms
+        // no additional direction. It cannot invalidate a candidate that
+        // already satisfies the KKT, incompressibility, pressure, and
+        // transport residual gates.
         const bool correctionFinite = isfinite(relativeCorrection);
         const float collisionThickness = max(
             1.0e-4f * dispatch.numericalLimits.x,
