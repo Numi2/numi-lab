@@ -243,7 +243,7 @@ The subsystem implements the owning paths listed above, with these explicit boun
 - split/collapse/flip/smooth/cohesive/erosion mutations are transactional, conservation-certified, and geometrically growable only between completed submissions;
 - thermal, pore, electric and activation fields execute in the outer KKT operator with Joule, activation and Biot off-diagonal actions; their right preconditioner is intentionally an approximate fixed-pass transport smoother;
 - polyconvex ICNN energy gradients and directional tangents execute with transactional trained weights; broad objectivity, growth and adversarial material-oracle qualification remains later evidence work;
-- this development pass has compile/link evidence only; GPU probes, repeated remesh qualification, deterministic replay runs, matched performance profiling, and hardware evidence are intentionally deferred.
+- live Apple-M4 Metal evidence covers the complete serial Matter suite, strict MPM impact, articulated foot/pad contact, poroelastic compression and monolithic multiphysics; repeated long-horizon remeshing, matched external-solver comparisons, material calibration and physical-system evidence remain separate qualification work.
 
 ## Validation
 
@@ -276,6 +276,14 @@ the inverse rigid-contact transfer back to MPM through the typed borrowed
 post-solve arena, and antithetic inverse-parameter sampling followed by a GPU
 posterior update from asymmetric candidate losses.
 It is deliberately serial because all cases use the active GPU.
+
+The coupled production defaults use seven outer Newton corrections and two
+16-column FGMRES restart cycles. On the Apple M4 qualification host, the
+24-test suite completed without failure in 380.23 seconds. The strict
+eight-particle impact executed 1,024 material microsteps, observed contact,
+retained `minimum_J = 0.997895`, and completed without transaction rollback.
+These measurements establish this implementation and workload on that host;
+they are not a matched claim against another simulator or Apple GPU.
 
 This is continuum and analytic-proxy contact evidence, including one
 articulated rigid-reaction handoff through a full `MetalWorld` step. It also

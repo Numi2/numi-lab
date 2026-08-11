@@ -51,7 +51,9 @@ typedef struct NM_ALIGN16 nm_int4 {
 #define NM_MAX_MATERIAL_STATE 16u
 #define NM_MIXED_NEWTON_ITERATIONS 7u
 #define NM_MIXED_FGMRES_RESTART 16u
-#define NM_MIXED_FGMRES_ITERATIONS 48u
+// The production default encodes two complete restart cycles. Worlds may
+// author a larger total budget explicitly; the runtime reuses this basis.
+#define NM_MIXED_FGMRES_ITERATIONS 32u
 #define NM_MIXED_LINE_SEARCH_STEPS 8u
 #define NM_MIXED_MUTATION_RESTARTS 4u
 #define NM_LEARNED_MAX_LAYERS 8u
