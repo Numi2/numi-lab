@@ -13,11 +13,11 @@
     "maximum_control_steps": 2084,
     "interaction_phase_observation_columns": [98, 99, 100],
     "qualification_difficulty_band": 0,
-    "learning": "prohibited until at least one held-out whole-sequence correction is accepted"
+    "fresh_policy_learning": "prohibited until at least one held-out whole-sequence correction is accepted"
   },
   "method": {
     "stage_0_feasibility": "Execute the canonical reference with zero learned residual authority. This establishes reference feasibility or rejects the reference; it is not policy evidence.",
-    "stage_1_correction": "A dedicated corrective controller may modify only actuator proposals while NumiSolver remains the authority for state, contact, and support. A trajectory is stored only if it reaches the end from the canonical start.",
+    "stage_1_correction": "A dedicated corrective tracker may be trained only against the canonical reference. It may modify only actuator proposals while NumiSolver remains the authority for state, contact, and support. A trajectory is stored only if it reaches the end from the canonical start.",
     "stage_2_fresh_learning": "Only accepted complete corrections form the training bank. Every learner actor starts from fresh weights; no prior actor weights may initialize it.",
     "forbidden": [
       "training on incomplete trajectories",
