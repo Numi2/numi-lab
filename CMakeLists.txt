@@ -1631,8 +1631,8 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm-free
     )
     add_test(
-        NAME matter.physics.mpm_plane_contact
-        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm-gentle-contact
+        NAME matter.physics.mpm_plane_impact
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mpm
     )
     add_test(
         NAME matter.runtime.mpm_transaction_rollback
@@ -1690,7 +1690,7 @@ if(BUILD_TESTING)
         matter.physics.stateful_mpm
         matter.physics.stateful_fem
         matter.physics.mpm_freefall
-        matter.physics.mpm_plane_contact
+        matter.physics.mpm_plane_impact
         matter.runtime.mpm_transaction_rollback
         matter.integration.articulated_rigid_reaction
         matter.physics.shared_rigid_coupled_contact

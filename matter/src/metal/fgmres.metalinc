@@ -229,13 +229,19 @@ kernel void nm_fgmres_begin(
     const float norm = sqrt(max(norm2, 0.0f));
     const float firstNewtonNorm = nonlinearIteration == 0u &&
         restartCycle == 0u ? norm : previousNonlinear.x;
-    const bool correctionConverged = nonlinearIteration > 0u &&
-        previousNonlinear.z <= solver.nonlinearTolerances.y;
+    // Equilibrium is the nonlinear acceptance authority. A finite correction
+    // is retained as progress telemetry, but its magnitude measures travel
+    // from the feasible initial iterate and must not keep an already converged
+    // KKT state in the expensive Newton/FGMRES loop. Require two completed
+    // corrections so a small absolute residual cannot accept a low-force
+    // scene before it has produced its physical motion.
+    const bool correctionFinite = nonlinearIteration > 1u &&
+        isfinite(previousNonlinear.z);
     const bool nonlinearConverged = restartCycle == 0u &&
-        correctionConverged && norm <= max(
+        correctionFinite && norm <= max(
             solver.regularization.x,
             solver.nonlinearTolerances.x *
-                max(firstNewtonNorm, solver.regularization.x));
+                max(firstNewtonNorm, 1.0f));
     if (lane == 0u) {
         const float initialNorm = restartCycle == 0u
             ? norm : previousDiagnostics.y;
