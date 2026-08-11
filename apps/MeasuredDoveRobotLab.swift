@@ -291,6 +291,7 @@ private final class RobotEngine {
     private var policyRevision: UInt64 = 0
     private var policyAccumulator: Float = 0
     private var policySeed: UInt64
+    private let fixedReplaySeed: UInt64?
     private var latestTransition: MetalRoboTaskTransition?
     private let foodNavigation: Bool
     private var foodTarget = SIMD3<Float>(8, 0, 5)
@@ -312,6 +313,7 @@ private final class RobotEngine {
     ) throws {
         self.dataset = dataset
         self.environmentIndex = environmentIndex
+        fixedReplaySeed = seed
         policySeed = seed ?? UInt64(0xD0_0E_0000 + environmentIndex)
         switch measuredSurfaceTask {
         case .foodNavigation: foodNavigation = true
@@ -567,8 +569,8 @@ private final class RobotEngine {
         foodVisible = false
         foodConsumed = false
         if let policyContext {
-            try policyContext.reset(seed: policySeed)
-            policySeed &+= 1
+            try policyContext.reset(seed: fixedReplaySeed ?? policySeed)
+            if fixedReplaySeed == nil { policySeed &+= 1 }
         }
     }
 
