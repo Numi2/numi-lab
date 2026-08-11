@@ -17,13 +17,14 @@
   },
   "method": {
     "stage_0_feasibility": "Execute the canonical reference with zero learned residual authority. This establishes reference feasibility or rejects the reference; it is not policy evidence.",
-    "stage_1_correction": "A dedicated corrective tracker may be trained only against the canonical reference. It may modify only actuator proposals while NumiSolver remains the authority for state, contact, and support. A trajectory is stored only if it reaches the end from the canonical start.",
+    "stage_1_correction": "A dedicated corrective tracker may train first on a named source component and then on its reachable composition, always from that component's canonical start. It may modify only actuator proposals while NumiSolver remains the authority for state, contact, and support. Its optimizer must use PPO physical-outcome learning with imagination/action distillation coefficient exactly 0. Only a complete canonical right-left-both-walk execution may enter the trajectory bank.",
     "stage_2_fresh_learning": "Only accepted complete corrections form the training bank. Every learner actor starts from fresh weights; no prior actor weights may initialize it.",
     "forbidden": [
       "training on incomplete trajectories",
       "selecting fragments by reward or tracking score",
       "random phase resets that do not use a recovered predecessor terminal state",
-      "using a prior policy actor as fresh-policy initialization"
+      "using a prior policy actor as fresh-policy initialization",
+      "teacher-action or imagination distillation for the corrective tracker"
     ]
   },
   "phases": [
