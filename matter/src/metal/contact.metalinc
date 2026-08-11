@@ -521,25 +521,51 @@ inline bool surfaceAABBOverlap(
 }
 
 inline bool surfacePrimitivesShareNode(
+    const NMMatterDispatchGPU dispatch,
     const NMContinuumSurfacePrimitiveGPU left,
-    const NMContinuumSurfacePrimitiveGPU right
+    const NMContinuumSurfacePrimitiveGPU right,
+    device const NMFEMTopologyNodeGPU* topologyNodes,
+    const uint environment
 ) {
     for (uint a = 0u; a < 3u; ++a)
-        for (uint b = 0u; b < 3u; ++b)
+        for (uint b = 0u; b < 3u; ++b) {
             if (left.nodesAndObject[a] != NM_INVALID_INDEX &&
                 left.nodesAndObject[a] == right.nodesAndObject[b])
                 return true;
+            if (left.nodesAndObject[a] < dispatch.gridNodeCount ||
+                right.nodesAndObject[b] < dispatch.gridNodeCount ||
+                left.nodesAndObject[a] == NM_INVALID_INDEX ||
+                right.nodesAndObject[b] == NM_INVALID_INDEX) continue;
+            const uint leftNode =
+                left.nodesAndObject[a] - dispatch.gridNodeCount;
+            const uint rightNode =
+                right.nodesAndObject[b] - dispatch.gridNodeCount;
+            if (leftNode >= dispatch.femNodeCount ||
+                rightNode >= dispatch.femNodeCount) continue;
+            const uint base = environment * dispatch.femNodeCount;
+            // Cohesive mutation duplicates a node but deliberately preserves
+            // its stable source lineage. Treat lineage-sharing faces as
+            // adjacent, avoiding a zero-gap self-contact barrier across the
+            // newly separated interface.
+            if (topologyNodes[base + leftNode].identity.x ==
+                topologyNodes[base + rightNode].identity.x)
+                return true;
+        }
     return false;
 }
 
 inline bool surfacePairEligible(
+    const NMMatterDispatchGPU dispatch,
     const NMContinuumSurfacePrimitiveGPU left,
-    const NMContinuumSurfacePrimitiveGPU right
+    const NMContinuumSurfacePrimitiveGPU right,
+    device const NMFEMTopologyNodeGPU* topologyNodes,
+    const uint environment
 ) {
     if (left.nodesAndObject.w != right.nodesAndObject.w) return true;
     if (left.identity.y == NM_CONTINUUM_SURFACE_POINT &&
         right.identity.y == NM_CONTINUUM_SURFACE_POINT) return false;
-    return !surfacePrimitivesShareNode(left, right);
+    return !surfacePrimitivesShareNode(
+        dispatch, left, right, topologyNodes, environment);
 }
 
 kernel void nm_contact_build_deformable_candidates(
@@ -550,6 +576,7 @@ kernel void nm_contact_build_deformable_candidates(
     device NMDeformableContactCandidateGPU* candidates [[buffer(4)]],
     device uint* candidateCounts [[buffer(5)]],
     device NMMatterStatusGPU* statuses [[buffer(6)]],
+    device const NMFEMTopologyNodeGPU* topologyNodes [[buffer(7)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -592,7 +619,8 @@ kernel void nm_contact_build_deformable_candidates(
                 selected =
                     (right.identity.w & NM_TOPOLOGY_ACTIVE) != 0u &&
                     surfaceAABBOverlap(left, right) &&
-                    surfacePairEligible(left, right);
+                    surfacePairEligible(
+                        dispatch, left, right, topologyNodes, environment);
             }
             const uint prefix = simd_prefix_exclusive_sum(
                 selected ? 1u : 0u);
@@ -747,6 +775,20 @@ inline bool vertexTriangleCCD(
     thread bool& certified
 ) {
     certified = false;
+    toi = 0.0f;
+    separation = INFINITY;
+    float coordinateScale = maximumAbsoluteCoordinate(vertex0);
+    coordinateScale = max(
+        coordinateScale, maximumAbsoluteCoordinate(vertex1));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(a0));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(a1));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(b0));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(b1));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(c0));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(c1));
+    const float distanceRoundoff =
+        ccdDistanceRoundoff(thickness, coordinateScale);
+    const float effectiveThickness = thickness + distanceRoundoff;
     const float speedBound = length(vertex1 - vertex0) + max(
         length(a1 - a0), max(length(b1 - b0), length(c1 - c0)));
     float time = 0.0f;
@@ -760,7 +802,9 @@ inline bool vertexTriangleCCD(
             closestPointOnTriangle(vertexPoint, a, b, c, bary);
         const float3 delta = vertexPoint - trianglePoint;
         const float distance = length(delta);
-        if (distance <= thickness + 8.0f * kEpsilon) {
+        toi = time;
+        separation = distance;
+        if (distance <= effectiveThickness) {
             float3 fallback = cross(b - a, c - a);
             if (length(fallback) <= kGeometryFloor)
                 fallback = (vertex1 - vertex0) -
@@ -780,7 +824,7 @@ inline bool vertexTriangleCCD(
             return false;
         }
         const float step = max(
-            (distance - thickness) / speedBound, 1.0e-6f);
+            (distance - effectiveThickness) / speedBound, 1.0e-6f);
         time += step;
         if (time > 1.0f + 8.0f * kEpsilon) {
             certified = true;
@@ -809,6 +853,19 @@ inline bool edgeEdgeCCD(
     thread bool& certified
 ) {
     certified = false;
+    toi = 0.0f;
+    separation = INFINITY;
+    float coordinateScale = maximumAbsoluteCoordinate(p00);
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(p01));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(p10));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(p11));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(q00));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(q01));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(q10));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(q11));
+    const float distanceRoundoff =
+        ccdDistanceRoundoff(thickness, coordinateScale);
+    const float effectiveThickness = thickness + distanceRoundoff;
     const float speedBound = max(length(p01 - p00), length(p11 - p10)) +
         max(length(q01 - q00), length(q11 - q10));
     float time = 0.0f;
@@ -822,7 +879,9 @@ inline bool edgeEdgeCCD(
         closestPointsOnSegments(p0, p1, q0, q1, s, t, pointP, pointQ);
         const float3 delta = pointP - pointQ;
         const float distance = length(delta);
-        if (distance <= thickness + 8.0f * kEpsilon) {
+        toi = time;
+        separation = distance;
+        if (distance <= effectiveThickness) {
             float3 fallback = cross(p1 - p0, q1 - q0);
             if (length(fallback) <= kGeometryFloor)
                 fallback = (p01 - p00) - (q01 - q00);
@@ -841,7 +900,7 @@ inline bool edgeEdgeCCD(
             return false;
         }
         const float step = max(
-            (distance - thickness) / speedBound, 1.0e-6f);
+            (distance - effectiveThickness) / speedBound, 1.0e-6f);
         time += step;
         if (time > 1.0f + 8.0f * kEpsilon) {
             certified = true;
@@ -867,7 +926,14 @@ inline bool pointPointCCD(
     certified = false;
     const float3 relative0 = a0 - b0;
     const float3 relativeVelocity = (a1 - a0) - (b1 - b0);
-    const float radius2 = thickness * thickness;
+    float coordinateScale = maximumAbsoluteCoordinate(a0);
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(a1));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(b0));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(b1));
+    const float distanceRoundoff =
+        ccdDistanceRoundoff(thickness, coordinateScale);
+    const float effectiveThickness = thickness + distanceRoundoff;
+    const float radius2 = effectiveThickness * effectiveThickness;
     const float c = dot(relative0, relative0) - radius2;
     float time = 0.0f;
     if (c > 0.0f) {
@@ -900,7 +966,7 @@ inline bool pointPointCCD(
     point = 0.5f * (a + b);
     separation = distance;
     certified = finite3(normal) && isfinite(distance);
-    return certified && distance <= thickness + 8.0f * kEpsilon;
+    return certified && distance <= effectiveThickness;
 }
 
 kernel void nm_contact_narrowphase_deformable(
@@ -2013,6 +2079,7 @@ kernel void nm_contact_evaluate(
 
     float3 point;
     float3 velocity;
+    float3 admissionVelocity;
     float inverseMass;
     const float dt = objectTimestep(dispatch, scheduler);
     if (pair.continuumNode < dispatch.gridNodeCount) {
@@ -2025,6 +2092,9 @@ kernel void nm_contact_evaluate(
         point = node.positionAndMass.xyz +
             dt * node.candidateVelocity.xyz;
         velocity = node.candidateVelocity.xyz;
+        admissionVelocity = microstep.pcgIteration == 0u
+            ? node.velocityAndInverseMass.xyz
+            : velocity;
         inverseMass = node.velocityAndInverseMass.w;
     } else {
         const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
@@ -2043,6 +2113,9 @@ kernel void nm_contact_evaluate(
         ];
         point = node.positionAndMass.xyz;
         velocity = node.velocityAndInverseMass.xyz;
+        admissionVelocity = microstep.pcgIteration == 0u
+            ? velocity - node.deltaVelocity.xyz
+            : velocity;
         inverseMass = node.velocityAndInverseMass.w;
     }
     if (!(inverseMass > 0.0f)) {
@@ -2092,12 +2165,15 @@ kernel void nm_contact_evaluate(
         cross(rigid.angularVelocity.xyz, witness - rigid.centerAndRadius.xyz);
     const float3 relativeVelocity = velocity - rigidVelocity;
     const float normalVelocity = dot(relativeVelocity, normal);
+    const float admissionNormalVelocity = dot(
+        admissionVelocity - rigidVelocity, normal);
     // A positive separation is not contact merely because the continuum is
-    // moving toward the proxy.  Admit a one-step speculative contact only
-    // when the current normal velocity can actually consume that gap; the old
-    // test constrained bodies arbitrarily far above a plane.
+    // moving toward the proxy. Admit a one-step speculative contact only
+    // when the accepted predictor on the first Newton iterate (and the current
+    // iterate thereafter) can consume that gap; the old test constrained
+    // bodies arbitrarily far above a plane.
     const float predictedSeparation = separation +
-        min(normalVelocity, 0.0f) * dt;
+        min(admissionNormalVelocity, 0.0f) * dt;
     if (separation > slop && predictedSeparation > slop) {
         return;
     }
@@ -2571,9 +2647,18 @@ kernel void nm_contact_limit_deformable_line_search(
         // geometry. Candidates may live inside the activation thickness; the
         // conservative CCD boundary is a small positive distance from true
         // intersection, not the barrier activation distance itself.
+        float coordinateScale = dispatch.numericalLimits.x;
+        for (uint local = 0u; local < 4u; ++local) {
+            if (contact.nodes[local] == NM_INVALID_INDEX) continue;
+            coordinateScale = max(
+                coordinateScale, maximumAbsoluteCoordinate(position[local]));
+            coordinateScale = max(coordinateScale,
+                maximumAbsoluteCoordinate(
+                    position[local] + displacement[local]));
+        }
         const float collisionThickness = max(
             1.0e-4f * dispatch.numericalLimits.x,
-            16.0f * kEpsilon);
+            16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
         float toi = 1.0f;
         float3 ccdNormal, ccdPoint;
         float ccdSeparation = INFINITY;
@@ -2638,10 +2723,10 @@ kernel void nm_contact_limit_deformable_line_search(
             bound = 0.0f;
             continue;
         }
-        // Barrier Armijo uses the full analytic product-rule gradient. The
-        // collision-free bound above is applied first; the accepted alpha is
-        // therefore both feasible and a descent step for every active
-        // positive barrier potential.
+        // Barrier Armijo uses the full analytic product-rule gradient when
+        // this feature is locally descending. The collision-free bound above
+        // remains authoritative for features whose energy rises inside a
+        // globally coupled KKT direction.
         if (currentEnergy > 0.0f && bound > 0.0f) {
             const float dt = objectTimestep(
                 dispatch,
@@ -2659,34 +2744,47 @@ kernel void nm_contact_limit_deformable_line_search(
             }
             const float directionalDerivative =
                 -impulseDotDisplacement / max(dt, 1.0e-20f);
-            const float startAlpha = min(existing, bound);
-            float armijoAlpha = 0.0f;
-            for (uint trial = 0u; trial < 8u; ++trial) {
-                const float alpha = startAlpha * exp2(-float(trial));
-                float3 trialPosition[4];
-                for (uint local = 0u; local < 4u; ++local)
-                    trialPosition[local] =
-                        position[local] + alpha * displacement[local];
-                float trialEnergy;
-                float trialSeparation;
-                const bool finiteTrial = deformableBarrierEnergyAt(
-                    contact, trialPosition, trialEnergy, trialSeparation);
-                const float armijoRight = currentEnergy +
-                    1.0e-4f * alpha * directionalDerivative;
-                if (finiteTrial && trialEnergy <= armijoRight) {
-                    armijoAlpha = alpha;
-                    break;
-                }
-            }
-            if (!(armijoAlpha > 0.0f)) {
+            if (!isfinite(directionalDerivative)) {
                 recordFailure(
                     statuses[environment], NM_STATUS_CONTACT_FAILURE,
                     contact.identity.x, slot,
                     float4(currentEnergy, directionalDerivative,
-                           startAlpha, 0.0f));
+                           min(existing, bound), 0.0f));
                 bound = 0.0f;
-            } else {
-                bound = min(bound, armijoAlpha);
+            } else if (directionalDerivative < 0.0f) {
+                // A coupled Newton direction need not decrease every contact
+                // potential independently. Apply per-feature Armijo only
+                // when this feature is a descent direction; otherwise the
+                // CCD/fraction-to-boundary limit above remains authoritative.
+                const float startAlpha = min(existing, bound);
+                float armijoAlpha = 0.0f;
+                for (uint trial = 0u; trial < 8u; ++trial) {
+                    const float alpha = startAlpha * exp2(-float(trial));
+                    float3 trialPosition[4];
+                    for (uint local = 0u; local < 4u; ++local)
+                        trialPosition[local] =
+                            position[local] + alpha * displacement[local];
+                    float trialEnergy;
+                    float trialSeparation;
+                    const bool finiteTrial = deformableBarrierEnergyAt(
+                        contact, trialPosition, trialEnergy, trialSeparation);
+                    const float armijoRight = currentEnergy +
+                        1.0e-4f * alpha * directionalDerivative;
+                    if (finiteTrial && trialEnergy <= armijoRight) {
+                        armijoAlpha = alpha;
+                        break;
+                    }
+                }
+                if (!(armijoAlpha > 0.0f)) {
+                    recordFailure(
+                        statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                        contact.identity.x, slot,
+                        float4(currentEnergy, directionalDerivative,
+                               startAlpha, 0.0f));
+                    bound = 0.0f;
+                } else {
+                    bound = min(bound, armijoAlpha);
+                }
             }
         }
     }
@@ -2716,6 +2814,7 @@ kernel void nm_contact_limit_rigid_line_search(
     device const NMGridNodeStateGPU* gridNodes [[buffer(8)]],
     constant NMPrimalContactArguments& contact [[buffer(9)]],
     constant uint& articulatedNv [[buffer(10)]],
+    device const float* coupledPointJacobians [[buffer(11)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -2773,15 +2872,22 @@ kernel void nm_contact_limit_rigid_line_search(
             continuumDisplacement = dt * correction[nodeGlobal].xyz;
         }
         const float3 rigidDisplacement = dt * coupledRigidPointDirection(
-            dispatch, contact, environment, pairIndex,
+            dispatch, contact, coupledPointJacobians, environment, pairIndex,
             articulatedNv, correction);
         const float3 relativeDisplacement =
             continuumDisplacement - rigidDisplacement;
         const float travel = length(relativeDisplacement);
         const float separation = sample.pointAndSeparation.w;
+        const float coordinateScale = max(
+            sample.barrier.z,
+            max(max(abs(sample.pointAndSeparation.x),
+                    abs(sample.pointAndSeparation.y)),
+                abs(sample.pointAndSeparation.z)));
         const float collisionThickness = max(
             1.0e-4f * dispatch.numericalLimits.x,
-            16.0f * kEpsilon);
+            16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
+        const float feasibleSeparation = collisionThickness +
+            ccdDistanceRoundoff(collisionThickness, coordinateScale);
         if (!isfinite(separation) || !isfinite(travel) ||
             separation <= collisionThickness) {
             recordFailure(
@@ -2793,25 +2899,32 @@ kernel void nm_contact_limit_rigid_line_search(
         }
         if (travel > kGeometryFloor) {
             bound = min(bound, clamp(
-                0.9f * (separation - collisionThickness) / travel,
+                0.9f * (separation - feasibleSeparation) / travel,
                 0.0f, 1.0f));
         }
+        // MPM's grid-node contact is local to this barrier feature. Preserve
+        // its descent when the KKT direction is a descent direction, while
+        // allowing a globally coupled ascent feature to be governed by the
+        // feasibility bound and the complete Newton residual.
         const float currentEnergy = ipcBarrierEnergy(
             separation, sample.barrier.z, sample.barrier.w);
-        if (!isfinite(currentEnergy)) {
+        const float directionalSeparation = dot(
+            sample.normalAndVelocity.xyz, relativeDisplacement);
+        const float directionalDerivative =
+            -sample.barrier.x * directionalSeparation /
+                max(dt, 1.0e-20f);
+        if (!isfinite(currentEnergy) ||
+            !isfinite(directionalDerivative)) {
             recordFailure(
                 statuses[environment], NM_STATUS_CONTACT_FAILURE,
                 pair.objectIndex, pairIndex,
-                float4(separation, currentEnergy, 0.0f, 0.0f));
+                float4(currentEnergy, directionalDerivative, bound, 0.0f));
             bound = 0.0f;
             continue;
         }
-        if (currentEnergy > 0.0f && bound > 0.0f) {
-            const float directionalSeparation = dot(
-                sample.normalAndVelocity.xyz, relativeDisplacement);
-            const float directionalDerivative =
-                -sample.barrier.x * directionalSeparation /
-                    max(dt, 1.0e-20f);
+        if (object.representation == NM_REPRESENTATION_MPM &&
+            currentEnergy > 0.0f && directionalDerivative < 0.0f &&
+            bound > 0.0f) {
             const float startAlpha = min(existing, bound);
             float armijoAlpha = 0.0f;
             for (uint trial = 0u; trial < 8u; ++trial) {
@@ -2823,7 +2936,7 @@ kernel void nm_contact_limit_rigid_line_search(
                 const float armijoRight = currentEnergy +
                     1.0e-4f * alpha * directionalDerivative;
                 if (isfinite(trialEnergy) &&
-                    trialSeparation > collisionThickness &&
+                    trialSeparation > feasibleSeparation &&
                     trialEnergy <= armijoRight) {
                     armijoAlpha = alpha;
                     break;
@@ -2840,6 +2953,11 @@ kernel void nm_contact_limit_rigid_line_search(
                 bound = min(bound, armijoAlpha);
             }
         }
+        // This kernel owns feasibility only. The direction is a monolithic
+        // KKT direction, so one rigid feature may gain barrier energy while
+        // the coupled residual decreases; a per-feature Armijo test would
+        // incorrectly reject that valid global step. The MPM guard above is
+        // deliberately narrower because its grid-node barrier is local.
     }
     bound = simd_min(bound);
     const float alpha = min(existing, bound);

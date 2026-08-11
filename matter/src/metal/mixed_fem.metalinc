@@ -1235,6 +1235,7 @@ kernel void nm_mixed_certify(
     float minimumSeparation = INFINITY;
     float maximumTangentialImpulse = 0.0f;
     float contactEnergy = 0.0f;
+    float contactCoordinateScale = dispatch.numericalLimits.x;
     uint activeContactCount = 0u;
     const uint analyticCapacity = dispatch.reservedMixed1;
     const uint analyticCount = min(
@@ -1255,6 +1256,9 @@ kernel void nm_mixed_certify(
             maximumBarrierImpulse, max(sample.barrier.x, 0.0f));
         minimumSeparation = min(
             minimumSeparation, sample.pointAndSeparation.w);
+        contactCoordinateScale = max(
+            contactCoordinateScale,
+            maximumAbsoluteCoordinate(sample.pointAndSeparation.xyz));
         maximumTangentialImpulse = max(
             maximumTangentialImpulse,
             abs(sample.angularImpulseAndTangent.w));
@@ -1276,6 +1280,10 @@ kernel void nm_mixed_certify(
             maximumBarrierImpulse, max(deformable.barrier.x, 0.0f));
         minimumSeparation = min(
             minimumSeparation, deformable.pointAndSeparation.w);
+        contactCoordinateScale = max(
+            contactCoordinateScale,
+            maximumAbsoluteCoordinate(
+                deformable.pointAndSeparation.xyz));
         maximumTangentialImpulse = max(
             maximumTangentialImpulse,
             length(deformable.impulseAndFriction.yz));
@@ -1288,6 +1296,7 @@ kernel void nm_mixed_certify(
     minimumSeparation = simd_min(minimumSeparation);
     maximumTangentialImpulse = simd_max(maximumTangentialImpulse);
     contactEnergy = simd_sum(contactEnergy);
+    contactCoordinateScale = simd_max(contactCoordinateScale);
     activeContactCount = simd_sum(activeContactCount);
     if (activeContactCount == 0u) minimumSeparation = 0.0f;
     float minimumJ = INFINITY;
@@ -1386,7 +1395,8 @@ kernel void nm_mixed_certify(
         const bool correctionFinite = isfinite(relativeCorrection);
         const float collisionThickness = max(
             1.0e-4f * dispatch.numericalLimits.x,
-            16.0f * kEpsilon);
+            16.0f * kEpsilon *
+                max(contactCoordinateScale, 1.0e-12f));
         const bool contactValid =
             isfinite(maximumBarrierImpulse) &&
             isfinite(minimumSeparation) &&

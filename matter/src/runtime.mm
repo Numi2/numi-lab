@@ -667,7 +667,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_precondition_coarse",
             "nm_fgmres_import_field_residual",
             "nm_fgmres_clear_rigid_residual",
-            "nm_rigid_clear_candidate",
+            "nm_rigid_initialize_feasible_candidate",
             "nm_rigid_apply_candidate_solution",
             "nm_fgmres_field_smoother_initialize",
             "nm_fgmres_field_smoother_export",
@@ -804,12 +804,13 @@ RuntimeDiagnostics Runtime::initialize(
             }
         }
 
-        id<MTLFunction> fgmresFunction = [candidate->library
+        id<MTLFunction> primalContactFunction = [candidate->library
             newFunctionWithName:
-                @"numi_matter_metal::nm_fgmres_begin"];
-        id<MTLArgumentEncoder> primalContactEncoder = fgmresFunction == nil
+                @"numi_matter_metal::nm_primal_contact_argument_layout"];
+        id<MTLArgumentEncoder> primalContactEncoder =
+            primalContactFunction == nil
             ? nil
-            : [fgmresFunction newArgumentEncoderWithBufferIndex:13u];
+            : [primalContactFunction newArgumentEncoderWithBufferIndex:0u];
         if (primalContactEncoder == nil) {
             diagnostics.message =
                 "failed to create monolithic primal-contact argument encoder";
@@ -1602,10 +1603,8 @@ RuntimeDiagnostics Runtime::initialize(
                                  offset:0u atIndex:11u];
         [primalContactEncoder setBuffer:candidate->rigidProxies
                                  offset:0u atIndex:12u];
-        [primalContactEncoder setBuffer:candidate->coupledPointJacobians
-                                 offset:0u atIndex:13u];
         [primalContactEncoder setBuffer:candidate->rigidStates
-                                 offset:0u atIndex:14u];
+                                 offset:0u atIndex:13u];
         candidate->residentBytes += primalContactEncoder.encodedLength;
 
         for (const NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
@@ -2918,11 +2917,25 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             });
             const NSUInteger rigidCandidateTotal = environments *
                 state.dispatch.rigidGeneralizedCapacity;
-            dispatchThreads("nm_rigid_clear_candidate", rigidCandidateTotal, [&] {
-                setDispatch();
-                [encoder setBuffer:state.coupledGeneralizedCandidate
-                             offset:0u atIndex:1u];
-            });
+            dispatchThreads(
+                "nm_rigid_initialize_feasible_candidate",
+                rigidCandidateTotal,
+                [&] {
+                    setDispatch();
+                    [encoder setBytes:&coupledArticulatedNv
+                               length:sizeof(coupledArticulatedNv)
+                              atIndex:1u];
+                    [encoder setBytes:&bridge
+                               length:sizeof(bridge)
+                              atIndex:2u];
+                    [encoder setBuffer:state.rigidProxies
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:currentBodies offset:0u atIndex:4u];
+                    [encoder setBuffer:buffer(request.rigid.v)
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate
+                                 offset:0u atIndex:6u];
+                });
             dispatchThreads("nm_contact_clear_samples", pairTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
@@ -3039,6 +3052,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:4u];
                         [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:5u];
                         [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femTopologyNodesCandidate
+                                     offset:0u atIndex:7u];
                     }
                 );
                 dispatchThreads(
@@ -3438,6 +3453,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.primalContactArguments
                              offset:0u atIndex:2u];
                 [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
+                [encoder setBuffer:state.coupledPointJacobians
+                             offset:0u atIndex:4u];
             });
 
             dispatchThreads(
@@ -3529,6 +3546,14 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             [encoder useResource:state.deformableContactGlobalActiveIndices
                          usage:MTLResourceUsageRead];
             [encoder useResource:state.deformableContactActiveDispatch
+                         usage:MTLResourceUsageRead];
+            [encoder useResource:state.mpmNodeToActive
+                         usage:MTLResourceUsageRead];
+            [encoder useResource:state.mpmActiveNodeCounts
+                         usage:MTLResourceUsageRead];
+            [encoder useResource:state.rigidProxies
+                         usage:MTLResourceUsageRead];
+            [encoder useResource:state.rigidStates
                          usage:MTLResourceUsageRead];
             const std::uint32_t restart = std::min(
                 state.mixedSolverValue.nonlinearIterations.y,
@@ -3881,6 +3906,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBytes:&coupledArticulatedNv
                                length:sizeof(coupledArticulatedNv)
                               atIndex:14u];
+                    [encoder setBuffer:state.coupledPointJacobians
+                                 offset:0u atIndex:15u];
                 });
                 const NSUInteger fieldVectorOffset =
                     columnOffset + femNodeTotal * sizeof(nm_float4);
@@ -3932,6 +3959,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBytes:&coupledArticulatedNv
                                length:sizeof(coupledArticulatedNv)
                               atIndex:13u];
+                    [encoder setBuffer:state.coupledPointJacobians
+                                 offset:0u atIndex:14u];
                 });
                 if (!dispatchIndirect(
                         "nm_fgmres_apply_mpm_constitutive",
@@ -4053,6 +4082,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.primalContactArguments
                                  offset:0u atIndex:4u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                    [encoder setBuffer:state.coupledPointJacobians
+                                 offset:0u atIndex:6u];
                 });
                 dispatchGroups32("nm_fgmres_orthogonalize_column", environments, [&] {
                     setDispatch();
@@ -4282,6 +4313,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBytes:&coupledArticulatedNv
                                length:sizeof(coupledArticulatedNv)
                               atIndex:10u];
+                    [encoder setBuffer:state.coupledPointJacobians
+                                 offset:0u atIndex:11u];
                 });
             dispatchGroups32(
                 "nm_fem_synchronize_environment_line_search",
@@ -4547,6 +4580,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.primalContactArguments
                                  offset:0u atIndex:2u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
+                    [encoder setBuffer:state.coupledPointJacobians
+                                 offset:0u atIndex:4u];
                 });
             // The accepted Newton correction changes MPM grid velocities and
             // the final primal-contact rebuild changes their barrier forces.
@@ -5624,6 +5659,12 @@ bool Runtime::requiresBodyWrenches() const noexcept {
 
 bool Runtime::requiresCoupledCandidate() const noexcept {
     return state_ != nullptr && state_->requiresCoupledCandidate;
+}
+
+std::uint32_t Runtime::coupledCandidatePointCapacity() const noexcept {
+    return state_ != nullptr && state_->requiresCoupledCandidate
+        ? state_->contactActiveCapacity
+        : 0u;
 }
 
 bool Runtime::requiresRigidContactEvidence() const noexcept {

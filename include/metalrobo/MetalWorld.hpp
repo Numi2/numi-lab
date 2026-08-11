@@ -415,16 +415,28 @@ struct MetalWorldDevicePhysicsProgram {
     MetalWorldDevicePhysicsAbort abort = nullptr;
     std::uint64_t fingerprint = 0u;
     std::uint32_t flags = 0u;
+    // Maximum point-query count used by the borrowed coupled-candidate
+    // service. Declaring this capacity keeps MetalWorld's private operator
+    // scratch exact instead of reserving the ABI-wide maximum per environment.
+    std::uint32_t coupledCandidatePointCapacity = 0u;
 
     [[nodiscard]] bool valid() const noexcept {
+        const bool ownsCoupledCandidate =
+            (flags & MetalWorldDevicePhysicsOwnsCoupledCandidate) != 0u;
         return context != nullptr && encode != nullptr && abort != nullptr &&
             fingerprint != 0u &&
-            (flags & ~kMetalWorldDevicePhysicsKnownFlags) == 0u;
+            (flags & ~kMetalWorldDevicePhysicsKnownFlags) == 0u &&
+            coupledCandidatePointCapacity <=
+                MR_ARTICULATED_OPERATOR_MAX_POINTS &&
+            (ownsCoupledCandidate
+                 ? coupledCandidatePointCapacity != 0u
+                 : coupledCandidatePointCapacity == 0u);
     }
 
     [[nodiscard]] bool configured() const noexcept {
         return context != nullptr || encode != nullptr || abort != nullptr ||
-            fingerprint != 0u || flags != 0u;
+            fingerprint != 0u || flags != 0u ||
+            coupledCandidatePointCapacity != 0u;
     }
 };
 

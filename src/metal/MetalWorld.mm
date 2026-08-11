@@ -1568,6 +1568,7 @@ bool buildRequirements(
     const CompiledTaskProgram& taskProgram,
     const CompiledPolicyProgram& policyProgram,
     const MetalWorldMulticopterProgram& multicopterProgram,
+    const MetalWorldDevicePhysicsProgram& devicePhysicsProgram,
     RequiredBuffers& requirements,
     std::size_t& totalRequiredBytes
 ) {
@@ -1599,6 +1600,16 @@ bool buildRequirements(
         layout.devicePhysicsFingerprint != 0u
         ? environments
         : 0u;
+    const std::size_t coupledCandidateEnvironments =
+        devicePhysicsProgram.valid() &&
+        (devicePhysicsProgram.flags &
+         MetalWorldDevicePhysicsOwnsCoupledCandidate) != 0u
+        ? environments
+        : 0u;
+    const std::size_t articulatedOperatorEnvironments = std::max(
+        contactEnvironments,
+        coupledCandidateEnvironments
+    );
     // Device physics needs accepted articulated/scene body projections even
     // when MetalWorld's own rigid contact solver is disabled. Keep this arena
     // independent from contact work so continuum-only contact can drive ABA
@@ -1864,6 +1875,8 @@ bool buildRequirements(
     std::size_t rawContactElements = 0u;
     std::size_t pointQueryElements = 0u;
     std::size_t pointWorldElements = 0u;
+    std::size_t nativePointWorldElements = 0u;
+    std::size_t coupledPointWorldElements = 0u;
     std::size_t factorElements = 0u;
     std::size_t pointJacobianElements = 0u;
     std::size_t endpointElements = 0u;
@@ -1901,6 +1914,22 @@ bool buildRequirements(
              MR_UNIFIED_QUALITY_MAX_BLOCKS)) {
         return false;
     }
+    if (!checkedMultiply(
+            contactEnvironments,
+            contact.pointQueryStride,
+            nativePointWorldElements
+        ) ||
+        !checkedMultiply(
+            coupledCandidateEnvironments,
+            devicePhysicsProgram.coupledCandidatePointCapacity,
+            coupledPointWorldElements
+        )) {
+        return false;
+    }
+    pointWorldElements = std::max(
+        nativePointWorldElements,
+        coupledPointWorldElements
+    );
     if (!checkedMultiply(
             contactEnvironments,
             world.rodToolPairs().size(),
@@ -1942,17 +1971,12 @@ bool buildRequirements(
             rawContactElements
         ) ||
         !checkedMultiply(
-            contactEnvironments,
-            contact.pointQueryStride,
-            pointWorldElements
-        ) ||
-        !checkedMultiply(
-            pointWorldElements,
+            nativePointWorldElements,
             world.articulationCount(),
             pointQueryElements
         ) ||
         !checkedMultiply(
-            contactEnvironments,
+            articulatedOperatorEnvironments,
             contact.factorStride,
             factorElements
         ) ||
@@ -2199,14 +2223,14 @@ bool buildRequirements(
         ) ||
         !makeRequirement<float>(
             "generalized impulse",
-            contactEnvironments == 0u
+            articulatedOperatorEnvironments == 0u
                 ? 0u
                 : layout.initialVElements,
             requirements.entries[kGeneralizedImpulse]
         ) ||
         !makeRequirement<float>(
             "operator delta velocity",
-            contactEnvironments == 0u
+            articulatedOperatorEnvironments == 0u
                 ? 0u
                 : layout.initialVElements,
             requirements.entries[kDeltaVelocity]
@@ -3604,7 +3628,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
         : MR_SOLVER_TEMPORAL_CONE;
     contact.bodyCount =
         static_cast<mr_u32>(world.model().bodies.size());
-    contact.sceneBodyCount = world.sceneBodyCount();
+    // Free-motion ABA does not allocate or accept a scene-body state arena.
+    // Keep the device-physics projection contract consistent with that
+    // allocation: articulated body states remain available, while no phantom
+    // scene entries are advertised to an extension or read by projection.
+    contact.sceneBodyCount = config.solverMode ==
+            MetalWorldSolverMode::freeMotionABA
+        ? 0u
+        : world.sceneBodyCount();
     contact.shapeCount = world.colliderCount();
     contact.eligiblePairCount = world.eligiblePairCount();
     contact.pairCapacity = world.capacities().candidatePairs;
@@ -3614,7 +3645,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         world.capacities().constraintBlocks;
     contact.rowCapacity = world.capacities().constraintRows;
     contact.islandCapacity = world.capacities().islands;
-    contact.sceneBodyStride = world.sceneBodyCount();
+    contact.sceneBodyStride = contact.sceneBodyCount;
     contact.bodyStateStride = contact.bodyCount;
     contact.pairStride = contact.pairCapacity;
     contact.rawContactStride = contact.rawContactCapacity;
@@ -4303,6 +4334,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             config.taskProgram,
             config.policyProgram,
             config.multicopterProgram,
+            config.devicePhysicsProgram,
             requirements,
             totalRequiredBytes
         )) {

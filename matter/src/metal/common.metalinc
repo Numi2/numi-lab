@@ -11,6 +11,19 @@ constant float kEpsilon = 1.1920928955078125e-7f;
 constant float kGeometryFloor = 1.0e-12f;
 constant float kPi = 3.14159265358979323846f;
 
+inline float maximumAbsoluteCoordinate(const float3 value) {
+    const float3 magnitude = abs(value);
+    return max(max(magnitude.x, magnitude.y), magnitude.z);
+}
+
+inline float ccdDistanceRoundoff(
+    const float thickness,
+    const float coordinateScale
+) {
+    return 8.0f * kEpsilon *
+        max(max(thickness, coordinateScale), 1.0e-12f);
+}
+
 inline float ipcBarrierEnergy(
     const float separation,
     const float thickness,

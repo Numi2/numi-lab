@@ -29,9 +29,10 @@ private struct FootSnapshot: Decodable {
     let fixedBaseError: Float
     let kktResidual: Float
     let volumeResidual: Float
-    let naturalResidual: Float
-    let coneViolation: Float
-    let complementarity: Float
+    let maximumBarrierImpulse: Float
+    let minimumContactSeparation: Float
+    let maximumTangentialImpulse: Float
+    let maximumContactEnergy: Float
     let transportResidual: Float
     let gpuMilliseconds: Float
     let footPosition: [Float]
@@ -51,9 +52,10 @@ private struct FootSnapshot: Decodable {
         case fixedBaseError = "fixed_base_error"
         case kktResidual = "kkt_residual"
         case volumeResidual = "volume_residual"
-        case naturalResidual = "natural_residual"
-        case coneViolation = "cone_violation"
-        case complementarity
+        case maximumBarrierImpulse = "maximum_barrier_impulse"
+        case minimumContactSeparation = "minimum_contact_separation"
+        case maximumTangentialImpulse = "maximum_tangential_impulse"
+        case maximumContactEnergy = "maximum_contact_energy"
         case transportResidual = "transport_residual"
         case gpuMilliseconds = "gpu_milliseconds"
         case footPosition = "foot_position"
@@ -103,8 +105,12 @@ private struct FootSnapshot: Decodable {
                   snapshot.contacts > 0,
                   snapshot.kktResidual <= 1e-4,
                   snapshot.volumeResidual <= 1e-4,
-                  snapshot.naturalResidual <= 1e-4,
-                  snapshot.coneViolation <= 1e-5,
+                  snapshot.maximumBarrierImpulse.isFinite,
+                  snapshot.maximumBarrierImpulse > 0,
+                  snapshot.minimumContactSeparation.isFinite,
+                  snapshot.minimumContactSeparation > 0,
+                  snapshot.maximumTangentialImpulse.isFinite,
+                  snapshot.maximumContactEnergy.isFinite,
                   snapshot.fixedBaseError <= 1e-8 else {
                 throw FootLabError.invalid("accepted frame \(index + 1) failed its scene or KKT contract")
             }
@@ -626,9 +632,10 @@ private final class FootAppDelegate: NSObject, NSApplicationDelegate {
 
         KKT residual          \(format(s.kktResidual))
         Volume residual       \(format(s.volumeResidual))
-        Natural residual      \(format(s.naturalResidual))
-        Cone violation        \(format(s.coneViolation))
-        Complementarity       \(format(s.complementarity))
+        Maximum barrier impulse \(format(s.maximumBarrierImpulse))
+        Minimum separation      \(format(s.minimumContactSeparation))
+        Maximum friction impulse \(format(s.maximumTangentialImpulse))
+        Maximum contact energy   \(format(s.maximumContactEnergy))
         Transport residual    \(format(s.transportResidual))
 
         GPU transaction       \(String(format: "%.2f", s.gpuMilliseconds)) ms

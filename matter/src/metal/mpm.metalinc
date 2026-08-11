@@ -725,11 +725,12 @@ inline void evaluateSparseNode(
     if (mass > 0.0f) {
         const float inverseMass = 1.0f / mass;
         const float3 velocity = momentum * inverseMass;
-        const float dt = objectTimestep(dispatch, scheduler);
-        const float3 acceleration =
-            internalForce * inverseMass + dispatch.gravityAndTimestep.xyz;
         node.velocityAndInverseMass = float4(velocity, inverseMass);
-        node.candidateVelocity = float4(velocity + dt * acceleration, 0.0f);
+        // Keep the first monolithic Newton iterate at the accepted grid pose.
+        // The constitutive residual owns the full predictor
+        // velocity + dt*acceleration, so starting from zero preserves the
+        // equation while preventing the initial iterate from crossing IPC.
+        node.candidateVelocity = float4(0.0f);
         if (!finite3(node.candidateVelocity.xyz)) {
             recordFailure(
                 statuses[environment],

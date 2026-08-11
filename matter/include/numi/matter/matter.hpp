@@ -779,6 +779,7 @@ public:
     [[nodiscard]] bool adaptiveTransferEnabled() const noexcept;
     [[nodiscard]] bool requiresBodyWrenches() const noexcept;
     [[nodiscard]] bool requiresCoupledCandidate() const noexcept;
+    [[nodiscard]] std::uint32_t coupledCandidatePointCapacity() const noexcept;
     [[nodiscard]] bool requiresRigidContactEvidence() const noexcept;
     [[nodiscard]] float timestepSeconds() const noexcept;
     [[nodiscard]] RuntimeStateSnapshot snapshot() const;

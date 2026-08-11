@@ -14,9 +14,40 @@ struct NMPrimalContactArguments {
     device const uint* mpmNodeToActive [[id(10)]];
     device const uint* mpmActiveNodeCounts [[id(11)]];
     device const NMRigidProxyGPU* rigidProxies [[id(12)]];
-    device const float* coupledPointJacobians [[id(13)]];
-    device const NMRigidStateGPU* rigidStates [[id(14)]];
+    device const NMRigidStateGPU* rigidStates [[id(13)]];
 };
+
+// Reflection-only anchor for the monolithic contact argument table. Runtime
+// obtains its MTLArgumentEncoder from this function but never dispatches it.
+// Reading every member prevents Metal from pruning bindings that are consumed
+// only by a subset of the KKT kernels.
+kernel void nm_primal_contact_argument_layout(
+    constant NMPrimalContactArguments& contact [[buffer(0)]],
+    device uint* sink [[buffer(1)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global != 0u) return;
+    uint checksum = 0u;
+    checksum ^= reinterpret_cast<device const uint*>(contact.pairs)[0];
+    checksum ^= reinterpret_cast<device const uint*>(contact.samples)[0];
+    checksum ^= contact.nodeIncidence[0];
+    checksum ^= reinterpret_cast<device const uint*>(contact.nodeRanges)[0];
+    checksum ^= contact.activePairs[0];
+    checksum ^= contact.activeSlotsByPair[0];
+    checksum ^= contact.activeCounts[0];
+    checksum ^=
+        reinterpret_cast<device const uint*>(contact.deformableContacts)[0];
+    checksum ^= contact.deformableNodeIncidence[0];
+    checksum ^=
+        reinterpret_cast<device const uint*>(contact.deformableNodeRanges)[0];
+    checksum ^= contact.mpmNodeToActive[0];
+    checksum ^= contact.mpmActiveNodeCounts[0];
+    checksum ^=
+        reinterpret_cast<device const uint*>(contact.rigidProxies)[0];
+    checksum ^=
+        reinterpret_cast<device const uint*>(contact.rigidStates)[0];
+    sink[0] = checksum;
+}
 
 inline void deformableContactFrame(
     const float3 normal,
@@ -593,9 +624,15 @@ kernel void nm_fem_prepare_candidate(
         if (object.representation == NM_REPRESENTATION_FEM &&
             objectDue(object, scheduler, adaptiveState, microstep) &&
             next.restAndFixed.w <= 0.5f) {
-            next.positionAndMass.xyz = accepted[global].positionAndMass.xyz +
-                objectTimestep(dispatch, scheduler) *
-                next.velocityAndInverseMass.xyz;
+            // Newton must start from an accepted collision-free pose. The
+            // velocity is the primal unknown, so zero is a feasible initial
+            // iterate and the inertial residual below recovers the complete
+            // unconstrained predictor without first stepping through a
+            // barrier.
+            next.velocityAndInverseMass.xyz = float3(0.0f);
+            next.deltaVelocity.xyz =
+                -accepted[global].velocityAndInverseMass.xyz;
+            next.positionAndMass.xyz = accepted[global].positionAndMass.xyz;
         }
     }
     candidate[global] = next;

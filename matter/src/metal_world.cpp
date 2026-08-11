@@ -55,12 +55,18 @@ bool encodeCoupledCandidateBridge(
 
 std::uint64_t programFingerprint(
     const std::uint64_t runtimeFingerprint,
-    const std::uint32_t flags
+    const std::uint32_t flags,
+    const std::uint32_t coupledCandidatePointCapacity
 ) noexcept {
     std::uint64_t fingerprint = runtimeFingerprint;
-    for (std::uint32_t shift = 0u; shift < 32u; shift += 8u) {
-        fingerprint ^= static_cast<std::uint8_t>(flags >> shift);
-        fingerprint *= 1099511628211ull;
+    for (const std::uint32_t value : {
+             flags,
+             coupledCandidatePointCapacity,
+         }) {
+        for (std::uint32_t shift = 0u; shift < 32u; shift += 8u) {
+            fingerprint ^= static_cast<std::uint8_t>(value >> shift);
+            fingerprint *= 1099511628211ull;
+        }
     }
     return fingerprint == 0u ? 1u : fingerprint;
 }
@@ -170,9 +176,12 @@ makeMetalWorldDevicePhysicsProgram(Runtime& runtime) noexcept {
         (runtime.requiresCoupledCandidate()
              ? metalrobo::MetalWorldDevicePhysicsOwnsCoupledCandidate
              : 0u);
+    program.coupledCandidatePointCapacity =
+        runtime.coupledCandidatePointCapacity();
     program.fingerprint = programFingerprint(
         runtime.deviceProgramFingerprint(),
-        program.flags
+        program.flags,
+        program.coupledCandidatePointCapacity
     );
     return program;
 }
