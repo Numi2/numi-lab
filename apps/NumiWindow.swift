@@ -573,6 +573,43 @@ public func numiWindowCompatiblePolicyChoices(
     }
 }
 
+public func numiWindowVisiblePolicyChoices(
+    _ compatibleChoices: [NumiWindowPolicyChoice],
+    installedPolicyURL: URL?,
+    maximumCount: Int = 3
+) -> [NumiWindowPolicyChoice] {
+    guard maximumCount > 0 else { return [] }
+    let newest = compatibleChoices.sorted {
+        if $0.modificationDate != $1.modificationDate {
+            return $0.modificationDate > $1.modificationDate
+        }
+        let nameOrder = $0.displayName.localizedStandardCompare($1.displayName)
+        if nameOrder != .orderedSame {
+            return nameOrder == .orderedAscending
+        }
+        return $0.policyURL.path < $1.policyURL.path
+    }
+    var visible = Array(newest.prefix(maximumCount))
+    guard let installedPolicyURL else { return visible }
+    let installed = installedPolicyURL.standardizedFileURL
+    guard !visible.contains(where: {
+        $0.policyURL.standardizedFileURL == installed
+    }), let installedChoice = newest.first(where: {
+        $0.policyURL.standardizedFileURL == installed
+    }) else {
+        return visible
+    }
+
+    // Never make the selector lie about an older policy that is still active.
+    // Keep it visible while retaining the newest alternatives within the same
+    // three-item budget.
+    if visible.count == maximumCount {
+        visible.removeLast()
+    }
+    visible.insert(installedChoice, at: 0)
+    return visible
+}
+
 private final class WindowFrameDelivery: @unchecked Sendable {
     let frame: MetalRoboTaskInspectionFrame
     let release: @Sendable () -> Void
@@ -1837,29 +1874,21 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         preferred: URL?
     ) {
         selector.removeAllItems()
-        let robotPolicies = numiWindowCompatiblePolicyChoices(
+        let compatiblePolicies = numiWindowCompatiblePolicyChoices(
             policyChoices,
             robotID: robotID,
             contract: activePolicyContract
         )
         let installedPolicyURL = installedPolicyRobotID == robotID
             ? self.installedPolicyURL : nil
+        let robotPolicies = numiWindowVisiblePolicyChoices(
+            compatiblePolicies,
+            installedPolicyURL: installedPolicyURL
+        )
         if installedPolicyURL == nil {
             selector.addItem(withTitle: "Untrained · no controller")
             selector.lastItem?.toolTip =
                 "No learned controller is active in this simulation"
-        }
-        if let installedPolicyURL,
-           !robotPolicies.contains(where: {
-               $0.policyURL.standardizedFileURL ==
-                   installedPolicyURL.standardizedFileURL
-           }) {
-            selector.addItem(
-                withTitle: installedPolicyURL.deletingPathExtension()
-                    .lastPathComponent
-            )
-            selector.lastItem?.representedObject = installedPolicyURL
-            selector.lastItem?.toolTip = installedPolicyURL.path
         }
         for choice in robotPolicies {
             selector.addItem(withTitle: choice.displayName)
