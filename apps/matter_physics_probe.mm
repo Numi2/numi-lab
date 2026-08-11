@@ -913,7 +913,11 @@ void runStatefulMaterial(
 
 struct Outcome {
     double gpuMilliseconds = 0.0;
+    std::size_t residentBytes = 0u;
+    std::uint32_t environmentCount = 0u;
     std::uint32_t contactSamples = 0u;
+    std::uint32_t minimumContactSamples =
+        std::numeric_limits<std::uint32_t>::max();
     std::uint32_t completedMicrosteps = 0u;
     std::uint64_t totalCompletedMicrosteps = 0u;
     std::uint32_t pcgIterations = 0u;
@@ -2048,27 +2052,35 @@ Outcome runCase(
     const bool updateLearned
 ) {
     @autoreleasepool {
+        const std::uint32_t environmentCount = world.dispatch.environmentCount;
+        require(environmentCount > 0u, "Matter probe world has no environments");
+        require(!forceRollback || environmentCount == 1u,
+            "failure injection is qualified only for a single environment");
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         require(device != nil, "no Metal device is available");
         id<MTLCommandQueue> queue = [device newCommandQueue];
         require(queue != nil, "failed to create Matter probe command queue");
         id<MTLBuffer> worldStatuses = [device
-            newBufferWithLength:sizeof(MRMetalWorldStatusGPU)
+            newBufferWithLength:environmentCount * sizeof(MRMetalWorldStatusGPU)
             options:MTLResourceStorageModeShared];
         require(worldStatuses != nil, "failed to allocate world status buffer");
-        auto* worldStatus = static_cast<MRMetalWorldStatusGPU*>(
+        auto* worldStatusData = static_cast<MRMetalWorldStatusGPU*>(
             worldStatuses.contents
         );
-        *worldStatus = {};
-        worldStatus->code = MR_STEP_SUCCESS;
-        worldStatus->environment = 0u;
+        for (std::uint32_t environment = 0u;
+             environment < environmentCount;
+             ++environment) {
+            worldStatusData[environment] = {};
+            worldStatusData[environment].code = MR_STEP_SUCCESS;
+            worldStatusData[environment].environment = environment;
+        }
 
         numi::matter::Runtime runtime;
         const auto initialized = runtime.initialize(
             world,
             {
                 .metallib = NUMI_MATTER_METALLIB,
-                .environmentCount = 1u,
+                .environmentCount = environmentCount,
                 .captureEvents = true,
                 .captureDiagnostics = true,
                 .automaticIdentification = false,
@@ -2098,6 +2110,8 @@ Outcome runCase(
                 options:MTLResourceStorageModeShared];
 
         Outcome outcome;
+        outcome.environmentCount = environmentCount;
+        outcome.residentBytes = initialized.residentBytes;
         float initialMinimumHeight = std::numeric_limits<float>::infinity();
         for (const NMParticleStateGPU& particle : world.mpm.particles) {
             initialMinimumHeight = std::min(
@@ -2269,68 +2283,81 @@ Outcome runCase(
                 outcome.gpuMilliseconds += 1000.0 * (gpuEnd - gpuStart);
             }
 
-            const NMMatterStatusGPU status = statusData[0];
-            outcome.totalCompletedMicrosteps += status.completedMicrosteps;
-            std::string certificateFailure;
-            if (status.code != (forceRollback
-                    ? NM_STATUS_RIGID_WORLD_FAILURE
-                    : NM_STATUS_SUCCESS)) {
-                const auto failedSnapshot = runtime.snapshot();
-                if (failedSnapshot.available &&
-                    !failedSnapshot.solverCertificates.empty()) {
-                    const auto& certificate =
-                        failedSnapshot.solverCertificates.front();
-                    certificateFailure =
-                        " certificate=(kkt=" +
-                        std::to_string(certificate.nonlinear.x) +
-                        ",correction=" +
-                        std::to_string(certificate.nonlinear.y) +
-                        ",volume=" +
-                        std::to_string(certificate.nonlinear.z) +
-                        ",pressure=" +
-                        std::to_string(certificate.nonlinear.w) +
-                        ",contact=" +
-                        std::to_string(certificate.contact.x) + "," +
-                        std::to_string(certificate.contact.y) + "," +
-                        std::to_string(certificate.contact.z) + "," +
-                        std::to_string(certificate.contact.w) + ")";
+            for (std::uint32_t environment = 0u;
+                 environment < environmentCount;
+                 ++environment) {
+                const NMMatterStatusGPU status = statusData[environment];
+                outcome.totalCompletedMicrosteps += status.completedMicrosteps;
+                std::string certificateFailure;
+                if (status.code != (forceRollback
+                        ? NM_STATUS_RIGID_WORLD_FAILURE
+                        : NM_STATUS_SUCCESS)) {
+                    const auto failedSnapshot = runtime.snapshot();
+                    const std::size_t certificateIndex =
+                        static_cast<std::size_t>(environment) *
+                        world.dispatch.objectCount;
+                    if (failedSnapshot.available && certificateIndex <
+                        failedSnapshot.solverCertificates.size()) {
+                        const auto& certificate =
+                            failedSnapshot.solverCertificates[certificateIndex];
+                        certificateFailure =
+                            " certificate=(kkt=" +
+                            std::to_string(certificate.nonlinear.x) +
+                            ",correction=" +
+                            std::to_string(certificate.nonlinear.y) +
+                            ",volume=" +
+                            std::to_string(certificate.nonlinear.z) +
+                            ",pressure=" +
+                            std::to_string(certificate.nonlinear.w) +
+                            ",contact=" +
+                            std::to_string(certificate.contact.x) + "," +
+                            std::to_string(certificate.contact.y) + "," +
+                            std::to_string(certificate.contact.z) + "," +
+                            std::to_string(certificate.contact.w) + ")";
+                    }
                 }
-            }
-            require(
-                status.code == (forceRollback
-                    ? NM_STATUS_RIGID_WORLD_FAILURE
-                    : NM_STATUS_SUCCESS),
-                label + std::string(" reported Matter status ") +
-                    std::to_string(status.code) +
-                    " step=" + std::to_string(step) +
-                    " object=" + std::to_string(status.objectIndex) +
-                    " index=" + std::to_string(status.failingIndex) +
-                    " diagnostics=(" +
-                    std::to_string(status.diagnostics.x) + "," +
-                    std::to_string(status.diagnostics.y) + "," +
-                    std::to_string(status.diagnostics.z) + "," +
-                    std::to_string(status.diagnostics.w) + ")" +
-                    certificateFailure
-            );
-            if (!forceRollback) {
                 require(
-                    !std::isnan(status.diagnostics.x) &&
-                        status.diagnostics.x > 0.0f,
-                    label + std::string(" lost a valid deformation determinant")
+                    status.code == (forceRollback
+                        ? NM_STATUS_RIGID_WORLD_FAILURE
+                        : NM_STATUS_SUCCESS),
+                    label + std::string(" reported Matter status ") +
+                        std::to_string(status.code) +
+                        " environment=" + std::to_string(environment) +
+                        " step=" + std::to_string(step) +
+                        " object=" + std::to_string(status.objectIndex) +
+                        " index=" + std::to_string(status.failingIndex) +
+                        " diagnostics=(" +
+                        std::to_string(status.diagnostics.x) + "," +
+                        std::to_string(status.diagnostics.y) + "," +
+                        std::to_string(status.diagnostics.z) + "," +
+                        std::to_string(status.diagnostics.w) + ")" +
+                        certificateFailure
+                );
+                if (!forceRollback) {
+                    require(
+                        !std::isnan(status.diagnostics.x) &&
+                            status.diagnostics.x > 0.0f,
+                        label + std::string(
+                            " lost a valid deformation determinant")
+                    );
+                }
+                outcome.contactSamples = std::max(
+                    outcome.contactSamples, status.contactCount);
+                outcome.minimumContactSamples = std::min(
+                    outcome.minimumContactSamples, status.contactCount);
+                outcome.completedMicrosteps = std::max(
+                    outcome.completedMicrosteps,
+                    status.completedMicrosteps
+                );
+                outcome.pcgIterations = std::max(
+                    outcome.pcgIterations, status.pcgIterations);
+                outcome.minimumDeterminant = std::min(
+                    outcome.minimumDeterminant,
+                    status.diagnostics.x
                 );
             }
-            outcome.contactSamples = std::max(outcome.contactSamples, status.contactCount);
-            outcome.completedMicrosteps = std::max(
-                outcome.completedMicrosteps,
-                status.completedMicrosteps
-            );
-            outcome.pcgIterations = std::max(outcome.pcgIterations, status.pcgIterations);
-            outcome.minimumDeterminant = std::min(
-                outcome.minimumDeterminant,
-                status.diagnostics.x
-            );
             for (std::uint32_t event = 0u;
-                 event < world.dispatch.eventStride;
+                 event < environmentCount * world.dispatch.eventStride;
                  ++event) {
                 const NMEventTokenGPU& token = eventData[event];
                 outcome.sawContactEvent = outcome.sawContactEvent || (
@@ -2391,7 +2418,7 @@ Outcome runCase(
         }
         if (requireContact) {
             require(
-                outcome.contactSamples > 0u || outcome.sawContactEvent,
+                outcome.minimumContactSamples > 0u || outcome.sawContactEvent,
                 label + std::string(" never produced continuum contact")
             );
         }
@@ -2434,6 +2461,8 @@ int main(int argc, const char* argv[]) {
         const bool mpmSingle = argc == 2 && std::string_view(argv[1]) == "--mpm-single";
         const bool mpmSingleContact = argc == 2 && std::string_view(argv[1]) == "--mpm-single-contact";
         const bool mpmGentle = argc == 2 && std::string_view(argv[1]) == "--mpm-gentle-contact";
+        const bool mpmBatch = argc == 2 &&
+            std::string_view(argv[1]) == "--mpm-batch";
         const bool mpmRollback = argc == 2 && std::string_view(argv[1]) == "--mpm-rollback";
         const bool metalWorldCoupling = argc == 2 && std::string_view(argv[1]) == "--metal-world-coupling";
         const bool multiphysics = argc == 2 && std::string_view(argv[1]) == "--multiphysics";
@@ -2465,7 +2494,7 @@ int main(int argc, const char* argv[]) {
         require(
             argc == 1 || mixedOnly || statefulMPM || statefulFEM ||
                 femOnly || mpmOnly || mpmFree || mpmSingle ||
-                mpmSingleContact || mpmGentle || mpmRollback ||
+                mpmSingleContact || mpmGentle || mpmBatch || mpmRollback ||
                 metalWorldCoupling || multiphysics ||
                 topologyMutation || topologyRollback || cohesiveMutation ||
                 punctureMutation || learnedMaterial ||
@@ -2475,7 +2504,7 @@ int main(int argc, const char* argv[]) {
                 identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (articulatedFootPad) {
             runArticulatedFootPadScene();
@@ -2711,6 +2740,49 @@ int main(int argc, const char* argv[]) {
                 << ",\"minimum_J\":" << mixed.minimumDeterminant
                 << "}\n";
         }
+        if (mpmBatch) {
+            constexpr std::uint32_t kBatchEnvironments = 32u;
+            constexpr std::uint32_t kBatchControlSteps = 1u;
+            const auto batch = runCase(
+                compileCase(
+                    numi::matter::Representation::mpm,
+                    true, false, false, false, true, false,
+                    1.0 / 240.0, kBatchEnvironments
+                ),
+                "MPM throughput batch", true, false, kBatchControlSteps
+            );
+            const std::uint64_t expectedMicrosteps =
+                static_cast<std::uint64_t>(kBatchEnvironments) *
+                batch.completedMicrosteps * kBatchControlSteps;
+            require(
+                batch.totalCompletedMicrosteps == expectedMicrosteps,
+                "MPM throughput batch did not complete every environment"
+            );
+            const double environmentMicrostepsPerSecond =
+                batch.gpuMilliseconds > 0.0
+                ? 1000.0 * batch.totalCompletedMicrosteps /
+                    batch.gpuMilliseconds
+                : 0.0;
+            std::cout
+                << "{\"schema\":\"numi.matter.throughput.v1\""
+                << ",\"representation\":\"mpm\""
+                << ",\"environments\":" << batch.environmentCount
+                << ",\"control_steps\":" << kBatchControlSteps
+                << ",\"microsteps_per_control_step\":"
+                << batch.completedMicrosteps
+                << ",\"total_environment_microsteps\":"
+                << batch.totalCompletedMicrosteps
+                << ",\"environment_microsteps_per_second\":"
+                << environmentMicrostepsPerSecond
+                << ",\"maximum_krylov_iterations\":"
+                << batch.pcgIterations
+                << ",\"minimum_J\":" << batch.minimumDeterminant
+                << ",\"minimum_contacts_per_environment\":"
+                << batch.minimumContactSamples
+                << ",\"gpu_milliseconds\":" << batch.gpuMilliseconds
+                << ",\"resident_bytes\":" << batch.residentBytes
+                << "}\n";
+        }
         if (!identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback && !metalWorldCoupling &&
             !multiphysics &&
@@ -2720,7 +2792,7 @@ int main(int argc, const char* argv[]) {
             !productionRollback &&
             !poroelasticCompression &&
             !articulatedFootPad && !articulatedFootPadSequence &&
-            !mixedOnly && !statefulMPM && !statefulFEM &&
+            !mixedOnly && !mpmBatch && !statefulMPM && !statefulFEM &&
             !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
             const auto mpm = runCase(
@@ -2765,7 +2837,7 @@ int main(int argc, const char* argv[]) {
         }
         if (!mixedOnly && !statefulMPM && !statefulFEM &&
             !mpmOnly && !mpmFree && !mpmSingle && !mpmSingleContact &&
-            !mpmGentle && !mpmRollback && !metalWorldCoupling &&
+            !mpmGentle && !mpmBatch && !mpmRollback && !metalWorldCoupling &&
             !multiphysics &&
             !topologyMutation && !topologyRollback && !cohesiveMutation &&
             !punctureMutation &&

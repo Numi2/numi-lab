@@ -262,6 +262,7 @@ after building the probe target:
 cmake -S . -B build -G Ninja
 cmake --build build --target metalrobo_matter_physics_probe numi-matter-stateful-check -j 3
 ctest --test-dir build -L matter --output-on-failure -j 1
+build/bin/metalrobo_matter_physics_probe --mpm-batch
 ```
 
 The suite executes the actual `NumiMatter.metallib` through borrowed Metal
@@ -284,6 +285,12 @@ eight-particle impact executed 1,024 material microsteps, observed contact,
 retained `minimum_J = 0.997895`, and completed without transaction rollback.
 These measurements establish this implementation and workload on that host;
 they are not a matched claim against another simulator or Apple GPU.
+The dedicated batch probe additionally completed 32 identical contact
+environments and 8,192 environment-microsteps on one command-buffer timeline
+at 103.147 environment-microsteps/second with 10,813,600 retained bytes. Every
+environment reported nine contacts, `minimum_J = 0.99916`, no failed
+environment and a 16-iteration FGMRES high-water. This is native batching
+evidence, not an external frontier comparison.
 
 This is continuum and analytic-proxy contact evidence, including one
 articulated rigid-reaction handoff through a full `MetalWorld` step. It also
