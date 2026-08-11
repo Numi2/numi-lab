@@ -720,9 +720,19 @@ inline void evaluateSparseNode(
         }
     }
 
-    node.positionAndMass = float4(nodePosition, mass);
-    node.forceAndEnergy = float4(internalForce, maximumStress);
-    if (mass > 0.0f) {
+    // Quadratic B-spline weights can be positive subnormals at the exact
+    // support edge. Treat contributions below FP32 relative significance as
+    // empty; otherwise raw 1/m preconditioning turns a numerically zero node
+    // into an ill-conditioned KKT degree of freedom and contact primitive.
+    const float averageParticleMass = adaptiveState.massAndError.x /
+        max(float(object.stateCount), 1.0f);
+    const float activeMassFloor =
+        kEpsilon * max(averageParticleMass, 0.0f);
+    const bool activeMass = isfinite(mass) && mass > activeMassFloor;
+    node.positionAndMass = float4(nodePosition, activeMass ? mass : 0.0f);
+    node.forceAndEnergy = activeMass
+        ? float4(internalForce, maximumStress) : float4(0.0f);
+    if (activeMass) {
         const float inverseMass = 1.0f / mass;
         const float3 velocity = momentum * inverseMass;
         node.velocityAndInverseMass = float4(velocity, inverseMass);

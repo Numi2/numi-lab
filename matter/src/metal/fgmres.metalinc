@@ -2191,11 +2191,11 @@ inline bool mpmImplicitVelocityGradients(
             for (int x = 0; x < 3; ++x) {
                 const int3 coordinate = base + int3(x, y, z);
                 const uint nodeIndex = gridNodeIndex(grid, coordinate);
+                if (nodeIndex == NM_INVALID_INDEX ||
+                    nodeIndex >= dispatch.gridNodeCount) return false;
                 const uint nodeGlobal = environment *
                     dispatch.gridNodeCount + nodeIndex;
-                if (nodeIndex == NM_INVALID_INDEX ||
-                    nodeIndex >= dispatch.gridNodeCount ||
-                    generations[nodeGlobal] != microstep.reserved) return false;
+                if (generations[nodeGlobal] != microstep.reserved) return false;
                 float wx, wy, wz, dx, dy, dz;
                 const float3 nodePosition =
                     float3(coordinate) * grid.metrics.x;
@@ -2211,8 +2211,15 @@ inline bool mpmImplicitVelocityGradients(
                 velocityGradient += outerProduct(
                     nodes[nodeGlobal].candidateVelocity.xyz, gradient);
                 const uint activeSlot = nodeToActive[nodeGlobal];
-                if (applyDirection && activeSlot == NM_INVALID_INDEX)
+                if (applyDirection && activeSlot == NM_INVALID_INDEX) {
+                    // A P2G support-edge node pruned by the relative mass
+                    // floor extends both candidate velocity and Newton
+                    // direction by zero. A positive-mass missing node still
+                    // signals an undersized active arena.
+                    if (!(nodes[nodeGlobal].positionAndMass.w > 0.0f))
+                        continue;
                     return false;
+                }
                 if (applyDirection)
                     directionGradient += outerProduct(
                         direction[fgmresMPMIndex(
