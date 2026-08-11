@@ -1,18 +1,180 @@
 import AppKit
+import Darwin
 import Metal
 import MetalKit
 import simd
+
+public struct NumiWindowPolicyContract: Sendable, Equatable {
+    public let version: UInt64
+    public let worldFingerprint: UInt64
+    public let taskFingerprint: UInt64
+    public let observationFingerprint: UInt64
+    public let actionFingerprint: UInt64
+
+    public var isExact: Bool {
+        version != 0 && worldFingerprint != 0 && taskFingerprint != 0 &&
+            observationFingerprint != 0 && actionFingerprint != 0
+    }
+}
+
+public struct NumiWindowPolicyMetadata: Sendable {
+    public let id: String
+    public let revision: UInt64
+    public let contract: NumiWindowPolicyContract
+}
+
+func numiWindowErrorSummary(_ error: Error) -> String {
+    let collapsed = String(describing: error)
+        .split(whereSeparator: { $0.isWhitespace })
+        .joined(separator: " ")
+    return String(collapsed.prefix(180))
+}
 
 public struct NumiWindowPolicyChoice: Sendable {
     public let robotID: String
     public let displayName: String
     public let policyURL: URL
+    public let metadata: NumiWindowPolicyMetadata
+    public let modificationDate: Date
 
-    public init(robotID: String, displayName: String, policyURL: URL) {
+    public init(
+        robotID: String,
+        displayName: String,
+        policyURL: URL,
+        metadata: NumiWindowPolicyMetadata,
+        modificationDate: Date
+    ) {
         self.robotID = robotID
         self.displayName = displayName
         self.policyURL = policyURL
+        self.metadata = metadata
+        self.modificationDate = modificationDate
     }
+}
+
+private extension Data {
+    func numiLittleEndianInteger<T: FixedWidthInteger>(
+        at offset: Int,
+        as: T.Type = T.self
+    ) -> T? {
+        guard offset >= 0, count - offset >= MemoryLayout<T>.size else {
+            return nil
+        }
+        var value: T = 0
+        _ = withUnsafeBytes { bytes in
+            memcpy(
+                &value,
+                bytes.baseAddress!.advanced(by: offset),
+                MemoryLayout<T>.size
+            )
+        }
+        return T(littleEndian: value)
+    }
+}
+
+// Policy contracts are stored at the end of the deterministic v4 wire payload.
+// Catalog discovery reads only the fixed header, identity prefix, and contract
+// tail. It does not map or deserialize megabytes of weights merely to populate
+// a menu; the native loader still performs the full content-hash and semantic
+// validation before a selected policy can become executable.
+public func numiWindowPolicyMetadata(
+    at url: URL
+) -> NumiWindowPolicyMetadata? {
+    let headerBytes = 32
+    let contractBytes = 5 * MemoryLayout<UInt64>.size
+    let descriptor = url.withUnsafeFileSystemRepresentation { path in
+        guard let path else { return Int32(-1) }
+        return Darwin.open(path, O_RDONLY | O_CLOEXEC | O_NONBLOCK)
+    }
+    guard descriptor >= 0 else { return nil }
+    defer { Darwin.close(descriptor) }
+    var status = stat()
+    guard fstat(descriptor, &status) == 0,
+          status.st_mode & S_IFMT == S_IFREG,
+          status.st_size >= headerBytes + 8 + 1 + 8 + contractBytes,
+          status.st_size <= Int64.max
+    else { return nil }
+    let fileSize = Int(status.st_size)
+
+    func read(_ count: Int, at offset: Int) -> Data? {
+        guard count >= 0, offset >= 0, fileSize - offset >= count else {
+            return nil
+        }
+        var data = Data(count: count)
+        let amount = data.withUnsafeMutableBytes { bytes in
+            pread(descriptor, bytes.baseAddress, count, off_t(offset))
+        }
+        return amount == count ? data : nil
+    }
+
+    guard let header = read(headerBytes, at: 0),
+              String(decoding: header.prefix(7), as: UTF8.self) == "MRLEARN",
+              header.numiLittleEndianInteger(at: 8, as: UInt32.self) == 4,
+              header.numiLittleEndianInteger(at: 12, as: UInt32.self) == 2,
+              let payloadBytes = header.numiLittleEndianInteger(
+                  at: 16,
+                  as: UInt64.self
+              ),
+              payloadBytes == UInt64(fileSize - headerBytes),
+          let countData = read(8, at: headerBytes),
+              let idCount = countData.numiLittleEndianInteger(
+                  at: 0,
+                  as: UInt64.self
+              ),
+              idCount > 0,
+              idCount <= 16_384,
+              idCount + 8 + UInt64(contractBytes) <= payloadBytes,
+          let idData = read(Int(idCount), at: headerBytes + 8),
+              let id = String(data: idData, encoding: .utf8),
+              !id.isEmpty,
+          let revisionData = read(
+              8,
+              at: headerBytes + 8 + Int(idCount)
+          ),
+              let revision = revisionData.numiLittleEndianInteger(
+                  at: 0,
+                  as: UInt64.self
+              ),
+              revision != 0
+    else { return nil }
+    guard let contractData = read(
+              contractBytes,
+              at: fileSize - contractBytes
+          ),
+              let version = contractData.numiLittleEndianInteger(
+                  at: 0,
+                  as: UInt64.self
+              ),
+              let world = contractData.numiLittleEndianInteger(
+                  at: 8,
+                  as: UInt64.self
+              ),
+              let task = contractData.numiLittleEndianInteger(
+                  at: 16,
+                  as: UInt64.self
+              ),
+              let observation = contractData.numiLittleEndianInteger(
+                  at: 24,
+                  as: UInt64.self
+              ),
+              let action = contractData.numiLittleEndianInteger(
+                  at: 32,
+                  as: UInt64.self
+              )
+    else { return nil }
+    let contract = NumiWindowPolicyContract(
+        version: version,
+        worldFingerprint: world,
+        taskFingerprint: task,
+        observationFingerprint: observation,
+        actionFingerprint: action
+    )
+    guard contract.isExact else { return nil }
+    return NumiWindowPolicyMetadata(
+        id: id,
+        revision: revision,
+        contract: contract
+    )
 }
 
 public struct NumiWindowSceneChoice: Sendable {
@@ -115,23 +277,60 @@ private func numiWindowArgumentValue(
     return arguments[index + 1]
 }
 
-public func numiWindowSceneChoices(in directory: URL) -> [NumiWindowSceneChoice] {
-    guard let entries = FileManager.default.enumerator(
+private func numiWindowCatalogFiles(
+    in directory: URL,
+    matching predicate: (URL) -> Bool
+) -> [URL] {
+    let keys: Set<URLResourceKey> = [
+        .isDirectoryKey,
+        .isRegularFileKey,
+        .contentModificationDateKey,
+    ]
+    guard let roots = try? FileManager.default.contentsOfDirectory(
         at: directory,
-        includingPropertiesForKeys: [.isRegularFileKey],
-        // The production catalog normally lives under the workspace's
-        // hidden `.numi` directory. Skipping hidden descendants here makes
-        // every valid catalog appear empty.
-        options: [.skipsPackageDescendants]
+        includingPropertiesForKeys: Array(keys),
+        options: []
     ) else {
         return []
+    }
+    var files: [URL] = []
+    files.reserveCapacity(roots.count)
+    for root in roots {
+        let values = try? root.resourceValues(forKeys: keys)
+        if values?.isRegularFile == true {
+            if predicate(root) { files.append(root) }
+            continue
+        }
+        guard values?.isDirectory == true,
+              let children = try? FileManager.default.contentsOfDirectory(
+                  at: root,
+                  includingPropertiesForKeys: Array(keys),
+                  options: []
+              )
+        else {
+            continue
+        }
+        for child in children {
+            let childValues = try? child.resourceValues(forKeys: keys)
+            if childValues?.isRegularFile == true && predicate(child) {
+                files.append(child)
+            }
+        }
+    }
+    return files
+}
+
+public func numiWindowSceneChoices(in directory: URL) -> [NumiWindowSceneChoice] {
+    // Catalog entries are published either at the root or in one run folder.
+    // Do not recursively walk checkpoints, rollout packs, captures, or other
+    // multi-gigabyte run evidence just to build the toolbar.
+    let entries = numiWindowCatalogFiles(in: directory) {
+        $0.lastPathComponent.hasSuffix(".numi-window.json")
     }
     let decoder = JSONDecoder()
     var choices: [NumiWindowSceneChoice] = []
     var seen: Set<String> = []
-    for case let url as URL in entries where url.lastPathComponent.hasSuffix(
-        ".numi-window.json"
-    ) {
+    for url in entries {
         guard let data = try? Data(contentsOf: url),
               let record = try? decoder.decode(
                   NumiWindowSceneChoice.Record.self,
@@ -205,22 +404,11 @@ public func numiWindowSceneCatalog() -> [NumiWindowSceneChoice] {
 public func numiWindowPolicyChoices(
     in directory: URL
 ) -> [NumiWindowPolicyChoice] {
-    guard let entries = FileManager.default.enumerator(
-        at: directory,
-        includingPropertiesForKeys: [.isRegularFileKey],
-        options: [.skipsPackageDescendants]
-    ) else {
-        return []
+    let entries = numiWindowCatalogFiles(in: directory) {
+        $0.pathExtension == "policypack"
     }
     var choices: [NumiWindowPolicyChoice] = []
-    for case let url as URL in entries {
-        let regularFile =
-            (try? url.resourceValues(forKeys: [.isRegularFileKey])
-                .isRegularFile) ?? false
-        guard url.pathExtension == "policypack", regularFile
-        else {
-            continue
-        }
+    for url in entries {
         let relative = url.path.replacingOccurrences(
             of: directory.path + "/",
             with: ""
@@ -229,17 +417,30 @@ public func numiWindowPolicyChoices(
         let robotID = components.count > 1
             ? String(components[0])
             : "Uncategorized"
+        guard let metadata = numiWindowPolicyMetadata(at: url) else {
+            continue
+        }
+        let modificationDate = (try? url.resourceValues(
+            forKeys: [.contentModificationDateKey]
+        ).contentModificationDate) ?? .distantPast
         choices.append(NumiWindowPolicyChoice(
             robotID: robotID,
             displayName: url.deletingPathExtension().lastPathComponent,
-            policyURL: url
+            policyURL: url,
+            metadata: metadata,
+            modificationDate: modificationDate
         ))
     }
     return choices.sorted {
-        ($0.robotID.localizedStandardCompare($1.robotID) == .orderedAscending) ||
-        ($0.robotID == $1.robotID &&
-         $0.displayName.localizedStandardCompare($1.displayName) ==
-            .orderedAscending)
+        let robotOrder = $0.robotID.localizedStandardCompare($1.robotID)
+        guard robotOrder == .orderedSame else {
+            return robotOrder == .orderedAscending
+        }
+        if $0.modificationDate != $1.modificationDate {
+            return $0.modificationDate > $1.modificationDate
+        }
+        return $0.displayName.localizedStandardCompare($1.displayName) ==
+            .orderedAscending
     }
 }
 
@@ -264,8 +465,7 @@ public func numiWindowPolicyCatalog(
         FileManager.default.currentDirectoryPath + "/.numi/runs",
         isDirectory: true
     )
-    let policyPresets = numiWindowSceneChoices(in: sceneDirectory)
-    for scene in sceneChoices + policyPresets {
+    for scene in sceneChoices {
         guard let option = scene.launchArguments.firstIndex(of: "--policy-pack"),
               option + 1 < scene.launchArguments.count
         else {
@@ -274,35 +474,134 @@ public func numiWindowPolicyCatalog(
         let url = URL(fileURLWithPath: scene.launchArguments[option + 1])
             .standardizedFileURL
         guard FileManager.default.fileExists(atPath: url.path),
-              seen.insert(url).inserted
+              seen.insert(url).inserted,
+              let metadata = numiWindowPolicyMetadata(at: url)
         else {
             continue
         }
+        let modificationDate = (try? url.resourceValues(
+            forKeys: [.contentModificationDateKey]
+        ).contentModificationDate) ?? .distantPast
         choices.append(NumiWindowPolicyChoice(
             robotID: scene.robotID,
             displayName: url.deletingPathExtension().lastPathComponent,
-            policyURL: url
+            policyURL: url,
+            metadata: metadata,
+            modificationDate: modificationDate
         ))
     }
+    // Training publishes qualified deployment candidates under .numi/runs;
+    // requiring a second manual copy into .numi/policies made the newest
+    // learned behavior disappear from the Window. Keep this bounded to each
+    // run's final deployment artifact so checkpoints do not flood the menu.
+    if let runEntries = try? FileManager.default.contentsOfDirectory(
+        at: sceneDirectory,
+        includingPropertiesForKeys: [
+            .isDirectoryKey,
+            .contentModificationDateKey,
+        ],
+        // sceneDirectory normally lives below `.numi`. Foundation treats
+        // that hidden ancestor as a reason to return an empty direct listing
+        // when `.skipsHiddenFiles` is set, even though the run folders
+        // themselves are visible.
+        options: []
+    ) {
+        // Deployment history can contain hundreds of heavyweight runs. The
+        // selector is an interactive control, not an archive browser: inspect
+        // only the newest direct run folders while scene-owned and promoted
+        // policies above remain unconditional.
+        let recentRuns = runEntries.compactMap { url -> (URL, Date)? in
+            guard let values = try? url.resourceValues(forKeys: [
+                .isDirectoryKey,
+                .contentModificationDateKey,
+            ]), values.isDirectory == true else { return nil }
+            return (url, values.contentModificationDate ?? .distantPast)
+        }.sorted { $0.1 > $1.1 }.prefix(32)
+        for (runURL, _) in recentRuns {
+            for filename in [
+                "deployment.policypack",
+                "candidate.deployment.policypack",
+            ] {
+                let url = runURL.appendingPathComponent(filename)
+                    .standardizedFileURL
+                guard FileManager.default.fileExists(atPath: url.path),
+                      seen.insert(url).inserted,
+                      let metadata = numiWindowPolicyMetadata(at: url)
+                else { continue }
+                let modificationDate = (try? url.resourceValues(
+                    forKeys: [.contentModificationDateKey]
+                ).contentModificationDate) ?? .distantPast
+                choices.append(NumiWindowPolicyChoice(
+                    // Run names are human labels, not ownership contracts.
+                    // Exact live fingerprints below determine compatibility.
+                    robotID: "",
+                    displayName: runURL.lastPathComponent,
+                    policyURL: url,
+                    metadata: metadata,
+                    modificationDate: modificationDate
+                ))
+                break
+            }
+        }
+    }
     return choices.sorted {
-        ($0.robotID.localizedStandardCompare($1.robotID) == .orderedAscending) ||
-        ($0.robotID == $1.robotID &&
-         $0.displayName.localizedStandardCompare($1.displayName) ==
-            .orderedAscending)
+        let robotOrder = $0.robotID.localizedStandardCompare($1.robotID)
+        guard robotOrder == .orderedSame else {
+            return robotOrder == .orderedAscending
+        }
+        if $0.modificationDate != $1.modificationDate {
+            return $0.modificationDate > $1.modificationDate
+        }
+        return $0.displayName.localizedStandardCompare($1.displayName) ==
+            .orderedAscending
+    }
+}
+
+public func numiWindowCompatiblePolicyChoices(
+    _ choices: [NumiWindowPolicyChoice],
+    robotID: String,
+    contract: NumiWindowPolicyContract?
+) -> [NumiWindowPolicyChoice] {
+    choices.filter { choice in
+        if let contract {
+            return contract.isExact && choice.metadata.contract == contract
+        }
+        // Robot labels are a presentation fallback only while the first live
+        // world contract is not yet known. Executable selection is fingerprint
+        // exact once the first native context has presented.
+        return choice.robotID == robotID
     }
 }
 
 private final class WindowFrameDelivery: @unchecked Sendable {
     let frame: MetalRoboTaskInspectionFrame
     let release: @Sendable () -> Void
+    let complete: @Sendable (Bool) -> Void
 
     init(
         frame: MetalRoboTaskInspectionFrame,
-        release: @escaping @Sendable () -> Void
+        release: @escaping @Sendable () -> Void,
+        complete: @escaping @Sendable (Bool) -> Void
     ) {
         self.frame = frame
         self.release = release
+        self.complete = complete
     }
+
+    func discard() {
+        release()
+        complete(false)
+    }
+
+    func finish(_ succeeded: Bool) {
+        release()
+        complete(succeeded)
+    }
+}
+
+struct NumiWindowPolicySelection: Sendable {
+    let choiceID: String
+    let policyURL: URL?
 }
 
 struct NumiWindowCameraControl: Sendable {
@@ -383,7 +682,7 @@ private final class NumiWindowMetalView: MTKView {
 
 enum NumiWindowError: Error {
     case closed
-    case reconfigure(String)
+    case reconfigure(NumiWindowPolicySelection)
     case train(NumiWindowTrainingRequest)
 }
 
@@ -424,7 +723,6 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private var paused = false
     private var presentationVisible = true
     private var reconfiguring = false
-    private var reconfigurationReenableScheduled = false
     private var statusSummary: String? = "waiting for a frame"
     private var latestEnvironmentIndex: UInt32 = 0
     private var latestFrameIndex: UInt64 = 0
@@ -445,6 +743,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private let trainingBanner = NSVisualEffectView()
     private let trainingSpinner = NSProgressIndicator()
     private let trainingLabel = NSTextField(wrappingLabelWithString: "")
+    private let loadingLabel = NSTextField(
+        labelWithString: "Preparing the first simulation frame…"
+    )
     private var trainingArtifactsURL: URL?
     private let coachCard = NSVisualEffectView()
     private let coachTitle = NSTextField(labelWithString: "Your first robot policy")
@@ -452,7 +753,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private var coachDismissed = false
     private let canReloadLatestPolicy: Bool
     private let policyChoices: [NumiWindowPolicyChoice]
-    private let initialPolicyURL: URL?
+    private var installedPolicyURL: URL?
+    private var installedPolicyRobotID: String?
+    private var activePolicyContract: NumiWindowPolicyContract?
     private let sceneChoices: [NumiWindowSceneChoice]
     private let initialSceneID: String?
     private var cameraYaw: Float = 0
@@ -463,8 +766,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private var activeSceneID: String
     var onClose: (() -> Void)?
     var onPresentationEnabledChanged: ((Bool) -> Void)?
+    var onSimulationPausedChanged: ((Bool) -> Void)?
     var onLatestPolicyRequested: (() -> Void)?
-    var onPolicySelected: ((URL) -> Void)?
+    var onPolicySelected: ((NumiWindowPolicySelection) -> Void)?
     var onSceneSelected: ((String) -> Void)?
     var onTrainingRequested: ((NumiWindowTrainingRequest) -> Void)?
     var onCameraChanged: ((NumiWindowCameraControl) -> Void)?
@@ -486,15 +790,22 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         self.pipeline = pipeline
         self.canReloadLatestPolicy = canReloadLatestPolicy
         self.policyChoices = policyChoices
-        self.initialPolicyURL = initialPolicyURL
         self.sceneChoices = sceneChoices
         self.initialSceneID = initialSceneID
-        self.activeRobotID = sceneChoices.first(where: {
+        let startingRobotID = sceneChoices.first(where: {
             $0.id == initialSceneID
         })?.robotID ?? sceneChoices.first?.robotID ?? ""
+        self.activeRobotID = startingRobotID
+        self.installedPolicyURL = initialPolicyURL
+        self.installedPolicyRobotID = initialPolicyURL == nil
+            ? nil : startingRobotID
         self.activeSceneID = sceneChoices.first(where: {
             $0.id == initialSceneID
         })?.sceneID ?? sceneChoices.first?.sceneID ?? ""
+        // Scene controls become valid only after the initial runtime has
+        // produced a frame. Switching during native context construction used
+        // to strand the window in a blank, apparently frozen rebuild.
+        self.reconfiguring = true
         super.init()
         view.delegate = self
         window.contentView = view
@@ -507,6 +818,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         window.toolbar = toolbar
         configureTrainingBanner()
         configureCoachCard()
+        configureLoadingLabel()
         view.onOrbit = { [weak self] dx, dy in
             self?.orbitCamera(dx: dx, dy: dy)
         }
@@ -523,6 +835,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         selectDisplayedPolicy(initialPolicyURL)
         updateChrome(force: true)
         updateCoachCard()
+        if reconfiguring {
+            setConfigurationControlsEnabled(false)
+        }
         window.makeKeyAndOrderFront(nil)
         window.makeFirstResponder(view)
     }
@@ -589,11 +904,10 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
 
     func offer(_ delivery: WindowFrameDelivery) {
         guard presentationEnabled else {
-            delivery.release()
+            delivery.discard()
             return
         }
-        finishReconfiguration()
-        pending?.release()
+        pending?.discard()
         pending = delivery
         updateDrawableSize(
             sourceWidth: delivery.frame.width,
@@ -602,10 +916,17 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         latestEnvironmentIndex = delivery.frame.environmentIndex
         latestFrameIndex = delivery.frame.frameIndex
         latestDroppedFrames = delivery.frame.droppedFrames
-        hasPresentedFrame = true
-        statusSummary = nil
         updateChrome()
         view.setNeedsDisplay(view.bounds)
+    }
+
+    private func didPresent(frameIndex: UInt64) {
+        guard !closed else { return }
+        hasPresentedFrame = true
+        loadingLabel.isHidden = true
+        statusSummary = nil
+        finishReconfiguration()
+        updateChrome(force: true)
     }
 
     func showPolicyStatus(_ summary: String) {
@@ -616,10 +937,16 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         updateChrome(force: true)
     }
 
+    func closeWindow() {
+        window.performClose(nil)
+    }
+
     func showInstalledPolicy(_ url: URL, revision: UInt64) {
         guard !closed else {
             return
         }
+        installedPolicyURL = url
+        installedPolicyRobotID = activeRobotID
         selectDisplayedPolicy(url)
         statusSummary =
             "\(url.deletingPathExtension().lastPathComponent) · revision \(revision)"
@@ -627,20 +954,61 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         updateChrome(force: true)
     }
 
-    func showRejectedPolicy(activePolicyURL: URL?) {
+    func showRejectedPolicy(activePolicyURL: URL?, reason: String) {
         guard !closed else {
             return
         }
         selectDisplayedPolicy(activePolicyURL)
-        statusSummary = "policy rejected · unchanged"
+        statusSummary = "policy rejected · \(reason) · unchanged"
         updateChrome(force: true)
     }
 
-    func showRestoredScene(_ id: String, summary: String) {
+    func showConfigurationInstalled(
+        _ id: String,
+        policyURL: URL?,
+        contract: NumiWindowPolicyContract
+    ) {
         guard !closed else { return }
-        finishReconfiguration()
         selectDisplayedScene(id)
+        activePolicyContract = contract
+        installedPolicyURL = policyURL
+        installedPolicyRobotID = policyURL == nil ? nil : activeRobotID
+        if let policySelector {
+            configurePolicySelector(
+                policySelector,
+                for: activeRobotID,
+                preferred: policyURL
+            )
+        }
+        statusSummary = policyURL == nil
+            ? "simulation ready · no controller"
+            : "simulation ready · learned controller"
+        updateCoachCard()
+        updateChrome(force: true)
+    }
+
+    func showConfigurationRestored(
+        _ id: String,
+        policyURL: URL?,
+        contract: NumiWindowPolicyContract?,
+        summary: String
+    ) {
+        guard !closed else { return }
+        reconfiguring = false
+        selectDisplayedScene(id)
+        activePolicyContract = contract
+        installedPolicyURL = policyURL
+        installedPolicyRobotID = policyURL == nil ? nil : activeRobotID
+        if let policySelector {
+            configurePolicySelector(
+                policySelector,
+                for: activeRobotID,
+                preferred: policyURL
+            )
+        }
+        loadingLabel.isHidden = true
         statusSummary = summary
+        setConfigurationControlsEnabled(!trainingActive)
         updateCoachCard()
         updateChrome(force: true)
     }
@@ -731,6 +1099,27 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             stack.topAnchor.constraint(equalTo: trainingBanner.topAnchor, constant: 10),
             stack.bottomAnchor.constraint(equalTo: trainingBanner.bottomAnchor, constant: -10),
             trainingLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 360),
+        ])
+    }
+
+    private func configureLoadingLabel() {
+        loadingLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        loadingLabel.textColor = .secondaryLabelColor
+        loadingLabel.alignment = .center
+        loadingLabel.translatesAutoresizingMaskIntoConstraints = false
+        loadingLabel.isHidden = !reconfiguring
+        view.addSubview(loadingLabel)
+        NSLayoutConstraint.activate([
+            loadingLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            loadingLabel.leadingAnchor.constraint(
+                greaterThanOrEqualTo: view.leadingAnchor,
+                constant: 32
+            ),
+            loadingLabel.trailingAnchor.constraint(
+                lessThanOrEqualTo: view.trailingAnchor,
+                constant: -32
+            ),
         ])
     }
 
@@ -864,8 +1253,18 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         encoder.drawPrimitives(type: .triangle, vertexStart: 0,
                                vertexCount: 3)
         encoder.endEncoding()
-        command.addCompletedHandler { _ in
-            delivery.release()
+        command.addCompletedHandler { [weak self] completed in
+            let succeeded = completed.status == .completed
+            delivery.finish(succeeded)
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                if succeeded {
+                    self.didPresent(frameIndex: delivery.frame.frameIndex)
+                } else {
+                    self.statusSummary = "display command failed"
+                    self.updateChrome(force: true)
+                }
+            }
         }
         command.present(drawable)
         command.commit()
@@ -976,14 +1375,14 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             configurePolicySelector(
                 selector,
                 for: activeRobotID,
-                preferred: initialPolicyURL
+                preferred: installedPolicyURL
             )
             selector.setAccessibilityLabel("Policy")
             item.label = "Policy"
             item.toolTip = "Select a compatible saved PolicyPack"
             item.view = selector
             policySelector = selector
-            selectDisplayedPolicy(initialPolicyURL)
+            selectDisplayedPolicy(installedPolicyURL)
             return item
         }
         if itemIdentifier == Self.robotSelectorToolbarItem {
@@ -1037,7 +1436,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     }
 
     @objc private func selectRobot(_ sender: NSPopUpButton) {
-        guard let robotID = sender.selectedItem?.representedObject as? String,
+        guard hasPresentedFrame, !reconfiguring,
+              let robotID = sender.selectedItem?.representedObject as? String,
               let choice = numiWindowPreferredSceneChoice(
                   sceneChoices,
                   robotID: robotID
@@ -1064,6 +1464,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     }
 
     @objc private func selectEnvironment(_ sender: NSPopUpButton) {
+        guard hasPresentedFrame, !reconfiguring else { return }
         let currentTaskID = (taskSelector?.selectedItem?.representedObject
             as? String).flatMap { selectedID in
                 sceneChoices.first(where: { $0.id == selectedID })?.taskID
@@ -1089,7 +1490,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     }
 
     @objc private func selectTask(_ sender: NSPopUpButton) {
-        guard let id = sender.selectedItem?.representedObject as? String,
+        guard hasPresentedFrame, !reconfiguring,
+              let id = sender.selectedItem?.representedObject as? String,
               let choice = sceneChoices.first(where: { $0.id == id })
         else { return }
         requestScene(choice)
@@ -1163,28 +1565,22 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         }
         statusSummary =
             "loading \(choice.sceneName) · \(choice.taskName)"
+        loadingLabel.stringValue = "Preparing \(choice.robotName)…"
+        // Keep the last successfully rendered frame visible during a later
+        // robot rebuild. Only the first launch needs the loading canvas.
+        loadingLabel.isHidden = hasPresentedFrame
         updateCoachCard()
         updateChrome(force: true)
         onSceneSelected?(choice.id)
     }
 
     private func finishReconfiguration() {
-        guard reconfiguring, !reconfigurationReenableScheduled else {
-            return
-        }
-        reconfigurationReenableScheduled = true
-        // A newly displayed frame proves the replacement runtime is live,
-        // but its predecessor can still have one presentation command in
-        // flight. Keep selection serialized through a short retirement
-        // window so rapid clicks cannot stack complete Metal worlds.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) { [weak self] in
-            guard let self, !self.closed else {
-                return
-            }
-            self.reconfigurationReenableScheduled = false
-            self.reconfiguring = false
-            self.setConfigurationControlsEnabled(!self.trainingActive)
-        }
+        guard reconfiguring else { return }
+        // The old world has already unwound before the scheduler constructs the
+        // new one, and this callback follows successful display completion.
+        // No heuristic retirement delay or overlapping Metal world is needed.
+        reconfiguring = false
+        setConfigurationControlsEnabled(!trainingActive)
     }
 
     private func setConfigurationControlsEnabled(_ enabled: Bool) {
@@ -1310,6 +1706,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     @objc private func togglePause() {
         paused.toggle()
         updatePresentationState()
+        onSimulationPausedChanged?(paused)
         updateChrome(force: true)
     }
 
@@ -1377,19 +1774,28 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     }
 
     @objc private func selectPolicy(_ sender: NSPopUpButton) {
-        guard let url = sender.selectedItem?.representedObject as? URL else {
+        guard hasPresentedFrame, !reconfiguring,
+              let url = sender.selectedItem?.representedObject as? URL,
+              let choice = activeChoice else {
             return
         }
+        reconfiguring = true
+        setConfigurationControlsEnabled(false)
         statusSummary = "loading \(url.deletingPathExtension().lastPathComponent)"
+        loadingLabel.stringValue = "Preparing learned controller…"
+        loadingLabel.isHidden = hasPresentedFrame
         updateChrome(force: true)
-        onPolicySelected?(url)
+        onPolicySelected?(NumiWindowPolicySelection(
+            choiceID: choice.id,
+            policyURL: url
+        ))
     }
 
     private func configurePauseItem(_ item: NSToolbarItem) {
         item.label = paused ? "Resume" : "Pause"
         item.toolTip = paused
-            ? "Resume live preview (Space)"
-            : "Pause preview rendering; simulation keeps running (Space)"
+            ? "Resume simulation and live preview (Space)"
+            : "Pause simulation and hold the current frame (Space)"
         item.image = NSImage(
             systemSymbolName: paused ? "play.fill" : "pause.fill",
             accessibilityDescription: item.label
@@ -1431,27 +1837,41 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         preferred: URL?
     ) {
         selector.removeAllItems()
-        let robotPolicies = policyChoices.filter { $0.robotID == robotID }
-        if let initialPolicyURL,
-           robotID == activeRobotID,
+        let robotPolicies = numiWindowCompatiblePolicyChoices(
+            policyChoices,
+            robotID: robotID,
+            contract: activePolicyContract
+        )
+        let installedPolicyURL = installedPolicyRobotID == robotID
+            ? self.installedPolicyURL : nil
+        if installedPolicyURL == nil {
+            selector.addItem(withTitle: "Untrained · no controller")
+            selector.lastItem?.toolTip =
+                "No learned controller is active in this simulation"
+        }
+        if let installedPolicyURL,
            !robotPolicies.contains(where: {
                $0.policyURL.standardizedFileURL ==
-                   initialPolicyURL.standardizedFileURL
+                   installedPolicyURL.standardizedFileURL
            }) {
             selector.addItem(
-                withTitle: initialPolicyURL.deletingPathExtension()
+                withTitle: installedPolicyURL.deletingPathExtension()
                     .lastPathComponent
             )
-            selector.lastItem?.representedObject = initialPolicyURL
-            selector.lastItem?.toolTip = initialPolicyURL.path
+            selector.lastItem?.representedObject = installedPolicyURL
+            selector.lastItem?.toolTip = installedPolicyURL.path
         }
         for choice in robotPolicies {
             selector.addItem(withTitle: choice.displayName)
             selector.lastItem?.representedObject = choice.policyURL
             selector.lastItem?.toolTip = choice.policyURL.path
         }
-        guard selector.numberOfItems > 0 else {
-            selector.addItem(withTitle: "Untrained · no controller")
+        guard selector.itemArray.contains(where: {
+            $0.representedObject is URL
+        }) else {
+            if selector.numberOfItems == 0 {
+                selector.addItem(withTitle: "Untrained · no controller")
+            }
             selector.setAccessibilityHelp(
                 "No qualified learned controller is loaded; a humanoid may fall until training succeeds"
             )
@@ -1477,7 +1897,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
 
     private func updatePresentationState() {
         if !presentationEnabled {
-            pending?.release()
+            pending?.discard()
             pending = nil
         }
         onPresentationEnabledChanged?(presentationEnabled)
@@ -1526,7 +1946,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
 
     func windowWillClose(_ notification: Notification) {
         closed = true
-        pending?.release()
+        pending?.discard()
         pending = nil
         onClose?()
     }
@@ -1612,31 +2032,39 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
 // by the delivery until the MTKView command-buffer completion releases it.
 public final class NumiWindowBridge: @unchecked Sendable {
     private let window: NumiWindowController
-    private let stateLock = NSLock()
+    // One condition owns cross-thread state. Pause can therefore sleep the
+    // scheduler without polling, holding a command buffer, or advancing the
+    // Metal world behind a frozen presentation.
+    private let stateCondition = NSCondition()
     private var closed = false
     private var presentationEnabled = true
+    private var simulationPaused = false
     private var pendingNativeInspectionEnabled: Bool?
     private var latestPolicyReloadRequested = false
-    private var pendingPolicySelection: URL?
+    private var pendingPolicySelection: NumiWindowPolicySelection?
     private var pendingSceneSelection: String?
     private var pendingTrainingRequest: NumiWindowTrainingRequest?
     private var pendingCameraControl: NumiWindowCameraControl?
     private var selectedPolicyURL: URL?
+    private var completedPresentationCount: UInt64 = 0
+    private var failedPresentationCount: UInt64 = 0
+    private var outstandingDeliveries = 0
 
     @MainActor
     private init(window: NumiWindowController) {
         self.window = window
-        window.onClose = { [weak self] in
-            self?.markClosed()
-        }
+        window.onClose = { [weak self] in self?.markClosed() }
         window.onPresentationEnabledChanged = { [weak self] enabled in
             self?.setPresentationEnabled(enabled)
+        }
+        window.onSimulationPausedChanged = { [weak self] paused in
+            self?.setSimulationPaused(paused)
         }
         window.onLatestPolicyRequested = { [weak self] in
             self?.requestLatestPolicyReload()
         }
-        window.onPolicySelected = { [weak self] url in
-            self?.requestPolicySelection(url)
+        window.onPolicySelected = { [weak self] selection in
+            self?.requestPolicySelection(selection)
         }
         window.onSceneSelected = { [weak self] id in
             self?.requestSceneSelection(id)
@@ -1675,150 +2103,213 @@ public final class NumiWindowBridge: @unchecked Sendable {
     }
 
     var isClosed: Bool {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        return closed
+        stateCondition.withLock { closed }
     }
 
     var acceptsFrames: Bool {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        return !closed && presentationEnabled
+        stateCondition.withLock { !closed && presentationEnabled }
+    }
+
+    var isSimulationPaused: Bool {
+        stateCondition.withLock { simulationPaused }
+    }
+
+    var presentationCount: UInt64 {
+        stateCondition.withLock { completedPresentationCount }
+    }
+
+    private var hasPendingSchedulerWork: Bool {
+        pendingNativeInspectionEnabled != nil ||
+            latestPolicyReloadRequested ||
+            pendingPolicySelection != nil ||
+            pendingSceneSelection != nil ||
+            pendingTrainingRequest != nil ||
+            pendingCameraControl != nil
+    }
+
+    func waitWhileSimulationPaused() {
+        stateCondition.lock()
+        while simulationPaused && !closed && !hasPendingSchedulerWork {
+            stateCondition.wait()
+        }
+        stateCondition.unlock()
+    }
+
+    func waitForPresentation(
+        after count: UInt64,
+        timeout: TimeInterval
+    ) -> Bool {
+        let deadline = Date(timeIntervalSinceNow: timeout)
+        stateCondition.lock()
+        let startingFailures = failedPresentationCount
+        while completedPresentationCount <= count &&
+                failedPresentationCount == startingFailures && !closed {
+            if !stateCondition.wait(until: deadline) { break }
+        }
+        let presented = completedPresentationCount > count
+        stateCondition.unlock()
+        return presented
+    }
+
+    func waitForDeliveryDrain(timeout: TimeInterval) -> Bool {
+        let deadline = Date(timeIntervalSinceNow: timeout)
+        stateCondition.lock()
+        // Close also drains: a drawable already committed to Metal still owns
+        // its inspection slot even after AppKit has closed the window.
+        while outstandingDeliveries != 0 {
+            if !stateCondition.wait(until: deadline) { break }
+        }
+        let drained = outstandingDeliveries == 0
+        stateCondition.unlock()
+        return drained
     }
 
     private func markClosed() {
-        stateLock.lock()
+        stateCondition.lock()
         closed = true
         presentationEnabled = false
+        simulationPaused = false
         pendingNativeInspectionEnabled = false
-        stateLock.unlock()
+        stateCondition.broadcast()
+        stateCondition.unlock()
     }
 
     private func setPresentationEnabled(_ enabled: Bool) {
-        stateLock.lock()
+        stateCondition.lock()
         let nextEnabled = enabled && !closed
         if presentationEnabled != nextEnabled {
             presentationEnabled = nextEnabled
             pendingNativeInspectionEnabled = nextEnabled
         }
-        stateLock.unlock()
+        stateCondition.broadcast()
+        stateCondition.unlock()
+    }
+
+    private func setSimulationPaused(_ paused: Bool) {
+        stateCondition.lock()
+        simulationPaused = paused && !closed
+        stateCondition.broadcast()
+        stateCondition.unlock()
     }
 
     private func requestLatestPolicyReload() {
-        stateLock.lock()
-        if !closed {
-            latestPolicyReloadRequested = true
-        }
-        stateLock.unlock()
+        stateCondition.lock()
+        if !closed { latestPolicyReloadRequested = true }
+        stateCondition.broadcast()
+        stateCondition.unlock()
     }
 
-    private func requestPolicySelection(_ url: URL) {
-        stateLock.lock()
-        if !closed {
-            pendingPolicySelection = url
-        }
-        stateLock.unlock()
+    private func requestPolicySelection(_ selection: NumiWindowPolicySelection) {
+        stateCondition.lock()
+        if !closed { pendingPolicySelection = selection }
+        stateCondition.broadcast()
+        stateCondition.unlock()
     }
 
     private func requestSceneSelection(_ id: String) {
-        stateLock.lock()
-        if !closed {
-            pendingSceneSelection = id
+        stateCondition.lock()
+        if !closed { pendingSceneSelection = id }
+        stateCondition.broadcast()
+        stateCondition.unlock()
+    }
+
+    // Runtime integration probes use the same scheduler mailbox as AppKit.
+    // They never mutate the native world or controller directly.
+    func requestSceneSelectionForRuntimeCheck(_ id: String) {
+        requestSceneSelection(id)
+    }
+
+    func requestPolicySelectionForRuntimeCheck(
+        _ selection: NumiWindowPolicySelection
+    ) {
+        requestPolicySelection(selection)
+    }
+
+    func closeAfterRuntimeCheck() {
+        DispatchQueue.main.async { [window] in
+            window.closeWindow()
         }
-        stateLock.unlock()
     }
 
     private func requestTraining(_ request: NumiWindowTrainingRequest) {
-        stateLock.lock()
-        if !closed {
-            pendingTrainingRequest = request
-        }
-        stateLock.unlock()
+        stateCondition.lock()
+        if !closed { pendingTrainingRequest = request }
+        stateCondition.broadcast()
+        stateCondition.unlock()
     }
 
     private func requestCameraControl(_ control: NumiWindowCameraControl) {
-        stateLock.lock()
-        if !closed {
-            pendingCameraControl = control
-        }
-        stateLock.unlock()
+        stateCondition.lock()
+        if !closed { pendingCameraControl = control }
+        stateCondition.broadcast()
+        stateCondition.unlock()
     }
 
     private func setInitialPolicy(_ url: URL?) {
-        stateLock.lock()
-        selectedPolicyURL = url
-        stateLock.unlock()
+        stateCondition.withLock { selectedPolicyURL = url }
     }
 
-    // Consumed by the rollout scheduler at its normal publication boundary,
-    // never from the AppKit action itself.
     func takePendingNativeInspectionEnabled() -> Bool? {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        let value = pendingNativeInspectionEnabled
-        pendingNativeInspectionEnabled = nil
-        return value
+        stateCondition.withLock {
+            defer { pendingNativeInspectionEnabled = nil }
+            return pendingNativeInspectionEnabled
+        }
     }
 
     func takeCameraControl() -> NumiWindowCameraControl? {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        let control = pendingCameraControl
-        pendingCameraControl = nil
-        return control
+        stateCondition.withLock {
+            defer { pendingCameraControl = nil }
+            return pendingCameraControl
+        }
     }
 
     func takeLatestPolicyReloadRequest() -> Bool {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        let requested = latestPolicyReloadRequested
-        latestPolicyReloadRequested = false
-        return requested
+        stateCondition.withLock {
+            defer { latestPolicyReloadRequested = false }
+            return latestPolicyReloadRequested
+        }
     }
 
-    func takePolicySelection() -> URL? {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        let selection = pendingPolicySelection
-        pendingPolicySelection = nil
-        return selection
+    func takePolicySelection() -> NumiWindowPolicySelection? {
+        stateCondition.withLock {
+            defer { pendingPolicySelection = nil }
+            return pendingPolicySelection
+        }
     }
 
     func takeSceneSelection() -> String? {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        let selection = pendingSceneSelection
-        pendingSceneSelection = nil
-        return selection
+        stateCondition.withLock {
+            defer { pendingSceneSelection = nil }
+            return pendingSceneSelection
+        }
     }
 
     func takeTrainingRequest() -> NumiWindowTrainingRequest? {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        let request = pendingTrainingRequest
-        pendingTrainingRequest = nil
-        return request
+        stateCondition.withLock {
+            defer { pendingTrainingRequest = nil }
+            return pendingTrainingRequest
+        }
     }
 
     var selectedPolicy: URL? {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        return selectedPolicyURL
+        stateCondition.withLock { selectedPolicyURL }
     }
 
     func reportPolicyInstalled(_ url: URL, revision: UInt64) {
-        stateLock.lock()
-        selectedPolicyURL = url
-        stateLock.unlock()
+        stateCondition.withLock { selectedPolicyURL = url }
         DispatchQueue.main.async { [window] in
             window.showInstalledPolicy(url, revision: revision)
         }
     }
 
-    func reportPolicyRejected() {
+    func reportPolicyRejected(_ error: Error) {
         let activePolicyURL = selectedPolicy
+        let reason = numiWindowErrorSummary(error)
         DispatchQueue.main.async { [window] in
-            window.showRejectedPolicy(activePolicyURL: activePolicyURL)
+            window.showRejectedPolicy(
+                activePolicyURL: activePolicyURL,
+                reason: reason
+            )
         }
     }
 
@@ -1828,9 +2319,35 @@ public final class NumiWindowBridge: @unchecked Sendable {
         }
     }
 
-    func reportSceneRestored(_ id: String, summary: String) {
+    func reportConfigurationInstalled(
+        _ id: String,
+        policyURL: URL?,
+        contract: NumiWindowPolicyContract
+    ) {
+        stateCondition.withLock { selectedPolicyURL = policyURL }
         DispatchQueue.main.async { [window] in
-            window.showRestoredScene(id, summary: summary)
+            window.showConfigurationInstalled(
+                id,
+                policyURL: policyURL,
+                contract: contract
+            )
+        }
+    }
+
+    func reportConfigurationRestored(
+        _ id: String,
+        policyURL: URL?,
+        contract: NumiWindowPolicyContract?,
+        summary: String
+    ) {
+        stateCondition.withLock { selectedPolicyURL = policyURL }
+        DispatchQueue.main.async { [window] in
+            window.showConfigurationRestored(
+                id,
+                policyURL: policyURL,
+                contract: contract,
+                summary: summary
+            )
         }
     }
 
@@ -1841,9 +2358,7 @@ public final class NumiWindowBridge: @unchecked Sendable {
         artifactsURL: URL? = nil
     ) {
         if let policyURL {
-            stateLock.lock()
-            selectedPolicyURL = policyURL
-            stateLock.unlock()
+            stateCondition.withLock { selectedPolicyURL = policyURL }
         }
         DispatchQueue.main.async { [window] in
             window.showTrainingStatus(
@@ -1863,15 +2378,28 @@ public final class NumiWindowBridge: @unchecked Sendable {
             context.releaseInspectionFrame(slotIndex: frame.slotIndex)
             return
         }
+        stateCondition.withLock { outstandingDeliveries += 1 }
         let delivery = WindowFrameDelivery(
             frame: frame,
             release: {
                 context.releaseInspectionFrame(slotIndex: frame.slotIndex)
+            },
+            complete: { [weak self] succeeded in
+                guard let self else { return }
+                self.stateCondition.lock()
+                if succeeded {
+                    self.completedPresentationCount &+= 1
+                } else {
+                    self.failedPresentationCount &+= 1
+                }
+                self.outstandingDeliveries -= 1
+                self.stateCondition.broadcast()
+                self.stateCondition.unlock()
             }
         )
         DispatchQueue.main.async { [weak self, window] in
             guard self?.acceptsFrames == true else {
-                delivery.release()
+                delivery.discard()
                 return
             }
             window.offer(delivery)

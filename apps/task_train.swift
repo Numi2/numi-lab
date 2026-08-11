@@ -2,6 +2,25 @@ import Foundation
 import Darwin
 import AppKit
 
+private func writeTrainingDiagnostic(_ message: String) {
+    let bytes = Array((message + "\n").utf8)
+    bytes.withUnsafeBytes { raw in
+        guard var base = raw.baseAddress else { return }
+        var remaining = raw.count
+        while remaining > 0 {
+            let written = Darwin.write(STDERR_FILENO, base, remaining)
+            if written > 0 {
+                remaining -= written
+                base = base.advanced(by: written)
+            } else if written < 0 && errno == EINTR {
+                continue
+            } else {
+                break
+            }
+        }
+    }
+}
+
 private struct Options {
     var environments = 32
     var steps = 24
@@ -1467,7 +1486,7 @@ private func makeContext(
     )
 }
 
-private func publishInspectionFrame(
+private func processTrainingWindowRequests(
     from context: MetalRoboTaskRolloutContext,
     to window: NumiWindowBridge?,
     loadPolicy: ((URL) throws -> UInt64)? = nil
@@ -1475,8 +1494,18 @@ private func publishInspectionFrame(
     guard let window else {
         return
     }
+    guard !window.isClosed else {
+        _ = window.waitForDeliveryDrain(timeout: 5)
+        throw NumiWindowError.closed
+    }
     if let enabled = window.takePendingNativeInspectionEnabled() {
         try context.setInspectionEnabled(enabled)
+    }
+    if let camera = window.takeCameraControl() {
+        try context.setInspectionCamera(
+            translation: camera.translation,
+            orientation: camera.orientation
+        )
     }
     func install(_ url: URL) {
         guard let loadPolicy else {
@@ -1489,12 +1518,13 @@ private func publishInspectionFrame(
         } catch {
             // A rejected replacement cannot change the compiled policy that
             // remains active for the current training submission.
-            window.reportPolicyRejected()
+            window.reportPolicyRejected(error)
         }
     }
     let latestRequested = window.takeLatestPolicyReloadRequest()
-    if let selected = window.takePolicySelection() {
-        install(selected)
+    if let selected = window.takePolicySelection(),
+       let policyURL = selected.policyURL {
+        install(policyURL)
     } else if latestRequested {
         guard let selected = window.selectedPolicy else {
             window.reportPolicyStatus("select a policy first")
@@ -1502,12 +1532,25 @@ private func publishInspectionFrame(
         }
         install(selected)
     }
+}
+
+private func publishInspectionFrame(
+    from context: MetalRoboTaskRolloutContext,
+    to window: NumiWindowBridge?,
+    loadPolicy: ((URL) throws -> UInt64)? = nil
+) throws {
+    try processTrainingWindowRequests(
+        from: context,
+        to: window,
+        loadPolicy: loadPolicy
+    )
+    guard let window else { return }
     guard window.acceptsFrames else {
         if window.isClosed {
             throw NumiWindowError.closed
         }
-        // Pause and window occlusion gate only presentation encoding at this
-        // scheduler-owned boundary; training keeps its original cadence.
+        // Occlusion gates presentation. Explicit Pause is handled before the
+        // next training submission so it also stops simulation time.
         return
     }
     guard let frame = try context.acquireInspectionFrame() else {
@@ -1679,6 +1722,20 @@ private enum TaskTrainMain {
                 transitions.removeAll(keepingCapacity: true)
                 var completed = 0
                 while completed < options.steps {
+                    try processTrainingWindowRequests(
+                        from: context,
+                        to: window,
+                        loadPolicy: { url in
+                            try context.loadPolicy(at: url)
+                            installedRevision =
+                                context.installedPolicyRevision
+                            return installedRevision
+                        }
+                    )
+                    if window?.isSimulationPaused == true {
+                        window?.waitWhileSimulationPaused()
+                        continue
+                    }
                     let stepCount = min(
                         options.chunk,
                         options.steps - completed
@@ -1861,9 +1918,7 @@ private enum TaskTrainMain {
                                 "mean_action_standard_deviation"
                             ] as? NSNumber
                         )?.doubleValue ?? 0
-                    FileHandle.standardError.write(
-                        Data(
-                            (
+                    writeTrainingDiagnostic(
                                 "update=\(updateIndex + 1) " +
                                 "revision=\(installedRevision) " +
                                 "contact_rate=\(lastEvidenceTelemetry.lastContactRate) " +
@@ -1875,9 +1930,7 @@ private enum TaskTrainMain {
                                 "tilt=\(tilt) " +
                                 "done=\(done) loss=\(loss) " +
                                 "kl=\(kl) lr=\(learningRate) " +
-                                "std=\(actionStandardDeviation)\n"
-                            ).utf8
-                        )
+                                "std=\(actionStandardDeviation)"
                     )
                     }
                 }
@@ -2000,6 +2053,7 @@ private enum TaskTrainMain {
     }
 
     static func main() {
+        _ = signal(SIGPIPE, SIG_IGN)
         do {
             let options = try Options(arguments: CommandLine.arguments)
             guard options.inspectionScene != nil else {
@@ -2024,9 +2078,7 @@ private enum TaskTrainMain {
                     if case NumiWindowError.closed = error {
                         // Closing the window ends its preview run cleanly.
                     } else {
-                        FileHandle.standardError.write(
-                            Data("task_train failed: \(error)\n".utf8)
-                        )
+                        writeTrainingDiagnostic("task_train failed: \(error)")
                     }
                 }
                 DispatchQueue.main.async {
@@ -2035,9 +2087,7 @@ private enum TaskTrainMain {
             }
             NSApplication.shared.run()
         } catch {
-            FileHandle.standardError.write(
-                Data("task_train failed: \(error)\n".utf8)
-            )
+            writeTrainingDiagnostic("task_train failed: \(error)")
             Darwin.exit(1)
         }
     }

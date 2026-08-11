@@ -220,6 +220,11 @@ mechanics, owner packs, authored camera, and compatible action source. Run:
 numi window
 ```
 
+`numi window --check` runs the fast catalog/contract checks and then exercises
+missing-selection recovery, four distinct live robot worlds, a compatible
+PolicyPack transaction, completed presentation, and clean close through the
+same native window path.
+
 The workspace command builds its own isolated runtime, discovers the catalog,
 starts the selected one-environment run, and stops it when the window closes.
 The lower-level executable remains available as a composition surface for
@@ -240,7 +245,9 @@ submission, into the submission's command buffer; it never introduces a
 command-buffer wait, a CPU state copy, or a pixel readback.
 
 The window consumes device-private linear RGB buffers through a three-slot
-ring. A slot is released only after its display command buffer completes; if
+ring. A slot is released only after its display command buffer completes; the
+first frame of a newly selected configuration is likewise acknowledged only
+after that drawable completes. If
 the window or compositor falls behind, the producer drops the newest preview
 instead of blocking physics, control, or learning. The window currently
 shows representative environment zero. It is a live presentation, not evidence
@@ -254,24 +261,32 @@ camera reset remain independent presentation controls. Environment and Task
 read the imported catalog and rebuild the selected live run at a normal
 rollout boundary; neither control implicitly selects a policy. The Policy
 selector reads
-`.numi/policies/<robot-id>/*.policypack` (or `NUMI_WINDOW_POLICY_CATALOG`) and
-groups choices by `<robot-id>` without hard-coding a robot catalog. Pause does
-not pause physics or training: it gates the GPU presentation sidecar at the
-next normal rollout boundary, eliminating preview encoding and dropped-frame
-atomics until Resume. Minimizing or fully occluding the window applies the same
-automatic sidecar gate and resumes it when the window is visible again. Policy
-selection and Latest Policy reload at that same boundary and only accept a
-compatible immutable revision; the selector advances only after a successful
-transaction and returns to the active policy after rejection. The image is
-aspect-fit automatically, so authored camera geometry is never stretched to
-the resizable window.
+`.numi/policies/<robot-id>/*.policypack` (or `NUMI_WINDOW_POLICY_CATALOG`) plus
+the final deployment artifact in each direct run folder. Discovery is bounded
+to the catalog root and one child level; it never descends through checkpoints,
+captures, or rollout evidence. Once the live world has presented, policy menus
+are filtered by exact world/task/observation/action fingerprints rather than a
+filename or folder label.
+
+Pause stops the rollout scheduler before its next native advance and sleeps on
+a condition until Resume or another window transaction; simulation time and
+physics therefore do not continue behind a frozen frame. Minimizing or fully
+occluding the window independently gates the presentation sidecar while the
+simulation keeps its normal cadence. Scene and policy changes unwind the old
+world and construct the replacement serially in the same process. A new choice
+becomes current only after its first display command completes; a rejected
+setup reconstructs the last completed scene and policy together. Latest Policy
+remains an in-place immutable-revision reload at a rollout boundary and leaves
+the active policy unchanged on rejection. The image is aspect-fit
+automatically, so authored camera geometry is never stretched to the resizable
+window.
 
 When a trainable task has no compatible policy, a compact learning guide
 explains the Robot -> Environment -> Task -> Train journey directly over the
 preview and opens the same guided training sheet as the toolbar. It disappears
 after dismissal, while training owns the runtime, or when a qualified policy is
-available. Keyboard controls preserve the mouse-free path: Space gates
-presentation, `T` opens training, `R` resets the camera, and `?` restores the
+available. Keyboard controls preserve the mouse-free path: Space pauses the
+simulation, `T` opens training, `R` resets the camera, and `?` restores the
 guide. None of these controls add a simulator-side input or change task state.
 
 The **Train** control is enabled only when the selected catalog entry publishes

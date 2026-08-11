@@ -2,6 +2,28 @@ import Foundation
 import Darwin
 import AppKit
 
+// Diagnostics must never own process lifetime. FileHandle.write raises an
+// Objective-C exception when an inherited stderr pipe closes; POSIX write with
+// SIGPIPE ignored turns that ordinary launcher teardown into a bounded error.
+private func writeDiagnostic(_ message: String) {
+    let bytes = Array((message + "\n").utf8)
+    bytes.withUnsafeBytes { raw in
+        guard var base = raw.baseAddress else { return }
+        var remaining = raw.count
+        while remaining > 0 {
+            let written = Darwin.write(STDERR_FILENO, base, remaining)
+            if written > 0 {
+                remaining -= written
+                base = base.advanced(by: written)
+            } else if written < 0 && errno == EINTR {
+                continue
+            } else {
+                break
+            }
+        }
+    }
+}
+
 private struct SplitMix64 {
     private var state: UInt64
 
@@ -1217,7 +1239,7 @@ private func masks(
     return result
 }
 
-private func publishInspectionFrame(
+private func processWindowRequests(
     from context: MetalRoboTaskRolloutContext,
     to window: NumiWindowBridge?,
     loadPolicy: ((URL) throws -> UInt64)? = nil
@@ -1226,12 +1248,29 @@ private func publishInspectionFrame(
         return
     }
     guard !window.isClosed else {
+        _ = window.waitForDeliveryDrain(timeout: 5)
         throw NumiWindowError.closed
     }
+    func drainPresentationForTransition() throws {
+        guard window.waitForDeliveryDrain(timeout: 5) else {
+            if window.isClosed { throw NumiWindowError.closed }
+            throw MetalRoboTaskRolloutError.native(
+                "Numi Window could not retire the displayed frame."
+            )
+        }
+    }
     if let sceneID = window.takeSceneSelection() {
-        throw NumiWindowError.reconfigure(sceneID)
+        // Scene and policy changes both rebuild through the same serialized
+        // transaction. The current Metal world unwinds before its replacement
+        // is created, so robot switching never overlaps two native runtimes.
+        try drainPresentationForTransition()
+        throw NumiWindowError.reconfigure(NumiWindowPolicySelection(
+            choiceID: sceneID,
+            policyURL: nil
+        ))
     }
     if let training = window.takeTrainingRequest() {
+        try drainPresentationForTransition()
         throw NumiWindowError.train(training)
     }
     if let enabled = window.takePendingNativeInspectionEnabled() {
@@ -1254,12 +1293,13 @@ private func publishInspectionFrame(
         } catch {
             // Native policy installation is transactional: a failed load
             // leaves the currently rendered policy intact.
-            window.reportPolicyRejected()
+            window.reportPolicyRejected(error)
         }
     }
     let latestRequested = window.takeLatestPolicyReloadRequest()
     if let selected = window.takePolicySelection() {
-        install(selected)
+        try drainPresentationForTransition()
+        throw NumiWindowError.reconfigure(selected)
     } else if latestRequested {
         guard let selected = window.selectedPolicy else {
             window.reportPolicyStatus("select a policy first")
@@ -1267,13 +1307,25 @@ private func publishInspectionFrame(
         }
         install(selected)
     }
+}
+
+private func publishInspectionFrame(
+    from context: MetalRoboTaskRolloutContext,
+    to window: NumiWindowBridge?,
+    loadPolicy: ((URL) throws -> UInt64)? = nil
+) throws {
+    try processWindowRequests(
+        from: context,
+        to: window,
+        loadPolicy: loadPolicy
+    )
+    guard let window else { return }
     guard window.acceptsFrames else {
         if window.isClosed {
             throw NumiWindowError.closed
         }
-        // Pause and window occlusion are applied to the sidecar at this
-        // scheduler-owned boundary. Physics and accepted-state submission keep
-        // their original cadence.
+        // Occlusion gates only presentation. Simulation pause is handled by
+        // the scheduler before it submits the next native advance.
         return
     }
     guard let frame = try context.acquireInspectionFrame() else {
@@ -1304,18 +1356,14 @@ private enum TaskRolloutMain {
             arguments.append(option)
             index += 1
         }
-        let sameRobot = baseline.windowRobotID == choice.robotID
         if let policyOverride {
             arguments.append(contentsOf: [
                 "--policy-pack", policyOverride.path,
             ])
-        } else if sameRobot, let policyPack = baseline.policyPack {
-            arguments.append(contentsOf: ["--policy-pack", policyPack])
-        } else if sameRobot && baseline.nativePolicy {
-            arguments.append("--native-policy")
-        } else if sameRobot, let actionStream = baseline.actionStream {
-            arguments.append(contentsOf: ["--action-stream", actionStream])
         } else {
+            // A scene change has a new world/task contract until proven
+            // otherwise. Never smuggle the previous controller or action
+            // stream into the replacement world based only on a robot label.
             arguments.append("--zero-actions")
         }
         arguments.append(contentsOf: [
@@ -1428,8 +1476,29 @@ private enum TaskRolloutMain {
         process.arguments = arguments
         process.environment = environment
         process.currentDirectoryURL = workspace
-        process.standardOutput = FileHandle.standardOutput
-        process.standardError = FileHandle.standardError
+        let stdoutURL = runDirectory.appendingPathComponent("stdout.log")
+        let stderrURL = runDirectory.appendingPathComponent("stderr.log")
+        guard fileManager.createFile(
+                  atPath: stdoutURL.path,
+                  contents: nil
+              ),
+              fileManager.createFile(
+                  atPath: stderrURL.path,
+                  contents: nil
+              ),
+              let stdout = try? FileHandle(forWritingTo: stdoutURL),
+              let stderr = try? FileHandle(forWritingTo: stderrURL)
+        else {
+            throw MetalRoboTaskRolloutError.native(
+                "training log files could not be created"
+            )
+        }
+        defer {
+            try? stdout.close()
+            try? stderr.close()
+        }
+        process.standardOutput = stdout
+        process.standardError = stderr
         window.reportTrainingStatus(
             "training started · \(request.taskName) · artifacts \(runDirectory.lastPathComponent)",
             active: true,
@@ -1521,7 +1590,8 @@ private enum TaskRolloutMain {
 
     private static func run(
         options: Options,
-        window: NumiWindowBridge?
+        window: NumiWindowBridge?,
+        onFirstPresented: ((NumiWindowPolicyContract) -> Void)? = nil
     ) throws {
             guard window?.isClosed != true else {
                 throw NumiWindowError.closed
@@ -1533,6 +1603,14 @@ private enum TaskRolloutMain {
             }
             let visualObservationEnabled =
                 context.visualSceneFingerprint != 0
+            let activeContract = NumiWindowPolicyContract(
+                version: 1,
+                worldFingerprint: context.layout.worldFingerprint,
+                taskFingerprint: context.layout.taskFingerprint,
+                observationFingerprint:
+                    context.layout.observationFingerprint,
+                actionFingerprint: context.layout.actionFingerprint
+            )
             if options.motionFeatureTrace != nil &&
                 context.layout.motionFeatureCount == 0 {
                 throw MetalRoboTaskRolloutError.invalidShape(
@@ -1563,7 +1641,7 @@ private enum TaskRolloutMain {
                     expectedCount: elements.partialValue
                 )
             }
-            let usesCompiledPolicy =
+            var usesCompiledPolicy =
                 options.nativePolicy || options.policyPack != nil
             if let policyPack = options.policyPack {
                 try context.loadPolicy(
@@ -1659,13 +1737,17 @@ private enum TaskRolloutMain {
                     ),
                     controlStepCount: 1
                 )
-                try publishInspectionFrame(
+                // Policy warm-up validates the resident inference path but is
+                // not an authored task reset. Do not expose this transient
+                // pose as the window's first successful configuration frame.
+                try processWindowRequests(
                     from: context,
                     to: window,
                     loadPolicy: { url in
                             try context.loadPolicy(
                                 at: url
                             )
+                            usesCompiledPolicy = true
                             installedPolicyRevision =
                                 context.installedPolicyRevision
                             return installedPolicyRevision
@@ -1762,13 +1844,14 @@ private enum TaskRolloutMain {
                     ),
                     controlStepCount: 1
                 )
-                try publishInspectionFrame(
+                try processWindowRequests(
                     from: context,
                     to: window,
                     loadPolicy: { url in
                             try context.loadPolicy(
                                 at: url
                             )
+                            usesCompiledPolicy = true
                             installedPolicyRevision =
                                 context.installedPolicyRevision
                             return installedPolicyRevision
@@ -1779,7 +1862,12 @@ private enum TaskRolloutMain {
             let baseline = context.layout
             var generator = SplitMix64(seed: options.seed)
             var pending = [Bool](
-                repeating: false,
+                // A newly initialized resident world contains model defaults,
+                // not the task's authored reset distribution. Publish an
+                // explicit reset on the first control step just as training
+                // does; otherwise aerial and recovery tasks begin from stale
+                // model poses until the first periodic reset.
+                repeating: options.scheduledResets,
                 count: options.environments
             )
             var globalStep = 0
@@ -1992,11 +2080,41 @@ private enum TaskRolloutMain {
             }
             let clock = ContinuousClock()
             let start = clock.now
+            // A live window is a presentation sidecar, not a rollout
+            // collector. Keep its hot loop free of the training-only policy,
+            // transition, outcome and status readbacks below. Those materialize
+            // large Swift arrays every chunk and can keep unified memory and
+            // the GPU saturated for the entire million-step preview.
+            let interactivePreview = window != nil &&
+                options.rolloutPack == nil &&
+                options.stateTrace == nil &&
+                options.motionFeatureTrace == nil &&
+                options.captureDirectory == nil &&
+                !options.verbose
+            var firstPreviewFrameHeld = false
+            var consecutivePreviewRecoveries = 0
 
             for repeatIndex in 0..<options.repeats {
                 let repeatStart = clock.now
                 var completed = 0
                 while completed < options.steps {
+                    try processWindowRequests(
+                        from: context,
+                        to: window,
+                        loadPolicy: { url in
+                            try context.loadPolicy(at: url)
+                            usesCompiledPolicy = true
+                            installedPolicyRevision =
+                                context.installedPolicyRevision
+                            return installedPolicyRevision
+                        }
+                    )
+                    if window?.isSimulationPaused == true {
+                        window?.waitWhileSimulationPaused()
+                        continue
+                    }
+                    let presentationBeforeAdvance =
+                        window?.presentationCount ?? 0
                     // The window rollout occupies one long-lived GCD block.
                     // Drain Objective-C and Metal autoreleased temporaries at
                     // every explicit submission/publication boundary instead
@@ -2006,6 +2124,9 @@ private enum TaskRolloutMain {
                         options.chunk,
                         options.steps - completed
                     )
+                    let previewChunkStart = interactivePreview
+                        ? CFAbsoluteTimeGetCurrent()
+                        : 0
                     let resetBatch = options.scheduledResets
                         ? masks(
                             startStep: globalStep,
@@ -2067,14 +2188,91 @@ private enum TaskRolloutMain {
                         from: context,
                         to: window,
                         loadPolicy: { url in
-                                try context.loadPolicy(
-                                    at: url
-                                )
-                                installedPolicyRevision =
-                                    context.installedPolicyRevision
+                            try context.loadPolicy(
+                                at: url
+                            )
+                            usesCompiledPolicy = true
+                            installedPolicyRevision =
+                                context.installedPolicyRevision
                                 return installedPolicyRevision
-                        }
+                            }
                     )
+                    if interactivePreview && !firstPreviewFrameHeld {
+                        // A configuration becomes current only after the
+                        // drawable command buffer for its authored reset frame
+                        // completes. Queue submission or an arbitrary sleep is
+                        // not evidence that the user can see the new world.
+                        guard window?.waitForPresentation(
+                            after: presentationBeforeAdvance,
+                            timeout: 5
+                        ) == true else {
+                            throw MetalRoboTaskRolloutError.native(
+                                "Numi Window did not present its first frame."
+                            )
+                        }
+                        firstPreviewFrameHeld = true
+                        onFirstPresented?(activeContract)
+                    }
+                    if interactivePreview {
+                        if advance.firstGPUStatusCode != 0 ||
+                            advance.failedEnvironmentSteps != 0 {
+                            // A failed environment step is transactional: its
+                            // last accepted state is still intact. In the live
+                            // viewer, schedule a clean reset instead of tearing
+                            // down the entire app. Strict rollout/training paths
+                            // below continue to reject the same GPU status.
+                            if advance.firstFailingEnvironment <
+                                UInt32(pending.count) {
+                                pending[Int(
+                                    advance.firstFailingEnvironment
+                                )] = true
+                            } else {
+                                pending = [Bool](
+                                    repeating: true,
+                                    count: pending.count
+                                )
+                            }
+                            consecutivePreviewRecoveries += 1
+                            failedSteps += advance.failedEnvironmentSteps
+                            let status = advance.firstGPUStatusCode
+                            window?.reportPolicyStatus(
+                                "preview recovered physics status \(status)"
+                            )
+                        } else {
+                            if consecutivePreviewRecoveries > 0 {
+                                window?.reportPolicyStatus(
+                                    "preview running"
+                                )
+                            }
+                            consecutivePreviewRecoveries = 0
+                        }
+                        totalResets += advance.hostRequestedResets
+                        maximumContacts = max(
+                            maximumContacts,
+                            advance.maximumActiveContacts
+                        )
+                        maximumManifolds = max(
+                            maximumManifolds,
+                            advance.maximumManifolds
+                        )
+                        completed += stepCount
+                        globalStep += stepCount
+
+                        // Match simulated time to wall time. Rendering already
+                        // drops stale frames transactionally, but without this
+                        // pacing the hidden physics loop still monopolizes the
+                        // shared Apple GPU and can destabilize WindowServer.
+                        let targetSeconds = Double(stepCount) * 0.02
+                        let elapsedSeconds =
+                            CFAbsoluteTimeGetCurrent() - previewChunkStart
+                        if elapsedSeconds < targetSeconds {
+                            Thread.sleep(
+                                forTimeInterval:
+                                    targetSeconds - elapsedSeconds
+                            )
+                        }
+                        return
+                    }
                     let statuses = try context.statusCodes(
                         controlStepCount: stepCount
                     )
@@ -3205,6 +3403,7 @@ private enum TaskRolloutMain {
     }
 
     static func main() {
+        _ = signal(SIGPIPE, SIG_IGN)
         do {
             let sceneChoices = numiWindowSceneCatalog()
             var rawArguments = CommandLine.arguments
@@ -3244,6 +3443,18 @@ private enum TaskRolloutMain {
             let policyChoices = numiWindowPolicyCatalog(
                 sceneChoices: sceneChoices
             )
+            let runtimeCheckEnabled =
+                ProcessInfo.processInfo.environment[
+                    "NUMI_WINDOW_RUNTIME_CHECK"
+                ] == "1"
+            var runtimeCheckRobots: Set<String> = []
+            let runtimeCheckCatalogSceneIDs = sceneChoices.filter { choice in
+                runtimeCheckRobots.insert(choice.robotID).inserted
+            }.prefix(4).map(\.id)
+            let runtimeCheckSceneIDs = runtimeCheckEnabled
+                ? ["__numi_window_missing_scene_check__"] +
+                    runtimeCheckCatalogSceneIDs
+                : []
             let initialPolicyURL = options.policyPack.map {
                 URL(fileURLWithPath: $0)
             }
@@ -3255,16 +3466,109 @@ private enum TaskRolloutMain {
                 sceneChoices: sceneChoices,
                 initialSceneID: initialSceneID
             )
-            let recoverySceneID = initialSceneID
+            let launchSceneID =
+                initialSceneID ?? options.windowChoiceID ?? ""
             DispatchQueue.global(qos: .userInitiated).async {
                 var activeOptions = options
-                var recoveringBaseline = false
+                var requestedSelection = NumiWindowPolicySelection(
+                    choiceID: launchSceneID,
+                    policyURL: initialPolicyURL
+                )
+                var confirmedOptions: Options?
+                var confirmedSelection: NumiWindowPolicySelection?
+                var confirmedContract: NumiWindowPolicyContract?
+                var restoringConfirmedConfiguration = false
+                var restorationSummary = "restored last working setup"
+                var runtimeCheckSceneIndex = 0
+                var runtimeCheckAttemptedPolicies: Set<URL> = []
                 while !window.isClosed {
                     do {
-                        try run(options: activeOptions, window: window)
+                        try run(
+                            options: activeOptions,
+                            window: window,
+                            onFirstPresented: { contract in
+                                confirmedOptions = activeOptions
+                                confirmedSelection = requestedSelection
+                                confirmedContract = contract
+                                if restoringConfirmedConfiguration {
+                                    if runtimeCheckEnabled {
+                                        writeDiagnostic(
+                                            "numi window check restored configuration"
+                                        )
+                                    }
+                                    window.reportConfigurationRestored(
+                                        requestedSelection.choiceID,
+                                        policyURL:
+                                            requestedSelection.policyURL,
+                                        contract: contract,
+                                        summary: restorationSummary
+                                    )
+                                } else {
+                                    window.reportConfigurationInstalled(
+                                        requestedSelection.choiceID,
+                                        policyURL:
+                                            requestedSelection.policyURL,
+                                        contract: contract
+                                    )
+                                }
+                                restoringConfirmedConfiguration = false
+                                if runtimeCheckEnabled {
+                                    let compatible =
+                                        numiWindowCompatiblePolicyChoices(
+                                            policyChoices,
+                                            robotID: "",
+                                            contract: contract
+                                        )
+                                    if requestedSelection.policyURL == nil,
+                                       let policy = compatible.first(where: {
+                                           runtimeCheckAttemptedPolicies
+                                               .insert(
+                                                   $0.policyURL
+                                                       .standardizedFileURL
+                                               ).inserted
+                                       }) {
+                                        writeDiagnostic(
+                                            "numi window check policy \(policy.displayName)"
+                                        )
+                                        window
+                                            .requestPolicySelectionForRuntimeCheck(
+                                                NumiWindowPolicySelection(
+                                                    choiceID:
+                                                        requestedSelection
+                                                            .choiceID,
+                                                    policyURL:
+                                                        policy.policyURL
+                                                )
+                                            )
+                                        return
+                                    }
+                                    while runtimeCheckSceneIndex <
+                                            runtimeCheckSceneIDs.count {
+                                        let id = runtimeCheckSceneIDs[
+                                            runtimeCheckSceneIndex
+                                        ]
+                                        runtimeCheckSceneIndex += 1
+                                        if id != requestedSelection.choiceID {
+                                            writeDiagnostic(
+                                                "numi window check scene \(id)"
+                                            )
+                                            window
+                                                .requestSceneSelectionForRuntimeCheck(
+                                                    id
+                                                )
+                                            return
+                                        }
+                                    }
+                                    writeDiagnostic(
+                                        "numi window runtime check passed"
+                                    )
+                                    window.closeAfterRuntimeCheck()
+                                }
+                            }
+                        )
                         break
                     } catch NumiWindowError.train(let request) {
-                        recoveringBaseline = false
+                        restoringConfirmedConfiguration = false
                         do {
                             let result = try runTraining(
                                 request,
@@ -3279,6 +3583,11 @@ private enum TaskRolloutMain {
                                     preserving: activeOptions,
                                     policyOverride: policy
                                 )
+                                requestedSelection =
+                                    NumiWindowPolicySelection(
+                                        choiceID: choice.id,
+                                        policyURL: policy
+                                    )
                             }
                             window.reportTrainingStatus(
                                 "training complete · \(result.selection) · \(result.runDirectory.lastPathComponent)",
@@ -3287,64 +3596,82 @@ private enum TaskRolloutMain {
                                 artifactsURL: result.runDirectory
                             )
                         } catch {
-                            FileHandle.standardError.write(
-                                Data("numi training failed: \(error)\n".utf8)
-                            )
+                            writeDiagnostic("numi training failed: \(error)")
                             window.reportTrainingStatus(
                                 "training stopped · artifacts and logs were retained",
                                 active: false
                             )
+                            if let confirmedOptions,
+                               let confirmedSelection {
+                                activeOptions = confirmedOptions
+                                requestedSelection = confirmedSelection
+                                restoringConfirmedConfiguration = true
+                                restorationSummary =
+                                    "training stopped · restored last working setup"
+                            }
                         }
                         continue
-                    } catch NumiWindowError.reconfigure(let id) {
-                        recoveringBaseline = false
+                    } catch NumiWindowError.reconfigure(let selection) {
+                        restoringConfirmedConfiguration = false
                         guard let choice = sceneChoices.first(where: {
-                            $0.id == id
+                            $0.id == selection.choiceID
                         }) else {
                             window.reportPolicyStatus(
                                 "robot/scene selection is unavailable"
                             )
+                            if let confirmedOptions,
+                               let confirmedSelection {
+                                activeOptions = confirmedOptions
+                                requestedSelection = confirmedSelection
+                                restoringConfirmedConfiguration = true
+                                restorationSummary =
+                                    "unknown selection · restored last working setup"
+                            }
                             continue
                         }
                         do {
                             activeOptions = try windowOptions(
                                 for: choice,
-                                preserving: activeOptions
+                                preserving: activeOptions,
+                                policyOverride: selection.policyURL
                             )
+                            requestedSelection = selection
                         } catch {
-                            if let recoverySceneID {
-                                window.reportSceneRestored(
-                                    recoverySceneID,
-                                summary: "selection rejected · restored working setup"
-                                )
+                            let detail = numiWindowErrorSummary(error)
+                            window.reportPolicyStatus(
+                                "selection rejected · \(detail) · restoring"
+                            )
+                            if let confirmedOptions,
+                               let confirmedSelection {
+                                activeOptions = confirmedOptions
+                                requestedSelection = confirmedSelection
+                                restoringConfirmedConfiguration = true
+                                restorationSummary =
+                                    "selection rejected · \(detail) · restored last working setup"
                             }
                         }
                     } catch NumiWindowError.closed {
                         break
                     } catch {
-                        FileHandle.standardError.write(
-                            Data("numi window failed: \(error)\n".utf8)
-                        )
+                        writeDiagnostic("numi window failed: \(error)")
+                        let detail = numiWindowErrorSummary(error)
                         window.reportPolicyStatus(
-                            "setup failed · returning to last working setup"
+                            "setup failed · \(detail) · restoring"
                         )
-                        if recoveringBaseline {
+                        if restoringConfirmedConfiguration ||
+                            confirmedContract == nil {
                             window.reportPolicyStatus(
                                 "preview unavailable · check the selected robot setup"
                             )
                             break
                         }
-                        // A catalog entry must never kill the UX. The launch
-                        // options that created the window are already live-
-                        // qualified, so recover to them and keep accepting
-                        // robot/scene and camera input.
-                        activeOptions = options
-                        recoveringBaseline = true
-                        if let recoverySceneID {
-                            window.reportSceneRestored(
-                                recoverySceneID,
-                                summary: "setup unavailable · restored working setup"
-                            )
+                        if let confirmedOptions,
+                           let confirmedSelection {
+                            activeOptions = confirmedOptions
+                            requestedSelection = confirmedSelection
+                            restoringConfirmedConfiguration = true
+                            restorationSummary =
+                                "setup failed · \(detail) · restored last working setup"
                         }
                         continue
                     }
@@ -3369,9 +3696,7 @@ private enum TaskRolloutMain {
             }
             NSApplication.shared.run()
         } catch {
-            FileHandle.standardError.write(
-                Data("task_rollout failed: \(error)\n".utf8)
-            )
+            writeDiagnostic("task_rollout failed: \(error)")
             Darwin.exit(1)
         }
     }

@@ -47,20 +47,32 @@ private func withUnsafeCStringBuffers<Result>(
     _ strings: [String],
     _ body: ([UnsafePointer<CChar>]) throws -> Result
 ) rethrows -> Result {
-    let storage = strings.map { Array($0.utf8CString) }
-    var pointers: [UnsafePointer<CChar>] = []
-    pointers.reserveCapacity(storage.count)
-    func visit(_ index: Int) throws -> Result {
-        guard index < storage.count else {
-            return try body(pointers)
+    // Swift only guarantees an Array buffer's address for the duration of its
+    // withUnsafeBufferPointer closure. Nesting one closure per string kept all
+    // addresses valid, but visual scenes routinely contain dozens of assets;
+    // that recursion exhausted the worker thread stack during robot switches.
+    // Context creation is a cold path, so pin each small UTF-8 string in one
+    // explicit allocation and keep the call stack constant regardless of scene
+    // complexity. The large mesh and policy buffers remain borrowed/copy-free.
+    var storage: [(pointer: UnsafeMutablePointer<CChar>, count: Int)] = []
+    storage.reserveCapacity(strings.count)
+    for string in strings {
+        let bytes = Array(string.utf8CString)
+        let pointer = UnsafeMutablePointer<CChar>.allocate(
+            capacity: bytes.count
+        )
+        bytes.withUnsafeBufferPointer { source in
+            pointer.initialize(from: source.baseAddress!, count: source.count)
         }
-        return try storage[index].withUnsafeBufferPointer { buffer in
-            pointers.append(buffer.baseAddress!)
-            defer { pointers.removeLast() }
-            return try visit(index + 1)
+        storage.append((pointer, bytes.count))
+    }
+    defer {
+        for allocation in storage {
+            allocation.pointer.deinitialize(count: allocation.count)
+            allocation.pointer.deallocate()
         }
     }
-    return try visit(0)
+    return try body(storage.map { UnsafePointer($0.pointer) })
 }
 
 public enum MetalRoboTaskRolloutError:

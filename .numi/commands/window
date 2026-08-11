@@ -10,6 +10,7 @@ fi
 if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
     cat <<'EOF'
 Usage: numi window [rollout options...]
+       numi window --check
        numi window add booster-k1 --source BOOSTER_ASSETS [--output DIR]
 
 Open the single native Numi UX for learning robotics. Robot chooses the
@@ -25,6 +26,10 @@ cadence with inline explanations. The window pauses its preview while training
 owns Metal, shows live progress, and evaluates balance before offering a result
 as learned behavior. Falling experiments remain inspectable but are not loaded.
 Every run keeps its logs, evidence, and policy artifacts.
+
+`--check` runs the bounded catalog/contract check, then cycles several real
+robot worlds, one compatible policy, rejection recovery, presentation, and
+close through the native window transaction path.
 
 Most users only need:
 
@@ -55,10 +60,12 @@ contract check.
 Policy selector catalog:
 
   .numi/policies/<robot-id>/*.policypack
+  .numi/runs/<recent-run>/{deployment,candidate.deployment}.policypack
 
-The Policy selector filters choices to the selected robot. A pack still must
-match the live world/task/observation/action contract before it can replace
-the active policy.
+The Policy selector uses the robot folder only before the first live frame.
+After that it filters on the exact world/task/observation/action contract. Run
+history discovery is bounded to recent direct run folders and never walks
+checkpoints or captures.
 
 Optional environment overrides:
 
@@ -104,10 +111,16 @@ window_policy=${NUMI_WINDOW_POLICY:-}
 export NUMI_WINDOW_POLICY_CATALOG=${NUMI_WINDOW_POLICY_CATALOG:-"$window_workspace/.numi/policies"}
 export NUMI_WINDOW_SCENE_CATALOG=${NUMI_WINDOW_SCENE_CATALOG:-"$window_workspace/.numi/runs"}
 window_catalog_default=0
+window_runtime_check=0
+
+if [ "${1:-}" = "--check" ]; then
+    window_runtime_check=1
+    shift
+fi
 
 window_builtin_catalog="$window_workspace/.numi/runs/numi-window-builtins"
 window_builtin_catalog_version=$(cat "$window_builtin_catalog/catalog.version" 2>/dev/null || true)
-if [ "$window_builtin_catalog_version" != "7" ] ||
+if [ "$window_builtin_catalog_version" != "9" ] ||
    [ ! -f "$window_builtin_catalog/unitree-g1-ground-velocity.numi-window.json" ] ||
    [ ! -f "$window_builtin_catalog/numifly-ground-flight.numi-window.json" ] ||
    [ ! -f "$window_builtin_catalog/numifly-ground-forward-flight.numi-window.json" ] ||
@@ -155,10 +168,18 @@ fi
 if [ -z "$window_scene" ]; then
     window_scene=$(window_option_value --visual-observation-config "$@" || true)
 fi
-if [ -z "$window_scene" ] &&
-   find "$NUMI_WINDOW_SCENE_CATALOG" -type f -name '*.numi-window.json' \
-       -print -quit 2>/dev/null | grep -q .; then
-    window_catalog_default=1
+if [ -z "$window_scene" ]; then
+    # Catalog publication is root-or-one-run-folder by contract. A recursive
+    # find here used to walk checkpoints, captures, and multi-gigabyte rollout
+    # evidence before the native window could even appear.
+    for window_candidate in \
+        "$NUMI_WINDOW_SCENE_CATALOG"/*.numi-window.json \
+        "$NUMI_WINDOW_SCENE_CATALOG"/*/*.numi-window.json; do
+        if [ -f "$window_candidate" ]; then
+            window_catalog_default=1
+            break
+        fi
+    done
 fi
 if [ -z "$window_scene" ] && [ "$window_catalog_default" -eq 0 ]; then
     for window_candidate in \
@@ -170,14 +191,6 @@ if [ -z "$window_scene" ] && [ "$window_catalog_default" -eq 0 ]; then
         fi
     done
 fi
-if [ -z "$window_scene" ]; then
-    window_scene=$(find "$window_workspace" \
-        -path "$window_workspace/.git" -prune -o \
-        -path "$window_workspace/.numi/window-build" -prune -o \
-        -type f -name '*.visual-observation.json' -print 2>/dev/null \
-        | LC_ALL=C sort | sed -n '1p')
-fi
-
 if [ "$window_catalog_default" -eq 0 ] &&
    { [ -z "$window_scene" ] || [ ! -f "$window_scene" ]; }; then
     printf '%s\n' \
@@ -205,8 +218,16 @@ fi
 
 cmake -S "$window_workspace" -B "$window_build" \
     -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
-cmake --build "$window_build" \
-    --target metalrobo_task_rollout metalrobo_task_train -j 4
+if [ "$window_runtime_check" -eq 1 ]; then
+    cmake --build "$window_build" --target \
+        metalrobo_task_rollout metalrobo_task_train \
+        metalrobo_numi_window_check -j 4
+    "$window_build/bin/metalrobo_numi_window_check"
+    export NUMI_WINDOW_RUNTIME_CHECK=1
+else
+    cmake --build "$window_build" \
+        --target metalrobo_task_rollout metalrobo_task_train -j 4
+fi
 
 window_rollout=$window_build/bin/metalrobo_task_rollout
 window_metallib=$window_build/shaders/MetalRobo.metallib

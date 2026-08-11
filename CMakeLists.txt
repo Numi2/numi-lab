@@ -970,6 +970,34 @@ if(METALROBO_HAS_SWIFT)
         apps/NumiTraining.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
+
+    add_executable(
+        metalrobo_numi_window_check
+        apps/numi_window_check.swift
+        apps/NumiWindow.swift
+        apps/NumiTraining.swift
+        bindings/swift/MetalRoboTaskRollout.swift
+    )
+    target_include_directories(
+        metalrobo_numi_window_check
+        PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo"
+    )
+    target_link_libraries(
+        metalrobo_numi_window_check
+        PRIVATE
+            metalrobo
+            "${APPKIT_FRAMEWORK}"
+    )
+    set_target_properties(
+        metalrobo_numi_window_check
+        PROPERTIES
+            Swift_LANGUAGE_VERSION 6
+            Swift_COMPILATION_MODE singlefile
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "@loader_path/../lib"
+            INSTALL_RPATH "@loader_path/../lib"
+    )
     target_include_directories(
         metalrobo_task_rollout
         PRIVATE
