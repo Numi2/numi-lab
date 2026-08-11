@@ -243,6 +243,7 @@ private struct Uniforms {
     var frameInfo = SIMD4<UInt32>(0, 1, 0, 0)
     var tailInfo = SIMD4<UInt32>(0, 0, 0, 0)
     var timing = SIMD4<Float>(0, 0.001, 0, 0)
+    var foodTarget = SIMD4<Float>(0, 0, 0, 0)
 }
 
 private final class RobotEngine {
@@ -259,6 +260,7 @@ private final class RobotEngine {
     private let renderPipeline: MTLRenderPipelineState
     private let tailRenderPipeline: MTLRenderPipelineState
     private let groundRenderPipeline: MTLRenderPipelineState
+    private let foodRenderPipeline: MTLRenderPipelineState
     private let depthStencilState: MTLDepthStencilState
     private let positions: MTLBuffer
     private let triangles: MTLBuffer
@@ -290,6 +292,10 @@ private final class RobotEngine {
     private var policyAccumulator: Float = 0
     private var policySeed: UInt64
     private var latestTransition: MetalRoboTaskTransition?
+    private let foodNavigation: Bool
+    private var foodTarget = SIMD3<Float>(8, 0, 5)
+    private var foodVisible = false
+    private var foodConsumed = false
     var controllerEnabled = true
     var policyDriven: Bool { policyContext != nil }
 
@@ -301,16 +307,23 @@ private final class RobotEngine {
         environmentIndex: Int = 0,
         policyURL: URL? = nil,
         metallibPath: String? = nil,
+        seed: UInt64? = nil,
         measuredSurfaceTask: MetalRoboMeasuredSurfaceTask = .fatalDropRecovery
     ) throws {
         self.dataset = dataset
         self.environmentIndex = environmentIndex
-        policySeed = UInt64(0xD0_0E_0000 + environmentIndex)
+        policySeed = seed ?? UInt64(0xD0_0E_0000 + environmentIndex)
+        switch measuredSurfaceTask {
+        case .foodNavigation: foodNavigation = true
+        default: foodNavigation = false
+        }
         if let policyURL {
             let difficultyBandRange: ClosedRange<UInt32>
             switch measuredSurfaceTask {
             case .cruise: difficultyBandRange = 0...0
-            case .foodNavigation: difficultyBandRange = 0...3
+            // The viewer replays the learned first-stage food curriculum. The
+            // broader 0...3 range remains an evaluation/training concern.
+            case .foodNavigation: difficultyBandRange = 0...0
             default: difficultyBandRange = 4...4
             }
             let configuration = MetalRoboTaskRolloutConfiguration(
@@ -376,6 +389,13 @@ private final class RobotEngine {
         groundDescriptor.depthAttachmentPixelFormat = .depth32Float
         groundRenderPipeline = try device.makeRenderPipelineState(
             descriptor: groundDescriptor)
+        let foodDescriptor = MTLRenderPipelineDescriptor()
+        foodDescriptor.vertexFunction = library.makeFunction(name: "foodVertex")
+        foodDescriptor.fragmentFunction = library.makeFunction(name: "foodFragment")
+        foodDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
+        foodDescriptor.depthAttachmentPixelFormat = .depth32Float
+        foodRenderPipeline = try device.makeRenderPipelineState(
+            descriptor: foodDescriptor)
         let depthDescriptor = MTLDepthStencilDescriptor()
         depthDescriptor.depthCompareFunction = .less
         depthDescriptor.isDepthWriteEnabled = true
@@ -544,6 +564,8 @@ private final class RobotEngine {
         initialized = false
         policyAccumulator = 0
         latestTransition = nil
+        foodVisible = false
+        foodConsumed = false
         if let policyContext {
             try policyContext.reset(seed: policySeed)
             policySeed &+= 1
@@ -584,6 +606,23 @@ private final class RobotEngine {
         let target = actuatorTargets.contents().bindMemory(to: Float.self, capacity: 24)
         for index in 0..<24 { target[index] = tanh(latents[index]) }
         latestTransition = try policyContext.transitions(controlStepCount: 1).last
+        if foodNavigation {
+            let sceneStates = try policyContext.finalSceneStates()
+            // Scene bodies are packed as position(3), orientation(4), linear
+            // velocity(3), angular velocity(3). Food is the final scene body.
+            if sceneStates.count >= 13 {
+                let base = sceneStates.count - 13
+                let candidate = SIMD3<Float>(
+                    sceneStates[base], sceneStates[base + 1],
+                    sceneStates[base + 2])
+                if candidate.x.isFinite && candidate.y.isFinite &&
+                    candidate.z.isFinite {
+                    foodTarget = candidate
+                    foodVisible = true
+                }
+            }
+        }
+        foodConsumed = latestTransition?.terminationReason == 7
         try synchronizePolicyRoot()
         if latestTransition?.done == true {
             terminated = true
@@ -604,12 +643,16 @@ private final class RobotEngine {
     private func baseUniforms(time: Float, dt: Float) -> Uniforms {
         let f = frame(at: time)
         let tail = dataset.manifest.topology.components[3]
+        let foodScale: Float = foodVisible
+            ? (foodConsumed ? max(0.08, terminationHold / 0.35) : 1)
+            : 0
         return Uniforms(centerRadius: SIMD4<Float>(dataset.center, dataset.radius),
                         boundsMinimum: SIMD4<Float>(dataset.minimum, 0),
                         boundsMaximum: SIMD4<Float>(dataset.maximum, 0),
                         frameInfo: SIMD4<UInt32>(UInt32(f.0), UInt32(f.1), UInt32(dataset.manifest.topology.vertexCount), UInt32(dataset.manifest.topology.triangleCount)),
                         tailInfo: SIMD4<UInt32>(UInt32(tail.vertexOffset), 7, 17, 12),
-                        timing: SIMD4<Float>(f.2, dt, time, f.3))
+                        timing: SIMD4<Float>(f.2, dt, time, f.3),
+                        foodTarget: SIMD4<Float>(foodTarget, 0.14 * foodScale))
     }
 
     private func setControllerTargets(time: Float) {
@@ -807,6 +850,17 @@ private final class RobotEngine {
         encoder.setVertexBuffer(rootState, offset: 0, index: 3)
         encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
+        if foodVisible {
+            encoder.setRenderPipelineState(foodRenderPipeline)
+            encoder.setCullMode(.none)
+            encoder.setVertexBytes(
+                &uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
+            encoder.setFragmentBytes(
+                &uniforms, length: MemoryLayout<Uniforms>.stride, index: 8)
+            encoder.drawPrimitives(
+                type: .triangle, vertexStart: 0,
+                vertexCount: 5 * 28 * 16 * 6)
+        }
         encoder.endEncoding(); command.present(drawable); command.commit()
     }
 
@@ -847,12 +901,18 @@ private final class RobotEngine {
         let heading = atan2(velocity.y, velocity.x) * 180 / Float.pi
         let metric = metrics.contents().bindMemory(to: SIMD4<Float>.self, capacity: 2)[0]
         if let transition = latestTransition {
+            let birdCenter = dataset.center + SIMD3<Float>(root.x, root.y, root.z)
+            let foodDistance = foodVisible
+                ? simd_length(foodTarget - birdCenter) : 0
+            let outcome = transition.terminationReason == 7
+                ? "  FOOD EATEN" : (terminated ? "  EPISODE END" : "")
             return String(
-                format: "BEST POLICY  %@  native Metal r%llu  %.2f s  altitude %.2f m  speed %.2f m/s  heading %+.0f°  tracking %.3f  tilt %.2f°%@",
+                format: "BEST POLICY  %@  native Metal r%llu  %.2f s  altitude %.2f m  speed %.2f m/s  heading %+.0f°  food %.2f m  tracking %.3f  tilt %.2f°%@",
                 policyName ?? "PolicyPack", policyRevision, simulationTime,
-                root.z, groundSpeed, heading, transition.trackingScore,
+                root.z, groundSpeed, heading, foodDistance,
+                transition.trackingScore,
                 transition.tilt * 180 / .pi,
-                terminated ? "  EPISODE END" : ""
+                outcome
             )
         }
         if policyContext != nil {
@@ -874,7 +934,7 @@ private final class RobotEngine {
     private static let metalSource = #"""
     #include <metal_stdlib>
     using namespace metal;
-    struct Uniforms { float4x4 vp; float4 eye; float4 centerRadius; float4 bmin; float4 bmax; uint4 frame; uint4 tail; float4 timing; };
+    struct Uniforms { float4x4 vp; float4 eye; float4 centerRadius; float4 bmin; float4 bmax; uint4 frame; uint4 tail; float4 timing; float4 foodTarget; };
     float3 measured(device const packed_float3* p, uint frameIndex, uint vertexIndex, uint count) { return float3(p[frameIndex * count + vertexIndex]); }
     float3 rotateAxis(float3 p, float3 axis, float angle) { float s=sin(angle), c=cos(angle); return p*c + cross(axis,p)*s + axis*dot(axis,p)*(1-c); }
     kernel void integrateActuators(device const float* target [[buffer(0)]], device float2* state [[buffer(1)]], constant Uniforms& u [[buffer(8)]], uint id [[thread_position_in_grid]]) {
@@ -1032,6 +1092,42 @@ private final class RobotEngine {
             }
         }
         return float4(1.0f-exp(-1.10f*color),1.0f);
+    }
+    vertex Raster foodVertex(constant Uniforms& u [[buffer(8)]], uint vid [[vertex_id]]) {
+        constexpr uint longitudeSegments=28u,latitudeSegments=16u;
+        constexpr uint verticesPerSphere=longitudeSegments*latitudeSegments*6u;
+        const float2 corners[6]={float2(0,0),float2(1,0),float2(0,1),float2(0,1),float2(1,0),float2(1,1)};
+        uint fruit=vid/verticesPerSphere,localVertex=vid%verticesPerSphere;
+        uint quad=localVertex/6u,corner=localVertex%6u;
+        uint latitude=quad/longitudeSegments,longitude=quad%longitudeSegments;
+        float2 uv=(float2(float(longitude),float(latitude))+corners[corner])/float2(float(longitudeSegments),float(latitudeSegments));
+        float azimuth=6.283185307f*uv.x,polar=3.141592654f*uv.y;
+        float3 sphereNormal=float3(cos(azimuth)*sin(polar),sin(azimuth)*sin(polar),cos(polar));
+        const float3 offsets[5]={
+            float3(0,0,.10f),float3(.47f,.12f,-.12f),
+            float3(-.31f,.39f,-.16f),float3(-.24f,-.43f,-.13f),
+            float3(.18f,-.24f,.42f)
+        };
+        const float scales[5]={.70f,.55f,.53f,.54f,.40f};
+        float radius=u.foodTarget.w;
+        float breathing=1.0f+.025f*sin(4.0f*u.timing.z+float(fruit)*1.7f);
+        float3 center=u.foodTarget.xyz+offsets[min(fruit,4u)]*radius;
+        float3 world=center+sphereNormal*(radius*scales[min(fruit,4u)]*breathing);
+        Raster o;o.position=u.vp*float4(world,1);o.world=world;o.normal=sphereNormal;
+        float hue=float(fruit)/4.0f;
+        o.color=float4(mix(float3(.98f,.38f,.035f),float3(1.0f,.72f,.08f),hue),1);
+        o.detail=float4(uv,float(fruit),radius);return o;
+    }
+    fragment float4 foodFragment(Raster in [[stage_in]], bool frontFacing [[front_facing]], constant Uniforms& u [[buffer(8)]]) {
+        float3 n=normalize(frontFacing?in.normal:-in.normal);
+        float3 v=normalize(u.eye.xyz-in.world),l=normalize(float3(-.30f,-.42f,.86f));
+        float diffuse=.30f+.70f*max(0.0f,dot(n,l));
+        float rim=pow(1.0f-max(0.0f,dot(n,v)),2.1f);
+        float gloss=pow(max(0.0f,dot(n,normalize(l+v))),42.0f);
+        float pores=.94f+.06f*sin(73.0f*in.detail.x+47.0f*in.detail.y+11.0f*in.detail.z);
+        float3 albedo=in.color.rgb*pores;
+        float3 lit=albedo*diffuse+rim*.22f*float3(1.0f,.42f,.05f)+gloss*.42f*float3(1.0f,.86f,.58f);
+        return float4(1.0f-exp(-1.22f*lit),1);
     }
     fragment float4 robotFragment(Raster in [[stage_in]],bool frontFacing [[front_facing]],constant Uniforms& u [[buffer(8)]]) {
         if(in.color.a<.5f) discard_fragment();float3 n=normalize(frontFacing?in.normal:-in.normal),v=normalize(u.eye.xyz-in.world),l=normalize(float3(.4,-.5,.8)),albedo=in.color.rgb;bool body=abs(in.detail.w-1.0f)<.25f;
@@ -1371,6 +1467,7 @@ private func perspective(_ fovy: Float,_ aspect: Float,_ near: Float,_ far: Floa
         var manifestURL = fallback
         var policyURL: URL?
         var metallibPath: String?
+        var policySeed: UInt64?
         var measuredSurfaceTask: MetalRoboMeasuredSurfaceTask = .fatalDropRecovery
         var probe = false
         var index = 0
@@ -1390,6 +1487,13 @@ private func perspective(_ fovy: Float,_ aspect: Float,_ near: Float,_ far: Floa
                     throw RobotError.invalid("--metallib requires a path")
                 }
                 metallibPath = arguments[index]
+            case "--seed":
+                index += 1
+                guard index < arguments.count,
+                      let parsed = UInt64(arguments[index]) else {
+                    throw RobotError.invalid("--seed requires an unsigned integer")
+                }
+                policySeed = parsed
             case "--task":
                 index += 1
                 guard index < arguments.count else {
@@ -1419,6 +1523,7 @@ private func perspective(_ fovy: Float,_ aspect: Float,_ near: Float,_ far: Floa
             dataset: dataset,
             policyURL: policyURL,
             metallibPath: metallibPath,
+            seed: policySeed,
             measuredSurfaceTask: measuredSurfaceTask
         )
         if probe {
