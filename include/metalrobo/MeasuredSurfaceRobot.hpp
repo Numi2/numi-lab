@@ -67,6 +67,13 @@ struct MeasuredSurfaceRobotPack {
     // Normalized residual center. All zeros preserve the exact measured
     // replay; recovery variants may author a qualified aerodynamic trim.
     std::array<float, kMeasuredSurfaceActionCount> normalizedActionBias {};
+    // Per-lane normalized policy residual authority around the authored
+    // center. One preserves the complete measured-surface action envelope.
+    std::array<float, kMeasuredSurfaceActionCount> normalizedActionScale = [] {
+        std::array<float, kMeasuredSurfaceActionCount> value{};
+        value.fill(1.0f);
+        return value;
+    }();
     float bodyMassKilograms = 0.35f;
     std::array<float, 3> principalInertiaKilogramMetersSquared {
         0.0018f, 0.0024f, 0.0031f
@@ -132,6 +139,9 @@ makeMeasuredSurfaceFlightActions();
 
 [[nodiscard]] std::array<float, kMeasuredSurfaceActionCount>
 measuredSurfaceRecoveryTrimActions();
+
+[[nodiscard]] std::array<float, kMeasuredSurfaceActionCount>
+numiflyAuthorityTrimActions();
 
 [[nodiscard]] MeasuredSurfaceRobotPack loadDeetjenMeasuredDoveRobotPack(
     const std::filesystem::path& manifestPath);

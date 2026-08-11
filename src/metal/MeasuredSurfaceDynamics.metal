@@ -226,7 +226,8 @@ kernel void mr_step_measured_surface_mechanics(
         for (uint action = 0u; action < model.actionCount; ++action) {
             const float normalized = clamp(
                 actions[action].normalizedBiasReserved.x +
-                    actionHistory[historyBase + action],
+                    actions[action].normalizedBiasReserved.y *
+                        actionHistory[historyBase + action],
                 -1.0f, 1.0f);
             const float4 contract = actions[action].boundsFrequencyDamping;
             const float target = normalized >= 0.0f

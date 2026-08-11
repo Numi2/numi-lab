@@ -4333,14 +4333,11 @@ int mr_task_rollout_advance(
             diagnostics.gpuElapsedMilliseconds;
         handle->totalSubmissionMilliseconds +=
             diagnostics.submissionElapsedMilliseconds;
-        if (!diagnostics.succeeded()) {
-            throw std::runtime_error(
-                std::string{"task-rollout GPU step failed ["} +
-                metalrobo::metalWorldHostStatusName(
-                    diagnostics.status
-                ) + "]: " + diagnostics.message
-            );
-        }
+        // Per-environment failures are transactional: the rejected state is
+        // rolled back, the transition is published with physics_error, and
+        // healthy environments remain valid. Returning the published advance
+        // lets schedulers count/reset those environments instead of aborting
+        // the whole batch. Host/publication failures still throw above.
     });
 }
 

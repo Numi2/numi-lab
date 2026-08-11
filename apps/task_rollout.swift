@@ -343,7 +343,7 @@ private struct Options {
                 index += 1
             case "--no-scheduled-resets":
                 scheduledResets = false
-            case "--continue-after-termination":
+            case "--continue-after-termination", "--disable-task-terminations":
                 disableTaskTerminations = true
             case "--materialize-articulated-contact-responses":
                 materializeArticulatedContactResponses = true

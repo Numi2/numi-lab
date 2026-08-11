@@ -523,7 +523,9 @@ void runNumiflyAuthorityProbe(
     std::vector<AuthorityLoad> loads(candidateCount);
     std::uint32_t bestLiftCandidate = 0u;
     std::uint32_t bestTrimCandidate = 0u;
+    std::uint32_t bestTakeoffCandidate = 0u;
     float bestTrimCost = std::numeric_limits<float>::infinity();
+    float bestTakeoffCost = std::numeric_limits<float>::infinity();
     for (std::uint32_t candidate = 0u; candidate < candidateCount;
          ++candidate) {
         const MRMeasuredSurfaceEvidenceGPU& evidence =
@@ -549,6 +551,16 @@ void runNumiflyAuthorityProbe(
         if (cost < bestTrimCost) {
             bestTrimCost = cost;
             bestTrimCandidate = candidate;
+        }
+        const float takeoffLiftError =
+            (loads[candidate].force[2u] - 1.35f * weight) /
+            std::max(weight, 1.0e-8f);
+        const float takeoffCost =
+            takeoffLiftError * takeoffLiftError +
+            0.20f * lateral + 2.0f * torque;
+        if (takeoffCost < bestTakeoffCost) {
+            bestTakeoffCost = takeoffCost;
+            bestTakeoffCandidate = candidate;
         }
     }
     float maximumVelocityDelta = 0.0f;
@@ -597,6 +609,11 @@ void runNumiflyAuthorityProbe(
               << loads[bestTrimCandidate].force[0u] << " "
               << loads[bestTrimCandidate].force[1u] << " "
               << loads[bestTrimCandidate].force[2u] << '\n'
+              << "  best takeoff candidate / cost / mean force xyz N: "
+              << bestTakeoffCandidate << " / " << bestTakeoffCost << " / "
+              << loads[bestTakeoffCandidate].force[0u] << " "
+              << loads[bestTakeoffCandidate].force[1u] << " "
+              << loads[bestTakeoffCandidate].force[2u] << '\n'
               << "  maximum generalized-velocity delta vs disabled wings: "
               << maximumVelocityDelta << '\n'
               << "  deterministic signed-load replay: true\n"

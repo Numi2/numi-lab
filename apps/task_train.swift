@@ -26,6 +26,7 @@ private struct Options {
     var initializePolicyID: String?
     var initializeActorPolicyPack: String?
     var initializeActorFreshCritic = false
+    var initializeZeroActorOutput = false
     var actorObservationExtensionOffset: Int?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
@@ -48,6 +49,7 @@ private struct Options {
     var interactionPushMaximumVelocity: Float?
     var interactionPushIntervalSeconds: Float?
     var interactionResetOnly = false
+    var disableTaskTerminations = false
     var materializeArticulatedContactResponses = false
     var minimumDifficultyBand: Int?
     var maximumDifficultyBand: Int?
@@ -154,6 +156,8 @@ private struct Options {
                 index += 1
             case "--initialize-actor-fresh-critic":
                 initializeActorFreshCritic = true
+            case "--initialize-zero-actor-output":
+                initializeZeroActorOutput = true
             case "--actor-observation-extension-offset":
                 actorObservationExtensionOffset = try Self.integer(
                     value(),
@@ -294,6 +298,8 @@ private struct Options {
                 index += 1
             case "--interaction-reset-only":
                 interactionResetOnly = true
+            case "--disable-task-terminations", "--continue-after-termination":
+                disableTaskTerminations = true
             case "--materialize-articulated-contact-responses":
                 materializeArticulatedContactResponses = true
             case "--minimum-difficulty-band":
@@ -938,6 +944,9 @@ private func initializePolicyIfRequested(
             String(offset),
         ])
     }
+    if options.initializeZeroActorOutput {
+        arguments.append("--zero-actor-output")
+    }
     process.arguments = arguments
     process.environment = mlxEnvironment(options: options)
     process.standardOutput = output
@@ -1288,6 +1297,7 @@ private func makeContext(
         surface: options.surface,
         seed: options.seed,
         dynamicSpheres: dynamicSpheres,
+        disableTaskTerminations: options.disableTaskTerminations,
         materializeArticulatedContactResponses:
             options.materializeArticulatedContactResponses,
         difficultyBandRange:
@@ -1690,11 +1700,6 @@ private enum TaskTrainMain {
                             return installedRevision
                         }
                     )
-                    guard advance.failedEnvironmentSteps == 0 else {
-                        throw MetalRoboTaskRolloutError.native(
-                            "Native rollout returned a GPU failure."
-                        )
-                    }
                     let transitionOffset =
                         transitions.count
                     try context.appendCurrentPolicyRollout(

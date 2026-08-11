@@ -1974,6 +1974,30 @@ RobotPack makeMeasuredSurfaceRobotPack(
 }
 
 RobotPack makeNumiflyRobotPack(MeasuredSurfaceRobotPack bilateralWings) {
+    // Couple the measured insect-scale wing surface to the complete 9%-scale
+    // articulated robot at a qualified load level.  The previous 0.315 scale
+    // was derived before the complete humanoid inertia was exercised by the
+    // current authority probe; it leaves even the strongest bounded command
+    // at only about 0.55x combined-body weight.  Preserve force direction,
+    // torque ratios, cadence, and differential modes while restoring enough
+    // collective authority for ground takeoff and a bounded control reserve.
+    constexpr float kNumiflyAerodynamicLoadScale = 0.85f;
+    bilateralWings.normalDragCoefficient *=
+        kNumiflyAerodynamicLoadScale;
+    bilateralWings.tangentialDragCoefficient *=
+        kNumiflyAerodynamicLoadScale;
+    const auto authorityTrim = numiflyAuthorityTrimActions();
+    for (std::uint32_t action = 0u;
+         action < bilateralWings.actionCount;
+         ++action) {
+        bilateralWings.normalizedActionBias[action] = authorityTrim[action];
+        // Stabilization begins around a force-balanced measured-wing trim.
+        // Keep the learned residual deliberately local: the FEM authority
+        // sweep proved the trim can lift the 9%-scale body, while the first
+        // PPO mean update at 0.35 residual authority crossed a deformation
+        // validity boundary despite very low stochastic variance.
+        bilateralWings.normalizedActionScale[action] = 0.12f;
+    }
     const CompiledMeasuredSurfaceRobot compiled =
         compileMeasuredSurfaceRobot(bilateralWings);
     if (bilateralWings.components.size() != 2u ||
@@ -2001,6 +2025,16 @@ RobotPack makeNumiflyRobotPack(MeasuredSurfaceRobotPack bilateralWings) {
         "flight", "bilateral_measured_surface", "balance",
         "locomotion", "whole_body_motion",
     };
+    // The 9%-scale articulation has far less inertia than the source G1, but
+    // its inherited position actuators otherwise accept a new target in one
+    // control step. Filter commanded targets through a finite actuator
+    // response so a rare stochastic residual cannot create an impulsive
+    // whole-body pose change while contacts are active.
+    for (RobotActuatorSpec& actuator : pack.actuators) {
+        actuator.scale *= 0.50f;
+        actuator.responseTimeSeconds = std::max(
+            actuator.responseTimeSeconds, 0.25f);
+    }
     addBodyRole(pack, "wing_mount", {"torso_link"});
     for (std::uint32_t component = 0u;
          component < bilateralWings.actionCount; ++component) {
@@ -2008,8 +2042,8 @@ RobotPack makeNumiflyRobotPack(MeasuredSurfaceRobotPack bilateralWings) {
             .id = "wing." + bilateralWings.actions[component].name,
             .kind = RobotActuatorKind::measuredSurface,
             .target = "torso_link",
-            .scale = 1.0f,
-            .responseTimeSeconds = 0.0f,
+            .scale = 0.12f,
+            .responseTimeSeconds = 0.25f,
             .component = component,
         });
     }
@@ -2087,7 +2121,7 @@ TaskPack makeNumiflyFlightTaskPack(
     }
     TaskPack task = makeUnitreeG1LocomotionTaskPack(
         surface, observations, reset);
-    task.id = "numifly.flight.v1";
+    task.id = "numifly.flight.v3";
     // Wing authority is large relative to the 9%-scale articulation and can
     // fold limbs through substantially more simultaneous self-contact than
     // the full-size G1 locomotion envelope. These are per-environment hard
@@ -2157,28 +2191,60 @@ TaskPack makeNumiflyFlightTaskPack(
             TaskOutcomeDirection::higherIsBetter},
     };
     task.rewards = {
-        {.operation = TaskRewardOperator::constant, .weight = 0.25f},
+        // Ground-start curriculum: reward the transition into flight directly.
+        // A height-error-only objective gives almost no useful distinction
+        // between actions while the robot is still supported by the ground.
+        // Do not pay the policy merely for remaining in a long episode.  With
+        // recoverable ground contact that creates a stable floor-drift local
+        // optimum.  Takeoff must improve return directly.
+        {.operation = TaskRewardOperator::rootHeightProgress,
+            .weight = 30.0f},
         {.operation = TaskRewardOperator::rootHeightErrorSquared,
-            .weight = -8.0f},
+            .weight = -20.0f},
+        // Recovery stage signals must remain informative after the robot has
+        // fallen. Uprightness deliberately clamps the inverted hemisphere to
+        // zero; body-up exponential preserves a smooth orientation gradient
+        // there, while normalized height distinguishes rising from floor
+        // drift without demanding immediate flight.
+        {.operation = TaskRewardOperator::bodyUpExponential,
+            .weight = 4.0f},
+        {.operation = TaskRewardOperator::rootHeightNormalized,
+            .weight = 12.0f},
+        {.operation = TaskRewardOperator::uprightness, .weight = 3.0f},
         {.operation = TaskRewardOperator::tiltSquared, .weight = -1.0f},
         {.operation = TaskRewardOperator::rootVerticalVelocitySquared,
-            .weight = -0.15f},
+            .weight = -0.04f},
         {.operation = TaskRewardOperator::rootRollPitchVelocitySquared,
-            .weight = -0.05f},
+            .weight = -0.025f},
+        {.operation = TaskRewardOperator::jointVelocitySquared,
+            .weight = -0.0005f},
+        {.operation = TaskRewardOperator::actionSquared,
+            .weight = -0.003f},
         {.operation = TaskRewardOperator::actionRateSquared,
             .weight = -0.002f},
     };
     task.terminations = {
-        {.operation = TaskTerminationOperator::minimumRootHeight,
-            .reason = MR_TASK_TERMINATION_HEIGHT, .priority = 10u,
-            .threshold = 0.025f, .failurePenalty = -5.0f},
         {.operation = TaskTerminationOperator::maximumTilt,
             .reason = MR_TASK_TERMINATION_TILT, .priority = 20u,
-            .threshold = 1.45f, .failurePenalty = -2.0f},
+            // The canonical ground pose begins around 0.73 rad and initially
+            // rocks while the wings spool up. Preserve those physically useful
+            // ground transitions; uprightness remains strongly rewarded and
+            // later curriculum stages can tighten this flight envelope.
+            .threshold = 2.70f, .failurePenalty = -2.0f},
     };
-    task.maximumEpisodeSteps = 1000u;
+    // Ground contact and low height are recoverable states for a robot whose
+    // curriculum begins on the ground.  The old minimum-height terminal reset
+    // episodes after roughly 15 control steps, preventing the policy from
+    // experiencing takeoff or sustained flight.  Keep state continuous for a
+    // full 40-second horizon and terminate only catastrophic orientation.
+    task.maximumEpisodeSteps = 2000u;
     task.difficultyBandCount = 1u;
-    task.baseHeightTarget = 0.45f;
+    // NumiFly inherits the G1 posture at 9% linear scale. Keep the first
+    // curriculum stage on the corresponding 0.78 m * 0.09 standing height;
+    // the former 0.45 m target and 0.14--0.16 m reset silently turned a
+    // ground start into a drop test and made height rewards unattainable.
+    constexpr float kNumiflyStandingRootHeight = 0.78f * 0.09f;
+    task.baseHeightTarget = kNumiflyStandingRootHeight;
     task.gaitPeriodSeconds = 1.0f / 28.8f;
     task.clearanceTarget = 0.02f;
     task.successTrackingThreshold = 0.8f;
@@ -2196,7 +2262,10 @@ TaskPack makeNumiflyFlightTaskPack(
         {.operation = TaskRandomizationOperator::rootYaw,
             .parameters = {-0.15f, 0.15f, 0.0f, 0.0f}},
         {.operation = TaskRandomizationOperator::rootHeight,
-            .parameters = {0.14f, 0.16f, 0.0f, 0.0f}},
+            .parameters = {
+                kNumiflyStandingRootHeight - 0.003f,
+                kNumiflyStandingRootHeight + 0.003f,
+                0.0f, 0.0f}},
         {.operation = TaskRandomizationOperator::velocity,
             .parameters = {-0.02f, 0.02f, 0.0f, 0.0f}},
     };
@@ -2211,7 +2280,7 @@ TaskPack makeNumiflyForwardFlightTaskPack(
 ) {
     TaskPack task = makeNumiflyFlightTaskPack(
         robot, surface, observations, reset);
-    task.id = "numifly.forward_flight.v1";
+    task.id = "numifly.forward_flight.v2";
     // Keep the learned objective agnostic to the support strategy.  The
     // contact solver remains authoritative for feet, hands, torso, and wing
     // interactions; this task supplies only the forward-progress objective.
@@ -2256,9 +2325,6 @@ TaskPack makeNumiflyForwardFlightTaskPack(
             .weight = -0.002f},
     };
     task.terminations = {
-        {.operation = TaskTerminationOperator::minimumRootHeight,
-            .reason = MR_TASK_TERMINATION_HEIGHT, .priority = 10u,
-            .threshold = 0.025f, .failurePenalty = -5.0f},
         {.operation = TaskTerminationOperator::maximumTilt,
             .reason = MR_TASK_TERMINATION_TILT, .priority = 20u,
             .threshold = 2.70f, .failurePenalty = -2.0f},
@@ -2782,24 +2848,28 @@ TaskPack makeMeasuredSurfaceFoodNavigationTaskPack(
     TaskPack task = makeMeasuredSurfaceCruiseTaskPack(
         robot, observations, reset);
     task.id = robot.id + ".food_navigation";
-    const auto retargetObservation = [](TaskObservationOperatorSpec& spec) {
-        if (spec.source != TaskObservationSource::deviceMechanics ||
-            spec.component > 3u) {
-            return;
+    task.difficultyBandCount = 4u;
+    task.commands.difficultySamplingExponent = 1.0f;
+    for (TaskRandomizationOperatorSpec& operation : reset.operators) {
+        if (operation.operation ==
+                TaskRandomizationOperator::rootOrientationCone) {
+            operation.parameters = {0.20f, 0.15f, 0.0f, 0.0f};
         }
-        const std::uint32_t component = spec.component;
-        spec.source = TaskObservationSource::objectTrack;
-        spec.target = "food_target";
-        spec.component = component;
-        spec.scale = component == 0u ? 1.0f : 0.15f;
-        spec.offset = 0.0f;
-    };
-    for (TaskObservationOperatorSpec& spec : observations.actorCurrent) {
-        retargetObservation(spec);
     }
-    for (TaskObservationOperatorSpec& spec : observations.critic) {
-        retargetObservation(spec);
-    }
+    const std::array<TaskObservationOperatorSpec, 4u> targetObservations{{
+        {.source = TaskObservationSource::objectTrack,
+            .target = "food_target", .component = 0u},
+        {.source = TaskObservationSource::objectTrack,
+            .target = "food_target", .component = 1u, .scale = 0.15f},
+        {.source = TaskObservationSource::objectTrack,
+            .target = "food_target", .component = 2u, .scale = 0.15f},
+        {.source = TaskObservationSource::objectTrack,
+            .target = "food_target", .component = 3u, .scale = 0.15f},
+    }};
+    observations.actorCurrent.insert(observations.actorCurrent.end(),
+        targetObservations.begin(), targetObservations.end());
+    observations.critic.insert(observations.critic.end(),
+        targetObservations.begin(), targetObservations.end());
     // Keep this below the fixed native outcome-channel budget and make the
     // navigation signals first-class rather than hiding them after the cruise
     // diagnostics inherited above.
@@ -2823,43 +2893,83 @@ TaskPack makeMeasuredSurfaceFoodNavigationTaskPack(
             TaskRewardOperator::uprightness},
     };
     task.rewards = {
-        {TaskRewardOperator::constant, {}, {}, -0.05f},
+        {TaskRewardOperator::constant, {}, {}, 0.35f},
         {TaskRewardOperator::rootHeightErrorSquared, {}, {}, -0.80f},
-        {TaskRewardOperator::rootObjectProgress, {}, "food_target", 4.0f},
-        {TaskRewardOperator::rootObjectProximity, {}, "food_target", 1.0f,
-            {4.0f, 0.0f, 0.0f, 0.0f}},
-        {TaskRewardOperator::linearVelocityTracking, {}, {}, 2.0f,
-            {0.40f, 0.0f, 0.0f, 0.0f}},
-        {TaskRewardOperator::uprightness, {}, {}, 1.5f},
-        {TaskRewardOperator::tiltSquared, {}, {}, -0.55f},
+        {TaskRewardOperator::rootHeightProgress, {}, {}, 1.50f},
+        {TaskRewardOperator::linearVelocityTracking, {}, {}, 8.0f,
+            {0.36f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::yawVelocityTracking, {}, {}, 0.75f,
+            {0.12f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::uprightness, {}, {}, 2.0f},
+        {TaskRewardOperator::tiltSquared, {}, {}, -0.60f},
         {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.12f},
         {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.02f},
         {TaskRewardOperator::actionSquared, {}, {}, -0.01f},
         {TaskRewardOperator::actionRateSquared, {}, {}, -0.003f},
+        {TaskRewardOperator::rootObjectProgress, {}, "food_target", 1.50f},
+        {TaskRewardOperator::rootObjectProximity, {}, "food_target", 2.0f,
+            {9.0f, 0.0f, 0.0f, 0.0f}},
     };
     task.terminations.push_back({
         .operation = TaskTerminationOperator::rootObjectProximity,
         .sourceGroup = "food_target",
         .reason = MR_TASK_TERMINATION_FOOD_CONSUMED,
         .priority = 120u,
-        .threshold = 0.22f,
-        .failurePenalty = 0.0f,
+        .threshold = 1.25f,
+        .failurePenalty = 25.0f,
     });
     reset.operators.push_back({
         .operation = TaskRandomizationOperator::sceneBodyPosition,
         .target = "food_target", .component = 0u,
-        .parameters = {4.0f, 12.0f, 0.0f, 0.0f},
+        .parameters = {3.0f, 6.0f, 0.0f, 0.0f},
     });
     reset.operators.push_back({
         .operation = TaskRandomizationOperator::sceneBodyPosition,
         .target = "food_target", .component = 1u,
-        .parameters = {-6.0f, 6.0f, 0.0f, 0.0f},
+        .parameters = {-0.25f, 0.25f, 0.0f, 0.0f},
     });
     reset.operators.push_back({
         .operation = TaskRandomizationOperator::sceneBodyPosition,
         .target = "food_target", .component = 2u,
-        .parameters = {3.5f, 6.5f, 0.0f, 0.0f},
+        .parameters = {4.5f, 5.5f, 0.0f, 0.0f},
     });
+    for (const auto& stage : std::array{
+             std::array<float, 7u>{1.0f, 4.0f, 9.0f, -1.5f, 1.5f, 4.3f, 5.7f},
+             std::array<float, 7u>{2.0f, 5.0f, 12.0f, -4.0f, 4.0f, 4.0f, 6.0f},
+             std::array<float, 7u>{3.0f, 4.0f, 12.0f, -6.0f, 6.0f, 3.5f, 6.5f},
+         }) {
+        const std::uint32_t band = static_cast<std::uint32_t>(stage[0]);
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::sceneBodyPosition,
+            .target = "food_target", .component = 0u,
+            .minimumDifficultyBand = band,
+            .parameters = {stage[1], stage[2], 0.0f, 0.0f},
+        });
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::sceneBodyPosition,
+            .target = "food_target", .component = 1u,
+            .minimumDifficultyBand = band,
+            .parameters = {stage[3], stage[4], 0.0f, 0.0f},
+        });
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::sceneBodyPosition,
+            .target = "food_target", .component = 2u,
+            .minimumDifficultyBand = band,
+            .parameters = {stage[5], stage[6], 0.0f, 0.0f},
+        });
+    }
+    for (const auto& heading : std::array{
+             std::array<float, 3u>{1.0f, 0.30f, 0.75f},
+             std::array<float, 3u>{2.0f, 0.40f, 1.50f},
+             std::array<float, 3u>{3.0f, 0.45f, 3.14159265f},
+         }) {
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::rootOrientationCone,
+            .minimumDifficultyBand =
+                static_cast<std::uint32_t>(heading[0]),
+            .parameters = {heading[1], heading[2], 0.0f, 0.0f},
+        });
+    }
     return task;
 }
 

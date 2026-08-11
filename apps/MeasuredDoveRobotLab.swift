@@ -307,11 +307,17 @@ private final class RobotEngine {
         self.environmentIndex = environmentIndex
         policySeed = UInt64(0xD0_0E_0000 + environmentIndex)
         if let policyURL {
+            let difficultyBandRange: ClosedRange<UInt32>
+            switch measuredSurfaceTask {
+            case .cruise: difficultyBandRange = 0...0
+            case .foodNavigation: difficultyBandRange = 0...3
+            default: difficultyBandRange = 4...4
+            }
             let configuration = MetalRoboTaskRolloutConfiguration(
                 environmentCount: 1,
                 controlTimestepSeconds: 0.02,
                 seed: policySeed,
-                difficultyBandRange: measuredSurfaceTask == .cruise ? 0...0 : 4...4
+                difficultyBandRange: difficultyBandRange
             )
             let context = try MetalRoboTaskRolloutContext(
                 manifest: MetalRoboRunManifest(
@@ -1394,9 +1400,11 @@ private func perspective(_ fovy: Float,_ aspect: Float,_ near: Float,_ far: Floa
                     measuredSurfaceTask = .fatalDropRecovery
                 case "dove-cruise":
                     measuredSurfaceTask = .cruise
+                case "dove-food-navigation":
+                    measuredSurfaceTask = .foodNavigation
                 default:
                     throw RobotError.invalid(
-                        "--task must be dove-drop-recovery or dove-cruise")
+                        "--task must be dove-drop-recovery, dove-cruise, or dove-food-navigation")
                 }
             default:
                 guard !arguments[index].hasPrefix("--") else {

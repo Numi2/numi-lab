@@ -63,7 +63,10 @@ std::string sha256File(const std::filesystem::path& path) {
     if (!stream) throw std::runtime_error("cannot open " + path.string());
     CC_SHA256_CTX context{};
     CC_SHA256_Init(&context);
-    std::array<char, 1024 * 1024> buffer{};
+    // Robot packs can be loaded from a dispatch worker whose stack is much
+    // smaller than the main thread's. Keep the streaming hash buffer off that
+    // stack so opening a Numi Window scene cannot overflow before Metal setup.
+    std::vector<char> buffer(1024 * 1024);
     while (stream) {
         stream.read(buffer.data(), static_cast<std::streamsize>(buffer.size()));
         const std::streamsize count = stream.gcount();
@@ -218,6 +221,24 @@ measuredSurfaceRecoveryTrimActions() {
         -0.756487f, -0.860807f, -0.752742f, 0.469568f,
         0.785600f, -0.247472f, 0.123905f, -0.303837f,
         0.194382f, 0.0452973f, -0.366264f, -0.506249f,
+    };
+}
+
+std::array<float, kMeasuredSurfaceActionCount>
+numiflyAuthorityTrimActions() {
+    // Candidate 103 from the deterministic full-body authority sweep is the
+    // lowest-cost takeoff point: about 1.33x combined-body weight with low
+    // lateral force and torque.  Store the resulting surface-space residual
+    // as the actuator center so PPO begins from coordinated bilateral motion
+    // instead of having to discover twenty coupled wing lanes independently.
+    // The policy retains a bounded 0.12 residual around this center.
+    return {
+        -0.031028664f, 0.003216614f, 0.048863091f, 0.038014358f,
+        -0.018902882f, 0.028645668f, 0.036824779f, -0.035453773f,
+        0.035472840f, 0.044857728f, -0.034543387f, -0.044597719f,
+        0.034829884f, -0.001090276f, -0.004619246f, 0.044114016f,
+        0.028361551f, 0.040016863f, -0.000083093f, 0.005595685f,
+        0.0f, 0.0f, 0.0f, 0.0f,
     };
 }
 
@@ -410,6 +431,7 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
     hashValue(hash, pack.tangentialDragCoefficient);
     hashValue(hash, pack.aerodynamicCorrections);
     hashValue(hash, pack.normalizedActionBias);
+    hashValue(hash, pack.normalizedActionScale);
     hashBytes(hash, pack.frameMajorPositions.data(),
               pack.frameMajorPositions.size() * sizeof(float));
     hashBytes(hash, pack.triangleIndices.data(),
@@ -433,8 +455,12 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
         hashValue(hash, action.dampingRatio);
         if (!std::isfinite(pack.normalizedActionBias[i]) ||
             pack.normalizedActionBias[i] < -1.0f ||
-            pack.normalizedActionBias[i] > 1.0f) {
-            throw std::invalid_argument("normalized action bias is outside [-1, 1]");
+            pack.normalizedActionBias[i] > 1.0f ||
+            !std::isfinite(pack.normalizedActionScale[i]) ||
+            pack.normalizedActionScale[i] < 0.0f ||
+            pack.normalizedActionScale[i] > 1.0f) {
+            throw std::invalid_argument(
+                "normalized action bias/scale is outside its bounded contract");
         }
         result.gpuActions[i].boundsFrequencyDamping = {
             action.lowerBound,
@@ -443,7 +469,8 @@ CompiledMeasuredSurfaceRobot compileMeasuredSurfaceRobot(
             action.dampingRatio,
         };
         result.gpuActions[i].normalizedBiasReserved = {
-            pack.normalizedActionBias[i], 0.0f, 0.0f, 0.0f};
+            pack.normalizedActionBias[i], pack.normalizedActionScale[i],
+            0.0f, 0.0f};
     }
     mr_float4 minimum{
         std::numeric_limits<float>::infinity(),
