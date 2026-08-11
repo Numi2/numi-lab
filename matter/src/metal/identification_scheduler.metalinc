@@ -761,7 +761,11 @@ kernel void nm_finalize_status(
         if (scheduler.physical.x > 0.0f || scheduler.physical.y > 0.0f) {
             ++contactedObjects;
         }
-        if (objects[objectIndex].representation == NM_REPRESENTATION_FEM) {
+        // The monolithic FGMRES solve owns both FEM and active sparse-MPM
+        // blocks. Publish its measured iteration high-water for every
+        // continuum representation instead of silently reporting zero for
+        // MPM-only worlds.
+        if (objects[objectIndex].representation != NM_REPRESENTATION_RIGID) {
             maximumPCGIterations = max(
                 maximumPCGIterations,
                 uint(max(

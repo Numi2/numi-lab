@@ -912,8 +912,10 @@ void runStatefulMaterial(
 }
 
 struct Outcome {
+    double gpuMilliseconds = 0.0;
     std::uint32_t contactSamples = 0u;
     std::uint32_t completedMicrosteps = 0u;
+    std::uint64_t totalCompletedMicrosteps = 0u;
     std::uint32_t pcgIterations = 0u;
     bool sawContactOnset = false;
     bool sawContactEvent = false;
@@ -2260,8 +2262,15 @@ Outcome runCase(
                 commandBuffer.status == MTLCommandBufferStatusCompleted,
                 label + std::string(" command buffer did not complete")
             );
+            const CFTimeInterval gpuStart = commandBuffer.GPUStartTime;
+            const CFTimeInterval gpuEnd = commandBuffer.GPUEndTime;
+            if (std::isfinite(gpuStart) && std::isfinite(gpuEnd) &&
+                gpuEnd >= gpuStart) {
+                outcome.gpuMilliseconds += 1000.0 * (gpuEnd - gpuStart);
+            }
 
             const NMMatterStatusGPU status = statusData[0];
+            outcome.totalCompletedMicrosteps += status.completedMicrosteps;
             std::string certificateFailure;
             if (status.code != (forceRollback
                     ? NM_STATUS_RIGID_WORLD_FAILURE
@@ -2747,6 +2756,10 @@ int main(int argc, const char* argv[]) {
                 << ",\"vertical_velocity_range\":[" << mpm.minimumVerticalVelocity
                 << ',' << mpm.maximumVerticalVelocity << ']'
                 << ",\"contact_event\":" << (mpm.sawContactEvent ? "true" : "false")
+                << ",\"microsteps_per_control_step\":" << mpm.completedMicrosteps
+                << ",\"total_microsteps\":" << mpm.totalCompletedMicrosteps
+                << ",\"maximum_krylov_iterations\":" << mpm.pcgIterations
+                << ",\"gpu_milliseconds\":" << mpm.gpuMilliseconds
                 << ",\"transaction_rollback\":" << (mpmRollback ? "true" : "false")
                 << "}\n";
         }
