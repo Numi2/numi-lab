@@ -50,10 +50,12 @@ typedef struct NM_ALIGN16 nm_int4 {
 #define NM_MPM_MAX_PARTICLES_PER_BLOCK 256u
 #define NM_MAX_MATERIAL_STATE 16u
 #define NM_MIXED_NEWTON_ITERATIONS 7u
+// Maximum supported compiled basis depth.
 #define NM_MIXED_FGMRES_RESTART 16u
-// The production default encodes one complete restart cycle. Worlds may
-// author a larger total budget explicitly; the runtime reuses this basis.
-#define NM_MIXED_FGMRES_ITERATIONS 16u
+// Measured production default. Worlds may author a larger supported
+// restart/total budget explicitly.
+#define NM_MIXED_FGMRES_DEFAULT_RESTART 10u
+#define NM_MIXED_FGMRES_ITERATIONS 10u
 #define NM_MIXED_LINE_SEARCH_STEPS 8u
 #define NM_MIXED_MUTATION_RESTARTS 4u
 #define NM_LEARNED_MAX_LAYERS 8u

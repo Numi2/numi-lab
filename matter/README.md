@@ -279,8 +279,8 @@ posterior update from asymmetric candidate losses.
 It is deliberately serial because all cases use the active GPU.
 
 The coupled production defaults use seven outer Newton corrections and one
-16-column FGMRES restart cycle. On the Apple M4 qualification host, the
-24-test suite completed without failure in 396.48 seconds. The strict
+ten-column FGMRES restart cycle. On the Apple M4 qualification host, the
+24-test suite completed without failure in 367.25 seconds. The strict
 eight-particle impact executed 1,024 material microsteps, used at most six
 Krylov iterations, observed contact, retained `minimum_J = 0.997895`, and
 completed without transaction rollback.
@@ -288,12 +288,14 @@ These measurements establish this implementation and workload on that host;
 they are not a matched claim against another simulator or Apple GPU.
 The dedicated batch probe additionally completed 32 identical contact
 environments and 8,192 environment-microsteps on one command-buffer timeline
-at 102.338 environment-microsteps/second with 10,813,600 retained bytes. Every
+at 103.94 environment-microsteps/second with 9,486,496 retained bytes. Every
 environment reported nine contacts, `minimum_J = 0.99916`, no failed
-environment and a one-iteration FGMRES high-water. The single-cycle default
-encoded 295,201 dispatches for this batch, 44.7 percent fewer than the
-two-cycle build, without a measured GPU-time improvement. This is native
-batching and command-graph evidence, not an external frontier comparison.
+environment and a two-iteration FGMRES high-water. The ten-column default
+encoded 209,185 dispatches for this batch, 60.8 percent fewer than the former
+two-cycle build, while reducing retained memory by 12.3 percent. Eight- and
+nine-column defaults were rejected by the articulated rigid-reaction gate;
+ten is the measured suite-wide minimum. This is native batching and
+command-graph evidence, not an external frontier comparison.
 
 This is continuum and analytic-proxy contact evidence, including one
 articulated rigid-reaction handoff through a full `MetalWorld` step. It also

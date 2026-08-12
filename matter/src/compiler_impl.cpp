@@ -509,6 +509,12 @@ void validateWorld(
         solver.activationEpsilon,
         solver.pressureStabilization,
     };
+    if (solver.fgmresRestart > NM_MIXED_FGMRES_RESTART) {
+        diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "mixed solver FGMRES restart exceeds the compiled basis capacity",
+        });
+    }
     if (std::ranges::any_of(budgets, [](const std::uint32_t value) {
             return value == 0u;
         }) || solver.fgmresRestart > solver.fgmresIterations ||

@@ -274,7 +274,7 @@ struct TetrahedronSource {
 
 struct MixedSolverSource {
     std::uint32_t newtonIterations = NM_MIXED_NEWTON_ITERATIONS;
-    std::uint32_t fgmresRestart = NM_MIXED_FGMRES_RESTART;
+    std::uint32_t fgmresRestart = NM_MIXED_FGMRES_DEFAULT_RESTART;
     std::uint32_t fgmresIterations = NM_MIXED_FGMRES_ITERATIONS;
     std::uint32_t lineSearchSteps = NM_MIXED_LINE_SEARCH_STEPS;
     std::uint32_t velocityPCGIterations = 32u;

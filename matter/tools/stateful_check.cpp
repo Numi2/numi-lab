@@ -460,6 +460,26 @@ void verifyAdaptiveLayout() {
     fem.tetrahedra.push_back({{0u, 1u, 2u, 3u}});
     source.objects.push_back(std::move(fem));
 
+    auto unsupportedRestart = source;
+    unsupportedRestart.mixedSolver.fgmresRestart =
+        NM_MIXED_FGMRES_RESTART + 1u;
+    unsupportedRestart.mixedSolver.fgmresIterations =
+        NM_MIXED_FGMRES_RESTART + 1u;
+    const auto rejectedRestart =
+        numi::matter::compileWorld(unsupportedRestart);
+    require(
+        !rejectedRestart.succeeded() &&
+            std::ranges::any_of(
+                rejectedRestart.diagnostics,
+                [](const numi::matter::Diagnostic& diagnostic) {
+                    return diagnostic.message.find(
+                        "FGMRES restart exceeds the compiled basis capacity"
+                    ) != std::string::npos;
+                }
+            ),
+        "compiler accepted an unsupported FGMRES restart depth"
+    );
+
     numi::matter::CompileOptions options;
     options.maximumRateExponent = 2u;
     auto compiled = numi::matter::compileWorld(source, options);
