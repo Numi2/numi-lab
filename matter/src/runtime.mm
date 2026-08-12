@@ -2027,6 +2027,9 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             if (count == 0u) {
                 return;
             }
+            ++diagnostics.threadDispatchCount;
+            diagnostics.requestedThreadCount +=
+                static_cast<std::uint64_t>(count);
             id<MTLComputePipelineState> pipeline = state.pipeline(name);
             [encoder setComputePipelineState:pipeline];
             bind();
@@ -2045,6 +2048,9 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             if (groupCount == 0u) {
                 return;
             }
+            ++diagnostics.simdgroupDispatchCount;
+            diagnostics.requestedThreadgroupCount +=
+                static_cast<std::uint64_t>(groupCount);
             [encoder setComputePipelineState:state.pipeline(name)];
             bind();
             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
@@ -2062,6 +2068,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 width > pipeline.maxTotalThreadsPerThreadgroup) {
                 return false;
             }
+            ++diagnostics.indirectDispatchCount;
             [encoder setComputePipelineState:pipeline];
             bind();
             [encoder

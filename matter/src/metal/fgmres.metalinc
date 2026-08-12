@@ -1613,15 +1613,23 @@ kernel void nm_fgmres_backsolve(
         solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART
     ));
     const uint totalUsed = iterationOffset + used;
-    atomic_fetch_max_explicit(
-        (device atomic_uint*)&statuses[environment].pcgIterations,
-        totalUsed,
-        memory_order_relaxed
-    );
-    for (uint objectIndex = 0u; objectIndex < dispatch.objectCount;
-         ++objectIndex)
-        publishedIterations[environment * dispatch.objectCount + objectIndex]
-            .diagnostics.w = float(max(totalUsed, 1u));
+    // A converged environment still traverses the statically encoded restart
+    // tail. Do not turn an empty cycle's iterationOffset into fictitious
+    // Krylov work; retain only cycles that actually formed an Arnoldi column.
+    if (used > 0u) {
+        atomic_fetch_max_explicit(
+            (device atomic_uint*)&statuses[environment].pcgIterations,
+            totalUsed,
+            memory_order_relaxed
+        );
+        for (uint objectIndex = 0u; objectIndex < dispatch.objectCount;
+             ++objectIndex) {
+            device NMPCGScalarGPU& published = publishedIterations[
+                environment * dispatch.objectCount + objectIndex];
+            published.diagnostics.w = max(
+                published.diagnostics.w, float(totalUsed));
+        }
+    }
     for (int row = int(used) - 1; row >= 0; --row) {
         float value = leastSquares[fgmresVectorIndex(environment, uint(row))];
         for (uint column = uint(row) + 1u; column < used; ++column)

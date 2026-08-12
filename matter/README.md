@@ -278,19 +278,22 @@ post-solve arena, and antithetic inverse-parameter sampling followed by a GPU
 posterior update from asymmetric candidate losses.
 It is deliberately serial because all cases use the active GPU.
 
-The coupled production defaults use seven outer Newton corrections and two
-16-column FGMRES restart cycles. On the Apple M4 qualification host, the
-24-test suite completed without failure in 380.23 seconds. The strict
-eight-particle impact executed 1,024 material microsteps, observed contact,
-retained `minimum_J = 0.997895`, and completed without transaction rollback.
+The coupled production defaults use seven outer Newton corrections and one
+16-column FGMRES restart cycle. On the Apple M4 qualification host, the
+24-test suite completed without failure in 396.48 seconds. The strict
+eight-particle impact executed 1,024 material microsteps, used at most six
+Krylov iterations, observed contact, retained `minimum_J = 0.997895`, and
+completed without transaction rollback.
 These measurements establish this implementation and workload on that host;
 they are not a matched claim against another simulator or Apple GPU.
 The dedicated batch probe additionally completed 32 identical contact
 environments and 8,192 environment-microsteps on one command-buffer timeline
-at 103.147 environment-microsteps/second with 10,813,600 retained bytes. Every
+at 102.338 environment-microsteps/second with 10,813,600 retained bytes. Every
 environment reported nine contacts, `minimum_J = 0.99916`, no failed
-environment and a 16-iteration FGMRES high-water. This is native batching
-evidence, not an external frontier comparison.
+environment and a one-iteration FGMRES high-water. The single-cycle default
+encoded 295,201 dispatches for this batch, 44.7 percent fewer than the
+two-cycle build, without a measured GPU-time improvement. This is native
+batching and command-graph evidence, not an external frontier comparison.
 
 This is continuum and analytic-proxy contact evidence, including one
 articulated rigid-reaction handoff through a full `MetalWorld` step. It also

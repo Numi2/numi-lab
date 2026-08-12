@@ -670,6 +670,13 @@ struct EncodeRequest {
 struct RuntimeDiagnostics {
     bool encoded = false;
     std::size_t residentBytes = 0u;
+    // Host-side command-graph accounting. These count encoded work requests,
+    // not necessarily active shader lanes, and require no GPU readback.
+    std::uint64_t threadDispatchCount = 0u;
+    std::uint64_t simdgroupDispatchCount = 0u;
+    std::uint64_t indirectDispatchCount = 0u;
+    std::uint64_t requestedThreadCount = 0u;
+    std::uint64_t requestedThreadgroupCount = 0u;
     std::string device;
     std::string message;
 };

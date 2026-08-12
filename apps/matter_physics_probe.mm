@@ -914,6 +914,11 @@ void runStatefulMaterial(
 struct Outcome {
     double gpuMilliseconds = 0.0;
     std::size_t residentBytes = 0u;
+    std::uint64_t threadDispatches = 0u;
+    std::uint64_t simdgroupDispatches = 0u;
+    std::uint64_t indirectDispatches = 0u;
+    std::uint64_t requestedThreads = 0u;
+    std::uint64_t requestedThreadgroups = 0u;
     std::uint32_t environmentCount = 0u;
     std::uint32_t contactSamples = 0u;
     std::uint32_t minimumContactSamples =
@@ -2112,6 +2117,15 @@ Outcome runCase(
         Outcome outcome;
         outcome.environmentCount = environmentCount;
         outcome.residentBytes = initialized.residentBytes;
+        const auto recordEncoding = [&outcome](
+            const numi::matter::RuntimeDiagnostics& value
+        ) {
+            outcome.threadDispatches += value.threadDispatchCount;
+            outcome.simdgroupDispatches += value.simdgroupDispatchCount;
+            outcome.indirectDispatches += value.indirectDispatchCount;
+            outcome.requestedThreads += value.requestedThreadCount;
+            outcome.requestedThreadgroups += value.requestedThreadgroupCount;
+        };
         float initialMinimumHeight = std::numeric_limits<float>::infinity();
         for (const NMParticleStateGPU& particle : world.mpm.particles) {
             initialMinimumHeight = std::min(
@@ -2256,6 +2270,7 @@ Outcome runCase(
             }
             auto encoded = runtime.encode(request);
             require(encoded.encoded, label + std::string(" pre-dynamics: ") + encoded.message);
+            recordEncoding(encoded);
             if (forceRollback) {
                 // The ordered blit executes after the tentative continuum
                 // update and before post-commit reconciliation. This verifies
@@ -2270,6 +2285,7 @@ Outcome runCase(
             request.phase = numi::matter::EncodePhase::postCommit;
             encoded = runtime.encode(request);
             require(encoded.encoded, label + std::string(" post-commit: ") + encoded.message);
+            recordEncoding(encoded);
             [commandBuffer commit];
             [commandBuffer waitUntilCompleted];
             require(
@@ -2781,6 +2797,14 @@ int main(int argc, const char* argv[]) {
                 << batch.minimumContactSamples
                 << ",\"gpu_milliseconds\":" << batch.gpuMilliseconds
                 << ",\"resident_bytes\":" << batch.residentBytes
+                << ",\"thread_dispatches\":" << batch.threadDispatches
+                << ",\"simdgroup_dispatches\":"
+                << batch.simdgroupDispatches
+                << ",\"indirect_dispatches\":"
+                << batch.indirectDispatches
+                << ",\"requested_threads\":" << batch.requestedThreads
+                << ",\"requested_threadgroups\":"
+                << batch.requestedThreadgroups
                 << "}\n";
         }
         if (!identification && !adaptiveDemotion && !adaptivePromotion &&
