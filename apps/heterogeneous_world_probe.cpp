@@ -144,6 +144,9 @@ int main() {
         );
         require(
             persistentRun.succeeded() &&
+                persistentResult.layout.usesParallelABA &&
+                persistentResult.layout
+                        .parallelABAMaximumLevelWidth > 1u &&
                 persistentResult.finalRodNodes.size() ==
                     persistentWorld.rodNodeCount() &&
                 persistentResult.finalRodEdges.size() ==
@@ -894,6 +897,10 @@ int main() {
             << " rods=" << world.rods.size()
             << " persistent_rod_nodes="
             << persistentResult.finalRodNodes.size()
+            << " aba_frontier_width="
+            << persistentResult.layout
+                   .parallelABAMaximumLevelWidth
+            << " aba_execution=simd32"
             << " composed_constraints="
             << persistentContactResult.contactStatuses[0]
                    .requiredConstraints

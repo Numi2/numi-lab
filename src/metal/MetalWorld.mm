@@ -384,6 +384,11 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> parameterizedABAPipeline = nil;
     __strong id<MTLComputePipelineState> smallABAPipeline = nil;
     __strong id<MTLComputePipelineState> multiABAPipeline = nil;
+    __strong id<MTLComputePipelineState> parallelABAPipeline = nil;
+    __strong id<MTLComputePipelineState>
+        parallelParameterizedABAPipeline = nil;
+    __strong id<MTLComputePipelineState> parallelSmallABAPipeline = nil;
+    __strong id<MTLComputePipelineState> parallelMultiABAPipeline = nil;
     __strong id<MTLComputePipelineState> preparePipeline = nil;
     __strong id<MTLComputePipelineState> driveRefreshPipeline = nil;
     __strong id<MTLComputePipelineState> commitPipeline = nil;
@@ -1573,17 +1578,13 @@ bool buildRequirements(
     std::size_t& totalRequiredBytes
 ) {
     const EngineModel& model = world.model();
-    ParallelABASchedule parallelSchedule;
     const bool streamedResponses =
         (layout.contactDispatch.flags &
          MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) != 0u;
-    if (streamedResponses &&
-        !compileParallelABASchedule(
-             model,
-             parallelSchedule
-         ).succeeded()) {
-        return false;
-    }
+    const bool scheduleRequired =
+        streamedResponses || layout.usesParallelABA;
+    const ParallelABASchedule& parallelSchedule =
+        world.parallelABASchedule();
     const std::size_t jointElements =
         std::max<std::size_t>(model.joints.size(), 1u);
     const std::size_t resetMaskElements =
@@ -2089,54 +2090,54 @@ bool buildRequirements(
         ) ||
         !makeRequirement<MRParallelABAArticulationGPU>(
             "parallel ABA schedule articulations",
-            streamedResponses
+            scheduleRequired
                 ? parallelSchedule.articulations.size()
                 : 0u,
             requirements.entries[kParallelScheduleArticulations]
         ) ||
         !makeRequirement<MRParallelABALevelGPU>(
             "parallel ABA schedule levels",
-            streamedResponses ? parallelSchedule.levels.size() : 0u,
+            scheduleRequired ? parallelSchedule.levels.size() : 0u,
             requirements.entries[kParallelScheduleLevels]
         ) ||
         !makeRequirement<MRParallelABAParentReductionGPU>(
             "parallel ABA schedule parent reductions",
-            streamedResponses
+            scheduleRequired
                 ? parallelSchedule.parentReductions.size()
                 : 0u,
             requirements.entries[kParallelScheduleParentReductions]
         ) ||
         !makeRequirement<mr_u32>(
             "parallel ABA schedule level bodies",
-            streamedResponses
+            scheduleRequired
                 ? parallelSchedule.levelBodies.size()
                 : 0u,
             requirements.entries[kParallelScheduleLevelBodies]
         ) ||
         !makeRequirement<mr_u32>(
             "parallel ABA schedule parent indices",
-            streamedResponses
+            scheduleRequired
                 ? parallelSchedule.parentLocal.size()
                 : 0u,
             requirements.entries[kParallelScheduleParentLocal]
         ) ||
         !makeRequirement<mr_u32>(
             "parallel ABA schedule inbound joints",
-            streamedResponses
+            scheduleRequired
                 ? parallelSchedule.inboundJoint.size()
                 : 0u,
             requirements.entries[kParallelScheduleInboundJoint]
         ) ||
         !makeRequirement<mr_u32>(
             "parallel ABA schedule child offsets",
-            streamedResponses
+            scheduleRequired
                 ? parallelSchedule.childOffsets.size()
                 : 0u,
             requirements.entries[kParallelScheduleChildOffsets]
         ) ||
         !makeRequirement<mr_u32>(
             "parallel ABA schedule child indices",
-            streamedResponses
+            scheduleRequired
                 ? parallelSchedule.childIndices.size()
                 : 0u,
             requirements.entries[kParallelScheduleChildIndices]
@@ -3141,6 +3142,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     const MetalWorldBatch& batch,
     const MetalWorldStepConfig& config,
     const bool residentContinuation,
+    const bool preferParallelABA,
     RequiredBuffers& requirements
 ) {
     MetalWorldDiagnostics diagnostics{};
@@ -4327,6 +4329,38 @@ MetalWorldDiagnostics validateAndBuildLayout(
         );
     }
 
+    const bool streamedResponses =
+        (layout.contactDispatch.flags &
+         MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) != 0u;
+    if (preferParallelABA || streamedResponses) {
+        const ParallelABASchedule& schedule =
+            world.parallelABASchedule();
+        for (const MRParallelABAArticulationGPU& articulation :
+             schedule.articulations) {
+            layout.parallelABAMaximumLevelWidth = std::max(
+                layout.parallelABAMaximumLevelWidth,
+                articulation.maximumLevelWidth
+            );
+        }
+        const bool simd32Schedule =
+            layout.parallelABAMaximumLevelWidth != 0u &&
+            layout.parallelABAMaximumLevelWidth <=
+                kABAThreadsPerThreadgroup;
+        const bool hasProductiveBodyFrontier =
+            layout.parallelABAMaximumLevelWidth > 1u;
+        if (streamedResponses && !simd32Schedule) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::unsupportedTopology,
+                "streamed articulated response exceeds the SIMD32 "
+                "parallel ABA frontier width"
+            );
+        }
+        layout.usesParallelABA =
+            preferParallelABA && simd32Schedule &&
+            hasProductiveBodyFrontier;
+    }
+
     std::size_t totalRequiredBytes = 0u;
     if (!buildRequirements(
             world,
@@ -5196,6 +5230,67 @@ MetalWorldDiagnostics initializeContext(
         );
     }
     error = nil;
+    id<MTLComputePipelineState> parallelABA = makePipeline(
+        device,
+        library,
+        @"mr_parallel_articulated_aba_step",
+        &error
+    );
+    if (parallelABA == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create SIMD32 ABA pipeline: " +
+                describeError(error)
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> parallelParameterizedABA =
+        makePipeline(
+            device,
+            library,
+            @"mr_parallel_parameterized_articulated_aba_step",
+            &error
+        );
+    if (parallelParameterizedABA == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create parameterized SIMD32 ABA pipeline: " +
+                describeError(error)
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> parallelSmallABA = makePipeline(
+        device,
+        library,
+        @"mr_parallel_articulated_aba_step_small",
+        &error
+    );
+    if (parallelSmallABA == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create compact SIMD32 ABA pipeline: " +
+                describeError(error)
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> parallelMultiABA = makePipeline(
+        device,
+        library,
+        @"mr_parallel_multi_articulated_aba_step",
+        &error
+    );
+    if (parallelMultiABA == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create multi-articulation SIMD32 ABA pipeline: " +
+                describeError(error)
+        );
+    }
+    error = nil;
     id<MTLComputePipelineState> prepare = makePipeline(
         device,
         library,
@@ -5704,6 +5799,22 @@ MetalWorldDiagnostics initializeContext(
             device.maxThreadgroupMemoryLength ||
         multiABA.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
+        parallelABA.maxTotalThreadsPerThreadgroup <
+            kABAThreadsPerThreadgroup ||
+        parallelParameterizedABA.maxTotalThreadsPerThreadgroup <
+            kABAThreadsPerThreadgroup ||
+        parallelSmallABA.maxTotalThreadsPerThreadgroup <
+            kABAThreadsPerThreadgroup ||
+        parallelMultiABA.maxTotalThreadsPerThreadgroup <
+            kABAThreadsPerThreadgroup ||
+        parallelABA.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
+        parallelParameterizedABA.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
+        parallelSmallABA.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
+        parallelMultiABA.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
         operatorPipeline.maxTotalThreadsPerThreadgroup <
             kOperatorThreadsPerThreadgroup ||
         operatorPipeline.staticThreadgroupMemoryLength >
@@ -5840,6 +5951,14 @@ MetalWorldDiagnostics initializeContext(
     }
     if (pairNarrowphase.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE ||
+        parallelABA.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        parallelParameterizedABA.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        parallelSmallABA.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        parallelMultiABA.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
         manifoldScan.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE ||
         solverCohort.threadExecutionWidth !=
@@ -5880,6 +5999,11 @@ MetalWorldDiagnostics initializeContext(
     context.parameterizedABAPipeline = parameterizedABA;
     context.smallABAPipeline = smallABA;
     context.multiABAPipeline = multiABA;
+    context.parallelABAPipeline = parallelABA;
+    context.parallelParameterizedABAPipeline =
+        parallelParameterizedABA;
+    context.parallelSmallABAPipeline = parallelSmallABA;
+    context.parallelMultiABAPipeline = parallelMultiABA;
     context.preparePipeline = prepare;
     context.driveRefreshPipeline = driveRefresh;
     context.commitPipeline = commit;
@@ -6013,7 +6137,7 @@ MetalWorldDiagnostics initializeContext(
             pairNarrowphase.threadExecutionWidth
         );
     context.initialized = true;
-    context.stats.pipelineCreationCount += 63u;
+    context.stats.pipelineCreationCount += 67u;
     diagnostics = ensureHybridCCDPipeline(
         context,
         std::move(diagnostics)
@@ -6626,6 +6750,8 @@ MetalWorldDiagnostics ensureBufferArena(
         immutableBufferReplaced =
             immutableBufferReplaced ||
             (index >= kArticulations && index <= kBodies) ||
+            (index >= kParallelScheduleArticulations &&
+             index <= kParallelScheduleChildIndices) ||
             index == kShapes ||
             index == kMaterials ||
             index == kSceneBodyIndices ||
@@ -7001,18 +7127,8 @@ void uploadBatch(
                 immutableUpload
             );
         }
-        ParallelABASchedule parallelSchedule;
-        if ((layout.contactDispatch.flags &
-             MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) != 0u) {
-            const ParallelABAScheduleDiagnostics scheduleDiagnostics =
-                compileParallelABASchedule(model, parallelSchedule);
-            if (!scheduleDiagnostics.succeeded()) {
-                throw std::runtime_error(
-                    "failed to compile parallel ABA schedule: " +
-                    scheduleDiagnostics.message
-                );
-            }
-        }
+        const ParallelABASchedule& parallelSchedule =
+            world.parallelABASchedule();
         const std::array<std::pair<std::size_t, const void*>, 8u>
             scheduleSources{{
                 {
@@ -11535,6 +11651,32 @@ bool encodeABA(
                      offset:0u
                     atIndex:15u];
     }
+    [encoder setBuffer:
+                 context.buffers[kParallelScheduleArticulations]
+             offset:0u
+            atIndex:16u];
+    [encoder setBuffer:context.buffers[kParallelScheduleLevels]
+                 offset:0u
+                atIndex:17u];
+    [encoder setBuffer:
+                 context.buffers[kParallelScheduleParentReductions]
+             offset:0u
+            atIndex:18u];
+    [encoder setBuffer:context.buffers[kParallelScheduleLevelBodies]
+                 offset:0u
+                atIndex:19u];
+    [encoder setBuffer:context.buffers[kParallelScheduleParentLocal]
+                 offset:0u
+                atIndex:20u];
+    [encoder setBuffer:context.buffers[kParallelScheduleInboundJoint]
+                 offset:0u
+                atIndex:21u];
+    [encoder setBuffer:context.buffers[kParallelScheduleChildOffsets]
+                 offset:0u
+                atIndex:22u];
+    [encoder setBuffer:context.buffers[kParallelScheduleChildIndices]
+                 offset:0u
+                atIndex:23u];
     [encoder
         dispatchThreadgroups:MTLSizeMake(
             static_cast<NSUInteger>(environmentCount),
@@ -15195,6 +15337,9 @@ bool CompiledWorld::valid() const noexcept {
     return fingerprint_ != 0u &&
         modelFingerprint_ != 0u &&
         articulationIndex_ < model_.articulations.size() &&
+        parallelABASchedule_.fingerprint != 0u &&
+        parallelABASchedule_.articulations.size() ==
+            model_.articulations.size() &&
         capacityClass_ != MetalWorldCapacityClass::uncompiled;
 }
 
@@ -15387,6 +15532,11 @@ CompiledWorld::rodDynamicNodes() const noexcept {
     return rodDynamicNodes_;
 }
 
+const ParallelABASchedule&
+CompiledWorld::parallelABASchedule() const noexcept {
+    return parallelABASchedule_;
+}
+
 const MetalWorldCapacityProfile& CompiledWorld::capacities()
     const noexcept {
     return capacities_;
@@ -15474,6 +15624,19 @@ MetalWorldCompileDiagnostics compileMetalWorld(
         CompiledWorld staged;
         staged.model_ = model;
         staged.articulationIndex_ = articulationIndex;
+        const ParallelABAScheduleDiagnostics scheduleDiagnostics =
+            compileParallelABASchedule(
+                staged.model_,
+                staged.parallelABASchedule_
+            );
+        if (!scheduleDiagnostics.succeeded()) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::unsupportedTopology,
+                "parallel ABA schedule compilation failed: " +
+                    scheduleDiagnostics.message
+            );
+        }
         staged.capacityClass_ =
             std::all_of(
                 staged.model_.articulations.begin(),
@@ -17703,6 +17866,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             batch,
             config,
             residentContinuation,
+            pool_->slots.front()->config.preferParallelABA,
             requirements
         );
         if (!diagnostics.succeeded()) {
@@ -17896,15 +18060,26 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 );
             }
 
+            const bool useParallelABA =
+                diagnostics.layout.usesParallelABA;
             id<MTLComputePipelineState> selectedABAPipeline =
                 nativeTask
-                ? selectedState->parameterizedABAPipeline
+                ? (useParallelABA
+                       ? selectedState
+                             ->parallelParameterizedABAPipeline
+                       : selectedState->parameterizedABAPipeline)
                 : world.articulationCount() > 1u
-                ? selectedState->multiABAPipeline
+                ? (useParallelABA
+                       ? selectedState->parallelMultiABAPipeline
+                       : selectedState->multiABAPipeline)
                 : world.capacityClass() ==
                     MetalWorldCapacityClass::compactABA12
-                ? selectedState->smallABAPipeline
-                : selectedState->abaPipeline;
+                ? (useParallelABA
+                       ? selectedState->parallelSmallABAPipeline
+                       : selectedState->smallABAPipeline)
+                : (useParallelABA
+                       ? selectedState->parallelABAPipeline
+                       : selectedState->abaPipeline);
             std::size_t sourceQ =
                 residentContinuation ? residentQ : kStateQA;
             std::size_t sourceV =

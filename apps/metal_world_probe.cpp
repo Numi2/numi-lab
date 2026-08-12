@@ -42,6 +42,24 @@ bool byteEqual(
          ) == 0);
 }
 
+double maximumAbsoluteDifference(
+    const std::vector<float>& left,
+    const std::vector<float>& right
+) {
+    require(left.size() == right.size(), "comparison size mismatch");
+    double maximum = 0.0;
+    for (std::size_t index = 0u; index < left.size(); ++index) {
+        maximum = std::max(
+            maximum,
+            std::abs(
+                static_cast<double>(left[index]) -
+                static_cast<double>(right[index])
+            )
+        );
+    }
+    return maximum;
+}
+
 bool samePayload(
     const metalrobo::MetalWorldResult& left,
     const metalrobo::MetalWorldResult& right
@@ -551,6 +569,33 @@ Parity compareCPU(
     return parity;
 }
 
+Parity compareMetalResults(
+    const metalrobo::MetalWorldResult& candidate,
+    const metalrobo::MetalWorldResult& reference
+) {
+    require(
+        candidate.layout.dispatch.environmentCount ==
+                reference.layout.dispatch.environmentCount &&
+            candidate.layout.dispatch.controlStepCount ==
+                reference.layout.dispatch.controlStepCount &&
+            candidate.layout.dispatch.nq ==
+                reference.layout.dispatch.nq &&
+            candidate.layout.dispatch.nv ==
+                reference.layout.dispatch.nv,
+        "Metal result layouts are not comparable"
+    );
+    CPUOracle oracle;
+    oracle.observations.assign(
+        reference.observations.begin(),
+        reference.observations.end()
+    );
+    oracle.accelerations.assign(
+        reference.accelerations.begin(),
+        reference.accelerations.end()
+    );
+    return compareCPU(candidate, oracle);
+}
+
 void requireSuccess(
     const metalrobo::MetalWorldDiagnostics& diagnostics,
     const std::string& operation
@@ -758,6 +803,32 @@ int main() {
                 firstDiagnostics.failedStepCount == 0u,
             "MetalWorld did not publish complete step accounting"
         );
+        metalrobo::MetalWorldConfig serialContextConfig;
+        serialContextConfig.preferParallelABA = false;
+        metalrobo::MetalWorldContext serialContext(
+            serialContextConfig
+        );
+        metalrobo::MetalWorldResult serialFirst;
+        const auto serialFirstDiagnostics = serialContext.run(
+            compiled,
+            small.view(),
+            stepConfig,
+            serialFirst
+        );
+        requireSuccess(
+            serialFirstDiagnostics,
+            "serial-oracle MetalWorld rollout"
+        );
+        require(
+            !first.layout.usesParallelABA &&
+                first.layout.parallelABAMaximumLevelWidth == 1u &&
+                !serialFirst.layout.usesParallelABA,
+            "width-one ABA chain did not select the serial kernel"
+        );
+        require(
+            samePayload(first, serialFirst),
+            "topology-selected Franka serial path diverged from oracle"
+        );
 
         // High-gain model drives are integrated through M+hD+h^2K in ABA,
         // not converted into an unstable explicit torque.
@@ -874,7 +945,7 @@ int main() {
                 environment *
                 (compiled.nq() + compiled.nv());
             std::copy_n(
-                first.observations.begin() +
+                serialFirst.observations.begin() +
                     static_cast<std::ptrdiff_t>(
                         observationBase
                     ),
@@ -885,7 +956,7 @@ int main() {
                     )
             );
             std::copy_n(
-                first.observations.begin() +
+                serialFirst.observations.begin() +
                     static_cast<std::ptrdiff_t>(
                         observationBase + compiled.nq()
                     ),
@@ -896,7 +967,7 @@ int main() {
                     )
             );
             std::copy_n(
-                first.accelerations.begin() +
+                serialFirst.accelerations.begin() +
                     static_cast<std::ptrdiff_t>(
                         environment * compiled.nv()
                     ),
@@ -907,6 +978,19 @@ int main() {
                     )
             );
         }
+        const double bucketQError = maximumAbsoluteDifference(
+            genericQ,
+            smallBucketQ
+        );
+        const double bucketVError = maximumAbsoluteDifference(
+            genericV,
+            smallBucketV
+        );
+        const double bucketAccelerationError =
+            maximumAbsoluteDifference(
+                genericStep.acceleration,
+                smallBucketAcceleration
+            );
         require(
             byteEqual(genericQ, smallBucketQ) &&
                 byteEqual(genericV, smallBucketV) &&
@@ -914,7 +998,11 @@ int main() {
                     genericStep.acceleration,
                     smallBucketAcceleration
                 ),
-            "small and generic ABA capacity buckets diverged"
+            "small and generic ABA capacity buckets diverged: q=" +
+                std::to_string(bucketQError) +
+                " v=" + std::to_string(bucketVError) +
+                " acceleration=" +
+                std::to_string(bucketAccelerationError)
         );
 
         const auto warmStats = context.stats();
@@ -1212,6 +1300,104 @@ int main() {
             runCPUOracle(g1, g1Batch, g1Config)
         );
         requireParity(g1Parity, "G1");
+        metalrobo::MetalWorldResult g1SerialResult;
+        requireSuccess(
+            serialContext.run(
+                compiledG1,
+                g1Batch.view(),
+                g1Config,
+                g1SerialResult
+            ),
+            "floating-base G1 serial-oracle rollout"
+        );
+        require(
+            g1Result.layout.usesParallelABA &&
+                g1Result.layout.parallelABAMaximumLevelWidth > 1u &&
+                !g1SerialResult.layout.usesParallelABA,
+            "branching G1 did not select the requested ABA execution paths"
+        );
+        const Parity simd32SerialParity = compareMetalResults(
+            g1Result,
+            g1SerialResult
+        );
+        requireParity(simd32SerialParity, "SIMD32/serial G1");
+
+        constexpr std::size_t g1ThroughputEnvironmentCount = 4096u;
+        constexpr std::size_t g1ThroughputControlStepCount = 8u;
+        const OwnedBatch g1ThroughputBatch = makeBatch(
+            g1,
+            g1ThroughputEnvironmentCount,
+            g1ThroughputControlStepCount,
+            false
+        );
+        metalrobo::MetalWorldResult g1ThroughputWarmup;
+        metalrobo::MetalWorldResult g1SerialThroughputWarmup;
+        requireSuccess(
+            context.run(
+                compiledG1,
+                g1ThroughputBatch.view(),
+                g1Config,
+                g1ThroughputWarmup
+            ),
+            "SIMD32 G1 throughput warmup"
+        );
+        requireSuccess(
+            serialContext.run(
+                compiledG1,
+                g1ThroughputBatch.view(),
+                g1Config,
+                g1SerialThroughputWarmup
+            ),
+            "serial G1 throughput warmup"
+        );
+        constexpr std::size_t g1ThroughputSampleCount = 3u;
+        std::vector<double> g1ParallelGpuMilliseconds;
+        std::vector<double> g1SerialGpuMilliseconds;
+        g1ParallelGpuMilliseconds.reserve(g1ThroughputSampleCount);
+        g1SerialGpuMilliseconds.reserve(g1ThroughputSampleCount);
+        for (std::size_t sample = 0u;
+             sample < g1ThroughputSampleCount;
+             ++sample) {
+            metalrobo::MetalWorldResult candidate;
+            const auto candidateDiagnostics = context.run(
+                compiledG1,
+                g1ThroughputBatch.view(),
+                g1Config,
+                candidate
+            );
+            requireSuccess(
+                candidateDiagnostics,
+                "SIMD32 G1 throughput sample"
+            );
+            g1ParallelGpuMilliseconds.push_back(
+                candidateDiagnostics.gpuElapsedMilliseconds
+            );
+            metalrobo::MetalWorldResult reference;
+            const auto referenceDiagnostics = serialContext.run(
+                compiledG1,
+                g1ThroughputBatch.view(),
+                g1Config,
+                reference
+            );
+            requireSuccess(
+                referenceDiagnostics,
+                "serial G1 throughput sample"
+            );
+            g1SerialGpuMilliseconds.push_back(
+                referenceDiagnostics.gpuElapsedMilliseconds
+            );
+        }
+        const double g1ParallelGpuP50Milliseconds = percentile(
+            g1ParallelGpuMilliseconds,
+            0.5
+        );
+        const double g1SerialGpuP50Milliseconds = percentile(
+            g1SerialGpuMilliseconds,
+            0.5
+        );
+        const double g1ParallelSpeedup =
+            g1SerialGpuP50Milliseconds /
+            g1ParallelGpuP50Milliseconds;
 
         auto tinyPivot =
             metalrobo::makeFreeSphereEngineModel();
@@ -1412,6 +1598,19 @@ int main() {
             << " g1_v_error=" << g1Parity.vMaximum
             << " g1_acceleration_scaled_error="
             << g1Parity.accelerationScaledMaximum
+            << " g1_simd32_serial_q_error="
+            << simd32SerialParity.qMaximum
+            << " g1_simd32_serial_v_error="
+            << simd32SerialParity.vMaximum
+            << " g1_simd32_serial_acceleration_scaled_error="
+            << simd32SerialParity.accelerationScaledMaximum
+            << " g1_parallel_frontier_width="
+            << g1Result.layout.parallelABAMaximumLevelWidth
+            << " g1_parallel_gpu_p50_ms="
+            << g1ParallelGpuP50Milliseconds
+            << " g1_serial_gpu_p50_ms="
+            << g1SerialGpuP50Milliseconds
+            << " g1_parallel_speedup=" << g1ParallelSpeedup
             << " pipeline_creations="
             << context.stats().pipelineCreationCount
             << " model_uploads="

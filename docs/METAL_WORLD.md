@@ -312,6 +312,25 @@ checks all pass. Selecting one canonical FP32 triangle intentionally removes
 the separately rounded upper-triangle evaluation, so long chaotic rollout
 fingerprints are not claimed bit-identical to the prior redundant storage.
 
+Forward ABA also has a schedule-driven SIMD32 implementation for branching
+trees. `CompiledWorld` cooks and fingerprints the immutable level/parent/child
+schedule once; submissions only upload it when the compiled world or immutable
+arena changes. One lane owns each body in a frontier. Reverse body lanes emit
+disjoint projected inertia and bias contributions, and parent lanes add
+siblings in stable cooked order without floating-point atomics. The runtime
+selects the ordered kernel for width-one chains and SIMD32 only when a body
+frontier has useful parallel work. `MetalWorldConfig::preferParallelABA=false`
+retains the serial kernel as a paired qualification oracle.
+
+On an Apple M4, a same-binary 4,096-environment x 8-control-step G1 free-motion
+pair measured 291.8 ms median GPU time for SIMD32 versus 398.4 ms for the
+serial kernel, a 1.365x speedup. The width-4 SIMD32 result differed from the
+serial FP32 oracle by at most `2.33e-10` in q, `2.98e-8` in v, and `5.06e-6`
+in scaled acceleration; multi-step FP64 gates, bitwise same-path replay,
+rollback, native-task parameterization, and dual-PSM multi-articulation probes
+also pass. These are same-device internal measurements, not an external
+simulator or hardware-dynamics accuracy claim.
+
 Analytic/SAT paths cover the inexpensive primitive pairs. Exact cylinder
 support, robust GJK with MPR/EPA fallback, cooked convex patches, static or
 kinematic mesh BVH4 traversal, and direct cell-indexed static heightfields
@@ -747,9 +766,12 @@ accounting, and both throughput solvers.
 The contact probe covers a resting sphere/plane cache, greater than 99 percent
 unchanged-frame retention, deterministic replay, a mixed Franka/1 kg cube
 contact, exact isolated capacity rollback, and a 66,049-eligible-pair stream
-beyond the former scan ceiling. The free-world probe covers
-Franka/G1 FP64 parity, asynchronous ownership, bitwise replay, failure
-rollback, grow-only reuse, and the 4,096-environment throughput gate.
+beyond the former scan ceiling. The free-world probe covers Franka/G1 FP64
+parity, paired SIMD32/serial G1 parity and throughput, topology-aware kernel
+selection, asynchronous ownership, bitwise same-path replay, failure rollback,
+grow-only reuse, and the 4,096-environment throughput gate. The
+heterogeneous-world probe additionally executes the multi-articulation SIMD32
+path.
 
 The MLX learner check performs a real PPO update without importing simulator
 state or scheduling a transition, then publishes a PolicyPack accepted by the

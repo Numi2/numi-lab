@@ -107,6 +107,9 @@ set(METALROBO_ARTICULATED_OPERATOR_SOURCE
 set(METALROBO_ARTICULATED_ABA_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedABA.metal"
 )
+set(METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedParallelABA.metal"
+)
 set(METALROBO_ARTICULATED_INVERSE_MASS_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedInverseMass.metal"
 )
@@ -178,6 +181,18 @@ set(METALROBO_ARTICULATED_ABA_SMALL_AIR
 )
 set(METALROBO_MULTI_ARTICULATED_ABA_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboMultiArticulatedABA.air"
+)
+set(METALROBO_PARALLEL_ARTICULATED_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParallelArticulatedABA.air"
+)
+set(METALROBO_PARALLEL_PARAMETERIZED_ARTICULATED_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParallelParameterizedArticulatedABA.air"
+)
+set(METALROBO_PARALLEL_ARTICULATED_ABA_SMALL_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParallelArticulatedABASmall.air"
+)
+set(METALROBO_PARALLEL_MULTI_ARTICULATED_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParallelMultiArticulatedABA.air"
 )
 set(METALROBO_DISCRETE_ELASTIC_ROD_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/DiscreteElasticRod.metal"
@@ -338,6 +353,38 @@ add_custom_command(
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_PARALLEL_ARTICULATED_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_PARALLEL_ABA_KERNEL_NAME=mr_parallel_parameterized_articulated_aba_step
+            -DMR_ABA_BODY_PARAMETERS=1
+            -c "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_PARALLEL_PARAMETERIZED_ARTICULATED_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_PARALLEL_ABA_KERNEL_NAME=mr_parallel_articulated_aba_step_small
+            -DMR_ABA_COMPILED_MAX_BODIES=12
+            -DMR_ABA_COMPILED_MAX_DOFS=16
+            -DMR_ABA_COMPILED_MAX_Q=17
+            -c "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_PARALLEL_ARTICULATED_ABA_SMALL_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_PARALLEL_ABA_KERNEL_NAME=mr_parallel_multi_articulated_aba_step
+            -DMR_ABA_MULTI_ARTICULATION=1
+            -c "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_PARALLEL_MULTI_ARTICULATED_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
             -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_DISCRETE_ELASTIC_ROD_SOURCE}"
@@ -470,6 +517,10 @@ add_custom_command(
             "${METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR}"
             "${METALROBO_ARTICULATED_ABA_SMALL_AIR}"
             "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
+            "${METALROBO_PARALLEL_ARTICULATED_ABA_AIR}"
+            "${METALROBO_PARALLEL_PARAMETERIZED_ARTICULATED_ABA_AIR}"
+            "${METALROBO_PARALLEL_ARTICULATED_ABA_SMALL_AIR}"
+            "${METALROBO_PARALLEL_MULTI_ARTICULATED_ABA_AIR}"
             "${METALROBO_DISCRETE_ELASTIC_ROD_AIR}"
             "${METALROBO_GENERALIZED_CONSTRAINT_AIR}"
             "${METALROBO_MULTI_ARTICULATED_CONTACT_AIR}"
@@ -498,6 +549,7 @@ add_custom_command(
         "${METALROBO_BROADPHASE_SOURCE}"
         "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
         "${METALROBO_ARTICULATED_ABA_SOURCE}"
+        "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
         "${METALROBO_DISCRETE_ELASTIC_ROD_SOURCE}"
         "${METALROBO_GENERALIZED_CONSTRAINT_SOURCE}"
         "${METALROBO_MULTI_ARTICULATED_CONTACT_SOURCE}"

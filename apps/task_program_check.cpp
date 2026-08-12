@@ -251,7 +251,24 @@ InteractionRuntimeEvidence runInteractionRuntimeProbe(
         .deterministic = true,
         .warmStart = true,
     };
-    metalrobo::MetalWorldContext context;
+    metalrobo::MetalWorldConfig contextConfig;
+    contextConfig.preferParallelABA = false;
+    metalrobo::MetalWorldContext context(contextConfig);
+    metalrobo::MetalWorldStepConfig freeMotionConfig = config;
+    freeMotionConfig.solverMode =
+        metalrobo::MetalWorldSolverMode::freeMotionABA;
+    metalrobo::MetalWorldResult freeMotion;
+    const metalrobo::MetalWorldDiagnostics freeMotionStatus =
+        context.run(world, batch, freeMotionConfig, freeMotion);
+    if (!freeMotionStatus.succeeded() ||
+        freeMotion.layout.usesParallelABA ||
+        (freeMotion.layout.contactDispatch.flags &
+         MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) != 0u) {
+        fail(
+            "serial free-motion lifecycle preflight failed: " +
+            freeMotionStatus.message
+        );
+    }
     metalrobo::MetalWorldResult first;
     metalrobo::MetalWorldResult replay;
     const metalrobo::MetalWorldDiagnostics firstStatus =
@@ -263,6 +280,9 @@ InteractionRuntimeEvidence runInteractionRuntimeProbe(
     const bool expectContactIntent =
         program.layout().interactionContactCount != 0u;
     if (!firstStatus.succeeded() || !replayStatus.succeeded() ||
+        first.layout.usesParallelABA ||
+        (first.layout.contactDispatch.flags &
+         MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) == 0u ||
         firstStatus.successfulStepCount != controlStepCount ||
         replayStatus.successfulStepCount != controlStepCount ||
         firstStatus.failedStepCount != 0u ||

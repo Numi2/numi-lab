@@ -91,12 +91,17 @@ the internal FP64 analytical and forward/inverse probes. Analytic point
 Jacobians and a retained CRBA factor now provide `J`, `Jᵀ`, and
 `J M⁻¹ Jᵀ` contact actions. The transactional CPU world composes this with
 collision, evaluated ConstraintIR, exact-cone contact, the common residual,
-and integration for G1 ground contact. A correctness-first Metal operator
-executes the same G1 mass/Jacobian/impulse equations, but a batched parallel
-Metal timestep remains open.
+and integration for G1 ground contact. The production forward-dynamics path
+now executes parent-complete and child-complete body frontiers across SIMD32.
+Each body lane writes a disjoint spatial contribution; parent lanes reduce
+siblings in cooked order without floating-point atomics. Width-one chains
+stay on the lower-overhead ordered kernel. Both paths retain the same
+transactional candidate-state boundary, and the SIMD32 result is qualified
+against both the serial FP32 kernel and the FP64 generalized oracle. A fully
+parallel collision/contact timestep remains a separate frontier.
 
 The original Franka runtime remains a separate compatibility API. The
-canonical Metal world now reuses the generic FP32 articulated-body kernel and
+canonical Metal world now reuses the generic FP32 articulated-body kernels and
 checks multi-step q/v/acceleration against the FP64 generalized oracle. On the
 same device and build its complete output/status stream replays bitwise.
 Neither internal agreement is an external-simulator accuracy promise.

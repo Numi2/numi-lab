@@ -3,6 +3,7 @@
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MetalWorldCapacity.hpp"
+#include "metalrobo/ParallelABASchedule.hpp"
 #include "metalrobo/multicopter_types.h"
 #include "metalrobo/PolicyProgram.hpp"
 #include "metalrobo/TaskProgram.hpp"
@@ -167,6 +168,8 @@ public:
     sceneBodyDynamicNodes() const noexcept;
     [[nodiscard]] std::span<const std::uint32_t>
     rodDynamicNodes() const noexcept;
+    [[nodiscard]] const ParallelABASchedule& parallelABASchedule()
+        const noexcept;
     [[nodiscard]] const MetalWorldCapacityProfile& capacities()
         const noexcept;
     [[nodiscard]] const MetalWorldCapacityProfile&
@@ -212,6 +215,7 @@ private:
     std::vector<std::uint32_t> bodyDynamicNodes_;
     std::vector<std::uint32_t> sceneBodyDynamicNodes_;
     std::vector<std::uint32_t> rodDynamicNodes_;
+    ParallelABASchedule parallelABASchedule_;
     std::uint64_t modelFingerprint_ = 0u;
     std::uint64_t fingerprint_ = 0u;
 };
@@ -629,6 +633,10 @@ struct MetalWorldConfig {
     // MetalRobo dylib, with the configured build-tree path as fallback.
     std::string metallibPath;
     bool preferPrivateHeaps = true;
+    // Production uses schedule-driven SIMD32 ABA for branching frontiers and
+    // keeps narrow serial chains on the lower-overhead ordered kernel. False
+    // forces the serial oracle for paired numerical/performance replay.
+    bool preferParallelABA = true;
     std::uint32_t maximumInFlightSubmissions = 3u;
 };
 
@@ -643,6 +651,8 @@ struct MetalWorldMemoryPlan {
 struct MetalWorldLayout {
     MRMetalWorldDispatchGPU dispatch{};
     std::uint64_t devicePhysicsFingerprint = 0u;
+    bool usesParallelABA = false;
+    std::uint32_t parallelABAMaximumLevelWidth = 0u;
     MRABADispatchGPU abaDispatch{};
     std::vector<MRMultiABADispatchGPU> abaDispatches;
     std::vector<MRArticulatedOperatorDispatchGPU>
