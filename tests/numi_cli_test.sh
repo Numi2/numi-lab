@@ -44,11 +44,27 @@ chmod +x "$numi_temp/fake-build/bin/metalrobo_task_train"
 
 printf '%s\n' '#!/bin/sh' \
     'policy=' \
-    'take=0' \
+    'state_trace=' \
+    'steps=1' \
+    'take=' \
     'for argument do' \
-    '  if [ "$take" -eq 1 ]; then policy=$argument; take=0; continue; fi' \
-    '  [ "$argument" = --policy-pack ] && take=1' \
+    '  if [ "$take" = policy ]; then policy=$argument; take=; continue; fi' \
+    '  if [ "$take" = state_trace ]; then state_trace=$argument; take=; continue; fi' \
+    '  if [ "$take" = steps ]; then steps=$argument; take=; continue; fi' \
+    '  [ "$argument" = --policy-pack ] && take=policy' \
+    '  [ "$argument" = --state-trace ] && take=state_trace' \
+    '  [ "$argument" = --steps ] && take=steps' \
     'done' \
+    'if [ -n "$state_trace" ]; then' \
+    '  {' \
+    '    printf "# step nq=1 scene_bodies=0 scene_stride=13 timestep=0.02 environment=0\n"' \
+    '    step=1' \
+    '    while [ "$step" -le "$steps" ]; do' \
+    '      printf "%s\t0\n" "$step"' \
+    '      step=$((step + 1))' \
+    '    done' \
+    '  } > "$state_trace"' \
+    'fi' \
     'case "$policy" in' \
     '  *candidate*) printf "{\"task\":\"velocity\",\"termination_count\":0,\"termination_count_by_environment\":[0],\"failed_environment_steps\":0,\"mean_tracking_score\":0.5,\"mean_tilt\":0.1}\n" ;;' \
     '  *incumbent*) printf "{\"task\":\"velocity\",\"termination_count\":1,\"termination_count_by_environment\":[1],\"failed_environment_steps\":0,\"mean_tracking_score\":0.4,\"mean_tilt\":0.2}\n" ;;' \

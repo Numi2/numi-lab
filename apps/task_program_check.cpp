@@ -174,6 +174,11 @@ TaskWorldFixture makeG1TaskWorld(
             makeUnitreeG1AdultLocomotionTaskPack(
                 surface, result.observations, result.reset);
         break;
+    case metalrobo::UnitreeG1Task::g1LegsLocomotion:
+        result.task = metalrobo::
+            makeUnitreeG1LegsLocomotionTaskPack(
+                surface, result.observations, result.reset);
+        break;
     }
     return result;
 }
@@ -1967,6 +1972,76 @@ int main(const int argc, const char* const* argv) {
              MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u) {
             fail(
                 "G1 get-up autonomous reset did not separate initialization from reference control"
+            );
+        }
+        const auto& guideLayout = getUpInteractionProgram.layout();
+        metalrobo::PolicyPack guidedPolicy;
+        guidedPolicy.id = "guided_get_up_policy";
+        guidedPolicy.revision = 1u;
+        guidedPolicy.layers = {
+            {
+                .inputCount = guideLayout.actorObservationSize,
+                .outputCount = guideLayout.actionCount,
+                .activation = metalrobo::PolicyActivation::identity,
+                .weights = std::vector<float>(
+                    static_cast<std::size_t>(
+                        guideLayout.actorObservationSize
+                    ) * guideLayout.actionCount,
+                    0.0f
+                ),
+                .bias = std::vector<float>(
+                    guideLayout.actionCount,
+                    0.0f
+                ),
+            },
+        };
+        metalrobo::bindPolicyPack(
+            guidedPolicy,
+            getUpInteractionProgram
+        );
+        metalrobo::CompiledPolicyProgram autonomousPolicy;
+        const auto strictAutonomousStatus =
+            metalrobo::compilePolicyProgram(
+                guidedPolicy,
+                autonomousGetUpProgram,
+                autonomousPolicy
+            );
+        const auto compatibleAutonomousStatus =
+            metalrobo::compilePolicyProgramForTaskVariant(
+                guidedPolicy,
+                getUpInteractionProgram,
+                autonomousGetUpProgram,
+                autonomousPolicy
+            );
+        const std::uint64_t autonomousPolicyFingerprint =
+            autonomousPolicy.fingerprint();
+        const auto mismatchedSourceStatus =
+            metalrobo::compilePolicyProgramForTaskVariant(
+                guidedPolicy,
+                autonomousGetUpProgram,
+                getUpInteractionProgram,
+                autonomousPolicy
+            );
+        const auto unrelatedVariantStatus =
+            metalrobo::compilePolicyProgramForTaskVariant(
+                guidedPolicy,
+                getUpInteractionProgram,
+                compiledAdult.task,
+                autonomousPolicy
+            );
+        if (strictAutonomousStatus.status !=
+                metalrobo::PolicyCompileStatus::incompatibleContract ||
+            !compatibleAutonomousStatus.succeeded() ||
+            autonomousPolicy.taskFingerprint() !=
+                autonomousGetUpProgram.fingerprint() ||
+            mismatchedSourceStatus.status !=
+                metalrobo::PolicyCompileStatus::incompatibleContract ||
+            unrelatedVariantStatus.status !=
+                metalrobo::PolicyCompileStatus::incompatibleContract ||
+            autonomousPolicy.fingerprint() !=
+                autonomousPolicyFingerprint) {
+            fail(
+                "guided get-up policy was not safely rebound to its autonomous task variant"
             );
         }
         const auto getUpRewards = compiledGetUp.task.rewardOperators();

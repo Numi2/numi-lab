@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -70,6 +71,108 @@ def _sha256_file(path: Path) -> str:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def _content_manifest(payload: bytes) -> dict[str, int | str]:
+    return {
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "size_bytes": len(payload),
+    }
+
+
+def _state_trace_manifest(
+    path: Path, arguments: Sequence[str]
+) -> dict[str, int | str]:
+    payload = path.read_bytes()
+    text = payload.decode("utf-8")
+    lines = text.splitlines()
+    if not lines:
+        raise ValueError("evaluation state trace is empty")
+    header = lines[0].split()
+    if header[:2] != ["#", "step"]:
+        raise ValueError("evaluation state trace header is invalid")
+    fields: dict[str, str] = {}
+    for token in header[2:]:
+        if "=" not in token:
+            raise ValueError("evaluation state trace header is malformed")
+        name, value = token.split("=", 1)
+        fields[name] = value
+    try:
+        nq = int(fields["nq"])
+        scene_bodies = int(fields["scene_bodies"])
+        scene_stride = int(fields["scene_stride"])
+        environment = int(fields["environment"])
+        expected_environment = int(
+            _option_value(arguments, "--state-trace-environment") or "0"
+        )
+        timestep = float(fields["timestep"])
+        expected_steps = int(_option_value(arguments, "--steps") or "0")
+        repeats = int(_option_value(arguments, "--repeats") or "1")
+        chunk = int(_option_value(arguments, "--chunk") or "1")
+    except (KeyError, ValueError) as error:
+        raise ValueError(
+            "evaluation state trace contract is incomplete"
+        ) from error
+    if (
+        nq <= 0
+        or scene_bodies < 0
+        or scene_stride <= 0
+        or not math.isfinite(timestep)
+        or timestep <= 0.0
+        or expected_steps <= 0
+        or environment != expected_environment
+        or environment < 0
+        or repeats != 1
+        or chunk != 1
+    ):
+        raise ValueError("evaluation state trace contract is invalid")
+    rows = lines[1:]
+    if len(rows) != expected_steps:
+        raise ValueError(
+            "evaluation state trace does not contain every requested step"
+        )
+    expected_width = 1 + nq + scene_bodies * scene_stride
+    for expected_step, row in enumerate(rows, start=1):
+        columns = row.split("\t")
+        if len(columns) != expected_width:
+            raise ValueError(
+                f"evaluation state trace step {expected_step} is truncated"
+            )
+        try:
+            step = int(columns[0])
+            values = (float(value) for value in columns[1:])
+            if step != expected_step or not all(
+                math.isfinite(value) for value in values
+            ):
+                raise ValueError
+        except ValueError as error:
+            raise ValueError(
+                f"evaluation state trace step {expected_step} is invalid"
+            ) from error
+    return {
+        **_content_manifest(payload),
+        "path": str(path),
+        "row_count": len(rows),
+        "terminal_step": expected_steps,
+    }
+
+
+def _atomic_write_text(destination: Path, contents: str) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{destination.name}.", dir=destination.parent
+    )
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(
+            descriptor, "w", encoding="utf-8", newline=""
+        ) as stream:
+            stream.write(contents)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, destination)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def _evaluation_contract(evaluator: Path, arguments: Sequence[str]) -> str:
@@ -189,13 +292,14 @@ def evaluation_arguments(
             if value == "--interaction-reset-only":
                 continue
             filtered.append(value)
-        # Preserve the authored interaction task contract.  In particular,
-        # `--interaction-reset-only` changes the compiled task fingerprint
-        # for physics-gated InteractionPacks, so adding it here would make
-        # candidate selection reject the very PolicyPack just trained.
+        # Preserve the guided source fingerprint while selecting the explicit
+        # autonomous task variant. The native runtime accepts this transition
+        # only when the guided and reset-only tasks have identical world,
+        # observation, and action fingerprints.
         projected = filtered + [
             "--interaction-student-authority",
             "0",
+            "--interaction-reset-only",
         ]
 
     # Adult training deliberately mixes the previous and current bands so
@@ -813,17 +917,24 @@ def _evaluate(
     contract = _evaluation_contract(evaluator, arguments)
     state_trace_value = _option_value(arguments, "--state-trace")
     state_trace = Path(state_trace_value) if state_trace_value else None
+    if state_trace is None:
+        raise ValueError("evaluation requires a state trace")
     if evidence_path.is_file() and metadata_path.is_file():
         try:
             metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+            evidence_payload = evidence_path.read_bytes()
             if (
-                metadata.get("contract_sha256") == contract
-                and state_trace is not None
-                and state_trace.is_file()
-                and state_trace.stat().st_size > 0
+                metadata.get("schema") == "numi.policy-evidence-cache.v2"
+                and metadata.get("contract_sha256") == contract
+                and metadata.get("evidence")
+                == _content_manifest(evidence_payload)
+                and metadata.get("state_trace")
+                == _state_trace_manifest(state_trace, arguments)
             ):
-                return json.loads(evidence_path.read_text(encoding="utf-8"))
-        except (OSError, ValueError, TypeError):
+                record = json.loads(evidence_payload)
+                if isinstance(record, dict):
+                    return record
+        except (OSError, UnicodeError, ValueError, TypeError):
             # A partial cache is treated as a miss and regenerated below.
             pass
     completed = subprocess.run(
@@ -832,21 +943,23 @@ def _evaluate(
         stdout=subprocess.PIPE,
         text=True,
     )
-    evidence_path.write_text(completed.stdout, encoding="utf-8")
-    metadata_path.write_text(
-        json.dumps(
-            {
-                "schema": "numi.policy-evidence-cache.v1",
-                "contract_sha256": contract,
-                "state_trace": state_trace_value,
-            },
-            indent=2,
-            sort_keys=True,
-        )
-        + "\n",
-        encoding="utf-8",
+    record = json.loads(completed.stdout)
+    if not isinstance(record, dict):
+        raise ValueError("evaluator evidence must be a JSON object")
+    trace_manifest = _state_trace_manifest(state_trace, arguments)
+    evidence_payload = completed.stdout.encode("utf-8")
+    metadata = {
+        "schema": "numi.policy-evidence-cache.v2",
+        "contract_sha256": contract,
+        "evidence": _content_manifest(evidence_payload),
+        "state_trace": trace_manifest,
+    }
+    _atomic_write_text(evidence_path, completed.stdout)
+    _atomic_write_text(
+        metadata_path,
+        json.dumps(metadata, indent=2, sort_keys=True) + "\n",
     )
-    return json.loads(completed.stdout)
+    return record
 
 
 def main() -> int:

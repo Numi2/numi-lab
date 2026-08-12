@@ -214,13 +214,29 @@ int main() {
 
         const auto ids = metalrobo::builtinRobotIds();
         const auto px4Robot = metalrobo::builtinRobotPack("px4_x500");
+        const auto psmRobot = metalrobo::builtinRobotPack("dvrk_psm");
         require(
             ids.size() == 4u &&
                 metalrobo::builtinRobotPack("franka_panda").has_value() &&
-                metalrobo::builtinRobotPack("dvrk_psm").has_value() &&
+                psmRobot.has_value() &&
                 px4Robot.has_value() &&
                 !contains(px4Robot->capabilities, "aerial_manipulation"),
             "robot catalog is incomplete"
+        );
+        require(
+            psmRobot->roles.size() == 3u &&
+                psmRobot->roles[0u].id == "whole_body" &&
+                psmRobot->roles[0u].members ==
+                    psmRobot->mechanics.bodyNames &&
+                psmRobot->roles[1u].id == "all_joints" &&
+                psmRobot->roles[1u].members ==
+                    psmRobot->mechanics.jointNames &&
+                psmRobot->roles[2u].id == "all_dofs" &&
+                psmRobot->roles[2u].members ==
+                    psmRobot->mechanics.dofNames &&
+                psmRobot->actuators.size() ==
+                    psmRobot->mechanics.jointNames.size(),
+            "dVRK PSM built-in pack has unresolved semantic identities"
         );
 
         metalrobo::RunManifest franka;

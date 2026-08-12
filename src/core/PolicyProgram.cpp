@@ -813,6 +813,46 @@ PolicyCompileDiagnostics compilePolicyProgram(
     };
 }
 
+PolicyCompileDiagnostics compilePolicyProgramForTaskVariant(
+    const PolicyPack& pack,
+    const CompiledTaskProgram& sourceTask,
+    const CompiledTaskProgram& targetTask,
+    CompiledPolicyProgram& output
+) {
+    if (!sourceTask.valid() || !targetTask.valid()) {
+        return reject(
+            PolicyCompileStatus::invalidTask,
+            "task_variant",
+            "policy task-variant compilation requires valid source and target tasks"
+        );
+    }
+    if (sourceTask.worldFingerprint() != targetTask.worldFingerprint() ||
+        sourceTask.observationFingerprint() !=
+            targetTask.observationFingerprint() ||
+        sourceTask.actionFingerprint() !=
+            targetTask.actionFingerprint()) {
+        return reject(
+            PolicyCompileStatus::incompatibleContract,
+            "task_variant",
+            "policy task variant changes world, observation, or action semantics"
+        );
+    }
+
+    // Prove the persisted artifact belongs to the exact source task before
+    // authorizing a runtime-only target binding. This prevents a shape-
+    // compatible but semantically unrelated task from entering the target.
+    CompiledPolicyProgram sourcePolicy;
+    const PolicyCompileDiagnostics sourceStatus =
+        compilePolicyProgram(pack, sourceTask, sourcePolicy);
+    if (!sourceStatus.succeeded()) {
+        return sourceStatus;
+    }
+
+    PolicyPack rebound = pack;
+    rebound.contract.taskFingerprint = targetTask.fingerprint();
+    return compilePolicyProgram(rebound, targetTask, output);
+}
+
 const char* policyCompileStatusName(
     const PolicyCompileStatus status
 ) noexcept {

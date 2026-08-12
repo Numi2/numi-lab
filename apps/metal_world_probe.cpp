@@ -10,8 +10,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <limits>
+#include <sstream>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -229,18 +231,30 @@ OwnedBatch makeBatch(
             for (std::size_t dof = 0u;
                  dof < articulation.nv;
                  ++dof) {
+                const MRDofPropertiesGPU& properties =
+                    model.dofs[articulation.vOffset + dof];
+                const bool actuatorAcceptsEffort =
+                    (properties.flags & MR_DOF_FLAG_ACTUATED) != 0u &&
+                    (properties.flags & MR_DOF_FLAG_EFFORT_LIMIT) != 0u &&
+                    properties.limits.w > 0.0f;
+                // Root and unactuated generalized coordinates are not
+                // actuators. External loads are covered by the ABA body-wrench
+                // path, so the parity fixture must not inject forbidden root
+                // effort that MetalWorld correctly resolves to zero.
                 batch.efforts[
                     step * effortStepStride +
                     environment * articulation.nv +
                     dof
-                ] = 0.25f *
+                ] = actuatorAcceptsEffort
+                    ? 0.25f *
                     std::cos(
                         0.11f *
                         static_cast<float>(
                             1u + 3u * step + 5u * environment +
                             dof
                         )
-                    );
+                    )
+                    : 0.0f;
             }
         }
     }
@@ -434,8 +448,23 @@ CPUOracle runCPUOracle(
 
 struct Parity {
     double qMaximum = 0.0;
+    double qGPU = 0.0;
+    double qCPU = 0.0;
+    std::size_t qStep = 0u;
+    std::size_t qEnvironment = 0u;
+    std::size_t qCoordinate = 0u;
     double vMaximum = 0.0;
+    double vGPU = 0.0;
+    double vCPU = 0.0;
+    std::size_t vStep = 0u;
+    std::size_t vEnvironment = 0u;
+    std::size_t vCoordinate = 0u;
     double accelerationScaledMaximum = 0.0;
+    double accelerationGPU = 0.0;
+    double accelerationCPU = 0.0;
+    std::size_t accelerationStep = 0u;
+    std::size_t accelerationEnvironment = 0u;
+    std::size_t accelerationCoordinate = 0u;
 };
 
 Parity compareCPU(
@@ -461,50 +490,61 @@ Parity compareCPU(
             for (std::size_t coordinate = 0u;
                  coordinate < dispatch.nq;
                  ++coordinate) {
-                parity.qMaximum = std::max(
-                    parity.qMaximum,
-                    std::abs(
-                        gpu.observations[
-                            gpuObservationBase + coordinate
-                        ] -
-                        cpu.observations[
-                            cpuObservationBase + coordinate
-                        ]
-                    )
-                );
+                const double gpuValue = gpu.observations[
+                    gpuObservationBase + coordinate
+                ];
+                const double cpuValue = cpu.observations[
+                    cpuObservationBase + coordinate
+                ];
+                const double error = std::abs(gpuValue - cpuValue);
+                if (error > parity.qMaximum) {
+                    parity.qMaximum = error;
+                    parity.qGPU = gpuValue;
+                    parity.qCPU = cpuValue;
+                    parity.qStep = step;
+                    parity.qEnvironment = environment;
+                    parity.qCoordinate = coordinate;
+                }
             }
             for (std::size_t dof = 0u;
                  dof < dispatch.nv;
                  ++dof) {
-                parity.vMaximum = std::max(
-                    parity.vMaximum,
-                    std::abs(
-                        gpu.observations[
-                            gpuObservationBase +
-                            dispatch.nq + dof
-                        ] -
-                        cpu.observations[
-                            cpuObservationBase +
-                            dispatch.nq + dof
-                        ]
-                    )
-                );
+                const double gpuVelocity = gpu.observations[
+                    gpuObservationBase + dispatch.nq + dof
+                ];
+                const double cpuVelocity = cpu.observations[
+                    cpuObservationBase + dispatch.nq + dof
+                ];
+                const double velocityError =
+                    std::abs(gpuVelocity - cpuVelocity);
+                if (velocityError > parity.vMaximum) {
+                    parity.vMaximum = velocityError;
+                    parity.vGPU = gpuVelocity;
+                    parity.vCPU = cpuVelocity;
+                    parity.vStep = step;
+                    parity.vEnvironment = environment;
+                    parity.vCoordinate = dof;
+                }
                 const std::size_t accelerationIndex =
                     step * dispatch.accelerationStepStride +
                     environment * dispatch.nv + dof;
-                parity.accelerationScaledMaximum = std::max(
-                    parity.accelerationScaledMaximum,
-                    std::abs(
-                        gpu.accelerations[accelerationIndex] -
-                        cpu.accelerations[accelerationIndex]
-                    ) /
-                        (1.0 +
-                         std::abs(
-                             cpu.accelerations[
-                                 accelerationIndex
-                             ]
-                         ))
-                );
+                const double gpuAcceleration =
+                    gpu.accelerations[accelerationIndex];
+                const double cpuAcceleration =
+                    cpu.accelerations[accelerationIndex];
+                const double accelerationError =
+                    std::abs(gpuAcceleration - cpuAcceleration) /
+                    (1.0 + std::abs(cpuAcceleration));
+                if (accelerationError >
+                    parity.accelerationScaledMaximum) {
+                    parity.accelerationScaledMaximum =
+                        accelerationError;
+                    parity.accelerationGPU = gpuAcceleration;
+                    parity.accelerationCPU = cpuAcceleration;
+                    parity.accelerationStep = step;
+                    parity.accelerationEnvironment = environment;
+                    parity.accelerationCoordinate = dof;
+                }
             }
         }
     }
@@ -525,13 +565,41 @@ void requireSuccess(
     );
 }
 
-void requireParity(const Parity& parity) {
-    require(
-        parity.qMaximum < 7.5e-5 &&
-            parity.vMaximum < 1.5e-4 &&
-            parity.accelerationScaledMaximum < 7.5e-5,
-        "multi-step CPU/Metal parity gate failed"
-    );
+void requireParity(
+    const Parity& parity,
+    const std::string& modelName
+) {
+    if (parity.qMaximum < 7.5e-5 &&
+        parity.vMaximum < 1.5e-4 &&
+        parity.accelerationScaledMaximum < 7.5e-5) {
+        return;
+    }
+    std::ostringstream message;
+    message << std::setprecision(10)
+            << modelName
+            << " multi-step CPU/Metal parity gate failed: q="
+            << parity.qMaximum
+            << " (gpu=" << parity.qGPU
+            << ", cpu=" << parity.qCPU
+            << ", step=" << parity.qStep
+            << ", environment=" << parity.qEnvironment
+            << ", coordinate=" << parity.qCoordinate
+            << "), v=" << parity.vMaximum
+            << " (gpu=" << parity.vGPU
+            << ", cpu=" << parity.vCPU
+            << ", step=" << parity.vStep
+            << ", environment=" << parity.vEnvironment
+            << ", coordinate=" << parity.vCoordinate
+            << "), acceleration_scaled="
+            << parity.accelerationScaledMaximum
+            << " (gpu=" << parity.accelerationGPU
+            << ", cpu=" << parity.accelerationCPU
+            << ", step=" << parity.accelerationStep
+            << ", environment="
+            << parity.accelerationEnvironment
+            << ", coordinate="
+            << parity.accelerationCoordinate << ')';
+    throw std::runtime_error(message.str());
 }
 
 void requireFailureRollback(
@@ -745,7 +813,7 @@ int main() {
         const CPUOracle cpu =
             runCPUOracle(franka, small, stepConfig);
         const Parity parity = compareCPU(first, cpu);
-        requireParity(parity);
+        requireParity(parity, "Franka");
 
         auto genericKernelModel = franka;
         genericKernelModel.world.gravityAndTimestep.w =
@@ -1143,7 +1211,7 @@ int main() {
             g1Result,
             runCPUOracle(g1, g1Batch, g1Config)
         );
-        requireParity(g1Parity);
+        requireParity(g1Parity, "G1");
 
         auto tinyPivot =
             metalrobo::makeFreeSphereEngineModel();

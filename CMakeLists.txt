@@ -1706,6 +1706,81 @@ if(BUILD_TESTING)
             LABELS "matter;physics;metal"
             TIMEOUT 180
     )
+
+    add_test(
+        NAME metalrobo.runtime.task_program
+        COMMAND $<TARGET_FILE:metalrobo_task_program_check>
+    )
+    add_test(
+        NAME metalrobo.runtime.run_program
+        COMMAND $<TARGET_FILE:metalrobo_run_program_check>
+    )
+    set_tests_properties(
+        metalrobo.runtime.task_program
+        metalrobo.runtime.run_program
+        PROPERTIES LABELS "metalrobo;runtime" TIMEOUT 180
+    )
+
+    set(
+        METALROBO_PYTHON_TEST_EXECUTABLE ""
+        CACHE FILEPATH
+        "Python interpreter with the MetalRobo test dependencies"
+    )
+    set(
+        _metalrobo_python_test_executable
+        "${METALROBO_PYTHON_TEST_EXECUTABLE}"
+    )
+    if(NOT _metalrobo_python_test_executable)
+        execute_process(
+            COMMAND
+                /usr/bin/env python3 -c
+                "import sys, numpy, scipy; print(sys.executable)"
+            RESULT_VARIABLE _metalrobo_python_test_status
+            OUTPUT_VARIABLE _metalrobo_python_test_executable
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET
+        )
+    else()
+        execute_process(
+            COMMAND
+                "${_metalrobo_python_test_executable}" -c
+                "import numpy, scipy"
+            RESULT_VARIABLE _metalrobo_python_test_status
+            ERROR_QUIET
+        )
+    endif()
+    if(_metalrobo_python_test_status EQUAL 0 AND
+       EXISTS "${_metalrobo_python_test_executable}")
+        add_test(
+            NAME metalrobo.python.unit
+            COMMAND
+                "${CMAKE_COMMAND}" -E env
+                "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/python"
+                "${_metalrobo_python_test_executable}"
+                -m unittest discover
+                -s "${CMAKE_CURRENT_SOURCE_DIR}/tests"
+                -p "*_test.py"
+                -v
+        )
+        set_tests_properties(
+            metalrobo.python.unit
+            PROPERTIES LABELS "metalrobo;python" TIMEOUT 120
+        )
+    else()
+        message(
+            STATUS
+            "MetalRobo Python tests disabled: no interpreter with NumPy and SciPy"
+        )
+    endif()
+
+    add_test(
+        NAME metalrobo.cli.discovery
+        COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_cli_test.sh"
+    )
+    set_tests_properties(
+        metalrobo.cli.discovery
+        PROPERTIES LABELS "metalrobo;cli" TIMEOUT 120
+    )
 endif()
 
 add_executable(metalrobo_collision_gpu_probe apps/collision_gpu_probe.mm)

@@ -386,6 +386,12 @@ Autonomous qualification uses `task_rollout --interaction-reset-only`: the
 first interaction frame initializes the exact demonstrated fallen state, then
 the reference is disconnected from control and teacher output. A policy only
 passes when it generates the recovery itself under NumiSolver.
+The reset-only task has a distinct full physics fingerprint. Loading a policy
+trained against the guided task therefore uses an explicit in-memory task-
+variant compilation: the persisted pack must match the exact guided source,
+and the source and autonomous target must retain identical world, actor/critic
+observation, and action fingerprints. Unrelated shape-compatible tasks remain
+rejected, and the on-disk PolicyPack is never rewritten.
 The same mode in `task_train` leaves the PPO actor enabled, making it the
 closed-loop recovery path when an authored joint sequence is not itself a
 successful physical teacher. Teacher usefulness is transition-local and

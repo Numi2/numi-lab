@@ -707,22 +707,24 @@ class PolicySelectionTest(unittest.TestCase):
             root = Path(directory)
             evaluator = root / "evaluator.sh"
             counter = root / "counter"
+            state_trace = root / "candidate.state.tsv"
+            evidence = root / "candidate.evidence.json"
             evaluator.write_text(
                 "#!/bin/sh\n"
                 f"count=0; test -f '{counter}' && count=$(cat '{counter}')\n"
                 "count=$((count + 1))\n"
                 f"printf '%s' \"$count\" > '{counter}'\n"
+                "printf '# step nq=1 scene_bodies=0 scene_stride=13 "
+                "timestep=0.02 environment=0\\n1\\t0\\n' "
+                f"> '{state_trace}'\n"
                 "printf '%s\\n' '{\"task\":\"adult-locomotion\",\"failed_environment_steps\":0}'\n",
                 encoding="utf-8",
             )
             evaluator.chmod(evaluator.stat().st_mode | 0o111)
             metallib = root / "MetalRobo.metallib"
             policy = root / "candidate.policypack"
-            state_trace = root / "candidate.state.tsv"
-            evidence = root / "candidate.evidence.json"
             metallib.write_bytes(b"metallib")
             policy.write_bytes(b"policy")
-            state_trace.write_text("trace\n", encoding="utf-8")
             arguments = [
                 "--task",
                 "adult-locomotion",
@@ -743,6 +745,39 @@ class PolicySelectionTest(unittest.TestCase):
             second = _evaluate(evaluator, arguments, evidence)
             self.assertEqual(first, second)
             self.assertEqual(counter.read_text(encoding="utf-8"), "1")
+            metadata = json.loads(
+                evidence.with_name(f"{evidence.name}.meta.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(
+                metadata["schema"], "numi.policy-evidence-cache.v2"
+            )
+            self.assertEqual(metadata["state_trace"]["row_count"], 1)
+            self.assertEqual(metadata["state_trace"]["terminal_step"], 1)
+
+            state_trace.write_text(
+                "# step nq=1 scene_bodies=0 scene_stride=13 "
+                "timestep=0.02 environment=1\n1\t0\n",
+                encoding="utf-8",
+            )
+            regenerated = _evaluate(evaluator, arguments, evidence)
+            self.assertEqual(regenerated, first)
+            self.assertEqual(counter.read_text(encoding="utf-8"), "2")
+
+            state_trace.write_text(
+                "# step nq=1 scene_bodies=0 scene_stride=13 "
+                "timestep=0.02 environment=0\n",
+                encoding="utf-8",
+            )
+            regenerated = _evaluate(evaluator, arguments, evidence)
+            self.assertEqual(regenerated, first)
+            self.assertEqual(counter.read_text(encoding="utf-8"), "3")
+
+            evidence.write_text("{}\n", encoding="utf-8")
+            regenerated = _evaluate(evaluator, arguments, evidence)
+            self.assertEqual(regenerated, first)
+            self.assertEqual(counter.read_text(encoding="utf-8"), "4")
 
     def test_single_band_adult_training_still_protects_previous_rung(self) -> None:
         current, previous = _adult_evaluation_bands(

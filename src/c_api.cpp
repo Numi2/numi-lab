@@ -109,6 +109,9 @@ struct MRTaskRolloutHandle {
     const metalrobo::EngineModel& model;
     const metalrobo::CompiledWorld& world;
     const metalrobo::CompiledTaskProgram& taskProgram;
+    // Exact guided task accepted only as the source of an explicitly
+    // compiled autonomous/reset-only policy variant.
+    metalrobo::CompiledTaskProgram compatiblePolicySourceTask;
     metalrobo::MetalWorldContext context;
     metalrobo::MetalWorldResidentState residentState;
     metalrobo::MetalWorldStepConfig stepConfig;
@@ -1693,20 +1696,24 @@ std::unique_ptr<MRTaskRolloutHandle> createCompiledRunTaskRollout(
     metalrobo::RunManifest manifest,
     const char* metallibPath,
     const std::string_view source,
-    const MRTaskVisualObservationConfigC* visualSensor
+    const MRTaskVisualObservationConfigC* visualSensor,
+    const metalrobo::RunManifest* compatiblePolicySource = nullptr
 ) {
-    if (manifest.teacher.id.empty()) {
-        manifest.teacher.id = "no_teacher";
-    }
-    if (visualSensor != nullptr) {
-        manifest.sensors.deviceVisual =
-            visualSensorProgram(*visualSensor);
-    }
-    // Task composition (notably an InteractionPack) may refine the measured
-    // contact profile after the base manifest is authored. The executable run
-    // must compile the final task's exact capacity contract, never a stale
-    // snapshot copied before that composition.
-    manifest.profile.capacities = manifest.task.capacities;
+    const auto prepareManifest = [visualSensor](
+        metalrobo::RunManifest& value
+    ) {
+        if (value.teacher.id.empty()) {
+            value.teacher.id = "no_teacher";
+        }
+        if (visualSensor != nullptr) {
+            value.sensors.deviceVisual =
+                visualSensorProgram(*visualSensor);
+        }
+        // Task composition (notably an InteractionPack) may refine the
+        // measured contact profile after the base manifest is authored.
+        value.profile.capacities = value.task.capacities;
+    };
+    prepareManifest(manifest);
     metalrobo::CompiledRun compiled;
     const metalrobo::RunCompileDiagnostics status =
         metalrobo::compileRun(manifest, compiled);
@@ -1723,6 +1730,23 @@ std::unique_ptr<MRTaskRolloutHandle> createCompiledRunTaskRollout(
         manifest.task.id,
         source
     );
+    if (compatiblePolicySource != nullptr) {
+        metalrobo::RunManifest sourceManifest =
+            *compatiblePolicySource;
+        prepareManifest(sourceManifest);
+        metalrobo::CompiledRun sourceRun;
+        const metalrobo::RunCompileDiagnostics sourceStatus =
+            metalrobo::compileRun(sourceManifest, sourceRun);
+        if (sourceStatus.succeeded() &&
+            sourceRun.task().worldFingerprint() ==
+                handle->taskProgram.worldFingerprint() &&
+            sourceRun.task().observationFingerprint() ==
+                handle->taskProgram.observationFingerprint() &&
+            sourceRun.task().actionFingerprint() ==
+                handle->taskProgram.actionFingerprint()) {
+            handle->compatiblePolicySourceTask = sourceRun.task();
+        }
+    }
     return handle;
 }
 
@@ -1874,12 +1898,21 @@ void installPolicyPack(
     const metalrobo::PolicyPack& authored
 ) {
     metalrobo::CompiledPolicyProgram compiled;
-    const metalrobo::PolicyCompileDiagnostics status =
+    metalrobo::PolicyCompileDiagnostics status =
         metalrobo::compilePolicyProgram(
             authored,
             handle.taskProgram,
             compiled
         );
+    if (!status.succeeded() &&
+        handle.compatiblePolicySourceTask.valid()) {
+        status = metalrobo::compilePolicyProgramForTaskVariant(
+            authored,
+            handle.compatiblePolicySourceTask,
+            handle.taskProgram,
+            compiled
+        );
+    }
     if (!status.succeeded()) {
         throw std::invalid_argument(
             std::string{"PolicyPack compile failed ["} +
@@ -3022,11 +3055,17 @@ static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
                 task != metalrobo::UnitreeG1Task::ballDodge
             );
         }
+        metalrobo::RunManifest compatiblePolicySource;
+        const metalrobo::RunManifest* compatiblePolicySourcePointer =
+            nullptr;
         if (config->interaction_reference_mode ==
             MR_INTERACTION_REFERENCE_GUIDE) {
             manifest.task.interactionControlReference = true;
         } else if (config->interaction_reference_mode ==
                    MR_INTERACTION_REFERENCE_RESET_ONLY) {
+            compatiblePolicySource = manifest;
+            compatiblePolicySource.task.interactionControlReference = true;
+            compatiblePolicySourcePointer = &compatiblePolicySource;
             manifest.task.interactionControlReference = false;
         }
         if (config->override_interaction_student_authority != 0u) {
@@ -3059,7 +3098,8 @@ static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
             std::move(manifest),
             metallib_path,
             "bundled G1 interaction",
-            visual_sensor
+            visual_sensor,
+            compatiblePolicySourcePointer
         );
         result = handle.release();
     });

@@ -527,6 +527,25 @@ int main() {
             "surgical PSM topology/counts are wrong"
         );
         require(
+            model.bodyNames.size() == model.bodies.size() &&
+                model.jointNames.size() == model.joints.size() &&
+                model.dofNames.size() == model.dofs.size() &&
+                model.shapeNames.size() == model.shapes.size() &&
+                std::ranges::equal(
+                    model.bodyNames,
+                    metadata.bodyNames
+                ) &&
+                std::ranges::equal(
+                    model.jointNames,
+                    metadata.joints,
+                    {},
+                    {},
+                    &metalrobo::SurgicalPSMJointMetadata::name
+                ) &&
+                model.dofNames == model.jointNames,
+            "surgical PSM semantic identities are incomplete"
+        );
+        require(
             metadata.orbitCommit ==
                     "6e47534f7d412e4be523116f250c992a63146883" &&
                 metadata.orbitLicense == "BSD-3-Clause" &&

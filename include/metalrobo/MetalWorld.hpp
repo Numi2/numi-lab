@@ -550,9 +550,12 @@ struct MetalWorldStepConfig {
     std::uint32_t physicsSubsteps = 1u;
     MetalWorldSolverMode solverMode =
         MetalWorldSolverMode::temporalCone;
-    // In effort mode, MetalWorldBatch::efforts is generalized effort. In
-    // implicitPositionDrive mode it is the desired position per scalar
-    // driven DoF; floating-root and unactuated entries are ignored.
+    // In effort mode, MetalWorldBatch::efforts is requested generalized
+    // actuator effort. Every entry is clipped by its immutable effort and
+    // torque-speed envelope; floating-root and unactuated entries resolve to
+    // zero. External loads belong in the body-wrench path. In
+    // implicitPositionDrive mode, efforts holds the desired position per
+    // scalar driven DoF; floating-root and unactuated entries are ignored.
     MetalWorldActuationMode actuationMode =
         MetalWorldActuationMode::effort;
     // Empty means a policy-independent physics submission. A valid compiled

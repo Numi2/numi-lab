@@ -685,6 +685,17 @@ EngineModel makeDvrkPsmLargeNeedleDriverEngineModel() {
     const SurgicalPSMModelMetadata& metadata =
         surgicalPSMMetadata();
     model.name = std::string{metadata.modelName};
+    model.bodyNames.reserve(metadata.bodyNames.size());
+    for (const std::string_view name : metadata.bodyNames) {
+        model.bodyNames.emplace_back(name);
+    }
+    model.jointNames.reserve(metadata.joints.size());
+    for (const SurgicalPSMJointMetadata& joint : metadata.joints) {
+        model.jointNames.emplace_back(joint.name);
+    }
+    // The canonical PSM topology has exactly one generalized coordinate per
+    // scalar joint, so joint and DoF semantic identities intentionally agree.
+    model.dofNames = model.jointNames;
 
     model.world.abiVersion = MR_ENGINE_ABI_VERSION;
     model.world.bodyCount =
@@ -755,6 +766,15 @@ EngineModel makeDvrkPsmLargeNeedleDriverEngineModel() {
     model.shapes.reserve(kShapes.size());
     for (const ShapeSource& source : kShapes) {
         model.shapes.push_back(makeShape(source));
+    }
+    model.shapeNames.reserve(model.shapes.size());
+    for (std::size_t shapeIndex = 0u;
+         shapeIndex < model.shapes.size();
+         ++shapeIndex) {
+        model.shapeNames.push_back(
+            model.bodyNames[model.shapes[shapeIndex].bodyIndex] +
+            "/collision_" + std::to_string(shapeIndex)
+        );
     }
 
     model.defaultQ.assign(kDefaultQ.begin(), kDefaultQ.end());
