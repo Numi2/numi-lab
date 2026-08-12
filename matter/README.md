@@ -90,6 +90,17 @@ The FEM path uses linear tetrahedral kinematics with nonlinear constitutive stre
 
 IPC's squared-distance logarithmic potential contributes primal gradients and PSD Hessian actions; per-node timestep ratios apply the action chain rule to cross-rate FEM/MPM rows. There are no contact multiplier unknowns, response CSR, Delassus rows, or post-contact correction solves. Element work is parallel and node assembly uses rebuilt incidence. FGMRES uses compensated SIMD32 reductions, modified Gram-Schmidt with selective reorthogonalization, device Givens rotations, restart cycles and an inexact-Newton forcing schedule. The environment-owned SIMD32 Arnoldi wave continues directly from orthogonalization into its norm, Givens update and next-basis publication. Restart-residual reconstruction and the tiny triangular solve likewise share one per-environment cycle-finalization dispatch, and the final cycle does not materialize coefficients that no later cycle can consume. These fusions retain the original reduction and arithmetic order while removing command traffic. The right preconditioner combines FEM node-star diagonals, overlapping tetrahedron patches, MPM lumped/particle-patch/object modes, field smoothing, and rigid inverse-mass action. FGMRES remains the sole convergence owner. One environment-wide line search combines constitutive determinant and mixed-volume bounds with conservative CCD, barrier fraction-to-boundary caps, and barrier Armijo backtracking.
 
+The FEM mechanical diagonal and every MPM fine, particle-patch, and
+object-translation denominator include the componentwise diagonal of the same
+PSD IPC blocks applied by the matrix-free operator. Deformable feature weights
+and multirate chain factors enter quadratically, including the mollifier outer
+product. This is a matrix-free right-preconditioner approximation, not a
+retained contact matrix or an additional contact solve. The fine MPM pass
+publishes its ephemeral componentwise denominator into operator scratch that
+the patch and object modes consume before the matrix action overwrites it;
+contact incidence is therefore traversed once per node and Krylov column with
+no added arena, dispatch, or synchronization.
+
 Each tetrahedron owns an independent persistent material-state record. Rate-dependent stress and exact tangent-vector evaluation use the element velocity gradient. For stateful FEM materials, every Newton residual evaluates the authored next-state map at the current candidate, and the matrix-free tangent adds the local state-chain directional contribution. State updates still publish only with an accepted nonlinear candidate, and nodal, field, constitutive, topology and primal-contact history roll back to the same control-step checkpoint.
 
 ### Unified continuum contact
@@ -280,26 +291,40 @@ It is deliberately serial because all cases use the active GPU.
 
 The coupled production defaults use seven outer Newton corrections and one
 ten-column FGMRES restart cycle. On the Apple M4 qualification host, the
-24-test suite completed without failure in 344.93 seconds. The strict
-eight-particle impact executed 1,024 material microsteps, used at most six
-Krylov iterations, observed contact, retained `minimum_J = 0.997895`, and
-completed without transaction rollback.
+24-test suite completed without failure in 299.09 seconds. The strict
+eight-particle impact executed 1,024 material microsteps, used at most two
+Krylov iterations, observed nine contacts, retained `minimum_J = 0.99742`,
+reported a `4.53284e-06` KKT residual, and completed in 89.696 GPU seconds
+without transaction rollback.
 These measurements establish this implementation and workload on that host;
 they are not a matched claim against another simulator or Apple GPU.
+
+A controlled one-particle contact A/B on that host disabled only the IPC
+diagonal. Enabling it reduced the Krylov high-water from four columns to two,
+the reported KKT residual from `8.64169e-08` to `6.53475e-08`, and GPU time for
+1,024 microsteps from 16.7051 to 15.0944 seconds. Both variants retained four
+contacts, positive separation, and no rollback; this is finite-tolerance
+solver evidence, not a bitwise-identical trajectory claim.
+
+Reusing the fine-pass diagonal from operator scratch then reduced the same
+enabled case from 15.0944 to 13.6992 GPU seconds. All printed physical and
+certificate values were identical before and after that change; it removed
+redundant incidence traversal without changing the preconditioner arithmetic.
+
 The dedicated batch probe additionally completed 32 identical contact
 environments and 8,192 environment-microsteps on one command-buffer timeline.
-Two untraced final-code runs measured 106.968 and 107.013
-environment-microsteps/second, a 106.991 mean, with 76.567 mean GPU seconds
-and 9,486,496 retained bytes. The same-session pre-fusion baseline measured
-104.015 environment-microsteps/second and 78.758 GPU seconds. Every run
-reported nine contacts per environment, `minimum_J = 0.99916`, no failed
-environment and a two-iteration FGMRES high-water. The fused graph encoded
-189,473 dispatches instead of 209,185, a 9.42 percent reduction, and requested
-2,517,280 threadgroups instead of 3,090,720, an 18.55 percent reduction. The
-observed candidate mean is 2.86 percent faster with 2.78 percent less GPU time
-than that baseline; it is a matched measurement on this host, not a universal
-speedup. The ten-column default remains 60.8 percent below the former two-cycle
-dispatch graph and retains 12.3 percent less memory than that build. Eight-
+Two untraced final-code runs measured 121.471 and 121.251
+environment-microsteps/second, a 121.361 mean, with 67.501 mean GPU seconds
+and 9,486,496 retained bytes. The same-session pre-change baseline measured
+103.817 environment-microsteps/second and 78.908 GPU seconds. Every final run
+reported nine contacts per environment, `minimum_J = 0.999695`, no failed
+environment, and a two-column FGMRES high-water. The observed candidate mean
+is 16.90 percent faster with 14.46 percent less GPU time than that baseline;
+it is a matched measurement on this host, not a universal speedup. The contact
+diagonal changes no command count: the graph still encodes 189,473 dispatches
+and requests 2,517,280 threadgroups. The ten-column default remains 60.8
+percent below the former two-cycle dispatch graph and retains 12.3 percent
+less memory than that build. Eight-
 and nine-column defaults were rejected by the articulated rigid-reaction gate;
 ten is the measured suite-wide minimum. This is native batching and
 command-graph evidence, not an external frontier comparison.

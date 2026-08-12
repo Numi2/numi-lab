@@ -3618,6 +3618,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:8u];
                 [encoder setBuffer:state.femPreconditioned offset:0u atIndex:9u];
+                [encoder setBuffer:state.primalContactArguments
+                             offset:0u atIndex:10u];
             });
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
                 const NSUInteger columnOffset = vectorBytes * column;
@@ -3761,6 +3763,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
                     [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:7u];
                     [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:8u];
+                    [encoder setBuffer:state.primalContactArguments
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femOperatorValue
+                                 offset:0u atIndex:10u];
                 });
                 dispatchThreads(
                     "nm_fgmres_precondition_mpm_patches",
@@ -3769,7 +3775,6 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         setDispatch();
                         [encoder setBytes:&operatorMicro
                                    length:sizeof(operatorMicro) atIndex:1u];
-                        [encoder setBuffer:state.gridNodes offset:0u atIndex:2u];
                         [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:3u];
                         [encoder setBuffer:state.mpmGrids offset:0u atIndex:4u];
                         [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:5u];
@@ -3778,6 +3783,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:8u];
                         [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:9u];
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femOperatorValue
+                                     offset:0u atIndex:11u];
                     });
                 dispatchGroups32(
                     "nm_fgmres_precondition_mpm_objects",
@@ -3786,12 +3793,13 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         setDispatch();
                         [encoder setBuffer:state.objects offset:0u atIndex:1u];
                         [encoder setBuffer:state.mpmGrids offset:0u atIndex:2u];
-                        [encoder setBuffer:state.gridNodes offset:0u atIndex:3u];
                         [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:4u];
                         [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:5u];
                         [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:6u];
                         [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:7u];
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femOperatorValue
+                                     offset:0u atIndex:9u];
                     });
                 if (state.requiresCoupledCandidate) {
                     dispatchThreads("nm_fgmres_export_rigid", rigidGeneralizedTotal, [&] {

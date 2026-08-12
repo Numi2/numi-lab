@@ -17,6 +17,10 @@ squared-distance logarithmic barrier contributes primal gradients and PSD
 Hessian actions directly; per-node timestep ratios keep cross-rate contact the
 gradient and Hessian of one environment action. No contact multipliers,
 Delassus rows, or post-contact correction solve remain.
+The right preconditioner uses the componentwise diagonal of those same PSD IPC
+blocks in its FEM and MPM fine and translation-mode mechanics approximations;
+it does not assemble a second contact matrix or introduce another iteration
+owner.
 MetalWorld keeps sole ownership of ABA and generalized coordinates while its
 borrowed coupled-candidate callback supplies kinematics, mass action,
 inverse-mass preconditioning, and accepted publication.

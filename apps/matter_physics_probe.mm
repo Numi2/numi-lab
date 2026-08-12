@@ -1501,8 +1501,10 @@ void runMetalWorldCoupling() {
         const auto* matterStatus = static_cast<const NMMatterStatusGPU*>(
             matterStatusBuffer.contents
         );
+        require(matterStatus != nullptr,
+            "foot-pad Matter status buffer is unavailable");
         std::string matterFailure;
-        if (matterStatus != nullptr && matterStatus->code != NM_STATUS_SUCCESS) {
+        if (matterStatus->code != NM_STATUS_SUCCESS) {
             matterFailure = " matter_status=" +
                 std::to_string(matterStatus->code) +
                 " object=" + std::to_string(matterStatus->objectIndex) +
@@ -1829,6 +1831,8 @@ void runArticulatedFootPadScene(const bool sequence = false) {
             << ",\"maximum_contact_energy\":" << maximumContactEnergy
             << ",\"transport_residual\":" << transportResidual
             << ",\"gpu_milliseconds\":" << ran.gpuElapsedMilliseconds
+            << ",\"maximum_krylov_iterations\":"
+            << matterStatus->pcgIterations
             << ",\"foot_position\":[" << result.finalQ[0] << ','
             << result.finalQ[1] << ',' << result.finalQ[2] << ']'
             << ",\"pad_nodes\":[";
@@ -2855,6 +2859,14 @@ int main(int argc, const char* argv[]) {
                 << ",\"microsteps_per_control_step\":" << mpm.completedMicrosteps
                 << ",\"total_microsteps\":" << mpm.totalCompletedMicrosteps
                 << ",\"maximum_krylov_iterations\":" << mpm.pcgIterations
+                << ",\"kkt_residual\":" << mpm.nonlinearResidual
+                << ",\"relative_correction\":" << mpm.relativeCorrection
+                << ",\"maximum_barrier_impulse\":"
+                << mpm.maximumBarrierImpulse
+                << ",\"minimum_contact_separation\":"
+                << mpm.minimumContactSeparation
+                << ",\"maximum_contact_energy\":"
+                << mpm.maximumContactEnergy
                 << ",\"gpu_milliseconds\":" << mpm.gpuMilliseconds
                 << ",\"transaction_rollback\":" << (mpmRollback ? "true" : "false")
                 << "}\n";

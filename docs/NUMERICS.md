@@ -226,8 +226,16 @@ preconditioner combines fine node-star mechanics blocks, overlapping
 connectivity-aware tetrahedron-patch corrections, an object-scale Galerkin
 translation/mean-pressure correction, a fixed-pass field polynomial smoother,
 MPM lumped-mass, particle-patch and object-translation blocks, rigid
-inverse-mass action, and barrier curvature. FGMRES is the only linear
-iteration owner; the patch and field smoothers
+inverse-mass action, and the componentwise diagonal of the exact PSD barrier
+blocks already applied by the matrix-free operator. Signed deformable feature
+weights enter that diagonal quadratically, and the same per-node timestep
+ratios appear on both sides of each block. The MPM fine, particle-patch, and
+object-translation denominators therefore remain consistent in contact; no
+assembled contact matrix is retained. The fine MPM pass caches this ephemeral
+diagonal in operator scratch for the two coarse modes, avoiding repeated
+contact-incidence traversal without another allocation or command. FGMRES is
+the only linear iteration
+owner; the patch and field smoothers
 have no independent convergence or publication contract.
 The one-wave environment reduction fuses Arnoldi orthogonalization with its
 norm, Givens update, and next-basis publication without changing arithmetic
