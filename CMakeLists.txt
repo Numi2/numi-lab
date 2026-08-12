@@ -651,6 +651,7 @@ add_library(
     src/core/EmbodiedTactile.cpp
     src/core/Wave.cpp
     src/core/SurgicalAssets.cpp
+    src/core/SurgicalVisual.cpp
     src/core/SurgicalWorld.cpp
     src/core/HeterogeneousWorld.cpp
     src/core/DiscreteElasticRod.cpp
@@ -2203,6 +2204,73 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
+
+add_executable(
+    metalrobo_suture_visual_probe
+    apps/suture_visual_probe.mm
+)
+target_link_libraries(
+    metalrobo_suture_visual_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+        "${COREGRAPHICS_FRAMEWORK}"
+        "${IMAGEIO_FRAMEWORK}"
+)
+target_compile_options(
+    metalrobo_suture_visual_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_suture_visual_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+if(BUILD_TESTING)
+    set(
+        METALROBO_SUTURE_TEST_STATE
+        "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/pickup.state.tsv"
+    )
+    set(
+        METALROBO_SUTURE_TEST_OUTPUT
+        "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/visual"
+    )
+    add_test(
+        NAME metalrobo.surgical.supported_needle_suture_pickup
+        COMMAND
+            $<TARGET_FILE:metalrobo_supported_needle_pickup_probe>
+            --state-output "${METALROBO_SUTURE_TEST_STATE}"
+    )
+    set_tests_properties(
+        metalrobo.surgical.supported_needle_suture_pickup
+        PROPERTIES
+            FIXTURES_SETUP metalrobo_suture_pickup_state
+            LABELS "metalrobo;surgical;physics"
+            TIMEOUT 180
+    )
+    add_test(
+        NAME metalrobo.surgical.suture_visual_binding
+        COMMAND
+            $<TARGET_FILE:metalrobo_suture_visual_probe>
+            --state "${METALROBO_SUTURE_TEST_STATE}"
+            --output-dir "${METALROBO_SUTURE_TEST_OUTPUT}"
+    )
+    set_tests_properties(
+        metalrobo.surgical.suture_visual_binding
+        PROPERTIES
+            FIXTURES_REQUIRED metalrobo_suture_pickup_state
+            LABELS "metalrobo;surgical;visual;metal"
+            TIMEOUT 180
+    )
+endif()
 
 add_executable(
     metalrobo_world_compiler_probe

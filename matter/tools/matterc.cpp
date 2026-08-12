@@ -159,7 +159,6 @@ int main(const int argc, char** argv) {
         numi::matter::WorldSource source;
         source.environmentCount = arguments.environments;
         source.frameTimestep = 1.0 / 240.0;
-        source.femPCGIterations = 24u;
         source.identificationCandidates = arguments.environments >= 4u
             ? std::min<std::uint32_t>(arguments.environments & ~1u, 8u)
             : 0u;

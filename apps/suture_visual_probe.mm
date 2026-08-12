@@ -1,0 +1,1226 @@
+#import <CoreGraphics/CoreGraphics.h>
+#import <Foundation/Foundation.h>
+#import <ImageIO/ImageIO.h>
+
+#include "metalrobo/EngineModelComposer.hpp"
+#include "metalrobo/MetalHybridRenderer.hpp"
+#include "metalrobo/MetalWorldFamily.hpp"
+#include "metalrobo/SurgicalAssets.hpp"
+#include "metalrobo/SurgicalPSM.hpp"
+#include "metalrobo/SurgicalVisual.hpp"
+#include "metalrobo/VisualPlatform.hpp"
+#include "metalrobo/WorldCompiler.hpp"
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdint>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <span>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <system_error>
+#include <utility>
+#include <vector>
+
+namespace {
+
+constexpr std::uint32_t kWidth = 1280u;
+constexpr std::uint32_t kHeight = 960u;
+constexpr std::uint32_t kInstrumentSemantic = 101u;
+constexpr std::uint32_t kNeedleSemantic = 201u;
+constexpr std::uint32_t kThreadSemantic = 202u;
+constexpr std::uint32_t kFieldSemantic = 301u;
+constexpr std::uint32_t kQualifiedThreadNodeCount = 25u;
+constexpr double kQualifiedThreadRadius = 1.2e-4;
+constexpr double kQualifiedThreadLength = 0.18;
+
+struct Arguments {
+    std::filesystem::path statePath;
+    std::filesystem::path outputDirectory;
+};
+
+struct PickupState {
+    std::string model;
+    std::uint64_t step = 0u;
+    std::vector<float> q;
+    std::vector<float> v;
+    MRBodyStateGPU needle{};
+    double threadRadius = 0.0;
+    std::uint32_t threadNodeCount = 0u;
+    double threadLength = 0.0;
+    std::vector<std::array<double, 3>> threadPositions;
+    std::vector<std::array<double, 3>> threadVelocities;
+    double needleLift = 0.0;
+    double jawTravel = 0.0;
+    double followRatio = 0.0;
+    double orientationDrift = 0.0;
+    bool grasped = false;
+    bool modelSeen = false;
+    bool stepSeen = false;
+    bool qSeen = false;
+    bool vSeen = false;
+    bool needlePositionSeen = false;
+    bool needleOrientationSeen = false;
+    bool needleLinearVelocitySeen = false;
+    bool needleAngularVelocitySeen = false;
+    bool threadModelSeen = false;
+    bool needleLiftSeen = false;
+    bool jawTravelSeen = false;
+    bool followRatioSeen = false;
+    bool orientationDriftSeen = false;
+    bool graspedSeen = false;
+    std::vector<std::uint8_t> threadPositionsSeen;
+    std::vector<std::uint8_t> threadVelocitiesSeen;
+};
+
+struct VisibilityMetrics {
+    std::size_t instrumentPixels = 0u;
+    std::size_t needlePixels = 0u;
+    std::size_t threadPixels = 0u;
+    std::size_t fieldPixels = 0u;
+    std::size_t validPixels = 0u;
+    float minimumDepth = std::numeric_limits<float>::infinity();
+    float maximumDepth = 0.0f;
+};
+
+void require(const bool condition, const std::string& message) {
+    if (!condition) {
+        throw std::runtime_error(message);
+    }
+}
+
+template <typename Diagnostics>
+void requireSucceeded(
+    const Diagnostics& diagnostics,
+    const char* operation
+) {
+    if (!diagnostics.succeeded()) {
+        throw std::runtime_error(
+            std::string{operation} + ": " + diagnostics.message
+        );
+    }
+}
+
+Arguments parseArguments(
+    const int argumentCount,
+    char* const arguments[]
+) {
+    Arguments result;
+    for (int index = 1; index < argumentCount; ++index) {
+        const std::string_view argument{arguments[index]};
+        if (argument == "--state" && index + 1 < argumentCount) {
+            result.statePath = arguments[++index];
+        } else if (argument == "--output-dir" &&
+                   index + 1 < argumentCount) {
+            result.outputDirectory = arguments[++index];
+        } else {
+            throw std::invalid_argument(
+                "usage: metalrobo_suture_visual_probe --state PATH "
+                "--output-dir DIRECTORY"
+            );
+        }
+    }
+    if (result.statePath.empty() || result.outputDirectory.empty()) {
+        throw std::invalid_argument(
+            "usage: metalrobo_suture_visual_probe --state PATH "
+            "--output-dir DIRECTORY"
+        );
+    }
+    return result;
+}
+
+std::vector<std::string> splitTabs(const std::string& line) {
+    std::vector<std::string> result;
+    std::size_t begin = 0u;
+    while (begin <= line.size()) {
+        const std::size_t end = line.find('\t', begin);
+        result.push_back(line.substr(
+            begin,
+            end == std::string::npos ? end : end - begin
+        ));
+        if (end == std::string::npos) {
+            break;
+        }
+        begin = end + 1u;
+    }
+    return result;
+}
+
+double number(const std::string& text, const char* field) {
+    std::size_t consumed = 0u;
+    const double value = std::stod(text, &consumed);
+    if (consumed != text.size() || !std::isfinite(value)) {
+        throw std::invalid_argument(
+            std::string{"invalid pickup state "} + field
+        );
+    }
+    return value;
+}
+
+std::uint64_t integer(const std::string& text, const char* field) {
+    std::size_t consumed = 0u;
+    const std::uint64_t value = std::stoull(text, &consumed);
+    if (consumed != text.size()) {
+        throw std::invalid_argument(
+            std::string{"invalid pickup state "} + field
+        );
+    }
+    return value;
+}
+
+PickupState readPickupState(const std::filesystem::path& path) {
+    std::ifstream input(path);
+    if (!input) {
+        throw std::runtime_error("could not open pickup state artifact");
+    }
+    PickupState result;
+    result.needle.orientation.w = 1.0f;
+    bool schema = false;
+    std::string line;
+    while (std::getline(input, line)) {
+        const std::vector<std::string> fields = splitTabs(line);
+        if (fields.empty()) {
+            continue;
+        }
+        if (fields[0] == "schema") {
+            require(
+                fields.size() == 2u && !schema &&
+                    fields[1] == "numi.surgical-pickup-state.v1",
+                "pickup state schema is unsupported"
+            );
+            schema = true;
+        } else if (fields[0] == "model") {
+            require(
+                fields.size() == 2u && !result.modelSeen,
+                "pickup model row is invalid"
+            );
+            result.model = fields[1];
+            result.modelSeen = true;
+        } else if (fields[0] == "step") {
+            require(
+                fields.size() == 2u && !result.stepSeen,
+                "pickup step row is invalid"
+            );
+            result.step = integer(fields[1], "step");
+            result.stepSeen = true;
+        } else if (fields[0] == "q" || fields[0] == "v") {
+            bool& seen = fields[0] == "q"
+                ? result.qSeen
+                : result.vSeen;
+            require(
+                !seen && fields.size() ==
+                    metalrobo::kSurgicalPSMJointCount + 1u,
+                "pickup generalized-state row is invalid"
+            );
+            seen = true;
+            std::vector<float>& values =
+                fields[0] == "q" ? result.q : result.v;
+            for (std::size_t index = 1u; index < fields.size(); ++index) {
+                values.push_back(static_cast<float>(number(
+                    fields[index],
+                    fields[0].c_str()
+                )));
+            }
+        } else if (fields[0] == "needle_position") {
+            require(
+                fields.size() == 4u && !result.needlePositionSeen,
+                "needle position row is invalid"
+            );
+            result.needle.position = {
+                static_cast<float>(number(fields[1], "needle position")),
+                static_cast<float>(number(fields[2], "needle position")),
+                static_cast<float>(number(fields[3], "needle position")),
+                1.0f,
+            };
+            result.needlePositionSeen = true;
+        } else if (fields[0] == "needle_orientation_xyzw") {
+            require(
+                fields.size() == 5u && !result.needleOrientationSeen,
+                "needle orientation row is invalid"
+            );
+            result.needle.orientation = {
+                static_cast<float>(number(fields[1], "needle orientation")),
+                static_cast<float>(number(fields[2], "needle orientation")),
+                static_cast<float>(number(fields[3], "needle orientation")),
+                static_cast<float>(number(fields[4], "needle orientation")),
+            };
+            result.needleOrientationSeen = true;
+        } else if (fields[0] == "needle_linear_velocity") {
+            require(
+                fields.size() == 4u && !result.needleLinearVelocitySeen,
+                "needle velocity row is invalid"
+            );
+            result.needle.linearVelocityAndInverseMass = {
+                static_cast<float>(number(fields[1], "needle velocity")),
+                static_cast<float>(number(fields[2], "needle velocity")),
+                static_cast<float>(number(fields[3], "needle velocity")),
+                0.0f,
+            };
+            result.needleLinearVelocitySeen = true;
+        } else if (fields[0] == "needle_angular_velocity") {
+            require(
+                fields.size() == 4u && !result.needleAngularVelocitySeen,
+                "needle angular row is invalid"
+            );
+            result.needle.angularVelocity = {
+                static_cast<float>(number(fields[1], "needle angular")),
+                static_cast<float>(number(fields[2], "needle angular")),
+                static_cast<float>(number(fields[3], "needle angular")),
+                0.0f,
+            };
+            result.needleAngularVelocitySeen = true;
+        } else if (fields[0] == "thread_model") {
+            require(
+                fields.size() == 4u && !result.threadModelSeen,
+                "thread model row is invalid"
+            );
+            result.threadRadius = number(fields[1], "thread radius");
+            const std::uint64_t threadNodeCount = integer(
+                fields[2],
+                "thread node count"
+            );
+            require(
+                threadNodeCount == kQualifiedThreadNodeCount,
+                "thread node count does not match the qualified pickup ABI"
+            );
+            result.threadNodeCount = static_cast<std::uint32_t>(
+                threadNodeCount
+            );
+            result.threadLength = number(fields[3], "thread length");
+            result.threadPositions.resize(result.threadNodeCount);
+            result.threadVelocities.resize(result.threadNodeCount);
+            result.threadPositionsSeen.resize(result.threadNodeCount, 0u);
+            result.threadVelocitiesSeen.resize(result.threadNodeCount, 0u);
+            result.threadModelSeen = true;
+        } else if (fields[0] == "thread_position" ||
+                   fields[0] == "thread_velocity") {
+            require(fields.size() == 5u, "thread state row is invalid");
+            const std::size_t index = static_cast<std::size_t>(
+                integer(fields[1], "thread node index")
+            );
+            std::vector<std::array<double, 3>>& values =
+                fields[0] == "thread_position"
+                ? result.threadPositions
+                : result.threadVelocities;
+            std::vector<std::uint8_t>& seen =
+                fields[0] == "thread_position"
+                ? result.threadPositionsSeen
+                : result.threadVelocitiesSeen;
+            require(index < values.size(), "thread node index is outside model");
+            require(seen[index] == 0u, "thread node row is duplicated");
+            values[index] = {
+                number(fields[2], fields[0].c_str()),
+                number(fields[3], fields[0].c_str()),
+                number(fields[4], fields[0].c_str()),
+            };
+            seen[index] = 1u;
+        } else if (fields[0] == "needle_lift_m") {
+            require(
+                fields.size() == 2u && !result.needleLiftSeen,
+                "needle lift row is invalid"
+            );
+            result.needleLift = number(fields[1u], "needle lift");
+            result.needleLiftSeen = true;
+        } else if (fields[0] == "jaw_travel_m") {
+            require(
+                fields.size() == 2u && !result.jawTravelSeen,
+                "jaw travel row is invalid"
+            );
+            result.jawTravel = number(fields[1u], "jaw travel");
+            result.jawTravelSeen = true;
+        } else if (fields[0] == "follow_ratio") {
+            require(
+                fields.size() == 2u && !result.followRatioSeen,
+                "follow ratio row is invalid"
+            );
+            result.followRatio = number(fields[1u], "follow ratio");
+            result.followRatioSeen = true;
+        } else if (fields[0] == "orientation_drift_rad") {
+            require(
+                fields.size() == 2u && !result.orientationDriftSeen,
+                "orientation drift row is invalid"
+            );
+            result.orientationDrift = number(fields[1u], "orientation drift");
+            result.orientationDriftSeen = true;
+        } else if (fields[0] == "grasped") {
+            require(
+                fields.size() == 2u && !result.graspedSeen,
+                "grasped row is invalid"
+            );
+            const std::uint64_t grasped = integer(fields[1u], "grasped");
+            require(grasped <= 1u, "grasped state is not boolean");
+            result.grasped = grasped == 1u;
+            result.graspedSeen = true;
+        } else {
+            throw std::invalid_argument(
+                "pickup state contains an unknown row: " + fields[0]
+            );
+        }
+    }
+    require(schema, "pickup state has no schema");
+    require(
+        result.modelSeen && result.stepSeen && result.qSeen && result.vSeen &&
+            result.needlePositionSeen && result.needleOrientationSeen &&
+            result.needleLinearVelocitySeen &&
+            result.needleAngularVelocitySeen && result.threadModelSeen &&
+            result.needleLiftSeen && result.jawTravelSeen &&
+            result.followRatioSeen && result.orientationDriftSeen &&
+            result.graspedSeen &&
+            std::ranges::all_of(
+                result.threadPositionsSeen,
+                [](const std::uint8_t value) { return value == 1u; }
+            ) &&
+            std::ranges::all_of(
+                result.threadVelocitiesSeen,
+                [](const std::uint8_t value) { return value == 1u; }
+            ) &&
+        result.model ==
+            "dvrk_psm_classic_lnd_source_coupled_abi_v3" &&
+            result.step == 3030u &&
+            result.q.size() == metalrobo::kSurgicalPSMJointCount &&
+            result.v.size() == metalrobo::kSurgicalPSMJointCount &&
+            result.threadNodeCount == kQualifiedThreadNodeCount &&
+            result.threadPositions.size() == result.threadNodeCount &&
+            result.threadVelocities.size() == result.threadNodeCount &&
+            std::abs(result.threadRadius - kQualifiedThreadRadius) <=
+                1.0e-12 &&
+            std::abs(result.threadLength - kQualifiedThreadLength) <=
+                1.0e-12 &&
+            result.grasped &&
+            result.needleLift > 0.007 &&
+            result.followRatio > 0.9,
+        "pickup state did not pass the physical acquisition contract"
+    );
+    return result;
+}
+
+metalrobo::EngineModel makeNeedleModel(
+    const metalrobo::CurvedSutureNeedleAsset& needle
+) {
+    metalrobo::EngineModel model;
+    model.name = "gs21_curved_needle_scene";
+    model.bodies = {needle.rigid.body};
+    model.bodies[0u].articulationIndex = MR_INVALID_INDEX;
+    model.bodies[0u].parentBody = MR_INVALID_INDEX;
+    model.bodies[0u].inboundJoint = MR_INVALID_INDEX;
+    model.materials = {needle.rigid.material};
+    model.shapes = needle.rigid.shapes;
+    for (MRShapeGPU& shape : model.shapes) {
+        shape.bodyIndex = 0u;
+        shape.materialIndex = 0u;
+    }
+    model.world.abiVersion = MR_ENGINE_ABI_VERSION;
+    model.world.bodyCount = 1u;
+    model.world.shapeCount = static_cast<std::uint32_t>(model.shapes.size());
+    model.world.materialCount = 1u;
+    const std::uint64_t pairCount =
+        static_cast<std::uint64_t>(model.shapes.size()) *
+        (model.shapes.size() - 1u) / 2u;
+    model.world.pairCapacity = static_cast<std::uint32_t>(pairCount);
+    model.world.contactCapacity = static_cast<std::uint32_t>(4u * pairCount);
+    model.world.constraintCapacity = model.world.contactCapacity;
+    model.world.islandCapacity = 1u;
+    model.world.solverType = MR_SOLVER_TEMPORAL_CONE;
+    model.world.frictionConeType = MR_FRICTION_CONE_ELLIPTIC;
+    model.world.gravityAndTimestep = {0.0f, 0.0f, -9.81f, 0.0005f};
+    model.world.solverScales = {1.0e-7f, 1.0e-9f, 2.0f, 1.0e-5f};
+    return model;
+}
+
+metalrobo::EngineModel makeVisualEngineModel(
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const PickupState& state
+) {
+    const metalrobo::EngineModel psm =
+        metalrobo::makeDvrkPsmLargeNeedleDriverEngineModel();
+    const metalrobo::EngineModel needleModel = makeNeedleModel(needle);
+    const std::array components{
+        metalrobo::EngineModelComponent{
+            .model = &psm,
+            .instanceId = "dvrk_psm",
+            .preserveSemanticNames = true,
+        },
+        metalrobo::EngineModelComponent{
+            .model = &needleModel,
+            .instanceId = "gs21_needle",
+        },
+    };
+    metalrobo::EngineModel result;
+    const auto diagnostics = metalrobo::composeEngineModels(
+        components,
+        result,
+        {
+            .name = "dvrk_psm_gs21_suture_visual_world",
+            .gravityAndTimestep = {0.0f, 0.0f, -9.81f, 0.0005f},
+        }
+    );
+    requireSucceeded(diagnostics, "visual engine composition");
+    require(result.world.nq == state.q.size(), "visual model q width changed");
+    std::copy(state.q.begin(), state.q.end(), result.defaultQ.begin());
+    std::copy(state.v.begin(), state.v.end(), result.defaultV.begin());
+    std::string reason;
+    require(result.valid(&reason), "visual engine model is invalid: " + reason);
+    return result;
+}
+
+metalrobo::WorldPose cameraToward(
+    const mr_float4 position,
+    const mr_float4 target
+) {
+    const float x = target.x - position.x;
+    const float y = target.y - position.y;
+    const float z = target.z - position.z;
+    const float inverseLength = 1.0f / std::sqrt(x * x + y * y + z * z);
+    const mr_float4 forward{
+        x * inverseLength,
+        y * inverseLength,
+        z * inverseLength,
+        0.0f,
+    };
+    mr_float4 orientation{
+        -forward.y,
+        forward.x,
+        0.0f,
+        1.0f + forward.z,
+    };
+    if (orientation.w < 1.0e-5f) {
+        orientation = {1.0f, 0.0f, 0.0f, 0.0f};
+    }
+    const float inverseNorm = 1.0f / std::sqrt(
+        orientation.x * orientation.x +
+        orientation.y * orientation.y +
+        orientation.z * orientation.z +
+        orientation.w * orientation.w
+    );
+    orientation.x *= inverseNorm;
+    orientation.y *= inverseNorm;
+    orientation.z *= inverseNorm;
+    orientation.w *= inverseNorm;
+    return {position, orientation};
+}
+
+metalrobo::VisualLightRigV1 makeSurgicalThreePointLightRig() {
+    metalrobo::VisualLightRigV1 result;
+    result.id = "surgical_three_point";
+    result.contentHash = "procedural:surgical-three-point-v1";
+    MRVisualLightGPUV1 key{};
+    key.positionAndRange = {0.16f, -0.22f, 0.60f, 1.2f};
+    key.directionAndSpot = {-0.33f, 0.45f, -0.83f, -1.0f};
+    key.colorAndIntensity = {1.0f, 0.95f, 0.90f, 720.0f};
+    key.shape = {0.18f, 0.14f, -1.0f, 0.025f};
+    key.identity = {
+        MR_VISUAL_LIGHT_RECTANGLE,
+        MR_VISUAL_LIGHT_UNIT_NIT,
+        120u,
+        1001u,
+    };
+    key.shadow = {1u, 0u, 12u, 0u};
+
+    MRVisualLightGPUV1 fill{};
+    fill.positionAndRange = {-0.18f, -0.02f, 0.38f, 1.0f};
+    fill.directionAndSpot = {0.705f, 0.078f, -0.705f, -1.0f};
+    fill.colorAndIntensity = {0.72f, 0.84f, 1.0f, 230.0f};
+    fill.shape = {0.16f, 0.12f, -1.0f, 0.02f};
+    fill.identity = {
+        MR_VISUAL_LIGHT_RECTANGLE,
+        MR_VISUAL_LIGHT_UNIT_NIT,
+        90u,
+        1002u,
+    };
+    fill.shadow = {0u, 1u, 8u, 0u};
+
+    MRVisualLightGPUV1 rim{};
+    rim.positionAndRange = {0.04f, 0.20f, 0.48f, 1.0f};
+    rim.directionAndSpot = {-0.127f, -0.635f, -0.762f, -1.0f};
+    rim.colorAndIntensity = {0.76f, 0.88f, 1.0f, 390.0f};
+    rim.shape = {0.12f, 0.10f, -1.0f, 0.02f};
+    rim.identity = {
+        MR_VISUAL_LIGHT_RECTANGLE,
+        MR_VISUAL_LIGHT_UNIT_NIT,
+        100u,
+        1003u,
+    };
+    rim.shadow = {0u, 2u, 8u, 0u};
+
+    result.lights = {key, fill, rim};
+    result.fingerprint = 0x5355545552454c31ull;
+    return result;
+}
+
+metalrobo::WorldAsset asset(
+    std::string id,
+    std::string semanticClass,
+    const MRWorldAssetRole role,
+    const MRWorldDynamicsRepresentation dynamics
+) {
+    metalrobo::WorldAsset result;
+    result.id = std::move(id);
+    result.semanticClass = std::move(semanticClass);
+    result.role = role;
+    result.render = MR_WORLD_RENDER_MESH_PBR;
+    result.collision = MR_WORLD_COLLISION_PRIMITIVES;
+    result.dynamics = dynamics;
+    result.topologyCohort = "dvrk_suture_pickup";
+    return result;
+}
+
+metalrobo::WorldTemplate makeWorldTemplate(
+    const metalrobo::EngineModel& model,
+    const PickupState& state
+) {
+    metalrobo::EpisodeTwin episode;
+    episode.id = "dvrk_gs21_suture_pickup_visual_v1";
+    metalrobo::WorldAsset robot = asset(
+        "dvrk_psm",
+        "surgical_instrument",
+        MR_WORLD_ASSET_ROBOT,
+        MR_WORLD_DYNAMICS_ARTICULATED
+    );
+    robot.articulationIndex = 0u;
+    for (std::uint32_t body = 0u; body < 9u; ++body) {
+        robot.bodyIndices.push_back(body);
+    }
+    for (std::uint32_t shape = 0u; shape < 20u; ++shape) {
+        robot.shapeIndices.push_back(shape);
+    }
+    robot.materialIndices = {0u};
+    metalrobo::WorldAsset needle = asset(
+        "gs21_needle",
+        "suture_needle",
+        MR_WORLD_ASSET_MANIPULATED,
+        MR_WORLD_DYNAMICS_RIGID
+    );
+    needle.bodyIndices = {9u};
+    for (std::uint32_t shape = 20u; shape < model.shapes.size(); ++shape) {
+        needle.shapeIndices.push_back(shape);
+    }
+    needle.materialIndices = {1u};
+    needle.initialPose.position = state.needle.position;
+    needle.initialPose.orientation = state.needle.orientation;
+    episode.assets = {std::move(robot), std::move(needle)};
+
+    const mr_float4 needlePosition = state.needle.position;
+    mr_float4 threadCenter{};
+    for (const auto& point : state.threadPositions) {
+        threadCenter.x += static_cast<float>(point[0]);
+        threadCenter.y += static_cast<float>(point[1]);
+        threadCenter.z += static_cast<float>(point[2]);
+    }
+    const float inverseThreadCount =
+        1.0f / static_cast<float>(state.threadPositions.size());
+    threadCenter.x *= inverseThreadCount;
+    threadCenter.y *= inverseThreadCount;
+    threadCenter.z *= inverseThreadCount;
+    threadCenter.w = 1.0f;
+
+    metalrobo::SensorSpec close;
+    close.id = "pickup_close_rgbd";
+    close.parentAssetId = "dvrk_psm";
+    close.parentKind = MR_WORLD_SENSOR_PARENT_WORLD;
+    close.kind = MR_WORLD_SENSOR_RGBD;
+    close.width = kWidth;
+    close.height = kHeight;
+    close.intrinsics = {1200.0f, 1200.0f, 640.0f, 480.0f};
+    close.localPose = cameraToward(
+        {
+            needlePosition.x + 0.065f,
+            needlePosition.y - 0.070f,
+            needlePosition.z + 0.045f,
+            1.0f,
+        },
+        {
+            needlePosition.x,
+            needlePosition.y,
+            needlePosition.z - 0.012f,
+            1.0f,
+        }
+    );
+    close.nominalRateHz = 60.0f;
+    close.exposureSeconds = 1.0f / 240.0f;
+    close.minimumDepthMeters = 0.015f;
+    close.maximumDepthMeters = 2.0f;
+    close.depthQuantumMeters = 1.0e-5f;
+
+    metalrobo::SensorSpec overview = close;
+    overview.id = "pickup_overview_rgbd";
+    overview.intrinsics = {1030.0f, 1030.0f, 640.0f, 480.0f};
+    const mr_float4 overviewTarget{
+        0.55f * needlePosition.x + 0.45f * threadCenter.x,
+        0.55f * needlePosition.y + 0.45f * threadCenter.y,
+        0.55f * needlePosition.z + 0.45f * threadCenter.z,
+        1.0f,
+    };
+    overview.localPose = cameraToward(
+        {
+            overviewTarget.x + 0.155f,
+            overviewTarget.y - 0.175f,
+            overviewTarget.z + 0.075f,
+            1.0f,
+        },
+        overviewTarget
+    );
+    episode.sensors = {std::move(close), std::move(overview)};
+    episode.task = {
+        .id = "gs21_suture_pickup_visual_qualification",
+        .robotAssetId = "dvrk_psm",
+        .controlPeriodSeconds = 0.0005,
+        .horizonSeconds = 1.515,
+    };
+    metalrobo::WorldTemplate result;
+    const auto diagnostics = metalrobo::compileEpisodeTwin(
+        episode,
+        model,
+        result
+    );
+    requireSucceeded(diagnostics, "visual episode compile");
+    return result;
+}
+
+metalrobo::WorldFamily makeWorldFamily(
+    const metalrobo::WorldTemplate& world
+) {
+    metalrobo::WorldProgram program;
+    program.id = "dvrk_gs21_suture_pickup_visual_program_v1";
+    metalrobo::WorldFamily result;
+    const auto diagnostics = metalrobo::compileWorldFamily(
+        world,
+        program,
+        result
+    );
+    requireSucceeded(diagnostics, "visual world family compile");
+    return result;
+}
+
+float linearToSrgb(const float value) {
+    const float mapped = std::max(value, 0.0f) /
+        (1.0f + std::max(value, 0.0f));
+    return mapped <= 0.0031308f
+        ? 12.92f * mapped
+        : 1.055f * std::pow(mapped, 1.0f / 2.4f) - 0.055f;
+}
+
+bool writePng(
+    const std::filesystem::path& path,
+    const std::span<const std::uint8_t> rgba,
+    const std::uint32_t width,
+    const std::uint32_t height
+) {
+    if (rgba.size() != static_cast<std::size_t>(width) * height * 4u) {
+        return false;
+    }
+    CFURLRef url = CFURLCreateFromFileSystemRepresentation(
+        kCFAllocatorDefault,
+        reinterpret_cast<const UInt8*>(path.c_str()),
+        static_cast<CFIndex>(path.string().size()),
+        false
+    );
+    if (url == nullptr) {
+        return false;
+    }
+    CGDataProviderRef provider = CGDataProviderCreateWithData(
+        nullptr,
+        rgba.data(),
+        rgba.size(),
+        nullptr
+    );
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(
+        kCGColorSpaceSRGB
+    );
+    CGImageRef image = provider != nullptr && colorSpace != nullptr
+        ? CGImageCreate(
+              width,
+              height,
+              8u,
+              32u,
+              static_cast<std::size_t>(width) * 4u,
+              colorSpace,
+              static_cast<CGBitmapInfo>(
+                  static_cast<std::uint32_t>(kCGBitmapByteOrderDefault) |
+                  static_cast<std::uint32_t>(kCGImageAlphaLast)
+              ),
+              provider,
+              nullptr,
+              false,
+              kCGRenderingIntentDefault
+          )
+        : nullptr;
+    CGImageDestinationRef destination = image != nullptr
+        ? CGImageDestinationCreateWithURL(
+              url,
+              CFSTR("public.png"),
+              1u,
+              nullptr
+          )
+        : nullptr;
+    bool succeeded = false;
+    if (destination != nullptr) {
+        CGImageDestinationAddImage(destination, image, nullptr);
+        succeeded = CGImageDestinationFinalize(destination);
+    }
+    if (destination != nullptr) {
+        CFRelease(destination);
+    }
+    if (image != nullptr) {
+        CGImageRelease(image);
+    }
+    if (colorSpace != nullptr) {
+        CGColorSpaceRelease(colorSpace);
+    }
+    if (provider != nullptr) {
+        CGDataProviderRelease(provider);
+    }
+    CFRelease(url);
+    return succeeded;
+}
+
+std::vector<std::uint8_t> colorImage(
+    const metalrobo::HybridObservationBatch& observations
+) {
+    std::vector<std::uint8_t> result(observations.rgb.size() * 4u);
+    for (std::size_t pixel = 0u; pixel < observations.rgb.size(); ++pixel) {
+        const mr_float4 value = observations.rgb[pixel];
+        result[4u * pixel + 0u] = static_cast<std::uint8_t>(
+            std::lround(255.0f * std::clamp(linearToSrgb(value.x), 0.0f, 1.0f))
+        );
+        result[4u * pixel + 1u] = static_cast<std::uint8_t>(
+            std::lround(255.0f * std::clamp(linearToSrgb(value.y), 0.0f, 1.0f))
+        );
+        result[4u * pixel + 2u] = static_cast<std::uint8_t>(
+            std::lround(255.0f * std::clamp(linearToSrgb(value.z), 0.0f, 1.0f))
+        );
+        result[4u * pixel + 3u] = 255u;
+    }
+    return result;
+}
+
+std::vector<std::uint8_t> identityImage(
+    const metalrobo::HybridObservationBatch& observations
+) {
+    std::vector<std::uint8_t> result(observations.segmentation.size() * 4u);
+    for (std::size_t pixel = 0u;
+         pixel < observations.segmentation.size();
+         ++pixel) {
+        std::array<std::uint8_t, 3u> color{8u, 10u, 14u};
+        switch (observations.segmentation[pixel]) {
+        case kInstrumentSemantic:
+            color = {210u, 218u, 226u};
+            break;
+        case kNeedleSemantic:
+            color = {250u, 190u, 40u};
+            break;
+        case kThreadSemantic:
+            color = {30u, 135u, 255u};
+            break;
+        case kFieldSemantic:
+            color = {20u, 120u, 100u};
+            break;
+        default:
+            break;
+        }
+        result[4u * pixel + 0u] = color[0u];
+        result[4u * pixel + 1u] = color[1u];
+        result[4u * pixel + 2u] = color[2u];
+        result[4u * pixel + 3u] = 255u;
+    }
+    return result;
+}
+
+VisibilityMetrics visibility(
+    const metalrobo::HybridObservationBatch& observations
+) {
+    VisibilityMetrics result;
+    for (std::size_t pixel = 0u;
+         pixel < observations.segmentation.size();
+         ++pixel) {
+        switch (observations.segmentation[pixel]) {
+        case kInstrumentSemantic:
+            ++result.instrumentPixels;
+            break;
+        case kNeedleSemantic:
+            ++result.needlePixels;
+            break;
+        case kThreadSemantic:
+            ++result.threadPixels;
+            break;
+        case kFieldSemantic:
+            ++result.fieldPixels;
+            break;
+        default:
+            break;
+        }
+        if ((observations.validity[pixel] &
+             MR_VISUAL_VALIDITY_GEOMETRY) != 0u &&
+            std::isfinite(observations.depth[pixel])) {
+            ++result.validPixels;
+            result.minimumDepth = std::min(
+                result.minimumDepth,
+                observations.depth[pixel]
+            );
+            result.maximumDepth = std::max(
+                result.maximumDepth,
+                observations.depth[pixel]
+            );
+        }
+    }
+    return result;
+}
+
+void writeEvidence(
+    const std::filesystem::path& path,
+    const PickupState& pickup,
+    const metalrobo::DvrkSutureVisualAsset& asset,
+    const metalrobo::VisualSceneManifestV3& manifest,
+    const metalrobo::MetalHybridRendererDiagnostics& render,
+    const std::array<VisibilityMetrics, 2u>& views
+) {
+    std::ofstream output(path, std::ios::trunc);
+    if (!output) {
+        throw std::runtime_error("could not open visual evidence output");
+    }
+    output << std::setprecision(12)
+        << "{\n"
+        << "  \"schema\": \"numi.surgical-suture-visual-evidence.v1\",\n"
+        << "  \"source\": \"simulation\",\n"
+        << "  \"device\": \"" << render.deviceName << "\",\n"
+        << "  \"pickup_step\": " << pickup.step << ",\n"
+        << "  \"grasped\": true,\n"
+        << "  \"needle_lift_m\": " << pickup.needleLift << ",\n"
+        << "  \"follow_ratio\": " << pickup.followRatio << ",\n"
+        << "  \"visual_pack_hash\": \"" << asset.pack.contentHash << "\",\n"
+        << "  \"visual_scene_fingerprint\": " << manifest.fingerprint << ",\n"
+        << "  \"vertices\": " << asset.metrics.vertexCount << ",\n"
+        << "  \"triangles\": " << asset.metrics.triangleCount << ",\n"
+        << "  \"needle_triangles\": "
+        << asset.metrics.needleTriangleCount << ",\n"
+        << "  \"thread_triangles\": "
+        << asset.metrics.threadTriangleCount << ",\n"
+        << "  \"thread_centerline_length_m\": "
+        << asset.metrics.threadCenterlineLengthM << ",\n"
+        << "  \"render_ms\": " << render.elapsedMilliseconds << ",\n"
+        << "  \"views\": [\n";
+    for (std::size_t index = 0u; index < views.size(); ++index) {
+        const VisibilityMetrics& view = views[index];
+        output << "    {\"name\": \""
+            << (index == 0u ? "close" : "overview") << "\", "
+            << "\"instrument_pixels\": " << view.instrumentPixels << ", "
+            << "\"needle_pixels\": " << view.needlePixels << ", "
+            << "\"thread_pixels\": " << view.threadPixels << ", "
+            << "\"field_pixels\": " << view.fieldPixels << ", "
+            << "\"valid_pixels\": " << view.validPixels << ", "
+            << "\"minimum_depth_m\": " << view.minimumDepth << ", "
+            << "\"maximum_depth_m\": " << view.maximumDepth << "}"
+            << (index + 1u == views.size() ? "\n" : ",\n");
+    }
+    output << "  ],\n"
+        << "  \"physics_boundary\": "
+        << "\"FP64 articulated/contact pickup plus DER thread; visual geometry is presentation-only\",\n"
+        << "  \"clinical_validation\": false\n"
+        << "}\n";
+    output.close();
+    require(static_cast<bool>(output), "could not publish visual evidence");
+}
+
+} // namespace
+
+int main(const int argumentCount, char* argv[]) {
+    @autoreleasepool {
+        try {
+            const Arguments options = parseArguments(
+                argumentCount,
+                argv
+            );
+            std::error_code error;
+            std::filesystem::create_directories(
+                options.outputDirectory,
+                error
+            );
+            require(!error, "could not create visual output directory");
+
+            const PickupState pickup = readPickupState(options.statePath);
+            const metalrobo::CurvedSutureNeedleAsset needle =
+                metalrobo::makeCurvedSutureNeedleAsset({
+                    .bodyIndex = 0u,
+                    .materialIndex = 0u,
+                    .slotGenerationBase = 410210u,
+                    .collisionGroup = 1u,
+                    .collisionMask = ~1u,
+                    .motionType = MR_MOTION_DYNAMIC,
+                });
+            metalrobo::DiscreteRodMaterial visualRodMaterial;
+            visualRodMaterial.radius = pickup.threadRadius;
+            metalrobo::DiscreteElasticRodModel threadModel =
+                metalrobo::makeStraightSutureRod(
+                    pickup.threadNodeCount,
+                    pickup.threadLength,
+                    visualRodMaterial
+                );
+            metalrobo::DiscreteElasticRodState threadState;
+            threadState.positions = pickup.threadPositions;
+            threadState.velocities = pickup.threadVelocities;
+            threadState.twists.assign(
+                pickup.threadNodeCount - 1u,
+                0.0
+            );
+            threadState.twistRates.assign(
+                pickup.threadNodeCount - 1u,
+                0.0
+            );
+            const metalrobo::DvrkSutureVisualAsset visualAsset =
+                metalrobo::makeDvrkSutureVisualAsset(
+                    needle,
+                    threadModel,
+                    threadState
+                );
+            const std::filesystem::path packPath =
+                options.outputDirectory /
+                "dvrk-gs21-suture-pickup.mrvpack";
+            std::string reason;
+            require(
+                metalrobo::writeVisualAssetPack(
+                    visualAsset.pack,
+                    packPath,
+                    &reason
+                ),
+                "could not write surgical visual pack: " + reason
+            );
+
+            metalrobo::EngineModel model = makeVisualEngineModel(
+                needle,
+                pickup
+            );
+            const float inverseMass = needle.rigid.body.massAndInverseMass.y;
+            PickupState livePickup = pickup;
+            livePickup.needle.linearVelocityAndInverseMass.w = inverseMass;
+            livePickup.needle.inverseInertiaWorldRow0 =
+                needle.rigid.body.inverseInertiaRow0;
+            livePickup.needle.inverseInertiaWorldRow1 =
+                needle.rigid.body.inverseInertiaRow1;
+            livePickup.needle.inverseInertiaWorldRow2 =
+                needle.rigid.body.inverseInertiaRow2;
+            livePickup.needle.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+            livePickup.needle.flagsAndIndices[1] = MR_INVALID_INDEX;
+            livePickup.needle.flagsAndIndices[2] = 41021u;
+
+            const metalrobo::WorldTemplate world = makeWorldTemplate(
+                model,
+                livePickup
+            );
+            const metalrobo::WorldFamily family = makeWorldFamily(world);
+            metalrobo::MetalWorldFamilyContext worlds;
+            requireSucceeded(
+                worlds.compile(family, 1u),
+                "Metal world family compile"
+            );
+            requireSucceeded(
+                worlds.sample(1u, 0x535554555245ull),
+                "Metal world sample"
+            );
+
+            const std::array references{
+                metalrobo::VisualAssetReferenceV3{
+                    packPath,
+                    visualAsset.pack.contentHash,
+                    0u,
+                    kInstrumentSemantic,
+                    1000u,
+                },
+            };
+            metalrobo::VisualSceneManifestV3 manifest;
+            require(
+                metalrobo::compileVisualSceneManifestV3(
+                    world,
+                    references,
+                    metalrobo::makeNeutralStudioEnvironmentV2(),
+                    makeSurgicalThreePointLightRig(),
+                    manifest,
+                    &reason
+                ),
+                "surgical visual scene compile: " + reason
+            );
+            const std::filesystem::path manifestPath =
+                options.outputDirectory /
+                "dvrk-gs21-suture-pickup.visual.v3.json";
+            require(
+                metalrobo::writeVisualSceneManifestV3(
+                    manifest,
+                    manifestPath,
+                    &reason
+                ),
+                "surgical visual manifest write: " + reason
+            );
+
+            metalrobo::MetalHybridRendererConfig rendererConfig;
+            rendererConfig.width = kWidth;
+            rendererConfig.height = kHeight;
+            rendererConfig.maximumReferenceFramesInFlight = 2u;
+            rendererConfig.clearColorAndDepth = {
+                0.003f,
+                0.008f,
+                0.012f,
+                1.0e30f,
+            };
+            metalrobo::MetalHybridRenderer renderer(rendererConfig);
+            const metalrobo::VisualSceneManifestV3 evidenceManifest = manifest;
+            requireSucceeded(
+                renderer.compile(
+                    std::move(manifest.renderScene),
+                    metalrobo::VisualRendererProfileV1::sensorReference(),
+                    1u
+                ),
+                "surgical reference renderer compile"
+            );
+            std::vector<MRBodyStateGPU> bodyStates;
+            require(
+                metalrobo::composeVisualBodyStates(
+                    model,
+                    1u,
+                    livePickup.q,
+                    livePickup.v,
+                    std::span<const MRBodyStateGPU>{&livePickup.needle, 1u},
+                    bodyStates,
+                    &reason
+                ),
+                "surgical visual body composition: " + reason
+            );
+            const double captureTimestamp = livePickup.step * 0.0005;
+            constexpr double exposureSeconds = 1.0 / 240.0;
+            metalrobo::VisualMotionSampleBatchV1 motion;
+            motion.environmentCount = 1u;
+            motion.bodyCount = static_cast<std::uint32_t>(
+                model.bodies.size()
+            );
+            motion.sampleCount = 2u;
+            motion.exposureOpenSeconds =
+                captureTimestamp - 0.5 * exposureSeconds;
+            motion.exposureCloseSeconds =
+                captureTimestamp + 0.5 * exposureSeconds;
+            motion.timestampsSeconds = {
+                motion.exposureOpenSeconds,
+                motion.exposureCloseSeconds,
+            };
+            motion.bodyStates.reserve(2u * bodyStates.size());
+            motion.bodyStates.insert(
+                motion.bodyStates.end(),
+                bodyStates.begin(),
+                bodyStates.end()
+            );
+            motion.bodyStates.insert(
+                motion.bodyStates.end(),
+                bodyStates.begin(),
+                bodyStates.end()
+            );
+            motion.scenarioIdentity = 0x535554555245ull;
+            motion.frameIndex = livePickup.step;
+            motion.source = MR_VISUAL_SOURCE_SIMULATION;
+
+            constexpr std::array<const char*, 2u> names{
+                "pickup-close",
+                "pickup-overview",
+            };
+            constexpr std::array<std::array<std::size_t, 4u>, 2u>
+                minimumCoverage{{
+                    {{30000u, 1800u, 1000u, 100000u}},
+                    {{5000u, 250u, 400u, 100000u}},
+                }};
+            std::array<VisibilityMetrics, 2u> viewMetrics{};
+            metalrobo::MetalHybridRendererDiagnostics lastRender;
+            for (std::uint32_t camera = 0u; camera < names.size(); ++camera) {
+                motion.sensorIdentity = camera + 1u;
+                motion.sensorSequence = camera + 1u;
+                lastRender = renderer.renderFrame(worlds, motion, camera);
+                requireSucceeded(lastRender, "surgical reference render");
+                metalrobo::HybridObservationBatch observations;
+                requireSucceeded(
+                    renderer.readback(observations),
+                    "surgical render readback"
+                );
+                viewMetrics[camera] = visibility(observations);
+                require(
+                    writePng(
+                        options.outputDirectory /
+                            (std::string{names[camera]} + ".png"),
+                        colorImage(observations),
+                        kWidth,
+                        kHeight
+                    ),
+                    "could not write surgical color PNG"
+                );
+                require(
+                    writePng(
+                        options.outputDirectory /
+                            (std::string{names[camera]} + "-identity.png"),
+                        identityImage(observations),
+                        kWidth,
+                        kHeight
+                    ),
+                    "could not write surgical identity PNG"
+                );
+                require(
+                    viewMetrics[camera].instrumentPixels >=
+                            minimumCoverage[camera][0u] &&
+                        viewMetrics[camera].needlePixels >=
+                            minimumCoverage[camera][1u] &&
+                        viewMetrics[camera].threadPixels >=
+                            minimumCoverage[camera][2u] &&
+                        viewMetrics[camera].validPixels >=
+                            minimumCoverage[camera][3u],
+                    std::string{"visual binding coverage failed for "} +
+                        names[camera] +
+                        " instrument=" +
+                        std::to_string(viewMetrics[camera].instrumentPixels) +
+                        " needle=" +
+                        std::to_string(viewMetrics[camera].needlePixels) +
+                        " thread=" +
+                        std::to_string(viewMetrics[camera].threadPixels) +
+                        " field=" +
+                        std::to_string(viewMetrics[camera].fieldPixels) +
+                        " valid=" +
+                        std::to_string(viewMetrics[camera].validPixels)
+                );
+            }
+            const std::filesystem::path evidencePath =
+                options.outputDirectory / "visual-evidence.json";
+            writeEvidence(
+                evidencePath,
+                livePickup,
+                visualAsset,
+                evidenceManifest,
+                lastRender,
+                viewMetrics
+            );
+            std::cout << std::setprecision(12)
+                << "suture_visual status=ok"
+                << " device=\"" << lastRender.deviceName << "\""
+                << " resolution=" << kWidth << "x" << kHeight
+                << " vertices=" << visualAsset.metrics.vertexCount
+                << " triangles=" << visualAsset.metrics.triangleCount
+                << " needle_triangles="
+                << visualAsset.metrics.needleTriangleCount
+                << " thread_triangles="
+                << visualAsset.metrics.threadTriangleCount
+                << " close_pixels="
+                << viewMetrics[0u].instrumentPixels << "/"
+                << viewMetrics[0u].needlePixels << "/"
+                << viewMetrics[0u].threadPixels
+                << " overview_pixels="
+                << viewMetrics[1u].instrumentPixels << "/"
+                << viewMetrics[1u].needlePixels << "/"
+                << viewMetrics[1u].threadPixels
+                << " pack_hash=" << visualAsset.pack.contentHash
+                << " scene_fingerprint=" << evidenceManifest.fingerprint
+                << " source=simulation clinical_validation=no\n";
+            return 0;
+        } catch (const std::exception& exception) {
+            std::cerr << "suture_visual status=failed reason=\""
+                << exception.what() << "\"\n";
+            return 1;
+        }
+    }
+}

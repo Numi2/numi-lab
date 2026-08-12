@@ -557,18 +557,6 @@ inline float4 elementNodeVector(
     return float4(0.0f);
 }
 
-inline bool femPCGConverged(
-    const NMMatterDispatchGPU dispatch,
-    device const NMPCGScalarGPU* scalars,
-    const uint environment,
-    const uint objectIndex,
-    const uint iteration
-) {
-    return iteration != 0u &&
-        scalars[environment * dispatch.objectCount + objectIndex]
-            .diagnostics.z > 0.5f;
-}
-
 kernel void nm_fem_checkpoint(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMFEMNodeStateGPU* accepted [[buffer(1)]],
@@ -904,7 +892,6 @@ kernel void nm_fem_apply_operator_elements(
     device const NMAdaptiveStateGPU* adaptive [[buffer(12)]],
     device NMFEMElementVectorGPU* elementOperator [[buffer(13)]],
     device NMMatterStatusGPU* statuses [[buffer(14)]],
-    device const NMPCGScalarGPU* scalars [[buffer(15)]],
     device const NMMixedMaterialGPU* mixedMaterials [[buffer(16)]],
     device const NMFEMFieldStateGPU* fields [[buffer(17)]],
     device const NMLearnedMaterialGPU* learnedMaterials [[buffer(18)]],
@@ -937,17 +924,8 @@ kernel void nm_fem_apply_operator_elements(
         adaptive[environment * dispatch.objectCount + objectIndex];
     if (object.representation != NM_REPRESENTATION_FEM ||
         !objectDue(object, scheduler, adaptiveState, microstep) ||
-        ((microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) != 0u &&
-         fgmresStates[environment]
-             .diagnostics.z > 0.5f) ||
-        ((microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) == 0u &&
-        femPCGConverged(
-            dispatch,
-            scalars,
-            environment,
-            objectIndex,
-            microstep.pcgIteration
-        ))) {
+        (microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) == 0u ||
+        fgmresStates[environment].diagnostics.z > 0.5f) {
         return;
     }
     const uint nodeBase = environment * dispatch.femNodeCount;
@@ -1128,342 +1106,6 @@ kernel void nm_fem_apply_operator_elements(
     elementOperator[global] = value;
 }
 
-kernel void nm_fem_apply_operator_nodes(
-    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    constant NMMicrostepGPU& microstep [[buffer(1)]],
-    device const NMContinuumObjectGPU* objects [[buffer(2)]],
-    device const NMFEMNodeStateGPU* accepted [[buffer(3)]],
-    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
-    device const NMFEMElementVectorGPU* elementOperator [[buffer(5)]],
-    device const uint* nodeIncidence [[buffer(6)]],
-    device const NMIncidenceRangeGPU* nodeRanges [[buffer(7)]],
-    device const NMSchedulerStateGPU* schedulers [[buffer(8)]],
-    device const NMAdaptiveStateGPU* adaptive [[buffer(9)]],
-    device const float4* direction [[buffer(10)]],
-    device float4* operatorValue [[buffer(11)]],
-    device const NMPCGScalarGPU* scalars [[buffer(12)]],
-    uint global [[thread_position_in_grid]]
-) {
-    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
-    if (global >= total || dispatch.femNodeCount == 0u) {
-        return;
-    }
-    const uint environment = global / dispatch.femNodeCount;
-    const uint nodeIndex = global - environment * dispatch.femNodeCount;
-    const NMIncidenceRangeGPU range = nodeRanges[global];
-    operatorValue[global] = float4(0.0f);
-    if (range.objectIndex == NM_INVALID_INDEX || range.objectIndex >= dispatch.objectCount) {
-        return;
-    }
-    const NMContinuumObjectGPU object = objects[range.objectIndex];
-    const NMSchedulerStateGPU scheduler =
-        schedulers[environment * dispatch.objectCount + range.objectIndex];
-    const NMAdaptiveStateGPU adaptiveState =
-        adaptive[environment * dispatch.objectCount + range.objectIndex];
-    const NMFEMNodeStateGPU node = accepted[global];
-    if (object.representation != NM_REPRESENTATION_FEM ||
-        !objectDue(object, scheduler, adaptiveState, microstep) ||
-        ((microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) == 0u &&
-        femPCGConverged(
-            dispatch,
-            scalars,
-            environment,
-            range.objectIndex,
-            microstep.pcgIteration
-        )) ||
-        node.restAndFixed.w > 0.5f) {
-        return;
-    }
-    float3 derivativeForce = float3(0.0f);
-    const uint elementBase = environment * dispatch.tetrahedronCount;
-    for (uint local = 0u; local < range.count; ++local) {
-        const uint tetrahedronIndex = nodeIncidence[range.first + local];
-        derivativeForce += elementNodeValue(
-            elementOperator[elementBase + tetrahedronIndex],
-            environmentTetrahedron(dispatch, tetrahedra, environment,
-                tetrahedronIndex),
-            nodeIndex
-        );
-    }
-    const float dt = objectTimestep(dispatch, scheduler);
-    const float3 value =
-        node.positionAndMass.w * direction[global].xyz -
-        dt * dt * derivativeForce;
-    operatorValue[global] = float4(value, 0.0f);
-}
-
-kernel void nm_fem_reduce_pap(
-    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    constant NMMicrostepGPU& microstep [[buffer(1)]],
-    device const NMContinuumObjectGPU* objects [[buffer(2)]],
-    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
-    device const NMAdaptiveStateGPU* adaptive [[buffer(4)]],
-    device const float4* residual [[buffer(5)]],
-    device const float4* preconditioned [[buffer(6)]],
-    device const float4* direction [[buffer(7)]],
-    device const float4* operatorValue [[buffer(8)]],
-    device NMPCGScalarGPU* scalars [[buffer(9)]],
-    device NMMatterStatusGPU* statuses [[buffer(10)]],
-    uint lane [[thread_index_in_threadgroup]],
-    uint group [[threadgroup_position_in_grid]]
-) {
-    if (lane >= 32u || dispatch.objectCount == 0u) {
-        return;
-    }
-    const uint environment = group / dispatch.objectCount;
-    const uint objectIndex = group - environment * dispatch.objectCount;
-    if (environment >= dispatch.environmentCount) {
-        return;
-    }
-    const NMContinuumObjectGPU object = objects[objectIndex];
-    const NMSchedulerStateGPU scheduler =
-        schedulers[environment * dispatch.objectCount + objectIndex];
-    const NMAdaptiveStateGPU adaptiveState =
-        adaptive[environment * dispatch.objectCount + objectIndex];
-    const uint scalarIndex =
-        environment * dispatch.objectCount + objectIndex;
-    const NMPCGScalarGPU previous = scalars[scalarIndex];
-    const bool previouslyConverged =
-        microstep.pcgIteration != 0u && previous.diagnostics.z > 0.5f;
-    const bool active =
-        object.representation == NM_REPRESENTATION_FEM &&
-        objectDue(object, scheduler, adaptiveState, microstep) &&
-        environmentHealthy(statuses, environment);
-    float rz = 0.0f;
-    float pap = 0.0f;
-    if (active && !previouslyConverged) {
-        const uint base =
-            environment * dispatch.femNodeCount + object.stateOffset;
-        for (uint local = lane; local < object.stateCount; local += 32u) {
-            rz += dot(
-                residual[base + local].xyz,
-                preconditioned[base + local].xyz
-            );
-            pap += dot(
-                direction[base + local].xyz,
-                operatorValue[base + local].xyz
-            );
-        }
-    }
-    rz = simd_sum(rz);
-    pap = simd_sum(pap);
-    if (lane == 0u) {
-        NMPCGScalarGPU scalar = previous;
-        if (microstep.pcgIteration == 0u) {
-            scalar.diagnostics.x = 0.0f;
-            scalar.diagnostics.y = sqrt(max(rz, 0.0f));
-            scalar.diagnostics.z = 0.0f;
-            if (microstep.microtick == 0u) {
-                scalar.diagnostics.w = 0.0f;
-            }
-        }
-        if (!active) {
-            scalar.reduction = float4(0.0f);
-            scalar.diagnostics.z = 1.0f;
-            scalars[scalarIndex] = scalar;
-            return;
-        }
-        if (previouslyConverged) {
-            scalar.reduction = float4(0.0f);
-            scalars[scalarIndex] = scalar;
-            return;
-        }
-        scalar.reduction.x = rz;
-        scalar.reduction.y = pap;
-        if (!isfinite(rz) || !isfinite(pap) ||
-            pap < -1.0e-7f * max(abs(rz), 1.0f)) {
-            recordFailure(
-                statuses[environment],
-                NM_STATUS_LINEAR_SOLVER_FAILURE,
-                objectIndex,
-                microstep.pcgIteration,
-                float4(rz, pap, scalar.diagnostics.y, 0.0f)
-            );
-        }
-        scalars[scalarIndex] = scalar;
-    }
-}
-
-kernel void nm_fem_pcg_step_xr(
-    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
-    device const NMPCGScalarGPU* scalars [[buffer(2)]],
-    device float4* solution [[buffer(3)]],
-    device float4* residual [[buffer(4)]],
-    device const float4* direction [[buffer(5)]],
-    device const float4* operatorValue [[buffer(6)]],
-    uint global [[thread_position_in_grid]]
-) {
-    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
-    if (global >= total || dispatch.femNodeCount == 0u) {
-        return;
-    }
-    const uint environment = global / dispatch.femNodeCount;
-    const uint objectIndex = nodeRanges[global].objectIndex;
-    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount) {
-        return;
-    }
-    const NMPCGScalarGPU scalar =
-        scalars[environment * dispatch.objectCount + objectIndex];
-    if (scalar.diagnostics.z > 0.5f) {
-        return;
-    }
-    const float denominator = scalar.reduction.y;
-    const float alpha = denominator > 1.0e-20f
-        ? scalar.reduction.x / denominator
-        : 0.0f;
-    solution[global].xyz += alpha * direction[global].xyz;
-    residual[global].xyz -= alpha * operatorValue[global].xyz;
-}
-
-kernel void nm_fem_precondition(
-    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMFEMNodeStateGPU* accepted [[buffer(1)]],
-    device const float4* residual [[buffer(2)]],
-    device float4* preconditioned [[buffer(3)]],
-    device const NMIncidenceRangeGPU* nodeRanges [[buffer(4)]],
-    device const NMPCGScalarGPU* scalars [[buffer(5)]],
-    uint global [[thread_position_in_grid]]
-) {
-    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
-    if (global >= total || dispatch.femNodeCount == 0u) {
-        return;
-    }
-    const uint environment = global / dispatch.femNodeCount;
-    const uint objectIndex = nodeRanges[global].objectIndex;
-    if (objectIndex == NM_INVALID_INDEX ||
-        objectIndex >= dispatch.objectCount ||
-        scalars[environment * dispatch.objectCount + objectIndex]
-            .diagnostics.z > 0.5f) {
-        return;
-    }
-    preconditioned[global] = float4(
-        accepted[global].velocityAndInverseMass.w * residual[global].xyz,
-        0.0f
-    );
-}
-
-kernel void nm_fem_reduce_new_rz(
-    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    constant NMMicrostepGPU& microstep [[buffer(1)]],
-    device const NMContinuumObjectGPU* objects [[buffer(2)]],
-    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
-    device const NMAdaptiveStateGPU* adaptive [[buffer(4)]],
-    device NMMatterStatusGPU* statuses [[buffer(5)]],
-    device const float4* residual [[buffer(6)]],
-    device const float4* preconditioned [[buffer(7)]],
-    device NMPCGScalarGPU* scalars [[buffer(8)]],
-    uint lane [[thread_index_in_threadgroup]],
-    uint group [[threadgroup_position_in_grid]]
-) {
-    if (lane >= 32u || dispatch.objectCount == 0u) {
-        return;
-    }
-    const uint environment = group / dispatch.objectCount;
-    const uint objectIndex = group - environment * dispatch.objectCount;
-    if (environment >= dispatch.environmentCount) {
-        return;
-    }
-    const NMContinuumObjectGPU object = objects[objectIndex];
-    const NMSchedulerStateGPU scheduler =
-        schedulers[environment * dispatch.objectCount + objectIndex];
-    const NMAdaptiveStateGPU adaptiveState =
-        adaptive[environment * dispatch.objectCount + objectIndex];
-    const bool active =
-        object.representation == NM_REPRESENTATION_FEM &&
-        objectDue(object, scheduler, adaptiveState, microstep) &&
-        environmentHealthy(statuses, environment);
-    const uint scalarIndex =
-        environment * dispatch.objectCount + objectIndex;
-    const NMPCGScalarGPU previous = scalars[scalarIndex];
-    const bool previouslyConverged = previous.diagnostics.z > 0.5f;
-    float rz = 0.0f;
-    if (active && !previouslyConverged) {
-        const uint base =
-            environment * dispatch.femNodeCount + object.stateOffset;
-        for (uint local = lane; local < object.stateCount; local += 32u) {
-            rz += dot(
-                residual[base + local].xyz,
-                preconditioned[base + local].xyz
-            );
-        }
-    }
-    rz = simd_sum(rz);
-    if (lane == 0u) {
-        device NMPCGScalarGPU& scalar = scalars[scalarIndex];
-        if (!active) {
-            scalar.reduction.z = 0.0f;
-            scalar.reduction.w = 0.0f;
-            scalar.diagnostics.x = 0.0f;
-            scalar.diagnostics.z = 1.0f;
-            return;
-        }
-        if (previouslyConverged) {
-            return;
-        }
-        scalar.reduction.z = rz;
-        scalar.reduction.w = scalar.reduction.x > 1.0e-20f
-            ? rz / scalar.reduction.x
-            : 0.0f;
-        scalar.diagnostics.x = sqrt(max(rz, 0.0f));
-        scalar.diagnostics.z =
-            scalar.diagnostics.x <=
-                1.0e-5f * max(scalar.diagnostics.y, 1.0f)
-            ? 1.0f
-            : 0.0f;
-        scalar.diagnostics.w = max(
-            scalar.diagnostics.w,
-            float(microstep.pcgIteration + 1u)
-        );
-        const uint iterationBudget = min(
-            max(object.solver.z, 1u),
-            max(dispatch.femPCGIterations, 1u)
-        );
-        if (scalar.diagnostics.z <= 0.5f &&
-            microstep.pcgIteration + 1u >= iterationBudget) {
-            recordFailure(
-                statuses[environment],
-                NM_STATUS_LINEAR_SOLVER_FAILURE,
-                objectIndex,
-                microstep.pcgIteration,
-                float4(
-                    scalar.diagnostics.x,
-                    scalar.diagnostics.y,
-                    scalar.reduction.x,
-                    scalar.reduction.y
-                )
-            );
-        }
-    }
-}
-
-kernel void nm_fem_pcg_update_direction(
-    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
-    device const NMPCGScalarGPU* scalars [[buffer(2)]],
-    device const float4* preconditioned [[buffer(3)]],
-    device float4* direction [[buffer(4)]],
-    uint global [[thread_position_in_grid]]
-) {
-    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
-    if (global >= total || dispatch.femNodeCount == 0u) {
-        return;
-    }
-    const uint environment = global / dispatch.femNodeCount;
-    const uint objectIndex = nodeRanges[global].objectIndex;
-    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount) {
-        return;
-    }
-    const NMPCGScalarGPU scalar =
-        scalars[environment * dispatch.objectCount + objectIndex];
-    if (scalar.diagnostics.z > 0.5f) {
-        return;
-    }
-    const float beta = scalar.reduction.w;
-    direction[global].xyz =
-        preconditioned[global].xyz + beta * direction[global].xyz;
-}
-
 kernel void nm_fem_apply_solution(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -1638,8 +1280,8 @@ kernel void nm_fem_select_backtracking(
         const float trialVolumeMerit = sqrt(max(
             trialVolumeMerit2 * inverseVolumeCount, 0.0f));
         const bool volumeArmijo = currentVolumeMerit <=
-            solver.nonlinearTolerances.z || trialVolumeMerit <= max(
-                solver.nonlinearTolerances.z,
+            solver.residualTolerances.y || trialVolumeMerit <= max(
+                solver.residualTolerances.y,
                 (1.0f - solver.globalization.x * alpha) *
                     currentVolumeMerit);
         const bool boundedTrustFallback = trial + 1u == candidateCount;
@@ -1651,12 +1293,12 @@ kernel void nm_fem_select_backtracking(
         }
     }
     lineSearch[global] = float4(
-        chosen, chosenMinimum, float(candidateCount), float(microstep.pcgIteration)
+        chosen, chosenMinimum, float(candidateCount), float(microstep.solverIteration)
     );
     if (!(chosen > 0.0f)) {
         recordFailure(
             statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-            objectIndex, microstep.pcgIteration,
+            objectIndex, microstep.solverIteration,
             float4(chosenMinimum, float(candidateCount), 0.0f, 0.0f)
         );
     }

@@ -237,6 +237,14 @@ contact-incidence traversal without another allocation or command. FGMRES is
 the only linear iteration
 owner; the patch and field smoothers
 have no independent convergence or publication contract.
+The versioned Matter ABI therefore contains no velocity, pressure, field, or
+per-object Krylov iteration budget outside the Newton/FGMRES owner. The field
+smoother has a bounded fixed-pass count only. Equilibrium, volume, pressure,
+and transport residuals govern publication; relative correction is retained
+as finite telemetry rather than a second convergence gate. The authored
+minimum separation ratio is multiplied by contact slop and consumed by both
+contact line search and final Metal certification, alongside an unavoidable
+coordinate-scale FP32 geometry floor.
 The one-wave environment reduction fuses Arnoldi orthogonalization with its
 norm, Givens update, and next-basis publication without changing arithmetic
 order. Per-environment restart reconstruction and triangular backsolve also

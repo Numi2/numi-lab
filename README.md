@@ -17,6 +17,12 @@ squared-distance logarithmic barrier contributes primal gradients and PSD
 Hessian actions directly; per-node timestep ratios keep cross-rate contact the
 gradient and Hessian of one environment action. No contact multipliers,
 Delassus rows, or post-contact correction solve remain.
+Matter ABI v20 exposes only controls that own live work: Newton/FGMRES
+budgets, bounded field-smoother passes, residual tolerances, and a minimum
+contact-separation ratio relative to the authored contact slop. Both contact
+line search and final Metal acceptance read that ratio. Relative correction is
+finite certificate telemetry; the assembled residual is the convergence
+authority.
 The right preconditioner uses the componentwise diagonal of those same PSD IPC
 blocks in its FEM and MPM fine and translation-mode mechanics approximations;
 it does not assemble a second contact matrix or introduce another iteration
@@ -49,7 +55,34 @@ The hot path uses one borrowed MetalWorld command buffer, private authoritative
 state, deterministic sparse ordering, SIMD32 reductions, and no internal
 commit, wait, or CPU counter read.
 
-This MacBook is limited to shader/library compilation and target linking for
-this development pass. GPU probes, benchmarks, profiler captures, repeated
-growth/replay qualification, and performance claims are deferred to a
-dedicated Apple Silicon machine.
+## dVRK GS21 suture pickup
+
+![dVRK Large Needle Driver lifting a GS21 needle and blue suture](docs/media/numi-lab-dvrk-gs21-suture-pickup.png)
+
+The source-grounded Classic PSM Large Needle Driver acquires a curved GS21
+through distributed opposing tooth contact without a weld, then carries its
+physically swaged 25-node, 180 mm discrete-elastic-rod thread. The deterministic
+3030-step qualification retained the grasp for 2000 consecutive lift frames,
+lifted the needle 8.043 mm and thread root 7.905 mm, ended at 4.26 um swage
+error, reported zero penetration and a `2.01e-5` maximum KKT residual, and
+byte-restored the articulated/rigid rollback checkpoint.
+
+The image is a 1280x960 Apple M4 Metal reference render from the accepted
+physics state. Its 7172-triangle presentation pack is bound to articulated and
+rigid body poses; the 181.527 mm rendered thread centerline comes directly from
+the accepted rod state. This is simulation evidence, not clinical validation.
+The thread geometry and coupling are executable; its material constants are
+research defaults rather than package- or specimen-calibrated values.
+
+```sh
+./build-coupled-dev/bin/metalrobo_supported_needle_pickup_probe \
+  --state-output /tmp/numi-suture-pickup.state.tsv
+./build-coupled-dev/bin/metalrobo_suture_visual_probe \
+  --state /tmp/numi-suture-pickup.state.tsv \
+  --output-dir /tmp/numi-suture-visual
+```
+
+Current Apple M4 qualification covers compiler/package invariants and live
+Metal contact, multiphysics, sparse-MPM, articulated-coupling, and reference
+render paths. These checks establish the recorded workloads; they are not a
+blanket hardware or performance claim.

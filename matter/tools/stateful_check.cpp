@@ -336,7 +336,6 @@ void verifyAdaptiveLayout() {
     source.environmentCount = 1u;
     source.frameTimestep = 1.0 / 480.0;
     source.gravity = {0.0, 0.0, 0.0};
-    source.femPCGIterations = 4u;
     source.materials.push_back(parsed.material);
 
     numi::matter::RigidProxySource fallback;
@@ -408,7 +407,6 @@ void verifyAdaptiveLayout() {
     source.environmentCount = 2u;
     source.frameTimestep = 1.0 / 480.0;
     source.gravity = {0.0, 0.0, -9.81};
-    source.femPCGIterations = 4u;
     source.materials.push_back(parsed.material);
 
     numi::matter::RigidProxySource plane;
@@ -460,6 +458,10 @@ void verifyAdaptiveLayout() {
     fem.tetrahedra.push_back({{0u, 1u, 2u, 3u}});
     source.objects.push_back(std::move(fem));
 
+    source.mixedSolver.fieldSmootherPasses = 2u;
+    source.mixedSolver.transportTolerance = 2.0e-4;
+    source.mixedSolver.minimumContactSeparationRatio = 2.0e-3;
+
     auto unsupportedRestart = source;
     unsupportedRestart.mixedSolver.fgmresRestart =
         NM_MIXED_FGMRES_RESTART + 1u;
@@ -480,6 +482,33 @@ void verifyAdaptiveLayout() {
         "compiler accepted an unsupported FGMRES restart depth"
     );
 
+    auto unsupportedSmoother = source;
+    unsupportedSmoother.mixedSolver.fieldSmootherPasses =
+        NM_MIXED_FIELD_SMOOTHER_MAX_PASSES + 1u;
+    const auto rejectedSmoother =
+        numi::matter::compileWorld(unsupportedSmoother);
+    require(
+        !rejectedSmoother.succeeded() &&
+            std::ranges::any_of(
+                rejectedSmoother.diagnostics,
+                [](const numi::matter::Diagnostic& diagnostic) {
+                    return diagnostic.message.find(
+                        "field smoother exceeds the compiled fixed-pass capacity"
+                    ) != std::string::npos;
+                }
+            ),
+        "compiler accepted an unsupported field-smoother pass count"
+    );
+
+    auto unsupportedSeparation = source;
+    unsupportedSeparation.mixedSolver.minimumContactSeparationRatio = 1.0;
+    const auto rejectedSeparation =
+        numi::matter::compileWorld(unsupportedSeparation);
+    require(
+        !rejectedSeparation.succeeded(),
+        "compiler accepted a contact separation ratio at the activation edge"
+    );
+
     numi::matter::CompileOptions options;
     options.maximumRateExponent = 2u;
     auto compiled = numi::matter::compileWorld(source, options);
@@ -493,6 +522,31 @@ void verifyAdaptiveLayout() {
         compiled.world.dispatch.particleCount == 2u &&
             compiled.world.dispatch.tetrahedronCount == 1u,
         "stateful compiler check did not retain both representations"
+    );
+    const NMMixedSolverGPU& mixedSolver = compiled.world.mixedSolver;
+    require(
+        mixedSolver.executionBudgets.x == 2u &&
+            mixedSolver.executionBudgets.y ==
+                source.mixedSolver.mutationRestarts &&
+            mixedSolver.executionBudgets.z == 0u &&
+            mixedSolver.executionBudgets.w == 0u,
+        "compiled solver budgets do not encode smoother and restart ownership"
+    );
+    require(
+        std::abs(
+            mixedSolver.residualTolerances.w -
+            static_cast<float>(source.mixedSolver.transportTolerance)
+        ) <= 1.0e-8f &&
+            std::abs(
+                mixedSolver.contactAcceptance.x -
+                static_cast<float>(
+                    source.mixedSolver.minimumContactSeparationRatio
+                )
+            ) <= 1.0e-8f &&
+            mixedSolver.contactAcceptance.y == 0.0f &&
+            mixedSolver.contactAcceptance.z == 0.0f &&
+            mixedSolver.contactAcceptance.w == 0.0f,
+        "compiled residual and contact-acceptance controls changed meaning"
     );
     require(
         compiled.world.stateInitials.size() == 2u &&
@@ -637,6 +691,31 @@ void verifyAdaptiveLayout() {
         );
         candidate.identification.front().identity.z = NM_INVALID_INDEX;
         requireRejected(std::move(candidate), "parameter ownership");
+    }
+    {
+        auto candidate = roundTrip;
+        candidate.mixedSolver.residualTolerances.x = -1.0f;
+        requireRejected(std::move(candidate), "mixed solver policy");
+    }
+    {
+        auto candidate = roundTrip;
+        candidate.mixedSolver.contactAcceptance.x = 1.0f;
+        requireRejected(std::move(candidate), "mixed solver policy");
+    }
+    {
+        auto candidate = roundTrip;
+        candidate.mixedSolver.executionBudgets.z = 1u;
+        requireRejected(std::move(candidate), "mixed solver policy");
+    }
+    {
+        auto candidate = roundTrip;
+        candidate.mixedSolver.regularization.y = -1.0f;
+        requireRejected(std::move(candidate), "mixed solver policy");
+    }
+    {
+        auto candidate = roundTrip;
+        candidate.mixedSolver.globalization.w = 1.01f;
+        requireRejected(std::move(candidate), "mixed solver policy");
     }
 
     return roundTrip;

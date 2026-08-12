@@ -76,7 +76,7 @@ The active-block pipeline avoids global floating-point scatter atomics, retains 
 
 The cooker proves a per-environment compact-slot bound of `min(grid nodes, 27 * particles)` for each quadratic-support MPM object. Active-index storage, every Krylov vector, and every retained basis column use that compact capacity; only physical grid state and the inverse node-to-slot map retain the authored dense-grid stride.
 
-Persistent particle, APIC affine, deformation, and implicit material state have accepted, candidate, and control-step checkpoint arenas. G2P reconstruction publishes them only after the global Newton candidate passes material, field, barrier, and correction acceptance. This backend targets large-deformation solids; it is not presented as a general free-surface fluid implementation.
+Persistent particle, APIC affine, deformation, and implicit material state have accepted, candidate, and control-step checkpoint arenas. G2P reconstruction publishes them only after the global Newton candidate passes material, field, barrier, and residual acceptance. This backend targets large-deformation solids; it is not presented as a general free-surface fluid implementation.
 
 ### FEM backend
 
@@ -89,6 +89,15 @@ The FEM path uses linear tetrahedral kinematics with nonlinear constitutive stre
 ```
 
 IPC's squared-distance logarithmic potential contributes primal gradients and PSD Hessian actions; per-node timestep ratios apply the action chain rule to cross-rate FEM/MPM rows. There are no contact multiplier unknowns, response CSR, Delassus rows, or post-contact correction solves. Element work is parallel and node assembly uses rebuilt incidence. FGMRES uses compensated SIMD32 reductions, modified Gram-Schmidt with selective reorthogonalization, device Givens rotations, restart cycles and an inexact-Newton forcing schedule. The environment-owned SIMD32 Arnoldi wave continues directly from orthogonalization into its norm, Givens update and next-basis publication. Restart-residual reconstruction and the tiny triangular solve likewise share one per-environment cycle-finalization dispatch, and the final cycle does not materialize coefficients that no later cycle can consume. These fusions retain the original reduction and arithmetic order while removing command traffic. The right preconditioner combines FEM node-star diagonals, overlapping tetrahedron patches, MPM lumped/particle-patch/object modes, field smoothing, and rigid inverse-mass action. FGMRES remains the sole convergence owner. One environment-wide line search combines constitutive determinant and mixed-volume bounds with conservative CCD, barrier fraction-to-boundary caps, and barrier Armijo backtracking.
+
+ABI v20 removes the former standalone FEM, pressure, and field iteration
+budgets and kernels. `MixedSolverSource` now cooks only Newton/FGMRES budgets,
+one bounded `fieldSmootherPasses` preconditioner budget, mutation restarts, and
+equilibrium/volume/pressure/transport residual tolerances. The certificate's
+relative correction remains finite telemetry and is not a competing stopping
+rule. `minimumContactSeparationRatio * WorldSource::contactSlop`, combined
+with a coordinate-scale FP32 floor, is read by both Metal fraction-to-boundary
+kernels and final candidate certification.
 
 The FEM mechanical diagonal and every MPM fine, particle-patch, and
 object-translation denominator include the componentwise diagonal of the same

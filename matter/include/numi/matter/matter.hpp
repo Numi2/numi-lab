@@ -277,18 +277,18 @@ struct MixedSolverSource {
     std::uint32_t fgmresRestart = NM_MIXED_FGMRES_DEFAULT_RESTART;
     std::uint32_t fgmresIterations = NM_MIXED_FGMRES_ITERATIONS;
     std::uint32_t lineSearchSteps = NM_MIXED_LINE_SEARCH_STEPS;
-    std::uint32_t velocityPCGIterations = 32u;
-    std::uint32_t pressurePCGIterations = 32u;
-    std::uint32_t fieldPCGIterations = 32u;
+    // This is a fixed-pass right-preconditioner component. FGMRES remains the
+    // sole linear convergence and publication authority.
+    std::uint32_t fieldSmootherPasses =
+        NM_MIXED_FIELD_SMOOTHER_MAX_PASSES;
     std::uint32_t mutationRestarts = NM_MIXED_MUTATION_RESTARTS;
     double relativeResidual = 1.0e-4;
-    double relativeCorrection = 1.0e-4;
     double volumeTolerance = 1.0e-4;
     double pressureTolerance = 1.0e-4;
-    double naturalResidualTolerance = 1.0e-4;
-    double coneTolerance = 1.0e-5;
-    double complementarityTolerance = 1.0e-5;
-    double energyTolerance = 5.0e-4;
+    double transportTolerance = 1.0e-4;
+    // Dimensionless floor relative to WorldSource::contactSlop. A separate
+    // coordinate-scale FP32 floor is always retained by the Metal kernel.
+    double minimumContactSeparationRatio = 1.0e-4;
     double diagonalFloor = 1.0e-8;
     double initialLMShift = 1.0e-6;
     double maximumLMShift = 1.0e4;
@@ -416,7 +416,6 @@ struct WorldSource {
     double contactSlop = 1.0e-5;
     double maximumDepenetrationSpeed = 5.0;
     std::uint32_t environmentCount = 1u;
-    std::uint32_t femPCGIterations = 32u;
     std::uint32_t identificationCandidates = 0u;
     bool deterministic = true;
     MixedSolverSource mixedSolver;

@@ -150,7 +150,6 @@ numi::matter::CompiledWorld compileCase(
     source.frameTimestep = frameTimestep;
     source.identificationCandidates = identificationCandidates;
     source.gravity = {0.0, 0.0, -9.81};
-    source.femPCGIterations = 8u;
     source.materials.push_back(parsed.material);
     if (enableLearned) {
         numi::matter::LearnedMaterialSource learned;
@@ -340,7 +339,6 @@ numi::matter::CompiledWorld compileMixedCase() {
     source.environmentCount = 1u;
     source.frameTimestep = 1.0 / 240.0;
     source.gravity = {0.0, 0.0, -9.81};
-    source.femPCGIterations = 6u;
     source.materials.push_back(parsed.material);
 
     numi::matter::ObjectSource mpm;
@@ -488,8 +486,8 @@ numi::matter::CompiledWorld compilePoroelasticCompressionCase() {
     source.frameTimestep = 1.0 / 480.0;
     source.gravity = {0.0, 0.0, 0.0};
     source.contactSlop = 2.0e-6;
-    source.femPCGIterations = 32u;
-    source.mixedSolver.fieldPCGIterations = 64u;
+    source.mixedSolver.minimumContactSeparationRatio = 0.05;
+    source.mixedSolver.fieldSmootherPasses = 3u;
     source.materials.push_back(std::move(parsed.material));
 
     numi::matter::RigidProxySource lower;
@@ -568,13 +566,13 @@ numi::matter::CompiledWorld compileArticulatedFootPadScene() {
     // A 100 um IPC support is resolved cleanly in FP32 at this centimeter
     // world scale while remaining thin relative to the 14 mm pad.
     source.contactSlop = 1.0e-4;
-    source.femPCGIterations = 32u;
     // Coupled IPC starts from the accepted collision-free pose and resolves
     // the incoming articulated velocity through the monolithic KKT system.
     // Retain enough nonlinear iterations to qualify that solve rather than a
     // single Newton update.
     source.mixedSolver.newtonIterations = 16u;
-    source.mixedSolver.fieldPCGIterations = 32u;
+    source.mixedSolver.minimumContactSeparationRatio = 0.05;
+    source.mixedSolver.fieldSmootherPasses = 3u;
     source.materials.push_back(std::move(parsed.material));
     numi::matter::RigidProxySource foot;
     foot.shape = NM_RIGID_BOX;
@@ -664,7 +662,6 @@ numi::matter::CompiledWorld compileStatefulCase(
     source.environmentCount = 1u;
     source.frameTimestep = 1.0 / 960.0;
     source.gravity = {0.0, 0.0, 0.0};
-    source.femPCGIterations = 8u;
     source.materials.push_back(parsed.material);
 
     numi::matter::ObjectSource object;
@@ -925,7 +922,7 @@ struct Outcome {
         std::numeric_limits<std::uint32_t>::max();
     std::uint32_t completedMicrosteps = 0u;
     std::uint64_t totalCompletedMicrosteps = 0u;
-    std::uint32_t pcgIterations = 0u;
+    std::uint32_t fgmresIterations = 0u;
     bool sawContactOnset = false;
     bool sawContactEvent = false;
     float minimumDeterminant = std::numeric_limits<float>::infinity();
@@ -952,6 +949,7 @@ struct Outcome {
     float volumeResidual = 0.0f;
     float pressureResidual = 0.0f;
     float maximumBarrierImpulse = 0.0f;
+    float authoredContactSeparationFloor = 0.0f;
     float minimumContactSeparation =
         std::numeric_limits<float>::infinity();
     float maximumTangentialImpulse = 0.0f;
@@ -1107,7 +1105,6 @@ numi::matter::CompiledWorld compileAdaptiveCase() {
     source.environmentCount = 1u;
     source.frameTimestep = 1.0 / 480.0;
     source.gravity = {0.0, 0.0, 0.0};
-    source.femPCGIterations = 8u;
     source.materials.push_back(parsed.material);
 
     numi::matter::RigidProxySource fallback;
@@ -1730,6 +1727,9 @@ void runArticulatedFootPadScene(const bool sequence = false) {
         float kktResidual = 0.0f, relativeCorrection = 0.0f;
         float volumeResidual = 0.0f;
         float maximumBarrierImpulse = 0.0f;
+        const float authoredContactSeparationFloor =
+            world.mixedSolver.contactAcceptance.x *
+            world.dispatch.numericalLimits.x;
         float minimumContactSeparation =
             std::numeric_limits<float>::infinity();
         float maximumTangentialImpulse = 0.0f;
@@ -1780,7 +1780,8 @@ void runArticulatedFootPadScene(const bool sequence = false) {
                     std::isfinite(maximumBarrierImpulse) &&
                     maximumBarrierImpulse > 0.0f &&
                     std::isfinite(minimumContactSeparation) &&
-                    minimumContactSeparation > 0.0f &&
+                    minimumContactSeparation >
+                        authoredContactSeparationFloor &&
                     std::isfinite(maximumTangentialImpulse) &&
                     std::isfinite(maximumContactEnergy) &&
                     transportResidual <= 1.0e-4f,
@@ -1826,13 +1827,15 @@ void runArticulatedFootPadScene(const bool sequence = false) {
             << ",\"maximum_barrier_impulse\":" << maximumBarrierImpulse
             << ",\"minimum_contact_separation\":"
             << minimumContactSeparation
+            << ",\"authored_contact_separation_floor\":"
+            << authoredContactSeparationFloor
             << ",\"maximum_tangential_impulse\":"
             << maximumTangentialImpulse
             << ",\"maximum_contact_energy\":" << maximumContactEnergy
             << ",\"transport_residual\":" << transportResidual
             << ",\"gpu_milliseconds\":" << ran.gpuElapsedMilliseconds
             << ",\"maximum_krylov_iterations\":"
-            << matterStatus->pcgIterations
+            << matterStatus->fgmresIterations
             << ",\"foot_position\":[" << result.finalQ[0] << ','
             << result.finalQ[1] << ',' << result.finalQ[2] << ']'
             << ",\"pad_nodes\":[";
@@ -2121,6 +2124,9 @@ Outcome runCase(
         Outcome outcome;
         outcome.environmentCount = environmentCount;
         outcome.residentBytes = initialized.residentBytes;
+        outcome.authoredContactSeparationFloor =
+            world.mixedSolver.contactAcceptance.x *
+            world.dispatch.numericalLimits.x;
         const auto recordEncoding = [&outcome](
             const numi::matter::RuntimeDiagnostics& value
         ) {
@@ -2369,8 +2375,8 @@ Outcome runCase(
                     outcome.completedMicrosteps,
                     status.completedMicrosteps
                 );
-                outcome.pcgIterations = std::max(
-                    outcome.pcgIterations, status.pcgIterations);
+                outcome.fgmresIterations = std::max(
+                    outcome.fgmresIterations, status.fgmresIterations);
                 outcome.minimumDeterminant = std::min(
                     outcome.minimumDeterminant,
                     status.diagnostics.x
@@ -2441,6 +2447,22 @@ Outcome runCase(
                 outcome.minimumContactSamples > 0u || outcome.sawContactEvent,
                 label + std::string(" never produced continuum contact")
             );
+            // A high-rate impact can begin and release entirely inside one
+            // control frame. In that case the event/scheduler stream retains
+            // contact incidence while the final-microtick certificate has no
+            // active row. Whenever a contact certificate is published, it
+            // must demonstrate the authored live-Metal separation floor.
+            if (std::isfinite(outcome.minimumContactSeparation)) {
+                require(
+                    outcome.minimumContactSeparation >
+                            outcome.authoredContactSeparationFloor,
+                    label + std::string(
+                        " did not satisfy the authored contact-separation floor: ") +
+                        std::to_string(outcome.minimumContactSeparation) +
+                        " <= " +
+                        std::to_string(outcome.authoredContactSeparationFloor)
+                );
+            }
         }
         outcome.sawContactOnset = outcome.contactSamples > 0u;
         if (requireDescent) {
@@ -2548,7 +2570,8 @@ int main(int argc, const char* argv[]) {
                     std::isfinite(outcome.maximumBarrierImpulse) &&
                     outcome.maximumBarrierImpulse > 0.0f &&
                     std::isfinite(outcome.minimumContactSeparation) &&
-                    outcome.minimumContactSeparation > 0.0f &&
+                    outcome.minimumContactSeparation >
+                        outcome.authoredContactSeparationFloor &&
                     std::isfinite(outcome.maximumTangentialImpulse) &&
                     std::isfinite(outcome.maximumContactEnergy) &&
                     outcome.transportResidual <= 1.0e-4f,
@@ -2570,6 +2593,8 @@ int main(int argc, const char* argv[]) {
                 << outcome.maximumBarrierImpulse
                 << ",\"minimum_contact_separation\":"
                 << outcome.minimumContactSeparation
+                << ",\"authored_contact_separation_floor\":"
+                << outcome.authoredContactSeparationFloor
                 << ",\"maximum_tangential_impulse\":"
                 << outcome.maximumTangentialImpulse
                 << ",\"maximum_contact_energy\":"
@@ -2748,13 +2773,13 @@ int main(int argc, const char* argv[]) {
                 3u
             );
             require(
-                mixed.pcgIterations > 0u,
-                "mixed MPM/FEM world did not execute FEM PCG"
+                mixed.fgmresIterations > 0u,
+                "mixed MPM/FEM world did not execute monolithic FGMRES"
             );
             std::cout
-                << "{\"schema\":\"numi.matter.physics-probe.v2\""
+                << "{\"schema\":\"numi.matter.physics-probe.v3\""
                 << ",\"representation\":\"mixed_mpm_fem\""
-                << ",\"pcg_iterations\":" << mixed.pcgIterations
+                << ",\"fgmres_iterations\":" << mixed.fgmresIterations
                 << ",\"completed_microsteps\":"
                 << mixed.completedMicrosteps
                 << ",\"minimum_J\":" << mixed.minimumDeterminant
@@ -2795,7 +2820,7 @@ int main(int argc, const char* argv[]) {
                 << ",\"environment_microsteps_per_second\":"
                 << environmentMicrostepsPerSecond
                 << ",\"maximum_krylov_iterations\":"
-                << batch.pcgIterations
+                << batch.fgmresIterations
                 << ",\"minimum_J\":" << batch.minimumDeterminant
                 << ",\"minimum_contacts_per_environment\":"
                 << batch.minimumContactSamples
@@ -2858,13 +2883,15 @@ int main(int argc, const char* argv[]) {
                 << ",\"contact_event\":" << (mpm.sawContactEvent ? "true" : "false")
                 << ",\"microsteps_per_control_step\":" << mpm.completedMicrosteps
                 << ",\"total_microsteps\":" << mpm.totalCompletedMicrosteps
-                << ",\"maximum_krylov_iterations\":" << mpm.pcgIterations
+                << ",\"maximum_krylov_iterations\":" << mpm.fgmresIterations
                 << ",\"kkt_residual\":" << mpm.nonlinearResidual
                 << ",\"relative_correction\":" << mpm.relativeCorrection
                 << ",\"maximum_barrier_impulse\":"
                 << mpm.maximumBarrierImpulse
                 << ",\"minimum_contact_separation\":"
                 << mpm.minimumContactSeparation
+                << ",\"authored_contact_separation_floor\":"
+                << mpm.authoredContactSeparationFloor
                 << ",\"maximum_contact_energy\":"
                 << mpm.maximumContactEnergy
                 << ",\"gpu_milliseconds\":" << mpm.gpuMilliseconds
@@ -2899,18 +2926,30 @@ int main(int argc, const char* argv[]) {
                 true,
                 femHighRate || femHighDrop ? 8u : 20u
             );
-            require(fem.pcgIterations > 0u, "FEM did not execute its implicit PCG solve");
+            require(
+                fem.fgmresIterations > 0u,
+                "FEM did not execute monolithic FGMRES"
+            );
             std::cout
-                << "{\"schema\":\"numi.matter.physics-probe.v1\""
+                << "{\"schema\":\"numi.matter.physics-probe.v2\""
                 << ",\"representation\":\"fem\""
                 << ",\"contact_samples\":" << fem.contactSamples
-                << ",\"pcg_iterations\":" << fem.pcgIterations
+                << ",\"fgmres_iterations\":" << fem.fgmresIterations
                 << ",\"minimum_J\":" << fem.minimumDeterminant
                 << ",\"minimum_height\":" << fem.minimumHeight
                 << ",\"maximum_height\":" << fem.maximumHeight
                 << ",\"vertical_velocity_range\":[" << fem.minimumVerticalVelocity
                 << ',' << fem.maximumVerticalVelocity << ']'
                 << ",\"contact_event\":" << (fem.sawContactEvent ? "true" : "false")
+                << ",\"minimum_contact_separation\":";
+            if (std::isfinite(fem.minimumContactSeparation)) {
+                std::cout << fem.minimumContactSeparation;
+            } else {
+                std::cout << "null";
+            }
+            std::cout
+                << ",\"authored_contact_separation_floor\":"
+                << fem.authoredContactSeparationFloor
                 << "}\n";
         }
         return 0;

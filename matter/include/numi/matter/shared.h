@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 19u
+#define NM_MATTER_ABI_VERSION 20u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -57,6 +57,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 #define NM_MIXED_FGMRES_DEFAULT_RESTART 10u
 #define NM_MIXED_FGMRES_ITERATIONS 10u
 #define NM_MIXED_LINE_SEARCH_STEPS 8u
+#define NM_MIXED_FIELD_SMOOTHER_MAX_PASSES 3u
 #define NM_MIXED_MUTATION_RESTARTS 4u
 #define NM_LEARNED_MAX_LAYERS 8u
 #define NM_LEARNED_MAX_WIDTH 16u
@@ -266,7 +267,8 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
     nm_u32 contactPairCount;
 
     nm_u32 maximumRateExponent;
-    nm_u32 femPCGIterations;
+    // Reserved. ABI v20 removed the standalone FEM linear-iteration owner.
+    nm_u32 reservedSolver0;
     nm_u32 identificationCandidateCount;
     nm_u32 eventStride;
 
@@ -316,12 +318,12 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
 typedef struct NM_ALIGN16 NMMixedSolverGPU {
     // Newton, FGMRES restart, total FGMRES, determinant backtracking.
     nm_uint4 nonlinearIterations;
-    // Velocity PCG, pressure Schur PCG, field PCG, mutation restarts.
-    nm_uint4 blockIterations;
-    // relative residual, relative correction, volume, pressure.
-    nm_float4 nonlinearTolerances;
-    // natural map, cone, complementarity, energy.
-    nm_float4 contactTolerances;
+    // Field-smoother passes, mutation restarts, reserved, reserved.
+    nm_uint4 executionBudgets;
+    // Equilibrium, volume, pressure, and transport relative residuals.
+    nm_float4 residualTolerances;
+    // Minimum separation/contact-slop ratio, reserved, reserved, reserved.
+    nm_float4 contactAcceptance;
     // diagonal floor, initial LM shift, maximum LM shift, curvature tolerance.
     nm_float4 regularization;
     // Armijo coefficient, minimum absolute temperature, activation epsilon,
@@ -561,7 +563,7 @@ typedef struct NM_ALIGN16 NMMicrostepGPU {
     nm_u32 controlStep;
     nm_u32 microtick;
     nm_u32 microtickCount;
-    nm_u32 pcgIteration;
+    nm_u32 solverIteration;
 
     nm_u32 seedLo;
     nm_u32 seedHi;
@@ -691,7 +693,7 @@ typedef struct NM_ALIGN16 NMContinuumObjectGPU {
     nm_u32 rigidBinding;
     nm_u32 topologyGeneration;
 
-    // base rate exponent, maximum exponent, PCG iterations, reserved.
+    // Base rate exponent, maximum exponent, reserved, reserved.
     nm_uint4 solver;
     // characteristic length, rigid tolerance, promotion strain, demotion strain.
     nm_float4 fidelity;
@@ -798,13 +800,6 @@ typedef struct NM_ALIGN16 NMFEMElementVectorGPU {
     nm_float4 node3;
 } NMFEMElementVectorGPU;
 
-typedef struct NM_ALIGN16 NMPCGScalarGPU {
-    // r.r, p.Ap, alpha, beta.
-    nm_float4 reduction;
-    // residual, initial residual, converged, iteration.
-    nm_float4 diagnostics;
-} NMPCGScalarGPU;
-
 typedef struct NM_ALIGN16 NMFGMRESStateGPU {
     // Current residual, initial residual, convergence flag, Arnoldi columns.
     nm_float4 diagnostics;
@@ -812,17 +807,6 @@ typedef struct NM_ALIGN16 NMFGMRESStateGPU {
     // nonlinear convergence flag. Private runtime state; never serialized.
     nm_float4 nonlinear;
 } NMFGMRESStateGPU;
-
-typedef struct NM_ALIGN16 NMMixedPCGScalarGPU {
-    nm_float4 rz;
-    nm_float4 pap;
-    nm_float4 alpha;
-    nm_float4 beta;
-    nm_float4 residual;
-    nm_float4 initialResidual;
-    nm_uint4 converged;
-    nm_uint4 iterations;
-} NMMixedPCGScalarGPU;
 
 typedef struct NM_ALIGN16 NMRigidProxyGPU {
     nm_u32 shapeKind;
@@ -967,7 +951,7 @@ typedef struct NM_ALIGN16 NMMatterStatusGPU {
     nm_u32 failingIndex;
 
     nm_u32 completedMicrosteps;
-    nm_u32 pcgIterations;
+    nm_u32 fgmresIterations;
     nm_u32 contactCount;
     nm_u32 eventCount;
 

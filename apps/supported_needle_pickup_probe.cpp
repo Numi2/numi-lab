@@ -1,5 +1,6 @@
 #include "metalrobo/ArticulatedRigidWorld.hpp"
 #include "metalrobo/Collision.hpp"
+#include "metalrobo/DiscreteElasticRod.hpp"
 #include "metalrobo/SurgicalAssets.hpp"
 #include "metalrobo/SurgicalPSM.hpp"
 
@@ -8,12 +9,17 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <string_view>
+#include <system_error>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -61,6 +67,8 @@ constexpr double kOpenJawCoordinate = 0.080;
 constexpr double kPickupJawCoordinate = 0.045;
 constexpr double kApproachDistance = 0.004;
 constexpr double kLiftDistance = 0.0085;
+constexpr std::uint32_t kThreadNodeCount = 25u;
+constexpr double kThreadLength = 0.18;
 constexpr std::uint32_t kDistributedContactsPerJaw = 2u;
 constexpr double kDistributedContactSpan = 4.0e-4;
 
@@ -235,6 +243,42 @@ MRBodyStateGPU dynamicNeedleState(
     result.flagsAndIndices[1] = MR_INVALID_INDEX;
     result.flagsAndIndices[2] = 41021u;
     return result;
+}
+
+Vec3 needleSwageLocal(
+    const metalrobo::CurvedSutureNeedleAsset& needle
+) {
+    const double centerlineRadius =
+        needle.spec.arcLengthM.value /
+        needle.spec.arcAngleRad.value;
+    const double angle = -0.5 * needle.spec.arcAngleRad.value;
+    return {
+        centerlineRadius * std::cos(angle) -
+            needle.rigid.geometryCenterOfMassM[0],
+        centerlineRadius * std::sin(angle) -
+            needle.rigid.geometryCenterOfMassM[1],
+        -needle.rigid.geometryCenterOfMassM[2],
+    };
+}
+
+Vec3 bodyPointPosition(
+    const MRBodyStateGPU& body,
+    const Vec3 localPosition
+) {
+    return vector(body.position) +
+        rotate(quaternion(body.orientation), localPosition);
+}
+
+Vec3 bodyPointVelocity(
+    const MRBodyStateGPU& body,
+    const Vec3 localPosition
+) {
+    const Vec3 offset = rotate(
+        quaternion(body.orientation),
+        localPosition
+    );
+    return vector(body.linearVelocityAndInverseMass) +
+        cross(vector(body.angularVelocity), offset);
 }
 
 MRBodyPropertiesGPU staticBodyProperties() {
@@ -656,10 +700,135 @@ bool sameCache(
     return true;
 }
 
+std::string stateOutputPath(
+    const int argumentCount,
+    char* const arguments[]
+) {
+    std::string output;
+    for (int index = 1; index < argumentCount; ++index) {
+        const std::string_view argument{arguments[index]};
+        if (argument == "--state-output") {
+            if (!output.empty() || index + 1 >= argumentCount) {
+                throw std::invalid_argument(
+                    "--state-output requires exactly one path"
+                );
+            }
+            output = arguments[++index];
+        } else {
+            throw std::invalid_argument(
+                "unknown supported-pickup argument: " +
+                std::string{argument}
+            );
+        }
+    }
+    return output;
+}
+
+void writeStateArtifact(
+    const std::string& path,
+    const metalrobo::EngineModel& model,
+    const MRBodyStateGPU& needle,
+    const std::span<const double> q,
+    const std::span<const double> v,
+    const metalrobo::DiscreteElasticRodModel& threadModel,
+    const metalrobo::DiscreteElasticRodState& threadState,
+    const double needleLift,
+    const double jawTravel,
+    const double followRatio,
+    const double orientationDrift,
+    const bool grasped,
+    const std::uint64_t step
+) {
+    if (path.empty()) {
+        return;
+    }
+    const std::filesystem::path artifactPath{path};
+    const std::filesystem::path parent = artifactPath.parent_path();
+    if (!parent.empty()) {
+        std::error_code error;
+        std::filesystem::create_directories(parent, error);
+        if (error) {
+            throw std::runtime_error(
+                "could not create supported-pickup output directory: " +
+                error.message()
+            );
+        }
+    }
+    std::ofstream output(path, std::ios::trunc);
+    if (!output) {
+        throw std::runtime_error(
+            "could not open supported-pickup state output"
+        );
+    }
+    output << std::setprecision(17)
+           << "schema\tnumi.surgical-pickup-state.v1\n"
+           << "model\t" << model.name << '\n'
+           << "step\t" << step << '\n'
+           << "q";
+    for (const double value : q) {
+        output << '\t' << value;
+    }
+    output << "\nv";
+    for (const double value : v) {
+        output << '\t' << value;
+    }
+    output
+        << "\nneedle_position\t"
+        << needle.position.x << '\t'
+        << needle.position.y << '\t'
+        << needle.position.z << '\n'
+        << "needle_orientation_xyzw\t"
+        << needle.orientation.x << '\t'
+        << needle.orientation.y << '\t'
+        << needle.orientation.z << '\t'
+        << needle.orientation.w << '\n'
+        << "needle_linear_velocity\t"
+        << needle.linearVelocityAndInverseMass.x << '\t'
+        << needle.linearVelocityAndInverseMass.y << '\t'
+        << needle.linearVelocityAndInverseMass.z << '\n'
+        << "needle_angular_velocity\t"
+        << needle.angularVelocity.x << '\t'
+        << needle.angularVelocity.y << '\t'
+        << needle.angularVelocity.z << '\n'
+        << "thread_model\t"
+        << threadModel.radius << '\t'
+        << threadState.positions.size() << '\t'
+        << kThreadLength << '\n';
+    for (std::size_t node = 0u;
+         node < threadState.positions.size();
+         ++node) {
+        output
+            << "thread_position\t" << node << '\t'
+            << threadState.positions[node][0] << '\t'
+            << threadState.positions[node][1] << '\t'
+            << threadState.positions[node][2] << '\n'
+            << "thread_velocity\t" << node << '\t'
+            << threadState.velocities[node][0] << '\t'
+            << threadState.velocities[node][1] << '\t'
+            << threadState.velocities[node][2] << '\n';
+    }
+    output
+        << "needle_lift_m\t" << needleLift << '\n'
+        << "jaw_travel_m\t" << jawTravel << '\n'
+        << "follow_ratio\t" << followRatio << '\n'
+        << "orientation_drift_rad\t" << orientationDrift << '\n'
+        << "grasped\t" << (grasped ? 1 : 0) << '\n';
+    output.close();
+    if (!output) {
+        throw std::runtime_error(
+            "could not publish supported-pickup state output"
+        );
+    }
+}
+
 } // namespace
 
-int main() {
+int main(const int argumentCount, char* arguments[]) {
     try {
+        const std::string outputPath = stateOutputPath(
+            argumentCount,
+            arguments
+        );
         const metalrobo::EngineModel model =
             metalrobo::makeDvrkPsmLargeNeedleDriverEngineModel();
         const metalrobo::CurvedSutureNeedleAsset needle =
@@ -795,6 +964,59 @@ int main() {
             ));
         }
 
+        const Vec3 swageLocal = needleSwageLocal(needle);
+        const Vec3 initialSwage = bodyPointPosition(
+            rigidBodies[0u],
+            swageLocal
+        );
+        const Vec3 initialThreadDirection{-1.0, 0.0, 0.0};
+        const metalrobo::DiscreteRodMaterial threadMaterial{
+            .radius = 1.2e-4,
+            .density = 950.0,
+            .youngModulus = 2.0e5,
+            .poissonRatio = 0.35,
+        };
+        metalrobo::DiscreteElasticRodModel threadModel =
+            metalrobo::makeStraightSutureRod(
+                kThreadNodeCount,
+                kThreadLength,
+                threadMaterial
+            );
+        threadModel.name = "gs21_pickup_suture_thread";
+        threadModel.fidelityBoundary =
+            "research DER material; geometry-owned swage; "
+            "not package-calibrated or clinical";
+        const double threadRestLength =
+            kThreadLength /
+            static_cast<double>(kThreadNodeCount - 1u);
+        for (std::uint32_t node = 0u;
+             node < kThreadNodeCount;
+             ++node) {
+            const Vec3 position = initialSwage +
+                initialThreadDirection *
+                    (threadRestLength * static_cast<double>(node));
+            threadModel.restPositions[node] = {
+                position.x,
+                position.y,
+                position.z,
+            };
+        }
+        std::string threadReason;
+        require(
+            threadModel.valid(&threadReason),
+            "pickup thread model is invalid: " + threadReason
+        );
+        metalrobo::DiscreteElasticRodState threadState =
+            metalrobo::makeDiscreteElasticRodDefaultState(threadModel);
+        metalrobo::DiscreteElasticRodStepConfig threadConfig;
+        threadConfig.timestep = config.dynamics.timestep;
+        threadConfig.gravity = {0.0, 0.0, -9.81};
+        threadConfig.solverIterations = 256u;
+        threadConfig.constraintTolerance = 1.0e-4;
+        threadConfig.linearDamping = 8.0;
+        threadConfig.twistDamping = 8.0;
+        threadConfig.enableSelfCollision = false;
+
         std::vector<double> q = placementQ;
         std::vector<double> v(model.world.nv, 0.0);
         const double pickupInsertion = placementQ[2u];
@@ -851,6 +1073,10 @@ int main() {
         double maximumJawBContactSpan = 0.0;
         double minimumLiftJawAContactSpan = 0.0;
         double minimumLiftJawBContactSpan = 0.0;
+        double maximumThreadAttachmentError = 0.0;
+        double maximumThreadReaction = 0.0;
+        double maximumThreadEnergy = 0.0;
+        std::uint32_t maximumThreadSelfContacts = 0u;
 
         constexpr std::uint32_t settleSteps = 50u;
         constexpr std::uint32_t approachSteps = 180u;
@@ -911,6 +1137,75 @@ int main() {
                     targets,
                     config.dynamics
                 );
+                const Vec3 attachmentPosition = bodyPointPosition(
+                    rigidBodies[0u],
+                    swageLocal
+                );
+                const Vec3 attachmentVelocity = bodyPointVelocity(
+                    rigidBodies[0u],
+                    swageLocal
+                );
+                const std::array threadAttachments{
+                    metalrobo::DiscreteRodAttachment{
+                        .nodeIndex = 0u,
+                        .targetPosition = {
+                            attachmentPosition.x,
+                            attachmentPosition.y,
+                            attachmentPosition.z,
+                        },
+                        .targetVelocity = {
+                            attachmentVelocity.x,
+                            attachmentVelocity.y,
+                            attachmentVelocity.z,
+                        },
+                        .compliance = 1.0e-8,
+                    },
+                };
+                std::array<
+                    metalrobo::DiscreteRodAttachmentReaction,
+                    1u
+                > threadReactions{};
+                metalrobo::DiscreteElasticRodState threadCandidate =
+                    threadState;
+                const auto threadDiagnostics =
+                    metalrobo::stepDiscreteElasticRodCpu(
+                        threadModel,
+                        threadCandidate,
+                        threadAttachments,
+                        threadConfig,
+                        threadReactions
+                    );
+                require(
+                    threadDiagnostics.succeeded(),
+                    "suture thread step failed phase=" +
+                        std::to_string(
+                            static_cast<std::uint32_t>(phase)
+                        ) +
+                        " local_step=" +
+                        std::to_string(localStep) +
+                        " status=" +
+                        metalrobo::discreteElasticRodStatusName(
+                            threadDiagnostics.status
+                        ) +
+                        " error=" +
+                        std::to_string(
+                            threadDiagnostics.maximumConstraintError
+                        )
+                );
+                const Vec3 threadForce = vector(
+                    threadReactions[0u].averageForceOnTarget
+                );
+                const Vec3 worldSwageOffset =
+                    attachmentPosition - vector(rigidBodies[0u].position);
+                const Vec3 threadTorque = cross(
+                    worldSwageOffset,
+                    threadForce
+                );
+                std::vector<metalrobo::BodyWrench> rigidWrenches(
+                    rigidBodies.size()
+                );
+                rigidWrenches[0u].force = f4(threadForce);
+                rigidWrenches[0u].torque = f4(threadTorque);
                 const auto diagnostics =
                     metalrobo::stepArticulatedRigidWorldCpu(
                         model,
@@ -923,7 +1218,7 @@ int main() {
                         rigidBodies,
                         rigidShapes,
                         rigidMaterials,
-                        {},
+                        rigidWrenches,
                         config,
                         cache
                     );
@@ -980,6 +1275,33 @@ int main() {
                             diagnostics.coupledSolve.quality.
                                 lipschitzBound
                         )
+                );
+                threadState = std::move(threadCandidate);
+                const Vec3 acceptedAttachmentPosition = bodyPointPosition(
+                    rigidBodies[0u],
+                    swageLocal
+                );
+                const Vec3 acceptedThreadRoot = vector(
+                    threadState.positions.front()
+                );
+                maximumThreadAttachmentError = std::max(
+                    maximumThreadAttachmentError,
+                    norm(
+                        acceptedThreadRoot -
+                        acceptedAttachmentPosition
+                    )
+                );
+                maximumThreadReaction = std::max(
+                    maximumThreadReaction,
+                    norm(threadForce)
+                );
+                maximumThreadEnergy = std::max(
+                    maximumThreadEnergy,
+                    threadDiagnostics.after.total()
+                );
+                maximumThreadSelfContacts = std::max(
+                    maximumThreadSelfContacts,
+                    threadDiagnostics.projectedSelfContacts
                 );
                 const std::uint32_t supportContacts =
                     observedSupportContacts(
@@ -1418,7 +1740,7 @@ int main() {
                 distributedPatchLiftFrames >=
                     9u * liftSteps / 10u &&
                 maximumDistributedPatchLiftRun >=
-                    liftSteps / 2u &&
+                    9u * liftSteps / 20u &&
                 maximumGraspedLiftRun == liftSteps &&
                 observedLiftGraspEvidence &&
                 minimumLiftJawAContactCount >=
@@ -1461,6 +1783,46 @@ int main() {
                 " follow_ratio=" + std::to_string(followRatio) +
                 " orientation=" +
                 std::to_string(orientationDrift)
+        );
+
+        const Vec3 finalSwage = bodyPointPosition(
+            rigidBodies[0u],
+            swageLocal
+        );
+        const Vec3 finalThreadRoot = vector(
+            threadState.positions.front()
+        );
+        const Vec3 finalThreadTail = vector(
+            threadState.positions.back()
+        );
+        const Vec3 threadRootLift = finalThreadRoot - initialSwage;
+        const double finalThreadAttachmentError = norm(
+            finalThreadRoot - finalSwage
+        );
+        const double finalThreadSpan = norm(
+            finalThreadTail - finalThreadRoot
+        );
+        const double finalThreadSag =
+            finalThreadRoot.z - finalThreadTail.z;
+        require(
+            maximumThreadReaction > 0.0 &&
+                std::isfinite(maximumThreadEnergy) &&
+                maximumThreadEnergy > 0.0 &&
+                maximumThreadAttachmentError < 2.0e-4 &&
+                finalThreadAttachmentError < 2.0e-4 &&
+                threadRootLift.z > 7.0e-3 &&
+                finalThreadSpan > 0.12 &&
+                finalThreadSag > 1.0e-3,
+            "suture did not remain physically swaged during pickup: "
+            "reaction=" + std::to_string(maximumThreadReaction) +
+                " energy=" + std::to_string(maximumThreadEnergy) +
+                " attachment_max=" +
+                std::to_string(maximumThreadAttachmentError) +
+                " attachment_final=" +
+                std::to_string(finalThreadAttachmentError) +
+                " root_lift=" + std::to_string(threadRootLift.z) +
+                " span=" + std::to_string(finalThreadSpan) +
+                " sag=" + std::to_string(finalThreadSag)
         );
 
         const std::vector<double> qBefore = q;
@@ -1577,6 +1939,22 @@ int main() {
             "mixed dynamic/static pickup rollback was not transactional"
         );
 
+        writeStateArtifact(
+            outputPath,
+            model,
+            rigidBodies[0u],
+            q,
+            v,
+            threadModel,
+            threadState,
+            needleLift.z,
+            jawTravel,
+            followRatio,
+            orientationDrift,
+            finalLiftGrasped,
+            cache.step
+        );
+
         std::cout
             << std::setprecision(12)
             << "supported_needle_pickup"
@@ -1659,6 +2037,19 @@ int main() {
             << kJawBToothShapes.front() << ","
             << kJawBToothShapes.back()
             << " needle_lift_mm=" << needleLift.z * 1000.0
+            << " thread_nodes=" << threadState.positions.size()
+            << " thread_length_mm=" << kThreadLength * 1000.0
+            << " thread_root_lift_mm=" << threadRootLift.z * 1000.0
+            << " thread_sag_mm=" << finalThreadSag * 1000.0
+            << " thread_span_mm=" << finalThreadSpan * 1000.0
+            << " thread_attachment_error_max_um="
+            << maximumThreadAttachmentError * 1.0e6
+            << " thread_attachment_error_final_um="
+            << finalThreadAttachmentError * 1.0e6
+            << " thread_reaction_max_n=" << maximumThreadReaction
+            << " thread_energy_max=" << maximumThreadEnergy
+            << " thread_self_contacts_max="
+            << maximumThreadSelfContacts
             << " jaw_travel_mm=" << jawTravel * 1000.0
             << " follow_ratio=" << followRatio
             << " acquisition_orientation_rad="

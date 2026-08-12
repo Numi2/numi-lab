@@ -314,14 +314,14 @@ kernel void nm_fgmres_begin(
     const bool nonlinearConverged = restartCycle == 0u &&
         correctionFinite && norm <= max(
             solver.regularization.x,
-            solver.nonlinearTolerances.x *
+            solver.residualTolerances.x *
                 max(firstNewtonNorm, 1.0f));
     if (lane == 0u) {
         const float initialNorm = restartCycle == 0u
             ? norm : previousDiagnostics.y;
         const float target = max(
             solver.regularization.x,
-            clamp(forcing, solver.nonlinearTolerances.x, 0.5f) * initialNorm
+            clamp(forcing, solver.residualTolerances.x, 0.5f) * initialNorm
         );
         const bool converged = completed || nonlinearConverged ||
             norm <= target;
@@ -343,7 +343,7 @@ kernel void nm_fgmres_begin(
     }
     if (!active || nonlinearConverged || norm <= max(
             solver.regularization.x,
-            clamp(forcing, solver.nonlinearTolerances.x, 0.5f) *
+            clamp(forcing, solver.residualTolerances.x, 0.5f) *
                 (restartCycle == 0u ? norm : previousDiagnostics.y))) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
     const float inverseNorm = norm > 1.0e-30f ? 1.0f / norm : 0.0f;
@@ -1643,7 +1643,7 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
         state.diagnostics.w = float(column + 1u);
         state.diagnostics.z = residual <= max(
             solver.regularization.x,
-            clamp(forcing, solver.nonlinearTolerances.x, 0.5f) *
+            clamp(forcing, solver.residualTolerances.x, 0.5f) *
                 state.diagnostics.y
         ) ? 1.0f : 0.0f;
     }
@@ -1672,12 +1672,11 @@ kernel void nm_fgmres_finalize_cycle(
     device float* leastSquares [[buffer(3)]],
     device NMFGMRESStateGPU* states [[buffer(4)]],
     device NMMatterStatusGPU* statuses [[buffer(5)]],
-    device NMPCGScalarGPU* publishedIterations [[buffer(6)]],
-    constant uint& iterationOffset [[buffer(7)]],
-    constant uint& finalRestartCycle [[buffer(8)]],
-    constant float& forcing [[buffer(9)]],
-    device const float2* rotations [[buffer(10)]],
-    device float* restartCoefficients [[buffer(11)]],
+    constant uint& iterationOffset [[buffer(6)]],
+    constant uint& finalRestartCycle [[buffer(7)]],
+    constant float& forcing [[buffer(8)]],
+    device const float2* rotations [[buffer(9)]],
+    device float* restartCoefficients [[buffer(10)]],
     uint global [[thread_position_in_grid]]
 ) {
     if (global >= dispatch.environmentCount) return;
@@ -1716,17 +1715,10 @@ kernel void nm_fgmres_finalize_cycle(
     // Krylov work; retain only cycles that actually formed an Arnoldi column.
     if (used > 0u) {
         atomic_fetch_max_explicit(
-            (device atomic_uint*)&statuses[environment].pcgIterations,
+            (device atomic_uint*)&statuses[environment].fgmresIterations,
             totalUsed,
             memory_order_relaxed
         );
-        for (uint objectIndex = 0u; objectIndex < dispatch.objectCount;
-             ++objectIndex) {
-            device NMPCGScalarGPU& published = publishedIterations[
-                environment * dispatch.objectCount + objectIndex];
-            published.diagnostics.w = max(
-                published.diagnostics.w, float(totalUsed));
-        }
     }
     for (int row = int(used) - 1; row >= 0; --row) {
         float value = leastSquares[fgmresVectorIndex(environment, uint(row))];
@@ -1745,7 +1737,7 @@ kernel void nm_fgmres_finalize_cycle(
     const bool converged = state.diagnostics.z > 0.5f;
     const bool finalAccepted = converged || (used > 0u &&
         relativeResidual <= clamp(
-            forcing, solver.nonlinearTolerances.x, 0.5f));
+            forcing, solver.residualTolerances.x, 0.5f));
     if (finalRestartCycle != 0u)
         state.diagnostics.z = finalAccepted ? 1.0f : 0.0f;
     if ((finalRestartCycle != 0u && !finalAccepted) ||
@@ -2460,7 +2452,7 @@ kernel void nm_mpm_limit_implicit_line_search(
         if (lane == 0u)
             recordFailure(
                 statuses[environment], NM_STATUS_LOCAL_MATERIAL_FAILURE,
-                objectIndex, microstep.pcgIteration,
+                objectIndex, microstep.solverIteration,
                 float4(chosenMinimum, float(candidateCount), dt, 0.0f));
         return;
     }

@@ -5936,6 +5936,14 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::renderLive(
                 "host live-state dimensions do not match the visual scene"
             );
         }
+        if (state_->rendererProfile.rayQueryVisibility) {
+            return reject(
+                {},
+                MetalHybridRendererStatus::missingLiveState,
+                "sensor_reference requires renderFrame/encodeFrame "
+                "motion samples; renderLive supports sensor_fast"
+            );
+        }
         const std::size_t bytes =
             expected * sizeof(MRBodyStateGPU);
         if (bytes > state_->buffers.currentBodies.length ||

@@ -2092,7 +2092,7 @@ kernel void nm_contact_evaluate(
         point = node.positionAndMass.xyz +
             dt * node.candidateVelocity.xyz;
         velocity = node.candidateVelocity.xyz;
-        admissionVelocity = microstep.pcgIteration == 0u
+        admissionVelocity = microstep.solverIteration == 0u
             ? node.velocityAndInverseMass.xyz
             : velocity;
         inverseMass = node.velocityAndInverseMass.w;
@@ -2113,7 +2113,7 @@ kernel void nm_contact_evaluate(
         ];
         point = node.positionAndMass.xyz;
         velocity = node.velocityAndInverseMass.xyz;
-        admissionVelocity = microstep.pcgIteration == 0u
+        admissionVelocity = microstep.solverIteration == 0u
             ? velocity - node.deltaVelocity.xyz
             : velocity;
         inverseMass = node.velocityAndInverseMass.w;
@@ -2553,6 +2553,7 @@ kernel void nm_contact_limit_deformable_line_search(
     device const NMGridNodeStateGPU* gridNodes [[buffer(11)]],
     device const uint* mpmNodeToActive [[buffer(12)]],
     device const uint* mpmActiveCounts [[buffer(13)]],
+    constant NMMixedSolverGPU& solver [[buffer(14)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -2657,7 +2658,7 @@ kernel void nm_contact_limit_deformable_line_search(
                     position[local] + displacement[local]));
         }
         const float collisionThickness = max(
-            1.0e-4f * dispatch.numericalLimits.x,
+            solver.contactAcceptance.x * dispatch.numericalLimits.x,
             16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
         float toi = 1.0f;
         float3 ccdNormal, ccdPoint;
@@ -2815,6 +2816,7 @@ kernel void nm_contact_limit_rigid_line_search(
     constant NMPrimalContactArguments& contact [[buffer(9)]],
     constant uint& articulatedNv [[buffer(10)]],
     device const float* coupledPointJacobians [[buffer(11)]],
+    constant NMMixedSolverGPU& solver [[buffer(12)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -2884,7 +2886,7 @@ kernel void nm_contact_limit_rigid_line_search(
                     abs(sample.pointAndSeparation.y)),
                 abs(sample.pointAndSeparation.z)));
         const float collisionThickness = max(
-            1.0e-4f * dispatch.numericalLimits.x,
+            solver.contactAcceptance.x * dispatch.numericalLimits.x,
             16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
         const float feasibleSeparation = collisionThickness +
             ccdDistanceRoundoff(collisionThickness, coordinateScale);

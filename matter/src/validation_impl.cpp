@@ -165,6 +165,7 @@ private:
             static_cast<std::uint64_t>(NM_EVENT_CLASS_COUNT) *
             dispatch.objectCount;
         if (dispatch.maximumRateExponent > NM_MAX_RATE_EXPONENT ||
+            dispatch.reservedSolver0 != 0u ||
             dispatch.maximumParticlesPerBlock !=
                 NM_MPM_MAX_PARTICLES_PER_BLOCK ||
             dispatch.materialStateStride > NM_MAX_MATERIAL_STATE ||
@@ -224,18 +225,36 @@ private:
             solver.nonlinearIterations.y == 0u ||
             solver.nonlinearIterations.z < solver.nonlinearIterations.y ||
             solver.nonlinearIterations.w == 0u ||
-            solver.blockIterations.x == 0u ||
-            solver.blockIterations.y == 0u ||
-            solver.blockIterations.z == 0u ||
-            solver.blockIterations.w == 0u ||
-            !finite4(solver.nonlinearTolerances) ||
-            !finite4(solver.contactTolerances) ||
+            solver.executionBudgets.x == 0u ||
+            solver.executionBudgets.x >
+                NM_MIXED_FIELD_SMOOTHER_MAX_PASSES ||
+            solver.executionBudgets.y == 0u ||
+            solver.executionBudgets.z != 0u ||
+            solver.executionBudgets.w != 0u ||
+            !finite4(solver.residualTolerances) ||
+            solver.residualTolerances.x < 0.0f ||
+            solver.residualTolerances.y < 0.0f ||
+            solver.residualTolerances.z < 0.0f ||
+            solver.residualTolerances.w < 0.0f ||
+            !finite4(solver.contactAcceptance) ||
+            solver.contactAcceptance.x < 0.0f ||
+            solver.contactAcceptance.x >= 1.0f ||
+            solver.contactAcceptance.y != 0.0f ||
+            solver.contactAcceptance.z != 0.0f ||
+            solver.contactAcceptance.w != 0.0f ||
             !finite4(solver.regularization) ||
             !finite4(solver.globalization) ||
             !(solver.regularization.x > 0.0f) ||
+            !(solver.regularization.y > 0.0f) ||
             !(solver.regularization.z >= solver.regularization.y) ||
+            solver.regularization.w < 0.0f ||
+            !(solver.globalization.x > 0.0f &&
+              solver.globalization.x < 1.0f) ||
             !(solver.globalization.y > 0.0f) ||
-            !(solver.globalization.z > 0.0f && solver.globalization.z < 0.5f)) {
+            !(solver.globalization.z > 0.0f &&
+              solver.globalization.z < 0.5f) ||
+            solver.globalization.w < 0.0f ||
+            solver.globalization.w > 1.0f) {
             return fail("mixed solver policy is invalid");
         }
         if (world_.mixedMaterials.size() != world_.materials.size() ||
@@ -976,7 +995,7 @@ private:
                 object.topologyGeneration == 0u ||
                 object.solver.x > object.solver.y ||
                 object.solver.y > world_.dispatch.maximumRateExponent ||
-                object.solver.z != world_.dispatch.femPCGIterations ||
+                object.solver.z != 0u ||
                 object.solver.w != 0u ||
                 !finite4(object.fidelity) ||
                 !(object.fidelity.x > 0.0f) ||

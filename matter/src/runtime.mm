@@ -484,7 +484,6 @@ struct Runtime::State {
     id<MTLBuffer> femPreconditioned = nil;
     id<MTLBuffer> femDirection = nil;
     id<MTLBuffer> femOperatorValue = nil;
-    id<MTLBuffer> pcgScalars = nil;
     id<MTLBuffer> femLineSearch = nil;
     id<MTLBuffer> fgmresBasis = nil;
     id<MTLBuffer> fgmresPreconditionedBasis = nil;
@@ -1487,9 +1486,6 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femOperatorValue = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
             valid, candidate->residentBytes);
-        candidate->pcgScalars = privateScratch<NMPCGScalarGPU>(
-            candidate->device, multiplied(world.dispatch.objectCount),
-            valid, candidate->residentBytes);
         candidate->femLineSearch = privateScratch<nm_float4>(
             candidate->device, multiplied(world.dispatch.objectCount),
             valid, candidate->residentBytes);
@@ -2335,11 +2331,9 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             });
             dispatchThreads("nm_finalize_status", environments, [&] {
                 setDispatch();
-                [encoder setBuffer:state.objects offset:0u atIndex:1u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:2u];
-                [encoder setBuffer:state.contactSamples offset:0u atIndex:3u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:4u];
-                [encoder setBuffer:state.pcgScalars offset:0u atIndex:5u];
+                [encoder setBuffer:state.schedulers offset:0u atIndex:1u];
+                [encoder setBuffer:state.contactSamples offset:0u atIndex:2u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:3u];
             });
 
             [encoder endEncoding];
@@ -3315,7 +3309,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                  nonlinearIteration <
                     state.mixedSolverValue.nonlinearIterations.x;
                  ++nonlinearIteration) {
-            micro.pcgIteration = nonlinearIteration;
+            micro.solverIteration = nonlinearIteration;
             // Reassemble the backward-Euler field residual at this Newton
             // candidate. These kernels no longer iterate or publish a field
             // solution; they provide the field residual and block diagonal to
@@ -3568,7 +3562,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             const std::uint32_t restartCycleCount =
                 (linearIterationBudget + restart - 1u) / restart;
             const float nonlinearTolerance = std::max(
-                state.mixedSolverValue.nonlinearTolerances.x, 0.0f);
+                state.mixedSolverValue.residualTolerances.x, 0.0f);
             const float forcingFloor = std::sqrt(nonlinearTolerance);
             const float scheduledForcing = std::ldexp(
                 0.25f,
@@ -3674,7 +3668,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
                 });
                 // Apply a fixed matrix-free polynomial smoother to the four
-                // packed transport blocks. The former nested PCG launched up
+                // packed transport blocks. The former nested field solve launched up
                 // to seven kernels per inner iteration for every Arnoldi
                 // column. This bounded right preconditioner keeps the outer
                 // FGMRES authoritative while removing reductions, scalar
@@ -3686,11 +3680,11 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     0.72f, 0.86f, 0.72f
                 };
                 const std::uint32_t fieldSmoothingPasses = std::min(
-                    state.mixedSolverValue.blockIterations.z,
+                    state.mixedSolverValue.executionBudgets.x,
                     static_cast<std::uint32_t>(fieldSmootherDamping.size()));
                 for (std::uint32_t fieldPass = 0u;
                      fieldPass < fieldSmoothingPasses; ++fieldPass) {
-                    fieldPreconditionerMicro.pcgIteration = fieldPass;
+                    fieldPreconditionerMicro.solverIteration = fieldPass;
                     dispatchThreads("nm_mixed_apply_operator_elements", tetrahedronTotal, [&] {
                         setDispatch();
                         [encoder setBytes:&fieldPreconditionerMicro
@@ -3892,7 +3886,6 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
                     [encoder setBuffer:state.elementOperator offset:0u atIndex:13u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:14u];
-                    [encoder setBuffer:state.pcgScalars offset:0u atIndex:15u];
                     [encoder setBuffer:state.mixedMaterials offset:0u atIndex:16u];
                     [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:17u];
                     [encoder setBuffer:state.learnedMaterials offset:0u atIndex:18u];
@@ -4135,17 +4128,16 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:3u];
                 [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:5u];
-                [encoder setBuffer:state.pcgScalars offset:0u atIndex:6u];
                 [encoder setBytes:&iterationOffset
-                           length:sizeof(iterationOffset) atIndex:7u];
+                           length:sizeof(iterationOffset) atIndex:6u];
                 [encoder setBytes:&finalRestartCycle
-                           length:sizeof(finalRestartCycle) atIndex:8u];
+                           length:sizeof(finalRestartCycle) atIndex:7u];
                 [encoder setBytes:&linearForcing
-                           length:sizeof(linearForcing) atIndex:9u];
+                           length:sizeof(linearForcing) atIndex:8u];
                 [encoder setBuffer:state.fgmresRotations
-                             offset:0u atIndex:10u];
+                             offset:0u atIndex:9u];
                 [encoder setBuffer:state.fgmresRestartCoefficients
-                             offset:0u atIndex:11u];
+                             offset:0u atIndex:10u];
             });
             dispatchThreads("nm_fgmres_accumulate", femNodeTotal, [&] {
                 setDispatch();
@@ -4237,7 +4229,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:11u];
             });
 
-            micro.pcgIteration = nonlinearIteration;
+            micro.solverIteration = nonlinearIteration;
             dispatchThreads("nm_fem_select_backtracking", objectTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -4305,6 +4297,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.gridNodes offset:0u atIndex:11u];
                     [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:12u];
                     [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:13u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:14u];
                 });
             dispatchGroups32(
                 "nm_contact_limit_rigid_line_search",
@@ -4325,6 +4318,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                               atIndex:10u];
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:11u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:12u];
                 });
             dispatchGroups32(
                 "nm_fem_synchronize_environment_line_search",
@@ -4399,7 +4393,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             // then let the following Newton iteration rebuild contact and the
             // KKT operator. No intermediate commit is permitted.
             if (nonlinearIteration <
-                state.mixedSolverValue.blockIterations.w) {
+                state.mixedSolverValue.executionBudgets.y) {
                 dispatchThreads("nm_topology_detect_puncture", objectTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&request.controlStep

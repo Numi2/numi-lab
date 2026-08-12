@@ -234,23 +234,23 @@ using Mat3 = std::array<double, 9>;
         source.fgmresIterations,
         source.lineSearchSteps,
     };
-    result.blockIterations = {
-        source.velocityPCGIterations,
-        source.pressurePCGIterations,
-        source.fieldPCGIterations,
+    result.executionBudgets = {
+        source.fieldSmootherPasses,
         source.mutationRestarts,
+        0u,
+        0u,
     };
-    result.nonlinearTolerances = f4(
+    result.residualTolerances = f4(
         source.relativeResidual,
-        source.relativeCorrection,
         source.volumeTolerance,
-        source.pressureTolerance
+        source.pressureTolerance,
+        source.transportTolerance
     );
-    result.contactTolerances = f4(
-        source.naturalResidualTolerance,
-        source.coneTolerance,
-        source.complementarityTolerance,
-        source.energyTolerance
+    result.contactAcceptance = f4(
+        source.minimumContactSeparationRatio,
+        0.0,
+        0.0,
+        0.0
     );
     result.regularization = f4(
         source.diagonalFloor,
@@ -481,25 +481,20 @@ void validateWorld(
         });
     }
     const MixedSolverSource& solver = source.mixedSolver;
-    const std::array<std::uint32_t, 8> budgets{
+    const std::array<std::uint32_t, 6> budgets{
         solver.newtonIterations,
         solver.fgmresRestart,
         solver.fgmresIterations,
         solver.lineSearchSteps,
-        solver.velocityPCGIterations,
-        solver.pressurePCGIterations,
-        solver.fieldPCGIterations,
+        solver.fieldSmootherPasses,
         solver.mutationRestarts,
     };
-    const std::array<double, 16> tolerances{
+    const std::array<double, 13> tolerances{
         solver.relativeResidual,
-        solver.relativeCorrection,
         solver.volumeTolerance,
         solver.pressureTolerance,
-        solver.naturalResidualTolerance,
-        solver.coneTolerance,
-        solver.complementarityTolerance,
-        solver.energyTolerance,
+        solver.transportTolerance,
+        solver.minimumContactSeparationRatio,
         solver.diagonalFloor,
         solver.initialLMShift,
         solver.maximumLMShift,
@@ -515,14 +510,26 @@ void validateWorld(
             "mixed solver FGMRES restart exceeds the compiled basis capacity",
         });
     }
+    if (solver.fieldSmootherPasses >
+            NM_MIXED_FIELD_SMOOTHER_MAX_PASSES) {
+        diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "mixed solver field smoother exceeds the compiled fixed-pass capacity",
+        });
+    }
     if (std::ranges::any_of(budgets, [](const std::uint32_t value) {
             return value == 0u;
         }) || solver.fgmresRestart > solver.fgmresIterations ||
         std::ranges::any_of(tolerances, [](const double value) {
             return !finite(value) || value < 0.0;
-        }) || !(solver.maximumLMShift >= solver.initialLMShift) ||
+        }) || !(solver.diagonalFloor > 0.0) ||
+        !(solver.initialLMShift > 0.0) ||
+        !(solver.maximumLMShift >= solver.initialLMShift) ||
+        !(solver.minimumContactSeparationRatio < 1.0) ||
+        !(solver.armijo > 0.0 && solver.armijo < 1.0) ||
         !(solver.minimumTemperature > 0.0) ||
-        !(solver.activationEpsilon > 0.0 && solver.activationEpsilon < 0.5)) {
+        !(solver.activationEpsilon > 0.0 && solver.activationEpsilon < 0.5) ||
+        !(solver.pressureStabilization <= 1.0)) {
         diagnostics.push_back({
             Diagnostic::Severity::error, 0u, 0u,
             "mixed solver policy is finite, positive, and bounded",
@@ -960,7 +967,7 @@ CompileResult compileWorld(
         descriptor.solver = {
             exponent,
             options.maximumRateExponent,
-            source.femPCGIterations,
+            0u,
             0u,
         };
         descriptor.fidelity = f4(
@@ -2156,7 +2163,7 @@ CompileResult compileWorld(
         dispatch.contactPairCount
     ));
     dispatch.maximumRateExponent = options.maximumRateExponent;
-    dispatch.femPCGIterations = source.femPCGIterations;
+    dispatch.reservedSolver0 = 0u;
     dispatch.identificationCandidateCount = source.identificationCandidates;
     const std::uint64_t eventStride =
         static_cast<std::uint64_t>(NM_EVENT_CLASS_COUNT) *

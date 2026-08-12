@@ -729,11 +729,9 @@ kernel void nm_scheduler_finalize(
 // instead of letting the object workgroups race to write shared diagnostics.
 kernel void nm_finalize_status(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMContinuumObjectGPU* objects [[buffer(1)]],
-    device const NMSchedulerStateGPU* schedulers [[buffer(2)]],
-    device const NMContactSampleGPU* samples [[buffer(3)]],
-    device NMMatterStatusGPU* statuses [[buffer(4)]],
-    device const NMPCGScalarGPU* pcgScalars [[buffer(5)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(1)]],
+    device const NMContactSampleGPU* samples [[buffer(2)]],
+    device NMMatterStatusGPU* statuses [[buffer(3)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
@@ -747,7 +745,6 @@ kernel void nm_finalize_status(
     float maximumContactSpeed = 0.0f;
     uint contacts = 0u;
     uint contactedObjects = 0u;
-    uint maximumPCGIterations = 0u;
     for (uint objectIndex = 0u;
          objectIndex < dispatch.objectCount;
          ++objectIndex) {
@@ -760,21 +757,6 @@ kernel void nm_finalize_status(
         maximumContactSpeed = max(maximumContactSpeed, scheduler.physical.x);
         if (scheduler.physical.x > 0.0f || scheduler.physical.y > 0.0f) {
             ++contactedObjects;
-        }
-        // The monolithic FGMRES solve owns both FEM and active sparse-MPM
-        // blocks. Publish its measured iteration high-water for every
-        // continuum representation instead of silently reporting zero for
-        // MPM-only worlds.
-        if (objects[objectIndex].representation != NM_REPRESENTATION_RIGID) {
-            maximumPCGIterations = max(
-                maximumPCGIterations,
-                uint(max(
-                    pcgScalars[
-                        environment * dispatch.objectCount + objectIndex
-                    ].diagnostics.w,
-                    0.0f
-                ))
-            );
         }
     }
     const uint sampleBase = environment * dispatch.contactPairCount;
@@ -790,7 +772,10 @@ kernel void nm_finalize_status(
     // larger count preserves a transient impact that released before status
     // publication without manufacturing a contact from geometry alone.
     status.contactCount = max(contacts, contactedObjects);
-    status.pcgIterations = maximumPCGIterations;
+    // nm_prepare_status clears this per microstep and the monolithic FGMRES
+    // finalizer atomically publishes only work executed by this transaction.
+    // Do not source a persistent object-level high-water here: that makes a
+    // later residual-authoritative zero-iteration solve report stale work.
     status.diagnostics = float4(
         minimumJ,
         maximumStress,
