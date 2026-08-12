@@ -693,10 +693,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_apply_implicit_solution",
             "nm_fem_apply_operator_elements",
             "nm_fgmres_gather_nodes",
-            "nm_fgmres_orthogonalize_column",
-            "nm_fgmres_finish_column",
-            "nm_fgmres_form_restart_coefficients",
-            "nm_fgmres_backsolve",
+            "nm_fgmres_orthogonalize_and_finish_column",
+            "nm_fgmres_finalize_cycle",
             "nm_fgmres_accumulate",
             "nm_fgmres_accumulate_fields",
             "nm_fgmres_accumulate_rigid",
@@ -4092,44 +4090,37 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:6u];
                 });
-                dispatchGroups32("nm_fgmres_orthogonalize_column", environments, [&] {
-                    setDispatch();
-                    [encoder setBytes:&column length:sizeof(column) atIndex:1u];
-                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                    [encoder setBuffer:state.fgmresBasis offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femOperatorValue offset:0u atIndex:4u];
-                    [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:5u];
-                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
-                    [encoder setBuffer:state.primalContactArguments offset:0u atIndex:7u];
-                });
-                dispatchGroups32("nm_fgmres_finish_column", environments, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
-                    [encoder setBytes:&column length:sizeof(column) atIndex:2u];
-                    [encoder setBuffer:state.objects offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femOperatorValue offset:0u atIndex:4u];
-                    [encoder setBuffer:state.fgmresBasis offset:vectorBytes * (column + 1u) atIndex:5u];
-                    [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:6u];
-                    [encoder setBuffer:state.fgmresRotations offset:0u atIndex:7u];
-                    [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:8u];
-                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
-                    [encoder setBuffer:state.primalContactArguments offset:0u atIndex:10u];
-                    [encoder setBytes:&linearForcing
-                               length:sizeof(linearForcing) atIndex:11u];
-                });
+                dispatchGroups32(
+                    "nm_fgmres_orthogonalize_and_finish_column",
+                    environments,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.mixedSolver
+                                     offset:0u atIndex:1u];
+                        [encoder setBytes:&column
+                                   length:sizeof(column) atIndex:2u];
+                        [encoder setBuffer:state.fgmresBasis
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femOperatorValue
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.fgmresBasis
+                                     offset:vectorBytes * (column + 1u)
+                                    atIndex:5u];
+                        [encoder setBuffer:state.fgmresHessenberg
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.fgmresRotations
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:state.fgmresLeastSquares
+                                     offset:0u atIndex:8u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:9u];
+                        [encoder setBytes:&linearForcing
+                                   length:sizeof(linearForcing) atIndex:10u];
+                    });
             }
-            dispatchThreads("nm_fgmres_form_restart_coefficients", environments, [&] {
-                setDispatch();
-                [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
-                [encoder setBuffer:state.fgmresRotations offset:0u atIndex:2u];
-                [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:3u];
-                [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
-                [encoder setBuffer:state.fgmresRestartCoefficients
-                             offset:0u atIndex:5u];
-            });
             const std::uint32_t finalRestartCycle =
                 restartCycle + 1u == restartCycleCount ? 1u : 0u;
-            dispatchThreads("nm_fgmres_backsolve", environments, [&] {
+            dispatchThreads("nm_fgmres_finalize_cycle", environments, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:2u];
@@ -4143,6 +4134,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                            length:sizeof(finalRestartCycle) atIndex:8u];
                 [encoder setBytes:&linearForcing
                            length:sizeof(linearForcing) atIndex:9u];
+                [encoder setBuffer:state.fgmresRotations
+                             offset:0u atIndex:10u];
+                [encoder setBuffer:state.fgmresRestartCoefficients
+                             offset:0u atIndex:11u];
             });
             dispatchThreads("nm_fgmres_accumulate", femNodeTotal, [&] {
                 setDispatch();

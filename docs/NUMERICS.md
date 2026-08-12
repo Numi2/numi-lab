@@ -224,6 +224,12 @@ MPM lumped-mass, particle-patch and object-translation blocks, rigid
 inverse-mass action, and barrier curvature. FGMRES is the only linear
 iteration owner; the patch and field smoothers
 have no independent convergence or publication contract.
+The one-wave environment reduction fuses Arnoldi orthogonalization with its
+norm, Givens update, and next-basis publication without changing arithmetic
+order. Per-environment restart reconstruction and triangular backsolve also
+share one ordered dispatch, and a final restart cycle skips coefficient work
+that no successor can consume. These are command-graph optimizations, not a
+change to the residual, preconditioner, stopping rule, or transaction.
 
 All coupled objects in one environment use the minimum admissible determinant
 mixed-volume backtracking, conservative CCD, a barrier

@@ -88,7 +88,7 @@ The FEM path uses linear tetrahedral kinematics with nonlinear constitutive stre
 [ rigid-continuum              0           rigid mass   ] [dv_rigid]
 ```
 
-IPC's squared-distance logarithmic potential contributes primal gradients and PSD Hessian actions; per-node timestep ratios apply the action chain rule to cross-rate FEM/MPM rows. There are no contact multiplier unknowns, response CSR, Delassus rows, or post-contact correction solves. Element work is parallel and node assembly uses rebuilt incidence. FGMRES uses compensated SIMD32 reductions, modified Gram-Schmidt with selective reorthogonalization, device Givens rotations, restart cycles and an inexact-Newton forcing schedule. Its right preconditioner combines FEM node-star diagonals, overlapping tetrahedron patches, MPM lumped/particle-patch/object modes, field smoothing, and rigid inverse-mass action. FGMRES remains the sole convergence owner. One environment-wide line search combines constitutive determinant and mixed-volume bounds with conservative CCD, barrier fraction-to-boundary caps, and barrier Armijo backtracking.
+IPC's squared-distance logarithmic potential contributes primal gradients and PSD Hessian actions; per-node timestep ratios apply the action chain rule to cross-rate FEM/MPM rows. There are no contact multiplier unknowns, response CSR, Delassus rows, or post-contact correction solves. Element work is parallel and node assembly uses rebuilt incidence. FGMRES uses compensated SIMD32 reductions, modified Gram-Schmidt with selective reorthogonalization, device Givens rotations, restart cycles and an inexact-Newton forcing schedule. The environment-owned SIMD32 Arnoldi wave continues directly from orthogonalization into its norm, Givens update and next-basis publication. Restart-residual reconstruction and the tiny triangular solve likewise share one per-environment cycle-finalization dispatch, and the final cycle does not materialize coefficients that no later cycle can consume. These fusions retain the original reduction and arithmetic order while removing command traffic. The right preconditioner combines FEM node-star diagonals, overlapping tetrahedron patches, MPM lumped/particle-patch/object modes, field smoothing, and rigid inverse-mass action. FGMRES remains the sole convergence owner. One environment-wide line search combines constitutive determinant and mixed-volume bounds with conservative CCD, barrier fraction-to-boundary caps, and barrier Armijo backtracking.
 
 Each tetrahedron owns an independent persistent material-state record. Rate-dependent stress and exact tangent-vector evaluation use the element velocity gradient. For stateful FEM materials, every Newton residual evaluates the authored next-state map at the current candidate, and the matrix-free tangent adds the local state-chain directional contribution. State updates still publish only with an accepted nonlinear candidate, and nodal, field, constitutive, topology and primal-contact history roll back to the same control-step checkpoint.
 
@@ -280,20 +280,27 @@ It is deliberately serial because all cases use the active GPU.
 
 The coupled production defaults use seven outer Newton corrections and one
 ten-column FGMRES restart cycle. On the Apple M4 qualification host, the
-24-test suite completed without failure in 367.25 seconds. The strict
+24-test suite completed without failure in 344.93 seconds. The strict
 eight-particle impact executed 1,024 material microsteps, used at most six
 Krylov iterations, observed contact, retained `minimum_J = 0.997895`, and
 completed without transaction rollback.
 These measurements establish this implementation and workload on that host;
 they are not a matched claim against another simulator or Apple GPU.
 The dedicated batch probe additionally completed 32 identical contact
-environments and 8,192 environment-microsteps on one command-buffer timeline
-at 103.94 environment-microsteps/second with 9,486,496 retained bytes. Every
-environment reported nine contacts, `minimum_J = 0.99916`, no failed
-environment and a two-iteration FGMRES high-water. The ten-column default
-encoded 209,185 dispatches for this batch, 60.8 percent fewer than the former
-two-cycle build, while reducing retained memory by 12.3 percent. Eight- and
-nine-column defaults were rejected by the articulated rigid-reaction gate;
+environments and 8,192 environment-microsteps on one command-buffer timeline.
+Two untraced final-code runs measured 106.968 and 107.013
+environment-microsteps/second, a 106.991 mean, with 76.567 mean GPU seconds
+and 9,486,496 retained bytes. The same-session pre-fusion baseline measured
+104.015 environment-microsteps/second and 78.758 GPU seconds. Every run
+reported nine contacts per environment, `minimum_J = 0.99916`, no failed
+environment and a two-iteration FGMRES high-water. The fused graph encoded
+189,473 dispatches instead of 209,185, a 9.42 percent reduction, and requested
+2,517,280 threadgroups instead of 3,090,720, an 18.55 percent reduction. The
+observed candidate mean is 2.86 percent faster with 2.78 percent less GPU time
+than that baseline; it is a matched measurement on this host, not a universal
+speedup. The ten-column default remains 60.8 percent below the former two-cycle
+dispatch graph and retains 12.3 percent less memory than that build. Eight-
+and nine-column defaults were rejected by the articulated rigid-reaction gate;
 ten is the measured suite-wide minimum. This is native batching and
 command-graph evidence, not an external frontier comparison.
 
