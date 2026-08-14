@@ -4,6 +4,7 @@
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MultiArticulatedContact.hpp"
 #include "metalrobo/MultiArticulatedWorld.hpp"
+#include "metalrobo/SurgicalPSM.hpp"
 
 #include <algorithm>
 #include <array>
@@ -54,16 +55,96 @@ int main() {
             "heterogeneous surgical world is invalid: " + reason
         );
         require(
+            world.model.materials.size() == 6u,
+            "heterogeneous surgical material topology changed"
+        );
+        const auto& psmMetadata = metalrobo::surgicalPSMMetadata();
+        const double effectiveInsertStaticFriction = std::sqrt(
+            static_cast<double>(world.model.materials[1].friction.x) *
+            world.model.materials[4].friction.x
+        );
+        const double effectiveInsertDynamicFriction = std::sqrt(
+            static_cast<double>(world.model.materials[1].friction.y) *
+            world.model.materials[4].friction.y
+        );
+        require(
             world.model.articulations.size() == 2u &&
                 world.model.bodies.size() == 19u &&
-                world.model.shapes.size() == 72u &&
+                world.model.shapes.size() == 80u &&
                 world.model.constraintProgram.blocks.size() == 14u &&
+                world.model.materials.size() == 6u &&
                 world.sceneBodyIndices ==
                     std::vector<std::uint32_t>{18u} &&
                 world.defaultSceneBodies.size() == 1u &&
                 world.rods.size() == 1u &&
-                world.rods[0].rigidBindings[0].bodyIndex == 0u,
-            "heterogeneous owned streams changed"
+                world.rods[0].collision.ownedMaterial.has_value() &&
+                world.rods[0].collision.materialIndex == 5u &&
+                world.model.materials[5].friction.x == 0.18f &&
+                world.model.materials[5].friction.y == 0.12f &&
+                std::abs(
+                    effectiveInsertStaticFriction -
+                    psmMetadata.targetNeedleInsertStaticFriction
+                ) < 1.0e-6 &&
+                std::abs(
+                    effectiveInsertDynamicFriction -
+                    psmMetadata.targetNeedleInsertDynamicFriction
+                ) < 1.0e-6 &&
+                world.model.materials[1].response.z ==
+                    psmMetadata.insertSystemNormalComplianceMPerN &&
+                world.model.materials[3].response.z ==
+                    psmMetadata.insertSystemNormalComplianceMPerN &&
+                world.rods[0].rigidBindings.size() == 1u &&
+                world.rods[0].rigidBindings[0].bodyIndex == 0u &&
+                world.rods[0].tangentBindings.size() == 1u &&
+                world.rods[0].tangentBindings[0].edgeIndex == 0u &&
+                world.rods[0].tangentBindings[0].bodyIndex == 0u &&
+                world.rods[0].tangentBindings[0]
+                        .complianceRadPerNm == 0.0 &&
+                world.rods[0].twistBindings.size() == 1u &&
+                world.rods[0].twistBindings[0].edgeIndex == 0u &&
+                world.rods[0].twistBindings[0].bodyIndex == 0u &&
+                world.rods[0].twistBindings[0]
+                        .complianceRadPerNm == 0.0,
+            "heterogeneous owned streams changed: bodies=" +
+                std::to_string(world.model.bodies.size()) +
+                " shapes=" + std::to_string(world.model.shapes.size()) +
+                " blocks=" + std::to_string(
+                    world.model.constraintProgram.blocks.size()
+                ) +
+                " materials=" + std::to_string(
+                    world.model.materials.size()
+                ) +
+                " scene=" + std::to_string(
+                    world.sceneBodyIndices.size()
+                ) +
+                " rods=" + std::to_string(world.rods.size()) +
+                " rigid_bindings=" + std::to_string(
+                    world.rods[0].rigidBindings.size()
+                ) +
+                " twist_bindings=" + std::to_string(
+                    world.rods[0].twistBindings.size()
+                )
+        );
+        metalrobo::HeterogeneousWorld degenerateTangentBasis = world;
+        degenerateTangentBasis.rods[0].tangentBindings[0].localDirector =
+            degenerateTangentBasis.rods[0].tangentBindings[0].localTangent;
+        std::string tangentBasisReason;
+        require(
+            !degenerateTangentBasis.valid(&tangentBasisReason) &&
+                tangentBasisReason.find("basis is not orthonormal") !=
+                    std::string::npos,
+            "heterogeneous world accepted a degenerate swage tangent basis"
+        );
+        metalrobo::HeterogeneousWorld degenerateTwistBasis = world;
+        degenerateTwistBasis.rods[0].twistBindings[0]
+            .localMaterialDirector =
+            degenerateTwistBasis.rods[0].twistBindings[0].localTangent;
+        std::string twistBasisReason;
+        require(
+            !degenerateTwistBasis.valid(&twistBasisReason) &&
+                twistBasisReason.find("basis is not orthonormal") !=
+                    std::string::npos,
+            "heterogeneous world accepted a degenerate swage material frame"
         );
 
         // The persistent world must own all articulation and rod state in
@@ -85,11 +166,11 @@ int main() {
         const auto& compiledProgram =
             persistentWorld.model().constraintProgram;
         require(
-            compiledProgram.blocks.size() == 17u &&
+            compiledProgram.blocks.size() == 20u &&
                 persistentWorld.dynamicNodes().size() == 4u &&
                 persistentWorld.minimumCapacities()
                         .constraintBlocks >=
-                    17u,
+                    20u,
             "persistent cooker did not promote the swage attachment "
             "into the common constraint graph"
         );
@@ -111,11 +192,53 @@ int main() {
                     compiledProgram.endpoints[
                         block.endpointOffset + 1u
                     ].jacobianKind ==
-                        MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT,
-                "cooked swage row is not a typed rod/body scalar "
-                "ConstraintIR block"
+                        MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT &&
+                    compiledProgram.rows[block.rowOffset]
+                            .timeConstant == 1.0e-5f,
+                "cooked hard-root swage row is not a "
+                "typed rod/body scalar ConstraintIR block"
             );
         }
+        for (std::size_t blockIndex = 17u;
+             blockIndex < 19u;
+             ++blockIndex) {
+            const auto& block = compiledProgram.blocks[blockIndex];
+            require(
+                block.dimension == 1u &&
+                    block.endpointCount == 2u &&
+                    (block.flags &
+                     MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT) != 0u &&
+                    (block.flags &
+                     MR_CONSTRAINT_IR_BLOCK_ROD_TANGENT_ATTACHMENT) != 0u &&
+                    compiledProgram.rows[block.rowOffset].compliance == 0.0f &&
+                    compiledProgram.rows[block.rowOffset].timeConstant ==
+                        1.0e-5f,
+                "cooked two-axis swage tangent is not a hard typed line row"
+            );
+        }
+        const auto& twistBlock = compiledProgram.blocks[19u];
+        require(
+            twistBlock.dimension == 1u &&
+                twistBlock.endpointCount == 2u &&
+                (twistBlock.flags &
+                 MR_CONSTRAINT_IR_BLOCK_ROD_TWIST_ATTACHMENT) != 0u &&
+                compiledProgram.endpoints[
+                    twistBlock.endpointOffset
+                ].jacobianKind ==
+                    MR_CONSTRAINT_IR_JACOBIAN_ROD_EDGE &&
+                compiledProgram.endpoints[
+                    twistBlock.endpointOffset + 1u
+                ].jacobianKind ==
+                    MR_CONSTRAINT_IR_JACOBIAN_ANGULAR &&
+                compiledProgram.rows[twistBlock.rowOffset]
+                        .timeConstant ==
+                    1.0e-5f &&
+                compiledProgram.rows[twistBlock.rowOffset]
+                        .compliance ==
+                    0.0f,
+            "cooked material-frame swage is not a hard typed rod-edge/body "
+            "angular ConstraintIR block"
+        );
         const std::vector<float> persistentEffort(
             world.model.world.nv,
             0.0f
@@ -624,10 +747,20 @@ int main() {
                               metalContact.equalityStatuses[0]
                                   .code
                           ) +
+                          "@" +
+                          std::to_string(
+                              metalContact.equalityStatuses[0]
+                                  .failingRow
+                          ) +
                           ":" +
                           std::to_string(
                               metalContact.equalityStatuses[0]
                                   .diagnostics.x
+                          ) +
+                          "/" +
+                          std::to_string(
+                              metalContact.equalityStatuses[0]
+                                  .diagnostics.y
                           ) +
                           "/" +
                           std::to_string(
@@ -846,8 +979,10 @@ int main() {
                 rodStep.message
         );
         require(
-            reactions[0].bodyIndex ==
-                metalrobo::kDiscreteRodNoRigidBody &&
+            reactions[0].nodeIndex == 0u &&
+                reactions[0].bodyIndex ==
+                    metalrobo::kDiscreteRodNoRigidBody &&
+                reactions[0].finalPositionError <= 1.0e-12 &&
                 norm(reactions[0].averageForceOnTarget) > 0.0,
             "heterogeneous rod reaction evidence is empty"
         );

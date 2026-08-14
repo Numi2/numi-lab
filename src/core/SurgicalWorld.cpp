@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <numbers>
 #include <ranges>
 #include <span>
 #include <stdexcept>
@@ -19,12 +20,11 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::uint32_t kRootQCount = 7u;
-constexpr std::uint32_t kRootVCount = 6u;
 constexpr std::uint32_t kJawA = 6u;
 constexpr std::uint32_t kJawB = 7u;
 constexpr std::uint32_t kBaseKey = 0x50534d42u;
 constexpr std::uint32_t kJawKey = 0x50534d4au;
+constexpr std::uint32_t kFirstPsmCollisionGroup = 1u << 8u;
 
 mr_float4 f4(
     const float x,
@@ -54,6 +54,31 @@ bool validPose(const SurgicalBasePose& pose) {
         std::abs(normSquared - 1.0) <= 1.0e-5;
 }
 
+bool validContactMaterial(const MRMaterialGPU& material) {
+    const auto finite4 = [](const mr_float4 value) {
+        return
+            std::isfinite(value.x) &&
+            std::isfinite(value.y) &&
+            std::isfinite(value.z) &&
+            std::isfinite(value.w);
+    };
+    return
+        finite4(material.friction) &&
+        finite4(material.response) &&
+        finite4(material.geometry) &&
+        material.friction.x >= material.friction.y &&
+        material.friction.y >= 0.0f &&
+        material.friction.z >= 0.0f &&
+        material.friction.w >= 0.0f &&
+        material.response.x >= 0.0f &&
+        material.response.x <= 1.0f &&
+        material.response.y >= 0.0f &&
+        material.response.z >= 0.0f &&
+        material.response.w >= 0.0f &&
+        material.geometry.x >= 0.0f &&
+        material.geometry.y >= 0.0f;
+}
+
 using DVec3 = std::array<double, 3>;
 using DMat3 = std::array<double, 9>;
 
@@ -63,6 +88,21 @@ DVec3 add(const DVec3& left, const DVec3& right) {
         left[1] + right[1],
         left[2] + right[2],
     };
+}
+
+DVec3 subtract(const DVec3& left, const DVec3& right) {
+    return {
+        left[0] - right[0],
+        left[1] - right[1],
+        left[2] - right[2],
+    };
+}
+
+double dot(const DVec3& left, const DVec3& right) {
+    return
+        left[0] * right[0] +
+        left[1] * right[1] +
+        left[2] * right[2];
 }
 
 DVec3 multiply(const DVec3& value, const double scale) {
@@ -79,6 +119,33 @@ double length(const DVec3& value) {
         value[1] * value[1] +
         value[2] * value[2]
     );
+}
+
+DVec3 leastAlignedDirector(const DVec3& tangent) {
+    const std::array<DVec3, 3> axes{{
+        {1.0, 0.0, 0.0},
+        {0.0, 1.0, 0.0},
+        {0.0, 0.0, 1.0},
+    }};
+    std::size_t selected = 0u;
+    for (std::size_t axis = 1u; axis < axes.size(); ++axis) {
+        if (std::abs(dot(tangent, axes[axis])) <
+            std::abs(dot(tangent, axes[selected]))) {
+            selected = axis;
+        }
+    }
+    const DVec3 projected = subtract(
+        axes[selected],
+        multiply(tangent, dot(axes[selected], tangent))
+    );
+    const double projectedLength = length(projected);
+    if (!(projectedLength > 1.0e-12) ||
+        !std::isfinite(projectedLength)) {
+        throw std::invalid_argument(
+            "thread material-frame reference is degenerate"
+        );
+    }
+    return multiply(projected, 1.0 / projectedLength);
 }
 
 DVec3 rotate(
@@ -207,7 +274,7 @@ void appendConstraintProgram(
     for (std::uint32_t arm = 0u; arm < 2u; ++arm) {
         if (config.lockBases) {
             for (std::uint32_t axis = 0u;
-                 axis < kRootVCount;
+                 axis < kSurgicalFloatingRootVCount;
                  ++axis) {
                 OwnedConstraint constraint;
                 constraint.key.words[0] = kBaseKey;
@@ -346,9 +413,9 @@ void appendFloatingPsm(
     articulation.firstBody += bodyOffset;
     articulation.firstJoint += jointOffset;
     articulation.qOffset = qOffset;
-    articulation.nq += kRootQCount;
+    articulation.nq += kSurgicalFloatingRootQCount;
     articulation.vOffset = vOffset;
-    articulation.nv += kRootVCount;
+    articulation.nv += kSurgicalFloatingRootVCount;
     articulation.solverGroup = articulationOffset;
     output.articulations.push_back(articulation);
 
@@ -369,7 +436,7 @@ void appendFloatingPsm(
     );
     output.defaultV.insert(
         output.defaultV.end(),
-        kRootVCount,
+        kSurgicalFloatingRootVCount,
         0.0f
     );
     output.defaultV.insert(
@@ -379,7 +446,7 @@ void appendFloatingPsm(
     );
 
     for (std::uint32_t local = 0u;
-         local < kRootVCount;
+         local < kSurgicalFloatingRootVCount;
          ++local) {
         MRDofPropertiesGPU dof{};
         dof.articulationIndex = articulationOffset;
@@ -399,9 +466,9 @@ void appendFloatingPsm(
         joint.parentBody += bodyOffset;
         joint.childBody += bodyOffset;
         joint.qOffset =
-            qOffset + kRootQCount + sourceJoint.qOffset;
+            qOffset + kSurgicalFloatingRootQCount + sourceJoint.qOffset;
         joint.vOffset =
-            vOffset + kRootVCount + sourceJoint.vOffset;
+            vOffset + kSurgicalFloatingRootVCount + sourceJoint.vOffset;
         output.joints.push_back(joint);
     }
     for (const MRDofPropertiesGPU& sourceDof :
@@ -415,15 +482,15 @@ void appendFloatingPsm(
         dof.qIndex =
             sourceDof.qIndex == MR_INVALID_INDEX
             ? MR_INVALID_INDEX
-            : qOffset + kRootQCount + sourceDof.qIndex;
+            : qOffset + kSurgicalFloatingRootQCount + sourceDof.qIndex;
         dof.vIndex =
-            vOffset + kRootVCount + sourceDof.vIndex;
+            vOffset + kSurgicalFloatingRootVCount + sourceDof.vIndex;
         output.dofs.push_back(dof);
     }
     metadata.firstJawVelocity[arm] =
-        vOffset + kRootVCount + kJawA;
+        vOffset + kSurgicalFloatingRootVCount + kJawA;
     metadata.secondJawVelocity[arm] =
-        vOffset + kRootVCount + kJawB;
+        vOffset + kSurgicalFloatingRootVCount + kJawB;
 
     for (const MRBodyPropertiesGPU& sourceBody :
          source.bodies) {
@@ -449,6 +516,17 @@ void appendFloatingPsm(
         shape.bodyIndex += bodyOffset;
         shape.materialIndex += materialOffset;
         shape.slotGeneration += arm << 16u;
+        // The fixed-root source excludes one robot-internal group to suppress
+        // self collision. Duplicating that bit for both arms would also
+        // suppress arm-to-arm contact. Give each PSM a distinct self bit,
+        // remove only that bit from its mask, and restore the source bit so
+        // the other arm remains an ordinary collision partner.
+        const std::uint32_t armGroup =
+            kFirstPsmCollisionGroup << arm;
+        shape.collisionGroup = armGroup;
+        shape.collisionMask =
+            (sourceShape.collisionMask |
+             sourceShape.collisionGroup) & ~armGroup;
         output.shapes.push_back(shape);
     }
     for (const CollisionPairExclusion& sourceExclusion :
@@ -592,11 +670,20 @@ makeDualDvrkPsmNeedleThreadWorld(
     const DualPsmNeedleThreadWorldConfig& config
 ) {
     if (!validPose(config.needlePose) ||
-        config.threadNodeCount < 2u ||
+        !validContactMaterial(config.threadContactMaterial) ||
+        config.threadNodeCount < 3u ||
         !(config.threadLengthM > 0.0) ||
         !std::isfinite(config.threadLengthM) ||
         !(config.attachmentCompliance >= 0.0) ||
         !std::isfinite(config.attachmentCompliance) ||
+        !(config.tangentAttachmentComplianceRadPerNm >= 0.0) ||
+        !std::isfinite(
+            config.tangentAttachmentComplianceRadPerNm
+        ) ||
+        !(config.torsionalAttachmentComplianceRadPerNm >= 0.0) ||
+        !std::isfinite(
+            config.torsionalAttachmentComplianceRadPerNm
+        ) ||
         !std::ranges::all_of(
             config.threadExitDirectionLocal,
             [](const double value) {
@@ -615,6 +702,10 @@ makeDualDvrkPsmNeedleThreadWorld(
             "thread exit direction is degenerate"
         );
     }
+    const DVec3 normalizedExitLocal = multiply(
+        config.threadExitDirectionLocal,
+        1.0 / directionLength
+    );
 
     DualPsmNeedleThreadWorld staged;
     staged.robots = makeDualDvrkPsmWorld(config.robots);
@@ -656,10 +747,21 @@ makeDualDvrkPsmNeedleThreadWorld(
     );
     staged.metadata.initialThreadDirectionWorld = rotate(
         config.needlePose.orientation,
-        multiply(
-            config.threadExitDirectionLocal,
-            1.0 / directionLength
-        )
+        normalizedExitLocal
+    );
+    const DVec3 initialMaterialDirectorWorld =
+        leastAlignedDirector(
+            staged.metadata.initialThreadDirectionWorld
+        );
+    const std::array<float, 4> inverseNeedleOrientation{
+        -config.needlePose.orientation[0],
+        -config.needlePose.orientation[1],
+        -config.needlePose.orientation[2],
+        config.needlePose.orientation[3],
+    };
+    staged.metadata.swageMaterialDirectorLocal = rotate(
+        inverseNeedleOrientation,
+        initialMaterialDirectorWorld
     );
 
     const MRBodyPropertiesGPU& needleBody =
@@ -722,11 +824,13 @@ makeDualDvrkPsmNeedleThreadWorld(
     staged.threadModel.name =
         "dual_psm_needle_swage_thread";
     staged.threadModel.fidelityBoundary =
-        "DER research material; geometry-owned swage coupling; "
-        "not package-calibrated or clinical";
+        "DER research material; hard swage root, two-axis clamped tangent, "
+        "and material-frame weld; not package-calibrated or clinical";
     const double restLength =
         config.threadLengthM /
         static_cast<double>(config.threadNodeCount - 1u);
+    staged.metadata.swageTangentComplianceRadPerNm =
+        config.tangentAttachmentComplianceRadPerNm;
     for (std::uint32_t node = 0u;
          node < config.threadNodeCount;
          ++node) {
@@ -748,8 +852,9 @@ makeDualDvrkPsmNeedleThreadWorld(
         makeDiscreteElasticRodDefaultState(
             staged.threadModel
         );
+    staged.threadContactMaterial = config.threadContactMaterial;
     staged.attachments[0] = {
-        .nodeIndex = staged.metadata.threadAttachmentNode,
+        .nodeIndex = 0u,
         .targetPosition = staged.metadata.swageAnchorWorld,
         .targetVelocity = {0.0, 0.0, 0.0},
         .compliance = config.attachmentCompliance,
@@ -758,7 +863,71 @@ makeDualDvrkPsmNeedleThreadWorld(
         .bodyIndex = staged.metadata.needleSceneBodyIndex,
         .localAnchor = staged.metadata.swageAnchorLocal,
     };
+    staged.tangentBindings[0] = {
+        .edgeIndex = 0u,
+        .bodyIndex = staged.metadata.needleSceneBodyIndex,
+        .localAnchor = add(
+            staged.metadata.swageAnchorLocal,
+            multiply(normalizedExitLocal, restLength)
+        ),
+        .localTangent = normalizedExitLocal,
+        .localDirector = staged.metadata.swageMaterialDirectorLocal,
+        .complianceRadPerNm =
+            config.tangentAttachmentComplianceRadPerNm,
+    };
+    staged.twistBindings[0] = {
+        .edgeIndex = 0u,
+        .bodyIndex = staged.metadata.needleSceneBodyIndex,
+        .localTangent = normalizedExitLocal,
+        .localMaterialDirector =
+            staged.metadata.swageMaterialDirectorLocal,
+        .referenceTangentWorld =
+            staged.metadata.initialThreadDirectionWorld,
+        .referenceMaterialDirectorWorld =
+            initialMaterialDirectorWorld,
+        .complianceRadPerNm =
+            config.torsionalAttachmentComplianceRadPerNm,
+    };
     return staged;
+}
+
+BowelAnastomosisSutureSpec
+makeBowelAnastomosisSutureSpec() noexcept {
+    BowelAnastomosisSutureSpec result;
+    result.needle = makeBowelAnastomosisNeedleSpec();
+    return result;
+}
+
+DualPsmNeedleThreadWorldConfig
+makeBowelAnastomosisNeedleThreadWorldConfig(
+    const BowelAnastomosisSutureSpec& spec
+) {
+    const auto validPositive = [](const SurgicalScalar& value) {
+        return value.value > 0.0 && std::isfinite(value.value);
+    };
+    if (!validPositive(spec.threadLengthM) ||
+        !validPositive(spec.threadRadiusM) ||
+        !validPositive(spec.threadDensityKgPerM3) ||
+        !validPositive(spec.threadYoungModulusPa) ||
+        !(spec.threadPoissonRatio.value > -1.0) ||
+        !(spec.threadPoissonRatio.value < 0.5) ||
+        !std::isfinite(spec.threadPoissonRatio.value) ||
+        spec.threadNodeCount < 2u) {
+        throw std::invalid_argument(
+            "bowel-anastomosis suture specification is invalid"
+        );
+    }
+    DualPsmNeedleThreadWorldConfig result;
+    result.needle = spec.needle;
+    result.threadMaterial = {
+        .radius = spec.threadRadiusM.value,
+        .density = spec.threadDensityKgPerM3.value,
+        .youngModulus = spec.threadYoungModulusPa.value,
+        .poissonRatio = spec.threadPoissonRatio.value,
+    };
+    result.threadNodeCount = spec.threadNodeCount;
+    result.threadLengthM = spec.threadLengthM.value;
+    return result;
 }
 
 } // namespace metalrobo

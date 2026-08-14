@@ -809,6 +809,10 @@ struct MetalWorldResult {
     std::vector<MRBodyStateGPU> finalSceneBodies;
     std::vector<MRRodNodeStateGPU> finalRodNodes;
     std::vector<MRRodEdgeStateGPU> finalRodEdges;
+    // Final per-environment/per-rod convergence certificate. Unlike the
+    // accepted node state, this remains available even when final-state
+    // publication is disabled so a caller can qualify the implicit solve.
+    std::vector<MRRodGPUStatus> rodStatuses;
     // Packed [control step][environment][q then v].
     std::vector<float> observations;
     // Compact learning boundary produced only by a native task graph.

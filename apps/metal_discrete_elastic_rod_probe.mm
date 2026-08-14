@@ -1,6 +1,7 @@
 #include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MetalDiscreteElasticRod.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
@@ -26,15 +27,63 @@ double length(const std::array<double, 3>& value) {
     );
 }
 
-std::array<double, 3> midpoint(
-    const std::array<double, 3>& first,
-    const std::array<double, 3>& second
+double dot(
+    const std::array<double, 3>& left,
+    const std::array<double, 3>& right
+) {
+    return left[0] * right[0] +
+        left[1] * right[1] +
+        left[2] * right[2];
+}
+
+std::array<double, 3> subtract(
+    const std::array<double, 3>& left,
+    const std::array<double, 3>& right
 ) {
     return {
-        0.5 * (first[0] + second[0]),
-        0.5 * (first[1] + second[1]),
-        0.5 * (first[2] + second[2]),
+        left[0] - right[0],
+        left[1] - right[1],
+        left[2] - right[2],
     };
+}
+
+double segmentDistance(
+    const std::array<double, 3>& firstA,
+    const std::array<double, 3>& firstB,
+    const std::array<double, 3>& secondA,
+    const std::array<double, 3>& secondB
+) {
+    const auto first = subtract(firstB, firstA);
+    const auto second = subtract(secondB, secondA);
+    const auto offset = subtract(firstA, secondA);
+    const double aa = dot(first, first);
+    const double bb = dot(second, second);
+    const double ab = dot(first, second);
+    const double ao = dot(first, offset);
+    const double bo = dot(second, offset);
+    const double denominator = aa * bb - ab * ab;
+    double firstParameter = denominator >
+            1.0e-14 * aa * bb
+        ? std::clamp((ab * bo - ao * bb) / denominator, 0.0, 1.0)
+        : 0.0;
+    double secondNumerator = ab * firstParameter + bo;
+    double secondParameter = 0.0;
+    if (secondNumerator < 0.0) {
+        firstParameter = std::clamp(-ao / aa, 0.0, 1.0);
+    } else if (secondNumerator > bb) {
+        secondParameter = 1.0;
+        firstParameter = std::clamp((ab - ao) / aa, 0.0, 1.0);
+    } else {
+        secondParameter = secondNumerator / bb;
+    }
+    return length({
+        firstA[0] + firstParameter * first[0] -
+            secondA[0] - secondParameter * second[0],
+        firstA[1] + firstParameter * first[1] -
+            secondA[1] - secondParameter * second[1],
+        firstA[2] + firstParameter * first[2] -
+            secondA[2] - secondParameter * second[2],
+    });
 }
 
 } // namespace
@@ -301,6 +350,10 @@ int main() {
         collisionConfig.step.gravity = {0.0, 0.0, 0.0};
         collisionConfig.step.solverIterations = 256u;
         collisionConfig.step.constraintTolerance = 1.0e-6;
+        // Match the shader's documented FP32 central-difference floor so the
+        // comparison isolates solver semantics rather than FP64-vs-FP32
+        // perturbation scale.
+        collisionConfig.step.derivativeStep = 3.5e-4;
         collisionConfig.step.enableSelfCollision = true;
         metalrobo::MetalDiscreteElasticRodResult
             collisionResult;
@@ -332,25 +385,28 @@ int main() {
             cpuCollisionDiagnostics.succeeded(),
             "CPU DER self-contact oracle failed"
         );
+        const double cpuClearance = segmentDistance(
+            cpuCrossing.positions[0],
+            cpuCrossing.positions[1],
+            cpuCrossing.positions[2],
+            cpuCrossing.positions[3]
+        );
         double maximumSelfContactError = 0.0;
+        double firstMetalClearance = 0.0;
         for (std::size_t environment = 0u;
              environment < environmentCount;
              ++environment) {
             const auto& metalState =
                 collisionResult.states[environment];
-            const auto firstMidpoint = midpoint(
+            const double clearance = segmentDistance(
                 metalState.positions[0],
-                metalState.positions[1]
-            );
-            const auto secondMidpoint = midpoint(
+                metalState.positions[1],
                 metalState.positions[2],
                 metalState.positions[3]
             );
-            const double separation = length({
-                firstMidpoint[0] - secondMidpoint[0],
-                firstMidpoint[1] - secondMidpoint[1],
-                firstMidpoint[2] - secondMidpoint[2],
-            });
+            if (environment == 0u) {
+                firstMetalClearance = clearance;
+            }
             require(
                 collisionResult.statuses[environment].
                         diagnostics.w > 0.0F &&
@@ -360,26 +416,26 @@ int main() {
                                 static_cast<float>(
                                     collisionModel.radius
                                 ) &&
-                    separation >=
+                    clearance >=
                         0.95 * 2.0 * collisionModel.radius,
                 "Metal DER capsule self-contact did not separate edges"
             );
-            for (std::size_t node = 0u;
-                 node < metalState.positions.size();
-                 ++node) {
-                maximumSelfContactError = std::max(
-                    maximumSelfContactError,
-                    std::abs(
-                        metalState.positions[node][2] -
-                        cpuCrossing.positions[node][2]
-                    )
-                );
-            }
+            // The exact zero-distance crossing has two sign-equivalent
+            // separating normals. Compare the physical gap magnitude rather
+            // than a coordinate whose sign is not an invariant.
+            maximumSelfContactError = std::max(
+                maximumSelfContactError,
+                std::abs(clearance - cpuClearance)
+            );
         }
         require(
             maximumSelfContactError <= 2.0e-6,
-            "Metal DER self-contact normal response diverged "
-            "from FP64 oracle"
+            "Metal DER self-contact separation diverged "
+            "from FP64 oracle: maximum_error_m=" +
+                std::to_string(maximumSelfContactError) +
+                " cpu_clearance_m=" + std::to_string(cpuClearance) +
+                " metal_clearance_m=" +
+                std::to_string(firstMetalClearance)
         );
 
         metalrobo::DiscreteElasticRodModel toolRod =
@@ -484,7 +540,29 @@ int main() {
                 toolResult.toolContactCounts.size() ==
                     environmentCount * toolPairs.size(),
             "Metal thread/tool contact graph failed: " +
-                toolDiagnostics.message
+                toolDiagnostics.message +
+                " status=" +
+                std::to_string(
+                    static_cast<std::uint32_t>(toolDiagnostics.status)
+                ) +
+                " contacts=" +
+                std::to_string(toolDiagnostics.toolContactCount) +
+                " result_counts=" +
+                std::to_string(toolResult.toolContactCounts.size()) +
+                " rod_mid_y=" +
+                std::to_string(
+                    toolResult.states.empty()
+                    ? 0.0
+                    : toolResult.states[0].positions[2][1]
+                ) +
+                " sphere_y=" +
+                std::to_string(
+                    toolResult.rigidBodies.size() < 2u
+                    ? 0.0
+                    : static_cast<double>(
+                          toolResult.rigidBodies[1].position.y
+                      )
+                )
         );
         double maximumMomentumError = 0.0;
         double maximumToolImpulse = 0.0;

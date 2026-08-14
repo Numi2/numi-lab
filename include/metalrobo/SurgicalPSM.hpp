@@ -13,7 +13,7 @@ namespace metalrobo {
 
 inline constexpr std::size_t kSurgicalPSMBodyCount = 9u;
 inline constexpr std::size_t kSurgicalPSMJointCount = 8u;
-inline constexpr std::size_t kSurgicalPSMShapeCount = 20u;
+inline constexpr std::size_t kSurgicalPSMShapeCount = 24u;
 inline constexpr std::size_t kSurgicalPSMJawCount = 2u;
 inline constexpr std::size_t kSurgicalPSMArmDofCount = 6u;
 inline constexpr std::size_t
@@ -69,6 +69,21 @@ struct SurgicalPSMModelMetadata {
 
     float classicShaftLength = 0.0f;
     float wristLinkOffset = 0.0f;
+    // Official 8 mm X/Xi Large Needle Driver envelope. The Classic research
+    // transmission remains JHU-sourced; this dimensional reference does not
+    // imply interchangeability or clinical validation.
+    float instrumentDiameter = 0.0f;
+    float largeNeedleDriverJawLength = 0.0f;
+    // Research system calibration for the unresolved replaceable insert,
+    // clevis, transmission, and contact patch. These are not manufacturer
+    // material data or a clinical force prescription. Surgical composition
+    // rescales each insert material so geometric pair mixing with the authored
+    // needle material yields the target effective friction coefficients.
+    float insertSystemNormalComplianceMPerN = 0.0f;
+    float targetNeedleInsertStaticFriction = 0.0f;
+    float targetNeedleInsertDynamicFriction = 0.0f;
+    std::string_view intuitiveInstrumentCatalog;
+    std::string_view intuitiveInstrumentPartNumber;
     float orbitToolYawLinkMass = 0.0f;
     float orbitFixedToolTipMass = 0.0f;
     bool independentJawCoordinates = false;

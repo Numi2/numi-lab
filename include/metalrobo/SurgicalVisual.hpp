@@ -4,7 +4,9 @@
 #include "metalrobo/SurgicalAssets.hpp"
 #include "metalrobo/VisualPresentation.hpp"
 
+#include <array>
 #include <cstdint>
+#include <vector>
 
 namespace metalrobo {
 
@@ -29,12 +31,24 @@ struct DvrkSutureVisualStyle {
     std::uint32_t instrumentRadialSections = 20u;
 };
 
+// Optional visual-only scene additions. The secondary instrument remains
+// bound to its own articulated links; the tissue surface is a presentation
+// of an explicitly supplied FEM boundary and never becomes collision truth.
+struct DvrkSutureVisualScene {
+    bool hasSecondaryInstrument = false;
+    DvrkSutureVisualBindings secondaryInstrument{};
+    std::vector<std::array<double, 3>> tissuePositions;
+    std::vector<std::array<std::uint32_t, 3>> tissueTriangles;
+    std::array<double, 3> tissueTranslationM{};
+};
+
 struct DvrkSutureVisualMetrics {
     std::uint32_t vertexCount = 0u;
     std::uint32_t triangleCount = 0u;
     std::uint32_t instanceCount = 0u;
     std::uint32_t needleTriangleCount = 0u;
     std::uint32_t threadTriangleCount = 0u;
+    std::uint32_t tissueTriangleCount = 0u;
     double threadCenterlineLengthM = 0.0;
 };
 
@@ -53,7 +67,8 @@ struct DvrkSutureVisualAsset {
     const DiscreteElasticRodModel& threadModel,
     const DiscreteElasticRodState& threadState,
     const DvrkSutureVisualBindings& bindings = {},
-    const DvrkSutureVisualStyle& style = {}
+    const DvrkSutureVisualStyle& style = {},
+    const DvrkSutureVisualScene& scene = {}
 );
 
 } // namespace metalrobo

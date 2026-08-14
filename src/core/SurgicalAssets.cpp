@@ -353,7 +353,7 @@ void validateScalar(
     if (!std::isfinite(scalar.value) ||
         (allowZero ? scalar.value < 0.0 : scalar.value <= 0.0) ||
         basis > static_cast<std::uint32_t>(
-            SurgicalValueBasis::researchDefault
+            SurgicalValueBasis::uspSyntheticSutureDiameterStandard
         )) {
         throw std::invalid_argument(
             std::string(name) + " is not a valid sourced scalar"
@@ -634,6 +634,16 @@ std::string_view surgicalValueBasisName(
         return "derived-from-geometry";
     case SurgicalValueBasis::researchDefault:
         return "explicit-research-default";
+    case SurgicalValueBasis::pdsII3_0ProductGeometry:
+        return "sourced:PDS-II-3-0-product-geometry";
+    case SurgicalValueBasis::roboticBowelClosureTechnique:
+        return "sourced:robotic-bowel-closure-technique";
+    case SurgicalValueBasis::needleHandlingInstructions:
+        return "sourced:surgical-needle-handling-instructions";
+    case SurgicalValueBasis::polydioxanoneMonofilamentStudy:
+        return "sourced:polydioxanone-monofilament-mechanics";
+    case SurgicalValueBasis::uspSyntheticSutureDiameterStandard:
+        return "sourced:USP-3-0-synthetic-diameter-lower-bound";
     }
     return "invalid";
 }
@@ -653,8 +663,66 @@ std::string_view surgicalValueSourceReference(
         return "analytic primitive geometry";
     case SurgicalValueBasis::researchDefault:
         return "MetalRobo research default; measurement required";
+    case SurgicalValueBasis::pdsII3_0ProductGeometry:
+        // D7463 is the fixed-swage, single-strand 3-0 PDS II SH product.
+        // D8971 has the same 26 mm half-circle taper needle but is CONTROL
+        // RELEASE and therefore cannot source this permanently swaged model.
+        return "https://www.ethicon.com/na/epc/code/d7463";
+    case SurgicalValueBasis::roboticBowelClosureTechnique:
+        return "https://pmc.ncbi.nlm.nih.gov/articles/PMC8426074/";
+    case SurgicalValueBasis::needleHandlingInstructions:
+        return "https://www.jnjmedtech.com/sites/default/files/"
+            "user_uploaded_assets/pdf_assets/2020-12/"
+            "ETHICON-Wound-Closure-Catalog-115681-190531%20%282%29.pdf";
+    case SurgicalValueBasis::polydioxanoneMonofilamentStudy:
+        return "https://pmc.ncbi.nlm.nih.gov/articles/PMC7343154/";
+    case SurgicalValueBasis::uspSyntheticSutureDiameterStandard:
+        return "https://doi.usp.org/USPNF/USPNF_M80190_04_01.html";
     }
     return "invalid";
+}
+
+CurvedSutureNeedleSpec makeBowelAnastomosisNeedleSpec() noexcept {
+    CurvedSutureNeedleSpec result;
+    // Ethicon defines needle length along the curvature. A 26 mm half-circle
+    // therefore has a 26/pi mm centerline radius; it is not a 26 mm chord.
+    result.arcLengthM = {
+        0.026,
+        SurgicalValueBasis::pdsII3_0ProductGeometry,
+    };
+    result.arcAngleRad = {
+        std::numbers::pi,
+        SurgicalValueBasis::pdsII3_0ProductGeometry,
+    };
+    result.crossSectionRadiusM = {
+        0.00035,
+        SurgicalValueBasis::researchDefault,
+    };
+    result.densityKgPerM3 = {
+        8000.0,
+        SurgicalValueBasis::researchDefault,
+    };
+    result.tipTaperLengthM = {
+        0.0030,
+        SurgicalValueBasis::researchDefault,
+    };
+    result.swageLengthM = {
+        0.0030,
+        SurgicalValueBasis::researchDefault,
+    };
+    result.graspZoneStartFraction = {
+        1.0 / 3.0,
+        SurgicalValueBasis::needleHandlingInstructions,
+    };
+    result.graspZoneEndFraction = {
+        0.5,
+        SurgicalValueBasis::needleHandlingInstructions,
+    };
+    result.arcSegments = 40u;
+    result.tipRadiusRatio = 0.18;
+    result.swageRadiusRatio = 1.10;
+    result.contactOffsetM = 0.00001;
+    return result;
 }
 
 CurvedSutureNeedleAsset makeCurvedSutureNeedleAsset(
@@ -827,7 +895,56 @@ CurvedSutureNeedleAsset makeCurvedSutureNeedleAsset(
         mass,
         std::move(shapes),
         steelResearchMaterial(),
-        "GS-21-scale curved suture needle"
+        "curved surgical suture needle"
+    );
+    return result;
+}
+
+SurgicalNeutralZonePadAsset makeSurgicalNeutralZonePadAsset(
+    const SurgicalAssetIds& ids,
+    const SurgicalNeutralZonePadSpec& spec
+) {
+    validateScalar(spec.sizeXM, "neutral-zone pad x");
+    validateScalar(spec.sizeYM, "neutral-zone pad y");
+    validateScalar(spec.thicknessM, "neutral-zone pad thickness");
+    validateScalar(spec.densityKgPerM3, "neutral-zone pad density");
+    if (!(spec.contactOffsetM >= 0.0) ||
+        !std::isfinite(spec.contactOffsetM)) {
+        throw std::invalid_argument(
+            "surgical neutral-zone pad specification is invalid"
+        );
+    }
+    validateIds(ids, 1u);
+
+    const Vec3 size{
+        spec.sizeXM.value,
+        spec.sizeYM.value,
+        spec.thicknessM.value,
+    };
+    const MassProperties mass = combineMass({
+        boxComponent({}, size, spec.densityKgPerM3.value),
+    });
+    std::vector<MRShapeGPU> shapes;
+    shapes.push_back(shapeRecord(
+        ids,
+        0u,
+        MR_SHAPE_BOX,
+        {},
+        f4(0.0, 0.0, 0.0, 1.0),
+        f4(0.5 * size.x, 0.5 * size.y, 0.5 * size.z),
+        spec.contactOffsetM,
+        0.5 * norm(size)
+    ));
+
+    SurgicalNeutralZonePadAsset result;
+    result.spec = spec;
+    result.metadata.topSurfaceLocalM = 0.5 * size.z;
+    result.rigid = finalizeAsset(
+        ids,
+        mass,
+        std::move(shapes),
+        polymerResearchMaterial(),
+        "sterile-field neutral-zone pad"
     );
     return result;
 }

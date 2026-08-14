@@ -125,8 +125,8 @@ typedef struct MR_ALIGN16 MRMultiContactEqualityStatusGPU {
     mr_u32 failingRow;
     mr_u32 rowCount;
 
-    // maximum equality residual, minimum Cholesky pivot, maximum equality
-    // impulse, maximum null-space leakage.
+    // Maximum equality residual, minimum dimensionless equilibrated Cholesky
+    // pivot, maximum equality impulse, maximum null-space leakage.
     mr_float4 diagnostics;
 } MRMultiContactEqualityStatusGPU;
 

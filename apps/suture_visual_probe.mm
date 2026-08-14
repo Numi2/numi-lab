@@ -8,8 +8,10 @@
 #include "metalrobo/SurgicalAssets.hpp"
 #include "metalrobo/SurgicalPSM.hpp"
 #include "metalrobo/SurgicalVisual.hpp"
+#include "metalrobo/SurgicalWorld.hpp"
 #include "metalrobo/VisualPlatform.hpp"
 #include "metalrobo/WorldCompiler.hpp"
+#include "numi/matter/surgical_tissue.hpp"
 
 #include <algorithm>
 #include <array>
@@ -20,6 +22,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <span>
 #include <sstream>
 #include <stdexcept>
@@ -40,6 +43,9 @@ constexpr std::uint32_t kFieldSemantic = 301u;
 constexpr std::uint32_t kQualifiedThreadNodeCount = 25u;
 constexpr double kQualifiedThreadRadius = 1.2e-4;
 constexpr double kQualifiedThreadLength = 0.18;
+constexpr std::uint32_t kHandoffThreadNodeCount = 128u;
+constexpr double kHandoffThreadRadius = 1.0e-4;
+constexpr double kHandoffThreadLength = 0.25;
 
 struct Arguments {
     std::filesystem::path statePath;
@@ -47,8 +53,11 @@ struct Arguments {
 };
 
 struct PickupState {
+    bool dualHandoff = false;
+    std::string phase;
     std::string model;
     std::uint64_t step = 0u;
+    double controlTimestepSeconds = 0.0005;
     std::vector<float> q;
     std::vector<float> v;
     MRBodyStateGPU needle{};
@@ -57,13 +66,16 @@ struct PickupState {
     double threadLength = 0.0;
     std::vector<std::array<double, 3>> threadPositions;
     std::vector<std::array<double, 3>> threadVelocities;
+    std::vector<std::array<double, 2>> threadTwists;
     double needleLift = 0.0;
     double jawTravel = 0.0;
     double followRatio = 0.0;
     double orientationDrift = 0.0;
     bool grasped = false;
     bool modelSeen = false;
+    bool phaseSeen = false;
     bool stepSeen = false;
+    bool controlTimestepSeen = false;
     bool qSeen = false;
     bool vSeen = false;
     bool needlePositionSeen = false;
@@ -71,6 +83,7 @@ struct PickupState {
     bool needleLinearVelocitySeen = false;
     bool needleAngularVelocitySeen = false;
     bool threadModelSeen = false;
+    bool tissueModelSeen = false;
     bool needleLiftSeen = false;
     bool jawTravelSeen = false;
     bool followRatioSeen = false;
@@ -78,6 +91,7 @@ struct PickupState {
     bool graspedSeen = false;
     std::vector<std::uint8_t> threadPositionsSeen;
     std::vector<std::uint8_t> threadVelocitiesSeen;
+    std::vector<std::uint8_t> threadTwistsSeen;
 };
 
 struct VisibilityMetrics {
@@ -192,10 +206,24 @@ PickupState readPickupState(const std::filesystem::path& path) {
         if (fields[0] == "schema") {
             require(
                 fields.size() == 2u && !schema &&
-                    fields[1] == "numi.surgical-pickup-state.v1",
+                    (fields[1] == "numi.surgical-pickup-state.v1" ||
+                     fields[1] ==
+                         "numi.dual-psm-suture-handoff-state.v2"),
                 "pickup state schema is unsupported"
             );
+            result.dualHandoff = fields[1] !=
+                "numi.surgical-pickup-state.v1";
+            if (result.dualHandoff) {
+                result.controlTimestepSeconds = 0.002;
+            }
             schema = true;
+        } else if (fields[0] == "phase") {
+            require(
+                fields.size() == 2u && !result.phaseSeen,
+                "handoff phase row is invalid"
+            );
+            result.phase = fields[1];
+            result.phaseSeen = true;
         } else if (fields[0] == "model") {
             require(
                 fields.size() == 2u && !result.modelSeen,
@@ -210,13 +238,21 @@ PickupState readPickupState(const std::filesystem::path& path) {
             );
             result.step = integer(fields[1], "step");
             result.stepSeen = true;
+        } else if (fields[0] == "control_timestep_s") {
+            require(
+                fields.size() == 2u && !result.controlTimestepSeen &&
+                    number(fields[1], "control timestep") > 0.0,
+                "pickup control timestep row is invalid"
+            );
+            result.controlTimestepSeconds =
+                number(fields[1], "control timestep");
+            result.controlTimestepSeen = true;
         } else if (fields[0] == "q" || fields[0] == "v") {
             bool& seen = fields[0] == "q"
                 ? result.qSeen
                 : result.vSeen;
             require(
-                !seen && fields.size() ==
-                    metalrobo::kSurgicalPSMJointCount + 1u,
+                !seen && fields.size() > 1u,
                 "pickup generalized-state row is invalid"
             );
             seen = true;
@@ -286,18 +322,17 @@ PickupState readPickupState(const std::filesystem::path& path) {
                 fields[2],
                 "thread node count"
             );
-            require(
-                threadNodeCount == kQualifiedThreadNodeCount,
-                "thread node count does not match the qualified pickup ABI"
-            );
+            require(threadNodeCount >= 2u, "thread node count is invalid");
             result.threadNodeCount = static_cast<std::uint32_t>(
                 threadNodeCount
             );
             result.threadLength = number(fields[3], "thread length");
             result.threadPositions.resize(result.threadNodeCount);
             result.threadVelocities.resize(result.threadNodeCount);
+            result.threadTwists.resize(result.threadNodeCount - 1u);
             result.threadPositionsSeen.resize(result.threadNodeCount, 0u);
             result.threadVelocitiesSeen.resize(result.threadNodeCount, 0u);
+            result.threadTwistsSeen.resize(result.threadNodeCount - 1u, 0u);
             result.threadModelSeen = true;
         } else if (fields[0] == "thread_position" ||
                    fields[0] == "thread_velocity") {
@@ -321,6 +356,27 @@ PickupState readPickupState(const std::filesystem::path& path) {
                 number(fields[4], fields[0].c_str()),
             };
             seen[index] = 1u;
+        } else if (fields[0] == "thread_twist") {
+            require(
+                fields.size() == 4u && result.threadModelSeen,
+                "thread twist row is invalid"
+            );
+            const std::size_t index = static_cast<std::size_t>(
+                integer(fields[1], "thread edge index")
+            );
+            require(
+                index < result.threadTwists.size(),
+                "thread edge index is outside model"
+            );
+            require(
+                result.threadTwistsSeen[index] == 0u,
+                "thread twist row is duplicated"
+            );
+            result.threadTwists[index] = {
+                number(fields[2], "thread twist"),
+                number(fields[3], "thread twist rate"),
+            };
+            result.threadTwistsSeen[index] = 1u;
         } else if (fields[0] == "needle_lift_m") {
             require(
                 fields.size() == 2u && !result.needleLiftSeen,
@@ -358,6 +414,17 @@ PickupState readPickupState(const std::filesystem::path& path) {
             require(grasped <= 1u, "grasped state is not boolean");
             result.grasped = grasped == 1u;
             result.graspedSeen = true;
+        } else if (fields[0] == "tissue_model") {
+            require(
+                fields.size() == 6u && !result.tissueModelSeen &&
+                    fields[1] == "porcine_jejunum_fung" &&
+                    number(fields[2], "tissue length") > 0.0 &&
+                    number(fields[3], "tissue width") > 0.0 &&
+                    number(fields[4], "tissue thickness") > 0.0 &&
+                    number(fields[5], "tissue incision gap") > 0.0,
+                "handoff tissue row is invalid"
+            );
+            result.tissueModelSeen = true;
         } else {
             throw std::invalid_argument(
                 "pickup state contains an unknown row: " + fields[0]
@@ -365,14 +432,11 @@ PickupState readPickupState(const std::filesystem::path& path) {
         }
     }
     require(schema, "pickup state has no schema");
-    require(
+    const bool commonValid =
         result.modelSeen && result.stepSeen && result.qSeen && result.vSeen &&
             result.needlePositionSeen && result.needleOrientationSeen &&
             result.needleLinearVelocitySeen &&
             result.needleAngularVelocitySeen && result.threadModelSeen &&
-            result.needleLiftSeen && result.jawTravelSeen &&
-            result.followRatioSeen && result.orientationDriftSeen &&
-            result.graspedSeen &&
             std::ranges::all_of(
                 result.threadPositionsSeen,
                 [](const std::uint8_t value) { return value == 1u; }
@@ -381,21 +445,45 @@ PickupState readPickupState(const std::filesystem::path& path) {
                 result.threadVelocitiesSeen,
                 [](const std::uint8_t value) { return value == 1u; }
             ) &&
-        result.model ==
+            result.threadPositions.size() == result.threadNodeCount &&
+            result.threadVelocities.size() == result.threadNodeCount;
+    const bool singlePickupValid = !result.dualHandoff &&
+            result.needleLiftSeen && result.jawTravelSeen &&
+            result.followRatioSeen && result.orientationDriftSeen &&
+            result.graspedSeen &&
+            result.model ==
             "dvrk_psm_classic_lnd_source_coupled_abi_v3" &&
             result.step == 3030u &&
             result.q.size() == metalrobo::kSurgicalPSMJointCount &&
             result.v.size() == metalrobo::kSurgicalPSMJointCount &&
             result.threadNodeCount == kQualifiedThreadNodeCount &&
-            result.threadPositions.size() == result.threadNodeCount &&
-            result.threadVelocities.size() == result.threadNodeCount &&
             std::abs(result.threadRadius - kQualifiedThreadRadius) <=
                 1.0e-12 &&
             std::abs(result.threadLength - kQualifiedThreadLength) <=
                 1.0e-12 &&
             result.grasped &&
             result.needleLift > 0.007 &&
-            result.followRatio > 0.9,
+            result.followRatio > 0.9;
+    const bool dualHandoffValid = result.dualHandoff &&
+        result.phaseSeen && result.controlTimestepSeen &&
+        result.tissueModelSeen &&
+        result.model == "dual_psm_bowel_suture_neutral_zone_world" &&
+        result.q.size() == metalrobo::kDualPsmQCount &&
+        result.v.size() == metalrobo::kDualPsmVCount &&
+        (result.phase == "giver-closed" ||
+         result.phase == "giver-lift" ||
+         result.phase == "positive-control-overlap" ||
+         result.phase == "receiver-transfer") &&
+        result.threadNodeCount == kHandoffThreadNodeCount &&
+        result.threadTwists.size() + 1u == result.threadNodeCount &&
+        std::ranges::all_of(
+            result.threadTwistsSeen,
+            [](const std::uint8_t value) { return value == 1u; }
+        ) &&
+        std::abs(result.threadRadius - kHandoffThreadRadius) <= 1.0e-12 &&
+        std::abs(result.threadLength - kHandoffThreadLength) <= 1.0e-12;
+    require(
+        commonValid && (singlePickupValid || dualHandoffValid),
         "pickup state did not pass the physical acquisition contract"
     );
     return result;
@@ -438,29 +526,59 @@ metalrobo::EngineModel makeVisualEngineModel(
     const metalrobo::CurvedSutureNeedleAsset& needle,
     const PickupState& state
 ) {
-    const metalrobo::EngineModel psm =
-        metalrobo::makeDvrkPsmLargeNeedleDriverEngineModel();
     const metalrobo::EngineModel needleModel = makeNeedleModel(needle);
-    const std::array components{
-        metalrobo::EngineModelComponent{
-            .model = &psm,
-            .instanceId = "dvrk_psm",
-            .preserveSemanticNames = true,
-        },
-        metalrobo::EngineModelComponent{
-            .model = &needleModel,
-            .instanceId = "gs21_needle",
-        },
-    };
     metalrobo::EngineModel result;
-    const auto diagnostics = metalrobo::composeEngineModels(
-        components,
-        result,
-        {
-            .name = "dvrk_psm_gs21_suture_visual_world",
-            .gravityAndTimestep = {0.0f, 0.0f, -9.81f, 0.0005f},
-        }
-    );
+    metalrobo::EngineModelComposeDiagnostics diagnostics;
+    if (state.dualHandoff) {
+        const metalrobo::DualPsmWorld dual =
+            metalrobo::makeDualDvrkPsmWorld();
+        const std::array components{
+            metalrobo::EngineModelComponent{
+                .model = &dual.model,
+                .instanceId = "dual_dvrk_psm",
+                .preserveSemanticNames = true,
+            },
+            metalrobo::EngineModelComponent{
+                .model = &needleModel,
+                .instanceId = "bowel_suture_needle",
+            },
+        };
+        diagnostics = metalrobo::composeEngineModels(
+            components,
+            result,
+            {
+                .name = "dual_dvrk_psm_suture_handoff_visual_world",
+                .gravityAndTimestep = {
+                    0.0f,
+                    0.0f,
+                    -9.81f,
+                    static_cast<float>(state.controlTimestepSeconds),
+                },
+            }
+        );
+    } else {
+        const metalrobo::EngineModel psm =
+            metalrobo::makeDvrkPsmLargeNeedleDriverEngineModel();
+        const std::array components{
+            metalrobo::EngineModelComponent{
+                .model = &psm,
+                .instanceId = "dvrk_psm",
+                .preserveSemanticNames = true,
+            },
+            metalrobo::EngineModelComponent{
+                .model = &needleModel,
+                .instanceId = "gs21_needle",
+            },
+        };
+        diagnostics = metalrobo::composeEngineModels(
+            components,
+            result,
+            {
+                .name = "dvrk_psm_gs21_suture_visual_world",
+                .gravityAndTimestep = {0.0f, 0.0f, -9.81f, 0.0005f},
+            }
+        );
+    }
     requireSucceeded(diagnostics, "visual engine composition");
     require(result.world.nq == state.q.size(), "visual model q width changed");
     std::copy(state.q.begin(), state.q.end(), result.defaultQ.begin());
@@ -576,9 +694,11 @@ metalrobo::WorldTemplate makeWorldTemplate(
     const PickupState& state
 ) {
     metalrobo::EpisodeTwin episode;
-    episode.id = "dvrk_gs21_suture_pickup_visual_v1";
+    episode.id = state.dualHandoff
+        ? "dual_dvrk_suture_handoff_visual_v1"
+        : "dvrk_gs21_suture_pickup_visual_v1";
     metalrobo::WorldAsset robot = asset(
-        "dvrk_psm",
+        state.dualHandoff ? "giver_dvrk_psm" : "dvrk_psm",
         "surgical_instrument",
         MR_WORLD_ASSET_ROBOT,
         MR_WORLD_DYNAMICS_ARTICULATED
@@ -587,24 +707,55 @@ metalrobo::WorldTemplate makeWorldTemplate(
     for (std::uint32_t body = 0u; body < 9u; ++body) {
         robot.bodyIndices.push_back(body);
     }
-    for (std::uint32_t shape = 0u; shape < 20u; ++shape) {
+    for (std::uint32_t shape = 0u;
+         shape < metalrobo::kSurgicalPSMShapeCount;
+         ++shape) {
         robot.shapeIndices.push_back(shape);
     }
-    robot.materialIndices = {0u};
+    robot.materialIndices = {0u, 1u};
+    std::vector<metalrobo::WorldAsset> assets;
+    assets.push_back(std::move(robot));
+    if (state.dualHandoff) {
+        metalrobo::WorldAsset receiver = asset(
+            "receiver_dvrk_psm",
+            "surgical_instrument",
+            MR_WORLD_ASSET_ROBOT,
+            MR_WORLD_DYNAMICS_ARTICULATED
+        );
+        receiver.articulationIndex = 1u;
+        for (std::uint32_t body = 9u; body < 18u; ++body) {
+            receiver.bodyIndices.push_back(body);
+        }
+        for (std::uint32_t shape =
+                 metalrobo::kSurgicalPSMShapeCount;
+             shape < 2u * metalrobo::kSurgicalPSMShapeCount;
+             ++shape) {
+            receiver.shapeIndices.push_back(shape);
+        }
+        receiver.materialIndices = {2u, 3u};
+        assets.push_back(std::move(receiver));
+    }
     metalrobo::WorldAsset needle = asset(
-        "gs21_needle",
+        state.dualHandoff ? "bowel_suture_needle" : "gs21_needle",
         "suture_needle",
         MR_WORLD_ASSET_MANIPULATED,
         MR_WORLD_DYNAMICS_RIGID
     );
-    needle.bodyIndices = {9u};
-    for (std::uint32_t shape = 20u; shape < model.shapes.size(); ++shape) {
+    const std::uint32_t needleBodyIndex = state.dualHandoff ? 18u : 9u;
+    const std::uint32_t needleShapeBegin = state.dualHandoff
+        ? 2u * metalrobo::kSurgicalPSMShapeCount
+        : metalrobo::kSurgicalPSMShapeCount;
+    needle.bodyIndices = {needleBodyIndex};
+    for (std::uint32_t shape = needleShapeBegin;
+         shape < model.shapes.size();
+         ++shape) {
         needle.shapeIndices.push_back(shape);
     }
-    needle.materialIndices = {1u};
+    needle.materialIndices = {state.dualHandoff ? 4u : 2u};
     needle.initialPose.position = state.needle.position;
     needle.initialPose.orientation = state.needle.orientation;
-    episode.assets = {std::move(robot), std::move(needle)};
+    assets.push_back(std::move(needle));
+    episode.assets = std::move(assets);
 
     const mr_float4 needlePosition = state.needle.position;
     mr_float4 threadCenter{};
@@ -622,25 +773,43 @@ metalrobo::WorldTemplate makeWorldTemplate(
 
     metalrobo::SensorSpec close;
     close.id = "pickup_close_rgbd";
-    close.parentAssetId = "dvrk_psm";
+    close.parentAssetId = state.dualHandoff
+        ? "giver_dvrk_psm"
+        : "dvrk_psm";
     close.parentKind = MR_WORLD_SENSOR_PARENT_WORLD;
     close.kind = MR_WORLD_SENSOR_RGBD;
     close.width = kWidth;
     close.height = kHeight;
-    close.intrinsics = {1200.0f, 1200.0f, 640.0f, 480.0f};
+    close.intrinsics = {1250.0f, 1250.0f, 640.0f, 480.0f};
+    const mr_float4 closePosition = state.dualHandoff
+        ? mr_float4{
+              needlePosition.x,
+              needlePosition.y - 0.020f,
+              needlePosition.z + 0.095f,
+              1.0f,
+          }
+        : mr_float4{
+              needlePosition.x + 0.045f,
+              needlePosition.y - 0.050f,
+              needlePosition.z + 0.032f,
+              1.0f,
+          };
+    const mr_float4 closeTarget = state.dualHandoff
+        ? mr_float4{
+              needlePosition.x + 0.010f,
+              needlePosition.y,
+              needlePosition.z,
+              1.0f,
+          }
+        : mr_float4{
+              needlePosition.x,
+              needlePosition.y,
+              needlePosition.z - 0.006f,
+              1.0f,
+          };
     close.localPose = cameraToward(
-        {
-            needlePosition.x + 0.065f,
-            needlePosition.y - 0.070f,
-            needlePosition.z + 0.045f,
-            1.0f,
-        },
-        {
-            needlePosition.x,
-            needlePosition.y,
-            needlePosition.z - 0.012f,
-            1.0f,
-        }
+        closePosition,
+        closeTarget
     );
     close.nominalRateHz = 60.0f;
     close.exposureSeconds = 1.0f / 240.0f;
@@ -668,10 +837,15 @@ metalrobo::WorldTemplate makeWorldTemplate(
     );
     episode.sensors = {std::move(close), std::move(overview)};
     episode.task = {
-        .id = "gs21_suture_pickup_visual_qualification",
-        .robotAssetId = "dvrk_psm",
-        .controlPeriodSeconds = 0.0005,
-        .horizonSeconds = 1.515,
+        .id = state.dualHandoff
+            ? "dual_dvrk_suture_handoff_visual_qualification"
+            : "gs21_suture_pickup_visual_qualification",
+        .robotAssetId = state.dualHandoff
+            ? "giver_dvrk_psm"
+            : "dvrk_psm",
+        .controlPeriodSeconds = state.controlTimestepSeconds,
+        .horizonSeconds =
+            state.controlTimestepSeconds * static_cast<double>(state.step),
     };
     metalrobo::WorldTemplate result;
     const auto diagnostics = metalrobo::compileEpisodeTwin(
@@ -695,6 +869,109 @@ metalrobo::WorldFamily makeWorldFamily(
         result
     );
     requireSucceeded(diagnostics, "visual world family compile");
+    return result;
+}
+
+metalrobo::DvrkSutureVisualScene makeHandoffVisualScene(
+    const PickupState& state
+) {
+    metalrobo::DvrkSutureVisualScene result;
+    if (!state.dualHandoff) {
+        return result;
+    }
+    result.hasSecondaryInstrument = true;
+    result.secondaryInstrument = {
+        .shaftBodyIndex = 12u,
+        .wristPitchBodyIndex = 13u,
+        .wristYawBodyIndex = 14u,
+        .toolBodyIndex = 15u,
+        .jawABodyIndex = 16u,
+        .jawBBodyIndex = 17u,
+        .needleBodyIndex = 18u,
+    };
+    const numi::matter::PorcineJejunumClosureCoupon coupon =
+        numi::matter::makePorcineJejunumClosureCoupon(0u);
+    result.tissuePositions = coupon.object.femNodes;
+    // The coupon rests on the same 3 mm neutral-zone pad as the needle/thread,
+    // offset laterally so it is ready for the subsequent closure experiment.
+    result.tissueTranslationM = {
+        0.042,
+        0.0,
+        0.0015 + 0.5 * coupon.spec.thicknessM.value,
+    };
+
+    struct BoundaryFace {
+        std::array<std::uint32_t, 3> oriented{};
+        std::uint32_t count = 0u;
+    };
+    std::map<std::array<std::uint32_t, 3>, BoundaryFace> faces;
+    constexpr std::array<std::array<std::uint32_t, 4>, 4> localFaces{{
+        {{1u, 2u, 3u, 0u}},
+        {{0u, 3u, 2u, 1u}},
+        {{0u, 1u, 3u, 2u}},
+        {{0u, 2u, 1u, 3u}},
+    }};
+    const auto subtract = [](const std::array<double, 3>& left,
+                             const std::array<double, 3>& right) {
+        return std::array<double, 3>{
+            left[0] - right[0],
+            left[1] - right[1],
+            left[2] - right[2],
+        };
+    };
+    const auto cross3 = [](const std::array<double, 3>& left,
+                           const std::array<double, 3>& right) {
+        return std::array<double, 3>{
+            left[1] * right[2] - left[2] * right[1],
+            left[2] * right[0] - left[0] * right[2],
+            left[0] * right[1] - left[1] * right[0],
+        };
+    };
+    const auto dot3 = [](const std::array<double, 3>& left,
+                         const std::array<double, 3>& right) {
+        return left[0] * right[0] + left[1] * right[1] +
+            left[2] * right[2];
+    };
+    for (const numi::matter::TetrahedronSource& tetrahedron :
+         coupon.object.tetrahedra) {
+        for (const auto& local : localFaces) {
+            std::array<std::uint32_t, 3> oriented{
+                tetrahedron.nodes[local[0]],
+                tetrahedron.nodes[local[1]],
+                tetrahedron.nodes[local[2]],
+            };
+            const std::uint32_t opposite = tetrahedron.nodes[local[3]];
+            const auto& a = result.tissuePositions[oriented[0]];
+            const auto& b = result.tissuePositions[oriented[1]];
+            const auto& c = result.tissuePositions[oriented[2]];
+            const auto& d = result.tissuePositions[opposite];
+            if (dot3(cross3(subtract(b, a), subtract(c, a)),
+                     subtract(d, a)) > 0.0) {
+                std::swap(oriented[1], oriented[2]);
+            }
+            std::array<std::uint32_t, 3> key = oriented;
+            std::ranges::sort(key);
+            BoundaryFace& face = faces[key];
+            if (face.count == 0u) {
+                face.oriented = oriented;
+            }
+            ++face.count;
+            require(
+                face.count <= 2u,
+                "jejunal coupon has a non-manifold tetrahedral face"
+            );
+        }
+    }
+    for (const auto& [key, face] : faces) {
+        static_cast<void>(key);
+        if (face.count == 1u) {
+            result.tissueTriangles.push_back(face.oriented);
+        }
+    }
+    require(
+        !result.tissueTriangles.empty(),
+        "jejunal coupon produced no visual boundary"
+    );
     return result;
 }
 
@@ -886,13 +1163,19 @@ void writeEvidence(
     }
     output << std::setprecision(12)
         << "{\n"
-        << "  \"schema\": \"numi.surgical-suture-visual-evidence.v1\",\n"
+        << "  \"schema\": \""
+        << (pickup.dualHandoff
+            ? "numi.dual-psm-suture-handoff-visual-evidence.v1"
+            : "numi.surgical-suture-visual-evidence.v1")
+        << "\",\n"
         << "  \"source\": \"simulation\",\n"
         << "  \"device\": \"" << render.deviceName << "\",\n"
         << "  \"pickup_step\": " << pickup.step << ",\n"
-        << "  \"grasped\": true,\n"
-        << "  \"needle_lift_m\": " << pickup.needleLift << ",\n"
-        << "  \"follow_ratio\": " << pickup.followRatio << ",\n"
+        << "  \"phase\": \""
+        << (pickup.dualHandoff ? pickup.phase : "single-pickup")
+        << "\",\n"
+        << "  \"dual_instrument\": "
+        << (pickup.dualHandoff ? "true" : "false") << ",\n"
         << "  \"visual_pack_hash\": \"" << asset.pack.contentHash << "\",\n"
         << "  \"visual_scene_fingerprint\": " << manifest.fingerprint << ",\n"
         << "  \"vertices\": " << asset.metrics.vertexCount << ",\n"
@@ -901,6 +1184,8 @@ void writeEvidence(
         << asset.metrics.needleTriangleCount << ",\n"
         << "  \"thread_triangles\": "
         << asset.metrics.threadTriangleCount << ",\n"
+        << "  \"tissue_triangles\": "
+        << asset.metrics.tissueTriangleCount << ",\n"
         << "  \"thread_centerline_length_m\": "
         << asset.metrics.threadCenterlineLengthM << ",\n"
         << "  \"render_ms\": " << render.elapsedMilliseconds << ",\n"
@@ -920,7 +1205,7 @@ void writeEvidence(
     }
     output << "  ],\n"
         << "  \"physics_boundary\": "
-        << "\"FP64 articulated/contact pickup plus DER thread; visual geometry is presentation-only\",\n"
+        << "\"accepted Apple Metal articulated/contact handoff plus DER thread; the jejunal surface is generated from the calibrated FEM rest mesh and remains presentation-only\",\n"
         << "  \"clinical_validation\": false\n"
         << "}\n";
     output.close();
@@ -952,7 +1237,9 @@ int main(const int argumentCount, char* argv[]) {
                     .collisionGroup = 1u,
                     .collisionMask = ~1u,
                     .motionType = MR_MOTION_DYNAMIC,
-                });
+                }, pickup.dualHandoff
+                    ? metalrobo::makeBowelAnastomosisNeedleSpec()
+                    : metalrobo::CurvedSutureNeedleSpec{});
             metalrobo::DiscreteRodMaterial visualRodMaterial;
             visualRodMaterial.radius = pickup.threadRadius;
             metalrobo::DiscreteElasticRodModel threadModel =
@@ -972,15 +1259,26 @@ int main(const int argumentCount, char* argv[]) {
                 pickup.threadNodeCount - 1u,
                 0.0
             );
+            metalrobo::DvrkSutureVisualBindings primaryBindings;
+            if (pickup.dualHandoff) {
+                primaryBindings.needleBodyIndex = 18u;
+            }
+            const metalrobo::DvrkSutureVisualScene visualScene =
+                makeHandoffVisualScene(pickup);
             const metalrobo::DvrkSutureVisualAsset visualAsset =
                 metalrobo::makeDvrkSutureVisualAsset(
                     needle,
                     threadModel,
-                    threadState
+                    threadState,
+                    primaryBindings,
+                    {},
+                    visualScene
                 );
             const std::filesystem::path packPath =
                 options.outputDirectory /
-                "dvrk-gs21-suture-pickup.mrvpack";
+                (pickup.dualHandoff
+                    ? "dual-dvrk-suture-handoff.mrvpack"
+                    : "dvrk-gs21-suture-pickup.mrvpack");
             std::string reason;
             require(
                 metalrobo::writeVisualAssetPack(
@@ -1046,7 +1344,9 @@ int main(const int argumentCount, char* argv[]) {
             );
             const std::filesystem::path manifestPath =
                 options.outputDirectory /
-                "dvrk-gs21-suture-pickup.visual.v3.json";
+                (pickup.dualHandoff
+                    ? "dual-dvrk-suture-handoff.visual.v3.json"
+                    : "dvrk-gs21-suture-pickup.visual.v3.json");
             require(
                 metalrobo::writeVisualSceneManifestV3(
                     manifest,
@@ -1089,7 +1389,8 @@ int main(const int argumentCount, char* argv[]) {
                 ),
                 "surgical visual body composition: " + reason
             );
-            const double captureTimestamp = livePickup.step * 0.0005;
+            const double captureTimestamp =
+                livePickup.step * livePickup.controlTimestepSeconds;
             constexpr double exposureSeconds = 1.0 / 240.0;
             metalrobo::VisualMotionSampleBatchV1 motion;
             motion.environmentCount = 1u;
@@ -1120,9 +1421,9 @@ int main(const int argumentCount, char* argv[]) {
             motion.frameIndex = livePickup.step;
             motion.source = MR_VISUAL_SOURCE_SIMULATION;
 
-            constexpr std::array<const char*, 2u> names{
-                "pickup-close",
-                "pickup-overview",
+            const std::array<std::string, 2u> names{
+                pickup.dualHandoff ? "handoff-close" : "pickup-close",
+                pickup.dualHandoff ? "handoff-overview" : "pickup-overview",
             };
             constexpr std::array<std::array<std::size_t, 4u>, 2u>
                 minimumCoverage{{
@@ -1145,7 +1446,7 @@ int main(const int argumentCount, char* argv[]) {
                 require(
                     writePng(
                         options.outputDirectory /
-                            (std::string{names[camera]} + ".png"),
+                            (names[camera] + ".png"),
                         colorImage(observations),
                         kWidth,
                         kHeight
@@ -1155,7 +1456,7 @@ int main(const int argumentCount, char* argv[]) {
                 require(
                     writePng(
                         options.outputDirectory /
-                            (std::string{names[camera]} + "-identity.png"),
+                            (names[camera] + "-identity.png"),
                         identityImage(observations),
                         kWidth,
                         kHeight
@@ -1205,6 +1506,8 @@ int main(const int argumentCount, char* argv[]) {
                 << visualAsset.metrics.needleTriangleCount
                 << " thread_triangles="
                 << visualAsset.metrics.threadTriangleCount
+                << " tissue_triangles="
+                << visualAsset.metrics.tissueTriangleCount
                 << " close_pixels="
                 << viewMetrics[0u].instrumentPixels << "/"
                 << viewMetrics[0u].needlePixels << "/"

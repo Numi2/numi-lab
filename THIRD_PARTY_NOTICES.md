@@ -226,6 +226,34 @@ contact, and grasp-zone values are separately labelled MetalRobo research
 defaults. No Medtronic mesh, artwork, documentation, or software is
 redistributed.
 
+## PDS II bowel-suture and jejunal tissue facts
+
+The bowel-closure specimen uses Ethicon D7463 catalog facts for a fixed-swage
+3-0 PDS II monofilament on a 26 mm, half-circle taper needle. Ethicon's wound
+closure catalog defines needle length along the curvature and supplies the
+one-third-to-one-half handling interval. A published robotic bowel-closure
+technique supplies the separately labelled 25 cm working-strand length. The
+USP synthetic-absorbable-suture monograph supplies only the lower diameter
+bound used by the unresolved 3-0 strand. PDO elastic constants come from a
+published monofilament mechanics study; density, contact, needle gauge, taper,
+and discretization remain MetalRobo research values.
+
+- <https://www.ethicon.com/na/epc/code/d7463>
+- <https://www.jnjmedtech.com/sites/default/files/user_uploaded_assets/pdf_assets/2020-12/ETHICON-Wound-Closure-Catalog-115681-190531%20%282%29.pdf>
+- <https://pmc.ncbi.nlm.nih.gov/articles/PMC8426074/>
+- <https://doi.usp.org/USPNF/USPNF_M80190_04_01.html>
+- <https://pmc.ncbi.nlm.nih.gov/articles/PMC7343154/>
+
+The porcine jejunal coupon uses the mean wall thickness and planar Fung-law
+coefficients reported by Bellini et al. The 3-D ground shear, bulk response,
+viscosity, density, fixture, incision geometry, and topology are explicitly
+labelled research settings, not measurements from that paper or a patient.
+
+- <https://doi.org/10.1016/j.jmbbm.2011.05.030>
+
+MetalRobo redistributes none of the referenced product documents, article
+figures, meshes, patient data, or manufacturer assets.
+
 ## Sharpa Wave hand and tactile assets
 
 `include/metalrobo/Wave.hpp` and `src/core/Wave.cpp` load, validate, and cook

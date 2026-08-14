@@ -71,6 +71,43 @@ struct DiscreteRodRigidAttachmentBinding {
     std::array<double, 3> localAnchor{};
 };
 
+// Two-axis clamped-tangent boundary between the first resolved rod edge and a
+// rigid body. The edge endpoint is constrained to the body-local line through
+// localAnchor with direction localTangent: the two transverse rows are hard
+// when complianceRadPerNm is zero, while stretch remains owned by the DER.
+// localDirector supplies one transverse axis and must be unit length and
+// orthogonal to localTangent; their cross product supplies the second. This
+// avoids both an isotropic Cartesian point spring and a second welded node.
+struct DiscreteRodRigidTangentAttachmentBinding {
+    std::uint32_t edgeIndex = 0u;
+    std::uint32_t bodyIndex = kDiscreteRodNoRigidBody;
+    std::array<double, 3> localAnchor{};
+    std::array<double, 3> localTangent{};
+    std::array<double, 3> localDirector{};
+    double complianceRadPerNm = 0.0;
+};
+
+// Material-frame boundary between one rod edge and a dynamic rigid body.
+// The local tangent and director are orthonormal body-frame vectors; the
+// coupled world constrains the edge's scalar Cosserat twist to the body's
+// material director about the live edge tangent. Zero compliance is a
+// permanent torsional weld, while a positive value is in rad/Nm. This is a
+// separate boundary from the nodal attachments above: position/tangent alone
+// cannot remove the DER's otherwise free uniform-twist mode.
+struct DiscreteRodRigidTwistAttachmentBinding {
+    std::uint32_t edgeIndex = 0u;
+    std::uint32_t bodyIndex = kDiscreteRodNoRigidBody;
+    std::array<double, 3> localTangent{};
+    std::array<double, 3> localMaterialDirector{};
+    // Persistent world-space reference frame at assembly. The live solver
+    // parallel-transports this pair to the deformed edge before measuring
+    // twist, avoiding the discontinuous least-aligned-axis gauge that would
+    // otherwise jump by pi/2 when a nearly horizontal strand bends.
+    std::array<double, 3> referenceTangentWorld{};
+    std::array<double, 3> referenceMaterialDirectorWorld{};
+    double complianceRadPerNm = 0.0;
+};
+
 struct DiscreteElasticRodEnergy {
     double stretch = 0.0;
     double bend = 0.0;
@@ -96,6 +133,9 @@ struct DiscreteElasticRodStepConfig {
     double timestep = 1.0 / 1000.0;
     std::array<double, 3> gravity{0.0, 0.0, -9.81};
     std::uint32_t solverIterations = 24u;
+    // Metres of maximum centerline or radius-scaled material-surface motion
+    // in one nonlinear sweep. Twist radians are never compared directly to
+    // this positional tolerance.
     double constraintTolerance = 1.0e-7;
     double linearDamping = 0.02;
     double twistDamping = 0.02;
@@ -120,6 +160,7 @@ struct DiscreteElasticRodDiagnostics {
     std::uint32_t projectedAttachments = 0u;
     std::uint32_t projectedSelfContacts = 0u;
     double maximumConstraintError = 0.0;
+    // Maximum centerline or radius-scaled material-surface correction (m).
     double maximumPositionCorrection = 0.0;
     double maximumSelfPenetration = 0.0;
     DiscreteElasticRodEnergy before{};

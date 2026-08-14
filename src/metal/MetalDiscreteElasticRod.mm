@@ -200,9 +200,47 @@ bool transport(
     return normalize(output, output);
 }
 
+bool referenceFrames(
+    const std::vector<Vec3>& restPositions,
+    std::vector<Vec3>& tangents,
+    std::vector<Vec3>& directors
+) {
+    if (restPositions.size() < 2u) {
+        return false;
+    }
+    const std::size_t edgeCount = restPositions.size() - 1u;
+    tangents.resize(edgeCount);
+    directors.resize(edgeCount);
+    for (std::size_t edge = 0u; edge < edgeCount; ++edge) {
+        if (!normalize(
+                subtract(
+                    restPositions[edge + 1u],
+                    restPositions[edge]
+                ),
+                tangents[edge]
+            )) {
+            return false;
+        }
+    }
+    directors[0] = leastAligned(tangents[0]);
+    for (std::size_t edge = 1u; edge < edgeCount; ++edge) {
+        if (!transport(
+                directors[edge - 1u],
+                tangents[edge - 1u],
+                tangents[edge],
+                directors[edge]
+            )) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool curvature(
     const std::array<Vec3, 3>& positions,
     const std::array<double, 2>& twists,
+    const std::array<Vec3, 2>& referenceTangents,
+    const std::array<Vec3, 2>& referenceDirectors,
     std::array<double, 2>& output
 ) {
     Vec3 left;
@@ -217,9 +255,15 @@ bool curvature(
         )) {
         return false;
     }
-    const Vec3 referenceLeft = leastAligned(left);
+    Vec3 referenceLeft;
     Vec3 referenceRight;
     if (!transport(
+            referenceDirectors[0],
+            referenceTangents[0],
+            left,
+            referenceLeft
+        ) ||
+        !transport(
             referenceLeft,
             left,
             right,
@@ -1015,6 +1059,10 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
         std::vector<float> restLengths;
         std::vector<float> restTwists;
         std::vector<mr_float4> restCurvatures;
+        std::vector<Vec3> referenceTangentValues;
+        std::vector<Vec3> referenceDirectorValues;
+        std::vector<mr_float4> referenceTangents;
+        std::vector<mr_float4> referenceDirectors;
         std::vector<float> inverseMasses;
         std::vector<float> inverseRotationalInertias;
         std::vector<float> stretchStiffness;
@@ -1027,6 +1075,33 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
         stretchStiffness.reserve(edgeCount);
         bendStiffness.reserve(edgeCount - 1u);
         twistStiffness.reserve(edgeCount - 1u);
+        if (!referenceFrames(
+                model.restPositions,
+                referenceTangentValues,
+                referenceDirectorValues
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalDiscreteElasticRodHostStatus::invalidModel,
+                "rod rest reference frame is degenerate"
+            );
+        }
+        referenceTangents.reserve(edgeCount);
+        referenceDirectors.reserve(edgeCount);
+        for (std::size_t edge = 0u; edge < edgeCount; ++edge) {
+            referenceTangents.push_back({
+                static_cast<float>(referenceTangentValues[edge][0]),
+                static_cast<float>(referenceTangentValues[edge][1]),
+                static_cast<float>(referenceTangentValues[edge][2]),
+                0.0f,
+            });
+            referenceDirectors.push_back({
+                static_cast<float>(referenceDirectorValues[edge][0]),
+                static_cast<float>(referenceDirectorValues[edge][1]),
+                static_cast<float>(referenceDirectorValues[edge][2]),
+                0.0f,
+            });
+        }
         for (const double value : model.restLengths) {
             restLengths.push_back(static_cast<float>(value));
         }
@@ -1067,10 +1142,20 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 model.restTwists[constraintIndex],
                 model.restTwists[constraintIndex + 1u],
             }};
+            const std::array<Vec3, 2> localReferenceTangents{{
+                referenceTangentValues[constraintIndex],
+                referenceTangentValues[constraintIndex + 1u],
+            }};
+            const std::array<Vec3, 2> localReferenceDirectors{{
+                referenceDirectorValues[constraintIndex],
+                referenceDirectorValues[constraintIndex + 1u],
+            }};
             std::array<double, 2> value{};
             if (!curvature(
                     localPositions,
                     localTwists,
+                    localReferenceTangents,
+                    localReferenceDirectors,
                     value
                 )) {
                 return reject(
@@ -1500,6 +1585,10 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             inputBuffer(device, attachments);
         id<MTLBuffer> rigidBindingBuffer =
             inputBuffer(device, rigidBindings);
+        id<MTLBuffer> referenceTangentBuffer =
+            inputBuffer(device, referenceTangents);
+        id<MTLBuffer> referenceDirectorBuffer =
+            inputBuffer(device, referenceDirectors);
         const std::vector<MRBodyStateGPU> rigidBodies{
             input.rigidBodies.begin(),
             input.rigidBodies.end(),
@@ -1520,6 +1609,53 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 input.previousToolContacts.end(),
                 previousToolContacts.begin()
             );
+        }
+        // The persistent world compacts active rod/tool pairs on device. The
+        // standalone API already receives an explicit small pair list, so
+        // author the same ABI as a deterministic dense list per environment.
+        constexpr std::uint32_t standaloneRodCount = 1u;
+        const std::size_t activeWitnessDomain =
+            environmentCount * dispatch.toolContactStride;
+        const std::size_t activePairDomain =
+            environmentCount * dispatch.toolPairWorldStride;
+        const std::size_t activeMetadataStride =
+            MR_ROD_ACTIVE_GLOBAL_METADATA_WORDS +
+            MR_ROD_ACTIVE_PER_ROD_METADATA_WORDS *
+                standaloneRodCount;
+        std::vector<std::uint32_t> activeToolPairs(
+            activeWitnessDomain + activePairDomain +
+                environmentCount * activeMetadataStride,
+            0u
+        );
+        for (std::uint32_t environment = 0u;
+             environment < environmentCount;
+             ++environment) {
+            const std::size_t activeBase =
+                activeWitnessDomain +
+                environment * dispatch.toolPairWorldStride;
+            for (std::uint32_t pair = 0u;
+                 pair < dispatch.toolPairCount;
+                 ++pair) {
+                activeToolPairs[activeBase + pair] = pair;
+            }
+            const std::size_t metadataBase =
+                activeWitnessDomain + activePairDomain +
+                environment * activeMetadataStride;
+            activeToolPairs[metadataBase + 0u] =
+                dispatch.toolPairCount;
+            activeToolPairs[metadataBase + 1u] =
+                (4u * dispatch.toolPairCount + 31u) / 32u;
+            activeToolPairs[metadataBase + 2u] = 1u;
+            activeToolPairs[metadataBase + 3u] = 1u;
+            const std::size_t rodMetadataBase =
+                metadataBase + MR_ROD_ACTIVE_GLOBAL_METADATA_WORDS;
+            activeToolPairs[rodMetadataBase + 0u] = 0u;
+            activeToolPairs[rodMetadataBase + 1u] =
+                dispatch.toolPairCount;
+            activeToolPairs[rodMetadataBase + 2u] =
+                (dispatch.toolPairCount + 31u) / 32u;
+            activeToolPairs[rodMetadataBase + 3u] = 1u;
+            activeToolPairs[rodMetadataBase + 4u] = 1u;
         }
         const std::vector<MRShapeGPU> emptyShapes;
         const std::vector<MRMaterialGPU> emptyMaterials;
@@ -1581,6 +1717,8 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 device,
                 toolWitnessElements
             );
+        id<MTLBuffer> activeToolPairBuffer =
+            inputBuffer(device, activeToolPairs);
         id<MTLBuffer> finalToolWitnessBuffer =
             outputBuffer<MRRodToolWitnessGPU>(
                 device,
@@ -1611,6 +1749,8 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
         }
         if (inputAttachmentBuffer == nil ||
             rigidBindingBuffer == nil ||
+            referenceTangentBuffer == nil ||
+            referenceDirectorBuffer == nil ||
             inputRigidBodyBuffer == nil ||
             outputRigidBodyBuffer == nil ||
             rodColliderBuffer == nil ||
@@ -1625,6 +1765,7 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             previousToolContactBuffer == nil ||
             toolPairCountBuffer == nil ||
             toolWitnessBuffer == nil ||
+            activeToolPairBuffer == nil ||
             finalToolWitnessBuffer == nil ||
             finalToolPositionBuffer == nil ||
             finalToolVelocityBuffer == nil ||
@@ -1703,6 +1844,12 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
         [encoder setBytes:&eventSegmentMode
                    length:sizeof(eventSegmentMode)
                   atIndex:21u];
+        [encoder setBuffer:referenceTangentBuffer
+                    offset:0u
+                   atIndex:22u];
+        [encoder setBuffer:referenceDirectorBuffer
+                    offset:0u
+                   atIndex:23u];
         [encoder
             dispatchThreadgroups:MTLSizeMake(
                 environmentCount,
@@ -1804,23 +1951,40 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             [encoder setBuffer:buffers[18]
                         offset:0u
                        atIndex:16u];
+            [encoder setBuffer:activeToolPairBuffer
+                        offset:0u
+                       atIndex:17u];
             const NSUInteger narrowphaseWidth =
                 std::min<NSUInteger>(
                     256u,
                     toolNarrowphasePipeline
                         .maxTotalThreadsPerThreadgroup
                 );
-            [encoder
-                dispatchThreads:MTLSizeMake(
-                    toolPairElements,
-                    1u,
-                    1u
-                )
-                threadsPerThreadgroup:MTLSizeMake(
-                    narrowphaseWidth,
-                    1u,
-                    1u
-                )];
+            const std::uint32_t standaloneRodIndex = 0u;
+            [encoder setBytes:&standaloneRodIndex
+                       length:sizeof(standaloneRodIndex)
+                      atIndex:18u];
+            [encoder setBytes:&standaloneRodCount
+                       length:sizeof(standaloneRodCount)
+                      atIndex:19u];
+            for (std::uint32_t environment = 0u;
+                 environment < environmentCount;
+                 ++environment) {
+                [encoder setBytes:&environment
+                           length:sizeof(environment)
+                          atIndex:20u];
+                [encoder
+                    dispatchThreads:MTLSizeMake(
+                        dispatch.toolPairCount,
+                        1u,
+                        1u
+                    )
+                    threadsPerThreadgroup:MTLSizeMake(
+                        narrowphaseWidth,
+                        1u,
+                        1u
+                    )];
+            }
             [encoder
                 memoryBarrierWithScope:MTLBarrierScopeBuffers];
             [encoder setComputePipelineState:toolSolvePipeline];

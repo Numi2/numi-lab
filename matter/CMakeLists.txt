@@ -23,6 +23,7 @@ set(
     src/fingerprint_impl.cpp
     src/validation_impl.cpp
     src/package_impl.cpp
+    src/surgical_tissue.cpp
 )
 
 # One canonical object set feeds both the standalone compiler library and the

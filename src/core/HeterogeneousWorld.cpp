@@ -1,4 +1,5 @@
 #include "metalrobo/HeterogeneousWorld.hpp"
+#include "metalrobo/SurgicalPSM.hpp"
 
 #include <algorithm>
 #include <array>
@@ -7,6 +8,7 @@
 #include <cstdint>
 #include <limits>
 #include <new>
+#include <numbers>
 #include <ranges>
 #include <set>
 #include <span>
@@ -48,6 +50,42 @@ bool finite(const Vec3& value) {
     });
 }
 
+bool validMaterial(const MRMaterialGPU& material) {
+    return
+        finite(material.friction) &&
+        finite(material.response) &&
+        finite(material.geometry) &&
+        material.friction.x >= material.friction.y &&
+        material.friction.y >= 0.0f &&
+        material.friction.z >= 0.0f &&
+        material.friction.w >= 0.0f &&
+        material.response.x >= 0.0f &&
+        material.response.x <= 1.0f &&
+        material.response.y >= 0.0f &&
+        material.response.z >= 0.0f &&
+        material.response.w >= 0.0f &&
+        material.geometry.x >= 0.0f &&
+        material.geometry.y >= 0.0f;
+}
+
+bool equal(const mr_float4 left, const mr_float4 right) {
+    return
+        left.x == right.x &&
+        left.y == right.y &&
+        left.z == right.z &&
+        left.w == right.w;
+}
+
+bool equal(
+    const MRMaterialGPU& left,
+    const MRMaterialGPU& right
+) {
+    return
+        equal(left.friction, right.friction) &&
+        equal(left.response, right.response) &&
+        equal(left.geometry, right.geometry);
+}
+
 Vec3 add(const Vec3& left, const Vec3& right) {
     return {
         left[0] + right[0],
@@ -72,6 +110,92 @@ Vec3 multiply(const Vec3& value, const double scale) {
     };
 }
 
+double dot(const Vec3& left, const Vec3& right) {
+    return
+        left[0] * right[0] +
+        left[1] * right[1] +
+        left[2] * right[2];
+}
+
+double segmentSegmentDistance(
+    const Vec3& first0,
+    const Vec3& first1,
+    const Vec3& second0,
+    const Vec3& second1
+) {
+    constexpr double kDegenerateSquared = 1.0e-24;
+    const Vec3 firstDirection = subtract(first1, first0);
+    const Vec3 secondDirection = subtract(second1, second0);
+    const Vec3 offset = subtract(first0, second0);
+    const double firstLengthSquared = dot(firstDirection, firstDirection);
+    const double secondLengthSquared = dot(secondDirection, secondDirection);
+    const double secondProjection = dot(secondDirection, offset);
+    double firstParameter = 0.0;
+    double secondParameter = 0.0;
+    if (firstLengthSquared <= kDegenerateSquared &&
+        secondLengthSquared <= kDegenerateSquared) {
+        return std::sqrt(dot(offset, offset));
+    }
+    if (firstLengthSquared <= kDegenerateSquared) {
+        secondParameter = std::clamp(
+            secondProjection / secondLengthSquared,
+            0.0,
+            1.0
+        );
+    } else {
+        const double firstProjection = dot(firstDirection, offset);
+        if (secondLengthSquared <= kDegenerateSquared) {
+            firstParameter = std::clamp(
+                -firstProjection / firstLengthSquared,
+                0.0,
+                1.0
+            );
+        } else {
+            const double coupling = dot(
+                firstDirection,
+                secondDirection
+            );
+            const double denominator =
+                firstLengthSquared * secondLengthSquared -
+                coupling * coupling;
+            if (denominator > kDegenerateSquared) {
+                firstParameter = std::clamp(
+                    (
+                        coupling * secondProjection -
+                        firstProjection * secondLengthSquared
+                    ) / denominator,
+                    0.0,
+                    1.0
+                );
+            }
+            secondParameter =
+                (coupling * firstParameter + secondProjection) /
+                secondLengthSquared;
+            if (secondParameter < 0.0) {
+                secondParameter = 0.0;
+                firstParameter = std::clamp(
+                    -firstProjection / firstLengthSquared,
+                    0.0,
+                    1.0
+                );
+            } else if (secondParameter > 1.0) {
+                secondParameter = 1.0;
+                firstParameter = std::clamp(
+                    (coupling - firstProjection) /
+                        firstLengthSquared,
+                    0.0,
+                    1.0
+                );
+            }
+        }
+    }
+    const Vec3 closest = subtract(
+        add(offset, multiply(firstDirection, firstParameter)),
+        multiply(secondDirection, secondParameter)
+    );
+    return std::sqrt(dot(closest, closest));
+}
+
 Vec3 cross(const Vec3& left, const Vec3& right) {
     return {
         left[1] * right[2] - left[2] * right[1],
@@ -86,6 +210,36 @@ double norm(const Vec3& value) {
         value[1] * value[1] +
         value[2] * value[2]
     );
+}
+
+bool normalize(const Vec3& value, Vec3& result) {
+    const double magnitude = norm(value);
+    if (!(magnitude > 1.0e-12) || !finite(magnitude)) {
+        return false;
+    }
+    result = multiply(value, 1.0 / magnitude);
+    return finite(result);
+}
+
+bool transportDirector(
+    const Vec3& director,
+    const Vec3& from,
+    const Vec3& to,
+    Vec3& result
+) {
+    const double cosine = std::clamp(dot(from, to), -1.0, 1.0);
+    if (!(cosine > -1.0 + 1.0e-10)) {
+        return false;
+    }
+    const Vec3 axis = cross(from, to);
+    const Vec3 first = cross(axis, director);
+    const Vec3 second = cross(axis, first);
+    result = add(
+        add(director, first),
+        multiply(second, 1.0 / (1.0 + cosine))
+    );
+    result = subtract(result, multiply(to, dot(result, to)));
+    return normalize(result, result);
 }
 
 Vec3 rotate(const mr_float4 quaternion, const Vec3& value) {
@@ -107,6 +261,408 @@ Vec3 rotate(const mr_float4 quaternion, const Vec3& value) {
             2.0
         )
     );
+}
+
+mr_float4 conjugate(const mr_float4 quaternion) {
+    return {
+        -quaternion.x,
+        -quaternion.y,
+        -quaternion.z,
+        quaternion.w,
+    };
+}
+
+Vec3 transformPointToLocal(
+    const SurgicalBasePose& pose,
+    const Vec3& point
+) {
+    return rotate(
+        conjugate({
+            pose.orientation[0],
+            pose.orientation[1],
+            pose.orientation[2],
+            pose.orientation[3],
+        }),
+        subtract(point, {
+            pose.position[0],
+            pose.position[1],
+            pose.position[2],
+        })
+    );
+}
+
+Vec3 transformPointToWorld(
+    const SurgicalBasePose& pose,
+    const Vec3& point
+) {
+    return add(
+        {
+            pose.position[0],
+            pose.position[1],
+            pose.position[2],
+        },
+        rotate({
+            pose.orientation[0],
+            pose.orientation[1],
+            pose.orientation[2],
+            pose.orientation[3],
+        }, point)
+    );
+}
+
+void layThreadOnNeutralZone(
+    DualPsmNeedleThreadWorld& surgical,
+    const DualPsmNeedleThreadNeutralZoneConfig& config
+) {
+    DiscreteElasticRodModel& model = surgical.threadModel;
+    const std::size_t nodeCount = model.restPositions.size();
+    if (nodeCount < 2u ||
+        !(config.threadCoilPitchM > 2.0 * model.radius) ||
+        !(config.threadCoilInnerRadiusM > model.radius) ||
+        !(config.threadMinimumNonNeighbourSurfaceClearanceM >= 0.0) ||
+        config.threadDescentEdgeCount == 0u ||
+        config.threadDescentEdgeCount >= nodeCount ||
+        !(config.threadContactOffsetM >= 0.0) ||
+        !(config.threadRestOffsetM >= 0.0) ||
+        config.threadRestOffsetM > config.threadContactOffsetM ||
+        config.threadSolverIterations == 0u ||
+        !(config.threadConstraintToleranceM > 0.0) ||
+        !(config.threadLinearDampingRate >= 0.0) ||
+        !(config.threadTwistDampingRate >= 0.0) ||
+        !(config.threadSupportPenetrationM >= 0.0) ||
+        config.threadSupportPenetrationM >
+            config.threadRestOffsetM + model.radius ||
+        !finite(config.threadCoilPitchM) ||
+        !finite(config.threadCoilInnerRadiusM) ||
+        !finite(config.threadMinimumNonNeighbourSurfaceClearanceM) ||
+        !finite(config.threadContactOffsetM) ||
+        !finite(config.threadRestOffsetM) ||
+        !finite(config.threadConstraintToleranceM) ||
+        !finite(config.threadLinearDampingRate) ||
+        !finite(config.threadTwistDampingRate) ||
+        !finite(config.threadSupportPenetrationM)) {
+        throw std::invalid_argument(
+            "neutral-zone thread coil configuration is invalid"
+        );
+    }
+
+    const Vec3 swageLocal = transformPointToLocal(
+        config.padPose,
+        surgical.metadata.swageAnchorWorld
+    );
+    const double supportZ =
+        0.5 * config.pad.thicknessM.value + model.radius +
+        config.threadRestOffsetM - config.threadSupportPenetrationM;
+    if (!(swageLocal[2] >= supportZ - model.radius)) {
+        throw std::invalid_argument(
+            "needle swage begins below the neutral-zone support surface"
+        );
+    }
+
+    const double innerRadius = config.threadCoilInnerRadiusM;
+    const double radialGrowth =
+        config.threadCoilPitchM / (2.0 * std::numbers::pi);
+    const std::size_t boundaryNodeCount =
+        surgical.metadata.threadBoundaryNodeCount;
+    if (surgical.metadata.hardSwagedThreadNodeCount !=
+            surgical.attachments.size() ||
+        surgical.metadata.hardSwagedThreadNodeCount != 1u ||
+        boundaryNodeCount != 2u ||
+        surgical.tangentBindings.size() != 1u ||
+        surgical.tangentBindings[0].edgeIndex != 0u ||
+        boundaryNodeCount >= nodeCount) {
+        throw std::logic_error(
+            "neutral-zone thread lost its finite swage segment"
+        );
+    }
+    std::vector<Vec3> local(nodeCount);
+    for (std::size_t node = 0u; node < boundaryNodeCount; ++node) {
+        local[node] = transformPointToLocal(
+            config.padPose,
+            model.restPositions[node]
+        );
+    }
+    const std::size_t transitionEdgeCount =
+        config.threadDescentEdgeCount;
+    if (boundaryNodeCount + transitionEdgeCount >= nodeCount) {
+        throw std::invalid_argument(
+            "neutral-zone thread transition consumes the coil topology"
+        );
+    }
+    const Vec3 exitDelta = subtract(
+        local[boundaryNodeCount - 1u],
+        local[boundaryNodeCount - 2u]
+    );
+    const double planarExitLength = std::hypot(
+        exitDelta[0],
+        exitDelta[1]
+    );
+    if (!(planarExitLength > 0.5 * model.restLengths.front())) {
+        throw std::invalid_argument(
+            "neutral-zone thread exit is not aligned with the support plane"
+        );
+    }
+    const Vec3 exitDirection{
+        exitDelta[0] / planarExitLength,
+        exitDelta[1] / planarExitLength,
+        0.0,
+    };
+    const auto rotatePlanar = [](const Vec3 value, const double angle) {
+        const double cosine = std::cos(angle);
+        const double sine = std::sin(angle);
+        return Vec3{
+            cosine * value[0] - sine * value[1],
+            sine * value[0] + cosine * value[1],
+            0.0,
+        };
+    };
+    // Continue the actual swage tangent through a quarter-turn while the
+    // strand descends to the pad. This removes the former 90-degree kink at
+    // the first free node. Every chord retains its DER rest length; the
+    // transition is package-layout geometry, not a hidden constraint.
+    constexpr double kTransitionAngle = -0.5 * std::numbers::pi;
+    for (std::size_t edge = 0u; edge < transitionEdgeCount; ++edge) {
+        const std::size_t node = boundaryNodeCount + edge;
+        const double restLength = model.restLengths[node - 1u];
+        const double t = static_cast<double>(edge + 1u) /
+            static_cast<double>(transitionEdgeCount);
+        const double smooth = t * t * (3.0 - 2.0 * t);
+        const double z = swageLocal[2] +
+            smooth * (supportZ - swageLocal[2]);
+        const double dz = z - local[node - 1u][2];
+        if (!(std::abs(dz) < restLength)) {
+            throw std::invalid_argument(
+                "neutral-zone thread descent exceeds one rest edge"
+            );
+        }
+        const double horizontalLength = std::sqrt(
+            std::max(restLength * restLength - dz * dz, 0.0)
+        );
+        const double midpointAngle = kTransitionAngle *
+            (static_cast<double>(edge) + 0.5) /
+            static_cast<double>(transitionEdgeCount);
+        const Vec3 direction = rotatePlanar(
+            exitDirection,
+            midpointAngle
+        );
+        local[node] = {
+            local[node - 1u][0] + horizontalLength * direction[0],
+            local[node - 1u][1] + horizontalLength * direction[1],
+            z,
+        };
+    }
+    const std::size_t transitionEndNode =
+        boundaryNodeCount + transitionEdgeCount - 1u;
+    const double halfX = 0.5 * config.pad.sizeXM.value;
+    const double halfY = 0.5 * config.pad.sizeYM.value;
+    // Begin at the outside and wind inward. The former inside-out spiral
+    // necessarily crossed its incoming descent after roughly one revolution,
+    // even though adjacent turns respected the nominal pitch. Here the outer
+    // radius is solved so the last exact-length chord lands at the authored
+    // inner radius. Starting on the outside keeps the incoming tangent out of
+    // every later turn and makes the no-self-contact premise measurable.
+    const auto relativeSpiralPoint = [&](const double outerRadius,
+                                         const double theta) {
+        const double radius = outerRadius - radialGrowth * theta;
+        return Vec3{
+            radius * std::cos(theta),
+            radius * std::sin(theta),
+            0.0,
+        };
+    };
+    const auto nextSpiralTheta = [&](const double outerRadius,
+                                     const double theta,
+                                     const double chordLength) {
+        const Vec3 previous = relativeSpiralPoint(outerRadius, theta);
+        const auto chord = [&](const double candidate) {
+            const Vec3 point = relativeSpiralPoint(outerRadius, candidate);
+            return std::hypot(
+                point[0] - previous[0],
+                point[1] - previous[1]
+            );
+        };
+        double lower = theta;
+        double upper = theta + 0.25;
+        while (outerRadius - radialGrowth * upper > model.radius &&
+               chord(upper) < chordLength &&
+               upper - theta < std::numbers::pi) {
+            upper = theta + 2.0 * (upper - theta);
+        }
+        if (!(outerRadius - radialGrowth * upper > model.radius) ||
+            chord(upper) < chordLength) {
+            return std::numeric_limits<double>::quiet_NaN();
+        }
+        for (std::uint32_t iteration = 0u; iteration < 64u; ++iteration) {
+            const double midpoint = 0.5 * (lower + upper);
+            if (chord(midpoint) < chordLength) {
+                lower = midpoint;
+            } else {
+                upper = midpoint;
+            }
+        }
+        return 0.5 * (lower + upper);
+    };
+    const auto terminalRadius = [&](const double outerRadius) {
+        double theta = 0.0;
+        for (std::size_t node = transitionEndNode + 1u;
+             node < nodeCount;
+             ++node) {
+            theta = nextSpiralTheta(
+                outerRadius,
+                theta,
+                model.restLengths[node - 1u]
+            );
+            if (!finite(theta)) {
+                return -std::numeric_limits<double>::infinity();
+            }
+        }
+        return outerRadius - radialGrowth * theta;
+    };
+    double outerLower = innerRadius;
+    double outerUpper = std::min(halfX, halfY) - model.radius;
+    if (!(outerUpper > outerLower) ||
+        terminalRadius(outerUpper) < innerRadius) {
+        throw std::invalid_argument(
+            "neutral-zone pad cannot contain the exact-length inward coil"
+        );
+    }
+    for (std::uint32_t iteration = 0u; iteration < 96u; ++iteration) {
+        const double midpoint = 0.5 * (outerLower + outerUpper);
+        if (terminalRadius(midpoint) < innerRadius) {
+            outerLower = midpoint;
+        } else {
+            outerUpper = midpoint;
+        }
+    }
+    const double outerRadius = 0.5 * (outerLower + outerUpper);
+    if (std::abs(terminalRadius(outerRadius) - innerRadius) > 1.0e-10) {
+        throw std::logic_error(
+            "neutral-zone inward coil radius solve did not converge"
+        );
+    }
+    const Vec3 incomingDelta = subtract(
+        local[transitionEndNode],
+        local[transitionEndNode - 1u]
+    );
+    const double incomingLength = std::hypot(
+        incomingDelta[0],
+        incomingDelta[1]
+    );
+    if (!(incomingLength > 0.0)) {
+        throw std::logic_error(
+            "neutral-zone inward coil has no incoming planar tangent"
+        );
+    }
+    const Vec3 incomingDirection{
+        incomingDelta[0] / incomingLength,
+        incomingDelta[1] / incomingLength,
+        0.0,
+    };
+    const Vec3 incomingLeftNormal{
+        -incomingDirection[1],
+        incomingDirection[0],
+        0.0,
+    };
+    const double tangentScale = std::hypot(outerRadius, radialGrowth);
+    const Vec3 spiralRadial = multiply(
+        add(
+            multiply(incomingDirection, radialGrowth),
+            multiply(incomingLeftNormal, outerRadius)
+        ),
+        -1.0 / tangentScale
+    );
+    const Vec3 spiralTangent = multiply(
+        subtract(
+            multiply(incomingDirection, outerRadius),
+            multiply(incomingLeftNormal, radialGrowth)
+        ),
+        1.0 / tangentScale
+    );
+    const Vec3 spiralCenter = subtract(
+        local[transitionEndNode],
+        multiply(spiralRadial, outerRadius)
+    );
+    double theta = 0.0;
+    for (std::size_t node = transitionEndNode + 1u;
+         node < nodeCount;
+         ++node) {
+        theta = nextSpiralTheta(
+            outerRadius,
+            theta,
+            model.restLengths[node - 1u]
+        );
+        if (!finite(theta)) {
+            throw std::logic_error(
+                "neutral-zone inward spiral could not resolve a rest edge"
+            );
+        }
+        const Vec3 relative = relativeSpiralPoint(outerRadius, theta);
+        local[node] = add(
+            spiralCenter,
+            add(
+                multiply(spiralRadial, relative[0]),
+                multiply(spiralTangent, relative[1])
+            )
+        );
+        local[node][2] = supportZ;
+    }
+
+    for (std::size_t node = 0u; node < nodeCount; ++node) {
+        if (std::abs(local[node][0]) + model.radius > halfX ||
+            std::abs(local[node][1]) + model.radius > halfY) {
+            throw std::invalid_argument(
+                "neutral-zone pad is too small for the authored thread coil"
+            );
+        }
+        model.restPositions[node] = transformPointToWorld(
+            config.padPose,
+            local[node]
+        );
+        if (node != 0u) {
+            model.restLengths[node - 1u] = norm(subtract(
+                model.restPositions[node],
+                model.restPositions[node - 1u]
+            ));
+        }
+    }
+    double minimumNonNeighbourSurfaceClearance =
+        std::numeric_limits<double>::infinity();
+    const std::size_t edgeCount = nodeCount - 1u;
+    for (std::size_t first = 0u; first < edgeCount; ++first) {
+        for (std::size_t second = first + 2u;
+             second < edgeCount;
+             ++second) {
+            minimumNonNeighbourSurfaceClearance = std::min(
+                minimumNonNeighbourSurfaceClearance,
+                segmentSegmentDistance(
+                    model.restPositions[first],
+                    model.restPositions[first + 1u],
+                    model.restPositions[second],
+                    model.restPositions[second + 1u]
+                ) - 2.0 * model.radius
+            );
+        }
+    }
+    if (minimumNonNeighbourSurfaceClearance <
+        config.threadMinimumNonNeighbourSurfaceClearanceM) {
+        throw std::invalid_argument(
+            "neutral-zone thread reset violates its non-neighbour "
+            "surface-clearance certificate"
+        );
+    }
+    model.name = "neutral_zone_coiled_pds_3_0_thread";
+    model.fidelityBoundary =
+        "source-sized PDO DER with a hard swage root/material-frame weld, "
+        "two-axis clamped first-edge tangent, and exact-length "
+        "tangent-continuous training-scene package coil; layout and contact "
+        "remain research calibration, not product-package or clinical data";
+    std::string reason;
+    if (!model.valid(&reason)) {
+        throw std::logic_error(
+            "neutral-zone thread coil is invalid: " + reason
+        );
+    }
+    surgical.threadState = makeDiscreteElasticRodDefaultState(model);
 }
 
 bool validSceneState(
@@ -267,6 +823,12 @@ std::uint64_t hashRod(
         hash,
         rod.stepConfig.selfCollisionCompliance
     );
+    const std::uint32_t ownsMaterial =
+        rod.collision.ownedMaterial.has_value() ? 1u : 0u;
+    hash = hashPod(hash, ownsMaterial);
+    if (rod.collision.ownedMaterial.has_value()) {
+        hash = hashPod(hash, *rod.collision.ownedMaterial);
+    }
     hash = hashPod(hash, rod.collision.materialIndex);
     hash = hashPod(hash, rod.collision.collisionGroup);
     hash = hashPod(hash, rod.collision.collisionMask);
@@ -280,7 +842,9 @@ std::uint64_t hashRod(
     hash = hashPod(hash, toolCollision);
     hash = hashPod(hash, ccd);
     hash = hashVector(hash, rod.attachments);
-    return hashVector(hash, rod.rigidBindings);
+    hash = hashVector(hash, rod.rigidBindings);
+    hash = hashVector(hash, rod.tangentBindings);
+    return hashVector(hash, rod.twistBindings);
 }
 
 HeterogeneousWorldComposeDiagnostics fail(
@@ -295,19 +859,20 @@ HeterogeneousWorldComposeDiagnostics fail(
     return diagnostics;
 }
 
-EngineModel makeNeedleSceneModel(
-    const CurvedSutureNeedleAsset& needle,
+EngineModel makeRigidSceneModel(
+    const SurgicalRigidAsset& asset,
+    const std::string_view name,
     const mr_float4 gravityAndTimestep
 ) {
     EngineModel model;
-    model.name = "dynamic_curved_suture_needle_scene";
-    model.bodies.push_back(needle.rigid.body);
+    model.name = std::string(name);
+    model.bodies.push_back(asset.body);
     MRBodyPropertiesGPU& body = model.bodies.front();
     body.articulationIndex = MR_INVALID_INDEX;
     body.parentBody = MR_INVALID_INDEX;
     body.inboundJoint = MR_INVALID_INDEX;
-    model.materials.push_back(needle.rigid.material);
-    model.shapes = needle.rigid.shapes;
+    model.materials.push_back(asset.material);
+    model.shapes = asset.shapes;
     for (MRShapeGPU& shape : model.shapes) {
         shape.bodyIndex = 0u;
         shape.materialIndex = 0u;
@@ -340,6 +905,77 @@ EngineModel makeNeedleSceneModel(
         1.0e-5f,
     };
     return model;
+}
+
+EngineModel makeNeedleSceneModel(
+    const CurvedSutureNeedleAsset& needle,
+    const mr_float4 gravityAndTimestep
+) {
+    return makeRigidSceneModel(
+        needle.rigid,
+        "dynamic_curved_suture_needle_scene",
+        gravityAndTimestep
+    );
+}
+
+void calibrateDualPsmNeedleInsertPair(
+    EngineModel& robots,
+    const MRMaterialGPU& needleMaterial
+) {
+    const SurgicalPSMModelMetadata& metadata = surgicalPSMMetadata();
+    if (robots.articulations.size() != 2u ||
+        robots.materials.size() != 4u ||
+        !(needleMaterial.friction.x > 0.0f) ||
+        !(needleMaterial.friction.y > 0.0f) ||
+        !(metadata.targetNeedleInsertStaticFriction > 0.0f) ||
+        !(metadata.targetNeedleInsertDynamicFriction > 0.0f)) {
+        throw std::invalid_argument(
+            "dual PSM/needle material calibration is incomplete"
+        );
+    }
+    const float rawStatic =
+        metadata.targetNeedleInsertStaticFriction *
+        metadata.targetNeedleInsertStaticFriction /
+        needleMaterial.friction.x;
+    const float rawDynamic =
+        metadata.targetNeedleInsertDynamicFriction *
+        metadata.targetNeedleInsertDynamicFriction /
+        needleMaterial.friction.y;
+    if (!std::isfinite(rawStatic) || !std::isfinite(rawDynamic) ||
+        rawStatic < rawDynamic || rawDynamic < 0.0f) {
+        throw std::invalid_argument(
+            "dual PSM/needle effective friction is invalid"
+        );
+    }
+    // DualPsmWorld appends each source PSM's generic and insert material in
+    // arm order. Adjust only the two insert records; the needle and carrier
+    // retain their authored contact behavior against the table and robot.
+    for (const std::uint32_t insertMaterial : {1u, 3u}) {
+        robots.materials[insertMaterial].friction.x = rawStatic;
+        robots.materials[insertMaterial].friction.y = rawDynamic;
+    }
+}
+
+MRBodyStateGPU staticSceneState(
+    const SurgicalBasePose& pose
+) {
+    MRBodyStateGPU state{};
+    state.position = {
+        pose.position[0],
+        pose.position[1],
+        pose.position[2],
+        1.0f,
+    };
+    state.orientation = {
+        pose.orientation[0],
+        pose.orientation[1],
+        pose.orientation[2],
+        pose.orientation[3],
+    };
+    state.flagsAndIndices[0] = MR_MOTION_STATIC;
+    state.flagsAndIndices[1] = MR_INVALID_INDEX;
+    state.flagsAndIndices[2] = 0u;
+    return state;
 }
 
 } // namespace
@@ -463,6 +1099,12 @@ bool HeterogeneousWorld::valid(std::string* reason) const {
         }
         if (rod.collision.materialIndex >=
                 model.materials.size() ||
+            (rod.collision.ownedMaterial.has_value() &&
+             (!validMaterial(*rod.collision.ownedMaterial) ||
+              !equal(
+                  model.materials[rod.collision.materialIndex],
+                  *rod.collision.ownedMaterial
+              ))) ||
             rod.collision.topologyGeneration == 0u ||
             !finite(rod.collision.contactOffset) ||
             rod.collision.contactOffset < 0.0 ||
@@ -483,7 +1125,8 @@ bool HeterogeneousWorld::valid(std::string* reason) const {
             );
         }
         std::set<std::uint32_t> nodes;
-        std::set<std::uint32_t> bodies;
+        std::vector<DiscreteRodRigidAttachmentBinding>
+            acceptedRigidBindings;
         for (std::size_t index = 0u;
              index < rod.attachments.size();
              ++index) {
@@ -510,15 +1153,32 @@ bool HeterogeneousWorld::valid(std::string* reason) const {
             }
             if (binding.bodyIndex >=
                     defaultSceneBodies.size() ||
-                !bodies.insert(binding.bodyIndex).second ||
                 defaultSceneBodies[binding.bodyIndex].
                         flagsAndIndices[0] !=
                     MR_MOTION_DYNAMIC) {
                 return setReason(
                     reason,
-                    "rod rigid binding does not name a unique dynamic scene body"
+                    "rod rigid binding does not name a dynamic scene body"
                 );
             }
+            const bool duplicateAnchor = std::ranges::any_of(
+                acceptedRigidBindings,
+                [&](const DiscreteRodRigidAttachmentBinding& previous) {
+                    return
+                        previous.bodyIndex == binding.bodyIndex &&
+                        norm(subtract(
+                            previous.localAnchor,
+                            binding.localAnchor
+                        )) <= 1.0e-9;
+                }
+            );
+            if (duplicateAnchor) {
+                return setReason(
+                    reason,
+                    "rod rigid bindings repeat a body-local anchor"
+                );
+            }
+            acceptedRigidBindings.push_back(binding);
             const MRBodyStateGPU& body =
                 defaultSceneBodies[binding.bodyIndex];
             const Vec3 offset = rotate(
@@ -559,6 +1219,191 @@ bool HeterogeneousWorld::valid(std::string* reason) const {
                 return setReason(
                     reason,
                     "rod reset target disagrees with its rigid anchor"
+                );
+            }
+        }
+        std::set<std::uint32_t> tangentEdges;
+        for (const DiscreteRodRigidTangentAttachmentBinding& binding :
+             rod.tangentBindings) {
+            if (binding.edgeIndex >=
+                    rod.model.restPositions.size() - 1u ||
+                binding.bodyIndex == kDiscreteRodNoRigidBody ||
+                binding.bodyIndex >= defaultSceneBodies.size() ||
+                defaultSceneBodies[binding.bodyIndex]
+                        .flagsAndIndices[0] != MR_MOTION_DYNAMIC ||
+                !tangentEdges.insert(binding.edgeIndex).second ||
+                !finite(binding.localAnchor) ||
+                !finite(binding.localTangent) ||
+                !finite(binding.localDirector) ||
+                !finite(binding.complianceRadPerNm) ||
+                binding.complianceRadPerNm < 0.0) {
+                return setReason(
+                    reason,
+                    "rod tangent attachment payload is invalid"
+                );
+            }
+            Vec3 localTangent{};
+            Vec3 localDirector{};
+            if (!normalize(binding.localTangent, localTangent) ||
+                !normalize(binding.localDirector, localDirector) ||
+                std::abs(dot(localTangent, localDirector)) > 1.0e-6 ||
+                std::abs(norm(binding.localTangent) - 1.0) > 1.0e-6 ||
+                std::abs(norm(binding.localDirector) - 1.0) > 1.0e-6) {
+                return setReason(
+                    reason,
+                    "rod tangent attachment basis is not orthonormal"
+                );
+            }
+            const MRBodyStateGPU& body =
+                defaultSceneBodies[binding.bodyIndex];
+            const Vec3 targetPoint = add(
+                {
+                    body.position.x,
+                    body.position.y,
+                    body.position.z,
+                },
+                rotate(body.orientation, binding.localAnchor)
+            );
+            const Vec3 worldTangent = rotate(
+                body.orientation,
+                localTangent
+            );
+            const Vec3 lineDelta = subtract(
+                rod.defaultState.positions[binding.edgeIndex + 1u],
+                targetPoint
+            );
+            const Vec3 transverse = subtract(
+                lineDelta,
+                multiply(worldTangent, dot(lineDelta, worldTangent))
+            );
+            // Checkpoint states may retain finite elastic line error; the live
+            // ConstraintIR rows own its correction just as the twist row owns
+            // a resumed material-frame phase error.
+            if (!finite(transverse)) {
+                return setReason(
+                    reason,
+                    "rod tangent attachment line error is non-finite"
+                );
+            }
+        }
+        std::set<std::uint32_t> twistEdges;
+        for (const DiscreteRodRigidTwistAttachmentBinding& binding :
+             rod.twistBindings) {
+            if (binding.edgeIndex >=
+                    rod.model.restPositions.size() - 1u ||
+                binding.bodyIndex == kDiscreteRodNoRigidBody ||
+                binding.bodyIndex >= defaultSceneBodies.size() ||
+                defaultSceneBodies[binding.bodyIndex]
+                        .flagsAndIndices[0] != MR_MOTION_DYNAMIC ||
+                !twistEdges.insert(binding.edgeIndex).second ||
+                !finite(binding.localTangent) ||
+                !finite(binding.localMaterialDirector) ||
+                !finite(binding.referenceTangentWorld) ||
+                !finite(binding.referenceMaterialDirectorWorld) ||
+                !finite(binding.complianceRadPerNm) ||
+                binding.complianceRadPerNm < 0.0) {
+                return setReason(
+                    reason,
+                    "rod material-frame attachment payload is invalid"
+                );
+            }
+            Vec3 localTangent{};
+            Vec3 localDirector{};
+            Vec3 referenceTangent{};
+            Vec3 referenceDirector{};
+            if (!normalize(binding.localTangent, localTangent) ||
+                !normalize(
+                    binding.localMaterialDirector,
+                    localDirector
+                ) ||
+                !normalize(
+                    binding.referenceTangentWorld,
+                    referenceTangent
+                ) ||
+                !normalize(
+                    binding.referenceMaterialDirectorWorld,
+                    referenceDirector
+                ) ||
+                std::abs(dot(localTangent, localDirector)) > 1.0e-6 ||
+                std::abs(dot(referenceTangent, referenceDirector)) >
+                    1.0e-6 ||
+                std::abs(norm(binding.localTangent) - 1.0) > 1.0e-6 ||
+                std::abs(norm(binding.localMaterialDirector) - 1.0) >
+                    1.0e-6 ||
+                std::abs(norm(binding.referenceTangentWorld) - 1.0) >
+                    1.0e-6 ||
+                std::abs(
+                    norm(binding.referenceMaterialDirectorWorld) - 1.0
+                ) > 1.0e-6) {
+                return setReason(
+                    reason,
+                    "rod material-frame attachment basis is not orthonormal"
+                );
+            }
+            const MRBodyStateGPU& body =
+                defaultSceneBodies[binding.bodyIndex];
+            Vec3 edgeTangent{};
+            if (!normalize(
+                    subtract(
+                        rod.defaultState.positions[
+                            binding.edgeIndex + 1u
+                        ],
+                        rod.defaultState.positions[binding.edgeIndex]
+                    ),
+                    edgeTangent
+                )) {
+                return setReason(
+                    reason,
+                    "rod material-frame attachment edge is degenerate"
+                );
+            }
+            const Vec3 worldDirector = rotate(
+                body.orientation,
+                localDirector
+            );
+            const Vec3 worldTangent = rotate(
+                body.orientation,
+                localTangent
+            );
+            Vec3 transportedReference{};
+            Vec3 transportedDirector{};
+            if (!transportDirector(
+                    referenceDirector,
+                    referenceTangent,
+                    edgeTangent,
+                    transportedReference
+                ) ||
+                !transportDirector(
+                    worldDirector,
+                    worldTangent,
+                    edgeTangent,
+                    transportedDirector
+                )) {
+                return setReason(
+                    reason,
+                    "rod material-frame attachment transport is singular"
+                );
+            }
+            const double targetTwist = std::atan2(
+                dot(
+                    edgeTangent,
+                    cross(
+                        transportedReference,
+                        transportedDirector
+                    )
+                ),
+                dot(transportedReference, transportedDirector)
+            );
+            // A persistent reset is allowed to carry elastic tangent and
+            // material-frame error from a prior accepted step. The live
+            // ConstraintIR row owns correction of that state; validity only
+            // rejects a basis that cannot define a finite phase. Requiring
+            // reset coincidence here would make checkpoint/resume stricter
+            // than the same state in an uninterrupted transaction.
+            if (!finite(targetTwist)) {
+                return setReason(
+                    reason,
+                    "rod material-frame attachment phase is non-finite"
                 );
             }
         }
@@ -688,6 +1533,31 @@ composeHeterogeneousWorld(
         staged.model = std::move(composed);
         staged.defaultSceneBodies = std::move(sceneStates);
         staged.rods.assign(rods.begin(), rods.end());
+        for (HeterogeneousRodProgram& rod : staged.rods) {
+            if (!rod.collision.ownedMaterial.has_value()) {
+                continue;
+            }
+            if (!validMaterial(*rod.collision.ownedMaterial) ||
+                staged.model.materials.size() >=
+                    std::numeric_limits<std::uint32_t>::max()) {
+                return fail(
+                    std::move(diagnostics),
+                    HeterogeneousWorldComposeStatus::invalidRodProgram,
+                    "rod-owned contact material is invalid"
+                );
+            }
+            rod.collision.materialIndex =
+                static_cast<std::uint32_t>(
+                    staged.model.materials.size()
+                );
+            staged.model.materials.push_back(
+                *rod.collision.ownedMaterial
+            );
+        }
+        staged.model.world.materialCount =
+            static_cast<std::uint32_t>(
+                staged.model.materials.size()
+            );
         staged.componentInstanceIds =
             std::move(componentIds);
         for (std::uint32_t body = 0u;
@@ -752,11 +1622,15 @@ makeDualDvrkPsmNeedleThreadHeterogeneousWorld(
     const DualPsmNeedleThreadWorldConfig& config
 ) {
     try {
-        const DualPsmNeedleThreadWorld surgical =
+        DualPsmNeedleThreadWorld surgical =
             makeDualDvrkPsmNeedleThreadWorld(config);
         EngineModel needleModel = makeNeedleSceneModel(
             surgical.needle,
             surgical.robots.model.world.gravityAndTimestep
+        );
+        calibrateDualPsmNeedleInsertPair(
+            surgical.robots.model,
+            needleModel.materials.front()
         );
         std::string reason;
         if (!needleModel.valid(&reason)) {
@@ -795,6 +1669,8 @@ makeDualDvrkPsmNeedleThreadHeterogeneousWorld(
             surgical.robots.model.world.gravityAndTimestep.z,
         };
         thread.stepConfig.enableSelfCollision = true;
+        thread.collision.ownedMaterial =
+            surgical.threadContactMaterial;
         thread.attachments.assign(
             surgical.attachments.begin(),
             surgical.attachments.end()
@@ -802,6 +1678,14 @@ makeDualDvrkPsmNeedleThreadHeterogeneousWorld(
         thread.rigidBindings.assign(
             surgical.rigidBindings.begin(),
             surgical.rigidBindings.end()
+        );
+        thread.tangentBindings.assign(
+            surgical.tangentBindings.begin(),
+            surgical.tangentBindings.end()
+        );
+        thread.twistBindings.assign(
+            surgical.twistBindings.begin(),
+            surgical.twistBindings.end()
         );
         const std::array<HeterogeneousRodProgram, 1> rods{
             std::move(thread),
@@ -823,6 +1707,144 @@ makeDualDvrkPsmNeedleThreadHeterogeneousWorld(
             std::move(diagnostics),
             HeterogeneousWorldComposeStatus::allocationFailure,
             "surgical heterogeneous world allocation failed"
+        );
+    } catch (const std::exception& exception) {
+        HeterogeneousWorldComposeDiagnostics diagnostics;
+        return fail(
+            std::move(diagnostics),
+            HeterogeneousWorldComposeStatus::invalidWorld,
+            exception.what()
+        );
+    }
+}
+
+HeterogeneousWorldComposeDiagnostics
+makeDualDvrkPsmNeedleThreadNeutralZoneHeterogeneousWorld(
+    HeterogeneousWorld& output,
+    const DualPsmNeedleThreadNeutralZoneConfig& config
+) {
+    try {
+        DualPsmNeedleThreadWorld surgical =
+            makeDualDvrkPsmNeedleThreadWorld(config.surgical);
+        layThreadOnNeutralZone(surgical, config);
+        const mr_float4 gravityAndTimestep =
+            surgical.robots.model.world.gravityAndTimestep;
+        EngineModel needleModel = makeNeedleSceneModel(
+            surgical.needle,
+            gravityAndTimestep
+        );
+        calibrateDualPsmNeedleInsertPair(
+            surgical.robots.model,
+            needleModel.materials.front()
+        );
+        const SurgicalNeutralZonePadAsset pad =
+            makeSurgicalNeutralZonePadAsset({
+                .bodyIndex = 0u,
+                .materialIndex = 0u,
+                .slotGenerationBase = 700001u,
+                .collisionGroup = 2u,
+                .collisionMask = ~0u,
+                .motionType = MR_MOTION_STATIC,
+            }, config.pad);
+        EngineModel padModel = makeRigidSceneModel(
+            pad.rigid,
+            "sterile_neutral_zone_pad_scene",
+            gravityAndTimestep
+        );
+        std::string reason;
+        if (!needleModel.valid(&reason) ||
+            !padModel.valid(&reason)) {
+            HeterogeneousWorldComposeDiagnostics diagnostics;
+            return fail(
+                std::move(diagnostics),
+                HeterogeneousWorldComposeStatus::invalidComponent,
+                "surgical scene model is invalid: " + reason,
+                1u
+            );
+        }
+        const std::array<MRBodyStateGPU, 1> needleStates{
+            surgical.needleState,
+        };
+        const std::array<MRBodyStateGPU, 1> padStates{
+            staticSceneState(config.padPose),
+        };
+        const std::array<HeterogeneousWorldComponent, 3>
+            components{{
+                {
+                    .model = &surgical.robots.model,
+                    .instanceId = "dual_psm",
+                },
+                {
+                    .model = &needleModel,
+                    .instanceId = "bowel_suture_needle",
+                    .defaultSceneBodies = needleStates,
+                },
+                {
+                    .model = &padModel,
+                    .instanceId = "sterile_neutral_zone_pad",
+                    .defaultSceneBodies = padStates,
+                },
+            }};
+        HeterogeneousRodProgram thread;
+        thread.instanceId = "pds_3_0_thread";
+        thread.model = surgical.threadModel;
+        thread.defaultState = surgical.threadState;
+        thread.stepConfig.timestep = gravityAndTimestep.w;
+        thread.stepConfig.gravity = {
+            gravityAndTimestep.x,
+            gravityAndTimestep.y,
+            gravityAndTimestep.z,
+        };
+        thread.stepConfig.enableSelfCollision = true;
+        thread.stepConfig.selfCollisionMargin =
+            config.threadMinimumNonNeighbourSurfaceClearanceM;
+        thread.collision.ownedMaterial =
+            surgical.threadContactMaterial;
+        thread.stepConfig.solverIterations =
+            config.threadSolverIterations;
+        thread.stepConfig.constraintTolerance =
+            config.threadConstraintToleranceM;
+        thread.stepConfig.linearDamping =
+            config.threadLinearDampingRate;
+        thread.stepConfig.twistDamping =
+            config.threadTwistDampingRate;
+        thread.collision.contactOffset = config.threadContactOffsetM;
+        thread.collision.restOffset = config.threadRestOffsetM;
+        thread.attachments.assign(
+            surgical.attachments.begin(),
+            surgical.attachments.end()
+        );
+        thread.rigidBindings.assign(
+            surgical.rigidBindings.begin(),
+            surgical.rigidBindings.end()
+        );
+        thread.tangentBindings.assign(
+            surgical.tangentBindings.begin(),
+            surgical.tangentBindings.end()
+        );
+        thread.twistBindings.assign(
+            surgical.twistBindings.begin(),
+            surgical.twistBindings.end()
+        );
+        const std::array<HeterogeneousRodProgram, 1> rods{
+            std::move(thread),
+        };
+        EngineModelComposeConfig composeConfig;
+        composeConfig.name =
+            "dual_psm_bowel_suture_neutral_zone_world";
+        composeConfig.gravityAndTimestep = gravityAndTimestep;
+        return composeHeterogeneousWorld(
+            components,
+            rods,
+            output,
+            composeConfig
+        );
+    } catch (const std::bad_alloc&) {
+        HeterogeneousWorldComposeDiagnostics diagnostics;
+        return fail(
+            std::move(diagnostics),
+            HeterogeneousWorldComposeStatus::allocationFailure,
+            "neutral-zone surgical world allocation failed"
         );
     } catch (const std::exception& exception) {
         HeterogeneousWorldComposeDiagnostics diagnostics;

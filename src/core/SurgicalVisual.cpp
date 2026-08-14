@@ -366,6 +366,150 @@ GeometryRange appendBoxGeometry(
     return range;
 }
 
+GeometryRange appendSurfaceGeometry(
+    VisualAssetPackV2& pack,
+    const std::vector<std::array<double, 3>>& sourcePositions,
+    const std::vector<std::array<std::uint32_t, 3>>& triangles,
+    const std::array<double, 3>& translation
+) {
+    if (sourcePositions.size() < 3u || triangles.empty()) {
+        throw std::invalid_argument("surgical tissue surface is empty");
+    }
+    const Vec3 offset = fromArray(translation);
+    std::vector<Vec3> positions;
+    positions.reserve(sourcePositions.size());
+    for (const auto& source : sourcePositions) {
+        const Vec3 position = fromArray(source) + offset;
+        if (!std::isfinite(position.x) || !std::isfinite(position.y) ||
+            !std::isfinite(position.z)) {
+            throw std::invalid_argument(
+                "surgical tissue surface contains a non-finite position"
+            );
+        }
+        positions.push_back(position);
+    }
+    std::vector<Vec3> normals(positions.size());
+    for (const auto& triangle : triangles) {
+        if (triangle[0] >= positions.size() ||
+            triangle[1] >= positions.size() ||
+            triangle[2] >= positions.size()) {
+            throw std::invalid_argument(
+                "surgical tissue surface index is outside its vertex table"
+            );
+        }
+        const Vec3 areaNormal = cross(
+            positions[triangle[1]] - positions[triangle[0]],
+            positions[triangle[2]] - positions[triangle[0]]
+        );
+        if (!(norm(areaNormal) > 1.0e-15)) {
+            throw std::invalid_argument(
+                "surgical tissue surface contains a degenerate triangle"
+            );
+        }
+        for (const std::uint32_t vertexIndex : triangle) {
+            normals[vertexIndex] = normals[vertexIndex] + areaNormal;
+        }
+    }
+    GeometryRange range;
+    range.firstIndex = static_cast<std::uint32_t>(pack.indices.size());
+    const std::uint32_t firstVertex =
+        static_cast<std::uint32_t>(pack.vertices.size());
+    Vec3 lower{
+        std::numeric_limits<double>::infinity(),
+        std::numeric_limits<double>::infinity(),
+        std::numeric_limits<double>::infinity(),
+    };
+    Vec3 upper{
+        -std::numeric_limits<double>::infinity(),
+        -std::numeric_limits<double>::infinity(),
+        -std::numeric_limits<double>::infinity(),
+    };
+    for (const Vec3 position : positions) {
+        lower.x = std::min(lower.x, position.x);
+        lower.y = std::min(lower.y, position.y);
+        lower.z = std::min(lower.z, position.z);
+        upper.x = std::max(upper.x, position.x);
+        upper.y = std::max(upper.y, position.y);
+        upper.z = std::max(upper.z, position.z);
+    }
+    const double width = std::max(upper.x - lower.x, 1.0e-12);
+    const double height = std::max(upper.y - lower.y, 1.0e-12);
+    for (std::size_t index = 0u; index < positions.size(); ++index) {
+        // Interior FEM nodes remain in the stable physics index space but are
+        // not referenced by the extracted boundary. Give those unused slots a
+        // finite placeholder normal; every rendered vertex has the accumulated
+        // outward normal of at least one boundary face.
+        const Vec3 normal = norm(normals[index]) > 1.0e-12
+            ? normalized(normals[index])
+            : Vec3{0.0, 0.0, 1.0};
+        Vec3 tangent = Vec3{1.0, 0.0, 0.0} -
+            normal * normal.x;
+        if (norm(tangent) <= 1.0e-8) {
+            tangent = Vec3{0.0, 1.0, 0.0} -
+                normal * normal.y;
+        }
+        pack.vertices.push_back(vertex(
+            positions[index],
+            normal,
+            normalized(tangent),
+            (positions[index].x - lower.x) / width,
+            (positions[index].y - lower.y) / height
+        ));
+        include(range, positions[index]);
+    }
+    for (const auto& triangle : triangles) {
+        pack.indices.insert(pack.indices.end(), {
+            firstVertex + triangle[0],
+            firstVertex + triangle[1],
+            firstVertex + triangle[2],
+        });
+    }
+    range.indexCount = static_cast<std::uint32_t>(
+        pack.indices.size() - range.firstIndex
+    );
+    return range;
+}
+
+GeometryRange appendPrimitiveGeometryCopy(
+    VisualAssetPackV2& destination,
+    const VisualAssetPackV2& source,
+    const MRVisualPrimitiveGPUV2& primitive
+) {
+    const std::uint64_t end =
+        static_cast<std::uint64_t>(primitive.geometry.x) +
+        primitive.geometry.y;
+    if (end > source.indices.size()) {
+        throw std::logic_error(
+            "source surgical instrument primitive is out of bounds"
+        );
+    }
+    GeometryRange range;
+    range.firstIndex = static_cast<std::uint32_t>(
+        destination.indices.size()
+    );
+    for (std::uint32_t local = 0u; local < primitive.geometry.y; ++local) {
+        const std::uint32_t sourceVertex =
+            source.indices[primitive.geometry.x + local];
+        if (sourceVertex >= source.vertices.size()) {
+            throw std::logic_error(
+                "source surgical instrument vertex is out of bounds"
+            );
+        }
+        const MRVisualVertexGPUV2& value = source.vertices[sourceVertex];
+        const std::uint32_t destinationVertex =
+            static_cast<std::uint32_t>(destination.vertices.size());
+        destination.vertices.push_back(value);
+        destination.indices.push_back(destinationVertex);
+        include(range, {
+            value.position.x,
+            value.position.y,
+            value.position.z,
+        });
+    }
+    range.indexCount = primitive.geometry.y;
+    return range;
+}
+
 GeometryRange appendTaperedBoxGeometry(
     VisualAssetPackV2& pack,
     const Vec3 lowerCenter,
@@ -679,7 +823,8 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
     const DiscreteElasticRodModel& threadModel,
     const DiscreteElasticRodState& threadState,
     const DvrkSutureVisualBindings& bindings,
-    const DvrkSutureVisualStyle& style
+    const DvrkSutureVisualStyle& style,
+    const DvrkSutureVisualScene& scene
 ) {
     std::string rodReason;
     if (needle.rigid.shapes.empty() ||
@@ -688,7 +833,8 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
         threadState.velocities.size() != threadModel.restPositions.size() ||
         threadState.twists.size() != threadModel.restTwists.size() ||
         threadState.twistRates.size() != threadModel.restTwists.size() ||
-        bindings.needleBodyIndex == MR_INVALID_INDEX) {
+        bindings.needleBodyIndex == MR_INVALID_INDEX ||
+        scene.tissuePositions.empty() != scene.tissueTriangles.empty()) {
         throw std::invalid_argument(
             "dVRK suture visual inputs are invalid: " + rodReason
         );
@@ -920,6 +1066,75 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
         );
     }
 
+    if (scene.hasSecondaryInstrument) {
+        DvrkSutureVisualBindings secondaryBindings =
+            scene.secondaryInstrument;
+        secondaryBindings.needleBodyIndex = bindings.needleBodyIndex;
+        const DvrkSutureVisualAsset secondary =
+            makeDvrkSutureVisualAsset(
+                needle,
+                threadModel,
+                threadState,
+                secondaryBindings,
+                style,
+                {}
+            );
+        for (std::size_t instanceIndex = 0u;
+             instanceIndex < secondary.pack.instances.size();
+             ++instanceIndex) {
+            const MRVisualInstanceGPUV2& instance =
+                secondary.pack.instances[instanceIndex];
+            if (instance.identity.x != instrumentSemantic) {
+                continue;
+            }
+            const auto symbolic = std::find_if(
+                secondary.pack.symbolicBindings.begin(),
+                secondary.pack.symbolicBindings.end(),
+                [&](const VisualSymbolicBindingV2& binding) {
+                    return binding.instanceIndex == instanceIndex;
+                }
+            );
+            const std::string node = symbolic ==
+                    secondary.pack.symbolicBindings.end()
+                ? "receiver_instrument"
+                : "receiver_" + symbolic->node;
+            const std::string link = symbolic ==
+                    secondary.pack.symbolicBindings.end() ||
+                    symbolic->link.empty()
+                ? std::string{}
+                : "receiver_" + symbolic->link;
+            for (std::uint32_t localPrimitive = 0u;
+                 localPrimitive < instance.geometry.y;
+                 ++localPrimitive) {
+                const std::uint32_t primitiveIndex =
+                    instance.geometry.x + localPrimitive;
+                if (primitiveIndex >= secondary.pack.primitives.size()) {
+                    throw std::logic_error(
+                        "secondary surgical instrument primitive is missing"
+                    );
+                }
+                const MRVisualPrimitiveGPUV2& primitive =
+                    secondary.pack.primitives[primitiveIndex];
+                appendInstance(
+                    pack,
+                    appendPrimitiveGeometryCopy(
+                        pack,
+                        secondary.pack,
+                        primitive
+                    ),
+                    primitive.geometry.z,
+                    instance.binding.z,
+                    instance.binding.y,
+                    instrumentSemantic,
+                    10000u + instance.identity.y,
+                    stableId++,
+                    node,
+                    link
+                );
+            }
+        }
+    }
+
     const double centerlineRadius =
         needle.spec.arcLengthM.value /
         needle.spec.arcAngleRad.value;
@@ -1018,42 +1233,68 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
         "surgical_field",
         ""
     );
-    const Vec3 tissueCenter{
-        fieldCenter.x,
-        fieldCenter.y,
-        minimumThreadZ - 0.002,
-    };
-    addBox(
-        pack,
-        tissueCenter,
-        {0.045, 0.032, 0.0015},
-        6u,
-        MR_VISUAL_BINDING_WORLD,
-        MR_INVALID_INDEX,
-        fieldSemantic,
-        3002u,
-        stableId++,
-        "suture_practice_tissue",
-        ""
-    );
-    const double incisionZ = minimumThreadZ - 0.00018;
-    addTube(
-        pack,
-        {
-            {tissueCenter.x - 0.024, tissueCenter.y, incisionZ},
-            {tissueCenter.x + 0.024, tissueCenter.y, incisionZ},
-        },
-        {0.00028, 0.00028},
-        12u,
-        7u,
-        MR_VISUAL_BINDING_WORLD,
-        MR_INVALID_INDEX,
-        fieldSemantic,
-        3003u,
-        stableId++,
-        "suture_practice_incision",
-        ""
-    );
+    if (!scene.tissuePositions.empty()) {
+        const std::size_t tissueIndexBegin = pack.indices.size();
+        appendInstance(
+            pack,
+            appendSurfaceGeometry(
+                pack,
+                scene.tissuePositions,
+                scene.tissueTriangles,
+                scene.tissueTranslationM
+            ),
+            6u,
+            MR_VISUAL_BINDING_WORLD,
+            MR_INVALID_INDEX,
+            fieldSemantic,
+            3002u,
+            stableId++,
+            "porcine_jejunum_enterotomy_coupon",
+            ""
+        );
+        result.metrics.tissueTriangleCount =
+            static_cast<std::uint32_t>(
+                (pack.indices.size() - tissueIndexBegin) / 3u
+            );
+    } else {
+        const Vec3 tissueCenter{
+            fieldCenter.x,
+            fieldCenter.y,
+            minimumThreadZ - 0.002,
+        };
+        addBox(
+            pack,
+            tissueCenter,
+            {0.045, 0.032, 0.0015},
+            6u,
+            MR_VISUAL_BINDING_WORLD,
+            MR_INVALID_INDEX,
+            fieldSemantic,
+            3002u,
+            stableId++,
+            "suture_practice_tissue",
+            ""
+        );
+        const double incisionZ = minimumThreadZ - 0.00018;
+        addTube(
+            pack,
+            {
+                {tissueCenter.x - 0.024, tissueCenter.y, incisionZ},
+                {tissueCenter.x + 0.024, tissueCenter.y, incisionZ},
+            },
+            {0.00028, 0.00028},
+            12u,
+            7u,
+            MR_VISUAL_BINDING_WORLD,
+            MR_INVALID_INDEX,
+            fieldSemantic,
+            3003u,
+            stableId++,
+            "suture_practice_incision",
+            ""
+        );
+        result.metrics.tissueTriangleCount = 12u;
+    }
 
     pack.contentHash = computeVisualAssetPackContentHash(pack);
     std::string reason;

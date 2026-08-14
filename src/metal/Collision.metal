@@ -10625,6 +10625,184 @@ kernel void mr_world_scatter_manifold_ir(
     }
 }
 
+// Broadphase-compacts one rod's full eligible edge/tool graph in stable pair
+// order. One SIMD32 group owns one environment; its prefix scan publishes a
+// dense active-pair list while clearing every pair-owned output slot. The
+// heavyweight primitive/convex/mesh kernel therefore sees only overlapping
+// pairs without changing eligibility, feature order, or warm-start identity.
+kernel void mr_compact_rod_tool_pairs(
+    device const MRRodGPUDispatch& dispatch [[buffer(0)]],
+    device const MRRodColliderGPU* rodColliders [[buffer(1)]],
+    device const MRRodToolPairGPU* toolPairs [[buffer(2)]],
+    device const MRShapeGPU* toolShapes [[buffer(3)]],
+    device const float4* rodPositions [[buffer(4)]],
+    device const MRProjectedColliderGPU* projectedTools [[buffer(5)]],
+    device uint* pairContactCounts [[buffer(6)]],
+    device MRRodToolWitnessGPU* outputWitnesses [[buffer(7)]],
+    device uint* activePairs [[buffer(8)]],
+    device MRRodGPUStatus* statuses [[buffer(9)]],
+    constant uint& rodIndex [[buffer(10)]],
+    constant uint& rodCount [[buffer(11)]],
+    const uint environment [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_simdgroup]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        lane >= MR_SIMD_WIDTH ||
+        dispatch.toolPairCount == 0u ||
+        rodIndex >= rodCount) {
+        return;
+    }
+    const uint witnessDomain =
+        dispatch.environmentCount * dispatch.toolContactStride;
+    const uint pairDomain =
+        dispatch.environmentCount * dispatch.toolPairWorldStride;
+    const uint activeBase = witnessDomain +
+        environment * dispatch.toolPairWorldStride;
+    const uint metadataStride =
+        MR_ROD_ACTIVE_GLOBAL_METADATA_WORDS +
+        MR_ROD_ACTIVE_PER_ROD_METADATA_WORDS * rodCount;
+    const uint metadataBase = witnessDomain + pairDomain +
+        environment * metadataStride;
+    const uint rodMetadataBase = metadataBase +
+        MR_ROD_ACTIVE_GLOBAL_METADATA_WORDS +
+        rodIndex * MR_ROD_ACTIVE_PER_ROD_METADATA_WORDS;
+    const uint runningBase = rodIndex == 0u
+        ? 0u
+        : activePairs[metadataBase];
+    const uint pairWorldBase =
+        environment * dispatch.toolPairWorldStride;
+    const uint nodeBase =
+        environment * dispatch.stateNodeStride;
+    const uint projectionBase =
+        environment * dispatch.toolShapeCount;
+    uint running = 0u;
+    for (uint tile = 0u;
+         tile < dispatch.toolPairCount;
+         tile += MR_SIMD_WIDTH) {
+        const uint pairIndex = tile + lane;
+        const bool inRange = pairIndex < dispatch.toolPairCount;
+        const uint globalPair = inRange
+            ? dispatch.toolPairBase + pairIndex
+            : 0u;
+        const uint flatWorldPair = pairWorldBase + globalPair;
+        bool active = false;
+        uint failure = MR_ROD_GPU_SUCCESS;
+        if (inRange) {
+            pairContactCounts[flatWorldPair] = 0u;
+            const uint witnessBase =
+                flatWorldPair * MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+            for (uint slot = 0u;
+                 slot < MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+                 ++slot) {
+                outputWitnesses[
+                    witnessBase + slot
+                ].featuresAndFlags.w = 0u;
+            }
+            if (statuses[environment].code == MR_ROD_GPU_SUCCESS) {
+                const MRRodToolPairGPU pair = toolPairs[globalPair];
+                if ((pair.flags & MR_ROD_TOOL_PAIR_VALID) == 0u ||
+                    pair.rodCollider < dispatch.rodEdgeBase ||
+                    pair.rodCollider >=
+                        dispatch.rodEdgeBase + dispatch.edgeCount ||
+                    pair.rigidCollider >= dispatch.toolShapeCount) {
+                    failure = MR_ROD_GPU_INVALID_DISPATCH;
+                } else {
+                    const MRRodColliderGPU rod =
+                        rodColliders[pair.rodCollider];
+                    if (rod.nodeA < dispatch.rodNodeBase ||
+                        rod.nodeB < dispatch.rodNodeBase ||
+                        rod.nodeA >=
+                            dispatch.rodNodeBase + dispatch.nodeCount ||
+                        rod.nodeB >=
+                            dispatch.rodNodeBase + dispatch.nodeCount ||
+                        rod.nodeA == rod.nodeB ||
+                        !(rod.radiusAndOffsets.x > 0.0f) ||
+                        !(rod.radiusAndOffsets.y >= 0.0f)) {
+                        failure = MR_ROD_GPU_INVALID_DISPATCH;
+                    } else {
+                        const float3 endpointA =
+                            rodPositions[nodeBase + rod.nodeA].xyz;
+                        const float3 endpointB =
+                            rodPositions[nodeBase + rod.nodeB].xyz;
+                        if (!finiteFloat3(endpointA) ||
+                            !finiteFloat3(endpointB) ||
+                            !(dot(
+                                endpointB - endpointA,
+                                endpointB - endpointA
+                            ) > 1.0e-20f)) {
+                            failure = MR_ROD_GPU_DEGENERATE_GEOMETRY;
+                        } else {
+                            const MRProjectedColliderGPU projected =
+                                projectedTools[
+                                    projectionBase + pair.rigidCollider
+                                ];
+                            if (projected.statusAndFlags.x !=
+                                MR_STEP_SUCCESS) {
+                                failure =
+                                    projected.statusAndFlags.x ==
+                                            MR_STEP_NONFINITE_INPUT
+                                    ? MR_ROD_GPU_NONFINITE_RESULT
+                                    : MR_ROD_GPU_INVALID_DISPATCH;
+                            } else if (
+                                projected.statusAndFlags.y == 0u
+                            ) {
+                                const float expansion =
+                                    rod.radiusAndOffsets.x +
+                                    rod.radiusAndOffsets.y;
+                                const float3 lower =
+                                    min(endpointA, endpointB) - expansion;
+                                const float3 upper =
+                                    max(endpointA, endpointB) + expansion;
+                                active =
+                                    toolShapes[pair.rigidCollider].shapeType ==
+                                        MR_SHAPE_PLANE ||
+                                    !(
+                                        any(
+                                            lower > projected
+                                                .upperAndContactOffset.xyz
+                                        ) ||
+                                        any(
+                                            projected
+                                                .lowerAndHalfLength.xyz >
+                                            upper
+                                        )
+                                    );
+                            }
+                        }
+                    }
+                }
+            }
+            if (failure != MR_ROD_GPU_SUCCESS) {
+                pairContactCounts[flatWorldPair] =
+                    0x80000000u | failure;
+                active = true;
+            }
+        }
+        const uint prefix =
+            simd_prefix_exclusive_sum(active ? 1u : 0u);
+        if (active) {
+            activePairs[
+                activeBase + runningBase + running + prefix
+            ] = globalPair;
+        }
+        running += simd_sum(active ? 1u : 0u);
+    }
+    if (lane == 0u) {
+        const uint total = runningBase + running;
+        activePairs[metadataBase + 0u] = total;
+        activePairs[metadataBase + 1u] =
+            (4u * total + MR_SIMD_WIDTH - 1u) / MR_SIMD_WIDTH;
+        activePairs[metadataBase + 2u] = 1u;
+        activePairs[metadataBase + 3u] = 1u;
+        activePairs[rodMetadataBase + 0u] = runningBase;
+        activePairs[rodMetadataBase + 1u] = running;
+        activePairs[rodMetadataBase + 2u] =
+            (running + MR_SIMD_WIDTH - 1u) / MR_SIMD_WIDTH;
+        activePairs[rodMetadataBase + 3u] = 1u;
+        activePairs[rodMetadataBase + 4u] = 1u;
+    }
+}
+
 // Procedural rod edges enter the same certified primitive/convex/mesh query
 // implementation as rigid colliders. Every pair owns four witness slots, so
 // neither worker scheduling nor atomics can alter contact ordering.
@@ -10646,30 +10824,50 @@ kernel void mr_rod_tool_narrowphase(
     device uint* pairContactCounts [[buffer(14)]],
     device MRRodToolWitnessGPU* outputWitnesses [[buffer(15)]],
     device const MRRodGPUStatus* statuses [[buffer(16)]],
-    const uint flatPair [[thread_position_in_grid]]
+    device const uint* activePairs [[buffer(17)]],
+    constant uint& rodIndex [[buffer(18)]],
+    constant uint& rodCount [[buffer(19)]],
+    constant uint& environment [[buffer(20)]],
+    const uint activeSlot [[thread_position_in_grid]]
 ) {
-    const uint pairDomain =
-        dispatch.environmentCount * dispatch.toolPairCount;
-    if (flatPair >= pairDomain ||
-        dispatch.toolPairCount == 0u) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.toolPairCount == 0u ||
+        rodIndex >= rodCount) {
         return;
     }
-    const uint environment =
-        flatPair / dispatch.toolPairCount;
-    const uint pairIndex =
-        flatPair - environment * dispatch.toolPairCount;
-    const uint globalPair =
-        dispatch.toolPairBase + pairIndex;
+    const uint witnessDomain =
+        dispatch.environmentCount * dispatch.toolContactStride;
+    const uint pairDomain =
+        dispatch.environmentCount * dispatch.toolPairWorldStride;
+    const uint activeBase = witnessDomain +
+        environment * dispatch.toolPairWorldStride;
+    const uint metadataStride =
+        MR_ROD_ACTIVE_GLOBAL_METADATA_WORDS +
+        MR_ROD_ACTIVE_PER_ROD_METADATA_WORDS * rodCount;
+    const uint rodMetadataBase = witnessDomain + pairDomain +
+        environment * metadataStride +
+        MR_ROD_ACTIVE_GLOBAL_METADATA_WORDS +
+        rodIndex * MR_ROD_ACTIVE_PER_ROD_METADATA_WORDS;
+    const uint activeStart = activePairs[rodMetadataBase + 0u];
+    const uint activeCount = activePairs[rodMetadataBase + 1u];
+    if (activeSlot >= activeCount) {
+        return;
+    }
+    const uint globalPair = activePairs[
+        activeBase + activeStart + activeSlot
+    ];
+    if (globalPair < dispatch.toolPairBase ||
+        globalPair >=
+            dispatch.toolPairBase + dispatch.toolPairCount) {
+        return;
+    }
     const uint flatWorldPair =
         environment * dispatch.toolPairWorldStride +
         globalPair;
     const uint witnessBase =
         flatWorldPair * MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
-    pairContactCounts[flatWorldPair] = 0u;
-    for (uint slot = 0u;
-         slot < MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
-         ++slot) {
-        outputWitnesses[witnessBase + slot] = {};
+    if ((pairContactCounts[flatWorldPair] & 0x80000000u) != 0u) {
+        return;
     }
     if (statuses[environment].code != MR_ROD_GPU_SUCCESS) {
         return;
@@ -11087,16 +11285,19 @@ kernel void mr_world_tag_rod_ccd_witnesses(
 }
 
 // Appends the already feature-reduced rod witnesses after the rigid manifold
-// prefix. One SIMD32 group owns one environment and scans pair-owned witness
-// slots in stable (pair, feature-slot) order. No atomic selects semantic
-// output order and a short arena prevents all rod IR writes for that
-// environment.
+// prefix. One SIMD32 group owns one environment and scans pairs in stable
+// order. Each lane consumes its pair's at-most-four feature slots locally,
+// then a SIMD prefix over the per-pair valid count preserves exact
+// (pair, feature-slot) ordering. This avoids four full passes over the sparse
+// all-pairs arena without introducing atomics or changing semantic order.
 kernel void mr_world_scan_rod_contact_ir(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
     device const uint* pairContactCounts [[buffer(1)]],
     device const MRRodToolWitnessGPU* witnesses [[buffer(2)]],
     device uint* witnessConstraintOffsets [[buffer(3)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(4)]],
+    device const uint* activePairs [[buffer(5)]],
+    constant uint& rodCount [[buffer(6)]],
     const uint environment [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_simdgroup]]
 ) {
@@ -11112,6 +11313,19 @@ kernel void mr_world_scan_rod_contact_ir(
     const uint witnessBase = environment * witnessStride;
     const uint pairBase =
         environment * dispatch.rodToolPairCount;
+    const uint witnessDomain =
+        dispatch.environmentCount * witnessStride;
+    const uint pairDomain =
+        dispatch.environmentCount * dispatch.rodToolPairCount;
+    const uint activeBase = witnessDomain +
+        environment * dispatch.rodToolPairCount;
+    const uint metadataStride =
+        MR_ROD_ACTIVE_GLOBAL_METADATA_WORDS +
+        MR_ROD_ACTIVE_PER_ROD_METADATA_WORDS * rodCount;
+    const uint activeCount = activePairs[
+        witnessDomain + pairDomain +
+        environment * metadataStride
+    ];
     uint running = 0u;
     uint firstErrorPair = MR_INVALID_INDEX;
     uint firstErrorCode = MR_STEP_SUCCESS;
@@ -11120,19 +11334,12 @@ kernel void mr_world_scan_rod_contact_ir(
         statuses[environment].requiredConstraints;
 
     for (uint tile = 0u;
-         tile < witnessStride;
+         tile < activeCount;
          tile += MR_SIMD_WIDTH) {
-        const uint localWitness = tile + lane;
-        const bool inRange = localWitness < witnessStride;
-        const uint pair =
-            inRange
-            ? localWitness /
-                MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR
-            : 0u;
-        const uint slot =
-            inRange
-            ? localWitness %
-                MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR
+        const uint activePair = tile + lane;
+        const bool inRange = activePair < activeCount;
+        const uint pair = inRange
+            ? activePairs[activeBase + activePair]
             : 0u;
         const uint encodedCount =
             inRange
@@ -11140,45 +11347,71 @@ kernel void mr_world_scan_rod_contact_ir(
             : 0u;
         const bool failed =
             inRange &&
-            slot == 0u &&
             (encodedCount & 0x80000000u) != 0u;
         const uint count =
             encodedCount & 0x7fffffffu;
-        MRRodToolWitnessGPU witness = {};
-        if (inRange &&
-            slot < min(
-                count,
-                uint(MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR)
-            )) {
-            witness = witnesses[
-                witnessBase + localWitness
-            ];
-        }
-        const bool valid =
-            inRange &&
-            !failed &&
-            count <= MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR &&
-            slot < count &&
-            (witness.featuresAndFlags.w &
-             MR_ROD_TOOL_WITNESS_VALID) != 0u;
-        const uint prefix =
-            simd_prefix_exclusive_sum(valid ? 1u : 0u);
-        if (inRange) {
+        uint pairValidCount = 0u;
+        float pairMaximumPenetration = 0.0f;
+        bool slotValid[MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR];
+        for (uint slot = 0u;
+             slot < MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+             ++slot) {
+            slotValid[slot] = false;
+            if (!inRange) {
+                continue;
+            }
+            const uint localWitness =
+                pair * MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR + slot;
             witnessConstraintOffsets[
                 witnessBase + localWitness
-            ] = valid
-                ? rigidConstraintBase + running + prefix
-                : MR_INVALID_INDEX;
+            ] = MR_INVALID_INDEX;
+            if (failed ||
+                count > MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR ||
+                slot >= count) {
+                continue;
+            }
+            const MRRodToolWitnessGPU witness = witnesses[
+                witnessBase + localWitness
+            ];
+            const bool valid =
+                (witness.featuresAndFlags.w &
+                 MR_ROD_TOOL_WITNESS_VALID) != 0u;
+            slotValid[slot] = valid;
+            pairValidCount += valid ? 1u : 0u;
+            pairMaximumPenetration = max(
+                pairMaximumPenetration,
+                valid
+                ? max(-witness.toolPointAndSeparation.w, 0.0f)
+                : 0.0f
+            );
         }
-        const uint tileCount = simd_sum(valid ? 1u : 0u);
+        const uint pairPrefix =
+            simd_prefix_exclusive_sum(pairValidCount);
+        uint localPrefix = 0u;
+        if (inRange) {
+            for (uint slot = 0u;
+                 slot < MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+                 ++slot) {
+                if (!slotValid[slot]) {
+                    continue;
+                }
+                const uint localWitness =
+                    pair * MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR + slot;
+                witnessConstraintOffsets[
+                    witnessBase + localWitness
+                ] = rigidConstraintBase + running + pairPrefix +
+                    localPrefix;
+                ++localPrefix;
+            }
+        }
+        const uint tileCount = simd_sum(pairValidCount);
         const uint errorPair = failed
             ? pair
             : MR_INVALID_INDEX;
         const uint tileFirstError = simd_min(errorPair);
-        const float penetration = valid
-            ? max(-witness.toolPointAndSeparation.w, 0.0f)
-            : 0.0f;
-        const float tilePenetration = simd_max(penetration);
+        const float tilePenetration = simd_max(
+            pairMaximumPenetration
+        );
         if (lane == 0u) {
             if (firstErrorPair == MR_INVALID_INDEX &&
                 tileFirstError != MR_INVALID_INDEX) {
@@ -11278,27 +11511,50 @@ kernel void mr_world_scatter_rod_contact_ir(
     device MRArticulatedPointImpulseGPU* pointQueries [[buffer(17)]],
     device const uint* bodyDynamicNodes [[buffer(18)]],
     device uint* constraintWitnessIndices [[buffer(19)]],
-    const uint flatWitness [[thread_position_in_grid]]
+    device const uint* activePairs [[buffer(20)]],
+    constant uint& rodCount [[buffer(21)]],
+    constant uint& environment [[buffer(22)]],
+    const uint activeWitness [[thread_position_in_grid]]
 ) {
     const uint witnessStride =
         dispatch.rodToolPairCount *
         MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
-    const uint witnessDomain =
-        dispatch.environmentCount * witnessStride;
-    if (flatWitness >= witnessDomain ||
+    if (environment >= dispatch.environmentCount ||
         witnessStride == 0u) {
         return;
     }
-    const uint environment = flatWitness / witnessStride;
+    const uint witnessDomain =
+        dispatch.environmentCount * witnessStride;
+    const uint pairDomain =
+        dispatch.environmentCount * dispatch.rodToolPairCount;
+    const uint metadataStride =
+        MR_ROD_ACTIVE_GLOBAL_METADATA_WORDS +
+        MR_ROD_ACTIVE_PER_ROD_METADATA_WORDS * rodCount;
+    const uint metadataBase = witnessDomain + pairDomain +
+        environment * metadataStride;
+    const uint activePairCount = activePairs[metadataBase];
+    const uint activePair =
+        activeWitness / MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    const uint slot =
+        activeWitness % MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    if (activePair >= activePairCount) {
+        return;
+    }
     if (statuses[environment].code != MR_STEP_SUCCESS) {
         return;
     }
+    const uint activeBase = witnessDomain +
+        environment * dispatch.rodToolPairCount;
+    const uint pairIndex = activePairs[
+        activeBase + activePair
+    ];
+    if (pairIndex >= dispatch.rodToolPairCount) {
+        return;
+    }
     const uint localWitness =
-        flatWitness - environment * witnessStride;
-    const uint pairIndex =
-        localWitness / MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
-    const uint slot =
-        localWitness % MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+        pairIndex * MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR + slot;
+    const uint flatWitness =
+        environment * witnessStride + localWitness;
     const uint pairCount =
         pairContactCounts[
             environment * dispatch.rodToolPairCount +

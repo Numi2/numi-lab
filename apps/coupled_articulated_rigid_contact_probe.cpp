@@ -120,12 +120,12 @@ JawContactGeometry selectResponsiveJawFrame(
     const std::span<const double> q
 ) {
     constexpr std::uint32_t jawBody = 7u;
-    // The sphere at the distal end of gripper1 is a stable, authored
+    // One transverse rail of gripper1's grooved insert is a stable, authored
     // collision witness. Shape local positions are already COM-relative.
     const MRShapeGPU& jawTip = model.shapes[15u];
     require(
         jawTip.bodyIndex == jawBody &&
-            jawTip.shapeType == MR_SHAPE_SPHERE,
+            jawTip.shapeType == MR_SHAPE_CAPSULE,
         "surgical PSM jaw-tip collision witness changed"
     );
     const std::array<double, 3> localPoint{
@@ -303,7 +303,11 @@ int main() {
         contact.tangentV = geometry.tangentV;
         contact.regularization = {1.0e-9, 1.0e-9, 1.0e-9};
         contact.friction = std::sqrt(
-            static_cast<double>(model.materials[0].friction.y) *
+            static_cast<double>(
+                model.materials[
+                    model.shapes[15u].materialIndex
+                ].friction.y
+            ) *
             static_cast<double>(needle.rigid.material.friction.y)
         );
         const std::array<

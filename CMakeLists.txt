@@ -1638,7 +1638,59 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+add_executable(
+    metalrobo_surgical_tissue_probe
+    apps/surgical_tissue_probe.mm
+)
+add_dependencies(metalrobo_surgical_tissue_probe numi_matter_shaders)
+target_compile_definitions(
+    metalrobo_surgical_tissue_probe
+    PRIVATE
+        NUMI_JEJUNUM_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/porcine_jejunum_fung.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
+target_compile_options(
+    metalrobo_surgical_tissue_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_surgical_tissue_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_surgical_tissue_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 if(BUILD_TESTING)
+    add_test(
+        NAME matter.scene.surgical_jejunal_closure_coupon
+        COMMAND $<TARGET_FILE:metalrobo_surgical_tissue_probe>
+    )
+    set_tests_properties(
+        matter.scene.surgical_jejunal_closure_coupon
+        PROPERTIES LABELS "matter;surgical;physics;metal" TIMEOUT 240
+    )
+    add_test(
+        NAME matter.scene.surgical_jejunal_closure_coupon_high_resolution
+        COMMAND
+            $<TARGET_FILE:metalrobo_surgical_tissue_probe>
+            --production-resolution
+    )
+    set_tests_properties(
+        matter.scene.surgical_jejunal_closure_coupon_high_resolution
+        PROPERTIES LABELS "matter;surgical;physics;metal" TIMEOUT 600
+    )
     add_test(
         NAME matter.physics.mixed_mpm_fem
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --mixed
@@ -2193,6 +2245,30 @@ add_executable(
     metalrobo_supported_needle_pickup_probe
     apps/supported_needle_pickup_probe.cpp
 )
+
+add_executable(
+    metalrobo_dual_psm_suture_handoff_probe
+    apps/dual_psm_suture_handoff_probe.cpp
+)
+target_link_libraries(
+    metalrobo_dual_psm_suture_handoff_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_dual_psm_suture_handoff_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_dual_psm_suture_handoff_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
 target_link_libraries(
     metalrobo_supported_needle_pickup_probe
     PRIVATE
@@ -2236,6 +2312,27 @@ set_target_properties(
 
 if(BUILD_TESTING)
     set(
+        METALROBO_HANDOFF_TEST_STATE_DIRECTORY
+        "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/handoff-state"
+    )
+    set(
+        METALROBO_HANDOFF_TEST_VISUAL_OUTPUT
+        "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/handoff-visual"
+    )
+    add_test(
+        NAME metalrobo.surgical.dual_psm_suture_handoff
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --state-output-dir "${METALROBO_HANDOFF_TEST_STATE_DIRECTORY}"
+    )
+    set_tests_properties(
+        metalrobo.surgical.dual_psm_suture_handoff
+        PROPERTIES
+            FIXTURES_SETUP metalrobo_dual_suture_handoff_state
+            LABELS "metalrobo;surgical;physics;metal"
+            TIMEOUT 7200
+    )
+    set(
         METALROBO_SUTURE_TEST_STATE
         "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/pickup.state.tsv"
     )
@@ -2267,6 +2364,21 @@ if(BUILD_TESTING)
         metalrobo.surgical.suture_visual_binding
         PROPERTIES
             FIXTURES_REQUIRED metalrobo_suture_pickup_state
+            LABELS "metalrobo;surgical;visual;metal"
+            TIMEOUT 180
+    )
+    add_test(
+        NAME metalrobo.surgical.dual_psm_suture_handoff_visual_binding
+        COMMAND
+            $<TARGET_FILE:metalrobo_suture_visual_probe>
+            --state
+                "${METALROBO_HANDOFF_TEST_STATE_DIRECTORY}/receiver-transfer.tsv"
+            --output-dir "${METALROBO_HANDOFF_TEST_VISUAL_OUTPUT}"
+    )
+    set_tests_properties(
+        metalrobo.surgical.dual_psm_suture_handoff_visual_binding
+        PROPERTIES
+            FIXTURES_REQUIRED metalrobo_dual_suture_handoff_state
             LABELS "metalrobo;surgical;visual;metal"
             TIMEOUT 180
     )

@@ -1,0 +1,6805 @@
+#include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/HeterogeneousWorld.hpp"
+#include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/SurgicalAssets.hpp"
+#include "metalrobo/SurgicalPSM.hpp"
+#include "metalrobo/VisualPlatform.hpp"
+#include "numi/matter/surgical_tissue.hpp"
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <numbers>
+#include <optional>
+#include <span>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
+
+namespace {
+
+struct Vec3 {
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
+};
+
+struct Quaternion {
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
+    double w = 1.0;
+};
+
+constexpr std::array<std::uint32_t, 4> kJawATeeth{15u, 18u, 20u, 22u};
+constexpr std::array<std::uint32_t, 4> kJawBTeeth{17u, 19u, 21u, 23u};
+constexpr std::uint32_t kNeedleFirstShape =
+    2u * metalrobo::kSurgicalPSMShapeCount;
+constexpr std::uint32_t kGiverNeedleShape = 14u;
+constexpr std::uint32_t kReceiverNeedleShape = 19u;
+constexpr double kControlTimestep = 0.002;
+constexpr std::uint32_t kPhysicsSubsteps = 32u;
+// With the 62.5 us microstep required by the first-edge flexural mode, a
+// measured 36 ms pre-roll brings both steel and strand beneath their
+// independent quiescence gates without adding artificial damping.
+constexpr std::uint32_t kDefaultSettleSteps = 18u;
+constexpr std::uint32_t kLongSettleSteps = 150u;
+constexpr double kMaximumSettledNeedleLinearSpeed = 1.0e-3;
+constexpr double kMaximumSettledNeedleAngularSpeed = 0.5;
+constexpr double kMaximumSettledRodSpeed = 2.0e-2;
+constexpr double kMaximumSettledRodStretch = 2.0e-6;
+constexpr double kMinimumSettledRodSeparation = -5.0e-5;
+constexpr double kPickupInsertion = 0.205;
+constexpr double kReceiverHandoffInsertion = 0.230;
+constexpr double kPickupRetraction = 0.004;
+constexpr double kHandoffLift = 0.010;
+// A surgeon-like deliberate lift: the cubic trajectory has a 15 mm/s peak
+// jaw speed and zero endpoint velocity over 1.0 s. The former 0.5 s move
+// peaked at 30 mm/s and exposed the rod/contact integration split repaired by
+// the live constrained-rod configuration update.
+constexpr std::uint32_t kHandoffLiftSteps = 500u;
+// The 180 x 120 mm sterile pad is a pickup surface, not a safe dual-arm
+// exchange volume. After lifting normal to the pad, the giver translates the
+// needle 90 mm in +Y into a neutral handoff zone. CPU collision-oracle sweeps
+// place the first collision-free opposed-port solution at 85 mm; retaining a
+// further 5 mm margin avoids selecting the geometric boundary. The cubic
+// trajectory is checked against every authored PSM joint velocity limit before
+// it is dispatched to the live coupled island. Three seconds limits peak jaw
+// speed to 45 mm/s; a subsequent 200 ms hold lets the free monofilament shed
+// transport energy before terminal convergence is judged.
+constexpr Vec3 kHandoffStagingOffset{0.0, 0.090, 0.0};
+constexpr std::uint32_t kHandoffStagingSteps = 1500u;
+constexpr std::uint32_t kHandoffStagingChunkSteps = 50u;
+constexpr std::uint32_t kHandoffStagingSettleSteps = 250u;
+constexpr double kMaximumCommandVelocityRatio = 0.80;
+constexpr std::uint32_t kGraspStabilizationSteps = 25u;
+constexpr double kReceiverRetraction = 0.050;
+constexpr double kReceiverTransfer = 0.010;
+// The transverse insert rails close through the needle cross-section
+// centreline. A former +120 um offset was compensating for the oversized
+// legacy clevis and produced an off-axis rolling impulse at first contact.
+constexpr double kPickupVerticalClearance = 0.00015;
+constexpr double kInitialSupportPenetration = 2.0e-6;
+// The hard swage must remain within the live rod constraint tolerance plus
+// single-precision integration noise. A larger error means the thread is no
+// longer mechanically carried by the needle, even if the rendered endpoints
+// still appear close.
+constexpr double kMaximumSwageAttachmentError = 2.5e-5;
+// Keep the first resolved edge inside a conservative 1% outer-fibre bending-
+// strain envelope: epsilon = radius * theta / edge length. PDO monofilament
+// studies report break elongations of roughly 36-58%; this deliberately much
+// smaller research ceiling bounds the linear Euler-Bernoulli model and is not
+// a clinical damage threshold.
+constexpr double kMaximumSwageTangentBendingStrain = 1.0e-2;
+// Terminal grasp qualification is based on rigid-body point kinematics at
+// the authored needle handling segment, not merely contact incidence. Once
+// all four finite patches on each jaw have collision-seated the needle, the
+// jaw-groove offset is stored in the needle body frame. Later phases may
+// drift at most 100 um from that seated transform, irrespective of common
+// rigid rotation. The remaining explicit research tolerances are 2 mm/s
+// point slip and 0.6 rad/s relative angular motion at a commanded endpoint.
+constexpr double kMaximumQualifiedGraspSeatDrift = 1.0e-4;
+constexpr double kMaximumQualifiedRelativePointSpeed = 2.0e-3;
+constexpr double kMaximumQualifiedRelativeAngularSpeed = 0.6;
+// Temporal-cone contact publishes the final complementarity velocity residual
+// in residuals.y and elliptic-cone feasibility in residuals.z. Terminal phase
+// acceptance requires these live quantities directly; an un-dispatched
+// unified-quality record is not a convergence certificate.
+constexpr double kMaximumTerminalContactVelocityResidual = 2.0e-3;
+constexpr double kMaximumTerminalConeViolation = 1.0e-5;
+constexpr double kMaximumTerminalRodNodeSpeed = 5.0e-2;
+constexpr double kMaximumTerminalRodEdgeLengthError = 2.0e-5;
+// This protocol deliberately keeps the package coil separated and does not
+// form a knot. The live DER projector prevents crossings; this independent
+// terminal bound also rejects a strand that only barely avoids penetration.
+constexpr double kMinimumThreadSelfCollisionClearance = 5.0e-5;
+// The projector still owns a 50 um margin. Reconstructed capsule separation
+// is measured from float positions after the solve, so permit 0.1 um of
+// readback roundoff (the rejected midpoint differed by only 7.4 nm).
+constexpr double kThreadClearanceReadbackTolerance = 1.0e-7;
+// Each insert has two finite rows on either side of the needle centreline,
+// split into two contact patches across the jaw width. The opposing jaw-centre
+// distance must account for that V-groove offset before applying load. A
+// 60 um per-patch radial engagement with the authored 50 um/N whole-system
+// compliance resolves to roughly 1.2 N at one patch before coupled
+// redistribution, or 4.8 N across one jaw's four patches. At the 9.7 mm jaw
+// envelope that remains below the LND's authored 0.16 N*m joint-effort limit.
+// The former 30 um setting reached 0.9998 friction utilization and eventually
+// let the loaded needle roll out. This is a measured research calibration,
+// not bulk steel deformation or a prescribed clinical clamp force.
+constexpr double kGrooveRailRadialPreload = 6.0e-5;
+constexpr std::uint32_t kPreLiftRegripSteps = 50u;
+constexpr Vec3 kGiverPortCalibration{0.001285, -0.000547, 0.0};
+constexpr double kGiverYaw = 0.0;
+constexpr double kGiverPitch = 0.78;
+constexpr double kReceiverYaw = 1.20;
+constexpr double kReceiverPitch = -0.78;
+// A needle handoff requires opposing instrument shafts, not two clevises
+// converging from the same side of a 26 mm arc. Rolling the receiver port by
+// pi about its insert/needle tangent preserves the legal handling segment and
+// V-groove alignment while moving its shaft and RCM to the opposite side.
+constexpr double kReceiverNeedleAxisRoll = std::numbers::pi;
+
+void require(const bool condition, const std::string& message) {
+    if (!condition) {
+        throw std::runtime_error(message);
+    }
+}
+
+Vec3 operator+(const Vec3 a, const Vec3 b) {
+    return {a.x + b.x, a.y + b.y, a.z + b.z};
+}
+
+Vec3 operator-(const Vec3 a, const Vec3 b) {
+    return {a.x - b.x, a.y - b.y, a.z - b.z};
+}
+
+Vec3 operator*(const Vec3 value, const double scale) {
+    return {value.x * scale, value.y * scale, value.z * scale};
+}
+
+double dot(const Vec3 a, const Vec3 b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+Vec3 cross(const Vec3 a, const Vec3 b) {
+    return {
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x,
+    };
+}
+
+double norm(const Vec3 value) {
+    return std::sqrt(dot(value, value));
+}
+
+Vec3 vector(const mr_float4 value) {
+    return {value.x, value.y, value.z};
+}
+
+Vec3 vector(const std::array<double, 3>& value) {
+    return {value[0], value[1], value[2]};
+}
+
+Vec3 vector(const std::array<float, 3>& value) {
+    return {value[0], value[1], value[2]};
+}
+
+double segmentSegmentDistance(
+    const Vec3 first0,
+    const Vec3 first1,
+    const Vec3 second0,
+    const Vec3 second1
+) {
+    constexpr double kDegenerateSquared = 1.0e-24;
+    const Vec3 firstDirection = first1 - first0;
+    const Vec3 secondDirection = second1 - second0;
+    const Vec3 offset = first0 - second0;
+    const double firstLengthSquared = dot(firstDirection, firstDirection);
+    const double secondLengthSquared = dot(secondDirection, secondDirection);
+    const double secondProjection = dot(secondDirection, offset);
+    double firstParameter = 0.0;
+    double secondParameter = 0.0;
+    if (firstLengthSquared <= kDegenerateSquared &&
+        secondLengthSquared <= kDegenerateSquared) {
+        return norm(offset);
+    }
+    if (firstLengthSquared <= kDegenerateSquared) {
+        secondParameter = std::clamp(
+            secondProjection / secondLengthSquared,
+            0.0,
+            1.0
+        );
+    } else {
+        const double firstProjection = dot(firstDirection, offset);
+        if (secondLengthSquared <= kDegenerateSquared) {
+            firstParameter = std::clamp(
+                -firstProjection / firstLengthSquared,
+                0.0,
+                1.0
+            );
+        } else {
+            const double coupling = dot(
+                firstDirection,
+                secondDirection
+            );
+            const double denominator =
+                firstLengthSquared * secondLengthSquared -
+                coupling * coupling;
+            if (denominator > kDegenerateSquared) {
+                firstParameter = std::clamp(
+                    (
+                        coupling * secondProjection -
+                        firstProjection * secondLengthSquared
+                    ) / denominator,
+                    0.0,
+                    1.0
+                );
+            }
+            secondParameter =
+                (coupling * firstParameter + secondProjection) /
+                secondLengthSquared;
+            if (secondParameter < 0.0) {
+                secondParameter = 0.0;
+                firstParameter = std::clamp(
+                    -firstProjection / firstLengthSquared,
+                    0.0,
+                    1.0
+                );
+            } else if (secondParameter > 1.0) {
+                secondParameter = 1.0;
+                firstParameter = std::clamp(
+                    (coupling - firstProjection) /
+                        firstLengthSquared,
+                    0.0,
+                    1.0
+                );
+            }
+        }
+    }
+    const Vec3 closest =
+        offset + firstDirection * firstParameter -
+        secondDirection * secondParameter;
+    return norm(closest);
+}
+
+double minimumNonNeighbourRodSurfaceSeparation(
+    const metalrobo::MetalWorldResult& state,
+    const double radius
+) {
+    require(
+        state.finalRodNodes.size() >= 4u && radius > 0.0,
+        "thread self-clearance state is incomplete"
+    );
+    double minimum = std::numeric_limits<double>::infinity();
+    const std::size_t edgeCount = state.finalRodNodes.size() - 1u;
+    for (std::size_t first = 0u; first < edgeCount; ++first) {
+        for (std::size_t second = first + 2u;
+             second < edgeCount;
+             ++second) {
+            minimum = std::min(
+                minimum,
+                segmentSegmentDistance(
+                    vector(state.finalRodNodes[first].position),
+                    vector(state.finalRodNodes[first + 1u].position),
+                    vector(state.finalRodNodes[second].position),
+                    vector(state.finalRodNodes[second + 1u].position)
+                ) - 2.0 * radius
+            );
+        }
+    }
+    return minimum;
+}
+
+struct RodStateMetrics {
+    double maximumNodeSpeed = 0.0;
+    double maximumEdgeLengthError = 0.0;
+    double minimumNonNeighbourSurfaceClearance =
+        std::numeric_limits<double>::infinity();
+};
+
+RodStateMetrics rodStateMetrics(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldResult& state
+) {
+    require(
+        world.rods.size() == 1u &&
+            state.finalRodNodes.size() ==
+                world.rods[0].model.restPositions.size(),
+        "terminal thread state does not match the authored DER topology"
+    );
+    RodStateMetrics result;
+    for (std::size_t node = 0u;
+         node < state.finalRodNodes.size();
+         ++node) {
+        result.maximumNodeSpeed = std::max(
+            result.maximumNodeSpeed,
+            norm(vector(state.finalRodNodes[node].velocity))
+        );
+        if (node != 0u) {
+            result.maximumEdgeLengthError = std::max(
+                result.maximumEdgeLengthError,
+                std::abs(
+                    norm(
+                        vector(state.finalRodNodes[node].position) -
+                        vector(state.finalRodNodes[node - 1u].position)
+                    ) - world.rods[0].model.restLengths[node - 1u]
+                )
+            );
+        }
+    }
+    result.minimumNonNeighbourSurfaceClearance =
+        minimumNonNeighbourRodSurfaceSeparation(
+            state,
+            world.rods[0].model.radius
+        );
+    return result;
+}
+
+bool qualifiedTerminalRod(const RodStateMetrics& metrics) {
+    return
+        metrics.maximumNodeSpeed <= kMaximumTerminalRodNodeSpeed &&
+        metrics.maximumEdgeLengthError <=
+            kMaximumTerminalRodEdgeLengthError &&
+        metrics.minimumNonNeighbourSurfaceClearance >=
+            kMinimumThreadSelfCollisionClearance -
+                kThreadClearanceReadbackTolerance;
+}
+
+Quaternion multiply(const Quaternion a, const Quaternion b) {
+    return {
+        a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+        a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+        a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+        a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+    };
+}
+
+Quaternion conjugate(const Quaternion q) {
+    return {-q.x, -q.y, -q.z, q.w};
+}
+
+Quaternion rotationX(const double angle) {
+    return {
+        std::sin(0.5 * angle),
+        0.0,
+        0.0,
+        std::cos(0.5 * angle),
+    };
+}
+
+Quaternion rotationY(const double angle) {
+    return {
+        0.0,
+        std::sin(0.5 * angle),
+        0.0,
+        std::cos(0.5 * angle),
+    };
+}
+
+Quaternion rotationZ(const double angle) {
+    return {
+        0.0,
+        0.0,
+        std::sin(0.5 * angle),
+        std::cos(0.5 * angle),
+    };
+}
+
+Vec3 rotate(const Quaternion q, const Vec3 value) {
+    const Vec3 imaginary{q.x, q.y, q.z};
+    const Vec3 doubled{
+        2.0 * (imaginary.y * value.z - imaginary.z * value.y),
+        2.0 * (imaginary.z * value.x - imaginary.x * value.z),
+        2.0 * (imaginary.x * value.y - imaginary.y * value.x),
+    };
+    const Vec3 second{
+        imaginary.y * doubled.z - imaginary.z * doubled.y,
+        imaginary.z * doubled.x - imaginary.x * doubled.z,
+        imaginary.x * doubled.y - imaginary.y * doubled.x,
+    };
+    return value + doubled * q.w + second;
+}
+
+double swageAttachmentError(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldResult& state
+) {
+    require(
+        !state.finalSceneBodies.empty() &&
+            !state.finalRodNodes.empty() &&
+            !world.rods.empty() &&
+            !world.rods[0].rigidBindings.empty() &&
+            world.rods[0].rigidBindings.size() ==
+                world.rods[0].attachments.size(),
+        "swage attachment state is incomplete"
+    );
+    const MRBodyStateGPU& needle = state.finalSceneBodies[0];
+    double maximumError = 0.0;
+    std::uint32_t hardAttachmentCount = 0u;
+    for (std::size_t bindingIndex = 0u;
+         bindingIndex < world.rods[0].rigidBindings.size();
+         ++bindingIndex) {
+        if (world.rods[0].attachments[bindingIndex].compliance != 0.0) {
+            continue;
+        }
+        ++hardAttachmentCount;
+        const auto& local =
+            world.rods[0].rigidBindings[bindingIndex].localAnchor;
+        const std::uint32_t node =
+            world.rods[0].attachments[bindingIndex].nodeIndex;
+        require(
+            node < state.finalRodNodes.size(),
+            "swage attachment node is out of range"
+        );
+        const Vec3 expected = vector(needle.position) + rotate(
+            Quaternion{
+                needle.orientation.x,
+                needle.orientation.y,
+                needle.orientation.z,
+                needle.orientation.w,
+            },
+            {local[0], local[1], local[2]}
+        );
+        maximumError = std::max(
+            maximumError,
+            norm(vector(state.finalRodNodes[node].position) - expected)
+        );
+    }
+    require(
+        hardAttachmentCount == 1u,
+        "swage must have exactly one hard root attachment"
+    );
+    return maximumError;
+}
+
+double maximumSwageTangentAngleError(
+    const metalrobo::HeterogeneousWorld& world
+) {
+    require(
+        !world.rods.empty() &&
+            !world.rods[0].model.restLengths.empty() &&
+            world.rods[0].model.radius > 0.0,
+        "swage tangent material geometry is incomplete"
+    );
+    return
+        kMaximumSwageTangentBendingStrain *
+        world.rods[0].model.restLengths.front() /
+        world.rods[0].model.radius;
+}
+
+double swageTangentLineError(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldResult& state
+) {
+    require(
+        !state.finalSceneBodies.empty() &&
+            state.finalRodNodes.size() >= 2u &&
+            !world.rods.empty() &&
+            world.rods[0].tangentBindings.size() == 1u,
+        "swage tangent-line state is incomplete"
+    );
+    const auto& binding = world.rods[0].tangentBindings[0];
+    const MRBodyStateGPU& needle = state.finalSceneBodies[0];
+    const Quaternion orientation{
+        needle.orientation.x,
+        needle.orientation.y,
+        needle.orientation.z,
+        needle.orientation.w,
+    };
+    const Vec3 expected = vector(needle.position) + rotate(
+        orientation,
+        vector(binding.localAnchor)
+    );
+    const std::uint32_t node = binding.edgeIndex + 1u;
+    require(
+        node < state.finalRodNodes.size(),
+        "swage tangent-line node is out of range"
+    );
+    const Vec3 tangent = rotate(
+        orientation,
+        vector(binding.localTangent)
+    );
+    const Vec3 delta = vector(state.finalRodNodes[node].position) - expected;
+    return norm(delta - tangent * dot(delta, tangent));
+}
+
+double swageTangentAngleError(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldResult& state
+) {
+    require(
+        !state.finalSceneBodies.empty() &&
+            state.finalRodNodes.size() >= 2u &&
+            !world.rods.empty() &&
+            world.rods[0].tangentBindings.size() == 1u,
+        "swage tangent state is incomplete"
+    );
+    const auto& binding = world.rods[0].tangentBindings[0];
+    const std::uint32_t nodeA = binding.edgeIndex;
+    const std::uint32_t nodeB = binding.edgeIndex + 1u;
+    require(
+        nodeA < state.finalRodNodes.size() &&
+            nodeB < state.finalRodNodes.size() && nodeA != nodeB,
+        "swage tangent nodes are invalid"
+    );
+    const Vec3 actual =
+        vector(state.finalRodNodes[nodeB].position) -
+        vector(state.finalRodNodes[nodeA].position);
+    const MRBodyStateGPU& needle = state.finalSceneBodies[0];
+    const Vec3 expected = rotate(
+        Quaternion{
+            needle.orientation.x,
+            needle.orientation.y,
+            needle.orientation.z,
+            needle.orientation.w,
+        },
+        vector(binding.localTangent)
+    );
+    const double denominator = norm(actual) * norm(expected);
+    require(
+        denominator > 1.0e-12,
+        "swage tangent contains a degenerate segment"
+    );
+    return std::acos(std::clamp(
+        dot(actual, expected) / denominator,
+        -1.0,
+        1.0
+    ));
+}
+
+double swageMaterialFrameError(
+    const metalrobo::DiscreteRodRigidTwistAttachmentBinding& binding,
+    const MRBodyStateGPU& body,
+    const Vec3 nodeA,
+    const Vec3 nodeB,
+    const double twist
+) {
+    const Vec3 edge = nodeB - nodeA;
+    const double edgeLength = norm(edge);
+    require(
+        edgeLength > 1.0e-12,
+        "swage material frame contains a degenerate edge"
+    );
+    const Vec3 tangent = edge * (1.0 / edgeLength);
+    const Quaternion orientation{
+        body.orientation.x,
+        body.orientation.y,
+        body.orientation.z,
+        body.orientation.w,
+    };
+    const Vec3 bodyTangent = rotate(
+        orientation,
+        vector(binding.localTangent)
+    );
+    const Vec3 localDirector = vector(binding.localMaterialDirector);
+    const Vec3 worldDirector = rotate(
+        orientation,
+        localDirector
+    );
+    const auto transport = [](
+        const Vec3 director,
+        const Vec3 from,
+        const Vec3 to
+    ) {
+        const double cosine = std::clamp(dot(from, to), -1.0, 1.0);
+        require(
+            cosine > -1.0 + 1.0e-10,
+            "swage material-frame transport is antipodal"
+        );
+        const Vec3 axis = cross(from, to);
+        const Vec3 first = cross(axis, director);
+        const Vec3 second = cross(axis, first);
+        Vec3 result =
+            director + first + second * (1.0 / (1.0 + cosine));
+        result = result - to * dot(result, to);
+        const double resultLength = norm(result);
+        require(
+            resultLength > 1.0e-12,
+            "swage material-frame transport is degenerate"
+        );
+        return result * (1.0 / resultLength);
+    };
+    const Vec3 reference = transport(
+        vector(binding.referenceMaterialDirectorWorld),
+        vector(binding.referenceTangentWorld),
+        tangent
+    );
+    const Vec3 materialDirector = transport(
+        worldDirector,
+        bodyTangent,
+        tangent
+    );
+    const double targetTwist = std::atan2(
+        dot(tangent, cross(reference, materialDirector)),
+        dot(reference, materialDirector)
+    );
+    return std::abs(std::atan2(
+        std::sin(targetTwist - twist),
+        std::cos(targetTwist - twist)
+    ));
+}
+
+double swageMaterialFrameError(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldResult& state
+) {
+    require(
+        world.rods.size() == 1u &&
+            world.rods[0].twistBindings.size() == 1u &&
+            !state.finalSceneBodies.empty() &&
+            state.finalRodNodes.size() >= 2u &&
+            !state.finalRodEdges.empty(),
+        "swage material-frame state is incomplete"
+    );
+    const auto& binding = world.rods[0].twistBindings[0];
+    return swageMaterialFrameError(
+        binding,
+        state.finalSceneBodies.at(binding.bodyIndex),
+        vector(state.finalRodNodes.at(binding.edgeIndex).position),
+        vector(state.finalRodNodes.at(binding.edgeIndex + 1u).position),
+        state.finalRodEdges.at(binding.edgeIndex).twistAndRate.x
+    );
+}
+
+double initialSwageMaterialFrameError(
+    const metalrobo::HeterogeneousWorld& world
+) {
+    require(
+        world.rods.size() == 1u &&
+            world.rods[0].twistBindings.size() == 1u,
+        "initial swage material-frame state is incomplete"
+    );
+    const auto& rod = world.rods[0];
+    const auto& binding = rod.twistBindings[0];
+    return swageMaterialFrameError(
+        binding,
+        world.defaultSceneBodies.at(binding.bodyIndex),
+        vector(rod.defaultState.positions.at(binding.edgeIndex)),
+        vector(rod.defaultState.positions.at(binding.edgeIndex + 1u)),
+        rod.defaultState.twists.at(binding.edgeIndex)
+    );
+}
+
+double swageTangentBendingStrain(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldResult& state
+) {
+    return
+        world.rods[0].model.radius *
+        swageTangentAngleError(world, state) /
+        world.rods[0].model.restLengths.front();
+}
+
+double swageTangentBendingStressPa(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldResult& state
+) {
+    const double radius = world.rods[0].model.radius;
+    const double secondMoment =
+        std::numbers::pi * std::pow(radius, 4.0) / 4.0;
+    require(
+        secondMoment > 0.0 &&
+            !world.rods[0].model.bendStiffness.empty(),
+        "swage tangent material stiffness is incomplete"
+    );
+    const double youngModulus =
+        world.rods[0].model.bendStiffness.front() / secondMoment;
+    return youngModulus * swageTangentBendingStrain(world, state);
+}
+
+metalrobo::SurgicalBasePose basePose(
+    const Quaternion orientation,
+    const Vec3 localJawMidpoint,
+    const Vec3 desiredJawMidpoint
+) {
+    const Vec3 position =
+        desiredJawMidpoint - rotate(orientation, localJawMidpoint);
+    return {
+        .position = {
+            static_cast<float>(position.x),
+            static_cast<float>(position.y),
+            static_cast<float>(position.z),
+        },
+        .orientation = {
+            static_cast<float>(orientation.x),
+            static_cast<float>(orientation.y),
+            static_cast<float>(orientation.z),
+            static_cast<float>(orientation.w),
+        },
+    };
+}
+
+struct ShapeMotion {
+    Vec3 position{};
+    Vec3 linearVelocity{};
+    Vec3 angularVelocity{};
+};
+
+ShapeMotion shapeMotion(
+    const std::span<const metalrobo::ArticulatedBodyKinematics> bodies,
+    const metalrobo::EngineModel& model,
+    const std::uint32_t shapeIndex
+) {
+    const MRShapeGPU& shape = model.shapes.at(shapeIndex);
+    const auto found = std::find_if(
+        bodies.begin(),
+        bodies.end(),
+        [&](const metalrobo::ArticulatedBodyKinematics& body) {
+            return body.bodyIndex == shape.bodyIndex;
+        }
+    );
+    require(found != bodies.end(), "jaw shape body is missing");
+    const Quaternion orientation{
+        found->orientation[0],
+        found->orientation[1],
+        found->orientation[2],
+        found->orientation[3],
+    };
+    const Vec3 offset = rotate(
+        orientation,
+        vector(shape.localPosition)
+    );
+    const Vec3 angularVelocity = vector(found->angularVelocity);
+    return {
+        .position = vector(found->centerOfMassPosition) + offset,
+        .linearVelocity = vector(found->linearVelocity) +
+            cross(angularVelocity, offset),
+        .angularVelocity = angularVelocity,
+    };
+}
+
+Vec3 shapeCenter(
+    const std::span<const metalrobo::ArticulatedBodyKinematics> bodies,
+    const metalrobo::EngineModel& model,
+    const std::uint32_t shapeIndex
+) {
+    return shapeMotion(bodies, model, shapeIndex).position;
+}
+
+struct JawGeometry {
+    Vec3 jawA{};
+    Vec3 jawB{};
+    Vec3 midpoint{};
+    Vec3 jawAVelocity{};
+    Vec3 jawBVelocity{};
+    Vec3 midpointVelocity{};
+    Vec3 meanAngularVelocity{};
+    double separation = 0.0;
+};
+
+JawGeometry jawGeometry(
+    const metalrobo::EngineModel& model,
+    const std::span<const double> q
+) {
+    const std::vector<double> zeroV(model.world.nv, 0.0);
+    std::vector<metalrobo::ArticulatedBodyKinematics> bodies(
+        model.articulations[0].bodyCount
+    );
+    const auto diagnostics =
+        metalrobo::computeArticulatedBodyKinematics(
+            model,
+            0u,
+            q,
+            zeroV,
+            bodies,
+            {}
+        );
+    require(diagnostics.succeeded(), "PSM jaw kinematics failed");
+    JawGeometry result;
+    constexpr double jawWeight = 1.0 / kJawATeeth.size();
+    constexpr double angularWeight =
+        1.0 / (kJawATeeth.size() + kJawBTeeth.size());
+    for (const std::uint32_t shape : kJawATeeth) {
+        const ShapeMotion motion = shapeMotion(bodies, model, shape);
+        result.jawA = result.jawA + motion.position * jawWeight;
+        result.jawAVelocity =
+            result.jawAVelocity + motion.linearVelocity * jawWeight;
+        result.meanAngularVelocity =
+            result.meanAngularVelocity + motion.angularVelocity *
+                angularWeight;
+    }
+    for (const std::uint32_t shape : kJawBTeeth) {
+        const ShapeMotion motion = shapeMotion(bodies, model, shape);
+        result.jawB = result.jawB + motion.position * jawWeight;
+        result.jawBVelocity =
+            result.jawBVelocity + motion.linearVelocity * jawWeight;
+        result.meanAngularVelocity =
+            result.meanAngularVelocity + motion.angularVelocity *
+                angularWeight;
+    }
+    result.midpoint = (result.jawA + result.jawB) * 0.5;
+    result.midpointVelocity =
+        (result.jawAVelocity + result.jawBVelocity) * 0.5;
+    result.separation = norm(result.jawA - result.jawB);
+    return result;
+}
+
+JawGeometry worldJawGeometry(
+    const metalrobo::EngineModel& model,
+    const std::uint32_t arm,
+    const std::span<const float> q,
+    const std::span<const float> v
+) {
+    require(
+        q.size() == model.world.nq && v.size() == model.world.nv &&
+            arm < model.articulations.size(),
+        "world jaw state has invalid dimensions"
+    );
+    const std::vector<double> q64(q.begin(), q.end());
+    const std::vector<double> v64(v.begin(), v.end());
+    std::vector<metalrobo::ArticulatedBodyKinematics> bodies(
+        model.articulations[arm].bodyCount
+    );
+    const auto diagnostics =
+        metalrobo::computeArticulatedBodyKinematics(
+            model,
+            arm,
+            std::span<const double>(q64).subspan(
+                model.articulations[arm].qOffset,
+                model.articulations[arm].nq
+            ),
+            std::span<const double>(v64).subspan(
+                model.articulations[arm].vOffset,
+                model.articulations[arm].nv
+            ),
+            bodies,
+            {}
+        );
+    require(diagnostics.succeeded(), "world PSM jaw kinematics failed");
+    const std::uint32_t firstShape =
+        metalrobo::kSurgicalPSMShapeCount * arm;
+    JawGeometry result;
+    constexpr double jawWeight = 1.0 / kJawATeeth.size();
+    constexpr double angularWeight =
+        1.0 / (kJawATeeth.size() + kJawBTeeth.size());
+    for (const std::uint32_t shape : kJawATeeth) {
+        const ShapeMotion motion = shapeMotion(
+            bodies,
+            model,
+            firstShape + shape
+        );
+        result.jawA = result.jawA + motion.position * jawWeight;
+        result.jawAVelocity =
+            result.jawAVelocity + motion.linearVelocity * jawWeight;
+        result.meanAngularVelocity =
+            result.meanAngularVelocity + motion.angularVelocity *
+                angularWeight;
+    }
+    for (const std::uint32_t shape : kJawBTeeth) {
+        const ShapeMotion motion = shapeMotion(
+            bodies,
+            model,
+            firstShape + shape
+        );
+        result.jawB = result.jawB + motion.position * jawWeight;
+        result.jawBVelocity =
+            result.jawBVelocity + motion.linearVelocity * jawWeight;
+        result.meanAngularVelocity =
+            result.meanAngularVelocity + motion.angularVelocity *
+                angularWeight;
+    }
+    result.midpoint = (result.jawA + result.jawB) * 0.5;
+    result.midpointVelocity =
+        (result.jawAVelocity + result.jawBVelocity) * 0.5;
+    result.separation = norm(result.jawA - result.jawB);
+    return result;
+}
+
+double calibratedJawCoordinate(
+    const metalrobo::EngineModel& model,
+    const double needleRadius,
+    const double separationAdjustment
+) {
+    const double toothRadius = model.shapes[kJawATeeth[0]].dimensions.x;
+    const double desiredSeparation =
+        2.0 * (needleRadius + toothRadius) + separationAdjustment;
+    double best = 0.0;
+    double bestError = std::numeric_limits<double>::infinity();
+    std::vector<double> q(
+        model.defaultQ.begin(),
+        model.defaultQ.end()
+    );
+    q[0] = 0.0;
+    q[1] = 0.0;
+    q[2] = kPickupInsertion;
+    q[3] = 0.0;
+    q[4] = 0.0;
+    q[5] = 0.0;
+    for (std::uint32_t sample = 0u; sample <= 1600u; ++sample) {
+        const double coordinate =
+            0.12 * static_cast<double>(sample) / 1600.0;
+        q[6] = -coordinate;
+        q[7] = coordinate;
+        const double error = std::abs(
+            jawGeometry(model, q).separation - desiredSeparation
+        );
+        if (error < bestError) {
+            bestError = error;
+            best = coordinate;
+        }
+    }
+    require(
+        best > 0.0 && best < 0.12 && bestError < 2.0e-5,
+        "PSM jaw could not be calibrated to the requested needle clearance"
+    );
+    return best;
+}
+
+double grooveDiametralClosure(
+    const metalrobo::EngineModel& model,
+    const double needleRadius
+) {
+    const double railRadius =
+        model.shapes.at(kJawATeeth[0]).dimensions.x;
+    const double railHalfSpacing = 0.5 * std::abs(
+        static_cast<double>(
+            model.shapes.at(kJawATeeth[1]).localPosition.z
+        ) - model.shapes.at(kJawATeeth[0]).localPosition.z
+    );
+    const double contactRadius =
+        needleRadius + railRadius - kGrooveRailRadialPreload;
+    require(
+        contactRadius > railHalfSpacing &&
+            kGrooveRailRadialPreload > 0.0,
+        "PSM insert groove cannot contain the requested needle gauge"
+    );
+    const double jawHalfSeparation = std::sqrt(
+        contactRadius * contactRadius -
+        railHalfSpacing * railHalfSpacing
+    );
+    return 2.0 * (
+        needleRadius + railRadius - jawHalfSeparation
+    );
+}
+
+std::vector<double> psmTarget(
+    const metalrobo::EngineModel& model,
+    const double insertion,
+    const double jawCoordinate,
+    const double yaw = 0.0,
+    const double pitch = 0.0
+) {
+    std::vector<double> q(
+        model.defaultQ.begin(),
+        model.defaultQ.end()
+    );
+    q[0] = yaw;
+    q[1] = pitch;
+    q[2] = insertion;
+    // Counter base/shaft azimuth at tool roll so port placement does not
+    // rotate the needle-driver jaws out of their authored handling plane.
+    q[3] = -yaw;
+    // Counter the remote-center shaft pitch at the distal wrist so the LND
+    // jaws remain upright over the table while the ports stay separated.
+    q[4] = -pitch;
+    q[5] = 0.0;
+    q[6] = -jawCoordinate;
+    q[7] = jawCoordinate;
+    return q;
+}
+
+std::vector<double> solvePsmJawTarget(
+    const metalrobo::EngineModel& model,
+    const metalrobo::SurgicalBasePose& base,
+    std::vector<double> q,
+    const Vec3 desiredWorld,
+    const double jawCoordinate,
+    const double maximumInsertionDeparture = 0.006,
+    const double maximumResidual = 2.0e-5,
+    const double maximumAngularDeparture = 0.03
+) {
+    require(
+        q.size() == 8u && maximumInsertionDeparture >= 0.0 &&
+            maximumResidual >= 0.0 && maximumAngularDeparture >= 0.0,
+        "PSM IK seed has invalid dimensions"
+    );
+    q[6] = -jawCoordinate;
+    q[7] = jawCoordinate;
+    const Quaternion baseRotation{
+        base.orientation[0],
+        base.orientation[1],
+        base.orientation[2],
+        base.orientation[3],
+    };
+    const Vec3 basePosition{
+        base.position[0],
+        base.position[1],
+        base.position[2],
+    };
+    const Vec3 desiredLocal = rotate(
+        conjugate(baseRotation),
+        desiredWorld - basePosition
+    );
+    constexpr std::array<double, 3> increments{
+        1.0e-4,
+        1.0e-4,
+        1.0e-5,
+    };
+    constexpr std::array<double, 3> coordinateScales{
+        0.20,
+        0.20,
+        1.0,
+    };
+    const std::array<double, 3> maximumSeedDeparture{
+        maximumAngularDeparture,
+        maximumAngularDeparture,
+        maximumInsertionDeparture,
+    };
+    const std::array<double, 3> seed{q[0], q[1], q[2]};
+    // The PSM remote-centre yaw/pitch joints move the shaft as well as the
+    // jaw midpoint. Preserve the accepted distal-tool attitude by pairing
+    // those coordinates with the compensating roll/wrist joints. Leaving
+    // q3/q4 fixed turns a nominal Cartesian lift into an unintended needle-
+    // driver rotation and can roll the needle out of an otherwise bilateral
+    // groove grasp. The finite-difference Jacobian below must use the same
+    // coupled coordinates as the accepted target trajectory.
+    const double toolRollReference = q[0] + q[3];
+    const double toolPitchReference = q[1] + q[4];
+    const auto preserveToolAttitude = [&](std::vector<double>& value) {
+        value[3] = toolRollReference - value[0];
+        value[4] = toolPitchReference - value[1];
+    };
+    preserveToolAttitude(q);
+    constexpr double kDampingSquared = 4.0e-4;
+    for (std::uint32_t iteration = 0u; iteration < 32u; ++iteration) {
+        const Vec3 current = jawGeometry(model, q).midpoint;
+        const Vec3 error = desiredLocal - current;
+        if (norm(error) <= 5.0e-6) {
+            return q;
+        }
+        std::array<Vec3, 3> columns{};
+        for (std::size_t coordinate = 0u;
+             coordinate < columns.size();
+             ++coordinate) {
+            std::vector<double> perturbed = q;
+            perturbed[coordinate] += increments[coordinate];
+            preserveToolAttitude(perturbed);
+            columns[coordinate] =
+                (jawGeometry(model, perturbed).midpoint - current) *
+                (1.0 /
+                 (increments[coordinate] * coordinateScales[coordinate]));
+        }
+        const Vec3 normalColumn0{
+            dot(columns[0], columns[0]) + kDampingSquared,
+            dot(columns[1], columns[0]),
+            dot(columns[2], columns[0]),
+        };
+        const Vec3 normalColumn1{
+            dot(columns[0], columns[1]),
+            dot(columns[1], columns[1]) + kDampingSquared,
+            dot(columns[2], columns[1]),
+        };
+        const Vec3 normalColumn2{
+            dot(columns[0], columns[2]),
+            dot(columns[1], columns[2]),
+            dot(columns[2], columns[2]) + kDampingSquared,
+        };
+        const Vec3 rightHandSide{
+            dot(columns[0], error),
+            dot(columns[1], error),
+            dot(columns[2], error),
+        };
+        const double determinant = dot(
+            normalColumn0,
+            cross(normalColumn1, normalColumn2)
+        );
+        require(
+            std::abs(determinant) > 1.0e-12 &&
+                std::isfinite(determinant),
+            "PSM jaw-target damped solve reached a singular posture"
+        );
+        const std::array<double, 3> scaledCorrection{
+            dot(rightHandSide, cross(normalColumn1, normalColumn2)) /
+                determinant,
+            dot(normalColumn0, cross(rightHandSide, normalColumn2)) /
+                determinant,
+            dot(normalColumn0, cross(normalColumn1, rightHandSide)) /
+                determinant,
+        };
+        for (std::uint32_t coordinate = 0u;
+             coordinate < 3u;
+             ++coordinate) {
+            const double correction = std::clamp(
+                scaledCorrection[coordinate] /
+                    coordinateScales[coordinate],
+                coordinate == 2u ? -0.002 : -0.01,
+                coordinate == 2u ? 0.002 : 0.01
+            );
+            q[coordinate] = std::clamp(
+                q[coordinate] + correction,
+                seed[coordinate] - maximumSeedDeparture[coordinate],
+                seed[coordinate] + maximumSeedDeparture[coordinate]
+            );
+        }
+        q[0] = std::clamp(q[0], -1.58, 1.58);
+        q[1] = std::clamp(q[1], -0.92, 0.92);
+        q[2] = std::clamp(q[2], 0.0, 0.24);
+        preserveToolAttitude(q);
+    }
+    const double residual = norm(
+        jawGeometry(model, q).midpoint - desiredLocal
+    );
+    require(
+        residual <= maximumResidual,
+        "PSM jaw-target IK did not reach the needle segment: residual=" +
+            std::to_string(residual)
+    );
+    return q;
+}
+
+std::vector<double> armLocalQ(
+    const metalrobo::EngineModel& model,
+    const std::uint32_t arm,
+    const std::span<const float> globalQ
+) {
+    require(
+        globalQ.size() == model.world.nq &&
+            arm < model.articulations.size(),
+        "accepted arm state has invalid dimensions"
+    );
+    const std::uint32_t offset =
+        model.articulations[arm].qOffset + 7u;
+    std::vector<double> local(8u);
+    for (std::uint32_t coordinate = 0u; coordinate < 8u; ++coordinate) {
+        local[coordinate] = globalQ[offset + coordinate];
+    }
+    return local;
+}
+
+double needleShapeAngle(
+    const metalrobo::CurvedSutureNeedleSpec& spec,
+    const std::uint32_t shape
+) {
+    const double fraction =
+        (static_cast<double>(shape) + 0.5) /
+        static_cast<double>(spec.arcSegments);
+    return -0.5 * spec.arcAngleRad.value +
+        fraction * spec.arcAngleRad.value;
+}
+
+Vec3 needleShapeWorldCenter(
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const std::uint32_t shape,
+    const Vec3 bodyPosition
+) {
+    return bodyPosition + vector(
+        needle.rigid.shapes.at(shape).localPosition
+    );
+}
+
+double pointSegmentDistance(
+    const Vec3 point,
+    const Vec3 segmentA,
+    const Vec3 segmentB
+) {
+    const Vec3 edge = segmentB - segmentA;
+    const double lengthSquared = dot(edge, edge);
+    require(lengthSquared > 0.0, "needle capsule has zero length");
+    const double weight = std::clamp(
+        dot(point - segmentA, edge) / lengthSquared,
+        0.0,
+        1.0
+    );
+    return norm(point - (segmentA + edge * weight));
+}
+
+double minimumToothNeedleGap(
+    const metalrobo::EngineModel& psm,
+    const std::span<const double> localQ,
+    const metalrobo::SurgicalBasePose& base,
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const Vec3 needleBodyPosition
+) {
+    const std::vector<double> zeroV(psm.world.nv, 0.0);
+    std::vector<metalrobo::ArticulatedBodyKinematics> bodies(
+        psm.articulations[0].bodyCount
+    );
+    const auto diagnostics = metalrobo::computeArticulatedBodyKinematics(
+        psm,
+        0u,
+        localQ,
+        zeroV,
+        bodies,
+        {}
+    );
+    require(diagnostics.succeeded(), "PSM clearance kinematics failed");
+    const Quaternion baseRotation{
+        base.orientation[0],
+        base.orientation[1],
+        base.orientation[2],
+        base.orientation[3],
+    };
+    const Vec3 basePosition = vector(base.position);
+    double minimumGap = std::numeric_limits<double>::infinity();
+    constexpr std::array<std::uint32_t, 6> teeth{
+        15u, 17u, 18u, 19u, 20u, 21u,
+    };
+    for (const std::uint32_t toothIndex : teeth) {
+        const MRShapeGPU& tooth = psm.shapes.at(toothIndex);
+        const Vec3 toothCenter = basePosition + rotate(
+            baseRotation,
+            shapeCenter(bodies, psm, toothIndex)
+        );
+        for (const MRShapeGPU& segment : needle.rigid.shapes) {
+            const Quaternion segmentRotation{
+                segment.localRotation.x,
+                segment.localRotation.y,
+                segment.localRotation.z,
+                segment.localRotation.w,
+            };
+            const Vec3 center = needleBodyPosition +
+                vector(segment.localPosition);
+            const Vec3 halfAxis = rotate(
+                segmentRotation,
+                Vec3{0.0, segment.dimensions.y, 0.0}
+            );
+            const double gap = pointSegmentDistance(
+                toothCenter,
+                center - halfAxis,
+                center + halfAxis
+            ) - tooth.dimensions.x - segment.dimensions.x;
+            minimumGap = std::min(minimumGap, gap);
+        }
+    }
+    return minimumGap;
+}
+
+double minimumPsmPadGap(
+    const metalrobo::EngineModel& psm,
+    const std::span<const double> localQ,
+    const metalrobo::SurgicalBasePose& base,
+    const double padTop
+) {
+    const std::vector<double> zeroV(psm.world.nv, 0.0);
+    std::vector<metalrobo::ArticulatedBodyKinematics> bodies(
+        psm.articulations[0].bodyCount
+    );
+    const auto diagnostics = metalrobo::computeArticulatedBodyKinematics(
+        psm,
+        0u,
+        localQ,
+        zeroV,
+        bodies,
+        {}
+    );
+    require(diagnostics.succeeded(), "PSM pad-clearance kinematics failed");
+    const Quaternion baseRotation{
+        base.orientation[0],
+        base.orientation[1],
+        base.orientation[2],
+        base.orientation[3],
+    };
+    const Vec3 basePosition = vector(base.position);
+    double minimumGap = std::numeric_limits<double>::infinity();
+    // Only the distal yaw/clevis/jaw envelope enters the sterile field near
+    // the pad. Proximal port-side bodies are outside this local table gate.
+    for (std::uint32_t shapeIndex = 12u;
+         shapeIndex < psm.shapes.size();
+         ++shapeIndex) {
+        const MRShapeGPU& shape = psm.shapes[shapeIndex];
+        const auto found = std::find_if(
+            bodies.begin(),
+            bodies.end(),
+            [&](const metalrobo::ArticulatedBodyKinematics& body) {
+                return body.bodyIndex == shape.bodyIndex;
+            }
+        );
+        require(found != bodies.end(), "PSM pad-clearance body is missing");
+        const Quaternion bodyRotation{
+            found->orientation[0],
+            found->orientation[1],
+            found->orientation[2],
+            found->orientation[3],
+        };
+        const Quaternion shapeRotation{
+            shape.localRotation.x,
+            shape.localRotation.y,
+            shape.localRotation.z,
+            shape.localRotation.w,
+        };
+        const Quaternion worldRotation = multiply(
+            baseRotation,
+            multiply(bodyRotation, shapeRotation)
+        );
+        const Vec3 center = basePosition + rotate(
+            baseRotation,
+            shapeCenter(bodies, psm, shapeIndex)
+        );
+        double verticalExtent = 0.0;
+        if (shape.shapeType == MR_SHAPE_SPHERE) {
+            verticalExtent = shape.dimensions.x;
+        } else if (shape.shapeType == MR_SHAPE_CAPSULE ||
+                   shape.shapeType == MR_SHAPE_CYLINDER) {
+            const Vec3 axis = rotate(worldRotation, {0.0, 1.0, 0.0});
+            const double axialExtent =
+                std::abs(axis.z) * shape.dimensions.y;
+            const double radialExtent = shape.shapeType == MR_SHAPE_CAPSULE
+                ? shape.dimensions.x
+                : shape.dimensions.x * std::sqrt(std::max(
+                    0.0,
+                    1.0 - axis.z * axis.z
+                ));
+            verticalExtent = axialExtent + radialExtent;
+        } else if (shape.shapeType == MR_SHAPE_BOX) {
+            const Vec3 axisX = rotate(worldRotation, {1.0, 0.0, 0.0});
+            const Vec3 axisY = rotate(worldRotation, {0.0, 1.0, 0.0});
+            const Vec3 axisZ = rotate(worldRotation, {0.0, 0.0, 1.0});
+            verticalExtent =
+                std::abs(axisX.z) * shape.dimensions.x +
+                std::abs(axisY.z) * shape.dimensions.y +
+                std::abs(axisZ.z) * shape.dimensions.z;
+        } else {
+            continue;
+        }
+        minimumGap = std::min(
+            minimumGap,
+            center.z - verticalExtent - padTop
+        );
+    }
+    return minimumGap;
+}
+
+Vec3 needleShapeWorldCenter(
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const std::uint32_t shape,
+    const MRBodyStateGPU& body
+) {
+    return vector(body.position) + rotate(
+        Quaternion{
+            body.orientation.x,
+            body.orientation.y,
+            body.orientation.z,
+            body.orientation.w,
+        },
+        vector(needle.rigid.shapes.at(shape).localPosition)
+    );
+}
+
+struct GraspKinematics {
+    double seatDrift = 0.0;
+    double relativePointSpeed = 0.0;
+    double relativeAngularSpeed = 0.0;
+    double relativeNeedleTangentSpin = 0.0;
+    double jawPointSpeed = 0.0;
+    double needlePointSpeed = 0.0;
+};
+
+struct GraspReference {
+    Vec3 jawMidpointOffsetInNeedleFrame{};
+};
+
+GraspReference graspReference(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const metalrobo::MetalWorldResult& state,
+    const std::uint32_t arm,
+    const std::uint32_t needleShape
+) {
+    require(
+        !state.finalSceneBodies.empty(),
+        "grasp reference is missing the needle body"
+    );
+    const JawGeometry jaw = worldJawGeometry(
+        world.model,
+        arm,
+        state.finalQ,
+        state.finalV
+    );
+    const MRBodyStateGPU& body = state.finalSceneBodies[0];
+    const Vec3 needlePoint = needleShapeWorldCenter(
+        needle,
+        needleShape,
+        body
+    );
+    const Quaternion orientation{
+        body.orientation.x,
+        body.orientation.y,
+        body.orientation.z,
+        body.orientation.w,
+    };
+    return {
+        .jawMidpointOffsetInNeedleFrame = rotate(
+            conjugate(orientation),
+            jaw.midpoint - needlePoint
+        ),
+    };
+}
+
+GraspKinematics graspKinematics(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const metalrobo::MetalWorldResult& state,
+    const std::uint32_t arm,
+    const std::uint32_t needleShape,
+    const GraspReference& reference
+) {
+    require(
+        !state.finalSceneBodies.empty(),
+        "grasp kinematics are missing the needle body"
+    );
+    const JawGeometry jaw = worldJawGeometry(
+        world.model,
+        arm,
+        state.finalQ,
+        state.finalV
+    );
+    const MRBodyStateGPU& body = state.finalSceneBodies[0];
+    const Vec3 needlePoint = needleShapeWorldCenter(
+        needle,
+        needleShape,
+        body
+    );
+    const Vec3 angularVelocity = vector(body.angularVelocity);
+    const Quaternion needleOrientation{
+        body.orientation.x,
+        body.orientation.y,
+        body.orientation.z,
+        body.orientation.w,
+    };
+    const Vec3 currentSeatOffset = rotate(
+        conjugate(needleOrientation),
+        jaw.midpoint - needlePoint
+    );
+    const MRShapeGPU& handlingSegment =
+        needle.rigid.shapes.at(needleShape);
+    const Vec3 segmentTangent = rotate(
+        multiply(
+            needleOrientation,
+            Quaternion{
+                handlingSegment.localRotation.x,
+                handlingSegment.localRotation.y,
+                handlingSegment.localRotation.z,
+                handlingSegment.localRotation.w,
+            }
+        ),
+        Vec3{0.0, 1.0, 0.0}
+    );
+    const Vec3 relativeAngularVelocity =
+        angularVelocity - jaw.meanAngularVelocity;
+    const Vec3 needlePointVelocity =
+        vector(body.linearVelocityAndInverseMass) +
+        cross(angularVelocity, needlePoint - vector(body.position));
+    return {
+        .seatDrift = norm(
+            currentSeatOffset -
+            reference.jawMidpointOffsetInNeedleFrame
+        ),
+        .relativePointSpeed =
+            norm(needlePointVelocity - jaw.midpointVelocity),
+        .relativeAngularSpeed = norm(relativeAngularVelocity),
+        .relativeNeedleTangentSpin =
+            std::abs(dot(relativeAngularVelocity, segmentTangent)),
+        .jawPointSpeed = norm(jaw.midpointVelocity),
+        .needlePointSpeed = norm(needlePointVelocity),
+    };
+}
+
+bool qualifiedDrivenGrasp(const GraspKinematics& motion) {
+    return
+        motion.seatDrift <= kMaximumQualifiedGraspSeatDrift &&
+        motion.relativePointSpeed <=
+            kMaximumQualifiedRelativePointSpeed &&
+        motion.relativeAngularSpeed <=
+            kMaximumQualifiedRelativeAngularSpeed;
+}
+
+const MRMetalWorldContactStatusGPU& requireTerminalResidual(
+    const metalrobo::MetalWorldResult& state,
+    const std::string_view phase,
+    const bool enforceEndpointBounds = true
+) {
+    require(
+        state.layout.dispatch.environmentCount == 1u &&
+            state.layout.dispatch.controlStepCount != 0u &&
+            state.contactStatuses.size() ==
+                state.layout.contactStatusElements &&
+            state.contactStatuses.size() ==
+                state.layout.dispatch.controlStepCount,
+        std::string(phase) +
+            " did not publish its terminal contact residual certificate"
+    );
+    const MRMetalWorldContactStatusGPU& contact =
+        state.contactStatuses.back();
+    require(
+        contact.environment == 0u &&
+            contact.controlStep + 1u ==
+                state.layout.dispatch.controlStepCount,
+        std::string(phase) +
+            " terminal contact residual certificate has the wrong index"
+    );
+    const auto finite4 = [](const mr_float4 value) {
+        return
+            std::isfinite(value.x) && std::isfinite(value.y) &&
+            std::isfinite(value.z) && std::isfinite(value.w);
+    };
+    require(
+        contact.code == MR_STEP_SUCCESS &&
+            contact.solverIterations != 0u &&
+            finite4(contact.residuals) &&
+            (
+                !enforceEndpointBounds ||
+                (
+                    contact.residuals.y <=
+                        kMaximumTerminalContactVelocityResidual &&
+                    contact.residuals.z <=
+                        kMaximumTerminalConeViolation
+                )
+            ),
+        std::string(phase) +
+            " did not satisfy the live temporal-cone residual bounds"
+    );
+    return contact;
+}
+
+void setArmTarget(
+    std::vector<float>& globalQ,
+    const metalrobo::EngineModel& model,
+    const std::uint32_t arm,
+    const std::span<const double> localQ
+) {
+    const std::uint32_t offset =
+        model.articulations.at(arm).qOffset + 7u;
+    require(
+        localQ.size() == 8u &&
+            offset + localQ.size() <= globalQ.size(),
+        "dual PSM target has invalid dimensions"
+    );
+    for (std::size_t index = 0u; index < localQ.size(); ++index) {
+        globalQ[offset + index] = static_cast<float>(localQ[index]);
+    }
+}
+
+std::vector<float> computedTorquePositionTarget(
+    const metalrobo::EngineModel& model,
+    const std::span<const float> desiredQ,
+    const std::span<const double> desiredV,
+    const std::span<const double> desiredAcceleration
+) {
+    require(
+        desiredQ.size() == model.world.nq &&
+            desiredV.size() == model.world.nv &&
+            desiredAcceleration.size() == model.world.nv,
+        "computed-torque target has invalid dimensions"
+    );
+    std::vector<float> command(model.world.nv, 0.0f);
+    for (std::uint32_t dof = 0u; dof < model.world.nv; ++dof) {
+        const MRDofPropertiesGPU& properties = model.dofs[dof];
+        if (properties.qIndex != MR_INVALID_INDEX &&
+            properties.qIndex < desiredQ.size()) {
+            command[dof] = desiredQ[properties.qIndex];
+        }
+    }
+    metalrobo::ArticulatedDynamicsConfig dynamics;
+    dynamics.gravity = {
+        model.world.gravityAndTimestep.x,
+        model.world.gravityAndTimestep.y,
+        model.world.gravityAndTimestep.z,
+    };
+    dynamics.timestep = model.world.gravityAndTimestep.w;
+    for (std::uint32_t articulationIndex = 0u;
+         articulationIndex < model.articulations.size();
+         ++articulationIndex) {
+        const MRArticulationGPU& articulation =
+            model.articulations[articulationIndex];
+        const std::vector<double> localQ(
+            desiredQ.begin() + articulation.qOffset,
+            desiredQ.begin() + articulation.qOffset + articulation.nq
+        );
+        const std::span<const double> localV = desiredV.subspan(
+            articulation.vOffset,
+            articulation.nv
+        );
+        const std::span<const double> localAcceleration =
+            desiredAcceleration.subspan(
+                articulation.vOffset,
+                articulation.nv
+            );
+        std::vector<double> feedforwardForce(articulation.nv, 0.0);
+        const auto diagnostics =
+            metalrobo::computeArticulatedInverseDynamics(
+                model,
+                articulationIndex,
+                localQ,
+                localV,
+                localAcceleration,
+                {},
+                feedforwardForce,
+                dynamics
+            );
+        require(
+            diagnostics.succeeded(),
+            "PSM computed-torque inverse dynamics failed"
+        );
+        for (std::uint32_t localDof = 0u;
+             localDof < articulation.nv;
+             ++localDof) {
+            const std::uint32_t globalDof =
+                articulation.vOffset + localDof;
+            const MRDofPropertiesGPU& properties =
+                model.dofs[globalDof];
+            if ((properties.flags & MR_DOF_FLAG_DRIVE) == 0u ||
+                properties.qIndex == MR_INVALID_INDEX ||
+                !(properties.drive.x > 0.0f)) {
+                continue;
+            }
+            double target =
+                desiredQ[properties.qIndex] +
+                (
+                    feedforwardForce[localDof] +
+                    (
+                        properties.drive.y +
+                        properties.drive.x *
+                            (kControlTimestep / kPhysicsSubsteps)
+                    ) * localV[localDof]
+                ) / properties.drive.x;
+            if ((properties.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u) {
+                target = std::clamp(
+                    target,
+                    static_cast<double>(properties.limits.x),
+                    static_cast<double>(properties.limits.y)
+                );
+            }
+            command[globalDof] = static_cast<float>(target);
+        }
+    }
+    return command;
+}
+
+std::vector<float> computedTorqueTrajectory(
+    const metalrobo::EngineModel& model,
+    const std::span<const float> initialQ,
+    const std::span<const float> desiredQ,
+    const std::uint32_t steps
+) {
+    require(
+        initialQ.size() == model.world.nq &&
+            desiredQ.size() ==
+                static_cast<std::size_t>(steps) * model.world.nq &&
+            steps != 0u,
+        "computed-torque trajectory has invalid dimensions"
+    );
+    std::vector<float> efforts(
+        static_cast<std::size_t>(steps) * model.world.nv,
+        0.0f
+    );
+    std::vector<double> previousV(model.world.nv, 0.0);
+    std::vector<float> previousQ(initialQ.begin(), initialQ.end());
+    for (std::uint32_t step = 0u; step < steps; ++step) {
+        const std::span<const float> currentQ = desiredQ.subspan(
+            static_cast<std::size_t>(step) * model.world.nq,
+            model.world.nq
+        );
+        std::vector<double> velocity(model.world.nv, 0.0);
+        std::vector<double> acceleration(model.world.nv, 0.0);
+        for (std::uint32_t dof = 0u; dof < model.world.nv; ++dof) {
+            const MRDofPropertiesGPU& properties = model.dofs[dof];
+            if (properties.qIndex == MR_INVALID_INDEX ||
+                (properties.flags & MR_DOF_FLAG_ROOT) != 0u) {
+                continue;
+            }
+            velocity[dof] =
+                (currentQ[properties.qIndex] -
+                 previousQ[properties.qIndex]) /
+                kControlTimestep;
+            acceleration[dof] =
+                (velocity[dof] - previousV[dof]) /
+                kControlTimestep;
+        }
+        const std::vector<float> command = computedTorquePositionTarget(
+            model,
+            currentQ,
+            velocity,
+            acceleration
+        );
+        std::copy(
+            command.begin(),
+            command.end(),
+            efforts.begin() +
+                static_cast<std::size_t>(step) * model.world.nv
+        );
+        previousQ.assign(currentQ.begin(), currentQ.end());
+        previousV = std::move(velocity);
+    }
+    return efforts;
+}
+
+std::vector<float> interpolateTargets(
+    const metalrobo::EngineModel& model,
+    const std::vector<float>& begin,
+    const std::vector<float>& end,
+    const std::uint32_t steps
+) {
+    require(
+        begin.size() == model.defaultQ.size() &&
+            end.size() == model.defaultQ.size() && steps != 0u,
+        "phase position target has invalid dimensions"
+    );
+    std::vector<float> desiredTrajectory(
+        static_cast<std::size_t>(steps) * model.world.nq,
+        0.0f
+    );
+    std::vector<float> desired = begin;
+    for (std::uint32_t step = 0u; step < steps; ++step) {
+        const double t = static_cast<double>(step + 1u) / steps;
+        const double smooth = t * t * (3.0 - 2.0 * t);
+        for (std::uint32_t dof = 0u; dof < model.world.nv; ++dof) {
+            const MRDofPropertiesGPU& properties = model.dofs[dof];
+            if (properties.qIndex == MR_INVALID_INDEX ||
+                (properties.flags & MR_DOF_FLAG_ROOT) != 0u) {
+                continue;
+            }
+            desired[properties.qIndex] = static_cast<float>(
+                begin[properties.qIndex] +
+                smooth * (
+                    end[properties.qIndex] - begin[properties.qIndex]
+                )
+            );
+        }
+        std::copy(
+            desired.begin(),
+            desired.end(),
+            desiredTrajectory.begin() +
+                static_cast<std::size_t>(step) * model.world.nq
+        );
+    }
+    return computedTorqueTrajectory(
+        model,
+        begin,
+        desiredTrajectory,
+        steps
+    );
+}
+
+struct ArmTrajectory {
+    std::vector<float> efforts;
+    std::vector<float> desiredQ;
+    std::vector<float> finalTarget;
+    double maximumVelocityRatio = 0.0;
+    double maximumVelocity = 0.0;
+    double limitingVelocity = 0.0;
+    std::uint32_t maximumVelocityDof = MR_INVALID_INDEX;
+};
+
+ArmTrajectory cartesianArmTrajectory(
+    const metalrobo::EngineModel& worldModel,
+    const metalrobo::EngineModel& psm,
+    const std::uint32_t arm,
+    const metalrobo::SurgicalBasePose& base,
+    const std::vector<float>& begin,
+    const Vec3 beginJawMidpoint,
+    const Vec3 endJawMidpoint,
+    const double beginJawCoordinate,
+    const double endJawCoordinate,
+    const std::uint32_t steps
+) {
+    require(
+        begin.size() == worldModel.defaultQ.size() && steps != 0u,
+        "Cartesian arm trajectory has invalid dimensions"
+    );
+    ArmTrajectory trajectory;
+    trajectory.desiredQ.assign(
+        static_cast<std::size_t>(steps) * worldModel.world.nq,
+        0.0f
+    );
+    trajectory.finalTarget = begin;
+    std::vector<double> local = armLocalQ(worldModel, arm, begin);
+    for (std::uint32_t step = 0u; step < steps; ++step) {
+        const double t = static_cast<double>(step + 1u) / steps;
+        const double smooth = t * t * (3.0 - 2.0 * t);
+        const Vec3 desired = beginJawMidpoint +
+            (endJawMidpoint - beginJawMidpoint) * smooth;
+        const double jawCoordinate =
+            beginJawCoordinate +
+            smooth * (endJawCoordinate - beginJawCoordinate);
+        local = solvePsmJawTarget(
+            psm,
+            base,
+            std::move(local),
+            desired,
+            jawCoordinate,
+            0.003,
+            2.0e-5,
+            0.03
+        );
+        trajectory.finalTarget = begin;
+        setArmTarget(
+            trajectory.finalTarget,
+            worldModel,
+            arm,
+            local
+        );
+        std::copy(
+            trajectory.finalTarget.begin(),
+            trajectory.finalTarget.end(),
+            trajectory.desiredQ.begin() +
+                static_cast<std::size_t>(step) * worldModel.world.nq
+        );
+    }
+    std::vector<float> previousQ(begin.begin(), begin.end());
+    for (std::uint32_t step = 0u; step < steps; ++step) {
+        const std::span<const float> currentQ{
+            trajectory.desiredQ.data() +
+                static_cast<std::size_t>(step) * worldModel.world.nq,
+            worldModel.world.nq,
+        };
+        for (std::uint32_t dof = 0u;
+             dof < worldModel.world.nv;
+             ++dof) {
+            const MRDofPropertiesGPU& properties =
+                worldModel.dofs[dof];
+            if (properties.qIndex == MR_INVALID_INDEX ||
+                (properties.flags & MR_DOF_FLAG_ROOT) != 0u ||
+                (properties.flags & MR_DOF_FLAG_VELOCITY_LIMIT) == 0u ||
+                !(properties.limits.z > 0.0f)) {
+                continue;
+            }
+            const double velocity = std::abs(
+                static_cast<double>(currentQ[properties.qIndex]) -
+                previousQ[properties.qIndex]
+            ) / kControlTimestep;
+            const double ratio =
+                velocity / static_cast<double>(properties.limits.z);
+            if (ratio > trajectory.maximumVelocityRatio) {
+                trajectory.maximumVelocityRatio = ratio;
+                trajectory.maximumVelocity = velocity;
+                trajectory.limitingVelocity = properties.limits.z;
+                trajectory.maximumVelocityDof = dof;
+            }
+        }
+        previousQ.assign(currentQ.begin(), currentQ.end());
+    }
+    trajectory.efforts = computedTorqueTrajectory(
+        worldModel,
+        begin,
+        trajectory.desiredQ,
+        steps
+    );
+    return trajectory;
+}
+
+struct ContactCounts {
+    std::array<std::array<std::uint32_t, 2>, 2> jawContacts{};
+    std::array<std::uint32_t, 2> graspZoneContacts{};
+    std::uint32_t needlePadContacts = 0u;
+    std::array<std::uint32_t, 2> armPadContacts{};
+    std::array<std::uint32_t, 2> armNeedleContacts{};
+    std::array<std::uint32_t, 2> firstArmPadCollider{
+        MR_INVALID_INDEX,
+        MR_INVALID_INDEX,
+    };
+    std::array<std::uint32_t, 2> firstArmNeedleCollider{
+        MR_INVALID_INDEX,
+        MR_INVALID_INDEX,
+    };
+    std::uint32_t crossArmContacts = 0u;
+    std::uint32_t firstCrossArmBodyA = MR_INVALID_INDEX;
+    std::uint32_t firstCrossArmBodyB = MR_INVALID_INDEX;
+    std::uint32_t firstCrossArmColliderA = MR_INVALID_INDEX;
+    std::uint32_t firstCrossArmColliderB = MR_INVALID_INDEX;
+    double minimumCrossArmSeparation =
+        std::numeric_limits<double>::infinity();
+    double maximumCrossArmNormalImpulse = 0.0;
+    std::uint32_t generalizedConstraints = 0u;
+    std::uint32_t rodAttachmentConstraints = 0u;
+    std::uint32_t rodTangentAttachmentConstraints = 0u;
+    std::uint32_t rodTwistAttachmentConstraints = 0u;
+    std::array<std::array<double, 3>, 2> rodAttachmentImpulses{};
+    std::array<double, 2> rodTangentAttachmentImpulses{};
+    std::uint32_t rodContacts = 0u;
+    double maximumJawNormalImpulse = 0.0;
+    double maximumJawFrictionUtilization = 0.0;
+    double maximumGeneralizedImpulse = 0.0;
+    double maximumRodAttachmentImpulse = 0.0;
+    double maximumRodTwistAttachmentImpulse = 0.0;
+    double maximumRodNormalImpulse = 0.0;
+    double minimumRodSeparation = std::numeric_limits<double>::infinity();
+};
+
+std::string vectorSummary(Vec3 value);
+
+ContactCounts contactCounts(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldResult& result,
+    const metalrobo::CurvedSutureNeedleMetadata& needleMetadata,
+    const std::uint32_t needleFirstShape
+) {
+    ContactCounts counts;
+    if (result.contactStatuses.empty()) {
+        return counts;
+    }
+    const std::size_t required = std::min<std::size_t>(
+        result.contactStatuses.back().requiredConstraints,
+        result.contactEvidence.blocks.size()
+    );
+    const std::array<std::array<std::uint32_t, 2>, 2> jawBodies{{
+        {{
+            world.model.articulations[0].firstBody + 7u,
+            world.model.articulations[0].firstBody + 8u,
+        }},
+        {{
+            world.model.articulations[1].firstBody + 7u,
+            world.model.articulations[1].firstBody + 8u,
+        }},
+    }};
+    const std::uint32_t needleBody = world.sceneBodyIndices.at(0u);
+    const std::uint32_t padBody = world.sceneBodyIndices.at(1u);
+    for (std::size_t constraint = 0u;
+         constraint < required;
+         ++constraint) {
+        const auto& block = result.contactEvidence.blocks[constraint];
+        if ((block.flags & MR_CONSTRAINT_IR_BLOCK_GENERALIZED) != 0u &&
+            constraint < result.contactEvidence.contacts.size()) {
+            ++counts.generalizedConstraints;
+            const mr_float4 impulse =
+                result.contactEvidence.contacts[constraint].impulses;
+            counts.maximumGeneralizedImpulse = std::max({
+                counts.maximumGeneralizedImpulse,
+                std::abs(static_cast<double>(impulse.x)),
+                std::abs(static_cast<double>(impulse.y)),
+                std::abs(static_cast<double>(impulse.z)),
+            });
+            if ((block.flags &
+                 MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT) != 0u) {
+                ++counts.rodAttachmentConstraints;
+                const std::uint32_t attachment = block.key.words[2];
+                const std::uint32_t axis = block.key.words[3];
+                if ((block.flags &
+                     MR_CONSTRAINT_IR_BLOCK_ROD_TANGENT_ATTACHMENT) != 0u) {
+                    ++counts.rodTangentAttachmentConstraints;
+                    if (axis <
+                        counts.rodTangentAttachmentImpulses.size()) {
+                        counts.rodTangentAttachmentImpulses[axis] =
+                            static_cast<double>(impulse.x);
+                    }
+                } else if (
+                    attachment < counts.rodAttachmentImpulses.size() &&
+                    axis < 3u
+                ) {
+                    counts.rodAttachmentImpulses[attachment][axis] =
+                        static_cast<double>(impulse.x);
+                }
+                counts.maximumRodAttachmentImpulse = std::max({
+                    counts.maximumRodAttachmentImpulse,
+                    std::abs(static_cast<double>(impulse.x)),
+                    std::abs(static_cast<double>(impulse.y)),
+                    std::abs(static_cast<double>(impulse.z)),
+                });
+            }
+            if ((block.flags &
+                 MR_CONSTRAINT_IR_BLOCK_ROD_TWIST_ATTACHMENT) != 0u) {
+                ++counts.rodTwistAttachmentConstraints;
+                counts.maximumRodTwistAttachmentImpulse = std::max({
+                    counts.maximumRodTwistAttachmentImpulse,
+                    std::abs(static_cast<double>(impulse.x)),
+                    std::abs(static_cast<double>(impulse.y)),
+                    std::abs(static_cast<double>(impulse.z)),
+                });
+                counts.maximumRodAttachmentImpulse = std::max({
+                    counts.maximumRodAttachmentImpulse,
+                    std::abs(static_cast<double>(impulse.x)),
+                    std::abs(static_cast<double>(impulse.y)),
+                    std::abs(static_cast<double>(impulse.z)),
+                });
+            }
+        }
+        if ((block.flags & MR_CONSTRAINT_IR_BLOCK_ROD_ENDPOINT) != 0u &&
+            (block.flags & MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT) == 0u &&
+            constraint < result.contactEvidence.contacts.size()) {
+            const auto& contact =
+                result.contactEvidence.contacts[constraint];
+            if (contact.impulses.x > 1.0e-12f) {
+                ++counts.rodContacts;
+                counts.maximumRodNormalImpulse = std::max(
+                    counts.maximumRodNormalImpulse,
+                    static_cast<double>(contact.impulses.x)
+                );
+            }
+            counts.minimumRodSeparation = std::min(
+                counts.minimumRodSeparation,
+                static_cast<double>(contact.pointAndSeparation.w)
+            );
+        }
+        if ((block.flags &
+             (MR_CONSTRAINT_IR_BLOCK_GENERALIZED |
+              MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT |
+              MR_CONSTRAINT_IR_BLOCK_ROD_ENDPOINT)) != 0u ||
+            block.endpointCount != 2u ||
+            constraint >= result.contactEvidence.contacts.size() ||
+            constraint >= result.contactEvidence.contactMetadata.size()) {
+            continue;
+        }
+        const auto& contact =
+            result.contactEvidence.contacts[constraint];
+        if (!(contact.impulses.x > 1.0e-10f)) {
+            continue;
+        }
+        const std::uint32_t bodyA = contact.bodyA;
+        const std::uint32_t bodyB = contact.bodyB;
+        const auto& metadata =
+            result.contactEvidence.contactMetadata[constraint];
+        if ((bodyA == needleBody && bodyB == padBody) ||
+            (bodyA == padBody && bodyB == needleBody)) {
+            ++counts.needlePadContacts;
+        }
+        for (std::uint32_t arm = 0u; arm < 2u; ++arm) {
+            for (std::uint32_t jaw = 0u; jaw < 2u; ++jaw) {
+                const std::uint32_t jawBody = jawBodies[arm][jaw];
+                if (!((bodyA == jawBody && bodyB == needleBody) ||
+                      (bodyB == jawBody && bodyA == needleBody))) {
+                    continue;
+                }
+                ++counts.jawContacts[arm][jaw];
+                counts.maximumJawNormalImpulse = std::max(
+                    counts.maximumJawNormalImpulse,
+                    static_cast<double>(contact.impulses.x)
+                );
+                const double frictionLimit =
+                    static_cast<double>(contact.friction.x) *
+                    static_cast<double>(contact.impulses.x);
+                if (frictionLimit > 0.0) {
+                    counts.maximumJawFrictionUtilization = std::max(
+                        counts.maximumJawFrictionUtilization,
+                        std::hypot(
+                            static_cast<double>(contact.impulses.y),
+                            static_cast<double>(contact.impulses.z)
+                        ) / frictionLimit
+                    );
+                }
+                const std::uint32_t needleCollider =
+                    bodyA == needleBody
+                    ? metadata.colliderA
+                    : metadata.colliderB;
+                if (needleCollider >= needleFirstShape &&
+                    needleCollider <
+                        needleFirstShape +
+                            needleMetadata.graspShapeEnd &&
+                    needleCollider >=
+                        needleFirstShape +
+                            needleMetadata.graspShapeBegin) {
+                    ++counts.graspZoneContacts[arm];
+                }
+            }
+        }
+        const bool aArm0 =
+            bodyA >= world.model.articulations[0].firstBody &&
+            bodyA < world.model.articulations[0].firstBody +
+                world.model.articulations[0].bodyCount;
+        const bool bArm0 =
+            bodyB >= world.model.articulations[0].firstBody &&
+            bodyB < world.model.articulations[0].firstBody +
+                world.model.articulations[0].bodyCount;
+        const bool aArm1 =
+            bodyA >= world.model.articulations[1].firstBody &&
+            bodyA < world.model.articulations[1].firstBody +
+                world.model.articulations[1].bodyCount;
+        const bool bArm1 =
+            bodyB >= world.model.articulations[1].firstBody &&
+            bodyB < world.model.articulations[1].firstBody +
+                world.model.articulations[1].bodyCount;
+        if ((aArm0 && bodyB == padBody) ||
+            (bArm0 && bodyA == padBody)) {
+            ++counts.armPadContacts[0];
+            counts.firstArmPadCollider[0] = std::min(
+                counts.firstArmPadCollider[0],
+                aArm0 ? metadata.colliderA : metadata.colliderB
+            );
+        }
+        if ((aArm1 && bodyB == padBody) ||
+            (bArm1 && bodyA == padBody)) {
+            ++counts.armPadContacts[1];
+            counts.firstArmPadCollider[1] = std::min(
+                counts.firstArmPadCollider[1],
+                aArm1 ? metadata.colliderA : metadata.colliderB
+            );
+        }
+        if ((aArm0 && bodyB == needleBody) ||
+            (bArm0 && bodyA == needleBody)) {
+            ++counts.armNeedleContacts[0];
+            counts.firstArmNeedleCollider[0] = std::min(
+                counts.firstArmNeedleCollider[0],
+                aArm0 ? metadata.colliderA : metadata.colliderB
+            );
+        }
+        if ((aArm1 && bodyB == needleBody) ||
+            (bArm1 && bodyA == needleBody)) {
+            ++counts.armNeedleContacts[1];
+            counts.firstArmNeedleCollider[1] = std::min(
+                counts.firstArmNeedleCollider[1],
+                aArm1 ? metadata.colliderA : metadata.colliderB
+            );
+        }
+        if ((aArm0 && bArm1) || (aArm1 && bArm0)) {
+            ++counts.crossArmContacts;
+            const double separation = static_cast<double>(
+                contact.pointAndSeparation.w
+            );
+            if (separation < counts.minimumCrossArmSeparation) {
+                counts.minimumCrossArmSeparation = separation;
+                counts.firstCrossArmBodyA = bodyA;
+                counts.firstCrossArmBodyB = bodyB;
+                counts.firstCrossArmColliderA = metadata.colliderA;
+                counts.firstCrossArmColliderB = metadata.colliderB;
+            }
+            counts.maximumCrossArmNormalImpulse = std::max(
+                counts.maximumCrossArmNormalImpulse,
+                static_cast<double>(contact.impulses.x)
+            );
+        }
+    }
+    return counts;
+}
+
+bool bilateral(const ContactCounts& counts, const std::uint32_t arm) {
+    return counts.jawContacts[arm][0] != 0u &&
+        counts.jawContacts[arm][1] != 0u &&
+        counts.graspZoneContacts[arm] >= 2u;
+}
+
+bool cleanNeedleInteraction(
+    const ContactCounts& counts,
+    const bool giverControlsNeedle,
+    const bool receiverControlsNeedle,
+    const bool needleMustClearPad = true
+) {
+    const std::array<bool, 2> controls{
+        giverControlsNeedle,
+        receiverControlsNeedle,
+    };
+    for (std::uint32_t arm = 0u; arm < controls.size(); ++arm) {
+        const std::uint32_t jawContactCount =
+            counts.jawContacts[arm][0] + counts.jawContacts[arm][1];
+        if (counts.armPadContacts[arm] != 0u ||
+            counts.armNeedleContacts[arm] !=
+                (controls[arm] ? jawContactCount : 0u)) {
+            return false;
+        }
+    }
+    return
+        (!needleMustClearPad || counts.needlePadContacts == 0u) &&
+        counts.crossArmContacts == 0u &&
+        counts.maximumJawFrictionUtilization <= 1.0001 &&
+        counts.minimumRodSeparation >= kMinimumSettledRodSeparation;
+}
+
+bool cleanGiverNeedleInteraction(
+    const ContactCounts& counts,
+    const bool needleMustClearPad = true
+) {
+    return cleanNeedleInteraction(
+        counts,
+        true,
+        false,
+        needleMustClearPad
+    );
+}
+
+std::string contactSummary(const ContactCounts& counts) {
+    return
+        " giver_jaws=" +
+        std::to_string(counts.jawContacts[0][0]) + "/" +
+        std::to_string(counts.jawContacts[0][1]) +
+        " receiver_jaws=" +
+        std::to_string(counts.jawContacts[1][0]) + "/" +
+        std::to_string(counts.jawContacts[1][1]) +
+        " grasp_zone=" +
+        std::to_string(counts.graspZoneContacts[0]) + "/" +
+        std::to_string(counts.graspZoneContacts[1]) +
+        " pad=" + std::to_string(counts.needlePadContacts) +
+        " arm_pad=" +
+        std::to_string(counts.armPadContacts[0]) + "/" +
+        std::to_string(counts.armPadContacts[1]) +
+        " arm_needle=" +
+        std::to_string(counts.armNeedleContacts[0]) + "/" +
+        std::to_string(counts.armNeedleContacts[1]) +
+        " first_arm_pad_collider=" +
+        std::to_string(counts.firstArmPadCollider[0]) + "/" +
+        std::to_string(counts.firstArmPadCollider[1]) +
+        " first_arm_needle_collider=" +
+        std::to_string(counts.firstArmNeedleCollider[0]) + "/" +
+        std::to_string(counts.firstArmNeedleCollider[1]) +
+        " cross_arm=" + std::to_string(counts.crossArmContacts) +
+        " cross_arm_bodies=" +
+        std::to_string(counts.firstCrossArmBodyA) + "/" +
+        std::to_string(counts.firstCrossArmBodyB) +
+        " cross_arm_colliders=" +
+        std::to_string(counts.firstCrossArmColliderA) + "/" +
+        std::to_string(counts.firstCrossArmColliderB) +
+        " min_cross_arm_separation=" +
+        std::to_string(
+            std::isfinite(counts.minimumCrossArmSeparation)
+                ? counts.minimumCrossArmSeparation
+                : 0.0
+        ) +
+        " max_cross_arm_impulse=" +
+        std::to_string(counts.maximumCrossArmNormalImpulse) +
+        " rod_contacts=" + std::to_string(counts.rodContacts) +
+        " max_rod_impulse=" +
+        std::to_string(counts.maximumRodNormalImpulse) +
+        " min_rod_separation=" +
+        std::to_string(
+            std::isfinite(counts.minimumRodSeparation)
+                ? counts.minimumRodSeparation
+                : 0.0
+        ) +
+        " generalized=" +
+        std::to_string(counts.generalizedConstraints) +
+        " rod_attachment=" +
+        std::to_string(counts.rodAttachmentConstraints) +
+        " rod_tangent_attachment=" +
+        std::to_string(counts.rodTangentAttachmentConstraints) +
+        " rod_twist_attachment=" +
+        std::to_string(counts.rodTwistAttachmentConstraints) +
+        " max_generalized_impulse=" +
+        std::to_string(counts.maximumGeneralizedImpulse) +
+        " max_rod_attachment_impulse=" +
+        std::to_string(counts.maximumRodAttachmentImpulse) +
+        " rod_attachment0_impulse=" +
+        vectorSummary({
+            counts.rodAttachmentImpulses[0][0],
+            counts.rodAttachmentImpulses[0][1],
+            counts.rodAttachmentImpulses[0][2],
+        }) +
+        " rod_attachment1_impulse=" +
+        vectorSummary({
+            counts.rodAttachmentImpulses[1][0],
+            counts.rodAttachmentImpulses[1][1],
+            counts.rodAttachmentImpulses[1][2],
+        }) +
+        " rod_tangent_attachment_impulse=[" +
+        std::to_string(counts.rodTangentAttachmentImpulses[0]) + "," +
+        std::to_string(counts.rodTangentAttachmentImpulses[1]) + "]" +
+        " max_rod_twist_attachment_impulse=" +
+        std::to_string(counts.maximumRodTwistAttachmentImpulse) +
+        " max_normal_impulse=" +
+        std::to_string(counts.maximumJawNormalImpulse) +
+        " max_jaw_friction_utilization=" +
+        std::to_string(counts.maximumJawFrictionUtilization);
+}
+
+std::string vectorSummary(const Vec3 value) {
+    return
+        "[" + std::to_string(value.x) + "," +
+        std::to_string(value.y) + "," +
+        std::to_string(value.z) + "]";
+}
+
+struct CrossArmCollisionScan {
+    std::uint32_t samplesWithContact = 0u;
+    std::uint32_t firstContactStep = MR_INVALID_INDEX;
+    std::uint32_t lastContactStep = MR_INVALID_INDEX;
+    std::uint32_t colliderA = MR_INVALID_INDEX;
+    std::uint32_t colliderB = MR_INVALID_INDEX;
+    std::uint32_t bodyA = MR_INVALID_INDEX;
+    std::uint32_t bodyB = MR_INVALID_INDEX;
+    double minimumSeparation = std::numeric_limits<double>::infinity();
+    std::uint32_t samplesWithGiverPadContact = 0u;
+    std::uint32_t firstGiverPadContactStep = MR_INVALID_INDEX;
+    std::uint32_t lastGiverPadContactStep = MR_INVALID_INDEX;
+    std::uint32_t giverPadCollider = MR_INVALID_INDEX;
+    double minimumGiverPadSeparation =
+        std::numeric_limits<double>::infinity();
+    std::uint32_t samplesWithReceiverPadContact = 0u;
+    std::uint32_t firstReceiverPadContactStep = MR_INVALID_INDEX;
+    std::uint32_t lastReceiverPadContactStep = MR_INVALID_INDEX;
+    std::uint32_t receiverPadCollider = MR_INVALID_INDEX;
+    double minimumReceiverPadSeparation =
+        std::numeric_limits<double>::infinity();
+};
+
+bool articulationOwnsBody(
+    const metalrobo::EngineModel& model,
+    const std::uint32_t articulation,
+    const std::uint32_t body
+) {
+    const MRArticulationGPU& owner = model.articulations.at(articulation);
+    return body >= owner.firstBody &&
+        body < owner.firstBody + owner.bodyCount;
+}
+
+std::string semanticName(
+    const std::span<const std::string> names,
+    const std::uint32_t index
+) {
+    if (index < names.size() && !names[index].empty()) {
+        return names[index];
+    }
+    return std::to_string(index);
+}
+
+CrossArmCollisionScan scanCrossArmTargetPath(
+    const metalrobo::HeterogeneousWorld& world,
+    const std::span<const float> begin,
+    const std::span<const float> end,
+    const std::uint32_t steps,
+    const std::span<const float> explicitTrajectory = {}
+) {
+    require(
+        begin.size() == world.model.world.nq &&
+            end.size() == world.model.world.nq &&
+            steps != 0u &&
+            (
+                explicitTrajectory.empty() ||
+                explicitTrajectory.size() ==
+                    static_cast<std::size_t>(steps) *
+                        world.model.world.nq
+            ),
+        "cross-arm target scan has invalid generalized state"
+    );
+    metalrobo::CollisionConfig collisionConfig;
+    collisionConfig.environment = 0x48414e44u;
+    collisionConfig.capacities = {
+        .pairCapacity = 8192u,
+        .rawContactCapacity = 32768u,
+        .manifoldCapacity = 8192u,
+    };
+    collisionConfig.manifoldBreakingSeparation = 5.0e-4;
+    collisionConfig.manifoldBreakingTangential = 5.0e-4;
+    collisionConfig.manifoldMergeDistance = 2.0e-5;
+
+    CrossArmCollisionScan scan;
+    std::vector<float> q(begin.begin(), begin.end());
+    std::vector<float> v(world.model.world.nv, 0.0f);
+    const std::uint32_t padBody = world.sceneBodyIndices.at(1u);
+    for (std::uint32_t step = 0u; step <= steps; ++step) {
+        if (!explicitTrajectory.empty() && step != 0u) {
+            const float* sample = explicitTrajectory.data() +
+                static_cast<std::size_t>(step - 1u) *
+                    world.model.world.nq;
+            q.assign(sample, sample + world.model.world.nq);
+        } else if (explicitTrajectory.empty()) {
+            const double t = static_cast<double>(step) / steps;
+            const double smooth = t * t * (3.0 - 2.0 * t);
+            for (std::uint32_t dof = 0u;
+                 dof < world.model.world.nv;
+                 ++dof) {
+                const MRDofPropertiesGPU& properties =
+                    world.model.dofs[dof];
+                if (properties.qIndex == MR_INVALID_INDEX ||
+                    (properties.flags & MR_DOF_FLAG_ROOT) != 0u) {
+                    continue;
+                }
+                q[properties.qIndex] = static_cast<float>(
+                    begin[properties.qIndex] +
+                    smooth * (
+                        end[properties.qIndex] - begin[properties.qIndex]
+                    )
+                );
+            }
+        }
+        std::vector<MRBodyStateGPU> bodies;
+        std::string reason;
+        require(
+            metalrobo::composeVisualBodyStates(
+                world.model,
+                1u,
+                q,
+                v,
+                world.defaultSceneBodies,
+                bodies,
+                &reason
+            ),
+            "cross-arm target scan kinematics failed: " + reason
+        );
+        metalrobo::PersistentManifoldCache cache;
+        const metalrobo::CollisionFrame collision =
+            metalrobo::collideCpuReference(
+                world.model.shapes,
+                bodies,
+                collisionConfig,
+                cache,
+                world.model.collisionExclusions
+            );
+        require(
+            collision.succeeded(),
+            "cross-arm target scan collision oracle failed"
+        );
+        std::uint32_t crossContacts = 0u;
+        double stepMinimum = std::numeric_limits<double>::infinity();
+        std::uint32_t stepColliderA = MR_INVALID_INDEX;
+        std::uint32_t stepColliderB = MR_INVALID_INDEX;
+        std::uint32_t stepBodyA = MR_INVALID_INDEX;
+        std::uint32_t stepBodyB = MR_INVALID_INDEX;
+        std::uint32_t giverPadContacts = 0u;
+        double stepGiverPadMinimum =
+            std::numeric_limits<double>::infinity();
+        std::uint32_t stepGiverPadCollider = MR_INVALID_INDEX;
+        std::uint32_t receiverPadContacts = 0u;
+        double stepReceiverPadMinimum =
+            std::numeric_limits<double>::infinity();
+        std::uint32_t stepReceiverPadCollider = MR_INVALID_INDEX;
+        for (std::size_t rawIndex = 0u;
+             rawIndex < collision.rawContacts.size();
+             ++rawIndex) {
+            const std::uint32_t pairIndex =
+                collision.rawContactPairIndices.at(rawIndex);
+            const MRCandidatePairGPU& pair =
+                collision.pairs.at(pairIndex);
+            const std::uint32_t bodyA =
+                world.model.shapes.at(pair.colliderA).bodyIndex;
+            const std::uint32_t bodyB =
+                world.model.shapes.at(pair.colliderB).bodyIndex;
+            const bool cross =
+                (articulationOwnsBody(world.model, 0u, bodyA) &&
+                 articulationOwnsBody(world.model, 1u, bodyB)) ||
+                (articulationOwnsBody(world.model, 1u, bodyA) &&
+                 articulationOwnsBody(world.model, 0u, bodyB));
+            const bool aGiver =
+                articulationOwnsBody(world.model, 0u, bodyA);
+            const bool bGiver =
+                articulationOwnsBody(world.model, 0u, bodyB);
+            const bool aReceiver =
+                articulationOwnsBody(world.model, 1u, bodyA);
+            const bool bReceiver =
+                articulationOwnsBody(world.model, 1u, bodyB);
+            const bool receiverPad =
+                (aReceiver && bodyB == padBody) ||
+                (bReceiver && bodyA == padBody);
+            const bool giverPad =
+                (aGiver && bodyB == padBody) ||
+                (bGiver && bodyA == padBody);
+            if (giverPad) {
+                ++giverPadContacts;
+                const double separation = static_cast<double>(
+                    collision.rawContacts[rawIndex].normalAndSeparation.w
+                );
+                if (separation < stepGiverPadMinimum) {
+                    stepGiverPadMinimum = separation;
+                    stepGiverPadCollider = aGiver
+                        ? pair.colliderA
+                        : pair.colliderB;
+                }
+            }
+            if (receiverPad) {
+                ++receiverPadContacts;
+                const double separation = static_cast<double>(
+                    collision.rawContacts[rawIndex].normalAndSeparation.w
+                );
+                if (separation < stepReceiverPadMinimum) {
+                    stepReceiverPadMinimum = separation;
+                    stepReceiverPadCollider = aReceiver
+                        ? pair.colliderA
+                        : pair.colliderB;
+                }
+            }
+            if (!cross) {
+                continue;
+            }
+            ++crossContacts;
+            const double separation = static_cast<double>(
+                collision.rawContacts[rawIndex].normalAndSeparation.w
+            );
+            if (separation < stepMinimum) {
+                stepMinimum = separation;
+                stepColliderA = pair.colliderA;
+                stepColliderB = pair.colliderB;
+                stepBodyA = bodyA;
+                stepBodyB = bodyB;
+            }
+        }
+        if (giverPadContacts != 0u) {
+            ++scan.samplesWithGiverPadContact;
+            scan.firstGiverPadContactStep = std::min(
+                scan.firstGiverPadContactStep,
+                step
+            );
+            scan.lastGiverPadContactStep = step;
+            if (stepGiverPadMinimum < scan.minimumGiverPadSeparation) {
+                scan.minimumGiverPadSeparation = stepGiverPadMinimum;
+                scan.giverPadCollider = stepGiverPadCollider;
+            }
+            std::cerr << "handoff_phase=giver_pad_collision_scan"
+                << " step=" << step
+                << " contacts=" << giverPadContacts
+                << " minimum_separation_m=" << stepGiverPadMinimum
+                << " collider=" << stepGiverPadCollider
+                << " collider_name=\""
+                << semanticName(
+                    world.model.shapeNames,
+                    stepGiverPadCollider
+                ) << "\"\n";
+        }
+        if (receiverPadContacts != 0u) {
+            ++scan.samplesWithReceiverPadContact;
+            scan.firstReceiverPadContactStep = std::min(
+                scan.firstReceiverPadContactStep,
+                step
+            );
+            scan.lastReceiverPadContactStep = step;
+            if (stepReceiverPadMinimum <
+                scan.minimumReceiverPadSeparation) {
+                scan.minimumReceiverPadSeparation = stepReceiverPadMinimum;
+                scan.receiverPadCollider = stepReceiverPadCollider;
+            }
+            std::cerr << "handoff_phase=receiver_pad_collision_scan"
+                << " step=" << step
+                << " contacts=" << receiverPadContacts
+                << " minimum_separation_m="
+                << stepReceiverPadMinimum
+                << " collider=" << stepReceiverPadCollider
+                << " collider_name=\""
+                << semanticName(
+                    world.model.shapeNames,
+                    stepReceiverPadCollider
+                ) << "\"\n";
+        }
+        if (crossContacts == 0u) {
+            continue;
+        }
+        ++scan.samplesWithContact;
+        scan.firstContactStep = std::min(scan.firstContactStep, step);
+        scan.lastContactStep = step;
+        if (stepMinimum < scan.minimumSeparation) {
+            scan.minimumSeparation = stepMinimum;
+            scan.colliderA = stepColliderA;
+            scan.colliderB = stepColliderB;
+            scan.bodyA = stepBodyA;
+            scan.bodyB = stepBodyB;
+        }
+        std::cerr << "handoff_phase=receiver_collision_scan"
+            << " step=" << step
+            << " cross_contacts=" << crossContacts
+            << " minimum_separation_m=" << stepMinimum
+            << " bodies=" << stepBodyA << '/' << stepBodyB
+            << " body_names=\""
+            << semanticName(world.model.bodyNames, stepBodyA) << "/"
+            << semanticName(world.model.bodyNames, stepBodyB) << "\""
+            << " colliders=" << stepColliderA << '/' << stepColliderB
+            << " collider_names=\""
+            << semanticName(world.model.shapeNames, stepColliderA) << "/"
+            << semanticName(world.model.shapeNames, stepColliderB) << "\"\n";
+    }
+    return scan;
+}
+
+struct KinematicNeedleObservation {
+    std::array<std::uint32_t, 2u> receiverJawContacts{};
+    std::uint32_t receiverGraspZoneContacts = 0u;
+    std::uint32_t crossArmContacts = 0u;
+    double minimumCrossArmSeparation =
+        std::numeric_limits<double>::infinity();
+};
+
+KinematicNeedleObservation observeKinematicNeedleContacts(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::CurvedSutureNeedleMetadata& needleMetadata,
+    const std::span<const float> q
+) {
+    std::vector<float> v(world.model.world.nv, 0.0f);
+    std::vector<MRBodyStateGPU> bodies;
+    std::string reason;
+    require(
+        metalrobo::composeVisualBodyStates(
+            world.model,
+            1u,
+            q,
+            v,
+            world.defaultSceneBodies,
+            bodies,
+            &reason
+        ),
+        "kinematic needle observation failed: " + reason
+    );
+    metalrobo::CollisionConfig config;
+    config.environment = 0x4e454544u;
+    config.capacities = {
+        .pairCapacity = 8192u,
+        .rawContactCapacity = 32768u,
+        .manifoldCapacity = 8192u,
+    };
+    config.manifoldBreakingSeparation = 5.0e-4;
+    config.manifoldBreakingTangential = 5.0e-4;
+    config.manifoldMergeDistance = 2.0e-5;
+    metalrobo::PersistentManifoldCache cache;
+    const metalrobo::CollisionFrame collision =
+        metalrobo::collideCpuReference(
+            world.model.shapes,
+            bodies,
+            config,
+            cache,
+            world.model.collisionExclusions
+        );
+    require(
+        collision.succeeded(),
+        "kinematic needle collision observation failed"
+    );
+    const std::uint32_t needleBody = world.sceneBodyIndices.at(0u);
+    const std::array<std::uint32_t, 2u> receiverJawBodies{
+        world.model.articulations.at(1u).firstBody + 7u,
+        world.model.articulations.at(1u).firstBody + 8u,
+    };
+    KinematicNeedleObservation observation;
+    for (std::size_t rawIndex = 0u;
+         rawIndex < collision.rawContacts.size();
+         ++rawIndex) {
+        const MRCandidatePairGPU& pair = collision.pairs.at(
+            collision.rawContactPairIndices.at(rawIndex)
+        );
+        const std::uint32_t bodyA =
+            world.model.shapes.at(pair.colliderA).bodyIndex;
+        const std::uint32_t bodyB =
+            world.model.shapes.at(pair.colliderB).bodyIndex;
+        for (std::uint32_t jaw = 0u; jaw < 2u; ++jaw) {
+            const std::uint32_t jawBody = receiverJawBodies[jaw];
+            if (!((bodyA == jawBody && bodyB == needleBody) ||
+                  (bodyB == jawBody && bodyA == needleBody))) {
+                continue;
+            }
+            ++observation.receiverJawContacts[jaw];
+            const std::uint32_t needleCollider =
+                bodyA == needleBody ? pair.colliderA : pair.colliderB;
+            if (needleCollider >=
+                    kNeedleFirstShape + needleMetadata.graspShapeBegin &&
+                needleCollider <
+                    kNeedleFirstShape + needleMetadata.graspShapeEnd) {
+                ++observation.receiverGraspZoneContacts;
+            }
+        }
+        const bool cross =
+            (articulationOwnsBody(world.model, 0u, bodyA) &&
+             articulationOwnsBody(world.model, 1u, bodyB)) ||
+            (articulationOwnsBody(world.model, 1u, bodyA) &&
+             articulationOwnsBody(world.model, 0u, bodyB));
+        if (cross) {
+            ++observation.crossArmContacts;
+            observation.minimumCrossArmSeparation = std::min(
+                observation.minimumCrossArmSeparation,
+                static_cast<double>(
+                    collision.rawContacts[rawIndex]
+                        .normalAndSeparation.w
+                )
+            );
+        }
+    }
+    return observation;
+}
+
+std::string armTargetSummary(
+    const metalrobo::EngineModel& model,
+    const std::uint32_t arm,
+    const std::span<const float> acceptedQ,
+    const std::span<const float> targetQ
+) {
+    const std::uint32_t offset =
+        model.articulations.at(arm).qOffset + 7u;
+    const std::uint32_t rootOffset =
+        model.articulations.at(arm).qOffset;
+    std::string result = " root_error=[";
+    for (std::uint32_t coordinate = 0u; coordinate < 3u; ++coordinate) {
+        if (coordinate != 0u) {
+            result += ',';
+        }
+        result += std::to_string(
+            static_cast<double>(acceptedQ[rootOffset + coordinate]) -
+            targetQ[rootOffset + coordinate]
+        );
+    }
+    result += "] q_error=[";
+    for (std::uint32_t coordinate = 0u; coordinate < 8u; ++coordinate) {
+        if (coordinate != 0u) {
+            result += ',';
+        }
+        result += std::to_string(
+            static_cast<double>(acceptedQ[offset + coordinate]) -
+            targetQ[offset + coordinate]
+        );
+    }
+    return result + ']';
+}
+
+struct PhaseResult {
+    metalrobo::MetalWorldResult result;
+    metalrobo::MetalWorldDiagnostics diagnostics;
+};
+
+struct Arguments {
+    std::string mode;
+    std::filesystem::path stateOutputDirectory;
+    std::filesystem::path resumeApproachHeldPath;
+    std::filesystem::path resumeGiverClosedPath;
+    std::filesystem::path resumeGiverLiftPath;
+    std::filesystem::path resumeGiverHandoffStagePath;
+    std::filesystem::path resumeGiverHandoffStagePrefixPath;
+    std::filesystem::path giverLiftReferencePath;
+    std::filesystem::path resumePositiveControlOverlapPath;
+    std::uint32_t resumeStagingCompletedSteps = 0u;
+    bool resumeStagingCompletedStepsProvided = false;
+    std::uint32_t resumeLiftStepLimit = kHandoffLiftSteps;
+    std::uint32_t liftDiagnosticChunkSteps = 0u;
+    std::uint32_t settleStepLimit = 0u;
+    std::uint32_t rodSolverIterations = 2048u;
+    // The 16/8 sweep budget retained the jaw witnesses during the opening
+    // lift but left a 9.4 mm/s final-sweep residual by step 100. A controlled
+    // 32/16 replay reduced it to 6.4 mm/s without changing contact geometry,
+    // friction, preload, substeps, or any acceptance tolerance.
+    std::uint32_t velocityIterations = 32u;
+    std::uint32_t finalVelocityIterations = 16u;
+    bool resumeLiftStepLimitProvided = false;
+    bool rodSolverIterationsProvided = false;
+    bool velocityIterationsProvided = false;
+    bool finalVelocityIterationsProvided = false;
+    bool receiverCollisionScan = false;
+    double receiverToolRollOffset = 0.0;
+    double receiverWristYaw = 0.0;
+    double receiverBaseAzimuthOffset = 0.0;
+    double receiverNeedleAxisRoll = kReceiverNeedleAxisRoll;
+    double receiverScanHandoffHeightIncrement = 0.0;
+    double receiverScanHandoffOffsetX = 0.0;
+    double receiverScanHandoffOffsetY = 0.0;
+    bool receiverToolRollOffsetProvided = false;
+    bool receiverWristYawProvided = false;
+    bool receiverBaseAzimuthOffsetProvided = false;
+    bool receiverNeedleAxisRollProvided = false;
+    bool receiverScanHandoffHeightIncrementProvided = false;
+    bool receiverScanHandoffOffsetXProvided = false;
+    bool receiverScanHandoffOffsetYProvided = false;
+};
+
+Arguments parseArguments(const int argc, const char* const argv[]) {
+    Arguments result;
+    for (int index = 1; index < argc; ++index) {
+        const std::string_view argument{argv[index]};
+        if (argument == "--geometry-only" ||
+            argument == "--settle-only" ||
+            argument == "--long-settle" ||
+            argument == "--approach-only" ||
+            argument == "--closure-only" ||
+            argument == "--stage-only") {
+            require(result.mode.empty(), "only one diagnostic mode is allowed");
+            result.mode = argument;
+        } else if (argument == "--state-output-dir") {
+            require(
+                result.stateOutputDirectory.empty() && index + 1 < argc,
+                "--state-output-dir requires exactly one path"
+            );
+            result.stateOutputDirectory = argv[++index];
+        } else if (argument == "--receiver-collision-scan") {
+            require(
+                !result.receiverCollisionScan,
+                "--receiver-collision-scan may be provided only once"
+            );
+            result.receiverCollisionScan = true;
+        } else if (argument == "--receiver-tool-roll-offset") {
+            require(
+                !result.receiverToolRollOffsetProvided &&
+                    index + 1 < argc,
+                "--receiver-tool-roll-offset requires one angle"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            result.receiverToolRollOffset = std::stod(value, &consumed);
+            require(
+                consumed == value.size() &&
+                    std::isfinite(result.receiverToolRollOffset) &&
+                    std::abs(result.receiverToolRollOffset) <= 2.0,
+                "receiver tool-roll offset must be finite and within 2 rad"
+            );
+            result.receiverToolRollOffsetProvided = true;
+        } else if (argument == "--receiver-wrist-yaw") {
+            require(
+                !result.receiverWristYawProvided && index + 1 < argc,
+                "--receiver-wrist-yaw requires one angle"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            result.receiverWristYaw = std::stod(value, &consumed);
+            require(
+                consumed == value.size() &&
+                    std::isfinite(result.receiverWristYaw) &&
+                    std::abs(result.receiverWristYaw) <= 1.35,
+                "receiver wrist yaw must be finite and within 1.35 rad"
+            );
+            result.receiverWristYawProvided = true;
+        } else if (argument == "--receiver-base-azimuth-offset") {
+            require(
+                !result.receiverBaseAzimuthOffsetProvided &&
+                    index + 1 < argc,
+                "--receiver-base-azimuth-offset requires one angle"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            result.receiverBaseAzimuthOffset = std::stod(value, &consumed);
+            require(
+                consumed == value.size() &&
+                    std::isfinite(result.receiverBaseAzimuthOffset) &&
+                    std::abs(result.receiverBaseAzimuthOffset) <=
+                        std::numbers::pi,
+                "receiver base azimuth must be finite and within pi rad"
+            );
+            result.receiverBaseAzimuthOffsetProvided = true;
+        } else if (argument == "--receiver-needle-axis-roll") {
+            require(
+                !result.receiverNeedleAxisRollProvided && index + 1 < argc,
+                "--receiver-needle-axis-roll requires one angle"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            result.receiverNeedleAxisRoll = std::stod(value, &consumed);
+            require(
+                consumed == value.size() &&
+                    std::isfinite(result.receiverNeedleAxisRoll) &&
+                    std::abs(result.receiverNeedleAxisRoll) <=
+                        std::numbers::pi,
+                "receiver needle-axis roll must be finite and within pi"
+            );
+            result.receiverNeedleAxisRollProvided = true;
+        } else if (argument == "--receiver-scan-handoff-height-increment") {
+            require(
+                !result.receiverScanHandoffHeightIncrementProvided &&
+                    index + 1 < argc,
+                "--receiver-scan-handoff-height-increment requires one "
+                "distance"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            result.receiverScanHandoffHeightIncrement =
+                std::stod(value, &consumed);
+            require(
+                consumed == value.size() &&
+                    std::isfinite(
+                        result.receiverScanHandoffHeightIncrement
+                    ) &&
+                    result.receiverScanHandoffHeightIncrement >= 0.0 &&
+                    result.receiverScanHandoffHeightIncrement <= 0.04,
+                "receiver scan height increment must be in [0, 0.04] m"
+            );
+            result.receiverScanHandoffHeightIncrementProvided = true;
+        } else if (argument == "--receiver-scan-handoff-offset-x" ||
+                   argument == "--receiver-scan-handoff-offset-y") {
+            const bool x =
+                argument == "--receiver-scan-handoff-offset-x";
+            bool& provided = x
+                ? result.receiverScanHandoffOffsetXProvided
+                : result.receiverScanHandoffOffsetYProvided;
+            double& destination = x
+                ? result.receiverScanHandoffOffsetX
+                : result.receiverScanHandoffOffsetY;
+            require(
+                !provided && index + 1 < argc,
+                std::string{argument} + " requires one distance"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            destination = std::stod(value, &consumed);
+            require(
+                consumed == value.size() &&
+                    std::isfinite(destination) &&
+                    std::abs(destination) <= 0.15,
+                std::string{argument} + " must be within 0.15 m"
+            );
+            provided = true;
+        } else if (argument == "--resume-giver-closed") {
+            require(
+                result.resumeGiverClosedPath.empty() &&
+                    index + 1 < argc,
+                "--resume-giver-closed requires exactly one path"
+            );
+            result.resumeGiverClosedPath = argv[++index];
+        } else if (argument == "--resume-giver-lift") {
+            require(
+                result.resumeGiverLiftPath.empty() && index + 1 < argc,
+                "--resume-giver-lift requires exactly one path"
+            );
+            result.resumeGiverLiftPath = argv[++index];
+        } else if (argument == "--resume-giver-handoff-stage") {
+            require(
+                result.resumeGiverHandoffStagePath.empty() &&
+                    index + 1 < argc,
+                "--resume-giver-handoff-stage requires exactly one path"
+            );
+            result.resumeGiverHandoffStagePath = argv[++index];
+        } else if (argument == "--resume-giver-handoff-stage-prefix") {
+            require(
+                result.resumeGiverHandoffStagePrefixPath.empty() &&
+                    index + 1 < argc,
+                "--resume-giver-handoff-stage-prefix requires one path"
+            );
+            result.resumeGiverHandoffStagePrefixPath = argv[++index];
+        } else if (argument == "--giver-lift-reference") {
+            require(
+                result.giverLiftReferencePath.empty() &&
+                    index + 1 < argc,
+                "--giver-lift-reference requires one path"
+            );
+            result.giverLiftReferencePath = argv[++index];
+        } else if (argument == "--resume-staging-completed-steps") {
+            require(
+                !result.resumeStagingCompletedStepsProvided &&
+                    index + 1 < argc,
+                "--resume-staging-completed-steps requires one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed > 0u &&
+                    parsed < kHandoffStagingSteps,
+                "completed staging steps must be inside the trajectory"
+            );
+            result.resumeStagingCompletedSteps =
+                static_cast<std::uint32_t>(parsed);
+            result.resumeStagingCompletedStepsProvided = true;
+        } else if (argument == "--resume-positive-control-overlap") {
+            require(
+                result.resumePositiveControlOverlapPath.empty() &&
+                    index + 1 < argc,
+                "--resume-positive-control-overlap requires exactly one path"
+            );
+            result.resumePositiveControlOverlapPath = argv[++index];
+        } else if (argument == "--resume-approach-held") {
+            require(
+                result.resumeApproachHeldPath.empty() &&
+                    index + 1 < argc,
+                "--resume-approach-held requires exactly one path"
+            );
+            result.resumeApproachHeldPath = argv[++index];
+        } else if (argument == "--resume-lift-step-limit") {
+            require(
+                !result.resumeLiftStepLimitProvided &&
+                    index + 1 < argc,
+                "--resume-lift-step-limit requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed > 0u &&
+                    parsed <= kHandoffLiftSteps,
+                "resume lift step limit exceeds the deliberate lift"
+            );
+            result.resumeLiftStepLimit =
+                static_cast<std::uint32_t>(parsed);
+            result.resumeLiftStepLimitProvided = true;
+        } else if (argument == "--lift-diagnostic-chunk-steps") {
+            require(
+                result.liftDiagnosticChunkSteps == 0u &&
+                    index + 1 < argc,
+                "--lift-diagnostic-chunk-steps requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed > 0u &&
+                    parsed <= kHandoffLiftSteps,
+                "lift diagnostic chunk must fit within the deliberate lift"
+            );
+            result.liftDiagnosticChunkSteps =
+                static_cast<std::uint32_t>(parsed);
+        } else if (argument == "--settle-step-limit") {
+            require(
+                result.settleStepLimit == 0u && index + 1 < argc,
+                "--settle-step-limit requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed > 0u && parsed <= 200u,
+                "settle step limit must be in [1, 200]"
+            );
+            result.settleStepLimit =
+                static_cast<std::uint32_t>(parsed);
+        } else if (argument == "--rod-solver-iterations") {
+            require(
+                !result.rodSolverIterationsProvided && index + 1 < argc,
+                "--rod-solver-iterations requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed >= 512u &&
+                    parsed <= 2048u,
+                "rod solver iterations must be in [512, 2048]"
+            );
+            result.rodSolverIterations =
+                static_cast<std::uint32_t>(parsed);
+            result.rodSolverIterationsProvided = true;
+        } else if (argument == "--velocity-iterations") {
+            require(
+                !result.velocityIterationsProvided && index + 1 < argc,
+                "--velocity-iterations requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed > 0u && parsed <= 128u,
+                "velocity iterations must be in [1, 128]"
+            );
+            result.velocityIterations =
+                static_cast<std::uint32_t>(parsed);
+            result.velocityIterationsProvided = true;
+        } else if (argument == "--final-velocity-iterations") {
+            require(
+                !result.finalVelocityIterationsProvided && index + 1 < argc,
+                "--final-velocity-iterations requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed <= 128u,
+                "final velocity iterations must be in [0, 128]"
+            );
+            result.finalVelocityIterations =
+                static_cast<std::uint32_t>(parsed);
+            result.finalVelocityIterationsProvided = true;
+        } else {
+            throw std::invalid_argument(
+                "unknown dual-PSM handoff argument: " +
+                std::string{argument}
+            );
+        }
+    }
+    const std::uint32_t resumeCount =
+        (!result.resumeApproachHeldPath.empty() ? 1u : 0u) +
+        (!result.resumeGiverClosedPath.empty() ? 1u : 0u) +
+        (!result.resumeGiverLiftPath.empty() ? 1u : 0u) +
+        (!result.resumeGiverHandoffStagePath.empty() ? 1u : 0u) +
+        (!result.resumeGiverHandoffStagePrefixPath.empty() ? 1u : 0u) +
+        (!result.resumePositiveControlOverlapPath.empty() ? 1u : 0u);
+    require(resumeCount <= 1u, "handoff resumes are mutually exclusive");
+    require(
+        !result.resumeLiftStepLimitProvided ||
+            !result.resumeGiverClosedPath.empty(),
+        "resume lift step limit requires --resume-giver-closed"
+    );
+    require(
+        result.liftDiagnosticChunkSteps == 0u ||
+            !result.resumeGiverClosedPath.empty(),
+        "lift diagnostic chunking requires --resume-giver-closed"
+    );
+    require(
+        result.settleStepLimit == 0u ||
+            (resumeCount == 0u && result.mode != "--geometry-only"),
+        "settle step limit requires a fresh physical state"
+    );
+    require(
+        result.resumeApproachHeldPath.empty() ||
+            result.mode == "--closure-only",
+        "approach-held resume requires --closure-only"
+    );
+    require(
+        result.resumeGiverLiftPath.empty() || result.mode.empty() ||
+            result.mode == "--stage-only",
+        "giver-lift resume only supports the stage-only diagnostic mode"
+    );
+    require(
+        result.resumeGiverHandoffStagePath.empty() || result.mode.empty(),
+        "giver handoff-stage resume cannot be combined with a diagnostic mode"
+    );
+    require(
+        result.resumeGiverHandoffStagePrefixPath.empty() ||
+            result.mode.empty() || result.mode == "--stage-only",
+        "giver stage-prefix resume only supports stage-only diagnostic mode"
+    );
+    require(
+        result.resumeGiverHandoffStagePrefixPath.empty() ==
+                !result.resumeStagingCompletedStepsProvided &&
+            result.resumeGiverHandoffStagePrefixPath.empty() ==
+                result.giverLiftReferencePath.empty(),
+        "stage-prefix resume requires its completed-step count and the "
+        "original giver-lift reference"
+    );
+    require(
+        !result.receiverCollisionScan ||
+            !result.resumeGiverLiftPath.empty(),
+        "receiver collision scan requires --resume-giver-lift"
+    );
+    require(
+        (!result.receiverToolRollOffsetProvided &&
+         !result.receiverWristYawProvided &&
+         !result.receiverBaseAzimuthOffsetProvided &&
+         !result.receiverNeedleAxisRollProvided &&
+         !result.receiverScanHandoffHeightIncrementProvided &&
+         !result.receiverScanHandoffOffsetXProvided &&
+         !result.receiverScanHandoffOffsetYProvided) ||
+            result.receiverCollisionScan,
+        "receiver posture overrides are diagnostic-scan-only"
+    );
+    require(
+        result.resumePositiveControlOverlapPath.empty() ||
+            result.mode.empty(),
+        "positive-control resume cannot be combined with a diagnostic mode"
+    );
+    return result;
+}
+
+std::vector<std::string_view> splitTabs(const std::string& line) {
+    std::vector<std::string_view> fields;
+    std::size_t begin = 0u;
+    while (begin <= line.size()) {
+        const std::size_t end = line.find('\t', begin);
+        fields.emplace_back(
+            line.data() + begin,
+            (end == std::string::npos ? line.size() : end) - begin
+        );
+        if (end == std::string::npos) {
+            break;
+        }
+        begin = end + 1u;
+    }
+    return fields;
+}
+
+double parseNumber(
+    const std::string_view text,
+    const std::string_view label
+) {
+    std::size_t consumed = 0u;
+    const std::string owned{text};
+    const double value = std::stod(owned, &consumed);
+    require(
+        consumed == owned.size() && std::isfinite(value),
+        "handoff resume contains an invalid " + std::string{label}
+    );
+    return value;
+}
+
+std::uint32_t parseIndex(
+    const std::string_view text,
+    const std::string_view label
+) {
+    std::size_t consumed = 0u;
+    const std::string owned{text};
+    const unsigned long value = std::stoul(owned, &consumed);
+    require(
+        consumed == owned.size() &&
+            value <= std::numeric_limits<std::uint32_t>::max(),
+        "handoff resume contains an invalid " + std::string{label}
+    );
+    return static_cast<std::uint32_t>(value);
+}
+
+void updateNeedleInverseInertia(
+    const MRBodyPropertiesGPU& properties,
+    MRBodyStateGPU& state
+) {
+    const Quaternion orientation{
+        state.orientation.x,
+        state.orientation.y,
+        state.orientation.z,
+        state.orientation.w,
+    };
+    const std::array<Vec3, 3u> axes{{
+        rotate(orientation, {1.0, 0.0, 0.0}),
+        rotate(orientation, {0.0, 1.0, 0.0}),
+        rotate(orientation, {0.0, 0.0, 1.0}),
+    }};
+    const auto component = [](const Vec3 value, const std::size_t axis) {
+        return axis == 0u ? value.x : axis == 1u ? value.y : value.z;
+    };
+    const double body[3][3] = {
+        {properties.inverseInertiaRow0.x,
+         properties.inverseInertiaRow0.y,
+         properties.inverseInertiaRow0.z},
+        {properties.inverseInertiaRow1.x,
+         properties.inverseInertiaRow1.y,
+         properties.inverseInertiaRow1.z},
+        {properties.inverseInertiaRow2.x,
+         properties.inverseInertiaRow2.y,
+         properties.inverseInertiaRow2.z},
+    };
+    double world[3][3]{};
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        for (std::size_t column = 0u; column < 3u; ++column) {
+            const double rowAxis[3] = {
+                component(axes[0], row),
+                component(axes[1], row),
+                component(axes[2], row),
+            };
+            const double columnAxis[3] = {
+                component(axes[0], column),
+                component(axes[1], column),
+                component(axes[2], column),
+            };
+            for (std::size_t innerRow = 0u;
+                 innerRow < 3u;
+                 ++innerRow) {
+                for (std::size_t innerColumn = 0u;
+                     innerColumn < 3u;
+                     ++innerColumn) {
+                    world[row][column] +=
+                        rowAxis[innerRow] * body[innerRow][innerColumn] *
+                        columnAxis[innerColumn];
+                }
+            }
+        }
+    }
+    state.inverseInertiaWorldRow0 = {
+        static_cast<float>(world[0][0]),
+        static_cast<float>(world[0][1]),
+        static_cast<float>(world[0][2]),
+        0.0f,
+    };
+    state.inverseInertiaWorldRow1 = {
+        static_cast<float>(world[1][0]),
+        static_cast<float>(world[1][1]),
+        static_cast<float>(world[1][2]),
+        0.0f,
+    };
+    state.inverseInertiaWorldRow2 = {
+        static_cast<float>(world[2][0]),
+        static_cast<float>(world[2][1]),
+        static_cast<float>(world[2][2]),
+        0.0f,
+    };
+}
+
+std::uint64_t loadHandoffState(
+    const std::filesystem::path& path,
+    const std::string_view expectedPhase,
+    metalrobo::HeterogeneousWorld& world
+) {
+    std::ifstream input(path);
+    require(input.good(), "could not open handoff resume state");
+    std::vector<float> q;
+    std::vector<float> v;
+    MRBodyStateGPU needle = world.defaultSceneBodies.at(0u);
+    std::vector<MRRodNodeStateGPU> nodes(
+        world.rods.at(0u).model.restPositions.size()
+    );
+    std::vector<MRRodEdgeStateGPU> edges(
+        world.rods.at(0u).model.restTwists.size()
+    );
+    std::vector<bool> havePosition(nodes.size(), false);
+    std::vector<bool> haveVelocity(nodes.size(), false);
+    std::vector<bool> haveEdge(edges.size(), false);
+    bool schema = false;
+    bool phase = false;
+    bool needlePosition = false;
+    bool needleOrientation = false;
+    bool needleLinearVelocity = false;
+    bool needleAngularVelocity = false;
+    bool haveStep = false;
+    std::uint64_t stateStep = 0u;
+    std::string line;
+    while (std::getline(input, line)) {
+        const std::vector<std::string_view> fields = splitTabs(line);
+        if (fields.empty()) {
+            continue;
+        }
+        if (fields[0] == "schema") {
+            schema = fields.size() == 2u &&
+                fields[1] == "numi.dual-psm-suture-handoff-state.v2";
+        } else if (fields[0] == "phase") {
+            phase = fields.size() == 2u && fields[1] == expectedPhase;
+        } else if (fields[0] == "step") {
+            require(fields.size() == 2u, "invalid resume step");
+            stateStep = parseIndex(fields[1], "step");
+            haveStep = true;
+        } else if (fields[0] == "q" || fields[0] == "v") {
+            std::vector<float>& destination =
+                fields[0] == "q" ? q : v;
+            destination.reserve(fields.size() - 1u);
+            for (std::size_t index = 1u; index < fields.size(); ++index) {
+                destination.push_back(static_cast<float>(parseNumber(
+                    fields[index], fields[0]
+                )));
+            }
+        } else if (fields[0] == "needle_position") {
+            require(fields.size() == 4u, "invalid resume needle position");
+            needle.position = {
+                static_cast<float>(parseNumber(fields[1], "needle x")),
+                static_cast<float>(parseNumber(fields[2], "needle y")),
+                static_cast<float>(parseNumber(fields[3], "needle z")),
+                1.0f,
+            };
+            needlePosition = true;
+        } else if (fields[0] == "needle_orientation_xyzw") {
+            require(fields.size() == 5u, "invalid resume needle orientation");
+            needle.orientation = {
+                static_cast<float>(parseNumber(fields[1], "needle qx")),
+                static_cast<float>(parseNumber(fields[2], "needle qy")),
+                static_cast<float>(parseNumber(fields[3], "needle qz")),
+                static_cast<float>(parseNumber(fields[4], "needle qw")),
+            };
+            needleOrientation = true;
+        } else if (fields[0] == "needle_linear_velocity") {
+            require(fields.size() == 4u, "invalid resume needle velocity");
+            needle.linearVelocityAndInverseMass.x =
+                static_cast<float>(parseNumber(fields[1], "needle vx"));
+            needle.linearVelocityAndInverseMass.y =
+                static_cast<float>(parseNumber(fields[2], "needle vy"));
+            needle.linearVelocityAndInverseMass.z =
+                static_cast<float>(parseNumber(fields[3], "needle vz"));
+            needleLinearVelocity = true;
+        } else if (fields[0] == "needle_angular_velocity") {
+            require(fields.size() == 4u, "invalid resume needle angular velocity");
+            needle.angularVelocity = {
+                static_cast<float>(parseNumber(fields[1], "needle wx")),
+                static_cast<float>(parseNumber(fields[2], "needle wy")),
+                static_cast<float>(parseNumber(fields[3], "needle wz")),
+                0.0f,
+            };
+            needleAngularVelocity = true;
+        } else if (fields[0] == "thread_position" ||
+                   fields[0] == "thread_velocity") {
+            require(fields.size() == 5u, "invalid resume thread node");
+            const std::uint32_t index = parseIndex(fields[1], "thread node");
+            require(index < nodes.size(), "resume thread node is out of range");
+            mr_float4& destination = fields[0] == "thread_position"
+                ? nodes[index].position
+                : nodes[index].velocity;
+            destination = {
+                static_cast<float>(parseNumber(fields[2], "thread x")),
+                static_cast<float>(parseNumber(fields[3], "thread y")),
+                static_cast<float>(parseNumber(fields[4], "thread z")),
+                fields[0] == "thread_position" ? 1.0f : 0.0f,
+            };
+            if (fields[0] == "thread_position") {
+                havePosition[index] = true;
+            } else {
+                haveVelocity[index] = true;
+            }
+        } else if (fields[0] == "thread_twist") {
+            require(fields.size() == 4u, "invalid resume thread twist");
+            const std::uint32_t index = parseIndex(fields[1], "thread edge");
+            require(index < edges.size(), "resume thread edge is out of range");
+            edges[index].twistAndRate = {
+                static_cast<float>(parseNumber(fields[2], "thread twist")),
+                static_cast<float>(parseNumber(fields[3], "thread twist rate")),
+                0.0f,
+                0.0f,
+            };
+            haveEdge[index] = true;
+        }
+    }
+    require(
+        schema && phase && haveStep &&
+            q.size() == world.model.world.nq &&
+            v.size() == world.model.world.nv &&
+            needlePosition && needleOrientation &&
+            needleLinearVelocity && needleAngularVelocity &&
+            std::ranges::all_of(havePosition, [](const bool value) {
+                return value;
+            }) &&
+            std::ranges::all_of(haveVelocity, [](const bool value) {
+                return value;
+            }),
+        "handoff resume state is incomplete or has the wrong phase"
+    );
+    if (!std::ranges::all_of(haveEdge, [](const bool value) {
+            return value;
+        })) {
+        // v1 artifacts written before twist publication retain the authored
+        // zero material frame. The accepted close state is nearly untwisted;
+        // all newly written artifacts carry the exact edge state.
+        std::ranges::fill(edges, MRRodEdgeStateGPU{});
+    }
+    const std::uint32_t needleBody = world.sceneBodyIndices.at(0u);
+    updateNeedleInverseInertia(world.model.bodies.at(needleBody), needle);
+    require(
+        world.rods[0u].attachments.size() ==
+            world.rods[0u].rigidBindings.size(),
+        "handoff resume swage binding count changed"
+    );
+    for (std::size_t bindingIndex = 0u;
+         bindingIndex < world.rods[0u].rigidBindings.size();
+         ++bindingIndex) {
+        const auto& localAnchor =
+            world.rods[0u].rigidBindings[bindingIndex].localAnchor;
+        const Vec3 anchorOffset = rotate(
+            Quaternion{
+                needle.orientation.x,
+                needle.orientation.y,
+                needle.orientation.z,
+                needle.orientation.w,
+            },
+            {localAnchor[0], localAnchor[1], localAnchor[2]}
+        );
+        metalrobo::DiscreteRodAttachment& attachment =
+            world.rods[0u].attachments[bindingIndex];
+        attachment.targetPosition = {
+            needle.position.x + anchorOffset.x,
+            needle.position.y + anchorOffset.y,
+            needle.position.z + anchorOffset.z,
+        };
+        const Vec3 anchorVelocity =
+            vector(needle.linearVelocityAndInverseMass) +
+            cross(vector(needle.angularVelocity), anchorOffset);
+        attachment.targetVelocity = {
+            anchorVelocity.x,
+            anchorVelocity.y,
+            anchorVelocity.z,
+        };
+    }
+    world.model.defaultQ = std::move(q);
+    world.model.defaultV = std::move(v);
+    world.defaultSceneBodies[0u] = needle;
+    auto& rodState = world.rods[0u].defaultState;
+    for (std::size_t index = 0u; index < nodes.size(); ++index) {
+        rodState.positions[index] = {
+            nodes[index].position.x,
+            nodes[index].position.y,
+            nodes[index].position.z,
+        };
+        rodState.velocities[index] = {
+            nodes[index].velocity.x,
+            nodes[index].velocity.y,
+            nodes[index].velocity.z,
+        };
+    }
+    for (std::size_t index = 0u; index < edges.size(); ++index) {
+        rodState.twists[index] = edges[index].twistAndRate.x;
+        rodState.twistRates[index] = edges[index].twistAndRate.y;
+    }
+    return stateStep;
+}
+
+void writeHandoffStateArtifact(
+    const std::filesystem::path& directory,
+    const std::string_view phase,
+    const std::uint64_t step,
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::BowelAnastomosisSutureSpec& suture,
+    const metalrobo::MetalWorldResult& state
+) {
+    if (directory.empty()) {
+        return;
+    }
+    require(
+        state.finalQ.size() == world.model.world.nq &&
+            state.finalV.size() == world.model.world.nv &&
+        state.finalSceneBodies.size() >= 1u &&
+            state.finalRodNodes.size() ==
+                world.rods[0].model.restPositions.size() &&
+            state.finalRodEdges.size() ==
+                world.rods[0].model.restTwists.size(),
+        "handoff visual state is incomplete"
+    );
+    std::error_code error;
+    std::filesystem::create_directories(directory, error);
+    require(!error, "could not create handoff state output directory");
+    const std::filesystem::path path =
+        directory / (std::string{phase} + ".tsv");
+    std::ofstream output(path, std::ios::trunc);
+    require(output.good(), "could not open handoff state artifact");
+    const MRBodyStateGPU& needle = state.finalSceneBodies[0];
+    const numi::matter::PorcineJejunumFungSpec tissue;
+    output << std::setprecision(17)
+        << "schema\tnumi.dual-psm-suture-handoff-state.v2\n"
+        << "phase\t" << phase << '\n'
+        << "step\t" << step << '\n'
+        << "control_timestep_s\t" << kControlTimestep << '\n'
+        << "model\t" << world.model.name << '\n'
+        << "q";
+    for (const float value : state.finalQ) {
+        output << '\t' << value;
+    }
+    output << "\nv";
+    for (const float value : state.finalV) {
+        output << '\t' << value;
+    }
+    output
+        << "\nneedle_position\t" << needle.position.x << '\t'
+        << needle.position.y << '\t' << needle.position.z << '\n'
+        << "needle_orientation_xyzw\t" << needle.orientation.x << '\t'
+        << needle.orientation.y << '\t' << needle.orientation.z << '\t'
+        << needle.orientation.w << '\n'
+        << "needle_linear_velocity\t"
+        << needle.linearVelocityAndInverseMass.x << '\t'
+        << needle.linearVelocityAndInverseMass.y << '\t'
+        << needle.linearVelocityAndInverseMass.z << '\n'
+        << "needle_angular_velocity\t" << needle.angularVelocity.x << '\t'
+        << needle.angularVelocity.y << '\t' << needle.angularVelocity.z
+        << '\n'
+        << "thread_model\t" << world.rods[0].model.radius << '\t'
+        << state.finalRodNodes.size() << '\t'
+        << suture.threadLengthM.value << '\n'
+        << "tissue_model\tporcine_jejunum_fung\t"
+        << tissue.lengthM.value << '\t' << tissue.widthM.value << '\t'
+        << tissue.thicknessM.value << '\t' << tissue.incisionGapM.value
+        << '\n';
+    for (std::size_t node = 0u; node < state.finalRodNodes.size(); ++node) {
+        const MRRodNodeStateGPU& value = state.finalRodNodes[node];
+        output << "thread_position\t" << node << '\t'
+            << value.position.x << '\t' << value.position.y << '\t'
+            << value.position.z << '\n'
+            << "thread_velocity\t" << node << '\t'
+            << value.velocity.x << '\t' << value.velocity.y << '\t'
+            << value.velocity.z << '\n';
+    }
+    for (std::size_t edge = 0u; edge < state.finalRodEdges.size(); ++edge) {
+        const MRRodEdgeStateGPU& value = state.finalRodEdges[edge];
+        output << "thread_twist\t" << edge << '\t'
+            << value.twistAndRate.x << '\t' << value.twistAndRate.y
+            << '\n';
+    }
+    output.close();
+    require(output.good(), "could not publish handoff state artifact");
+}
+
+PhaseResult initializePhase(
+    metalrobo::MetalWorldContext& context,
+    const metalrobo::CompiledWorld& compiled,
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldStepConfig& config,
+    metalrobo::MetalWorldResidentState& resident,
+    const std::vector<float>& efforts,
+    const std::uint32_t steps
+) {
+    const metalrobo::MetalWorldBatch batch{
+        .environmentCount = 1u,
+        .controlStepCount = steps,
+        .initialQ = world.model.defaultQ,
+        .initialV = world.model.defaultV,
+        .efforts = efforts,
+        .initialSceneBodies = world.defaultSceneBodies,
+    };
+    metalrobo::MetalWorldSubmission submission;
+    const auto submitted = context.initializeResidentState(
+        compiled,
+        batch,
+        config,
+        resident,
+        submission
+    );
+    require(
+        submitted.succeeded() && submission.valid(),
+        "initial handoff phase submission failed: " + submitted.message
+    );
+    PhaseResult phase;
+    phase.diagnostics = submission.wait(phase.result);
+    require(
+        phase.diagnostics.succeeded() &&
+            phase.diagnostics.failedStepCount == 0u,
+        "initial handoff phase failed: " + phase.diagnostics.message
+    );
+    return phase;
+}
+
+PhaseResult continuePhase(
+    metalrobo::MetalWorldContext& context,
+    const metalrobo::CompiledWorld& compiled,
+    const metalrobo::MetalWorldStepConfig& config,
+    metalrobo::MetalWorldResidentState& resident,
+    const std::vector<float>& efforts,
+    const std::uint32_t steps,
+    const std::string& name
+) {
+    const metalrobo::MetalWorldBatch batch{
+        .environmentCount = 1u,
+        .controlStepCount = steps,
+        .efforts = efforts,
+    };
+    metalrobo::MetalWorldSubmission submission;
+    const auto submitted = context.submitResident(
+        compiled,
+        batch,
+        config,
+        resident,
+        submission
+    );
+    require(
+        submitted.succeeded() && submission.valid(),
+        name + " submission failed: " + submitted.message
+    );
+    PhaseResult phase;
+    phase.diagnostics = submission.wait(phase.result);
+    require(
+        phase.diagnostics.succeeded() &&
+            phase.diagnostics.failedStepCount == 0u,
+        name + " failed: " + phase.diagnostics.message
+    );
+    return phase;
+}
+
+PhaseResult continuePhaseUnchecked(
+    metalrobo::MetalWorldContext& context,
+    const metalrobo::CompiledWorld& compiled,
+    const metalrobo::MetalWorldStepConfig& config,
+    metalrobo::MetalWorldResidentState& resident,
+    const std::vector<float>& efforts,
+    const std::uint32_t steps,
+    const std::string& name
+) {
+    const metalrobo::MetalWorldBatch batch{
+        .environmentCount = 1u,
+        .controlStepCount = steps,
+        .efforts = efforts,
+    };
+    metalrobo::MetalWorldSubmission submission;
+    const auto submitted = context.submitResident(
+        compiled,
+        batch,
+        config,
+        resident,
+        submission
+    );
+    require(
+        submitted.succeeded() && submission.valid(),
+        name + " submission failed: " + submitted.message
+    );
+    PhaseResult phase;
+    phase.diagnostics = submission.wait(phase.result);
+    return phase;
+}
+
+} // namespace
+
+int main(const int argc, const char* const argv[]) {
+    try {
+        const Arguments options = parseArguments(argc, argv);
+        const bool geometryOnly = options.mode == "--geometry-only";
+        const bool longSettle = options.mode == "--long-settle";
+        const bool settleOnly = longSettle ||
+            options.mode == "--settle-only";
+        const bool approachOnly = options.mode == "--approach-only";
+        const bool closureOnly = options.mode == "--closure-only";
+        const bool stageOnly = options.mode == "--stage-only";
+        const metalrobo::EngineModel psm =
+            metalrobo::makeDvrkPsmLargeNeedleDriverEngineModel();
+        const auto sutureSpec =
+            metalrobo::makeBowelAnastomosisSutureSpec();
+        const auto needleForPlacement =
+            metalrobo::makeCurvedSutureNeedleAsset(
+                {},
+                sutureSpec.needle
+            );
+        require(
+            kGiverNeedleShape >=
+                    needleForPlacement.metadata.graspShapeBegin &&
+                kGiverNeedleShape <
+                    needleForPlacement.metadata.graspShapeEnd &&
+                kReceiverNeedleShape >=
+                    needleForPlacement.metadata.graspShapeBegin &&
+                kReceiverNeedleShape <
+                    needleForPlacement.metadata.graspShapeEnd,
+            "handoff grasps left the one-third-to-one-half handling zone"
+        );
+        const double graspDiametralClosure = grooveDiametralClosure(
+            psm,
+            sutureSpec.needle.crossSectionRadiusM.value
+        );
+        const auto& jawMetadata = metalrobo::surgicalPSMMetadata();
+        const double estimatedPatchNormalForce =
+            kGrooveRailRadialPreload /
+            jawMetadata.insertSystemNormalComplianceMPerN;
+        const double estimatedJawInsertMoment =
+            static_cast<double>(kJawATeeth.size()) *
+            estimatedPatchNormalForce *
+            jawMetadata.largeNeedleDriverJawLength;
+        require(
+            std::isfinite(estimatedPatchNormalForce) &&
+                estimatedPatchNormalForce > 0.0 &&
+                estimatedJawInsertMoment > 0.0 &&
+                estimatedJawInsertMoment < psm.dofs[6].limits.w,
+            "research jaw preload exceeds the authored LND effort envelope"
+        );
+        const double closeJawCoordinate = calibratedJawCoordinate(
+            psm,
+            sutureSpec.needle.crossSectionRadiusM.value,
+            -graspDiametralClosure
+        );
+        // A 0.30 mm diametral clearance admits the 0.70 mm needle. The
+        // trajectory duration below is derived from the calibrated travel so
+        // the LND's authored 0.2 rad/s speed limit remains authoritative even
+        // when the physical jaw length changes.
+        const double openJawCoordinate = calibratedJawCoordinate(
+            psm,
+            sutureSpec.needle.crossSectionRadiusM.value,
+            3.0e-4
+        );
+        require(
+            openJawCoordinate > closeJawCoordinate &&
+                openJawCoordinate - closeJawCoordinate < 0.08,
+            "gauge-calibrated jaw travel is outside the physical jaw range"
+        );
+        const std::uint32_t jawTravelSteps =
+            static_cast<std::uint32_t>(std::ceil(
+                3.0 * (openJawCoordinate - closeJawCoordinate) /
+                (0.18 * kControlTimestep)
+            )) + 4u;
+        const auto giverPickupClosedNominal = psmTarget(
+            psm,
+            kPickupInsertion,
+            closeJawCoordinate,
+            kGiverYaw,
+            kGiverPitch
+        );
+        const auto receiverHandoffClosedNominal = psmTarget(
+            psm,
+            kReceiverHandoffInsertion,
+            closeJawCoordinate,
+            kReceiverYaw,
+            kReceiverPitch
+        );
+        const JawGeometry giverLocalJaw = jawGeometry(
+            psm,
+            giverPickupClosedNominal
+        );
+        const JawGeometry receiverLocalJaw = jawGeometry(
+            psm,
+            receiverHandoffClosedNominal
+        );
+        const double insertRailHalfSpacing = 0.5 * std::abs(
+            static_cast<double>(
+                psm.shapes.at(kJawATeeth[1]).localPosition.z
+            ) - psm.shapes.at(kJawATeeth[0]).localPosition.z
+        );
+        const double closedRailNeedleCenterDistance = std::hypot(
+            0.5 * giverLocalJaw.separation,
+            insertRailHalfSpacing
+        );
+        const double requiredRailNeedleCenterDistance =
+            sutureSpec.needle.crossSectionRadiusM.value +
+            psm.shapes.at(kJawATeeth[0]).dimensions.x -
+            kGrooveRailRadialPreload;
+        require(
+            std::abs(
+                closedRailNeedleCenterDistance -
+                requiredRailNeedleCenterDistance
+            ) <= 2.0e-5,
+            "gauge-calibrated closure no longer seats the needle in the "
+            "eight-patch V-groove"
+        );
+
+        metalrobo::DualPsmNeedleThreadNeutralZoneConfig config;
+        config.surgical =
+            metalrobo::makeBowelAnastomosisNeedleThreadWorldConfig(
+                sutureSpec
+            );
+        const double threadShearModulus =
+            sutureSpec.threadYoungModulusPa.value /
+            (2.0 * (1.0 + sutureSpec.threadPoissonRatio.value));
+        const double threadPolarMoment =
+            0.5 * std::numbers::pi *
+            std::pow(sutureSpec.threadRadiusM.value, 4.0);
+        const double firstEdgeLength =
+            sutureSpec.threadLengthM.value /
+            static_cast<double>(sutureSpec.threadNodeCount - 1u);
+        config.surgical.torsionalAttachmentComplianceRadPerNm =
+            0.5 * firstEdgeLength /
+            (threadShearModulus * threadPolarMoment);
+        config.threadSolverIterations = options.rodSolverIterations;
+        config.threadConstraintToleranceM = 2.0e-5;
+        const double padTop = 0.5 * config.pad.thicknessM.value;
+        const Vec3 needlePosition{
+            0.0,
+            0.0,
+            padTop - needleForPlacement.rigid.localAabbLowerM[2] -
+                kInitialSupportPenetration,
+        };
+        config.surgical.needlePose.position = {
+            static_cast<float>(needlePosition.x),
+            static_cast<float>(needlePosition.y),
+            static_cast<float>(needlePosition.z),
+        };
+
+        const Vec3 giverPoint = needleShapeWorldCenter(
+            needleForPlacement,
+            kGiverNeedleShape,
+            needlePosition
+        );
+        const Quaternion giverOrientation = multiply(
+            rotationZ(needleShapeAngle(
+                sutureSpec.needle,
+                kGiverNeedleShape
+            )),
+            rotationX(std::numbers::pi)
+        );
+        const Quaternion receiverOrientation = multiply(
+            multiply(
+                rotationZ(needleShapeAngle(
+                    sutureSpec.needle,
+                    kReceiverNeedleShape
+                ) + options.receiverBaseAzimuthOffset),
+                rotationX(std::numbers::pi)
+            ),
+            rotationY(options.receiverNeedleAxisRoll)
+        );
+        config.surgical.robots.leftBase = basePose(
+            giverOrientation,
+            giverLocalJaw.midpoint,
+            giverPoint
+        );
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+            config.surgical.robots.leftBase.position[axis] +=
+                static_cast<float>((std::array{
+                    kGiverPortCalibration.x,
+                    kGiverPortCalibration.y,
+                    kGiverPortCalibration.z,
+                })[axis]);
+        }
+        const auto giverPickupClearanceClosed = solvePsmJawTarget(
+            psm,
+            config.surgical.robots.leftBase,
+            giverPickupClosedNominal,
+            giverPoint + Vec3{0.0, 0.0, kPickupVerticalClearance},
+            closeJawCoordinate
+        );
+        const double nominalDistalPadGap = minimumPsmPadGap(
+            psm,
+            giverPickupClearanceClosed,
+            config.surgical.robots.leftBase,
+            padTop
+        );
+        const double nominalToothNeedleGap = minimumToothNeedleGap(
+            psm,
+            giverPickupClearanceClosed,
+            config.surgical.robots.leftBase,
+            needleForPlacement,
+            needlePosition
+        );
+        require(
+            nominalDistalPadGap > 5.0e-5 &&
+                nominalToothNeedleGap < 0.0,
+            "pickup pose does not simultaneously clear the pad and enter "
+            "the authored needle contact envelope"
+        );
+        const Vec3 handoffStagingOffset = options.receiverCollisionScan
+            ? Vec3{
+                options.receiverScanHandoffOffsetX,
+                options.receiverScanHandoffOffsetY,
+                options.receiverScanHandoffHeightIncrement,
+            }
+            : kHandoffStagingOffset;
+        const Vec3 receiverPoint = needleShapeWorldCenter(
+            needleForPlacement,
+            kReceiverNeedleShape,
+            needlePosition
+        ) + handoffStagingOffset + Vec3{0.0, 0.0, kHandoffLift};
+        config.surgical.robots.rightBase = basePose(
+            receiverOrientation,
+            receiverLocalJaw.midpoint,
+            receiverPoint
+        );
+        const Vec3 baseSeparation =
+            vector(config.surgical.robots.leftBase.position) -
+            vector(config.surgical.robots.rightBase.position);
+        require(
+            norm(baseSeparation) > 0.22,
+            "dual PSM port geometry does not separate the arm bases"
+        );
+        config.surgical.robots.timestep =
+            static_cast<float>(kControlTimestep);
+
+        if (geometryOnly) {
+            std::cout << std::scientific << std::setprecision(9);
+            std::cout << "close_jaw_coordinate_rad="
+                << closeJawCoordinate
+                << " groove_diametral_closure_m="
+                << graspDiametralClosure
+                << " estimated_patch_normal_force_n="
+                << estimatedPatchNormalForce
+                << " estimated_jaw_insert_moment_nm="
+                << estimatedJawInsertMoment
+                << " rail_needle_center_distance_m="
+                << closedRailNeedleCenterDistance
+                << " open_jaw_coordinate_rad="
+                << openJawCoordinate
+                << " closure_steps=" << jawTravelSteps << '\n';
+            std::cout << "pickup_vertical_offset_m="
+                << kPickupVerticalClearance
+                << " nominal_distal_pad_gap_m="
+                << nominalDistalPadGap
+                << " nominal_tooth_needle_gap_m="
+                << nominalToothNeedleGap << '\n';
+            const double centerlineRadius =
+                sutureSpec.needle.arcLengthM.value /
+                sutureSpec.needle.arcAngleRad.value;
+            const double startAngle =
+                -0.5 * sutureSpec.needle.arcAngleRad.value;
+            std::cout << "swage_anchor_local_m="
+                << vectorSummary({
+                    centerlineRadius * std::cos(startAngle) -
+                        needleForPlacement.rigid.geometryCenterOfMassM[0],
+                    centerlineRadius * std::sin(startAngle) -
+                        needleForPlacement.rigid.geometryCenterOfMassM[1],
+                    -needleForPlacement.rigid.geometryCenterOfMassM[2],
+                }) << '\n';
+            for (std::uint32_t sample = 0u; sample <= 20u; ++sample) {
+                const double retraction = 0.001 * sample;
+                const auto q = psmTarget(
+                    psm,
+                    kPickupInsertion - retraction,
+                    openJawCoordinate,
+                    kGiverYaw,
+                    kGiverPitch
+                );
+                std::cout << "retraction_m=" << retraction
+                    << " minimum_tooth_needle_gap_m="
+                    << minimumToothNeedleGap(
+                           psm,
+                           q,
+                           config.surgical.robots.leftBase,
+                           needleForPlacement,
+                           needlePosition
+                       ) << '\n';
+            }
+            return 0;
+        }
+
+        metalrobo::HeterogeneousWorld world;
+        const auto composed =
+            metalrobo::
+                makeDualDvrkPsmNeedleThreadNeutralZoneHeterogeneousWorld(
+                    world,
+                    config
+                );
+        require(
+            composed.succeeded(),
+            "neutral-zone handoff world composition failed: " +
+                composed.message
+        );
+        require(
+            world.model.materials.size() == 7u,
+            "neutral-zone handoff material topology changed"
+        );
+        const auto& psmMetadata = metalrobo::surgicalPSMMetadata();
+        const double effectiveInsertStaticFriction = std::sqrt(
+            static_cast<double>(world.model.materials[1].friction.x) *
+            world.model.materials[4].friction.x
+        );
+        const double effectiveInsertDynamicFriction = std::sqrt(
+            static_cast<double>(world.model.materials[1].friction.y) *
+            world.model.materials[4].friction.y
+        );
+        require(
+            world.model.articulations.size() == 2u &&
+                world.sceneBodyIndices.size() == 2u &&
+                world.rods.size() == 1u &&
+                world.model.materials.size() == 7u &&
+                world.rods[0].collision.ownedMaterial.has_value() &&
+                world.rods[0].collision.materialIndex == 6u &&
+                world.rods[0].collision.enableToolCollision &&
+                world.rods[0].collision.enableCCD &&
+                world.model.materials[6].friction.x == 0.18f &&
+                world.model.materials[6].friction.y == 0.12f &&
+                world.model.materials[1].response.z ==
+                    psmMetadata.insertSystemNormalComplianceMPerN &&
+                world.model.materials[3].response.z ==
+                    psmMetadata.insertSystemNormalComplianceMPerN &&
+                std::abs(
+                    effectiveInsertStaticFriction -
+                    psmMetadata.targetNeedleInsertStaticFriction
+                ) < 1.0e-6 &&
+                std::abs(
+                    effectiveInsertDynamicFriction -
+                    psmMetadata.targetNeedleInsertDynamicFriction
+                ) < 1.0e-6 &&
+                world.rods[0].attachments.size() == 1u &&
+                world.rods[0].tangentBindings.size() == 1u &&
+                world.rods[0].twistBindings.size() == 1u &&
+                world.rods[0].attachments[0].compliance == 0.0 &&
+                world.rods[0].tangentBindings[0].edgeIndex == 0u &&
+                world.rods[0].tangentBindings[0]
+                        .complianceRadPerNm ==
+                    config.surgical
+                        .tangentAttachmentComplianceRadPerNm &&
+                world.rods[0].twistBindings[0]
+                        .complianceRadPerNm ==
+                    config.surgical
+                        .torsionalAttachmentComplianceRadPerNm &&
+                world.rods[0].model.restPositions.size() == 128u,
+            "handoff world lost a robot, scene body, or suture node"
+        );
+        // Self contact remains live even though the authored 3 mm-pitch coil
+        // starts separated. Terminal clearance alone cannot prove that a
+        // moving monofilament stayed separated earlier in a phase, so the DER
+        // projector enforces capsule separation at every physics substep.
+        require(
+                world.rods[0].stepConfig.solverIterations ==
+                    options.rodSolverIterations &&
+                world.rods[0].stepConfig.constraintTolerance ==
+                    config.threadConstraintToleranceM &&
+                world.rods[0].stepConfig.selfCollisionMargin ==
+                    kMinimumThreadSelfCollisionClearance &&
+                world.rods[0].stepConfig.linearDamping == 8.0 &&
+                world.rods[0].stepConfig.twistDamping == 8.0,
+            "neutral-zone world lost its certified thread step defaults"
+        );
+        require(
+            world.rods[0].stepConfig.enableSelfCollision,
+            "neutral-zone world disabled per-substep thread self contact"
+        );
+        // The needle, both instruments, and neutral-zone pad remain ordinary
+        // collision partners for every free thread edge. The compiler removes
+        // only the edge/body pairs adjacent to the two explicit swage
+        // attachments, so distant needle/thread contact is still physical.
+        world.rods[0].collision.collisionMask = ~0u;
+
+        const auto giverStart = psmTarget(
+            psm,
+            kPickupInsertion - kPickupRetraction,
+            openJawCoordinate,
+            kGiverYaw,
+            kGiverPitch
+        );
+        const auto receiverStart = psmTarget(
+            psm,
+            kReceiverHandoffInsertion - kReceiverRetraction,
+            openJawCoordinate,
+            kReceiverYaw,
+            kReceiverPitch
+        );
+        const std::vector<float> authoredWorldQ = world.model.defaultQ;
+        const std::vector<float> authoredWorldV = world.model.defaultV;
+        std::uint64_t loadedStateStep = 0u;
+        if (options.resumeGiverClosedPath.empty() &&
+            options.resumeGiverLiftPath.empty() &&
+            options.resumeGiverHandoffStagePath.empty() &&
+            options.resumeGiverHandoffStagePrefixPath.empty() &&
+            options.resumePositiveControlOverlapPath.empty() &&
+            options.resumeApproachHeldPath.empty()) {
+            setArmTarget(world.model.defaultQ, world.model, 0u, giverStart);
+            setArmTarget(world.model.defaultQ, world.model, 1u, receiverStart);
+        } else if (!options.resumeGiverClosedPath.empty()) {
+            require(
+                options.mode.empty(),
+                "giver-closed resume cannot be combined with another mode"
+            );
+            loadedStateStep = loadHandoffState(
+                options.resumeGiverClosedPath,
+                "giver-closed",
+                world
+            );
+        } else if (!options.resumeGiverLiftPath.empty()) {
+            loadedStateStep = loadHandoffState(
+                options.resumeGiverLiftPath,
+                "giver-lift",
+                world
+            );
+        } else if (!options.resumeGiverHandoffStagePath.empty()) {
+            loadedStateStep = loadHandoffState(
+                options.resumeGiverHandoffStagePath,
+                "giver-handoff-stage",
+                world
+            );
+        } else if (!options.resumeGiverHandoffStagePrefixPath.empty()) {
+            loadedStateStep = loadHandoffState(
+                options.resumeGiverHandoffStagePrefixPath,
+                "giver-handoff-stage-prefix",
+                world
+            );
+        } else if (!options.resumePositiveControlOverlapPath.empty()) {
+            loadedStateStep = loadHandoffState(
+                options.resumePositiveControlOverlapPath,
+                "positive-control-overlap",
+                world
+            );
+        } else {
+            loadedStateStep = loadHandoffState(
+                options.resumeApproachHeldPath,
+                "giver-approach-held",
+                world
+            );
+        }
+        if (!options.resumeGiverLiftPath.empty()) {
+            const MRArticulationGPU& receiver =
+                world.model.articulations.at(1u);
+            require(
+                receiver.qOffset + 7u <= authoredWorldQ.size() &&
+                    receiver.vOffset + 6u <= authoredWorldV.size(),
+                "receiver base root is outside the authored world state"
+            );
+            // The accepted giver-lift checkpoint predates the opposing-port
+            // correction and the receiver has had no contacts in that phase.
+            // Fixed RCM roots are authored world geometry, not dynamic
+            // checkpoint state, so restore the current receiver root while
+            // retaining every dynamic giver/needle/thread coordinate.
+            std::copy_n(
+                authoredWorldQ.begin() + receiver.qOffset,
+                7u,
+                world.model.defaultQ.begin() + receiver.qOffset
+            );
+            std::copy_n(
+                authoredWorldV.begin() + receiver.vOffset,
+                6u,
+                world.model.defaultV.begin() + receiver.vOffset
+            );
+        }
+        world.fingerprint = metalrobo::heterogeneousWorldFingerprint(world);
+        std::string reason;
+        require(
+            world.valid(&reason),
+            "authored handoff reset is invalid: " + reason
+        );
+        const double authoredMaterialFrameError =
+            initialSwageMaterialFrameError(world);
+        require(
+            std::isfinite(authoredMaterialFrameError),
+            "authored swage material-frame error is non-finite"
+        );
+        std::cerr << "handoff_phase=authored_reset"
+            << " swage_material_frame_error_rad="
+            << authoredMaterialFrameError << '\n';
+
+        if (options.receiverCollisionScan) {
+            const Vec3 scanHandoffOffset = handoffStagingOffset;
+            double stagingMaximumVelocityRatio = 0.0;
+            double stagingMaximumVelocity = 0.0;
+            double stagingLimitingVelocity = 0.0;
+            std::uint32_t stagingMaximumVelocityDof = MR_INVALID_INDEX;
+            CrossArmCollisionScan stagingScan;
+            if (norm(scanHandoffOffset) > 0.0) {
+                const JawGeometry giverJaw = worldJawGeometry(
+                    world.model,
+                    0u,
+                    world.model.defaultQ,
+                    world.model.defaultV
+                );
+                const ArmTrajectory staging = cartesianArmTrajectory(
+                    world.model,
+                    psm,
+                    0u,
+                    config.surgical.robots.leftBase,
+                    world.model.defaultQ,
+                    giverJaw.midpoint,
+                    giverJaw.midpoint + scanHandoffOffset,
+                    closeJawCoordinate,
+                    closeJawCoordinate,
+                    kHandoffStagingSteps
+                );
+                stagingMaximumVelocityRatio =
+                    staging.maximumVelocityRatio;
+                stagingMaximumVelocity = staging.maximumVelocity;
+                stagingLimitingVelocity = staging.limitingVelocity;
+                stagingMaximumVelocityDof = staging.maximumVelocityDof;
+                stagingScan = scanCrossArmTargetPath(
+                    world,
+                    world.model.defaultQ,
+                    staging.finalTarget,
+                    kHandoffStagingSteps,
+                    staging.desiredQ
+                );
+                world.model.defaultQ = staging.finalTarget;
+                world.defaultSceneBodies[0u].position.x +=
+                    static_cast<float>(scanHandoffOffset.x);
+                world.defaultSceneBodies[0u].position.y +=
+                    static_cast<float>(scanHandoffOffset.y);
+                world.defaultSceneBodies[0u].position.z +=
+                    static_cast<float>(scanHandoffOffset.z);
+            }
+            const Vec3 liftedReceiverPoint = needleShapeWorldCenter(
+                needleForPlacement,
+                kReceiverNeedleShape,
+                world.defaultSceneBodies.at(0u)
+            );
+            auto receiverSeed = psmTarget(
+                psm,
+                kReceiverHandoffInsertion,
+                openJawCoordinate,
+                kReceiverYaw,
+                kReceiverPitch
+            );
+            receiverSeed[3] += options.receiverToolRollOffset;
+            receiverSeed[5] = options.receiverWristYaw;
+            const auto receiverHandoffOpen = solvePsmJawTarget(
+                psm,
+                config.surgical.robots.rightBase,
+                std::move(receiverSeed),
+                liftedReceiverPoint,
+                openJawCoordinate,
+                0.015
+            );
+            std::vector<float> target = world.model.defaultQ;
+            setArmTarget(
+                target,
+                world.model,
+                1u,
+                receiverHandoffOpen
+            );
+            const CrossArmCollisionScan scan = scanCrossArmTargetPath(
+                world,
+                world.model.defaultQ,
+                target,
+                150u
+            );
+            std::vector<float> closedTarget = target;
+            auto receiverHandoffClosed = receiverHandoffOpen;
+            receiverHandoffClosed[6] = -closeJawCoordinate;
+            receiverHandoffClosed[7] = closeJawCoordinate;
+            setArmTarget(
+                closedTarget,
+                world.model,
+                1u,
+                receiverHandoffClosed
+            );
+            const CrossArmCollisionScan closureScan =
+                scanCrossArmTargetPath(
+                    world,
+                    target,
+                    closedTarget,
+                    50u
+                );
+            const KinematicNeedleObservation closedObservation =
+                observeKinematicNeedleContacts(
+                    world,
+                    needleForPlacement.metadata,
+                    closedTarget
+                );
+            std::cout << std::setprecision(9)
+                << "receiver_collision_scan=ok"
+                << " tool_roll_offset_rad="
+                << options.receiverToolRollOffset
+                << " wrist_yaw_rad=" << options.receiverWristYaw
+                << " base_azimuth_offset_rad="
+                << options.receiverBaseAzimuthOffset
+                << " needle_axis_roll_rad="
+                << options.receiverNeedleAxisRoll
+                << " handoff_height_increment_m="
+                << options.receiverScanHandoffHeightIncrement
+                << " handoff_offset_x_m="
+                << options.receiverScanHandoffOffsetX
+                << " handoff_offset_y_m="
+                << options.receiverScanHandoffOffsetY
+                << " staging_steps=" << kHandoffStagingSteps
+                << " staging_max_velocity_ratio="
+                << stagingMaximumVelocityRatio
+                << " staging_max_velocity="
+                << stagingMaximumVelocity
+                << " staging_velocity_limit="
+                << stagingLimitingVelocity
+                << " staging_velocity_dof="
+                << stagingMaximumVelocityDof
+                << " staging_cross_arm_samples="
+                << stagingScan.samplesWithContact
+                << " staging_giver_pad_samples="
+                << stagingScan.samplesWithGiverPadContact
+                << " staging_receiver_pad_samples="
+                << stagingScan.samplesWithReceiverPadContact
+                << " receiver_root_z_m="
+                << world.model.defaultQ[
+                    world.model.articulations.at(1u).qOffset + 2u
+                ]
+                << " lifted_needle_z_m="
+                << world.defaultSceneBodies.at(0u).position.z
+                << " samples_with_contact="
+                << scan.samplesWithContact
+                << " first_contact_step=" << scan.firstContactStep
+                << " last_contact_step=" << scan.lastContactStep
+                << " minimum_separation_m="
+                << (
+                    std::isfinite(scan.minimumSeparation)
+                    ? scan.minimumSeparation
+                    : 0.0
+                )
+                << " bodies=" << scan.bodyA << '/' << scan.bodyB
+                << " colliders=" << scan.colliderA << '/'
+                << scan.colliderB
+                << " giver_pad_samples="
+                << scan.samplesWithGiverPadContact
+                << " giver_pad_first_step="
+                << scan.firstGiverPadContactStep
+                << " giver_pad_last_step="
+                << scan.lastGiverPadContactStep
+                << " giver_pad_minimum_separation_m="
+                << (
+                    std::isfinite(scan.minimumGiverPadSeparation)
+                    ? scan.minimumGiverPadSeparation
+                    : 0.0
+                )
+                << " giver_pad_collider=" << scan.giverPadCollider
+                << " receiver_pad_samples="
+                << scan.samplesWithReceiverPadContact
+                << " receiver_pad_first_step="
+                << scan.firstReceiverPadContactStep
+                << " receiver_pad_last_step="
+                << scan.lastReceiverPadContactStep
+                << " receiver_pad_minimum_separation_m="
+                << (
+                    std::isfinite(scan.minimumReceiverPadSeparation)
+                    ? scan.minimumReceiverPadSeparation
+                    : 0.0
+                )
+                << " receiver_pad_collider="
+                << scan.receiverPadCollider
+                << " closure_samples_with_contact="
+                << closureScan.samplesWithContact
+                << " closure_receiver_pad_samples="
+                << closureScan.samplesWithReceiverPadContact
+                << " closure_receiver_pad_minimum_separation_m="
+                << (
+                    std::isfinite(
+                        closureScan.minimumReceiverPadSeparation
+                    )
+                    ? closureScan.minimumReceiverPadSeparation
+                    : 0.0
+                )
+                << " closure_receiver_pad_collider="
+                << closureScan.receiverPadCollider
+                << " closed_cross_arm_contacts="
+                << closedObservation.crossArmContacts
+                << " closed_minimum_cross_arm_separation_m="
+                << (
+                    std::isfinite(
+                        closedObservation.minimumCrossArmSeparation
+                    )
+                    ? closedObservation.minimumCrossArmSeparation
+                    : 0.0
+                )
+                << " closed_receiver_jaws="
+                << closedObservation.receiverJawContacts[0] << '/'
+                << closedObservation.receiverJawContacts[1]
+                << " closed_receiver_grasp_zone="
+                << closedObservation.receiverGraspZoneContacts << '\n';
+            return 0;
+        }
+
+        metalrobo::CompiledWorld compiled;
+        const auto compile = metalrobo::compileMetalWorld(
+            world,
+            compiled
+        );
+        require(
+            compile.succeeded() &&
+                compiled.articulationCount() == 2u &&
+                compiled.sceneBodyCount() == 2u &&
+                compiled.rodCount() == 1u,
+            "handoff world did not compile for persistent Metal: " +
+                compile.message
+        );
+
+        metalrobo::MetalWorldStepConfig stepConfig;
+        stepConfig.timestepSeconds =
+            static_cast<float>(kControlTimestep);
+        stepConfig.physicsSubsteps = kPhysicsSubsteps;
+        stepConfig.solverMode =
+            metalrobo::MetalWorldSolverMode::temporalCone;
+        stepConfig.actuationMode =
+            metalrobo::MetalWorldActuationMode::implicitPositionDrive;
+        // Base locks, jaw gears, both articulated chains, the supported rod,
+        // the swage, and rigid contact remain one coupled island. Four rod
+        // endpoint/contact sweeps reduce the hard-swage/strand split exposed
+        // by the full lift while the live terminal residual remains the
+        // acceptance authority; no contact, attachment, or DER tolerance is
+        // weakened.
+        stepConfig.velocityIterations = options.velocityIterations;
+        stepConfig.finalVelocityIterations =
+            options.finalVelocityIterations;
+        stepConfig.ccdMode = metalrobo::MetalWorldCCDMode::speculative;
+        stepConfig.maxConservativeAdvancementIterations = 24u;
+        stepConfig.deterministic = true;
+        stepConfig.warmStart = true;
+        stepConfig.captureContactEvidence = true;
+        stepConfig.publishFinalState = true;
+        stepConfig.publishStateTrajectory = false;
+        stepConfig.rodContactOuterIterations = 4u;
+
+        std::vector<float> targetStart = world.model.defaultQ;
+        std::vector<float> target = targetStart;
+        metalrobo::MetalWorldContext context;
+        metalrobo::MetalWorldResidentState resident;
+        std::vector<float> efforts;
+        std::optional<PhaseResult> qualifiedLift;
+        std::optional<PhaseResult> qualifiedOverlap;
+        std::optional<GraspReference> giverGraspReference;
+        std::optional<GraspReference> receiverGraspReference;
+        std::uint64_t preReceiverSuccessfulSteps = 0u;
+        double preReceiverGpuMilliseconds = 0.0;
+        std::uint64_t preReleaseSuccessfulSteps = 0u;
+        double preReleaseGpuMilliseconds = 0.0;
+
+        if (!options.resumeGiverLiftPath.empty() ||
+            !options.resumeGiverHandoffStagePath.empty() ||
+            !options.resumeGiverHandoffStagePrefixPath.empty()) {
+            const bool resumedHandoffStage =
+                !options.resumeGiverHandoffStagePath.empty();
+            const bool resumedHandoffStagePrefix =
+                !options.resumeGiverHandoffStagePrefixPath.empty();
+            const std::string_view resumedPhase = resumedHandoffStage
+                ? "giver-handoff-stage"
+                : resumedHandoffStagePrefix
+                    ? "giver-handoff-stage-prefix"
+                    : "giver-lift";
+            const std::uint32_t kResumeHoldSteps =
+                (resumedHandoffStage || resumedHandoffStagePrefix)
+                ? 25u
+                : 1u;
+            efforts = interpolateTargets(
+                world.model,
+                targetStart,
+                targetStart,
+                kResumeHoldSteps
+            );
+            PhaseResult resumed = initializePhase(
+                context,
+                compiled,
+                world,
+                stepConfig,
+                resident,
+                efforts,
+                kResumeHoldSteps
+            );
+            const ContactCounts resumedContacts = contactCounts(
+                world,
+                resumed.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            const double resumedNeedleLift =
+                resumed.result.finalSceneBodies[0].position.z -
+                config.surgical.needlePose.position[2];
+            const double resumedSwageError =
+                swageAttachmentError(world, resumed.result);
+            const double resumedSwageTangentError =
+                swageTangentAngleError(world, resumed.result);
+            giverGraspReference = graspReference(
+                world,
+                needleForPlacement,
+                resumed.result,
+                0u,
+                kGiverNeedleShape
+            );
+            if (resumedHandoffStagePrefix) {
+                metalrobo::HeterogeneousWorld referenceWorld = world;
+                (void)loadHandoffState(
+                    options.giverLiftReferencePath,
+                    "giver-lift",
+                    referenceWorld
+                );
+                metalrobo::MetalWorldResult referenceState;
+                referenceState.finalQ = referenceWorld.model.defaultQ;
+                referenceState.finalV = referenceWorld.model.defaultV;
+                referenceState.finalSceneBodies =
+                    referenceWorld.defaultSceneBodies;
+                giverGraspReference = graspReference(
+                    world,
+                    needleForPlacement,
+                    referenceState,
+                    0u,
+                    kGiverNeedleShape
+                );
+            }
+            const GraspKinematics resumedGiverMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                resumed.result,
+                0u,
+                kGiverNeedleShape,
+                *giverGraspReference
+            );
+            const RodStateMetrics resumedRod = rodStateMetrics(
+                world,
+                resumed.result
+            );
+            const MRMetalWorldContactStatusGPU& resumedResidual =
+                requireTerminalResidual(
+                    resumed.result,
+                    std::string{resumedPhase} + " checkpoint",
+                    !resumedHandoffStagePrefix
+                );
+            require(
+                bilateral(resumedContacts, 0u) &&
+                    !bilateral(resumedContacts, 1u) &&
+                    cleanNeedleInteraction(
+                        resumedContacts,
+                        true,
+                        false
+                    ) &&
+                    qualifiedDrivenGrasp(resumedGiverMotion) &&
+                    (
+                        resumedHandoffStagePrefix
+                        ? (
+                            resumedRod.maximumEdgeLengthError <=
+                                kMaximumTerminalRodEdgeLengthError &&
+                            resumedRod
+                                    .minimumNonNeighbourSurfaceClearance >=
+                                kMinimumThreadSelfCollisionClearance -
+                                    kThreadClearanceReadbackTolerance
+                        )
+                        : qualifiedTerminalRod(resumedRod)
+                    ) &&
+                    resumedNeedleLift > 0.0075 &&
+                    (
+                        (!resumedHandoffStage &&
+                         !resumedHandoffStagePrefix) ||
+                        resumed.result.finalSceneBodies[0].position.y -
+                                config.surgical.needlePose.position[1] >
+                            (
+                                resumedHandoffStage
+                                ? kHandoffStagingOffset.y - 0.005
+                                : 0.0
+                            )
+                    ) &&
+                    resumedSwageError < kMaximumSwageAttachmentError &&
+                    resumedSwageTangentError <
+                        maximumSwageTangentAngleError(world),
+                std::string{resumedPhase} +
+                " checkpoint did not retain a physically coupled "
+                "table-clear grasp: seat_drift_m=" +
+                std::to_string(resumedGiverMotion.seatDrift) +
+                " relative_point_speed_mps=" +
+                std::to_string(resumedGiverMotion.relativePointSpeed) +
+                " relative_angular_speed_radps=" +
+                std::to_string(resumedGiverMotion.relativeAngularSpeed) +
+                " thread_clearance_m=" + std::to_string(
+                    resumedRod.minimumNonNeighbourSurfaceClearance
+                ) + " thread_speed_mps=" +
+                std::to_string(resumedRod.maximumNodeSpeed) +
+                " thread_edge_error_m=" +
+                std::to_string(resumedRod.maximumEdgeLengthError) +
+                " swage_error_m=" +
+                std::to_string(resumedSwageError) +
+                " swage_tangent_error_rad=" +
+                std::to_string(resumedSwageTangentError) +
+                contactSummary(resumedContacts)
+            );
+            std::cerr << "handoff_phase=" << resumedPhase << "_resume"
+                << " needle_lift_m=" << resumedNeedleLift
+                << " hard_swage_root_error_m=" << resumedSwageError
+                << " swage_tangent_angle_error_rad="
+                << resumedSwageTangentError
+                << " relative_point_speed_mps="
+                << resumedGiverMotion.relativePointSpeed
+                << " relative_angular_speed_radps="
+                << resumedGiverMotion.relativeAngularSpeed
+                << " relative_needle_tangent_spin_radps="
+                << resumedGiverMotion.relativeNeedleTangentSpin
+                << " thread_self_clearance_m="
+                << resumedRod.minimumNonNeighbourSurfaceClearance
+                << " thread_max_node_speed_mps="
+                << resumedRod.maximumNodeSpeed
+                << " thread_max_edge_length_error_m="
+                << resumedRod.maximumEdgeLengthError
+                << " contact_residuals=["
+                << resumedResidual.residuals.x << ','
+                << resumedResidual.residuals.y << ','
+                << resumedResidual.residuals.z << ','
+                << resumedResidual.residuals.w << ']'
+                << contactSummary(resumedContacts) << '\n';
+            preReceiverSuccessfulSteps =
+                loadedStateStep + kResumeHoldSteps;
+            preReceiverGpuMilliseconds =
+                resumed.diagnostics.gpuElapsedMilliseconds;
+            qualifiedLift.emplace(std::move(resumed));
+        } else if (!options.resumePositiveControlOverlapPath.empty()) {
+            constexpr std::uint32_t kResumeHoldSteps = 1u;
+            efforts = interpolateTargets(
+                world.model,
+                targetStart,
+                targetStart,
+                kResumeHoldSteps
+            );
+            PhaseResult resumed = initializePhase(
+                context,
+                compiled,
+                world,
+                stepConfig,
+                resident,
+                efforts,
+                kResumeHoldSteps
+            );
+            const ContactCounts resumedContacts = contactCounts(
+                world,
+                resumed.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            const double resumedSwageError =
+                swageAttachmentError(world, resumed.result);
+            const double resumedSwageTangentError =
+                swageTangentAngleError(world, resumed.result);
+            giverGraspReference = graspReference(
+                world,
+                needleForPlacement,
+                resumed.result,
+                0u,
+                kGiverNeedleShape
+            );
+            receiverGraspReference = graspReference(
+                world,
+                needleForPlacement,
+                resumed.result,
+                1u,
+                kReceiverNeedleShape
+            );
+            const GraspKinematics resumedGiverMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                resumed.result,
+                0u,
+                kGiverNeedleShape,
+                *giverGraspReference
+            );
+            const GraspKinematics resumedReceiverMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                resumed.result,
+                1u,
+                kReceiverNeedleShape,
+                *receiverGraspReference
+            );
+            const MRMetalWorldContactStatusGPU& resumedResidual =
+                requireTerminalResidual(
+                    resumed.result,
+                    "positive-control checkpoint"
+                );
+            require(
+                bilateral(resumedContacts, 0u) &&
+                    bilateral(resumedContacts, 1u) &&
+                    cleanNeedleInteraction(
+                        resumedContacts,
+                        true,
+                        true
+                    ) &&
+                    qualifiedDrivenGrasp(resumedGiverMotion) &&
+                    qualifiedDrivenGrasp(resumedReceiverMotion) &&
+                    resumedSwageError < kMaximumSwageAttachmentError &&
+                    resumedSwageTangentError <
+                        maximumSwageTangentAngleError(world),
+                "positive-control checkpoint did not retain two independent "
+                "needle grasps: " + contactSummary(resumedContacts)
+            );
+            std::cerr << "handoff_phase=positive_control_overlap_resume"
+                << " hard_swage_root_error_m=" << resumedSwageError
+                << " swage_tangent_angle_error_rad="
+                << resumedSwageTangentError
+                << " giver_relative_point_speed_mps="
+                << resumedGiverMotion.relativePointSpeed
+                << " receiver_relative_point_speed_mps="
+                << resumedReceiverMotion.relativePointSpeed
+                << " contact_residuals=["
+                << resumedResidual.residuals.x << ','
+                << resumedResidual.residuals.y << ','
+                << resumedResidual.residuals.z << ','
+                << resumedResidual.residuals.w << ']'
+                << contactSummary(resumedContacts) << '\n';
+            preReleaseSuccessfulSteps =
+                loadedStateStep + kResumeHoldSteps;
+            preReleaseGpuMilliseconds =
+                resumed.diagnostics.gpuElapsedMilliseconds;
+            qualifiedOverlap.emplace(std::move(resumed));
+        } else if (!options.resumeGiverClosedPath.empty()) {
+            constexpr std::uint32_t kResumeHoldSteps = 1u;
+            auto resumeEfforts = interpolateTargets(
+                world.model,
+                targetStart,
+                targetStart,
+                kResumeHoldSteps
+            );
+            const PhaseResult resumed = initializePhase(
+                context,
+                compiled,
+                world,
+                stepConfig,
+                resident,
+                resumeEfforts,
+                kResumeHoldSteps
+            );
+            const ContactCounts resumedContacts = contactCounts(
+                world,
+                resumed.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            require(
+                bilateral(resumedContacts, 0u) &&
+                    !bilateral(resumedContacts, 1u),
+                "resumed state did not retain the giver grasp: " +
+                    contactSummary(resumedContacts)
+            );
+            targetStart = resumed.result.finalQ;
+            std::vector<float> regripTarget = targetStart;
+            const std::uint32_t giverQOffset =
+                world.model.articulations[0].qOffset + 7u;
+            regripTarget[giverQOffset + 6u] =
+                static_cast<float>(-closeJawCoordinate);
+            regripTarget[giverQOffset + 7u] =
+                static_cast<float>(closeJawCoordinate);
+            resumeEfforts = interpolateTargets(
+                world.model,
+                targetStart,
+                regripTarget,
+                kPreLiftRegripSteps
+            );
+            const PhaseResult regripped = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                resumeEfforts,
+                kPreLiftRegripSteps,
+                "resumed giver calibrated re-grip"
+            );
+            const ContactCounts regripContacts = contactCounts(
+                world,
+                regripped.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            const double regripSwageError =
+                swageAttachmentError(world, regripped.result);
+            const double regripSwageTangentError =
+                swageTangentAngleError(world, regripped.result);
+            require(
+                bilateral(regripContacts, 0u) &&
+                    cleanGiverNeedleInteraction(
+                        regripContacts,
+                        false
+                    ) &&
+                    regripSwageError <
+                        kMaximumSwageAttachmentError &&
+                    regripSwageTangentError <
+                        maximumSwageTangentAngleError(world),
+                "calibrated pre-lift re-grip lost positive control: " +
+                    contactSummary(regripContacts)
+            );
+            giverGraspReference = graspReference(
+                world,
+                needleForPlacement,
+                regripped.result,
+                0u,
+                kGiverNeedleShape
+            );
+            std::cerr << "handoff_phase=giver_regripped"
+                << " hard_swage_root_error_m=" << regripSwageError
+                << " swage_tangent_angle_error_rad="
+                << regripSwageTangentError
+                << contactSummary(regripContacts) << '\n';
+            const JawGeometry resumedJaw = worldJawGeometry(
+                world.model,
+                0u,
+                regripped.result.finalQ,
+                regripped.result.finalV
+            );
+            targetStart = regripped.result.finalQ;
+            const ArmTrajectory resumeLift = cartesianArmTrajectory(
+                world.model,
+                psm,
+                0u,
+                config.surgical.robots.leftBase,
+                targetStart,
+                resumedJaw.midpoint,
+                resumedJaw.midpoint + Vec3{0.0, 0.0, kHandoffLift},
+                closeJawCoordinate,
+                closeJawCoordinate,
+                kHandoffLiftSteps
+            );
+            resumeEfforts = resumeLift.efforts;
+            const std::uint32_t resumeLiftSteps =
+                options.resumeLiftStepLimit;
+            resumeEfforts.resize(
+                static_cast<std::size_t>(resumeLiftSteps) *
+                world.model.world.nv
+            );
+            PhaseResult lifted;
+            if (options.liftDiagnosticChunkSteps == 0u) {
+                lifted = continuePhaseUnchecked(
+                    context,
+                    compiled,
+                    stepConfig,
+                    resident,
+                    resumeEfforts,
+                    resumeLiftSteps,
+                    "resumed giver lift"
+                );
+            } else {
+                std::uint32_t completedLiftSteps = 0u;
+                double accumulatedGpuMilliseconds = 0.0;
+                while (completedLiftSteps < resumeLiftSteps) {
+                    const std::uint32_t chunkSteps = std::min(
+                        options.liftDiagnosticChunkSteps,
+                        resumeLiftSteps - completedLiftSteps
+                    );
+                    const std::size_t commandBegin =
+                        static_cast<std::size_t>(completedLiftSteps) *
+                        world.model.world.nv;
+                    const std::size_t commandEnd = commandBegin +
+                        static_cast<std::size_t>(chunkSteps) *
+                        world.model.world.nv;
+                    const std::vector<float> chunkEfforts(
+                        resumeEfforts.begin() + commandBegin,
+                        resumeEfforts.begin() + commandEnd
+                    );
+                    PhaseResult checkpoint = continuePhaseUnchecked(
+                        context,
+                        compiled,
+                        stepConfig,
+                        resident,
+                        chunkEfforts,
+                        chunkSteps,
+                        "resumed giver lift diagnostic chunk"
+                    );
+                    accumulatedGpuMilliseconds +=
+                        checkpoint.diagnostics.gpuElapsedMilliseconds;
+                    completedLiftSteps += std::min(
+                        chunkSteps,
+                        checkpoint.diagnostics.successfulStepCount
+                    );
+                    if (!checkpoint.result.finalSceneBodies.empty() &&
+                        !checkpoint.result.finalQ.empty()) {
+                        const ContactCounts checkpointContacts = contactCounts(
+                            world,
+                            checkpoint.result,
+                            needleForPlacement.metadata,
+                            kNeedleFirstShape
+                        );
+                        const GraspKinematics checkpointMotion =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                checkpoint.result,
+                                0u,
+                                kGiverNeedleShape,
+                                *giverGraspReference
+                            );
+                        double minimumTwist =
+                            std::numeric_limits<double>::infinity();
+                        double maximumTwist =
+                            -std::numeric_limits<double>::infinity();
+                        double maximumTwistRate = 0.0;
+                        for (const MRRodEdgeStateGPU& edge :
+                             checkpoint.result.finalRodEdges) {
+                            minimumTwist = std::min(
+                                minimumTwist,
+                                static_cast<double>(edge.twistAndRate.x)
+                            );
+                            maximumTwist = std::max(
+                                maximumTwist,
+                                static_cast<double>(edge.twistAndRate.x)
+                            );
+                            maximumTwistRate = std::max(
+                                maximumTwistRate,
+                                std::abs(static_cast<double>(
+                                    edge.twistAndRate.y
+                                ))
+                            );
+                        }
+                        const mr_float4 residuals =
+                            checkpoint.result.contactStatuses.empty()
+                            ? mr_float4{}
+                            : checkpoint.result.contactStatuses.back()
+                                  .residuals;
+                        std::cerr
+                            << "handoff_phase=lift_diagnostic"
+                            << " completed_steps=" << completedLiftSteps
+                            << " hard_swage_root_error_m="
+                            << swageAttachmentError(
+                                   world,
+                                   checkpoint.result
+                               )
+                            << " swage_tangent_line_error_m="
+                            << swageTangentLineError(
+                                   world,
+                                   checkpoint.result
+                               )
+                            << " swage_tangent_angle_error_rad="
+                            << swageTangentAngleError(
+                                   world,
+                                   checkpoint.result
+                               )
+                            << " jaw_needle_seat_drift_m="
+                            << checkpointMotion.seatDrift
+                            << " relative_point_speed_mps="
+                            << checkpointMotion.relativePointSpeed
+                            << " relative_angular_speed_radps="
+                            << checkpointMotion.relativeAngularSpeed
+                            << " relative_needle_tangent_spin_radps="
+                            << checkpointMotion.relativeNeedleTangentSpin
+                            << " needle_linear_speed_mps="
+                            << norm(vector(
+                                   checkpoint.result.finalSceneBodies[0]
+                                       .linearVelocityAndInverseMass
+                               ))
+                            << " needle_angular_speed_radps="
+                            << norm(vector(
+                                   checkpoint.result.finalSceneBodies[0]
+                                       .angularVelocity
+                               ))
+                            << " twist_span_rad="
+                            << (
+                                std::isfinite(minimumTwist) &&
+                                    std::isfinite(maximumTwist)
+                                ? maximumTwist - minimumTwist
+                                : 0.0
+                            )
+                            << " maximum_twist_rate_radps="
+                            << maximumTwistRate
+                            << " contact_residuals=["
+                            << residuals.x << ',' << residuals.y << ','
+                            << residuals.z << ',' << residuals.w << ']'
+                            << contactSummary(checkpointContacts) << '\n';
+                    }
+                    lifted = std::move(checkpoint);
+                    if (!lifted.diagnostics.succeeded() ||
+                        lifted.diagnostics.failedStepCount != 0u) {
+                        break;
+                    }
+                }
+                lifted.diagnostics.successfulStepCount = completedLiftSteps;
+                lifted.diagnostics.gpuElapsedMilliseconds =
+                    accumulatedGpuMilliseconds;
+            }
+            if (!lifted.diagnostics.succeeded() ||
+                lifted.diagnostics.failedStepCount != 0u) {
+                if (!lifted.result.rodStatuses.empty()) {
+                    const MRRodGPUStatus& status =
+                        lifted.result.rodStatuses.front();
+                    std::cerr << "handoff_phase=lift_failure"
+                        << " rod_code=" << status.code
+                        << " rod_iterations=" << status.iterations
+                        << " rod_failing_index=" << status.failingIndex
+                        << " rod_diagnostics=["
+                        << status.diagnostics.x << ','
+                        << status.diagnostics.y << ','
+                        << status.diagnostics.z << ','
+                        << status.diagnostics.w << "]\n";
+                }
+                if (!lifted.result.finalSceneBodies.empty()) {
+                    const ContactCounts failureContacts = contactCounts(
+                        world,
+                        lifted.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+                    );
+                    std::cerr
+                        << "handoff_phase=lift_failure_state"
+                        << " hard_swage_root_error_m="
+                        << swageAttachmentError(world, lifted.result)
+                        << " needle_linear_speed_mps="
+                        << norm(vector(
+                            lifted.result.finalSceneBodies[0]
+                                .linearVelocityAndInverseMass
+                        ))
+                        << " needle_angular_speed_radps="
+                        << norm(vector(
+                            lifted.result.finalSceneBodies[0]
+                                .angularVelocity
+                        ))
+                        << " needle_angular_velocity_radps="
+                        << vectorSummary(vector(
+                            lifted.result.finalSceneBodies[0]
+                                .angularVelocity
+                        ))
+                        << contactSummary(failureContacts) << '\n';
+                }
+                if (!lifted.result.finalQ.empty() &&
+                    !lifted.result.finalRodNodes.empty()) {
+                    writeHandoffStateArtifact(
+                        options.stateOutputDirectory,
+                        "giver-lift-failure-checkpoint",
+                        loadedStateStep + kResumeHoldSteps +
+                            kPreLiftRegripSteps +
+                            lifted.diagnostics.successfulStepCount,
+                        world,
+                        sutureSpec,
+                        lifted.result
+                    );
+                }
+                throw std::runtime_error(
+                    "resumed giver lift failed: " +
+                    lifted.diagnostics.message
+                );
+            }
+            const ContactCounts liftContacts = contactCounts(
+                world,
+                lifted.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            const double needleLift =
+                lifted.result.finalSceneBodies[0].position.z -
+                world.defaultSceneBodies[0].position.z;
+            const Vec3 needleLinearVelocity = vector(
+                lifted.result.finalSceneBodies[0]
+                    .linearVelocityAndInverseMass
+            );
+            const Vec3 needleAngularVelocity = vector(
+                lifted.result.finalSceneBodies[0].angularVelocity
+            );
+            const GraspKinematics liftMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                lifted.result,
+                0u,
+                kGiverNeedleShape,
+                *giverGraspReference
+            );
+            const RodStateMetrics liftRod = rodStateMetrics(
+                world,
+                lifted.result
+            );
+            MRMetalWorldContactStatusGPU liftStatus{};
+            if (resumeLiftSteps == kHandoffLiftSteps) {
+                liftStatus = requireTerminalResidual(
+                    lifted.result,
+                    "resumed giver lift"
+                );
+            } else if (!lifted.result.contactStatuses.empty()) {
+                liftStatus = lifted.result.contactStatuses.back();
+            }
+            const double liftedSwageError =
+                swageAttachmentError(world, lifted.result);
+            const double liftedSwageTangentError =
+                swageTangentAngleError(world, lifted.result);
+            std::cerr << "handoff_phase=lift_candidate"
+                << " lift_steps=" << resumeLiftSteps
+                << " hard_swage_root_error_m="
+                << liftedSwageError
+                << " swage_tangent_angle_error_rad="
+                << liftedSwageTangentError
+                << " jaw_needle_seat_drift_m="
+                << liftMotion.seatDrift
+                << " relative_needle_linear_speed_mps="
+                << liftMotion.relativePointSpeed
+                << " relative_needle_angular_speed_radps="
+                << liftMotion.relativeAngularSpeed
+                << " relative_needle_tangent_spin_radps="
+                << liftMotion.relativeNeedleTangentSpin
+                << " thread_self_clearance_m="
+                << liftRod.minimumNonNeighbourSurfaceClearance
+                << " thread_max_node_speed_mps="
+                << liftRod.maximumNodeSpeed
+                << " thread_max_edge_length_error_m="
+                << liftRod.maximumEdgeLengthError
+                << " contact_residuals=["
+                << liftStatus.residuals.x << ','
+                << liftStatus.residuals.y << ','
+                << liftStatus.residuals.z << ','
+                << liftStatus.residuals.w << ']'
+                << contactSummary(liftContacts) << '\n';
+            require(
+                bilateral(liftContacts, 0u) &&
+                    cleanGiverNeedleInteraction(
+                        liftContacts,
+                        resumeLiftSteps == kHandoffLiftSteps
+                    ) &&
+                    (
+                        resumeLiftSteps != kHandoffLiftSteps ||
+                        (
+                            qualifiedDrivenGrasp(liftMotion) &&
+                            qualifiedTerminalRod(liftRod)
+                        )
+                    ) &&
+                    liftedSwageError < kMaximumSwageAttachmentError &&
+                    liftedSwageTangentError <
+                        maximumSwageTangentAngleError(world),
+                "resumed giver lost the bilateral needle grasp: " +
+                    contactSummary(liftContacts)
+            );
+            if (resumeLiftSteps == kHandoffLiftSteps) {
+                require(
+                    liftContacts.needlePadContacts == 0u &&
+                        needleLift > 0.0075,
+                    "resumed giver did not lift the needle clear of the table: " +
+                        contactSummary(liftContacts)
+                );
+            }
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                resumeLiftSteps == kHandoffLiftSteps
+                    ? "giver-lift"
+                    : "giver-lift-prefix",
+                loadedStateStep + kResumeHoldSteps +
+                    kPreLiftRegripSteps + resumeLiftSteps,
+                world,
+                sutureSpec,
+                lifted.result
+            );
+            std::cout << std::setprecision(9)
+                << "dual_psm_suture_handoff_resume="
+                << (resumeLiftSteps == kHandoffLiftSteps
+                    ? "ok"
+                    : "prefix_ok")
+                << " lift_steps=" << resumeLiftSteps
+                << " needle_lift_m=" << needleLift
+                << " needle_linear_speed_mps="
+                << norm(needleLinearVelocity)
+                << " needle_angular_speed_radps="
+                << norm(needleAngularVelocity)
+                << " jaw_midpoint_speed_mps="
+                << liftMotion.jawPointSpeed
+                << " needle_grasp_point_speed_mps="
+                << liftMotion.needlePointSpeed
+                << " relative_needle_linear_speed_mps="
+                << liftMotion.relativePointSpeed
+                << " relative_needle_angular_speed_radps="
+                << liftMotion.relativeAngularSpeed
+                << " relative_needle_tangent_spin_radps="
+                << liftMotion.relativeNeedleTangentSpin
+                << " jaw_needle_seat_drift_m="
+                << liftMotion.seatDrift
+                << " thread_self_clearance_m="
+                << liftRod.minimumNonNeighbourSurfaceClearance
+                << " thread_max_node_speed_mps="
+                << liftRod.maximumNodeSpeed
+                << " thread_max_edge_length_error_m="
+                << liftRod.maximumEdgeLengthError
+                << " contact_residuals=["
+                << liftStatus.residuals.x << ','
+                << liftStatus.residuals.y << ','
+                << liftStatus.residuals.z << ','
+                << liftStatus.residuals.w << ']'
+                << " hard_swage_root_error_m="
+                << liftedSwageError
+                << " swage_tangent_angle_error_rad="
+                << liftedSwageTangentError
+                << contactSummary(liftContacts)
+                << " gpu_ms="
+                << resumed.diagnostics.gpuElapsedMilliseconds +
+                    regripped.diagnostics.gpuElapsedMilliseconds +
+                    lifted.diagnostics.gpuElapsedMilliseconds
+                << '\n';
+            return 0;
+        }
+
+        if (!qualifiedLift.has_value() && !qualifiedOverlap.has_value()) {
+        constexpr std::uint32_t kApproachSteps = 50u;
+        constexpr std::uint32_t kApproachHoldSteps = 40u;
+        const std::uint32_t kSettleSteps =
+            options.resumeApproachHeldPath.empty()
+            ? (options.settleStepLimit != 0u
+                ? options.settleStepLimit
+                : (longSettle
+                    ? kLongSettleSteps
+                    : kDefaultSettleSteps))
+            : 0u;
+        PhaseResult settled;
+        PhaseResult approached;
+        PhaseResult approachHeld;
+        std::uint64_t preClosureSuccessfulSteps = 0u;
+        double preClosureGpuMilliseconds = 0.0;
+
+        if (!options.resumeApproachHeldPath.empty()) {
+            constexpr std::uint32_t kResumeHoldSteps = 1u;
+            efforts = interpolateTargets(
+                world.model,
+                targetStart,
+                targetStart,
+                kResumeHoldSteps
+            );
+            approachHeld = initializePhase(
+                context,
+                compiled,
+                world,
+                stepConfig,
+                resident,
+                efforts,
+                kResumeHoldSteps
+            );
+            target = targetStart;
+            preClosureSuccessfulSteps =
+                loadedStateStep + kResumeHoldSteps;
+            preClosureGpuMilliseconds =
+                approachHeld.diagnostics.gpuElapsedMilliseconds;
+        } else {
+        // Give the initially supported monofilament a deterministic physical
+        // pre-roll before an instrument enters the neutral zone. Completion
+        // alone is insufficient: the velocity, stretch, contact, swage, and
+        // tangent bounds below must all establish a quiescent pickup state.
+        efforts = interpolateTargets(
+            world.model,
+            targetStart,
+            targetStart,
+            kSettleSteps
+        );
+        settled = initializePhase(
+            context,
+            compiled,
+            world,
+            stepConfig,
+            resident,
+            efforts,
+            kSettleSteps
+        );
+        const ContactCounts settleContacts = contactCounts(
+            world,
+            settled.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+        );
+        require(
+            settleContacts.needlePadContacts != 0u &&
+                !bilateral(settleContacts, 0u) &&
+                !bilateral(settleContacts, 1u) &&
+                settleContacts.armPadContacts[0] == 0u &&
+                settleContacts.armPadContacts[1] == 0u &&
+                settleContacts.armNeedleContacts[0] == 0u &&
+                settleContacts.armNeedleContacts[1] == 0u &&
+                settleContacts.crossArmContacts == 0u,
+            "needle did not settle on the physical neutral-zone pad"
+        );
+        const Vec3 settledNeedleLinearVelocity = vector(
+            settled.result.finalSceneBodies[0].
+                linearVelocityAndInverseMass
+        );
+        const Vec3 settledNeedleAngularVelocity = vector(
+            settled.result.finalSceneBodies[0].angularVelocity
+        );
+        std::cerr << std::scientific << std::setprecision(9)
+            << "handoff_phase=settled needle_target_shift_m="
+            << norm(
+                needleShapeWorldCenter(
+                    needleForPlacement,
+                    kGiverNeedleShape,
+                    settled.result.finalSceneBodies[0]
+                ) - giverPoint
+            ) << " needle_com_delta="
+            << vectorSummary(
+                vector(settled.result.finalSceneBodies[0].position) -
+                needlePosition
+            )
+            << " needle_linear_velocity="
+            << vectorSummary(settledNeedleLinearVelocity)
+            << " needle_angular_velocity="
+            << vectorSummary(settledNeedleAngularVelocity)
+            << armTargetSummary(
+                world.model,
+                0u,
+                settled.result.finalQ,
+                world.model.defaultQ
+            ) << contactSummary(settleContacts)
+            << " rod_attachment0_raw=["
+            << settleContacts.rodAttachmentImpulses[0][0] << ','
+            << settleContacts.rodAttachmentImpulses[0][1] << ','
+            << settleContacts.rodAttachmentImpulses[0][2] << ']'
+            << " rod_attachment1_raw=["
+            << settleContacts.rodAttachmentImpulses[1][0] << ','
+            << settleContacts.rodAttachmentImpulses[1][1] << ','
+            << settleContacts.rodAttachmentImpulses[1][2] << ']'
+            << '\n';
+        double maximumRodSpeed = 0.0;
+        std::size_t maximumRodSpeedNode = 0u;
+        Vec3 maximumRodSpeedVector{};
+        double maximumRodStretch = 0.0;
+        double minimumRodZ = std::numeric_limits<double>::infinity();
+        double maximumRodZ = -std::numeric_limits<double>::infinity();
+        for (std::size_t node = 0u;
+             node < settled.result.finalRodNodes.size();
+             ++node) {
+            const Vec3 position = vector(
+                settled.result.finalRodNodes[node].position
+            );
+            const Vec3 nodeVelocity =
+                vector(settled.result.finalRodNodes[node].velocity);
+            const double nodeSpeed = norm(nodeVelocity);
+            if (nodeSpeed > maximumRodSpeed) {
+                maximumRodSpeed = nodeSpeed;
+                maximumRodSpeedNode = node;
+                maximumRodSpeedVector = nodeVelocity;
+            }
+            minimumRodZ = std::min(minimumRodZ, position.z);
+            maximumRodZ = std::max(maximumRodZ, position.z);
+            if (node != 0u) {
+                maximumRodStretch = std::max(
+                    maximumRodStretch,
+                    std::abs(
+                        norm(
+                            position - vector(
+                                settled.result.finalRodNodes[node - 1u]
+                                    .position
+                            )
+                        ) - world.rods[0].model.restLengths[node - 1u]
+                    )
+                );
+            }
+        }
+        const double settledSelfClearance =
+            minimumNonNeighbourRodSurfaceSeparation(
+                settled.result,
+                world.rods[0].model.radius
+            );
+        std::uint32_t speedNodeContactCount = 0u;
+        double speedNodeContactImpulse = 0.0;
+        std::uint32_t speedNodeRigidCollider = MR_INVALID_INDEX;
+        std::uint32_t speedNodeRigidBody = MR_INVALID_INDEX;
+        if (!settled.result.contactStatuses.empty()) {
+            const std::size_t constraintCount = std::min<std::size_t>(
+                settled.result.contactStatuses.back().requiredConstraints,
+                settled.result.contactEvidence.blocks.size()
+            );
+            for (std::size_t constraint = 0u;
+                 constraint < constraintCount;
+                 ++constraint) {
+                const auto& block =
+                    settled.result.contactEvidence.blocks[constraint];
+                if ((block.flags &
+                     MR_CONSTRAINT_IR_BLOCK_ROD_ENDPOINT) == 0u ||
+                    block.key.words[0] < world.model.shapes.size() ||
+                    constraint >=
+                        settled.result.contactEvidence.contacts.size()) {
+                    continue;
+                }
+                const std::uint32_t edge =
+                    block.key.words[0] -
+                    static_cast<std::uint32_t>(world.model.shapes.size());
+                if (edge + 1u < maximumRodSpeedNode ||
+                    edge > maximumRodSpeedNode) {
+                    continue;
+                }
+                ++speedNodeContactCount;
+                const double impulse = std::abs(static_cast<double>(
+                    settled.result.contactEvidence.contacts[constraint]
+                        .impulses.x
+                ));
+                if (impulse > speedNodeContactImpulse) {
+                    speedNodeContactImpulse = impulse;
+                    speedNodeRigidCollider = block.key.words[1];
+                    if (speedNodeRigidCollider < world.model.shapes.size()) {
+                        speedNodeRigidBody = world.model.shapes[
+                            speedNodeRigidCollider
+                        ].bodyIndex;
+                    }
+                }
+            }
+        }
+        std::cerr << "rod_max_speed_mps=" << maximumRodSpeed
+            << " rod_max_speed_node=" << maximumRodSpeedNode
+            << " rod_max_velocity="
+            << vectorSummary(maximumRodSpeedVector)
+            << " speed_node_contacts=" << speedNodeContactCount
+            << " speed_node_max_contact_impulse="
+            << speedNodeContactImpulse
+            << " speed_node_rigid_collider="
+            << speedNodeRigidCollider
+            << " speed_node_rigid_body=" << speedNodeRigidBody
+            << " rod_max_stretch_m=" << maximumRodStretch
+            << " thread_self_clearance_m=" << settledSelfClearance
+            << " hard_swage_root_error_m="
+            << swageAttachmentError(world, settled.result)
+            << " swage_tangent_line_error_m="
+            << swageTangentLineError(world, settled.result)
+            << " swage_tangent_angle_error_rad="
+            << swageTangentAngleError(world, settled.result)
+            << " swage_material_frame_error_rad="
+            << swageMaterialFrameError(world, settled.result)
+            << " swage_tangent_bending_strain="
+            << swageTangentBendingStrain(world, settled.result)
+            << " swage_tangent_bending_stress_pa="
+            << swageTangentBendingStressPa(world, settled.result)
+            << " maximum_swage_tangent_angle_rad="
+            << maximumSwageTangentAngleError(world)
+            << " rod_z_range_m=[" << minimumRodZ << ',' << maximumRodZ
+            << "] gpu_ms=" << settled.diagnostics.gpuElapsedMilliseconds;
+        if (!settled.result.contactStatuses.empty()) {
+            const auto& status = settled.result.contactStatuses.back();
+            std::cerr << " contact_residuals=["
+                << status.residuals.x << ',' << status.residuals.y << ','
+                << status.residuals.z << ',' << status.residuals.w << ']';
+        }
+        if (!settled.result.rodStatuses.empty()) {
+            const auto& status = settled.result.rodStatuses.front();
+            std::cerr << " rod_iterations=" << status.iterations
+                << " rod_diagnostics=[" << status.diagnostics.x << ','
+                << status.diagnostics.y << ',' << status.diagnostics.z << ','
+                << status.diagnostics.w << ']';
+        }
+        std::cerr << '\n';
+        writeHandoffStateArtifact(
+            options.stateOutputDirectory,
+            "settled",
+            kSettleSteps,
+            world,
+            sutureSpec,
+            settled.result
+        );
+        require(
+            norm(settledNeedleLinearVelocity) <=
+                    kMaximumSettledNeedleLinearSpeed &&
+                norm(settledNeedleAngularVelocity) <=
+                    kMaximumSettledNeedleAngularSpeed &&
+                maximumRodSpeed <= kMaximumSettledRodSpeed &&
+                maximumRodStretch <= kMaximumSettledRodStretch &&
+                settledSelfClearance >=
+                    kMinimumThreadSelfCollisionClearance &&
+                settleContacts.minimumRodSeparation >=
+                    kMinimumSettledRodSeparation &&
+                swageAttachmentError(world, settled.result) <
+                    kMaximumSwageAttachmentError &&
+                swageTangentAngleError(world, settled.result) <
+                    maximumSwageTangentAngleError(world),
+            "supported needle-thread reset did not reach the bounded "
+            "quiescent pickup state"
+        );
+        if (settleOnly) {
+            return 0;
+        }
+
+        targetStart = settled.result.finalQ;
+        target = targetStart;
+
+        const double approachVerticalClearance = kPickupVerticalClearance;
+        const Vec3 settledGiverPoint = needleShapeWorldCenter(
+            needleForPlacement,
+            kGiverNeedleShape,
+            settled.result.finalSceneBodies[0]
+        ) + Vec3{0.0, 0.0, approachVerticalClearance};
+        const JawGeometry settledGiverJaw = worldJawGeometry(
+            world.model,
+            0u,
+            settled.result.finalQ,
+            settled.result.finalV
+        );
+        // Follow a Cartesian jaw-midpoint path rather than interpolating PSM
+        // joint coordinates. The oblique remote-centre insertion axis otherwise
+        // sweeps a tooth through the needle before reaching the handling zone.
+        // Four millimetres over 100 ms bounds the approach at 40 mm/s.
+        ArmTrajectory giverApproach = cartesianArmTrajectory(
+            world.model,
+            psm,
+            0u,
+            config.surgical.robots.leftBase,
+            targetStart,
+            settledGiverJaw.midpoint,
+            settledGiverPoint,
+            openJawCoordinate,
+            openJawCoordinate,
+            kApproachSteps
+        );
+        target = giverApproach.finalTarget;
+        efforts = std::move(giverApproach.efforts);
+        approached = continuePhase(
+            context,
+            compiled,
+            stepConfig,
+            resident,
+            efforts,
+            kApproachSteps,
+            "giver approach"
+        );
+        // A needle driver is steadied over the handling zone before the jaws
+        // are closed. Hold the Cartesian endpoint for 80 ms so the implicit
+        // drive dissipates approach tracking error instead of converting it
+        // into an off-axis needle/thread impulse during closure.
+        efforts = interpolateTargets(
+            world.model,
+            target,
+            target,
+            kApproachHoldSteps
+        );
+        approachHeld = continuePhase(
+            context,
+            compiled,
+            stepConfig,
+            resident,
+            efforts,
+            kApproachHoldSteps,
+            "giver approach hold"
+        );
+        preClosureSuccessfulSteps =
+            kSettleSteps + kApproachSteps + kApproachHoldSteps;
+        preClosureGpuMilliseconds =
+            settled.diagnostics.gpuElapsedMilliseconds +
+            approached.diagnostics.gpuElapsedMilliseconds +
+            approachHeld.diagnostics.gpuElapsedMilliseconds;
+        }
+        const ContactCounts approachContacts = contactCounts(
+            world,
+            approachHeld.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+        );
+        const Vec3 approachNeedlePoint = needleShapeWorldCenter(
+            needleForPlacement,
+            kGiverNeedleShape,
+            approachHeld.result.finalSceneBodies[0]
+        );
+        const JawGeometry approachJaw = worldJawGeometry(
+            world.model,
+            0u,
+            approachHeld.result.finalQ,
+            approachHeld.result.finalV
+        );
+        std::cerr << "handoff_phase=giver_approach jaw_midpoint_error_m="
+            << norm(approachJaw.midpoint - approachNeedlePoint)
+            << " hard_swage_root_error_m="
+            << swageAttachmentError(world, approachHeld.result)
+            << " jaw_midpoint_delta="
+            << vectorSummary(approachJaw.midpoint - approachNeedlePoint)
+            << " jaw_a_delta="
+            << vectorSummary(approachJaw.jawA - approachNeedlePoint)
+            << " jaw_b_delta="
+            << vectorSummary(approachJaw.jawB - approachNeedlePoint)
+            << armTargetSummary(
+                world.model,
+                0u,
+                approachHeld.result.finalQ,
+                target
+            ) << contactSummary(approachContacts) << '\n';
+        require(
+            !bilateral(approachContacts, 0u) &&
+                approachContacts.armPadContacts[0] == 0u &&
+                approachContacts.armNeedleContacts[0] == 0u &&
+                approachContacts.crossArmContacts == 0u,
+            "open giver touched the needle, table, or second arm"
+        );
+        writeHandoffStateArtifact(
+            options.stateOutputDirectory,
+            "giver-approach-held",
+            preClosureSuccessfulSteps,
+            world,
+            sutureSpec,
+            approachHeld.result
+        );
+        if (approachOnly) {
+            return 0;
+        }
+        targetStart = approachHeld.result.finalQ;
+        target = targetStart;
+
+        const std::uint32_t kCloseSteps = jawTravelSteps;
+        const ArmTrajectory giverClosure = cartesianArmTrajectory(
+            world.model,
+            psm,
+            0u,
+            config.surgical.robots.leftBase,
+            targetStart,
+            approachJaw.midpoint,
+            approachNeedlePoint +
+                Vec3{0.0, 0.0, kPickupVerticalClearance},
+            openJawCoordinate,
+            closeJawCoordinate,
+            kCloseSteps
+        );
+        target = giverClosure.finalTarget;
+        efforts = giverClosure.efforts;
+        const PhaseResult giverClosed = continuePhaseUnchecked(
+            context,
+            compiled,
+            stepConfig,
+            resident,
+            efforts,
+            kCloseSteps,
+            "giver closure"
+        );
+        if (!giverClosed.diagnostics.succeeded() ||
+            giverClosed.diagnostics.failedStepCount != 0u) {
+            if (!giverClosed.result.rodStatuses.empty()) {
+                const MRRodGPUStatus& status =
+                    giverClosed.result.rodStatuses.front();
+                std::cerr << "handoff_phase=closure_failure"
+                    << " rod_code=" << status.code
+                    << " rod_iterations=" << status.iterations
+                    << " rod_failing_index=" << status.failingIndex
+                    << " rod_diagnostics=["
+                    << status.diagnostics.x << ','
+                    << status.diagnostics.y << ','
+                    << status.diagnostics.z << ','
+                    << status.diagnostics.w << "]\n";
+            }
+            if (!giverClosed.result.finalQ.empty() &&
+                !giverClosed.result.finalRodNodes.empty()) {
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "giver-closure-failure-checkpoint",
+                    preClosureSuccessfulSteps +
+                        giverClosed.diagnostics.successfulStepCount,
+                    world,
+                    sutureSpec,
+                    giverClosed.result
+                );
+            }
+            throw std::runtime_error(
+                "giver closure failed: " +
+                giverClosed.diagnostics.message
+            );
+        }
+        // Do not qualify a grasp from the last frame of closure. Hold the
+        // commanded preload for 50 ms so contact discovery, friction, needle
+        // inertia, and the attached monofilament must settle into persistent
+        // bilateral positive control.
+        efforts = interpolateTargets(
+            world.model,
+            target,
+            target,
+            kGraspStabilizationSteps
+        );
+        const PhaseResult giverSecured = continuePhase(
+            context,
+            compiled,
+            stepConfig,
+            resident,
+            efforts,
+            kGraspStabilizationSteps,
+            "giver grasp stabilization"
+        );
+        const ContactCounts giverClosedContacts = contactCounts(
+            world,
+            giverSecured.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+        );
+        const Vec3 closedNeedlePoint = needleShapeWorldCenter(
+            needleForPlacement,
+            kGiverNeedleShape,
+            giverSecured.result.finalSceneBodies[0]
+        );
+        const JawGeometry closedJaw = worldJawGeometry(
+            world.model,
+            0u,
+            giverSecured.result.finalQ,
+            giverSecured.result.finalV
+        );
+        double maximumGiverTargetError = 0.0;
+        const std::uint32_t giverQOffset =
+            world.model.articulations[0].qOffset + 7u;
+        for (std::uint32_t coordinate = 0u;
+             coordinate < 8u;
+             ++coordinate) {
+            maximumGiverTargetError = std::max(
+                maximumGiverTargetError,
+                std::abs(
+                    static_cast<double>(giverSecured.result.finalQ[
+                        giverQOffset + coordinate
+                    ]) - target[giverQOffset + coordinate]
+                )
+            );
+        }
+        std::cerr << "handoff_phase=giver_closed needle_target_shift_m="
+            << norm(
+                closedNeedlePoint - giverPoint
+            ) << " hard_swage_root_error_m="
+            << swageAttachmentError(world, giverSecured.result)
+            << " jaw_midpoint_error_m="
+            << norm(closedJaw.midpoint - closedNeedlePoint)
+            << " jaw_midpoint_delta="
+            << vectorSummary(closedJaw.midpoint - closedNeedlePoint)
+            << " jaw_a_delta="
+            << vectorSummary(closedJaw.jawA - closedNeedlePoint)
+            << " jaw_b_delta="
+            << vectorSummary(closedJaw.jawB - closedNeedlePoint)
+            << " jaw_a_radius_m="
+            << norm(closedJaw.jawA - closedNeedlePoint)
+            << " jaw_b_radius_m="
+            << norm(closedJaw.jawB - closedNeedlePoint)
+            << " jaw_separation_m=" << closedJaw.separation
+            << " maximum_joint_target_error="
+            << maximumGiverTargetError
+            << armTargetSummary(
+                world.model,
+                0u,
+                giverSecured.result.finalQ,
+                target
+            )
+            << contactSummary(giverClosedContacts) << '\n';
+        const double giverClosedSwageError =
+            swageAttachmentError(world, giverSecured.result);
+        const double giverClosedSwageTangentError =
+            swageTangentAngleError(world, giverSecured.result);
+        std::cerr << "handoff_phase=giver_closed_swage"
+            << " tangent_angle_error_rad="
+            << giverClosedSwageTangentError << '\n';
+        require(
+            bilateral(giverClosedContacts, 0u) &&
+                giverClosedContacts.armPadContacts[0] == 0u &&
+                giverClosedContacts.crossArmContacts == 0u &&
+                giverClosedSwageError < kMaximumSwageAttachmentError &&
+                giverClosedSwageTangentError <
+                    maximumSwageTangentAngleError(world),
+            "giver did not establish a collision-resolved driving grasp:" +
+                contactSummary(giverClosedContacts)
+        );
+        giverGraspReference = graspReference(
+            world,
+            needleForPlacement,
+            giverSecured.result,
+            0u,
+            kGiverNeedleShape
+        );
+        writeHandoffStateArtifact(
+            options.stateOutputDirectory,
+            "giver-closed",
+            preClosureSuccessfulSteps +
+                kCloseSteps + kGraspStabilizationSteps,
+            world,
+            sutureSpec,
+            giverSecured.result
+        );
+        if (closureOnly) {
+            return 0;
+        }
+        targetStart = giverSecured.result.finalQ;
+        target = targetStart;
+
+        // Lift normal to the table before translating. Retraction along the
+        // oblique remote-centre shaft would scrape the needle laterally while
+        // it is still supported by the pad, which is not a controlled pickup.
+        const ArmTrajectory giverLift = cartesianArmTrajectory(
+            world.model,
+            psm,
+            0u,
+            config.surgical.robots.leftBase,
+            targetStart,
+            closedJaw.midpoint,
+            closedJaw.midpoint + Vec3{0.0, 0.0, kHandoffLift},
+            closeJawCoordinate,
+            closeJawCoordinate,
+            kHandoffLiftSteps
+        );
+        target = giverLift.finalTarget;
+        efforts = giverLift.efforts;
+        const PhaseResult lifted = continuePhase(
+            context,
+            compiled,
+            stepConfig,
+            resident,
+            efforts,
+            kHandoffLiftSteps,
+            "giver lift"
+        );
+        const ContactCounts liftContacts = contactCounts(
+            world,
+            lifted.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+        );
+        const double needleLift =
+            lifted.result.finalSceneBodies[0].position.z -
+            world.defaultSceneBodies[0].position.z;
+        std::cerr << "handoff_phase=giver_lift needle_lift_m="
+            << needleLift << " hard_swage_root_error_m="
+            << swageAttachmentError(world, lifted.result)
+            << " swage_tangent_angle_error_rad="
+            << swageTangentAngleError(world, lifted.result)
+            << contactSummary(liftContacts) << '\n';
+        const double liftedSwageError =
+            swageAttachmentError(world, lifted.result);
+        const double liftedSwageTangentError =
+            swageTangentAngleError(world, lifted.result);
+        const GraspKinematics liftedMotion = graspKinematics(
+            world,
+            needleForPlacement,
+            lifted.result,
+            0u,
+            kGiverNeedleShape,
+            *giverGraspReference
+        );
+        const RodStateMetrics liftedRod = rodStateMetrics(
+            world,
+            lifted.result
+        );
+        const MRMetalWorldContactStatusGPU& liftedResidual =
+            requireTerminalResidual(
+                lifted.result,
+                "giver lift"
+            );
+        std::cerr << " jaw_needle_seat_drift_m="
+            << liftedMotion.seatDrift
+            << " relative_needle_point_speed_mps="
+            << liftedMotion.relativePointSpeed
+            << " relative_needle_angular_speed_radps="
+            << liftedMotion.relativeAngularSpeed
+            << " thread_self_clearance_m="
+            << liftedRod.minimumNonNeighbourSurfaceClearance
+            << " thread_max_node_speed_mps="
+            << liftedRod.maximumNodeSpeed
+            << " thread_max_edge_length_error_m="
+            << liftedRod.maximumEdgeLengthError
+            << " contact_residuals=["
+            << liftedResidual.residuals.x << ','
+            << liftedResidual.residuals.y << ','
+            << liftedResidual.residuals.z << ','
+            << liftedResidual.residuals.w << "]\n";
+        require(
+            bilateral(liftContacts, 0u) &&
+                cleanGiverNeedleInteraction(liftContacts) &&
+                qualifiedDrivenGrasp(liftedMotion) &&
+                qualifiedTerminalRod(liftedRod) &&
+                liftContacts.needlePadContacts == 0u &&
+                needleLift > 0.0075 &&
+                liftedSwageError < kMaximumSwageAttachmentError &&
+                liftedSwageTangentError <
+                    maximumSwageTangentAngleError(world),
+            "giver did not lift the needle clear of the table"
+        );
+        writeHandoffStateArtifact(
+            options.stateOutputDirectory,
+            "giver-lift",
+            preClosureSuccessfulSteps +
+                kCloseSteps + kGraspStabilizationSteps +
+                kHandoffLiftSteps,
+            world,
+            sutureSpec,
+            lifted.result
+        );
+        preReceiverSuccessfulSteps =
+            preClosureSuccessfulSteps +
+            kCloseSteps + kGraspStabilizationSteps + kHandoffLiftSteps;
+        preReceiverGpuMilliseconds =
+            preClosureGpuMilliseconds +
+            giverClosed.diagnostics.gpuElapsedMilliseconds +
+            giverSecured.diagnostics.gpuElapsedMilliseconds +
+            lifted.diagnostics.gpuElapsedMilliseconds;
+        qualifiedLift.emplace(std::move(lifted));
+        }
+
+        if (!qualifiedOverlap.has_value() &&
+            options.resumeGiverHandoffStagePath.empty()) {
+            require(
+                qualifiedLift.has_value() &&
+                    giverGraspReference.has_value(),
+                "neutral-zone staging is missing the qualified giver grasp"
+            );
+            const PhaseResult& lifted = qualifiedLift.value();
+            targetStart = lifted.result.finalQ;
+            const bool resumingStagePrefix =
+                !options.resumeGiverHandoffStagePrefixPath.empty();
+            const std::uint32_t priorStagingSteps = resumingStagePrefix
+                ? options.resumeStagingCompletedSteps
+                : 0u;
+            const std::uint32_t remainingStagingSteps =
+                kHandoffStagingSteps - priorStagingSteps;
+            Vec3 remainingStagingOffset = kHandoffStagingOffset;
+            if (resumingStagePrefix) {
+                const Vec3 currentNeedleTranslation =
+                    vector(lifted.result.finalSceneBodies[0].position) -
+                    vector(config.surgical.needlePose.position);
+                remainingStagingOffset =
+                    Vec3{0.0, kHandoffStagingOffset.y, kHandoffLift} -
+                    currentNeedleTranslation;
+            }
+            const JawGeometry stagingStartJaw = worldJawGeometry(
+                world.model,
+                0u,
+                lifted.result.finalQ,
+                lifted.result.finalV
+            );
+            const ArmTrajectory giverStaging = cartesianArmTrajectory(
+                world.model,
+                psm,
+                0u,
+                config.surgical.robots.leftBase,
+                targetStart,
+                stagingStartJaw.midpoint,
+                stagingStartJaw.midpoint + remainingStagingOffset,
+                closeJawCoordinate,
+                closeJawCoordinate,
+                remainingStagingSteps
+            );
+            require(
+                giverStaging.maximumVelocityRatio <=
+                    kMaximumCommandVelocityRatio,
+                "neutral-zone trajectory exceeds the authored PSM joint "
+                "velocity envelope"
+            );
+            const CrossArmCollisionScan stagingPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    targetStart,
+                    giverStaging.finalTarget,
+                    remainingStagingSteps,
+                    giverStaging.desiredQ
+                );
+            require(
+                stagingPreflight.samplesWithContact == 0u &&
+                    stagingPreflight.samplesWithGiverPadContact == 0u &&
+                    stagingPreflight.samplesWithReceiverPadContact == 0u,
+                "giver neutral-zone trajectory intersects the receiver or "
+                "sterile pad"
+            );
+            std::cerr << "handoff_phase=giver_handoff_stage_preflight"
+                << " offset_m=" << vectorSummary(remainingStagingOffset)
+                << " prior_steps=" << priorStagingSteps
+                << " remaining_steps=" << remainingStagingSteps
+                << " max_velocity_ratio="
+                << giverStaging.maximumVelocityRatio
+                << " max_velocity=" << giverStaging.maximumVelocity
+                << " velocity_limit=" << giverStaging.limitingVelocity
+                << " velocity_dof="
+                << giverStaging.maximumVelocityDof << '\n';
+
+            PhaseResult staged;
+            std::uint32_t completedStagingSteps = 0u;
+            double stagingGpuMilliseconds = 0.0;
+            while (completedStagingSteps < remainingStagingSteps) {
+                const std::uint32_t chunkSteps = std::min(
+                    kHandoffStagingChunkSteps,
+                    remainingStagingSteps - completedStagingSteps
+                );
+                const std::size_t commandBegin =
+                    static_cast<std::size_t>(completedStagingSteps) *
+                    world.model.world.nv;
+                const std::size_t commandEnd = commandBegin +
+                    static_cast<std::size_t>(chunkSteps) *
+                    world.model.world.nv;
+                const std::vector<float> chunkEfforts(
+                    giverStaging.efforts.begin() + commandBegin,
+                    giverStaging.efforts.begin() + commandEnd
+                );
+                PhaseResult checkpoint = continuePhase(
+                    context,
+                    compiled,
+                    stepConfig,
+                    resident,
+                    chunkEfforts,
+                    chunkSteps,
+                    "giver neutral-zone staging"
+                );
+                completedStagingSteps += chunkSteps;
+                stagingGpuMilliseconds +=
+                    checkpoint.diagnostics.gpuElapsedMilliseconds;
+                const ContactCounts checkpointContacts = contactCounts(
+                    world,
+                    checkpoint.result,
+                    needleForPlacement.metadata,
+                    kNeedleFirstShape
+                );
+                const GraspKinematics checkpointMotion = graspKinematics(
+                    world,
+                    needleForPlacement,
+                    checkpoint.result,
+                    0u,
+                    kGiverNeedleShape,
+                    *giverGraspReference
+                );
+                const RodStateMetrics checkpointRod = rodStateMetrics(
+                    world,
+                    checkpoint.result
+                );
+                const double checkpointSwageError =
+                    swageAttachmentError(world, checkpoint.result);
+                const double checkpointSwageTangentError =
+                    swageTangentAngleError(world, checkpoint.result);
+                const mr_float4 checkpointResiduals =
+                    checkpoint.result.contactStatuses.empty()
+                    ? mr_float4{}
+                    : checkpoint.result.contactStatuses.back().residuals;
+                std::cerr << "handoff_phase=giver_handoff_stage"
+                    << " completed_steps="
+                    << priorStagingSteps + completedStagingSteps
+                    << " jaw_needle_seat_drift_m="
+                    << checkpointMotion.seatDrift
+                    << " relative_point_speed_mps="
+                    << checkpointMotion.relativePointSpeed
+                    << " relative_angular_speed_radps="
+                    << checkpointMotion.relativeAngularSpeed
+                    << " thread_self_clearance_m="
+                    << checkpointRod
+                           .minimumNonNeighbourSurfaceClearance
+                    << " thread_max_node_speed_mps="
+                    << checkpointRod.maximumNodeSpeed
+                    << " thread_max_edge_length_error_m="
+                    << checkpointRod.maximumEdgeLengthError
+                    << " hard_swage_root_error_m="
+                    << checkpointSwageError
+                    << " swage_tangent_angle_error_rad="
+                    << checkpointSwageTangentError
+                    << " contact_residuals=["
+                    << checkpointResiduals.x << ','
+                    << checkpointResiduals.y << ','
+                    << checkpointResiduals.z << ','
+                    << checkpointResiduals.w << ']'
+                    << contactSummary(checkpointContacts) << '\n';
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "giver-handoff-stage-prefix",
+                    preReceiverSuccessfulSteps + completedStagingSteps,
+                    world,
+                    sutureSpec,
+                    checkpoint.result
+                );
+                require(
+                    bilateral(checkpointContacts, 0u) &&
+                        !bilateral(checkpointContacts, 1u) &&
+                        cleanNeedleInteraction(
+                            checkpointContacts,
+                            true,
+                            false
+                        ) &&
+                        checkpointMotion.seatDrift <=
+                            kMaximumQualifiedGraspSeatDrift &&
+                        checkpointRod
+                                .minimumNonNeighbourSurfaceClearance >=
+                            kMinimumThreadSelfCollisionClearance -
+                                kThreadClearanceReadbackTolerance &&
+                        checkpointRod.maximumEdgeLengthError <=
+                            kMaximumTerminalRodEdgeLengthError &&
+                        checkpointSwageError <
+                            kMaximumSwageAttachmentError &&
+                        checkpointSwageTangentError <
+                            maximumSwageTangentAngleError(world),
+                    "giver lost physical positive control while moving into "
+                    "the neutral handoff zone: " +
+                        contactSummary(checkpointContacts)
+                );
+                staged = std::move(checkpoint);
+            }
+            const std::vector<float> stagingSettleEfforts =
+                interpolateTargets(
+                    world.model,
+                    staged.result.finalQ,
+                    giverStaging.finalTarget,
+                    kHandoffStagingSettleSteps
+                );
+            PhaseResult stagedSettled = continuePhase(
+                context,
+                compiled,
+                stepConfig,
+                resident,
+                stagingSettleEfforts,
+                kHandoffStagingSettleSteps,
+                "giver neutral-zone settling hold"
+            );
+            stagingGpuMilliseconds +=
+                stagedSettled.diagnostics.gpuElapsedMilliseconds;
+            staged = std::move(stagedSettled);
+            staged.diagnostics.successfulStepCount =
+                completedStagingSteps + kHandoffStagingSettleSteps;
+            staged.diagnostics.gpuElapsedMilliseconds =
+                stagingGpuMilliseconds;
+            const ContactCounts stagedContacts = contactCounts(
+                world,
+                staged.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            const GraspKinematics stagedMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                staged.result,
+                0u,
+                kGiverNeedleShape,
+                *giverGraspReference
+            );
+            const RodStateMetrics stagedRod = rodStateMetrics(
+                world,
+                staged.result
+            );
+            const MRMetalWorldContactStatusGPU& stagedResidual =
+                requireTerminalResidual(
+                    staged.result,
+                    "giver neutral-zone staging"
+                );
+            const Vec3 stagedNeedleTranslation =
+                vector(staged.result.finalSceneBodies[0].position) -
+                vector(config.surgical.needlePose.position);
+            const double stagedSwageError =
+                swageAttachmentError(world, staged.result);
+            const double stagedSwageTangentError =
+                swageTangentAngleError(world, staged.result);
+            require(
+                bilateral(stagedContacts, 0u) &&
+                    !bilateral(stagedContacts, 1u) &&
+                    cleanNeedleInteraction(
+                        stagedContacts,
+                        true,
+                        false
+                    ) &&
+                    qualifiedDrivenGrasp(stagedMotion) &&
+                    qualifiedTerminalRod(stagedRod) &&
+                    stagedNeedleTranslation.y > 0.080 &&
+                    stagedSwageError < kMaximumSwageAttachmentError &&
+                    stagedSwageTangentError <
+                        maximumSwageTangentAngleError(world),
+                "giver did not establish a qualified neutral-zone handoff "
+                "state: translation_m=" +
+                vectorSummary(stagedNeedleTranslation) +
+                " seat_drift_m=" +
+                std::to_string(stagedMotion.seatDrift) +
+                " relative_point_speed_mps=" +
+                std::to_string(stagedMotion.relativePointSpeed) +
+                " relative_angular_speed_radps=" +
+                std::to_string(stagedMotion.relativeAngularSpeed) +
+                " thread_clearance_m=" + std::to_string(
+                    stagedRod.minimumNonNeighbourSurfaceClearance
+                ) + " thread_speed_mps=" +
+                std::to_string(stagedRod.maximumNodeSpeed) +
+                " thread_edge_error_m=" +
+                std::to_string(stagedRod.maximumEdgeLengthError) +
+                " swage_error_m=" +
+                std::to_string(stagedSwageError) +
+                " swage_tangent_error_rad=" +
+                std::to_string(stagedSwageTangentError) +
+                contactSummary(stagedContacts)
+            );
+            std::cerr << "handoff_phase=giver_handoff_stage_qualified"
+                << " needle_translation_m="
+                << vectorSummary(stagedNeedleTranslation)
+                << " jaw_needle_seat_drift_m="
+                << stagedMotion.seatDrift
+                << " relative_point_speed_mps="
+                << stagedMotion.relativePointSpeed
+                << " relative_angular_speed_radps="
+                << stagedMotion.relativeAngularSpeed
+                << " thread_self_clearance_m="
+                << stagedRod.minimumNonNeighbourSurfaceClearance
+                << " thread_max_node_speed_mps="
+                << stagedRod.maximumNodeSpeed
+                << " thread_max_edge_length_error_m="
+                << stagedRod.maximumEdgeLengthError
+                << " hard_swage_root_error_m=" << stagedSwageError
+                << " swage_tangent_angle_error_rad="
+                << stagedSwageTangentError
+                << " contact_residuals=["
+                << stagedResidual.residuals.x << ','
+                << stagedResidual.residuals.y << ','
+                << stagedResidual.residuals.z << ','
+                << stagedResidual.residuals.w << ']'
+                << contactSummary(stagedContacts) << '\n';
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "giver-handoff-stage",
+                preReceiverSuccessfulSteps + remainingStagingSteps +
+                    kHandoffStagingSettleSteps,
+                world,
+                sutureSpec,
+                staged.result
+            );
+            if (stageOnly) {
+                std::cout << std::setprecision(9)
+                    << "dual_psm_suture_handoff_stage=ok"
+                    << " staging_steps=" << kHandoffStagingSteps
+                    << " resumed_prior_staging_steps="
+                    << priorStagingSteps
+                    << " settling_steps="
+                    << kHandoffStagingSettleSteps
+                    << " needle_translation_m="
+                    << vectorSummary(stagedNeedleTranslation)
+                    << " max_command_velocity_ratio="
+                    << giverStaging.maximumVelocityRatio
+                    << " jaw_needle_seat_drift_m="
+                    << stagedMotion.seatDrift
+                    << " thread_self_clearance_m="
+                    << stagedRod.minimumNonNeighbourSurfaceClearance
+                    << " thread_max_node_speed_mps="
+                    << stagedRod.maximumNodeSpeed
+                    << " thread_max_edge_length_error_m="
+                    << stagedRod.maximumEdgeLengthError
+                    << " hard_swage_root_error_m="
+                    << stagedSwageError
+                    << " swage_tangent_angle_error_rad="
+                    << stagedSwageTangentError
+                    << " contact_residuals=["
+                    << stagedResidual.residuals.x << ','
+                    << stagedResidual.residuals.y << ','
+                    << stagedResidual.residuals.z << ','
+                    << stagedResidual.residuals.w << ']'
+                    << contactSummary(stagedContacts)
+                    << " gpu_ms="
+                    << preReceiverGpuMilliseconds +
+                        stagingGpuMilliseconds << '\n';
+                return 0;
+            }
+            preReceiverSuccessfulSteps +=
+                remainingStagingSteps + kHandoffStagingSettleSteps;
+            preReceiverGpuMilliseconds += stagingGpuMilliseconds;
+            qualifiedLift.emplace(std::move(staged));
+        }
+
+        double needleLift = qualifiedOverlap.has_value()
+            ? qualifiedOverlap->result.finalSceneBodies[0].position.z -
+                config.surgical.needlePose.position[2]
+            : 0.0;
+        ContactCounts overlapContacts;
+        constexpr std::uint32_t kReceiverApproachSteps = 150u;
+        const std::uint32_t kReceiverCloseSteps = jawTravelSteps;
+        if (!qualifiedOverlap.has_value()) {
+        require(
+            giverGraspReference.has_value(),
+            "receiver phase is missing the qualified giver seat reference"
+        );
+        const PhaseResult& lifted = qualifiedLift.value();
+        needleLift =
+            lifted.result.finalSceneBodies[0].position.z -
+            config.surgical.needlePose.position[2];
+        targetStart = lifted.result.finalQ;
+        target = targetStart;
+
+        const Vec3 liftedReceiverPoint = needleShapeWorldCenter(
+            needleForPlacement,
+            kReceiverNeedleShape,
+            lifted.result.finalSceneBodies[0]
+        );
+        const auto receiverHandoffOpenKinematic = solvePsmJawTarget(
+            psm,
+            config.surgical.robots.rightBase,
+            psmTarget(
+                psm,
+                kReceiverHandoffInsertion,
+                openJawCoordinate,
+                kReceiverYaw,
+                kReceiverPitch
+            ),
+            liftedReceiverPoint,
+            openJawCoordinate,
+            0.015
+        );
+        const auto receiverHandoffOpen = receiverHandoffOpenKinematic;
+        setArmTarget(
+            target,
+            world.model,
+            1u,
+            receiverHandoffOpen
+        );
+        const CrossArmCollisionScan receiverApproachPreflight =
+            scanCrossArmTargetPath(
+                world,
+                targetStart,
+                target,
+                kReceiverApproachSteps
+            );
+        require(
+            receiverApproachPreflight.samplesWithContact == 0u &&
+                receiverApproachPreflight
+                    .samplesWithGiverPadContact == 0u &&
+                receiverApproachPreflight
+                    .samplesWithReceiverPadContact == 0u,
+            "receiver target path intersects the giver or table before "
+            "the handoff"
+        );
+        efforts = interpolateTargets(
+            world.model,
+            targetStart,
+            target,
+            kReceiverApproachSteps
+        );
+        const PhaseResult receiverApproached = continuePhase(
+            context,
+            compiled,
+            stepConfig,
+            resident,
+            efforts,
+            kReceiverApproachSteps,
+            "receiver approach"
+        );
+        const ContactCounts receiverApproachContacts = contactCounts(
+            world,
+            receiverApproached.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+        );
+        const double receiverApproachSwageError =
+            swageAttachmentError(world, receiverApproached.result);
+        const double receiverApproachSwageTangentError =
+            swageTangentAngleError(world, receiverApproached.result);
+        const GraspKinematics receiverApproachGiverMotion =
+            graspKinematics(
+                world,
+                needleForPlacement,
+                receiverApproached.result,
+                0u,
+                kGiverNeedleShape,
+                *giverGraspReference
+            );
+        const RodStateMetrics receiverApproachRod = rodStateMetrics(
+            world,
+            receiverApproached.result
+        );
+        const MRMetalWorldContactStatusGPU& receiverApproachResidual =
+            requireTerminalResidual(
+                receiverApproached.result,
+                "receiver approach"
+            );
+        std::cerr << "handoff_phase=receiver_approach"
+            << " hard_swage_root_error_m=" << receiverApproachSwageError
+            << " swage_tangent_angle_error_rad="
+            << receiverApproachSwageTangentError
+            << " giver_relative_point_speed_mps="
+            << receiverApproachGiverMotion.relativePointSpeed
+            << " giver_relative_angular_speed_radps="
+            << receiverApproachGiverMotion.relativeAngularSpeed
+            << " thread_self_clearance_m="
+            << receiverApproachRod.minimumNonNeighbourSurfaceClearance
+            << " thread_max_node_speed_mps="
+            << receiverApproachRod.maximumNodeSpeed
+            << " thread_max_edge_length_error_m="
+            << receiverApproachRod.maximumEdgeLengthError
+            << " contact_residuals=["
+            << receiverApproachResidual.residuals.x << ','
+            << receiverApproachResidual.residuals.y << ','
+            << receiverApproachResidual.residuals.z << ','
+            << receiverApproachResidual.residuals.w << ']'
+            << contactSummary(receiverApproachContacts) << '\n';
+        require(
+            bilateral(receiverApproachContacts, 0u) &&
+                cleanNeedleInteraction(
+                    receiverApproachContacts,
+                    true,
+                    false
+                ) &&
+                qualifiedDrivenGrasp(receiverApproachGiverMotion) &&
+                qualifiedTerminalRod(receiverApproachRod) &&
+                receiverApproachContacts.jawContacts[1][0] == 0u &&
+                receiverApproachContacts.jawContacts[1][1] == 0u &&
+                receiverApproachSwageError <
+                    kMaximumSwageAttachmentError &&
+                receiverApproachSwageTangentError <
+                    maximumSwageTangentAngleError(world),
+            "receiver approach lost giver control or grasped while open"
+        );
+        writeHandoffStateArtifact(
+            options.stateOutputDirectory,
+            "receiver-approach",
+            preReceiverSuccessfulSteps + kReceiverApproachSteps,
+            world,
+            sutureSpec,
+            receiverApproached.result
+        );
+        targetStart = receiverApproached.result.finalQ;
+        target = targetStart;
+
+        auto receiverHandoffClosed = armLocalQ(
+            world.model,
+            1u,
+            receiverApproached.result.finalQ
+        );
+        receiverHandoffClosed[6] = -closeJawCoordinate;
+        receiverHandoffClosed[7] = closeJawCoordinate;
+
+        setArmTarget(
+            target,
+            world.model,
+            1u,
+            receiverHandoffClosed
+        );
+        const CrossArmCollisionScan receiverClosurePreflight =
+            scanCrossArmTargetPath(
+                world,
+                targetStart,
+                target,
+                kReceiverCloseSteps
+            );
+        require(
+            receiverClosurePreflight.samplesWithContact == 0u &&
+                receiverClosurePreflight
+                    .samplesWithGiverPadContact == 0u &&
+                receiverClosurePreflight
+                    .samplesWithReceiverPadContact == 0u,
+            "receiver closure target intersects the giver or table"
+        );
+        efforts = interpolateTargets(
+            world.model,
+            targetStart,
+            target,
+            kReceiverCloseSteps
+        );
+        const PhaseResult overlap = continuePhase(
+            context,
+            compiled,
+            stepConfig,
+            resident,
+            efforts,
+            kReceiverCloseSteps,
+            "positive-control overlap"
+        );
+        overlapContacts = contactCounts(
+            world,
+            overlap.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+        );
+        const double overlapSwageError =
+            swageAttachmentError(world, overlap.result);
+        const double overlapSwageTangentError =
+            swageTangentAngleError(world, overlap.result);
+        receiverGraspReference = graspReference(
+            world,
+            needleForPlacement,
+            overlap.result,
+            1u,
+            kReceiverNeedleShape
+        );
+        const GraspKinematics overlapGiverMotion = graspKinematics(
+            world,
+            needleForPlacement,
+            overlap.result,
+            0u,
+            kGiverNeedleShape,
+            *giverGraspReference
+        );
+        const GraspKinematics overlapReceiverMotion = graspKinematics(
+            world,
+            needleForPlacement,
+            overlap.result,
+            1u,
+            kReceiverNeedleShape,
+            *receiverGraspReference
+        );
+        const RodStateMetrics overlapRod = rodStateMetrics(
+            world,
+            overlap.result
+        );
+        const MRMetalWorldContactStatusGPU& overlapResidual =
+            requireTerminalResidual(
+                overlap.result,
+                "positive-control overlap"
+            );
+        std::cerr << "handoff_phase=positive_control_overlap"
+            << " hard_swage_root_error_m=" << overlapSwageError
+            << " swage_tangent_angle_error_rad="
+            << overlapSwageTangentError
+            << " giver_seat_drift_m="
+            << overlapGiverMotion.seatDrift
+            << " receiver_seat_drift_m="
+            << overlapReceiverMotion.seatDrift
+            << " giver_relative_point_speed_mps="
+            << overlapGiverMotion.relativePointSpeed
+            << " receiver_relative_point_speed_mps="
+            << overlapReceiverMotion.relativePointSpeed
+            << " thread_self_clearance_m="
+            << overlapRod.minimumNonNeighbourSurfaceClearance
+            << " thread_max_node_speed_mps="
+            << overlapRod.maximumNodeSpeed
+            << " thread_max_edge_length_error_m="
+            << overlapRod.maximumEdgeLengthError
+            << " contact_residuals=["
+            << overlapResidual.residuals.x << ','
+            << overlapResidual.residuals.y << ','
+            << overlapResidual.residuals.z << ','
+            << overlapResidual.residuals.w << ']'
+            << contactSummary(overlapContacts) << '\n';
+        require(
+            bilateral(overlapContacts, 0u) &&
+                bilateral(overlapContacts, 1u) &&
+                cleanNeedleInteraction(overlapContacts, true, true) &&
+                qualifiedDrivenGrasp(overlapGiverMotion) &&
+                qualifiedDrivenGrasp(overlapReceiverMotion) &&
+                qualifiedTerminalRod(overlapRod) &&
+                overlapSwageError < kMaximumSwageAttachmentError &&
+                overlapSwageTangentError <
+                    maximumSwageTangentAngleError(world),
+            "handoff did not establish collision-free dual positive control"
+        );
+        writeHandoffStateArtifact(
+            options.stateOutputDirectory,
+            "positive-control-overlap",
+            preReceiverSuccessfulSteps + kReceiverApproachSteps +
+                kReceiverCloseSteps,
+            world,
+            sutureSpec,
+            overlap.result
+        );
+        preReleaseSuccessfulSteps =
+            preReceiverSuccessfulSteps + kReceiverApproachSteps +
+            kReceiverCloseSteps;
+        preReleaseGpuMilliseconds =
+            preReceiverGpuMilliseconds +
+            receiverApproached.diagnostics.gpuElapsedMilliseconds +
+            overlap.diagnostics.gpuElapsedMilliseconds;
+        qualifiedOverlap.emplace(std::move(overlap));
+        }
+
+        const PhaseResult& overlap = qualifiedOverlap.value();
+        require(
+            receiverGraspReference.has_value(),
+            "release phase is missing the qualified receiver seat reference"
+        );
+        if (!options.resumePositiveControlOverlapPath.empty()) {
+            overlapContacts = contactCounts(
+                world,
+                overlap.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+        }
+        targetStart = overlap.result.finalQ;
+        target = targetStart;
+
+        const std::uint32_t kReleaseSteps = jawTravelSteps;
+        auto giverReleased = armLocalQ(
+            world.model,
+            0u,
+            overlap.result.finalQ
+        );
+        giverReleased[6] = -openJawCoordinate;
+        giverReleased[7] = openJawCoordinate;
+        setArmTarget(target, world.model, 0u, giverReleased);
+        efforts = interpolateTargets(
+            world.model,
+            targetStart,
+            target,
+            kReleaseSteps
+        );
+        const PhaseResult released = continuePhase(
+            context,
+            compiled,
+            stepConfig,
+            resident,
+            efforts,
+            kReleaseSteps,
+            "giver release"
+        );
+        const ContactCounts releaseContacts = contactCounts(
+            world,
+            released.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+        );
+        const double releaseSwageError =
+            swageAttachmentError(world, released.result);
+        const double releaseSwageTangentError =
+            swageTangentAngleError(world, released.result);
+        const GraspKinematics releaseReceiverMotion = graspKinematics(
+            world,
+            needleForPlacement,
+            released.result,
+            1u,
+            kReceiverNeedleShape,
+            *receiverGraspReference
+        );
+        const RodStateMetrics releaseRod = rodStateMetrics(
+            world,
+            released.result
+        );
+        const MRMetalWorldContactStatusGPU& releaseResidual =
+            requireTerminalResidual(
+                released.result,
+                "giver release"
+            );
+        std::cerr << "handoff_phase=giver_release"
+            << " hard_swage_root_error_m=" << releaseSwageError
+            << " swage_tangent_angle_error_rad="
+            << releaseSwageTangentError
+            << " receiver_seat_drift_m="
+            << releaseReceiverMotion.seatDrift
+            << " receiver_relative_point_speed_mps="
+            << releaseReceiverMotion.relativePointSpeed
+            << " receiver_relative_angular_speed_radps="
+            << releaseReceiverMotion.relativeAngularSpeed
+            << " thread_self_clearance_m="
+            << releaseRod.minimumNonNeighbourSurfaceClearance
+            << " thread_max_node_speed_mps="
+            << releaseRod.maximumNodeSpeed
+            << " thread_max_edge_length_error_m="
+            << releaseRod.maximumEdgeLengthError
+            << " contact_residuals=["
+            << releaseResidual.residuals.x << ','
+            << releaseResidual.residuals.y << ','
+            << releaseResidual.residuals.z << ','
+            << releaseResidual.residuals.w << ']'
+            << contactSummary(releaseContacts) << '\n';
+        require(
+            !bilateral(releaseContacts, 0u) &&
+                bilateral(releaseContacts, 1u) &&
+                cleanNeedleInteraction(
+                    releaseContacts,
+                    false,
+                    true
+                ) &&
+                qualifiedDrivenGrasp(releaseReceiverMotion) &&
+                qualifiedTerminalRod(releaseRod) &&
+                releaseSwageError < kMaximumSwageAttachmentError &&
+                releaseSwageTangentError <
+                    maximumSwageTangentAngleError(world),
+            "receiver did not retain sole positive control after release"
+        );
+        writeHandoffStateArtifact(
+            options.stateOutputDirectory,
+            "giver-release",
+            preReleaseSuccessfulSteps + kReleaseSteps,
+            world,
+            sutureSpec,
+            released.result
+        );
+        targetStart = released.result.finalQ;
+        target = targetStart;
+
+        constexpr std::uint32_t kTransferSteps = 100u;
+        auto receiverTransferred = armLocalQ(
+            world.model,
+            1u,
+            released.result.finalQ
+        );
+        receiverTransferred[2] = std::max(
+            0.0,
+            receiverTransferred[2] - kReceiverTransfer
+        );
+        setArmTarget(
+            target,
+            world.model,
+            1u,
+            receiverTransferred
+        );
+        efforts = interpolateTargets(
+            world.model,
+            targetStart,
+            target,
+            kTransferSteps
+        );
+        const Vec3 beforeTransfer = vector(
+            released.result.finalSceneBodies[0].position
+        );
+        const PhaseResult transferred = continuePhase(
+            context,
+            compiled,
+            stepConfig,
+            resident,
+            efforts,
+            kTransferSteps,
+            "receiver transfer"
+        );
+        const ContactCounts transferContacts = contactCounts(
+            world,
+            transferred.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+        );
+        const Vec3 afterTransfer = vector(
+            transferred.result.finalSceneBodies[0].position
+        );
+        const double receiverFollow = norm(afterTransfer - beforeTransfer);
+        const double finalSwageAttachmentError =
+            swageAttachmentError(world, transferred.result);
+        const double finalSwageTangentError =
+            swageTangentAngleError(world, transferred.result);
+        const GraspKinematics transferReceiverMotion = graspKinematics(
+            world,
+            needleForPlacement,
+            transferred.result,
+            1u,
+            kReceiverNeedleShape,
+            *receiverGraspReference
+        );
+        const RodStateMetrics transferRod = rodStateMetrics(
+            world,
+            transferred.result
+        );
+        const MRMetalWorldContactStatusGPU& transferResidual =
+            requireTerminalResidual(
+                transferred.result,
+                "receiver transfer"
+            );
+        std::cerr << "handoff_phase=receiver_transfer receiver_follow_m="
+            << receiverFollow << " hard_swage_root_error_m="
+            << finalSwageAttachmentError << contactSummary(transferContacts)
+            << " swage_tangent_angle_error_rad="
+            << finalSwageTangentError
+            << " receiver_seat_drift_m="
+            << transferReceiverMotion.seatDrift
+            << " receiver_relative_point_speed_mps="
+            << transferReceiverMotion.relativePointSpeed
+            << " receiver_relative_angular_speed_radps="
+            << transferReceiverMotion.relativeAngularSpeed
+            << " thread_self_clearance_m="
+            << transferRod.minimumNonNeighbourSurfaceClearance
+            << " thread_max_node_speed_mps="
+            << transferRod.maximumNodeSpeed
+            << " thread_max_edge_length_error_m="
+            << transferRod.maximumEdgeLengthError
+            << " contact_residuals=["
+            << transferResidual.residuals.x << ','
+            << transferResidual.residuals.y << ','
+            << transferResidual.residuals.z << ','
+            << transferResidual.residuals.w << ']'
+            << '\n';
+        require(
+            bilateral(transferContacts, 1u) &&
+                !bilateral(transferContacts, 0u) &&
+                cleanNeedleInteraction(
+                    transferContacts,
+                    false,
+                    true
+                ) &&
+                qualifiedDrivenGrasp(transferReceiverMotion) &&
+                qualifiedTerminalRod(transferRod) &&
+                receiverFollow > 0.006 &&
+                finalSwageAttachmentError <
+                    kMaximumSwageAttachmentError &&
+                finalSwageTangentError <
+                    maximumSwageTangentAngleError(world),
+            "receiver transfer did not carry the needle and attached thread"
+        );
+        writeHandoffStateArtifact(
+            options.stateOutputDirectory,
+            "receiver-transfer",
+            preReleaseSuccessfulSteps + kReleaseSteps + kTransferSteps,
+            world,
+            sutureSpec,
+            transferred.result
+        );
+
+        const auto stats = context.stats();
+        const std::uint64_t successfulSteps =
+            preReleaseSuccessfulSteps + kReleaseSteps + kTransferSteps;
+        const double totalGpuMilliseconds =
+            preReleaseGpuMilliseconds +
+            released.diagnostics.gpuElapsedMilliseconds +
+            transferred.diagnostics.gpuElapsedMilliseconds;
+        std::cout << std::setprecision(9)
+            << "{\"schema\":\"numi.dual-psm-suture-handoff.v1\""
+            << ",\"device\":\""
+            << transferred.diagnostics.deviceName << "\""
+            << ",\"needle_arc_mm\":"
+            << 1000.0 * sutureSpec.needle.arcLengthM.value
+            << ",\"needle_curvature\":\"1/2-circle\""
+            << ",\"suture_size\":\"3-0\""
+            << ",\"thread_length_m\":"
+            << sutureSpec.threadLengthM.value
+            << ",\"thread_diameter_mm\":"
+            << 2000.0 * sutureSpec.threadRadiusM.value
+            << ",\"thread_nodes\":"
+            << world.rods[0].model.restPositions.size()
+            << ",\"hard_swaged_thread_nodes\":"
+            << std::count_if(
+                world.rods[0].attachments.begin(),
+                world.rods[0].attachments.end(),
+                [](const auto& attachment) {
+                    return attachment.compliance == 0.0;
+                }
+            )
+            << ",\"thread_boundary_nodes\":"
+            << world.rods[0].attachments.size() +
+                   world.rods[0].tangentBindings.size()
+            << ",\"swage_tangent_compliance_rad_per_nm\":"
+            << world.rods[0].tangentBindings[0].complianceRadPerNm
+            << ",\"swage_torsional_compliance_rad_per_nm\":"
+            << world.rods[0].twistBindings[0].complianceRadPerNm
+            << ",\"jaw_length_mm\":"
+            << 1000.0 *
+                metalrobo::surgicalPSMMetadata().
+                    largeNeedleDriverJawLength
+            << ",\"groove_radial_preload_m\":"
+            << kGrooveRailRadialPreload
+            << ",\"jaw_close_rad\":" << closeJawCoordinate
+            << ",\"grasp_zone\":["
+            << sutureSpec.needle.graspZoneStartFraction.value << ','
+            << sutureSpec.needle.graspZoneEndFraction.value << ']'
+            << ",\"needle_lift_m\":" << needleLift
+            << ",\"receiver_follow_m\":" << receiverFollow
+            << ",\"receiver_grasp_seat_drift_m\":"
+            << transferReceiverMotion.seatDrift
+            << ",\"receiver_relative_point_speed_mps\":"
+            << transferReceiverMotion.relativePointSpeed
+            << ",\"receiver_relative_angular_speed_radps\":"
+            << transferReceiverMotion.relativeAngularSpeed
+            << ",\"thread_minimum_non_neighbour_surface_separation_m\":"
+            << transferRod.minimumNonNeighbourSurfaceClearance
+            << ",\"thread_maximum_node_speed_mps\":"
+            << transferRod.maximumNodeSpeed
+            << ",\"thread_maximum_edge_length_error_m\":"
+            << transferRod.maximumEdgeLengthError
+            << ",\"terminal_self_collision_clearance_qualified\":true"
+            << ",\"self_collision_projector_enabled\":true"
+            << ",\"self_collision_margin_m\":"
+            << world.rods[0].stepConfig.selfCollisionMargin
+            << ",\"thread_tool_collision_enabled\":true"
+            << ",\"thread_tool_ccd_enabled\":true"
+            << ",\"hard_swage_root_error_m\":"
+            << finalSwageAttachmentError
+            << ",\"swage_tangent_angle_error_rad\":"
+            << finalSwageTangentError
+            << ",\"swage_tangent_bending_strain\":"
+            << world.rods[0].model.radius * finalSwageTangentError /
+                world.rods[0].model.restLengths.front()
+            << ",\"swage_tangent_bending_stress_pa\":"
+            << swageTangentBendingStressPa(world, transferred.result)
+            << ",\"swage_tangent_line_error_m\":"
+            << swageTangentLineError(
+                world,
+                transferred.result
+            )
+            << ",\"overlap_giver_contacts\":"
+            << overlapContacts.jawContacts[0][0] +
+                   overlapContacts.jawContacts[0][1]
+            << ",\"overlap_receiver_contacts\":"
+            << overlapContacts.jawContacts[1][0] +
+                   overlapContacts.jawContacts[1][1]
+            << ",\"cross_arm_contacts\":"
+            << overlapContacts.crossArmContacts
+            << ",\"terminal_max_friction_utilization\":"
+            << transferContacts.maximumJawFrictionUtilization
+            << ",\"terminal_min_rod_separation_m\":"
+            << (
+                std::isfinite(transferContacts.minimumRodSeparation)
+                    ? transferContacts.minimumRodSeparation
+                    : 0.0
+            )
+            << ",\"terminal_impulse_delta\":"
+            << transferResidual.residuals.x
+            << ",\"terminal_contact_velocity_residual_mps\":"
+            << transferResidual.residuals.y
+            << ",\"terminal_cone_violation\":"
+            << transferResidual.residuals.z
+            << ",\"terminal_contact_residual_aux\":"
+            << transferResidual.residuals.w
+            << ",\"successful_steps\":" << successfulSteps
+            << ",\"failed_steps\":0"
+            << ",\"gpu_ms\":" << totalGpuMilliseconds
+            << ",\"resident_bytes\":" << stats.retainedBufferBytes
+            << ",\"submissions\":" << stats.submissionCount
+            << ",\"positive_control_overlap\":true"
+            << ",\"sole_receiver_control\":true}\n";
+        return 0;
+    } catch (const std::exception& exception) {
+        std::cerr
+            << "dual_psm_suture_handoff status=failed error=\""
+            << exception.what() << "\"\n";
+        return 1;
+    }
+}

@@ -915,6 +915,10 @@ kernel void mr_world_latch_rod_status(
                 rodStatus.environment == environment
                 ? rodStatus.failingIndex
                 : MR_INVALID_INDEX;
+            status.diagnostics =
+                rodStatus.environment == environment
+                ? rodStatus.diagnostics
+                : float4(0.0f);
             statuses[environment] = status;
             return;
         }
@@ -966,8 +970,122 @@ kernel void mr_world_latch_rod_contact_status(
             status.firstFailingStableKeyLow;
         status.firstFailingEventKeyHigh =
             status.firstFailingStableKeyHigh;
+        status.diagnostics =
+            rodStatus.environment == environment
+            ? rodStatus.diagnostics
+            : float4(0.0f);
         statuses[environment] = status;
         return;
+    }
+}
+
+// DER first materializes unconstrained positions and velocities. The coupled
+// contact/ConstraintIR solve then changes rod velocities together with rigid
+// and articulated velocities. Apply the same symplectic velocity correction
+// to rod configuration before publication; otherwise the next substep starts
+// from the unconstrained free position even though it carries the constrained
+// velocity. That split contract permits a hard rod/body attachment to drift by
+// one contact impulse per substep.
+kernel void mr_world_integrate_constrained_rod_state(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRCCDEventStateGPU* eventStates [[buffer(1)]],
+    device const float4* freeVelocities [[buffer(2)]],
+    device const float* freeTwistRates [[buffer(3)]],
+    device MRRodNodeStateGPU* candidateNodes [[buffer(4)]],
+    device MRRodEdgeStateGPU* candidateEdges [[buffer(5)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(6)]],
+    constant uint& segmentMode [[buffer(7)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    if (status.code != MR_STEP_SUCCESS) {
+        return;
+    }
+
+    float duration = dispatch.timestepAndBias.x;
+    if (segmentMode != MR_CCD_SEGMENT_FULL_MICROSTEP) {
+        const MRCCDEventStateGPU eventState = eventStates[environment];
+        if ((eventState.flags & MR_CCD_EVENT_FINISHED) != 0u) {
+            return;
+        }
+        duration = max(
+            segmentMode == MR_CCD_SEGMENT_SELECTED
+            ? eventState.time.w
+            : eventState.time.y,
+            0.0f
+        );
+    }
+    if (!(duration >= 0.0f) || !isfinite(duration)) {
+        status.code = MR_STEP_NONFINITE_RESULT;
+        status.firstFailingConstraint = MR_INVALID_INDEX;
+        status.firstFailingStableKeyLow = MR_INVALID_INDEX;
+        status.firstFailingStableKeyHigh = 0x524f4450u;
+        status.firstFailingEventKeyLow = MR_INVALID_INDEX;
+        status.firstFailingEventKeyHigh = 0x524f4450u;
+        status.diagnostics = float4(duration, 0.0f, 0.0f, 0.0f);
+        statuses[environment] = status;
+        return;
+    }
+    if (!(duration > 0.0f)) {
+        return;
+    }
+
+    const uint nodeBase = environment * dispatch.rodNodeCount;
+    for (uint node = 0u; node < dispatch.rodNodeCount; ++node) {
+        const uint index = nodeBase + node;
+        MRRodNodeStateGPU state = candidateNodes[index];
+        const float3 velocityDelta =
+            state.velocity.xyz - freeVelocities[index].xyz;
+        const float3 positionCorrection = duration * velocityDelta;
+        state.position.xyz += positionCorrection;
+        if (!all(isfinite(state.position)) ||
+            !all(isfinite(state.velocity)) ||
+            !all(isfinite(positionCorrection))) {
+            status.code = MR_STEP_NONFINITE_RESULT;
+            status.firstFailingConstraint = node;
+            status.firstFailingStableKeyLow = node;
+            status.firstFailingStableKeyHigh = 0x524f4450u;
+            status.firstFailingEventKeyLow = node;
+            status.firstFailingEventKeyHigh = 0x524f4450u;
+            status.diagnostics = float4(
+                positionCorrection,
+                duration
+            );
+            statuses[environment] = status;
+            return;
+        }
+        candidateNodes[index] = state;
+    }
+
+    const uint edgeBase = environment * dispatch.rodEdgeCount;
+    for (uint edge = 0u; edge < dispatch.rodEdgeCount; ++edge) {
+        const uint index = edgeBase + edge;
+        MRRodEdgeStateGPU state = candidateEdges[index];
+        const float twistCorrection = duration * (
+            state.twistAndRate.y - freeTwistRates[index]
+        );
+        state.twistAndRate.x += twistCorrection;
+        if (!all(isfinite(state.twistAndRate)) ||
+            !isfinite(twistCorrection)) {
+            status.code = MR_STEP_NONFINITE_RESULT;
+            status.firstFailingConstraint = edge;
+            status.firstFailingStableKeyLow = edge;
+            status.firstFailingStableKeyHigh = 0x524f4454u;
+            status.firstFailingEventKeyLow = edge;
+            status.firstFailingEventKeyHigh = 0x524f4454u;
+            status.diagnostics = float4(
+                twistCorrection,
+                duration,
+                0.0f,
+                0.0f
+            );
+            statuses[environment] = status;
+            return;
+        }
+        candidateEdges[index] = state;
     }
 }
 

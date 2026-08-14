@@ -2,11 +2,19 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_ROD_GPU_ABI_VERSION 6u
+#define MR_ROD_GPU_ABI_VERSION 8u
 #define MR_ROD_GPU_MAX_NODES 128u
 #define MR_ROD_GPU_MAX_ATTACHMENTS 8u
+#define MR_ROD_GPU_MAX_SELF_CONTACT_PAIRS \
+    (((MR_ROD_GPU_MAX_NODES - 2u) * \
+      (MR_ROD_GPU_MAX_NODES - 3u)) / 2u)
+#define MR_ROD_GPU_SELF_CONTACT_PAIR_WORDS \
+    ((MR_ROD_GPU_MAX_SELF_CONTACT_PAIRS + 31u) / 32u)
 #define MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR 4u
+#define MR_ROD_ACTIVE_GLOBAL_METADATA_WORDS 4u
+#define MR_ROD_ACTIVE_PER_ROD_METADATA_WORDS 5u
 #define MR_ROD_GPU_INVALID_BODY 0xffffffffu
+#define MR_ROD_GPU_TWIST_CORRECTION_INDEX_BASE 128u
 
 enum {
     MR_ROD_GPU_SUCCESS = 0u,
@@ -131,6 +139,7 @@ enum MRRodFactorCacheFlags : mr_u32 {
     MR_ROD_FACTOR_CACHE_TRANSLATION_BAND = 1u << 1u,
     MR_ROD_FACTOR_CACHE_TWIST_BAND = 1u << 2u,
     MR_ROD_FACTOR_CACHE_PROJECTED_CURVATURE = 1u << 3u,
+    MR_ROD_FACTOR_CACHE_SELECTED_INVERSE = 1u << 4u,
 };
 
 // Translation uses a scalar lower Cholesky band with half-width eight. This
@@ -217,10 +226,14 @@ typedef struct MR_ALIGN16 MRRodGPUStatus {
     mr_u32 code;
     mr_u32 environment;
     mr_u32 iterations;
+    // For nonconvergence, node indices are [0, 127] and twist-edge indices
+    // are MR_ROD_GPU_TWIST_CORRECTION_INDEX_BASE + edge. Other failures use
+    // their owning element when available or MR_ROD_GPU_INVALID_BODY.
     mr_u32 failingIndex;
 
-    // Maximum constraint error, maximum correction, maximum self
-    // penetration, projected self-contact count.
+    // Maximum constraint error, maximum centerline/radius-scaled surface
+    // correction in metres, maximum self penetration, projected
+    // self-contact count.
     mr_float4 diagnostics;
 } MRRodGPUStatus;
 

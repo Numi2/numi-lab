@@ -134,6 +134,7 @@ struct JawPatchGate {
     double maximumRadiusError = 0.0;
     double maximumCenterError = 0.0;
     double rowSpacing = 0.0;
+    double patchSpacing = 0.0;
     std::array<double, 3> envelopeMinimum{};
     std::array<double, 3> envelopeMaximum{};
 };
@@ -196,19 +197,24 @@ RcmGate verifyRemoteCenter(
 JawPatchGate verifyJawPatchGeometry(
     const metalrobo::EngineModel& model
 ) {
-    constexpr std::array<std::size_t, 4> toothShapeIndices{
-        15u, 17u, 18u, 19u,
+    constexpr std::array<std::size_t, 8> toothShapeIndices{
+        15u, 17u, 18u, 19u, 20u, 21u, 22u, 23u,
     };
-    constexpr std::array<std::uint32_t, 4> expectedBodies{
-        7u, 8u, 7u, 8u,
+    constexpr std::array<std::uint32_t, 8> expectedBodies{
+        7u, 8u, 7u, 8u, 7u, 8u, 7u, 8u,
     };
-    constexpr std::array<std::array<double, 3>, 4> expectedCenters{{
-        {0.00035, 0.0, 0.02160},
-        {-0.00035, 0.0, 0.02160},
-        {0.00035, 0.0, 0.02240},
-        {-0.00035, 0.0, 0.02240},
+    constexpr std::array<std::array<double, 3>, 8> expectedCenters{{
+        {0.00020, -0.00040, 0.00895},
+        {-0.00020, -0.00040, 0.00895},
+        {0.00020, -0.00040, 0.00945},
+        {-0.00020, -0.00040, 0.00945},
+        {0.00020, 0.00040, 0.00895},
+        {-0.00020, 0.00040, 0.00895},
+        {0.00020, 0.00040, 0.00945},
+        {-0.00020, 0.00040, 0.00945},
     }};
-    constexpr double toothRadius = 0.00035;
+    constexpr double toothRadius = 0.00020;
+    constexpr double toothHalfLength = 0.00015;
 
     require(
         model.shapes.size() == metalrobo::kSurgicalPSMShapeCount,
@@ -222,7 +228,7 @@ JawPatchGate verifyJawPatchGeometry(
     gate.envelopeMaximum.fill(
         -std::numeric_limits<double>::infinity()
     );
-    std::array<std::array<double, 3>, 4> authoredCenters{};
+    std::array<std::array<double, 3>, 8> authoredCenters{};
     for (std::size_t tooth = 0u;
          tooth < toothShapeIndices.size();
          ++tooth) {
@@ -230,7 +236,9 @@ JawPatchGate verifyJawPatchGeometry(
             model.shapes[toothShapeIndices[tooth]];
         require(
             shape.bodyIndex == expectedBodies[tooth] &&
-                shape.shapeType == MR_SHAPE_SPHERE,
+                shape.shapeType == MR_SHAPE_CAPSULE &&
+                shape.materialIndex == 1u &&
+                close(shape.dimensions.y, toothHalfLength, 2.0e-8),
             "surgical PSM finite jaw-patch tooth identity changed"
         );
         const MRBodyPropertiesGPU& body =
@@ -251,6 +259,9 @@ JawPatchGate verifyJawPatchGeometry(
             )
         );
         for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            const double extent = axis == 1u
+                ? toothHalfLength + toothRadius
+                : toothRadius;
             gate.maximumCenterError = std::max(
                 gate.maximumCenterError,
                 std::abs(
@@ -260,33 +271,57 @@ JawPatchGate verifyJawPatchGeometry(
             );
             gate.envelopeMinimum[axis] = std::min(
                 gate.envelopeMinimum[axis],
-                authoredCenters[tooth][axis] - toothRadius
+                authoredCenters[tooth][axis] - extent
             );
             gate.envelopeMaximum[axis] = std::max(
                 gate.envelopeMaximum[axis],
-                authoredCenters[tooth][axis] + toothRadius
+                authoredCenters[tooth][axis] + extent
             );
         }
         ++gate.toothCount;
     }
-    require(
-        close(authoredCenters[0][2], authoredCenters[1][2], 2.0e-8) &&
+    for (std::size_t patch = 0u; patch < 4u; ++patch) {
+        require(
             close(
-                authoredCenters[2][2],
-                authoredCenters[3][2],
+                authoredCenters[2u * patch][1],
+                authoredCenters[2u * patch + 1u][1],
+                2.0e-8
+            ) &&
+            close(
+                authoredCenters[2u * patch][2],
+                authoredCenters[2u * patch + 1u][2],
                 2.0e-8
             ),
-        "surgical PSM opposing jaw teeth do not share longitudinal rows"
+            "surgical PSM opposing jaw patches do not share a contact site"
+        );
+    }
+    const std::array<double, 4> rowSpacings{
+        authoredCenters[2][2] - authoredCenters[0][2],
+        authoredCenters[3][2] - authoredCenters[1][2],
+        authoredCenters[6][2] - authoredCenters[4][2],
+        authoredCenters[7][2] - authoredCenters[5][2],
+    };
+    const std::array<double, 4> patchSpacings{
+        authoredCenters[4][1] - authoredCenters[0][1],
+        authoredCenters[5][1] - authoredCenters[1][1],
+        authoredCenters[6][1] - authoredCenters[2][1],
+        authoredCenters[7][1] - authoredCenters[3][1],
+    };
+    for (std::size_t index = 1u; index < rowSpacings.size(); ++index) {
+        require(
+            close(rowSpacings[index], rowSpacings[0], 2.0e-8) &&
+                close(patchSpacings[index], patchSpacings[0], 2.0e-8),
+            "surgical PSM finite jaw patch spacing is asymmetric"
+        );
+    }
+    gate.rowSpacing = 0.25 * (
+        rowSpacings[0] + rowSpacings[1] +
+        rowSpacings[2] + rowSpacings[3]
     );
-    const double firstJawSpacing =
-        authoredCenters[2][2] - authoredCenters[0][2];
-    const double secondJawSpacing =
-        authoredCenters[3][2] - authoredCenters[1][2];
-    require(
-        close(firstJawSpacing, secondJawSpacing, 2.0e-8),
-        "surgical PSM longitudinal tooth spacing is asymmetric"
+    gate.patchSpacing = 0.25 * (
+        patchSpacings[0] + patchSpacings[1] +
+        patchSpacings[2] + patchSpacings[3]
     );
-    gate.rowSpacing = 0.5 * (firstJawSpacing + secondJawSpacing);
     return gate;
 }
 
@@ -294,11 +329,11 @@ JawGapGate verifyJawApertureGeometry(
     const metalrobo::EngineModel& model,
     const double maximumAperture
 ) {
-    constexpr std::array<std::size_t, 4> toothShapeIndices{
-        15u, 17u, 18u, 19u,
+    constexpr std::array<std::size_t, 8> toothShapeIndices{
+        15u, 17u, 18u, 19u, 20u, 21u, 22u, 23u,
     };
     constexpr std::size_t sampleCount = 17u;
-    std::array<metalrobo::ArticulatedPointQuery, 4> queries{};
+    std::array<metalrobo::ArticulatedPointQuery, 8> queries{};
     for (std::size_t tooth = 0u;
          tooth < toothShapeIndices.size();
          ++tooth) {
@@ -315,7 +350,7 @@ JawGapGate verifyJawApertureGeometry(
     }
 
     JawGapGate gate;
-    std::array<double, 2> previousGaps{};
+    std::array<double, 4> previousGaps{};
     for (std::size_t sample = 0u; sample < sampleCount; ++sample) {
         const double aperture =
             maximumAperture * static_cast<double>(sample) /
@@ -338,7 +373,7 @@ JawGapGate verifyJawApertureGeometry(
         );
 
         const std::vector<double> zeroVelocity(model.world.nv, 0.0);
-        std::array<metalrobo::ArticulatedPointKinematics, 4> points{};
+        std::array<metalrobo::ArticulatedPointKinematics, 8> points{};
         std::vector<double> jacobians(
             queries.size() * 3u * model.world.nv,
             0.0
@@ -357,15 +392,15 @@ JawGapGate verifyJawApertureGeometry(
             kinematics.succeeded(),
             "surgical PSM jaw-gap kinematics failed"
         );
-        std::array<double, 2> surfaceGaps{};
-        for (std::size_t row = 0u; row < 2u; ++row) {
-            const std::size_t first = 2u * row;
+        std::array<double, 4> surfaceGaps{};
+        for (std::size_t patch = 0u; patch < 4u; ++patch) {
+            const std::size_t first = 2u * patch;
             const std::size_t second = first + 1u;
             const MRShapeGPU& firstShape =
                 model.shapes[toothShapeIndices[first]];
             const MRShapeGPU& secondShape =
                 model.shapes[toothShapeIndices[second]];
-            surfaceGaps[row] =
+            surfaceGaps[patch] =
                 distance(
                     points[first].position,
                     points[second].position
@@ -375,21 +410,27 @@ JawGapGate verifyJawApertureGeometry(
             if (sample > 0u) {
                 gate.minimumGapIncrease = std::min(
                     gate.minimumGapIncrease,
-                    surfaceGaps[row] - previousGaps[row]
+                    surfaceGaps[patch] - previousGaps[patch]
                 );
             }
-            previousGaps[row] = surfaceGaps[row];
+            previousGaps[patch] = surfaceGaps[patch];
         }
-        gate.maximumRowGapMismatch = std::max(
-            gate.maximumRowGapMismatch,
-            std::abs(surfaceGaps[0] - surfaceGaps[1])
-        );
+        for (std::size_t row = 1u; row < surfaceGaps.size(); ++row) {
+            gate.maximumRowGapMismatch = std::max(
+                gate.maximumRowGapMismatch,
+                std::abs(surfaceGaps[0] - surfaceGaps[row])
+            );
+        }
         if (sample == 0u) {
             gate.closedSurfaceGap =
-                0.5 * (surfaceGaps[0] + surfaceGaps[1]);
+                (surfaceGaps[0] + surfaceGaps[1] +
+                 surfaceGaps[2] + surfaceGaps[3]) /
+                    4.0;
         }
-        gate.maximumSurfaceGap =
-            std::min(surfaceGaps[0], surfaceGaps[1]);
+        gate.maximumSurfaceGap = *std::min_element(
+            surfaceGaps.begin(),
+            surfaceGaps.end()
+        );
     }
     return gate;
 }
@@ -520,6 +561,7 @@ int main() {
                     metalrobo::kSurgicalPSMJointCount &&
                 model.world.shapeCount ==
                     metalrobo::kSurgicalPSMShapeCount &&
+                model.world.materialCount == 2u &&
                 model.world.nq == metalrobo::kSurgicalPSMJointCount &&
                 model.world.nv == metalrobo::kSurgicalPSMJointCount &&
                 model.articulations.size() == 1u &&
@@ -554,6 +596,20 @@ int main() {
                 metadata.dvrkLicenseCommit ==
                     "7e95680b9461009b745567f382d1b498eabc046b" &&
                 metadata.toolModelNumber == "400006" &&
+                close(metadata.instrumentDiameter, 0.008) &&
+                close(metadata.largeNeedleDriverJawLength, 0.0097) &&
+                close(
+                    metadata.insertSystemNormalComplianceMPerN,
+                    5.0e-5
+                ) &&
+                close(metadata.targetNeedleInsertStaticFriction, 1.20) &&
+                close(metadata.targetNeedleInsertDynamicFriction, 0.90) &&
+                close(
+                    model.materials[1].response.z,
+                    metadata.insertSystemNormalComplianceMPerN
+                ) &&
+                metadata.intuitiveInstrumentPartNumber == "471006" &&
+                !metadata.intuitiveInstrumentCatalog.empty() &&
                 close(metadata.orbitToolYawLinkMass, 0.1) &&
                 close(metadata.orbitFixedToolTipMass, 0.1) &&
                 !metadata.independentJawCoordinates &&
@@ -736,51 +792,78 @@ int main() {
         const JawPatchGate jawPatch =
             verifyJawPatchGeometry(model);
         require(
-            jawPatch.toothCount == 4u &&
+            jawPatch.toothCount == 8u &&
                 jawPatch.maximumRadiusError < 2.0e-8 &&
                 jawPatch.maximumCenterError < 2.0e-8 &&
-                close(jawPatch.rowSpacing, 0.00080, 2.0e-8) &&
+                close(jawPatch.rowSpacing, 0.00050, 2.0e-8) &&
+                close(jawPatch.patchSpacing, 0.00080, 2.0e-8) &&
                 close(
                     jawPatch.envelopeMinimum[0],
-                    -0.00070,
+                    -0.00040,
                     2.0e-8
                 ) &&
                 close(
                     jawPatch.envelopeMaximum[0],
-                    0.00070,
+                    0.00040,
                     2.0e-8
                 ) &&
                 close(
                     jawPatch.envelopeMinimum[1],
-                    -0.00035,
+                    -0.00075,
                     2.0e-8
                 ) &&
                 close(
                     jawPatch.envelopeMaximum[1],
-                    0.00035,
+                    0.00075,
                     2.0e-8
                 ) &&
                 close(
                     jawPatch.envelopeMinimum[2],
-                    0.02125,
+                    0.00875,
                     2.0e-8
                 ) &&
                 close(
                     jawPatch.envelopeMaximum[2],
-                    0.02275,
+                    0.00965,
                     2.0e-8
                 ),
             "surgical PSM finite jaw-patch dimensions changed"
         );
+        for (const std::size_t jawShapeIndex : {14u, 16u}) {
+            const MRShapeGPU& jaw = model.shapes[jawShapeIndex];
+            require(
+                jaw.shapeType == MR_SHAPE_CAPSULE &&
+                    jaw.materialIndex == 0u &&
+                    close(jaw.dimensions.x, 0.00090, 2.0e-8) &&
+                    close(
+                        2.0 * (jaw.dimensions.x + jaw.dimensions.y),
+                        metadata.largeNeedleDriverJawLength,
+                        2.0e-8
+                    ),
+                "surgical PSM jaw carrier exceeds its 9.7 mm envelope"
+            );
+        }
         const JawGapGate jawGap = verifyJawApertureGeometry(
             model,
             defaultMap.maximumJawAperture
         );
+        // The jaws rotate about their shared clevis pivot, so longitudinally
+        // separated rows deliberately fan apart as the aperture opens. For
+        // the symmetric two-row patch the extreme-row gap difference is
+        // exactly 2 * row spacing * sin(aperture / 2); equality is a stronger
+        // kinematic check than pretending every row should have one gap.
+        const double expectedMaximumRowGapMismatch =
+            2.0 * jawPatch.rowSpacing *
+            std::sin(0.5 * defaultMap.maximumJawAperture);
         require(
-            std::abs(jawGap.closedSurfaceGap) < 5.0e-7 &&
+                std::abs(jawGap.closedSurfaceGap) < 5.0e-7 &&
                 jawGap.minimumGapIncrease > 1.0e-4 &&
-                jawGap.maximumSurfaceGap > 0.015 &&
-                jawGap.maximumRowGapMismatch < 1.1e-3,
+                jawGap.maximumSurfaceGap > 0.010 &&
+                close(
+                    jawGap.maximumRowGapMismatch,
+                    expectedMaximumRowGapMismatch,
+                    2.0e-7
+                ),
             "surgical PSM jaw aperture is not physically monotonic: "
                 "closed=" +
                 std::to_string(jawGap.closedSurfaceGap) +
@@ -941,6 +1024,22 @@ int main() {
                     metadata.classicShaftLength
                 ),
             "surgical PSM compound primitive geometry changed"
+        );
+        const MRShapeGPU& clevis = model.shapes[13u];
+        const MRBodyPropertiesGPU& clevisBody =
+            model.bodies[clevis.bodyIndex];
+        const double clevisDistalExtent =
+            static_cast<double>(clevis.localPosition.z) +
+            static_cast<double>(clevisBody.centerOfMass.z) +
+            static_cast<double>(clevis.dimensions.x) +
+            static_cast<double>(clevis.dimensions.y);
+        require(
+            clevis.bodyIndex == 6u &&
+                clevis.shapeType == MR_SHAPE_CAPSULE &&
+                close(clevisDistalExtent, 0.016, 2.0e-8) &&
+                clevisDistalExtent + 0.0045 <
+                    0.012 + 0.00875,
+            "surgical PSM clevis overlaps the needle handling zone"
         );
 
         const RcmGate rcm = verifyRemoteCenter(model, metadata);
@@ -1188,10 +1287,12 @@ int main() {
             << " jaw_row_gap_mismatch_max="
             << jawGap.maximumRowGapMismatch
             << " jaw_teeth=" << jawPatch.toothCount
-            << " jaw_tooth_radius_mm="
+            << " jaw_insert_rail_radius_mm="
             << 1000.0 * model.shapes[15u].dimensions.x
-            << " jaw_tooth_longitudinal_spacing_mm="
+            << " jaw_insert_row_spacing_mm="
             << 1000.0 * jawPatch.rowSpacing
+            << " jaw_insert_patch_spacing_mm="
+            << 1000.0 * jawPatch.patchSpacing
             << " jaw_patch_envelope_mm="
             << 1000.0 * (
                 jawPatch.envelopeMaximum[0] -

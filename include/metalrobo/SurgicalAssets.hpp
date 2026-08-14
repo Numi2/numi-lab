@@ -17,6 +17,11 @@ enum class SurgicalValueBasis : std::uint32_t {
     orbitSurgicalOpenAsset = 1u,
     derivedGeometry = 2u,
     researchDefault = 3u,
+    pdsII3_0ProductGeometry = 4u,
+    roboticBowelClosureTechnique = 5u,
+    needleHandlingInstructions = 6u,
+    polydioxanoneMonofilamentStudy = 7u,
+    uspSyntheticSutureDiameterStandard = 8u,
 };
 
 struct SurgicalScalar {
@@ -82,6 +87,37 @@ struct CurvedSutureNeedleSpec {
     std::uint32_t arcSegments = 32u;
     double tipRadiusRatio = 0.20;
     double swageRadiusRatio = 1.12;
+    double contactOffsetM = 0.00002;
+};
+
+// Source-locked bowel-anastomosis setup: USP 3-0 PDS II on a 26 mm curved-
+// centerline, half-circle taper needle, with the driving grasp limited to the
+// handling interval published for curved surgical needles. Needle gauge,
+// taper and collision discretization remain explicit research values because
+// the product catalogue does not publish them.
+[[nodiscard]] CurvedSutureNeedleSpec
+makeBowelAnastomosisNeedleSpec() noexcept;
+
+struct SurgicalNeutralZonePadSpec {
+    // A low-profile sterile-field pad is a physical table surface, not a
+    // hidden support or kinematic grasp. Its dimensions and contact material
+    // are research/training values pending measurement of a selected product.
+    SurgicalScalar sizeXM{
+        0.180,
+        SurgicalValueBasis::researchDefault,
+    };
+    SurgicalScalar sizeYM{
+        0.120,
+        SurgicalValueBasis::researchDefault,
+    };
+    SurgicalScalar thicknessM{
+        0.003,
+        SurgicalValueBasis::researchDefault,
+    };
+    SurgicalScalar densityKgPerM3{
+        1150.0,
+        SurgicalValueBasis::researchDefault,
+    };
     double contactOffsetM = 0.00002;
 };
 
@@ -171,6 +207,10 @@ struct SurgicalPegBlockMetadata {
     std::vector<std::array<double, 3>> pegCenters;
 };
 
+struct SurgicalNeutralZonePadMetadata {
+    double topSurfaceLocalM = 0.0;
+};
+
 // One COM-centred rigid body plus a material and compound primitive colliders.
 // bodyIndex/materialIndex/generation are already rebased for direct append to
 // an EngineModel or an environment's body/material/shape streams.
@@ -205,6 +245,12 @@ struct SurgicalPegBlockAsset {
     SurgicalPegBlockMetadata metadata;
 };
 
+struct SurgicalNeutralZonePadAsset {
+    SurgicalRigidAsset rigid;
+    SurgicalNeutralZonePadSpec spec;
+    SurgicalNeutralZonePadMetadata metadata;
+};
+
 [[nodiscard]] CurvedSutureNeedleAsset makeCurvedSutureNeedleAsset(
     const SurgicalAssetIds& ids = {},
     const CurvedSutureNeedleSpec& spec = {}
@@ -220,6 +266,14 @@ struct SurgicalPegBlockAsset {
         .motionType = MR_MOTION_STATIC,
     },
     const SurgicalPegBlockSpec& spec = {}
+);
+
+[[nodiscard]] SurgicalNeutralZonePadAsset
+makeSurgicalNeutralZonePadAsset(
+    const SurgicalAssetIds& ids = {
+        .motionType = MR_MOTION_STATIC,
+    },
+    const SurgicalNeutralZonePadSpec& spec = {}
 );
 
 } // namespace metalrobo
