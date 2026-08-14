@@ -3216,6 +3216,7 @@ struct Arguments {
     std::filesystem::path resumeReceiverApproachMotionPath;
     std::filesystem::path resumeReceiverApproachPath;
     std::filesystem::path resumeReceiverAlignedPath;
+    std::filesystem::path resumePositiveControlMotionPath;
     std::filesystem::path giverLiftReferencePath;
     std::filesystem::path giverGraspReferencePath;
     std::filesystem::path resumePositiveControlOverlapPath;
@@ -3444,6 +3445,13 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "--resume-receiver-aligned requires one path"
             );
             result.resumeReceiverAlignedPath = argv[++index];
+        } else if (argument == "--resume-positive-control-motion") {
+            require(
+                result.resumePositiveControlMotionPath.empty() &&
+                    index + 1 < argc,
+                "--resume-positive-control-motion requires one path"
+            );
+            result.resumePositiveControlMotionPath = argv[++index];
         } else if (argument == "--giver-lift-reference") {
             require(
                 result.giverLiftReferencePath.empty() &&
@@ -3597,6 +3605,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         (!result.resumeReceiverApproachMotionPath.empty() ? 1u : 0u) +
         (!result.resumeReceiverApproachPath.empty() ? 1u : 0u) +
         (!result.resumeReceiverAlignedPath.empty() ? 1u : 0u) +
+        (!result.resumePositiveControlMotionPath.empty() ? 1u : 0u) +
         (!result.resumePositiveControlOverlapPath.empty() ? 1u : 0u);
     require(resumeCount <= 1u, "handoff resumes are mutually exclusive");
     require(
@@ -3611,8 +3620,11 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
     );
     require(
         result.settleStepLimit == 0u ||
-            (resumeCount == 0u && result.mode != "--geometry-only"),
-        "settle step limit requires a fresh physical state"
+            (resumeCount == 0u && result.mode != "--geometry-only") ||
+            !result.resumePositiveControlMotionPath.empty() ||
+            !result.resumePositiveControlOverlapPath.empty(),
+        "settle step limit requires a fresh state or positive-control "
+        "resume"
     );
     require(
         result.resumeApproachHeldPath.empty() ||
@@ -3651,8 +3663,11 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
     );
     require(
         result.giverGraspReferencePath.empty() ||
-            !result.resumeReceiverApproachMotionPath.empty(),
-        "giver grasp reference requires receiver approach-motion resume"
+            !result.resumeReceiverApproachMotionPath.empty() ||
+            !result.resumePositiveControlMotionPath.empty() ||
+            !result.resumePositiveControlOverlapPath.empty(),
+        "giver grasp reference requires receiver approach-motion or "
+        "positive-control resume"
     );
     require(
         result.resumeReceiverApproachPath.empty() || result.mode.empty() ||
@@ -3665,6 +3680,13 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         result.resumeReceiverAlignedPath.empty() || result.mode.empty() ||
             result.mode == "--receiver-closure-only",
         "receiver-aligned resume only supports receiver closure"
+    );
+    require(
+        result.resumePositiveControlMotionPath.empty() ||
+            (result.mode == "--receiver-closure-only" &&
+             !result.giverGraspReferencePath.empty()),
+        "positive-control motion resume requires receiver-closure-only and "
+        "the original giver reference"
     );
     require(
         !result.receiverCollisionScan ||
@@ -4671,6 +4693,7 @@ int main(const int argc, const char* const argv[]) {
             options.resumeReceiverApproachMotionPath.empty() &&
             options.resumeReceiverApproachPath.empty() &&
             options.resumeReceiverAlignedPath.empty() &&
+            options.resumePositiveControlMotionPath.empty() &&
             options.resumePositiveControlOverlapPath.empty() &&
             options.resumeApproachHeldPath.empty()) {
             setArmTarget(world.model.defaultQ, world.model, 0u, giverStart);
@@ -4719,6 +4742,12 @@ int main(const int argc, const char* const argv[]) {
             loadedStateStep = loadHandoffState(
                 options.resumeReceiverAlignedPath,
                 "receiver-aligned",
+                world
+            );
+        } else if (!options.resumePositiveControlMotionPath.empty()) {
+            loadedStateStep = loadHandoffState(
+                options.resumePositiveControlMotionPath,
+                "positive-control-motion",
                 world
             );
         } else if (!options.resumePositiveControlOverlapPath.empty()) {
@@ -5265,7 +5294,176 @@ int main(const int argc, const char* const argv[]) {
         std::uint64_t preReleaseSuccessfulSteps = 0u;
         double preReleaseGpuMilliseconds = 0.0;
 
-        if (!options.resumeGiverLiftPath.empty() ||
+        if (!options.resumePositiveControlMotionPath.empty()) {
+            const std::uint32_t positiveControlResumeSettleSteps =
+                options.settleStepLimit != 0u
+                ? options.settleStepLimit
+                : kReceiverClosureSettleSteps;
+            metalrobo::MetalWorldResult loadedPositiveControlState;
+            loadedPositiveControlState.finalQ = world.model.defaultQ;
+            loadedPositiveControlState.finalV = world.model.defaultV;
+            loadedPositiveControlState.finalSceneBodies =
+                world.defaultSceneBodies;
+            receiverGraspReference = graspReference(
+                world,
+                needleForPlacement,
+                loadedPositiveControlState,
+                1u,
+                kReceiverNeedleShape
+            );
+            efforts = interpolateTargets(
+                world.model,
+                targetStart,
+                targetStart,
+                positiveControlResumeSettleSteps
+            );
+            PhaseResult overlap = initializePhase(
+                context,
+                compiled,
+                world,
+                stepConfig,
+                resident,
+                efforts,
+                positiveControlResumeSettleSteps
+            );
+            const ContactCounts overlapContacts = contactCounts(
+                world,
+                overlap.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            metalrobo::HeterogeneousWorld referenceWorld = world;
+            (void)loadHandoffState(
+                options.giverGraspReferencePath,
+                "receiver-aligned",
+                referenceWorld
+            );
+            metalrobo::MetalWorldResult referenceState;
+            referenceState.finalQ = referenceWorld.model.defaultQ;
+            referenceState.finalV = referenceWorld.model.defaultV;
+            referenceState.finalSceneBodies =
+                referenceWorld.defaultSceneBodies;
+            giverGraspReference = graspReference(
+                world,
+                needleForPlacement,
+                referenceState,
+                0u,
+                kGiverNeedleShape
+            );
+            const GraspKinematics overlapGiverMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                overlap.result,
+                0u,
+                kGiverNeedleShape,
+                *giverGraspReference
+            );
+            const GraspKinematics overlapReceiverMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                overlap.result,
+                1u,
+                kReceiverNeedleShape,
+                *receiverGraspReference
+            );
+            const RodStateMetrics overlapRod = rodStateMetrics(
+                world,
+                overlap.result
+            );
+            const double overlapSwageError =
+                swageAttachmentError(world, overlap.result);
+            const double overlapSwageTangentError =
+                swageTangentAngleError(world, overlap.result);
+            require(
+                !overlap.result.contactStatuses.empty(),
+                "positive-control resumed hold published no contact status"
+            );
+            const MRMetalWorldContactStatusGPU& overlapResidual =
+                overlap.result.contactStatuses.back();
+            std::cerr << "handoff_phase=positive_control_motion_resume"
+                << " hard_swage_root_error_m=" << overlapSwageError
+                << " swage_tangent_angle_error_rad="
+                << overlapSwageTangentError
+                << " giver_seat_drift_m="
+                << overlapGiverMotion.seatDrift
+                << " receiver_seat_drift_m="
+                << overlapReceiverMotion.seatDrift
+                << " giver_relative_point_speed_mps="
+                << overlapGiverMotion.relativePointSpeed
+                << " receiver_relative_point_speed_mps="
+                << overlapReceiverMotion.relativePointSpeed
+                << " thread_self_clearance_m="
+                << overlapRod.minimumNonNeighbourSurfaceClearance
+                << " thread_max_node_speed_mps="
+                << overlapRod.maximumNodeSpeed
+                << " thread_max_edge_length_error_m="
+                << overlapRod.maximumEdgeLengthError
+                << " contact_residuals=["
+                << overlapResidual.residuals.x << ','
+                << overlapResidual.residuals.y << ','
+                << overlapResidual.residuals.z << ','
+                << overlapResidual.residuals.w << ']'
+                << contactSummary(overlapContacts) << '\n';
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "positive-control-motion",
+                loadedStateStep + positiveControlResumeSettleSteps,
+                world,
+                sutureSpec,
+                overlap.result
+            );
+            (void)requireTerminalResidual(
+                overlap.result,
+                "positive-control motion resumed hold"
+            );
+            writeHandoffStateArtifact(
+                options.stateOutputDirectory,
+                "positive-control-overlap",
+                loadedStateStep + positiveControlResumeSettleSteps,
+                world,
+                sutureSpec,
+                overlap.result
+            );
+            require(
+                bilateral(overlapContacts, 0u) &&
+                    bilateral(overlapContacts, 1u) &&
+                    cleanNeedleInteraction(
+                        overlapContacts,
+                        true,
+                        true
+                    ) &&
+                    qualifiedTransitionGrasp(overlapGiverMotion) &&
+                    qualifiedDrivenGrasp(overlapReceiverMotion) &&
+                    qualifiedTransitionRod(overlapRod) &&
+                    overlapSwageError < kMaximumSwageAttachmentError &&
+                    overlapSwageTangentError <
+                        maximumSwageTangentAngleError(world),
+                "resumed positive-control motion did not settle into "
+                "bounded dual control"
+            );
+            std::cout << std::setprecision(9)
+                << "dual_psm_suture_handoff_positive_control=ok"
+                << " closure_steps=0"
+                << " settling_steps="
+                << positiveControlResumeSettleSteps
+                << " giver_seat_drift_m="
+                << overlapGiverMotion.seatDrift
+                << " receiver_seat_drift_m="
+                << overlapReceiverMotion.seatDrift
+                << " thread_self_clearance_m="
+                << overlapRod.minimumNonNeighbourSurfaceClearance
+                << " thread_max_node_speed_mps="
+                << overlapRod.maximumNodeSpeed
+                << " contact_residuals=["
+                << overlapResidual.residuals.x << ','
+                << overlapResidual.residuals.y << ','
+                << overlapResidual.residuals.z << ','
+                << overlapResidual.residuals.w << ']'
+                << contactSummary(overlapContacts)
+                << " gpu_ms="
+                << overlap.diagnostics.gpuElapsedMilliseconds << '\n';
+            return 0;
+        } else if (!options.resumeGiverLiftPath.empty() ||
             !options.resumeGiverHandoffStagePath.empty() ||
             !options.resumeGiverHandoffStagePrefixPath.empty()) {
             const bool resumedHandoffStage =
@@ -5618,6 +5816,8 @@ int main(const int argc, const char* const argv[]) {
                 << " hard_swage_root_error_m=" << resumedSwageError
                 << " swage_tangent_angle_error_rad="
                 << resumedSwageTangentError
+                << " giver_seat_drift_m="
+                << resumedGiverMotion.seatDrift
                 << " giver_relative_point_speed_mps="
                 << resumedGiverMotion.relativePointSpeed
                 << " giver_relative_angular_speed_radps="
@@ -5740,12 +5940,28 @@ int main(const int argc, const char* const argv[]) {
             receiverAlignmentAlreadyCompleted = true;
             qualifiedLift.emplace(std::move(resumed));
         } else if (!options.resumePositiveControlOverlapPath.empty()) {
-            constexpr std::uint32_t kResumeHoldSteps = 1u;
+            const std::uint32_t resumeHoldSteps =
+                options.settleStepLimit != 0u
+                ? options.settleStepLimit
+                : 50u;
+            metalrobo::MetalWorldResult loadedPositiveControlState;
+            loadedPositiveControlState.finalQ = world.model.defaultQ;
+            loadedPositiveControlState.finalV = world.model.defaultV;
+            loadedPositiveControlState.finalSceneBodies =
+                world.defaultSceneBodies;
+            const GraspReference receiverCheckpointReference =
+                graspReference(
+                    world,
+                    needleForPlacement,
+                    loadedPositiveControlState,
+                    1u,
+                    kReceiverNeedleShape
+                );
             efforts = interpolateTargets(
                 world.model,
                 targetStart,
                 targetStart,
-                kResumeHoldSteps
+                resumeHoldSteps
             );
             PhaseResult resumed = initializePhase(
                 context,
@@ -5754,7 +5970,7 @@ int main(const int argc, const char* const argv[]) {
                 stepConfig,
                 resident,
                 efforts,
-                kResumeHoldSteps
+                resumeHoldSteps
             );
             const ContactCounts resumedContacts = contactCounts(
                 world,
@@ -5773,13 +5989,26 @@ int main(const int argc, const char* const argv[]) {
                 0u,
                 kGiverNeedleShape
             );
-            receiverGraspReference = graspReference(
-                world,
-                needleForPlacement,
-                resumed.result,
-                1u,
-                kReceiverNeedleShape
-            );
+            if (!options.giverGraspReferencePath.empty()) {
+                metalrobo::HeterogeneousWorld referenceWorld = world;
+                (void)loadHandoffState(
+                    options.giverGraspReferencePath,
+                    "receiver-aligned",
+                    referenceWorld
+                );
+                metalrobo::MetalWorldResult referenceState;
+                referenceState.finalQ = referenceWorld.model.defaultQ;
+                referenceState.finalV = referenceWorld.model.defaultV;
+                referenceState.finalSceneBodies =
+                    referenceWorld.defaultSceneBodies;
+                giverGraspReference = graspReference(
+                    world,
+                    needleForPlacement,
+                    referenceState,
+                    0u,
+                    kGiverNeedleShape
+                );
+            }
             const GraspKinematics resumedGiverMotion = graspKinematics(
                 world,
                 needleForPlacement,
@@ -5794,7 +6023,7 @@ int main(const int argc, const char* const argv[]) {
                 resumed.result,
                 1u,
                 kReceiverNeedleShape,
-                *receiverGraspReference
+                receiverCheckpointReference
             );
             const MRMetalWorldContactStatusGPU& resumedResidual =
                 requireTerminalResidual(
@@ -5809,7 +6038,11 @@ int main(const int argc, const char* const argv[]) {
                         true,
                         true
                     ) &&
-                    qualifiedDrivenGrasp(resumedGiverMotion) &&
+                    (
+                        options.giverGraspReferencePath.empty()
+                        ? qualifiedDrivenGrasp(resumedGiverMotion)
+                        : qualifiedTransitionGrasp(resumedGiverMotion)
+                    ) &&
                     qualifiedDrivenGrasp(resumedReceiverMotion) &&
                     resumedSwageError < kMaximumSwageAttachmentError &&
                     resumedSwageTangentError <
@@ -5821,6 +6054,10 @@ int main(const int argc, const char* const argv[]) {
                 << " hard_swage_root_error_m=" << resumedSwageError
                 << " swage_tangent_angle_error_rad="
                 << resumedSwageTangentError
+                << " giver_seat_drift_m="
+                << resumedGiverMotion.seatDrift
+                << " receiver_seat_drift_m="
+                << resumedReceiverMotion.seatDrift
                 << " giver_relative_point_speed_mps="
                 << resumedGiverMotion.relativePointSpeed
                 << " receiver_relative_point_speed_mps="
@@ -5831,8 +6068,19 @@ int main(const int argc, const char* const argv[]) {
                 << resumedResidual.residuals.z << ','
                 << resumedResidual.residuals.w << ']'
                 << contactSummary(resumedContacts) << '\n';
+            // The checkpoint re-entry has now demonstrated that its receiver
+            // seat is stable. Use the settled endpoint as the independent
+            // receiver reference for the subsequent load exchange, while the
+            // giver remains tied to its original pre-contact reference.
+            receiverGraspReference = graspReference(
+                world,
+                needleForPlacement,
+                resumed.result,
+                1u,
+                kReceiverNeedleShape
+            );
             preReleaseSuccessfulSteps =
-                loadedStateStep + kResumeHoldSteps;
+                loadedStateStep + resumeHoldSteps;
             preReleaseGpuMilliseconds =
                 resumed.diagnostics.gpuElapsedMilliseconds;
             qualifiedOverlap.emplace(std::move(resumed));
@@ -7946,6 +8194,13 @@ int main(const int argc, const char* const argv[]) {
             sutureSpec,
             overlapMotion.result
         );
+        receiverGraspReference = graspReference(
+            world,
+            needleForPlacement,
+            overlapMotion.result,
+            1u,
+            kReceiverNeedleShape
+        );
         efforts = interpolateTargets(
             world.model,
             overlapMotion.result.finalQ,
@@ -7975,13 +8230,6 @@ int main(const int argc, const char* const argv[]) {
             swageAttachmentError(world, overlap.result);
         const double overlapSwageTangentError =
             swageTangentAngleError(world, overlap.result);
-        receiverGraspReference = graspReference(
-            world,
-            needleForPlacement,
-            overlap.result,
-            1u,
-            kReceiverNeedleShape
-        );
         const GraspKinematics overlapGiverMotion = graspKinematics(
             world,
             needleForPlacement,
@@ -8031,18 +8279,6 @@ int main(const int argc, const char* const argv[]) {
             << overlapResidual.residuals.z << ','
             << overlapResidual.residuals.w << ']'
             << contactSummary(overlapContacts) << '\n';
-        require(
-            bilateral(overlapContacts, 0u) &&
-                bilateral(overlapContacts, 1u) &&
-                cleanNeedleInteraction(overlapContacts, true, true) &&
-                qualifiedDrivenGrasp(overlapGiverMotion) &&
-                qualifiedDrivenGrasp(overlapReceiverMotion) &&
-                qualifiedTransitionRod(overlapRod) &&
-                overlapSwageError < kMaximumSwageAttachmentError &&
-                overlapSwageTangentError <
-                    maximumSwageTangentAngleError(world),
-            "handoff did not establish collision-free dual positive control"
-        );
         writeHandoffStateArtifact(
             options.stateOutputDirectory,
             "positive-control-overlap",
@@ -8056,6 +8292,23 @@ int main(const int argc, const char* const argv[]) {
             world,
             sutureSpec,
             overlap.result
+        );
+        require(
+            bilateral(overlapContacts, 0u) &&
+                bilateral(overlapContacts, 1u) &&
+                cleanNeedleInteraction(overlapContacts, true, true) &&
+                // First receiver contact may seat the curved needle between
+                // two finite V-grooves. This is the same single sub-radius
+                // transition allowance used for the open-jaw approach; the
+                // original giver reference is retained through load exchange
+                // so subsequent motion cannot be hidden by rebasing.
+                qualifiedTransitionGrasp(overlapGiverMotion) &&
+                qualifiedDrivenGrasp(overlapReceiverMotion) &&
+                qualifiedTransitionRod(overlapRod) &&
+                overlapSwageError < kMaximumSwageAttachmentError &&
+                overlapSwageTangentError <
+                    maximumSwageTangentAngleError(world),
+            "handoff did not establish collision-free dual positive control"
         );
         if (receiverClosureOnly) {
             std::cout << std::setprecision(9)
