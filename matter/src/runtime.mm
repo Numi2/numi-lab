@@ -143,7 +143,17 @@ const char kImageAnchor = 0;
         valid = false;
         return 0u;
     }
-    return static_cast<NSUInteger>(std::max<std::size_t>(bytes, 16u));
+    // Metal validates a typed device pointer against at least one complete
+    // pointee even when the logical dispatch width is zero. A generic
+    // 16-byte placeholder is therefore insufficient for empty bindings such
+    // as NMParticleStateGPU (160 bytes), and validation correctly rejects the
+    // command before the kernel's zero-work guard can run. Preserve the
+    // logical zero count while allocating one fully typed sentinel.
+    return static_cast<NSUInteger>(std::max({
+        bytes,
+        elementSize,
+        std::size_t{16u},
+    }));
 }
 
 class UploadPlan {
@@ -3333,6 +3343,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.elementOperator offset:0u atIndex:7u];
                 [encoder setBuffer:state.femDirection offset:0u atIndex:8u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:9u];
+                [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
             });
             dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                 setDispatch();
@@ -3697,6 +3708,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.elementOperator offset:0u atIndex:7u];
                         [encoder setBuffer:state.femDirection offset:0u atIndex:8u];
                         [encoder setBuffer:state.femCandidate offset:0u atIndex:9u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
                     });
                     dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                         setDispatch();
@@ -4471,6 +4483,7 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.elementOperator offset:0u atIndex:7u];
                 [encoder setBuffer:state.femDirection offset:0u atIndex:8u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:9u];
+                [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
             });
             dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                 setDispatch();
@@ -4681,7 +4694,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.femNodeRanges offset:0u atIndex:3u];
                 [encoder setBuffer:state.schedulers offset:0u atIndex:4u];
                 [encoder setBuffer:state.adaptive offset:0u atIndex:5u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
+                [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
             });
             dispatchThreads("nm_fem_validate", tetrahedronTotal, [&] {
                 setDispatch();

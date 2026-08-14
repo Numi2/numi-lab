@@ -319,10 +319,14 @@ kernel void nm_fgmres_begin(
     if (lane == 0u) {
         const float initialNorm = restartCycle == 0u
             ? norm : previousDiagnostics.y;
-        const float target = max(
-            solver.regularization.x,
-            clamp(forcing, solver.residualTolerances.x, 0.5f) * initialNorm
-        );
+        // regularization.x is the matrix diagonal floor, not a residual
+        // unit. An absolute stop here makes a mass-scaled gravity row vanish
+        // as a FEM mesh is refined. FGMRES itself therefore stops only on its
+        // relative forcing target (or an exactly zero residual); the final
+        // assembled nonlinear certificate remains publication authority.
+        const float target =
+            clamp(forcing, solver.residualTolerances.x, 0.5f) *
+            initialNorm;
         const bool converged = completed || nonlinearConverged ||
             norm <= target;
         leastSquares[fgmresVectorIndex(environment, 0u)] =
@@ -341,10 +345,9 @@ kernel void nm_fgmres_begin(
             nonlinearConverged ? 1.0f : 0.0f
         );
     }
-    if (!active || nonlinearConverged || norm <= max(
-            solver.regularization.x,
-            clamp(forcing, solver.residualTolerances.x, 0.5f) *
-                (restartCycle == 0u ? norm : previousDiagnostics.y))) return;
+    if (!active || nonlinearConverged || norm == 0.0f ||
+        norm <= clamp(forcing, solver.residualTolerances.x, 0.5f) *
+            (restartCycle == 0u ? norm : previousDiagnostics.y)) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
     const float inverseNorm = norm > 1.0e-30f ? 1.0f / norm : 0.0f;
     for (uint local = lane; local < dispatch.femNodeCount; local += 32u) {
@@ -1641,11 +1644,11 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
         device NMFGMRESStateGPU& state = states[environment];
         state.diagnostics.x = residual;
         state.diagnostics.w = float(column + 1u);
-        state.diagnostics.z = residual <= max(
-            solver.regularization.x,
-            clamp(forcing, solver.residualTolerances.x, 0.5f) *
-                state.diagnostics.y
-        ) ? 1.0f : 0.0f;
+        state.diagnostics.z =
+            residual == 0.0f || residual <=
+                clamp(forcing, solver.residualTolerances.x, 0.5f) *
+                    state.diagnostics.y
+            ? 1.0f : 0.0f;
     }
     const float inverseNorm = norm > 1.0e-30f ? 1.0f / norm : 0.0f;
     for (uint local = lane; local < dispatch.femNodeCount; local += 32u)
@@ -1732,8 +1735,9 @@ kernel void nm_fgmres_finalize_cycle(
         leastSquares[fgmresVectorIndex(environment, uint(row))] =
             abs(diagonal) > solver.regularization.x ? value / diagonal : 0.0f;
     }
-    const float relativeResidual = state.diagnostics.y > solver.regularization.x
-        ? state.diagnostics.x / state.diagnostics.y : state.diagnostics.x;
+    const float relativeResidual = state.diagnostics.y > 0.0f
+        ? state.diagnostics.x / state.diagnostics.y
+        : state.diagnostics.x;
     const bool converged = state.diagnostics.z > 0.5f;
     const bool finalAccepted = converged || (used > 0u &&
         relativeResidual <= clamp(
