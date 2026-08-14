@@ -801,12 +801,14 @@ metalrobo::WorldTemplate makeWorldTemplate(
     close.kind = MR_WORLD_SENSOR_RGBD;
     close.width = kWidth;
     close.height = kHeight;
-    close.intrinsics = {1250.0f, 1250.0f, 640.0f, 480.0f};
+    close.intrinsics = state.dualHandoff
+        ? mr_float4{1500.0f, 1500.0f, 640.0f, 480.0f}
+        : mr_float4{1250.0f, 1250.0f, 640.0f, 480.0f};
     const mr_float4 closePosition = state.dualHandoff
         ? mr_float4{
-              needlePosition.x - 0.085f,
-              needlePosition.y - 0.008f,
-              needlePosition.z + 0.035f,
+              needlePosition.x - 0.050f,
+              needlePosition.y - 0.070f,
+              needlePosition.z + 0.045f,
               1.0f,
           }
         : mr_float4{
@@ -841,7 +843,7 @@ metalrobo::WorldTemplate makeWorldTemplate(
     metalrobo::SensorSpec overview = close;
     overview.id = "pickup_overview_rgbd";
     overview.intrinsics = state.dualHandoff
-        ? mr_float4{1600.0f, 1600.0f, 640.0f, 480.0f}
+        ? mr_float4{2000.0f, 2000.0f, 640.0f, 480.0f}
         : mr_float4{1030.0f, 1030.0f, 640.0f, 480.0f};
     const metalrobo::SurgicalNeutralZonePadSpec pad;
     const float tissueCenterZ = static_cast<float>(
