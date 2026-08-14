@@ -498,7 +498,11 @@ struct MetalWorldContextState {
         rodContactPreparePipeline = nil;
     __strong id<MTLComputePipelineState> rodPackPipeline = nil;
     __strong id<MTLComputePipelineState> rodStepPipeline = nil;
+    __strong id<MTLComputePipelineState>
+        rodFactorAssemblyPipeline = nil;
     __strong id<MTLComputePipelineState> rodFactorPipeline = nil;
+    __strong id<MTLComputePipelineState>
+        rodSelectedInversePipeline = nil;
     __strong id<MTLComputePipelineState> rodUnpackPipeline = nil;
     __strong id<MTLComputePipelineState> rodLatchPipeline = nil;
     __strong id<MTLComputePipelineState>
@@ -4919,7 +4923,9 @@ MetalWorldDiagnostics ensureRodPipelines(
         context.rodContactPreparePipeline != nil ||
         context.rodPackPipeline != nil ||
         context.rodStepPipeline != nil ||
+        context.rodFactorAssemblyPipeline != nil ||
         context.rodFactorPipeline != nil ||
+        context.rodSelectedInversePipeline != nil ||
         context.rodUnpackPipeline != nil ||
         context.rodLatchPipeline != nil ||
         context.rodContactLatchPipeline != nil ||
@@ -4942,7 +4948,9 @@ MetalWorldDiagnostics ensureRodPipelines(
         context.rodContactPreparePipeline != nil &&
         context.rodPackPipeline != nil &&
         context.rodStepPipeline != nil &&
+        context.rodFactorAssemblyPipeline != nil &&
         context.rodFactorPipeline != nil &&
+        context.rodSelectedInversePipeline != nil &&
         context.rodUnpackPipeline != nil &&
         context.rodLatchPipeline != nil &&
         context.rodContactLatchPipeline != nil &&
@@ -4975,7 +4983,9 @@ MetalWorldDiagnostics ensureRodPipelines(
     __strong id<MTLComputePipelineState> rodContactPrepare = nil;
     __strong id<MTLComputePipelineState> rodPack = nil;
     __strong id<MTLComputePipelineState> rodStep = nil;
+    __strong id<MTLComputePipelineState> rodFactorAssembly = nil;
     __strong id<MTLComputePipelineState> rodFactor = nil;
+    __strong id<MTLComputePipelineState> rodSelectedInverse = nil;
     __strong id<MTLComputePipelineState> rodUnpack = nil;
     __strong id<MTLComputePipelineState> rodLatch = nil;
     __strong id<MTLComputePipelineState> rodContactLatch = nil;
@@ -5015,7 +5025,13 @@ MetalWorldDiagnostics ensureRodPipelines(
     rodContactPrepare = create(@"mr_world_prepare_rod_contact_cache");
     rodPack = create(@"mr_world_pack_rod_state");
     rodStep = create(@"mr_discrete_elastic_rod_step");
+    rodFactorAssembly = create(
+        @"mr_world_assemble_rod_operator_simd32"
+    );
     rodFactor = create(@"mr_world_factor_rod_operator");
+    rodSelectedInverse = create(
+        @"mr_world_select_rod_inverse_simd32"
+    );
     rodUnpack = create(@"mr_world_unpack_rod_state");
     rodLatch = create(@"mr_world_latch_rod_status");
     rodContactLatch = create(@"mr_world_latch_rod_contact_status");
@@ -5042,7 +5058,9 @@ MetalWorldDiagnostics ensureRodPipelines(
         rodContactPrepare == nil ||
         rodPack == nil ||
         rodStep == nil ||
+        rodFactorAssembly == nil ||
         rodFactor == nil ||
+        rodSelectedInverse == nil ||
         rodUnpack == nil ||
         rodLatch == nil ||
         rodContactLatch == nil ||
@@ -5075,7 +5093,11 @@ MetalWorldDiagnostics ensureRodPipelines(
         rodContactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
         rodPack.maxTotalThreadsPerThreadgroup == 0u ||
         rodStep.maxTotalThreadsPerThreadgroup < MR_ROD_GPU_MAX_NODES ||
+        rodFactorAssembly.maxTotalThreadsPerThreadgroup <
+            MR_WAVE32_CONTACTS_PER_TILE ||
         rodFactor.maxTotalThreadsPerThreadgroup == 0u ||
+        rodSelectedInverse.maxTotalThreadsPerThreadgroup <
+            MR_WAVE32_CONTACTS_PER_TILE ||
         rodUnpack.maxTotalThreadsPerThreadgroup == 0u ||
         rodLatch.maxTotalThreadsPerThreadgroup == 0u ||
         rodContactLatch.maxTotalThreadsPerThreadgroup == 0u ||
@@ -5103,6 +5125,10 @@ MetalWorldDiagnostics ensureRodPipelines(
             MR_WAVE32_CONTACTS_PER_TILE ||
         rodContactScan.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE ||
+        rodFactorAssembly.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        rodSelectedInverse.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
         rodStep.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE) {
         return reject(
@@ -5116,7 +5142,9 @@ MetalWorldDiagnostics ensureRodPipelines(
     context.rodContactPreparePipeline = rodContactPrepare;
     context.rodPackPipeline = rodPack;
     context.rodStepPipeline = rodStep;
+    context.rodFactorAssemblyPipeline = rodFactorAssembly;
     context.rodFactorPipeline = rodFactor;
+    context.rodSelectedInversePipeline = rodSelectedInverse;
     context.rodUnpackPipeline = rodUnpack;
     context.rodLatchPipeline = rodLatch;
     context.rodContactLatchPipeline = rodContactLatch;
@@ -5135,7 +5163,7 @@ MetalWorldDiagnostics ensureRodPipelines(
     context.rodSweptProjectionPipeline = rodSweptProjection;
     context.rodCCDPipeline = rodCCD;
     context.rodCCDWitnessTagPipeline = rodCCDWitnessTag;
-    context.stats.pipelineCreationCount += 22u;
+    context.stats.pipelineCreationCount += 24u;
     return diagnostics;
 }
 
@@ -6217,7 +6245,9 @@ MetalWorldDiagnostics initializeContext(
     context.rodContactPreparePipeline = nil;
     context.rodPackPipeline = nil;
     context.rodStepPipeline = nil;
+    context.rodFactorAssemblyPipeline = nil;
     context.rodFactorPipeline = nil;
+    context.rodSelectedInversePipeline = nil;
     context.rodUnpackPipeline = nil;
     context.rodLatchPipeline = nil;
     context.rodContactLatchPipeline = nil;
@@ -11493,11 +11523,67 @@ bool encodeRodSubstep(
     }
     factorEncoder.label =
         @"MetalWorld retained banded rod operator";
-    [factorEncoder
-        setComputePipelineState:context.rodFactorPipeline];
     for (std::size_t rod = 0u;
          rod < world.rodCount();
          ++rod) {
+        // One SIMD32 group per environment amortizes the small surgical rod
+        // at low batch counts.  At one full SIMDgroup or more, preserve the
+        // distributed one-thread-per-environment factor path so throughput
+        // scales across environments instead of reserving 32 lanes per rod.
+        const bool fusedSmall =
+            environmentCount < MR_WAVE32_CONTACTS_PER_TILE;
+        const std::uint32_t rodIndex =
+            static_cast<std::uint32_t>(rod);
+        if (fusedSmall) {
+            [factorEncoder setComputePipelineState:
+                context.rodFactorAssemblyPipeline];
+            const std::array<std::size_t, 11u> assemblyBindings{{
+                kContactDispatch,
+                kRodDispatches,
+                candidateNodes,
+                kRodInverseMasses,
+                kRodInverseRotationalInertias,
+                kRodColliders,
+                kRodRestLengths,
+                kRodStretchStiffness,
+                kRodBendStiffness,
+                kRodTwistStiffness,
+                kOperatorVelocityArena,
+            }};
+            for (NSUInteger argument = 0u;
+                 argument < assemblyBindings.size();
+                 ++argument) {
+                const NSUInteger offset = argument == 1u
+                    ? rod * sizeof(MRRodGPUDispatch)
+                    : 0u;
+                [factorEncoder
+                    setBuffer:context.buffers[
+                        assemblyBindings[argument]
+                    ]
+                       offset:offset
+                      atIndex:argument];
+            }
+            [factorEncoder
+                setBytes:&rodIndex
+                  length:sizeof(rodIndex)
+                 atIndex:11u];
+            [factorEncoder
+                dispatchThreadgroups:MTLSizeMake(
+                    static_cast<NSUInteger>(environmentCount),
+                    1u,
+                    1u
+                )
+                threadsPerThreadgroup:MTLSizeMake(
+                    MR_WAVE32_CONTACTS_PER_TILE,
+                    1u,
+                    1u
+                )];
+            [factorEncoder memoryBarrierWithScope:
+                MTLBarrierScopeBuffers];
+        }
+
+        [factorEncoder
+            setComputePipelineState:context.rodFactorPipeline];
         const std::array<std::size_t, 12u> bindings{{
             kContactDispatch,
             kRodDispatches,
@@ -11524,8 +11610,6 @@ bool encodeRodSubstep(
                    offset:offset
                   atIndex:argument];
         }
-        const std::uint32_t rodIndex =
-            static_cast<std::uint32_t>(rod);
         [factorEncoder
             setBytes:&rodIndex
               length:sizeof(rodIndex)
@@ -11534,6 +11618,11 @@ bool encodeRodSubstep(
             setBytes:&pass
               length:sizeof(pass)
              atIndex:13u];
+        const std::uint32_t factorMode = fusedSmall ? 1u : 0u;
+        [factorEncoder
+            setBytes:&factorMode
+              length:sizeof(factorMode)
+             atIndex:14u];
         const NSUInteger threadgroupWidth = std::min<NSUInteger>(
             std::max<NSUInteger>(
                 context.rodFactorPipeline.threadExecutionWidth,
@@ -11553,6 +11642,43 @@ bool encodeRodSubstep(
                 1u,
                 1u
             )];
+        if (fusedSmall) {
+            [factorEncoder memoryBarrierWithScope:
+                MTLBarrierScopeBuffers];
+            [factorEncoder setComputePipelineState:
+                context.rodSelectedInversePipeline];
+            [factorEncoder
+                setBuffer:context.buffers[kContactDispatch]
+                   offset:0u
+                  atIndex:0u];
+            [factorEncoder
+                setBuffer:context.buffers[kRodDispatches]
+                   offset:rod * sizeof(MRRodGPUDispatch)
+                  atIndex:1u];
+            [factorEncoder
+                setBuffer:context.buffers[kRodFactorCaches]
+                   offset:0u
+                  atIndex:2u];
+            [factorEncoder
+                setBuffer:context.buffers[kOperatorVelocityArena]
+                   offset:0u
+                  atIndex:3u];
+            [factorEncoder
+                setBytes:&rodIndex
+                  length:sizeof(rodIndex)
+                 atIndex:4u];
+            [factorEncoder
+                dispatchThreadgroups:MTLSizeMake(
+                    static_cast<NSUInteger>(environmentCount),
+                    1u,
+                    1u
+                )
+                threadsPerThreadgroup:MTLSizeMake(
+                    MR_WAVE32_CONTACTS_PER_TILE,
+                    1u,
+                    1u
+                )];
+        }
     }
     [factorEncoder endEncoding];
     return true;
@@ -11681,42 +11807,22 @@ bool encodeRodToolNarrowphase(
         [encoder setBytes:&rodCount
                    length:sizeof(rodCount)
                   atIndex:19u];
-        const std::size_t pairCount = world.rodToolPairs().size();
-        const std::size_t witnessElements =
-            environmentCount * pairCount *
-            MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
-        const std::size_t pairElements =
-            environmentCount * pairCount;
-        const std::size_t metadataStride =
-            MR_ROD_ACTIVE_GLOBAL_METADATA_WORDS +
-            MR_ROD_ACTIVE_PER_ROD_METADATA_WORDS *
-                world.rodCount();
-        for (mr_u32 environment = 0u;
-             environment < environmentCount;
-             ++environment) {
-            [encoder setBytes:&environment
-                       length:sizeof(environment)
-                      atIndex:20u];
-            const NSUInteger argumentOffset = static_cast<NSUInteger>(
-                (
-                    witnessElements + pairElements +
-                    static_cast<std::size_t>(environment) *
-                        metadataStride +
-                    MR_ROD_ACTIVE_GLOBAL_METADATA_WORDS +
-                    rod * MR_ROD_ACTIVE_PER_ROD_METADATA_WORDS + 2u
-                ) * sizeof(mr_u32)
-            );
-            [encoder
-                dispatchThreadgroupsWithIndirectBuffer:
-                    context.buffers[kRodContactScratch]
-                indirectBufferOffset:argumentOffset
-                threadsPerThreadgroup:MTLSizeMake(
-                    context.rodToolNarrowphasePipeline
-                        .threadExecutionWidth,
-                    1u,
-                    1u
-                )];
-        }
+        // Pair-owned outputs make worker order irrelevant.  Launch one
+        // environment-major grid and derive the environment in Metal instead
+        // of emitting one indirect command per environment on the host.
+        [encoder
+            dispatchThreads:MTLSizeMake(
+                static_cast<NSUInteger>(environmentCount) *
+                    dispatch.toolPairCount,
+                1u,
+                1u
+            )
+            threadsPerThreadgroup:MTLSizeMake(
+                context.rodToolNarrowphasePipeline
+                    .threadExecutionWidth,
+                1u,
+                1u
+            )];
     }
     [encoder endEncoding];
     return true;
@@ -12860,39 +12966,21 @@ bool encodeParallelManifoldCompile(
         [encoder setBytes:&rodCount
                    length:sizeof(rodCount)
                   atIndex:21u];
-        const std::size_t pairCount =
-            rodWitnessThreadCount /
-            (environmentCount *
-             MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR);
-        const std::size_t pairElements =
-            environmentCount * pairCount;
-        const std::size_t metadataStride =
-            MR_ROD_ACTIVE_GLOBAL_METADATA_WORDS +
-            MR_ROD_ACTIVE_PER_ROD_METADATA_WORDS * rodCount;
-        for (mr_u32 environment = 0u;
-             environment < environmentCount;
-             ++environment) {
-            [encoder setBytes:&environment
-                       length:sizeof(environment)
-                      atIndex:22u];
-            const NSUInteger argumentOffset = static_cast<NSUInteger>(
-                (
-                    rodWitnessThreadCount + pairElements +
-                    static_cast<std::size_t>(environment) *
-                        metadataStride + 1u
-                ) * sizeof(mr_u32)
-            );
-            [encoder
-                dispatchThreadgroupsWithIndirectBuffer:
-                    context.buffers[kRodContactScratch]
-                indirectBufferOffset:argumentOffset
-                threadsPerThreadgroup:MTLSizeMake(
-                    context.rodContactScatterPipeline
-                        .threadExecutionWidth,
-                    1u,
-                    1u
-                )];
-        }
+        // Witness slots are pair-owned and their prefix offsets were already
+        // produced by the deterministic SIMD scan.  One global grid removes
+        // the second host environment fanout without changing IR order.
+        [encoder
+            dispatchThreads:MTLSizeMake(
+                static_cast<NSUInteger>(rodWitnessThreadCount),
+                1u,
+                1u
+            )
+            threadsPerThreadgroup:MTLSizeMake(
+                context.rodContactScatterPipeline
+                    .threadExecutionWidth,
+                1u,
+                1u
+            )];
         [encoder endEncoding];
         return true;
     };

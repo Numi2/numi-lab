@@ -10827,11 +10827,16 @@ kernel void mr_rod_tool_narrowphase(
     device const uint* activePairs [[buffer(17)]],
     constant uint& rodIndex [[buffer(18)]],
     constant uint& rodCount [[buffer(19)]],
-    constant uint& environment [[buffer(20)]],
-    const uint activeSlot [[thread_position_in_grid]]
+    const uint globalActiveSlot [[thread_position_in_grid]]
 ) {
+    if (dispatch.toolPairCount == 0u) {
+        return;
+    }
+    const uint environment =
+        globalActiveSlot / dispatch.toolPairCount;
+    const uint activeSlot =
+        globalActiveSlot - environment * dispatch.toolPairCount;
     if (environment >= dispatch.environmentCount ||
-        dispatch.toolPairCount == 0u ||
         rodIndex >= rodCount) {
         return;
     }
@@ -11513,14 +11518,20 @@ kernel void mr_world_scatter_rod_contact_ir(
     device uint* constraintWitnessIndices [[buffer(19)]],
     device const uint* activePairs [[buffer(20)]],
     constant uint& rodCount [[buffer(21)]],
-    constant uint& environment [[buffer(22)]],
-    const uint activeWitness [[thread_position_in_grid]]
+    const uint globalActiveWitness [[thread_position_in_grid]]
 ) {
     const uint witnessStride =
         dispatch.rodToolPairCount *
         MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    if (witnessStride == 0u) {
+        return;
+    }
+    const uint environment =
+        globalActiveWitness / witnessStride;
+    const uint activeWitness =
+        globalActiveWitness - environment * witnessStride;
     if (environment >= dispatch.environmentCount ||
-        witnessStride == 0u) {
+        activeWitness >= witnessStride) {
         return;
     }
     const uint witnessDomain =

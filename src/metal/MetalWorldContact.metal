@@ -1803,8 +1803,19 @@ inline float rodTranslationOperatorEntry(
             inverseMass;
     }
 
-    for (uint localEdge = 0u;
-         localEdge < rod.edgeCount;
+    // HeterogeneousWorld cooks every rod as one canonical chain: local edge
+    // e owns local nodes (e, e + 1).  A translation row can therefore touch
+    // only its two incident stretch edges.  Scanning every edge for every
+    // scalar band entry made the retained O(n) band factor behave like an
+    // O(n^2) assembly on the one-environment surgical path.
+    const uint firstIncidentEdge =
+        rowNode == 0u ? 0u : rowNode - 1u;
+    const uint lastIncidentEdge = min(
+        rowNode,
+        rod.edgeCount == 0u ? 0u : rod.edgeCount - 1u
+    );
+    for (uint localEdge = firstIncidentEdge;
+         rod.edgeCount != 0u && localEdge <= lastIncidentEdge;
          ++localEdge) {
         const uint globalEdge =
             rod.rodEdgeBase + localEdge;
@@ -1846,8 +1857,17 @@ inline float rodTranslationOperatorEntry(
             tangent[columnComponent];
     }
 
-    for (uint localBend = 0u;
-         localBend + 1u < rod.edgeCount;
+    // A three-node bend containing rowNode begins at rowNode - {2,1,0}.
+    // Visit that bounded interval in the same ascending order as the former
+    // full scan so FP32 accumulation and deterministic replay are unchanged.
+    const uint firstIncidentBend =
+        rowNode > 1u ? rowNode - 2u : 0u;
+    const uint lastIncidentBend = min(
+        rowNode,
+        rod.edgeCount > 1u ? rod.edgeCount - 2u : 0u
+    );
+    for (uint localBend = firstIncidentBend;
+         rod.edgeCount > 1u && localBend <= lastIncidentBend;
          ++localBend) {
         const uint firstEdge =
             rod.rodEdgeBase + localBend;
@@ -1925,8 +1945,15 @@ inline float rodTwistOperatorEntry(
                  max(rod.dampingDerivativeTolerance.y, 0.0f)) /
             inverseInertia;
     }
-    for (uint localBend = 0u;
-         localBend + 1u < rod.edgeCount;
+    // Twist row r participates only in bends r - 1 and r.  Preserve their
+    // canonical ascending order while removing the full-chain scan.
+    const uint firstIncidentBend = row == 0u ? 0u : row - 1u;
+    const uint lastIncidentBend = min(
+        row,
+        rod.edgeCount > 1u ? rod.edgeCount - 2u : 0u
+    );
+    for (uint localBend = firstIncidentBend;
+         rod.edgeCount > 1u && localBend <= lastIncidentBend;
          ++localBend) {
         const uint firstEdge =
             rod.rodEdgeBase + localBend;
@@ -2640,6 +2667,109 @@ inline bool factorizedRodCrossResponse(
 
 } // namespace
 
+// Low-latency assembly path for a small number of rods/environments.  One
+// SIMD32 group owns one (environment, rod) pair and fills the complete raw
+// retained operator in parallel.  The following Cholesky dispatch consumes
+// this arena in place; large batches keep the one-thread-per-environment path
+// below so environment parallelism is not multiplied by 32 unnecessarily.
+kernel void mr_world_assemble_rod_operator_simd32(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    constant MRRodGPUDispatch& rod [[buffer(1)]],
+    device const MRRodNodeStateGPU* candidateRodNodes [[buffer(2)]],
+    device const float* inverseMasses [[buffer(3)]],
+    device const float* inverseTwistInertias [[buffer(4)]],
+    device const MRRodColliderGPU* colliders [[buffer(5)]],
+    device const float* restLengths [[buffer(6)]],
+    device const float* stretchStiffness [[buffer(7)]],
+    device const float* bendStiffness [[buffer(8)]],
+    device const float* twistStiffness [[buffer(9)]],
+    device float* operatorArena [[buffer(10)]],
+    constant uint& rodIndex [[buffer(11)]],
+    const uint lane [[thread_index_in_threadgroup]],
+    const uint environment [[threadgroup_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        rodIndex >= dispatch.rodCount ||
+        rod.nodeCount == 0u ||
+        rod.edgeCount + 1u != rod.nodeCount) {
+        return;
+    }
+    const uint factorStride = rodFactorElementStride(dispatch);
+    const uint required =
+        2u * factorStride +
+        3u * dispatch.rodNodeCount +
+        dispatch.rodEdgeCount;
+    if (dispatch.operatorVelocityCapacity < required) {
+        return;
+    }
+    const uint factorBase =
+        environment * dispatch.operatorVelocityCapacity +
+        MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
+            rod.rodNodeBase +
+        MR_ROD_FACTOR_TWIST_FLOATS_PER_EDGE *
+            rod.rodEdgeBase;
+    const uint translationRows = 3u * rod.nodeCount;
+    const uint translationSlots =
+        translationRows * MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH;
+    const uint twistSlots = 2u * rod.edgeCount;
+    const uint totalSlots = translationSlots + twistSlots;
+    const uint nodeBase = environment * dispatch.rodNodeCount;
+    device const MRRodNodeStateGPU* nodes =
+        candidateRodNodes + nodeBase;
+
+    for (uint slot = lane; slot < totalSlots; slot += 32u) {
+        if (slot < translationSlots) {
+            const uint row =
+                slot / MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH;
+            const uint offset =
+                slot - row * MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH;
+            const bool retained = offset <= row;
+            operatorArena[factorBase + slot] = retained
+                ? rodTranslationOperatorEntry(
+                      dispatch,
+                      rod,
+                      nodes,
+                      inverseMasses,
+                      colliders,
+                      restLengths,
+                      stretchStiffness,
+                      bendStiffness,
+                      row,
+                      row - offset
+                  )
+                : 0.0f;
+            continue;
+        }
+        const uint twistSlot = slot - translationSlots;
+        const uint row = twistSlot / 2u;
+        const bool diagonal = (twistSlot & 1u) == 0u;
+        operatorArena[factorBase + translationSlots + twistSlot] =
+            diagonal
+            ? rodTwistOperatorEntry(
+                  dispatch,
+                  rod,
+                  inverseTwistInertias,
+                  colliders,
+                  restLengths,
+                  twistStiffness,
+                  row,
+                  row
+              )
+            : row == 0u
+            ? 0.0f
+            : rodTwistOperatorEntry(
+                  dispatch,
+                  rod,
+                  inverseTwistInertias,
+                  colliders,
+                  restLengths,
+                  twistStiffness,
+                  row,
+                  row - 1u
+              );
+    }
+}
+
 // Factors the implicit DER response A = M + hD + h^2K once per rod and
 // microstep. Translation uses an exact scalar band for the retained
 // stretch/three-node bend stencil; twist uses a bidiagonal factor. Numerical
@@ -2660,6 +2790,7 @@ kernel void mr_world_factor_rod_operator(
     device float* operatorArena [[buffer(11)]],
     constant uint& rodIndex [[buffer(12)]],
     constant MRMetalWorldPassGPU& pass [[buffer(13)]],
+    constant uint& factorMode [[buffer(14)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
@@ -2746,16 +2877,24 @@ kernel void mr_world_factor_rod_operator(
 
     const uint translationRows = 3u * rod.nodeCount;
     for (uint row = 0u; row < translationRows; ++row) {
-        for (uint offset = 0u;
-             offset <
-                 MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH;
-             ++offset) {
-            operatorArena[
-                factorBase +
-                row * MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH +
-                offset
-            ] = 0.0f;
+        if (factorMode == 0u) {
+            for (uint offset = 0u;
+                 offset <
+                     MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH;
+                 ++offset) {
+                operatorArena[
+                    factorBase +
+                    row * MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH +
+                    offset
+                ] = 0.0f;
+            }
         }
+        const float rawDiagonal = factorMode == 0u
+            ? 0.0f
+            : operatorArena[
+                  factorBase +
+                  row * MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH
+              ];
         const uint first = row >
                 MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH - 1u
             ? row -
@@ -2764,18 +2903,24 @@ kernel void mr_world_factor_rod_operator(
         for (uint column = first;
              column <= row;
              ++column) {
-            float value = rodTranslationOperatorEntry(
-                dispatch,
-                rod,
-                nodes,
-                inverseMasses,
-                colliders,
-                restLengths,
-                stretchStiffness,
-                bendStiffness,
-                row,
-                column
-            );
+            float value = factorMode == 0u
+                ? rodTranslationOperatorEntry(
+                      dispatch,
+                      rod,
+                      nodes,
+                      inverseMasses,
+                      colliders,
+                      restLengths,
+                      stretchStiffness,
+                      bendStiffness,
+                      row,
+                      column
+                  )
+                : operatorArena[
+                      factorBase +
+                      row * MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH +
+                      (row - column)
+                  ];
             const uint innerFirst = max(
                 first,
                 column >
@@ -2815,18 +2960,20 @@ kernel void mr_world_factor_rod_operator(
             }
             if (row == column) {
                 const float scale = max(
-                    abs(rodTranslationOperatorEntry(
-                        dispatch,
-                        rod,
-                        nodes,
-                        inverseMasses,
-                        colliders,
-                        restLengths,
-                        stretchStiffness,
-                        bendStiffness,
-                        row,
-                        row
-                    )),
+                    abs(factorMode == 0u
+                        ? rodTranslationOperatorEntry(
+                              dispatch,
+                              rod,
+                              nodes,
+                              inverseMasses,
+                              colliders,
+                              restLengths,
+                              stretchStiffness,
+                              bendStiffness,
+                              row,
+                              row
+                          )
+                        : rawDiagonal),
                     1.1754943508222875e-38f
                 );
                 // A is dimensional (mass for translation). An absolute
@@ -2882,31 +3029,38 @@ kernel void mr_world_factor_rod_operator(
         MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
             rod.nodeCount;
     for (uint row = 0u; row < rod.edgeCount; ++row) {
-        float diagonal = rodTwistOperatorEntry(
-            dispatch,
-            rod,
-            inverseTwistInertias,
-            colliders,
-            restLengths,
-            twistStiffness,
-            row,
-            row
-        );
+        const float rawDiagonal = factorMode == 0u
+            ? rodTwistOperatorEntry(
+                  dispatch,
+                  rod,
+                  inverseTwistInertias,
+                  colliders,
+                  restLengths,
+                  twistStiffness,
+                  row,
+                  row
+              )
+            : operatorArena[twistBase + 2u * row];
+        float diagonal = rawDiagonal;
         float lower = 0.0f;
         if (row != 0u) {
             const float previousDiagonal =
                 operatorArena[
                     twistBase + 2u * (row - 1u)
                 ];
-            lower = rodTwistOperatorEntry(
-                dispatch,
-                rod,
-                inverseTwistInertias,
-                colliders,
-                restLengths,
-                twistStiffness,
-                row,
-                row - 1u
+            lower = (
+                factorMode == 0u
+                ? rodTwistOperatorEntry(
+                      dispatch,
+                      rod,
+                      inverseTwistInertias,
+                      colliders,
+                      restLengths,
+                      twistStiffness,
+                      row,
+                      row - 1u
+                  )
+                : operatorArena[twistBase + 2u * row + 1u]
             ) / previousDiagonal;
             diagonal = fma(-lower, lower, diagonal);
         }
@@ -2917,16 +3071,7 @@ kernel void mr_world_factor_rod_operator(
             return;
         }
         const float scale = max(
-            abs(rodTwistOperatorEntry(
-                dispatch,
-                rod,
-                inverseTwistInertias,
-                colliders,
-                restLengths,
-                twistStiffness,
-                row,
-                row
-            )),
+            abs(rawDiagonal),
             1.1754943508222875e-38f
         );
         // Rotational entries are kg*m^2. USP 3-0 monofilament legitimately
@@ -2954,6 +3099,17 @@ kernel void mr_world_factor_rod_operator(
             sqrt(diagonal);
         operatorArena[twistBase + 2u * row + 1u] =
             lower;
+    }
+
+    if (factorMode != 0u) {
+        cache.projectedCurvatureCount = projected;
+        cache.diagnostics.w = maximumProjection;
+        if (projected != 0u) {
+            cache.flags |=
+                MR_ROD_FACTOR_CACHE_PROJECTED_CURVATURE;
+        }
+        caches[cacheIndex] = cache;
+        return;
     }
 
     // Takahashi selected inversion recovers the exact entries of A^-1 in
@@ -3123,6 +3279,239 @@ kernel void mr_world_factor_rod_operator(
             MR_ROD_FACTOR_CACHE_PROJECTED_CURVATURE;
     }
     caches[cacheIndex] = cache;
+}
+
+// Completes the fused-small path with one SIMD32 group per
+// (environment, rod).  Reverse Takahashi columns remain ordered, while the
+// independent selected entries within each retained column are evaluated by
+// separate lanes.  This keeps the exact FP32 recurrence and factor-shaped
+// storage consumed by contact response.
+kernel void mr_world_select_rod_inverse_simd32(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    constant MRRodGPUDispatch& rod [[buffer(1)]],
+    device MRRodFactorCacheGPU* caches [[buffer(2)]],
+    device float* operatorArena [[buffer(3)]],
+    constant uint& rodIndex [[buffer(4)]],
+    const uint lane [[thread_index_in_threadgroup]],
+    const uint environment [[threadgroup_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        rodIndex >= dispatch.rodCount) {
+        return;
+    }
+    const uint cacheIndex =
+        environment * dispatch.rodCount + rodIndex;
+    MRRodFactorCacheGPU cache = caches[cacheIndex];
+    const uint factorStride = rodFactorElementStride(dispatch);
+    const uint factorBase = cache.firstBlock;
+    const uint translationRows = 3u * rod.nodeCount;
+    const uint twistBase =
+        factorBase +
+        MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
+            rod.nodeCount;
+    const uint selectedFactorBase =
+        environment * dispatch.operatorVelocityCapacity +
+        factorStride +
+        MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
+            rod.rodNodeBase +
+        MR_ROD_FACTOR_TWIST_FLOATS_PER_EDGE *
+            rod.rodEdgeBase;
+    const uint selectedTranslationSlots =
+        translationRows * MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH;
+    const uint selectedTwistBase =
+        selectedFactorBase + selectedTranslationSlots;
+    const bool validFactor =
+        cache.environment == environment &&
+        cache.rodIndex == rodIndex &&
+        cache.code == MR_ROD_GPU_SUCCESS &&
+        cache.velocityOffset == rod.rodNodeBase &&
+        cache.velocityCount == rod.nodeCount &&
+        cache.blockCount == rod.rodEdgeBase &&
+        cache.blockWidth == rod.edgeCount &&
+        (cache.flags & MR_ROD_FACTOR_CACHE_TRANSLATION_BAND) != 0u &&
+        (cache.flags & MR_ROD_FACTOR_CACHE_TWIST_BAND) != 0u;
+    if (!validFactor) {
+        return;
+    }
+
+    for (uint slot = lane;
+         slot < selectedTranslationSlots + 2u * rod.edgeCount;
+         slot += 32u) {
+        operatorArena[selectedFactorBase + slot] = 0.0f;
+    }
+    threadgroup uint failureCode;
+    threadgroup uint failureElement;
+    if (lane == 0u) {
+        failureCode = MR_ROD_GPU_SUCCESS;
+        failureElement = MR_INVALID_INDEX;
+    }
+    threadgroup_barrier(
+        mem_flags::mem_device | mem_flags::mem_threadgroup
+    );
+
+    for (uint reverse = 0u;
+         reverse < translationRows;
+         ++reverse) {
+        const uint column = translationRows - 1u - reverse;
+        const uint last = min(
+            translationRows,
+            column + MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH
+        );
+        const uint targetCount = last - (column + 1u);
+        if (failureCode == MR_ROD_GPU_SUCCESS &&
+            lane < targetCount) {
+            const uint target = column + 1u + lane;
+            const float diagonal = rodTranslationFactorValue(
+                operatorArena,
+                factorBase,
+                column,
+                column
+            );
+            float sum = 0.0f;
+            for (uint source = column + 1u;
+                 source < last;
+                 ++source) {
+                const float lower = rodTranslationFactorValue(
+                    operatorArena,
+                    factorBase,
+                    source,
+                    column
+                );
+                const uint selectedRow = max(source, target);
+                const uint selectedColumn = min(source, target);
+                sum = fma(
+                    lower,
+                    operatorArena[
+                        selectedFactorBase +
+                        selectedRow *
+                            MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH +
+                        (selectedRow - selectedColumn)
+                    ],
+                    sum
+                );
+            }
+            operatorArena[
+                selectedFactorBase +
+                target * MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH +
+                (target - column)
+            ] = -sum / diagonal;
+        }
+        threadgroup_barrier(
+            mem_flags::mem_device | mem_flags::mem_threadgroup
+        );
+        if (lane == 0u && failureCode == MR_ROD_GPU_SUCCESS) {
+            const float diagonal = rodTranslationFactorValue(
+                operatorArena,
+                factorBase,
+                column,
+                column
+            );
+            if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
+                failureCode = MR_ROD_GPU_NONFINITE_RESULT;
+                failureElement = column;
+            }
+            for (uint target = column + 1u;
+                 failureCode == MR_ROD_GPU_SUCCESS && target < last;
+                 ++target) {
+                const float entry = operatorArena[
+                    selectedFactorBase +
+                    target * MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH +
+                    (target - column)
+                ];
+                if (!isfinite(entry)) {
+                    failureCode = MR_ROD_GPU_NONFINITE_RESULT;
+                    failureElement = target;
+                }
+            }
+            if (failureCode == MR_ROD_GPU_SUCCESS) {
+                float inverseDiagonal =
+                    1.0f / (diagonal * diagonal);
+                for (uint source = column + 1u;
+                     source < last;
+                     ++source) {
+                    inverseDiagonal = fma(
+                        -rodTranslationFactorValue(
+                            operatorArena,
+                            factorBase,
+                            source,
+                            column
+                        ) / diagonal,
+                        operatorArena[
+                            selectedFactorBase +
+                            source *
+                                MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH +
+                            (source - column)
+                        ],
+                        inverseDiagonal
+                    );
+                }
+                if (!(inverseDiagonal > 0.0f) ||
+                    !isfinite(inverseDiagonal)) {
+                    failureCode = MR_ROD_GPU_NONFINITE_RESULT;
+                    failureElement = column;
+                } else {
+                    operatorArena[
+                        selectedFactorBase +
+                        column *
+                            MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH
+                    ] = inverseDiagonal;
+                }
+            }
+        }
+        threadgroup_barrier(
+            mem_flags::mem_device | mem_flags::mem_threadgroup
+        );
+    }
+
+    if (lane == 0u && failureCode == MR_ROD_GPU_SUCCESS) {
+        for (uint reverse = 0u;
+             reverse < rod.edgeCount;
+             ++reverse) {
+            const uint row = rod.edgeCount - 1u - reverse;
+            const float diagonal =
+                operatorArena[twistBase + 2u * row];
+            if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
+                failureCode = MR_ROD_GPU_NONFINITE_RESULT;
+                failureElement = translationRows + row;
+                break;
+            }
+            float inverseDiagonal =
+                1.0f / (diagonal * diagonal);
+            if (row + 1u < rod.edgeCount) {
+                const float lower =
+                    operatorArena[twistBase + 2u * (row + 1u) + 1u];
+                const float offDiagonal =
+                    -lower *
+                    operatorArena[
+                        selectedTwistBase + 2u * (row + 1u)
+                    ] / diagonal;
+                operatorArena[
+                    selectedTwistBase + 2u * (row + 1u) + 1u
+                ] = offDiagonal;
+                inverseDiagonal = fma(
+                    -lower / diagonal,
+                    offDiagonal,
+                    inverseDiagonal
+                );
+            }
+            if (!(inverseDiagonal > 0.0f) ||
+                !isfinite(inverseDiagonal)) {
+                failureCode = MR_ROD_GPU_NONFINITE_RESULT;
+                failureElement = translationRows + row;
+                break;
+            }
+            operatorArena[selectedTwistBase + 2u * row] =
+                inverseDiagonal;
+        }
+        if (failureCode == MR_ROD_GPU_SUCCESS) {
+            cache.flags |= MR_ROD_FACTOR_CACHE_VALID;
+            cache.flags |= MR_ROD_FACTOR_CACHE_SELECTED_INVERSE;
+        } else {
+            cache.code = failureCode;
+            cache.failingElement = failureElement;
+        }
+        caches[cacheIndex] = cache;
+    }
 }
 
 namespace {
