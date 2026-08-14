@@ -6218,10 +6218,46 @@ kernel void mr_locomotion_task_complete(
                       compactContact[wrench + 1u],
                       compactContact[wrench + 2u]
                   )) > program.dynamics.y;
+            bool contactFeaturesAccepted = true;
+            if (expectedContact && actualContact) {
+                device const float* compact =
+                    compactContact + compactBase;
+                for (uint feature = 0u;
+                     feature <
+                         MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT;
+                     ++feature) {
+                    if ((sample.metadata.y & (1u << feature)) == 0u) {
+                        continue;
+                    }
+                    const uint targetIndex =
+                        sampleIndex *
+                            MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT +
+                        feature;
+                    const float target =
+                        interactionContactTargets[targetIndex];
+                    const float tolerance =
+                        interactionContactTolerances[targetIndex];
+                    const float actual = supportPatchFeature(
+                        program,
+                        group,
+                        compact,
+                        feature
+                    );
+                    contactFeaturesAccepted =
+                        contactFeaturesAccepted &&
+                        isfinite(actual) &&
+                        isfinite(target) &&
+                        isfinite(tolerance) &&
+                        tolerance > 0.0f &&
+                        abs(actual - target) <= tolerance;
+                }
+            }
             ++comparedContacts;
             expectedContacts += expectedContact ? 1u : 0u;
             transitionMode = transitionMode || transitional;
-            if (!transitional && expectedContact != actualContact) {
+            if (!transitional &&
+                (expectedContact != actualContact ||
+                 !contactFeaturesAccepted)) {
                 ++strictContactMismatches;
             }
         }
