@@ -1609,6 +1609,9 @@ RuntimeDiagnostics Runtime::initialize(
                                  offset:0u atIndex:12u];
         [primalContactEncoder setBuffer:candidate->rigidStates
                                  offset:0u atIndex:13u];
+        [primalContactEncoder
+            setBuffer:candidate->deformableContactActiveCounts
+               offset:0u atIndex:14u];
         candidate->residentBytes += primalContactEncoder.encodedLength;
 
         for (const NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
@@ -3611,6 +3614,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                            length:sizeof(linearForcing) atIndex:15u];
                 [encoder setBytes:&nonlinearIteration
                            length:sizeof(nonlinearIteration) atIndex:16u];
+                [encoder setBuffer:state.femCandidate
+                             offset:0u atIndex:17u];
+                [encoder setBuffer:state.coupledGeneralizedCandidate
+                             offset:0u atIndex:18u];
             });
             dispatchThreads("nm_fgmres_build_preconditioner", femNodeTotal, [&] {
                 setDispatch();
@@ -5723,6 +5730,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             copy(state_->femMaterialStateAccepted);
         id<MTLBuffer> femFields = copy(state_->femFieldsAccepted);
         id<MTLBuffer> solverCertificates = copy(state_->solverCertificates);
+        id<MTLBuffer> statuses = copy(state_->statuses);
         id<MTLBuffer> mpmActiveNodeIndices =
             copy(state_->mpmActiveNodeIndices);
         id<MTLBuffer> mpmNodeToActive = copy(state_->mpmNodeToActive);
@@ -5744,6 +5752,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> adaptive = copy(state_->adaptive);
         id<MTLBuffer> schedulers = copy(state_->schedulers);
         id<MTLBuffer> reactions = copy(state_->frameReactions);
+        id<MTLBuffer> rigidStates = copy(state_->rigidStates);
         id<MTLBuffer> contactSamples = state_->captureDiagnostics
             ? copy(state_->contactSamples)
             : nil;
@@ -5754,6 +5763,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         if (particles == nil || femNodes == nil ||
             particleMaterialState == nil || femMaterialState == nil ||
             femFields == nil || solverCertificates == nil ||
+            statuses == nil ||
             mpmActiveNodeIndices == nil || mpmNodeToActive == nil ||
             mpmActiveNodeCounts == nil ||
             rigidGeneralizedCandidate == nil ||
@@ -5763,6 +5773,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             topologyStates == nil || contactHistories == nil ||
             deformableContactHistories == nil ||
             adaptive == nil || schedulers == nil || reactions == nil ||
+            rigidStates == nil ||
             (state_->captureDiagnostics && contactSamples == nil) ||
             identification == nil || environmentParameters == nil) {
             snapshot.message = "failed to allocate Matter diagnostic readback";
@@ -5790,6 +5801,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->femMaterialStateAccepted, femMaterialState);
         encodeCopy(state_->femFieldsAccepted, femFields);
         encodeCopy(state_->solverCertificates, solverCertificates);
+        encodeCopy(state_->statuses, statuses);
         encodeCopy(state_->mpmActiveNodeIndices, mpmActiveNodeIndices);
         encodeCopy(state_->mpmNodeToActive, mpmNodeToActive);
         encodeCopy(state_->mpmActiveNodeCounts, mpmActiveNodeCounts);
@@ -5810,6 +5822,7 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->adaptive, adaptive);
         encodeCopy(state_->schedulers, schedulers);
         encodeCopy(state_->frameReactions, reactions);
+        encodeCopy(state_->rigidStates, rigidStates);
         if (state_->captureDiagnostics) {
             encodeCopy(state_->contactSamples, contactSamples);
         }
@@ -5855,6 +5868,11 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         read(femFields, snapshot.femFields);
         read(solverCertificates, snapshot.solverCertificates);
         readCount(
+            statuses,
+            snapshot.statuses,
+            state_->dispatch.environmentCount
+        );
+        readCount(
             mpmActiveNodeIndices, snapshot.mpmActiveNodeIndices,
             static_cast<std::size_t>(state_->dispatch.environmentCount) *
                 state_->dispatch.mpmActiveNodeCapacity);
@@ -5896,6 +5914,12 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         read(adaptive, snapshot.adaptive);
         read(schedulers, snapshot.schedulers);
         read(reactions, snapshot.reactions);
+        readCount(
+            rigidStates,
+            snapshot.rigidStates,
+            static_cast<std::size_t>(state_->dispatch.environmentCount) *
+                state_->dispatch.rigidProxyCount
+        );
         if (state_->captureDiagnostics) {
             readCount(contactSamples, snapshot.contactSamples,
                       logicalContactCount);

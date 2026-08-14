@@ -4,6 +4,8 @@
 #include "metalrobo/SurgicalAssets.hpp"
 #include "metalrobo/SurgicalPSM.hpp"
 #include "metalrobo/VisualPlatform.hpp"
+#include "numi/matter/matter.hpp"
+#include "numi/matter/metal_world.hpp"
 #include "numi/matter/surgical_tissue.hpp"
 
 #include <algorithm>
@@ -23,8 +25,17 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
+
+#ifndef NUMI_JEJUNUM_MATERIAL
+#define NUMI_JEJUNUM_MATERIAL ""
+#endif
+
+#ifndef NUMI_MATTER_METALLIB
+#define NUMI_MATTER_METALLIB ""
+#endif
 
 namespace {
 
@@ -40,6 +51,28 @@ struct Quaternion {
     double z = 0.0;
     double w = 1.0;
 };
+
+void appendStateHash(
+    std::uint64_t& hash,
+    const void* bytes,
+    const std::size_t byteCount
+) {
+    const auto* values = static_cast<const std::uint8_t*>(bytes);
+    for (std::size_t index = 0u; index < byteCount; ++index) {
+        hash ^= values[index];
+        hash *= 1099511628211ull;
+    }
+}
+
+template <typename T>
+void appendStateHash(std::uint64_t& hash, const std::vector<T>& values) {
+    static_assert(std::is_trivially_copyable_v<T>);
+    const std::uint64_t count = values.size();
+    appendStateHash(hash, &count, sizeof(count));
+    if (!values.empty()) {
+        appendStateHash(hash, values.data(), values.size() * sizeof(T));
+    }
+}
 
 constexpr std::array<std::uint32_t, 4> kJawATeeth{15u, 18u, 20u, 22u};
 constexpr std::array<std::uint32_t, 4> kJawBTeeth{17u, 19u, 21u, 23u};
@@ -240,6 +273,10 @@ double norm(const Vec3 value) {
 }
 
 Vec3 vector(const mr_float4 value) {
+    return {value.x, value.y, value.z};
+}
+
+Vec3 vector(const nm_float4 value) {
     return {value.x, value.y, value.z};
 }
 
@@ -3225,6 +3262,242 @@ struct PhaseResult {
     metalrobo::MetalWorldDiagnostics diagnostics;
 };
 
+std::string matterCompileErrors(
+    const std::vector<numi::matter::Diagnostic>& diagnostics
+) {
+    std::string result;
+    for (const auto& diagnostic : diagnostics) {
+        if (!result.empty()) {
+            result += "; ";
+        }
+        result += std::to_string(diagnostic.line) + ":" +
+            std::to_string(diagnostic.column) + " " + diagnostic.message;
+    }
+    return result;
+}
+
+numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
+    const metalrobo::HeterogeneousWorld& world,
+    const double needleRadiusM,
+    const double initialGapM,
+    numi::matter::PorcineJejunumClosureCoupon& coupon
+) {
+    require(
+        world.sceneBodyIndices.size() >= 1u &&
+            world.defaultSceneBodies.size() >= 1u &&
+            world.rods.size() == 1u &&
+            world.rods[0].rigidBindings.size() == 1u &&
+            world.rods[0].tangentBindings.size() == 1u,
+        "tissue coupling requires the live needle-swage-thread topology"
+    );
+    auto parsed = numi::matter::parseMatterFile(NUMI_JEJUNUM_MATERIAL);
+    require(
+        parsed.succeeded(),
+        "porcine jejunum material parse failed: " +
+            matterCompileErrors(parsed.diagnostics)
+    );
+
+    // Retain the calibrated 30 x 24 x 0.77 mm porcine coupon and 16 mm
+    // enterotomy.  Only the in-plane discretization is bounded for this
+    // transaction-level needle/swage/thread coupling qualification; shrinking
+    // the specimen changes both the surgical scale and the mixed-FEM
+    // conditioning.
+    numi::matter::PorcineJejunumFungSpec spec;
+    // Six cells per in-plane axis is the smallest topology qualified by the
+    // owning surgical-tissue replay.  A 4x4 mixed element block leaves its
+    // normalized pressure mode dominated by rest-shape roundoff and is not a
+    // valid surrogate for needle/contact coupling.
+    spec.longitudinalCells = 6u;
+    spec.circumferentialCells = 6u;
+    spec.throughThicknessCells = 1u;
+    spec.fixLongitudinalEnds = true;
+    std::string materialError;
+    require(
+        numi::matter::configurePorcineJejunumFungMaterial(
+            parsed.material,
+            spec,
+            &materialError
+        ),
+        materialError
+    );
+    coupon = numi::matter::makePorcineJejunumClosureCoupon(0u, spec);
+
+    const MRBodyStateGPU& needle = world.defaultSceneBodies[0];
+    const Quaternion orientation{
+        needle.orientation.x,
+        needle.orientation.y,
+        needle.orientation.z,
+        needle.orientation.w,
+    };
+    const auto& swage = world.rods[0].rigidBindings[0].localAnchor;
+    const auto& tangent = world.rods[0].tangentBindings[0].localAnchor;
+    const Vec3 endpointA = vector(needle.position) + rotate(
+        orientation,
+        {swage[0], swage[1], swage[2]}
+    );
+    const Vec3 endpointB = vector(needle.position) + rotate(
+        orientation,
+        {tangent[0], tangent[1], tangent[2]}
+    );
+    const Vec3 contactCenter = (endpointA + endpointB) * 0.5;
+    // A static preload begins just inside the 100 um IPC activation band.
+    // The barrier must separate the live needle and free tissue surface; no
+    // imposed impact is allowed to drive the first Newton iterate deeper.
+    require(
+        std::isfinite(initialGapM) && initialGapM > 0.0,
+        "tissue coupling requires a positive finite initial gap"
+    );
+    std::uint32_t anchorNode = NM_INVALID_INDEX;
+    double anchorPlanarRadiusSquared =
+        std::numeric_limits<double>::infinity();
+    const double topSurface = 0.5 * spec.thicknessM.value;
+    for (const std::uint32_t node : coupon.object.femContactNodes) {
+        require(
+            node < coupon.object.femNodes.size(),
+            "tissue contact surface contains an invalid node"
+        );
+        const Vec3 point = vector(coupon.object.femNodes[node]);
+        if (std::abs(point.z - topSurface) > 1.0e-12) {
+            continue;
+        }
+        const double planarRadiusSquared =
+            point.x * point.x + point.y * point.y;
+        if (planarRadiusSquared < anchorPlanarRadiusSquared) {
+            anchorPlanarRadiusSquared = planarRadiusSquared;
+            anchorNode = node;
+        }
+    }
+    require(
+        anchorNode != NM_INVALID_INDEX,
+        "tissue coupling has no top-surface contact anchor"
+    );
+    const Vec3 capsuleEdge = endpointB - endpointA;
+    const double capsuleLength = norm(capsuleEdge);
+    require(capsuleLength > 0.0, "tissue coupling capsule is degenerate");
+    const Vec3 capsuleAxis = capsuleEdge * (1.0 / capsuleLength);
+    const Vec3 downward{0.0, 0.0, -1.0};
+    Vec3 contactDirection =
+        downward - capsuleAxis * dot(downward, capsuleAxis);
+    const double contactDirectionLength = norm(contactDirection);
+    require(
+        contactDirectionLength > 1.0e-6,
+        "tissue coupling capsule is parallel to the table normal"
+    );
+    contactDirection = contactDirection * (1.0 / contactDirectionLength);
+    const Vec3 targetContactPoint = contactCenter +
+        contactDirection * (needleRadiusM + initialGapM);
+    const Vec3 translation = targetContactPoint -
+        vector(coupon.object.femNodes[anchorNode]);
+    for (auto& position : coupon.object.femNodes) {
+        position[0] += translation.x;
+        position[1] += translation.y;
+        position[2] += translation.z;
+    }
+    double minimumAuthoredSeparation =
+        std::numeric_limits<double>::infinity();
+    for (const std::uint32_t node : coupon.object.femContactNodes) {
+        require(
+            node < coupon.object.femNodes.size(),
+            "tissue contact surface contains an invalid node"
+        );
+        minimumAuthoredSeparation = std::min(
+            minimumAuthoredSeparation,
+            pointSegmentDistance(
+                vector(coupon.object.femNodes[node]),
+                endpointA,
+                endpointB
+            ) - needleRadiusM
+        );
+    }
+    require(
+        minimumAuthoredSeparation > 0.0 &&
+            std::abs(minimumAuthoredSeparation - initialGapM) < 1.0e-7,
+        "authored tissue boundary does not match the requested IPC gap: " +
+            std::to_string(minimumAuthoredSeparation)
+    );
+    std::cout << std::setprecision(9)
+        << "tissue_authored_minimum_separation_m="
+        << minimumAuthoredSeparation
+        << " tissue_authored_capsule_first="
+        << vectorSummary(endpointA)
+        << " tissue_authored_capsule_second="
+        << vectorSummary(endpointB) << '\n';
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = kControlTimestep / kPhysicsSubsteps;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.contactSlop = 1.0e-4;
+    source.maximumDepenetrationSpeed = 0.05;
+    source.deterministic = true;
+    source.mixedSolver.newtonIterations = 12u;
+    source.mixedSolver.fgmresRestart = 16u;
+    source.mixedSolver.fgmresIterations = 128u;
+    source.mixedSolver.lineSearchSteps = 12u;
+    source.mixedSolver.relativeResidual = 5.0e-4;
+    source.mixedSolver.volumeTolerance = 5.0e-4;
+    source.mixedSolver.pressureTolerance = 5.0e-4;
+    source.mixedSolver.minimumContactSeparationRatio = 0.05;
+    source.materials.push_back(std::move(parsed.material));
+
+    // Matter owns contact for the curved needle's swage-side capsule. The
+    // proxy borrows the real dynamic scene body; its reaction enters the
+    // global wrench arena before MetalWorld solves the hard swage and DER.
+    numi::matter::RigidProxySource needleProxy;
+    needleProxy.shape = NM_RIGID_CAPSULE;
+    needleProxy.bodyIndex = world.sceneBodyIndices[0];
+    needleProxy.sceneBodyIndex = 0u;
+    needleProxy.materialIndex = 0u;
+    needleProxy.localCenter = swage;
+    needleProxy.localExtent = tangent;
+    needleProxy.radiusOrOffset = needleRadiusM;
+    needleProxy.dynamic = true;
+    source.rigidProxies.push_back(needleProxy);
+    source.objects.push_back(coupon.object);
+
+    numi::matter::CompileOptions compileOptions;
+    // The free needle is integrated by MetalWorld once per physics substep.
+    // Keep Matter's tissue/contact transaction on that same cadence: encoding
+    // several Matter microticks against one frozen source body would publish
+    // the same free-body velocity cancellation more than once into the shared
+    // wrench arena and is not a temporally coupled solve.
+    compileOptions.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(source, compileOptions);
+    require(
+        compiled.succeeded(),
+        "needle-suture tissue world compile failed: " +
+            matterCompileErrors(compiled.diagnostics)
+    );
+    std::string layoutError;
+    require(
+        numi::matter::validateCompiledWorldLayout(
+            compiled.world,
+            &layoutError
+        ) && compiled.world.dispatch.contactPairCount != 0u,
+        "needle-suture tissue layout is invalid: " + layoutError
+    );
+    const std::uint32_t unifiedAnchor =
+        compiled.world.dispatch.gridNodeCount + anchorNode;
+    std::uint32_t anchorPairCount = 0u;
+    for (const NMContactPairGPU& pair : compiled.world.contact.pairs) {
+        if (pair.continuumNode == unifiedAnchor) {
+            ++anchorPairCount;
+        }
+    }
+    require(
+        anchorNode < compiled.world.fem.nodes.size() &&
+            anchorPairCount > 0u,
+        "tissue contact anchor was not retained by the compiled pair topology"
+    );
+    std::cout << "tissue_contact_anchor_node=" << anchorNode
+        << " fixed="
+        << compiled.world.fem.nodes[anchorNode].restAndFixed.w
+        << " compiled_pairs=" << anchorPairCount
+        << " proxy_flags="
+        << compiled.world.contact.rigidProxies.at(0u).flags << '\n';
+    return std::move(compiled.world);
+}
+
 struct Arguments {
     std::string mode;
     std::filesystem::path stateOutputDirectory;
@@ -3285,6 +3558,8 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         const std::string_view argument{argv[index]};
         if (argument == "--geometry-only" ||
             argument == "--settle-only" ||
+            argument == "--tissue-coupling-only" ||
+            argument == "--tissue-rest-only" ||
             argument == "--long-settle" ||
             argument == "--approach-only" ||
             argument == "--closure-only" ||
@@ -4261,6 +4536,40 @@ PhaseResult initializePhase(
     return phase;
 }
 
+PhaseResult initializePhaseUnchecked(
+    metalrobo::MetalWorldContext& context,
+    const metalrobo::CompiledWorld& compiled,
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldStepConfig& config,
+    metalrobo::MetalWorldResidentState& resident,
+    const std::vector<float>& efforts,
+    const std::uint32_t steps
+) {
+    const metalrobo::MetalWorldBatch batch{
+        .environmentCount = 1u,
+        .controlStepCount = steps,
+        .initialQ = world.model.defaultQ,
+        .initialV = world.model.defaultV,
+        .efforts = efforts,
+        .initialSceneBodies = world.defaultSceneBodies,
+    };
+    metalrobo::MetalWorldSubmission submission;
+    const auto submitted = context.initializeResidentState(
+        compiled,
+        batch,
+        config,
+        resident,
+        submission
+    );
+    require(
+        submitted.succeeded() && submission.valid(),
+        "initial diagnostic submission failed: " + submitted.message
+    );
+    PhaseResult phase;
+    phase.diagnostics = submission.wait(phase.result);
+    return phase;
+}
+
 PhaseResult continuePhase(
     metalrobo::MetalWorldContext& context,
     const metalrobo::CompiledWorld& compiled,
@@ -4337,6 +4646,12 @@ int main(const int argc, const char* const argv[]) {
         const bool longSettle = options.mode == "--long-settle";
         const bool settleOnly = longSettle ||
             options.mode == "--settle-only";
+        const bool tissueCouplingOnly =
+            options.mode == "--tissue-coupling-only";
+        const bool tissueRestOnly =
+            options.mode == "--tissue-rest-only";
+        const bool tissueMatterOnly =
+            tissueCouplingOnly || tissueRestOnly;
         const bool approachOnly = options.mode == "--approach-only";
         const bool closureOnly = options.mode == "--closure-only";
         const bool receiverApproachOnly =
@@ -5390,6 +5705,51 @@ int main(const int argc, const char* const argv[]) {
             return 0;
         }
 
+        numi::matter::Runtime tissueRuntime;
+        numi::matter::CompiledWorld tissueWorld;
+        numi::matter::PorcineJejunumClosureCoupon tissueCoupon;
+        if (tissueMatterOnly) {
+            constexpr float initialNeedleVelocityZ = 0.0f;
+            world.defaultSceneBodies[0]
+                .linearVelocityAndInverseMass.z = initialNeedleVelocityZ;
+            world.rods[0].attachments[0].targetVelocity = {
+                0.0,
+                0.0,
+                initialNeedleVelocityZ,
+            };
+            for (std::uint32_t node = 0u; node < 2u; ++node) {
+                world.rods[0].defaultState.velocities[node] = {
+                    0.0,
+                    0.0,
+                    initialNeedleVelocityZ,
+                };
+            }
+            world.fingerprint =
+                metalrobo::heterogeneousWorldFingerprint(world);
+            tissueWorld = compileNeedleSutureTissueWorld(
+                world,
+                sutureSpec.needle.crossSectionRadiusM.value,
+                tissueRestOnly ? 1.5e-4 : 5.0e-5,
+                tissueCoupon
+            );
+            const auto initialized = tissueRuntime.initialize(
+                tissueWorld,
+                {
+                    .metallib = NUMI_MATTER_METALLIB,
+                    .environmentCount = 1u,
+                    .captureEvents = true,
+                    .captureDiagnostics = true,
+                    .automaticIdentification = false,
+                    .adaptiveTransfer = false,
+                }
+            );
+            require(
+                initialized.encoded && tissueRuntime.valid(),
+                "needle-suture tissue runtime initialization failed: " +
+                    initialized.message
+            );
+        }
+
         metalrobo::CompiledWorld compiled;
         const auto compile = metalrobo::compileMetalWorld(
             world,
@@ -5429,6 +5789,28 @@ int main(const int argc, const char* const argv[]) {
         stepConfig.publishFinalState = true;
         stepConfig.publishStateTrajectory = false;
         stepConfig.rodContactOuterIterations = 4u;
+        if (tissueMatterOnly) {
+            // Qualify one atomic 62.5 us cross-domain transaction. The
+            // production control step contains 32 of these substeps, but a
+            // later substep must not erase evidence from the boundary being
+            // qualified here; long-horizon puncture stability is gated by
+            // the separate surgical-sequence replay.
+            stepConfig.timestepSeconds = static_cast<float>(
+                kControlTimestep / static_cast<double>(kPhysicsSubsteps)
+            );
+            stepConfig.physicsSubsteps = 1u;
+            stepConfig.devicePhysicsProgram =
+                numi::matter::makeMetalWorldDevicePhysicsProgram(
+                    tissueRuntime
+                );
+            require(
+                stepConfig.devicePhysicsProgram.valid() &&
+                    (stepConfig.devicePhysicsProgram.flags &
+                     metalrobo::
+                         MetalWorldDevicePhysicsWritesBodyWrenches) != 0u,
+                "tissue runtime did not publish a two-way MetalWorld program"
+            );
+        }
 
         std::vector<float> targetStart = world.model.defaultQ;
         std::vector<float> target = targetStart;
@@ -5446,6 +5828,369 @@ int main(const int argc, const char* const argv[]) {
         double preReceiverGpuMilliseconds = 0.0;
         std::uint64_t preReleaseSuccessfulSteps = 0u;
         double preReleaseGpuMilliseconds = 0.0;
+
+        if (tissueMatterOnly) {
+            efforts = interpolateTargets(
+                world.model,
+                targetStart,
+                targetStart,
+                1u
+            );
+            metalrobo::MetalWorldStepConfig referenceConfig = stepConfig;
+            referenceConfig.devicePhysicsProgram = {};
+            metalrobo::MetalWorldContext referenceContext;
+            metalrobo::MetalWorldResidentState referenceResident;
+            const PhaseResult reference = initializePhase(
+                referenceContext,
+                compiled,
+                world,
+                referenceConfig,
+                referenceResident,
+                efforts,
+                1u
+            );
+            const PhaseResult coupled = initializePhaseUnchecked(
+                context,
+                compiled,
+                world,
+                stepConfig,
+                resident,
+                efforts,
+                1u
+            );
+            if (!coupled.diagnostics.succeeded() ||
+                coupled.diagnostics.failedStepCount != 0u) {
+                std::string failure =
+                    "coupled tissue transaction failed: " +
+                    coupled.diagnostics.message;
+                const numi::matter::RuntimeStateSnapshot failedMatter =
+                    tissueRuntime.snapshot();
+                if (failedMatter.available &&
+                    !failedMatter.statuses.empty()) {
+                    const NMMatterStatusGPU& status =
+                        failedMatter.statuses[0];
+                    failure += " matter_status=" +
+                        std::to_string(status.code) +
+                        " object=" +
+                        std::to_string(status.objectIndex) +
+                        " failing_index=" +
+                        std::to_string(status.failingIndex) +
+                        " microsteps=" +
+                        std::to_string(status.completedMicrosteps) +
+                        " fgmres=" +
+                        std::to_string(status.fgmresIterations) +
+                        " contacts=" +
+                        std::to_string(status.contactCount) +
+                        " matter_events=" +
+                        std::to_string(status.eventCount) +
+                        " diagnostics=(" +
+                        std::to_string(status.diagnostics.x) + "," +
+                        std::to_string(status.diagnostics.y) + "," +
+                        std::to_string(status.diagnostics.z) + "," +
+                        std::to_string(status.diagnostics.w) + ")";
+                }
+                if (!coupled.result.statuses.empty()) {
+                    const MRMetalWorldStatusGPU& status =
+                        coupled.result.statuses[0];
+                    failure += " world_status=" +
+                        std::to_string(status.code) +
+                        " failing_substep=" +
+                        std::to_string(status.failingSubstep) +
+                        " failing_index=" +
+                        std::to_string(status.failingIndex) +
+                        " diagnostics=(" +
+                        std::to_string(status.diagnostics.x) + "," +
+                        std::to_string(status.diagnostics.y) + "," +
+                        std::to_string(status.diagnostics.z) + "," +
+                        std::to_string(status.diagnostics.w) + ")";
+                }
+                if (!coupled.result.environmentStatuses.empty()) {
+                    const metalrobo::MetalWorldStatus& status =
+                        coupled.result.environmentStatuses[0];
+                    failure += " first_pair=" +
+                        std::to_string(status.firstFailingPair) +
+                        " first_constraint=" +
+                        std::to_string(status.firstFailingConstraint) +
+                        " maximum_residuals=(" +
+                        std::to_string(status.maximumResiduals[0]) + "," +
+                        std::to_string(status.maximumResiduals[1]) + "," +
+                        std::to_string(status.maximumResiduals[2]) + "," +
+                        std::to_string(status.maximumResiduals[3]) + ")";
+                }
+                std::uint32_t validContactSamples = 0u;
+                double minimumCandidateSeparation =
+                    std::numeric_limits<double>::infinity();
+                double maximumCandidateHessian = 0.0;
+                for (const NMContactSampleGPU& sample :
+                     failedMatter.contactSamples) {
+                    if ((sample.identity.w & NM_CONTACT_VALID) == 0u) {
+                        continue;
+                    }
+                    ++validContactSamples;
+                    minimumCandidateSeparation = std::min(
+                        minimumCandidateSeparation,
+                        static_cast<double>(sample.pointAndSeparation.w)
+                    );
+                    maximumCandidateHessian = std::max({
+                        maximumCandidateHessian,
+                        std::abs(static_cast<double>(
+                            sample.barrierHessianRow0.x)),
+                        std::abs(static_cast<double>(
+                            sample.barrierHessianRow1.y)),
+                        std::abs(static_cast<double>(
+                            sample.barrierHessianRow2.z)),
+                    });
+                }
+                failure += " candidate_contacts=" +
+                    std::to_string(validContactSamples) +
+                    " minimum_candidate_separation=" +
+                    std::to_string(minimumCandidateSeparation) +
+                    " maximum_candidate_hessian=" +
+                    std::to_string(maximumCandidateHessian);
+                if (!failedMatter.rigidStates.empty()) {
+                    const NMRigidStateGPU& rigid =
+                        failedMatter.rigidStates[0];
+                    failure += " projected_capsule_first=" +
+                        vectorSummary(vector(rigid.centerAndRadius)) +
+                        " projected_capsule_second=" +
+                        vectorSummary(vector(rigid.extent)) +
+                        " projected_capsule_radius=" +
+                        std::to_string(rigid.centerAndRadius.w);
+                    double snapshotMinimumSeparation =
+                        std::numeric_limits<double>::infinity();
+                    std::uint32_t snapshotMinimumNode = NM_INVALID_INDEX;
+                    for (const std::uint32_t node :
+                         tissueCoupon.object.femContactNodes) {
+                        if (node >= failedMatter.femNodes.size()) {
+                            continue;
+                        }
+                        const double separation = pointSegmentDistance(
+                            vector(failedMatter.femNodes[node]
+                                       .positionAndMass),
+                            vector(rigid.centerAndRadius),
+                            vector(rigid.extent)
+                        ) - rigid.centerAndRadius.w;
+                        if (separation < snapshotMinimumSeparation) {
+                            snapshotMinimumSeparation = separation;
+                            snapshotMinimumNode = node;
+                        }
+                    }
+                    failure += " snapshot_minimum_separation=" +
+                        std::to_string(snapshotMinimumSeparation) +
+                        " snapshot_minimum_node=" +
+                        std::to_string(snapshotMinimumNode);
+                    if (snapshotMinimumNode <
+                        failedMatter.femNodes.size()) {
+                        failure += " snapshot_minimum_inverse_mass=" +
+                            std::to_string(
+                                failedMatter.femNodes[snapshotMinimumNode]
+                                    .velocityAndInverseMass.w
+                            );
+                    }
+                }
+                throw std::runtime_error(failure);
+            }
+            const numi::matter::RuntimeStateSnapshot snapshot =
+                tissueRuntime.snapshot();
+            require(
+                snapshot.available && !snapshot.reactions.empty() &&
+                    !snapshot.femNodes.empty() &&
+                    !snapshot.solverCertificates.empty(),
+                "tissue coupling did not publish accepted Matter state: " +
+                    snapshot.message
+            );
+
+            std::uint32_t activeContacts = 0u;
+            double normalImpulse = 0.0;
+            for (const NMContactSampleGPU& sample :
+                 snapshot.contactSamples) {
+                if ((sample.identity.w & NM_CONTACT_VALID) == 0u) {
+                    continue;
+                }
+                ++activeContacts;
+                normalImpulse += sample.impulseAndNormal.w;
+            }
+            const NMRigidReactionGPU& reaction = snapshot.reactions[0];
+            const Vec3 reactionImpulse{
+                reaction.impulseAndCount.x,
+                reaction.impulseAndCount.y,
+                reaction.impulseAndCount.z,
+            };
+            const Vec3 referenceNeedleVelocity = vector(
+                reference.result.finalSceneBodies.at(0u)
+                    .linearVelocityAndInverseMass
+            );
+            const Vec3 coupledNeedleVelocity = vector(
+                coupled.result.finalSceneBodies.at(0u)
+                    .linearVelocityAndInverseMass
+            );
+            const double needleVelocityDelta = norm(
+                coupledNeedleVelocity - referenceNeedleVelocity
+            );
+            const Vec3 referenceRootVelocity = vector(
+                reference.result.finalRodNodes.at(0u).velocity
+            );
+            const Vec3 coupledRootVelocity = vector(
+                coupled.result.finalRodNodes.at(0u).velocity
+            );
+            const double threadRootVelocityDelta = norm(
+                coupledRootVelocity - referenceRootVelocity
+            );
+            double maximumTissueDisplacement = 0.0;
+            for (std::size_t node = 0u;
+                 node < snapshot.femNodes.size(); ++node) {
+                const Vec3 accepted = vector(
+                    snapshot.femNodes[node].positionAndMass
+                );
+                const Vec3 initial = vector(
+                    tissueWorld.fem.nodes.at(node).positionAndMass
+                );
+                maximumTissueDisplacement = std::max(
+                    maximumTissueDisplacement,
+                    norm(accepted - initial)
+                );
+            }
+            double maximumNonlinearResidual = 0.0;
+            double maximumRelativeCorrection = 0.0;
+            double maximumVolumeResidual = 0.0;
+            double minimumDeterminant =
+                std::numeric_limits<double>::infinity();
+            bool certificatesAccepted = true;
+            for (const NMSolverCertificateGPU& certificate :
+                 snapshot.solverCertificates) {
+                maximumNonlinearResidual = std::max(
+                    maximumNonlinearResidual,
+                    static_cast<double>(certificate.nonlinear.x)
+                );
+                maximumVolumeResidual = std::max(
+                    maximumVolumeResidual,
+                    static_cast<double>(certificate.nonlinear.z)
+                );
+                maximumRelativeCorrection = std::max(
+                    maximumRelativeCorrection,
+                    static_cast<double>(certificate.nonlinear.y)
+                );
+                minimumDeterminant = std::min(
+                    minimumDeterminant,
+                    static_cast<double>(certificate.validity.x)
+                );
+                certificatesAccepted = certificatesAccepted &&
+                    certificate.validity.w > 0.5f;
+            }
+            const double swageError = swageAttachmentError(
+                world,
+                coupled.result
+            );
+            std::uint64_t acceptedStateHash = 1469598103934665603ull;
+            appendStateHash(acceptedStateHash, coupled.result.finalQ);
+            appendStateHash(acceptedStateHash, coupled.result.finalV);
+            appendStateHash(
+                acceptedStateHash, coupled.result.finalSceneBodies);
+            appendStateHash(
+                acceptedStateHash, coupled.result.finalRodNodes);
+            appendStateHash(
+                acceptedStateHash, coupled.result.finalRodEdges);
+            appendStateHash(acceptedStateHash, snapshot.femNodes);
+            appendStateHash(acceptedStateHash, snapshot.femFields);
+            appendStateHash(acceptedStateHash, snapshot.reactions);
+            appendStateHash(acceptedStateHash, snapshot.contactSamples);
+            appendStateHash(
+                acceptedStateHash, snapshot.solverCertificates);
+            if (tissueRestOnly) {
+                require(
+                    reaction.impulseAndCount.w == 0.0f &&
+                        activeContacts == 0u &&
+                        norm(reactionImpulse) == 0.0 &&
+                        needleVelocityDelta == 0.0 &&
+                        threadRootVelocityDelta == 0.0 &&
+                        maximumTissueDisplacement == 0.0 &&
+                        certificatesAccepted &&
+                        std::isfinite(maximumRelativeCorrection) &&
+                        std::isfinite(minimumDeterminant) &&
+                        minimumDeterminant > 0.0 &&
+                        swageError < kMaximumSwageAttachmentError,
+                    "contact-free tissue rest state produced physical motion "
+                    "or nonfinite telemetry: reaction_contacts=" +
+                        std::to_string(reaction.impulseAndCount.w) +
+                        " active_contacts=" +
+                        std::to_string(activeContacts) +
+                        " reaction_impulse=" +
+                        vectorSummary(reactionImpulse) +
+                        " needle_velocity_delta=" +
+                        std::to_string(needleVelocityDelta) +
+                        " thread_root_velocity_delta=" +
+                        std::to_string(threadRootVelocityDelta) +
+                        " maximum_tissue_displacement=" +
+                        std::to_string(maximumTissueDisplacement) +
+                        " relative_correction=" +
+                        std::to_string(maximumRelativeCorrection)
+                );
+            } else {
+                require(
+                    reaction.impulseAndCount.w >= 1.0f &&
+                        norm(reactionImpulse) > 1.0e-9 &&
+                        needleVelocityDelta > 1.0e-9 &&
+                        threadRootVelocityDelta > 1.0e-9 &&
+                        maximumTissueDisplacement > 0.0 &&
+                        certificatesAccepted &&
+                        std::isfinite(minimumDeterminant) &&
+                        minimumDeterminant > 0.0 &&
+                        swageError < kMaximumSwageAttachmentError,
+                    "tissue reaction did not traverse the needle-swage-thread "
+                    "chain in the accepted transaction: reaction_contacts=" +
+                        std::to_string(reaction.impulseAndCount.w) +
+                        " active_contacts=" +
+                        std::to_string(activeContacts) +
+                        " reaction_impulse=" +
+                        vectorSummary(reactionImpulse) +
+                        " needle_velocity_delta=" +
+                        std::to_string(needleVelocityDelta) +
+                        " thread_root_velocity_delta=" +
+                        std::to_string(threadRootVelocityDelta) +
+                        " maximum_tissue_displacement=" +
+                        std::to_string(maximumTissueDisplacement) +
+                        " certificates_accepted=" +
+                        std::to_string(certificatesAccepted) +
+                        " minimum_determinant=" +
+                        std::to_string(minimumDeterminant) +
+                        " swage_error=" + std::to_string(swageError)
+                );
+            }
+            std::cout << std::setprecision(9)
+                << (tissueRestOnly
+                    ? "tissue_static_equilibrium=ok"
+                    : "tissue_suture_coupling=ok")
+                << " reaction_contacts="
+                << reaction.impulseAndCount.w
+                << " final_active_contacts=" << activeContacts
+                << " final_normal_impulse_ns=" << normalImpulse
+                << " reaction_impulse_ns="
+                << vectorSummary(reactionImpulse)
+                << " needle_velocity_delta_mps="
+                << needleVelocityDelta
+                << " thread_root_velocity_delta_mps="
+                << threadRootVelocityDelta
+                << " maximum_tissue_displacement_m="
+                << maximumTissueDisplacement
+                << " hard_swage_root_error_m=" << swageError
+                << " matter_maximum_nonlinear_residual="
+                << maximumNonlinearResidual
+                << " matter_maximum_relative_correction="
+                << maximumRelativeCorrection
+                << " matter_maximum_volume_residual="
+                << maximumVolumeResidual
+                << " matter_minimum_determinant="
+                << minimumDeterminant
+                << " accepted_state_fnv64=0x" << std::hex
+                << acceptedStateHash << std::dec
+                << " reference_gpu_ms="
+                << reference.diagnostics.gpuElapsedMilliseconds
+                << " coupled_gpu_ms="
+                << coupled.diagnostics.gpuElapsedMilliseconds
+                << " failed_steps="
+                << coupled.diagnostics.failedStepCount << '\n';
+            return 0;
+        }
 
         if (!options.resumeGiverReleaseMotionPath.empty()) {
             const std::uint32_t holdSteps = options.settleStepLimit != 0u

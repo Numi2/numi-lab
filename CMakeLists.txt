@@ -2250,6 +2250,16 @@ add_executable(
     metalrobo_dual_psm_suture_handoff_probe
     apps/dual_psm_suture_handoff_probe.cpp
 )
+add_dependencies(
+    metalrobo_dual_psm_suture_handoff_probe
+    numi_matter_shaders
+)
+target_compile_definitions(
+    metalrobo_dual_psm_suture_handoff_probe
+    PRIVATE
+        NUMI_JEJUNUM_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/porcine_jejunum_fung.nmatter"
+        NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+)
 target_link_libraries(
     metalrobo_dual_psm_suture_handoff_probe
     PRIVATE
@@ -2331,6 +2341,30 @@ if(BUILD_TESTING)
             FIXTURES_SETUP metalrobo_dual_suture_handoff_state
             LABELS "metalrobo;surgical;physics;metal"
             TIMEOUT 7200
+    )
+    add_test(
+        NAME metalrobo.surgical.tissue_suture_coupling
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-coupling-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.tissue_suture_coupling
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal"
+            TIMEOUT 900
+    )
+    add_test(
+        NAME metalrobo.surgical.tissue_static_equilibrium
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-rest-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.tissue_static_equilibrium
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal"
+            TIMEOUT 900
     )
     set(
         METALROBO_SUTURE_TEST_STATE

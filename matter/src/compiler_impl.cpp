@@ -1533,6 +1533,16 @@ CompileResult compileWorld(
             }
             const double rho = density(material);
             std::vector<double> localMass(nodeCapacity, 0.0);
+            const auto cookedNodePosition = [&](const std::uint32_t local) {
+                const nm_float4 position = world.fem.nodes[
+                    static_cast<std::size_t>(descriptor.stateOffset) + local
+                ].positionAndMass;
+                return Vec3{
+                    static_cast<double>(position.x),
+                    static_cast<double>(position.y),
+                    static_cast<double>(position.z),
+                };
+            };
             for (const TetrahedronSource& sourceTet : object.tetrahedra) {
                 if (std::ranges::any_of(sourceTet.nodes, [&](const std::uint32_t node) {
                     return node >= object.femNodes.size();
@@ -1543,10 +1553,15 @@ CompileResult compileWorld(
                     });
                     continue;
                 }
-                const Vec3& x0 = object.femNodes[sourceTet.nodes[0]];
-                const Vec3& x1 = object.femNodes[sourceTet.nodes[1]];
-                const Vec3& x2 = object.femNodes[sourceTet.nodes[2]];
-                const Vec3& x3 = object.femNodes[sourceTet.nodes[3]];
+                // Rest geometry must be formed from the exact FP32 node
+                // coordinates consumed by Metal.  Building Dm^-1 from the
+                // pre-cook doubles while positions are rounded independently
+                // gives a translated millimetre-scale mesh a non-identity
+                // deformation at frame zero and manufactures pressure/stress.
+                const Vec3 x0 = cookedNodePosition(sourceTet.nodes[0]);
+                const Vec3 x1 = cookedNodePosition(sourceTet.nodes[1]);
+                const Vec3 x2 = cookedNodePosition(sourceTet.nodes[2]);
+                const Vec3 x3 = cookedNodePosition(sourceTet.nodes[3]);
                 const Vec3 e1 = subtract(x1, x0);
                 const Vec3 e2 = subtract(x2, x0);
                 const Vec3 e3 = subtract(x3, x0);

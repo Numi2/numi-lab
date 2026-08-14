@@ -711,6 +711,9 @@ struct RuntimeStateSnapshot {
     std::vector<NMCohesiveFaceGPU> cohesiveFaces;
     std::vector<NMPunctureChannelGPU> punctureChannels;
     std::vector<NMFEMTopologyStateGPU> topologyStates;
+    // Completion-boundary device status, retained even when the enclosing
+    // MetalWorld transaction rolled the physical state back.
+    std::vector<NMMatterStatusGPU> statuses;
     // Maximum accepted topology/allocation generation across environments.
     // Exact replay records this beside completed TopologyGrowthRequest values.
     std::uint32_t allocationGeneration = 0u;
@@ -726,6 +729,9 @@ struct RuntimeStateSnapshot {
     std::vector<NMAdaptiveStateGPU> adaptive;
     std::vector<NMSchedulerStateGPU> schedulers;
     std::vector<NMRigidReactionGPU> reactions;
+    // Completion-boundary projected proxy geometry/kinematics. This is
+    // diagnostic readback, not an independently writable rigid state.
+    std::vector<NMRigidStateGPU> rigidStates;
     // Completion-boundary primal-contact diagnostics, populated only when
     // RuntimeConfiguration::captureDiagnostics is enabled.
     std::vector<NMContactSampleGPU> contactSamples;

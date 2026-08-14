@@ -246,6 +246,8 @@ kernel void nm_fgmres_begin(
     constant uint& restartCycle [[buffer(14)]],
     constant float& forcing [[buffer(15)]],
     constant uint& nonlinearIteration [[buffer(16)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(17)]],
+    device const float* rigidCandidate [[buffer(18)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -257,6 +259,7 @@ kernel void nm_fgmres_begin(
         previousDiagnostics.z > 0.5f;
     float norm2 = 0.0f;
     float normCorrection = 0.0f;
+    float maximumCandidateSpeedSquared = 0.0f;
     const bool active = environmentHealthy(statuses, environment) &&
         !completed;
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
@@ -266,6 +269,10 @@ kernel void nm_fgmres_begin(
     if (active) {
         const uint base = environment * dispatch.femNodeCount;
         for (uint local = lane; local < dispatch.femNodeCount; local += 32u) {
+            maximumCandidateSpeedSquared = max(
+                maximumCandidateSpeedSquared,
+                length_squared(candidateNodes[base + local]
+                    .velocityAndInverseMass.xyz));
             fgmresCompensatedAdd(
                 norm2, normCorrection,
                 dot(residual[base + local], residual[base + local]));
@@ -282,11 +289,26 @@ kernel void nm_fgmres_begin(
         for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
              local += 32u) {
             const float value = residual[rigidBase + local].x;
+            const float candidateValue = rigidCandidate[
+                environment * dispatch.rigidGeneralizedCapacity + local];
+            maximumCandidateSpeedSquared = max(
+                maximumCandidateSpeedSquared,
+                candidateValue * candidateValue);
             fgmresCompensatedAdd(
                 norm2, normCorrection, value * value);
         }
+        for (uint proxy = lane; proxy < dispatch.rigidProxyCount;
+             proxy += 32u) {
+            const NMRigidStateGPU rigid = contact.rigidStates[
+                environment * dispatch.rigidProxyCount + proxy];
+            maximumCandidateSpeedSquared = max(
+                maximumCandidateSpeedSquared,
+                max(length_squared(rigid.linearVelocityAndInverseMass.xyz),
+                    length_squared(rigid.angularVelocity.xyz)));
+        }
     }
     norm2 = simd_sum(norm2);
+    maximumCandidateSpeedSquared = simd_max(maximumCandidateSpeedSquared);
     for (uint index = lane; index <
          (NM_MIXED_FGMRES_RESTART + 1u) * NM_MIXED_FGMRES_RESTART;
          index += 32u)
@@ -303,19 +325,26 @@ kernel void nm_fgmres_begin(
     const float norm = sqrt(max(norm2, 0.0f));
     const float firstNewtonNorm = nonlinearIteration == 0u &&
         restartCycle == 0u ? norm : previousNonlinear.x;
-    // Equilibrium is the nonlinear acceptance authority. A finite correction
-    // is retained as progress telemetry, but its magnitude measures travel
-    // from the feasible initial iterate and must not keep an already converged
-    // KKT state in the expensive Newton/FGMRES loop. Require two completed
-    // corrections so a small absolute residual cannot accept a low-force
-    // scene before it has produced its physical motion.
+    const bool hasActiveContact =
+        contact.activeCounts[environment] > 0u ||
+        contact.deformableActiveCounts[environment] > 0u;
+    // The assembled KKT residual is the nonlinear convergence authority.
+    // Relative correction remains finite progress telemetry. An unloaded,
+    // contact-free FP32 rest state may publish a zero correction immediately;
+    // active contact and body acceleration still require a completed physical
+    // correction before the same residual gate may accept the candidate.
     const bool correctionFinite = nonlinearIteration > 1u &&
         isfinite(previousNonlinear.z);
+    const float nonlinearThreshold = max(
+        solver.regularization.x,
+        solver.residualTolerances.x * max(firstNewtonNorm, 1.0f));
+    const bool contactFreeStaticRest = nonlinearIteration == 0u &&
+        !hasActiveContact &&
+        maximumCandidateSpeedSquared == 0.0f &&
+        all(dispatch.gravityAndTimestep.xyz == float3(0.0f));
     const bool nonlinearConverged = restartCycle == 0u &&
-        correctionFinite && norm <= max(
-            solver.regularization.x,
-            solver.residualTolerances.x *
-                max(firstNewtonNorm, 1.0f));
+        (correctionFinite || contactFreeStaticRest) &&
+        norm <= nonlinearThreshold;
     if (lane == 0u) {
         const float initialNorm = restartCycle == 0u
             ? norm : previousDiagnostics.y;
@@ -340,8 +369,10 @@ kernel void nm_fgmres_begin(
         states[environment].nonlinear = float4(
             firstNewtonNorm,
             restartCycle == 0u ? norm : previousNonlinear.y,
-            nonlinearIteration == 0u && restartCycle == 0u
-                ? INFINITY : previousNonlinear.z,
+            nonlinearConverged && contactFreeStaticRest
+                ? 0.0f
+                : (nonlinearIteration == 0u && restartCycle == 0u
+                    ? INFINITY : previousNonlinear.z),
             nonlinearConverged ? 1.0f : 0.0f
         );
     }
@@ -1739,8 +1770,17 @@ kernel void nm_fgmres_finalize_cycle(
         ? state.diagnostics.x / state.diagnostics.y
         : state.diagnostics.x;
     const bool converged = state.diagnostics.z > 0.5f;
-    const bool finalAccepted = converged || (used > 0u &&
-        relativeResidual <= clamp(
+    // The inner solve may reach the authored outer equilibrium tolerance
+    // before satisfying the next Eisenstat-Walker forcing term. Let the next
+    // Newton assembly certify that full KKT residual instead of latching a
+    // linear failure at an already acceptable absolute residual.
+    const float nonlinearThreshold = max(
+        solver.regularization.x,
+        solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
+    const bool reachedNonlinearTarget = used > 0u &&
+        state.diagnostics.x <= nonlinearThreshold;
+    const bool finalAccepted = converged || reachedNonlinearTarget ||
+        (used > 0u && relativeResidual <= clamp(
             forcing, solver.residualTolerances.x, 0.5f));
     if (finalRestartCycle != 0u)
         state.diagnostics.z = finalAccepted ? 1.0f : 0.0f;

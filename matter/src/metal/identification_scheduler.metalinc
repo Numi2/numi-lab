@@ -9,6 +9,7 @@ kernel void nm_prepare_status(
     if (environment >= dispatch.environmentCount) {
         return;
     }
+    const NMMatterStatusGPU previous = statuses[environment];
     NMMatterStatusGPU status{};
     status.code = NM_STATUS_SUCCESS;
     status.environment = environment;
@@ -22,6 +23,16 @@ kernel void nm_prepare_status(
     // work that can no longer publish.
     const MRMetalWorldStatusGPU world = worldStatuses[environment];
     if (world.code != MR_STEP_SUCCESS) {
+        // A Matter failure from an earlier statically encoded substep is the
+        // root cause of the world latch. Preserve that first failure instead
+        // of relabelling it as a rigid-world failure on every later inert
+        // substep. A genuinely rigid/contact-originated failure still sees a
+        // successful Matter status here and takes the bridge status below.
+        if (previous.code != NM_STATUS_SUCCESS &&
+            previous.code != NM_STATUS_RIGID_WORLD_FAILURE) {
+            statuses[environment] = previous;
+            return;
+        }
         status.code = NM_STATUS_RIGID_WORLD_FAILURE;
         status.failingIndex = world.code;
         status.diagnostics = world.diagnostics;

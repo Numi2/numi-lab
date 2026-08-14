@@ -15,6 +15,7 @@ struct NMPrimalContactArguments {
     device const uint* mpmActiveNodeCounts [[id(11)]];
     device const NMRigidProxyGPU* rigidProxies [[id(12)]];
     device const NMRigidStateGPU* rigidStates [[id(13)]];
+    device const uint* deformableActiveCounts [[id(14)]];
 };
 
 // Reflection-only anchor for the monolithic contact argument table. Runtime
@@ -46,6 +47,7 @@ kernel void nm_primal_contact_argument_layout(
         reinterpret_cast<device const uint*>(contact.rigidProxies)[0];
     checksum ^=
         reinterpret_cast<device const uint*>(contact.rigidStates)[0];
+    checksum ^= contact.deformableActiveCounts[0];
     sink[0] = checksum;
 }
 
