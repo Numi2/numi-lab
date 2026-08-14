@@ -13,6 +13,7 @@
 #include <iostream>
 #include <limits>
 #include <numeric>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -28,6 +29,8 @@
 namespace {
 
 constexpr double kTissueTableContactSlopM = 1.0e-5;
+// Begin collision-free, 1 um beyond the IPC barrier, then let gravity and the
+// calibrated damping establish support without an initial contact preload.
 constexpr double kInitialTissueTableGapM = 1.1e-5;
 
 void require(const bool condition, const std::string& message) {
@@ -91,8 +94,8 @@ numi::matter::CompiledWorld compileTissueWorld(
     source.contactSlop = kTissueTableContactSlopM;
     source.deterministic = true;
     source.mixedSolver.newtonIterations = 12u;
-    source.mixedSolver.fgmresRestart = 12u;
-    source.mixedSolver.fgmresIterations = 48u;
+    source.mixedSolver.fgmresRestart = 16u;
+    source.mixedSolver.fgmresIterations = 64u;
     source.mixedSolver.lineSearchSteps = 12u;
     source.mixedSolver.relativeResidual = 5.0e-4;
     source.mixedSolver.volumeTolerance = 5.0e-4;
@@ -131,6 +134,14 @@ struct TissueRun {
     std::uint64_t threadDispatches = 0u;
     std::uint64_t simdgroupDispatches = 0u;
     std::uint64_t indirectDispatches = 0u;
+    std::uint32_t maximumFrameContactCount = 0u;
+    std::vector<double> firstNodeHeightHistoryM;
+    std::vector<double> firstNodeVerticalVelocityHistoryMPerS;
+    std::vector<std::uint32_t> completedMicrostepHistory;
+    std::vector<std::uint32_t> fgmresIterationHistory;
+    std::vector<NMSchedulerStateGPU> schedulerHistory;
+    std::vector<NMAdaptiveStateGPU> adaptiveHistory;
+    std::uint32_t initialAdaptiveRepresentation = NM_INVALID_INDEX;
 };
 
 TissueRun runTissue(
@@ -167,9 +178,26 @@ TissueRun runTissue(
             "tissue runtime initialization failed: " +
                 initialized.message
         );
+        id<MTLBuffer> matterStatuses =
+            (__bridge id<MTLBuffer>)runtime.statusBuffer();
+        require(
+            matterStatuses != nil &&
+                matterStatuses.length >= sizeof(NMMatterStatusGPU) &&
+                matterStatuses.contents != nullptr,
+            "tissue runtime status buffer is unavailable"
+        );
 
         TissueRun result;
         result.deviceName = device.name.UTF8String;
+        result.snapshot = runtime.snapshot();
+        require(
+            result.snapshot.available &&
+                !result.snapshot.adaptive.empty(),
+            "tissue initial runtime snapshot failed: " +
+                result.snapshot.message
+        );
+        result.initialAdaptiveRepresentation =
+            result.snapshot.adaptive.front().activeRepresentation;
         for (std::uint32_t step = 0u; step < controlSteps; ++step) {
             auto* status = static_cast<MRMetalWorldStatusGPU*>(
                 worldStatuses.contents
@@ -226,12 +254,79 @@ TissueRun runTissue(
                             : commandBuffer.error.localizedDescription.UTF8String
                     )
             );
+            const auto* matterStatus =
+                static_cast<const NMMatterStatusGPU*>(
+                    matterStatuses.contents
+                );
+            require(
+                status->code == MR_STEP_SUCCESS &&
+                    matterStatus->code == NM_STATUS_SUCCESS,
+                "tissue Metal transaction rejected at control step " +
+                    std::to_string(step) + " with status " +
+                    std::to_string(status->code) + " failing_substep=" +
+                    std::to_string(status->failingSubstep) +
+                    " failing_index=" +
+                    std::to_string(status->failingIndex) +
+                    " successful_substeps=" +
+                    std::to_string(status->successfulSubsteps) +
+                    " diagnostics=[" +
+                    std::to_string(status->diagnostics.x) + "," +
+                    std::to_string(status->diagnostics.y) + "," +
+                    std::to_string(status->diagnostics.z) + "," +
+                    std::to_string(status->diagnostics.w) +
+                    "] matter_status=" +
+                    std::to_string(matterStatus->code) +
+                    " matter_object=" +
+                    std::to_string(matterStatus->objectIndex) +
+                    " matter_failing_index=" +
+                    std::to_string(matterStatus->failingIndex) +
+                    " matter_fgmres_iterations=" +
+                    std::to_string(matterStatus->fgmresIterations) +
+                    " matter_diagnostics=[" +
+                    std::to_string(matterStatus->diagnostics.x) + "," +
+                    std::to_string(matterStatus->diagnostics.y) + "," +
+                    std::to_string(matterStatus->diagnostics.z) + "," +
+                    std::to_string(matterStatus->diagnostics.w) + "]"
+            );
+            result.maximumFrameContactCount = std::max(
+                result.maximumFrameContactCount,
+                matterStatus->contactCount
+            );
+            result.snapshot = runtime.snapshot();
+            require(
+                result.snapshot.available &&
+                    !result.snapshot.femNodes.empty(),
+                "tissue per-step snapshot failed: " +
+                    result.snapshot.message
+            );
+            result.firstNodeHeightHistoryM.push_back(
+                result.snapshot.femNodes.front().positionAndMass.z
+            );
+            result.firstNodeVerticalVelocityHistoryMPerS.push_back(
+                result.snapshot.femNodes.front().velocityAndInverseMass.z
+            );
+            result.completedMicrostepHistory.push_back(
+                matterStatus->completedMicrosteps
+            );
+            result.fgmresIterationHistory.push_back(
+                matterStatus->fgmresIterations
+            );
+            require(
+                !result.snapshot.schedulers.empty() &&
+                    !result.snapshot.adaptive.empty(),
+                "tissue per-step scheduler diagnostics are unavailable"
+            );
+            result.schedulerHistory.push_back(
+                result.snapshot.schedulers.front()
+            );
+            result.adaptiveHistory.push_back(
+                result.snapshot.adaptive.front()
+            );
             result.gpuMilliseconds += 1000.0 * std::max(
                 0.0,
                 commandBuffer.GPUEndTime - commandBuffer.GPUStartTime
             );
         }
-        result.snapshot = runtime.snapshot();
         require(
             result.snapshot.available,
             "tissue snapshot failed: " + result.snapshot.message
@@ -264,6 +359,50 @@ double meanFreeHeight(
     }
     require(count != 0u, "tissue specimen has no free nodes");
     return sum / static_cast<double>(count);
+}
+
+struct TissueKinematics {
+    double minimumHeightM = std::numeric_limits<double>::infinity();
+    double maximumHeightM = -std::numeric_limits<double>::infinity();
+    double meanVerticalVelocityMPerS = 0.0;
+    double maximumSpeedMPerS = 0.0;
+};
+
+TissueKinematics tissueKinematics(
+    const std::vector<NMFEMNodeStateGPU>& nodes,
+    const std::size_t activeNodeCount
+) {
+    require(
+        activeNodeCount != 0u && activeNodeCount <= nodes.size(),
+        "active tissue node count is invalid"
+    );
+    TissueKinematics result;
+    for (std::size_t node = 0u; node < activeNodeCount; ++node) {
+        const auto& state = nodes[node];
+        result.minimumHeightM = std::min(
+            result.minimumHeightM,
+            static_cast<double>(state.positionAndMass.z)
+        );
+        result.maximumHeightM = std::max(
+            result.maximumHeightM,
+            static_cast<double>(state.positionAndMass.z)
+        );
+        result.meanVerticalVelocityMPerS +=
+            state.velocityAndInverseMass.z;
+        result.maximumSpeedMPerS = std::max(
+            result.maximumSpeedMPerS,
+            std::hypot(
+                std::hypot(
+                    static_cast<double>(state.velocityAndInverseMass.x),
+                    static_cast<double>(state.velocityAndInverseMass.y)
+                ),
+                static_cast<double>(state.velocityAndInverseMass.z)
+            )
+        );
+    }
+    result.meanVerticalVelocityMPerS /=
+        static_cast<double>(activeNodeCount);
+    return result;
 }
 
 double minimumLipGap(
@@ -302,6 +441,71 @@ bool bitIdentical(
              second.data(),
              first.size() * sizeof(Value)
          ) == 0);
+}
+
+void requireLiveFrameProgress(
+    const TissueRun& run,
+    const numi::matter::CompiledWorld& world,
+    const std::uint32_t controlSteps,
+    const double initialHeightM,
+    const double initialVerticalVelocityMPerS
+) {
+    require(
+        !world.objects.empty() && !world.adaptive.empty() &&
+            run.firstNodeHeightHistoryM.size() == controlSteps &&
+            run.firstNodeVerticalVelocityHistoryMPerS.size() == controlSteps &&
+            run.completedMicrostepHistory.size() == controlSteps &&
+            run.fgmresIterationHistory.size() == controlSteps &&
+            run.schedulerHistory.size() == controlSteps &&
+            run.adaptiveHistory.size() == controlSteps,
+        "tissue frame-progress telemetry is incomplete"
+    );
+    const std::uint32_t representation = world.objects.front().representation;
+    require(
+        run.initialAdaptiveRepresentation == representation,
+        "tissue runtime did not initialize the authored FEM representation"
+    );
+    const std::uint32_t expectedMicrosteps =
+        1u << world.dispatch.maximumRateExponent;
+    double previousHeightM = initialHeightM;
+    double previousVerticalVelocityMPerS = initialVerticalVelocityMPerS;
+    for (std::uint32_t step = 0u; step < controlSteps; ++step) {
+        const auto& scheduler = run.schedulerHistory[step];
+        const auto& adaptive = run.adaptiveHistory[step];
+        const bool mechanicalStateAdvanced =
+            run.firstNodeHeightHistoryM[step] != previousHeightM ||
+            run.firstNodeVerticalVelocityHistoryMPerS[step] !=
+                previousVerticalVelocityMPerS;
+        if (run.completedMicrostepHistory[step] != expectedMicrosteps ||
+            run.fgmresIterationHistory[step] == 0u ||
+            run.fgmresIterationHistory[step] >
+                world.mixedSolver.nonlinearIterations.z ||
+            scheduler.numerical.w <= 0.0f ||
+            scheduler.activeExponent > world.dispatch.maximumRateExponent ||
+            adaptive.activeRepresentation != representation ||
+            !std::isfinite(run.firstNodeHeightHistoryM[step]) ||
+            !std::isfinite(
+                run.firstNodeVerticalVelocityHistoryMPerS[step]
+            ) ||
+            !mechanicalStateAdvanced) {
+            std::ostringstream failure;
+            failure << "tissue frame " << step
+                << " did not execute a live FEM transaction: microsteps="
+                << run.completedMicrostepHistory[step]
+                << '/' << expectedMicrosteps
+                << " fgmres=" << run.fgmresIterationHistory[step]
+                << " scheduler_enabled=" << scheduler.numerical.w
+                << " rate=" << scheduler.activeExponent
+                << " representation=" << adaptive.activeRepresentation
+                << " height=" << run.firstNodeHeightHistoryM[step]
+                << " vertical_velocity="
+                << run.firstNodeVerticalVelocityHistoryMPerS[step];
+            throw std::runtime_error(failure.str());
+        }
+        previousHeightM = run.firstNodeHeightHistoryM[step];
+        previousVerticalVelocityMPerS =
+            run.firstNodeVerticalVelocityHistoryMPerS[step];
+    }
 }
 
 struct TissueContactMetrics {
@@ -403,7 +607,11 @@ int main(const int argc, const char* const argv[]) {
             runtimeSpec.circumferentialCells = 6u;
             runtimeSpec.throughThicknessCells = 1u;
         }
-        runtimeSpec.fixLongitudinalEnds = true;
+        // The closure specimen lies freely on the table. Longitudinal end
+        // fixtures belong to biaxial calibration experiments; applying them
+        // here suspends this stiff 30 mm coupon above its support and makes a
+        // table-contact qualification physically contradictory.
+        runtimeSpec.fixLongitudinalEnds = false;
         numi::matter::PorcineJejunumClosureCoupon runtimeCoupon;
         const auto world = compileTissueWorld(
             runtimeSpec,
@@ -415,6 +623,7 @@ int main(const int argc, const char* const argv[]) {
                 world.dispatch.tetrahedronCount >=
                     runtimeCoupon.metadata.tetrahedronCount &&
                 world.dispatch.maximumRateExponent <= 6u &&
+                !world.constitutive.empty() &&
                 world.constitutive[0].material.hint ==
                     numi::matter::ConstitutiveHint::generic,
             "live tissue world did not retain the generic Fung FEM contract"
@@ -442,11 +651,28 @@ int main(const int argc, const char* const argv[]) {
             initial,
             runtimeCoupon.metadata
         );
+        const TissueKinematics initialKinematics = tissueKinematics(
+            initial.femNodes,
+            runtimeCoupon.metadata.nodeCount
+        );
 
-        const std::uint32_t controlSteps =
-            productionResolution ? 2u : 6u;
+        const std::uint32_t controlSteps = 3u;
         const TissueRun first = runTissue(world, controlSteps);
+        requireLiveFrameProgress(
+            first,
+            world,
+            controlSteps,
+            initial.femNodes.front().positionAndMass.z,
+            initial.femNodes.front().velocityAndInverseMass.z
+        );
         const TissueRun replay = runTissue(world, controlSteps);
+        requireLiveFrameProgress(
+            replay,
+            world,
+            controlSteps,
+            initial.femNodes.front().positionAndMass.z,
+            initial.femNodes.front().velocityAndInverseMass.z
+        );
         require(
             first.snapshot.femNodes.size() == initial.femNodes.size() &&
                 first.snapshot.femNodes.size() ==
@@ -475,7 +701,33 @@ int main(const int argc, const char* const argv[]) {
                 bitIdentical(
                     first.snapshot.deformableContactHistories,
                     replay.snapshot.deformableContactHistories
-                ),
+                ) &&
+                bitIdentical(
+                    first.firstNodeHeightHistoryM,
+                    replay.firstNodeHeightHistoryM
+                ) &&
+                bitIdentical(
+                    first.firstNodeVerticalVelocityHistoryMPerS,
+                    replay.firstNodeVerticalVelocityHistoryMPerS
+                ) &&
+                bitIdentical(
+                    first.completedMicrostepHistory,
+                    replay.completedMicrostepHistory
+                ) &&
+                bitIdentical(
+                    first.fgmresIterationHistory,
+                    replay.fgmresIterationHistory
+                ) &&
+                bitIdentical(
+                    first.schedulerHistory,
+                    replay.schedulerHistory
+                ) &&
+                bitIdentical(
+                    first.adaptiveHistory,
+                    replay.adaptiveHistory
+                ) &&
+                first.maximumFrameContactCount ==
+                    replay.maximumFrameContactCount,
             "tissue Metal replay is not bit-identical"
         );
 
@@ -509,18 +761,73 @@ int main(const int argc, const char* const argv[]) {
         );
         const TissueContactMetrics tableContacts =
             tissueTableContacts(first.snapshot);
-        require(
+        const TissueKinematics finalKinematics = tissueKinematics(
+            first.snapshot.femNodes,
+            runtimeCoupon.metadata.nodeCount
+        );
+        const double contactAcceptanceFloor =
+            world.mixedSolver.contactAcceptance.x *
+            world.dispatch.numericalLimits.x;
+        const bool terminalContactValid =
+            tableContacts.activeCount == 0u ||
+            (
+                tableContacts.minimumSeparationM >
+                    contactAcceptanceFloor &&
+                std::isfinite(tableContacts.minimumSeparationM) &&
+                tableContacts.maximumBarrierImpulse > 0.0 &&
+                std::isfinite(tableContacts.maximumBarrierImpulse)
+            );
+        const bool physicalOutcomeAccepted =
             finalHeight < initialHeight - 1.0e-7 &&
                 finalHeight > initialHeight - 0.003 &&
                 finalGap > 0.5 * initialGap &&
                 std::isfinite(finalGap) &&
-                tableContacts.activeCount != 0u &&
-                tableContacts.minimumSeparationM > 0.0 &&
-                std::isfinite(tableContacts.minimumSeparationM) &&
-                tableContacts.maximumBarrierImpulse > 0.0 &&
-                std::isfinite(tableContacts.maximumBarrierImpulse),
-            "jejunal wall did not produce bounded sag and positive table "
-            "contact with an open incision"
+                first.maximumFrameContactCount != 0u &&
+                finalKinematics.minimumHeightM >
+                    contactAcceptanceFloor &&
+                finalKinematics.minimumHeightM <
+                    2.0 * kTissueTableContactSlopM &&
+                std::abs(finalKinematics.meanVerticalVelocityMPerS) <
+                    2.0e-3 &&
+                finalKinematics.maximumSpeedMPerS < 5.0e-3 &&
+                terminalContactValid;
+        std::ostringstream physicalFailure;
+        physicalFailure << std::scientific << std::setprecision(9)
+            << "jejunal wall did not produce bounded sag and positive table "
+            << "contact with an open incision: initial_height="
+            << initialHeight << " final_height=" << finalHeight
+            << " initial_minimum_height="
+            << initialKinematics.minimumHeightM
+            << " final_minimum_height="
+            << finalKinematics.minimumHeightM
+            << " initial_gap=" << initialGap
+            << " final_gap=" << finalGap
+            << " final_mean_vertical_velocity="
+            << finalKinematics.meanVerticalVelocityMPerS
+            << " final_maximum_speed="
+            << finalKinematics.maximumSpeedMPerS
+            << " maximum_frame_contact_count="
+            << first.maximumFrameContactCount
+            << " active_contacts=" << tableContacts.activeCount
+            << " minimum_separation="
+            << tableContacts.minimumSeparationM
+            << " maximum_barrier_impulse="
+            << tableContacts.maximumBarrierImpulse;
+        physicalFailure << " first_node_history=[";
+        for (std::size_t step = 0u;
+             step < first.firstNodeHeightHistoryM.size();
+             ++step) {
+            if (step != 0u) {
+                physicalFailure << ',';
+            }
+            physicalFailure << '(' << first.firstNodeHeightHistoryM[step]
+                << ',' << first.firstNodeVerticalVelocityHistoryMPerS[step]
+                << ',' << first.completedMicrostepHistory[step] << ')';
+        }
+        physicalFailure << ']';
+        require(
+            physicalOutcomeAccepted,
+            physicalFailure.str()
         );
 
         float maximumResidual = 0.0f;
@@ -549,9 +856,14 @@ int main(const int argc, const char* const argv[]) {
                 certificate.validity.x
             );
         }
+        const auto [minimumFrameFGMRES, maximumFrameFGMRES] =
+            std::minmax_element(
+                first.fgmresIterationHistory.begin(),
+                first.fgmresIterationHistory.end()
+            );
 
         std::cout << std::setprecision(9)
-            << "{\"schema\":\"numi.surgical-tissue-physics.v1\""
+            << "{\"schema\":\"numi.surgical-tissue-physics.v2\""
             << ",\"device\":\"" << first.deviceName << "\""
             << ",\"material\":\"porcine_jejunum_fung\""
             << ",\"runtime_resolution\":\""
@@ -587,12 +899,27 @@ int main(const int argc, const char* const argv[]) {
             << ",\"field_smoother_passes\":"
             << world.mixedSolver.executionBudgets.x
             << ",\"control_steps\":" << controlSteps
+            << ",\"minimum_frame_fgmres_iterations\":"
+            << *minimumFrameFGMRES
+            << ",\"maximum_frame_fgmres_iterations\":"
+            << *maximumFrameFGMRES
+            << ",\"live_frame_progress\":true"
             << ",\"free_sag_m\":" << initialHeight - finalHeight
             << ",\"minimum_incision_gap_m\":" << finalGap
+            << ",\"minimum_tissue_height_m\":"
+            << finalKinematics.minimumHeightM
+            << ",\"mean_vertical_velocity_m_per_s\":"
+            << finalKinematics.meanVerticalVelocityMPerS
+            << ",\"maximum_node_speed_m_per_s\":"
+            << finalKinematics.maximumSpeedMPerS
+            << ",\"maximum_frame_contact_count\":"
+            << first.maximumFrameContactCount
             << ",\"active_table_contacts\":"
             << tableContacts.activeCount
             << ",\"minimum_table_separation_m\":"
-            << tableContacts.minimumSeparationM
+            << (tableContacts.activeCount == 0u
+                ? 0.0
+                : tableContacts.minimumSeparationM)
             << ",\"maximum_table_barrier_impulse\":"
             << tableContacts.maximumBarrierImpulse
             << ",\"minimum_J\":" << minimumDeterminant
