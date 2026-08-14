@@ -858,11 +858,23 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
 
     DvrkSutureVisualAsset result;
     VisualAssetPackV2& pack = result.pack;
-    pack.id = "dvrk_lnd_gs21_suture_pickup_visual_v1";
-    pack.sourceUri =
-        "numi://orbit-surgical/6e47534+jhu-dvrk/53a401d/gs21";
-    pack.sourceContentHash =
-        "source:orbit-6e47534+jhu-53a401d+gs21-analytic";
+    const bool bowelNeedle =
+        needle.spec.arcLengthM.basis ==
+        SurgicalValueBasis::pdsII3_0ProductGeometry;
+    if (bowelNeedle) {
+        pack.id = "dvrk_lnd_pdsii_3_0_bowel_suture_visual_v2";
+        pack.sourceUri = surgicalValueSourceReference(
+            SurgicalValueBasis::pdsII3_0ProductGeometry
+        );
+        pack.sourceContentHash =
+            "source:ethicon-d7463-26mm-half-circle+research-gauge";
+    } else {
+        pack.id = "dvrk_lnd_gs21_suture_pickup_visual_v1";
+        pack.sourceUri =
+            "numi://orbit-surgical/6e47534+jhu-dvrk/53a401d/gs21";
+        pack.sourceContentHash =
+            "source:orbit-6e47534+jhu-53a401d+gs21-analytic";
+    }
     pack.license = "NOASSERTION";
     pack.preprocessingProvenance =
         "makeDvrkSutureVisualAsset/physics-bound-procedural-v2";
@@ -1202,8 +1214,8 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
         needleSemantic,
         2001u,
         stableId++,
-        "gs21_curved_needle",
-        "gs21_curved_needle"
+        "curved_suture_needle",
+        "curved_suture_needle"
     );
     result.metrics.needleTriangleCount =
         static_cast<std::uint32_t>(

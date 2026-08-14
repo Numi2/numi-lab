@@ -922,37 +922,20 @@ void calibrateDualPsmNeedleInsertPair(
     EngineModel& robots,
     const MRMaterialGPU& needleMaterial
 ) {
-    const SurgicalPSMModelMetadata& metadata = surgicalPSMMetadata();
     if (robots.articulations.size() != 2u ||
-        robots.materials.size() != 4u ||
-        !(needleMaterial.friction.x > 0.0f) ||
-        !(needleMaterial.friction.y > 0.0f) ||
-        !(metadata.targetNeedleInsertStaticFriction > 0.0f) ||
-        !(metadata.targetNeedleInsertDynamicFriction > 0.0f)) {
+        robots.materials.size() != 4u) {
         throw std::invalid_argument(
             "dual PSM/needle material calibration is incomplete"
-        );
-    }
-    const float rawStatic =
-        metadata.targetNeedleInsertStaticFriction *
-        metadata.targetNeedleInsertStaticFriction /
-        needleMaterial.friction.x;
-    const float rawDynamic =
-        metadata.targetNeedleInsertDynamicFriction *
-        metadata.targetNeedleInsertDynamicFriction /
-        needleMaterial.friction.y;
-    if (!std::isfinite(rawStatic) || !std::isfinite(rawDynamic) ||
-        rawStatic < rawDynamic || rawDynamic < 0.0f) {
-        throw std::invalid_argument(
-            "dual PSM/needle effective friction is invalid"
         );
     }
     // DualPsmWorld appends each source PSM's generic and insert material in
     // arm order. Adjust only the two insert records; the needle and carrier
     // retain their authored contact behavior against the table and robot.
     for (const std::uint32_t insertMaterial : {1u, 3u}) {
-        robots.materials[insertMaterial].friction.x = rawStatic;
-        robots.materials[insertMaterial].friction.y = rawDynamic;
+        calibrateSurgicalNeedleInsertMaterial(
+            robots.materials[insertMaterial],
+            needleMaterial
+        );
     }
 }
 

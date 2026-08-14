@@ -82,6 +82,8 @@ struct SurgicalPSMModelMetadata {
     float insertSystemNormalComplianceMPerN = 0.0f;
     float targetNeedleInsertStaticFriction = 0.0f;
     float targetNeedleInsertDynamicFriction = 0.0f;
+    std::array<std::uint32_t, 4u> jawAInsertShapeIndices{};
+    std::array<std::uint32_t, 4u> jawBInsertShapeIndices{};
     std::string_view intuitiveInstrumentCatalog;
     std::string_view intuitiveInstrumentPartNumber;
     float orbitToolYawLinkMass = 0.0f;
@@ -120,6 +122,16 @@ struct SurgicalPSMModelMetadata {
 // calibration, safety model, or clinical device representation.
 [[nodiscard]] const SurgicalPSMModelMetadata&
 surgicalPSMMetadata() noexcept;
+
+// Rescales an unresolved LND insert material so geometric material mixing
+// with the supplied needle material yields the effective friction authored in
+// SurgicalPSMModelMetadata. This is a research pair calibration, not a bulk
+// material coefficient or clinical force prescription. Throws on an invalid
+// material contract and does not mutate on failure.
+void calibrateSurgicalNeedleInsertMaterial(
+    MRMaterialGPU& insertMaterial,
+    const MRMaterialGPU& needleMaterial
+);
 
 // Fixed-root, eight-coordinate dVRK PSM with a Classic Large Needle Driver.
 // The first six coordinates reproduce the research control topology:

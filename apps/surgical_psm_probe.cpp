@@ -604,6 +604,10 @@ int main() {
                 ) &&
                 close(metadata.targetNeedleInsertStaticFriction, 1.20) &&
                 close(metadata.targetNeedleInsertDynamicFriction, 0.90) &&
+                metadata.jawAInsertShapeIndices ==
+                    std::array<std::uint32_t, 4u>{15u, 18u, 20u, 22u} &&
+                metadata.jawBInsertShapeIndices ==
+                    std::array<std::uint32_t, 4u>{17u, 19u, 21u, 23u} &&
                 close(
                     model.materials[1].response.z,
                     metadata.insertSystemNormalComplianceMPerN
@@ -617,6 +621,53 @@ int main() {
                 !metadata.calibratedInertias &&
                 !metadata.clinicallyValidated,
             "surgical PSM provenance/fidelity metadata changed"
+        );
+        MRMaterialGPU calibratedInsert = model.materials[1u];
+        MRMaterialGPU needleMaterial{};
+        needleMaterial.friction = {0.75f, 0.50f, 0.0f, 0.0f};
+        metalrobo::calibrateSurgicalNeedleInsertMaterial(
+            calibratedInsert,
+            needleMaterial
+        );
+        require(
+            close(
+                std::sqrt(
+                    calibratedInsert.friction.x *
+                    needleMaterial.friction.x
+                ),
+                metadata.targetNeedleInsertStaticFriction
+            ) &&
+                close(
+                    std::sqrt(
+                        calibratedInsert.friction.y *
+                        needleMaterial.friction.y
+                    ),
+                    metadata.targetNeedleInsertDynamicFriction
+                ),
+            "surgical needle/insert pair calibration changed"
+        );
+        const MRMaterialGPU calibrationSentinel = calibratedInsert;
+        needleMaterial.friction.x = 0.0f;
+        bool rejectedInvalidCalibration = false;
+        try {
+            metalrobo::calibrateSurgicalNeedleInsertMaterial(
+                calibratedInsert,
+                needleMaterial
+            );
+        } catch (const std::invalid_argument&) {
+            rejectedInvalidCalibration = true;
+        }
+        require(
+            rejectedInvalidCalibration &&
+                close(
+                    calibratedInsert.friction.x,
+                    calibrationSentinel.friction.x
+                ) &&
+                close(
+                    calibratedInsert.friction.y,
+                    calibrationSentinel.friction.y
+                ),
+            "invalid surgical pair calibration was not transactional"
         );
         require(
             model.constraintProgram.blocks.size() == 1u &&

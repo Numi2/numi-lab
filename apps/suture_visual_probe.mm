@@ -56,6 +56,7 @@ struct Arguments {
 
 struct PickupState {
     bool dualHandoff = false;
+    bool medicallyMatchedSinglePickup = false;
     std::string phase;
     std::string model;
     std::uint64_t step = 0u;
@@ -76,6 +77,7 @@ struct PickupState {
     double needleLift = 0.0;
     double jawTravel = 0.0;
     double followRatio = 0.0;
+    double graspSeatDrift = 0.0;
     double orientationDrift = 0.0;
     bool grasped = false;
     bool modelSeen = false;
@@ -93,6 +95,7 @@ struct PickupState {
     bool needleLiftSeen = false;
     bool jawTravelSeen = false;
     bool followRatioSeen = false;
+    bool graspSeatDriftSeen = false;
     bool orientationDriftSeen = false;
     bool graspedSeen = false;
     std::vector<std::uint8_t> threadPositionsSeen;
@@ -214,12 +217,16 @@ PickupState readPickupState(const std::filesystem::path& path) {
             require(
                 fields.size() == 2u && !schema &&
                     (fields[1] == "numi.surgical-pickup-state.v1" ||
+                     fields[1] == "numi.surgical-pickup-state.v2" ||
                      fields[1] ==
                          "numi.dual-psm-suture-handoff-state.v2"),
                 "pickup state schema is unsupported"
             );
             result.dualHandoff = fields[1] !=
-                "numi.surgical-pickup-state.v1";
+                    "numi.surgical-pickup-state.v1" &&
+                fields[1] != "numi.surgical-pickup-state.v2";
+            result.medicallyMatchedSinglePickup =
+                fields[1] == "numi.surgical-pickup-state.v2";
             if (result.dualHandoff) {
                 result.controlTimestepSeconds = 0.002;
             }
@@ -412,6 +419,16 @@ PickupState readPickupState(const std::filesystem::path& path) {
             );
             result.orientationDrift = number(fields[1u], "orientation drift");
             result.orientationDriftSeen = true;
+        } else if (fields[0] == "jaw_needle_seat_drift_m") {
+            require(
+                fields.size() == 2u && !result.graspSeatDriftSeen,
+                "pickup grasp-seat row is invalid"
+            );
+            result.graspSeatDrift = number(
+                fields[1u],
+                "pickup grasp-seat drift"
+            );
+            result.graspSeatDriftSeen = true;
         } else if (fields[0] == "grasped") {
             require(
                 fields.size() == 2u && !result.graspedSeen,
@@ -482,7 +499,12 @@ PickupState readPickupState(const std::filesystem::path& path) {
                 1.0e-12 &&
             result.grasped &&
             result.needleLift > 0.007 &&
-            result.followRatio > 0.9;
+            (
+                result.medicallyMatchedSinglePickup
+                ? result.graspSeatDriftSeen &&
+                    result.graspSeatDrift < 1.0e-4
+                : result.followRatio > 0.9
+            );
     const bool dualHandoffValid = result.dualHandoff &&
         result.phaseSeen && result.controlTimestepSeen &&
         result.tissueModelSeen &&
@@ -514,7 +536,10 @@ metalrobo::EngineModel makeNeedleModel(
     const metalrobo::CurvedSutureNeedleAsset& needle
 ) {
     metalrobo::EngineModel model;
-    model.name = "gs21_curved_needle_scene";
+    model.name = needle.spec.arcLengthM.basis ==
+            metalrobo::SurgicalValueBasis::pdsII3_0ProductGeometry
+        ? "pdsii_3_0_bowel_needle_scene"
+        : "gs21_curved_needle_scene";
     model.bodies = {needle.rigid.body};
     model.bodies[0u].articulationIndex = MR_INVALID_INDEX;
     model.bodies[0u].parentBody = MR_INVALID_INDEX;
@@ -580,6 +605,10 @@ metalrobo::EngineModel makeVisualEngineModel(
     } else {
         const metalrobo::EngineModel psm =
             metalrobo::makeDvrkPsmLargeNeedleDriverEngineModel();
+        const std::string_view needleInstance =
+            state.medicallyMatchedSinglePickup
+            ? "bowel_suture_needle"
+            : "gs21_needle";
         const std::array components{
             metalrobo::EngineModelComponent{
                 .model = &psm,
@@ -588,15 +617,22 @@ metalrobo::EngineModel makeVisualEngineModel(
             },
             metalrobo::EngineModelComponent{
                 .model = &needleModel,
-                .instanceId = "gs21_needle",
+                .instanceId = needleInstance,
             },
         };
         diagnostics = metalrobo::composeEngineModels(
             components,
             result,
             {
-                .name = "dvrk_psm_gs21_suture_visual_world",
-                .gravityAndTimestep = {0.0f, 0.0f, -9.81f, 0.0005f},
+                .name = state.medicallyMatchedSinglePickup
+                    ? "dvrk_psm_bowel_suture_pickup_visual_world"
+                    : "dvrk_psm_gs21_suture_visual_world",
+                .gravityAndTimestep = {
+                    0.0f,
+                    0.0f,
+                    state.medicallyMatchedSinglePickup ? 9.81f : -9.81f,
+                    0.0005f,
+                },
             }
         );
     }
@@ -710,6 +746,82 @@ metalrobo::WorldAsset asset(
     return result;
 }
 
+mr_float4 rotateDirection(
+    const mr_float4 quaternion,
+    const mr_float4 value
+) {
+    const mr_float4 doubled{
+        2.0f * (
+            quaternion.y * value.z - quaternion.z * value.y
+        ),
+        2.0f * (
+            quaternion.z * value.x - quaternion.x * value.z
+        ),
+        2.0f * (
+            quaternion.x * value.y - quaternion.y * value.x
+        ),
+        0.0f,
+    };
+    return {
+        value.x + quaternion.w * doubled.x +
+            quaternion.y * doubled.z - quaternion.z * doubled.y,
+        value.y + quaternion.w * doubled.y +
+            quaternion.z * doubled.x - quaternion.x * doubled.z,
+        value.z + quaternion.w * doubled.z +
+            quaternion.x * doubled.y - quaternion.y * doubled.x,
+        0.0f,
+    };
+}
+
+void assignRotatedInverseInertia(
+    MRBodyStateGPU& state,
+    const MRBodyPropertiesGPU& properties
+) {
+    const std::array<mr_float4, 3u> axes{{
+        rotateDirection(state.orientation, {1.0f, 0.0f, 0.0f, 0.0f}),
+        rotateDirection(state.orientation, {0.0f, 1.0f, 0.0f, 0.0f}),
+        rotateDirection(state.orientation, {0.0f, 0.0f, 1.0f, 0.0f}),
+    }};
+    const auto component = [](const mr_float4 value, const std::size_t axis) {
+        return axis == 0u ? value.x : axis == 1u ? value.y : value.z;
+    };
+    const float body[3][3] = {
+        {properties.inverseInertiaRow0.x,
+         properties.inverseInertiaRow0.y,
+         properties.inverseInertiaRow0.z},
+        {properties.inverseInertiaRow1.x,
+         properties.inverseInertiaRow1.y,
+         properties.inverseInertiaRow1.z},
+        {properties.inverseInertiaRow2.x,
+         properties.inverseInertiaRow2.y,
+         properties.inverseInertiaRow2.z},
+    };
+    float world[3][3]{};
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        for (std::size_t column = 0u; column < 3u; ++column) {
+            for (std::size_t bodyRow = 0u; bodyRow < 3u; ++bodyRow) {
+                for (std::size_t bodyColumn = 0u;
+                     bodyColumn < 3u;
+                     ++bodyColumn) {
+                    world[row][column] +=
+                        component(axes[bodyRow], row) *
+                        body[bodyRow][bodyColumn] *
+                        component(axes[bodyColumn], column);
+                }
+            }
+        }
+    }
+    state.inverseInertiaWorldRow0 = {
+        world[0][0], world[0][1], world[0][2], 0.0f,
+    };
+    state.inverseInertiaWorldRow1 = {
+        world[1][0], world[1][1], world[1][2], 0.0f,
+    };
+    state.inverseInertiaWorldRow2 = {
+        world[2][0], world[2][1], world[2][2], 0.0f,
+    };
+}
+
 metalrobo::WorldTemplate makeWorldTemplate(
     const metalrobo::EngineModel& model,
     const PickupState& state
@@ -717,7 +829,9 @@ metalrobo::WorldTemplate makeWorldTemplate(
     metalrobo::EpisodeTwin episode;
     episode.id = state.dualHandoff
         ? "dual_dvrk_suture_handoff_visual_v1"
-        : "dvrk_gs21_suture_pickup_visual_v1";
+        : state.medicallyMatchedSinglePickup
+            ? "dvrk_bowel_suture_pickup_visual_v2"
+            : "dvrk_gs21_suture_pickup_visual_v1";
     metalrobo::WorldAsset robot = asset(
         state.dualHandoff ? "giver_dvrk_psm" : "dvrk_psm",
         "surgical_instrument",
@@ -757,7 +871,9 @@ metalrobo::WorldTemplate makeWorldTemplate(
         assets.push_back(std::move(receiver));
     }
     metalrobo::WorldAsset needle = asset(
-        state.dualHandoff ? "bowel_suture_needle" : "gs21_needle",
+        state.dualHandoff || state.medicallyMatchedSinglePickup
+            ? "bowel_suture_needle"
+            : "gs21_needle",
         "suture_needle",
         MR_WORLD_ASSET_MANIPULATED,
         MR_WORLD_DYNAMICS_RIGID
@@ -779,6 +895,10 @@ metalrobo::WorldTemplate makeWorldTemplate(
     episode.assets = std::move(assets);
 
     const mr_float4 needlePosition = state.needle.position;
+    const mr_float4 needlePlaneNormal = rotateDirection(
+        state.needle.orientation,
+        {0.0f, 0.0f, 1.0f, 0.0f}
+    );
     mr_float4 threadCenter{};
     for (const auto& point : state.threadPositions) {
         threadCenter.x += static_cast<float>(point[0]);
@@ -803,7 +923,9 @@ metalrobo::WorldTemplate makeWorldTemplate(
     close.height = kHeight;
     close.intrinsics = state.dualHandoff
         ? mr_float4{1500.0f, 1500.0f, 640.0f, 480.0f}
-        : mr_float4{1250.0f, 1250.0f, 640.0f, 480.0f};
+        : state.medicallyMatchedSinglePickup
+            ? mr_float4{1600.0f, 1600.0f, 640.0f, 480.0f}
+            : mr_float4{1250.0f, 1250.0f, 640.0f, 480.0f};
     const mr_float4 closePosition = state.dualHandoff
         ? mr_float4{
               needlePosition.x - 0.050f,
@@ -812,9 +934,18 @@ metalrobo::WorldTemplate makeWorldTemplate(
               1.0f,
           }
         : mr_float4{
-              needlePosition.x + 0.045f,
-              needlePosition.y - 0.050f,
-              needlePosition.z + 0.032f,
+              needlePosition.x +
+                  (state.medicallyMatchedSinglePickup
+                      ? 0.060f * needlePlaneNormal.x
+                      : 0.045f),
+              needlePosition.y -
+                  (state.medicallyMatchedSinglePickup
+                      ? 0.020f - 0.060f * needlePlaneNormal.y
+                      : 0.050f),
+              needlePosition.z +
+                  (state.medicallyMatchedSinglePickup
+                      ? 0.060f * needlePlaneNormal.z
+                      : 0.032f),
               1.0f,
           };
     const mr_float4 closeTarget = state.dualHandoff
@@ -827,7 +958,8 @@ metalrobo::WorldTemplate makeWorldTemplate(
         : mr_float4{
               needlePosition.x,
               needlePosition.y,
-              needlePosition.z - 0.006f,
+              needlePosition.z +
+                  (state.medicallyMatchedSinglePickup ? 0.0f : -0.006f),
               1.0f,
           };
     close.localPose = cameraToward(
@@ -844,7 +976,9 @@ metalrobo::WorldTemplate makeWorldTemplate(
     overview.id = "pickup_overview_rgbd";
     overview.intrinsics = state.dualHandoff
         ? mr_float4{2000.0f, 2000.0f, 640.0f, 480.0f}
-        : mr_float4{1030.0f, 1030.0f, 640.0f, 480.0f};
+        : state.medicallyMatchedSinglePickup
+            ? mr_float4{1700.0f, 1700.0f, 640.0f, 480.0f}
+            : mr_float4{1030.0f, 1030.0f, 640.0f, 480.0f};
     const metalrobo::SurgicalNeutralZonePadSpec pad;
     const float tissueCenterZ = static_cast<float>(
         0.5 * pad.thicknessM.value + 0.5 * state.tissueThickness
@@ -859,9 +993,18 @@ metalrobo::WorldTemplate makeWorldTemplate(
               1.0f,
           }
         : mr_float4{
-              0.55f * needlePosition.x + 0.45f * threadCenter.x,
-              0.55f * needlePosition.y + 0.45f * threadCenter.y,
-              0.55f * needlePosition.z + 0.45f * threadCenter.z,
+              (state.medicallyMatchedSinglePickup ? 0.80f : 0.55f) *
+                      needlePosition.x +
+                  (state.medicallyMatchedSinglePickup ? 0.20f : 0.45f) *
+                      threadCenter.x,
+              (state.medicallyMatchedSinglePickup ? 0.80f : 0.55f) *
+                      needlePosition.y +
+                  (state.medicallyMatchedSinglePickup ? 0.20f : 0.45f) *
+                      threadCenter.y,
+              (state.medicallyMatchedSinglePickup ? 0.80f : 0.55f) *
+                      needlePosition.z +
+                  (state.medicallyMatchedSinglePickup ? 0.20f : 0.45f) *
+                      threadCenter.z,
               1.0f,
           };
     const mr_float4 overviewPosition = state.dualHandoff
@@ -872,9 +1015,18 @@ metalrobo::WorldTemplate makeWorldTemplate(
               1.0f,
           }
         : mr_float4{
-              overviewTarget.x + 0.155f,
-              overviewTarget.y - 0.175f,
-              overviewTarget.z + 0.075f,
+              overviewTarget.x +
+                  (state.medicallyMatchedSinglePickup
+                      ? 0.100f * needlePlaneNormal.x
+                      : 0.155f),
+              overviewTarget.y -
+                  (state.medicallyMatchedSinglePickup
+                      ? 0.060f - 0.100f * needlePlaneNormal.y
+                      : 0.175f),
+              overviewTarget.z +
+                  (state.medicallyMatchedSinglePickup
+                      ? 0.100f * needlePlaneNormal.z
+                      : 0.075f),
               1.0f,
           };
     overview.localPose = cameraToward(
@@ -885,7 +1037,9 @@ metalrobo::WorldTemplate makeWorldTemplate(
     episode.task = {
         .id = state.dualHandoff
             ? "dual_dvrk_suture_handoff_visual_qualification"
-            : "gs21_suture_pickup_visual_qualification",
+            : state.medicallyMatchedSinglePickup
+                ? "bowel_suture_pickup_visual_qualification"
+                : "gs21_suture_pickup_visual_qualification",
         .robotAssetId = state.dualHandoff
             ? "giver_dvrk_psm"
             : "dvrk_psm",
@@ -907,7 +1061,7 @@ metalrobo::WorldFamily makeWorldFamily(
     const metalrobo::WorldTemplate& world
 ) {
     metalrobo::WorldProgram program;
-    program.id = "dvrk_gs21_suture_pickup_visual_program_v1";
+    program.id = "dvrk_suture_pickup_visual_program_v2";
     metalrobo::WorldFamily result;
     const auto diagnostics = metalrobo::compileWorldFamily(
         world,
@@ -923,6 +1077,24 @@ metalrobo::DvrkSutureVisualScene makeHandoffVisualScene(
 ) {
     metalrobo::DvrkSutureVisualScene result;
     if (!state.dualHandoff) {
+        if (state.medicallyMatchedSinglePickup) {
+            std::array<double, 3> center{};
+            double maximumThreadZ =
+                -std::numeric_limits<double>::infinity();
+            for (const auto& point : state.threadPositions) {
+                center[0u] += point[0u];
+                center[1u] += point[1u];
+                maximumThreadZ = std::max(maximumThreadZ, point[2u]);
+            }
+            const double inverseCount =
+                1.0 / static_cast<double>(state.threadPositions.size());
+            center[0u] *= inverseCount;
+            center[1u] *= inverseCount;
+            center[2u] = maximumThreadZ + 0.006;
+            result.hasSurgicalFieldGeometry = true;
+            result.surgicalFieldCenterM = center;
+            result.surgicalFieldHalfExtentM = {0.115, 0.085, 0.0025};
+        }
         return result;
     }
     result.hasSecondaryInstrument = true;
@@ -1231,13 +1403,25 @@ void writeEvidence(
     if (!output) {
         throw std::runtime_error("could not open visual evidence output");
     }
+    const std::string_view schema = pickup.dualHandoff
+        ? "numi.dual-psm-suture-handoff-visual-evidence.v1"
+        : pickup.medicallyMatchedSinglePickup
+            ? "numi.surgical-suture-visual-evidence.v2"
+            : "numi.surgical-suture-visual-evidence.v1";
+    const std::string_view physicsBoundary = pickup.dualHandoff
+        ? "accepted Apple Metal articulated/contact handoff plus DER thread; "
+          "the jejunal surface is generated from the calibrated FEM rest "
+          "mesh and remains presentation-only"
+        : pickup.medicallyMatchedSinglePickup
+            ? "accepted deterministic CPU articulated/contact pickup plus "
+              "CPU DER thread; Apple Metal owns this render only; the support "
+              "field is presentation geometry derived from the accepted task "
+              "frame"
+            : "accepted deterministic CPU articulated/contact pickup plus "
+              "CPU DER thread; Apple Metal owns this render only";
     output << std::setprecision(12)
         << "{\n"
-        << "  \"schema\": \""
-        << (pickup.dualHandoff
-            ? "numi.dual-psm-suture-handoff-visual-evidence.v1"
-            : "numi.surgical-suture-visual-evidence.v1")
-        << "\",\n"
+        << "  \"schema\": \"" << schema << "\",\n"
         << "  \"source\": \"simulation\",\n"
         << "  \"device\": \"" << render.deviceName << "\",\n"
         << "  \"pickup_step\": " << pickup.step << ",\n"
@@ -1279,8 +1463,7 @@ void writeEvidence(
             << (index + 1u == views.size() ? "\n" : ",\n");
     }
     output << "  ],\n"
-        << "  \"physics_boundary\": "
-        << "\"accepted Apple Metal articulated/contact handoff plus DER thread; the jejunal surface is generated from the calibrated FEM rest mesh and remains presentation-only\",\n"
+        << "  \"physics_boundary\": \"" << physicsBoundary << "\",\n"
         << "  \"clinical_validation\": false\n"
         << "}\n";
     output.close();
@@ -1312,7 +1495,8 @@ int main(const int argumentCount, char* argv[]) {
                     .collisionGroup = 1u,
                     .collisionMask = ~1u,
                     .motionType = MR_MOTION_DYNAMIC,
-                }, pickup.dualHandoff
+                }, pickup.dualHandoff ||
+                    pickup.medicallyMatchedSinglePickup
                     ? metalrobo::makeBowelAnastomosisNeedleSpec()
                     : metalrobo::CurvedSutureNeedleSpec{});
             metalrobo::DiscreteRodMaterial visualRodMaterial;
@@ -1353,7 +1537,9 @@ int main(const int argumentCount, char* argv[]) {
                 options.outputDirectory /
                 (pickup.dualHandoff
                     ? "dual-dvrk-suture-handoff.mrvpack"
-                    : "dvrk-gs21-suture-pickup.mrvpack");
+                    : pickup.medicallyMatchedSinglePickup
+                        ? "dvrk-pdsii-3-0-bowel-suture-pickup.mrvpack"
+                        : "dvrk-gs21-suture-pickup.mrvpack");
             std::string reason;
             require(
                 metalrobo::writeVisualAssetPack(
@@ -1371,12 +1557,10 @@ int main(const int argumentCount, char* argv[]) {
             const float inverseMass = needle.rigid.body.massAndInverseMass.y;
             PickupState livePickup = pickup;
             livePickup.needle.linearVelocityAndInverseMass.w = inverseMass;
-            livePickup.needle.inverseInertiaWorldRow0 =
-                needle.rigid.body.inverseInertiaRow0;
-            livePickup.needle.inverseInertiaWorldRow1 =
-                needle.rigid.body.inverseInertiaRow1;
-            livePickup.needle.inverseInertiaWorldRow2 =
-                needle.rigid.body.inverseInertiaRow2;
+            assignRotatedInverseInertia(
+                livePickup.needle,
+                needle.rigid.body
+            );
             livePickup.needle.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
             livePickup.needle.flagsAndIndices[1] = MR_INVALID_INDEX;
             livePickup.needle.flagsAndIndices[2] = 41021u;
@@ -1421,7 +1605,9 @@ int main(const int argumentCount, char* argv[]) {
                 options.outputDirectory /
                 (pickup.dualHandoff
                     ? "dual-dvrk-suture-handoff.visual.v3.json"
-                    : "dvrk-gs21-suture-pickup.visual.v3.json");
+                    : pickup.medicallyMatchedSinglePickup
+                        ? "dvrk-pdsii-3-0-bowel-suture-pickup.visual.v3.json"
+                        : "dvrk-gs21-suture-pickup.visual.v3.json");
             require(
                 metalrobo::writeVisualSceneManifestV3(
                     manifest,

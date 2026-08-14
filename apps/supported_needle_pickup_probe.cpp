@@ -46,27 +46,23 @@ enum class Phase {
 };
 
 constexpr std::array<std::uint32_t, 3> kSupportNeedleShapes{
-    6u,
-    9u,
-    25u,
+    5u,
+    20u,
+    33u,
 };
 constexpr std::size_t kSupportButtonCount =
     2u * kSupportNeedleShapes.size();
-constexpr std::array<std::uint32_t, 2> kJawAToothShapes{
-    15u,
-    18u,
-};
-constexpr std::array<std::uint32_t, 2> kJawBToothShapes{
-    17u,
-    19u,
-};
 constexpr double kSupportRadius = 0.00125;
 constexpr double kInitialSupportPenetration = 1.0e-6;
 constexpr double kSupportRadialOffset = 0.00035;
-constexpr double kOpenJawCoordinate = 0.080;
-constexpr double kPickupJawCoordinate = 0.045;
+constexpr double kGrooveRailRadialPreload = 6.0e-5;
+constexpr double kOpenDiametralClearance = 3.0e-4;
 constexpr double kApproachDistance = 0.004;
 constexpr double kLiftDistance = 0.0085;
+// The canonical fixed-root PSM points distally along +Z. This standalone
+// probe therefore uses a device-aligned task frame with +Z down toward the
+// table; the production dual-PSM world supplies explicit world base poses.
+constexpr Vec3 kTaskDown{0.0, 0.0, 1.0};
 constexpr std::uint32_t kThreadNodeCount = 25u;
 constexpr double kThreadLength = 0.18;
 constexpr std::uint32_t kDistributedContactsPerJaw = 2u;
@@ -126,6 +122,10 @@ Quaternion quaternion(const std::array<double, 4>& value) {
     return {value[0], value[1], value[2], value[3]};
 }
 
+Quaternion conjugate(const Quaternion value) {
+    return {-value.x, -value.y, -value.z, value.w};
+}
+
 Vec3 rotate(const Quaternion q, const Vec3 value) {
     const Vec3 imaginary{q.x, q.y, q.z};
     const Vec3 doubled{
@@ -171,6 +171,26 @@ double lerp(
     return start + (end - start) * fraction;
 }
 
+Quaternion rotationZ(const double angle) {
+    return {
+        0.0,
+        0.0,
+        std::sin(0.5 * angle),
+        std::cos(0.5 * angle),
+    };
+}
+
+double needleShapeAngle(
+    const metalrobo::CurvedSutureNeedleSpec& spec,
+    const std::uint32_t shape
+) {
+    const double fraction =
+        (static_cast<double>(shape) + 0.5) /
+        static_cast<double>(spec.arcSegments);
+    return -0.5 * spec.arcAngleRad.value +
+        fraction * spec.arcAngleRad.value;
+}
+
 Vec3 articulatedShapeCenter(
     const std::span<
         const metalrobo::ArticulatedBodyKinematics> kinematics,
@@ -192,12 +212,23 @@ Vec3 articulatedShapeCenter(
         );
 }
 
-Vec3 jawMidpoint(
+struct JawInsertGeometry {
+    Vec3 midpoint{};
+    double separation = 0.0;
+};
+
+JawInsertGeometry jawInsertGeometry(
     const metalrobo::EngineModel& model,
     const std::span<const double> q,
     const std::span<const double> v,
-    const metalrobo::ArticulatedDynamicsConfig& config
+    const metalrobo::ArticulatedDynamicsConfig& config,
+    const std::span<const std::uint32_t> jawAShapes,
+    const std::span<const std::uint32_t> jawBShapes
 ) {
+    require(
+        !jawAShapes.empty() && jawAShapes.size() == jawBShapes.size(),
+        "PSM insert bindings are incomplete"
+    );
     std::vector<metalrobo::ArticulatedBodyKinematics> kinematics(
         model.articulations[0].bodyCount
     );
@@ -209,23 +240,158 @@ Vec3 jawMidpoint(
             v,
             kinematics,
             config
-        );
+    );
     require(diagnostics.succeeded(), "PSM jaw kinematics failed");
-    return (
-        articulatedShapeCenter(kinematics, model.shapes[15u]) +
-        articulatedShapeCenter(kinematics, model.shapes[17u]) +
-        articulatedShapeCenter(kinematics, model.shapes[18u]) +
-        articulatedShapeCenter(kinematics, model.shapes[19u])
-    ) * 0.25;
+    Vec3 jawA{};
+    Vec3 jawB{};
+    for (const std::uint32_t shape : jawAShapes) {
+        jawA = jawA + articulatedShapeCenter(
+            kinematics,
+            model.shapes.at(shape)
+        );
+    }
+    for (const std::uint32_t shape : jawBShapes) {
+        jawB = jawB + articulatedShapeCenter(
+            kinematics,
+            model.shapes.at(shape)
+        );
+    }
+    const double inverseCount = 1.0 / jawAShapes.size();
+    jawA = jawA * inverseCount;
+    jawB = jawB * inverseCount;
+    return {
+        .midpoint = (jawA + jawB) * 0.5,
+        .separation = norm(jawA - jawB),
+    };
+}
+
+double calibratedJawCoordinate(
+    const metalrobo::EngineModel& model,
+    const double needleRadius,
+    const double separationAdjustment,
+    const metalrobo::ArticulatedDynamicsConfig& config,
+    const std::span<const std::uint32_t> jawAShapes,
+    const std::span<const std::uint32_t> jawBShapes
+) {
+    const double railRadius =
+        model.shapes.at(jawAShapes.front()).dimensions.x;
+    const double desiredSeparation =
+        2.0 * (needleRadius + railRadius) + separationAdjustment;
+    std::vector<double> q(
+        model.defaultQ.begin(),
+        model.defaultQ.end()
+    );
+    const std::vector<double> v(model.world.nv, 0.0);
+    double best = 0.0;
+    double bestError = std::numeric_limits<double>::infinity();
+    for (std::uint32_t sample = 0u; sample <= 1600u; ++sample) {
+        const double coordinate =
+            0.12 * static_cast<double>(sample) / 1600.0;
+        q[6u] = -coordinate;
+        q[7u] = coordinate;
+        const double error = std::abs(
+            jawInsertGeometry(
+                model,
+                q,
+                v,
+                config,
+                jawAShapes,
+                jawBShapes
+            ).separation - desiredSeparation
+        );
+        if (error < bestError) {
+            bestError = error;
+            best = coordinate;
+        }
+    }
+    require(
+        best > 0.0 && best < 0.12 && bestError < 2.0e-5,
+        "PSM jaw could not be calibrated to the needle gauge"
+    );
+    return best;
+}
+
+double grooveDiametralClosure(
+    const metalrobo::EngineModel& model,
+    const double needleRadius,
+    const std::span<const std::uint32_t> jawAShapes
+) {
+    require(
+        jawAShapes.size() >= 2u,
+        "PSM insert groove needs two longitudinal rows"
+    );
+    const double railRadius =
+        model.shapes.at(jawAShapes.front()).dimensions.x;
+    const double railHalfSpacing = 0.5 * std::abs(
+        static_cast<double>(
+            model.shapes.at(jawAShapes[1u]).localPosition.z
+        ) - model.shapes.at(jawAShapes.front()).localPosition.z
+    );
+    const double contactRadius =
+        needleRadius + railRadius - kGrooveRailRadialPreload;
+    require(
+        contactRadius > railHalfSpacing,
+        "PSM insert groove cannot contain the needle gauge"
+    );
+    const double jawHalfSeparation = std::sqrt(
+        contactRadius * contactRadius -
+        railHalfSpacing * railHalfSpacing
+    );
+    return 2.0 * (
+        needleRadius + railRadius - jawHalfSeparation
+    );
+}
+
+bool containsShape(
+    const std::span<const std::uint32_t> shapes,
+    const std::uint32_t shape
+) {
+    return std::find(shapes.begin(), shapes.end(), shape) != shapes.end();
+}
+
+bool handlingZoneWitness(
+    const std::uint32_t minimumShape,
+    const std::uint32_t maximumShape,
+    const metalrobo::CurvedSutureNeedleMetadata& metadata
+) {
+    return
+        minimumShape != MR_INVALID_INDEX &&
+        maximumShape != MR_INVALID_INDEX &&
+        metadata.graspShapeBegin <= minimumShape &&
+        maximumShape < metadata.graspShapeEnd;
+}
+
+bool distributedInsertWitness(
+    const metalrobo::EngineModel& model,
+    const std::uint32_t minimumShape,
+    const std::uint32_t maximumShape,
+    const std::span<const std::uint32_t> insertShapes
+) {
+    return
+        minimumShape != MR_INVALID_INDEX &&
+        maximumShape != MR_INVALID_INDEX &&
+        minimumShape != maximumShape &&
+        containsShape(insertShapes, minimumShape) &&
+        containsShape(insertShapes, maximumShape) &&
+        norm(
+            vector(model.shapes.at(maximumShape).localPosition) -
+            vector(model.shapes.at(minimumShape).localPosition)
+        ) >= kDistributedContactSpan;
 }
 
 MRBodyStateGPU dynamicNeedleState(
     const metalrobo::CurvedSutureNeedleAsset& needle,
-    const Vec3 position
+    const Vec3 position,
+    const Quaternion orientation
 ) {
     MRBodyStateGPU result{};
     result.position = f4(position, 1.0);
-    result.orientation = f4(0.0, 0.0, 0.0, 1.0);
+    result.orientation = f4(
+        orientation.x,
+        orientation.y,
+        orientation.z,
+        orientation.w
+    );
     result.linearVelocityAndInverseMass = f4(
         0.0,
         0.0,
@@ -233,12 +399,49 @@ MRBodyStateGPU dynamicNeedleState(
         needle.rigid.body.massAndInverseMass.y
     );
     result.angularVelocity = f4(0.0, 0.0, 0.0);
+    const std::array axes{
+        rotate(orientation, Vec3{1.0, 0.0, 0.0}),
+        rotate(orientation, Vec3{0.0, 1.0, 0.0}),
+        rotate(orientation, Vec3{0.0, 0.0, 1.0}),
+    };
+    const auto component = [](const Vec3 value, const std::size_t axis) {
+        return axis == 0u ? value.x : axis == 1u ? value.y : value.z;
+    };
+    const auto& properties = needle.rigid.body;
+    const double body[3][3] = {
+        {properties.inverseInertiaRow0.x,
+         properties.inverseInertiaRow0.y,
+         properties.inverseInertiaRow0.z},
+        {properties.inverseInertiaRow1.x,
+         properties.inverseInertiaRow1.y,
+         properties.inverseInertiaRow1.z},
+        {properties.inverseInertiaRow2.x,
+         properties.inverseInertiaRow2.y,
+         properties.inverseInertiaRow2.z},
+    };
+    double world[3][3]{};
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        for (std::size_t column = 0u; column < 3u; ++column) {
+            for (std::size_t innerRow = 0u;
+                 innerRow < 3u;
+                 ++innerRow) {
+                for (std::size_t innerColumn = 0u;
+                     innerColumn < 3u;
+                     ++innerColumn) {
+                    world[row][column] +=
+                        component(axes[innerRow], row) *
+                        body[innerRow][innerColumn] *
+                        component(axes[innerColumn], column);
+                }
+            }
+        }
+    }
     result.inverseInertiaWorldRow0 =
-        needle.rigid.body.inverseInertiaRow0;
+        f4(world[0][0], world[0][1], world[0][2]);
     result.inverseInertiaWorldRow1 =
-        needle.rigid.body.inverseInertiaRow1;
+        f4(world[1][0], world[1][1], world[1][2]);
     result.inverseInertiaWorldRow2 =
-        needle.rigid.body.inverseInertiaRow2;
+        f4(world[2][0], world[2][1], world[2][2]);
     result.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
     result.flagsAndIndices[1] = MR_INVALID_INDEX;
     result.flagsAndIndices[2] = 41021u;
@@ -331,7 +534,7 @@ MRShapeGPU supportSphere(
 metalrobo::ArticulatedRigidWorldConfig worldConfig() {
     metalrobo::ArticulatedRigidWorldConfig config;
     config.dynamics.timestep = 5.0e-4;
-    config.dynamics.gravity = {0.0, 0.0, -9.81};
+    config.dynamics.gravity = {0.0, 0.0, 9.81};
     config.dynamics.integrator =
         metalrobo::ArticulatedIntegrator::symplecticEuler;
     config.rigidFreeMotion.integrator =
@@ -356,9 +559,10 @@ metalrobo::ArticulatedRigidWorldConfig worldConfig() {
     config.jointLimits.regularization = 1.0e-8;
     config.quality.maximumIterations = 4000u;
     config.quality.kktTolerance = 2.0e-5;
-    // Each cradle button owns a distinct static body. Two spatially diverse
-    // witnesses per jaw preserve both rows of the finite contact patch.
-    config.maximumContactsPerBodyPair = 2u;
+    // Each cradle button owns a distinct static body. Retain every finite
+    // LND insert patch so the curved needle's wrench support is not reduced
+    // to a point pinch as it crosses neighboring collision capsules.
+    config.maximumContactsPerBodyPair = 4u;
     config.grasp = {
         .enabled = true,
         .jawBodyA = 7u,
@@ -735,6 +939,7 @@ void writeStateArtifact(
     const double needleLift,
     const double jawTravel,
     const double followRatio,
+    const double graspSeatDrift,
     const double orientationDrift,
     const bool grasped,
     const std::uint64_t step
@@ -761,7 +966,7 @@ void writeStateArtifact(
         );
     }
     output << std::setprecision(17)
-           << "schema\tnumi.surgical-pickup-state.v1\n"
+           << "schema\tnumi.surgical-pickup-state.v2\n"
            << "model\t" << model.name << '\n'
            << "step\t" << step << '\n'
            << "q";
@@ -811,6 +1016,7 @@ void writeStateArtifact(
         << "needle_lift_m\t" << needleLift << '\n'
         << "jaw_travel_m\t" << jawTravel << '\n'
         << "follow_ratio\t" << followRatio << '\n'
+        << "jaw_needle_seat_drift_m\t" << graspSeatDrift << '\n'
         << "orientation_drift_rad\t" << orientationDrift << '\n'
         << "grasped\t" << (grasped ? 1 : 0) << '\n';
     output.close();
@@ -829,8 +1035,25 @@ int main(const int argumentCount, char* arguments[]) {
             argumentCount,
             arguments
         );
-        const metalrobo::EngineModel model =
+        metalrobo::EngineModel model =
             metalrobo::makeDvrkPsmLargeNeedleDriverEngineModel();
+        const auto& psmMetadata = metalrobo::surgicalPSMMetadata();
+        const auto& jawAShapes = psmMetadata.jawAInsertShapeIndices;
+        const auto& jawBShapes = psmMetadata.jawBInsertShapeIndices;
+        for (const std::uint32_t shape : jawAShapes) {
+            require(
+                shape < model.shapes.size() &&
+                    model.shapes[shape].bodyIndex == 7u,
+                "PSM jaw-A insert metadata is stale"
+            );
+        }
+        for (const std::uint32_t shape : jawBShapes) {
+            require(
+                shape < model.shapes.size() &&
+                    model.shapes[shape].bodyIndex == 8u,
+                "PSM jaw-B insert metadata is stale"
+            );
+        }
         const metalrobo::CurvedSutureNeedleAsset needle =
             metalrobo::makeCurvedSutureNeedleAsset({
                 .bodyIndex = 0u,
@@ -839,10 +1062,35 @@ int main(const int argumentCount, char* arguments[]) {
                 .collisionGroup = 1u,
                 .collisionMask = ~1u,
                 .motionType = MR_MOTION_DYNAMIC,
-            });
+            }, metalrobo::makeBowelAnastomosisNeedleSpec());
+        metalrobo::calibrateSurgicalNeedleInsertMaterial(
+            model.materials.at(1u),
+            needle.rigid.material
+        );
+        const double effectiveInsertStaticFriction = std::sqrt(
+            static_cast<double>(model.materials[1u].friction.x) *
+            needle.rigid.material.friction.x
+        );
+        const double effectiveInsertDynamicFriction = std::sqrt(
+            static_cast<double>(model.materials[1u].friction.y) *
+            needle.rigid.material.friction.y
+        );
         require(
-            needle.metadata.graspShapeBegin <= 17u &&
-                17u < needle.metadata.graspShapeEnd,
+            std::abs(
+                effectiveInsertStaticFriction -
+                psmMetadata.targetNeedleInsertStaticFriction
+            ) < 1.0e-6 &&
+                std::abs(
+                    effectiveInsertDynamicFriction -
+                    psmMetadata.targetNeedleInsertDynamicFriction
+                ) < 1.0e-6,
+            "single-PSM needle/insert pair calibration drifted"
+        );
+        const std::uint32_t graspShapeIndex =
+            needle.metadata.graspShapeBegin + 1u;
+        require(
+            graspShapeIndex >= needle.metadata.graspShapeBegin &&
+                graspShapeIndex < needle.metadata.graspShapeEnd,
             "canonical grasp shape left the authored grasp zone"
         );
         for (const std::uint32_t shape : kSupportNeedleShapes) {
@@ -858,24 +1106,88 @@ int main(const int argumentCount, char* arguments[]) {
             "three-site cradle does not contain the needle COM"
         );
 
-        metalrobo::ArticulatedRigidWorldConfig config =
-            worldConfig();
+        metalrobo::ArticulatedRigidWorldConfig config = worldConfig();
+        const double graspDiametralClosure = grooveDiametralClosure(
+            model,
+            needle.spec.crossSectionRadiusM.value,
+            jawAShapes
+        );
+        const double pickupJawCoordinate = calibratedJawCoordinate(
+            model,
+            needle.spec.crossSectionRadiusM.value,
+            -graspDiametralClosure,
+            config.dynamics,
+            jawAShapes,
+            jawBShapes
+        );
+        const double openJawCoordinate = calibratedJawCoordinate(
+            model,
+            needle.spec.crossSectionRadiusM.value,
+            kOpenDiametralClearance,
+            config.dynamics,
+            jawAShapes,
+            jawBShapes
+        );
+        const double estimatedPatchNormalForce =
+            kGrooveRailRadialPreload /
+            psmMetadata.insertSystemNormalComplianceMPerN;
+        const double estimatedJawInsertMoment =
+            static_cast<double>(jawAShapes.size()) *
+            estimatedPatchNormalForce *
+            psmMetadata.largeNeedleDriverJawLength;
+        const double availableJawMoment = std::min(
+            static_cast<double>(model.dofs[6u].limits.w),
+            0.1
+        );
+        require(
+            openJawCoordinate > pickupJawCoordinate &&
+                estimatedPatchNormalForce > 0.0 &&
+                estimatedJawInsertMoment > 0.0 &&
+                estimatedJawInsertMoment < availableJawMoment,
+            "gauge-calibrated LND grasp exceeds its authored envelope"
+        );
         std::vector<double> placementQ(
             model.defaultQ.begin(),
             model.defaultQ.end()
         );
         std::vector<double> zeroV(model.world.nv, 0.0);
-        placementQ[6u] = -kPickupJawCoordinate;
-        placementQ[7u] = kPickupJawCoordinate;
+        placementQ[6u] = -pickupJawCoordinate;
+        placementQ[7u] = pickupJawCoordinate;
         const Vec3 pickupMidpoint =
-            jawMidpoint(model, placementQ, zeroV, config.dynamics);
-        const std::uint32_t graspShapeIndex = 17u;
+            jawInsertGeometry(
+                model,
+                placementQ,
+                zeroV,
+                config.dynamics,
+                jawAShapes,
+                jawBShapes
+            ).midpoint;
+        std::vector<double> insertionSampleQ = placementQ;
+        constexpr double insertionSampleDistance = 1.0e-4;
+        insertionSampleQ[2u] += insertionSampleDistance;
+        const Vec3 insertionDirection = (
+            jawInsertGeometry(
+                model,
+                insertionSampleQ,
+                zeroV,
+                config.dynamics,
+                jawAShapes,
+                jawBShapes
+            ).midpoint - pickupMidpoint
+        ) * (1.0 / insertionSampleDistance);
         const Vec3 graspOffset =
             vector(needle.rigid.shapes[
                 graspShapeIndex
             ].localPosition);
+        const Quaternion needleInitialOrientation = rotationZ(
+            -needleShapeAngle(needle.spec, graspShapeIndex)
+        );
+        const Vec3 worldGraspOffset = rotate(
+            needleInitialOrientation,
+            graspOffset
+        );
         const double horizontalGraspOffset =
-            std::hypot(graspOffset.x, graspOffset.y);
+            std::hypot(worldGraspOffset.x, worldGraspOffset.y);
         require(
             horizontalGraspOffset > 2.5e-3,
             "selected needle grasp is not materially off COM"
@@ -884,7 +1196,7 @@ int main(const int argumentCount, char* arguments[]) {
             needle.rigid.massKg * 9.81 * horizontalGraspOffset;
         const Vec3 needlePosition =
             pickupMidpoint -
-            graspOffset;
+            worldGraspOffset;
 
         std::vector<MRBodyPropertiesGPU> rigidProperties;
         rigidProperties.reserve(1u + kSupportButtonCount);
@@ -898,7 +1210,11 @@ int main(const int argumentCount, char* arguments[]) {
         std::vector<MRBodyStateGPU> rigidBodies;
         rigidBodies.reserve(1u + kSupportButtonCount);
         rigidBodies.push_back(
-            dynamicNeedleState(needle, needlePosition)
+            dynamicNeedleState(
+                needle,
+                needlePosition,
+                needleInitialOrientation
+            )
         );
         for (std::size_t support = 0u;
              support < kSupportButtonCount;
@@ -928,7 +1244,10 @@ int main(const int argumentCount, char* arguments[]) {
                 ];
             const Vec3 supportedCenter =
                 needlePosition +
-                vector(supportedNeedleShape.localPosition);
+                rotate(
+                    needleInitialOrientation,
+                    vector(supportedNeedleShape.localPosition)
+                );
             const double contactDistance =
                 static_cast<double>(
                     supportedNeedleShape.dimensions.x
@@ -940,8 +1259,10 @@ int main(const int argumentCount, char* arguments[]) {
                 ) +
                 2.0e-5 -
                 kInitialSupportPenetration;
-            const Vec3 localCenter =
-                vector(supportedNeedleShape.localPosition);
+            const Vec3 localCenter = rotate(
+                needleInitialOrientation,
+                vector(supportedNeedleShape.localPosition)
+            );
             const Vec3 radial{localCenter.x, localCenter.y, 0.0};
             const double radialLength = norm(radial);
             require(
@@ -959,8 +1280,8 @@ int main(const int argumentCount, char* arguments[]) {
                 1u + static_cast<std::uint32_t>(support),
                 520210u + static_cast<std::uint32_t>(support),
                 supportedCenter +
-                    outward * (side * kSupportRadialOffset) -
-                    Vec3{0.0, 0.0, verticalDistance}
+                    outward * (side * kSupportRadialOffset) +
+                    kTaskDown * verticalDistance
             ));
         }
 
@@ -982,7 +1303,7 @@ int main(const int argumentCount, char* arguments[]) {
                 kThreadLength,
                 threadMaterial
             );
-        threadModel.name = "gs21_pickup_suture_thread";
+        threadModel.name = "pdsii_3_0_bowel_pickup_suture_thread";
         threadModel.fidelityBoundary =
             "research DER material; geometry-owned swage; "
             "not package-calibrated or clinical";
@@ -1010,7 +1331,7 @@ int main(const int argumentCount, char* arguments[]) {
             metalrobo::makeDiscreteElasticRodDefaultState(threadModel);
         metalrobo::DiscreteElasticRodStepConfig threadConfig;
         threadConfig.timestep = config.dynamics.timestep;
-        threadConfig.gravity = {0.0, 0.0, -9.81};
+        threadConfig.gravity = {0.0, 0.0, 9.81};
         threadConfig.solverIterations = 256u;
         threadConfig.constraintTolerance = 1.0e-4;
         threadConfig.linearDamping = 8.0;
@@ -1023,8 +1344,41 @@ int main(const int argumentCount, char* arguments[]) {
         const double initialInsertion =
             pickupInsertion - kApproachDistance;
         q[2u] = initialInsertion;
-        q[6u] = -kOpenJawCoordinate;
-        q[7u] = kOpenJawCoordinate;
+        q[6u] = -openJawCoordinate;
+        q[7u] = openJawCoordinate;
+
+        metalrobo::PersistentManifoldCache initialCollisionCache;
+        metalrobo::ArticulatedRigidCollisionConfig initialCollisionConfig =
+            config.collision;
+        initialCollisionConfig.dynamics = config.dynamics;
+        initialCollisionConfig.contact.contact.timestep =
+            config.dynamics.timestep;
+        const auto initialCollision =
+            metalrobo::collideArticulatedRigidIslandContactsCpu(
+                model,
+                0u,
+                q,
+                v,
+                rigidShapes,
+                rigidMaterials,
+                rigidBodies,
+                initialCollisionCache,
+                initialCollisionConfig
+            );
+        require(
+            initialCollision.succeeded(),
+            "initial pickup collision query failed"
+        );
+        double initialDeepestSeparation =
+            std::numeric_limits<double>::infinity();
+        metalrobo::ArticulatedRigidIslandContactMetadata
+            initialDeepestContact{};
+        for (const auto& contact : initialCollision.metadata) {
+            if (contact.effectiveSeparation < initialDeepestSeparation) {
+                initialDeepestSeparation = contact.effectiveSeparation;
+                initialDeepestContact = contact;
+            }
+        }
 
         const Vec3 initialNeedlePosition =
             vector(rigidBodies[0u].position);
@@ -1032,14 +1386,14 @@ int main(const int argumentCount, char* arguments[]) {
         std::uint32_t maximumSupportContacts = 0u;
         std::uint32_t settleSupportFrames = 0u;
         std::uint32_t qualifiedFrames = 0u;
-        std::uint32_t qualifiedTargetShapeFrames = 0u;
+        std::uint32_t qualifiedHandlingZoneFrames = 0u;
         std::uint32_t distributedPatchFrames = 0u;
         std::uint32_t distributedPatchLiftFrames = 0u;
         std::uint32_t distributedPatchLiftRun = 0u;
         std::uint32_t maximumDistributedPatchLiftRun = 0u;
         std::uint32_t graspedFrames = 0u;
         std::uint32_t graspedLiftFrames = 0u;
-        std::uint32_t targetShapeLiftFrames = 0u;
+        std::uint32_t handlingZoneLiftFrames = 0u;
         std::uint32_t graspedLiftRun = 0u;
         std::uint32_t maximumGraspedLiftRun = 0u;
         bool finalLiftGrasped = false;
@@ -1063,11 +1417,24 @@ int main(const int argumentCount, char* arguments[]) {
         std::uint32_t maximumJawBContactCount = 0u;
         std::uint32_t minimumLiftJawAContactCount = 0u;
         std::uint32_t minimumLiftJawBContactCount = 0u;
+        std::uint32_t lastJawAMinimumSceneShape = MR_INVALID_INDEX;
+        std::uint32_t lastJawAMaximumSceneShape = MR_INVALID_INDEX;
+        std::uint32_t lastJawBMinimumSceneShape = MR_INVALID_INDEX;
+        std::uint32_t lastJawBMaximumSceneShape = MR_INVALID_INDEX;
+        std::uint32_t lastJawAMinimumArticulatedShape = MR_INVALID_INDEX;
+        std::uint32_t lastJawAMaximumArticulatedShape = MR_INVALID_INDEX;
+        std::uint32_t lastJawBMinimumArticulatedShape = MR_INVALID_INDEX;
+        std::uint32_t lastJawBMaximumArticulatedShape = MR_INVALID_INDEX;
         bool observedLiftGraspEvidence = false;
         double maximumNormalImpulse = 0.0;
         double settleMaximumNormalImpulse = 0.0;
         double maximumKkt = 0.0;
         double maximumPenetration = 0.0;
+        Phase maximumPenetrationPhase = Phase::settle;
+        std::uint32_t maximumPenetrationLocalStep = 0u;
+        std::uint32_t maximumPenetrationArticulatedDynamic = 0u;
+        std::uint32_t maximumPenetrationArticulatedPrescribed = 0u;
+        std::uint32_t maximumPenetrationDynamicPrescribed = 0u;
         double maximumGraspSlip = 0.0;
         double maximumJawAContactSpan = 0.0;
         double maximumJawBContactSpan = 0.0;
@@ -1097,20 +1464,20 @@ int main(const int argumentCount, char* arguments[]) {
                 std::vector<double> targets = placementQ;
                 if (phase == Phase::settle) {
                     targets[2u] = initialInsertion;
-                    targets[6u] = -kOpenJawCoordinate;
-                    targets[7u] = kOpenJawCoordinate;
+                    targets[6u] = -openJawCoordinate;
+                    targets[7u] = openJawCoordinate;
                 } else if (phase == Phase::approach) {
                     targets[2u] = lerp(
                         initialInsertion,
                         pickupInsertion,
                         fraction
                     );
-                    targets[6u] = -kOpenJawCoordinate;
-                    targets[7u] = kOpenJawCoordinate;
+                    targets[6u] = -openJawCoordinate;
+                    targets[7u] = openJawCoordinate;
                 } else if (phase == Phase::close) {
                     const double jaw = lerp(
-                        kOpenJawCoordinate,
-                        0.0,
+                        openJawCoordinate,
+                        pickupJawCoordinate,
                         fraction
                     );
                     targets[2u] = pickupInsertion;
@@ -1118,16 +1485,18 @@ int main(const int argumentCount, char* arguments[]) {
                     targets[7u] = jaw;
                 } else if (phase == Phase::dwell) {
                     targets[2u] = pickupInsertion;
-                    targets[6u] = 0.0;
-                    targets[7u] = 0.0;
+                    targets[6u] = -pickupJawCoordinate;
+                    targets[7u] = pickupJawCoordinate;
                 } else {
+                    // Positive insertion points down in the fixed-root task
+                    // frame. Withdrawal retraces the downward approach.
                     targets[2u] = lerp(
                         pickupInsertion,
-                        pickupInsertion + kLiftDistance,
+                        pickupInsertion - kLiftDistance,
                         fraction
                     );
-                    targets[6u] = 0.0;
-                    targets[7u] = 0.0;
+                    targets[6u] = -pickupJawCoordinate;
+                    targets[7u] = pickupJawCoordinate;
                 }
 
                 const std::vector<double> force = controllerForce(
@@ -1370,23 +1739,32 @@ int main(const int argumentCount, char* arguments[]) {
                     diagnostics.coupledSolve.quality.
                         scaledKktCertificate
                 );
-                maximumPenetration = std::max(
-                    maximumPenetration,
-                    diagnostics.maximumPenetration
-                );
+                if (diagnostics.maximumPenetration > maximumPenetration) {
+                    maximumPenetration = diagnostics.maximumPenetration;
+                    maximumPenetrationPhase = phase;
+                    maximumPenetrationLocalStep = localStep;
+                    maximumPenetrationArticulatedDynamic =
+                        diagnostics.articulatedDynamicContactCount;
+                    maximumPenetrationArticulatedPrescribed =
+                        diagnostics.articulatedPrescribedContactCount;
+                    maximumPenetrationDynamicPrescribed =
+                        diagnostics.dynamicPrescribedContactCount;
+                }
 
                 const auto* grasp =
                     needleGraspEvidence(diagnostics);
                 if (grasp != nullptr) {
-                    const bool targetShapeOnly =
-                        grasp->jawAMinimumSceneShape ==
-                            graspShapeIndex &&
-                        grasp->jawAMaximumSceneShape ==
-                            graspShapeIndex &&
-                        grasp->jawBMinimumSceneShape ==
-                            graspShapeIndex &&
-                        grasp->jawBMaximumSceneShape ==
-                            graspShapeIndex;
+                    const bool handlingZoneOnly =
+                        handlingZoneWitness(
+                            grasp->jawAMinimumSceneShape,
+                            grasp->jawAMaximumSceneShape,
+                            needle.metadata
+                        ) &&
+                        handlingZoneWitness(
+                            grasp->jawBMinimumSceneShape,
+                            grasp->jawBMaximumSceneShape,
+                            needle.metadata
+                        );
                     const bool distributedPatch =
                         grasp->qualifiedThisStep &&
                         grasp->jawAContactCount >=
@@ -1397,14 +1775,18 @@ int main(const int argumentCount, char* arguments[]) {
                             kDistributedContactSpan &&
                         grasp->jawBContactSpan >=
                             kDistributedContactSpan &&
-                        grasp->jawAMinimumArticulatedShape ==
-                            kJawAToothShapes.front() &&
-                        grasp->jawAMaximumArticulatedShape ==
-                            kJawAToothShapes.back() &&
-                        grasp->jawBMinimumArticulatedShape ==
-                            kJawBToothShapes.front() &&
-                        grasp->jawBMaximumArticulatedShape ==
-                            kJawBToothShapes.back();
+                        distributedInsertWitness(
+                            model,
+                            grasp->jawAMinimumArticulatedShape,
+                            grasp->jawAMaximumArticulatedShape,
+                            jawAShapes
+                        ) &&
+                        distributedInsertWitness(
+                            model,
+                            grasp->jawBMinimumArticulatedShape,
+                            grasp->jawBMaximumArticulatedShape,
+                            jawBShapes
+                        );
                     maximumJawAContactCount = std::max(
                         maximumJawAContactCount,
                         grasp->jawAContactCount
@@ -1456,9 +1838,25 @@ int main(const int argumentCount, char* arguments[]) {
                         grasp->maximumTangentialSlipSpeed
                     );
                     if (grasp->qualifiedThisStep) {
+                        lastJawAMinimumSceneShape =
+                            grasp->jawAMinimumSceneShape;
+                        lastJawAMaximumSceneShape =
+                            grasp->jawAMaximumSceneShape;
+                        lastJawBMinimumSceneShape =
+                            grasp->jawBMinimumSceneShape;
+                        lastJawBMaximumSceneShape =
+                            grasp->jawBMaximumSceneShape;
+                        lastJawAMinimumArticulatedShape =
+                            grasp->jawAMinimumArticulatedShape;
+                        lastJawAMaximumArticulatedShape =
+                            grasp->jawAMaximumArticulatedShape;
+                        lastJawBMinimumArticulatedShape =
+                            grasp->jawBMinimumArticulatedShape;
+                        lastJawBMaximumArticulatedShape =
+                            grasp->jawBMaximumArticulatedShape;
                         ++qualifiedFrames;
-                        if (targetShapeOnly) {
-                            ++qualifiedTargetShapeFrames;
+                        if (handlingZoneOnly) {
+                            ++qualifiedHandlingZoneFrames;
                         }
                         if (phase == Phase::settle ||
                             phase == Phase::approach) {
@@ -1483,8 +1881,8 @@ int main(const int argumentCount, char* arguments[]) {
                         ++graspedFrames;
                         if (phase == Phase::lift) {
                             ++graspedLiftFrames;
-                            if (targetShapeOnly) {
-                                ++targetShapeLiftFrames;
+                            if (handlingZoneOnly) {
+                                ++handlingZoneLiftFrames;
                             }
                         }
                     }
@@ -1611,16 +2009,34 @@ int main(const int argumentCount, char* arguments[]) {
         );
         const double liftStartGravitationalMoment = norm(cross(
             liftStartWorldGraspOffset,
-            Vec3{0.0, 0.0, -needle.rigid.massKg * 9.81}
+            kTaskDown * (needle.rigid.massKg * 9.81)
         ));
         const Vec3 liftStartJawMidpoint =
-            jawMidpoint(model, q, v, config.dynamics);
+            jawInsertGeometry(
+                model,
+                q,
+                v,
+                config.dynamics,
+                jawAShapes,
+                jawBShapes
+            ).midpoint;
+        const Vec3 liftStartNeedleGraspPoint =
+            liftStartNeedlePosition + rotate(
+                liftStartNeedleOrientation,
+                graspOffset
+            );
+        const Vec3 liftStartSeatOffsetInNeedle = rotate(
+            conjugate(liftStartNeedleOrientation),
+            liftStartJawMidpoint - liftStartNeedleGraspPoint
+        );
         require(
             supportsAtLiftStart > 0u &&
-                liftStartGravitationalMoment > 6.0e-6 &&
+                nominalGravitationalMoment > 1.0e-6 &&
+                liftStartGravitationalMoment >=
+                    0.5 * nominalGravitationalMoment &&
                 qualifiedFrames >=
                     config.grasp.requiredConsecutiveSteps &&
-                qualifiedTargetShapeFrames >=
+                qualifiedHandlingZoneFrames >=
                     config.grasp.requiredConsecutiveSteps &&
                 distributedPatchFrames >=
                     config.grasp.requiredConsecutiveSteps &&
@@ -1630,8 +2046,8 @@ int main(const int argumentCount, char* arguments[]) {
                 std::to_string(supportsAtLiftStart) +
                 " qualified_frames=" +
                 std::to_string(qualifiedFrames) +
-                " target_shape_frames=" +
-                std::to_string(qualifiedTargetShapeFrames) +
+                " handling_zone_frames=" +
+                std::to_string(qualifiedHandlingZoneFrames) +
                 " distributed_frames=" +
                 std::to_string(distributedPatchFrames) +
                 " gravity_moment=" +
@@ -1650,6 +2066,18 @@ int main(const int argumentCount, char* arguments[]) {
                 std::to_string(maximumJawAContactSpan) +
                 " jaw_b_span=" +
                 std::to_string(maximumJawBContactSpan) +
+                " scene_shapes_a=" +
+                std::to_string(lastJawAMinimumSceneShape) + "," +
+                std::to_string(lastJawAMaximumSceneShape) +
+                " scene_shapes_b=" +
+                std::to_string(lastJawBMinimumSceneShape) + "," +
+                std::to_string(lastJawBMaximumSceneShape) +
+                " insert_shapes_a=" +
+                std::to_string(lastJawAMinimumArticulatedShape) + "," +
+                std::to_string(lastJawAMaximumArticulatedShape) +
+                " insert_shapes_b=" +
+                std::to_string(lastJawBMinimumArticulatedShape) + "," +
+                std::to_string(lastJawBMaximumArticulatedShape) +
                 " slip=" + std::to_string(maximumGraspSlip) +
                 " robot_fixture_max=" +
                 std::to_string(
@@ -1661,11 +2089,34 @@ int main(const int argumentCount, char* arguments[]) {
         const Vec3 finalNeedlePosition =
             vector(rigidBodies[0u].position);
         const Vec3 finalJawMidpoint =
-            jawMidpoint(model, q, v, config.dynamics);
+            jawInsertGeometry(
+                model,
+                q,
+                v,
+                config.dynamics,
+                jawAShapes,
+                jawBShapes
+            ).midpoint;
+        const Quaternion finalOrientation =
+            quaternion(rigidBodies[0u].orientation);
+        const Vec3 finalNeedleGraspPoint =
+            finalNeedlePosition + rotate(
+                finalOrientation,
+                graspOffset
+            );
+        const Vec3 finalSeatOffsetInNeedle = rotate(
+            conjugate(finalOrientation),
+            finalJawMidpoint - finalNeedleGraspPoint
+        );
+        const double graspSeatDrift = norm(
+            finalSeatOffsetInNeedle - liftStartSeatOffsetInNeedle
+        );
         const Vec3 needleLift =
             finalNeedlePosition - liftStartNeedlePosition;
         const Vec3 jawLift =
             finalJawMidpoint - liftStartJawMidpoint;
+        const Vec3 taskUp = kTaskDown * -1.0;
+        const double needleLiftDistance = dot(needleLift, taskUp);
         const double jawTravel = norm(jawLift);
         const double needleAlongJaw =
             jawTravel > 0.0
@@ -1684,8 +2135,6 @@ int main(const int argumentCount, char* arguments[]) {
                 rigidBodies,
                 needle.rigid.shapes.size()
             );
-        const Quaternion finalOrientation =
-            quaternion(rigidBodies[0u].orientation);
         const double acquisitionOrientationDrift =
             2.0 * std::acos(std::clamp(
                 std::abs(liftStartNeedleOrientation.w),
@@ -1716,7 +2165,61 @@ int main(const int argumentCount, char* arguments[]) {
             maximumNormalImpulse > 0.0 &&
                 maximumKkt < 2.2e-5 &&
                 maximumPenetration < 5.0e-4,
-            "pickup contact solve failed its impulse/KKT/penetration gate"
+            "pickup contact solve failed its impulse/KKT/penetration gate: "
+            "normal_impulse=" + std::to_string(maximumNormalImpulse) +
+                " kkt=" + std::to_string(maximumKkt) +
+                " penetration=" + std::to_string(maximumPenetration) +
+                " phase=" + std::to_string(
+                    static_cast<std::uint32_t>(maximumPenetrationPhase)
+                ) +
+                " local_step=" +
+                std::to_string(maximumPenetrationLocalStep) +
+                " art_dynamic=" +
+                std::to_string(maximumPenetrationArticulatedDynamic) +
+                " art_prescribed=" +
+                std::to_string(maximumPenetrationArticulatedPrescribed) +
+                " dynamic_prescribed=" +
+                std::to_string(maximumPenetrationDynamicPrescribed) +
+                " initial_deepest=" +
+                std::to_string(initialDeepestSeparation) +
+                " initial_pair_class=" + std::to_string(
+                    static_cast<std::uint32_t>(
+                        initialDeepestContact.pairClass
+                    )
+                ) +
+                " initial_shape_a=" +
+                std::to_string(
+                    initialDeepestContact.key.endpointA.shapeIndex
+                ) +
+                " initial_body_a=" +
+                std::to_string(
+                    initialDeepestContact.key.endpointA.bodyIndex
+                ) +
+                " initial_shape_b=" +
+                std::to_string(
+                    initialDeepestContact.key.endpointB.shapeIndex
+                ) +
+                " initial_body_b=" +
+                std::to_string(
+                    initialDeepestContact.key.endpointB.bodyIndex
+                ) +
+                " needle_lift=" +
+                std::to_string(needleLiftDistance) +
+                " jaw_travel=" + std::to_string(jawTravel) +
+                " follow_ratio=" + std::to_string(followRatio) +
+                " seat_drift=" + std::to_string(graspSeatDrift) +
+                " orientation=" +
+                std::to_string(orientationDrift) +
+                " final_clearance=" +
+                std::to_string(finalClearance) +
+                " final_support_contacts=" +
+                std::to_string(finalSupportContacts) +
+                " final_grasp=" +
+                std::to_string(finalLiftGrasped) +
+                " distributed_lift_frames=" +
+                std::to_string(distributedPatchLiftFrames) +
+                " handling_zone_lift_frames=" +
+                std::to_string(handlingZoneLiftFrames)
         );
         require(
             maximumArticulatedPrescribedContacts == 0u &&
@@ -1731,12 +2234,56 @@ int main(const int argumentCount, char* arguments[]) {
                 " contacts=" + std::to_string(finalSupportContacts) +
                 " free_run=" +
                 std::to_string(maximumSupportFreeRun) +
-                " clearance=" + std::to_string(finalClearance)
+                " clearance=" + std::to_string(finalClearance) +
+                " needle_lift=" +
+                std::to_string(needleLiftDistance) +
+                " jaw_travel=" + std::to_string(jawTravel) +
+                " follow_ratio=" + std::to_string(followRatio) +
+                " final_grasp=" +
+                std::to_string(finalLiftGrasped) +
+                " grasped_lift_frames=" +
+                std::to_string(graspedLiftFrames) +
+                " grasped_lift_run=" +
+                std::to_string(maximumGraspedLiftRun) +
+                " handling_zone_lift_frames=" +
+                std::to_string(handlingZoneLiftFrames) +
+                " distributed_lift_frames=" +
+                std::to_string(distributedPatchLiftFrames) +
+                " orientation=" +
+                std::to_string(orientationDrift) +
+                " insertion_axis=" +
+                std::to_string(insertionDirection.x) + "," +
+                std::to_string(insertionDirection.y) + "," +
+                std::to_string(insertionDirection.z) +
+                " q2=" + std::to_string(q[2u]) +
+                " q6=" + std::to_string(q[6u]) +
+                " q7=" + std::to_string(q[7u]) +
+                " target_q2=" + std::to_string(
+                    pickupInsertion - kLiftDistance
+                ) +
+                " target_jaw=" +
+                std::to_string(pickupJawCoordinate) +
+                " grasp_slip_max=" +
+                std::to_string(maximumGraspSlip) +
+                " thread_reaction_max=" +
+                std::to_string(maximumThreadReaction) +
+                " scene_shapes_a=" +
+                std::to_string(lastJawAMinimumSceneShape) + "," +
+                std::to_string(lastJawAMaximumSceneShape) +
+                " scene_shapes_b=" +
+                std::to_string(lastJawBMinimumSceneShape) + "," +
+                std::to_string(lastJawBMaximumSceneShape) +
+                " insert_shapes_a=" +
+                std::to_string(lastJawAMinimumArticulatedShape) + "," +
+                std::to_string(lastJawAMaximumArticulatedShape) +
+                " insert_shapes_b=" +
+                std::to_string(lastJawBMinimumArticulatedShape) + "," +
+                std::to_string(lastJawBMaximumArticulatedShape)
         );
         require(
             finalLiftGrasped &&
                 graspedLiftFrames == liftSteps &&
-                targetShapeLiftFrames == liftSteps &&
+                handlingZoneLiftFrames == liftSteps &&
                 distributedPatchLiftFrames >=
                     9u * liftSteps / 10u &&
                 maximumDistributedPatchLiftRun >=
@@ -1751,18 +2298,18 @@ int main(const int argumentCount, char* arguments[]) {
                     config.grasp.minimumContactSpanPerJaw &&
                 minimumLiftJawBContactSpan >=
                     config.grasp.minimumContactSpanPerJaw &&
-                needleLift.z > 7.0e-3 &&
+                needleLiftDistance > 7.0e-3 &&
                 jawTravel > 7.0e-3 &&
                 needleAlongJaw > 7.0e-3 &&
-                followRatio > 0.9 &&
+                graspSeatDrift < 1.0e-4 &&
                 orientationDrift < 0.35,
             "needle did not remain grasped while following the lift: "
             "grasped_lift_frames=" +
                 std::to_string(graspedLiftFrames) +
                 " grasped_lift_run=" +
                 std::to_string(maximumGraspedLiftRun) +
-                " target_shape_lift_frames=" +
-                std::to_string(targetShapeLiftFrames) +
+                " handling_zone_lift_frames=" +
+                std::to_string(handlingZoneLiftFrames) +
                 " distributed_lift_frames=" +
                 std::to_string(distributedPatchLiftFrames) +
                 " distributed_lift_run=" +
@@ -1777,12 +2324,41 @@ int main(const int argumentCount, char* arguments[]) {
                 std::to_string(minimumLiftJawAContactSpan) +
                 " jaw_b_span_min=" +
                 std::to_string(minimumLiftJawBContactSpan) +
-                " dz=" + std::to_string(needleLift.z) +
+                " lift=" + std::to_string(needleLiftDistance) +
                 " jaw_travel=" + std::to_string(jawTravel) +
                 " along=" + std::to_string(needleAlongJaw) +
                 " follow_ratio=" + std::to_string(followRatio) +
+                " seat_drift=" + std::to_string(graspSeatDrift) +
                 " orientation=" +
-                std::to_string(orientationDrift)
+                std::to_string(orientationDrift) +
+                " insertion_axis=" +
+                std::to_string(insertionDirection.x) + "," +
+                std::to_string(insertionDirection.y) + "," +
+                std::to_string(insertionDirection.z) +
+                " q2=" + std::to_string(q[2u]) +
+                " q6=" + std::to_string(q[6u]) +
+                " q7=" + std::to_string(q[7u]) +
+                " target_q2=" + std::to_string(
+                    pickupInsertion - kLiftDistance
+                ) +
+                " target_jaw=" +
+                std::to_string(pickupJawCoordinate) +
+                " grasp_slip_max=" +
+                std::to_string(maximumGraspSlip) +
+                " thread_reaction_max=" +
+                std::to_string(maximumThreadReaction) +
+                " scene_shapes_a=" +
+                std::to_string(lastJawAMinimumSceneShape) + "," +
+                std::to_string(lastJawAMaximumSceneShape) +
+                " scene_shapes_b=" +
+                std::to_string(lastJawBMinimumSceneShape) + "," +
+                std::to_string(lastJawBMaximumSceneShape) +
+                " insert_shapes_a=" +
+                std::to_string(lastJawAMinimumArticulatedShape) + "," +
+                std::to_string(lastJawAMaximumArticulatedShape) +
+                " insert_shapes_b=" +
+                std::to_string(lastJawBMinimumArticulatedShape) + "," +
+                std::to_string(lastJawBMaximumArticulatedShape)
         );
 
         const Vec3 finalSwage = bodyPointPosition(
@@ -1796,21 +2372,29 @@ int main(const int argumentCount, char* arguments[]) {
             threadState.positions.back()
         );
         const Vec3 threadRootLift = finalThreadRoot - initialSwage;
+        const double threadRootLiftDistance = dot(
+            threadRootLift,
+            taskUp
+        );
         const double finalThreadAttachmentError = norm(
             finalThreadRoot - finalSwage
         );
         const double finalThreadSpan = norm(
             finalThreadTail - finalThreadRoot
         );
-        const double finalThreadSag =
-            finalThreadRoot.z - finalThreadTail.z;
+        const double finalThreadSag = dot(
+            finalThreadTail - finalThreadRoot,
+            kTaskDown
+        );
         require(
             maximumThreadReaction > 0.0 &&
                 std::isfinite(maximumThreadEnergy) &&
                 maximumThreadEnergy > 0.0 &&
                 maximumThreadAttachmentError < 2.0e-4 &&
                 finalThreadAttachmentError < 2.0e-4 &&
-                threadRootLift.z > 7.0e-3 &&
+                threadRootLiftDistance > 5.0e-3 &&
+                threadRootLiftDistance >
+                    0.7 * needleLiftDistance &&
                 finalThreadSpan > 0.12 &&
                 finalThreadSag > 1.0e-3,
             "suture did not remain physically swaged during pickup: "
@@ -1820,7 +2404,8 @@ int main(const int argumentCount, char* arguments[]) {
                 std::to_string(maximumThreadAttachmentError) +
                 " attachment_final=" +
                 std::to_string(finalThreadAttachmentError) +
-                " root_lift=" + std::to_string(threadRootLift.z) +
+                " root_lift=" +
+                std::to_string(threadRootLiftDistance) +
                 " span=" + std::to_string(finalThreadSpan) +
                 " sag=" + std::to_string(finalThreadSag)
         );
@@ -1947,9 +2532,10 @@ int main(const int argumentCount, char* arguments[]) {
             v,
             threadModel,
             threadState,
-            needleLift.z,
+            needleLiftDistance,
             jawTravel,
             followRatio,
+            graspSeatDrift,
             orientationDrift,
             finalLiftGrasped,
             cache.step
@@ -1964,6 +2550,21 @@ int main(const int argumentCount, char* arguments[]) {
             << " support_triangle_margin=" << triangleMargin
             << " grasp_offset_mm="
             << horizontalGraspOffset * 1000.0
+            << " task_down=[" << kTaskDown.x << ',' << kTaskDown.y
+            << ',' << kTaskDown.z << ']'
+            << " groove_radial_preload_um="
+            << kGrooveRailRadialPreload * 1.0e6
+            << " estimated_patch_normal_force_n="
+            << estimatedPatchNormalForce
+            << " estimated_jaw_insert_moment_nm="
+            << estimatedJawInsertMoment
+            << " available_jaw_moment_nm=" << availableJawMoment
+            << " effective_insert_static_friction="
+            << effectiveInsertStaticFriction
+            << " effective_insert_dynamic_friction="
+            << effectiveInsertDynamicFriction
+            << " open_jaw_coordinate=" << openJawCoordinate
+            << " pickup_jaw_coordinate=" << pickupJawCoordinate
             << " gravity_moment_unm="
             << liftStartGravitationalMoment * 1.0e6
             << " nominal_gravity_moment_unm="
@@ -1994,16 +2595,16 @@ int main(const int argumentCount, char* arguments[]) {
             << maximumSolverBacktracks
             << " normal_impulse_max=" << maximumNormalImpulse
             << " qualified_frames=" << qualifiedFrames
-            << " qualified_target_shape_frames="
-            << qualifiedTargetShapeFrames
+            << " qualified_handling_zone_frames="
+            << qualifiedHandlingZoneFrames
             << " distributed_patch_frames="
             << distributedPatchFrames
             << " preclose_touch_frames="
             << prematureJawContactFrames
             << " grasped_frames=" << graspedFrames
             << " grasped_lift_frames=" << graspedLiftFrames
-            << " target_shape_lift_frames="
-            << targetShapeLiftFrames
+            << " handling_zone_lift_frames="
+            << handlingZoneLiftFrames
             << " distributed_patch_lift_frames="
             << distributedPatchLiftFrames
             << " distributed_patch_lift_run="
@@ -2030,16 +2631,17 @@ int main(const int argumentCount, char* arguments[]) {
             << kDistributedContactsPerJaw
             << " distributed_span_threshold_mm="
             << kDistributedContactSpan * 1000.0
-            << " jaw_a_tooth_shapes="
-            << kJawAToothShapes.front() << ","
-            << kJawAToothShapes.back()
-            << " jaw_b_tooth_shapes="
-            << kJawBToothShapes.front() << ","
-            << kJawBToothShapes.back()
-            << " needle_lift_mm=" << needleLift.z * 1000.0
+            << " jaw_a_insert_shapes=["
+            << jawAShapes[0u] << ',' << jawAShapes[1u] << ','
+            << jawAShapes[2u] << ',' << jawAShapes[3u] << ']'
+            << " jaw_b_insert_shapes=["
+            << jawBShapes[0u] << ',' << jawBShapes[1u] << ','
+            << jawBShapes[2u] << ',' << jawBShapes[3u] << ']'
+            << " needle_lift_mm=" << needleLiftDistance * 1000.0
             << " thread_nodes=" << threadState.positions.size()
             << " thread_length_mm=" << kThreadLength * 1000.0
-            << " thread_root_lift_mm=" << threadRootLift.z * 1000.0
+            << " thread_root_lift_mm="
+            << threadRootLiftDistance * 1000.0
             << " thread_sag_mm=" << finalThreadSag * 1000.0
             << " thread_span_mm=" << finalThreadSpan * 1000.0
             << " thread_attachment_error_max_um="
@@ -2052,14 +2654,23 @@ int main(const int argumentCount, char* arguments[]) {
             << maximumThreadSelfContacts
             << " jaw_travel_mm=" << jawTravel * 1000.0
             << " follow_ratio=" << followRatio
+            << " jaw_needle_seat_drift_m=" << graspSeatDrift
             << " acquisition_orientation_rad="
             << acquisitionOrientationDrift
             << " orientation_drift_rad=" << orientationDrift
             << " grasp_slip_max=" << maximumGraspSlip
             << " penetration_max_mm=" << maximumPenetration * 1000.0
             << " kkt_max=" << maximumKkt
-            << " target_grasp_shape=17"
-            << " observed_load_bearing_shape=17"
+            << " reference_grasp_shape=" << graspShapeIndex
+            << " handling_zone_shapes=["
+            << needle.metadata.graspShapeBegin << ','
+            << needle.metadata.graspShapeEnd << ')'
+            << " terminal_load_shapes_a=["
+            << lastJawAMinimumSceneShape << ','
+            << lastJawAMaximumSceneShape << ']'
+            << " terminal_load_shapes_b=["
+            << lastJawBMinimumSceneShape << ','
+            << lastJawBMaximumSceneShape << ']'
             << " controller=computed_torque"
             << " no_weld=yes"
             << " ccd=conservative_discrete"

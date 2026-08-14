@@ -135,6 +135,18 @@ constexpr double kJawInsertRowHalfSpacing = 0.00025;
 constexpr double kJawInsertSystemNormalCompliance = 5.0e-5;
 constexpr double kNeedleInsertEffectiveStaticFriction = 1.20;
 constexpr double kNeedleInsertEffectiveDynamicFriction = 0.90;
+constexpr std::array<std::uint32_t, 4u> kJawAInsertShapeIndices{
+    15u,
+    18u,
+    20u,
+    22u,
+};
+constexpr std::array<std::uint32_t, 4u> kJawBInsertShapeIndices{
+    17u,
+    19u,
+    21u,
+    23u,
+};
 constexpr double kFoldedToolYawMass =
     kOrbitToolYawLinkMass + kOrbitFixedToolTipMass;
 constexpr double kFoldedToolYawCenterZ =
@@ -753,6 +765,8 @@ const SurgicalPSMModelMetadata& surgicalPSMMetadata() noexcept {
             static_cast<float>(kNeedleInsertEffectiveStaticFriction);
         value.targetNeedleInsertDynamicFriction =
             static_cast<float>(kNeedleInsertEffectiveDynamicFriction);
+        value.jawAInsertShapeIndices = kJawAInsertShapeIndices;
+        value.jawBInsertShapeIndices = kJawBInsertShapeIndices;
         value.intuitiveInstrumentCatalog =
             "https://www.intuitive.com/fr-fr/-/media/ISI/Intuitive/Pdf/"
             "da-vinci-x-xi-instrument-accessory-catalogue-eu-1075017.pdf";
@@ -776,6 +790,39 @@ const SurgicalPSMModelMetadata& surgicalPSMMetadata() noexcept {
         return value;
     }();
     return metadata;
+}
+
+void calibrateSurgicalNeedleInsertMaterial(
+    MRMaterialGPU& insertMaterial,
+    const MRMaterialGPU& needleMaterial
+) {
+    const SurgicalPSMModelMetadata& metadata = surgicalPSMMetadata();
+    if (!(needleMaterial.friction.x > 0.0f) ||
+        !(needleMaterial.friction.y > 0.0f) ||
+        !(metadata.targetNeedleInsertStaticFriction > 0.0f) ||
+        !(metadata.targetNeedleInsertDynamicFriction > 0.0f)) {
+        throw std::invalid_argument(
+            "surgical PSM/needle material calibration is incomplete"
+        );
+    }
+    const float rawStatic =
+        metadata.targetNeedleInsertStaticFriction *
+        metadata.targetNeedleInsertStaticFriction /
+        needleMaterial.friction.x;
+    const float rawDynamic =
+        metadata.targetNeedleInsertDynamicFriction *
+        metadata.targetNeedleInsertDynamicFriction /
+        needleMaterial.friction.y;
+    if (!std::isfinite(rawStatic) || !std::isfinite(rawDynamic) ||
+        rawStatic < rawDynamic || rawDynamic < 0.0f) {
+        throw std::invalid_argument(
+            "surgical PSM/needle effective friction is invalid"
+        );
+    }
+    MRMaterialGPU calibrated = insertMaterial;
+    calibrated.friction.x = rawStatic;
+    calibrated.friction.y = rawDynamic;
+    insertMaterial = calibrated;
 }
 
 EngineModel makeDvrkPsmLargeNeedleDriverEngineModel() {
