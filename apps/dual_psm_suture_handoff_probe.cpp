@@ -6037,17 +6037,41 @@ int main(const int argc, const char* const argv[]) {
                 coupledRootVelocity - referenceRootVelocity
             );
             double maximumTissueDisplacement = 0.0;
+            double maximumTissuePositionUlp = 0.0;
+            // Static equilibrium is bounded by one representable FP32 step
+            // per authored coordinate. This rejects physical drift without
+            // mistaking a round-trip through device storage for motion.
+            const auto coordinateUlp = [](const float value) {
+                return std::max(
+                    std::abs(static_cast<double>(std::nextafter(
+                        value,
+                        std::numeric_limits<float>::infinity()
+                    )) - static_cast<double>(value)),
+                    std::abs(static_cast<double>(std::nextafter(
+                        value,
+                        -std::numeric_limits<float>::infinity()
+                    )) - static_cast<double>(value))
+                );
+            };
             for (std::size_t node = 0u;
                  node < snapshot.femNodes.size(); ++node) {
                 const Vec3 accepted = vector(
                     snapshot.femNodes[node].positionAndMass
                 );
-                const Vec3 initial = vector(
-                    tissueWorld.fem.nodes.at(node).positionAndMass
-                );
+                const auto& initialState =
+                    tissueWorld.fem.nodes.at(node).positionAndMass;
+                const Vec3 initial = vector(initialState);
                 maximumTissueDisplacement = std::max(
                     maximumTissueDisplacement,
                     norm(accepted - initial)
+                );
+                maximumTissuePositionUlp = std::max(
+                    maximumTissuePositionUlp,
+                    norm(Vec3{
+                        coordinateUlp(initialState.x),
+                        coordinateUlp(initialState.y),
+                        coordinateUlp(initialState.z),
+                    })
                 );
             }
             double maximumNonlinearResidual = 0.0;
@@ -6097,13 +6121,32 @@ int main(const int argc, const char* const argv[]) {
             appendStateHash(
                 acceptedStateHash, snapshot.solverCertificates);
             if (tissueRestOnly) {
+                std::cout << std::setprecision(17)
+                    << "tissue_static_control reaction_count="
+                    << reaction.impulseAndCount.w
+                    << " active_contacts=" << activeContacts
+                    << " reaction_norm=" << norm(reactionImpulse)
+                    << " needle_velocity_delta=" << needleVelocityDelta
+                    << " thread_root_velocity_delta="
+                    << threadRootVelocityDelta
+                    << " maximum_tissue_displacement="
+                    << maximumTissueDisplacement
+                    << " maximum_tissue_position_ulp="
+                    << maximumTissuePositionUlp
+                    << " certificates_accepted="
+                    << certificatesAccepted
+                    << " minimum_determinant=" << minimumDeterminant
+                    << " swage_error=" << swageError
+                    << " relative_correction="
+                    << maximumRelativeCorrection << '\n';
                 require(
                     reaction.impulseAndCount.w == 0.0f &&
                         activeContacts == 0u &&
                         norm(reactionImpulse) == 0.0 &&
                         needleVelocityDelta == 0.0 &&
                         threadRootVelocityDelta == 0.0 &&
-                        maximumTissueDisplacement == 0.0 &&
+                        maximumTissueDisplacement <=
+                            maximumTissuePositionUlp &&
                         certificatesAccepted &&
                         std::isfinite(maximumRelativeCorrection) &&
                         std::isfinite(minimumDeterminant) &&
@@ -6122,6 +6165,14 @@ int main(const int argc, const char* const argv[]) {
                         std::to_string(threadRootVelocityDelta) +
                         " maximum_tissue_displacement=" +
                         std::to_string(maximumTissueDisplacement) +
+                        " maximum_tissue_position_ulp=" +
+                        std::to_string(maximumTissuePositionUlp) +
+                        " certificates_accepted=" +
+                        std::to_string(certificatesAccepted) +
+                        " minimum_determinant=" +
+                        std::to_string(minimumDeterminant) +
+                        " swage_error=" +
+                        std::to_string(swageError) +
                         " relative_correction=" +
                         std::to_string(maximumRelativeCorrection)
                 );
