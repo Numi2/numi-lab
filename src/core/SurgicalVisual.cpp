@@ -873,7 +873,10 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
                  0.10f, 0.20f, 2u),
         material({0.72f, 0.75f, 0.78f, 1.0f}, 0.075f, 1.0f,
                  0.36f, 0.055f, 3u),
-        material({0.012f, 0.13f, 0.52f, 1.0f}, 0.29f, 0.04f,
+        // D7463 is sold as violet PDS II. Keep it distinct from the
+        // receiver's blue identity band while physics remains the
+        // source-calibrated PDO rod.
+        material({0.20f, 0.012f, 0.32f, 1.0f}, 0.29f, 0.04f,
                  0.48f, 0.12f, 4u),
         material({0.012f, 0.145f, 0.125f, 1.0f}, 0.82f, 0.0f,
                  0.015f, 0.38f, 5u),

@@ -1158,7 +1158,7 @@ std::vector<std::uint8_t> identityImage(
             color = {250u, 190u, 40u};
             break;
         case kThreadSemantic:
-            color = {30u, 135u, 255u};
+            color = {164u, 72u, 216u};
             break;
         case kFieldSemantic:
             color = {20u, 120u, 100u};
