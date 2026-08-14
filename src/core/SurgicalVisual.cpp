@@ -827,6 +827,20 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
     const DvrkSutureVisualScene& scene
 ) {
     std::string rodReason;
+    const bool surgicalFieldGeometryValid =
+        !scene.hasSurgicalFieldGeometry ||
+        (
+            std::ranges::all_of(
+                scene.surgicalFieldCenterM,
+                [](const double value) { return std::isfinite(value); }
+            ) &&
+            std::ranges::all_of(
+                scene.surgicalFieldHalfExtentM,
+                [](const double value) {
+                    return value > 0.0 && std::isfinite(value);
+                }
+            )
+        );
     if (needle.rigid.shapes.empty() ||
         !threadModel.valid(&rodReason) ||
         threadState.positions.size() != threadModel.restPositions.size() ||
@@ -834,6 +848,7 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
         threadState.twists.size() != threadModel.restTwists.size() ||
         threadState.twistRates.size() != threadModel.restTwists.size() ||
         bindings.needleBodyIndex == MR_INVALID_INDEX ||
+        !surgicalFieldGeometryValid ||
         scene.tissuePositions.empty() != scene.tissueTriangles.empty()) {
         throw std::invalid_argument(
             "dVRK suture visual inputs are invalid: " + rodReason
@@ -868,9 +883,16 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
                  0.03f, 0.32f, 7u),
         material({0.16f, 0.015f, 0.018f, 1.0f}, 0.69f, 0.0f,
                  0.02f, 0.28f, 8u),
+        // Receiver-only visual identity band. The articulated geometry and
+        // collision model remain identical stainless-steel LNDs; this muted
+        // blue polymer cue only keeps the two opposed tools readable in
+        // replay and segmentation views.
+        material({0.025f, 0.085f, 0.16f, 1.0f}, 0.48f, 0.12f,
+                 0.08f, 0.22f, 9u),
     };
 
     constexpr std::uint32_t instrumentSemantic = 101u;
+    constexpr std::uint32_t receiverInstrumentSemantic = 102u;
     constexpr std::uint32_t needleSemantic = 201u;
     constexpr std::uint32_t threadSemantic = 202u;
     constexpr std::uint32_t fieldSemantic = 301u;
@@ -1122,10 +1144,12 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
                         secondary.pack,
                         primitive
                     ),
-                    primitive.geometry.z,
+                    primitive.geometry.z == 5u
+                        ? 8u
+                        : primitive.geometry.z,
                     instance.binding.z,
                     instance.binding.y,
-                    instrumentSemantic,
+                    receiverInstrumentSemantic,
                     10000u + instance.identity.y,
                     stableId++,
                     node,
@@ -1220,10 +1244,15 @@ DvrkSutureVisualAsset makeDvrkSutureVisualAsset(
     }
     fieldCenter = fieldCenter * (1.0 / threadPoints.size());
     fieldCenter.z = minimumThreadZ - 0.006;
+    Vec3 fieldHalfExtent{0.115, 0.085, 0.0025};
+    if (scene.hasSurgicalFieldGeometry) {
+        fieldCenter = fromArray(scene.surgicalFieldCenterM);
+        fieldHalfExtent = fromArray(scene.surgicalFieldHalfExtentM);
+    }
     addBox(
         pack,
         fieldCenter,
-        {0.115, 0.085, 0.0025},
+        fieldHalfExtent,
         4u,
         MR_VISUAL_BINDING_WORLD,
         MR_INVALID_INDEX,

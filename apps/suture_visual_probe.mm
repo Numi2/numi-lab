@@ -37,6 +37,7 @@ namespace {
 constexpr std::uint32_t kWidth = 1280u;
 constexpr std::uint32_t kHeight = 960u;
 constexpr std::uint32_t kInstrumentSemantic = 101u;
+constexpr std::uint32_t kReceiverInstrumentSemantic = 102u;
 constexpr std::uint32_t kNeedleSemantic = 201u;
 constexpr std::uint32_t kThreadSemantic = 202u;
 constexpr std::uint32_t kFieldSemantic = 301u;
@@ -46,6 +47,7 @@ constexpr double kQualifiedThreadLength = 0.18;
 constexpr std::uint32_t kHandoffThreadNodeCount = 128u;
 constexpr double kHandoffThreadRadius = 1.0e-4;
 constexpr double kHandoffThreadLength = 0.25;
+constexpr double kHandoffTissueCenterX = 0.042;
 
 struct Arguments {
     std::filesystem::path statePath;
@@ -67,6 +69,10 @@ struct PickupState {
     std::vector<std::array<double, 3>> threadPositions;
     std::vector<std::array<double, 3>> threadVelocities;
     std::vector<std::array<double, 2>> threadTwists;
+    double tissueLength = 0.0;
+    double tissueWidth = 0.0;
+    double tissueThickness = 0.0;
+    double tissueIncisionGap = 0.0;
     double needleLift = 0.0;
     double jawTravel = 0.0;
     double followRatio = 0.0;
@@ -96,6 +102,7 @@ struct PickupState {
 
 struct VisibilityMetrics {
     std::size_t instrumentPixels = 0u;
+    std::size_t receiverInstrumentPixels = 0u;
     std::size_t needlePixels = 0u;
     std::size_t threadPixels = 0u;
     std::size_t fieldPixels = 0u;
@@ -416,14 +423,26 @@ PickupState readPickupState(const std::filesystem::path& path) {
             result.graspedSeen = true;
         } else if (fields[0] == "tissue_model") {
             require(
-                fields.size() == 6u && !result.tissueModelSeen &&
-                    fields[1] == "porcine_jejunum_fung" &&
-                    number(fields[2], "tissue length") > 0.0 &&
-                    number(fields[3], "tissue width") > 0.0 &&
-                    number(fields[4], "tissue thickness") > 0.0 &&
-                    number(fields[5], "tissue incision gap") > 0.0,
+                fields.size() == 6u && !result.tissueModelSeen,
                 "handoff tissue row is invalid"
             );
+            const double length = number(fields[2], "tissue length");
+            const double width = number(fields[3], "tissue width");
+            const double thickness = number(fields[4], "tissue thickness");
+            const double incisionGap = number(
+                fields[5],
+                "tissue incision gap"
+            );
+            require(
+                fields[1] == "porcine_jejunum_fung" &&
+                    length > 0.0 && width > 0.0 && thickness > 0.0 &&
+                    incisionGap > 0.0,
+                "handoff tissue row is invalid"
+            );
+            result.tissueLength = length;
+            result.tissueWidth = width;
+            result.tissueThickness = thickness;
+            result.tissueIncisionGap = incisionGap;
             result.tissueModelSeen = true;
         } else {
             throw std::invalid_argument(
@@ -785,9 +804,9 @@ metalrobo::WorldTemplate makeWorldTemplate(
     close.intrinsics = {1250.0f, 1250.0f, 640.0f, 480.0f};
     const mr_float4 closePosition = state.dualHandoff
         ? mr_float4{
-              needlePosition.x,
-              needlePosition.y - 0.020f,
-              needlePosition.z + 0.095f,
+              needlePosition.x - 0.085f,
+              needlePosition.y - 0.008f,
+              needlePosition.z + 0.035f,
               1.0f,
           }
         : mr_float4{
@@ -798,7 +817,7 @@ metalrobo::WorldTemplate makeWorldTemplate(
           };
     const mr_float4 closeTarget = state.dualHandoff
         ? mr_float4{
-              needlePosition.x + 0.010f,
+              needlePosition.x,
               needlePosition.y,
               needlePosition.z,
               1.0f,
@@ -821,20 +840,43 @@ metalrobo::WorldTemplate makeWorldTemplate(
 
     metalrobo::SensorSpec overview = close;
     overview.id = "pickup_overview_rgbd";
-    overview.intrinsics = {1030.0f, 1030.0f, 640.0f, 480.0f};
-    const mr_float4 overviewTarget{
-        0.55f * needlePosition.x + 0.45f * threadCenter.x,
-        0.55f * needlePosition.y + 0.45f * threadCenter.y,
-        0.55f * needlePosition.z + 0.45f * threadCenter.z,
-        1.0f,
-    };
+    overview.intrinsics = state.dualHandoff
+        ? mr_float4{1600.0f, 1600.0f, 640.0f, 480.0f}
+        : mr_float4{1030.0f, 1030.0f, 640.0f, 480.0f};
+    const metalrobo::SurgicalNeutralZonePadSpec pad;
+    const float tissueCenterZ = static_cast<float>(
+        0.5 * pad.thicknessM.value + 0.5 * state.tissueThickness
+    );
+    const mr_float4 overviewTarget = state.dualHandoff
+        ? mr_float4{
+              0.35f * needlePosition.x + 0.40f * threadCenter.x +
+                  0.25f * static_cast<float>(kHandoffTissueCenterX),
+              0.35f * needlePosition.y + 0.40f * threadCenter.y,
+              0.35f * needlePosition.z + 0.40f * threadCenter.z +
+                  0.25f * tissueCenterZ,
+              1.0f,
+          }
+        : mr_float4{
+              0.55f * needlePosition.x + 0.45f * threadCenter.x,
+              0.55f * needlePosition.y + 0.45f * threadCenter.y,
+              0.55f * needlePosition.z + 0.45f * threadCenter.z,
+              1.0f,
+          };
+    const mr_float4 overviewPosition = state.dualHandoff
+        ? mr_float4{
+              overviewTarget.x - 0.140f,
+              overviewTarget.y - 0.160f,
+              overviewTarget.z + 0.140f,
+              1.0f,
+          }
+        : mr_float4{
+              overviewTarget.x + 0.155f,
+              overviewTarget.y - 0.175f,
+              overviewTarget.z + 0.075f,
+              1.0f,
+          };
     overview.localPose = cameraToward(
-        {
-            overviewTarget.x + 0.155f,
-            overviewTarget.y - 0.175f,
-            overviewTarget.z + 0.075f,
-            1.0f,
-        },
+        overviewPosition,
         overviewTarget
     );
     episode.sensors = {std::move(close), std::move(overview)};
@@ -893,13 +935,31 @@ metalrobo::DvrkSutureVisualScene makeHandoffVisualScene(
     };
     const numi::matter::PorcineJejunumClosureCoupon coupon =
         numi::matter::makePorcineJejunumClosureCoupon(0u);
+    require(
+        std::abs(state.tissueLength - coupon.spec.lengthM.value) <= 1.0e-12 &&
+            std::abs(state.tissueWidth - coupon.spec.widthM.value) <=
+                1.0e-12 &&
+            std::abs(state.tissueThickness - coupon.spec.thicknessM.value) <=
+                1.0e-12 &&
+            std::abs(state.tissueIncisionGap -
+                     coupon.spec.incisionGapM.value) <= 1.0e-12,
+        "handoff replay tissue does not match the authored coupon"
+    );
+    const metalrobo::SurgicalNeutralZonePadSpec pad;
+    result.hasSurgicalFieldGeometry = true;
+    result.surgicalFieldCenterM = {0.0, 0.0, 0.0};
+    result.surgicalFieldHalfExtentM = {
+        0.5 * pad.sizeXM.value,
+        0.5 * pad.sizeYM.value,
+        0.5 * pad.thicknessM.value,
+    };
     result.tissuePositions = coupon.object.femNodes;
     // The coupon rests on the same 3 mm neutral-zone pad as the needle/thread,
     // offset laterally so it is ready for the subsequent closure experiment.
     result.tissueTranslationM = {
-        0.042,
+        kHandoffTissueCenterX,
         0.0,
-        0.0015 + 0.5 * coupon.spec.thicknessM.value,
+        0.5 * pad.thicknessM.value + 0.5 * coupon.spec.thicknessM.value,
     };
 
     struct BoundaryFace {
@@ -1091,6 +1151,9 @@ std::vector<std::uint8_t> identityImage(
         case kInstrumentSemantic:
             color = {210u, 218u, 226u};
             break;
+        case kReceiverInstrumentSemantic:
+            color = {130u, 178u, 224u};
+            break;
         case kNeedleSemantic:
             color = {250u, 190u, 40u};
             break;
@@ -1121,6 +1184,9 @@ VisibilityMetrics visibility(
         switch (observations.segmentation[pixel]) {
         case kInstrumentSemantic:
             ++result.instrumentPixels;
+            break;
+        case kReceiverInstrumentSemantic:
+            ++result.receiverInstrumentPixels;
             break;
         case kNeedleSemantic:
             ++result.needlePixels;
@@ -1196,7 +1262,12 @@ void writeEvidence(
         const VisibilityMetrics& view = views[index];
         output << "    {\"name\": \""
             << (index == 0u ? "close" : "overview") << "\", "
-            << "\"instrument_pixels\": " << view.instrumentPixels << ", "
+            << "\"instrument_pixels\": "
+            << view.instrumentPixels + view.receiverInstrumentPixels << ", "
+            << "\"giver_instrument_pixels\": "
+            << view.instrumentPixels << ", "
+            << "\"receiver_instrument_pixels\": "
+            << view.receiverInstrumentPixels << ", "
             << "\"needle_pixels\": " << view.needlePixels << ", "
             << "\"thread_pixels\": " << view.threadPixels << ", "
             << "\"field_pixels\": " << view.fieldPixels << ", "
@@ -1427,11 +1498,16 @@ int main(const int argumentCount, char* argv[]) {
                 pickup.dualHandoff ? "handoff-close" : "pickup-close",
                 pickup.dualHandoff ? "handoff-overview" : "pickup-overview",
             };
-            constexpr std::array<std::array<std::size_t, 4u>, 2u>
-                minimumCoverage{{
-                    {{30000u, 1800u, 1000u, 100000u}},
-                    {{5000u, 250u, 400u, 100000u}},
-                }};
+            const std::array<std::array<std::size_t, 5u>, 2u>
+                minimumCoverage = pickup.dualHandoff
+                    ? std::array<std::array<std::size_t, 5u>, 2u>{{
+                          {{15000u, 15000u, 1200u, 1000u, 100000u}},
+                          {{2500u, 2500u, 250u, 400u, 100000u}},
+                      }}
+                    : std::array<std::array<std::size_t, 5u>, 2u>{{
+                          {{30000u, 0u, 1800u, 1000u, 100000u}},
+                          {{5000u, 0u, 250u, 400u, 100000u}},
+                      }};
             std::array<VisibilityMetrics, 2u> viewMetrics{};
             metalrobo::MetalHybridRendererDiagnostics lastRender;
             for (std::uint32_t camera = 0u; camera < names.size(); ++camera) {
@@ -1465,19 +1541,33 @@ int main(const int argumentCount, char* argv[]) {
                     ),
                     "could not write surgical identity PNG"
                 );
+            }
+            for (std::uint32_t camera = 0u;
+                 camera < names.size();
+                 ++camera) {
                 require(
                     viewMetrics[camera].instrumentPixels >=
                             minimumCoverage[camera][0u] &&
+                        (
+                            !pickup.dualHandoff ||
+                            viewMetrics[camera]
+                                    .receiverInstrumentPixels >=
+                                minimumCoverage[camera][1u]
+                        ) &&
                         viewMetrics[camera].needlePixels >=
-                            minimumCoverage[camera][1u] &&
-                        viewMetrics[camera].threadPixels >=
                             minimumCoverage[camera][2u] &&
+                        viewMetrics[camera].threadPixels >=
+                            minimumCoverage[camera][3u] &&
                         viewMetrics[camera].validPixels >=
-                            minimumCoverage[camera][3u],
+                            minimumCoverage[camera][4u],
                     std::string{"visual binding coverage failed for "} +
                         names[camera] +
                         " instrument=" +
                         std::to_string(viewMetrics[camera].instrumentPixels) +
+                        " receiver_instrument=" +
+                        std::to_string(
+                            viewMetrics[camera].receiverInstrumentPixels
+                        ) +
                         " needle=" +
                         std::to_string(viewMetrics[camera].needlePixels) +
                         " thread=" +
@@ -1512,10 +1602,12 @@ int main(const int argumentCount, char* argv[]) {
                 << visualAsset.metrics.tissueTriangleCount
                 << " close_pixels="
                 << viewMetrics[0u].instrumentPixels << "/"
+                << viewMetrics[0u].receiverInstrumentPixels << "/"
                 << viewMetrics[0u].needlePixels << "/"
                 << viewMetrics[0u].threadPixels
                 << " overview_pixels="
                 << viewMetrics[1u].instrumentPixels << "/"
+                << viewMetrics[1u].receiverInstrumentPixels << "/"
                 << viewMetrics[1u].needlePixels << "/"
                 << viewMetrics[1u].threadPixels
                 << " pack_hash=" << visualAsset.pack.contentHash

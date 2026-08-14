@@ -37,6 +37,12 @@ struct DvrkSutureVisualStyle {
 struct DvrkSutureVisualScene {
     bool hasSecondaryInstrument = false;
     DvrkSutureVisualBindings secondaryInstrument{};
+    // When present, this is the authored physical support geometry used by
+    // the replayed world. It prevents presentation from inventing a larger or
+    // vertically displaced surgical field around the thread snapshot.
+    bool hasSurgicalFieldGeometry = false;
+    std::array<double, 3> surgicalFieldCenterM{};
+    std::array<double, 3> surgicalFieldHalfExtentM{};
     std::vector<std::array<double, 3>> tissuePositions;
     std::vector<std::array<std::uint32_t, 3>> tissueTriangles;
     std::array<double, 3> tissueTranslationM{};
