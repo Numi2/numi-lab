@@ -473,6 +473,8 @@ PickupState readPickupState(const std::filesystem::path& path) {
         (result.phase == "giver-closed" ||
          result.phase == "giver-lift" ||
          result.phase == "positive-control-overlap" ||
+         result.phase == "load-exchange" ||
+         result.phase == "giver-release" ||
          result.phase == "receiver-transfer") &&
         result.threadNodeCount == kHandoffThreadNodeCount &&
         result.threadTwists.size() + 1u == result.threadNodeCount &&
