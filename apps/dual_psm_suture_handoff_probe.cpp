@@ -4557,6 +4557,7 @@ struct Arguments {
     std::filesystem::path resumeExtractionGiverHoldPath;
     std::filesystem::path resumeExtractionApproachPath;
     std::filesystem::path resumeExtractionPositiveControlPath;
+    std::filesystem::path resumeExtractionLoadExchangePath;
     std::uint32_t resumeStagingCompletedSteps = 0u;
     bool resumeStagingCompletedStepsProvided = false;
     std::uint32_t resumeLiftStepLimit = kHandoffLiftSteps;
@@ -4615,6 +4616,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--receiver-extraction-approach-only" ||
             argument == "--receiver-extraction-closure-only" ||
             argument == "--receiver-extraction-load-exchange-only" ||
+            argument == "--receiver-extraction-giver-release-only" ||
             argument == "--receiver-extraction-fixture-only" ||
             argument == "--long-settle" ||
             argument == "--approach-only" ||
@@ -4656,6 +4658,15 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "one path"
             );
             result.resumeExtractionPositiveControlPath = argv[++index];
+        } else if (argument ==
+                   "--resume-receiver-extraction-load-exchange") {
+            require(
+                result.resumeExtractionLoadExchangePath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-extraction-load-exchange requires "
+                "one path"
+            );
+            result.resumeExtractionLoadExchangePath = argv[++index];
         } else if (argument == "--receiver-collision-scan") {
             require(
                 !result.receiverCollisionScan,
@@ -5079,7 +5090,8 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         (!result.resumeReceiverTransferMotionPath.empty() ? 1u : 0u) +
         (!result.resumeExtractionGiverHoldPath.empty() ? 1u : 0u) +
         (!result.resumeExtractionApproachPath.empty() ? 1u : 0u) +
-        (!result.resumeExtractionPositiveControlPath.empty() ? 1u : 0u);
+        (!result.resumeExtractionPositiveControlPath.empty() ? 1u : 0u) +
+        (!result.resumeExtractionLoadExchangePath.empty() ? 1u : 0u);
     require(resumeCount <= 1u, "handoff resumes are mutually exclusive");
     require(
         result.resumeExtractionGiverHoldPath.empty() ||
@@ -5098,6 +5110,12 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.mode == "--receiver-extraction-load-exchange-only" ||
             result.mode == "--receiver-extraction-fixture-only",
         "distal positive-control resume requires load exchange"
+    );
+    require(
+        result.resumeExtractionLoadExchangePath.empty() ||
+            result.mode == "--receiver-extraction-giver-release-only" ||
+            result.mode == "--receiver-extraction-fixture-only",
+        "distal load-exchange resume requires giver release"
     );
     require(
         !result.resumeLiftStepLimitProvided ||
@@ -5210,6 +5228,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.mode == "--receiver-extraction-approach-only" ||
             result.mode == "--receiver-extraction-closure-only" ||
             result.mode == "--receiver-extraction-load-exchange-only" ||
+            result.mode == "--receiver-extraction-giver-release-only" ||
             result.mode == "--receiver-extraction-fixture-only",
         "receiver posture overrides require a receiver geometry diagnostic"
     );
@@ -5223,6 +5242,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.mode == "--receiver-extraction-approach-only" ||
             result.mode == "--receiver-extraction-closure-only" ||
             result.mode == "--receiver-extraction-load-exchange-only" ||
+            result.mode == "--receiver-extraction-giver-release-only" ||
             result.mode == "--receiver-extraction-fixture-only",
         "extraction posture overrides require a distal receiver diagnostic"
     );
@@ -5886,12 +5906,15 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--receiver-extraction-closure-only";
         const bool receiverExtractionLoadExchangeOnly =
             options.mode == "--receiver-extraction-load-exchange-only";
+        const bool receiverExtractionGiverReleaseOnly =
+            options.mode == "--receiver-extraction-giver-release-only";
         const bool receiverExtractionFixtureOnly =
             receiverExtractionGeometryOnly ||
             receiverExtractionGiverHoldOnly ||
             receiverExtractionApproachOnly ||
             receiverExtractionClosureOnly ||
             receiverExtractionLoadExchangeOnly ||
+            receiverExtractionGiverReleaseOnly ||
             options.mode == "--receiver-extraction-fixture-only";
         const bool receiverExtractionPose =
             receiverFrameIkOnly || receiverExtractionFixtureOnly;
@@ -6901,20 +6924,27 @@ int main(const int argc, const char* const argv[]) {
             }
 
             std::uint64_t loadedExtractionStateStep = 0u;
+            const bool resumedExtractionLoadExchange =
+                !options.resumeExtractionLoadExchangePath.empty();
+            const bool resumedExtractionPositiveControl =
+                !options.resumeExtractionPositiveControlPath.empty();
             if (!options.resumeExtractionGiverHoldPath.empty() ||
                 !options.resumeExtractionApproachPath.empty() ||
-                !options.resumeExtractionPositiveControlPath.empty()) {
-                const bool resumePositiveControl =
-                    !options.resumeExtractionPositiveControlPath.empty();
+                resumedExtractionPositiveControl ||
+                resumedExtractionLoadExchange) {
                 const bool resumeApproach =
                     !options.resumeExtractionApproachPath.empty();
                 loadedExtractionStateStep = loadHandoffState(
-                    resumePositiveControl
+                    resumedExtractionLoadExchange
+                        ? options.resumeExtractionLoadExchangePath
+                    : resumedExtractionPositiveControl
                         ? options.resumeExtractionPositiveControlPath
                     : resumeApproach
                         ? options.resumeExtractionApproachPath
                         : options.resumeExtractionGiverHoldPath,
-                    resumePositiveControl
+                    resumedExtractionLoadExchange
+                        ? "receiver-extraction-load-exchange"
+                    : resumedExtractionPositiveControl
                         ? "receiver-extraction-positive-control"
                     : resumeApproach
                         ? "receiver-extraction-approach"
@@ -6995,7 +7025,8 @@ int main(const int argc, const char* const argv[]) {
             const std::uint32_t extractionInitialHoldSteps =
                 (!options.resumeExtractionGiverHoldPath.empty() ||
                  !options.resumeExtractionApproachPath.empty() ||
-                 !options.resumeExtractionPositiveControlPath.empty())
+                 resumedExtractionPositiveControl ||
+                 resumedExtractionLoadExchange)
                     ? 1u
                 : options.settleStepLimit == 0u
                     ? kExtractionInitialHoldSteps
@@ -7034,14 +7065,16 @@ int main(const int argc, const char* const argv[]) {
                 0u,
                 giverPreloaded.result.finalQ
             );
-            giverLatchedQ[6] = -closeJawCoordinate;
-            giverLatchedQ[7] = closeJawCoordinate;
-            setArmTarget(
-                giverLatchTarget,
-                world.model,
-                0u,
-                giverLatchedQ
-            );
+            if (!resumedExtractionLoadExchange) {
+                giverLatchedQ[6] = -closeJawCoordinate;
+                giverLatchedQ[7] = closeJawCoordinate;
+                setArmTarget(
+                    giverLatchTarget,
+                    world.model,
+                    0u,
+                    giverLatchedQ
+                );
+            }
             fixtureEfforts = interpolateTargets(
                 world.model,
                 giverPreloaded.result.finalQ,
@@ -7134,9 +7167,15 @@ int main(const int argc, const char* const argv[]) {
                 }
             }
             const bool resumedPositiveControlAtHold =
-                !options.resumeExtractionPositiveControlPath.empty();
+                resumedExtractionPositiveControl ||
+                resumedExtractionLoadExchange;
             const bool initialReceiverOwnershipQualified =
-                resumedPositiveControlAtHold
+                resumedExtractionLoadExchange
+                    ? bilateral(giverHeldContacts, 1u) &&
+                          distributedInsertCoverage(giverHeldContacts, 1u) &&
+                          bilateral(giverHeldContacts, 0u) &&
+                          transverseInsertCoverage(giverHeldContacts, 0u)
+                : resumedPositiveControlAtHold
                     ? bilateral(giverHeldContacts, 1u) &&
                           distributedInsertCoverage(giverHeldContacts, 1u)
                     : !bilateral(giverHeldContacts, 1u);
@@ -7150,11 +7189,25 @@ int main(const int argc, const char* const argv[]) {
                     : cleanGiverNeedleInteraction(giverHeldContacts);
             const bool giverHoldQualified =
                 bilateral(giverHeldContacts, 0u) &&
-                    distributedInsertCoverage(giverHeldContacts, 0u) &&
+                    (
+                        resumedExtractionLoadExchange
+                            ? transverseInsertCoverage(
+                                  giverHeldContacts,
+                                  0u
+                              )
+                            : distributedInsertCoverage(
+                                  giverHeldContacts,
+                                  0u
+                              )
+                    ) &&
                     initialReceiverOwnershipQualified &&
                     initialNeedleInteractionQualified &&
                     qualifiedTerminalRod(giverHeldRod) &&
-                    qualifiedDrivenGrasp(giverHoldMotion);
+                    (
+                        resumedExtractionLoadExchange
+                            ? qualifiedTransitionGrasp(giverHoldMotion)
+                            : qualifiedDrivenGrasp(giverHoldMotion)
+                    );
             if (receiverExtractionGiverHoldOnly) {
                 const double giverHoldSwageError = swageAttachmentError(
                     world,
@@ -7261,13 +7314,24 @@ int main(const int argc, const char* const argv[]) {
                 resumedPositiveControlAtHold
                     ? "resumed positive-control fixture did not preserve "
                       "stable distributed dual control: " +
-                          contactSummary(giverHeldContacts)
+                          contactSummary(giverHeldContacts) +
+                          " giver_seat_drift=" +
+                          std::to_string(giverHoldMotion.seatDrift) +
+                          " giver_relative_point_speed=" +
+                          std::to_string(
+                              giverHoldMotion.relativePointSpeed
+                          ) +
+                          " giver_relative_angular_speed=" +
+                          std::to_string(
+                              giverHoldMotion.relativeAngularSpeed
+                          )
                     : "post-puncture fixture did not begin with sole stable "
                       "giver control: " + contactSummary(giverHeldContacts)
             );
             if (options.resumeExtractionGiverHoldPath.empty() &&
                 options.resumeExtractionApproachPath.empty() &&
-                options.resumeExtractionPositiveControlPath.empty()) {
+                options.resumeExtractionPositiveControlPath.empty() &&
+                options.resumeExtractionLoadExchangePath.empty()) {
                 writeHandoffStateArtifact(
                     options.stateOutputDirectory,
                     "receiver-extraction-giver-hold",
@@ -7307,7 +7371,8 @@ int main(const int argc, const char* const argv[]) {
             );
             const bool resumedFromExtractionApproach =
                 !options.resumeExtractionApproachPath.empty() ||
-                !options.resumeExtractionPositiveControlPath.empty();
+                resumedExtractionPositiveControl ||
+                resumedExtractionLoadExchange;
             const std::uint32_t receiverApproachSteps =
                 resumedFromExtractionApproach
                     ? 1u : kExtractionApproachSteps;
@@ -7475,7 +7540,17 @@ int main(const int argc, const char* const argv[]) {
                     "extraction receiver approach hold"
                 );
             const bool approachedReceiverOwnershipQualified =
-                resumedPositiveControlAtHold
+                resumedExtractionLoadExchange
+                    ? bilateral(approachedContacts, 0u) &&
+                          transverseInsertCoverage(approachedContacts, 0u) &&
+                          bilateral(approachedContacts, 1u) &&
+                          distributedInsertCoverage(approachedContacts, 1u) &&
+                          cleanNeedleInteraction(
+                              approachedContacts,
+                              true,
+                              true
+                          )
+                : resumedPositiveControlAtHold
                     ? bilateral(approachedContacts, 1u) &&
                           distributedInsertCoverage(approachedContacts, 1u) &&
                           cleanNeedleInteraction(
@@ -7487,7 +7562,17 @@ int main(const int argc, const char* const argv[]) {
                           cleanGiverNeedleInteraction(approachedContacts);
             require(
                 bilateral(approachedContacts, 0u) &&
-                    distributedInsertCoverage(approachedContacts, 0u) &&
+                    (
+                        resumedExtractionLoadExchange
+                            ? transverseInsertCoverage(
+                                  approachedContacts,
+                                  0u
+                              )
+                            : distributedInsertCoverage(
+                                  approachedContacts,
+                                  0u
+                              )
+                    ) &&
                     approachedReceiverOwnershipQualified &&
                     qualifiedDrivenGrasp(approachedGiverMotion) &&
                     qualifiedTerminalRod(approachedRod),
@@ -7562,7 +7647,8 @@ int main(const int argc, const char* const argv[]) {
             }
 
             const bool resumedFromExtractionPositiveControl =
-                !options.resumeExtractionPositiveControlPath.empty();
+                resumedExtractionPositiveControl ||
+                resumedExtractionLoadExchange;
             const std::uint32_t receiverClosureSteps =
                 resumedFromExtractionPositiveControl
                     ? 1u : extractionReceiverOverlapTravelSteps;
@@ -7576,14 +7662,16 @@ int main(const int argc, const char* const argv[]) {
                 1u,
                 receiverApproached.result.finalQ
             );
-            receiverOverlap[6] = -receiverOverlapJawCoordinate;
-            receiverOverlap[7] = receiverOverlapJawCoordinate;
-            setArmTarget(
-                receiverOverlapTarget,
-                world.model,
-                1u,
-                receiverOverlap
-            );
+            if (!resumedExtractionLoadExchange) {
+                receiverOverlap[6] = -receiverOverlapJawCoordinate;
+                receiverOverlap[7] = receiverOverlapJawCoordinate;
+                setArmTarget(
+                    receiverOverlapTarget,
+                    world.model,
+                    1u,
+                    receiverOverlap
+                );
+            }
             fixtureEfforts = interpolateTargets(
                 world.model,
                 receiverApproached.result.finalQ,
@@ -7646,7 +7734,11 @@ int main(const int argc, const char* const argv[]) {
                 );
             require(
                 bilateral(overlapContacts, 0u) &&
-                    distributedInsertCoverage(overlapContacts, 0u) &&
+                    (
+                        resumedExtractionLoadExchange
+                            ? transverseInsertCoverage(overlapContacts, 0u)
+                            : distributedInsertCoverage(overlapContacts, 0u)
+                    ) &&
                     bilateral(overlapContacts, 1u) &&
                     distributedInsertCoverage(overlapContacts, 1u) &&
                     cleanNeedleInteraction(overlapContacts, true, true) &&
@@ -7735,12 +7827,17 @@ int main(const int argc, const char* const argv[]) {
             }
 
             const std::uint32_t loadExchangeSteps =
-                static_cast<std::uint32_t>(std::ceil(
-                    3.0 * (
-                        receiverOverlapJawCoordinate -
-                        receiverTransportJawCoordinate
-                    ) / (0.18 * kControlTimestep)
-                )) + 4u;
+                resumedExtractionLoadExchange
+                    ? 1u
+                    : static_cast<std::uint32_t>(std::ceil(
+                          3.0 * (
+                              receiverOverlapJawCoordinate -
+                              receiverTransportJawCoordinate
+                          ) / (0.18 * kControlTimestep)
+                      )) + 4u;
+            const std::uint32_t loadExchangeSettleSteps =
+                resumedExtractionLoadExchange
+                    ? 1u : kLoadExchangeSettleSteps;
             std::vector<float> loadExchangeTarget =
                 receiverOverlapHeld.result.finalQ;
             std::vector<double> giverLoadExchange = armLocalQ(
@@ -7748,27 +7845,31 @@ int main(const int argc, const char* const argv[]) {
                 0u,
                 receiverOverlapHeld.result.finalQ
             );
-            giverLoadExchange[6] = -receiverOverlapJawCoordinate;
-            giverLoadExchange[7] = receiverOverlapJawCoordinate;
+            if (!resumedExtractionLoadExchange) {
+                giverLoadExchange[6] = -receiverOverlapJawCoordinate;
+                giverLoadExchange[7] = receiverOverlapJawCoordinate;
+            }
             std::vector<double> receiverLoadExchange = armLocalQ(
                 world.model,
                 1u,
                 receiverOverlapHeld.result.finalQ
             );
-            receiverLoadExchange[6] = -closeJawCoordinate;
-            receiverLoadExchange[7] = closeJawCoordinate;
-            setArmTarget(
-                loadExchangeTarget,
-                world.model,
-                0u,
-                giverLoadExchange
-            );
-            setArmTarget(
-                loadExchangeTarget,
-                world.model,
-                1u,
-                receiverLoadExchange
-            );
+            if (!resumedExtractionLoadExchange) {
+                receiverLoadExchange[6] = -closeJawCoordinate;
+                receiverLoadExchange[7] = closeJawCoordinate;
+                setArmTarget(
+                    loadExchangeTarget,
+                    world.model,
+                    0u,
+                    giverLoadExchange
+                );
+                setArmTarget(
+                    loadExchangeTarget,
+                    world.model,
+                    1u,
+                    receiverLoadExchange
+                );
+            }
             fixtureEfforts = interpolateTargets(
                 world.model,
                 receiverOverlapHeld.result.finalQ,
@@ -7788,7 +7889,7 @@ int main(const int argc, const char* const argv[]) {
                 world.model,
                 loadExchangeMotion.result.finalQ,
                 loadExchangeTarget,
-                kLoadExchangeSettleSteps
+                loadExchangeSettleSteps
             );
             PhaseResult loadExchanged = continuePhase(
                 fixtureContext,
@@ -7796,7 +7897,7 @@ int main(const int argc, const char* const argv[]) {
                 fixtureStepConfig,
                 fixtureResident,
                 fixtureEfforts,
-                kLoadExchangeSettleSteps,
+                loadExchangeSettleSteps,
                 "distal receiver load-exchange hold"
             );
             const ContactCounts loadExchangeContacts = contactCounts(
@@ -7860,7 +7961,7 @@ int main(const int argc, const char* const argv[]) {
                     receiverClosureSteps +
                     receiverClosureSettleSteps +
                     loadExchangeSteps +
-                    kLoadExchangeSettleSteps;
+                    loadExchangeSettleSteps;
                 writeHandoffStateArtifact(
                     options.stateOutputDirectory,
                     "receiver-extraction-load-exchange",
@@ -7953,11 +8054,13 @@ int main(const int argc, const char* const argv[]) {
                 0u,
                 giverReleasedQ
             );
+            const std::uint32_t giverReleaseSteps =
+                extractionReceiverOverlapTravelSteps;
             fixtureEfforts = interpolateTargets(
                 world.model,
                 loadExchanged.result.finalQ,
                 giverReleaseTarget,
-                receiverOverlapTravelSteps
+                giverReleaseSteps
             );
             PhaseResult releaseMotion = continuePhase(
                 fixtureContext,
@@ -7965,7 +8068,7 @@ int main(const int argc, const char* const argv[]) {
                 fixtureStepConfig,
                 fixtureResident,
                 fixtureEfforts,
-                receiverOverlapTravelSteps,
+                giverReleaseSteps,
                 "distal giver release"
             );
             fixtureEfforts = interpolateTargets(
@@ -7997,25 +8100,112 @@ int main(const int argc, const char* const argv[]) {
                 kExtractionNeedleShape,
                 receiverReference
             );
-            requireTerminalResidual(
-                released.result,
-                "distal receiver sole-control hold"
+            const RodStateMetrics releaseRod = rodStateMetrics(
+                world,
+                released.result
+            );
+            const MRMetalWorldContactStatusGPU& releaseResidual =
+                requireTerminalResidual(
+                    released.result,
+                    "distal receiver sole-control hold"
+                );
+            const double releaseSwageError = swageAttachmentError(
+                world,
+                released.result
             );
             require(
                 !bilateral(releaseContacts, 0u) &&
                     bilateral(releaseContacts, 1u) &&
+                    distributedInsertCoverage(releaseContacts, 1u) &&
                     cleanNeedleInteraction(
                         releaseContacts,
                         false,
                         true
                     ) &&
                     qualifiedDrivenGrasp(releaseReceiverMotion) &&
-                    qualifiedTerminalRod(
-                        rodStateMetrics(world, released.result)
-                    ),
+                    qualifiedTerminalRod(releaseRod) &&
+                    releaseSwageError < kMaximumSwageAttachmentError,
                 "receiver did not retain sole control after giver release: " +
                     contactSummary(releaseContacts)
             );
+            if (receiverExtractionGiverReleaseOnly) {
+                const std::uint64_t releaseTerminalStep =
+                    giverTerminalStep +
+                    receiverApproachSteps +
+                    receiverApproachSettleSteps +
+                    receiverClosureSteps +
+                    receiverClosureSettleSteps +
+                    loadExchangeSteps +
+                    loadExchangeSettleSteps +
+                    giverReleaseSteps +
+                    kGiverReleaseSettleSteps;
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "receiver-extraction-giver-release",
+                    releaseTerminalStep,
+                    world,
+                    sutureSpec,
+                    released.result
+                );
+                std::cout << std::setprecision(9)
+                    << "{\"schema\":\"numi.distal-suture-giver-release.v1\""
+                    << ",\"device\":\""
+                    << released.diagnostics.deviceName << "\""
+                    << ",\"release_steps\":" << giverReleaseSteps
+                    << ",\"release_peak_jaw_speed_radps\":"
+                    << 1.5 * (
+                        openJawCoordinate - receiverOverlapJawCoordinate
+                    ) / (giverReleaseSteps * kControlTimestep)
+                    << ",\"giver_jaw_contacts\":["
+                    << releaseContacts.jawContacts[0][0] << ','
+                    << releaseContacts.jawContacts[0][1] << ']'
+                    << ",\"receiver_jaw_contacts\":["
+                    << releaseContacts.jawContacts[1][0] << ','
+                    << releaseContacts.jawContacts[1][1] << ']'
+                    << ",\"receiver_insert_patch_masks\":["
+                    << releaseContacts.jawInsertPatchMasks[1][0] << ','
+                    << releaseContacts.jawInsertPatchMasks[1][1] << ']'
+                    << ",\"receiver_seat_drift_m\":"
+                    << releaseReceiverMotion.seatDrift
+                    << ",\"receiver_relative_point_speed_mps\":"
+                    << releaseReceiverMotion.relativePointSpeed
+                    << ",\"receiver_relative_angular_speed_radps\":"
+                    << releaseReceiverMotion.relativeAngularSpeed
+                    << ",\"thread_max_node_speed_mps\":"
+                    << releaseRod.maximumNodeSpeed
+                    << ",\"thread_max_edge_length_error_m\":"
+                    << releaseRod.maximumEdgeLengthError
+                    << ",\"thread_minimum_clearance_m\":"
+                    << releaseRod.minimumNonNeighbourSurfaceClearance
+                    << ",\"hard_swage_root_error_m\":"
+                    << releaseSwageError
+                    << ",\"terminal_contact_velocity_residual_mps\":"
+                    << releaseResidual.residuals.y
+                    << ",\"terminal_cone_violation\":"
+                    << releaseResidual.residuals.z
+                    << ",\"failed_steps\":0"
+                    << ",\"gpu_ms\":"
+                    << giverPreloaded.diagnostics.gpuElapsedMilliseconds +
+                           giverLatchMotion.diagnostics
+                               .gpuElapsedMilliseconds +
+                           giverHeld.diagnostics.gpuElapsedMilliseconds +
+                           receiverApproachMotion.diagnostics
+                               .gpuElapsedMilliseconds +
+                           receiverApproached.diagnostics
+                               .gpuElapsedMilliseconds +
+                           receiverClosureMotion.diagnostics
+                               .gpuElapsedMilliseconds +
+                           receiverOverlapHeld.diagnostics
+                               .gpuElapsedMilliseconds +
+                           loadExchangeMotion.diagnostics
+                               .gpuElapsedMilliseconds +
+                           loadExchanged.diagnostics.gpuElapsedMilliseconds +
+                           releaseMotion.diagnostics.gpuElapsedMilliseconds +
+                           released.diagnostics.gpuElapsedMilliseconds
+                    << ",\"boundary\":\"receiver sole dynamic control; "
+                       "no tissue-side extraction yet\"}\n";
+                return 0;
+            }
 
             const JawGeometry receiverBeforeExtraction = worldJawGeometry(
                 world.model,
@@ -8162,8 +8352,8 @@ int main(const int argc, const char* const argv[]) {
                 receiverClosureSteps +
                 receiverClosureSettleSteps +
                 loadExchangeSteps +
-                kLoadExchangeSettleSteps +
-                receiverOverlapTravelSteps +
+                loadExchangeSettleSteps +
+                giverReleaseSteps +
                 kGiverReleaseSettleSteps +
                 kReceiverTransferSteps +
                 kReceiverTransferSettleSteps;

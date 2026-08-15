@@ -180,6 +180,24 @@ extraction, and robot-tied knot formation remain separate boundaries.
   build-coupled-dev/testing/suture/extraction-state/receiver-extraction-positive-control.tsv
 ```
 
+Giver release is a separate receiver-ownership gate. The giver opens from its
+15 um overlap to the calibrated 0.30 mm diametral clearance over 240 ms at a
+0.154 rad/s peak jaw speed, then both arms hold position for 200 ms. On Apple
+M4, the endpoint had zero giver/needle contacts while the receiver retained
+8/8 safe-zone contacts and `1111`/`1111` insert masks. Receiver seat drift was
+59.9 um, relative point speed 2.21 um/s, relative angular speed 1.86 mrad/s,
+maximum strand speed 0.484 mm/s, maximum DER edge error 0.405 um, hard-swage
+error 0.886 um, and the live temporal-cone residual 0.711 mm/s. Cone violation
+and failed steps were both zero. This qualifies settled sole receiver control;
+it does not yet claim tissue-side retraction or continuous tissue coupling.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --receiver-extraction-giver-release-only \
+  --resume-receiver-extraction-load-exchange \
+  build-coupled-dev/testing/suture/extraction-state/receiver-extraction-load-exchange.tsv
+```
+
 ## Loaded PDO knot-contact mechanics
 
 The rod solver now resolves a bounded network of frictional thread/thread
