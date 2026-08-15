@@ -124,6 +124,24 @@ or knot formation.
   --receiver-extraction-giver-hold-only
 ```
 
+From that accepted dynamic state, the distal receiver now follows a
+branch-continuous six-coordinate frame trajectory to the exposed handling
+segment with its jaws open. The 300 ms cubic move peaks at 50 mm/s and used
+23.8% of the authored joint-speed envelope. Its Apple M4 qualification had
+zero receiver/needle and cross-arm contact samples, retained the giver at
+2.57 um seat drift and 56.1 um/s relative slip, reduced maximum strand speed
+to 0.432 mm/s, ended at 0.872 um hard-swage error and a 0.658 mm/s live
+temporal-cone residual, and reported zero failed steps. The accepted q/v,
+needle, strand-node, and twist state is resumable. Receiver closure, load
+exchange, tissue extraction, and robot-tied knot formation remain separate
+qualification boundaries.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --receiver-extraction-approach-only \
+  --state-output-dir /tmp/numi-distal-extraction
+```
+
 ## Loaded PDO knot-contact mechanics
 
 The rod solver now resolves a bounded network of frictional thread/thread
