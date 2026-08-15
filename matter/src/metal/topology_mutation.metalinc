@@ -329,7 +329,20 @@ kernel void nm_topology_detect_puncture(
         const float3 edge = second - first;
         const float lengthEdge = length(edge);
         if (!(lengthEdge > 1.0e-12f)) continue;
-        const float3 tipDirection = -edge / lengthEdge;
+        const float3 geometricTipDirection = -edge / lengthEdge;
+        float3 tipDirection = geometricTipDirection;
+        const float3 terminalVelocity =
+            rigid.linearVelocityAndInverseMass.xyz;
+        const float terminalSpeed = length(terminalVelocity);
+        if (terminalSpeed > 1.0e-5f) {
+            const float3 motionDirection = terminalVelocity / terminalSpeed;
+            // A finite capsule axis is the chord of a curved needle segment,
+            // while its terminal point moves on the true circular tangent.
+            // When that live motion remains inside the authored tip cone, use
+            // the swept sharp-point direction for the cutting centerline.
+            if (dot(motionDirection, geometricTipDirection) >= 0.75f)
+                tipDirection = motionDirection;
+        }
         const uint sourceIdentifier = 0x80000000u | proxyIndex;
 
         // Once fracture has admitted this tip, advance only the exposed
@@ -392,7 +405,11 @@ kernel void nm_topology_detect_puncture(
             const float radial = length(
                 relative - axial * channelDirection);
             const float triggerRadius = max(radius, channelRadius);
-            if (axial < channelHalfLength - triggerRadius ||
+            const float frontierTolerance = max(
+                0.1f * triggerRadius,
+                8.0f * kGeometryFloor
+            );
+            if (axial < channelHalfLength - frontierTolerance ||
                 axial > channelHalfLength + 2.0f * triggerRadius ||
                 radial > triggerRadius ||
                 dot(tipDirection, channelDirection) < 0.5f ||
@@ -401,8 +418,36 @@ kernel void nm_topology_detect_puncture(
                 continue;
             const float tractLength = 2.0f * radius;
             const float3 tractFirst = distal;
+            // A rotating needle sweeps a circular centerline. Advancing every
+            // finite channel segment along the tangent at its proximal end is
+            // forward Euler integration and accumulates an outward spiral.
+            // Use the live rigid twist to rotate the segment direction to the
+            // arc midpoint; its straight chord then has second-order radial
+            // error while pure translation retains the exact former path.
+            float3 tractDirection = tipDirection;
+            const float angularSpeed = length(rigid.angularVelocity.xyz);
+            const float forwardSpeed = dot(
+                rigid.linearVelocityAndInverseMass.xyz,
+                tipDirection
+            );
+            if (angularSpeed > 1.0e-6f && forwardSpeed > 1.0e-5f) {
+                const float3 rotationAxis =
+                    rigid.angularVelocity.xyz / angularSpeed;
+                const float halfTurn = min(
+                    0.78539816339f,
+                    0.5f * angularSpeed * tractLength / forwardSpeed
+                );
+                const float cosine = cos(halfTurn);
+                const float sine = sin(halfTurn);
+                tractDirection = normalize(
+                    cosine * tipDirection +
+                    sine * cross(rotationAxis, tipDirection) +
+                    (1.0f - cosine) *
+                        dot(rotationAxis, tipDirection) * rotationAxis
+                );
+            }
             const float3 tractSecond =
-                tractFirst + tractLength * tipDirection;
+                tractFirst + tractLength * tractDirection;
             if (!punctureSegmentIntersectsActiveTissue(
                     object, tractFirst, tractSecond, nodes, tetrahedra,
                     nodeBase, tetBase))
@@ -416,7 +461,7 @@ kernel void nm_topology_detect_puncture(
             output.schedule = {
                 controlStep, NM_INVALID_INDEX, 0u, environment,
             };
-            output.geometry0 = float4(tipDirection, radius);
+            output.geometry0 = float4(tractDirection, radius);
             output.geometry1 = float4(
                 0.5f * (tractFirst + tractSecond),
                 0.5f * tractLength
@@ -462,7 +507,12 @@ kernel void nm_topology_detect_puncture(
         // progresses; the entry transaction must not pre-cut the full wall.
         const float tractLength = 2.0f * radius;
         const float3 tractFirst = acceptedSample.pointAndSeparation.xyz;
-        const float3 tractSecond = tractFirst + tractLength * inward;
+        // The accepted tissue normal admits fracture, but the finite cutting
+        // tract follows the explicitly authored sharp-tip axis. Using a
+        // discretized/deformed surface normal as cutting direction makes the
+        // embedded channel drift away from a curved needle even after a valid
+        // aligned impact.
+        const float3 tractSecond = tractFirst + tractLength * tipDirection;
         if (!punctureSegmentIntersectsActiveTissue(
                 object, tractFirst, tractSecond, nodes, tetrahedra,
                 nodeBase, tetBase))
@@ -474,7 +524,7 @@ kernel void nm_topology_detect_puncture(
             NM_MUTATION_ACTIVE | NM_MUTATION_PHYSICS_TRIGGERED,
         };
         output.schedule = {controlStep, NM_INVALID_INDEX, 0u, environment};
-        output.geometry0 = float4(inward, radius);
+        output.geometry0 = float4(tipDirection, radius);
         output.geometry1 = float4(
             0.5f * (tractFirst + tractSecond),
             0.5f * tractLength

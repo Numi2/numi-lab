@@ -2390,6 +2390,18 @@ if(BUILD_TESTING)
             LABELS "metalrobo;matter;surgical;physics;metal"
             TIMEOUT 1800
     )
+    add_test(
+        NAME metalrobo.surgical.curved_needle_through_wall_passage
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-curved-passage-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.curved_needle_through_wall_passage
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 3600
+    )
     set(
         METALROBO_SUTURE_TEST_STATE
         "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/pickup.state.tsv"

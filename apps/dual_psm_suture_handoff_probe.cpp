@@ -96,6 +96,16 @@ constexpr double kPunctureApproachSpeedMps = 2.0e-2;
 // profile. The surgical sequence retains the 20 mm/s entry speed above.
 constexpr double kPunctureChannelProbeSpeedMps = 2.0e-1;
 constexpr std::uint32_t kPunctureChannelProbeSteps = 16u;
+// The through-wall qualification keeps the medically scaled needle at the
+// same deliberate 20 mm/s terminal centerline speed as initial entry.  It is
+// driven about the authored half-circle centre rather than translated through
+// the wall, and advances in bounded chunks so every accepted Matter/DER state
+// remains inspectable while resident GPU state is retained.
+constexpr double kCurvedPassageSpeedMps = kPunctureApproachSpeedMps;
+constexpr double kCurvedPassageExitClearanceM = 1.0e-4;
+constexpr double kCurvedPassageMaximumExtensionM = 5.0e-4;
+constexpr std::uint32_t kCurvedPassageChunkSteps = 32u;
+constexpr std::uint32_t kCurvedPassageContactSegmentCount = 2u;
 // Place the qualification bite 3 mm from the enterotomy centreline. This is
 // an explicit training geometry pending procedure- and specimen-specific bite
 // calibration, and is never reported as a clinical recommendation.
@@ -516,6 +526,22 @@ Quaternion rotationZ(const double angle) {
     };
 }
 
+Quaternion axisAngle(const Vec3 axis, const double angle) {
+    const double axisLength = norm(axis);
+    require(
+        axisLength > 1.0e-12 && std::isfinite(axisLength) &&
+            std::isfinite(angle),
+        "axis-angle rotation is degenerate"
+    );
+    const double scale = std::sin(0.5 * angle) / axisLength;
+    return {
+        axis.x * scale,
+        axis.y * scale,
+        axis.z * scale,
+        std::cos(0.5 * angle),
+    };
+}
+
 Vec3 rotate(const Quaternion q, const Vec3 value) {
     const Vec3 imaginary{q.x, q.y, q.z};
     const Vec3 doubled{
@@ -540,6 +566,104 @@ struct NeedleTipCapsuleGeometry {
     double radiusM = 0.0;
     double lengthM = 0.0;
 };
+
+struct CurvedNeedleOrbit {
+    Vec3 centerWorld{};
+    Vec3 axisWorld{};
+    Vec3 centerLocal{};
+    Quaternion initialOrientation{};
+    Vec3 initialBodyPosition{};
+    double centerlineRadiusM = 0.0;
+};
+
+CurvedNeedleOrbit curvedNeedleOrbit(
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const MRBodyStateGPU& body
+) {
+    const Quaternion orientation{
+        body.orientation.x,
+        body.orientation.y,
+        body.orientation.z,
+        body.orientation.w,
+    };
+    const Vec3 bodyPosition = vector(body.position);
+    // SurgicalAssets cooks the analytic arc about local geometry origin and
+    // then shifts every collider by the combined rigid COM.  The corresponding
+    // body-local curvature centre is therefore the negative geometry COM.
+    const Vec3 centerLocal{
+        -needle.rigid.geometryCenterOfMassM[0],
+        -needle.rigid.geometryCenterOfMassM[1],
+        -needle.rigid.geometryCenterOfMassM[2],
+    };
+    const Vec3 axisWorld = rotate(orientation, {0.0, 0.0, 1.0});
+    const double axisLength = norm(axisWorld);
+    require(
+        needle.metadata.centerlineRadiusM > 0.0 &&
+            std::isfinite(needle.metadata.centerlineRadiusM) &&
+            axisLength > 1.0e-12 && std::isfinite(axisLength),
+        "curved needle orbit is invalid"
+    );
+    return {
+        .centerWorld = bodyPosition + rotate(orientation, centerLocal),
+        .axisWorld = axisWorld * (1.0 / axisLength),
+        .centerLocal = centerLocal,
+        .initialOrientation = orientation,
+        .initialBodyPosition = bodyPosition,
+        .centerlineRadiusM = needle.metadata.centerlineRadiusM,
+    };
+}
+
+MRBodyStateGPU curvedNeedleTarget(
+    const MRBodyStateGPU& authored,
+    const CurvedNeedleOrbit& orbit,
+    const double angleRad,
+    const double angularSpeedRadPerS
+) {
+    require(
+        std::isfinite(angleRad) &&
+            std::isfinite(angularSpeedRadPerS) &&
+            angularSpeedRadPerS > 0.0,
+        "curved needle target has invalid motion"
+    );
+    const Quaternion orientation = multiply(
+        axisAngle(orbit.axisWorld, angleRad),
+        orbit.initialOrientation
+    );
+    const Vec3 position = orbit.centerWorld -
+        rotate(orientation, orbit.centerLocal);
+    const Vec3 angularVelocity =
+        orbit.axisWorld * angularSpeedRadPerS;
+    const Vec3 linearVelocity = cross(
+        angularVelocity,
+        position - orbit.centerWorld
+    );
+    MRBodyStateGPU target = authored;
+    target.position.x = static_cast<float>(position.x);
+    target.position.y = static_cast<float>(position.y);
+    target.position.z = static_cast<float>(position.z);
+    target.orientation = {
+        static_cast<float>(orientation.x),
+        static_cast<float>(orientation.y),
+        static_cast<float>(orientation.z),
+        static_cast<float>(orientation.w),
+    };
+    target.linearVelocityAndInverseMass = {
+        static_cast<float>(linearVelocity.x),
+        static_cast<float>(linearVelocity.y),
+        static_cast<float>(linearVelocity.z),
+        0.0f,
+    };
+    target.angularVelocity = {
+        static_cast<float>(angularVelocity.x),
+        static_cast<float>(angularVelocity.y),
+        static_cast<float>(angularVelocity.z),
+        0.0f,
+    };
+    target.inverseInertiaWorldRow0 = {};
+    target.inverseInertiaWorldRow1 = {};
+    target.inverseInertiaWorldRow2 = {};
+    return target;
+}
 
 NeedleTipCapsuleGeometry needleTipCapsuleGeometry(
     const metalrobo::CurvedSutureNeedleAsset& needle,
@@ -3362,6 +3486,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     const metalrobo::CurvedSutureNeedleAsset& needleAsset,
     const double initialSurfaceOffsetM,
     const bool punctureTip,
+    const std::uint32_t punctureContactSegmentCount,
     numi::matter::PorcineJejunumClosureCoupon& coupon
 ) {
     require(
@@ -3601,29 +3726,81 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     source.mixedSolver.minimumContactSeparationRatio = 0.05;
     source.materials.push_back(std::move(parsed.material));
 
-    // Matter borrows the real dynamic needle body. Contact-only regression
-    // uses its swage-side segment; puncture uses only the terminal tapered
-    // segment, ordered sharp-tip first under the ABI v21 contract. Reaction
-    // enters the global wrench arena before MetalWorld solves the hard swage
-    // and DER strand.
-    numi::matter::RigidProxySource needleProxy;
-    needleProxy.shape = NM_RIGID_CAPSULE;
-    needleProxy.bodyIndex = world.sceneBodyIndices[0];
+    // Matter borrows the real needle body. Contact-only regression uses its
+    // swage-side binding capsule. Puncture always places the terminal tapered
+    // capsule at proxy zero (sharp endpoint first under ABI v21), followed by
+    // the requested adjacent authored arc segments. The through-wall probe
+    // therefore resolves the widening taper behind the tip instead of passing
+    // a zero-thickness point through tissue. Dynamic reactions enter the
+    // global wrench arena before MetalWorld solves the hard swage and DER
+    // strand; kinematic motion remains prescribed but still deforms tissue.
     const bool dynamicNeedle =
         needle.flagsAndIndices[0] == MR_MOTION_DYNAMIC;
-    needleProxy.sceneBodyIndex = dynamicNeedle
-        ? 0u : NM_INVALID_INDEX;
-    needleProxy.materialIndex = 0u;
-    needleProxy.localCenter = {
-        localEndpointA.x, localEndpointA.y, localEndpointA.z,
+    const auto appendNeedleProxy = [&source, &world, dynamicNeedle](
+        const Vec3 first,
+        const Vec3 second,
+        const double radius,
+        const bool sharpTip
+    ) {
+        numi::matter::RigidProxySource proxy;
+        proxy.shape = NM_RIGID_CAPSULE;
+        proxy.bodyIndex = world.sceneBodyIndices[0];
+        proxy.sceneBodyIndex = dynamicNeedle ? 0u : NM_INVALID_INDEX;
+        proxy.materialIndex = 0u;
+        proxy.localCenter = {first.x, first.y, first.z};
+        proxy.localExtent = {second.x, second.y, second.z};
+        proxy.radiusOrOffset = radius;
+        proxy.dynamic = dynamicNeedle;
+        proxy.punctureTip = sharpTip;
+        source.rigidProxies.push_back(proxy);
     };
-    needleProxy.localExtent = {
-        localEndpointB.x, localEndpointB.y, localEndpointB.z,
-    };
-    needleProxy.radiusOrOffset = needleRadiusM;
-    needleProxy.dynamic = dynamicNeedle;
-    needleProxy.punctureTip = punctureTip;
-    source.rigidProxies.push_back(needleProxy);
+    if (!punctureTip) {
+        appendNeedleProxy(
+            localEndpointA,
+            localEndpointB,
+            needleRadiusM,
+            false
+        );
+    } else {
+        require(
+            punctureContactSegmentCount > 0u &&
+                punctureContactSegmentCount <=
+                    needleAsset.rigid.shapes.size(),
+            "puncture contact segment count is outside the needle arc"
+        );
+        for (std::uint32_t localSegment = 0u;
+             localSegment < punctureContactSegmentCount;
+             ++localSegment) {
+            const std::size_t shapeIndex =
+                needleAsset.rigid.shapes.size() - 1u - localSegment;
+            const MRShapeGPU& shape =
+                needleAsset.rigid.shapes[shapeIndex];
+            require(
+                shape.shapeType == MR_SHAPE_CAPSULE &&
+                    shape.dimensions.x > 0.0f &&
+                    shape.dimensions.y > 0.0f,
+                "puncture arc contains a non-capsule segment"
+            );
+            const Vec3 center = vector(shape.localPosition);
+            const Vec3 axis = rotate(
+                Quaternion{
+                    shape.localRotation.x,
+                    shape.localRotation.y,
+                    shape.localRotation.z,
+                    shape.localRotation.w,
+                },
+                {0.0, 1.0, 0.0}
+            );
+            // SurgicalAssets authors +Y along increasing arc length, so the
+            // first endpoint is always the distal/tip-side endpoint.
+            appendNeedleProxy(
+                center + axis * shape.dimensions.y,
+                center - axis * shape.dimensions.y,
+                shape.dimensions.x,
+                localSegment == 0u
+            );
+        }
+    }
     source.objects.push_back(coupon.object);
 
     numi::matter::CompileOptions compileOptions;
@@ -3664,6 +3841,8 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         << " fixed="
         << compiled.world.fem.nodes[anchorNode].restAndFixed.w
         << " compiled_pairs=" << anchorPairCount
+        << " needle_contact_segments="
+        << compiled.world.contact.rigidProxies.size()
         << " proxy_flags="
         << compiled.world.contact.rigidProxies.at(0u).flags << '\n';
     return std::move(compiled.world);
@@ -3733,6 +3912,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-rest-only" ||
             argument == "--tissue-puncture-only" ||
             argument == "--tissue-puncture-advance-only" ||
+            argument == "--tissue-curved-passage-only" ||
             argument == "--long-settle" ||
             argument == "--approach-only" ||
             argument == "--closure-only" ||
@@ -4779,6 +4959,49 @@ PhaseResult continuePhase(
     return phase;
 }
 
+PhaseResult continuePhaseWithKinematicTargets(
+    metalrobo::MetalWorldContext& context,
+    const metalrobo::CompiledWorld& compiled,
+    const metalrobo::MetalWorldStepConfig& config,
+    metalrobo::MetalWorldResidentState& resident,
+    const std::vector<float>& efforts,
+    const std::vector<MRBodyStateGPU>& kinematicTargets,
+    const std::uint32_t steps,
+    const std::string& name
+) {
+    require(
+        kinematicTargets.size() ==
+            static_cast<std::size_t>(steps) * compiled.sceneBodyCount(),
+        name + " kinematic target stream has the wrong dimensions"
+    );
+    const metalrobo::MetalWorldBatch batch{
+        .environmentCount = 1u,
+        .controlStepCount = steps,
+        .efforts = efforts,
+        .kinematicTargets = kinematicTargets,
+    };
+    metalrobo::MetalWorldSubmission submission;
+    const auto submitted = context.submitResident(
+        compiled,
+        batch,
+        config,
+        resident,
+        submission
+    );
+    require(
+        submitted.succeeded() && submission.valid(),
+        name + " submission failed: " + submitted.message
+    );
+    PhaseResult phase;
+    phase.diagnostics = submission.wait(phase.result);
+    require(
+        phase.diagnostics.succeeded() &&
+            phase.diagnostics.failedStepCount == 0u,
+        name + " failed: " + phase.diagnostics.message
+    );
+    return phase;
+}
+
 PhaseResult continuePhaseUnchecked(
     metalrobo::MetalWorldContext& context,
     const metalrobo::CompiledWorld& compiled,
@@ -4825,9 +5048,12 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-rest-only";
         const bool tissuePunctureOnly =
             options.mode == "--tissue-puncture-only" ||
-            options.mode == "--tissue-puncture-advance-only";
+            options.mode == "--tissue-puncture-advance-only" ||
+            options.mode == "--tissue-curved-passage-only";
         const bool tissuePunctureAdvanceOnly =
             options.mode == "--tissue-puncture-advance-only";
+        const bool tissueCurvedPassageOnly =
+            options.mode == "--tissue-curved-passage-only";
         const bool tissueMatterOnly =
             tissueCouplingOnly || tissueRestOnly || tissuePunctureOnly;
         const bool approachOnly = options.mode == "--approach-only";
@@ -5886,18 +6112,21 @@ int main(const int argc, const char* const argv[]) {
         numi::matter::Runtime tissueRuntime;
         numi::matter::CompiledWorld tissueWorld;
         numi::matter::PorcineJejunumClosureCoupon tissueCoupon;
+        std::optional<CurvedNeedleOrbit> tissueNeedleOrbit;
+        double tissueNeedleAngularSpeedRadPerS = 0.0;
         if (tissueMatterOnly) {
             const NeedleTipCapsuleGeometry tip = needleTipCapsuleGeometry(
                 needleForPlacement,
                 world.defaultSceneBodies[0]
             );
-            const Vec3 initialNeedleVelocity = tissuePunctureOnly
+            Vec3 initialNeedleVelocity = tissuePunctureOnly
                 ? tip.approachDirection * (
                     tissuePunctureAdvanceOnly
                         ? kPunctureChannelProbeSpeedMps
                         : kPunctureApproachSpeedMps)
                 : Vec3{};
-            if (tissuePunctureAdvanceOnly) {
+            Vec3 initialNeedleAngularVelocity{};
+            if (tissuePunctureAdvanceOnly || tissueCurvedPassageOnly) {
                 require(
                     world.sceneBodyIndices[0] < world.model.bodies.size(),
                     "needle scene body has no compiled model owner"
@@ -5914,27 +6143,120 @@ int main(const int argc, const char* const argv[]) {
                 world.defaultSceneBodies[0].inverseInertiaWorldRow1 = {};
                 world.defaultSceneBodies[0].inverseInertiaWorldRow2 = {};
             }
+            if (tissueCurvedPassageOnly) {
+                tissueNeedleOrbit = curvedNeedleOrbit(
+                    needleForPlacement,
+                    world.defaultSceneBodies[0]
+                );
+                tissueNeedleAngularSpeedRadPerS =
+                    kCurvedPassageSpeedMps /
+                    tissueNeedleOrbit->centerlineRadiusM;
+                world.defaultSceneBodies[0] = curvedNeedleTarget(
+                    world.defaultSceneBodies[0],
+                    *tissueNeedleOrbit,
+                    0.0,
+                    tissueNeedleAngularSpeedRadPerS
+                );
+                initialNeedleVelocity = vector(
+                    world.defaultSceneBodies[0]
+                        .linearVelocityAndInverseMass
+                );
+                initialNeedleAngularVelocity = vector(
+                    world.defaultSceneBodies[0].angularVelocity
+                );
+                const NeedleTipCapsuleGeometry drivenTip =
+                    needleTipCapsuleGeometry(
+                        needleForPlacement,
+                        world.defaultSceneBodies[0]
+                    );
+                const Vec3 terminalVelocity = initialNeedleVelocity + cross(
+                    initialNeedleAngularVelocity,
+                    drivenTip.worldTip -
+                        vector(world.defaultSceneBodies[0].position)
+                );
+                require(
+                    std::abs(
+                        norm(terminalVelocity) -
+                        kCurvedPassageSpeedMps
+                    ) <= 2.0e-5 &&
+                        dot(
+                            terminalVelocity,
+                            drivenTip.approachDirection
+                        ) > 0.999 * kCurvedPassageSpeedMps,
+                    "curved needle orbit does not preserve terminal entry speed"
+                );
+            }
             world.defaultSceneBodies[0].linearVelocityAndInverseMass.x =
                 static_cast<float>(initialNeedleVelocity.x);
             world.defaultSceneBodies[0].linearVelocityAndInverseMass.y =
                 static_cast<float>(initialNeedleVelocity.y);
             world.defaultSceneBodies[0].linearVelocityAndInverseMass.z =
                 static_cast<float>(initialNeedleVelocity.z);
-            world.rods[0].attachments[0].targetVelocity = {
-                initialNeedleVelocity.x,
-                initialNeedleVelocity.y,
-                initialNeedleVelocity.z,
-            };
-            // Translate the reset strand with the needle so the puncture
-            // transaction does not begin from an artificial swage impulse.
-            for (std::size_t node = 0u;
-                 node < world.rods[0].defaultState.velocities.size();
-                 ++node) {
-                world.rods[0].defaultState.velocities[node] = {
+            if (tissueCurvedPassageOnly) {
+                const MRBodyStateGPU& needle = world.defaultSceneBodies[0];
+                const Vec3 bodyPosition = vector(needle.position);
+                const Quaternion orientation{
+                    needle.orientation.x,
+                    needle.orientation.y,
+                    needle.orientation.z,
+                    needle.orientation.w,
+                };
+                const Vec3 localAnchor = vector(
+                    world.rods[0].rigidBindings[0].localAnchor
+                );
+                const Vec3 anchorOffset = rotate(
+                    orientation,
+                    localAnchor
+                );
+                const Vec3 anchorVelocity = initialNeedleVelocity + cross(
+                    initialNeedleAngularVelocity,
+                    anchorOffset
+                );
+                world.rods[0].attachments[0].targetVelocity = {
+                    anchorVelocity.x,
+                    anchorVelocity.y,
+                    anchorVelocity.z,
+                };
+                // Match the hard root and its tangent edge to the prescribed
+                // rigid twist. The rest of the loose 250 mm monofilament starts
+                // at rest and is accelerated only through the physical swage.
+                const std::size_t carriedNodes = std::min<std::size_t>(
+                    2u,
+                    world.rods[0].defaultState.velocities.size()
+                );
+                for (std::size_t node = 0u;
+                     node < carriedNodes;
+                     ++node) {
+                    const Vec3 point = vector(
+                        world.rods[0].defaultState.positions[node]
+                    );
+                    const Vec3 velocity = initialNeedleVelocity + cross(
+                        initialNeedleAngularVelocity,
+                        point - bodyPosition
+                    );
+                    world.rods[0].defaultState.velocities[node] = {
+                        velocity.x,
+                        velocity.y,
+                        velocity.z,
+                    };
+                }
+            } else {
+                world.rods[0].attachments[0].targetVelocity = {
                     initialNeedleVelocity.x,
                     initialNeedleVelocity.y,
                     initialNeedleVelocity.z,
                 };
+                // Translate the reset strand with the needle so the puncture
+                // transaction does not begin from an artificial swage impulse.
+                for (std::size_t node = 0u;
+                     node < world.rods[0].defaultState.velocities.size();
+                     ++node) {
+                    world.rods[0].defaultState.velocities[node] = {
+                        initialNeedleVelocity.x,
+                        initialNeedleVelocity.y,
+                        initialNeedleVelocity.z,
+                    };
+                }
             }
             world.fingerprint =
                 metalrobo::heterogeneousWorldFingerprint(world);
@@ -5945,6 +6267,8 @@ int main(const int argc, const char* const argv[]) {
                     ? kPunctureInitialClearanceM
                     : (tissueRestOnly ? 1.5e-4 : 5.0e-5),
                 tissuePunctureOnly,
+                tissueCurvedPassageOnly
+                    ? kCurvedPassageContactSegmentCount : 1u,
                 tissueCoupon
             );
             const auto initialized = tissueRuntime.initialize(
@@ -6018,9 +6342,10 @@ int main(const int argc, const char* const argv[]) {
                 numi::matter::makeMetalWorldDevicePhysicsProgram(
                     tissueRuntime
                 );
-            require(
-                stepConfig.devicePhysicsProgram.valid() &&
+                require(
+                    stepConfig.devicePhysicsProgram.valid() &&
                     (tissuePunctureAdvanceOnly ||
+                     tissueCurvedPassageOnly ||
                      (stepConfig.devicePhysicsProgram.flags &
                       metalrobo::
                           MetalWorldDevicePhysicsWritesBodyWrenches) != 0u),
@@ -6394,6 +6719,29 @@ int main(const int argc, const char* const argv[]) {
                     vector(acceptedChannel->axisAndHalfLength),
                     initialTip.approachDirection
                 ));
+                if (tissueCurvedPassageOnly &&
+                    tissueNeedleOrbit.has_value()) {
+                    const Vec3 axis = vector(
+                        acceptedChannel->axisAndHalfLength
+                    );
+                    const Vec3 origin = vector(
+                        acceptedChannel->originAndRadius
+                    );
+                    const Vec3 proximal = origin - axis *
+                        acceptedChannel->axisAndHalfLength.w;
+                    const Vec3 distal = origin + axis *
+                        acceptedChannel->axisAndHalfLength.w;
+                    std::cout << std::setprecision(9)
+                        << "curved_passage_entry_proximal_orbit_error_m="
+                        << norm(
+                            proximal - tissueNeedleOrbit->centerWorld
+                        ) - tissueNeedleOrbit->centerlineRadiusM
+                        << " curved_passage_entry_distal_orbit_error_m="
+                        << norm(
+                            distal - tissueNeedleOrbit->centerWorld
+                        ) - tissueNeedleOrbit->centerlineRadiusM
+                        << '\n';
+                }
             }
             const double swageError = swageAttachmentError(
                 world,
@@ -6478,7 +6826,9 @@ int main(const int argc, const char* const argv[]) {
                 );
             } else if (tissuePunctureOnly) {
                 require(
-                    tissueWorld.contact.rigidProxies.size() == 1u &&
+                    tissueWorld.contact.rigidProxies.size() ==
+                        (tissueCurvedPassageOnly
+                            ? kCurvedPassageContactSegmentCount : 1u) &&
                         (tissueWorld.contact.rigidProxies[0].flags &
                          NM_RIGID_PUNCTURE_TIP) != 0u &&
                         activeChannels == 1u &&
@@ -6549,6 +6899,646 @@ int main(const int argc, const char* const argv[]) {
                         needleForPlacement,
                         coupled.result.finalSceneBodies.at(0u)
                     );
+                if (tissueCurvedPassageOnly) {
+                    require(
+                        tissueNeedleOrbit.has_value() &&
+                            tissueNeedleAngularSpeedRadPerS > 0.0,
+                        "curved passage lost its authored needle orbit"
+                    );
+                    Vec3 thicknessAxis = vector(
+                        tissueCoupon.metadata.thicknessAxis
+                    );
+                    const double thicknessAxisLength = norm(thicknessAxis);
+                    require(
+                        thicknessAxisLength > 1.0e-12 &&
+                            std::isfinite(thicknessAxisLength),
+                        "curved passage tissue thickness axis is invalid"
+                    );
+                    thicknessAxis = thicknessAxis *
+                        (1.0 / thicknessAxisLength);
+                    double authoredTopProjection =
+                        -std::numeric_limits<double>::infinity();
+                    double authoredBottomProjection =
+                        std::numeric_limits<double>::infinity();
+                    for (const auto& authoredPosition :
+                         tissueCoupon.object.femNodes) {
+                        const double projection = dot(
+                            vector(authoredPosition),
+                            thicknessAxis
+                        );
+                        authoredTopProjection = std::max(
+                            authoredTopProjection,
+                            projection
+                        );
+                        authoredBottomProjection = std::min(
+                            authoredBottomProjection,
+                            projection
+                        );
+                    }
+                    const double authoredWallThicknessM =
+                        authoredTopProjection - authoredBottomProjection;
+                    require(
+                        std::isfinite(authoredWallThicknessM) &&
+                            std::abs(
+                                authoredWallThicknessM -
+                                tissueCoupon.spec.thicknessM.value
+                            ) <= 2.0e-7,
+                        "curved passage wall thickness changed during cooking"
+                    );
+                    const double requiredTipAdvanceM =
+                        authoredWallThicknessM +
+                        2.0 * (
+                            initialTip.radiusM +
+                            kCurvedPassageExitClearanceM
+                        );
+                    const double requiredSine = requiredTipAdvanceM /
+                        tissueNeedleOrbit->centerlineRadiusM;
+                    require(
+                        requiredSine > 0.0 && requiredSine < 0.5,
+                        "curved passage exceeds the needle orbit envelope"
+                    );
+                    const double targetPassageAngleRad =
+                        std::asin(requiredSine);
+                    const double microstepSeconds =
+                        static_cast<double>(stepConfig.timestepSeconds);
+                    const double anglePerMicrostepRad =
+                        tissueNeedleAngularSpeedRadPerS * microstepSeconds;
+                    const std::uint32_t minimumPassageSteps =
+                        static_cast<std::uint32_t>(std::ceil(
+                            targetPassageAngleRad /
+                            anglePerMicrostepRad
+                        )) + 4u;
+                    const std::uint32_t maximumExtensionSteps =
+                        static_cast<std::uint32_t>(std::ceil(
+                            kCurvedPassageMaximumExtensionM /
+                            (kCurvedPassageSpeedMps * microstepSeconds)
+                        ));
+                    const std::uint32_t maximumPassageSteps =
+                        minimumPassageSteps + maximumExtensionSteps;
+                    require(
+                        minimumPassageSteps > 1u &&
+                            maximumPassageSteps > minimumPassageSteps &&
+                            maximumPassageSteps < 4096u,
+                        "curved passage step count is invalid"
+                    );
+
+                    PhaseResult passage = coupled;
+                    std::uint32_t completedPassageSteps = 1u;
+                    std::uint32_t totalPassageSteps = 0u;
+                    double passageGpuMilliseconds =
+                        coupled.diagnostics.gpuElapsedMilliseconds;
+                    bool measuredExitReached = false;
+                    while (completedPassageSteps < maximumPassageSteps) {
+                        std::uint32_t chunkSteps = std::min(
+                            kCurvedPassageChunkSteps,
+                            maximumPassageSteps - completedPassageSteps
+                        );
+                        if (completedPassageSteps < minimumPassageSteps) {
+                            chunkSteps = std::min(
+                                chunkSteps,
+                                minimumPassageSteps -
+                                    completedPassageSteps
+                            );
+                        }
+                        std::vector<MRBodyStateGPU> kinematicTargets;
+                        kinematicTargets.reserve(
+                            static_cast<std::size_t>(chunkSteps) *
+                            compiled.sceneBodyCount()
+                        );
+                        for (std::uint32_t localStep = 0u;
+                             localStep < chunkSteps;
+                             ++localStep) {
+                            const double angle = anglePerMicrostepRad *
+                                static_cast<double>(
+                                    completedPassageSteps + localStep
+                                );
+                            for (std::size_t sceneBody = 0u;
+                                 sceneBody < compiled.sceneBodyCount();
+                                 ++sceneBody) {
+                                kinematicTargets.push_back(
+                                    sceneBody == 0u
+                                        ? curvedNeedleTarget(
+                                            world.defaultSceneBodies[0],
+                                            *tissueNeedleOrbit,
+                                            angle,
+                                            tissueNeedleAngularSpeedRadPerS
+                                        )
+                                        : world.defaultSceneBodies.at(
+                                            sceneBody)
+                                );
+                            }
+                        }
+                        const std::vector<float> passageEfforts =
+                            interpolateTargets(
+                                world.model,
+                                targetStart,
+                                targetStart,
+                                chunkSteps
+                            );
+                        passage = continuePhaseWithKinematicTargets(
+                            context,
+                            compiled,
+                            stepConfig,
+                            resident,
+                            passageEfforts,
+                            kinematicTargets,
+                            chunkSteps,
+                            "curvature-following tissue passage"
+                        );
+                        completedPassageSteps += chunkSteps;
+                        passageGpuMilliseconds +=
+                            passage.diagnostics.gpuElapsedMilliseconds;
+                        const NeedleTipCapsuleGeometry progressTip =
+                            needleTipCapsuleGeometry(
+                                needleForPlacement,
+                                passage.result.finalSceneBodies.at(0u)
+                            );
+                        std::cout << std::setprecision(9)
+                            << "curved_passage_progress_steps="
+                            << completedPassageSteps << '/'
+                            << minimumPassageSteps
+                            << " curved_passage_progress_m="
+                            << dot(
+                                progressTip.worldTip - initialTip.worldTip,
+                                initialTip.approachDirection
+                            )
+                            << " chunk_gpu_ms="
+                            << passage.diagnostics.gpuElapsedMilliseconds
+                            << '\n';
+                        if (completedPassageSteps < minimumPassageSteps) {
+                            continue;
+                        }
+                        const numi::matter::RuntimeStateSnapshot
+                            progressSnapshot = tissueRuntime.snapshot();
+                        require(
+                            progressSnapshot.available &&
+                                tissueCoupon.metadata.nodeCount <=
+                                    progressSnapshot.femNodes.size(),
+                            "curved passage could not inspect distal clearance"
+                        );
+                        double progressBottomProjection =
+                            std::numeric_limits<double>::infinity();
+                        for (std::size_t nodeIndex = 0u;
+                             nodeIndex < tissueCoupon.metadata.nodeCount;
+                             ++nodeIndex) {
+                            progressBottomProjection = std::min(
+                                progressBottomProjection,
+                                dot(
+                                    vector(
+                                        progressSnapshot.femNodes[nodeIndex]
+                                            .positionAndMass
+                                    ),
+                                    thicknessAxis
+                                )
+                            );
+                        }
+                        const double progressDistalClearanceM =
+                            progressBottomProjection -
+                            dot(progressTip.worldTip, thicknessAxis) -
+                            initialTip.radiusM;
+                        std::cout << std::setprecision(9)
+                            << "curved_passage_measured_distal_clearance_m="
+                            << progressDistalClearanceM
+                            << " curved_passage_extension_steps="
+                            << completedPassageSteps -
+                                minimumPassageSteps << '\n';
+                        if (progressDistalClearanceM >=
+                            kCurvedPassageExitClearanceM) {
+                            measuredExitReached = true;
+                            break;
+                        }
+                    }
+                    totalPassageSteps = completedPassageSteps;
+                    require(
+                        measuredExitReached,
+                        "curved passage exhausted its bounded extension before "
+                        "the deformed distal surface cleared the needle tip"
+                    );
+
+                    const numi::matter::RuntimeStateSnapshot passageSnapshot =
+                        tissueRuntime.snapshot();
+                    require(
+                        passageSnapshot.available &&
+                            !passageSnapshot.femNodes.empty() &&
+                            !passageSnapshot.punctureChannels.empty() &&
+                            !passageSnapshot.solverCertificates.empty(),
+                        "curved passage did not publish accepted Matter state"
+                    );
+                    std::vector<NMPunctureChannelGPU> passageChannels;
+                    std::uint32_t passageContacts = 0u;
+                    std::uint32_t passageTetrahedra = 0u;
+                    double passageRemovedMassKg = 0.0;
+                    double finalBottomProjection =
+                        std::numeric_limits<double>::infinity();
+                    double maximumPassageTissueDisplacementM = 0.0;
+                    require(
+                        tissueCoupon.metadata.nodeCount <=
+                            passageSnapshot.femNodes.size() &&
+                            tissueCoupon.metadata.nodeCount <=
+                                tissueWorld.fem.nodes.size(),
+                        "curved passage lost authored FEM nodes"
+                    );
+                    for (std::size_t nodeIndex = 0u;
+                         nodeIndex < tissueCoupon.metadata.nodeCount;
+                         ++nodeIndex) {
+                        const Vec3 finalPosition = vector(
+                            passageSnapshot.femNodes[nodeIndex]
+                                .positionAndMass
+                        );
+                        finalBottomProjection = std::min(
+                            finalBottomProjection,
+                            dot(finalPosition, thicknessAxis)
+                        );
+                        maximumPassageTissueDisplacementM = std::max(
+                            maximumPassageTissueDisplacementM,
+                            norm(
+                                finalPosition -
+                                vector(
+                                    tissueWorld.fem.nodes.at(nodeIndex)
+                                        .positionAndMass
+                                )
+                            )
+                        );
+                    }
+                    for (const NMContactSampleGPU& sample :
+                         passageSnapshot.contactSamples) {
+                        passageContacts +=
+                            (sample.identity.w & NM_CONTACT_VALID) != 0u;
+                    }
+                    for (const NMPunctureChannelGPU& channel :
+                         passageSnapshot.punctureChannels) {
+                        if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u) {
+                            passageChannels.push_back(channel);
+                        }
+                    }
+                    for (const NMTetrahedronGPU& tetrahedron :
+                         passageSnapshot.femTopologyTetrahedra) {
+                        passageTetrahedra +=
+                            (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                    }
+                    for (const NMFEMTopologyStateGPU& topology :
+                         passageSnapshot.topologyStates) {
+                        passageRemovedMassKg += topology.accounting.y;
+                    }
+                    std::sort(
+                        passageChannels.begin(),
+                        passageChannels.end(),
+                        [](const NMPunctureChannelGPU& left,
+                           const NMPunctureChannelGPU& right) {
+                            return left.identity.z < right.identity.z;
+                        }
+                    );
+                    double channelMinimumProjection =
+                        std::numeric_limits<double>::infinity();
+                    double channelMaximumProjection =
+                        -std::numeric_limits<double>::infinity();
+                    double channelMaximumJoinGapM = 0.0;
+                    double channelMinimumTangentAlignment = 1.0;
+                    double channelMaximumOrbitErrorM = 0.0;
+                    double channelMinimumSignedOrbitErrorM =
+                        std::numeric_limits<double>::infinity();
+                    double channelMaximumSignedOrbitErrorM =
+                        -std::numeric_limits<double>::infinity();
+                    double channelTotalLengthM = 0.0;
+                    bool channelGeometryValid = true;
+                    std::uint32_t channelLinks = 0u;
+                    Vec3 previousDistal{};
+                    Vec3 previousAxis{};
+                    for (std::size_t channelIndex = 0u;
+                         channelIndex < passageChannels.size();
+                         ++channelIndex) {
+                        const NMPunctureChannelGPU& channel =
+                            passageChannels[channelIndex];
+                        const Vec3 rawAxis = vector(
+                            channel.axisAndHalfLength
+                        );
+                        const double axisLength = norm(rawAxis);
+                        const double halfLength =
+                            channel.axisAndHalfLength.w;
+                        const double radius = channel.originAndRadius.w;
+                        channelGeometryValid = channelGeometryValid &&
+                            channel.identity.x == 0u &&
+                            channel.identity.y == 0x80000000u &&
+                            channel.identity.z != 0u &&
+                            axisLength > 1.0e-12 &&
+                            std::abs(axisLength - 1.0) <= 1.0e-5 &&
+                            std::abs(radius - initialTip.radiusM) <= 2.0e-7 &&
+                            std::abs(
+                                2.0 * halfLength -
+                                expectedEntryTractLengthM
+                            ) <= 2.0e-7;
+                        if (!(axisLength > 1.0e-12) ||
+                            !(halfLength > 0.0)) {
+                            continue;
+                        }
+                        const Vec3 axis = rawAxis * (1.0 / axisLength);
+                        const Vec3 origin = vector(
+                            channel.originAndRadius
+                        );
+                        const Vec3 proximal = origin - axis * halfLength;
+                        const Vec3 distal = origin + axis * halfLength;
+                        channelTotalLengthM += 2.0 * halfLength;
+                        for (const Vec3 endpoint : {proximal, distal}) {
+                            const double projection = dot(
+                                endpoint,
+                                thicknessAxis
+                            );
+                            channelMinimumProjection = std::min(
+                                channelMinimumProjection,
+                                projection
+                            );
+                            channelMaximumProjection = std::max(
+                                channelMaximumProjection,
+                                projection
+                            );
+                            const double signedOrbitErrorM =
+                                norm(
+                                    endpoint -
+                                    tissueNeedleOrbit->centerWorld
+                                ) -
+                                tissueNeedleOrbit->centerlineRadiusM;
+                            channelMaximumOrbitErrorM = std::max(
+                                channelMaximumOrbitErrorM,
+                                std::abs(signedOrbitErrorM)
+                            );
+                            channelMinimumSignedOrbitErrorM = std::min(
+                                channelMinimumSignedOrbitErrorM,
+                                signedOrbitErrorM
+                            );
+                            channelMaximumSignedOrbitErrorM = std::max(
+                                channelMaximumSignedOrbitErrorM,
+                                signedOrbitErrorM
+                            );
+                        }
+                        if (channelIndex != 0u) {
+                            const double joinGap = norm(
+                                proximal - previousDistal
+                            );
+                            channelMaximumJoinGapM = std::max(
+                                channelMaximumJoinGapM,
+                                joinGap
+                            );
+                            channelMinimumTangentAlignment = std::min(
+                                channelMinimumTangentAlignment,
+                                dot(previousAxis, axis)
+                            );
+                            channelGeometryValid = channelGeometryValid &&
+                                channel.identity.z >
+                                    passageChannels[channelIndex - 1u]
+                                        .identity.z &&
+                                dot(
+                                    cross(previousAxis, axis),
+                                    tissueNeedleOrbit->axisWorld
+                                ) >= -1.0e-5;
+                            channelLinks +=
+                                joinGap <= 0.25 * initialTip.radiusM;
+                        }
+                        previousDistal = distal;
+                        previousAxis = axis;
+                    }
+                    bool passageCertificatesAccepted = true;
+                    double passageMinimumDeterminant =
+                        std::numeric_limits<double>::infinity();
+                    double passageMaximumResidual = 0.0;
+                    for (const NMSolverCertificateGPU& certificate :
+                         passageSnapshot.solverCertificates) {
+                        passageCertificatesAccepted =
+                            passageCertificatesAccepted &&
+                            certificate.validity.w > 0.5f;
+                        passageMinimumDeterminant = std::min(
+                            passageMinimumDeterminant,
+                            static_cast<double>(certificate.validity.x)
+                        );
+                        passageMaximumResidual = std::max({
+                            passageMaximumResidual,
+                            static_cast<double>(certificate.nonlinear.x),
+                            static_cast<double>(certificate.nonlinear.z),
+                            static_cast<double>(certificate.nonlinear.w),
+                        });
+                    }
+                    const NeedleTipCapsuleGeometry exitTip =
+                        needleTipCapsuleGeometry(
+                            needleForPlacement,
+                            passage.result.finalSceneBodies.at(0u)
+                        );
+                    const MRBodyStateGPU& exitNeedle =
+                        passage.result.finalSceneBodies.at(0u);
+                    const Vec3 exitTerminalVelocity =
+                        vector(exitNeedle.linearVelocityAndInverseMass) +
+                        cross(
+                            vector(exitNeedle.angularVelocity),
+                            exitTip.worldTip - vector(exitNeedle.position)
+                        );
+                    const double exitTipAdvanceM = dot(
+                        exitTip.worldTip - initialTip.worldTip,
+                        initialTip.approachDirection
+                    );
+                    const double distalSurfaceClearanceM =
+                        finalBottomProjection -
+                        dot(exitTip.worldTip, thicknessAxis) -
+                        initialTip.radiusM;
+                    const double exitOrbitErrorM = std::abs(
+                        norm(
+                            exitTip.worldTip -
+                            tissueNeedleOrbit->centerWorld
+                        ) - tissueNeedleOrbit->centerlineRadiusM
+                    );
+                    const double passageSwageErrorM = swageAttachmentError(
+                        world,
+                        passage.result
+                    );
+                    const RodStateMetrics passageRod = rodStateMetrics(
+                        world,
+                        passage.result
+                    );
+                    std::uint64_t passageStateHash =
+                        1469598103934665603ull;
+                    appendStateHash(passageStateHash, passage.result.finalQ);
+                    appendStateHash(passageStateHash, passage.result.finalV);
+                    appendStateHash(
+                        passageStateHash,
+                        passage.result.finalSceneBodies
+                    );
+                    appendStateHash(
+                        passageStateHash,
+                        passage.result.finalRodNodes
+                    );
+                    appendStateHash(
+                        passageStateHash,
+                        passage.result.finalRodEdges
+                    );
+                    appendStateHash(
+                        passageStateHash,
+                        passageSnapshot.femNodes
+                    );
+                    appendStateHash(
+                        passageStateHash,
+                        passageSnapshot.femFields
+                    );
+                    appendStateHash(
+                        passageStateHash,
+                        passageSnapshot.femTopologyTetrahedra
+                    );
+                    appendStateHash(
+                        passageStateHash,
+                        passageSnapshot.punctureChannels
+                    );
+                    appendStateHash(
+                        passageStateHash,
+                        passageSnapshot.topologyStates
+                    );
+                    appendStateHash(
+                        passageStateHash,
+                        passageSnapshot.reactions
+                    );
+                    appendStateHash(
+                        passageStateHash,
+                        passageSnapshot.contactSamples
+                    );
+                    appendStateHash(
+                        passageStateHash,
+                        passageSnapshot.solverCertificates
+                    );
+                    const std::uint32_t minimumWallChannels =
+                        static_cast<std::uint32_t>(std::ceil(
+                            authoredWallThicknessM /
+                            expectedEntryTractLengthM
+                        ));
+                    require(
+                        passageChannels.size() >= minimumWallChannels &&
+                            channelLinks + 1u == passageChannels.size() &&
+                            channelGeometryValid &&
+                            channelMinimumTangentAlignment >= 0.99 &&
+                            channelMaximumJoinGapM <=
+                                0.25 * initialTip.radiusM &&
+                            channelMaximumOrbitErrorM <=
+                                initialTip.radiusM &&
+                            channelMaximumSignedOrbitErrorM -
+                                channelMinimumSignedOrbitErrorM <=
+                                0.25 * initialTip.radiusM &&
+                            channelMaximumProjection >=
+                                authoredTopProjection -
+                                0.25 * initialTip.radiusM &&
+                            channelMinimumProjection <=
+                                authoredBottomProjection +
+                                0.25 * initialTip.radiusM &&
+                            channelTotalLengthM >= authoredWallThicknessM &&
+                            passageTetrahedra ==
+                                tissueCoupon.metadata.tetrahedronCount &&
+                            passageRemovedMassKg == 0.0 &&
+                            passageCertificatesAccepted &&
+                            std::isfinite(passageMinimumDeterminant) &&
+                            passageMinimumDeterminant > 0.0 &&
+                            std::isfinite(passageMaximumResidual) &&
+                            exitTipAdvanceM >= requiredTipAdvanceM &&
+                            distalSurfaceClearanceM >=
+                                kCurvedPassageExitClearanceM &&
+                            exitOrbitErrorM <= 2.0e-6 &&
+                            std::abs(
+                                norm(exitTerminalVelocity) -
+                                kCurvedPassageSpeedMps
+                            ) <= 2.0e-5 &&
+                            dot(
+                                exitTerminalVelocity,
+                                exitTip.approachDirection
+                            ) >= 0.999 * kCurvedPassageSpeedMps &&
+                            passageSwageErrorM <
+                                kMaximumSwageAttachmentError &&
+                            qualifiedTransitionRod(passageRod),
+                        "curvature-following needle did not form a connected "
+                        "mass-conserving through-wall tract: channels=" +
+                            std::to_string(passageChannels.size()) +
+                            " links=" + std::to_string(channelLinks) +
+                            " channel_min=" +
+                            std::to_string(channelMinimumProjection) +
+                            " authored_bottom=" +
+                            std::to_string(authoredBottomProjection) +
+                            " distal_clearance=" +
+                            std::to_string(distalSurfaceClearanceM) +
+                            " tip_advance=" +
+                            std::to_string(exitTipAdvanceM) +
+                            " required_advance=" +
+                            std::to_string(requiredTipAdvanceM) +
+                            " max_join_gap=" +
+                            std::to_string(channelMaximumJoinGapM) +
+                            " min_tangent_alignment=" +
+                            std::to_string(
+                                channelMinimumTangentAlignment
+                            ) +
+                            " max_orbit_error=" +
+                            std::to_string(channelMaximumOrbitErrorM) +
+                            " orbit_error_range=" +
+                            std::to_string(
+                                channelMaximumSignedOrbitErrorM -
+                                channelMinimumSignedOrbitErrorM
+                            ) +
+                            " active_contacts=" +
+                            std::to_string(passageContacts) +
+                            " removed_mass=" +
+                            std::to_string(passageRemovedMassKg) +
+                            " minimum_determinant=" +
+                            std::to_string(passageMinimumDeterminant) +
+                            " maximum_residual=" +
+                            std::to_string(passageMaximumResidual) +
+                            " swage_error=" +
+                            std::to_string(passageSwageErrorM) +
+                            " rod_edge_error=" +
+                            std::to_string(
+                                passageRod.maximumEdgeLengthError
+                            ) +
+                            " rod_clearance=" +
+                            std::to_string(
+                                passageRod
+                                    .minimumNonNeighbourSurfaceClearance
+                            )
+                    );
+                    std::cout << std::setprecision(9)
+                        << "tissue_curved_through_wall_passage=ok"
+                        << " passage_steps=" << totalPassageSteps
+                        << " needle_arc_angle_rad="
+                        << anglePerMicrostepRad * totalPassageSteps
+                        << " needle_tip_advance_m=" << exitTipAdvanceM
+                        << " distal_surface_clearance_m="
+                        << distalSurfaceClearanceM
+                        << " active_puncture_channels="
+                        << passageChannels.size()
+                        << " puncture_channel_links=" << channelLinks
+                        << " puncture_channel_total_length_m="
+                        << channelTotalLengthM
+                        << " puncture_channel_max_join_gap_m="
+                        << channelMaximumJoinGapM
+                        << " puncture_channel_min_tangent_alignment="
+                        << channelMinimumTangentAlignment
+                        << " puncture_channel_max_orbit_error_m="
+                        << channelMaximumOrbitErrorM
+                        << " puncture_channel_orbit_error_range_m="
+                        << channelMaximumSignedOrbitErrorM -
+                            channelMinimumSignedOrbitErrorM
+                        << " active_contacts=" << passageContacts
+                        << " active_tetrahedra=" << passageTetrahedra
+                        << " removed_tissue_mass_kg="
+                        << passageRemovedMassKg
+                        << " maximum_tissue_displacement_m="
+                        << maximumPassageTissueDisplacementM
+                        << " matter_minimum_determinant="
+                        << passageMinimumDeterminant
+                        << " matter_maximum_residual="
+                        << passageMaximumResidual
+                        << " terminal_tip_speed_mps="
+                        << norm(exitTerminalVelocity)
+                        << " hard_swage_root_error_m="
+                        << passageSwageErrorM
+                        << " thread_maximum_edge_error_m="
+                        << passageRod.maximumEdgeLengthError
+                        << " thread_minimum_clearance_m="
+                        << passageRod.minimumNonNeighbourSurfaceClearance
+                        << " passage_gpu_ms=" << passageGpuMilliseconds
+                        << " passage_state_fnv64=0x" << std::hex
+                        << passageStateHash << std::dec
+                        << " failed_steps="
+                        << passage.diagnostics.failedStepCount << '\n';
+                    return 0;
+                }
                 const std::uint32_t channelReleaseSteps =
                     tissuePunctureAdvanceOnly
                         ? kPunctureChannelProbeSteps : 1u;

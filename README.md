@@ -57,6 +57,33 @@ The hot path uses one borrowed MetalWorld command buffer, private authoritative
 state, deterministic sparse ordering, SIMD32 reductions, and no internal
 commit, wait, or CPU counter read.
 
+## Curved surgical-needle tissue passage
+
+The dual-PSM surgical probe now drives the authored 26 mm half-circle needle
+about its actual 8.28 mm curvature centre at a 20 mm/s terminal speed. Matter
+admits entry from accepted tapered-tip contact, then extends a connected
+diameter-scale tract only when the sharp point reaches the live frontier. A
+rotating tip follows its swept endpoint velocity rather than the finite
+collider chord, and midpoint-tangent chords bound accumulated path drift.
+The terminal taper and its adjacent widening segment both remain live tissue
+contact geometry; the physically swaged 250 mm monofilament is carried by the
+DER constraints rather than prescribed along the needle orbit.
+
+On Apple M4, the current 0.77 mm porcine-jejunum coupon qualification reached
+101.5 um of clearance beyond the *deformed* distal surface after 916 62.5 us
+microsteps. It retained all 3,456 tetrahedra with zero removed tissue mass,
+formed eight connected tract segments with 5.22 um maximum orbit error and
+2.51 um radial-error range, retained a 0.99774 minimum determinant, ended at
+6.85 um hard-swage error, and reported zero failed steps. The tract is a
+mass-conserving sub-element contact discontinuity, not yet a constitutive crack
+surface or clinical validation. Receiver extraction and knot formation remain
+separate physical qualification boundaries.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-curved-passage-only
+```
+
 ## dVRK GS21 suture pickup
 
 ![dVRK Large Needle Driver lifting a GS21 needle and blue suture](docs/media/numi-lab-dvrk-gs21-suture-pickup.png)
