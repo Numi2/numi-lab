@@ -4570,6 +4570,7 @@ struct Arguments {
     std::filesystem::path resumeExtractionPositiveControlPath;
     std::filesystem::path resumeExtractionLoadExchangePath;
     std::filesystem::path resumeExtractionGiverReleasePath;
+    std::filesystem::path resumeExtractionGiverRetreatedPath;
     std::filesystem::path resumeExtractionPreloadReleasePath;
     std::filesystem::path resumeExtractionRetractionMotionPath;
     std::uint32_t resumeStagingCompletedSteps = 0u;
@@ -4694,6 +4695,15 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "one path"
             );
             result.resumeExtractionGiverReleasePath = argv[++index];
+        } else if (argument ==
+                   "--resume-receiver-extraction-giver-retreated") {
+            require(
+                result.resumeExtractionGiverRetreatedPath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-extraction-giver-retreated requires "
+                "one path"
+            );
+            result.resumeExtractionGiverRetreatedPath = argv[++index];
         } else if (argument ==
                    "--resume-receiver-extraction-preload-release") {
             require(
@@ -5138,6 +5148,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         (!result.resumeExtractionPositiveControlPath.empty() ? 1u : 0u) +
         (!result.resumeExtractionLoadExchangePath.empty() ? 1u : 0u) +
         (!result.resumeExtractionGiverReleasePath.empty() ? 1u : 0u) +
+        (!result.resumeExtractionGiverRetreatedPath.empty() ? 1u : 0u) +
         (!result.resumeExtractionPreloadReleasePath.empty() ? 1u : 0u) +
         (!result.resumeExtractionRetractionMotionPath.empty() ? 1u : 0u);
     require(resumeCount <= 1u, "handoff resumes are mutually exclusive");
@@ -5172,6 +5183,13 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.mode == "--receiver-extraction-retraction-only" ||
             result.mode == "--receiver-extraction-fixture-only",
         "distal giver-release resume requires receiver retraction"
+    );
+    require(
+        result.resumeExtractionGiverRetreatedPath.empty() ||
+            result.mode == "--receiver-extraction-retraction-geometry-only" ||
+            result.mode == "--receiver-extraction-retraction-only" ||
+            result.mode == "--receiver-extraction-fixture-only",
+        "distal giver-retreated resume requires receiver retraction"
     );
     require(
         result.resumeExtractionPreloadReleasePath.empty() ||
@@ -7019,6 +7037,8 @@ int main(const int argc, const char* const argv[]) {
                 !options.resumeExtractionPositiveControlPath.empty();
             const bool resumedExtractionGiverRelease =
                 !options.resumeExtractionGiverReleasePath.empty();
+            const bool resumedExtractionGiverRetreated =
+                !options.resumeExtractionGiverRetreatedPath.empty();
             const bool resumedExtractionPreloadRelease =
                 !options.resumeExtractionPreloadReleasePath.empty();
             const bool resumedExtractionRetractionMotion =
@@ -7028,6 +7048,7 @@ int main(const int argc, const char* const argv[]) {
                 resumedExtractionPositiveControl ||
                 resumedExtractionLoadExchange ||
                 resumedExtractionGiverRelease ||
+                resumedExtractionGiverRetreated ||
                 resumedExtractionPreloadRelease ||
                 resumedExtractionRetractionMotion) {
                 const bool resumeApproach =
@@ -7035,6 +7056,8 @@ int main(const int argc, const char* const argv[]) {
                 loadedExtractionStateStep = loadHandoffState(
                     resumedExtractionRetractionMotion
                         ? options.resumeExtractionRetractionMotionPath
+                    : resumedExtractionGiverRetreated
+                        ? options.resumeExtractionGiverRetreatedPath
                     : resumedExtractionPreloadRelease
                         ? options.resumeExtractionPreloadReleasePath
                     : resumedExtractionGiverRelease
@@ -7048,6 +7071,8 @@ int main(const int argc, const char* const argv[]) {
                         : options.resumeExtractionGiverHoldPath,
                     resumedExtractionRetractionMotion
                         ? "receiver-extraction-retraction-motion"
+                    : resumedExtractionGiverRetreated
+                        ? "receiver-extraction-giver-retreated"
                     : resumedExtractionPreloadRelease
                         ? "receiver-extraction-preload-released"
                     : resumedExtractionGiverRelease
@@ -7327,7 +7352,8 @@ int main(const int argc, const char* const argv[]) {
                        "qualified from the linked motion artifact\"}\n";
                 return 0;
             }
-            if (resumedExtractionGiverRelease) {
+            if (resumedExtractionGiverRelease ||
+                resumedExtractionGiverRetreated) {
                 constexpr std::uint32_t kRetractionResumeWarmSteps = 3u;
                 std::vector<float> resumeEfforts = interpolateTargets(
                     world.model,
@@ -7385,6 +7411,7 @@ int main(const int argc, const char* const argv[]) {
                     receiverOwned.diagnostics.gpuElapsedMilliseconds;
                 std::uint32_t preRetractionSteps =
                     kRetractionResumeWarmSteps;
+                if (!resumedExtractionGiverRetreated) {
                 const JawGeometry giverBeforeRetreat = worldJawGeometry(
                     world.model,
                     0u,
@@ -7707,6 +7734,7 @@ int main(const int argc, const char* const argv[]) {
                     return 0;
                 }
                 receiverOwned = std::move(giverRetreated);
+                }
                 const JawGeometry receiverBeforeRetraction =
                     worldJawGeometry(
                         world.model,

@@ -218,6 +218,30 @@ through continuously coupled tissue.
   build-coupled-dev/testing/suture/extraction-state/receiver-extraction-giver-release.tsv
 ```
 
+From the cleared-giver state, the receiver now translates the loaded needle
+6.5 mm over 500 ms in ten resident 50 ms chunks. Every chunk must retain zero
+giver contact, bilateral four-quadrant receiver coverage, bounded reseating,
+and a healthy DER strand before the next command is submitted. The receiver
+uses the authored 75 um transport preload only during motion, then returns to
+the qualified 60 um seat over 40 ms and holds for 100 ms. On Apple M4 the
+needle followed 6.4994 mm total and 6.4994 mm along the commanded direction;
+the endpoint retained zero giver contacts and receiver `1111`/`1111` masks,
+12.5 um seat drift, 3.89 um/s relative slip, 0.719 mm/s maximum strand speed,
+2.47 um maximum DER edge error, 3.35 um hard-swage error, and a 0.653 mm/s
+live contact residual with zero cone violation or failed steps. The minimum
+non-neighbour strand clearance was 49.9997 um at the authored 50 um
+self-contact shell, inside its existing 0.1 um FP32 readback allowance. This
+qualifies receiver-only dynamic carry in the neutral-zone fixture; continuous
+deformable-tissue extraction and robot-tied knot formation remain separate
+boundaries.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --receiver-extraction-retraction-only \
+  --resume-receiver-extraction-giver-retreated \
+  build-coupled-dev/testing/suture/extraction-state/receiver-extraction-giver-retreated.tsv
+```
+
 ## Loaded PDO knot-contact mechanics
 
 The rod solver now resolves a bounded network of frictional thread/thread
