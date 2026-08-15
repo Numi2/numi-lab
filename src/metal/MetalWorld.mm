@@ -3266,6 +3266,10 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.devicePhysicsProgram.valid() &&
         (config.devicePhysicsProgram.flags &
          MetalWorldDevicePhysicsRequiresRigidContactEvidence) != 0u;
+    const bool devicePhysicsCouplesRodNodes =
+        config.devicePhysicsProgram.valid() &&
+        (config.devicePhysicsProgram.flags &
+         MetalWorldDevicePhysicsCouplesRodNodes) != 0u;
     const bool hasBodyWrenches =
         devicePhysicsWritesBodyWrenches ||
         config.multicopterProgram.valid() ||
@@ -3300,11 +3304,12 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.solverMode == MetalWorldSolverMode::qualityNewton;
     if (config.devicePhysicsProgram.configured() &&
         (!config.devicePhysicsProgram.valid() ||
-         (devicePhysicsRequiresRigidContactEvidence && !contactMode))) {
+         (devicePhysicsRequiresRigidContactEvidence && !contactMode) ||
+         (devicePhysicsCouplesRodNodes && world.rodNodeCount() == 0u))) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
-            "device physics program is incomplete, has unknown capabilities, or requires rigid contact evidence in a free-motion world"
+            "device physics program is incomplete, has unknown capabilities, requires rigid contact evidence in a free-motion world, or requests a missing DER arena"
         );
     }
     if (config.deviceObservationProgram.configured() &&
@@ -10599,6 +10604,7 @@ bool encodeDevicePhysicsProgram(
     const std::size_t sourceQ,
     const std::size_t sourceV,
     const std::size_t sourceScene,
+    const std::size_t sourceRodNodes,
     const std::size_t environmentCount
 ) {
     if (!config.devicePhysicsProgram.valid()) {
@@ -10617,6 +10623,12 @@ bool encodeDevicePhysicsProgram(
             (__bridge void*)context.buffers[kEnvironmentStatuses],
         .contactConstraints = (__bridge void*)context.buffers[kContacts],
         .contactStatuses = (__bridge void*)context.buffers[kContactStatuses],
+        .rodNodes = world.rodNodeCount() == 0u
+            ? nullptr
+            : (__bridge void*)context.buffers[sourceRodNodes],
+        .rodInverseMasses = world.rodNodeCount() == 0u
+            ? nullptr
+            : (__bridge void*)context.buffers[kRodInverseMasses],
         .coupledCandidateContext = &context,
         .encodeCoupledCandidate = &encodeBorrowedCoupledCandidate,
         .seed = config.taskSeed,
@@ -10635,6 +10647,8 @@ bool encodeDevicePhysicsProgram(
         .sceneBodyStride = layout.contactDispatch.sceneBodyStride,
         .bodyWrenchStride = layout.contactDispatch.bodyStateStride,
         .contactConstraintStride = layout.contactDispatch.constraintStride,
+        .rodNodeCount = world.rodNodeCount(),
+        .rodNodeStride = world.rodNodeCount(),
         .articulationRootBody = context.boundArticulations.empty()
             ? 0u
             : context.boundArticulations.front().rootBody,
@@ -19398,6 +19412,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                     sourceQ,
                                     sourceV,
                                     sourceScene,
+                                    sourceRodNodes,
                                     batch.environmentCount
                                 )
                             )
@@ -19636,6 +19651,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                     destinationQ,
                                     destinationV,
                                     destinationScene,
+                                    destinationRodNodes,
                                     batch.environmentCount
                                 )
                             )

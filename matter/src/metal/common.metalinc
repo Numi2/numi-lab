@@ -2,6 +2,7 @@
 
 #include "numi/matter/shared.h"
 #include "metalrobo/engine_types.h"
+#include "metalrobo/rod_gpu_shared.h"
 
 using namespace metal;
 
@@ -9,6 +10,10 @@ namespace numi_matter_metal {
 
 constant float kEpsilon = 1.1920928955078125e-7f;
 constant float kGeometryFloor = 1.0e-12f;
+// Rest-volume predicates must carry cubic units. This matches the host cooker
+// and keeps sub-millimetre, nondegenerate FEM elements distinct from the
+// length-squared floor used by geometric normalization.
+constant float kTetrahedronVolumeFloor = 1.0e-18f;
 constant float kPi = 3.14159265358979323846f;
 
 inline float maximumAbsoluteCoordinate(const float3 value) {

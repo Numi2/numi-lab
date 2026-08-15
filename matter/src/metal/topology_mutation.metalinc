@@ -525,6 +525,9 @@ kernel void nm_topology_detect_puncture(
 
         bool acceptedContact = false;
         NMContactSampleGPU acceptedSample{};
+        float acceptedNormalImpulse = 0.0f;
+        float currentNormalImpulse = 0.0f;
+        float representativeImpulse = -1.0f;
         const uint pairBase = environment * dispatch.contactPairCount;
         for (uint pairIndex = 0u; pairIndex < dispatch.contactPairCount;
              ++pairIndex) {
@@ -534,15 +537,41 @@ kernel void nm_topology_detect_puncture(
             if (pair.objectIndex == objectIndex &&
                 pair.rigidProxy == proxyIndex &&
                 (sample.identity.w & NM_CONTACT_VALID) != 0u &&
-                acceptedHistories[pairBase + pairIndex].w >=
-                    punctureImpulseThreshold &&
-                sample.impulseAndNormal.w >= punctureImpulseThreshold &&
                 sample.admissionVelocityAndNormal.w < -1.0e-6f) {
-                acceptedContact = true;
-                acceptedSample = sample;
-                break;
+                const float3 contactNormal = sample.normalAndVelocity.xyz;
+                const float normalLength = length(contactNormal);
+                if (!(normalLength > 1.0e-12f) ||
+                    !finite3(contactNormal)) continue;
+                const float3 inward = contactNormal / normalLength;
+                if (dot(tipDirection, inward) < 0.75f) continue;
+                const float3 contactCenter =
+                    sample.pointAndSeparation.xyz - radius * inward;
+                if (length(contactCenter - first) >
+                    max(0.25f * lengthEdge, 2.0f * radius)) continue;
+
+                // A sharp tip load is a physical resultant, not a per-node
+                // material property. Refinement distributes the same tip force
+                // over more FEM surface nodes, so test the deterministic sum of
+                // aligned, tip-local rows against the authored impulse gate.
+                // Summing arbitrary shaft/side rows would let generic capsule
+                // contact manufacture a puncture and is deliberately excluded.
+                const float historyImpulse =
+                    acceptedHistories[pairBase + pairIndex].w;
+                if (!isfinite(historyImpulse) || historyImpulse < 0.0f ||
+                    !isfinite(sample.impulseAndNormal.w) ||
+                    sample.impulseAndNormal.w < 0.0f) continue;
+                acceptedNormalImpulse += historyImpulse;
+                currentNormalImpulse += sample.impulseAndNormal.w;
+                if (sample.impulseAndNormal.w > representativeImpulse) {
+                    representativeImpulse = sample.impulseAndNormal.w;
+                    acceptedSample = sample;
+                }
             }
         }
+        acceptedContact =
+            acceptedNormalImpulse >= punctureImpulseThreshold &&
+            currentNormalImpulse >= punctureImpulseThreshold &&
+            representativeImpulse >= 0.0f;
         if (!acceptedContact) continue;
 
         const float3 contactNormal = acceptedSample.normalAndVelocity.xyz;
@@ -648,7 +677,7 @@ inline bool topologyRefreshRestOverride(
         tetrahedron.inverseRestRow1,
         tetrahedron.inverseRestRow2);
     tetrahedron.inverseRestRow0.w = abs(determinantValue) / 6.0f;
-    return tetrahedron.inverseRestRow0.w > kGeometryFloor;
+    return tetrahedron.inverseRestRow0.w > kTetrahedronVolumeFloor;
 }
 
 inline bool topologyRefreshRest(
@@ -864,13 +893,13 @@ inline void topologyAggregateMaterialState(
                 aggregate += sourceVolumes[source] * value;
         }
         if (policy == NM_MATERIAL_TRANSFER_AVERAGE)
-            aggregate /= max(totalSourceVolume, kGeometryFloor);
+            aggregate /= max(totalSourceVolume, kTetrahedronVolumeFloor);
         for (uint destination = 0u; destination < destinationCount;
              ++destination) {
             float value = aggregate;
             if (policy == NM_MATERIAL_TRANSFER_SUM)
                 value *= destinationVolumes[destination] /
-                    max(totalDestinationVolume, kGeometryFloor);
+                    max(totalDestinationVolume, kTetrahedronVolumeFloor);
             materialState[
                 destinations[destination] * dispatch.materialStateStride + state
             ] = value;
@@ -1333,7 +1362,7 @@ kernel void nm_topology_execute_transaction(
                     return;
                 }
                 const float sourceVolume = max(
-                    incident.inverseRestRow0.w, kGeometryFloor);
+                    incident.inverseRestRow0.w, kTetrahedronVolumeFloor);
                 const float volumeError = abs(
                     firstHalf.inverseRestRow0.w +
                     secondHalf.inverseRestRow0.w - sourceVolume);
@@ -1402,7 +1431,7 @@ kernel void nm_topology_execute_transaction(
                     incident.identity.x, objectIndex, generation,
                     NM_OBJECT_ACTIVE};
                 const float sourceVolume = max(
-                    incident.inverseRestRow0.w, kGeometryFloor);
+                    incident.inverseRestRow0.w, kTetrahedronVolumeFloor);
                 tetrahedra[tetBase + incidentIndex] = firstHalf;
                 tetrahedra[tetBase + addedIndex] = secondHalf;
                 topologyPartitionMaterialState(
@@ -1534,8 +1563,8 @@ kernel void nm_topology_execute_transaction(
                 ++destinationCount;
             }
             if (deactivatedCount == 0u || destinationCount == 0u ||
-                !(sourceVolumeTotal > kGeometryFloor) ||
-                !(destinationVolumeTotal > kGeometryFloor)) {
+                !(sourceVolumeTotal > kTetrahedronVolumeFloor) ||
+                !(destinationVolumeTotal > kTetrahedronVolumeFloor)) {
                 recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
                     objectIndex, targetIndex, float4(6.5f));
                 return;
@@ -1864,7 +1893,7 @@ kernel void nm_topology_execute_transaction(
                     weight += elementWeight;
                 }
             }
-            if (!(weight > kGeometryFloor)) {
+            if (!(weight > kTetrahedronVolumeFloor)) {
                 recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
                     objectIndex, targetNode, float4(9.25f));
                 return;
@@ -1943,8 +1972,8 @@ kernel void nm_topology_execute_transaction(
                 destinationMass += density * changed.inverseRestRow0.w;
                 destinationVolume += changed.inverseRestRow0.w;
             }
-            if (!(sourceVolume > kGeometryFloor) ||
-                !(destinationVolume > kGeometryFloor) ||
+            if (!(sourceVolume > kTetrahedronVolumeFloor) ||
+                !(destinationVolume > kTetrahedronVolumeFloor) ||
                 abs(sourceMass - destinationMass) >
                 topologyRelativeTolerance(
                     sourceMass, destinationMass,
@@ -2556,7 +2585,7 @@ inline float topologyTetRestQuality(
     // slivers even when their signed volume remains positive.
     return 6.0f * 1.4142135623730951f *
         tetrahedron.inverseRestRow0.w /
-        max(maximumEdge3, kGeometryFloor);
+        max(maximumEdge3, kTetrahedronVolumeFloor);
 }
 
 kernel void nm_topology_certify_transaction(
@@ -2665,7 +2694,7 @@ kernel void nm_topology_certify_transaction(
             tetBase + object.elementOffset + local];
         if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
         if (tetrahedron.identity.y != objectIndex ||
-            !(tetrahedron.inverseRestRow0.w > kGeometryFloor) ||
+            !(tetrahedron.inverseRestRow0.w > kTetrahedronVolumeFloor) ||
             !all(isfinite(tetrahedron.inverseRestRow0)) ||
             !all(isfinite(tetrahedron.inverseRestRow1)) ||
             !all(isfinite(tetrahedron.inverseRestRow2))) {

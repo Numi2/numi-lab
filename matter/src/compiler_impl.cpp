@@ -466,6 +466,18 @@ void validateWorld(
             "matter compiler options exceed the versioned ABI contract",
         });
     }
+    if (options.maximumRateExponent != 0u &&
+        std::ranges::any_of(
+            source.rigidProxies,
+            [](const RigidProxySource& proxy) {
+                return proxy.sutureStrand;
+            })) {
+        diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "live DER strand proxies require maximumRateExponent=0 so "
+            "Matter cannot microstep against frozen rod geometry",
+        });
+    }
     if (source.materials.empty()) {
         diagnostics.push_back({
             Diagnostic::Severity::error, 0u, 0u,
@@ -838,6 +850,7 @@ CompileResult compileWorld(
     world.contact.rigidProxies.reserve(source.rigidProxies.size());
     std::map<std::uint32_t, std::uint32_t> freeBodyIndices;
     for (const RigidProxySource& proxy : source.rigidProxies) {
+        const bool strand = proxy.sutureStrand;
         const double capsuleDx =
             proxy.localExtent[0] - proxy.localCenter[0];
         const double capsuleDy =
@@ -852,12 +865,26 @@ CompileResult compileWorld(
                 return finite(value);
             }) || !finite(proxy.radiusOrOffset) ||
             proxy.materialIndex >= source.materials.size() ||
-            (proxy.articulated && proxy.bodyIndex == NM_INVALID_INDEX) ||
+            (strand &&
+             (proxy.shape != NM_RIGID_CAPSULE || proxy.articulated ||
+              proxy.dynamic || proxy.punctureTip ||
+              proxy.bodyIndex != NM_INVALID_INDEX ||
+              proxy.sceneBodyIndex != NM_INVALID_INDEX ||
+              proxy.strandNodeA == NM_INVALID_INDEX ||
+              proxy.strandNodeB == NM_INVALID_INDEX ||
+              proxy.strandNodeA == proxy.strandNodeB ||
+              !(proxy.radiusOrOffset > 0.0))) ||
+            (!strand &&
+             (proxy.strandNodeA != NM_INVALID_INDEX ||
+              proxy.strandNodeB != NM_INVALID_INDEX)) ||
+            (!strand && proxy.articulated &&
+             proxy.bodyIndex == NM_INVALID_INDEX) ||
             (proxy.dynamic &&
-             (proxy.articulated ||
+             (strand || proxy.articulated ||
               proxy.bodyIndex == NM_INVALID_INDEX ||
               proxy.sceneBodyIndex == NM_INVALID_INDEX)) ||
-            (!proxy.dynamic && proxy.sceneBodyIndex != NM_INVALID_INDEX) ||
+            (!strand && !proxy.dynamic &&
+             proxy.sceneBodyIndex != NM_INVALID_INDEX) ||
             (proxy.punctureTip &&
              (proxy.shape != NM_RIGID_CAPSULE ||
               proxy.bodyIndex == NM_INVALID_INDEX ||
@@ -871,13 +898,15 @@ CompileResult compileWorld(
         }
         NMRigidProxyGPU cooked{};
         cooked.shapeKind = static_cast<nm_u32>(proxy.shape);
-        cooked.bodyIndex = proxy.bodyIndex;
-        cooked.sceneBodyIndex = proxy.sceneBodyIndex;
+        cooked.bodyIndex = strand ? proxy.strandNodeA : proxy.bodyIndex;
+        cooked.sceneBodyIndex = strand
+            ? proxy.strandNodeB : proxy.sceneBodyIndex;
         cooked.materialIndex = proxy.materialIndex;
         cooked.flags =
             (proxy.articulated ? NM_RIGID_ARTICULATED : 0u) |
             (proxy.dynamic ? NM_RIGID_DYNAMIC : 0u) |
-            (proxy.punctureTip ? NM_RIGID_PUNCTURE_TIP : 0u);
+            (proxy.punctureTip ? NM_RIGID_PUNCTURE_TIP : 0u) |
+            (strand ? NM_RIGID_SUTURE_STRAND : 0u);
         cooked.adaptiveObjectIndex = NM_INVALID_INDEX;
         cooked.generalizedFreeBodyIndex = NM_INVALID_INDEX;
         if (proxy.dynamic) {

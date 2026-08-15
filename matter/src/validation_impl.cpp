@@ -8,6 +8,7 @@
 #include <limits>
 #include <map>
 #include <numeric>
+#include <numbers>
 #include <set>
 #include <span>
 #include <string>
@@ -42,7 +43,8 @@ constexpr std::uint32_t kKnownObjectFlags =
 constexpr std::uint32_t kKnownRigidFlags =
     NM_RIGID_ARTICULATED |
     NM_RIGID_DYNAMIC |
-    NM_RIGID_PUNCTURE_TIP;
+    NM_RIGID_PUNCTURE_TIP |
+    NM_RIGID_SUTURE_STRAND;
 
 [[nodiscard]] bool finite4(const nm_float4 value) noexcept {
     return std::isfinite(value.x) && std::isfinite(value.y) &&
@@ -1357,6 +1359,8 @@ private:
             const bool dynamic = (proxy.flags & NM_RIGID_DYNAMIC) != 0u;
             const bool punctureTip =
                 (proxy.flags & NM_RIGID_PUNCTURE_TIP) != 0u;
+            const bool strand =
+                (proxy.flags & NM_RIGID_SUTURE_STRAND) != 0u;
             const float capsuleDx =
                 proxy.localExtent.x - proxy.localCenterAndRadius.x;
             const float capsuleDy =
@@ -1371,10 +1375,17 @@ private:
                 proxy.localOrientation.y * proxy.localOrientation.y +
                 proxy.localOrientation.z * proxy.localOrientation.z +
                 proxy.localOrientation.w * proxy.localOrientation.w;
-            if (proxy.shapeKind > NM_RIGID_BOX ||
+            if (proxy.shapeKind > NM_RIGID_ARC ||
                 proxy.materialIndex >= world_.materials.size() ||
                 (proxy.flags & ~kKnownRigidFlags) != 0u ||
                 (articulated && dynamic) ||
+                (strand &&
+                    (articulated || dynamic || punctureTip ||
+                     proxy.shapeKind != NM_RIGID_CAPSULE ||
+                     proxy.bodyIndex == NM_INVALID_INDEX ||
+                     proxy.sceneBodyIndex == NM_INVALID_INDEX ||
+                     proxy.bodyIndex == proxy.sceneBodyIndex ||
+                     proxy.adaptiveObjectIndex != NM_INVALID_INDEX)) ||
                 (punctureTip &&
                     (proxy.shapeKind != NM_RIGID_CAPSULE ||
                      proxy.bodyIndex == NM_INVALID_INDEX ||
@@ -1383,7 +1394,8 @@ private:
                 ((articulated || dynamic) &&
                     proxy.bodyIndex == NM_INVALID_INDEX) ||
                 (dynamic && proxy.sceneBodyIndex == NM_INVALID_INDEX) ||
-                (!dynamic && proxy.sceneBodyIndex != NM_INVALID_INDEX) ||
+                (!strand && !dynamic &&
+                    proxy.sceneBodyIndex != NM_INVALID_INDEX) ||
                 !finite4(proxy.localCenterAndRadius) ||
                 !finite4(proxy.localExtent) ||
                 !finite4(proxy.localOrientation) ||
@@ -1443,6 +1455,16 @@ private:
                     "rigid proxy",
                     index,
                     "box half extent is nonpositive"
+                );
+            }
+            if (proxy.shapeKind == NM_RIGID_ARC &&
+                (!(proxy.localExtent.x > 0.0f) ||
+                 !(proxy.localExtent.z > 0.0f) ||
+                 proxy.localExtent.z > 2.0f * std::numbers::pi_v<float>)) {
+                return failIndexed(
+                    "rigid proxy",
+                    index,
+                    "arc centreline radius or angular sweep is invalid"
                 );
             }
             if (proxy.adaptiveObjectIndex != NM_INVALID_INDEX) {

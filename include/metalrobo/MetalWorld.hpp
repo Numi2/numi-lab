@@ -305,12 +305,18 @@ enum MetalWorldDevicePhysicsFlags : std::uint32_t {
     // operators, ABA, and integration; the extension may only use the
     // borrowed coupled-candidate service below.
     MetalWorldDevicePhysicsOwnsCoupledCandidate = 1u << 2u,
+    // The extension reads the active MRRodNodeStateGPU arena and may add an
+    // accepted contact impulse to node velocities before MetalWorld's DER
+    // substep. The immutable inverse-mass arena is borrowed alongside it.
+    // Publication and rollback remain owned by MetalWorld's rod transaction.
+    MetalWorldDevicePhysicsCouplesRodNodes = 1u << 3u,
 };
 
 inline constexpr std::uint32_t kMetalWorldDevicePhysicsKnownFlags =
     MetalWorldDevicePhysicsWritesBodyWrenches |
     MetalWorldDevicePhysicsRequiresRigidContactEvidence |
-    MetalWorldDevicePhysicsOwnsCoupledCandidate;
+    MetalWorldDevicePhysicsOwnsCoupledCandidate |
+    MetalWorldDevicePhysicsCouplesRodNodes;
 
 struct MetalWorldDevicePhysicsPass;
 
@@ -375,6 +381,12 @@ struct MetalWorldDevicePhysicsPass {
     // buffer and is never retained by the extension.
     void* contactConstraints = nullptr;
     void* contactStatuses = nullptr;
+    // Active environment-major DER node state and immutable world-local node
+    // inverse masses. These are non-null only when the compiled world owns a
+    // rod. A coupling extension may update velocity.xyz during preDynamics;
+    // position and all postCommit state are read-only.
+    void* rodNodes = nullptr;
+    void* rodInverseMasses = nullptr;
     void* coupledCandidateContext = nullptr;
     MetalWorldEncodeCoupledCandidate encodeCoupledCandidate = nullptr;
     std::uint64_t seed = 0u;
@@ -393,6 +405,8 @@ struct MetalWorldDevicePhysicsPass {
     std::uint32_t sceneBodyStride = 0u;
     std::uint32_t bodyWrenchStride = 0u;
     std::uint32_t contactConstraintStride = 0u;
+    std::uint32_t rodNodeCount = 0u;
+    std::uint32_t rodNodeStride = 0u;
     std::uint32_t articulationRootBody = 0u;
     std::uint32_t qStride = 0u;
     std::uint32_t articulatedInverseMassFlags = 0u;

@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 21u
+#define NM_MATTER_ABI_VERSION 22u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -221,6 +221,9 @@ enum NMRigidShapeKind : nm_u32 {
     NM_RIGID_SPHERE = 1u,
     NM_RIGID_CAPSULE = 2u,
     NM_RIGID_BOX = 3u,
+    // Circular tube arc in the proxy-local XY plane. localExtent carries
+    // centreline radius, start angle and positive sweep angle.
+    NM_RIGID_ARC = 4u,
 };
 
 enum NMRigidBindingFlags : nm_u32 {
@@ -231,6 +234,12 @@ enum NMRigidBindingFlags : nm_u32 {
     // tapered tip segment. Only this explicitly authored geometry may admit
     // a closing contact-driven tissue tract.
     NM_RIGID_PUNCTURE_TIP = 1u << 2u,
+    // Capsule endpoints are live MetalWorld DER nodes. bodyIndex and
+    // sceneBodyIndex carry node A and node B respectively; this proxy owns no
+    // rigid generalized coordinate. Matter resolves continuum contact against
+    // the live segment and scatters the accepted rigid-side impulse back to
+    // both nodes before the DER substep.
+    NM_RIGID_SUTURE_STRAND = 1u << 3u,
 };
 
 enum NMResetFlags : nm_u32 {
@@ -591,10 +600,10 @@ typedef struct NM_ALIGN16 NMBridgeDispatchGPU {
     nm_u32 sceneStride;
 
     nm_u32 reactionStride;
-    nm_u32 flags;
     // Number of body-owned reaction ranges compiled by the runtime.
     nm_u32 reactionBodyCount;
-    nm_u32 reserved1;
+    nm_u32 rodNodeCount;
+    nm_u32 rodNodeStride;
 
     // inverse dt, dt, reserved, reserved.
     nm_float4 time;
@@ -816,10 +825,12 @@ typedef struct NM_ALIGN16 NMFGMRESStateGPU {
 typedef struct NM_ALIGN16 NMRigidProxyGPU {
     nm_u32 shapeKind;
     // Global EngineModel body index. This is the canonical index used by the
-    // current-body arena and the unified external-wrench arena.
+    // current-body arena and the unified external-wrench arena. For
+    // NM_RIGID_SUTURE_STRAND this carries the first live DER node index.
     nm_u32 bodyIndex;
     // Environment-local scene-body index used only when adaptive transfer
-    // publishes a rigid state back into MetalWorld's scene-state stream.
+    // publishes a rigid state back into MetalWorld's scene-state stream. For
+    // NM_RIGID_SUTURE_STRAND this carries the second live DER node index.
     nm_u32 sceneBodyIndex;
     nm_u32 materialIndex;
 

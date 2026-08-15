@@ -298,6 +298,7 @@ struct Runtime::State {
     std::uint32_t requiredCurrentBodyCount = 0u;
     std::uint32_t requiredBodyWrenchCount = 0u;
     std::uint32_t requiredSceneBodyCount = 0u;
+    std::uint32_t requiredRodNodeCount = 0u;
     std::uint32_t reactionBodyCount = 0u;
     struct CommandOwnership {
         std::mutex mutex;
@@ -323,6 +324,7 @@ struct Runtime::State {
     bool requiresBodyWrenches = false;
     bool requiresCoupledCandidate = false;
     bool requiresSceneBodies = false;
+    bool requiresRodNodes = false;
     bool hasAdaptive = false;
     std::shared_ptr<CommandOwnership> commandOwnership =
         std::make_shared<CommandOwnership>();
@@ -737,6 +739,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_publish_deformable_history",
             "nm_contact_reduce_rigid",
             "nm_accumulate_rigid_reactions",
+            "nm_apply_suture_strand_reactions",
             "nm_mpm_g2p",
             "nm_fem_integrate",
             "nm_fem_validate",
@@ -1616,6 +1619,15 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->residentBytes += primalContactEncoder.encodedLength;
 
         for (const NMRigidProxyGPU& proxy : world.contact.rigidProxies) {
+            if ((proxy.flags & NM_RIGID_SUTURE_STRAND) != 0u) {
+                candidate->requiresRodNodes = true;
+                candidate->requiredRodNodeCount = std::max({
+                    candidate->requiredRodNodeCount,
+                    proxy.bodyIndex + 1u,
+                    proxy.sceneBodyIndex + 1u,
+                });
+                continue;
+            }
             if (proxy.bodyIndex != NM_INVALID_INDEX) {
                 candidate->requiresCurrentBodies = true;
                 candidate->requiredCurrentBodyCount = std::max(
@@ -1793,6 +1805,13 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 "dynamic matter coupling requires the scene-body arena";
             return diagnostics;
         }
+        if (state.requiresRodNodes &&
+            (request.rigid.rodNodes == nullptr ||
+             request.rigid.rodInverseMasses == nullptr)) {
+            diagnostics.message =
+                "suture-strand matter proxies require live DER node and inverse-mass arenas";
+            return diagnostics;
+        }
         if (request.phase == EncodePhase::postCommit &&
             request.environmentStatuses == nullptr) {
             diagnostics.message =
@@ -1809,7 +1828,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             request.rigid.bodyWrenchCount >
                 request.rigid.bodyWrenchStride ||
             request.rigid.sceneBodyCount >
-                request.rigid.sceneStride) {
+                request.rigid.sceneStride ||
+            request.rigid.rodNodeCount > request.rigid.rodNodeStride) {
             diagnostics.message =
                 "borrowed rigid-world buffer strides are invalid";
             return diagnostics;
@@ -1819,7 +1839,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             request.rigid.bodyWrenchCount <
                 state.requiredBodyWrenchCount ||
             request.rigid.sceneBodyCount <
-                state.requiredSceneBodyCount) {
+                state.requiredSceneBodyCount ||
+            request.rigid.rodNodeCount < state.requiredRodNodeCount) {
             diagnostics.message =
                 "borrowed rigid-world buffers do not cover every compiled Matter proxy";
             return diagnostics;
@@ -2002,6 +2023,9 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
         id<MTLBuffer> currentBodies = buffer(request.rigid.currentBodies);
         id<MTLBuffer> bodyWrenches = buffer(request.rigid.bodyWrenches);
         id<MTLBuffer> sceneBodies = buffer(request.rigid.sceneBodies);
+        id<MTLBuffer> rodNodes = buffer(request.rigid.rodNodes);
+        id<MTLBuffer> rodInverseMasses =
+            buffer(request.rigid.rodInverseMasses);
         id<MTLBuffer> resetMasks = buffer(request.resetMasks);
         id<MTLBuffer> worldStatuses = buffer(request.environmentStatuses);
 
@@ -2018,6 +2042,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
         bridge.sceneStride = request.rigid.sceneStride;
         bridge.reactionStride = state.dispatch.rigidProxyCount;
         bridge.reactionBodyCount = state.reactionBodyCount;
+        bridge.rodNodeCount = request.rigid.rodNodeCount;
+        bridge.rodNodeStride = request.rigid.rodNodeStride;
         bridge.time = {
             1.0f / frameTimestep,
             frameTimestep,
@@ -2220,6 +2246,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
                 [encoder setBuffer:currentBodies offset:0u atIndex:3u];
                 [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+                [encoder setBuffer:rodNodes offset:0u atIndex:5u];
+                [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];
             });
 
             if (request.runAdaptiveTransfer && state.hasAdaptive) {
@@ -2621,6 +2649,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
             [encoder setBuffer:currentBodies offset:0u atIndex:3u];
             [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+            [encoder setBuffer:rodNodes offset:0u atIndex:5u];
+            [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];
         });
 
         const std::uint32_t microtickCount =
@@ -3003,6 +3033,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                         [encoder setBuffer:state.coupledCandidateBodies
                                      offset:0u atIndex:3u];
                         [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+                        [encoder setBuffer:rodNodes offset:0u atIndex:5u];
+                        [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];
                     });
                 }
                 dispatchThreads(
@@ -4683,6 +4715,24 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.microstepReactions offset:0u atIndex:1u];
                 [encoder setBuffer:state.frameReactions offset:0u atIndex:2u];
             });
+            if (state.requiresRodNodes) {
+                dispatchThreads(
+                    "nm_apply_suture_strand_reactions",
+                    static_cast<NSUInteger>(state.dispatch.environmentCount) *
+                        request.rigid.rodNodeCount,
+                    [&] {
+                        setDispatch();
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
+                        [encoder setBuffer:state.rigidIncidence offset:0u atIndex:3u];
+                        [encoder setBuffer:state.rigidRanges offset:0u atIndex:4u];
+                        [encoder setBuffer:state.contactSamples offset:0u atIndex:5u];
+                        [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];
+                        [encoder setBuffer:rodNodes offset:0u atIndex:7u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                    }
+                );
+            }
             dispatchThreads("nm_mpm_g2p", particleTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -5688,6 +5738,10 @@ bool Runtime::adaptiveTransferEnabled() const noexcept {
 
 bool Runtime::requiresBodyWrenches() const noexcept {
     return state_ != nullptr && state_->requiresBodyWrenches;
+}
+
+bool Runtime::requiresRodNodes() const noexcept {
+    return state_ != nullptr && state_->requiresRodNodes;
 }
 
 bool Runtime::requiresCoupledCandidate() const noexcept {

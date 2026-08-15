@@ -1696,6 +1696,8 @@ inline void projectProxy(
                 ),
                 0.0f
             );
+        } else if (proxy.shapeKind == NM_RIGID_ARC) {
+            state.extent = proxy.localExtent;
         } else {
             state.extent = proxy.localExtent;
         }
@@ -1722,12 +1724,104 @@ inline void projectProxy(
     }
 }
 
+inline void projectSutureStrandProxy(
+    const NMRigidProxyGPU proxy,
+    const MRRodNodeStateGPU first,
+    const MRRodNodeStateGPU second,
+    const float firstInverseMass,
+    const float secondInverseMass,
+    thread NMRigidStateGPU& state
+) {
+    state = {};
+    const float3 endpointA = first.position.xyz;
+    const float3 endpointB = second.position.xyz;
+    const float3 edge = endpointB - endpointA;
+    const float lengthSquared = dot(edge, edge);
+    const float radius = proxy.localCenterAndRadius.w;
+    if (!(lengthSquared > kGeometryFloor) || !(radius > 0.0f) ||
+        !(firstInverseMass > 0.0f) || !(secondInverseMass > 0.0f)) {
+        return;
+    }
+    const float length = sqrt(lengthSquared);
+    const float3 axis = edge / length;
+    const float firstMass = 1.0f / firstInverseMass;
+    const float secondMass = 1.0f / secondInverseMass;
+    const float mass = firstMass + secondMass;
+    const float inverseMass = 1.0f / mass;
+    const float secondWeight = secondMass / mass;
+    const float3 centerOfMass = mix(endpointA, endpointB, secondWeight);
+    const float3 centerOfMassVelocity = mix(
+        first.velocity.xyz,
+        second.velocity.xyz,
+        secondWeight
+    );
+    const float3 relativeVelocity =
+        second.velocity.xyz - first.velocity.xyz;
+    // Minimum-norm angular velocity reproduces the transverse endpoint
+    // velocity difference. Axial DER stretch remains owned by the rod solve.
+    const float3 angularVelocity = cross(edge, relativeVelocity) /
+        lengthSquared;
+    const float firstArm = secondWeight * length;
+    const float secondArm = (1.0f - secondWeight) * length;
+    const float perpendicularInertia = max(
+        firstMass * firstArm * firstArm +
+            secondMass * secondArm * secondArm +
+            0.25f * mass * radius * radius,
+        kGeometryFloor
+    );
+    const float axialInertia = max(
+        0.5f * mass * radius * radius,
+        kGeometryFloor
+    );
+    const float inversePerpendicular = 1.0f / perpendicularInertia;
+    const float inverseAxial = 1.0f / axialInertia;
+    const float3 diagonal = float3(inversePerpendicular) +
+        (inverseAxial - inversePerpendicular) * axis * axis;
+    const float offDiagonal = inverseAxial - inversePerpendicular;
+
+    state.centerAndRadius = float4(endpointA, radius);
+    // Capsule contact consumes xyz as endpoint B. The otherwise-unused w
+    // carries axial endpoint speed so witness velocity can reproduce the
+    // exact linear DER interpolation, including stretch motion at the caps.
+    state.extent = float4(
+        endpointB,
+        dot(relativeVelocity, axis)
+    );
+    state.orientation = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    state.linearVelocityAndInverseMass = float4(
+        centerOfMassVelocity,
+        inverseMass
+    );
+    state.angularVelocity = float4(angularVelocity, 0.0f);
+    state.bodyCenter = float4(centerOfMass, 0.0f);
+    state.inverseInertiaRow0 = float4(
+        diagonal.x,
+        offDiagonal * axis.x * axis.y,
+        offDiagonal * axis.x * axis.z,
+        0.0f
+    );
+    state.inverseInertiaRow1 = float4(
+        offDiagonal * axis.y * axis.x,
+        diagonal.y,
+        offDiagonal * axis.y * axis.z,
+        0.0f
+    );
+    state.inverseInertiaRow2 = float4(
+        offDiagonal * axis.z * axis.x,
+        offDiagonal * axis.z * axis.y,
+        diagonal.z,
+        0.0f
+    );
+}
+
 kernel void nm_project_rigid_states(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
     device const NMRigidProxyGPU* proxies [[buffer(2)]],
     device const MRBodyStateGPU* currentBodies [[buffer(3)]],
     device NMRigidStateGPU* states [[buffer(4)]],
+    device const MRRodNodeStateGPU* rodNodes [[buffer(5)]],
+    device const float* rodInverseMasses [[buffer(6)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.rigidProxyCount;
@@ -1737,6 +1831,24 @@ kernel void nm_project_rigid_states(
     const uint environment = global / dispatch.rigidProxyCount;
     const uint proxyIndex = global - environment * dispatch.rigidProxyCount;
     const NMRigidProxyGPU proxy = proxies[proxyIndex];
+    if ((proxy.flags & NM_RIGID_SUTURE_STRAND) != 0u) {
+        NMRigidStateGPU state{};
+        if (proxy.bodyIndex < bridge.rodNodeCount &&
+            proxy.sceneBodyIndex < bridge.rodNodeCount &&
+            bridge.rodNodeStride >= bridge.rodNodeCount) {
+            const uint base = environment * bridge.rodNodeStride;
+            projectSutureStrandProxy(
+                proxy,
+                rodNodes[base + proxy.bodyIndex],
+                rodNodes[base + proxy.sceneBodyIndex],
+                rodInverseMasses[proxy.bodyIndex],
+                rodInverseMasses[proxy.sceneBodyIndex],
+                state
+            );
+        }
+        states[global] = state;
+        return;
+    }
     const bool bodyBacked = proxy.bodyIndex != NM_INVALID_INDEX &&
         proxy.bodyIndex < bridge.currentBodyCount &&
         bridge.currentBodyStride >= bridge.currentBodyCount;
@@ -1937,6 +2049,60 @@ inline bool capsuleContact(
     return isfinite(separation);
 }
 
+inline bool arcContact(
+    const NMRigidStateGPU rigid,
+    const float3 point,
+    thread float& separation,
+    thread float3& normal,
+    thread float3& witness
+) {
+    const float centerlineRadius = rigid.extent.x;
+    const float startAngle = rigid.extent.y;
+    const float sweepAngle = rigid.extent.z;
+    if (!(centerlineRadius > 0.0f) || !(sweepAngle > 0.0f) ||
+        sweepAngle > 2.0f * kPi) return false;
+    const float4 orientation = quaternionNormalize(rigid.orientation);
+    const float3 local = quaternionRotate(
+        quaternionConjugate(orientation),
+        point - rigid.centerAndRadius.xyz
+    );
+    const float pointAngle = atan2(local.y, local.x);
+    float relativeAngle = atan2(
+        sin(pointAngle - startAngle),
+        cos(pointAngle - startAngle)
+    );
+    if (relativeAngle < 0.0f) relativeAngle += 2.0f * kPi;
+    float angle = startAngle + relativeAngle;
+    if (relativeAngle > sweepAngle) {
+        const float endAngle = startAngle + sweepAngle;
+        const float startDistance = abs(atan2(
+            sin(pointAngle - startAngle),
+            cos(pointAngle - startAngle)
+        ));
+        const float endDistance = abs(atan2(
+            sin(pointAngle - endAngle),
+            cos(pointAngle - endAngle)
+        ));
+        angle = startDistance <= endDistance
+            ? startAngle : endAngle;
+    }
+    const float3 localCenterline = float3(
+        centerlineRadius * cos(angle),
+        centerlineRadius * sin(angle),
+        0.0f
+    );
+    const float3 centerline = rigid.centerAndRadius.xyz +
+        quaternionRotate(orientation, localCenterline);
+    const float3 delta = point - centerline;
+    const float distance = length(delta);
+    normal = distance > kGeometryFloor
+        ? delta / distance
+        : quaternionRotate(orientation, float3(0.0f, 0.0f, 1.0f));
+    separation = distance - rigid.centerAndRadius.w;
+    witness = centerline + rigid.centerAndRadius.w * normal;
+    return isfinite(separation) && finite3(normal) && finite3(witness);
+}
+
 inline bool boxContact(
     const NMRigidStateGPU rigid,
     const float3 point,
@@ -1994,6 +2160,8 @@ inline bool rigidWitness(
         return capsuleContact(rigid, point, separation, normal, witness);
     case NM_RIGID_BOX:
         return boxContact(rigid, point, separation, normal, witness);
+    case NM_RIGID_ARC:
+        return arcContact(rigid, point, separation, normal, witness);
     default:
         return false;
     }
@@ -2050,6 +2218,7 @@ inline bool embeddedPunctureChannelAdmits(
         if (sourceProxy >= dispatch.rigidProxyCount) continue;
         const NMRigidProxyGPU source = proxies[sourceProxy];
         const bool sameNeedle = sourceProxy == proxyIndex ||
+            (proxy.flags & NM_RIGID_SUTURE_STRAND) != 0u ||
             (source.bodyIndex != NM_INVALID_INDEX &&
              source.bodyIndex == proxy.bodyIndex);
         if (!sameNeedle) continue;
@@ -2067,7 +2236,11 @@ inline bool embeddedPunctureChannelAdmits(
         const float radial = length(relative - axial * unitAxis);
         const float geometricTolerance = max(
             0.25f * radius, 8.0f * kGeometryFloor);
-        if (abs(axial) <= halfLength + geometricTolerance &&
+        const bool radiusFits =
+            (proxy.flags & NM_RIGID_SUTURE_STRAND) == 0u ||
+            proxy.localCenterAndRadius.w <= radius + geometricTolerance;
+        if (radiusFits &&
+            abs(axial) <= halfLength + geometricTolerance &&
             radial <= radius + geometricTolerance)
             return true;
     }
@@ -2215,10 +2388,41 @@ kernel void nm_contact_evaluate(
     }
     const float slop = dispatch.numericalLimits.x;
     const float3 lever = witness - rigid.bodyCenter.xyz;
-    const float3 rigidVelocity = rigid.linearVelocityAndInverseMass.xyz +
-        cross(rigid.angularVelocity.xyz, witness - rigid.centerAndRadius.xyz);
+    const bool strand = (proxy.flags & NM_RIGID_SUTURE_STRAND) != 0u;
+    const float3 velocityReference = strand
+        ? rigid.bodyCenter.xyz : rigid.centerAndRadius.xyz;
+    float3 rigidVelocity = rigid.linearVelocityAndInverseMass.xyz +
+        cross(rigid.angularVelocity.xyz, witness - velocityReference);
+    if (strand) {
+        const float3 edge = rigid.extent.xyz -
+            rigid.centerAndRadius.xyz;
+        const float lengthSquared = dot(edge, edge);
+        if (lengthSquared > kGeometryFloor) {
+            const float inverseLength = rsqrt(lengthSquared);
+            const float witnessCoordinate = clamp(
+                dot(witness - rigid.centerAndRadius.xyz, edge) /
+                    lengthSquared,
+                0.0f,
+                1.0f
+            );
+            const float centerCoordinate = clamp(
+                dot(rigid.bodyCenter.xyz - rigid.centerAndRadius.xyz, edge) /
+                    lengthSquared,
+                0.0f,
+                1.0f
+            );
+            rigidVelocity += edge * inverseLength * rigid.extent.w *
+                (witnessCoordinate - centerCoordinate);
+        }
+    }
     float3 admissionRigidVelocity = float3(0.0f);
-    if (proxy.bodyIndex != NM_INVALID_INDEX &&
+    if (strand) {
+        // The live DER endpoints are the immutable source for this Matter
+        // transaction. Use their projected segment velocity for speculative
+        // admission instead of interpreting the overloaded node index as a
+        // rigid body or treating an approaching strand as stationary.
+        admissionRigidVelocity = rigidVelocity;
+    } else if (proxy.bodyIndex != NM_INVALID_INDEX &&
         proxy.bodyIndex < bridge.currentBodyCount &&
         bridge.currentBodyStride >= bridge.currentBodyCount) {
         const MRBodyStateGPU acceptedBody = acceptedBodies[
@@ -3145,6 +3349,80 @@ kernel void nm_accumulate_rigid_reactions(
         microstepReactions[global].impulseAndCount;
     frameReactions[global].angularImpulse +=
         microstepReactions[global].angularImpulse;
+}
+
+// One thread owns one DER node and deterministically gathers all adjacent
+// suture-proxy contact samples. Barycentric endpoint weights conserve the
+// rigid-side impulse exactly while avoiding atomics at shared segment nodes.
+// The velocity update precedes MetalWorld's implicit DER substep; rejected
+// enclosing transactions publish the rod checkpoint instead of this source.
+kernel void nm_apply_suture_strand_reactions(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    device const NMRigidProxyGPU* proxies [[buffer(2)]],
+    device const uint* rigidIncidence [[buffer(3)]],
+    device const NMIncidenceRangeGPU* rigidRanges [[buffer(4)]],
+    device const NMContactSampleGPU* samples [[buffer(5)]],
+    device const float* inverseMasses [[buffer(6)]],
+    device MRRodNodeStateGPU* rodNodes [[buffer(7)]],
+    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * bridge.rodNodeCount;
+    if (global >= total || bridge.rodNodeCount == 0u ||
+        bridge.rodNodeStride < bridge.rodNodeCount) return;
+    const uint environment = global / bridge.rodNodeCount;
+    const uint node = global - environment * bridge.rodNodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint nodeBase = environment * bridge.rodNodeStride;
+    float3 impulse = float3(0.0f);
+    for (uint proxyIndex = 0u; proxyIndex < dispatch.rigidProxyCount;
+         ++proxyIndex) {
+        const NMRigidProxyGPU proxy = proxies[proxyIndex];
+        if ((proxy.flags & NM_RIGID_SUTURE_STRAND) == 0u ||
+            (proxy.bodyIndex != node && proxy.sceneBodyIndex != node) ||
+            proxy.bodyIndex >= bridge.rodNodeCount ||
+            proxy.sceneBodyIndex >= bridge.rodNodeCount) continue;
+        const float3 endpointA =
+            rodNodes[nodeBase + proxy.bodyIndex].position.xyz;
+        const float3 endpointB =
+            rodNodes[nodeBase + proxy.sceneBodyIndex].position.xyz;
+        const float3 edge = endpointB - endpointA;
+        const float lengthSquared = dot(edge, edge);
+        if (!(lengthSquared > kGeometryFloor)) continue;
+        const NMIncidenceRangeGPU range = rigidRanges[proxyIndex];
+        for (uint local = 0u; local < range.count; ++local) {
+            const uint pairIndex = rigidIncidence[range.first + local];
+            if (pairIndex >= dispatch.contactPairCount) continue;
+            const NMContactSampleGPU sample = samples[
+                environment * dispatch.contactPairCount + pairIndex
+            ];
+            if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+            const float coordinate = clamp(
+                dot(sample.pointAndSeparation.xyz - endpointA, edge) /
+                    lengthSquared,
+                0.0f,
+                1.0f
+            );
+            const float weight = proxy.bodyIndex == node
+                ? 1.0f - coordinate : coordinate;
+            impulse += weight * sample.impulseAndNormal.xyz;
+        }
+    }
+    const float inverseMass = inverseMasses[node];
+    const float3 deltaVelocity = inverseMass * impulse;
+    if (!isfinite(inverseMass) || !(inverseMass > 0.0f) ||
+        !finite3(deltaVelocity)) {
+        recordFailure(
+            statuses[environment],
+            NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX,
+            node,
+            float4(deltaVelocity, inverseMass)
+        );
+        return;
+    }
+    rodNodes[nodeBase + node].velocity.xyz += deltaVelocity;
 }
 
 kernel void nm_mask_primal_rigid_candidate(

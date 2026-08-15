@@ -370,6 +370,14 @@ struct RigidProxySource {
     bool articulated = false;
     bool dynamic = false;
     bool punctureTip = false;
+    // Live MetalWorld DER capsule. When enabled, body/scene bindings and local
+    // capsule endpoints are ignored; strandNodeA/B address the global
+    // environment-local rod-node arena and radiusOrOffset remains physical.
+    // The segment follows compatible puncture channels and receives the
+    // equal-and-opposite accepted Matter impulse on-device.
+    bool sutureStrand = false;
+    std::uint32_t strandNodeA = NM_INVALID_INDEX;
+    std::uint32_t strandNodeB = NM_INVALID_INDEX;
 };
 
 struct ObjectSource {
@@ -579,12 +587,16 @@ struct BorrowedRigidWorldBuffers {
     // entries from the same arena.
     void* bodyWrenches = nullptr;        // id<MTLBuffer>, MRABABodyWrenchGPU
     void* sceneBodies = nullptr;         // id<MTLBuffer>, MRBodyStateGPU
+    void* rodNodes = nullptr;             // id<MTLBuffer>, MRRodNodeStateGPU
+    void* rodInverseMasses = nullptr;     // id<MTLBuffer>, float
     std::uint32_t currentBodyCount = 0u;
     std::uint32_t currentBodyStride = 0u;
     std::uint32_t bodyWrenchCount = 0u;
     std::uint32_t sceneBodyCount = 0u;
     std::uint32_t bodyWrenchStride = 0u;
     std::uint32_t sceneStride = 0u;
+    std::uint32_t rodNodeCount = 0u;
+    std::uint32_t rodNodeStride = 0u;
     std::uint32_t qStride = 0u;
     std::uint32_t vStride = 0u;
 };
@@ -795,6 +807,7 @@ public:
     [[nodiscard]] bool automaticIdentificationEnabled() const noexcept;
     [[nodiscard]] bool adaptiveTransferEnabled() const noexcept;
     [[nodiscard]] bool requiresBodyWrenches() const noexcept;
+    [[nodiscard]] bool requiresRodNodes() const noexcept;
     [[nodiscard]] bool requiresCoupledCandidate() const noexcept;
     [[nodiscard]] std::uint32_t coupledCandidatePointCapacity() const noexcept;
     [[nodiscard]] bool requiresRigidContactEvidence() const noexcept;

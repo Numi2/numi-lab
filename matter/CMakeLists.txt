@@ -117,6 +117,7 @@ if(APPLE)
             src/metal/identification_scheduler.metalinc
             include/numi/matter/shared.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
         VERBATIM
     )
     add_custom_target(numi_matter_shaders ALL DEPENDS "${NUMI_MATTER_METALLIB}")

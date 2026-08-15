@@ -81,6 +81,30 @@ bool encodeMetalWorldMatter(
         return false;
     }
     auto& runtime = *static_cast<Runtime*>(context);
+    const float cookedTimestep = runtime.timestepSeconds();
+    if (!std::isfinite(pass.timestepSeconds) ||
+        !(pass.timestepSeconds > 0.0f) ||
+        !std::isfinite(cookedTimestep) || !(cookedTimestep > 0.0f)) {
+        return false;
+    }
+    const double rawDivider = static_cast<double>(cookedTimestep) /
+        static_cast<double>(pass.timestepSeconds);
+    const auto divider = static_cast<std::uint32_t>(std::llround(rawDivider));
+    if (divider == 0u ||
+        std::abs(rawDivider - static_cast<double>(divider)) > 1.0e-5 ||
+        pass.physicsSubsteps % divider != 0u) {
+        return false;
+    }
+    // Sample on the final DER substep of each fixed group. The intervening
+    // rod states still integrate at MetalWorld cadence; Matter consumes the
+    // exact current segment geometry and applies one group-sized impulse.
+    if ((pass.physicsSubstep + 1u) % divider != 0u) {
+        return true;
+    }
+    const std::uint32_t matterPhysicsSubstep =
+        (pass.physicsSubstep + 1u) / divider - 1u;
+    const std::uint32_t matterPhysicsSubsteps =
+        pass.physicsSubsteps / divider;
     EncodeRequest request{};
     request.commandBuffer = pass.commandBuffer;
     request.rigid.q = pass.q;
@@ -88,12 +112,16 @@ bool encodeMetalWorldMatter(
     request.rigid.currentBodies = pass.currentBodies;
     request.rigid.bodyWrenches = pass.bodyWrenches;
     request.rigid.sceneBodies = pass.sceneBodies;
+    request.rigid.rodNodes = pass.rodNodes;
+    request.rigid.rodInverseMasses = pass.rodInverseMasses;
     request.rigid.currentBodyCount = pass.bodyCount;
     request.rigid.currentBodyStride = pass.bodyStateStride;
     request.rigid.bodyWrenchCount = pass.bodyCount;
     request.rigid.sceneBodyCount = pass.sceneBodyCount;
     request.rigid.bodyWrenchStride = pass.bodyWrenchStride;
     request.rigid.sceneStride = pass.sceneBodyStride;
+    request.rigid.rodNodeCount = pass.rodNodeCount;
+    request.rigid.rodNodeStride = pass.rodNodeStride;
     request.rigid.qStride = pass.qStride;
     request.rigid.vStride = pass.nv;
     request.environmentStatuses = pass.environmentStatuses;
@@ -113,22 +141,16 @@ bool encodeMetalWorldMatter(
         : EncodePhase::preDynamics;
     const bool firstPrePass =
         request.phase == EncodePhase::preDynamics &&
-        pass.physicsSubstep == 0u;
+        matterPhysicsSubstep == 0u;
     request.resetMasks = firstPrePass ? pass.resetMasks : nullptr;
     request.resetMaskStepStride = firstPrePass
         ? pass.resetMaskStepStride
         : 0u;
-    const float cookedTimestep = runtime.timestepSeconds();
-    if (!std::isfinite(pass.timestepSeconds) ||
-        !(pass.timestepSeconds > 0.0f) ||
-        pass.timestepSeconds != cookedTimestep) {
-        return false;
-    }
     request.controlStep = pass.controlStep;
-    request.physicsSubstep = pass.physicsSubstep;
-    request.physicsSubsteps = pass.physicsSubsteps;
+    request.physicsSubstep = matterPhysicsSubstep;
+    request.physicsSubsteps = matterPhysicsSubsteps;
     request.seed = pass.seed;
-    request.timestepSeconds = pass.timestepSeconds;
+    request.timestepSeconds = cookedTimestep;
     // A MetalWorld submission encodes its full rollout horizon into one
     // command buffer. Identification therefore updates/samples once at the
     // beginning of that horizon; later control steps consume the same
@@ -137,11 +159,11 @@ bool encodeMetalWorldMatter(
         runtime.automaticIdentificationEnabled() &&
         request.phase == EncodePhase::preDynamics &&
         pass.controlStep == 0u &&
-        pass.physicsSubstep == 0u;
+        matterPhysicsSubstep == 0u;
     request.runAdaptiveTransfer =
         runtime.adaptiveTransferEnabled() &&
         request.phase == EncodePhase::postCommit &&
-        pass.physicsSubstep + 1u == pass.physicsSubsteps;
+        matterPhysicsSubstep + 1u == matterPhysicsSubsteps;
     return runtime.encode(request).encoded;
 }
 
@@ -175,6 +197,9 @@ makeMetalWorldDevicePhysicsProgram(Runtime& runtime) noexcept {
              : 0u) |
         (runtime.requiresCoupledCandidate()
              ? metalrobo::MetalWorldDevicePhysicsOwnsCoupledCandidate
+             : 0u) |
+        (runtime.requiresRodNodes()
+             ? metalrobo::MetalWorldDevicePhysicsCouplesRodNodes
              : 0u);
     program.coupledCandidatePointCapacity =
         runtime.coupledCandidatePointCapacity();

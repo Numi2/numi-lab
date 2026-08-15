@@ -2433,6 +2433,18 @@ if(BUILD_TESTING)
             TIMEOUT 1800
     )
     add_test(
+        NAME metalrobo.surgical.live_suture_tissue_entry
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-suture-entry-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_suture_tissue_entry
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal"
+            TIMEOUT 900
+    )
+    add_test(
         NAME metalrobo.surgical.curved_needle_through_wall_passage
         COMMAND
             $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
