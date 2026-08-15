@@ -183,6 +183,21 @@ profile_probe=$profile_build/bin/metalrobo_dual_psm_suture_handoff_probe
         "coupled-profile: probe is unavailable: $profile_probe" >&2
     exit 2
 }
+profile_runtime_hashes=$profile_artifact/runtime-sha256.txt
+shasum -a 256 "$profile_probe" > "$profile_runtime_hashes"
+for profile_runtime_file in \
+    "$profile_build/shaders/MetalRobo.metallib" \
+    "$profile_build/shaders/NumiMatter.metallib"; do
+    if [ -f "$profile_runtime_file" ]; then
+        shasum -a 256 "$profile_runtime_file" \
+            >> "$profile_runtime_hashes"
+    fi
+done
+{
+    printf 'build_dir=%s\n' "$profile_build"
+    printf 'probe=%s\n' "$profile_probe"
+    printf 'runtime_hashes=%s\n' "$profile_runtime_hashes"
+} >> "$profile_summary"
 
 profile_run() {
     profile_run_name=$1
@@ -276,6 +291,8 @@ profile_error_rows=$(grep -o '<row' \
 {
     printf 'replay_sha256=%s\n' \
         "$(awk '{print $1}' "$profile_artifact/replay.sha256")"
+    printf 'physical_outcome=%s\n' \
+        "$profile_artifact/replay-a.stdout"
     printf 'metal_gpu_rows=%s\n' "$profile_gpu_rows"
     printf 'metal_command_buffer_errors=%s\n' "$profile_error_rows"
     printf 'timeline_status=passed\n'
