@@ -158,6 +158,28 @@ giver release, tissue extraction, or a knot.
   --receiver-extraction-closure-only
 ```
 
+The next resumable phase transfers the working preload without teleporting or
+kinematically attaching the needle. Over 134 ms, the receiver advances from
+the gentle 15 um overlap to its normal 60 um transport preload while the giver
+backs off from 60 um to 15 um, followed by a 100 ms coupled settle. On Apple
+M4, the receiver retained 8/8 safe-zone contacts with full `1111`/`1111`
+coverage. The unloading giver retained 4/4 bilateral safety contacts with
+`0101`/`0101` masks, spanning both transverse insert sides; unlike the new
+load-bearing owner, it is not required to occupy both longitudinal rows. The
+endpoint measured 10.2 um receiver seat drift, 6.49 um/s receiver relative
+point speed, 0.448 um maximum DER edge error, 1.768 mm non-neighbour strand
+clearance, 0.925 um hard-swage error, a 0.521 mm/s temporal-cone residual,
+zero cone violation, and zero failed steps. This qualifies load exchange while
+both instruments remain in contact; giver release, continuous tissue
+extraction, and robot-tied knot formation remain separate boundaries.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --receiver-extraction-load-exchange-only \
+  --resume-receiver-extraction-positive-control \
+  build-coupled-dev/testing/suture/extraction-state/receiver-extraction-positive-control.tsv
+```
+
 ## Loaded PDO knot-contact mechanics
 
 The rod solver now resolves a bounded network of frictional thread/thread
