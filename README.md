@@ -198,6 +198,26 @@ it does not yet claim tissue-side retraction or continuous tissue coupling.
   build-coupled-dev/testing/suture/extraction-state/receiver-extraction-load-exchange.tsv
 ```
 
+The released giver must withdraw before the receiver translates the curved
+needle. A direct receiver move exposed a real sequencing failure at 100 ms:
+the receiver still held 8/8 contacts, but the open giver recontacted one side
+of the needle. The corrected phase retracts the giver 8 mm upward along its
+trocar axis over 600 ms, then holds for 100 ms. Its Apple M4 endpoint measured
+8.000 mm projected giver travel, zero planned giver/needle and cross-arm
+contact samples, receiver `1111`/`1111` masks, 9.20 um receiver seat drift,
+4.54 um/s relative slip, 0.561 mm/s maximum strand speed, 0.380 um maximum
+DER edge error, 0.795 um hard-swage error, and a 0.472 mm/s live contact
+residual. Cone violation and failed steps were zero. This qualifies instrument
+clearance before extraction; it does not yet qualify the receiver translation
+through continuously coupled tissue.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --receiver-extraction-giver-retreat-only \
+  --resume-receiver-extraction-giver-release \
+  build-coupled-dev/testing/suture/extraction-state/receiver-extraction-giver-release.tsv
+```
+
 ## Loaded PDO knot-contact mechanics
 
 The rod solver now resolves a bounded network of frictional thread/thread

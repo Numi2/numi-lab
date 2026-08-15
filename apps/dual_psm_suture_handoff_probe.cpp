@@ -172,6 +172,12 @@ constexpr std::uint32_t kReceiverClosureSettleSteps = 100u;
 // only then does the giver continue to a visibly open clearance.
 constexpr std::uint32_t kLoadExchangeSettleSteps = 50u;
 constexpr std::uint32_t kGiverReleaseSettleSteps = 100u;
+// Once the receiver owns the needle, withdraw the opened giver along its
+// trocar axis before translating the curved needle. Eight millimetres clears
+// the former handling segment and keeps the tool above the sterile pad.
+constexpr double kPostTransferGiverRetreat = 0.008;
+constexpr std::uint32_t kPostTransferGiverRetreatSteps = 300u;
+constexpr std::uint32_t kPostTransferGiverRetreatSettleSteps = 50u;
 constexpr double kReceiverRetraction = 0.050;
 // After the giver is visibly clear, retract the received needle 6.5 mm toward
 // the receiver port. This exceeds the independent 6 mm carried-distance gate
@@ -188,6 +194,11 @@ constexpr std::uint32_t kReceiverTransferSteps = 250u;
 // receiver-approach stabilization window rather than certifying a motion
 // frame as a settled handoff.
 constexpr std::uint32_t kReceiverTransferSettleSteps = 50u;
+// A loaded receiver retraction can retain several mm/s of contact-relative
+// velocity after the first 100 ms hold even though the cubic command reaches
+// zero velocity. Continue in fixed 100 ms chunks, without changing the
+// convergence threshold, for at most 500 ms total.
+constexpr std::uint32_t kReceiverTransferMaximumSettleSteps = 250u;
 // The transverse insert rails close through the needle cross-section
 // centreline. A former +120 um offset was compensating for the oversized
 // legacy clevis and produced an off-axis rolling impulse at first contact.
@@ -4558,6 +4569,9 @@ struct Arguments {
     std::filesystem::path resumeExtractionApproachPath;
     std::filesystem::path resumeExtractionPositiveControlPath;
     std::filesystem::path resumeExtractionLoadExchangePath;
+    std::filesystem::path resumeExtractionGiverReleasePath;
+    std::filesystem::path resumeExtractionPreloadReleasePath;
+    std::filesystem::path resumeExtractionRetractionMotionPath;
     std::uint32_t resumeStagingCompletedSteps = 0u;
     bool resumeStagingCompletedStepsProvided = false;
     std::uint32_t resumeLiftStepLimit = kHandoffLiftSteps;
@@ -4617,6 +4631,10 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--receiver-extraction-closure-only" ||
             argument == "--receiver-extraction-load-exchange-only" ||
             argument == "--receiver-extraction-giver-release-only" ||
+            argument == "--receiver-extraction-giver-retreat-only" ||
+            argument == "--receiver-extraction-retraction-geometry-only" ||
+            argument == "--receiver-extraction-retraction-only" ||
+            argument == "--receiver-extraction-retraction-hold-only" ||
             argument == "--receiver-extraction-fixture-only" ||
             argument == "--long-settle" ||
             argument == "--approach-only" ||
@@ -4667,6 +4685,33 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "one path"
             );
             result.resumeExtractionLoadExchangePath = argv[++index];
+        } else if (argument ==
+                   "--resume-receiver-extraction-giver-release") {
+            require(
+                result.resumeExtractionGiverReleasePath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-extraction-giver-release requires "
+                "one path"
+            );
+            result.resumeExtractionGiverReleasePath = argv[++index];
+        } else if (argument ==
+                   "--resume-receiver-extraction-preload-release") {
+            require(
+                result.resumeExtractionPreloadReleasePath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-extraction-preload-release requires "
+                "one path"
+            );
+            result.resumeExtractionPreloadReleasePath = argv[++index];
+        } else if (argument ==
+                   "--resume-receiver-extraction-retraction-motion") {
+            require(
+                result.resumeExtractionRetractionMotionPath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-extraction-retraction-motion requires "
+                "one path"
+            );
+            result.resumeExtractionRetractionMotionPath = argv[++index];
         } else if (argument == "--receiver-collision-scan") {
             require(
                 !result.receiverCollisionScan,
@@ -5091,7 +5136,10 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         (!result.resumeExtractionGiverHoldPath.empty() ? 1u : 0u) +
         (!result.resumeExtractionApproachPath.empty() ? 1u : 0u) +
         (!result.resumeExtractionPositiveControlPath.empty() ? 1u : 0u) +
-        (!result.resumeExtractionLoadExchangePath.empty() ? 1u : 0u);
+        (!result.resumeExtractionLoadExchangePath.empty() ? 1u : 0u) +
+        (!result.resumeExtractionGiverReleasePath.empty() ? 1u : 0u) +
+        (!result.resumeExtractionPreloadReleasePath.empty() ? 1u : 0u) +
+        (!result.resumeExtractionRetractionMotionPath.empty() ? 1u : 0u);
     require(resumeCount <= 1u, "handoff resumes are mutually exclusive");
     require(
         result.resumeExtractionGiverHoldPath.empty() ||
@@ -5116,6 +5164,26 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.mode == "--receiver-extraction-giver-release-only" ||
             result.mode == "--receiver-extraction-fixture-only",
         "distal load-exchange resume requires giver release"
+    );
+    require(
+        result.resumeExtractionGiverReleasePath.empty() ||
+            result.mode == "--receiver-extraction-giver-retreat-only" ||
+            result.mode == "--receiver-extraction-retraction-geometry-only" ||
+            result.mode == "--receiver-extraction-retraction-only" ||
+            result.mode == "--receiver-extraction-fixture-only",
+        "distal giver-release resume requires receiver retraction"
+    );
+    require(
+        result.resumeExtractionPreloadReleasePath.empty() ||
+            result.mode == "--receiver-extraction-retraction-hold-only" ||
+            result.mode == "--receiver-extraction-fixture-only",
+        "distal preload-release resume requires retraction hold"
+    );
+    require(
+        result.resumeExtractionRetractionMotionPath.empty() ||
+            result.mode == "--receiver-extraction-retraction-hold-only" ||
+            result.mode == "--receiver-extraction-fixture-only",
+        "distal retraction-motion resume requires retraction hold"
     );
     require(
         !result.resumeLiftStepLimitProvided ||
@@ -5229,6 +5297,10 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.mode == "--receiver-extraction-closure-only" ||
             result.mode == "--receiver-extraction-load-exchange-only" ||
             result.mode == "--receiver-extraction-giver-release-only" ||
+            result.mode == "--receiver-extraction-giver-retreat-only" ||
+            result.mode == "--receiver-extraction-retraction-geometry-only" ||
+            result.mode == "--receiver-extraction-retraction-only" ||
+            result.mode == "--receiver-extraction-retraction-hold-only" ||
             result.mode == "--receiver-extraction-fixture-only",
         "receiver posture overrides require a receiver geometry diagnostic"
     );
@@ -5243,6 +5315,10 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.mode == "--receiver-extraction-closure-only" ||
             result.mode == "--receiver-extraction-load-exchange-only" ||
             result.mode == "--receiver-extraction-giver-release-only" ||
+            result.mode == "--receiver-extraction-giver-retreat-only" ||
+            result.mode == "--receiver-extraction-retraction-geometry-only" ||
+            result.mode == "--receiver-extraction-retraction-only" ||
+            result.mode == "--receiver-extraction-retraction-hold-only" ||
             result.mode == "--receiver-extraction-fixture-only",
         "extraction posture overrides require a distal receiver diagnostic"
     );
@@ -5908,6 +5984,15 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--receiver-extraction-load-exchange-only";
         const bool receiverExtractionGiverReleaseOnly =
             options.mode == "--receiver-extraction-giver-release-only";
+        const bool receiverExtractionGiverRetreatOnly =
+            options.mode == "--receiver-extraction-giver-retreat-only";
+        const bool receiverExtractionRetractionOnly =
+            options.mode == "--receiver-extraction-retraction-only";
+        const bool receiverExtractionRetractionGeometryOnly =
+            options.mode ==
+                "--receiver-extraction-retraction-geometry-only";
+        const bool receiverExtractionRetractionHoldOnly =
+            options.mode == "--receiver-extraction-retraction-hold-only";
         const bool receiverExtractionFixtureOnly =
             receiverExtractionGeometryOnly ||
             receiverExtractionGiverHoldOnly ||
@@ -5915,6 +6000,10 @@ int main(const int argc, const char* const argv[]) {
             receiverExtractionClosureOnly ||
             receiverExtractionLoadExchangeOnly ||
             receiverExtractionGiverReleaseOnly ||
+            receiverExtractionGiverRetreatOnly ||
+            receiverExtractionRetractionGeometryOnly ||
+            receiverExtractionRetractionOnly ||
+            receiverExtractionRetractionHoldOnly ||
             options.mode == "--receiver-extraction-fixture-only";
         const bool receiverExtractionPose =
             receiverFrameIkOnly || receiverExtractionFixtureOnly;
@@ -6928,21 +7017,42 @@ int main(const int argc, const char* const argv[]) {
                 !options.resumeExtractionLoadExchangePath.empty();
             const bool resumedExtractionPositiveControl =
                 !options.resumeExtractionPositiveControlPath.empty();
+            const bool resumedExtractionGiverRelease =
+                !options.resumeExtractionGiverReleasePath.empty();
+            const bool resumedExtractionPreloadRelease =
+                !options.resumeExtractionPreloadReleasePath.empty();
+            const bool resumedExtractionRetractionMotion =
+                !options.resumeExtractionRetractionMotionPath.empty();
             if (!options.resumeExtractionGiverHoldPath.empty() ||
                 !options.resumeExtractionApproachPath.empty() ||
                 resumedExtractionPositiveControl ||
-                resumedExtractionLoadExchange) {
+                resumedExtractionLoadExchange ||
+                resumedExtractionGiverRelease ||
+                resumedExtractionPreloadRelease ||
+                resumedExtractionRetractionMotion) {
                 const bool resumeApproach =
                     !options.resumeExtractionApproachPath.empty();
                 loadedExtractionStateStep = loadHandoffState(
-                    resumedExtractionLoadExchange
+                    resumedExtractionRetractionMotion
+                        ? options.resumeExtractionRetractionMotionPath
+                    : resumedExtractionPreloadRelease
+                        ? options.resumeExtractionPreloadReleasePath
+                    : resumedExtractionGiverRelease
+                        ? options.resumeExtractionGiverReleasePath
+                    : resumedExtractionLoadExchange
                         ? options.resumeExtractionLoadExchangePath
                     : resumedExtractionPositiveControl
                         ? options.resumeExtractionPositiveControlPath
                     : resumeApproach
                         ? options.resumeExtractionApproachPath
                         : options.resumeExtractionGiverHoldPath,
-                    resumedExtractionLoadExchange
+                    resumedExtractionRetractionMotion
+                        ? "receiver-extraction-retraction-motion"
+                    : resumedExtractionPreloadRelease
+                        ? "receiver-extraction-preload-released"
+                    : resumedExtractionGiverRelease
+                        ? "receiver-extraction-giver-release"
+                    : resumedExtractionLoadExchange
                         ? "receiver-extraction-load-exchange"
                     : resumedExtractionPositiveControl
                         ? "receiver-extraction-positive-control"
@@ -6998,6 +7108,1119 @@ int main(const int argc, const char* const argv[]) {
 
             metalrobo::MetalWorldContext fixtureContext;
             metalrobo::MetalWorldResidentState fixtureResident;
+            if (resumedExtractionPreloadRelease ||
+                resumedExtractionRetractionMotion) {
+                constexpr std::uint32_t kHoldResumeWarmSteps = 3u;
+                std::vector<float> holdEfforts = interpolateTargets(
+                    world.model,
+                    world.model.defaultQ,
+                    world.model.defaultQ,
+                    kHoldResumeWarmSteps
+                );
+                PhaseResult holdStarted = initializePhase(
+                    fixtureContext,
+                    fixtureCompiled,
+                    world,
+                    fixtureStepConfig,
+                    fixtureResident,
+                    holdEfforts,
+                    kHoldResumeWarmSteps
+                );
+                const ContactCounts holdStartContacts = contactCounts(
+                    world,
+                    holdStarted.result,
+                    needleForPlacement.metadata,
+                    kNeedleFirstShape
+                );
+                require(
+                    !bilateral(holdStartContacts, 0u) &&
+                        bilateral(holdStartContacts, 1u) &&
+                        distributedInsertCoverage(
+                            holdStartContacts,
+                            1u
+                        ) &&
+                        cleanNeedleInteraction(
+                            holdStartContacts,
+                            false,
+                            true
+                        ) &&
+                        qualifiedTerminalRod(
+                            rodStateMetrics(world, holdStarted.result)
+                        ),
+                    "resumed preload-release state lost receiver control: " +
+                        contactSummary(holdStartContacts)
+                );
+                const GraspReference holdReceiverReference = graspReference(
+                    world,
+                    needleForPlacement,
+                    holdStarted.result,
+                    1u,
+                    kExtractionNeedleShape
+                );
+                std::vector<float> holdTarget =
+                    holdStarted.result.finalQ;
+                std::vector<double> heldReceiverQ = armLocalQ(
+                    world.model,
+                    1u,
+                    holdStarted.result.finalQ
+                );
+                const double terminalReceiverJawCoordinate =
+                    resumedExtractionRetractionMotion
+                        ? receiverTransportJawCoordinate
+                        : closeJawCoordinate;
+                heldReceiverQ[6] = -terminalReceiverJawCoordinate;
+                heldReceiverQ[7] = terminalReceiverJawCoordinate;
+                setArmTarget(
+                    holdTarget,
+                    world.model,
+                    1u,
+                    heldReceiverQ
+                );
+                holdEfforts = interpolateTargets(
+                    world.model,
+                    holdStarted.result.finalQ,
+                    holdTarget,
+                    kReceiverTransferSettleSteps
+                );
+                PhaseResult held = continuePhase(
+                    fixtureContext,
+                    fixtureCompiled,
+                    fixtureStepConfig,
+                    fixtureResident,
+                    holdEfforts,
+                    kReceiverTransferSettleSteps,
+                    "resumed loaded receiver terminal hold"
+                );
+                std::uint32_t holdSteps = kReceiverTransferSettleSteps;
+                double holdGpuMilliseconds =
+                    held.diagnostics.gpuElapsedMilliseconds;
+                const auto holdIsSettled = [&]() {
+                    const MRMetalWorldContactStatusGPU& residual =
+                        requireTerminalResidual(
+                            held.result,
+                            "resumed loaded receiver terminal hold",
+                            false
+                        );
+                    return
+                        residual.residuals.y <=
+                            kMaximumTerminalContactVelocityResidual &&
+                        residual.residuals.z <=
+                            kMaximumTerminalConeViolation;
+                };
+                while (!holdIsSettled() &&
+                       holdSteps < kReceiverTransferMaximumSettleSteps) {
+                    holdEfforts = interpolateTargets(
+                        world.model,
+                        held.result.finalQ,
+                        holdTarget,
+                        kReceiverTransferSettleSteps
+                    );
+                    PhaseResult additionalHold = continuePhase(
+                        fixtureContext,
+                        fixtureCompiled,
+                        fixtureStepConfig,
+                        fixtureResident,
+                        holdEfforts,
+                        kReceiverTransferSettleSteps,
+                        "resumed loaded receiver extended terminal hold"
+                    );
+                    holdSteps += kReceiverTransferSettleSteps;
+                    holdGpuMilliseconds +=
+                        additionalHold.diagnostics.gpuElapsedMilliseconds;
+                    held = std::move(additionalHold);
+                }
+                const ContactCounts heldContacts = contactCounts(
+                    world,
+                    held.result,
+                    needleForPlacement.metadata,
+                    kNeedleFirstShape
+                );
+                const GraspKinematics heldReceiverMotion = graspKinematics(
+                    world,
+                    needleForPlacement,
+                    held.result,
+                    1u,
+                    kExtractionNeedleShape,
+                    holdReceiverReference
+                );
+                const RodStateMetrics heldRod = rodStateMetrics(
+                    world,
+                    held.result
+                );
+                const double heldSwageError = swageAttachmentError(
+                    world,
+                    held.result
+                );
+                const MRMetalWorldContactStatusGPU& heldResidual =
+                    requireTerminalResidual(
+                        held.result,
+                        "resumed loaded receiver terminal hold"
+                    );
+                require(
+                    !bilateral(heldContacts, 0u) &&
+                        bilateral(heldContacts, 1u) &&
+                        distributedInsertCoverage(heldContacts, 1u) &&
+                        cleanNeedleInteraction(
+                            heldContacts,
+                            false,
+                            true
+                        ) &&
+                        qualifiedDrivenGrasp(heldReceiverMotion) &&
+                        qualifiedTerminalRod(heldRod) &&
+                        heldSwageError < kMaximumSwageAttachmentError,
+                    "settled retraction state lost receiver control: " +
+                        contactSummary(heldContacts)
+                );
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "receiver-extraction-retraction-settled",
+                    loadedExtractionStateStep +
+                        kHoldResumeWarmSteps + holdSteps,
+                    world,
+                    sutureSpec,
+                    held.result
+                );
+                std::cout << std::setprecision(9)
+                    << "{\"schema\":\"numi.distal-suture-retraction-hold.v1\""
+                    << ",\"device\":\""
+                    << held.diagnostics.deviceName << "\""
+                    << ",\"velocity_iterations\":"
+                    << options.velocityIterations
+                    << ",\"final_velocity_iterations\":"
+                    << options.finalVelocityIterations
+                    << ",\"transport_preload_retained\":"
+                    << (resumedExtractionRetractionMotion ? "true" : "false")
+                    << ",\"reported_solver_iterations\":"
+                    << heldResidual.solverIterations
+                    << ",\"hold_steps\":" << holdSteps
+                    << ",\"giver_jaw_contacts\":["
+                    << heldContacts.jawContacts[0][0] << ','
+                    << heldContacts.jawContacts[0][1] << ']'
+                    << ",\"receiver_jaw_contacts\":["
+                    << heldContacts.jawContacts[1][0] << ','
+                    << heldContacts.jawContacts[1][1] << ']'
+                    << ",\"receiver_insert_patch_masks\":["
+                    << heldContacts.jawInsertPatchMasks[1][0] << ','
+                    << heldContacts.jawInsertPatchMasks[1][1] << ']'
+                    << ",\"receiver_seat_drift_m\":"
+                    << heldReceiverMotion.seatDrift
+                    << ",\"receiver_relative_point_speed_mps\":"
+                    << heldReceiverMotion.relativePointSpeed
+                    << ",\"thread_max_node_speed_mps\":"
+                    << heldRod.maximumNodeSpeed
+                    << ",\"thread_max_edge_length_error_m\":"
+                    << heldRod.maximumEdgeLengthError
+                    << ",\"thread_minimum_clearance_m\":"
+                    << heldRod.minimumNonNeighbourSurfaceClearance
+                    << ",\"hard_swage_root_error_m\":"
+                    << heldSwageError
+                    << ",\"terminal_contact_velocity_residual_mps\":"
+                    << heldResidual.residuals.y
+                    << ",\"terminal_cone_violation\":"
+                    << heldResidual.residuals.z
+                    << ",\"failed_steps\":0"
+                    << ",\"gpu_ms\":"
+                    << holdStarted.diagnostics.gpuElapsedMilliseconds +
+                           holdGpuMilliseconds
+                    << ",\"boundary\":\"terminal receiver/contact "
+                       "convergence after retraction; carry distance is "
+                       "qualified from the linked motion artifact\"}\n";
+                return 0;
+            }
+            if (resumedExtractionGiverRelease) {
+                constexpr std::uint32_t kRetractionResumeWarmSteps = 3u;
+                std::vector<float> resumeEfforts = interpolateTargets(
+                    world.model,
+                    world.model.defaultQ,
+                    world.model.defaultQ,
+                    kRetractionResumeWarmSteps
+                );
+                PhaseResult receiverOwned = initializePhase(
+                    fixtureContext,
+                    fixtureCompiled,
+                    world,
+                    fixtureStepConfig,
+                    fixtureResident,
+                    resumeEfforts,
+                    kRetractionResumeWarmSteps
+                );
+                const ContactCounts receiverOwnedContacts = contactCounts(
+                    world,
+                    receiverOwned.result,
+                    needleForPlacement.metadata,
+                    kNeedleFirstShape
+                );
+                const RodStateMetrics receiverOwnedRod = rodStateMetrics(
+                    world,
+                    receiverOwned.result
+                );
+                requireTerminalResidual(
+                    receiverOwned.result,
+                    "resumed distal receiver sole-control state"
+                );
+                require(
+                    !bilateral(receiverOwnedContacts, 0u) &&
+                        bilateral(receiverOwnedContacts, 1u) &&
+                        distributedInsertCoverage(
+                            receiverOwnedContacts,
+                            1u
+                        ) &&
+                        cleanNeedleInteraction(
+                            receiverOwnedContacts,
+                            false,
+                            true
+                        ) &&
+                        qualifiedTerminalRod(receiverOwnedRod),
+                    "resumed distal receiver did not preserve sole "
+                    "control: " + contactSummary(receiverOwnedContacts)
+                );
+                const GraspReference receiverReference = graspReference(
+                    world,
+                    needleForPlacement,
+                    receiverOwned.result,
+                    1u,
+                    kExtractionNeedleShape
+                );
+                double preRetractionGpuMilliseconds =
+                    receiverOwned.diagnostics.gpuElapsedMilliseconds;
+                std::uint32_t preRetractionSteps =
+                    kRetractionResumeWarmSteps;
+                const JawGeometry giverBeforeRetreat = worldJawGeometry(
+                    world.model,
+                    0u,
+                    receiverOwned.result.finalQ,
+                    receiverOwned.result.finalV
+                );
+                const OrthonormalJawFrame giverRetreatFrame =
+                    orthonormalJawFrame(
+                        giverBeforeRetreat.railDirection,
+                        giverBeforeRetreat.separationDirection,
+                        "post-transfer giver retreat frame"
+                    );
+                const double giverRetreatUpSign =
+                    giverRetreatFrame.normal.z >= 0.0 ? 1.0 : -1.0;
+                const Vec3 giverRetreatDirection =
+                    giverRetreatFrame.normal * giverRetreatUpSign;
+                const Vec3 giverRetreatTargetPoint =
+                    giverBeforeRetreat.midpoint +
+                    giverRetreatDirection * kPostTransferGiverRetreat;
+                const ArmTrajectory giverRetreat = frameArmTrajectory(
+                    world.model,
+                    psm,
+                    0u,
+                    giverBase,
+                    receiverOwned.result.finalQ,
+                    giverBeforeRetreat.midpoint,
+                    giverRetreatTargetPoint,
+                    giverRetreatFrame.rail,
+                    giverRetreatFrame.separation,
+                    openJawCoordinate,
+                    openJawCoordinate,
+                    kPostTransferGiverRetreatSteps
+                );
+                const CrossArmCollisionScan giverRetreatPreflight =
+                    scanCrossArmTargetPath(
+                        world,
+                        receiverOwned.result.finalQ,
+                        giverRetreat.finalTarget,
+                        kPostTransferGiverRetreatSteps,
+                        giverRetreat.desiredQ
+                    );
+                std::uint32_t giverRetreatNeedleContactSamples = 0u;
+                for (std::uint32_t step = 0u;
+                     step < kPostTransferGiverRetreatSteps;
+                     ++step) {
+                    const std::span<const float> q{
+                        giverRetreat.desiredQ.data() +
+                            static_cast<std::size_t>(step) *
+                                world.model.world.nq,
+                        world.model.world.nq,
+                    };
+                    const KinematicNeedleObservation observation =
+                        observeKinematicNeedleContacts(
+                            world,
+                            needleForPlacement.metadata,
+                            q,
+                            &receiverOwned.result.finalSceneBodies.at(0u)
+                        );
+                    giverRetreatNeedleContactSamples +=
+                        observation.giverNeedleContacts != 0u;
+                }
+                require(
+                    giverRetreat.maximumVelocityRatio <=
+                            kMaximumCommandVelocityRatio &&
+                        giverRetreatPreflight.samplesWithContact == 0u &&
+                        giverRetreatPreflight.samplesWithGiverPadContact == 0u &&
+                        giverRetreatPreflight.samplesWithReceiverPadContact == 0u &&
+                        giverRetreatNeedleContactSamples == 0u &&
+                        giverRetreatDirection.z > 0.9,
+                    "post-transfer giver retreat is not collision-free"
+                );
+                constexpr std::uint32_t kGiverRetreatChunkSteps = 50u;
+                static_assert(
+                    kPostTransferGiverRetreatSteps %
+                        kGiverRetreatChunkSteps == 0u
+                );
+                const auto giverRetreatEffortChunk =
+                    [&](const std::uint32_t firstStep) {
+                        const std::size_t first =
+                            static_cast<std::size_t>(firstStep) *
+                            world.model.world.nv;
+                        const std::size_t count =
+                            static_cast<std::size_t>(
+                                kGiverRetreatChunkSteps
+                            ) * world.model.world.nv;
+                        return std::vector<float>(
+                            giverRetreat.efforts.begin() + first,
+                            giverRetreat.efforts.begin() + first + count
+                        );
+                    };
+                PhaseResult giverRetreatMotion = continuePhase(
+                    fixtureContext,
+                    fixtureCompiled,
+                    fixtureStepConfig,
+                    fixtureResident,
+                    giverRetreatEffortChunk(0u),
+                    kGiverRetreatChunkSteps,
+                    "post-transfer giver retreat chunk"
+                );
+                std::uint32_t giverRetreatCompletedSteps =
+                    kGiverRetreatChunkSteps;
+                double giverRetreatGpuMilliseconds =
+                    giverRetreatMotion.diagnostics.gpuElapsedMilliseconds;
+                while (true) {
+                    const ContactCounts retreatChunkContacts = contactCounts(
+                        world,
+                        giverRetreatMotion.result,
+                        needleForPlacement.metadata,
+                        kNeedleFirstShape
+                    );
+                    const GraspKinematics retreatChunkReceiverMotion =
+                        graspKinematics(
+                            world,
+                            needleForPlacement,
+                            giverRetreatMotion.result,
+                            1u,
+                            kExtractionNeedleShape,
+                            receiverReference
+                        );
+                    const RodStateMetrics retreatChunkRod = rodStateMetrics(
+                        world,
+                        giverRetreatMotion.result
+                    );
+                    std::cerr << std::setprecision(9)
+                        << "handoff_phase=giver_retreat_chunk"
+                        << " completed_steps="
+                        << giverRetreatCompletedSteps
+                        << " receiver_contacts="
+                        << retreatChunkContacts.jawContacts[1][0] << '/'
+                        << retreatChunkContacts.jawContacts[1][1]
+                        << " receiver_masks="
+                        << retreatChunkContacts.jawInsertPatchMasks[1][0]
+                        << '/'
+                        << retreatChunkContacts.jawInsertPatchMasks[1][1]
+                        << " seat_drift_m="
+                        << retreatChunkReceiverMotion.seatDrift
+                        << " relative_point_speed_mps="
+                        << retreatChunkReceiverMotion.relativePointSpeed
+                        << " thread_speed_mps="
+                        << retreatChunkRod.maximumNodeSpeed << '\n';
+                    require(
+                        !bilateral(retreatChunkContacts, 0u) &&
+                            bilateral(retreatChunkContacts, 1u) &&
+                            distributedInsertCoverage(
+                                retreatChunkContacts,
+                                1u
+                            ) &&
+                            cleanNeedleInteraction(
+                                retreatChunkContacts,
+                                false,
+                                true
+                            ) &&
+                            qualifiedTransitionGrasp(
+                                retreatChunkReceiverMotion
+                            ) &&
+                            qualifiedTerminalRod(retreatChunkRod),
+                        "receiver lost the needle during giver retreat at "
+                        "step " +
+                            std::to_string(giverRetreatCompletedSteps) +
+                            ": " + contactSummary(retreatChunkContacts)
+                    );
+                    if (giverRetreatCompletedSteps ==
+                        kPostTransferGiverRetreatSteps) {
+                        break;
+                    }
+                    PhaseResult nextRetreatChunk = continuePhase(
+                        fixtureContext,
+                        fixtureCompiled,
+                        fixtureStepConfig,
+                        fixtureResident,
+                        giverRetreatEffortChunk(
+                            giverRetreatCompletedSteps
+                        ),
+                        kGiverRetreatChunkSteps,
+                        "post-transfer giver retreat chunk"
+                    );
+                    giverRetreatCompletedSteps +=
+                        kGiverRetreatChunkSteps;
+                    giverRetreatGpuMilliseconds +=
+                        nextRetreatChunk.diagnostics
+                            .gpuElapsedMilliseconds;
+                    giverRetreatMotion = std::move(nextRetreatChunk);
+                }
+                resumeEfforts = interpolateTargets(
+                    world.model,
+                    giverRetreatMotion.result.finalQ,
+                    giverRetreat.finalTarget,
+                    kPostTransferGiverRetreatSettleSteps
+                );
+                PhaseResult giverRetreated = continuePhase(
+                    fixtureContext,
+                    fixtureCompiled,
+                    fixtureStepConfig,
+                    fixtureResident,
+                    resumeEfforts,
+                    kPostTransferGiverRetreatSettleSteps,
+                    "post-transfer giver retreat hold"
+                );
+                giverRetreatGpuMilliseconds +=
+                    giverRetreated.diagnostics.gpuElapsedMilliseconds;
+                const ContactCounts giverRetreatedContacts = contactCounts(
+                    world,
+                    giverRetreated.result,
+                    needleForPlacement.metadata,
+                    kNeedleFirstShape
+                );
+                const GraspKinematics giverRetreatedReceiverMotion =
+                    graspKinematics(
+                        world,
+                        needleForPlacement,
+                        giverRetreated.result,
+                        1u,
+                        kExtractionNeedleShape,
+                        receiverReference
+                    );
+                const RodStateMetrics giverRetreatedRod = rodStateMetrics(
+                    world,
+                    giverRetreated.result
+                );
+                const MRMetalWorldContactStatusGPU& giverRetreatedResidual =
+                    requireTerminalResidual(
+                        giverRetreated.result,
+                        "post-transfer giver retreat hold"
+                    );
+                const JawGeometry giverAfterRetreat = worldJawGeometry(
+                    world.model,
+                    0u,
+                    giverRetreated.result.finalQ,
+                    giverRetreated.result.finalV
+                );
+                const Vec3 giverRetreatDelta =
+                    giverAfterRetreat.midpoint - giverBeforeRetreat.midpoint;
+                require(
+                    !bilateral(giverRetreatedContacts, 0u) &&
+                        bilateral(giverRetreatedContacts, 1u) &&
+                        distributedInsertCoverage(
+                            giverRetreatedContacts,
+                            1u
+                        ) &&
+                        cleanNeedleInteraction(
+                            giverRetreatedContacts,
+                            false,
+                            true
+                        ) &&
+                        qualifiedDrivenGrasp(
+                            giverRetreatedReceiverMotion
+                        ) &&
+                        qualifiedTerminalRod(giverRetreatedRod) &&
+                        norm(giverRetreatDelta) > 0.0075 &&
+                        dot(giverRetreatDelta, giverRetreatDirection) >
+                            0.0075,
+                    "post-transfer giver did not clear the receiver-owned "
+                    "needle: " + contactSummary(giverRetreatedContacts)
+                );
+                preRetractionGpuMilliseconds +=
+                    giverRetreatGpuMilliseconds;
+                preRetractionSteps +=
+                    kPostTransferGiverRetreatSteps +
+                    kPostTransferGiverRetreatSettleSteps;
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "receiver-extraction-giver-retreated",
+                    loadedExtractionStateStep + preRetractionSteps,
+                    world,
+                    sutureSpec,
+                    giverRetreated.result
+                );
+                if (receiverExtractionGiverRetreatOnly) {
+                    std::cout << std::setprecision(9)
+                        << "{\"schema\":\"numi.distal-suture-giver-retreat.v1\""
+                        << ",\"device\":\""
+                        << giverRetreated.diagnostics.deviceName << "\""
+                        << ",\"retreat_steps\":"
+                        << kPostTransferGiverRetreatSteps
+                        << ",\"commanded_retreat_m\":"
+                        << kPostTransferGiverRetreat
+                        << ",\"giver_follow_m\":"
+                        << norm(giverRetreatDelta)
+                        << ",\"giver_projected_follow_m\":"
+                        << dot(
+                            giverRetreatDelta,
+                            giverRetreatDirection
+                        )
+                        << ",\"trajectory_velocity_ratio\":"
+                        << giverRetreat.maximumVelocityRatio
+                        << ",\"needle_contact_samples\":"
+                        << giverRetreatNeedleContactSamples
+                        << ",\"cross_arm_contact_samples\":"
+                        << giverRetreatPreflight.samplesWithContact
+                        << ",\"receiver_jaw_contacts\":["
+                        << giverRetreatedContacts.jawContacts[1][0] << ','
+                        << giverRetreatedContacts.jawContacts[1][1] << ']'
+                        << ",\"receiver_insert_patch_masks\":["
+                        << giverRetreatedContacts
+                               .jawInsertPatchMasks[1][0] << ','
+                        << giverRetreatedContacts
+                               .jawInsertPatchMasks[1][1] << ']'
+                        << ",\"receiver_seat_drift_m\":"
+                        << giverRetreatedReceiverMotion.seatDrift
+                        << ",\"receiver_relative_point_speed_mps\":"
+                        << giverRetreatedReceiverMotion.relativePointSpeed
+                        << ",\"thread_max_node_speed_mps\":"
+                        << giverRetreatedRod.maximumNodeSpeed
+                        << ",\"thread_max_edge_length_error_m\":"
+                        << giverRetreatedRod.maximumEdgeLengthError
+                        << ",\"hard_swage_root_error_m\":"
+                        << swageAttachmentError(
+                            world,
+                            giverRetreated.result
+                        )
+                        << ",\"terminal_contact_velocity_residual_mps\":"
+                        << giverRetreatedResidual.residuals.y
+                        << ",\"terminal_cone_violation\":"
+                        << giverRetreatedResidual.residuals.z
+                        << ",\"failed_steps\":0"
+                        << ",\"gpu_ms\":"
+                        << preRetractionGpuMilliseconds
+                        << ",\"boundary\":\"opened giver withdrawn above "
+                           "the receiver-owned needle before extraction\"}\n";
+                    return 0;
+                }
+                receiverOwned = std::move(giverRetreated);
+                const JawGeometry receiverBeforeRetraction =
+                    worldJawGeometry(
+                        world.model,
+                        1u,
+                        receiverOwned.result.finalQ,
+                        receiverOwned.result.finalV
+                    );
+                const OrthonormalJawFrame retractionFrame =
+                    orthonormalJawFrame(
+                        receiverBeforeRetraction.railDirection,
+                        receiverBeforeRetraction.separationDirection,
+                        "resumed loaded receiver retraction frame"
+                    );
+                const JawGeometry giverBeforeRetraction = worldJawGeometry(
+                    world.model,
+                    0u,
+                    receiverOwned.result.finalQ,
+                    receiverOwned.result.finalV
+                );
+                const OrthonormalJawFrame giverRetractionFrame =
+                    orthonormalJawFrame(
+                        giverBeforeRetraction.railDirection,
+                        giverBeforeRetraction.separationDirection,
+                        "released giver retraction frame"
+                    );
+                const Vec3 giverFromReceiver =
+                    giverBeforeRetraction.midpoint -
+                    receiverBeforeRetraction.midpoint;
+                const double giverNormalAwaySign =
+                    dot(giverRetractionFrame.normal, giverFromReceiver) >= 0.0
+                        ? 1.0 : -1.0;
+                const Vec3 diagnosticGiverRetreatDirection =
+                    giverRetractionFrame.normal * giverNormalAwaySign;
+                const Vec3 retractionTargetPoint =
+                    receiverBeforeRetraction.midpoint +
+                    retractionFrame.normal * kReceiverTransfer;
+                const ArmTrajectory receiverRetraction =
+                    frameArmTrajectory(
+                        world.model,
+                        psm,
+                        1u,
+                        receiverBase,
+                        receiverOwned.result.finalQ,
+                        receiverBeforeRetraction.midpoint,
+                        retractionTargetPoint,
+                        retractionFrame.rail,
+                        retractionFrame.separation,
+                        closeJawCoordinate,
+                        receiverTransportJawCoordinate,
+                        kReceiverTransferSteps
+                    );
+                const CrossArmCollisionScan retractionPreflight =
+                    scanCrossArmTargetPath(
+                        world,
+                        receiverOwned.result.finalQ,
+                        receiverRetraction.finalTarget,
+                        kReceiverTransferSteps,
+                        receiverRetraction.desiredQ
+                    );
+                require(
+                    receiverRetraction.maximumVelocityRatio <=
+                            kMaximumCommandVelocityRatio &&
+                        retractionPreflight.samplesWithContact == 0u &&
+                        retractionPreflight.samplesWithGiverPadContact == 0u &&
+                        retractionPreflight.samplesWithReceiverPadContact == 0u,
+                    "loaded distal receiver retraction intersects an "
+                    "instrument or pad"
+                );
+                const Vec3 needleBeforeRetraction = needleShapeWorldCenter(
+                    needleForPlacement,
+                    kExtractionNeedleShape,
+                    receiverOwned.result.finalSceneBodies.at(0u)
+                );
+                if (receiverExtractionRetractionGeometryOnly) {
+                    std::cout << std::setprecision(9)
+                        << "receiver_extraction_retraction_geometry=ok"
+                        << " jaw_midpoint=["
+                        << receiverBeforeRetraction.midpoint.x << ','
+                        << receiverBeforeRetraction.midpoint.y << ','
+                        << receiverBeforeRetraction.midpoint.z << ']'
+                        << " needle_point=["
+                        << needleBeforeRetraction.x << ','
+                        << needleBeforeRetraction.y << ','
+                        << needleBeforeRetraction.z << ']'
+                        << " jaw_needle_offset_m="
+                        << norm(
+                            receiverBeforeRetraction.midpoint -
+                            needleBeforeRetraction
+                        )
+                        << " frame_rail=["
+                        << retractionFrame.rail.x << ','
+                        << retractionFrame.rail.y << ','
+                        << retractionFrame.rail.z << ']'
+                        << " frame_separation=["
+                        << retractionFrame.separation.x << ','
+                        << retractionFrame.separation.y << ','
+                        << retractionFrame.separation.z << ']'
+                        << " frame_normal=["
+                        << retractionFrame.normal.x << ','
+                        << retractionFrame.normal.y << ','
+                        << retractionFrame.normal.z << ']'
+                        << " target_midpoint=["
+                        << retractionTargetPoint.x << ','
+                        << retractionTargetPoint.y << ','
+                        << retractionTargetPoint.z << ']'
+                        << " giver_midpoint=["
+                        << giverBeforeRetraction.midpoint.x << ','
+                        << giverBeforeRetraction.midpoint.y << ','
+                        << giverBeforeRetraction.midpoint.z << ']'
+                        << " giver_frame_normal=["
+                        << giverRetractionFrame.normal.x << ','
+                        << giverRetractionFrame.normal.y << ','
+                        << giverRetractionFrame.normal.z << ']'
+                        << " giver_retreat_direction=["
+                        << diagnosticGiverRetreatDirection.x << ','
+                        << diagnosticGiverRetreatDirection.y << ','
+                        << diagnosticGiverRetreatDirection.z << ']'
+                        << " giver_retreat_separation_projection="
+                        << dot(
+                            diagnosticGiverRetreatDirection,
+                            giverFromReceiver
+                        )
+                        << " normal_up_projection="
+                        << retractionFrame.normal.z
+                        << " trajectory_velocity_ratio="
+                        << receiverRetraction.maximumVelocityRatio
+                        << " cross_arm_contact_samples="
+                        << retractionPreflight.samplesWithContact << '\n';
+                    return 0;
+                }
+                constexpr std::uint32_t kRetractionChunkSteps = 25u;
+                static_assert(
+                    kReceiverTransferSteps % kRetractionChunkSteps == 0u
+                );
+                const auto retractionEffortChunk =
+                    [&](const std::uint32_t firstStep) {
+                        const std::size_t first =
+                            static_cast<std::size_t>(firstStep) *
+                            world.model.world.nv;
+                        const std::size_t count =
+                            static_cast<std::size_t>(
+                                kRetractionChunkSteps
+                            ) * world.model.world.nv;
+                        return std::vector<float>(
+                            receiverRetraction.efforts.begin() + first,
+                            receiverRetraction.efforts.begin() +
+                                first + count
+                        );
+                    };
+                PhaseResult retractionMotion = continuePhase(
+                    fixtureContext,
+                    fixtureCompiled,
+                    fixtureStepConfig,
+                    fixtureResident,
+                    retractionEffortChunk(0u),
+                    kRetractionChunkSteps,
+                    "loaded distal receiver retraction chunk"
+                );
+                std::uint32_t completedRetractionSteps =
+                    kRetractionChunkSteps;
+                double retractionMotionGpuMilliseconds =
+                    retractionMotion.diagnostics.gpuElapsedMilliseconds;
+                while (true) {
+                    const ContactCounts chunkContacts = contactCounts(
+                        world,
+                        retractionMotion.result,
+                        needleForPlacement.metadata,
+                        kNeedleFirstShape
+                    );
+                    const GraspKinematics chunkReceiverMotion =
+                        graspKinematics(
+                            world,
+                            needleForPlacement,
+                            retractionMotion.result,
+                            1u,
+                            kExtractionNeedleShape,
+                            receiverReference
+                        );
+                    const RodStateMetrics chunkRod = rodStateMetrics(
+                        world,
+                        retractionMotion.result
+                    );
+                    const Vec3 chunkNeedlePoint = needleShapeWorldCenter(
+                        needleForPlacement,
+                        kExtractionNeedleShape,
+                        retractionMotion.result.finalSceneBodies.at(0u)
+                    );
+                    std::cerr << std::setprecision(9)
+                        << "handoff_phase=distal_retraction_chunk"
+                        << " completed_steps="
+                        << completedRetractionSteps
+                        << " receiver_contacts="
+                        << chunkContacts.jawContacts[1][0] << '/'
+                        << chunkContacts.jawContacts[1][1]
+                        << " receiver_masks="
+                        << chunkContacts.jawInsertPatchMasks[1][0] << '/'
+                        << chunkContacts.jawInsertPatchMasks[1][1]
+                        << " seat_drift_m="
+                        << chunkReceiverMotion.seatDrift
+                        << " relative_point_speed_mps="
+                        << chunkReceiverMotion.relativePointSpeed
+                        << " thread_speed_mps="
+                        << chunkRod.maximumNodeSpeed
+                        << " needle_point=["
+                        << chunkNeedlePoint.x << ','
+                        << chunkNeedlePoint.y << ','
+                        << chunkNeedlePoint.z << "]\n";
+                    writeHandoffStateArtifact(
+                        options.stateOutputDirectory,
+                        "receiver-extraction-retraction-motion-" +
+                            std::to_string(completedRetractionSteps),
+                        loadedExtractionStateStep +
+                            preRetractionSteps +
+                            completedRetractionSteps,
+                        world,
+                        sutureSpec,
+                        retractionMotion.result
+                    );
+                    require(
+                        !bilateral(chunkContacts, 0u) &&
+                            bilateral(chunkContacts, 1u) &&
+                            distributedInsertCoverage(chunkContacts, 1u) &&
+                            cleanNeedleInteraction(
+                                chunkContacts,
+                                false,
+                                true
+                            ) &&
+                            qualifiedTransitionGrasp(
+                                chunkReceiverMotion
+                            ) &&
+                            qualifiedTerminalRod(chunkRod),
+                        "receiver lost the needle during distal retraction "
+                        "at step " +
+                            std::to_string(completedRetractionSteps) + ": " +
+                            contactSummary(chunkContacts)
+                    );
+                    if (completedRetractionSteps ==
+                        kReceiverTransferSteps) {
+                        break;
+                    }
+                    PhaseResult nextChunk = continuePhase(
+                        fixtureContext,
+                        fixtureCompiled,
+                        fixtureStepConfig,
+                        fixtureResident,
+                        retractionEffortChunk(
+                            completedRetractionSteps
+                        ),
+                        kRetractionChunkSteps,
+                        "loaded distal receiver retraction chunk"
+                    );
+                    completedRetractionSteps += kRetractionChunkSteps;
+                    retractionMotionGpuMilliseconds +=
+                        nextChunk.diagnostics.gpuElapsedMilliseconds;
+                    retractionMotion = std::move(nextChunk);
+                }
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "receiver-extraction-retraction-motion",
+                    loadedExtractionStateStep +
+                        preRetractionSteps +
+                        kReceiverTransferSteps,
+                    world,
+                    sutureSpec,
+                    retractionMotion.result
+                );
+                const std::uint32_t receiverPreloadReleaseSteps =
+                    static_cast<std::uint32_t>(std::ceil(
+                        3.0 * (
+                            closeJawCoordinate -
+                            receiverTransportJawCoordinate
+                        ) / (0.18 * kControlTimestep)
+                    )) + 4u;
+                std::vector<float> receiverPreloadReleaseTarget =
+                    retractionMotion.result.finalQ;
+                std::vector<double> receiverRelaxedQ = armLocalQ(
+                    world.model,
+                    1u,
+                    retractionMotion.result.finalQ
+                );
+                receiverRelaxedQ[6] = -closeJawCoordinate;
+                receiverRelaxedQ[7] = closeJawCoordinate;
+                setArmTarget(
+                    receiverPreloadReleaseTarget,
+                    world.model,
+                    1u,
+                    receiverRelaxedQ
+                );
+                resumeEfforts = interpolateTargets(
+                    world.model,
+                    retractionMotion.result.finalQ,
+                    receiverPreloadReleaseTarget,
+                    receiverPreloadReleaseSteps
+                );
+                PhaseResult receiverPreloadReleased = continuePhase(
+                    fixtureContext,
+                    fixtureCompiled,
+                    fixtureStepConfig,
+                    fixtureResident,
+                    resumeEfforts,
+                    receiverPreloadReleaseSteps,
+                    "loaded distal receiver preload release"
+                );
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "receiver-extraction-preload-released",
+                    loadedExtractionStateStep +
+                        preRetractionSteps +
+                        kReceiverTransferSteps +
+                        receiverPreloadReleaseSteps,
+                    world,
+                    sutureSpec,
+                    receiverPreloadReleased.result
+                );
+                resumeEfforts = interpolateTargets(
+                    world.model,
+                    receiverPreloadReleased.result.finalQ,
+                    receiverPreloadReleaseTarget,
+                    kReceiverTransferSettleSteps
+                );
+                PhaseResult retracted = continuePhase(
+                    fixtureContext,
+                    fixtureCompiled,
+                    fixtureStepConfig,
+                    fixtureResident,
+                    resumeEfforts,
+                    kReceiverTransferSettleSteps,
+                    "loaded distal receiver retraction hold"
+                );
+                std::uint32_t retractionSettleSteps =
+                    kReceiverTransferSettleSteps;
+                double retractionSettleGpuMilliseconds =
+                    retracted.diagnostics.gpuElapsedMilliseconds;
+                const auto retractionIsSettled = [&]() {
+                    const MRMetalWorldContactStatusGPU& residual =
+                        requireTerminalResidual(
+                            retracted.result,
+                            "loaded distal receiver retraction hold",
+                            false
+                        );
+                    return
+                        residual.residuals.y <=
+                            kMaximumTerminalContactVelocityResidual &&
+                        residual.residuals.z <=
+                            kMaximumTerminalConeViolation;
+                };
+                while (!retractionIsSettled() &&
+                       retractionSettleSteps <
+                           kReceiverTransferMaximumSettleSteps) {
+                    resumeEfforts = interpolateTargets(
+                        world.model,
+                        retracted.result.finalQ,
+                        receiverPreloadReleaseTarget,
+                        kReceiverTransferSettleSteps
+                    );
+                    PhaseResult additionalSettle = continuePhase(
+                        fixtureContext,
+                        fixtureCompiled,
+                        fixtureStepConfig,
+                        fixtureResident,
+                        resumeEfforts,
+                        kReceiverTransferSettleSteps,
+                        "loaded distal receiver retraction extended hold"
+                    );
+                    retractionSettleSteps +=
+                        kReceiverTransferSettleSteps;
+                    retractionSettleGpuMilliseconds +=
+                        additionalSettle.diagnostics
+                            .gpuElapsedMilliseconds;
+                    retracted = std::move(additionalSettle);
+                }
+                const Vec3 needleAfterRetraction = needleShapeWorldCenter(
+                    needleForPlacement,
+                    kExtractionNeedleShape,
+                    retracted.result.finalSceneBodies.at(0u)
+                );
+                const Vec3 needleRetractionDelta =
+                    needleAfterRetraction - needleBeforeRetraction;
+                const double receiverFollow = norm(needleRetractionDelta);
+                const double receiverProjectedFollow = dot(
+                    needleRetractionDelta,
+                    retractionFrame.normal
+                );
+                const ContactCounts retractionContacts = contactCounts(
+                    world,
+                    retracted.result,
+                    needleForPlacement.metadata,
+                    kNeedleFirstShape
+                );
+                const GraspKinematics retractionReceiverMotion =
+                    graspKinematics(
+                        world,
+                        needleForPlacement,
+                        retracted.result,
+                        1u,
+                        kExtractionNeedleShape,
+                        receiverReference
+                    );
+                const RodStateMetrics retractionRod = rodStateMetrics(
+                    world,
+                    retracted.result
+                );
+                const double retractionSwageError = swageAttachmentError(
+                    world,
+                    retracted.result
+                );
+                const double retractionTangentError =
+                    swageTangentAngleError(world, retracted.result);
+                const MRMetalWorldContactStatusGPU& retractionResidual =
+                    requireTerminalResidual(
+                        retracted.result,
+                        "loaded distal receiver retraction hold"
+                    );
+                require(
+                    !bilateral(retractionContacts, 0u) &&
+                        bilateral(retractionContacts, 1u) &&
+                        distributedInsertCoverage(
+                            retractionContacts,
+                            1u
+                        ) &&
+                        cleanNeedleInteraction(
+                            retractionContacts,
+                            false,
+                            true
+                        ) &&
+                        qualifiedDrivenGrasp(
+                            retractionReceiverMotion
+                        ) &&
+                        qualifiedTerminalRod(retractionRod) &&
+                        receiverFollow > kMinimumReceiverTransfer &&
+                        receiverProjectedFollow >
+                            kMinimumReceiverTransfer &&
+                        retractionSwageError <
+                            kMaximumSwageAttachmentError &&
+                        retractionTangentError <
+                            maximumSwageTangentAngleError(world),
+                    "loaded receiver retraction did not carry the dynamic "
+                    "needle and thread: " +
+                        contactSummary(retractionContacts)
+                );
+                const std::uint64_t retractionTerminalStep =
+                    loadedExtractionStateStep +
+                    preRetractionSteps +
+                    kReceiverTransferSteps +
+                    receiverPreloadReleaseSteps +
+                    retractionSettleSteps;
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "receiver-extraction-retracted",
+                    retractionTerminalStep,
+                    world,
+                    sutureSpec,
+                    retracted.result
+                );
+                std::cout << std::setprecision(9)
+                    << "{\"schema\":\"numi.distal-suture-retraction.v1\""
+                    << ",\"device\":\""
+                    << retracted.diagnostics.deviceName << "\""
+                    << ",\"retraction_steps\":"
+                    << kReceiverTransferSteps
+                    << ",\"settle_steps\":"
+                    << retractionSettleSteps
+                    << ",\"preload_release_steps\":"
+                    << receiverPreloadReleaseSteps
+                    << ",\"commanded_retraction_m\":"
+                    << kReceiverTransfer
+                    << ",\"trajectory_velocity_ratio\":"
+                    << receiverRetraction.maximumVelocityRatio
+                    << ",\"cross_arm_contact_samples\":"
+                    << retractionPreflight.samplesWithContact
+                    << ",\"receiver_follow_m\":" << receiverFollow
+                    << ",\"receiver_projected_follow_m\":"
+                    << receiverProjectedFollow
+                    << ",\"giver_jaw_contacts\":["
+                    << retractionContacts.jawContacts[0][0] << ','
+                    << retractionContacts.jawContacts[0][1] << ']'
+                    << ",\"receiver_jaw_contacts\":["
+                    << retractionContacts.jawContacts[1][0] << ','
+                    << retractionContacts.jawContacts[1][1] << ']'
+                    << ",\"receiver_insert_patch_masks\":["
+                    << retractionContacts.jawInsertPatchMasks[1][0] << ','
+                    << retractionContacts.jawInsertPatchMasks[1][1] << ']'
+                    << ",\"receiver_seat_drift_m\":"
+                    << retractionReceiverMotion.seatDrift
+                    << ",\"receiver_relative_point_speed_mps\":"
+                    << retractionReceiverMotion.relativePointSpeed
+                    << ",\"receiver_relative_angular_speed_radps\":"
+                    << retractionReceiverMotion.relativeAngularSpeed
+                    << ",\"thread_max_node_speed_mps\":"
+                    << retractionRod.maximumNodeSpeed
+                    << ",\"thread_max_edge_length_error_m\":"
+                    << retractionRod.maximumEdgeLengthError
+                    << ",\"thread_minimum_clearance_m\":"
+                    << retractionRod.minimumNonNeighbourSurfaceClearance
+                    << ",\"hard_swage_root_error_m\":"
+                    << retractionSwageError
+                    << ",\"swage_tangent_angle_error_rad\":"
+                    << retractionTangentError
+                    << ",\"terminal_contact_velocity_residual_mps\":"
+                    << retractionResidual.residuals.y
+                    << ",\"terminal_cone_violation\":"
+                    << retractionResidual.residuals.z
+                    << ",\"failed_steps\":0"
+                    << ",\"gpu_ms\":"
+                    << preRetractionGpuMilliseconds +
+                           retractionMotionGpuMilliseconds +
+                           receiverPreloadReleased.diagnostics
+                               .gpuElapsedMilliseconds +
+                           retractionSettleGpuMilliseconds
+                    << ",\"boundary\":\"receiver-only dynamic carry in "
+                       "the neutral-zone fixture; no continuous tissue "
+                       "contact\"}\n";
+                return 0;
+            }
             const JawGeometry authoredFixtureGiverJaw = worldJawGeometry(
                 world.model,
                 0u,
