@@ -448,13 +448,18 @@ equal-and-opposite attachment impulse plus average force, and applies that
 impulse at the dynamic needle anchor without floating-point atomics. The
 public dual-PSM needle/thread factory derives its binding from the curved
 needle's rear swage geometry and initializes the thread in world coordinates.
-The standalone host currently submits this three-kernel graph and publishes
-rod and rigid output together. Non-adjacent edges are now radius-correct
-capsules: closest witnesses, coincident normals, four-node inverse-mass
-response, and contact refresh run inside every DER sweep on FP64 and Metal.
-The versioned heterogeneous rod program owns and fingerprints this policy.
-Promotion into persistent `MetalWorld`, thread-tool witness generation, and
-strong coupled rod/rigid iterations remain open.
+The standalone host and persistent `MetalWorld` both publish rod and rigid
+output transactionally. Non-adjacent edges are radius-correct capsules:
+closest witnesses, coincident normals, four-node inverse-mass response, and
+contact refresh run inside every DER sweep on FP64 and Metal. After the
+position solve, SIMD32 rebuilds the final contact shell and canonical pair
+order applies a velocity-level Coulomb impulse capped by the normal impulse
+inferred from the constraint-induced normal velocity change. The surgical PDO
+preset uses its conservative dynamic calibration for this single-coefficient
+self-friction path. The versioned heterogeneous rod program validates and
+fingerprints the coefficient. Resolved surface-spin torque, distinct static
+and dynamic self-friction, and stronger coupled rod/rigid iterations remain
+open fidelity boundaries.
 
 `HeterogeneousWorld` is the owned compilation boundary above those executors.
 It composes `EngineModel` instances transactionally, records the exact global

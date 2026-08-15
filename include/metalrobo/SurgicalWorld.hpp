@@ -74,6 +74,8 @@ struct DualPsmNeedleThreadWorldConfig {
     // Published studies support qualitative low-friction monofilament
     // behavior, but do not establish this exact instrument/pad pair. These
     // coefficients therefore remain explicit research calibration values.
+    // The DER self-contact path conservatively uses the dynamic component as
+    // its single Coulomb coefficient until separate static/sliding data exist.
     MRMaterialGPU threadContactMaterial{
         .friction = {0.18f, 0.12f, 0.0f, 0.0f},
         .response = {0.0f, 0.05f, 1.0e-9f, 0.0f},

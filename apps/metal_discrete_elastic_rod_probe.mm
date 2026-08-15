@@ -47,7 +47,14 @@ std::array<double, 3> subtract(
     };
 }
 
-double segmentDistance(
+struct SegmentWitness {
+    double first = 0.0;
+    double second = 0.0;
+    std::array<double, 3> delta{};
+    double distance = 0.0;
+};
+
+SegmentWitness closestSegmentWitness(
     const std::array<double, 3>& firstA,
     const std::array<double, 3>& firstB,
     const std::array<double, 3>& secondA,
@@ -62,28 +69,123 @@ double segmentDistance(
     const double ao = dot(first, offset);
     const double bo = dot(second, offset);
     const double denominator = aa * bb - ab * ab;
-    double firstParameter = denominator >
-            1.0e-14 * aa * bb
-        ? std::clamp((ab * bo - ao * bb) / denominator, 0.0, 1.0)
+    double firstParameter = denominator > 1.0e-14 * aa * bb
+        ? std::clamp(
+              (ab * bo - ao * bb) / denominator,
+              0.0,
+              1.0
+          )
         : 0.0;
-    double secondNumerator = ab * firstParameter + bo;
+    const double secondNumerator =
+        ab * firstParameter + bo;
     double secondParameter = 0.0;
     if (secondNumerator < 0.0) {
         firstParameter = std::clamp(-ao / aa, 0.0, 1.0);
     } else if (secondNumerator > bb) {
         secondParameter = 1.0;
-        firstParameter = std::clamp((ab - ao) / aa, 0.0, 1.0);
+        firstParameter = std::clamp(
+            (ab - ao) / aa,
+            0.0,
+            1.0
+        );
     } else {
         secondParameter = secondNumerator / bb;
     }
-    return length({
-        firstA[0] + firstParameter * first[0] -
-            secondA[0] - secondParameter * second[0],
-        firstA[1] + firstParameter * first[1] -
-            secondA[1] - secondParameter * second[1],
-        firstA[2] + firstParameter * first[2] -
-            secondA[2] - secondParameter * second[2],
-    });
+    const std::array<double, 3> firstPoint{
+        firstA[0] + firstParameter * first[0],
+        firstA[1] + firstParameter * first[1],
+        firstA[2] + firstParameter * first[2],
+    };
+    const std::array<double, 3> secondPoint{
+        secondA[0] + secondParameter * second[0],
+        secondA[1] + secondParameter * second[1],
+        secondA[2] + secondParameter * second[2],
+    };
+    SegmentWitness witness;
+    witness.first = firstParameter;
+    witness.second = secondParameter;
+    witness.delta = subtract(secondPoint, firstPoint);
+    witness.distance = length(witness.delta);
+    return witness;
+}
+
+std::array<double, 3> contactNormal(
+    const metalrobo::DiscreteElasticRodState& state
+) {
+    const SegmentWitness witness = closestSegmentWitness(
+        state.positions[0],
+        state.positions[1],
+        state.positions[2],
+        state.positions[3]
+    );
+    require(
+        witness.distance > 0.0,
+        "Metal DER contact witness has no normal"
+    );
+    auto normal = witness.delta;
+    for (double& component : normal) {
+        component /= witness.distance;
+    }
+    return normal;
+}
+
+double tangentialContactSlip(
+    const metalrobo::DiscreteElasticRodState& state
+) {
+    const SegmentWitness witness = closestSegmentWitness(
+        state.positions[0],
+        state.positions[1],
+        state.positions[2],
+        state.positions[3]
+    );
+    require(
+        witness.distance > 0.0,
+        "Metal DER slip witness has no contact normal"
+    );
+    auto normal = witness.delta;
+    for (double& component : normal) {
+        component /= witness.distance;
+    }
+    const std::array<double, 3> firstVelocity{
+        (1.0 - witness.first) * state.velocities[0][0] +
+            witness.first * state.velocities[1][0],
+        (1.0 - witness.first) * state.velocities[0][1] +
+            witness.first * state.velocities[1][1],
+        (1.0 - witness.first) * state.velocities[0][2] +
+            witness.first * state.velocities[1][2],
+    };
+    const std::array<double, 3> secondVelocity{
+        (1.0 - witness.second) * state.velocities[2][0] +
+            witness.second * state.velocities[3][0],
+        (1.0 - witness.second) * state.velocities[2][1] +
+            witness.second * state.velocities[3][1],
+        (1.0 - witness.second) * state.velocities[2][2] +
+            witness.second * state.velocities[3][2],
+    };
+    const auto relativeVelocity = subtract(
+        secondVelocity,
+        firstVelocity
+    );
+    const double normalSpeed = dot(relativeVelocity, normal);
+    return std::sqrt(std::max(
+        dot(relativeVelocity, relativeVelocity) -
+            normalSpeed * normalSpeed,
+        0.0
+    ));
+}
+
+double segmentDistance(
+    const std::array<double, 3>& firstA,
+    const std::array<double, 3>& firstB,
+    const std::array<double, 3>& secondA,
+    const std::array<double, 3>& secondB
+) {
+    return closestSegmentWitness(
+        firstA,
+        firstB,
+        secondA,
+        secondB
+    ).distance;
 }
 
 } // namespace
@@ -340,8 +442,8 @@ int main() {
         crossing.positions = {{
             {-0.02, 0.00, 0.0},
             { 0.02, 0.00, 0.0},
-            { 0.00, -0.02, 0.0},
-            { 0.00, 0.02, 0.0},
+            { 0.00, -0.03464101615137755, 0.0},
+            { 0.00, 0.00535898384862245, 0.0},
         }};
         std::vector<metalrobo::DiscreteElasticRodState>
             crossingStates(environmentCount, crossing);
@@ -436,6 +538,176 @@ int main() {
                 " cpu_clearance_m=" + std::to_string(cpuClearance) +
                 " metal_clearance_m=" +
                 std::to_string(firstMetalClearance)
+        );
+
+        auto sliding = collisionResult.states[0];
+        std::fill(
+            sliding.velocities.begin(),
+            sliding.velocities.end(),
+            std::array<double, 3>{}
+        );
+        const auto slidingNormal = contactNormal(sliding);
+        std::array<double, 3> slidingTangent{
+            1.0 - slidingNormal[0] * slidingNormal[0],
+            -slidingNormal[0] * slidingNormal[1],
+            -slidingNormal[0] * slidingNormal[2],
+        };
+        double slidingTangentLength = length(slidingTangent);
+        if (!(slidingTangentLength > 1.0e-8)) {
+            slidingTangent = {
+                -slidingNormal[1] * slidingNormal[0],
+                1.0 - slidingNormal[1] * slidingNormal[1],
+                -slidingNormal[1] * slidingNormal[2],
+            };
+            slidingTangentLength = length(slidingTangent);
+        }
+        require(
+            slidingTangentLength > 1.0e-8,
+            "Metal DER sliding tangent is degenerate"
+        );
+        for (double& component : slidingTangent) {
+            component /= slidingTangentLength;
+        }
+        const std::array<double, 3> slidingVelocity{
+            0.002 * slidingTangent[0] -
+                0.1 * slidingNormal[0],
+            0.002 * slidingTangent[1] -
+                0.1 * slidingNormal[1],
+            0.002 * slidingTangent[2] -
+                0.1 * slidingNormal[2],
+        };
+        sliding.velocities[2] = slidingVelocity;
+        sliding.velocities[3] = slidingVelocity;
+        const std::vector<metalrobo::DiscreteElasticRodState>
+            slidingStates(environmentCount, sliding);
+        metalrobo::MetalDiscreteElasticRodResult frictionlessResult;
+        const auto frictionlessDiagnostics =
+            metalrobo::runMetalDiscreteElasticRod(
+                collisionModel,
+                {
+                    .states = slidingStates,
+                },
+                frictionlessResult,
+                collisionConfig
+            );
+        auto frictionConfig = collisionConfig;
+        frictionConfig.step.selfCollisionFriction = 0.12;
+        metalrobo::MetalDiscreteElasticRodResult frictionResult;
+        const auto frictionDiagnostics =
+            metalrobo::runMetalDiscreteElasticRod(
+                collisionModel,
+                {
+                    .states = slidingStates,
+                },
+                frictionResult,
+                frictionConfig
+            );
+        auto cpuFrictionState = sliding;
+        const auto cpuFrictionDiagnostics =
+            metalrobo::stepDiscreteElasticRodCpu(
+                collisionModel,
+                cpuFrictionState,
+                {},
+                frictionConfig.step
+            );
+        require(
+            frictionlessDiagnostics.succeeded() &&
+                frictionDiagnostics.succeeded() &&
+                cpuFrictionDiagnostics.succeeded(),
+            "Metal/CPU DER frictional self-contact solve failed: "
+            "frictionless=\"" + frictionlessDiagnostics.message +
+                "\" friction=\"" + frictionDiagnostics.message +
+                "\" cpu=\"" + cpuFrictionDiagnostics.message + "\""
+        );
+        const double cpuFrictionSlip =
+            tangentialContactSlip(cpuFrictionState);
+        double firstFrictionlessSlip = 0.0;
+        double firstFrictionalSlip = 0.0;
+        double maximumFrictionSlipError = 0.0;
+        double maximumFrictionMomentumError = 0.0;
+        for (std::size_t environment = 0u;
+             environment < environmentCount;
+             ++environment) {
+            const auto& frictionlessState =
+                frictionlessResult.states[environment];
+            const auto& frictionState =
+                frictionResult.states[environment];
+            const double frictionlessSlip =
+                tangentialContactSlip(frictionlessState);
+            const double frictionSlip =
+                tangentialContactSlip(frictionState);
+            if (environment == 0u) {
+                firstFrictionlessSlip = frictionlessSlip;
+                firstFrictionalSlip = frictionSlip;
+            }
+            maximumFrictionSlipError = std::max(
+                maximumFrictionSlipError,
+                std::abs(frictionSlip - cpuFrictionSlip)
+            );
+            std::array<double, 3> momentumDelta{};
+            for (std::size_t node = 0u;
+                 node < collisionModel.nodeMasses.size();
+                 ++node) {
+                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                    momentumDelta[axis] +=
+                        collisionModel.nodeMasses[node] *
+                        (
+                            frictionState.velocities[node][axis] -
+                            frictionlessState.velocities[node][axis]
+                        );
+                }
+            }
+            maximumFrictionMomentumError = std::max(
+                maximumFrictionMomentumError,
+                length(momentumDelta)
+            );
+            require(
+                frictionState.positions ==
+                        frictionlessState.positions &&
+                    frictionSlip < 0.9 * frictionlessSlip,
+                "Metal DER Coulomb self-contact did not reduce slip: "
+                "frictionless=" + std::to_string(frictionlessSlip) +
+                    " frictional=" + std::to_string(frictionSlip) +
+                    " cpu=" + std::to_string(cpuFrictionSlip)
+            );
+        }
+        require(
+            maximumFrictionSlipError <= 2.0e-5 &&
+                maximumFrictionMomentumError <= 1.0e-10,
+            "Metal DER friction impulse diverged from the FP64 oracle or "
+            "was not equal and opposite"
+        );
+        metalrobo::MetalDiscreteElasticRodResult frictionReplay;
+        const auto frictionReplayDiagnostics =
+            metalrobo::runMetalDiscreteElasticRod(
+                collisionModel,
+                {
+                    .states = slidingStates,
+                },
+                frictionReplay,
+                frictionConfig
+            );
+        bool frictionReplayExact =
+            frictionReplay.states.size() ==
+            frictionResult.states.size();
+        for (std::size_t environment = 0u;
+             frictionReplayExact &&
+             environment < frictionResult.states.size();
+             ++environment) {
+            frictionReplayExact =
+                frictionReplay.states[environment].positions ==
+                    frictionResult.states[environment].positions &&
+                frictionReplay.states[environment].velocities ==
+                    frictionResult.states[environment].velocities &&
+                frictionReplay.states[environment].twists ==
+                    frictionResult.states[environment].twists &&
+                frictionReplay.states[environment].twistRates ==
+                    frictionResult.states[environment].twistRates;
+        }
+        require(
+            frictionReplayDiagnostics.succeeded() &&
+                frictionReplayExact,
+            "Metal DER frictional self-contact replay is not deterministic"
         );
 
         metalrobo::DiscreteElasticRodModel toolRod =
@@ -683,6 +955,14 @@ int main() {
             << collisionResult.statuses[0].diagnostics.z
             << " self_oracle_error="
             << maximumSelfContactError
+            << " frictionless_slip_mps="
+            << firstFrictionlessSlip
+            << " frictional_slip_mps="
+            << firstFrictionalSlip
+            << " friction_oracle_error_mps="
+            << maximumFrictionSlipError
+            << " friction_momentum_error_kg_mps="
+            << maximumFrictionMomentumError
             << " tool_contacts="
             << toolDiagnostics.toolContactCount
             << " tool_impulse=" << maximumToolImpulse

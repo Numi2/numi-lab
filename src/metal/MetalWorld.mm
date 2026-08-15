@@ -8041,7 +8041,9 @@ void uploadBatch(
             static_cast<float>(
                 program.stepConfig.selfCollisionCompliance
             ),
-            0.0f,
+            static_cast<float>(
+                program.stepConfig.selfCollisionFriction
+            ),
         };
         dispatch.toolContact = {
             static_cast<float>(

@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_ROD_GPU_ABI_VERSION 8u
+#define MR_ROD_GPU_ABI_VERSION 9u
 #define MR_ROD_GPU_MAX_NODES 128u
 #define MR_ROD_GPU_MAX_ATTACHMENTS 8u
 #define MR_ROD_GPU_MAX_SELF_CONTACT_PAIRS \
@@ -183,7 +183,7 @@ typedef struct MR_ALIGN16 MRRodGPUDispatch {
     mr_float4 gravityAndTimestep;
     // linear damping, twist damping, derivative step, tolerance.
     mr_float4 dampingDerivativeTolerance;
-    // radius, margin, compliance, reserved.
+    // radius, margin, compliance, Coulomb self-contact friction.
     mr_float4 selfCollision;
     // rod contact offset, rest offset, normal compliance, damping.
     mr_float4 toolContact;

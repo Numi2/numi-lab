@@ -150,6 +150,10 @@ struct DiscreteElasticRodStepConfig {
     // Zero is a hard unilateral contact; positive values soften it through
     // the same XPBD compliance convention as attachments.
     double selfCollisionCompliance = 0.0;
+    // Dimensionless Coulomb coefficient for non-adjacent capsule contact.
+    // A single conservative coefficient owns both sticking and sliding in
+    // this DER path; zero preserves frictionless self-contact.
+    double selfCollisionFriction = 0.0;
 };
 
 struct DiscreteElasticRodDiagnostics {

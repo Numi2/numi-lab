@@ -823,6 +823,7 @@ std::uint64_t hashRod(
         hash,
         rod.stepConfig.selfCollisionCompliance
     );
+    hash = hashPod(hash, rod.stepConfig.selfCollisionFriction);
     const std::uint32_t ownsMaterial =
         rod.collision.ownedMaterial.has_value() ? 1u : 0u;
     hash = hashPod(hash, ownsMaterial);
@@ -1074,7 +1075,9 @@ bool HeterogeneousWorld::valid(std::string* reason) const {
             !finite(
                 rod.stepConfig.selfCollisionCompliance
             ) ||
-            rod.stepConfig.selfCollisionCompliance < 0.0) {
+            rod.stepConfig.selfCollisionCompliance < 0.0 ||
+            !finite(rod.stepConfig.selfCollisionFriction) ||
+            rod.stepConfig.selfCollisionFriction < 0.0) {
             return setReason(
                 reason,
                 "rod step or self-contact configuration is invalid"
@@ -1663,6 +1666,8 @@ makeDualDvrkPsmNeedleThreadHeterogeneousWorld(
             surgical.robots.model.world.gravityAndTimestep.z,
         };
         thread.stepConfig.enableSelfCollision = true;
+        thread.stepConfig.selfCollisionFriction =
+            surgical.threadContactMaterial.friction.y;
         thread.collision.ownedMaterial =
             surgical.threadContactMaterial;
         thread.attachments.assign(
@@ -1792,6 +1797,8 @@ makeDualDvrkPsmNeedleThreadNeutralZoneHeterogeneousWorld(
         thread.stepConfig.enableSelfCollision = true;
         thread.stepConfig.selfCollisionMargin =
             config.threadMinimumNonNeighbourSurfaceClearanceM;
+        thread.stepConfig.selfCollisionFriction =
+            surgical.threadContactMaterial.friction.y;
         thread.collision.ownedMaterial =
             surgical.threadContactMaterial;
         thread.stepConfig.solverIterations =

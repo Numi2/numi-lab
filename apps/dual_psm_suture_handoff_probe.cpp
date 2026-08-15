@@ -5512,6 +5512,8 @@ int main(const int argc, const char* const argv[]) {
                     config.threadConstraintToleranceM &&
                 world.rods[0].stepConfig.selfCollisionMargin ==
                     kMinimumThreadSelfCollisionClearance &&
+                world.rods[0].stepConfig.selfCollisionFriction ==
+                    world.model.materials[6].friction.y &&
                 world.rods[0].stepConfig.linearDamping == 8.0 &&
                 world.rods[0].stepConfig.twistDamping == 8.0,
             "neutral-zone world lost its certified thread step defaults"
@@ -12208,6 +12210,8 @@ int main(const int argc, const char* const argv[]) {
             << ",\"self_collision_projector_enabled\":true"
             << ",\"self_collision_margin_m\":"
             << world.rods[0].stepConfig.selfCollisionMargin
+            << ",\"self_collision_friction\":"
+            << world.rods[0].stepConfig.selfCollisionFriction
             << ",\"thread_tool_collision_enabled\":true"
             << ",\"thread_tool_ccd_enabled\":true"
             << ",\"hard_swage_root_error_m\":"

@@ -344,7 +344,9 @@ bool validConfig(const DiscreteElasticRodStepConfig& config) {
         config.selfCollisionMargin >= 0.0 &&
         finite(config.selfCollisionMargin) &&
         config.selfCollisionCompliance >= 0.0 &&
-        finite(config.selfCollisionCompliance);
+        finite(config.selfCollisionCompliance) &&
+        config.selfCollisionFriction >= 0.0 &&
+        finite(config.selfCollisionFriction);
 }
 
 bool validToolConfig(
@@ -1047,7 +1049,9 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             static_cast<float>(
                 config.step.selfCollisionCompliance
             ),
-            0.0f,
+            static_cast<float>(
+                config.step.selfCollisionFriction
+            ),
         };
         dispatch.toolContact = {
             config.tool.contactOffset,
