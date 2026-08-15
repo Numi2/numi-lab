@@ -17,6 +17,8 @@ squared-distance logarithmic barrier contributes primal gradients and PSD
 Hessian actions directly; per-node timestep ratios keep cross-rate contact the
 gradient and Hessian of one environment action. No contact multipliers,
 Delassus rows, or post-contact correction solve remain.
+Matter ABI v21 explicitly identifies the tapered needle-tip capsule that may
+drive tissue puncture; generic shaft or swage capsules cannot mutate topology.
 Matter ABI v20 exposes only controls that own live work: Newton/FGMRES
 budgets, bounded field-smoother passes, residual tolerances, and a minimum
 contact-separation ratio relative to the authored contact slop. Both contact

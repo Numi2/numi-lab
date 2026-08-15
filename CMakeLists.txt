@@ -2366,6 +2366,18 @@ if(BUILD_TESTING)
             LABELS "metalrobo;matter;surgical;physics;metal"
             TIMEOUT 900
     )
+    add_test(
+        NAME metalrobo.surgical.tapered_needle_tissue_puncture
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-puncture-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.tapered_needle_tissue_puncture
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal"
+            TIMEOUT 1800
+    )
     set(
         METALROBO_SUTURE_TEST_STATE
         "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/pickup.state.tsv"

@@ -359,12 +359,17 @@ struct RigidProxySource {
     // dynamic proxy that may receive adaptive rigid-state publication.
     std::uint32_t sceneBodyIndex = NM_INVALID_INDEX;
     std::uint32_t materialIndex = 0u;
+    // For a puncture-tip capsule, localCenter is the sharp endpoint and
+    // localExtent is the base of the tapered tip segment. Capsule contact is
+    // geometrically symmetric, but this ordering gives topology mutation an
+    // unambiguous physical direction and tract extent.
     std::array<double, 3> localCenter{};
     std::array<double, 3> localExtent{};
     std::array<double, 4> localOrientation{0.0, 0.0, 0.0, 1.0};
     double radiusOrOffset = 0.0;
     bool articulated = false;
     bool dynamic = false;
+    bool punctureTip = false;
 };
 
 struct ObjectSource {

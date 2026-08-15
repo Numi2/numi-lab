@@ -34,6 +34,14 @@ inline bool mutationDeactivates(
         command.identity.y != tetrahedron.identity.y) return false;
     if (command.identity.x == NM_MUTATION_DEACTIVATE_TETRAHEDRON)
         return tetrahedronIndex == object.elementOffset + command.schedule.y;
+    // A physics-triggered needle puncture is an embedded, mass-conserving
+    // discontinuity. The channel owns contact release at sub-element scale;
+    // deleting every intersected coarse tetrahedron would remove orders of
+    // magnitude more tissue than the needle tract. Explicit authored
+    // cylinder mutations retain their erosion semantics.
+    if (command.identity.x == NM_MUTATION_CYLINDER_PUNCTURE &&
+        (command.identity.w & NM_MUTATION_PHYSICS_TRIGGERED) != 0u)
+        return false;
     float minimumValue = INFINITY;
     float maximumValue = -INFINITY;
     const float3 direction = command.geometry0.xyz;
@@ -234,8 +242,11 @@ inline float pointSegmentDistanceSquared(
 }
 
 // Generate one environment-local command per FEM object. A puncture channel
-// is a consequence of an accepted capsule crossing the current tissue
-// geometry; it is never created merely because a control-step number arrived.
+// is admitted only by an explicitly authored sharp-tip capsule with accepted
+// normal impulse, closing motion, tip-axis alignment, and an inward tract that
+// intersects active tissue. This ordering lets valid IPC contact initiate a
+// cut before geometric penetration; requiring an already-interior capsule
+// would make puncture unreachable because IPC correctly rejects that state.
 kernel void nm_topology_detect_puncture(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant uint& controlStep [[buffer(1)]],
@@ -248,7 +259,8 @@ kernel void nm_topology_detect_puncture(
     device const NMPunctureChannelGPU* channels [[buffer(8)]],
     device const NMContactPairGPU* contactPairs [[buffer(9)]],
     device const float4* acceptedHistories [[buffer(10)]],
-    device NMMutationCommandGPU* commands [[buffer(11)]],
+    device const NMContactSampleGPU* contactSamples [[buffer(11)]],
+    device NMMutationCommandGPU* commands [[buffer(12)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint count = dispatch.environmentCount * dispatch.objectCount;
@@ -280,19 +292,26 @@ kernel void nm_topology_detect_puncture(
     const uint rigidBase = environment * dispatch.rigidProxyCount;
     for (uint proxyIndex = 0u; proxyIndex < dispatch.rigidProxyCount;
          ++proxyIndex) {
-        if (proxies[proxyIndex].shapeKind != NM_RIGID_CAPSULE) continue;
+        if (proxies[proxyIndex].shapeKind != NM_RIGID_CAPSULE ||
+            (proxies[proxyIndex].flags & NM_RIGID_PUNCTURE_TIP) == 0u)
+            continue;
         bool acceptedContact = false;
+        NMContactSampleGPU acceptedSample{};
         const uint pairBase = environment * dispatch.contactPairCount;
         for (uint pairIndex = 0u; pairIndex < dispatch.contactPairCount;
              ++pairIndex) {
             const NMContactPairGPU pair = contactPairs[pairIndex];
-            const NMRigidProxyGPU contactProxy =
-                proxies[pair.rigidProxy];
+            const NMContactSampleGPU sample =
+                contactSamples[pairBase + pairIndex];
             if (pair.objectIndex == objectIndex &&
-                contactProxy.bodyIndex == proxies[proxyIndex].bodyIndex &&
+                pair.rigidProxy == proxyIndex &&
+                (sample.identity.w & NM_CONTACT_VALID) != 0u &&
                 acceptedHistories[pairBase + pairIndex].w >=
-                    punctureImpulseThreshold) {
+                    punctureImpulseThreshold &&
+                sample.impulseAndNormal.w >= punctureImpulseThreshold &&
+                sample.admissionVelocityAndNormal.w < -1.0e-6f) {
                 acceptedContact = true;
+                acceptedSample = sample;
                 break;
             }
         }
@@ -302,6 +321,26 @@ kernel void nm_topology_detect_puncture(
         const float3 second = rigid.extent.xyz;
         const float radius = rigid.centerAndRadius.w;
         if (!(radius > 0.0f) || !finite3(first) || !finite3(second)) continue;
+        const float3 edge = second - first;
+        const float lengthEdge = length(edge);
+        if (!(lengthEdge > 1.0e-12f)) continue;
+        const float3 tipDirection = -edge / lengthEdge;
+        const float3 contactNormal = acceptedSample.normalAndVelocity.xyz;
+        const float normalLength = length(contactNormal);
+        if (!(normalLength > 1.0e-12f) || !finite3(contactNormal)) continue;
+        const float3 inward = contactNormal / normalLength;
+        if (dot(tipDirection, inward) < 0.75f) continue;
+        const float3 contactCenter =
+            acceptedSample.pointAndSeparation.xyz - radius * inward;
+        if (length(contactCenter - first) >
+            max(0.25f * lengthEdge, 2.0f * radius)) continue;
+
+        // Open only the first diameter of tissue at fracture onset. Later
+        // channel advancement can extend this finite tract as the same tip
+        // progresses; the entry transaction must not pre-cut the full wall.
+        const float tractLength = 2.0f * radius;
+        const float3 tractFirst = acceptedSample.pointAndSeparation.xyz;
+        const float3 tractSecond = tractFirst + tractLength * inward;
         bool intersects = false;
         for (uint local = 0u; local < object.elementCount && !intersects;
              ++local) {
@@ -313,34 +352,27 @@ kernel void nm_topology_detect_puncture(
             for (uint slot = 0u; slot < 4u; ++slot)
                 tet[slot] = nodes[nodeBase + tetrahedron.nodes[slot]]
                     .positionAndMass.xyz;
-            // Touching the surface is contact, not yet a puncture. Require an
-            // interior sample of the capsule centerline before topology can
-            // change or a channel can become visible.
-            for (uint sample = 1u; sample < 8u; ++sample) {
+            for (uint sample = 1u; sample <= 8u; ++sample) {
                 const float t = float(sample) * (1.0f / 8.0f);
                 if (pointInsideTetrahedron(
-                        mix(first, second, t), tet[0], tet[1], tet[2], tet[3])) {
+                        mix(tractFirst, tractSecond, t),
+                        tet[0], tet[1], tet[2], tet[3])) {
                     intersects = true;
                     break;
                 }
             }
         }
         if (!intersects) continue;
-        const float3 edge = second - first;
-        const float lengthEdge = length(edge);
-        if (!(lengthEdge > 1.0e-12f)) continue;
-        const float3 axis = edge / lengthEdge;
-        const float tractLength = min(lengthEdge, 2.0f * radius);
         output.identity = {
             NM_MUTATION_CYLINDER_PUNCTURE,
             objectIndex,
             0x80000000u | proxyIndex,
-            NM_MUTATION_ACTIVE,
+            NM_MUTATION_ACTIVE | NM_MUTATION_PHYSICS_TRIGGERED,
         };
         output.schedule = {controlStep, NM_INVALID_INDEX, 0u, environment};
-        output.geometry0 = float4(axis, radius);
+        output.geometry0 = float4(inward, radius);
         output.geometry1 = float4(
-            first + 0.5f * tractLength * axis,
+            0.5f * (tractFirst + tractSecond),
             0.5f * tractLength
         );
         return;

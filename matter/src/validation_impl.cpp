@@ -41,7 +41,8 @@ constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_MUTABLE_TOPOLOGY;
 constexpr std::uint32_t kKnownRigidFlags =
     NM_RIGID_ARTICULATED |
-    NM_RIGID_DYNAMIC;
+    NM_RIGID_DYNAMIC |
+    NM_RIGID_PUNCTURE_TIP;
 
 [[nodiscard]] bool finite4(const nm_float4 value) noexcept {
     return std::isfinite(value.x) && std::isfinite(value.y) &&
@@ -1354,6 +1355,17 @@ private:
                 (proxy.flags & NM_RIGID_ARTICULATED) != 0u;
             articulatedProxyCount += articulated ? 1u : 0u;
             const bool dynamic = (proxy.flags & NM_RIGID_DYNAMIC) != 0u;
+            const bool punctureTip =
+                (proxy.flags & NM_RIGID_PUNCTURE_TIP) != 0u;
+            const float capsuleDx =
+                proxy.localExtent.x - proxy.localCenterAndRadius.x;
+            const float capsuleDy =
+                proxy.localExtent.y - proxy.localCenterAndRadius.y;
+            const float capsuleDz =
+                proxy.localExtent.z - proxy.localCenterAndRadius.z;
+            const float capsuleLengthSquared =
+                capsuleDx * capsuleDx + capsuleDy * capsuleDy +
+                capsuleDz * capsuleDz;
             const float orientationNorm =
                 proxy.localOrientation.x * proxy.localOrientation.x +
                 proxy.localOrientation.y * proxy.localOrientation.y +
@@ -1363,6 +1375,11 @@ private:
                 proxy.materialIndex >= world_.materials.size() ||
                 (proxy.flags & ~kKnownRigidFlags) != 0u ||
                 (articulated && dynamic) ||
+                (punctureTip &&
+                    (proxy.shapeKind != NM_RIGID_CAPSULE ||
+                     (!articulated && !dynamic) ||
+                     !(proxy.localCenterAndRadius.w > 0.0f) ||
+                     !(capsuleLengthSquared > 1.0e-18f))) ||
                 ((articulated || dynamic) &&
                     proxy.bodyIndex == NM_INVALID_INDEX) ||
                 (dynamic && proxy.sceneBodyIndex == NM_INVALID_INDEX) ||

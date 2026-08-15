@@ -2029,6 +2029,51 @@ kernel void nm_contact_clear_samples(
     }
 }
 
+inline bool embeddedPunctureChannelAdmits(
+    const NMMatterDispatchGPU dispatch,
+    const uint environment,
+    const uint objectIndex,
+    const uint proxyIndex,
+    const float3 continuumPoint,
+    device const NMRigidProxyGPU* proxies,
+    device const NMPunctureChannelGPU* channels
+) {
+    const NMRigidProxyGPU proxy = proxies[proxyIndex];
+    const uint channelBase = environment * dispatch.punctureChannelCount;
+    for (uint local = 0u; local < dispatch.punctureChannelCount; ++local) {
+        const NMPunctureChannelGPU channel = channels[channelBase + local];
+        if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) == 0u ||
+            channel.identity.x != objectIndex ||
+            (channel.identity.y & 0x80000000u) == 0u)
+            continue;
+        const uint sourceProxy = channel.identity.y & 0x7fffffffu;
+        if (sourceProxy >= dispatch.rigidProxyCount) continue;
+        const NMRigidProxyGPU source = proxies[sourceProxy];
+        const bool sameNeedle = sourceProxy == proxyIndex ||
+            (source.bodyIndex != NM_INVALID_INDEX &&
+             source.bodyIndex == proxy.bodyIndex);
+        if (!sameNeedle) continue;
+        const float3 axis = channel.axisAndHalfLength.xyz;
+        const float axisLength = length(axis);
+        const float radius = channel.originAndRadius.w;
+        const float halfLength = channel.axisAndHalfLength.w;
+        if (!(axisLength > 1.0e-12f) || !(radius > 0.0f) ||
+            !(halfLength > 0.0f))
+            continue;
+        const float3 unitAxis = axis / axisLength;
+        const float3 relative = continuumPoint -
+            channel.originAndRadius.xyz;
+        const float axial = dot(relative, unitAxis);
+        const float radial = length(relative - axial * unitAxis);
+        const float geometricTolerance = max(
+            0.25f * radius, 8.0f * kGeometryFloor);
+        if (abs(axial) <= halfLength + geometricTolerance &&
+            radial <= radius + geometricTolerance)
+            return true;
+    }
+    return false;
+}
+
 kernel void nm_contact_evaluate(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -2045,6 +2090,9 @@ kernel void nm_contact_evaluate(
     device const uint* mpmNodeGenerations [[buffer(12)]],
     device NMMatterStatusGPU* statuses [[buffer(13)]],
     device const float4* histories [[buffer(14)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(15)]],
+    device const MRBodyStateGPU* acceptedBodies [[buffer(16)]],
+    device const NMPunctureChannelGPU* punctureChannels [[buffer(17)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.contactPairCount;
@@ -2092,9 +2140,10 @@ kernel void nm_contact_evaluate(
         point = node.positionAndMass.xyz +
             dt * node.candidateVelocity.xyz;
         velocity = node.candidateVelocity.xyz;
-        admissionVelocity = microstep.solverIteration == 0u
-            ? node.velocityAndInverseMass.xyz
-            : velocity;
+        // P2G owns the accepted grid velocity for the whole microstep while
+        // candidateVelocity advances through Newton. Keep topology admission
+        // tied to that source state rather than the final contact rebound.
+        admissionVelocity = node.velocityAndInverseMass.xyz;
         inverseMass = node.velocityAndInverseMass.w;
     } else {
         const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
@@ -2113,9 +2162,10 @@ kernel void nm_contact_evaluate(
         ];
         point = node.positionAndMass.xyz;
         velocity = node.velocityAndInverseMass.xyz;
-        admissionVelocity = microstep.solverIteration == 0u
-            ? velocity - node.deltaVelocity.xyz
-            : velocity;
+        // deltaVelocity is defined against femAccepted on every candidate
+        // projection, so this reconstruction is invariant across Newton
+        // iterations and remains the true pre-correction velocity.
+        admissionVelocity = velocity - node.deltaVelocity.xyz;
         inverseMass = node.velocityAndInverseMass.w;
     }
     if (!(inverseMass > 0.0f)) {
@@ -2123,6 +2173,10 @@ kernel void nm_contact_evaluate(
     }
 
     const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
+    if (embeddedPunctureChannelAdmits(
+            dispatch, environment, pair.objectIndex, pair.rigidProxy,
+            point, rigidProxies, punctureChannels))
+        return;
     if (proxy.adaptiveObjectIndex != NM_INVALID_INDEX) {
         if (proxy.adaptiveObjectIndex >= dispatch.objectCount) {
             recordFailure(
@@ -2163,15 +2217,27 @@ kernel void nm_contact_evaluate(
     const float3 lever = witness - rigid.bodyCenter.xyz;
     const float3 rigidVelocity = rigid.linearVelocityAndInverseMass.xyz +
         cross(rigid.angularVelocity.xyz, witness - rigid.centerAndRadius.xyz);
+    float3 admissionRigidVelocity = float3(0.0f);
+    if (proxy.bodyIndex != NM_INVALID_INDEX &&
+        proxy.bodyIndex < bridge.currentBodyCount &&
+        bridge.currentBodyStride >= bridge.currentBodyCount) {
+        const MRBodyStateGPU acceptedBody = acceptedBodies[
+            environment * bridge.currentBodyStride + proxy.bodyIndex];
+        admissionRigidVelocity =
+            acceptedBody.linearVelocityAndInverseMass.xyz +
+            cross(
+                acceptedBody.angularVelocity.xyz,
+                witness - acceptedBody.position.xyz
+            );
+    }
     const float3 relativeVelocity = velocity - rigidVelocity;
     const float normalVelocity = dot(relativeVelocity, normal);
     const float admissionNormalVelocity = dot(
-        admissionVelocity - rigidVelocity, normal);
+        admissionVelocity - admissionRigidVelocity, normal);
     // A positive separation is not contact merely because the continuum is
     // moving toward the proxy. Admit a one-step speculative contact only
-    // when the accepted predictor on the first Newton iterate (and the current
-    // iterate thereafter) can consume that gap; the old test constrained
-    // bodies arbitrarily far above a plane.
+    // when the immutable accepted predictor can consume that gap; the old
+    // test constrained bodies arbitrarily far above a plane.
     const float predictedSeparation = separation +
         min(admissionNormalVelocity, 0.0f) * dt;
     if (separation > slop && predictedSeparation > slop) {
@@ -2242,6 +2308,10 @@ kernel void nm_contact_evaluate(
     };
     sample.pointAndSeparation = float4(witness, separation);
     sample.normalAndVelocity = float4(normal, normalVelocity);
+    sample.admissionVelocityAndNormal = float4(
+        admissionVelocity - admissionRigidVelocity,
+        admissionNormalVelocity
+    );
     sample.impulseAndNormal = float4(impulseOnRigid, seededNormal);
     sample.angularImpulseAndTangent = float4(
         cross(lever, impulseOnRigid),

@@ -82,6 +82,18 @@ constexpr std::uint32_t kGiverNeedleShape = 14u;
 constexpr std::uint32_t kReceiverNeedleShape = 19u;
 constexpr double kControlTimestep = 0.002;
 constexpr std::uint32_t kPhysicsSubsteps = 32u;
+// The first puncture gate is intentionally a research qualification value,
+// not a clinical insertion-force claim. At the live 62.5 us substep it is an
+// 8 mN mean normal-force floor. Geometry crossing and accepted contact must
+// both hold before topology may change; specimen-specific calibration still
+// owns later promotion.
+constexpr double kPunctureImpulseThresholdNs = 5.0e-7;
+constexpr double kPunctureInitialClearanceM = 1.0e-5;
+constexpr double kPunctureApproachSpeedMps = 2.0e-2;
+// Place the qualification bite 3 mm from the enterotomy centreline. This is
+// an explicit training geometry pending procedure- and specimen-specific bite
+// calibration, and is never reported as a clinical recommendation.
+constexpr double kPunctureBiteOffsetM = 3.0e-3;
 // With the 62.5 us microstep required by the first-edge flexural mode, a
 // measured 36 ms pre-roll brings both steel and strand beneath their
 // independent quiescence gates without adding artificial damping.
@@ -511,6 +523,69 @@ Vec3 rotate(const Quaternion q, const Vec3 value) {
         imaginary.x * doubled.y - imaginary.y * doubled.x,
     };
     return value + doubled * q.w + second;
+}
+
+struct NeedleTipCapsuleGeometry {
+    Vec3 localTip{};
+    Vec3 localBase{};
+    Vec3 worldTip{};
+    Vec3 worldBase{};
+    Vec3 approachDirection{};
+    double radiusM = 0.0;
+    double lengthM = 0.0;
+};
+
+NeedleTipCapsuleGeometry needleTipCapsuleGeometry(
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const MRBodyStateGPU& body
+) {
+    require(
+        !needle.rigid.shapes.empty(),
+        "curved needle has no tapered-tip collision segment"
+    );
+    const MRShapeGPU& segment = needle.rigid.shapes.back();
+    require(
+        segment.shapeType == MR_SHAPE_CAPSULE &&
+            segment.dimensions.x > 0.0f &&
+            segment.dimensions.y > 0.0f,
+        "curved needle tip is not a finite capsule"
+    );
+    const Quaternion localRotation{
+        segment.localRotation.x,
+        segment.localRotation.y,
+        segment.localRotation.z,
+        segment.localRotation.w,
+    };
+    const Vec3 localAxis = rotate(localRotation, {0.0, 1.0, 0.0});
+    const Vec3 localCenter = vector(segment.localPosition);
+    const Vec3 localTip =
+        localCenter + localAxis * segment.dimensions.y;
+    const Vec3 localBase =
+        localCenter - localAxis * segment.dimensions.y;
+    const Quaternion bodyRotation{
+        body.orientation.x,
+        body.orientation.y,
+        body.orientation.z,
+        body.orientation.w,
+    };
+    const Vec3 bodyPosition = vector(body.position);
+    const Vec3 worldTip = bodyPosition + rotate(bodyRotation, localTip);
+    const Vec3 worldBase = bodyPosition + rotate(bodyRotation, localBase);
+    const Vec3 tangent = worldTip - worldBase;
+    const double lengthM = norm(tangent);
+    require(
+        lengthM > 1.0e-9 && std::isfinite(lengthM),
+        "curved needle tip capsule is degenerate"
+    );
+    return {
+        .localTip = localTip,
+        .localBase = localBase,
+        .worldTip = worldTip,
+        .worldBase = worldBase,
+        .approachDirection = tangent * (1.0 / lengthM),
+        .radiusM = segment.dimensions.x,
+        .lengthM = lengthM,
+    };
 }
 
 double swageAttachmentError(
@@ -3278,8 +3353,9 @@ std::string matterCompileErrors(
 
 numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     const metalrobo::HeterogeneousWorld& world,
-    const double needleRadiusM,
-    const double initialGapM,
+    const metalrobo::CurvedSutureNeedleAsset& needleAsset,
+    const double initialSurfaceOffsetM,
+    const bool punctureTip,
     numi::matter::PorcineJejunumClosureCoupon& coupon
 ) {
     require(
@@ -3297,19 +3373,20 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
             matterCompileErrors(parsed.diagnostics)
     );
 
-    // Retain the calibrated 30 x 24 x 0.77 mm porcine coupon and 16 mm
-    // enterotomy.  Only the in-plane discretization is bounded for this
-    // transaction-level needle/swage/thread coupling qualification; shrinking
-    // the specimen changes both the surgical scale and the mixed-FEM
-    // conditioning.
+    // Retain the source-sized 30 x 24 x 0.77 mm porcine coupon and 16 mm
+    // enterotomy. The contact-only swage regression uses the smallest
+    // qualified 6x6x1 transaction mesh. A puncture uses the production
+    // 18x16x2 wall so entry crosses a through-thickness volume rather than the
+    // former single-layer contact surrogate.
     numi::matter::PorcineJejunumFungSpec spec;
-    // Six cells per in-plane axis is the smallest topology qualified by the
-    // owning surgical-tissue replay.  A 4x4 mixed element block leaves its
-    // normalized pressure mode dominated by rest-shape roundoff and is not a
-    // valid surrogate for needle/contact coupling.
-    spec.longitudinalCells = 6u;
-    spec.circumferentialCells = 6u;
-    spec.throughThicknessCells = 1u;
+    if (!punctureTip) {
+        // Six cells per in-plane axis is the smallest topology qualified by
+        // the owning surgical-tissue replay. A 4x4 mixed element block leaves
+        // its normalized pressure mode dominated by rest-shape roundoff.
+        spec.longitudinalCells = 6u;
+        spec.circumferentialCells = 6u;
+        spec.throughThicknessCells = 1u;
+    }
     spec.fixLongitudinalEnds = true;
     std::string materialError;
     require(
@@ -3321,6 +3398,9 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         materialError
     );
     coupon = numi::matter::makePorcineJejunumClosureCoupon(0u, spec);
+    coupon.object.mutationPolicy.punctureImpulseThreshold = punctureTip
+        ? kPunctureImpulseThresholdNs
+        : 0.0;
 
     const MRBodyStateGPU& needle = world.defaultSceneBodies[0];
     const Quaternion orientation{
@@ -3331,26 +3411,36 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     };
     const auto& swage = world.rods[0].rigidBindings[0].localAnchor;
     const auto& tangent = world.rods[0].tangentBindings[0].localAnchor;
+    const NeedleTipCapsuleGeometry tip =
+        needleTipCapsuleGeometry(needleAsset, needle);
+    const Vec3 localEndpointA = punctureTip
+        ? tip.localTip
+        : Vec3{swage[0], swage[1], swage[2]};
+    const Vec3 localEndpointB = punctureTip
+        ? tip.localBase
+        : Vec3{tangent[0], tangent[1], tangent[2]};
     const Vec3 endpointA = vector(needle.position) + rotate(
-        orientation,
-        {swage[0], swage[1], swage[2]}
+        orientation, localEndpointA
     );
     const Vec3 endpointB = vector(needle.position) + rotate(
-        orientation,
-        {tangent[0], tangent[1], tangent[2]}
+        orientation, localEndpointB
     );
+    const double needleRadiusM = punctureTip
+        ? tip.radiusM
+        : needleAsset.spec.crossSectionRadiusM.value;
     const Vec3 contactCenter = (endpointA + endpointB) * 0.5;
-    // A static preload begins just inside the 100 um IPC activation band.
-    // The barrier must separate the live needle and free tissue surface; no
-    // imposed impact is allowed to drive the first Newton iterate deeper.
     require(
-        std::isfinite(initialGapM) && initialGapM > 0.0,
-        "tissue coupling requires a positive finite initial gap"
+        std::isfinite(initialSurfaceOffsetM) &&
+            initialSurfaceOffsetM > 0.0,
+        "tissue coupling has an invalid signed surface offset"
     );
     std::uint32_t anchorNode = NM_INVALID_INDEX;
     double anchorPlanarRadiusSquared =
         std::numeric_limits<double>::infinity();
     const double topSurface = 0.5 * spec.thicknessM.value;
+    const double targetLocalY = punctureTip
+        ? -kPunctureBiteOffsetM
+        : 0.0;
     for (const std::uint32_t node : coupon.object.femContactNodes) {
         require(
             node < coupon.object.femNodes.size(),
@@ -3361,7 +3451,8 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
             continue;
         }
         const double planarRadiusSquared =
-            point.x * point.x + point.y * point.y;
+            point.x * point.x +
+            (point.y - targetLocalY) * (point.y - targetLocalY);
         if (planarRadiusSquared < anchorPlanarRadiusSquared) {
             anchorPlanarRadiusSquared = planarRadiusSquared;
             anchorNode = node;
@@ -3371,27 +3462,74 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         anchorNode != NM_INVALID_INDEX,
         "tissue coupling has no top-surface contact anchor"
     );
+    const Vec3 authoredAnchor = vector(coupon.object.femNodes[anchorNode]);
     const Vec3 capsuleEdge = endpointB - endpointA;
     const double capsuleLength = norm(capsuleEdge);
     require(capsuleLength > 0.0, "tissue coupling capsule is degenerate");
     const Vec3 capsuleAxis = capsuleEdge * (1.0 / capsuleLength);
-    const Vec3 downward{0.0, 0.0, -1.0};
-    Vec3 contactDirection =
-        downward - capsuleAxis * dot(downward, capsuleAxis);
-    const double contactDirectionLength = norm(contactDirection);
-    require(
-        contactDirectionLength > 1.0e-6,
-        "tissue coupling capsule is parallel to the table normal"
-    );
-    contactDirection = contactDirection * (1.0 / contactDirectionLength);
-    const Vec3 targetContactPoint = contactCenter +
-        contactDirection * (needleRadiusM + initialGapM);
-    const Vec3 translation = targetContactPoint -
-        vector(coupon.object.femNodes[anchorNode]);
-    for (auto& position : coupon.object.femNodes) {
-        position[0] += translation.x;
-        position[1] += translation.y;
-        position[2] += translation.z;
+    Vec3 targetContactPoint{};
+    if (punctureTip) {
+        // Align the coupon's outward top normal opposite the actual terminal
+        // needle tangent. The sharp endpoint starts at a strictly positive
+        // physical clearance; its closing velocity, accepted impulse and an
+        // inward tract/tetrahedron intersection must all admit mutation on
+        // Metal. No invalid initial penetration is used to force the event.
+        const Vec3 basisZ = tip.approachDirection * -1.0;
+        Vec3 basisX = rotate(orientation, {0.0, 0.0, 1.0});
+        basisX = basisX - basisZ * dot(basisX, basisZ);
+        const double basisXLength = norm(basisX);
+        require(
+            basisXLength > 1.0e-6,
+            "needle binormal cannot orient the puncture coupon"
+        );
+        basisX = basisX * (1.0 / basisXLength);
+        Vec3 basisY = cross(basisZ, basisX);
+        const double basisYLength = norm(basisY);
+        require(
+            basisYLength > 1.0e-6,
+            "puncture coupon frame is degenerate"
+        );
+        basisY = basisY * (1.0 / basisYLength);
+        targetContactPoint = endpointA + tip.approachDirection *
+            (needleRadiusM + initialSurfaceOffsetM);
+        for (auto& position : coupon.object.femNodes) {
+            const Vec3 relative = vector(position) - authoredAnchor;
+            const Vec3 transformed = targetContactPoint +
+                basisX * relative.x +
+                basisY * relative.y +
+                basisZ * relative.z;
+            position = {transformed.x, transformed.y, transformed.z};
+        }
+        coupon.metadata.longitudinalAxis = {
+            basisX.x, basisX.y, basisX.z,
+        };
+        coupon.metadata.circumferentialAxis = {
+            basisY.x, basisY.y, basisY.z,
+        };
+        coupon.metadata.thicknessAxis = {
+            basisZ.x, basisZ.y, basisZ.z,
+        };
+    } else {
+        const Vec3 downward{0.0, 0.0, -1.0};
+        Vec3 contactDirection =
+            downward - capsuleAxis * dot(downward, capsuleAxis);
+        const double contactDirectionLength = norm(contactDirection);
+        require(
+            contactDirectionLength > 1.0e-6,
+            "tissue coupling capsule is parallel to the table normal"
+        );
+        contactDirection =
+            contactDirection * (1.0 / contactDirectionLength);
+        // A static preload begins just inside the 100 um IPC activation band.
+        // The barrier separates the live needle and free tissue surface.
+        targetContactPoint = contactCenter + contactDirection *
+            (needleRadiusM + initialSurfaceOffsetM);
+        const Vec3 translation = targetContactPoint - authoredAnchor;
+        for (auto& position : coupon.object.femNodes) {
+            position[0] += translation.x;
+            position[1] += translation.y;
+            position[2] += translation.z;
+        }
     }
     double minimumAuthoredSeparation =
         std::numeric_limits<double>::infinity();
@@ -3409,15 +3547,32 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
             ) - needleRadiusM
         );
     }
-    require(
-        minimumAuthoredSeparation > 0.0 &&
-            std::abs(minimumAuthoredSeparation - initialGapM) < 1.0e-7,
-        "authored tissue boundary does not match the requested IPC gap: " +
-            std::to_string(minimumAuthoredSeparation)
-    );
+    if (punctureTip) {
+        require(
+            minimumAuthoredSeparation > 0.0 &&
+                std::abs(
+                    minimumAuthoredSeparation - initialSurfaceOffsetM
+                ) < 1.0e-7,
+            "authored tapered tip does not have the requested positive "
+            "entry clearance"
+        );
+    } else {
+        require(
+            minimumAuthoredSeparation > 0.0 &&
+                std::abs(
+                    minimumAuthoredSeparation - initialSurfaceOffsetM
+                ) < 1.0e-7,
+            "authored tissue boundary does not match the requested IPC gap: " +
+                std::to_string(minimumAuthoredSeparation)
+        );
+    }
     std::cout << std::setprecision(9)
-        << "tissue_authored_minimum_separation_m="
+        << "tissue_contact_region="
+        << (punctureTip ? "tapered_tip" : "swage")
+        << " tissue_authored_minimum_separation_m="
         << minimumAuthoredSeparation
+        << " tissue_surface_offset_m=" << initialSurfaceOffsetM
+        << " tissue_anchor_node=" << anchorNode
         << " tissue_authored_capsule_first="
         << vectorSummary(endpointA)
         << " tissue_authored_capsule_second="
@@ -3440,18 +3595,25 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     source.mixedSolver.minimumContactSeparationRatio = 0.05;
     source.materials.push_back(std::move(parsed.material));
 
-    // Matter owns contact for the curved needle's swage-side capsule. The
-    // proxy borrows the real dynamic scene body; its reaction enters the
-    // global wrench arena before MetalWorld solves the hard swage and DER.
+    // Matter borrows the real dynamic needle body. Contact-only regression
+    // uses its swage-side segment; puncture uses only the terminal tapered
+    // segment, ordered sharp-tip first under the ABI v21 contract. Reaction
+    // enters the global wrench arena before MetalWorld solves the hard swage
+    // and DER strand.
     numi::matter::RigidProxySource needleProxy;
     needleProxy.shape = NM_RIGID_CAPSULE;
     needleProxy.bodyIndex = world.sceneBodyIndices[0];
     needleProxy.sceneBodyIndex = 0u;
     needleProxy.materialIndex = 0u;
-    needleProxy.localCenter = swage;
-    needleProxy.localExtent = tangent;
+    needleProxy.localCenter = {
+        localEndpointA.x, localEndpointA.y, localEndpointA.z,
+    };
+    needleProxy.localExtent = {
+        localEndpointB.x, localEndpointB.y, localEndpointB.z,
+    };
     needleProxy.radiusOrOffset = needleRadiusM;
     needleProxy.dynamic = true;
+    needleProxy.punctureTip = punctureTip;
     source.rigidProxies.push_back(needleProxy);
     source.objects.push_back(coupon.object);
 
@@ -3560,6 +3722,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--settle-only" ||
             argument == "--tissue-coupling-only" ||
             argument == "--tissue-rest-only" ||
+            argument == "--tissue-puncture-only" ||
             argument == "--long-settle" ||
             argument == "--approach-only" ||
             argument == "--closure-only" ||
@@ -4650,8 +4813,10 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-coupling-only";
         const bool tissueRestOnly =
             options.mode == "--tissue-rest-only";
+        const bool tissuePunctureOnly =
+            options.mode == "--tissue-puncture-only";
         const bool tissueMatterOnly =
-            tissueCouplingOnly || tissueRestOnly;
+            tissueCouplingOnly || tissueRestOnly || tissuePunctureOnly;
         const bool approachOnly = options.mode == "--approach-only";
         const bool closureOnly = options.mode == "--closure-only";
         const bool receiverApproachOnly =
@@ -5709,27 +5874,44 @@ int main(const int argc, const char* const argv[]) {
         numi::matter::CompiledWorld tissueWorld;
         numi::matter::PorcineJejunumClosureCoupon tissueCoupon;
         if (tissueMatterOnly) {
-            constexpr float initialNeedleVelocityZ = 0.0f;
-            world.defaultSceneBodies[0]
-                .linearVelocityAndInverseMass.z = initialNeedleVelocityZ;
+            const NeedleTipCapsuleGeometry tip = needleTipCapsuleGeometry(
+                needleForPlacement,
+                world.defaultSceneBodies[0]
+            );
+            const Vec3 initialNeedleVelocity = tissuePunctureOnly
+                ? tip.approachDirection * kPunctureApproachSpeedMps
+                : Vec3{};
+            world.defaultSceneBodies[0].linearVelocityAndInverseMass.x =
+                static_cast<float>(initialNeedleVelocity.x);
+            world.defaultSceneBodies[0].linearVelocityAndInverseMass.y =
+                static_cast<float>(initialNeedleVelocity.y);
+            world.defaultSceneBodies[0].linearVelocityAndInverseMass.z =
+                static_cast<float>(initialNeedleVelocity.z);
             world.rods[0].attachments[0].targetVelocity = {
-                0.0,
-                0.0,
-                initialNeedleVelocityZ,
+                initialNeedleVelocity.x,
+                initialNeedleVelocity.y,
+                initialNeedleVelocity.z,
             };
-            for (std::uint32_t node = 0u; node < 2u; ++node) {
+            // Translate the reset strand with the needle so the puncture
+            // transaction does not begin from an artificial swage impulse.
+            for (std::size_t node = 0u;
+                 node < world.rods[0].defaultState.velocities.size();
+                 ++node) {
                 world.rods[0].defaultState.velocities[node] = {
-                    0.0,
-                    0.0,
-                    initialNeedleVelocityZ,
+                    initialNeedleVelocity.x,
+                    initialNeedleVelocity.y,
+                    initialNeedleVelocity.z,
                 };
             }
             world.fingerprint =
                 metalrobo::heterogeneousWorldFingerprint(world);
             tissueWorld = compileNeedleSutureTissueWorld(
                 world,
-                sutureSpec.needle.crossSectionRadiusM.value,
-                tissueRestOnly ? 1.5e-4 : 5.0e-5,
+                needleForPlacement,
+                tissuePunctureOnly
+                    ? kPunctureInitialClearanceM
+                    : (tissueRestOnly ? 1.5e-4 : 5.0e-5),
+                tissuePunctureOnly,
                 tissueCoupon
             );
             const auto initialized = tissueRuntime.initialize(
@@ -6002,6 +6184,12 @@ int main(const int argc, const char* const argv[]) {
 
             std::uint32_t activeContacts = 0u;
             double normalImpulse = 0.0;
+            double minimumContactSeparation =
+                std::numeric_limits<double>::infinity();
+            double minimumContactNormalVelocity =
+                std::numeric_limits<double>::infinity();
+            double minimumAdmissionNormalVelocity =
+                std::numeric_limits<double>::infinity();
             for (const NMContactSampleGPU& sample :
                  snapshot.contactSamples) {
                 if ((sample.identity.w & NM_CONTACT_VALID) == 0u) {
@@ -6009,6 +6197,20 @@ int main(const int argc, const char* const argv[]) {
                 }
                 ++activeContacts;
                 normalImpulse += sample.impulseAndNormal.w;
+                minimumContactSeparation = std::min(
+                    minimumContactSeparation,
+                    static_cast<double>(sample.pointAndSeparation.w)
+                );
+                minimumContactNormalVelocity = std::min(
+                    minimumContactNormalVelocity,
+                    static_cast<double>(sample.normalAndVelocity.w)
+                );
+                minimumAdmissionNormalVelocity = std::min(
+                    minimumAdmissionNormalVelocity,
+                    static_cast<double>(
+                        sample.admissionVelocityAndNormal.w
+                    )
+                );
             }
             const NMRigidReactionGPU& reaction = snapshot.reactions[0];
             const Vec3 reactionImpulse{
@@ -6101,6 +6303,57 @@ int main(const int argc, const char* const argv[]) {
                 certificatesAccepted = certificatesAccepted &&
                     certificate.validity.w > 0.5f;
             }
+            std::uint32_t activeChannels = 0u;
+            std::uint32_t activeTetrahedra = 0u;
+            double removedMassKg = 0.0;
+            const NMPunctureChannelGPU* acceptedChannel = nullptr;
+            for (const NMPunctureChannelGPU& channel :
+                 snapshot.punctureChannels) {
+                if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) {
+                    continue;
+                }
+                ++activeChannels;
+                acceptedChannel = &channel;
+            }
+            for (const NMTetrahedronGPU& tetrahedron :
+                 snapshot.femTopologyTetrahedra) {
+                activeTetrahedra +=
+                    (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+            }
+            for (const NMFEMTopologyStateGPU& topology :
+                 snapshot.topologyStates) {
+                removedMassKg += topology.accounting.y;
+            }
+            const NeedleTipCapsuleGeometry initialTip =
+                needleTipCapsuleGeometry(
+                    needleForPlacement,
+                    world.defaultSceneBodies[0]
+                );
+            const double expectedEntryTractLengthM =
+                2.0 * initialTip.radiusM;
+            const double analyticTipTractMassKg =
+                tissueCoupon.spec.densityKgPerM3.value *
+                std::numbers::pi * initialTip.radiusM *
+                initialTip.radiusM * expectedEntryTractLengthM;
+            const double removedToTipTractMassRatio =
+                analyticTipTractMassKg > 0.0
+                ? removedMassKg / analyticTipTractMassKg
+                : std::numeric_limits<double>::infinity();
+            double channelRadiusM = 0.0;
+            double channelLengthM = 0.0;
+            double channelAxisAlignment = 0.0;
+            std::uint32_t channelReleaseContacts = 0u;
+            double channelReleaseSignedNeedleMotionM = 0.0;
+            std::uint64_t channelReleaseStateHash = 0u;
+            if (acceptedChannel != nullptr) {
+                channelRadiusM = acceptedChannel->originAndRadius.w;
+                channelLengthM =
+                    2.0 * acceptedChannel->axisAndHalfLength.w;
+                channelAxisAlignment = std::abs(dot(
+                    vector(acceptedChannel->axisAndHalfLength),
+                    initialTip.approachDirection
+                ));
+            }
             const double swageError = swageAttachmentError(
                 world,
                 coupled.result
@@ -6116,6 +6369,12 @@ int main(const int argc, const char* const argv[]) {
                 acceptedStateHash, coupled.result.finalRodEdges);
             appendStateHash(acceptedStateHash, snapshot.femNodes);
             appendStateHash(acceptedStateHash, snapshot.femFields);
+            appendStateHash(
+                acceptedStateHash, snapshot.femTopologyTetrahedra);
+            appendStateHash(
+                acceptedStateHash, snapshot.punctureChannels);
+            appendStateHash(
+                acceptedStateHash, snapshot.topologyStates);
             appendStateHash(acceptedStateHash, snapshot.reactions);
             appendStateHash(acceptedStateHash, snapshot.contactSamples);
             appendStateHash(
@@ -6176,6 +6435,170 @@ int main(const int argc, const char* const argv[]) {
                         " relative_correction=" +
                         std::to_string(maximumRelativeCorrection)
                 );
+            } else if (tissuePunctureOnly) {
+                require(
+                    tissueWorld.contact.rigidProxies.size() == 1u &&
+                        (tissueWorld.contact.rigidProxies[0].flags &
+                         NM_RIGID_PUNCTURE_TIP) != 0u &&
+                        activeChannels == 1u &&
+                        acceptedChannel != nullptr &&
+                        activeTetrahedra ==
+                            tissueCoupon.metadata.tetrahedronCount &&
+                        removedMassKg == 0.0 &&
+                        std::isfinite(removedToTipTractMassRatio) &&
+                        removedToTipTractMassRatio == 0.0 &&
+                        channelRadiusM > 0.0 &&
+                        std::abs(
+                            channelRadiusM - initialTip.radiusM
+                        ) <= 2.0e-7 &&
+                        std::abs(
+                            channelLengthM - expectedEntryTractLengthM
+                        ) <= 2.0e-7 &&
+                        channelAxisAlignment >= 0.999 &&
+                        activeContacts >= 1u &&
+                        normalImpulse >= kPunctureImpulseThresholdNs &&
+                        std::isfinite(minimumContactSeparation) &&
+                        minimumContactSeparation > 0.0 &&
+                        std::isfinite(minimumAdmissionNormalVelocity) &&
+                        minimumAdmissionNormalVelocity < -1.0e-6 &&
+                        certificatesAccepted &&
+                        std::isfinite(minimumDeterminant) &&
+                        minimumDeterminant > 0.0 &&
+                        swageError < kMaximumSwageAttachmentError,
+                    "tapered needle entry did not create one accepted, "
+                    "mass-conserving geometry-matched tissue tract: "
+                    "active_channels=" +
+                        std::to_string(activeChannels) +
+                        " active_tetrahedra=" +
+                        std::to_string(activeTetrahedra) +
+                        " authored_tetrahedra=" +
+                        std::to_string(
+                            tissueCoupon.metadata.tetrahedronCount
+                        ) +
+                        " removed_mass=" +
+                        std::to_string(removedMassKg) +
+                        " active_contacts=" +
+                        std::to_string(activeContacts) +
+                        " normal_impulse=" +
+                        std::to_string(normalImpulse) +
+                        " minimum_contact_separation=" +
+                        std::to_string(minimumContactSeparation) +
+                        " minimum_contact_normal_velocity=" +
+                        std::to_string(minimumContactNormalVelocity) +
+                        " minimum_admission_normal_velocity=" +
+                        std::to_string(minimumAdmissionNormalVelocity) +
+                        " tract_mass_ratio=" +
+                        std::to_string(removedToTipTractMassRatio) +
+                        " channel_radius=" +
+                        std::to_string(channelRadiusM) +
+                        " expected_radius=" +
+                        std::to_string(initialTip.radiusM) +
+                        " channel_length=" +
+                        std::to_string(channelLengthM) +
+                        " expected_length=" +
+                        std::to_string(expectedEntryTractLengthM) +
+                        " axis_alignment=" +
+                        std::to_string(channelAxisAlignment) +
+                        " minimum_determinant=" +
+                        std::to_string(minimumDeterminant) +
+                        " swage_error=" + std::to_string(swageError)
+                );
+                const NeedleTipCapsuleGeometry entryTip =
+                    needleTipCapsuleGeometry(
+                        needleForPlacement,
+                        coupled.result.finalSceneBodies.at(0u)
+                    );
+                const PhaseResult channelRelease = continuePhase(
+                    context,
+                    compiled,
+                    stepConfig,
+                    resident,
+                    efforts,
+                    1u,
+                    "embedded puncture-channel release"
+                );
+                const numi::matter::RuntimeStateSnapshot releaseSnapshot =
+                    tissueRuntime.snapshot();
+                require(
+                    releaseSnapshot.available &&
+                        !releaseSnapshot.femNodes.empty(),
+                    "puncture-channel release did not publish Matter state"
+                );
+                std::uint32_t releaseChannels = 0u;
+                std::uint32_t releaseTetrahedra = 0u;
+                double releaseRemovedMassKg = 0.0;
+                for (const NMContactSampleGPU& sample :
+                     releaseSnapshot.contactSamples) {
+                    channelReleaseContacts +=
+                        (sample.identity.w & NM_CONTACT_VALID) != 0u;
+                }
+                for (const NMPunctureChannelGPU& channel :
+                     releaseSnapshot.punctureChannels) {
+                    releaseChannels +=
+                        (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                }
+                for (const NMTetrahedronGPU& tetrahedron :
+                     releaseSnapshot.femTopologyTetrahedra) {
+                    releaseTetrahedra +=
+                        (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                }
+                for (const NMFEMTopologyStateGPU& topology :
+                     releaseSnapshot.topologyStates) {
+                    releaseRemovedMassKg += topology.accounting.y;
+                }
+                const NeedleTipCapsuleGeometry releasedTip =
+                    needleTipCapsuleGeometry(
+                        needleForPlacement,
+                        channelRelease.result.finalSceneBodies.at(0u)
+                    );
+                channelReleaseSignedNeedleMotionM = dot(
+                    releasedTip.worldTip - entryTip.worldTip,
+                    initialTip.approachDirection
+                );
+                channelReleaseStateHash = 1469598103934665603ull;
+                appendStateHash(
+                    channelReleaseStateHash,
+                    channelRelease.result.finalSceneBodies
+                );
+                appendStateHash(
+                    channelReleaseStateHash,
+                    releaseSnapshot.femNodes
+                );
+                appendStateHash(
+                    channelReleaseStateHash,
+                    releaseSnapshot.femTopologyTetrahedra
+                );
+                appendStateHash(
+                    channelReleaseStateHash,
+                    releaseSnapshot.punctureChannels
+                );
+                appendStateHash(
+                    channelReleaseStateHash,
+                    releaseSnapshot.contactSamples
+                );
+                require(
+                    channelReleaseContacts == 0u &&
+                        releaseChannels == 1u &&
+                        releaseTetrahedra ==
+                            tissueCoupon.metadata.tetrahedronCount &&
+                        releaseRemovedMassKg == 0.0 &&
+                        std::isfinite(channelReleaseSignedNeedleMotionM) &&
+                        std::abs(channelReleaseSignedNeedleMotionM) < 1.0e-3 &&
+                        swageAttachmentError(
+                            world,
+                            channelRelease.result
+                        ) < kMaximumSwageAttachmentError,
+                    "embedded puncture channel did not release the entering "
+                    "needle without tissue mass loss: contacts=" +
+                        std::to_string(channelReleaseContacts) +
+                        " channels=" + std::to_string(releaseChannels) +
+                        " active_tetrahedra=" +
+                        std::to_string(releaseTetrahedra) +
+                        " removed_mass=" +
+                        std::to_string(releaseRemovedMassKg) +
+                        " signed_needle_motion=" +
+                        std::to_string(channelReleaseSignedNeedleMotionM)
+                );
             } else {
                 require(
                     reaction.impulseAndCount.w >= 1.0f &&
@@ -6210,7 +6633,9 @@ int main(const int argc, const char* const argv[]) {
             std::cout << std::setprecision(9)
                 << (tissueRestOnly
                     ? "tissue_static_equilibrium=ok"
-                    : "tissue_suture_coupling=ok")
+                    : (tissuePunctureOnly
+                        ? "tissue_tapered_tip_puncture=ok"
+                        : "tissue_suture_coupling=ok"))
                 << " reaction_contacts="
                 << reaction.impulseAndCount.w
                 << " final_active_contacts=" << activeContacts
@@ -6232,6 +6657,27 @@ int main(const int argc, const char* const argv[]) {
                 << maximumVolumeResidual
                 << " matter_minimum_determinant="
                 << minimumDeterminant
+                << " active_puncture_channels=" << activeChannels
+                << " active_tetrahedra=" << activeTetrahedra
+                << " removed_tissue_mass_kg=" << removedMassKg
+                << " analytic_tip_tract_mass_kg="
+                << analyticTipTractMassKg
+                << " removed_to_tip_tract_mass_ratio="
+                << removedToTipTractMassRatio
+                << " puncture_channel_radius_m=" << channelRadiusM
+                << " puncture_channel_length_m=" << channelLengthM
+                << " puncture_channel_axis_alignment="
+                << channelAxisAlignment
+                << " puncture_impulse_threshold_ns="
+                << (tissuePunctureOnly
+                    ? kPunctureImpulseThresholdNs
+                    : 0.0)
+                << " channel_release_contacts="
+                << channelReleaseContacts
+                << " channel_release_signed_needle_motion_m="
+                << channelReleaseSignedNeedleMotionM
+                << " channel_release_state_fnv64=0x" << std::hex
+                << channelReleaseStateHash << std::dec
                 << " accepted_state_fnv64=0x" << std::hex
                 << acceptedStateHash << std::dec
                 << " reference_gpu_ms="

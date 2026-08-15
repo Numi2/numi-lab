@@ -90,6 +90,16 @@ The FEM path uses linear tetrahedral kinematics with nonlinear constitutive stre
 
 IPC's squared-distance logarithmic potential contributes primal gradients and PSD Hessian actions; per-node timestep ratios apply the action chain rule to cross-rate FEM/MPM rows. There are no contact multiplier unknowns, response CSR, Delassus rows, or post-contact correction solves. Element work is parallel and node assembly uses rebuilt incidence. FGMRES uses compensated SIMD32 reductions, modified Gram-Schmidt with selective reorthogonalization, device Givens rotations, restart cycles and an inexact-Newton forcing schedule. The environment-owned SIMD32 Arnoldi wave continues directly from orthogonalization into its norm, Givens update and next-basis publication. Restart-residual reconstruction and the tiny triangular solve likewise share one per-environment cycle-finalization dispatch, and the final cycle does not materialize coefficients that no later cycle can consume. These fusions retain the original reduction and arithmetic order while removing command traffic. The right preconditioner combines FEM node-star diagonals, overlapping tetrahedron patches, MPM lumped/particle-patch/object modes, field smoothing, and rigid inverse-mass action. FGMRES remains the sole convergence owner. One environment-wide line search combines constitutive determinant and mixed-volume bounds with conservative CCD, barrier fraction-to-boundary caps, and barrier Armijo backtracking.
 
+ABI v21 adds an explicit body-backed tapered-tip capsule role for
+physics-triggered puncture. Shaft, swage, gripper and generic capsule contact
+cannot create a tissue channel. A positive-clearance sharp-tip contact must
+be closing, exceed the accepted impulse gate, align with the authored tip
+direction, and project a finite inward entry tract through active tissue.
+The resulting needle channel is an embedded, mass-conserving discontinuity:
+it releases contact only for the originating needle inside the finite tract
+instead of deleting every intersected FEM tetrahedron. Explicit authored
+cylinder mutations retain their erosion semantics.
+
 ABI v20 removes the former standalone FEM, pressure, and field iteration
 budgets and kernels. `MixedSolverSource` now cooks only Newton/FGMRES budgets,
 one bounded `fieldSmootherPasses` preconditioner budget, mutation restarts, and

@@ -838,6 +838,15 @@ CompileResult compileWorld(
     world.contact.rigidProxies.reserve(source.rigidProxies.size());
     std::map<std::uint32_t, std::uint32_t> freeBodyIndices;
     for (const RigidProxySource& proxy : source.rigidProxies) {
+        const double capsuleDx =
+            proxy.localExtent[0] - proxy.localCenter[0];
+        const double capsuleDy =
+            proxy.localExtent[1] - proxy.localCenter[1];
+        const double capsuleDz =
+            proxy.localExtent[2] - proxy.localCenter[2];
+        const double capsuleLengthSquared =
+            capsuleDx * capsuleDx + capsuleDy * capsuleDy +
+            capsuleDz * capsuleDz;
         if (!finite(proxy.localCenter) || !finite(proxy.localExtent) ||
             !std::ranges::all_of(proxy.localOrientation, [](const double value) {
                 return finite(value);
@@ -848,7 +857,13 @@ CompileResult compileWorld(
              (proxy.articulated ||
               proxy.bodyIndex == NM_INVALID_INDEX ||
               proxy.sceneBodyIndex == NM_INVALID_INDEX)) ||
-            (!proxy.dynamic && proxy.sceneBodyIndex != NM_INVALID_INDEX)) {
+            (!proxy.dynamic && proxy.sceneBodyIndex != NM_INVALID_INDEX) ||
+            (proxy.punctureTip &&
+             (proxy.shape != NM_RIGID_CAPSULE ||
+              proxy.bodyIndex == NM_INVALID_INDEX ||
+              (!proxy.dynamic && !proxy.articulated) ||
+              !(proxy.radiusOrOffset > 0.0) ||
+              !(capsuleLengthSquared > 1.0e-18)))) {
             result.diagnostics.push_back({
                 Diagnostic::Severity::error, 0u, 0u,
                 "rigid proxy contains invalid geometry or material binding",
@@ -862,7 +877,8 @@ CompileResult compileWorld(
         cooked.materialIndex = proxy.materialIndex;
         cooked.flags =
             (proxy.articulated ? NM_RIGID_ARTICULATED : 0u) |
-            (proxy.dynamic ? NM_RIGID_DYNAMIC : 0u);
+            (proxy.dynamic ? NM_RIGID_DYNAMIC : 0u) |
+            (proxy.punctureTip ? NM_RIGID_PUNCTURE_TIP : 0u);
         cooked.adaptiveObjectIndex = NM_INVALID_INDEX;
         cooked.generalizedFreeBodyIndex = NM_INVALID_INDEX;
         if (proxy.dynamic) {

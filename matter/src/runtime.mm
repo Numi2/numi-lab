@@ -2747,8 +2747,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.contactPairs offset:0u atIndex:9u];
                     [encoder setBuffer:state.contactHistoriesAccepted offset:0u
                                atIndex:10u];
-                    [encoder setBuffer:state.triggeredMutationCommands offset:0u
+                    [encoder setBuffer:state.contactSamples offset:0u
                                atIndex:11u];
+                    [encoder setBuffer:state.triggeredMutationCommands offset:0u
+                               atIndex:12u];
                 });
                 const std::uint32_t triggeredMutationCount =
                     state.dispatch.objectCount;
@@ -3182,6 +3184,10 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:12u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:13u];
                     [encoder setBuffer:histories offset:0u atIndex:14u];
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:15u];
+                    [encoder setBuffer:currentBodies offset:0u atIndex:16u];
+                    [encoder setBuffer:state.punctureChannelsCandidate
+                                 offset:0u atIndex:17u];
                 });
                 dispatchGroups32("nm_contact_compact_active", environments, [&] {
                     setDispatch();
@@ -4426,7 +4432,8 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.punctureChannelsCandidate offset:0u atIndex:8u];
                     [encoder setBuffer:state.contactPairs offset:0u atIndex:9u];
                     [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:10u];
-                    [encoder setBuffer:state.triggeredMutationCommands offset:0u atIndex:11u];
+                    [encoder setBuffer:state.contactSamples offset:0u atIndex:11u];
+                    [encoder setBuffer:state.triggeredMutationCommands offset:0u atIndex:12u];
                 });
                 const std::uint32_t triggeredMutationCount =
                     state.dispatch.objectCount;

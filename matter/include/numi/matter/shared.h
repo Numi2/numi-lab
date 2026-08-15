@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 20u
+#define NM_MATTER_ABI_VERSION 21u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -226,6 +226,11 @@ enum NMRigidShapeKind : nm_u32 {
 enum NMRigidBindingFlags : nm_u32 {
     NM_RIGID_ARTICULATED = 1u << 0u,
     NM_RIGID_DYNAMIC = 1u << 1u,
+    // A capsule whose localCenterAndRadius.xyz endpoint is the physical
+    // sharp tip and whose localExtent.xyz endpoint is the base of the
+    // tapered tip segment. Only this explicitly authored geometry may admit
+    // a closing contact-driven tissue tract.
+    NM_RIGID_PUNCTURE_TIP = 1u << 2u,
 };
 
 enum NMResetFlags : nm_u32 {
@@ -859,6 +864,10 @@ typedef struct NM_ALIGN16 NMContactSampleGPU {
     nm_uint4 identity;
     nm_float4 pointAndSeparation;
     nm_float4 normalAndVelocity;
+    // Pre-correction continuum-minus-rigid relative velocity, with its
+    // normal component in w. Topology events consume this admission motion;
+    // the post-solve normal velocity above remains the contact certificate.
+    nm_float4 admissionVelocityAndNormal;
     // xyz impulse on rigid, w normal impulse.
     nm_float4 impulseAndNormal;
     // xyz angular impulse on rigid, w tangential impulse.
