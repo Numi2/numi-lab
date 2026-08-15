@@ -15149,6 +15149,8 @@ MetalWorldDiagnostics validateAndPublish(
 ) {
     const MRMetalWorldDispatchGPU& dispatch =
         diagnostics.layout.dispatch;
+    const bool hasDevicePhysics =
+        diagnostics.layout.devicePhysicsFingerprint != 0u;
     const bool contactMode =
         (dispatch.flags & MR_METAL_WORLD_CONTACTS) != 0u;
     const MRMetalWorldContactDispatchGPU& contactDispatch =
@@ -15573,9 +15575,15 @@ MetalWorldDiagnostics validateAndPublish(
                 }
                 ++diagnostics.successfulStepCount;
             } else {
+                // A borrowed device-physics program may be the sole owner of
+                // the rejected substep. Matter deliberately latches its
+                // typed continuum failure into this status while ABA and the
+                // rigid contact transaction remain healthy. Without a device
+                // program, that combination is still malformed.
                 if (status.successfulSubsteps >=
                         dispatch.physicsSubsteps ||
-                    (status.abaCode == MR_ABA_SUCCESS &&
+                    (!hasDevicePhysics &&
+                     status.abaCode == MR_ABA_SUCCESS &&
                      (contactStatus == nullptr ||
                       contactStatus->code == MR_STEP_SUCCESS)) ||
                     status.failingSubstep >=

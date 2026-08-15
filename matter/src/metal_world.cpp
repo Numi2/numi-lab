@@ -149,6 +149,7 @@ bool encodeMetalWorldMatter(
     request.controlStep = pass.controlStep;
     request.physicsSubstep = matterPhysicsSubstep;
     request.physicsSubsteps = matterPhysicsSubsteps;
+    request.rigidWorldPhysicsSubstep = pass.physicsSubstep;
     request.seed = pass.seed;
     request.timestepSeconds = cookedTimestep;
     // A MetalWorld submission encodes its full rollout horizon into one

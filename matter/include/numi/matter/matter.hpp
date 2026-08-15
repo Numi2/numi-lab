@@ -677,6 +677,10 @@ struct EncodeRequest {
     std::uint32_t controlStep = 0u;
     std::uint32_t physicsSubstep = 0u;
     std::uint32_t physicsSubsteps = 1u;
+    // Optional enclosing MetalWorld substep. Grouped Matter cadence keeps
+    // physicsSubstep local to Matter while failure publication must identify
+    // the exact rigid/DER transaction that was rejected.
+    std::uint32_t rigidWorldPhysicsSubstep = NM_INVALID_INDEX;
     std::uint64_t seed = 0u;
     // Per-call frame duration. Zero selects the cooked package duration.
     float timestepSeconds = 0.0f;

@@ -5022,11 +5022,15 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
             "nm_latch_matter_status_into_rigid_world",
             environments,
             [&] {
+                const std::uint32_t rigidWorldPhysicsSubstep =
+                    request.rigidWorldPhysicsSubstep == NM_INVALID_INDEX
+                    ? request.physicsSubstep
+                    : request.rigidWorldPhysicsSubstep;
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
                 [encoder setBuffer:worldStatuses offset:0u atIndex:2u];
-                [encoder setBytes:&request.physicsSubstep
-                           length:sizeof(request.physicsSubstep)
+                [encoder setBytes:&rigidWorldPhysicsSubstep
+                           length:sizeof(rigidWorldPhysicsSubstep)
                           atIndex:3u];
             }
         );
