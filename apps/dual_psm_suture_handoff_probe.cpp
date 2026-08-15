@@ -3716,9 +3716,15 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     source.contactSlop = 1.0e-4;
     source.maximumDepenetrationSpeed = 0.05;
     source.deterministic = true;
-    source.mixedSolver.newtonIterations = 12u;
-    source.mixedSolver.fgmresRestart = 16u;
-    source.mixedSolver.fgmresIterations = 128u;
+    // The contact-active coupon reaches the identical accepted state by the
+    // fifth encoded Newton pass; later static tail passes do not alter it.
+    source.mixedSolver.newtonIterations = 5u;
+    source.mixedSolver.fgmresRestart = 10u;
+    // This medically scaled coupon converges within seven Arnoldi columns on
+    // the live Metal path. Keep a ten-column cycle (43% measured headroom)
+    // without statically encoding empty restart cycles into every 62.5 us
+    // surgical microstep.
+    source.mixedSolver.fgmresIterations = 10u;
     source.mixedSolver.lineSearchSteps = 12u;
     source.mixedSolver.relativeResidual = 5.0e-4;
     source.mixedSolver.volumeTolerance = 5.0e-4;
@@ -6642,6 +6648,13 @@ int main(const int argc, const char* const argv[]) {
             double minimumDeterminant =
                 std::numeric_limits<double>::infinity();
             bool certificatesAccepted = true;
+            std::uint32_t maximumFGMRESIterations = 0u;
+            for (const NMMatterStatusGPU& status : snapshot.statuses) {
+                maximumFGMRESIterations = std::max(
+                    maximumFGMRESIterations,
+                    status.fgmresIterations
+                );
+            }
             for (const NMSolverCertificateGPU& certificate :
                  snapshot.solverCertificates) {
                 maximumNonlinearResidual = std::max(
@@ -7297,6 +7310,14 @@ int main(const int argc, const char* const argv[]) {
                         previousAxis = axis;
                     }
                     bool passageCertificatesAccepted = true;
+                    std::uint32_t passageMaximumFGMRESIterations = 0u;
+                    for (const NMMatterStatusGPU& status :
+                         passageSnapshot.statuses) {
+                        passageMaximumFGMRESIterations = std::max(
+                            passageMaximumFGMRESIterations,
+                            status.fgmresIterations
+                        );
+                    }
                     double passageMinimumDeterminant =
                         std::numeric_limits<double>::infinity();
                     double passageMaximumResidual = 0.0;
@@ -7524,6 +7545,8 @@ int main(const int argc, const char* const argv[]) {
                         << passageMinimumDeterminant
                         << " matter_maximum_residual="
                         << passageMaximumResidual
+                        << " matter_maximum_fgmres_iterations="
+                        << passageMaximumFGMRESIterations
                         << " terminal_tip_speed_mps="
                         << norm(exitTerminalVelocity)
                         << " hard_swage_root_error_m="
@@ -7853,6 +7876,8 @@ int main(const int argc, const char* const argv[]) {
                 << maximumVolumeResidual
                 << " matter_minimum_determinant="
                 << minimumDeterminant
+                << " matter_maximum_fgmres_iterations="
+                << maximumFGMRESIterations
                 << " active_puncture_channels=" << activeChannels
                 << " active_tetrahedra=" << activeTetrahedra
                 << " removed_tissue_mass_kg=" << removedMassKg

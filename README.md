@@ -70,14 +70,18 @@ contact geometry; the physically swaged 250 mm monofilament is carried by the
 DER constraints rather than prescribed along the needle orbit.
 
 On Apple M4, the current 0.77 mm porcine-jejunum coupon qualification reached
-101.5 um of clearance beyond the *deformed* distal surface after 916 62.5 us
+190.3 um of clearance beyond the *deformed* distal surface after 884 62.5 us
 microsteps. It retained all 3,456 tetrahedra with zero removed tissue mass,
-formed eight connected tract segments with 5.22 um maximum orbit error and
-2.51 um radial-error range, retained a 0.99774 minimum determinant, ended at
-6.85 um hard-swage error, and reported zero failed steps. The tract is a
-mass-conserving sub-element contact discontinuity, not yet a constitutive crack
-surface or clinical validation. Receiver extraction and knot formation remain
-separate physical qualification boundaries.
+formed seven connected tract segments with 5.13 um maximum orbit error and
+2.42 um radial-error range, retained a 0.999941 minimum determinant, ended at
+6.64 um hard-swage error, used at most six FGMRES columns, and reported zero
+failed steps. A coupon-specific five-Newton/ten-column budget retains 43 percent
+Krylov headroom above that live high-water and reduced the same-host passage
+from 589.3 to 300.0 GPU seconds (1.96x). This is a deterministic workload
+measurement, not a universal solver speedup. The tract is a mass-conserving
+sub-element contact discontinuity, not yet a constitutive crack surface or
+clinical validation. Receiver extraction and knot formation remain separate
+physical qualification boundaries.
 
 ```sh
 ./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
