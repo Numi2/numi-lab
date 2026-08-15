@@ -1708,6 +1708,10 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --cohesive-mutation
     )
     add_test(
+        NAME matter.physics.small_scale_topology_conservation
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --small-scale-remesh
+    )
+    add_test(
         NAME matter.physics.puncture_mutation
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --puncture-mutation
     )
@@ -1788,6 +1792,7 @@ if(BUILD_TESTING)
         matter.physics.monolithic_multiphysics
         matter.physics.topology_mutation
         matter.physics.cohesive_mutation
+        matter.physics.small_scale_topology_conservation
         matter.physics.puncture_mutation
         matter.runtime.topology_rollback
         matter.physics.learned_polyconvex_icnn

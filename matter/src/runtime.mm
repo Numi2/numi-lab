@@ -905,15 +905,16 @@ RuntimeDiagnostics Runtime::initialize(
             const NMContinuumObjectGPU& object = world.objects[objectIndex];
             if (object.representation != NM_REPRESENTATION_FEM) continue;
             NMFEMTopologyStateGPU topology{};
+            double conservedMass = 0.0;
             for (std::uint32_t local = 0u; local < object.stateCount; ++local) {
                 const std::size_t node = object.stateOffset + local;
                 if ((world.fem.topologyNodes[node].identity.w &
                      NM_TOPOLOGY_ACTIVE) != 0u) {
                     ++topology.counts.x;
-                    topology.accounting.x +=
-                        world.fem.nodes[node].positionAndMass.w;
+                    conservedMass += world.fem.nodes[node].positionAndMass.w;
                 }
             }
+            topology.accounting.x = static_cast<float>(conservedMass);
             for (std::uint32_t local = 0u; local < object.elementCount; ++local)
                 if ((world.fem.tetrahedra[object.elementOffset + local]
                      .identity.w & NM_OBJECT_ACTIVE) != 0u)

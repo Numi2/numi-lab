@@ -1,5 +1,58 @@
 namespace numi_matter_metal {
 
+constant float kTopologyVolumeRelativeTolerance = 8.0e-6f;
+constant float kTopologyConservationRelativeTolerance = 2.0e-4f;
+constant float kTopologyMinimumNormal = 1.1754943508222875e-38f;
+
+inline float topologyRelativeTolerance(
+    const float first,
+    const float second,
+    const float relativeTolerance
+) {
+    return relativeTolerance * max(
+        max(abs(first), abs(second)), kTopologyMinimumNormal);
+}
+
+inline void topologyCompensatedAdd(
+    const float value,
+    thread float& sum,
+    thread float& correction
+) {
+    const float adjusted = value - correction;
+    const float next = sum + adjusted;
+    correction = (next - sum) - adjusted;
+    sum = next;
+}
+
+inline void topologyCompensatedAdd(
+    const float3 value,
+    thread float3& sum,
+    thread float3& correction
+) {
+    const float3 adjusted = value - correction;
+    const float3 next = sum + adjusted;
+    correction = (next - sum) - adjusted;
+    sum = next;
+}
+
+inline void topologyCompensatedAdd(
+    const float4 value,
+    thread float4& sum,
+    thread float4& correction
+) {
+    const float4 adjusted = value - correction;
+    const float4 next = sum + adjusted;
+    correction = (next - sum) - adjusted;
+    sum = next;
+}
+
+inline bool topologyLedgerChanged(const float before, const float after) {
+    // The accepted ledger is copied bit-for-bit into the candidate and only
+    // monotone additions are legal. Any representable change therefore denotes
+    // real removal/work, even when it is tiny relative to the cumulative total.
+    return after != before;
+}
+
 inline bool pointInsideTetrahedron(
     const float3 point,
     const float3 a,
@@ -1284,7 +1337,12 @@ kernel void nm_topology_execute_transaction(
                 const float volumeError = abs(
                     firstHalf.inverseRestRow0.w +
                     secondHalf.inverseRestRow0.w - sourceVolume);
-                if (volumeError > 8.0e-6f * max(sourceVolume, 1.0f)) {
+                const float destinationVolume =
+                    firstHalf.inverseRestRow0.w +
+                    secondHalf.inverseRestRow0.w;
+                if (volumeError > topologyRelativeTolerance(
+                        sourceVolume, destinationVolume,
+                        kTopologyVolumeRelativeTolerance)) {
                     recordFailure(statuses[environment],
                         NM_STATUS_TOPOLOGY_FAILURE, objectIndex,
                         incidentIndex,
@@ -1618,7 +1676,9 @@ kernel void nm_topology_execute_transaction(
             const float destinationVolume = replacementVolumes[0] +
                 replacementVolumes[1] + replacementVolumes[2];
             if (abs(sourceVolume - destinationVolume) >
-                8.0e-6f * max(sourceVolume, 1.0f)) {
+                topologyRelativeTolerance(
+                    sourceVolume, destinationVolume,
+                    kTopologyVolumeRelativeTolerance)) {
                 recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
                     objectIndex, firstIndex,
                     float4(sourceVolume, destinationVolume, 0.0f, 0.0f));
@@ -1737,7 +1797,9 @@ kernel void nm_topology_execute_transaction(
             const float destinationVolume =
                 replacementVolumes[0] + replacementVolumes[1];
             if (abs(sourceVolume - destinationVolume) >
-                8.0e-6f * max(sourceVolume, 1.0f)) {
+                topologyRelativeTolerance(
+                    sourceVolume, destinationVolume,
+                    kTopologyVolumeRelativeTolerance)) {
                 recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
                     objectIndex, targetIndex,
                     float4(sourceVolume, destinationVolume, 0.0f, 0.0f));
@@ -1884,7 +1946,9 @@ kernel void nm_topology_execute_transaction(
             if (!(sourceVolume > kGeometryFloor) ||
                 !(destinationVolume > kGeometryFloor) ||
                 abs(sourceMass - destinationMass) >
-                8.0e-6f * max(sourceMass, 1.0f)) {
+                topologyRelativeTolerance(
+                    sourceMass, destinationMass,
+                    kTopologyVolumeRelativeTolerance)) {
                 recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
                     objectIndex, targetNode,
                     float4(sourceMass, destinationMass, alpha, 0.0f));
@@ -2344,43 +2408,67 @@ kernel void nm_topology_conserve_transaction(
     const NMFEMTopologyStateGPU before = checkpointTopology[global];
     const NMFEMTopologyStateGPU after = candidateTopology[global];
     if (before.roles.w == after.roles.w) return;
-    const float removalScale = max(
-        max(abs(before.accounting.y), abs(after.accounting.y)), 1.0f);
-    if (abs(after.accounting.y - before.accounting.y) >
-        8.0e-6f * removalScale) return;
+    if (!all(isfinite(before.accounting)) ||
+        !all(isfinite(after.accounting)) ||
+        topologyLedgerChanged(before.accounting.y, after.accounting.y) ||
+        topologyLedgerChanged(before.accounting.z, after.accounting.z)) return;
 
     const uint nodeBase = environment * dispatch.femNodeCount +
         object.stateOffset;
     float checkpointMass = 0.0f;
     float candidateMass = 0.0f;
     float adjustableMass = 0.0f;
+    float checkpointMassCorrection = 0.0f;
+    float candidateMassCorrection = 0.0f;
+    float adjustableMassCorrection = 0.0f;
     float3 checkpointMomentum = float3(0.0f);
     float3 candidateMomentum = float3(0.0f);
+    float3 checkpointMomentumCorrection = float3(0.0f);
+    float3 candidateMomentumCorrection = float3(0.0f);
     float4 checkpointPrimary = float4(0.0f);
     float4 candidatePrimary = float4(0.0f);
+    float4 checkpointPrimaryCorrection = float4(0.0f);
+    float4 candidatePrimaryCorrection = float4(0.0f);
     float4 checkpointSecondary = float4(0.0f);
     float4 candidateSecondary = float4(0.0f);
+    float4 checkpointSecondaryCorrection = float4(0.0f);
+    float4 candidateSecondaryCorrection = float4(0.0f);
     for (uint local = 0u; local < object.stateCount; ++local) {
         const uint index = nodeBase + local;
         const float oldMass = max(
             checkpointNodes[index].positionAndMass.w, 0.0f);
         const float newMass = max(
             candidateNodes[index].positionAndMass.w, 0.0f);
-        checkpointMass += oldMass;
-        candidateMass += newMass;
-        checkpointMomentum += oldMass *
-            checkpointNodes[index].velocityAndInverseMass.xyz;
-        candidateMomentum += newMass *
-            candidateNodes[index].velocityAndInverseMass.xyz;
-        checkpointPrimary += oldMass * checkpointFields[index].primary;
-        candidatePrimary += newMass * candidateFields[index].primary;
-        checkpointSecondary += oldMass * checkpointFields[index].secondary;
-        candidateSecondary += newMass * candidateFields[index].secondary;
+        topologyCompensatedAdd(
+            oldMass, checkpointMass, checkpointMassCorrection);
+        topologyCompensatedAdd(
+            newMass, candidateMass, candidateMassCorrection);
+        topologyCompensatedAdd(
+            oldMass * checkpointNodes[index].velocityAndInverseMass.xyz,
+            checkpointMomentum, checkpointMomentumCorrection);
+        topologyCompensatedAdd(
+            newMass * candidateNodes[index].velocityAndInverseMass.xyz,
+            candidateMomentum, candidateMomentumCorrection);
+        topologyCompensatedAdd(
+            oldMass * checkpointFields[index].primary,
+            checkpointPrimary, checkpointPrimaryCorrection);
+        topologyCompensatedAdd(
+            newMass * candidateFields[index].primary,
+            candidatePrimary, candidatePrimaryCorrection);
+        topologyCompensatedAdd(
+            oldMass * checkpointFields[index].secondary,
+            checkpointSecondary, checkpointSecondaryCorrection);
+        topologyCompensatedAdd(
+            newMass * candidateFields[index].secondary,
+            candidateSecondary, candidateSecondaryCorrection);
         if (newMass > 0.0f &&
             candidateNodes[index].restAndFixed.w <= 0.5f)
-            adjustableMass += newMass;
+            topologyCompensatedAdd(
+                newMass, adjustableMass, adjustableMassCorrection);
     }
-    const float massTolerance = 2.0e-4f * max(checkpointMass, 1.0f);
+    const float massTolerance = topologyRelativeTolerance(
+        checkpointMass, candidateMass,
+        kTopologyConservationRelativeTolerance);
     if (!(adjustableMass > kGeometryFloor) ||
         !isfinite(checkpointMass) || !isfinite(candidateMass) ||
         abs(candidateMass - checkpointMass) > massTolerance) return;
@@ -2401,6 +2489,48 @@ kernel void nm_topology_conserve_transaction(
             velocityCorrection;
         candidateFields[index].primary += primaryCorrection;
         candidateFields[index].secondary += secondaryCorrection;
+    }
+    // One uniform correction can lose the final few bits when it nearly
+    // cancels a small pressure or transport field. Recompute the resulting
+    // moments with compensated sums and apply their residual once; this keeps
+    // the certificate scale-relative without inventing a large absolute floor.
+    float3 refinedMomentum = float3(0.0f);
+    float3 refinedMomentumCorrection = float3(0.0f);
+    float4 refinedPrimary = float4(0.0f);
+    float4 refinedPrimaryCorrection = float4(0.0f);
+    float4 refinedSecondary = float4(0.0f);
+    float4 refinedSecondaryCorrection = float4(0.0f);
+    for (uint local = 0u; local < object.stateCount; ++local) {
+        const uint index = nodeBase + local;
+        const float mass = max(
+            candidateNodes[index].positionAndMass.w, 0.0f);
+        topologyCompensatedAdd(
+            mass * candidateNodes[index].velocityAndInverseMass.xyz,
+            refinedMomentum, refinedMomentumCorrection);
+        topologyCompensatedAdd(
+            mass * candidateFields[index].primary,
+            refinedPrimary, refinedPrimaryCorrection);
+        topologyCompensatedAdd(
+            mass * candidateFields[index].secondary,
+            refinedSecondary, refinedSecondaryCorrection);
+    }
+    const float3 refinedVelocityCorrection =
+        (checkpointMomentum - refinedMomentum) / adjustableMass;
+    const float4 refinedPrimaryFieldCorrection =
+        (checkpointPrimary - refinedPrimary) / adjustableMass;
+    const float4 refinedSecondaryFieldCorrection =
+        (checkpointSecondary - refinedSecondary) / adjustableMass;
+    if (!finite3(refinedVelocityCorrection) ||
+        !all(isfinite(refinedPrimaryFieldCorrection)) ||
+        !all(isfinite(refinedSecondaryFieldCorrection))) return;
+    for (uint local = 0u; local < object.stateCount; ++local) {
+        const uint index = nodeBase + local;
+        if (!(candidateNodes[index].positionAndMass.w > 0.0f) ||
+            candidateNodes[index].restAndFixed.w > 0.5f) continue;
+        candidateNodes[index].velocityAndInverseMass.xyz +=
+            refinedVelocityCorrection;
+        candidateFields[index].primary += refinedPrimaryFieldCorrection;
+        candidateFields[index].secondary += refinedSecondaryFieldCorrection;
     }
 }
 
@@ -2457,26 +2587,78 @@ kernel void nm_topology_certify_transaction(
     const uint tetBase = environment * dispatch.tetrahedronCount;
     float checkpointMass = 0.0f;
     float candidateMass = 0.0f;
+    float checkpointMassCorrection = 0.0f;
+    float candidateMassCorrection = 0.0f;
     float3 checkpointMomentum = float3(0.0f);
     float3 candidateMomentum = float3(0.0f);
+    float3 checkpointMomentumCorrection = float3(0.0f);
+    float3 candidateMomentumCorrection = float3(0.0f);
+    float3 checkpointMomentumMagnitude = float3(0.0f);
+    float3 candidateMomentumMagnitude = float3(0.0f);
+    float3 checkpointMomentumMagnitudeCorrection = float3(0.0f);
+    float3 candidateMomentumMagnitudeCorrection = float3(0.0f);
     float4 checkpointPrimary = float4(0.0f);
     float4 candidatePrimary = float4(0.0f);
+    float4 checkpointPrimaryCorrection = float4(0.0f);
+    float4 candidatePrimaryCorrection = float4(0.0f);
+    float4 checkpointPrimaryMagnitude = float4(0.0f);
+    float4 candidatePrimaryMagnitude = float4(0.0f);
+    float4 checkpointPrimaryMagnitudeCorrection = float4(0.0f);
+    float4 candidatePrimaryMagnitudeCorrection = float4(0.0f);
     float4 checkpointSecondary = float4(0.0f);
     float4 candidateSecondary = float4(0.0f);
+    float4 checkpointSecondaryCorrection = float4(0.0f);
+    float4 candidateSecondaryCorrection = float4(0.0f);
+    float4 checkpointSecondaryMagnitude = float4(0.0f);
+    float4 candidateSecondaryMagnitude = float4(0.0f);
+    float4 checkpointSecondaryMagnitudeCorrection = float4(0.0f);
+    float4 candidateSecondaryMagnitudeCorrection = float4(0.0f);
     for (uint local = 0u; local < object.stateCount; ++local) {
         const uint index = nodeBase + object.stateOffset + local;
         const float oldMass = max(checkpointNodes[index].positionAndMass.w, 0.0f);
         const float newMass = max(candidateNodes[index].positionAndMass.w, 0.0f);
-        checkpointMass += oldMass;
-        candidateMass += newMass;
-        checkpointMomentum += oldMass *
+        const float3 oldMomentum = oldMass *
             checkpointNodes[index].velocityAndInverseMass.xyz;
-        candidateMomentum += newMass *
+        const float3 newMomentum = newMass *
             candidateNodes[index].velocityAndInverseMass.xyz;
-        checkpointPrimary += oldMass * checkpointFields[index].primary;
-        candidatePrimary += newMass * candidateFields[index].primary;
-        checkpointSecondary += oldMass * checkpointFields[index].secondary;
-        candidateSecondary += newMass * candidateFields[index].secondary;
+        const float4 oldPrimary = oldMass * checkpointFields[index].primary;
+        const float4 newPrimary = newMass * candidateFields[index].primary;
+        const float4 oldSecondary = oldMass * checkpointFields[index].secondary;
+        const float4 newSecondary = newMass * candidateFields[index].secondary;
+        topologyCompensatedAdd(
+            oldMass, checkpointMass, checkpointMassCorrection);
+        topologyCompensatedAdd(
+            newMass, candidateMass, candidateMassCorrection);
+        topologyCompensatedAdd(
+            oldMomentum, checkpointMomentum, checkpointMomentumCorrection);
+        topologyCompensatedAdd(
+            newMomentum, candidateMomentum, candidateMomentumCorrection);
+        topologyCompensatedAdd(
+            abs(oldMomentum), checkpointMomentumMagnitude,
+            checkpointMomentumMagnitudeCorrection);
+        topologyCompensatedAdd(
+            abs(newMomentum), candidateMomentumMagnitude,
+            candidateMomentumMagnitudeCorrection);
+        topologyCompensatedAdd(
+            oldPrimary, checkpointPrimary, checkpointPrimaryCorrection);
+        topologyCompensatedAdd(
+            newPrimary, candidatePrimary, candidatePrimaryCorrection);
+        topologyCompensatedAdd(
+            abs(oldPrimary), checkpointPrimaryMagnitude,
+            checkpointPrimaryMagnitudeCorrection);
+        topologyCompensatedAdd(
+            abs(newPrimary), candidatePrimaryMagnitude,
+            candidatePrimaryMagnitudeCorrection);
+        topologyCompensatedAdd(
+            oldSecondary, checkpointSecondary, checkpointSecondaryCorrection);
+        topologyCompensatedAdd(
+            newSecondary, candidateSecondary, candidateSecondaryCorrection);
+        topologyCompensatedAdd(
+            abs(oldSecondary), checkpointSecondaryMagnitude,
+            checkpointSecondaryMagnitudeCorrection);
+        topologyCompensatedAdd(
+            abs(newSecondary), candidateSecondaryMagnitude,
+            candidateSecondaryMagnitudeCorrection);
     }
     for (uint local = 0u; local < object.elementCount; ++local) {
         const NMTetrahedronGPU tetrahedron = tetrahedra[
@@ -2505,9 +2687,30 @@ kernel void nm_topology_certify_transaction(
             return;
         }
     }
-    const float expectedMass = max(after.accounting.x - after.accounting.y, 0.0f);
-    const float massTolerance = 2.0e-4f * max(expectedMass, 1.0f);
-    if (!isfinite(candidateMass) ||
+    const float ledgerMassTolerance = topologyRelativeTolerance(
+        after.accounting.x, after.accounting.y,
+        kTopologyConservationRelativeTolerance);
+    if (!all(isfinite(before.accounting)) ||
+        !all(isfinite(after.accounting)) ||
+        after.accounting.x < 0.0f || after.accounting.y < 0.0f ||
+        after.accounting.z < 0.0f || after.accounting.w < 0.0f ||
+        after.accounting.y < before.accounting.y ||
+        after.accounting.z < before.accounting.z ||
+        after.accounting.w < before.accounting.w ||
+        topologyLedgerChanged(before.accounting.x, after.accounting.x) ||
+        after.accounting.y > after.accounting.x + ledgerMassTolerance) {
+        recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
+            objectIndex, after.roles.w,
+            float4(after.accounting.x, after.accounting.y,
+                   after.accounting.z, 10.4f));
+        return;
+    }
+    const float expectedMass = max(
+        after.accounting.x - after.accounting.y, 0.0f);
+    const float massTolerance = topologyRelativeTolerance(
+        expectedMass, candidateMass,
+        kTopologyConservationRelativeTolerance);
+    if (!isfinite(checkpointMass) || !isfinite(candidateMass) ||
         abs(candidateMass - expectedMass) > massTolerance) {
         recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
             objectIndex, after.roles.w,
@@ -2517,23 +2720,57 @@ kernel void nm_topology_certify_transaction(
     // Erosion/puncture deliberately removes material. Pure remeshing and
     // cohesive insertion must preserve nodal momentum and volume-integrated
     // fields to the same FP32 accounting boundary.
-    if (abs(after.accounting.y - before.accounting.y) <= massTolerance) {
-        const float momentumScale = max(
-            max(length(checkpointMomentum), length(candidateMomentum)), 1.0f);
-        const float momentumError = length(
+    if (!topologyLedgerChanged(before.accounting.y, after.accounting.y) &&
+        !topologyLedgerChanged(before.accounting.z, after.accounting.z)) {
+        const float3 momentumScale = max(
+            max(abs(checkpointMomentum), abs(candidateMomentum)),
+            max(checkpointMomentumMagnitude, candidateMomentumMagnitude));
+        const float3 momentumTolerance =
+            kTopologyConservationRelativeTolerance * max(
+                momentumScale, float3(kTopologyMinimumNormal));
+        const float3 momentumError = abs(
             candidateMomentum - checkpointMomentum);
-        const float fieldScale = max(max(
-            max(length(checkpointPrimary), length(candidatePrimary)),
-            max(length(checkpointSecondary), length(candidateSecondary))), 1.0f);
-        const float fieldError = max(
-            length(candidatePrimary - checkpointPrimary),
-            length(candidateSecondary - checkpointSecondary));
-        if (!isfinite(momentumError) || !isfinite(fieldError) ||
-            momentumError > 2.0e-4f * momentumScale ||
-            fieldError > 2.0e-4f * fieldScale) {
+        const float4 primaryScale = max(
+            max(abs(checkpointPrimary), abs(candidatePrimary)),
+            max(checkpointPrimaryMagnitude, candidatePrimaryMagnitude));
+        const float4 secondaryScale = max(
+            max(abs(checkpointSecondary), abs(candidateSecondary)),
+            max(checkpointSecondaryMagnitude, candidateSecondaryMagnitude));
+        const float4 primaryTolerance =
+            kTopologyConservationRelativeTolerance * max(
+                primaryScale, float4(kTopologyMinimumNormal));
+        const float4 secondaryTolerance =
+            kTopologyConservationRelativeTolerance * max(
+                secondaryScale, float4(kTopologyMinimumNormal));
+        const float4 primaryError = abs(
+            candidatePrimary - checkpointPrimary);
+        const float4 secondaryError = abs(
+            candidateSecondary - checkpointSecondary);
+        if (!finite3(momentumError) ||
+            !all(isfinite(primaryError)) ||
+            !all(isfinite(secondaryError)) ||
+            any(momentumError > momentumTolerance) ||
+            any(primaryError > primaryTolerance) ||
+            any(secondaryError > secondaryTolerance)) {
+            const float4 primaryRelativeError = primaryError / max(
+                primaryScale, float4(kTopologyMinimumNormal));
+            const float3 momentumRelativeError = momentumError / max(
+                momentumScale, float3(kTopologyMinimumNormal));
+            const float4 secondaryRelativeError = secondaryError / max(
+                secondaryScale, float4(kTopologyMinimumNormal));
+            const float maximumMomentumRelativeError = max(
+                max(momentumRelativeError.x, momentumRelativeError.y),
+                momentumRelativeError.z);
+            const float maximumFieldRelativeError = max(
+                max(max(primaryRelativeError.x, primaryRelativeError.y),
+                    max(primaryRelativeError.z, primaryRelativeError.w)),
+                max(max(secondaryRelativeError.x, secondaryRelativeError.y),
+                    max(secondaryRelativeError.z, secondaryRelativeError.w)));
             recordFailure(statuses[environment], NM_STATUS_TOPOLOGY_FAILURE,
                 objectIndex, after.roles.w,
-                float4(momentumError, momentumScale, fieldError, fieldScale));
+                float4(maximumMomentumRelativeError,
+                       kTopologyConservationRelativeTolerance,
+                       maximumFieldRelativeError, 10.75f));
         }
     }
 }

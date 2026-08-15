@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstdio>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
@@ -36,6 +37,13 @@ void require(const bool condition, const std::string& message) {
     if (!condition) {
         throw std::runtime_error(message);
     }
+}
+
+std::string diagnosticFloat(const float value) {
+    std::array<char, 32> text{};
+    const int written = std::snprintf(
+        text.data(), text.size(), "%.9g", static_cast<double>(value));
+    return written > 0 ? std::string(text.data()) : std::string("invalid");
 }
 
 metalrobo::EngineModel makeTwoFreeSphereEngineModel() {
@@ -431,6 +439,53 @@ numi::matter::CompiledWorld compileCohesiveMutationCase() {
     source.objects.push_back(std::move(object));
     auto compiled = numi::matter::compileWorld(source);
     require(compiled.succeeded(), "cohesive mutation world did not compile");
+    return std::move(compiled.world);
+}
+
+numi::matter::CompiledWorld compileSmallScaleRemeshCase() {
+    const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "small-scale remesh material did not parse");
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 16000.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.mixedSolver.newtonIterations = 2u;
+    source.materials.push_back(parsed.material);
+
+    // A two-millimetre tetrahedron has microgram-scale nodal masses. The old
+    // max(quantity, 1 SI unit) certificate admitted more mass error than the
+    // entire specimen; this case requires the live Metal remesher to conserve
+    // the actual small-scale mass and momentum instead.
+    constexpr double scale = 2.0e-3;
+    numi::matter::ObjectSource object;
+    object.name = "small_scale_edge_split";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::fem;
+    object.characteristicLength = scale;
+    object.mixedFEM = false;
+    object.femInitialVelocity = {0.013, -0.007, 0.004};
+    object.femNodes = {
+        {0.0, 0.0, 0.0}, {scale, 0.0, 0.0},
+        {0.0, scale, 0.0}, {0.0, 0.0, scale},
+    };
+    object.tetrahedra = {{{0u, 1u, 2u, 3u}}};
+    object.mutationPolicy.enabled = true;
+    object.femCapacity.nodes = 5u;
+    object.femCapacity.tetrahedra = 2u;
+    object.femCapacity.mutationCommands = 1u;
+    numi::matter::MutationCommandSource command;
+    command.kind = NM_MUTATION_EDGE_SPLIT;
+    command.stableIdentifier = 59u;
+    command.controlStep = 0u;
+    command.target = 0u;
+    command.priority = 0u;
+    object.mutationCommands.push_back(command);
+    source.objects.push_back(std::move(object));
+
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    require(compiled.succeeded(), "small-scale remesh world did not compile");
     return std::move(compiled.world);
 }
 
@@ -943,6 +998,8 @@ struct Outcome {
     std::uint32_t separatedFaces = 0u;
     std::uint32_t activeChannels = 0u;
     float removedMass = 0.0f;
+    double femMass = 0.0;
+    std::array<double, 3> femMomentum{};
     std::uint32_t learnedRevision = 0u;
     float nonlinearResidual = 0.0f;
     float relativeCorrection = 0.0f;
@@ -2168,7 +2225,20 @@ Outcome runCase(
                 }
             }
             if (!snapshot.femNodes.empty()) {
+                outcome.femMass = 0.0;
+                outcome.femMomentum = {};
                 for (const NMFEMNodeStateGPU& node : snapshot.femNodes) {
+                    const double mass = std::max(
+                        static_cast<double>(node.positionAndMass.w), 0.0);
+                    const std::array<double, 3> velocity{
+                        node.velocityAndInverseMass.x,
+                        node.velocityAndInverseMass.y,
+                        node.velocityAndInverseMass.z,
+                    };
+                    outcome.femMass += mass;
+                    for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                        outcome.femMomentum[axis] += mass * velocity[axis];
+                    }
                     outcome.minimumHeight = std::min(
                         outcome.minimumHeight, node.positionAndMass.z
                     );
@@ -2353,10 +2423,10 @@ Outcome runCase(
                         " object=" + std::to_string(status.objectIndex) +
                         " index=" + std::to_string(status.failingIndex) +
                         " diagnostics=(" +
-                        std::to_string(status.diagnostics.x) + "," +
-                        std::to_string(status.diagnostics.y) + "," +
-                        std::to_string(status.diagnostics.z) + "," +
-                        std::to_string(status.diagnostics.w) + ")" +
+                        diagnosticFloat(status.diagnostics.x) + "," +
+                        diagnosticFloat(status.diagnostics.y) + "," +
+                        diagnosticFloat(status.diagnostics.z) + "," +
+                        diagnosticFloat(status.diagnostics.w) + ")" +
                         certificateFailure
                 );
                 if (!forceRollback) {
@@ -2514,6 +2584,8 @@ int main(int argc, const char* argv[]) {
             std::string_view(argv[1]) == "--topology-rollback";
         const bool cohesiveMutation = argc == 2 &&
             std::string_view(argv[1]) == "--cohesive-mutation";
+        const bool smallScaleRemesh = argc == 2 &&
+            std::string_view(argv[1]) == "--small-scale-remesh";
         const bool punctureMutation = argc == 2 &&
             std::string_view(argv[1]) == "--puncture-mutation";
         const bool learnedMaterial = argc == 2 &&
@@ -2539,14 +2611,14 @@ int main(int argc, const char* argv[]) {
                 mpmSingleContact || mpmGentle || mpmBatch || mpmRollback ||
                 metalWorldCoupling || multiphysics ||
                 topologyMutation || topologyRollback || cohesiveMutation ||
-                punctureMutation || learnedMaterial ||
+                smallScaleRemesh || punctureMutation || learnedMaterial ||
                 productionRollback || poroelasticCompression ||
                 articulatedFootPad ||
                 articulatedFootPadSequence ||
                 identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--small-scale-remesh|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (articulatedFootPad) {
             runArticulatedFootPadScene();
@@ -2697,6 +2769,54 @@ int main(int argc, const char* argv[]) {
                 << ",\"separated_faces\":" << outcome.separatedFaces
                 << "}\n";
         }
+        if (smallScaleRemesh) {
+            const auto world = compileSmallScaleRemeshCase();
+            double expectedMass = 0.0;
+            std::array<double, 3> expectedMomentum{};
+            for (const NMFEMNodeStateGPU& node : world.fem.nodes) {
+                const double mass = std::max(
+                    static_cast<double>(node.positionAndMass.w), 0.0);
+                const std::array<double, 3> velocity{
+                    node.velocityAndInverseMass.x,
+                    node.velocityAndInverseMass.y,
+                    node.velocityAndInverseMass.z,
+                };
+                expectedMass += mass;
+                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                    expectedMomentum[axis] += mass * velocity[axis];
+                }
+            }
+            const auto outcome = runCase(
+                world, "small-scale edge split", false, false, 1u);
+            const double massError = std::abs(outcome.femMass - expectedMass);
+            double momentumErrorSquared = 0.0;
+            double momentumScaleSquared = 0.0;
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                const double error =
+                    outcome.femMomentum[axis] - expectedMomentum[axis];
+                momentumErrorSquared += error * error;
+                momentumScaleSquared +=
+                    expectedMomentum[axis] * expectedMomentum[axis];
+            }
+            const double momentumError = std::sqrt(momentumErrorSquared);
+            const double momentumScale = std::sqrt(momentumScaleSquared);
+            require(expectedMass > 0.0 && expectedMass < 1.0e-5 &&
+                    outcome.activeTopologyNodes == 5u &&
+                    outcome.activeTetrahedra == 2u,
+                "millimetre-scale edge split did not commit its remeshed topology");
+            require(massError <= 2.0e-4 * expectedMass &&
+                    momentumError <= 2.0e-4 * momentumScale,
+                "millimetre-scale edge split exceeded scale-aware conservation");
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v3\""
+                << ",\"representation\":\"small_scale_edge_split\""
+                << ",\"mass_kg\":" << outcome.femMass
+                << ",\"mass_error_kg\":" << massError
+                << ",\"momentum_error_kg_mps\":" << momentumError
+                << ",\"active_nodes\":" << outcome.activeTopologyNodes
+                << ",\"active_tetrahedra\":" << outcome.activeTetrahedra
+                << "}\n";
+        }
         if (punctureMutation) {
             const auto outcome = runCase(
                 compilePunctureMutationCase(), "puncture mutation",
@@ -2840,7 +2960,7 @@ int main(int argc, const char* argv[]) {
             !adaptivePromotionRollback && !metalWorldCoupling &&
             !multiphysics &&
             !topologyMutation && !topologyRollback && !cohesiveMutation &&
-            !punctureMutation &&
+            !smallScaleRemesh && !punctureMutation &&
             !learnedMaterial &&
             !productionRollback &&
             !poroelasticCompression &&
@@ -2903,7 +3023,7 @@ int main(int argc, const char* argv[]) {
             !mpmGentle && !mpmBatch && !mpmRollback && !metalWorldCoupling &&
             !multiphysics &&
             !topologyMutation && !topologyRollback && !cohesiveMutation &&
-            !punctureMutation &&
+            !smallScaleRemesh && !punctureMutation &&
             !learnedMaterial &&
             !productionRollback &&
             !poroelasticCompression &&

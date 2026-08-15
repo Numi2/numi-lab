@@ -299,11 +299,14 @@ order. An invalid target requests a deterministic on-device quality proposal.
 Accepted generations rebuild nodal mass/incidence, dynamically exposed contact
 faces, compact contact work and connectivity-derived preconditioner data.
 Material state follows its compiled average/max/sum transfer policy across the
-complete affected cavity. After mass rebuild, the minimum object-wide constant
-correction on free active nodes restores pre-remesh momentum and
-volume-integrated fields without erasing relative variation; a post-rebuild
-certificate rejects inverted/low-volume tetrahedra or remaining FP32 mass,
-momentum, and field drift. Exhaustion reports
+complete affected cavity. After mass rebuild, compensated object sums drive an
+object-wide constant correction and one bounded residual refinement on free
+active nodes. They restore pre-remesh momentum and each volume-integrated field
+component without erasing relative variation. The post-rebuild certificate is
+relative to the represented volume, mass, momentum, and per-component field
+moments; it has no one-SI-unit tolerance floor. It also validates finite,
+nonnegative, monotone removal/work ledgers and rejects inverted/low-volume
+tetrahedra or remaining FP32 drift. Exhaustion reports
 `NM_STATUS_TOPOLOGY_GROWTH_REQUIRED`; after completion the runtime publishes a
 geometric `TopologyGrowthRequest`. `encodeTopologyGrowth` can initialize an
 empty destination from a larger recook or use an already initialized larger
