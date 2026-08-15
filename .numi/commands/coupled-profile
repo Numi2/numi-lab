@@ -187,7 +187,7 @@ profile_runtime_hashes=$profile_artifact/runtime-sha256.txt
 shasum -a 256 "$profile_probe" > "$profile_runtime_hashes"
 for profile_runtime_file in \
     "$profile_build/shaders/MetalRobo.metallib" \
-    "$profile_build/shaders/NumiMatter.metallib"; do
+    "$profile_build/matter/shaders/NumiMatter.metallib"; do
     if [ -f "$profile_runtime_file" ]; then
         shasum -a 256 "$profile_runtime_file" \
             >> "$profile_runtime_hashes"
