@@ -106,6 +106,24 @@ extraction remain open and are not inferred from it.
   --receiver-frame-ik-only
 ```
 
+The post-puncture extraction fixture also has a live dynamic baseline before
+the second instrument moves. It initializes the rotated steel needle and its
+hard-swaged 250 mm PDO 3-0 DER strand at exact rest length, retains the giver's
+normal 60 um insert preload without an artificial transport over-closure, and
+holds the fully coupled island for 100 ms. On Apple M4 the deterministic
+endpoint retained 12 safe-zone contacts distributed across both transverse
+insert sides and both longitudinal rows (`0101`/`1111` patch masks), 89.4 um
+seat drift, 3.49 um/s relative point slip, 8.71 mm/s maximum strand speed,
+0.893 um hard-swage error, and a 0.577 mm/s live temporal-cone residual with
+zero failed steps. This is a dynamic post-puncture giver/needle/thread fixture;
+it does not infer continuous tissue contact, receiver acquisition, extraction,
+or knot formation.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --receiver-extraction-giver-hold-only
+```
+
 ## Loaded PDO knot-contact mechanics
 
 The rod solver now resolves a bounded network of frictional thread/thread

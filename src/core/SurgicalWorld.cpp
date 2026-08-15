@@ -706,6 +706,28 @@ makeDualDvrkPsmNeedleThreadWorld(
         config.threadExitDirectionLocal,
         1.0 / directionLength
     );
+    double orientationNormSquared = 0.0;
+    for (const float value : config.needlePose.orientation) {
+        orientationNormSquared +=
+            static_cast<double>(value) * value;
+    }
+    const double orientationNorm = std::sqrt(orientationNormSquared);
+    if (!(orientationNorm > 1.0e-12) ||
+        !std::isfinite(orientationNorm)) {
+        throw std::invalid_argument(
+            "dual PSM needle orientation is degenerate"
+        );
+    }
+    std::array<float, 4> needleOrientation{};
+    for (std::size_t coordinate = 0u;
+         coordinate < needleOrientation.size();
+         ++coordinate) {
+        needleOrientation[coordinate] = static_cast<float>(
+            static_cast<double>(
+                config.needlePose.orientation[coordinate]
+            ) / orientationNorm
+        );
+    }
 
     DualPsmNeedleThreadWorld staged;
     staged.robots = makeDualDvrkPsmWorld(config.robots);
@@ -741,23 +763,34 @@ makeDualDvrkPsmNeedleThreadWorld(
     staged.metadata.swageAnchorWorld = add(
         needlePosition,
         rotate(
-            config.needlePose.orientation,
+            needleOrientation,
             staged.metadata.swageAnchorLocal
         )
     );
-    staged.metadata.initialThreadDirectionWorld = rotate(
-        config.needlePose.orientation,
+    const DVec3 rotatedExitDirection = rotate(
+        needleOrientation,
         normalizedExitLocal
+    );
+    const double rotatedExitLength = length(rotatedExitDirection);
+    if (!(rotatedExitLength > 1.0e-12) ||
+        !std::isfinite(rotatedExitLength)) {
+        throw std::invalid_argument(
+            "dual PSM world thread exit rotation is degenerate"
+        );
+    }
+    staged.metadata.initialThreadDirectionWorld = multiply(
+        rotatedExitDirection,
+        1.0 / rotatedExitLength
     );
     const DVec3 initialMaterialDirectorWorld =
         leastAlignedDirector(
             staged.metadata.initialThreadDirectionWorld
         );
     const std::array<float, 4> inverseNeedleOrientation{
-        -config.needlePose.orientation[0],
-        -config.needlePose.orientation[1],
-        -config.needlePose.orientation[2],
-        config.needlePose.orientation[3],
+        -needleOrientation[0],
+        -needleOrientation[1],
+        -needleOrientation[2],
+        needleOrientation[3],
     };
     staged.metadata.swageMaterialDirectorLocal = rotate(
         inverseNeedleOrientation,
@@ -774,10 +807,10 @@ makeDualDvrkPsmNeedleThreadWorld(
         1.0f
     );
     needleState.orientation = f4(
-        config.needlePose.orientation[0],
-        config.needlePose.orientation[1],
-        config.needlePose.orientation[2],
-        config.needlePose.orientation[3]
+        needleOrientation[0],
+        needleOrientation[1],
+        needleOrientation[2],
+        needleOrientation[3]
     );
     needleState.linearVelocityAndInverseMass =
         f4(0.0f, 0.0f, 0.0f, needleBody.massAndInverseMass.y);
@@ -795,7 +828,7 @@ makeDualDvrkPsmNeedleThreadWorld(
     };
     const DMat3 inverseWorld = rotateTensor(
         inverseBody,
-        config.needlePose.orientation
+        needleOrientation
     );
     needleState.inverseInertiaWorldRow0 = f4(
         static_cast<float>(inverseWorld[0]),

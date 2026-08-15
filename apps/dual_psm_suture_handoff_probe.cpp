@@ -276,13 +276,32 @@ constexpr double kReceiverWristYaw = -0.30;
 constexpr double kReceiverBaseAzimuthOffset = 2.95;
 constexpr double kReceiverNeedleAxisRoll = 2.55;
 // Distal-side access uses a suspended vertical coupon rather than the pickup
-// pad. A 5 mm working gap admits the 8 mm LND envelope below the needle while
-// retaining the pad as a distant catch surface for the free strand. The
-// extraction-specific port roll was selected by the exact collision sweep;
-// the neutral-zone handoff keeps its independently qualified posture above.
-constexpr double kExtractionWorkingGapM = 5.0e-3;
+// pad. A 10 mm working gap is the first tested height that keeps the dynamic
+// half-circle needle off the catch pad while both 8 mm LND envelopes retain a
+// collision-free insert-normal path. The extraction-specific port rolls were
+// selected by the exact collision sweep; the neutral-zone handoff keeps its
+// independently qualified posture above.
+constexpr double kExtractionWorkingGapM = 1.0e-2;
+constexpr double kExtractionGiverNeedleAxisRoll = 0.30;
 constexpr double kExtractionReceiverBaseAzimuthOffset = 0.0;
+constexpr double kExtractionFixtureReceiverBaseAzimuthOffset = 2.0;
 constexpr double kExtractionReceiverNeedleAxisRoll = -1.0;
+constexpr double kExtractionFixtureReceiverNeedleAxisRoll = 0.0;
+// The distal receiver approaches along the normal of its complete jaw frame,
+// not along a guessed world axis. Ten millimetres is the first collision-free
+// stand-off from the exact 80-sample frame sweep qualified by the companion
+// kinematic diagnostic. A one-second cubic move limits its peak Cartesian
+// speed to 15 mm/s before bilateral contact is deliberately introduced.
+constexpr double kExtractionApproachStandOffM = 1.0e-2;
+constexpr std::uint32_t kExtractionApproachSteps = 500u;
+// Seed the already-established 60 um post-puncture grasp for one accepted
+// control transaction. A 15 um provisional touch is not positive control of
+// the suspended needle and attached 250 mm strand. The unchanged-target
+// 100 ms hold then dissipates the raised package-coil transient before the
+// receiver moves; the stronger 75 um transport latch belongs only to the
+// receiver after sole control is established.
+constexpr std::uint32_t kExtractionGiverPreloadSteps = 1u;
+constexpr std::uint32_t kExtractionInitialHoldSteps = 50u;
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -2951,8 +2970,111 @@ ArmTrajectory cartesianArmTrajectory(
     return trajectory;
 }
 
+ArmTrajectory frameArmTrajectory(
+    const metalrobo::EngineModel& worldModel,
+    const metalrobo::EngineModel& psm,
+    const std::uint32_t arm,
+    const metalrobo::SurgicalBasePose& base,
+    const std::vector<float>& begin,
+    const Vec3 beginJawMidpoint,
+    const Vec3 endJawMidpoint,
+    const Vec3 desiredRail,
+    const Vec3 desiredSeparation,
+    const double beginJawCoordinate,
+    const double endJawCoordinate,
+    const std::uint32_t steps
+) {
+    require(
+        begin.size() == worldModel.defaultQ.size() && steps != 0u,
+        "frame arm trajectory has invalid dimensions"
+    );
+    ArmTrajectory trajectory;
+    trajectory.desiredQ.assign(
+        static_cast<std::size_t>(steps) * worldModel.world.nq,
+        0.0f
+    );
+    trajectory.finalTarget = begin;
+    std::vector<double> local = armLocalQ(worldModel, arm, begin);
+    for (std::uint32_t step = 0u; step < steps; ++step) {
+        const double t = static_cast<double>(step + 1u) / steps;
+        const double smooth = t * t * (3.0 - 2.0 * t);
+        const Vec3 desired = beginJawMidpoint +
+            (endJawMidpoint - beginJawMidpoint) * smooth;
+        const double jawCoordinate =
+            beginJawCoordinate +
+            smooth * (endJawCoordinate - beginJawCoordinate);
+        const JawFrameIKSolution solution = solvePsmJawFrameTarget(
+            psm,
+            base,
+            std::move(local),
+            desired,
+            desiredRail,
+            desiredSeparation,
+            jawCoordinate
+        );
+        local = solution.localQ;
+        trajectory.finalTarget = begin;
+        setArmTarget(
+            trajectory.finalTarget,
+            worldModel,
+            arm,
+            local
+        );
+        std::copy(
+            trajectory.finalTarget.begin(),
+            trajectory.finalTarget.end(),
+            trajectory.desiredQ.begin() +
+                static_cast<std::size_t>(step) * worldModel.world.nq
+        );
+    }
+    std::vector<float> previousQ(begin.begin(), begin.end());
+    for (std::uint32_t step = 0u; step < steps; ++step) {
+        const std::span<const float> currentQ{
+            trajectory.desiredQ.data() +
+                static_cast<std::size_t>(step) * worldModel.world.nq,
+            worldModel.world.nq,
+        };
+        for (std::uint32_t dof = 0u;
+             dof < worldModel.world.nv;
+             ++dof) {
+            const MRDofPropertiesGPU& properties =
+                worldModel.dofs[dof];
+            if (properties.qIndex == MR_INVALID_INDEX ||
+                (properties.flags & MR_DOF_FLAG_ROOT) != 0u ||
+                (properties.flags & MR_DOF_FLAG_VELOCITY_LIMIT) == 0u ||
+                !(properties.limits.z > 0.0f)) {
+                continue;
+            }
+            const double velocity = std::abs(
+                static_cast<double>(currentQ[properties.qIndex]) -
+                previousQ[properties.qIndex]
+            ) / kControlTimestep;
+            const double ratio =
+                velocity / static_cast<double>(properties.limits.z);
+            if (ratio > trajectory.maximumVelocityRatio) {
+                trajectory.maximumVelocityRatio = ratio;
+                trajectory.maximumVelocity = velocity;
+                trajectory.limitingVelocity = properties.limits.z;
+                trajectory.maximumVelocityDof = dof;
+            }
+        }
+        previousQ.assign(currentQ.begin(), currentQ.end());
+    }
+    trajectory.efforts = computedTorqueTrajectory(
+        worldModel,
+        begin,
+        trajectory.desiredQ,
+        steps
+    );
+    return trajectory;
+}
+
 struct ContactCounts {
     std::array<std::array<std::uint32_t, 2>, 2> jawContacts{};
+    // Bit i denotes contact on authored insert patch i from kJawATeeth or
+    // kJawBTeeth. Raw manifold counts alone can overstate a grasp when one
+    // capsule patch touches several adjacent needle segments.
+    std::array<std::array<std::uint32_t, 2>, 2> jawInsertPatchMasks{};
     std::array<std::uint32_t, 2> graspZoneContacts{};
     std::uint32_t needlePadContacts = 0u;
     std::array<std::uint32_t, 2> armPadContacts{};
@@ -3122,6 +3244,28 @@ ContactCounts contactCounts(
                       (bodyB == jawBody && bodyA == needleBody))) {
                     continue;
                 }
+                const std::uint32_t robotCollider =
+                    bodyA == jawBody
+                        ? metadata.colliderA : metadata.colliderB;
+                const std::uint32_t localRobotCollider =
+                    robotCollider -
+                    arm * metalrobo::kSurgicalPSMShapeCount;
+                const auto& insertColliders =
+                    jaw == 0u ? kJawATeeth : kJawBTeeth;
+                if (std::ranges::find(
+                        insertColliders,
+                        localRobotCollider
+                    ) == insertColliders.end()) {
+                    continue;
+                }
+                const auto patch = std::ranges::find(
+                    insertColliders,
+                    localRobotCollider
+                );
+                counts.jawInsertPatchMasks[arm][jaw] |=
+                    1u << static_cast<std::uint32_t>(
+                        std::distance(insertColliders.begin(), patch)
+                    );
                 ++counts.jawContacts[arm][jaw];
                 counts.maximumJawNormalImpulse = std::max(
                     counts.maximumJawNormalImpulse,
@@ -3227,6 +3371,28 @@ bool bilateral(const ContactCounts& counts, const std::uint32_t arm) {
     return counts.jawContacts[arm][0] != 0u &&
         counts.jawContacts[arm][1] != 0u &&
         counts.graspZoneContacts[arm] >= 2u;
+}
+
+bool distributedInsertCoverage(
+    const ContactCounts& counts,
+    const std::uint32_t arm
+) {
+    const auto spansBothTransverseSides = [](const std::uint32_t mask) {
+        return (mask & 0b0011u) != 0u && (mask & 0b1100u) != 0u;
+    };
+    const std::uint32_t combined =
+        counts.jawInsertPatchMasks[arm][0] |
+        counts.jawInsertPatchMasks[arm][1];
+    const bool spansBothLongitudinalRows =
+        (combined & 0b0101u) != 0u && (combined & 0b1010u) != 0u;
+    return
+        spansBothTransverseSides(
+            counts.jawInsertPatchMasks[arm][0]
+        ) &&
+        spansBothTransverseSides(
+            counts.jawInsertPatchMasks[arm][1]
+        ) &&
+        spansBothLongitudinalRows;
 }
 
 bool cleanNeedleInteraction(
@@ -3657,6 +3823,14 @@ CrossArmCollisionScan scanCrossArmTargetPath(
 }
 
 struct KinematicNeedleObservation {
+    std::array<std::uint32_t, 2u> giverJawContacts{};
+    std::uint32_t giverGraspZoneContacts = 0u;
+    std::uint32_t giverNeedleContacts = 0u;
+    std::uint32_t giverNonInsertNeedleContacts = 0u;
+    double minimumGiverNonInsertNeedleSeparation =
+        std::numeric_limits<double>::infinity();
+    std::uint32_t minimumGiverNonInsertRobotCollider = MR_INVALID_INDEX;
+    std::uint32_t minimumGiverNonInsertNeedleCollider = MR_INVALID_INDEX;
     std::array<std::uint32_t, 2u> receiverJawContacts{};
     std::uint32_t receiverGraspZoneContacts = 0u;
     std::uint32_t receiverNeedleContacts = 0u;
@@ -3709,6 +3883,10 @@ KinematicNeedleObservation observeKinematicNeedleContacts(
         "kinematic needle collision observation failed"
     );
     const std::uint32_t needleBody = world.sceneBodyIndices.at(0u);
+    const std::array<std::uint32_t, 2u> giverJawBodies{
+        world.model.articulations.at(0u).firstBody + 7u,
+        world.model.articulations.at(0u).firstBody + 8u,
+    };
     const std::array<std::uint32_t, 2u> receiverJawBodies{
         world.model.articulations.at(1u).firstBody + 7u,
         world.model.articulations.at(1u).firstBody + 8u,
@@ -3730,10 +3908,81 @@ KinematicNeedleObservation observeKinematicNeedleContacts(
             (articulationOwnsBody(world.model, 1u, bodyB) &&
              bodyA == needleBody);
         observation.receiverNeedleContacts += receiverNeedle;
+        const bool giverNeedle =
+            (articulationOwnsBody(world.model, 0u, bodyA) &&
+             bodyB == needleBody) ||
+            (articulationOwnsBody(world.model, 0u, bodyB) &&
+             bodyA == needleBody);
+        observation.giverNeedleContacts += giverNeedle;
+        if (giverNeedle) {
+            const std::uint32_t robotCollider =
+                articulationOwnsBody(world.model, 0u, bodyA)
+                    ? pair.colliderA : pair.colliderB;
+            const bool insert =
+                std::ranges::find(kJawATeeth, robotCollider) !=
+                    kJawATeeth.end() ||
+                std::ranges::find(kJawBTeeth, robotCollider) !=
+                    kJawBTeeth.end();
+            if (!insert) {
+                ++observation.giverNonInsertNeedleContacts;
+                const double separation = static_cast<double>(
+                    collision.rawContacts[rawIndex]
+                        .normalAndSeparation.w
+                );
+                if (separation <
+                    observation.minimumGiverNonInsertNeedleSeparation) {
+                    observation.minimumGiverNonInsertNeedleSeparation =
+                        separation;
+                    observation.minimumGiverNonInsertRobotCollider =
+                        robotCollider;
+                    observation.minimumGiverNonInsertNeedleCollider =
+                        articulationOwnsBody(world.model, 0u, bodyA)
+                            ? pair.colliderB : pair.colliderA;
+                }
+            }
+        }
+        for (std::uint32_t jaw = 0u; jaw < 2u; ++jaw) {
+            const std::uint32_t jawBody = giverJawBodies[jaw];
+            if (!((bodyA == jawBody && bodyB == needleBody) ||
+                  (bodyB == jawBody && bodyA == needleBody))) {
+                continue;
+            }
+            const std::uint32_t robotCollider =
+                bodyA == jawBody ? pair.colliderA : pair.colliderB;
+            const auto& insertColliders =
+                jaw == 0u ? kJawATeeth : kJawBTeeth;
+            if (std::ranges::find(
+                    insertColliders,
+                    robotCollider
+                ) == insertColliders.end()) {
+                continue;
+            }
+            ++observation.giverJawContacts[jaw];
+            const std::uint32_t needleCollider =
+                bodyA == needleBody ? pair.colliderA : pair.colliderB;
+            if (needleCollider >=
+                    kNeedleFirstShape + needleMetadata.graspShapeBegin &&
+                needleCollider <
+                    kNeedleFirstShape + needleMetadata.graspShapeEnd) {
+                ++observation.giverGraspZoneContacts;
+            }
+        }
         for (std::uint32_t jaw = 0u; jaw < 2u; ++jaw) {
             const std::uint32_t jawBody = receiverJawBodies[jaw];
             if (!((bodyA == jawBody && bodyB == needleBody) ||
                   (bodyB == jawBody && bodyA == needleBody))) {
+                continue;
+            }
+            const std::uint32_t robotCollider =
+                bodyA == jawBody ? pair.colliderA : pair.colliderB;
+            const auto& insertColliders =
+                jaw == 0u ? kJawATeeth : kJawBTeeth;
+            const std::uint32_t localRobotCollider =
+                robotCollider - metalrobo::kSurgicalPSMShapeCount;
+            if (std::ranges::find(
+                    insertColliders,
+                    localRobotCollider
+                ) == insertColliders.end()) {
                 continue;
             }
             ++observation.receiverJawContacts[jaw];
@@ -4232,6 +4481,10 @@ struct Arguments {
     double receiverWristYaw = kReceiverWristYaw;
     double receiverBaseAzimuthOffset = kReceiverBaseAzimuthOffset;
     double receiverNeedleAxisRoll = kReceiverNeedleAxisRoll;
+    double extractionWorkingGapM = kExtractionWorkingGapM;
+    double extractionGiverNeedleAxisRoll =
+        kExtractionGiverNeedleAxisRoll;
+    std::uint32_t extractionGiverNeedleShape = kGiverNeedleShape;
     double receiverScanHandoffHeightIncrement = 0.0;
     double receiverScanHandoffOffsetX = 0.0;
     double receiverScanHandoffOffsetY = 0.0;
@@ -4239,6 +4492,9 @@ struct Arguments {
     bool receiverWristYawProvided = false;
     bool receiverBaseAzimuthOffsetProvided = false;
     bool receiverNeedleAxisRollProvided = false;
+    bool extractionWorkingGapProvided = false;
+    bool extractionGiverNeedleAxisRollProvided = false;
+    bool extractionGiverNeedleShapeProvided = false;
     bool receiverScanHandoffHeightIncrementProvided = false;
     bool receiverScanHandoffOffsetXProvided = false;
     bool receiverScanHandoffOffsetYProvided = false;
@@ -4256,6 +4512,9 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-puncture-advance-only" ||
             argument == "--tissue-curved-passage-only" ||
             argument == "--receiver-frame-ik-only" ||
+            argument == "--receiver-extraction-geometry-only" ||
+            argument == "--receiver-extraction-giver-hold-only" ||
+            argument == "--receiver-extraction-fixture-only" ||
             argument == "--long-settle" ||
             argument == "--approach-only" ||
             argument == "--closure-only" ||
@@ -4349,6 +4608,59 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "receiver needle-axis roll must be finite and within pi"
             );
             result.receiverNeedleAxisRollProvided = true;
+        } else if (argument == "--extraction-working-gap") {
+            require(
+                !result.extractionWorkingGapProvided && index + 1 < argc,
+                "--extraction-working-gap requires one distance"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            result.extractionWorkingGapM = std::stod(value, &consumed);
+            require(
+                consumed == value.size() &&
+                    std::isfinite(result.extractionWorkingGapM) &&
+                    result.extractionWorkingGapM >= 5.0e-3 &&
+                    result.extractionWorkingGapM <= 3.0e-2,
+                "extraction working gap must be in [0.005, 0.03] m"
+            );
+            result.extractionWorkingGapProvided = true;
+        } else if (argument == "--extraction-giver-needle-axis-roll") {
+            require(
+                !result.extractionGiverNeedleAxisRollProvided &&
+                    index + 1 < argc,
+                "--extraction-giver-needle-axis-roll requires one angle"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            result.extractionGiverNeedleAxisRoll =
+                std::stod(value, &consumed);
+            require(
+                consumed == value.size() &&
+                    std::isfinite(
+                        result.extractionGiverNeedleAxisRoll
+                    ) &&
+                    std::abs(result.extractionGiverNeedleAxisRoll) <=
+                        std::numbers::pi,
+                "extraction giver needle-axis roll must be finite and "
+                "within pi"
+            );
+            result.extractionGiverNeedleAxisRollProvided = true;
+        } else if (argument == "--extraction-giver-needle-shape") {
+            require(
+                !result.extractionGiverNeedleShapeProvided &&
+                    index + 1 < argc,
+                "--extraction-giver-needle-shape requires one index"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed < 64u,
+                "extraction giver needle shape must be in [0, 63]"
+            );
+            result.extractionGiverNeedleShape =
+                static_cast<std::uint32_t>(parsed);
+            result.extractionGiverNeedleShapeProvided = true;
         } else if (argument == "--receiver-scan-handoff-height-increment") {
             require(
                 !result.receiverScanHandoffHeightIncrementProvided &&
@@ -4747,8 +5059,21 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
          !result.receiverScanHandoffOffsetXProvided &&
          !result.receiverScanHandoffOffsetYProvided) ||
             result.receiverCollisionScan ||
-            result.mode == "--receiver-frame-ik-only",
+            result.mode == "--receiver-frame-ik-only" ||
+            result.mode == "--receiver-extraction-geometry-only" ||
+            result.mode == "--receiver-extraction-giver-hold-only" ||
+            result.mode == "--receiver-extraction-fixture-only",
         "receiver posture overrides require a receiver geometry diagnostic"
+    );
+    require(
+        (!result.extractionWorkingGapProvided &&
+         !result.extractionGiverNeedleAxisRollProvided &&
+         !result.extractionGiverNeedleShapeProvided) ||
+            result.mode == "--receiver-frame-ik-only" ||
+            result.mode == "--receiver-extraction-geometry-only" ||
+            result.mode == "--receiver-extraction-giver-hold-only" ||
+            result.mode == "--receiver-extraction-fixture-only",
+        "extraction posture overrides require a distal receiver diagnostic"
     );
     require(
         result.resumePositiveControlOverlapPath.empty() ||
@@ -5400,6 +5725,16 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-curved-passage-only";
         const bool receiverFrameIkOnly =
             options.mode == "--receiver-frame-ik-only";
+        const bool receiverExtractionGeometryOnly =
+            options.mode == "--receiver-extraction-geometry-only";
+        const bool receiverExtractionGiverHoldOnly =
+            options.mode == "--receiver-extraction-giver-hold-only";
+        const bool receiverExtractionFixtureOnly =
+            receiverExtractionGeometryOnly ||
+            receiverExtractionGiverHoldOnly ||
+            options.mode == "--receiver-extraction-fixture-only";
+        const bool receiverExtractionPose =
+            receiverFrameIkOnly || receiverExtractionFixtureOnly;
         const bool tissueMatterOnly =
             tissueCouplingOnly || tissueRestOnly || tissuePunctureOnly;
         const bool approachOnly = options.mode == "--approach-only";
@@ -5432,6 +5767,19 @@ int main(const int argc, const char* const argv[]) {
                 kReceiverNeedleShape <
                     needleForPlacement.metadata.graspShapeEnd,
             "handoff grasps left the one-third-to-one-half handling zone"
+        );
+        const std::uint32_t giverPlacementShape =
+            receiverExtractionFixtureOnly
+                ? options.extractionGiverNeedleShape
+                : kGiverNeedleShape;
+        require(
+            giverPlacementShape >=
+                    needleForPlacement.metadata.graspShapeBegin &&
+                giverPlacementShape < kExtractionNeedleShape &&
+                giverPlacementShape <
+                    needleForPlacement.metadata.graspShapeEnd,
+            "distal giver shape must precede the receiver inside the "
+            "authored handling zone"
         );
         const double graspDiametralClosure = grooveDiametralClosure(
             psm,
@@ -5599,6 +5947,21 @@ int main(const int argc, const char* const argv[]) {
         const double firstEdgeLength =
             sutureSpec.threadLengthM.value /
             static_cast<double>(sutureSpec.threadNodeCount - 1u);
+        if (receiverExtractionPose) {
+            // Preserve exact DER edge lengths while the suspended needle is
+            // raised above the catch pad. More height requires more physical
+            // descent chords; stretching the original four-edge package
+            // transition would manufacture preload before either gripper
+            // moves. The 0.75 factor retains horizontal chord length for the
+            // authored quarter-turn into the planar coil.
+            config.threadDescentEdgeCount = std::max<std::uint32_t>(
+                config.threadDescentEdgeCount,
+                static_cast<std::uint32_t>(std::ceil(
+                    (options.extractionWorkingGapM + 3.0e-3) /
+                    (0.75 * firstEdgeLength)
+                ))
+            );
+        }
         config.surgical.torsionalAttachmentComplianceRadPerNm =
             0.5 * firstEdgeLength /
             (threadShearModulus * threadPolarMoment);
@@ -5610,22 +5973,18 @@ int main(const int argc, const char* const argv[]) {
             0.0,
             padTop - needleForPlacement.rigid.localAabbLowerM[2] -
                 kInitialSupportPenetration +
-                (receiverFrameIkOnly ? kExtractionWorkingGapM : 0.0),
+                (receiverExtractionPose
+                    ? options.extractionWorkingGapM : 0.0),
         };
-        config.surgical.needlePose.position = {
+        MRBodyStateGPU placementNeedle{};
+        placementNeedle.position = {
             static_cast<float>(needlePosition.x),
             static_cast<float>(needlePosition.y),
             static_cast<float>(needlePosition.z),
+            1.0f,
         };
+        placementNeedle.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
 
-        const Vec3 giverPoint = needleShapeWorldCenter(
-            needleForPlacement,
-            kGiverNeedleShape,
-            needlePosition
-        );
-        const std::uint32_t receiverPlacementShape =
-            receiverFrameIkOnly
-                ? kExtractionNeedleShape : kReceiverNeedleShape;
         const MRShapeGPU& receiverNeedleSegment =
             needleForPlacement.rigid.shapes.at(
                 kExtractionNeedleShape
@@ -5655,12 +6014,53 @@ int main(const int argc, const char* const argv[]) {
         );
         const double receiverExtractionAngle =
             receiverToTipAngle + std::asin(receiverRequiredSine);
+        const CurvedNeedleOrbit placementOrbit = curvedNeedleOrbit(
+            needleForPlacement,
+            placementNeedle
+        );
+        const MRBodyStateGPU extractionPlacement = curvedNeedleTarget(
+            placementNeedle,
+            placementOrbit,
+            receiverExtractionAngle,
+            kCurvedPassageSpeedMps /
+                placementOrbit.centerlineRadiusM
+        );
+        const MRBodyStateGPU& authoredNeedlePlacement =
+            receiverExtractionFixtureOnly
+                ? extractionPlacement : placementNeedle;
+        config.surgical.needlePose.position = {
+            authoredNeedlePlacement.position.x,
+            authoredNeedlePlacement.position.y,
+            authoredNeedlePlacement.position.z,
+        };
+        config.surgical.needlePose.orientation = {
+            authoredNeedlePlacement.orientation.x,
+            authoredNeedlePlacement.orientation.y,
+            authoredNeedlePlacement.orientation.z,
+            authoredNeedlePlacement.orientation.w,
+        };
+
+        const Vec3 giverPoint = needleShapeWorldCenter(
+            needleForPlacement,
+            giverPlacementShape,
+            authoredNeedlePlacement
+        );
+        const std::uint32_t receiverPlacementShape =
+            receiverExtractionPose
+                ? kExtractionNeedleShape : kReceiverNeedleShape;
         const Quaternion giverOrientation = multiply(
-            rotationZ(needleShapeAngle(
-                sutureSpec.needle,
-                kGiverNeedleShape
-            )),
-            rotationX(std::numbers::pi)
+            multiply(
+                rotationZ(needleShapeAngle(
+                    sutureSpec.needle,
+                    giverPlacementShape
+                ) + (receiverExtractionFixtureOnly
+                        ? receiverExtractionAngle : 0.0)),
+                rotationX(std::numbers::pi)
+            ),
+            rotationY(
+                receiverExtractionFixtureOnly
+                    ? options.extractionGiverNeedleAxisRoll : 0.0
+            )
         );
         const Quaternion receiverOrientation = multiply(
             multiply(
@@ -5668,20 +6068,28 @@ int main(const int argc, const char* const argv[]) {
                     sutureSpec.needle,
                     receiverPlacementShape
                 ) +
-                    (receiverFrameIkOnly
+                    (receiverExtractionPose
                         ? receiverExtractionAngle : 0.0) +
                     (
-                        receiverFrameIkOnly &&
+                        receiverExtractionPose &&
                         !options.receiverBaseAzimuthOffsetProvided
-                            ? kExtractionReceiverBaseAzimuthOffset
+                            ? (
+                                receiverExtractionFixtureOnly
+                                    ? kExtractionFixtureReceiverBaseAzimuthOffset
+                                    : kExtractionReceiverBaseAzimuthOffset
+                            )
                             : options.receiverBaseAzimuthOffset
                     )),
                 rotationX(std::numbers::pi)
             ),
             rotationY(
-                receiverFrameIkOnly &&
+                receiverExtractionPose &&
                 !options.receiverNeedleAxisRollProvided
-                    ? kExtractionReceiverNeedleAxisRoll
+                    ? (
+                        receiverExtractionFixtureOnly
+                            ? kExtractionFixtureReceiverNeedleAxisRoll
+                            : kExtractionReceiverNeedleAxisRoll
+                    )
                     : options.receiverNeedleAxisRoll
             )
         );
@@ -5698,32 +6106,36 @@ int main(const int argc, const char* const argv[]) {
                     kGiverPortCalibration.z,
                 })[axis]);
         }
-        const auto giverPickupClearanceClosed = solvePsmJawTarget(
-            psm,
-            config.surgical.robots.leftBase,
-            giverPickupClosedNominal,
-            giverPoint + Vec3{0.0, 0.0, kPickupVerticalClearance},
-            closeJawCoordinate
-        );
-        const double nominalDistalPadGap = minimumPsmPadGap(
-            psm,
-            giverPickupClearanceClosed,
-            config.surgical.robots.leftBase,
-            padTop
-        );
-        const double nominalToothNeedleGap = minimumToothNeedleGap(
-            psm,
-            giverPickupClearanceClosed,
-            config.surgical.robots.leftBase,
-            needleForPlacement,
-            needlePosition
-        );
-        require(
-            nominalDistalPadGap > 5.0e-5 &&
-                nominalToothNeedleGap < 0.0,
-            "pickup pose does not simultaneously clear the pad and enter "
-            "the authored needle contact envelope"
-        );
+        double nominalDistalPadGap = 0.0;
+        double nominalToothNeedleGap = 0.0;
+        if (!receiverExtractionFixtureOnly) {
+            const auto giverPickupClearanceClosed = solvePsmJawTarget(
+                psm,
+                config.surgical.robots.leftBase,
+                giverPickupClosedNominal,
+                giverPoint + Vec3{0.0, 0.0, kPickupVerticalClearance},
+                closeJawCoordinate
+            );
+            nominalDistalPadGap = minimumPsmPadGap(
+                psm,
+                giverPickupClearanceClosed,
+                config.surgical.robots.leftBase,
+                padTop
+            );
+            nominalToothNeedleGap = minimumToothNeedleGap(
+                psm,
+                giverPickupClearanceClosed,
+                config.surgical.robots.leftBase,
+                needleForPlacement,
+                needlePosition
+            );
+            require(
+                nominalDistalPadGap > 5.0e-5 &&
+                    nominalToothNeedleGap < 0.0,
+                "pickup pose does not simultaneously clear the pad and "
+                "enter the authored needle contact envelope"
+            );
+        }
         const Vec3 handoffStagingOffset = options.receiverCollisionScan
             ? Vec3{
                 options.receiverScanHandoffOffsetX,
@@ -5736,26 +6148,7 @@ int main(const int argc, const char* const argv[]) {
             receiverPlacementShape,
             needlePosition
         ) + handoffStagingOffset + Vec3{0.0, 0.0, kHandoffLift};
-        if (receiverFrameIkOnly) {
-            MRBodyStateGPU placementNeedle{};
-            placementNeedle.position = {
-                static_cast<float>(needlePosition.x),
-                static_cast<float>(needlePosition.y),
-                static_cast<float>(needlePosition.z),
-                1.0f,
-            };
-            placementNeedle.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
-            const CurvedNeedleOrbit placementOrbit = curvedNeedleOrbit(
-                needleForPlacement,
-                placementNeedle
-            );
-            const MRBodyStateGPU extractionPlacement = curvedNeedleTarget(
-                placementNeedle,
-                placementOrbit,
-                receiverExtractionAngle,
-                kCurvedPassageSpeedMps /
-                    placementOrbit.centerlineRadiusM
-            );
+        if (receiverExtractionPose) {
             receiverPoint = needleShapeWorldCenter(
                 needleForPlacement,
                 kExtractionNeedleShape,
@@ -5939,6 +6332,1321 @@ int main(const int argc, const char* const argv[]) {
         // only the edge/body pairs adjacent to the two explicit swage
         // attachments, so distant needle/thread contact is still physical.
         world.rods[0].collision.collisionMask = ~0u;
+
+        if (receiverExtractionFixtureOnly) {
+            const MRBodyStateGPU& fixtureNeedle =
+                world.defaultSceneBodies.at(0u);
+            require(
+                fixtureNeedle.flagsAndIndices[0] == MR_MOTION_DYNAMIC &&
+                    fixtureNeedle.linearVelocityAndInverseMass.w > 0.0f,
+                "extraction fixture replaced the dynamic needle with a "
+                "kinematic target"
+            );
+            const auto giverBase = config.surgical.robots.leftBase;
+            const auto receiverBase = config.surgical.robots.rightBase;
+            const Quaternion giverBaseRotation{
+                giverBase.orientation[0],
+                giverBase.orientation[1],
+                giverBase.orientation[2],
+                giverBase.orientation[3],
+            };
+            const Quaternion receiverBaseRotation{
+                receiverBase.orientation[0],
+                receiverBase.orientation[1],
+                receiverBase.orientation[2],
+                receiverBase.orientation[3],
+            };
+
+            std::vector<double> giverSeed = psmTarget(
+                psm,
+                kPickupInsertion,
+                closeJawCoordinate,
+                kGiverYaw,
+                kGiverPitch
+            );
+            const JawGeometry giverNominalJaw = jawGeometry(
+                psm,
+                giverSeed
+            );
+            Vec3 giverDesiredRail = needleShapeWorldTangent(
+                needleForPlacement,
+                giverPlacementShape,
+                fixtureNeedle
+            );
+            if (dot(
+                    giverDesiredRail,
+                    rotate(
+                        giverBaseRotation,
+                        giverNominalJaw.railDirection
+                    )
+                ) < 0.0) {
+                giverDesiredRail = giverDesiredRail * -1.0;
+            }
+            const Vec3 giverDesiredSeparation = rotate(
+                giverBaseRotation,
+                giverNominalJaw.separationDirection
+            );
+            const Vec3 giverDesiredPoint = needleShapeWorldCenter(
+                needleForPlacement,
+                giverPlacementShape,
+                fixtureNeedle
+            );
+            const JawFrameIKSolution giverIK = solvePsmJawFrameTarget(
+                psm,
+                giverBase,
+                std::move(giverSeed),
+                giverDesiredPoint,
+                giverDesiredRail,
+                giverDesiredSeparation,
+                closeJawCoordinate
+            );
+
+            const std::vector<double> receiverNominal = psmTarget(
+                psm,
+                kReceiverHandoffInsertion,
+                openJawCoordinate,
+                kReceiverYaw,
+                kReceiverPitch
+            );
+            const JawGeometry receiverNominalJaw = jawGeometry(
+                psm,
+                receiverNominal
+            );
+            Vec3 receiverDesiredRail = needleShapeWorldTangent(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                fixtureNeedle
+            );
+            if (dot(
+                    receiverDesiredRail,
+                    rotate(
+                        receiverBaseRotation,
+                        receiverNominalJaw.railDirection
+                    )
+                ) < 0.0) {
+                receiverDesiredRail = receiverDesiredRail * -1.0;
+            }
+            const Vec3 receiverDesiredSeparation = rotate(
+                receiverBaseRotation,
+                receiverNominalJaw.separationDirection
+            );
+            const Vec3 receiverDesiredPoint = needleShapeWorldCenter(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                fixtureNeedle
+            );
+            const OrthonormalJawFrame receiverDesiredFrame =
+                orthonormalJawFrame(
+                    receiverDesiredRail,
+                    receiverDesiredSeparation,
+                    "extraction fixture receiver frame"
+                );
+            std::vector<double> receiverSeatSeed = receiverNominal;
+            receiverSeatSeed[0] += 0.08;
+            receiverSeatSeed[1] -= 0.06;
+            receiverSeatSeed[2] -= 0.003;
+            receiverSeatSeed[3] -= 0.12;
+            receiverSeatSeed[4] += 0.08;
+            receiverSeatSeed[5] -= 0.08;
+            const JawFrameIKSolution receiverSeatIK =
+                solvePsmJawFrameTarget(
+                    psm,
+                    receiverBase,
+                    std::move(receiverSeatSeed),
+                    receiverDesiredPoint,
+                    receiverDesiredRail,
+                    receiverDesiredSeparation,
+                    openJawCoordinate
+                );
+            const Vec3 receiverStandOffPoint = receiverDesiredPoint +
+                receiverDesiredFrame.normal *
+                    kExtractionApproachStandOffM;
+            const JawFrameIKSolution receiverStandOffIK =
+                solvePsmJawFrameTarget(
+                    psm,
+                    receiverBase,
+                    receiverNominal,
+                    receiverStandOffPoint,
+                    receiverDesiredRail,
+                    receiverDesiredSeparation,
+                    openJawCoordinate
+                );
+            setArmTarget(
+                world.model.defaultQ,
+                world.model,
+                0u,
+                giverIK.localQ
+            );
+            setArmTarget(
+                world.model.defaultQ,
+                world.model,
+                1u,
+                receiverStandOffIK.localQ
+            );
+            world.fingerprint =
+                metalrobo::heterogeneousWorldFingerprint(world);
+            std::string fixtureReason;
+            require(
+                world.valid(&fixtureReason),
+                "extraction fixture reset is invalid: " + fixtureReason
+            );
+            const CrossArmCollisionScan fixtureResetPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    world.model.defaultQ,
+                    world.model.defaultQ,
+                    1u
+                );
+            const KinematicNeedleObservation fixtureResetObservation =
+                observeKinematicNeedleContacts(
+                    world,
+                    needleForPlacement.metadata,
+                    world.model.defaultQ
+                );
+            std::vector<float> fixtureOpenSeatQ =
+                world.model.defaultQ;
+            setArmTarget(
+                fixtureOpenSeatQ,
+                world.model,
+                1u,
+                receiverSeatIK.localQ
+            );
+            const KinematicNeedleObservation fixtureOpenSeatObservation =
+                observeKinematicNeedleContacts(
+                    world,
+                    needleForPlacement.metadata,
+                    fixtureOpenSeatQ
+                );
+            const JawGeometry fixtureReceiverStart = worldJawGeometry(
+                world.model,
+                1u,
+                world.model.defaultQ,
+                world.model.defaultV
+            );
+            const ArmTrajectory fixtureApproachPreflightTrajectory =
+                frameArmTrajectory(
+                    world.model,
+                    psm,
+                    1u,
+                    receiverBase,
+                    world.model.defaultQ,
+                    fixtureReceiverStart.midpoint,
+                    receiverDesiredPoint,
+                    receiverDesiredRail,
+                    receiverDesiredSeparation,
+                    openJawCoordinate,
+                    openJawCoordinate,
+                    kExtractionApproachSteps
+                );
+            const CrossArmCollisionScan fixtureApproachPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    world.model.defaultQ,
+                    fixtureApproachPreflightTrajectory.finalTarget,
+                    kExtractionApproachSteps,
+                    fixtureApproachPreflightTrajectory.desiredQ
+                );
+            std::uint32_t fixtureApproachNeedleContactSamples = 0u;
+            for (std::uint32_t step = 0u;
+                 step < kExtractionApproachSteps;
+                 ++step) {
+                const std::span<const float> q{
+                    fixtureApproachPreflightTrajectory.desiredQ.data() +
+                        static_cast<std::size_t>(step) *
+                            world.model.world.nq,
+                    world.model.world.nq,
+                };
+                fixtureApproachNeedleContactSamples +=
+                    observeKinematicNeedleContacts(
+                        world,
+                        needleForPlacement.metadata,
+                        q
+                    ).receiverNeedleContacts != 0u;
+            }
+            std::vector<float> fixtureClosedSeatQ =
+                fixtureApproachPreflightTrajectory.finalTarget;
+            std::vector<double> fixtureClosedReceiver =
+                receiverSeatIK.localQ;
+            fixtureClosedReceiver[6] = -receiverOverlapJawCoordinate;
+            fixtureClosedReceiver[7] = receiverOverlapJawCoordinate;
+            setArmTarget(
+                fixtureClosedSeatQ,
+                world.model,
+                1u,
+                fixtureClosedReceiver
+            );
+            const KinematicNeedleObservation fixtureClosedSeatObservation =
+                observeKinematicNeedleContacts(
+                    world,
+                    needleForPlacement.metadata,
+                    fixtureClosedSeatQ
+                );
+            const std::uint32_t fixtureClosedJawContacts =
+                fixtureClosedSeatObservation.receiverJawContacts[0] +
+                fixtureClosedSeatObservation.receiverJawContacts[1];
+            require(
+                fixtureResetPreflight.samplesWithContact == 0u &&
+                    fixtureResetPreflight.samplesWithGiverPadContact == 0u &&
+                    fixtureResetPreflight.samplesWithReceiverPadContact ==
+                        0u &&
+                    fixtureResetObservation.giverJawContacts[0] >= 2u &&
+                    fixtureResetObservation.giverJawContacts[1] >= 2u &&
+                    fixtureResetObservation.giverGraspZoneContacts ==
+                        fixtureResetObservation.giverJawContacts[0] +
+                        fixtureResetObservation.giverJawContacts[1] &&
+                    fixtureResetObservation.giverNeedleContacts ==
+                        fixtureResetObservation.giverGraspZoneContacts &&
+                    fixtureOpenSeatObservation.crossArmContacts == 0u &&
+                    fixtureOpenSeatObservation.receiverNeedleContacts == 0u &&
+                    fixtureApproachPreflight.samplesWithContact == 0u &&
+                    fixtureApproachPreflight.samplesWithGiverPadContact ==
+                        0u &&
+                    fixtureApproachPreflight.samplesWithReceiverPadContact ==
+                        0u &&
+                    fixtureApproachNeedleContactSamples == 0u &&
+                    fixtureClosedSeatObservation.crossArmContacts == 0u &&
+                    fixtureClosedSeatObservation.receiverJawContacts[0] >=
+                        2u &&
+                    fixtureClosedSeatObservation.receiverJawContacts[1] >=
+                        2u &&
+                    fixtureClosedSeatObservation.receiverGraspZoneContacts ==
+                        fixtureClosedJawContacts &&
+                    fixtureClosedSeatObservation.receiverNeedleContacts ==
+                        fixtureClosedJawContacts,
+                "post-puncture extraction reset or open seat intersects "
+                "an instrument, needle, or pad: receiver_reset_pad_gap=" +
+                    std::to_string(minimumPsmPadGap(
+                        psm,
+                        receiverStandOffIK.localQ,
+                        receiverBase,
+                        padTop
+                    )) +
+                    " receiver_base_z=" +
+                    std::to_string(receiverBase.position[2]) +
+                    " needle_z=" +
+                    std::to_string(fixtureNeedle.position.z) +
+                    " giver_jaws=" +
+                    std::to_string(
+                        fixtureResetObservation.giverJawContacts[0]
+                    ) + "/" +
+                    std::to_string(
+                        fixtureResetObservation.giverJawContacts[1]
+                    ) +
+                    " giver_safe=" +
+                    std::to_string(
+                        fixtureResetObservation.giverGraspZoneContacts
+                    ) +
+                    " giver_total=" +
+                    std::to_string(
+                        fixtureResetObservation.giverNeedleContacts
+                    ) +
+                    " giver_non_insert=" +
+                    std::to_string(
+                        fixtureResetObservation
+                            .giverNonInsertNeedleContacts
+                    ) +
+                    " giver_non_insert_min_sep=" +
+                    std::to_string(
+                        fixtureResetObservation
+                            .minimumGiverNonInsertNeedleSeparation
+                    ) +
+                    " giver_non_insert_colliders=" +
+                    std::to_string(
+                        fixtureResetObservation
+                            .minimumGiverNonInsertRobotCollider
+                    ) + "/" +
+                    std::to_string(
+                        fixtureResetObservation
+                            .minimumGiverNonInsertNeedleCollider
+                    )
+            );
+            if (receiverExtractionGeometryOnly) {
+                std::cout << std::setprecision(9)
+                    << "receiver_extraction_geometry=ok"
+                    << " extraction_angle_rad="
+                    << receiverExtractionAngle
+                    << " giver_position_residual_m="
+                    << giverIK.positionResidual
+                    << " giver_orientation_residual_rad="
+                    << giverIK.orientationResidual
+                    << " receiver_position_residual_m="
+                    << receiverSeatIK.positionResidual
+                    << " receiver_orientation_residual_rad="
+                    << receiverSeatIK.orientationResidual
+                    << " receiver_standoff_q4="
+                    << receiverStandOffIK.localQ[4]
+                    << " receiver_seat_q4="
+                    << receiverSeatIK.localQ[4]
+                    << " reset_cross_arm_contacts="
+                    << fixtureResetPreflight.samplesWithContact
+                    << " reset_giver_jaw_contacts="
+                    << fixtureResetObservation.giverJawContacts[0]
+                    << '/' << fixtureResetObservation.giverJawContacts[1]
+                    << " reset_giver_safe_zone_contacts="
+                    << fixtureResetObservation.giverGraspZoneContacts
+                    << " open_seat_cross_arm_contacts="
+                    << fixtureOpenSeatObservation.crossArmContacts
+                    << " open_seat_needle_contacts="
+                    << fixtureOpenSeatObservation.receiverNeedleContacts
+                    << " approach_cross_arm_contact_samples="
+                    << fixtureApproachPreflight.samplesWithContact
+                    << " approach_needle_contact_samples="
+                    << fixtureApproachNeedleContactSamples
+                    << " approach_velocity_ratio="
+                    << fixtureApproachPreflightTrajectory
+                           .maximumVelocityRatio
+                    << " closed_jaw_contacts="
+                    << fixtureClosedSeatObservation.receiverJawContacts[0]
+                    << '/'
+                    << fixtureClosedSeatObservation.receiverJawContacts[1]
+                    << " closed_safe_zone_contacts="
+                    << fixtureClosedSeatObservation
+                           .receiverGraspZoneContacts
+                    << " base_azimuth_offset_rad="
+                    << (
+                        options.receiverBaseAzimuthOffsetProvided
+                            ? options.receiverBaseAzimuthOffset
+                            : kExtractionFixtureReceiverBaseAzimuthOffset
+                    )
+                    << " needle_axis_roll_rad="
+                    << (
+                        options.receiverNeedleAxisRollProvided
+                            ? options.receiverNeedleAxisRoll
+                            : kExtractionFixtureReceiverNeedleAxisRoll
+                    )
+                    << " extraction_working_gap_m="
+                    << options.extractionWorkingGapM
+                    << " giver_needle_axis_roll_rad="
+                    << options.extractionGiverNeedleAxisRoll
+                    << " giver_needle_shape="
+                    << giverPlacementShape << '\n';
+                return 0;
+            }
+
+            metalrobo::CompiledWorld fixtureCompiled;
+            const auto fixtureCompile = metalrobo::compileMetalWorld(
+                world,
+                fixtureCompiled
+            );
+            require(
+                fixtureCompile.succeeded() &&
+                    fixtureCompiled.articulationCount() == 2u &&
+                    fixtureCompiled.sceneBodyCount() == 2u &&
+                    fixtureCompiled.rodCount() == 1u,
+                "extraction fixture did not compile for persistent Metal: " +
+                    fixtureCompile.message
+            );
+            metalrobo::MetalWorldStepConfig fixtureStepConfig;
+            fixtureStepConfig.timestepSeconds =
+                static_cast<float>(kControlTimestep);
+            fixtureStepConfig.physicsSubsteps = kPhysicsSubsteps;
+            fixtureStepConfig.solverMode =
+                metalrobo::MetalWorldSolverMode::temporalCone;
+            fixtureStepConfig.actuationMode =
+                metalrobo::MetalWorldActuationMode::implicitPositionDrive;
+            fixtureStepConfig.velocityIterations =
+                options.velocityIterations;
+            fixtureStepConfig.finalVelocityIterations =
+                options.finalVelocityIterations;
+            fixtureStepConfig.ccdMode =
+                metalrobo::MetalWorldCCDMode::speculative;
+            fixtureStepConfig.maxConservativeAdvancementIterations = 24u;
+            fixtureStepConfig.deterministic = true;
+            fixtureStepConfig.warmStart = true;
+            fixtureStepConfig.captureContactEvidence = true;
+            fixtureStepConfig.publishFinalState = true;
+            fixtureStepConfig.publishStateTrajectory = false;
+            fixtureStepConfig.rodContactOuterIterations = 4u;
+
+            metalrobo::MetalWorldContext fixtureContext;
+            metalrobo::MetalWorldResidentState fixtureResident;
+            const JawGeometry authoredFixtureGiverJaw = worldJawGeometry(
+                world.model,
+                0u,
+                world.model.defaultQ,
+                world.model.defaultV
+            );
+            const Quaternion authoredFixtureNeedleOrientation{
+                fixtureNeedle.orientation.x,
+                fixtureNeedle.orientation.y,
+                fixtureNeedle.orientation.z,
+                fixtureNeedle.orientation.w,
+            };
+            const Vec3 authoredFixtureGiverPoint = needleShapeWorldCenter(
+                needleForPlacement,
+                giverPlacementShape,
+                fixtureNeedle
+            );
+            const GraspReference authoredFixtureGiverReference{
+                .jawMidpointOffsetInNeedleFrame = rotate(
+                    conjugate(authoredFixtureNeedleOrientation),
+                    authoredFixtureGiverJaw.midpoint -
+                        authoredFixtureGiverPoint
+                ),
+            };
+            const std::uint32_t extractionInitialHoldSteps =
+                options.settleStepLimit == 0u
+                    ? kExtractionInitialHoldSteps
+                    : options.settleStepLimit;
+            // The fixture begins with the giver already seated at the normal
+            // 60 um LND preload. Do not add a second 75 um over-closure here:
+            // that step injects roll energy into the sub-gram curved needle
+            // before the receiver is present. One unchanged-target control
+            // step lets the live contact multipliers establish their warm
+            // start without prescribing any jaw motion.
+            const std::uint32_t extractionGiverLatchSteps = 1u;
+            std::vector<float> fixtureEfforts = interpolateTargets(
+                world.model,
+                world.model.defaultQ,
+                world.model.defaultQ,
+                kExtractionGiverPreloadSteps
+            );
+            PhaseResult giverPreloaded = initializePhase(
+                fixtureContext,
+                fixtureCompiled,
+                world,
+                fixtureStepConfig,
+                fixtureResident,
+                fixtureEfforts,
+                kExtractionGiverPreloadSteps
+            );
+            std::vector<float> giverLatchTarget =
+                giverPreloaded.result.finalQ;
+            std::vector<double> giverLatchedQ = armLocalQ(
+                world.model,
+                0u,
+                giverPreloaded.result.finalQ
+            );
+            giverLatchedQ[6] = -closeJawCoordinate;
+            giverLatchedQ[7] = closeJawCoordinate;
+            setArmTarget(
+                giverLatchTarget,
+                world.model,
+                0u,
+                giverLatchedQ
+            );
+            fixtureEfforts = interpolateTargets(
+                world.model,
+                giverPreloaded.result.finalQ,
+                giverLatchTarget,
+                extractionGiverLatchSteps
+            );
+            PhaseResult giverLatchMotion = continuePhase(
+                fixtureContext,
+                fixtureCompiled,
+                fixtureStepConfig,
+                fixtureResident,
+                fixtureEfforts,
+                extractionGiverLatchSteps,
+                "extraction giver latch"
+            );
+            fixtureEfforts = interpolateTargets(
+                world.model,
+                giverLatchMotion.result.finalQ,
+                giverLatchTarget,
+                extractionInitialHoldSteps
+            );
+            PhaseResult giverHeld = continuePhase(
+                fixtureContext,
+                fixtureCompiled,
+                fixtureStepConfig,
+                fixtureResident,
+                fixtureEfforts,
+                extractionInitialHoldSteps,
+                "extraction giver latch hold"
+            );
+            const ContactCounts giverHeldContacts = contactCounts(
+                world,
+                giverHeld.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            const RodStateMetrics giverHeldRod = rodStateMetrics(
+                world,
+                giverHeld.result
+            );
+            const MRMetalWorldContactStatusGPU& giverHoldResidual =
+                requireTerminalResidual(
+                    giverHeld.result,
+                    "extraction fixture giver hold",
+                    !receiverExtractionGiverHoldOnly
+                );
+            const GraspReference giverReference = graspReference(
+                world,
+                needleForPlacement,
+                giverHeld.result,
+                0u,
+                giverPlacementShape
+            );
+            const GraspKinematics giverHoldMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                giverHeld.result,
+                0u,
+                giverPlacementShape,
+                authoredFixtureGiverReference
+            );
+            const double giverHoldNeedleDisplacement = norm(
+                vector(giverHeld.result.finalSceneBodies.at(0u).position) -
+                vector(fixtureNeedle.position)
+            );
+            double maximumGiverHoldQError = 0.0;
+            std::uint32_t maximumGiverHoldQErrorArm = MR_INVALID_INDEX;
+            std::uint32_t maximumGiverHoldQErrorCoordinate =
+                MR_INVALID_INDEX;
+            for (const std::uint32_t arm : {0u, 1u}) {
+                const std::uint32_t qOffset =
+                    world.model.articulations.at(arm).qOffset + 7u;
+                for (std::uint32_t coordinate = 0u;
+                     coordinate < 8u;
+                     ++coordinate) {
+                    const double error = std::abs(
+                        static_cast<double>(
+                            giverHeld.result.finalQ.at(
+                                qOffset + coordinate
+                            )
+                        ) - giverLatchTarget.at(
+                            qOffset + coordinate
+                        )
+                    );
+                    if (error > maximumGiverHoldQError) {
+                        maximumGiverHoldQError = error;
+                        maximumGiverHoldQErrorArm = arm;
+                        maximumGiverHoldQErrorCoordinate = coordinate;
+                    }
+                }
+            }
+            const bool giverHoldQualified =
+                bilateral(giverHeldContacts, 0u) &&
+                    distributedInsertCoverage(giverHeldContacts, 0u) &&
+                    !bilateral(giverHeldContacts, 1u) &&
+                    cleanGiverNeedleInteraction(giverHeldContacts) &&
+                    qualifiedTerminalRod(giverHeldRod) &&
+                    qualifiedDrivenGrasp(giverHoldMotion);
+            if (receiverExtractionGiverHoldOnly) {
+                const double giverHoldSwageError = swageAttachmentError(
+                    world,
+                    giverHeld.result
+                );
+                const double giverHoldTangentError = swageTangentAngleError(
+                    world,
+                    giverHeld.result
+                );
+                std::cout << std::setprecision(9)
+                    << "{\"schema\":\"numi.distal-suture-giver-hold.v1\""
+                    << ",\"device\":\""
+                    << giverHeld.diagnostics.deviceName << "\""
+                    << ",\"hold_steps\":"
+                    << extractionInitialHoldSteps
+                    << ",\"preload_steps\":"
+                    << kExtractionGiverPreloadSteps
+                    << ",\"latch_steps\":"
+                    << extractionGiverLatchSteps
+                    << ",\"giver_contacts\":"
+                    << giverHeldContacts.jawContacts[0][0] +
+                           giverHeldContacts.jawContacts[0][1]
+                    << ",\"giver_jaw_contacts\":["
+                    << giverHeldContacts.jawContacts[0][0] << ','
+                    << giverHeldContacts.jawContacts[0][1] << ']'
+                    << ",\"giver_insert_patch_masks\":["
+                    << giverHeldContacts.jawInsertPatchMasks[0][0] << ','
+                    << giverHeldContacts.jawInsertPatchMasks[0][1] << ']'
+                    << ",\"giver_safe_zone_contacts\":"
+                    << giverHeldContacts.graspZoneContacts[0]
+                    << ",\"giver_seat_drift_m\":"
+                    << giverHoldMotion.seatDrift
+                    << ",\"giver_relative_point_speed_mps\":"
+                    << giverHoldMotion.relativePointSpeed
+                    << ",\"giver_relative_angular_speed_radps\":"
+                    << giverHoldMotion.relativeAngularSpeed
+                    << ",\"giver_relative_tangent_spin_radps\":"
+                    << giverHoldMotion.relativeNeedleTangentSpin
+                    << ",\"giver_jaw_point_speed_mps\":"
+                    << giverHoldMotion.jawPointSpeed
+                    << ",\"needle_point_speed_mps\":"
+                    << giverHoldMotion.needlePointSpeed
+                    << ",\"needle_body_displacement_m\":"
+                    << giverHoldNeedleDisplacement
+                    << ",\"maximum_arm_q_error\":"
+                    << maximumGiverHoldQError
+                    << ",\"maximum_arm_q_error_arm\":"
+                    << maximumGiverHoldQErrorArm
+                    << ",\"maximum_arm_q_error_coordinate\":"
+                    << maximumGiverHoldQErrorCoordinate
+                    << ",\"cross_arm_contacts\":"
+                    << giverHeldContacts.crossArmContacts
+                    << ",\"thread_max_node_speed_mps\":"
+                    << giverHeldRod.maximumNodeSpeed
+                    << ",\"thread_max_edge_length_error_m\":"
+                    << giverHeldRod.maximumEdgeLengthError
+                    << ",\"thread_minimum_clearance_m\":"
+                    << giverHeldRod.minimumNonNeighbourSurfaceClearance
+                    << ",\"hard_swage_root_error_m\":"
+                    << giverHoldSwageError
+                    << ",\"swage_tangent_angle_error_rad\":"
+                    << giverHoldTangentError
+                    << ",\"contact_velocity_residual_mps\":"
+                    << giverHoldResidual.residuals.y
+                    << ",\"contact_solver_iterations\":"
+                    << giverHoldResidual.solverIterations
+                    << ",\"cone_violation\":"
+                    << giverHoldResidual.residuals.z
+                    << ",\"failed_steps\":0"
+                    << ",\"gpu_ms\":"
+                    << giverPreloaded.diagnostics.gpuElapsedMilliseconds +
+                           giverLatchMotion.diagnostics
+                               .gpuElapsedMilliseconds +
+                           giverHeld.diagnostics.gpuElapsedMilliseconds
+                    << ",\"boundary\":\"dynamic post-puncture giver "
+                       "hold before receiver acquisition\"}\n";
+                require(
+                    giverHoldQualified &&
+                        giverHoldResidual.residuals.y <=
+                            kMaximumTerminalContactVelocityResidual &&
+                        giverHoldResidual.residuals.z <=
+                            kMaximumTerminalConeViolation,
+                    "giver-hold diagnostic did not meet terminal contact "
+                    "residual bounds"
+                );
+                return 0;
+            }
+            require(
+                giverHoldQualified,
+                "post-puncture fixture did not begin with sole stable "
+                "giver control: " + contactSummary(giverHeldContacts)
+            );
+
+            const MRBodyStateGPU& settledNeedle =
+                giverHeld.result.finalSceneBodies.at(0u);
+            const Vec3 liveReceiverPoint = needleShapeWorldCenter(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                settledNeedle
+            );
+            Vec3 liveReceiverRail = needleShapeWorldTangent(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                settledNeedle
+            );
+            if (dot(liveReceiverRail, receiverDesiredRail) < 0.0) {
+                liveReceiverRail = liveReceiverRail * -1.0;
+            }
+            const OrthonormalJawFrame liveReceiverFrame =
+                orthonormalJawFrame(
+                    liveReceiverRail,
+                    receiverDesiredSeparation,
+                    "live extraction receiver frame"
+                );
+            const JawGeometry receiverBeforeApproach = worldJawGeometry(
+                world.model,
+                1u,
+                giverHeld.result.finalQ,
+                giverHeld.result.finalV
+            );
+            const ArmTrajectory receiverApproach = frameArmTrajectory(
+                world.model,
+                psm,
+                1u,
+                receiverBase,
+                giverHeld.result.finalQ,
+                receiverBeforeApproach.midpoint,
+                liveReceiverPoint,
+                liveReceiverRail,
+                receiverDesiredSeparation,
+                openJawCoordinate,
+                openJawCoordinate,
+                kExtractionApproachSteps
+            );
+            const CrossArmCollisionScan approachPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    giverHeld.result.finalQ,
+                    receiverApproach.finalTarget,
+                    kExtractionApproachSteps,
+                    receiverApproach.desiredQ
+                );
+            std::uint32_t approachNeedleContactSamples = 0u;
+            for (std::uint32_t step = 0u;
+                 step < kExtractionApproachSteps;
+                 ++step) {
+                const std::span<const float> q{
+                    receiverApproach.desiredQ.data() +
+                        static_cast<std::size_t>(step) *
+                            world.model.world.nq,
+                    world.model.world.nq,
+                };
+                approachNeedleContactSamples +=
+                    observeKinematicNeedleContacts(
+                        world,
+                        needleForPlacement.metadata,
+                        q
+                    ).receiverNeedleContacts != 0u;
+            }
+            require(
+                receiverApproach.maximumVelocityRatio <=
+                        kMaximumCommandVelocityRatio &&
+                    approachPreflight.samplesWithContact == 0u &&
+                    approachPreflight.samplesWithGiverPadContact == 0u &&
+                    approachPreflight.samplesWithReceiverPadContact == 0u &&
+                    approachNeedleContactSamples == 0u,
+                "extraction receiver approach is not collision-free"
+            );
+            PhaseResult receiverApproachMotion = continuePhase(
+                fixtureContext,
+                fixtureCompiled,
+                fixtureStepConfig,
+                fixtureResident,
+                receiverApproach.efforts,
+                kExtractionApproachSteps,
+                "extraction receiver approach"
+            );
+            fixtureEfforts = interpolateTargets(
+                world.model,
+                receiverApproachMotion.result.finalQ,
+                receiverApproach.finalTarget,
+                kReceiverApproachSettleSteps
+            );
+            PhaseResult receiverApproached = continuePhase(
+                fixtureContext,
+                fixtureCompiled,
+                fixtureStepConfig,
+                fixtureResident,
+                fixtureEfforts,
+                kReceiverApproachSettleSteps,
+                "extraction receiver approach hold"
+            );
+            const ContactCounts approachedContacts = contactCounts(
+                world,
+                receiverApproached.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            const GraspKinematics approachedGiverMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                receiverApproached.result,
+                0u,
+                giverPlacementShape,
+                giverReference
+            );
+            requireTerminalResidual(
+                receiverApproached.result,
+                "extraction receiver approach hold"
+            );
+            require(
+                bilateral(approachedContacts, 0u) &&
+                    !bilateral(approachedContacts, 1u) &&
+                    cleanGiverNeedleInteraction(approachedContacts) &&
+                    qualifiedDrivenGrasp(approachedGiverMotion) &&
+                    qualifiedTerminalRod(
+                        rodStateMetrics(world, receiverApproached.result)
+                    ),
+                "giver lost the post-puncture needle during receiver "
+                "approach: " + contactSummary(approachedContacts)
+            );
+
+            std::vector<float> receiverOverlapTarget =
+                receiverApproach.finalTarget;
+            std::vector<double> receiverOverlap = armLocalQ(
+                world.model,
+                1u,
+                receiverApproached.result.finalQ
+            );
+            receiverOverlap[6] = -receiverOverlapJawCoordinate;
+            receiverOverlap[7] = receiverOverlapJawCoordinate;
+            setArmTarget(
+                receiverOverlapTarget,
+                world.model,
+                1u,
+                receiverOverlap
+            );
+            fixtureEfforts = interpolateTargets(
+                world.model,
+                receiverApproached.result.finalQ,
+                receiverOverlapTarget,
+                receiverOverlapTravelSteps
+            );
+            PhaseResult receiverClosureMotion = continuePhase(
+                fixtureContext,
+                fixtureCompiled,
+                fixtureStepConfig,
+                fixtureResident,
+                fixtureEfforts,
+                receiverOverlapTravelSteps,
+                "extraction receiver closure"
+            );
+            fixtureEfforts = interpolateTargets(
+                world.model,
+                receiverClosureMotion.result.finalQ,
+                receiverOverlapTarget,
+                kReceiverClosureSettleSteps
+            );
+            PhaseResult receiverOverlapHeld = continuePhase(
+                fixtureContext,
+                fixtureCompiled,
+                fixtureStepConfig,
+                fixtureResident,
+                fixtureEfforts,
+                kReceiverClosureSettleSteps,
+                "extraction receiver positive-control hold"
+            );
+            const ContactCounts overlapContacts = contactCounts(
+                world,
+                receiverOverlapHeld.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            const GraspKinematics overlapGiverMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                receiverOverlapHeld.result,
+                0u,
+                giverPlacementShape,
+                giverReference
+            );
+            const GraspReference overlapReceiverReference = graspReference(
+                world,
+                needleForPlacement,
+                receiverOverlapHeld.result,
+                1u,
+                kExtractionNeedleShape
+            );
+            requireTerminalResidual(
+                receiverOverlapHeld.result,
+                "extraction receiver positive-control hold"
+            );
+            require(
+                bilateral(overlapContacts, 0u) &&
+                    bilateral(overlapContacts, 1u) &&
+                    cleanNeedleInteraction(overlapContacts, true, true) &&
+                    qualifiedTransitionGrasp(overlapGiverMotion) &&
+                    qualifiedTerminalRod(
+                        rodStateMetrics(world, receiverOverlapHeld.result)
+                    ),
+                "distal receiver did not establish dual positive control: " +
+                    contactSummary(overlapContacts)
+            );
+
+            const std::uint32_t loadExchangeSteps =
+                static_cast<std::uint32_t>(std::ceil(
+                    3.0 * (
+                        receiverOverlapJawCoordinate -
+                        receiverTransportJawCoordinate
+                    ) / (0.18 * kControlTimestep)
+                )) + 4u;
+            std::vector<float> loadExchangeTarget =
+                receiverOverlapHeld.result.finalQ;
+            std::vector<double> giverLoadExchange = armLocalQ(
+                world.model,
+                0u,
+                receiverOverlapHeld.result.finalQ
+            );
+            giverLoadExchange[6] = -receiverOverlapJawCoordinate;
+            giverLoadExchange[7] = receiverOverlapJawCoordinate;
+            std::vector<double> receiverLoadExchange = armLocalQ(
+                world.model,
+                1u,
+                receiverOverlapHeld.result.finalQ
+            );
+            receiverLoadExchange[6] = -closeJawCoordinate;
+            receiverLoadExchange[7] = closeJawCoordinate;
+            setArmTarget(
+                loadExchangeTarget,
+                world.model,
+                0u,
+                giverLoadExchange
+            );
+            setArmTarget(
+                loadExchangeTarget,
+                world.model,
+                1u,
+                receiverLoadExchange
+            );
+            fixtureEfforts = interpolateTargets(
+                world.model,
+                receiverOverlapHeld.result.finalQ,
+                loadExchangeTarget,
+                loadExchangeSteps
+            );
+            PhaseResult loadExchangeMotion = continuePhase(
+                fixtureContext,
+                fixtureCompiled,
+                fixtureStepConfig,
+                fixtureResident,
+                fixtureEfforts,
+                loadExchangeSteps,
+                "distal receiver load exchange"
+            );
+            fixtureEfforts = interpolateTargets(
+                world.model,
+                loadExchangeMotion.result.finalQ,
+                loadExchangeTarget,
+                kLoadExchangeSettleSteps
+            );
+            PhaseResult loadExchanged = continuePhase(
+                fixtureContext,
+                fixtureCompiled,
+                fixtureStepConfig,
+                fixtureResident,
+                fixtureEfforts,
+                kLoadExchangeSettleSteps,
+                "distal receiver load-exchange hold"
+            );
+            const ContactCounts loadExchangeContacts = contactCounts(
+                world,
+                loadExchanged.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            const GraspKinematics loadExchangeReceiverMotion =
+                graspKinematics(
+                    world,
+                    needleForPlacement,
+                    loadExchanged.result,
+                    1u,
+                    kExtractionNeedleShape,
+                    overlapReceiverReference
+                );
+            requireTerminalResidual(
+                loadExchanged.result,
+                "distal receiver load-exchange hold"
+            );
+            require(
+                bilateral(loadExchangeContacts, 0u) &&
+                    bilateral(loadExchangeContacts, 1u) &&
+                    cleanNeedleInteraction(
+                        loadExchangeContacts,
+                        true,
+                        true
+                    ) &&
+                    qualifiedTransitionGrasp(
+                        loadExchangeReceiverMotion
+                    ) &&
+                    qualifiedTerminalRod(
+                        rodStateMetrics(world, loadExchanged.result)
+                    ),
+                "distal load exchange lost bilateral safe-zone control: " +
+                    contactSummary(loadExchangeContacts)
+            );
+            const GraspReference receiverReference = graspReference(
+                world,
+                needleForPlacement,
+                loadExchanged.result,
+                1u,
+                kExtractionNeedleShape
+            );
+
+            std::vector<float> giverReleaseTarget =
+                loadExchanged.result.finalQ;
+            std::vector<double> giverReleasedQ = armLocalQ(
+                world.model,
+                0u,
+                loadExchanged.result.finalQ
+            );
+            giverReleasedQ[6] = -openJawCoordinate;
+            giverReleasedQ[7] = openJawCoordinate;
+            setArmTarget(
+                giverReleaseTarget,
+                world.model,
+                0u,
+                giverReleasedQ
+            );
+            fixtureEfforts = interpolateTargets(
+                world.model,
+                loadExchanged.result.finalQ,
+                giverReleaseTarget,
+                receiverOverlapTravelSteps
+            );
+            PhaseResult releaseMotion = continuePhase(
+                fixtureContext,
+                fixtureCompiled,
+                fixtureStepConfig,
+                fixtureResident,
+                fixtureEfforts,
+                receiverOverlapTravelSteps,
+                "distal giver release"
+            );
+            fixtureEfforts = interpolateTargets(
+                world.model,
+                releaseMotion.result.finalQ,
+                giverReleaseTarget,
+                kGiverReleaseSettleSteps
+            );
+            PhaseResult released = continuePhase(
+                fixtureContext,
+                fixtureCompiled,
+                fixtureStepConfig,
+                fixtureResident,
+                fixtureEfforts,
+                kGiverReleaseSettleSteps,
+                "distal receiver sole-control hold"
+            );
+            const ContactCounts releaseContacts = contactCounts(
+                world,
+                released.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            const GraspKinematics releaseReceiverMotion = graspKinematics(
+                world,
+                needleForPlacement,
+                released.result,
+                1u,
+                kExtractionNeedleShape,
+                receiverReference
+            );
+            requireTerminalResidual(
+                released.result,
+                "distal receiver sole-control hold"
+            );
+            require(
+                !bilateral(releaseContacts, 0u) &&
+                    bilateral(releaseContacts, 1u) &&
+                    cleanNeedleInteraction(
+                        releaseContacts,
+                        false,
+                        true
+                    ) &&
+                    qualifiedDrivenGrasp(releaseReceiverMotion) &&
+                    qualifiedTerminalRod(
+                        rodStateMetrics(world, released.result)
+                    ),
+                "receiver did not retain sole control after giver release: " +
+                    contactSummary(releaseContacts)
+            );
+
+            const JawGeometry receiverBeforeExtraction = worldJawGeometry(
+                world.model,
+                1u,
+                released.result.finalQ,
+                released.result.finalV
+            );
+            const OrthonormalJawFrame extractionFrame =
+                orthonormalJawFrame(
+                    receiverBeforeExtraction.railDirection,
+                    receiverBeforeExtraction.separationDirection,
+                    "loaded receiver extraction frame"
+                );
+            const Vec3 extractionTargetPoint =
+                receiverBeforeExtraction.midpoint +
+                liveReceiverFrame.normal * kReceiverTransfer;
+            const ArmTrajectory receiverExtraction = frameArmTrajectory(
+                world.model,
+                psm,
+                1u,
+                receiverBase,
+                released.result.finalQ,
+                receiverBeforeExtraction.midpoint,
+                extractionTargetPoint,
+                extractionFrame.rail,
+                extractionFrame.separation,
+                closeJawCoordinate,
+                receiverTransportJawCoordinate,
+                kReceiverTransferSteps
+            );
+            const CrossArmCollisionScan extractionPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    released.result.finalQ,
+                    receiverExtraction.finalTarget,
+                    kReceiverTransferSteps,
+                    receiverExtraction.desiredQ
+                );
+            require(
+                receiverExtraction.maximumVelocityRatio <=
+                        kMaximumCommandVelocityRatio &&
+                    extractionPreflight.samplesWithContact == 0u &&
+                    extractionPreflight.samplesWithGiverPadContact == 0u &&
+                    extractionPreflight.samplesWithReceiverPadContact == 0u,
+                "loaded distal extraction intersects an instrument or pad"
+            );
+            const Vec3 needleBeforeExtraction = needleShapeWorldCenter(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                released.result.finalSceneBodies.at(0u)
+            );
+            PhaseResult extractionMotion = continuePhase(
+                fixtureContext,
+                fixtureCompiled,
+                fixtureStepConfig,
+                fixtureResident,
+                receiverExtraction.efforts,
+                kReceiverTransferSteps,
+                "loaded distal extraction"
+            );
+            fixtureEfforts = interpolateTargets(
+                world.model,
+                extractionMotion.result.finalQ,
+                receiverExtraction.finalTarget,
+                kReceiverTransferSettleSteps
+            );
+            PhaseResult extracted = continuePhase(
+                fixtureContext,
+                fixtureCompiled,
+                fixtureStepConfig,
+                fixtureResident,
+                fixtureEfforts,
+                kReceiverTransferSettleSteps,
+                "loaded distal extraction hold"
+            );
+            const Vec3 needleAfterExtraction = needleShapeWorldCenter(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                extracted.result.finalSceneBodies.at(0u)
+            );
+            const Vec3 needleExtractionDelta =
+                needleAfterExtraction - needleBeforeExtraction;
+            const double receiverFollow = norm(needleExtractionDelta);
+            const double receiverProjectedFollow = dot(
+                needleExtractionDelta,
+                liveReceiverFrame.normal
+            );
+            const ContactCounts extractionContacts = contactCounts(
+                world,
+                extracted.result,
+                needleForPlacement.metadata,
+                kNeedleFirstShape
+            );
+            const GraspKinematics extractionReceiverMotion =
+                graspKinematics(
+                    world,
+                    needleForPlacement,
+                    extracted.result,
+                    1u,
+                    kExtractionNeedleShape,
+                    receiverReference
+                );
+            const RodStateMetrics extractionRod = rodStateMetrics(
+                world,
+                extracted.result
+            );
+            const double extractionSwageError = swageAttachmentError(
+                world,
+                extracted.result
+            );
+            const double extractionTangentError = swageTangentAngleError(
+                world,
+                extracted.result
+            );
+            const MRMetalWorldContactStatusGPU& extractionResidual =
+                requireTerminalResidual(
+                    extracted.result,
+                    "loaded distal extraction hold"
+                );
+            require(
+                !bilateral(extractionContacts, 0u) &&
+                    bilateral(extractionContacts, 1u) &&
+                    cleanNeedleInteraction(
+                        extractionContacts,
+                        false,
+                        true
+                    ) &&
+                    qualifiedDrivenGrasp(extractionReceiverMotion) &&
+                    qualifiedTerminalRod(extractionRod) &&
+                    receiverFollow > kMinimumReceiverTransfer &&
+                    receiverProjectedFollow > kMinimumReceiverTransfer &&
+                    extractionSwageError <
+                        kMaximumSwageAttachmentError &&
+                    extractionTangentError <
+                        maximumSwageTangentAngleError(world),
+                "loaded receiver extraction did not carry the dynamic "
+                "needle and thread: " + contactSummary(extractionContacts)
+            );
+
+            const std::uint64_t successfulSteps =
+                kExtractionGiverPreloadSteps +
+                extractionGiverLatchSteps +
+                extractionInitialHoldSteps +
+                kExtractionApproachSteps +
+                kReceiverApproachSettleSteps +
+                receiverOverlapTravelSteps +
+                kReceiverClosureSettleSteps +
+                loadExchangeSteps +
+                kLoadExchangeSettleSteps +
+                receiverOverlapTravelSteps +
+                kGiverReleaseSettleSteps +
+                kReceiverTransferSteps +
+                kReceiverTransferSettleSteps;
+            const double gpuMilliseconds =
+                giverPreloaded.diagnostics.gpuElapsedMilliseconds +
+                giverLatchMotion.diagnostics.gpuElapsedMilliseconds +
+                giverHeld.diagnostics.gpuElapsedMilliseconds +
+                receiverApproachMotion.diagnostics.gpuElapsedMilliseconds +
+                receiverApproached.diagnostics.gpuElapsedMilliseconds +
+                receiverClosureMotion.diagnostics.gpuElapsedMilliseconds +
+                receiverOverlapHeld.diagnostics.gpuElapsedMilliseconds +
+                loadExchangeMotion.diagnostics.gpuElapsedMilliseconds +
+                loadExchanged.diagnostics.gpuElapsedMilliseconds +
+                releaseMotion.diagnostics.gpuElapsedMilliseconds +
+                released.diagnostics.gpuElapsedMilliseconds +
+                extractionMotion.diagnostics.gpuElapsedMilliseconds +
+                extracted.diagnostics.gpuElapsedMilliseconds;
+            const auto fixtureStats = fixtureContext.stats();
+            std::cout << std::setprecision(9)
+                << "{\"schema\":\"numi.distal-suture-extraction-fixture.v1\""
+                << ",\"device\":\"" << extracted.diagnostics.deviceName
+                << "\""
+                << ",\"needle_shape\":" << kExtractionNeedleShape
+                << ",\"giver_needle_shape\":"
+                << giverPlacementShape
+                << ",\"needle_arc_mm\":"
+                << 1000.0 * sutureSpec.needle.arcLengthM.value
+                << ",\"suture_size\":\"3-0\""
+                << ",\"thread_diameter_mm\":"
+                << 2000.0 * sutureSpec.threadRadiusM.value
+                << ",\"approach_standoff_m\":"
+                << kExtractionApproachStandOffM
+                << ",\"extraction_working_gap_m\":"
+                << options.extractionWorkingGapM
+                << ",\"giver_needle_axis_roll_rad\":"
+                << options.extractionGiverNeedleAxisRoll
+                << ",\"approach_velocity_ratio\":"
+                << receiverApproach.maximumVelocityRatio
+                << ",\"approach_needle_contact_samples\":"
+                << approachNeedleContactSamples
+                << ",\"overlap_giver_contacts\":"
+                << overlapContacts.jawContacts[0][0] +
+                       overlapContacts.jawContacts[0][1]
+                << ",\"overlap_receiver_contacts\":"
+                << overlapContacts.jawContacts[1][0] +
+                       overlapContacts.jawContacts[1][1]
+                << ",\"release_receiver_seat_drift_m\":"
+                << releaseReceiverMotion.seatDrift
+                << ",\"receiver_follow_m\":" << receiverFollow
+                << ",\"receiver_projected_follow_m\":"
+                << receiverProjectedFollow
+                << ",\"receiver_seat_drift_m\":"
+                << extractionReceiverMotion.seatDrift
+                << ",\"receiver_relative_point_speed_mps\":"
+                << extractionReceiverMotion.relativePointSpeed
+                << ",\"receiver_relative_angular_speed_radps\":"
+                << extractionReceiverMotion.relativeAngularSpeed
+                << ",\"thread_max_node_speed_mps\":"
+                << extractionRod.maximumNodeSpeed
+                << ",\"thread_max_edge_length_error_m\":"
+                << extractionRod.maximumEdgeLengthError
+                << ",\"thread_minimum_clearance_m\":"
+                << extractionRod.minimumNonNeighbourSurfaceClearance
+                << ",\"hard_swage_root_error_m\":"
+                << extractionSwageError
+                << ",\"swage_tangent_angle_error_rad\":"
+                << extractionTangentError
+                << ",\"terminal_contact_velocity_residual_mps\":"
+                << extractionResidual.residuals.y
+                << ",\"terminal_cone_violation\":"
+                << extractionResidual.residuals.z
+                << ",\"successful_steps\":" << successfulSteps
+                << ",\"failed_steps\":0"
+                << ",\"gpu_ms\":" << gpuMilliseconds
+                << ",\"resident_bytes\":"
+                << fixtureStats.retainedBufferBytes
+                << ",\"dynamic_needle\":true"
+                << ",\"hard_swage\":true"
+                << ",\"sole_receiver_control\":true"
+                << ",\"boundary\":\"post-puncture fixture without "
+                   "continuous tissue contact\"}\n";
+            return 0;
+        }
 
         const auto giverStart = psmTarget(
             psm,
