@@ -88,6 +88,24 @@ separate physical qualification boundaries.
   --tissue-curved-passage-only
 ```
 
+The receiver-side frame qualification now respects the same handling rule
+instead of reaching for the newly exposed tip. It advances the analytic needle
+orbit by 1.8878 rad until shape 18, 13.975 mm of arc behind the point and one
+segment inside the authored one-third-to-one-half handling interval, has 120 um
+of full-capsule clearance beyond the distal tissue surface. A six-coordinate
+damped IK solves jaw midpoint, rail tangent, and roll about the needle under
+the source PSM limits. The selected 10 mm insert-normal approach retained
+3.786 mm clearance above the catch pad, had no incidental needle or cross-arm
+contacts, and closed to 8/8 jaw contacts with all 16 raw contacts in the safe
+zone. This fast gate is kinematic and collision geometry only. Continuous
+shaft/tissue contact through the remaining curved passage and dynamic receiver
+extraction remain open and are not inferred from it.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --receiver-frame-ik-only
+```
+
 ## Loaded PDO knot-contact mechanics
 
 The rod solver now resolves a bounded network of frictional thread/thread

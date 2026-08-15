@@ -26,6 +26,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -81,6 +82,11 @@ constexpr std::uint32_t kNeedleFirstShape =
     2u * metalrobo::kSurgicalPSMShapeCount;
 constexpr std::uint32_t kGiverNeedleShape = 14u;
 constexpr std::uint32_t kReceiverNeedleShape = 19u;
+// The distal-side extraction fixture centers one segment inside the authored
+// handling interval. Centering on the exclusive boundary-adjacent shape 19
+// lets finite jaw patches also touch shape 20, beyond the one-third-to-one-half
+// handling zone, even though the centreline target itself is valid.
+constexpr std::uint32_t kExtractionNeedleShape = 18u;
 constexpr double kControlTimestep = 0.002;
 constexpr std::uint32_t kPhysicsSubsteps = 32u;
 // The first puncture gate is intentionally a research qualification value,
@@ -106,6 +112,10 @@ constexpr double kCurvedPassageExitClearanceM = 1.0e-4;
 constexpr double kCurvedPassageMaximumExtensionM = 5.0e-4;
 constexpr std::uint32_t kCurvedPassageChunkSteps = 32u;
 constexpr std::uint32_t kCurvedPassageContactSegmentCount = 2u;
+// The receiver-frame construction targets 20 um beyond the accepted 100 um
+// distal clearance so FP32 pose storage cannot turn an exactly-on-threshold
+// geometric construction into a false safe-side grasp.
+constexpr double kReceiverDistalClearanceMarginM = 2.0e-5;
 // Place the qualification bite 3 mm from the enterotomy centreline. This is
 // an explicit training geometry pending procedure- and specimen-specific bite
 // calibration, and is never reported as a clinical recommendation.
@@ -265,6 +275,14 @@ constexpr double kReceiverWristYaw = -0.30;
 // and 8/8 receiver contacts. Neighbouring +/-0.05 rad samples remain clean.
 constexpr double kReceiverBaseAzimuthOffset = 2.95;
 constexpr double kReceiverNeedleAxisRoll = 2.55;
+// Distal-side access uses a suspended vertical coupon rather than the pickup
+// pad. A 5 mm working gap admits the 8 mm LND envelope below the needle while
+// retaining the pad as a distant catch surface for the free strand. The
+// extraction-specific port roll was selected by the exact collision sweep;
+// the neutral-zone handoff keeps its independently qualified posture above.
+constexpr double kExtractionWorkingGapM = 5.0e-3;
+constexpr double kExtractionReceiverBaseAzimuthOffset = 0.0;
+constexpr double kExtractionReceiverNeedleAxisRoll = -1.0;
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -1480,6 +1498,317 @@ std::vector<double> solvePsmJawTarget(
             std::to_string(residual)
     );
     return q;
+}
+
+struct OrthonormalJawFrame {
+    Vec3 rail{};
+    Vec3 separation{};
+    Vec3 normal{};
+};
+
+OrthonormalJawFrame orthonormalJawFrame(
+    const Vec3 rail,
+    const Vec3 separation,
+    const std::string_view name
+) {
+    const double railLength = norm(rail);
+    require(
+        railLength > 1.0e-12 && std::isfinite(railLength),
+        std::string(name) + " rail direction is degenerate"
+    );
+    OrthonormalJawFrame frame;
+    frame.rail = rail * (1.0 / railLength);
+    const Vec3 transverse = separation -
+        frame.rail * dot(frame.rail, separation);
+    const double transverseLength = norm(transverse);
+    require(
+        transverseLength > 1.0e-12 &&
+            std::isfinite(transverseLength),
+        std::string(name) + " separation direction is degenerate"
+    );
+    frame.separation = transverse * (1.0 / transverseLength);
+    frame.normal = cross(frame.rail, frame.separation);
+    const double normalLength = norm(frame.normal);
+    require(
+        normalLength > 1.0e-12 && std::isfinite(normalLength),
+        std::string(name) + " normal direction is degenerate"
+    );
+    frame.normal = frame.normal * (1.0 / normalLength);
+    return frame;
+}
+
+Vec3 jawFrameOrientationError(
+    const OrthonormalJawFrame& current,
+    const OrthonormalJawFrame& desired
+) {
+    return (
+        cross(current.rail, desired.rail) +
+        cross(current.separation, desired.separation) +
+        cross(current.normal, desired.normal)
+    ) * 0.5;
+}
+
+using Vector6 = std::array<double, 6u>;
+using Matrix6 = std::array<Vector6, 6u>;
+
+bool solveDenseSixBySix(
+    Matrix6 matrix,
+    Vector6 rightHandSide,
+    Vector6& solution
+) {
+    for (std::size_t pivot = 0u; pivot < matrix.size(); ++pivot) {
+        std::size_t best = pivot;
+        double bestMagnitude = std::abs(matrix[pivot][pivot]);
+        for (std::size_t row = pivot + 1u;
+             row < matrix.size();
+             ++row) {
+            const double magnitude = std::abs(matrix[row][pivot]);
+            if (magnitude > bestMagnitude) {
+                best = row;
+                bestMagnitude = magnitude;
+            }
+        }
+        if (!(bestMagnitude > 1.0e-14) ||
+            !std::isfinite(bestMagnitude)) {
+            return false;
+        }
+        if (best != pivot) {
+            std::swap(matrix[pivot], matrix[best]);
+            std::swap(rightHandSide[pivot], rightHandSide[best]);
+        }
+        const double inversePivot = 1.0 / matrix[pivot][pivot];
+        for (std::size_t row = pivot + 1u;
+             row < matrix.size();
+             ++row) {
+            const double factor = matrix[row][pivot] * inversePivot;
+            matrix[row][pivot] = 0.0;
+            for (std::size_t column = pivot + 1u;
+                 column < matrix.size();
+                 ++column) {
+                matrix[row][column] -= factor * matrix[pivot][column];
+            }
+            rightHandSide[row] -= factor * rightHandSide[pivot];
+        }
+    }
+    for (std::size_t reverse = 0u;
+         reverse < matrix.size();
+         ++reverse) {
+        const std::size_t row = matrix.size() - 1u - reverse;
+        double value = rightHandSide[row];
+        for (std::size_t column = row + 1u;
+             column < matrix.size();
+             ++column) {
+            value -= matrix[row][column] * solution[column];
+        }
+        solution[row] = value / matrix[row][row];
+        if (!std::isfinite(solution[row])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+struct JawFrameIKSolution {
+    std::vector<double> localQ;
+    double positionResidual = std::numeric_limits<double>::infinity();
+    double orientationResidual = std::numeric_limits<double>::infinity();
+    std::uint32_t iterations = 0u;
+};
+
+JawFrameIKSolution solvePsmJawFrameTarget(
+    const metalrobo::EngineModel& model,
+    const metalrobo::SurgicalBasePose& base,
+    std::vector<double> q,
+    const Vec3 desiredWorldPoint,
+    const Vec3 desiredWorldRail,
+    const Vec3 desiredWorldSeparation,
+    const double jawCoordinate
+) {
+    require(
+        q.size() == 8u && model.dofs.size() >= 8u &&
+            std::isfinite(jawCoordinate),
+        "PSM jaw-frame IK seed has invalid dimensions"
+    );
+    q[6] = -jawCoordinate;
+    q[7] = jawCoordinate;
+    const Quaternion baseRotation{
+        base.orientation[0],
+        base.orientation[1],
+        base.orientation[2],
+        base.orientation[3],
+    };
+    const Vec3 basePosition{
+        base.position[0],
+        base.position[1],
+        base.position[2],
+    };
+    const Quaternion inverseBase = conjugate(baseRotation);
+    const Vec3 desiredPoint = rotate(
+        inverseBase,
+        desiredWorldPoint - basePosition
+    );
+    const OrthonormalJawFrame desiredFrame = orthonormalJawFrame(
+        rotate(inverseBase, desiredWorldRail),
+        rotate(inverseBase, desiredWorldSeparation),
+        "desired PSM jaw frame"
+    );
+    constexpr std::array<double, 6u> increments{
+        1.0e-4,
+        1.0e-4,
+        1.0e-5,
+        1.0e-4,
+        1.0e-4,
+        1.0e-4,
+    };
+    constexpr double positionScale = 100.0;
+    constexpr double dampingSquared = 1.0e-5;
+    constexpr std::array<double, 6u> maximumCorrection{
+        0.08,
+        0.08,
+        0.004,
+        0.08,
+        0.08,
+        0.08,
+    };
+    const auto taskError = [&](const std::vector<double>& value,
+                               Vector6& error,
+                               JawGeometry& jaw,
+                               OrthonormalJawFrame& frame) {
+        jaw = jawGeometry(model, value);
+        frame = orthonormalJawFrame(
+            jaw.railDirection,
+            jaw.separationDirection,
+            "current PSM jaw frame"
+        );
+        const Vec3 positionError = desiredPoint - jaw.midpoint;
+        const Vec3 orientationError = jawFrameOrientationError(
+            frame,
+            desiredFrame
+        );
+        error = {
+            positionScale * positionError.x,
+            positionScale * positionError.y,
+            positionScale * positionError.z,
+            orientationError.x,
+            orientationError.y,
+            orientationError.z,
+        };
+    };
+
+    JawFrameIKSolution result;
+    for (std::uint32_t iteration = 0u; iteration < 80u; ++iteration) {
+        Vector6 error{};
+        JawGeometry currentJaw;
+        OrthonormalJawFrame currentFrame;
+        taskError(q, error, currentJaw, currentFrame);
+        const double positionResidual = norm(
+            desiredPoint - currentJaw.midpoint
+        );
+        const double orientationResidual = norm(
+            jawFrameOrientationError(currentFrame, desiredFrame)
+        );
+        if (positionResidual <= 5.0e-6 &&
+            orientationResidual <= 2.0e-3) {
+            result.localQ = q;
+            result.positionResidual = positionResidual;
+            result.orientationResidual = orientationResidual;
+            result.iterations = iteration;
+            return result;
+        }
+
+        std::array<Vector6, 6u> columns{};
+        for (std::size_t coordinate = 0u;
+             coordinate < columns.size();
+             ++coordinate) {
+            std::vector<double> perturbed = q;
+            perturbed[coordinate] += increments[coordinate];
+            const JawGeometry perturbedJaw = jawGeometry(model, perturbed);
+            const OrthonormalJawFrame perturbedFrame =
+                orthonormalJawFrame(
+                    perturbedJaw.railDirection,
+                    perturbedJaw.separationDirection,
+                    "perturbed PSM jaw frame"
+                );
+            const Vec3 angularIncrement = (
+                cross(currentFrame.rail, perturbedFrame.rail) +
+                cross(
+                    currentFrame.separation,
+                    perturbedFrame.separation
+                ) +
+                cross(currentFrame.normal, perturbedFrame.normal)
+            ) * (0.5 / increments[coordinate]);
+            const Vec3 pointIncrement =
+                (perturbedJaw.midpoint - currentJaw.midpoint) *
+                (positionScale / increments[coordinate]);
+            columns[coordinate] = {
+                pointIncrement.x,
+                pointIncrement.y,
+                pointIncrement.z,
+                angularIncrement.x,
+                angularIncrement.y,
+                angularIncrement.z,
+            };
+        }
+        Matrix6 normal{};
+        Vector6 rightHandSide{};
+        for (std::size_t row = 0u; row < normal.size(); ++row) {
+            for (std::size_t column = 0u;
+                 column < normal.size();
+                 ++column) {
+                for (std::size_t task = 0u;
+                     task < error.size();
+                     ++task) {
+                    normal[row][column] +=
+                        columns[row][task] * columns[column][task];
+                }
+            }
+            normal[row][row] += dampingSquared;
+            for (std::size_t task = 0u; task < error.size(); ++task) {
+                rightHandSide[row] += columns[row][task] * error[task];
+            }
+        }
+        Vector6 correction{};
+        require(
+            solveDenseSixBySix(normal, rightHandSide, correction),
+            "PSM jaw-frame IK reached a singular damped system"
+        );
+        for (std::size_t coordinate = 0u;
+             coordinate < correction.size();
+             ++coordinate) {
+            const double bounded = std::clamp(
+                correction[coordinate],
+                -maximumCorrection[coordinate],
+                maximumCorrection[coordinate]
+            );
+            q[coordinate] = std::clamp(
+                q[coordinate] + bounded,
+                static_cast<double>(model.dofs[coordinate].limits.x),
+                static_cast<double>(model.dofs[coordinate].limits.y)
+            );
+        }
+        q[6] = -jawCoordinate;
+        q[7] = jawCoordinate;
+    }
+
+    Vector6 finalError{};
+    JawGeometry finalJaw;
+    OrthonormalJawFrame finalFrame;
+    taskError(q, finalError, finalJaw, finalFrame);
+    result.localQ = std::move(q);
+    result.positionResidual = norm(desiredPoint - finalJaw.midpoint);
+    result.orientationResidual = norm(
+        jawFrameOrientationError(finalFrame, desiredFrame)
+    );
+    result.iterations = 80u;
+    require(
+        result.positionResidual <= 2.0e-5 &&
+            result.orientationResidual <= 1.0e-2,
+        "PSM jaw-frame IK did not converge: position_residual=" +
+            std::to_string(result.positionResidual) +
+            " orientation_residual=" +
+            std::to_string(result.orientationResidual)
+    );
+    return result;
 }
 
 std::vector<double> armLocalQ(
@@ -3330,6 +3659,7 @@ CrossArmCollisionScan scanCrossArmTargetPath(
 struct KinematicNeedleObservation {
     std::array<std::uint32_t, 2u> receiverJawContacts{};
     std::uint32_t receiverGraspZoneContacts = 0u;
+    std::uint32_t receiverNeedleContacts = 0u;
     std::uint32_t crossArmContacts = 0u;
     double minimumCrossArmSeparation =
         std::numeric_limits<double>::infinity();
@@ -3394,6 +3724,12 @@ KinematicNeedleObservation observeKinematicNeedleContacts(
             world.model.shapes.at(pair.colliderA).bodyIndex;
         const std::uint32_t bodyB =
             world.model.shapes.at(pair.colliderB).bodyIndex;
+        const bool receiverNeedle =
+            (articulationOwnsBody(world.model, 1u, bodyA) &&
+             bodyB == needleBody) ||
+            (articulationOwnsBody(world.model, 1u, bodyB) &&
+             bodyA == needleBody);
+        observation.receiverNeedleContacts += receiverNeedle;
         for (std::uint32_t jaw = 0u; jaw < 2u; ++jaw) {
             const std::uint32_t jawBody = receiverJawBodies[jaw];
             if (!((bodyA == jawBody && bodyB == needleBody) ||
@@ -3919,6 +4255,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-puncture-only" ||
             argument == "--tissue-puncture-advance-only" ||
             argument == "--tissue-curved-passage-only" ||
+            argument == "--receiver-frame-ik-only" ||
             argument == "--long-settle" ||
             argument == "--approach-only" ||
             argument == "--closure-only" ||
@@ -4409,8 +4746,9 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
          !result.receiverScanHandoffHeightIncrementProvided &&
          !result.receiverScanHandoffOffsetXProvided &&
          !result.receiverScanHandoffOffsetYProvided) ||
-            result.receiverCollisionScan,
-        "receiver posture overrides are diagnostic-scan-only"
+            result.receiverCollisionScan ||
+            result.mode == "--receiver-frame-ik-only",
+        "receiver posture overrides require a receiver geometry diagnostic"
     );
     require(
         result.resumePositiveControlOverlapPath.empty() ||
@@ -5060,6 +5398,8 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-puncture-advance-only";
         const bool tissueCurvedPassageOnly =
             options.mode == "--tissue-curved-passage-only";
+        const bool receiverFrameIkOnly =
+            options.mode == "--receiver-frame-ik-only";
         const bool tissueMatterOnly =
             tissueCouplingOnly || tissueRestOnly || tissuePunctureOnly;
         const bool approachOnly = options.mode == "--approach-only";
@@ -5269,7 +5609,8 @@ int main(const int argc, const char* const argv[]) {
             0.0,
             0.0,
             padTop - needleForPlacement.rigid.localAabbLowerM[2] -
-                kInitialSupportPenetration,
+                kInitialSupportPenetration +
+                (receiverFrameIkOnly ? kExtractionWorkingGapM : 0.0),
         };
         config.surgical.needlePose.position = {
             static_cast<float>(needlePosition.x),
@@ -5282,6 +5623,38 @@ int main(const int argc, const char* const argv[]) {
             kGiverNeedleShape,
             needlePosition
         );
+        const std::uint32_t receiverPlacementShape =
+            receiverFrameIkOnly
+                ? kExtractionNeedleShape : kReceiverNeedleShape;
+        const MRShapeGPU& receiverNeedleSegment =
+            needleForPlacement.rigid.shapes.at(
+                kExtractionNeedleShape
+            );
+        const double receiverToTipAngle =
+            0.5 * sutureSpec.needle.arcAngleRad.value -
+            needleShapeAngle(
+                sutureSpec.needle,
+                kExtractionNeedleShape
+            );
+        numi::matter::PorcineJejunumFungSpec receiverTissueSpec;
+        const double receiverRequiredAdvance =
+            receiverTissueSpec.thicknessM.value +
+            needleForPlacement.rigid.shapes.back().dimensions.x +
+            receiverNeedleSegment.dimensions.x +
+            receiverNeedleSegment.dimensions.y +
+            kPunctureInitialClearanceM +
+            kCurvedPassageExitClearanceM +
+            kReceiverDistalClearanceMarginM;
+        const double receiverRequiredSine =
+            receiverRequiredAdvance /
+            needleForPlacement.metadata.centerlineRadiusM;
+        require(
+            receiverRequiredSine > 0.0 &&
+                receiverRequiredSine < 1.0,
+            "safe receiver segment cannot clear the authored tissue wall"
+        );
+        const double receiverExtractionAngle =
+            receiverToTipAngle + std::asin(receiverRequiredSine);
         const Quaternion giverOrientation = multiply(
             rotationZ(needleShapeAngle(
                 sutureSpec.needle,
@@ -5293,11 +5666,24 @@ int main(const int argc, const char* const argv[]) {
             multiply(
                 rotationZ(needleShapeAngle(
                     sutureSpec.needle,
-                    kReceiverNeedleShape
-                ) + options.receiverBaseAzimuthOffset),
+                    receiverPlacementShape
+                ) +
+                    (receiverFrameIkOnly
+                        ? receiverExtractionAngle : 0.0) +
+                    (
+                        receiverFrameIkOnly &&
+                        !options.receiverBaseAzimuthOffsetProvided
+                            ? kExtractionReceiverBaseAzimuthOffset
+                            : options.receiverBaseAzimuthOffset
+                    )),
                 rotationX(std::numbers::pi)
             ),
-            rotationY(options.receiverNeedleAxisRoll)
+            rotationY(
+                receiverFrameIkOnly &&
+                !options.receiverNeedleAxisRollProvided
+                    ? kExtractionReceiverNeedleAxisRoll
+                    : options.receiverNeedleAxisRoll
+            )
         );
         config.surgical.robots.leftBase = basePose(
             giverOrientation,
@@ -5345,11 +5731,37 @@ int main(const int argc, const char* const argv[]) {
                 options.receiverScanHandoffHeightIncrement,
             }
             : kHandoffStagingOffset;
-        const Vec3 receiverPoint = needleShapeWorldCenter(
+        Vec3 receiverPoint = needleShapeWorldCenter(
             needleForPlacement,
-            kReceiverNeedleShape,
+            receiverPlacementShape,
             needlePosition
         ) + handoffStagingOffset + Vec3{0.0, 0.0, kHandoffLift};
+        if (receiverFrameIkOnly) {
+            MRBodyStateGPU placementNeedle{};
+            placementNeedle.position = {
+                static_cast<float>(needlePosition.x),
+                static_cast<float>(needlePosition.y),
+                static_cast<float>(needlePosition.z),
+                1.0f,
+            };
+            placementNeedle.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+            const CurvedNeedleOrbit placementOrbit = curvedNeedleOrbit(
+                needleForPlacement,
+                placementNeedle
+            );
+            const MRBodyStateGPU extractionPlacement = curvedNeedleTarget(
+                placementNeedle,
+                placementOrbit,
+                receiverExtractionAngle,
+                kCurvedPassageSpeedMps /
+                    placementOrbit.centerlineRadiusM
+            );
+            receiverPoint = needleShapeWorldCenter(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                extractionPlacement
+            );
+        }
         config.surgical.robots.rightBase = basePose(
             receiverOrientation,
             receiverLocalJaw.midpoint,
@@ -5684,6 +6096,379 @@ int main(const int argc, const char* const argv[]) {
         std::cerr << "handoff_phase=authored_reset"
             << " swage_material_frame_error_rad="
             << authoredMaterialFrameError << '\n';
+
+        if (receiverFrameIkOnly) {
+            const MRBodyStateGPU initialNeedle =
+                world.defaultSceneBodies.at(0u);
+            const auto receiverBase = armBasePose(
+                world.model,
+                1u,
+                world.model.defaultQ
+            );
+            const Quaternion receiverBaseRotation{
+                receiverBase.orientation[0],
+                receiverBase.orientation[1],
+                receiverBase.orientation[2],
+                receiverBase.orientation[3],
+            };
+            const CurvedNeedleOrbit orbit = curvedNeedleOrbit(
+                needleForPlacement,
+                initialNeedle
+            );
+            const NeedleTipCapsuleGeometry initialTip =
+                needleTipCapsuleGeometry(
+                    needleForPlacement,
+                    initialNeedle
+                );
+            const MRShapeGPU& receiverSegment =
+                receiverNeedleSegment;
+            const double extractionAngle = receiverExtractionAngle;
+            const MRBodyStateGPU extractionNeedle = curvedNeedleTarget(
+                initialNeedle,
+                orbit,
+                extractionAngle,
+                kCurvedPassageSpeedMps / orbit.centerlineRadiusM
+            );
+            const Vec3 desiredPoint = needleShapeWorldCenter(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                extractionNeedle
+            );
+            Vec3 desiredRail = needleShapeWorldTangent(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                extractionNeedle
+            );
+            std::vector<double> receiverNominal = psmTarget(
+                psm,
+                kReceiverHandoffInsertion,
+                openJawCoordinate,
+                kReceiverYaw,
+                kReceiverPitch
+            );
+            const JawGeometry nominalLocalJaw = jawGeometry(
+                psm,
+                receiverNominal
+            );
+            const Vec3 nominalWorldRail = rotate(
+                receiverBaseRotation,
+                nominalLocalJaw.railDirection
+            );
+            if (dot(desiredRail, nominalWorldRail) < 0.0) {
+                desiredRail = desiredRail * -1.0;
+            }
+            const Vec3 desiredSeparation = rotate(
+                receiverBaseRotation,
+                nominalLocalJaw.separationDirection
+            );
+            std::vector<double> receiverSeed = receiverNominal;
+            receiverSeed[0] += 0.08;
+            receiverSeed[1] -= 0.06;
+            receiverSeed[2] -= 0.003;
+            receiverSeed[3] -= 0.12;
+            receiverSeed[4] += 0.08;
+            receiverSeed[5] -= 0.08;
+            const JawFrameIKSolution extractionIK =
+                solvePsmJawFrameTarget(
+                    psm,
+                    receiverBase,
+                    std::move(receiverSeed),
+                    desiredPoint,
+                    desiredRail,
+                    desiredSeparation,
+                    openJawCoordinate
+                );
+
+            metalrobo::HeterogeneousWorld extractionWorld = world;
+            extractionWorld.defaultSceneBodies[0u] = extractionNeedle;
+            struct ApproachCandidate {
+                std::vector<double> startQ;
+                std::vector<double> finalQ;
+                std::uint32_t needleContactSamples =
+                    std::numeric_limits<std::uint32_t>::max();
+                std::uint32_t crossArmContactSamples =
+                    std::numeric_limits<std::uint32_t>::max();
+                double standOffM = 0.0;
+                double minimumPadGapM =
+                    -std::numeric_limits<double>::infinity();
+                double finalPositionResidualM =
+                    std::numeric_limits<double>::infinity();
+                double finalOrientationResidual =
+                    std::numeric_limits<double>::infinity();
+            };
+            const OrthonormalJawFrame desiredApproachFrame =
+                orthonormalJawFrame(
+                    desiredRail,
+                    desiredSeparation,
+                    "receiver approach frame"
+                );
+            constexpr std::uint32_t approachSamples = 80u;
+            ApproachCandidate approach;
+            for (const double direction : {-1.0, 1.0}) {
+                for (const double distance : {
+                         0.006,
+                         0.010,
+                         0.015,
+                         0.020,
+                     }) {
+                    ApproachCandidate candidate;
+                    candidate.standOffM = direction * distance;
+                    try {
+                        const Vec3 standOffPoint = desiredPoint +
+                            desiredApproachFrame.normal *
+                                candidate.standOffM;
+                        const JawFrameIKSolution standOff =
+                            solvePsmJawFrameTarget(
+                                psm,
+                                receiverBase,
+                                receiverNominal,
+                                standOffPoint,
+                                desiredRail,
+                                desiredSeparation,
+                                openJawCoordinate
+                            );
+                        candidate.startQ = standOff.localQ;
+                        candidate.finalQ = standOff.localQ;
+                        candidate.needleContactSamples = 0u;
+                        candidate.crossArmContactSamples = 0u;
+                        candidate.minimumPadGapM = minimumPsmPadGap(
+                            psm,
+                            candidate.startQ,
+                            receiverBase,
+                            padTop
+                        );
+                        for (std::uint32_t sample = 0u;
+                             sample < approachSamples;
+                             ++sample) {
+                            const double t =
+                                static_cast<double>(sample + 1u) /
+                                static_cast<double>(approachSamples);
+                            const double smooth =
+                                t * t * (3.0 - 2.0 * t);
+                            const Vec3 waypoint = standOffPoint +
+                                (desiredPoint - standOffPoint) * smooth;
+                            const JawFrameIKSolution waypointIK =
+                                solvePsmJawFrameTarget(
+                                    psm,
+                                    receiverBase,
+                                    candidate.finalQ,
+                                    waypoint,
+                                    desiredRail,
+                                    desiredSeparation,
+                                    openJawCoordinate
+                                );
+                            candidate.finalQ = waypointIK.localQ;
+                            candidate.finalPositionResidualM =
+                                waypointIK.positionResidual;
+                            candidate.finalOrientationResidual =
+                                waypointIK.orientationResidual;
+                            std::vector<float> sampleQ =
+                                world.model.defaultQ;
+                            setArmTarget(
+                                sampleQ,
+                                world.model,
+                                1u,
+                                candidate.finalQ
+                            );
+                            const KinematicNeedleObservation observation =
+                                observeKinematicNeedleContacts(
+                                    extractionWorld,
+                                    needleForPlacement.metadata,
+                                    sampleQ
+                                );
+                            candidate.needleContactSamples +=
+                                observation.receiverNeedleContacts != 0u;
+                            candidate.crossArmContactSamples +=
+                                observation.crossArmContacts != 0u;
+                            candidate.minimumPadGapM = std::min(
+                                candidate.minimumPadGapM,
+                                minimumPsmPadGap(
+                                    psm,
+                                    candidate.finalQ,
+                                    receiverBase,
+                                    padTop
+                                )
+                            );
+                        }
+                    } catch (const std::exception&) {
+                        continue;
+                    }
+                    const auto score = [](const ApproachCandidate& value) {
+                        return std::tuple{
+                            value.needleContactSamples,
+                            value.crossArmContactSamples,
+                            -value.minimumPadGapM,
+                            std::abs(value.standOffM),
+                        };
+                    };
+                    if (score(candidate) < score(approach)) {
+                        approach = std::move(candidate);
+                    }
+                }
+            }
+            require(
+                !approach.finalQ.empty(),
+                "receiver has no reachable insert-normal approach"
+            );
+            const std::uint32_t approachNeedleContactSamples =
+                approach.needleContactSamples;
+            std::vector<float> extractionOpenTarget =
+                world.model.defaultQ;
+            setArmTarget(
+                extractionOpenTarget,
+                world.model,
+                1u,
+                approach.finalQ
+            );
+            const KinematicNeedleObservation openObservation =
+                observeKinematicNeedleContacts(
+                    extractionWorld,
+                    needleForPlacement.metadata,
+                    extractionOpenTarget
+                );
+            std::vector<float> extractionClosedTarget =
+                extractionOpenTarget;
+            std::vector<double> extractionClosed =
+                approach.finalQ;
+            extractionClosed[6] = -receiverOverlapJawCoordinate;
+            extractionClosed[7] = receiverOverlapJawCoordinate;
+            setArmTarget(
+                extractionClosedTarget,
+                world.model,
+                1u,
+                extractionClosed
+            );
+            const KinematicNeedleObservation closedObservation =
+                observeKinematicNeedleContacts(
+                    extractionWorld,
+                    needleForPlacement.metadata,
+                    extractionClosedTarget
+                );
+
+            const Vec3 segmentCenter = needleShapeWorldCenter(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                extractionNeedle
+            );
+            const Vec3 segmentTangent = needleShapeWorldTangent(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                extractionNeedle
+            );
+            const Vec3 segmentEndpointA = segmentCenter -
+                segmentTangent * receiverSegment.dimensions.y;
+            const Vec3 segmentEndpointB = segmentCenter +
+                segmentTangent * receiverSegment.dimensions.y;
+            const Vec3 distalSurfacePoint = initialTip.worldTip +
+                initialTip.approachDirection * (
+                    initialTip.radiusM +
+                    kPunctureInitialClearanceM +
+                    receiverTissueSpec.thicknessM.value
+                );
+            const double receiverDistalClearance = std::min(
+                dot(
+                    segmentEndpointA - distalSurfacePoint,
+                    initialTip.approachDirection
+                ),
+                dot(
+                    segmentEndpointB - distalSurfacePoint,
+                    initialTip.approachDirection
+                )
+            ) - receiverSegment.dimensions.x;
+            const std::uint32_t closedJawContacts =
+                closedObservation.receiverJawContacts[0] +
+                closedObservation.receiverJawContacts[1];
+            require(
+                extractionAngle > receiverToTipAngle &&
+                    receiverDistalClearance >=
+                        kCurvedPassageExitClearanceM &&
+                    extractionIK.positionResidual <= 2.0e-5 &&
+                    extractionIK.orientationResidual <= 1.0e-2 &&
+                    approach.crossArmContactSamples == 0u &&
+                    approachNeedleContactSamples == 0u &&
+                    approach.minimumPadGapM > 5.0e-5 &&
+                    approach.finalPositionResidualM <= 2.0e-5 &&
+                    approach.finalOrientationResidual <= 1.0e-2 &&
+                    openObservation.receiverJawContacts[0] == 0u &&
+                    openObservation.receiverJawContacts[1] == 0u &&
+                    closedObservation.receiverJawContacts[0] >= 2u &&
+                    closedObservation.receiverJawContacts[1] >= 2u &&
+                    closedObservation.receiverGraspZoneContacts ==
+                        closedJawContacts &&
+                    closedObservation.receiverNeedleContacts ==
+                        closedJawContacts,
+                "orientation-aware receiver frame is not a safe-zone "
+                "acquisition: distal_clearance=" +
+                    std::to_string(receiverDistalClearance) +
+                    " ik_position=" +
+                    std::to_string(extractionIK.positionResidual) +
+                    " ik_orientation=" +
+                    std::to_string(extractionIK.orientationResidual) +
+                    " cross_arm=" +
+                    std::to_string(approach.crossArmContactSamples) +
+                    " approach_needle=" +
+                    std::to_string(approachNeedleContactSamples) +
+                    " pad_gap=" +
+                    std::to_string(approach.minimumPadGapM) +
+                    " open=" +
+                    std::to_string(
+                        openObservation.receiverJawContacts[0]
+                    ) + "/" +
+                    std::to_string(
+                        openObservation.receiverJawContacts[1]
+                    ) + " closed=" +
+                    std::to_string(
+                        closedObservation.receiverJawContacts[0]
+                    ) + "/" +
+                    std::to_string(
+                        closedObservation.receiverJawContacts[1]
+                    ) + " safe=" +
+                    std::to_string(
+                        closedObservation.receiverGraspZoneContacts
+                    ) + " receiver_total=" +
+                    std::to_string(
+                        closedObservation.receiverNeedleContacts
+                    )
+            );
+            std::cout << std::setprecision(9)
+                << "receiver_frame_ik=ok"
+                << " needle_shape=" << kExtractionNeedleShape
+                << " grasp_zone_begin="
+                << needleForPlacement.metadata.graspShapeBegin
+                << " grasp_zone_end_exclusive="
+                << needleForPlacement.metadata.graspShapeEnd
+                << " receiver_to_tip_arc_m="
+                << receiverToTipAngle * orbit.centerlineRadiusM
+                << " extraction_angle_rad=" << extractionAngle
+                << " receiver_distal_clearance_m="
+                << receiverDistalClearance
+                << " ik_iterations=" << extractionIK.iterations
+                << " ik_position_residual_m="
+                << extractionIK.positionResidual
+                << " ik_orientation_residual_rad="
+                << extractionIK.orientationResidual
+                << " approach_standoff_m=" << approach.standOffM
+                << " approach_cross_arm_contact_samples="
+                << approach.crossArmContactSamples
+                << " approach_needle_contact_samples="
+                << approachNeedleContactSamples
+                << " approach_minimum_pad_gap_m="
+                << approach.minimumPadGapM
+                << " approach_final_position_residual_m="
+                << approach.finalPositionResidualM
+                << " approach_final_orientation_residual_rad="
+                << approach.finalOrientationResidual
+                << " closed_jaw_contacts="
+                << closedObservation.receiverJawContacts[0] << '/'
+                << closedObservation.receiverJawContacts[1]
+                << " safe_zone_contacts="
+                << closedObservation.receiverGraspZoneContacts
+                << " receiver_needle_contacts="
+                << closedObservation.receiverNeedleContacts
+                << " boundary=kinematic_frame_and_collision_geometry_not_"
+                   "dynamic_extraction\n";
+            return 0;
+        }
 
         if (options.receiverAlignmentScan) {
             const JawGeometry receiverJaw = worldJawGeometry(

@@ -2444,6 +2444,18 @@ if(BUILD_TESTING)
             LABELS "metalrobo;matter;surgical;physics;metal;long"
             TIMEOUT 3600
     )
+    add_test(
+        NAME metalrobo.surgical.receiver_frame_ik
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --receiver-frame-ik-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.receiver_frame_ik
+        PROPERTIES
+            LABELS "metalrobo;surgical;kinematics"
+            TIMEOUT 180
+    )
     set(
         METALROBO_SUTURE_TEST_STATE
         "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/pickup.state.tsv"
