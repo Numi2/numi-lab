@@ -142,6 +142,22 @@ qualification boundaries.
   --state-output-dir /tmp/numi-distal-extraction
 ```
 
+Receiver closure now establishes dynamic dual positive control before either
+instrument changes load. A 240 ms cubic LND closure peaks at 0.154 rad/s,
+ending at the gentle 15 um overlap while the giver retains its 60 um seat,
+then holds both instruments for 200 ms. The Apple M4 endpoint covered the
+giver insert footprint with `0101`/`1111` masks and the receiver with
+`1111`/`1111`, retained 1.21 um giver seat drift and 3.60 um/s relative slip,
+limited strand speed to 0.509 mm/s, ended at 1.06 um hard-swage error and a
+0.529 mm/s live temporal-cone residual, and reported zero failed steps. This
+qualifies simultaneous control only; it does not yet claim load transfer,
+giver release, tissue extraction, or a knot.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --receiver-extraction-closure-only
+```
+
 ## Loaded PDO knot-contact mechanics
 
 The rod solver now resolves a bounded network of frictional thread/thread

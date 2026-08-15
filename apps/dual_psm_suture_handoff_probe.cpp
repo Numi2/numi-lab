@@ -4516,6 +4516,7 @@ struct Arguments {
     std::filesystem::path receiverGraspReferencePath;
     std::filesystem::path receiverTransferStartReferencePath;
     std::filesystem::path resumeExtractionGiverHoldPath;
+    std::filesystem::path resumeExtractionApproachPath;
     std::uint32_t resumeStagingCompletedSteps = 0u;
     bool resumeStagingCompletedStepsProvided = false;
     std::uint32_t resumeLiftStepLimit = kHandoffLiftSteps;
@@ -4572,6 +4573,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--receiver-extraction-geometry-only" ||
             argument == "--receiver-extraction-giver-hold-only" ||
             argument == "--receiver-extraction-approach-only" ||
+            argument == "--receiver-extraction-closure-only" ||
             argument == "--receiver-extraction-fixture-only" ||
             argument == "--long-settle" ||
             argument == "--approach-only" ||
@@ -4597,6 +4599,13 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "--resume-receiver-extraction-giver-hold requires one path"
             );
             result.resumeExtractionGiverHoldPath = argv[++index];
+        } else if (argument == "--resume-receiver-extraction-approach") {
+            require(
+                result.resumeExtractionApproachPath.empty() &&
+                    index + 1 < argc,
+                "--resume-receiver-extraction-approach requires one path"
+            );
+            result.resumeExtractionApproachPath = argv[++index];
         } else if (argument == "--receiver-collision-scan") {
             require(
                 !result.receiverCollisionScan,
@@ -5018,13 +5027,20 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         (!result.resumeGiverReleaseMotionPath.empty() ? 1u : 0u) +
         (!result.resumeGiverReleasePath.empty() ? 1u : 0u) +
         (!result.resumeReceiverTransferMotionPath.empty() ? 1u : 0u) +
-        (!result.resumeExtractionGiverHoldPath.empty() ? 1u : 0u);
+        (!result.resumeExtractionGiverHoldPath.empty() ? 1u : 0u) +
+        (!result.resumeExtractionApproachPath.empty() ? 1u : 0u);
     require(resumeCount <= 1u, "handoff resumes are mutually exclusive");
     require(
         result.resumeExtractionGiverHoldPath.empty() ||
             result.mode == "--receiver-extraction-approach-only" ||
             result.mode == "--receiver-extraction-fixture-only",
         "distal giver-hold resume requires an extraction continuation mode"
+    );
+    require(
+        result.resumeExtractionApproachPath.empty() ||
+            result.mode == "--receiver-extraction-closure-only" ||
+            result.mode == "--receiver-extraction-fixture-only",
+        "distal approach resume requires an extraction closure mode"
     );
     require(
         !result.resumeLiftStepLimitProvided ||
@@ -5135,6 +5151,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.mode == "--receiver-extraction-geometry-only" ||
             result.mode == "--receiver-extraction-giver-hold-only" ||
             result.mode == "--receiver-extraction-approach-only" ||
+            result.mode == "--receiver-extraction-closure-only" ||
             result.mode == "--receiver-extraction-fixture-only",
         "receiver posture overrides require a receiver geometry diagnostic"
     );
@@ -5146,6 +5163,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.mode == "--receiver-extraction-geometry-only" ||
             result.mode == "--receiver-extraction-giver-hold-only" ||
             result.mode == "--receiver-extraction-approach-only" ||
+            result.mode == "--receiver-extraction-closure-only" ||
             result.mode == "--receiver-extraction-fixture-only",
         "extraction posture overrides require a distal receiver diagnostic"
     );
@@ -5805,10 +5823,13 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--receiver-extraction-giver-hold-only";
         const bool receiverExtractionApproachOnly =
             options.mode == "--receiver-extraction-approach-only";
+        const bool receiverExtractionClosureOnly =
+            options.mode == "--receiver-extraction-closure-only";
         const bool receiverExtractionFixtureOnly =
             receiverExtractionGeometryOnly ||
             receiverExtractionGiverHoldOnly ||
             receiverExtractionApproachOnly ||
+            receiverExtractionClosureOnly ||
             options.mode == "--receiver-extraction-fixture-only";
         const bool receiverExtractionPose =
             receiverFrameIkOnly || receiverExtractionFixtureOnly;
@@ -5954,6 +5975,23 @@ int main(const int argc, const char* const argv[]) {
                     openJawCoordinate - receiverOverlapJawCoordinate
                 ) / (0.18 * kControlTimestep)
             )) + 4u;
+        const std::uint32_t extractionReceiverOverlapTravelSteps =
+            static_cast<std::uint32_t>(std::ceil(
+                1.5 * (
+                    openJawCoordinate - receiverOverlapJawCoordinate
+                ) /
+                (
+                    kMaximumCommandVelocityRatio *
+                    static_cast<double>(psm.dofs[6].limits.z) *
+                    kControlTimestep
+                )
+            )) + 4u;
+        require(
+            extractionReceiverOverlapTravelSteps > 4u &&
+                extractionReceiverOverlapTravelSteps <=
+                    receiverOverlapTravelSteps,
+            "distal receiver closure duration is outside the LND envelope"
+        );
         const auto giverPickupClosedNominal = psmTarget(
             psm,
             kPickupInsertion,
@@ -6801,10 +6839,17 @@ int main(const int argc, const char* const argv[]) {
             }
 
             std::uint64_t loadedExtractionStateStep = 0u;
-            if (!options.resumeExtractionGiverHoldPath.empty()) {
+            if (!options.resumeExtractionGiverHoldPath.empty() ||
+                !options.resumeExtractionApproachPath.empty()) {
+                const bool resumeApproach =
+                    !options.resumeExtractionApproachPath.empty();
                 loadedExtractionStateStep = loadHandoffState(
-                    options.resumeExtractionGiverHoldPath,
-                    "receiver-extraction-giver-hold",
+                    resumeApproach
+                        ? options.resumeExtractionApproachPath
+                        : options.resumeExtractionGiverHoldPath,
+                    resumeApproach
+                        ? "receiver-extraction-approach"
+                        : "receiver-extraction-giver-hold",
                     world
                 );
                 world.fingerprint =
@@ -6879,7 +6924,8 @@ int main(const int argc, const char* const argv[]) {
                 ),
             };
             const std::uint32_t extractionInitialHoldSteps =
-                !options.resumeExtractionGiverHoldPath.empty()
+                (!options.resumeExtractionGiverHoldPath.empty() ||
+                 !options.resumeExtractionApproachPath.empty())
                     ? 1u
                 : options.settleStepLimit == 0u
                     ? kExtractionInitialHoldSteps
@@ -7130,7 +7176,8 @@ int main(const int argc, const char* const argv[]) {
                 "post-puncture fixture did not begin with sole stable "
                 "giver control: " + contactSummary(giverHeldContacts)
             );
-            if (options.resumeExtractionGiverHoldPath.empty()) {
+            if (options.resumeExtractionGiverHoldPath.empty() &&
+                options.resumeExtractionApproachPath.empty()) {
                 writeHandoffStateArtifact(
                     options.stateOutputDirectory,
                     "receiver-extraction-giver-hold",
@@ -7168,6 +7215,14 @@ int main(const int argc, const char* const argv[]) {
                 giverHeld.result.finalQ,
                 giverHeld.result.finalV
             );
+            const bool resumedFromExtractionApproach =
+                !options.resumeExtractionApproachPath.empty();
+            const std::uint32_t receiverApproachSteps =
+                resumedFromExtractionApproach
+                    ? 1u : kExtractionApproachSteps;
+            const std::uint32_t receiverApproachSettleSteps =
+                resumedFromExtractionApproach
+                    ? 1u : kReceiverApproachSettleSteps;
             const ArmTrajectory receiverApproach = frameArmTrajectory(
                 world.model,
                 psm,
@@ -7180,14 +7235,14 @@ int main(const int argc, const char* const argv[]) {
                 receiverDesiredSeparation,
                 openJawCoordinate,
                 openJawCoordinate,
-                kExtractionApproachSteps
+                receiverApproachSteps
             );
             const CrossArmCollisionScan approachPreflight =
                 scanCrossArmTargetPath(
                     world,
                     giverHeld.result.finalQ,
                     receiverApproach.finalTarget,
-                    kExtractionApproachSteps,
+                    receiverApproachSteps,
                     receiverApproach.desiredQ
                 );
             std::uint32_t approachNeedleContactSamples = 0u;
@@ -7195,7 +7250,7 @@ int main(const int argc, const char* const argv[]) {
                 MR_INVALID_INDEX;
             KinematicNeedleObservation firstApproachNeedleContact;
             for (std::uint32_t step = 0u;
-                 step < kExtractionApproachSteps;
+                 step < receiverApproachSteps;
                  ++step) {
                 const std::span<const float> q{
                     receiverApproach.desiredQ.data() +
@@ -7276,14 +7331,14 @@ int main(const int argc, const char* const argv[]) {
                 fixtureStepConfig,
                 fixtureResident,
                 receiverApproach.efforts,
-                kExtractionApproachSteps,
+                receiverApproachSteps,
                 "extraction receiver approach"
             );
             fixtureEfforts = interpolateTargets(
                 world.model,
                 receiverApproachMotion.result.finalQ,
                 receiverApproach.finalTarget,
-                kReceiverApproachSettleSteps
+                receiverApproachSettleSteps
             );
             PhaseResult receiverApproached = continuePhase(
                 fixtureContext,
@@ -7291,7 +7346,7 @@ int main(const int argc, const char* const argv[]) {
                 fixtureStepConfig,
                 fixtureResident,
                 fixtureEfforts,
-                kReceiverApproachSettleSteps,
+                receiverApproachSettleSteps,
                 "extraction receiver approach hold"
             );
             const ContactCounts approachedContacts = contactCounts(
@@ -7330,8 +7385,8 @@ int main(const int argc, const char* const argv[]) {
             if (receiverExtractionApproachOnly) {
                 const std::uint64_t approachTerminalStep =
                     giverTerminalStep +
-                    kExtractionApproachSteps +
-                    kReceiverApproachSettleSteps;
+                    receiverApproachSteps +
+                    receiverApproachSettleSteps;
                 writeHandoffStateArtifact(
                     options.stateOutputDirectory,
                     "receiver-extraction-approach",
@@ -7345,10 +7400,10 @@ int main(const int argc, const char* const argv[]) {
                     << ",\"device\":\""
                     << receiverApproached.diagnostics.deviceName << "\""
                     << ",\"approach_steps\":"
-                    << kExtractionApproachSteps
+                    << receiverApproachSteps
                     << ",\"approach_peak_cartesian_speed_mps\":"
                     << 1.5 * kExtractionApproachStandOffM /
-                           (kExtractionApproachSteps * kControlTimestep)
+                           (receiverApproachSteps * kControlTimestep)
                     << ",\"approach_velocity_ratio\":"
                     << receiverApproach.maximumVelocityRatio
                     << ",\"approach_needle_contact_samples\":"
@@ -7413,7 +7468,7 @@ int main(const int argc, const char* const argv[]) {
                 world.model,
                 receiverApproached.result.finalQ,
                 receiverOverlapTarget,
-                receiverOverlapTravelSteps
+                extractionReceiverOverlapTravelSteps
             );
             PhaseResult receiverClosureMotion = continuePhase(
                 fixtureContext,
@@ -7421,7 +7476,7 @@ int main(const int argc, const char* const argv[]) {
                 fixtureStepConfig,
                 fixtureResident,
                 fixtureEfforts,
-                receiverOverlapTravelSteps,
+                extractionReceiverOverlapTravelSteps,
                 "extraction receiver closure"
             );
             fixtureEfforts = interpolateTargets(
@@ -7460,21 +7515,104 @@ int main(const int argc, const char* const argv[]) {
                 1u,
                 kExtractionNeedleShape
             );
-            requireTerminalResidual(
-                receiverOverlapHeld.result,
-                "extraction receiver positive-control hold"
+            const RodStateMetrics overlapRod = rodStateMetrics(
+                world,
+                receiverOverlapHeld.result
             );
+            const MRMetalWorldContactStatusGPU& overlapResidual =
+                requireTerminalResidual(
+                    receiverOverlapHeld.result,
+                    "extraction receiver positive-control hold"
+                );
             require(
                 bilateral(overlapContacts, 0u) &&
+                    distributedInsertCoverage(overlapContacts, 0u) &&
                     bilateral(overlapContacts, 1u) &&
+                    distributedInsertCoverage(overlapContacts, 1u) &&
                     cleanNeedleInteraction(overlapContacts, true, true) &&
                     qualifiedTransitionGrasp(overlapGiverMotion) &&
-                    qualifiedTerminalRod(
-                        rodStateMetrics(world, receiverOverlapHeld.result)
-                    ),
+                    qualifiedTerminalRod(overlapRod),
                 "distal receiver did not establish dual positive control: " +
                     contactSummary(overlapContacts)
             );
+            if (receiverExtractionClosureOnly) {
+                const std::uint64_t closureTerminalStep =
+                    giverTerminalStep +
+                    receiverApproachSteps +
+                    receiverApproachSettleSteps +
+                    extractionReceiverOverlapTravelSteps +
+                    kReceiverClosureSettleSteps;
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "receiver-extraction-positive-control",
+                    closureTerminalStep,
+                    world,
+                    sutureSpec,
+                    receiverOverlapHeld.result
+                );
+                std::cout << std::setprecision(9)
+                    << "{\"schema\":\"numi.distal-suture-positive-control.v1\""
+                    << ",\"device\":\""
+                    << receiverOverlapHeld.diagnostics.deviceName << "\""
+                    << ",\"closure_steps\":"
+                    << extractionReceiverOverlapTravelSteps
+                    << ",\"closure_peak_jaw_speed_radps\":"
+                    << 1.5 * (
+                        openJawCoordinate - receiverOverlapJawCoordinate
+                    ) /
+                        (
+                            extractionReceiverOverlapTravelSteps *
+                            kControlTimestep
+                        )
+                    << ",\"giver_jaw_contacts\":["
+                    << overlapContacts.jawContacts[0][0] << ','
+                    << overlapContacts.jawContacts[0][1] << ']'
+                    << ",\"receiver_jaw_contacts\":["
+                    << overlapContacts.jawContacts[1][0] << ','
+                    << overlapContacts.jawContacts[1][1] << ']'
+                    << ",\"giver_insert_patch_masks\":["
+                    << overlapContacts.jawInsertPatchMasks[0][0] << ','
+                    << overlapContacts.jawInsertPatchMasks[0][1] << ']'
+                    << ",\"receiver_insert_patch_masks\":["
+                    << overlapContacts.jawInsertPatchMasks[1][0] << ','
+                    << overlapContacts.jawInsertPatchMasks[1][1] << ']'
+                    << ",\"giver_seat_drift_m\":"
+                    << overlapGiverMotion.seatDrift
+                    << ",\"giver_relative_point_speed_mps\":"
+                    << overlapGiverMotion.relativePointSpeed
+                    << ",\"thread_max_node_speed_mps\":"
+                    << overlapRod.maximumNodeSpeed
+                    << ",\"thread_max_edge_length_error_m\":"
+                    << overlapRod.maximumEdgeLengthError
+                    << ",\"thread_minimum_clearance_m\":"
+                    << overlapRod.minimumNonNeighbourSurfaceClearance
+                    << ",\"hard_swage_root_error_m\":"
+                    << swageAttachmentError(
+                        world,
+                        receiverOverlapHeld.result
+                    )
+                    << ",\"terminal_contact_velocity_residual_mps\":"
+                    << overlapResidual.residuals.y
+                    << ",\"terminal_cone_violation\":"
+                    << overlapResidual.residuals.z
+                    << ",\"failed_steps\":0"
+                    << ",\"gpu_ms\":"
+                    << giverPreloaded.diagnostics.gpuElapsedMilliseconds +
+                           giverLatchMotion.diagnostics
+                               .gpuElapsedMilliseconds +
+                           giverHeld.diagnostics.gpuElapsedMilliseconds +
+                           receiverApproachMotion.diagnostics
+                               .gpuElapsedMilliseconds +
+                           receiverApproached.diagnostics
+                               .gpuElapsedMilliseconds +
+                           receiverClosureMotion.diagnostics
+                               .gpuElapsedMilliseconds +
+                           receiverOverlapHeld.diagnostics
+                               .gpuElapsedMilliseconds
+                    << ",\"boundary\":\"dual positive control before "
+                       "load exchange; no giver release\"}\n";
+                return 0;
+            }
 
             const std::uint32_t loadExchangeSteps =
                 static_cast<std::uint32_t>(std::ceil(
@@ -7804,9 +7942,9 @@ int main(const int argc, const char* const argv[]) {
 
             const std::uint64_t successfulSteps =
                 giverTerminalStep +
-                kExtractionApproachSteps +
-                kReceiverApproachSettleSteps +
-                receiverOverlapTravelSteps +
+                receiverApproachSteps +
+                receiverApproachSettleSteps +
+                extractionReceiverOverlapTravelSteps +
                 kReceiverClosureSettleSteps +
                 loadExchangeSteps +
                 kLoadExchangeSettleSteps +
