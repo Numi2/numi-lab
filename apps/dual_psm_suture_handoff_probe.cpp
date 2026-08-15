@@ -4991,6 +4991,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-puncture-advance-only" ||
             argument == "--tissue-suture-entry-only" ||
             argument == "--tissue-suture-cadence-only" ||
+            argument == "--tissue-suture-passage-only" ||
             argument == "--tissue-curved-passage-only" ||
             argument == "--tissue-curved-pull-through-only" ||
             argument == "--receiver-frame-ik-only" ||
@@ -6352,6 +6353,8 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-suture-entry-only";
         const bool tissueSutureCadenceOnly =
             options.mode == "--tissue-suture-cadence-only";
+        const bool tissueSuturePassageOnly =
+            options.mode == "--tissue-suture-passage-only";
         const bool tissueSutureEntryContactOnly =
             tissueSutureEntryOnly || tissueSutureCadenceOnly;
         const bool tissueCurvedPullThroughOnly =
@@ -6360,15 +6363,18 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-puncture-only" ||
             options.mode == "--tissue-puncture-advance-only" ||
             tissueSutureEntryContactOnly ||
+            tissueSuturePassageOnly ||
             options.mode == "--tissue-curved-passage-only" ||
             tissueCurvedPullThroughOnly;
         const bool tissuePunctureAdvanceOnly =
             options.mode == "--tissue-puncture-advance-only";
         const bool tissueCurvedPassageOnly =
             options.mode == "--tissue-curved-passage-only" ||
+            tissueSuturePassageOnly ||
             tissueCurvedPullThroughOnly;
         const bool tissueSutureContactOnly =
-            tissueSutureEntryContactOnly || tissueCurvedPullThroughOnly;
+            tissueSutureEntryContactOnly || tissueSuturePassageOnly ||
+            tissueCurvedPullThroughOnly;
         const bool receiverFrameIkOnly =
             options.mode == "--receiver-frame-ik-only";
         const bool receiverExtractionGeometryOnly =
