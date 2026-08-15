@@ -576,6 +576,25 @@ The former Python/MLX physics extension and MLX-owned task frontends have been
 removed. Simulator state, reset, reward, termination, observation construction,
 and rollout scheduling have one owner: the native compiled-task executor.
 
+### Coupled promotion profiling
+
+Run `numi coupled-profile` to qualify the current tissue-coupling transaction
+with two exact replays, a Metal System Trace, target exit and failed-step gates,
+command-buffer error export, thermal evidence, and the detailed Apple GPU
+counter profile. `--mode static` selects the contact-free control and
+`--mode settle` selects the longer rod/needle physical outcome. Evidence is
+stored under `.numi/runs/` by default with the revision and worktree state that
+owned the executable.
+
+Detailed occupancy, limiter, and bandwidth counters are a strict independent
+gate. If Instruments reports that its selected counter profile is unsupported,
+the capability preserves the valid timeline and replay artifacts but exits 4;
+it does not promote RT-unit-only samples or CPU timing as a substitute. Use
+`--timeline-only` only when explicitly collecting supported timeline evidence
+without making a detailed-counter claim. A headless Mac at the login window may
+require opening the trace in an active GUI Metal debugger and selecting Profile
+after Replay before the strict counter gate can pass.
+
 ### Apple-silicon training scale
 
 The production G1 visual-dodge path has been qualified on an Apple M4 Pro with
