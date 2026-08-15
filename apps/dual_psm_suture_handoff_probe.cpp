@@ -119,10 +119,10 @@ constexpr std::uint32_t kCurvedPassageContactSegmentCount = 2u;
 // authority.
 constexpr std::uint32_t kSutureMatterContactSegmentCount = 2u;
 // Matter is quasi-static relative to the 16 kHz DER flexural cadence. During
-// continuous pull-through it samples every rod substep (16 kHz): the 20 mm/s
-// entry moves 1.25 um per coupled solve, one eightieth of the 100 um IPC band.
-// Matter, DER, the hard swage, and the moving tip therefore share one 62.5 us
-// transaction while the sub-0.2 mm operative elements are active.
+// sharp-tip entry it samples every rod substep: the 20 mm/s entry moves 1.25 um
+// per coupled solve, one eightieth of the 100 um contact band. Matter, DER, the
+// hard swage, and the moving tip therefore share one 62.5 us transaction while
+// fracture acceptance is unresolved.
 constexpr std::uint32_t kSutureEntryMatterRateMultiplier = 1u;
 // Once the sharp tip has admitted a shank-gauge tract, group four base DER
 // substeps into one 4 kHz Matter transaction. The 20 mm/s needle advances
@@ -130,6 +130,32 @@ constexpr std::uint32_t kSutureEntryMatterRateMultiplier = 1u;
 // avoiding four redundant full-coupon Newton solves.
 constexpr std::uint32_t kSuturePassageMatterRateMultiplier = 4u;
 constexpr double kSuturePullThroughSpeedMps = 8.0e-2;
+// Once the emerging swage is within the distal load-bearing neighborhood,
+// decelerate to the same deliberate 20 mm/s used for tissue entry.  The
+// resulting 1.25 um microstep lets the bilateral swage constraint exchange
+// strand/tissue load without spending its 25 um positional error allowance.
+constexpr double kSutureLoadBearingPullSpeedMps =
+    kCurvedPassageSpeedMps;
+// Once the needle tip and full shank have cleared the distal surface, retain
+// the 16 kHz DER cadence but group sixteen substeps into each 1 kHz Matter
+// transaction. At the authored 80 mm/s pull speed the strand advances 80 um,
+// still below the 100 um contact band. This removes redundant full-coupon
+// Newton solves without skipping a strand/tissue contact band.
+constexpr std::uint32_t kSuturePullMatterRateMultiplier = 16u;
+// On the returning half of the needle orbit, restore one Matter transaction
+// per 16 kHz DER substep. The strand then advances 5 um at 80 mm/s, one
+// twentieth of the 100 um contact band and one seventieth of the tract radius.
+// This removes the load-bearing 20 um jump that can destabilize the temporal
+// rod/tool contact block while retaining the 16x free-space fast path.
+constexpr std::uint32_t kSutureContactMatterRateMultiplier = 1u;
+// The 2 mm guard is larger than the 0.35 mm tract radius, 0.10 mm strand
+// radius, and 0.10 mm contact band combined, so the base cadence is active
+// before the first possible rim interaction.
+constexpr double kSuturePullContactCadenceClearanceM = 2.0e-3;
+// The strand first loaded the accepted tract beyond 2.29 mm in the bounded
+// pull qualification.  Decelerating at 2.0 mm leaves more than two complete
+// 100 um contact bands for the live DER state to settle before first load.
+constexpr double kSuturePullDecelerationClearanceM = 2.0e-3;
 constexpr double kSutureOperativeFieldRadiusM = 4.5e-3;
 constexpr double kSutureTissueContactSlopM = 1.0e-4;
 // The receiver-frame construction targets 20 um beyond the accepted 100 um
@@ -11929,29 +11955,29 @@ int main(const int argc, const char* const argv[]) {
                         needleForPlacement,
                         coupled.result.finalSceneBodies.at(0u)
                     );
-                const auto selectPostEntryCadence = [&] {
+                const auto selectCoupledCadence = [&] (
+                    const std::uint32_t multiplier,
+                    const std::string& phase
+                ) {
                     require(
                         tissueRuntime.setCoupledTimestepMultiplier(
-                            kSuturePassageMatterRateMultiplier
+                            multiplier
                         ),
-                        "accepted Matter state could not switch to the "
-                        "post-entry DER grouping"
+                        "accepted Matter state could not switch to the " +
+                            phase + " DER grouping"
                     );
                     stepConfig.timestepSeconds = static_cast<float>(
                         (kControlTimestep /
                             static_cast<double>(kPhysicsSubsteps)) *
-                        static_cast<double>(
-                            kSuturePassageMatterRateMultiplier
-                        )
+                        static_cast<double>(multiplier)
                     );
-                    stepConfig.physicsSubsteps =
-                        kSuturePassageMatterRateMultiplier;
+                    stepConfig.physicsSubsteps = multiplier;
                     require(
                         tissueRuntime.coupledTimestepMultiplier() ==
-                                kSuturePassageMatterRateMultiplier &&
+                                multiplier &&
                             tissueRuntime.timestepSeconds() ==
                                 stepConfig.timestepSeconds,
-                        "post-entry Matter and MetalWorld cadences diverged"
+                        phase + " Matter and MetalWorld cadences diverged"
                     );
                 };
                 if (tissueSutureEntryOnly) {
@@ -12002,7 +12028,10 @@ int main(const int argc, const char* const argv[]) {
                     return 0;
                 }
                 if (tissueSutureCadenceOnly) {
-                    selectPostEntryCadence();
+                    selectCoupledCadence(
+                        kSuturePassageMatterRateMultiplier,
+                        "post-entry passage"
+                    );
                     const std::vector<float> cadenceEfforts =
                         interpolateTargets(
                             world.model,
@@ -12152,7 +12181,14 @@ int main(const int argc, const char* const argv[]) {
                     return 0;
                 }
                 if (tissueCurvedPassageOnly) {
-                    selectPostEntryCadence();
+                    selectCoupledCadence(
+                        kSuturePassageMatterRateMultiplier,
+                        "post-entry passage"
+                    );
+                    if (tissueCurvedPullThroughOnly) {
+                        stepConfig.solverMode =
+                            metalrobo::MetalWorldSolverMode::temporalCone;
+                    }
                     require(
                         tissueNeedleOrbit.has_value() &&
                             tissueNeedleAngularSpeedRadPerS > 0.0,
@@ -12886,35 +12922,91 @@ int main(const int argc, const char* const argv[]) {
                     const double passageAngleRad =
                         entryAngleRad +
                         anglePerPassageStepRad * totalPassageSteps;
-                    const double pullAngularSpeedRadPerS =
+                    double pullSpeedMps = kSuturePullThroughSpeedMps;
+                    double pullAngularSpeedRadPerS =
                         kSuturePullThroughSpeedMps /
                         tissueNeedleOrbit->centerlineRadiusM;
-                    const double pullAnglePerStepRad =
-                        pullAngularSpeedRadPerS *
-                        static_cast<double>(stepConfig.timestepSeconds);
                     // One complete needle arc brings the swage to the entry;
                     // another 0.75 rad transports two full DER edges beyond
                     // the deformed distal surface without rotating a second
                     // circuit through the operative field.
                     const double maximumPullAngleRad =
                         sutureSpec.needle.arcAngleRad.value + 0.75;
-                    const std::uint32_t maximumPullSteps =
+                    const double baseDERStepSeconds =
+                        kControlTimestep /
+                        static_cast<double>(kPhysicsSubsteps);
+                    const double minimumPullAnglePerBaseDERSubstepRad =
+                        (kSutureLoadBearingPullSpeedMps /
+                            tissueNeedleOrbit->centerlineRadiusM) *
+                        baseDERStepSeconds;
+                    const std::uint32_t maximumPullBaseDERSubsteps =
                         static_cast<std::uint32_t>(std::ceil(
                             (maximumPullAngleRad - passageAngleRad) /
-                            pullAnglePerStepRad
+                            minimumPullAnglePerBaseDERSubstepRad
                         ));
                     require(
                         maximumPullAngleRad > passageAngleRad &&
-                            maximumPullSteps > 0u &&
-                            maximumPullSteps < 4096u,
+                            maximumPullBaseDERSubsteps > 0u &&
+                            maximumPullBaseDERSubsteps < 65536u,
                         "pull-through orbit bound is invalid"
                     );
 
-                    std::uint32_t completedPullSteps = 0u;
+                    std::uint32_t pullMatterRateMultiplier = 0u;
+                    double pullAnglePerMatterStepRad = 0.0;
+                    double maximumPullStepAdvanceM = 0.0;
+                    const auto selectPullKinematics = [&] (
+                        const std::uint32_t multiplier,
+                        const double speedMps,
+                        const std::string& phase
+                    ) {
+                        require(
+                            std::isfinite(speedMps) && speedMps > 0.0,
+                            phase + " speed is invalid"
+                        );
+                        selectCoupledCadence(multiplier, phase);
+                        pullMatterRateMultiplier = multiplier;
+                        pullSpeedMps = speedMps;
+                        pullAngularSpeedRadPerS =
+                            speedMps /
+                            tissueNeedleOrbit->centerlineRadiusM;
+                        pullAnglePerMatterStepRad =
+                            pullAngularSpeedRadPerS *
+                            static_cast<double>(stepConfig.timestepSeconds);
+                        const double stepAdvanceM =
+                            pullSpeedMps *
+                            static_cast<double>(stepConfig.timestepSeconds);
+                        maximumPullStepAdvanceM = std::max(
+                            maximumPullStepAdvanceM,
+                            stepAdvanceM
+                        );
+                        require(
+                            stepAdvanceM > 0.0 &&
+                                stepAdvanceM <=
+                                    tissueWorld.dispatch.numericalLimits.x,
+                            phase + " cadence skips the authored "
+                                "strand/tissue contact band"
+                        );
+                    };
+                    selectPullKinematics(
+                        kSuturePullMatterRateMultiplier,
+                        kSuturePullThroughSpeedMps,
+                        "free-space distal pull-through"
+                    );
+
+                    std::uint32_t completedPullMatterSteps = 0u;
+                    std::uint32_t completedPullBaseDERSubsteps = 0u;
+                    double currentPullAngleRad = passageAngleRad;
+                    bool contactCadenceSelected = false;
+                    bool loadBearingSpeedSelected = false;
                     bool certifiedThreadClearanceReached = false;
                     double pullGpuMilliseconds = 0.0;
                     double certifiedNodeDistalClearanceM =
-                        -std::numeric_limits<double>::infinity();
+                        finalBottomProjection -
+                        dot(
+                            vector(passage.result.finalRodNodes.at(
+                                certifiedThreadNode).position),
+                            thicknessAxis
+                        ) - world.rods[0].model.radius;
                     double maximumStrandProjectionErrorM = 0.0;
                     double sampledStrandReactionImpulseNs = 0.0;
                     std::uint32_t sampledStrandContacts = 0u;
@@ -12925,12 +13017,70 @@ int main(const int argc, const char* const argv[]) {
                     double pullMaximumResidual = 0.0;
                     double pullMaximumTissueDisplacementM = 0.0;
                     std::uint32_t pullMaximumFGMRESIterations = 0u;
+                    std::uint32_t pullContactCadenceMatterSteps = 0u;
+                    std::uint32_t pullLoadBearingMatterSteps = 0u;
                     constexpr std::uint32_t kPullChunkSteps = 8u;
                     numi::matter::RuntimeStateSnapshot pullSnapshot;
-                    while (completedPullSteps < maximumPullSteps) {
+                    while (currentPullAngleRad < maximumPullAngleRad) {
+                        if (!contactCadenceSelected &&
+                            currentPullAngleRad > 0.5 * std::numbers::pi &&
+                            certifiedNodeDistalClearanceM >=
+                                -kSuturePullContactCadenceClearanceM) {
+                            selectPullKinematics(
+                                kSutureContactMatterRateMultiplier,
+                                kSuturePullThroughSpeedMps,
+                                "contact-active distal pull-through"
+                            );
+                            contactCadenceSelected = true;
+                            std::cout << std::setprecision(9)
+                                << "suture_pull_through_contact_cadence=ok"
+                                << " contact_solver=temporal_cone"
+                                << " multiplier="
+                                << pullMatterRateMultiplier
+                                << " orbit_angle_rad="
+                                << currentPullAngleRad
+                                << " distal_clearance_m="
+                                << certifiedNodeDistalClearanceM
+                                << " step_advance_m="
+                                << pullSpeedMps *
+                                    static_cast<double>(
+                                        stepConfig.timestepSeconds
+                                    )
+                                << '\n';
+                        }
+                        if (contactCadenceSelected &&
+                            !loadBearingSpeedSelected &&
+                            certifiedNodeDistalClearanceM >=
+                                kSuturePullDecelerationClearanceM) {
+                            selectPullKinematics(
+                                kSutureContactMatterRateMultiplier,
+                                kSutureLoadBearingPullSpeedMps,
+                                "load-bearing distal pull-through"
+                            );
+                            loadBearingSpeedSelected = true;
+                            std::cout << std::setprecision(9)
+                                << "suture_pull_through_deceleration=ok"
+                                << " pull_speed_mps=" << pullSpeedMps
+                                << " orbit_angle_rad="
+                                << currentPullAngleRad
+                                << " distal_clearance_m="
+                                << certifiedNodeDistalClearanceM
+                                << " step_advance_m="
+                                << pullSpeedMps *
+                                    static_cast<double>(
+                                        stepConfig.timestepSeconds
+                                    )
+                                << '\n';
+                        }
+                        const std::uint32_t remainingMatterSteps =
+                            static_cast<std::uint32_t>(std::ceil(
+                                (maximumPullAngleRad -
+                                    currentPullAngleRad) /
+                                pullAnglePerMatterStepRad
+                            ));
                         const std::uint32_t chunkSteps = std::min(
                             kPullChunkSteps,
-                            maximumPullSteps - completedPullSteps
+                            remainingMatterSteps
                         );
                         std::vector<MRBodyStateGPU> kinematicTargets;
                         kinematicTargets.reserve(
@@ -12940,9 +13090,9 @@ int main(const int argc, const char* const argv[]) {
                         for (std::uint32_t localStep = 0u;
                              localStep < chunkSteps;
                              ++localStep) {
-                            const double angle = passageAngleRad +
-                                pullAnglePerStepRad *
-                                    (completedPullSteps + localStep + 1u);
+                            const double angle = currentPullAngleRad +
+                                pullAnglePerMatterStepRad *
+                                    (localStep + 1u);
                             for (std::size_t sceneBody = 0u;
                                  sceneBody < compiled.sceneBodyCount();
                                  ++sceneBody) {
@@ -12976,7 +13126,17 @@ int main(const int argc, const char* const argv[]) {
                             chunkSteps,
                             "needle-and-suture tissue pull-through"
                         );
-                        completedPullSteps += chunkSteps;
+                        if (contactCadenceSelected) {
+                            pullContactCadenceMatterSteps += chunkSteps;
+                        }
+                        if (loadBearingSpeedSelected) {
+                            pullLoadBearingMatterSteps += chunkSteps;
+                        }
+                        completedPullMatterSteps += chunkSteps;
+                        completedPullBaseDERSubsteps +=
+                            chunkSteps * pullMatterRateMultiplier;
+                        currentPullAngleRad +=
+                            pullAnglePerMatterStepRad * chunkSteps;
                         pullGpuMilliseconds +=
                             passage.diagnostics.gpuElapsedMilliseconds;
                         pullSnapshot = tissueRuntime.snapshot();
@@ -13105,11 +13265,17 @@ int main(const int argc, const char* const argv[]) {
                             });
                         }
                         std::cout << std::setprecision(9)
-                            << "suture_pull_through_progress_steps="
-                            << completedPullSteps << '/' << maximumPullSteps
+                            << "suture_pull_through_progress_base_der_substeps="
+                            << completedPullBaseDERSubsteps << '/'
+                            << maximumPullBaseDERSubsteps
+                            << " matter_steps="
+                            << completedPullMatterSteps
+                            << " matter_timestep_multiplier="
+                            << pullMatterRateMultiplier
+                            << " pull_speed_mps=" << pullSpeedMps
+                            << " contact_solver=temporal_cone"
                             << " orbit_angle_rad="
-                            << passageAngleRad + pullAnglePerStepRad *
-                                completedPullSteps
+                            << currentPullAngleRad
                             << " thread_node=" << certifiedThreadNode
                             << " distal_clearance_m="
                             << certifiedNodeDistalClearanceM
@@ -13184,6 +13350,10 @@ int main(const int argc, const char* const argv[]) {
                     );
                     require(
                         certifiedThreadClearanceReached &&
+                            contactCadenceSelected &&
+                            loadBearingSpeedSelected &&
+                            pullContactCadenceMatterSteps > 0u &&
+                            pullLoadBearingMatterSteps > 0u &&
                             pullActiveChannels == passageChannels.size() &&
                             pullActiveTetrahedra ==
                                 tissueCoupon.metadata.tetrahedronCount &&
@@ -13226,10 +13396,22 @@ int main(const int argc, const char* const argv[]) {
                     );
                     std::cout << std::setprecision(9)
                         << "tissue_suture_pull_through=ok"
-                        << " pull_steps=" << completedPullSteps
+                        << " pull_matter_steps="
+                        << completedPullMatterSteps
+                        << " base_der_substeps="
+                        << completedPullBaseDERSubsteps
+                        << " maximum_pull_step_advance_m="
+                        << maximumPullStepAdvanceM
+                        << " contact_cadence_selected="
+                        << contactCadenceSelected
+                        << " contact_cadence_matter_steps="
+                        << pullContactCadenceMatterSteps
+                        << " load_bearing_speed_mps="
+                        << kSutureLoadBearingPullSpeedMps
+                        << " load_bearing_matter_steps="
+                        << pullLoadBearingMatterSteps
                         << " final_orbit_angle_rad="
-                        << passageAngleRad + pullAnglePerStepRad *
-                            completedPullSteps
+                        << currentPullAngleRad
                         << " certified_thread_node="
                         << certifiedThreadNode
                         << " entry_root_proximal_clearance_m="
