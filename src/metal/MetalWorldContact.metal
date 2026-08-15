@@ -5011,11 +5011,22 @@ kernel void mr_world_seed_authored_constraint_ir(
                         MR_CONSTRAINT_IR_ENDPOINT_WORLD &&
                     dynamicNode ==
                         MR_CONSTRAINT_IR_INVALID_INDEX) {
-                    status.code = MR_STEP_UNSUPPORTED;
-                    status.firstFailingConstraint =
-                        localBlock;
-                    statuses[environment] = status;
-                    return;
+                    const bool prescribedKinematicBody =
+                        (endpoint.jacobianKind ==
+                            MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT ||
+                         endpoint.jacobianKind ==
+                            MR_CONSTRAINT_IR_JACOBIAN_ANGULAR) &&
+                        endpoint.objectIndex < dispatch.bodyCount &&
+                        candidateBodies[
+                            bodyBase + endpoint.objectIndex
+                        ].flagsAndIndices[0] == MR_MOTION_KINEMATIC;
+                    if (!prescribedKinematicBody) {
+                        status.code = MR_STEP_UNSUPPORTED;
+                        status.firstFailingConstraint =
+                            localBlock;
+                        statuses[environment] = status;
+                        return;
+                    }
                 }
                 binding.dynamicNode = dynamicNode;
                 if (dynamicNode !=

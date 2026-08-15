@@ -1135,13 +1135,20 @@ bool HeterogeneousWorld::valid(std::string* reason) const {
                 continue;
             }
             if (binding.bodyIndex >=
-                    defaultSceneBodies.size() ||
-                defaultSceneBodies[binding.bodyIndex].
-                        flagsAndIndices[0] !=
-                    MR_MOTION_DYNAMIC) {
+                    defaultSceneBodies.size()) {
                 return setReason(
                     reason,
-                    "rod rigid binding does not name a dynamic scene body"
+                    "rod rigid binding does not name a scene body"
+                );
+            }
+            const std::uint32_t bindingMotion =
+                defaultSceneBodies[binding.bodyIndex].flagsAndIndices[0];
+            if (bindingMotion != MR_MOTION_DYNAMIC &&
+                bindingMotion != MR_MOTION_KINEMATIC) {
+                return setReason(
+                    reason,
+                    "rod rigid binding requires a dynamic or kinematic "
+                    "scene body"
                 );
             }
             const bool duplicateAnchor = std::ranges::any_of(
@@ -1212,8 +1219,10 @@ bool HeterogeneousWorld::valid(std::string* reason) const {
                     rod.model.restPositions.size() - 1u ||
                 binding.bodyIndex == kDiscreteRodNoRigidBody ||
                 binding.bodyIndex >= defaultSceneBodies.size() ||
-                defaultSceneBodies[binding.bodyIndex]
-                        .flagsAndIndices[0] != MR_MOTION_DYNAMIC ||
+                (defaultSceneBodies[binding.bodyIndex]
+                        .flagsAndIndices[0] != MR_MOTION_DYNAMIC &&
+                 defaultSceneBodies[binding.bodyIndex]
+                        .flagsAndIndices[0] != MR_MOTION_KINEMATIC) ||
                 !tangentEdges.insert(binding.edgeIndex).second ||
                 !finite(binding.localAnchor) ||
                 !finite(binding.localTangent) ||
@@ -1276,8 +1285,10 @@ bool HeterogeneousWorld::valid(std::string* reason) const {
                     rod.model.restPositions.size() - 1u ||
                 binding.bodyIndex == kDiscreteRodNoRigidBody ||
                 binding.bodyIndex >= defaultSceneBodies.size() ||
-                defaultSceneBodies[binding.bodyIndex]
-                        .flagsAndIndices[0] != MR_MOTION_DYNAMIC ||
+                (defaultSceneBodies[binding.bodyIndex]
+                        .flagsAndIndices[0] != MR_MOTION_DYNAMIC &&
+                 defaultSceneBodies[binding.bodyIndex]
+                        .flagsAndIndices[0] != MR_MOTION_KINEMATIC) ||
                 !twistEdges.insert(binding.edgeIndex).second ||
                 !finite(binding.localTangent) ||
                 !finite(binding.localMaterialDirector) ||

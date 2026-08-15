@@ -670,15 +670,21 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                                 input.rigidBodyCount +
                             binding.bodyIndex
                         ];
-                    if (body.flagsAndIndices[0] !=
-                            MR_MOTION_DYNAMIC ||
-                        !(body.linearVelocityAndInverseMass.w >
-                            0.0f)) {
+                    const std::uint32_t motion =
+                        body.flagsAndIndices[0];
+                    const bool dynamicTarget =
+                        motion == MR_MOTION_DYNAMIC &&
+                        body.linearVelocityAndInverseMass.w > 0.0f;
+                    const bool kinematicTarget =
+                        motion == MR_MOTION_KINEMATIC &&
+                        body.linearVelocityAndInverseMass.w == 0.0f;
+                    if (!dynamicTarget && !kinematicTarget) {
                         return reject(
                             std::move(diagnostics),
                             MetalDiscreteElasticRodHostStatus::
                                 invalidAttachment,
-                            "rod reactions require a dynamic rigid target"
+                            "rod attachment target must be dynamic or "
+                            "kinematic with consistent inverse mass"
                         );
                     }
                 }

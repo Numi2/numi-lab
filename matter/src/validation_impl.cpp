@@ -1377,7 +1377,7 @@ private:
                 (articulated && dynamic) ||
                 (punctureTip &&
                     (proxy.shapeKind != NM_RIGID_CAPSULE ||
-                     (!articulated && !dynamic) ||
+                     proxy.bodyIndex == NM_INVALID_INDEX ||
                      !(proxy.localCenterAndRadius.w > 0.0f) ||
                      !(capsuleLengthSquared > 1.0e-18f))) ||
                 ((articulated || dynamic) &&

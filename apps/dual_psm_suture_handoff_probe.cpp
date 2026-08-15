@@ -21,6 +21,7 @@
 #include <limits>
 #include <numbers>
 #include <optional>
+#include <set>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -90,6 +91,11 @@ constexpr std::uint32_t kPhysicsSubsteps = 32u;
 constexpr double kPunctureImpulseThresholdNs = 5.0e-7;
 constexpr double kPunctureInitialClearanceM = 1.0e-5;
 constexpr double kPunctureApproachSpeedMps = 2.0e-2;
+// A bounded kinematic stress probe advances far enough to exercise a second
+// sub-element channel segment without pretending to be a clinical motion
+// profile. The surgical sequence retains the 20 mm/s entry speed above.
+constexpr double kPunctureChannelProbeSpeedMps = 2.0e-1;
+constexpr std::uint32_t kPunctureChannelProbeSteps = 16u;
 // Place the qualification bite 3 mm from the enterotomy centreline. This is
 // an explicit training geometry pending procedure- and specimen-specific bite
 // calibration, and is never reported as a clinical recommendation.
@@ -3603,7 +3609,10 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     numi::matter::RigidProxySource needleProxy;
     needleProxy.shape = NM_RIGID_CAPSULE;
     needleProxy.bodyIndex = world.sceneBodyIndices[0];
-    needleProxy.sceneBodyIndex = 0u;
+    const bool dynamicNeedle =
+        needle.flagsAndIndices[0] == MR_MOTION_DYNAMIC;
+    needleProxy.sceneBodyIndex = dynamicNeedle
+        ? 0u : NM_INVALID_INDEX;
     needleProxy.materialIndex = 0u;
     needleProxy.localCenter = {
         localEndpointA.x, localEndpointA.y, localEndpointA.z,
@@ -3612,7 +3621,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         localEndpointB.x, localEndpointB.y, localEndpointB.z,
     };
     needleProxy.radiusOrOffset = needleRadiusM;
-    needleProxy.dynamic = true;
+    needleProxy.dynamic = dynamicNeedle;
     needleProxy.punctureTip = punctureTip;
     source.rigidProxies.push_back(needleProxy);
     source.objects.push_back(coupon.object);
@@ -3723,6 +3732,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-coupling-only" ||
             argument == "--tissue-rest-only" ||
             argument == "--tissue-puncture-only" ||
+            argument == "--tissue-puncture-advance-only" ||
             argument == "--long-settle" ||
             argument == "--approach-only" ||
             argument == "--closure-only" ||
@@ -4814,7 +4824,10 @@ int main(const int argc, const char* const argv[]) {
         const bool tissueRestOnly =
             options.mode == "--tissue-rest-only";
         const bool tissuePunctureOnly =
-            options.mode == "--tissue-puncture-only";
+            options.mode == "--tissue-puncture-only" ||
+            options.mode == "--tissue-puncture-advance-only";
+        const bool tissuePunctureAdvanceOnly =
+            options.mode == "--tissue-puncture-advance-only";
         const bool tissueMatterOnly =
             tissueCouplingOnly || tissueRestOnly || tissuePunctureOnly;
         const bool approachOnly = options.mode == "--approach-only";
@@ -5879,8 +5892,28 @@ int main(const int argc, const char* const argv[]) {
                 world.defaultSceneBodies[0]
             );
             const Vec3 initialNeedleVelocity = tissuePunctureOnly
-                ? tip.approachDirection * kPunctureApproachSpeedMps
+                ? tip.approachDirection * (
+                    tissuePunctureAdvanceOnly
+                        ? kPunctureChannelProbeSpeedMps
+                        : kPunctureApproachSpeedMps)
                 : Vec3{};
+            if (tissuePunctureAdvanceOnly) {
+                require(
+                    world.sceneBodyIndices[0] < world.model.bodies.size(),
+                    "needle scene body has no compiled model owner"
+                );
+                MRBodyPropertiesGPU& needleProperties =
+                    world.model.bodies[world.sceneBodyIndices[0]];
+                needleProperties.motionType = MR_MOTION_KINEMATIC;
+                needleProperties.massAndInverseMass.y = 0.0f;
+                world.defaultSceneBodies[0].flagsAndIndices[0] =
+                    MR_MOTION_KINEMATIC;
+                world.defaultSceneBodies[0]
+                    .linearVelocityAndInverseMass.w = 0.0f;
+                world.defaultSceneBodies[0].inverseInertiaWorldRow0 = {};
+                world.defaultSceneBodies[0].inverseInertiaWorldRow1 = {};
+                world.defaultSceneBodies[0].inverseInertiaWorldRow2 = {};
+            }
             world.defaultSceneBodies[0].linearVelocityAndInverseMass.x =
                 static_cast<float>(initialNeedleVelocity.x);
             world.defaultSceneBodies[0].linearVelocityAndInverseMass.y =
@@ -5987,10 +6020,12 @@ int main(const int argc, const char* const argv[]) {
                 );
             require(
                 stepConfig.devicePhysicsProgram.valid() &&
-                    (stepConfig.devicePhysicsProgram.flags &
-                     metalrobo::
-                         MetalWorldDevicePhysicsWritesBodyWrenches) != 0u,
-                "tissue runtime did not publish a two-way MetalWorld program"
+                    (tissuePunctureAdvanceOnly ||
+                     (stepConfig.devicePhysicsProgram.flags &
+                      metalrobo::
+                          MetalWorldDevicePhysicsWritesBodyWrenches) != 0u),
+                "tissue runtime did not publish the required MetalWorld "
+                "coupling direction"
             );
         }
 
@@ -6343,7 +6378,13 @@ int main(const int argc, const char* const argv[]) {
             double channelLengthM = 0.0;
             double channelAxisAlignment = 0.0;
             std::uint32_t channelReleaseContacts = 0u;
+            std::uint32_t channelReleaseChannels = 0u;
+            std::uint32_t channelReleaseLinks = 0u;
+            double channelReleaseTotalLengthM = 0.0;
             double channelReleaseSignedNeedleMotionM = 0.0;
+            double channelReleaseMinimumDeterminant = 0.0;
+            double channelReleaseMaximumResidual = 0.0;
+            double channelReleaseSwageErrorM = 0.0;
             std::uint64_t channelReleaseStateHash = 0u;
             if (acceptedChannel != nullptr) {
                 channelRadiusM = acceptedChannel->originAndRadius.w;
@@ -6508,13 +6549,25 @@ int main(const int argc, const char* const argv[]) {
                         needleForPlacement,
                         coupled.result.finalSceneBodies.at(0u)
                     );
+                const std::uint32_t channelReleaseSteps =
+                    tissuePunctureAdvanceOnly
+                        ? kPunctureChannelProbeSteps : 1u;
+                const std::vector<float> channelReleaseEfforts =
+                    tissuePunctureAdvanceOnly
+                        ? interpolateTargets(
+                            world.model,
+                            targetStart,
+                            targetStart,
+                            channelReleaseSteps
+                        )
+                        : efforts;
                 const PhaseResult channelRelease = continuePhase(
                     context,
                     compiled,
                     stepConfig,
                     resident,
-                    efforts,
-                    1u,
+                    channelReleaseEfforts,
+                    channelReleaseSteps,
                     "embedded puncture-channel release"
                 );
                 const numi::matter::RuntimeStateSnapshot releaseSnapshot =
@@ -6524,9 +6577,9 @@ int main(const int argc, const char* const argv[]) {
                         !releaseSnapshot.femNodes.empty(),
                     "puncture-channel release did not publish Matter state"
                 );
-                std::uint32_t releaseChannels = 0u;
                 std::uint32_t releaseTetrahedra = 0u;
                 double releaseRemovedMassKg = 0.0;
+                std::vector<NMPunctureChannelGPU> releaseActiveChannels;
                 for (const NMContactSampleGPU& sample :
                      releaseSnapshot.contactSamples) {
                     channelReleaseContacts +=
@@ -6534,8 +6587,77 @@ int main(const int argc, const char* const argv[]) {
                 }
                 for (const NMPunctureChannelGPU& channel :
                      releaseSnapshot.punctureChannels) {
-                    releaseChannels +=
-                        (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                    if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) {
+                        continue;
+                    }
+                    ++channelReleaseChannels;
+                    channelReleaseTotalLengthM +=
+                        2.0 * channel.axisAndHalfLength.w;
+                    releaseActiveChannels.push_back(channel);
+                }
+                std::set<std::uint32_t> releaseGenerations;
+                bool releaseChannelGeometryValid = true;
+                for (const NMPunctureChannelGPU& channel :
+                     releaseActiveChannels) {
+                    releaseGenerations.insert(channel.identity.z);
+                    releaseChannelGeometryValid =
+                        releaseChannelGeometryValid &&
+                        channel.identity.x == 0u &&
+                        channel.identity.y == 0x80000000u &&
+                        channel.identity.z != 0u &&
+                        std::abs(
+                            norm(vector(channel.axisAndHalfLength)) - 1.0
+                        ) <= 1.0e-5 &&
+                        std::abs(
+                            static_cast<double>(
+                                channel.originAndRadius.w) -
+                            initialTip.radiusM
+                        ) <= 2.0e-7 &&
+                        std::abs(
+                            2.0 * static_cast<double>(
+                                channel.axisAndHalfLength.w) -
+                            expectedEntryTractLengthM
+                        ) <= 2.0e-7;
+                }
+                for (std::size_t firstIndex = 0u;
+                     firstIndex < releaseActiveChannels.size();
+                     ++firstIndex) {
+                    const NMPunctureChannelGPU& firstChannel =
+                        releaseActiveChannels[firstIndex];
+                    const Vec3 firstAxisValue =
+                        vector(firstChannel.axisAndHalfLength);
+                    if (!(norm(firstAxisValue) > 1.0e-12)) {
+                        releaseChannelGeometryValid = false;
+                        continue;
+                    }
+                    const Vec3 firstAxis = firstAxisValue *
+                        (1.0 / norm(firstAxisValue));
+                    const Vec3 distal =
+                        vector(firstChannel.originAndRadius) +
+                        firstAxis * firstChannel.axisAndHalfLength.w;
+                    for (std::size_t secondIndex = 0u;
+                         secondIndex < releaseActiveChannels.size();
+                         ++secondIndex) {
+                        if (firstIndex == secondIndex) continue;
+                        const NMPunctureChannelGPU& secondChannel =
+                            releaseActiveChannels[secondIndex];
+                        const Vec3 secondAxisValue =
+                            vector(secondChannel.axisAndHalfLength);
+                        if (!(norm(secondAxisValue) > 1.0e-12)) {
+                            releaseChannelGeometryValid = false;
+                            continue;
+                        }
+                        const Vec3 secondAxis = secondAxisValue *
+                            (1.0 / norm(secondAxisValue));
+                        const Vec3 proximal =
+                            vector(secondChannel.originAndRadius) -
+                            secondAxis *
+                                secondChannel.axisAndHalfLength.w;
+                        if (norm(distal - proximal) <=
+                            0.25 * initialTip.radiusM) {
+                            ++channelReleaseLinks;
+                        }
+                    }
                 }
                 for (const NMTetrahedronGPU& tetrahedron :
                      releaseSnapshot.femTopologyTetrahedra) {
@@ -6546,6 +6668,25 @@ int main(const int argc, const char* const argv[]) {
                      releaseSnapshot.topologyStates) {
                     releaseRemovedMassKg += topology.accounting.y;
                 }
+                bool releaseCertificatesAccepted = true;
+                channelReleaseMinimumDeterminant =
+                    std::numeric_limits<double>::infinity();
+                for (const NMSolverCertificateGPU& certificate :
+                     releaseSnapshot.solverCertificates) {
+                    releaseCertificatesAccepted =
+                        releaseCertificatesAccepted &&
+                        certificate.validity.w > 0.5f;
+                    channelReleaseMinimumDeterminant = std::min(
+                        channelReleaseMinimumDeterminant,
+                        static_cast<double>(certificate.validity.x)
+                    );
+                    channelReleaseMaximumResidual = std::max({
+                        channelReleaseMaximumResidual,
+                        static_cast<double>(certificate.nonlinear.x),
+                        static_cast<double>(certificate.nonlinear.z),
+                        static_cast<double>(certificate.nonlinear.w),
+                    });
+                }
                 const NeedleTipCapsuleGeometry releasedTip =
                     needleTipCapsuleGeometry(
                         needleForPlacement,
@@ -6555,14 +6696,38 @@ int main(const int argc, const char* const argv[]) {
                     releasedTip.worldTip - entryTip.worldTip,
                     initialTip.approachDirection
                 );
+                channelReleaseSwageErrorM = swageAttachmentError(
+                    world,
+                    channelRelease.result
+                );
                 channelReleaseStateHash = 1469598103934665603ull;
+                appendStateHash(
+                    channelReleaseStateHash,
+                    channelRelease.result.finalQ
+                );
+                appendStateHash(
+                    channelReleaseStateHash,
+                    channelRelease.result.finalV
+                );
                 appendStateHash(
                     channelReleaseStateHash,
                     channelRelease.result.finalSceneBodies
                 );
                 appendStateHash(
                     channelReleaseStateHash,
+                    channelRelease.result.finalRodNodes
+                );
+                appendStateHash(
+                    channelReleaseStateHash,
+                    channelRelease.result.finalRodEdges
+                );
+                appendStateHash(
+                    channelReleaseStateHash,
                     releaseSnapshot.femNodes
+                );
+                appendStateHash(
+                    channelReleaseStateHash,
+                    releaseSnapshot.femFields
                 );
                 appendStateHash(
                     channelReleaseStateHash,
@@ -6574,28 +6739,67 @@ int main(const int argc, const char* const argv[]) {
                 );
                 appendStateHash(
                     channelReleaseStateHash,
+                    releaseSnapshot.topologyStates
+                );
+                appendStateHash(
+                    channelReleaseStateHash,
+                    releaseSnapshot.reactions
+                );
+                appendStateHash(
+                    channelReleaseStateHash,
                     releaseSnapshot.contactSamples
+                );
+                appendStateHash(
+                    channelReleaseStateHash,
+                    releaseSnapshot.solverCertificates
                 );
                 require(
                     channelReleaseContacts == 0u &&
-                        releaseChannels == 1u &&
+                        channelReleaseChannels >=
+                            (tissuePunctureAdvanceOnly ? 2u : 1u) &&
+                        releaseGenerations.size() ==
+                            channelReleaseChannels &&
+                        releaseChannelGeometryValid &&
+                        channelReleaseLinks + 1u ==
+                            channelReleaseChannels &&
+                        (!tissuePunctureAdvanceOnly ||
+                         channelReleaseTotalLengthM >=
+                            2.0 * expectedEntryTractLengthM) &&
                         releaseTetrahedra ==
                             tissueCoupon.metadata.tetrahedronCount &&
                         releaseRemovedMassKg == 0.0 &&
+                        releaseCertificatesAccepted &&
+                        std::isfinite(channelReleaseMinimumDeterminant) &&
+                        channelReleaseMinimumDeterminant > 0.0 &&
+                        std::isfinite(channelReleaseMaximumResidual) &&
                         std::isfinite(channelReleaseSignedNeedleMotionM) &&
-                        std::abs(channelReleaseSignedNeedleMotionM) < 1.0e-3 &&
-                        swageAttachmentError(
-                            world,
-                            channelRelease.result
-                        ) < kMaximumSwageAttachmentError,
+                        (tissuePunctureAdvanceOnly
+                            ? channelReleaseSignedNeedleMotionM > 0.0
+                            : std::abs(channelReleaseSignedNeedleMotionM) <
+                                1.0e-3) &&
+                        channelReleaseSwageErrorM <
+                            kMaximumSwageAttachmentError,
                     "embedded puncture channel did not release the entering "
                     "needle without tissue mass loss: contacts=" +
                         std::to_string(channelReleaseContacts) +
-                        " channels=" + std::to_string(releaseChannels) +
+                        " channels=" +
+                        std::to_string(channelReleaseChannels) +
+                        " total_channel_length=" +
+                        std::to_string(channelReleaseTotalLengthM) +
+                        " links=" +
+                        std::to_string(channelReleaseLinks) +
+                        " unique_generations=" +
+                        std::to_string(releaseGenerations.size()) +
                         " active_tetrahedra=" +
                         std::to_string(releaseTetrahedra) +
                         " removed_mass=" +
                         std::to_string(releaseRemovedMassKg) +
+                        " minimum_determinant=" +
+                        std::to_string(channelReleaseMinimumDeterminant) +
+                        " maximum_residual=" +
+                        std::to_string(channelReleaseMaximumResidual) +
+                        " swage_error=" +
+                        std::to_string(channelReleaseSwageErrorM) +
                         " signed_needle_motion=" +
                         std::to_string(channelReleaseSignedNeedleMotionM)
                 );
@@ -6634,7 +6838,9 @@ int main(const int argc, const char* const argv[]) {
                 << (tissueRestOnly
                     ? "tissue_static_equilibrium=ok"
                     : (tissuePunctureOnly
-                        ? "tissue_tapered_tip_puncture=ok"
+                        ? (tissuePunctureAdvanceOnly
+                            ? "tissue_puncture_channel_advance=ok"
+                            : "tissue_tapered_tip_puncture=ok")
                         : "tissue_suture_coupling=ok"))
                 << " reaction_contacts="
                 << reaction.impulseAndCount.w
@@ -6674,8 +6880,20 @@ int main(const int argc, const char* const argv[]) {
                     : 0.0)
                 << " channel_release_contacts="
                 << channelReleaseContacts
+                << " channel_release_channels="
+                << channelReleaseChannels
+                << " channel_release_links="
+                << channelReleaseLinks
+                << " channel_release_total_length_m="
+                << channelReleaseTotalLengthM
                 << " channel_release_signed_needle_motion_m="
                 << channelReleaseSignedNeedleMotionM
+                << " channel_release_minimum_determinant="
+                << channelReleaseMinimumDeterminant
+                << " channel_release_maximum_residual="
+                << channelReleaseMaximumResidual
+                << " channel_release_swage_error_m="
+                << channelReleaseSwageErrorM
                 << " channel_release_state_fnv64=0x" << std::hex
                 << channelReleaseStateHash << std::dec
                 << " accepted_state_fnv64=0x" << std::hex

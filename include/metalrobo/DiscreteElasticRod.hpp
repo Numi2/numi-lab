@@ -87,7 +87,9 @@ struct DiscreteRodRigidTangentAttachmentBinding {
     double complianceRadPerNm = 0.0;
 };
 
-// Material-frame boundary between one rod edge and a dynamic rigid body.
+// Material-frame boundary between one rod edge and a dynamic or kinematic
+// rigid body. Reactions update dynamic targets and are one-way constraints
+// against kinematic targets.
 // The local tangent and director are orthonormal body-frame vectors; the
 // coupled world constrains the edge's scalar Cosserat twist to the body's
 // material director about the live edge tangent. Zero compliance is a

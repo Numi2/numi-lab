@@ -861,7 +861,6 @@ CompileResult compileWorld(
             (proxy.punctureTip &&
              (proxy.shape != NM_RIGID_CAPSULE ||
               proxy.bodyIndex == NM_INVALID_INDEX ||
-              (!proxy.dynamic && !proxy.articulated) ||
               !(proxy.radiusOrOffset > 0.0) ||
               !(capsuleLengthSquared > 1.0e-18)))) {
             result.diagnostics.push_back({

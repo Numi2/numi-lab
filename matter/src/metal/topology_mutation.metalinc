@@ -241,6 +241,35 @@ inline float pointSegmentDistanceSquared(
     return dot(delta, delta);
 }
 
+inline bool punctureSegmentIntersectsActiveTissue(
+    const NMContinuumObjectGPU object,
+    const float3 first,
+    const float3 second,
+    device const NMFEMNodeStateGPU* nodes,
+    device const NMTetrahedronGPU* tetrahedra,
+    const uint nodeBase,
+    const uint tetBase
+) {
+    for (uint local = 0u; local < object.elementCount; ++local) {
+        const NMTetrahedronGPU tetrahedron = tetrahedra[
+            tetBase + object.elementOffset + local
+        ];
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+        float3 tet[4];
+        for (uint slot = 0u; slot < 4u; ++slot)
+            tet[slot] = nodes[nodeBase + tetrahedron.nodes[slot]]
+                .positionAndMass.xyz;
+        for (uint sample = 1u; sample <= 8u; ++sample) {
+            const float t = float(sample) * (1.0f / 8.0f);
+            if (pointInsideTetrahedron(
+                    mix(first, second, t),
+                    tet[0], tet[1], tet[2], tet[3]))
+                return true;
+        }
+    }
+    return false;
+}
+
 // Generate one environment-local command per FEM object. A puncture channel
 // is admitted only by an explicitly authored sharp-tip capsule with accepted
 // normal impulse, closing motion, tip-axis alignment, and an inward tract that
@@ -283,9 +312,6 @@ kernel void nm_topology_detect_puncture(
     for (uint prior = 0u; prior < objectIndex; ++prior)
         channelOffset += capacities[prior].topology.w;
     const uint channelBase = environment * dispatch.punctureChannelCount;
-    for (uint local = 0u; local < capacities[objectIndex].topology.w; ++local)
-        if ((channels[channelBase + channelOffset + local].identity.w &
-             NM_TOPOLOGY_ACTIVE) != 0u) return;
 
     const uint nodeBase = environment * dispatch.femNodeCount;
     const uint tetBase = environment * dispatch.tetrahedronCount;
@@ -295,6 +321,110 @@ kernel void nm_topology_detect_puncture(
         if (proxies[proxyIndex].shapeKind != NM_RIGID_CAPSULE ||
             (proxies[proxyIndex].flags & NM_RIGID_PUNCTURE_TIP) == 0u)
             continue;
+        const NMRigidStateGPU rigid = rigidStates[rigidBase + proxyIndex];
+        const float3 first = rigid.centerAndRadius.xyz;
+        const float3 second = rigid.extent.xyz;
+        const float radius = rigid.centerAndRadius.w;
+        if (!(radius > 0.0f) || !finite3(first) || !finite3(second)) continue;
+        const float3 edge = second - first;
+        const float lengthEdge = length(edge);
+        if (!(lengthEdge > 1.0e-12f)) continue;
+        const float3 tipDirection = -edge / lengthEdge;
+        const uint sourceIdentifier = 0x80000000u | proxyIndex;
+
+        // Once fracture has admitted this tip, advance only the exposed
+        // frontier of its existing channel chain. Each segment is one tip
+        // diameter long, overlaps its predecessor, follows the live terminal
+        // tangent, and requires forward tip motion. This bounds mutation per
+        // transaction and represents a curved needle path without pre-cutting
+        // a straight tunnel through the full wall.
+        bool ownsChannel = false;
+        for (uint local = 0u; local < capacities[objectIndex].topology.w;
+             ++local) {
+            const NMPunctureChannelGPU channel = channels[
+                channelBase + channelOffset + local
+            ];
+            if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) == 0u ||
+                channel.identity.x != objectIndex ||
+                channel.identity.y != sourceIdentifier)
+                continue;
+            ownsChannel = true;
+            const float3 channelAxis = channel.axisAndHalfLength.xyz;
+            const float channelAxisLength = length(channelAxis);
+            const float channelRadius = channel.originAndRadius.w;
+            const float channelHalfLength = channel.axisAndHalfLength.w;
+            if (!(channelAxisLength > 1.0e-12f) ||
+                !(channelRadius > 0.0f) || !(channelHalfLength > 0.0f))
+                continue;
+            const float3 channelDirection =
+                channelAxis / channelAxisLength;
+            const float3 distal = channel.originAndRadius.xyz +
+                channelHalfLength * channelDirection;
+            bool hasSuccessor = false;
+            for (uint other = 0u;
+                 other < capacities[objectIndex].topology.w; ++other) {
+                if (other == local) continue;
+                const NMPunctureChannelGPU candidate = channels[
+                    channelBase + channelOffset + other
+                ];
+                if ((candidate.identity.w & NM_TOPOLOGY_ACTIVE) == 0u ||
+                    candidate.identity.x != objectIndex ||
+                    candidate.identity.y != sourceIdentifier)
+                    continue;
+                const float candidateAxisLength =
+                    length(candidate.axisAndHalfLength.xyz);
+                if (!(candidateAxisLength > 1.0e-12f)) continue;
+                const float3 proximal = candidate.originAndRadius.xyz -
+                    candidate.axisAndHalfLength.w *
+                    candidate.axisAndHalfLength.xyz / candidateAxisLength;
+                const float joinTolerance = max(
+                    0.25f * min(
+                        channelRadius, candidate.originAndRadius.w),
+                    8.0f * kGeometryFloor);
+                if (length(proximal - distal) <= joinTolerance) {
+                    hasSuccessor = true;
+                    break;
+                }
+            }
+            if (hasSuccessor) continue;
+            const float3 relative = first - channel.originAndRadius.xyz;
+            const float axial = dot(relative, channelDirection);
+            const float radial = length(
+                relative - axial * channelDirection);
+            const float triggerRadius = max(radius, channelRadius);
+            if (axial < channelHalfLength - triggerRadius ||
+                axial > channelHalfLength + 2.0f * triggerRadius ||
+                radial > triggerRadius ||
+                dot(tipDirection, channelDirection) < 0.5f ||
+                dot(rigid.linearVelocityAndInverseMass.xyz, tipDirection) <=
+                    1.0e-5f)
+                continue;
+            const float tractLength = 2.0f * radius;
+            const float3 tractFirst = distal;
+            const float3 tractSecond =
+                tractFirst + tractLength * tipDirection;
+            if (!punctureSegmentIntersectsActiveTissue(
+                    object, tractFirst, tractSecond, nodes, tetrahedra,
+                    nodeBase, tetBase))
+                continue;
+            output.identity = {
+                NM_MUTATION_CYLINDER_PUNCTURE,
+                objectIndex,
+                sourceIdentifier,
+                NM_MUTATION_ACTIVE | NM_MUTATION_PHYSICS_TRIGGERED,
+            };
+            output.schedule = {
+                controlStep, NM_INVALID_INDEX, 0u, environment,
+            };
+            output.geometry0 = float4(tipDirection, radius);
+            output.geometry1 = float4(
+                0.5f * (tractFirst + tractSecond),
+                0.5f * tractLength
+            );
+            return;
+        }
+        if (ownsChannel) continue;
+
         bool acceptedContact = false;
         NMContactSampleGPU acceptedSample{};
         const uint pairBase = environment * dispatch.contactPairCount;
@@ -316,15 +446,7 @@ kernel void nm_topology_detect_puncture(
             }
         }
         if (!acceptedContact) continue;
-        const NMRigidStateGPU rigid = rigidStates[rigidBase + proxyIndex];
-        const float3 first = rigid.centerAndRadius.xyz;
-        const float3 second = rigid.extent.xyz;
-        const float radius = rigid.centerAndRadius.w;
-        if (!(radius > 0.0f) || !finite3(first) || !finite3(second)) continue;
-        const float3 edge = second - first;
-        const float lengthEdge = length(edge);
-        if (!(lengthEdge > 1.0e-12f)) continue;
-        const float3 tipDirection = -edge / lengthEdge;
+
         const float3 contactNormal = acceptedSample.normalAndVelocity.xyz;
         const float normalLength = length(contactNormal);
         if (!(normalLength > 1.0e-12f) || !finite3(contactNormal)) continue;
@@ -341,28 +463,10 @@ kernel void nm_topology_detect_puncture(
         const float tractLength = 2.0f * radius;
         const float3 tractFirst = acceptedSample.pointAndSeparation.xyz;
         const float3 tractSecond = tractFirst + tractLength * inward;
-        bool intersects = false;
-        for (uint local = 0u; local < object.elementCount && !intersects;
-             ++local) {
-            const NMTetrahedronGPU tetrahedron = tetrahedra[
-                tetBase + object.elementOffset + local
-            ];
-            if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
-            float3 tet[4];
-            for (uint slot = 0u; slot < 4u; ++slot)
-                tet[slot] = nodes[nodeBase + tetrahedron.nodes[slot]]
-                    .positionAndMass.xyz;
-            for (uint sample = 1u; sample <= 8u; ++sample) {
-                const float t = float(sample) * (1.0f / 8.0f);
-                if (pointInsideTetrahedron(
-                        mix(tractFirst, tractSecond, t),
-                        tet[0], tet[1], tet[2], tet[3])) {
-                    intersects = true;
-                    break;
-                }
-            }
-        }
-        if (!intersects) continue;
+        if (!punctureSegmentIntersectsActiveTissue(
+                object, tractFirst, tractSecond, nodes, tetrahedra,
+                nodeBase, tetBase))
+            continue;
         output.identity = {
             NM_MUTATION_CYLINDER_PUNCTURE,
             objectIndex,
@@ -1890,6 +1994,9 @@ kernel void nm_topology_execute_transaction(
                     channels[channelBase + channelOffset + local];
                 if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u) continue;
                 const float3 axis = normalize(selected.geometry0.xyz);
+                if ((selected.identity.w &
+                     NM_MUTATION_PHYSICS_TRIGGERED) != 0u)
+                    topology.roles.w += 1u;
                 channel.identity = {objectIndex, selected.identity.z,
                     topology.roles.w, NM_TOPOLOGY_ACTIVE};
                 channel.originAndRadius = float4(

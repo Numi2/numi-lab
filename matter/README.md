@@ -98,7 +98,10 @@ direction, and project a finite inward entry tract through active tissue.
 The resulting needle channel is an embedded, mass-conserving discontinuity:
 it releases contact only for the originating needle inside the finite tract
 instead of deleting every intersected FEM tetrahedron. Explicit authored
-cylinder mutations retain their erosion semantics.
+cylinder mutations retain their erosion semantics. As the admitted sharp tip
+advances, the live terminal tangent grows a deterministic chain of overlapping
+one-diameter segments; this follows curved needle motion without pre-cutting a
+straight tract through the complete tissue wall.
 
 ABI v20 removes the former standalone FEM, pressure, and field iteration
 budgets and kernels. `MixedSolverSource` now cooks only Newton/FGMRES budgets,
