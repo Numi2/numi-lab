@@ -90,13 +90,24 @@ The FEM path uses linear tetrahedral kinematics with nonlinear constitutive stre
 
 IPC's squared-distance logarithmic potential contributes primal gradients and PSD Hessian actions; per-node timestep ratios apply the action chain rule to cross-rate FEM/MPM rows. There are no contact multiplier unknowns, response CSR, Delassus rows, or post-contact correction solves. Element work is parallel and node assembly uses rebuilt incidence. FGMRES uses compensated SIMD32 reductions, modified Gram-Schmidt with selective reorthogonalization, device Givens rotations, restart cycles and an inexact-Newton forcing schedule. The environment-owned SIMD32 Arnoldi wave continues directly from orthogonalization into its norm, Givens update and next-basis publication. Restart-residual reconstruction and the tiny triangular solve likewise share one per-environment cycle-finalization dispatch, and the final cycle does not materialize coefficients that no later cycle can consume. These fusions retain the original reduction and arithmetic order while removing command traffic. The right preconditioner combines FEM node-star diagonals, overlapping tetrahedron patches, MPM lumped/particle-patch/object modes, field smoothing, and rigid inverse-mass action. FGMRES remains the sole convergence owner. One environment-wide line search combines constitutive determinant and mixed-volume bounds with conservative CCD, barrier fraction-to-boundary caps, and barrier Armijo backtracking.
 
-ABI v22 adds an analytic circular-tube arc for the curved needle shank and a
+ABI v23 marks an explicit needle capsule or circular arc as the puncture
+dilator. The sharp tip remains the only fracture authority, while each local
+mass-conserving channel segment records the largest flagged same-body gauge;
+this lets the 0.35 mm-radius shank establish a physically passable tract for
+the smaller PDO strand without allowing generic shaft or gripper contact to
+initiate a cut.
+
+ABI v22 added an analytic circular-tube arc for the curved needle shank and a
 live DER strand capsule role. Strand proxy endpoints borrow MetalWorld's
 resident rod-node arena, participate in the same IPC/FGMRES acceptance path as
 the tissue, and scatter accepted equal-and-opposite contact impulse back to
 the two DER nodes before rod integration. The Matter timestep must be an
 integer grouping of the owning rod cadence, so tissue, needle, hard swage and
-thread remain one deterministic device transaction. Puncture admission sums
+thread remain one deterministic device transaction. A live-strand runtime may
+select a power-of-two coupled timestep multiplier only between submissions;
+this retains accepted state while grouping that exact number of base DER
+substeps and never runs hidden Matter microticks against frozen rod geometry.
+Puncture admission sums
 only closing, direction-aligned, tip-local surface rows: mesh refinement may
 distribute a physical sharp-tip resultant across nodes, while shaft, arc and
 strand rows cannot manufacture a cut.

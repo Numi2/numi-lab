@@ -370,6 +370,7 @@ struct RigidProxySource {
     bool articulated = false;
     bool dynamic = false;
     bool punctureTip = false;
+    bool punctureDilator = false;
     // Live MetalWorld DER capsule. When enabled, body/scene bindings and local
     // capsule endpoints are ignored; strandNodeA/B address the global
     // environment-local rod-node arena and radiusOrOffset remains physical.
@@ -811,6 +812,16 @@ public:
     [[nodiscard]] bool requiresCoupledCandidate() const noexcept;
     [[nodiscard]] std::uint32_t coupledCandidatePointCapacity() const noexcept;
     [[nodiscard]] bool requiresRigidContactEvidence() const noexcept;
+    // Selects a power-of-two coarsening of an externally coupled DER/Matter
+    // transaction without moving accepted state. The cooked world must own a
+    // live strand, use no internal Matter microticks, and be between command
+    // buffers. The MetalWorld control step must contain the same number of
+    // base DER substeps. Invocation configuration records the active cadence;
+    // the immutable device-program/layout fingerprint does not change.
+    [[nodiscard]] bool setCoupledTimestepMultiplier(
+        std::uint32_t multiplier
+    ) noexcept;
+    [[nodiscard]] std::uint32_t coupledTimestepMultiplier() const noexcept;
     [[nodiscard]] float timestepSeconds() const noexcept;
     [[nodiscard]] RuntimeStateSnapshot snapshot() const;
     [[nodiscard]] void* eventBuffer() const noexcept;

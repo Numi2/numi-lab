@@ -867,7 +867,7 @@ CompileResult compileWorld(
             proxy.materialIndex >= source.materials.size() ||
             (strand &&
              (proxy.shape != NM_RIGID_CAPSULE || proxy.articulated ||
-              proxy.dynamic || proxy.punctureTip ||
+              proxy.dynamic || proxy.punctureTip || proxy.punctureDilator ||
               proxy.bodyIndex != NM_INVALID_INDEX ||
               proxy.sceneBodyIndex != NM_INVALID_INDEX ||
               proxy.strandNodeA == NM_INVALID_INDEX ||
@@ -889,7 +889,12 @@ CompileResult compileWorld(
              (proxy.shape != NM_RIGID_CAPSULE ||
               proxy.bodyIndex == NM_INVALID_INDEX ||
               !(proxy.radiusOrOffset > 0.0) ||
-              !(capsuleLengthSquared > 1.0e-18)))) {
+              !(capsuleLengthSquared > 1.0e-18))) ||
+            (proxy.punctureDilator &&
+             (proxy.bodyIndex == NM_INVALID_INDEX ||
+              (proxy.shape != NM_RIGID_CAPSULE &&
+               proxy.shape != NM_RIGID_ARC) ||
+              !(proxy.radiusOrOffset > 0.0)))) {
             result.diagnostics.push_back({
                 Diagnostic::Severity::error, 0u, 0u,
                 "rigid proxy contains invalid geometry or material binding",
@@ -906,7 +911,8 @@ CompileResult compileWorld(
             (proxy.articulated ? NM_RIGID_ARTICULATED : 0u) |
             (proxy.dynamic ? NM_RIGID_DYNAMIC : 0u) |
             (proxy.punctureTip ? NM_RIGID_PUNCTURE_TIP : 0u) |
-            (strand ? NM_RIGID_SUTURE_STRAND : 0u);
+            (strand ? NM_RIGID_SUTURE_STRAND : 0u) |
+            (proxy.punctureDilator ? NM_RIGID_PUNCTURE_DILATOR : 0u);
         cooked.adaptiveObjectIndex = NM_INVALID_INDEX;
         cooked.generalizedFreeBodyIndex = NM_INVALID_INDEX;
         if (proxy.dynamic) {

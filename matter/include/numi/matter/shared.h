@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 22u
+#define NM_MATTER_ABI_VERSION 23u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -240,6 +240,10 @@ enum NMRigidBindingFlags : nm_u32 {
     // the live segment and scatters the accepted rigid-side impulse back to
     // both nodes before the DER substep.
     NM_RIGID_SUTURE_STRAND = 1u << 3u,
+    // Needle geometry that establishes the final embedded tract gauge after
+    // the sharp tip admits fracture. Only an explicitly flagged capsule or
+    // circular arc on the same body may dilate that tract.
+    NM_RIGID_PUNCTURE_DILATOR = 1u << 4u,
 };
 
 enum NMResetFlags : nm_u32 {

@@ -123,7 +123,12 @@ constexpr std::uint32_t kSutureMatterContactSegmentCount = 2u;
 // entry moves 1.25 um per coupled solve, one eightieth of the 100 um IPC band.
 // Matter, DER, the hard swage, and the moving tip therefore share one 62.5 us
 // transaction while the sub-0.2 mm operative elements are active.
-constexpr std::uint32_t kSutureMatterRateDivider = 1u;
+constexpr std::uint32_t kSutureEntryMatterRateMultiplier = 1u;
+// Once the sharp tip has admitted a shank-gauge tract, group four base DER
+// substeps into one 4 kHz Matter transaction. The 20 mm/s needle advances
+// 5 um per solve, retaining twenty samples across the 100 um IPC band while
+// avoiding four redundant full-coupon Newton solves.
+constexpr std::uint32_t kSuturePassageMatterRateMultiplier = 4u;
 constexpr double kSuturePullThroughSpeedMps = 8.0e-2;
 constexpr double kSutureOperativeFieldRadiusM = 4.5e-3;
 constexpr double kSutureTissueContactSlopM = 1.0e-4;
@@ -4668,7 +4673,8 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     source.frameTimestep =
         (kControlTimestep / kPhysicsSubsteps) *
         (sutureContactSegmentCount == 0u
-             ? 1.0 : static_cast<double>(kSutureMatterRateDivider));
+             ? 1.0
+             : static_cast<double>(kSutureEntryMatterRateMultiplier));
     source.gravity = {0.0, 0.0, 0.0};
     source.contactSlop = kSutureTissueContactSlopM;
     source.maximumDepenetrationSpeed = 0.05;
@@ -4800,6 +4806,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         };
         arc.radiusOrOffset = needleAsset.spec.crossSectionRadiusM.value;
         arc.dynamic = dynamicNeedle;
+        arc.punctureDilator = true;
         source.rigidProxies.push_back(arc);
     } else {
         require(
@@ -4983,6 +4990,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-puncture-only" ||
             argument == "--tissue-puncture-advance-only" ||
             argument == "--tissue-suture-entry-only" ||
+            argument == "--tissue-suture-cadence-only" ||
             argument == "--tissue-curved-passage-only" ||
             argument == "--tissue-curved-pull-through-only" ||
             argument == "--receiver-frame-ik-only" ||
@@ -6342,12 +6350,16 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-rest-only";
         const bool tissueSutureEntryOnly =
             options.mode == "--tissue-suture-entry-only";
+        const bool tissueSutureCadenceOnly =
+            options.mode == "--tissue-suture-cadence-only";
+        const bool tissueSutureEntryContactOnly =
+            tissueSutureEntryOnly || tissueSutureCadenceOnly;
         const bool tissueCurvedPullThroughOnly =
             options.mode == "--tissue-curved-pull-through-only";
         const bool tissuePunctureOnly =
             options.mode == "--tissue-puncture-only" ||
             options.mode == "--tissue-puncture-advance-only" ||
-            tissueSutureEntryOnly ||
+            tissueSutureEntryContactOnly ||
             options.mode == "--tissue-curved-passage-only" ||
             tissueCurvedPullThroughOnly;
         const bool tissuePunctureAdvanceOnly =
@@ -6356,7 +6368,7 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-curved-passage-only" ||
             tissueCurvedPullThroughOnly;
         const bool tissueSutureContactOnly =
-            tissueSutureEntryOnly || tissueCurvedPullThroughOnly;
+            tissueSutureEntryContactOnly || tissueCurvedPullThroughOnly;
         const bool receiverFrameIkOnly =
             options.mode == "--receiver-frame-ik-only";
         const bool receiverExtractionGeometryOnly =
@@ -11038,7 +11050,7 @@ int main(const int argc, const char* const argv[]) {
                 : Vec3{};
             Vec3 initialNeedleAngularVelocity{};
             if (tissuePunctureAdvanceOnly || tissueCurvedPassageOnly ||
-                tissueSutureEntryOnly) {
+                tissueSutureEntryContactOnly) {
                 require(
                     world.sceneBodyIndices[0] < world.model.bodies.size(),
                     "needle scene body has no compiled model owner"
@@ -11055,7 +11067,8 @@ int main(const int argc, const char* const argv[]) {
                 world.defaultSceneBodies[0].inverseInertiaWorldRow1 = {};
                 world.defaultSceneBodies[0].inverseInertiaWorldRow2 = {};
             }
-            if (tissueCurvedPassageOnly || tissueSutureEntryOnly) {
+            if (tissueCurvedPassageOnly ||
+                tissueSutureEntryContactOnly) {
                 tissueNeedleOrbit = curvedNeedleOrbit(
                     needleForPlacement,
                     world.defaultSceneBodies[0]
@@ -11105,7 +11118,8 @@ int main(const int argc, const char* const argv[]) {
                 static_cast<float>(initialNeedleVelocity.y);
             world.defaultSceneBodies[0].linearVelocityAndInverseMass.z =
                 static_cast<float>(initialNeedleVelocity.z);
-            if (tissueCurvedPassageOnly || tissueSutureEntryOnly) {
+            if (tissueCurvedPassageOnly ||
+                tissueSutureEntryContactOnly) {
                 const MRBodyStateGPU& needle = world.defaultSceneBodies[0];
                 const Vec3 bodyPosition = vector(needle.position);
                 const Quaternion orientation{
@@ -11180,7 +11194,7 @@ int main(const int argc, const char* const argv[]) {
                     ? kPunctureInitialClearanceM
                     : (tissueRestOnly ? 1.5e-4 : 5.0e-5),
                 tissuePunctureOnly,
-                (tissueCurvedPassageOnly || tissueSutureEntryOnly)
+                (tissueCurvedPassageOnly || tissueSutureEntryContactOnly)
                     ? kCurvedPassageContactSegmentCount
                     : 1u,
                 tissueSutureContactOnly
@@ -11253,10 +11267,12 @@ int main(const int argc, const char* const argv[]) {
             stepConfig.timestepSeconds = static_cast<float>(
                 (kControlTimestep / static_cast<double>(kPhysicsSubsteps)) *
                 (tissueSutureContactOnly
-                     ? static_cast<double>(kSutureMatterRateDivider) : 1.0)
+                     ? static_cast<double>(
+                         kSutureEntryMatterRateMultiplier
+                     ) : 1.0)
             );
             stepConfig.physicsSubsteps = tissueSutureContactOnly
-                ? kSutureMatterRateDivider : 1u;
+                ? kSutureEntryMatterRateMultiplier : 1u;
             stepConfig.devicePhysicsProgram =
                 numi::matter::makeMetalWorldDevicePhysicsProgram(
                     tissueRuntime
@@ -11269,7 +11285,7 @@ int main(const int argc, const char* const argv[]) {
                           MetalWorldDevicePhysicsCouplesRodNodes) != 0u) &&
                     (tissuePunctureAdvanceOnly ||
                      tissueCurvedPassageOnly ||
-                     tissueSutureEntryOnly ||
+                     tissueSutureEntryContactOnly ||
                      (stepConfig.devicePhysicsProgram.flags &
                       metalrobo::
                           MetalWorldDevicePhysicsWritesBodyWrenches) != 0u),
@@ -11664,13 +11680,16 @@ int main(const int argc, const char* const argv[]) {
                 );
             const double expectedEntryTractLengthM =
                 2.0 * initialTip.radiusM;
-            const double analyticTipTractMassKg =
+            const double expectedChannelRadiusM = tissueSutureContactOnly
+                ? needleForPlacement.spec.crossSectionRadiusM.value
+                : initialTip.radiusM;
+            const double analyticChannelTractMassKg =
                 tissueCoupon.spec.densityKgPerM3.value *
-                std::numbers::pi * initialTip.radiusM *
-                initialTip.radiusM * expectedEntryTractLengthM;
-            const double removedToTipTractMassRatio =
-                analyticTipTractMassKg > 0.0
-                ? removedMassKg / analyticTipTractMassKg
+                std::numbers::pi * expectedChannelRadiusM *
+                expectedChannelRadiusM * expectedEntryTractLengthM;
+            const double removedToChannelTractMassRatio =
+                analyticChannelTractMassKg > 0.0
+                ? removedMassKg / analyticChannelTractMassKg
                 : std::numeric_limits<double>::infinity();
             double channelRadiusM = 0.0;
             double channelLengthM = 0.0;
@@ -11694,7 +11713,8 @@ int main(const int argc, const char* const argv[]) {
                     vector(acceptedChannel->axisAndHalfLength),
                     initialTip.approachDirection
                 ));
-                if ((tissueCurvedPassageOnly || tissueSutureEntryOnly) &&
+                if ((tissueCurvedPassageOnly ||
+                     tissueSutureEntryContactOnly) &&
                     tissueNeedleOrbit.has_value()) {
                     const Vec3 axis = vector(
                         acceptedChannel->axisAndHalfLength
@@ -11821,7 +11841,8 @@ int main(const int argc, const char* const argv[]) {
             } else if (tissuePunctureOnly) {
                 require(
                     tissueWorld.contact.rigidProxies.size() ==
-                        ((tissueCurvedPassageOnly || tissueSutureEntryOnly)
+                        ((tissueCurvedPassageOnly ||
+                          tissueSutureEntryContactOnly)
                             ? kCurvedPassageContactSegmentCount
                             : 1u) +
                         (tissueSutureContactOnly
@@ -11833,11 +11854,11 @@ int main(const int argc, const char* const argv[]) {
                         activeTetrahedra ==
                             tissueCoupon.metadata.tetrahedronCount &&
                         removedMassKg == 0.0 &&
-                        std::isfinite(removedToTipTractMassRatio) &&
-                        removedToTipTractMassRatio == 0.0 &&
+                        std::isfinite(removedToChannelTractMassRatio) &&
+                        removedToChannelTractMassRatio == 0.0 &&
                         channelRadiusM > 0.0 &&
                         std::abs(
-                            channelRadiusM - initialTip.radiusM
+                            channelRadiusM - expectedChannelRadiusM
                         ) <= 2.0e-7 &&
                         std::abs(
                             channelLengthM - expectedEntryTractLengthM
@@ -11882,11 +11903,11 @@ int main(const int argc, const char* const argv[]) {
                         " minimum_admission_normal_velocity=" +
                         std::to_string(minimumAdmissionNormalVelocity) +
                         " tract_mass_ratio=" +
-                        std::to_string(removedToTipTractMassRatio) +
+                        std::to_string(removedToChannelTractMassRatio) +
                         " channel_radius=" +
                         std::to_string(channelRadiusM) +
                         " expected_radius=" +
-                        std::to_string(initialTip.radiusM) +
+                        std::to_string(expectedChannelRadiusM) +
                         " channel_length=" +
                         std::to_string(channelLengthM) +
                         " expected_length=" +
@@ -11902,6 +11923,31 @@ int main(const int argc, const char* const argv[]) {
                         needleForPlacement,
                         coupled.result.finalSceneBodies.at(0u)
                     );
+                const auto selectPostEntryCadence = [&] {
+                    require(
+                        tissueRuntime.setCoupledTimestepMultiplier(
+                            kSuturePassageMatterRateMultiplier
+                        ),
+                        "accepted Matter state could not switch to the "
+                        "post-entry DER grouping"
+                    );
+                    stepConfig.timestepSeconds = static_cast<float>(
+                        (kControlTimestep /
+                            static_cast<double>(kPhysicsSubsteps)) *
+                        static_cast<double>(
+                            kSuturePassageMatterRateMultiplier
+                        )
+                    );
+                    stepConfig.physicsSubsteps =
+                        kSuturePassageMatterRateMultiplier;
+                    require(
+                        tissueRuntime.coupledTimestepMultiplier() ==
+                                kSuturePassageMatterRateMultiplier &&
+                            tissueRuntime.timestepSeconds() ==
+                                stepConfig.timestepSeconds,
+                        "post-entry Matter and MetalWorld cadences diverged"
+                    );
+                };
                 if (tissueSutureEntryOnly) {
                     const RodStateMetrics entryRod = rodStateMetrics(
                         world,
@@ -11924,6 +11970,8 @@ int main(const int argc, const char* const argv[]) {
                         << " strand_proxy_count="
                         << kSutureMatterContactSegmentCount
                         << " active_puncture_channels=" << activeChannels
+                        << " puncture_channel_radius_m="
+                        << channelRadiusM
                         << " active_tetrahedra=" << activeTetrahedra
                         << " removed_tissue_mass_kg=" << removedMassKg
                         << " maximum_tissue_displacement_m="
@@ -11947,7 +11995,158 @@ int main(const int argc, const char* const argv[]) {
                         << coupled.diagnostics.failedStepCount << '\n';
                     return 0;
                 }
+                if (tissueSutureCadenceOnly) {
+                    selectPostEntryCadence();
+                    const std::vector<float> cadenceEfforts =
+                        interpolateTargets(
+                            world.model,
+                            targetStart,
+                            targetStart,
+                            1u
+                        );
+                    const PhaseResult cadence =
+                        continuePhaseWithKinematicTargets(
+                            context,
+                            compiled,
+                            stepConfig,
+                            resident,
+                            cadenceEfforts,
+                            coupled.result.finalSceneBodies,
+                            1u,
+                            "post-entry grouped tissue cadence"
+                        );
+                    const numi::matter::RuntimeStateSnapshot cadenceSnapshot =
+                        tissueRuntime.snapshot();
+                    require(
+                        cadenceSnapshot.available &&
+                            !cadenceSnapshot.solverCertificates.empty(),
+                        "post-entry cadence did not publish accepted Matter state"
+                    );
+                    std::uint32_t cadenceChannels = 0u;
+                    std::uint32_t cadenceTetrahedra = 0u;
+                    std::uint32_t cadenceContacts = 0u;
+                    double cadenceRemovedMassKg = 0.0;
+                    double cadenceMinimumDeterminant =
+                        std::numeric_limits<double>::infinity();
+                    double cadenceMaximumResidual = 0.0;
+                    bool cadenceCertificatesAccepted = true;
+                    bool cadenceChannelGaugeAccepted = false;
+                    for (const NMPunctureChannelGPU& channel :
+                         cadenceSnapshot.punctureChannels) {
+                        if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) {
+                            continue;
+                        }
+                        ++cadenceChannels;
+                        cadenceChannelGaugeAccepted =
+                            cadenceChannelGaugeAccepted ||
+                            std::abs(
+                                static_cast<double>(
+                                    channel.originAndRadius.w
+                                ) - expectedChannelRadiusM
+                            ) <= 2.0e-7;
+                    }
+                    for (const NMTetrahedronGPU& tetrahedron :
+                         cadenceSnapshot.femTopologyTetrahedra) {
+                        cadenceTetrahedra +=
+                            (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                    }
+                    for (const NMFEMTopologyStateGPU& topology :
+                         cadenceSnapshot.topologyStates) {
+                        cadenceRemovedMassKg += topology.accounting.y;
+                    }
+                    for (const NMContactSampleGPU& sample :
+                         cadenceSnapshot.contactSamples) {
+                        cadenceContacts +=
+                            (sample.identity.w & NM_CONTACT_VALID) != 0u;
+                    }
+                    for (const NMSolverCertificateGPU& certificate :
+                         cadenceSnapshot.solverCertificates) {
+                        cadenceCertificatesAccepted =
+                            cadenceCertificatesAccepted &&
+                            certificate.validity.w > 0.5f;
+                        cadenceMinimumDeterminant = std::min(
+                            cadenceMinimumDeterminant,
+                            static_cast<double>(certificate.validity.x)
+                        );
+                        cadenceMaximumResidual = std::max({
+                            cadenceMaximumResidual,
+                            static_cast<double>(certificate.nonlinear.x),
+                            static_cast<double>(certificate.nonlinear.z),
+                            static_cast<double>(certificate.nonlinear.w),
+                        });
+                    }
+                    const NeedleTipCapsuleGeometry cadenceTip =
+                        needleTipCapsuleGeometry(
+                            needleForPlacement,
+                            cadence.result.finalSceneBodies.at(0u)
+                        );
+                    const double cadenceTipAdvanceM = dot(
+                        cadenceTip.worldTip - entryTip.worldTip,
+                        entryTip.approachDirection
+                    );
+                    const double expectedCadenceAdvanceM =
+                        kCurvedPassageSpeedMps *
+                        static_cast<double>(stepConfig.timestepSeconds);
+                    const RodStateMetrics cadenceRod = rodStateMetrics(
+                        world,
+                        cadence.result
+                    );
+                    const double cadenceSwageErrorM = swageAttachmentError(
+                        world,
+                        cadence.result
+                    );
+                    require(
+                        cadenceChannels == 1u &&
+                            cadenceChannelGaugeAccepted &&
+                            cadenceTetrahedra ==
+                                tissueCoupon.metadata.tetrahedronCount &&
+                            cadenceRemovedMassKg == 0.0 &&
+                            cadenceCertificatesAccepted &&
+                            std::isfinite(cadenceMinimumDeterminant) &&
+                            cadenceMinimumDeterminant > 0.0 &&
+                            std::isfinite(cadenceMaximumResidual) &&
+                            cadenceTipAdvanceM >=
+                                0.75 * expectedCadenceAdvanceM &&
+                            cadenceTipAdvanceM <=
+                                1.25 * expectedCadenceAdvanceM &&
+                            cadenceSwageErrorM <
+                                kMaximumSwageAttachmentError &&
+                            qualifiedTransitionRod(cadenceRod),
+                        "post-entry grouped cadence did not preserve the "
+                        "accepted tract, tissue, needle, swage, and strand"
+                    );
+                    std::cout << std::setprecision(9)
+                        << "tissue_suture_cadence_transition=ok"
+                        << " multiplier="
+                        << kSuturePassageMatterRateMultiplier
+                        << " grouped_timestep_s="
+                        << stepConfig.timestepSeconds
+                        << " needle_tip_advance_m=" << cadenceTipAdvanceM
+                        << " expected_advance_m="
+                        << expectedCadenceAdvanceM
+                        << " active_contacts=" << cadenceContacts
+                        << " active_puncture_channels=" << cadenceChannels
+                        << " puncture_channel_radius_m="
+                        << expectedChannelRadiusM
+                        << " active_tetrahedra=" << cadenceTetrahedra
+                        << " removed_tissue_mass_kg="
+                        << cadenceRemovedMassKg
+                        << " matter_minimum_determinant="
+                        << cadenceMinimumDeterminant
+                        << " matter_maximum_residual="
+                        << cadenceMaximumResidual
+                        << " hard_swage_root_error_m="
+                        << cadenceSwageErrorM
+                        << " thread_maximum_edge_error_m="
+                        << cadenceRod.maximumEdgeLengthError
+                        << " grouped_gpu_ms="
+                        << cadence.diagnostics.gpuElapsedMilliseconds
+                        << " failed_steps="
+                        << cadence.diagnostics.failedStepCount << '\n';
+                    return 0;
+                }
                 if (tissueCurvedPassageOnly) {
+                    selectPostEntryCadence();
                     require(
                         tissueNeedleOrbit.has_value() &&
                             tissueNeedleAngularSpeedRadPerS > 0.0,
@@ -12007,19 +12206,26 @@ int main(const int argc, const char* const argv[]) {
                     );
                     const double targetPassageAngleRad =
                         std::asin(requiredSine);
-                    const double microstepSeconds =
+                    const double passageStepSeconds =
                         static_cast<double>(stepConfig.timestepSeconds);
-                    const double anglePerMicrostepRad =
-                        tissueNeedleAngularSpeedRadPerS * microstepSeconds;
+                    const double entryAngleRad =
+                        tissueNeedleAngularSpeedRadPerS *
+                        (kControlTimestep /
+                            static_cast<double>(kPhysicsSubsteps));
+                    const double anglePerPassageStepRad =
+                        tissueNeedleAngularSpeedRadPerS *
+                        passageStepSeconds;
                     const std::uint32_t minimumPassageSteps =
                         static_cast<std::uint32_t>(std::ceil(
-                            targetPassageAngleRad /
-                            anglePerMicrostepRad
+                            std::max(
+                                targetPassageAngleRad - entryAngleRad,
+                                0.0
+                            ) / anglePerPassageStepRad
                         )) + 4u;
                     const std::uint32_t maximumExtensionSteps =
                         static_cast<std::uint32_t>(std::ceil(
                             kCurvedPassageMaximumExtensionM /
-                            (kCurvedPassageSpeedMps * microstepSeconds)
+                            (kCurvedPassageSpeedMps * passageStepSeconds)
                         ));
                     const std::uint32_t maximumPassageSteps =
                         minimumPassageSteps + maximumExtensionSteps;
@@ -12031,7 +12237,7 @@ int main(const int argc, const char* const argv[]) {
                     );
 
                     PhaseResult passage = coupled;
-                    std::uint32_t completedPassageSteps = 1u;
+                    std::uint32_t completedPassageSteps = 0u;
                     std::uint32_t totalPassageSteps = 0u;
                     double passageGpuMilliseconds =
                         coupled.diagnostics.gpuElapsedMilliseconds;
@@ -12056,10 +12262,11 @@ int main(const int argc, const char* const argv[]) {
                         for (std::uint32_t localStep = 0u;
                              localStep < chunkSteps;
                              ++localStep) {
-                            const double angle = anglePerMicrostepRad *
-                                static_cast<double>(
-                                    completedPassageSteps + localStep
-                                );
+                            const double angle = entryAngleRad +
+                                anglePerPassageStepRad *
+                                    static_cast<double>(
+                                        completedPassageSteps + localStep
+                                    );
                             for (std::size_t sceneBody = 0u;
                                  sceneBody < compiled.sceneBodyCount();
                                  ++sceneBody) {
@@ -12276,7 +12483,8 @@ int main(const int argc, const char* const argv[]) {
                             channel.identity.z != 0u &&
                             axisLength > 1.0e-12 &&
                             std::abs(axisLength - 1.0) <= 1.0e-5 &&
-                            std::abs(radius - initialTip.radiusM) <= 2.0e-7 &&
+                            std::abs(radius - expectedChannelRadiusM) <=
+                                2.0e-7 &&
                             std::abs(
                                 2.0 * halfLength -
                                 expectedEntryTractLengthM
@@ -12588,9 +12796,15 @@ int main(const int argc, const char* const argv[]) {
                     );
                     std::cout << std::setprecision(9)
                         << "tissue_curved_through_wall_passage=ok"
-                        << " passage_steps=" << totalPassageSteps
+                        << " passage_groups=" << totalPassageSteps
+                        << " matter_timestep_multiplier="
+                        << kSuturePassageMatterRateMultiplier
+                        << " base_der_substeps="
+                        << 1u + totalPassageSteps *
+                            kSuturePassageMatterRateMultiplier
                         << " needle_arc_angle_rad="
-                        << anglePerMicrostepRad * totalPassageSteps
+                        << entryAngleRad +
+                            anglePerPassageStepRad * totalPassageSteps
                         << " needle_tip_advance_m=" << exitTipAdvanceM
                         << " distal_surface_clearance_m="
                         << distalSurfaceClearanceM
@@ -12664,7 +12878,8 @@ int main(const int argc, const char* const argv[]) {
                             )
                     );
                     const double passageAngleRad =
-                        anglePerMicrostepRad * totalPassageSteps;
+                        entryAngleRad +
+                        anglePerPassageStepRad * totalPassageSteps;
                     const double pullAngularSpeedRadPerS =
                         kSuturePullThroughSpeedMps /
                         tissueNeedleOrbit->centerlineRadiusM;
@@ -12902,7 +13117,7 @@ int main(const int argc, const char* const argv[]) {
                             << passage.diagnostics.gpuElapsedMilliseconds
                             << '\n';
                         const double strandContactChannelEnvelopeM =
-                            initialTip.radiusM +
+                            expectedChannelRadiusM +
                             world.rods[0].model.radius +
                             tissueWorld.dispatch.numericalLimits.x;
                         if (certifiedNodeDistalClearanceM >=
@@ -12975,7 +13190,7 @@ int main(const int argc, const char* const argv[]) {
                             std::isfinite(sampledStrandReactionImpulseNs) &&
                             sampledStrandReactionImpulseNs > 0.0 &&
                             minimumStrandContactChannelDistanceM <=
-                                initialTip.radiusM +
+                                expectedChannelRadiusM +
                                     world.rods[0].model.radius +
                                     tissueWorld.dispatch.numericalLimits.x &&
                             pullSwageErrorM < kMaximumSwageAttachmentError &&
@@ -13125,7 +13340,7 @@ int main(const int argc, const char* const argv[]) {
                         std::abs(
                             static_cast<double>(
                                 channel.originAndRadius.w) -
-                            initialTip.radiusM
+                            expectedChannelRadiusM
                         ) <= 2.0e-7 &&
                         std::abs(
                             2.0 * static_cast<double>(
@@ -13390,10 +13605,10 @@ int main(const int argc, const char* const argv[]) {
                 << " active_puncture_channels=" << activeChannels
                 << " active_tetrahedra=" << activeTetrahedra
                 << " removed_tissue_mass_kg=" << removedMassKg
-                << " analytic_tip_tract_mass_kg="
-                << analyticTipTractMassKg
-                << " removed_to_tip_tract_mass_ratio="
-                << removedToTipTractMassRatio
+                << " analytic_channel_tract_mass_kg="
+                << analyticChannelTractMassKg
+                << " removed_to_channel_tract_mass_ratio="
+                << removedToChannelTractMassRatio
                 << " puncture_channel_radius_m=" << channelRadiusM
                 << " puncture_channel_length_m=" << channelLengthM
                 << " puncture_channel_axis_alignment="

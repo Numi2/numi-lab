@@ -44,7 +44,8 @@ constexpr std::uint32_t kKnownRigidFlags =
     NM_RIGID_ARTICULATED |
     NM_RIGID_DYNAMIC |
     NM_RIGID_PUNCTURE_TIP |
-    NM_RIGID_SUTURE_STRAND;
+    NM_RIGID_SUTURE_STRAND |
+    NM_RIGID_PUNCTURE_DILATOR;
 
 [[nodiscard]] bool finite4(const nm_float4 value) noexcept {
     return std::isfinite(value.x) && std::isfinite(value.y) &&
@@ -1361,6 +1362,8 @@ private:
                 (proxy.flags & NM_RIGID_PUNCTURE_TIP) != 0u;
             const bool strand =
                 (proxy.flags & NM_RIGID_SUTURE_STRAND) != 0u;
+            const bool punctureDilator =
+                (proxy.flags & NM_RIGID_PUNCTURE_DILATOR) != 0u;
             const float capsuleDx =
                 proxy.localExtent.x - proxy.localCenterAndRadius.x;
             const float capsuleDy =
@@ -1381,11 +1384,16 @@ private:
                 (articulated && dynamic) ||
                 (strand &&
                     (articulated || dynamic || punctureTip ||
+                     punctureDilator ||
                      proxy.shapeKind != NM_RIGID_CAPSULE ||
                      proxy.bodyIndex == NM_INVALID_INDEX ||
                      proxy.sceneBodyIndex == NM_INVALID_INDEX ||
                      proxy.bodyIndex == proxy.sceneBodyIndex ||
                      proxy.adaptiveObjectIndex != NM_INVALID_INDEX)) ||
+                (punctureDilator &&
+                    (proxy.bodyIndex == NM_INVALID_INDEX ||
+                     (proxy.shapeKind != NM_RIGID_CAPSULE &&
+                      proxy.shapeKind != NM_RIGID_ARC))) ||
                 (punctureTip &&
                     (proxy.shapeKind != NM_RIGID_CAPSULE ||
                      proxy.bodyIndex == NM_INVALID_INDEX ||

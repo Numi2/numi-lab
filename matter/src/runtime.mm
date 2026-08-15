@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -326,6 +327,7 @@ struct Runtime::State {
     bool requiresSceneBodies = false;
     bool requiresRodNodes = false;
     bool hasAdaptive = false;
+    std::atomic<std::uint32_t> coupledTimestepMultiplier{1u};
     std::shared_ptr<CommandOwnership> commandOwnership =
         std::make_shared<CommandOwnership>();
     std::shared_ptr<GrowthOwnership> growthOwnership =
@@ -1899,17 +1901,23 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
         }
         const float cookedTimestep =
             state.dispatch.gravityAndTimestep.w;
+        const float activeTimestep = cookedTimestep *
+            static_cast<float>(
+                state.coupledTimestepMultiplier.load(
+                    std::memory_order_acquire
+                )
+            );
         const float frameTimestep = request.timestepSeconds > 0.0f
             ? request.timestepSeconds
-            : cookedTimestep;
+            : activeTimestep;
         if (!std::isfinite(frameTimestep) || !(frameTimestep > 0.0f)) {
             diagnostics.message =
                 "matter frame timestep must be finite and positive";
             return diagnostics;
         }
-        if (frameTimestep != cookedTimestep) {
+        if (frameTimestep != activeTimestep) {
             diagnostics.message =
-                "Matter runtime timestep differs from the cooked execution graph";
+                "Matter runtime timestep differs from the active coupled cadence";
             return diagnostics;
         }
 
@@ -5759,8 +5767,52 @@ bool Runtime::requiresRigidContactEvidence() const noexcept {
         state_->hasAdaptive;
 }
 
+bool Runtime::setCoupledTimestepMultiplier(
+    const std::uint32_t multiplier
+) noexcept {
+    if (state_ == nullptr || multiplier == 0u ||
+        (multiplier & (multiplier - 1u)) != 0u ||
+        multiplier > (1u << NM_MAX_RATE_EXPONENT) ||
+        !state_->requiresRodNodes ||
+        state_->dispatch.maximumRateExponent != 0u) {
+        return false;
+    }
+    try {
+        const auto ownership = state_->commandOwnership;
+        const std::lock_guard lock(ownership->mutex);
+        if (ownership->activeCommandBuffer != nullptr ||
+            ownership->preDynamicsOpen) {
+            return false;
+        }
+        const float activeTimestep =
+            state_->dispatch.gravityAndTimestep.w *
+            static_cast<float>(multiplier);
+        if (!std::isfinite(activeTimestep) || !(activeTimestep > 0.0f)) {
+            return false;
+        }
+        state_->coupledTimestepMultiplier.store(
+            multiplier,
+            std::memory_order_release
+        );
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+std::uint32_t Runtime::coupledTimestepMultiplier() const noexcept {
+    return state_
+        ? state_->coupledTimestepMultiplier.load(std::memory_order_acquire)
+        : 0u;
+}
+
 float Runtime::timestepSeconds() const noexcept {
-    return state_ ? state_->dispatch.gravityAndTimestep.w : 0.0f;
+    return state_
+        ? state_->dispatch.gravityAndTimestep.w *
+            static_cast<float>(state_->coupledTimestepMultiplier.load(
+                std::memory_order_acquire
+            ))
+        : 0.0f;
 }
 
 RuntimeStateSnapshot Runtime::snapshot() const {

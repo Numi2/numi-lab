@@ -383,6 +383,26 @@ kernel void nm_topology_detect_puncture(
         const float lengthEdge = length(edge);
         if (!(lengthEdge > 1.0e-12f)) continue;
         const float3 geometricTipDirection = -edge / lengthEdge;
+        // Fracture remains tip-authorized, but the tract must retain the
+        // largest explicitly authored same-body needle gauge that follows the
+        // taper. This models tissue separation by the shank without allowing
+        // a generic shaft, swage, or gripper proxy to initiate puncture.
+        float tractRadius = radius;
+        for (uint candidateIndex = 0u;
+             candidateIndex < dispatch.rigidProxyCount;
+             ++candidateIndex) {
+            const NMRigidProxyGPU candidate = proxies[candidateIndex];
+            if ((candidate.flags & NM_RIGID_PUNCTURE_DILATOR) == 0u ||
+                candidate.bodyIndex != proxies[proxyIndex].bodyIndex ||
+                !(candidate.localCenterAndRadius.w > 0.0f) ||
+                !isfinite(candidate.localCenterAndRadius.w)) {
+                continue;
+            }
+            tractRadius = max(
+                tractRadius,
+                candidate.localCenterAndRadius.w
+            );
+        }
         float3 tipDirection = geometricTipDirection;
         const float3 terminalVelocity =
             rigid.linearVelocityAndInverseMass.xyz;
@@ -514,7 +534,7 @@ kernel void nm_topology_detect_puncture(
             output.schedule = {
                 controlStep, NM_INVALID_INDEX, 0u, environment,
             };
-            output.geometry0 = float4(tractDirection, radius);
+            output.geometry0 = float4(tractDirection, tractRadius);
             output.geometry1 = float4(
                 0.5f * (tractFirst + tractSecond),
                 0.5f * tractLength
@@ -606,7 +626,7 @@ kernel void nm_topology_detect_puncture(
             NM_MUTATION_ACTIVE | NM_MUTATION_PHYSICS_TRIGGERED,
         };
         output.schedule = {controlStep, NM_INVALID_INDEX, 0u, environment};
-        output.geometry0 = float4(tipDirection, radius);
+        output.geometry0 = float4(tipDirection, tractRadius);
         output.geometry1 = float4(
             0.5f * (tractFirst + tractSecond),
             0.5f * tractLength
