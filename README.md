@@ -80,12 +80,36 @@ Krylov headroom above that live high-water and reduced the same-host passage
 from 589.3 to 300.0 GPU seconds (1.96x). This is a deterministic workload
 measurement, not a universal solver speedup. The tract is a mass-conserving
 sub-element contact discontinuity, not yet a constitutive crack surface or
-clinical validation. Receiver extraction and knot formation remain separate
-physical qualification boundaries.
+clinical validation. Receiver extraction and robot-driven knot formation remain
+separate physical qualification boundaries.
 
 ```sh
 ./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
   --tissue-curved-passage-only
+```
+
+## Loaded PDO knot-contact mechanics
+
+The rod solver now resolves a bounded network of frictional thread/thread
+contacts instead of applying each crossing once. Its Apple Metal path compacts
+up to 64 load-bearing contacts, performs eight alternating projected
+Gauss-Seidel sweeps with accumulated Coulomb-disk multipliers, and rejects an
+overflow rather than silently dropping a crossing. The FP64 oracle uses the
+same alternating accumulated-impulse update.
+
+The deterministic Apple M4 fixture uses the authored 250 mm PDO 3-0
+monofilament (0.20 mm diameter), 128 rod nodes, and a pre-tied five-crossing
+core under 0.5 mm opposing endpoint displacement. Fourteen edge pairs occupy
+the 50 um contact shell. Dynamic self-friction at the explicit research value
+of 0.12 reduced RMS crossing slip from 3.182 to 1.605 mm/s on Metal and from
+5.966 to 4.170 mm/s in FP64 while the Metal fixture carried 0.483 mN endpoint
+preload and replayed exactly. The 2.565 mm/s Metal/FP64 slip difference remains
+an open nonlinear-parity boundary. This fixture qualifies loaded multi-contact
+mechanics only: it is pre-tied, is not a square or surgeon's knot executed by
+the robots, and is not package-calibrated or clinical strength evidence.
+
+```sh
+./build-coupled-dev/bin/metalrobo_surgical_knot_mechanics_probe
 ```
 
 ## dVRK GS21 suture pickup

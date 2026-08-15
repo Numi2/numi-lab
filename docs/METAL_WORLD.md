@@ -453,13 +453,16 @@ output transactionally. Non-adjacent edges are radius-correct capsules:
 closest witnesses, coincident normals, four-node inverse-mass response, and
 contact refresh run inside every DER sweep on FP64 and Metal. After the
 position solve, SIMD32 rebuilds the final contact shell and canonical pair
-order applies a velocity-level Coulomb impulse capped by the normal impulse
-inferred from the constraint-induced normal velocity change. The surgical PDO
-preset uses its conservative dynamic calibration for this single-coefficient
-self-friction path. The versioned heterogeneous rod program validates and
-fingerprints the coefficient. Resolved surface-spin torque, distinct static
-and dynamic self-friction, and stronger coupled rod/rigid iterations remain
-open fidelity boundaries.
+order compacts at most 64 load-bearing contacts. Eight alternating projected
+Gauss-Seidel sweeps retain each tangent multiplier and project its accumulated
+impulse onto the Coulomb disk capped by the normal impulse inferred from the
+constraint-induced normal velocity change. Capacity overflow rejects the
+transaction instead of dropping a contact. The surgical PDO preset uses its
+conservative dynamic calibration for this single-coefficient self-friction
+path. The versioned heterogeneous rod program validates and fingerprints the
+coefficient. Resolved surface-spin torque, distinct static and dynamic
+self-friction, and stronger coupled rod/rigid iterations remain open fidelity
+boundaries.
 
 `HeterogeneousWorld` is the owned compilation boundary above those executors.
 It composes `EngineModel` instances transactionally, records the exact global

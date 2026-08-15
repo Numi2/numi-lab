@@ -1336,6 +1336,33 @@ set_target_properties(
 )
 
 add_executable(
+    metalrobo_surgical_knot_mechanics_probe
+    apps/surgical_knot_mechanics_probe.mm
+)
+target_compile_options(
+    metalrobo_surgical_knot_mechanics_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_surgical_knot_mechanics_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_surgical_knot_mechanics_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
     metalrobo_metal_unified_quality_probe
     apps/metal_unified_quality_probe.cpp
 )
@@ -2333,6 +2360,16 @@ if(BUILD_TESTING)
     set(
         METALROBO_HANDOFF_TEST_VISUAL_OUTPUT
         "${CMAKE_CURRENT_BINARY_DIR}/testing/suture/handoff-visual"
+    )
+    add_test(
+        NAME metalrobo.surgical.loaded_knot_mechanics
+        COMMAND $<TARGET_FILE:metalrobo_surgical_knot_mechanics_probe>
+    )
+    set_tests_properties(
+        metalrobo.surgical.loaded_knot_mechanics
+        PROPERTIES
+            LABELS "metalrobo;surgical;physics;metal"
+            TIMEOUT 180
     )
     add_test(
         NAME metalrobo.surgical.dual_psm_suture_handoff

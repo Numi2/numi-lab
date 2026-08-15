@@ -901,12 +901,83 @@ inline void projectSelfContactsCooperative(
     threadgroup_barrier(mem_flags::mem_threadgroup);
 }
 
-// Rebuild the final contact shell cooperatively, then apply velocity-level
-// Coulomb impulses in canonical pair order. The unconstrained prediction is
-// retained separately, so the normal impulse is inferred only from the
-// constraint-induced normal velocity change. Pair discovery is SIMD32-wide;
-// lane zero owns the ordered Gauss-Seidel friction update for deterministic
-// replay and equal-and-opposite four-node impulses.
+inline bool selfFrictionKinematics(
+    const uint firstEdge,
+    const uint secondEdge,
+    device const float* inverseMasses,
+    threadgroup const float3* positions,
+    thread RodClosestSegments& closest,
+    thread float3& normal,
+    thread float4& weights,
+    thread uint4& nodes,
+    thread float& inverseEffectiveMass
+) {
+    if (!closestRodSegments(
+            positions[firstEdge],
+            positions[firstEdge + 1u],
+            positions[secondEdge],
+            positions[secondEdge + 1u],
+            closest
+        )) {
+        return false;
+    }
+    const float3 firstDirection =
+        positions[firstEdge + 1u] - positions[firstEdge];
+    const float3 secondDirection =
+        positions[secondEdge + 1u] - positions[secondEdge];
+    normal = closest.distance > 1.0e-10f
+        ? closest.delta / closest.distance
+        : stableSelfContactNormal(
+              firstDirection,
+              secondDirection,
+              firstEdge,
+              secondEdge
+          );
+    weights = float4(
+        1.0f - closest.first,
+        closest.first,
+        1.0f - closest.second,
+        closest.second
+    );
+    nodes = uint4(
+        firstEdge,
+        firstEdge + 1u,
+        secondEdge,
+        secondEdge + 1u
+    );
+    inverseEffectiveMass = 0.0f;
+    for (uint slot = 0u; slot < 4u; ++slot) {
+        inverseEffectiveMass +=
+            weights[slot] * weights[slot] *
+            inverseMasses[nodes[slot]];
+    }
+    return inverseEffectiveMass > 0.0f &&
+        isfinite(inverseEffectiveMass) && finite3(normal);
+}
+
+inline float3 selfFrictionRelativeVelocity(
+    threadgroup const float3* velocities,
+    const float4 weights,
+    const uint4 nodes
+) {
+    float3 first = float3(0.0f);
+    float3 second = float3(0.0f);
+    for (uint slot = 0u; slot < 4u; ++slot) {
+        if (slot < 2u) {
+            first += weights[slot] * velocities[nodes[slot]];
+        } else {
+            second += weights[slot] * velocities[nodes[slot]];
+        }
+    }
+    return second - first;
+}
+
+// Rebuild the final contact shell cooperatively, compact active contacts, and
+// solve their velocity cones with a bounded projected Gauss-Seidel iteration.
+// Every contact retains its accumulated tangent impulse, so alternating
+// sweeps can remove network slip without exceeding the total Coulomb disk.
+// Pair discovery remains SIMD32-wide; lane zero owns canonical physical
+// updates for deterministic replay and equal-and-opposite node impulses.
 inline void applySelfContactFrictionCooperative(
     const MRRodGPUDispatch dispatch,
     device const float* inverseMasses,
@@ -914,6 +985,10 @@ inline void applySelfContactFrictionCooperative(
     threadgroup const float3* unconstrainedVelocities,
     threadgroup float3* constrainedVelocities,
     threadgroup atomic_uint* candidateWords,
+    threadgroup uint* contactPairs,
+    threadgroup float3* accumulatedImpulses,
+    threadgroup float* normalImpulses,
+    threadgroup uint& contactCount,
     threadgroup atomic_uint& failure,
     const uint lane,
     const uint laneCount
@@ -970,6 +1045,7 @@ inline void applySelfContactFrictionCooperative(
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
     if (lane == 0u) {
+        contactCount = 0u;
         const uint activePairCount =
             dispatch.edgeCount >= 2u
             ? (
@@ -1003,12 +1079,20 @@ inline void applySelfContactFrictionCooperative(
                 const uint secondEdge =
                     firstEdge + 2u + pairOrdinal - rowStart;
                 RodClosestSegments closest;
-                if (!closestRodSegments(
-                        positions[firstEdge],
-                        positions[firstEdge + 1u],
-                        positions[secondEdge],
-                        positions[secondEdge + 1u],
-                        closest
+                float3 normal;
+                float4 weights;
+                uint4 nodes;
+                float inverseEffectiveMass = 0.0f;
+                if (!selfFrictionKinematics(
+                        firstEdge,
+                        secondEdge,
+                        inverseMasses,
+                        positions,
+                        closest,
+                        normal,
+                        weights,
+                        nodes,
+                        inverseEffectiveMass
                     )) {
                     recordFailure(
                         failure,
@@ -1017,71 +1101,18 @@ inline void applySelfContactFrictionCooperative(
                     candidates &= candidates - 1u;
                     continue;
                 }
-                const float3 firstDirection =
-                    positions[firstEdge + 1u] -
-                    positions[firstEdge];
-                const float3 secondDirection =
-                    positions[secondEdge + 1u] -
-                    positions[secondEdge];
-                const float3 normal = closest.distance > 1.0e-10f
-                    ? closest.delta / closest.distance
-                    : stableSelfContactNormal(
-                          firstDirection,
-                          secondDirection,
-                          firstEdge,
-                          secondEdge
-                      );
-                const float4 weights = float4(
-                    1.0f - closest.first,
-                    closest.first,
-                    1.0f - closest.second,
-                    closest.second
-                );
-                const uint4 nodes = uint4(
-                    firstEdge,
-                    firstEdge + 1u,
-                    secondEdge,
-                    secondEdge + 1u
-                );
-                float inverseEffectiveMass = 0.0f;
-                float3 firstVelocity = float3(0.0f);
-                float3 secondVelocity = float3(0.0f);
-                float3 unconstrainedFirstVelocity = float3(0.0f);
-                float3 unconstrainedSecondVelocity = float3(0.0f);
-                for (uint slot = 0u; slot < 4u; ++slot) {
-                    const float weight = weights[slot];
-                    inverseEffectiveMass +=
-                        weight * weight *
-                        inverseMasses[nodes[slot]];
-                    if (slot < 2u) {
-                        firstVelocity +=
-                            weight * constrainedVelocities[nodes[slot]];
-                        unconstrainedFirstVelocity +=
-                            weight *
-                            unconstrainedVelocities[nodes[slot]];
-                    } else {
-                        secondVelocity +=
-                            weight * constrainedVelocities[nodes[slot]];
-                        unconstrainedSecondVelocity +=
-                            weight *
-                            unconstrainedVelocities[nodes[slot]];
-                    }
-                }
-                if (!(inverseEffectiveMass > 0.0f) ||
-                    !isfinite(inverseEffectiveMass) ||
-                    !finite3(normal)) {
-                    recordFailure(
-                        failure,
-                        MR_ROD_GPU_NONFINITE_RESULT
-                    );
-                    candidates &= candidates - 1u;
-                    continue;
-                }
                 const float3 relativeVelocity =
-                    secondVelocity - firstVelocity;
+                    selfFrictionRelativeVelocity(
+                        constrainedVelocities,
+                        weights,
+                        nodes
+                    );
                 const float3 unconstrainedRelativeVelocity =
-                    unconstrainedSecondVelocity -
-                    unconstrainedFirstVelocity;
+                    selfFrictionRelativeVelocity(
+                        unconstrainedVelocities,
+                        weights,
+                        nodes
+                    );
                 const float normalImpulse = max(
                     dot(
                         relativeVelocity -
@@ -1090,24 +1121,100 @@ inline void applySelfContactFrictionCooperative(
                     ),
                     0.0f
                 ) / inverseEffectiveMass;
-                const float3 tangentVelocity =
-                    relativeVelocity -
-                    normal * dot(relativeVelocity, normal);
-                const float tangentSpeed = length(tangentVelocity);
-                if (normalImpulse > 0.0f &&
-                    tangentSpeed > 1.0e-10f) {
-                    const float tangentImpulseMagnitude = min(
-                        tangentSpeed / inverseEffectiveMass,
-                        dispatch.selfCollision.w * normalImpulse
-                    );
-                    const float3 tangentImpulse =
-                        -tangentVelocity *
-                        (tangentImpulseMagnitude / tangentSpeed);
+                if (normalImpulse > 0.0f) {
+                    if (contactCount >=
+                            MR_ROD_GPU_MAX_SELF_FRICTION_CONTACTS) {
+                        recordFailure(
+                            failure,
+                            MR_ROD_GPU_SELF_FRICTION_CAPACITY_OVERFLOW
+                        );
+                    } else {
+                        contactPairs[contactCount] =
+                            firstEdge | (secondEdge << 16u);
+                        accumulatedImpulses[contactCount] =
+                            float3(0.0f);
+                        normalImpulses[contactCount] = normalImpulse;
+                        ++contactCount;
+                    }
+                }
+                candidates &= candidates - 1u;
+            }
+        }
+
+        if (atomic_load_explicit(
+                &failure,
+                memory_order_relaxed
+            ) == MR_ROD_GPU_SUCCESS) {
+            for (uint iteration = 0u;
+                 iteration < MR_ROD_GPU_SELF_FRICTION_ITERATIONS;
+                 ++iteration) {
+                for (uint order = 0u;
+                     order < contactCount;
+                     ++order) {
+                    const uint contactIndex =
+                        (iteration & 1u) == 0u
+                        ? order
+                        : contactCount - 1u - order;
+                    const uint packedPair =
+                        contactPairs[contactIndex];
+                    const uint contactFirstEdge =
+                        packedPair & 0xffffu;
+                    const uint contactSecondEdge =
+                        packedPair >> 16u;
+                    RodClosestSegments closest;
+                    float3 normal;
+                    float4 weights;
+                    uint4 nodes;
+                    float inverseEffectiveMass = 0.0f;
+                    if (!selfFrictionKinematics(
+                            contactFirstEdge,
+                            contactSecondEdge,
+                            inverseMasses,
+                            positions,
+                            closest,
+                            normal,
+                            weights,
+                            nodes,
+                            inverseEffectiveMass
+                        )) {
+                        recordFailure(
+                            failure,
+                            MR_ROD_GPU_DEGENERATE_GEOMETRY
+                        );
+                        continue;
+                    }
+                    const float3 relativeVelocity =
+                        selfFrictionRelativeVelocity(
+                            constrainedVelocities,
+                            weights,
+                            nodes
+                        );
+                    const float3 tangentVelocity =
+                        relativeVelocity -
+                        normal * dot(relativeVelocity, normal);
+                    float3 projectedImpulse =
+                        accumulatedImpulses[contactIndex] -
+                        tangentVelocity / inverseEffectiveMass;
+                    const float frictionLimit =
+                        dispatch.selfCollision.w *
+                        normalImpulses[contactIndex];
+                    const float projectedMagnitude =
+                        length(projectedImpulse);
+                    if (projectedMagnitude > frictionLimit &&
+                        projectedMagnitude > 0.0f) {
+                        projectedImpulse *=
+                            frictionLimit / projectedMagnitude;
+                    }
+                    const float3 deltaImpulse =
+                        projectedImpulse -
+                        accumulatedImpulses[contactIndex];
+                    accumulatedImpulses[contactIndex] =
+                        projectedImpulse;
                     for (uint slot = 0u; slot < 4u; ++slot) {
                         const float sign =
                             slot < 2u ? -1.0f : 1.0f;
                         constrainedVelocities[nodes[slot]] +=
-                            sign * weights[slot] * tangentImpulse *
+                            sign * weights[slot] * deltaImpulse *
                             inverseMasses[nodes[slot]];
                         if (!finite3(
                                 constrainedVelocities[nodes[slot]]
@@ -1119,7 +1226,6 @@ inline void applySelfContactFrictionCooperative(
                         }
                     }
                 }
-                candidates &= candidates - 1u;
             }
         }
     }
@@ -1669,6 +1775,15 @@ kernel void mr_discrete_elastic_rod_step(
     threadgroup atomic_uint selfContactCandidateWords[
         MR_ROD_GPU_SELF_CONTACT_PAIR_WORDS
     ];
+    threadgroup uint selfFrictionPairs[
+        MR_ROD_GPU_MAX_SELF_FRICTION_CONTACTS
+    ];
+    threadgroup float3 selfFrictionImpulses[
+        MR_ROD_GPU_MAX_SELF_FRICTION_CONTACTS
+    ];
+    threadgroup float selfFrictionNormalImpulses[
+        MR_ROD_GPU_MAX_SELF_FRICTION_CONTACTS
+    ];
     threadgroup float3 targetImpulses[
         MR_ROD_GPU_MAX_ATTACHMENTS
     ];
@@ -1680,6 +1795,7 @@ kernel void mr_discrete_elastic_rod_step(
     threadgroup atomic_uint projectedContactCount;
     threadgroup uint completedIterations;
     threadgroup uint converged;
+    threadgroup uint selfFrictionContactCount;
 
     if (lane == 0u) {
         atomic_store_explicit(
@@ -2219,6 +2335,10 @@ kernel void mr_discrete_elastic_rod_step(
             velocities,
             iterationPositions,
             selfContactCandidateWords,
+            selfFrictionPairs,
+            selfFrictionImpulses,
+            selfFrictionNormalImpulses,
+            selfFrictionContactCount,
             failure,
             lane,
             laneCount

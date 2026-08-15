@@ -1012,10 +1012,105 @@ bool applySelfContactFriction(
     const DiscreteElasticRodStepConfig& config,
     const std::span<const Vec3> unconstrainedVelocities
 ) {
+    struct FrictionContact {
+        std::size_t firstEdge = 0u;
+        std::size_t secondEdge = 0u;
+        Vec3 accumulatedImpulse{};
+        double normalImpulse = 0.0;
+    };
     const double contactDistance =
         2.0 * model.radius + config.selfCollisionMargin;
     const double contactThreshold =
         contactDistance + config.constraintTolerance;
+    const auto contactKinematics = [&model, &state](
+        const std::size_t firstEdge,
+        const std::size_t secondEdge,
+        ClosestSegments& closest,
+        Vec3& normal,
+        std::array<double, 4>& weights,
+        std::array<std::size_t, 4>& nodes,
+        double& inverseEffectiveMass
+    ) {
+        if (!closestSegments(
+                state.positions[firstEdge],
+                state.positions[firstEdge + 1u],
+                state.positions[secondEdge],
+                state.positions[secondEdge + 1u],
+                closest
+            )) {
+            return false;
+        }
+        const Vec3 firstDirection = subtract(
+            state.positions[firstEdge + 1u],
+            state.positions[firstEdge]
+        );
+        const Vec3 secondDirection = subtract(
+            state.positions[secondEdge + 1u],
+            state.positions[secondEdge]
+        );
+        if (closest.distance > 1.0e-14) {
+            normal = multiply(
+                closest.delta,
+                1.0 / closest.distance
+            );
+        } else {
+            normal = cross(firstDirection, secondDirection);
+            if (!normalize(normal, normal)) {
+                Vec3 firstTangent;
+                if (!normalize(firstDirection, firstTangent)) {
+                    return false;
+                }
+                normal = leastAlignedDirector(firstTangent);
+            }
+            if (((firstEdge ^ secondEdge) & 1u) != 0u) {
+                normal = multiply(normal, -1.0);
+            }
+        }
+        weights = {
+            1.0 - closest.first,
+            closest.first,
+            1.0 - closest.second,
+            closest.second,
+        };
+        nodes = {
+            firstEdge,
+            firstEdge + 1u,
+            secondEdge,
+            secondEdge + 1u,
+        };
+        inverseEffectiveMass = 0.0;
+        for (std::size_t slot = 0u; slot < nodes.size(); ++slot) {
+            inverseEffectiveMass +=
+                weights[slot] * weights[slot] /
+                model.nodeMasses[nodes[slot]];
+        }
+        return inverseEffectiveMass > 0.0 &&
+            finite(inverseEffectiveMass) && finite(normal);
+    };
+    const auto relativeVelocity = [](
+        const std::span<const Vec3> velocities,
+        const std::array<double, 4>& weights,
+        const std::array<std::size_t, 4>& nodes
+    ) {
+        Vec3 first{};
+        Vec3 second{};
+        for (std::size_t slot = 0u; slot < nodes.size(); ++slot) {
+            if (slot < 2u) {
+                first = add(
+                    first,
+                    multiply(velocities[nodes[slot]], weights[slot])
+                );
+            } else {
+                second = add(
+                    second,
+                    multiply(velocities[nodes[slot]], weights[slot])
+                );
+            }
+        }
+        return subtract(second, first);
+    };
+
+    std::vector<FrictionContact> contacts;
     for (std::size_t firstEdge = 0u;
          firstEdge < model.restLengths.size();
          ++firstEdge) {
@@ -1023,140 +1118,117 @@ bool applySelfContactFriction(
              secondEdge < model.restLengths.size();
              ++secondEdge) {
             ClosestSegments closest;
-            if (!closestSegments(
-                    state.positions[firstEdge],
-                    state.positions[firstEdge + 1u],
-                    state.positions[secondEdge],
-                    state.positions[secondEdge + 1u],
-                    closest
+            Vec3 normal;
+            std::array<double, 4> weights{};
+            std::array<std::size_t, 4> nodes{};
+            double inverseEffectiveMass = 0.0;
+            if (!contactKinematics(
+                    firstEdge,
+                    secondEdge,
+                    closest,
+                    normal,
+                    weights,
+                    nodes,
+                    inverseEffectiveMass
                 )) {
                 return false;
             }
             if (closest.distance > contactThreshold) {
                 continue;
             }
-            const Vec3 firstDirection = subtract(
-                state.positions[firstEdge + 1u],
-                state.positions[firstEdge]
+            const Vec3 constrainedRelativeVelocity = relativeVelocity(
+                state.velocities,
+                weights,
+                nodes
             );
-            const Vec3 secondDirection = subtract(
-                state.positions[secondEdge + 1u],
-                state.positions[secondEdge]
-            );
-            Vec3 normal;
-            if (closest.distance > 1.0e-14) {
-                normal = multiply(
-                    closest.delta,
-                    1.0 / closest.distance
-                );
-            } else {
-                normal = cross(firstDirection, secondDirection);
-                if (!normalize(normal, normal)) {
-                    Vec3 firstTangent;
-                    if (!normalize(firstDirection, firstTangent)) {
-                        return false;
-                    }
-                    normal = leastAlignedDirector(firstTangent);
-                }
-                if (((firstEdge ^ secondEdge) & 1u) != 0u) {
-                    normal = multiply(normal, -1.0);
-                }
-            }
-            const std::array<double, 4> weights{
-                1.0 - closest.first,
-                closest.first,
-                1.0 - closest.second,
-                closest.second,
-            };
-            const std::array<std::size_t, 4> nodes{
-                firstEdge,
-                firstEdge + 1u,
-                secondEdge,
-                secondEdge + 1u,
-            };
-            double inverseEffectiveMass = 0.0;
-            Vec3 firstVelocity{};
-            Vec3 secondVelocity{};
-            Vec3 unconstrainedFirstVelocity{};
-            Vec3 unconstrainedSecondVelocity{};
-            for (std::size_t slot = 0u;
-                 slot < nodes.size();
-                 ++slot) {
-                const double weight = weights[slot];
-                inverseEffectiveMass +=
-                    weight * weight /
-                    model.nodeMasses[nodes[slot]];
-                if (slot < 2u) {
-                    firstVelocity = add(
-                        firstVelocity,
-                        multiply(
-                            state.velocities[nodes[slot]],
-                            weight
-                        )
-                    );
-                    unconstrainedFirstVelocity = add(
-                        unconstrainedFirstVelocity,
-                        multiply(
-                            unconstrainedVelocities[nodes[slot]],
-                            weight
-                        )
-                    );
-                } else {
-                    secondVelocity = add(
-                        secondVelocity,
-                        multiply(
-                            state.velocities[nodes[slot]],
-                            weight
-                        )
-                    );
-                    unconstrainedSecondVelocity = add(
-                        unconstrainedSecondVelocity,
-                        multiply(
-                            unconstrainedVelocities[nodes[slot]],
-                            weight
-                        )
-                    );
-                }
-            }
-            if (!(inverseEffectiveMass > 0.0) ||
-                !finite(inverseEffectiveMass)) {
-                return false;
-            }
-            const Vec3 relativeVelocity = subtract(
-                secondVelocity,
-                firstVelocity
-            );
-            const Vec3 unconstrainedRelativeVelocity = subtract(
-                unconstrainedSecondVelocity,
-                unconstrainedFirstVelocity
+            const Vec3 unconstrainedRelativeVelocity = relativeVelocity(
+                unconstrainedVelocities,
+                weights,
+                nodes
             );
             const double normalImpulse = std::max(
                 dot(
                     subtract(
-                        relativeVelocity,
+                        constrainedRelativeVelocity,
                         unconstrainedRelativeVelocity
                     ),
                     normal
                 ),
                 0.0
             ) / inverseEffectiveMass;
-            const Vec3 tangentVelocity = subtract(
-                relativeVelocity,
-                multiply(normal, dot(relativeVelocity, normal))
-            );
-            const double tangentSpeed = norm(tangentVelocity);
-            if (!(normalImpulse > 0.0) ||
-                !(tangentSpeed > 1.0e-14)) {
-                continue;
+            if (normalImpulse > 0.0) {
+                contacts.push_back({
+                    .firstEdge = firstEdge,
+                    .secondEdge = secondEdge,
+                    .normalImpulse = normalImpulse,
+                });
             }
-            const double tangentImpulseMagnitude = std::min(
-                tangentSpeed / inverseEffectiveMass,
-                config.selfCollisionFriction * normalImpulse
+        }
+    }
+
+    constexpr std::size_t frictionIterations = 8u;
+    for (std::size_t iteration = 0u;
+         iteration < frictionIterations;
+         ++iteration) {
+        for (std::size_t order = 0u;
+             order < contacts.size();
+             ++order) {
+            const std::size_t contactIndex =
+                (iteration & 1u) == 0u
+                ? order
+                : contacts.size() - 1u - order;
+            FrictionContact& contact = contacts[contactIndex];
+            ClosestSegments closest;
+            Vec3 normal;
+            std::array<double, 4> weights{};
+            std::array<std::size_t, 4> nodes{};
+            double inverseEffectiveMass = 0.0;
+            if (!contactKinematics(
+                    contact.firstEdge,
+                    contact.secondEdge,
+                    closest,
+                    normal,
+                    weights,
+                    nodes,
+                    inverseEffectiveMass
+                )) {
+                return false;
+            }
+            const Vec3 currentRelativeVelocity = relativeVelocity(
+                state.velocities,
+                weights,
+                nodes
             );
-            const Vec3 tangentImpulse = multiply(
-                tangentVelocity,
-                -tangentImpulseMagnitude / tangentSpeed
+            const Vec3 tangentVelocity = subtract(
+                currentRelativeVelocity,
+                multiply(
+                    normal,
+                    dot(currentRelativeVelocity, normal)
+                )
             );
+            Vec3 projectedImpulse = subtract(
+                contact.accumulatedImpulse,
+                multiply(
+                    tangentVelocity,
+                    1.0 / inverseEffectiveMass
+                )
+            );
+            const double frictionLimit =
+                config.selfCollisionFriction *
+                contact.normalImpulse;
+            const double projectedMagnitude = norm(projectedImpulse);
+            if (projectedMagnitude > frictionLimit &&
+                projectedMagnitude > 0.0) {
+                projectedImpulse = multiply(
+                    projectedImpulse,
+                    frictionLimit / projectedMagnitude
+                );
+            }
+            const Vec3 deltaImpulse = subtract(
+                projectedImpulse,
+                contact.accumulatedImpulse
+            );
+            contact.accumulatedImpulse = projectedImpulse;
             for (std::size_t slot = 0u;
                  slot < nodes.size();
                  ++slot) {
@@ -1164,7 +1236,7 @@ bool applySelfContactFriction(
                 state.velocities[nodes[slot]] = add(
                     state.velocities[nodes[slot]],
                     multiply(
-                        tangentImpulse,
+                        deltaImpulse,
                         sign * weights[slot] /
                             model.nodeMasses[nodes[slot]]
                     )
