@@ -111,7 +111,7 @@ esac
 
 if [ -z "$profile_artifact" ]; then
     profile_timestamp=$(date -u '+%Y%m%dT%H%M%SZ')
-    profile_artifact="$profile_workspace/artifacts/coupled-profile-$profile_mode-$profile_timestamp"
+    profile_artifact="$profile_workspace/.numi/runs/coupled-profile-$profile_mode-$profile_timestamp"
 fi
 [ ! -e "$profile_artifact" ] || {
     printf '%s\n' \
@@ -132,6 +132,7 @@ mkdir -p "$profile_artifact/exports"
 profile_summary=$profile_artifact/summary.txt
 profile_revision=$(git -C "$profile_workspace" rev-parse HEAD)
 profile_branch=$(git -C "$profile_workspace" branch --show-current)
+[ -n "$profile_branch" ] || profile_branch=detached
 profile_status=$(git -C "$profile_workspace" status --porcelain=v1)
 {
     printf 'revision=%s\n' "$profile_revision"
