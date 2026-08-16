@@ -415,6 +415,13 @@ constexpr double kWholeNeedleDistalClearanceM = 2.0e-4;
 constexpr double kMaximumLiveReceiverExtractionM = 2.0e-2;
 constexpr double kReceiverBridgeIKPositionToleranceM = 1.0e-6;
 constexpr double kReceiverBridgeIKOrientationToleranceRad = 1.0e-5;
+// After distal extraction, keep the complete 8.28 mm-radius half-circle
+// needle at least 12 mm below the tissue while the receiver turns it toward
+// the symmetric opposing bite. This clears the needle envelope plus its
+// 0.35 mm gauge before the tool approaches the distal wall again.
+constexpr double kOpposingBiteReorientationClearanceM = 1.2e-2;
+constexpr double kOpposingBiteReorientationSeconds = 3.0;
+constexpr double kOpposingBiteApproachSeconds = 0.75;
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -716,6 +723,129 @@ Quaternion axisAngle(const Vec3 axis, const double angle) {
         axis.z * scale,
         std::cos(0.5 * angle),
     };
+}
+
+Quaternion normalizedQuaternion(const Quaternion q) {
+    const double magnitude = std::sqrt(
+        q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w
+    );
+    require(
+        magnitude > 1.0e-12 && std::isfinite(magnitude),
+        "quaternion normalization is degenerate"
+    );
+    return {
+        q.x / magnitude,
+        q.y / magnitude,
+        q.z / magnitude,
+        q.w / magnitude,
+    };
+}
+
+Quaternion sphericalInterpolate(
+    const Quaternion beginValue,
+    const Quaternion endValue,
+    const double fraction
+) {
+    require(
+        std::isfinite(fraction) && fraction >= 0.0 && fraction <= 1.0,
+        "quaternion interpolation fraction is invalid"
+    );
+    const Quaternion begin = normalizedQuaternion(beginValue);
+    Quaternion end = normalizedQuaternion(endValue);
+    double cosine =
+        begin.x * end.x + begin.y * end.y +
+        begin.z * end.z + begin.w * end.w;
+    if (cosine < 0.0) {
+        end = {-end.x, -end.y, -end.z, -end.w};
+        cosine = -cosine;
+    }
+    cosine = std::clamp(cosine, 0.0, 1.0);
+    if (cosine > 0.9995) {
+        return normalizedQuaternion({
+            begin.x + fraction * (end.x - begin.x),
+            begin.y + fraction * (end.y - begin.y),
+            begin.z + fraction * (end.z - begin.z),
+            begin.w + fraction * (end.w - begin.w),
+        });
+    }
+    const double angle = std::acos(cosine);
+    const double sine = std::sin(angle);
+    require(
+        sine > 1.0e-12 && std::isfinite(sine),
+        "quaternion interpolation arc is degenerate"
+    );
+    const double beginWeight = std::sin((1.0 - fraction) * angle) / sine;
+    const double endWeight = std::sin(fraction * angle) / sine;
+    return normalizedQuaternion({
+        beginWeight * begin.x + endWeight * end.x,
+        beginWeight * begin.y + endWeight * end.y,
+        beginWeight * begin.z + endWeight * end.z,
+        beginWeight * begin.w + endWeight * end.w,
+    });
+}
+
+MRBodyStateGPU interpolateNeedleBodyPose(
+    const MRBodyStateGPU& begin,
+    const MRBodyStateGPU& end,
+    const double fraction
+) {
+    require(
+        std::isfinite(fraction) && fraction >= 0.0 && fraction <= 1.0,
+        "needle pose interpolation fraction is invalid"
+    );
+    const double smooth = fraction * fraction * (3.0 - 2.0 * fraction);
+    const Vec3 beginPosition = vector(begin.position);
+    const Vec3 endPosition = vector(end.position);
+    const Vec3 position = beginPosition +
+        (endPosition - beginPosition) * smooth;
+    const Quaternion orientation = sphericalInterpolate(
+        {
+            begin.orientation.x,
+            begin.orientation.y,
+            begin.orientation.z,
+            begin.orientation.w,
+        },
+        {
+            end.orientation.x,
+            end.orientation.y,
+            end.orientation.z,
+            end.orientation.w,
+        },
+        smooth
+    );
+    MRBodyStateGPU result = begin;
+    result.position.x = static_cast<float>(position.x);
+    result.position.y = static_cast<float>(position.y);
+    result.position.z = static_cast<float>(position.z);
+    result.orientation = {
+        static_cast<float>(orientation.x),
+        static_cast<float>(orientation.y),
+        static_cast<float>(orientation.z),
+        static_cast<float>(orientation.w),
+    };
+    result.linearVelocityAndInverseMass.x = 0.0f;
+    result.linearVelocityAndInverseMass.y = 0.0f;
+    result.linearVelocityAndInverseMass.z = 0.0f;
+    result.angularVelocity = {};
+    return result;
+}
+
+void appendNeedleBodyPoseSegment(
+    std::vector<MRBodyStateGPU>& targets,
+    const MRBodyStateGPU& begin,
+    const MRBodyStateGPU& end,
+    const std::uint32_t steps
+) {
+    require(steps != 0u, "needle pose segment has zero steps");
+    targets.reserve(targets.size() + steps);
+    for (std::uint32_t step = 0u; step < steps; ++step) {
+        targets.push_back(interpolateNeedleBodyPose(
+            begin,
+            end,
+            static_cast<double>(step + 1u) /
+                static_cast<double>(steps)
+        ));
+    }
 }
 
 Vec3 rotate(const Quaternion q, const Vec3 value) {
@@ -3662,7 +3792,9 @@ ArmTrajectory needleGraspArmTrajectory(
             target.midpoint,
             target.frame.rail,
             target.frame.separation,
-            jawCoordinate
+            jawCoordinate,
+            kReceiverBridgeIKPositionToleranceM,
+            kReceiverBridgeIKOrientationToleranceRad
         );
         local = solution.localQ;
         trajectory.finalTarget = begin;
@@ -8116,6 +8248,195 @@ int main(const int argc, const char* const argv[]) {
                     fixtureMaximumExtractionSteps,
                     fixtureMaximumDistalExtraction.desiredQ
                 );
+
+            metalrobo::DualPsmNeedleThreadNeutralZoneConfig
+                opposingGeometryConfig = config;
+            opposingGeometryConfig.surgical.needlePose.position = {
+                placementNeedle.position.x,
+                placementNeedle.position.y,
+                placementNeedle.position.z,
+            };
+            opposingGeometryConfig.surgical.needlePose.orientation = {
+                placementNeedle.orientation.x,
+                placementNeedle.orientation.y,
+                placementNeedle.orientation.z,
+                placementNeedle.orientation.w,
+            };
+            metalrobo::HeterogeneousWorld opposingGeometryWorld;
+            const auto opposingGeometryComposed = metalrobo::
+                makeDualDvrkPsmNeedleThreadNeutralZoneHeterogeneousWorld(
+                    opposingGeometryWorld,
+                    opposingGeometryConfig
+                );
+            require(
+                opposingGeometryComposed.succeeded(),
+                "opposing-bite geometry world composition failed: " +
+                    opposingGeometryComposed.message
+            );
+            numi::matter::PorcineJejunumClosureCoupon
+                opposingGeometryCoupon;
+            const numi::matter::CompiledWorld opposingGeometryMatter =
+                compileNeedleSutureTissueWorld(
+                    opposingGeometryWorld,
+                    needleForPlacement,
+                    kPunctureInitialClearanceM,
+                    true,
+                    kCurvedPassageContactSegmentCount,
+                    kSutureMatterContactSegmentCount,
+                    true,
+                    opposingGeometryCoupon
+                );
+            require(
+                opposingGeometryMatter.dispatch.contactPairCount != 0u,
+                "opposing-bite geometry lost its Matter contact graph"
+            );
+            const TissueBiteSites fixtureBiteSites = tissueBiteSites(
+                opposingGeometryCoupon
+            );
+            const MRBodyStateGPU fixtureOpposingEntry =
+                opposingBiteEntryTarget(
+                    needleForPlacement,
+                    opposingGeometryWorld.defaultSceneBodies.at(0u),
+                    fixtureBiteSites,
+                    fixtureBiteSites.opposingDistalSurface,
+                    kPunctureInitialClearanceM
+                );
+            require(
+                dot(
+                    fixtureDistalDirection,
+                    fixtureBiteSites.thicknessAxis * -1.0
+                ) >= 0.999,
+                "extraction and opposing-bite distal directions diverged"
+            );
+            MRBodyStateGPU fixtureExtractedNeedle = fixtureNeedle;
+            fixtureExtractedNeedle.position.x += static_cast<float>(
+                fixtureDistalDirection.x * kMaximumLiveReceiverExtractionM
+            );
+            fixtureExtractedNeedle.position.y += static_cast<float>(
+                fixtureDistalDirection.y * kMaximumLiveReceiverExtractionM
+            );
+            fixtureExtractedNeedle.position.z += static_cast<float>(
+                fixtureDistalDirection.z * kMaximumLiveReceiverExtractionM
+            );
+            MRBodyStateGPU fixtureOpposingClearance =
+                fixtureOpposingEntry;
+            fixtureOpposingClearance.position.x -= static_cast<float>(
+                fixtureBiteSites.thicknessAxis.x *
+                    kOpposingBiteReorientationClearanceM
+            );
+            fixtureOpposingClearance.position.y -= static_cast<float>(
+                fixtureBiteSites.thicknessAxis.y *
+                    kOpposingBiteReorientationClearanceM
+            );
+            fixtureOpposingClearance.position.z -= static_cast<float>(
+                fixtureBiteSites.thicknessAxis.z *
+                    kOpposingBiteReorientationClearanceM
+            );
+            const GraspReference fixtureTransportReference =
+                graspReference(
+                    world,
+                    needleForPlacement,
+                    fixtureDistalStartQ,
+                    world.model.defaultV,
+                    fixtureNeedle,
+                    1u,
+                    kExtractionNeedleShape
+                );
+            const std::uint32_t fixtureReorientationSteps =
+                static_cast<std::uint32_t>(std::llround(
+                    kOpposingBiteReorientationSeconds /
+                        kControlTimestep
+                ));
+            const std::uint32_t fixtureOpposingApproachSteps =
+                static_cast<std::uint32_t>(std::llround(
+                    kOpposingBiteApproachSeconds /
+                        kControlTimestep
+                ));
+            std::vector<MRBodyStateGPU> fixtureReorientationTargets;
+            appendNeedleBodyPoseSegment(
+                fixtureReorientationTargets,
+                fixtureExtractedNeedle,
+                fixtureOpposingClearance,
+                fixtureReorientationSteps
+            );
+            const ArmTrajectory fixtureReorientationTrajectory =
+                needleGraspArmTrajectory(
+                    world.model,
+                    psm,
+                    1u,
+                    receiverBase,
+                    fixtureMaximumDistalExtraction.finalTarget,
+                    needleForPlacement,
+                    kExtractionNeedleShape,
+                    fixtureTransportReference,
+                    fixtureReorientationTargets,
+                    receiverTransportJawCoordinate
+                );
+            const CrossArmCollisionScan fixtureReorientationPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    fixtureMaximumDistalExtraction.finalTarget,
+                    fixtureReorientationTrajectory.finalTarget,
+                    fixtureReorientationSteps,
+                    fixtureReorientationTrajectory.desiredQ
+                );
+            std::vector<MRBodyStateGPU> fixtureOpposingApproachTargets;
+            appendNeedleBodyPoseSegment(
+                fixtureOpposingApproachTargets,
+                fixtureOpposingClearance,
+                fixtureOpposingEntry,
+                fixtureOpposingApproachSteps
+            );
+            const ArmTrajectory fixtureOpposingApproachTrajectory =
+                needleGraspArmTrajectory(
+                    world.model,
+                    psm,
+                    1u,
+                    receiverBase,
+                    fixtureReorientationTrajectory.finalTarget,
+                    needleForPlacement,
+                    kExtractionNeedleShape,
+                    fixtureTransportReference,
+                    fixtureOpposingApproachTargets,
+                    receiverTransportJawCoordinate
+                );
+            const CrossArmCollisionScan fixtureOpposingApproachPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    fixtureReorientationTrajectory.finalTarget,
+                    fixtureOpposingApproachTrajectory.finalTarget,
+                    fixtureOpposingApproachSteps,
+                    fixtureOpposingApproachTrajectory.desiredQ
+                );
+            const GraspFrameTarget fixtureOpposingEndTarget =
+                graspFrameTarget(
+                    needleForPlacement,
+                    fixtureOpposingEntry,
+                    kExtractionNeedleShape,
+                    fixtureTransportReference
+                );
+            const JawGeometry fixtureOpposingEndJaw = worldJawGeometry(
+                world.model,
+                1u,
+                fixtureOpposingApproachTrajectory.finalTarget,
+                world.model.defaultV
+            );
+            const OrthonormalJawFrame fixtureOpposingEndFrame =
+                orthonormalJawFrame(
+                    fixtureOpposingEndJaw.railDirection,
+                    fixtureOpposingEndJaw.separationDirection,
+                    "opposing-bite preflight end frame"
+                );
+            const double fixtureOpposingPositionError = norm(
+                fixtureOpposingEndJaw.midpoint -
+                fixtureOpposingEndTarget.midpoint
+            );
+            const double fixtureOpposingOrientationError = norm(
+                jawFrameOrientationError(
+                    fixtureOpposingEndFrame,
+                    fixtureOpposingEndTarget.frame
+                )
+            );
             require(
                 fixtureResetPreflight.samplesWithContact == 0u &&
                     fixtureResetPreflight.samplesWithGiverPadContact == 0u &&
@@ -8158,6 +8479,24 @@ int main(const int argc, const char* const argv[]) {
                     fixtureDistalExtractionPreflight
                             .samplesWithGiverPadContact == 0u &&
                     fixtureDistalExtractionPreflight
+                            .samplesWithReceiverPadContact == 0u &&
+                    fixtureOpposingPositionError <= 5.0e-6 &&
+                    fixtureOpposingOrientationError <= 2.0e-3 &&
+                    fixtureReorientationTrajectory.maximumVelocityRatio <=
+                        kMaximumCommandVelocityRatio &&
+                    fixtureOpposingApproachTrajectory
+                            .maximumVelocityRatio <=
+                        kMaximumCommandVelocityRatio &&
+                    fixtureReorientationPreflight.samplesWithContact == 0u &&
+                    fixtureReorientationPreflight
+                            .samplesWithGiverPadContact == 0u &&
+                    fixtureReorientationPreflight
+                            .samplesWithReceiverPadContact == 0u &&
+                    fixtureOpposingApproachPreflight
+                            .samplesWithContact == 0u &&
+                    fixtureOpposingApproachPreflight
+                            .samplesWithGiverPadContact == 0u &&
+                    fixtureOpposingApproachPreflight
                             .samplesWithReceiverPadContact == 0u,
                 "post-puncture extraction reset or open seat intersects "
                 "an instrument, needle, or pad: receiver_reset_pad_gap=" +
@@ -8216,6 +8555,45 @@ int main(const int argc, const char* const argv[]) {
                     " grasp_orbit_velocity_ratio=" +
                     preciseScalar(
                         fixtureGraspOrbitTrajectory.maximumVelocityRatio
+                    ) +
+                    " opposing_position_error=" +
+                    preciseScalar(fixtureOpposingPositionError) +
+                    " opposing_orientation_error=" +
+                    preciseScalar(fixtureOpposingOrientationError) +
+                    " reorientation_velocity_ratio=" +
+                    preciseScalar(
+                        fixtureReorientationTrajectory.maximumVelocityRatio
+                    ) +
+                    " reorientation_velocity_dof=" +
+                    std::to_string(
+                        fixtureReorientationTrajectory.maximumVelocityDof
+                    ) +
+                    " reorientation_velocity=" +
+                    preciseScalar(
+                        fixtureReorientationTrajectory.maximumVelocity
+                    ) +
+                    " reorientation_velocity_limit=" +
+                    preciseScalar(
+                        fixtureReorientationTrajectory.limitingVelocity
+                    ) +
+                    " approach_velocity_ratio=" +
+                    preciseScalar(
+                        fixtureOpposingApproachTrajectory
+                            .maximumVelocityRatio
+                    ) +
+                    " reorientation_cross_arm_samples=" +
+                    std::to_string(
+                        fixtureReorientationPreflight.samplesWithContact
+                    ) +
+                    " approach_cross_arm_samples=" +
+                    std::to_string(
+                        fixtureOpposingApproachPreflight
+                            .samplesWithContact
+                    ) +
+                    " approach_receiver_pad_samples=" +
+                    std::to_string(
+                        fixtureOpposingApproachPreflight
+                            .samplesWithReceiverPadContact
                     )
             );
             if (receiverExtractionGeometryOnly) {
@@ -8284,6 +8662,40 @@ int main(const int argc, const char* const argv[]) {
                     << fixtureGraspOrbitOrientationError
                     << " grasp_orbit_velocity_ratio="
                     << fixtureGraspOrbitTrajectory.maximumVelocityRatio
+                    << " opposing_reorientation_steps="
+                    << fixtureReorientationSteps
+                    << " opposing_approach_steps="
+                    << fixtureOpposingApproachSteps
+                    << " opposing_position_error_m="
+                    << fixtureOpposingPositionError
+                    << " opposing_orientation_error_rad="
+                    << fixtureOpposingOrientationError
+                    << " reorientation_velocity_ratio="
+                    << fixtureReorientationTrajectory.maximumVelocityRatio
+                    << " reorientation_velocity_dof="
+                    << fixtureReorientationTrajectory.maximumVelocityDof
+                    << " reorientation_velocity="
+                    << fixtureReorientationTrajectory.maximumVelocity
+                    << " reorientation_velocity_limit="
+                    << fixtureReorientationTrajectory.limitingVelocity
+                    << " approach_velocity_ratio="
+                    << fixtureOpposingApproachTrajectory.maximumVelocityRatio
+                    << " reorientation_cross_arm_samples="
+                    << fixtureReorientationPreflight.samplesWithContact
+                    << " reorientation_giver_pad_samples="
+                    << fixtureReorientationPreflight
+                           .samplesWithGiverPadContact
+                    << " reorientation_receiver_pad_samples="
+                    << fixtureReorientationPreflight
+                           .samplesWithReceiverPadContact
+                    << " approach_cross_arm_samples="
+                    << fixtureOpposingApproachPreflight.samplesWithContact
+                    << " approach_giver_pad_samples="
+                    << fixtureOpposingApproachPreflight
+                           .samplesWithGiverPadContact
+                    << " approach_receiver_pad_samples="
+                    << fixtureOpposingApproachPreflight
+                           .samplesWithReceiverPadContact
                     << " base_azimuth_offset_rad="
                     << (
                         options.receiverBaseAzimuthOffsetProvided
