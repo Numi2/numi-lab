@@ -382,11 +382,12 @@ constexpr double kExtractionFixtureReceiverNeedleAxisRoll = 0.0;
 constexpr double kExtractionApproachStandOffM = 1.0e-2;
 constexpr std::uint32_t kExtractionApproachSteps = 150u;
 // Reconcile the small live-frame drift while still ten millimetres from the
-// needle, then translate on the already-aligned insertion normal. The 200 ms
-// alignment keeps the measured cubic joint-speed ratio below the 0.8 gate.
-// Its audit uses 6,400 samples (twice per 16 kHz DER step), independently of
-// the cheaper contact-clear Matter cadence used to execute the same path.
-constexpr std::uint32_t kLiveReceiverStandOffAlignmentSteps = 100u;
+// needle, then translate on the already-aligned insertion normal. Strict
+// waypoint IK removes tolerance-deadband jumps, keeping the measured 50 ms
+// cubic alignment below the 0.8 joint-speed gate. Its audit uses 1,600 samples
+// (twice per 16 kHz DER step), independently of the cheaper contact-clear
+// Matter cadence used to execute the same path.
+constexpr std::uint32_t kLiveReceiverStandOffAlignmentSteps = 25u;
 constexpr std::uint32_t kLiveReceiverPathAuditRefinement = 2u;
 // Seed the already-established 60 um post-puncture grasp for one accepted
 // control transaction. A 15 um provisional touch is not positive control of
@@ -3490,6 +3491,7 @@ struct ArmTrajectory {
     double maximumVelocity = 0.0;
     double limitingVelocity = 0.0;
     std::uint32_t maximumVelocityDof = MR_INVALID_INDEX;
+    std::uint32_t maximumVelocityStep = MR_INVALID_INDEX;
 };
 
 ArmTrajectory stationaryArmTrajectory(
@@ -3611,6 +3613,7 @@ ArmTrajectory cartesianArmTrajectory(
                 trajectory.maximumVelocity = velocity;
                 trajectory.limitingVelocity = properties.limits.z;
                 trajectory.maximumVelocityDof = dof;
+                trajectory.maximumVelocityStep = step;
             }
         }
         previousQ.assign(currentQ.begin(), currentQ.end());
@@ -3638,12 +3641,18 @@ ArmTrajectory frameArmTrajectory(
     const double beginJawCoordinate,
     const double endJawCoordinate,
     const std::uint32_t steps,
-    const double trajectoryTimestepSeconds = kControlTimestep
+    const double trajectoryTimestepSeconds = kControlTimestep,
+    const double positionToleranceM = 5.0e-6,
+    const double orientationToleranceRad = 2.0e-3
 ) {
     require(
         begin.size() == worldModel.defaultQ.size() && steps != 0u &&
             trajectoryTimestepSeconds > 0.0 &&
-            std::isfinite(trajectoryTimestepSeconds),
+            std::isfinite(trajectoryTimestepSeconds) &&
+            positionToleranceM > 0.0 &&
+            std::isfinite(positionToleranceM) &&
+            orientationToleranceRad > 0.0 &&
+            std::isfinite(orientationToleranceRad),
         "frame arm trajectory has invalid dimensions"
     );
     ArmTrajectory trajectory;
@@ -3695,7 +3704,9 @@ ArmTrajectory frameArmTrajectory(
             desired,
             frame.rail,
             frame.separation,
-            jawCoordinate
+            jawCoordinate,
+            positionToleranceM,
+            orientationToleranceRad
         );
         local = solution.localQ;
         trajectory.finalTarget = begin;
@@ -3741,6 +3752,7 @@ ArmTrajectory frameArmTrajectory(
                 trajectory.maximumVelocity = velocity;
                 trajectory.limitingVelocity = properties.limits.z;
                 trajectory.maximumVelocityDof = dof;
+                trajectory.maximumVelocityStep = step;
             }
         }
         previousQ.assign(currentQ.begin(), currentQ.end());
@@ -3849,6 +3861,7 @@ ArmTrajectory needleGraspArmTrajectory(
                 trajectory.maximumVelocity = velocity;
                 trajectory.limitingVelocity = properties.limits.z;
                 trajectory.maximumVelocityDof = dof;
+                trajectory.maximumVelocityStep = step;
             }
         }
         previousQ.assign(currentQ.begin(), currentQ.end());
@@ -5669,6 +5682,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
 struct Arguments {
     std::string mode;
     std::filesystem::path stateOutputDirectory;
+    std::filesystem::path resumeTissueReceiverDynamicBridgePath;
     std::filesystem::path resumeApproachHeldPath;
     std::filesystem::path resumeGiverClosedPath;
     std::filesystem::path resumeGiverLiftPath;
@@ -5752,6 +5766,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-curved-pull-through-only" ||
             argument == "--tissue-opposing-bite-topology-only" ||
             argument == "--tissue-receiver-state-bridge-only" ||
+            argument == "--tissue-receiver-alignment-replay-only" ||
             argument == "--tissue-receiver-acquisition-only" ||
             argument == "--tissue-receiver-extraction-only" ||
             argument == "--receiver-frame-ik-only" ||
@@ -5783,6 +5798,14 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "--state-output-dir requires exactly one path"
             );
             result.stateOutputDirectory = argv[++index];
+        } else if (argument ==
+                   "--resume-tissue-receiver-dynamic-bridge") {
+            require(
+                result.resumeTissueReceiverDynamicBridgePath.empty() &&
+                    index + 1 < argc,
+                "--resume-tissue-receiver-dynamic-bridge requires one path"
+            );
+            result.resumeTissueReceiverDynamicBridgePath = argv[++index];
         } else if (argument == "--resume-receiver-extraction-giver-hold") {
             require(
                 result.resumeExtractionGiverHoldPath.empty() &&
@@ -6259,6 +6282,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         }
     }
     const std::uint32_t resumeCount =
+        (!result.resumeTissueReceiverDynamicBridgePath.empty() ? 1u : 0u) +
         (!result.resumeApproachHeldPath.empty() ? 1u : 0u) +
         (!result.resumeGiverClosedPath.empty() ? 1u : 0u) +
         (!result.resumeGiverLiftPath.empty() ? 1u : 0u) +
@@ -6281,6 +6305,16 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         (!result.resumeExtractionPreloadReleasePath.empty() ? 1u : 0u) +
         (!result.resumeExtractionRetractionMotionPath.empty() ? 1u : 0u);
     require(resumeCount <= 1u, "handoff resumes are mutually exclusive");
+    require(
+        result.resumeTissueReceiverDynamicBridgePath.empty() ||
+            result.mode == "--tissue-receiver-alignment-replay-only",
+        "dynamic bridge resume requires the receiver alignment replay"
+    );
+    require(
+        result.mode != "--tissue-receiver-alignment-replay-only" ||
+            !result.resumeTissueReceiverDynamicBridgePath.empty(),
+        "receiver alignment replay requires a dynamic bridge state"
+    );
     require(
         result.resumeExtractionGiverHoldPath.empty() ||
             result.mode == "--receiver-extraction-approach-only" ||
@@ -7123,6 +7157,8 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-opposing-bite-topology-only";
         const bool tissueReceiverStateBridgeOnly =
             options.mode == "--tissue-receiver-state-bridge-only";
+        const bool tissueReceiverAlignmentReplayOnly =
+            options.mode == "--tissue-receiver-alignment-replay-only";
         const bool tissueReceiverAcquisitionOnly =
             options.mode == "--tissue-receiver-acquisition-only";
         const bool tissueReceiverExtractionOnly =
@@ -7130,6 +7166,7 @@ int main(const int argc, const char* const argv[]) {
         const bool tissueReceiverLiveSequence =
             tissueOpposingBiteTopologyOnly ||
             tissueReceiverStateBridgeOnly ||
+            tissueReceiverAlignmentReplayOnly ||
             tissueReceiverAcquisitionOnly ||
             tissueReceiverExtractionOnly;
         const bool tissuePunctureOnly =
@@ -7836,6 +7873,201 @@ int main(const int argc, const char* const argv[]) {
         // only the edge/body pairs adjacent to the two explicit swage
         // attachments, so distant needle/thread contact is still physical.
         world.rods[0].collision.collisionMask = ~0u;
+
+        if (tissueReceiverAlignmentReplayOnly) {
+            const std::uint64_t stateStep = loadHandoffState(
+                options.resumeTissueReceiverDynamicBridgePath,
+                "tissue-receiver-dynamic-bridge",
+                world
+            );
+            const std::vector<float>& stateQ = world.model.defaultQ;
+            const std::vector<float>& stateV = world.model.defaultV;
+            const MRBodyStateGPU& stateNeedle =
+                world.defaultSceneBodies.at(0u);
+            const metalrobo::SurgicalBasePose receiverBase =
+                armBasePose(world.model, 1u, stateQ);
+            const Quaternion receiverBaseRotation{
+                receiverBase.orientation[0],
+                receiverBase.orientation[1],
+                receiverBase.orientation[2],
+                receiverBase.orientation[3],
+            };
+            const std::vector<double> receiverNominal = psmTarget(
+                psm,
+                kReceiverHandoffInsertion,
+                openJawCoordinate,
+                kReceiverYaw,
+                kReceiverPitch
+            );
+            const JawGeometry receiverNominalJaw = jawGeometry(
+                psm,
+                receiverNominal
+            );
+            Vec3 bridgeRail = needleShapeWorldTangent(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                stateNeedle
+            );
+            if (dot(
+                    bridgeRail,
+                    rotate(
+                        receiverBaseRotation,
+                        receiverNominalJaw.railDirection
+                    )
+                ) < 0.0) {
+                bridgeRail = bridgeRail * -1.0;
+            }
+            const Vec3 bridgeSeparation = rotate(
+                receiverBaseRotation,
+                receiverNominalJaw.separationDirection
+            );
+            Vec3 liveRail = needleShapeWorldTangent(
+                needleForPlacement,
+                kExtractionNeedleShape,
+                stateNeedle
+            );
+            if (dot(liveRail, bridgeRail) < 0.0) {
+                liveRail = liveRail * -1.0;
+            }
+            const OrthonormalJawFrame liveFrame = orthonormalJawFrame(
+                liveRail,
+                bridgeSeparation,
+                "saved live receiver acquisition frame"
+            );
+            const JawGeometry beginJaw = worldJawGeometry(
+                world.model,
+                1u,
+                stateQ,
+                stateV
+            );
+            const double executionTimestepSeconds =
+                (kControlTimestep / kPhysicsSubsteps) *
+                kSuturePullMatterRateMultiplier;
+            const std::uint32_t executionSteps =
+                static_cast<std::uint32_t>(std::llround(
+                    kControlTimestep / executionTimestepSeconds
+                )) * kLiveReceiverStandOffAlignmentSteps;
+            const ArmTrajectory execution = frameArmTrajectory(
+                world.model,
+                psm,
+                1u,
+                receiverBase,
+                stateQ,
+                beginJaw.midpoint,
+                beginJaw.midpoint,
+                liveFrame.rail,
+                liveFrame.separation,
+                openJawCoordinate,
+                openJawCoordinate,
+                executionSteps,
+                executionTimestepSeconds,
+                kReceiverBridgeIKPositionToleranceM,
+                kReceiverBridgeIKOrientationToleranceRad
+            );
+            const std::uint32_t auditSteps =
+                kLiveReceiverStandOffAlignmentSteps *
+                kPhysicsSubsteps *
+                kLiveReceiverPathAuditRefinement;
+            const ArmTrajectory auditTrajectory = frameArmTrajectory(
+                world.model,
+                psm,
+                1u,
+                receiverBase,
+                stateQ,
+                beginJaw.midpoint,
+                beginJaw.midpoint,
+                liveFrame.rail,
+                liveFrame.separation,
+                openJawCoordinate,
+                openJawCoordinate,
+                auditSteps,
+                kControlTimestep *
+                    kLiveReceiverStandOffAlignmentSteps /
+                    auditSteps,
+                kReceiverBridgeIKPositionToleranceM,
+                kReceiverBridgeIKOrientationToleranceRad
+            );
+            const CrossArmCollisionScan path = scanCrossArmTargetPath(
+                world,
+                stateQ,
+                auditTrajectory.finalTarget,
+                auditSteps,
+                auditTrajectory.desiredQ
+            );
+            std::uint32_t needleContactSamples = 0u;
+            for (std::uint32_t step = 0u; step < auditSteps; ++step) {
+                const std::span<const float> q{
+                    auditTrajectory.desiredQ.data() +
+                        static_cast<std::size_t>(step) *
+                            world.model.world.nq,
+                    world.model.world.nq,
+                };
+                needleContactSamples +=
+                    observeKinematicNeedleContacts(
+                        world,
+                        needleForPlacement.metadata,
+                        q,
+                        &stateNeedle
+                    ).receiverNeedleContacts != 0u;
+            }
+            const std::vector<float> zeroV(world.model.world.nv, 0.0f);
+            const JawGeometry finalJaw = worldJawGeometry(
+                world.model,
+                1u,
+                execution.finalTarget,
+                zeroV
+            );
+            const OrthonormalJawFrame finalFrame = orthonormalJawFrame(
+                finalJaw.railDirection,
+                finalJaw.separationDirection,
+                "saved live receiver terminal frame"
+            );
+            const double positionResidualM = norm(
+                finalJaw.midpoint - beginJaw.midpoint
+            );
+            const double orientationResidualRad = norm(
+                jawFrameOrientationError(finalFrame, liveFrame)
+            );
+            std::cout << std::setprecision(9)
+                << "tissue_receiver_alignment_replay_candidate"
+                << " state_step=" << stateStep
+                << " execution_steps=" << executionSteps
+                << " execution_timestep_s=" << executionTimestepSeconds
+                << " audit_steps=" << auditSteps
+                << " maximum_velocity_ratio="
+                << execution.maximumVelocityRatio
+                << " maximum_velocity_step="
+                << execution.maximumVelocityStep
+                << " maximum_velocity_dof="
+                << execution.maximumVelocityDof
+                << " maximum_velocity=" << execution.maximumVelocity
+                << " velocity_limit=" << execution.limitingVelocity
+                << " position_residual_m=" << positionResidualM
+                << " orientation_residual_rad="
+                << orientationResidualRad
+                << " cross_arm_samples=" << path.samplesWithContact
+                << " giver_pad_samples="
+                << path.samplesWithGiverPadContact
+                << " receiver_pad_samples="
+                << path.samplesWithReceiverPadContact
+                << " needle_contact_samples=" << needleContactSamples
+                << " boundary=saved_rigid_der_state_not_resumed_matter"
+                << '\n';
+            require(
+                execution.maximumVelocityRatio <=
+                        kMaximumCommandVelocityRatio &&
+                    positionResidualM <= 2.0e-6 &&
+                    orientationResidualRad <= 2.0e-5 &&
+                    path.samplesWithContact == 0u &&
+                    path.samplesWithGiverPadContact == 0u &&
+                    path.samplesWithReceiverPadContact == 0u &&
+                    needleContactSamples == 0u,
+                "saved live receiver alignment violates speed, pose, or "
+                "collision limits"
+            );
+            std::cout << "tissue_receiver_alignment_replay=ok\n";
+            return 0;
+        }
 
         if (receiverExtractionFixtureOnly) {
             const MRBodyStateGPU& fixtureNeedle =
@@ -16323,6 +16555,22 @@ int main(const int argc, const char* const argv[]) {
                                     preciseScalar(
                                         execution.maximumVelocityRatio
                                     ) +
+                                    " velocity_step=" +
+                                    std::to_string(
+                                        execution.maximumVelocityStep
+                                    ) +
+                                    " velocity_dof=" +
+                                    std::to_string(
+                                        execution.maximumVelocityDof
+                                    ) +
+                                    " velocity=" +
+                                    preciseScalar(
+                                        execution.maximumVelocity
+                                    ) +
+                                    " velocity_limit=" +
+                                    preciseScalar(
+                                        execution.limitingVelocity
+                                    ) +
                                     " cross_arm_samples=" +
                                     std::to_string(
                                         audit.environment.samplesWithContact
@@ -16380,7 +16628,9 @@ int main(const int argc, const char* const argv[]) {
                                 liveAlignmentSteps,
                                 static_cast<double>(
                                     stepConfig.timestepSeconds
-                                )
+                                ),
+                                kReceiverBridgeIKPositionToleranceM,
+                                kReceiverBridgeIKOrientationToleranceRad
                             );
                         const std::uint32_t alignmentAuditSteps =
                             kLiveReceiverStandOffAlignmentSteps *
@@ -16402,7 +16652,9 @@ int main(const int argc, const char* const argv[]) {
                                 alignmentAuditSteps,
                                 kControlTimestep *
                                     kLiveReceiverStandOffAlignmentSteps /
-                                    alignmentAuditSteps
+                                    alignmentAuditSteps,
+                                kReceiverBridgeIKPositionToleranceM,
+                                kReceiverBridgeIKOrientationToleranceRad
                             );
                         const ReceiverNeedlePathAudit alignmentAudit =
                             auditReceiverNeedlePath(
@@ -16453,7 +16705,9 @@ int main(const int argc, const char* const argv[]) {
                                 liveApproachSteps,
                                 static_cast<double>(
                                     stepConfig.timestepSeconds
-                                )
+                                ),
+                                kReceiverBridgeIKPositionToleranceM,
+                                kReceiverBridgeIKOrientationToleranceRad
                             );
                         const std::uint32_t approachAuditSteps =
                             kExtractionApproachSteps * kPhysicsSubsteps *
@@ -16474,7 +16728,9 @@ int main(const int argc, const char* const argv[]) {
                                 approachAuditSteps,
                                 kControlTimestep *
                                     kExtractionApproachSteps /
-                                    approachAuditSteps
+                                    approachAuditSteps,
+                                kReceiverBridgeIKPositionToleranceM,
+                                kReceiverBridgeIKOrientationToleranceRad
                             );
                         const ReceiverNeedlePathAudit liveApproachAudit =
                             auditReceiverNeedlePath(
