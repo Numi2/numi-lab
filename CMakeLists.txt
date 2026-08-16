@@ -2500,6 +2500,30 @@ if(BUILD_TESTING)
             TIMEOUT 10800
     )
     add_test(
+        NAME metalrobo.surgical.live_tissue_receiver_acquisition
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-receiver-acquisition-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_tissue_receiver_acquisition
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 14400
+    )
+    add_test(
+        NAME metalrobo.surgical.live_tissue_receiver_extraction
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-receiver-extraction-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_tissue_receiver_extraction
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 21600
+    )
+    add_test(
         NAME metalrobo.surgical.curved_needle_through_wall_passage
         COMMAND
             $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>

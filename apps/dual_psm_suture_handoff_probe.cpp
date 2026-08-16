@@ -213,6 +213,11 @@ constexpr std::uint32_t kGraspStabilizationSteps = 25u;
 // transport convergence from deliberate jaw closure and gives the coupled
 // strand/contact island 100 ms at the acquired pose.
 constexpr std::uint32_t kReceiverApproachSettleSteps = 50u;
+// Complete long live receiver streams in bounded resident submissions. This
+// does not reset Matter, DER, contact history, or articulation state; it only
+// creates completion boundaries at which the accepted tissue certificate can
+// be inspected before investing in the next physical interval.
+constexpr std::uint32_t kLiveReceiverChunkSteps = 16u;
 // The giver may reseat the needle during receiver approach. Reacquire the
 // resulting live handling frame with the receiver still open, then hold it
 // clear before introducing the first receiver contact.
@@ -393,6 +398,16 @@ constexpr std::uint32_t kReceiverBridgeKinematicHoldSteps = 32u;
 constexpr std::uint32_t kReceiverBridgeDynamicHoldSteps = 25u;
 constexpr double kMaximumReceiverBridgeNeedleDriftM = 3.0e-4;
 constexpr double kMaximumReceiverBridgeTissueIncrementM = 5.0e-5;
+// Receiver acquisition must exchange jaw preload without silently beginning
+// the extraction.  Half a millimetre is larger than the finite-groove reseat
+// allowance yet smaller than the 0.77 mm coupon wall, so crossing this bound
+// means the handoff phase displaced rather than merely secured the needle.
+constexpr double kMaximumReceiverAcquisitionNeedleTravelM = 5.0e-4;
+// The final pull is geometry-derived so the complete half-circle needle and
+// its hard swage clear the deformed distal surface.  Retain a visible 0.2 mm
+// gap beyond the live wall, not merely a centre-point sign change.
+constexpr double kWholeNeedleDistalClearanceM = 2.0e-4;
+constexpr double kMaximumLiveReceiverExtractionM = 2.0e-2;
 constexpr double kReceiverBridgeIKPositionToleranceM = 1.0e-6;
 constexpr double kReceiverBridgeIKOrientationToleranceRad = 1.0e-5;
 
@@ -2879,13 +2894,15 @@ std::vector<float> computedTorqueTrajectory(
     const metalrobo::EngineModel& model,
     const std::span<const float> initialQ,
     const std::span<const float> desiredQ,
-    const std::uint32_t steps
+    const std::uint32_t steps,
+    const double trajectoryTimestepSeconds = kControlTimestep
 ) {
     require(
         initialQ.size() == model.world.nq &&
             desiredQ.size() ==
                 static_cast<std::size_t>(steps) * model.world.nq &&
-            steps != 0u,
+            steps != 0u && trajectoryTimestepSeconds > 0.0 &&
+            std::isfinite(trajectoryTimestepSeconds),
         "computed-torque trajectory has invalid dimensions"
     );
     std::vector<float> efforts(
@@ -2910,10 +2927,10 @@ std::vector<float> computedTorqueTrajectory(
             velocity[dof] =
                 (currentQ[properties.qIndex] -
                  previousQ[properties.qIndex]) /
-                kControlTimestep;
+                trajectoryTimestepSeconds;
             acceleration[dof] =
                 (velocity[dof] - previousV[dof]) /
-                kControlTimestep;
+                trajectoryTimestepSeconds;
         }
         const std::vector<float> command = computedTorquePositionTarget(
             model,
@@ -2937,7 +2954,8 @@ std::vector<float> interpolateTargets(
     const metalrobo::EngineModel& model,
     const std::vector<float>& begin,
     const std::vector<float>& end,
-    const std::uint32_t steps
+    const std::uint32_t steps,
+    const double trajectoryTimestepSeconds = kControlTimestep
 ) {
     require(
         begin.size() == model.defaultQ.size() &&
@@ -2976,7 +2994,8 @@ std::vector<float> interpolateTargets(
         model,
         begin,
         desiredTrajectory,
-        steps
+        steps,
+        trajectoryTimestepSeconds
     );
 }
 
@@ -3035,7 +3054,8 @@ struct ArmTrajectory {
 ArmTrajectory stationaryArmTrajectory(
     const metalrobo::EngineModel& worldModel,
     const std::vector<float>& begin,
-    const std::uint32_t steps
+    const std::uint32_t steps,
+    const double trajectoryTimestepSeconds = kControlTimestep
 ) {
     require(
         begin.size() == worldModel.defaultQ.size() && steps != 0u,
@@ -3057,7 +3077,8 @@ ArmTrajectory stationaryArmTrajectory(
         worldModel,
         begin,
         trajectory.desiredQ,
-        steps
+        steps,
+        trajectoryTimestepSeconds
     );
     return trajectory;
 }
@@ -3072,10 +3093,13 @@ ArmTrajectory cartesianArmTrajectory(
     const Vec3 endJawMidpoint,
     const double beginJawCoordinate,
     const double endJawCoordinate,
-    const std::uint32_t steps
+    const std::uint32_t steps,
+    const double trajectoryTimestepSeconds = kControlTimestep
 ) {
     require(
-        begin.size() == worldModel.defaultQ.size() && steps != 0u,
+        begin.size() == worldModel.defaultQ.size() && steps != 0u &&
+            trajectoryTimestepSeconds > 0.0 &&
+            std::isfinite(trajectoryTimestepSeconds),
         "Cartesian arm trajectory has invalid dimensions"
     );
     ArmTrajectory trajectory;
@@ -3138,7 +3162,7 @@ ArmTrajectory cartesianArmTrajectory(
             const double velocity = std::abs(
                 static_cast<double>(currentQ[properties.qIndex]) -
                 previousQ[properties.qIndex]
-            ) / kControlTimestep;
+            ) / trajectoryTimestepSeconds;
             const double ratio =
                 velocity / static_cast<double>(properties.limits.z);
             if (ratio > trajectory.maximumVelocityRatio) {
@@ -3154,7 +3178,8 @@ ArmTrajectory cartesianArmTrajectory(
         worldModel,
         begin,
         trajectory.desiredQ,
-        steps
+        steps,
+        trajectoryTimestepSeconds
     );
     return trajectory;
 }
@@ -3171,10 +3196,13 @@ ArmTrajectory frameArmTrajectory(
     const Vec3 desiredSeparation,
     const double beginJawCoordinate,
     const double endJawCoordinate,
-    const std::uint32_t steps
+    const std::uint32_t steps,
+    const double trajectoryTimestepSeconds = kControlTimestep
 ) {
     require(
-        begin.size() == worldModel.defaultQ.size() && steps != 0u,
+        begin.size() == worldModel.defaultQ.size() && steps != 0u &&
+            trajectoryTimestepSeconds > 0.0 &&
+            std::isfinite(trajectoryTimestepSeconds),
         "frame arm trajectory has invalid dimensions"
     );
     ArmTrajectory trajectory;
@@ -3264,7 +3292,7 @@ ArmTrajectory frameArmTrajectory(
             const double velocity = std::abs(
                 static_cast<double>(currentQ[properties.qIndex]) -
                 previousQ[properties.qIndex]
-            ) / kControlTimestep;
+            ) / trajectoryTimestepSeconds;
             const double ratio =
                 velocity / static_cast<double>(properties.limits.z);
             if (ratio > trajectory.maximumVelocityRatio) {
@@ -3280,7 +3308,8 @@ ArmTrajectory frameArmTrajectory(
         worldModel,
         begin,
         trajectory.desiredQ,
-        steps
+        steps,
+        trajectoryTimestepSeconds
     );
     return trajectory;
 }
@@ -4806,16 +4835,22 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     source.contactSlop = kSutureTissueContactSlopM;
     source.maximumDepenetrationSpeed = 0.05;
     source.deterministic = true;
-    // The contact-active coupon reaches the identical accepted state by the
-    // fifth encoded Newton pass; later static tail passes do not alter it.
-    source.mixedSolver.newtonIterations = 5u;
-    source.mixedSolver.fgmresRestart = 10u;
-    // The contact-refined operative entry uses the full ten-column Arnoldi
-    // cycle while closing its accepted nonlinear residual by over two orders
-    // of magnitude. Do not encode empty restart cycles into every 62.5 us
-    // surgical microstep; the live residual and certificate remain authority.
-    source.mixedSolver.fgmresIterations = 10u;
-    source.mixedSolver.lineSearchSteps = 12u;
+    // Entry reaches the identical accepted state by the fifth Newton pass and
+    // tenth Arnoldi column. The long-horizon receiver world, however, retains
+    // a dynamic free-needle block and has observed a valid-residual candidate
+    // exhaust all ten columns after 295.75 ms. Give that production path the
+    // ABI-supported seven Newton passes and one complete SIMD16 Arnoldi cycle.
+    // Converged lanes remain inert in the statically encoded tail, so this is
+    // a bounded difficult-step budget rather than a weaker acceptance gate.
+    source.mixedSolver.newtonIterations = freeNeedleCapability
+        ? NM_MIXED_NEWTON_ITERATIONS : 5u;
+    source.mixedSolver.fgmresRestart = freeNeedleCapability
+        ? NM_MIXED_FGMRES_RESTART : 10u;
+    source.mixedSolver.fgmresIterations = freeNeedleCapability
+        ? NM_MIXED_FGMRES_RESTART : 10u;
+    // Match the authored budget to the live Metal bound instead of claiming
+    // four backtracking trials that the kernel cannot dispatch.
+    source.mixedSolver.lineSearchSteps = NM_MIXED_LINE_SEARCH_STEPS;
     source.mixedSolver.relativeResidual = 5.0e-4;
     source.mixedSolver.volumeTolerance = 5.0e-4;
     source.mixedSolver.pressureTolerance = 5.0e-4;
@@ -5128,6 +5163,8 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-curved-passage-only" ||
             argument == "--tissue-curved-pull-through-only" ||
             argument == "--tissue-receiver-state-bridge-only" ||
+            argument == "--tissue-receiver-acquisition-only" ||
+            argument == "--tissue-receiver-extraction-only" ||
             argument == "--receiver-frame-ik-only" ||
             argument == "--receiver-extraction-geometry-only" ||
             argument == "--receiver-extraction-giver-hold-only" ||
@@ -6495,6 +6532,14 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-curved-pull-through-only";
         const bool tissueReceiverStateBridgeOnly =
             options.mode == "--tissue-receiver-state-bridge-only";
+        const bool tissueReceiverAcquisitionOnly =
+            options.mode == "--tissue-receiver-acquisition-only";
+        const bool tissueReceiverExtractionOnly =
+            options.mode == "--tissue-receiver-extraction-only";
+        const bool tissueReceiverLiveSequence =
+            tissueReceiverStateBridgeOnly ||
+            tissueReceiverAcquisitionOnly ||
+            tissueReceiverExtractionOnly;
         const bool tissuePunctureOnly =
             options.mode == "--tissue-puncture-only" ||
             options.mode == "--tissue-puncture-advance-only" ||
@@ -6502,18 +6547,18 @@ int main(const int argc, const char* const argv[]) {
             tissueSuturePassageOnly ||
             options.mode == "--tissue-curved-passage-only" ||
             tissueCurvedPullThroughOnly ||
-            tissueReceiverStateBridgeOnly;
+            tissueReceiverLiveSequence;
         const bool tissuePunctureAdvanceOnly =
             options.mode == "--tissue-puncture-advance-only";
         const bool tissueCurvedPassageOnly =
             options.mode == "--tissue-curved-passage-only" ||
             tissueSuturePassageOnly ||
             tissueCurvedPullThroughOnly ||
-            tissueReceiverStateBridgeOnly;
+            tissueReceiverLiveSequence;
         const bool tissueSutureContactOnly =
             tissueSutureEntryContactOnly || tissueSuturePassageOnly ||
             tissueCurvedPullThroughOnly ||
-            tissueReceiverStateBridgeOnly;
+            tissueReceiverLiveSequence;
         const bool receiverFrameIkOnly =
             options.mode == "--receiver-frame-ik-only";
         const bool receiverExtractionGeometryOnly =
@@ -6772,7 +6817,7 @@ int main(const int argc, const char* const argv[]) {
                 sutureSpec
             );
         config.threadMinimumNonNeighbourSurfaceClearanceM =
-            tissueReceiverStateBridgeOnly
+            tissueReceiverLiveSequence
                 ? kReceiverBridgeThreadSelfCollisionProjectionMargin
                 : kMinimumThreadSelfCollisionClearance;
         const double threadShearModulus =
@@ -6784,7 +6829,7 @@ int main(const int argc, const char* const argv[]) {
         const double firstEdgeLength =
             sutureSpec.threadLengthM.value /
             static_cast<double>(sutureSpec.threadNodeCount - 1u);
-        if (receiverExtractionPose || tissueReceiverStateBridgeOnly) {
+        if (receiverExtractionPose || tissueReceiverLiveSequence) {
             // Preserve exact DER edge lengths while the suspended needle is
             // raised above the catch pad. More height requires more physical
             // descent chords; stretching the original four-edge package
@@ -6810,7 +6855,7 @@ int main(const int argc, const char* const argv[]) {
             0.0,
             padTop - needleForPlacement.rigid.localAabbLowerM[2] -
                 kInitialSupportPenetration +
-                ((receiverExtractionPose || tissueReceiverStateBridgeOnly)
+                ((receiverExtractionPose || tissueReceiverLiveSequence)
                     ? options.extractionWorkingGapM : 0.0),
         };
         MRBodyStateGPU placementNeedle{};
@@ -7449,6 +7494,74 @@ int main(const int argc, const char* const argv[]) {
             const std::uint32_t fixtureClosedJawContacts =
                 fixtureClosedSeatObservation.receiverJawContacts[0] +
                 fixtureClosedSeatObservation.receiverJawContacts[1];
+            std::vector<float> fixtureDistalStartQ = fixtureClosedSeatQ;
+            std::vector<double> fixtureReleasedGiver = giverIK.localQ;
+            fixtureReleasedGiver[6] = -openJawCoordinate;
+            fixtureReleasedGiver[7] = openJawCoordinate;
+            setArmTarget(
+                fixtureDistalStartQ,
+                world.model,
+                0u,
+                fixtureReleasedGiver
+            );
+            std::vector<double> fixtureLatchedReceiver =
+                receiverSeatIK.localQ;
+            fixtureLatchedReceiver[6] = -receiverTransportJawCoordinate;
+            fixtureLatchedReceiver[7] = receiverTransportJawCoordinate;
+            setArmTarget(
+                fixtureDistalStartQ,
+                world.model,
+                1u,
+                fixtureLatchedReceiver
+            );
+            const JawGeometry fixtureDistalStartJaw = worldJawGeometry(
+                world.model,
+                1u,
+                fixtureDistalStartQ,
+                world.model.defaultV
+            );
+            const OrthonormalJawFrame fixtureDistalFrame =
+                orthonormalJawFrame(
+                    fixtureDistalStartJaw.railDirection,
+                    fixtureDistalStartJaw.separationDirection,
+                    "maximum distal extraction preflight frame"
+                );
+            const Vec3 fixtureDistalDirection =
+                needleTipCapsuleGeometry(
+                    needleForPlacement,
+                    placementNeedle
+                ).approachDirection;
+            const std::uint32_t fixtureMaximumExtractionSteps =
+                static_cast<std::uint32_t>(std::ceil(
+                    kReceiverTransferSteps *
+                    kMaximumLiveReceiverExtractionM /
+                    kReceiverTransfer
+                ));
+            const ArmTrajectory fixtureMaximumDistalExtraction =
+                frameArmTrajectory(
+                    world.model,
+                    psm,
+                    1u,
+                    receiverBase,
+                    fixtureDistalStartQ,
+                    fixtureDistalStartJaw.midpoint,
+                    fixtureDistalStartJaw.midpoint +
+                        fixtureDistalDirection *
+                            kMaximumLiveReceiverExtractionM,
+                    fixtureDistalFrame.rail,
+                    fixtureDistalFrame.separation,
+                    receiverTransportJawCoordinate,
+                    receiverTransportJawCoordinate,
+                    fixtureMaximumExtractionSteps
+                );
+            const CrossArmCollisionScan fixtureDistalExtractionPreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    fixtureDistalStartQ,
+                    fixtureMaximumDistalExtraction.finalTarget,
+                    fixtureMaximumExtractionSteps,
+                    fixtureMaximumDistalExtraction.desiredQ
+                );
             require(
                 fixtureResetPreflight.samplesWithContact == 0u &&
                     fixtureResetPreflight.samplesWithGiverPadContact == 0u &&
@@ -7477,7 +7590,15 @@ int main(const int argc, const char* const argv[]) {
                     fixtureClosedSeatObservation.receiverGraspZoneContacts ==
                         fixtureClosedJawContacts &&
                     fixtureClosedSeatObservation.receiverNeedleContacts ==
-                        fixtureClosedJawContacts,
+                        fixtureClosedJawContacts &&
+                    fixtureMaximumDistalExtraction.maximumVelocityRatio <=
+                        kMaximumCommandVelocityRatio &&
+                    fixtureDistalExtractionPreflight.samplesWithContact ==
+                        0u &&
+                    fixtureDistalExtractionPreflight
+                            .samplesWithGiverPadContact == 0u &&
+                    fixtureDistalExtractionPreflight
+                            .samplesWithReceiverPadContact == 0u,
                 "post-puncture extraction reset or open seat intersects "
                 "an instrument, needle, or pad: receiver_reset_pad_gap=" +
                     std::to_string(minimumPsmPadGap(
@@ -7560,6 +7681,20 @@ int main(const int argc, const char* const argv[]) {
                     << " approach_velocity_ratio="
                     << fixtureApproachPreflightTrajectory
                            .maximumVelocityRatio
+                    << " maximum_distal_extraction_m="
+                    << kMaximumLiveReceiverExtractionM
+                    << " distal_extraction_velocity_ratio="
+                    << fixtureMaximumDistalExtraction
+                           .maximumVelocityRatio
+                    << " distal_extraction_cross_arm_samples="
+                    << fixtureDistalExtractionPreflight
+                           .samplesWithContact
+                    << " distal_extraction_giver_pad_samples="
+                    << fixtureDistalExtractionPreflight
+                           .samplesWithGiverPadContact
+                    << " distal_extraction_receiver_pad_samples="
+                    << fixtureDistalExtractionPreflight
+                           .samplesWithReceiverPadContact
                     << " closed_jaw_contacts="
                     << fixtureClosedSeatObservation.receiverJawContacts[0]
                     << '/'
@@ -11376,10 +11511,10 @@ int main(const int argc, const char* const argv[]) {
                     : 1u,
                 tissueSutureContactOnly
                     ? kSutureMatterContactSegmentCount : 0u,
-                tissueReceiverStateBridgeOnly,
+                tissueReceiverLiveSequence,
                 tissueCoupon
             );
-            if (tissueReceiverStateBridgeOnly) {
+            if (tissueReceiverLiveSequence) {
                 const NMRigidProxyGPU& tipProxy =
                     tissueWorld.contact.rigidProxies.at(0u);
                 const NMRigidProxyGPU& shankProxy =
@@ -13068,7 +13203,7 @@ int main(const int argc, const char* const argv[]) {
                     const double passageAngleRad =
                         entryAngleRad +
                         anglePerPassageStepRad * totalPassageSteps;
-                    if (tissueReceiverStateBridgeOnly) {
+                    if (tissueReceiverLiveSequence) {
                         require(
                             tissueNeedleOrbit.has_value() &&
                                 receiverExtractionAngle > passageAngleRad,
@@ -14362,6 +14497,1696 @@ int main(const int argc, const char* const argv[]) {
                                     .gpuElapsedMilliseconds
                             << " bridge_state_fnv64=0x" << std::hex
                             << bridgeStateHash << std::dec
+                            << " failed_steps=0\n";
+                        if (tissueReceiverStateBridgeOnly) {
+                            return 0;
+                        }
+
+                        // The post-puncture Matter state remains private and
+                        // resident in bridgeResident. The complete needle has
+                        // not cleared the tissue yet, so receiver acquisition
+                        // retains the already-qualified 4 kHz passage cadence
+                        // rather than the 1 kHz free-pull cadence. Trajectory
+                        // sample counts expand to preserve the physical 2 ms
+                        // command duration and joint velocities at the active
+                        // 0.25 ms coupled transaction interval.
+                        selectCoupledCadence(
+                            kSuturePassageMatterRateMultiplier,
+                            "live tissue receiver acquisition"
+                        );
+                        const double receiverCadenceScale =
+                            kControlTimestep /
+                            static_cast<double>(stepConfig.timestepSeconds);
+                        require(
+                            receiverCadenceScale >= 1.0 &&
+                                std::abs(
+                                    receiverCadenceScale -
+                                    std::round(receiverCadenceScale)
+                                ) <= 1.0e-5,
+                            "live receiver cadence cannot preserve the "
+                            "qualified 2 ms command trajectory"
+                        );
+                        const auto liveReceiverSteps = [&] (
+                            const std::uint32_t nominalSteps
+                        ) {
+                            return static_cast<std::uint32_t>(std::llround(
+                                receiverCadenceScale * nominalSteps
+                            ));
+                        };
+                        const auto interpolateLiveReceiverTargets = [&] (
+                            const std::vector<float>& begin,
+                            const std::vector<float>& end,
+                            const std::uint32_t steps
+                        ) {
+                            return interpolateTargets(
+                                world.model,
+                                begin,
+                                end,
+                                steps,
+                                static_cast<double>(
+                                    stepConfig.timestepSeconds
+                                )
+                            );
+                        };
+
+                        struct LiveTissueMetrics {
+                            std::uint32_t activeChannels = 0u;
+                            std::uint32_t activeTetrahedra = 0u;
+                            double removedMassKg = 0.0;
+                            double minimumDeterminant =
+                                std::numeric_limits<double>::infinity();
+                            double maximumResidual = 0.0;
+                            double maximumIncrementM = 0.0;
+                            double bottomProjection =
+                                std::numeric_limits<double>::infinity();
+                            bool channelsUnchanged = false;
+                            bool certificatesAccepted = true;
+                        };
+                        const auto liveTissueMetrics = [&] (
+                            const numi::matter::RuntimeStateSnapshot& snapshot,
+                            const std::string& phase
+                        ) {
+                            require(
+                                snapshot.available &&
+                                    snapshot.femNodes.size() >=
+                                        tissueCoupon.metadata.nodeCount &&
+                                    snapshot.sourcePhysicsFingerprint ==
+                                        postBridgeMatter
+                                            .sourcePhysicsFingerprint &&
+                                    snapshot.punctureChannels.size() ==
+                                        postBridgeMatter
+                                            .punctureChannels.size() &&
+                                    !snapshot.solverCertificates.empty(),
+                                phase + " reset or replaced the live Matter "
+                                    "authority"
+                            );
+                            LiveTissueMetrics metrics;
+                            metrics.channelsUnchanged =
+                                snapshot.punctureChannels.empty() ||
+                                std::memcmp(
+                                    snapshot.punctureChannels.data(),
+                                    postBridgeMatter
+                                        .punctureChannels.data(),
+                                    snapshot.punctureChannels.size() *
+                                        sizeof(NMPunctureChannelGPU)
+                                ) == 0;
+                            for (std::size_t node = 0u;
+                                 node < tissueCoupon.metadata.nodeCount;
+                                 ++node) {
+                                const Vec3 position = vector(
+                                    snapshot.femNodes[node]
+                                        .positionAndMass
+                                );
+                                metrics.maximumIncrementM = std::max(
+                                    metrics.maximumIncrementM,
+                                    norm(
+                                        position - vector(
+                                            postBridgeMatter.femNodes[node]
+                                                .positionAndMass
+                                        )
+                                    )
+                                );
+                                metrics.bottomProjection = std::min(
+                                    metrics.bottomProjection,
+                                    dot(position, thicknessAxis)
+                                );
+                            }
+                            for (const NMPunctureChannelGPU& channel :
+                                 snapshot.punctureChannels) {
+                                metrics.activeChannels +=
+                                    (channel.identity.w &
+                                        NM_TOPOLOGY_ACTIVE) != 0u;
+                            }
+                            for (const NMTetrahedronGPU& tetrahedron :
+                                 snapshot.femTopologyTetrahedra) {
+                                metrics.activeTetrahedra +=
+                                    (tetrahedron.identity.w &
+                                        NM_OBJECT_ACTIVE) != 0u;
+                            }
+                            for (const NMFEMTopologyStateGPU& topology :
+                                 snapshot.topologyStates) {
+                                metrics.removedMassKg +=
+                                    topology.accounting.y;
+                            }
+                            for (const NMSolverCertificateGPU& certificate :
+                                 snapshot.solverCertificates) {
+                                metrics.certificatesAccepted =
+                                    metrics.certificatesAccepted &&
+                                    certificate.validity.w > 0.5f;
+                                metrics.minimumDeterminant = std::min(
+                                    metrics.minimumDeterminant,
+                                    static_cast<double>(
+                                        certificate.validity.x
+                                    )
+                                );
+                                metrics.maximumResidual = std::max({
+                                    metrics.maximumResidual,
+                                    static_cast<double>(
+                                        certificate.nonlinear.x
+                                    ),
+                                    static_cast<double>(
+                                        certificate.nonlinear.z
+                                    ),
+                                    static_cast<double>(
+                                        certificate.nonlinear.w
+                                    ),
+                                });
+                            }
+                            return metrics;
+                        };
+
+                        const auto continueLiveReceiverPhase = [&] (
+                            const std::vector<float>& phaseEfforts,
+                            const std::uint32_t phaseSteps,
+                            const std::string& phase
+                        ) -> PhaseResult {
+                            PhaseResult result = continuePhaseUnchecked(
+                                bridgeContext,
+                                bridgeCompiled,
+                                stepConfig,
+                                bridgeResident,
+                                phaseEfforts,
+                                phaseSteps,
+                                phase
+                            );
+                            if (result.diagnostics.succeeded() &&
+                                result.diagnostics.failedStepCount == 0u) {
+                                return result;
+                            }
+
+                            std::string failure = phase + " failed: " +
+                                result.diagnostics.message;
+                            for (const MRMetalWorldStatusGPU& status :
+                                 result.result.statuses) {
+                                if (status.code == MR_STEP_SUCCESS) {
+                                    continue;
+                                }
+                                failure +=
+                                    " world_status=" +
+                                    std::to_string(status.code) +
+                                    " control_step=" +
+                                    std::to_string(status.controlStep) +
+                                    " successful_substeps=" +
+                                    std::to_string(
+                                        status.successfulSubsteps
+                                    ) +
+                                    " failing_substep=" +
+                                    std::to_string(status.failingSubstep) +
+                                    " failing_index=" +
+                                    std::to_string(status.failingIndex) +
+                                    " diagnostics=(" +
+                                    preciseScalar(status.diagnostics.x) +
+                                    "," +
+                                    preciseScalar(status.diagnostics.y) +
+                                    "," +
+                                    preciseScalar(status.diagnostics.z) +
+                                    "," +
+                                    preciseScalar(status.diagnostics.w) +
+                                    ")";
+                                break;
+                            }
+                            for (const metalrobo::MetalWorldStatus& status :
+                                 result.result.environmentStatuses) {
+                                if (status.code == MR_STEP_SUCCESS) {
+                                    continue;
+                                }
+                                failure +=
+                                    " environment_status=" +
+                                    std::to_string(status.code) +
+                                    " first_pair=" +
+                                    std::to_string(
+                                        status.firstFailingPair
+                                    ) +
+                                    " first_constraint=" +
+                                    std::to_string(
+                                        status.firstFailingConstraint
+                                    ) +
+                                    " maximum_residuals=(" +
+                                    preciseScalar(
+                                        status.maximumResiduals[0]
+                                    ) +
+                                    "," +
+                                    preciseScalar(
+                                        status.maximumResiduals[1]
+                                    ) +
+                                    "," +
+                                    preciseScalar(
+                                        status.maximumResiduals[2]
+                                    ) +
+                                    "," +
+                                    preciseScalar(
+                                        status.maximumResiduals[3]
+                                    ) +
+                                    ")";
+                                break;
+                            }
+
+                            const numi::matter::RuntimeStateSnapshot snapshot =
+                                tissueRuntime.snapshot();
+                            if (!snapshot.available) {
+                                failure += " matter_snapshot_unavailable=" +
+                                    snapshot.message;
+                            }
+                            failure +=
+                                " determinant_floor=" +
+                                preciseScalar(
+                                    tissueWorld.dispatch
+                                        .numericalLimits.z
+                                ) +
+                                " residual_tolerances=(" +
+                                preciseScalar(
+                                    tissueWorld.mixedSolver
+                                        .residualTolerances.x
+                                ) +
+                                "," +
+                                preciseScalar(
+                                    tissueWorld.mixedSolver
+                                        .residualTolerances.y
+                                ) +
+                                "," +
+                                preciseScalar(
+                                    tissueWorld.mixedSolver
+                                        .residualTolerances.z
+                                ) +
+                                "," +
+                                preciseScalar(
+                                    tissueWorld.mixedSolver
+                                        .residualTolerances.w
+                                ) +
+                                ")";
+                            for (std::size_t certificateIndex = 0u;
+                                 certificateIndex <
+                                    snapshot.solverCertificates.size();
+                                 ++certificateIndex) {
+                                const NMSolverCertificateGPU& certificate =
+                                    snapshot.solverCertificates[
+                                        certificateIndex];
+                                failure +=
+                                    " certificate_" +
+                                    std::to_string(certificateIndex) +
+                                    "_minimum_j=" +
+                                    preciseScalar(
+                                        certificate.validity.x
+                                    ) +
+                                    " certificate_nonlinear=(" +
+                                    preciseScalar(
+                                        certificate.nonlinear.x
+                                    ) +
+                                    "," +
+                                    preciseScalar(
+                                        certificate.nonlinear.y
+                                    ) +
+                                    "," +
+                                    preciseScalar(
+                                        certificate.nonlinear.z
+                                    ) +
+                                    "," +
+                                    preciseScalar(
+                                        certificate.nonlinear.w
+                                    ) +
+                                    ") certificate_transport=(" +
+                                    preciseScalar(
+                                        certificate.transport.x
+                                    ) +
+                                    "," +
+                                    preciseScalar(
+                                        certificate.transport.y
+                                    ) +
+                                    "," +
+                                    preciseScalar(
+                                        certificate.transport.z
+                                    ) +
+                                    "," +
+                                    preciseScalar(
+                                        certificate.transport.w
+                                    ) +
+                                    ") certificate_contact=(" +
+                                    preciseScalar(certificate.contact.x) +
+                                    "," +
+                                    preciseScalar(certificate.contact.y) +
+                                    "," +
+                                    preciseScalar(certificate.contact.z) +
+                                    "," +
+                                    preciseScalar(certificate.contact.w) +
+                                    ")";
+                            }
+                            for (const NMMatterStatusGPU& status :
+                                 snapshot.statuses) {
+                                if (status.code == NM_STATUS_SUCCESS) {
+                                    continue;
+                                }
+                                failure +=
+                                    " matter_status=" +
+                                    std::to_string(status.code) +
+                                    " object=" +
+                                    std::to_string(status.objectIndex) +
+                                    " failing_index=" +
+                                    std::to_string(status.failingIndex) +
+                                    " completed_microsteps=" +
+                                    std::to_string(
+                                        status.completedMicrosteps
+                                    ) +
+                                    " fgmres_iterations=" +
+                                    std::to_string(
+                                        status.fgmresIterations
+                                    ) +
+                                    " contact_count=" +
+                                    std::to_string(status.contactCount) +
+                                    " event_count=" +
+                                    std::to_string(status.eventCount) +
+                                    " diagnostics=(" +
+                                    preciseScalar(status.diagnostics.x) +
+                                    "," +
+                                    preciseScalar(status.diagnostics.y) +
+                                    "," +
+                                    preciseScalar(status.diagnostics.z) +
+                                    "," +
+                                    preciseScalar(status.diagnostics.w) +
+                                    ")";
+                                if (status.code ==
+                                        NM_STATUS_CONTACT_FAILURE &&
+                                    status.failingIndex <
+                                        tissueWorld.contact.pairs.size()) {
+                                    const NMContactPairGPU& pair =
+                                        tissueWorld.contact.pairs[
+                                            status.failingIndex];
+                                    failure +=
+                                        " pair_node=" +
+                                        std::to_string(
+                                            pair.continuumNode
+                                        ) +
+                                        " pair_proxy=" +
+                                        std::to_string(pair.rigidProxy);
+                                    if (pair.rigidProxy <
+                                        tissueWorld.contact.rigidProxies
+                                            .size()) {
+                                        const NMRigidProxyGPU& proxy =
+                                            tissueWorld.contact.rigidProxies[
+                                                pair.rigidProxy];
+                                        failure +=
+                                            " proxy_shape=" +
+                                            std::to_string(proxy.shapeKind) +
+                                            " proxy_flags=" +
+                                            std::to_string(proxy.flags) +
+                                            " proxy_body=" +
+                                            std::to_string(proxy.bodyIndex) +
+                                            " proxy_scene_body=" +
+                                            std::to_string(
+                                                proxy.sceneBodyIndex
+                                            ) +
+                                            " proxy_free_index=" +
+                                            std::to_string(
+                                                proxy
+                                                    .generalizedFreeBodyIndex
+                                            );
+                                    }
+                                    if (status.failingIndex <
+                                        snapshot.contactSamples.size()) {
+                                        const NMContactSampleGPU& sample =
+                                            snapshot.contactSamples[
+                                                status.failingIndex];
+                                        failure +=
+                                            " sample_flags=" +
+                                            std::to_string(
+                                                sample.identity.w
+                                            ) +
+                                            " sample_separation=" +
+                                            preciseScalar(
+                                                sample.pointAndSeparation.w
+                                            ) +
+                                            " sample_normal_velocity=" +
+                                            preciseScalar(
+                                                sample.normalAndVelocity.w
+                                            ) +
+                                            " sample_admission_velocity=" +
+                                            preciseScalar(
+                                                sample
+                                                    .admissionVelocityAndNormal
+                                                    .w
+                                            ) +
+                                            " sample_barrier=(" +
+                                            preciseScalar(sample.barrier.x) +
+                                            "," +
+                                            preciseScalar(sample.barrier.y) +
+                                            "," +
+                                            preciseScalar(sample.barrier.z) +
+                                            "," +
+                                            preciseScalar(sample.barrier.w) +
+                                            ")";
+                                    }
+                                }
+                                break;
+                            }
+                            require(false, failure);
+                            return result;
+                        };
+
+                        struct LiveReceiverStreamResult {
+                            PhaseResult terminal;
+                            double gpuMilliseconds = 0.0;
+                            std::uint32_t completedSteps = 0u;
+                            std::uint32_t chunks = 0u;
+                        };
+                        const auto continueLiveReceiverStream = [&] (
+                            const std::vector<float>& phaseEfforts,
+                            const std::uint32_t phaseSteps,
+                            const std::string& phase,
+                            const std::string& progressKey,
+                            const double maximumTissueIncrementM
+                        ) {
+                            require(
+                                phaseSteps != 0u &&
+                                    phaseEfforts.size() ==
+                                        static_cast<std::size_t>(
+                                            phaseSteps
+                                        ) * world.model.world.nv,
+                                phase + " effort stream has invalid dimensions"
+                            );
+                            LiveReceiverStreamResult stream;
+                            while (stream.completedSteps < phaseSteps) {
+                                const std::uint32_t chunkSteps = std::min(
+                                    kLiveReceiverChunkSteps,
+                                    phaseSteps - stream.completedSteps
+                                );
+                                const std::size_t begin =
+                                    static_cast<std::size_t>(
+                                        stream.completedSteps
+                                    ) * world.model.world.nv;
+                                const std::size_t end = begin +
+                                    static_cast<std::size_t>(chunkSteps) *
+                                        world.model.world.nv;
+                                const std::vector<float> chunkEfforts(
+                                    phaseEfforts.begin() + begin,
+                                    phaseEfforts.begin() + end
+                                );
+                                stream.terminal =
+                                    continueLiveReceiverPhase(
+                                        chunkEfforts,
+                                        chunkSteps,
+                                        phase
+                                    );
+                                stream.gpuMilliseconds +=
+                                    stream.terminal.diagnostics
+                                        .gpuElapsedMilliseconds;
+                                stream.completedSteps += chunkSteps;
+                                ++stream.chunks;
+
+                                const LiveTissueMetrics tissue =
+                                    liveTissueMetrics(
+                                        tissueRuntime.snapshot(),
+                                        phase
+                                    );
+                                const RodStateMetrics rod = rodStateMetrics(
+                                    world,
+                                    stream.terminal.result
+                                );
+                                require(
+                                    tissue.channelsUnchanged &&
+                                        tissue.activeChannels ==
+                                            passageChannels.size() &&
+                                        tissue.activeTetrahedra ==
+                                            tissueCoupon.metadata
+                                                .tetrahedronCount &&
+                                        tissue.removedMassKg == 0.0 &&
+                                        tissue.certificatesAccepted &&
+                                        tissue.minimumDeterminant > 0.0 &&
+                                        std::isfinite(
+                                            tissue.maximumResidual
+                                        ) &&
+                                        tissue.maximumIncrementM <=
+                                            maximumTissueIncrementM,
+                                    phase + " changed accepted tissue "
+                                        "topology or exceeded its bounded "
+                                        "deformation envelope"
+                                );
+                                std::cout << std::setprecision(9)
+                                    << progressKey << "_progress_steps="
+                                    << stream.completedSteps << '/'
+                                    << phaseSteps
+                                    << " matter_minimum_determinant="
+                                    << tissue.minimumDeterminant
+                                    << " matter_maximum_residual="
+                                    << tissue.maximumResidual
+                                    << " maximum_tissue_increment_m="
+                                    << tissue.maximumIncrementM
+                                    << " thread_maximum_node_speed_mps="
+                                    << rod.maximumNodeSpeed
+                                    << " thread_maximum_edge_error_m="
+                                    << rod.maximumEdgeLengthError
+                                    << " chunk_gpu_ms="
+                                    << stream.terminal.diagnostics
+                                        .gpuElapsedMilliseconds
+                                    << '\n';
+                            }
+                            return stream;
+                        };
+
+                        const MRBodyStateGPU acquisitionStartNeedle =
+                            dynamicBridge.result.finalSceneBodies.at(0u);
+                        const GraspReference liveGiverReference =
+                            graspReference(
+                                world,
+                                needleForPlacement,
+                                dynamicBridge.result,
+                                0u,
+                                giverPlacementShape
+                            );
+                        const Vec3 liveReceiverPoint =
+                            needleShapeWorldCenter(
+                                needleForPlacement,
+                                kExtractionNeedleShape,
+                                acquisitionStartNeedle
+                            );
+                        Vec3 liveReceiverRail = needleShapeWorldTangent(
+                            needleForPlacement,
+                            kExtractionNeedleShape,
+                            acquisitionStartNeedle
+                        );
+                        if (dot(
+                                liveReceiverRail,
+                                bridgeReceiverRail
+                            ) < 0.0) {
+                            liveReceiverRail = liveReceiverRail * -1.0;
+                        }
+                        const OrthonormalJawFrame liveReceiverFrame =
+                            orthonormalJawFrame(
+                                liveReceiverRail,
+                                bridgeReceiverSeparation,
+                                "live tissue receiver acquisition frame"
+                            );
+                        const double receiverJawNormalDistalAlignment = -dot(
+                            liveReceiverFrame.normal,
+                            thicknessAxis
+                        );
+                        // Jaw-frame normal is the collision-free seating axis,
+                        // not a tissue-side convention.  Once the receiver has
+                        // positive control, withdraw along the actual coupon
+                        // distal normal while holding the needle handling
+                        // frame fixed.  This avoids inferring anatomy from an
+                        // arbitrary right-handed tool-frame sign.
+                        const Vec3 liveDistalExtractionDirection =
+                            thicknessAxis * -1.0;
+                        const double distalExtractionAlignment = -dot(
+                            liveDistalExtractionDirection,
+                            thicknessAxis
+                        );
+                        const JawGeometry receiverBeforeApproach =
+                            worldJawGeometry(
+                                world.model,
+                                1u,
+                                dynamicBridge.result.finalQ,
+                                dynamicBridge.result.finalV
+                            );
+                        const std::uint32_t liveApproachSteps =
+                            liveReceiverSteps(kExtractionApproachSteps);
+                        const std::uint32_t liveApproachHoldSteps =
+                            liveReceiverSteps(kReceiverApproachSettleSteps);
+                        const ArmTrajectory liveReceiverApproach =
+                            frameArmTrajectory(
+                                world.model,
+                                psm,
+                                1u,
+                                bridgeReceiverBase,
+                                dynamicBridge.result.finalQ,
+                                receiverBeforeApproach.midpoint,
+                                liveReceiverPoint,
+                                liveReceiverFrame.rail,
+                                liveReceiverFrame.separation,
+                                openJawCoordinate,
+                                openJawCoordinate,
+                                liveApproachSteps,
+                                static_cast<double>(
+                                    stepConfig.timestepSeconds
+                                )
+                            );
+                        const CrossArmCollisionScan liveApproachPreflight =
+                            scanCrossArmTargetPath(
+                                world,
+                                dynamicBridge.result.finalQ,
+                                liveReceiverApproach.finalTarget,
+                                liveApproachSteps,
+                                liveReceiverApproach.desiredQ
+                            );
+                        std::uint32_t liveApproachNeedleContactSamples = 0u;
+                        for (std::uint32_t step = 0u;
+                             step < liveApproachSteps;
+                             ++step) {
+                            const std::span<const float> q{
+                                liveReceiverApproach.desiredQ.data() +
+                                    static_cast<std::size_t>(step) *
+                                        world.model.world.nq,
+                                world.model.world.nq,
+                            };
+                            liveApproachNeedleContactSamples +=
+                                observeKinematicNeedleContacts(
+                                    world,
+                                    needleForPlacement.metadata,
+                                    q,
+                                    &acquisitionStartNeedle
+                                ).receiverNeedleContacts != 0u;
+                        }
+                        require(
+                            liveReceiverApproach.maximumVelocityRatio <=
+                                kMaximumCommandVelocityRatio &&
+                                liveApproachPreflight
+                                    .samplesWithContact == 0u &&
+                                liveApproachPreflight
+                                    .samplesWithGiverPadContact == 0u &&
+                                liveApproachPreflight
+                                    .samplesWithReceiverPadContact == 0u &&
+                                liveApproachNeedleContactSamples == 0u,
+                            "live distal receiver approach is not "
+                            "collision-free"
+                        );
+                        LiveReceiverStreamResult liveApproachStream =
+                            continueLiveReceiverStream(
+                            liveReceiverApproach.efforts,
+                            liveApproachSteps,
+                            "live tissue receiver approach",
+                            "tissue_receiver_approach",
+                            receiverTissueSpec.thicknessM.value
+                        );
+                        PhaseResult liveApproachMotion = std::move(
+                            liveApproachStream.terminal
+                        );
+                        std::vector<float> liveReceiverEfforts =
+                            interpolateLiveReceiverTargets(
+                                liveApproachMotion.result.finalQ,
+                                liveReceiverApproach.finalTarget,
+                                liveApproachHoldSteps
+                            );
+                        LiveReceiverStreamResult liveApproachHoldStream =
+                            continueLiveReceiverStream(
+                            liveReceiverEfforts,
+                            liveApproachHoldSteps,
+                            "live tissue receiver approach hold",
+                            "tissue_receiver_approach_hold",
+                            receiverTissueSpec.thicknessM.value
+                        );
+                        PhaseResult liveApproached = std::move(
+                            liveApproachHoldStream.terminal
+                        );
+                        const ContactCounts liveApproachContacts =
+                            contactCounts(
+                                world,
+                                liveApproached.result,
+                                needleForPlacement.metadata,
+                                kNeedleFirstShape
+                            );
+                        const GraspKinematics liveApproachGiverMotion =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                liveApproached.result,
+                                0u,
+                                giverPlacementShape,
+                                liveGiverReference
+                            );
+                        const RodStateMetrics liveApproachRod =
+                            rodStateMetrics(world, liveApproached.result);
+                        requireTerminalResidual(
+                            liveApproached.result,
+                            "live tissue receiver approach hold"
+                        );
+                        require(
+                            bilateral(liveApproachContacts, 0u) &&
+                                distributedInsertCoverage(
+                                    liveApproachContacts,
+                                    0u
+                                ) &&
+                                !bilateral(liveApproachContacts, 1u) &&
+                                cleanGiverNeedleInteraction(
+                                    liveApproachContacts
+                                ) &&
+                                qualifiedDrivenGrasp(
+                                    liveApproachGiverMotion
+                                ) &&
+                                qualifiedTerminalRod(liveApproachRod),
+                            "giver lost the tissue-engaged needle during "
+                            "receiver approach: " +
+                                contactSummary(liveApproachContacts)
+                        );
+
+                        const std::uint32_t liveClosureSteps =
+                            liveReceiverSteps(
+                                extractionReceiverOverlapTravelSteps
+                            );
+                        const std::uint32_t liveClosureHoldSteps =
+                            liveReceiverSteps(kReceiverClosureSettleSteps);
+                        std::vector<float> liveOverlapTarget =
+                            liveApproached.result.finalQ;
+                        std::vector<double> liveReceiverOverlap = armLocalQ(
+                            world.model,
+                            1u,
+                            liveApproached.result.finalQ
+                        );
+                        liveReceiverOverlap[6] =
+                            -receiverOverlapJawCoordinate;
+                        liveReceiverOverlap[7] =
+                            receiverOverlapJawCoordinate;
+                        setArmTarget(
+                            liveOverlapTarget,
+                            world.model,
+                            1u,
+                            liveReceiverOverlap
+                        );
+                        liveReceiverEfforts =
+                            interpolateLiveReceiverTargets(
+                            liveApproached.result.finalQ,
+                            liveOverlapTarget,
+                            liveClosureSteps
+                        );
+                        LiveReceiverStreamResult liveClosureStream =
+                            continueLiveReceiverStream(
+                            liveReceiverEfforts,
+                            liveClosureSteps,
+                            "live tissue receiver closure",
+                            "tissue_receiver_closure",
+                            receiverTissueSpec.thicknessM.value
+                        );
+                        PhaseResult liveClosureMotion = std::move(
+                            liveClosureStream.terminal
+                        );
+                        liveReceiverEfforts =
+                            interpolateLiveReceiverTargets(
+                            liveClosureMotion.result.finalQ,
+                            liveOverlapTarget,
+                            liveClosureHoldSteps
+                        );
+                        LiveReceiverStreamResult liveOverlapHoldStream =
+                            continueLiveReceiverStream(
+                            liveReceiverEfforts,
+                            liveClosureHoldSteps,
+                            "live tissue dual positive-control hold",
+                            "tissue_receiver_positive_control_hold",
+                            receiverTissueSpec.thicknessM.value
+                        );
+                        PhaseResult liveOverlapHeld = std::move(
+                            liveOverlapHoldStream.terminal
+                        );
+                        const ContactCounts liveOverlapContacts =
+                            contactCounts(
+                                world,
+                                liveOverlapHeld.result,
+                                needleForPlacement.metadata,
+                                kNeedleFirstShape
+                            );
+                        const GraspKinematics liveOverlapGiverMotion =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                liveOverlapHeld.result,
+                                0u,
+                                giverPlacementShape,
+                                liveGiverReference
+                            );
+                        const GraspReference liveOverlapReceiverReference =
+                            graspReference(
+                                world,
+                                needleForPlacement,
+                                liveOverlapHeld.result,
+                                1u,
+                                kExtractionNeedleShape
+                            );
+                        const RodStateMetrics liveOverlapRod =
+                            rodStateMetrics(world, liveOverlapHeld.result);
+                        requireTerminalResidual(
+                            liveOverlapHeld.result,
+                            "live tissue dual positive-control hold"
+                        );
+                        require(
+                            bilateral(liveOverlapContacts, 0u) &&
+                                distributedInsertCoverage(
+                                    liveOverlapContacts,
+                                    0u
+                                ) &&
+                                bilateral(liveOverlapContacts, 1u) &&
+                                distributedInsertCoverage(
+                                    liveOverlapContacts,
+                                    1u
+                                ) &&
+                                cleanNeedleInteraction(
+                                    liveOverlapContacts,
+                                    true,
+                                    true
+                                ) &&
+                                qualifiedTransitionGrasp(
+                                    liveOverlapGiverMotion
+                                ) &&
+                                qualifiedTerminalRod(liveOverlapRod),
+                            "live distal receiver did not establish dual "
+                            "positive control: " +
+                                contactSummary(liveOverlapContacts)
+                        );
+
+                        const std::uint32_t nominalLoadExchangeSteps =
+                            static_cast<std::uint32_t>(std::ceil(
+                                3.0 * (
+                                    receiverOverlapJawCoordinate -
+                                    receiverTransportJawCoordinate
+                                ) / (0.18 * kControlTimestep)
+                            )) + 4u;
+                        const std::uint32_t liveLoadExchangeSteps =
+                            liveReceiverSteps(nominalLoadExchangeSteps);
+                        const std::uint32_t liveLoadExchangeHoldSteps =
+                            liveReceiverSteps(kLoadExchangeSettleSteps);
+                        std::vector<float> liveLoadExchangeTarget =
+                            liveOverlapHeld.result.finalQ;
+                        std::vector<double> liveGiverExchange = armLocalQ(
+                            world.model,
+                            0u,
+                            liveOverlapHeld.result.finalQ
+                        );
+                        liveGiverExchange[6] =
+                            -receiverOverlapJawCoordinate;
+                        liveGiverExchange[7] =
+                            receiverOverlapJawCoordinate;
+                        std::vector<double> liveReceiverExchange = armLocalQ(
+                            world.model,
+                            1u,
+                            liveOverlapHeld.result.finalQ
+                        );
+                        liveReceiverExchange[6] = -closeJawCoordinate;
+                        liveReceiverExchange[7] = closeJawCoordinate;
+                        setArmTarget(
+                            liveLoadExchangeTarget,
+                            world.model,
+                            0u,
+                            liveGiverExchange
+                        );
+                        setArmTarget(
+                            liveLoadExchangeTarget,
+                            world.model,
+                            1u,
+                            liveReceiverExchange
+                        );
+                        liveReceiverEfforts =
+                            interpolateLiveReceiverTargets(
+                            liveOverlapHeld.result.finalQ,
+                            liveLoadExchangeTarget,
+                            liveLoadExchangeSteps
+                        );
+                        LiveReceiverStreamResult liveLoadExchangeStream =
+                            continueLiveReceiverStream(
+                            liveReceiverEfforts,
+                            liveLoadExchangeSteps,
+                            "live tissue receiver load exchange",
+                            "tissue_receiver_load_exchange",
+                            receiverTissueSpec.thicknessM.value
+                        );
+                        PhaseResult liveLoadExchangeMotion = std::move(
+                            liveLoadExchangeStream.terminal
+                        );
+                        liveReceiverEfforts =
+                            interpolateLiveReceiverTargets(
+                            liveLoadExchangeMotion.result.finalQ,
+                            liveLoadExchangeTarget,
+                            liveLoadExchangeHoldSteps
+                        );
+                        LiveReceiverStreamResult
+                            liveLoadExchangeHoldStream =
+                                continueLiveReceiverStream(
+                            liveReceiverEfforts,
+                            liveLoadExchangeHoldSteps,
+                            "live tissue load-exchange hold",
+                            "tissue_receiver_load_exchange_hold",
+                            receiverTissueSpec.thicknessM.value
+                        );
+                        PhaseResult liveLoadExchanged = std::move(
+                            liveLoadExchangeHoldStream.terminal
+                        );
+                        const ContactCounts liveLoadExchangeContacts =
+                            contactCounts(
+                                world,
+                                liveLoadExchanged.result,
+                                needleForPlacement.metadata,
+                                kNeedleFirstShape
+                            );
+                        const GraspKinematics liveLoadExchangeGiverMotion =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                liveLoadExchanged.result,
+                                0u,
+                                giverPlacementShape,
+                                liveGiverReference
+                            );
+                        const GraspKinematics liveLoadExchangeReceiverMotion =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                liveLoadExchanged.result,
+                                1u,
+                                kExtractionNeedleShape,
+                                liveOverlapReceiverReference
+                            );
+                        const RodStateMetrics liveLoadExchangeRod =
+                            rodStateMetrics(
+                                world,
+                                liveLoadExchanged.result
+                            );
+                        const MRMetalWorldContactStatusGPU&
+                            liveLoadExchangeResidual =
+                                requireTerminalResidual(
+                                    liveLoadExchanged.result,
+                                    "live tissue load-exchange hold"
+                                );
+                        const double liveAcquisitionSwageErrorM =
+                            swageAttachmentError(
+                                world,
+                                liveLoadExchanged.result
+                            );
+                        const double liveAcquisitionNeedleTravelM = norm(
+                            vector(
+                                liveLoadExchanged.result
+                                    .finalSceneBodies.at(0u).position
+                            ) - vector(acquisitionStartNeedle.position)
+                        );
+                        const numi::matter::RuntimeStateSnapshot
+                            acquisitionMatter = tissueRuntime.snapshot();
+                        const LiveTissueMetrics acquisitionTissue =
+                            liveTissueMetrics(
+                                acquisitionMatter,
+                                "live receiver acquisition"
+                            );
+                        require(
+                            bilateral(liveLoadExchangeContacts, 0u) &&
+                                transverseInsertCoverage(
+                                    liveLoadExchangeContacts,
+                                    0u
+                                ) &&
+                                bilateral(liveLoadExchangeContacts, 1u) &&
+                                distributedInsertCoverage(
+                                    liveLoadExchangeContacts,
+                                    1u
+                                ) &&
+                                cleanNeedleInteraction(
+                                    liveLoadExchangeContacts,
+                                    true,
+                                    true
+                                ) &&
+                                qualifiedTransitionGrasp(
+                                    liveLoadExchangeGiverMotion
+                                ) &&
+                                qualifiedTransitionGrasp(
+                                    liveLoadExchangeReceiverMotion
+                                ) &&
+                                qualifiedTerminalRod(
+                                    liveLoadExchangeRod
+                                ) &&
+                                liveAcquisitionSwageErrorM <
+                                    kMaximumSwageAttachmentError &&
+                                liveAcquisitionNeedleTravelM <=
+                                    kMaximumReceiverAcquisitionNeedleTravelM &&
+                                acquisitionTissue.channelsUnchanged &&
+                                acquisitionTissue.activeChannels ==
+                                    passageChannels.size() &&
+                                acquisitionTissue.activeTetrahedra ==
+                                    tissueCoupon.metadata.tetrahedronCount &&
+                                acquisitionTissue.removedMassKg == 0.0 &&
+                                acquisitionTissue.certificatesAccepted &&
+                                acquisitionTissue.minimumDeterminant > 0.0 &&
+                                std::isfinite(
+                                    acquisitionTissue.maximumResidual
+                                ) &&
+                                acquisitionTissue.maximumIncrementM <=
+                                    receiverTissueSpec.thicknessM.value,
+                            "live tissue load exchange lost bilateral "
+                            "safe-zone control or its accepted tissue state: " +
+                                contactSummary(liveLoadExchangeContacts)
+                        );
+                        const std::uint32_t liveAcquisitionSteps =
+                            liveApproachSteps + liveApproachHoldSteps +
+                            liveClosureSteps + liveClosureHoldSteps +
+                            liveLoadExchangeSteps +
+                            liveLoadExchangeHoldSteps;
+                        const double liveAcquisitionGpuMilliseconds =
+                            liveApproachStream.gpuMilliseconds +
+                            liveApproachHoldStream.gpuMilliseconds +
+                            liveClosureStream.gpuMilliseconds +
+                            liveOverlapHoldStream.gpuMilliseconds +
+                            liveLoadExchangeStream.gpuMilliseconds +
+                            liveLoadExchangeHoldStream.gpuMilliseconds;
+                        std::uint64_t acquisitionStateHash =
+                            1469598103934665603ull;
+                        appendStateHash(
+                            acquisitionStateHash,
+                            liveLoadExchanged.result.finalQ
+                        );
+                        appendStateHash(
+                            acquisitionStateHash,
+                            liveLoadExchanged.result.finalV
+                        );
+                        appendStateHash(
+                            acquisitionStateHash,
+                            liveLoadExchanged.result.finalSceneBodies
+                        );
+                        appendStateHash(
+                            acquisitionStateHash,
+                            liveLoadExchanged.result.finalRodNodes
+                        );
+                        appendStateHash(
+                            acquisitionStateHash,
+                            acquisitionMatter.femNodes
+                        );
+                        appendStateHash(
+                            acquisitionStateHash,
+                            acquisitionMatter.punctureChannels
+                        );
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-receiver-acquisition",
+                            bridgeBaseDERSubsteps +
+                                liveAcquisitionSteps *
+                                    stepConfig.physicsSubsteps,
+                            world,
+                            sutureSpec,
+                            liveLoadExchanged.result
+                        );
+                        std::cout << std::setprecision(9)
+                            << "tissue_receiver_acquisition=ok"
+                            << " approach_steps=" << liveApproachSteps
+                            << " approach_contact_samples="
+                            << liveApproachNeedleContactSamples
+                            << " cadence_s=" << stepConfig.timestepSeconds
+                            << " giver_jaw_contacts="
+                            << liveLoadExchangeContacts.jawContacts[0][0]
+                            << '/'
+                            << liveLoadExchangeContacts.jawContacts[0][1]
+                            << " receiver_jaw_contacts="
+                            << liveLoadExchangeContacts.jawContacts[1][0]
+                            << '/'
+                            << liveLoadExchangeContacts.jawContacts[1][1]
+                            << " giver_insert_patch_masks="
+                            << liveLoadExchangeContacts
+                                   .jawInsertPatchMasks[0][0]
+                            << '/'
+                            << liveLoadExchangeContacts
+                                   .jawInsertPatchMasks[0][1]
+                            << " receiver_insert_patch_masks="
+                            << liveLoadExchangeContacts
+                                   .jawInsertPatchMasks[1][0]
+                            << '/'
+                            << liveLoadExchangeContacts
+                                   .jawInsertPatchMasks[1][1]
+                            << " needle_travel_m="
+                            << liveAcquisitionNeedleTravelM
+                            << " maximum_tissue_increment_m="
+                            << acquisitionTissue.maximumIncrementM
+                            << " active_puncture_channels="
+                            << acquisitionTissue.activeChannels
+                            << " active_tetrahedra="
+                            << acquisitionTissue.activeTetrahedra
+                            << " removed_tissue_mass_kg="
+                            << acquisitionTissue.removedMassKg
+                            << " matter_minimum_determinant="
+                            << acquisitionTissue.minimumDeterminant
+                            << " matter_maximum_residual="
+                            << acquisitionTissue.maximumResidual
+                            << " hard_swage_root_error_m="
+                            << liveAcquisitionSwageErrorM
+                            << " thread_maximum_edge_error_m="
+                            << liveLoadExchangeRod.maximumEdgeLengthError
+                            << " thread_minimum_clearance_m="
+                            << liveLoadExchangeRod
+                                   .minimumNonNeighbourSurfaceClearance
+                            << " terminal_contact_velocity_residual_mps="
+                            << liveLoadExchangeResidual.residuals.y
+                            << " terminal_cone_violation="
+                            << liveLoadExchangeResidual.residuals.z
+                            << " receiver_acquisition_gpu_ms="
+                            << liveAcquisitionGpuMilliseconds
+                            << " acquisition_state_fnv64=0x" << std::hex
+                            << acquisitionStateHash << std::dec
+                            << " failed_steps=0\n";
+                        if (tissueReceiverAcquisitionOnly) {
+                            return 0;
+                        }
+
+                        const GraspReference liveReceiverReference =
+                            graspReference(
+                                world,
+                                needleForPlacement,
+                                liveLoadExchanged.result,
+                                1u,
+                                kExtractionNeedleShape
+                            );
+                        std::vector<float> liveGiverReleaseTarget =
+                            liveLoadExchanged.result.finalQ;
+                        std::vector<double> liveGiverReleased = armLocalQ(
+                            world.model,
+                            0u,
+                            liveLoadExchanged.result.finalQ
+                        );
+                        liveGiverReleased[6] = -openJawCoordinate;
+                        liveGiverReleased[7] = openJawCoordinate;
+                        setArmTarget(
+                            liveGiverReleaseTarget,
+                            world.model,
+                            0u,
+                            liveGiverReleased
+                        );
+                        const std::uint32_t liveReleaseSteps =
+                            liveReceiverSteps(
+                                extractionReceiverOverlapTravelSteps
+                            );
+                        const std::uint32_t liveReleaseHoldSteps =
+                            liveReceiverSteps(kGiverReleaseSettleSteps);
+                        liveReceiverEfforts =
+                            interpolateLiveReceiverTargets(
+                            liveLoadExchanged.result.finalQ,
+                            liveGiverReleaseTarget,
+                            liveReleaseSteps
+                        );
+                        LiveReceiverStreamResult liveReleaseStream =
+                            continueLiveReceiverStream(
+                            liveReceiverEfforts,
+                            liveReleaseSteps,
+                            "live tissue giver release",
+                            "tissue_giver_release",
+                            2.0 * receiverTissueSpec.thicknessM.value
+                        );
+                        PhaseResult liveReleaseMotion = std::move(
+                            liveReleaseStream.terminal
+                        );
+                        liveReceiverEfforts =
+                            interpolateLiveReceiverTargets(
+                            liveReleaseMotion.result.finalQ,
+                            liveGiverReleaseTarget,
+                            liveReleaseHoldSteps
+                        );
+                        LiveReceiverStreamResult liveReleaseHoldStream =
+                            continueLiveReceiverStream(
+                            liveReceiverEfforts,
+                            liveReleaseHoldSteps,
+                            "live tissue receiver sole-control hold",
+                            "tissue_receiver_sole_control_hold",
+                            2.0 * receiverTissueSpec.thicknessM.value
+                        );
+                        PhaseResult liveReleased = std::move(
+                            liveReleaseHoldStream.terminal
+                        );
+                        const ContactCounts liveReleaseContacts =
+                            contactCounts(
+                                world,
+                                liveReleased.result,
+                                needleForPlacement.metadata,
+                                kNeedleFirstShape
+                            );
+                        const GraspKinematics liveReleaseReceiverMotion =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                liveReleased.result,
+                                1u,
+                                kExtractionNeedleShape,
+                                liveReceiverReference
+                            );
+                        const RodStateMetrics liveReleaseRod =
+                            rodStateMetrics(world, liveReleased.result);
+                        requireTerminalResidual(
+                            liveReleased.result,
+                            "live tissue receiver sole-control hold"
+                        );
+                        require(
+                            !bilateral(liveReleaseContacts, 0u) &&
+                                bilateral(liveReleaseContacts, 1u) &&
+                                distributedInsertCoverage(
+                                    liveReleaseContacts,
+                                    1u
+                                ) &&
+                                cleanNeedleInteraction(
+                                    liveReleaseContacts,
+                                    false,
+                                    true
+                                ) &&
+                                qualifiedDrivenGrasp(
+                                    liveReleaseReceiverMotion
+                                ) &&
+                                qualifiedTerminalRod(liveReleaseRod) &&
+                                swageAttachmentError(
+                                    world,
+                                    liveReleased.result
+                                ) < kMaximumSwageAttachmentError,
+                            "receiver did not retain sole control over the "
+                            "tissue-engaged needle after giver release: " +
+                                contactSummary(liveReleaseContacts)
+                        );
+
+                        const auto wholeNeedleProximalProjection = [&] (
+                            const MRBodyStateGPU& needle
+                        ) {
+                            double projection =
+                                -std::numeric_limits<double>::infinity();
+                            for (std::uint32_t shape = 0u;
+                                 shape < needleForPlacement.rigid.shapes.size();
+                                 ++shape) {
+                                const Vec3 center = needleShapeWorldCenter(
+                                    needleForPlacement,
+                                    shape,
+                                    needle
+                                );
+                                const Vec3 tangent = needleShapeWorldTangent(
+                                    needleForPlacement,
+                                    shape,
+                                    needle
+                                );
+                                const MRShapeGPU& geometry =
+                                    needleForPlacement.rigid.shapes[shape];
+                                projection = std::max(
+                                    projection,
+                                    dot(center, thicknessAxis) +
+                                        std::abs(dot(
+                                            tangent,
+                                            thicknessAxis
+                                        )) * geometry.dimensions.y +
+                                        geometry.dimensions.x
+                                );
+                            }
+                            return projection;
+                        };
+                        const LiveTissueMetrics preExtractionTissue =
+                            liveTissueMetrics(
+                                tissueRuntime.snapshot(),
+                                "live receiver pre-extraction"
+                            );
+                        const double preExtractionNeedleProjection =
+                            wholeNeedleProximalProjection(
+                                liveReleased.result
+                                    .finalSceneBodies.at(0u)
+                            );
+                        const double geometryRequiredExtractionM =
+                            (
+                                preExtractionNeedleProjection -
+                                preExtractionTissue.bottomProjection +
+                                2.0 * kWholeNeedleDistalClearanceM
+                            ) / distalExtractionAlignment;
+                        const double liveExtractionDistanceM = std::max(
+                            kReceiverTransfer,
+                            geometryRequiredExtractionM
+                        );
+                        require(
+                            std::isfinite(liveExtractionDistanceM) &&
+                                liveExtractionDistanceM > 0.0 &&
+                                liveExtractionDistanceM <=
+                                    kMaximumLiveReceiverExtractionM,
+                            "complete needle clearance exceeds the bounded "
+                            "distal extraction workspace"
+                        );
+                        const std::uint32_t nominalExtractionSteps =
+                            static_cast<std::uint32_t>(std::ceil(
+                                kReceiverTransferSteps *
+                                liveExtractionDistanceM /
+                                kReceiverTransfer
+                            ));
+                        const std::uint32_t liveExtractionSteps =
+                            liveReceiverSteps(nominalExtractionSteps);
+                        const JawGeometry receiverBeforeExtraction =
+                            worldJawGeometry(
+                                world.model,
+                                1u,
+                                liveReleased.result.finalQ,
+                                liveReleased.result.finalV
+                            );
+                        const OrthonormalJawFrame liveExtractionFrame =
+                            orthonormalJawFrame(
+                                receiverBeforeExtraction.railDirection,
+                                receiverBeforeExtraction
+                                    .separationDirection,
+                                "live loaded receiver extraction frame"
+                            );
+                        const Vec3 liveExtractionTargetPoint =
+                            receiverBeforeExtraction.midpoint +
+                            liveDistalExtractionDirection *
+                                liveExtractionDistanceM;
+                        const ArmTrajectory liveReceiverExtraction =
+                            frameArmTrajectory(
+                                world.model,
+                                psm,
+                                1u,
+                                bridgeReceiverBase,
+                                liveReleased.result.finalQ,
+                                receiverBeforeExtraction.midpoint,
+                                liveExtractionTargetPoint,
+                                liveExtractionFrame.rail,
+                                liveExtractionFrame.separation,
+                                closeJawCoordinate,
+                                receiverTransportJawCoordinate,
+                                liveExtractionSteps,
+                                static_cast<double>(
+                                    stepConfig.timestepSeconds
+                                )
+                            );
+                        const CrossArmCollisionScan liveExtractionPreflight =
+                            scanCrossArmTargetPath(
+                                world,
+                                liveReleased.result.finalQ,
+                                liveReceiverExtraction.finalTarget,
+                                liveExtractionSteps,
+                                liveReceiverExtraction.desiredQ
+                            );
+                        require(
+                            liveReceiverExtraction.maximumVelocityRatio <=
+                                kMaximumCommandVelocityRatio &&
+                                liveExtractionPreflight
+                                    .samplesWithContact == 0u &&
+                                liveExtractionPreflight
+                                    .samplesWithGiverPadContact == 0u &&
+                                liveExtractionPreflight
+                                    .samplesWithReceiverPadContact == 0u,
+                            "geometry-complete distal extraction intersects "
+                            "an instrument or support"
+                        );
+                        const Vec3 needleBeforeExtraction =
+                            needleShapeWorldCenter(
+                                needleForPlacement,
+                                kExtractionNeedleShape,
+                                liveReleased.result
+                                    .finalSceneBodies.at(0u)
+                            );
+                        LiveReceiverStreamResult liveExtractionStream =
+                            continueLiveReceiverStream(
+                            liveReceiverExtraction.efforts,
+                            liveExtractionSteps,
+                            "live tissue loaded distal extraction",
+                            "tissue_receiver_distal_extraction",
+                            2.0 * receiverTissueSpec.thicknessM.value
+                        );
+                        PhaseResult liveExtractionMotion = std::move(
+                            liveExtractionStream.terminal
+                        );
+                        const std::uint32_t liveExtractionHoldChunkSteps =
+                            liveReceiverSteps(
+                                kReceiverTransferSettleSteps
+                            );
+                        const std::uint32_t maximumLiveExtractionHoldSteps =
+                            liveReceiverSteps(
+                                kReceiverTransferMaximumSettleSteps
+                            );
+                        liveReceiverEfforts =
+                            interpolateLiveReceiverTargets(
+                            liveExtractionMotion.result.finalQ,
+                            liveReceiverExtraction.finalTarget,
+                            liveExtractionHoldChunkSteps
+                        );
+                        LiveReceiverStreamResult liveExtractionHoldStream =
+                            continueLiveReceiverStream(
+                            liveReceiverEfforts,
+                            liveExtractionHoldChunkSteps,
+                            "live tissue loaded extraction hold",
+                            "tissue_receiver_extraction_hold",
+                            2.0 * receiverTissueSpec.thicknessM.value
+                        );
+                        PhaseResult liveExtracted = std::move(
+                            liveExtractionHoldStream.terminal
+                        );
+                        std::uint32_t liveExtractionHoldSteps =
+                            liveExtractionHoldChunkSteps;
+                        double additionalExtractionHoldGpuMilliseconds = 0.0;
+                        while (liveExtractionHoldSteps <
+                                maximumLiveExtractionHoldSteps) {
+                            const MRMetalWorldContactStatusGPU& residual =
+                                requireTerminalResidual(
+                                    liveExtracted.result,
+                                    "live tissue extraction settling",
+                                    false
+                                );
+                            const RodStateMetrics settlingRod =
+                                rodStateMetrics(
+                                    world,
+                                    liveExtracted.result
+                                );
+                            if (residual.residuals.y <=
+                                    kMaximumTerminalContactVelocityResidual &&
+                                residual.residuals.z <=
+                                    kMaximumTerminalConeViolation &&
+                                qualifiedTerminalRod(settlingRod)) {
+                                break;
+                            }
+                            liveReceiverEfforts =
+                                interpolateLiveReceiverTargets(
+                                liveExtracted.result.finalQ,
+                                liveReceiverExtraction.finalTarget,
+                                liveExtractionHoldChunkSteps
+                            );
+                            LiveReceiverStreamResult extendedHoldStream =
+                                continueLiveReceiverStream(
+                                liveReceiverEfforts,
+                                liveExtractionHoldChunkSteps,
+                                "live tissue extraction extended hold",
+                                "tissue_receiver_extraction_extended_hold",
+                                2.0 *
+                                    receiverTissueSpec.thicknessM.value
+                            );
+                            liveExtracted = std::move(
+                                extendedHoldStream.terminal
+                            );
+                            liveExtractionHoldSteps +=
+                                liveExtractionHoldChunkSteps;
+                            additionalExtractionHoldGpuMilliseconds +=
+                                extendedHoldStream.gpuMilliseconds;
+                        }
+                        const Vec3 needleAfterExtraction =
+                            needleShapeWorldCenter(
+                                needleForPlacement,
+                                kExtractionNeedleShape,
+                                liveExtracted.result
+                                    .finalSceneBodies.at(0u)
+                            );
+                        const Vec3 needleExtractionDelta =
+                            needleAfterExtraction - needleBeforeExtraction;
+                        const double liveReceiverFollowM =
+                            norm(needleExtractionDelta);
+                        const double liveReceiverProjectedFollowM = dot(
+                            needleExtractionDelta,
+                            liveDistalExtractionDirection
+                        );
+                        const ContactCounts liveExtractionContacts =
+                            contactCounts(
+                                world,
+                                liveExtracted.result,
+                                needleForPlacement.metadata,
+                                kNeedleFirstShape
+                            );
+                        const GraspKinematics liveExtractionReceiverMotion =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                liveExtracted.result,
+                                1u,
+                                kExtractionNeedleShape,
+                                liveReceiverReference
+                            );
+                        const RodStateMetrics liveExtractionRod =
+                            rodStateMetrics(
+                                world,
+                                liveExtracted.result
+                            );
+                        const double liveExtractionSwageErrorM =
+                            swageAttachmentError(
+                                world,
+                                liveExtracted.result
+                            );
+                        const double liveExtractionTangentErrorRad =
+                            swageTangentAngleError(
+                                world,
+                                liveExtracted.result
+                            );
+                        const MRMetalWorldContactStatusGPU&
+                            liveExtractionResidual = requireTerminalResidual(
+                                liveExtracted.result,
+                                "live tissue loaded extraction hold"
+                            );
+                        const numi::matter::RuntimeStateSnapshot
+                            extractionMatter = tissueRuntime.snapshot();
+                        const LiveTissueMetrics extractionTissue =
+                            liveTissueMetrics(
+                                extractionMatter,
+                                "live receiver extraction"
+                            );
+                        const double finalNeedleProximalProjection =
+                            wholeNeedleProximalProjection(
+                                liveExtracted.result
+                                    .finalSceneBodies.at(0u)
+                            );
+                        const double wholeNeedleDistalClearanceM =
+                            extractionTissue.bottomProjection -
+                            finalNeedleProximalProjection;
+                        require(
+                            !liveExtracted.result.finalRodNodes.empty(),
+                            "extracted live strand has no swage root"
+                        );
+                        const double threadRootDistalClearanceM =
+                            extractionTissue.bottomProjection -
+                            (
+                                dot(
+                                    vector(
+                                        liveExtracted.result
+                                            .finalRodNodes.front().position
+                                    ),
+                                    thicknessAxis
+                                ) + world.rods[0].model.radius
+                            );
+                        require(
+                            !bilateral(liveExtractionContacts, 0u) &&
+                                bilateral(liveExtractionContacts, 1u) &&
+                                distributedInsertCoverage(
+                                    liveExtractionContacts,
+                                    1u
+                                ) &&
+                                cleanNeedleInteraction(
+                                    liveExtractionContacts,
+                                    false,
+                                    true
+                                ) &&
+                                qualifiedDrivenGrasp(
+                                    liveExtractionReceiverMotion
+                                ) &&
+                                qualifiedTerminalRod(liveExtractionRod) &&
+                                liveReceiverFollowM >=
+                                    liveExtractionDistanceM - 5.0e-4 &&
+                                liveReceiverProjectedFollowM >=
+                                    liveExtractionDistanceM - 5.0e-4 &&
+                                wholeNeedleDistalClearanceM >=
+                                    kWholeNeedleDistalClearanceM &&
+                                threadRootDistalClearanceM >= 0.0 &&
+                                liveExtractionSwageErrorM <
+                                    kMaximumSwageAttachmentError &&
+                                liveExtractionTangentErrorRad <
+                                    maximumSwageTangentAngleError(world) &&
+                                extractionTissue.channelsUnchanged &&
+                                extractionTissue.activeChannels ==
+                                    passageChannels.size() &&
+                                extractionTissue.activeTetrahedra ==
+                                    tissueCoupon.metadata.tetrahedronCount &&
+                                extractionTissue.removedMassKg == 0.0 &&
+                                extractionTissue.certificatesAccepted &&
+                                extractionTissue.minimumDeterminant > 0.0 &&
+                                std::isfinite(
+                                    extractionTissue.maximumResidual
+                                ) &&
+                                extractionTissue.maximumIncrementM <=
+                                    2.0 *
+                                        receiverTissueSpec
+                                            .thicknessM.value,
+                            "receiver extraction did not carry the complete "
+                            "needle and hard-swaged thread through the live "
+                            "distal tissue surface: " +
+                                contactSummary(liveExtractionContacts)
+                        );
+                        const std::uint32_t liveExtractionPhaseSteps =
+                            liveReleaseSteps + liveReleaseHoldSteps +
+                            liveExtractionSteps +
+                            liveExtractionHoldSteps;
+                        std::uint64_t extractionStateHash =
+                            1469598103934665603ull;
+                        appendStateHash(
+                            extractionStateHash,
+                            liveExtracted.result.finalQ
+                        );
+                        appendStateHash(
+                            extractionStateHash,
+                            liveExtracted.result.finalV
+                        );
+                        appendStateHash(
+                            extractionStateHash,
+                            liveExtracted.result.finalSceneBodies
+                        );
+                        appendStateHash(
+                            extractionStateHash,
+                            liveExtracted.result.finalRodNodes
+                        );
+                        appendStateHash(
+                            extractionStateHash,
+                            extractionMatter.femNodes
+                        );
+                        appendStateHash(
+                            extractionStateHash,
+                            extractionMatter.punctureChannels
+                        );
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-receiver-extraction",
+                            bridgeBaseDERSubsteps +
+                                (liveAcquisitionSteps +
+                                    liveExtractionPhaseSteps) *
+                                    stepConfig.physicsSubsteps,
+                            world,
+                            sutureSpec,
+                            liveExtracted.result
+                        );
+                        const double liveReceiverGpuMilliseconds =
+                            dynamicBridge.diagnostics
+                                .gpuElapsedMilliseconds +
+                            liveAcquisitionGpuMilliseconds +
+                            liveReleaseStream.gpuMilliseconds +
+                            liveReleaseHoldStream.gpuMilliseconds +
+                            liveExtractionStream.gpuMilliseconds +
+                            liveExtractionHoldStream.gpuMilliseconds +
+                            additionalExtractionHoldGpuMilliseconds;
+                        std::cout << std::setprecision(9)
+                            << "tissue_receiver_extraction=ok"
+                            << " receiver_jaw_normal_distal_alignment="
+                            << receiverJawNormalDistalAlignment
+                            << " extraction_axis_distal_alignment="
+                            << distalExtractionAlignment
+                            << " geometry_required_extraction_m="
+                            << geometryRequiredExtractionM
+                            << " commanded_extraction_m="
+                            << liveExtractionDistanceM
+                            << " receiver_follow_m="
+                            << liveReceiverFollowM
+                            << " receiver_projected_follow_m="
+                            << liveReceiverProjectedFollowM
+                            << " whole_needle_distal_clearance_m="
+                            << wholeNeedleDistalClearanceM
+                            << " thread_root_distal_clearance_m="
+                            << threadRootDistalClearanceM
+                            << " giver_jaw_contacts="
+                            << liveExtractionContacts.jawContacts[0][0]
+                            << '/'
+                            << liveExtractionContacts.jawContacts[0][1]
+                            << " receiver_jaw_contacts="
+                            << liveExtractionContacts.jawContacts[1][0]
+                            << '/'
+                            << liveExtractionContacts.jawContacts[1][1]
+                            << " receiver_insert_patch_masks="
+                            << liveExtractionContacts
+                                   .jawInsertPatchMasks[1][0]
+                            << '/'
+                            << liveExtractionContacts
+                                   .jawInsertPatchMasks[1][1]
+                            << " active_puncture_channels="
+                            << extractionTissue.activeChannels
+                            << " active_tetrahedra="
+                            << extractionTissue.activeTetrahedra
+                            << " removed_tissue_mass_kg="
+                            << extractionTissue.removedMassKg
+                            << " maximum_tissue_increment_m="
+                            << extractionTissue.maximumIncrementM
+                            << " matter_minimum_determinant="
+                            << extractionTissue.minimumDeterminant
+                            << " matter_maximum_residual="
+                            << extractionTissue.maximumResidual
+                            << " hard_swage_root_error_m="
+                            << liveExtractionSwageErrorM
+                            << " swage_tangent_error_rad="
+                            << liveExtractionTangentErrorRad
+                            << " thread_maximum_node_speed_mps="
+                            << liveExtractionRod.maximumNodeSpeed
+                            << " thread_maximum_edge_error_m="
+                            << liveExtractionRod.maximumEdgeLengthError
+                            << " thread_minimum_clearance_m="
+                            << liveExtractionRod
+                                   .minimumNonNeighbourSurfaceClearance
+                            << " terminal_contact_velocity_residual_mps="
+                            << liveExtractionResidual.residuals.y
+                            << " terminal_cone_violation="
+                            << liveExtractionResidual.residuals.z
+                            << " receiver_gpu_ms="
+                            << liveReceiverGpuMilliseconds
+                            << " extraction_state_fnv64=0x" << std::hex
+                            << extractionStateHash << std::dec
                             << " failed_steps=0\n";
                         return 0;
                     }
