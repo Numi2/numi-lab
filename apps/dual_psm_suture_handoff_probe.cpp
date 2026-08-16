@@ -2567,26 +2567,30 @@ struct GraspKinematics {
 
 struct GraspReference {
     Vec3 jawMidpointOffsetInNeedleFrame{};
+    Vec3 jawRailInNeedleFrame{};
+    Vec3 jawSeparationInNeedleFrame{};
 };
 
 GraspReference graspReference(
     const metalrobo::HeterogeneousWorld& world,
     const metalrobo::CurvedSutureNeedleAsset& needle,
-    const metalrobo::MetalWorldResult& state,
+    const std::span<const float> q,
+    const std::span<const float> v,
+    const MRBodyStateGPU& body,
     const std::uint32_t arm,
     const std::uint32_t needleShape
 ) {
-    require(
-        !state.finalSceneBodies.empty(),
-        "grasp reference is missing the needle body"
-    );
     const JawGeometry jaw = worldJawGeometry(
         world.model,
         arm,
-        state.finalQ,
-        state.finalV
+        q,
+        v
     );
-    const MRBodyStateGPU& body = state.finalSceneBodies[0];
+    const OrthonormalJawFrame jawFrame = orthonormalJawFrame(
+        jaw.railDirection,
+        jaw.separationDirection,
+        "grasp reference jaw frame"
+    );
     const Vec3 needlePoint = needleShapeWorldCenter(
         needle,
         needleShape,
@@ -2602,6 +2606,71 @@ GraspReference graspReference(
         .jawMidpointOffsetInNeedleFrame = rotate(
             conjugate(orientation),
             jaw.midpoint - needlePoint
+        ),
+        .jawRailInNeedleFrame = rotate(
+            conjugate(orientation),
+            jawFrame.rail
+        ),
+        .jawSeparationInNeedleFrame = rotate(
+            conjugate(orientation),
+            jawFrame.separation
+        ),
+    };
+}
+
+GraspReference graspReference(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const metalrobo::MetalWorldResult& state,
+    const std::uint32_t arm,
+    const std::uint32_t needleShape
+) {
+    require(
+        !state.finalSceneBodies.empty(),
+        "grasp reference is missing the needle body"
+    );
+    return graspReference(
+        world,
+        needle,
+        state.finalQ,
+        state.finalV,
+        state.finalSceneBodies[0],
+        arm,
+        needleShape
+    );
+}
+
+struct GraspFrameTarget {
+    Vec3 midpoint{};
+    OrthonormalJawFrame frame{};
+};
+
+GraspFrameTarget graspFrameTarget(
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const MRBodyStateGPU& body,
+    const std::uint32_t needleShape,
+    const GraspReference& reference
+) {
+    const Quaternion orientation{
+        body.orientation.x,
+        body.orientation.y,
+        body.orientation.z,
+        body.orientation.w,
+    };
+    const Vec3 needlePoint = needleShapeWorldCenter(
+        needle,
+        needleShape,
+        body
+    );
+    return {
+        .midpoint = needlePoint + rotate(
+            orientation,
+            reference.jawMidpointOffsetInNeedleFrame
+        ),
+        .frame = orthonormalJawFrame(
+            rotate(orientation, reference.jawRailInNeedleFrame),
+            rotate(orientation, reference.jawSeparationInNeedleFrame),
+            "transported grasp target"
         ),
     };
 }
@@ -7541,6 +7610,45 @@ int main(const int argc, const char* const argv[]) {
                     needleForPlacement.metadata,
                     fixtureClosedSeatQ
                 );
+            const GraspReference fixtureReceiverFrameReference =
+                graspReference(
+                    world,
+                    needleForPlacement,
+                    fixtureClosedSeatQ,
+                    world.model.defaultV,
+                    fixtureNeedle,
+                    1u,
+                    kExtractionNeedleShape
+                );
+            const GraspFrameTarget fixtureReceiverFrameTarget =
+                graspFrameTarget(
+                    needleForPlacement,
+                    fixtureNeedle,
+                    kExtractionNeedleShape,
+                    fixtureReceiverFrameReference
+                );
+            const JawGeometry fixtureClosedReceiverJaw = worldJawGeometry(
+                world.model,
+                1u,
+                fixtureClosedSeatQ,
+                world.model.defaultV
+            );
+            const OrthonormalJawFrame fixtureClosedReceiverFrame =
+                orthonormalJawFrame(
+                    fixtureClosedReceiverJaw.railDirection,
+                    fixtureClosedReceiverJaw.separationDirection,
+                    "closed extraction fixture receiver frame"
+                );
+            const double fixtureGraspFramePositionError = norm(
+                fixtureReceiverFrameTarget.midpoint -
+                fixtureClosedReceiverJaw.midpoint
+            );
+            const double fixtureGraspFrameOrientationError = norm(
+                jawFrameOrientationError(
+                    fixtureClosedReceiverFrame,
+                    fixtureReceiverFrameTarget.frame
+                )
+            );
             const std::uint32_t fixtureClosedJawContacts =
                 fixtureClosedSeatObservation.receiverJawContacts[0] +
                 fixtureClosedSeatObservation.receiverJawContacts[1];
@@ -7641,6 +7749,8 @@ int main(const int argc, const char* const argv[]) {
                         fixtureClosedJawContacts &&
                     fixtureClosedSeatObservation.receiverNeedleContacts ==
                         fixtureClosedJawContacts &&
+                    fixtureGraspFramePositionError <= 1.0e-9 &&
+                    fixtureGraspFrameOrientationError <= 1.0e-9 &&
                     fixtureMaximumDistalExtraction.maximumVelocityRatio <=
                         kMaximumCommandVelocityRatio &&
                     fixtureDistalExtractionPreflight.samplesWithContact ==
@@ -7694,7 +7804,11 @@ int main(const int argc, const char* const argv[]) {
                     std::to_string(
                         fixtureResetObservation
                             .minimumGiverNonInsertNeedleCollider
-                    )
+                    ) +
+                    " grasp_frame_position_error=" +
+                    preciseScalar(fixtureGraspFramePositionError) +
+                    " grasp_frame_orientation_error=" +
+                    preciseScalar(fixtureGraspFrameOrientationError)
             );
             if (receiverExtractionGeometryOnly) {
                 std::cout << std::setprecision(9)
@@ -7752,6 +7866,10 @@ int main(const int argc, const char* const argv[]) {
                     << " closed_safe_zone_contacts="
                     << fixtureClosedSeatObservation
                            .receiverGraspZoneContacts
+                    << " grasp_frame_position_error_m="
+                    << fixtureGraspFramePositionError
+                    << " grasp_frame_orientation_error_rad="
+                    << fixtureGraspFrameOrientationError
                     << " base_azimuth_offset_rad="
                     << (
                         options.receiverBaseAzimuthOffsetProvided
