@@ -171,12 +171,11 @@ constexpr double kSuturePullDecelerationClearanceM = 2.0e-3;
 constexpr double kSutureBiteFieldRadiusM = 4.5e-3;
 constexpr double kSutureTissueContactSlopM = 1.0e-4;
 // The receiver frame must retain at least 20 um of physical clearance from
-// the accepted, deformed distal surface.  Author a full additional 100 um
-// contact band in the nominal construction. A full millimetre of exposed
-// needle gives the distal gripper a clinically legible handling segment and
-// keeps the remaining arc clear during the long stand-off approach; FP32 pose
-// storage, live wall displacement and giver compliance consume headroom rather
-// than the acceptance margin.
+// the accepted, deformed distal surface. Author a full millimetre of exposed
+// needle in the nominal construction so the distal gripper has a visually
+// legible handling segment and the remaining arc stays clear during the long
+// stand-off approach; FP32 pose storage, live wall displacement and giver
+// compliance consume headroom rather than the acceptance margin.
 constexpr double kReceiverDistalClearanceAcceptanceM = 2.0e-5;
 constexpr double kReceiverDistalClearanceTargetM = 1.0e-3;
 // Place the qualification bite 3 mm from the enterotomy centreline. This is
@@ -383,10 +382,11 @@ constexpr double kExtractionFixtureReceiverNeedleAxisRoll = 0.0;
 constexpr double kExtractionApproachStandOffM = 1.0e-2;
 constexpr std::uint32_t kExtractionApproachSteps = 150u;
 // Reconcile the small live-frame drift while still ten millimetres from the
-// needle, then translate on the already-aligned insertion normal. The audit
-// samples both paths twice per 16 kHz DER step, independently of the cheaper
-// contact-clear Matter cadence used to execute them.
-constexpr std::uint32_t kLiveReceiverStandOffAlignmentSteps = 25u;
+// needle, then translate on the already-aligned insertion normal. The 200 ms
+// alignment keeps the measured cubic joint-speed ratio below the 0.8 gate.
+// Its audit uses 6,400 samples (twice per 16 kHz DER step), independently of
+// the cheaper contact-clear Matter cadence used to execute the same path.
+constexpr std::uint32_t kLiveReceiverStandOffAlignmentSteps = 100u;
 constexpr std::uint32_t kLiveReceiverPathAuditRefinement = 2u;
 // Seed the already-established 60 um post-puncture grasp for one accepted
 // control transaction. A 15 um provisional touch is not positive control of
@@ -15533,6 +15533,13 @@ int main(const int argc, const char* const argv[]) {
                             "needle/strand/tissue state: " +
                                 contactSummary(bridgeContacts)
                         );
+                        const std::uint64_t postBridgeBaseDERSubsteps =
+                            static_cast<std::uint64_t>(
+                                bridgeBaseDERSubsteps
+                            ) +
+                            static_cast<std::uint64_t>(
+                                kReceiverBridgeDynamicHoldSteps
+                            ) * stepConfig.physicsSubsteps;
                         std::uint64_t bridgeStateHash =
                             1469598103934665603ull;
                         appendStateHash(
@@ -15611,6 +15618,14 @@ int main(const int argc, const char* const argv[]) {
                             << " bridge_state_fnv64=0x" << std::hex
                             << bridgeStateHash << std::dec
                             << " failed_steps=0\n";
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-receiver-dynamic-bridge",
+                            postBridgeBaseDERSubsteps,
+                            world,
+                            sutureSpec,
+                            dynamicBridge.result
+                        );
                         if (tissueReceiverStateBridgeOnly) {
                             return 0;
                         }
@@ -16902,7 +16917,7 @@ int main(const int argc, const char* const argv[]) {
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-receiver-acquisition",
-                            bridgeBaseDERSubsteps +
+                            postBridgeBaseDERSubsteps +
                                 liveAcquisitionBaseDERSubsteps,
                             world,
                             sutureSpec,
@@ -17456,7 +17471,7 @@ int main(const int argc, const char* const argv[]) {
                         writeHandoffStateArtifact(
                             options.stateOutputDirectory,
                             "tissue-receiver-extraction",
-                            bridgeBaseDERSubsteps +
+                            postBridgeBaseDERSubsteps +
                                 liveAcquisitionBaseDERSubsteps +
                                 liveExtractionPhaseSteps *
                                     stepConfig.physicsSubsteps,
