@@ -22,6 +22,7 @@
 #include <numbers>
 #include <optional>
 #include <set>
+#include <sstream>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -53,6 +54,12 @@ struct Quaternion {
     double z = 0.0;
     double w = 1.0;
 };
+
+std::string preciseScalar(const double value) {
+    std::ostringstream stream;
+    stream << std::scientific << std::setprecision(9) << value;
+    return stream.str();
+}
 
 void appendStateHash(
     std::uint64_t& hash,
@@ -158,10 +165,12 @@ constexpr double kSuturePullContactCadenceClearanceM = 2.0e-3;
 constexpr double kSuturePullDecelerationClearanceM = 2.0e-3;
 constexpr double kSutureOperativeFieldRadiusM = 4.5e-3;
 constexpr double kSutureTissueContactSlopM = 1.0e-4;
-// The receiver-frame construction targets 20 um beyond the accepted 100 um
-// distal clearance so FP32 pose storage cannot turn an exactly-on-threshold
-// geometric construction into a false safe-side grasp.
-constexpr double kReceiverDistalClearanceMarginM = 2.0e-5;
+// The receiver frame must retain at least 20 um of physical clearance from
+// the accepted, deformed distal surface.  Author a full additional 100 um
+// contact band in the nominal construction: FP32 pose storage and live wall
+// displacement then consume headroom rather than the acceptance margin.
+constexpr double kReceiverDistalClearanceAcceptanceM = 2.0e-5;
+constexpr double kReceiverDistalClearanceTargetM = 1.0e-4;
 // Place the qualification bite 3 mm from the enterotomy centreline. This is
 // an explicit training geometry pending procedure- and specimen-specific bite
 // calibration, and is never reported as a clinical recommendation.
@@ -292,6 +301,13 @@ constexpr double kMinimumThreadSelfCollisionClearance = 5.0e-5;
 // is measured from float positions after the solve, so permit 0.1 um of
 // readback roundoff (the rejected midpoint differed by only 7.4 nm).
 constexpr double kThreadClearanceReadbackTolerance = 1.0e-7;
+// The receiver bridge carries the full 25 cm strand through a long curved
+// passage and a stationary ownership transition. Give its per-substep DER
+// projector 0.5 um of authored headroom so float reconstruction remains above
+// the unchanged 49.9 um terminal acceptance floor. This strengthens physical
+// separation; it does not relax the certification threshold below.
+constexpr double kReceiverBridgeThreadSelfCollisionProjectionMargin =
+    5.05e-5;
 // Each insert has two finite rows on either side of the needle centreline,
 // split into two contact patches across the jaw width. The opposing jaw-centre
 // distance must account for that V-groove offset before applying load. A
@@ -361,6 +377,24 @@ constexpr std::uint32_t kExtractionApproachSteps = 150u;
 // receiver after sole control is established.
 constexpr std::uint32_t kExtractionGiverPreloadSteps = 1u;
 constexpr std::uint32_t kExtractionInitialHoldSteps = 50u;
+// The state bridge stops the prescribed puncture orbit with a cubic Hermite
+// deceleration over the final 4 mm of needle travel.  Starting at 80 mm/s and
+// ending at rest over 100 ms gives the same 4 mm mean travel as a constant
+// deceleration, while retaining continuous endpoint velocity.  Matter samples
+// the trajectory every four DER microsteps (250 us), so even the initial
+// 20 um increment remains one fifth of the 100 um contact band.
+constexpr double kReceiverBridgeDecelerationDistanceM = 4.0e-3;
+constexpr double kReceiverBridgeDecelerationSeconds = 1.0e-1;
+constexpr std::uint32_t kReceiverBridgeKinematicHoldSteps = 32u;
+// After replacing prescribed needle motion with the dynamic needle held by
+// the giver, keep the same private Matter state live for 25 ms.  This is long
+// enough to expose an impulsive or mismatched bridge while avoiding a hidden
+// reset or an independently reconstructed tissue fixture.
+constexpr std::uint32_t kReceiverBridgeDynamicHoldSteps = 25u;
+constexpr double kMaximumReceiverBridgeNeedleDriftM = 3.0e-4;
+constexpr double kMaximumReceiverBridgeTissueIncrementM = 5.0e-5;
+constexpr double kReceiverBridgeIKPositionToleranceM = 1.0e-6;
+constexpr double kReceiverBridgeIKOrientationToleranceRad = 1.0e-5;
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -622,6 +656,32 @@ Quaternion rotationZ(const double angle) {
     };
 }
 
+Quaternion needleAlignedToolBaseOrientation(
+    const MRBodyStateGPU& needle,
+    const double needleShapeAngleRad,
+    const double baseAzimuthOffsetRad,
+    const double needleAxisRollRad
+) {
+    const Quaternion needleOrientation{
+        needle.orientation.x,
+        needle.orientation.y,
+        needle.orientation.z,
+        needle.orientation.w,
+    };
+    return multiply(
+        multiply(
+            multiply(
+                needleOrientation,
+                rotationZ(
+                    needleShapeAngleRad + baseAzimuthOffsetRad
+                )
+            ),
+            rotationX(std::numbers::pi)
+        ),
+        rotationY(needleAxisRollRad)
+    );
+}
+
 Quaternion axisAngle(const Vec3 axis, const double angle) {
     const double axisLength = norm(axis);
     require(
@@ -718,7 +778,7 @@ MRBodyStateGPU curvedNeedleTarget(
     require(
         std::isfinite(angleRad) &&
             std::isfinite(angularSpeedRadPerS) &&
-            angularSpeedRadPerS > 0.0,
+            angularSpeedRadPerS >= 0.0,
         "curved needle target has invalid motion"
     );
     const Quaternion orientation = multiply(
@@ -1700,11 +1760,17 @@ JawFrameIKSolution solvePsmJawFrameTarget(
     const Vec3 desiredWorldPoint,
     const Vec3 desiredWorldRail,
     const Vec3 desiredWorldSeparation,
-    const double jawCoordinate
+    const double jawCoordinate,
+    const double positionToleranceM = 5.0e-6,
+    const double orientationToleranceRad = 2.0e-3
 ) {
     require(
         q.size() == 8u && model.dofs.size() >= 8u &&
-            std::isfinite(jawCoordinate),
+            std::isfinite(jawCoordinate) &&
+            std::isfinite(positionToleranceM) &&
+            positionToleranceM > 0.0 &&
+            std::isfinite(orientationToleranceRad) &&
+            orientationToleranceRad > 0.0,
         "PSM jaw-frame IK seed has invalid dimensions"
     );
     q[6] = -jawCoordinate;
@@ -1785,8 +1851,8 @@ JawFrameIKSolution solvePsmJawFrameTarget(
         const double orientationResidual = norm(
             jawFrameOrientationError(currentFrame, desiredFrame)
         );
-        if (positionResidual <= 5.0e-6 &&
-            orientationResidual <= 2.0e-3) {
+        if (positionResidual <= positionToleranceM &&
+            orientationResidual <= orientationToleranceRad) {
             result.localQ = q;
             result.positionResidual = positionResidual;
             result.orientationResidual = orientationResidual;
@@ -2677,6 +2743,40 @@ void setArmTarget(
     for (std::size_t index = 0u; index < localQ.size(); ++index) {
         globalQ[offset + index] = static_cast<float>(localQ[index]);
     }
+}
+
+void setArmBasePose(
+    std::vector<float>& globalQ,
+    std::vector<float>& globalV,
+    const metalrobo::EngineModel& model,
+    const std::uint32_t arm,
+    const metalrobo::SurgicalBasePose& pose
+) {
+    require(
+        arm < model.articulations.size(),
+        "dual PSM base target has an invalid arm index"
+    );
+    const MRArticulationGPU& articulation = model.articulations.at(arm);
+    require(
+        articulation.qOffset + metalrobo::kSurgicalFloatingRootQCount <=
+                globalQ.size() &&
+            articulation.vOffset +
+                    metalrobo::kSurgicalFloatingRootVCount <=
+                globalV.size(),
+        "dual PSM base target is outside the world state"
+    );
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+        globalQ[articulation.qOffset + axis] = pose.position[axis];
+    }
+    for (std::uint32_t component = 0u; component < 4u; ++component) {
+        globalQ[articulation.qOffset + 3u + component] =
+            pose.orientation[component];
+    }
+    std::fill_n(
+        globalV.begin() + articulation.vOffset,
+        metalrobo::kSurgicalFloatingRootVCount,
+        0.0f
+    );
 }
 
 std::vector<float> computedTorquePositionTarget(
@@ -4225,6 +4325,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     const bool punctureTip,
     const std::uint32_t punctureContactSegmentCount,
     const std::uint32_t sutureContactSegmentCount,
+    const bool freeNeedleCapability,
     numi::matter::PorcineJejunumClosureCoupon& coupon
 ) {
     require(
@@ -4753,7 +4854,8 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     // strand; kinematic motion remains prescribed but still deforms tissue.
     const bool dynamicNeedle =
         needle.flagsAndIndices[0] == MR_MOTION_DYNAMIC;
-    const auto appendNeedleProxy = [&source, &world, dynamicNeedle](
+    const bool coupledFreeNeedle = dynamicNeedle || freeNeedleCapability;
+    const auto appendNeedleProxy = [&source, &world, coupledFreeNeedle](
         const Vec3 first,
         const Vec3 second,
         const double radius,
@@ -4762,12 +4864,17 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         numi::matter::RigidProxySource proxy;
         proxy.shape = NM_RIGID_CAPSULE;
         proxy.bodyIndex = world.sceneBodyIndices[0];
-        proxy.sceneBodyIndex = dynamicNeedle ? 0u : NM_INVALID_INDEX;
+        proxy.sceneBodyIndex = coupledFreeNeedle ? 0u : NM_INVALID_INDEX;
         proxy.materialIndex = 0u;
         proxy.localCenter = {first.x, first.y, first.z};
         proxy.localExtent = {second.x, second.y, second.z};
         proxy.radiusOrOffset = radius;
-        proxy.dynamic = dynamicNeedle;
+        // The receiver bridge is compiled while the needle is prescribed for
+        // puncture, but this same private Matter runtime later owns contact
+        // against the free needle held by the giver. Author the free-body
+        // generalized block up front; the live source body's zero inverse
+        // mass keeps it kinematic until MetalWorld makes that transition.
+        proxy.dynamic = coupledFreeNeedle;
         proxy.punctureTip = sharpTip;
         source.rigidProxies.push_back(proxy);
     };
@@ -4818,7 +4925,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         numi::matter::RigidProxySource arc;
         arc.shape = NM_RIGID_ARC;
         arc.bodyIndex = world.sceneBodyIndices[0];
-        arc.sceneBodyIndex = dynamicNeedle ? 0u : NM_INVALID_INDEX;
+        arc.sceneBodyIndex = coupledFreeNeedle ? 0u : NM_INVALID_INDEX;
         arc.materialIndex = 0u;
         arc.localCenter = {
             arcCenterLocal.x,
@@ -4831,7 +4938,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
             arcSweep,
         };
         arc.radiusOrOffset = needleAsset.spec.crossSectionRadiusM.value;
-        arc.dynamic = dynamicNeedle;
+        arc.dynamic = coupledFreeNeedle;
         arc.punctureDilator = true;
         source.rigidProxies.push_back(arc);
     } else {
@@ -5020,6 +5127,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-suture-passage-only" ||
             argument == "--tissue-curved-passage-only" ||
             argument == "--tissue-curved-pull-through-only" ||
+            argument == "--tissue-receiver-state-bridge-only" ||
             argument == "--receiver-frame-ik-only" ||
             argument == "--receiver-extraction-geometry-only" ||
             argument == "--receiver-extraction-giver-hold-only" ||
@@ -6385,22 +6493,27 @@ int main(const int argc, const char* const argv[]) {
             tissueSutureEntryOnly || tissueSutureCadenceOnly;
         const bool tissueCurvedPullThroughOnly =
             options.mode == "--tissue-curved-pull-through-only";
+        const bool tissueReceiverStateBridgeOnly =
+            options.mode == "--tissue-receiver-state-bridge-only";
         const bool tissuePunctureOnly =
             options.mode == "--tissue-puncture-only" ||
             options.mode == "--tissue-puncture-advance-only" ||
             tissueSutureEntryContactOnly ||
             tissueSuturePassageOnly ||
             options.mode == "--tissue-curved-passage-only" ||
-            tissueCurvedPullThroughOnly;
+            tissueCurvedPullThroughOnly ||
+            tissueReceiverStateBridgeOnly;
         const bool tissuePunctureAdvanceOnly =
             options.mode == "--tissue-puncture-advance-only";
         const bool tissueCurvedPassageOnly =
             options.mode == "--tissue-curved-passage-only" ||
             tissueSuturePassageOnly ||
-            tissueCurvedPullThroughOnly;
+            tissueCurvedPullThroughOnly ||
+            tissueReceiverStateBridgeOnly;
         const bool tissueSutureContactOnly =
             tissueSutureEntryContactOnly || tissueSuturePassageOnly ||
-            tissueCurvedPullThroughOnly;
+            tissueCurvedPullThroughOnly ||
+            tissueReceiverStateBridgeOnly;
         const bool receiverFrameIkOnly =
             options.mode == "--receiver-frame-ik-only";
         const bool receiverExtractionGeometryOnly =
@@ -6658,6 +6771,10 @@ int main(const int argc, const char* const argv[]) {
             metalrobo::makeBowelAnastomosisNeedleThreadWorldConfig(
                 sutureSpec
             );
+        config.threadMinimumNonNeighbourSurfaceClearanceM =
+            tissueReceiverStateBridgeOnly
+                ? kReceiverBridgeThreadSelfCollisionProjectionMargin
+                : kMinimumThreadSelfCollisionClearance;
         const double threadShearModulus =
             sutureSpec.threadYoungModulusPa.value /
             (2.0 * (1.0 + sutureSpec.threadPoissonRatio.value));
@@ -6667,7 +6784,7 @@ int main(const int argc, const char* const argv[]) {
         const double firstEdgeLength =
             sutureSpec.threadLengthM.value /
             static_cast<double>(sutureSpec.threadNodeCount - 1u);
-        if (receiverExtractionPose) {
+        if (receiverExtractionPose || tissueReceiverStateBridgeOnly) {
             // Preserve exact DER edge lengths while the suspended needle is
             // raised above the catch pad. More height requires more physical
             // descent chords; stretching the original four-edge package
@@ -6693,7 +6810,7 @@ int main(const int argc, const char* const argv[]) {
             0.0,
             padTop - needleForPlacement.rigid.localAabbLowerM[2] -
                 kInitialSupportPenetration +
-                (receiverExtractionPose
+                ((receiverExtractionPose || tissueReceiverStateBridgeOnly)
                     ? options.extractionWorkingGapM : 0.0),
         };
         MRBodyStateGPU placementNeedle{};
@@ -6723,7 +6840,7 @@ int main(const int argc, const char* const argv[]) {
             receiverNeedleSegment.dimensions.y +
             kPunctureInitialClearanceM +
             kCurvedPassageExitClearanceM +
-            kReceiverDistalClearanceMarginM;
+            kReceiverDistalClearanceTargetM;
         const double receiverRequiredSine =
             receiverRequiredAdvance /
             needleForPlacement.metadata.centerlineRadiusM;
@@ -6768,51 +6885,67 @@ int main(const int argc, const char* const argv[]) {
         const std::uint32_t receiverPlacementShape =
             receiverExtractionPose
                 ? kExtractionNeedleShape : kReceiverNeedleShape;
-        const Quaternion giverOrientation = multiply(
-            multiply(
-                rotationZ(needleShapeAngle(
+        const Quaternion giverOrientation = receiverExtractionFixtureOnly
+            ? needleAlignedToolBaseOrientation(
+                authoredNeedlePlacement,
+                needleShapeAngle(
                     sutureSpec.needle,
                     giverPlacementShape
-                ) + (receiverExtractionFixtureOnly
-                        ? receiverExtractionAngle : 0.0)),
-                rotationX(std::numbers::pi)
-            ),
-            rotationY(
-                receiverExtractionFixtureOnly
-                    ? options.extractionGiverNeedleAxisRoll : 0.0
+                ),
+                0.0,
+                options.extractionGiverNeedleAxisRoll
             )
-        );
-        const Quaternion receiverOrientation = multiply(
-            multiply(
-                rotationZ(needleShapeAngle(
+            : multiply(
+                multiply(
+                    rotationZ(needleShapeAngle(
+                        sutureSpec.needle,
+                        giverPlacementShape
+                    )),
+                    rotationX(std::numbers::pi)
+                ),
+                rotationY(0.0)
+            );
+        const double receiverBaseAzimuthOffset =
+            receiverExtractionPose &&
+            !options.receiverBaseAzimuthOffsetProvided
+                ? (
+                    receiverExtractionFixtureOnly
+                        ? kExtractionFixtureReceiverBaseAzimuthOffset
+                        : kExtractionReceiverBaseAzimuthOffset
+                )
+                : options.receiverBaseAzimuthOffset;
+        const double receiverNeedleAxisRoll =
+            receiverExtractionPose &&
+            !options.receiverNeedleAxisRollProvided
+                ? (
+                    receiverExtractionFixtureOnly
+                        ? kExtractionFixtureReceiverNeedleAxisRoll
+                        : kExtractionReceiverNeedleAxisRoll
+                )
+                : options.receiverNeedleAxisRoll;
+        const Quaternion receiverOrientation = receiverExtractionFixtureOnly
+            ? needleAlignedToolBaseOrientation(
+                authoredNeedlePlacement,
+                needleShapeAngle(
                     sutureSpec.needle,
                     receiverPlacementShape
-                ) +
-                    (receiverExtractionPose
-                        ? receiverExtractionAngle : 0.0) +
-                    (
-                        receiverExtractionPose &&
-                        !options.receiverBaseAzimuthOffsetProvided
-                            ? (
-                                receiverExtractionFixtureOnly
-                                    ? kExtractionFixtureReceiverBaseAzimuthOffset
-                                    : kExtractionReceiverBaseAzimuthOffset
-                            )
-                            : options.receiverBaseAzimuthOffset
-                    )),
-                rotationX(std::numbers::pi)
-            ),
-            rotationY(
-                receiverExtractionPose &&
-                !options.receiverNeedleAxisRollProvided
-                    ? (
-                        receiverExtractionFixtureOnly
-                            ? kExtractionFixtureReceiverNeedleAxisRoll
-                            : kExtractionReceiverNeedleAxisRoll
-                    )
-                    : options.receiverNeedleAxisRoll
+                ),
+                receiverBaseAzimuthOffset,
+                receiverNeedleAxisRoll
             )
-        );
+            : multiply(
+                multiply(
+                    rotationZ(needleShapeAngle(
+                        sutureSpec.needle,
+                        receiverPlacementShape
+                    ) +
+                        (receiverExtractionPose
+                            ? receiverExtractionAngle : 0.0) +
+                        receiverBaseAzimuthOffset),
+                    rotationX(std::numbers::pi)
+                ),
+                rotationY(receiverNeedleAxisRoll)
+            );
         config.surgical.robots.leftBase = basePose(
             giverOrientation,
             giverLocalJaw.midpoint,
@@ -7026,6 +7159,18 @@ int main(const int argc, const char* const argv[]) {
                 world.rods[0].model.restPositions.size() == 128u,
             "handoff world lost a robot, scene body, or suture node"
         );
+        const std::uint32_t needleSceneBody =
+            world.sceneBodyIndices.at(0u);
+        require(
+            needleSceneBody < world.model.bodies.size() &&
+                world.model.bodies[needleSceneBody].motionType ==
+                    MR_MOTION_DYNAMIC &&
+                world.model.bodies[needleSceneBody]
+                        .massAndInverseMass.y > 0.0f,
+            "authored surgical needle is not a dynamic rigid body"
+        );
+        const MRBodyPropertiesGPU authoredDynamicNeedleProperties =
+            world.model.bodies[needleSceneBody];
         // Self contact remains live even though the authored 3 mm-pitch coil
         // starts separated. Terminal clearance alone cannot prove that a
         // moving monofilament stayed separated earlier in a phase, so the DER
@@ -7036,7 +7181,7 @@ int main(const int argc, const char* const argv[]) {
                 world.rods[0].stepConfig.constraintTolerance ==
                     config.threadConstraintToleranceM &&
                 world.rods[0].stepConfig.selfCollisionMargin ==
-                    kMinimumThreadSelfCollisionClearance &&
+                    config.threadMinimumNonNeighbourSurfaceClearanceM &&
                 world.rods[0].stepConfig.selfCollisionFriction ==
                     world.model.materials[6].friction.y &&
                 world.rods[0].stepConfig.linearDamping == 8.0 &&
@@ -11231,8 +11376,39 @@ int main(const int argc, const char* const argv[]) {
                     : 1u,
                 tissueSutureContactOnly
                     ? kSutureMatterContactSegmentCount : 0u,
+                tissueReceiverStateBridgeOnly,
                 tissueCoupon
             );
+            if (tissueReceiverStateBridgeOnly) {
+                const NMRigidProxyGPU& tipProxy =
+                    tissueWorld.contact.rigidProxies.at(0u);
+                const NMRigidProxyGPU& shankProxy =
+                    tissueWorld.contact.rigidProxies.at(1u);
+                require(
+                    world.defaultSceneBodies.at(0u).flagsAndIndices[0] ==
+                            MR_MOTION_KINEMATIC &&
+                        (tipProxy.flags & NM_RIGID_DYNAMIC) != 0u &&
+                        (shankProxy.flags & NM_RIGID_DYNAMIC) != 0u &&
+                        tipProxy.sceneBodyIndex == 0u &&
+                        shankProxy.sceneBodyIndex == 0u &&
+                        tipProxy.generalizedFreeBodyIndex !=
+                            NM_INVALID_INDEX &&
+                        tipProxy.generalizedFreeBodyIndex ==
+                            shankProxy.generalizedFreeBodyIndex &&
+                        tissueWorld.dispatch.rigidGeneralizedCapacity >= 6u,
+                    "receiver bridge did not reserve one canonical free "
+                    "needle block before kinematic passage"
+                );
+                std::cout
+                    << "receiver_bridge_matter_free_body_capability=ok"
+                    << " generalized_index="
+                    << tipProxy.generalizedFreeBodyIndex
+                    << " generalized_capacity="
+                    << tissueWorld.dispatch.rigidGeneralizedCapacity
+                    << " passage_motion_type="
+                    << world.defaultSceneBodies.at(0u)
+                           .flagsAndIndices[0] << '\n';
+            }
             const auto initialized = tissueRuntime.initialize(
                 tissueWorld,
                 {
@@ -12889,6 +13065,1306 @@ int main(const int argc, const char* const argv[]) {
                         << passageStateHash << std::dec
                         << " failed_steps="
                         << passage.diagnostics.failedStepCount << '\n';
+                    const double passageAngleRad =
+                        entryAngleRad +
+                        anglePerPassageStepRad * totalPassageSteps;
+                    if (tissueReceiverStateBridgeOnly) {
+                        require(
+                            tissueNeedleOrbit.has_value() &&
+                                receiverExtractionAngle > passageAngleRad,
+                            "receiver bridge target does not follow the "
+                            "accepted curved passage"
+                        );
+                        constexpr std::uint32_t kBridgeChunkSteps = 8u;
+                        double currentBridgeAngleRad = passageAngleRad;
+                        double bridgeGpuMilliseconds = 0.0;
+                        std::uint32_t bridgeMatterSteps = 0u;
+                        std::uint32_t bridgeBaseDERSubsteps = 0u;
+                        const auto continueBridgeTargets = [&] (
+                            const std::vector<double>& angles,
+                            const std::vector<double>& angularSpeeds,
+                            const std::string& phase
+                        ) {
+                            require(
+                                !angles.empty() &&
+                                    angles.size() == angularSpeeds.size(),
+                                phase + " has invalid orbit samples"
+                            );
+                            std::vector<MRBodyStateGPU> targets;
+                            targets.reserve(
+                                angles.size() * compiled.sceneBodyCount()
+                            );
+                            for (std::size_t sample = 0u;
+                                 sample < angles.size();
+                                 ++sample) {
+                                require(
+                                    std::isfinite(angles[sample]) &&
+                                        std::isfinite(
+                                            angularSpeeds[sample]
+                                        ) &&
+                                        angularSpeeds[sample] >= 0.0,
+                                    phase + " has a nonfinite or reversing "
+                                        "orbit sample"
+                                );
+                                for (std::size_t sceneBody = 0u;
+                                     sceneBody < compiled.sceneBodyCount();
+                                     ++sceneBody) {
+                                    targets.push_back(
+                                        sceneBody == 0u
+                                            ? curvedNeedleTarget(
+                                                world.defaultSceneBodies[0],
+                                                *tissueNeedleOrbit,
+                                                angles[sample],
+                                                angularSpeeds[sample]
+                                            )
+                                            : world.defaultSceneBodies.at(
+                                                sceneBody)
+                                    );
+                                }
+                            }
+                            const std::vector<float> bridgeEfforts =
+                                interpolateTargets(
+                                    world.model,
+                                    targetStart,
+                                    targetStart,
+                                    static_cast<std::uint32_t>(
+                                        angles.size()
+                                    )
+                                );
+                            passage = continuePhaseWithKinematicTargets(
+                                context,
+                                compiled,
+                                stepConfig,
+                                resident,
+                                bridgeEfforts,
+                                targets,
+                                static_cast<std::uint32_t>(angles.size()),
+                                phase
+                            );
+                            bridgeGpuMilliseconds +=
+                                passage.diagnostics.gpuElapsedMilliseconds;
+                            bridgeMatterSteps +=
+                                static_cast<std::uint32_t>(angles.size());
+                            bridgeBaseDERSubsteps +=
+                                static_cast<std::uint32_t>(angles.size()) *
+                                stepConfig.physicsSubsteps;
+                            currentBridgeAngleRad = angles.back();
+                        };
+
+                        selectCoupledCadence(
+                            kSuturePullMatterRateMultiplier,
+                            "receiver-bridge free transport"
+                        );
+                        const double freeAngularSpeedRadPerS =
+                            kSuturePullThroughSpeedMps /
+                            tissueNeedleOrbit->centerlineRadiusM;
+                        const double freeAnglePerStepRad =
+                            freeAngularSpeedRadPerS *
+                            static_cast<double>(
+                                stepConfig.timestepSeconds
+                            );
+                        const double desiredDecelerationStartRad =
+                            receiverExtractionAngle -
+                            kReceiverBridgeDecelerationDistanceM /
+                                tissueNeedleOrbit->centerlineRadiusM;
+                        require(
+                            desiredDecelerationStartRad > passageAngleRad &&
+                                freeAnglePerStepRad > 0.0,
+                            "receiver bridge has no bounded free-transport "
+                            "interval"
+                        );
+                        const std::uint32_t freeSteps =
+                            static_cast<std::uint32_t>(std::floor(
+                                (desiredDecelerationStartRad -
+                                    passageAngleRad) /
+                                freeAnglePerStepRad
+                            ));
+                        std::uint32_t completedFreeSteps = 0u;
+                        while (completedFreeSteps < freeSteps) {
+                            const std::uint32_t chunkSteps = std::min(
+                                kBridgeChunkSteps,
+                                freeSteps - completedFreeSteps
+                            );
+                            std::vector<double> angles(chunkSteps);
+                            std::vector<double> speeds(
+                                chunkSteps,
+                                freeAngularSpeedRadPerS
+                            );
+                            for (std::uint32_t step = 0u;
+                                 step < chunkSteps;
+                                 ++step) {
+                                angles[step] = passageAngleRad +
+                                    freeAnglePerStepRad *
+                                        (completedFreeSteps + step + 1u);
+                            }
+                            continueBridgeTargets(
+                                angles,
+                                speeds,
+                                "receiver-bridge free needle transport"
+                            );
+                            completedFreeSteps += chunkSteps;
+                            std::cout << std::setprecision(9)
+                                << "receiver_bridge_transport_progress="
+                                << completedFreeSteps << '/' << freeSteps
+                                << " orbit_angle_rad="
+                                << currentBridgeAngleRad
+                                << " matter_timestep_multiplier="
+                                << stepConfig.physicsSubsteps
+                                << " chunk_gpu_ms="
+                                << passage.diagnostics
+                                       .gpuElapsedMilliseconds
+                                << '\n';
+                        }
+
+                        selectCoupledCadence(
+                            kSuturePassageMatterRateMultiplier,
+                            "receiver-bridge continuous deceleration"
+                        );
+                        const double bridgeDecelerationTimestepSeconds =
+                            (kControlTimestep /
+                                static_cast<double>(kPhysicsSubsteps)) *
+                            static_cast<double>(
+                                kSuturePassageMatterRateMultiplier
+                            );
+                        const std::uint32_t decelerationSteps =
+                            static_cast<std::uint32_t>(std::llround(
+                                kReceiverBridgeDecelerationSeconds /
+                                bridgeDecelerationTimestepSeconds
+                            ));
+                        require(
+                            decelerationSteps > 0u &&
+                                std::abs(
+                                    decelerationSteps *
+                                        bridgeDecelerationTimestepSeconds -
+                                    kReceiverBridgeDecelerationSeconds
+                                ) <= 1.0e-12 &&
+                                std::abs(
+                                    static_cast<double>(
+                                        stepConfig.timestepSeconds
+                                    ) -
+                                    bridgeDecelerationTimestepSeconds
+                                ) <=
+                                    2.0 *
+                                    std::numeric_limits<float>::epsilon() *
+                                    bridgeDecelerationTimestepSeconds,
+                            "receiver bridge deceleration duration does not "
+                            "align with the coupled cadence"
+                        );
+                        const double decelerationStartRad =
+                            currentBridgeAngleRad;
+                        const double decelerationDistanceM =
+                            (receiverExtractionAngle -
+                                decelerationStartRad) *
+                            tissueNeedleOrbit->centerlineRadiusM;
+                        require(
+                            decelerationDistanceM >=
+                                    kReceiverBridgeDecelerationDistanceM &&
+                                decelerationDistanceM <=
+                                    kReceiverBridgeDecelerationDistanceM +
+                                        kSuturePullThroughSpeedMps *
+                                            static_cast<double>(
+                                                kSuturePullMatterRateMultiplier
+                                            ) *
+                                            (kControlTimestep /
+                                                kPhysicsSubsteps),
+                            "receiver bridge deceleration distance is outside "
+                            "its sampled bound"
+                        );
+                        std::uint32_t completedDecelerationSteps = 0u;
+                        while (completedDecelerationSteps <
+                               decelerationSteps) {
+                            const std::uint32_t chunkSteps = std::min(
+                                kBridgeChunkSteps,
+                                decelerationSteps -
+                                    completedDecelerationSteps
+                            );
+                            std::vector<double> angles(chunkSteps);
+                            std::vector<double> speeds(chunkSteps);
+                            for (std::uint32_t step = 0u;
+                                 step < chunkSteps;
+                                 ++step) {
+                                const std::uint32_t globalStep =
+                                    completedDecelerationSteps + step + 1u;
+                                const double s =
+                                    static_cast<double>(globalStep) /
+                                    static_cast<double>(decelerationSteps);
+                                const double s2 = s * s;
+                                const double s3 = s2 * s;
+                                const double h00 = 2.0 * s3 - 3.0 * s2 + 1.0;
+                                const double h10 = s3 - 2.0 * s2 + s;
+                                const double h01 = -2.0 * s3 + 3.0 * s2;
+                                angles[step] =
+                                    h00 * decelerationStartRad +
+                                    h10 *
+                                        kReceiverBridgeDecelerationSeconds *
+                                        freeAngularSpeedRadPerS +
+                                    h01 * receiverExtractionAngle;
+                                const double dh00 = 6.0 * s2 - 6.0 * s;
+                                const double dh10 = 3.0 * s2 - 4.0 * s + 1.0;
+                                const double dh01 = -6.0 * s2 + 6.0 * s;
+                                speeds[step] =
+                                    dh00 * decelerationStartRad /
+                                        kReceiverBridgeDecelerationSeconds +
+                                    dh10 * freeAngularSpeedRadPerS +
+                                    dh01 * receiverExtractionAngle /
+                                        kReceiverBridgeDecelerationSeconds;
+                                if (globalStep == decelerationSteps) {
+                                    angles[step] = receiverExtractionAngle;
+                                    speeds[step] = 0.0;
+                                }
+                            }
+                            continueBridgeTargets(
+                                angles,
+                                speeds,
+                                "receiver-bridge Hermite deceleration"
+                            );
+                            completedDecelerationSteps += chunkSteps;
+                            std::cout << std::setprecision(9)
+                                << "receiver_bridge_deceleration_progress="
+                                << completedDecelerationSteps << '/'
+                                << decelerationSteps
+                                << " orbit_angle_rad="
+                                << currentBridgeAngleRad
+                                << " angular_speed_radps="
+                                << speeds.back()
+                                << " matter_timestep_multiplier="
+                                << stepConfig.physicsSubsteps
+                                << " chunk_gpu_ms="
+                                << passage.diagnostics
+                                       .gpuElapsedMilliseconds
+                                << '\n';
+                        }
+                        std::vector<double> holdAngles(
+                            kReceiverBridgeKinematicHoldSteps,
+                            receiverExtractionAngle
+                        );
+                        std::vector<double> holdSpeeds(
+                            kReceiverBridgeKinematicHoldSteps,
+                            0.0
+                        );
+                        continueBridgeTargets(
+                            holdAngles,
+                            holdSpeeds,
+                            "receiver-bridge stationary tissue hold"
+                        );
+
+                        const numi::matter::RuntimeStateSnapshot
+                            preBridgeMatter = tissueRuntime.snapshot();
+                        require(
+                            preBridgeMatter.available &&
+                                preBridgeMatter.femNodes.size() >=
+                                    tissueCoupon.metadata.nodeCount &&
+                                !preBridgeMatter.solverCertificates.empty(),
+                            "stationary receiver bridge did not publish its "
+                            "accepted Matter state"
+                        );
+                        std::uint32_t preBridgeChannels = 0u;
+                        std::uint32_t preBridgeTetrahedra = 0u;
+                        double preBridgeRemovedMassKg = 0.0;
+                        double preBridgeMinimumDeterminant =
+                            std::numeric_limits<double>::infinity();
+                        double preBridgeMaximumResidual = 0.0;
+                        bool preBridgeCertificatesAccepted = true;
+                        double preBridgeBottomProjection =
+                            std::numeric_limits<double>::infinity();
+                        for (std::size_t node = 0u;
+                             node < tissueCoupon.metadata.nodeCount;
+                             ++node) {
+                            preBridgeBottomProjection = std::min(
+                                preBridgeBottomProjection,
+                                dot(
+                                    vector(
+                                        preBridgeMatter.femNodes[node]
+                                            .positionAndMass
+                                    ),
+                                    thicknessAxis
+                                )
+                            );
+                        }
+                        for (const NMPunctureChannelGPU& channel :
+                             preBridgeMatter.punctureChannels) {
+                            preBridgeChannels +=
+                                (channel.identity.w & NM_TOPOLOGY_ACTIVE) !=
+                                0u;
+                        }
+                        for (const NMTetrahedronGPU& tetrahedron :
+                             preBridgeMatter.femTopologyTetrahedra) {
+                            preBridgeTetrahedra +=
+                                (tetrahedron.identity.w & NM_OBJECT_ACTIVE) !=
+                                0u;
+                        }
+                        for (const NMFEMTopologyStateGPU& topology :
+                             preBridgeMatter.topologyStates) {
+                            preBridgeRemovedMassKg += topology.accounting.y;
+                        }
+                        for (const NMSolverCertificateGPU& certificate :
+                             preBridgeMatter.solverCertificates) {
+                            preBridgeCertificatesAccepted =
+                                preBridgeCertificatesAccepted &&
+                                certificate.validity.w > 0.5f;
+                            preBridgeMinimumDeterminant = std::min(
+                                preBridgeMinimumDeterminant,
+                                static_cast<double>(
+                                    certificate.validity.x
+                                )
+                            );
+                            preBridgeMaximumResidual = std::max({
+                                preBridgeMaximumResidual,
+                                static_cast<double>(
+                                    certificate.nonlinear.x
+                                ),
+                                static_cast<double>(
+                                    certificate.nonlinear.z
+                                ),
+                                static_cast<double>(
+                                    certificate.nonlinear.w
+                                ),
+                            });
+                        }
+                        const MRBodyStateGPU prescribedNeedle =
+                            passage.result.finalSceneBodies.at(0u);
+                        const Vec3 receiverSegmentCenter =
+                            needleShapeWorldCenter(
+                                needleForPlacement,
+                                kExtractionNeedleShape,
+                                prescribedNeedle
+                            );
+                        const Vec3 receiverSegmentTangent =
+                            needleShapeWorldTangent(
+                                needleForPlacement,
+                                kExtractionNeedleShape,
+                                prescribedNeedle
+                            );
+                        const double receiverSegmentProximalProjection =
+                            dot(receiverSegmentCenter, thicknessAxis) +
+                            std::abs(dot(
+                                receiverSegmentTangent,
+                                thicknessAxis
+                            )) * receiverNeedleSegment.dimensions.y +
+                            receiverNeedleSegment.dimensions.x;
+                        const double receiverSegmentDistalClearanceM =
+                            preBridgeBottomProjection -
+                            receiverSegmentProximalProjection;
+                        const RodStateMetrics preBridgeRod = rodStateMetrics(
+                            world,
+                            passage.result
+                        );
+                        const double preBridgeSwageErrorM =
+                            swageAttachmentError(world, passage.result);
+                        std::cout << std::setprecision(9)
+                            << "receiver_bridge_stationary_candidate"
+                            << " orbit_angle_error_rad="
+                            << std::abs(
+                                currentBridgeAngleRad -
+                                receiverExtractionAngle
+                            )
+                            << " needle_linear_speed_mps="
+                            << norm(vector(
+                                prescribedNeedle
+                                    .linearVelocityAndInverseMass
+                            ))
+                            << " needle_angular_speed_radps="
+                            << norm(vector(
+                                prescribedNeedle.angularVelocity
+                            ))
+                            << " receiver_segment_distal_clearance_m="
+                            << receiverSegmentDistalClearanceM
+                            << " receiver_clearance_acceptance_m="
+                            << kReceiverDistalClearanceAcceptanceM
+                            << " active_puncture_channels="
+                            << preBridgeChannels
+                            << " expected_puncture_channels="
+                            << passageChannels.size()
+                            << " active_tetrahedra="
+                            << preBridgeTetrahedra
+                            << " removed_tissue_mass_kg="
+                            << preBridgeRemovedMassKg
+                            << " certificates_accepted="
+                            << preBridgeCertificatesAccepted
+                            << " matter_minimum_determinant="
+                            << preBridgeMinimumDeterminant
+                            << " matter_maximum_residual="
+                            << preBridgeMaximumResidual
+                            << " hard_swage_root_error_m="
+                            << preBridgeSwageErrorM
+                            << " thread_maximum_edge_error_m="
+                            << preBridgeRod.maximumEdgeLengthError
+                            << " thread_minimum_clearance_m="
+                            << preBridgeRod
+                                   .minimumNonNeighbourSurfaceClearance
+                            << '\n';
+                        require(
+                            std::abs(
+                                currentBridgeAngleRad -
+                                receiverExtractionAngle
+                            ) <= 1.0e-12 &&
+                                norm(vector(
+                                    prescribedNeedle
+                                        .linearVelocityAndInverseMass
+                                )) <= 1.0e-7 &&
+                                norm(vector(
+                                    prescribedNeedle.angularVelocity
+                                )) <= 1.0e-7 &&
+                                receiverSegmentDistalClearanceM >=
+                                    kReceiverDistalClearanceAcceptanceM &&
+                                preBridgeChannels ==
+                                    passageChannels.size() &&
+                                preBridgeTetrahedra ==
+                                    tissueCoupon.metadata.tetrahedronCount &&
+                                preBridgeRemovedMassKg == 0.0 &&
+                                preBridgeCertificatesAccepted &&
+                                preBridgeMinimumDeterminant > 0.0 &&
+                                std::isfinite(preBridgeMaximumResidual) &&
+                                preBridgeSwageErrorM <
+                                    kMaximumSwageAttachmentError &&
+                                qualifiedTransitionRod(preBridgeRod),
+                            "stationary receiver bridge is not a valid "
+                            "mass-conserving distal grasp state"
+                        );
+
+                        world.model.bodies[needleSceneBody] =
+                            authoredDynamicNeedleProperties;
+                        world.model.defaultQ = passage.result.finalQ;
+                        world.model.defaultV = passage.result.finalV;
+                        std::fill(
+                            world.model.defaultV.begin(),
+                            world.model.defaultV.end(),
+                            0.0f
+                        );
+                        world.defaultSceneBodies =
+                            passage.result.finalSceneBodies;
+                        MRBodyStateGPU& dynamicNeedle =
+                            world.defaultSceneBodies.at(0u);
+                        dynamicNeedle.flagsAndIndices[0] =
+                            MR_MOTION_DYNAMIC;
+                        dynamicNeedle.linearVelocityAndInverseMass = {
+                            0.0f,
+                            0.0f,
+                            0.0f,
+                            authoredDynamicNeedleProperties
+                                .massAndInverseMass.y,
+                        };
+                        dynamicNeedle.angularVelocity = {};
+                        updateNeedleInverseInertia(
+                            authoredDynamicNeedleProperties,
+                            dynamicNeedle
+                        );
+                        require(
+                            passage.result.finalRodNodes.size() ==
+                                    world.rods[0].defaultState
+                                        .positions.size() &&
+                                passage.result.finalRodEdges.size() ==
+                                    world.rods[0].defaultState.twists.size(),
+                            "receiver bridge lost the accepted DER state"
+                        );
+                        for (std::size_t node = 0u;
+                             node < passage.result.finalRodNodes.size();
+                             ++node) {
+                            const Vec3 acceptedPosition = vector(
+                                passage.result.finalRodNodes[node].position
+                            );
+                            const Vec3 acceptedVelocity = vector(
+                                passage.result.finalRodNodes[node].velocity
+                            );
+                            world.rods[0].defaultState.positions[node] =
+                                {
+                                    acceptedPosition.x,
+                                    acceptedPosition.y,
+                                    acceptedPosition.z,
+                                };
+                            world.rods[0].defaultState.velocities[node] =
+                                {
+                                    acceptedVelocity.x,
+                                    acceptedVelocity.y,
+                                    acceptedVelocity.z,
+                                };
+                        }
+                        for (std::size_t edge = 0u;
+                             edge < passage.result.finalRodEdges.size();
+                             ++edge) {
+                            world.rods[0].defaultState.twists[edge] =
+                                passage.result.finalRodEdges[edge]
+                                    .twistAndRate.x;
+                            world.rods[0].defaultState.twistRates[edge] =
+                                passage.result.finalRodEdges[edge]
+                                    .twistAndRate.y;
+                        }
+                        const Quaternion dynamicNeedleOrientation{
+                            dynamicNeedle.orientation.x,
+                            dynamicNeedle.orientation.y,
+                            dynamicNeedle.orientation.z,
+                            dynamicNeedle.orientation.w,
+                        };
+                        for (std::size_t binding = 0u;
+                             binding <
+                                 world.rods[0].rigidBindings.size();
+                             ++binding) {
+                            const Vec3 localAnchor = vector(
+                                world.rods[0].rigidBindings[binding]
+                                    .localAnchor
+                            );
+                            const Vec3 worldAnchor =
+                                vector(dynamicNeedle.position) +
+                                rotate(
+                                    dynamicNeedleOrientation,
+                                    localAnchor
+                                );
+                            world.rods[0].attachments[binding]
+                                .targetPosition = {
+                                    worldAnchor.x,
+                                    worldAnchor.y,
+                                    worldAnchor.z,
+                                };
+                            world.rods[0].attachments[binding]
+                                .targetVelocity = {};
+                        }
+
+                        const Quaternion bridgeGiverOrientation =
+                            needleAlignedToolBaseOrientation(
+                                dynamicNeedle,
+                                needleShapeAngle(
+                                    sutureSpec.needle,
+                                    giverPlacementShape
+                                ),
+                                0.0,
+                                options.extractionGiverNeedleAxisRoll
+                            );
+                        const Vec3 bridgeGiverPoint =
+                            needleShapeWorldCenter(
+                                needleForPlacement,
+                                giverPlacementShape,
+                                dynamicNeedle
+                            );
+                        metalrobo::SurgicalBasePose bridgeGiverBase =
+                            basePose(
+                                bridgeGiverOrientation,
+                                giverLocalJaw.midpoint,
+                                bridgeGiverPoint
+                            );
+                        for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                            bridgeGiverBase.position[axis] +=
+                                static_cast<float>((std::array{
+                                    kGiverPortCalibration.x,
+                                    kGiverPortCalibration.y,
+                                    kGiverPortCalibration.z,
+                                })[axis]);
+                        }
+                        const Quaternion bridgeReceiverOrientation =
+                            needleAlignedToolBaseOrientation(
+                                dynamicNeedle,
+                                needleShapeAngle(
+                                    sutureSpec.needle,
+                                    kExtractionNeedleShape
+                                ),
+                                kExtractionFixtureReceiverBaseAzimuthOffset,
+                                kExtractionFixtureReceiverNeedleAxisRoll
+                            );
+                        const Vec3 bridgeReceiverPoint =
+                            needleShapeWorldCenter(
+                                needleForPlacement,
+                                kExtractionNeedleShape,
+                                dynamicNeedle
+                            );
+                        const metalrobo::SurgicalBasePose bridgeReceiverBase =
+                            basePose(
+                                bridgeReceiverOrientation,
+                                receiverLocalJaw.midpoint,
+                                bridgeReceiverPoint
+                            );
+                        require(
+                            norm(
+                                vector(bridgeGiverBase.position) -
+                                vector(bridgeReceiverBase.position)
+                            ) > 0.22,
+                            "receiver bridge PSM ports are not separated"
+                        );
+
+                        const Quaternion bridgeGiverBaseRotation{
+                            bridgeGiverBase.orientation[0],
+                            bridgeGiverBase.orientation[1],
+                            bridgeGiverBase.orientation[2],
+                            bridgeGiverBase.orientation[3],
+                        };
+                        std::vector<double> bridgeGiverSeed = psmTarget(
+                            psm,
+                            kPickupInsertion,
+                            closeJawCoordinate,
+                            kGiverYaw,
+                            kGiverPitch
+                        );
+                        const JawGeometry bridgeGiverNominalJaw = jawGeometry(
+                            psm,
+                            bridgeGiverSeed
+                        );
+                        Vec3 bridgeGiverRail = needleShapeWorldTangent(
+                            needleForPlacement,
+                            giverPlacementShape,
+                            dynamicNeedle
+                        );
+                        if (dot(
+                                bridgeGiverRail,
+                                rotate(
+                                    bridgeGiverBaseRotation,
+                                    bridgeGiverNominalJaw.railDirection
+                                )
+                            ) < 0.0) {
+                            bridgeGiverRail = bridgeGiverRail * -1.0;
+                        }
+                        const Vec3 bridgeGiverSeparation = rotate(
+                            bridgeGiverBaseRotation,
+                            bridgeGiverNominalJaw.separationDirection
+                        );
+                        const JawFrameIKSolution bridgeGiverIK =
+                            solvePsmJawFrameTarget(
+                                psm,
+                                bridgeGiverBase,
+                                std::move(bridgeGiverSeed),
+                                bridgeGiverPoint,
+                                bridgeGiverRail,
+                                bridgeGiverSeparation,
+                                closeJawCoordinate,
+                                kReceiverBridgeIKPositionToleranceM,
+                                kReceiverBridgeIKOrientationToleranceRad
+                            );
+
+                        const Quaternion bridgeReceiverBaseRotation{
+                            bridgeReceiverBase.orientation[0],
+                            bridgeReceiverBase.orientation[1],
+                            bridgeReceiverBase.orientation[2],
+                            bridgeReceiverBase.orientation[3],
+                        };
+                        const std::vector<double> bridgeReceiverNominal =
+                            psmTarget(
+                                psm,
+                                kReceiverHandoffInsertion,
+                                openJawCoordinate,
+                                kReceiverYaw,
+                                kReceiverPitch
+                            );
+                        const JawGeometry bridgeReceiverNominalJaw =
+                            jawGeometry(psm, bridgeReceiverNominal);
+                        Vec3 bridgeReceiverRail = needleShapeWorldTangent(
+                            needleForPlacement,
+                            kExtractionNeedleShape,
+                            dynamicNeedle
+                        );
+                        if (dot(
+                                bridgeReceiverRail,
+                                rotate(
+                                    bridgeReceiverBaseRotation,
+                                    bridgeReceiverNominalJaw.railDirection
+                                )
+                            ) < 0.0) {
+                            bridgeReceiverRail = bridgeReceiverRail * -1.0;
+                        }
+                        const Vec3 bridgeReceiverSeparation = rotate(
+                            bridgeReceiverBaseRotation,
+                            bridgeReceiverNominalJaw.separationDirection
+                        );
+                        const OrthonormalJawFrame bridgeReceiverFrame =
+                            orthonormalJawFrame(
+                                bridgeReceiverRail,
+                                bridgeReceiverSeparation,
+                                "live tissue receiver bridge frame"
+                            );
+                        const Vec3 bridgeReceiverStandOffPoint =
+                            bridgeReceiverPoint +
+                            bridgeReceiverFrame.normal *
+                                kExtractionApproachStandOffM;
+                        const JawFrameIKSolution bridgeReceiverStandOffIK =
+                            solvePsmJawFrameTarget(
+                                psm,
+                                bridgeReceiverBase,
+                                bridgeReceiverNominal,
+                                bridgeReceiverStandOffPoint,
+                                bridgeReceiverRail,
+                                bridgeReceiverSeparation,
+                                openJawCoordinate,
+                                kReceiverBridgeIKPositionToleranceM,
+                                kReceiverBridgeIKOrientationToleranceRad
+                            );
+                        setArmBasePose(
+                            world.model.defaultQ,
+                            world.model.defaultV,
+                            world.model,
+                            0u,
+                            bridgeGiverBase
+                        );
+                        setArmBasePose(
+                            world.model.defaultQ,
+                            world.model.defaultV,
+                            world.model,
+                            1u,
+                            bridgeReceiverBase
+                        );
+                        setArmTarget(
+                            world.model.defaultQ,
+                            world.model,
+                            0u,
+                            bridgeGiverIK.localQ
+                        );
+                        setArmTarget(
+                            world.model.defaultQ,
+                            world.model,
+                            1u,
+                            bridgeReceiverStandOffIK.localQ
+                        );
+                        const KinematicNeedleObservation bridgePreflight =
+                            observeKinematicNeedleContacts(
+                                world,
+                                needleForPlacement.metadata,
+                                world.model.defaultQ
+                            );
+                        const CrossArmCollisionScan bridgePathPreflight =
+                            scanCrossArmTargetPath(
+                                world,
+                                world.model.defaultQ,
+                                world.model.defaultQ,
+                                1u
+                            );
+                        std::cout << std::setprecision(9)
+                            << "receiver_bridge_preflight_candidate"
+                            << " giver_position_residual_m="
+                            << bridgeGiverIK.positionResidual
+                            << " giver_orientation_residual_rad="
+                            << bridgeGiverIK.orientationResidual
+                            << " giver_ik_iterations="
+                            << bridgeGiverIK.iterations
+                            << " receiver_position_residual_m="
+                            << bridgeReceiverStandOffIK.positionResidual
+                            << " receiver_orientation_residual_rad="
+                            << bridgeReceiverStandOffIK.orientationResidual
+                            << " receiver_ik_iterations="
+                            << bridgeReceiverStandOffIK.iterations
+                            << " giver_jaw_contacts="
+                            << bridgePreflight.giverJawContacts[0] << '/'
+                            << bridgePreflight.giverJawContacts[1]
+                            << " giver_safe_zone_contacts="
+                            << bridgePreflight.giverGraspZoneContacts
+                            << " giver_total_needle_contacts="
+                            << bridgePreflight.giverNeedleContacts
+                            << " giver_non_insert_contacts="
+                            << bridgePreflight.giverNonInsertNeedleContacts
+                            << " receiver_needle_contacts="
+                            << bridgePreflight.receiverNeedleContacts
+                            << " receiver_minimum_needle_separation_m="
+                            << (
+                                std::isfinite(
+                                    bridgePreflight
+                                        .minimumReceiverNeedleSeparation
+                                )
+                                    ? bridgePreflight
+                                        .minimumReceiverNeedleSeparation
+                                    : 0.0
+                            )
+                            << " cross_arm_contacts="
+                            << bridgePreflight.crossArmContacts
+                            << " scan_cross_arm_samples="
+                            << bridgePathPreflight.samplesWithContact
+                            << " scan_giver_pad_samples="
+                            << bridgePathPreflight
+                                   .samplesWithGiverPadContact
+                            << " scan_receiver_pad_samples="
+                            << bridgePathPreflight
+                                   .samplesWithReceiverPadContact << '\n';
+                        require(
+                            bridgeGiverIK.positionResidual <=
+                                    kReceiverBridgeIKPositionToleranceM &&
+                                bridgeGiverIK.orientationResidual <=
+                                    kReceiverBridgeIKOrientationToleranceRad &&
+                                bridgeReceiverStandOffIK.positionResidual <=
+                                    kReceiverBridgeIKPositionToleranceM &&
+                                bridgeReceiverStandOffIK
+                                        .orientationResidual <=
+                                    kReceiverBridgeIKOrientationToleranceRad &&
+                                bridgePreflight.giverJawContacts[0] >= 2u &&
+                                bridgePreflight.giverJawContacts[1] >= 2u &&
+                                bridgePreflight.giverGraspZoneContacts ==
+                                    bridgePreflight.giverJawContacts[0] +
+                                        bridgePreflight
+                                            .giverJawContacts[1] &&
+                                bridgePreflight.receiverNeedleContacts == 0u &&
+                                bridgePreflight.crossArmContacts == 0u &&
+                                bridgePathPreflight.samplesWithContact == 0u &&
+                                bridgePathPreflight
+                                        .samplesWithGiverPadContact == 0u &&
+                                bridgePathPreflight
+                                        .samplesWithReceiverPadContact == 0u,
+                            "live tissue state cannot admit the collision-free "
+                            "giver/receiver bridge geometry"
+                        );
+                        world.fingerprint =
+                            metalrobo::heterogeneousWorldFingerprint(world);
+                        std::string bridgeWorldReason;
+                        require(
+                            world.valid(&bridgeWorldReason),
+                            "live tissue receiver bridge world is invalid: " +
+                                bridgeWorldReason
+                        );
+                        metalrobo::CompiledWorld bridgeCompiled;
+                        const auto bridgeCompile =
+                            metalrobo::compileMetalWorld(
+                                world,
+                                bridgeCompiled
+                            );
+                        require(
+                            bridgeCompile.succeeded() &&
+                                bridgeCompiled.articulationCount() == 2u &&
+                                bridgeCompiled.sceneBodyCount() == 2u &&
+                                bridgeCompiled.rodCount() == 1u,
+                            "live tissue receiver bridge did not compile: " +
+                                bridgeCompile.message
+                        );
+                        metalrobo::MetalWorldResult bridgeStartState;
+                        bridgeStartState.finalQ = world.model.defaultQ;
+                        bridgeStartState.finalV = world.model.defaultV;
+                        bridgeStartState.finalSceneBodies =
+                            world.defaultSceneBodies;
+                        bridgeStartState.finalRodNodes.assign(
+                            bridgeCompiled.defaultRodNodes().begin(),
+                            bridgeCompiled.defaultRodNodes().end()
+                        );
+                        bridgeStartState.finalRodEdges.assign(
+                            bridgeCompiled.defaultRodEdges().begin(),
+                            bridgeCompiled.defaultRodEdges().end()
+                        );
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-receiver-bridge-start",
+                            bridgeBaseDERSubsteps,
+                            world,
+                            sutureSpec,
+                            bridgeStartState
+                        );
+                        selectCoupledCadence(
+                            kSuturePullMatterRateMultiplier,
+                            "dynamic giver receiver bridge hold"
+                        );
+                        const std::vector<float> dynamicBridgeEfforts =
+                            interpolateTargets(
+                                world.model,
+                                world.model.defaultQ,
+                                world.model.defaultQ,
+                                kReceiverBridgeDynamicHoldSteps
+                        );
+                        metalrobo::MetalWorldContext bridgeContext;
+                        metalrobo::MetalWorldResidentState bridgeResident;
+                        const PhaseResult dynamicBridge =
+                            initializePhaseUnchecked(
+                            bridgeContext,
+                            bridgeCompiled,
+                            world,
+                            stepConfig,
+                            bridgeResident,
+                            dynamicBridgeEfforts,
+                            kReceiverBridgeDynamicHoldSteps
+                        );
+                        const numi::matter::RuntimeStateSnapshot
+                            postBridgeMatter = tissueRuntime.snapshot();
+                        if (!dynamicBridge.diagnostics.succeeded() ||
+                            dynamicBridge.diagnostics.failedStepCount != 0u) {
+                            std::string failure =
+                                "dynamic giver receiver bridge failed: " +
+                                dynamicBridge.diagnostics.message;
+                            for (const MRMetalWorldStatusGPU& status :
+                                 dynamicBridge.result.statuses) {
+                                if (status.code == MR_STEP_SUCCESS) {
+                                    continue;
+                                }
+                                failure +=
+                                    " world_status=" +
+                                    std::to_string(status.code) +
+                                    " control_step=" +
+                                    std::to_string(status.controlStep) +
+                                    " successful_substeps=" +
+                                    std::to_string(
+                                        status.successfulSubsteps
+                                    ) +
+                                    " failing_substep=" +
+                                    std::to_string(status.failingSubstep) +
+                                    " failing_index=" +
+                                    std::to_string(status.failingIndex) +
+                                    " diagnostics=(" +
+                                    preciseScalar(status.diagnostics.x) +
+                                    "," +
+                                    preciseScalar(status.diagnostics.y) +
+                                    "," +
+                                    preciseScalar(status.diagnostics.z) +
+                                    "," +
+                                    preciseScalar(status.diagnostics.w) +
+                                    ")";
+                                break;
+                            }
+                            for (const NMMatterStatusGPU& status :
+                                 postBridgeMatter.statuses) {
+                                if (status.code == NM_STATUS_SUCCESS) {
+                                    continue;
+                                }
+                                failure +=
+                                    " matter_status=" +
+                                    std::to_string(status.code) +
+                                    " object=" +
+                                    std::to_string(status.objectIndex) +
+                                    " failing_index=" +
+                                    std::to_string(status.failingIndex) +
+                                    " completed_microsteps=" +
+                                    std::to_string(
+                                        status.completedMicrosteps
+                                    ) +
+                                    " fgmres_iterations=" +
+                                    std::to_string(
+                                        status.fgmresIterations
+                                    ) +
+                                    " contact_count=" +
+                                    std::to_string(status.contactCount) +
+                                    " event_count=" +
+                                    std::to_string(status.eventCount) +
+                                    " diagnostics=(" +
+                                    preciseScalar(status.diagnostics.x) +
+                                    "," +
+                                    preciseScalar(status.diagnostics.y) +
+                                    "," +
+                                    preciseScalar(status.diagnostics.z) +
+                                    "," +
+                                    preciseScalar(status.diagnostics.w) +
+                                    ")";
+                                if (status.failingIndex <
+                                    tissueWorld.contact.pairs.size()) {
+                                    const NMContactPairGPU& pair =
+                                        tissueWorld.contact.pairs[
+                                            status.failingIndex];
+                                    failure +=
+                                        " pair_node=" +
+                                        std::to_string(pair.continuumNode) +
+                                        " pair_proxy=" +
+                                        std::to_string(pair.rigidProxy);
+                                    if (pair.rigidProxy <
+                                        tissueWorld.contact.rigidProxies
+                                            .size()) {
+                                        const NMRigidProxyGPU& proxy =
+                                            tissueWorld.contact.rigidProxies[
+                                                pair.rigidProxy];
+                                        failure +=
+                                            " proxy_shape=" +
+                                            std::to_string(proxy.shapeKind) +
+                                            " proxy_flags=" +
+                                            std::to_string(proxy.flags) +
+                                            " proxy_body=" +
+                                            std::to_string(proxy.bodyIndex) +
+                                            " proxy_scene_body=" +
+                                            std::to_string(
+                                                proxy.sceneBodyIndex
+                                            ) +
+                                            " proxy_free_index=" +
+                                            std::to_string(
+                                                proxy
+                                                    .generalizedFreeBodyIndex
+                                            );
+                                    }
+                                    if (status.failingIndex <
+                                        postBridgeMatter.contactSamples
+                                            .size()) {
+                                        const NMContactSampleGPU& sample =
+                                            postBridgeMatter.contactSamples[
+                                                status.failingIndex];
+                                        failure +=
+                                            " sample_separation=" +
+                                            preciseScalar(
+                                                sample.pointAndSeparation.w
+                                            ) +
+                                            " sample_normal_velocity=" +
+                                            preciseScalar(
+                                                sample.normalAndVelocity.w
+                                            ) +
+                                            " sample_admission_velocity=" +
+                                            preciseScalar(
+                                                sample
+                                                    .admissionVelocityAndNormal
+                                                    .w
+                                            ) +
+                                            " sample_barrier=(" +
+                                            preciseScalar(sample.barrier.x) +
+                                            "," +
+                                            preciseScalar(sample.barrier.y) +
+                                            "," +
+                                            preciseScalar(sample.barrier.z) +
+                                            "," +
+                                            preciseScalar(sample.barrier.w) +
+                                            ")";
+                                    }
+                                }
+                                break;
+                            }
+                            require(false, failure);
+                        }
+                        require(
+                            postBridgeMatter.available &&
+                                postBridgeMatter.femNodes.size() >=
+                                    tissueCoupon.metadata.nodeCount &&
+                                postBridgeMatter.sourcePhysicsFingerprint ==
+                                    preBridgeMatter
+                                        .sourcePhysicsFingerprint &&
+                                postBridgeMatter.punctureChannels.size() ==
+                                    preBridgeMatter.punctureChannels.size(),
+                            "dynamic giver bridge reset or replaced the live "
+                            "Matter authority"
+                        );
+                        double maximumBridgeTissueIncrementM = 0.0;
+                        for (std::size_t node = 0u;
+                             node < tissueCoupon.metadata.nodeCount;
+                             ++node) {
+                            maximumBridgeTissueIncrementM = std::max(
+                                maximumBridgeTissueIncrementM,
+                                norm(
+                                    vector(
+                                        postBridgeMatter.femNodes[node]
+                                            .positionAndMass
+                                    ) -
+                                    vector(
+                                        preBridgeMatter.femNodes[node]
+                                            .positionAndMass
+                                    )
+                                )
+                            );
+                        }
+                        const bool bridgeChannelsUnchanged =
+                            preBridgeMatter.punctureChannels.empty() ||
+                            std::memcmp(
+                                preBridgeMatter.punctureChannels.data(),
+                                postBridgeMatter.punctureChannels.data(),
+                                preBridgeMatter.punctureChannels.size() *
+                                    sizeof(NMPunctureChannelGPU)
+                            ) == 0;
+                        std::uint32_t postBridgeTetrahedra = 0u;
+                        double postBridgeRemovedMassKg = 0.0;
+                        double postBridgeMinimumDeterminant =
+                            std::numeric_limits<double>::infinity();
+                        double postBridgeMaximumResidual = 0.0;
+                        bool postBridgeCertificatesAccepted = true;
+                        for (const NMTetrahedronGPU& tetrahedron :
+                             postBridgeMatter.femTopologyTetrahedra) {
+                            postBridgeTetrahedra +=
+                                (tetrahedron.identity.w & NM_OBJECT_ACTIVE) !=
+                                0u;
+                        }
+                        for (const NMFEMTopologyStateGPU& topology :
+                             postBridgeMatter.topologyStates) {
+                            postBridgeRemovedMassKg += topology.accounting.y;
+                        }
+                        for (const NMSolverCertificateGPU& certificate :
+                             postBridgeMatter.solverCertificates) {
+                            postBridgeCertificatesAccepted =
+                                postBridgeCertificatesAccepted &&
+                                certificate.validity.w > 0.5f;
+                            postBridgeMinimumDeterminant = std::min(
+                                postBridgeMinimumDeterminant,
+                                static_cast<double>(
+                                    certificate.validity.x
+                                )
+                            );
+                            postBridgeMaximumResidual = std::max({
+                                postBridgeMaximumResidual,
+                                static_cast<double>(
+                                    certificate.nonlinear.x
+                                ),
+                                static_cast<double>(
+                                    certificate.nonlinear.z
+                                ),
+                                static_cast<double>(
+                                    certificate.nonlinear.w
+                                ),
+                            });
+                        }
+                        const ContactCounts bridgeContacts = contactCounts(
+                            world,
+                            dynamicBridge.result,
+                            needleForPlacement.metadata,
+                            kNeedleFirstShape
+                        );
+                        const RodStateMetrics bridgeRod = rodStateMetrics(
+                            world,
+                            dynamicBridge.result
+                        );
+                        const double bridgeSwageErrorM =
+                            swageAttachmentError(
+                                world,
+                                dynamicBridge.result
+                            );
+                        const Vec3 postBridgeNeedlePosition = vector(
+                            dynamicBridge.result.finalSceneBodies.at(0u)
+                                .position
+                        );
+                        const double bridgeNeedleDriftM = norm(
+                            postBridgeNeedlePosition -
+                            vector(prescribedNeedle.position)
+                        );
+                        const double bridgeNeedleSpeedMps = norm(vector(
+                            dynamicBridge.result.finalSceneBodies.at(0u)
+                                .linearVelocityAndInverseMass
+                        ));
+                        const MRMetalWorldContactStatusGPU& bridgeResidual =
+                            requireTerminalResidual(
+                                dynamicBridge.result,
+                                "dynamic giver receiver bridge hold",
+                                false
+                            );
+                        std::cout << std::setprecision(9)
+                            << "dynamic_receiver_bridge_candidate"
+                            << " giver_jaw_contacts="
+                            << bridgeContacts.jawContacts[0][0] << '/'
+                            << bridgeContacts.jawContacts[0][1]
+                            << " giver_insert_patch_masks="
+                            << bridgeContacts.jawInsertPatchMasks[0][0]
+                            << '/'
+                            << bridgeContacts.jawInsertPatchMasks[0][1]
+                            << " receiver_jaw_contacts="
+                            << bridgeContacts.jawContacts[1][0] << '/'
+                            << bridgeContacts.jawContacts[1][1]
+                            << " cross_arm_contacts="
+                            << bridgeContacts.crossArmContacts
+                            << " puncture_channels_unchanged="
+                            << bridgeChannelsUnchanged
+                            << " active_tetrahedra="
+                            << postBridgeTetrahedra
+                            << " expected_tetrahedra="
+                            << tissueCoupon.metadata.tetrahedronCount
+                            << " removed_tissue_mass_kg="
+                            << postBridgeRemovedMassKg
+                            << " certificates_accepted="
+                            << postBridgeCertificatesAccepted
+                            << " matter_minimum_determinant="
+                            << postBridgeMinimumDeterminant
+                            << " matter_maximum_residual="
+                            << postBridgeMaximumResidual
+                            << " maximum_tissue_increment_m="
+                            << maximumBridgeTissueIncrementM
+                            << " needle_drift_m=" << bridgeNeedleDriftM
+                            << " needle_speed_mps=" << bridgeNeedleSpeedMps
+                            << " hard_swage_root_error_m="
+                            << bridgeSwageErrorM
+                            << " thread_maximum_node_speed_mps="
+                            << bridgeRod.maximumNodeSpeed
+                            << " thread_maximum_edge_error_m="
+                            << bridgeRod.maximumEdgeLengthError
+                            << " thread_minimum_clearance_m="
+                            << bridgeRod.minimumNonNeighbourSurfaceClearance
+                            << " terminal_contact_velocity_residual_mps="
+                            << bridgeResidual.residuals.y
+                            << " terminal_cone_violation="
+                            << bridgeResidual.residuals.z << '\n';
+                        require(
+                            bilateral(bridgeContacts, 0u) &&
+                                distributedInsertCoverage(
+                                    bridgeContacts,
+                                    0u
+                                ) &&
+                                cleanNeedleInteraction(
+                                    bridgeContacts,
+                                    true,
+                                    false
+                                ) &&
+                                bridgeChannelsUnchanged &&
+                                postBridgeTetrahedra ==
+                                    tissueCoupon.metadata.tetrahedronCount &&
+                                postBridgeRemovedMassKg == 0.0 &&
+                                postBridgeCertificatesAccepted &&
+                                postBridgeMinimumDeterminant > 0.0 &&
+                                std::isfinite(postBridgeMaximumResidual) &&
+                                maximumBridgeTissueIncrementM <=
+                                    kMaximumReceiverBridgeTissueIncrementM &&
+                                bridgeNeedleDriftM <=
+                                    kMaximumReceiverBridgeNeedleDriftM &&
+                                bridgeSwageErrorM <
+                                    kMaximumSwageAttachmentError &&
+                                qualifiedTerminalRod(bridgeRod) &&
+                                bridgeResidual.residuals.y <=
+                                    kMaximumTerminalContactVelocityResidual &&
+                                bridgeResidual.residuals.z <=
+                                    kMaximumTerminalConeViolation,
+                            "dynamic giver did not inherit the accepted "
+                            "needle/strand/tissue state: " +
+                                contactSummary(bridgeContacts)
+                        );
+                        std::uint64_t bridgeStateHash =
+                            1469598103934665603ull;
+                        appendStateHash(
+                            bridgeStateHash,
+                            dynamicBridge.result.finalQ
+                        );
+                        appendStateHash(
+                            bridgeStateHash,
+                            dynamicBridge.result.finalV
+                        );
+                        appendStateHash(
+                            bridgeStateHash,
+                            dynamicBridge.result.finalSceneBodies
+                        );
+                        appendStateHash(
+                            bridgeStateHash,
+                            dynamicBridge.result.finalRodNodes
+                        );
+                        appendStateHash(
+                            bridgeStateHash,
+                            postBridgeMatter.femNodes
+                        );
+                        appendStateHash(
+                            bridgeStateHash,
+                            postBridgeMatter.punctureChannels
+                        );
+                        std::cout << std::setprecision(9)
+                            << "tissue_receiver_state_bridge=ok"
+                            << " target_orbit_angle_rad="
+                            << receiverExtractionAngle
+                            << " receiver_segment_distal_clearance_m="
+                            << receiverSegmentDistalClearanceM
+                            << " bridge_matter_steps=" << bridgeMatterSteps
+                            << " bridge_base_der_substeps="
+                            << bridgeBaseDERSubsteps
+                            << " dynamic_hold_steps="
+                            << kReceiverBridgeDynamicHoldSteps
+                            << " giver_jaw_contacts="
+                            << bridgeContacts.jawContacts[0][0] << '/'
+                            << bridgeContacts.jawContacts[0][1]
+                            << " giver_insert_patch_masks="
+                            << bridgeContacts.jawInsertPatchMasks[0][0]
+                            << '/'
+                            << bridgeContacts.jawInsertPatchMasks[0][1]
+                            << " receiver_jaw_contacts="
+                            << bridgeContacts.jawContacts[1][0] << '/'
+                            << bridgeContacts.jawContacts[1][1]
+                            << " needle_drift_m=" << bridgeNeedleDriftM
+                            << " needle_speed_mps=" << bridgeNeedleSpeedMps
+                            << " maximum_tissue_increment_m="
+                            << maximumBridgeTissueIncrementM
+                            << " active_puncture_channels="
+                            << preBridgeChannels
+                            << " active_tetrahedra="
+                            << postBridgeTetrahedra
+                            << " removed_tissue_mass_kg="
+                            << postBridgeRemovedMassKg
+                            << " matter_minimum_determinant="
+                            << postBridgeMinimumDeterminant
+                            << " matter_maximum_residual="
+                            << postBridgeMaximumResidual
+                            << " hard_swage_root_error_m="
+                            << bridgeSwageErrorM
+                            << " thread_maximum_edge_error_m="
+                            << bridgeRod.maximumEdgeLengthError
+                            << " thread_minimum_clearance_m="
+                            << bridgeRod.minimumNonNeighbourSurfaceClearance
+                            << " terminal_contact_velocity_residual_mps="
+                            << bridgeResidual.residuals.y
+                            << " terminal_cone_violation="
+                            << bridgeResidual.residuals.z
+                            << " gpu_ms="
+                            << bridgeGpuMilliseconds +
+                                dynamicBridge.diagnostics
+                                    .gpuElapsedMilliseconds
+                            << " bridge_state_fnv64=0x" << std::hex
+                            << bridgeStateHash << std::dec
+                            << " failed_steps=0\n";
+                        return 0;
+                    }
                     if (!tissueCurvedPullThroughOnly) {
                         return 0;
                     }
@@ -12919,9 +14395,6 @@ int main(const int argc, const char* const argv[]) {
                                 entryThreadRootProximalClearanceM
                             )
                     );
-                    const double passageAngleRad =
-                        entryAngleRad +
-                        anglePerPassageStepRad * totalPassageSteps;
                     double pullSpeedMps = kSuturePullThroughSpeedMps;
                     double pullAngularSpeedRadPerS =
                         kSuturePullThroughSpeedMps /

@@ -120,6 +120,12 @@ inline float3 coupledRigidPointDirection(
         direction[rigidBase + freeBase + 5u].x);
     const NMRigidStateGPU rigid = contact.rigidStates[
         environment * dispatch.rigidProxyCount + pair.rigidProxy];
+    // A proxy may reserve a free-body block before its live MetalWorld body
+    // transitions from kinematic to dynamic ownership. Zero inverse mass is
+    // the authoritative live mask; the dormant block must not move prescribed
+    // geometry or contribute a rigid KKT direction.
+    if (!(rigid.linearVelocityAndInverseMass.w > 0.0f))
+        return float3(0.0f);
     const NMContactSampleGPU sample = contact.samples[
         environment * dispatch.contactPairCount + pairIndex];
     return linear + cross(
@@ -886,6 +892,9 @@ kernel void nm_contact_accumulate_rigid_residual(
                     jacobianBase + 2u * dispatch.rigidGeneralizedCapacity + dof];
         } else if ((proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
                    (proxy.flags & NM_RIGID_ARTICULATED) == 0u) {
+            const NMRigidStateGPU rigid = contact.rigidStates[
+                environment * dispatch.rigidProxyCount + pair.rigidProxy];
+            if (!(rigid.linearVelocityAndInverseMass.w > 0.0f)) continue;
             if (proxy.generalizedFreeBodyIndex == NM_INVALID_INDEX) continue;
             const uint freeBase = articulatedNv +
                 6u * proxy.generalizedFreeBodyIndex;
@@ -1016,6 +1025,9 @@ kernel void nm_fgmres_apply_primal_rigid_contacts(
                     jacobianBase + 2u * dispatch.rigidGeneralizedCapacity + dof];
         } else if ((proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
                    (proxy.flags & NM_RIGID_ARTICULATED) == 0u) {
+            const NMRigidStateGPU rigid = contact.rigidStates[
+                environment * dispatch.rigidProxyCount + pair.rigidProxy];
+            if (!(rigid.linearVelocityAndInverseMass.w > 0.0f)) continue;
             if (proxy.generalizedFreeBodyIndex == NM_INVALID_INDEX) continue;
             const uint freeBase = articulatedNv +
                 6u * proxy.generalizedFreeBodyIndex;
@@ -1109,6 +1121,10 @@ kernel void nm_rigid_initialize_feasible_candidate(
     }
     const MRBodyStateGPU body = currentBodies[
         environment * bridge.currentBodyStride + bodyIndex];
+    if (body.flagsAndIndices[0] != MR_MOTION_DYNAMIC) {
+        candidate[global] = 0.0f;
+        return;
+    }
     const float velocity = component < 3u
         ? body.linearVelocityAndInverseMass[component]
         : body.angularVelocity[component - 3u];

@@ -1807,6 +1807,12 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --articulated-foot-pad-sequence
     )
     add_test(
+        NAME matter.physics.articulated_contact_boundary_recovery
+        COMMAND
+            $<TARGET_FILE:metalrobo_matter_physics_probe>
+            --articulated-foot-pad-contact-boundary
+    )
+    add_test(
         NAME matter.scene.poroelastic_plate_compression
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --poroelastic-compression
     )
@@ -1831,6 +1837,7 @@ if(BUILD_TESTING)
         matter.runtime.mpm_transaction_rollback
         matter.integration.articulated_rigid_reaction
         matter.physics.shared_rigid_coupled_contact
+        matter.physics.articulated_contact_boundary_recovery
         matter.scene.poroelastic_plate_compression
         matter.scene.articulated_foot_poroelastic_pad
         matter.runtime.inverse_identification
@@ -2479,6 +2486,18 @@ if(BUILD_TESTING)
         PROPERTIES
             LABELS "metalrobo;matter;surgical;physics;metal;long"
             TIMEOUT 7200
+    )
+    add_test(
+        NAME metalrobo.surgical.live_tissue_receiver_state_bridge
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-receiver-state-bridge-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_tissue_receiver_state_bridge
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 10800
     )
     add_test(
         NAME metalrobo.surgical.curved_needle_through_wall_passage

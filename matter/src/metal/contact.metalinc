@@ -1938,6 +1938,13 @@ kernel void nm_project_primal_free_rigid_candidate(
     }
     const MRBodyStateGPU source = currentBodies[
         environment * bridge.currentBodyStride + proxy.bodyIndex];
+    if (source.flagsAndIndices[0] != MR_MOTION_DYNAMIC) {
+        // The compiled proxy owns a dormant free-body block so the same
+        // private Matter runtime can survive a later kinematic-to-dynamic
+        // handoff. The ordinary rigid projection already published the exact
+        // prescribed pose; do not integrate that reserved block yet.
+        return;
+    }
     const float3 linearVelocity = source.linearVelocityAndInverseMass.xyz +
         float3(generalizedCandidate[candidateBase + 0u],
                generalizedCandidate[candidateBase + 1u],
@@ -3515,6 +3522,19 @@ kernel void nm_publish_primal_free_rigid_candidate(
     }
     const MRBodyStateGPU source = currentBodies[
         environment * bridge.currentBodyStride + bodyIndex];
+    if (source.flagsAndIndices[0] > MR_MOTION_DYNAMIC) {
+        recordFailure(
+            statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, bodyIndex,
+            float4(float(source.flagsAndIndices[0]), 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    if (source.flagsAndIndices[0] != MR_MOTION_DYNAMIC) {
+        // A pre-authored free-body capability is intentionally dormant while
+        // the live source is static or kinematic. MetalWorld clears the shared
+        // wrench arena, so returning publishes the required exact zero.
+        return;
+    }
     const float inverseMass = source.linearVelocityAndInverseMass.w;
     float3x3 inertia;
     if (!(inverseMass > 0.0f) ||
