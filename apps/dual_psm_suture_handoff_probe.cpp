@@ -894,6 +894,234 @@ NeedleTipCapsuleGeometry needleTipCapsuleGeometry(
     };
 }
 
+struct TissueBiteSites {
+    Vec3 frameOrigin{};
+    Vec3 longitudinalAxis{};
+    Vec3 circumferentialAxis{};
+    Vec3 thicknessAxis{};
+    Vec3 firstProximalSurface{};
+    Vec3 opposingDistalSurface{};
+    std::uint32_t firstProximalNode = NM_INVALID_INDEX;
+    std::uint32_t opposingDistalNode = NM_INVALID_INDEX;
+    double firstNodeErrorM = std::numeric_limits<double>::infinity();
+    double opposingNodeErrorM = std::numeric_limits<double>::infinity();
+    double halfTurnSurfaceErrorM = std::numeric_limits<double>::infinity();
+};
+
+TissueBiteSites tissueBiteSites(
+    const numi::matter::PorcineJejunumClosureCoupon& coupon
+) {
+    require(
+        !coupon.object.femNodes.empty() &&
+            !coupon.object.femContactNodes.empty(),
+        "opposing bite requires an authored tissue contact surface"
+    );
+    TissueBiteSites sites;
+    sites.longitudinalAxis = vector(coupon.metadata.longitudinalAxis);
+    sites.circumferentialAxis = vector(
+        coupon.metadata.circumferentialAxis
+    );
+    sites.thicknessAxis = vector(coupon.metadata.thicknessAxis);
+    const double longitudinalLength = norm(sites.longitudinalAxis);
+    const double circumferentialLength = norm(sites.circumferentialAxis);
+    const double thicknessLength = norm(sites.thicknessAxis);
+    require(
+        longitudinalLength > 1.0e-12 &&
+            circumferentialLength > 1.0e-12 &&
+            thicknessLength > 1.0e-12,
+        "opposing bite tissue frame is degenerate"
+    );
+    sites.longitudinalAxis = sites.longitudinalAxis *
+        (1.0 / longitudinalLength);
+    sites.circumferentialAxis = sites.circumferentialAxis *
+        (1.0 / circumferentialLength);
+    sites.thicknessAxis = sites.thicknessAxis *
+        (1.0 / thicknessLength);
+    require(
+        std::abs(dot(
+            sites.longitudinalAxis,
+            sites.circumferentialAxis
+        )) <= 1.0e-6 &&
+            std::abs(dot(
+                sites.longitudinalAxis,
+                sites.thicknessAxis
+            )) <= 1.0e-6 &&
+            std::abs(dot(
+                sites.circumferentialAxis,
+                sites.thicknessAxis
+            )) <= 1.0e-6 &&
+            dot(
+                cross(
+                    sites.longitudinalAxis,
+                    sites.circumferentialAxis
+                ),
+                sites.thicknessAxis
+            ) >= 0.999999,
+        "opposing bite tissue frame is not right-handed orthonormal"
+    );
+
+    double minimumLongitudinal = std::numeric_limits<double>::infinity();
+    double maximumLongitudinal = -minimumLongitudinal;
+    double minimumCircumferential = minimumLongitudinal;
+    double maximumCircumferential = -minimumLongitudinal;
+    double minimumThickness = minimumLongitudinal;
+    double maximumThickness = -minimumLongitudinal;
+    for (const auto& authored : coupon.object.femNodes) {
+        const Vec3 point = vector(authored);
+        const double longitudinal = dot(point, sites.longitudinalAxis);
+        const double circumferential = dot(
+            point,
+            sites.circumferentialAxis
+        );
+        const double thickness = dot(point, sites.thicknessAxis);
+        minimumLongitudinal = std::min(
+            minimumLongitudinal,
+            longitudinal
+        );
+        maximumLongitudinal = std::max(
+            maximumLongitudinal,
+            longitudinal
+        );
+        minimumCircumferential = std::min(
+            minimumCircumferential,
+            circumferential
+        );
+        maximumCircumferential = std::max(
+            maximumCircumferential,
+            circumferential
+        );
+        minimumThickness = std::min(minimumThickness, thickness);
+        maximumThickness = std::max(maximumThickness, thickness);
+    }
+    sites.frameOrigin =
+        sites.longitudinalAxis *
+            (0.5 * (minimumLongitudinal + maximumLongitudinal)) +
+        sites.circumferentialAxis *
+            (0.5 * (minimumCircumferential + maximumCircumferential)) +
+        sites.thicknessAxis *
+            (0.5 * (minimumThickness + maximumThickness));
+    const double halfThickness =
+        0.5 * (maximumThickness - minimumThickness);
+    const Vec3 firstTarget = sites.frameOrigin -
+        sites.circumferentialAxis * kPunctureBiteOffsetM +
+        sites.thicknessAxis * halfThickness;
+    const Vec3 opposingTarget = sites.frameOrigin +
+        sites.circumferentialAxis * kPunctureBiteOffsetM -
+        sites.thicknessAxis * halfThickness;
+    for (const std::uint32_t node : coupon.object.femContactNodes) {
+        require(
+            node < coupon.object.femNodes.size(),
+            "opposing bite contact node is outside the tissue topology"
+        );
+        const Vec3 point = vector(coupon.object.femNodes[node]);
+        const double firstError = norm(point - firstTarget);
+        if (firstError < sites.firstNodeErrorM) {
+            sites.firstNodeErrorM = firstError;
+            sites.firstProximalNode = node;
+            sites.firstProximalSurface = point;
+        }
+        const double opposingError = norm(point - opposingTarget);
+        if (opposingError < sites.opposingNodeErrorM) {
+            sites.opposingNodeErrorM = opposingError;
+            sites.opposingDistalNode = node;
+            sites.opposingDistalSurface = point;
+        }
+    }
+    require(
+        sites.firstProximalNode != NM_INVALID_INDEX &&
+            sites.opposingDistalNode != NM_INVALID_INDEX &&
+            sites.firstNodeErrorM <= coupon.object.characteristicLength &&
+            sites.opposingNodeErrorM <=
+                coupon.object.characteristicLength,
+        "opposing bite surfaces are not resolved by retained contact nodes"
+    );
+    const Quaternion halfTurn = axisAngle(
+        sites.longitudinalAxis,
+        std::numbers::pi
+    );
+    const Vec3 mirroredFirstSurface = sites.frameOrigin + rotate(
+        halfTurn,
+        sites.firstProximalSurface - sites.frameOrigin
+    );
+    sites.halfTurnSurfaceErrorM = norm(
+        mirroredFirstSurface - sites.opposingDistalSurface
+    );
+    require(
+        sites.halfTurnSurfaceErrorM <=
+            2.0 * coupon.object.characteristicLength,
+        "opposing bite surfaces are not a bounded half-turn pair"
+    );
+    return sites;
+}
+
+MRBodyStateGPU opposingBiteEntryTarget(
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const MRBodyStateGPU& firstEntryBody,
+    const TissueBiteSites& sites,
+    const Vec3 opposingSurface,
+    const double clearanceM
+) {
+    require(
+        std::isfinite(clearanceM) && clearanceM > 0.0,
+        "opposing bite entry clearance is invalid"
+    );
+    const Quaternion halfTurn = axisAngle(
+        sites.longitudinalAxis,
+        std::numbers::pi
+    );
+    const Quaternion firstOrientation{
+        firstEntryBody.orientation.x,
+        firstEntryBody.orientation.y,
+        firstEntryBody.orientation.z,
+        firstEntryBody.orientation.w,
+    };
+    const Quaternion opposingOrientation = multiply(
+        halfTurn,
+        firstOrientation
+    );
+    const Vec3 firstPosition = vector(firstEntryBody.position);
+    Vec3 opposingPosition = sites.frameOrigin + rotate(
+        halfTurn,
+        firstPosition - sites.frameOrigin
+    );
+    const Vec3 mirroredFirstSurface = sites.frameOrigin + rotate(
+        halfTurn,
+        sites.firstProximalSurface - sites.frameOrigin
+    );
+    opposingPosition = opposingPosition +
+        (opposingSurface - mirroredFirstSurface);
+
+    MRBodyStateGPU target = firstEntryBody;
+    target.position.x = static_cast<float>(opposingPosition.x);
+    target.position.y = static_cast<float>(opposingPosition.y);
+    target.position.z = static_cast<float>(opposingPosition.z);
+    target.orientation = {
+        static_cast<float>(opposingOrientation.x),
+        static_cast<float>(opposingOrientation.y),
+        static_cast<float>(opposingOrientation.z),
+        static_cast<float>(opposingOrientation.w),
+    };
+    target.linearVelocityAndInverseMass.x = 0.0f;
+    target.linearVelocityAndInverseMass.y = 0.0f;
+    target.linearVelocityAndInverseMass.z = 0.0f;
+    target.angularVelocity = {};
+
+    const NeedleTipCapsuleGeometry tip = needleTipCapsuleGeometry(
+        needle,
+        target
+    );
+    const Vec3 expectedSurface = tip.worldTip +
+        tip.approachDirection * (tip.radiusM + clearanceM);
+    const double surfaceErrorM = norm(expectedSurface - opposingSurface);
+    require(
+        dot(tip.approachDirection, sites.thicknessAxis) >= 0.999 &&
+            surfaceErrorM <= 2.0e-7,
+        "opposing bite target does not approach the distal surface with "
+        "the authored needle clearance"
+    );
+    return target;
+}
+
 double swageAttachmentError(
     const metalrobo::HeterogeneousWorld& world,
     const metalrobo::MetalWorldResult& state
@@ -3328,6 +3556,112 @@ ArmTrajectory frameArmTrajectory(
             desired,
             frame.rail,
             frame.separation,
+            jawCoordinate
+        );
+        local = solution.localQ;
+        trajectory.finalTarget = begin;
+        setArmTarget(
+            trajectory.finalTarget,
+            worldModel,
+            arm,
+            local
+        );
+        std::copy(
+            trajectory.finalTarget.begin(),
+            trajectory.finalTarget.end(),
+            trajectory.desiredQ.begin() +
+                static_cast<std::size_t>(step) * worldModel.world.nq
+        );
+    }
+    std::vector<float> previousQ(begin.begin(), begin.end());
+    for (std::uint32_t step = 0u; step < steps; ++step) {
+        const std::span<const float> currentQ{
+            trajectory.desiredQ.data() +
+                static_cast<std::size_t>(step) * worldModel.world.nq,
+            worldModel.world.nq,
+        };
+        for (std::uint32_t dof = 0u;
+             dof < worldModel.world.nv;
+             ++dof) {
+            const MRDofPropertiesGPU& properties =
+                worldModel.dofs[dof];
+            if (properties.qIndex == MR_INVALID_INDEX ||
+                (properties.flags & MR_DOF_FLAG_ROOT) != 0u ||
+                (properties.flags & MR_DOF_FLAG_VELOCITY_LIMIT) == 0u ||
+                !(properties.limits.z > 0.0f)) {
+                continue;
+            }
+            const double velocity = std::abs(
+                static_cast<double>(currentQ[properties.qIndex]) -
+                previousQ[properties.qIndex]
+            ) / trajectoryTimestepSeconds;
+            const double ratio =
+                velocity / static_cast<double>(properties.limits.z);
+            if (ratio > trajectory.maximumVelocityRatio) {
+                trajectory.maximumVelocityRatio = ratio;
+                trajectory.maximumVelocity = velocity;
+                trajectory.limitingVelocity = properties.limits.z;
+                trajectory.maximumVelocityDof = dof;
+            }
+        }
+        previousQ.assign(currentQ.begin(), currentQ.end());
+    }
+    trajectory.efforts = computedTorqueTrajectory(
+        worldModel,
+        begin,
+        trajectory.desiredQ,
+        steps,
+        trajectoryTimestepSeconds
+    );
+    return trajectory;
+}
+
+ArmTrajectory needleGraspArmTrajectory(
+    const metalrobo::EngineModel& worldModel,
+    const metalrobo::EngineModel& psm,
+    const std::uint32_t arm,
+    const metalrobo::SurgicalBasePose& base,
+    const std::vector<float>& begin,
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const std::uint32_t needleShape,
+    const GraspReference& reference,
+    const std::span<const MRBodyStateGPU> needleTargets,
+    const double jawCoordinate,
+    const double trajectoryTimestepSeconds = kControlTimestep
+) {
+    require(
+        begin.size() == worldModel.defaultQ.size() &&
+            !needleTargets.empty() &&
+            needleShape < needle.rigid.shapes.size() &&
+            trajectoryTimestepSeconds > 0.0 &&
+            std::isfinite(trajectoryTimestepSeconds) &&
+            std::isfinite(jawCoordinate),
+        "needle-grasp trajectory has invalid dimensions"
+    );
+    ArmTrajectory trajectory;
+    const std::uint32_t steps = static_cast<std::uint32_t>(
+        needleTargets.size()
+    );
+    trajectory.desiredQ.assign(
+        static_cast<std::size_t>(steps) * worldModel.world.nq,
+        0.0f
+    );
+    trajectory.finalTarget = begin;
+    std::vector<double> local = armLocalQ(worldModel, arm, begin);
+    for (std::uint32_t step = 0u; step < steps; ++step) {
+        const GraspFrameTarget target = graspFrameTarget(
+            needle,
+            needleTargets[step],
+            needleShape,
+            reference
+        );
+        const JawFrameIKSolution solution = solvePsmJawFrameTarget(
+            psm,
+            base,
+            std::move(local),
+            target.midpoint,
+            target.frame.rail,
+            target.frame.separation,
             jawCoordinate
         );
         local = solution.localQ;
@@ -7649,6 +7983,68 @@ int main(const int argc, const char* const argv[]) {
                     fixtureReceiverFrameTarget.frame
                 )
             );
+            constexpr std::uint32_t kGraspOrbitDiagnosticSteps = 32u;
+            constexpr double kGraspOrbitDiagnosticAngleRad = 2.0e-2;
+            std::vector<MRBodyStateGPU> fixtureGraspOrbitTargets;
+            fixtureGraspOrbitTargets.reserve(
+                kGraspOrbitDiagnosticSteps
+            );
+            for (std::uint32_t step = 0u;
+                 step < kGraspOrbitDiagnosticSteps;
+                 ++step) {
+                const double t = static_cast<double>(step + 1u) /
+                    static_cast<double>(kGraspOrbitDiagnosticSteps);
+                const double smooth = t * t * (3.0 - 2.0 * t);
+                fixtureGraspOrbitTargets.push_back(curvedNeedleTarget(
+                    placementNeedle,
+                    placementOrbit,
+                    receiverExtractionAngle +
+                        smooth * kGraspOrbitDiagnosticAngleRad,
+                    0.0
+                ));
+            }
+            const ArmTrajectory fixtureGraspOrbitTrajectory =
+                needleGraspArmTrajectory(
+                    world.model,
+                    psm,
+                    1u,
+                    receiverBase,
+                    fixtureClosedSeatQ,
+                    needleForPlacement,
+                    kExtractionNeedleShape,
+                    fixtureReceiverFrameReference,
+                    fixtureGraspOrbitTargets,
+                    receiverOverlapJawCoordinate
+                );
+            const GraspFrameTarget fixtureGraspOrbitEndTarget =
+                graspFrameTarget(
+                    needleForPlacement,
+                    fixtureGraspOrbitTargets.back(),
+                    kExtractionNeedleShape,
+                    fixtureReceiverFrameReference
+                );
+            const JawGeometry fixtureGraspOrbitEndJaw = worldJawGeometry(
+                world.model,
+                1u,
+                fixtureGraspOrbitTrajectory.finalTarget,
+                world.model.defaultV
+            );
+            const OrthonormalJawFrame fixtureGraspOrbitEndFrame =
+                orthonormalJawFrame(
+                    fixtureGraspOrbitEndJaw.railDirection,
+                    fixtureGraspOrbitEndJaw.separationDirection,
+                    "grasp-orbit diagnostic end frame"
+                );
+            const double fixtureGraspOrbitPositionError = norm(
+                fixtureGraspOrbitEndJaw.midpoint -
+                fixtureGraspOrbitEndTarget.midpoint
+            );
+            const double fixtureGraspOrbitOrientationError = norm(
+                jawFrameOrientationError(
+                    fixtureGraspOrbitEndFrame,
+                    fixtureGraspOrbitEndTarget.frame
+                )
+            );
             const std::uint32_t fixtureClosedJawContacts =
                 fixtureClosedSeatObservation.receiverJawContacts[0] +
                 fixtureClosedSeatObservation.receiverJawContacts[1];
@@ -7751,6 +8147,10 @@ int main(const int argc, const char* const argv[]) {
                         fixtureClosedJawContacts &&
                     fixtureGraspFramePositionError <= 1.0e-9 &&
                     fixtureGraspFrameOrientationError <= 1.0e-9 &&
+                    fixtureGraspOrbitPositionError <= 5.0e-6 &&
+                    fixtureGraspOrbitOrientationError <= 2.0e-3 &&
+                    fixtureGraspOrbitTrajectory.maximumVelocityRatio <=
+                        kMaximumCommandVelocityRatio &&
                     fixtureMaximumDistalExtraction.maximumVelocityRatio <=
                         kMaximumCommandVelocityRatio &&
                     fixtureDistalExtractionPreflight.samplesWithContact ==
@@ -7808,7 +8208,15 @@ int main(const int argc, const char* const argv[]) {
                     " grasp_frame_position_error=" +
                     preciseScalar(fixtureGraspFramePositionError) +
                     " grasp_frame_orientation_error=" +
-                    preciseScalar(fixtureGraspFrameOrientationError)
+                    preciseScalar(fixtureGraspFrameOrientationError) +
+                    " grasp_orbit_position_error=" +
+                    preciseScalar(fixtureGraspOrbitPositionError) +
+                    " grasp_orbit_orientation_error=" +
+                    preciseScalar(fixtureGraspOrbitOrientationError) +
+                    " grasp_orbit_velocity_ratio=" +
+                    preciseScalar(
+                        fixtureGraspOrbitTrajectory.maximumVelocityRatio
+                    )
             );
             if (receiverExtractionGeometryOnly) {
                 std::cout << std::setprecision(9)
@@ -7870,6 +8278,12 @@ int main(const int argc, const char* const argv[]) {
                     << fixtureGraspFramePositionError
                     << " grasp_frame_orientation_error_rad="
                     << fixtureGraspFrameOrientationError
+                    << " grasp_orbit_position_error_m="
+                    << fixtureGraspOrbitPositionError
+                    << " grasp_orbit_orientation_error_rad="
+                    << fixtureGraspOrbitOrientationError
+                    << " grasp_orbit_velocity_ratio="
+                    << fixtureGraspOrbitTrajectory.maximumVelocityRatio
                     << " base_azimuth_offset_rad="
                     << (
                         options.receiverBaseAzimuthOffsetProvided
@@ -11713,6 +12127,53 @@ int main(const int argc, const char* const argv[]) {
                            .flagsAndIndices[0] << '\n';
             }
             if (tissueOpposingBiteTopologyOnly) {
+                const TissueBiteSites biteSites = tissueBiteSites(
+                    tissueCoupon
+                );
+                const MRBodyStateGPU opposingEntry =
+                    opposingBiteEntryTarget(
+                        needleForPlacement,
+                        world.defaultSceneBodies.at(0u),
+                        biteSites,
+                        biteSites.opposingDistalSurface,
+                        kPunctureInitialClearanceM
+                    );
+                const NeedleTipCapsuleGeometry opposingTip =
+                    needleTipCapsuleGeometry(
+                        needleForPlacement,
+                        opposingEntry
+                    );
+                const CurvedNeedleOrbit opposingOrbit = curvedNeedleOrbit(
+                    needleForPlacement,
+                    opposingEntry
+                );
+                constexpr double kDirectionProbeAngleRad = 1.0e-3;
+                const MRBodyStateGPU opposingDirectionProbe =
+                    curvedNeedleTarget(
+                        opposingEntry,
+                        opposingOrbit,
+                        kDirectionProbeAngleRad,
+                        kCurvedPassageSpeedMps /
+                            opposingOrbit.centerlineRadiusM
+                    );
+                const NeedleTipCapsuleGeometry opposingProbeTip =
+                    needleTipCapsuleGeometry(
+                        needleForPlacement,
+                        opposingDirectionProbe
+                    );
+                const double opposingTipAdvanceM = dot(
+                    opposingProbeTip.worldTip - opposingTip.worldTip,
+                    biteSites.thicknessAxis
+                );
+                const double opposingApproachAlignment = dot(
+                    opposingTip.approachDirection,
+                    biteSites.thicknessAxis
+                );
+                require(
+                    opposingTipAdvanceM > 0.0 &&
+                        opposingApproachAlignment >= 0.999,
+                    "opposing bite orbit does not advance distal-to-proximal"
+                );
                 std::size_t pairedContactNodes = 0u;
                 std::uint32_t minimumPairsPerContactNode =
                     std::numeric_limits<std::uint32_t>::max();
@@ -11749,6 +12210,20 @@ int main(const int argc, const char* const argv[]) {
                     << tissueWorld.dispatch.rigidProxyCount
                     << " tetrahedra="
                     << tissueCoupon.metadata.tetrahedronCount
+                    << " first_proximal_node="
+                    << biteSites.firstProximalNode
+                    << " opposing_distal_node="
+                    << biteSites.opposingDistalNode
+                    << " first_node_error_m="
+                    << biteSites.firstNodeErrorM
+                    << " opposing_node_error_m="
+                    << biteSites.opposingNodeErrorM
+                    << " half_turn_surface_error_m="
+                    << biteSites.halfTurnSurfaceErrorM
+                    << " opposing_approach_alignment="
+                    << opposingApproachAlignment
+                    << " opposing_direction_probe_advance_m="
+                    << opposingTipAdvanceM
                     << " gpu_dispatched=no\n";
                 return 0;
             }
