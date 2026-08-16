@@ -3154,6 +3154,8 @@ kernel void nm_contact_limit_rigid_line_search(
             continuumDisplacement - rigidDisplacement;
         const float travel = length(relativeDisplacement);
         const float separation = sample.pointAndSeparation.w;
+        const float directionalSeparation = dot(
+            sample.normalAndVelocity.xyz, relativeDisplacement);
         const float coordinateScale = max(
             sample.barrier.z,
             max(max(abs(sample.pointAndSeparation.x),
@@ -3162,21 +3164,40 @@ kernel void nm_contact_limit_rigid_line_search(
         const float collisionThickness = max(
             solver.contactAcceptance.x * dispatch.numericalLimits.x,
             16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
-        const float feasibleSeparation = collisionThickness +
+        const float boundaryRoundoff =
             ccdDistanceRoundoff(collisionThickness, coordinateScale);
+        const float feasibleSeparation = collisionThickness +
+            boundaryRoundoff;
         if (!isfinite(separation) || !isfinite(travel) ||
-            separation <= collisionThickness) {
+            !isfinite(directionalSeparation) ||
+            separation < collisionThickness - boundaryRoundoff) {
             recordFailure(
                 statuses[environment], NM_STATUS_CONTACT_FAILURE,
                 pair.objectIndex, pairIndex,
-                float4(separation, travel, collisionThickness, 0.0f));
+                float4(
+                    separation,
+                    travel,
+                    collisionThickness,
+                    directionalSeparation
+                ));
             bound = 0.0f;
             continue;
         }
         if (travel > kGeometryFloor) {
-            bound = min(bound, clamp(
-                0.9f * (separation - feasibleSeparation) / travel,
-                0.0f, 1.0f));
+            if (separation <= feasibleSeparation) {
+                // Equality with the authored floor is collision-free. Do not
+                // latch a failure before an outward Newton direction can
+                // restore the FP32 margin. An inward or stationary direction
+                // receives a zero step and still has to satisfy the final,
+                // strictly-above-floor certificate.
+                if (!(directionalSeparation > 0.0f)) {
+                    bound = 0.0f;
+                }
+            } else {
+                bound = min(bound, clamp(
+                    0.9f * (separation - feasibleSeparation) / travel,
+                    0.0f, 1.0f));
+            }
         }
         // MPM's grid-node contact is local to this barrier feature. Preserve
         // its descent when the KKT direction is a descent direction, while
@@ -3184,8 +3205,6 @@ kernel void nm_contact_limit_rigid_line_search(
         // feasibility bound and the complete Newton residual.
         const float currentEnergy = ipcBarrierEnergy(
             separation, sample.barrier.z, sample.barrier.w);
-        const float directionalSeparation = dot(
-            sample.normalAndVelocity.xyz, relativeDisplacement);
         const float directionalDerivative =
             -sample.barrier.x * directionalSeparation /
                 max(dt, 1.0e-20f);

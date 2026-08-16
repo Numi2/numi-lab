@@ -602,7 +602,9 @@ numi::matter::CompiledWorld compilePoroelasticCompressionCase() {
     return std::move(compiled.world);
 }
 
-numi::matter::CompiledWorld compileArticulatedFootPadScene() {
+numi::matter::CompiledWorld compileArticulatedFootPadScene(
+    const bool contactBoundary = false
+) {
     auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
     require(parsed.succeeded(), "foot-pad material did not parse");
     for (auto& parameter : parsed.material.parameters) {
@@ -626,7 +628,8 @@ numi::matter::CompiledWorld compileArticulatedFootPadScene() {
     // Retain enough nonlinear iterations to qualify that solve rather than a
     // single Newton update.
     source.mixedSolver.newtonIterations = 16u;
-    source.mixedSolver.minimumContactSeparationRatio = 0.05;
+    source.mixedSolver.minimumContactSeparationRatio =
+        contactBoundary ? 0.5 : 0.05;
     source.mixedSolver.fieldSmootherPasses = 3u;
     source.materials.push_back(std::move(parsed.material));
     numi::matter::RigidProxySource foot;
@@ -1668,9 +1671,12 @@ void runMetalWorldCoupling() {
     }
 }
 
-void runArticulatedFootPadScene(const bool sequence = false) {
+void runArticulatedFootPadScene(
+    const bool sequence = false,
+    const bool contactBoundary = false
+) {
     @autoreleasepool {
-        const auto world = compileArticulatedFootPadScene();
+        const auto world = compileArticulatedFootPadScene(contactBoundary);
         numi::matter::Runtime matter;
         const auto initialized = matter.initialize(world, {
             .metallib = NUMI_MATTER_METALLIB,
@@ -1688,8 +1694,8 @@ void runArticulatedFootPadScene(const bool sequence = false) {
         // Begin collision-free but inside the 100 um IPC support. Exact
         // surface coincidence has no unique contact normal and is not a
         // valid barrier iterate.
-        model.defaultQ[2] = 0.023999f;
-        model.defaultV[2] = -0.004f;
+        model.defaultQ[2] = contactBoundary ? 0.02395f : 0.023999f;
+        model.defaultV[2] = contactBoundary ? 0.0f : -0.004f;
         metalrobo::CompiledWorld rigidWorld;
         const auto compiled = metalrobo::compileMetalWorld(model, 0u, rigidWorld);
         require(compiled.succeeded(),
@@ -1865,6 +1871,8 @@ void runArticulatedFootPadScene(const bool sequence = false) {
         std::cout
             << "{\"schema\":\"numi.matter.scene.v1\""
             << ",\"scene\":\"articulated_foot_poroelastic_pad\""
+            << ",\"contact_boundary_start\":"
+            << (contactBoundary ? "true" : "false")
             << ",\"frame\":" << frame
             << ",\"frame_count\":" << frameCount
             << ",\"contacts\":" << contacts
@@ -2598,6 +2606,9 @@ int main(int argc, const char* argv[]) {
             std::string_view(argv[1]) == "--articulated-foot-pad";
         const bool articulatedFootPadSequence = argc == 2 &&
             std::string_view(argv[1]) == "--articulated-foot-pad-sequence";
+        const bool articulatedFootPadContactBoundary = argc == 2 &&
+            std::string_view(argv[1]) ==
+                "--articulated-foot-pad-contact-boundary";
         const bool identification = argc == 2 && std::string_view(argv[1]) == "--identification";
         const bool adaptiveDemotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-demotion";
         const bool adaptivePromotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-promotion";
@@ -2615,16 +2626,20 @@ int main(int argc, const char* argv[]) {
                 productionRollback || poroelasticCompression ||
                 articulatedFootPad ||
                 articulatedFootPadSequence ||
+                articulatedFootPadContactBoundary ||
                 identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--small-scale-remesh|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--articulated-foot-pad-contact-boundary|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--small-scale-remesh|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (articulatedFootPad) {
             runArticulatedFootPadScene();
         }
         if (articulatedFootPadSequence) {
             runArticulatedFootPadScene(true);
+        }
+        if (articulatedFootPadContactBoundary) {
+            runArticulatedFootPadScene(false, true);
         }
         if (poroelasticCompression) {
             const auto outcome = runCase(
@@ -2965,6 +2980,7 @@ int main(int argc, const char* argv[]) {
             !productionRollback &&
             !poroelasticCompression &&
             !articulatedFootPad && !articulatedFootPadSequence &&
+            !articulatedFootPadContactBoundary &&
             !mixedOnly && !mpmBatch && !statefulMPM && !statefulFEM &&
             !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
@@ -3028,6 +3044,7 @@ int main(int argc, const char* argv[]) {
             !productionRollback &&
             !poroelasticCompression &&
             !articulatedFootPad && !articulatedFootPadSequence &&
+            !articulatedFootPadContactBoundary &&
             !identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback) {
             const bool withPlane = !femFree;
