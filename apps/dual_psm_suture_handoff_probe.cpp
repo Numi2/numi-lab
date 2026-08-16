@@ -230,6 +230,12 @@ constexpr double kLiveReceiverChunkDurationS = 4.0e-3;
 // clear before introducing the first receiver contact.
 constexpr std::uint32_t kReceiverAlignmentMinimumSteps = 100u;
 constexpr std::uint32_t kReceiverAlignmentSettleSteps = 50u;
+// A tissue-engaged needle may transfer a small alignment transient into the
+// swaged strand even while the open receiver remains collision-free. Require
+// two consecutive quiescent completion chunks after the 100 ms nominal hold,
+// with a bounded 500 ms ceiling rather than beginning insertion on a moving
+// package or weakening Matter's contact rollback gate.
+constexpr std::uint32_t kReceiverAlignmentMaximumSettleSteps = 250u;
 // Receiver closure creates a new eight-patch steel contact and must be held
 // before the temporal-cone residual is interpreted as dual positive control.
 constexpr std::uint32_t kReceiverClosureSettleSteps = 100u;
@@ -15874,6 +15880,11 @@ int main(const int argc, const char* const argv[]) {
                             kSuturePullMatterRateMultiplier,
                             "contact-clear receiver stand-off approach"
                         );
+                        const float contactClearCadenceSeconds =
+                            stepConfig.timestepSeconds;
+                        const std::uint32_t
+                            contactClearCadenceBaseDERSubsteps =
+                                stepConfig.physicsSubsteps;
                         const auto liveReceiverSteps = [&] (
                             const std::uint32_t nominalSteps
                         ) {
@@ -16372,6 +16383,24 @@ int main(const int argc, const char* const argv[]) {
                                     world,
                                     stream.terminal.result
                                 );
+                                const ContactCounts contacts = contactCounts(
+                                    world,
+                                    stream.terminal.result,
+                                    needleForPlacement.metadata,
+                                    kNeedleFirstShape
+                                );
+                                const MRBodyStateGPU& liveNeedle =
+                                    stream.terminal.result
+                                        .finalSceneBodies.at(0u);
+                                const double needleLinearSpeedMps = norm(
+                                    vector(
+                                        liveNeedle
+                                            .linearVelocityAndInverseMass
+                                    )
+                                );
+                                const double needleAngularSpeedRadps = norm(
+                                    vector(liveNeedle.angularVelocity)
+                                );
                                 require(
                                     tissue.channelsUnchanged &&
                                         tissue.activeChannels ==
@@ -16401,6 +16430,16 @@ int main(const int argc, const char* const argv[]) {
                                     << tissue.maximumResidual
                                     << " maximum_tissue_increment_m="
                                     << tissue.maximumIncrementM
+                                    << " giver_jaw_contacts="
+                                    << contacts.jawContacts[0][0] << '/'
+                                    << contacts.jawContacts[0][1]
+                                    << " receiver_jaw_contacts="
+                                    << contacts.jawContacts[1][0] << '/'
+                                    << contacts.jawContacts[1][1]
+                                    << " needle_linear_speed_mps="
+                                    << needleLinearSpeedMps
+                                    << " needle_angular_speed_radps="
+                                    << needleAngularSpeedRadps
                                     << " thread_maximum_node_speed_mps="
                                     << rod.maximumNodeSpeed
                                     << " thread_maximum_edge_error_m="
@@ -16423,7 +16462,7 @@ int main(const int argc, const char* const argv[]) {
                                 0u,
                                 giverPlacementShape
                             );
-                        const Vec3 liveReceiverPoint =
+                        Vec3 liveReceiverPoint =
                             needleShapeWorldCenter(
                                 needleForPlacement,
                                 kExtractionNeedleShape,
@@ -16440,13 +16479,13 @@ int main(const int argc, const char* const argv[]) {
                             ) < 0.0) {
                             liveReceiverRail = liveReceiverRail * -1.0;
                         }
-                        const OrthonormalJawFrame liveReceiverFrame =
+                        OrthonormalJawFrame liveReceiverFrame =
                             orthonormalJawFrame(
                                 liveReceiverRail,
                                 bridgeReceiverSeparation,
                                 "live tissue receiver acquisition frame"
                             );
-                        const double receiverJawNormalDistalAlignment = -dot(
+                        double receiverJawNormalDistalAlignment = -dot(
                             liveReceiverFrame.normal,
                             thicknessAxis
                         );
@@ -16675,9 +16714,263 @@ int main(const int argc, const char* const argv[]) {
                                 "tissue_receiver_alignment",
                                 receiverTissueSpec.thicknessM.value
                             );
-                        PhaseResult liveAligned = std::move(
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-receiver-alignment-motion",
+                            postBridgeBaseDERSubsteps +
+                                static_cast<std::uint64_t>(
+                                    liveAlignmentSteps
+                                ) * contactClearCadenceBaseDERSubsteps,
+                            world,
+                            sutureSpec,
+                            liveAlignmentStream.terminal.result
+                        );
+                        PhaseResult liveAlignmentMotion = std::move(
                             liveAlignmentStream.terminal
                         );
+                        const std::uint32_t
+                            liveAlignmentMinimumSettleSteps =
+                                liveReceiverSteps(
+                                    kReceiverAlignmentSettleSteps
+                                );
+                        const std::uint32_t
+                            liveAlignmentMaximumSettleSteps =
+                                liveReceiverSteps(
+                                    kReceiverAlignmentMaximumSettleSteps
+                                );
+                        require(
+                            liveAlignmentMaximumSettleSteps >=
+                                liveAlignmentMinimumSettleSteps,
+                            "live receiver alignment settling window is "
+                            "invalid"
+                        );
+                        std::vector<float> liveAlignmentHoldEfforts =
+                            interpolateLiveReceiverTargets(
+                                liveAlignmentMotion.result.finalQ,
+                                liveReceiverAlignment.finalTarget,
+                                liveAlignmentMinimumSettleSteps
+                            );
+                        LiveReceiverStreamResult liveAlignmentSettleStream =
+                            continueLiveReceiverStream(
+                                liveAlignmentHoldEfforts,
+                                liveAlignmentMinimumSettleSteps,
+                                "live tissue receiver alignment settle",
+                                "tissue_receiver_alignment_settle",
+                                receiverTissueSpec.thicknessM.value
+                            );
+                        const auto alignmentQuiescent = [&] (
+                            const PhaseResult& state,
+                            const std::uint32_t completedSettleSteps
+                        ) {
+                            const ContactCounts contacts = contactCounts(
+                                world,
+                                state.result,
+                                needleForPlacement.metadata,
+                                kNeedleFirstShape
+                            );
+                            const GraspKinematics giverMotion =
+                                graspKinematics(
+                                    world,
+                                    needleForPlacement,
+                                    state.result,
+                                    0u,
+                                    giverPlacementShape,
+                                    liveGiverReference
+                                );
+                            const RodStateMetrics rod = rodStateMetrics(
+                                world,
+                                state.result
+                            );
+                            const MRBodyStateGPU& needle =
+                                state.result.finalSceneBodies.at(0u);
+                            const double needleLinearSpeedMps = norm(vector(
+                                needle.linearVelocityAndInverseMass
+                            ));
+                            const double needleAngularSpeedRadps = norm(
+                                vector(needle.angularVelocity)
+                            );
+                            const double needleTravelM = norm(
+                                vector(needle.position) -
+                                vector(acquisitionStartNeedle.position)
+                            );
+                            const double swageErrorM = swageAttachmentError(
+                                world,
+                                state.result
+                            );
+                            const MRMetalWorldContactStatusGPU& residual =
+                                requireTerminalResidual(
+                                    state.result,
+                                    "live tissue receiver alignment settle",
+                                    false
+                                );
+                            const bool qualified =
+                                bilateral(contacts, 0u) &&
+                                distributedInsertCoverage(contacts, 0u) &&
+                                cleanNeedleInteraction(
+                                    contacts,
+                                    true,
+                                    false
+                                ) &&
+                                qualifiedTransitionGrasp(giverMotion) &&
+                                qualifiedTerminalRod(rod) &&
+                                needleLinearSpeedMps <=
+                                    kMaximumSettledNeedleLinearSpeed &&
+                                needleAngularSpeedRadps <=
+                                    kMaximumSettledNeedleAngularSpeed &&
+                                needleTravelM <=
+                                    kMaximumReceiverAcquisitionNeedleTravelM &&
+                                swageErrorM <
+                                    kMaximumSwageAttachmentError &&
+                                residual.residuals.y <=
+                                    kMaximumTerminalContactVelocityResidual &&
+                                residual.residuals.z <=
+                                    kMaximumTerminalConeViolation;
+                            std::cout << std::setprecision(9)
+                                << "tissue_receiver_alignment_settle_candidate"
+                                << " completed_steps="
+                                << completedSettleSteps
+                                << " qualified=" << qualified
+                                << " giver_jaw_contacts="
+                                << contacts.jawContacts[0][0] << '/'
+                                << contacts.jawContacts[0][1]
+                                << " receiver_jaw_contacts="
+                                << contacts.jawContacts[1][0] << '/'
+                                << contacts.jawContacts[1][1]
+                                << " giver_seat_drift_m="
+                                << giverMotion.seatDrift
+                                << " giver_relative_point_speed_mps="
+                                << giverMotion.relativePointSpeed
+                                << " needle_linear_speed_mps="
+                                << needleLinearSpeedMps
+                                << " needle_angular_speed_radps="
+                                << needleAngularSpeedRadps
+                                << " needle_travel_m=" << needleTravelM
+                                << " hard_swage_root_error_m="
+                                << swageErrorM
+                                << " thread_maximum_node_speed_mps="
+                                << rod.maximumNodeSpeed
+                                << " thread_maximum_edge_error_m="
+                                << rod.maximumEdgeLengthError
+                                << " terminal_contact_velocity_residual_mps="
+                                << residual.residuals.y
+                                << " terminal_cone_violation="
+                                << residual.residuals.z << '\n';
+                            return qualified;
+                        };
+                        std::uint32_t consecutiveQuiescentChunks =
+                            alignmentQuiescent(
+                                liveAlignmentSettleStream.terminal,
+                                liveAlignmentSettleStream.completedSteps
+                            ) ? 1u : 0u;
+                        const std::uint32_t maximumSettleChunkSteps =
+                            std::max<std::uint32_t>(
+                                1u,
+                                static_cast<std::uint32_t>(std::llround(
+                                    kLiveReceiverChunkDurationS /
+                                    static_cast<double>(
+                                        stepConfig.timestepSeconds
+                                    )
+                                ))
+                            );
+                        while (
+                            consecutiveQuiescentChunks < 2u &&
+                            liveAlignmentSettleStream.completedSteps <
+                                liveAlignmentMaximumSettleSteps
+                        ) {
+                            const std::uint32_t extensionSteps = std::min(
+                                maximumSettleChunkSteps,
+                                liveAlignmentMaximumSettleSteps -
+                                    liveAlignmentSettleStream.completedSteps
+                            );
+                            liveAlignmentHoldEfforts =
+                                interpolateLiveReceiverTargets(
+                                    liveAlignmentSettleStream.terminal.result
+                                        .finalQ,
+                                    liveReceiverAlignment.finalTarget,
+                                    extensionSteps
+                                );
+                            LiveReceiverStreamResult extension =
+                                continueLiveReceiverStream(
+                                    liveAlignmentHoldEfforts,
+                                    extensionSteps,
+                                    "live tissue receiver extended alignment "
+                                    "settle",
+                                    "tissue_receiver_alignment_settle_"
+                                    "extension",
+                                    receiverTissueSpec.thicknessM.value
+                                );
+                            liveAlignmentSettleStream.gpuMilliseconds +=
+                                extension.gpuMilliseconds;
+                            liveAlignmentSettleStream.completedSteps +=
+                                extension.completedSteps;
+                            liveAlignmentSettleStream.chunks +=
+                                extension.chunks;
+                            liveAlignmentSettleStream.terminal = std::move(
+                                extension.terminal
+                            );
+                            consecutiveQuiescentChunks =
+                                alignmentQuiescent(
+                                    liveAlignmentSettleStream.terminal,
+                                    liveAlignmentSettleStream.completedSteps
+                                )
+                                    ? consecutiveQuiescentChunks + 1u
+                                    : 0u;
+                        }
+                        require(
+                            consecutiveQuiescentChunks >= 2u,
+                            "live receiver alignment did not reach two "
+                            "consecutive quiescent completion chunks"
+                        );
+                        PhaseResult liveAligned = std::move(
+                            liveAlignmentSettleStream.terminal
+                        );
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-receiver-alignment-settled",
+                            postBridgeBaseDERSubsteps +
+                                static_cast<std::uint64_t>(
+                                    liveAlignmentSteps +
+                                    liveAlignmentSettleStream.completedSteps
+                                ) * contactClearCadenceBaseDERSubsteps,
+                            world,
+                            sutureSpec,
+                            liveAligned.result
+                        );
+                        const MRBodyStateGPU& settledNeedle =
+                            liveAligned.result.finalSceneBodies.at(0u);
+                        liveReceiverPoint = needleShapeWorldCenter(
+                            needleForPlacement,
+                            kExtractionNeedleShape,
+                            settledNeedle
+                        );
+                        liveReceiverRail = needleShapeWorldTangent(
+                            needleForPlacement,
+                            kExtractionNeedleShape,
+                            settledNeedle
+                        );
+                        if (dot(
+                                liveReceiverRail,
+                                bridgeReceiverRail
+                            ) < 0.0) {
+                            liveReceiverRail = liveReceiverRail * -1.0;
+                        }
+                        liveReceiverFrame = orthonormalJawFrame(
+                            liveReceiverRail,
+                            bridgeReceiverSeparation,
+                            "settled live tissue receiver acquisition frame"
+                        );
+                        receiverJawNormalDistalAlignment = -dot(
+                            liveReceiverFrame.normal,
+                            thicknessAxis
+                        );
+                        const GraspReference settledLiveGiverReference =
+                            graspReference(
+                                world,
+                                needleForPlacement,
+                                liveAligned.result,
+                                0u,
+                                giverPlacementShape
+                            );
                         const JawGeometry receiverBeforeInsertion =
                             worldJawGeometry(
                                 world.model,
@@ -16746,11 +17039,6 @@ int main(const int argc, const char* const argv[]) {
                         const std::uint32_t
                             liveApproachNeedleContactSamples =
                                 liveApproachAudit.needleContactSamples;
-                        const float contactClearCadenceSeconds =
-                            stepConfig.timestepSeconds;
-                        const std::uint32_t
-                            contactClearCadenceBaseDERSubsteps =
-                                stepConfig.physicsSubsteps;
                         std::cout << std::setprecision(9)
                             << "tissue_receiver_path_audit=ok"
                             << " alignment_audit_steps="
@@ -16806,7 +17094,7 @@ int main(const int argc, const char* const argv[]) {
                                 liveApproached.result,
                                 0u,
                                 giverPlacementShape,
-                                liveGiverReference
+                                settledLiveGiverReference
                             );
                         const RodStateMetrics liveApproachRod =
                             rodStateMetrics(world, liveApproached.result);
@@ -16908,7 +17196,7 @@ int main(const int argc, const char* const argv[]) {
                                 liveOverlapHeld.result,
                                 0u,
                                 giverPlacementShape,
-                                liveGiverReference
+                                settledLiveGiverReference
                             );
                         const GraspReference liveOverlapReceiverReference =
                             graspReference(
@@ -17039,7 +17327,7 @@ int main(const int argc, const char* const argv[]) {
                                 liveLoadExchanged.result,
                                 0u,
                                 giverPlacementShape,
-                                liveGiverReference
+                                settledLiveGiverReference
                             );
                         const GraspKinematics liveLoadExchangeReceiverMotion =
                             graspKinematics(
@@ -17128,6 +17416,7 @@ int main(const int argc, const char* const argv[]) {
                         const std::uint32_t
                             liveAcquisitionBaseDERSubsteps =
                                 (liveAlignmentSteps +
+                                    liveAlignmentSettleStream.completedSteps +
                                     liveApproachSteps +
                                     liveApproachHoldSteps) *
                                     contactClearCadenceBaseDERSubsteps +
@@ -17138,6 +17427,7 @@ int main(const int argc, const char* const argv[]) {
                                     stepConfig.physicsSubsteps;
                         const double liveAcquisitionGpuMilliseconds =
                             liveAlignmentStream.gpuMilliseconds +
+                            liveAlignmentSettleStream.gpuMilliseconds +
                             liveApproachStream.gpuMilliseconds +
                             liveApproachHoldStream.gpuMilliseconds +
                             liveClosureStream.gpuMilliseconds +
@@ -17182,6 +17472,8 @@ int main(const int argc, const char* const argv[]) {
                         std::cout << std::setprecision(9)
                             << "tissue_receiver_acquisition=ok"
                             << " alignment_steps=" << liveAlignmentSteps
+                            << " alignment_settle_steps="
+                            << liveAlignmentSettleStream.completedSteps
                             << " approach_steps=" << liveApproachSteps
                             << " approach_contact_samples="
                             << liveApproachNeedleContactSamples
