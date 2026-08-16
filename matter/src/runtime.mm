@@ -725,6 +725,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_scan_deformable_node_incidence",
             "nm_contact_scatter_deformable_node_incidence",
             "nm_contact_evaluate",
+            "nm_contact_certify_post_commit_rigid",
             "nm_contact_compact_active",
             "nm_contact_checkpoint_histories",
             "nm_contact_commit_histories",
@@ -2174,6 +2175,68 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                     [encoder setBuffer:state.statuses offset:0u atIndex:2u];
                 }
             );
+            // MetalWorld has now published the realized free/articulated/DER
+            // state.  It may differ from Matter's accepted primal candidate
+            // after rigid jaw contact.  Re-project and certify the resulting
+            // continuum/proxy geometry before either side retains this frame.
+            dispatchThreads("nm_project_rigid_states", proxyTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
+                [encoder setBuffer:currentBodies offset:0u atIndex:3u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+                [encoder setBuffer:rodNodes offset:0u atIndex:5u];
+                [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];
+            });
+            const std::uint32_t internalMicroticks =
+                1u << state.dispatch.maximumRateExponent;
+            std::uint64_t finalGeneration64 =
+                (static_cast<std::uint64_t>(request.controlStep) *
+                     request.physicsSubsteps +
+                 request.physicsSubstep + 1u) * internalMicroticks;
+            std::uint32_t finalMPMGeneration =
+                static_cast<std::uint32_t>(finalGeneration64);
+            if (finalMPMGeneration == 0u) finalMPMGeneration = 1u;
+            dispatchThreads(
+                "nm_contact_certify_post_commit_rigid",
+                pairTotal,
+                [&] {
+                    setDispatch();
+                    [encoder setBytes:&finalMPMGeneration
+                               length:sizeof(finalMPMGeneration)
+                              atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.gridNodes offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:4u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:5u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:6u];
+                    [encoder setBuffer:state.contactPairs offset:0u atIndex:7u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:8u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
+                    [encoder setBuffer:state.mpmNodeGenerations
+                                 offset:0u atIndex:10u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:11u];
+                    [encoder setBuffer:state.punctureChannelsAccepted
+                                 offset:0u atIndex:12u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:13u];
+                }
+            );
+            const std::uint32_t rigidWorldPhysicsSubstep =
+                request.rigidWorldPhysicsSubstep == NM_INVALID_INDEX
+                ? request.physicsSubstep
+                : request.rigidWorldPhysicsSubstep;
+            dispatchThreads(
+                "nm_latch_matter_status_into_rigid_world",
+                environments,
+                [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                    [encoder setBuffer:worldStatuses offset:0u atIndex:2u];
+                    [encoder setBytes:&rigidWorldPhysicsSubstep
+                               length:sizeof(rigidWorldPhysicsSubstep)
+                              atIndex:3u];
+                }
+            );
             dispatchThreads("nm_mpm_rollback_frame", particleTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
@@ -2248,16 +2311,6 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
                 [encoder setBuffer:state.schedulers offset:0u atIndex:3u];
                 [encoder setBuffer:state.events offset:0u atIndex:4u];
             });
-            dispatchThreads("nm_project_rigid_states", proxyTotal, [&] {
-                setDispatch();
-                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
-                [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
-                [encoder setBuffer:currentBodies offset:0u atIndex:3u];
-                [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
-                [encoder setBuffer:rodNodes offset:0u atIndex:5u];
-                [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];
-            });
-
             if (request.runAdaptiveTransfer && state.hasAdaptive) {
                 dispatchGroups32("nm_adaptive_measure", objectTotal, [&] {
                     setDispatch();

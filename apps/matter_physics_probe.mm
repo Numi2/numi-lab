@@ -603,7 +603,8 @@ numi::matter::CompiledWorld compilePoroelasticCompressionCase() {
 }
 
 numi::matter::CompiledWorld compileArticulatedFootPadScene(
-    const bool contactBoundary = false
+    const bool contactBoundary = false,
+    const bool staticProxy = false
 ) {
     auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
     require(parsed.succeeded(), "foot-pad material did not parse");
@@ -634,8 +635,8 @@ numi::matter::CompiledWorld compileArticulatedFootPadScene(
     source.materials.push_back(std::move(parsed.material));
     numi::matter::RigidProxySource foot;
     foot.shape = NM_RIGID_BOX;
-    foot.bodyIndex = 1u;
-    foot.articulated = true;
+    foot.bodyIndex = staticProxy ? 0u : 1u;
+    foot.articulated = !staticProxy;
     foot.localCenter = {0.0, 0.0, -0.0079};
     foot.localExtent = {0.011, 0.009, 0.002};
     foot.radiusOrOffset = 1.0;
@@ -1468,6 +1469,140 @@ void runAdaptiveTransfer(
             << adaptive.inverseInertiaRow1.y << ','
             << adaptive.inverseInertiaRow2.z << ']'
             << "}\n";
+    }
+}
+
+void runPostCommitContactGuard() {
+    @autoreleasepool {
+        const auto world = compileArticulatedFootPadScene(false, true);
+        numi::matter::Runtime runtime;
+        const auto initialized = runtime.initialize(world, {
+            .metallib = NUMI_MATTER_METALLIB,
+            .environmentCount = 1u,
+            .captureEvents = true,
+            .captureDiagnostics = true,
+            .automaticIdentification = false,
+            .adaptiveTransfer = false,
+        });
+        require(initialized.encoded && runtime.valid(),
+            "post-commit contact guard could not initialize Matter: " +
+                initialized.message);
+
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        require(device != nil, "post-commit contact guard has no Metal device");
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        require(queue != nil,
+            "post-commit contact guard could not allocate a command queue");
+
+        MRBodyStateGPU initialBody{};
+        initialBody.position = {0.0f, 0.0f, 0.023999f, 1.0f};
+        initialBody.orientation.w = 1.0f;
+        initialBody.flagsAndIndices[0] = MR_MOTION_STATIC;
+        initialBody.flagsAndIndices[1] = MR_INVALID_INDEX;
+        initialBody.flagsAndIndices[2] = MR_INVALID_INDEX;
+        MRBodyStateGPU crossedBody = initialBody;
+        // The box bottom moves from 99 um above the accepted pad surface to
+        // 50 um inside it after pre-dynamics. This deliberately models the
+        // external-owner motion that the surgical needle run exposed.
+        crossedBody.position.z = 0.02385f;
+        id<MTLBuffer> initialStaging = [device
+            newBufferWithBytes:&initialBody
+                        length:sizeof(initialBody)
+                       options:MTLResourceStorageModeShared];
+        id<MTLBuffer> crossedStaging = [device
+            newBufferWithBytes:&crossedBody
+                        length:sizeof(crossedBody)
+                       options:MTLResourceStorageModeShared];
+        id<MTLBuffer> currentBodies = [device
+            newBufferWithLength:sizeof(MRBodyStateGPU)
+                       options:MTLResourceStorageModePrivate];
+        id<MTLBuffer> worldStatuses = [device
+            newBufferWithLength:sizeof(MRMetalWorldStatusGPU)
+                       options:MTLResourceStorageModeShared];
+        require(initialStaging != nil && crossedStaging != nil &&
+                    currentBodies != nil && worldStatuses != nil,
+            "post-commit contact guard could not allocate borrowed buffers");
+        auto* worldStatus = static_cast<MRMetalWorldStatusGPU*>(
+            worldStatuses.contents);
+        *worldStatus = {};
+        worldStatus->code = MR_STEP_SUCCESS;
+        worldStatus->environment = 0u;
+
+        const auto initialMatter = runtime.snapshot();
+        require(initialMatter.available && !initialMatter.femNodes.empty(),
+            "post-commit contact guard has no initial Matter snapshot");
+        id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+        require(commandBuffer != nil,
+            "post-commit contact guard could not allocate a command buffer");
+        id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
+        require(blit != nil,
+            "post-commit contact guard could not allocate an initial blit");
+        [blit copyFromBuffer:initialStaging sourceOffset:0u
+                   toBuffer:currentBodies destinationOffset:0u
+                       size:sizeof(MRBodyStateGPU)];
+        [blit endEncoding];
+
+        numi::matter::EncodeRequest request{};
+        request.commandBuffer = (__bridge void*)commandBuffer;
+        request.rigid.currentBodies = (__bridge void*)currentBodies;
+        request.rigid.currentBodyCount = 1u;
+        request.rigid.currentBodyStride = 1u;
+        request.environmentStatuses = (__bridge void*)worldStatuses;
+        request.phase = numi::matter::EncodePhase::preDynamics;
+        request.controlStep = 0u;
+        request.physicsSubstep = 0u;
+        request.physicsSubsteps = 1u;
+        request.rigidWorldPhysicsSubstep = 0u;
+        request.timestepSeconds = runtime.timestepSeconds();
+        auto encoded = runtime.encode(request);
+        require(encoded.encoded,
+            "post-commit contact guard pre-dynamics failed: " +
+                encoded.message);
+
+        blit = [commandBuffer blitCommandEncoder];
+        require(blit != nil,
+            "post-commit contact guard could not allocate a crossing blit");
+        [blit copyFromBuffer:crossedStaging sourceOffset:0u
+                   toBuffer:currentBodies destinationOffset:0u
+                       size:sizeof(MRBodyStateGPU)];
+        [blit endEncoding];
+        request.phase = numi::matter::EncodePhase::postCommit;
+        encoded = runtime.encode(request);
+        require(encoded.encoded,
+            "post-commit contact guard reconciliation failed: " +
+                encoded.message);
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+        require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+            "post-commit contact guard command buffer did not complete");
+
+        const auto rejected = runtime.snapshot();
+        require(rejected.available && rejected.statuses.size() == 1u &&
+                    rejected.statuses[0].code == NM_STATUS_CONTACT_FAILURE &&
+                    rejected.statuses[0].failingIndex <
+                        world.contact.pairs.size() &&
+                    worldStatus->code != MR_STEP_SUCCESS &&
+                    rejected.femNodes.size() == initialMatter.femNodes.size() &&
+                    std::memcmp(
+                        rejected.femNodes.data(), initialMatter.femNodes.data(),
+                        rejected.femNodes.size() * sizeof(NMFEMNodeStateGPU)
+                    ) == 0,
+            "post-commit contact crossing was not rejected and rolled back");
+        const NMMatterStatusGPU status = rejected.statuses[0];
+        const float authoredFloor =
+            world.mixedSolver.contactAcceptance.x *
+            world.dispatch.numericalLimits.x;
+        require(std::isfinite(status.diagnostics.x) &&
+                    status.diagnostics.x <= authoredFloor &&
+                    std::abs(status.diagnostics.y - authoredFloor) <= 1.0e-9f,
+            "post-commit contact guard reported the wrong authored floor");
+        std::cout
+            << "{\"schema\":\"numi.matter.post-commit-contact.v1\""
+            << ",\"matter_status\":" << status.code
+            << ",\"world_status\":" << worldStatus->code
+            << ",\"separation\":" << status.diagnostics.x
+            << ",\"authored_floor\":" << authoredFloor
+            << ",\"rollback_exact\":true}\n";
     }
 }
 
@@ -2609,6 +2744,9 @@ int main(int argc, const char* argv[]) {
         const bool articulatedFootPadContactBoundary = argc == 2 &&
             std::string_view(argv[1]) ==
                 "--articulated-foot-pad-contact-boundary";
+        const bool postCommitContactGuard = argc == 2 &&
+            std::string_view(argv[1]) ==
+                "--post-commit-contact-guard";
         const bool identification = argc == 2 && std::string_view(argv[1]) == "--identification";
         const bool adaptiveDemotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-demotion";
         const bool adaptivePromotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-promotion";
@@ -2627,10 +2765,11 @@ int main(int argc, const char* argv[]) {
                 articulatedFootPad ||
                 articulatedFootPadSequence ||
                 articulatedFootPadContactBoundary ||
+                postCommitContactGuard ||
                 identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--articulated-foot-pad-contact-boundary|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--small-scale-remesh|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--articulated-foot-pad-contact-boundary|--post-commit-contact-guard|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--small-scale-remesh|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (articulatedFootPad) {
             runArticulatedFootPadScene();
@@ -2640,6 +2779,9 @@ int main(int argc, const char* argv[]) {
         }
         if (articulatedFootPadContactBoundary) {
             runArticulatedFootPadScene(false, true);
+        }
+        if (postCommitContactGuard) {
+            runPostCommitContactGuard();
         }
         if (poroelasticCompression) {
             const auto outcome = runCase(
@@ -2981,6 +3123,7 @@ int main(int argc, const char* argv[]) {
             !poroelasticCompression &&
             !articulatedFootPad && !articulatedFootPadSequence &&
             !articulatedFootPadContactBoundary &&
+            !postCommitContactGuard &&
             !mixedOnly && !mpmBatch && !statefulMPM && !statefulFEM &&
             !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
@@ -3045,6 +3188,7 @@ int main(int argc, const char* argv[]) {
             !poroelasticCompression &&
             !articulatedFootPad && !articulatedFootPadSequence &&
             !articulatedFootPadContactBoundary &&
+            !postCommitContactGuard &&
             !identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback) {
             const bool withPlane = !femFree;

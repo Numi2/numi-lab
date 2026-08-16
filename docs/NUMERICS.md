@@ -350,6 +350,13 @@ increment through MetalWorld's Cholesky mass action and adds the equivalent
 substep effort to the owning ABA stream. The retired point-response/Delassus
 CSR path is absent; equal-and-opposite continuum/rigid terms are applied by the
 same generalized operator.
+After MetalWorld integrates free/articulated bodies and DER nodes, Matter
+re-projects those realized owners in the post-commit phase and certifies every
+cooked continuum/proxy pair against the same authored minimum-separation ratio
+and coordinate-scale FP32 floor. This closes the transaction around rigid jaw
+contact that can change a free needle after the primal candidate was formed: a
+post-integration floor violation latches both Matter and MetalWorld failure and
+rolls continuum, topology, contact history, rigid, and rod state back together.
 The v1 MetalWorld contract owns one articulation per environment; all of its
 collision proxies therefore share one articulated generalized/q reserve, while
 each distinct free body contributes exactly six additional coordinates.
