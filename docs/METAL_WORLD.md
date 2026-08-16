@@ -481,6 +481,14 @@ separate bounded streams. Every completion boundary rechecks the bilateral
 receiver grasp, hard swage, DER state, tissue determinant, conserved topology,
 and solver residual. Its terminal artifact is explicitly pre-puncture; it does
 not claim a second bite or knot before those contact-driven stages execute.
+The separate `--tissue-opposing-bite-passage-only` continuation drives the
+receiver-held needle about its measured circular orbit at the same 20 mm/s
+research insertion speed, permits only new puncture-channel slots while
+requiring the first tract to remain byte-identical, and stops on measured
+clearance beyond the live proximal wall. Acceptance requires a connected new
+tract spanning the current tissue thickness, all tetrahedra and mass retained,
+the receiver grasp and hard swage intact, and the terminal Matter/DER/contact
+certificates accepted.
 
 `HeterogeneousWorld` is the owned compilation boundary above those executors.
 It composes `EngineModel` instances transactionally, records the exact global

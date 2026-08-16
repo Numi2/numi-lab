@@ -5924,6 +5924,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-receiver-acquisition-only" ||
             argument == "--tissue-receiver-extraction-only" ||
             argument == "--tissue-opposing-bite-reorientation-only" ||
+            argument == "--tissue-opposing-bite-passage-only" ||
             argument == "--receiver-frame-ik-only" ||
             argument == "--receiver-extraction-geometry-only" ||
             argument == "--receiver-extraction-giver-hold-only" ||
@@ -7324,6 +7325,8 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-receiver-extraction-only";
         const bool tissueOpposingBiteReorientationOnly =
             options.mode == "--tissue-opposing-bite-reorientation-only";
+        const bool tissueOpposingBitePassageOnly =
+            options.mode == "--tissue-opposing-bite-passage-only";
         const bool tissueReceiverLiveSequence =
             tissueOpposingBiteTopologyOnly ||
             tissueReceiverStateBridgeOnly ||
@@ -7331,7 +7334,8 @@ int main(const int argc, const char* const argv[]) {
             tissueReceiverDynamicsReplayOnly ||
             tissueReceiverAcquisitionOnly ||
             tissueReceiverExtractionOnly ||
-            tissueOpposingBiteReorientationOnly;
+            tissueOpposingBiteReorientationOnly ||
+            tissueOpposingBitePassageOnly;
         const bool tissuePunctureOnly =
             options.mode == "--tissue-puncture-only" ||
             options.mode == "--tissue-puncture-advance-only" ||
@@ -16618,6 +16622,8 @@ int main(const int argc, const char* const argv[]) {
                             double maximumIncrementM = 0.0;
                             double bottomProjection =
                                 std::numeric_limits<double>::infinity();
+                            double topProjection =
+                                -std::numeric_limits<double>::infinity();
                             bool channelsUnchanged = false;
                             bool certificatesAccepted = true;
                         };
@@ -16667,6 +16673,10 @@ int main(const int argc, const char* const argv[]) {
                                 );
                                 metrics.bottomProjection = std::min(
                                     metrics.bottomProjection,
+                                    dot(position, thicknessAxis)
+                                );
+                                metrics.topProjection = std::max(
+                                    metrics.topProjection,
                                     dot(position, thicknessAxis)
                                 );
                             }
@@ -17006,12 +17016,41 @@ int main(const int argc, const char* const argv[]) {
                             std::uint32_t completedSteps = 0u;
                             std::uint32_t chunks = 0u;
                         };
+                        const auto firstPassageChannelsPreserved = [&] (
+                            const numi::matter::RuntimeStateSnapshot& snapshot
+                        ) {
+                            if (snapshot.punctureChannels.size() !=
+                                postBridgeMatter.punctureChannels.size()) {
+                                return false;
+                            }
+                            for (std::size_t channel = 0u;
+                                 channel <
+                                    postBridgeMatter.punctureChannels.size();
+                                 ++channel) {
+                                const NMPunctureChannelGPU& accepted =
+                                    postBridgeMatter
+                                        .punctureChannels[channel];
+                                if ((accepted.identity.w &
+                                     NM_TOPOLOGY_ACTIVE) == 0u) {
+                                    continue;
+                                }
+                                if (std::memcmp(
+                                        &accepted,
+                                        &snapshot.punctureChannels[channel],
+                                        sizeof(NMPunctureChannelGPU)
+                                    ) != 0) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        };
                         const auto continueLiveReceiverStream = [&] (
                             const std::vector<float>& phaseEfforts,
                             const std::uint32_t phaseSteps,
                             const std::string& phase,
                             const std::string& progressKey,
-                            const double maximumTissueIncrementM
+                            const double maximumTissueIncrementM,
+                            const bool allowAdditionalPunctureChannels = false
                         ) {
                             require(
                                 phaseSteps != 0u &&
@@ -17060,11 +17099,23 @@ int main(const int argc, const char* const argv[]) {
                                 stream.completedSteps += chunkSteps;
                                 ++stream.chunks;
 
+                                const numi::matter::RuntimeStateSnapshot
+                                    liveSnapshot = tissueRuntime.snapshot();
                                 const LiveTissueMetrics tissue =
-                                    liveTissueMetrics(
-                                        tissueRuntime.snapshot(),
-                                        phase
-                                    );
+                                    liveTissueMetrics(liveSnapshot, phase);
+                                const bool channelTopologyAccepted =
+                                    allowAdditionalPunctureChannels
+                                        ? firstPassageChannelsPreserved(
+                                            liveSnapshot
+                                        ) &&
+                                            tissue.activeChannels >=
+                                                passageChannels.size() &&
+                                            tissue.activeChannels <=
+                                                2u * passageChannels.size() +
+                                                    2u
+                                        : tissue.channelsUnchanged &&
+                                            tissue.activeChannels ==
+                                                passageChannels.size();
                                 const RodStateMetrics rod = rodStateMetrics(
                                     world,
                                     stream.terminal.result
@@ -17088,9 +17139,7 @@ int main(const int argc, const char* const argv[]) {
                                     vector(liveNeedle.angularVelocity)
                                 );
                                 require(
-                                    tissue.channelsUnchanged &&
-                                        tissue.activeChannels ==
-                                            passageChannels.size() &&
+                                    channelTopologyAccepted &&
                                         tissue.activeTetrahedra ==
                                             tissueCoupon.metadata
                                                 .tetrahedronCount &&
@@ -17116,6 +17165,8 @@ int main(const int argc, const char* const argv[]) {
                                     << tissue.maximumResidual
                                     << " maximum_tissue_increment_m="
                                     << tissue.maximumIncrementM
+                                    << " active_puncture_channels="
+                                    << tissue.activeChannels
                                     << " giver_jaw_contacts="
                                     << contacts.jawContacts[0][0] << '/'
                                     << contacts.jawContacts[0][1]
@@ -18790,7 +18841,8 @@ int main(const int argc, const char* const argv[]) {
                             return 0;
                         }
                         require(
-                            tissueOpposingBiteReorientationOnly,
+                            tissueOpposingBiteReorientationOnly ||
+                                tissueOpposingBitePassageOnly,
                             "live extraction has no selected continuation"
                         );
 
@@ -19748,6 +19800,605 @@ int main(const int argc, const char* const argv[]) {
                             << opposingTransportGpuMilliseconds
                             << " opposing_ready_state_fnv64=0x" << std::hex
                             << opposingReadyStateHash << std::dec
+                            << " failed_steps=0\n";
+                        if (tissueOpposingBiteReorientationOnly) {
+                            return 0;
+                        }
+                        require(
+                            tissueOpposingBitePassageOnly,
+                            "opposing-bite ready state has no selected "
+                                "continuation"
+                        );
+
+                        const MRBodyStateGPU opposingPassageStartNeedle =
+                            liveOpposingReady.terminal.result
+                                .finalSceneBodies.at(0u);
+                        const CurvedNeedleOrbit opposingPassageOrbit =
+                            curvedNeedleOrbit(
+                                needleForPlacement,
+                                opposingPassageStartNeedle
+                            );
+                        const double opposingPassageWallThicknessM =
+                            opposingReadyTissue.topProjection -
+                            opposingReadyTissue.bottomProjection;
+                        const double opposingRequiredTipAdvanceM =
+                            opposingPassageWallThicknessM +
+                            2.0 * (
+                                opposingReadyTip.radiusM +
+                                kCurvedPassageExitClearanceM
+                            );
+                        const double opposingRequiredSine =
+                            opposingRequiredTipAdvanceM /
+                            opposingPassageOrbit.centerlineRadiusM;
+                        require(
+                            opposingPassageWallThicknessM > 0.0 &&
+                                std::isfinite(
+                                    opposingPassageWallThicknessM
+                                ) &&
+                                opposingRequiredSine > 0.0 &&
+                                opposingRequiredSine < 0.5,
+                            "live opposing bite exceeds the curved needle "
+                                "orbit envelope"
+                        );
+                        const double opposingTargetPassageAngleRad =
+                            std::asin(opposingRequiredSine);
+                        const double opposingPassageAngularSpeedRadPerS =
+                            kCurvedPassageSpeedMps /
+                            opposingPassageOrbit.centerlineRadiusM;
+                        const double opposingPassageTimestepS =
+                            static_cast<double>(stepConfig.timestepSeconds);
+                        const double opposingPassageAnglePerStepRad =
+                            opposingPassageAngularSpeedRadPerS *
+                            opposingPassageTimestepS;
+                        const std::uint32_t
+                            minimumOpposingPassageSteps =
+                                static_cast<std::uint32_t>(std::ceil(
+                                    opposingTargetPassageAngleRad /
+                                        opposingPassageAnglePerStepRad
+                                )) + 4u;
+                        const std::uint32_t
+                            maximumOpposingExtensionSteps =
+                                static_cast<std::uint32_t>(std::ceil(
+                                    kCurvedPassageMaximumExtensionM /
+                                    (
+                                        kCurvedPassageSpeedMps *
+                                        opposingPassageTimestepS
+                                    )
+                                ));
+                        const std::uint32_t maximumOpposingPassageSteps =
+                            minimumOpposingPassageSteps +
+                            maximumOpposingExtensionSteps;
+                        require(
+                            minimumOpposingPassageSteps > 1u &&
+                                maximumOpposingPassageSteps >
+                                    minimumOpposingPassageSteps &&
+                                maximumOpposingPassageSteps < 100000u,
+                            "live opposing passage step count is invalid"
+                        );
+                        std::vector<MRBodyStateGPU>
+                            opposingPassageNeedleTargets;
+                        opposingPassageNeedleTargets.reserve(
+                            maximumOpposingPassageSteps
+                        );
+                        for (std::uint32_t step = 0u;
+                             step < maximumOpposingPassageSteps;
+                             ++step) {
+                            opposingPassageNeedleTargets.push_back(
+                                curvedNeedleTarget(
+                                    opposingPassageStartNeedle,
+                                    opposingPassageOrbit,
+                                    opposingPassageAnglePerStepRad *
+                                        static_cast<double>(step + 1u),
+                                    opposingPassageAngularSpeedRadPerS
+                                )
+                            );
+                        }
+                        const ArmTrajectory opposingPassageTrajectory =
+                            needleGraspArmTrajectory(
+                                world.model,
+                                psm,
+                                1u,
+                                bridgeReceiverBase,
+                                liveOpposingReady.terminal.result.finalQ,
+                                needleForPlacement,
+                                kExtractionNeedleShape,
+                                liveReceiverReference,
+                                opposingPassageNeedleTargets,
+                                receiverTransportJawCoordinate,
+                                opposingPassageTimestepS
+                            );
+                        const CrossArmCollisionScan
+                            opposingPassagePreflight =
+                                scanCrossArmTargetPath(
+                                    world,
+                                    liveOpposingReady.terminal.result.finalQ,
+                                    opposingPassageTrajectory.finalTarget,
+                                    maximumOpposingPassageSteps,
+                                    opposingPassageTrajectory.desiredQ
+                                );
+                        const CarriedNeedlePathAudit
+                            opposingPassageNeedleAudit =
+                                auditCarriedNeedlePath(
+                                    world,
+                                    needleForPlacement.metadata,
+                                    opposingPassageTrajectory,
+                                    opposingPassageNeedleTargets
+                                );
+                        require(
+                            opposingPassageTrajectory.maximumVelocityRatio <=
+                                    kMaximumCommandVelocityRatio &&
+                                opposingPassagePreflight.samplesWithContact ==
+                                    0u &&
+                                opposingPassagePreflight
+                                        .samplesWithGiverPadContact == 0u &&
+                                opposingPassagePreflight
+                                        .samplesWithReceiverPadContact == 0u &&
+                                opposingPassageNeedleAudit.unsafeSamples == 0u,
+                            "live opposing curved drive intersects an "
+                                "instrument, support, or non-handling needle "
+                                "surface"
+                        );
+
+                        const std::uint32_t opposingPassageChunkSteps =
+                            std::max<std::uint32_t>(
+                                1u,
+                                static_cast<std::uint32_t>(std::llround(
+                                    kLiveReceiverChunkDurationS /
+                                        opposingPassageTimestepS
+                                ))
+                            );
+                        PhaseResult opposingPassage;
+                        std::uint32_t completedOpposingPassageSteps = 0u;
+                        double opposingPassageGpuMilliseconds = 0.0;
+                        bool opposingMeasuredExitReached = false;
+                        while (completedOpposingPassageSteps <
+                               maximumOpposingPassageSteps) {
+                            std::uint32_t chunkSteps = std::min(
+                                opposingPassageChunkSteps,
+                                maximumOpposingPassageSteps -
+                                    completedOpposingPassageSteps
+                            );
+                            if (completedOpposingPassageSteps <
+                                minimumOpposingPassageSteps) {
+                                chunkSteps = std::min(
+                                    chunkSteps,
+                                    minimumOpposingPassageSteps -
+                                        completedOpposingPassageSteps
+                                );
+                            }
+                            const std::size_t effortBegin =
+                                static_cast<std::size_t>(
+                                    completedOpposingPassageSteps
+                                ) * world.model.world.nv;
+                            const std::size_t effortEnd = effortBegin +
+                                static_cast<std::size_t>(chunkSteps) *
+                                    world.model.world.nv;
+                            const std::vector<float> chunkEfforts(
+                                opposingPassageTrajectory.efforts.begin() +
+                                    effortBegin,
+                                opposingPassageTrajectory.efforts.begin() +
+                                    effortEnd
+                            );
+                            LiveReceiverStreamResult passageChunk =
+                                continueLiveReceiverStream(
+                                    chunkEfforts,
+                                    chunkSteps,
+                                    "live receiver-driven opposing tissue "
+                                        "passage",
+                                    "tissue_opposing_bite_passage",
+                                    2.0 *
+                                        receiverTissueSpec.thicknessM.value,
+                                    true
+                                );
+                            opposingPassage = std::move(
+                                passageChunk.terminal
+                            );
+                            opposingPassageGpuMilliseconds +=
+                                passageChunk.gpuMilliseconds;
+                            completedOpposingPassageSteps += chunkSteps;
+                            const numi::matter::RuntimeStateSnapshot
+                                progressMatter = tissueRuntime.snapshot();
+                            const LiveTissueMetrics progressTissue =
+                                liveTissueMetrics(
+                                    progressMatter,
+                                    "live opposing passage progress"
+                                );
+                            const NeedleTipCapsuleGeometry progressTip =
+                                needleTipCapsuleGeometry(
+                                    needleForPlacement,
+                                    opposingPassage.result
+                                        .finalSceneBodies.at(0u)
+                                );
+                            const double progressProximalClearanceM =
+                                dot(
+                                    progressTip.worldTip,
+                                    thicknessAxis
+                                ) + progressTip.radiusM -
+                                progressTissue.topProjection;
+                            std::cout << std::setprecision(9)
+                                << "tissue_opposing_bite_passage_candidate"
+                                << " completed_steps="
+                                << completedOpposingPassageSteps << '/'
+                                << minimumOpposingPassageSteps
+                                << " proximal_tip_clearance_m="
+                                << progressProximalClearanceM
+                                << " active_puncture_channels="
+                                << progressTissue.activeChannels
+                                << " matter_minimum_determinant="
+                                << progressTissue.minimumDeterminant
+                                << " chunk_gpu_ms="
+                                << passageChunk.gpuMilliseconds << '\n';
+                            if (completedOpposingPassageSteps >=
+                                    minimumOpposingPassageSteps &&
+                                progressProximalClearanceM >=
+                                    kCurvedPassageExitClearanceM) {
+                                opposingMeasuredExitReached = true;
+                                break;
+                            }
+                        }
+                        require(
+                            opposingMeasuredExitReached &&
+                                completedOpposingPassageSteps != 0u,
+                            "live opposing passage exhausted its bounded "
+                                "extension before clearing the deformed "
+                                "proximal tissue surface"
+                        );
+                        std::vector<float> opposingPassageReachedTarget(
+                            world.model.world.nq
+                        );
+                        std::copy_n(
+                            opposingPassageTrajectory.desiredQ.data() +
+                                static_cast<std::size_t>(
+                                    completedOpposingPassageSteps - 1u
+                                ) * world.model.world.nq,
+                            world.model.world.nq,
+                            opposingPassageReachedTarget.begin()
+                        );
+                        const std::vector<float> opposingPassageHoldEfforts =
+                            interpolateLiveReceiverTargets(
+                                opposingPassage.result.finalQ,
+                                opposingPassageReachedTarget,
+                                liveOpposingSettleSteps
+                            );
+                        LiveReceiverStreamResult opposingPassageHold =
+                            continueLiveReceiverStream(
+                                opposingPassageHoldEfforts,
+                                liveOpposingSettleSteps,
+                                "live opposing passage settling hold",
+                                "tissue_opposing_bite_passage_hold",
+                                2.0 * receiverTissueSpec.thicknessM.value,
+                                true
+                            );
+                        opposingPassage = std::move(
+                            opposingPassageHold.terminal
+                        );
+                        opposingPassageGpuMilliseconds +=
+                            opposingPassageHold.gpuMilliseconds;
+
+                        const numi::matter::RuntimeStateSnapshot
+                            opposingPassageMatter = tissueRuntime.snapshot();
+                        const LiveTissueMetrics opposingPassageTissue =
+                            liveTissueMetrics(
+                                opposingPassageMatter,
+                                "live opposing passage terminal"
+                            );
+                        std::vector<NMPunctureChannelGPU>
+                            opposingPassageChannels;
+                        for (std::size_t channel = 0u;
+                             channel <
+                                opposingPassageMatter
+                                    .punctureChannels.size();
+                             ++channel) {
+                            const NMPunctureChannelGPU& candidate =
+                                opposingPassageMatter
+                                    .punctureChannels[channel];
+                            if ((candidate.identity.w &
+                                 NM_TOPOLOGY_ACTIVE) == 0u) {
+                                continue;
+                            }
+                            const bool previouslyActive =
+                                channel <
+                                    postBridgeMatter
+                                        .punctureChannels.size() &&
+                                (postBridgeMatter.punctureChannels[channel]
+                                     .identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                            if (!previouslyActive) {
+                                opposingPassageChannels.push_back(candidate);
+                            }
+                        }
+                        std::sort(
+                            opposingPassageChannels.begin(),
+                            opposingPassageChannels.end(),
+                            [](const NMPunctureChannelGPU& left,
+                               const NMPunctureChannelGPU& right) {
+                                return left.identity.z < right.identity.z;
+                            }
+                        );
+                        double opposingChannelMinimumProjection =
+                            std::numeric_limits<double>::infinity();
+                        double opposingChannelMaximumProjection =
+                            -std::numeric_limits<double>::infinity();
+                        double opposingChannelTotalLengthM = 0.0;
+                        double opposingChannelMaximumJoinGapM = 0.0;
+                        double opposingChannelMinimumTangentAlignment = 1.0;
+                        double opposingChannelMaximumOrbitErrorM = 0.0;
+                        std::uint32_t opposingChannelLinks = 0u;
+                        Vec3 previousOpposingDistal{};
+                        Vec3 previousOpposingAxis{};
+                        for (std::size_t channel = 0u;
+                             channel < opposingPassageChannels.size();
+                             ++channel) {
+                            const NMPunctureChannelGPU& tract =
+                                opposingPassageChannels[channel];
+                            Vec3 axis = vector(tract.axisAndHalfLength);
+                            const double axisLength = norm(axis);
+                            require(
+                                axisLength > 1.0e-12 &&
+                                    std::isfinite(axisLength) &&
+                                    tract.axisAndHalfLength.w > 0.0f,
+                                "opposing puncture channel is degenerate"
+                            );
+                            axis = axis * (1.0 / axisLength);
+                            if (dot(axis, thicknessAxis) < 0.0) {
+                                axis = axis * -1.0;
+                            }
+                            const Vec3 origin = vector(
+                                tract.originAndRadius
+                            );
+                            const double halfLength =
+                                tract.axisAndHalfLength.w;
+                            const Vec3 proximal = origin - axis * halfLength;
+                            const Vec3 distal = origin + axis * halfLength;
+                            opposingChannelMinimumProjection = std::min({
+                                opposingChannelMinimumProjection,
+                                dot(proximal, thicknessAxis),
+                                dot(distal, thicknessAxis),
+                            });
+                            opposingChannelMaximumProjection = std::max({
+                                opposingChannelMaximumProjection,
+                                dot(proximal, thicknessAxis),
+                                dot(distal, thicknessAxis),
+                            });
+                            opposingChannelTotalLengthM += 2.0 * halfLength;
+                            opposingChannelMaximumOrbitErrorM = std::max({
+                                opposingChannelMaximumOrbitErrorM,
+                                std::abs(
+                                    norm(
+                                        proximal -
+                                        opposingPassageOrbit.centerWorld
+                                    ) -
+                                    opposingPassageOrbit.centerlineRadiusM
+                                ),
+                                std::abs(
+                                    norm(
+                                        distal -
+                                        opposingPassageOrbit.centerWorld
+                                    ) -
+                                    opposingPassageOrbit.centerlineRadiusM
+                                ),
+                            });
+                            if (channel != 0u) {
+                                const double joinGapM = norm(
+                                    proximal - previousOpposingDistal
+                                );
+                                const double tangentAlignment = dot(
+                                    axis,
+                                    previousOpposingAxis
+                                );
+                                opposingChannelMaximumJoinGapM = std::max(
+                                    opposingChannelMaximumJoinGapM,
+                                    joinGapM
+                                );
+                                opposingChannelMinimumTangentAlignment =
+                                    std::min(
+                                        opposingChannelMinimumTangentAlignment,
+                                        tangentAlignment
+                                    );
+                                opposingChannelLinks +=
+                                    joinGapM <=
+                                            0.25 * opposingReadyTip.radiusM &&
+                                        tangentAlignment >= 0.99;
+                            }
+                            previousOpposingDistal = distal;
+                            previousOpposingAxis = axis;
+                        }
+                        const NeedleTipCapsuleGeometry opposingExitTip =
+                            needleTipCapsuleGeometry(
+                                needleForPlacement,
+                                opposingPassage.result
+                                    .finalSceneBodies.at(0u)
+                            );
+                        const double opposingExitClearanceM =
+                            dot(opposingExitTip.worldTip, thicknessAxis) +
+                            opposingExitTip.radiusM -
+                            opposingPassageTissue.topProjection;
+                        const double opposingTipAdvanceM = dot(
+                            opposingExitTip.worldTip -
+                                opposingReadyTip.worldTip,
+                            opposingReadyTip.approachDirection
+                        );
+                        const double opposingExitOrbitErrorM = std::abs(
+                            norm(
+                                opposingExitTip.worldTip -
+                                opposingPassageOrbit.centerWorld
+                            ) - opposingPassageOrbit.centerlineRadiusM
+                        );
+                        const ContactCounts opposingPassageContacts =
+                            contactCounts(
+                                world,
+                                opposingPassage.result,
+                                needleForPlacement.metadata,
+                                kNeedleFirstShape
+                            );
+                        const GraspKinematics opposingPassageGrasp =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                opposingPassage.result,
+                                1u,
+                                kExtractionNeedleShape,
+                                liveReceiverReference
+                            );
+                        const RodStateMetrics opposingPassageRod =
+                            rodStateMetrics(world, opposingPassage.result);
+                        const MRMetalWorldContactStatusGPU&
+                            opposingPassageResidual = requireTerminalResidual(
+                                opposingPassage.result,
+                                "live opposing passage hold"
+                            );
+                        const std::uint32_t minimumOpposingWallChannels =
+                            static_cast<std::uint32_t>(std::ceil(
+                                opposingPassageWallThicknessM /
+                                (2.0 * opposingReadyTip.radiusM)
+                            ));
+                        require(
+                            firstPassageChannelsPreserved(
+                                opposingPassageMatter
+                            ) &&
+                                opposingPassageChannels.size() >=
+                                    minimumOpposingWallChannels &&
+                                opposingChannelLinks + 1u ==
+                                    opposingPassageChannels.size() &&
+                                opposingChannelMinimumTangentAlignment >=
+                                    0.99 &&
+                                opposingChannelMaximumJoinGapM <=
+                                    0.25 * opposingReadyTip.radiusM &&
+                                opposingChannelMaximumOrbitErrorM <=
+                                    opposingReadyTip.radiusM &&
+                                opposingChannelMinimumProjection <=
+                                    opposingPassageTissue.bottomProjection +
+                                        0.25 * opposingReadyTip.radiusM &&
+                                opposingChannelMaximumProjection >=
+                                    opposingPassageTissue.topProjection -
+                                        0.25 * opposingReadyTip.radiusM &&
+                                opposingChannelTotalLengthM >=
+                                    opposingPassageWallThicknessM &&
+                                opposingPassageTissue.activeChannels ==
+                                    passageChannels.size() +
+                                        opposingPassageChannels.size() &&
+                                opposingPassageTissue.activeTetrahedra ==
+                                    tissueCoupon.metadata.tetrahedronCount &&
+                                opposingPassageTissue.removedMassKg == 0.0 &&
+                                opposingPassageTissue.certificatesAccepted &&
+                                opposingPassageTissue.minimumDeterminant > 0.0 &&
+                                opposingExitClearanceM >=
+                                    kCurvedPassageExitClearanceM &&
+                                opposingTipAdvanceM >=
+                                    opposingPassageWallThicknessM +
+                                        kPunctureInitialClearanceM +
+                                        kCurvedPassageExitClearanceM &&
+                                opposingExitOrbitErrorM <=
+                                    kMaximumQualifiedGraspSeatDrift &&
+                                !bilateral(opposingPassageContacts, 0u) &&
+                                bilateral(opposingPassageContacts, 1u) &&
+                                distributedInsertCoverage(
+                                    opposingPassageContacts,
+                                    1u
+                                ) &&
+                                cleanNeedleInteraction(
+                                    opposingPassageContacts,
+                                    false,
+                                    true
+                                ) &&
+                                qualifiedDrivenGrasp(opposingPassageGrasp) &&
+                                qualifiedTerminalRod(opposingPassageRod) &&
+                                swageAttachmentError(
+                                    world,
+                                    opposingPassage.result
+                                ) < kMaximumSwageAttachmentError,
+                            "live receiver did not create a connected, "
+                                "mass-conserving opposing through-wall tract: " +
+                                contactSummary(opposingPassageContacts)
+                        );
+                        const std::uint64_t opposingPassageBaseSubsteps =
+                            static_cast<std::uint64_t>(
+                                completedOpposingPassageSteps +
+                                liveOpposingSettleSteps
+                            ) * stepConfig.physicsSubsteps;
+                        std::uint64_t opposingPassageStateHash =
+                            1469598103934665603ull;
+                        appendStateHash(
+                            opposingPassageStateHash,
+                            opposingPassage.result.finalQ
+                        );
+                        appendStateHash(
+                            opposingPassageStateHash,
+                            opposingPassage.result.finalV
+                        );
+                        appendStateHash(
+                            opposingPassageStateHash,
+                            opposingPassage.result.finalSceneBodies
+                        );
+                        appendStateHash(
+                            opposingPassageStateHash,
+                            opposingPassage.result.finalRodNodes
+                        );
+                        appendStateHash(
+                            opposingPassageStateHash,
+                            opposingPassageMatter.femNodes
+                        );
+                        appendStateHash(
+                            opposingPassageStateHash,
+                            opposingPassageMatter.punctureChannels
+                        );
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-opposing-bite-passage",
+                            postBridgeBaseDERSubsteps +
+                                liveAcquisitionBaseDERSubsteps +
+                                liveExtractionPhaseSteps *
+                                    stepConfig.physicsSubsteps +
+                                opposingDistalBaseDERSubsteps +
+                                opposingReorientationBaseSubsteps +
+                                opposingApproachBaseSubsteps +
+                                opposingPassageBaseSubsteps,
+                            world,
+                            sutureSpec,
+                            opposingPassage.result
+                        );
+                        std::cout << std::setprecision(9)
+                            << "tissue_opposing_bite_passage=ok"
+                            << " passage_steps="
+                            << completedOpposingPassageSteps
+                            << " target_angle_rad="
+                            << opposingTargetPassageAngleRad
+                            << " needle_tip_advance_m="
+                            << opposingTipAdvanceM
+                            << " proximal_tip_clearance_m="
+                            << opposingExitClearanceM
+                            << " new_puncture_channels="
+                            << opposingPassageChannels.size()
+                            << " new_channel_links="
+                            << opposingChannelLinks
+                            << " new_channel_total_length_m="
+                            << opposingChannelTotalLengthM
+                            << " new_channel_max_join_gap_m="
+                            << opposingChannelMaximumJoinGapM
+                            << " new_channel_min_tangent_alignment="
+                            << opposingChannelMinimumTangentAlignment
+                            << " new_channel_max_orbit_error_m="
+                            << opposingChannelMaximumOrbitErrorM
+                            << " active_puncture_channels="
+                            << opposingPassageTissue.activeChannels
+                            << " active_tetrahedra="
+                            << opposingPassageTissue.activeTetrahedra
+                            << " removed_tissue_mass_kg="
+                            << opposingPassageTissue.removedMassKg
+                            << " matter_minimum_determinant="
+                            << opposingPassageTissue.minimumDeterminant
+                            << " receiver_seat_drift_m="
+                            << opposingPassageGrasp.seatDrift
+                            << " thread_maximum_node_speed_mps="
+                            << opposingPassageRod.maximumNodeSpeed
+                            << " thread_minimum_clearance_m="
+                            << opposingPassageRod
+                                   .minimumNonNeighbourSurfaceClearance
+                            << " terminal_contact_velocity_residual_mps="
+                            << opposingPassageResidual.residuals.y
+                            << " passage_gpu_ms="
+                            << opposingPassageGpuMilliseconds
+                            << " passage_state_fnv64=0x" << std::hex
+                            << opposingPassageStateHash << std::dec
                             << " failed_steps=0\n";
                         return 0;
                     }
