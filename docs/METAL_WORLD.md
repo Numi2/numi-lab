@@ -464,6 +464,18 @@ coefficient. Resolved surface-spin torque, distinct static and dynamic
 self-friction, and stronger coupled rod/rigid iterations remain open fidelity
 boundaries.
 
+The dual-PSM operative probe keeps post-extraction needle transport separate
+from the next bite. It first translates the receiver-held complete half-circle
+needle without changing attitude, then performs the half-turn only on a distal
+safe plane, and finally approaches the deformed-wall target. The geometry gate
+projects every finite needle capsule onto the tissue thickness axis: clearance
+must increase monotonically during withdrawal, remain at least 12 mm through
+the sampled reorientation sweep, and decrease without penetration on the
+opposing approach. Each instrument path is independently checked against the
+other PSM and the support. This is a kinematic/path certificate; the live
+Matter/DER replay remains the authority for tissue, strand, grasp, and contact
+acceptance.
+
 `HeterogeneousWorld` is the owned compilation boundary above those executors.
 It composes `EngineModel` instances transactionally, records the exact global
 body indices represented by the environment-major scene-state tensor, owns

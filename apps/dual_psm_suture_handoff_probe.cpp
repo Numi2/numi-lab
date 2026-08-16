@@ -436,6 +436,10 @@ constexpr double kReceiverBridgeIKOrientationToleranceRad = 1.0e-5;
 // the symmetric opposing bite. This clears the needle envelope plus its
 // 0.35 mm gauge before the tool approaches the distal wall again.
 constexpr double kOpposingBiteReorientationClearanceM = 1.2e-2;
+// First translate the extracted needle to the distal safe plane without
+// changing its attitude. Rotation begins only after every finite capsule in
+// the half-circle clears the live distal tissue surface by the bound above.
+constexpr double kOpposingBiteDistalClearanceSeconds = 1.0;
 constexpr double kOpposingBiteReorientationSeconds = 3.0;
 constexpr double kOpposingBiteApproachSeconds = 0.75;
 
@@ -2928,6 +2932,51 @@ Vec3 needleShapeWorldCenter(
         },
         vector(needle.rigid.shapes.at(shape).localPosition)
     );
+}
+
+struct NeedleProjectionRange {
+    double minimum = std::numeric_limits<double>::infinity();
+    double maximum = -std::numeric_limits<double>::infinity();
+};
+
+NeedleProjectionRange wholeNeedleProjectionRange(
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const MRBodyStateGPU& body,
+    const Vec3 axis
+) {
+    const double axisLength = norm(axis);
+    require(
+        axisLength > 1.0e-12 && std::isfinite(axisLength) &&
+            !needle.rigid.shapes.empty(),
+        "whole-needle projection has invalid geometry or axis"
+    );
+    const Vec3 unitAxis = axis * (1.0 / axisLength);
+    NeedleProjectionRange range;
+    for (std::uint32_t shape = 0u;
+         shape < needle.rigid.shapes.size();
+         ++shape) {
+        const MRShapeGPU& segment = needle.rigid.shapes[shape];
+        require(
+            segment.shapeType == MR_SHAPE_CAPSULE &&
+                segment.dimensions.x > 0.0f &&
+                segment.dimensions.y > 0.0f,
+            "curved needle contains a non-capsule mass segment"
+        );
+        const Vec3 center = needleShapeWorldCenter(needle, shape, body);
+        const Vec3 tangent = needleShapeWorldTangent(needle, shape, body);
+        const double projection = dot(center, unitAxis);
+        const double extent =
+            std::abs(dot(tangent, unitAxis)) * segment.dimensions.y +
+            segment.dimensions.x;
+        range.minimum = std::min(range.minimum, projection - extent);
+        range.maximum = std::max(range.maximum, projection + extent);
+    }
+    require(
+        std::isfinite(range.minimum) && std::isfinite(range.maximum) &&
+            range.maximum >= range.minimum,
+        "whole-needle projection is nonfinite"
+    );
+    return range;
 }
 
 struct GraspKinematics {
@@ -8849,19 +8898,101 @@ int main(const int argc, const char* const argv[]) {
             fixtureExtractedNeedle.position.z += static_cast<float>(
                 fixtureDistalDirection.z * kMaximumLiveReceiverExtractionM
             );
+            double fixtureDistalSurfaceProjection =
+                std::numeric_limits<double>::infinity();
+            for (const auto& node : opposingGeometryCoupon.object.femNodes) {
+                fixtureDistalSurfaceProjection = std::min(
+                    fixtureDistalSurfaceProjection,
+                    dot(vector(node), fixtureBiteSites.thicknessAxis)
+                );
+            }
+            require(
+                std::isfinite(fixtureDistalSurfaceProjection),
+                "opposing-bite tissue has no finite distal surface"
+            );
+            const auto translateNeedleDistally = [&] (
+                MRBodyStateGPU body,
+                const double distanceM
+            ) {
+                require(
+                    std::isfinite(distanceM) && distanceM >= 0.0,
+                    "opposing-bite distal translation is invalid"
+                );
+                body.position.x -= static_cast<float>(
+                    fixtureBiteSites.thicknessAxis.x * distanceM
+                );
+                body.position.y -= static_cast<float>(
+                    fixtureBiteSites.thicknessAxis.y * distanceM
+                );
+                body.position.z -= static_cast<float>(
+                    fixtureBiteSites.thicknessAxis.z * distanceM
+                );
+                return body;
+            };
+            const auto wholeNeedleDistalClearance = [&] (
+                const MRBodyStateGPU& body
+            ) {
+                return fixtureDistalSurfaceProjection -
+                    wholeNeedleProjectionRange(
+                        needleForPlacement,
+                        body,
+                        fixtureBiteSites.thicknessAxis
+                    ).maximum;
+            };
+            MRBodyStateGPU fixtureDistalSafeNeedle =
+                translateNeedleDistally(
+                    fixtureExtractedNeedle,
+                    std::max(
+                        0.0,
+                        kOpposingBiteReorientationClearanceM -
+                            wholeNeedleDistalClearance(
+                                fixtureExtractedNeedle
+                            )
+                    )
+                );
             MRBodyStateGPU fixtureOpposingClearance =
-                fixtureOpposingEntry;
-            fixtureOpposingClearance.position.x -= static_cast<float>(
-                fixtureBiteSites.thicknessAxis.x *
-                    kOpposingBiteReorientationClearanceM
+                translateNeedleDistally(
+                    fixtureOpposingEntry,
+                    std::max(
+                        0.0,
+                        kOpposingBiteReorientationClearanceM -
+                            wholeNeedleDistalClearance(
+                                fixtureOpposingEntry
+                            )
+                    )
+                );
+            // A half-turn can project farther toward the coupon than either
+            // endpoint. Measure the actual interpolated capsule sweep and
+            // translate both safe-plane endpoints by exactly the missing
+            // clearance before solving any instrument waypoint.
+            std::vector<MRBodyStateGPU> fixtureClearanceAuditTargets;
+            appendNeedleBodyPoseSegment(
+                fixtureClearanceAuditTargets,
+                fixtureDistalSafeNeedle,
+                fixtureOpposingClearance,
+                512u
             );
-            fixtureOpposingClearance.position.y -= static_cast<float>(
-                fixtureBiteSites.thicknessAxis.y *
-                    kOpposingBiteReorientationClearanceM
+            double fixtureAuditMinimumClearance =
+                std::numeric_limits<double>::infinity();
+            for (const MRBodyStateGPU& target :
+                 fixtureClearanceAuditTargets) {
+                fixtureAuditMinimumClearance = std::min(
+                    fixtureAuditMinimumClearance,
+                    wholeNeedleDistalClearance(target)
+                );
+            }
+            const double fixtureSweepCorrectionM = std::max(
+                0.0,
+                kOpposingBiteReorientationClearanceM -
+                    fixtureAuditMinimumClearance
             );
-            fixtureOpposingClearance.position.z -= static_cast<float>(
-                fixtureBiteSites.thicknessAxis.z *
-                    kOpposingBiteReorientationClearanceM
+            fixtureDistalSafeNeedle = translateNeedleDistally(
+                fixtureDistalSafeNeedle,
+                fixtureSweepCorrectionM
+            );
+            fixtureOpposingClearance = translateNeedleDistally(
+                fixtureOpposingClearance,
+                fixtureSweepCorrectionM
             );
             const GraspReference fixtureTransportReference =
                 graspReference(
@@ -8873,6 +9004,11 @@ int main(const int argc, const char* const argv[]) {
                     1u,
                     kExtractionNeedleShape
                 );
+            const std::uint32_t fixtureDistalClearanceSteps =
+                static_cast<std::uint32_t>(std::llround(
+                    kOpposingBiteDistalClearanceSeconds /
+                        kControlTimestep
+                ));
             const std::uint32_t fixtureReorientationSteps =
                 static_cast<std::uint32_t>(std::llround(
                     kOpposingBiteReorientationSeconds /
@@ -8883,14 +9019,14 @@ int main(const int argc, const char* const argv[]) {
                     kOpposingBiteApproachSeconds /
                         kControlTimestep
                 ));
-            std::vector<MRBodyStateGPU> fixtureReorientationTargets;
+            std::vector<MRBodyStateGPU> fixtureDistalClearanceTargets;
             appendNeedleBodyPoseSegment(
-                fixtureReorientationTargets,
+                fixtureDistalClearanceTargets,
                 fixtureExtractedNeedle,
-                fixtureOpposingClearance,
-                fixtureReorientationSteps
+                fixtureDistalSafeNeedle,
+                fixtureDistalClearanceSteps
             );
-            const ArmTrajectory fixtureReorientationTrajectory =
+            const ArmTrajectory fixtureDistalClearanceTrajectory =
                 needleGraspArmTrajectory(
                     world.model,
                     psm,
@@ -8900,13 +9036,41 @@ int main(const int argc, const char* const argv[]) {
                     needleForPlacement,
                     kExtractionNeedleShape,
                     fixtureTransportReference,
+                    fixtureDistalClearanceTargets,
+                    receiverTransportJawCoordinate
+                );
+            const CrossArmCollisionScan fixtureDistalClearancePreflight =
+                scanCrossArmTargetPath(
+                    world,
+                    fixtureMaximumDistalExtraction.finalTarget,
+                    fixtureDistalClearanceTrajectory.finalTarget,
+                    fixtureDistalClearanceSteps,
+                    fixtureDistalClearanceTrajectory.desiredQ
+                );
+            std::vector<MRBodyStateGPU> fixtureReorientationTargets;
+            appendNeedleBodyPoseSegment(
+                fixtureReorientationTargets,
+                fixtureDistalSafeNeedle,
+                fixtureOpposingClearance,
+                fixtureReorientationSteps
+            );
+            const ArmTrajectory fixtureReorientationTrajectory =
+                needleGraspArmTrajectory(
+                    world.model,
+                    psm,
+                    1u,
+                    receiverBase,
+                    fixtureDistalClearanceTrajectory.finalTarget,
+                    needleForPlacement,
+                    kExtractionNeedleShape,
+                    fixtureTransportReference,
                     fixtureReorientationTargets,
                     receiverTransportJawCoordinate
                 );
             const CrossArmCollisionScan fixtureReorientationPreflight =
                 scanCrossArmTargetPath(
                     world,
-                    fixtureMaximumDistalExtraction.finalTarget,
+                    fixtureDistalClearanceTrajectory.finalTarget,
                     fixtureReorientationTrajectory.finalTarget,
                     fixtureReorientationSteps,
                     fixtureReorientationTrajectory.desiredQ
@@ -8968,6 +9132,55 @@ int main(const int argc, const char* const argv[]) {
                     fixtureOpposingEndTarget.frame
                 )
             );
+            double fixtureDistalClearanceMinimumM =
+                std::numeric_limits<double>::infinity();
+            double fixtureDistalClearanceFinalM = 0.0;
+            double fixtureClearanceMonotonicRegressionM = 0.0;
+            double previousDistalClearanceM =
+                wholeNeedleDistalClearance(fixtureExtractedNeedle);
+            for (const MRBodyStateGPU& target :
+                 fixtureDistalClearanceTargets) {
+                const double clearanceM =
+                    wholeNeedleDistalClearance(target);
+                fixtureDistalClearanceMinimumM = std::min(
+                    fixtureDistalClearanceMinimumM,
+                    clearanceM
+                );
+                fixtureClearanceMonotonicRegressionM = std::max(
+                    fixtureClearanceMonotonicRegressionM,
+                    previousDistalClearanceM - clearanceM
+                );
+                previousDistalClearanceM = clearanceM;
+                fixtureDistalClearanceFinalM = clearanceM;
+            }
+            double fixtureReorientationMinimumClearanceM =
+                std::numeric_limits<double>::infinity();
+            for (const MRBodyStateGPU& target :
+                 fixtureReorientationTargets) {
+                fixtureReorientationMinimumClearanceM = std::min(
+                    fixtureReorientationMinimumClearanceM,
+                    wholeNeedleDistalClearance(target)
+                );
+            }
+            double fixtureApproachMinimumClearanceM =
+                std::numeric_limits<double>::infinity();
+            double fixtureApproachMonotonicRegressionM = 0.0;
+            double previousApproachClearanceM =
+                wholeNeedleDistalClearance(fixtureOpposingClearance);
+            for (const MRBodyStateGPU& target :
+                 fixtureOpposingApproachTargets) {
+                const double clearanceM =
+                    wholeNeedleDistalClearance(target);
+                fixtureApproachMinimumClearanceM = std::min(
+                    fixtureApproachMinimumClearanceM,
+                    clearanceM
+                );
+                fixtureApproachMonotonicRegressionM = std::max(
+                    fixtureApproachMonotonicRegressionM,
+                    clearanceM - previousApproachClearanceM
+                );
+                previousApproachClearanceM = clearanceM;
+            }
             require(
                 fixtureResetPreflight.samplesWithContact == 0u &&
                     fixtureResetPreflight.samplesWithGiverPadContact == 0u &&
@@ -9011,6 +9224,18 @@ int main(const int argc, const char* const argv[]) {
                             .samplesWithGiverPadContact == 0u &&
                     fixtureDistalExtractionPreflight
                             .samplesWithReceiverPadContact == 0u &&
+                    fixtureDistalClearanceTrajectory.maximumVelocityRatio <=
+                        kMaximumCommandVelocityRatio &&
+                    fixtureDistalClearancePreflight.samplesWithContact == 0u &&
+                    fixtureDistalClearancePreflight
+                            .samplesWithGiverPadContact == 0u &&
+                    fixtureDistalClearancePreflight
+                            .samplesWithReceiverPadContact == 0u &&
+                    fixtureDistalClearanceMinimumM >=
+                        kWholeNeedleDistalClearanceM &&
+                    fixtureDistalClearanceFinalM >=
+                        kOpposingBiteReorientationClearanceM &&
+                    fixtureClearanceMonotonicRegressionM <= 1.0e-9 &&
                     fixtureOpposingPositionError <= 5.0e-6 &&
                     fixtureOpposingOrientationError <= 2.0e-3 &&
                     fixtureReorientationTrajectory.maximumVelocityRatio <=
@@ -9023,12 +9248,17 @@ int main(const int argc, const char* const argv[]) {
                             .samplesWithGiverPadContact == 0u &&
                     fixtureReorientationPreflight
                             .samplesWithReceiverPadContact == 0u &&
+                    fixtureReorientationMinimumClearanceM >=
+                        kOpposingBiteReorientationClearanceM - 1.0e-7 &&
                     fixtureOpposingApproachPreflight
                             .samplesWithContact == 0u &&
                     fixtureOpposingApproachPreflight
                             .samplesWithGiverPadContact == 0u &&
                     fixtureOpposingApproachPreflight
-                            .samplesWithReceiverPadContact == 0u,
+                            .samplesWithReceiverPadContact == 0u &&
+                    fixtureApproachMinimumClearanceM >=
+                        -kPunctureInitialClearanceM &&
+                    fixtureApproachMonotonicRegressionM <= 1.0e-9,
                 "post-puncture extraction reset or open seat intersects "
                 "an instrument, needle, or pad: receiver_reset_pad_gap=" +
                     std::to_string(minimumPsmPadGap(
@@ -9125,7 +9355,21 @@ int main(const int argc, const char* const argv[]) {
                     std::to_string(
                         fixtureOpposingApproachPreflight
                             .samplesWithReceiverPadContact
-                    )
+                    ) +
+                    " distal_clearance_min=" +
+                    preciseScalar(fixtureDistalClearanceMinimumM) +
+                    " distal_clearance_final=" +
+                    preciseScalar(fixtureDistalClearanceFinalM) +
+                    " clearance_regression=" +
+                    preciseScalar(fixtureClearanceMonotonicRegressionM) +
+                    " reorientation_min_clearance=" +
+                    preciseScalar(
+                        fixtureReorientationMinimumClearanceM
+                    ) +
+                    " approach_min_clearance=" +
+                    preciseScalar(fixtureApproachMinimumClearanceM) +
+                    " approach_regression=" +
+                    preciseScalar(fixtureApproachMonotonicRegressionM)
             );
             if (receiverExtractionGeometryOnly) {
                 std::cout << std::setprecision(9)
@@ -9193,6 +9437,16 @@ int main(const int argc, const char* const argv[]) {
                     << fixtureGraspOrbitOrientationError
                     << " grasp_orbit_velocity_ratio="
                     << fixtureGraspOrbitTrajectory.maximumVelocityRatio
+                    << " opposing_distal_clearance_steps="
+                    << fixtureDistalClearanceSteps
+                    << " opposing_distal_clearance_minimum_m="
+                    << fixtureDistalClearanceMinimumM
+                    << " opposing_distal_clearance_final_m="
+                    << fixtureDistalClearanceFinalM
+                    << " opposing_distal_clearance_velocity_ratio="
+                    << fixtureDistalClearanceTrajectory.maximumVelocityRatio
+                    << " opposing_distal_clearance_cross_arm_samples="
+                    << fixtureDistalClearancePreflight.samplesWithContact
                     << " opposing_reorientation_steps="
                     << fixtureReorientationSteps
                     << " opposing_approach_steps="
@@ -9209,8 +9463,12 @@ int main(const int argc, const char* const argv[]) {
                     << fixtureReorientationTrajectory.maximumVelocity
                     << " reorientation_velocity_limit="
                     << fixtureReorientationTrajectory.limitingVelocity
+                    << " reorientation_minimum_whole_needle_clearance_m="
+                    << fixtureReorientationMinimumClearanceM
                     << " approach_velocity_ratio="
                     << fixtureOpposingApproachTrajectory.maximumVelocityRatio
+                    << " approach_minimum_whole_needle_clearance_m="
+                    << fixtureApproachMinimumClearanceM
                     << " reorientation_cross_arm_samples="
                     << fixtureReorientationPreflight.samplesWithContact
                     << " reorientation_giver_pad_samples="
