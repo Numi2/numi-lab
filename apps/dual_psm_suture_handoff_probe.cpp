@@ -163,7 +163,12 @@ constexpr double kSuturePullContactCadenceClearanceM = 2.0e-3;
 // pull qualification.  Decelerating at 2.0 mm leaves more than two complete
 // 100 um contact bands for the live DER state to settle before first load.
 constexpr double kSuturePullDecelerationClearanceM = 2.0e-3;
-constexpr double kSutureOperativeFieldRadiusM = 4.5e-3;
+// Retain one bounded contact field around each 3 mm bite. A single 4.5 mm
+// disk around the first (lower-lip) bite stops 1.5 mm short of the symmetric
+// opposing bite, so a second pass would otherwise leave Matter's compiled
+// contact topology. The union avoids promoting the entire coupon into the
+// expensive pair graph.
+constexpr double kSutureBiteFieldRadiusM = 4.5e-3;
 constexpr double kSutureTissueContactSlopM = 1.0e-4;
 // The receiver frame must retain at least 20 um of physical clearance from
 // the accepted, deformed distal surface.  Author a full additional 100 um
@@ -4716,24 +4721,63 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
             "suture operative field has an invalid tissue normal"
         );
         thicknessAxis = thicknessAxis * (1.0 / thicknessAxisLength);
+        Vec3 circumferentialAxis = vector(
+            coupon.metadata.circumferentialAxis
+        );
+        const double circumferentialAxisLength = norm(
+            circumferentialAxis
+        );
+        require(
+            circumferentialAxisLength > 1.0e-12,
+            "suture operative field has an invalid circumferential axis"
+        );
+        circumferentialAxis = circumferentialAxis *
+            (1.0 / circumferentialAxisLength);
+        const Vec3 opposingBiteContactPoint = targetContactPoint +
+            circumferentialAxis * (2.0 * kPunctureBiteOffsetM);
         std::vector<std::uint32_t> operativeContactNodes;
         operativeContactNodes.reserve(coupon.object.femContactNodes.size());
+        std::size_t firstBiteContactNodeCount = 0u;
+        std::size_t opposingBiteContactNodeCount = 0u;
+        std::size_t sharedBiteContactNodeCount = 0u;
         for (const std::uint32_t node : coupon.object.femContactNodes) {
-            const Vec3 offset =
+            const Vec3 firstOffset =
                 vector(coupon.object.femNodes.at(node)) - targetContactPoint;
-            const Vec3 planar = offset - thicknessAxis *
-                dot(offset, thicknessAxis);
-            if (norm(planar) <= kSutureOperativeFieldRadiusM) {
+            const Vec3 firstPlanar = firstOffset - thicknessAxis *
+                dot(firstOffset, thicknessAxis);
+            const Vec3 opposingOffset =
+                vector(coupon.object.femNodes.at(node)) -
+                opposingBiteContactPoint;
+            const Vec3 opposingPlanar = opposingOffset - thicknessAxis *
+                dot(opposingOffset, thicknessAxis);
+            const bool inFirstBite =
+                norm(firstPlanar) <= kSutureBiteFieldRadiusM;
+            const bool inOpposingBite =
+                norm(opposingPlanar) <= kSutureBiteFieldRadiusM;
+            firstBiteContactNodeCount += inFirstBite;
+            opposingBiteContactNodeCount += inOpposingBite;
+            sharedBiteContactNodeCount += inFirstBite && inOpposingBite;
+            if (inFirstBite || inOpposingBite) {
                 operativeContactNodes.push_back(node);
             }
         }
         require(
             std::ranges::find(operativeContactNodes, anchorNode) !=
                     operativeContactNodes.end() &&
+                firstBiteContactNodeCount >= 16u &&
+                opposingBiteContactNodeCount >= 16u &&
                 operativeContactNodes.size() >= 16u &&
                 operativeContactNodes.size() < authoredContactNodeCount,
-            "suture operative field did not conservatively retain the bite"
+            "suture operative field did not conservatively retain both bites"
         );
+        std::cout << std::setprecision(9)
+            << "suture_bite_contact_fields=2"
+            << " bite_offset_m=" << kPunctureBiteOffsetM
+            << " field_radius_m=" << kSutureBiteFieldRadiusM
+            << " first_field_nodes=" << firstBiteContactNodeCount
+            << " opposing_field_nodes=" << opposingBiteContactNodeCount
+            << " shared_field_nodes=" << sharedBiteContactNodeCount
+            << " union_nodes=" << operativeContactNodes.size() << '\n';
         coupon.object.femContactNodes =
             std::move(operativeContactNodes);
     }
@@ -5162,6 +5206,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-suture-passage-only" ||
             argument == "--tissue-curved-passage-only" ||
             argument == "--tissue-curved-pull-through-only" ||
+            argument == "--tissue-opposing-bite-topology-only" ||
             argument == "--tissue-receiver-state-bridge-only" ||
             argument == "--tissue-receiver-acquisition-only" ||
             argument == "--tissue-receiver-extraction-only" ||
@@ -6530,6 +6575,8 @@ int main(const int argc, const char* const argv[]) {
             tissueSutureEntryOnly || tissueSutureCadenceOnly;
         const bool tissueCurvedPullThroughOnly =
             options.mode == "--tissue-curved-pull-through-only";
+        const bool tissueOpposingBiteTopologyOnly =
+            options.mode == "--tissue-opposing-bite-topology-only";
         const bool tissueReceiverStateBridgeOnly =
             options.mode == "--tissue-receiver-state-bridge-only";
         const bool tissueReceiverAcquisitionOnly =
@@ -6537,6 +6584,7 @@ int main(const int argc, const char* const argv[]) {
         const bool tissueReceiverExtractionOnly =
             options.mode == "--tissue-receiver-extraction-only";
         const bool tissueReceiverLiveSequence =
+            tissueOpposingBiteTopologyOnly ||
             tissueReceiverStateBridgeOnly ||
             tissueReceiverAcquisitionOnly ||
             tissueReceiverExtractionOnly;
@@ -6547,6 +6595,7 @@ int main(const int argc, const char* const argv[]) {
             tissueSuturePassageOnly ||
             options.mode == "--tissue-curved-passage-only" ||
             tissueCurvedPullThroughOnly ||
+            tissueOpposingBiteTopologyOnly ||
             tissueReceiverLiveSequence;
         const bool tissuePunctureAdvanceOnly =
             options.mode == "--tissue-puncture-advance-only";
@@ -6554,6 +6603,7 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-curved-passage-only" ||
             tissueSuturePassageOnly ||
             tissueCurvedPullThroughOnly ||
+            tissueOpposingBiteTopologyOnly ||
             tissueReceiverLiveSequence;
         const bool tissueSutureContactOnly =
             tissueSutureEntryContactOnly || tissueSuturePassageOnly ||
@@ -11543,6 +11593,46 @@ int main(const int argc, const char* const argv[]) {
                     << " passage_motion_type="
                     << world.defaultSceneBodies.at(0u)
                            .flagsAndIndices[0] << '\n';
+            }
+            if (tissueOpposingBiteTopologyOnly) {
+                std::size_t pairedContactNodes = 0u;
+                std::uint32_t minimumPairsPerContactNode =
+                    std::numeric_limits<std::uint32_t>::max();
+                for (const std::uint32_t node :
+                     tissueCoupon.object.femContactNodes) {
+                    const std::uint32_t unifiedNode =
+                        tissueWorld.dispatch.gridNodeCount + node;
+                    std::uint32_t pairCount = 0u;
+                    for (const NMContactPairGPU& pair :
+                         tissueWorld.contact.pairs) {
+                        pairCount += pair.continuumNode == unifiedNode;
+                    }
+                    pairedContactNodes += pairCount != 0u;
+                    minimumPairsPerContactNode = std::min(
+                        minimumPairsPerContactNode,
+                        pairCount
+                    );
+                }
+                require(
+                    pairedContactNodes ==
+                            tissueCoupon.object.femContactNodes.size() &&
+                        minimumPairsPerContactNode > 0u,
+                    "opposing-bite field contains an unpaired contact node"
+                );
+                std::cout << "tissue_opposing_bite_topology=ok"
+                    << " contact_nodes="
+                    << tissueCoupon.object.femContactNodes.size()
+                    << " paired_contact_nodes=" << pairedContactNodes
+                    << " minimum_pairs_per_contact_node="
+                    << minimumPairsPerContactNode
+                    << " contact_pairs="
+                    << tissueWorld.dispatch.contactPairCount
+                    << " rigid_proxies="
+                    << tissueWorld.dispatch.rigidProxyCount
+                    << " tetrahedra="
+                    << tissueCoupon.metadata.tetrahedronCount
+                    << " gpu_dispatched=no\n";
+                return 0;
             }
             const auto initialized = tissueRuntime.initialize(
                 tissueWorld,

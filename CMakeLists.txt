@@ -2452,6 +2452,18 @@ if(BUILD_TESTING)
             TIMEOUT 900
     )
     add_test(
+        NAME metalrobo.surgical.opposing_bite_contact_topology
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-opposing-bite-topology-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.opposing_bite_contact_topology
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;topology"
+            TIMEOUT 180
+    )
+    add_test(
         NAME metalrobo.surgical.live_suture_cadence_transition
         COMMAND
             $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
