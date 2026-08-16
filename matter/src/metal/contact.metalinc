@@ -2210,11 +2210,14 @@ inline bool embeddedPunctureChannelAdmits(
     const uint objectIndex,
     const uint proxyIndex,
     const float3 continuumPoint,
+    const float3 predictedContinuumPoint,
     device const NMRigidProxyGPU* proxies,
     device const NMPunctureChannelGPU* channels
 ) {
     const NMRigidProxyGPU proxy = proxies[proxyIndex];
     const uint channelBase = environment * dispatch.punctureChannelCount;
+    bool currentAdmitted = false;
+    bool predictedAdmitted = false;
     for (uint local = 0u; local < dispatch.punctureChannelCount; ++local) {
         const NMPunctureChannelGPU channel = channels[channelBase + local];
         if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) == 0u ||
@@ -2237,21 +2240,39 @@ inline bool embeddedPunctureChannelAdmits(
             !(halfLength > 0.0f))
             continue;
         const float3 unitAxis = axis / axisLength;
-        const float3 relative = continuumPoint -
-            channel.originAndRadius.xyz;
-        const float axial = dot(relative, unitAxis);
-        const float radial = length(relative - axial * unitAxis);
         const float geometricTolerance = max(
             0.25f * radius, 8.0f * kGeometryFloor);
         const bool radiusFits =
             (proxy.flags & NM_RIGID_SUTURE_STRAND) == 0u ||
             proxy.localCenterAndRadius.w <= radius + geometricTolerance;
-        if (radiusFits &&
-            abs(axial) <= halfLength + geometricTolerance &&
-            radial <= radius + geometricTolerance)
-            return true;
+        if (!radiusFits) continue;
+
+        const float3 currentRelative = continuumPoint -
+            channel.originAndRadius.xyz;
+        const float currentAxial = dot(currentRelative, unitAxis);
+        const float currentRadial = length(
+            currentRelative - currentAxial * unitAxis);
+        currentAdmitted = currentAdmitted ||
+            (abs(currentAxial) <= halfLength + geometricTolerance &&
+             currentRadial <= radius + geometricTolerance);
+
+        // A channel exemption must not disappear discontinuously at the next
+        // accepted state.  Require the immutable one-step continuum predictor
+        // to remain in the union of compatible tract segments as well.  When a
+        // tissue node is about to leave the tract, its analytic needle row is
+        // therefore activated one transaction early, while separation is still
+        // above the authored IPC floor.  Current and predicted points may lie
+        // in adjacent segments of the curved channel chain.
+        const float3 predictedRelative = predictedContinuumPoint -
+            channel.originAndRadius.xyz;
+        const float predictedAxial = dot(predictedRelative, unitAxis);
+        const float predictedRadial = length(
+            predictedRelative - predictedAxial * unitAxis);
+        predictedAdmitted = predictedAdmitted ||
+            (abs(predictedAxial) <= halfLength + geometricTolerance &&
+             predictedRadial <= radius + geometricTolerance);
     }
-    return false;
+    return currentAdmitted && predictedAdmitted;
 }
 
 kernel void nm_contact_evaluate(
@@ -2355,7 +2376,8 @@ kernel void nm_contact_evaluate(
     const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
     if (embeddedPunctureChannelAdmits(
             dispatch, environment, pair.objectIndex, pair.rigidProxy,
-            point, rigidProxies, punctureChannels))
+            point, point + dt * admissionVelocity,
+            rigidProxies, punctureChannels))
         return;
     if (proxy.adaptiveObjectIndex != NM_INVALID_INDEX) {
         if (proxy.adaptiveObjectIndex >= dispatch.objectCount) {
@@ -2584,6 +2606,7 @@ kernel void nm_contact_certify_post_commit_rigid(
         return;
 
     float3 point;
+    float3 velocity = float3(0.0f);
     float inverseMass = 0.0f;
     if (pair.continuumNode < dispatch.gridNodeCount) {
         if (object.representation != NM_REPRESENTATION_MPM) {
@@ -2600,6 +2623,7 @@ kernel void nm_contact_certify_post_commit_rigid(
             environment * dispatch.objectCount + pair.objectIndex];
         point = node.positionAndMass.xyz +
             objectTimestep(dispatch, scheduler) * node.candidateVelocity.xyz;
+        velocity = node.velocityAndInverseMass.xyz;
         inverseMass = node.velocityAndInverseMass.w;
     } else {
         const uint femNode = pair.continuumNode - dispatch.gridNodeCount;
@@ -2613,14 +2637,19 @@ kernel void nm_contact_certify_post_commit_rigid(
         const NMFEMNodeStateGPU node = femNodes[
             environment * dispatch.femNodeCount + femNode];
         point = node.positionAndMass.xyz;
+        velocity = node.velocityAndInverseMass.xyz;
         inverseMass = node.velocityAndInverseMass.w;
     }
     if (!(inverseMass > 0.0f) || !finite3(point)) return;
 
     const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
+    const NMSchedulerStateGPU scheduler = schedulers[
+        environment * dispatch.objectCount + pair.objectIndex];
     if (embeddedPunctureChannelAdmits(
             dispatch, environment, pair.objectIndex, pair.rigidProxy,
-            point, rigidProxies, punctureChannels))
+            point,
+            point + objectTimestep(dispatch, scheduler) * velocity,
+            rigidProxies, punctureChannels))
         return;
     if (proxy.adaptiveObjectIndex != NM_INVALID_INDEX) {
         if (proxy.adaptiveObjectIndex >= dispatch.objectCount) {

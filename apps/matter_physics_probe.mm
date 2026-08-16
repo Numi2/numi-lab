@@ -730,6 +730,88 @@ numi::matter::CompiledWorld compileSutureProxyWindowCase() {
     return std::move(compiled.world);
 }
 
+numi::matter::CompiledWorld compilePunctureChannelExitCase(
+    const bool exitsOnNextPredictor
+) {
+    auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "puncture-exit material did not parse");
+
+    constexpr double timestep = 1.0e-3;
+    constexpr double channelHalfLength = 1.0e-3;
+    constexpr double channelRadius = 3.5e-4;
+    constexpr double channelTolerance = 0.25 * channelRadius;
+    constexpr double currentAxial =
+        channelHalfLength + channelTolerance - 1.0e-6;
+    constexpr double exitVelocity = 2.0e-3;
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = timestep;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.contactSlop = 1.0e-4;
+    source.mixedSolver.newtonIterations = 16u;
+    source.mixedSolver.minimumContactSeparationRatio = 0.05;
+    source.materials.push_back(std::move(parsed.material));
+
+    numi::matter::RigidProxySource needle;
+    needle.shape = NM_RIGID_CAPSULE;
+    needle.localCenter = {-5.0e-4, 0.0, currentAxial};
+    needle.localExtent = {5.0e-4, 0.0, currentAxial};
+    needle.radiusOrOffset = channelRadius;
+    source.rigidProxies.push_back(needle);
+
+    numi::matter::ObjectSource tissue;
+    tissue.name = exitsOnNextPredictor
+        ? "puncture_channel_predictive_exit"
+        : "puncture_channel_contained_control";
+    tissue.materialIndex = 0u;
+    tissue.representation = numi::matter::Representation::fem;
+    tissue.mixedFEM = false;
+    tissue.characteristicLength = 1.5e-3;
+    tissue.femInitialVelocity = {
+        0.0, 0.0, exitsOnNextPredictor ? exitVelocity : 0.0
+    };
+    const double initialAxial = exitsOnNextPredictor
+        ? currentAxial - timestep * exitVelocity
+        : currentAxial;
+    tissue.femNodes = {
+        {0.0,    4.0e-4, initialAxial},
+        {1.5e-3, 4.0e-4, initialAxial},
+        {0.0,    1.9e-3, initialAxial},
+        {0.0,    4.0e-4, initialAxial + 1.5e-3},
+    };
+    tissue.tetrahedra = {{{0u, 1u, 2u, 3u}}};
+    tissue.mutationPolicy.enabled = true;
+    tissue.femCapacity.punctureChannels = 1u;
+    source.objects.push_back(std::move(tissue));
+
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    std::string failure = "puncture-channel exit world did not compile";
+    for (const auto& diagnostic : compiled.diagnostics) {
+        failure += "; " + diagnostic.message;
+    }
+    require(compiled.succeeded() &&
+                compiled.world.fem.punctureChannels.size() == 1u &&
+                !compiled.world.contact.pairs.empty(),
+        failure);
+
+    NMPunctureChannelGPU& channel =
+        compiled.world.fem.punctureChannels.front();
+    channel.identity = {
+        0u, 0x80000000u, 1u, NM_TOPOLOGY_ACTIVE
+    };
+    channel.originAndRadius = {0.0f, 0.0f, 0.0f,
+        static_cast<float>(channelRadius)};
+    channel.axisAndHalfLength = {0.0f, 0.0f, 1.0f,
+        static_cast<float>(channelHalfLength)};
+    compiled.world.fingerprint =
+        numi::matter::compiledWorldFingerprint(compiled.world);
+    compiled.world.physicsFingerprint = compiled.world.fingerprint;
+    return std::move(compiled.world);
+}
+
 
 numi::matter::CompiledWorld compileStatefulCase(
     const numi::matter::Representation representation
@@ -1572,6 +1654,10 @@ void runPostCommitContactGuard() {
         *worldStatus = {};
         worldStatus->code = MR_STEP_SUCCESS;
         worldStatus->environment = 0u;
+        // Model MetalWorld's provisional rigid publication before a late
+        // post-commit Matter rejection. The latch must retract this substep
+        // from public success accounting when it rejects the transaction.
+        worldStatus->successfulSubsteps = 1u;
 
         const auto initialMatter = runtime.snapshot();
         require(initialMatter.available && !initialMatter.femNodes.empty(),
@@ -1627,6 +1713,8 @@ void runPostCommitContactGuard() {
                     rejected.statuses[0].failingIndex <
                         world.contact.pairs.size() &&
                     worldStatus->code != MR_STEP_SUCCESS &&
+                    worldStatus->successfulSubsteps == 0u &&
+                    worldStatus->failingSubstep == 0u &&
                     rejected.femNodes.size() == initialMatter.femNodes.size() &&
                     std::memcmp(
                         rejected.femNodes.data(), initialMatter.femNodes.data(),
@@ -1647,7 +1735,132 @@ void runPostCommitContactGuard() {
             << ",\"world_status\":" << worldStatus->code
             << ",\"separation\":" << status.diagnostics.x
             << ",\"authored_floor\":" << authoredFloor
+            << ",\"successful_substeps\":"
+            << worldStatus->successfulSubsteps
             << ",\"rollback_exact\":true}\n";
+    }
+}
+
+void runPunctureChannelExitGuard() {
+    @autoreleasepool {
+        const auto containedWorld = compilePunctureChannelExitCase(false);
+        const auto exitingWorld = compilePunctureChannelExitCase(true);
+
+        const auto execute = [](
+            const numi::matter::CompiledWorld& world,
+            const char* label
+        ) {
+            numi::matter::Runtime runtime;
+            const auto initialized = runtime.initialize(world, {
+                .metallib = NUMI_MATTER_METALLIB,
+                .environmentCount = 1u,
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = false,
+                .adaptiveTransfer = false,
+            });
+            require(initialized.encoded && runtime.valid(),
+                std::string(label) + " could not initialize Matter: " +
+                    initialized.message);
+
+            id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+            require(device != nil,
+                std::string(label) + " has no Metal device");
+            id<MTLCommandQueue> queue = [device newCommandQueue];
+            id<MTLBuffer> worldStatuses = [device
+                newBufferWithLength:sizeof(MRMetalWorldStatusGPU)
+                           options:MTLResourceStorageModeShared];
+            require(queue != nil && worldStatuses != nil,
+                std::string(label) + " could not allocate Metal state");
+            auto* worldStatus = static_cast<MRMetalWorldStatusGPU*>(
+                worldStatuses.contents);
+            *worldStatus = {};
+            worldStatus->code = MR_STEP_SUCCESS;
+            worldStatus->environment = 0u;
+
+            id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+            require(commandBuffer != nil,
+                std::string(label) + " could not allocate a command buffer");
+            numi::matter::EncodeRequest request{};
+            request.commandBuffer = (__bridge void*)commandBuffer;
+            request.environmentStatuses = (__bridge void*)worldStatuses;
+            request.phase = numi::matter::EncodePhase::preDynamics;
+            request.controlStep = 0u;
+            request.physicsSubstep = 0u;
+            request.physicsSubsteps = 1u;
+            request.rigidWorldPhysicsSubstep = 0u;
+            request.timestepSeconds = runtime.timestepSeconds();
+            auto encoded = runtime.encode(request);
+            require(encoded.encoded,
+                std::string(label) + " pre-dynamics failed: " +
+                    encoded.message);
+            request.phase = numi::matter::EncodePhase::postCommit;
+            encoded = runtime.encode(request);
+            require(encoded.encoded,
+                std::string(label) + " post-commit failed: " +
+                    encoded.message);
+            [commandBuffer commit];
+            [commandBuffer waitUntilCompleted];
+            require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+                std::string(label) + " Metal transaction did not complete");
+            const auto snapshot = runtime.snapshot();
+            require(snapshot.available && snapshot.statuses.size() == 1u &&
+                        snapshot.statuses[0].code == NM_STATUS_SUCCESS &&
+                        worldStatus->code == MR_STEP_SUCCESS,
+                std::string(label) + " did not retain a healthy transaction");
+            return snapshot;
+        };
+
+        const auto contained = execute(
+            containedWorld, "puncture-channel contained control");
+        const auto exiting = execute(
+            exitingWorld, "puncture-channel predictive exit");
+        std::uint32_t containedContacts = 0u;
+        std::uint32_t exitContacts = 0u;
+        float exitSeparation = std::numeric_limits<float>::infinity();
+        float exitPredictorVelocity = 0.0f;
+        for (const NMContactSampleGPU& sample : contained.contactSamples) {
+            containedContacts +=
+                (sample.identity.w & NM_CONTACT_VALID) != 0u;
+        }
+        for (const NMContactSampleGPU& sample : exiting.contactSamples) {
+            if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+            ++exitContacts;
+            exitSeparation = std::min(
+                exitSeparation, sample.pointAndSeparation.w);
+            exitPredictorVelocity = std::max(
+                exitPredictorVelocity,
+                sample.admissionVelocityAndNormal.z);
+        }
+
+        constexpr float channelRadius = 3.5e-4f;
+        constexpr float channelHalfLength = 1.0e-3f;
+        constexpr float currentAxial =
+            channelHalfLength + 0.25f * channelRadius - 1.0e-6f;
+        constexpr float predictedAxial = currentAxial + 2.0e-6f;
+        const float channelLimit =
+            channelHalfLength + 0.25f * channelRadius;
+        const float authoredFloor =
+            exitingWorld.mixedSolver.contactAcceptance.x *
+            exitingWorld.dispatch.numericalLimits.x;
+        require(containedContacts == 0u && exitContacts >= 1u &&
+                    currentAxial < channelLimit &&
+                    predictedAxial > channelLimit &&
+                    std::isfinite(exitSeparation) &&
+                    exitSeparation > authoredFloor &&
+                    exitPredictorVelocity > 0.0f,
+            "puncture-channel exit did not activate contact one transaction "
+            "before the exemption boundary");
+        std::cout
+            << "{\"schema\":\"numi.matter.puncture-channel-exit.v1\""
+            << ",\"contained_contacts\":" << containedContacts
+            << ",\"predictive_exit_contacts\":" << exitContacts
+            << ",\"current_axial\":" << currentAxial
+            << ",\"predicted_axial\":" << predictedAxial
+            << ",\"channel_limit\":" << channelLimit
+            << ",\"minimum_separation\":" << exitSeparation
+            << ",\"authored_floor\":" << authoredFloor
+            << "}\n";
     }
 }
 
@@ -2911,6 +3124,9 @@ int main(int argc, const char* argv[]) {
         const bool postCommitContactGuard = argc == 2 &&
             std::string_view(argv[1]) ==
                 "--post-commit-contact-guard";
+        const bool punctureChannelExitGuard = argc == 2 &&
+            std::string_view(argv[1]) ==
+                "--puncture-channel-exit-guard";
         const bool sutureProxyWindow = argc == 2 &&
             std::string_view(argv[1]) == "--suture-proxy-window";
         const bool identification = argc == 2 && std::string_view(argv[1]) == "--identification";
@@ -2932,11 +3148,12 @@ int main(int argc, const char* argv[]) {
                 articulatedFootPadSequence ||
                 articulatedFootPadContactBoundary ||
                 postCommitContactGuard ||
+                punctureChannelExitGuard ||
                 sutureProxyWindow ||
                 identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--articulated-foot-pad-contact-boundary|--post-commit-contact-guard|--suture-proxy-window|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--small-scale-remesh|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--articulated-foot-pad-contact-boundary|--post-commit-contact-guard|--puncture-channel-exit-guard|--suture-proxy-window|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--small-scale-remesh|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (articulatedFootPad) {
             runArticulatedFootPadScene();
@@ -2949,6 +3166,9 @@ int main(int argc, const char* argv[]) {
         }
         if (postCommitContactGuard) {
             runPostCommitContactGuard();
+        }
+        if (punctureChannelExitGuard) {
+            runPunctureChannelExitGuard();
         }
         if (sutureProxyWindow) {
             runSutureProxyWindow();
@@ -3294,6 +3514,7 @@ int main(int argc, const char* argv[]) {
             !articulatedFootPad && !articulatedFootPadSequence &&
             !articulatedFootPadContactBoundary &&
             !postCommitContactGuard &&
+            !punctureChannelExitGuard &&
             !sutureProxyWindow &&
             !mixedOnly && !mpmBatch && !statefulMPM && !statefulFEM &&
             !femOnly && !femFree && !femHighRate && !femHighDrop) {
@@ -3360,6 +3581,7 @@ int main(int argc, const char* argv[]) {
             !articulatedFootPad && !articulatedFootPadSequence &&
             !articulatedFootPadContactBoundary &&
             !postCommitContactGuard &&
+            !punctureChannelExitGuard &&
             !sutureProxyWindow &&
             !identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback) {

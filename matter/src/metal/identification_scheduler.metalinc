@@ -568,6 +568,12 @@ kernel void nm_latch_matter_status_into_rigid_world(
     world.failingSubstep = physicsSubstep;
     world.failingIndex = matter.failingIndex;
     world.diagnostics = matter.diagnostics;
+    // Pre-dynamics failures arrive before MetalWorld increments this count;
+    // post-commit failures arrive after its provisional rigid publication.
+    // In both cases the coupled substep is rejected, so the public accounting
+    // must contain only substeps strictly preceding the failing index.
+    world.successfulSubsteps = min(
+        world.successfulSubsteps, physicsSubstep);
     worldStatuses[environment] = world;
 }
 

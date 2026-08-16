@@ -1819,6 +1819,12 @@ if(BUILD_TESTING)
             --post-commit-contact-guard
     )
     add_test(
+        NAME matter.runtime.puncture_channel_exit_guard
+        COMMAND
+            $<TARGET_FILE:metalrobo_matter_physics_probe>
+            --puncture-channel-exit-guard
+    )
+    add_test(
         NAME matter.runtime.suture_proxy_window
         COMMAND
             $<TARGET_FILE:metalrobo_matter_physics_probe>
@@ -1851,6 +1857,7 @@ if(BUILD_TESTING)
         matter.physics.shared_rigid_coupled_contact
         matter.physics.articulated_contact_boundary_recovery
         matter.runtime.post_commit_contact_guard
+        matter.runtime.puncture_channel_exit_guard
         matter.runtime.suture_proxy_window
         matter.scene.poroelastic_plate_compression
         matter.scene.articulated_foot_poroelastic_pad

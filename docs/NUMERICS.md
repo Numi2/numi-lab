@@ -357,6 +357,15 @@ and coordinate-scale FP32 floor. This closes the transaction around rigid jaw
 contact that can change a free needle after the primal candidate was formed: a
 post-integration floor violation latches both Matter and MetalWorld failure and
 rolls continuum, topology, contact history, rigid, and rod state back together.
+The latch retracts a provisionally published rigid substep from successful-step
+accounting, so a late Matter rejection remains a typed physics failure rather
+than an internal-accounting error. An embedded puncture-channel exemption is
+retained only when both the current tissue point and its immutable one-step
+predictor remain inside the union of compatible tract segments. A point about
+to leave a curved tract therefore activates its analytic needle row one
+transaction early, while it is still above the unchanged authored contact
+floor, instead of appearing below that floor after the geometric exemption
+switches off.
 Long strand motion retains a fixed-size contact graph by advancing a
 contiguous DER-edge proxy window only at completed command boundaries. One
 slot changes per advance, so the overlapping physical edge keeps its stable
