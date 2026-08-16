@@ -2557,6 +2557,18 @@ if(BUILD_TESTING)
             TIMEOUT 21600
     )
     add_test(
+        NAME metalrobo.surgical.live_tissue_opposing_bite_reorientation
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-opposing-bite-reorientation-only
+    )
+    set_tests_properties(
+        metalrobo.surgical.live_tissue_opposing_bite_reorientation
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;long"
+            TIMEOUT 43200
+    )
+    add_test(
         NAME metalrobo.surgical.curved_needle_through_wall_passage
         COMMAND
             $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>

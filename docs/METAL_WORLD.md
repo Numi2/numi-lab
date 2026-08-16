@@ -474,7 +474,13 @@ the sampled reorientation sweep, and decrease without penetration on the
 opposing approach. Each instrument path is independently checked against the
 other PSM and the support. This is a kinematic/path certificate; the live
 Matter/DER replay remains the authority for tissue, strand, grasp, and contact
-acceptance.
+acceptance. The `--tissue-opposing-bite-reorientation-only` continuation keeps
+that accepted Matter state resident, resolves the opposing target from current
+deformed contact nodes, and executes clearance, half-turn, and approach as
+separate bounded streams. Every completion boundary rechecks the bilateral
+receiver grasp, hard swage, DER state, tissue determinant, conserved topology,
+and solver residual. Its terminal artifact is explicitly pre-puncture; it does
+not claim a second bite or knot before those contact-driven stages execute.
 
 `HeterogeneousWorld` is the owned compilation boundary above those executors.
 It composes `EngineModel` instances transactionally, records the exact global

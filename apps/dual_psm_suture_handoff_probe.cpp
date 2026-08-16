@@ -436,12 +436,18 @@ constexpr double kReceiverBridgeIKOrientationToleranceRad = 1.0e-5;
 // the symmetric opposing bite. This clears the needle envelope plus its
 // 0.35 mm gauge before the tool approaches the distal wall again.
 constexpr double kOpposingBiteReorientationClearanceM = 1.2e-2;
+// Planning headroom is not an acceptance relaxation: the live certificate
+// still requires 12 mm. It absorbs sub-millimetre grasp/tissue motion between
+// a host-side path audit and the accepted coupled endpoint.
+constexpr double kOpposingBiteClearanceHeadroomM = 5.0e-4;
 // First translate the extracted needle to the distal safe plane without
 // changing its attitude. Rotation begins only after every finite capsule in
 // the half-circle clears the live distal tissue surface by the bound above.
 constexpr double kOpposingBiteDistalClearanceSeconds = 1.0;
 constexpr double kOpposingBiteReorientationSeconds = 3.0;
 constexpr double kOpposingBiteApproachSeconds = 0.75;
+constexpr std::uint32_t kOpposingBiteSettleSteps = 50u;
+constexpr double kOpposingBiteSurfaceTargetToleranceM = 2.0e-4;
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -1059,13 +1065,25 @@ struct TissueBiteSites {
 };
 
 TissueBiteSites tissueBiteSites(
-    const numi::matter::PorcineJejunumClosureCoupon& coupon
+    const numi::matter::PorcineJejunumClosureCoupon& coupon,
+    const std::span<const NMFEMNodeStateGPU> liveNodes = {}
 ) {
     require(
         !coupon.object.femNodes.empty() &&
-            !coupon.object.femContactNodes.empty(),
+            !coupon.object.femContactNodes.empty() &&
+            (liveNodes.empty() ||
+             liveNodes.size() >= coupon.object.femNodes.size()),
         "opposing bite requires an authored tissue contact surface"
     );
+    const auto nodePosition = [&] (const std::size_t node) {
+        require(
+            node < coupon.object.femNodes.size(),
+            "opposing bite node is outside the authored tissue"
+        );
+        return liveNodes.empty()
+            ? vector(coupon.object.femNodes[node])
+            : vector(liveNodes[node].positionAndMass);
+    };
     TissueBiteSites sites;
     sites.longitudinalAxis = vector(coupon.metadata.longitudinalAxis);
     sites.circumferentialAxis = vector(
@@ -1116,8 +1134,10 @@ TissueBiteSites tissueBiteSites(
     double maximumCircumferential = -minimumLongitudinal;
     double minimumThickness = minimumLongitudinal;
     double maximumThickness = -minimumLongitudinal;
-    for (const auto& authored : coupon.object.femNodes) {
-        const Vec3 point = vector(authored);
+    for (std::size_t node = 0u;
+         node < coupon.object.femNodes.size();
+         ++node) {
+        const Vec3 point = nodePosition(node);
         const double longitudinal = dot(point, sites.longitudinalAxis);
         const double circumferential = dot(
             point,
@@ -1163,7 +1183,7 @@ TissueBiteSites tissueBiteSites(
             node < coupon.object.femNodes.size(),
             "opposing bite contact node is outside the tissue topology"
         );
-        const Vec3 point = vector(coupon.object.femNodes[node]);
+        const Vec3 point = nodePosition(node);
         const double firstError = norm(point - firstTarget);
         if (firstError < sites.firstNodeErrorM) {
             sites.firstNodeErrorM = firstError;
@@ -4912,6 +4932,84 @@ KinematicNeedleObservation observeKinematicNeedleContacts(
     return observation;
 }
 
+struct CarriedNeedlePathAudit {
+    std::uint32_t samples = 0u;
+    std::uint32_t unsafeSamples = 0u;
+    std::uint32_t firstUnsafeSample = MR_INVALID_INDEX;
+    std::uint32_t giverNeedleContactSamples = 0u;
+    std::uint32_t crossArmContactSamples = 0u;
+    std::array<std::uint32_t, 2u> minimumReceiverJawContacts{
+        std::numeric_limits<std::uint32_t>::max(),
+        std::numeric_limits<std::uint32_t>::max(),
+    };
+    std::uint32_t minimumReceiverGraspZoneContacts =
+        std::numeric_limits<std::uint32_t>::max();
+};
+
+CarriedNeedlePathAudit auditCarriedNeedlePath(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::CurvedSutureNeedleMetadata& needleMetadata,
+    const ArmTrajectory& trajectory,
+    const std::span<const MRBodyStateGPU> needleTargets
+) {
+    require(
+        !needleTargets.empty() &&
+            trajectory.desiredQ.size() ==
+                needleTargets.size() * world.model.world.nq,
+        "carried-needle path audit has invalid dimensions"
+    );
+    CarriedNeedlePathAudit audit;
+    for (std::uint32_t sample = 0u;
+         sample < needleTargets.size();
+         ++sample) {
+        const std::span<const float> q{
+            trajectory.desiredQ.data() +
+                static_cast<std::size_t>(sample) * world.model.world.nq,
+            world.model.world.nq,
+        };
+        const KinematicNeedleObservation observation =
+            observeKinematicNeedleContacts(
+                world,
+                needleMetadata,
+                q,
+                &needleTargets[sample]
+            );
+        ++audit.samples;
+        audit.giverNeedleContactSamples +=
+            observation.giverNeedleContacts != 0u;
+        audit.crossArmContactSamples +=
+            observation.crossArmContacts != 0u;
+        for (std::uint32_t jaw = 0u; jaw < 2u; ++jaw) {
+            audit.minimumReceiverJawContacts[jaw] = std::min(
+                audit.minimumReceiverJawContacts[jaw],
+                observation.receiverJawContacts[jaw]
+            );
+        }
+        audit.minimumReceiverGraspZoneContacts = std::min(
+            audit.minimumReceiverGraspZoneContacts,
+            observation.receiverGraspZoneContacts
+        );
+        const std::uint32_t receiverJawContacts =
+            observation.receiverJawContacts[0] +
+            observation.receiverJawContacts[1];
+        const bool safe =
+            observation.giverNeedleContacts == 0u &&
+            observation.crossArmContacts == 0u &&
+            observation.receiverJawContacts[0] >= 2u &&
+            observation.receiverJawContacts[1] >= 2u &&
+            observation.receiverGraspZoneContacts == receiverJawContacts &&
+            observation.receiverNeedleContacts == receiverJawContacts;
+        if (!safe) {
+            ++audit.unsafeSamples;
+            audit.firstUnsafeSample = std::min(
+                audit.firstUnsafeSample,
+                sample
+            );
+        }
+    }
+    return audit;
+}
+
 std::string armTargetSummary(
     const metalrobo::EngineModel& model,
     const std::uint32_t arm,
@@ -5825,6 +5923,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-receiver-dynamics-replay-only" ||
             argument == "--tissue-receiver-acquisition-only" ||
             argument == "--tissue-receiver-extraction-only" ||
+            argument == "--tissue-opposing-bite-reorientation-only" ||
             argument == "--receiver-frame-ik-only" ||
             argument == "--receiver-extraction-geometry-only" ||
             argument == "--receiver-extraction-giver-hold-only" ||
@@ -7223,13 +7322,16 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-receiver-acquisition-only";
         const bool tissueReceiverExtractionOnly =
             options.mode == "--tissue-receiver-extraction-only";
+        const bool tissueOpposingBiteReorientationOnly =
+            options.mode == "--tissue-opposing-bite-reorientation-only";
         const bool tissueReceiverLiveSequence =
             tissueOpposingBiteTopologyOnly ||
             tissueReceiverStateBridgeOnly ||
             tissueReceiverAlignmentReplayOnly ||
             tissueReceiverDynamicsReplayOnly ||
             tissueReceiverAcquisitionOnly ||
-            tissueReceiverExtractionOnly;
+            tissueReceiverExtractionOnly ||
+            tissueOpposingBiteReorientationOnly;
         const bool tissuePunctureOnly =
             options.mode == "--tissue-puncture-only" ||
             options.mode == "--tissue-puncture-advance-only" ||
@@ -9047,6 +9149,13 @@ int main(const int argc, const char* const argv[]) {
                     fixtureDistalClearanceSteps,
                     fixtureDistalClearanceTrajectory.desiredQ
                 );
+            const CarriedNeedlePathAudit fixtureDistalClearanceNeedleAudit =
+                auditCarriedNeedlePath(
+                    world,
+                    needleForPlacement.metadata,
+                    fixtureDistalClearanceTrajectory,
+                    fixtureDistalClearanceTargets
+                );
             std::vector<MRBodyStateGPU> fixtureReorientationTargets;
             appendNeedleBodyPoseSegment(
                 fixtureReorientationTargets,
@@ -9075,6 +9184,13 @@ int main(const int argc, const char* const argv[]) {
                     fixtureReorientationSteps,
                     fixtureReorientationTrajectory.desiredQ
                 );
+            const CarriedNeedlePathAudit fixtureReorientationNeedleAudit =
+                auditCarriedNeedlePath(
+                    world,
+                    needleForPlacement.metadata,
+                    fixtureReorientationTrajectory,
+                    fixtureReorientationTargets
+                );
             std::vector<MRBodyStateGPU> fixtureOpposingApproachTargets;
             appendNeedleBodyPoseSegment(
                 fixtureOpposingApproachTargets,
@@ -9102,6 +9218,13 @@ int main(const int argc, const char* const argv[]) {
                     fixtureOpposingApproachTrajectory.finalTarget,
                     fixtureOpposingApproachSteps,
                     fixtureOpposingApproachTrajectory.desiredQ
+                );
+            const CarriedNeedlePathAudit fixtureOpposingApproachNeedleAudit =
+                auditCarriedNeedlePath(
+                    world,
+                    needleForPlacement.metadata,
+                    fixtureOpposingApproachTrajectory,
+                    fixtureOpposingApproachTargets
                 );
             const GraspFrameTarget fixtureOpposingEndTarget =
                 graspFrameTarget(
@@ -9231,6 +9354,7 @@ int main(const int argc, const char* const argv[]) {
                             .samplesWithGiverPadContact == 0u &&
                     fixtureDistalClearancePreflight
                             .samplesWithReceiverPadContact == 0u &&
+                    fixtureDistalClearanceNeedleAudit.unsafeSamples == 0u &&
                     fixtureDistalClearanceMinimumM >=
                         kWholeNeedleDistalClearanceM &&
                     fixtureDistalClearanceFinalM >=
@@ -9248,6 +9372,7 @@ int main(const int argc, const char* const argv[]) {
                             .samplesWithGiverPadContact == 0u &&
                     fixtureReorientationPreflight
                             .samplesWithReceiverPadContact == 0u &&
+                    fixtureReorientationNeedleAudit.unsafeSamples == 0u &&
                     fixtureReorientationMinimumClearanceM >=
                         kOpposingBiteReorientationClearanceM - 1.0e-7 &&
                     fixtureOpposingApproachPreflight
@@ -9256,6 +9381,7 @@ int main(const int argc, const char* const argv[]) {
                             .samplesWithGiverPadContact == 0u &&
                     fixtureOpposingApproachPreflight
                             .samplesWithReceiverPadContact == 0u &&
+                    fixtureOpposingApproachNeedleAudit.unsafeSamples == 0u &&
                     fixtureApproachMinimumClearanceM >=
                         -kPunctureInitialClearanceM &&
                     fixtureApproachMonotonicRegressionM <= 1.0e-9,
@@ -9358,6 +9484,10 @@ int main(const int argc, const char* const argv[]) {
                     ) +
                     " distal_clearance_min=" +
                     preciseScalar(fixtureDistalClearanceMinimumM) +
+                    " distal_clearance_unsafe_needle_samples=" +
+                    std::to_string(
+                        fixtureDistalClearanceNeedleAudit.unsafeSamples
+                    ) +
                     " distal_clearance_final=" +
                     preciseScalar(fixtureDistalClearanceFinalM) +
                     " clearance_regression=" +
@@ -9366,8 +9496,16 @@ int main(const int argc, const char* const argv[]) {
                     preciseScalar(
                         fixtureReorientationMinimumClearanceM
                     ) +
+                    " reorientation_unsafe_needle_samples=" +
+                    std::to_string(
+                        fixtureReorientationNeedleAudit.unsafeSamples
+                    ) +
                     " approach_min_clearance=" +
                     preciseScalar(fixtureApproachMinimumClearanceM) +
+                    " approach_unsafe_needle_samples=" +
+                    std::to_string(
+                        fixtureOpposingApproachNeedleAudit.unsafeSamples
+                    ) +
                     " approach_regression=" +
                     preciseScalar(fixtureApproachMonotonicRegressionM)
             );
@@ -9447,6 +9585,8 @@ int main(const int argc, const char* const argv[]) {
                     << fixtureDistalClearanceTrajectory.maximumVelocityRatio
                     << " opposing_distal_clearance_cross_arm_samples="
                     << fixtureDistalClearancePreflight.samplesWithContact
+                    << " opposing_distal_clearance_unsafe_needle_samples="
+                    << fixtureDistalClearanceNeedleAudit.unsafeSamples
                     << " opposing_reorientation_steps="
                     << fixtureReorientationSteps
                     << " opposing_approach_steps="
@@ -9465,10 +9605,14 @@ int main(const int argc, const char* const argv[]) {
                     << fixtureReorientationTrajectory.limitingVelocity
                     << " reorientation_minimum_whole_needle_clearance_m="
                     << fixtureReorientationMinimumClearanceM
+                    << " reorientation_unsafe_needle_samples="
+                    << fixtureReorientationNeedleAudit.unsafeSamples
                     << " approach_velocity_ratio="
                     << fixtureOpposingApproachTrajectory.maximumVelocityRatio
                     << " approach_minimum_whole_needle_clearance_m="
                     << fixtureApproachMinimumClearanceM
+                    << " opposing_approach_unsafe_needle_samples="
+                    << fixtureOpposingApproachNeedleAudit.unsafeSamples
                     << " reorientation_cross_arm_samples="
                     << fixtureReorientationPreflight.samplesWithContact
                     << " reorientation_giver_pad_samples="
@@ -18641,6 +18785,969 @@ int main(const int argc, const char* const argv[]) {
                             << liveReceiverGpuMilliseconds
                             << " extraction_state_fnv64=0x" << std::hex
                             << extractionStateHash << std::dec
+                            << " failed_steps=0\n";
+                        if (tissueReceiverExtractionOnly) {
+                            return 0;
+                        }
+                        require(
+                            tissueOpposingBiteReorientationOnly,
+                            "live extraction has no selected continuation"
+                        );
+
+                        const TissueBiteSites authoredBiteSites =
+                            tissueBiteSites(tissueCoupon);
+                        const TissueBiteSites extractedBiteSites =
+                            tissueBiteSites(
+                                tissueCoupon,
+                                extractionMatter.femNodes
+                            );
+                        MRBodyStateGPU liveOpposingEntry =
+                            opposingBiteEntryTarget(
+                                needleForPlacement,
+                                placementNeedle,
+                                authoredBiteSites,
+                                extractedBiteSites.opposingDistalSurface,
+                                kPunctureInitialClearanceM
+                            );
+                        const double plannedWholeNeedleClearanceM =
+                            kOpposingBiteReorientationClearanceM +
+                            kOpposingBiteClearanceHeadroomM;
+                        const auto translateLiveNeedleDistally = [&] (
+                            MRBodyStateGPU body,
+                            const double distanceM
+                        ) {
+                            require(
+                                std::isfinite(distanceM) &&
+                                    distanceM >= 0.0,
+                                "live opposing-bite distal translation is "
+                                    "invalid"
+                            );
+                            body.position.x -= static_cast<float>(
+                                thicknessAxis.x * distanceM
+                            );
+                            body.position.y -= static_cast<float>(
+                                thicknessAxis.y * distanceM
+                            );
+                            body.position.z -= static_cast<float>(
+                                thicknessAxis.z * distanceM
+                            );
+                            return body;
+                        };
+                        const auto needleClearanceFromDistalSurface = [&] (
+                            const MRBodyStateGPU& body,
+                            const double distalSurfaceProjection
+                        ) {
+                            return distalSurfaceProjection -
+                                wholeNeedleProjectionRange(
+                                    needleForPlacement,
+                                    body,
+                                    thicknessAxis
+                                ).maximum;
+                        };
+                        const MRBodyStateGPU extractedNeedle =
+                            liveExtracted.result.finalSceneBodies.at(0u);
+                        MRBodyStateGPU liveDistalSafeNeedle =
+                            translateLiveNeedleDistally(
+                                extractedNeedle,
+                                std::max(
+                                    0.0,
+                                    plannedWholeNeedleClearanceM -
+                                        needleClearanceFromDistalSurface(
+                                            extractedNeedle,
+                                            extractionTissue.bottomProjection
+                                        )
+                                )
+                            );
+                        MRBodyStateGPU liveOpposingClearance =
+                            translateLiveNeedleDistally(
+                                liveOpposingEntry,
+                                std::max(
+                                    0.0,
+                                    plannedWholeNeedleClearanceM -
+                                        needleClearanceFromDistalSurface(
+                                            liveOpposingEntry,
+                                            extractionTissue.bottomProjection
+                                        )
+                                )
+                            );
+                        std::vector<MRBodyStateGPU> liveSweepAuditTargets;
+                        appendNeedleBodyPoseSegment(
+                            liveSweepAuditTargets,
+                            liveDistalSafeNeedle,
+                            liveOpposingClearance,
+                            512u
+                        );
+                        double liveSweepAuditMinimumClearanceM =
+                            std::numeric_limits<double>::infinity();
+                        for (const MRBodyStateGPU& target :
+                             liveSweepAuditTargets) {
+                            liveSweepAuditMinimumClearanceM = std::min(
+                                liveSweepAuditMinimumClearanceM,
+                                needleClearanceFromDistalSurface(
+                                    target,
+                                    extractionTissue.bottomProjection
+                                )
+                            );
+                        }
+                        const double liveSweepCorrectionM = std::max(
+                            0.0,
+                            plannedWholeNeedleClearanceM -
+                                liveSweepAuditMinimumClearanceM
+                        );
+                        liveDistalSafeNeedle =
+                            translateLiveNeedleDistally(
+                                liveDistalSafeNeedle,
+                                liveSweepCorrectionM
+                            );
+                        liveOpposingClearance =
+                            translateLiveNeedleDistally(
+                                liveOpposingClearance,
+                                liveSweepCorrectionM
+                            );
+
+                        const std::uint32_t
+                            nominalOpposingDistalClearanceSteps =
+                                static_cast<std::uint32_t>(std::llround(
+                                    kOpposingBiteDistalClearanceSeconds /
+                                        kControlTimestep
+                                ));
+                        const std::uint32_t
+                            liveOpposingDistalClearanceSteps =
+                                liveReceiverSteps(
+                                    nominalOpposingDistalClearanceSteps
+                                );
+                        std::vector<MRBodyStateGPU>
+                            liveOpposingDistalClearanceTargets;
+                        appendNeedleBodyPoseSegment(
+                            liveOpposingDistalClearanceTargets,
+                            extractedNeedle,
+                            liveDistalSafeNeedle,
+                            liveOpposingDistalClearanceSteps
+                        );
+                        const ArmTrajectory liveOpposingDistalClearance =
+                            needleGraspArmTrajectory(
+                                world.model,
+                                psm,
+                                1u,
+                                bridgeReceiverBase,
+                                liveExtracted.result.finalQ,
+                                needleForPlacement,
+                                kExtractionNeedleShape,
+                                liveReceiverReference,
+                                liveOpposingDistalClearanceTargets,
+                                receiverTransportJawCoordinate,
+                                static_cast<double>(
+                                    stepConfig.timestepSeconds
+                                )
+                            );
+                        const CrossArmCollisionScan
+                            liveOpposingDistalClearancePreflight =
+                                scanCrossArmTargetPath(
+                                    world,
+                                    liveExtracted.result.finalQ,
+                                    liveOpposingDistalClearance.finalTarget,
+                                    liveOpposingDistalClearanceSteps,
+                                    liveOpposingDistalClearance.desiredQ
+                                );
+                        const CarriedNeedlePathAudit
+                            liveOpposingDistalClearanceNeedleAudit =
+                                auditCarriedNeedlePath(
+                                    world,
+                                    needleForPlacement.metadata,
+                                    liveOpposingDistalClearance,
+                                    liveOpposingDistalClearanceTargets
+                                );
+                        double plannedDistalClearanceMinimumM =
+                            std::numeric_limits<double>::infinity();
+                        double plannedDistalClearanceFinalM = 0.0;
+                        double plannedDistalClearanceRegressionM = 0.0;
+                        double previousPlannedClearanceM =
+                            needleClearanceFromDistalSurface(
+                                extractedNeedle,
+                                extractionTissue.bottomProjection
+                            );
+                        for (const MRBodyStateGPU& target :
+                             liveOpposingDistalClearanceTargets) {
+                            const double clearanceM =
+                                needleClearanceFromDistalSurface(
+                                    target,
+                                    extractionTissue.bottomProjection
+                                );
+                            plannedDistalClearanceMinimumM = std::min(
+                                plannedDistalClearanceMinimumM,
+                                clearanceM
+                            );
+                            plannedDistalClearanceRegressionM = std::max(
+                                plannedDistalClearanceRegressionM,
+                                previousPlannedClearanceM - clearanceM
+                            );
+                            previousPlannedClearanceM = clearanceM;
+                            plannedDistalClearanceFinalM = clearanceM;
+                        }
+                        require(
+                            liveOpposingDistalClearance
+                                    .maximumVelocityRatio <=
+                                kMaximumCommandVelocityRatio &&
+                                liveOpposingDistalClearancePreflight
+                                        .samplesWithContact == 0u &&
+                                liveOpposingDistalClearancePreflight
+                                        .samplesWithGiverPadContact == 0u &&
+                                liveOpposingDistalClearancePreflight
+                                        .samplesWithReceiverPadContact == 0u &&
+                                liveOpposingDistalClearanceNeedleAudit
+                                        .unsafeSamples == 0u &&
+                                plannedDistalClearanceMinimumM >=
+                                    wholeNeedleDistalClearanceM - 1.0e-7 &&
+                                plannedDistalClearanceFinalM >=
+                                    plannedWholeNeedleClearanceM - 1.0e-7 &&
+                                plannedDistalClearanceRegressionM <= 1.0e-9,
+                            "live receiver distal safe-plane path is not a "
+                                "monotone collision-free carried-needle "
+                                "withdrawal"
+                        );
+
+                        const std::uint32_t liveOpposingSettleSteps =
+                            liveReceiverSteps(kOpposingBiteSettleSteps);
+                        struct LiveNeedleTransportStage {
+                            PhaseResult terminal;
+                            double gpuMilliseconds = 0.0;
+                            std::uint32_t motionSteps = 0u;
+                            std::uint32_t holdSteps = 0u;
+                        };
+                        const auto executeLiveNeedleTransport = [&] (
+                            const ArmTrajectory& trajectory,
+                            const std::uint32_t motionSteps,
+                            const std::string& phase,
+                            const std::string& progressKey
+                        ) {
+                            LiveNeedleTransportStage stage;
+                            LiveReceiverStreamResult motion =
+                                continueLiveReceiverStream(
+                                    trajectory.efforts,
+                                    motionSteps,
+                                    phase,
+                                    progressKey,
+                                    2.0 *
+                                        receiverTissueSpec.thicknessM.value
+                                );
+                            std::vector<float> holdEfforts =
+                                interpolateLiveReceiverTargets(
+                                    motion.terminal.result.finalQ,
+                                    trajectory.finalTarget,
+                                    liveOpposingSettleSteps
+                                );
+                            LiveReceiverStreamResult hold =
+                                continueLiveReceiverStream(
+                                    holdEfforts,
+                                    liveOpposingSettleSteps,
+                                    phase + " settling hold",
+                                    progressKey + "_hold",
+                                    2.0 *
+                                        receiverTissueSpec.thicknessM.value
+                                );
+                            stage.terminal = std::move(hold.terminal);
+                            stage.gpuMilliseconds =
+                                motion.gpuMilliseconds +
+                                hold.gpuMilliseconds;
+                            stage.motionSteps = motionSteps;
+                            stage.holdSteps = liveOpposingSettleSteps;
+                            return stage;
+                        };
+                        LiveNeedleTransportStage liveDistalCleared =
+                            executeLiveNeedleTransport(
+                                liveOpposingDistalClearance,
+                                liveOpposingDistalClearanceSteps,
+                                "live whole-needle distal clearance",
+                                "tissue_opposing_bite_distal_clearance"
+                            );
+                        const numi::matter::RuntimeStateSnapshot
+                            distalClearanceMatter = tissueRuntime.snapshot();
+                        const LiveTissueMetrics distalClearanceTissue =
+                            liveTissueMetrics(
+                                distalClearanceMatter,
+                                "live opposing-bite distal clearance"
+                            );
+                        const ContactCounts distalClearanceContacts =
+                            contactCounts(
+                                world,
+                                liveDistalCleared.terminal.result,
+                                needleForPlacement.metadata,
+                                kNeedleFirstShape
+                            );
+                        const GraspKinematics distalClearanceGrasp =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                liveDistalCleared.terminal.result,
+                                1u,
+                                kExtractionNeedleShape,
+                                liveReceiverReference
+                            );
+                        const RodStateMetrics distalClearanceRod =
+                            rodStateMetrics(
+                                world,
+                                liveDistalCleared.terminal.result
+                            );
+                        const double achievedDistalClearanceM =
+                            needleClearanceFromDistalSurface(
+                                liveDistalCleared.terminal.result
+                                    .finalSceneBodies.at(0u),
+                                distalClearanceTissue.bottomProjection
+                            );
+                        const MRMetalWorldContactStatusGPU&
+                            distalClearanceResidual = requireTerminalResidual(
+                                liveDistalCleared.terminal.result,
+                                "live opposing-bite distal clearance hold"
+                            );
+                        require(
+                            !bilateral(distalClearanceContacts, 0u) &&
+                                bilateral(distalClearanceContacts, 1u) &&
+                                distributedInsertCoverage(
+                                    distalClearanceContacts,
+                                    1u
+                                ) &&
+                                cleanNeedleInteraction(
+                                    distalClearanceContacts,
+                                    false,
+                                    true
+                                ) &&
+                                qualifiedDrivenGrasp(
+                                    distalClearanceGrasp
+                                ) &&
+                                qualifiedTerminalRod(distalClearanceRod) &&
+                                achievedDistalClearanceM >=
+                                    kOpposingBiteReorientationClearanceM &&
+                                swageAttachmentError(
+                                    world,
+                                    liveDistalCleared.terminal.result
+                                ) < kMaximumSwageAttachmentError &&
+                                distalClearanceTissue.channelsUnchanged &&
+                                distalClearanceTissue.activeChannels ==
+                                    passageChannels.size() &&
+                                distalClearanceTissue.activeTetrahedra ==
+                                    tissueCoupon.metadata.tetrahedronCount &&
+                                distalClearanceTissue.removedMassKg == 0.0 &&
+                                distalClearanceTissue.certificatesAccepted &&
+                                distalClearanceTissue.minimumDeterminant > 0.0,
+                            "live receiver did not establish a settled distal "
+                                "whole-needle safe plane: " +
+                                contactSummary(distalClearanceContacts)
+                        );
+                        const std::uint64_t opposingDistalBaseDERSubsteps =
+                            static_cast<std::uint64_t>(
+                                liveDistalCleared.motionSteps +
+                                liveDistalCleared.holdSteps
+                            ) * stepConfig.physicsSubsteps;
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-opposing-bite-distal-clearance",
+                            postBridgeBaseDERSubsteps +
+                                liveAcquisitionBaseDERSubsteps +
+                                liveExtractionPhaseSteps *
+                                    stepConfig.physicsSubsteps +
+                                opposingDistalBaseDERSubsteps,
+                            world,
+                            sutureSpec,
+                            liveDistalCleared.terminal.result
+                        );
+                        std::cout << std::setprecision(9)
+                            << "tissue_opposing_bite_distal_clearance=ok"
+                            << " planned_minimum_clearance_m="
+                            << plannedDistalClearanceMinimumM
+                            << " planned_final_clearance_m="
+                            << plannedDistalClearanceFinalM
+                            << " achieved_clearance_m="
+                            << achievedDistalClearanceM
+                            << " motion_steps="
+                            << liveDistalCleared.motionSteps
+                            << " hold_steps=" << liveDistalCleared.holdSteps
+                            << " receiver_jaw_contacts="
+                            << distalClearanceContacts.jawContacts[1][0]
+                            << '/' << distalClearanceContacts.jawContacts[1][1]
+                            << " thread_maximum_node_speed_mps="
+                            << distalClearanceRod.maximumNodeSpeed
+                            << " thread_minimum_clearance_m="
+                            << distalClearanceRod
+                                   .minimumNonNeighbourSurfaceClearance
+                            << " matter_minimum_determinant="
+                            << distalClearanceTissue.minimumDeterminant
+                            << " terminal_contact_velocity_residual_mps="
+                            << distalClearanceResidual.residuals.y
+                            << " failed_steps=0\n";
+
+                        const TissueBiteSites distalClearanceBiteSites =
+                            tissueBiteSites(
+                                tissueCoupon,
+                                distalClearanceMatter.femNodes
+                            );
+                        liveOpposingEntry = opposingBiteEntryTarget(
+                            needleForPlacement,
+                            placementNeedle,
+                            authoredBiteSites,
+                            distalClearanceBiteSites.opposingDistalSurface,
+                            kPunctureInitialClearanceM
+                        );
+                        liveOpposingClearance =
+                            translateLiveNeedleDistally(
+                                liveOpposingEntry,
+                                std::max(
+                                    0.0,
+                                    plannedWholeNeedleClearanceM -
+                                        needleClearanceFromDistalSurface(
+                                            liveOpposingEntry,
+                                            distalClearanceTissue
+                                                .bottomProjection
+                                        )
+                                )
+                            );
+                        const MRBodyStateGPU liveDistalClearedNeedle =
+                            liveDistalCleared.terminal.result
+                                .finalSceneBodies.at(0u);
+                        double correctedSweepMinimumClearanceM = 0.0;
+                        for (std::uint32_t correction = 0u;
+                             correction < 4u;
+                             ++correction) {
+                            std::vector<MRBodyStateGPU> auditTargets;
+                            appendNeedleBodyPoseSegment(
+                                auditTargets,
+                                liveDistalClearedNeedle,
+                                liveOpposingClearance,
+                                512u
+                            );
+                            correctedSweepMinimumClearanceM =
+                                std::numeric_limits<double>::infinity();
+                            for (const MRBodyStateGPU& target : auditTargets) {
+                                correctedSweepMinimumClearanceM = std::min(
+                                    correctedSweepMinimumClearanceM,
+                                    needleClearanceFromDistalSurface(
+                                        target,
+                                        distalClearanceTissue
+                                            .bottomProjection
+                                    )
+                                );
+                            }
+                            if (correctedSweepMinimumClearanceM >=
+                                plannedWholeNeedleClearanceM - 1.0e-7) {
+                                break;
+                            }
+                            liveOpposingClearance =
+                                translateLiveNeedleDistally(
+                                    liveOpposingClearance,
+                                    plannedWholeNeedleClearanceM -
+                                        correctedSweepMinimumClearanceM
+                                );
+                        }
+                        const std::uint32_t nominalReorientationSteps =
+                            static_cast<std::uint32_t>(std::llround(
+                                kOpposingBiteReorientationSeconds /
+                                    kControlTimestep
+                            ));
+                        const std::uint32_t liveReorientationSteps =
+                            liveReceiverSteps(nominalReorientationSteps);
+                        std::vector<MRBodyStateGPU> liveReorientationTargets;
+                        appendNeedleBodyPoseSegment(
+                            liveReorientationTargets,
+                            liveDistalClearedNeedle,
+                            liveOpposingClearance,
+                            liveReorientationSteps
+                        );
+                        const ArmTrajectory liveReorientationTrajectory =
+                            needleGraspArmTrajectory(
+                                world.model,
+                                psm,
+                                1u,
+                                bridgeReceiverBase,
+                                liveDistalCleared.terminal.result.finalQ,
+                                needleForPlacement,
+                                kExtractionNeedleShape,
+                                liveReceiverReference,
+                                liveReorientationTargets,
+                                receiverTransportJawCoordinate,
+                                static_cast<double>(
+                                    stepConfig.timestepSeconds
+                                )
+                            );
+                        const CrossArmCollisionScan
+                            liveReorientationPreflight =
+                                scanCrossArmTargetPath(
+                                    world,
+                                    liveDistalCleared.terminal.result.finalQ,
+                                    liveReorientationTrajectory.finalTarget,
+                                    liveReorientationSteps,
+                                    liveReorientationTrajectory.desiredQ
+                                );
+                        const CarriedNeedlePathAudit
+                            liveReorientationNeedleAudit =
+                                auditCarriedNeedlePath(
+                                    world,
+                                    needleForPlacement.metadata,
+                                    liveReorientationTrajectory,
+                                    liveReorientationTargets
+                                );
+                        double plannedReorientationMinimumClearanceM =
+                            std::numeric_limits<double>::infinity();
+                        for (const MRBodyStateGPU& target :
+                             liveReorientationTargets) {
+                            plannedReorientationMinimumClearanceM = std::min(
+                                plannedReorientationMinimumClearanceM,
+                                needleClearanceFromDistalSurface(
+                                    target,
+                                    distalClearanceTissue.bottomProjection
+                                )
+                            );
+                        }
+                        require(
+                            correctedSweepMinimumClearanceM >=
+                                    kOpposingBiteReorientationClearanceM &&
+                                plannedReorientationMinimumClearanceM >=
+                                    kOpposingBiteReorientationClearanceM -
+                                        1.0e-7 &&
+                                liveReorientationTrajectory
+                                        .maximumVelocityRatio <=
+                                    kMaximumCommandVelocityRatio &&
+                                liveReorientationPreflight
+                                        .samplesWithContact == 0u &&
+                                liveReorientationPreflight
+                                        .samplesWithGiverPadContact == 0u &&
+                                liveReorientationPreflight
+                                        .samplesWithReceiverPadContact == 0u &&
+                                liveReorientationNeedleAudit.unsafeSamples ==
+                                    0u,
+                            "receiver-held half-turn is not collision-free on "
+                                "the complete-needle distal safe plane"
+                        );
+                        LiveNeedleTransportStage liveReoriented =
+                            executeLiveNeedleTransport(
+                                liveReorientationTrajectory,
+                                liveReorientationSteps,
+                                "live opposing-bite receiver half-turn",
+                                "tissue_opposing_bite_reorientation"
+                            );
+                        const numi::matter::RuntimeStateSnapshot
+                            reorientationMatter = tissueRuntime.snapshot();
+                        const LiveTissueMetrics reorientationTissue =
+                            liveTissueMetrics(
+                                reorientationMatter,
+                                "live opposing-bite reorientation"
+                            );
+                        const ContactCounts reorientationContacts =
+                            contactCounts(
+                                world,
+                                liveReoriented.terminal.result,
+                                needleForPlacement.metadata,
+                                kNeedleFirstShape
+                            );
+                        const GraspKinematics reorientationGrasp =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                liveReoriented.terminal.result,
+                                1u,
+                                kExtractionNeedleShape,
+                                liveReceiverReference
+                            );
+                        const RodStateMetrics reorientationRod =
+                            rodStateMetrics(
+                                world,
+                                liveReoriented.terminal.result
+                            );
+                        const double achievedReorientationClearanceM =
+                            needleClearanceFromDistalSurface(
+                                liveReoriented.terminal.result
+                                    .finalSceneBodies.at(0u),
+                                reorientationTissue.bottomProjection
+                            );
+                        const MRMetalWorldContactStatusGPU&
+                            reorientationResidual = requireTerminalResidual(
+                                liveReoriented.terminal.result,
+                                "live opposing-bite reorientation hold"
+                            );
+                        require(
+                            !bilateral(reorientationContacts, 0u) &&
+                                bilateral(reorientationContacts, 1u) &&
+                                distributedInsertCoverage(
+                                    reorientationContacts,
+                                    1u
+                                ) &&
+                                cleanNeedleInteraction(
+                                    reorientationContacts,
+                                    false,
+                                    true
+                                ) &&
+                                qualifiedDrivenGrasp(reorientationGrasp) &&
+                                qualifiedTerminalRod(reorientationRod) &&
+                                achievedReorientationClearanceM >=
+                                    kOpposingBiteReorientationClearanceM &&
+                                swageAttachmentError(
+                                    world,
+                                    liveReoriented.terminal.result
+                                ) < kMaximumSwageAttachmentError &&
+                                reorientationTissue.channelsUnchanged &&
+                                reorientationTissue.activeChannels ==
+                                    passageChannels.size() &&
+                                reorientationTissue.activeTetrahedra ==
+                                    tissueCoupon.metadata.tetrahedronCount &&
+                                reorientationTissue.removedMassKg == 0.0 &&
+                                reorientationTissue.certificatesAccepted &&
+                                reorientationTissue.minimumDeterminant > 0.0,
+                            "live receiver lost grasp, strand, or tissue "
+                                "integrity during the opposing half-turn: " +
+                                contactSummary(reorientationContacts)
+                        );
+                        const std::uint64_t opposingReorientationBaseSubsteps =
+                            static_cast<std::uint64_t>(
+                                liveReoriented.motionSteps +
+                                liveReoriented.holdSteps
+                            ) * stepConfig.physicsSubsteps;
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-opposing-bite-reoriented",
+                            postBridgeBaseDERSubsteps +
+                                liveAcquisitionBaseDERSubsteps +
+                                liveExtractionPhaseSteps *
+                                    stepConfig.physicsSubsteps +
+                                opposingDistalBaseDERSubsteps +
+                                opposingReorientationBaseSubsteps,
+                            world,
+                            sutureSpec,
+                            liveReoriented.terminal.result
+                        );
+                        std::cout << std::setprecision(9)
+                            << "tissue_opposing_bite_reorientation=ok"
+                            << " planned_minimum_clearance_m="
+                            << plannedReorientationMinimumClearanceM
+                            << " achieved_clearance_m="
+                            << achievedReorientationClearanceM
+                            << " motion_steps=" << liveReoriented.motionSteps
+                            << " hold_steps=" << liveReoriented.holdSteps
+                            << " receiver_seat_drift_m="
+                            << reorientationGrasp.seatDrift
+                            << " thread_maximum_node_speed_mps="
+                            << reorientationRod.maximumNodeSpeed
+                            << " thread_minimum_clearance_m="
+                            << reorientationRod
+                                   .minimumNonNeighbourSurfaceClearance
+                            << " matter_minimum_determinant="
+                            << reorientationTissue.minimumDeterminant
+                            << " terminal_contact_velocity_residual_mps="
+                            << reorientationResidual.residuals.y
+                            << " failed_steps=0\n";
+
+                        const TissueBiteSites reorientedBiteSites =
+                            tissueBiteSites(
+                                tissueCoupon,
+                                reorientationMatter.femNodes
+                            );
+                        const MRBodyStateGPU currentReorientedNeedle =
+                            liveReoriented.terminal.result
+                                .finalSceneBodies.at(0u);
+                        liveOpposingEntry = opposingBiteEntryTarget(
+                            needleForPlacement,
+                            placementNeedle,
+                            authoredBiteSites,
+                            reorientedBiteSites.opposingDistalSurface,
+                            kPunctureInitialClearanceM
+                        );
+                        const std::uint32_t nominalOpposingApproachSteps =
+                            static_cast<std::uint32_t>(std::llround(
+                                kOpposingBiteApproachSeconds /
+                                    kControlTimestep
+                            ));
+                        const std::uint32_t liveOpposingApproachSteps =
+                            liveReceiverSteps(nominalOpposingApproachSteps);
+                        std::vector<MRBodyStateGPU> liveOpposingApproachTargets;
+                        appendNeedleBodyPoseSegment(
+                            liveOpposingApproachTargets,
+                            currentReorientedNeedle,
+                            liveOpposingEntry,
+                            liveOpposingApproachSteps
+                        );
+                        const ArmTrajectory liveOpposingApproach =
+                            needleGraspArmTrajectory(
+                                world.model,
+                                psm,
+                                1u,
+                                bridgeReceiverBase,
+                                liveReoriented.terminal.result.finalQ,
+                                needleForPlacement,
+                                kExtractionNeedleShape,
+                                liveReceiverReference,
+                                liveOpposingApproachTargets,
+                                receiverTransportJawCoordinate,
+                                static_cast<double>(
+                                    stepConfig.timestepSeconds
+                                )
+                            );
+                        const CrossArmCollisionScan
+                            liveOpposingApproachPreflight =
+                                scanCrossArmTargetPath(
+                                    world,
+                                    liveReoriented.terminal.result.finalQ,
+                                    liveOpposingApproach.finalTarget,
+                                    liveOpposingApproachSteps,
+                                    liveOpposingApproach.desiredQ
+                                );
+                        const CarriedNeedlePathAudit
+                            liveOpposingApproachNeedleAudit =
+                                auditCarriedNeedlePath(
+                                    world,
+                                    needleForPlacement.metadata,
+                                    liveOpposingApproach,
+                                    liveOpposingApproachTargets
+                                );
+                        double plannedApproachMinimumClearanceM =
+                            std::numeric_limits<double>::infinity();
+                        double plannedApproachClearanceRegressionM = 0.0;
+                        double previousApproachClearanceM =
+                            needleClearanceFromDistalSurface(
+                                currentReorientedNeedle,
+                                reorientationTissue.bottomProjection
+                            );
+                        for (const MRBodyStateGPU& target :
+                             liveOpposingApproachTargets) {
+                            const double clearanceM =
+                                needleClearanceFromDistalSurface(
+                                    target,
+                                    reorientationTissue.bottomProjection
+                                );
+                            plannedApproachMinimumClearanceM = std::min(
+                                plannedApproachMinimumClearanceM,
+                                clearanceM
+                            );
+                            plannedApproachClearanceRegressionM = std::max(
+                                plannedApproachClearanceRegressionM,
+                                clearanceM - previousApproachClearanceM
+                            );
+                            previousApproachClearanceM = clearanceM;
+                        }
+                        require(
+                            liveOpposingApproach.maximumVelocityRatio <=
+                                    kMaximumCommandVelocityRatio &&
+                                liveOpposingApproachPreflight
+                                        .samplesWithContact == 0u &&
+                                liveOpposingApproachPreflight
+                                        .samplesWithGiverPadContact == 0u &&
+                                liveOpposingApproachPreflight
+                                        .samplesWithReceiverPadContact == 0u &&
+                                liveOpposingApproachNeedleAudit.unsafeSamples ==
+                                    0u &&
+                                plannedApproachMinimumClearanceM >= 0.0 &&
+                                plannedApproachClearanceRegressionM <= 1.0e-7,
+                            "opposing-bite approach is not a monotone, "
+                                "collision-free pre-puncture path"
+                        );
+                        LiveNeedleTransportStage liveOpposingReady =
+                            executeLiveNeedleTransport(
+                                liveOpposingApproach,
+                                liveOpposingApproachSteps,
+                                "live opposing-bite tissue approach",
+                                "tissue_opposing_bite_approach"
+                            );
+                        const numi::matter::RuntimeStateSnapshot
+                            opposingReadyMatter = tissueRuntime.snapshot();
+                        const LiveTissueMetrics opposingReadyTissue =
+                            liveTissueMetrics(
+                                opposingReadyMatter,
+                                "live opposing-bite ready hold"
+                            );
+                        const TissueBiteSites opposingReadySites =
+                            tissueBiteSites(
+                                tissueCoupon,
+                                opposingReadyMatter.femNodes
+                            );
+                        const ContactCounts opposingReadyContacts =
+                            contactCounts(
+                                world,
+                                liveOpposingReady.terminal.result,
+                                needleForPlacement.metadata,
+                                kNeedleFirstShape
+                            );
+                        const GraspKinematics opposingReadyGrasp =
+                            graspKinematics(
+                                world,
+                                needleForPlacement,
+                                liveOpposingReady.terminal.result,
+                                1u,
+                                kExtractionNeedleShape,
+                                liveReceiverReference
+                            );
+                        const RodStateMetrics opposingReadyRod =
+                            rodStateMetrics(
+                                world,
+                                liveOpposingReady.terminal.result
+                            );
+                        const NeedleTipCapsuleGeometry opposingReadyTip =
+                            needleTipCapsuleGeometry(
+                                needleForPlacement,
+                                liveOpposingReady.terminal.result
+                                    .finalSceneBodies.at(0u)
+                            );
+                        const Vec3 opposingReadyCapsuleSurface =
+                            opposingReadyTip.worldTip +
+                            opposingReadyTip.approachDirection *
+                                opposingReadyTip.radiusM;
+                        const Vec3 opposingReadySurfaceDelta =
+                            opposingReadySites.opposingDistalSurface -
+                            opposingReadyCapsuleSurface;
+                        const double opposingReadyAxialClearanceM = dot(
+                            opposingReadySurfaceDelta,
+                            opposingReadyTip.approachDirection
+                        );
+                        const double opposingReadyLateralErrorM = norm(
+                            opposingReadySurfaceDelta -
+                            opposingReadyTip.approachDirection *
+                                opposingReadyAxialClearanceM
+                        );
+                        const Vec3 opposingReadyExpectedSurface =
+                            opposingReadyCapsuleSurface +
+                            opposingReadyTip.approachDirection *
+                                kPunctureInitialClearanceM;
+                        const double opposingReadyTargetErrorM = norm(
+                            opposingReadyExpectedSurface -
+                            opposingReadySites.opposingDistalSurface
+                        );
+                        const double opposingReadyDirectionAlignment = dot(
+                            opposingReadyTip.approachDirection,
+                            thicknessAxis
+                        );
+                        const double opposingReadyWholeNeedleClearanceM =
+                            needleClearanceFromDistalSurface(
+                                liveOpposingReady.terminal.result
+                                    .finalSceneBodies.at(0u),
+                                opposingReadyTissue.bottomProjection
+                            );
+                        const MRMetalWorldContactStatusGPU&
+                            opposingReadyResidual = requireTerminalResidual(
+                                liveOpposingReady.terminal.result,
+                                "live opposing-bite ready hold"
+                            );
+                        require(
+                            !bilateral(opposingReadyContacts, 0u) &&
+                                bilateral(opposingReadyContacts, 1u) &&
+                                distributedInsertCoverage(
+                                    opposingReadyContacts,
+                                    1u
+                                ) &&
+                                cleanNeedleInteraction(
+                                    opposingReadyContacts,
+                                    false,
+                                    true
+                                ) &&
+                                qualifiedDrivenGrasp(opposingReadyGrasp) &&
+                                qualifiedTerminalRod(opposingReadyRod) &&
+                                opposingReadyDirectionAlignment >= 0.999 &&
+                                opposingReadyAxialClearanceM >=
+                                    0.5 * kPunctureInitialClearanceM &&
+                                opposingReadyAxialClearanceM <=
+                                    kOpposingBiteSurfaceTargetToleranceM &&
+                                opposingReadyLateralErrorM <=
+                                    kOpposingBiteSurfaceTargetToleranceM &&
+                                opposingReadyTargetErrorM <=
+                                    kOpposingBiteSurfaceTargetToleranceM &&
+                                opposingReadyWholeNeedleClearanceM >= 0.0 &&
+                                swageAttachmentError(
+                                    world,
+                                    liveOpposingReady.terminal.result
+                                ) < kMaximumSwageAttachmentError &&
+                                opposingReadyTissue.channelsUnchanged &&
+                                opposingReadyTissue.activeChannels ==
+                                    passageChannels.size() &&
+                                opposingReadyTissue.activeTetrahedra ==
+                                    tissueCoupon.metadata.tetrahedronCount &&
+                                opposingReadyTissue.removedMassKg == 0.0 &&
+                                opposingReadyTissue.certificatesAccepted &&
+                                opposingReadyTissue.minimumDeterminant > 0.0,
+                            "receiver did not deliver a settled, intact needle "
+                                "to the live opposing pre-puncture surface: " +
+                                contactSummary(opposingReadyContacts)
+                        );
+                        const std::uint64_t opposingApproachBaseSubsteps =
+                            static_cast<std::uint64_t>(
+                                liveOpposingReady.motionSteps +
+                                liveOpposingReady.holdSteps
+                            ) * stepConfig.physicsSubsteps;
+                        std::uint64_t opposingReadyStateHash =
+                            1469598103934665603ull;
+                        appendStateHash(
+                            opposingReadyStateHash,
+                            liveOpposingReady.terminal.result.finalQ
+                        );
+                        appendStateHash(
+                            opposingReadyStateHash,
+                            liveOpposingReady.terminal.result.finalV
+                        );
+                        appendStateHash(
+                            opposingReadyStateHash,
+                            liveOpposingReady.terminal.result.finalSceneBodies
+                        );
+                        appendStateHash(
+                            opposingReadyStateHash,
+                            liveOpposingReady.terminal.result.finalRodNodes
+                        );
+                        appendStateHash(
+                            opposingReadyStateHash,
+                            opposingReadyMatter.femNodes
+                        );
+                        appendStateHash(
+                            opposingReadyStateHash,
+                            opposingReadyMatter.punctureChannels
+                        );
+                        writeHandoffStateArtifact(
+                            options.stateOutputDirectory,
+                            "tissue-opposing-bite-ready",
+                            postBridgeBaseDERSubsteps +
+                                liveAcquisitionBaseDERSubsteps +
+                                liveExtractionPhaseSteps *
+                                    stepConfig.physicsSubsteps +
+                                opposingDistalBaseDERSubsteps +
+                                opposingReorientationBaseSubsteps +
+                                opposingApproachBaseSubsteps,
+                            world,
+                            sutureSpec,
+                            liveOpposingReady.terminal.result
+                        );
+                        const double opposingTransportGpuMilliseconds =
+                            liveDistalCleared.gpuMilliseconds +
+                            liveReoriented.gpuMilliseconds +
+                            liveOpposingReady.gpuMilliseconds;
+                        std::cout << std::setprecision(9)
+                            << "tissue_opposing_bite_ready=ok"
+                            << " procedure_stage=pre_puncture"
+                            << " puncture_dispatched=false"
+                            << " distal_clearance_m="
+                            << achievedDistalClearanceM
+                            << " reorientation_clearance_m="
+                            << achievedReorientationClearanceM
+                            << " opposing_axial_clearance_m="
+                            << opposingReadyAxialClearanceM
+                            << " opposing_lateral_error_m="
+                            << opposingReadyLateralErrorM
+                            << " opposing_target_error_m="
+                            << opposingReadyTargetErrorM
+                            << " opposing_direction_alignment="
+                            << opposingReadyDirectionAlignment
+                            << " receiver_jaw_contacts="
+                            << opposingReadyContacts.jawContacts[1][0]
+                            << '/' << opposingReadyContacts.jawContacts[1][1]
+                            << " active_puncture_channels="
+                            << opposingReadyTissue.activeChannels
+                            << " active_tetrahedra="
+                            << opposingReadyTissue.activeTetrahedra
+                            << " removed_tissue_mass_kg="
+                            << opposingReadyTissue.removedMassKg
+                            << " matter_minimum_determinant="
+                            << opposingReadyTissue.minimumDeterminant
+                            << " thread_maximum_node_speed_mps="
+                            << opposingReadyRod.maximumNodeSpeed
+                            << " thread_minimum_clearance_m="
+                            << opposingReadyRod
+                                   .minimumNonNeighbourSurfaceClearance
+                            << " terminal_contact_velocity_residual_mps="
+                            << opposingReadyResidual.residuals.y
+                            << " opposing_transport_gpu_ms="
+                            << opposingTransportGpuMilliseconds
+                            << " opposing_ready_state_fnv64=0x" << std::hex
+                            << opposingReadyStateHash << std::dec
                             << " failed_steps=0\n";
                         return 0;
                     }
