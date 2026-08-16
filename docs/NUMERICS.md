@@ -363,6 +363,11 @@ slot changes per advance, so the overlapping physical edge keeps its stable
 proxy identity and friction history; the retired slot's history is cleared on
 Metal before it is rebound. The active edge list and completed binding revision
 are explicit snapshot evidence rather than an untracked host-side alias.
+Contact-critical motion can refine that same transaction by a power-of-two
+coupled timestep divisor between command buffers. Matter, DER, rigid bodies,
+and commands all use the exact refined step; physical-duration preservation is
+owned by the caller's expanded command stream. The canonical multiplier and
+divisor are snapshot evidence, and selecting either resets the other to one.
 The v1 MetalWorld contract owns one articulation per environment; all of its
 collision proxies therefore share one articulated generalized/q reserve, while
 each distinct free body contributes exactly six additional coordinates.

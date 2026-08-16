@@ -1680,6 +1680,12 @@ void runSutureProxyWindow() {
                         std::vector<std::uint32_t>(advanced.begin(), advanced.end()) &&
                     binding.sutureProxyBindingRevision == 1u,
             "suture proxy window did not publish its active binding evidence");
+        const float baseTimestep = runtime.timestepSeconds();
+        require(runtime.setCoupledTimestepDivisor(2u) &&
+                    runtime.coupledTimestepMultiplier() == 1u &&
+                    runtime.coupledTimestepDivisor() == 2u &&
+                    runtime.timestepSeconds() == baseTimestep * 0.5f,
+            "suture proxy window could not select exact half-step cadence");
 
         std::array<MRRodNodeStateGPU, 4u> rodNodes{};
         for (std::uint32_t node = 0u; node < rodNodes.size(); ++node) {
@@ -1738,6 +1744,8 @@ void runSutureProxyWindow() {
         const auto projected = runtime.snapshot();
         require(projected.available && projected.statuses.size() == 1u &&
                     projected.statuses[0].code == NM_STATUS_SUCCESS &&
+                    projected.coupledTimestepMultiplier == 1u &&
+                    projected.coupledTimestepDivisor == 2u &&
                     projected.rigidStates.size() == 2u &&
                     std::abs(projected.rigidStates[0].centerAndRadius.x -
                         rodNodes[2].position.x) <= 1.0e-7f &&
@@ -1754,6 +1762,8 @@ void runSutureProxyWindow() {
             << projected.sutureProxyEdges[1] << ']'
             << ",\"revision\":"
             << projected.sutureProxyBindingRevision
+            << ",\"cadence\":\"1/"
+            << projected.coupledTimestepDivisor << "\""
             << ",\"slot0_endpoints\":["
             << projected.rigidStates[0].centerAndRadius.x << ','
             << projected.rigidStates[0].extent.x << "]}\n";

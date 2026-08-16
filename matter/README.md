@@ -104,9 +104,10 @@ the tissue, and scatter accepted equal-and-opposite contact impulse back to
 the two DER nodes before rod integration. The Matter timestep must be an
 integer grouping of the owning rod cadence, so tissue, needle, hard swage and
 thread remain one deterministic device transaction. A live-strand runtime may
-select a power-of-two coupled timestep multiplier only between submissions;
-this retains accepted state while grouping that exact number of base DER
-substeps and never runs hidden Matter microticks against frozen rod geometry.
+select a power-of-two coupled timestep multiplier or divisor only between
+submissions; this retains accepted state while grouping or refining the exact
+base DER step and never runs hidden Matter microticks against frozen rod
+geometry. The active canonical ratio is recorded in completion snapshots.
 Long-running pull-through and knot phases may also move a contiguous strand
 proxy window one DER edge at a time between submissions. Every move retains
 the overlapping proxy slot and its friction history, resets only the retired

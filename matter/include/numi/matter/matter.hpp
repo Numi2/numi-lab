@@ -729,6 +729,11 @@ struct RuntimeStateSnapshot {
     // The revision advances only after a completed phase-boundary GPU update.
     std::vector<std::uint32_t> sutureProxyEdges;
     std::uint64_t sutureProxyBindingRevision = 0u;
+    // Invocation cadence relative to the cooked base DER/Matter timestep.
+    // The active timestep is base * multiplier / divisor. Exactly one side
+    // differs from one, so the ratio has a canonical replay representation.
+    std::uint32_t coupledTimestepMultiplier = 1u;
+    std::uint32_t coupledTimestepDivisor = 1u;
     std::vector<NMParticleStateGPU> particles;
     std::vector<NMFEMNodeStateGPU> femNodes;
     std::vector<NMFEMFieldStateGPU> femFields;
@@ -839,6 +844,14 @@ public:
         std::uint32_t multiplier
     ) noexcept;
     [[nodiscard]] std::uint32_t coupledTimestepMultiplier() const noexcept;
+    // Selects a power-of-two refinement of the externally coupled
+    // DER/Matter transaction. Accepted state is retained, no hidden Matter
+    // microticks are introduced, and the owning MetalWorld step must use the
+    // same refined timestep. Selecting a divisor resets the multiplier to one.
+    [[nodiscard]] bool setCoupledTimestepDivisor(
+        std::uint32_t divisor
+    ) noexcept;
+    [[nodiscard]] std::uint32_t coupledTimestepDivisor() const noexcept;
     [[nodiscard]] float timestepSeconds() const noexcept;
     [[nodiscard]] RuntimeStateSnapshot snapshot() const;
     [[nodiscard]] void* eventBuffer() const noexcept;

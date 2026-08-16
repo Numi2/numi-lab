@@ -332,6 +332,7 @@ struct Runtime::State {
     std::vector<std::uint32_t> sutureProxyEdges;
     std::uint64_t sutureProxyBindingRevision = 0u;
     std::atomic<std::uint32_t> coupledTimestepMultiplier{1u};
+    std::atomic<std::uint32_t> coupledTimestepDivisor{1u};
     std::shared_ptr<CommandOwnership> commandOwnership =
         std::make_shared<CommandOwnership>();
     std::shared_ptr<GrowthOwnership> growthOwnership =
@@ -1920,6 +1921,11 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
         const float activeTimestep = cookedTimestep *
             static_cast<float>(
                 state.coupledTimestepMultiplier.load(
+                    std::memory_order_acquire
+                )
+            ) /
+            static_cast<float>(
+                state.coupledTimestepDivisor.load(
                     std::memory_order_acquire
                 )
             );
@@ -6011,6 +6017,10 @@ bool Runtime::setCoupledTimestepMultiplier(
             multiplier,
             std::memory_order_release
         );
+        state_->coupledTimestepDivisor.store(
+            1u,
+            std::memory_order_release
+        );
         return true;
     } catch (...) {
         return false;
@@ -6023,10 +6033,56 @@ std::uint32_t Runtime::coupledTimestepMultiplier() const noexcept {
         : 0u;
 }
 
+bool Runtime::setCoupledTimestepDivisor(
+    const std::uint32_t divisor
+) noexcept {
+    if (state_ == nullptr || divisor == 0u ||
+        (divisor & (divisor - 1u)) != 0u ||
+        divisor > (1u << NM_MAX_RATE_EXPONENT) ||
+        !state_->requiresRodNodes ||
+        state_->dispatch.maximumRateExponent != 0u) {
+        return false;
+    }
+    try {
+        const auto ownership = state_->commandOwnership;
+        const std::lock_guard lock(ownership->mutex);
+        if (ownership->activeCommandBuffer != nullptr ||
+            ownership->preDynamicsOpen) {
+            return false;
+        }
+        const float activeTimestep =
+            state_->dispatch.gravityAndTimestep.w /
+            static_cast<float>(divisor);
+        if (!std::isfinite(activeTimestep) || !(activeTimestep > 0.0f)) {
+            return false;
+        }
+        state_->coupledTimestepMultiplier.store(
+            1u,
+            std::memory_order_release
+        );
+        state_->coupledTimestepDivisor.store(
+            divisor,
+            std::memory_order_release
+        );
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+std::uint32_t Runtime::coupledTimestepDivisor() const noexcept {
+    return state_
+        ? state_->coupledTimestepDivisor.load(std::memory_order_acquire)
+        : 0u;
+}
+
 float Runtime::timestepSeconds() const noexcept {
     return state_
         ? state_->dispatch.gravityAndTimestep.w *
             static_cast<float>(state_->coupledTimestepMultiplier.load(
+                std::memory_order_acquire
+            )) /
+            static_cast<float>(state_->coupledTimestepDivisor.load(
                 std::memory_order_acquire
             ))
         : 0.0f;
@@ -6050,6 +6106,14 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         snapshot.sutureProxyEdges = state_->sutureProxyEdges;
         snapshot.sutureProxyBindingRevision =
             state_->sutureProxyBindingRevision;
+        snapshot.coupledTimestepMultiplier =
+            state_->coupledTimestepMultiplier.load(
+                std::memory_order_acquire
+            );
+        snapshot.coupledTimestepDivisor =
+            state_->coupledTimestepDivisor.load(
+                std::memory_order_acquire
+            );
     }
     @autoreleasepool {
         const auto copy = [&](id<MTLBuffer> source) -> id<MTLBuffer> {
