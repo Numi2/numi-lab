@@ -217,7 +217,7 @@ constexpr std::uint32_t kReceiverApproachSettleSteps = 50u;
 // does not reset Matter, DER, contact history, or articulation state; it only
 // creates completion boundaries at which the accepted tissue certificate can
 // be inspected before investing in the next physical interval.
-constexpr std::uint32_t kLiveReceiverChunkSteps = 16u;
+constexpr double kLiveReceiverChunkDurationS = 4.0e-3;
 // The giver may reseat the needle during receiver approach. Reacquire the
 // resulting live handling frame with the receiver still open, then hold it
 // clear before introducing the first receiver contact.
@@ -14504,14 +14504,16 @@ int main(const int argc, const char* const argv[]) {
 
                         // The post-puncture Matter state remains private and
                         // resident in bridgeResident. The complete needle has
-                        // not cleared the tissue yet, so receiver acquisition
-                        // retains the already-qualified 4 kHz passage cadence
-                        // rather than the 1 kHz free-pull cadence. Trajectory
-                        // sample counts expand to preserve the physical 2 ms
-                        // command duration and joint velocities at the active
-                        // 0.25 ms coupled transaction interval.
+                        // not cleared the tissue yet. A live 4 kHz replay
+                        // measured 11.8 mm/s admission motion at the shank;
+                        // one 250 us transaction then consumed 2.95 um of the
+                        // authored 5 um contact-acceptance margin. Retain the
+                        // already-qualified 16 kHz contact-bearing cadence
+                        // until the whole needle and swage root clear the
+                        // distal wall. Trajectory samples expand to preserve
+                        // physical duration and joint velocity at 62.5 us.
                         selectCoupledCadence(
-                            kSuturePassageMatterRateMultiplier,
+                            kSutureContactMatterRateMultiplier,
                             "live tissue receiver acquisition"
                         );
                         const double receiverCadenceScale =
@@ -14963,9 +14965,19 @@ int main(const int argc, const char* const argv[]) {
                                 phase + " effort stream has invalid dimensions"
                             );
                             LiveReceiverStreamResult stream;
+                            const std::uint32_t maximumChunkSteps =
+                                std::max<std::uint32_t>(
+                                    1u,
+                                    static_cast<std::uint32_t>(std::llround(
+                                        kLiveReceiverChunkDurationS /
+                                        static_cast<double>(
+                                            stepConfig.timestepSeconds
+                                        )
+                                    ))
+                                );
                             while (stream.completedSteps < phaseSteps) {
                                 const std::uint32_t chunkSteps = std::min(
-                                    kLiveReceiverChunkSteps,
+                                    maximumChunkSteps,
                                     phaseSteps - stream.completedSteps
                                 );
                                 const std::size_t begin =
