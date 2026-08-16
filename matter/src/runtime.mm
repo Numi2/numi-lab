@@ -327,6 +327,10 @@ struct Runtime::State {
     bool requiresSceneBodies = false;
     bool requiresRodNodes = false;
     bool hasAdaptive = false;
+    std::vector<NMRigidProxyGPU> rigidProxyLayout;
+    std::vector<std::uint32_t> sutureProxyIndices;
+    std::vector<std::uint32_t> sutureProxyEdges;
+    std::uint64_t sutureProxyBindingRevision = 0u;
     std::atomic<std::uint32_t> coupledTimestepMultiplier{1u};
     std::shared_ptr<CommandOwnership> commandOwnership =
         std::make_shared<CommandOwnership>();
@@ -730,6 +734,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_checkpoint_histories",
             "nm_contact_commit_histories",
             "nm_contact_rollback_histories",
+            "nm_contact_clear_remapped_suture_histories",
             "nm_contact_checkpoint_deformable_contact_histories",
             "nm_contact_commit_deformable_contact_histories",
             "nm_contact_rollback_deformable_contact_histories",
@@ -990,6 +995,16 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->rigidProxies = uploads.one(
             std::span<const NMRigidProxyGPU>(world.contact.rigidProxies),
             valid, candidate->residentBytes);
+        candidate->rigidProxyLayout = world.contact.rigidProxies;
+        for (std::uint32_t proxyIndex = 0u;
+             proxyIndex < world.contact.rigidProxies.size();
+             ++proxyIndex) {
+            const NMRigidProxyGPU& proxy =
+                world.contact.rigidProxies[proxyIndex];
+            if ((proxy.flags & NM_RIGID_SUTURE_STRAND) == 0u) continue;
+            candidate->sutureProxyIndices.push_back(proxyIndex);
+            candidate->sutureProxyEdges.push_back(proxy.bodyIndex);
+        }
         candidate->contactPairs = uploads.one(
             std::span<const NMContactPairGPU>(world.contact.pairs),
             valid, candidate->residentBytes);
@@ -5824,6 +5839,151 @@ bool Runtime::requiresRigidContactEvidence() const noexcept {
         state_->hasAdaptive;
 }
 
+RuntimeDiagnostics Runtime::setSutureProxyEdges(
+    const std::span<const std::uint32_t> firstRodEdges,
+    const std::uint32_t rodNodeCount
+) {
+    RuntimeDiagnostics diagnostics;
+    if (state_ == nullptr) {
+        diagnostics.message = "Matter runtime is not initialized";
+        return diagnostics;
+    }
+    State& state = *state_;
+    const auto ownership = state.commandOwnership;
+    std::unique_lock lock(ownership->mutex);
+    if (ownership->activeCommandBuffer != nullptr ||
+        ownership->preDynamicsOpen) {
+        diagnostics.message =
+            "suture proxy bindings require a completed command boundary";
+        return diagnostics;
+    }
+    if (state.sutureProxyIndices.empty() ||
+        firstRodEdges.size() != state.sutureProxyIndices.size() ||
+        rodNodeCount < 2u) {
+        diagnostics.message =
+            "suture proxy binding dimensions do not match the cooked window";
+        return diagnostics;
+    }
+
+    std::vector<std::uint32_t> sortedEdges(
+        firstRodEdges.begin(), firstRodEdges.end());
+    std::ranges::sort(sortedEdges);
+    for (std::size_t slot = 0u; slot < sortedEdges.size(); ++slot) {
+        if (sortedEdges[slot] >= rodNodeCount - 1u ||
+            sortedEdges[slot] != sortedEdges.front() + slot) {
+            diagnostics.message =
+                "suture proxy edges must form one in-range contiguous window";
+            return diagnostics;
+        }
+    }
+
+    std::vector<NMRigidProxyGPU> updated = state.rigidProxyLayout;
+    std::vector<std::uint32_t> remapped(
+        state.dispatch.rigidProxyCount, 0u);
+    std::uint32_t changedCount = 0u;
+    std::uint32_t requiredRodNodes = state.requiredRodNodeCount;
+    for (std::size_t slot = 0u; slot < firstRodEdges.size(); ++slot) {
+        const std::uint32_t proxyIndex = state.sutureProxyIndices[slot];
+        const std::uint32_t edge = firstRodEdges[slot];
+        requiredRodNodes = std::max(requiredRodNodes, edge + 2u);
+        if (edge == state.sutureProxyEdges[slot]) continue;
+        ++changedCount;
+        remapped[proxyIndex] = 1u;
+        updated[proxyIndex].bodyIndex = edge;
+        updated[proxyIndex].sceneBodyIndex = edge + 1u;
+    }
+    if (changedCount > 1u) {
+        diagnostics.message =
+            "suture proxy transition must retain stable overlapping slots";
+        return diagnostics;
+    }
+    if (changedCount == 0u) {
+        diagnostics.encoded = true;
+        diagnostics.residentBytes = state.residentBytes;
+        diagnostics.device = nsString(state.device.name);
+        diagnostics.message = "suture proxy bindings already match";
+        return diagnostics;
+    }
+
+    @autoreleasepool {
+        id<MTLBuffer> proxyStaging = [state.device
+            newBufferWithBytes:updated.data()
+                        length:updated.size() * sizeof(NMRigidProxyGPU)
+                       options:MTLResourceStorageModeShared];
+        id<MTLBuffer> remappedStaging = [state.device
+            newBufferWithBytes:remapped.data()
+                        length:remapped.size() * sizeof(std::uint32_t)
+                       options:MTLResourceStorageModeShared];
+        id<MTLCommandBuffer> commandBuffer = [state.queue commandBuffer];
+        if (proxyStaging == nil || remappedStaging == nil ||
+            commandBuffer == nil) {
+            diagnostics.message =
+                "failed to allocate suture proxy maintenance resources";
+            return diagnostics;
+        }
+        id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
+        if (blit == nil) {
+            diagnostics.message =
+                "failed to encode suture proxy binding upload";
+            return diagnostics;
+        }
+        [blit copyFromBuffer:proxyStaging sourceOffset:0u
+                   toBuffer:state.rigidProxies destinationOffset:0u
+                       size:updated.size() * sizeof(NMRigidProxyGPU)];
+        [blit endEncoding];
+
+        id<MTLComputeCommandEncoder> encoder =
+            [commandBuffer computeCommandEncoder];
+        id<MTLComputePipelineState> pipeline = state.pipeline(
+            "nm_contact_clear_remapped_suture_histories");
+        if (encoder == nil || pipeline == nil) {
+            diagnostics.message =
+                "failed to encode suture proxy history reset";
+            return diagnostics;
+        }
+        [encoder setComputePipelineState:pipeline];
+        [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:state.contactPairs offset:0u atIndex:1u];
+        [encoder setBuffer:remappedStaging offset:0u atIndex:2u];
+        [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:3u];
+        [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:4u];
+        [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:5u];
+        const NSUInteger total =
+            static_cast<NSUInteger>(state.dispatch.environmentCount) *
+            state.dispatch.contactPairCount;
+        const NSUInteger width = std::min<NSUInteger>(
+            256u, pipeline.maxTotalThreadsPerThreadgroup);
+        if (total != 0u) {
+            [encoder dispatchThreads:MTLSizeMake(total, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+        }
+        [encoder endEncoding];
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+        if (commandBuffer.status != MTLCommandBufferStatusCompleted) {
+            diagnostics.message =
+                "suture proxy maintenance command failed: " +
+                errorString(commandBuffer.error);
+            return diagnostics;
+        }
+    }
+
+    state.rigidProxyLayout = std::move(updated);
+    state.sutureProxyEdges.assign(
+        firstRodEdges.begin(), firstRodEdges.end());
+    state.requiredRodNodeCount = requiredRodNodes;
+    ++state.sutureProxyBindingRevision;
+    diagnostics.encoded = true;
+    diagnostics.residentBytes = state.residentBytes;
+    diagnostics.device = nsString(state.device.name);
+    diagnostics.threadDispatchCount = 1u;
+    diagnostics.requestedThreadCount =
+        static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+        state.dispatch.contactPairCount;
+    diagnostics.message = "suture proxy bindings advanced with overlap";
+    return diagnostics;
+}
+
 bool Runtime::setCoupledTimestepMultiplier(
     const std::uint32_t multiplier
 ) noexcept {
@@ -5887,6 +6047,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                 "Matter state cannot be read while a borrowed transaction is active";
             return snapshot;
         }
+        snapshot.sutureProxyEdges = state_->sutureProxyEdges;
+        snapshot.sutureProxyBindingRevision =
+            state_->sutureProxyBindingRevision;
     }
     @autoreleasepool {
         const auto copy = [&](id<MTLBuffer> source) -> id<MTLBuffer> {

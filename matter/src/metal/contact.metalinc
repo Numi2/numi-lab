@@ -2754,6 +2754,30 @@ kernel void nm_contact_rollback_histories(
         accepted[global] = checkpoint[global];
 }
 
+// Phase-boundary strand-window maintenance. A remapped proxy represents a
+// different physical DER edge, so its lagged friction impulse cannot inherit
+// the retired edge's tangent history. Unchanged overlapping slots retain
+// their history and therefore preserve contact continuity across the window.
+kernel void nm_contact_clear_remapped_suture_histories(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContactPairGPU* pairs [[buffer(1)]],
+    device const uint* remappedProxies [[buffer(2)]],
+    device float4* accepted [[buffer(3)]],
+    device float4* candidate [[buffer(4)]],
+    device float4* checkpoint [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.contactPairCount;
+    if (global >= total || dispatch.contactPairCount == 0u) return;
+    const uint pairIndex = global % dispatch.contactPairCount;
+    const NMContactPairGPU pair = pairs[pairIndex];
+    if (pair.rigidProxy >= dispatch.rigidProxyCount ||
+        remappedProxies[pair.rigidProxy] == 0u) return;
+    accepted[global] = float4(0.0f);
+    candidate[global] = float4(0.0f);
+    checkpoint[global] = float4(0.0f);
+}
+
 kernel void nm_contact_checkpoint_deformable_contact_histories(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMDeformableContactHistoryGPU* accepted [[buffer(1)]],

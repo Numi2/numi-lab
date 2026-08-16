@@ -725,6 +725,10 @@ struct RuntimeStateSnapshot {
     std::string message;
     // Stable authored-physics identity, independent of allocation growth.
     std::uint64_t sourcePhysicsFingerprint = 0u;
+    // Live DER edge bound to each compiled strand-proxy slot, in slot order.
+    // The revision advances only after a completed phase-boundary GPU update.
+    std::vector<std::uint32_t> sutureProxyEdges;
+    std::uint64_t sutureProxyBindingRevision = 0u;
     std::vector<NMParticleStateGPU> particles;
     std::vector<NMFEMNodeStateGPU> femNodes;
     std::vector<NMFEMFieldStateGPU> femFields;
@@ -816,6 +820,15 @@ public:
     [[nodiscard]] bool requiresCoupledCandidate() const noexcept;
     [[nodiscard]] std::uint32_t coupledCandidatePointCapacity() const noexcept;
     [[nodiscard]] bool requiresRigidContactEvidence() const noexcept;
+    // Move a contiguous live-DER contact window between completed command
+    // buffers. firstRodEdges is ordered by compiled strand-proxy slot. A
+    // transition may replace at most one slot, retaining the other slots as
+    // stable overlap; the retired slot's friction history is cleared on GPU.
+    // This method submits and waits for one bounded maintenance blit/dispatch.
+    [[nodiscard]] RuntimeDiagnostics setSutureProxyEdges(
+        std::span<const std::uint32_t> firstRodEdges,
+        std::uint32_t rodNodeCount
+    );
     // Selects a power-of-two coarsening of an externally coupled DER/Matter
     // transaction without moving accepted state. The cooked world must own a
     // live strand, use no internal Matter microticks, and be between command

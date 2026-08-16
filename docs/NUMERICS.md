@@ -357,6 +357,12 @@ and coordinate-scale FP32 floor. This closes the transaction around rigid jaw
 contact that can change a free needle after the primal candidate was formed: a
 post-integration floor violation latches both Matter and MetalWorld failure and
 rolls continuum, topology, contact history, rigid, and rod state back together.
+Long strand motion retains a fixed-size contact graph by advancing a
+contiguous DER-edge proxy window only at completed command boundaries. One
+slot changes per advance, so the overlapping physical edge keeps its stable
+proxy identity and friction history; the retired slot's history is cleared on
+Metal before it is rebound. The active edge list and completed binding revision
+are explicit snapshot evidence rather than an untracked host-side alias.
 The v1 MetalWorld contract owns one articulation per environment; all of its
 collision proxies therefore share one articulated generalized/q reserve, while
 each distinct free body contributes exactly six additional coordinates.

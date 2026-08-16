@@ -107,6 +107,11 @@ thread remain one deterministic device transaction. A live-strand runtime may
 select a power-of-two coupled timestep multiplier only between submissions;
 this retains accepted state while grouping that exact number of base DER
 substeps and never runs hidden Matter microticks against frozen rod geometry.
+Long-running pull-through and knot phases may also move a contiguous strand
+proxy window one DER edge at a time between submissions. Every move retains
+the overlapping proxy slot and its friction history, resets only the retired
+slot, and records the completed binding revision without changing the authored
+physics fingerprint.
 Puncture admission sums
 only closing, direction-aligned, tip-local surface rows: mesh refinement may
 distribute a physical sharp-tip resultant across nodes, while shaft, arc and

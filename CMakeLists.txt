@@ -1819,6 +1819,12 @@ if(BUILD_TESTING)
             --post-commit-contact-guard
     )
     add_test(
+        NAME matter.runtime.suture_proxy_window
+        COMMAND
+            $<TARGET_FILE:metalrobo_matter_physics_probe>
+            --suture-proxy-window
+    )
+    add_test(
         NAME matter.scene.poroelastic_plate_compression
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --poroelastic-compression
     )
@@ -1845,6 +1851,7 @@ if(BUILD_TESTING)
         matter.physics.shared_rigid_coupled_contact
         matter.physics.articulated_contact_boundary_recovery
         matter.runtime.post_commit_contact_guard
+        matter.runtime.suture_proxy_window
         matter.scene.poroelastic_plate_compression
         matter.scene.articulated_foot_poroelastic_pad
         matter.runtime.inverse_identification

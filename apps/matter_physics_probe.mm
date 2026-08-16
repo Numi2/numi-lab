@@ -685,6 +685,51 @@ numi::matter::CompiledWorld compileArticulatedFootPadScene(
     return std::move(compiled.world);
 }
 
+numi::matter::CompiledWorld compileSutureProxyWindowCase() {
+    auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "suture-window material did not parse");
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 1000.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.contactSlop = 1.0e-4;
+    source.materials.push_back(std::move(parsed.material));
+    for (std::uint32_t edge = 0u; edge < 2u; ++edge) {
+        numi::matter::RigidProxySource proxy;
+        proxy.shape = NM_RIGID_CAPSULE;
+        proxy.materialIndex = 0u;
+        proxy.radiusOrOffset = 1.0e-4;
+        proxy.sutureStrand = true;
+        proxy.strandNodeA = edge;
+        proxy.strandNodeB = edge + 1u;
+        source.rigidProxies.push_back(proxy);
+    }
+    numi::matter::ObjectSource object;
+    object.name = "suture_window_fem";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::fem;
+    object.characteristicLength = 0.001;
+    object.femNodes = {
+        {0.0, 0.0, 0.0},
+        {0.001, 0.0, 0.0},
+        {0.0, 0.001, 0.0},
+        {0.0, 0.0, 0.001},
+    };
+    object.tetrahedra = {{{0u, 1u, 2u, 3u}}};
+    source.objects.push_back(std::move(object));
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    std::string failure = "suture proxy window world did not compile";
+    for (const auto& diagnostic : compiled.diagnostics) {
+        failure += "; " + diagnostic.message;
+    }
+    require(compiled.succeeded() &&
+                compiled.world.contact.rigidProxies.size() == 2u,
+        failure);
+    return std::move(compiled.world);
+}
+
 
 numi::matter::CompiledWorld compileStatefulCase(
     const numi::matter::Representation representation
@@ -1603,6 +1648,115 @@ void runPostCommitContactGuard() {
             << ",\"separation\":" << status.diagnostics.x
             << ",\"authored_floor\":" << authoredFloor
             << ",\"rollback_exact\":true}\n";
+    }
+}
+
+void runSutureProxyWindow() {
+    @autoreleasepool {
+        const auto world = compileSutureProxyWindowCase();
+        numi::matter::Runtime runtime;
+        const auto initialized = runtime.initialize(world, {
+            .metallib = NUMI_MATTER_METALLIB,
+            .environmentCount = 1u,
+            .captureEvents = true,
+            .captureDiagnostics = true,
+            .automaticIdentification = false,
+            .adaptiveTransfer = false,
+        });
+        require(initialized.encoded && runtime.valid(),
+            "suture proxy window runtime did not initialize");
+        const std::array<std::uint32_t, 2u> discontinuous{3u, 4u};
+        const auto rejected = runtime.setSutureProxyEdges(discontinuous, 6u);
+        require(!rejected.encoded,
+            "suture proxy window accepted a transition with no stable slot");
+        const std::array<std::uint32_t, 2u> advanced{2u, 1u};
+        const auto remapped = runtime.setSutureProxyEdges(advanced, 4u);
+        require(remapped.encoded,
+            "suture proxy window could not advance with one-edge overlap: " +
+                remapped.message);
+        const auto binding = runtime.snapshot();
+        require(binding.available &&
+                    binding.sutureProxyEdges ==
+                        std::vector<std::uint32_t>(advanced.begin(), advanced.end()) &&
+                    binding.sutureProxyBindingRevision == 1u,
+            "suture proxy window did not publish its active binding evidence");
+
+        std::array<MRRodNodeStateGPU, 4u> rodNodes{};
+        for (std::uint32_t node = 0u; node < rodNodes.size(); ++node) {
+            rodNodes[node].position = {
+                0.1f + 0.01f * static_cast<float>(node),
+                0.0f,
+                0.0f,
+                1.0f,
+            };
+        }
+        const std::array<float, 4u> inverseMasses{1.0f, 1.0f, 1.0f, 1.0f};
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        id<MTLBuffer> rodBuffer = [device
+            newBufferWithBytes:rodNodes.data()
+                        length:sizeof(rodNodes)
+                       options:MTLResourceStorageModeShared];
+        id<MTLBuffer> inverseMassBuffer = [device
+            newBufferWithBytes:inverseMasses.data()
+                        length:sizeof(inverseMasses)
+                       options:MTLResourceStorageModeShared];
+        id<MTLBuffer> worldStatuses = [device
+            newBufferWithLength:sizeof(MRMetalWorldStatusGPU)
+                       options:MTLResourceStorageModeShared];
+        require(device != nil && queue != nil && rodBuffer != nil &&
+                    inverseMassBuffer != nil && worldStatuses != nil,
+            "suture proxy window could not allocate borrowed Metal buffers");
+        auto* worldStatus = static_cast<MRMetalWorldStatusGPU*>(
+            worldStatuses.contents);
+        *worldStatus = {};
+        worldStatus->code = MR_STEP_SUCCESS;
+        id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+        numi::matter::EncodeRequest request{};
+        request.commandBuffer = (__bridge void*)commandBuffer;
+        request.rigid.rodNodes = (__bridge void*)rodBuffer;
+        request.rigid.rodInverseMasses = (__bridge void*)inverseMassBuffer;
+        request.rigid.rodNodeCount = 4u;
+        request.rigid.rodNodeStride = 4u;
+        request.environmentStatuses = (__bridge void*)worldStatuses;
+        request.phase = numi::matter::EncodePhase::preDynamics;
+        request.controlStep = 0u;
+        request.physicsSubstep = 0u;
+        request.physicsSubsteps = 1u;
+        request.timestepSeconds = runtime.timestepSeconds();
+        auto encoded = runtime.encode(request);
+        require(encoded.encoded,
+            "suture proxy window pre-dynamics failed: " + encoded.message);
+        request.phase = numi::matter::EncodePhase::postCommit;
+        encoded = runtime.encode(request);
+        require(encoded.encoded,
+            "suture proxy window post-commit failed: " + encoded.message);
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+        require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+            "suture proxy window Metal transaction did not complete");
+        const auto projected = runtime.snapshot();
+        require(projected.available && projected.statuses.size() == 1u &&
+                    projected.statuses[0].code == NM_STATUS_SUCCESS &&
+                    projected.rigidStates.size() == 2u &&
+                    std::abs(projected.rigidStates[0].centerAndRadius.x -
+                        rodNodes[2].position.x) <= 1.0e-7f &&
+                    std::abs(projected.rigidStates[0].extent.x -
+                        rodNodes[3].position.x) <= 1.0e-7f &&
+                    std::abs(projected.rigidStates[1].centerAndRadius.x -
+                        rodNodes[1].position.x) <= 1.0e-7f &&
+                    std::abs(projected.rigidStates[1].extent.x -
+                        rodNodes[2].position.x) <= 1.0e-7f,
+            "live Metal projection did not consume the remapped DER edges");
+        std::cout
+            << "{\"schema\":\"numi.matter.suture-window.v1\""
+            << ",\"edges\":[" << projected.sutureProxyEdges[0] << ','
+            << projected.sutureProxyEdges[1] << ']'
+            << ",\"revision\":"
+            << projected.sutureProxyBindingRevision
+            << ",\"slot0_endpoints\":["
+            << projected.rigidStates[0].centerAndRadius.x << ','
+            << projected.rigidStates[0].extent.x << "]}\n";
     }
 }
 
@@ -2747,6 +2901,8 @@ int main(int argc, const char* argv[]) {
         const bool postCommitContactGuard = argc == 2 &&
             std::string_view(argv[1]) ==
                 "--post-commit-contact-guard";
+        const bool sutureProxyWindow = argc == 2 &&
+            std::string_view(argv[1]) == "--suture-proxy-window";
         const bool identification = argc == 2 && std::string_view(argv[1]) == "--identification";
         const bool adaptiveDemotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-demotion";
         const bool adaptivePromotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-promotion";
@@ -2766,10 +2922,11 @@ int main(int argc, const char* argv[]) {
                 articulatedFootPadSequence ||
                 articulatedFootPadContactBoundary ||
                 postCommitContactGuard ||
+                sutureProxyWindow ||
                 identification || adaptiveDemotion ||
                 adaptivePromotion || adaptivePromotionRollback || femFree ||
                 femHighRate || femHighDrop,
-            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--articulated-foot-pad-contact-boundary|--post-commit-contact-guard|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--small-scale-remesh|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--articulated-foot-pad-contact-boundary|--post-commit-contact-guard|--suture-proxy-window|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--small-scale-remesh|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
         );
         if (articulatedFootPad) {
             runArticulatedFootPadScene();
@@ -2782,6 +2939,9 @@ int main(int argc, const char* argv[]) {
         }
         if (postCommitContactGuard) {
             runPostCommitContactGuard();
+        }
+        if (sutureProxyWindow) {
+            runSutureProxyWindow();
         }
         if (poroelasticCompression) {
             const auto outcome = runCase(
@@ -3124,6 +3284,7 @@ int main(int argc, const char* argv[]) {
             !articulatedFootPad && !articulatedFootPadSequence &&
             !articulatedFootPadContactBoundary &&
             !postCommitContactGuard &&
+            !sutureProxyWindow &&
             !mixedOnly && !mpmBatch && !statefulMPM && !statefulFEM &&
             !femOnly && !femFree && !femHighRate && !femHighDrop) {
             const bool withPlane = !mpmFree && !mpmSingle;
@@ -3189,6 +3350,7 @@ int main(int argc, const char* argv[]) {
             !articulatedFootPad && !articulatedFootPadSequence &&
             !articulatedFootPadContactBoundary &&
             !postCommitContactGuard &&
+            !sutureProxyWindow &&
             !identification && !adaptiveDemotion && !adaptivePromotion &&
             !adaptivePromotionRollback) {
             const bool withPlane = !femFree;
