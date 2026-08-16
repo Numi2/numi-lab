@@ -5773,6 +5773,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-opposing-bite-topology-only" ||
             argument == "--tissue-receiver-state-bridge-only" ||
             argument == "--tissue-receiver-alignment-replay-only" ||
+            argument == "--tissue-receiver-dynamics-replay-only" ||
             argument == "--tissue-receiver-acquisition-only" ||
             argument == "--tissue-receiver-extraction-only" ||
             argument == "--receiver-frame-ik-only" ||
@@ -6313,13 +6314,15 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
     require(resumeCount <= 1u, "handoff resumes are mutually exclusive");
     require(
         result.resumeTissueReceiverDynamicBridgePath.empty() ||
-            result.mode == "--tissue-receiver-alignment-replay-only",
-        "dynamic bridge resume requires the receiver alignment replay"
+            result.mode == "--tissue-receiver-alignment-replay-only" ||
+            result.mode == "--tissue-receiver-dynamics-replay-only",
+        "dynamic bridge resume requires a receiver replay mode"
     );
     require(
-        result.mode != "--tissue-receiver-alignment-replay-only" ||
+        (result.mode != "--tissue-receiver-alignment-replay-only" &&
+         result.mode != "--tissue-receiver-dynamics-replay-only") ||
             !result.resumeTissueReceiverDynamicBridgePath.empty(),
-        "receiver alignment replay requires a dynamic bridge state"
+        "receiver replay requires a dynamic bridge state"
     );
     require(
         result.resumeExtractionGiverHoldPath.empty() ||
@@ -7165,6 +7168,8 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-receiver-state-bridge-only";
         const bool tissueReceiverAlignmentReplayOnly =
             options.mode == "--tissue-receiver-alignment-replay-only";
+        const bool tissueReceiverDynamicsReplayOnly =
+            options.mode == "--tissue-receiver-dynamics-replay-only";
         const bool tissueReceiverAcquisitionOnly =
             options.mode == "--tissue-receiver-acquisition-only";
         const bool tissueReceiverExtractionOnly =
@@ -7173,6 +7178,7 @@ int main(const int argc, const char* const argv[]) {
             tissueOpposingBiteTopologyOnly ||
             tissueReceiverStateBridgeOnly ||
             tissueReceiverAlignmentReplayOnly ||
+            tissueReceiverDynamicsReplayOnly ||
             tissueReceiverAcquisitionOnly ||
             tissueReceiverExtractionOnly;
         const bool tissuePunctureOnly =
@@ -7880,7 +7886,8 @@ int main(const int argc, const char* const argv[]) {
         // attachments, so distant needle/thread contact is still physical.
         world.rods[0].collision.collisionMask = ~0u;
 
-        if (tissueReceiverAlignmentReplayOnly) {
+        if (tissueReceiverAlignmentReplayOnly ||
+            tissueReceiverDynamicsReplayOnly) {
             const std::uint64_t stateStep = loadHandoffState(
                 options.resumeTissueReceiverDynamicBridgePath,
                 "tissue-receiver-dynamic-bridge",
@@ -8061,17 +8068,294 @@ int main(const int argc, const char* const argv[]) {
                 << '\n';
             require(
                 execution.maximumVelocityRatio <=
-                        kMaximumCommandVelocityRatio &&
-                    positionResidualM <= 2.0e-6 &&
-                    orientationResidualRad <= 2.0e-5 &&
-                    path.samplesWithContact == 0u &&
-                    path.samplesWithGiverPadContact == 0u &&
-                    path.samplesWithReceiverPadContact == 0u &&
-                    needleContactSamples == 0u,
+                    kMaximumCommandVelocityRatio &&
+                positionResidualM <= 2.0e-6 &&
+                orientationResidualRad <= 2.0e-5 &&
+                path.samplesWithContact == 0u &&
+                path.samplesWithGiverPadContact == 0u &&
+                path.samplesWithReceiverPadContact == 0u &&
+                needleContactSamples == 0u,
                 "saved live receiver alignment violates speed, pose, or "
                 "collision limits"
             );
-            std::cout << "tissue_receiver_alignment_replay=ok\n";
+            if (tissueReceiverAlignmentReplayOnly) {
+                std::cout << "tissue_receiver_alignment_replay=ok\n";
+                return 0;
+            }
+
+            // The TSV deliberately contains only the accepted MetalWorld
+            // rigid/articulation/DER state, not Matter's private FEM and
+            // puncture-channel transaction. Replay two otherwise identical
+            // dynamic branches from that state: one holds both instruments
+            // fixed, while the other executes the audited open-receiver
+            // alignment. Four-millisecond checkpoints expose a transient
+            // jaw/needle reseat that a terminal-only sample can hide. This is
+            // a causal rigid/DER diagnostic and never a tissue qualification.
+            world.fingerprint =
+                metalrobo::heterogeneousWorldFingerprint(world);
+            std::string replayWorldReason;
+            require(
+                world.valid(&replayWorldReason),
+                "saved receiver dynamics replay world is invalid: " +
+                    replayWorldReason
+            );
+            metalrobo::CompiledWorld replayCompiled;
+            const auto replayCompile = metalrobo::compileMetalWorld(
+                world,
+                replayCompiled
+            );
+            require(
+                replayCompile.succeeded() &&
+                    replayCompiled.articulationCount() == 2u &&
+                    replayCompiled.sceneBodyCount() == 2u &&
+                    replayCompiled.rodCount() == 1u,
+                "saved receiver dynamics replay did not compile: " +
+                    replayCompile.message
+            );
+            metalrobo::MetalWorldStepConfig replayConfig;
+            replayConfig.timestepSeconds =
+                static_cast<float>(executionTimestepSeconds);
+            replayConfig.physicsSubsteps = kSuturePullMatterRateMultiplier;
+            replayConfig.solverMode =
+                metalrobo::MetalWorldSolverMode::temporalCone;
+            replayConfig.actuationMode =
+                metalrobo::MetalWorldActuationMode::implicitPositionDrive;
+            replayConfig.velocityIterations = options.velocityIterations;
+            replayConfig.finalVelocityIterations =
+                options.finalVelocityIterations;
+            replayConfig.ccdMode =
+                metalrobo::MetalWorldCCDMode::speculative;
+            replayConfig.maxConservativeAdvancementIterations = 24u;
+            replayConfig.deterministic = true;
+            replayConfig.warmStart = true;
+            replayConfig.captureContactEvidence = true;
+            replayConfig.publishFinalState = true;
+            replayConfig.publishStateTrajectory = false;
+            replayConfig.rodContactOuterIterations = 4u;
+
+            struct DynamicsReplayMetrics {
+                double maximumNeedleLinearSpeed = 0.0;
+                double maximumNeedleAngularSpeed = 0.0;
+                double maximumNeedleDisplacement = 0.0;
+                double maximumRodSpeed = 0.0;
+                double maximumContactVelocityResidual = 0.0;
+                std::uint32_t minimumGiverJawContacts =
+                    std::numeric_limits<std::uint32_t>::max();
+                std::uint32_t maximumGiverJawContacts = 0u;
+                double gpuMilliseconds = 0.0;
+                std::uint64_t trajectoryStateHash =
+                    1469598103934665603ull;
+            };
+            constexpr std::uint32_t kReplayChunkSteps = 4u;
+            const auto runDynamicsReplay = [&] (
+                const std::string& label,
+                const std::vector<float>& replayEfforts
+            ) {
+                require(
+                    replayEfforts.size() ==
+                        static_cast<std::size_t>(executionSteps) *
+                            world.model.world.nv,
+                    label + " effort stream has the wrong dimensions"
+                );
+                metalrobo::MetalWorldContext replayContext;
+                metalrobo::MetalWorldResidentState replayResident;
+                DynamicsReplayMetrics metrics;
+                std::uint32_t completed = 0u;
+                while (completed < executionSteps) {
+                    const std::uint32_t chunk = std::min(
+                        kReplayChunkSteps,
+                        executionSteps - completed
+                    );
+                    const std::size_t first =
+                        static_cast<std::size_t>(completed) *
+                        world.model.world.nv;
+                    const std::size_t last = first +
+                        static_cast<std::size_t>(chunk) *
+                            world.model.world.nv;
+                    const std::vector<float> chunkEfforts(
+                        replayEfforts.begin() + first,
+                        replayEfforts.begin() + last
+                    );
+                    PhaseResult phase = completed == 0u
+                        ? initializePhaseUnchecked(
+                            replayContext,
+                            replayCompiled,
+                            world,
+                            replayConfig,
+                            replayResident,
+                            chunkEfforts,
+                            chunk
+                        )
+                        : continuePhaseUnchecked(
+                            replayContext,
+                            replayCompiled,
+                            replayConfig,
+                            replayResident,
+                            chunkEfforts,
+                            chunk,
+                            label
+                        );
+                    require(
+                        phase.diagnostics.succeeded() &&
+                            phase.diagnostics.failedStepCount == 0u,
+                        label + " failed: " + phase.diagnostics.message
+                    );
+                    completed += chunk;
+                    metrics.gpuMilliseconds +=
+                        phase.diagnostics.gpuElapsedMilliseconds;
+                    const MRBodyStateGPU& needle =
+                        phase.result.finalSceneBodies.at(0u);
+                    const double needleLinearSpeed = norm(vector(
+                        needle.linearVelocityAndInverseMass
+                    ));
+                    const double needleAngularSpeed = norm(vector(
+                        needle.angularVelocity
+                    ));
+                    const double needleDisplacement = norm(
+                        vector(needle.position) - vector(stateNeedle.position)
+                    );
+                    const ContactCounts contacts = contactCounts(
+                        world,
+                        phase.result,
+                        needleForPlacement.metadata,
+                        kNeedleFirstShape
+                    );
+                    const std::uint32_t giverJawContacts =
+                        contacts.jawContacts[0][0] +
+                        contacts.jawContacts[0][1];
+                    const RodStateMetrics rod = rodStateMetrics(
+                        world,
+                        phase.result
+                    );
+                    const double contactResidual =
+                        phase.result.contactStatuses.empty()
+                            ? 0.0
+                            : static_cast<double>(
+                                phase.result.contactStatuses.back()
+                                    .residuals.y
+                            );
+                    metrics.maximumNeedleLinearSpeed = std::max(
+                        metrics.maximumNeedleLinearSpeed,
+                        needleLinearSpeed
+                    );
+                    metrics.maximumNeedleAngularSpeed = std::max(
+                        metrics.maximumNeedleAngularSpeed,
+                        needleAngularSpeed
+                    );
+                    metrics.maximumNeedleDisplacement = std::max(
+                        metrics.maximumNeedleDisplacement,
+                        needleDisplacement
+                    );
+                    metrics.maximumRodSpeed = std::max(
+                        metrics.maximumRodSpeed,
+                        rod.maximumNodeSpeed
+                    );
+                    metrics.maximumContactVelocityResidual = std::max(
+                        metrics.maximumContactVelocityResidual,
+                        contactResidual
+                    );
+                    metrics.minimumGiverJawContacts = std::min(
+                        metrics.minimumGiverJawContacts,
+                        giverJawContacts
+                    );
+                    metrics.maximumGiverJawContacts = std::max(
+                        metrics.maximumGiverJawContacts,
+                        giverJawContacts
+                    );
+                    appendStateHash(
+                        metrics.trajectoryStateHash,
+                        &needle,
+                        sizeof(needle)
+                    );
+                    appendStateHash(
+                        metrics.trajectoryStateHash,
+                        phase.result.finalRodNodes
+                    );
+                    appendStateHash(
+                        metrics.trajectoryStateHash,
+                        phase.result.finalRodEdges
+                    );
+                    std::cout << std::setprecision(9)
+                        << "tissue_receiver_dynamics_replay_chunk"
+                        << " branch=" << label
+                        << " completed_steps=" << completed
+                        << " giver_jaw_contacts="
+                        << contacts.jawContacts[0][0] << '/'
+                        << contacts.jawContacts[0][1]
+                        << " giver_insert_patch_masks="
+                        << contacts.jawInsertPatchMasks[0][0] << '/'
+                        << contacts.jawInsertPatchMasks[0][1]
+                        << " needle_linear_speed_mps="
+                        << needleLinearSpeed
+                        << " needle_angular_speed_radps="
+                        << needleAngularSpeed
+                        << " needle_displacement_m="
+                        << needleDisplacement
+                        << " thread_maximum_node_speed_mps="
+                        << rod.maximumNodeSpeed
+                        << " contact_velocity_residual_mps="
+                        << contactResidual << '\n';
+                }
+                return metrics;
+            };
+
+            const std::vector<float> stationaryEfforts =
+                interpolateTargets(
+                    world.model,
+                    stateQ,
+                    stateQ,
+                    executionSteps,
+                    executionTimestepSeconds
+                );
+            const DynamicsReplayMetrics stationary = runDynamicsReplay(
+                "stationary",
+                stationaryEfforts
+            );
+            const DynamicsReplayMetrics alignment = runDynamicsReplay(
+                "alignment",
+                execution.efforts
+            );
+            require(
+                stationary.trajectoryStateHash ==
+                    alignment.trajectoryStateHash,
+                "clear receiver motion perturbed the saved needle/strand "
+                "trajectory without live Matter coupling"
+            );
+            std::cout << std::setprecision(9)
+                << "tissue_receiver_dynamics_replay=ok"
+                << " state_step=" << stateStep
+                << " execution_steps=" << executionSteps
+                << " stationary_maximum_needle_speed_mps="
+                << stationary.maximumNeedleLinearSpeed
+                << " alignment_maximum_needle_speed_mps="
+                << alignment.maximumNeedleLinearSpeed
+                << " stationary_maximum_needle_angular_speed_radps="
+                << stationary.maximumNeedleAngularSpeed
+                << " alignment_maximum_needle_angular_speed_radps="
+                << alignment.maximumNeedleAngularSpeed
+                << " stationary_maximum_needle_displacement_m="
+                << stationary.maximumNeedleDisplacement
+                << " alignment_maximum_needle_displacement_m="
+                << alignment.maximumNeedleDisplacement
+                << " stationary_giver_contact_range="
+                << stationary.minimumGiverJawContacts << '/'
+                << stationary.maximumGiverJawContacts
+                << " alignment_giver_contact_range="
+                << alignment.minimumGiverJawContacts << '/'
+                << alignment.maximumGiverJawContacts
+                << " stationary_maximum_thread_speed_mps="
+                << stationary.maximumRodSpeed
+                << " alignment_maximum_thread_speed_mps="
+                << alignment.maximumRodSpeed
+                << " stationary_maximum_contact_residual_mps="
+                << stationary.maximumContactVelocityResidual
+                << " alignment_maximum_contact_residual_mps="
+                << alignment.maximumContactVelocityResidual
+                << " trajectory_state_fnv64=0x" << std::hex
+                << stationary.trajectoryStateHash << std::dec
+                << " gpu_ms="
+                << stationary.gpuMilliseconds + alignment.gpuMilliseconds
+                << " boundary=saved_rigid_der_state_not_resumed_matter\n";
             return 0;
         }
 
@@ -15869,21 +16153,21 @@ int main(const int argc, const char* const argv[]) {
                         }
 
                         // The post-puncture Matter state remains private and
-                        // resident in bridgeResident. The bridge now exposes a
-                        // full millimetre of needle before handoff, so the open
-                        // receiver's stand-off alignment and insertion are a
-                        // contact-clear phase. Keep DER/rigid dynamics at the
-                        // 16 kHz base rate while sampling the inactive tissue
-                        // field at 1 kHz; restore one Matter transaction per
-                        // DER step before receiver jaw contact begins.
+                        // resident in bridgeResident. Although the receiver is
+                        // clear during stand-off alignment and insertion, the
+                        // needle shank and hard-swaged strand remain inside the
+                        // accepted tissue tract. Any giver reseat can therefore
+                        // load a tract-wall node. Restore one Matter transaction
+                        // per 16 kHz DER step before either instrument moves and
+                        // retain that cadence through complete extraction.
                         selectCoupledCadence(
-                            kSuturePullMatterRateMultiplier,
-                            "contact-clear receiver stand-off approach"
+                            kSutureContactMatterRateMultiplier,
+                            "embedded-needle receiver stand-off approach"
                         );
-                        const float contactClearCadenceSeconds =
+                        const float embeddedNeedleCadenceSeconds =
                             stepConfig.timestepSeconds;
                         const std::uint32_t
-                            contactClearCadenceBaseDERSubsteps =
+                            embeddedNeedleCadenceBaseDERSubsteps =
                                 stepConfig.physicsSubsteps;
                         const auto liveReceiverSteps = [&] (
                             const std::uint32_t nominalSteps
@@ -16720,7 +17004,7 @@ int main(const int argc, const char* const argv[]) {
                             postBridgeBaseDERSubsteps +
                                 static_cast<std::uint64_t>(
                                     liveAlignmentSteps
-                                ) * contactClearCadenceBaseDERSubsteps,
+                                ) * embeddedNeedleCadenceBaseDERSubsteps,
                             world,
                             sutureSpec,
                             liveAlignmentStream.terminal.result
@@ -16931,7 +17215,7 @@ int main(const int argc, const char* const argv[]) {
                                 static_cast<std::uint64_t>(
                                     liveAlignmentSteps +
                                     liveAlignmentSettleStream.completedSteps
-                                ) * contactClearCadenceBaseDERSubsteps,
+                                ) * embeddedNeedleCadenceBaseDERSubsteps,
                             world,
                             sutureSpec,
                             liveAligned.result
@@ -17050,7 +17334,7 @@ int main(const int argc, const char* const argv[]) {
                             << " execution_insertion_steps="
                             << liveApproachSteps
                             << " execution_cadence_s="
-                            << contactClearCadenceSeconds
+                            << embeddedNeedleCadenceSeconds
                             << " needle_contact_samples=0\n";
                         LiveReceiverStreamResult liveApproachStream =
                             continueLiveReceiverStream(
@@ -17419,7 +17703,7 @@ int main(const int argc, const char* const argv[]) {
                                     liveAlignmentSettleStream.completedSteps +
                                     liveApproachSteps +
                                     liveApproachHoldSteps) *
-                                    contactClearCadenceBaseDERSubsteps +
+                                    embeddedNeedleCadenceBaseDERSubsteps +
                                 (liveClosureSteps +
                                     liveClosureHoldSteps +
                                     liveLoadExchangeSteps +
@@ -17478,7 +17762,7 @@ int main(const int argc, const char* const argv[]) {
                             << " approach_contact_samples="
                             << liveApproachNeedleContactSamples
                             << " approach_cadence_s="
-                            << contactClearCadenceSeconds
+                            << embeddedNeedleCadenceSeconds
                             << " contact_cadence_s="
                             << stepConfig.timestepSeconds
                             << " giver_jaw_contacts="
