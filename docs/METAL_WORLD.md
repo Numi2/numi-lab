@@ -569,6 +569,23 @@ reported as `metalworld_warmstart=cold_reinitialized`: Matter continuation is
 exact, while MetalWorld contact-manifold and warm-start caches are not archived,
 so uninterrupted resident equivalence is not claimed.
 
+A long resident Apple M4 receiver-acquisition replay exposed a narrower live
+boundary after the complete stand-off alignment. At 36 ms into its nominal
+hold, a valid strand/tissue proxy contact carried 4.969391739 um separation and
+-6.039572414 mm/s admission-normal velocity. Matter correctly rolled the
+transaction back: the sample was 30.608261 nm below the unchanged 5 um IPC
+collision floor and the pending Newton correction moved a further 25.372575 nm
+inward. The acquisition therefore remains unqualified; neither finiteness nor
+the completed arm trajectory is accepted as contact feasibility. The operative
+path now refines only this alignment-settling interval from 62.5 us to 31.25 us,
+requires two consecutive quiescent 4 ms chunks with strand speed at or below
+20 mm/s, and mirrors the live Metal line-search floor including its
+coordinate-scaled FP32 CCD roundoff. Every active contact must predict positive
+margin for a complete future 62.5 us step. The runtime then restores the base
+cadence and executes another 4 ms physical proof before publishing the settled
+checkpoint. No contact tolerance or residual gate is relaxed; a fresh long M4
+replay is still required to qualify the repair.
+
 The dual-PSM operative probe keeps post-extraction needle transport separate
 from the next bite. It first translates the receiver-held complete half-circle
 needle without changing attitude, then performs the half-turn only on a distal

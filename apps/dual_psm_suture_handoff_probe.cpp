@@ -159,6 +159,15 @@ constexpr std::uint32_t kSuturePullMatterRateMultiplier = 16u;
 // This removes the load-bearing 20 um jump that can destabilize the temporal
 // rod/tool contact block while retaining the 16x free-space fast path.
 constexpr std::uint32_t kSutureContactMatterRateMultiplier = 1u;
+// The dynamic receiver bridge exposed a real strand-wall boundary case during
+// the nominal hold: a 6.04 mm/s inward DER proxy predictor advanced 30.6 nm
+// below Matter's unchanged 5 um IPC feasibility floor before the next Newton
+// correction.  Refine only the receiver-alignment settling interval to 31.25
+// us.  Before returning to the 62.5 us operative cadence, require every live
+// contact's measured admission velocity to predict a strictly feasible full
+// base step and execute one complete base-cadence proof chunk.  This preserves
+// the authored contact tolerance rather than accepting a penetrated iterate.
+constexpr std::uint32_t kReceiverAlignmentSettleTimestepDivisor = 2u;
 // The 2 mm guard is larger than the 0.35 mm tract radius, 0.10 mm strand
 // radius, and 0.10 mm contact band combined, so the base cadence is active
 // before the first possible rim interaction.
@@ -21070,6 +21079,11 @@ int main(const int argc, const char* const argv[]) {
                         PhaseResult liveAlignmentMotion = std::move(
                             liveAlignmentStream.terminal
                         );
+                        selectCoupledCadence(
+                            1u,
+                            "receiver alignment contact-safe settling",
+                            kReceiverAlignmentSettleTimestepDivisor
+                        );
                         const std::uint32_t
                             liveAlignmentMinimumSettleSteps =
                                 liveReceiverSteps(
@@ -21100,6 +21114,115 @@ int main(const int argc, const char* const argv[]) {
                                 "tissue_receiver_alignment_settle",
                                 receiverTissueSpec.thicknessM.value
                             );
+                        struct AlignmentContactGuard {
+                            std::uint32_t activeContacts = 0u;
+                            double minimumSeparationM =
+                                std::numeric_limits<double>::infinity();
+                            double minimumAdmissionNormalVelocityMps = 0.0;
+                            double minimumPredictedBaseSeparationM =
+                                std::numeric_limits<double>::infinity();
+                            double minimumPredictedBaseMarginM =
+                                std::numeric_limits<double>::infinity();
+                            double maximumRequiredSeparationM = 0.0;
+                        };
+                        const double baseDERSeconds =
+                            kControlTimestep /
+                            static_cast<double>(kPhysicsSubsteps);
+                        const double authoredContactFeasibilityFloorM =
+                            static_cast<double>(
+                                tissueWorld.mixedSolver.contactAcceptance.x
+                            ) * static_cast<double>(
+                                tissueWorld.dispatch.numericalLimits.x
+                            );
+                        const auto alignmentContactGuard = [&] {
+                            const numi::matter::RuntimeStateSnapshot snapshot =
+                                tissueRuntime.snapshot();
+                            require(
+                                snapshot.available,
+                                "receiver alignment contact guard has no "
+                                    "Matter completion state"
+                            );
+                            AlignmentContactGuard guard;
+                            for (const NMContactSampleGPU& sample :
+                                 snapshot.contactSamples) {
+                                if ((sample.identity.w & NM_CONTACT_VALID) ==
+                                    0u) {
+                                    continue;
+                                }
+                                ++guard.activeContacts;
+                                const double separation =
+                                    sample.pointAndSeparation.w;
+                                const double admission =
+                                    sample.admissionVelocityAndNormal.w;
+                                require(
+                                    std::isfinite(separation) &&
+                                        std::isfinite(admission),
+                                    "receiver alignment contact guard found "
+                                        "nonfinite Matter evidence"
+                                );
+                                guard.minimumSeparationM = std::min(
+                                    guard.minimumSeparationM,
+                                    separation
+                                );
+                                guard.minimumAdmissionNormalVelocityMps =
+                                    std::min(
+                                        guard
+                                            .minimumAdmissionNormalVelocityMps,
+                                        admission
+                                    );
+                                // Mirror nm_contact_limit_rigid_line_search:
+                                // the effective collision floor includes both
+                                // the authored ratio and the coordinate-scaled
+                                // FP32 guard, while the predictive feasibility
+                                // boundary also carries the CCD roundoff term.
+                                const double coordinateScale = std::max({
+                                    static_cast<double>(sample.barrier.z),
+                                    std::abs(static_cast<double>(
+                                        sample.pointAndSeparation.x
+                                    )),
+                                    std::abs(static_cast<double>(
+                                        sample.pointAndSeparation.y
+                                    )),
+                                    std::abs(static_cast<double>(
+                                        sample.pointAndSeparation.z
+                                    )),
+                                    1.0e-12,
+                                });
+                                const double fp32Epsilon =
+                                    std::numeric_limits<float>::epsilon();
+                                const double collisionThickness = std::max(
+                                    authoredContactFeasibilityFloorM,
+                                    16.0 * fp32Epsilon * coordinateScale
+                                );
+                                const double requiredSeparation =
+                                    collisionThickness +
+                                    8.0 * fp32Epsilon * std::max({
+                                        collisionThickness,
+                                        coordinateScale,
+                                        1.0e-12,
+                                    });
+                                const double predictedBaseSeparation =
+                                    separation +
+                                    std::min(admission, 0.0) *
+                                        baseDERSeconds;
+                                guard.minimumPredictedBaseSeparationM =
+                                    std::min(
+                                        guard
+                                            .minimumPredictedBaseSeparationM,
+                                        predictedBaseSeparation
+                                    );
+                                guard.minimumPredictedBaseMarginM = std::min(
+                                    guard.minimumPredictedBaseMarginM,
+                                    predictedBaseSeparation -
+                                        requiredSeparation
+                                );
+                                guard.maximumRequiredSeparationM = std::max(
+                                    guard.maximumRequiredSeparationM,
+                                    requiredSeparation
+                                );
+                            }
+                            return guard;
+                        };
                         const auto alignmentQuiescent = [&] (
                             const PhaseResult& state,
                             const std::uint32_t completedSettleSteps
@@ -21145,6 +21268,11 @@ int main(const int argc, const char* const argv[]) {
                                     "live tissue receiver alignment settle",
                                     false
                                 );
+                            const AlignmentContactGuard contactGuard =
+                                alignmentContactGuard();
+                            const bool baseCadenceFeasible =
+                                contactGuard.activeContacts == 0u ||
+                                contactGuard.minimumPredictedBaseMarginM > 0.0;
                             const bool qualified =
                                 bilateral(contacts, 0u) &&
                                 distributedInsertCoverage(contacts, 0u) &&
@@ -21155,6 +21283,8 @@ int main(const int argc, const char* const argv[]) {
                                 ) &&
                                 qualifiedTransitionGrasp(giverMotion) &&
                                 qualifiedTerminalRod(rod) &&
+                                rod.maximumNodeSpeed <=
+                                    kMaximumSettledRodSpeed &&
                                 needleLinearSpeedMps <=
                                     kMaximumSettledNeedleLinearSpeed &&
                                 needleAngularSpeedRadps <=
@@ -21166,7 +21296,8 @@ int main(const int argc, const char* const argv[]) {
                                 residual.residuals.y <=
                                     kMaximumTerminalContactVelocityResidual &&
                                 residual.residuals.z <=
-                                    kMaximumTerminalConeViolation;
+                                    kMaximumTerminalConeViolation &&
+                                baseCadenceFeasible;
                             std::cout << std::setprecision(9)
                                 << "tissue_receiver_alignment_settle_candidate"
                                 << " completed_steps="
@@ -21193,6 +21324,24 @@ int main(const int argc, const char* const argv[]) {
                                 << rod.maximumNodeSpeed
                                 << " thread_maximum_edge_error_m="
                                 << rod.maximumEdgeLengthError
+                                << " active_matter_contacts="
+                                << contactGuard.activeContacts
+                                << " minimum_contact_separation_m="
+                                << contactGuard.minimumSeparationM
+                                << " minimum_admission_normal_velocity_mps="
+                                << contactGuard
+                                       .minimumAdmissionNormalVelocityMps
+                                << " minimum_predicted_base_separation_m="
+                                << contactGuard
+                                       .minimumPredictedBaseSeparationM
+                                << " maximum_required_separation_m="
+                                << contactGuard.maximumRequiredSeparationM
+                                << " minimum_predicted_base_margin_m="
+                                << contactGuard.minimumPredictedBaseMarginM
+                                << " authored_contact_floor_m="
+                                << authoredContactFeasibilityFloorM
+                                << " base_cadence_feasible="
+                                << baseCadenceFeasible
                                 << " terminal_contact_velocity_residual_mps="
                                 << residual.residuals.y
                                 << " terminal_cone_violation="
@@ -21263,8 +21412,60 @@ int main(const int argc, const char* const argv[]) {
                             "live receiver alignment did not reach two "
                             "consecutive quiescent completion chunks"
                         );
+                        require(
+                            liveAlignmentSettleStream.completedSteps %
+                                    kReceiverAlignmentSettleTimestepDivisor ==
+                                0u,
+                            "refined receiver alignment steps do not map "
+                                "exactly to base DER substeps"
+                        );
+                        const std::uint32_t
+                            refinedAlignmentSettleBaseDERSubsteps =
+                                liveAlignmentSettleStream.completedSteps /
+                                kReceiverAlignmentSettleTimestepDivisor;
+                        selectCoupledCadence(
+                            kSutureContactMatterRateMultiplier,
+                            "receiver alignment base-cadence proof"
+                        );
+                        const std::uint32_t liveAlignmentBaseProofSteps =
+                            std::max<std::uint32_t>(
+                                1u,
+                                static_cast<std::uint32_t>(std::llround(
+                                    kLiveReceiverChunkDurationS /
+                                    static_cast<double>(
+                                        stepConfig.timestepSeconds
+                                    )
+                                ))
+                            );
+                        liveAlignmentHoldEfforts =
+                            interpolateLiveReceiverTargets(
+                                liveAlignmentSettleStream.terminal.result
+                                    .finalQ,
+                                liveReceiverAlignment.finalTarget,
+                                liveAlignmentBaseProofSteps
+                            );
+                        LiveReceiverStreamResult
+                            liveAlignmentBaseProofStream =
+                                continueLiveReceiverStream(
+                                    liveAlignmentHoldEfforts,
+                                    liveAlignmentBaseProofSteps,
+                                    "live tissue receiver base-cadence proof",
+                                    "tissue_receiver_alignment_base_cadence_"
+                                    "proof",
+                                    receiverTissueSpec.thicknessM.value
+                                );
+                        require(
+                            alignmentQuiescent(
+                                liveAlignmentBaseProofStream.terminal,
+                                refinedAlignmentSettleBaseDERSubsteps +
+                                    liveAlignmentBaseProofSteps
+                            ),
+                            "live receiver alignment did not preserve its "
+                                "contact-safe quiescent state at the base DER "
+                                "cadence"
+                        );
                         PhaseResult liveAligned = std::move(
-                            liveAlignmentSettleStream.terminal
+                            liveAlignmentBaseProofStream.terminal
                         );
                         const numi::matter::RuntimeStateSnapshot
                             alignmentSettledMatter = tissueRuntime.snapshot();
@@ -21274,8 +21475,10 @@ int main(const int argc, const char* const argv[]) {
                             postBridgeBaseDERSubsteps +
                                 static_cast<std::uint64_t>(
                                     liveAlignmentSteps +
-                                    liveAlignmentSettleStream.completedSteps
-                                ) * embeddedNeedleCadenceBaseDERSubsteps,
+                                    liveAlignmentBaseProofSteps
+                                ) *
+                                    embeddedNeedleCadenceBaseDERSubsteps +
+                                refinedAlignmentSettleBaseDERSubsteps,
                             world,
                             sutureSpec,
                             liveAligned.result,
@@ -21761,10 +21964,11 @@ int main(const int argc, const char* const argv[]) {
                         const std::uint32_t
                             liveAcquisitionBaseDERSubsteps =
                                 (liveAlignmentSteps +
-                                    liveAlignmentSettleStream.completedSteps +
+                                    liveAlignmentBaseProofSteps +
                                     liveApproachSteps +
                                     liveApproachHoldSteps) *
                                     embeddedNeedleCadenceBaseDERSubsteps +
+                                refinedAlignmentSettleBaseDERSubsteps +
                                 (liveClosureSteps +
                                     liveClosureHoldSteps +
                                     liveLoadExchangeSteps +
@@ -21773,6 +21977,7 @@ int main(const int argc, const char* const argv[]) {
                         const double liveAcquisitionGpuMilliseconds =
                             liveAlignmentStream.gpuMilliseconds +
                             liveAlignmentSettleStream.gpuMilliseconds +
+                            liveAlignmentBaseProofStream.gpuMilliseconds +
                             liveApproachStream.gpuMilliseconds +
                             liveApproachHoldStream.gpuMilliseconds +
                             liveClosureStream.gpuMilliseconds +
@@ -21820,6 +22025,12 @@ int main(const int argc, const char* const argv[]) {
                             << " alignment_steps=" << liveAlignmentSteps
                             << " alignment_settle_steps="
                             << liveAlignmentSettleStream.completedSteps
+                            << " alignment_settle_refinement_divisor="
+                            << kReceiverAlignmentSettleTimestepDivisor
+                            << " alignment_settle_base_der_substeps="
+                            << refinedAlignmentSettleBaseDERSubsteps
+                            << " alignment_base_proof_steps="
+                            << liveAlignmentBaseProofSteps
                             << " approach_steps=" << liveApproachSteps
                             << " approach_contact_samples="
                             << liveApproachNeedleContactSamples
