@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -7506,29 +7507,38 @@ std::uint32_t parseIndex(
     const std::string_view text,
     const std::string_view label
 ) {
-    std::size_t consumed = 0u;
-    const std::string owned{text};
-    const unsigned long value = std::stoul(owned, &consumed);
+    std::uint32_t value = 0u;
+    const auto [end, error] = std::from_chars(
+        text.data(),
+        text.data() + text.size(),
+        value,
+        10
+    );
     require(
-        consumed == owned.size() &&
-            value <= std::numeric_limits<std::uint32_t>::max(),
+        !text.empty() && error == std::errc{} &&
+            end == text.data() + text.size(),
         "handoff resume contains an invalid " + std::string{label}
     );
-    return static_cast<std::uint32_t>(value);
+    return value;
 }
 
 std::uint64_t parseUnsigned64(
     const std::string_view text,
     const std::string_view label
 ) {
-    std::size_t consumed = 0u;
-    const std::string owned{text};
-    const unsigned long long value = std::stoull(owned, &consumed);
+    std::uint64_t value = 0u;
+    const auto [end, error] = std::from_chars(
+        text.data(),
+        text.data() + text.size(),
+        value,
+        10
+    );
     require(
-        consumed == owned.size(),
+        !text.empty() && error == std::errc{} &&
+            end == text.data() + text.size(),
         "handoff resume contains an invalid " + std::string{label}
     );
-    return static_cast<std::uint64_t>(value);
+    return value;
 }
 
 void updateNeedleInverseInertia(
