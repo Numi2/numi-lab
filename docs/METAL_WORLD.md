@@ -716,22 +716,42 @@ reported as `metalworld_warmstart=cold_reinitialized`: Matter continuation is
 exact, while MetalWorld contact-manifold and warm-start caches are not archived,
 so uninterrupted resident equivalence is not claimed.
 
-A long resident Apple M4 receiver-acquisition replay exposed a narrower live
+A long resident Apple M4 receiver-acquisition replay first exposed a narrow live
 boundary after the complete stand-off alignment. At 36 ms into its nominal
 hold, a valid strand/tissue proxy contact carried 4.969391739 um separation and
 -6.039572414 mm/s admission-normal velocity. Matter correctly rolled the
 transaction back: the sample was 30.608261 nm below the unchanged 5 um IPC
 collision floor and the pending Newton correction moved a further 25.372575 nm
-inward. The acquisition therefore remains unqualified; neither finiteness nor
-the completed arm trajectory is accepted as contact feasibility. The operative
-path now refines only this alignment-settling interval from 62.5 us to 31.25 us,
-requires two consecutive quiescent 4 ms chunks with strand speed at or below
-20 mm/s, and mirrors the live Metal line-search floor including its
-coordinate-scaled FP32 CCD roundoff. Every active contact must predict positive
-margin for a complete future 62.5 us step. The runtime then restores the base
-cadence and executes another 4 ms physical proof before publishing the settled
-checkpoint. No contact tolerance or residual gate is relaxed; a fresh long M4
-replay is still required to qualify the repair.
+inward. The first repair refined only this alignment-settling interval. A fresh
+resident replay then exposed the same class of boundary upstream, during the
+open receiver's collision-free alignment motion: after 384 accepted 62.5 us
+steps the needle had accelerated to 8.9286892 mm/s and 2.88587072 rad/s, and the
+next bounded transaction rolled back a tissue sample with -0.110274414 um
+separation and -182.18784 mm/s admission-normal velocity. Tissue topology was
+still conserved, all 40,800 tetrahedra remained active, and the last accepted
+minimum determinant was 0.994691253; the failure was contact feasibility, not a
+fracture surrogate.
+
+The same saved bridge's causal rigid/DER replay, deliberately excluding the
+private Matter state, produced byte-identical stationary and receiver-alignment
+branches (`trajectory_state_fnv64=0x8e76be314e86f69b`). Both branches peaked at
+0.106595612 mm/s needle speed, 0.0380236393 rad/s angular speed, and
+0.660966791 mm/s temporal-cone velocity residual. This isolates the observed
+acceleration to the live needle/strand/tissue interaction rather than the open
+receiver trajectory; it does not itself qualify tissue continuation.
+
+The acquisition therefore remains unqualified; neither finiteness nor the
+collision-free arm trajectory is accepted as dynamic contact feasibility. The
+operative path now refines the complete alignment motion and settling interval
+from 62.5 us to 31.25 us, requires two consecutive quiescent 4 ms chunks with
+strand speed at or below 20 mm/s, and mirrors the live Metal line-search floor
+including its coordinate-scaled FP32 CCD roundoff. Refined motion and settling
+are converted explicitly back to 62.5 us DER substep counts in every checkpoint.
+Every active contact must predict positive margin for a complete future base
+step. The runtime then restores the base cadence and executes another 4 ms
+physical proof before publishing the settled checkpoint. No contact tolerance
+or residual gate is relaxed; a fresh long M4 replay is still required to qualify
+the expanded repair.
 
 The dual-PSM operative probe keeps post-extraction needle transport separate
 from the next bite. It first translates the receiver-held complete half-circle

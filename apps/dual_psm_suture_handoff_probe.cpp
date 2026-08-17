@@ -163,12 +163,15 @@ constexpr std::uint32_t kSutureContactMatterRateMultiplier = 1u;
 // The dynamic receiver bridge exposed a real strand-wall boundary case during
 // the nominal hold: a 6.04 mm/s inward DER proxy predictor advanced 30.6 nm
 // below Matter's unchanged 5 um IPC feasibility floor before the next Newton
-// correction.  Refine only the receiver-alignment settling interval to 31.25
-// us.  Before returning to the 62.5 us operative cadence, require every live
-// contact's measured admission velocity to predict a strictly feasible full
-// base step and execute one complete base-cadence proof chunk.  This preserves
-// the authored contact tolerance rather than accepting a penetrated iterate.
-constexpr std::uint32_t kReceiverAlignmentSettleTimestepDivisor = 2u;
+// correction.  A subsequent resident replay showed that the same boundary can
+// be reached during the open receiver's collision-free frame-alignment motion,
+// before the former settling-only refinement was selected.  Refine the complete
+// receiver-alignment interval to 31.25 us.  Before returning to the 62.5 us
+// operative cadence, require every live contact's measured admission velocity
+// to predict a strictly feasible full base step and execute one complete
+// base-cadence proof chunk.  This preserves the authored contact tolerance
+// rather than accepting a penetrated iterate.
+constexpr std::uint32_t kReceiverAlignmentTimestepDivisor = 2u;
 // The 2 mm guard is larger than the 0.35 mm tract radius, 0.10 mm strand
 // radius, and 0.10 mm contact band combined, so the base cadence is active
 // before the first possible rim interaction.
@@ -24307,10 +24310,29 @@ int main(const int argc, const char* const argv[]) {
                             );
                         };
 
+                        selectCoupledCadence(
+                            1u,
+                            "receiver alignment contact-safe motion and "
+                            "settling",
+                            kReceiverAlignmentTimestepDivisor
+                        );
+                        const double liveAlignmentTimestepSeconds =
+                            stepConfig.timestepSeconds;
                         const std::uint32_t liveAlignmentSteps =
                             liveReceiverSteps(
                                 kLiveReceiverStandOffAlignmentSteps
                             );
+                        require(
+                            liveAlignmentSteps %
+                                    kReceiverAlignmentTimestepDivisor ==
+                                0u,
+                            "refined receiver alignment motion does not map "
+                                "exactly to base DER substeps"
+                        );
+                        const std::uint32_t
+                            refinedAlignmentMotionBaseDERSubsteps =
+                                liveAlignmentSteps /
+                                kReceiverAlignmentTimestepDivisor;
                         const ArmTrajectory liveReceiverAlignment =
                             frameArmTrajectory(
                                 world.model,
@@ -24380,9 +24402,7 @@ int main(const int argc, const char* const argv[]) {
                             options.stateOutputDirectory,
                             "tissue-receiver-alignment-motion",
                             postBridgeBaseDERSubsteps +
-                                static_cast<std::uint64_t>(
-                                    liveAlignmentSteps
-                                ) * embeddedNeedleCadenceBaseDERSubsteps,
+                                refinedAlignmentMotionBaseDERSubsteps,
                             world,
                             sutureSpec,
                             liveAlignmentStream.terminal.result,
@@ -24390,11 +24410,6 @@ int main(const int argc, const char* const argv[]) {
                         );
                         PhaseResult liveAlignmentMotion = std::move(
                             liveAlignmentStream.terminal
-                        );
-                        selectCoupledCadence(
-                            1u,
-                            "receiver alignment contact-safe settling",
-                            kReceiverAlignmentSettleTimestepDivisor
                         );
                         const std::uint32_t
                             liveAlignmentMinimumSettleSteps =
@@ -24726,7 +24741,7 @@ int main(const int argc, const char* const argv[]) {
                         );
                         require(
                             liveAlignmentSettleStream.completedSteps %
-                                    kReceiverAlignmentSettleTimestepDivisor ==
+                                    kReceiverAlignmentTimestepDivisor ==
                                 0u,
                             "refined receiver alignment steps do not map "
                                 "exactly to base DER substeps"
@@ -24734,7 +24749,7 @@ int main(const int argc, const char* const argv[]) {
                         const std::uint32_t
                             refinedAlignmentSettleBaseDERSubsteps =
                                 liveAlignmentSettleStream.completedSteps /
-                                kReceiverAlignmentSettleTimestepDivisor;
+                                kReceiverAlignmentTimestepDivisor;
                         selectCoupledCadence(
                             kSutureContactMatterRateMultiplier,
                             "receiver alignment base-cadence proof"
@@ -24785,12 +24800,11 @@ int main(const int argc, const char* const argv[]) {
                             options.stateOutputDirectory,
                             "tissue-receiver-alignment-settled",
                             postBridgeBaseDERSubsteps +
+                                refinedAlignmentMotionBaseDERSubsteps +
+                                refinedAlignmentSettleBaseDERSubsteps +
                                 static_cast<std::uint64_t>(
-                                    liveAlignmentSteps +
                                     liveAlignmentBaseProofSteps
-                                ) *
-                                    embeddedNeedleCadenceBaseDERSubsteps +
-                                refinedAlignmentSettleBaseDERSubsteps,
+                                ) * embeddedNeedleCadenceBaseDERSubsteps,
                             world,
                             sutureSpec,
                             liveAligned.result,
@@ -24909,7 +24923,9 @@ int main(const int argc, const char* const argv[]) {
                             << liveAlignmentSteps
                             << " execution_insertion_steps="
                             << liveApproachSteps
-                            << " execution_cadence_s="
+                            << " alignment_execution_cadence_s="
+                            << liveAlignmentTimestepSeconds
+                            << " insertion_execution_cadence_s="
                             << embeddedNeedleCadenceSeconds
                             << " needle_contact_samples=0\n";
                         LiveReceiverStreamResult liveApproachStream =
@@ -25275,12 +25291,12 @@ int main(const int argc, const char* const argv[]) {
                         );
                         const std::uint32_t
                             liveAcquisitionBaseDERSubsteps =
-                                (liveAlignmentSteps +
-                                    liveAlignmentBaseProofSteps +
+                                refinedAlignmentMotionBaseDERSubsteps +
+                                refinedAlignmentSettleBaseDERSubsteps +
+                                (liveAlignmentBaseProofSteps +
                                     liveApproachSteps +
                                     liveApproachHoldSteps) *
                                     embeddedNeedleCadenceBaseDERSubsteps +
-                                refinedAlignmentSettleBaseDERSubsteps +
                                 (liveClosureSteps +
                                     liveClosureHoldSteps +
                                     liveLoadExchangeSteps +
@@ -25335,10 +25351,16 @@ int main(const int argc, const char* const argv[]) {
                         std::cout << std::setprecision(9)
                             << "tissue_receiver_acquisition=ok"
                             << " alignment_steps=" << liveAlignmentSteps
+                            << " alignment_timestep_s="
+                            << liveAlignmentTimestepSeconds
+                            << " alignment_motion_refinement_divisor="
+                            << kReceiverAlignmentTimestepDivisor
+                            << " alignment_motion_base_der_substeps="
+                            << refinedAlignmentMotionBaseDERSubsteps
                             << " alignment_settle_steps="
                             << liveAlignmentSettleStream.completedSteps
                             << " alignment_settle_refinement_divisor="
-                            << kReceiverAlignmentSettleTimestepDivisor
+                            << kReceiverAlignmentTimestepDivisor
                             << " alignment_settle_base_der_substeps="
                             << refinedAlignmentSettleBaseDERSubsteps
                             << " alignment_base_proof_steps="
