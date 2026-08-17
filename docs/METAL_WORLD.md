@@ -486,8 +486,22 @@ support before pulling one endpoint at 2 mm/s. Acceptance requires at least
 36/40 bilateral loaded steps, terminal bilateral contact, exact replay,
 nonzero tangential impulse, greater pull resistance, and less absolute
 centre-node slip than the same Metal solve with zero insert friction. Full
-six-axis targeting of the post-bite strand and retention throughout the throw
-sequence remain open execution boundaries.
+retention throughout the throw sequence remains an open execution boundary.
+
+The six-axis pre-grasp boundary is owned by `SurgicalThreadTargeting`. It scans
+the resolved DER centreline rather than an authored straight fixture, retains
+the source-pinned 1.4 mm span of the four proximal LND thread patches, and
+rejects insufficient working/tail arc, excessive local bend, live triangle-
+surface encroachment, and collision with the complete finite-capsule needle.
+It returns a deterministic right-handed rail/separation/approach frame. The
+standalone probe supplies exact replay and blocked-needle, near-surface, and
+malformed-topology controls. The operative `--tissue-thread-target-only` mode
+is stricter: it requires a v3 `tissue-opposing-bite-passage` checkpoint, uses
+its restored DER, needle, and deformed FEM state, applies the conservative 4 mm
+radius of the 8 mm instrument as the target envelope, then runs velocity-limited
+giver IK and sampled cross-arm, support, and needle collision audits. It
+reports `physics_advanced=no`; jaw closure, live thread contact, retention, and
+throw execution remain subsequent authorities.
 
 The surgical visual probe accepts the finite set of transactionally published
 dual-PSM operative checkpoints through receiver extraction and the opposing

@@ -278,6 +278,34 @@ separate execution boundaries.
 ./build-coupled-dev/bin/metalrobo_surgical_thread_grasp_probe
 ```
 
+`SurgicalThreadTargeting` resolves the next targeting boundary from an actual
+DER centreline. It requires enough arc length on both sides of the proposed
+grasp, a locally straight window spanning the real 1.4 mm LND thread-insert
+patches, clearance from a triangle surface and every finite needle capsule,
+and a right-handed rail/separation/approach frame. Its deterministic probe
+displaces the preferred grasp around a blocking needle, reproduces the target
+exactly, and rejects both an unsafe near-surface strand and malformed surface
+topology.
+
+```sh
+./build-coupled-dev/bin/metalrobo_surgical_thread_targeting_probe
+```
+
+The operative `--tissue-thread-target-only` gate accepts only a v3
+`tissue-opposing-bite-passage` checkpoint. It restores the exact Matter and
+MetalWorld reset, builds the surface from live FEM nodes, uses the restored DER
+nodes and needle pose, then requires velocity-limited giver PSM IK plus sampled
+cross-arm, support-pad, and needle clearance on the open-jaw approach. This
+command does not advance physics or claim thread contact, frictional retention,
+or robot-tied knot formation.
+
+```sh
+./build-coupled-dev/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-thread-target-only \
+  --resume-tissue-checkpoint tissue-opposing-bite-passage \
+  build-coupled-dev/testing/suture/tissue-opposing-bite-passage.tsv
+```
+
 ## Loaded PDO knot-contact mechanics
 
 The rod solver now resolves a bounded network of frictional thread/thread
