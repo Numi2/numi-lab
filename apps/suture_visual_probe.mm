@@ -7,6 +7,7 @@
 #include "metalrobo/MetalHybridRenderer.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
 #include "metalrobo/SurgicalAssets.hpp"
+#include "metalrobo/SurgicalKnot.hpp"
 #include "metalrobo/SurgicalPSM.hpp"
 #include "metalrobo/SurgicalVisual.hpp"
 #include "metalrobo/SurgicalWorld.hpp"
@@ -629,18 +630,49 @@ PickupState readPickupState(const std::filesystem::path& path) {
                 fields[2],
                 "knot protocol fingerprint"
             );
+            const std::uint64_t protocolRevision = integer(
+                fields[1],
+                "knot protocol revision"
+            );
+            const std::uint64_t expectedWholeTurns = integer(
+                fields[5],
+                "knot whole turns"
+            );
+            const double expectedWindingSign = number(
+                fields[6],
+                "knot winding sign"
+            );
+            const double expectedTransferSign = number(
+                fields[7],
+                "knot transfer sign"
+            );
+            const auto protocol =
+                metalrobo::makeSurgeonsKnotInstrumentProtocol();
+            const bool throwIndexInRange =
+                throwIndex <= protocol.squareSingleThrows.size();
+            const metalrobo::SurgicalThrowPath* path = nullptr;
+            if (throwIndexInRange) {
+                path = throwIndex == 0u
+                    ? &protocol.firstDoubleThrow
+                    : &protocol.squareSingleThrows[throwIndex - 1u];
+            }
             require(
-                integer(fields[1], "knot protocol revision") != 0u &&
-                    protocolFingerprint != 0u &&
-                    integer(fields[5], "knot whole turns") != 0u &&
+                protocolRevision == 1u &&
+                    protocolFingerprint ==
+                        metalrobo::
+                            surgeonsKnotInstrumentProtocolFingerprint(
+                                protocol
+                            ) &&
+                    path != nullptr &&
+                    expectedWholeTurns == path->expectedWholeTurns &&
+                    expectedWindingSign == path->expectedWindingSign &&
+                    expectedTransferSign == path->expectedTransferSign &&
                     throwIndex <=
                         std::numeric_limits<std::uint32_t>::max() &&
                     completedSample <=
                         std::numeric_limits<std::uint32_t>::max() &&
-                    std::abs(number(fields[6], "knot winding sign")) ==
-                        1.0 &&
-                    std::abs(number(fields[7], "knot transfer sign")) ==
-                        1.0,
+                    std::abs(expectedWindingSign) == 1.0 &&
+                    std::abs(expectedTransferSign) == 1.0,
                 "handoff knot protocol row is invalid"
             );
             result.knotThrowIndex =
