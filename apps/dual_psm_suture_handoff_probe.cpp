@@ -93,12 +93,12 @@ constexpr std::array<std::uint32_t, 4> kJawBTeeth{17u, 19u, 21u, 23u};
 constexpr std::uint32_t kNeedleFirstShape =
     2u * metalrobo::kSurgicalPSMShapeCount;
 constexpr std::uint32_t kGiverNeedleShape = 14u;
-constexpr std::uint32_t kReceiverNeedleShape = 19u;
-// The distal-side extraction fixture centers one segment inside the authored
+// Both handoff and distal extraction center one segment inside the authored
 // handling interval. Centering on the exclusive boundary-adjacent shape 19
 // lets finite jaw patches also touch shape 20, beyond the one-third-to-one-half
 // handling zone, even though the centreline target itself is valid.
-constexpr std::uint32_t kExtractionNeedleShape = 18u;
+constexpr std::uint32_t kReceiverNeedleShape = 18u;
+constexpr std::uint32_t kExtractionNeedleShape = kReceiverNeedleShape;
 constexpr double kControlTimestep = 0.002;
 constexpr std::uint32_t kPhysicsSubsteps = 32u;
 // The first puncture gate is intentionally a research qualification value,
@@ -4869,9 +4869,11 @@ ThreadGraspContactCounts threadGraspContactCounts(
 }
 
 bool bilateral(const ContactCounts& counts, const std::uint32_t arm) {
+    const std::uint32_t jawContactCount =
+        counts.jawContacts[arm][0] + counts.jawContacts[arm][1];
     return counts.jawContacts[arm][0] != 0u &&
         counts.jawContacts[arm][1] != 0u &&
-        counts.graspZoneContacts[arm] >= 2u;
+        counts.graspZoneContacts[arm] == jawContactCount;
 }
 
 bool transverseInsertCoverage(
@@ -29975,7 +29977,9 @@ int main(const int argc, const char* const argv[]) {
             );
             require(
                 bilateral(overlapContacts, 0u) &&
+                    transverseInsertCoverage(overlapContacts, 0u) &&
                     bilateral(overlapContacts, 1u) &&
+                    distributedInsertCoverage(overlapContacts, 1u) &&
                     cleanNeedleInteraction(
                         overlapContacts,
                         true,
@@ -30642,7 +30646,9 @@ int main(const int argc, const char* const argv[]) {
                 );
                 audit.qualified =
                     bilateral(audit.contacts, 0u) &&
+                    transverseInsertCoverage(audit.contacts, 0u) &&
                     bilateral(audit.contacts, 1u) &&
+                    distributedInsertCoverage(audit.contacts, 1u) &&
                     cleanNeedleInteraction(
                         audit.contacts,
                         true,
@@ -33256,7 +33262,9 @@ int main(const int argc, const char* const argv[]) {
         );
         require(
             bilateral(overlapContacts, 0u) &&
+                transverseInsertCoverage(overlapContacts, 0u) &&
                 bilateral(overlapContacts, 1u) &&
+                distributedInsertCoverage(overlapContacts, 1u) &&
                 cleanNeedleInteraction(overlapContacts, true, true) &&
                 // First receiver contact may seat the curved needle between
                 // two finite V-grooves. This is the same single sub-radius
@@ -33455,7 +33463,15 @@ int main(const int argc, const char* const argv[]) {
             << contactSummary(loadExchangeMotionContacts) << '\n';
         require(
             bilateral(loadExchangeMotionContacts, 0u) &&
+                transverseInsertCoverage(
+                    loadExchangeMotionContacts,
+                    0u
+                ) &&
                 bilateral(loadExchangeMotionContacts, 1u) &&
+                distributedInsertCoverage(
+                    loadExchangeMotionContacts,
+                    1u
+                ) &&
                 cleanNeedleInteraction(
                     loadExchangeMotionContacts,
                     true,
@@ -33566,7 +33582,9 @@ int main(const int argc, const char* const argv[]) {
             );
             audit.qualified =
                 bilateral(audit.contacts, 0u) &&
+                transverseInsertCoverage(audit.contacts, 0u) &&
                 bilateral(audit.contacts, 1u) &&
+                distributedInsertCoverage(audit.contacts, 1u) &&
                 cleanNeedleInteraction(audit.contacts, true, true) &&
                 qualifiedTransitionGrasp(audit.giverMotion) &&
                 qualifiedTransitionGrasp(audit.receiverMotion) &&
@@ -33711,7 +33729,9 @@ int main(const int argc, const char* const argv[]) {
             << contactSummary(loadExchangeContacts) << '\n';
         require(
             bilateral(loadExchangeContacts, 0u) &&
+                transverseInsertCoverage(loadExchangeContacts, 0u) &&
                 bilateral(loadExchangeContacts, 1u) &&
+                distributedInsertCoverage(loadExchangeContacts, 1u) &&
                 cleanNeedleInteraction(
                     loadExchangeContacts,
                     true,
