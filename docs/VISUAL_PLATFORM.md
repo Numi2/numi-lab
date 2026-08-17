@@ -162,6 +162,14 @@ before rendering.
 The support field retains semantic identity `301`; tissue uses independent
 identity `302`, so render qualification must observe the jejunal surface in
 both surgical views rather than satisfying coverage with the pad alone.
+Live-tissue evidence compacts the verified exterior boundary before upload;
+it preserves every retained FEM position and triangle winding while omitting
+interior nodes that cannot contribute a drawable surface. The two inferred
+fixed-end bars use identity `303`. They touch the exact terminal fixed-node
+planes and make the coupon's Dirichlet support visible, but remain
+presentation-only boxes: they add no collision shape, contact, constraint, or
+physics authority. Matter visual evidence schema v3 reports their triangle and
+per-view pixel counts independently from tissue coverage.
 `MetalHybridObjectTracker` is the native closed-loop adapter: it renders on a
 borrowed `MetalWorld` command buffer, reduces metric depth and instance
 identity into compact root-local object position and velocity tracks, and
