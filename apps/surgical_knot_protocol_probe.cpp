@@ -2,10 +2,14 @@
 #include "metalrobo/SurgicalPSM.hpp"
 
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -78,6 +82,126 @@ int main() {
             "missing first-throw wrap was not rejected"
         );
 
+        constexpr std::uint32_t kThreadNodeCount = 128u;
+        constexpr double kThreadLengthM = 0.25;
+        std::vector<metalrobo::SurgicalKnotPoint> threadRestNodes;
+        threadRestNodes.reserve(kThreadNodeCount);
+        for (std::uint32_t node = 0u;
+             node < kThreadNodeCount;
+             ++node) {
+            threadRestNodes.push_back({
+                kThreadLengthM * static_cast<double>(node) /
+                    static_cast<double>(kThreadNodeCount - 1u),
+                0.0,
+                0.0,
+            });
+        }
+        const metalrobo::SurgicalSutureMaterialPlanSpec materialSpec{
+            // Intracorporeal technique guidance limits the prepared short end
+            // to 20 mm. The working requirement covers the protocol's two
+            // 12 mm-radius wraps, transfer, and finite jaw reserve.
+            .targetFreeTailLengthM = 0.019,
+            .freeTailToleranceM = 0.001,
+            .minimumWorkingArcLengthM = 0.180,
+            .minimumStitchArcLengthM = 0.006,
+            .maximumDrawPerStrokeM = 0.025,
+            .maximumStrokeCount = 16u,
+        };
+        const auto materialPlan =
+            metalrobo::planSurgicalSuturePullThrough(
+                threadRestNodes,
+                25u,
+                20u,
+                materialSpec
+            );
+        const auto materialReplay =
+            metalrobo::planSurgicalSuturePullThrough(
+                threadRestNodes,
+                25u,
+                20u,
+                materialSpec
+            );
+        require(
+            materialPlan.succeeded() && materialReplay.succeeded() &&
+                materialPlan.strokes.size() == 8u &&
+                materialPlan.strokes.size() ==
+                    materialReplay.strokes.size() &&
+                std::abs(
+                    materialPlan.target.freeTailLengthM -
+                    materialSpec.targetFreeTailLengthM
+                ) <= 1.0e-12 &&
+                materialPlan.target.workingArcLengthM >=
+                    materialSpec.minimumWorkingArcLengthM &&
+                materialPlan.current.stitchArcLengthM >=
+                    materialSpec.minimumStitchArcLengthM &&
+                materialPlan.current.conservationErrorM <= 1.0e-12 &&
+                materialPlan.target.conservationErrorM <= 1.0e-12,
+            "source-sized suture did not produce a bounded knot pull plan"
+        );
+        for (std::size_t stroke = 0u;
+             stroke < materialPlan.strokes.size();
+             ++stroke) {
+            const auto& accepted = materialPlan.strokes[stroke];
+            const auto& replayed = materialReplay.strokes[stroke];
+            require(
+                accepted.index == replayed.index &&
+                    accepted.drawLengthM == replayed.drawLengthM &&
+                    accepted.freeTailBeforeM ==
+                        replayed.freeTailBeforeM &&
+                    accepted.freeTailAfterM ==
+                        replayed.freeTailAfterM &&
+                    accepted.drawLengthM <=
+                        materialSpec.maximumDrawPerStrokeM &&
+                    (stroke == 0u ||
+                     accepted.freeTailBeforeM ==
+                        materialPlan.strokes[stroke - 1u]
+                            .freeTailAfterM),
+                "pull-stroke material coordinates were not exact"
+            );
+        }
+        const auto reversedMaterial =
+            metalrobo::planSurgicalSuturePullThrough(
+                threadRestNodes,
+                20u,
+                25u,
+                materialSpec
+            );
+        require(
+            reversedMaterial.status ==
+                metalrobo::SurgicalSutureMaterialPlanStatus::
+                    reversedTractOrder,
+            "reversed two-bite material order was not rejected"
+        );
+        auto overPulledSpec = materialSpec;
+        overPulledSpec.targetFreeTailLengthM = 0.210;
+        const auto overPulled =
+            metalrobo::planSurgicalSuturePullThrough(
+                threadRestNodes,
+                25u,
+                20u,
+                overPulledSpec
+            );
+        require(
+            overPulled.status ==
+                metalrobo::SurgicalSutureMaterialPlanStatus::overPulledTail,
+            "over-pulled free tail was not rejected"
+        );
+        auto capacitySpec = materialSpec;
+        capacitySpec.maximumStrokeCount = 7u;
+        const auto insufficientStrokeCapacity =
+            metalrobo::planSurgicalSuturePullThrough(
+                threadRestNodes,
+                25u,
+                20u,
+                capacitySpec
+            );
+        require(
+            insufficientStrokeCapacity.status ==
+                metalrobo::SurgicalSutureMaterialPlanStatus::
+                    strokeCapacityExceeded,
+            "undersized pull-stroke budget was not rejected"
+        );
+
         const auto& psm = metalrobo::surgicalPSMMetadata();
         std::cout << std::setprecision(9)
             << "surgical_knot_protocol=ok"
@@ -113,9 +237,27 @@ int main() {
             << diagnostics.reversingSingleThrow.finalCinchSeparationM -
                 diagnostics.reversingSingleThrow
                     .initialCinchSeparationM
+            << " material_current_working_arc_m="
+            << materialPlan.current.workingArcLengthM
+            << " material_stitch_arc_m="
+            << materialPlan.current.stitchArcLengthM
+            << " material_current_free_tail_m="
+            << materialPlan.current.freeTailLengthM
+            << " material_required_draw_m="
+            << materialPlan.requiredDrawLengthM
+            << " material_target_working_arc_m="
+            << materialPlan.target.workingArcLengthM
+            << " material_target_free_tail_m="
+            << materialPlan.target.freeTailLengthM
+            << " pull_strokes=" << materialPlan.strokes.size()
+            << " pull_maximum_stroke_m="
+            << materialSpec.maximumDrawPerStrokeM
             << " negative_same_handed=reject"
             << " negative_missing_wrap=reject"
             << " negative_gate_miss=reject"
+            << " negative_reversed_tract_order=reject"
+            << " negative_over_pulled_tail=reject"
+            << " negative_stroke_capacity=reject"
             << " boundary=instrument_trajectory_only_not_live_thread_or_robot"
             << '\n';
         return 0;

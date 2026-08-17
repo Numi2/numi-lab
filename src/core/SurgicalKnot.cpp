@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
 #include <limits>
 #include <numbers>
 #include <stdexcept>
@@ -480,6 +481,192 @@ SurgeonsKnotProtocolDiagnostics certifySurgeonsKnotInstrumentProtocol(
     return diagnostics;
 }
 
+SurgicalSutureMaterialPlan planSurgicalSuturePullThrough(
+    const std::span<const SurgicalKnotPoint> threadRestNodes,
+    const std::uint32_t firstTractEdge,
+    const std::uint32_t opposingTractEdge,
+    const SurgicalSutureMaterialPlanSpec& spec
+) {
+    SurgicalSutureMaterialPlan plan;
+    if (threadRestNodes.size() < 3u) {
+        plan.status =
+            SurgicalSutureMaterialPlanStatus::invalidDimensions;
+        return plan;
+    }
+    if (!std::isfinite(spec.targetFreeTailLengthM) ||
+        !std::isfinite(spec.freeTailToleranceM) ||
+        !std::isfinite(spec.minimumWorkingArcLengthM) ||
+        !std::isfinite(spec.minimumStitchArcLengthM) ||
+        !std::isfinite(spec.maximumDrawPerStrokeM)) {
+        plan.status = SurgicalSutureMaterialPlanStatus::nonfiniteInput;
+        return plan;
+    }
+    if (!(spec.targetFreeTailLengthM > 0.0) ||
+        spec.freeTailToleranceM < 0.0 ||
+        spec.freeTailToleranceM >= spec.targetFreeTailLengthM ||
+        !(spec.minimumWorkingArcLengthM > 0.0) ||
+        !(spec.minimumStitchArcLengthM > 0.0) ||
+        !(spec.maximumDrawPerStrokeM > 0.0) ||
+        spec.maximumStrokeCount == 0u) {
+        plan.status =
+            SurgicalSutureMaterialPlanStatus::invalidSpecification;
+        return plan;
+    }
+
+    std::vector<double> materialCoordinates(threadRestNodes.size(), 0.0);
+    for (std::size_t node = 0u; node < threadRestNodes.size(); ++node) {
+        if (!finite(threadRestNodes[node])) {
+            plan.status =
+                SurgicalSutureMaterialPlanStatus::nonfiniteInput;
+            return plan;
+        }
+        if (node == 0u) {
+            continue;
+        }
+        const double edgeLength = length(subtract(
+            threadRestNodes[node],
+            threadRestNodes[node - 1u]
+        ));
+        if (!(edgeLength > 0.0) || !std::isfinite(edgeLength)) {
+            plan.status =
+                SurgicalSutureMaterialPlanStatus::invalidTopology;
+            return plan;
+        }
+        materialCoordinates[node] =
+            materialCoordinates[node - 1u] + edgeLength;
+    }
+    const std::size_t edgeCount = threadRestNodes.size() - 1u;
+    if (firstTractEdge >= edgeCount ||
+        opposingTractEdge >= edgeCount) {
+        plan.status =
+            SurgicalSutureMaterialPlanStatus::invalidTopology;
+        return plan;
+    }
+    if (opposingTractEdge >= firstTractEdge) {
+        plan.status =
+            SurgicalSutureMaterialPlanStatus::reversedTractOrder;
+        return plan;
+    }
+
+    const auto edgeCenterCoordinate = [&materialCoordinates](
+        const std::uint32_t edge
+    ) {
+        return 0.5 * (
+            materialCoordinates[edge] +
+            materialCoordinates[edge + 1u]
+        );
+    };
+    const auto makeState = [&] (
+        const double opposingCoordinate,
+        const double firstCoordinate
+    ) {
+        SurgicalSutureMaterialState state;
+        state.totalRestLengthM = materialCoordinates.back();
+        state.opposingTractMaterialCoordinateM = opposingCoordinate;
+        state.firstTractMaterialCoordinateM = firstCoordinate;
+        state.workingArcLengthM = opposingCoordinate;
+        state.stitchArcLengthM =
+            firstCoordinate - opposingCoordinate;
+        state.freeTailLengthM =
+            state.totalRestLengthM - firstCoordinate;
+        state.conservationErrorM = std::abs(
+            state.workingArcLengthM + state.stitchArcLengthM +
+                state.freeTailLengthM - state.totalRestLengthM
+        );
+        const auto materialEdge = [&materialCoordinates](
+            const double coordinate
+        ) {
+            const auto after = std::upper_bound(
+                materialCoordinates.begin(),
+                materialCoordinates.end(),
+                coordinate
+            );
+            const std::size_t node = static_cast<std::size_t>(
+                std::distance(materialCoordinates.begin(), after)
+            );
+            return static_cast<std::uint32_t>(std::clamp<std::size_t>(
+                node == 0u ? 0u : node - 1u,
+                0u,
+                materialCoordinates.size() - 2u
+            ));
+        };
+        state.opposingTractEdge = materialEdge(opposingCoordinate);
+        state.firstTractEdge = materialEdge(firstCoordinate);
+        return state;
+    };
+
+    plan.current = makeState(
+        edgeCenterCoordinate(opposingTractEdge),
+        edgeCenterCoordinate(firstTractEdge)
+    );
+    plan.current.opposingTractEdge = opposingTractEdge;
+    plan.current.firstTractEdge = firstTractEdge;
+    if (plan.current.freeTailLengthM <
+        spec.targetFreeTailLengthM - spec.freeTailToleranceM) {
+        plan.status = SurgicalSutureMaterialPlanStatus::overPulledTail;
+        return plan;
+    }
+    if (plan.current.stitchArcLengthM <
+        spec.minimumStitchArcLengthM) {
+        plan.status =
+            SurgicalSutureMaterialPlanStatus::insufficientStitchArc;
+        return plan;
+    }
+
+    plan.requiredDrawLengthM =
+        plan.current.freeTailLengthM >
+                spec.targetFreeTailLengthM + spec.freeTailToleranceM
+            ? plan.current.freeTailLengthM -
+                spec.targetFreeTailLengthM
+            : 0.0;
+    plan.target = makeState(
+        plan.current.opposingTractMaterialCoordinateM +
+            plan.requiredDrawLengthM,
+        plan.current.firstTractMaterialCoordinateM +
+            plan.requiredDrawLengthM
+    );
+    if (plan.target.workingArcLengthM <
+        spec.minimumWorkingArcLengthM) {
+        plan.status =
+            SurgicalSutureMaterialPlanStatus::insufficientWorkingArc;
+        return plan;
+    }
+
+    double remaining = plan.requiredDrawLengthM;
+    double currentTail = plan.current.freeTailLengthM;
+    while (remaining > 1.0e-12) {
+        if (plan.strokes.size() >= spec.maximumStrokeCount) {
+            plan.status =
+                SurgicalSutureMaterialPlanStatus::strokeCapacityExceeded;
+            plan.strokes.clear();
+            return plan;
+        }
+        const double draw = std::min(
+            remaining,
+            spec.maximumDrawPerStrokeM
+        );
+        const double nextTail = currentTail - draw;
+        plan.strokes.push_back({
+            .index = static_cast<std::uint32_t>(plan.strokes.size()),
+            .drawLengthM = draw,
+            .freeTailBeforeM = currentTail,
+            .freeTailAfterM = nextTail,
+        });
+        currentTail = nextTail;
+        remaining -= draw;
+    }
+    if (std::abs(currentTail - plan.target.freeTailLengthM) >
+            1.0e-10 ||
+        plan.target.conservationErrorM > 1.0e-12) {
+        plan.status =
+            SurgicalSutureMaterialPlanStatus::invalidTopology;
+        plan.strokes.clear();
+        return plan;
+    }
+    plan.status = SurgicalSutureMaterialPlanStatus::success;
+    return plan;
+}
+
 const char* surgicalThrowStatusName(
     const SurgicalThrowStatus status
 ) noexcept {
@@ -526,6 +713,34 @@ const char* surgeonsKnotProtocolStatusName(
         return "invalid_reversing_throw";
     case SurgeonsKnotProtocolStatus::invalidThrowSequence:
         return "invalid_throw_sequence";
+    }
+    return "unknown";
+}
+
+const char* surgicalSutureMaterialPlanStatusName(
+    const SurgicalSutureMaterialPlanStatus status
+) noexcept {
+    switch (status) {
+    case SurgicalSutureMaterialPlanStatus::success:
+        return "success";
+    case SurgicalSutureMaterialPlanStatus::invalidDimensions:
+        return "invalid_dimensions";
+    case SurgicalSutureMaterialPlanStatus::nonfiniteInput:
+        return "nonfinite_input";
+    case SurgicalSutureMaterialPlanStatus::invalidTopology:
+        return "invalid_topology";
+    case SurgicalSutureMaterialPlanStatus::invalidSpecification:
+        return "invalid_specification";
+    case SurgicalSutureMaterialPlanStatus::reversedTractOrder:
+        return "reversed_tract_order";
+    case SurgicalSutureMaterialPlanStatus::overPulledTail:
+        return "over_pulled_tail";
+    case SurgicalSutureMaterialPlanStatus::insufficientWorkingArc:
+        return "insufficient_working_arc";
+    case SurgicalSutureMaterialPlanStatus::insufficientStitchArc:
+        return "insufficient_stitch_arc";
+    case SurgicalSutureMaterialPlanStatus::strokeCapacityExceeded:
+        return "stroke_capacity_exceeded";
     }
     return "unknown";
 }

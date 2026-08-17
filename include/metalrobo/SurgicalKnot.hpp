@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <span>
 #include <vector>
 
 namespace metalrobo {
@@ -95,6 +96,60 @@ struct SurgeonsKnotProtocolDiagnostics {
     }
 };
 
+struct SurgicalSutureMaterialPlanSpec {
+    double targetFreeTailLengthM = 0.0;
+    double freeTailToleranceM = 0.0;
+    double minimumWorkingArcLengthM = 0.0;
+    double minimumStitchArcLengthM = 0.0;
+    double maximumDrawPerStrokeM = 0.0;
+    std::uint32_t maximumStrokeCount = 0u;
+};
+
+enum class SurgicalSutureMaterialPlanStatus : std::uint32_t {
+    success = 0u,
+    invalidDimensions,
+    nonfiniteInput,
+    invalidTopology,
+    invalidSpecification,
+    reversedTractOrder,
+    overPulledTail,
+    insufficientWorkingArc,
+    insufficientStitchArc,
+    strokeCapacityExceeded,
+};
+
+struct SurgicalSutureMaterialState {
+    std::uint32_t opposingTractEdge = 0u;
+    std::uint32_t firstTractEdge = 0u;
+    double totalRestLengthM = 0.0;
+    double workingArcLengthM = 0.0;
+    double stitchArcLengthM = 0.0;
+    double freeTailLengthM = 0.0;
+    double opposingTractMaterialCoordinateM = 0.0;
+    double firstTractMaterialCoordinateM = 0.0;
+    double conservationErrorM = 0.0;
+};
+
+struct SurgicalSuturePullStroke {
+    std::uint32_t index = 0u;
+    double drawLengthM = 0.0;
+    double freeTailBeforeM = 0.0;
+    double freeTailAfterM = 0.0;
+};
+
+struct SurgicalSutureMaterialPlan {
+    SurgicalSutureMaterialPlanStatus status =
+        SurgicalSutureMaterialPlanStatus::success;
+    SurgicalSutureMaterialState current{};
+    SurgicalSutureMaterialState target{};
+    double requiredDrawLengthM = 0.0;
+    std::vector<SurgicalSuturePullStroke> strokes;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return status == SurgicalSutureMaterialPlanStatus::success;
+    }
+};
+
 // Deterministic research-scale instrument protocol derived from the
 // source-pinned Large Needle Driver envelope. This is a trajectory fixture,
 // not a claim of clinical technique validation or live robot execution.
@@ -110,12 +165,28 @@ certifySurgeonsKnotInstrumentProtocol(
     const SurgeonsKnotInstrumentProtocol& protocol
 ) noexcept;
 
+// Partitions source material coordinates, not stretched world-space length.
+// DER node zero is the needle/swage end and the final node is the free tail.
+// The return tract must therefore precede the first tract in material order.
+// Pull strokes transfer rest arc from the free-tail side to the working side
+// while preserving the inter-tract stitch span exactly.
+[[nodiscard]] SurgicalSutureMaterialPlan planSurgicalSuturePullThrough(
+    std::span<const SurgicalKnotPoint> threadRestNodes,
+    std::uint32_t firstTractEdge,
+    std::uint32_t opposingTractEdge,
+    const SurgicalSutureMaterialPlanSpec& spec
+);
+
 [[nodiscard]] const char* surgicalThrowStatusName(
     SurgicalThrowStatus status
 ) noexcept;
 
 [[nodiscard]] const char* surgeonsKnotProtocolStatusName(
     SurgeonsKnotProtocolStatus status
+) noexcept;
+
+[[nodiscard]] const char* surgicalSutureMaterialPlanStatusName(
+    SurgicalSutureMaterialPlanStatus status
 ) noexcept;
 
 } // namespace metalrobo

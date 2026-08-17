@@ -254,6 +254,14 @@ This is an instrument-trajectory authority only; it is not evidence that the
 thread formed or retained a knot, that the path is reachable by the articulated
 PSMs, or that a live tissue-coupled robot sequence executed.
 
+The same probe now partitions the 250 mm DER rest material at two tract-owned
+edges. Its source-aware setup targets a 19 mm intracorporeal short end with a
+1 mm tolerance and retains at
+least 180 mm of working arc for the double throw, then emits eight bounded
+25 mm-or-shorter draw strokes while conserving the inter-tract stitch span.
+This turns pull-through into an explicit regrasp plan rather than one
+workspace-invalid long translation; the strokes are not yet live PSM evidence.
+
 ```sh
 ./build-coupled-dev/bin/metalrobo_surgical_knot_protocol_probe
 ```

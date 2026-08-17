@@ -475,6 +475,19 @@ instrument path. The DER self-contact network, temporary jaw/thread grasp,
 articulated reachability, and loaded-knot retention remain independent live
 physics authorities.
 
+Knot preparation now has a separate material-coordinate certificate. It uses
+DER rest arc from the needle swage to the return tract, between the two tracts,
+and from the first tract to the free end; these three intervals must conserve
+the complete 250 mm strand exactly. The research fixture targets a 19 mm short
+end with 1 mm tolerance, staying within the intracorporeal 20 mm limit reported in
+<https://pmc.ncbi.nlm.nih.gov/articles/PMC3015354/>, while reserving 180 mm on
+the working side for the two 12 mm-radius wraps, bight transfer, and finite jaw
+grasp. A 25 mm maximum draw produces eight deterministic regrasp strokes from
+the synthetic two-tract state. Reversed material order, an already over-pulled
+tail, insufficient working/stitch arc, and an undersized stroke budget reject.
+This is a source-aware pull plan, not evidence that either PSM has executed the
+strokes or formed a knot.
+
 Temporary thread handling uses the rod/tool contact graph rather than adding a
 second attachment kind. The focused clamp fixture seats the 0.20 mm PDO 3-0
 strand in four flat proximal medial LND insert patches, distinct from the
