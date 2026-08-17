@@ -7670,7 +7670,7 @@ std::uint64_t loadHandoffState(
             phase = fields.size() == 2u && fields[1] == expectedPhase;
         } else if (fields[0] == "step") {
             require(fields.size() == 2u, "invalid resume step");
-            stateStep = parseIndex(fields[1], "step");
+            stateStep = parseUnsigned64(fields[1], "step");
             haveStep = true;
         } else if (fields[0] == "handoff_staging_completed_steps") {
             require(
